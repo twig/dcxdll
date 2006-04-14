@@ -1,0 +1,863 @@
+<html><head><title>DCX - Dialog Control Xtension DLL v0.1 by ClickHeRe</title>
+<style type='text/css'>
+body { font-size: 8pt; background: #ffffff; font-family: tahoma; color: #000000; }
+table { font-size: 8pt; font-family: tahoma }
+
+table.bar { border-right: #000000 1px solid; border-top: #000000 1px solid; font-size: 8pt; background: #eeeeee; border-left: #000000 1px solid; border-bottom: #000000 1px solid; font-family: tahoma }
+
+a.i3 { font-weight: bold; font-size: 8pt; color: #EE9900; font-family: tahoma; text-decoration: none }
+a.i2 { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:link { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:active { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:visited { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:hover { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:link { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:active { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:visited { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:hover { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:link { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:visited { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:active { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:hover { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: underline }
+hr { font-weight: bold; font-size: 8pt; color: #002980; }
+hr.t { font-weight: bold; font-size: 8pt; color: #D60000; }
+</style>
+</head>
+<body topmargin="0" leftmargin="5">
+<table border="0" width="100%" cellspacing="0" cellpadding="0" BGCOLOR=#FFFFFF>
+<tr><td heigth=200 align=left valign=middle>&nbsp;
+<a href="index.htm" title="DCX - Dialog Control Xtension"><img src="../images/dcx.png" border='0'></a>
+</td><td valign='bottom' align='right'>
+<a href="../nl/index.htm">Dutch</a> |
+<a href="../index.htm">English</a> | 
+<a href="../fi/index.htm">Finnish</a> |
+<a href="../fr/index.htm">French</a> |
+<a href="../ge/index.htm">German</a> |
+<a href="../he/index.htm">Hebrew</a> |
+<a href="../it/index.htm">Italian</a> |
+<a href="../my/index.htm">Malaysian</a> |
+<a href="../pt/index.htm">Portugese</a> |
+<a href="../sp/index.htm">Spanish</a> |
+<a href="../sw/index.htm">Swedish</a>
+</td></tr></table>
+<table class=bar width=100%><tr>
+<td align=left width=33%><nobr><a href='index.htm'> Home </a> | <a href="http://dcx.scriptsdb.org/dcx.zip">Download</a> | <a href="http://dcx.scriptsdb.org/forum/">Forum</a></nobr></td>
+<td align=center width=33%><nobr><b>Dialog Control Xtension - Treeview</b> </nobr></td>
+<td align=right width=33%><b> Version 0.1 beta </b></td></tr></table><br /><table border=0 width="100%" cellspacing=2 cellpadding=2><tr valign=top>
+  <td><nobr>
+<a class=i href="#1">Introductie</a><br />
+<br />
+<a class=i href="#2">DCX Ondersteunde Controls</a><br />
+• <a href="pbar.htm">Progressbar</a><br />
+• <a href="treeview.htm">Treeview</a><br />
+• <a href="listview.htm">ListView</a><br />
+• <a href="toolbar.htm">Toolbar</a><br />
+• <a href="statusbar.htm">Statusbar</a><br />
+• <a href="comboex.htm">ComboEx</a><br />
+• <a href="trackbar.htm">Trackbar</a><br />
+• <a href="rebar.htm">Rebar</a><br />
+• <a href="richedit.htm">RichEdit</a><br />
+• <a href="colorcombo.htm">kleurCombo</a><br />
+• <a href="button.htm">Button</a><br />
+<br />
+• <a href="window.htm">@Window</a><br />
+• <a href="dialog.htm">Dialog</a><br />
+<br />
+<a class=i href="#3">Control Stijlen </a><br />
+<br />
+<a class=i href="#4">/xdid flags</a><br />
+• <a href="#4.1">-a</a><br />
+• <a href="#4.2">-c</a><br />
+• <a href="#4.3">-d</a><br />
+• <a href="#4.4">-i</a><br />
+<!--• <a href="#4.5">-j</a><br />-->
+• <a href="#4.6">-k</a><br />
+• <a href="#4.7">-m</a><br />
+• <a href="#4.8">-n</a><br />
+<!--• <a href="#4.9">-o</a><br />-->
+• <a href="#4.10">-q</a><br />
+• <a href="#4.11">-r</a><br />
+• <a href="#4.12">-t</a><br />
+• <a href="#4.13">-u</a><br />
+• <a href="#4.14">-v</a><br />
+• <a href="#4.15">-w</a><br />
+• <a href="#4.16">-y</a><br />
+• <a href="#4.17">-z</a><br />
+<br />
+<a class=i href="#5">$xdid() Properties</a><br />
+• <a href="#5.1">text</a><br />
+• <a href="#5.2">seltext</a><br />
+• <a href="#5.3">selpath</a><br />
+• <a href="#5.4">find</a><br />
+• <a href="#5.5">num</a><br />
+• <a href="#5.6">state</a><br />
+• <a href="#5.7">expand</a><br />
+<br />
+<a class=i href="#7">TreeView Item Path</a><br />
+<br />
+<a class=i href="#8">Control Events</a><br />
+<br />
+
+<!-- Section 1 -->
+
+</nobr></td><td>&nbsp;</td><td width=100%>
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="1" href=#>Introductie</a>
+<hr class=t><br />
+Deze control stelt je in staat om een treeview te maken.<br />
+<br />
+
+<center><img src="../images/treeview.png" alt="TreeView Control"/></center>
+
+</p>
+<br />
+<!-- Section 3 -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="3" href=#>Control Stijlen</a>
+<hr class=t><br />
+Deze control stijlen zijn beschikbaar wanneer je een treeview control aanmaakt .
+<table width='100%'><tr><td align='center'>
+<table width='95%'>
+
+<tr>
+  <td><a class=i2>haslines</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'> Items zijn aanelkaar gelinked met lijnen.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>linesatroot</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'> Lijnen leiden ook naar de root item toe (heeft de haslines stijl nodig om te werken).</td>
+</tr>
+
+<tr>
+  <td height="15"><a class=i2>hasbuttons</a></td>
+  <td>&nbsp;&nbsp;</td>
+  <td width='100%'>Items met child items hebben rechts &plusmn; knoppen om ze in- of uit te klappen. </td>
+</tr>
+
+<tr>
+  <td><a class=i2>checkbox</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Een aanvinkhokje kan zich  zich rechts van de items bevinden. </td>
+</tr>
+
+<tr>
+  <td><a class=i2>editlabel</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Maakt de tekst aanpasbaar.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>nohscroll</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Voorkomt dat er een horizontale scrollbar verschijnt.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>noscroll</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Er mag niet gescrolled worden in de treeview.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>notooltips</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Geen tooltips.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>showsel</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'> Selectie is altijd zichtbaar, ook als deze de focus verliest. </td>
+</tr>
+
+<tr>
+  <td><a class=i2>fullrow</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Selectie highlight omvat de hele rij. Kan niet worden gebruikt in combinatie met <a class=i>haslines</a>.</td>
+</tr>
+
+<tr valign="top">
+  <td><a class=i2>singleexpand</a></td>
+  <td>&nbsp;&nbsp;</td>
+  <td width='100%'>Een item kan maar uitgelklapt zijn, als een andere word uitgelkapt zal diegene die open was dichtgaan. Door Ctrl ingedrukt te houden kan de gebruiker dit tegengaan. </td>
+</tr>
+
+<tr>
+  <td><a class=i2>notheme</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>XP Themes heeft geen vat op deze control. </td>
+</tr>
+
+</table>
+</td></tr></table>
+<br />
+<!-- Section 4 -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="4" href=#>/xdid flags</a><hr class=t><br />
+ Control commando's worden ingevoerd met behulp van het <b>/xdid</b> commando.<br />
+<br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.1" href=#>-a</a><hr><br />
+ Dit commando voegt een item toe aan de treeview. <br />
+<br />
+
+<b>Command:</b> <a class=i3>/xdid -a dialog ID </a><a href="#7">N N N ... N</a><a class=i3>[TAB]</a><a class=i2> [+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STAAT] [#INTEGRAAL] [KLEUR] Item Text<a class=i3>[TAB]</a><a class=i2>Tooltip Text</a><br />
+<br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -a dcx 4 $+(-1 2 4,$chr(9),+bc 1 1 0 0 0 $rgb(0,0,255) Item Text,$chr(9),Tooltip)</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>[+FLAGS]</a></td><td>Item flags</td></tr>
+
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td><a class=i>b</a></td>
+<td>Item text is vet.</td>
+</tr>
+<tr><td><a class=i>u</a></td>
+<td>Item text is onderstreept.</td>
+</tr>
+<tr><td><a class=i>c</a></td>
+<td>Item text is gekleurd ([KLEUR] is de text kleur).</td>
+</tr>
+</table>
+<br />
+</td></tr>
+<tr><td><a class=i2>[#ICON]</a></td>
+<td>icoon index nummer van de normale icoon lijst (0 voor geen icoon)</td>
+</tr>
+
+<tr><td><a class=i2>[#SICON]</a></td>
+<td>Geselecteerde icoon index nummer van de normale icoon lijst, weergegeven als item geselecteerd is(0 voor geen icoon)</td>
+</tr>
+<tr><td><a class=i2>[#OVERLAY]</a></td>
+<td>Icoon index nummer van de normale icoon lijst die was aangeduid als een overlay icoon (0 voor geen icoon) (<a class=i3>Niet werkend op het moment </a>)</td>
+</tr>
+<tr valign="top">
+  <td><a class=i2>[#STAAT]</a></td>
+<td>Icoon index nummer van de staat icoon lijst (0 voor geen icon) (als je de <a class=i3>checkbox</a> stijl gebruikt dan is -> <a class=i>2: aangevinkt, 1: Niet aangevinkt, 0: geen checkbox ernaast</a>)</td>
+</tr>
+<tr valign="top">
+  <td><a class=i2>[#INTEGRAAL]</a></td>
+  <td>Vermedigvuldiging van de treeview item text hoogte  (0 = normale hoogte, 1 =  2x de hoogte, 2 = 3de hoogte etc.) </td>
+</tr>
+<tr>
+  <td><a class=i2>[KLEUR]</a></td>
+  <td>Item text kleur of the treeview item (need to add switch <a class=i>+c</a> to work). kleur is in $rgb() format.</td></tr>
+</table>
+<br />
+<a class=i2>N.B.</a> Icons moeten worden toegevoegd aan de treeview control voordat ze in items kunnen worden ingevoegd.
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.2" href=#>-c</a><hr><br />
+Dit commando laat je een treeview item selecteren.<br />
+<br />
+
+<b>Command:</b> <a class=i3>/xdid -c dialog ID </a><a href="#7">N N N ... N</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -c dcx 4 1 3 5</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.3" href=#>-d</a><hr><br />
+ Dit commando verwijdert een treeview item (en zijn sub-items indien aanwezig)<br />
+<br />
+
+<b>Command:</b> <a class=i3>/xdid -d dialog ID </a><a href="#7">N N N ... N</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -d dcx 4 1 3 5</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.4" href=#>-i</a><hr><br />
+ Dit commando verandert de treeview kleuren.<br />
+<br />
+
+<b>Command:</b> <a class=i3>/xdid -i dialog ID [+FLAGS] [KLEUR]</a><br />
+<br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -i dcx 4 +b $rgb(0,255,0)</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>[+FLAGS]</a></td><td>kleur flags</td></tr>
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td width="6"><a class=i>b</a></td>
+<td width="94">Achtergrond kleur .</td>
+</tr>
+<tr><td><a class=i>l</a></td>
+<td>Lijn kleur .</td>
+</tr>
+<tr><td><a class=i>t</a></td>
+<td>Text kleur.</td>
+</tr>
+</table>
+<br />
+</td></tr>
+<tr>
+  <td><a class=i2>[KLEUR]</a></td>
+  <td>kleur is in $rgb() formaat. gebruik <a class=i>-1</a> om naar de standaard kleur terug te schakelen. </td>
+</tr>
+</table>
+</p>
+
+<!--
+<p align=justify><a><b>• </b></a> <a name="4.5" href=#>-j</a><hr><br />
+This command lets you move a treeview item and it's sub-items. The first path is the item to be moved to the second path.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -m dialog ID </a><a href="#7">N N N ... N</a>{TAB}<a href="#7">N N N ... N</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -m dcx 4 1 2 $chr(9) 1 </a><br /><br />
+</p>
+-->
+
+<p align=justify><a><b>• </b></a> <a name="4.6" href=#>-k</a><hr><br />
+Dit commando veranderd de staat van de check van een treeview item.<br />
+<br />
+
+<b>Command:</b> <a class=i3>/xdid -k dialog ID [STATE] </a><a href="#7">N N N ... N</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -k dcx 4 2 1 3 5</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td width="44"><a class=i2>[STATE]</a></td><td width="134">Check State</td></tr>
+
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td><a class=i>0</a></td>
+<td>Geen checkbox</td>
+</tr>
+<tr><td><a class=i>1</a></td>
+<td>Niet aangevinkt </td>
+</tr>
+<tr><td><a class=i>2</a></td>
+<td>Aangevinkt</td>
+</tr>
+</table>
+<br />
+</td></tr>
+</table>
+<a class=i2>N.B.</a> als je de <a class=i>checkbox</a> stijl niet gebruikt dan gebruikt dit commando de staat icoontjes. Deze moeten worden toegevoegd voordat deze kunnen worden aangeroepen.
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.7" href=#>-m</a><hr><br />
+Dit commando verplaats treeview items. De eerste locatie is degene die word verplaatst naar de 2de locatie.<br />
+<br />
+
+<b>Command:</b> <a class=i3>/xdid -m dialog ID </a><a href="#7">N N N ... N</a><a class=i2>{TAB}</a><a href="#7">N N N ... N</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -m dcx 4 1 2 $chr(9) 1 </a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.8" href=#>-n</a><hr><br />
+
+Dit commando kopieerd treeview items. De eerste locatie is degene die word gekopieerd naar de 2de locatie.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -n dialog ID </a><a href="#7">N N N ... N</a><a class=i2>{TAB}</a><a href="#7">N N N ... N</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -n dcx 4 1 2 $chr(9) 1 </a><br /><br />
+</p>
+
+<!--
+<p align=justify><a><b>• </b></a> <a name="4.9" href=#>-o</a><hr><br />
+This command lets you move a treeview item and it's sub-items. The first path is the item to be moved to the second path.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -m dialog ID </a><a href="#7">N N N ... N</a>{TAB}<a href="#7">N N N ... N</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -m dcx 4 1 2 $chr(9) 1 </a><br /><br />
+</p>
+-->
+
+<p align=justify><a><b>• </b></a> <a name="4.10" href=#>-q</a><hr><br />
+Dit commando veranderd het lettertype en de kleuren van een treeview item. <br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -q dialog ID [+FLAGS] [KLEUR] </a><a href="#7">N N N ... N</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -q dcx 4 +bcu $rgb(128,0,255) 1</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>[+FLAGS]</a></td><td>Check State</td></tr>
+
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td><a class=i>b</a></td>
+  <td>Item text is vet.</td>
+</tr>
+<tr><td><a class=i>u</a></td>
+  <td>Item text is onderstreept.</td>
+</tr>
+<tr><td><a class=i>c</a></td>
+  <td>Item text is gekleurd ([KLEUR] is de text kleur).</td>
+</tr>
+</table>
+<br />
+</td></tr>
+<tr><td valign="top"><a class=i2>[kleur]</a></td>
+  <td>Item text kleur van de treeview item (heeft <a class=i>+c</a> nodig om te werken). kleur is in $rgb() formaat.</td>
+</tr>
+</table>
+<br />
+<a class=i2>N.B.</a> gebruik <a class=i>-1</a> als [kleur] waarde als je de <a class=i>+c</a> switch achterwege laat.
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.11" href=#>-r</a><hr>
+Dit commando verwijdert alle treeview items.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -r dialog ID</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -r dcx 4</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.12" href=#>-t</a><hr><br />
+Dit commando zorgt voor het toggle/uitklappen/inklappen van treeview items. Je kan <a class=i>root</a> gebruiken als de path met de +a en +z switches.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -t dialog ID [+FLAGS] </a><a href="#7">N N N ... N</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -t dcx 4 +a root</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td width="51"><a class=i2>[+FLAGS]</a></td><td width="242">Toggle flags</td></tr>
+
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td width="6"><a class=i>a</a></td>
+  <td width="229">Klapt branch en alle sub-branches uit.</td>
+</tr>
+<tr><td><a class=i>c</a></td>
+  <td>Klapt  the branch in.</td>
+</tr>
+<tr><td><a class=i>e</a></td>
+  <td>Klapt the branch uit.</td>
+</tr>
+<tr><td><a class=i>p</a></td>
+  <td>Klapt de  branch gedeeltelijk uit.</td>
+</tr>
+<tr><td><a class=i>r</a></td>
+  <td>Klapt de  branches zijn children in en verwijdert deze.</td>
+</tr>
+<tr><td><a class=i>t</a></td>
+  <td>Toggled tegenovergestelde actie op de branch.</td>
+</tr>
+<tr><td><a class=i>z</a></td>
+  <td>Klapt branch en alle sub-branches in </td>
+</tr>
+</table>
+</td></tr>
+</table>
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.13" href=#>-u</a><hr><br />
+Dit commando unselecteerd de op dat moment geselecteerde item.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -u dialog ID</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -u dcx 4</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.14" href=#>-v</a><hr><br />
+Dit commando veranderd de text van een treeview item. <br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -v dialog ID </a><a href="#7">N N N ... N</a><a class=i3> [TAB] (ItemText)</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -v dcx 4 1 2 $chr(9) Blah</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.15" href=#>-w</a><hr><br />
+ Dit commando laat je icoontjes toevoegen aan de treeview plaatjes lijst. <br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -w dialog ID [+FLAGS] [INDEX] [BESTANDSNAAM]</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -w dcx 4 +n 113 C:/mIRC/shell.dll</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>[+FLAGS]</a></td>
+  <td>Plaatjes lijst  flags</td>
+</tr>
+
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td width="6"><a class=i>n</a></td>
+  <td width="108">Normale icoon lijst.</td>
+</tr>
+<tr><td><a class=i>s</a></td>
+  <td>Staat icoon lijst.</td>
+</tr>
+</table>
+<br />
+</td></tr>
+<tr><td><a class=i2>[INDEX]</a></td>
+  <td>Icoon index in icoon archief (gebruik 0 als bestandsnaam maar uit 1 icoontje bestaat b.v: een .ico bestand)</td>
+</tr>
+<tr>
+  <td><a class=i2>[BESTANDSNAAM]</a></td>
+  <td>Icoon archief's Bestandsnaam </td>
+</tr>
+</table>
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.16" href=#>-y</a><hr><br />
+ Dit commando maakt de plaatjes lijst helemaal leeg. <br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -y dialog ID [+FLAGS] </a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -y dcx 4 +ns</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td width="51"><a class=i2>[+FLAGS]</a></td><td width="142">Image list flags</td></tr>
+
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td width="6"><a class=i>n</a></td>
+  <td width="111">Normale icoon lijst</td>
+</tr>
+<tr><td><a class=i>s</a></td>
+  <td>Staat icoon lijst.</td>
+</tr>
+</table>
+<br />
+</td></tr>
+</table>
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.17" href=#>-z</a><hr><br />
+This command lets you sort the data in the treeview control. Dit commando sorteert de data in de treeview control <br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -z dialog ID [+FLAGS] </a><a href="#7">N N N ... N</a><a class=i3> [TAB] (ALIAS)</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>/xdid -z dcx 5 +tab root tvsort</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>[+FLAGS]</a></td><td>Sort flags</td></tr>
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td><a class=i>a</a></td>
+  <td>Sorteer van klein naar groot. (<a class=i>Standaard</a>)</td>
+</tr>
+<tr><td><a class=i>b</a></td>
+  <td>Sorteert alleen de opgegeven branch.</td>
+</tr>
+<tr><td><a class=i>c</a></td>
+  <td>Eigenhandig sorteren doormiddel van een (ALIAS). Soorteert doormiddel van <a class=i>$1</a> en <a class=i>$2</a>. (Zie Opmerking)</td>
+</tr>
+<tr><td><a class=i>d</a></td><td>Descendant order sorting.</td></tr>
+<tr><td><a class=i>n</a></td><td>Numerical sorting.</td></tr>
+<tr><td><a class=i>r</a></td><td>Sorts recursively all sub-branches.</td></tr>
+<tr><td><a class=i>s</a></td><td>Case-sensitive sorting. (With Alpha-numeric)</td></tr>
+<tr><td><a class=i>t</a></td><td>Alpha-numeric sorting. (<a class=i>Default</a>)</td></tr>
+</table>
+<br />
+</td></tr>
+<tr><td><a class=i2>(ALIAS)</a></td>
+  <td>Naam van de alias die voor het sorteren zorgt. (Niet nodig als +c niet gegeven is)</td>
+</tr>
+</table>
+<br />
+<a class=i2>Opmerking:</a>  De alias moet de volgende waardes retourneren voor de vergelijking van de input. De volgorde word door de DLL gedaan. <br />
+<table>
+<tr><td><a class=i3>$1 < $2</a></td><td>return -1</td></tr>
+<tr><td><a class=i3>$1 > $2</a></td><td>return 1</td></tr>
+<tr><td><a class=i3>$1 == $2</a></td><td>return 0</td></tr>
+</table>
+</p>
+<br />
+<!-- Section 5 - $xdid -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="5" href=#>$xdid() Properties</a><hr class=t>
+</a>
+<p><a class=i2>De volgende properties worden gebruikt om informatie van de treeview te krijgen.
+</a></p>
+<a class=i2>
+<p align=justify><a><b>• </b></a> <a name="5.1" href=#>text</a>
+<hr>
+<br />
+ Deze property retourneert de tekst van een item. <br />
+<br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID, <a href="#7" class=i>ItemPath</a>).text</a><br />
+<br />
+<b>Voorbeeld:</b> <a class=i3>//echo -a $xdid(dcx, 4, 1 2).text</a><br />
+<br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.2" href=#>.seltext</a>
+<hr>
+<br />
+Deze property retourneert welk item geselecteerd is in de treeview. <br />
+<br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID).seltext</a><br />
+<br />
+<b>Voorbeeld:</b> <a class=i3>//echo -a $xdid(dcx, 4).seltext</a><br />
+<br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.3" href=#>.selpath</a>
+<hr>
+<br />
+
+Deze property retourneert de <a href="#7" class=i>ItemPath</a> die leid naar de item die geselecteerd is in de treeview. <br />
+<br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID).selpath</a><br />
+<br />
+<b>Voorbeeld:</b> <a class=i3>//echo -a $xdid(dcx, 4).selpath</a><br />
+<br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.4" href=#>.find</a>
+<hr>
+<br />
+Deze property retourneert de <a href="#7" class=i>ItemPath</a> die leid naar de N<cite>e</cite> gevonden treeview item die de input string matched. Als N <a class=i>0 </a>is, dan word het totaal aantal gevonden items geretourneert . <a href="#6.1" class=i>SubPath</a> is een optionele parameter die de zoekopdract laat beginnen bij de opgegeven path.<br />
+<br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID, </a><a class=i2>{TAB}</a><a class=i3>Matchtext</a><a class=i2>{TAB}</a><a class=i3>, T, N, </a><a href="#7" class=i>SubPath</a>).find</a><br />
+<br />
+<a class="i2"><b>Voorbeeld:</b></a> <a class=i3>//echo -a $xdid(dcx, 4, $chr(9) *Item* $chr(9), W, 3, 1 2).find</a><br />
+<br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>Matchtext</a></td>
+<td>Wildcard of regex text voor de zoekopdracht</td>
+</tr>
+<tr><td><a class=i2>T</a></td>
+<td>Waarde die aanduidt of het een regex of een wildcard zoekopdracht is.</td>
+</tr>
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td width="10"><a class=i2>W</a></td>
+<td width="157"><a class=i3>Matchtext</a> is een wildcard string.</td>
+</tr>
+<tr><td><a class=i2>R</a></td>
+<td><a class=i3>Matchtext</a> is een regex patroon.</td>
+</tr>
+</table>
+<br />
+</td></tr>
+<tr><td><a class=i2>N</a></td>
+<td>Parameter om de N<em>e</em> gevonden item te retourneren. Als N  0 is, retourneert het het aantal gevonden items.</td>
+</tr>
+<tr><td><a class=i2>SubPath</a></td>
+<td>SubPath is een optionele parameter die de zoekopdract laat beginnen bij de opgegeven path. Laat dit blanco om het bij de root te laten beginnen </td>
+</tr>
+</table>
+<br />
+<a class=i2>N.B.</a> De <a class=i>{TAB}</a> karakters die de matchtext omgeven zijn verplicht, anders werkt deze niet.<br />
+<br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.5" href=#>num</a><hr><br />
+Deze property retourneert het aantal &quot;child items&quot; van een treeview item. Je kan <a class=i2>root</a> als <a href="#7" class=i>ItemPath</a> gebruiken om het total aantal child items te krijgen..<br />
+<br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID, <a href="#7" class=i>ItemPath</a>).num</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>//echo -a $xdid(dcx, 4, 1 2).num</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.6" href=#>state</a><hr><br />
+Deze property retourneert de staat van de check bij een item. <a class=i>2: aangevinkt, 1: niet aangevinkt, 0: geen aanvink hokje </a>.<br />
+<br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID, <a href="#7" class=i>ItemPath</a>).state</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>//echo -a $xdid(dcx, 4, 1 2).state</a><br /><br />
+<a class=i2>N.B.</a> Als je <a class=i>checkbox</a> stijl niet gebruikt, dan retourneert deze property de staat icon.
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.7" href=#>expand</a><hr><br />
+Deze treevew property retourneert of een item uitgeklapt is ja of te nee.<br />
+<br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID, <a href="#7" class=i>ItemPath</a>).expand</a><br /><br />
+<b>Voorbeeld:</b> <a class=i3>//echo -a $xdid(dcx, 4, 1 2).expand</a><br /><br />
+</p>
+
+<!----- Section 7 ---->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="7" href=#>TreeView Item Path</a><hr class=t>
+<p><br />
+    De treeview control heeft een mothode/parser die de "path" data omzet om te weten waar iets word toegevoegd/verwijderd/veranderd in een gegeven item in de control. De parameters die je geeft zijn een spatie gescheiden numerieke teken lijst van de treeview takken die leiden naar een item's positie:<br />
+        <br />
+      
+        <b>Format:</b> <a class=i3>N N N ... N</a><br />
+        <br />
+        For example : 1 2 3<br />
+        <br />
+        Deze postie geeft de 3e child branch van 2e child branch van de eerste branch weer zoals getoond in de geselecteerde item in het plaatje hieronder:<br />
+        <br />
+</p>
+<center><img src="../images/treeview2.png" alt="TreeView Item Path Example"/></center>
+
+Je kan ook de waarde <a class=i>-1</a> gebruiken voor elk van de numerieke tekens om aan tegeven aan de  methode/parser dat iets aan het einde wilt toevoegen ( als deze gebruikt word als laatste nummer) of om de laatste tak te gebruiken van een gegeven subpath (als het niet gebruikt word als laatste nummer) <br /><br />
+<br />
+
+Een voorbeeld: -1 -1<br />
+Dit voegt een item toe aan het einde van de laatste tak in de eerste kolom <br /><br />
+<br />
+
+<a class=i2>N.B.</a> Als je een niet bestaande path opgeeft dan gebruikt DCX de laatst tegengekomen path die het vond tijdens het zoeken ernaar.
+</p>
+
+<!-- Section 8 - Events -->
+
+<br />
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="8" href=#>Control Events</a><hr class=t>
+De volgende gebeurtenissen worden getriggered als een een gebruiker een bepaalde aktie onderneemt in de treeview. All gebeurtenissen en data worden naar de <a href="index.htm#4" class=i>callback alias</a> gestuurd die is opgegeven toen de dialog gemarkeerd werd. <br />
+<table width='100%'><tr><td align='center'>
+<table width='95%'>
+
+<tr>
+  <td height="14"><a class=i2>sclick</a></td>
+  <td>&nbsp;&nbsp;</td>
+  <td width='100%'>Wanneer er een enkele klik is op een item. (<a class=i2>N.B.</a> Je kan$xdid().tvseltext niet gebruiken om een item text te krijgen, je moet $xdid().tvtext met de item path geven)</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<td>
+  <table width="60%">
+<tr><td><a class=i2>[VALUE]</a></td>
+<td width=100%><a href="#7" class=i>TreeView Path</a> Leidt naar de item waar deze gebeurtenis plaats vond.</td>
+</tr>
+</table>
+<br />
+</td>
+</tr>
+
+<tr>
+  <td><a class=i2>dclick</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Wanneer er een dubbele klik is op een item. (<a class=i2>N.B.</a> Je kan$xdid().tvseltext niet gebruiken om een item text te krijgen, je moet $xdid().tvtext met de item path geven)</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<td>
+  <table width="60%">
+<tr><td><a class=i2>[VALUE]</a></td><td width=100%><a href="#7" class=i>TreeView Path</a> Leidt naar de item waar deze gebeurtenis plaats vond.</td>
+</tr>
+</table>
+<br />
+</td>
+</tr>
+
+<tr>
+  <td><a class=i2>rclick</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Wanneer er een rechtermuis klik is op een item.(<a class=i2>N.B.</a> Je kan$xdid().tvseltext niet gebruiken om een item text te krijgen, je moet $xdid().tvtext met de item path geven)</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<td>
+  <table width="60%">
+<tr><td><a class=i2>[VALUE]</a></td><td width=100%><a href="#7" class=i>TreeView Path</a> Leidt naar de item waar deze gebeurtenis plaats vond.</td>
+</tr>
+</table>
+<br />
+</td>
+</tr>
+
+<tr>
+  <td><a class=i2>stateclick</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Wanneer een checkbox word aangeklikt. </td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<td>
+  <table width="60%">
+<tr><td><a class=i2>[VALUE]</a></td><td width=100%><a href="#7" class=i>TreeView Path</a> Leidt naar de item waar deze gebeurtenis plaats vond.</td>
+</tr>
+</table>
+<br />
+</td>
+</tr>
+
+<tr>
+  <td><a class=i2>buttonclick</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Wanneer een ± knop wordt aangelklikt.</td>
+</tr>
+<tr><td colspan=2>&nbsp;</td>
+<td>
+  <table width="61%">
+<tr><td><a class=i2>[VALUE]</a></td><td width=100%><a href="#7" class=i>TreeView Path</a> Leidt naar de item waar deze gebeurtenis plaats vond.</td>
+</tr>
+</table>
+<br />
+</td>
+</tr>
+
+<tr>
+  <td><a class=i2>labelbegin</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Wanneer er begonnen word met het bewerken van een item's text.</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<td>
+  <table width="61%">
+<tr><td nowrap="nowrap"><a class=i2>Return</a></td>
+<td width=100%><a class=i3>noedit</a> -> Return deze waarde om het bewerken van de text tegen te gaan.</td>
+</tr>
+</table>
+<br />
+</td>
+</tr>
+
+<tr>
+  <td><a class=i2>labelend</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Wanneer er ENTER word ingetoets of als er egens buiten de selectie word geklikt tijdens het bewerken van een item's text.</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<td>
+  <table>
+<tr><td><a class=i2>[VALUE]</a></td>
+<td width=100%>Bewerkte Text label.</td>
+</tr>
+<tr><td nowrap="nowrap"><a class=i2>Return</a></td><td width=100%><a class=i3>noedit</a> ->  Return deze waarde om het bewerken van de text tegen te gaan.</td>
+</tr>
+</table>
+<br />
+</td>
+</tr>
+
+<tr>
+  <td><a class=i2>labelcancel</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Wanneer er ESC word ingetoets of als er egens buiten de selectie word geklikt tijdens het bewerken van een item's text.</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+
+<tr>
+  <td><a class=i2>expand</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Wanneer een tak word uitgeklapt. </td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<td>
+  <table>
+<tr><td><a class=i2>[VALUE]</a></td><td width=100%><a href="#7" class=i>TreeView Path</a> Leidt naar de item waar deze gebeurtenis plaats vond.</td>
+</tr>
+</table>
+<br />
+</td>
+</tr>
+
+<tr>
+  <td><a class=i2>collapse</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Wanneer een tak word ingeklapt. </td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<td>
+  <table>
+<tr><td><a class=i2>[VALUE]</a></td><td width=100%><a href="#7" class=i>TreeView Path</a> Leidt naar de item waar deze gebeurtenis plaats vond.</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<tr>
+  <td><a class=i2>help</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Gelanceerd als u de control aanklikt met behulp van de <a class=i>?</a> contexthelp knop. </td>
+</tr>
+
+</table>
+</td></tr></table>
+
+<br /></td>
+</tr></table>
+<table class=bar width=100%><tr>
+<td width=33% align=left><nobr><a href='index.htm'> Tha... Help </a></nobr></td>
+<td width=33% align=center><nobr><b>&copy; 2005</b></nobr></td>
+<td width=33% align=right><nobr><a href='mailto:clickhere@scriptsdb.org'>Contact</a></nobr></td>
+</tr></table><br />
+</body></html>

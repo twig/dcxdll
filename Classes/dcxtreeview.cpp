@@ -1,0 +1,1966 @@
+/*!
+ * \file dcxtreeview.cpp
+ * \brief blah
+ *
+ * blah
+ *
+ * \author David Legault ( clickhere at scriptsdb dot org )
+ * \version 1.0
+ *
+ * \b Revisions
+ *
+ * © ScriptsDB.org - 2006
+ */
+
+#include "dcxtreeview.h"
+#include "dcxdialog.h"
+
+/*!
+ * \brief Constructor
+ *
+ * \param ID Control ID
+ * \param p_Dialog Parent DcxDialog Object
+ * \param rc Window Rectangle
+ * \param styles Window Style Tokenized List
+ */
+
+DcxTreeView::DcxTreeView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+: DcxControl( ID, p_Dialog ) 
+{
+
+  LONG Styles = 0, ExStyles = 0;
+  BOOL bNoTheme = FALSE;
+  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+
+  this->m_Hwnd = CreateWindowEx(	
+    WS_EX_CLIENTEDGE,
+    DCX_TREEVIEWCLASS,
+    NULL,
+    WS_CHILD | WS_VISIBLE | Styles, 
+    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+    p_Dialog->getHwnd( ),
+    (HMENU) ID,
+    GetModuleHandle(NULL), 
+    NULL);
+
+  if ( bNoTheme )
+    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+
+  SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
+
+  if ( ExStyles & TVS_CHECKBOXES )
+    this->addStyle( TVS_CHECKBOXES );
+
+  this->m_iIconSize = 16;
+
+  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+  this->registreDefaultWindowProc( );
+  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+}
+
+/*!
+ * \brief Constructor
+ *
+ * \param ID Control ID
+ * \param p_Dialog Parent DcxDialog Object
+ * \param mParentHwnd Parent Window Handle
+ * \param rc Window Rectangle
+ * \param styles Window Style Tokenized List
+ */
+
+DcxTreeView::DcxTreeView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
+: DcxControl( ID, p_Dialog ) 
+{
+
+  LONG Styles = 0, ExStyles = 0;
+  BOOL bNoTheme = FALSE;
+  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+
+  this->m_Hwnd = CreateWindowEx(	
+    WS_EX_CLIENTEDGE,
+    DCX_TREEVIEWCLASS,
+    NULL,
+    WS_CHILD | WS_VISIBLE | Styles, 
+    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+    mParentHwnd,
+    (HMENU) ID,
+    GetModuleHandle(NULL), 
+    NULL);
+
+  if ( bNoTheme )
+    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+
+  SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
+
+  if ( ExStyles & TVS_CHECKBOXES )
+    this->addStyle( TVS_CHECKBOXES );
+
+  this->m_iIconSize = 16;
+
+  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+  this->registreDefaultWindowProc( );
+  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+DcxTreeView::~DcxTreeView( ) {
+
+  // clear all items
+  TreeView_DeleteAllItems( this->m_Hwnd );
+
+  ImageList_Destroy( this->getImageList( TVSIL_NORMAL ) );
+  ImageList_Destroy( this->getImageList( TVSIL_STATE ) );
+
+  this->unregistreDefaultWindowProc( );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+void DcxTreeView::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+
+  *Styles |= TVS_INFOTIP;
+
+  unsigned int i = 1, numtok = styles.numtok( " " );
+
+  while ( i <= numtok ) {
+
+    if ( styles.gettok( i , " " ) == "haslines" ) 
+      *Styles |= TVS_HASLINES;
+    else if ( styles.gettok( i , " " ) == "hasbuttons" ) 
+      *Styles |= TVS_HASBUTTONS;
+    else if ( styles.gettok( i , " " ) == "linesatroot" ) 
+      *Styles |= TVS_LINESATROOT;
+    else if ( styles.gettok( i , " " ) == "showsel" ) 
+      *Styles |= TVS_SHOWSELALWAYS;
+    else if ( styles.gettok( i , " " ) == "editlabel" ) 
+      *Styles |= TVS_EDITLABELS;
+    else if ( styles.gettok( i , " " ) == "nohscroll" ) 
+      *Styles |= TVS_NOHSCROLL;
+    else if ( styles.gettok( i , " " ) == "notooltips" ) 
+      *Styles |= TVS_NOTOOLTIPS;
+    else if ( styles.gettok( i , " " ) == "noscroll" ) 
+      *Styles |= TVS_NOSCROLL;
+    else if ( styles.gettok( i , " " ) == "fullrow" ) 
+      *Styles |= TVS_FULLROWSELECT;
+    else if ( styles.gettok( i , " " ) == "singleexpand" ) 
+      *Styles |= TVS_SINGLEEXPAND;
+    else if ( styles.gettok( i , " " ) == "checkbox" ) 
+      *ExStyles |= TVS_CHECKBOXES;
+
+    i++;
+  }
+  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+}
+
+/*!
+ * \brief $xdid Parsing Function
+ *
+ * \param input [NAME] [ID] [PROP] (OPTIONS)
+ * \param szReturnValue mIRC Data Container
+ *
+ * \return > void
+ */
+
+void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
+
+  int numtok = input.numtok( " " );
+
+  // [NAME] [ID] [PROP] [PATH]
+  if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    if ( this->parsePath( &input.gettok( 4, -1, " " ), &hParent, &hAfter ) ) {
+
+      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+
+        this->getItemText( &hAfter, szReturnValue, 900 );
+        return;
+      }
+    }
+  }
+  // [NAME] [ID] [PROP] [PATH]
+  else if ( input.gettok( 3, " " ) == "icon" && numtok > 3 ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    if ( this->parsePath( &input.gettok( 4, -1, " " ), &hParent, &hAfter ) ) {
+
+      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+
+        TVITEMEX tvi; 
+        tvi.hItem = hAfter;
+        tvi.mask = TVIF_IMAGE | TVIF_HANDLE;
+
+        TreeView_GetItem( this->m_Hwnd, &tvi );
+        wsprintf( szReturnValue, "%d", tvi.iImage + 1 );
+        return;
+      }
+    }
+  }
+  // [NAME] [ID] [PROP] [PATH]
+  else if ( input.gettok( 3, " " ) == "tooltip" && numtok > 3 ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    if ( this->parsePath( &input.gettok( 4, -1, " " ), &hParent, &hAfter ) ) {
+
+      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+
+        TVITEMEX tvi;
+        tvi.hItem = hAfter;
+        tvi.mask = TVIF_HANDLE | TVIF_PARAM;
+
+        TreeView_GetItem( this->m_Hwnd, &tvi );
+        LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) tvi.lParam;
+
+        if ( lpdcxtvi != NULL )
+          lstrcpy( szReturnValue, lpdcxtvi->tsTipText.to_chr( ) );
+        
+        return;
+      }
+    }
+  }
+  // [NAME] [ID] [PROP]
+  else if ( input.gettok( 3, " " ) == "seltext" ) {
+
+    HTREEITEM hItem = TreeView_GetSelection( this->m_Hwnd );
+    this->getItemText( &hItem, szReturnValue, 900 );
+    return;
+  }
+  // [NAME] [ID] [PROP]
+  else if ( input.gettok( 3, " " ) == "selpath" ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hItem = TreeView_GetSelection( this->m_Hwnd );
+    VectorOfInts v;
+
+    if ( this->getPath( &v, &hParent, &hItem ) ) {
+
+      std::string path = this->getPathFromVector( &v );
+      lstrcpy( szReturnValue, path.c_str( ) );
+      return;
+    }
+  }
+  // [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [SUBPATH]
+  else if ( input.gettok( 3, " " ) == "find" && numtok > 5 ) {
+
+    TString matchtext = input.gettok( 2, "\t" );
+    matchtext.trim( );
+    TString params = input.gettok( 3, "\t" );
+    params.trim( );
+
+    if ( matchtext.len( ) > 0 ) {
+
+      UINT SearchType;
+
+      if ( params.gettok( 1, " " ) == "R" )
+        SearchType = TVSEARCH_R;
+      else
+        SearchType = TVSEARCH_W;
+
+      int N = (int) atoi( params.gettok( 2, " " ).to_chr( ) );
+      int NC = 0;
+
+      HTREEITEM hParent = TVI_ROOT;
+
+      if ( params.numtok( " " ) > 2 ) {
+
+        HTREEITEM hStart = TVI_ROOT;
+        if ( this->parsePath( &params.gettok( 3, -1, " " ), &hStart, &hParent ) ) {
+
+          if ( !this->correctTargetItem( &hStart, &hParent ) )
+            hParent = TVI_ROOT;
+        }
+        else
+          hParent = TVI_ROOT;
+      }
+
+      HTREEITEM hItem;
+      if ( this->findItemText( &hParent, &hItem, &matchtext, N, &NC, SearchType ) ) {
+
+        VectorOfInts v;
+        hParent = TVI_ROOT;
+
+        if ( this->getPath( &v, &hParent, &hItem ) ) {
+
+          std::string path = this->getPathFromVector( &v );
+          lstrcpy( szReturnValue, path.c_str( ) );
+        }
+      }
+      else if ( N == 0 ) {
+
+        wsprintf( szReturnValue, "%d", NC );
+      }
+    }
+    return;
+  }
+  // [NAME] [ID] [PROP] [PATH]
+  else if ( input.gettok( 3, " " ) == "state" && numtok > 3 ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    if ( this->parsePath( &input.gettok( 4, -1, " " ), &hParent, &hAfter ) ) {
+
+      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+
+        if ( this->isStyle( TVS_CHECKBOXES ) ) {
+
+          int state = TreeView_GetCheckState( this->m_Hwnd, hAfter );
+
+          if ( state == 1 )
+            lstrcpy( szReturnValue, "2" );
+          else if ( state == 0 )
+            lstrcpy( szReturnValue, "1" );
+          else
+            lstrcpy( szReturnValue, "0" );
+          return;
+        }
+        else {
+
+          wsprintf( szReturnValue, "%d", TreeView_GetItemState( this->m_Hwnd, hAfter, TVIS_STATEIMAGEMASK ) );
+          return;
+        }
+      }
+    }
+  }
+  // [NAME] [ID] [PROP] [PATH]
+  else if ( input.gettok( 3, " " ) == "num" && numtok > 3 ) {
+
+    TString path = input.gettok( 4, -1, " " );
+
+    if ( path == "root" ) {
+
+      HTREEITEM hParent = TVI_ROOT;
+      wsprintf( szReturnValue, "%d", this->getItemCount( &hParent ) );
+      return;
+    }
+    else {
+
+      HTREEITEM hParent = TVI_ROOT;
+      HTREEITEM hAfter = TVI_ROOT;
+
+      if ( this->parsePath( &path, &hParent, &hAfter ) ) {
+
+        if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+
+          wsprintf( szReturnValue, "%d", this->getItemCount( &hAfter ) );
+          return;
+        }
+      }
+    }
+  }
+  // [NAME] [ID] [PROP] [PATH]
+  else if ( input.gettok( 3, " " ) == "expand" && numtok > 3 ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    if ( this->parsePath( &input.gettok( 4, -1, " " ), &hParent, &hAfter ) ) {
+
+      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+
+        if ( TreeView_GetItemState( this->m_Hwnd, hAfter, TVIS_EXPANDED ) & TVIS_EXPANDED )
+          lstrcpy( szReturnValue, "1" );
+        else
+          lstrcpy( szReturnValue, "0" );
+        return;       
+      }
+    }
+  }
+  else if ( input.gettok( 3, " " ) == "mouseitem" ) {
+
+    TVHITTESTINFO tvh;
+    GetCursorPos( &tvh.pt );
+    ScreenToClient( this->m_Hwnd, &tvh.pt );
+    TreeView_HitTest( this->m_Hwnd, &tvh );
+
+    if ( tvh.flags & TVHT_ONITEM ) {
+
+      VectorOfInts numPath;
+      HTREEITEM hStart = TVI_ROOT;
+      this->getPath( &numPath, &hStart, &tvh.hItem );
+      std::string path = this->getPathFromVector( &numPath );
+
+      lstrcpy( szReturnValue, path.c_str( ) );
+    }
+    else
+      lstrcpy( szReturnValue, "0" );
+
+    return;
+  }
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
+
+    return;
+  }
+
+  szReturnValue[0] = 0;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+void DcxTreeView::parseCommandRequest( TString & input ) {
+
+  XSwitchFlags flags;
+  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
+  this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
+
+  int numtok = input.numtok( " " );
+
+  // xdid -r [NAME] [ID] [SWITCH]
+  if ( flags.switch_flags[17] && numtok > 2 ) {
+
+    TreeView_DeleteAllItems( this->m_Hwnd );
+  }
+
+  // xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] Text[TAB]Tooltip Text
+  if ( flags.switch_flags[0] ) {
+
+    int n;
+    if ( ( n = input.numtok( "\t" ) ) > 1 ) {
+
+      TString path = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
+      path.trim( );
+      TString data = input.gettok( 2, "\t" );
+      data.trim( );
+      TString tooltip;
+
+      if ( n > 2 ) {
+
+        tooltip = input.gettok( 3, "\t" );
+        tooltip.trim( );
+      }
+
+      if ( data.numtok( " " ) > 7 )
+        this->insertItem( &path, &data, &tooltip );
+    }
+  }
+  // xdid -c [NAME] [ID] [SWITCH] N N N
+  else if ( flags.switch_flags[2] && numtok > 3 ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    if ( this->parsePath( &input.gettok( 4, -1, " " ), &hParent, &hAfter ) ) {
+
+      if ( this->correctTargetItem( &hParent, &hAfter ) )
+        TreeView_SelectItem( this->m_Hwnd, hAfter );
+    }
+  }
+  // xdid -d [NAME] [ID] [SWITCH] N N N
+  else if ( flags.switch_flags[3] && numtok > 3 ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    if ( this->parsePath( &input.gettok( 4, -1, " " ), &hParent, &hAfter ) ) {
+
+      if ( this->correctTargetItem( &hParent, &hAfter ) )
+        TreeView_DeleteItem( this->m_Hwnd, hAfter );
+    }
+  }
+  // xdid -g [NAME] [ID] [SWITCH] [HEIGHT]
+  else if ( flags.switch_flags[6] && numtok > 3 ) {
+
+    int iHeight = atoi( input.gettok( 4, " " ).to_chr( ) );
+
+    if ( iHeight > -2 ) {
+
+      TreeView_SetItemHeight( this->m_Hwnd, iHeight );
+    }
+  }
+  // xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
+  else if ( flags.switch_flags[8] && numtok > 4 ) {
+
+    UINT iFlags = this->parseColorFlags( input.gettok( 4, " " ) );
+
+    COLORREF clr = (COLORREF) atol( input.gettok( 5, " " ).to_chr( ) );
+
+    if ( iFlags & TVCOLOR_B )
+      TreeView_SetBkColor( this->m_Hwnd, clr );
+
+    if ( iFlags & TVCOLOR_L )
+      TreeView_SetLineColor( this->m_Hwnd, clr );
+
+    if ( iFlags & TVCOLOR_T )
+      TreeView_SetTextColor( this->m_Hwnd, clr );
+  }
+  // xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON]
+  else if ( flags.switch_flags[9] && numtok > 5 ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    TString path = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
+    path.trim( );
+
+    if ( input.numtok( "\t" ) > 1 ) {
+
+      TString icons = input.gettok( 2, "\t" );
+      icons.trim( );
+
+      if ( this->parsePath( &path, &hParent, &hAfter ) ) {
+
+        if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+
+          int nIcon = atoi( icons.gettok( 1, " " ).to_chr( ) ) - 1;
+          int sIcon = atoi( icons.gettok( 2, " " ).to_chr( ) ) - 1;
+
+          if ( nIcon > -2 && sIcon > -2 ) {
+
+            TVITEMEX tvi; 
+
+            tvi.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_HANDLE;
+            tvi.hItem = hAfter;
+            tvi.iImage = nIcon;
+            tvi.iSelectedImage = sIcon;
+            TreeView_SetItem( this->m_Hwnd, &tvi );
+          }
+        }
+      }
+    }
+  }
+  // xdid -k [NAME] [ID] [SWITCH] [STATE] N N N
+  else if ( flags.switch_flags[10] && numtok > 4 ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    if ( this->parsePath( &input.gettok( 5, -1, " " ), &hParent, &hAfter ) ) {
+
+      UINT state = atoi( input.gettok( 4, " " ).to_chr( ) );
+
+      if ( !this->correctTargetItem( &hParent, &hAfter ) )
+        return;
+
+      TreeView_SetItemState( this->m_Hwnd, hAfter, INDEXTOSTATEIMAGEMASK( state ), TVIS_STATEIMAGEMASK );
+    }
+  }
+  // xdid -l [NAME] [ID] [SWITCH] [SIZE]
+  else if ( flags.switch_flags[11] && numtok > 3 ) {
+
+    int size = atoi( input.gettok( 4, " " ).to_chr( ) );
+
+    if ( size != 32 && size != 24 )
+      size = 16;
+
+    this->m_iIconSize = size;
+  }
+  // xdid -m [NAME] [ID] [SWITCH] N N N{TAB}N N N
+  else if ( flags.switch_flags[12] && numtok > 3 && input.numtok( "\t" ) > 1 ) {
+
+    TString pathFrom = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
+    pathFrom.trim( );
+    TString pathTo = input.gettok( 2, "\t" );
+    pathTo.trim( );
+
+    HTREEITEM hParentFrom = TVI_ROOT;
+    HTREEITEM hAfterFrom = TVI_ROOT;
+    HTREEITEM hParentTo = TVI_ROOT;
+    HTREEITEM hAfterTo = TVI_ROOT;
+
+    HTREEITEM hNewItem;
+
+    if ( !this->parsePath( &pathFrom, &hParentFrom, &hAfterFrom ) )
+      return;
+    if ( !this->correctTargetItem( &hParentFrom, &hAfterFrom ) )
+      return;
+    if ( !this->parsePath( &pathTo, &hParentTo, &hAfterTo ) )
+      return;
+
+    hNewItem = this->cloneItem( &hAfterFrom, &hParentTo, &hAfterTo );
+
+    if ( hNewItem != NULL )
+      this->copyAllItems( &hAfterFrom, &hNewItem );
+
+    TreeView_DeleteItem( this->m_Hwnd, hAfterFrom );
+  }
+  // xdid -n [NAME] [ID] [SWITCH] N N N{TAB}N N N
+  else if ( flags.switch_flags[13] && numtok > 3 && input.numtok( "\t" ) > 1 ) {
+
+    TString pathFrom = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
+    pathFrom.trim( );
+    TString pathTo = input.gettok( 2, "\t" );
+    pathTo.trim( );
+
+    HTREEITEM hParentFrom = TVI_ROOT;
+    HTREEITEM hAfterFrom = TVI_ROOT;
+    HTREEITEM hParentTo = TVI_ROOT;
+    HTREEITEM hAfterTo = TVI_ROOT;
+
+    HTREEITEM hNewItem;
+
+    if ( !this->parsePath( &pathFrom, &hParentFrom, &hAfterFrom ) )
+      return;
+    if ( !this->correctTargetItem( &hParentFrom, &hAfterFrom ) )
+      return;
+    if ( !this->parsePath( &pathTo, &hParentTo, &hAfterTo ) )
+      return;
+
+    hNewItem = this->cloneItem( &hAfterFrom, &hParentTo, &hAfterTo );
+
+    if ( hNewItem != NULL )
+      this->copyAllItems( &hAfterFrom, &hNewItem );
+  }
+  // xdid -o [NAME] [ID] [SWITCH] N N N [TAB] (Tooltip Text)
+  else if ( flags.switch_flags[14] && numtok > 3 ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    TString path = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
+    path.trim( );
+
+    TString tiptext;
+    if ( input.numtok( "\t" ) > 1 ) {
+
+      tiptext = input.gettok( 2, "\t" );
+      tiptext.trim( );
+    }
+
+    if ( this->parsePath( &path, &hParent, &hAfter ) ) {
+
+      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+
+        TVITEMEX tvi; 
+
+        tvi.hItem = hAfter;
+        tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
+
+        if ( TreeView_GetItem( this->m_Hwnd, &tvi ) ) {
+
+          LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
+
+          if ( lpdcxtvitem != NULL )
+            lpdcxtvitem->tsTipText = tiptext;
+ 
+        }
+      }
+    }
+  }
+  // xdid -q [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] N N N
+  else if ( flags.switch_flags[16] && numtok > 5 ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    if ( this->parsePath( &input.gettok( 6, -1, " " ), &hParent, &hAfter ) ) {
+
+      COLORREF clrText = (COLORREF) atol( input.gettok( 5, " " ).to_chr( ) );
+
+      if ( !this->correctTargetItem( &hParent, &hAfter ) )
+        return;
+
+      TVITEMEX tvi; 
+
+      tvi.hItem = hAfter;
+      tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
+
+      if ( TreeView_GetItem( this->m_Hwnd, &tvi ) ) {
+
+        LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
+
+        if ( lpdcxtvitem != NULL ) {
+
+          int iFlags = this->parseItemFlags( input.gettok( 4, " " ) );
+
+          if ( iFlags & TVIS_UNDERLINE )
+            lpdcxtvitem->bUline = TRUE;
+          else
+            lpdcxtvitem->bUline = FALSE;
+
+          if ( iFlags & TVIS_BOLD )
+            lpdcxtvitem->bBold = TRUE;
+          else
+            lpdcxtvitem->bBold = FALSE;
+
+          if ( iFlags & TVIS_COLOR )
+            lpdcxtvitem->clrText = clrText;
+          else
+            lpdcxtvitem->clrText = -1;
+
+          this->redrawWindow( );
+        }
+      }
+    }
+  }
+  // xdid -t [NAME] [ID] [SWITCH] [+FLAGS] N N N
+  else if ( flags.switch_flags[19] && numtok > 4 ) {
+
+    UINT iFlags = this->parseToggleFlags( input.gettok( 4, " " ) );
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    if ( input.gettok( 5, -1, " " ) == "root" ) {
+
+      if ( iFlags & TVIE_EXPALL )
+        this->expandAllItems( &hAfter, TVE_EXPAND );
+      else if ( iFlags & TVIE_COLALL )
+        this->expandAllItems( &hAfter, TVE_COLLAPSE );
+    }
+    else if ( this->parsePath( &input.gettok( 5, -1, " " ), &hParent, &hAfter ) ) {
+
+      if ( !this->correctTargetItem( &hParent, &hAfter ) )
+        return;
+
+      if ( iFlags & TVIE_EXP )
+        TreeView_Expand( this->m_Hwnd, hAfter, TVE_EXPAND );
+      else if ( iFlags & TVIE_EXPPART )
+        TreeView_Expand( this->m_Hwnd, hAfter, TVE_EXPAND | TVE_EXPANDPARTIAL );
+      else if ( iFlags & TVIE_COL )
+        TreeView_Expand( this->m_Hwnd, hAfter, TVE_COLLAPSE );
+      else if ( iFlags & TVIE_COLRES )
+        TreeView_Expand( this->m_Hwnd, hAfter, TVE_COLLAPSE | TVE_COLLAPSERESET );
+      else if ( iFlags & TVIE_TOGGLE )
+        TreeView_Expand( this->m_Hwnd, hAfter, TVE_TOGGLE );
+    }
+  }
+  // xdid -u [NAME] [ID] [SWITCH]
+  else if ( flags.switch_flags[20] ) {
+    
+    TreeView_SelectItem( this->m_Hwnd, NULL );
+  }
+  // xdid -v [NAME] [ID] [SWITCH] N N N [TAB] (Item Text)
+  else if ( flags.switch_flags[21] && numtok > 3 ) {
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    TString path = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
+    path.trim( );
+
+    TString itemtext;
+    if ( input.numtok( "\t" ) > 1 ) {
+      
+      itemtext = input.gettok( 2, "\t" );
+      itemtext.trim( );
+    }
+
+    if ( this->parsePath( &path, &hParent, &hAfter ) ) {
+
+      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+
+        TVITEMEX tvi; 
+
+        tvi.mask = TVIF_TEXT | TVIF_HANDLE;
+        tvi.hItem = hAfter;
+        tvi.pszText = itemtext.to_chr( );
+        TreeView_SetItem( this->m_Hwnd, &tvi );
+      }
+    }
+  }
+  // xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
+  else if ( flags.switch_flags[22] && numtok > 5 ) {
+
+    UINT iFlags = this->parseIconFlagOptions( input.gettok( 4, " " ) );
+
+    HIMAGELIST himl;
+    HICON icon;
+
+    int index = atoi( input.gettok( 5, " ").to_chr( ) );
+    TString filename = input.gettok( 6, -1, " " );
+
+    if ( iFlags & TVIT_NORMAL ) {
+
+      if ( ( himl = this->getImageList( TVSIL_NORMAL ) ) == NULL ) {
+
+        himl = this->createImageList( );
+
+        if ( himl )
+          this->setImageList( himl, TVSIL_NORMAL );
+      }
+
+      if ( this->m_iIconSize == 16 )
+        ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
+      else
+        ExtractIconEx( filename.to_chr( ), index, &icon, 0, 1 );
+
+      ImageList_AddIcon( himl, icon );
+      DestroyIcon( icon );
+    }
+    
+    if ( iFlags & TVIT_STATE ) {
+
+      if ( ( himl = this->getImageList( TVSIL_STATE ) ) == NULL ) {
+
+        himl = this->createImageList( );
+
+        if ( himl )
+          this->setImageList( himl, TVSIL_STATE );
+      }
+
+      if ( this->m_iIconSize == 16 )
+        ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
+      else
+        ExtractIconEx( filename.to_chr( ), index, &icon, 0, 1 );
+
+      ImageList_AddIcon( himl, icon );
+      DestroyIcon( icon );
+    }
+  }
+  // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
+  else if ( flags.switch_flags[24] && numtok > 3 ) {
+
+    UINT iFlags = this->parseIconFlagOptions( input.gettok( 4, " " ) );
+
+    HIMAGELIST himl;
+
+    if ( iFlags & TVIT_NORMAL ) {
+
+      if ( ( himl = this->getImageList( TVSIL_NORMAL ) ) != NULL ) {
+        ImageList_Destroy( himl );
+        this->setImageList( NULL, TVSIL_NORMAL );
+      }
+    }
+
+    if ( iFlags & TVIT_STATE ) {
+
+      if ( ( himl = this->getImageList( TVSIL_STATE ) ) != NULL ) {
+
+        ImageList_Destroy( himl );
+        this->setImageList( NULL, TVSIL_STATE );
+      }
+    }
+  }
+  // xdid -z [NAME] [ID] [SWITCH] [+FLAGS] N N N [TAB] [ALIAS]
+  else if ( flags.switch_flags[25] && numtok > 4 ) {
+
+    DCXTVSORT dtvs;
+    ZeroMemory( &dtvs, sizeof(DCXTVSORT) );
+    dtvs.iSortFlags = this->parseSortFlags( input.gettok( 4, " " ) );
+    dtvs.pthis = this;
+
+    TString path = input.gettok( 1, "\t" ).gettok( 5, -1, " " );
+    path.trim( );
+
+    if ( input.numtok( "\t" ) > 1 ) {
+      dtvs.tsCustomAlias = input.gettok( 2, "\t" );
+      dtvs.tsCustomAlias.trim( );
+    }
+
+    HTREEITEM hParent = TVI_ROOT;
+    HTREEITEM hAfter = TVI_ROOT;
+
+    TVSORTCB tvs;
+    ZeroMemory( &tvs, sizeof(TVSORTCB) );
+    tvs.lpfnCompare = DcxTreeView::sortItemsEx;
+    tvs.lParam = (LPARAM) &dtvs;
+
+    if ( path == "root" ) {
+
+      tvs.hParent = TVI_ROOT;
+
+      if ( dtvs.iSortFlags & TVSS_ALL )
+        TreeView_SortChildrenCB( this->m_Hwnd, &tvs, TRUE );
+      else if ( dtvs.iSortFlags & TVSS_SINGLE )
+        TreeView_SortChildrenCB( this->m_Hwnd, &tvs, FALSE );
+    }
+    else if ( this->parsePath( &path, &hParent, &hAfter ) ) {
+
+      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+
+        tvs.hParent = hAfter;
+
+        if ( dtvs.iSortFlags & TVSS_ALL )
+          TreeView_SortChildrenCB( this->m_Hwnd, &tvs, TRUE );
+        else if ( dtvs.iSortFlags & TVSS_SINGLE )
+          TreeView_SortChildrenCB( this->m_Hwnd, &tvs, FALSE );
+      }
+    }
+  }
+  else {
+    this->parseGlobalCommandRequest( input, flags );
+  }
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+HIMAGELIST DcxTreeView::getImageList( int type ) {
+
+  return (HIMAGELIST) TreeView_GetImageList( this->m_Hwnd, type );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+void DcxTreeView::setImageList( HIMAGELIST himl, int type ) {
+
+  TreeView_SetImageList( this->m_Hwnd, himl, type );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+HIMAGELIST DcxTreeView::createImageList( ) {
+
+  return ImageList_Create( this->m_iIconSize, this->m_iIconSize, ILC_COLOR32|ILC_MASK, 1, 0 );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+//HTREEITEM DcxTreeView::insertItem( ) {
+HTREEITEM DcxTreeView::insertItem( TString * path, TString * data, TString * Tooltip ) {
+
+  //mIRCSignal( "insert Item" );
+
+  HTREEITEM hParent = TVI_ROOT;
+  HTREEITEM hAfter = TVI_ROOT;
+  HTREEITEM hItem = NULL;
+
+  TVITEMEX tvi; 
+  TVINSERTSTRUCT tvins;
+
+  tvi.mask = TVIF_TEXT | TVIF_SELECTEDIMAGE | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM;
+
+  int iFlags = this->parseItemFlags( data->gettok( 1, " " ) );
+  int icon = (int) atoi( data->gettok( 2, " " ).to_chr( ) ) - 1;
+  int sicon = (int) atoi( data->gettok( 3, " " ).to_chr( ) ) - 1;
+  int overlay = (int) atoi( data->gettok( 4, " " ).to_chr( ) );
+  int state = (int) atoi( data->gettok( 5, " " ).to_chr( ) );
+  int integral = (int) atoi( data->gettok( 6, " " ).to_chr( ) ) + 1;
+  COLORREF clrText = (COLORREF) atol( data->gettok( 7, " " ).to_chr( ) );
+
+  LPDCXTVITEM lpmytvi = new DCXTVITEM;
+
+  lpmytvi->tsTipText = *Tooltip;
+
+  if ( iFlags & TVIS_UNDERLINE )
+    lpmytvi->bUline = TRUE;
+  else
+    lpmytvi->bUline = FALSE;
+
+  if ( iFlags & TVIS_BOLD )
+    lpmytvi->bBold = TRUE;
+  else
+    lpmytvi->bBold = FALSE;
+
+  if ( iFlags & TVIS_COLOR )
+    lpmytvi->clrText = clrText;
+  else
+    lpmytvi->clrText = -1;
+
+  this->parsePath( path, &hParent, &hAfter );
+    
+  TString itemtext = data->gettok( 8, -1, " " ).to_chr( );
+
+  tvi.pszText = itemtext.to_chr( ); 
+  tvi.cchTextMax = sizeof( tvi.pszText )/sizeof( tvi.pszText[0] ); 
+
+  if ( icon > -1 ) {
+    tvi.iImage = icon; 
+    tvi.mask |= TVIF_IMAGE;
+  }
+
+  tvi.iSelectedImage = sicon;
+  tvi.state = iFlags;
+  tvi.stateMask = iFlags;
+  tvi.iIntegral = integral;
+  tvi.lParam = (LPARAM) lpmytvi;
+
+  tvins.itemex = tvi; 
+  tvins.hInsertAfter = hAfter;
+  tvins.hParent = hParent;
+
+  hItem = TreeView_InsertItem( this->m_Hwnd, &tvins );
+  lpmytvi->hHandle = hItem;
+
+  if ( state > -1 )
+    TreeView_SetItemState( this->m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK( state ), TVIS_STATEIMAGEMASK );
+  if ( overlay > -1 )
+    TreeView_SetItemState( this->m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK( overlay ), TVIS_OVERLAYMASK );
+
+  return hItem;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+UINT DcxTreeView::parseIconFlagOptions( TString & flags ) {
+
+  UINT i = 1, len = flags.len( ), iFlags = 0;
+
+  // no +sign, missing params
+  if ( flags[0] != '+' ) 
+    return iFlags;
+
+  while ( i < len ) {
+
+    if ( flags[i] == 'n' )
+      iFlags |= TVIT_NORMAL;
+    else if ( flags[i] == 's' )
+      iFlags |= TVIT_STATE;
+
+    ++i;
+  }
+  return iFlags;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+UINT DcxTreeView::parseItemFlags( TString & flags ) {
+
+  INT i = 1, len = flags.len( ), iFlags = 0;
+
+  // no +sign, missing params
+  if ( flags[0] != '+' ) 
+    return iFlags;
+
+  while ( i < len ) {
+
+    if ( flags[i] == 'b' )
+      iFlags |= TVIS_BOLD;
+    else if ( flags[i] == 'c' )
+      iFlags |= TVIS_COLOR;
+    else if ( flags[i] == 'e' )
+      iFlags |= TVIS_EXPANDED;
+    else if ( flags[i] == 's' )
+      iFlags |= TVIS_SELECTED;
+    else if ( flags[i] == 'u' )
+      iFlags |= TVIS_UNDERLINE;
+
+    ++i;
+  }
+  return iFlags;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+UINT DcxTreeView::parseSortFlags( TString & flags ) {
+
+  INT i = 1, len = flags.len( ), iFlags = 0;
+
+  // no +sign, missing params
+  if ( flags[0] != '+' ) 
+    return iFlags;
+
+  while ( i < len ) {
+
+    if ( flags[i] == 'a' )
+      iFlags |= TVSS_ASC;
+    else if ( flags[i] == 'b' )
+      iFlags |= TVSS_SINGLE;
+    else if ( flags[i] == 'c' )
+      iFlags |= TVSS_CUSTOM;
+    else if ( flags[i] == 'd' )
+      iFlags |= TVSS_DESC;
+    else if ( flags[i] == 'n' )
+      iFlags |= TVSS_NUMERIC;
+    else if ( flags[i] == 'r' )
+      iFlags |= TVSS_ALL;
+    else if ( flags[i] == 's' )
+      iFlags |= TVSS_CASE;
+    else if ( flags[i] == 't' )
+      iFlags |= TVSS_ALPHA;
+
+    ++i;
+  }
+  return iFlags;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+UINT DcxTreeView::parseColorFlags( TString & flags ) {
+
+  INT i = 1, len = flags.len( ), iFlags = 0;
+
+  // no +sign, missing params
+  if ( flags[0] != '+' ) 
+    return iFlags;
+
+  while ( i < len ) {
+
+    if ( flags[i] == 'b' )
+      iFlags |= TVCOLOR_B;
+    else if ( flags[i] == 'l' )
+      iFlags |= TVCOLOR_L;
+    else if ( flags[i] == 't' )
+      iFlags |= TVCOLOR_T;
+
+    ++i;
+  }
+  return iFlags;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+UINT DcxTreeView::parseToggleFlags( TString & flags ) {
+
+  INT i = 1, len = flags.len( ), iFlags = 0;
+
+  // no +sign, missing params
+  if ( flags[0] != '+' ) 
+    return iFlags;
+
+  while ( i < len ) {
+
+    if ( flags[i] == 'a' )
+      iFlags |= TVIE_EXPALL;
+    else if ( flags[i] == 'c' )
+      iFlags |= TVIE_COL;
+    else if ( flags[i] == 'e' )
+      iFlags |= TVIE_EXP;
+    else if ( flags[i] == 'p' )
+      iFlags |= TVIE_EXPPART;
+    else if ( flags[i] == 'r' )
+      iFlags |= TVIE_COLRES;
+    else if ( flags[i] == 't' )
+      iFlags |= TVIE_TOGGLE;
+    else if ( flags[i] == 'z' )
+      iFlags |= TVIE_COLALL;
+
+    ++i;
+  }
+  return iFlags;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort ) {
+
+  LPDCXTVSORT ptvsort = (LPDCXTVSORT) lParamSort;
+  char com[900];
+  char res[20];
+  char itemtext1[900];
+  char itemtext2[900];
+
+  LPDCXTVITEM lptvi1 = (LPDCXTVITEM) lParam1;
+  LPDCXTVITEM lptvi2 = (LPDCXTVITEM) lParam2;
+
+  ptvsort->pthis->getItemText( &lptvi1->hHandle, itemtext1, 900 );
+  ptvsort->pthis->getItemText( &lptvi2->hHandle, itemtext2, 900 );
+
+  // CUSTOM Sort
+  if ( ptvsort->iSortFlags & TVSS_CUSTOM ) {
+
+    wsprintf( com, "$%s(%s,%s)", ptvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
+    mIRCeval( com, res );
+
+    if ( ptvsort->iSortFlags & TVSS_DESC ) {
+
+      if ( lstrcmp( res, "-1" ) )
+        return -1;
+      else if ( lstrcmp( res, "1" ) )
+        return 1;
+    }
+    else {
+
+      if ( lstrcmp( res, "-1" ) )
+        return 1;
+      else if ( lstrcmp( res, "1" ) )
+        return -1;
+    }
+  }
+  // NUMERIC Sort
+  else if ( ptvsort->iSortFlags & TVSS_NUMERIC ) {
+
+    int i1 = atoi( itemtext1 );
+    int i2 = atoi( itemtext2 );
+
+    if ( ptvsort->iSortFlags & TVSS_DESC ) {
+
+      if ( i1 < i2 )
+        return 1;
+      else if ( i1 > i2 )
+        return -1;
+    }
+    else {
+
+      if ( i1 < i2 )
+        return -1;
+      else if ( i1 > i2 )
+        return 1;
+    }
+  }
+  // Default ALPHA Sort
+  else {
+
+    if ( ptvsort->iSortFlags & TVSS_DESC ) {
+      if ( ptvsort->iSortFlags & TVSS_CASE )
+        return -lstrcmp( itemtext1, itemtext2 );
+      else
+        return -lstrcmpi( itemtext1, itemtext2 );
+    }
+    else {
+      if ( ptvsort->iSortFlags & TVSS_CASE )
+        return lstrcmp( itemtext1, itemtext2 );
+      else
+        return lstrcmpi( itemtext1, itemtext2 );
+    }
+  }
+
+  return 0;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+BOOL DcxTreeView::parsePath( TString * path, HTREEITEM * hParent, HTREEITEM * hInsertAfter, int depth ) {
+
+  int n = path->numtok( " " ), i = 1;
+  int k = atoi( path->gettok( depth, " " ).to_chr( ) );
+  HTREEITEM hPreviousItem, hCurrentItem;
+
+  //char data[50];
+
+  hCurrentItem = TreeView_GetChild( this->m_Hwnd, *hParent );
+
+  if ( hCurrentItem == NULL ) {
+
+    //mIRCSignal( "NULL" );
+    return FALSE;
+  }
+
+  do {
+
+    //wsprintf( data, "Depth: %d - I: %d - k: %d - N: %d", depth, i, k, n );
+    //mIRCSignal( data );
+
+    if ( i == k ) {
+
+      if ( depth == n ) {
+
+        //mIRCSignal( "final depth" );
+
+        if ( i == 1 ) {
+          //mIRCSignal( "TVI_FIRST" );
+          *hInsertAfter = TVI_FIRST;
+        }
+        else {
+          //mIRCSignal( "TVI_PREVITEM" );
+          *hInsertAfter = hPreviousItem;
+        }
+
+        return TRUE;
+      }
+      else {
+
+        //mIRCSignal( "next depth" );
+
+        *hParent = hCurrentItem;
+        *hInsertAfter = TVI_FIRST;
+        return this->parsePath( path, hParent, hInsertAfter, depth + 1 );
+      }
+    }
+    i++;
+    hPreviousItem = hCurrentItem;
+
+  } while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
+
+  if ( k == -1 ) {
+
+    if ( depth == n ) {
+
+      //mIRCSignal( "final depth -1" );
+
+      *hInsertAfter = TVI_LAST;
+      return TRUE;
+    }
+    else {
+
+      //mIRCSignal( "next depth -1" );
+
+      *hParent = hPreviousItem;
+      *hInsertAfter = TVI_FIRST;
+      return this->parsePath( path, hParent, hInsertAfter, depth + 1 );
+    }
+  }
+  return FALSE;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+BOOL DcxTreeView::correctTargetItem( HTREEITEM * hParent, HTREEITEM * hInsertAfter ) {
+
+  if ( *hInsertAfter == TVI_FIRST ) {
+    *hInsertAfter = TreeView_GetChild( this->m_Hwnd, *hParent );
+  }
+  else if ( *hInsertAfter == TVI_LAST ) {
+
+    HTREEITEM hItem = TreeView_GetChild( this->m_Hwnd, *hParent );
+
+    if ( hItem == NULL )
+      return FALSE;
+
+    do {
+      *hInsertAfter = hItem;
+    } while ( ( hItem = TreeView_GetNextSibling( this->m_Hwnd, *hInsertAfter ) ) != NULL );
+
+  }
+  else if ( *hInsertAfter == TVI_ROOT ) {
+    return FALSE;
+  }
+  else {
+
+    if ( ( *hInsertAfter = TreeView_GetNextSibling( this->m_Hwnd, *hInsertAfter ) ) == NULL )
+      return FALSE;
+  }
+
+  return TRUE;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+BOOL DcxTreeView::getPath( VectorOfInts * numPath, HTREEITEM * hStart, HTREEITEM *hItemToFind, int depth ) {
+
+  int i = 0;
+  HTREEITEM hCurrentItem;
+
+  if ( ( hCurrentItem = TreeView_GetChild( this->m_Hwnd, *hStart ) ) == NULL )
+    return FALSE;
+
+  do {
+
+    i++;
+
+    if ( hCurrentItem == *hItemToFind ) {
+
+      numPath->push_back( i );
+      return TRUE;
+    }
+    else if ( this->getPath( numPath, &hCurrentItem, hItemToFind, depth + 1 ) ) {
+
+      numPath->push_back( i );
+      return TRUE;
+    }
+
+  } while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
+
+  return FALSE;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+std::string DcxTreeView::getPathFromVector( VectorOfInts * numPath ) {
+
+ if ( numPath->empty( ) )
+   return std::string( "" );
+
+ std::string path = "";
+
+ VectorOfInts::reverse_iterator itStart = numPath->rbegin( );
+ VectorOfInts::reverse_iterator itEnd = numPath->rend( );
+
+ char num[5];
+
+ while ( itStart != itEnd ) {
+
+   itoa( *itStart, num, 10 );
+   path += num;
+   path += ' ';
+
+   itStart++;
+ }
+ return path;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+void DcxTreeView::getItemText( HTREEITEM * hItem, char * szBuffer, int cchTextMax ) {
+
+  TVITEMEX tvi; 
+
+  tvi.hItem = *hItem;
+  tvi.mask = TVIF_TEXT | TVIF_HANDLE; 
+  tvi.cchTextMax = cchTextMax;
+  tvi.pszText = szBuffer;
+
+  if ( !TreeView_GetItem( this->m_Hwnd, &tvi ) )
+    szBuffer[0] = 0;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+int DcxTreeView::getItemCount( HTREEITEM * hParent ) {
+
+  int i = 0;
+  HTREEITEM hItem;
+
+  if ( ( hItem = TreeView_GetChild( this->m_Hwnd, *hParent ) ) != NULL )
+    ++i;
+
+  do {
+
+    ++i;
+  } while ( ( hItem = TreeView_GetNextSibling( this->m_Hwnd, hItem ) ) != NULL );
+
+  return i;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, TString * search, UINT SearchType ) {
+
+  char res[10];
+  char itemtext[900];
+  char com[1000];
+
+  this->getItemText( hItem, itemtext, 900 );
+  // Regex Search
+  if ( SearchType == TVSEARCH_R )
+    wsprintf( com, "$regex(%s,%s)", itemtext, search->to_chr( ) );
+  // Wildcard Search
+  else
+    wsprintf( com, "$iif(%s iswm %s,1,0)", search->to_chr( ), itemtext );
+
+  mIRCeval(com, res);
+
+  if ( !lstrcmp( res, "1" ) )
+    return TRUE;
+
+  return FALSE;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+BOOL DcxTreeView::findItemText( HTREEITEM * hStart, HTREEITEM * hItem, TString * search, int N, int * NC, UINT SearchType ) {
+
+  HTREEITEM hCurrentItem;
+
+  if ( ( hCurrentItem = TreeView_GetChild( this->m_Hwnd, *hStart ) ) == NULL )
+    return FALSE;
+
+  do {
+
+    if ( this->matchItemText( &hCurrentItem, search, SearchType ) )
+      (*NC)++;
+
+    if ( N != 0 && *NC == N ) {
+      *hItem = hCurrentItem;
+      return TRUE;
+    }
+
+    if ( this->findItemText( &hCurrentItem, hItem, search, N, NC, SearchType ) )
+      return TRUE;
+
+  } while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
+
+  return FALSE;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+void DcxTreeView::expandAllItems( HTREEITEM * hStart, UINT expandOption ) {
+
+  HTREEITEM hCurrentItem;
+
+  if ( ( hCurrentItem = TreeView_GetChild( this->m_Hwnd, *hStart) ) == NULL )
+    return;
+
+  do {
+
+    this->expandAllItems( &hCurrentItem, expandOption );
+    TreeView_Expand( this->m_Hwnd, hCurrentItem, expandOption );
+
+  } while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+HTREEITEM DcxTreeView::cloneItem( HTREEITEM * hItem, HTREEITEM * hParentTo, HTREEITEM * hAfterTo ) {
+
+  // Move the root node
+  char itemtext[1000];
+  lstrcpy( itemtext, "\0" );
+  TVITEMEX tvi; 
+
+  tvi.hItem = *hItem;
+  tvi.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM | TVIF_HANDLE;
+  tvi.cchTextMax = 1000;
+  tvi.pszText = itemtext;
+
+  if ( !TreeView_GetItem( this->m_Hwnd, &tvi ) )
+    return NULL;
+
+  TVINSERTSTRUCT tvin;
+
+  LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
+  LPDCXTVITEM lpdcxtvitem2 = new DCXTVITEM;
+
+  *lpdcxtvitem2 = *lpdcxtvitem;
+
+  tvi.hItem = 0;
+  tvi.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM;
+  tvi.lParam = (LPARAM) lpdcxtvitem2;
+
+  tvin.hParent = *hParentTo;
+  tvin.hInsertAfter = *hAfterTo;
+  tvin.itemex = tvi;
+
+  return TreeView_InsertItem( this->m_Hwnd, &tvin );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+void DcxTreeView::copyAllItems( HTREEITEM *hItem, HTREEITEM * hParentTo ) {
+
+  HTREEITEM hCurrentItem, hNewItem;
+  HTREEITEM hAfterTo = TVI_LAST;
+
+  if ( ( hCurrentItem = TreeView_GetChild( this->m_Hwnd, *hItem ) ) == NULL )
+    return;
+
+  do {
+
+    hNewItem = this->cloneItem( &hCurrentItem, hParentTo, &hAfterTo );
+    if ( hNewItem != NULL )
+      this->copyAllItems( &hCurrentItem, &hNewItem );
+
+  } while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+
+  switch( uMsg ) {
+
+    case WM_HELP:
+      {
+        char ret[256];
+        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+      }
+      break;
+
+    case WM_NOTIFY : 
+      {
+
+        LPNMHDR hdr = (LPNMHDR) lParam;
+
+        if (!hdr)
+          break;
+
+        switch( hdr->code ) {
+
+          case NM_CLICK:
+            {
+              //mIRCError( "Control WM_NOTIFY - NM_CLICK" );
+
+              TVHITTESTINFO tvh;
+              GetCursorPos( &tvh.pt );
+              ScreenToClient( this->m_Hwnd, &tvh.pt );
+              TreeView_HitTest( this->m_Hwnd, &tvh );
+              char ret[256];
+
+              if ( tvh.flags & TVHT_ONITEMBUTTON ) {
+
+                VectorOfInts numPath;
+                HTREEITEM hStart = TVI_ROOT;
+                this->getPath( &numPath, &hStart, &tvh.hItem );
+                std::string path = this->getPathFromVector( &numPath );
+
+                this->callAliasEx( ret, "%s,%d,%s", "buttonclick", this->getUserID( ), path.c_str( ) );
+
+              }
+               //&& this->isStyle( TVS_CHECKBOXES )
+              else if ( ( tvh.flags & TVHT_ONITEMSTATEICON ) ) {
+
+                VectorOfInts numPath;
+                HTREEITEM hStart = TVI_ROOT;
+                this->getPath( &numPath, &hStart, &tvh.hItem );
+                std::string path = this->getPathFromVector( &numPath );
+
+                if ( this->isStyle( TVS_CHECKBOXES ) ) {
+
+                  int state = TreeView_GetCheckState( this->m_Hwnd, tvh.hItem );
+
+                  this->callAliasEx( ret, "%s,%d,%d,%s", "stateclick", this->getUserID( ), 
+                    state == 0 ? 2 : 1 , path.c_str( ) );
+                }
+                else {
+
+                  this->callAliasEx( ret, "%s,%d,%d,%s", "stateclick", this->getUserID( ), 
+                    TreeView_GetItemState( this->m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK ) , path.c_str( ) );
+                }
+              }
+              //|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
+              else if ( tvh.flags & TVHT_ONITEM ) {
+
+                VectorOfInts numPath;
+                HTREEITEM hStart = TVI_ROOT;
+                this->getPath( &numPath, &hStart, &tvh.hItem );
+                std::string path = this->getPathFromVector( &numPath );
+
+                TreeView_SelectItem( this->m_Hwnd, tvh.hItem );
+                
+                this->callAliasEx( ret, "%s,%d,%s", "sclick", this->getUserID( ), path.c_str( ) );
+              }
+              bParsed = TRUE;
+            }
+            break;
+
+          case NM_DBLCLK:
+            {
+              //mIRCError( "Control WM_NOTIFY - NM_DBLCLK" );
+
+              TVHITTESTINFO tvh;
+              GetCursorPos( &tvh.pt );
+              ScreenToClient( this->m_Hwnd, &tvh.pt );
+              TreeView_HitTest( this->m_Hwnd, &tvh );
+              char ret[256];
+
+              //|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
+              if ( tvh.flags & TVHT_ONITEM ) {
+
+                VectorOfInts numPath;
+                HTREEITEM hStart = TVI_ROOT;
+                this->getPath( &numPath, &hStart, &tvh.hItem );
+                std::string path = this->getPathFromVector( &numPath );
+
+                TreeView_SelectItem( this->m_Hwnd, tvh.hItem );
+
+                this->callAliasEx( ret, "%s,%d,%s", "dclick", this->getUserID( ), path.c_str( ) );
+              }
+              bParsed = TRUE;
+            }
+            break;
+
+          case NM_RCLICK:
+            {
+              //mIRCError( "Control WM_NOTIFY - NM_RCLICK" );
+
+              TVHITTESTINFO tvh;
+              GetCursorPos( &tvh.pt );
+              ScreenToClient( this->m_Hwnd, &tvh.pt );
+              TreeView_HitTest( this->m_Hwnd, &tvh );
+              char ret[256];
+
+              //|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
+              if ( tvh.flags & TVHT_ONITEM ) {
+
+                VectorOfInts numPath;
+                HTREEITEM hStart = TVI_ROOT;
+                this->getPath( &numPath, &hStart, &tvh.hItem );
+                std::string path = this->getPathFromVector( &numPath );
+
+                TreeView_SelectItem( this->m_Hwnd, tvh.hItem );
+
+                this->callAliasEx( ret, "%s,%d,%s", "rclick", this->getUserID( ), path.c_str( ) );
+              }
+              bParsed = TRUE;
+            }
+            break;
+
+          case TVN_GETINFOTIP:
+            {
+
+              //mIRCError( "Control WM_NOTIFY - TVN_GETINFOTIP" );
+              
+              LPNMTVGETINFOTIP tcgit = (LPNMTVGETINFOTIP) lParam;
+              LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) tcgit->lParam;
+              tcgit->pszText = lpdcxtvi->tsTipText.to_chr( );
+              tcgit->cchTextMax = lpdcxtvi->tsTipText.len( );
+              bParsed = TRUE;
+            }
+            break;
+
+          case TVN_ITEMEXPANDED:
+            {
+              //mIRCError( "Control WM_NOTIFY - TVN_ITEMEXPANDED" );
+
+              bParsed = TRUE;
+              LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
+              char ret[256];
+
+              if ( lpnmtv->action & TVE_COLLAPSE ) {
+
+                VectorOfInts numPath;
+                HTREEITEM hStart = TVI_ROOT;
+                this->getPath( &numPath, &hStart, &lpnmtv->itemNew.hItem );
+                std::string path = this->getPathFromVector( &numPath );
+
+                this->callAliasEx( ret, "%s,%d,%s", "collapse", this->getUserID( ), path.c_str( ) );
+              }
+              else if ( lpnmtv->action & TVE_EXPAND ) {
+
+                VectorOfInts numPath;
+                HTREEITEM hStart = TVI_ROOT;
+                this->getPath( &numPath, &hStart, &lpnmtv->itemNew.hItem );
+                std::string path = this->getPathFromVector( &numPath );
+
+                this->callAliasEx( ret, "%s,%d,%s", "expand", this->getUserID( ), path.c_str( ) );
+              }
+            }
+            break;
+
+          case TVN_BEGINLABELEDIT:
+            {
+              bParsed = TRUE;
+              //mIRCError( "Control WM_NOTIFY - TVN_BEGINLABELEDIT" );
+              LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO) lParam;
+
+              TreeView_SelectItem( this->m_Hwnd,lptvdi->item.hItem );
+
+              HWND edit_hwnd = TreeView_GetEditControl( this->m_Hwnd );
+
+              this->m_OrigEditProc = (WNDPROC) SetWindowLong( edit_hwnd, GWL_WNDPROC, (LONG) DcxTreeView::EditLabelProc );
+              SetProp( edit_hwnd, "dcx_pthis", (HANDLE) this );
+
+              char ret[256];
+              this->callAliasEx( ret, "%s,%d", "labelbegin", this->getUserID( ) );
+
+              if ( !lstrcmp( "noedit", ret ) )
+                return TRUE;
+            
+              return FALSE;
+            }
+            break;
+
+          case TVN_ENDLABELEDIT:
+            {
+              //mIRCError( "Control WM_NOTIFY - TVN_ENDLABELEDIT" );
+
+              bParsed = TRUE;
+
+              char ret[256];
+              LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO) lParam;
+
+              if ( lptvdi->item.pszText == NULL ) {
+
+                this->callAliasEx( ret, "%s,%d", "labelcancel", this->getUserID( ) );
+              }
+              else {
+
+                this->callAliasEx( ret, "%s,%d,%s", "labelend", this->getUserID( ), lptvdi->item.pszText );
+
+                if ( !lstrcmp( "noedit", ret ) )
+                  return FALSE;
+              }
+              return TRUE;
+            }
+            break;
+
+          case NM_CUSTOMDRAW:
+            {
+
+              //mIRCError( "Control WM_NOTIFY - NM_CUSTOMDRAW" );
+
+              LPNMTVCUSTOMDRAW lpntvcd = (LPNMTVCUSTOMDRAW) lParam;
+              bParsed = TRUE;
+
+              switch( lpntvcd->nmcd.dwDrawStage ) {
+
+                case CDDS_PREPAINT:
+                  return ( CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW );
+
+                case CDDS_ITEMPREPAINT:
+                  {
+                    LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) lpntvcd->nmcd.lItemlParam;
+
+                    if ( lpdcxtvi == NULL )
+                      return CDRF_DODEFAULT;
+
+                    if ( lpdcxtvi->clrText != -1 )
+                      lpntvcd->clrText = lpdcxtvi->clrText;
+
+                    if ( lpdcxtvi->bUline || lpdcxtvi->bBold ) {
+
+                      HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
+
+                      LOGFONT lf;
+                      GetObject( hFont, sizeof(LOGFONT), &lf );
+
+                      if ( lpdcxtvi->bBold )
+                        lf.lfWeight |= FW_BOLD;
+                      if ( lpdcxtvi->bUline )
+                        lf.lfUnderline = true;
+
+                      HFONT hFontNew = CreateFontIndirect( &lf );
+                      HFONT hOldFont = (HFONT) SelectObject( lpntvcd->nmcd.hdc, hFontNew );
+
+                      DeleteObject( hFontNew );
+                    }
+                  }
+                  return ( CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT );
+                  
+
+                case CDDS_ITEMPOSTPAINT:
+                  return CDRF_DODEFAULT;
+
+                default:
+                  return CDRF_DODEFAULT;
+              }
+            }
+            break;
+
+          case TVN_DELETEITEM:
+            {
+              //mIRCError( "Control WM_NOTIFY - TVN_DELETEITEM" );
+
+              LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
+              LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) lpnmtv->itemOld.lParam;
+
+              if ( lpdcxtvi != NULL ) 
+                delete lpdcxtvi;
+            }
+            break;
+
+        } // switch
+      }
+      break;
+
+    case WM_MOUSEMOVE:
+      {
+        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
+      }
+      break;
+
+    case WM_SETFOCUS:
+      {
+        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
+      }
+      break;
+
+    case WM_SETCURSOR:
+      {
+        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
+
+          SetCursor( this->m_hCursor );
+          bParsed = TRUE;
+          return TRUE;
+        }
+      }
+      break;
+
+    case WM_DESTROY:
+      {
+        //mIRCError( "WM_DESTROY" );
+        delete this;
+        bParsed = TRUE;
+      }
+      break;
+
+    default:
+      break;
+  }
+
+  return 0L;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT CALLBACK DcxTreeView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
+  
+  DcxTreeView * pthis = (DcxTreeView *) GetProp( mHwnd, "dcx_pthis" );
+
+  switch( uMsg ) {
+
+    case WM_GETDLGCODE:
+      return DLGC_WANTALLKEYS;
+
+    case WM_DESTROY:
+      {
+
+        RemoveProp( mHwnd, "dcx_pthis" );
+        SetWindowLong( mHwnd, GWL_WNDPROC, (LONG) pthis->m_OrigEditProc );
+      }
+      break;
+
+  }
+  return CallWindowProc( pthis->m_OrigEditProc, mHwnd, uMsg, wParam, lParam );
+}

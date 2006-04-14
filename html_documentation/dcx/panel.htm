@@ -1,0 +1,360 @@
+<html><head><title>DCX - Dialog Control Xtension DLL v1.0 by ClickHeRe</title>
+<style type='text/css'>
+body { font-size: 8pt; background: #ffffff; font-family: tahoma; color: #000000; }
+table { font-size: 8pt; font-family: tahoma }
+
+table.bar { border-right: #000000 1px solid; border-top: #000000 1px solid; font-size: 8pt; background: #eeeeee; 
+border-left: #000000 1px solid; border-bottom: #000000 1px solid; font-family: tahoma }
+
+a.i3 { font-weight: bold; font-size: 8pt; color: #EE9900; font-family: tahoma; text-decoration: none }
+a.i2 { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:link { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:active { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:visited { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:hover { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:link { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:active { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:visited { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:hover { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:link { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:visited { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:active { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:hover { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: underline }
+hr { font-weight: bold; font-size: 8pt; color: #002980; }
+hr.t { font-weight: bold; font-size: 8pt; color: #D60000; }
+</style>
+</head>
+<body topmargin="0" leftmargin="5">
+<table border="0" width="100%" cellspacing="0" cellpadding="0" BGCOLOR=#FFFFFF>
+<tr><td heigth=200 align=left valign=middle>&nbsp;
+<a href="index.htm" title="DCX - Dialog Control Xtension"><img src="../images/dcx.png" border='0'></a>
+</td><td valign='bottom' align='right'>
+<a href="../nl/index.htm">Dutch</a> |
+<a href="../index.htm">English</a> | 
+<a href="../fi/index.htm">Finnish</a> |
+<a href="../fr/index.htm">French</a> |
+<a href="../ge/index.htm">German</a> |
+<a href="../he/index.htm">Hebrew</a> |
+<a href="../it/index.htm">Italian</a> |
+<a href="../my/index.htm">Malaysian</a> |
+<a href="../br/index.htm">Portuguese (Brazil)</a> |
+<a href="../pt/index.htm">Portuguese</a> |
+<a href="../sp/index.htm">Spanish</a> |
+<a href="../sw/index.htm">Swedish</a>
+</td></tr></table>
+<table class=bar width=100%><tr>
+<td align=left width=33%><nobr><a href='index.htm'> Home </a> | <a href="http://scriptsdb.org/download.php?id=1155">Download</a> 
+| <a href="http://dcx.scriptsdb.org/forum/">Forum</a> | <a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a></nobr>
+</td>
+<td align=center width=33%><nobr><b>Dialog Control Xtension - Panel</b> </nobr></td>
+<td align=right width=33%><b> Version 1.2.7 </b></td></tr></table><br /><table border=0 width="100%" cellspacing=2 
+cellpadding=2><tr valign=top><td><nobr>
+<a class=i href="#1">Introduction</a><br />
+<br />
+<a class=i href="dcxvsmdx.htm">DCX vs MDX</a><br />
+<br />
+<a class=i href="#2">DCX Supported Controls</a><br />
+• <a href="pbar.htm">Progressbar</a><br />
+• <a href="treeview.htm">TreeView</a><br />
+• <a href="listview.htm">ListView</a><br />
+• <a href="toolbar.htm">Toolbar</a><br />
+• <a href="statusbar.htm">Statusbar</a><br />
+• <a href="comboex.htm">ComboEx</a><br />
+• <a href="trackbar.htm">Trackbar</a><br />
+• <a href="rebar.htm">Rebar</a><br />
+• <a href="richedit.htm">RichEdit</a><br />
+• <a href="colorcombo.htm">ColorCombo</a><br />
+• <a href="button.htm">Button</a><br />
+• <a href="ipaddress.htm">IP Address</a><br />
+• <a href="updown.htm">UpDown</a><br />
+• <a href="webctrl.htm">WebControl</a><br />
+• <a href="calendar.htm">Calendar</a><br />
+<br />
+• <a href="line.htm">Line</a><br />
+• <a href="box.htm">Box</a><br />
+• <a href="radio.htm">Radio</a><br />
+• <a href="check.htm">Check</a><br />
+• <a href="edit.htm">Edit</a><br />
+• <a href="scroll.htm">Scroll</a><br />
+• <a href="image.htm">Image</a><br />
+• <a href="list.htm">List</a><br />
+• <a href="link.htm">Link</a><br />
+• <a href="text.htm">Text</a><br />
+<br />
+• <a href="divider.htm">Divider</a><br />
+• <a href="panel.htm">Panel</a><br />
+• <a href="tab.htm">Tab</a><br />
+<br />
+• <a href="window.htm">@Window</a><br />
+• <a href="dialog.htm">Dialog</a><br />
+<br />
+<a class=i href="#15">DCX Supported Features</a><br />
+• <a href="layout.htm">Cell Layout Algorithm</a><br />
+• <a href="xpopup.htm">XPopup Menus</a><br />
+
+<!-- Section 1 -->
+
+</nobr></td><td>&nbsp;</td><td width=100%>
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="1" href=#>Introduction</a><hr class=t><br />
+The panel control is like an empty borderless dialog which is used to host other controls.
+</p>
+
+<!-- Section 3 -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="3" href=#>Control Styles</a><hr class=t><br />
+These control styles are available when creating a divider control.
+</p>
+
+<table width='100%'><tr><td align='center'>
+<table width='95%'>
+
+<tr>
+  <td colspan=3><b>Control Styles</b></td>
+</tr>
+
+<tr>
+  <td colspan=3>&nbsp;</td>
+</tr>
+
+<tr>
+  <td colspan=3><b>General Styles</b></td>
+</tr>
+
+<tr>
+  <td><a class=i2>tabstop</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Specifies a control that can receive the keyboard focus when the user presses the TAB key. 
+  Pressing the TAB key changes the keyboard focus to the next control with the tabstop style. </td>
+</tr>
+
+<tr>
+  <td><a class=i2>group</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Specifies the first control of a group of controls. The group consists of this first control 
+  and all controls defined after it, up to the next control with the group style. The first control in each 
+  group usually has the tabstop style so that the user can move from group to group. The user can subsequently 
+  change the keyboard focus from one control in the group to the next control in the group by using the 
+  direction keys.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>disabled</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The control is created disabled.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>notheme</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Removes XP Themes on controls.</td>
+</tr>
+
+</table>
+</td></tr></table>
+
+<!-- Section 4 -->
+
+<br />
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="4" href=#>/xdid flags</a><hr class=t><br />
+Control commands are input to the control with the <b>/xdid</b> command.<br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.3" href=#>-c</a><hr><br />
+This command lets you add a child control to a panel control.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -c dialog ID [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -c dcx 4 12 richedit 10 10 400 25 multi</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>[ID]</a></td><td>Control ID for the DCX Control. (<a class=i>Must be unique for all the 
+controls of the dialog</a>)</td></tr>
+<tr><td><a class=i2>[CONTROL]</a></td><td>DCX Control type wanted.</td></tr>
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td><a class=i>pbar</a></td><td>Creates a <a href="pbar.htm">Progressbar</a> control.</td></tr>
+<tr><td><a class=i>treeview</a></td><td>Creates a <a href="treeview.htm">TreeView</a> control.</td></tr>
+<tr><td><a class=i>toolbar</a></td><td>Creates a <a href="toolbar.htm">Toolbar</a> control.</td></tr>
+<tr><td><a class=i>statusbar</a></td><td>Creates a <a href="statusbar.htm">Statusbar</a> control.</td></tr>
+<tr><td><a class=i>comboex</a></td><td>Creates a <a href="comboex.htm">ComboEx</a> control.</td></tr>
+<tr><td><a class=i>listview</a></td><td>Creates a <a href="listview.htm">Listview</a> control.</td></tr>
+<tr><td><a class=i>trackbar</a></td><td>Creates a <a href="trackbar.htm">Trackbar</a> control.</td></tr>
+<tr><td><a class=i>colorcombo</a></td><td>Creates a <a href="colorcombo.htm">ColorCombo</a> control.</td></tr>
+<tr><td><a class=i>button</a></td><td>Creates a <a href="button.htm">Button</a> control.</td></tr>
+<tr><td><a class=i>richedit</a></td><td>Creates a <a href="richedit.htm">RichEdit</a> control.</td></tr>
+<tr><td><a class=i>ipaddress</a></td><td>Creates a <a href="ipaddress.htm">IpAddress</a> control.</td></tr>
+<tr><td><a class=i>updown</a></td><td>Creates an <a href="updown.htm">UpDown</a> control.</td></tr>
+<tr><td><a class=i>webctrl</a></td><td>Creates a <a href="webctrl.htm">Web</a> control.</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td><a class=i>line</a></td><td>Creates a <a href="line.htm">Line</a> control.</td></tr>
+<tr><td><a class=i>box</a></td><td>Creates a <a href="box.htm">Box</a> control.</td></tr>
+<tr><td><a class=i>radio</a></td><td>Creates a <a href="radio.htm">Radio</a> control.</td></tr>
+<tr><td><a class=i>check</a></td><td>Creates a <a href="check.htm">Check</a> control.</td></tr>
+<tr><td><a class=i>edit</a></td><td>Creates a <a href="edit.htm">Edit</a> control.</td></tr>
+<tr><td><a class=i>scroll</a></td><td>Creates a <a href="scroll.htm">Scroll</a> control.</td></tr>
+<tr><td><a class=i>image</a></td><td>Creates a <a href="image.htm">Image</a> control.</td></tr>
+<tr><td><a class=i>list</a></td><td>Creates a <a href="list.htm">List</a> control.</td></tr>
+<tr><td><a class=i>link</a></td><td>Creates a <a href="link.htm">Link</a> control.</td></tr>
+<tr><td><a class=i>text</a></td><td>Creates a <a href="text.htm">Text</a> control.</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td><a class=i>divider</a></td><td>Creates a <a href="divider.htm">Divider</a> control.</td></tr>
+<tr><td><a class=i>panel</a></td><td>Creates a <a href="panel.htm">Panel</a> control.</td></tr>
+<tr><td><a class=i>tab</a></td><td>Creates a <a href="tab.htm">Tab</a> control.</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td><a class=i>window</a></td><td>Docks a mIRC <a href="window.htm">@window</a>. The first parameter in 
+the <a class=i>(OPTIONS)</a> must be the <a class=i3>@window</a> name.</td></tr>
+<tr><td><a class=i>dialog</a></td><td>Docks a mIRC <a href="dialog.htm">dialog</a>. The first parameter in 
+the <a class=i>(OPTIONS)</a> must be the <a class=i3>dialog</a> name.</td></tr>
+</table>
+<br />
+</td></tr>
+<tr><td><a class=i2>[X]</a></td><td>X position of control.</td></tr>
+<tr><td><a class=i2>[Y]</a></td><td>Y position of control.</td></tr>
+<tr><td><a class=i2>[W]</a></td><td>Width of control.</td></tr>
+<tr><td><a class=i2>[H]</a></td><td>Height of control.</td></tr>
+<tr><td><a class=i2>(OPTIONS)</a></td><td>Optional styles and options available on each individual controls.</td></tr>
+</table>
+<br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.4" href=#>-d</a><hr><br />
+This command lets you delete a control added on the panel.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -d dialog ID [CID]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -d dcx 4 6</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.12" href=#>-l</a><hr><br />
+This command lets you add <a href="layout.htm">Cell Layout Algorithm</a> rules to your panel
+control for automatic resizing of the child controls.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -l dialog ID [COMMAND] [PATH] [TAB] [+FLAGS] [ID] [WEIGHT] [W] [H]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -l dcx 4 root $chr(9) +pv 0 1 0 0</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -l dcx 4 root 1 2 $chr(9) +fi 7 1 200 300</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -l dcx 4 space 1 $chr(9) + 5 5 5 5</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>[COMMAND]</a></td><td>Layout command.</td></tr>
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td><a class=i>root</a></td><td>Sets the root cell element.</td></tr>
+<tr><td><a class=i>cell</a></td><td>Adds a cell element as a child of another cell element.</td></tr>
+<tr><td><a class=i>space</a></td><td>Sets the space padding around a cell element.</td></tr>
+<tr><td><a class=i>update</a></td><td>Updates the cell layout (must be used after adding rules or 
+changing padding settings to refresh display).</td></tr>
+</table>
+<br />
+</td></tr>
+<tr><td><a class=i2>[PATH]</a></td><td>Cell Path from root element (can be <a class=i>root</a> to point 
+to root element). See the <a href="layout.htm">Cell Layout Algorithm</a> explanation for concrete examples.</td></tr>
+<tr><td><a class=i2>[+FLAGS]</a></td><td>DCX Control type wanted.</td></tr>
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td><a class=i>f</a></td><td>Creates a fixed cell element.</td></tr>
+<tr><td><a class=i>h</a></td><td>Creates a width fixed cell if used with <a class=i>f</a> or a horizontal cell pane 
+if used with <a class=i>p</a>.</td></tr>
+<tr><td><a class=i>i</a></td><td>Indicates that the supplied control [ID] is valid and is the child control when 
+used with <a class=i>f</a> or <a class=i>l</a>.</td></tr>
+<tr><td><a class=i>l</a></td><td>Creates a fill cell element.</td></tr>
+<tr><td><a class=i>p</a></td><td>Creates a pane cell element.</td></tr>
+<tr><td><a class=i>v</a></td><td>Creates a height fixed cell if used with <a class=i>f</a> or a vertical cell pane 
+if used with <a class=i>p</a>.</td></tr>
+<tr><td><a class=i>w</a></td><td>When used, it means that the supplied [W] and [H] represent 
+the fixed cell width in the applicable direction (if the fixed cell is fixed in width, height or both).</td></tr>
+</table>
+<br />
+</td></tr>
+<tr><td><a class=i2>[ID]</a></td><td>ID of the control (used with fixed or fill cells - use 0 if 
+no control si to be linked to the cell).</td></tr>
+<tr><td><a class=i2>[WEIGHT]</a></td><td>Cell child weight. (used when adding a child cell to a pane cell)</td></tr>
+<tr><td><a class=i2>[W]</a></td><td>Fixed width of control (used with fixed cell).</td></tr>
+<tr><td><a class=i2>[H]</a></td><td>Fixed height of control. (used with fixed cell)</td></tr>
+
+<tr><td><a class=i2>(OPTIONS)</a></td><td>Optional styles and options available on each individual controls.</td></tr>
+</table>
+<br />
+<a class=i2>N.B.</a> If you use the <a class=i>update</a> command in the init event of a dialog, you will have to use
+".timer 0 1 xdid -l dialog update" as a glitch with XP and themes disabled prevents windows from appearing. The timer 
+corrects this problem.<br /><br />
+<a class=i2>N.B.</a> When using the <a class=i>space</a> command, the [ID] [WEIGHT] [W] [H] are in fact the [LEFT] [TOP] [RIGHT] [BOTTOM] spacings<br /><br />
+<a class=i2>N.B.</a> Use the value <a class=i>0</a> for the fields not used as the command expects them to be filled 
+even though they aren't used.
+</p>
+
+<!-- Section 5 -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="5" href=#>$xdid() Properties</a><hr class=t><br />
+None!
+</p>
+
+<!-- Section 8 - Events -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="8" href=#>Control Events</a><hr class=t><br />
+The following events are fired when a user does some particular actions on the panel control. All events and 
+data are sent to the <a href="index.htm#4" class=i>callback alias</a> associated to the dialog when marked. 
+Remember that the events over a child control will be fired according to that child control.
+</p>
+
+
+<table width='100%'><tr><td align='center'>
+<table width='95%'>
+
+<tr>
+  <td><a class=i2>help</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Launched when you click on a control using the <a class=i>?</a> contexthelp button.</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td></tr>
+<tr>
+  <td><a class=i2>sclick</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When the left mouse button is clicked.</td>
+</tr>
+<tr><td colspan=2>&nbsp;</td></tr>
+<tr>
+  <td><a class=i2>dclick</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When the left mouse button is double-clicked.</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td></tr>
+<tr>
+  <td><a class=i2>lbdown</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When the left mouse button is pressed.</td>
+</tr>
+<tr><td colspan=2>&nbsp;</td></tr>
+<tr>
+  <td><a class=i2>lbup</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When the left mouse button is released.</td>
+</tr>
+<tr><td colspan=2>&nbsp;</td></tr>
+<tr>
+  <td><a class=i2>lbdblclk</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When the left mouse button is double-clicked.</td>
+</tr>
+
+</table>
+</td></tr></table>
+
+<br /></td>
+<td>&nbsp;</td><td><nobr>
+
+<a class=i href="#3">Control Styles</a><br />
+<br />
+<a class=i href="#4">/xdid flags</a><br />
+• <a href="#4.3">-c</a><br />
+• <a href="#4.4">-d</a><br />
+• <a href="#4.12">-l</a><br />
+<br />
+<a class=i href="#5">$xdid() Properties</a><br />
+<br />
+<a class=i href="#8">Control Events</a><br />
+
+</nobr></td></tr></table>
+
+<table class=bar width=100%><tr>
+<td width=33% align=left><nobr><a href='index.htm'> Tha... Help </a></nobr></td>
+<td width=33% align=center><nobr><b>&copy; 2005</b></nobr></td>
+<td width=33% align=right><nobr><a href='mailto:clickhere@scriptsdb.org'>Contact</a></nobr></td>
+</tr></table><br />
+</body></html>

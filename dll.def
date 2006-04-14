@@ -1,0 +1,22 @@
+LIBRARY	DCX
+EXPORTS
+
+LoadDll
+UnloadDll
+
+Mark
+Version
+
+xdid
+_xdid
+
+xdialog
+_xdialog
+
+xpop
+_xpop
+
+xpopup
+_xpopup
+
+mpopup

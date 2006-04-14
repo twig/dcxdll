@@ -1,0 +1,396 @@
+<html><head><title>DCX - Dialog Control Xtension DLL v1.0 by ClickHeRe</title>
+<style type='text/css'>
+body { font-size: 8pt; background: #ffffff; font-family: tahoma; color: #000000; }
+table { font-size: 8pt; font-family: tahoma }
+
+table.bar { border-right: #000000 1px solid; border-top: #000000 1px solid; font-size: 8pt; background: #eeeeee; border-left: #000000 1px solid; border-bottom: #000000 1px solid; font-family: tahoma }
+
+a.i3 { font-weight: bold; font-size: 8pt; color: #EE9900; font-family: tahoma; text-decoration: none }
+a.i2 { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:link { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:active { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:visited { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:hover { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:link { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:active { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:visited { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:hover { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:link { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:visited { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:active { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:hover { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: underline }
+hr { font-weight: bold; font-size: 8pt; color: #002980; }
+hr.t { font-weight: bold; font-size: 8pt; color: #D60000; }
+</style>
+</head>
+<body topmargin="0" leftmargin="5">
+<table border="0" width="100%" cellspacing="0" cellpadding="0" BGCOLOR=#FFFFFF>
+<tr><td heigth=200 align=left valign=middle>&nbsp;
+<a href="index.htm" title="DCX - Dialog Control Xtension"><img src="../images/dcx.png" border='0'></a>
+</td><td valign='bottom' align='right'>
+<a href="../nl/index.htm">Dutch</a> |
+<a href="../index.htm">English</a> | 
+<a href="../fi/index.htm">Finnish</a> |
+<a href="../fr/index.htm">French</a> |
+<a href="../ge/index.htm">German</a> |
+<a href="../he/index.htm">Hebrew</a> |
+<a href="../it/index.htm">Italian</a> |
+<a href="../my/index.htm">Malaysian</a> |
+<a href="../br/index.htm">Portuguese (Brazil)</a> |
+<a href="../pt/index.htm">Portuguese</a> |
+<a href="../sp/index.htm">Spanish</a> |
+<a href="../sw/index.htm">Swedish</a>
+</td></tr></table>
+<table class=bar width=100%><tr>
+<td align=left width=33%><nobr><a href='index.htm'> Home </a> | <a href="http://scriptsdb.org/download.php?id=1155">Download</a> | <a href="http://dcx.scriptsdb.org/forum/">Forum</a> | <a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a></nobr></td>
+<td align=center width=33%><nobr><b>Dialog Control Xtension - ComboEx</b> </nobr></td>
+<td align=right width=33%><b> Version 1.2.7 </b></td></tr></table><br /><table border=0 width="100%" cellspacing=2 cellpadding=2><tr valign=top><td><nobr>
+<a class=i href="#1">Introduction</a><br />
+<br />
+<a class=i href="dcxvsmdx.htm">DCX vs MDX</a><br />
+<br />
+<a class=i href="#2">DCX Supported Controls</a><br />
+• <a href="pbar.htm">Progressbar</a><br />
+• <a href="treeview.htm">TreeView</a><br />
+• <a href="listview.htm">ListView</a><br />
+• <a href="toolbar.htm">Toolbar</a><br />
+• <a href="statusbar.htm">Statusbar</a><br />
+• <a href="comboex.htm">ComboEx</a><br />
+• <a href="trackbar.htm">Trackbar</a><br />
+• <a href="rebar.htm">Rebar</a><br />
+• <a href="richedit.htm">RichEdit</a><br />
+• <a href="colorcombo.htm">ColorCombo</a><br />
+• <a href="button.htm">Button</a><br />
+• <a href="ipaddress.htm">IP Address</a><br />
+• <a href="updown.htm">UpDown</a><br />
+• <a href="webctrl.htm">WebControl</a><br />
+• <a href="calendar.htm">Calendar</a><br />
+<br />
+• <a href="line.htm">Line</a><br />
+• <a href="box.htm">Box</a><br />
+• <a href="radio.htm">Radio</a><br />
+• <a href="check.htm">Check</a><br />
+• <a href="edit.htm">Edit</a><br />
+• <a href="scroll.htm">Scroll</a><br />
+• <a href="image.htm">Image</a><br />
+• <a href="list.htm">List</a><br />
+• <a href="link.htm">Link</a><br />
+• <a href="text.htm">Text</a><br />
+<br />
+• <a href="divider.htm">Divider</a><br />
+• <a href="panel.htm">Panel</a><br />
+• <a href="tab.htm">Tab</a><br />
+<br />
+• <a href="window.htm">@Window</a><br />
+• <a href="dialog.htm">Dialog</a><br />
+<br />
+<a class=i href="#15">DCX Supported Features</a><br />
+• <a href="layout.htm">Cell Layout Algorithm</a><br />
+• <a href="xpopup.htm">XPopup Menus</a><br />
+
+<!-- Section 1 -->
+
+</nobr></td><td>&nbsp;</td><td width=100%>
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="1" href=#>Introduction</a><hr class=t><br />
+This control enables you to create a comboex control which is a combo box extended to support images.<br /><br />
+
+<center><img src="../images/comboex.png" alt="ComboEx Control"/></center>
+</p>
+<br/>
+<!-- Section 3 -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="3" href=#>Control Styles</a><hr class=t><br />
+These control styles are available when creating a comboex.
+</p>
+
+<table width='100%'><tr><td align='center'>
+<table width='95%'>
+
+<tr>
+  <td colspan=3><b>Control Styles</b></td>
+</tr>
+
+<tr>
+  <td><a class=i2>simple</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Combo that is a list with an edit box</td>
+</tr>
+
+<tr>
+  <td><a class=i2>dropdown</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Simple dropdown combo.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>dropedit</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Dropdown combo with an editbox.</td>
+</tr>
+
+<tr>
+  <td colspan=3>&nbsp;</td>
+</tr>
+
+<tr>
+  <td colspan=3><b>General Styles</b></td>
+</tr>
+
+<tr>
+  <td><a class=i2>tabstop</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Specifies a control that can receive the keyboard focus when the user presses the TAB key. 
+  Pressing the TAB key changes the keyboard focus to the next control with the tabstop style. </td>
+</tr>
+
+<tr>
+  <td><a class=i2>group</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Specifies the first control of a group of controls. The group consists of this first control 
+  and all controls defined after it, up to the next control with the group style. The first control in each 
+  group usually has the tabstop style so that the user can move from group to group. The user can subsequently 
+  change the keyboard focus from one control in the group to the next control in the group by using the 
+  direction keys.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>disabled</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The control is created disabled.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>notheme</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Removes XP Themes on controls.</td>
+</tr>
+
+</table>
+</td></tr></table>
+
+<!-- Section 5 -->
+<br/>
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="4" href=#>/xdid flags</a><hr class=t><br />
+Control commands are input to the control with the <b>/xdid</b> command.<br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.1" href=#>-a</a><hr><br />
+This command lets you add an item to the comboex.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -a dialog ID [N] [INDENT] [#ICON] [#SELECTED] [#OVERLAY] [Item Text]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -a dcx 4 3 0 1 2 0 scriptsdb.org</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>[N]</a></td><td>Position where the comboex item will be added (Use <a class=i>0</a> to insert at the end).</td></tr>
+<tr><td><a class=i2>[INDENT]</a></td><td>Number of indent widths from the left border (every unit is a 10 pixel indent).</td></tr>
+<tr><td><a class=i2>[#ICON]</a></td><td>Icon displayed when item is not selected (Use 0 for no icon).</td></tr>
+<tr><td><a class=i2>[#SELECTED]</a></td><td>Icon displayed when item is selected (Use 0 for no icon).</td></tr>
+<tr><td><a class=i2>[#OVERLAY]</a></td><td>Overlay icon of the item (<a class=i3>not functionnal yet</a>)</td></tr>
+</table>
+<br />
+<a class=i2>N.B.</a> You can use <a class=i>0</a> for the N value to insert the item at the end of the comboex.
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.2" href=#>-c</a><hr><br />
+This command lets you select the Nth comboex item.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -c dialog ID N</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -c dcx 4 5</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.3" href=#>-d</a><hr><br />
+This command lets you delete the Nth comboex item.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -d dialog ID N</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -d dcx 4 6</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.4" href=#>-r</a><hr><br />
+This command lets you clear all the comboex items.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -r dialog ID</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -r dcx 4</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.5" href=#>-u</a><hr><br />
+This command makes the currently selected comboex item unselected.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -u dialog ID</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -u dcx 4</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.6" href=#>-w</a><hr><br />
+This command lets you add an icon to the comboex image list.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -w dialog ID [INDEX] [FILENAME]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -w dcx 4 113 C:/mIRC/shell.dll</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>[INDEX]</a></td><td>Icon index in icon archive (use 0 if the file is a single icon file)</td></tr>
+<tr><td><a class=i2>[FILENAME]</a></td><td>Icon archive filename</td></tr>
+</table>
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.7" href=#>-y</a><hr><br />
+This command lets you clear the comboex image list.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -y dialog ID</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -y dcx 4</a><br /><br />
+</p>
+
+<br />
+<!-- Section 7 - $xdid -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="5" href=#>$xdid() Properties</a><hr class=t><br />
+The following properties are used to retreive information from the comboex control.
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.1" href=#>.text</a><hr><br />
+This property lets you retreive the Nth comboex item text.<br /><br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID, N).text</a><br /><br />
+<b>Example:</b> <a class=i3>//echo -a $xdid(dcx, 4, 1).text</a><br /><br />
+<a class=i2>N.B.</a> You can use a value of <a class=i>0</a> for N to retrieve the text of the editbox.
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.2" href=#>.sel</a><hr><br />
+This property lets you retreive the comboex selected item number.<br /><br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID).sel</a><br /><br />
+<b>Example:</b> <a class=i3>//echo -a $xdid(dialog, ID).sel</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.3" href=#>.seltext</a><hr><br />
+This property lets you retreive selected comboex item text.<br /><br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID).seltext</a><br /><br />
+<b>Example:</b> <a class=i3>//echo -a $xdid(dcx, 4).seltext</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.4" href=#>.num</a><hr><br />
+This property lets you retreive the total number of comboex items.<br /><br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID).num</a><br /><br />
+<b>Example:</b> <a class=i3>//echo -a $xdid(dcx, 4).num</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.5" href=#>.find</a><hr><br />
+This property lets you retreive the comboex item index of the Nth found comboex item matching the input search patern. If N is <a class=i>0</a>, returns the total number of matching items.<br /><br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID, </a><a class=i2>{TAB}</a><a class=i3>Matchtext</a><a class=i2>{TAB}</a><a class=i3>, T, N).find</a><br /><br />
+<b>Example:</b> <a class=i3>//echo -a $xdid(dcx, 4, $chr(9) *Item* $chr(9), W, 3).find</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>Matchtext</a></td><td>String composed of wildcards or regex paterns used for the search.</td></tr>
+<tr><td><a class=i2>T</a></td><td>Value indicating if the search is using a regex patern or wildcard string.</td></tr>
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td><a class=i2>W</a></td><td><a class=i3>Matchtext</a> is a wildcard string.</td></tr>
+<tr><td><a class=i2>R</a></td><td><a class=i3>Matchtext</a> is a regex patern.</td></tr>
+</table>
+<br />
+</td></tr>
+<tr><td><a class=i2>N</a></td><td>Parameter indicating to return the Nth match. If N is 0, returns the total matches found.</td></tr>
+</table>
+<br />
+<a class=i2>N.B.</a> The <a class=i>{TAB}</a> characters surrounding the matchtext are mandatory or else it won't work.<br /><br />
+</p>
+
+<!-- Section 8 - Events -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="8" href=#>Control Events</a><hr class=t><br />
+The following events are fired when a user does some particular actions on the comboex control. All events and 
+data are sent to the <a href="index.htm#4" class=i>callback alias</a> associated to the dialog when marked. 
+Remember that the events over a child control will be fired according to that child control.
+</p>
+
+<table width='100%'><tr><td align='center'>
+<table width='95%'>
+
+<tr>
+  <td><a class=i2>sclick</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When an item is selected in the comboex.</td>
+</tr>
+<tr><td colspan=2>&nbsp;</td>
+<td>
+<table>
+<tr><td valign=top><a class=i2>[VALUE]</a></td><td width=100% valign=top><a class=i>[ITEM]</a>
+<table>
+<tr><td nowrap='nowrap'><a class=i2>[ITEM]</a></td><td width=100%>Item number where the event was triggered.</td></tr>
+</table>
+</td></tr>
+</table>
+</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+
+<tr>
+  <td><a class=i2>dclick</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When an item is double-clicked in a simple comboex.</td>
+</tr>
+<tr><td colspan=2>&nbsp;</td>
+<td>
+<table>
+<tr><td valign=top><a class=i2>[VALUE]</a></td><td width=100% valign=top><a class=i>[ITEM]</a>
+<table>
+<tr><td nowrap='nowrap'><a class=i2>[ITEM]</a></td><td width=100%>Item number where the event was triggered.</td></tr>
+</table>
+</td></tr>
+</table>
+</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+
+<tr>
+  <td><a class=i2>edit</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When the text is edited in a comboex with editbox.</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+
+<tr>
+  <td><a class=i2>return</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When the <a class=i>Enter</a> key is pressed in the editbox of a comboex.</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<tr>
+  <td><a class=i2>help</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Launched when you click on a control using the <a class=i>?</a> contexthelp button.</td>
+</tr>
+
+</table>
+</td></tr></table>
+
+<br /></td>
+<td>&nbsp;</td><td><nobr>
+
+<a class=i href="#3">Control Styles</a><br />
+<br />
+<a class=i href="#4">/xdid flags</a><br />
+• <a href="#4.1">-a</a><br />
+• <a href="#4.2">-c</a><br />
+• <a href="#4.3">-d</a><br />
+• <a href="#4.4">-r</a><br />
+• <a href="#4.5">-u</a><br />
+• <a href="#4.6">-w</a><br />
+• <a href="#4.7">-y</a><br />
+<br />
+<a class=i href="#5">$xdid() Properties</a><br />
+• <a href="#5.1">text</a><br />
+• <a href="#5.2">seltext</a><br />
+• <a href="#5.3">sel</a><br />
+• <a href="#5.4">num</a><br />
+• <a href="#5.5">find</a><br />
+<br />
+<a class=i href="#8">Control Events</a><br />
+
+</nobr></td></tr></table>
+
+<table class=bar width=100%><tr>
+<td width=33% align=left><nobr><a href='index.htm'> Tha... Help </a></nobr></td>
+<td width=33% align=center><nobr><b>&copy; 2005</b></nobr></td>
+<td width=33% align=right><nobr><a href='mailto:clickhere@scriptsdb.org'>Contact</a></nobr></td>
+</tr></table><br />
+</body></html>

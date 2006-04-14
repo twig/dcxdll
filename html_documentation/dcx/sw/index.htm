@@ -1,0 +1,153 @@
+<html><head><title>DCX - Dialog Control Xtension DLL v1.0 by ClickHeRe</title>
+<style type='text/css'>
+body { font-size: 8pt; background: #ffffff; font-family: tahoma; color: #000000; }
+table { font-size: 8pt; font-family: tahoma }
+
+table.bar { border-right: #000000 1px solid; border-top: #000000 1px solid; font-size: 8pt; background: #eeeeee; border-left: #000000 1px solid; border-bottom: #000000 1px solid; font-family: tahoma }
+
+a.i3 { font-weight: bold; font-size: 8pt; color: #EE9900; font-family: tahoma; text-decoration: none }
+a.i2 { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:link { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:active { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:visited { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:hover { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:link { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:active { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:visited { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:hover { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:link { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:visited { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:active { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:hover { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: underline }
+hr { font-weight: bold; font-size: 8pt; color: #002980; }
+hr.t { font-weight: bold; font-size: 8pt; color: #D60000; }
+</style>
+</head>
+<body topmargin="0" leftmargin="5">
+<table border="0" width="100%" cellspacing="0" cellpadding="0" BGCOLOR=#FFFFFF>
+<tr><td heigth=200 align=left valign=middle>&nbsp;
+<a href="index.htm" title="DCX - Dialog Control Xtension"><img src="../images/dcx.png" border='0'></a>
+</td><td valign='bottom' align='right'>
+<a href="../nl/index.htm">Dutch</a> |
+<a href="../index.htm">English</a> | 
+<a href="../fi/index.htm">Finnish</a> |
+<a href="../fr/index.htm">French</a> |
+<a href="../ge/index.htm">German</a> |
+<a href="../he/index.htm">Hebrew</a> |
+<a href="../it/index.htm">Italian</a> |
+<a href="../my/index.htm">Malaysian</a> |
+<a href="../br/index.htm">Portuguese (Brazil)</a> |
+<a href="../pt/index.htm">Portuguese </a> |
+<a href="../sp/index.htm">Spanish</a> |
+<a href="../sw/index.htm">Swedish</a>
+</td></tr></table>
+<table class=bar width=100%><tr>
+<td align=left width=33%><nobr><a href='index.htm'> Home </a> | <a href="http://dcx.scriptsdb.org/dcx.zip">Download</a> | <a href="http://dcx.scriptsdb.org/forum/">Forum</a></nobr></td>
+<td align=center width=33%><nobr><b>Dialog Control Xtension</b> </nobr></td>
+<td align=right width=33%><b> Version 1.0 </b></td></tr></table><br /><table border=0 width="100%" cellspacing=2 cellpadding=2><tr valign=top><td><nobr>
+<a class=i href="#1">Introduction</a><br />
+<br />
+<a class=i href="#2">DCX Supported Controls</a><br />
+• <a href="pbar.htm">Progressbar</a><br />
+• <a href="treeview.htm">Treeview</a><br />
+• <a href="listview.htm">ListView</a><br />
+• <a href="toolbar.htm">Toolbar</a><br />
+• <a href="statusbar.htm">Statusbar</a><br />
+• <a href="comboex.htm">ComboEx</a><br />
+• <a href="trackbar.htm">Trackbar</a><br />
+• <a href="rebar.htm">Rebar</a><br />
+• <a href="richedit.htm">RichEdit</a><br />
+• <a href="colorcombo.htm">ColorCombo</a><br />
+• <a href="button.htm">Button</a><br />
+<br />
+• <a href="divider.htm">Divider</a><br />
+• <a href="panel.htm">Panel</a><br />
+• <a href="tab.htm">Tab</a><br />
+<br />
+• <a href="window.htm">@Window</a><br />
+• <a href="dialog.htm">Dialog</a><br />
+<br />
+<a class=i href="#15">DCX Supported Features</a><br />
+• <a href="layout.htm">Cell Layout Algorithm</a><br />
+<br />
+<a class=i href="#14">Latest Features</a> [<a class=i2 href="changes.htm">all</a>]<br />
+<a class=i href="changes.htm#15">Coming Soon</a><br />
+<a class=i href="changes.htm#6">Known Bugs</a><br />
+<a class=i href="changes.htm#7">Bug Fixes</a><br />
+<br />
+<a class=i href="#3">General Commands</a><br />
+• <a href="#3.1">Mark</a><br />
+• <a href="#3.20">Version</a><br />
+<br />
+<a class=i href="#10">/xdialog Command</a><br />
+• <a href="#10.1">-a</a><br />
+• <a href="#10.2">-b</a><br />
+• <a href="#10.3">-c</a><br />
+• <a href="#10.4">-d</a><br />
+• <a href="#10.5">-h</a><br />
+• <a href="#10.6">-m</a><br />
+• <a href="#10.7">-n</a><br />
+• <a href="#10.8">-r</a><br />
+• <a href="#10.9">-s</a><br />
+<br />
+<a class=i href="#11">$xdialog Identifier</a><br />
+• <a href="#11.1">isid</a><br />
+• <a href="#11.2">nextid</a><br />
+<br />
+<a class=i href="#4">CallBack Alias Events</a><br />
+<br />
+<a class=i href="#9">/xdid Command</a><br />
+• <a href="#9.1">-b</a><br />
+• <a href="#9.2">-e</a><br />
+• <a href="#9.3">-f</a><br />
+• <a href="#9.4">-h</a><br />
+• <a href="#9.5">-p</a><br />
+• <a href="#9.6">-s</a><br />
+• <a href="#9.7">-x</a><br />
+<br />
+<a class=i href="#5">$xdid Identifier</a><br />
+• <a href="#5.1">enabled</a><br />
+• <a href="#5.2">visible</a><br />
+• <a href="#5.3">pos</a><br />
+<br />
+<a class=i href="#8">Dialog Events</a><br />
+
+</nobr></td><td>&nbsp;</td><td width=100%>
+
+<!-- Section 1 -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="1" href=#>Introduction</a><hr class=t><br />
+Coming Soon!
+</p>
+
+<p align=justify>
+<b><a class=i>DCX DLL</a></b><hr class=t><br />
+- <b>Development</b> -> <a href="mailto:clickhere@scriptsdb.org">ClickHeRe</a><br />
+<br />
+- <b>General Testing</b> -> bl0x<br />
+- <b>Dutch Translation</b> -> Mpdreamz<br />
+- <b>Finnish Translation</b> -> Mkz<br />
+- <b>French Translation</b> -> dunkelzahn<br />
+- <b>German Translation</b> -> Duplex<br />
+- <b>Hebrew Translation</b> -> seec77<br />
+- <b>Italian Translation</b> -> Free Spot<br />
+- <b>Malaysian Translation</b> -> da^hype<br />
+- <b>Portuguese (Brazil) Translation</b> -> Henrique<br />
+- <b>Portuguese (Portugal) Translation</b> -> Theorem<br />
+- <b>Spanish Translation</b> -> PaTaGoN<br />
+- <b>Swedish Translation</b> -> Rixxon<br />
+- <b>Demo Dialog</b> -> elizio<br />
+<br />
+- #scriptsdb.org @ Undernet @ Webnet<br />
+- <a href='http://scriptsdb.org' target="_blank">http://scriptsdb.org</a><br />
+</p>
+
+<br /></td></tr></table>
+<table class=bar width=100%><tr>
+<td width=33% align=left><nobr><a href='index.htm'> Tha... Help </a></nobr></td>
+<td width=33% align=center><nobr><b>&copy; 2005</b></nobr></td>
+<td width=33% align=right><nobr><a href='mailto:clickhere@scriptsdb.org'>Contact</a></nobr></td>
+</tr></table><br />
+</body></html>

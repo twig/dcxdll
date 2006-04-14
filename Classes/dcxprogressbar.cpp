@@ -1,0 +1,500 @@
+/*!
+ * \file dcxprogressbar.cpp
+ * \brief blah
+ *
+ * blah
+ *
+ * \author David Legault ( clickhere at scriptsdb dot org )
+ * \version 1.0
+ *
+ * \b Revisions
+ *
+ * © ScriptsDB.org - 2006
+ */
+
+#include "dcxprogressbar.h"
+#include "dcxdialog.h"
+
+/*!
+ * \brief Constructor
+ *
+ * \param ID Control ID
+ * \param p_Dialog Parent DcxDialog Object
+ * \param rc Window Rectangle
+ * \param styles Window Style Tokenized List
+ */
+
+DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+: DcxControl( ID, p_Dialog ) 
+{
+
+  LONG Styles = 0, ExStyles = 0;
+  BOOL bNoTheme = FALSE;
+  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+
+  this->m_Hwnd = CreateWindowEx(	
+    WS_EX_CLIENTEDGE,
+    DCX_PROGRESSBARCLASS,
+    NULL,
+    WS_CHILD | WS_VISIBLE | Styles, 
+    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+    p_Dialog->getHwnd( ),
+    (HMENU) ID,
+    GetModuleHandle(NULL), 
+    NULL);
+
+  if ( bNoTheme )
+    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+
+  this->m_clrText = RGB(0,0,0);
+  this->m_tsText = "%d %%";
+  this->m_bIsAbsoluteValue = FALSE;
+
+  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+  this->registreDefaultWindowProc( );
+  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+}
+
+/*!
+ * \brief Constructor
+ *
+ * \param ID Control ID
+ * \param p_Dialog Parent DcxDialog Object
+ * \param mParentHwnd Parent Window Handle
+ * \param rc Window Rectangle
+ * \param styles Window Style Tokenized List
+ */
+
+DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
+: DcxControl( ID, p_Dialog ) 
+{
+
+  LONG Styles = 0, ExStyles = 0;
+  BOOL bNoTheme = FALSE;
+  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+
+  this->m_Hwnd = CreateWindowEx(	
+    WS_EX_CLIENTEDGE,
+    DCX_PROGRESSBARCLASS,
+    NULL,
+    WS_CHILD | WS_VISIBLE | Styles, 
+    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+    mParentHwnd,
+    (HMENU) ID,
+    GetModuleHandle(NULL), 
+    NULL);
+
+  if ( bNoTheme )
+    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+
+  this->m_clrText = RGB(0,0,0);
+  this->m_tsText = "%d %%";
+  this->m_bIsAbsoluteValue = FALSE;
+
+  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+  this->registreDefaultWindowProc( );
+  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+DcxProgressBar::~DcxProgressBar( ) {
+
+  this->unregistreDefaultWindowProc( );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+
+  unsigned int i = 1, numtok = styles.numtok( " " );
+
+  while ( i <= numtok ) {
+
+    if ( styles.gettok( i , " " ) == "smooth" ) 
+      *Styles |= PBS_SMOOTH;
+    else if ( styles.gettok( i , " " ) == "vertical" ) 
+      *Styles |= PBS_VERTICAL;
+    else if ( styles.gettok( i , " " ) == "marquee" ) 
+      *Styles |= PBS_MARQUEE;
+
+    i++;
+  }
+  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+}
+
+/*!
+ * \brief $xdid Parsing Function
+ *
+ * \param input [NAME] [ID] [PROP] (OPTIONS)
+ * \param szReturnValue mIRC Data Container
+ *
+ * \return > void
+ */
+
+void DcxProgressBar::parseInfoRequest( TString & input, char * szReturnValue ) {
+
+  if ( input.gettok( 3, " " ) == "value" ) {
+
+    wsprintf( szReturnValue, "%d", this->getPosition( ) );
+    return;
+  }
+  else if ( input.gettok( 3, " " ) == "range" ) {
+
+    PBRANGE pbr;
+    this->getRange( FALSE, &pbr );
+    wsprintf( szReturnValue, "%d %d", pbr.iLow, pbr.iHigh );
+    return;
+  }
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
+
+    return;
+  }
+
+  szReturnValue[0] = 0;
+}
+/*!
+ * \brief blah
+ *
+ * \param input [NAME] [SWITCH] [ID] (OPTIONS)
+ */
+
+void DcxProgressBar::parseCommandRequest( TString & input ) {
+
+  XSwitchFlags flags;
+  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
+  this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
+
+  int numtok = input.numtok( " " );
+
+  // xdid -c name ID $rgb(color)
+  if ( flags.switch_flags[2] ) {
+
+    this->setBarColor( (COLORREF) atol( input.gettok( 4, " " ).to_chr( ) ) );
+  }
+  // xdid -i name ID (TEXT)
+  else if ( flags.switch_flags[8] ) {
+
+    if ( input.numtok( " " ) > 3 )
+      this->m_tsText = input.gettok( 4, -1, " " );
+    else
+      this->m_tsText = "";
+
+    this->redrawWindow( );
+  }
+  // xdid -j name ID [a|p]
+  else if ( flags.switch_flags[9] ) {
+
+    if ( input.gettok( 4, " " ) == "a" )
+      this->m_bIsAbsoluteValue = TRUE;
+    else
+      this->m_bIsAbsoluteValue = FALSE;
+    
+    this->redrawWindow( );
+  }
+  // xdid -k name ID $rgb(color)
+  else if ( flags.switch_flags[10] ) {
+
+    this->setBKColor( (COLORREF) atol( input.gettok( 4, " " ).to_chr( ) ) );
+  }
+  // xdid -m(o|g) name ID N
+  else if ( flags.switch_flags[12] ) {
+
+    // -mo
+    if ( flags.switch_flags[14] ) {
+
+      this->setMarquee( TRUE, atoi( input.gettok( 4, " " ).to_chr( ) ) );
+    }
+    // -mg
+    else if ( flags.switch_flags[6] ) {
+
+      this->setMarquee( FALSE, 0 );
+    }
+  }
+  // xdid -q name ID [COLOR]
+  else if ( flags.switch_flags[16] ) {
+
+    this->m_clrText = (COLORREF) atol( input.gettok( 4, " " ).to_chr( ) );
+
+    this->redrawWindow( );
+  }
+  // xdid -r name ID RLow RHigh
+  else if ( flags.switch_flags[17] ) {
+
+    if ( numtok > 4 )
+      this->setRange( (int) atoi( input.gettok( 4, " " ).to_chr( ) ),
+                      (int) atoi( input.gettok( 5, " " ).to_chr( ) ) );
+
+  }
+  // xdid -t name ID
+  else if ( flags.switch_flags[19] ) {
+
+    this->stepIt( );
+  }
+  // xdid -u name ID N
+  else if ( flags.switch_flags[20] ) {
+
+    this->setStep( atoi( input.gettok( 4, " " ).to_chr( ) ) );
+  }
+  // xdid -v name ID N
+  else if ( flags.switch_flags[21] ) {
+
+    if ( numtok > 3 )
+      this->setPosition( (int) atoi( input.gettok( 4, " " ).to_chr( ) ) );
+  }
+  else {
+    this->parseGlobalCommandRequest( input, flags );
+  }
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxProgressBar::setPosition( int nNewPos ) {
+  return SendMessage( this->m_Hwnd, PBM_SETPOS, (WPARAM) nNewPos, (LPARAM) 0 );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxProgressBar::setRange( int iLowLim, int iHighLim ) {
+  return SendMessage(this->m_Hwnd, PBM_SETRANGE32, (WPARAM) iLowLim, (LPARAM) iHighLim );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxProgressBar::getPosition( ) {
+  return SendMessage( this->m_Hwnd, PBM_GETPOS, (WPARAM) 0, (LPARAM) 0 );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxProgressBar::getRange( BOOL fWhichLimit, PPBRANGE ppBRange ) {
+  return SendMessage( this->m_Hwnd, PBM_GETRANGE, (WPARAM) fWhichLimit, (LPARAM) ppBRange );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxProgressBar::setMarquee( BOOL fStart, int fTime ) {
+  return SendMessage( this->m_Hwnd, PBM_SETMARQUEE, (WPARAM) fStart, (LPARAM) fTime );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxProgressBar::stepIt( ) {
+  return SendMessage( this->m_Hwnd, PBM_STEPIT, (WPARAM) 0, (LPARAM) 0 );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxProgressBar::setStep( int nStepInc ) {
+  return SendMessage( this->m_Hwnd, PBM_SETSTEP, (WPARAM) nStepInc, (LPARAM) 0 );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxProgressBar::setBarColor( COLORREF clrBar ) {
+  return SendMessage( this->m_Hwnd, PBM_SETBARCOLOR, (WPARAM) 0, (LPARAM) clrBar );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxProgressBar::setBKColor( COLORREF clrBk ) {
+  return SendMessage( this->m_Hwnd, PBM_SETBKCOLOR, (WPARAM) 0, (LPARAM) clrBk ); 
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+
+  switch( uMsg ) {
+
+    case WM_HELP:
+      {
+        char ret[256];
+        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+      }
+      break;
+
+    case WM_PAINT:
+      {
+        //mIRCError( "WM_PAINT" );
+
+        PAINTSTRUCT ps; 
+        HDC hdc; 
+
+        hdc = BeginPaint( this->m_Hwnd, &ps );
+
+        bParsed = TRUE;
+        LRESULT res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+        if ( this->m_tsText.len( ) > 0 ) {
+
+          SetBkMode( hdc, TRANSPARENT );
+          SetTextColor( hdc, this->m_clrText );
+
+          RECT rc;
+          GetClientRect( this->m_Hwnd, &rc );
+
+          char text[500];
+          int iPos = this->getPosition( );
+
+          if ( this->m_bIsAbsoluteValue )
+            wsprintf( text, this->m_tsText.to_chr( ), iPos );
+          else {
+
+            int iLower = this->getRange( TRUE, NULL );
+            int iHigher = this->getRange( FALSE, NULL );
+
+            int nPerc = (int)( (float)( iPos - iLower) * 100 / ( iHigher - iLower ) );
+            wsprintf( text, this->m_tsText.to_chr( ), nPerc );
+          }
+
+          HFONT oldfont = NULL;
+          if ( this->m_hFont != NULL )
+            oldfont = (HFONT) SelectObject( hdc, this->m_hFont );
+
+          DrawText( hdc, text, lstrlen( text ), 
+            &rc, DT_WORD_ELLIPSIS | DT_CENTER | DT_VCENTER | DT_SINGLELINE );
+
+          if ( oldfont != NULL )
+            SelectObject( hdc, oldfont );
+
+        }
+        EndPaint( this->m_Hwnd, &ps ); 
+
+        return res;
+      }
+      break;
+
+    case WM_LBUTTONDOWN:
+      {
+        int nXPos = LOWORD(lParam);
+        int iLower = this->getRange( TRUE, NULL );
+        int iHigher = this->getRange( FALSE, NULL );
+
+        RECT rc;
+        GetClientRect( this->m_Hwnd, &rc );
+
+        int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
+
+        char ret[256];
+        this->callAliasEx( ret, "%s,%d,%d,%d,%d", "sclick", this->getUserID( ), nPos, iLower, iHigher );
+      }
+      break;
+
+    case WM_RBUTTONDOWN:
+      {
+        int nXPos = LOWORD(lParam);
+        int iLower = this->getRange( TRUE, NULL );
+        int iHigher = this->getRange( FALSE, NULL );
+
+        RECT rc;
+        GetClientRect( this->m_Hwnd, &rc );
+
+        int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
+
+        char ret[256];
+        this->callAliasEx( ret, "%s,%d,%d,%d,%d", "rclick", this->getUserID( ), nPos, iLower, iHigher );
+      }
+      break;
+
+    case WM_MOUSEMOVE:
+      {
+        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
+
+        if ( wParam == MK_LBUTTON ) {
+
+          int nXPos = LOWORD(lParam);
+          int iLower = this->getRange( TRUE, NULL );
+          int iHigher = this->getRange( FALSE, NULL );
+
+          RECT rc;
+          GetClientRect( this->m_Hwnd, &rc );
+
+          int nPos = iLower + (int)( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
+
+          char ret[256];
+          this->callAliasEx( ret, "%s,%d,%d,%d,%d", "mousebar", this->getUserID( ), nPos, iLower, iHigher );
+        }
+      }
+      break;
+
+    case WM_SETFOCUS:
+      {
+        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
+      }
+      break;
+
+    case WM_SETCURSOR:
+      {
+        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
+
+          SetCursor( this->m_hCursor );
+          bParsed = TRUE;
+          return TRUE;
+        }
+      }
+      break;
+
+    case WM_DESTROY:
+      {
+
+        //mIRCError( "WM_DESTROY" );
+        delete this;
+        bParsed = TRUE;
+      }
+      break;
+
+    default:
+      break;
+  }
+
+  return 0L;
+}
