@@ -34,10 +34,10 @@
 //#include <uxtheme.h>
 //#include "dialog.h"
 
-#define DLL_VERSION 1
-#define DLL_SUBVERSION 2
-#define DLL_BUILD 7
-#define DLL_STATE "Official Build"
+#define DLL_VERSION    1
+#define DLL_SUBVERSION 3
+#define DLL_BUILD      0
+#define DLL_STATE "Development Build"
 
 #define mIRC_ID_OFFSET 6000 //!< mIRC Dialog ID Offset
 

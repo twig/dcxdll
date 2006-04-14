@@ -1608,7 +1608,7 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 
     case WM_LBUTTONDOWN:
       {
-	      mIRCError( "Dialog WM_LBUTTONDOWN" );
+	      //mIRCError( "Dialog WM_LBUTTONDOWN" );
         char ret[256];
         p_this->callAliasEx( ret, "%s,%d", "sclick", 0 );
         p_this->callAliasEx( ret, "%s,%d", "lbdown", 0 );

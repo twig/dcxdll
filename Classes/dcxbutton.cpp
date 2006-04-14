@@ -567,8 +567,11 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
           mIRCError( data );
           */
 
-          rcTxt.left = iCenter - iTextW / 2;
+			 rcTxt.left = iCenter - iTextW / 2;
           rcTxt.top = iVCenter - iTextH / 2;
+
+			 if ( rcTxt.left < BUTTON_XPAD )
+            rcTxt.left = BUTTON_XPAD;
 
           if ( rcTxt.top < BUTTON_YPAD )
             rcTxt.top = BUTTON_YPAD;
