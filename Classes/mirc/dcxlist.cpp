@@ -283,6 +283,15 @@ void DcxList::parseCommandRequest( TString & input ) {
     else 
       ListBox_SetCurSel( this->m_Hwnd, -1 );
   }
+  //xdid -o [NAME] [ID] [N] [TEXT]
+  else if ( flags.switch_flags[14] ) {
+		int nPos = atoi(input.gettok(4, " ").to_chr( )) - 1;
+
+		if (nPos > -1 && nPos < ListBox_GetCount(this->m_Hwnd)) {
+			ListBox_DeleteString(this->m_Hwnd, nPos);
+			ListBox_InsertString(this->m_Hwnd, nPos, input.gettok( 5, -1, " " ).to_chr( ));
+		}
+  }
   else
     this->parseGlobalCommandRequest( input, flags );
 }
