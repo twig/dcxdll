@@ -5,6 +5,7 @@ LoadDll
 UnloadDll
 
 Mark
+GetSystemColor
 Version
 
 xdid
