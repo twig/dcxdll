@@ -266,9 +266,8 @@ void DcxButton::parseCommandRequest( TString & input ) {
 
   }
   // xdid -t [NAME] [ID] [SWITCH] ItemText
-  else if ( flags.switch_flags[19] && numtok > 3 ) {
-    
-    this->m_tsCaption = input.gettok( 4, -1, " " );
+  else if ( flags.switch_flags[19] && numtok > 2 ) {
+	  this->m_tsCaption = (numtok > 3 ? input.gettok( 4, -1, " " ) : "");
     this->m_tsCaption.trim( );
     this->redrawWindow( );
   }
