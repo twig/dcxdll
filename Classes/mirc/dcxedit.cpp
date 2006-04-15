@@ -361,7 +361,7 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
               this->m_tsText = text;
 
               char ret[256];
-              this->callAliasEx( ret, "%s,%d", "edit", this->getUserID( ) );
+              this->callAliasEx(ret, "%s,%d", "edit", this->getUserID());
 
               delete []text;
             }
@@ -369,18 +369,38 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
         }
       }
       break;
+//	case WM_CHAR:{
+//		break;
+//					}
+	case WM_KEYDOWN: {
+		char ret[256];
 
-    case WM_KEYDOWN:
-      {
-        if ( wParam == VK_RETURN ) {
+		if ( wParam == VK_RETURN ) {
+			this->callAliasEx(ret, "%s,%d", "return", this->getUserID());
+		}
 
-          char ret[256];
-          this->callAliasEx( ret, "%s,%d", "return", this->getUserID( ) );
-        }
-      }
-      break;
+		// TODO: add ignore repeated keystrokes
+		this->callAliasEx(ret, "%s,%d,%d", "keydown", this->getUserID(), wParam);
 
-    case WM_MOUSEMOVE:
+		/*
+		// CTRL+A, select text and return
+		if ((wParam == 65) &&
+			(GetKeyState(VK_CONTROL) & 0x8000))
+		{
+			this->callAliasEx(ret, "%s,%d", "select", this->getUserID());
+//			bParsed = TRUE;
+//			return TRUE;
+		}
+		*/
+
+		break;
+	}
+	case WM_KEYUP: {
+		char ret[256];
+		this->callAliasEx(ret, "%s,%d,%d", "keyup", this->getUserID(), wParam);
+		break;
+	}
+	 case WM_MOUSEMOVE:
       {
         this->m_pParentDialog->setMouseControl( this->getUserID( ) );
       }
