@@ -126,7 +126,8 @@ void DcxList::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
       *Styles |= LBS_SORT;
     else if ( styles.gettok( i , " " ) == "tabs" )
       *Styles |= LBS_USETABSTOPS;
-
+	 else if (styles.gettok(i, " ") == "vscroll")
+		 *Styles |= WS_VSCROLL;
     i++;
   }
   this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
