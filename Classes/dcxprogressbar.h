@@ -60,6 +60,8 @@ protected:
   TString m_tsText;         //!< Caption Text
   BOOL m_bIsAbsoluteValue;  //!< Caption Numerical Placeholder Format
 
+private:
+	int CalculatePosition(void);
 };
 
 #endif // _DCXPROGRESSBAR_H_

@@ -143,19 +143,20 @@ void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG *
 void DcxProgressBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
   if ( input.gettok( 3, " " ) == "value" ) {
-
     wsprintf( szReturnValue, "%d", this->getPosition( ) );
     return;
   }
   else if ( input.gettok( 3, " " ) == "range" ) {
-
     PBRANGE pbr;
     this->getRange( FALSE, &pbr );
     wsprintf( szReturnValue, "%d %d", pbr.iLow, pbr.iHigh );
     return;
   }
+  else if (input.gettok(3, " ") == "text") {
+	  wsprintf(szReturnValue, this->m_tsText.to_chr(), this->CalculatePosition());
+	  return;
+  }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
     return;
   }
 
@@ -383,18 +384,9 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
           GetClientRect( this->m_Hwnd, &rc );
 
           char text[500];
-          int iPos = this->getPosition( );
+          int iPos = this->CalculatePosition();
 
-          if ( this->m_bIsAbsoluteValue )
-            wsprintf( text, this->m_tsText.to_chr( ), iPos );
-          else {
-
-            int iLower = this->getRange( TRUE, NULL );
-            int iHigher = this->getRange( FALSE, NULL );
-
-            int nPerc = (int)( (float)( iPos - iLower) * 100 / ( iHigher - iLower ) );
-            wsprintf( text, this->m_tsText.to_chr( ), nPerc );
-          }
+			 wsprintf( text, this->m_tsText.to_chr( ), iPos );
 
           HFONT oldfont = NULL;
           if ( this->m_hFont != NULL )
@@ -497,4 +489,18 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
   }
 
   return 0L;
+}
+
+
+int DcxProgressBar::CalculatePosition() {
+	int iPos = this->getPosition();
+
+	if ( this->m_bIsAbsoluteValue )
+		return iPos;
+	else {
+		int iLower = this->getRange( TRUE, NULL );
+		int iHigher = this->getRange( FALSE, NULL );
+
+		return (int) ((float) (iPos - iLower) * 100 / (iHigher - iLower ));
+	}
 }
