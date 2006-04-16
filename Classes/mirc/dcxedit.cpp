@@ -375,15 +375,14 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	case WM_KEYDOWN: {
 		char ret[256];
 
-		if ( wParam == VK_RETURN ) {
+		if (wParam == VK_RETURN)
 			this->callAliasEx(ret, "%s,%d", "return", this->getUserID());
-		}
 
 		// TODO: add ignore repeated keystrokes
 		this->callAliasEx(ret, "%s,%d,%d", "keydown", this->getUserID(), wParam);
 
 		/*
-		// CTRL+A, select text and return
+		// CTRL+A, select text and return so control doesnt beep
 		if ((wParam == 65) &&
 			(GetKeyState(VK_CONTROL) & 0x8000))
 		{

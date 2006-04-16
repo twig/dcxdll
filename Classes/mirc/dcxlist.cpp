@@ -289,6 +289,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 		int nPos = atoi(input.gettok(4, " ").to_chr( )) - 1;
 
 		if (nPos > -1 && nPos < ListBox_GetCount(this->m_Hwnd)) {
+			//ListBox_SetItemData(this->m_Hwnd, nPos, input.to_chr()); //.gettok(5, -1, " ").to_chr());
 			ListBox_DeleteString(this->m_Hwnd, nPos);
 			ListBox_InsertString(this->m_Hwnd, nPos, input.gettok( 5, -1, " " ).to_chr( ));
 		}
