@@ -6,6 +6,7 @@ UnloadDll
 
 Mark
 GetSystemColor
+ColorDialog
 Version
 
 xdid

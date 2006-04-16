@@ -116,6 +116,7 @@ Returns information on the DLL Version.
 Returns the RGB value of a specific system color.<br /><br />
 
 <b>Syntax :</b><a class=i2> [ATTRIBUTE]</a><br /><br />
+<b>Example :</b><a class=i2> //echo -a $dcx(GetSystemColor, COLOR_WINDOW)</a><br /><br />
 
 <b>Parms :</b>
 <table>
@@ -124,6 +125,37 @@ Returns the RGB value of a specific system color.<br /><br />
 <br />
 <a class=i2>N.B.</a> For a complete listing of possible [ATTRIBUTE] values, see <a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=150">this thread</a>, or <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sysinfo/base/getsyscolor.asp">this link</a>.
 </p>
+
+
+<p align=justify><a><b>• </b></a> <a name="3.4" href=#>ColorDialog</a><hr><br />
+Opens up the color picker dialog and returns the selected color.<br /><br />
+
+<b>Syntax :</b><a class=i2> (DEFAULT) (STYLES)</a><br /><br />
+<b>Example :</b><a class=i2> //echo -a $dcx(ColorDialog, $rgb(255,0,0) fullopen owner dcx anycolor)</a><br />
+<b>Example :</b><a class=i2> //echo -a $dcx(ColorDialog, $rgb(0,0,255) owner $window(@test).hwnd solidonly)</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>(DEFAULT)</a></td><td>The color selected when the dialog opens.</td></tr>
+<tr><td><a class=i2>(STYLES)</a></td><td>Various options for the color dialog.</td></tr>
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td><a class="i">anycolor</a></td><td>Displays all available colors in the set of basic colors.</td></tr>
+<tr><td><a class="i">fullopen</a></td><td>Displays the additional controls that allow the user to create custom colors.</td></tr>
+<tr><td><a class="i">nofullopen</a></td><td>Disables the <b>Define Custom Color</b> button.</td></tr>
+<tr><td><a class="i">solidonly</a></td><td>Display only solid colors in the set of basic colors.</td></tr>
+<tr><td><a class="i">owner [DNAME|HWND]</a></td><td>Allows you to specific the parent control.</td></tr>
+</table>
+</td></tr>
+</table>
+
+<br />
+
+<a class=i2>N.B.</a> By default, the color dialog sets the main mIRC window to be its parent.</a>.<br />
+<a class=i2>N.B.</a> Dialog name OR a hWnd MUST follow after the owner style. Enter 0 for the hWnd to make it modeless</a>.<br />
+</p>
+
 
 
 <!-- Section 10 -->

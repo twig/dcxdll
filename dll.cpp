@@ -322,6 +322,7 @@ int WINAPI UnloadDll( int timeout ) {
 
 		UnregisterClass( XPOPUPMENUCLASS, GetModuleHandle( NULL ) );
 
+		mIRCError("UnloadDll: crash here!");
 		UnmapViewOfFile( mIRCLink.m_pData );
 		CloseHandle( mIRCLink.m_hFileMap );
 
@@ -443,6 +444,78 @@ mIRC(GetSystemColor) {
 	char val[9];
 	wsprintf(val, "%d", GetSysColor(col));
 	ret(val);
+}
+
+
+/*!
+* \brief DCX DLL ColorDialog Function
+*
+* Argument \b data contains -> (DEFAULT) [STYLES]
+*/
+
+// ColorDialog (DEFAULT) [STYLES]
+mIRC(ColorDialog) {
+	TString d(data);
+	d.trim();
+
+	CHOOSECOLOR	cc;
+	static COLORREF clr[16];
+	COLORREF		sel = atoi(d.gettok(1, " ").to_chr());
+	DWORD			styles = CC_RGBINIT;
+	ZeroMemory(&cc, sizeof(CHOOSECOLOR));
+
+	// initial settings
+	cc.lStructSize = sizeof(CHOOSECOLOR);
+	cc.hwndOwner = mWnd;
+
+	if (d.numtok(" ") > 1) {
+		for (int i = 1; i <= d.numtok(" "); i++) {
+			if (d.gettok(i, " ") == "anycolor")
+				styles |= CC_ANYCOLOR;
+			else if (d.gettok(i, " ") == "fullopen")
+				styles |= CC_FULLOPEN;
+			else if (d.gettok(i, " ") == "nofullopen")
+				styles |= CC_PREVENTFULLOPEN;
+			else if (d.gettok(i, " ") == "solidonly")
+				styles |= CC_SOLIDCOLOR;
+			else if (d.gettok(i, " ") == "owner") {
+				// if i isnt the last token, then there is some text after it
+				if (i < d.numtok(" ")) {
+					// if it is a number
+					HWND wnd = (HWND) atoi(d.gettok(i +1, " ").to_chr());
+
+					if (wnd)
+						cc.hwndOwner = wnd;
+					// try to retrieve dialog hwnd from name
+					else {
+						char com[100];
+						char res[10];
+
+						wsprintf(com, "$dialog(%s).hwnd", d.gettok(i +1, " ").to_chr());
+						mIRCeval(com, res);
+						wnd = (HWND) atoi(res);
+
+						if (wnd)
+							cc.hwndOwner = wnd;
+					}
+				}
+				else {
+					mIRCError("$dcx(ColorDialog): Invalid owner");
+				}
+			}
+		}
+	}
+
+	cc.rgbResult = (COLORREF) sel;
+	cc.Flags = styles;
+	cc.lpCustColors = clr;
+
+	if (ChooseColor(&cc)) {
+		wsprintf(data, "%d", cc.rgbResult);
+		ret(data);
+	}
+	else
+		ret("-1");
 }
 
 
