@@ -796,7 +796,21 @@ LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
         }
       }
       break;
+	case WM_KEYDOWN: {
+		char ret[256];
 
+		if (wParam == VK_RETURN)
+			this->callAliasEx(ret, "%s,%d", "return", this->getUserID());
+
+		// TODO: add ignore repeated keystrokes
+		this->callAliasEx(ret, "%s,%d,%d", "keydown", this->getUserID(), wParam);
+		break;
+	}
+	case WM_KEYUP: {
+		char ret[256];
+		this->callAliasEx(ret, "%s,%d,%d", "keyup", this->getUserID(), wParam);
+		break;
+	}
     case WM_DESTROY:
       {
         //mIRCError( "WM_DESTROY" );
