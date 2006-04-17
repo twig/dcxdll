@@ -159,3 +159,120 @@ HRESULT SetWindowTheme( HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList )
 BOOL isXP() {
 	return XPPlus;
 }
+
+
+/*!
+* \brief Shows CommonDialog for Open/Save
+*
+* Shows and returns the file selected
+*
+* \return > TString "" if cancelled
+*         > TString Path+Filename
+*/
+TString FileDialog(TString data, TString method, HWND pWnd) {
+	DWORD style = OFN_EXPLORER;
+	OPENFILENAME ofn;
+	char szFilename[900];
+
+	// seperate the tokenz
+	TString styles(data.gettok(1, "	"));
+	TString file(data.gettok(2, "	"));
+	TString filter(data.gettok(3, "	"));
+
+	styles.trim();
+	file.trim();
+	filter.trim();
+
+	// format the filter into the format WinAPI wants, with double NULL TERMINATOR at end
+	if (filter != "")
+		filter = "All Files (*.*)|*.*";
+
+	filter += '\0';
+	filter.replace('|', '\0');
+
+	// set up the OFN struct
+	ZeroMemory(&ofn, sizeof(ofn));
+	wsprintf(szFilename, "%s", file.to_chr());
+
+	ofn.lStructSize = sizeof(ofn); // SEE NOTE BELOW
+	ofn.hwndOwner = pWnd;
+	ofn.lpstrFilter = filter.to_chr();
+	ofn.lpstrFile = szFilename;
+	ofn.nMaxFile = 900;
+	ofn.lpstrDefExt = "";
+
+	for (int i = 1; i <= styles.numtok(" "); i++) {
+		// FIXME: Directory and file name strings are NULL separated, with an extra NULL character after the last file name.
+		// do not document
+		if (styles.gettok(i, " ") == "multisel")
+			style |= OFN_ALLOWMULTISELECT;
+		else if (styles.gettok(i, " ") == "createprompt")
+			style |= OFN_CREATEPROMPT;
+		// FIXME: explorer style resizable on default, cant get rid of that shit
+		else if (styles.gettok(i, " ") == "enablesizing")
+			style |= OFN_ENABLESIZING;
+		else if (styles.gettok(i, " ") == "filemustexist")
+			style |= OFN_FILEMUSTEXIST; // (open)
+		else if (styles.gettok(i, " ") == "showhidden")
+			style |= OFN_FORCESHOWHIDDEN; // 2k/xp
+		else if (styles.gettok(i, " ") == "noreadonly")
+			style |= OFN_HIDEREADONLY;
+		else if (styles.gettok(i, " ") == "nochangedir")
+			style |= OFN_NOCHANGEDIR; // (save)
+		else if (styles.gettok(i, " ") == "getshortcuts")
+			style |= OFN_NODEREFERENCELINKS;
+		else if (styles.gettok(i, " ") == "nonetwork")
+			style |= OFN_NONETWORKBUTTON;
+		else if (styles.gettok(i, " ") == "novalidate")
+			style |= OFN_NOVALIDATE;
+		else if (styles.gettok(i, " ") == "overwriteprompt")
+			style |= OFN_OVERWRITEPROMPT; // save
+		else if (styles.gettok(i, " ") == "pathmustexist")
+			style |= OFN_PATHMUSTEXIST;
+		else if (styles.gettok(i, " ") == "owner")
+			ofn.hwndOwner = FindOwner(styles, pWnd);
+	}
+
+	ofn.Flags = style;
+
+	if (method == "OPEN" && GetOpenFileName(&ofn)) {
+		// Do something usefull with the filename stored in szFileName
+		return TString(szFilename);
+	}
+	else if (method == "SAVE" && GetSaveFileName(&ofn)) {
+		return TString(szFilename);
+	}
+
+	return TString("");
+}
+
+
+HWND FindOwner(TString data, HWND defaultWnd) {
+	int i = data.findtok("owner", 1, " ");
+
+	// 'owner' token not found in data
+	if (!i)
+		return defaultWnd;
+
+	// if there is a token after 'owner'
+	if (i < data.numtok(" ")) {
+		// if it is a number (HWND) passed
+		HWND wnd = (HWND) atoi(data.gettok(i +1, " ").to_chr());
+
+		if (wnd)
+			return wnd;
+
+		// try to retrieve dialog hwnd from name
+		char com[100];
+		char res[10];
+
+		wsprintf(com, "$dialog(%s).hwnd", data.gettok(i +1, " ").to_chr());
+		mIRCeval(com, res);
+		wnd = (HWND) atoi(res);
+
+		if (wnd)
+			return wnd;
+	}
+
+	return defaultWnd;
+}

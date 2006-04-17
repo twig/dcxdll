@@ -478,31 +478,8 @@ mIRC(ColorDialog) {
 				styles |= CC_PREVENTFULLOPEN;
 			else if (d.gettok(i, " ") == "solidonly")
 				styles |= CC_SOLIDCOLOR;
-			else if (d.gettok(i, " ") == "owner") {
-				// if i isnt the last token, then there is some text after it
-				if (i < d.numtok(" ")) {
-					// if it is a number
-					HWND wnd = (HWND) atoi(d.gettok(i +1, " ").to_chr());
-
-					if (wnd)
-						cc.hwndOwner = wnd;
-					// try to retrieve dialog hwnd from name
-					else {
-						char com[100];
-						char res[10];
-
-						wsprintf(com, "$dialog(%s).hwnd", d.gettok(i +1, " ").to_chr());
-						mIRCeval(com, res);
-						wnd = (HWND) atoi(res);
-
-						if (wnd)
-							cc.hwndOwner = wnd;
-					}
-				}
-				else {
-					mIRCError("$dcx(ColorDialog): Invalid owner");
-				}
-			}
+			else if (d.gettok(i, " ") == "owner")
+				cc.hwndOwner = FindOwner(d, mWnd);
 		}
 	}
 
@@ -516,6 +493,42 @@ mIRC(ColorDialog) {
 	}
 	else
 		ret("-1");
+}
+
+
+/*!
+* \brief DCX DLL OpenDialog|SaveDialog Function
+*
+* Argument \b data contains -> (styles) [TAB] (file) [TAB] (filter)
+*
+* http://www.winprog.org/tutorial/app_two.html
+* http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/userinput/commondialogboxlibrary/commondialogboxreference/commondialogboxstructures/openfilename.asp
+*/
+
+// OpenDialog (styles) [TAB] (file) [TAB] (filter)
+mIRC(OpenDialog) {
+	TString d(data);
+	d.trim();
+
+	// count number of tab tokens
+	if (d.numtok("	") != 3) {
+		ret("$dcx(OpenDialog): Invalid parameters");
+	}
+
+	ret(FileDialog(d, "OPEN", mWnd).to_chr());
+}
+
+// SaveDialog (styles) [TAB] (file) [TAB] (filter)
+mIRC(SaveDialog) {
+	TString d(data);
+	d.trim();
+
+	// count number of tab tokens
+	if (d.numtok("	") != 3) {
+		ret("$dcx(SaveDialog): Invalid parameters");
+	}
+
+	ret(FileDialog(d, "SAVE", mWnd).to_chr());
 }
 
 

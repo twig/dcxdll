@@ -1029,6 +1029,37 @@ int TString::find( const char chr, int N ) {
   return -1;
 }
 
+
+/****************************/
+/*! \fn TString TString::findtok(char * cToken, int N, char * sepChars)
+    \brief Returns the index of a specific token
+
+	 \param cToken the token to find
+    \param N the Nth match
+    \param sepChars seperating character
+
+    \return index of found token
+
+    \note > Index starts at \b 1 \n
+*/
+/****************************/
+int TString::findtok(char * cToken, int N, char * sepChars) {
+	int count = 0;
+	TString str(cToken);
+
+	for (int i = 1; i <= this->numtok(sepChars); i++) {
+		if (this->gettok(i, sepChars) == str) {
+			count++;
+
+			if (count == N)
+				return i;
+		}
+	}
+
+	return 0;
+}
+
+
 /****************************/
 /*! \fn TString TString::sub( int N, int M )
     \brief Returns a substring of the initial string

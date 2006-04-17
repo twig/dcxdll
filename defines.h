@@ -162,9 +162,11 @@ void mIRCcom( const char * data );
 int round( float x );
 
 char * readFile( const char * filename );
+TString FileDialog(TString data, TString method, HWND pWnd);
 
 typedef HRESULT (__stdcall *PFNSETTHEME)( HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList );
 HRESULT SetWindowTheme( HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList );
 BOOL isXP( );
+HWND FindOwner(TString data, HWND defaultWnd);
 
 #endif // _DEFINES_H_
