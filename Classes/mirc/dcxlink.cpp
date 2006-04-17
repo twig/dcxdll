@@ -338,7 +338,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
         FillRect( hdc, &rect, hBrush );
 
-        HFONT hFont = (HFONT) GetStockObject( SYSTEM_FONT );
+        HFONT hFont = (HFONT) GetStockObject( DEFAULT_GUI_FONT /*SYSTEM_FONT*/ );
 
         LOGFONT lf;
         GetObject( hFont, sizeof( LOGFONT ), &lf );
