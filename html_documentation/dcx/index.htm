@@ -152,16 +152,109 @@ Opens up the color picker dialog and returns the selected color.<br /><br />
 
 <br />
 
-<a class=i2>N.B.</a> By default, the color dialog sets the main mIRC window to be its parent.</a>.<br />
+<a class=i2>N.B.</a> By default, the color dialog sets the main mIRC window to be its parent.</a><br />
 <a class=i2>N.B.</a> Dialog name OR a hWnd MUST follow after the owner style. Enter 0 for the hWnd to make it modeless</a>.<br />
 </p>
 
 
 
-<!-- Section 10 -->
+            <p>&nbsp;</p>
+            <p align="justify"><a><b>• </b></a> <a href="#" name="3.5" id="3.5">OpenDialog/SaveDialog</a></p>
+            <hr />
+            <br />
+Opens up the Open/Save file dialog and returns the selected file.<br />
+            <br />
 
-<br />
-<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="10" href=#>/xdialog Command</a><hr class=t><br />
+            <b>Syntax :</b><a class="i2"> (STYLES) [TAB] (FILENAME) [TAB] (FILTER)</a><br />
+            <br />
+            <b>Example :</b><a class="i2"> //echo -a $dcx(OpenDialog, showhidden filemustexist hidereadonly  $chr(9) c:\boot.ini $chr(9) All Files (*.*)|*.*)</a><br />
+            <b>Example :</b><a class="i2"> //echo -a $dcx(SaveDialog, createprompt overwriteprompt owner dcx $chr(9) c:\blah.txt $chr(9) All Files (*.*)|*.*|Music Files|*.mp3;*.wav;*.ogg)</a><br />
+            <br />
+
+<b>Parms :</b>
+<table>
+                <tr>
+                    <td><a class="i2">(STYLES)</a></td>
+                    <td>Various options for the file dialog.</td>
+                </tr>
+                <tr>
+                    <td height="141">&nbsp;</td>
+                    <td>
+<b>Value :</b>
+<table>
+                            <tr>
+                                <td><a class="i">createprompt</a></td>
+                                <td>If the user enters a filename that does not exist, the dialog asks the user if they want to create it. Returns the filename (without creating it) if they click yes. (OpenDialog only)</td>
+                            </tr>
+                            <tr>
+                                <td><a class="i">enablesizing</a></td>
+                                <td>The dialog is resizable.</td>
+                            </tr>
+                            <tr>
+                                <td><a class="i">filemustexist</a></td>
+                                <td>If the file doesn't exist in the current directory, the user will get an error prompt. (OpenDialog only)</td>
+                            </tr>
+                            <tr>
+                                <td><a class="i">showhidden</a></td>
+                                <td>Forces the showing of system and hidden files, overriding the user setting to show or not show hidden files. A file that is marked both system and hidden is not shown. (2k/XP only)</td>
+                            </tr>
+                            <tr>
+                                <td><a class="i">noreadonly</a></td>
+                                <td>Hides the &quot;Open as Read Only&quot; checkbox.</td>
+                            </tr>
+                            <tr>
+                                <td><a class="i">nochangedir</a></td>
+                                <td>Restores the current directory to its original value if the user changed the directory while searching for files.  (SaveDialog only)</td>
+                            </tr>
+                            <tr>
+                                <td><a class="i">getshortcuts</a></td>
+                                <td>Allows dialog box to return the path and file name of the selected shortcut (.LNK files).</td>
+                            </tr>
+                            <tr>
+                                <td><a class="i">nonetwork</a></td>
+                                <td>Hides the network button.</td>
+                            </tr>
+                            <tr>
+                                <td><a class="i">norecent</a></td>
+                                <td>Does not add a link to the selected file in the file system directory that contains the user's most recently used documents.</td>
+                            </tr>
+                            <tr>
+                                <td><a class="i">novalidate</a></td>
+                                <td>The dialog does not validate filenames to check if they're legal.</td>
+                            </tr>
+                            <tr>
+                                <td><a class="i">overwriteprompt</a></td>
+                                <td>If the user selects a file that already exists, the dialog asks the user if they want to overwrite it. Returns the filename (without clearing) if they click yes. (SaveDialog only)</td>
+                            </tr>
+                            <tr>
+                                <td><a class="i">pathmustexist</a></td>
+                                <td>The dialog does not validate filenames to check if they're legal.</td>
+                            </tr>
+                            <tr>
+                                <td><a class="i">owner [DNAME|HWND]</a></td>
+                                <td>Allows you to specific the parent control.</td>
+                            </tr>
+                        </table></td>
+                </tr>
+                <tr>
+                    <td><a class="i2">(FILENAME)</a></td>
+                    <td>If you specify this parameter, it will be the filename in the box when the dialog opens.</td>
+                </tr>
+                <tr>
+                    <td><a class="i2">(FILTER)</a></td>
+                    <td>The FILTER parameter is the type of files the user can select, it should be formatted like &quot;Description|Type|Description|Type&quot;.<br />
+For example: All Files (*.*)|*.*|Scripts|*.mrc;*.ini;*.txt</td>
+                </tr>
+            </table>
+            <br />
+
+            <a class="i2">N.B.</a> Returns &quot;&quot; when cancelled.<br />
+            <a class="i2">N.B.</a> Dialog name OR a hWnd MUST follow after the owner style. Enter 0 for the hWnd to make it modeless.<br />
+            <a class="i2">N.B.</a> <a class="i">filemustexist</a> automatically applies <a class="i">pathmustexist</a> when style used.            
+            <!-- Section 10 -->
+<p><br />
+            </p>
+            <p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="10" href=#>/xdialog Command</a></p><hr class=t /><br />
 The /xdialog command is used to modify a DCX marked dialog.
 <br /><br />
 
@@ -1137,6 +1230,9 @@ These events are fired when events occur in the dialog itself.
 • <a href="#3.1">Mark</a><br />
 • <a href="#3.20">Version</a><br />
 • <a href="#3.3">GetSystemColor</a><br />
+• <a href="#3.4">ColorDialog</a><br />
+• <a href="#3.5">OpenDialog</a><br />
+• <a href="#3.5">SaveDialog</a><br />
 <br />
 <a class=i href="#10">/xdialog Command</a><br />
 • <a href="#10.1">-a</a><br />

@@ -225,6 +225,8 @@ TString FileDialog(TString data, TString method, HWND pWnd) {
 			style |= OFN_NONETWORKBUTTON;
 		else if (styles.gettok(i, " ") == "novalidate")
 			style |= OFN_NOVALIDATE;
+		else if (styles.gettok(i, " ") == "norecent")
+			style |= OFN_DONTADDTORECENT; // 2k/xp
 		else if (styles.gettok(i, " ") == "overwriteprompt")
 			style |= OFN_OVERWRITEPROMPT; // save
 		else if (styles.gettok(i, " ") == "pathmustexist")
