@@ -291,7 +291,6 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
   }
   // xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
   else if ( flags.switch_cap_flags[9] && numtok > 4 ) {
-
     if ( this->m_bCursorFromFile ) {
       DeleteObject( this->m_hCursor );
       this->m_hCursor = NULL;
@@ -305,11 +304,9 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
     if ( iFlags & DCCS_FROMRESSOURCE )
       this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.gettok( 5, " " ) ) );
     else if ( iFlags & DCCS_FROMFILE ) {
-
       this->m_hCursor = LoadCursorFromFile( input.gettok( 5, -1, " " ).to_chr( ) );
       this->m_bCursorFromFile = TRUE;
     }
-    
   }
   // xdid -M [NAME] [ID] [SWITCH] [MARK INFO]
   else if ( flags.switch_cap_flags[12] ) {
@@ -363,21 +360,26 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
     }
   }
 
-  // xdid -b [NAME] [ID] [SWITCH]
+  // xdid -b [NAME] [ID]
   if ( flags.switch_flags[1] ) {
     EnableWindow( this->m_Hwnd, FALSE );
   }
-  // xdid -e [NAME] [ID] [SWITCH]
+  // xdid -e [NAME] [ID]
   else if ( flags.switch_flags[4] ) {
     EnableWindow( this->m_Hwnd, TRUE );
   }
-  // xdid -h [NAME] [ID] [SWITCH]
+  // xdid -h [NAME] [ID]
   if ( flags.switch_flags[7] ) {
     ShowWindow( this->m_Hwnd, SW_HIDE );
   }
-  // xdid -s [NAME] [ID] [SWITCH]
+  // xdid -s [NAME] [ID]
   else if ( flags.switch_flags[18] ) {
     ShowWindow( this->m_Hwnd, SW_SHOW );
+  }
+	// xdid -U [NAME] [ID]
+  else if (flags.switch_cap_flags[20]) {
+	  HWND hNextCtrl = GetNextDlgTabItem(this->m_pParentDialog->getHwnd(), this->m_Hwnd, FALSE);
+	  SendMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, (WPARAM) hNextCtrl, TRUE);
   }
   /*
   else {
