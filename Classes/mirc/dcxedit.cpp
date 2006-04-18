@@ -368,9 +368,7 @@ void DcxEdit::parseCommandRequest( TString & input ) {
  */
 
 LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
   switch( uMsg ) {
-
     case WM_HELP:
       {
         char ret[256];
@@ -431,6 +429,45 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 		break;
 	}
+	case WM_COPY:
+		{
+			char ret[256];
+
+			this->callAliasEx(ret, "%s,%d", "copy", this->getUserID());
+
+			if (lstrcmp("nocopy", ret) == 0) {
+				bParsed = TRUE;
+				return 0L;
+			}
+
+			break;
+		}
+	case WM_CUT:
+		{
+			char ret[256];
+
+			this->callAliasEx(ret, "%s,%d", "cut", this->getUserID());
+
+			if (lstrcmp("nocut", ret) == 0) {
+				bParsed = TRUE;
+				return 0L;
+			}
+
+			break;
+		}
+	case WM_PASTE:
+		{
+			char ret[256];
+
+			this->callAliasEx(ret, "%s,%d", "paste", this->getUserID());
+
+			if (lstrcmp("nopaste", ret) == 0) {
+				bParsed = TRUE;
+				return 0L;
+			}
+
+			break;
+		}
 	case WM_KEYUP: {
 		char ret[256];
 		this->callAliasEx(ret, "%s,%d,%d", "keyup", this->getUserID(), wParam);
