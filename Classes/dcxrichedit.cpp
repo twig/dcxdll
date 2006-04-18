@@ -171,44 +171,65 @@ void DcxRichEdit::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
  */
 
 void DcxRichEdit::parseInfoRequest( TString & input, char * szReturnValue ) {
+	int numtok = input.numtok( " " );
 
-  int numtok = input.numtok( " " );
+	// [NAME] [ID] [PROP] [N]
+	if ( input.gettok( 3, " " ) == "text" ) {
+		if ( this->isStyle( ES_MULTILINE ) ) {
+			if ( numtok > 3 ) {
+				int nLine = atoi( input.gettok( 4, " " ).to_chr( ) );
 
-  // [NAME] [ID] [PROP] [N]
-  if ( input.gettok( 3, " " ) == "text" ) {
+				if ( nLine > 0 && nLine <= this->m_tsText.numtok( "\r\n" ) ) {
 
-    if ( this->isStyle( ES_MULTILINE ) ) {
+					lstrcpy( szReturnValue, this->m_tsText.gettok( nLine, "\r\n" ).to_chr( ) );
+					return;
+				}
+			}
+		}
+		else {
+			lstrcpy( szReturnValue, this->m_tsText.to_chr( ) );
+			return;
+		}
+	}
+	// [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "num" ) {
+		if ( this->isStyle( ES_MULTILINE ) ) {
+			wsprintf( szReturnValue, "%d", this->m_tsText.numtok( "\r\n" ) );
+			return;
+		}
+	}
+	else if (input.gettok(3, " ") == "selstart") {
+		CHARRANGE c;	  
+		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
+		wsprintf(szReturnValue, "%d", c.cpMin);
+		return;
+	}
+	else if (input.gettok(3, " ") == "selend") {
+		CHARRANGE c;	  
+		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
+		wsprintf(szReturnValue, "%d", c.cpMax);
+		return;
+	}
+	else if (input.gettok(3, " ") == "sel") {
+		CHARRANGE c;
+		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
+		wsprintf(szReturnValue, "%d %d", c.cpMin, c.cpMax);
+		return;
+	}
+	else if (input.gettok(3, " ") == "seltext") {
+		CHARRANGE c;
+		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
+		char *buffer = new char[c.cpMax - c.cpMin];
 
-      if ( numtok > 3 ) {
-        int nLine = atoi( input.gettok( 4, " " ).to_chr( ) );
+		SendMessage(this->m_Hwnd, EM_GETSELTEXT, NULL, (LPARAM) buffer);
+		wsprintf(szReturnValue, "%s", buffer);
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
+		return;
+	}
 
-        if ( nLine > 0 && nLine <= this->m_tsText.numtok( "\r\n" ) ) {
-
-          lstrcpy( szReturnValue, this->m_tsText.gettok( nLine, "\r\n" ).to_chr( ) );
-          return;
-        }
-      }
-    }
-    else {
-      lstrcpy( szReturnValue, this->m_tsText.to_chr( ) );
-      return;
-    }
-  }
-  // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "num" ) {
-
-    if ( this->isStyle( ES_MULTILINE ) ) {
-
-      wsprintf( szReturnValue, "%d", this->m_tsText.numtok( "\r\n" ) );
-      return;
-    }
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
-    return;
-  }
-  
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
