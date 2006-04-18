@@ -260,12 +260,10 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
   }
   // xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
   else if ( flags.switch_cap_flags[2] && numtok > 4 ) {
-
     UINT iFlags = this->parseColorFlags( input.gettok( 4, " " ) );
     COLORREF clrColor = atol( input.gettok( 5, " " ).to_chr( ) );
 
     if ( iFlags & DCC_BKGCOLOR ) {
-
       if ( this->m_hBackBrush != NULL ) {
         DeleteObject( this->m_hBackBrush );
         this->m_hBackBrush = NULL;

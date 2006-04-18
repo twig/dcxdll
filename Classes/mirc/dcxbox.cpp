@@ -1102,7 +1102,6 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_PAINT:
       {
-
         PAINTSTRUCT ps; 
         HDC hdc; 
 
@@ -1121,7 +1120,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
         else
           hBrush = GetSysColorBrush( COLOR_3DFACE );
 
-        if ( this->m_clrText != -1 )
+        if ( this->m_clrBackText != -1 )
           hOldPen = (HPEN) SelectObject( hdc, CreatePen( PS_SOLID, 1, this->m_clrBackText ) );
 
         RECT rc2;
