@@ -416,6 +416,15 @@ void DcxRichEdit::parseCommandRequest( TString & input ) {
       fclose( file );
     }
   }
+  // xdid -S [NAME] [ID] [SWITCH] [START] [END]
+	else if (flags.switch_cap_flags[18] && numtok > 4) {
+		CHARRANGE c;
+		
+		c.cpMin = atoi(input.gettok(4, " ").to_chr());
+		c.cpMax = atoi(input.gettok(5, " ").to_chr());
+
+		SendMessage(this->m_Hwnd, EM_EXSETSEL, NULL, (LPARAM) &c);
+  }
   else {
     this->parseGlobalCommandRequest( input, flags );
   }

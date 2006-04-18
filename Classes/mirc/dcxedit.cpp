@@ -350,6 +350,13 @@ void DcxEdit::parseCommandRequest( TString & input ) {
       fclose( file );
     }
   }
+	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
+  else if (flags.switch_cap_flags[18] && numtok > 4) {
+	  		int istart = atoi(input.gettok(4, " ").to_chr());
+		int iend = atoi(input.gettok(5, " ").to_chr());
+
+		SendMessage(this->m_Hwnd, EM_SETSEL, istart, iend);
+  }
   else
     this->parseGlobalCommandRequest( input, flags );
 }
