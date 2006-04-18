@@ -693,7 +693,6 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
         if ( IsWindow( hdr->hwndFrom ) && GetClassName( hdr->hwndFrom, ClassName, 256 ) != 0 ) {
 
           switch( hdr->code ) {
-
             case NM_CLICK:
               {
                 //mIRCError( "Rebar WM_NOTIFY - NM_CLICK" );
@@ -1231,6 +1230,16 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
     case WM_SETFOCUS:
       {
         this->m_pParentDialog->setFocusControl( this->getUserID( ) );
+      }
+      break;
+
+    case WM_SETCURSOR:
+      {
+        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
+          SetCursor( this->m_hCursor );
+          bParsed = TRUE;
+          return TRUE;
+        }
       }
       break;
 
