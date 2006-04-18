@@ -207,6 +207,10 @@ Opens up the Open/Save file dialog and returns the selected file.<br />
                                 <td>Restores the current directory to its original value if the user changed the directory while searching for files.  (SaveDialog only)</td>
                             </tr>
                             <tr>
+                                <td><a class="i">multisel</a></td>
+                                <td>Allows user to select multiple files. (OpenDialog only)</td>
+                            </tr>
+                            <tr>
                                 <td><a class="i">getshortcuts</a></td>
                                 <td>Allows dialog box to return the path and file name of the selected shortcut (.LNK files).</td>
                             </tr>
@@ -250,7 +254,9 @@ For example: All Files (*.*)|*.*|Scripts|*.mrc;*.ini;*.txt</td>
 
             <a class="i2">N.B.</a> Returns &quot;&quot; when cancelled.<br />
             <a class="i2">N.B.</a> Dialog name OR a hWnd MUST follow after the owner style. Enter 0 for the hWnd to make it modeless.<br />
-            <a class="i2">N.B.</a> <a class="i">filemustexist</a> automatically applies <a class="i">pathmustexist</a> when style used.            
+            <a class="i2">N.B.</a> <a class="i">filemustexist</a> automatically applies <a class="i">pathmustexist</a> when style used.<br />
+            <a class="i2">N.B.</a> <a class="i">multisel</a> returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.<br />
+
             <!-- Section 10 -->
 <p><br />
             </p>

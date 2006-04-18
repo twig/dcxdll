@@ -202,8 +202,6 @@ TString FileDialog(TString data, TString method, HWND pWnd) {
 	ofn.lpstrDefExt = "";
 
 	for (int i = 1; i <= styles.numtok(" "); i++) {
-		// FIXME: Directory and file name strings are NULL separated, with an extra NULL character after the last file name.
-		// do not document
 		if (styles.gettok(i, " ") == "multisel")
 			style |= OFN_ALLOWMULTISELECT;
 		else if (styles.gettok(i, " ") == "createprompt")
@@ -238,8 +236,25 @@ TString FileDialog(TString data, TString method, HWND pWnd) {
 	ofn.Flags = style;
 
 	if (method == "OPEN" && GetOpenFileName(&ofn)) {
-		// Do something usefull with the filename stored in szFileName
-		return TString(szFilename);
+		TString str("");
+
+		// if there are multiple files selected
+		if (style & OFN_ALLOWMULTISELECT) {
+			char *p = szFilename; 
+
+			// process the file name at p since its null terminated
+			while (*p != '\0') { 
+				if (str != "")
+					str += "|";
+
+				str += p;
+				p += strlen(p)+1;
+			} 
+		}
+		else	// copy the string directly
+			str = szFilename;
+
+		return str;
 	}
 	else if (method == "SAVE" && GetSaveFileName(&ofn)) {
 		return TString(szFilename);

@@ -322,7 +322,6 @@ int WINAPI UnloadDll( int timeout ) {
 
 		UnregisterClass( XPOPUPMENUCLASS, GetModuleHandle( NULL ) );
 
-		mIRCError("UnloadDll: crash here!");
 		UnmapViewOfFile( mIRCLink.m_pData );
 		CloseHandle( mIRCLink.m_hFileMap );
 
@@ -339,7 +338,7 @@ int WINAPI UnloadDll( int timeout ) {
 
 mIRC( Version ) {
 	wsprintf(data,
-		"DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe ©2006 - http://dcx.scriptsdb.org",
+		"DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe and twig* ©2006 - http://dcx.scriptsdb.org",
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
 	return 3;
 }
