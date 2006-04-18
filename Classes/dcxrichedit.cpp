@@ -132,15 +132,15 @@ DcxRichEdit::~DcxRichEdit( ) {
  */
 
 void DcxRichEdit::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-  *Styles |= ES_READONLY;
+  //*Styles |= ES_READONLY;
   //ES_NOHIDESEL
   unsigned int i = 1, numtok = styles.numtok( " " );
 
   while ( i <= numtok ) {
-
     if ( styles.gettok( i , " " ) == "multi" ) 
       *Styles |= ES_MULTILINE;
+	else if ( styles.gettok( i , " " ) == "readonly" ) 
+      *Styles |= ES_READONLY;
     else if ( styles.gettok( i , " " ) == "center" ) 
       *Styles |= ES_CENTER;
     else if ( styles.gettok( i , " " ) == "right" ) 
