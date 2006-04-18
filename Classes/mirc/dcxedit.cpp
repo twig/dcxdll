@@ -205,6 +205,36 @@ void DcxEdit::parseInfoRequest( TString & input, char * szReturnValue ) {
 
     return;
   }
+  else if (input.gettok(3, " ") == "selstart") {
+	  DWORD dwSelStart = 0; // selection range starting position
+
+	  SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, NULL);
+	  wsprintf(szReturnValue, "%d", dwSelStart);
+	  return;
+  }
+  else if (input.gettok(3, " ") == "selend") {
+	  DWORD dwSelEnd = 0;   // selection range ending position
+
+	  SendMessage(this->m_Hwnd, EM_GETSEL, NULL, (LPARAM) &dwSelEnd);
+	  wsprintf(szReturnValue, "%d", dwSelEnd);
+	  return;
+  }
+  else if (input.gettok(3, " ") == "sel") {
+	  DWORD dwSelStart = 0; // selection range starting position
+	  DWORD dwSelEnd = 0;   // selection range ending position
+
+	  SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
+	  wsprintf(szReturnValue, "%d %d", dwSelStart, dwSelEnd);
+	  return;
+  }
+  else if (input.gettok(3, " ") == "seltext") {
+	  DWORD dwSelStart = 0; // selection range starting position
+	  DWORD dwSelEnd = 0;   // selection range ending position
+
+	  SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
+	  wsprintf(szReturnValue, "%s", this->m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr());
+	  return;
+  }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
 
     return;
