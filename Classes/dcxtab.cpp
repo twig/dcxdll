@@ -323,7 +323,6 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxTab::parseCommandRequest( TString & input ) {
-
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
   this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
@@ -332,7 +331,6 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
   // xdid -a [NAME] [ID] [SWITCH] [N] [ICON] [TEXT][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB](TOOLTIP)
   if ( flags.switch_flags[0] && numtok > 4 ) {
-
     TCITEM tci;
     ZeroMemory( &tci, sizeof( TCITEM ) );
     tci.mask = TCIF_IMAGE | TCIF_PARAM;
@@ -342,14 +340,12 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
     TString control_data = "";
     if ( input.numtok( "\t" ) > 1 ) {
-
       control_data = input.gettok( 2, "\t" );
       control_data.trim( );
     }
 
     TString tooltip = "";
     if ( input.numtok( "\t" ) > 2 ) {
-
       tooltip = input.gettok( 3, "\t" );
       tooltip.trim( );
     }
@@ -359,7 +355,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
     if ( nIndex == -1 )
       nIndex += TabCtrl_GetItemCount( this->m_Hwnd ) + 1;
 
-    tci.iImage = atoi( data.gettok( 5, " " ).to_chr( ) ) - 1;
+	 tci.iImage = atoi( data.gettok( 5, " " ).to_chr( ) ) - 1;
 
     // Extra params
     LPDCXTCITEM lpdtci = new DCXTCITEM;
@@ -369,21 +365,18 @@ void DcxTab::parseCommandRequest( TString & input ) {
     // Itemtext
     TString itemtext;
     if ( data.numtok( " " ) > 5 ) {
-
       itemtext = data.gettok( 6, -1, " " );
       tci.mask |= TCIF_TEXT;
       tci.pszText = itemtext.to_chr( );
     }
 
     if ( control_data.numtok( " " ) > 5 ) {
-
       UINT ID = mIRC_ID_OFFSET + atoi( control_data.gettok( 1, " " ).to_chr( ) );
 
       if ( ID > mIRC_ID_OFFSET - 1 && 
         !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
         this->m_pParentDialog->getControlByID( ID ) == NULL ) 
       {
-
         TString type = control_data.gettok( 2, " " );
         RECT rc;
 
@@ -460,13 +453,11 @@ void DcxTab::parseCommandRequest( TString & input ) {
         }
 
         if ( p_Control != NULL ) {
-
           lpdtci->mChildHwnd = p_Control->getHwnd( );
           this->m_pParentDialog->addControl( p_Control );
         }
       }
       else {
-
         char error[500];
         wsprintf( error, "/xdid -a : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
         mIRCError( error );
@@ -478,47 +469,53 @@ void DcxTab::parseCommandRequest( TString & input ) {
   }
   // xdid -c [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[2] && numtok > 3 ) {
-
     int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
-
       TabCtrl_SetCurSel( this->m_Hwnd, nItem );
       this->activateSelectedTab( );
     }
   }
   // xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
+	  int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+	  // if a valid item to delete
+	  if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
+		  int curSel = TabCtrl_GetCurSel(this->m_Hwnd);
+		  TCITEM tci;
+		  ZeroMemory( &tci, sizeof( TCITEM ) );
 
-    if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
+		  tci.mask = TCIF_PARAM;
 
-      TCITEM tci;
-      ZeroMemory( &tci, sizeof( TCITEM ) );
+		  if (TabCtrl_GetItem(this->m_Hwnd, nItem, &tci)) {
+			  LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
 
-      tci.mask = TCIF_PARAM;
+			  if ( lpdtci != NULL && lpdtci->mChildHwnd != NULL && IsWindow( lpdtci->mChildHwnd ) ) {
+				  DestroyWindow( lpdtci->mChildHwnd );
+				  delete lpdtci;
+			  }
+		  }
 
-      if ( TabCtrl_GetItem( this->m_Hwnd, nItem, &tci ) ) {
+		  TabCtrl_DeleteItem( this->m_Hwnd, nItem );
 
-        LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
-        if ( lpdtci != NULL && lpdtci->mChildHwnd != NULL && IsWindow( lpdtci->mChildHwnd ) ) {
-          DestroyWindow( lpdtci->mChildHwnd );
-          delete lpdtci;
-        }
-      }
+		  // select the next tab item if its the current one
+		  if (curSel == nItem) {
+			  if (nItem < TabCtrl_GetItemCount(this->m_Hwnd))
+				  TabCtrl_SetCurSel(this->m_Hwnd, nItem);
+			  else
+				  TabCtrl_SetCurSel(this->m_Hwnd, nItem -1);
 
-      TabCtrl_DeleteItem( this->m_Hwnd, nItem );
-    }
+			  this->activateSelectedTab( );
+		  }
+	  }
   }
   // xdid -l [NAME] [ID] [SWITCH] [N] [ICON]
   else if ( flags.switch_flags[11] && numtok > 4 ) {
-
     int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
     int nIcon = atoi( input.gettok( 5, " " ).to_chr( ) ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
-
      TCITEM tci;
      ZeroMemory( &tci, sizeof( TCITEM ) );
      tci.mask = TCIF_IMAGE;
