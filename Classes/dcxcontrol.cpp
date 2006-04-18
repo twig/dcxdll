@@ -379,7 +379,9 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 	// xdid -U [NAME] [ID]
   else if (flags.switch_cap_flags[20]) {
 	  HWND hNextCtrl = GetNextDlgTabItem(this->m_pParentDialog->getHwnd(), this->m_Hwnd, FALSE);
-	  SendMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, (WPARAM) hNextCtrl, TRUE);
+
+	  if (hNextCtrl)
+		  SendMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, (WPARAM) hNextCtrl, TRUE);
   }
   /*
   else {
