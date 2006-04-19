@@ -802,7 +802,13 @@ LRESULT DcxRichEdit::setCharFormat( UINT iType, CHARFORMAT2 * cfm ) {
 
 LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
+		case WM_CONTEXTMENU:
+			{
+				char ret[256];
+				this->callAliasEx( ret, "%s,%d", "rclick", this->getUserID( ) );
+				break;
+			}
 
     case WM_HELP:
       {
