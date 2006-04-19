@@ -259,6 +259,10 @@ void DcxRichEdit::parseCommandRequest( TString & input ) {
     this->m_tsText += input.gettok( 4, -1, " " );
     this->parseContents( TRUE );
   }
+   // xdid -c [NAME] [ID] [SWITCH]
+  else if (flags.switch_flags[2] && numtok > 2) {
+		CopyToClipboard(this->m_Hwnd, this->m_tsText);
+	}
   // xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
     
