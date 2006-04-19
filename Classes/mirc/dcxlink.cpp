@@ -309,13 +309,11 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	 case WM_SETCURSOR:
 		 {
 			 if (this->m_hCursor) {
-				 mIRCError("set");
 				 SetCursor(this->m_hCursor);
 				 bParsed = TRUE;
 				 return TRUE;
 			 }
 			 else if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
-				 mIRCError("def");
 				 HCURSOR hCursor = LoadCursor( NULL, IDC_HAND );
 				 SetCursor( hCursor );
 				 bParsed = TRUE;
