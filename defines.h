@@ -168,5 +168,6 @@ typedef HRESULT (__stdcall *PFNSETTHEME)( HWND hwnd, LPCWSTR pszSubAppName, LPCW
 HRESULT SetWindowTheme( HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList );
 BOOL isXP( );
 HWND FindOwner(TString data, HWND defaultWnd);
+BOOL CopyToClipboard(HWND owner, TString str);
 
 #endif // _DEFINES_H_

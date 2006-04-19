@@ -263,7 +263,12 @@ TString FileDialog(TString data, TString method, HWND pWnd) {
 	return TString("");
 }
 
-
+/*!
+* \brief Finds an owner of a dialog, used with styles
+*
+* Returns the owner HWND
+*
+*/
 HWND FindOwner(TString data, HWND defaultWnd) {
 	int i = data.findtok("owner", 1, " ");
 
@@ -292,4 +297,46 @@ HWND FindOwner(TString data, HWND defaultWnd) {
 	}
 
 	return defaultWnd;
+}
+
+
+
+
+/*!
+* \brief Copies string to the clipboard
+*
+* Returns TRUE if successful
+*
+* http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/dataexchange/clipboard/usingtheclipboard.asp
+*/
+BOOL CopyToClipboard(HWND owner, TString str) {
+	if (!OpenClipboard(owner)) {
+		mIRCError("CopyToClipboard: couldnt open clipboard");
+		return FALSE;
+	}
+
+	int cbsize = (strlen(str.to_chr()) +1) * sizeof(TCHAR);
+	EmptyClipboard();
+	HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, cbsize);
+
+	if (hglbCopy == NULL) {
+		CloseClipboard();
+		mIRCError("CopyToClipboard: couldnt open global memory");
+		return FALSE;
+	}
+
+	char *strCopy = (char *) GlobalLock(hglbCopy);
+
+	// original code, limited and doesnt copy large chunks
+	//wsprintf(strCopy, "%s", str.to_chr());
+
+	// demo code from msdn, copies everything
+	memcpy(strCopy, str.to_chr(), cbsize);
+	strCopy[cbsize] = (TCHAR) 0;    // null character
+
+	GlobalUnlock(hglbCopy);
+	SetClipboardData(CF_TEXT, hglbCopy);
+	CloseClipboard();
+
+	return TRUE;
 }
