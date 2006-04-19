@@ -425,6 +425,14 @@ void DcxRichEdit::parseCommandRequest( TString & input ) {
 
 		SendMessage(this->m_Hwnd, EM_EXSETSEL, NULL, (LPARAM) &c);
   }
+  // xdid -Z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
+	else if (flags.switch_cap_flags[25] && numtok > 4) {
+		int num = atoi(input.gettok(4, " ").to_chr());
+		int den = atoi(input.gettok(5, " ").to_chr());
+
+		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
+			mIRCError("/xdid -Z: richedit zooming error");
+  }
   else {
     this->parseGlobalCommandRequest( input, flags );
   }
