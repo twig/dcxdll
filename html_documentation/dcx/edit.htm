@@ -237,6 +237,13 @@ This command lets you add text to the end of the edit.<br /><br />
 <b>Example:</b> <a class=i3>/xdid -a dcx 4 New Text</a><br /><br />
 </p>
 
+<p align=justify><a><b>• </b></a> <a name="4.6" href=#>-c</a><hr><br />
+This command will copy the text in the edit to the clipboard.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -c dialog ID</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -c dcx 4</a><br /><br />
+</p>
+
 <p align=justify><a><b>• </b></a> <a name="4.4" href=#>-d</a><hr><br />
 This command lets you delete the Nth line of text in the edit (Only works with <a class=i>multi</a>).<br /><br />
 
@@ -293,6 +300,13 @@ This command lets you save the contents of the edit directly in a file.<br /><br
 <b>Example:</b> <a class=i3>/xdid -u dcx 4 C:\mIRC\blah.txt</a><br /><br />
 </p>
 
+<p align=justify><a><b>• </b></a> <a name="4.5" href=#>-S</a><hr><br />
+This command lets you set the selection range in the edit.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -C dialog ID [START] [END]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -C dcx 4 1 3</a><br /><br />
+</p>
+
 
 <!-- Section 5 -->
 
@@ -324,6 +338,38 @@ This property lets you retreive if the password style is set on the edit control
 <b>Identifier:</b> <a class=i3>$xdid(dialog, ID).ispass</a><br /><br />
 <b>Example:</b> <a class=i3>//echo -a $xdid(dcx, 4).ispass</a><br /><br />
 </p>
+
+<p align="justify"><a><b>• </b></a> <a name="5.6" href="#">sel</a></p><hr><br>
+This returns the index of the first and last selected character position in the control.<br><br>
+
+<b>Identifier:</b> <a class="i3">$xdid(dialog, ID).sel</a><br><br>
+<b>Example:</b> <a class="i3">//echo -a $xdid(dcx, 4).sel</a><br><br>
+
+<p></p>
+
+<p align="justify"><a><b>• </b></a> <a name="5.7" href="#">selstart</a></p><hr><br>
+This returns the index of the first selected character position in the control.<br><br>
+
+<b>Identifier:</b> <a class="i3">$xdid(dialog, ID).selstart</a><br><br>
+<b>Example:</b> <a class="i3">//echo -a $xdid(dcx, 4).selstart</a><br><br>
+
+<p></p>
+
+<p align="justify"><a><b>• </b></a> <a name="5.4" href="#">selend</a></p><hr><br>
+This returns the index of the last selected character position in the control.<br><br>
+
+<b>Identifier:</b> <a class="i3">$xdid(dialog, ID).selend</a><br><br>
+<b>Example:</b> <a class="i3">//echo -a $xdid(dcx, 4).selend</a><br><br>
+
+<p></p>
+
+<p align="justify"><a><b>• </b></a> <a name="5.5" href="#">seltext</a></p><hr><br>
+This returns the selected text in the control.<br><br>
+
+<b>Identifier:</b> <a class="i3">$xdid(dialog, ID).seltext</a><br><br>
+<b>Example:</b> <a class="i3">//echo -a $xdid(dcx, 4).seltext</a><br><br>
+
+<p></p>
 
 <br />
 <!-- Section 8 - Events -->
@@ -360,7 +406,28 @@ and data are sent to the <a href="index.htm#4" class=i>callback alias</a> associ
   <td width="100%">When a key is unpressed in the edit control.</td>
 </tr>
 
-<tr><td colspan=2>&nbsp;</td>
+<tr>
+  <td><a class="i2">copy</a></td><td>&nbsp;&nbsp;</td>
+  <td width="100%">When the user copies text from the edit control.<br />
+<a class="i2">Return</a> <a class="i3">nocopy</a> -&gt; Return this value to block the copy operation.
+</td>
+
+</tr>
+
+<tr>
+  <td><a class="i2">cut</a></td><td>&nbsp;&nbsp;</td>
+  <td width="100%">When the user cuts text from the edit control.<br />
+<a class="i2">Return</a> <a class="i3">nocut</a> -&gt; Return this value to block the cut operation.
+</td>
+</tr>
+
+<tr>
+  <td><a class="i2">paste</a></td><td>&nbsp;&nbsp;</td>
+  <td width="100%">When the user pastes text into the edit control.<br />
+<a class="i2">Return</a> <a class="i3">nopaste</a> -&gt; Return this value to block the paste operation.
+</td>
+</tr>
+
 
 <tr>
   <td><a class=i2>help</a></td><td>&nbsp;&nbsp;</td>
@@ -377,6 +444,7 @@ and data are sent to the <a href="index.htm#4" class=i>callback alias</a> associ
 <br />
 <a class=i href="#4">/xdid flags</a><br />
 • <a href="#4.1">-a</a><br />
+• <a href="#4.6">-d</a><br />
 • <a href="#4.4">-d</a><br />
 • <a href="#4.9">-i</a><br />
 • <a href="#4.10">-j</a><br />
@@ -385,11 +453,16 @@ and data are sent to the <a href="index.htm#4" class=i>callback alias</a> associ
 • <a href="#4.18">-r</a><br />
 • <a href="#4.20">-t</a><br />
 • <a href="#4.21">-u</a><br />
+• <a href="#4.5">-S</a><br />
 <br />
 <a class=i href="#5">$xdid() Properties</a><br />
 • <a href="#5.1">text</a><br />
 • <a href="#5.2">num</a><br />
 • <a href="#5.3">ispass</a><br />
+• <a href="#5.6">sel</a><br />
+• <a href="#5.7">selstart</a><br />
+• <a href="#5.4">selend</a><br />
+• <a href="#5.5">seltext</a><br />
 <br />
 <a class=i href="#8">Control Events</a><br />
 

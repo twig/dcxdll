@@ -62,25 +62,35 @@ These commands have the symbol <a class=i3>(XP+)</a> beside their listing.
 Here will be listed the latest features added. <br /><br />
 
 <ul>
-<li><b>17/02/2006</b></li>
-<li>Added /xdid -q and -m to the Listview for Group Support <a class=i3>(XP+)</a></li>
-<li>Corrected the height of the colorcombo which is now the same as the comboex</li>
-<li>Fixed help file typos</li>
-<li><b>16/02/2006</b></li>
-<li>Added cursor stuff to the DLL via /xdialog -q and /xdid -J</li>
-<li><b>15/02/2006</b></li>
-<li>Added /xdialog -j</li>
-<li>Fixed richedit /xdid -k switch</li>
-<li>Fixed a drawing glitch on the box control</li>
-<li><b>14/02/2006</b></li>
-<li>Added the +ah flags to the /xdid -t command for listview headers</li>
-<li>Added /xdid -n to listview to resize header individually after they've been created</li>
-<li>Added $xdid().hwidth, .htext and .hicon to the listview</li>
-<li>Changed the range values of the trackbar to 32 bit values</li>
-<li>Fixed the fact that an undock dialog/@window was displayed when undocked even though it was hidden just before</li>
-<li>Fixed $xdid().tooltip on treeview that returned corrupted data</li>
-<li><b>11/02/2006</b></li>
-<li>Fixed a bug related to XPopup menus not showing properly after merger</li>
+<li><b>v1.3.0</b></li>
+<li>fixed a display bug where text would be drawn off a button when too long</li>
+<li>added a pbar property $xdid().text</li>
+<li>added ability to set no text on a button using /xdid -t</li>
+<li>added keydown, keyup and return to richedit</li>
+<li>link font is now the system default GUI font</li>
+<li>fixed /xdid -C +k for box control not using the specified color</li>
+<li>added return and rclick event to richedit</li>
+<li>added /xdid -c to copy content to clipboard for edit and richedit ctrls</li>
+<li>added <b>owner</b> attribute to OpenDialog, SaveDialog and ColorDialog</li>
+<li>changed -C to -S for selecting text ranges in edit and richedit ctrls (this would of solved the coloring bug on these controls too)</li>
+<li><b>v1.2.7 and v1.2.8 Reimplementation</b></li>
+<li>removed a debug output "Dialog WM_LBUTTONDOWN" when clicking on the dialog</li>
+<li>changed $dcx(GetSystemColor), please view documentation on changes to syntax</li>
+<li>added /xdid -o to overwrite a line for listbox ctrl</li>
+<li>added a style to the list control "vsbar" allowing it to be scrolled when overflowing</li>
+<li>added keydown and keyup events to edit ctrl</li>
+<li>added $dcx(ColorDialog), slightly changed syntax</li>
+<li>implemented $dcx(OpenDialog) and $dcx(SaveDialog)</li>
+<li>added selstart, selend, sel, seltext properties to edit ctrl</li>
+<li>added selstart, selend, sel, seltext properties to richedit ctrl</li>
+<li>fixed a bug in /xdid -d for tab ctrl where no page would be selected after deleting current page</li>
+<li>fixed a problem with box and link ctrls where cursor command /xdid -J wouldn't apply</li>
+<li>implemented /xdid -U for removing focus from a control. (will not work if there is only one control on the dialog)</li>
+<li>added nocut, nocopy and nopaste return values to prevent cut, copy and paste events for edit ctrl</li>
+<li>richedit editable by default</li>
+<li>added a style "readonly" to richedit</li>
+<li>added /xdid -Z for zooming richedit ctrls</li>
+<li><div style="color: red;">Please note that <b>selchange</b> (richedit) and <b>dropfile</b> events are missing.</div>They will be reimplemented in the near future.</li>
 </ul>
 </p>
 
@@ -916,6 +926,13 @@ This command lets you add additional information to a control that can be retrie
 <b>Example:</b> <a class=i3>/xdid -M dcx 4 Mark info here</a><br /><br />
 </p>
 
+<p align=justify><a><b>• </b></a> <a name="9.40" href=#>-U</a><hr><br />
+This command lets you remove focus from the control..<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -U dialog ID</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -U dcx 4</a><br /><br />
+</p>
+
 <p align=justify><a><b>• </b></a> <a name="9.52" href=#>-Z</a><hr><br />
 This command lets you scroll a control in the vertical direction where [POS] is a percentage expressing the area to scroll (0 being top and 100 being bottom).<br /><br />
 
@@ -1281,6 +1298,7 @@ These events are fired when events occur in the dialog itself.
 • <a href="#9.32">-F</a><br />
 • <a href="#9.36">-J</a><br />
 • <a href="#9.39">-M</a><br />
+• <a href="#9.40">-U</a><br />
 • <a href="#9.52">-Z</a><br />
 <br />
 <a class=i href="#5">$xdid Identifier</a><br />

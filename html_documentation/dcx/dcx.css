@@ -155,7 +155,7 @@ h2 {
 
 .menuleft {
 	width: 150px;
-	border: 1px solid red;
+	border: 0px solid red;
 }
 .menuleft ul {
 	margin: 0px;
@@ -164,5 +164,5 @@ h2 {
 
 .menuright {
 	width: 150px;
-	border: 1px solid blue;
+	border: 0px solid blue;
 }

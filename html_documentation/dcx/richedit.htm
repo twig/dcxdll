@@ -214,6 +214,13 @@ This command lets you add text to the end of the richedit.<br /><br />
 <b>Example:</b> <a class=i3>/xdid -a dcx 4 New Text</a><br /><br />
 </p>
 
+<p align=justify><a><b>• </b></a> <a name="4.3" href=#>-c</a><hr><br />
+This command will copy the text in the edit to the clipboard.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -c dialog ID</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -c dcx 4</a><br /><br />
+</p>
+
 <p align=justify><a><b>• </b></a> <a name="4.4" href=#>-d</a><hr><br />
 This command lets you delete the Nth line of text in the richedit (Only works with <a class=i>multi</a>).<br /><br />
 
@@ -293,7 +300,14 @@ This command lets you save the contents of the richedit directly in a file.<br /
 <b>Example:</b> <a class=i3>/xdid -u dcx 4 C:\mIRC\blah.txt</a><br /><br />
 </p>
 
-<p align=justify><a><b>• </b></a> <a name="4.3" href=#>-Z</a><hr><br />
+<p align=justify><a><b>• </b></a> <a name="4.5" href=#>-S</a><hr><br />
+This command lets you set the selection range in the richedit.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -C dialog ID [START] [END]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -C dcx 4 1 3</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.6" href=#>-Z</a><hr><br />
 This command lets you zoom the text size of the richedit. The percentage of zooming is calculated by dividing the numerator by denominator (NUMERATOR / DENOMINATOR)<br /><br />
 
 <b>Command:</b> <a class=i3>/xdid -Z dialog ID [NUMERATOR] [DENOMINATOR]</a><br /><br />
@@ -323,6 +337,39 @@ This property lets you retreive the number of lines in the richedit.<br /><br />
 
 <a class=i2>N.B.</a> Only works with the <a class=i>multi</a> style.
 </p>
+
+<p align="justify"><a><b>• </b></a> <a name="5.6" href="#">sel</a></p><hr><br>
+This returns the index of the first and last selected character position in the control.<br><br>
+
+<b>Identifier:</b> <a class="i3">$xdid(dialog, ID).sel</a><br><br>
+<b>Example:</b> <a class="i3">//echo -a $xdid(dcx, 4).sel</a><br><br>
+
+<p></p>
+
+<p align="justify"><a><b>• </b></a> <a name="5.3" href="#">selstart</a></p><hr><br>
+This returns the index of the first selected character position in the control.<br><br>
+
+<b>Identifier:</b> <a class="i3">$xdid(dialog, ID).selstart</a><br><br>
+<b>Example:</b> <a class="i3">//echo -a $xdid(dcx, 4).selstart</a><br><br>
+
+<p></p>
+
+<p align="justify"><a><b>• </b></a> <a name="5.4" href="#">selend</a></p><hr><br>
+This returns the index of the last selected character position in the control.<br><br>
+
+<b>Identifier:</b> <a class="i3">$xdid(dialog, ID).selend</a><br><br>
+<b>Example:</b> <a class="i3">//echo -a $xdid(dcx, 4).selend</a><br><br>
+
+<p></p>
+
+<p align="justify"><a><b>• </b></a> <a name="5.5" href="#">seltext</a></p><hr><br>
+This returns the selected text in the control.<br><br>
+
+<b>Identifier:</b> <a class="i3">$xdid(dialog, ID).seltext</a><br><br>
+<b>Example:</b> <a class="i3">//echo -a $xdid(dcx, 4).seltext</a><br><br>
+
+<p></p>
+
 <br />
 <!-- Section 8 - Events -->
 
@@ -365,6 +412,11 @@ Remember that the events over a child control will be fired according to that ch
 </tr>
 
 <tr>
+  <td><a class=i2>rclick</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When the right mouse button is pressed on the richedit control.</td>
+</tr>
+
+<tr>
   <td><a class="i2">keydown</a></td><td>&nbsp;&nbsp;</td>
   <td width="100%">When a key is pressed in the richedit control.</td>
 </tr>
@@ -389,6 +441,7 @@ Remember that the events over a child control will be fired according to that ch
 <br />
 <a class=i href="#4">/xdid flags</a><br />
 • <a href="#4.1">-a</a><br />
+• <a href="#4.3">-c</a><br />
 • <a href="#4.4">-d</a><br />
 • <a href="#4.9">-i</a><br />
 • <a href="#4.11">-k</a><br />
@@ -399,10 +452,16 @@ Remember that the events over a child control will be fired according to that ch
 • <a href="#4.18">-r</a><br />
 • <a href="#4.20">-t</a><br />
 • <a href="#4.21">-u</a><br />
+• <a href="#4.5">-S</a><br />
+• <a href="#4.6">-Z</a><br />
 <br />
 <a class=i href="#5">$xdid() Properties</a><br />
 • <a href="#5.1">text</a><br />
 • <a href="#5.2">num</a><br />
+• <a href="#5.6">sel</a><br />
+• <a href="#5.3">selstart</a><br />
+• <a href="#5.4">selend</a><br />
+• <a href="#5.5">seltext</a><br />
 <br />
 <a class=i href="#8">Control Events</a><br />
 

@@ -149,6 +149,11 @@ These control styles are available when creating a lisbox control.
 </tr>
 
 <tr>
+  <td><a class=i2>vsbar</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Specifies that the list box should display a vertical scrollbar when it overflows.</td>
+</tr>
+
+<tr>
   <td colspan=3>&nbsp;</td>
 </tr>
 
@@ -228,6 +233,13 @@ This command lets you uncheck the listbox selection.<br /><br />
 
 <b>Command:</b> <a class=i3>/xdid -u dialog ID</a><br /><br />
 <b>Example:</b> <a class=i3>/xdid -u dcx 4</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.19" href=#>-o</a><hr><br />
+This command lets you overwrite an item in the listbox.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -o dialog ID [N] [TEXT]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -o dcx 4 1 Hello world</a><br /><br />
 </p>
 
 <!-- Section 5 -->
@@ -332,6 +344,7 @@ Remember that the events over a child control will be fired according to that ch
 • <a href="#4.3">-c</a><br />
 • <a href="#4.4">-d</a><br />
 • <a href="#4.18">-r</a><br />
+• <a href="#4.19">-o</a><br />
 • <a href="#4.21">-u</a><br />
 <br />
 <a class=i href="#5">$xdid() Properties</a><br />
