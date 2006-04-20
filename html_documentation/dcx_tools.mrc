@@ -3,7 +3,9 @@ alias dcx {
   else dll " $+ $scriptdirdcx\dcx.dll" $1 $2-
 }
 
-alias udcx dll -u dcx.dll
+alias udcx {
+  $iif($menu, .timer 1 0) dll -u dcx.dll
+}
 
 alias xdid {
   if ( $isid ) {
