@@ -1,0 +1,129 @@
+<?php
+function get_intro_comboex() {
+	echo "This control enables you to create a comboex control, which is a combo box extended to support icons.";
+}
+
+
+function get_styles_comboex(&$STYLES) {
+	$STYLES = array(
+		"simple" => "Combo that is a list with an edit box",
+		"dropdown" => "Simple dropdown combo.",
+		"dropedit" => "Dropdown combo with an editbox.",
+	);
+}
+
+
+function get_xdid_comboex(&$XDID) {
+	$XDID = array(
+	    'a' => array(
+	        '__desc' => 'This command lets you add an item to the comboex.',
+	        '__cmd' => '[N] [INDENT] [#ICON] [#SELECTED] [#OVERLAY] [Item Text]',
+	        '__eg' => '3 0 1 2 0 Visit scriptsdb.org',
+            '__params' => array(
+                'N' => "Position where the comboex item will be added.",
+                'INDENT' => "Number of indent widths from the left border.",
+                '#ICON' => "Icon displayed when item is not selected.",
+                '#SELECTED' => "Icon displayed when item is selected.",
+                '#OVERLAY' => 'Overlay icon of the item ([n]Not functional yet[/n])',
+			),
+			'__notes' => array(
+				"You can use [v]0[/v] for the [p]N[/p] value to insert the item at the end of the comboex.",
+				"Every unit of [p]INDENT[/p] is a 10 pixel indent.",
+				"Use [v]0[/v] for [p]#ICON[/p] or [p]#SELECTED[/p] if you wish to use no icon.",
+			),
+		),
+		'c' => array(
+	        '__desc' => 'This command lets you select the Nth comboex item.',
+	        '__cmd' => '[N]',
+	        '__eg' => '5',
+		),
+		'l' => array(
+	        '__desc' => 'This command lets you delete the Nth comboex item.',
+	        '__cmd' => '[N]',
+	        '__eg' => "6",
+		),
+		'u' => array(
+	        '__desc' => 'This command makes the currently selected comboex item unselected.',
+		),
+		'w' => array(
+	        '__desc' => 'This command lets you add an icon to the comboex image list.',
+	        '__cmd' => '[INDEX] [FILENAME]',
+	        '__eg' => '113 C:/mIRC/shell.dll',
+            '__params' => array(
+                'INDEX' => "Icon index in icon archive",
+                'FILENAME' => "Icon archive filename",
+			),
+	        '__notes' => array(
+	            "Use [v]0[/v] for [p]ICON[/p] if the file is a single icon file.",
+			),
+		),
+		'y' => array(
+	        '__desc' => 'This command lets you clear the comboex image list.',
+		),
+	);
+}
+
+function get_xdidprops_comboex(&$XDIDPROPS) {
+	$XDIDPROPS = array(
+		"text" => array(
+		    '__desc' => "This property lets you retreive the Nth comboex item text.",
+	        '__cmd' => '[N]',
+	        '__eg' => '1',
+	        '__notes' => array(
+	            'You can use a value of [v]0[/v] for [p]N[/p] to retrieve the text of the editbox.',
+			),
+		),
+		"sel" => array(
+		    '__desc' => 'This property lets you retreive the comboex selected item number.',
+		),
+		"seltext" => array(
+		    '__desc' => 'This property lets you retreive selected comboex item text.',
+		),
+		"num" => array(
+		    '__desc' => "This property lets you retreive the total number of comboex items.",
+		),
+		"find" => array(
+		    '__desc' => "This property lets you retreive the comboex item index of the Nth found comboex item matching the input search patern.",
+			'__cmd' => '[TAB][MATCHTEXT][TAB], TYPE, N',
+	        '__eg' => '$chr(9) *Item* $chr(9), W, 3',
+	        '__params' => array(
+	            "MATCHTEXT" => "String composed of wildcards or regex paterns used for the search.",
+	            "TYPE" => array(
+	                '__desc' => "Value indicating if the search is using a regex patern or wildcard string.",
+                    '__values' => array(
+                        'W' => '[p]MATCHTEXT[/p] is a wildcard string.',
+                        'R' => '[p]MATCHTEXT[/p] is a regex patern.',
+					),
+				),
+				"N" => "Parameter indicating to return the Nth match."
+			),
+	        '__notes' => array(
+	            "The [TAB] characters surrounding the matchtext are mandatory or else it won't work.",
+	            'If [p]N[/p] is [v]0[/v], returns the total number of matching items found.'
+			),
+		),
+	);
+}
+
+function get_events_comboex(&$EVENTS) {
+	$EVENTS = array(
+	    "sclick" => array(
+			'__desc' => "When an item is selected in the comboex.",
+			'__cmd' => 'ITEM',
+			'__params' => array(
+				'ITEM' => 'Item number where the event was triggered.',
+			),
+		),
+		"dclick" => array(
+			'__desc' => "When an item is double-clicked in a simple comboex.",
+			'__cmd' => 'ITEM',
+			'__params' => array(
+				'ITEM' => 'Item number where the event was triggered.',
+			),
+		),
+	    "edit" => "When the text is edited in a comboex with editbox.",
+	    "return" => "When the <b>Enter</b> key is pressed in the editbox of a comboex.",
+		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+	);
+}
+?>

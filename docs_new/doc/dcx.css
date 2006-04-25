@@ -1,0 +1,166 @@
+body,div,td {
+	font-size: 8pt;
+	font-family: tahoma;
+	color: #000000;
+	cursor: default;
+	text-align: left;
+}
+
+body {
+	margin-top: 0px;
+	margin-left: 5px;
+}
+
+img {
+	border: 0px solid black;
+}
+
+table {
+	width: 100%;
+}
+
+td {
+	vertical-align: top;
+	width: auto;
+}
+
+.bar {
+	border: 1px solid black;
+	background: #eeeeee;
+	table-layout: fixed;
+	font-weight: bold;
+}
+
+.divpink {
+	font-size: 18px;
+	font-weight: bold;
+	color: #D600D6;
+	padding: 5px;
+}
+
+a {
+	font-weight: bold;
+	color: #002980;
+	text-decoration: none;
+}
+a:link {
+	font-weight: bold;
+	color: #002980;
+	text-decoration: none;
+}
+a:visited {
+	font-weight: bold;
+	color: #002980;
+	text-decoration: none;
+}
+a:active {
+	font-weight: bold;
+	color: #002980;
+	text-decoration: none;
+}
+a:hover {
+	font-weight: bold;
+	color: #002980;
+	text-decoration: underline;
+}
+
+.menuleft {
+	width: 150px;
+	/*border: 1px solid black;*/
+}
+
+a.note {
+	color: #EE9900;
+}
+a.style {
+	color: #D60000;
+}
+a.value {
+	color: #D60000;
+}
+a.event {
+	color: #009900;
+}
+a.eventreturn {
+	color: #FF00FF;
+}
+a.os {
+	color: #EE9900;
+}
+a.param {
+	color: #EE9900;
+}
+a.property {
+	color: pink;
+}
+
+ul {
+	margin-top: 0px;
+	margin-left: 0px;
+	padding-left: 15px;
+}
+
+.menuright {
+	width: 150px;
+	/*border: 1px solid black;*/
+}
+
+
+/* table used for descriptions */
+table.description {
+	margin-bottom: 15px;
+}
+
+table.description .heading {
+	font-weight: bold;
+	border-bottom: 2px solid black;
+	/*background: #eeeeee;*/
+}
+
+
+/* table used for /xdid flags */
+.xdid, .xdialog, .xdidprop {
+}
+
+/*.xdid td.syntax, .xdid td.example, .xdialog td.syntax, .xdialog td.example, .xdidprop td.syntax, .xdidprop td.example {*/
+td.syntax, td.example {
+	font-weight: bold;
+	width: 100px;
+}
+/*.xdid div.syntax, .xdid div.example, .xdialog div.syntax, .xdialog div.example, .xdidprop div.syntax, .xdidprop div.example {*/
+div.syntax, div.example {
+	font-weight: bold;
+	color: #EE9900;
+}
+
+
+/* xdid flag heading */
+/*.xdid .flag, .xdialog .flag, .xdidprop .flag {*/
+.flag {
+	border-bottom: 1px dotted black;
+	/*background: #eeeeee;*/
+}
+
+.xdid td.value, .xdialog td.value, .xdidprop td.value, .xdialogprop td.value, .general td.value, .styles td.style {
+	font-weight: bold;
+	color: #D60000;
+	padding-left: 25px;
+	width: 100px;
+}
+
+/*.xdid td.param, .xdialog td.param, .xdidprop td.param {*/
+td.param {
+	font-weight: bold;
+	color: #009900;
+	padding-left: 10px;
+}
+
+
+
+/* table used for /xdid flags */
+.events {
+}
+
+.events td.event {
+	width: 100px;
+}
