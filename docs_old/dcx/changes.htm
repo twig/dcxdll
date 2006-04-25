@@ -1,0 +1,481 @@
+<html><head><title>DCX - Dialog Control Xtension DLL v1.0 by ClickHeRe</title>
+<style type='text/css'>
+body { font-size: 8pt; background: #ffffff; font-family: tahoma; color: #000000; }
+table { font-size: 8pt; font-family: tahoma }
+
+table.bar { border-right: #000000 1px solid; border-top: #000000 1px solid; font-size: 8pt; background: #eeeeee; border-left: #000000 1px solid; border-bottom: #000000 1px solid; font-family: tahoma }
+
+a.i3 { font-weight: bold; font-size: 8pt; color: #EE9900; font-family: tahoma; text-decoration: none }
+a.i2 { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:link { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:active { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:visited { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:hover { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:link { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:active { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:visited { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:hover { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:link { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:visited { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:active { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:hover { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: underline }
+hr { font-weight: bold; font-size: 8pt; color: #002980; }
+hr.t { font-weight: bold; font-size: 8pt; color: #D60000; }
+</style>
+</head>
+<body topmargin="0" leftmargin="5">
+<table border="0" width="100%" cellspacing="0" cellpadding="0" BGCOLOR=#FFFFFF>
+<tr><td heigth=200 align=left valign=middle>&nbsp;
+<a href="index.htm" title="DCX - Dialog Control Xtension"><img src="../images/dcx.png" border='0'></a>
+</td><td valign='bottom' align='right'>
+<a href="../nl/index.htm">Dutch</a> |
+<a href="../index.htm">English</a> | 
+<a href="../fi/index.htm">Finnish</a> |
+<a href="../fr/index.htm">French</a> |
+<a href="../ge/index.htm">German</a> |
+<a href="../he/index.htm">Hebrew</a> |
+<a href="../it/index.htm">Italian</a> |
+<a href="../my/index.htm">Malaysian</a> |
+<a href="../br/index.htm">Portuguese (Brazil)</a> |
+<a href="../pt/index.htm">Portuguese</a> |
+<a href="../sp/index.htm">Spanish</a> |
+<a href="../sw/index.htm">Swedish</a>
+</td></tr></table>
+<table class=bar width=100%><tr>
+<td align=left width=33%><nobr><a href='index.htm'> Home </a> | <a href="http://scriptsdb.org/download.php?id=1155">Download</a> | <a href="http://dcx.scriptsdb.org/forum/">Forum</a> | <a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a></nobr></td>
+<td align=center width=33%><nobr><b>Dialog Control Xtension - Changes/Fixes/Bug Reports</b> </nobr></td>
+<td align=right width=33%><b> Version 1.2.7 </b></td></tr></table><br /><table border=0 width="100%" cellspacing=2 cellpadding=2><tr valign=top><td><nobr>
+<a class=i href="#1">Introduction</a><br />
+<br />
+<a class=i href="dcxvsmdx.htm">DCX vs MDX</a><br />
+<br />
+<a class=i href="#2">DCX Supported Controls</a><br />
+• <a href="pbar.htm">Progressbar</a><br />
+• <a href="treeview.htm">TreeView</a><br />
+• <a href="listview.htm">ListView</a><br />
+• <a href="toolbar.htm">Toolbar</a><br />
+• <a href="statusbar.htm">Statusbar</a><br />
+• <a href="comboex.htm">ComboEx</a><br />
+• <a href="trackbar.htm">Trackbar</a><br />
+• <a href="rebar.htm">Rebar</a><br />
+• <a href="richedit.htm">RichEdit</a><br />
+• <a href="colorcombo.htm">ColorCombo</a><br />
+• <a href="button.htm">Button</a><br />
+• <a href="ipaddress.htm">IP Address</a><br />
+• <a href="updown.htm">UpDown</a><br />
+• <a href="webctrl.htm">WebControl</a><br />
+• <a href="calendar.htm">Calendar</a><br />
+<br />
+• <a href="line.htm">Line</a><br />
+• <a href="box.htm">Box</a><br />
+• <a href="radio.htm">Radio</a><br />
+• <a href="check.htm">Check</a><br />
+• <a href="edit.htm">Edit</a><br />
+• <a href="scroll.htm">Scroll</a><br />
+• <a href="image.htm">Image</a><br />
+• <a href="list.htm">List</a><br />
+• <a href="link.htm">Link</a><br />
+• <a href="text.htm">Text</a><br />
+<br />
+• <a href="divider.htm">Divider</a><br />
+• <a href="panel.htm">Panel</a><br />
+• <a href="tab.htm">Tab</a><br />
+<br />
+• <a href="window.htm">@Window</a><br />
+• <a href="dialog.htm">Dialog</a><br />
+<br />
+<a class=i href="#15">DCX Supported Features</a><br />
+• <a href="layout.htm">Cell Layout Algorithm</a><br />
+• <a href="xpopup.htm">XPopup Menus</a><br />
+
+<!-- Section 1 -->
+
+</nobr></td><td>&nbsp;</td><td width=100%>
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="1" href=#>Introduction</a><hr class=t><br />
+This pages lists the recent changes to the DLL, bug fixes, coming features and known bugs to be fixed.<br /><br />
+</p>
+
+<!-- Section 15 -->
+<br />
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="15" href=#>Coming Soon</a><hr class=t><br />
+Here will be listed the near future todo list of items. <br /><br />
+
+<ul>
+<li>Lots of feature suggestions by users</li>
+<li>Calendar</li>
+<li>Other Custom controls: Taskpanel, treelist, outlook bar, other</li>
+<li>/xdialog -z to set min/max resizing values</li>
+<li></li>
+<li><b>WishList of People</b></li>
+<li>Toolbar & TreeView background image support</li>
+<li>Merge Xpopups, Tooltips, TDialog, UltraDock DLLs into DCX</li>
+</ul>
+</p>
+
+<!-- Section 14 -->
+<br />
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="14" href=#>New Features</a><hr class=t><br />
+Here will be listed the latest features added. <br /><br />
+
+<ul>
+<li><b>02/02/2006</b></li>
+<li>Merged XPopup to the DLL</li>
+<li><b>01/02/2006</b></li>
+<!--<li>Added the possibility to give the value of * instead of the ID to delete all controls on the dialog</li>-->
+<li>Added missing /xdid -d doc for the box control even though the function existed</li>
+<li>Added $xdid().tooltip to the toolbar control</li>
+<li>Fixed control deletion bug with "ghost" controls and invalid IDs, crashes, etc.</li>
+<li>Fixed potential problems with image lists on certain controls (not reported, but found by me)</li>
+<li>Fixed typos in the help file</li>
+<li>Fixed the TAB that made button text disappear bug</li>
+<li>Fixed the $xdid().icon treeview bug</li>
+<li><b>31/01/2006</b></li>
+<li>Added /xdid -o on the treeview to change the toltip text of an item</li>
+<li>Added the $xdid().mouseitem to the treeview control</li>
+<li>Added a Note to /xdid -p</li>
+<li>Added /xdid -k to richedit to change background color</li>
+<li>Added /xdialog -x which kills a dialog instead of triggering the close state</li>
+<li>Added the nosize return possibility in the sizing dialog event</li>
+<li>Fixed the $xdid().sel index being wrong on the comboex</li>
+<li>Fixed the link control refresh bug after /xdid -t</li>
+<li>Fixed $xdid().find in several controls generating a mIRC error when used with a $null value for matchtext</li>
+<li>Fixed /xdid -l for icon size not working for treeview</li>
+<li>Fixed /xdid -u not clearing selection in listview</li>
+<li>Fixed the header events not being sent when a listview was on a panel control (stupid API inconsistency here!)</li>
+<li>Modified the <a class=i>close</a> event notice. <a class=i2>A MUST READ</a></li>
+<li><b>23/01/2006</b></li>
+<li>Added /xdid -v to change a celle text on statusbar</li>
+<li>Added the dialog name in some error messages</li>
+<li>Changed the updown $xdid().pos to $xdid().value</li>
+<li>Fixed a typo in the scroll "vertical" style preventing is from working</li>
+<li>Corrected typos in the help file</li>
+<li><b>11/01/2006</b></li>
+<li>Added /xdialog -f to flash dialog windows</li>
+<li>Reduced the height of the colorcombo control</li>
+<li><b>09/01/2006</b></li>
+<li>Added $xdid()ispass to the edit control</li>
+<li>Added /xdid -j to the edit control to trigger password mode</li>
+<li>Fixed a toolbar icon list bug</li>
+<li>Fixed the ready state of the webctrl when created, it now browses to about:blank</li>
+<li>Fixed the rebar refresh problem linked to CLA</li>
+<li><b>08/01/2006</b></li>
+<li>Fixed the WebCtrl GPF Bug that afflicted it so hard only on certain machines</li>
+<li>Added scrollend event to the listview</li>
+<li>Added $xdid().tbitem to listview (Mpdreamz :P)</li>
+<li>Added $xdid().mouseitem to listview (Mpdreamz :P)</li>
+<li>Increased the maximum limit of text in the edit control</li>
+<li>Fixed typos in the help file and added docs on some features and styles</li>
+<li><b>07/01/2006</b></li>
+<li>Added $xdialog().id to retrieve the Nth used id in a dialog</li>
+<li>Added $xdid().type to retrieve the type of the control</li>
+<li>Added hrclick event for headers in the listview</li>
+<li>Added $xdid().inbox to the box control that gives the interior client area that clears the box border + text</li>
+<li>Added sclick, lbup, lbdown, lbdclick and dclick events to the panel</li>
+<li>Added /xdid -q to change the tooltip on a toolbar button</li>
+<li>Added the <b>squared</b> style to the box</li>
+<li>Added $xdid().childid on tab and rebar</li>
+<li>Added dialog docking on panel and box controls</li>
+<li>Added xdid -d on panel and box controls to delete child controls</li>
+<li>Replaced the noresize and noparentalign styles by <b>noauto</b> in the toolbar which combines both together</li>
+<li>Changed the box so that the text background color is now the line color and text color can be different from line</li>
+<li>Fixed a Richedit coloring bug</li>
+<li>Fixed xdid -t on the listview</li>
+<li>Fixed Image control refresh bug</li>
+<li>Fixed the /xdid -c and selection bug in the colorcombo</li>
+<li>Fixed a bug with the $xdid().find in the comboex</li>
+<li>Fixed a bug where header events were not triggered when the listview was on a divider</li>
+<li>Fixed the /xdid -j treeview bug</li>
+<li>Fixed typos in the help file</li>
+<li><b>03/01/2006</b></li>
+<li>Added /xdid -j on trackbar (Only works with XP themes disabled)</li>
+<li>Added $xdid().dpos giving position relative to dialog</li>
+<li>Changed $xdid().pos giving position relative to parent (which can also be the dialog)</li>
+<!--<li>Added extra error statements for invalid $xdid|$xdialog properties or invalide /xdid|/xdialog switches. Also this message sill trigger if the number of arguments is invalid</li>-->
+<li>Fixed /xdid -f for the richedit</li>
+<li>Fixed $xdid().pid bug</li>
+<li>Fixed the Edit $xdid().text not returning correct value in the "edit" event</li>
+<li>Fixed CLA GPF bug</li>
+<li><b>17/12/2005</b></li>
+<li>Added ans extra parameter to the /xdid -j of the treeview for the selected icon</li>
+<li>Corrected the $xdid().seltext not working properly on the treeview</li>
+<li><b>16/12/2005</b></li>
+<li>Fixed Comboboxex edit control not supporting more than the combo width of characters.</li>
+<li><b>15/12/2005</b></li>
+<li>Rebuilt the box control to make it custom which reduces problems and makes it support colors for the line</li>
+<li>Changed the box style rjustify to right and added the bottom style</li>
+<li>Added $xdid().tooltip to treeview</li>
+<li>Added /xdid -i for the toolbar to change the button icon</li>
+<li>Fixed toolbar dropdown event bug</li>
+<li><b>14/12/2005</b></li>
+<li><b>Converted the box control to a CONTAINER control like the PANEL so people can use the CLA with it's controls inside</b></li>
+<li>Added $xdialog().key general property</li>
+<li>Added $xdid().pid general property</li>
+<li>Added lbup, lbdown, lbdblclk, rbup, rbdown, rbdblclk, mbup, mbdown, mbdblclk events to dialog</li>
+<li><b>11/12/2005</b></li>
+<li>Corrected the mIRC Controls not working properly when the dialog is marked bug</li>
+<li><b>10/12/2005</b></li>
+<li>Added sclick and rclick events on some controls where it was missing and useful.</li>
+<li>Added $xdialog().mouse and $xdid().mouse</li>
+<li>Added the W and H to the sizing dialog event</li>
+<li>Added $xdid().icon to Toolbar, ListView, TreeView and Tab controls</li>
+<li><b>09/12/2005</b></li>
+<li>Added /xdid -c to change button color/styles on toolbar</li>
+<li><b>08/12/2005</b></li>
+<li><b>Moved /xdid -l to /xdid -j on treeview</b></li>
+<li>Added /xdid -l to change icon size on treeview</li>
+<li>Added /xdid -g to change item height on treeview</li>
+<li>Added /xdid -u to change toolbar button size</li>
+<li>Added /xdid -v to change toolbar button text</li>
+<li>Corrected a bug in the /xdid -p no refreshing the child controls</li>
+<li><b>07/12/2005</b></li>
+<li>Corrected typos in the edit and richedit control help</li>
+<li>Corrected a bug in the toolbar /xdid -l that did not refresh the bar buttons</li>
+<li><b>06/12/2005</b></li>
+<li>Corrected the /xdid -x | /xdialog -b border bugs</li>
+<li>Corrected a bug in the /xdid -p not refreshing the control properly</li>
+<li><b>05/12/2005</b></li>
+<li>Added the $xdialog().mouseid which returns over which control ID the mouse is.</li>
+<li>Added the focus and focusout dialog events which indicate when a control has focus or when it loses it.</li>
+<li>Added the $xdialog().focusid which returns which control has the focus.</li>
+<li>Corrected the box control repainting child controls' border bugs</li>
+<li><b>04/12/2005</b></li>
+<li>Added /xdid -Z vertical scrolling function that can be used in any control</li>
+<li><b>Added an extra parameter [CHARSET] to the /xdid -f font command</b></li>
+<li>Added font change support on the progressbar</li>
+<li>Added +es switched to a treeview item being added</li>
+<li>Added mouse events <b>mouse</b>, <b>mouseenter</b> and <b>mouseleave</b></li>
+<li>Reverted the Image control to BMP only because of problems with the GDI+ lib, so only BMPs are supported now with a color for transparency</li>
+<li>Corrected a drawing bug with the Image control when it was resized using the CLA</li>
+<li><b>03/12/2005</b></li>
+<li>Added $xdialog().ismenu</li>
+<li>Added the /xdid -F focus on control</li>
+<li>Added error messages for commands that create other controls when the ID is already used : /xdialog -c : Control with ID "4" already exists</li>
+<li>Added /xdid -t/-u on the edit and richedit to load from/save to a file</li>
+<li>Corrected the $xdid().num and .state on the listview</li>
+<li>Corrected the box control repainting child controls bugs</li>
+<li>Corrected the $xdid().text from edit not returning the correct value</li>
+<li><b>29/11/2005</b></li>
+<li>Added $xdid().text property to the toolbar</li>
+<li>Corrected a bug with the @window not properly setting it's control ID when docked</li>
+<li>Added $xdid().hwnd general control property</li>
+<li><b>28/11/2005</b></li>
+<li>Added the Web control</li>
+<li>Added the DCX vs MDX comparison page</li>
+<li><b>27/11/2005</b></li>
+<li>Added @window docking support on the panel control</li>
+<li>Added omitted updown control styles from help</li>
+<li><b>26/11/2005</b></li>
+<li>Added the IP Adress control</li>
+<li>Added the Updown control</li>
+<li>Corrected a GPF in the Cell Layout Algorithm (CLA) when supplied a bad cell path: now issues an error message</li>
+<li>Corrected the transparency/flat toolbar bug when a child control of a panel</li>
+<li><b>25/11/2005</b></li>
+<li>Fixed panel child controls not returning events for some controls</li>
+<li>Fixed bug related to toolbar button click GPF</li>
+<li>Fixed icon bug on listview</li>
+<li>Added information on icon space and [INDENT] param in N.B.s in listview doc</li>
+<li>Modified list of accessible controls by tab and divider controls to generic resizeable controls to prevent problems</li>
+<li>Fixed hsclick/hdclick events in listview missing in tab/divider/rebar child listviews</li>
+<li>Fixed the stateclick state bug by returning the correct state value in the event</li>
+<li>Added size 24 icons to the toolbar icon size command</li>
+<li><b>24/11/2005</b></li>
+<li>Added tracking event on the trackbar</li>
+<li>Changed the sclick event of the toolbar</li>
+<li>Rebar's /xdid -q feature has been disabled until I find a way to achieve this if it's possible</li>
+<li><b>23/11/2005</b></li>
+<li>Added Regular Control: Image; with support for PNG, JPG, GIF, BMP and transparency.</li>
+<li>Added Edit Events: return, edit</li>
+<li>Added missing feature to get text of combo editbox in $xdid().text</li>
+<li>Added /xdid -v t the divider to set the bar position</li>
+<li>Fixed $xdialog().nextid bug</li>
+<li>Fixed the /xdid -p bug not working on docked @window and dialog</li>
+<li>Corrected typos in the help file</li>
+<li><b>21/11/2005</b></li>
+<li>Added Regular Control: Link</li>
+<li>Corrected typos in the help file</li>
+<li><b>17/11/2005</b></li>
+<li>Added Regular Control: Listbox</li>
+<li>Rewrote my test dialog separating each control into a single command for quick enabling/disabling of a particular control</li>
+<li><b>16/11/2005</b></li>
+<li>Resolved a listview /xdid -a where N=0 end insertion did not work for icon, smallicon and list styles</li>
+<li><b>13/11/2005</b></li>
+<li>Added Regular Control: scrollbar</li>
+<li>Added multiple ID support for /xdid</li>
+<li>Added /xdialog -g, /xdid -C color commands</li>
+<li>Corrected a treeview checkbox style bug preventing checkboxes to be used in the treeview</li>
+<li><b>11/11/2005</b></li>
+<li>Added Regular Controls: edit, text</li>
+<li>Corrected typos in help</li>
+<li>Removed some debug messages not used</li>
+<li><b>10/11/2005</b></li>
+<li>Fixed the panel control not being created properly and acting as a divider</li>
+<li>Added Regular controls : Line, Box, Radio and Check</li>
+<li>Corrected a bug in the toolbar/statusbar/rebar controls not being asserted their top/bottom/left/right automatic positions in the panel control</li>
+<li>Corrected rebar band release display bug</li>
+<li><b>09/11/2005</b></li>
+<li>Activated /xdid and $xdid for docked @windows and dialogs</li>
+<li>Added the default style for the button</li>
+<li>Added general control styles: tabstop, group, disabled</li>
+<li>Changed help files in styles section</li>
+<li><b>02/11/2005</b></li>
+<li>Added a notice for switches +mn of the /xdialog -b command</li>
+<li><b>14/10/2005</b></li>
+<li>Corrected a GPF bug when the DLL was unload via /dll -u and a DCX dialog is opened</li>
+<li><b>10/10/2005</b></li>
+<li>Changed labeltip to tooltip in Listview styles</li>
+<li>Added /xdid -f font command to the richedit control</li>
+<li>Added /xdid -M global control command linked with $xdid().mark to store additional information per control</li>
+<li>Added toolbar AutoStretch buttons feature linked with /xdid -m</li>
+<li>Added demo dialog which needs to be completed</li>
+<li>Added <b>change</b> rebar event</li>
+<li>Added an important note to /xdialog -l</li>
+<li><b>09/10/2005</b></li>
+<li>Added Tab Control</li>
+<li>Corrected Typos in help files</li>
+<li><b>08/10/2005</b></li>
+<li>Added Panel Control</li>
+<li><b>07/10/2005</b></li>
+<li>Relaxed compilation options hopefully to resolve the $dll unable to open dcx.dll problems</li>
+<li>Added the /xdialog -l command</li>
+<li>Added a new section - Cell Layout Algorithm</li>
+<li><b>20/09/2005</b></li>
+<li>Added fixedorder style to rebar control</li>
+<li>Fixed button /xdid -l and -t help file examples</li>
+<li><b>20/09/2005</b></li>
+<li>Added Event Management in the divider control for subcontrols</li>
+<li>Corrected the WIDTH param in the rebar not taken into account on band creation</li>
+<li><b>19/09/2005</b></li>
+<li>Added the custom made divider control (not fully functional yet, misses event handling of child controls)</li>
+<li>Corrected typos in the help file</li>
+<li><b>17/09/2005</b></li>
+<li>Added option to set separator width in toolbar in /xdid -a notes</li>
+<li>Corrected .selext & .text comboex bugs</li>
+<li><b>16/09/2005</b></li>
+<li>Corrected a bug in my TString support lib also related to the richedit bug</li>
+<li>Added multiline selection in listview + $xdid .selnum and modified .sel prop</li>
+<li>Added more listview optional control styles</li>
+<li>Added top, noresize, noparentalign statusbar styles</li>
+<li>Added dialog events, endsize, min, max, restore, beginmove, moving, endmove</li>
+<li><b>14/09/2005</b></li>
+<li>Added /xdid -l to ListView + TreeView to change icon</li>
+<li>Added /xdid -v to ListView</li>
+<li>Corrected explanation for the progressbar "digital mode"</li>
+<li><b>13/09/2005</b></li>
+<li>Corrected a treeview itempath bug</li>
+<li><b>11/09/2005</b></li>
+<li>Corrected typo in Mark Command</li>
+<li><b>7/09/2005</b></li>
+<li>Corrected a toolbar tooltip bug</li>
+<li>Corrected the toolbar font not being applied</li>
+<li>Correctd help typos</li>
+<li><b>Let me kwow if anyone has problems with the Release DLL</b></li>
+<li><b>5/09/2005</b></li>
+<li>Completed RichEdit control</li>
+<li>Added .isid and .nextid $xdialog properties</li>
+<li>Corrected typos in help file</li>
+<li>Help file now being translated into French, Swedish, Portuguese and Finnish. Looking for translators for Spanish and Italian.</li>
+<li><b>4/09/2005</b></li>
+<li>Added the Button control</li>
+<li>Documented help event in all controls</li>
+<li>Corrected a few typos in the help file</li>
+<li><b>3/09/2005</b></li>
+<li>Added $xdid .find prop to ListView</li>
+<li>Rebuilt the /xdid -z of TreeView with more sorting options</li>
+<li>/xdid -f Font change switch completed</li>
+<li><b>2/09/2005</b></li>
+<li>Added /xdid -g, -i and -z switches to ListView</li>
+<li>Added .tooltip prop to statusbar</li>
+<li><b>1/09/2005</b></li>
+<li>Added -v switch to treeview to change itemtext</li>
+<li>Finished code base adaptation</li>
+<li><b>31/08/2005</b></li>
+<li>Added -j switch on toolbar to set button min and max width</li>
+<li><b>28/08/2005</b></li>
+<li><b>Mark</b> function parameters changed</li>
+<li>Added Text on the Progressbar control</li>
+<li>Added 3 events on progressbar, sclick, rclick and mousebar</li>
+<li>Typos in help files</li>
+<li><b>25/08/2005</b></li>
+<li>Recoded the whole base of the framework for better evolution in the futur</li>
+<li>Need to convert old code to new franework, not hard but time consuming</li>
+<li><b>23/08/2005</b></li>
+<li>Added Colorcombo control completed</li>
+<li>Started RichEdit control, but far from finished</li>
+<li><b>21/08/2005</b></li>
+<li><b>Major Changes</b></li>
+<li>DCXControl was transfered to /xdialog -c</li>
+<li>Added several /xdialog switches</li>
+<li>Moved Animate to /xdialog</li>
+<li>Added several Rebar /xdid switches</li>
+<li>Added rebar events</li>
+<li>Added COLOR support for rebar band text</li>
+<li>Corrected help file documentation and typos</li>
+<li><b>18/08/2005</b></li>
+<li>Added more child controls on rebar</li>
+<li>Activated events on child controls on rebar</li>
+<li>Added /xdid switches for rebar control</li>
+<li><b>16/08/2005</b></li>
+<li>Dialog events with beginsize and sizing</li>
+<li>Added rebar functionnality ( more to come )</li>
+<li>Corrected a toolbar GPF bug</li>
+<li>Added some event support for child controls on rebar</li>
+<li><b>14/08/2005</b></li>
+<li>Changed the pbar /xdid -mf switch to -mg</li>
+<li>Started Rebar Control (really incomplete)</li>
+<li>Corrected help file typos</li>
+<li><b>13/08/2005</b></li>
+<li>Added /xdialog and $xdialog functions</li>
+<li>Added -b switch to /xdialog for border/style mods on dialogs</li>
+<li>Added -x general switch to /xdid</li>
+<li>Finally resolved mIRC's trick in disabling dialog resizing, now functional without needing an extra control (hint: positioner).</li>
+<li>Added Item number returned in $4 in sclick, stateclick, rclick and dclick events of listview</li>
+<li><b>06/08/2005</b></li>
+<li>Added Trackbar control</li>
+<li>Added documentation warning in @window doc</li>
+<li>Updated DLL Documentation with HTML fixes and corrections of all kinds</li>
+<li><b>02/08/2005</b></li>
+<li>Bug Fixes</li>
+<li><b>01/08/2005</b></li>
+<li>Added @window docking</li>
+<li>Added Animate Dialog Function</li>
+<li>Added Toolbar Control</li>
+<li>Debugging/Cleaning of debug echos (If you see some more debug text, please let me know)</li>
+<li><b>31/07/2005</b></li>
+<li>Added ComboEx Control</li>
+<li>Added Listview more stuff</li>
+<li><b>26/07/2005</b></li>
+<li>Added ListView (really not finished)</li>
+<li><b>24/07/2005</b></li>
+<li>Added Statusbar control</li>
+<li><b>17/07/2005</b></li>
+<li>Added treeview /xdid switches</li>
+<li><b>16/07/2005</b></li>
+<li>Changed the progressbar /xdid -s switch to -u</li>
+<li>Added /xdid global switches, -behps</li>
+<li>Added $xdid() global props, .enabled, .visible, .pos</li>
+<li>Added treeview $xdid() properties</li>
+<li><b>14/07/2005</b></li>
+<li>Added all the treeview events</li>
+<li>Added a couple -X switches to the treeview control</li>
+<li><b>13/07/2005</b></li>
+<li>Changed the progressbar /xdid -b switch to -k</li>
+<li>Added start of treeview control (rest is coming)</li>
+</ul>
+</p>
+
+<br /></td>
+<td>&nbsp;</td><td><nobr>
+
+<a class=i href="#15">Coming Soon</a><br />
+<a class=i href="#14">New Features</a><br />
+
+</nobr></td></tr></table>
+
+<table class=bar width=100%><tr>
+<td width=33% align=left><nobr><a href='index.htm'> Tha... Help </a></nobr></td>
+<td width=33% align=center><nobr><b>&copy; 2005</b></nobr></td>
+<td width=33% align=right><nobr><a href='mailto:clickhere@scriptsdb.org'>Contact</a></nobr></td>
+</tr></table><br />
+</body></html>

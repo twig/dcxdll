@@ -1,0 +1,377 @@
+<html><head><title>DCX - Dialog Control Xtension DLL v1.0 by ClickHeRe</title>
+<style type='text/css'>
+body { font-size: 8pt; background: #ffffff; font-family: tahoma; color: #000000; }
+table { font-size: 8pt; font-family: tahoma }
+
+table.bar { border-right: #000000 1px solid; border-top: #000000 1px solid; font-size: 8pt; background: #eeeeee; border-left: #000000 1px solid; border-bottom: #000000 1px solid; font-family: tahoma }
+
+a.i3 { font-weight: bold; font-size: 8pt; color: #EE9900; font-family: tahoma; text-decoration: none }
+a.i2 { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:link { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:active { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:visited { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i2:hover { font-weight: bold; font-size: 8pt; color: #009900; font-family: tahoma; text-decoration: none }
+a.i { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:link { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:active { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:visited { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a.i:hover { font-weight: bold; font-size: 8pt; color: #D60000; font-family: tahoma; text-decoration: none }
+a { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:link { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:visited { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:active { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: none }
+a:hover { font-weight: bold; font-size: 8pt; color: #002980; font-family: tahoma; text-decoration: underline }
+hr { font-weight: bold; font-size: 8pt; color: #002980; }
+hr.t { font-weight: bold; font-size: 8pt; color: #D60000; }
+</style>
+</head>
+<body topmargin="0" leftmargin="5">
+<table border="0" width="100%" cellspacing="0" cellpadding="0" BGCOLOR=#FFFFFF>
+<tr><td heigth=200 align=left valign=middle>&nbsp;
+<a href="index.htm" title="DCX - Dialog Control Xtension"><img src="../images/dcx.png" border='0'></a>
+</td><td valign='bottom' align='right'>
+<a href="../nl/index.htm">Dutch</a> |
+<a href="../index.htm">English</a> | 
+<a href="../fi/index.htm">Finnish</a> |
+<a href="../fr/index.htm">French</a> |
+<a href="../ge/index.htm">German</a> |
+<a href="../he/index.htm">Hebrew</a> |
+<a href="../it/index.htm">Italian</a> |
+<a href="../my/index.htm">Malaysian</a> |
+<a href="../br/index.htm">Portuguese (Brazil)</a> |
+<a href="../pt/index.htm">Portuguese</a> |
+<a href="../sp/index.htm">Spanish</a> |
+<a href="../sw/index.htm">Swedish</a>
+</td></tr></table>
+<table class=bar width=100%><tr>
+<td align=left width=33%><nobr><a href='index.htm'> Home </a> | <a href="http://scriptsdb.org/download.php?id=1155">Download</a> | <a href="http://dcx.scriptsdb.org/forum/">Forum</a> | <a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a></nobr></td>
+<td align=center width=33%><nobr><b>Dialog Control Xtension - Statusbar</b> </nobr></td>
+<td align=right width=33%><b> Version 1.2.7 </b></td></tr></table><br /><table border=0 width="100%" cellspacing=2 cellpadding=2><tr valign=top><td><nobr>
+<a class=i href="#1">Introduction</a><br />
+<br />
+<a class=i href="dcxvsmdx.htm">DCX vs MDX</a><br />
+<br />
+<a class=i href="#2">DCX Supported Controls</a><br />
+• <a href="pbar.htm">Progressbar</a><br />
+• <a href="treeview.htm">TreeView</a><br />
+• <a href="listview.htm">ListView</a><br />
+• <a href="toolbar.htm">Toolbar</a><br />
+• <a href="statusbar.htm">Statusbar</a><br />
+• <a href="comboex.htm">ComboEx</a><br />
+• <a href="trackbar.htm">Trackbar</a><br />
+• <a href="rebar.htm">Rebar</a><br />
+• <a href="richedit.htm">RichEdit</a><br />
+• <a href="colorcombo.htm">ColorCombo</a><br />
+• <a href="button.htm">Button</a><br />
+• <a href="ipaddress.htm">IP Address</a><br />
+• <a href="updown.htm">UpDown</a><br />
+• <a href="webctrl.htm">WebControl</a><br />
+• <a href="calendar.htm">Calendar</a><br />
+<br />
+• <a href="line.htm">Line</a><br />
+• <a href="box.htm">Box</a><br />
+• <a href="radio.htm">Radio</a><br />
+• <a href="check.htm">Check</a><br />
+• <a href="edit.htm">Edit</a><br />
+• <a href="scroll.htm">Scroll</a><br />
+• <a href="image.htm">Image</a><br />
+• <a href="list.htm">List</a><br />
+• <a href="link.htm">Link</a><br />
+• <a href="text.htm">Text</a><br />
+<br />
+• <a href="divider.htm">Divider</a><br />
+• <a href="panel.htm">Panel</a><br />
+• <a href="tab.htm">Tab</a><br />
+<br />
+• <a href="window.htm">@Window</a><br />
+• <a href="dialog.htm">Dialog</a><br />
+<br />
+<a class=i href="#15">DCX Supported Features</a><br />
+• <a href="layout.htm">Cell Layout Algorithm</a><br />
+• <a href="xpopup.htm">XPopup Menus</a><br />
+
+<!-- Section 1 -->
+
+</nobr></td><td>&nbsp;</td><td width=100%>
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="1" href=#>Introduction</a><hr class=t><br />
+This control enables you to create a status bar.<br /><br />
+
+<center><img src="../images/statusbar.png" alt="StatusBar Control"/></center>
+
+</p>
+
+<!-- Section 3 -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="3" href=#>Control Styles</a><hr class=t><br />
+These control styles are available when creating a status bar control.
+</p>
+
+<table width='100%'><tr><td align='center'>
+<table width='95%'>
+
+<tr>
+  <td colspan=3><b>Control Styles</b></td>
+</tr>
+
+<tr>
+  <td><a class=i2>grip</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Status bar displays a sizing grip.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>tooltips</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Status bar has tooltips (tooltips only work for cells that have no text or cells where the text does not fit in the cell width).</td>
+</tr>
+
+<tr>
+  <td><a class=i2>top</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The statusbar is auto-positioned at top of dialog window.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>noresize</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Status isn't auto-resized when dialog's size changes.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>noparentalign</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Status isn't auto-positioned when dialog's size changes.</td>
+</tr>
+
+<tr>
+  <td colspan=3>&nbsp;</td>
+</tr>
+
+<tr>
+  <td colspan=3><b>General Styles</b></td>
+</tr>
+
+<tr>
+  <td><a class=i2>tabstop</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Specifies a control that can receive the keyboard focus when the user presses the TAB key. 
+  Pressing the TAB key changes the keyboard focus to the next control with the tabstop style. </td>
+</tr>
+
+<tr>
+  <td><a class=i2>group</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Specifies the first control of a group of controls. The group consists of this first control 
+  and all controls defined after it, up to the next control with the group style. The first control in each 
+  group usually has the tabstop style so that the user can move from group to group. The user can subsequently 
+  change the keyboard focus from one control in the group to the next control in the group by using the 
+  direction keys.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>disabled</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The control is created disabled.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>notheme</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Removes XP Themes on controls.</td>
+</tr>
+
+</table>
+</td></tr></table>
+
+<!-- Section 4 -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="4" href=#>/xdid flags</a><hr class=t><br />
+Control commands are input to the control with the <b>/xdid</b> command.<br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.11" href=#>-k</a><hr><br />
+This command lets you set the status bar background color. You can use <a class=i>-1</a> to revert to default color.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -k dialog ID COLOR</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -k dcx 4 $rgb(255,255,255)</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.12" href=#>-l</a><hr><br />
+This command lets you set the status bar cell divisions. Every value givin is the position of the cell's right border. For example, if you have a 600 pixel width statusbar, you could use the values 200 400 -1 to get 3 200 pixel wide cells. If a cell has the value <a class=i>-1</a> for right border position, the cell will extend to the right edge of the statusbar control.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -l dialog ID [POS [POS POS ...]]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -l dcx 4 200 400 -1</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.20" href=#>-t</a><hr><br />
+This command lets you set the icon, text and tooltip of a statusbar cell.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -t dialog ID N [+FLAGS] [#ICON] (Cell Text)</a><a class=i2>[TAB]</a><a class=i3>Tooltip</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -t dcx 4 2 +p 0 Cell Text $chr(9) Cell Text</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>N</a></td><td>Status bar cell number to modify.</td></tr>
+<tr><td><a class=i2>[+FLAGS]</a></td><td>Status bar cell flags.</td></tr>
+<tr><td>&nbsp;</td><td>
+<b>Value :</b>
+<table>
+<tr><td><a class=i>p</a></td><td>Popup style border around cell.</td></tr>
+<tr><td><a class=i>n</a></td><td>No borders around cell.</td></tr>
+</table>
+<br />
+</td></tr>
+<tr><td><a class=i2>[#ICON]</a></td><td>Icon number for the statusbar cell (0 for no icon)</td></tr>
+</table>
+<br />
+<a class=i2>N.B.</a> Cell text is optional.<br />
+<a class=i2>N.B.</a> Tooltip is only displayed if cell text is absent or cell text is too long to fit in cell.
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.22" href=#>-v</a><hr><br />
+This command lets you change the text of a statusbar cell (Text is optional).<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -v dialog ID [N] (Text)</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -v dcx 4 2 New Text</a><br /><br />
+
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.23" href=#>-w</a><hr><br />
+This command lets you add an icon to the statusbar image list.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -w dialog ID [INDEX] [FILENAME]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -w dcx 4 113 C:/mIRC/shell.dll</a><br /><br />
+
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>[INDEX]</a></td><td>Icon index in icon archive (use 0 if the file is a single icon file)</td></tr>
+<tr><td><a class=i2>[FILENAME]</a></td><td>Icon archive filename</td></tr>
+</table>
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.25" href=#>-y</a><hr><br />
+This command lets you clear the statusbar image list.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -y dialog ID</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -y dcx 4</a><br /><br />
+</p>
+
+<!-- Section 5 - $xdid -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="5" href=#>$xdid() Properties</a><hr class=t><br />
+The following properties are used to retreive information in the status bar control.
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.1" href=#>.text</a><hr><br />
+This property lets you retreive the Nth status bar cell text.<br /><br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID, N).text</a><br /><br />
+<b>Example:</b> <a class=i3>//echo -a $xdid(dcx, 4, 2).text</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.2" href=#>.parts</a><hr><br />
+This property lets you retreive the status bar cell division parts.<br /><br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID).parts</a><br /><br />
+<b>Example:</b> <a class=i3>//echo -a $xdid(dcx, 4).parts</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.3" href=#>.tooltip</a><hr><br />
+This property lets you retreive the status bar tooltip of the Nth cell.<br /><br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID, N).tooltip</a><br /><br />
+<b>Example:</b> <a class=i3>//echo -a $xdid(dcx, 4, 3).tooltip</a><br /><br />
+</p>
+
+<!-- Section 8 - Events -->
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="8" href=#>Control Events</a><hr class=t><br />
+The following events are fired when a user does some particular actions on the statusbar control. All events and 
+data are sent to the <a href="index.htm#4" class=i>callback alias</a> associated to the dialog when marked. 
+Remember that the events over a child control will be fired according to that child control.
+</p>
+
+<table width='100%'><tr><td align='center'>
+<table width='95%'>
+
+<tr>
+  <td><a class=i2>sclick</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Single left click over a status bar cell.</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<td>
+  <table>
+<tr><td valign=top><a class=i2>[VALUE]</a></td><td width=100% valign=top><a class=i>[CELL]</a>
+<table>
+<tr><td nowrap='nowrap'><a class=i2>[CELL]</a></td><td width=100%>Cell number where the event was triggered.</td></tr>
+</table>
+</td></tr>
+</table>
+<br />
+</td>
+</tr>
+
+<tr>
+  <td><a class=i2>dclick</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Double-click over a status bar cell.</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<td>
+  <table>
+<tr><td valign=top><a class=i2>[VALUE]</a></td><td width=100% valign=top><a class=i>[CELL]</a>
+<table>
+<tr><td nowrap='nowrap'><a class=i2>[CELL]</a></td><td width=100%>Cell number where the event was triggered.</td></tr>
+</table>
+</td></tr>
+</table>
+<br />
+</td>
+</tr>
+
+<tr>
+  <td><a class=i2>rclick</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Right-click over a status bar cell.</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<td>
+  <table>
+<tr><td valign=top><a class=i2>[VALUE]</a></td><td width=100% valign=top><a class=i>[CELL]</a>
+<table>
+<tr><td nowrap='nowrap'><a class=i2>[CELL]</a></td><td width=100%>Cell number where the event was triggered.</td></tr>
+</table>
+</td></tr>
+</table>
+</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+<tr>
+  <td><a class=i2>help</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Launched when you click on a control using the <a class=i>?</a> contexthelp button.</td>
+</tr>
+
+</table>
+</td></tr></table>
+
+<br /></td>
+<td>&nbsp;</td><td><nobr>
+
+<a class=i href="#3">Control Styles</a><br />
+<br />
+<a class=i href="#4">/xdid flags</a><br />
+• <a href="#4.11">-k</a><br />
+• <a href="#4.12">-l</a><br />
+• <a href="#4.20">-t</a><br />
+• <a href="#4.22">-v</a><br />
+• <a href="#4.23">-w</a><br />
+• <a href="#4.25">-y</a><br />
+<br />
+<a class=i href="#5">$xdid() Properties</a><br />
+• <a href="#5.1">text</a><br />
+• <a href="#5.2">parts</a><br />
+• <a href="#5.3">tooltip</a><br />
+<br />
+<a class=i href="#8">Control Events</a><br />
+
+</nobr></td></tr></table>
+
+<table class=bar width=100%><tr>
+<td width=33% align=left><nobr><a href='index.htm'> Tha... Help </a></nobr></td>
+<td width=33% align=center><nobr><b>&copy; 2005</b></nobr></td>
+<td width=33% align=right><nobr><a href='mailto:clickhere@scriptsdb.org'>Contact</a></nobr></td>
+</tr></table><br />
+</body></html>
