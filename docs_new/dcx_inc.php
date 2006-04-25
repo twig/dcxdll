@@ -290,9 +290,7 @@ function dcxdoc_format_event($event, $data, $count) {
 
 function format_xcmd($type, $flag, $data, $id) {
 	if (!is_array($data)) {
-		//error_log("ERROR: $flag \$data is not an Array() > \$data = $data");
 		$data = array('__desc' => $data);
-		//return;
 	}
 
 	if (!isset($data['__desc'])) {

@@ -40,6 +40,7 @@ $PAGES = array(
     'statusbar' => "StatusBar",
     'dialog' => "Dialog",
     'window' => "Window",
+    'toolbar' => "ToolBar",
 );
 
 $XDID = array();

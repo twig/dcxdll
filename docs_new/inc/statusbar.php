@@ -8,7 +8,7 @@ function get_styles_statusbar(&$STYLES) {
 	$STYLES = array(
 		"grip" => "Status bar displays a sizing grip.",
 		"tooltips" => "Status bar has tooltips (tooltips only work for cells that have no text or cells where the text does not fit in the cell width).",
-		"top" => " The statusbar is auto-positioned at top of dialog window.",
+		"top" => "The statusbar is auto-positioned at top of dialog window.",
 		'noresize' => "Status isn't auto-resized when dialog's size changes",
 		'noparentalign' => "Status isn't auto-positioned when dialog's size changes.",
 	);
