@@ -41,6 +41,9 @@ $PAGES = array(
     'dialog' => "Dialog",
     'window' => "Window",
     'toolbar' => "ToolBar",
+    'list' => 'List',
+    'scroll' => 'Scroll',
+    'edit' => 'Edit',
 );
 
 $XDID = array();

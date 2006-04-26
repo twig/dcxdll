@@ -124,7 +124,7 @@ function dcxdoc_header($page, $pagelabel) {
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title>DCX - Dialog Control Xtension DLL v<?php echo $VERSION; ?> by ClickHeRe</title>
+<title>DCX <?php if ($page != 'index') echo "$pagelabel "; ?>- Dialog Control Xtension DLL v<?php echo $VERSION; ?> by ClickHeRe</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -348,8 +348,8 @@ function format_xcmd($type, $flag, $data, $id) {
 		    break;
         case "event":
         	$heading = "$flag";
-			$syntax = "/cb_alias dialog $flag ID {$data['__cmd']}";
-			$example = "/cb_alias dcx $flag {$data['__eg']}";
+			$syntax = "/cb_alias DNAME $flag ID {$data['__cmd']}";
+			$example = "/cb_alias dcx $flag 4 {$data['__eg']} ";
             break;
 		default:
 		    break;
