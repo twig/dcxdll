@@ -1738,6 +1738,9 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
                 this->callAliasEx( ret, "%s,%d,%s", "rclick", this->getUserID( ), path.c_str( ) );
               }
+				  else {
+					  this->callAliasEx(ret, "%s,%d", "rclick", this->getUserID());
+				  }
               bParsed = TRUE;
             }
             break;

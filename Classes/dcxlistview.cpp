@@ -1625,6 +1625,8 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
                 if ( lvh.flags & LVHT_ONITEM )
                   this->callAliasEx( ret, "%s,%d,%d", "rclick", this->getUserID( ), lvh.iItem + 1 );
+					 else
+						 this->callAliasEx(ret, "%s,%d", "rclick", this->getUserID());
               }
               bParsed = TRUE;
             }
