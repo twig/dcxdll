@@ -335,8 +335,12 @@ void DcxComboEx::parseCommandRequest( TString & input ) {
 
     int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
 
-    if ( nItem > -1 )
+	 if ( nItem > -1 ) {
+		char *cb = new char[10];
+
       this->setCurSel( nItem );
+		this->callAliasEx(cb, "%s,%d,%d", "sclick", this->getUserID(), nItem +1);
+	 }
   }
   // xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[2] && numtok > 3 ) {
