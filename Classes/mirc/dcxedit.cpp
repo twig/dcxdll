@@ -380,13 +380,17 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
       }
       break;
 
-    case WM_GETDLGCODE:
+/*
+		// disabled this to fix the tabbing problem
+		case WM_GETDLGCODE:
       {
-        bParsed = TRUE;
-        return DLGC_WANTALLKEYS;
+			if (!this->isStyle(WS_TABSTOP)) {
+				bParsed = TRUE;
+				return DLGC_WANTALLKEYS;
+			}
       }
       break;
-
+*/
     case WM_COMMAND:
       {
 
