@@ -184,7 +184,7 @@ TString FileDialog(TString data, TString method, HWND pWnd) {
 	filter.trim();
 
 	// format the filter into the format WinAPI wants, with double NULL TERMINATOR at end
-	if (filter != "")
+	if (filter == "")
 		filter = "All Files (*.*)|*.*";
 
 	filter += '\0';
