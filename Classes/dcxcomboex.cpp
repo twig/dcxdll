@@ -343,12 +343,14 @@ void DcxComboEx::parseCommandRequest( TString & input ) {
 	 }
   }
   // xdid -d [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[2] && numtok > 3 ) {
-
+  else if ( flags.switch_flags[3] && numtok > 3 ) {
     int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
 
-    if ( nItem > -1 )
+	 if (nItem > -1 && nItem < this->getCount())
       this->deleteItem( nItem );
+
+	 if (!this->getCount())
+		 this->redrawWindow();
   }
   // xdid -r [NAME] [ID] [SWITCH]
   else if ( flags.switch_flags[17] ) {
