@@ -251,6 +251,32 @@ void DcxProgressBar::parseCommandRequest( TString & input ) {
     if ( numtok > 3 )
       this->setPosition( (int) atoi( input.gettok( 4, " " ).to_chr( ) ) );
   }
+  // xdid [-o] [NAME] [ID] [ENABLED]
+  // vertical fonts on/off
+	else if (flags.switch_flags[14]) {
+    if (numtok < 4)
+		 return;
+
+	 LOGFONT lfCurrent;
+	 ZeroMemory(&lfCurrent, sizeof(LOGFONT));
+
+	 GetObject(this->m_hFont, sizeof(LOGFONT), &lfCurrent);
+	int angle = atoi(input.gettok(4, " ").to_chr());
+
+	 if (angle) {
+		 // input is angle based, expected angle = *10
+		 lfCurrent.lfEscapement = angle * 10;
+		 lfCurrent.lfOrientation = angle * 10;
+	 }
+	 else {
+		 lfCurrent.lfEscapement = 0;
+		 lfCurrent.lfOrientation = 0;
+	 }
+
+	 HFONT hfNew = CreateFontIndirect(&lfCurrent);
+	 this->setControlFont(hfNew, FALSE);
+	 this->redrawWindow();
+  }
   else {
     this->parseGlobalCommandRequest( input, flags );
   }
@@ -383,17 +409,20 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
           RECT rc;
           GetClientRect( this->m_Hwnd, &rc );
 
+			 // used to calc text value on pbar
           char text[500];
           int iPos = this->CalculatePosition();
 
 			 wsprintf( text, this->m_tsText.to_chr( ), iPos );
 
           HFONT oldfont = NULL;
+
           if ( this->m_hFont != NULL )
             oldfont = (HFONT) SelectObject( hdc, this->m_hFont );
 
+			 mIRCError("TODO: fix positioning of pbar text using DT_CALC");
           DrawText( hdc, text, lstrlen( text ), 
-            &rc, DT_WORD_ELLIPSIS | DT_CENTER | DT_VCENTER | DT_SINGLELINE );
+            &rc, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_VCENTER | DT_CENTER | DT_NOPREFIX);
 
           if ( oldfont != NULL )
             SelectObject( hdc, oldfont );
