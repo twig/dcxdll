@@ -48,6 +48,20 @@ function get_xdid_button(&$XDID) {
 				"The insert order is important and is as follows [e]normal[/e], [e]hover[/e], [e]selected[/e] and [e]disabled[/e].",
 			),
 		),
+		"m" => array(
+			'__desc' => "This command lets you enable text on a bitmap button.",
+			'__cmd' => "[ENABLED]",
+			'__eg' => "1",
+			'__params' => array(
+				'ENABLED' => array(
+					'__desc' => "Value to enable bitmap button text or not.",
+					'__values' => array(
+					    '0' => 'Text is not drawn upon a bitmap button.',
+					    '1' => 'Text is drawn upon a bitmap button.'
+					),
+				),
+			),
+		),
 	);
 }
 

@@ -72,6 +72,7 @@ protected:
   UINT m_iIconSize; //!< Button Icon Size 16,24,32
 
   UINT parseColorFlags( TString & flags );
+  BOOL m_bBitmapText;
 };
 
 #endif // _DCXBUTTON_H_

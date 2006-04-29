@@ -26,6 +26,7 @@
 
 DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
+, m_bBitmapText(FALSE)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -295,6 +296,13 @@ void DcxButton::parseCommandRequest( TString & input ) {
     ImageList_AddIcon( himl, icon );
     DestroyIcon( icon );
   }
+	// xdid -m [NAME] [ID] [SWITCH] [ENABLED]
+  else if (flags.switch_flags[12] && numtok > 3) {
+		int b = atoi(input.gettok(4, " ").to_chr());
+
+		this->m_bBitmapText = (b ? TRUE : FALSE);
+		this->redrawWindow();
+  }
   else {
     this->parseGlobalCommandRequest( input, flags );
   }
@@ -486,9 +494,10 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
         hdc = BeginPaint( this->m_Hwnd, &ps );
 
         LRESULT res = 0L;
+		  BOOL isBitmap = this->isStyle(BS_BITMAP);
 
         // Bitmapped button
-        if ( this->isStyle( BS_BITMAP ) ) {
+        if (isBitmap) {
 
           RECT rcClient;
           GetClientRect( this->m_Hwnd, &rcClient );
@@ -520,11 +529,15 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
           DeleteDC( hdcbmp );
         }
+
         // Regular button
-        else {
+		  if ((!isBitmap) || (this->m_bBitmapText)) {
 
           bParsed = TRUE;
-          res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+          
+			 // draw default window bg
+			 if (!isBitmap)
+				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
           HFONT hFontOld = (HFONT) SelectObject( hdc, this->m_hFont );
 
