@@ -88,6 +88,21 @@ function get_events_list(&$EVENTS) {
 			'__desc' => "When you right-click on the list.",
 		),
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		'dragbegin' => array(
+		    '__desc' => "Triggers when one or more files are dropped onto the control.",
+		    '__cmd' => 'COUNT',
+		    '__eg' => '3',
+            '__params' => array(
+            	'COUNT' => "Total number of files dragged into the control.",
+			),
+			'__return' => '[r]cancel[/r] to stop the drag drop events from occuring.',
+		),
+		'dragfile' => array(
+			'__desc' => "The filename of the file that has",
+			'__cmd' => 'FILENAME',
+			'__eg' => 'C:\mIRC\blah.txt',
+		),
+		'dragfinish' => "Event triggered when processing of drag drop is complete.",
 	);
 }
 ?>

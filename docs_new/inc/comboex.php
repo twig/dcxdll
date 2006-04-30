@@ -124,6 +124,21 @@ function get_events_comboex(&$EVENTS) {
 	    "edit" => "When the text is edited in a comboex with editbox.",
 	    "return" => "When the <b>Enter</b> key is pressed in the editbox of a comboex.",
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		'dragbegin' => array(
+		    '__desc' => "Triggers when one or more files are dropped onto the control.",
+		    '__cmd' => 'COUNT',
+		    '__eg' => '3',
+            '__params' => array(
+            	'COUNT' => "Total number of files dragged into the control.",
+			),
+			'__return' => '[r]cancel[/r] to stop the drag drop events from occuring.',
+		),
+		'dragfile' => array(
+			'__desc' => "The filename of the file that has",
+			'__cmd' => 'FILENAME',
+			'__eg' => 'C:\mIRC\blah.txt',
+		),
+		'dragfinish' => "Event triggered when processing of drag drop is complete.",
 	);
 }
 ?>

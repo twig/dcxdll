@@ -116,13 +116,28 @@ function get_events_edit(&$EVENTS) {
 		),
 		"cut" => array(
 			'__desc' => "When the user cuts text from the edit control.",
-			'__return' => 'Return nocut -> Return this value to block the cut operation.'
+			'__return' => '[r]nocut[/r] Return this value to block the cut operation.'
 		),
 		"paste" => array(
 			'__desc' => "When the user pastes text into the edit control.",
-			'__return' => 'Return nopaste -> Return this value to block the paste operation.'
+			'__return' => '[r]nopaste[/r] Return this value to block the paste operation.'
 		),
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		'dragbegin' => array(
+		    '__desc' => "Triggers when one or more files are dropped onto the control.",
+		    '__cmd' => 'COUNT',
+		    '__eg' => '3',
+            '__params' => array(
+            	'COUNT' => "Total number of files dragged into the control.",
+			),
+			'__return' => '[r]cancel[/r] to stop the drag drop events from occuring.',
+		),
+		'dragfile' => array(
+			'__desc' => "The filename of the file that has",
+			'__cmd' => 'FILENAME',
+			'__eg' => 'C:\mIRC\blah.txt',
+		),
+		'dragfinish' => "Event triggered when processing of drag drop is complete.",
 	);
 }
 ?>
