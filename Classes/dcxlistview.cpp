@@ -53,6 +53,8 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+
+  DragAcceptFiles(this->m_Hwnd, TRUE);
 }
 
 /*!
@@ -94,6 +96,8 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+
+  DragAcceptFiles(this->m_Hwnd, TRUE);
 }
 
 /*!
@@ -1875,7 +1879,35 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
         bParsed = TRUE;
       }
       break;
+	case WM_DROPFILES:
+	{
+		HDROP files = (HDROP) wParam;
+		char filename[500];
+      int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
+		if (count) {
+			char ret[20];
+
+			this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
+
+			// cancel drag drop event
+			if (lstrcmpi(ret, "cancel") == 0) {
+				DragFinish(files);
+				return 0L;
+			}
+
+			// for each file, send callback message
+			for (int i = 0; i < count; i++) {
+				if (DragQueryFile(files, i, filename, 500))
+					this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
+			}
+
+			this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
+		}
+
+		DragFinish(files);
+		break;
+	}
     case WM_SETCURSOR:
       {
         if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {

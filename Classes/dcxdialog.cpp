@@ -58,6 +58,8 @@ DcxDialog::DcxDialog( HWND mHwnd, TString & tsName, TString & tsAliasName ) : Dc
   this->m_FocusID = 0;
 
   SetProp( this->m_Hwnd, "dcx_this", (HANDLE) this );
+
+  DragAcceptFiles(this->m_Hwnd, TRUE);
 }
 
 /*!
@@ -1699,7 +1701,35 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
         }
       }
       break;
+	case WM_DROPFILES:
+	{
+		HDROP files = (HDROP) wParam;
+		char filename[500];
+      int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
+		if (count) {
+			char ret[20];
+
+			p_this->callAliasEx(ret, "%s,%d,%d", "dragbegin", 0, count);
+
+			// cancel drag drop event
+			if (lstrcmpi(ret, "cancel") == 0) {
+				DragFinish(files);
+				return 0L;
+			}
+
+			// for each file, send callback message
+			for (int i = 0; i < count; i++) {
+				if (DragQueryFile(files, i, filename, 500))
+					p_this->callAliasEx(ret, "%s,%d,%s", "dragfile", 0, filename);
+			}
+
+			p_this->callAliasEx(ret, "%s,%d", "dragfinish", 0);
+		}
+
+		DragFinish(files);
+		break;
+	}
     case WM_NCDESTROY: 
       {
         //mIRCError( "WM_NCDESTROY" );
