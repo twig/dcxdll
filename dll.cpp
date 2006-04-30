@@ -669,7 +669,7 @@ mIRC(GetTaskbarPos) {
 		ret(val);
 	}
 
-	ret("D_ERROR: couldn't find taskbar");
+	ret("D_ERROR: GetTaskbarPos");
 }
 
 
