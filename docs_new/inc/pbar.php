@@ -72,6 +72,20 @@ function get_xdid_pbar(&$XDID) {
 			'__cmd' => "[N]",
 			'__eg' => "50",
 		),
+		"o" => array(
+			'__desc' => "This command lets you set whether or not the the progress bar text is drawn vertically or not.",
+			'__cmd' => "[ENABLED]",
+			'__eg' => "1",
+			'__params' => array(
+				'ENABLED' => array(
+					'__desc' => "On or off boolean.",
+					'__values' => array(
+						'1' => "Text is drawn vertically.",
+						'0' => "Text is drawn horizontally.",
+					),
+				),
+			),
+		),
 	);
 }
 
