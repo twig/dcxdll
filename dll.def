@@ -10,6 +10,7 @@ ColorDialog
 OpenDialog
 SaveDialog
 Version
+GetTaskbarPos
 
 xdid
 _xdid

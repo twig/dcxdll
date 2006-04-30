@@ -649,6 +649,30 @@ mIRC( _xdid ) {
 	return 3;
 }
 
+
+/*!
+* \brief DCX DLL $dcx(GetTaskbarPos) Function
+*
+* $dcx(GetTaskbarPos) interface
+*
+*/
+
+mIRC(GetTaskbarPos) {
+	HWND hTaskbar = FindWindow("Shell_TrayWnd", NULL);
+	
+	if (hTaskbar) {
+		char *val = new char[100];
+		RECT rc;
+
+		GetWindowRect(hTaskbar, &rc);
+		wsprintf(val, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		ret(val);
+	}
+
+	ret("D_ERROR: couldn't find taskbar");
+}
+
+
 /*!
 * \brief DCX DLL /xdialog Function
 *
