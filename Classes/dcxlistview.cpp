@@ -581,7 +581,7 @@ void DcxListView::parseCommandRequest( TString & input ) {
       if ( data.numtok( " " ) > 9 )
         itemtext = data.gettok( 10, -1, " " );
 
-      lvi.mask = LVIF_TEXT | LVIF_INDENT | LVIF_PARAM | LVIF_IMAGE;
+      lvi.mask = LVIF_TEXT | LVIF_INDENT | LVIF_PARAM | LVIF_IMAGE | LVIF_STATE;
       lvi.iItem = nPos;
       lvi.iImage = -1;
       lvi.state = stateFlags;
@@ -626,7 +626,7 @@ void DcxListView::parseCommandRequest( TString & input ) {
       lvi.iItem = ListView_InsertItem( this->m_Hwnd, &lvi );
 
       int tabs;
-      if ( ( tabs = input.numtok( "\t" ) ) > 1 ) {
+		if ( ( tabs = input.numtok( "\t" ) ) > 1 ) {
 
         int i = 2;
 
