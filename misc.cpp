@@ -52,6 +52,21 @@ void mIRCSignal( const char * data ) {
 }
 
 /*!
+ * \brief blah
+ *
+ * blah
+ */
+
+void mIRCDebug(const char * szFormat, ...) {
+	va_list args;
+	va_start(args, szFormat);
+
+	char msg[2048];
+	vsprintf(msg, szFormat, args);
+	mIRCError(msg);
+}
+
+/*!
 * \brief blah
 *
 * blah

@@ -154,6 +154,7 @@ typedef struct {
 
 typedef std::vector<int> VectorOfInts; //<! Vector of int
 
+void mIRCDebug(const char * szFormat, ...);
 void mIRCSignal( const char * data );
 void mIRCError( const char * data );
 void mIRCeval( const char * text, char * res );
