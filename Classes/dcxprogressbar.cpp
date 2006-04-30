@@ -49,6 +49,7 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TStrin
   this->m_clrText = RGB(0,0,0);
   this->m_tsText = "%d %%";
   this->m_bIsAbsoluteValue = FALSE;
+  this->m_hfontVertical = NULL;
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
@@ -90,6 +91,7 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd,
   this->m_clrText = RGB(0,0,0);
   this->m_tsText = "%d %%";
   this->m_bIsAbsoluteValue = FALSE;
+  this->m_hfontVertical = NULL;
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
@@ -252,7 +254,7 @@ void DcxProgressBar::parseCommandRequest( TString & input ) {
       this->setPosition( (int) atoi( input.gettok( 4, " " ).to_chr( ) ) );
   }
   // xdid [-o] [NAME] [ID] [ENABLED]
-  // vertical fonts on/off
+  // vertical fonts [1|0]
 	else if (flags.switch_flags[14]) {
     if (numtok < 4)
 		 return;
@@ -263,18 +265,27 @@ void DcxProgressBar::parseCommandRequest( TString & input ) {
 	 GetObject(this->m_hFont, sizeof(LOGFONT), &lfCurrent);
 	int angle = atoi(input.gettok(4, " ").to_chr());
 
+	//TODO: let user specify angle of text?
 	 if (angle) {
 		 // input is angle based, expected angle = *10
-		 lfCurrent.lfEscapement = angle * 10;
-		 lfCurrent.lfOrientation = angle * 10;
+		 //lfCurrent.lfEscapement = angle * 10;
+		 //lfCurrent.lfOrientation = angle * 10;
+		 lfCurrent.lfEscapement = 900;
+		 lfCurrent.lfOrientation = 900;
 	 }
 	 else {
-		 lfCurrent.lfEscapement = 0;
-		 lfCurrent.lfOrientation = 0;
+		 DeleteObject(this->m_hfontVertical);
+		 this->m_hfontVertical = NULL;
+		 this->redrawWindow();
+		 return;
 	 }
 
-	 HFONT hfNew = CreateFontIndirect(&lfCurrent);
-	 this->setControlFont(hfNew, FALSE);
+	 if (this->m_hfontVertical) {
+		 DeleteObject(this->m_hfontVertical);
+	 }
+
+	this->m_hfontVertical = CreateFontIndirect(&lfCurrent);
+	 //this->setControlFont(hfNew, FALSE);
 	 this->redrawWindow();
   }
   else {
@@ -389,50 +400,71 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
       }
       break;
 
-    case WM_PAINT:
-      {
-        //mIRCError( "WM_PAINT" );
+	case WM_PAINT:
+	{
+		//mIRCError( "WM_PAINT" );
+		PAINTSTRUCT ps; 
+		HDC hdc; 
 
-        PAINTSTRUCT ps; 
-        HDC hdc; 
+		hdc = BeginPaint(this->m_Hwnd, &ps);
 
-        hdc = BeginPaint( this->m_Hwnd, &ps );
+		bParsed = TRUE;
+		LRESULT res = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam);
 
-        bParsed = TRUE;
-        LRESULT res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+		if (this->m_tsText.len() > 0) {
+			SetBkMode(hdc, TRANSPARENT);
+			SetTextColor(hdc, this->m_clrText);
 
-        if ( this->m_tsText.len( ) > 0 ) {
+			// rect for control
+			RECT rc;
+			GetClientRect(this->m_Hwnd, &rc);
 
-          SetBkMode( hdc, TRANSPARENT );
-          SetTextColor( hdc, this->m_clrText );
+			// used to calc text value on pbar
+			char text[500];
+			int iPos = this->CalculatePosition();
 
-          RECT rc;
-          GetClientRect( this->m_Hwnd, &rc );
+			wsprintf(text, this->m_tsText.to_chr(), iPos);
 
-			 // used to calc text value on pbar
-          char text[500];
-          int iPos = this->CalculatePosition();
+			HFONT oldfont = NULL;
 
-			 wsprintf( text, this->m_tsText.to_chr( ), iPos );
+			if (this->m_hFont != NULL)
+				oldfont = (HFONT) SelectObject(hdc, this->m_hFont);
 
-          HFONT oldfont = NULL;
+			// rect for text
+			RECT rcText = rc;
+			DrawText(hdc, text, lstrlen(text), &rcText,
+				DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
 
-          if ( this->m_hFont != NULL )
-            oldfont = (HFONT) SelectObject( hdc, this->m_hFont );
+			int w = rcText.right - rcText.left;
+			int h = rcText.bottom - rcText.top;
 
-			 mIRCError("TODO: fix positioning of pbar text using DT_CALC");
-          DrawText( hdc, text, lstrlen( text ), 
-            &rc, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_VCENTER | DT_CENTER | DT_NOPREFIX);
+			// reposition the new text area to be at the center
+			if (this->m_hfontVertical) {
+				rc.left = ((rc.right - rc.left) - h) /2;
+				// added a +w +h as well to as text is drawn ABOVE the damn rect
+				rc.top = ((rc.bottom - rc.top) + w + h) /2;
+				rc.right = rc.left + h;
+				rc.bottom = rc.top + w;
+				SelectObject(hdc, this->m_hfontVertical);
+			}
+			else {
+				rc.left = ((rc.right - rc.left) - w) /2;
+				rc.top = ((rc.bottom - rc.top) - h) /2;
+				rc.right = rc.left + w;
+				rc.bottom = rc.top + h;
+			}
 
-          if ( oldfont != NULL )
-            SelectObject( hdc, oldfont );
+			DrawText(hdc, text, lstrlen(text), &rc,
+				DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
 
-        }
-        EndPaint( this->m_Hwnd, &ps ); 
+			if (oldfont != NULL)
+				SelectObject(hdc, oldfont);
+		}
 
-        return res;
-      }
-      break;
+		EndPaint(this->m_Hwnd, &ps); 
+		return res;
+	}
+	break;
 
     case WM_LBUTTONDOWN:
       {
