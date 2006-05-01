@@ -782,9 +782,9 @@ void DcxListView::parseCommandRequest( TString & input ) {
     this->redrawWindow( );
   }
 	// xdid -j [NAME] [ID] [SWITCH] [ROW] [COL] [FLAGS]
-	else if (flags.switch_flags[9] && numtok > 4) {
+	else if (flags.switch_flags[9] && numtok > 5) {
 		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
-		int nCol = atoi(input.gettok(4, " ").to_chr() -1);
+		int nCol = atoi(input.gettok(5, " ").to_chr()) -1;
 
 		// invalid info
 		if ((nItem == -1) || (nCol == -1))
