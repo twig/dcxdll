@@ -781,6 +781,34 @@ void DcxListView::parseCommandRequest( TString & input ) {
 
     this->redrawWindow( );
   }
+	// xdid -j [NAME] [ID] [SWITCH] [ROW] [COL] [FLAGS]
+	else if (flags.switch_flags[9] && numtok > 4) {
+		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nCol = atoi(input.gettok(4, " ").to_chr() -1);
+
+		// invalid info
+		if ((nItem == -1) || (nCol == -1))
+			return;
+
+		LVITEM lvi;
+		ZeroMemory(&lvi, sizeof(LVITEM));
+
+		lvi.mask = LVIF_PARAM | LVIF_STATE;
+      lvi.iItem = nItem;
+      lvi.iSubItem = nCol;
+
+		// couldnt retrieve info
+		if (!ListView_GetItem(this->m_Hwnd, &lvi))
+			return;
+
+		UINT flags = this->parseItemFlags(input.gettok(6, " "));
+		LPDCXLVITEM lviDcx = (LPDCXLVITEM) lvi.lParam;
+
+		lviDcx->bUline = (flags & LVIS_UNDERLINE) ? TRUE : FALSE;
+		lviDcx->bBold  = (flags & LVIS_BOLD) ? TRUE : FALSE;
+		
+		ListView_SetItemState(this->m_Hwnd, nItem, flags, 0xFFFFFF);
+	}
   // xdid -k [NAME] [ID] [SWITCH] [STATE] [N]
   else if ( flags.switch_flags[10] && numtok > 4 ) {
 
@@ -1764,7 +1792,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                       if ( lpdcxlvi->bBold )
                         lf.lfWeight |= FW_BOLD;
                       if ( lpdcxlvi->bUline )
-                        lf.lfUnderline = true;
+                        lf.lfUnderline = true; 
 
                       HFONT hFontNew = CreateFontIndirect( &lf );
                       HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
