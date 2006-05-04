@@ -504,28 +504,27 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
       this->m_bAutoStretch = FALSE;
   }
   // xdid -q [NAME] [ID] [SWITCH] [N] (TIPTEXT)
-  else if ( flags.switch_flags[16] && numtok > 3 ) {
+	else if (flags.switch_flags[16] && numtok > 3) {
+		int nButton = atoi(input.gettok(4, " ").to_chr()) -1;
 
-    int nButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+		if (nButton > -1 && nButton < this->getButtonCount()) {
+			int nIndex = this->getIndexToCommand(nButton) -1;
+			TBBUTTONINFO tbbi;
 
-    if ( nButton > -1 && nButton < this->getButtonCount( ) ) {
+			ZeroMemory(&tbbi, sizeof(TBBUTTONINFO));
+			tbbi.cbSize = sizeof(TBBUTTONINFO);
+			tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
 
-      TBBUTTONINFO tbbi;
-      ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
-      tbbi.cbSize = sizeof( TBBUTTONINFO );
-      tbbi.dwMask = TBIF_LPARAM;
+			if (this->getButtonInfo(nIndex, &tbbi) > -1) {
+				LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
 
-      if ( this->getButtonInfo( this->getIndexToCommand( nButton ), &tbbi ) ) {
-
-        LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
-
-        lpdcxtbb->tsTipText = "";
-        if ( numtok > 4 )
-          lpdcxtbb->tsTipText = input.gettok( 5, -1, " " );
-
-      }
-    }
-  }
+				if (numtok > 4)	// has a new tooltip
+					lpdcxtbb->tsTipText = input.gettok(5, -1, " ");
+				else					// no tooltip
+					lpdcxtbb->tsTipText = "";
+			}
+		}
+	}
   // xdid -r [NAME] [ID] [SWITCH]
   else if ( flags.switch_flags[17] ) {
 
@@ -1032,7 +1031,7 @@ LRESULT DcxToolBar::setButtonInfo( int idButton, LPTBBUTTONINFO lpbi ) {
  */
 
 LRESULT DcxToolBar::getButtonInfo( int idButton, LPTBBUTTONINFO lpbi ) {
-  return (LRESULT) SendMessage( this->m_Hwnd, TB_GETBUTTONINFO, (WPARAM) idButton, (LPARAM) lpbi );
+	return SendMessage(this->m_Hwnd, TB_GETBUTTONINFO, (WPARAM) idButton, (LPARAM) lpbi);
 }
 
 /*!
@@ -1139,17 +1138,17 @@ int DcxToolBar::getFreeButtonID( ) {
  * blah
  */
 
-int DcxToolBar::getIndexToCommand( int iIndex ) {
+int DcxToolBar::getIndexToCommand(int iIndex) {
+	int i = 1, nButtons = this->getButtonCount();
 
-  int i = 1, nButtons = this->getButtonCount( );
-  while ( i <= nButtons ) {
+	while (i <= nButtons) {
+		if (this->getCommandToIndex(i) == iIndex)
+			return i;
 
-    if ( this->getCommandToIndex( i ) == iIndex )
-      return i;
+		i++;
+	}
 
-    i++;
-  }
-  return 0;
+	return 0;
 }
 
 /*!
