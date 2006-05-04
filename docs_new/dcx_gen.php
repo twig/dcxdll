@@ -44,6 +44,7 @@ $PAGES = array(
     'list' => 'List',
     'scroll' => 'Scroll',
     'edit' => 'Edit',
+    'treeview' => 'Treeview',
 );
 
 $XDID = array();
@@ -124,13 +125,18 @@ foreach ($PAGES as $page => $pagelabel) {
 		}
 	}
 	
-	// general commands
+	// control styles
 	if ($STYLES) {
 		$SECTION = SECTION_STYLES;
 
 		dcxdoc_print_description("Control Styles", "These control styles are available when creating a $pagelabel control. Remember that the general styles [s]disabled[/s], [s]group[/s], [s]notheme[/s], and [s]tabstop[/s] apply to all DCX controls.");
 
    		dcxdoc_format_styles($STYLES);
+	}
+
+	if ($page == 'treeview') {
+		$SECTION = 0;
+		paths_treeview();
 	}
 
 	// /xdialog commands
