@@ -69,6 +69,10 @@ a:hover {
 	/*border: 1px solid black;*/
 }
 
+.menuleft a.section, .menuright a.section {
+	color: #D60000;
+}
+
 a.note {
 	color: #EE9900;
 }

@@ -179,9 +179,9 @@ function dcxdoc_menu_left() {
 	global $PAGES;
 ?><td class="menuleft">
 
-	<a href="#">Introduction</a><br />
+	<a class="section" href="#">Introduction</a><br />
 	<br />
-	<a href="index.htm">DCX Controls</a><br />
+	<a class="section" href="index.htm">DCX Controls</a><br />
 	<ul>
 <?php
 	$pages = $PAGES;
@@ -195,13 +195,13 @@ function dcxdoc_menu_left() {
 	}
 ?>
 	</ul>
-	<a>DCX Features</a><br />
+	<a class="section">DCX Features</a><br />
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
 		<li><a href="xpopup.htm">XPopup Menus</a></li>
-	</ul>
-	<a href="changes.htm">Version History</a><br />
-	<a href="dcxvsmdx.htm">DCX vs MDX</a><br />
+		<li><a href="changes.htm">Version History</a></li>
+		<li><a href="dcxvsmdx.htm">DCX vs MDX</a></li>
+    </ul>
 </td>
 <?php
 }
