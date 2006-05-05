@@ -306,6 +306,10 @@ function format_xcmd($type, $flag, $data, $id) {
 	if (!isset($data['__eg']))
 		$data['__eg'] = '';
 
+    // error_log("ERROR: __return not set for $flag");
+	if (!isset($data['__return']))
+		$data['__return'] = '';
+
 	global $SECTION;
 
 	// generate syntax
@@ -372,6 +376,11 @@ function format_xcmd($type, $flag, $data, $id) {
 	if (isset($data['__params']) && count($data['__params']))
 	  format_parameters($data['__params']);
 
+	// event return calls
+	if ($data['__return'])
+	  format_return($data['__return']);
+
+
 	// notes
 	if (isset($data['__notes']))
 		format_notes($data['__notes']);
@@ -433,6 +442,18 @@ function format_notes(&$data) {
 
 	foreach ($data as $note) {
 		echo "<tr><td colspan=\"2\"><a class=\"note\">Note.</a> $note</td></tr>";
+	}
+}
+
+
+function format_return(&$data) {
+	echo "<tr><td>&nbsp;</td></tr>";
+
+	if (!is_array($data))
+	    $data = array($data);
+
+	foreach ($data as $ret) {
+		echo "<tr><td colspan=\"2\"><b>Return</b> $ret</td></tr>";
 	}
 }
 
