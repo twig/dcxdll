@@ -48,6 +48,7 @@ $PAGES = array(
     'listview' => 'Listview',
     'box' => 'Box',
     'divider' => 'Divider',
+    'panel' => 'Panel',
 );
 
 $XDID = array();
