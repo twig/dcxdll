@@ -37,7 +37,13 @@ table {
 
 td {
 	vertical-align: top;
-	width: auto;
+}
+
+ul {
+	padding-top: 0px;
+	padding-bottom: 0px;
+	margin-top: 0px;
+	margin-bottom: 0px;
 }
 
 .bar {
@@ -107,10 +113,11 @@ a.property {
 	color: pink;
 }
 
-ul {
+.menuleft ul, .menuright ul {
 	margin-top: 0px;
 	margin-left: 0px;
 	padding-left: 15px;
+	margin-bottom: 15px;
 }
 
 .menuright {
@@ -158,14 +165,13 @@ div.syntax, div.example {
 	font-weight: bold;
 	color: #D60000;
 	padding-left: 25px;
-	width: 100px;
 }
 
 /*.xdid td.param, .xdialog td.param, .xdidprop td.param {*/
 td.param {
 	font-weight: bold;
 	color: #009900;
-	padding-left: 10px;
+	padding-left: 15px;
 }
 
 

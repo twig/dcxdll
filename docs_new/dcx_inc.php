@@ -443,14 +443,33 @@ function format_parameters(&$data) {
 
 
 function format_notes(&$data) {
-	echo "<tr><td>&nbsp;</td></tr>";
+	echo "<tr><td colspan='2'>&nbsp;</td></tr>";
 
 	if (!is_array($data))
 	    $data = array($data);
 
+	$count = 0;
+	$total = count($data);
+	$prefix = ($total > 1 ? '<ul>' : ' ');
+
+	echo "<tr><td colspan='2'><a class=\"note\">Note.</a>$prefix";
+
 	foreach ($data as $note) {
-		echo "<tr><td colspan=\"2\"><a class=\"note\">Note.</a> $note</td></tr>";
+		if ($total > 1)
+			echo "<li>$note</li>";
+		else
+		    echo "$note";
+		
+		if (!$count)
+		    $prefix = '';
+		    
+		$count++;
 	}
+	
+	if ($total > 1)
+	    echo "</ul>";
+	
+	echo "</td></tr>";
 }
 
 
