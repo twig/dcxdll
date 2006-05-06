@@ -45,6 +45,7 @@ $PAGES = array(
     'scroll' => 'Scroll',
     'edit' => 'Edit',
     'treeview' => 'Treeview',
+    'listview' => 'Listview',
 );
 
 $XDID = array();

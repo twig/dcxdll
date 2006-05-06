@@ -100,7 +100,7 @@ function get_xdid_treeview(&$XDID) {
 	        '__eg' => '1 2 $chr(9) 3 3',
 		),
 		'k' => array(
-	        '__desc' => 'This command lets you change treeview colors.',
+	        '__desc' => 'This command lets you change the check state on a treeview item.',
 	        '__cmd' => '[STATE] [PATH]',
 	        '__eg' => '2 1 3 5',
             '__params' => array(
@@ -149,7 +149,7 @@ function get_xdid_treeview(&$XDID) {
                     '__desc' => "Check State",
                     '__values' => array(
 						'b' => 'Item text is bold.',
-						'u' => 'Item text is underlined..',
+						'u' => 'Item text is underlined.',
 						'c' => 'Item text is colored. ([p]COLOR[/p] is the text color).',
 					),
 				),
@@ -193,16 +193,15 @@ function get_xdid_treeview(&$XDID) {
 	            '+FLAGS' => array(
 	                '__desc' => "Image list flags.",
 	                '__values' => array(
-						'd' => 'Disabled icon list.',
 						'n' => 'Normal icon list.',
-						'h' => 'Hottrack icon list.',
+						's' => 'State icon list.',
 					),
 				),
 	            'INDEX' => 'Icon index in icon archive',
 				'FILENAME' => 'Icon archive filename',
 			),
 	        '__notes' => array(
-	            "Use 0 if the file is a single icon file.",
+	            "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
 			),
 		),
 		'y' => array(
@@ -222,7 +221,7 @@ function get_xdid_treeview(&$XDID) {
 		'z' => array(
 	        '__desc' => 'This command lets you sort the data in the treeview control.',
 	        '__cmd' => '[+FLAGS] [PATH] [TAB] (ALIAS)',
-	        '__eg' => '+tab root tvsort',
+	        '__eg' => '+tab root $chr(9) tvsort',
 	        '__params' => array(
 	            '+FLAGS' => array(
 	                '__desc' => "Sort flags.",
@@ -255,16 +254,17 @@ function get_xdidprops_treeview(&$XDIDPROPS) {
 	$XDIDPROPS = array(
 		"text" => array(
 		    '__desc' => "This property lets you retreive a treeview item text.",
-	        '__cmd' => '{TAB}[Matchtext]{TAB}, [T], [N], (SUBPATH)',
+	        '__cmd' => 'PATH',
 	        '__eg' => '1 2',
 		),
 		"seltext" => 'This property lets you retreive the selected treeview item text.',
 		"selpath" => "This property lets you retreive the <a href='#path'>Item Path</a> that leads to the selected item in the treeview.",
 		"find" => array(
 		    '__desc' => "This property lets you retreive a treeview <a href='#path'>Item Path</a> that leads to the Nth found treeview item matching the input search patern. If [p]N[/p] is [v]0[/v], returns the total number of matching items. [p]SUBPATH[/p] is an optional parameter to start the search at a desired branch.",
-		    '__cmd' => 'PATH',
+		    '__cmd' => '[TAB]Matchtext[TAB], T, N, SUBPATH',
 	        '__eg' => '1 2',
 	        '__params' => array(
+				'MATCHTEXT' => 'String composed of wildcards or regex paterns used for the search.',
 	            'T' => array(
 	                '__desc' => 'Value indicating if the search is using a regex patern or wildcard string.',
 	                '__values' => array(
@@ -272,11 +272,12 @@ function get_xdidprops_treeview(&$XDIDPROPS) {
 						'R' => 'Matchtext is a regex patern.',
 					),
 				),
-                'N' => "Parameter indicating to return the Nth match. If [p]N[/p] is [v]0[/v], returns the total matches found.",
+                'N' => "Parameter indicating to return the Nth match.",
                 'SUBPATH' => 'Optional parameter to start the search at a specific branch.'
 			),
 			'__notes' => array(
-				'The {TAB} characters surrounding the matchtext are mandatory or else it wont work.',
+			    'If [p]N[/p] is [v]0[/v], returns the total number of matching items.',
+				'The [TAB] characters surrounding the matchtext are mandatory or else it wont work.',
 				'If [p]SUBPATH[/p] is blank, searches at root of treeview.',
 			)
 		),
@@ -306,7 +307,7 @@ function get_xdidprops_treeview(&$XDIDPROPS) {
 			'__cmd' => '[ITEMPATH]',
 	        '__eg' => '1 2',
 		),
-		"tooltip" => array(
+		"mouseitem" => array(
 			'__desc' => "This property lets you retreive the treeview Item Path over which the mouse pointer is hovering over.",
 			'__notes' => 'Returns [v]0[/v] if mouse is not over any item.',
 		),

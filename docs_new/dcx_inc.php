@@ -236,6 +236,9 @@ function print_menu_items(&$arr, $sec, $sectext) {
 		echo "<a href=\"#$sec\" style=\"color: $color;\">$sectext</a><br /><ul>";
 
 		foreach (array_keys($arr) as $flag) {
+			if (preg_match("/__.+/i", $flag))
+			    continue;
+			
 			echo "<li><a href=\"#$sec.$count\" style=\"color: $color;\">$prefix$flag</a></li>";
 			$count++;
 		}
@@ -453,7 +456,7 @@ function format_return(&$data) {
 	    $data = array($data);
 
 	foreach ($data as $ret) {
-		echo "<tr><td colspan=\"2\"><b>Return</b> $ret</td></tr>";
+		echo "<tr><td class=\"syntax\">Return</td><td>$ret</td></tr>";
 	}
 }
 
@@ -553,6 +556,9 @@ function dcxdoc_format_styles($data) {
 ?><table class="styles">
 <?php
 	foreach ($data as $style => $info) {
+		// allow for notes in styles section
+		if ($style == '__notes')
+			continue;
 ?>
 	<tr>
 		<td class="style"><a name="<?php echo "$SECTION.$count"; ?>" class="style"><?php echo $style; ?></a></td>
@@ -560,6 +566,10 @@ function dcxdoc_format_styles($data) {
 	</tr>
 <?php
 		$count++;
+	}
+
+	if (isset($data['__notes']) && $data['__notes']) {
+		format_notes($data['__notes']);
 	}
 ?></table>
 <br />
