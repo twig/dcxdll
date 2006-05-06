@@ -135,6 +135,26 @@ function get_xdid_listview(&$XDID) {
 				'If [p]COLOR[/p] is [v]none[/v] for text background, the text background parameter of <a>/xdid -a</a> wont work anymore.',
 			),
 		),
+		'j' => array(
+	        '__desc' => 'This command lets you change the appearance of a listview item.',
+	        '__cmd' => '[N] [NSUB] [+FLAGS]',
+	        '__eg' => '2 5 +bt',
+            '__params' => array(
+				'N' => 'The row index for the item.',
+				'NSUB' => 'The column index for the item.',
+                'STATE' => array(
+                    '__desc' => "Item flags",
+                    '__values' => array(
+						'b' => 'The item is bold.',
+						'd' => 'The item appears selected like a drop target.',
+						'f' => 'The item has focus thus having a dotted box around it.',
+						's' => 'The item is selected.',
+						't' => 'The item appears as 50% opaque, looks like it has a "ghost" effect.',
+						'u' => 'The item is underlined.',
+					),
+				),
+			),
+		),
 		'k' => array(
 	        '__desc' => 'This command lets you change the check state on the Nth listview item.',
 	        '__cmd' => '[STATE] [N]',

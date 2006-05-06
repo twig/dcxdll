@@ -1,5 +1,21 @@
 <?php
 $CHANGES = array(
+    'v1.3.1' => array(
+		'rewriting documentation',
+		'fixed focus using tabbing on edit controls',
+		'changed treeview and listview rclick events so it would fire even without an item being selected',
+		'added a callback sclick when /xdid -c is called for comboex',
+		'fixed a bug causing filters on Open/Save dialogs to be defaulted to "All Files"',
+		'added /xdid -m switch to button control to allow text on bitmap buttons',
+		'fixed a typo where /xdid -d wouldnt work for comboex',
+		'added /xdid -o for pbar to make text vertical',
+		'added/reimplemented dragbegin, dragfile, dragfinish events to comboex, dialog, listview, treeview, edit and listbox controls',
+		'fixed a bug causing some listview items to ignore certain flags upon adding',
+		'added GetTaskbarPos to retreive position of taskbar',
+		'added /xdid -j to listview to change flags',
+		'fixed box corner bug with colored background',
+		'fixed bug that didnt let first toolbar button tooltip to be changed',
+	),
     "v1.3.0" => array(
 		'fixed a display bug where text would be drawn off a button when too long',
 		'added a pbar property $xdid().text',

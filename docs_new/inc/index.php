@@ -306,7 +306,10 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		'GetTaskbarPos' => array(
 			'__desc' => "Retreives the position of the taskbar on your desktop.",
 			'__isid' => true,
-			'__notes' => "Returns 'D_ERROR: GetTaskbarPos' when unsuccessful.",
+			'__notes' => array(
+				'Returns X Y W H when successful.',
+				"Returns 'D_ERROR: GetTaskbarPos' when unsuccessful.",
+			),
 		),
 	);
 }

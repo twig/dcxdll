@@ -108,7 +108,7 @@ DcxIpAddress::~DcxIpAddress( ) {
 void DcxIpAddress::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
   unsigned int i = 1, numtok = styles.numtok( " " );
-
+/*
   while ( i <= numtok ) {
 
     if ( styles.gettok( i , " " ) == "bitmap" )
@@ -118,6 +118,7 @@ void DcxIpAddress::parseControlStyles( TString & styles, LONG * Styles, LONG * E
 
     i++;
   }
+*/
   this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -275,7 +276,7 @@ LRESULT DcxIpAddress::clearAddress( ) {
 LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
   switch( uMsg ) {
-
+/*
     case WM_HELP:
       {
         char ret[256];
@@ -285,7 +286,7 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
     case WM_NOTIFY : 
       {
-        //mIRCError( "Control WM_NOTIFY" );
+        mIRCError( "Control WM_NOTIFY" );
 
         LPNMHDR hdr = (LPNMHDR) lParam;
 
@@ -332,7 +333,7 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
         this->m_pParentDialog->setFocusControl( this->getUserID( ) );
       }
       break;
-
+*/
       /*
     case WM_SETCURSOR:
       {
