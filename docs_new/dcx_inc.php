@@ -8,7 +8,7 @@ $CLA = array(
 //		"root 1 2 \$chr(9) +fi 7 1 200 300",
 //		"space 1 \$chr(9) + 5 5 5 5",
 //	),
-	'__param' => array(
+	'__params' => array(
 		'COMMAND' => array(
 			'__desc' => "Layout command.",
 			'__values' => array(
@@ -37,7 +37,7 @@ $CLA = array(
 		'H' => "Fixed height of control. (used with [v]fixed[/v] cell)",
 	),
 	'__notes' => array(
-	    "See the Cell Layout Algorithm explanation for concrete examples.",
+	    "See the <a href='layout.htm'>Cell Layout Algorithm<a/> explanation for concrete examples.",
 	    "If you use the [v]update[/v] command in the [e]init[/e] event of a dialog, you will have to use \".timer 1 0 xdialog -l dialog update\" as a glitch with XP and themes disabled prevents windows from appearing. The timer corrects this problem.",
 	    "When using the [v]space[/v] command, the [p]ID[/p] [p]WEIGHT[/p] [p]W[/p] [p]H[/p] are in fact the [p]LEFT[/p] [p]TOP[/p] [p]RIGHT[/p] [p]BOTTOM[/p] spacings",
 	    "Use the value 0 for the fields not used as the command expects them to be filled even though they aren't used.",

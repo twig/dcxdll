@@ -417,10 +417,7 @@ function get_xdialog_index(&$XDIALOG) {
 				'Y' => "Y position of control.",
 				'W' => "Width of control.",
 				'H' => "Height of control.",
-				'OPTIONS' => array(
-					'__desc' => "Optional styles and options available on each individual controls.",
-					'__optional' => true,
-				),
+				'OPTIONS' => "Optional styles and options available on each individual controls.",
 			),
 		),
 		"d" => array(

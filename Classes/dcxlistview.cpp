@@ -1606,6 +1606,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                 !( lvh.flags & LVHT_ONITEMICON ) &&
                 !( lvh.flags & LVHT_ONITEMLABEL ) ) 
               {
+					  //TODO: int state = ListView_GetCheckState(this->m_Hwnd, lvh.iItem);
                 this->callAliasEx( ret, "%s,%d,%d", "stateclick", this->getUserID( ), lvh.iItem + 1 );
               }
               else if ( lvh.flags & LVHT_ONITEM )

@@ -46,6 +46,7 @@ $PAGES = array(
     'edit' => 'Edit',
     'treeview' => 'Treeview',
     'listview' => 'Listview',
+    'box' => 'Box',
 );
 
 $XDID = array();
