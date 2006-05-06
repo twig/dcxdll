@@ -199,6 +199,9 @@ function dcxdoc_menu_left() {
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
 		<li><a href="xpopup.htm">XPopup Menus</a></li>
+	</ul>
+	<a class="section">About DCX</a><br />
+	<ul>
 		<li><a href="changes.htm">Version History</a></li>
 		<li><a href="dcxvsmdx.htm">DCX vs MDX</a></li>
     </ul>
@@ -363,7 +366,9 @@ function format_xcmd($type, $flag, $data, $id) {
 	}
 ?>
 <table class="<?php echo $type; ?>">
-	<tr><td colspan="2" class="flag" style="border-color: <?php echo $color; ?>;"><a name="<?php echo "$SECTION.$id"; ?>"><?php echo "<div style='color: $color;'>$heading</div>"; ?></a></td></tr>
+	<tr><td colspan="2" class="flag">
+			<a name="<?php echo "$SECTION.$id"; ?>"><?php echo "<div style='color: $color;'>$heading</div>"; ?></a>
+	</td></tr>
 	<tr><td colspan="2"><?php echo $data['__desc']; ?></td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -450,8 +455,6 @@ function format_notes(&$data) {
 
 
 function format_return(&$data) {
-	echo "<tr><td>&nbsp;</td></tr>";
-
 	if (!is_array($data))
 	    $data = array($data);
 
@@ -469,25 +472,25 @@ function get_section_color($col = 0) {
 
 	switch ($col) {
         case SECTION_GENERAL:
-			$color = 'brown';
+			$color = '#888888';
 		    break;
 		case SECTION_STYLES:
-			$color = '#bb6600';
+			$color = '#B52929';
 		    break;
         case SECTION_XDIALOG:
-			$color = 'orange';
+			$color = '#800080';
 		    break;
 	    case SECTION_XDIALOGPROPS:
-			$color = 'red';
+			$color = '#AC59AC';
 		    break;
 		case SECTION_XDID:
-			$color = 'blue';
+			$color = '#0000FF';
 		    break;
 		case SECTION_XDIDPROPS:
-			$color = 'purple';
+			$color = '#6666FF';
 		    break;
 		case SECTION_EVENTS:
-		    $color = 'green';
+		    $color = '#009900';
 			break;
 		case SECTION_INTRO:
 		default:

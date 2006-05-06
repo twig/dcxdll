@@ -110,7 +110,7 @@ foreach ($PAGES as $page => $pagelabel) {
 	}
 	
 	if ($page == "changes") {
-        echo format_changes();
+        echo dcxdoc_print_description("Version History", format_changes());
 	}
 
 	// general commands

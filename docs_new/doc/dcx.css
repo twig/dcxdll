@@ -1,3 +1,19 @@
+/*
+#002980; = dark blue for normal links
+#D60000; = dark red for headings
+#EE9900; = notes/parameters/os
+#B52929; = brown for styles
+#009900; = green for events
+#00FF00; = green (lighter) for event returns
+#888888; = grey for general
+#800080; = dark purple for xdialog
+#AC59AC; = light purple for xdialog props
+#0000FF; = dark blue for xdid
+#6666FF; = light blue for xdid prop
+*/
+
+
+
 body,div,td {
 	font-size: 8pt;
 	font-family: tahoma;
@@ -35,12 +51,11 @@ td {
 	font-size: 18px;
 	font-weight: bold;
 	color: #D600D6;
-	padding: 5px;
+	padding: 15px;
 }
 
 a {
 	font-weight: bold;
-	color: #002980;
 	text-decoration: none;
 }
 a:link {
@@ -73,11 +88,11 @@ a:hover {
 	color: #D60000;
 }
 
-a.note {
+a.note, a.os, a.param {
 	color: #EE9900;
 }
 a.style {
-	color: #D60000;
+	color: #B52929;
 }
 a.value {
 	color: #D60000;
@@ -86,13 +101,7 @@ a.event {
 	color: #009900;
 }
 a.eventreturn {
-	color: #FF00FF;
-}
-a.os {
-	color: #EE9900;
-}
-a.param {
-	color: #EE9900;
+	color: #007700;
 }
 a.property {
 	color: pink;
@@ -131,6 +140,7 @@ td.syntax, td.example {
 	font-weight: bold;
 	width: 100px;
 }
+
 /*.xdid div.syntax, .xdid div.example, .xdialog div.syntax, .xdialog div.example, .xdidprop div.syntax, .xdidprop div.example {*/
 div.syntax, div.example {
 	font-weight: bold;
@@ -142,7 +152,6 @@ div.syntax, div.example {
 /*.xdid .flag, .xdialog .flag, .xdidprop .flag {*/
 .flag {
 	border-bottom: 1px dotted black;
-	/*background: #eeeeee;*/
 }
 
 .xdid td.value, .xdialog td.value, .xdidprop td.value, .xdialogprop td.value, .general td.value, .styles td.style {
