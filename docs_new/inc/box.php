@@ -24,7 +24,7 @@ function get_xdid_box(&$XDID) {
 			'__eg' => "12 richedit 10 10 400 25 multi",
 			'__params' => array(
 			    'ID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
-				'TYPE' => array(
+				'CONTROL' => array(
 					'__desc' => "The type of DCX Control to be created.",
 					'__values' => array(
 						'pbar' => "Creates a Progressbar control.",
