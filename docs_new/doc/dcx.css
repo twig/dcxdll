@@ -161,7 +161,7 @@ div.syntax, div.example {
 	border-bottom: 1px dotted black;
 }
 
-.xdid td.value, .xdialog td.value, .xdidprop td.value, .xdialogprop td.value, .general td.value, .styles td.style {
+.xdid td.value, .xdialog td.value, .xdidprop td.value, .xdialogprop td.value, .general td.value, .styles td.style, .xpopup td.value, .xpopupprop td.value, .xpop td.value, .xpopprops td.value {
 	font-weight: bold;
 	color: #D60000;
 	padding-left: 25px;

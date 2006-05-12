@@ -162,9 +162,7 @@ function get_xdid_toolbar(&$XDID) {
 	            'INDEX' => 'Icon index in icon archive',
 				'FILENAME' => 'Icon archive filename',
 			),
-	        '__notes' => array(
-	            "Use 0 if the file is a single icon file.",
-			),
+	        '__notes' => "Use 0 if the file is a single icon file.",
 		),
 	);
 }

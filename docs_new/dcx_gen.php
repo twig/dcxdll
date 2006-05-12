@@ -17,10 +17,16 @@ define('SECTION_EVENTS', 8);
 define('SECTION_XDIDPROPS', 9);
 define('SECTION_XDIALOG', 10);
 define('SECTION_XDIALOGPROPS', 11);
+define('SECTION_XPOPUP', 12);
+define('SECTION_XPOPUPPROPS', 13);
+define('SECTION_XPOP', 14);
+define('SECTION_XPOPPROPS', 15);
 
 $PAGES = array(
     "index" => "DCX",
     'changes' => 'Version History',
+    'xpopup' => 'XPopup',
+
     "button" => "Button",
     "pbar" => "Progress Bar",
     "line" => "Line",
@@ -60,6 +66,10 @@ $XDIALOGPROPS = array();
 $EVENTS = array();
 $GENERAL = array();
 $STYLES = array();
+$XPOPUP = array();
+$XPOPUPPROPS = array();
+$XPOP = array();
+$XPOPPROPS = array();
 
 array_walk_recursive($CHANGES, "wikiData");
 
@@ -95,6 +105,11 @@ foreach ($PAGES as $page => $pagelabel) {
 	loadSection($XDIALOGPROPS, "get_xdialogprops_$page");
 	loadSection($GENERAL, "get_general_$page");
 	loadSection($STYLES, "get_styles_$page");
+	
+	loadSection($XPOPUP, "get_xpopup");
+	loadSection($XPOPUPPROPS, "get_xpopupprops");
+	loadSection($XPOP, "get_xpop");
+	loadSection($XPOPPROPS, "get_xpopprops");
 
 	// start output buffer
 	ob_start();
@@ -113,10 +128,14 @@ foreach ($PAGES as $page => $pagelabel) {
 	    intro2_index();
 	    callback_index();
 	}
-	
-	if ($page == "changes") {
+	else if ($page == "changes") {
         echo dcxdoc_print_description("Version History", format_changes());
 	}
+	else if ($page == 'xpopup') {
+        dcxdoc_print_description("Special Menus", xpopup_special());
+        dcxdoc_print_description('XPopup Item Path', xpopup_paths());
+	}
+
 
 	// general commands
 	if ($GENERAL) {
@@ -145,6 +164,34 @@ foreach ($PAGES as $page => $pagelabel) {
 		paths_treeview();
 	}
 
+
+	// /xpopup commands
+	if ($XPOPUP) {
+        $SECTION = SECTION_XPOPUP;
+        $count = 1;
+
+        dcxdoc_print_description('/xpopup Command', "The /xpopup command is used to create/modify/destroy an XPopup menu.");
+
+        foreach ($XPOPUP as $cmd => $data) {
+       		dcxdoc_format_xpopup($cmd, $data, $count);
+      		$count++;
+		}
+	}
+
+	// /xpopup properties
+	if ($XPOPUPPROPS) {
+		$SECTION = SECTION_XPOPUPPROPS;
+		$count = 1;
+
+		dcxdoc_print_description('$xpopup() Properties', 'The $xpopup identifier is a given mIRC alias that communicates with the XPopup DLL to extract information from XPopup menus.');
+
+		foreach ($XPOPUPPROPS as $prop => $data) {
+	        dcxdoc_format_xpopupprop($prop, $data, $count);
+	        $count++;
+  		}
+	}
+
+
 	// /xdialog commands
 	if ($XDIALOG) {
 		$SECTION = SECTION_XDIALOG;
@@ -167,6 +214,33 @@ foreach ($PAGES as $page => $pagelabel) {
 
 		foreach ($XDIALOGPROPS as $prop => $data) {
 	        dcxdoc_format_xdialogprop($prop, $data, $count);
+	        $count++;
+  		}
+	}
+
+
+	// /xpop commands
+	if ($XPOP) {
+        $SECTION = SECTION_XPOP;
+        $count = 1;
+
+        dcxdoc_print_description("/xpop Command", "The /xpop command is used to add/modify/remove menu items in XPopup menus.");
+
+        foreach ($XPOP as $cmd => $data) {
+       		dcxdoc_format_xpop($cmd, $data, $count);
+      		$count++;
+		}
+	}
+
+	// /xpropprops properties
+	if ($XPOPPROPS) {
+		$SECTION = SECTION_XPOPPROPS;
+		$count = 1;
+
+		dcxdoc_print_description('$xpop Identifier', 'The $xpop identifier is a given mIRC alias that communicates with the XPopup DLL to extract information in XPopup menu items.)');
+
+		foreach ($XPOPPROPS as $prop => $data) {
+	        dcxdoc_format_xpopprops($prop, $data, $count);
 	        $count++;
   		}
 	}
@@ -218,6 +292,11 @@ foreach ($PAGES as $page => $pagelabel) {
 	if ($page == "index") {
 		$SECTION = 0;
 		credits_index();
+	}
+	else if ($page == 'xpopup') {
+		$SECTION = SECTION_EVENTS;
+
+		dcxdoc_print_description('XPopup Events', xpopup_events());
 	}
 
 	// close center info cell

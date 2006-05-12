@@ -188,7 +188,7 @@ function dcxdoc_menu_left() {
 	asort($pages);
 
 	foreach ($pages as $page => $pagelabel) {
-		if (in_array($page, array('index', 'changes')))
+		if (in_array($page, array('index', 'changes', 'xpopup')))
 			continue;
 
 	    echo "<li><a href=\"$page.htm\">$pagelabel</a></li>";
@@ -211,7 +211,7 @@ function dcxdoc_menu_left() {
 
 
 function dcxdoc_menu_right($page) {
-	global $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL, $STYLES, $SECTION;
+	global $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL, $STYLES, $SECTION, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS;
 
 ?><td class="menuright">
 <?php
@@ -221,6 +221,12 @@ function dcxdoc_menu_right($page) {
     print_menu_items($XDIALOGPROPS, SECTION_XDIALOGPROPS, "\$xdialog() Properties");
     print_menu_items($XDID, SECTION_XDID, "/xdid Flags");
     print_menu_items($XDIDPROPS, SECTION_XDIDPROPS, "\$xdid() Properties");
+    
+    print_menu_items($XPOPUP, SECTION_XPOPUP, "/xpopup Flags");
+    print_menu_items($XPOPUPPROPS, SECTION_XPOPUPPROPS, "\$xpopup() Properties");
+    print_menu_items($XPOP, SECTION_XPOP, "/xpop Flags");
+    print_menu_items($XPOPPROPS, SECTION_XPOPPROPS, "\$xpop() Properties");
+    
     print_menu_items($EVENTS, SECTION_EVENTS, "Events");
 	//echo "<a href=\"#\">$page Notes</a><br />";
 ?>
@@ -293,6 +299,18 @@ function dcxdoc_format_xdialogprop($prop, $data, $id) {
 function dcxdoc_format_event($event, $data, $count) {
     format_xcmd("event", $event, $data, $count);
 }
+function dcxdoc_format_xpopup($event, $data, $count) {
+    format_xcmd("xpopup", $event, $data, $count);
+}
+function dcxdoc_format_xpopupprop($event, $data, $count) {
+    format_xcmd("xpopupprop", $event, $data, $count);
+}
+function dcxdoc_format_xpop($event, $data, $count) {
+    format_xcmd("xpop", $event, $data, $count);
+}
+function dcxdoc_format_xpopprops($event, $data, $count) {
+    format_xcmd("xpopprops", $event, $data, $count);
+}
 
 function format_xcmd($type, $flag, $data, $id) {
 	if (!is_array($data)) {
@@ -361,7 +379,29 @@ function format_xcmd($type, $flag, $data, $id) {
 			$syntax = "/cb_alias DNAME $flag ID {$data['__cmd']}";
 			$example = "/cb_alias dcx $flag 4 {$data['__eg']} ";
             break;
+        case "xpopup":
+			$heading = "/$type -$flag";
+			$syntax = "/$type -$flag [MENU] {$data['__cmd']}";
+			$example = "/$type -$flag mymenu {$data['__eg']}";
+			break;
+        case "xpopupprop":
+			$heading = "\$xpopup().$flag";
+			$syntax = "\$xpopup(MENU" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
+			$example = "\$xpopup(mymenu" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
+		    break;
+		case "xpop":
+			$heading = "/$type -$flag";
+			$syntax = "/$type -$flag [MENU] [PATH] {$data['__cmd']}";
+			$example = "/$type -$flag mymenu 2 1 {$data['__eg']}";
+			break;
+        case "xpopprops":
+			$heading = "\$xpop().$flag";
+			$syntax = "\$xpop(MENU, PATH" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
+			$example = "\$xpop(mymenu, 2 5" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
+		    break;
 		default:
+		    error_log("format_xcmd: Unknown type $type");
+		    exit();
 		    break;
 	}
 ?>
@@ -490,33 +530,22 @@ function get_section_color($col = 0) {
 	}
 
 	switch ($col) {
-        case SECTION_GENERAL:
-			$color = '#888888';
-		    break;
-		case SECTION_STYLES:
-			$color = '#B52929';
-		    break;
-        case SECTION_XDIALOG:
-			$color = '#800080';
-		    break;
-	    case SECTION_XDIALOGPROPS:
-			$color = '#AC59AC';
-		    break;
-		case SECTION_XDID:
-			$color = '#0000FF';
-		    break;
-		case SECTION_XDIDPROPS:
-			$color = '#6666FF';
-		    break;
-		case SECTION_EVENTS:
-		    $color = '#009900';
-			break;
+        case SECTION_GENERAL		: return '#888888';
+		case SECTION_STYLES			: return '#B52929';
+        case SECTION_XDIALOG		: return '#800080';
+	    case SECTION_XDIALOGPROPS	: return '#AC59AC';
+		case SECTION_XDID			: return '#0000FF';
+		case SECTION_XDIDPROPS		: return '#6666FF';
+		case SECTION_EVENTS			: return '#009900';
+		case SECTION_XPOPUP			: return '#800080';
+		case SECTION_XPOPUPPROPS	: return '#AC59AC';
+        case SECTION_XPOP			: return '#0000FF';
+		case SECTION_XPOPPROPS		: return '#6666FF';
+		
 		case SECTION_INTRO:
 		default:
-			$color = 'black';
+			return '#000000';
 	}
-
-	return $color;
 }
 
 function dcxdoc_print_description($caption, $content = "") {
