@@ -207,3 +207,38 @@ td.param {
 	width: auto;
 	text-align: left;
 }
+
+
+/* dcx vs mdx table */
+.tbl_dcxvsmdx {
+	border-collapse: collapse;
+	border: 1px solid #cccccc;
+}
+
+.tbl_dcxvsmdx th {
+	background: #eeeeee;
+}
+
+.tbl_dcxvsmdx td, .tbl_dcxvsmdx th {
+	border: 1px solid #cccccc;
+	padding: 2px;	
+	text-align: center;
+}
+
+.tbl_dcxvsmdx .comparison {
+	text-align: left;
+	color: #002980;
+	width: 150px;
+	font-weight: bold;
+	background: #eeeeee;
+}
+
+.tbl_dcxvsmdx .section_bg {
+	background: #eeeeee;
+}
+
+.tbl_dcxvsmdx .section_title {
+	color: #D60000;
+	text-align: left;
+	font-weight: bold;
+}

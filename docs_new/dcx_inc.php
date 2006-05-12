@@ -37,7 +37,7 @@ $CLA = array(
 		'H' => "Fixed height of control. (used with [v]fixed[/v] cell)",
 	),
 	'__notes' => array(
-	    "See the <a href='layout.htm'>Cell Layout Algorithm<a/> explanation for concrete examples.",
+	    "See the <a href='layout.htm'>Cell Layout Algorithm</a> explanation for concrete examples.",
 	    "If you use the [v]update[/v] command in the [e]init[/e] event of a dialog, you will have to use \".timer 1 0 xdialog -l dialog update\" as a glitch with XP and themes disabled prevents windows from appearing. The timer corrects this problem.",
 	    "When using the [v]space[/v] command, the [p]ID[/p] [p]WEIGHT[/p] [p]W[/p] [p]H[/p] are in fact the [p]LEFT[/p] [p]TOP[/p] [p]RIGHT[/p] [p]BOTTOM[/p] spacings",
 	    "Use the value 0 for the fields not used as the command expects them to be filled even though they aren't used.",
@@ -190,7 +190,7 @@ function dcxdoc_menu_left() {
 	asort($pages);
 
 	foreach ($pages as $page => $pagelabel) {
-		if (in_array($page, array('index', 'changes', 'xpopup', 'cla')))
+		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx')))
 			continue;
 
 	    echo "<li><a href=\"$page.htm\">$pagelabel</a></li>";
@@ -410,7 +410,7 @@ function format_xcmd($type, $flag, $data, $id) {
 ?>
 <table class="<?php echo $type; ?>">
 	<tr><td colspan="2" class="flag">
-			<a name="<?php echo "$SECTION.$id"; ?>"><?php echo "<div style='color: $color;'>$heading</div>"; ?></a>
+			<a name="<?php echo "$SECTION.$id"; ?>"></a><?php echo "<div style='color: $color;'>$heading</div>"; ?>
 	</td></tr>
 	<tr><td colspan="2"><?php echo $data['__desc']; ?></td></tr>
 	<tr>

@@ -27,6 +27,7 @@ $PAGES = array(
     'changes' => 'Version History',
     'xpopup' => 'XPopup',
     'cla' => 'Cell Layout Algorithm',
+    'dcxvsmdx' => 'DCX vs MDX',
 
     "button" => "Button",
     "pbar" => "Progress Bar",
@@ -92,7 +93,7 @@ foreach ($PAGES as $page => $pagelabel) {
     // couldnt open
     if (!$hfile) {
 		error_log("Could not open file for writing. Terminating batch.");
-		return;
+		exit();
 	}
 
 	// include the data files required for generation
@@ -151,6 +152,9 @@ foreach ($PAGES as $page => $pagelabel) {
 		dcxdoc_print_description("CLA Details", cla_details());
 		dcxdoc_print_description("CLA Visual Example", cla_visual());
 		dcxdoc_print_description("Tutorials", cla_examples());
+	}
+	else if ($page == 'dcxvsmdx') {
+		dcxdoc_print_description("Comparison Chart", dcx_vs_mdx());
 	}
 
 	// general commands
@@ -320,7 +324,7 @@ foreach ($PAGES as $page => $pagelabel) {
 	
 	
 	// right menu
-    if (!in_array($page, array('changes', 'cla')))
+    if (!in_array($page, array('changes', 'cla', 'dcxvsmdx')))
 		dcxdoc_menu_right($pagelabel);
 
 	// footer
