@@ -1,8 +1,8 @@
 <?php
 $CHANGES = array(
     'v1.3.1' => array(
-		'rewriting documentation',
-		'fixed focus using tabbing on edit controls',
+		'rewriting documentation, if you find any errors or inconsistancies with the old documentation, please post a message <a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=171">here</a>',
+		'fixed focus using tabbing on edit controls on dialog (box tabbing and focus still being researched)',
 		'changed treeview and listview rclick events so it would fire even without an item being selected',
 		'added a callback sclick when /xdid -c is called for comboex',
 		'fixed a bug causing filters on Open/Save dialogs to be defaulted to "All Files"',
@@ -15,6 +15,7 @@ $CHANGES = array(
 		'added /xdid -j to listview to change flags',
 		'fixed box corner bug with colored background',
 		'fixed bug that didnt let first toolbar button tooltip to be changed',
+		'fixed a bug with /xdid -f not redrawing the control when the font is changed back to default',
 	),
     "v1.3.0" => array(
 		'fixed a display bug where text would be drawn off a button when too long',
