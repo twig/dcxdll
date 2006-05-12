@@ -137,18 +137,18 @@ function dcxdoc_header($page, $pagelabel) {
 			<a href="index.htm"><img src="images/dcx.png" alt="DCX - Dialog Control Xtension" /></a>
 		</td>
 		<td style="vertical-align: bottom; text-align: right;">
-			<a href="nl/index.htm">Dutch</a> |
+			<a href="translations/nl/index.htm">Dutch</a> |
 			<a href="index.htm">English</a> |
-			<a href="fi/index.htm">Finnish</a> |
-			<a href="fr/index.htm">French</a> |
-			<a href="ge/index.htm">German</a> |
-			<a href="he/index.htm">Hebrew</a> |
-			<a href="it/index.htm">Italian</a> |
-			<a href="my/index.htm">Malaysian</a> |
-			<a href="br/index.htm">Portuguese (Brazil)</a> |
-			<a href="pt/index.htm">Portuguese</a> |
-			<a href="sp/index.htm">Spanish</a> |
-			<a href="sw/index.htm">Swedish</a>
+			<a href="translations/fi/index.htm">Finnish</a> |
+			<a href="translations/fr/index.htm">French</a> |
+			<a href="translations/ge/index.htm">German</a> |
+			<a href="translations/he/index.htm">Hebrew</a> |
+			<a href="translations/it/index.htm">Italian</a> |
+			<a href="translations/my/index.htm">Malaysian</a> |
+			<a href="translations/br/index.htm">Portuguese (Brazil)</a> |
+			<a href="translations/pt/index.htm">Portuguese</a> |
+			<a href="translations/sp/index.htm">Spanish</a> |
+			<a href="translations/sw/index.htm">Swedish</a>
 		</td>
 	</tr>
 </table>

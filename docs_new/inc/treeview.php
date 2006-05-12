@@ -331,7 +331,7 @@ The treeview control has an engine that parses the given item "path" data to kno
 This position represents the 3rd child branch of the 2nd child branch of the first branch as shown by the selected item in the picture below:<br />
 <br />
 <div style="text-align: center;">
-	<img src="images/treeview2.png" /><br />
+	<img src="images/treeview2.png" alt="Treeview Branches" /><br />
 </div>
 <br />
 You can also use the value [v]-1[/v] for any of the values to indicate the parser that you want to insert the item at the end of the branch (if used as the last path number) or to select the last branch of a given sub-path (if not used as last path number).<br />

@@ -69,7 +69,7 @@ You can also add $idents in your menu item text like mIRC has always permitted t
 The image below is an example of a mIRC menubar popup menu skinned with XPopup which includes icons.<br />
 <br />
 <div style="text-align: center;">
-	<img src="images/xpopup3.png" alt="XPopup mIRC Colorful Iconed Menus">
+	<img src="images/xpopup3.png" alt="XPopup mIRC Colorful Iconed Menus" />
 </div>
 <?
 	//'

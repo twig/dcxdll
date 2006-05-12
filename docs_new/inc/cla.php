@@ -51,7 +51,7 @@ function cla_visual() {
 ?>
 The following image illustrates a layout of cells which is explained lower.<br />
 <br />
-<div style="text-align: center;"><img src="images/layout.png" alt="Cell Layout Algorithm Example"></div>
+<div style="text-align: center;"><img src="images/layout.png" alt="Cell Layout Algorithm Example" /></div>
 <br />
 Here is the cell layout pattern of the precedent image with their paths
 in parenthesis (used in the /xdialog or /xdid commands) :
@@ -76,7 +76,7 @@ As we can see clearly, the top right fill cell occupies one third (1 / (1 + 2)) 
 <br />
 Here is another example that illsutrates the usage of fill cells to achieve centering.<br />
 <br/>
-<div style="text-align: center;"><img src="images/layout2.png" alt="Cell Layout Algorithm Example"></div>
+<div style="text-align: center;"><img src="images/layout2.png" alt="Cell Layout Algorithm Example" /></div>
 <br />
 The image is again represented by the following layout pattern with their paths in parenthesis (used in the /xdialog or /xdid commands):
 

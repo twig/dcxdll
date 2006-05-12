@@ -12,8 +12,8 @@ The event handling in the DLL is supported by a callback alias supplied by the u
 <br />
 Every function in this DLL returns a value if used with the $dll identifier. [v]D_OK [function]: [message][/v] if successful, [v]D_ERROR [function]: [message][/v] otherwise.<br />
 <br />
-Note.</a>: Mandatory parameters are expressed in [p][][/p] and optional parameters in [p]()[/p].<br />
-<a class="note">Note.</a>: I strongly suggest you load the <b>dcx_tools.mrc</b> file included in the zip as it contains the necessary <b>/xdialog</b> and <b>/xdid</b> aliases and identifiers needed to use the DLL.
+<a class="note">Note.</a> Mandatory parameters are expressed in [p][][/p] and optional parameters in [p]()[/p].<br />
+<a class="note">Note.</a> I strongly suggest you load the <b>dcx_tools.mrc</b> file included in the zip as it contains the necessary <b>/xdialog</b> and <b>/xdid</b> aliases and identifiers needed to use the DLL.
 <?php
 //'
 }
