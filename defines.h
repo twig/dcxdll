@@ -118,32 +118,32 @@ typedef struct {
  * This structure is used to parse /xdid or /xdialog command -switches. It contains two arrays
  * populated by 26 values from a/A-z/Z and of value 1 indicating the switch was in the command or 0 if not.
  *
- * a = 0
- * b = 1
- * c = 2
+ * a = 0		
+ * b = 1		xdid
+ * c = 2				XDID
  * d = 3
- * e = 4
- * f = 5
+ * e = 4		xdid
+ * f = 5				XDID
  * g = 6
- * h = 7
+ * h = 7		xdid
  * i = 8
- * j = 9
+ * j = 9				XDID
  * k = 10
  * l = 11
- * m = 12
+ * m = 12			XDID
  * n = 13
  * o = 14
- * p = 15
+ * p = 15	xdid
  * q = 16
  * r = 17
- * s = 18
+ * s = 18	xdid
  * t = 19
- * u = 20
+ * u = 20			XDID
  * v = 21
  * w = 22
- * x = 23
+ * x = 23	xdid
  * y = 24
- * z = 25
+ * z = 25			XDID
  */
 
 typedef struct {
