@@ -26,6 +26,7 @@ $PAGES = array(
     "index" => "DCX",
     'changes' => 'Version History',
     'xpopup' => 'XPopup',
+    'cla' => 'Cell Layout Algorithm',
 
     "button" => "Button",
     "pbar" => "Progress Bar",
@@ -83,7 +84,10 @@ foreach ($PAGES as $page => $pagelabel) {
 	$start = $start[0] + $start[1];
 
 	// create/open file
-    $hfile = fopen($DOCPATH . "$page.htm", "w");
+	if ($page == 'cla')
+	    $hfile = fopen($DOCPATH . "layout.htm", "w");
+	else
+	    $hfile = fopen($DOCPATH . "$page.htm", "w");
     
     // couldnt open
     if (!$hfile) {
@@ -106,10 +110,18 @@ foreach ($PAGES as $page => $pagelabel) {
 	loadSection($GENERAL, "get_general_$page");
 	loadSection($STYLES, "get_styles_$page");
 	
-	loadSection($XPOPUP, "get_xpopup");
-	loadSection($XPOPUPPROPS, "get_xpopupprops");
-	loadSection($XPOP, "get_xpop");
-	loadSection($XPOPPROPS, "get_xpopprops");
+	if ($page == 'xpopup') {
+		loadSection($XPOPUP, "get_xpopup");
+		loadSection($XPOPUPPROPS, "get_xpopupprops");
+		loadSection($XPOP, "get_xpop");
+		loadSection($XPOPPROPS, "get_xpopprops");
+	}
+	else {
+        $XPOPUP = array();
+        $XPOPUPPROPS = array();
+        $XPOP = array();
+        $XPOPPROPS = array();
+	}
 
 	// start output buffer
 	ob_start();
@@ -135,7 +147,11 @@ foreach ($PAGES as $page => $pagelabel) {
         dcxdoc_print_description("Special Menus", xpopup_special());
         dcxdoc_print_description('XPopup Item Path', xpopup_paths());
 	}
-
+	else if ($page == 'cla') {
+		dcxdoc_print_description("CLA Details", cla_details());
+		dcxdoc_print_description("CLA Visual Example", cla_visual());
+		dcxdoc_print_description("Tutorials", cla_examples());
+	}
 
 	// general commands
 	if ($GENERAL) {
@@ -304,7 +320,7 @@ foreach ($PAGES as $page => $pagelabel) {
 	
 	
 	// right menu
-    if (!in_array($page, array('changes')))
+    if (!in_array($page, array('changes', 'cla')))
 		dcxdoc_menu_right($pagelabel);
 
 	// footer

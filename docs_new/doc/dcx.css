@@ -183,3 +183,27 @@ td.param {
 .events td.event {
 	width: 100px;
 }
+
+
+/* table for cla details */
+.tbl_cla_details {
+	border: 1px solid #cccccc;
+	border-collapse: collapse;
+}
+
+.tbl_cla_details th {
+	border: 1px solid #cccccc;
+	background: #eeeeee;
+	text-align: center;
+}
+
+.tbl_cla_details td {
+	width: 60px;
+	border: 1px solid #cccccc;
+	text-align: center;
+}
+
+.tbl_cla_details .desc {
+	width: auto;
+	text-align: left;
+}
