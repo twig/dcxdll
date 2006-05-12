@@ -226,8 +226,9 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
       HFONT hFont = CreateFontIndirect( &lf );
 
       this->setControlFont( hFont, FALSE );
-      this->redrawWindow( );
     }
+
+		this->redrawWindow( );
   }
   // xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
   else if ( flags.switch_flags[15] && numtok > 6 ) {
