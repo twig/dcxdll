@@ -159,10 +159,12 @@ function dcxdoc_header($page, $pagelabel) {
 			<a href='index.htm'>Home</a> |
 			<a href="http://scriptsdb.org/download.php?id=1155">Download</a> |
 			<a href="http://dcx.scriptsdb.org/forum/">Forum</a> |
-			<a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a>
+			<a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a> |
 		</td>
 		<td style="text-align: center;">Dialog Control Xtension<?php
-	if (!in_array($page, array('index')))
+	if ($page == 'xpopup')
+	    echo " - $pagelabel Menus";
+	else if (!in_array($page, array('index')))
 	    echo " - $pagelabel";
 ?></td>
 		<td style="text-align: right;">v<?php echo $VERSION; ?></td>
@@ -178,8 +180,8 @@ function dcxdoc_header($page, $pagelabel) {
 function dcxdoc_menu_left() {
 	global $PAGES;
 ?><td class="menuleft">
-
-	<a class="section" href="#">Introduction</a><br />
+	<br />
+	<a class="section" href="#<?php echo SECTION_INTRO; ?>">Introduction</a><br />
 	<br />
 	<a class="section" href="index.htm">DCX Controls</a><br />
 	<ul>
@@ -214,6 +216,7 @@ function dcxdoc_menu_right($page) {
 	global $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL, $STYLES, $SECTION, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS;
 
 ?><td class="menuright">
+	<br />
 <?php
     print_menu_items($GENERAL, SECTION_GENERAL, "General Commands");
     print_menu_items($STYLES, SECTION_STYLES, "Control Styles");
@@ -586,7 +589,7 @@ function dcxdoc_print_intro($page) {
 	$fninfo();
 
 	// image at the end of intro
-	if (!in_array($page, array('index'))) {
+	if (!in_array($page, array('index', 'cla'))) {
 ?><br /><br />
 <div style="text-align: center;">
 	<img src="images/<?php echo $page; ?>.png" alt="" />
@@ -596,7 +599,7 @@ function dcxdoc_print_intro($page) {
 	
 	$str = ob_get_clean();
 
-	dcxdoc_print_description("Introduction", $str);
+	dcxdoc_print_description("<a name=\"" . SECTION_INTRO . "\"></a>Introduction", $str);
 }
 
 

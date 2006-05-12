@@ -14,7 +14,7 @@
 
 
 
-body,div,td {
+body,div,td, th {
 	font-size: 8pt;
 	font-family: tahoma;
 	color: #000000;
