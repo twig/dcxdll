@@ -174,11 +174,11 @@ function get_general_index(&$GENERAL) {
 	$GENERAL = array(
 		"Mark" => array(
 			'__desc' => "This command prepares the dialog for DCX-based commands.",
-			'__cmd' => "[NAME] [CALLBACK ALIAS]",
+			'__cmd' => "[NAME] [CALLBACK_ALIAS]",
 			'__eg' => "dlgDCX cb_alias",
 			'__params' => array(
 				'NAME' => "Dialog window name.",
-				'DELAY' => "Callback Event alias name.",
+				'CALLBACK_ALIAS' => "Callback Event alias name.",
 			),
 			'__notes' => array(
 			    "This command must be called before every other command or else nothing will work.",
