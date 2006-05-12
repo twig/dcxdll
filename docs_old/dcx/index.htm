@@ -139,25 +139,35 @@ These commands have the symbol <a class=i3>(XP+)</a> beside their listing.
 Here will be listed the latest features added. <br /><br />
 
 <ul>
-<li><b>17/02/2006</b></li>
-<li>Added /xdid -q and -m to the Listview for Group Support <a class=i3>(XP+)</a></li>
-<li>Corrected the height of the colorcombo which is now the same as the comboex</li>
-<li>Fixed help file typos</li>
-<li><b>16/02/2006</b></li>
-<li>Added cursor stuff to the DLL via /xdialog -q and /xdid -J</li>
-<li><b>15/02/2006</b></li>
-<li>Added /xdialog -j</li>
-<li>Fixed richedit /xdid -k switch</li>
-<li>Fixed a drawing glitch on the box control</li>
-<li><b>14/02/2006</b></li>
-<li>Added the +ah flags to the /xdid -t command for listview headers</li>
-<li>Added /xdid -n to listview to resize header individually after they've been created</li>
-<li>Added $xdid().hwidth, .htext and .hicon to the listview</li>
-<li>Changed the range values of the trackbar to 32 bit values</li>
-<li>Fixed the fact that an undock dialog/@window was displayed when undocked even though it was hidden just before</li>
-<li>Fixed $xdid().tooltip on treeview that returned corrupted data</li>
-<li><b>11/02/2006</b></li>
-<li>Fixed a bug related to XPopup menus not showing properly after merger</li>
+<li><b>21/03/2006</b></li>
+<li>Switched parameters order in the OpenDialog and SaveDialog functions</li>
+<li>Fixed a GPF where mIRC would crash if you created a richedit inside of a box control</li>
+<li><b>20/03/2006</b></li>
+<li>Added a SaveDialog function to open up the Save As dialog and return the selected file</li>
+<li><b>19/03/2006</b></li>
+<li>Fixed a problem where no tab would be selected if you deleted the currently selected tab in a tab control</li>
+<li>Fixed the box and link controls not using the cursor specified with /xdid -J</li>
+<li>Fixed a problem where a cut operation would delete text but not copy it to the clipboard if a copy event returned nocopy</li>
+<li>Fixed a problem where the cut and copy events would both fire when text was cut from an editbox</li>
+<li>Fixed a bug where /xdid -U wouldn't remove focus from controls</li>
+<li>Fixed some doc errors and parts that were missed out</li>
+<li>Added /xdid -c for copying text from a richedit/edit to the clipboard</li>
+<li>Added a [COLOR] parameter to ColorDialog so you can choose the default color</li>
+<li>Added a dropfile event to the dialog, edit, listbox, listview, comboex and treeview. Triggers when a file is dropped on the control</li>
+<li>Added a vsbar style to the listbox so you can scroll when the listbox overflows</li>
+<li><b>18/03/2006</b></li>
+<li>Made the richedit editable by default. You can use the readonly option to make it readonly</li>
+<li>Added a GetSystemColor function to retrieve one of the system colors</li>
+<li>Added a ColorDialog function to open up the color selection dialog and return the selected color</li>
+<li>Added an OpenDialog function to open up the open file dialog and return the selected file</li>
+<li>Added /xdid -o to the listbox for overwriting a line</li>
+<li>Added /xdid -C for selecting a range of text in the edit and richedit controls</li>
+<li>Added /xdid -U for removing focus from controls</li>
+<li>Added /xdid -Z to the richedit for zooming</li>
+<li>Added $xdid() properties .selstart, .selend and .seltext for retrieving selected text info in the richedit and edit</li>
+<li>Added keydown and keyup events to the edit and richedit</li>
+<li>Added a selchange event for the richedit (fires when the text selection range changes)</li>
+<li>Added copy, cut and paste events to the edit along with nocopy, nocut and nopaste return options to prevent the action</li>
 </ul>
 </p>
 
@@ -182,6 +192,208 @@ This command marks the dialog for future commands.<br /><br />
 <br />
 <a class=i2>N.B.</a> This command must be called before every other command or else nothing will work.
 </p>
+
+<p align=justify><a><b>• </b></a> <a name="3.21" href=#>GetSystemColor</a><hr><br />
+<b>Parms :</b>
+<table>
+<tr><td><a class=i2>[COLOR]</a></td><td>Color index.</td></tr>
+</table>
+<br />
+Returns the Nth system color. <br />
+You can see a complete list of colour indexes and their meanings <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sysinfo/base/getsyscolor.asp">here</a>.
+
+<p align=justify><a><b>• </b></a> <a name="3.22" href=#>ColorDialog</a><hr><br />
+Opens up the color picker dialog and returns the selected color.
+</p>
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="3" href=#>Parameters</a><hr class=t><br />
+[STYLES][TAB][COLOR]
+</p>
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="3" href=#>Styles</a><hr class=t><br />
+These styles are available when opening a color dialog.
+</p>
+
+<table width='100%'><tr><td align='center'>
+<table width='95%'>
+
+<tr>
+
+  <td colspan=3><b>Styles</b></td>
+</tr>
+
+<tr>
+  <td><a class=i2>anycolor</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The user can return any color.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>fullopen</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The dialog opens as if the user has already clicked on the "Define Custom Colors" button.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>nofullopen</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The "Define Custom Colors" button is disabled.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>solidonly</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The dialog shows only solid colors in the basic color set.</td>
+</tr>
+
+</table>
+</td></tr></table>
+<br />
+If you specify the [COLOR] parameter it will be the color that's selected when the dialog opens.
+<br />
+
+<p align=justify><a><b>• </b></a> <a name="3.23" href=#>OpenDialog</a><hr><br />
+Opens up the open file dialog and returns the selected file. If no file is selected, returns *
+</p>
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="3" href=#>Parameters</a><hr class=t><br />
+[STYLES][TAB][FILE][TAB][FILTER]
+</p>
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="3" href=#>Styles</a><hr class=t><br />
+These styles are available when opening an open dialog.
+</p>
+
+<table width='100%'><tr><td align='center'>
+<table width='95%'>
+
+<tr>
+
+  <td colspan=3><b>Styles</b></td>
+</tr>
+
+<tr>
+  <td><a class=i2>createprompt</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>If the user enters a filename that does not exist, the dialog asks the user if they want to create it. Returns the filename (without creating it) if they click yes.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>enablesizing</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The dialog is resizable.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>filemustexist</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>If the file doesn't exist in the current directory, the user will get an error prompt.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>hidereadonly</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The dialog hides the "open as readonly" button.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>nonetwork</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Hides the network button.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>noreadonly</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The dialog will not return a readonly file if it is selected.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>norecent</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The selected file will not be added to the recent files list.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>novalidate</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The dialog does not validate filenames to check if they're legal.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>pathmustexist</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The dialog prompts the user with an error if the file does not exist.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>showhidden</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Forces the dialog to list hidden and OS protected files despite their settings in windows.</td>
+</tr>
+
+</table>
+</td></tr></table>
+<br />
+If you specify the [FILE] parameter it will be the filename in the box when the dialog opens.<br />
+The [FILTER] parameter is the type of files the user can select, it should be formatted like "Description|Type|Description|Type", for example: All Files (*.*)|*.*|Scripts|*.mrc;*.ini
+<br />
+
+<p align=justify><a><b>• </b></a> <a name="3.24" href=#>SaveDialog</a><hr><br />
+Opens up the save file dialog and returns the selected file. If no file is selected, returns *
+</p>
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="3" href=#>Parameters</a><hr class=t><br />
+[STYLES][TAB][FILE][TAB][FILTER]
+</p>
+
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="3" href=#>Styles</a><hr class=t><br />
+These styles are available when opening an open dialog.
+</p>
+
+<table width='100%'><tr><td align='center'>
+<table width='95%'>
+
+<tr>
+
+  <td colspan=3><b>Styles</b></td>
+</tr>
+
+<tr>
+  <td><a class=i2>createprompt</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>If the user enters a filename that does not exist, the dialog asks the user if they want to create it. Returns the filename (without creating it) if they click yes.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>enablesizing</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The dialog is resizable.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>filemustexist</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>If the file doesn't exist in the current directory, the user will get an error prompt.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>nonetwork</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Hides the network button.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>noreadonly</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The dialog will not return a readonly file if it is selected.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>norecent</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The selected file will not be added to the recent files list.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>novalidate</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The dialog does not validate filenames to check if they're legal.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>pathmustexist</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>The dialog prompts the user with an error if the file does not exist.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>showhidden</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Forces the dialog to list hidden and OS protected files despite their settings in windows.</td>
+</tr>
+</table>
+</td></tr></table>
+<br />
+If you specify the [FILE] parameter it will be the filename in the box when the dialog opens.<br />
+The [FILTER] parameter is the type of files the user can select, it should be formatted like "Description|Type|Description|Type", for example: All Files (*.*)|*.*|Scripts|*.mrc;*.ini
+<br />
 
 <p align=justify><a><b>• </b></a> <a name="3.20" href=#>Version</a><hr><br />
 Returns information on the DLL Version.
@@ -794,7 +1006,7 @@ This command lets you set the focus on the control.<br /><br />
 <b>Example:</b> <a class=i3>/xdid -F dcx 4</a><br /><br />
 </p>
 
-<p align=justify><a><b>• </b></a> <a name="9.36" href=#>-q</a><hr><br />
+<p align=justify><a><b>• </b></a> <a name="9.36" href=#>-J</a><hr><br />
 This command lets you change the dialog cursor.<br /><br />
 
 <b>Command:</b> <a class=i3>/xdid -J dialog ID [+FLAGS] [CURSOR|FILENAME]</a><br /><br />
@@ -844,6 +1056,13 @@ This command lets you add additional information to a control that can be retrie
 
 <b>Command:</b> <a class=i3>/xdid -M dialog ID [INFO]</a><br /><br />
 <b>Example:</b> <a class=i3>/xdid -M dcx 4 Mark info here</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="9.51" href=#>-U</a><hr><br />
+This command lets you remove focus from the control.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -U dialog ID</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -U dcx 4</a><br /><br />
 </p>
 
 <p align=justify><a><b>• </b></a> <a name="9.52" href=#>-Z</a><hr><br />
@@ -1129,6 +1348,11 @@ These events are fired when events occur in the dialog itself.
   <td><a class=i2>restore</a></td><td>&nbsp;&nbsp;</td>
   <td width='100%'>When the dialog is about to be restored.</td>
 </tr>
+<tr><td colspan=2>&nbsp;</td>
+<tr>
+  <td><a class=i2>dropfile</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Triggers when a file is dropped on the dialog.</td>
+</tr>
 
 
 </table>
@@ -1162,6 +1386,10 @@ These events are fired when events occur in the dialog itself.
 <a class=i href="#3">General Commands</a><br />
 • <a href="#3.1">Mark</a><br />
 • <a href="#3.20">Version</a><br />
+• <a href="#3.21">GetSystemColor</a><br />
+• <a href="#3.22">ColorDialog</a><br />
+• <a href="#3.23">OpenDialog</a><br />
+• <a href="#3.24">SaveDialog</a><br />
 <br />
 <a class=i href="#10">/xdialog Command</a><br />
 • <a href="#10.1">-a</a><br />
@@ -1204,6 +1432,7 @@ These events are fired when events occur in the dialog itself.
 • <a href="#9.32">-F</a><br />
 • <a href="#9.36">-J</a><br />
 • <a href="#9.39">-M</a><br />
+• <a href="#9.51">-U</a><br />
 • <a href="#9.52">-Z</a><br />
 <br />
 <a class=i href="#5">$xdid Identifier</a><br />

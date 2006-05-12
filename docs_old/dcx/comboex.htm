@@ -247,7 +247,7 @@ This property lets you retreive the Nth comboex item text.<br /><br />
 
 <b>Identifier:</b> <a class=i3>$xdid(dialog, ID, N).text</a><br /><br />
 <b>Example:</b> <a class=i3>//echo -a $xdid(dcx, 4, 1).text</a><br /><br />
-<a class=i2>N.B.</a> You can use a value of <a class=i>0</a> for N to retrieve the text of the editbox.
+<a class=i2>N.B.</a> You can use a value of <a class=i>0</a> for N to retrieve the text of the editbox. This only works with the dropedit style.
 </p>
 
 <p align=justify><a><b>• </b></a> <a name="5.2" href=#>.sel</a><hr><br />
@@ -352,6 +352,13 @@ Remember that the events over a child control will be fired according to that ch
 <tr>
   <td><a class=i2>return</a></td><td>&nbsp;&nbsp;</td>
   <td width='100%'>When the <a class=i>Enter</a> key is pressed in the editbox of a comboex.</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+
+<tr>
+  <td><a class=i2>dropfile</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Triggers when a file is dropped on the control.</td>
 </tr>
 
 <tr><td colspan=2>&nbsp;</td>

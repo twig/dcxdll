@@ -144,6 +144,11 @@ These control styles are available when creating a lisbox control.
 </tr>
 
 <tr>
+  <td><a class=i2>vsbar</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Specifies that the list box should display a vertical scrollbar when it overflows.</td>
+</tr>
+
+<tr>
   <td colspan=3>&nbsp;</td>
 </tr>
 
@@ -209,6 +214,13 @@ This command lets you delete an item in the listbox.<br /><br />
 
 <b>Command:</b> <a class=i3>/xdid -d dialog ID [N]</a><br /><br />
 <b>Example:</b> <a class=i3>/xdid -d dcx 4 1</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.19" href=#>-o</a><hr><br />
+This command lets you overwrite an item in the listbox.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -o dialog ID [N] [TEXT]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -o dcx 4 1 test</a><br /><br />
 </p>
 
 <p align=justify><a><b>• </b></a> <a name="4.18" href=#>-r</a><hr><br />
@@ -310,6 +322,13 @@ Remember that the events over a child control will be fired according to that ch
 <tr><td colspan=2>&nbsp;</td>
 
 <tr>
+  <td><a class=i2>dropfile</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Triggers when a file is dropped on the control.</td>
+</tr>
+
+<tr><td colspan=2>&nbsp;</td>
+
+<tr>
   <td><a class=i2>help</a></td><td>&nbsp;&nbsp;</td>
   <td width='100%'>Launched when you click on a control using the <a class=i>?</a> contexthelp button.</td>
 </tr>
@@ -326,6 +345,7 @@ Remember that the events over a child control will be fired according to that ch
 • <a href="#4.1">-a</a><br />
 • <a href="#4.3">-c</a><br />
 • <a href="#4.4">-d</a><br />
+• <a href="#4.19">-o</a><br />
 • <a href="#4.18">-r</a><br />
 • <a href="#4.21">-u</a><br />
 <br />

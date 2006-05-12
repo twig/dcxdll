@@ -154,6 +154,11 @@ These control styles are available when creating a richedit control.
 </tr>
 
 <tr>
+  <td><a class=i2>readonly</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>Makes the richedit readonly.</td>
+</tr>
+
+<tr>
   <td colspan=3>&nbsp;</td>
 </tr>
 
@@ -202,6 +207,13 @@ This command lets you add text to the end of the richedit.<br /><br />
 
 <b>Command:</b> <a class=i3>/xdid -a dialog ID [TEXT]</a><br /><br />
 <b>Example:</b> <a class=i3>/xdid -a dcx 4 New Text</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.3" href=#>-c</a><hr><br />
+This command will copy the text in the edit to the clipboard.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -c dialog ID [N]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -c dcx 4</a><br /><br />
 </p>
 
 <p align=justify><a><b>• </b></a> <a name="4.4" href=#>-d</a><hr><br />
@@ -283,6 +295,21 @@ This command lets you save the contents of the richedit directly in a file.<br /
 <b>Example:</b> <a class=i3>/xdid -u dcx 4 C:\mIRC\blah.txt</a><br /><br />
 </p>
 
+<p align=justify><a><b>• </b></a> <a name="4.22" href=#>-C</a><hr><br />
+This command lets you set the selection range in the richedit.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -C dialog ID [START] [END]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -C dcx 4 1 3</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="4.23" href=#>-Z</a><hr><br />
+This command lets you set the zoom ratio in the richedit.<br />
+Passing 1 3 as the [NUMERATOR] [DENOMINATOR] value would make the text 1/3 of the default size.<br /><br />
+
+<b>Command:</b> <a class=i3>/xdid -Z dialog ID [NUMERATOR] [DENOMINATOR]</a><br /><br />
+<b>Example:</b> <a class=i3>/xdid -Z dcx 4 1 3</a><br /><br />
+</p>
+
 <!-- Section 5 -->
 
 <p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="5" href=#>$xdid() Properties</a><hr class=t><br />
@@ -306,10 +333,31 @@ This property lets you retreive the number of lines in the richedit.<br /><br />
 
 <a class=i2>N.B.</a> Only works with the <a class=i>multi</a> style.
 </p>
+
+<p align=justify><a><b>• </b></a> <a name="5.3" href=#>selstart</a><hr><br />
+This returns the index of the first selected character in the control.<br /><br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID).selstart</a><br /><br />
+<b>Example:</b> <a class=i3>//echo -a $xdid(dcx, 4).selstart</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.4" href=#>selend</a><hr><br />
+This returns the index of the last selected character in the control.<br /><br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID).selend</a><br /><br />
+<b>Example:</b> <a class=i3>//echo -a $xdid(dcx, 4).selend</a><br /><br />
+</p>
+
+<p align=justify><a><b>• </b></a> <a name="5.5" href=#>seltext</a><hr><br />
+This returns the selected text in the control.<br /><br />
+
+<b>Identifier:</b> <a class=i3>$xdid(dialog, ID).seltext</a><br /><br />
+<b>Example:</b> <a class=i3>//echo -a $xdid(dcx, 4).seltext</a><br /><br />
+</p>
 <br />
 <!-- Section 8 - Events -->
 
-<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="8" href=#>Control Events</a><hr><br />
+<p align=justify><a><b>&gt;&gt;</b></a> <a class=i name="8" href=#6>Control Events</a><hr><br />
 The following events are fired when a user does some particular actions on the richedit control. All events and 
 data are sent to the <a href="index.htm#4" class=i>callback alias</a> associated to the dialog when marked. 
 Remember that the events over a child control will be fired according to that child control.
@@ -321,7 +369,7 @@ Remember that the events over a child control will be fired according to that ch
 <!--
 <tr>
   <td><a class=i2>sclick</a></td><td>&nbsp;&nbsp;</td>
-  <td width='100%'>When a sclick event is fired over a button.</td>
+  <td width='100%'>When a sclick event is fired over the control.</td>
 </tr>
 
 <tr><td colspan=2>&nbsp;</td>
@@ -343,6 +391,23 @@ Remember that the events over a child control will be fired according to that ch
 -->
 
 <tr>
+  <td><a class=i2>keydown</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When a key is pressed in the richedit control.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>keyup</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When a key is unpressed in the richedit control.</td>
+</tr>
+
+<tr>
+  <td><a class=i2>selchange</a></td><td>&nbsp;&nbsp;</td>
+  <td width='100%'>When the text selection range changes.</td>
+</tr>
+
+<td colspan="2">&nbsp;</td>
+
+<tr>
   <td><a class=i2>help</a></td><td>&nbsp;&nbsp;</td>
   <td width='100%'>Launched when you click on a control using the <a class=i>?</a> contexthelp button.</td>
 </tr>
@@ -357,6 +422,7 @@ Remember that the events over a child control will be fired according to that ch
 <br />
 <a class=i href="#4">/xdid flags</a><br />
 • <a href="#4.1">-a</a><br />
+• <a href="#4.3">-c</a><br />
 • <a href="#4.4">-d</a><br />
 • <a href="#4.9">-i</a><br />
 • <a href="#4.11">-k</a><br />
@@ -367,10 +433,15 @@ Remember that the events over a child control will be fired according to that ch
 • <a href="#4.18">-r</a><br />
 • <a href="#4.20">-t</a><br />
 • <a href="#4.21">-u</a><br />
+• <a href="#4.22">-C</a><br />
+• <a href="#4.23">-Z</a><br />
 <br />
 <a class=i href="#5">$xdid() Properties</a><br />
 • <a href="#5.1">text</a><br />
 • <a href="#5.2">num</a><br />
+• <a href="#5.3">selstart</a><br />
+• <a href="#5.4">selend</a><br />
+• <a href="#5.5">seltext</a><br />
 <br />
 <a class=i href="#8">Control Events</a><br />
 
