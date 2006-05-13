@@ -1562,66 +1562,69 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
       break;
 
 		case WM_ERASEBKGND:
-			{
-				HDC hdc = (HDC) wParam;
-				RECT rwnd;
+		{
+			if (mHwnd != p_this->getHwnd())
+				break;
 
-				GetClientRect(p_this->getHwnd(), &rwnd);
+			HDC hdc = (HDC) wParam;
+			RECT rwnd;
 
-				// background color
-				if (p_this->getBackClrBrush())
-					FillRect(hdc, &rwnd, p_this->getBackClrBrush());
-				else
-					FillRect(hdc, &rwnd, GetSysColorBrush(COLOR_3DFACE));
+			GetClientRect(p_this->getHwnd(), &rwnd);
 
-				// draw bitmap
-				if (p_this->m_bitmapBg) {
-					HDC hdcbmp = CreateCompatibleDC(hdc);
-					BITMAP bmp;
+			// background color
+			if (p_this->getBackClrBrush())
+				FillRect(hdc, &rwnd, p_this->getBackClrBrush());
+			else
+				FillRect(hdc, &rwnd, GetSysColorBrush(COLOR_3DFACE));
 
-					GetObject(p_this->m_bitmapBg, sizeof(BITMAP), &bmp);
-					SelectObject(hdcbmp, p_this->m_bitmapBg);
+			// draw bitmap
+			if (p_this->m_bitmapBg) {
+				HDC hdcbmp = CreateCompatibleDC(hdc);
+				BITMAP bmp;
 
-					int x = 0;
-					int y = 0;
-					int w = rwnd.right - rwnd.left;
-					int h = rwnd.bottom - rwnd.top;
+				GetObject(p_this->m_bitmapBg, sizeof(BITMAP), &bmp);
+				SelectObject(hdcbmp, p_this->m_bitmapBg);
 
-					switch (p_this->m_uStyleBg) {
-						case DBS_BKGCENTER:
-							x = (w - bmp.bmWidth) / 2;
-							y = (h - bmp.bmHeight) / 2;
+				int x = 0;
+				int y = 0;
+				int w = rwnd.right - rwnd.left;
+				int h = rwnd.bottom - rwnd.top;
 
-							//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-							TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-							break;
+				switch (p_this->m_uStyleBg) {
+					case DBS_BKGCENTER:
+						x = (w - bmp.bmWidth) / 2;
+						y = (h - bmp.bmHeight) / 2;
 
-						case DBS_BKGSTRETCH:
-							//BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-							TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-							break;
+						//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+						TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+						break;
 
-						case DBS_BKGTILE:
-							for (y = 0; y < h; y += bmp.bmHeight) {
-								for (x = 0; x < w; x += bmp.bmWidth) {
-									//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-									TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-								}
+					case DBS_BKGSTRETCH:
+						//BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+						TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+						break;
+
+					case DBS_BKGTILE:
+						for (y = 0; y < h; y += bmp.bmHeight) {
+							for (x = 0; x < w; x += bmp.bmWidth) {
+								//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+								TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
 							}
+						}
 
-							break;
+						break;
 
-						default:
-							//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-							TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-							break;
-					}
-
-					DeleteDC(hdcbmp);
+					default:
+						//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+						TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+						break;
 				}
 
-				return TRUE;
+				DeleteDC(hdcbmp);
 			}
+
+			return TRUE;
+		}
 
     case WM_CTLCOLORDLG:
       {
