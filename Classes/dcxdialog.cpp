@@ -35,7 +35,10 @@ extern mIRCDLL mIRCLink;
  * \param tsAliasName Dialog Callback alias Name
  */
 
-DcxDialog::DcxDialog( HWND mHwnd, TString & tsName, TString & tsAliasName ) : DcxWindow( mHwnd, 0 ) {
+DcxDialog::DcxDialog( HWND mHwnd, TString & tsName, TString & tsAliasName )
+: DcxWindow( mHwnd, 0 )
+, m_uStyleBg(DBS_BKGNORMAL)
+{
 
   //mIRCError( "Marking Dialog" );
   //mIRCError( tsName.to_chr( ) );
@@ -44,6 +47,8 @@ DcxDialog::DcxDialog( HWND mHwnd, TString & tsName, TString & tsAliasName ) : Dc
   this->m_tsName = tsName;
   this->m_tsAliasName = tsAliasName;
   this->m_hBackBrush = NULL;
+  this->m_bitmapBg = NULL;
+  this->m_colTransparentBg = RGB(255,0,255);
 
   this->m_hCursor = NULL;
   this->m_bCursorFromFile = FALSE;
@@ -72,6 +77,9 @@ DcxDialog::~DcxDialog( ) {
 
   if ( this->m_pLayoutManager != NULL )
     delete this->m_pLayoutManager;
+
+  if (this->m_bitmapBg)
+		DeleteObject(m_bitmapBg);
 
   //mIRCError( "Dialog Destructor - Removing Prop" );
   RemoveProp( this->m_Hwnd, "dcx_this" );
@@ -331,25 +339,36 @@ void DcxDialog::parseCommandRequest( TString & input ) {
 
     FlashWindowEx( & fli );
   }
-  // xdid -g [NAME] [SWITCH] [+FLAGS] [COLOR]
-  else if ( flags.switch_flags[6] && numtok > 3 ) {
+  // xdid -g [NAME] [SWITCH] [+FLAGS] [COLOR|FILENAME]
+	else if (flags.switch_flags[6] && numtok > 3) {
+		UINT iFlags = this->parseBkgFlags(input.gettok(3, " "));
 
-    UINT iFlags = this->parseBkgFlags( input.gettok( 3, " " ) );
-    COLORREF clrColor = atol( input.gettok( 4, " " ).to_chr( ) );
+		if (iFlags & DBS_BKGCOLOR) {
+			COLORREF clrColor = atol(input.gettok(4, " ").to_chr());
 
-    if ( iFlags & DBS_BKGCOLOR ) {
+			if (this->m_hBackBrush != NULL) {
+				DeleteObject(this->m_hBackBrush);
+				this->m_hBackBrush = NULL;
+			}
 
-      if ( this->m_hBackBrush != NULL ) {
-        DeleteObject( this->m_hBackBrush );
-        this->m_hBackBrush = NULL;
-      }
+			if (clrColor != -1)
+				this->m_hBackBrush = CreateSolidBrush(clrColor);
+		}
+		else if (iFlags & DBS_BKGBITMAP) {
+			if (this->m_bitmapBg) {
+				DeleteObject(this->m_bitmapBg);
+				this->m_bitmapBg = NULL;
+			}
 
-      if ( clrColor != -1 )
-        this->m_hBackBrush = CreateSolidBrush( clrColor );
+			TString strFile = input.gettok(4, -1, " ");
+			strFile.trim();
 
-      InvalidateRect( this->m_Hwnd, NULL, TRUE );
-    }
-  }
+			if (strFile != "none")
+				this->m_bitmapBg = (HBITMAP) LoadImage(GetModuleHandle(NULL), strFile.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+		}
+
+		InvalidateRect(this->m_Hwnd, NULL, TRUE);
+	}
   // xdid -j [NAME] [SWITCH]
   else if ( flags.switch_flags[9] ) {
 
@@ -583,6 +602,11 @@ void DcxDialog::parseCommandRequest( TString & input ) {
 
     ShowWindow( this->m_Hwnd, SW_SHOW );
   }
+  // xdialog -t [NAME] [SWITCH] [COLOR]
+	if (flags.switch_flags[19] && numtok > 2) {
+		this->m_colTransparentBg = atoi(input.gettok(3, " ").to_chr());
+		this->redrawWindow();
+	}
   /*
   else {
     char error[500];
@@ -729,10 +753,19 @@ UINT DcxDialog::parseBkgFlags( TString & flags ) {
     return iFlags;
 
   while ( i < len ) {
+	if ( flags[i] == 'b' )
+		iFlags |= DBS_BKGCOLOR;
+	if (flags[i] == 'i')
+		iFlags |= DBS_BKGBITMAP;
+	if (flags[i] == 's')
+		this->m_uStyleBg = DBS_BKGSTRETCH;
+	if (flags[i] == 't')
+		this->m_uStyleBg = DBS_BKGTILE;
+	if (flags[i] == 'c')
+		this->m_uStyleBg = DBS_BKGCENTER;
+	if (flags[i] == 'n')
+		this->m_uStyleBg = DBS_BKGNORMAL;
 
-    if ( flags[i] == 'b' )
-      iFlags |= DBS_BKGCOLOR;
-    
     ++i;
   }
   return iFlags;
@@ -1528,9 +1561,72 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
       }
       break;
 
+		case WM_ERASEBKGND:
+			{
+				HDC hdc = (HDC) wParam;
+				RECT rwnd;
+
+				GetClientRect(p_this->getHwnd(), &rwnd);
+
+				// background color
+				if (p_this->getBackClrBrush())
+					FillRect(hdc, &rwnd, p_this->getBackClrBrush());
+				else
+					FillRect(hdc, &rwnd, GetSysColorBrush(COLOR_3DFACE));
+
+				// draw bitmap
+				if (p_this->m_bitmapBg) {
+					HDC hdcbmp = CreateCompatibleDC(hdc);
+					BITMAP bmp;
+
+					GetObject(p_this->m_bitmapBg, sizeof(BITMAP), &bmp);
+					SelectObject(hdcbmp, p_this->m_bitmapBg);
+
+					int x = 0;
+					int y = 0;
+					int w = rwnd.right - rwnd.left;
+					int h = rwnd.bottom - rwnd.top;
+
+					switch (p_this->m_uStyleBg) {
+						case DBS_BKGCENTER:
+							x = (w - bmp.bmWidth) / 2;
+							y = (h - bmp.bmHeight) / 2;
+
+							//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+							TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+							break;
+
+						case DBS_BKGSTRETCH:
+							//BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+							TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+							break;
+
+						case DBS_BKGTILE:
+							for (y = 0; y < h; y += bmp.bmHeight) {
+								for (x = 0; x < w; x += bmp.bmWidth) {
+									//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+									TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+								}
+							}
+
+							break;
+
+						default:
+							//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+							TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+							break;
+					}
+
+					DeleteDC(hdcbmp);
+				}
+
+				return TRUE;
+			}
+
     case WM_CTLCOLORDLG:
       {
-        return (INT_PTR) p_this->getBackClrBrush( );
+			mIRCDebug("color dialog");
+        return (INT_PTR) p_this->getBackClrBrush();
       }
       break;
 

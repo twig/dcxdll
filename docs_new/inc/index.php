@@ -454,12 +454,20 @@ function get_xdialog_index(&$XDIALOG) {
 			'__eg' => "+b \$rgb(0,0,255)",
 			'__params' => array(
 				'+FLAGS' => array(
-					'__desc' => "Background Flags.",
+					'__desc' => "Background flags.",
 					'__values' => array(
-						'b' => "Background Color. ([p]EXTRA[/p] is an RGB Color)",
+						'b' => "Specifies background color.",
+						'i' => 'Specifies background image.',
+						'c' => 'Center the background image. (Used with [v]+i[/v] flag)',
+						's' => 'Stretch the background image. (Used with [v]+i[/v] flag)',
+						't' => 'Tile the background image. (Used with [v]+i[/v] flag)',
+						'n' => 'Reset the background image position. (Used with [v]+i[/v] flag)',
 					),
 				),
+				'EXTRA' => 'If [p]+FLAGS[/p] is [v]+b[/v], then [p]EXTRA[/p] specifies the background color in a $rgb() format.<br />
+				If [p]+FLAGS[/p] is used with [v]+i[/v], then [p]EXTRA[/p] specfies the BMP filename.'
 			),
+			'__notes' => 'Only bitmap (BMP) files can be loaded for the background image.'
 		),
 		"h" => array(
 			'__desc' => "This command lets you hide the dialog.",
@@ -516,6 +524,11 @@ function get_xdialog_index(&$XDIALOG) {
 		),
 		"s" => array(
 			'__desc' => "This command lets you show the dialog.",
+		),
+		"t" => array(
+			'__desc' => "This command allows you to set the transparency color for the background image.",
+			'__cmd' => '[COLOR]',
+			'__eg' => '$rgb(255,0,255)',
 		),
 		"x" => array(
 			'__desc' => "This command lets you kill (not trigger a close like /dialog -x) the dialog.",

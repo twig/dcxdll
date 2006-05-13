@@ -18,7 +18,13 @@
 #include "dcxwindow.h"
 #include "layout/layoutmanager.h"
 
-#define DBS_BKGCOLOR      0x01 //!< Control Background Color
+#define DBS_BKGCOLOR		0x01 //!< Control Background Color
+#define DBS_BKGBITMAP	0x02 //!< Control Background Bitmap
+
+#define DBS_BKGNORMAL	0
+#define DBS_BKGCENTER	1
+#define DBS_BKGSTRETCH	2
+#define DBS_BKGTILE		3
 
 // dummy runtime classe definition
 class DcxControl;
@@ -85,7 +91,9 @@ protected:
 
   HCURSOR m_hCursor;  //!< Cursor Handle
   BOOL m_bCursorFromFile; //!< Cursor comes from a file?
-
+  HBITMAP m_bitmapBg;
+  UINT m_uStyleBg;
+  COLORREF m_colTransparentBg;
   /* **** */
 
   void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
