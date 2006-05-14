@@ -30,6 +30,16 @@ function get_xdid_link(&$XDID) {
 	        '__cmd' => '(Text)',
 	        '__eg' => 'Text Label'
 		),
+		'w' => array(
+	        '__desc' => 'This command lets you set an icon for the link control.',
+	        '__cmd' => '[INDEX] [FILENAME]',
+	        '__eg' => '113 C:/mIRC/shell.dll',
+	        '__params' => array(
+	            'INDEX' => 'Icon index in icon archive',
+				'FILENAME' => 'Icon archive filename',
+			),
+	        '__notes' => "Use 0 if the file is a single icon file.",
+		),
 	);
 }
 
