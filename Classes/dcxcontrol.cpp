@@ -178,58 +178,60 @@ BOOL DcxControl::callAliasEx( char * szReturn, const char * szFormat, ... ) {
  */
 
 void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flags ) {
-
   int numtok = input.numtok( " " );
 
   // xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-  if ( flags.switch_flags[5] && numtok > 3 ) {
+	if ( flags.switch_flags[5] && numtok > 3 ) {
+		UINT iFontFlags = this->parseFontFlags(input.gettok(4, " "));
 
-    UINT iFontFlags = this->parseFontFlags( input.gettok( 4, " " ) );
-    
-    if ( iFontFlags & DCF_DEFAULT )
-      this->setControlFont( NULL, TRUE );
-    else if ( numtok > 5 ) {
+		if (iFontFlags & DCF_DEFAULT)
+			this->setControlFont(NULL, TRUE);
+		else if (numtok > 6) {
+			LOGFONT lf;
+			ZeroMemory(&lf, sizeof(LOGFONT));
+			GetObject(this->m_hFont, sizeof(LOGFONT), &lf);
 
-      LOGFONT lf;
-      ZeroMemory( &lf, sizeof(LOGFONT) );
+			int fSize = atoi(input.gettok(6, " ").to_chr());
+			TString fontname = input.gettok(7, -1, " ");
+			fontname.trim();
 
-      int fSize = atoi( input.gettok( 6, " " ).to_chr( ) );
-      TString fontname = input.gettok( 7, -1, " " );
-      fontname.trim( );
+			if (!fSize) {
+				mIRCDebug("/xdid -f %d: invalid font size", this->getUserID());
+				return;
+			}
 
-      HDC hdc = GetDC( NULL );
-      lf.lfHeight = -MulDiv( fSize, GetDeviceCaps( hdc, LOGPIXELSY ), 72 );
-      ReleaseDC( NULL, hdc );
+			HDC hdc = GetDC(NULL);
+			lf.lfHeight = -MulDiv(fSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+			ReleaseDC(NULL, hdc);
 
-      if ( iFontFlags & DCF_ANTIALIASE )
-        lf.lfQuality = ANTIALIASED_QUALITY;
+			if (iFontFlags & DCF_ANTIALIASE)
+				lf.lfQuality = ANTIALIASED_QUALITY;
 
-      if ( iFontFlags & DCF_BOLD )
-        lf.lfWeight = FW_BOLD;
-      else
-        lf.lfWeight = FW_NORMAL;
+			if (iFontFlags & DCF_BOLD)
+				lf.lfWeight = FW_BOLD;
+			else
+				lf.lfWeight = FW_NORMAL;
 
-      if ( iFontFlags & DCF_ITALIC )
-        lf.lfItalic = TRUE;
+			if (iFontFlags & DCF_ITALIC)
+				lf.lfItalic = TRUE;
 
-      if ( iFontFlags & DCF_STRIKEOUT )
-        lf.lfStrikeOut = TRUE;
+			if (iFontFlags & DCF_STRIKEOUT)
+				lf.lfStrikeOut = TRUE;
 
-      if ( iFontFlags & DCF_UNDERLINE )
-        lf.lfUnderline = TRUE;
+			if (iFontFlags & DCF_UNDERLINE)
+				lf.lfUnderline = TRUE;
 
-      lf.lfCharSet = this->parseFontCharSet( input.gettok( 5, " " ) );
+			lf.lfCharSet = this->parseFontCharSet(input.gettok(5, " "));
 
-      lstrcpyn( lf.lfFaceName, fontname.to_chr( ), 31 );
-      lf.lfFaceName[31] = 0;
+			lstrcpyn(lf.lfFaceName, fontname.to_chr(), 31);
+			lf.lfFaceName[31] = 0;
 
-      HFONT hFont = CreateFontIndirect( &lf );
-
-      this->setControlFont( hFont, FALSE );
-    }
+			HFONT hFont = CreateFontIndirect(&lf);
+			this->setControlFont(hFont, FALSE);
+		}
 
 		this->redrawWindow( );
-  }
+	}
   // xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
   else if ( flags.switch_flags[15] && numtok > 6 ) {
 
@@ -678,6 +680,70 @@ BOOL DcxControl::parseGlobalInfoRequest( TString & input, char * szReturnValue )
 
     lstrcpy( szReturnValue, this->getType( ).to_chr( ) );
     return TRUE;
+  }
+	else if (input.gettok(3, " ") == "font") {
+		HFONT hFontControl = this->m_hFont;
+
+//		if (!hFontControl)
+//			hFontControl = (HFONT) this->getFont();
+		if (!hFontControl)
+			hFontControl = (HFONT) GetStockObject(DEFAULT_GUI_FONT);
+
+		if (hFontControl) {
+			LOGFONT lfCurrent;
+			TString flags("+");
+			TString charset("default");
+
+			ZeroMemory(&lfCurrent, sizeof(LOGFONT));
+			GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent);
+
+			// get charset
+			switch (lfCurrent.lfCharSet) {
+				case ANSI_CHARSET			: charset = "ansi"; break;
+				case BALTIC_CHARSET		: charset = "baltic"; break;
+				case CHINESEBIG5_CHARSET: charset = "chinesebig"; break;
+				case EASTEUROPE_CHARSET	: charset = "easteurope"; break;
+				case GB2312_CHARSET		: charset = "gb2312"; break;
+				case GREEK_CHARSET		: charset = "greek"; break;
+				case HANGUL_CHARSET		: charset = "hangul"; break;
+				case MAC_CHARSET			: charset = "mac"; break;
+				case OEM_CHARSET			: charset = "oem"; break;
+				case RUSSIAN_CHARSET		: charset = "russian"; break;
+				case SHIFTJIS_CHARSET	: charset = "shiftjis"; break;
+				case SYMBOL_CHARSET		: charset = "symbol"; break;
+				case TURKISH_CHARSET		: charset = "turkish"; break;
+				case VIETNAMESE_CHARSET	: charset = "vietnamese"; break;
+				case DEFAULT_CHARSET		:
+				default						: charset = "default"; break;
+			}
+
+			// get flags
+			if (lfCurrent.lfQuality == ANTIALIASED_QUALITY)
+				flags += "a";
+			if (lfCurrent.lfWeight == FW_BOLD)
+				flags += "b";
+			if (lfCurrent.lfItalic)
+				flags += "i";
+			if (lfCurrent.lfStrikeOut)
+				flags += "s";
+			if (lfCurrent.lfUnderline)
+				flags += "u";
+
+			//lf.lfHeight = -MulDiv( fSize, GetDeviceCaps(hdc, LOGPIXELSY ), 72 );
+			HDC hdc = GetDC(NULL);
+			TEXTMETRIC tm;
+
+			SelectObject(hdc, hFontControl);
+			GetTextMetrics(hdc, &tm);
+
+			//int ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
+			int ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
+			ReleaseDC(NULL, hdc);
+
+			// [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
+			wsprintf(szReturnValue, "%s %s %d %s", flags.to_chr(), charset.to_chr(), ptSize, lfCurrent.lfFaceName);
+			return TRUE;
+		}
   }
   else {
     char error[500];

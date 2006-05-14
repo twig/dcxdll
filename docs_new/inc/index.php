@@ -550,14 +550,14 @@ function get_xdid_index(&$XDID) {
 		"f" => array(
 			'__desc' => "This command lets you change a control font.",
 			'__cmd' => "[+FLAGS] [CHARSET] [SIZE] [FONTNAME]",
-			'__eg' => "+abs 10 Tahoma",
+			'__eg' => "+abs ansi 10 Tahoma",
 			'__params' => array(
 			    '+FLAGS' => array(
 			        '__desc' => "Font style flags.",
                     '__values' => array(
                         'a' => "Font is anti-aliased.",
 						'b' => "Font is bold.",
-						'd' => "Default font.([CHARSET], [SIZE] and [FONTNAME] can be omitted)",
+						'd' => "Default font.",
 						'i' => "Font is italic.",
 						's' => "Font is strikedout.",
 						'u' => "Font is underlined.",
@@ -568,7 +568,8 @@ function get_xdid_index(&$XDID) {
 				'FONTNAME' => "Font name. Ex: Tahoma, Courier New, Arial, ...",
 			),
 			'__notes' => array(
-				"Font names are limited to 31 chars (system definition)."
+				"Font names are limited to 31 chars (system definition).",
+				'When using [v]+d[/v], [p]CHARSET[/p] [p]SIZE[/p] and [p]FONTNAME[/p] can be omitted.'
 			),
 		),
 		"h" => array(
@@ -837,6 +838,10 @@ function get_xdidprops_index(&$XDIDPROPS) {
 		),
 		"type" => array(
 			'__desc' => "This property retrieves the control type.",
+		),
+		"font" => array(
+			'__desc' => "This property returns the font used for writing on the control.",
+			'__notes' => 'The return value is in the format [v]+flags[/v] [v]charset[/v] [v]size[/v] [v]fontname[/v], where [v]+flags[/v] is specfied in /xdid -f',
 		),
 	);
 }
