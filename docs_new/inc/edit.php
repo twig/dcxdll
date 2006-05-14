@@ -48,6 +48,15 @@ function get_xdid_edit(&$XDID) {
 	        '__eg' => "5 New Text",
 	        '__notes' => "If the [s]multi[/s] style is not used, will overwrite the whole text."
 		),
+		'j' => array(
+	        '__desc' => 'This command lets you trigger the password style of the edit control on the fly.',
+	        '__cmd' => '[ENABLED]',
+	        '__eg' => "1",
+	        '__notes' => array(
+				"Use either [v]1[/v] or [v]0[/v] for [p]ENABLED[/p].",
+			    'If anyone could find me the ascii value of the big DOT used for the default password character on XP, please leave a message.'
+			),
+		),
 		'o' => array(
 	        '__desc' => 'This command lets you overwrite the Nth line in the edit.',
 	        '__cmd' => '[N] [TEXT]',

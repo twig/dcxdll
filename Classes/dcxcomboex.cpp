@@ -343,7 +343,7 @@ void DcxComboEx::parseCommandRequest( TString & input ) {
 		char *cb = new char[10];
 
       this->setCurSel( nItem );
-		this->callAliasEx(cb, "%s,%d,%d", "sclick", this->getUserID(), nItem +1);
+		//this->callAliasEx(cb, "%s,%d,%d", "sclick", this->getUserID(), nItem +1);
 	 }
   }
   // xdid -d [NAME] [ID] [SWITCH] [N]

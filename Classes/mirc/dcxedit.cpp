@@ -199,16 +199,15 @@ void DcxEdit::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
-  // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "ispass" ) {
+	// [NAME] [ID] [PROP]
+	else if (input.gettok(3, " ") == "ispass") {
+		if (this->isStyle(ES_PASSWORD))
+			lstrcpy(szReturnValue, "$true");
+		else
+			lstrcpy(szReturnValue, "$false");
 
-    if ( this->isStyle( ES_PASSWORD ) )
-      lstrcpy( szReturnValue, "$true" );
-    else
-      lstrcpy( szReturnValue, "$false" );
-
-    return;
-  }
+		return;
+	}
   else if (input.gettok(3, " ") == "selstart") {
 	  DWORD dwSelStart = 0; // selection range starting position
 
@@ -302,15 +301,28 @@ void DcxEdit::parseCommandRequest( TString & input ) {
     }
     SetWindowText( this->m_Hwnd, this->m_tsText.to_chr( ) );
   }
-  // xdid -i [NAME] [ID] [SWITCH] [0|1]
-  else if ( flags.switch_flags[9] && numtok > 3 ) {
-    
-    if ( input.gettok( 4, " " ) == "1" )
-      this->addStyle( ES_PASSWORD );
-    else
-      this->removeStyle( ES_PASSWORD );
-      
-  }
+
+  // xdid -j [NAME] [ID] [SWITCH] [0|1]
+	else if (flags.switch_flags[9] && numtok > 3) {
+		int i = atoi(input.gettok(4, " ").to_chr());
+
+		if (i) {
+			char c = Edit_GetPasswordChar(this->m_Hwnd);
+			this->addStyle(ES_PASSWORD);
+
+			if (!c)
+				c = '*'; //(isXP() ? '•' : '*');
+
+			Edit_SetPasswordChar(this->m_Hwnd, c);
+		}
+		else {
+			this->removeStyle(ES_PASSWORD);
+			Edit_SetPasswordChar(this->m_Hwnd, 0);
+		}
+
+		this->redrawWindow();
+	}
+
   // xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
   else if ( flags.switch_flags[14] && numtok > 4 ) {
     
@@ -347,7 +359,6 @@ void DcxEdit::parseCommandRequest( TString & input ) {
   }
   // xdid -u [NAME] [ID] [SWITCH] [FILENAME]
   else if ( flags.switch_flags[20] && numtok > 3 ) {
-
     FILE * file = fopen( input.gettok( 4, -1, " " ).to_chr( ), "wb" );
 
     if ( file != NULL ) {
@@ -359,8 +370,10 @@ void DcxEdit::parseCommandRequest( TString & input ) {
     }
   }
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
+
+
   else if (flags.switch_cap_flags[18] && numtok > 4) {
-	  		int istart = atoi(input.gettok(4, " ").to_chr());
+		int istart = atoi(input.gettok(4, " ").to_chr());
 		int iend = atoi(input.gettok(5, " ").to_chr());
 
 		SendMessage(this->m_Hwnd, EM_SETSEL, istart, iend);
