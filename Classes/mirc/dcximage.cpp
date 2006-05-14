@@ -26,6 +26,8 @@
 
 DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
+, m_bIsIcon(FALSE)
+, m_iIconSize(0)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -49,6 +51,7 @@ DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   //this->m_pImage = NULL;
   this->m_hBitmap = NULL;
   this->m_clrTransColor = -1;
+  this->m_hIcon = NULL;
 
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -66,6 +69,7 @@ DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
 
 DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
+, m_bIsIcon(FALSE)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -89,6 +93,7 @@ DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
   //this->m_pImage = NULL;
   this->m_hBitmap = NULL;
   this->m_clrTransColor = -1;
+  this->m_hIcon = NULL;
 
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -100,15 +105,10 @@ DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
  * blah
  */
 
-DcxImage::~DcxImage( ) {
+DcxImage::~DcxImage() {
+	PreloadData();
 
-  //if ( this->m_pImage != NULL )
-  //  delete this->m_pImage;
-
-  if ( this->m_hBitmap != NULL )
-    delete this->m_hBitmap;
-
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 }
 
 /*!
@@ -160,50 +160,81 @@ void DcxImage::parseInfoRequest( TString & input, char * szReturnValue ) {
   szReturnValue[0] = 0;
 }
 
+// clears existing image and icon data and sets pointers to null
+void DcxImage::PreloadData() {
+	if (this->m_hBitmap != NULL) {
+		DeleteBitmap(this->m_hBitmap);
+		this->m_hBitmap = NULL;
+	}
+
+	if (this->m_hIcon != NULL) {
+		DestroyIcon(this->m_hIcon);
+		this->m_hIcon = NULL;
+	}
+}
+
 /*!
  * \brief blah
  *
  * blah
  */
 
-void DcxImage::parseCommandRequest( TString & input ) {
+void DcxImage::parseCommandRequest(TString & input) {
+	XSwitchFlags flags;
+	ZeroMemory((void*)&flags, sizeof(XSwitchFlags));
+	this->parseSwitchFlags(&input.gettok(3, " "), &flags);
+	int numtok = input.numtok(" ");
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
+	//xdid -w [NAME] [ID] [SWITCH] [INDEX] [SIZE] [ICON]
+	if (flags.switch_flags[22] && numtok > 5) {
+		TString filename = input.gettok(6, -1, " ");
+		int index = atoi(input.gettok(4, " ").to_chr());
+		int size = atoi(input.gettok(5, " ").to_chr());
 
-  int numtok = input.numtok( " " );
+		filename.trim();
+		PreloadData();
 
-  //xdid -i [NAME] [ID] [SWITCH] [IMAGE]
-  if ( flags.switch_flags[8] && numtok > 3 ) {
+      if (size > 16)
+			ExtractIconEx(filename.to_chr(), index, &(this->m_hIcon), NULL, 1);
+		else
+			ExtractIconEx(filename.to_chr(), index, NULL, &(this->m_hIcon), 1);
 
-    TString filename = input.gettok( 4, -1, " " );
-    filename.trim( );
+		this->m_iIconSize = size;
+		this->m_bIsIcon = TRUE;
 
-    /*
-    WCHAR file[257];
+		// resize window to size of icon
+		RECT wnd;
+		POINT pt;
 
-    MultiByteToWideChar( CP_ACP, 0, filename.to_chr( ), filename.len( )+1, file,   
-     sizeof(file)/sizeof(file[0]) );
+		GetWindowRect(this->m_Hwnd, &wnd);
+		pt.x = wnd.left;
+		pt.y = wnd.top;
 
-    if ( this->m_pImage != NULL )
-      delete this->m_pImage;
+		ScreenToClient(GetParent(this->m_Hwnd), &pt);
+		MoveWindow(this->m_Hwnd, pt.x, pt.y, size, size, TRUE);
 
-    this->m_pImage = Image::FromFile( file );
-    */
+		//InvalidateRect(this->m_Hwnd, NULL, TRUE);
+	}
+	//xdid -i [NAME] [ID] [SWITCH] [IMAGE]
+	else if (flags.switch_flags[8] && numtok > 3) {
+		TString filename = input.gettok(4, -1, " ");
 
-    this->m_hBitmap = (HBITMAP) LoadImage( GetModuleHandle( NULL ), 
-          filename.to_chr( ), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
+		filename.trim();
+		PreloadData();
 
-    InvalidateRect( this->m_Hwnd, NULL, TRUE );
-  }
-  // xdid -k [NAME] [ID] [SWITCH] [COLOR]
-  if ( flags.switch_flags[10] && numtok > 3 ) {
-    
-    this->m_clrTransColor = atol( input.gettok( 4, " " ).to_chr( ) );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+		this->m_hBitmap = (HBITMAP) LoadImage(GetModuleHandle(NULL), 
+			filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+
+		this->m_bIsIcon = FALSE;
+		InvalidateRect(this->m_Hwnd, NULL, TRUE);
+	}
+	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
+	else if (flags.switch_flags[10] && numtok > 3) {
+		this->m_clrTransColor = atol(input.gettok(4, " ").to_chr());
+		this->redrawWindow();
+	}
+	else
+		this->parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -260,75 +291,67 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       break;
       
 
-    case WM_PAINT:
-      {
-        /*
-        mIRCError( "WM_PAINT" );
-        PAINTSTRUCT ps;
-        HDC hdc; 
+		case WM_PAINT:
+		{
+			// default paint method
+			if ((this->m_hBitmap == NULL) && (this->m_hIcon == NULL))
+				break;
 
-        hdc = BeginPaint( this->m_Hwnd, &ps );
+			PAINTSTRUCT ps; 
+			HDC hdc; 
+			RECT rect;
 
-        EndPaint( this->m_Hwnd, &ps ); 
+			hdc = BeginPaint(this->m_Hwnd, &ps);
+			GetClientRect(this->m_Hwnd, &rect);
 
-        bParsed = TRUE;
-        return 0L;
-        */
+				/*
+				Graphics grphx( hdc );
 
-        if ( this->m_hBitmap != NULL ) {
+				HBRUSH hBrush;
 
-          PAINTSTRUCT ps; 
-          HDC hdc; 
+				if ( this->m_hBackBrush != NULL )
+				FillRect( hdc, &rect, this->m_hBackBrush );
+				/*
+				else {
+				hBrush = GetSysColorBrush( COLOR_3DFACE );
+				FillRect( hdc, &rect, hBrush );
+				}
 
-          hdc = BeginPaint( this->m_Hwnd, &ps );
+				grphx.DrawImage( this->m_pImage, 0, 0, rect.right - rect.left, rect.bottom - rect.top );
+				*/
 
-          RECT rect;
-          GetClientRect( this->m_Hwnd, &rect );
+			// draw bitmap
+			if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon)) {
+				HDC hdcbmp = CreateCompatibleDC(hdc);
+				BITMAP bmp;
 
-          /*
-          Graphics grphx( hdc );
+				if (this->m_hBackBrush != NULL)
+					FillRect(hdc, &rect, this->m_hBackBrush);
 
-          HBRUSH hBrush;
+				GetObject( this->m_hBitmap, sizeof(BITMAP), &bmp );
+				SelectObject( hdcbmp, this->m_hBitmap );
 
-          if ( this->m_hBackBrush != NULL )
-            FillRect( hdc, &rect, this->m_hBackBrush );
-            /*
-          else {
-            hBrush = GetSysColorBrush( COLOR_3DFACE );
-            FillRect( hdc, &rect, hBrush );
-          }
-          
-          grphx.DrawImage( this->m_pImage, 0, 0, rect.right - rect.left, rect.bottom - rect.top );
-          */
+				StretchBlt( hdc, rect.left, rect.top, rect.right - rect.left, 
+					rect.bottom - rect.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
 
-          if ( this->m_hBackBrush != NULL )
-            FillRect( hdc, &rect, this->m_hBackBrush );
+				DeleteDC( hdcbmp );
+			}
+			// draw icon
+			else if ((this->m_hIcon != NULL) && (this->m_bIsIcon)) {
+				if (this->m_hBackBrush != NULL)
+					FillRect(hdc, &rect, this->m_hBackBrush);
+				else
+					FillRect(hdc, &rect, GetSysColorBrush(COLOR_3DFACE));
 
-          HDC hdcbmp = CreateCompatibleDC( hdc );
-          BITMAP bmp;
-          GetObject( this->m_hBitmap, sizeof(BITMAP), &bmp );
-          SelectObject( hdcbmp, this->m_hBitmap );
+				DrawIconEx(hdc, 0, 0, this->m_hIcon, this->m_iIconSize, this->m_iIconSize, 0, this->m_hBackBrush, DI_NORMAL | DI_COMPAT); 
+			}
 
-          if ( this->m_clrTransColor != -1 ) {
+			EndPaint(this->m_Hwnd, &ps);
 
-            TransparentBlt( hdc, rect.left, rect.top, rect.right - rect.left, 
-              rect.bottom - rect.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_clrTransColor );
-          }
-          else {
-
-            StretchBlt( hdc, rect.left, rect.top, rect.right - rect.left, 
-              rect.bottom - rect.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY );
-          }
-
-          DeleteDC( hdcbmp );
-
-          EndPaint( this->m_Hwnd, &ps ); 
-
-          bParsed = TRUE;
-          return 0L;
-        }
-      }
-      break;
+			bParsed = TRUE;
+			return 0L;
+		}
+		break;
 
 
     case WM_COMMAND:

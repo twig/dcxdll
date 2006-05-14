@@ -46,8 +46,13 @@ protected:
 
   //Image * m_pImage; //!< GDI+ Image Object
   HBITMAP m_hBitmap; //!< Bitmap
+  HICON m_hIcon; // !< icon
 
   COLORREF m_clrTransColor; //!< Transparent color
+  BOOL m_bIsIcon;
+  // clears existing image and icon data and sets pointers to null
+  void PreloadData(void);
+  int m_iIconSize;
 };
 
 #endif // _DCXIMAGE_H_

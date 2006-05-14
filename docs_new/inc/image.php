@@ -26,6 +26,20 @@ function get_xdid_image(&$XDID) {
 	            'When using a transparent color, you may need to set the background color of the control like $rgb(face) for the dialog background color.',
 			),
 		),
+		'w' => array(
+	        '__desc' => 'This command lets you set an icon for the image.',
+	        '__cmd' => '[INDEX] [SIZE] [ICON]',
+	        '__eg' => '2 48 C:/mIRC/shell.dll',
+	        '__params' => array(
+	            'INDEX' => 'Icon index in icon archive.',
+	            'SIZE' => 'Size of the icon.',
+				'FILENAME' => 'Icon archive filename.',
+			),
+	        '__notes' => array(
+				"Use 0 if the file is a single icon file.",
+				"When the icon is loaded, the Image control is resized to [p]SIZE[/p] width and height.",
+			),
+		),
 	);
 }
 
