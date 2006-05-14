@@ -409,8 +409,8 @@ function format_xcmd($type, $flag, $data, $id) {
 	}
 ?>
 <table class="<?php echo $type; ?>">
-	<tr><td colspan="2" class="flag">
-			<a name="<?php echo "$SECTION.$id"; ?>"></a><?php echo "<div style='color: $color;'>$heading</div>"; ?>
+	<tr><td colspan="2" class="flag" style="<?php echo "color: $color; border-color: $color;";?>">
+			<a name="<?php echo "$SECTION.$id"; ?>"></a><?php echo $heading; ?>
 	</td></tr>
 	<tr><td colspan="2"><?php echo $data['__desc']; ?></td></tr>
 	<tr>

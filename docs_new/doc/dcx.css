@@ -157,8 +157,10 @@ div.syntax, div.example {
 
 /* xdid flag heading */
 /*.xdid .flag, .xdialog .flag, .xdidprop .flag {*/
-.flag {
+td.flag {
 	border-bottom: 1px dotted black;
+	font-weight: bold;
+	
 }
 
 .xdid td.value, .xdialog td.value, .xdidprop td.value, .xdialogprop td.value, .general td.value, .styles td.style, .xpopup td.value, .xpopupprop td.value, .xpop td.value, .xpopprops td.value {
