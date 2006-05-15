@@ -355,3 +355,197 @@ BOOL CopyToClipboard(HWND owner, TString str) {
 
 	return TRUE;
 }
+
+
+
+
+// Turns a command (+flags CHARSET SIZE FONTNAME) into a LOGFONT struct
+BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf) {
+	if (cmd.numtok(" ") < 4)
+		return FALSE;
+
+	ZeroMemory(lf, sizeof(LOGFONT));
+	UINT flags = parseFontFlags(cmd.gettok(1, " "));
+
+	if (flags & DCF_DEFAULT) {
+		HFONT hf = (HFONT) GetStockObject(DEFAULT_GUI_FONT);
+		GetObject(hf, sizeof(LOGFONT), lf);
+		return TRUE;
+	}
+	else {
+		int fSize = atoi(cmd.gettok(3, " ").to_chr());
+		TString fName = cmd.gettok(4, -1, " ");
+		fName.trim();
+mIRCError("trim");
+		if (!fSize)
+			return FALSE;
+mIRCError("hdc");
+		HDC hdc = GetDC(NULL);
+		lf->lfHeight = -MulDiv(fSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+		mIRCError("hdc3");
+		ReleaseDC(NULL, hdc);
+
+mIRCError("flags");
+		if (flags & DCF_ANTIALIASE)
+			lf->lfQuality = ANTIALIASED_QUALITY;
+
+		if (flags & DCF_BOLD)
+			lf->lfWeight = FW_BOLD;
+		else
+			lf->lfWeight = FW_NORMAL;
+
+		if (flags & DCF_ITALIC)
+			lf->lfItalic = TRUE;
+
+		if (flags & DCF_STRIKEOUT)
+			lf->lfStrikeOut = TRUE;
+
+		if (flags & DCF_UNDERLINE)
+			lf->lfUnderline = TRUE;
+
+		mIRCError("charset");
+		lf->lfCharSet = parseFontCharSet(cmd.gettok(2, " "));
+mIRCError("face");
+		lstrcpyn(lf->lfFaceName, fName.to_chr(), 31);
+		lf->lfFaceName[31] = 0;
+		mIRCError("done");
+		return TRUE;
+	}
+}
+
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+UINT parseFontFlags( TString & flags ) {
+
+  INT i = 1, len = flags.len( ), iFlags = 0;
+
+  // no +sign, missing params
+  if ( flags[0] != '+' ) 
+    return iFlags;
+
+  while ( i < len ) {
+
+    if ( flags[i] == 'a' )
+      iFlags |= DCF_ANTIALIASE;
+    else if ( flags[i] == 'b' )
+      iFlags |= DCF_BOLD;
+    else if ( flags[i] == 'd' )
+      iFlags |= DCF_DEFAULT;
+    else if ( flags[i] == 'i' )
+      iFlags |= DCF_ITALIC;
+    else if ( flags[i] == 's' )
+      iFlags |= DCF_STRIKEOUT;
+    else if ( flags[i] == 'u' )
+      iFlags |= DCF_UNDERLINE;
+
+    ++i;
+  }
+  return iFlags;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+UINT parseFontCharSet( TString & charset ) {
+
+  if ( charset == "ansi" )
+    return ANSI_CHARSET;
+  else if ( charset == "baltic" )
+    return BALTIC_CHARSET;
+  else if ( charset == "chinesebig" )
+    return CHINESEBIG5_CHARSET;
+  else if ( charset == "default" )
+    return DEFAULT_CHARSET;
+  else if ( charset == "easteurope" )
+    return EASTEUROPE_CHARSET;
+  else if ( charset == "gb2312" )
+    return GB2312_CHARSET;
+  else if ( charset == "greek" )
+    return GREEK_CHARSET;
+  else if ( charset == "hangul" )
+    return HANGUL_CHARSET;
+  else if ( charset == "mac" )
+    return MAC_CHARSET;
+  else if ( charset == "oem" )
+    return OEM_CHARSET;
+  else if ( charset == "russian" )
+    return RUSSIAN_CHARSET;
+  else if ( charset == "shiftjis" )
+    return SHIFTJIS_CHARSET;
+  else if ( charset == "symbol" )
+    return SYMBOL_CHARSET;
+  else if ( charset == "turkish" )
+    return TURKISH_CHARSET;
+  else if ( charset == "vietnamese" )
+    return VIETNAMESE_CHARSET;
+
+  return DEFAULT_CHARSET;
+}
+
+
+TString ParseLogfontToCommand(LPLOGFONT lf) {
+	TString flags("+");
+	TString charset("default");
+
+mIRCError("charset");
+
+	// get charset
+	switch (lf->lfCharSet) {
+		case ANSI_CHARSET			: charset = "ansi"; break;
+		case BALTIC_CHARSET		: charset = "baltic"; break;
+		case CHINESEBIG5_CHARSET: charset = "chinesebig"; break;
+		case EASTEUROPE_CHARSET	: charset = "easteurope"; break;
+		case GB2312_CHARSET		: charset = "gb2312"; break;
+		case GREEK_CHARSET		: charset = "greek"; break;
+		case HANGUL_CHARSET		: charset = "hangul"; break;
+		case MAC_CHARSET			: charset = "mac"; break;
+		case OEM_CHARSET			: charset = "oem"; break;
+		case RUSSIAN_CHARSET		: charset = "russian"; break;
+		case SHIFTJIS_CHARSET	: charset = "shiftjis"; break;
+		case SYMBOL_CHARSET		: charset = "symbol"; break;
+		case TURKISH_CHARSET		: charset = "turkish"; break;
+		case VIETNAMESE_CHARSET	: charset = "vietnamese"; break;
+		case DEFAULT_CHARSET		:
+		default						: charset = "default"; break;
+	}
+mIRCError("flags");
+	// get flags
+	if (lf->lfQuality == ANTIALIASED_QUALITY)
+		flags += "a";
+	if (lf->lfWeight == FW_BOLD)
+		flags += "b";
+	if (lf->lfItalic)
+		flags += "i";
+	if (lf->lfStrikeOut)
+		flags += "s";
+	if (lf->lfUnderline)
+		flags += "u";
+mIRCError("height");
+	//lf.lfHeight = -MulDiv( fSize, GetDeviceCaps(hdc, LOGPIXELSY ), 72 );
+	HDC hdc = GetDC(NULL);
+	HFONT hf = CreateFontIndirect(lf);
+	TEXTMETRIC tm;
+mIRCError("select");
+	SelectObject(hdc, hf);
+	GetTextMetrics(hdc, &tm);
+mIRCError("point");
+	//int ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
+	int ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
+	DeleteFont(hf);
+	ReleaseDC(NULL, hdc);
+mIRCError("print");
+	// [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
+	char cstr[900];
+
+	wsprintf(cstr, "%s %s %d %s", flags.to_chr(), charset.to_chr(), ptSize, lf->lfFaceName);
+	mIRCError("die");
+	return TString(cstr);
+}

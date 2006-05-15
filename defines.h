@@ -75,6 +75,14 @@
 #define LAYOUTVERT  0x20  //!< Layout Cell Vertical Style (LayoutCellPane and LayoutCellFixed)
 #define LAYOUTHORZ  0x40  //!< Layout Cell Horizontal Style (LayoutCellPane and LayoutCellFixed)
 
+// DCX Font stuff
+#define DCF_ANTIALIASE    0x01 //!< Control Font Anti-Aliase Style
+#define DCF_BOLD          0x02 //!< Control Font Bold Style
+#define DCF_ITALIC        0x04 //!< Control Font Italic Style
+#define DCF_STRIKEOUT     0x08 //!< Control Font Strikeout Style
+#define DCF_UNDERLINE     0x10 //!< Control Font Underline Style
+#define DCF_DEFAULT       0x20 //!< Control Font Default Style
+
 // XPopup Stuff
 
 #define XPOPUPMENUCLASS "XPopupMenu32" //!< XPopupMenu Window Class Name
@@ -161,6 +169,11 @@ void mIRCeval( const char * text, char * res );
 void mIRCcom( const char * data );
 
 int round( float x );
+BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf);
+TString ParseLogfontToCommand(LPLOGFONT lf);
+UINT parseFontFlags(TString &flags);
+UINT parseFontCharSet(TString &charset);
+
 
 char * readFile( const char * filename );
 TString FileDialog(TString data, TString method, HWND pWnd);

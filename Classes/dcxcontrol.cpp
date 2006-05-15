@@ -578,7 +578,7 @@ BOOL DcxControl::parseGlobalInfoRequest( TString & input, char * szReturnValue )
 			ZeroMemory(&lfCurrent, sizeof(LOGFONT));
 			GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent);
 			
-			TString str = ParseLogfontToCommand(&lfCurrent);
+			TString str(ParseLogfontToCommand(&lfCurrent));
 			wsprintf(szReturnValue, "%s", str.to_chr());
 			return TRUE;
 		}

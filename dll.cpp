@@ -532,6 +532,143 @@ mIRC(SaveDialog) {
 
 
 /*!
+* \brief Shows CommonDialog for Selecting Fonts
+*
+* Shows and returns the file selected
+*
+* \return > TString "" if cancelled
+*         > TString +flags charset size fontname
+*/
+mIRC(FontDialog) {
+	DWORD style = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_FORCEFONTEXIST | CF_LIMITSIZE;;
+	CHOOSEFONT cf;
+	LOGFONT lf;
+
+	// seperate the tokens (by tabs)
+	TString input(data);
+	input.trim();
+
+	// set up the LF structure
+	ZeroMemory(&lf, sizeof(LOGFONT));
+	GetObject(GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf);
+
+	// set up the CF struct
+	ZeroMemory(&cf, sizeof(CHOOSEFONT));
+	cf.lStructSize = sizeof(CHOOSEFONT);
+	cf.hwndOwner = mWnd;
+	cf.lpLogFont = &lf;
+	cf.nSizeMin = 8;
+	cf.nSizeMax = 72;
+
+	for (int i = 1; i <= input.numtok("	"); i++) {
+		TString option(input.gettok(i, "	"));
+		int numtok = 0;
+
+		option.trim();
+		numtok = option.numtok(" ");
+		mIRCDebug("parsing option: %s", option.to_chr());
+
+/*
+default +flags(ibsua) charset size fontname
+flags +etc
+color rgb
+minmaxsize min max (Ranges from 8 to 72, if "D" is used 5 to 30)
+owner hwnd
+
++flag to use mirc colors
+palette col...16...col
+
+//clear | echo -a $dcx(FontDialog, hello asd $chr(9) flags +abcdef $chr(9) color 255 $chr(9) owner dcxtest_1146984371 $chr(9) default + default 10 Verdana) | /udcx
+
+http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/userinput/commondialogboxlibrary/commondialogboxreference/commondialogboxstructures/choosefont.asp
+*/
+
+		// flags +
+		if (option.gettok(1, " ") == "flags" && numtok > 1) {
+			//style |= OFN_ALLOWMULTISELECT;
+			mIRCDebug("flags: %s (todo)", option.gettok(2, " ").to_chr());
+
+			TString flag(option.gettok(2, " "));
+			mIRCError(flag.to_chr());
+			int c = flag.len();
+			int i = 0;
+
+			while (i < c) {
+				//mIRCDebug("checking flag %c", flag[i]);
+
+				if (flag[i] == 'a')
+					style |= CF_NOFACESEL;
+				else if (flag[i] == 'b')
+					style |= CF_SCRIPTSONLY;
+				else if (flag[i] == 'c')
+					style |= CF_SCALABLEONLY;// (Scalable fonts include vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)
+				else if (flag[i] == 'e')
+					style |= CF_EFFECTS;
+				else if (flag[i] == 'f')
+					style |= CF_FORCEFONTEXIST;
+				else if (flag[i] == 'h')
+					style |= CF_NOSCRIPTSEL;
+				else if (flag[i] == 'i')
+					style |= CF_NOSIMULATIONS;
+				else if (flag[i] == 'm')
+					style |= CF_SELECTSCRIPT;
+				else if (flag[i] == 'n')
+					style |= CF_PRINTERFONTS;
+				else if (flag[i] == 'p')
+					style |= CF_FIXEDPITCHONLY;
+				else if (flag[i] == 'r')
+					style |= CF_NOVERTFONTS;
+				else if (flag[i] == 's')
+					style |= CF_SCREENFONTS;
+				else if (flag[i] == 't')
+					style |= CF_TTONLY;
+				else if (flag[i] == 'v')
+					style |= CF_NOVECTORFONTS;
+				else if (flag[i] == 'w')
+					style |= CF_WYSIWYG;
+				else if (flag[i] == 'y')
+					style |= CF_NOSTYLESEL;
+				else if (flag[i] == 'z')
+					style |= CF_NOSIZESEL;
+
+				i++;
+			}
+		}
+		// defaults +flags(ibsua) charset size fontname
+		else if (option.gettok(1, " ") == "default" && numtok > 4)
+			ParseCommandToLogfont(option.gettok(2, -1, " "), &lf);
+		// color rgb
+		else if (option.gettok(1, " ") == "color" && numtok > 1)
+			cf.rgbColors = (COLORREF) atoi(option.gettok(2, " ").to_chr());
+		// minmaxsize min max
+		else if (option.gettok(1, " ") == "minmaxsize" && numtok > 2) {
+			cf.nSizeMin = atoi(option.gettok(2, " ").to_chr());
+			cf.nSizeMax = atoi(option.gettok(3, " ").to_chr());
+		}
+		// owner
+		else if (option.gettok(1, " ") == "owner" && numtok > 1)
+			cf.hwndOwner = FindOwner(option, mWnd);
+	}
+
+	cf.Flags = style;
+	cf.iPointSize = lf.lfHeight * 10;
+
+	// show the dialog
+	if (ChooseFont(&cf)) {
+		char str[900];
+		TString fnt(ParseLogfontToCommand(&lf));
+
+		// color flags font info
+		wsprintf(str, "%d %s %s", cf.rgbColors, "+flags", fnt.to_chr());
+		ret(str);
+	}
+	else
+		ret("cancelled");
+}
+
+
+
+/*!
 * \brief DCX DLL /xdid Function
 *
 * mIRC /xdid -switch dialog ID (options) interface

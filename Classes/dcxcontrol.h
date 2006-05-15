@@ -15,13 +15,6 @@
 #ifndef _DCXCONTROL_H_
 #define _DCXCONTROL_H_
 
-#define DCF_ANTIALIASE    0x01 //!< Control Font Anti-Aliase Style
-#define DCF_BOLD          0x02 //!< Control Font Bold Style
-#define DCF_ITALIC        0x04 //!< Control Font Italic Style
-#define DCF_STRIKEOUT     0x08 //!< Control Font Strikeout Style
-#define DCF_UNDERLINE     0x10 //!< Control Font Underline Style
-#define DCF_DEFAULT       0x20 //!< Control Font Default Style
-
 #define DCC_TEXTCOLOR     0x01 //!< Control Text Color
 #define DCC_TEXTBKGCOLOR  0x02 //!< Control Text Background Color
 #define DCC_BKGCOLOR      0x04 //!< Control Background Color
@@ -104,8 +97,6 @@ protected:
   void parseGlobalCommandRequest( TString & input, XSwitchFlags & flags );
   BOOL parseGlobalInfoRequest( TString & input, char * szReturnValue );
 
-  UINT parseFontFlags( TString & flags );
-  UINT parseFontCharSet( TString & flags );
   UINT parseColorFlags( TString & flags );
   UINT parseCursorFlags( TString & flags );
   LPSTR parseCursorType( TString & cursor );
