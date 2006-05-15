@@ -87,6 +87,10 @@ function credits_index() {
 		</td>
 	</tr>
 	<tr>
+		<td><a>MDX vs DCX</a></td>
+		<td>Mpdreamz</td>
+	</tr>
+	<tr>
 		<td><a>Demo Script</a></td>
 		<td>elizio</td>
 	</tr>
