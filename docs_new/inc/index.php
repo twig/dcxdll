@@ -156,7 +156,7 @@ function credits_index() {
 		<td>
 			#scriptsdb.org @ Undernet<br />
 			#scriptsdb.org @ Webnet<br />
-			#genscripts @ VidGameChat
+			#genscripts @ AmeriChat
 		</td>
 	</tr>
 	<tr><td colspan="2">&nbsp;</td></tr>
