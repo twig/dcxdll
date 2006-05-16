@@ -64,6 +64,12 @@ function get_xdid_panel(&$XDID) {
 	        '__eg' => '6',
 		),
 		'l' => $CLA,
+		't' => array(
+		    '__desc' => "This command lets you set the text for a panel control.",
+		    '__cmd' => '[TEXT]',
+		    '__eg' => 'New Window Text',
+		    '__notes' => 'The panel text (and border) is only visible when used with /xdid -x DIALOG ID +bd',
+		),
 	);
 }
 
