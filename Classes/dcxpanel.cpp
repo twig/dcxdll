@@ -570,6 +570,10 @@ void DcxPanel::parseCommandRequest( TString & input ) {
       } // else if ( com == "space" )
     } // if ( numtok > 7 )
   }
+	// xdid -t [NAME] [ID] [SWITCH] [TEXT]
+	else if (flags.switch_flags[19] && numtok > 3) {
+		SetWindowText(this->m_Hwnd, input.gettok(4, -1, " ").to_chr());
+	}
   else {
     this->parseGlobalCommandRequest( input, flags );
   }
