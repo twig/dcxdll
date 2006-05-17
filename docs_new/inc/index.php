@@ -95,6 +95,10 @@ function credits_index() {
 		<td>elizio</td>
 	</tr>
 	<tr>
+		<td><a>Tutorials (French)</a></td>
+		<td>j0x (find it <a href="http://perso.wanadoo.fr/jiveda/dcx/index.html">here</a>)</td>
+	</tr>
+	<tr>
 		<td><a>General Testing</a></td>
 		<td>bl0x</td>
 	</tr>
