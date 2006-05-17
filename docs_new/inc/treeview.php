@@ -140,7 +140,7 @@ function get_xdid_treeview(&$XDID) {
 	        '__cmd' => '[PATH] [TAB] (TipText)',
 	        '__eg' => '1 2 $chr(9) Blah',
 		),
-		'q' => array(
+		'Q' => array(
 	        '__desc' => 'This command lets you change the font styles and color on a treeview item.',
 	        '__cmd' => '[+FLAGS] [COLOR] [PATH]',
 	        '__eg' => '+bcu $rgb(128,0,255) 1 2',

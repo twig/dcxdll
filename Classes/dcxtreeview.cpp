@@ -659,8 +659,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
       }
     }
   }
-  // xdid -q [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] N N N
-  else if ( flags.switch_flags[16] && numtok > 5 ) {
+  // xdid -Q [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] N N N
+  else if ( flags.switch_cap_flags[16] && numtok > 5 ) {
 
     HTREEITEM hParent = TVI_ROOT;
     HTREEITEM hAfter = TVI_ROOT;
