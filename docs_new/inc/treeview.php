@@ -175,7 +175,6 @@ function get_xdid_treeview(&$XDID) {
 						'z' => 'Collapses the branch and all sub-branches.',
 					),
 				),
-                'COLOR' => 'Item text color of the treeview item in $rgb() format. (Needs to add flag [f]+c[/f] to work)',
 			),
 	        '__notes' => "Use [v]-1[/v] as [p]COLOR[/p] value if you omit the [f]+c[/f] switch.",
 		),
