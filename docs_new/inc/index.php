@@ -769,26 +769,16 @@ function get_xdialogprops_index(&$XDIALOGPROPS) {
 			'__cmd' => "ID",
 			'__eg' => "4",
 		),
-		"nextid" => array(
-			'__desc' => "This property retrieves the next free ID in the dialog.",
-		),
+		"nextid" => "This property retrieves the next free ID in the dialog.",
 		"id" => array(
-			'__desc' => "This property retrieves the next free ID in the dialog.",
+			'__desc' => "This property retrieves the Nth used ID in the dialog, or the total number of used IDs if N is 0.",
 			'__cmd' => "N",
 			'__eg' => "5",
 		),
-		"ismenu" => array(
-			'__desc' => "This property retrieves if the dialog displays a menu or not.",
-		),
-		"mouseid" => array(
-			'__desc' => "This property retrieves which control the mouse currently hovers.",
-		),
-		"focusid" => array(
-			'__desc' => "This property retrieves which control currently has the focus.",
-		),
-		"mouse" => array(
-			'__desc' => "This property retrieves the mouse position from the dialog viewpoint.",
-		),
+		"ismenu" => "This property retrieves if the dialog displays a menu or not.",
+		"mouseid" => "This property retrieves which control the mouse currently hovers.",
+		"focusid" => "This property retrieves which control currently has the focus.",
+		"mouse" => "This property retrieves the mouse position from the dialog viewpoint.",
 		"key" => array(
 			'__desc' => "This property retrieves the selected state of certain input keys during events.",
 			'__params' => array(

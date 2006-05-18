@@ -374,7 +374,7 @@ function format_xcmd($type, $flag, $data, $id) {
 			break;
 		case "xdialogprop":
 			$heading = "\$xdialog().$flag";
-			$syntax = "\$xdialog(dialog, ID" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
+			$syntax = "\$xdialog(dialog" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
 			$example = "\$xdialog(dcx" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
 		    break;
         case "event":
