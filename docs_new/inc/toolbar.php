@@ -93,8 +93,8 @@ function get_xdid_toolbar(&$XDID) {
 	                '__desc' => 'Image list image size',
 	                '__values' => array(
 		                '16' => 'Icons are 16x16 pixels.',
-						'24' => 'Icons are 16x16 pixels.',
-						'32' => 'Icons are 16x16 pixels.',
+						'24' => 'Icons are 24x24 pixels.',
+						'32' => 'Icons are 32x32 pixels.',
 					)
 				)
 			),
