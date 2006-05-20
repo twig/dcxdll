@@ -12,7 +12,6 @@ define('SECTION_INTRO', 1);
 define('SECTION_GENERAL', 2);
 define('SECTION_STYLES', 3);
 define('SECTION_XDID', 4);
-define('SECTION_STYLES', 5);
 define('SECTION_EVENTS', 8);
 define('SECTION_XDIDPROPS', 9);
 define('SECTION_XDIALOG', 10);

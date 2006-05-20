@@ -69,7 +69,7 @@ if (!function_exists('array_walk_recursive')) {
 			if (is_array($input[$key]))
 				array_walk_recursive($input[$key], $funcname, $userdata);
 			else {
-				//$saved_value = $value;
+				$saved_value = $value;
 
 				if (!empty($userdata))
 					$funcname($value, $userdata);

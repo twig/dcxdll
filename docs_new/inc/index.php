@@ -659,7 +659,7 @@ function get_xdid_index(&$XDID) {
 		"C" => array(
 			'__desc' => "This command lets you modify the colors of the control.",
 			'__cmd' => "[+FLAGS] [COLOR]",
-			'__eg' => "+bk $rgb(0,0,255)",
+			'__eg' => '+bk $rgb(0,0,255)',
 			'__params' => array(
 				'+FLAGS' => array(
 			        '__desc' => "Color Flags.",
