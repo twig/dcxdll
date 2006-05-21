@@ -43,7 +43,7 @@ function get_styles_listview(&$STYLES) {
 function get_xdid_listview(&$XDID) {
 	$XDID = array(
 	    'a' => array(
-	        '__desc' => 'This command lets you add an item to the treeview.',
+	        '__desc' => 'This command lets you add an item to the listview.',
 	        '__cmd' => '[N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] (Item Text) [TAB] [+FLAGS] [#ICON] (Item Text) [TAB] ...',
 	        '__eg' => '1 0 +cbku 1 0 0 0 -1 $rgb(170,213,255) text $chr(9) + 0 text2 $chr(9) + 0 text3',
             '__params' => array(
