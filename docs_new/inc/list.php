@@ -19,13 +19,13 @@ function get_styles_list(&$STYLES) {
 function get_xdid_list(&$XDID) {
 	$XDID = array(
 	    'a' => array(
-	        '__desc' => 'This command lets you add items to the listbox.',
+	        '__desc' => 'This command lets you add a new item to the listbox.',
 	        '__cmd' => '[N] [Item Text]',
 	        '__eg' => '0 New Item',
 	        '__notes' => "You can use [v]0[/v] for [p]N[/p] to insert at the end of the listbox.",
 		),
 		'c' => array(
-	        '__desc' => "This command lets you check items in the listbox.",
+	        '__desc' => "This command lets you select items in the listbox.",
 	        '__cmd' => '[N(,N,...)]',
 	        '__eg' => '1,2,3',
 	        '__notes' => 'In a single line listbox, you only provide the line number to select.'
@@ -39,7 +39,7 @@ function get_xdid_list(&$XDID) {
 	        '__desc' => 'This command lets you clear the listbox contents.',
 		),
 		'u' => array(
-	        '__desc' => 'This command lets you uncheck the listbox selection.',
+	        '__desc' => 'This command lets you unselect items the listbox.',
 		),
 		'o' => array(
 	        '__desc' => 'This command lets you overwrite an item in the listbox.',
