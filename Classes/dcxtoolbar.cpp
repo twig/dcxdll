@@ -433,11 +433,15 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
   }
   // xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
-
     int nButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
 
-    if ( nButton > -1 )
-      this->deleteButton( nButton );
+    if (nButton > -1)
+		 if (this->deleteButton(nButton)) {
+			mIRCError("success");
+		 }
+		 else {
+mIRCError("huh?");
+		 }
   }
   // xdid -i [NAME] [ID] [SWITCH] [N] [IMAGE]
   else if ( flags.switch_flags[8] && numtok > 4 ) {
@@ -1010,7 +1014,7 @@ LRESULT DcxToolBar::setButtonWidth( int cxMin, int cxMax ) {
  * blah
  */
 
-LRESULT DcxToolBar::deleteButton( int iButton ){
+LRESULT DcxToolBar::deleteButton(int iButton) {
   return (LRESULT) SendMessage( this->m_Hwnd, TB_DELETEBUTTON, (WPARAM) iButton, (LPARAM) 0 );
 }
 
@@ -1313,32 +1317,39 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
                     
                     LPDCXTBBUTTON lpdtbb = (LPDCXTBBUTTON) lpntbcd->nmcd.lItemlParam;
 
-                    if ( lpdtbb == NULL )
+						  if ( lpdtbb == NULL )
                       return CDRF_DODEFAULT;
+
+//mIRCError("getting tt");
+
 
                     if ( lpdtbb->clrText != -1 )
                       lpntbcd->clrText = lpdtbb->clrText;
 
                     HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
 
+//mIRCError("getting hfont");
+
                     LOGFONT lf;
                     GetObject( hFont, sizeof(LOGFONT), &lf );
-
+//mIRCError("getting logfont");
                     if ( lpdtbb->bBold )
                       lf.lfWeight |= FW_BOLD;
                     else
                       lf.lfWeight &= ~FW_BOLD;
-
+//mIRCError("getting uline");
                     if ( lpdtbb->bUline )
                       lf.lfUnderline = TRUE;
                     else
                       lf.lfUnderline = FALSE;
-
+//mIRCError("getting new font");
                     HFONT hFontNew = CreateFontIndirect( &lf );
                     HFONT hOldFont = (HFONT) SelectObject( lpntbcd->nmcd.hdc, hFontNew );
-
+//mIRCError("getting blah");
                     DeleteObject(hFontNew);
+//mIRCError("getting delete");
                   }
+//mIRCError("getting ret");
                     return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
 
                 case CDDS_ITEMPOSTPAINT:
@@ -1366,7 +1377,9 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
                   tcgit->pszText = lpdtbb->tsTipText.to_chr( );
                   tcgit->cchTextMax = lpdtbb->tsTipText.len( );
                 }
+					 //mIRCError("ugh!!!!");
               }
+				  mIRCError("parsed");
               bParsed = TRUE;
             }
             break;

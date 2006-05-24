@@ -60,6 +60,8 @@ DcxRichEdit::DcxRichEdit( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
   this->loadmIRCPalette( );
   this->setContentsFont( );
 
+	SendMessage(this->m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE));
+
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
@@ -109,6 +111,8 @@ DcxRichEdit::DcxRichEdit( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
 
   this->loadmIRCPalette( );
   this->setContentsFont( );
+
+	SendMessage(this->m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE));
 
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -175,18 +179,31 @@ void DcxRichEdit::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 	// [NAME] [ID] [PROP] [N]
 	if ( input.gettok( 3, " " ) == "text" ) {
+		GETTEXTEX inf;
+		char *p = 0;
+
+		ZeroMemory(&inf, sizeof(GETTEXTEX));
+		inf.codepage = CP_ACP;
+		inf.flags = GT_USECRLF;
+		SendMessage(this->m_Hwnd, EM_GETTEXTEX, (WPARAM) &inf, (LPARAM) p);
+
+		if (p)
+			mIRCError("p has a value!");
+
 		if ( this->isStyle( ES_MULTILINE ) ) {
 			if ( numtok > 3 ) {
 				int nLine = atoi( input.gettok( 4, " " ).to_chr( ) );
 
 				if ( nLine > 0 && nLine <= this->m_tsText.numtok( "\r\n" ) ) {
-
 					lstrcpy( szReturnValue, this->m_tsText.gettok( nLine, "\r\n" ).to_chr( ) );
 					return;
 				}
 			}
+			else
+				mIRCError("xdid(richedit).text: need to specify line number for multiline control");
 		}
 		else {
+			mIRCError("not multiline");
 			lstrcpy( szReturnValue, this->m_tsText.to_chr( ) );
 			return;
 		}
@@ -277,7 +294,7 @@ void DcxRichEdit::parseCommandRequest( TString & input ) {
   // xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
   else if ( flags.switch_flags[5] && numtok > 3 ) {
 
-    UINT iFontFlags = this->parseFontFlags( input.gettok( 4, " " ) );
+    UINT iFontFlags = parseFontFlags( input.gettok( 4, " " ) );
 
     if ( iFontFlags & DCF_DEFAULT ) {
 
@@ -295,7 +312,7 @@ void DcxRichEdit::parseCommandRequest( TString & input ) {
 
       this->setRedraw( FALSE );
 
-      this->m_byteCharset = this->parseFontCharSet( input.gettok( 5, " " ) );
+      this->m_byteCharset = parseFontCharSet( input.gettok( 5, " " ) );
       this->m_iFontSize = 20 * atoi( input.gettok( 6, " " ).to_chr( ) );
       this->m_tsFontFaceName = input.gettok( 7, -1, " " );
       this->m_tsFontFaceName.trim( );
@@ -807,6 +824,14 @@ LRESULT DcxRichEdit::setCharFormat( UINT iType, CHARFORMAT2 * cfm ) {
 LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	switch( uMsg ) {
+		case EN_CHANGE:
+		case EN_SELCHANGE:
+		case WM_COMMAND:
+		case WM_NOTIFY:
+			{
+				mIRCError("here");
+				break;
+			}
 		case WM_CONTEXTMENU:
 			{
 				char ret[256];
@@ -814,7 +839,7 @@ LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				break;
 			}
 
-    case WM_HELP:
+	  case WM_HELP:
       {
         char ret[256];
         this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
@@ -859,16 +884,16 @@ LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 		this->callAliasEx(ret, "%s,%d,%d", "keyup", this->getUserID(), wParam);
 		break;
 	}
-    case WM_DESTROY:
-      {
-        //mIRCError( "WM_DESTROY" );
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+	case WM_DESTROY:
+		{
+			//mIRCError( "WM_DESTROY" );
+			delete this;
+			bParsed = TRUE;
+		}
+		break;
 
-    default:
-      break;
+	default:
+		break;
   }
 
   return 0L;

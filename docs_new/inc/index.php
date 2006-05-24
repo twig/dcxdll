@@ -262,7 +262,7 @@ function get_general_index(&$GENERAL) {
 						'fullopen' => "Displays the additional controls that allow the user to create custom colors.",
 						'nofullopen' => "Disables the <b>Define Custom Color</b> button.",
 						'solidonly' => "Display only solid colors in the set of basic colors.",
-						'owner' => "Allows you to specific the parent control. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
+						'owner' => "Allows you to specific the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
 					),
 				),
 			),
@@ -297,7 +297,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 						'novalidate' => "The dialog does not validate filenames to check if they're legal.",
 						'overwriteprompt' => 'If the user selects a file that already exists, the dialog asks the user if they want to overwrite it. Returns the filename (without clearing) if they click yes. (SaveDialog only)',
 						'pathmustexist' => "The dialog does not validate filenames to check if they're legal.",
-						'owner' => "Allows you to specific the parent control. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
+						'owner' => "Allows you to specific the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
 					),
 				),
 				'FILENAME' => "If you specify this parameter, it will be the filename in the box when the dialog opens.",
@@ -305,9 +305,9 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			),
 			'__notes' => array(
 				'Returns "" when cancelled.',
-				"[v]filemustexist[/v] automatically applies [v]pathmustexist[v] when style used.",
+				"[v]filemustexist[/v] automatically applies [v]pathmustexist[/v] when style used.",
 				"[v]multisel[/v] returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.",
-			    '<br />By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style. Enter 0 for the hWnd to make it modeless.<br />
+			    'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style. Enter 0 for the hWnd to make it modeless.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 			),
 		),
@@ -317,6 +317,71 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			'__notes' => array(
 				'Returns X Y W H when successful.',
 				"Returns 'D_ERROR: GetTaskbarPos' when unsuccessful.",
+			),
+		),
+		'FontDialog' => array(
+			'__desc' => "Opens up the Font dialog and returns the selected font options.",
+			'__cmd' => '[(PARAM) (VALUE) [$chr(9) (PARAM2) (VALUE2) [$chr(9) (PARAM3) (VALUE3)]]]',
+			'__eg' => 'default +is ansi 9 Verdana $chr(9) color $rgb(255,0,0) $chr(9) owner dname $chr(9) flags +eh',
+            '__isid' => true,
+			'__params' => array(
+				'default' => array(
+					'__desc' => "Allows you to specify the default font selected by the font dialog. Value must be in the following format: <a>+flags charset size fontname</a>",
+					'__values' => array(
+						'+flags' => "Font style flags. Refer to <a>/xdid -f</a> for specific details.",
+						'charset' => "Can be any of the following: ansi, baltic, chinesebig, default, easteurope, gb2312, greek, hangul, mac, oem, russian, shiftjis, symbol, turkish, vietnamese.",
+						'size' => "Font size in points.",
+						'fontname' => "Font name.",
+					),
+				),
+				'flags' => array(
+					'__desc' => "Allows you to specify flags to modify options for the actual font dialog.",
+					'__values' => array(
+						'a' => "CF_NOFACESEL cant choose font name",
+						'b' => "CF_SCRIPTSONLY",
+						'c' => "CF_SCALABLEONLY",
+						'e' => 'CF_EFFECTS strikethru, underline etc',
+						'f' => 'CF_FORCEFONTEXIST',
+						'h' => 'CF_NOSCRIPTSEL cant choose charset',
+						'i' => 'CF_NOSIMULATIONS',
+						'm' => 'CF_SELECTSCRIPT',
+						'n' => "CF_PRINTERFONTS",
+						'p' => "CF_FIXEDPITCHONLY",
+						'r' => 'CF_NOVERTFONTS',
+						's' => "CF_SCREENFONTS",
+						't' => 'CF_TTONLY truetype only',
+						'v' => "CF_NOVECTORFONTS",
+						'w' => "CF_WYSIWYG",
+						'y' => 'CF_NOSTYLESEL',
+						'z' => "CF_NOSIZESEL cant choose font size",
+				    ),
+				),
+				'color' => array(
+					'__desc' => "Allows you to specify the default color (in RGB) to the font dialog.",
+					'__values' => array(
+						'rgb' => 'Value of the color in $rgb()',
+					),
+				),
+				'minmaxsize' => array(
+					'__desc' => "Allows you to specify the selectable font size range in the font dialog.",
+					'__values' => array(
+						'min' => 'Minimum font value.',
+						'max' => 'Maximum font value.',
+					),
+				),
+				'owner' => array(
+					'__desc' => "Allows you to specific the parent dialog/window. (Must also specify DNAME or HWND)",
+					'__values' => array(
+						'DNAME|HWND' => 'A dialog name or HWND for a window.',
+					),
+				),
+			),
+			'__return' => '[v]RGB[/v] [v]+FLAGS[/v] [v]CHARSET[/v] [v]SIZE[/v] [v]FONTNAME[/v]',
+			'__notes' => array(
+				'Returns "" when cancelled.',
+				"You do not have to specify all parameters, only the ones you wish to change.",
+			    'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style. Enter 0 for the hWnd to make it modeless.<br />
+To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 			),
 		),
 	);
