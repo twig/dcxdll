@@ -376,16 +376,16 @@ BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf) {
 		int fSize = atoi(cmd.gettok(3, " ").to_chr());
 		TString fName = cmd.gettok(4, -1, " ");
 		fName.trim();
-mIRCError("trim");
+//mIRCError("trim");
 		if (!fSize)
 			return FALSE;
-mIRCError("hdc");
+//mIRCError("hdc");
 		HDC hdc = GetDC(NULL);
 		lf->lfHeight = -MulDiv(fSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
-		mIRCError("hdc3");
+//		mIRCError("hdc3");
 		ReleaseDC(NULL, hdc);
 
-mIRCError("flags");
+//mIRCError("flags");
 		if (flags & DCF_ANTIALIASE)
 			lf->lfQuality = ANTIALIASED_QUALITY;
 
@@ -403,12 +403,12 @@ mIRCError("flags");
 		if (flags & DCF_UNDERLINE)
 			lf->lfUnderline = TRUE;
 
-		mIRCError("charset");
+		//mIRCError("charset");
 		lf->lfCharSet = parseFontCharSet(cmd.gettok(2, " "));
-mIRCError("face");
+//mIRCError("face");
 		lstrcpyn(lf->lfFaceName, fName.to_chr(), 31);
 		lf->lfFaceName[31] = 0;
-		mIRCError("done");
+//		mIRCError("done");
 		return TRUE;
 	}
 }
@@ -495,7 +495,7 @@ TString ParseLogfontToCommand(LPLOGFONT lf) {
 	TString flags("+");
 	TString charset("default");
 
-mIRCError("charset");
+//mIRCError("charset");
 
 	// get charset
 	switch (lf->lfCharSet) {
@@ -516,7 +516,7 @@ mIRCError("charset");
 		case DEFAULT_CHARSET		:
 		default						: charset = "default"; break;
 	}
-mIRCError("flags");
+//mIRCError("flags");
 	// get flags
 	if (lf->lfQuality == ANTIALIASED_QUALITY)
 		flags += "a";
@@ -528,24 +528,24 @@ mIRCError("flags");
 		flags += "s";
 	if (lf->lfUnderline)
 		flags += "u";
-mIRCError("height");
+//mIRCError("height");
 	//lf.lfHeight = -MulDiv( fSize, GetDeviceCaps(hdc, LOGPIXELSY ), 72 );
 	HDC hdc = GetDC(NULL);
 	HFONT hf = CreateFontIndirect(lf);
 	TEXTMETRIC tm;
-mIRCError("select");
+//mIRCError("select");
 	SelectObject(hdc, hf);
 	GetTextMetrics(hdc, &tm);
-mIRCError("point");
+//mIRCError("point");
 	//int ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
 	int ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
 	DeleteFont(hf);
 	ReleaseDC(NULL, hdc);
-mIRCError("print");
+//mIRCError("print");
 	// [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	char cstr[900];
 
 	wsprintf(cstr, "%s %s %d %s", flags.to_chr(), charset.to_chr(), ptSize, lf->lfFaceName);
-	mIRCError("die");
+//	mIRCError("die");
 	return TString(cstr);
 }

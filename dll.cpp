@@ -566,7 +566,7 @@ mIRC(FontDialog) {
 
 		option.trim();
 		numtok = option.numtok(" ");
-		mIRCDebug("parsing option: %s", option.to_chr());
+		//mIRCDebug("parsing option: %s", option.to_chr());
 
 /*
 default +flags(ibsua) charset size fontname
@@ -586,10 +586,10 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/win
 		// flags +
 		if (option.gettok(1, " ") == "flags" && numtok > 1) {
 			//style |= OFN_ALLOWMULTISELECT;
-			mIRCDebug("flags: %s (todo)", option.gettok(2, " ").to_chr());
+			//mIRCDebug("flags: %s (todo)", option.gettok(2, " ").to_chr());
 
 			TString flag(option.gettok(2, " "));
-			mIRCError(flag.to_chr());
+			//mIRCError(flag.to_chr());
 			int c = flag.len();
 			int i = 0;
 
@@ -656,14 +656,14 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/win
 	// show the dialog
 	if (ChooseFont(&cf)) {
 		char str[900];
-		TString fnt(ParseLogfontToCommand(&lf));
+		TString fntflags(ParseLogfontToCommand(&lf));
 
 		// color flags font info
-		wsprintf(str, "%d %s %s", cf.rgbColors, "+flags", fnt.to_chr());
+		wsprintf(str, "%d %s", cf.rgbColors, fntflags.to_chr());
 		ret(str);
 	}
 	else
-		ret("cancelled");
+		ret("");
 }
 
 
