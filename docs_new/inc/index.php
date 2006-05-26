@@ -380,6 +380,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			'__notes' => array(
 				'Returns "" when cancelled.',
 				"You do not have to specify all parameters, only the ones you wish to change.",
+				'The parameter [p]minmaxsize[/p] is limited to a range of 8-72. Any sizes other than that will be ignored.',
 			    'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style. Enter 0 for the hWnd to make it modeless.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 			),
