@@ -1640,7 +1640,7 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
           case NM_CLICK:
             {
               //mIRCError( "Control WM_NOTIFY - NM_CLICK" );
-
+//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
               TVHITTESTINFO tvh;
               GetCursorPos( &tvh.pt );
               ScreenToClient( this->m_Hwnd, &tvh.pt );
@@ -1690,6 +1690,10 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                 
                 this->callAliasEx( ret, "%s,%d,%s", "sclick", this->getUserID( ), path.c_str( ) );
               }
+					// single click not on item
+					else if ((tvh.flags & TVHT_NOWHERE) || (tvh.flags & TVHT_ONITEMRIGHT)) {
+						this->callAliasEx(ret, "%s,%d", "sclick", this->getUserID());
+					}
               bParsed = TRUE;
             }
             break;
