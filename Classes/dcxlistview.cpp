@@ -1611,7 +1611,9 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
               }
               else if ( lvh.flags & LVHT_ONITEM )
                 this->callAliasEx( ret, "%s,%d,%d", "sclick", this->getUserID( ), lvh.iItem + 1 );
-            }
+					else if (lvh.flags & LVHT_NOWHERE)
+						this->callAliasEx(ret, "%s,%d", "sclick", this->getUserID());
+				}
             break;
 
           case NM_DBLCLK:
