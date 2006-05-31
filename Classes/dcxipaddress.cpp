@@ -49,6 +49,14 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+
+  	// fix bug with disabled creation
+	// todo: fix this properly
+	if (Styles & WS_DISABLED) {
+		mIRCError("her");
+		EnableWindow(this->m_Hwnd, TRUE);
+		EnableWindow(this->m_Hwnd, FALSE);
+	}
 }
 
 /*!
@@ -86,6 +94,14 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+  
+	// fix bug with disabled creation
+	// todo: fix this properly
+	if (Styles & WS_DISABLED) {
+		mIRCError("her");
+		EnableWindow(this->m_Hwnd, TRUE);
+		EnableWindow(this->m_Hwnd, FALSE);
+	}
 }
 
 /*!

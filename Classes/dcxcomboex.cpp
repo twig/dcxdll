@@ -64,6 +64,14 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styl
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
   DragAcceptFiles(this->m_Hwnd, TRUE);
+
+	// fix bug with disabled creation
+	// todo: fix this properly
+	if (Styles & WS_DISABLED) {
+		mIRCError("her");
+		EnableWindow(this->m_Hwnd, TRUE);
+		EnableWindow(this->m_Hwnd, FALSE);
+	}
 }
 
 /*!
@@ -118,6 +126,14 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
   DragAcceptFiles(this->m_Hwnd, TRUE);
+
+	// fix bug with disabled creation
+	// todo: fix this properly
+	if (Styles & WS_DISABLED) {
+		mIRCError("her");
+		EnableWindow(this->m_Hwnd, TRUE);
+		EnableWindow(this->m_Hwnd, FALSE);
+	}
 }
 
 /*!
