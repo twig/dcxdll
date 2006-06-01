@@ -3,7 +3,7 @@ require('dcx_inc.php');
 require('dcx_changes.php');
 
 // globals
-$VERSION = "1.3.1";
+$VERSION = "1.3.2";
 
 $DOCPATH = "./doc/";
 $INCPATH = "./inc/";
