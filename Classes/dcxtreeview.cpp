@@ -208,7 +208,7 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
         tvi.mask = TVIF_IMAGE | TVIF_HANDLE;
 
         TreeView_GetItem( this->m_Hwnd, &tvi );
-        wsprintf( szReturnValue, "%d", tvi.iImage + 1 );
+		  wsprintf( szReturnValue, "%d", (tvi.iImage > 10000 ? -2 : tvi.iImage ) + 1 );
         return;
       }
     }
@@ -434,28 +434,26 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     TreeView_DeleteAllItems( this->m_Hwnd );
   }
 
-  // xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] Text[TAB]Tooltip Text
-  if ( flags.switch_flags[0] ) {
+	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] Text[TAB]Tooltip Text
+	if (flags.switch_flags[0]) {
+		int n = input.numtok("\t");
 
-    int n;
-    if ( ( n = input.numtok( "\t" ) ) > 1 ) {
+		if (n > 1) {
+			TString path = input.gettok(1, "\t").gettok(4, -1, " ");
+			path.trim();
+			TString data = input.gettok(2, "\t");
+			data.trim();
+			TString tooltip;
 
-      TString path = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
-      path.trim( );
-      TString data = input.gettok( 2, "\t" );
-      data.trim( );
-      TString tooltip;
+			if (n > 2) {
+				tooltip = input.gettok(3, "\t");
+				tooltip.trim();
+			}
 
-      if ( n > 2 ) {
-
-        tooltip = input.gettok( 3, "\t" );
-        tooltip.trim( );
-      }
-
-      if ( data.numtok( " " ) > 7 )
-        this->insertItem( &path, &data, &tooltip );
-    }
-  }
+			if (data.numtok(" ") > 7)
+				this->insertItem(&path, &data, &tooltip);
+		}
+	}
   // xdid -c [NAME] [ID] [SWITCH] N N N
   else if ( flags.switch_flags[2] && numtok > 3 ) {
 
@@ -527,8 +525,13 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
           int nIcon = atoi( icons.gettok( 1, " " ).to_chr( ) ) - 1;
           int sIcon = atoi( icons.gettok( 2, " " ).to_chr( ) ) - 1;
 
-          if ( nIcon > -2 && sIcon > -2 ) {
+			 // quickfix so it doesnt display an image
+			 if (nIcon == -1)
+					nIcon = 10000;
+			 if (sIcon == -1)
+				 sIcon = 10000;
 
+          if ( nIcon > -1 && sIcon > -1 ) {
             TVITEMEX tvi; 
 
             tvi.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_HANDLE;
@@ -935,77 +938,91 @@ HIMAGELIST DcxTreeView::createImageList( ) {
  */
 
 //HTREEITEM DcxTreeView::insertItem( ) {
-HTREEITEM DcxTreeView::insertItem( TString * path, TString * data, TString * Tooltip ) {
+HTREEITEM DcxTreeView::insertItem(TString * path, TString * data, TString * Tooltip) {
+	//mIRCSignal( "insert Item" );
 
-  //mIRCSignal( "insert Item" );
+	HTREEITEM hParent = TVI_ROOT;
+	HTREEITEM hAfter = TVI_ROOT;
+	HTREEITEM hItem = NULL;
 
-  HTREEITEM hParent = TVI_ROOT;
-  HTREEITEM hAfter = TVI_ROOT;
-  HTREEITEM hItem = NULL;
+	TVITEMEX tvi;
+	TVINSERTSTRUCT tvins;
 
-  TVITEMEX tvi; 
-  TVINSERTSTRUCT tvins;
+	ZeroMemory(&tvins, sizeof(TVINSERTSTRUCT));
+	ZeroMemory(&tvi, sizeof(TVITEMEX));
 
-  tvi.mask = TVIF_TEXT | TVIF_SELECTEDIMAGE | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM;
+	tvi.mask = TVIF_TEXT | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM | TVIF_HANDLE | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
 
-  int iFlags = this->parseItemFlags( data->gettok( 1, " " ) );
-  int icon = (int) atoi( data->gettok( 2, " " ).to_chr( ) ) - 1;
-  int sicon = (int) atoi( data->gettok( 3, " " ).to_chr( ) ) - 1;
-  int overlay = (int) atoi( data->gettok( 4, " " ).to_chr( ) );
-  int state = (int) atoi( data->gettok( 5, " " ).to_chr( ) );
-  int integral = (int) atoi( data->gettok( 6, " " ).to_chr( ) ) + 1;
-  COLORREF clrText = (COLORREF) atol( data->gettok( 7, " " ).to_chr( ) );
+	int iFlags			= this->parseItemFlags(data->gettok(1, " "));
+	int icon				= (int) atoi(data->gettok(2, " ").to_chr()) -1;
+	int sicon			= (int) atoi(data->gettok(3, " ").to_chr()) -1;
+	int overlay			= (int) atoi(data->gettok(4, " ").to_chr());
+	int state			= (int) atoi(data->gettok(5, " ").to_chr());
+	int integral		= (int) atoi(data->gettok(6, " ").to_chr()) +1;
+	COLORREF clrText	= (COLORREF) atol(data->gettok(7, " ").to_chr());
 
-  LPDCXTVITEM lpmytvi = new DCXTVITEM;
+	// parse DCX parameters
+	LPDCXTVITEM lpmytvi = new DCXTVITEM;
 
-  lpmytvi->tsTipText = *Tooltip;
+	lpmytvi->tsTipText = *Tooltip;
 
-  if ( iFlags & TVIS_UNDERLINE )
-    lpmytvi->bUline = TRUE;
-  else
-    lpmytvi->bUline = FALSE;
+	if (iFlags & TVIS_UNDERLINE)
+		lpmytvi->bUline = TRUE;
+	else
+		lpmytvi->bUline = FALSE;
 
-  if ( iFlags & TVIS_BOLD )
-    lpmytvi->bBold = TRUE;
-  else
-    lpmytvi->bBold = FALSE;
+	if (iFlags & TVIS_BOLD)
+		lpmytvi->bBold = TRUE;
+	else
+		lpmytvi->bBold = FALSE;
 
-  if ( iFlags & TVIS_COLOR )
-    lpmytvi->clrText = clrText;
-  else
-    lpmytvi->clrText = -1;
+	if (iFlags & TVIS_COLOR)
+		lpmytvi->clrText = clrText;
+	else
+		lpmytvi->clrText = -1;
 
-  this->parsePath( path, &hParent, &hAfter );
-    
-  TString itemtext = data->gettok( 8, -1, " " ).to_chr( );
+	// path
+	this->parsePath(path, &hParent, &hAfter);
 
-  tvi.pszText = itemtext.to_chr( ); 
-  tvi.cchTextMax = sizeof( tvi.pszText )/sizeof( tvi.pszText[0] ); 
+	// text
+	TString itemtext = data->gettok(8, -1, " ").to_chr();
 
-  if ( icon > -1 ) {
-    tvi.iImage = icon; 
-    tvi.mask |= TVIF_IMAGE;
-  }
+	tvi.pszText = itemtext.to_chr(); 
+	tvi.cchTextMax = sizeof(tvi.pszText) / sizeof(tvi.pszText[0]);
 
-  tvi.iSelectedImage = sicon;
-  tvi.state = iFlags;
-  tvi.stateMask = iFlags;
-  tvi.iIntegral = integral;
-  tvi.lParam = (LPARAM) lpmytvi;
+	// icons
+	tvi.iImage = 10000;
+	tvi.iSelectedImage = 10000;
 
-  tvins.itemex = tvi; 
-  tvins.hInsertAfter = hAfter;
-  tvins.hParent = hParent;
+	if (icon > -1) {
+		tvi.iImage = icon;
+		//tvi.mask |= TVIF_IMAGE;
+	}
 
-  hItem = TreeView_InsertItem( this->m_Hwnd, &tvins );
-  lpmytvi->hHandle = hItem;
+	if (sicon > -1) {
+		tvi.iSelectedImage = sicon;
+		//tvi.mask |= TVIF_SELECTEDIMAGE;
+	}
 
-  if ( state > -1 )
-    TreeView_SetItemState( this->m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK( state ), TVIS_STATEIMAGEMASK );
-  if ( overlay > -1 )
-    TreeView_SetItemState( this->m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK( overlay ), TVIS_OVERLAYMASK );
+	//tvi.hItem = hAfter;
+	tvi.state = iFlags;
+	tvi.stateMask = iFlags;
+	tvi.iIntegral = integral;
+	tvi.lParam = (LPARAM) lpmytvi;
 
-  return hItem;
+	tvins.itemex = tvi;
+	tvins.hInsertAfter = hAfter;
+	tvins.hParent = hParent;
+
+	hItem = TreeView_InsertItem(this->m_Hwnd, &tvins);
+	lpmytvi->hHandle = hItem;
+
+	if (state > -1)
+		TreeView_SetItemState(this->m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
+	if (overlay > -1)
+		TreeView_SetItemState(this->m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(overlay), TVIS_OVERLAYMASK);
+
+	return hItem;
 }
 
 /*!
