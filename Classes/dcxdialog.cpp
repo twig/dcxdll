@@ -1628,7 +1628,7 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 
     case WM_CTLCOLORDLG:
       {
-			mIRCDebug("color dialog");
+			//mIRCDebug("color dialog");
         return (INT_PTR) p_this->getBackClrBrush();
       }
       break;

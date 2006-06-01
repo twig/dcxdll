@@ -504,7 +504,7 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
     
     if ( isXP( ) && ListView_GetGroupInfo( this->m_Hwnd, GID, &lvg ) != -1 ) {
 
-      mIRCError( "Got Information!" );
+      //mIRCError( "Got Information!" );
       int n = WideCharToMultiByte( CP_ACP, 0, wstr, lstrlenW( wstr ) + 1, szReturnValue, 900, NULL, NULL );
       char error[500];
       wsprintf( error, "Chars %d", n );

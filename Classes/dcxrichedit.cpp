@@ -187,8 +187,8 @@ void DcxRichEdit::parseInfoRequest( TString & input, char * szReturnValue ) {
 		inf.flags = GT_USECRLF;
 		SendMessage(this->m_Hwnd, EM_GETTEXTEX, (WPARAM) &inf, (LPARAM) p);
 
-		if (p)
-			mIRCError("p has a value!");
+//		if (p)
+//			mIRCError("p has a value!");
 
 		if ( this->isStyle( ES_MULTILINE ) ) {
 			if ( numtok > 3 ) {
@@ -199,11 +199,11 @@ void DcxRichEdit::parseInfoRequest( TString & input, char * szReturnValue ) {
 					return;
 				}
 			}
-			else
-				mIRCError("xdid(richedit).text: need to specify line number for multiline control");
+			//else
+				//mIRCError("xdid(richedit).text: need to specify line number for multiline control");
 		}
 		else {
-			mIRCError("not multiline");
+			//mIRCError("not multiline");
 			lstrcpy( szReturnValue, this->m_tsText.to_chr( ) );
 			return;
 		}
@@ -829,7 +829,7 @@ LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 		case WM_COMMAND:
 		case WM_NOTIFY:
 			{
-				mIRCError("here");
+				//mIRCError("here");
 				break;
 			}
 		case WM_CONTEXTMENU:

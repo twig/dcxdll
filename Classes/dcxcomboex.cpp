@@ -68,7 +68,6 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styl
 	// fix bug with disabled creation
 	// todo: fix this properly
 	if (Styles & WS_DISABLED) {
-		mIRCError("her");
 		EnableWindow(this->m_Hwnd, TRUE);
 		EnableWindow(this->m_Hwnd, FALSE);
 	}
@@ -130,7 +129,6 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 	// fix bug with disabled creation
 	// todo: fix this properly
 	if (Styles & WS_DISABLED) {
-		mIRCError("her");
 		EnableWindow(this->m_Hwnd, TRUE);
 		EnableWindow(this->m_Hwnd, FALSE);
 	}

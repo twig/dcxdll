@@ -136,7 +136,7 @@ foreach ($PAGES as $page => $pagelabel) {
 	dcxdoc_print_intro($page);
 	
 	if ($page == "index") {
-        dcxdoc_print_description("Latest Changes", "You may have noticed that the DCX documentation files have changed recently. They have been rewritten from scratch to keep them maintainable. If you notice any inconsistancies, please put a post on the forum on this <a href=\"http://dcx.scriptsdb.org/forum/showthread.php?tid=171\">thread</a>! <br /><br />" . format_changes_latest());
+        dcxdoc_print_description("Latest Changes", "You may have noticed that the DCX documentation files have changed recently. They have been rewritten from scratch to keep them maintainable. The old documentation can be found <a href=\"http://dcx.scriptsdb.org/dcxdoc_old\">here</a>. If you notice any inconsistancies, please put a post on the forum on this <a href=\"http://dcx.scriptsdb.org/forum/showthread.php?tid=171\">thread</a>! <br /><br />" . format_changes_latest());
 	    intro2_index();
 	    callback_index();
 	}

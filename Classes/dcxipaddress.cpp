@@ -53,7 +53,6 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & 
   	// fix bug with disabled creation
 	// todo: fix this properly
 	if (Styles & WS_DISABLED) {
-		mIRCError("her");
 		EnableWindow(this->m_Hwnd, TRUE);
 		EnableWindow(this->m_Hwnd, FALSE);
 	}
@@ -98,7 +97,6 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	// fix bug with disabled creation
 	// todo: fix this properly
 	if (Styles & WS_DISABLED) {
-		mIRCError("her");
 		EnableWindow(this->m_Hwnd, TRUE);
 		EnableWindow(this->m_Hwnd, FALSE);
 	}

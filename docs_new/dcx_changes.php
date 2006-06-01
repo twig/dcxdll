@@ -1,5 +1,29 @@
 <?php
 $CHANGES = array(
+    'v1.3.2' => array(
+		'Added /xdialog -t, and updated /xdialog -g to support background images',
+		'Added /xdid -w to image control',
+		'Added $xdid().font global function to retrieve the font in use with a control',
+		'Fixed a bug causing FONTNAME to be an optional field with /xdid -f',
+		'Fixed a bug causing /xdid -j to not work on edit ctrl',
+		'Added $dcx(FontDialog)',
+		'Added /xdid -t to panel',
+		'Added link to old dcxdoc on \'latest changes\' description',
+		'Changed /xdid -q to /xdid -Q for treeview item style changing command',
+		'Implemented sclick event for treeview and listview when mouse clicked on no item',
+		'Added quickfixes to ipaddress and comboex, to be drawn correctly when created with "disabled" style',
+		'Added a quickfix for treeview icon 0 still showing first icon (will work as long as you dont use more than 10000 icons)',
+
+		'Fixed typos, grammatical mistakes, inconsistancies, and missing features in dcxdoc with list ctrl dcxdoc (thanks elizio, dJabba, and MiSsInGnO)',
+		'Added another tutorial link to cla page',
+		'Fixed some styling',
+		'Added /xdid -w to link control in dcxdoc, which was missing',
+		'Fixed up example in /xdid -f dcxdoc to include CHARSET',
+		'Readded Mpdreamz back to credits! oops! =P',
+		'Changed contact irc network from IrcSuper to Americhat (stupid Shiek) =P',
+		'Added a link to j0x\'s tutorial (french only)',
+		'Fixed example with /xdid -C (rgb not showing)',
+	),
     'v1.3.1' => array(
 		'rewriting documentation, if you find any errors or inconsistancies with the old documentation, please post a message <a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=171">here</a>',
 		'fixed focus using tabbing on edit controls on dialog (box tabbing and focus still being researched)',

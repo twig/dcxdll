@@ -437,10 +437,10 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
     if (nButton > -1)
 		 if (this->deleteButton(nButton)) {
-			mIRCError("success");
+//			mIRCError("success");
 		 }
 		 else {
-mIRCError("huh?");
+//mIRCError("huh?");
 		 }
   }
   // xdid -i [NAME] [ID] [SWITCH] [N] [IMAGE]
@@ -1379,7 +1379,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
                 }
 					 //mIRCError("ugh!!!!");
               }
-				  mIRCError("parsed");
+				  //mIRCError("parsed");
               bParsed = TRUE;
             }
             break;
