@@ -540,7 +540,7 @@ mIRC(SaveDialog) {
 *         > TString +flags charset size fontname
 */
 mIRC(FontDialog) {
-	DWORD style = CF_INITTOLOGFONTSTRUCT | CF_SCREENFONTS | CF_FORCEFONTEXIST | CF_LIMITSIZE;
+	DWORD style = CF_INITTOLOGFONTSTRUCT | CF_FORCEFONTEXIST | CF_LIMITSIZE;
 	CHOOSEFONT cf;
 	LOGFONT lf;
 
@@ -649,6 +649,10 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/win
 		else if (option.gettok(1, " ") == "owner" && numtok > 1)
 			cf.hwndOwner = FindOwner(option, mWnd);
 	}
+
+	// check that at least some fonts are showing
+	if (!(style & CF_PRINTERFONTS) && !(style & CF_SCREENFONTS))
+		style |= CF_SCREENFONTS;
 
 	cf.Flags = style;
 	cf.iPointSize = lf.lfHeight * 10;
