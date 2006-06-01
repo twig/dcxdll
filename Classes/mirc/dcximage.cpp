@@ -214,6 +214,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 		MoveWindow(this->m_Hwnd, pt.x, pt.y, size, size, TRUE);
 
 		//InvalidateRect(this->m_Hwnd, NULL, TRUE);
+		this->redrawWindow();
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [IMAGE]
 	else if (flags.switch_flags[8] && numtok > 3) {
