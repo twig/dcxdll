@@ -65,6 +65,11 @@ function get_xdid_richedit(&$XDID) {
 		'm' => array(
 	        '__desc' => 'This command lets you load the mIRC color palette into the richedit.',
 		),
+		'n' => array(
+	        '__desc' => 'This command lets you toggle the automatic hyperlinking of urls to enable the [e]link[/e] event.',
+	        '__cmd' => '[ENABLED]',
+	        '__eg' => '1',
+		),
 		'o' => array(
 	        '__desc' => 'This command lets you overwrite the Nth line in the richedit.',
 	        '__cmd' => '[N] [TEXT]',

@@ -62,9 +62,7 @@ DcxRichEdit::DcxRichEdit( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
 
 	SendMessage(
 		this->m_Hwnd, EM_SETEVENTMASK, NULL,
-		(LPARAM) (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK | ENM_UPDATE));
-
-	setAutoUrlDetect(TRUE);
+		(LPARAM) (ENM_SELCHANGE | ENM_CHANGE /*| ENM_LINK | ENM_UPDATE*/));
 
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -117,7 +115,6 @@ DcxRichEdit::DcxRichEdit( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
   this->setContentsFont( );
 
 	SendMessage(this->m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE));
-	setAutoUrlDetect(TRUE);
 
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -392,6 +389,12 @@ void DcxRichEdit::parseCommandRequest( TString & input ) {
     this->loadmIRCPalette( );
     this->parseContents( TRUE );
   }
+	// xdid -n [NAME] [ID] [SWITCH] [BOOL]
+	else if (flags.switch_flags[13] && numtok > 3) {
+		int b = atoi(input.gettok(4, " ").to_chr());
+		this->setAutoUrlDetect(b ? TRUE : FALSE);
+		mIRCDebug("%d", b);
+	}
   // xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
   else if ( flags.switch_flags[14] && numtok > 4 ) {
     
