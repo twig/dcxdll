@@ -832,9 +832,18 @@ LRESULT DcxRichEdit::setCharFormat( UINT iType, CHARFORMAT2 * cfm ) {
 LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	switch( uMsg ) {
-		//case EN_CHANGE:
-		//case EN_SELCHANGE:
-		//case WM_COMMAND:
+		case WM_LBUTTONDOWN:
+		{
+			char *ret = new char[900];
+			this->callAliasEx(ret, "%s,%d", "sclick", this->getUserID());
+			break;
+		}
+		case WM_LBUTTONUP:
+		{
+			char *ret = new char[900];
+			this->callAliasEx(ret, "%s,%d", "lbup", this->getUserID());
+			break;
+		}
 		case WM_NOTIFY:
 			{
 				LPNMHDR hdr = (LPNMHDR) lParam;

@@ -187,6 +187,8 @@ function get_events_richedit(&$EVENTS) {
 				'TEXT' => 'The text selected.',
 			),
 		),
+		'sclick' => 'When the left mouse button is clicked.',
+		'lbup' => 'When the left mouse button is released.',
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
 	);
 }
