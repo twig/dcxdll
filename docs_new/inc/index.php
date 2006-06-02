@@ -730,12 +730,13 @@ function get_xdid_index(&$XDID) {
 				'+FLAGS' => array(
 			        '__desc' => "Color Flags.",
                     '__values' => array(
-                        'b' => "Background Color.<br />Affects: Edit, Radio, Check, Box, Scroll, Text, List, Panel, Image",
+                        'b' => "Background Color.<br />Affects: Edit, Radio, Check, Box, Scroll, Text, List, Panel, Image, Trackbar",
 						'k' => "Text Background Color.<br />Affects: Text, Edit, List, Box (Border Color)",
 						't' => "Text Color.<br />Affects: Text, Edit, List, Box",
 					),
 				),
 			),
+			'__notes' => 'When using +b on the trackbar, call /xdid -U on the control to force a redraw. /xdialog -j will not work, as this is an API bug.',
 		),
 		"F" => array(
 			'__desc' => "This command lets you set the focus on the control.",
