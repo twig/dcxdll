@@ -88,7 +88,6 @@ function get_xdid_toolbar(&$XDID) {
    	        '__cmd' => '[SIZE]',
 	        '__eg' => '16',
 	        '__params' => array(
-	            'N' => 'Button index number.',
 	            'SIZE' => array(
 	                '__desc' => 'Image list image size',
 	                '__values' => array(
