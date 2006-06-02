@@ -1097,7 +1097,12 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
   DcxDialog * p_this = (DcxDialog *) GetProp( mHwnd, "dcx_this" );
 
   switch( uMsg ) {
-
+		case WM_THEMECHANGED:
+		{
+			char ret[256];
+			p_this->callAliasEx(ret, "%s,%d", "themechanged", 0);
+			break;
+		}
     case WM_NOTIFY : 
       {
         //mIRCError( "Dialog WM_NOTIFY" );
