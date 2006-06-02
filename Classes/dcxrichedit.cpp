@@ -181,34 +181,28 @@ void DcxRichEdit::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 	// [NAME] [ID] [PROP] [N]
 	if ( input.gettok( 3, " " ) == "text" ) {
-		GETTEXTEX inf;
-		char *p = 0;
+		// determine the line number
+		int line = 0;
 
-		ZeroMemory(&inf, sizeof(GETTEXTEX));
-		inf.codepage = CP_ACP;
-		inf.flags = GT_USECRLF;
-		SendMessage(this->m_Hwnd, EM_GETTEXTEX, (WPARAM) &inf, (LPARAM) p);
+		if (numtok > 3)
+			line = atoi(input.gettok(4, " ").to_chr()) -1;
 
-//		if (p)
-//			mIRCError("p has a value!");
+		// get index of first character in line
+		int offset = SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM) line, NULL);
 
-		if ( this->isStyle( ES_MULTILINE ) ) {
-			if ( numtok > 3 ) {
-				int nLine = atoi( input.gettok( 4, " " ).to_chr( ) );
+		// get length of the line we want to copy
+		int len = SendMessage(this->m_Hwnd, EM_LINELENGTH, (WPARAM) offset, NULL);
 
-				if ( nLine > 0 && nLine <= this->m_tsText.numtok( "\r\n" ) ) {
-					lstrcpy( szReturnValue, this->m_tsText.gettok( nLine, "\r\n" ).to_chr( ) );
-					return;
-				}
-			}
-			//else
-				//mIRCError("xdid(richedit).text: need to specify line number for multiline control");
-		}
-		else {
-			//mIRCError("not multiline");
-			lstrcpy( szReturnValue, this->m_tsText.to_chr( ) );
-			return;
-		}
+		// create and fill the buffer
+		char *p = new char[len];
+		*(LPWORD)p = len;
+		int res = SendMessage(this->m_Hwnd, EM_GETLINE, (WPARAM) line, (LPARAM) p);
+		// terminate the string at the right position
+		p[res] = '\0';
+
+		// copy to result
+		lstrcpy(szReturnValue, p);
+		return;
 	}
 	// [NAME] [ID] [PROP]
 	else if ( input.gettok( 3, " " ) == "num" ) {
