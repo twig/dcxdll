@@ -144,7 +144,7 @@ void DcxRichEdit::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 
   while ( i <= numtok ) {
     if ( styles.gettok( i , " " ) == "multi" ) 
-      *Styles |= ES_MULTILINE;
+      *Styles |= ES_MULTILINE | ES_WANTRETURN ;
 	else if ( styles.gettok( i , " " ) == "readonly" ) 
       *Styles |= ES_READONLY;
     else if ( styles.gettok( i , " " ) == "center" ) 
@@ -950,7 +950,8 @@ LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
         }
       }
       break;
-	case WM_KEYDOWN: {
+	case WM_KEYDOWN:
+	{
 		char ret[256];
 
 		if (wParam == VK_RETURN)
