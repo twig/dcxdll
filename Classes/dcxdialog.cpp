@@ -18,6 +18,7 @@
 #include "dcxcontrol.h"
 
 #include "dcxtoolbar.h"
+#include "dcxrichedit.h"
 
 #include "layout/layoutcellfixed.h"
 #include "layout/layoutcellfill.h"
@@ -1110,7 +1111,6 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
         if ( IsWindow( hdr->hwndFrom ) && GetClassName( hdr->hwndFrom, ClassName, 256 ) != 0 ) {
 
           switch( hdr->code ) {
-
             case NM_CLICK:
               {
                 //mIRCError( "Dialog WM_NOTIFY - NM_CLICK" );
@@ -1264,6 +1264,14 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
               }
               break;
 
+				// richedit notifications
+				case EN_SELCHANGE:
+				case EN_LINK:
+					{
+						if (lstrcmp(DCX_RICHEDITCLASS, ClassName) == 0)
+							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
+					}
+					break;
           } // switch
 
         } // if classname

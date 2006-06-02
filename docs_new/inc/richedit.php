@@ -148,11 +148,39 @@ function get_events_richedit(&$EVENTS) {
 	    "rclick" => "When the right mouse button is clicked on the richedit control.",
 	    "keydown" => array(
 	        '__desc' => "When a key is pressed in the richedit control.",
-	        '__cmd' => 'KEYCODE'
+	        '__cmd' => 'KEYCODE',
+	        '__eg' => '64',
 		),
 	    "keyup" => array(
 	        '__desc' => "When a key is unpressed in the richedit control.",
-	        '__cmd' => 'KEYCODE'
+	        '__cmd' => 'KEYCODE',
+	        '__eg' => '64',
+		),
+		'link' => array(
+		    '__desc' => "When a link is clicked.",
+	        '__cmd' => 'EVENT LINK',
+	        '__eg' => 'sclick http://dcx.scriptsdb.org',
+	        '__params' => array(
+            	'EVENT' => array(
+					'__desc' => "Mouse event which triggered the callback",
+					'__values' => array(
+					    'sclick' => 'Single left click.',
+					    'dclick' => 'Double left click.',
+					    'rclick' => 'Single right click.',
+					),
+				),
+				'LINK' => 'The URL which was clicked.',
+			),
+		),
+		'selchange' => array(
+		    '__desc' => "When the selection range is changed.",
+	        '__cmd' => 'START END TEXT',
+	        '__eg' => '2 6 cdef',
+	        '__params' => array(
+            	'START' => 'The starting position of the selection range.',
+            	'END' => 'The ending position of the selection range.',
+				'TEXT' => 'The text selected.',
+			),
 		),
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
 	);

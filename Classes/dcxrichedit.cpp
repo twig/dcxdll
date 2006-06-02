@@ -60,7 +60,11 @@ DcxRichEdit::DcxRichEdit( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
   this->loadmIRCPalette( );
   this->setContentsFont( );
 
-	SendMessage(this->m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE));
+	SendMessage(
+		this->m_Hwnd, EM_SETEVENTMASK, NULL,
+		(LPARAM) (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK | ENM_UPDATE));
+
+	setAutoUrlDetect(TRUE);
 
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -113,6 +117,7 @@ DcxRichEdit::DcxRichEdit( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
   this->setContentsFont( );
 
 	SendMessage(this->m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE));
+	setAutoUrlDetect(TRUE);
 
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -824,12 +829,76 @@ LRESULT DcxRichEdit::setCharFormat( UINT iType, CHARFORMAT2 * cfm ) {
 LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	switch( uMsg ) {
-		case EN_CHANGE:
-		case EN_SELCHANGE:
-		case WM_COMMAND:
+		//case EN_CHANGE:
+		//case EN_SELCHANGE:
+		//case WM_COMMAND:
 		case WM_NOTIFY:
 			{
-				//mIRCError("here");
+				LPNMHDR hdr = (LPNMHDR) lParam;
+
+				if (!hdr)
+					break;
+
+				switch(hdr->code) {
+					case EN_LINK:
+					{
+						ENLINK* enl = (ENLINK*) lParam;
+
+						if (
+							(enl->msg == WM_LBUTTONDOWN) ||
+							(enl->msg == WM_LBUTTONDBLCLK) ||
+							(enl->msg == WM_RBUTTONDOWN)
+							)
+						{
+								TEXTRANGE tr;
+								TString event;
+								char *ret = new char[900];
+
+								// get information about link text
+								ZeroMemory(&tr, sizeof(TEXTRANGE));
+								tr.chrg = enl->chrg;
+								char *str = new char[enl->chrg.cpMax - enl->chrg.cpMin];
+								tr.lpstrText = str;
+								SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
+
+								if (enl->msg == WM_LBUTTONDOWN)
+									event = "sclick";
+								else if (enl->msg == WM_LBUTTONDBLCLK)
+									event = "dclick";
+								else if (enl->msg == WM_RBUTTONDOWN)
+									event = "rclick";
+
+								this->callAliasEx(ret, "%s,%d,%s,%s", "link", this->getUserID(), event.to_chr(), tr.lpstrText);
+						}
+
+						break;
+					}
+//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/richedit/richeditcontrols/richeditcontrolreference/richeditmessages/em_gettextrange.asp
+					case EN_SELCHANGE:
+					{
+						SELCHANGE* sel = (SELCHANGE*) lParam;
+
+						if (sel->seltyp != SEL_EMPTY) {
+						//if (sel->chrg.cpMin != sel->chrg.cpMax)
+						//if ((sel->seltyp == SEL_TEXT) || (sel->seltyp == SEL_MULTICHAR))
+							//mIRCDebug("selected some text %d %d", sel->chrg.cpMin, sel->chrg.cpMax);
+							TEXTRANGE tr;
+							char *ret = new char[900];
+
+							// get information about selected text
+							ZeroMemory(&tr, sizeof(TEXTRANGE));
+							tr.chrg = sel->chrg;
+							char *str = new char[sel->chrg.cpMax - sel->chrg.cpMin];
+							tr.lpstrText = str;
+							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
+
+							this->callAliasEx(ret, "%s,%d,%d,%d,%s", "selchange", this->getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
+						}
+
+						break;
+					}
+				}
+
 				break;
 			}
 		case WM_CONTEXTMENU:
