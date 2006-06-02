@@ -547,6 +547,23 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
       }
       break;
 
+		case WM_ERASEBKGND:
+		{
+			if (this->m_hBackBrush) {
+				HDC hdc = (HDC) wParam;
+				RECT rect;
+
+				GetClientRect(this->m_Hwnd, &rect);
+				FillRect(hdc, &rect, this->m_hBackBrush);
+				//ReleaseDC(this->m_Hwnd, hdc);
+
+				bParsed = TRUE;
+				return TRUE;
+			}
+
+			break;
+		}
+
     case WM_DESTROY:
       {
         //mIRCError( "WM_DESTROY" );
