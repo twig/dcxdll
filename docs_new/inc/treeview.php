@@ -61,6 +61,11 @@ function get_xdid_treeview(&$XDID) {
 				[v]2[/v] = 3X height, etc.",
 			),
 		),
+		'B' => array(
+	        '__desc' => 'This command lets you force label editing on a treeview item.',
+	        '__cmd' => '[PATH]',
+	        '__eg' => '1 3 5',
+		),
 		'c' => array(
 	        '__desc' => 'This command lets you select a treeview item.',
 	        '__cmd' => '[PATH]',

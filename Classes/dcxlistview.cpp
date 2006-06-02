@@ -701,6 +701,13 @@ void DcxListView::parseCommandRequest( TString & input ) {
       //ListView_SetItemState(hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(overlay), LVIS_OVERLAYMASK);
     }
   }
+	// xdid -B [NAME] [ID] [SWITCH] [N]
+	else if (flags.switch_cap_flags[1] && numtok > 3) {
+		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+
+		if (nItem > -1)
+			ListView_EditLabel(this->m_Hwnd, nItem);
+	}
   // xdid -c [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[2] && numtok > 3 ) {
 

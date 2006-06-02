@@ -84,6 +84,12 @@ function get_xdid_listview(&$XDID) {
 				"You need to use [s]checkbox[/s] style in order to use checkboxes in the listview.",
 			),
 		),
+		'B' => array(
+	        '__desc' => 'This command lets you force label editing on a listview item.',
+	        '__cmd' => '[N]',
+	        '__eg' => '3',
+	        '__notes' => 'You must give the listview focus before forcing the item editing mode.'
+		),
 		'c' => array(
 	        '__desc' => 'This command lets you select listview items.',
 	        '__cmd' => '[N(,N,...)]',

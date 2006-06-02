@@ -454,6 +454,16 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 				this->insertItem(&path, &data, &tooltip);
 		}
 	}
+	// xdid -B [NAME] [ID] [SWITCH] N N N
+	else if (flags.switch_cap_flags[1] && numtok > 3) {
+		HTREEITEM hParent = TVI_ROOT;
+		HTREEITEM hAfter = TVI_ROOT;
+
+		if (this->parsePath(&input.gettok(4, -1, " "), &hParent, &hAfter)) {
+			if (this->correctTargetItem(&hParent, &hAfter))
+				TreeView_EditLabel(this->m_Hwnd, hAfter);
+		}
+	}
   // xdid -c [NAME] [ID] [SWITCH] N N N
   else if ( flags.switch_flags[2] && numtok > 3 ) {
 
