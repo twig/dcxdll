@@ -17,6 +17,7 @@
 
 #include "../defines.h"
 #include "dcxcontrol.h"
+#include "dcxprogressbar.h"
 
 class DcxDialog;
 
@@ -77,6 +78,19 @@ typedef struct tagDCXLVITEM {
  * blah
  */
 
+typedef struct tagDCXLVPBAR {
+	int row;						// row index
+	int col;				// column index
+	DcxProgressBar *pbar;	// pbar pointer
+} DCXLVPBAR, *LPDCXLVPBAR;
+typedef std::vector<DCXLVPBAR> VectorOfListviewProgressbars; //<! Vector of int
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
 class DcxListView : public DcxControl {
 
 public:
@@ -124,7 +138,10 @@ protected:
   BOOL matchItemText( int nItem, int nSubItem, TString * search, UINT SearchType );
 
   BOOL m_bDrag; //!< Dragging Items ?
-
+	VectorOfListviewProgressbars m_lvpbars;
+private:
+	BOOL CreatePbar(int row, int col, TString style);
+	void ResizePbars();
 };
 
 #endif // _DCXLISTVIEW_H_

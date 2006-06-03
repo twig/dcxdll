@@ -36,7 +36,7 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
     WS_EX_CLIENTEDGE, 
     DCX_LISTVIEWCLASS,
     NULL,
-    WS_CHILD | WS_VISIBLE | Styles, 
+	 WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     p_Dialog->getHwnd( ),
     (HMENU) ID,
@@ -79,7 +79,7 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
     WS_EX_CLIENTEDGE, 
     DCX_LISTVIEWCLASS,
     NULL,
-    WS_CHILD | WS_VISIBLE | Styles, 
+    WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN | WS_CLIPCHILDREN, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
@@ -113,6 +113,11 @@ DcxListView::~DcxListView( ) {
   ImageList_Destroy( this->getImageList( LVSIL_NORMAL ) );
   ImageList_Destroy( this->getImageList( LVSIL_SMALL ) );
   ImageList_Destroy( this->getImageList( LVSIL_STATE ) );
+
+	for (int i = 0; i < (int) m_lvpbars.size(); i++)
+		delete m_lvpbars[i].pbar;
+
+	m_lvpbars.clear();
 
   this->unregistreDefaultWindowProc( );
 }
@@ -597,7 +602,6 @@ void DcxListView::parseCommandRequest( TString & input ) {
       if ( icon > -1 )
         lvi.iImage = icon;
 
-      lvi.pszText = itemtext.to_chr( );
 
       LPDCXLVITEM lpmylvi = new DCXLVITEM;
 
@@ -623,7 +627,16 @@ void DcxListView::parseCommandRequest( TString & input ) {
 
       lvi.lParam = (LPARAM) lpmylvi;
 
+      if (itemtext.gettok(1, " ") == "dcxpbar")
+			lvi.pszText = "";
+		else
+			lvi.pszText = itemtext.to_chr();
+
       lvi.iItem = ListView_InsertItem( this->m_Hwnd, &lvi );
+
+		// create progressbar if needed
+		if (itemtext.gettok(1, " ") == "dcxpbar")
+			CreatePbar(nPos, 1, itemtext.gettok(2, -1, " "));
 
       int tabs;
 		if ( ( tabs = input.numtok( "\t" ) ) > 1 ) {
@@ -649,7 +662,14 @@ void DcxListView::parseCommandRequest( TString & input ) {
           if ( data.numtok( " " ) > 2 )
             itemtext = data.gettok( 3, -1, " " );
 
-          lvi.pszText = itemtext.to_chr( );
+				// create progress bar
+				if (itemtext.gettok(1, " ") == "dcxpbar") {
+					CreatePbar(nPos, i, itemtext.gettok(2, -1, " "));
+					lvi.pszText = "";
+				}
+				else
+					lvi.pszText = itemtext.to_chr();
+
           ListView_SetItem( this->m_Hwnd, &lvi );
 
           i++;
@@ -1846,6 +1866,8 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
               if ( !lstrcmp( "notrack", ret ) )
                 return TRUE;
+
+				  ResizePbars();
             }
             break;
 
@@ -1887,16 +1909,22 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
       }
       break;
 
-    case WM_VSCROLL:
-      {
+		case WM_VSCROLL:
+		{
+			if (LOWORD(wParam) == SB_ENDSCROLL) {
+				char ret[256];
+				this->callAliasEx(ret, "%s,%d", "scrollend", this->getUserID());
+			}
 
-        if ( LOWORD( wParam ) == SB_ENDSCROLL ) {
+			ResizePbars();
+			break;
+		}
+		case WM_HSCROLL:
+		{
+			ResizePbars();
+			break;
+		}
 
-          char ret[256];
-          this->callAliasEx( ret, "%s,%d", "scrollend", this->getUserID( ) );
-        }
-      }
-      break;
 
     case WM_MOUSEMOVE:
       {
@@ -1957,6 +1985,11 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
       }
       break;
 
+		case WM_WINDOWPOSCHANGED:
+		case WM_SIZE:
+			ResizePbars();
+			break;
+
     default:
       break;
   }
@@ -1989,4 +2022,54 @@ LRESULT CALLBACK DcxListView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wPara
 
   }
   return CallWindowProc( pthis->m_OrigEditProc, mHwnd, uMsg, wParam, lParam );
+}
+
+
+BOOL DcxListView::CreatePbar(int row, int col, TString styles) {
+	// can only create progress for an existing item
+	if (col > getColumnCount())
+		return FALSE;
+
+	DCXLVPBAR pbarCell;
+	RECT rItem;
+
+	pbarCell.row = row;
+	pbarCell.col = col -1;
+
+	if (pbarCell.col == 0)
+		ListView_GetItemRect(this->m_Hwnd, pbarCell.row, &rItem, LVIR_LABEL);
+	else
+		ListView_GetSubItemRect(this->m_Hwnd, pbarCell.row, pbarCell.col, LVIR_LABEL, &rItem);
+
+	pbarCell.pbar = new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
+	m_lvpbars.push_back(pbarCell);
+	return TRUE;
+}
+
+void DcxListView::ResizePbars() {
+	// TODO: check for over header
+	RECT rItem;
+	DCXLVPBAR* pbarcell = NULL;
+
+	for (int i = 0; i < (int) m_lvpbars.size(); i++) {
+		pbarcell = &(m_lvpbars[i]);
+
+		if (pbarcell->row < getTopIndex()) {
+			ShowWindow(pbarcell->pbar->getHwnd(), SW_HIDE);
+		}
+		else {
+			ShowWindow(pbarcell->pbar->getHwnd(), SW_SHOW);
+		}
+
+		if (pbarcell->col == 0)
+			ListView_GetItemRect(this->m_Hwnd, pbarcell->row, &rItem, LVIR_LABEL);
+		else
+			ListView_GetSubItemRect(this->m_Hwnd, pbarcell->row, pbarcell->col, LVIR_LABEL, &rItem);
+
+		MoveWindow(pbarcell->pbar->getHwnd(),
+			rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top),
+			FALSE);
+	}
+
+	this->redrawWindow();
 }
