@@ -37,7 +37,7 @@ function get_xdid_comboex(&$XDID) {
 	        '__cmd' => '[N]',
 	        '__eg' => '5',
 		),
-		'l' => array(
+		'd' => array(
 	        '__desc' => 'This command lets you delete the Nth comboex item.',
 	        '__cmd' => '[N]',
 	        '__eg' => "6",
