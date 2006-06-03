@@ -114,8 +114,10 @@ DcxListView::~DcxListView( ) {
   ImageList_Destroy( this->getImageList( LVSIL_SMALL ) );
   ImageList_Destroy( this->getImageList( LVSIL_STATE ) );
 
-	for (int i = 0; i < (int) m_lvpbars.size(); i++)
-		delete m_lvpbars[i].pbar;
+	for (int i = 0; i < (int) m_lvpbars.size(); i++) {
+		DestroyWindow(m_lvpbars[i].pbar->getHwnd());
+		//delete m_lvpbars[i].pbar;
+	}
 
 	m_lvpbars.clear();
 
@@ -773,14 +775,35 @@ void DcxListView::parseCommandRequest( TString & input ) {
       }
     }
   }
-  // xdid -d [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[3] && numtok > 3 ) {
+	// xdid -d [NAME] [ID] [SWITCH] [N]
+	else if (flags.switch_flags[3] && (numtok > 3)) {
+		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+		if (nItem > -1)
+			ListView_DeleteItem(this->m_Hwnd, nItem);
 
-    if ( nItem > -1 )
-      ListView_DeleteItem( this->m_Hwnd, nItem );
+		// delete pbars if in row
+		for (int i = (int) m_lvpbars.size() -1; i >= 0 ; i--) {
+			DCXLVPBAR* pbarCell = &(m_lvpbars[i]);
 
+			if (pbarCell->row == nItem) {
+				DestroyWindow(pbarCell->pbar->getHwnd());
+				//delete pbarCell->pbar;
+
+				m_lvpbars.erase(m_lvpbars.begin() + i, m_lvpbars.begin() + i +1);
+			}
+		}
+
+		// shift the pbars below it to keep alignment correct
+		for (int i = 0; i < (int) m_lvpbars.size(); i++) {
+			DCXLVPBAR* pbarCell = &(m_lvpbars[i]);
+
+			if (pbarCell->row > nItem) {
+				pbarCell->row--;
+			}
+		}
+
+		ResizePbars();
   }
   // xdid -g [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
   else if ( flags.switch_flags[6] && numtok > 5 ) {
@@ -933,10 +956,16 @@ void DcxListView::parseCommandRequest( TString & input ) {
       ListView_InsertGroup( this->m_Hwnd, index, &lvg );
     }
   }
-  // xdid -r [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[17] ) {
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (flags.switch_flags[17]) {
+		ListView_DeleteAllItems(this->m_Hwnd);
 
-    ListView_DeleteAllItems( this->m_Hwnd );
+		for (int i = 0; i < (int) m_lvpbars.size(); i++) {
+			DestroyWindow(m_lvpbars[i].pbar->getHwnd());
+			//delete m_lvpbars[i].pbar;
+		}
+
+		m_lvpbars.clear();
   }
   // xdid -t [NAME] [ID] [SWITCH] [+FLAGS] [#ICON] [WIDTH] (Header text) [{TAB} [+FLAGS] [#ICON] [WIDTH] Header text {TAB} ... ]
   else if ( flags.switch_flags[19] && numtok > 5 ) {
@@ -1942,6 +1971,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 			ResizePbars();
 			break;
 		}
+
 		case WM_HSCROLL:
 		{
 			ResizePbars();
@@ -2056,6 +2086,8 @@ BOOL DcxListView::CreatePbar(int row, int col, TString styles) {
 	DCXLVPBAR pbarCell;
 	RECT rItem;
 
+	ZeroMemory(&pbarCell, sizeof(DCXLVPBAR));
+
 	pbarCell.row = row;
 	pbarCell.col = col -1;
 
@@ -2066,6 +2098,8 @@ BOOL DcxListView::CreatePbar(int row, int col, TString styles) {
 
 	pbarCell.pbar = new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
 	m_lvpbars.push_back(pbarCell);
+	//m_lvpbars.insert(m_lvpbars.back(), pbarCell);
+
 	return TRUE;
 }
 
@@ -2076,12 +2110,10 @@ void DcxListView::ResizePbars() {
 	for (int i = 0; i < (int) m_lvpbars.size(); i++) {
 		pbarcell = &(m_lvpbars[i]);
 
-		if (pbarcell->row < getTopIndex()) {
+		if (pbarcell->row < getTopIndex())
 			ShowWindow(pbarcell->pbar->getHwnd(), SW_HIDE);
-		}
-		else {
+		else
 			ShowWindow(pbarcell->pbar->getHwnd(), SW_SHOW);
-		}
 
 		if (pbarcell->col == 0)
 			ListView_GetItemRect(this->m_Hwnd, pbarcell->row, &rItem, LVIR_LABEL);
