@@ -528,6 +528,25 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
 
     return;
   }
+	// [NAME] [ID] [PROP] [N] [NSUB] [PBARPROP] [PARAM]
+	else if ((input.gettok(3, " ") == "pbar") && (numtok > 5)) {
+		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nSubItem = atoi(input.gettok(5, " ").to_chr());
+
+  		DCXLVPBAR* pbarCell = this->getPbar(nItem, nSubItem);
+
+		if (pbarCell) {
+			TString cmd = input.gettok(1, " ") + " " + input.gettok(2, " ") + " " + input.gettok(6, " ");
+
+			if (numtok > 6)
+				cmd = cmd + " " + input.gettok(7, -1, " ");
+
+			pbarCell->pbar->parseInfoRequest(cmd, szReturnValue);
+		}
+
+		return;
+	}
+
   // [NAME] [ID] [PROP] [N]
   else if ( input.gettok( 3, " " ) == "gnum" ) {
 
@@ -1015,18 +1034,22 @@ void DcxListView::parseCommandRequest( TString & input ) {
     ListView_SetItemState( this->m_Hwnd, -1, 0, LVIS_SELECTED );
   }
   // xdid -v [NAME] [ID] [SWITCH] [N] [M] (ItemText)
-  else if ( flags.switch_flags[21] && numtok > 4 ) {
+	else if (flags.switch_flags[21] && numtok > 4) {
+		int nItem = atoi(input.gettok(4, " ").to_chr()) - 1;
+		int nSubItem = atoi(input.gettok(5, " ").to_chr());
+		TString itemtext = input.gettok(6, -1 , " ");
+		itemtext.trim();
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-    int nSubItem = atoi( input.gettok( 5, " " ).to_chr( ) );
-    TString itemtext = input.gettok( 6, -1 , " " );
-    itemtext.trim( );
-    
-    if ( nItem > -1 && nSubItem > -1 && nSubItem <= this->getColumnCount( ) ) {
+		DCXLVPBAR* pbarCell = this->getPbar(nItem, nSubItem);
 
-      ListView_SetItemText( this->m_Hwnd, nItem, nSubItem, itemtext.to_chr( ) );
-    }
-  }
+		if (pbarCell) {
+			TString cmd = input.gettok(1, " ") + " " + input.gettok(2, " ") + " " + itemtext;
+			pbarCell->pbar->parseCommandRequest(cmd);
+		}
+		else if (nItem > -1 && nSubItem > -1 && nSubItem <= this->getColumnCount()) {
+			ListView_SetItemText(this->m_Hwnd, nItem, nSubItem, itemtext.to_chr());
+		}
+	}
   // xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
   else if ( flags.switch_flags[22] && numtok > 5 ) {
 
@@ -2047,7 +2070,6 @@ BOOL DcxListView::CreatePbar(int row, int col, TString styles) {
 }
 
 void DcxListView::ResizePbars() {
-	// TODO: check for over header
 	RECT rItem;
 	DCXLVPBAR* pbarcell = NULL;
 
@@ -2072,4 +2094,17 @@ void DcxListView::ResizePbars() {
 	}
 
 	this->redrawWindow();
+}
+
+DCXLVPBAR* DcxListView::getPbar(int row, int col) {
+	DCXLVPBAR* pbarcell = NULL;
+
+	for (int i = 0; i < (int) m_lvpbars.size(); i++) {
+		pbarcell = &(m_lvpbars[i]);
+
+		if ((pbarcell->row == row) && (pbarcell->col == col))
+			return pbarcell;
+	}
+
+	return NULL;
 }

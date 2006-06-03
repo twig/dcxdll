@@ -142,6 +142,7 @@ protected:
 private:
 	BOOL CreatePbar(int row, int col, TString style);
 	void ResizePbars();
+	DCXLVPBAR* getPbar(int row, int col);
 };
 
 #endif // _DCXLISTVIEW_H_

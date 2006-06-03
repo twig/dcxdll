@@ -75,6 +75,7 @@ function get_xdid_listview(&$XDID) {
                 '#GROUPID' => 'Group ID. (Use [v]0[/v] for no value) [o]XP+[/o]',
 				'COLOR' => 'Item text color.',
 				'BGCOLOR' => 'Item background color.',
+				'Item Text' => 'The text to display in the cell. Use [p]Item Text[/p] = [v]dcxpbar[/v] to add a progress bar into this cell. You can use styles as well, [v]dcxpbar[/v] [p]smooth notheme[/p] as you would with a normal ProgressBar.',
 			),
 			'__notes' => array(
 			    'Icons must be added prior to be used in the listview.',
@@ -253,14 +254,15 @@ function get_xdid_listview(&$XDID) {
 		),
 		'u' => 'This command makes the currently selected listview item unselected.',
 		'v' => array(
-	        '__desc' => 'This command lets you change the listview item text.',
+	        '__desc' => 'This command lets you change the listview item text (or call /xdid commands to the embedded ProgressBar).',
 	        '__cmd' => '[N] [NSUB] (TEXT)',
 	        '__eg' => '1 2 5',
 	        '__params' => array(
                 'N' => 'Item row.',
                 'NSUB' => 'Column index. ([v]0[/v] for first column)',
-                'TEXT' => 'Item Text',
+                'TEXT' => 'Item Text, or command to send to ProgressBar.',
 			),
+			'__notes' => 'Use [p]TEXT[/p] as [v]-v 80[/v] to set the value of a progress bar.'
 		),
 		'w' => array(
 	        '__desc' => 'This command lets you add an icon to the listview image lists.',
@@ -406,7 +408,12 @@ function get_xdidprops_listview(&$XDIDPROPS) {
 			'__cmd' => 'N',
 	        '__eg' => '2',
 		),
-		'genabled' => 'This property lets you retreive whether groups are enabled or not.'
+		'genabled' => 'This property lets you retreive whether groups are enabled or not.',
+		'pbar' => array(
+		    '__desc' => "This property lets you retreive ProgressBar properties from a specific cell.",
+			'__cmd' => 'N, NSUB, PBARPROP',
+	        '__eg' => '3, 0, value',
+		),
 	);
 }
 
@@ -474,7 +481,7 @@ function get_events_listview(&$EVENTS) {
 				'N' => 'Header item index.',
 			),
 		),
-		"trackend" => array(
+		"trackbegin" => array(
 			'__desc' => "When a header item is being resized.",
             '__return' => '[r]notrack[/r] to cancel label editing (for example if string is NULL or invalid to your application).'
 		),
