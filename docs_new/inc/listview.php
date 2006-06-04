@@ -59,7 +59,7 @@ function get_xdid_listview(&$XDID) {
 						'k' => 'The item has a background color defined by the [p]BGCOLOR[/p] parameter (use [v]-1[/v] for no color).',
 						's' => 'The item is selected.',
 						'p' => 'The item is a DCX ProgressBar control.',
-						't' => 'The item appears as 50% opaque, looks like it has a "ghost" effect.',
+						't' => 'The item icon appears as 50% opaque, looks like it has a "ghost" effect.',
 						'u' => 'The item is underlined.',
 					),
 				),
