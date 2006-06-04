@@ -1842,12 +1842,10 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
               switch( lplvcd->nmcd.dwDrawStage ) {
 
                 case CDDS_PREPAINT:
-                  return CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW;
+                  return CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW | CDRF_NOTIFYPOSTPAINT;
 
                 case CDDS_ITEMPREPAINT:
-						// update the pbar positions
-						this->ScrollPbars((int) lplvcd->nmcd.dwItemSpec);
-                  return CDRF_NOTIFYSUBITEMDRAW;
+						 return CDRF_NOTIFYSUBITEMDRAW;
 
                 case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
 						 {
@@ -1923,11 +1921,17 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                     }
 						}
 
-                  return ( CDRF_NEWFONT );
+						 return ( CDRF_NEWFONT );
 						break;
 
-                case CDDS_ITEMPOSTPAINT:
+                case CDDS_ITEMPOSTPAINT | CDDS_SUBITEM:
                   return CDRF_DODEFAULT;
+
+					 case CDDS_POSTPAINT:
+						// update the pbar positions
+						//this->ScrollPbars((int) lplvcd->nmcd.dwItemSpec);
+						 this->UpdateScrollPbars();
+						return CDRF_DODEFAULT;
 
                 default:
                   return CDRF_DODEFAULT;
@@ -2177,12 +2181,12 @@ void DcxListView::ScrollPbars(int row) {
 		RECT rItem;
 
 		// hide it if its scrolled off visible range
-		//if (lvi.iItem < getTopIndex()) {
-		//	ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_HIDE);
-		//	return;
-		//}
-		//else
-		//	ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_SHOW);
+		if ((lvi->iItem < this->getTopIndex()) || (lvi->iItem > this->getBottomIndex() +1)) {
+			ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_HIDE);
+			break;
+		}
+		else
+			ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_SHOW);
 
 		// get coordinates to move to
 		if (col == 0)

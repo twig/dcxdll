@@ -58,6 +58,7 @@ function get_xdid_listview(&$XDID) {
 						'f' => 'The item has focus thus having a dotted box around it.',
 						'k' => 'The item has a background color defined by the [p]BGCOLOR[/p] parameter (use [v]-1[/v] for no color).',
 						's' => 'The item is selected.',
+						'p' => 'The item is a DCX ProgressBar control.',
 						't' => 'The item appears as 50% opaque, looks like it has a "ghost" effect.',
 						'u' => 'The item is underlined.',
 					),
@@ -75,7 +76,7 @@ function get_xdid_listview(&$XDID) {
                 '#GROUPID' => 'Group ID. (Use [v]0[/v] for no value) [o]XP+[/o]',
 				'COLOR' => 'Item text color.',
 				'BGCOLOR' => 'Item background color.',
-				'Item Text' => 'The text to display in the cell. Use [p]Item Text[/p] = [v]dcxpbar[/v] to add a progress bar into this cell. You can use styles as well, [v]dcxpbar[/v] [p]smooth notheme[/p] as you would with a normal ProgressBar.',
+				'Item Text' => 'The text to display in the cell. If used with [v]+p[/v] [p]+FLAGS[/p], then this is the DCX ProgressBar [s]style[/s].',
 			),
 			'__notes' => array(
 			    'Icons must be added prior to be used in the listview.',
@@ -254,7 +255,7 @@ function get_xdid_listview(&$XDID) {
 		),
 		'u' => 'This command makes the currently selected listview item unselected.',
 		'v' => array(
-	        '__desc' => 'This command lets you change the listview item text (or call /xdid commands to the embedded ProgressBar).',
+	        '__desc' => 'This command lets you change the listview item text. If the target item is a DCX ProgressBar, then this allows you to send /xdid commands to the embedded ProgressBar.',
 	        '__cmd' => '[N] [NSUB] (TEXT)',
 	        '__eg' => '1 2 5',
 	        '__params' => array(
