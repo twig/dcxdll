@@ -99,8 +99,8 @@ DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, R
 DcxMDialog::~DcxMDialog( ) {
 
   //mIRCError( "releasing dialog" );
-  if ( GetParent( this->m_Hwnd ) == this->m_OrigParentHwnd ) 
-    return;
+  //if ( GetParent( this->m_Hwnd ) == this->m_OrigParentHwnd ) 
+   // return;
 
   this->unregistreDefaultWindowProc( );
 
