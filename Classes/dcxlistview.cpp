@@ -2149,7 +2149,7 @@ void DcxListView::UpdateScrollPbars() {
 	}
 }
 
-void DcxListView::ScrollPbars(int row/*, int col*/) {
+void DcxListView::ScrollPbars(int row) {
 	LPLVITEM lvi = new LVITEM;
 
 	ZeroMemory(lvi, sizeof(LVITEM));
@@ -2204,4 +2204,6 @@ void DcxListView::ScrollPbars(int row/*, int col*/) {
 		//this->redrawWindow();
 		break;
 	}
+
+	delete lvi;
 }

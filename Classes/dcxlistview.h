@@ -131,7 +131,7 @@ protected:
 
 private:
 	DcxProgressBar* CreatePbar(LPLVITEM lvi, TString style);
-	void ScrollPbars(int row/*, int col*/);
+	void ScrollPbars(int row);
 	void UpdateScrollPbars();
 };
 
