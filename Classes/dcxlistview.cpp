@@ -36,7 +36,7 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
     WS_EX_CLIENTEDGE, 
     DCX_LISTVIEWCLASS,
     NULL,
-	 WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN, 
+	 WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN,
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     p_Dialog->getHwnd( ),
     (HMENU) ID,
@@ -114,12 +114,14 @@ DcxListView::~DcxListView( ) {
   ImageList_Destroy( this->getImageList( LVSIL_SMALL ) );
   ImageList_Destroy( this->getImageList( LVSIL_STATE ) );
 
+/*
 	for (int i = 0; i < (int) m_lvpbars.size(); i++) {
 		DestroyWindow(m_lvpbars[i].pbar->getHwnd());
 		//delete m_lvpbars[i].pbar;
 	}
 
 	m_lvpbars.clear();
+*/
 
   this->unregistreDefaultWindowProc( );
 }
@@ -532,6 +534,7 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
   }
 	// [NAME] [ID] [PROP] [N] [NSUB] [PBARPROP] [PARAM]
 	else if ((input.gettok(3, " ") == "pbar") && (numtok > 5)) {
+/*
 		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
 		int nSubItem = atoi(input.gettok(5, " ").to_chr());
 
@@ -544,6 +547,29 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
 				cmd = cmd + " " + input.gettok(7, -1, " ");
 
 			pbarCell->pbar->parseInfoRequest(cmd, szReturnValue);
+		}
+*/
+		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nSubItem = atoi(input.gettok(5, " ").to_chr());
+
+		if (nItem > -1 && nItem < ListView_GetItemCount(this->m_Hwnd)) {
+			LVITEM lvi;
+
+			ZeroMemory(&lvi, sizeof(LVITEM));
+			lvi.mask = LVIF_PARAM;
+
+			ListView_GetItem(this->m_Hwnd, &lvi);
+
+			LPDCXLVITEM lvdcx = (LPDCXLVITEM) lvi.lParam;
+
+			if (!lvdcx->pbar)
+				return;
+
+			TString cmd = input.gettok(1, " ") + " " + input.gettok(2, " ") + " " + input.gettok(6, -1, " ");
+			lvdcx->pbar->parseInfoRequest(cmd, szReturnValue);
+
+			//ListView_GetItemText(this->m_Hwnd, nItem, nSubItem, szReturnValue, 900);
+			return;
 		}
 
 		return;
@@ -615,7 +641,6 @@ void DcxListView::parseCommandRequest( TString & input ) {
       lvi.iIndent = indent;
 
       if ( isXP( ) && group > 0 ) {
-
         lvi.iGroupId = group;
         lvi.mask |= LVIF_GROUPID;
       }
@@ -624,78 +649,80 @@ void DcxListView::parseCommandRequest( TString & input ) {
         lvi.iImage = icon;
 
 
-      LPDCXLVITEM lpmylvi = new DCXLVITEM;
+			LPDCXLVITEM lpmylvi = new DCXLVITEM;
+			ZeroMemory(lpmylvi, sizeof(DCXLVITEM));
 
-      if ( stateFlags & LVIS_UNDERLINE )
-        lpmylvi->bUline = TRUE;
-      else
-        lpmylvi->bUline = FALSE;
+			if (stateFlags & LVIS_UNDERLINE)
+				lpmylvi->bUline = TRUE;
+			else
+				lpmylvi->bUline = FALSE;
 
-      if ( stateFlags & LVIS_BOLD )
-        lpmylvi->bBold = TRUE;
-      else
-        lpmylvi->bBold = FALSE;
+			if (stateFlags & LVIS_BOLD)
+				lpmylvi->bBold = TRUE;
+			else
+				lpmylvi->bBold = FALSE;
 
-      if ( stateFlags & LVIS_COLOR )
-        lpmylvi->clrText = clrText;
-      else
-        lpmylvi->clrText = -1;
+			if (stateFlags & LVIS_COLOR)
+				lpmylvi->clrText = clrText;
+			else
+				lpmylvi->clrText = -1;
 
-      if ( stateFlags & LVIS_BGCOLOR )
-        lpmylvi->clrBack = clrBack;
-      else
-        lpmylvi->clrBack = -1;
+			if (stateFlags & LVIS_BGCOLOR)
+				lpmylvi->clrBack = clrBack;
+			else
+				lpmylvi->clrBack = -1;
 
-      lvi.lParam = (LPARAM) lpmylvi;
+			// set text in case of pbar
+			if (stateFlags & LVIS_PBAR)
+				lvi.pszText = "";
+			else
+				lvi.pszText = itemtext.to_chr();
 
-      if (itemtext.gettok(1, " ") == "dcxpbar")
-			lvi.pszText = "";
-		else
-			lvi.pszText = itemtext.to_chr();
+			lvi.lParam = (LPARAM) lpmylvi;
+			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
 
-      lvi.iItem = ListView_InsertItem( this->m_Hwnd, &lvi );
+			// create pbar for first column
+			if (stateFlags & LVIS_PBAR)
+				CreatePbar(&lvi, itemtext.gettok(1, -1, " "));
 
-		// create progressbar if needed
-		if (itemtext.gettok(1, " ") == "dcxpbar")
-			CreatePbar(nPos, 1, itemtext.gettok(2, -1, " "));
+			// subitems
+			int tabs;
+			if ((tabs = input.numtok("\t")) > 1) {
+				int i = 2;
 
-      int tabs;
-		if ( ( tabs = input.numtok( "\t" ) ) > 1 ) {
+				// ADD check for num columns
+				while (i <= tabs) {
+					data = input.gettok(i, "\t");
+					data.trim();
 
-        int i = 2;
+					stateFlags = parseItemFlags(data.gettok(1, " "));
+					lvi.iSubItem = i -1;
+					lvi.mask = LVIF_TEXT | LVIF_IMAGE;
 
-        // ADD check for num columns
-        while ( i <= tabs ) {
+					// icon
+					icon = atoi(data.gettok(2, " ").to_chr()) -1;
 
-          data = input.gettok( i, "\t" );
-          data.trim( );
+					if (icon > -1)
+						lvi.iImage = icon;
+					else
+						lvi.iImage = -1;
 
-          lvi.iSubItem = i - 1;
-          lvi.mask = LVIF_TEXT | LVIF_IMAGE;
-          lvi.iImage = -1;
+					itemtext = "";
+					if (data.numtok(" ") > 2)
+						itemtext = data.gettok(3, -1, " ");
 
-          icon = atoi( data.gettok( 2, " " ).to_chr( ) ) - 1;
+					// create pbar for subitem
+					if (stateFlags & LVIS_PBAR) {
+						CreatePbar(&lvi, itemtext);
+						itemtext = "";
+					}
 
-          if ( icon > -1 )
-            lvi.iImage = icon;
-
-          itemtext = "";
-          if ( data.numtok( " " ) > 2 )
-            itemtext = data.gettok( 3, -1, " " );
-
-				// create progress bar
-				if (itemtext.gettok(1, " ") == "dcxpbar") {
-					CreatePbar(nPos, i, itemtext.gettok(2, -1, " "));
-					lvi.pszText = "";
-				}
-				else
 					lvi.pszText = itemtext.to_chr();
+					ListView_SetItem(this->m_Hwnd, &lvi);
 
-          ListView_SetItem( this->m_Hwnd, &lvi );
-
-          i++;
-        }
-      }
+					i++;
+				}
+			}
 
       if ( state > -1 )
         ListView_SetItemState( this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK( state ), LVIS_STATEIMAGEMASK );
@@ -781,7 +808,7 @@ void DcxListView::parseCommandRequest( TString & input ) {
 
 		if (nItem > -1)
 			ListView_DeleteItem(this->m_Hwnd, nItem);
-
+/*
 		// delete pbars if in row
 		for (int i = (int) m_lvpbars.size() -1; i >= 0 ; i--) {
 			DCXLVPBAR* pbarCell = &(m_lvpbars[i]);
@@ -804,6 +831,7 @@ void DcxListView::parseCommandRequest( TString & input ) {
 		}
 
 		ResizePbars();
+*/
   }
   // xdid -g [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
   else if ( flags.switch_flags[6] && numtok > 5 ) {
@@ -960,12 +988,14 @@ void DcxListView::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[17]) {
 		ListView_DeleteAllItems(this->m_Hwnd);
 
+/*
 		for (int i = 0; i < (int) m_lvpbars.size(); i++) {
 			DestroyWindow(m_lvpbars[i].pbar->getHwnd());
 			//delete m_lvpbars[i].pbar;
 		}
 
 		m_lvpbars.clear();
+*/
   }
   // xdid -t [NAME] [ID] [SWITCH] [+FLAGS] [#ICON] [WIDTH] (Header text) [{TAB} [+FLAGS] [#ICON] [WIDTH] Header text {TAB} ... ]
   else if ( flags.switch_flags[19] && numtok > 5 ) {
@@ -1069,11 +1099,19 @@ void DcxListView::parseCommandRequest( TString & input ) {
 		TString itemtext = input.gettok(6, -1 , " ");
 		itemtext.trim();
 
-		DCXLVPBAR* pbarCell = this->getPbar(nItem, nSubItem);
+		LVITEM lvi;
+		LPDCXLVITEM lpdcxlvi;
+		
+		lvi.mask = LVIF_PARAM;
+		lvi.iItem = nItem;
+		lvi.iSubItem = nSubItem -1;
 
-		if (pbarCell) {
-			TString cmd = input.gettok(1, " ") + " " + input.gettok(2, " ") + " " + itemtext;
-			pbarCell->pbar->parseCommandRequest(cmd);
+		ListView_GetItem(this->m_Hwnd, &lvi);
+		lpdcxlvi = (LPDCXLVITEM) lvi.lParam;
+
+		if (lpdcxlvi && lpdcxlvi->pbar) {
+			itemtext = input.gettok(1, " ") + " " + input.gettok(2, " ") + " " + itemtext;
+			lpdcxlvi->pbar->parseCommandRequest(itemtext);
 		}
 		else if (nItem > -1 && nSubItem > -1 && nSubItem <= this->getColumnCount()) {
 			ListView_SetItemText(this->m_Hwnd, nItem, nSubItem, itemtext.to_chr());
@@ -1264,36 +1302,37 @@ UINT DcxListView::parseIconFlagOptions( TString & flags ) {
  * blah
  */
 
-UINT DcxListView::parseItemFlags( TString & flags ) {
+UINT DcxListView::parseItemFlags(TString & flags) {
+	INT i = 1, len = flags.len(), iFlags = 0;
 
-  INT i = 1, len = flags.len( ), iFlags = 0;
+	// no +sign, missing params
+	if (flags[0] != '+')
+		return iFlags;
 
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return iFlags;
+	while (i < len) {
+		if (flags[i] == 'b')
+			iFlags |= LVIS_BOLD;
+		else if (flags[i] == 'c')
+			iFlags |= LVIS_COLOR;
+		else if (flags[i] == 'd')
+			iFlags |= LVIS_DROPHILITED;
+		else if (flags[i] == 'f')
+			iFlags |= LVIS_FOCUSED;
+		else if (flags[i] == 'k')
+			iFlags |= LVIS_BGCOLOR;
+		else if (flags[i] == 's')
+			iFlags |= LVIS_SELECTED;
+		else if (flags[i] == 't')
+			iFlags |= LVIS_CUT;
+		else if (flags[i] == 'u')
+			iFlags |= LVIS_UNDERLINE;
+		else if (flags[i] == 'p')
+			iFlags |= LVIS_PBAR;
 
-  while ( i < len ) {
+		++i;
+	}
 
-    if ( flags[i] == 'b' )
-      iFlags |= LVIS_BOLD;
-    else if ( flags[i] == 'c' )
-      iFlags |= LVIS_COLOR;
-    else if ( flags[i] == 'd' )
-      iFlags |= LVIS_DROPHILITED;
-    else if ( flags[i] == 'f' )
-      iFlags |= LVIS_FOCUSED;
-    else if ( flags[i] == 'k' )
-      iFlags |= LVIS_BGCOLOR;
-    else if ( flags[i] == 's' )
-      iFlags |= LVIS_SELECTED;
-    else if ( flags[i] == 't' )
-      iFlags |= LVIS_CUT;
-    else if ( flags[i] == 'u' )
-      iFlags |= LVIS_UNDERLINE;
-
-    ++i;
-  }
-  return iFlags;
+	return iFlags;
 }
 
 /*!
@@ -1806,11 +1845,12 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                   return CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW;
 
                 case CDDS_ITEMPREPAINT:
-                  //mIRCError( "CDRF_NOTIFYSUBITEMDRAW" );
+						// update the pbar positions
+						this->ScrollPbars((int) lplvcd->nmcd.dwItemSpec);
                   return CDRF_NOTIFYSUBITEMDRAW;
 
                 case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
-                  {
+						 {
                     //mIRCError( "CDDS_ITEMPREPAINT CDDS_SUBITEM" );
 
                     /*
@@ -1881,8 +1921,10 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
                       DeleteObject( hFontNew );
                     }
-                  }
+						}
+
                   return ( CDRF_NEWFONT );
+						break;
 
                 case CDDS_ITEMPOSTPAINT:
                   return CDRF_DODEFAULT;
@@ -1901,8 +1943,12 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
               LPNMLISTVIEW lpnmlv = (LPNMLISTVIEW) lParam;
               LPDCXLVITEM lpdcxlvi = (LPDCXLVITEM) lpnmlv->lParam;
 
-              if ( lpdcxlvi != NULL )
-                delete lpdcxlvi;
+						if (lpdcxlvi != NULL) {
+							if (lpdcxlvi->pbar)
+								DestroyWindow(lpdcxlvi->pbar->getHwnd());
+
+							delete lpdcxlvi;
+						}
             }
             break;
 
@@ -1918,8 +1964,6 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
               if ( !lstrcmp( "notrack", ret ) )
                 return TRUE;
-
-				  ResizePbars();
             }
             break;
 
@@ -1968,16 +2012,17 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				this->callAliasEx(ret, "%s,%d", "scrollend", this->getUserID());
 			}
 
-			ResizePbars();
+			//this->UpdateScrollPbars();
 			break;
 		}
-
+/*
 		case WM_HSCROLL:
 		{
-			ResizePbars();
+			//ResizePbars();
+			//this->UpdateScrollPbars();
 			break;
 		}
-
+*/
 
     case WM_MOUSEMOVE:
       {
@@ -2038,11 +2083,6 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
       }
       break;
 
-		case WM_WINDOWPOSCHANGED:
-		case WM_SIZE:
-			ResizePbars();
-			break;
-
     default:
       break;
   }
@@ -2078,65 +2118,90 @@ LRESULT CALLBACK DcxListView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wPara
 }
 
 
-BOOL DcxListView::CreatePbar(int row, int col, TString styles) {
+DcxProgressBar* DcxListView::CreatePbar(LPLVITEM lvi, TString styles) {
 	// can only create progress for an existing item
-	if (col > getColumnCount())
-		return FALSE;
+	if (!lvi || !lvi->lParam)
+		return NULL;
 
-	DCXLVPBAR pbarCell;
+	LPDCXLVITEM lpdcxlvi = (LPDCXLVITEM) lvi->lParam;
+
+	if (lpdcxlvi->pbar)
+		return NULL;
+
 	RECT rItem;
 
-	ZeroMemory(&pbarCell, sizeof(DCXLVPBAR));
-
-	pbarCell.row = row;
-	pbarCell.col = col -1;
-
-	if (pbarCell.col == 0)
-		ListView_GetItemRect(this->m_Hwnd, pbarCell.row, &rItem, LVIR_LABEL);
+	// initial rect for pbar
+	if (lvi->iSubItem == 0)
+		ListView_GetItemRect(this->m_Hwnd, lvi->iItem, &rItem, LVIR_LABEL);
 	else
-		ListView_GetSubItemRect(this->m_Hwnd, pbarCell.row, pbarCell.col, LVIR_LABEL, &rItem);
+		ListView_GetSubItemRect(this->m_Hwnd, lvi->iItem, lvi->iSubItem, LVIR_LABEL, &rItem);
 
-	pbarCell.pbar = new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
-	m_lvpbars.push_back(pbarCell);
-	//m_lvpbars.insert(m_lvpbars.back(), pbarCell);
+	lpdcxlvi->iPbarCol = lvi->iSubItem;
+	lpdcxlvi->pbar = new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
 
-	return TRUE;
+	return lpdcxlvi->pbar;
 }
 
-void DcxListView::ResizePbars() {
-	RECT rItem;
-	DCXLVPBAR* pbarcell = NULL;
 
-	for (int i = 0; i < (int) m_lvpbars.size(); i++) {
-		pbarcell = &(m_lvpbars[i]);
+void DcxListView::UpdateScrollPbars() {
+	for (int row = 0; row < ListView_GetItemCount(this->m_Hwnd); row++) {
+		this->ScrollPbars(row);
+	}
+}
 
-		if (pbarcell->row < getTopIndex())
-			ShowWindow(pbarcell->pbar->getHwnd(), SW_HIDE);
+void DcxListView::ScrollPbars(int row/*, int col*/) {
+	LPLVITEM lvi = new LVITEM;
+
+	ZeroMemory(lvi, sizeof(LVITEM));
+
+	for (int col = 0; col < this->getColumnCount(); col++) {
+		lvi->iItem = row;
+		lvi->iSubItem = col;
+		lvi->mask = LVIF_PARAM;
+
+		ListView_GetItem(this->m_Hwnd, lvi);
+
+		if (!lvi->lParam)
+			continue;
+
+		LPDCXLVITEM lpdcxlvi = (LPDCXLVITEM) lvi->lParam;
+
+		if (!lpdcxlvi->pbar)
+			continue;
+
+		// isnt the right column to move it to
+		if (lpdcxlvi->iPbarCol != col) {
+			continue;
+		}
+
+		RECT rItem;
+
+		// hide it if its scrolled off visible range
+		//if (lvi.iItem < getTopIndex()) {
+		//	ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_HIDE);
+		//	return;
+		//}
+		//else
+		//	ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_SHOW);
+
+		// get coordinates to move to
+		if (col == 0)
+			ListView_GetItemRect(this->m_Hwnd, lvi->iItem, &rItem, LVIR_LABEL);
 		else
-			ShowWindow(pbarcell->pbar->getHwnd(), SW_SHOW);
+			ListView_GetSubItemRect(this->m_Hwnd, lvi->iItem, lvi->iSubItem, LVIR_LABEL, &rItem);
 
-		if (pbarcell->col == 0)
-			ListView_GetItemRect(this->m_Hwnd, pbarcell->row, &rItem, LVIR_LABEL);
-		else
-			ListView_GetSubItemRect(this->m_Hwnd, pbarcell->row, pbarcell->col, LVIR_LABEL, &rItem);
+		// show boders correctly
+		rItem.bottom--;
+		rItem.top++;
+		rItem.left++;
+		rItem.right--;
 
-		MoveWindow(pbarcell->pbar->getHwnd(),
+		MoveWindow(lpdcxlvi->pbar->getHwnd(),
 			rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top),
-			FALSE);
+			TRUE);
+
+		//lpdcxlvi->pbar->redrawWindow();
+		//this->redrawWindow();
+		break;
 	}
-
-	this->redrawWindow();
-}
-
-DCXLVPBAR* DcxListView::getPbar(int row, int col) {
-	DCXLVPBAR* pbarcell = NULL;
-
-	for (int i = 0; i < (int) m_lvpbars.size(); i++) {
-		pbarcell = &(m_lvpbars[i]);
-
-		if ((pbarcell->row == row) && (pbarcell->col == col))
-			return pbarcell;
-	}
-
-	return NULL;
 }

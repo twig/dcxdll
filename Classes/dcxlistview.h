@@ -25,6 +25,7 @@ class DcxDialog;
 #define LVIS_UNDERLINE  0x0200 //!< ListView Caption Underline Style
 #define LVIS_COLOR      0x0400 //!< ListView Caption Color Style
 #define LVIS_BGCOLOR    0x0800 //!< ListView Caption Background Color Style
+#define LVIS_PBAR       0x1000 //!< ListView ProgressBar Style
 
 #define LVSS_ASC        0x01   //!< ListView Sort Ascending Style
 #define LVSS_DESC       0x02   //!< ListView Sort Descending Style
@@ -69,21 +70,10 @@ typedef struct tagDCXLVITEM {
   COLORREF clrText;   //!< Line Caption Color
   BOOL bBold;         //!< Is Line Caption Bold ?
   BOOL bUline;        //!< Is Line Caption Underlined
-
+  DcxProgressBar *pbar;
+  int iPbarCol;
 } DCXLVITEM,*LPDCXLVITEM;
 
-/*!
- * \brief blah
- *
- * blah
- */
-
-typedef struct tagDCXLVPBAR {
-	int row;						// row index
-	int col;				// column index
-	DcxProgressBar *pbar;	// pbar pointer
-} DCXLVPBAR, *LPDCXLVPBAR;
-typedef std::vector<DCXLVPBAR> VectorOfListviewProgressbars; //<! Vector of int
 
 /*!
  * \brief blah
@@ -138,11 +128,11 @@ protected:
   BOOL matchItemText( int nItem, int nSubItem, TString * search, UINT SearchType );
 
   BOOL m_bDrag; //!< Dragging Items ?
-	VectorOfListviewProgressbars m_lvpbars;
+
 private:
-	BOOL CreatePbar(int row, int col, TString style);
-	void ResizePbars();
-	DCXLVPBAR* getPbar(int row, int col);
+	DcxProgressBar* CreatePbar(LPLVITEM lvi, TString style);
+	void ScrollPbars(int row/*, int col*/);
+	void UpdateScrollPbars();
 };
 
 #endif // _DCXLISTVIEW_H_
