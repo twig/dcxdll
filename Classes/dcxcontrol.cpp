@@ -491,7 +491,7 @@ BOOL DcxControl::parseGlobalInfoRequest( TString & input, char * szReturnValue )
 
   if ( input.gettok( 3, " " ) == "hwnd" ) {
 
-    wsprintf( szReturnValue, "%X", this->m_Hwnd );
+    wsprintf( szReturnValue, "%d", this->m_Hwnd );
     return TRUE;
   }
   else if ( input.gettok( 3, " " ) == "visible" ) {
