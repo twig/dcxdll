@@ -1,5 +1,20 @@
 <?php
 $CHANGES = array(
+	'v1.3.3' => array(
+		'added ability to change background color of trackbar (NOTE: there is a API bug to be aware of)',
+		'implemented selchange and link events to richedit',
+		'added /xdid -n to richedit to toggle automatic url hyperlinking',
+		'added sclick and lbup events to richedit',
+		'fixed a bug with richedit not accepting return keypresses when using multiline style',
+		'fixed richedit $xdid().text bug not returning manually entered text',
+		"added 'themechanged' event to dialog",
+		'added /xdid -B to begin label editing mode on listview and treeview controls (NOTE: listview requires focus to begin editing)',
+		'added progress bars to listview',
+		'fixed dcxdoc errors (thanks dJabba, PYERO)',
+		'fixed up events parameter values styling in dcxdoc',
+		'minor adjustments to listview dcxdoc',
+		'added dJabba and PYERO to dcxdoc credits',
+	),
     'v1.3.2' => array(
 		'Added /xdialog -t, and updated /xdialog -g to support background images',
 		'Added /xdid -w to image control',
