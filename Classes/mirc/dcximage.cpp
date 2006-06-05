@@ -194,7 +194,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 		filename.trim();
 		PreloadData();
 
-      if (size > 16)
+		if (size > 16)
 			ExtractIconEx(filename.to_chr(), index, &(this->m_hIcon), NULL, 1);
 		else
 			ExtractIconEx(filename.to_chr(), index, NULL, &(this->m_hIcon), 1);
@@ -328,12 +328,20 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 				if (this->m_hBackBrush != NULL)
 					FillRect(hdc, &rect, this->m_hBackBrush);
+				else
+					FillRect(hdc, &rect, GetSysColorBrush( COLOR_3DFACE ));
 
 				GetObject( this->m_hBitmap, sizeof(BITMAP), &bmp );
 				SelectObject( hdcbmp, this->m_hBitmap );
 
-				StretchBlt( hdc, rect.left, rect.top, rect.right - rect.left, 
-					rect.bottom - rect.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+				if (this->m_clrTransColor != -1) {
+					TransparentBlt(hdc, rect.left, rect.top, (rect.right - rect.left),
+						(rect.bottom - rect.top), hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_clrTransColor);
+				}
+				else {
+					StretchBlt( hdc, rect.left, rect.top, rect.right - rect.left, 
+						rect.bottom - rect.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+				}
 
 				DeleteDC( hdcbmp );
 			}
