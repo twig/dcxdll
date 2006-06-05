@@ -72,7 +72,7 @@ function get_xdid_toolbar(&$XDID) {
 	        '__eg' => '6',
 		),
 		'i' => array(
-	        '__desc' => 'This command lets you Nth toolbar button icon.',
+	        '__desc' => 'This command lets you change the Nth toolbar button icon.',
 	        '__cmd' => '[N] [ICON]',
 	        '__eg' => "7 2",
 	        '__notes' => "Use 0 for no icon.",
