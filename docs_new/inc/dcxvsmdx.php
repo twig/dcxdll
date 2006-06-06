@@ -113,7 +113,7 @@ function dcx_vs_mdx() {
 
 	<tr>
 		<td class="section_title section_bg">Calendar</td>
-		<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
+		<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /> Incomplete</td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
 
@@ -234,7 +234,11 @@ function dcx_vs_mdx() {
 
 	<tr>
 		<td class="comparison">Dropdowns and progressbars in an item:</td>
-        <td><img src="images/no.gif" alt="Does not have feature" /></td>
+        <td>
+			<img src="images/ok.gif" alt="Does not have feature" />
+			<img src="images/no.gif" alt="Does not have feature" /><br />
+			Has progress bars
+		</td>
 		<td><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
 

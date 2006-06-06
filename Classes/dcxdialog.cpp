@@ -1566,6 +1566,7 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
           RECT rc;
           SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
           p_this->updateLayout( rc );
+			 p_this->redrawWindow();
 
           if ( lstrcmp( "nosize", ret ) == 0 )
             return 0L;
@@ -1695,12 +1696,17 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
           COLORREF clrBackText = p_Control->getBackColor( );
           HBRUSH hBackBrush = p_Control->getBackClrBrush( );
           
+				// let static controls shine through
+//				SetBkMode((HDC) wParam, TRANSPARENT);
+//				return (LRESULT) GetStockBrush(HOLLOW_BRUSH);
+
           /*
           char data[500];
           wsprintf( data, "%d - %x - %d %d %x", p_Control->getUserID( ), lParam, clrText, clrBackText, hBackBrush );
           mIRCError( data );
           */
-
+//http://www.ddj.com/dept/windows/184416395
+//http://www.codeguru.com/Cpp/misc/samples/article.php/c1469#download
           if ( clrText != -1 )
             SetTextColor( (HDC) wParam, clrText );
 

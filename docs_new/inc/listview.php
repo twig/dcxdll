@@ -201,8 +201,11 @@ function get_xdid_listview(&$XDID) {
 	        '__eg' => '2 + 100',
 			'__params' => array(
                 '+FLAGS' => array(
-					'a' => 'Autosize.',
-					'h'=> 'Autosize according to header text width.',
+                    '__desc' => 'Flags for column width.',
+                    '__values' => array(
+						'a' => 'Autosize.',
+						'h'=> 'Autosize according to header text width.',
+					),
 				),
                 'WIDTH' => 'Header width (Ignored if you use flags +a or +h).',
                 'ICON' => 'Icon index ([v]0[/v] for first column)',
