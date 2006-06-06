@@ -1,5 +1,8 @@
 /*!
- * \file dcxtoolbar.cpp
+http://www.codeguru.com/cpp/controls/toolbar/article.php/c5487/
+grey icons
+
+* \file dcxtoolbar.cpp
  * \brief blah
  *
  * blah

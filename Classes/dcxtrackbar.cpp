@@ -175,6 +175,10 @@ void DcxTrackBar::parseInfoRequest( TString & input, char * szReturnValue ) {
     wsprintf( szReturnValue, "%d", this->getPageSize( ) );
     return;
   }
+  else if (input.gettok(3, " ") == "selrange") {
+    wsprintf(szReturnValue, "%d %d", this->getSelStart(), this->getSelEnd());
+    return;
+  }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
 
     return;

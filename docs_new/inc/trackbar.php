@@ -17,6 +17,9 @@ function get_styles_trackbar(&$STYLES) {
 		"noticks" => "No tic marks appear on track bar.",
 		"downisleft" => "By default, the trackbar control uses down equal to right and up equal to left. Use this style to reverse the default, making down equal left and up equal right.",
 		'tooltips' => 'Tooltip thumb mouvement displays a tooltip.',
+		'select' => 'Enable selection points for a trackbar.',
+		
+		'__notes' => 'You must specify [s]notheme[/s] when using [s]select[/s]. Otherwise it will not display the selected range on themed desktops. [o]XP+[/o].',
 	);
 }
 
@@ -96,18 +99,11 @@ function get_xdid_trackbar(&$XDID) {
 
 function get_xdidprops_trackbar(&$XDIDPROPS) {
 	$XDIDPROPS = array(
-		"value" => array(
-		    '__desc' => "This property lets you retreive the track bar position value.",
-		),
-		"range" => array(
-		    '__desc' => 'This property lets you retreive the track bar range.',
-		),
-		"line" => array(
-		    '__desc' => 'This property lets you retreive the track bar line step value.',
-		),
-		"page" => array(
-		    '__desc' => "This property lets you retreive the track bar page step value.",
-		),
+		"value" => "This property lets you retreive the track bar position value.",
+		"range" => 'This property lets you retreive the track bar range.',
+		"line" => 'This property lets you retreive the track bar line step value.',
+		"page" => "This property lets you retreive the track bar page step value.",
+		"selrange" => 'This property lets you retreive the selected track bar range.',
 	);
 }
 
