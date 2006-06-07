@@ -31,6 +31,23 @@ function get_xdid_trackbar(&$XDID) {
 	        '__cmd' => '[POS]',
 	        '__eg' => '75',
 		),
+		'g' => array(
+	        '__desc' => 'This command lets you set images for specific parts of the trackbar.',
+	        '__cmd' => '[+FLAGS] [FILENAME]',
+	        '__eg' => '+dt C:\mIRC\trackbar.bmp',
+	        '__params' => array(
+	            "+FLAGS" => array(
+	                '__desc' => "Which trackbar component to apply the image to.",
+	                '__values' => array(
+	                    "b" => "Trackbar background.",
+	                    "c" => "Trackbar channel (track).",
+						"d" => "Trackbar dragged thumb.",
+						"t" => "Trackbar normal thumb.",
+					),
+				),
+			),
+			'__notes' => 'Currently only supports BMP files.',
+		),
 		'j' => array(
 	        '__desc' => 'This command lets you set the trackbar selection.',
 	        '__cmd' => '[MIN] [MAX]',
@@ -59,6 +76,11 @@ function get_xdid_trackbar(&$XDID) {
 	        '__notes' => array(
 	            "[s]autoticks[/s] style must be used.",
 			),
+		),
+		'o' => array(
+	        '__desc' => 'This command lets you set the transparency color for trackbar bitmaps.',
+	        '__cmd' => '[VALUE]',
+	        '__eg' => '$rgb(255,0,255)',
 		),
 		'q' => array(
 	        '__desc' => 'This command lets you clear the tick marks.',

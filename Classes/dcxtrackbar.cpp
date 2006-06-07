@@ -754,10 +754,11 @@ UINT DcxTrackBar::parseImageFlags(TString &flags) {
 			iFlags |= TBCS_BACK;
 		else if (flags[i] == 'c')
 			iFlags |= TBCS_CHANNEL;
+		else if (flags[i] == 'd')
+			iFlags |= TBCS_THUMBDRAG;
 		else if (flags[i] == 't')
 			iFlags |= TBCS_THUMB;
-		else if (flags[i] == 'h')
-			iFlags |= TBCS_THUMBDRAG;
+
 
 		++i;
 	}
