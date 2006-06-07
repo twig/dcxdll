@@ -278,6 +278,8 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 				bParsed = TRUE;
 				return TRUE;
 			}
+
+			break;
 		}
 
 		case WM_PAINT:

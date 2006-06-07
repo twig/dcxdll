@@ -75,7 +75,7 @@ DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, R
   this->m_OrigStyles = this->removeStyle( WS_CAPTION|DS_FIXEDSYS|DS_SETFONT|DS_3DLOOK|DS_MODALFRAME|
     WS_POPUP|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_THICKFRAME );
 
-  this->m_OrigExStyles = this->removeExStyle( WS_EX_CONTROLPARENT );
+  this->m_OrigExStyles = this->setExStyle( WS_EX_CONTROLPARENT );
 
   this->addStyle( WS_CHILD );
 
@@ -97,28 +97,27 @@ DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, R
  */
 
 DcxMDialog::~DcxMDialog( ) {
+	//mIRCError( "releasing dialog" );
+	if ( GetParent( this->m_Hwnd ) == this->m_OrigParentHwnd )  {
+	}
+	else {
+		BOOL bHide = IsWindowVisible( this->m_Hwnd );
+		if ( !bHide )
+			ShowWindow( this->m_Hwnd, SW_HIDE );
 
-  //mIRCError( "releasing dialog" );
-  //if ( GetParent( this->m_Hwnd ) == this->m_OrigParentHwnd ) 
-   // return;
+		SetWindowLong( this->m_Hwnd, GWL_ID, this->m_ID );
+		SetParent( this->m_Hwnd, this->m_OrigParentHwnd );
+		this->setStyle( this->m_OrigStyles );
+		this->setExStyle( this->m_OrigExStyles );
 
-  this->unregistreDefaultWindowProc( );
+		SetWindowPos( this->m_Hwnd, NULL, 30, 30, 0, 0, SWP_NOSIZE );
+		this->redrawWindow( );
 
-  BOOL bHide = IsWindowVisible( this->m_Hwnd );
-  if ( !bHide )
-    ShowWindow( this->m_Hwnd, SW_HIDE );
+		if ( !bHide )
+			ShowWindow( this->m_Hwnd, SW_SHOW );
+	}
 
-  SetWindowLong( this->m_Hwnd, GWL_ID, this->m_ID );
-  SetParent( this->m_Hwnd, this->m_OrigParentHwnd );
-  this->setStyle( this->m_OrigStyles );
-  this->setExStyle( this->m_OrigExStyles );
-
-  SetWindowPos( this->m_Hwnd, NULL, 30, 30, 0, 0, SWP_NOSIZE );
-  this->redrawWindow( );
-
-  if ( !bHide )
-    ShowWindow( this->m_Hwnd, SW_SHOW );
- 
+	this->unregistreDefaultWindowProc( );
 }
 
 /*!

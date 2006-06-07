@@ -1100,15 +1100,12 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
       }
       break;
 
-	case WM_PAINT:
-	{
+	case WM_PAINT: {
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(this->m_Hwnd, &ps);
 		RECT rc, rc2, rcText, rcText2;
 		int n = GetWindowTextLength(this->m_Hwnd);
-
-		HBRUSH hBrush, hOldBrush;
-		HPEN hOldPen;
+		HBRUSH hBrush;
 
 		GetClientRect(this->m_Hwnd, &rc);
 		CopyRect(&rc2, &rc);
@@ -1119,68 +1116,46 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		else
 			hBrush = GetSysColorBrush(COLOR_3DFACE);
 
-		if (this->m_clrBackText != -1)
-			hOldPen = (HPEN) SelectObject(hdc, CreatePen(PS_SOLID, 1, this->m_clrBackText));
-
 		// paint the background
-		//rc2.top = rc2.bottom - 3;
-		FillRect( hdc, &rc2, hBrush );
-		hOldBrush = (HBRUSH) SelectObject( hdc, hBrush );
+		FillRect(hdc, &rc2, hBrush);
+		SetBkMode(hdc, TRANSPARENT);
 
-		// if no text, just draw box
-		if (n == 0) {
-			if (this->m_iBoxStyles & BOXS_SQUARED)
-				Rectangle(hdc, rc.left, rc.top, rc.right, rc.bottom);
-			else
-				RoundRect(hdc, rc.left, rc.top, rc.right, rc.bottom, 5, 5);
+		// no text, no box!
+		if (!n) {
+			DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
 		}
-		// if there is text
+		// draw text
 		else {
-			HFONT oldFont;
-
+			// prepare for appearance
 			if (this->m_hFont != NULL)
-				oldFont = (HFONT) SelectObject(hdc, this->m_hFont);
+				SelectObject(hdc, this->m_hFont);
+
+			if (this->m_clrText != -1)
+				SetTextColor(hdc, this->m_clrText);
 
 			char *text = new char[n +2];
 			GetWindowText(this->m_Hwnd, text, n +1);
-			DrawText(hdc, text, n, &rcText, DT_CALCRECT);
 
+			DrawText(hdc, text, n, &rcText, DT_CALCRECT);
 			int w = rcText.right - rcText.left;
 			int h = rcText.bottom - rcText.top;
 
+			// shift border and text locations
 			// text at bottom?
 			if (this->m_iBoxStyles & BOXS_BOTTOM) {
-				RECT rcfill;
-
-				CopyRect(&rcfill, &rc);
-				rcfill.top = rc.bottom - h;
-				FillRect(hdc, &rcfill, hBrush);
-
-				if (this->m_iBoxStyles & BOXS_SQUARED)
-					Rectangle(hdc, rc.left, rc.top, rc.right, rc.bottom - h /2);
-				else
-					RoundRect(hdc, rc.left, rc.top, rc.right, rc.bottom - h /2, 5, 5);
-
-				rcText.top = rc.bottom - h;
+				rcText.top = rc2.bottom - h;
+				rc2.bottom -= h/2;
 			}
 			// text at top
 			else {
-				RECT rcfill;
-
-				CopyRect(&rcfill, &rc);
-				rcfill.bottom = rc.top + h;
-				FillRect(hdc, &rcfill, hBrush);
-
-				if (this->m_iBoxStyles & BOXS_SQUARED)
-					Rectangle(hdc, rc.left, rc.top + h /2, rc.right, rc.bottom);
-				else
-					RoundRect(hdc, rc.left, rc.top + h /2, rc.right, rc.bottom, 5, 5);
-
-				rcText.top = rc.top;
+				rcText.top = rc2.top;
+				rc2.top += h/2;
 			}
 
+			// text location
 			rcText.bottom = rcText.top + h;
 
+			// align text horizontally
 			int bw = rc.right - rc.left - (2 * DCX_BOXTEXTSPACING);
 
 			if (w > bw) {
@@ -1198,31 +1173,25 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				rcText.right = rcText.left + w;
 			}
 
+			// draw the border
+			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
+
+			// clear some space for the text
 			CopyRect(&rcText2, &rcText);
 			InflateRect(&rcText2, 3, 0);
 			FillRect(hdc, &rcText2, hBrush);
-			SetBkMode(hdc, TRANSPARENT);
 
-			if (this->m_clrText != -1)
-				SetTextColor(hdc, this->m_clrText);
-
+			// draw the text
 			DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
-			SelectObject(hdc, hOldBrush);
 
-			if (this->m_clrText != -1)
-				SelectObject(hdc, hOldPen);
-
-			if (this->m_hFont != NULL)
-				SelectObject(hdc, oldFont);
-
-			EndPaint(this->m_Hwnd, &ps); 
-			delete []text;
+			delete text;
 		}
 
+		EndPaint(this->m_Hwnd, &ps);
 		bParsed = TRUE;
 		return 0L;
+		break;
 	}
-	break;
 
     case WM_MOUSEMOVE:
       {
