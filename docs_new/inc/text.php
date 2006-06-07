@@ -11,6 +11,7 @@ function get_styles_text(&$STYLES) {
 		"noprefix" => "Prevents interpretation of any ampersand (&amp;) characters in the control's text as accelerator prefix characters. These are displayed with the ampersand removed and the next character in the string underlined.",
 		"endellipsis" => "If the end of a string does not fit in the rectangle, it is truncated and ellipses (...) are added.",
 		"pathellipsis" => "Replaces characters in the middle of the string with ellipses so that the result fits in the specified rectangle. If the string contains backslash (\) characters, pathellipsis preserves as much as possible of the text after the last backslash.",
+		'transparent' => 'The background is transparent.',
 	);
 }
 

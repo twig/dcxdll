@@ -81,6 +81,7 @@ function get_xdid_trackbar(&$XDID) {
 	        '__desc' => 'This command lets you set the transparency color for trackbar bitmaps.',
 	        '__cmd' => '[VALUE]',
 	        '__eg' => '$rgb(255,0,255)',
+	        '__notes' => 'Use [v]-1[/v] for no transparency color.',
 		),
 		'q' => array(
 	        '__desc' => 'This command lets you clear the tick marks.',

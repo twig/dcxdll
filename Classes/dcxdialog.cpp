@@ -1697,7 +1697,7 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
           COLORREF clrText = p_Control->getTextColor( );
           COLORREF clrBackText = p_Control->getBackColor( );
           HBRUSH hBackBrush = p_Control->getBackClrBrush( );
-          
+
 				// let static controls shine through
 //				SetBkMode((HDC) wParam, TRANSPARENT);
 //				return (LRESULT) GetStockBrush(HOLLOW_BRUSH);
