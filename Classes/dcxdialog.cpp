@@ -1168,6 +1168,8 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
                 else if ( lstrcmp( DCX_REBARCTRLCLASS, ClassName ) == 0 )
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
+						else if (lstrcmp(DCX_TRACKBARCLASS, ClassName) == 0)
+							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
               }
               break;
 

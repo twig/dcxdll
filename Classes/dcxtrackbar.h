@@ -18,6 +18,16 @@
 #include "../defines.h"
 #include "dcxcontrol.h"
 
+#define TBCS_BACK			0x01	// backgruond
+#define TBCS_THUMB		0x02	// thumb normal
+#define TBCS_THUMBDRAG	0x04	// thumb dragged
+#define TBCS_CHANNEL		0x08	// track
+
+#define TBBMP_BACK		0
+#define TBBMP_THUMB		1
+#define TBBMP_THUMBDRAG	2
+#define TBBMP_CHANNEL	3
+
 class DcxDialog;
 
 /*!
@@ -39,6 +49,7 @@ public:
   void parseInfoRequest( TString & input, char * szReturnValue );
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	UINT parseImageFlags(TString &flags);
 
   LRESULT setRangeMin( LONG iLowLim );
   LRESULT getRangeMin( );
@@ -63,7 +74,8 @@ public:
   inline TString getType( ) { return TString( "trackbar" ); };
 
 protected:
-
+	HBITMAP m_hbmp[4]; // refer to TBBMP_*
+	COLORREF m_colTransparent;
 };
 
 #endif // _DCXTRACKBAR_H_

@@ -549,3 +549,17 @@ TString ParseLogfontToCommand(LPLOGFONT lf) {
 //	mIRCError("die");
 	return TString(cstr);
 }
+
+
+HBITMAP LoadBitmap(HBITMAP dest, TString &filename) {
+	filename.trim();
+
+	if (dest) {
+		DeleteObject(dest);
+		dest = NULL;
+	}
+
+	dest = (HBITMAP) LoadImage(GetModuleHandle(NULL), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+
+	return dest;
+}

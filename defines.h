@@ -183,5 +183,6 @@ HRESULT SetWindowTheme( HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList )
 BOOL isXP( );
 HWND FindOwner(TString data, HWND defaultWnd);
 BOOL CopyToClipboard(HWND owner, TString str);
+HBITMAP LoadBitmap(HBITMAP dest, TString &filename);
 
 #endif // _DEFINES_H_

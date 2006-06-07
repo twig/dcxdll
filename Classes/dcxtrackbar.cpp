@@ -45,6 +45,12 @@ DcxTrackBar::DcxTrackBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
   if ( bNoTheme )
     SetWindowTheme( this->m_Hwnd , L" ", L" " );
 
+	this->m_hbmp[TBBMP_BACK] = NULL;
+	this->m_hbmp[TBBMP_THUMB] = NULL;
+	this->m_hbmp[TBBMP_THUMBDRAG] = NULL;
+	this->m_hbmp[TBBMP_CHANNEL] = NULL;
+	this->m_colTransparent = -1;
+
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -80,6 +86,12 @@ DcxTrackBar::DcxTrackBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
 
   if ( bNoTheme )
     SetWindowTheme( this->m_Hwnd , L" ", L" " );
+
+	this->m_hbmp[TBBMP_BACK] = NULL;
+	this->m_hbmp[TBBMP_THUMB] = NULL;
+	this->m_hbmp[TBBMP_THUMBDRAG] = NULL;
+	this->m_hbmp[TBBMP_CHANNEL] = NULL;
+	this->m_colTransparent = -1;
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
@@ -206,6 +218,29 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
     LONG lPosition = atol( input.gettok( 4, " " ).to_chr( ) );
     this->setTic( lPosition );
   }
+	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
+	if (flags.switch_flags[6] && numtok > 4) {
+		UINT flags = parseImageFlags(input.gettok(4, " "));
+		TString filename = input.gettok(5, -1, " ");
+		filename.trim();
+
+		// background
+		if (flags & TBCS_BACK)
+			this->m_hbmp[TBBMP_BACK] = LoadBitmap(this->m_hbmp[TBBMP_BACK], filename);
+		// thumb
+		if (flags & TBCS_THUMB)
+			this->m_hbmp[TBBMP_THUMB] = LoadBitmap(this->m_hbmp[TBBMP_THUMB], filename);
+		// thumb hover
+		if (flags & TBCS_THUMBDRAG)
+			this->m_hbmp[TBBMP_THUMBDRAG] = LoadBitmap(this->m_hbmp[TBBMP_THUMBDRAG], filename);
+		// channel
+		if (flags & TBCS_CHANNEL)
+			this->m_hbmp[TBBMP_CHANNEL] = LoadBitmap(this->m_hbmp[TBBMP_CHANNEL], filename);
+
+		// these dont seem to work so dont bother calling it
+		//this->redrawWindow();
+		//InvalidateRect(this->m_Hwnd, NULL, TRUE);
+	}
   // xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
   else if ( flags.switch_flags[9] && numtok > 4 ) {
 
@@ -245,6 +280,11 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
     this->setRangeMin( lMinRange );
     this->setRangeMax( lMaxRange );
   }
+	// xdid -o [NAME] [ID] [SWITCH] [VALUE]
+	else if (flags.switch_flags[14] && numtok > 3) {
+		m_colTransparent = atoi(input.gettok(4, " ").to_chr());
+		this->redrawWindow();
+	}
   // xdid -t [NAME] [ID] [SWITCH] [VALUE]
   else if ( flags.switch_flags[19] && numtok > 3 ) {
 
@@ -551,23 +591,6 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
       }
       break;
 
-		case WM_ERASEBKGND:
-		{
-			if (this->m_hBackBrush) {
-				HDC hdc = (HDC) wParam;
-				RECT rect;
-
-				GetClientRect(this->m_Hwnd, &rect);
-				FillRect(hdc, &rect, this->m_hBackBrush);
-				//ReleaseDC(this->m_Hwnd, hdc);
-
-				bParsed = TRUE;
-				return TRUE;
-			}
-
-			break;
-		}
-
     case WM_DESTROY:
       {
         //mIRCError( "WM_DESTROY" );
@@ -576,9 +599,160 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
       }
       break;
 
+
+		case WM_NOTIFY: {
+			LPNMHDR hdr = (LPNMHDR) lParam;
+
+			if (!hdr)
+				break;
+
+			switch (hdr->code) {
+				case NM_CUSTOMDRAW: {
+					// if (no items to draw)
+					if ( !this->m_hbmp[TBBMP_BACK] &&
+						!this->m_hbmp[TBBMP_THUMB] &&
+						!this->m_hbmp[TBBMP_THUMBDRAG] &&
+						!this->m_hbmp[TBBMP_CHANNEL])
+						break;
+
+					NMCUSTOMDRAW nmcd = *(LPNMCUSTOMDRAW) lParam;
+					bParsed = TRUE;
+					HDC hdc = nmcd.hdc;
+
+					switch (nmcd.dwDrawStage) {
+						case CDDS_PREPAINT:
+							return CDRF_NOTIFYITEMDRAW/* | CDRF_NOTIFYPOSTPAINT*/;
+
+						case CDDS_ITEMPREPAINT: {
+							// try to make it draw the tics, doesnt work =(
+							if (nmcd.dwItemSpec == TBCD_TICS) {
+								return CDRF_DODEFAULT | CDRF_NOTIFYPOSTPAINT;
+							}
+							// channel that the trackbar control's thumb marker slides along
+							if (nmcd.dwItemSpec == TBCD_CHANNEL) {
+								// draw the background here
+								if (this->m_hbmp[TBBMP_BACK]) {
+									RECT rect;
+									BITMAP bmp;
+									HDC hdcbmp = CreateCompatibleDC(hdc);
+
+									GetClientRect(this->m_Hwnd, &rect);
+									GetObject(this->m_hbmp[TBBMP_BACK], sizeof(BITMAP), &bmp);
+									SelectObject(hdcbmp, this->m_hbmp[TBBMP_BACK]);
+
+									TransparentBlt( hdc,
+										rect.left, rect.top,
+										rect.right - rect.left, 
+										rect.bottom - rect.top, hdcbmp,
+										0, 0, bmp.bmWidth, bmp.bmHeight, this->m_colTransparent);
+									DeleteDC(hdcbmp);
+
+//									return CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT;
+								}
+
+								//return CDRF_DODEFAULT | CDRF_NOTIFYPOSTPAINT;
+								if (this->m_hbmp[TBBMP_CHANNEL]) {
+									//RECT rect;
+									BITMAP bmp;
+									HDC hdcbmp = CreateCompatibleDC(hdc);
+
+									GetObject(this->m_hbmp[TBBMP_CHANNEL], sizeof(BITMAP), &bmp);
+									SelectObject(hdcbmp, this->m_hbmp[TBBMP_CHANNEL]);
+
+									TransparentBlt( hdc,
+										nmcd.rc.left, nmcd.rc.top,
+										nmcd.rc.right - nmcd.rc.left, 
+										nmcd.rc.bottom - nmcd.rc.top, hdcbmp,
+										0, 0, bmp.bmWidth, bmp.bmHeight, this->m_colTransparent);
+									DeleteDC(hdcbmp);
+
+									return /*CDRF_NOTIFYPOSTPAINT | */CDRF_SKIPDEFAULT;
+								}
+
+//								return CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT;
+								return CDRF_DODEFAULT;// | CDRF_NOTIFYPOSTPAINT;
+							}
+							// trackbar control's thumb marker. This is the portion of the control
+							// that the user moves.  For the pre-item-paint of the thumb, we draw 
+							// everything completely here, during item pre-paint, and then tell
+							// the control to skip default painting and NOT to notify 
+							// us during post-paint.
+							if (nmcd.dwItemSpec == TBCD_THUMB) {
+								HBITMAP pBmp = NULL;
+
+								// if thumb is selected/focussed, switch brushes
+								if (nmcd.uItemState && CDIS_FOCUS)
+									pBmp = this->m_hbmp[TBBMP_THUMBDRAG];
+								else
+									pBmp = this->m_hbmp[TBBMP_THUMB];
+
+								// nothing custom to draw
+								if (!pBmp)
+									return CDRF_DODEFAULT;
+
+								HDC hdcbmp = CreateCompatibleDC(hdc);
+								int iSaveDC = SaveDC(hdc);
+								BITMAP bmp;
+
+								GetObject(pBmp, sizeof(BITMAP), &bmp);
+								SelectObject(hdcbmp, pBmp);
+
+								TransparentBlt( hdc,
+									nmcd.rc.left, nmcd.rc.top,
+									nmcd.rc.right - nmcd.rc.left, 
+									nmcd.rc.bottom - nmcd.rc.top, hdcbmp,
+									0, 0, bmp.bmWidth, bmp.bmHeight, this->m_colTransparent);
+								RestoreDC(hdc, iSaveDC);
+								DeleteDC(hdcbmp);
+
+								// don't let control draw itself, or it will un-do our work
+								return CDRF_SKIPDEFAULT;
+							}
+
+							// default!
+							return CDRF_DODEFAULT;
+						} // item prepaint
+
+						case CDDS_ITEMPOSTPAINT: {
+								return CDRF_SKIPDEFAULT;
+						} // item postpaint
+
+						default:
+							return CDRF_DODEFAULT;
+					} // end drawstage
+
+					break;
+				}
+			}	// end NM_CUSTOMDRAW
+		} // end notify
+
     default:
       break;
   }
 
   return 0L;
+}
+
+
+UINT DcxTrackBar::parseImageFlags(TString &flags) {
+	INT i = 1, len = flags.len(), iFlags = 0;
+
+	// no +sign, missing params
+	if (flags[0] != '+')
+		return iFlags;
+
+	while (i < len) {
+		if (flags[i] == 'b')
+			iFlags |= TBCS_BACK;
+		else if (flags[i] == 'c')
+			iFlags |= TBCS_CHANNEL;
+		else if (flags[i] == 't')
+			iFlags |= TBCS_THUMB;
+		else if (flags[i] == 'h')
+			iFlags |= TBCS_THUMBDRAG;
+
+		++i;
+	}
+
+	return iFlags;
 }
