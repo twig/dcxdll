@@ -206,32 +206,28 @@ void DcxButton::parseCommandRequest( TString & input ) {
         if ( this->m_aBitmaps[0] != NULL )
           DeleteObject( this->m_aBitmaps[0] );
 
-        this->m_aBitmaps[0] = (HBITMAP) LoadImage( GetModuleHandle( NULL ), 
-          filename.to_chr( ), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
+        this->m_aBitmaps[0] = LoadBitmap(this->m_aBitmaps[0], filename);
       }
       if ( iColorStyles & BTNCS_HOVER ) {
 
         if ( this->m_aBitmaps[1] != NULL )
           DeleteObject( this->m_aBitmaps[1] );
 
-        this->m_aBitmaps[1] = (HBITMAP) LoadImage( GetModuleHandle( NULL ), 
-          filename.to_chr( ), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
+        this->m_aBitmaps[1] = LoadBitmap(this->m_aBitmaps[1], filename);
       }
       if ( iColorStyles & BTNCS_SELECTED ) {
 
         if ( this->m_aBitmaps[2] != NULL )
           DeleteObject( this->m_aBitmaps[2] );
 
-        this->m_aBitmaps[2] = (HBITMAP) LoadImage( GetModuleHandle( NULL ), 
-          filename.to_chr( ), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
+        this->m_aBitmaps[2] = LoadBitmap(this->m_aBitmaps[2], filename);
       }
       if ( iColorStyles & BTNCS_DISABLED ) {
 
         if ( this->m_aBitmaps[3] != NULL )
           DeleteObject( this->m_aBitmaps[3] );
 
-        this->m_aBitmaps[3] = (HBITMAP) LoadImage( GetModuleHandle( NULL ), 
-          filename.to_chr( ), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
+        this->m_aBitmaps[3] = LoadBitmap(this->m_aBitmaps[3], filename);
       }
     }
 

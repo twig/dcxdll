@@ -223,8 +223,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 		filename.trim();
 		PreloadData();
 
-		this->m_hBitmap = (HBITMAP) LoadImage(GetModuleHandle(NULL), 
-			filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		this->m_hBitmap = LoadBitmap(this->m_hBitmap, filename);
 
 		this->m_bIsIcon = FALSE;
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);

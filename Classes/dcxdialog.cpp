@@ -361,11 +361,11 @@ void DcxDialog::parseCommandRequest( TString & input ) {
 				this->m_bitmapBg = NULL;
 			}
 
-			TString strFile = input.gettok(4, -1, " ");
-			strFile.trim();
+			TString filename = input.gettok(4, -1, " ");
+			filename.trim();
 
-			if (strFile != "none")
-				this->m_bitmapBg = (HBITMAP) LoadImage(GetModuleHandle(NULL), strFile.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+			if (filename != "none")
+				this->m_bitmapBg = LoadBitmap(this->m_bitmapBg, filename);
 		}
 
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
