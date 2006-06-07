@@ -9,7 +9,7 @@ function get_styles_box(&$STYLES) {
 		'center' => 'Control text is centered.',
 		'right' => 'Control text is right justified.',
 		'bottom' => 'Control text is at the bottom of the box.',
-		'squared' => 'Box border is a squared rectangle instead of the default round rectangle.',
+		'none' => 'Control will not display a border or label.',
 		'__notes' => 'Applying the border [s]regular[/s]+[s]dialog frame[/s] border styles on the box will give it a titlebar. (/xdid -x DNAME BOX_ID +bd)'
 	);
 }

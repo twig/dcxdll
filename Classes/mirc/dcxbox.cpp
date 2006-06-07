@@ -158,12 +158,12 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 
     if ( styles.gettok( i , " " ) == "right" )
       this->m_iBoxStyles |= BOXS_RIGHT;
-    else if ( styles.gettok( i , " " ) == "center" )
+    else if (styles.gettok( i , " " ) == "center" )
       this->m_iBoxStyles |= BOXS_CENTER;
-    else if ( styles.gettok( i , " " ) == "bottom" )
+    else if (styles.gettok( i , " " ) == "bottom" )
       this->m_iBoxStyles |= BOXS_BOTTOM;
-    else if ( styles.gettok( i , " " ) == "squared" )
-      this->m_iBoxStyles |= BOXS_SQUARED;
+	 else if (styles.gettok( i , " " ) == "none" )
+      this->m_iBoxStyles |= BOXS_NONE;
 
     i++;
   }
@@ -1100,6 +1100,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
       }
       break;
 
+		case WM_ENABLE: {
+			this->redrawWindow();
+			break;
+		}
+
 	case WM_PAINT: {
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(this->m_Hwnd, &ps);
@@ -1118,6 +1123,15 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		// paint the background
 		FillRect(hdc, &rc2, hBrush);
+
+		// if no border, dont bother
+		if (this->m_iBoxStyles & BOXS_BOTTOM) {
+			EndPaint(this->m_Hwnd, &ps);
+
+			bParsed = TRUE;
+			return 0L;
+		}
+
 		SetBkMode(hdc, TRANSPARENT);
 
 		// no text, no box!
@@ -1132,6 +1146,10 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 			if (this->m_clrText != -1)
 				SetTextColor(hdc, this->m_clrText);
+			else
+				SetTextColor(hdc, GetSysColor(
+					IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
+				);
 
 			char *text = new char[n +2];
 			GetWindowText(this->m_Hwnd, text, n +1);
@@ -1188,6 +1206,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		}
 
 		EndPaint(this->m_Hwnd, &ps);
+
 		bParsed = TRUE;
 		return 0L;
 		break;

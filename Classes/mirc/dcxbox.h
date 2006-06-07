@@ -26,7 +26,8 @@
 #define BOXS_CENTER  0x01 //!< Box Center Style
 #define BOXS_RIGHT   0x02 //!< Box Right Style
 #define BOXS_BOTTOM  0x04 //!< Box Bottom Style
-#define BOXS_SQUARED 0x08 //!< Box Squared Style
+#define BOXS_NONE		0x08 //!< Box No Border Style
+
 
 class DcxDialog;
 
