@@ -105,6 +105,14 @@ DcxTrackBar::DcxTrackBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
  */
 
 DcxTrackBar::~DcxTrackBar( ) {
+	if (this->m_hbmp[TBBMP_BACK] != NULL)
+		DeleteObject(this->m_hbmp[TBBMP_BACK]);
+	if (this->m_hbmp[TBBMP_THUMB] != NULL)
+		DeleteObject(this->m_hbmp[TBBMP_THUMB]);
+	if (this->m_hbmp[TBBMP_THUMBDRAG] != NULL)
+		DeleteObject(this->m_hbmp[TBBMP_THUMBDRAG]);
+	if (this->m_hbmp[TBBMP_CHANNEL] != NULL)
+		DeleteObject(this->m_hbmp[TBBMP_CHANNEL]);
 
   this->unregistreDefaultWindowProc( );
 }
