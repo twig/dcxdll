@@ -336,7 +336,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
       if ( itemtext == "-" ) {
         
         tbb.fsStyle = BTNS_SEP;
-        tbb.fsState = TBSTATE_ENABLED;
+        //tbb.fsState = TBSTATE_ENABLED;
         tbb.iBitmap = icon;
         tbb.dwData = 0;
         tbb.iString = 0;
