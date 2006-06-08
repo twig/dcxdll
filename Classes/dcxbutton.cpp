@@ -96,6 +96,7 @@ DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
 
   ZeroMemory( &this->m_aBitmaps, 4*sizeof(HBITMAP) );
   ZeroMemory( &this->m_aColors, 4*sizeof(COLORREF) );
+  ZeroMemory( &this->m_aTransp, 4*sizeof(COLORREF) );
 
   this->m_bHover = FALSE;
   this->m_bSelected = FALSE;
@@ -190,58 +191,49 @@ void DcxButton::parseCommandRequest( TString & input ) {
 
   int numtok = input.numtok( " " );
 
-  // xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] (FILENAME)
-  if ( flags.switch_flags[10] && numtok > 4 ) {
-    
-    UINT iColorStyles = this->parseColorFlags( input.gettok( 4, " " ) );
-    COLORREF clrColor = atol( input.gettok( 5, " " ).to_chr( ) );
+	// xdid -c [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
+	if (flags.switch_flags[2] && numtok > 4) {
+		UINT iColorStyles = this->parseColorFlags(input.gettok(4, " "));
+		COLORREF clrColor = atol(input.gettok(5, " ").to_chr());
 
-    if ( this->isStyle( BS_BITMAP ) && numtok > 5 ) {
+		if (iColorStyles & BTNCS_NORMAL)
+			this->m_aColors[0] = clrColor;
+		if (iColorStyles & BTNCS_HOVER)
+			this->m_aColors[1] = clrColor;
+		if (iColorStyles & BTNCS_SELECTED)
+			this->m_aColors[2] = clrColor;
+		if (iColorStyles & BTNCS_DISABLED)
+			this->m_aColors[3] = clrColor;
 
-      TString filename = input.gettok( 6, -1, " " );
-      filename.trim( );
+		this->redrawWindow();
+	}
+	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] [FILENAME]
+	else if (flags.switch_flags[10] && (numtok > 5) && (this->isStyle(BS_BITMAP))) {
+		UINT iColorStyles = this->parseColorFlags(input.gettok(4, " "));
+		COLORREF clrColor = atol(input.gettok(5, " ").to_chr());
 
-      if ( iColorStyles & BTNCS_NORMAL  ) {
+		TString filename = input.gettok(6, -1, " ");
+		filename.trim();
 
-        if ( this->m_aBitmaps[0] != NULL )
-          DeleteObject( this->m_aBitmaps[0] );
+		if (iColorStyles & BTNCS_NORMAL) {
+			this->m_aBitmaps[0] = LoadBitmap(this->m_aBitmaps[0], filename);
+			this->m_aTransp[0] = clrColor;
+		}
+		if (iColorStyles & BTNCS_HOVER) {
+			this->m_aBitmaps[1] = LoadBitmap(this->m_aBitmaps[1], filename);
+			this->m_aTransp[1] = clrColor;
+		}
+		if (iColorStyles & BTNCS_SELECTED) {
+			this->m_aBitmaps[2] = LoadBitmap(this->m_aBitmaps[2], filename);
+			this->m_aTransp[2] = clrColor;
+		}
+		if (iColorStyles & BTNCS_DISABLED) {
+			this->m_aBitmaps[3] = LoadBitmap(this->m_aBitmaps[3], filename);
+			this->m_aTransp[3] = clrColor;
+		}
 
-        this->m_aBitmaps[0] = LoadBitmap(this->m_aBitmaps[0], filename);
-      }
-      if ( iColorStyles & BTNCS_HOVER ) {
-
-        if ( this->m_aBitmaps[1] != NULL )
-          DeleteObject( this->m_aBitmaps[1] );
-
-        this->m_aBitmaps[1] = LoadBitmap(this->m_aBitmaps[1], filename);
-      }
-      if ( iColorStyles & BTNCS_SELECTED ) {
-
-        if ( this->m_aBitmaps[2] != NULL )
-          DeleteObject( this->m_aBitmaps[2] );
-
-        this->m_aBitmaps[2] = LoadBitmap(this->m_aBitmaps[2], filename);
-      }
-      if ( iColorStyles & BTNCS_DISABLED ) {
-
-        if ( this->m_aBitmaps[3] != NULL )
-          DeleteObject( this->m_aBitmaps[3] );
-
-        this->m_aBitmaps[3] = LoadBitmap(this->m_aBitmaps[3], filename);
-      }
-    }
-
-    if ( iColorStyles & BTNCS_NORMAL )
-      this->m_aColors[0] = clrColor;
-    if ( iColorStyles & BTNCS_HOVER )
-      this->m_aColors[1] = clrColor;
-    if ( iColorStyles & BTNCS_SELECTED )
-      this->m_aColors[2] = clrColor;
-    if ( iColorStyles & BTNCS_DISABLED )
-      this->m_aColors[3] = clrColor;
-
-    this->redrawWindow( );
-  }
+		this->redrawWindow( );
+	}
   // xdid -l [NAME] [ID] [SWITCH] [SIZE]
   else if ( flags.switch_flags[11] && numtok > 3 ) {
 
@@ -521,7 +513,7 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
           GetObject( this->m_aBitmaps[nBitmap], sizeof(BITMAP), &bmp );
           SelectObject( hdcbmp, this->m_aBitmaps[nBitmap] );
           TransparentBlt( hdc, rcClient.left, rcClient.top, rcClient.right - rcClient.left, 
-            rcClient.bottom - rcClient.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aColors[nBitmap] );
+            rcClient.bottom - rcClient.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nBitmap] );
 
           DeleteDC( hdcbmp );
         }

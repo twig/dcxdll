@@ -60,6 +60,7 @@ protected:
 
   HIMAGELIST m_ImageList; //!< Button Image List (normal, hover, pushed, disabled)
   COLORREF m_aColors[4];  //!< Button Colors (normal, hover, pushed, disabled)
+  COLORREF m_aTransp[4];  //!< Transparent Colors (normal, hover, pushed, disabled)
 
   HBITMAP m_aBitmaps[4];  //!< Button Bitmaps (normal, hover, pushed, disabled)
 

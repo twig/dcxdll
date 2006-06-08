@@ -5,24 +5,38 @@ function get_intro_button() {
 
 function get_xdid_button(&$XDID) {
 	$XDID = array(
-		"k" => array(
-			'__desc' => "This command lets you change the caption color (or transparency color for image) for the button.",
-			'__cmd' => "[+FLAGS] [COLOR] (FILENAME)",
-			'__eg' => "+nd \$rgb(255,0,255) C:\mIRC\start.bmp",
+		"c" => array(
+			'__desc' => "This command lets you change the caption color for the button.",
+			'__cmd' => "[+FLAGS] [COLOR]",
+			'__eg' => '+nd $rgb(255,0,255)',
 			'__params' => array(
 				'+FLAGS' => array(
-					'__desc' => "Image flags",
+					'__desc' => "State flags",
 					'__values' => array(
-						'd' => "Disabled state color/image.",
-						'h' => "Hovering state color/image.",
-						'n' => "Normal state color/image.",
-						's' => "Selected state color/image.",
+						'd' => "Disabled state color.",
+						'h' => "Hovering state color.",
+						'n' => "Normal state color.",
+						's' => "Selected state color.",
 					),
-					'COLOR' => "Caption text color. ([s]Transparency color[/s] of the bitmap if the button has style [s]bitmap[/s])",
-					'FILENAME' => array(
-						'__desc' => "Bitmap filename. (Only required if style [s]bitmap[/s] is used)",
-						'__optional' => true,
+					'COLOR' => "Caption color.",
+				),
+			),
+		),
+		"k" => array(
+			'__desc' => "This command lets you change the transparency color for the bitmap image for the button.",
+			'__cmd' => "[+FLAGS] [COLOR] [FILENAME]",
+			'__eg' => '+nd $rgb(255,0,255) C:\mIRC\start.bmp',
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => "State flags",
+					'__values' => array(
+						'd' => "Disabled state transparent color/image.",
+						'h' => "Hovering state transparent color/image.",
+						'n' => "Normal state transparent color/image.",
+						's' => "Selected state transparent color/image.",
 					),
+					'COLOR' => "Transparency color of the [s]bitmap[/s] styled button.",
+					'FILENAME' =>"Bitmap filename.",
 				),
 			),
 		),
