@@ -938,6 +938,14 @@ void DcxDialog::parseInfoRequest( TString & input, char * szReturnValue ) {
 
     return;
   }
+  else if ( input.gettok( 2, " " ) == "ismarked" ) {
+	if (Dialogs.getDialogByHandle( this->m_Hwnd ) != NULL) {
+      lstrcpy( szReturnValue, "$true" );
+	}
+    else
+      lstrcpy( szReturnValue, "$false" );
+    return;
+  }
   // [NAME] [PROP]
   else if ( input.gettok( 2, " " ) == "mouseid" ) {
 

@@ -894,10 +894,15 @@ mIRC( _xdialog ) {
 	DcxDialog * p_Dialog = Dialogs.getDialogByName( d.gettok( 1, " " ) );
 
 	if ( p_Dialog == NULL ) {
-		char error[200];
-		wsprintf( error, "$ $+ xdialog unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
-		mIRCError( error );
-		return 3;
+		if ( d.gettok( 2, " " ) != "ismarked") {
+			char error[200];
+			wsprintf( error, "$ $+ xdialog unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
+			mIRCError( error );
+			return 3;
+		}
+		else 
+			ret("$false")
+			return 3;
 	}
 
 	p_Dialog->parseInfoRequest( d, data );
