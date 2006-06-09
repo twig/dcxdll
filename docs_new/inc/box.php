@@ -10,7 +10,8 @@ function get_styles_box(&$STYLES) {
 		'right' => 'Control text is right justified.',
 		'bottom' => 'Control text is at the bottom of the box.',
 		'none' => 'Control will not display a border or label.',
-		'__notes' => 'Applying the border [s]regular[/s]+[s]dialog frame[/s] border styles on the box will give it a titlebar. (/xdid -x DNAME BOX_ID +bd)'
+		'transparent' => 'This allows the background of the box control to be transparent.',
+		'__notes' => 'Applying the border [s]regular[/s]+[s]dialog frame[/s] border styles on the box will give it a titlebar. (/xdid -x DNAME BOX_ID +bd)',
 	);
 }
 

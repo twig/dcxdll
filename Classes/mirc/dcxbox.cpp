@@ -70,7 +70,7 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0, 
+	  ExStyles, 
     DCX_BOXCLASS, //"BUTTON", 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN, 
@@ -109,7 +109,7 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0, 
+    ExStyles, 
     DCX_BOXCLASS, //"BUTTON", 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN, 
@@ -156,14 +156,16 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
   
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "right" )
+    if (styles.gettok(i , " ") == "right")
       this->m_iBoxStyles |= BOXS_RIGHT;
-    else if (styles.gettok( i , " " ) == "center" )
+    else if (styles.gettok(i , " ") == "center")
       this->m_iBoxStyles |= BOXS_CENTER;
-    else if (styles.gettok( i , " " ) == "bottom" )
+    else if (styles.gettok(i , " ") == "bottom")
       this->m_iBoxStyles |= BOXS_BOTTOM;
-	 else if (styles.gettok( i , " " ) == "none" )
+	 else if (styles.gettok(i , " ") == "none")
       this->m_iBoxStyles |= BOXS_NONE;
+		else if (styles.gettok(i , " ") == "transparent")
+			*ExStyles |= WS_EX_TRANSPARENT;
 
     i++;
   }
@@ -1105,7 +1107,16 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			break;
 		}
 
-	case WM_PAINT: {
+
+		case WM_ERASEBKGND:
+		{
+			if (this->isExStyle(WS_EX_TRANSPARENT)) {
+				bParsed = TRUE;
+				return TRUE;
+			}
+		}
+
+		case WM_PAINT: {
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(this->m_Hwnd, &ps);
 		RECT rc, rc2, rcText, rcText2;
@@ -1115,14 +1126,16 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		GetClientRect(this->m_Hwnd, &rc);
 		CopyRect(&rc2, &rc);
 
-		// set up brush colors
-		if (this->m_hBackBrush != NULL)
-			hBrush = this->m_hBackBrush;
-		else
-			hBrush = GetSysColorBrush(COLOR_3DFACE);
+		if (!this->isExStyle(WS_EX_TRANSPARENT)) {
+			// set up brush colors
+			if (this->m_hBackBrush != NULL)
+				hBrush = this->m_hBackBrush;
+			else
+				hBrush = GetSysColorBrush(COLOR_3DFACE);
 
-		// paint the background
-		FillRect(hdc, &rc2, hBrush);
+			// paint the background
+			FillRect(hdc, &rc2, hBrush);
+		}
 
 		// if no border, dont bother
 		if (this->m_iBoxStyles & BOXS_BOTTOM) {
@@ -1191,13 +1204,21 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				rcText.right = rcText.left + w;
 			}
 
-			// draw the border
-			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
 
 			// clear some space for the text
 			CopyRect(&rcText2, &rcText);
 			InflateRect(&rcText2, 3, 0);
-			FillRect(hdc, &rcText2, hBrush);
+
+			//if (this->isExStyle(WS_EX_TRANSPARENT))
+			//	ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
+
+			// draw the border
+			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
+
+			if (!this->isExStyle(WS_EX_TRANSPARENT))
+				FillRect(hdc, &rcText2, hBrush);
+			//else
+			//	IntersectClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
 
 			// draw the text
 			DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
