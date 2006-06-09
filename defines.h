@@ -179,7 +179,9 @@ char * readFile( const char * filename );
 TString FileDialog(TString data, TString method, HWND pWnd);
 
 typedef HRESULT (__stdcall *PFNSETTHEME)( HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList );
+typedef HRESULT (__stdcall *PFNISTHEMEACTIVE)();
 HRESULT SetWindowTheme( HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList );
+BOOL IsThemeActive();
 BOOL isXP( );
 HWND FindOwner(TString data, HWND defaultWnd);
 BOOL CopyToClipboard(HWND owner, TString str);

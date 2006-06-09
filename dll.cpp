@@ -1,4 +1,5 @@
 /*!
+http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/userex/functions/openthemedata.asp
 * \file dll.cpp
 * \brief Main DLL File
 *
@@ -32,6 +33,8 @@ DcxDialogCollection Dialogs; //!< blah
 mIRCDLL mIRCLink; //!< blah
 
 PFNSETTHEME SetWindowThemeUx = NULL; //!< blah
+PFNISTHEMEACTIVE IsThemeActiveUx = NULL; //!< blah
+
 HMODULE UXModule = NULL;             //!< UxTheme.dll Module Handle
 BOOL XPPlus = FALSE;                 //!< Is OS WinXP+ ?
 
@@ -94,6 +97,7 @@ void WINAPI LoadDll( LOADINFO * load ) {
 
 	if( UXModule ) {
 		SetWindowThemeUx = (PFNSETTHEME) GetProcAddress( UXModule, "SetWindowTheme" );
+		IsThemeActiveUx = (PFNISTHEMEACTIVE) GetProcAddress( UXModule, "IsThemeActive" );
 
 		if ( SetWindowThemeUx )
 			XPPlus = TRUE;
@@ -102,6 +106,9 @@ void WINAPI LoadDll( LOADINFO * load ) {
 			UXModule = NULL;
 			XPPlus = FALSE;
 		}
+
+		if (!IsThemeActiveUx)
+			mIRCError("There was a problem loading IsThemedXP");
 	}
 
 	// Initialize GDI+.
@@ -342,6 +349,16 @@ mIRC( Version ) {
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
 	return 3;
 }
+
+/*!
+* \brief Check if windows is themed
+*/
+
+mIRC( IsThemedXP ) {
+	wsprintf(data, "%s", (IsThemeActive() ? "$true" : "$false"));
+	return 3;
+}
+
 
 /*!
 * \brief DCX DLL Mark Function

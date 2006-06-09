@@ -17,6 +17,7 @@
 extern mIRCDLL mIRCLink; //!< blah
 
 extern PFNSETTHEME SetWindowThemeUx;  //!< blah
+extern PFNISTHEMEACTIVE IsThemeActiveUx;
 extern BOOL XPPlus;                   //!< Is OS WinXP+ ?
 
 
@@ -161,6 +162,20 @@ HRESULT SetWindowTheme( HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList )
 		return SetWindowThemeUx( hwnd, L" ", L" " );
 	else
 		return 0;
+}
+
+/*!
+* \brief Check fi theme is active
+*
+* Used to remove theme on controls
+*/
+BOOL IsThemeActive() {
+	if (!IsThemeActiveUx)
+		return FALSE;
+	else if (XPPlus)
+		return IsThemeActiveUx();
+	else
+		return FALSE;
 }
 
 /*!

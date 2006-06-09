@@ -5,6 +5,7 @@ LoadDll
 UnloadDll
 
 Mark
+IsThemedXP
 GetSystemColor
 ColorDialog
 FontDialog
