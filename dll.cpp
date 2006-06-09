@@ -527,8 +527,9 @@ mIRC(OpenDialog) {
 	d.trim();
 
 	// count number of tab tokens
-	if (d.numtok("	") != 3) {
-		ret("$dcx(OpenDialog): Invalid parameters");
+	if (d.numtok("\t") != 3) {
+		mIRCError("$dcx(OpenDialog): Invalid parameters");
+		ret("");
 	}
 
 	ret(FileDialog(d, "OPEN", mWnd).to_chr());
@@ -540,8 +541,9 @@ mIRC(SaveDialog) {
 	d.trim();
 
 	// count number of tab tokens
-	if (d.numtok("	") != 3) {
-		ret("$dcx(SaveDialog): Invalid parameters");
+	if (d.numtok("\t") != 3) {
+		mIRCError("$dcx(SaveDialog): Invalid parameters");
+		ret("");
 	}
 
 	ret(FileDialog(d, "SAVE", mWnd).to_chr());
