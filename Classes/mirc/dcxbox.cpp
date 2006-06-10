@@ -1255,6 +1255,35 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
       }
       break;
 
+		case WM_LBUTTONDOWN:
+		{
+			char ret[900];
+			this->callAliasEx(ret, "%s,%d", "lbdown", this->getUserID());
+			this->callAliasEx(ret, "%s,%d", "sclick", this->getUserID());
+			break;
+		}
+
+		case WM_LBUTTONUP:
+		{
+			char ret[900];
+			this->callAliasEx(ret, "%s,%d", "lbup", this->getUserID());
+			break;
+		}
+
+		case WM_LBUTTONDBLCLK:
+		{
+			char ret[900];
+			this->callAliasEx(ret, "%s,%d", "dclick", this->getUserID());
+			break;
+		}
+
+		case WM_RBUTTONDOWN:
+		{
+			char ret[900];
+			this->callAliasEx(ret, "%s,%d", "rclick", this->getUserID());
+			break;
+		}
+
     case WM_DESTROY:
       {
         //mIRCError( "WM_DESTROY" );
