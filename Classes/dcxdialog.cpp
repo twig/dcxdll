@@ -285,44 +285,47 @@ void DcxDialog::parseCommandRequest( TString & input ) {
       mIRCError( error );
     }
   }
-  // xdialog -d [NAME] [SWITCH] [ID]
-  else if ( flags.switch_flags[3] && numtok > 2 ) {
+	// xdialog -d [NAME] [SWITCH] [ID]
+	else if (flags.switch_flags[3] && numtok > 2) {
+		/*
+		if ( input.gettok( 3, " " ) == "*" ) { 
 
-    /*
-    if ( input.gettok( 3, " " ) == "*" ) { 
+		this->deleteAllControls( );
+		}
+		else {
+		*/
 
-    this->deleteAllControls( );
-    }
-    else {
-    */
+		UINT ID = mIRC_ID_OFFSET + atoi(input.gettok(3, " ").to_chr());
+		DcxControl * p_Control;
 
-    UINT ID = mIRC_ID_OFFSET + atoi( input.gettok( 3, " " ).to_chr( ) );
-    DcxControl * p_Control;
+		if (IsWindow(GetDlgItem(this->m_Hwnd, ID)) && 
+			(ID > mIRC_ID_OFFSET - 1) && (p_Control = this->getControlByID(ID)) != NULL)
+		{
+			HWND cHwnd = p_Control->getHwnd();
+			UINT cid = p_Control->getUserID();
 
-    if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
-      ID > mIRC_ID_OFFSET - 1 && ( p_Control = this->getControlByID( ID ) ) != NULL ) 
-    {
+			// fix up focus id
+			if (cid == this->m_FocusID) {
+				HWND h = GetNextDlgTabItem(this->m_Hwnd, cHwnd, FALSE);
 
-      HWND cHwnd = p_Control->getHwnd( );
-      if ( p_Control->getType( ) == "dialog" || p_Control->getType( ) == "window" )
-        delete p_Control;
-      else if ( p_Control->getRefCount( ) == 0 )
-        DestroyWindow( cHwnd );
-      else {
+				// control exists and is not the last one
+				if (h && (h != cHwnd))
+					this->setFocusControl(GetDlgCtrlID(h) - mIRC_ID_OFFSET);
+				else
+					this->setFocusControl(0);
+			}
 
-        char error[500];
-        wsprintf( error, "Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", p_Control->getUserID( ), this->m_tsName.to_chr( ) );
-        mIRCError( error );
-      }
-    }
-    else {
-
-      char error[500];
-      wsprintf( error, "/ $+ xdialog -d : Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_tsName.to_chr( ) );
-      mIRCError( error );
-    }
-    //}
-  }
+			if ((p_Control->getType() == "dialog") || (p_Control->getType() == "window"))
+				delete p_Control;
+			else if (p_Control->getRefCount() == 0)
+				DestroyWindow(cHwnd);
+			else
+				mIRCDebug("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", p_Control->getUserID(), this->m_tsName.to_chr());
+		}
+		// unknown control
+		else
+			mIRCDebug("/ $+ xdialog -d : Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_tsName.to_chr());
+	}
   // xdid -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
   else if ( flags.switch_flags[5] && numtok > 4 ) {
 
