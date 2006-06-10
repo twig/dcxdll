@@ -894,7 +894,7 @@ LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 							// get information about selected text
 							ZeroMemory(&tr, sizeof(TEXTRANGE));
 							tr.chrg = sel->chrg;
-							char *str = new char[sel->chrg.cpMax - sel->chrg.cpMin];
+							char *str = new char[sel->chrg.cpMax - sel->chrg.cpMin +1];
 							tr.lpstrText = str;
 							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
 
