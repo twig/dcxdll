@@ -37,7 +37,7 @@ DcxMDialog::DcxMDialog( HWND cHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, TS
   this->m_OrigStyles = this->removeStyle( WS_CAPTION|DS_FIXEDSYS|DS_SETFONT|DS_3DLOOK|DS_MODALFRAME|
     WS_POPUP|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_THICKFRAME );
 
-  this->m_OrigExStyles = this->removeExStyle( WS_EX_CONTROLPARENT );
+  this->m_OrigExStyles = this->setExStyle( WS_EX_CONTROLPARENT );
 
   this->addStyle( WS_CHILD );
 

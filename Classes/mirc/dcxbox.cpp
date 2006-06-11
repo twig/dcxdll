@@ -154,6 +154,8 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
   unsigned int i = 1, numtok = styles.numtok( " " );
   this->m_iBoxStyles = 0;
   
+	*ExStyles = WS_EX_CONTROLPARENT;
+
   while ( i <= numtok ) {
 
     if (styles.gettok(i , " ") == "right")
