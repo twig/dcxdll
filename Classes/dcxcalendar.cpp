@@ -105,25 +105,25 @@ DcxCalendar::~DcxCalendar( ) {
  * blah
  */
 
-void DcxCalendar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxCalendar::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) {
+	unsigned int i = 1, numtok = styles.numtok(" ");
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+	//*Styles = MCS_DAYSTATE;
 
-  while ( i <= numtok ) {
+	while (i <= numtok) {
+		if (styles.gettok(i , " ") == "multi")
+			*Styles |= MCS_MULTISELECT;
+		else if (styles.gettok(i , " ") == "notoday")
+			*Styles |= MCS_NOTODAY;
+		else if (styles.gettok(i , " ") == "notodaycircle")
+			*Styles |= MCS_NOTODAYCIRCLE;
+		else if (styles.gettok(i , " ") == "weeknum")
+			*Styles |= MCS_WEEKNUMBERS;
 
-    if ( styles.gettok( i , " " ) == "multi" )
-      *Styles |= MCS_MULTISELECT;
-    else if ( styles.gettok( i , " " ) == "notoday" )
-      *Styles |= MCS_NOTODAY;
-    else if ( styles.gettok( i , " " ) == "notodaycircle" )
-      *Styles |= MCS_NOTODAYCIRCLE;
-    else if ( styles.gettok( i , " " ) == "weeknum" )
-      *Styles |= MCS_WEEKNUMBERS;
+		i++;
+	}
 
-    i++;
-  }
-
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
 /*!
@@ -164,10 +164,9 @@ void DcxCalendar::parseCommandRequest( TString & input ) {
   this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
 
   int numtok = input.numtok( " " );
-
+//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/monthcal/structures/nmdaystate.asp
   //xdid -t [NAME] [ID] [SWITCH]
   if ( flags.switch_flags[19] ) {
-
     TString text = input.gettok( 4, -1, " " );
     text.trim( );
     SetWindowText( this->m_Hwnd, text.to_chr( ) );
@@ -182,51 +181,97 @@ void DcxCalendar::parseCommandRequest( TString & input ) {
  * blah
  */
 
-LRESULT DcxCalendar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) {
+	switch (uMsg) {
+		case WM_HELP: {
+			char ret[256];
+			this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+			break;
+		}
 
-  switch( uMsg ) {
+		case WM_NOTIFY: {
+			LPNMHDR hdr = (LPNMHDR) lParam;
 
-    case WM_HELP:
-      {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
+			if (!hdr)
+				break;
 
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
+			switch(hdr->code) {
+/*
+				case MCS_DAYSTATE: {
+#define BOLDDAY(ds,iDay) if(iDay>0 && iDay<32)\
+                            (ds)|=(0x00000001<<(iDay-1))
 
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
+					LPNMDAYSTATE lpNMDayState = (LPNMDAYSTATE) lParam;
+					MONTHDAYSTATE mds[12];
 
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
+					int iMax = lpNMDayState->cDayState;
+mIRCDebug("max %d", iMax);
+					for (int i = 0; i < iMax; i++) {
+						mIRCDebug("%d", i);
+						mds[i] = (MONTHDAYSTATE) 0;
+						BOLDDAY(mds[i],15);
+						//if (i == 15)
+						//	mds[i] = (MONTHDAYSTATE) TRUE;
+					}
 
-          SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
+						//BOLDDAY(mds[i],15);
 
-    case WM_DESTROY:
-      {
-        //mIRCError( "WM_DESTROY" );
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+					lpNMDayState->prgDayState = mds;
+					//mIRCError("daystate");
+					bParsed = TRUE;
+					return FALSE;
+					break;
+				}
+*/
+				case MCN_SELCHANGE: {
+					mIRCError("selchange");
+					break;
+				}
+				case MCN_SELECT: {
+					mIRCError("select");
+					break;
+				}
+				case NM_RELEASEDCAPTURE: {
+					mIRCError("sclick");
+					break;
+				}
+				default: {
+					mIRCError("ELSE");
+					break;
+				}
+			} // end switch
+		}
 
-    default:
-      break;
-  }
+		case WM_MOUSEMOVE: {
+			this->m_pParentDialog->setMouseControl(this->getUserID());
+			break;
+		}
 
-  return 0L;
+		case WM_SETFOCUS: {
+			this->m_pParentDialog->setFocusControl(this->getUserID());
+			break;
+		}
+
+		case WM_SETCURSOR: {
+			if (LOWORD(lParam) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL) {
+				SetCursor( this->m_hCursor );
+				bParsed = TRUE;
+				return TRUE;
+			}
+
+			break;
+		}
+
+		case WM_DESTROY: {
+			//mIRCError( "WM_DESTROY" );
+			delete this;
+			bParsed = TRUE;
+			break;
+		}
+
+		default:
+			break;
+	}
+
+	return 0L;
 }
