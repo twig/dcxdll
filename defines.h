@@ -60,7 +60,7 @@
 #define DCX_DIVIDERCLASS     "DCXDividerClass"      //!< DCX Divider Class Name
 #define DCX_PANELCLASS       "DCXPanelClass"        //!< DCX Panel Class Name
 #define DCX_CALENDARCLASS    "DCXCalendarClass"     //!< DCX Panel Class Name
-
+#define DCX_PAGERCLASS    "DCXCPagerClass"     //!< DCX Panel Class Name
 #define DCX_BOXCLASS         "DCXBoxClass"          //!< DCX Box Class Name
 //#define DCX_RADIOCLASS       "DCXRadioClass"        //!< DCX Radio Class Name
 //#define DCX_CHECKCLASS       "DCXCheckClass"        //!< DCX Check Class Name
