@@ -378,9 +378,11 @@ function format_xcmd($type, $flag, $data, $id) {
 			$example = "\$xdialog(dcx" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
 		    break;
         case "event":
+            $dialogspecific = array('mouseleave', 'mouseenter', 'mouse', 'focusout', 'focus');
+            
         	$heading = "$flag";
 			$syntax = "/cb_alias DNAME $flag ID {$data['__cmd']}";
-			$example = "/cb_alias dcx $flag 4 {$data['__eg']} ";
+			$example = "/cb_alias dcx $flag " . (!in_array($flag, $dialogspecific) ? ' 0 ' : ' 4 ') . $data['__eg'];
             break;
         case "xpopup":
 			$heading = "/$type -$flag";
