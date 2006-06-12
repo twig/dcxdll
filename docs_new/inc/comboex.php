@@ -57,9 +57,8 @@ function get_xdid_comboex(&$XDID) {
 	            "Use [v]0[/v] for [p]ICON[/p] if the file is a single icon file.",
 			),
 		),
-		'y' => array(
-	        '__desc' => 'This command lets you clear the comboex image list.',
-		),
+		'y' => 'This command lets you clear the comboex image list.',
+		'r' => 'This command lets you clear all the comboex items.',
 	);
 }
 
