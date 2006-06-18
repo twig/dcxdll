@@ -1,6 +1,6 @@
 <?php
 function get_intro_calendar() {
-	echo "Calendar control.";
+	echo "Calendar control. This control is currently incomplete.";
 }
 
 
@@ -36,9 +36,11 @@ function get_xdidprops_calendar(&$XDIDPROPS) {
 
 function get_events_calendar(&$EVENTS) {
 	$EVENTS = array(
-	    "sclick" => "When the text is clicked.",
-	    "dclick" => "When the text is double-clicked.",
+	    "sclick" => "When a date is clicked.",
+//	    "dclick" => "When the text is double-clicked.",
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		'selchange' => 'When the date selection is changed.',
+		'select' => 'When a new date is selected.',
 	);
 }
 ?>

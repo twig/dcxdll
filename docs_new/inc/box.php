@@ -98,6 +98,11 @@ function get_xdidprops_box(&$XDIDPROPS) {
 function get_events_box(&$EVENTS) {
 	$EVENTS = array(
 	    "help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+	    'lbdown' => 'When the left mouse button is clicked down.',
+	    'sclick' => 'When the left mouse button is clicked and released.',
+	    'lbup' => 'When the left mouse button is released.',
+	    'dclick' => 'When the left mouse button is double clicked.',
+	    'rclick' => 'When the right mouse button is clicked.',
 	);
 }
 ?>

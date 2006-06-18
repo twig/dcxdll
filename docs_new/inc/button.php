@@ -39,6 +39,7 @@ function get_xdid_button(&$XDID) {
 					'FILENAME' =>"Bitmap filename.",
 				),
 			),
+			'__notes' => 'As from DCX v1.3.4, this no longer defines the caption color for the button control. This functionality was moved to /xdid -c',
 		),
 		"l" => array(
 			'__desc' => "This command lets you set the icon size of the button and clear the image list. SIZE can be 16, 24 or 32. (Not used for [s]bitmap[/s] button)",
