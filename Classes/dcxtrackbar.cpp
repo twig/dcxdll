@@ -1,4 +1,5 @@
 /*!
+http://www.codeproject.com/miscctrl/transparentslider.asp
  * \file dcxtrackbar.cpp
  * \brief blah
  *
@@ -539,7 +540,7 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
       {
         char ret[256];
 
-        switch( LOWORD( wParam ) ) {
+		  switch( LOWORD( wParam ) ) {
 
           case TB_TOP:
             this->callAliasEx( ret, "%s,%d,%d", "top", this->getUserID( ), this->getPos( ) );
@@ -731,7 +732,7 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 					break;
 				}
-			}	// end NM_CUSTOMDRAW
+				} // end NM_CUSTOMDRAW
 		} // end notify
 
     default:

@@ -9,7 +9,6 @@
  *
  * \b Revisions
  *
- http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/comboboxes/comboboxreference/comboboxstyles.asp
  * © ScriptsDB.org - 2006
  */
 
@@ -37,46 +36,41 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styl
     ExStyles, 
     DCX_COMBOEXCLASS, 
     NULL,
-    WS_CHILD | WS_VISIBLE | Styles, 
+    WS_CHILD | WS_VISIBLE | CBS_AUTOHSCROLL | Styles, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     p_Dialog->getHwnd( ),
     (HMENU) ID,
     GetModuleHandle(NULL), 
     NULL);
-/*
+
   if ( bNoTheme )
     SetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  //this->m_EditHwnd = NULL;
-  this->m_EditHwnd = (HWND) this->getEditControl();
+  this->m_EditHwnd = (HWND) this->getEditControl( );
 
-	// CBS_DROPDOWN (dropedit)
-  mIRCDebug("editbox %d = %d", this->getUserID(), this->m_EditHwnd);
+  if ( IsWindow( this->m_EditHwnd ) ) {
 
-	if (IsWindow(this->m_EditHwnd)) {
-		mIRCError("hook child");
-		LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
+    LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
 
-		lpce->cHwnd = this->m_Hwnd;
-		lpce->pHwnd = p_Dialog->getHwnd( );
+    lpce->cHwnd = this->m_Hwnd;
+    lpce->pHwnd = p_Dialog->getHwnd( );
 
-		lpce->OldProc = (WNDPROC) SetWindowLong( this->m_EditHwnd, GWL_WNDPROC, (LONG) DcxComboEx::ComboExEditProc );
-		SetWindowLong( this->m_EditHwnd, GWL_USERDATA, (LONG) lpce );    
-	}
-*/
+    lpce->OldProc = (WNDPROC) SetWindowLong( this->m_EditHwnd, GWL_WNDPROC, (LONG) DcxComboEx::ComboExEditProc );
+    SetWindowLong( this->m_EditHwnd, GWL_USERDATA, (LONG) lpce );    
+  }
+
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
-//  DragAcceptFiles(this->m_Hwnd, TRUE);
-/*
+  DragAcceptFiles(this->m_Hwnd, TRUE);
+
 	// fix bug with disabled creation
 	// todo: fix this properly
 	if (Styles & WS_DISABLED) {
 		EnableWindow(this->m_Hwnd, TRUE);
 		EnableWindow(this->m_Hwnd, FALSE);
 	}
-*/
 }
 
 /*!
@@ -147,22 +141,9 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
  */
 
 DcxComboEx::~DcxComboEx( ) {
-	mIRCError("destroying");
+
   ImageList_Destroy( this->getImageList( ) );
-/*
-  if (IsWindow(this->m_EditHwnd)) {
-	  LPDCXCOMBOEXEDIT lpce = (LPDCXCOMBOEXEDIT) GetWindowLong( this->m_EditHwnd, GWL_USERDATA );
 
-			mIRCError("ncdsetroy edit 2");
-        WNDPROC OldProc = lpce->OldProc;
-
-		  SetWindowLong(this->m_EditHwnd, GWL_WNDPROC, (LONG) OldProc);
-		  SetWindowLong(this->m_EditHwnd, GWL_USERDATA, NULL);
-
-        if (lpce)
-          delete lpce;
-  }
-*/
   this->unregistreDefaultWindowProc( );
 }
 
@@ -176,7 +157,7 @@ void DcxComboEx::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
   //*ExStyles |= CBES_EX_NOSIZELIMIT;
   unsigned int i = 1, numtok = styles.numtok( " " );
-/*
+
   while ( i <= numtok ) {
 
     if ( styles.gettok( i , " " ) == "simple" )
@@ -188,7 +169,6 @@ void DcxComboEx::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
     i++;
   }
-  */
   this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -528,28 +508,8 @@ LRESULT DcxComboEx::getItem( PCOMBOBOXEXITEM lpcCBItem ) {
  * blah
  */
 
-LRESULT DcxComboEx::getEditControl() {
-	if (this->isStyle(CBS_DROPDOWN))
-		return SendMessage(this->m_Hwnd, CBEM_GETEDITCONTROL, NULL, NULL);
-	// simple
-	else if (this->isStyle(CBS_SIMPLE)) {
-		mIRCError("simple getedit");
-		HWND hEdit;
-		char *wndClassName = "Edit";
-
-		//This code obtains the handle to the edit control of the combobox.
-		hEdit = GetWindow(this->m_Hwnd, GW_CHILD);
-		GetClassName(hEdit, wndClassName, 10);
-
-		// if its NOT the right window (listbox hwnd rather than editbox)
-		if (lstrcmp(wndClassName, "Edit"))
-			hEdit = GetWindow(hEdit, GW_HWNDNEXT);
-
-		//EnableWindow(hEdit, FALSE);
-		return (LRESULT) hEdit;
-	}
-
-	return NULL;
+LRESULT DcxComboEx::getEditControl( ) {
+  return SendMessage( this->m_Hwnd, CBEM_GETEDITCONTROL, (WPARAM) 0, (LPARAM) 0 );
 }
 
 /*!
@@ -638,7 +598,7 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
         this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
       }
       break;
-/*
+
     case WM_COMMAND:
       {
 
@@ -739,16 +699,9 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		DragFinish(files);
 		break;
 	}
-*/
-	case WM_NCDESTROY:
-		{
-			mIRCError("combo destroy NC");
-			break;
-		}
-
     case WM_DESTROY:
       {
-        mIRCError("combo WM_DESTROY");
+        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }
@@ -768,13 +721,12 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
  */
 
 LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
-mIRCDebug("here %d", mHwnd);
 
   LPDCXCOMBOEXEDIT lpce = (LPDCXCOMBOEXEDIT) GetWindowLong( mHwnd, GWL_USERDATA );
 
-
   //mIRCError( "DcxComboEx::ComboExEditProc" );
   switch( uMsg ) {
+
     case WM_GETDLGCODE:
       return DLGC_WANTALLKEYS;
 
@@ -792,31 +744,17 @@ mIRCDebug("here %d", mHwnd);
         }
       }
       break;
-/*
-		case WM_DESTROY:
-		{
-			mIRCError("destroy edit");
 
-			if (lpce)
-				delete lpce;
-			
-			return 0L;
-			break;
-		}
-		case WM_NCDESTROY:
-		{
-			mIRCError("ncdsetroy edit");
+    case WM_NCDESTROY:
+      {
+        
+        WNDPROC OldProc = lpce->OldProc;
+        if ( lpce )
+          delete lpce;
 
-			SetWindowLong(mHwnd, GWL_WNDPROC, (LONG) lpce->OldProc);
-			//SetWindowLong(mHwnd, GWL_USERDATA, NULL);
-			//DcxComboEx * pthis = (DcxComboEx *) GetProp( lpce->cHwnd, "dcx_cthis" );
-			//pthis->m_EditHwnd = NULL;
-
-			return CallWindowProc(lpce->OldProc, mHwnd, uMsg, wParam, lParam );
-		}
-		break;
-*/
+        return CallWindowProc( OldProc, mHwnd, uMsg, wParam, lParam );
+      }
+      break;
   }
-
   return CallWindowProc( lpce->OldProc, mHwnd, uMsg, wParam, lParam );
 }

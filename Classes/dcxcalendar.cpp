@@ -1,4 +1,6 @@
 /*!
+http://www.codeguru.com/cpp/controls/controls/dateselectioncontrolsetc/article.php/c2229/
+
  * \file dcxcalendar.cpp
  * \brief blah
  *
@@ -162,9 +164,15 @@ void DcxCalendar::parseCommandRequest( TString & input ) {
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
   this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
+//MonthCal_SetMaxSelCount(this->m_Hwnd, 7);
+  // set colors
+  // set cur sel
+  // set day state
+  // set sel range
+  // set today
 
   int numtok = input.numtok( " " );
-//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/monthcal/structures/nmdaystate.asp
+// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/monthcal/structures/nmdaystate.asp
   //xdid -t [NAME] [ID] [SWITCH]
   if ( flags.switch_flags[19] ) {
     TString text = input.gettok( 4, -1, " " );
@@ -188,6 +196,12 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
 			break;
 		}
+
+		//case WM_GETDLGCODE:
+		//{
+		//	return DLGC_WANTARROWS;
+		//	break;
+		//}
 
 		case WM_NOTIFY: {
 			LPNMHDR hdr = (LPNMHDR) lParam;
@@ -224,19 +238,69 @@ mIRCDebug("max %d", iMax);
 				}
 */
 				case MCN_SELCHANGE: {
-					mIRCError("selchange");
+					char ret[256];
+					this->callAliasEx(ret, "%s,%d", "selchange", this->getUserID());
 					break;
 				}
 				case MCN_SELECT: {
-					mIRCError("select");
+/*
+					// the most days you can select at a time
+					//mIRCDebug("selcount %d", MonthCal_GetMaxSelCount(this->m_Hwnd));
+					// get the selected range
+					SYSTEMTIME monthrange[2];
+
+					MonthCal_GetSelRange(this->m_Hwnd, monthrange);
+
+//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sysinfo/base/converting_a_time_t_value_to_a_file_time.asp
+					FILETIME ft1;
+					FILETIME ft2;
+
+					SYSTEMTIME st1 = monthrange[0];
+					SYSTEMTIME st2 = monthrange[1];
+
+					SystemTimeToFileTime(&st1, &ft1);
+					SystemTimeToFileTime(&st2, &ft2);
+
+					//LONGLONG long64a = Int32x32To64(t, 10000000);
+					//LONGLONG long64b = Int32x32To64(t, 10000000);
+					//pft->dwLowDateTime = (DWORD) ll;
+					//pft->dwHighDateTime = ll >>32;
+
+//					SystemTimeToFileTime(*(monthrange[0]), &ft1);
+//					SystemTimeToFileTime(*(monthrange[1]), &ft2);
+
+					//INT64 tt = (ft1.dwHighDateTime << 32) +  ft1.dwLowDateTime;
+
+	LARGE_INTEGER li;    //[more info]
+	li.LowPart = ft1.dwLowDateTime;
+	li.HighPart = ft1.dwHighDateTime;
+
+					//mIRCDebug("%d, %d", ft1, ft2);
+					mIRCDebug("%d %d %d", ft1.dwHighDateTime, ft1.dwLowDateTime, li.QuadPart);
+*/
+/*
+    SYSTEMTIME st;
+    FILETIME ft;
+    LARGE_INTEGER li;    
+    GetSystemTime(&st);
+    SystemTimeToFileTime(&st, &ft);
+    
+    li.LowPart = ft.dwLowDateTime;
+    li.HighPart = ft.dwHighDateTime;
+
+mIRCDebug("$asctime(%d)", ft);
+*/
+					char ret[256];
+					this->callAliasEx(ret, "%s,%d", "select", this->getUserID());
 					break;
 				}
 				case NM_RELEASEDCAPTURE: {
-					mIRCError("sclick");
+					char ret[256];
+					this->callAliasEx(ret, "%s,%d", "sclick", this->getUserID());
 					break;
 				}
 				default: {
-					mIRCError("ELSE");
+					//mIRCError("ELSE");
 					break;
 				}
 			} // end switch

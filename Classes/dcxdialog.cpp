@@ -1290,6 +1290,17 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
 					}
 					break;
+
+				case MCS_DAYSTATE:
+				case MCN_SELCHANGE:
+				case MCN_SELECT:
+				case NM_RELEASEDCAPTURE:
+				{
+					if (lstrcmp(DCX_CALENDARCLASS, ClassName) == 0)
+						return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
+
+					break;
+				}
           } // switch
 
         } // if classname
