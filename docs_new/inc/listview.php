@@ -200,6 +200,7 @@ function get_xdid_listview(&$XDID) {
 	        '__cmd' => '[N] [+FLAGS] [WIDTH]',
 	        '__eg' => '2 + 100',
 			'__params' => array(
+                'N' => 'Column index ([v]0[/v] for first column)',
                 '+FLAGS' => array(
                     '__desc' => 'Flags for column width.',
                     '__values' => array(
@@ -208,7 +209,6 @@ function get_xdid_listview(&$XDID) {
 					),
 				),
                 'WIDTH' => 'Header width (Ignored if you use flags +a or +h).',
-                'ICON' => 'Icon index ([v]0[/v] for first column)',
 			),
 			'__notes' => 'If the flag +h is used for the last column, the column will be resized to the width of the control.',
 		),
