@@ -324,7 +324,7 @@ void DcxEdit::parseCommandRequest( TString & input ) {
 	}
 
   // xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
-  else if ( flags.switch_flags[14] && numtok > 4 ) {
+  else if ( flags.switch_flags[14] && numtok > 3 ) {
     
     if ( this->isStyle( ES_MULTILINE ) ) {
 
