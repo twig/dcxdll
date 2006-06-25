@@ -186,5 +186,6 @@ BOOL isXP( );
 HWND FindOwner(TString data, HWND defaultWnd);
 BOOL CopyToClipboard(HWND owner, TString str);
 HBITMAP LoadBitmap(HBITMAP dest, TString &filename);
+HICON CreateGrayscaleIcon(HICON hIcon);
 
 #endif // _DEFINES_H_

@@ -578,3 +578,97 @@ HBITMAP LoadBitmap(HBITMAP dest, TString &filename) {
 
 	return dest;
 }
+
+
+/*
+from
+http://www.codeproject.com/bitmap/creategrayscaleicon.asp
+update for xp icons
+http://www.codeguru.com/cpp/g-m/bitmap/icons/comments.php/c4913/?thread=54904
+further readings
+- http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/bitmaps_233i.asp
+*/
+// This function creates a grayscale icon starting from a given icon.
+// The resulting icon will have the same size of the original one.
+//
+// Parameters:
+//      [IN]    hIcon
+//              Handle to the original icon.
+//
+// Return value:
+//      If the function succeeds, the return value is the handle to 
+//      the newly created grayscale icon.
+//      If the function fails, the return value is NULL.
+//
+HICON CreateGrayscaleIcon(HICON hIcon) {
+	HICON		hGrayIcon = NULL;
+	HDC		hMainDC = NULL, hMemDC1 = NULL, hMemDC2 = NULL;
+	BITMAP	bmp;
+	HBITMAP	hOldBmp1 = NULL, hOldBmp2 = NULL;
+	ICONINFO	csII, csGrayII;
+	BOOL		bRetValue = FALSE;
+
+	if (!GetIconInfo(hIcon, &csII))
+		return NULL;
+
+	ZeroMemory(&csGrayII, sizeof(ICONINFO));
+
+	hMainDC = GetDC(NULL);
+	hMemDC1 = CreateCompatibleDC(hMainDC);
+	hMemDC2 = CreateCompatibleDC(hMainDC);
+
+	if (hMainDC == NULL || hMemDC1 == NULL || hMemDC2 == NULL)
+		return NULL;
+
+	if (GetObject(csII.hbmColor, sizeof(BITMAP), &bmp)) {
+		DWORD dwWidth = csII.xHotspot*2;
+		DWORD dwHeight = csII.yHotspot*2;
+
+		csGrayII.hbmColor = CreateBitmap(dwWidth, dwHeight, bmp.bmPlanes, bmp.bmBitsPixel, NULL);
+
+		if (csGrayII.hbmColor) {
+			hOldBmp1 = (HBITMAP) SelectObject(hMemDC1, csII.hbmColor);
+			hOldBmp2 = (HBITMAP) SelectObject(hMemDC2, csGrayII.hbmColor);
+
+			//::BitBlt(hMemDC2, 0, 0, dwWidth, dwHeight, hMemDC1, 0, 0, SRCCOPY);
+
+			DWORD		dwLoopY = 0, dwLoopX = 0;
+			COLORREF	crPixel = 0;
+			BYTE	byNewPixel = 0;
+
+			for (dwLoopY = 0; dwLoopY < dwHeight; dwLoopY++) {
+				for (dwLoopX = 0; dwLoopX < dwWidth; dwLoopX++) {
+					crPixel = GetPixel(hMemDC1, dwLoopX, dwLoopY);
+
+					byNewPixel = (BYTE)((GetRValue(crPixel) * 0.299) + 
+						(GetGValue(crPixel) * 0.587) + 
+						(GetBValue(crPixel) * 0.114));
+
+					if (crPixel)
+						SetPixel(hMemDC2, dwLoopX, dwLoopY, RGB(byNewPixel, byNewPixel, byNewPixel));
+				} // for
+			} // for
+
+			SelectObject(hMemDC1, hOldBmp1);
+			SelectObject(hMemDC2, hOldBmp2);
+
+			csGrayII.hbmMask = csII.hbmMask;
+			csGrayII.fIcon = TRUE;
+
+
+
+			hGrayIcon = ::CreateIconIndirect(&csGrayII);
+		} // if
+
+		DeleteObject(csGrayII.hbmColor);
+		//::DeleteObject(csGrayII.hbmMask);
+	} // if
+
+	DeleteObject(csII.hbmColor);
+	DeleteObject(csII.hbmMask);
+	DeleteDC(hMemDC1);
+	DeleteDC(hMemDC2);
+	ReleaseDC(NULL, hMainDC);
+
+	return hGrayIcon;
+} // End of CreateGrayscaleIcon
