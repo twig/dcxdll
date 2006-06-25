@@ -110,39 +110,42 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
 
   }
   // xpopup -c -> [MENU] [SWITCH] [STYLE]
-  else if ( flags.switch_flags[2] && numtok > 2 && 
-    ( input.gettok( 1, " " ) != "mirc" || input.gettok( 1, " " ) != "mircbar" ) ) {
+	else if ((flags.switch_flags[2]) &&
+		(numtok > 2) && 
+		(input.gettok(1, " ") != "mirc" || input.gettok(1, " ") != "mircbar")) {
 
-    if ( p_Menu != NULL ) {
+		if (p_Menu != NULL) {
+			char data[500];
+			wsprintf( data, "/xpopup -c : \"%s\" already exists", input.gettok( 1, " " ).to_chr( ) );
+			mIRCError( data );
+		}
+		else {
+			XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
 
-      char data[500];
-      wsprintf( data, "/xpopup -c : \"%s\" already exists", input.gettok( 1, " " ).to_chr( ) );
-      mIRCError( data );
-    }
-    else {
+			if (input.gettok(3, " ") == "office2003rev")
+				style = XPopupMenu::XPMS_OFFICE2003_REV;
+			else if (input.gettok(3, " ") == "officexp")
+				style = XPopupMenu::XPMS_OFFICEXP;
+			else if (input.gettok(3, " ") == "icy")
+				style = XPopupMenu::XPMS_ICY;
+			else if (input.gettok(3, " ") == "icyrev")
+				style = XPopupMenu::XPMS_ICY_REV;
+			else if (input.gettok(3, " ") == "grade")
+				style = XPopupMenu::XPMS_GRADE;
+			else if (input.gettok(3, " ") == "graderev")
+				style = XPopupMenu::XPMS_GRADE_REV;
+			else if (input.gettok(3, " ") == "normal")
+				style = XPopupMenu::XPMS_NORMAL;
+			else if (input.gettok(3, " ") == "custom")
+				style = XPopupMenu::XPMS_CUSTOM;
+			else if (input.gettok(3, " ") == "vertical")
+				style = XPopupMenu::XPMS_VERTICAL;
+			else if (input.gettok(3, " ") == "verticalrev")
+				style = XPopupMenu::XPMS_VERTICAL_REV;
 
-      XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
-
-      if ( input.gettok( 3, " " ) == "office2003rev" )
-        style = XPopupMenu::XPMS_OFFICE2003_REV;
-      else if ( input.gettok( 3, " " ) == "officexp" )
-        style = XPopupMenu::XPMS_OFFICEXP;
-      else if ( input.gettok( 3, " " ) == "icy" )
-        style = XPopupMenu::XPMS_ICY;
-      else if ( input.gettok( 3, " " ) == "icyrev" )
-        style = XPopupMenu::XPMS_ICY_REV;
-      else if ( input.gettok( 3, " " ) == "grade" )
-        style = XPopupMenu::XPMS_GRADE;
-      else if ( input.gettok( 3, " " ) == "graderev" )
-        style = XPopupMenu::XPMS_GRADE_REV;
-      else if ( input.gettok( 3, " " ) == "normal" )
-        style = XPopupMenu::XPMS_NORMAL;
-      else if ( input.gettok( 3, " " ) == "custom" )
-        style = XPopupMenu::XPMS_CUSTOM;
-
-      this->m_vpXPMenu.push_back( new XPopupMenu( input.gettok( 1, " " ), style ) );
-    }
-  }
+			this->m_vpXPMenu.push_back(new XPopupMenu(input.gettok(1, " "), style));
+		}
+	}
   // xpopup -d -> [MENU] [SWITCH]
   else if ( flags.switch_flags[3] && ( input.gettok( 1, " " ) != "mirc" || input.gettok( 1, " " ) != "mircbar" ) ) {
 

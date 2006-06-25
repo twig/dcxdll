@@ -171,6 +171,15 @@ void XPopupMenuItem::DrawItem( LPDRAWITEMSTRUCT lpdis ) {
 
   LPXPMENUCOLORS lpcol = this->m_pXParentMenu->getColors( );
   UINT iItemStyle = this->m_pXParentMenu->getItemStyle( );
+/*
+	// playing around with menu transparency
+	HWND hMenuWnd = WindowFromDC(lpdis->hDC);
+	if (IsWindow(hMenuWnd)) {
+		DWORD dwStyle = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
+		SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
+		SetLayeredWindowAttributes(hMenuWnd, 0, 75, LWA_ALPHA);
+	}
+*/
   // All Items
   this->DrawItemBackground( lpdis, lpcol );
   this->DrawItemBox( lpdis, lpcol );
@@ -219,7 +228,7 @@ void XPopupMenuItem::DrawItem( LPDRAWITEMSTRUCT lpdis ) {
 }
 
 /*!
- * \brief blah
+ * \brief Draws the background of the actual item where text resides
  *
  * blah
  */
@@ -291,53 +300,71 @@ void XPopupMenuItem::DrawItemBackground( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS 
 }
 
 /*!
- * \brief blah
+ * \brief Draws the area on the left side of the menu for checks/radios/icons
  *
  * blah
  */
 
-void XPopupMenuItem::DrawItemBox( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol ) {
+void XPopupMenuItem::DrawItemBox(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol) {
+	//mIRCError( "DrawItemBox" );
 
-  //mIRCError( "DrawItemBox" );
+	switch (this->m_pXParentMenu->getStyle()) {
+		case XPopupMenu::XPMS_OFFICE2003_REV:
+		{
+			RECT rc;
+			SetRect(&rc, XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom);
+			this->DrawGradient(lpdis->hDC, &rc, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox));
+			break;
+		}
 
-  switch ( this->m_pXParentMenu->getStyle( ) ) {
+		case XPopupMenu::XPMS_OFFICEXP:
+		{
+			RECT rc;
+			SetRect(&rc, XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom);
+			HBRUSH hBrush = CreateSolidBrush(lpcol->m_clrBox);
+			FillRect(lpdis->hDC, &rc, hBrush);
+			DeleteObject(hBrush);
+			break;
+		}
 
-    case XPopupMenu::XPMS_OFFICE2003_REV:
-      {
-        RECT rc;
-        SetRect( &rc, XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom );
-        this->DrawGradient( lpdis->hDC, &rc, lpcol->m_clrBox, LightenColor( 200, lpcol->m_clrBox ) );
-      }
-      break;
+		case XPopupMenu::XPMS_VERTICAL_REV:
+		{
+			RECT rc;
 
-    case XPopupMenu::XPMS_OFFICEXP:
-      {
-        RECT rc;
-        SetRect( &rc, XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom );
-        HBRUSH hBrush = CreateSolidBrush( lpcol->m_clrBox );
-        FillRect( lpdis->hDC, &rc, hBrush );
-        DeleteObject( hBrush );
-      }
-      break;
+			GetClipBox(lpdis->hDC, &rc);
+			rc.right = XPMI_BOXLPAD + XPMI_BOXWIDTH;
+			this->DrawGradient(lpdis->hDC, &rc, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+			break;
+		}
 
-    case XPopupMenu::XPMS_ICY:
-    case XPopupMenu::XPMS_ICY_REV:
-    case XPopupMenu::XPMS_GRADE:
-    case XPopupMenu::XPMS_GRADE_REV:
-    case XPopupMenu::XPMS_CUSTOM:
-    case XPopupMenu::XPMS_NORMAL:
-      break;
+		case XPopupMenu::XPMS_VERTICAL:
+		{
+			RECT rc;
 
-    case XPopupMenu::XPMS_OFFICE2003:
-    default:
-      {
-        RECT rc;
-        SetRect( &rc, XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom );
-        this->DrawGradient( lpdis->hDC, &rc, LightenColor( 200, lpcol->m_clrBox ), lpcol->m_clrBox );
-      }
-      break;
+			GetClipBox(lpdis->hDC, &rc);
+			rc.right = XPMI_BOXLPAD + XPMI_BOXWIDTH;
+			this->DrawGradient(lpdis->hDC, &rc, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+			break;
+		}
 
-  }
+		case XPopupMenu::XPMS_ICY:
+		case XPopupMenu::XPMS_ICY_REV:
+		case XPopupMenu::XPMS_GRADE:
+		case XPopupMenu::XPMS_GRADE_REV:
+		case XPopupMenu::XPMS_CUSTOM:
+		case XPopupMenu::XPMS_NORMAL:
+			break;
+
+		case XPopupMenu::XPMS_OFFICE2003:
+		default:
+		{
+			RECT rc;
+			SetRect(&rc, XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom);
+
+			this->DrawGradient(lpdis->hDC, &rc, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox);
+			break;
+		}
+	}
 }
 
 /*!

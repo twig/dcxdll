@@ -58,18 +58,19 @@ public:
    *
    * Availbale XPopupMenu Styles
    */
-  enum MenuStyle {
-
-    XPMS_OFFICE2003,
-    XPMS_OFFICE2003_REV,
-    XPMS_OFFICEXP,
-    XPMS_ICY,
-    XPMS_ICY_REV,
-    XPMS_GRADE,
-    XPMS_GRADE_REV,
-    XPMS_NORMAL,
-    XPMS_CUSTOM
-  };
+	enum MenuStyle {
+		XPMS_OFFICE2003,
+		XPMS_OFFICE2003_REV,
+		XPMS_OFFICEXP,
+		XPMS_ICY,
+		XPMS_ICY_REV,
+		XPMS_GRADE,
+		XPMS_GRADE_REV,
+		XPMS_NORMAL,
+		XPMS_CUSTOM,
+		XPMS_VERTICAL,
+		XPMS_VERTICAL_REV,
+	};
 
   XPopupMenu( HMENU hMenu );
   XPopupMenu( TString & tsMenuName, MenuStyle mStyle );
