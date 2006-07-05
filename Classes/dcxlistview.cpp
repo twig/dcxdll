@@ -5,9 +5,11 @@
  * blah
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.0
+ * \version 1.1
  *
  * \b Revisions
+ *	1.1
+ *		Added Visual Studio 2005 specific code. Ook
  *
  * © ScriptsDB.org - 2006
  */
@@ -281,8 +283,11 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
         int i = 1;
         while ( ( nItem = ListView_GetNextItem( this->m_Hwnd, nItem, LVIS_SELECTED ) ) != -1 ) {
 
+#ifdef VS2005
+          _itoa( nItem + 1, line, 10 );
+#else
           itoa( nItem + 1, line, 10 );
-          
+#endif          
           list += line;
           if ( i != nSelItems )
             list += ',';

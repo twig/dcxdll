@@ -5,9 +5,11 @@
  * blah
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.0
+ * \version 1.1
  *
  * \b Revisions
+ *	1.1
+ *		Added Visual Studio 2005 specific code. Ook
  *
  * © ScriptsDB.org - 2006
  */
@@ -1445,7 +1447,11 @@ std::string DcxTreeView::getPathFromVector( VectorOfInts * numPath ) {
 
  while ( itStart != itEnd ) {
 
+#ifdef VS2005
+   _itoa( *itStart, num, 10 );
+#else
    itoa( *itStart, num, 10 );
+#endif
    path += num;
    path += ' ';
 

@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.5
+ * \version 1.6
  *
  * \b Revisions
  *	1.1
@@ -24,6 +24,9 @@
  *		Changed token functions to only call lstrlen( sepChars ) once. Ook
  *		Changed find() to only call lstrlen( substring ) once. Ook
  *		Added istok() function. Ook
+ *	1.6
+ *		Added addtok() function. Ook
+ *		Added Visual Studio 2005 specific defines. Ook
  *
  * © ScriptsDB.org - 2005
  */
@@ -1542,6 +1545,31 @@ void TString::instok( char * cToken, int N, char * sepChars ) {
     delete [] this->m_pString;
     this->m_pString = pNew;
   }
+}
+
+/*!
+ * \brief blah
+ * added by Ook
+ * blah
+ */
+void TString::addtok( char * cToken, char * sepChars ) {
+
+  if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
+    return;
+  char * pNew = NULL;
+  int mp_len = lstrlen(this->m_pString);
+  if (mp_len) {
+	  pNew = new char[ lstrlen( cToken ) + mp_len + lstrlen( sepChars ) + 1 ];
+	  lstrcpy( pNew, this->m_pString );
+	  lstrcat( pNew, sepChars );
+	  lstrcat( pNew, cToken );
+  }
+  else {
+	  pNew = new char[ lstrlen( cToken ) + 1 ];
+	  lstrcpy( pNew, cToken );
+  }
+  delete [] this->m_pString;
+  this->m_pString = pNew;
 }
 
 bool TString::istok(char * cToken, char * sepChars ) {

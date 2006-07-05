@@ -5,9 +5,11 @@
  * This file contains constant, alias and variable type defintions.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.0
+ * \version 1.1
  *
  * \b Revisions
+ *	1.1
+ *		Added Visual Studio 2005 specific defines. Ook
  *
  * © ScriptsDB.org - 2006
  */
@@ -21,6 +23,13 @@
 
 #define _WIN32_WINNT 0x0501
 #define _WIN32_IE 0x0501
+// Required for VS 2005
+#define _CRT_SECURE_NO_DEPRECATE 1
+// comment this define out when not using Visual Studio 2005
+#ifdef _VC80_UPGRADE
+#define VS2005 1
+#endif
+// end of VS 2005
 
 #include <windows.h>
 #include <windowsx.h>
@@ -36,10 +45,20 @@
 
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 3
-#define DLL_BUILD      4
+#define DLL_BUILD      5
 #define DLL_STATE "Development Build"
 
 #define mIRC_ID_OFFSET 6000 //!< mIRC Dialog ID Offset
+
+// Required for VS 2005
+#ifndef LPNMLVDISPINFO
+#ifdef UNICODE
+#define LPNMLVDISPINFO LPNMLVDISPINFOW
+#else
+#define LPNMLVDISPINFO LPNMLVDISPINFOA
+#endif
+#endif
+// end of VS 2005
 
 // DCX Stuff
 

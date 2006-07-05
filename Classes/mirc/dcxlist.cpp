@@ -5,9 +5,11 @@
  * blah
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.0
+ * \version 1.1
  *
  * \b Revisions
+ *	1.1
+ *		Added Visual Studio 2005 specific code. Ook
  *
  * © ScriptsDB.org - 2006
  */
@@ -185,8 +187,11 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
         int i = 0;
 
         while ( i < n ) {
-
+#ifdef VS2005
+          _itoa( p[i]+1, num, 10 );
+#else
           itoa( p[i]+1, num, 10 );
+#endif
           path += num;
           path += ',';
 

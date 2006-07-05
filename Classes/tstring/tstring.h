@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.5
+ * \version 1.6
  *
  * \b Revisions
  *	1.1
@@ -24,12 +24,19 @@
  *		Changed token functions to only call lstrlen( sepChars ) once. Ook
  *		Changed find() to only call lstrlen( substring ) once. Ook
  *		Added istok() function. Ook
+ *	1.6
+ *		Added addtok() function. Ook
+ *		Added Visual Studio 2005 specific defines. Ook
  *
  * © ScriptsDB.org - 2005
  */
 
 #ifndef _TSTRING_H_
 #define _TSTRING_H_
+
+// Required for VS 2005
+#define _CRT_SECURE_NO_DEPRECATE 1
+// end VS2005
 
 //#include <stdio.h>
 #include <stdlib.h>
