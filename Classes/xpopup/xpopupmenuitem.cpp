@@ -330,9 +330,12 @@ void XPopupMenuItem::DrawItemBox(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol) {
 		case XPopupMenu::XPMS_VERTICAL_REV:
 		{
 			RECT rc;
-
+			// NB: vertical & verticalrev styles will overwrite the items icons,
+			// causing the icon to only be seen when the item has the mouse over it,
+			// as the item is redrawn at that point.
 			GetClipBox(lpdis->hDC, &rc);
 			rc.right = XPMI_BOXLPAD + XPMI_BOXWIDTH;
+			//SetRect(&rc, XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom);
 			this->DrawGradient(lpdis->hDC, &rc, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
 			break;
 		}
@@ -343,6 +346,7 @@ void XPopupMenuItem::DrawItemBox(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol) {
 
 			GetClipBox(lpdis->hDC, &rc);
 			rc.right = XPMI_BOXLPAD + XPMI_BOXWIDTH;
+			//SetRect(&rc, XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom);
 			this->DrawGradient(lpdis->hDC, &rc, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
 			break;
 		}

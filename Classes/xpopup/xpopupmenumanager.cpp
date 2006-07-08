@@ -225,6 +225,12 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
       style = XPopupMenu::XPMS_GRADE;
     else if ( input.gettok( 3, " " ) == "graderev" )
       style = XPopupMenu::XPMS_GRADE_REV;
+	// added by Ook
+	else if ( input.gettok(3, " ") == "vertical")
+		style = XPopupMenu::XPMS_VERTICAL;
+	else if ( input.gettok(3, " ") == "verticalrev")
+		style = XPopupMenu::XPMS_VERTICAL_REV;
+	//
     else if ( input.gettok( 3, " " ) == "normal" )
       style = XPopupMenu::XPMS_NORMAL;
     else if ( input.gettok( 3, " " ) == "custom" )
