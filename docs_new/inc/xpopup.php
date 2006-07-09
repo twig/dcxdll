@@ -119,7 +119,7 @@ function get_xpopup(&$XPOPUP) {
 		'i' => array(
 	        '__desc' => 'This command lets you add an icon to the menu image list.',
 	        '__cmd' => '[INDEX] [FILENAME]',
-	        '__eg' => '+n 113 C:/mIRC/shell.dll',
+	        '__eg' => '113 C:/mIRC/shell.dll',
 	        '__params' => array(
 	            'INDEX' => 'Icon index in icon archive',
 				'FILENAME' => 'Icon archive filename',
