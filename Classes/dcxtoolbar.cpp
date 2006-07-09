@@ -188,10 +188,16 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
   // [NAME] [ID] [PROP]
   if ( input.gettok( 3, " " ) == "num" ) {
-
     wsprintf( szReturnValue, "%d", this->getButtonCount( ) );
     return;
   }
+	// [NAME] [ID] [PROP]
+	else if (input.gettok(3, " ") == "mouseitem") {
+		long lResult = SendMessage(this->m_Hwnd, TB_GETHOTITEM, NULL, NULL);
+
+		wsprintf(szReturnValue, "%d", lResult);
+		return;
+	}
   // [NAME] [ID] [PROP]
   else if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
 
