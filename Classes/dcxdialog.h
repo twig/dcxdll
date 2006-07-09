@@ -18,13 +18,18 @@
 #include "dcxwindow.h"
 #include "layout/layoutmanager.h"
 
-#define DBS_BKGCOLOR		0x01 //!< Control Background Color
-#define DBS_BKGBITMAP	0x02 //!< Control Background Bitmap
+#define DBS_BKGCOLOR		0x00000001 //!< Control Background Color
+#define DBS_BKGBITMAP	0x00000002 //!< Control Background Bitmap
 
-#define DBS_BKGNORMAL	0
-#define DBS_BKGCENTER	1
-#define DBS_BKGSTRETCH	2
-#define DBS_BKGTILE		3
+#define DBS_BKGNORMAL	0x00000004 // top left, no sizing applied
+#define DBS_BKGTILE		0x00000008 // tiled across whole dialog
+#define DBS_BKGSTRETCH	0x00000010 // stretched to fit
+
+// used with DBS_BKGNORMAL
+#define DBS_BKGCENTER	0x00000020 // centered horizontally
+#define DBS_BKGVCENTER	0x00000040 // centered vertically
+#define DBS_BKGRIGHT		0x00000080 // right aligned
+#define DBS_BKGBOTTOM	0x00000100 // bottom aligned
 
 // dummy runtime classe definition
 class DcxControl;

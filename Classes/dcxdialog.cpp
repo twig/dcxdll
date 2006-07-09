@@ -345,9 +345,9 @@ void DcxDialog::parseCommandRequest( TString & input ) {
   }
   // xdid -g [NAME] [SWITCH] [+FLAGS] [COLOR|FILENAME]
 	else if (flags.switch_flags[6] && numtok > 3) {
-		UINT iFlags = this->parseBkgFlags(input.gettok(3, " "));
+		this->m_uStyleBg = this->parseBkgFlags(input.gettok(3, " "));
 
-		if (iFlags & DBS_BKGCOLOR) {
+		if (this->m_uStyleBg & DBS_BKGCOLOR) {
 			COLORREF clrColor = atol(input.gettok(4, " ").to_chr());
 
 			if (this->m_hBackBrush != NULL) {
@@ -358,7 +358,7 @@ void DcxDialog::parseCommandRequest( TString & input ) {
 			if (clrColor != -1)
 				this->m_hBackBrush = CreateSolidBrush(clrColor);
 		}
-		else if (iFlags & DBS_BKGBITMAP) {
+		else if (this->m_uStyleBg & DBS_BKGBITMAP) {
 			if (this->m_bitmapBg) {
 				DeleteObject(this->m_bitmapBg);
 				this->m_bitmapBg = NULL;
@@ -371,6 +371,7 @@ void DcxDialog::parseCommandRequest( TString & input ) {
 				this->m_bitmapBg = LoadBitmap(this->m_bitmapBg, filename);
 		}
 
+		//this->m_uStyleBg
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
   // xdid -j [NAME] [SWITCH]
@@ -748,31 +749,39 @@ UINT DcxDialog::parseLayoutFlags( TString & flags ) {
  * blah
  */
 
-UINT DcxDialog::parseBkgFlags( TString & flags ) {
+UINT DcxDialog::parseBkgFlags(TString & flags) {
+	INT i = 1, len = flags.len(), iFlags = 0;
 
-  INT i = 1, len = flags.len( ), iFlags = 0;
+	// no +sign, missing params
+	if (flags[0] != '+') 
+		return iFlags;
 
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return iFlags;
+	while (i < len) {
+		if (flags[i] == 'b')
+			iFlags |= DBS_BKGCOLOR;
+		else if (flags[i] == 'i')
+			iFlags |= DBS_BKGBITMAP;
 
-  while ( i < len ) {
-	if ( flags[i] == 'b' )
-		iFlags |= DBS_BKGCOLOR;
-	if (flags[i] == 'i')
-		iFlags |= DBS_BKGBITMAP;
-	if (flags[i] == 's')
-		this->m_uStyleBg = DBS_BKGSTRETCH;
-	if (flags[i] == 't')
-		this->m_uStyleBg = DBS_BKGTILE;
-	if (flags[i] == 'c')
-		this->m_uStyleBg = DBS_BKGCENTER;
-	if (flags[i] == 'n')
-		this->m_uStyleBg = DBS_BKGNORMAL;
+		else if (flags[i] == 'n')
+			iFlags |= DBS_BKGNORMAL;
+		else if (flags[i] == 't')
+			iFlags |= DBS_BKGTILE;
+		else if (flags[i] == 's')
+			iFlags |= DBS_BKGSTRETCH;
 
-    ++i;
-  }
-  return iFlags;
+		else if (flags[i] == 'c')
+			iFlags |= DBS_BKGCENTER;
+		else if (flags[i] == 'v')
+			iFlags |= DBS_BKGVCENTER;
+		else if (flags[i] == 'r')
+			iFlags |= DBS_BKGRIGHT;
+		else if (flags[i] == 'o')
+			iFlags |= DBS_BKGBOTTOM;
+
+		i++;
+	}
+
+	return iFlags;
 }
 
 /*!
@@ -1285,11 +1294,12 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 				// richedit notifications
 				case EN_SELCHANGE:
 				case EN_LINK:
-					{
-						if (lstrcmp(DCX_RICHEDITCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-					}
+				{
+					if (lstrcmp(DCX_RICHEDITCLASS, ClassName) == 0)
+						return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
+
 					break;
+				}
 
 				case MCN_GETDAYSTATE:
 				case MCN_SELCHANGE:
@@ -1393,7 +1403,6 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
         char ClassName[256];
 
         if ( HIWORD( wParam ) == 0 && LOWORD( wParam ) == 2 && lParam == NULL ) {
-
           char ret[256];
           p_this->callAliasEx( ret, "%s,%d", "close", 0 );
 
@@ -1628,34 +1637,36 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 				int w = rwnd.right - rwnd.left;
 				int h = rwnd.bottom - rwnd.top;
 
-				switch (p_this->m_uStyleBg) {
-					case DBS_BKGCENTER:
-						x = (w - bmp.bmWidth) / 2;
-						y = (h - bmp.bmHeight) / 2;
-
-						//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-						TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-						break;
-
-					case DBS_BKGSTRETCH:
-						//BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-						TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-						break;
-
-					case DBS_BKGTILE:
-						for (y = 0; y < h; y += bmp.bmHeight) {
-							for (x = 0; x < w; x += bmp.bmWidth) {
-								//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-								TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-							}
+				// stretch
+				if (p_this->m_uStyleBg & DBS_BKGSTRETCH) {
+					//BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+					TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+				}
+				// tile
+				else if (p_this->m_uStyleBg & DBS_BKGTILE) {
+					for (y = 0; y < h; y += bmp.bmHeight) {
+						for (x = 0; x < w; x += bmp.bmWidth) {
+							//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+							TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
 						}
+					}
+				}
+				// normal
+				//else if (p_this->m_uStyleBg & DBS_BKGNORMAL) {
+				else {
+					// align horizontally
+					if (p_this->m_uStyleBg & DBS_BKGCENTER)
+						x = (w - bmp.bmWidth) / 2;
+					else if (p_this->m_uStyleBg & DBS_BKGRIGHT)
+						x = w - bmp.bmWidth;
 
-						break;
+					// align vertically
+					if (p_this->m_uStyleBg & DBS_BKGVCENTER)
+						y = (h - bmp.bmHeight) / 2;
+					else if (p_this->m_uStyleBg & DBS_BKGBOTTOM)
+						y = h - bmp.bmHeight;
 
-					default:
-						//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-						TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-						break;
+					TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
 				}
 
 				DeleteDC(hdcbmp);
