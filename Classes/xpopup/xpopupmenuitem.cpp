@@ -329,25 +329,13 @@ void XPopupMenuItem::DrawItemBox(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol) {
 
 		case XPopupMenu::XPMS_VERTICAL_REV:
 		{
-			RECT rc;
-			// NB: vertical & verticalrev styles will overwrite the items icons,
-			// causing the icon to only be seen when the item has the mouse over it,
-			// as the item is redrawn at that point.
-			GetClipBox(lpdis->hDC, &rc);
-			rc.right = XPMI_BOXLPAD + XPMI_BOXWIDTH;
-			//SetRect(&rc, XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom);
-			this->DrawGradient(lpdis->hDC, &rc, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+			DrawVerticalBar(lpdis, lpcol, TRUE);
 			break;
 		}
 
 		case XPopupMenu::XPMS_VERTICAL:
 		{
-			RECT rc;
-
-			GetClipBox(lpdis->hDC, &rc);
-			rc.right = XPMI_BOXLPAD + XPMI_BOXWIDTH;
-			//SetRect(&rc, XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom);
-			this->DrawGradient(lpdis->hDC, &rc, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+			DrawVerticalBar(lpdis, lpcol, FALSE);
 			break;
 		}
 
@@ -671,6 +659,45 @@ void XPopupMenuItem::DrawGradient( HDC hdc, LPRECT lprc, COLORREF clrStart, COLO
     DeleteObject( hBrush );
   }
 }
+
+
+void XPopupMenuItem::DrawVerticalBar(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOLEAN bReversed) {
+	RECT rcIntersect;
+	RECT rcClip;
+	RECT rcBar;
+
+	// get the size of the bar on the left
+	GetClipBox(lpdis->hDC, &rcClip);
+	CopyRect(&rcBar, &rcClip);
+
+	rcBar.left = XPMI_BOXLPAD;
+	rcBar.right = XPMI_BOXLPAD + XPMI_BOXWIDTH;
+	rcBar.bottom += 1; // prevent the black line at the bottom
+
+	// get the rect of the box which will draw the box
+	SetRect(&rcIntersect, rcBar.left, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom);
+
+	// set up a buffer to draw the whole gradient bar
+	HDC hdcBuffer = CreateCompatibleDC(lpdis->hDC);
+	HBITMAP hbmp = CreateCompatibleBitmap(lpdis->hDC, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top);
+	HBITMAP hbmpOld = (HBITMAP) SelectObject(hdcBuffer, hbmp);
+
+	// draw the gradient into the buffer
+	if (bReversed)
+		DrawGradient(hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+	else
+		DrawGradient(hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+
+	// copy the box we want from the whole gradient bar
+	BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
+
+	// clean up the memory object
+	SelectObject(hdcBuffer, hbmpOld);
+	DeleteObject(hbmp);
+	DeleteDC(hdcBuffer);
+}
+
+
 
 /*!
  * \brief blah

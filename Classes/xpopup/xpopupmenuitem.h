@@ -56,6 +56,7 @@ public:
   void executeCommand( );
 
   static void DrawGradient( HDC hdc, LPRECT lprc, COLORREF clrStart, COLORREF clrEnd, BOOL bHorz = FALSE );
+  static void DrawVerticalBar(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOLEAN bReversed);
   static COLORREF LightenColor( unsigned int iScale, COLORREF clrColor );
   static COLORREF DarkenColor( unsigned int iScale, COLORREF clrColor );
 

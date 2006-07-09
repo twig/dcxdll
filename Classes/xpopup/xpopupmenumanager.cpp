@@ -208,36 +208,33 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
     wsprintf( com, "/.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID );
     mIRCcom( com );
   }
-  // xpopup -t -> [MENU] [SWITCH] [STYLE]
-  else if ( flags.switch_flags[19] && numtok > 2 ) {
+	// xpopup -t -> [MENU] [SWITCH] [STYLE]
+	else if (flags.switch_flags[19] && numtok > 2) {
+		XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
 
-    XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
+		if (input.gettok(3, " ") == "office2003rev")
+			style = XPopupMenu::XPMS_OFFICE2003_REV;
+		else if (input.gettok(3, " ") == "officexp")
+			style = XPopupMenu::XPMS_OFFICEXP;
+		else if (input.gettok(3, " ") == "icy")
+			style = XPopupMenu::XPMS_ICY;
+		else if (input.gettok(3, " ") == "icyrev")
+			style = XPopupMenu::XPMS_ICY_REV;
+		else if (input.gettok(3, " ") == "grade")
+			style = XPopupMenu::XPMS_GRADE;
+		else if (input.gettok(3, " ") == "graderev")
+			style = XPopupMenu::XPMS_GRADE_REV;
+		else if (input.gettok(3, " ") == "vertical")
+			style = XPopupMenu::XPMS_VERTICAL;
+		else if (input.gettok(3, " ") == "verticalrev")
+			style = XPopupMenu::XPMS_VERTICAL_REV;
+		else if (input.gettok(3, " ") == "normal")
+			style = XPopupMenu::XPMS_NORMAL;
+		else if (input.gettok(3, " ") == "custom")
+			style = XPopupMenu::XPMS_CUSTOM;
 
-    if ( input.gettok( 3, " " ) == "office2003rev" )
-      style = XPopupMenu::XPMS_OFFICE2003_REV;
-    else if ( input.gettok( 3, " " ) == "officexp" )
-      style = XPopupMenu::XPMS_OFFICEXP;
-    else if ( input.gettok( 3, " " ) == "icy" )
-      style = XPopupMenu::XPMS_ICY;
-    else if ( input.gettok( 3, " " ) == "icyrev" )
-      style = XPopupMenu::XPMS_ICY_REV;
-    else if ( input.gettok( 3, " " ) == "grade" )
-      style = XPopupMenu::XPMS_GRADE;
-    else if ( input.gettok( 3, " " ) == "graderev" )
-      style = XPopupMenu::XPMS_GRADE_REV;
-	// added by Ook
-	else if ( input.gettok(3, " ") == "vertical")
-		style = XPopupMenu::XPMS_VERTICAL;
-	else if ( input.gettok(3, " ") == "verticalrev")
-		style = XPopupMenu::XPMS_VERTICAL_REV;
-	//
-    else if ( input.gettok( 3, " " ) == "normal" )
-      style = XPopupMenu::XPMS_NORMAL;
-    else if ( input.gettok( 3, " " ) == "custom" )
-      style = XPopupMenu::XPMS_CUSTOM;
-
-    p_Menu->setStyle( style );
-  }
+		p_Menu->setStyle(style);
+	}
   // xpopup -x -> [MENU] [SWITCH] [+FLAGS]
   else if ( flags.switch_flags[23] && numtok > 2 ) {
 
