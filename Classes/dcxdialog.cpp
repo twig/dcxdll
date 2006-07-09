@@ -1291,7 +1291,7 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 					}
 					break;
 
-				case MCS_DAYSTATE:
+				case MCN_GETDAYSTATE:
 				case MCN_SELCHANGE:
 				case MCN_SELECT:
 				case NM_RELEASEDCAPTURE:

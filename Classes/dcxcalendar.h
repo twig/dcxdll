@@ -18,6 +18,8 @@
 #include "../defines.h"
 #include "dcxcontrol.h"
 
+#define BOLDDAY(ds,iDay) if(iDay>0 && iDay<32) (ds)|=(0x00000001<<(iDay-1))
+
 class DcxDialog;
 
 /*!

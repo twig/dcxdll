@@ -1,6 +1,7 @@
 /*!
 http://www.codeguru.com/cpp/controls/controls/dateselectioncontrolsetc/article.php/c2229/
 http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sysinfo/base/converting_a_time_t_value_to_a_file_time.asp
+http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/monthcal/structures/nmdaystate.asp
 
  * \file dcxcalendar.cpp
  * \brief blah
@@ -111,8 +112,6 @@ DcxCalendar::~DcxCalendar( ) {
 void DcxCalendar::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) {
 	unsigned int i = 1, numtok = styles.numtok(" ");
 
-	//*Styles = MCS_DAYSTATE;
-
 	while (i <= numtok) {
 		if (styles.gettok(i , " ") == "multi")
 			*Styles |= MCS_MULTISELECT;
@@ -122,6 +121,8 @@ void DcxCalendar::parseControlStyles(TString & styles, LONG * Styles, LONG * ExS
 			*Styles |= MCS_NOTODAYCIRCLE;
 		else if (styles.gettok(i , " ") == "weeknum")
 			*Styles |= MCS_WEEKNUMBERS;
+		else if (styles.gettok(i , " ") == "daystate")
+			*Styles |= MCS_DAYSTATE;
 
 		i++;
 	}
@@ -173,7 +174,7 @@ void DcxCalendar::parseCommandRequest( TString & input ) {
   // set today
 
   int numtok = input.numtok( " " );
-// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/monthcal/structures/nmdaystate.asp
+
   //xdid -t [NAME] [ID] [SWITCH]
   if ( flags.switch_flags[19] ) {
     TString text = input.gettok( 4, -1, " " );
@@ -211,33 +212,43 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				break;
 
 			switch(hdr->code) {
-/*
-				case MCS_DAYSTATE: {
-#define BOLDDAY(ds,iDay) if(iDay>0 && iDay<32)\
-                            (ds)|=(0x00000001<<(iDay-1))
-
+				case MCN_GETDAYSTATE: {
 					LPNMDAYSTATE lpNMDayState = (LPNMDAYSTATE) lParam;
 					MONTHDAYSTATE mds[12];
 
 					int iMax = lpNMDayState->cDayState;
-mIRCDebug("max %d", iMax);
+					char *eval = new char[100];
+
 					for (int i = 0; i < iMax; i++) {
-						mIRCDebug("%d", i);
+						// daystate ctrlid startdate
+						this->callAliasEx(eval, "%s,%d,%d", "daystate", this->getUserID(),
+							SystemTimeToMircTime(lpNMDayState->stStart));
 						mds[i] = (MONTHDAYSTATE) 0;
-						BOLDDAY(mds[i],15);
-						//if (i == 15)
-						//	mds[i] = (MONTHDAYSTATE) TRUE;
+
+						TString strDays(eval);
+						strDays.trim();
+
+						for (int x = 1; x <= strDays.numtok(","); x++) {
+							TString tok = strDays.gettok(x, ",");
+							tok.trim();
+							BOLDDAY(mds[i], atoi(tok.to_chr()));
+						}
+
+						// increment the month so we get a proper offset
+						lpNMDayState->stStart.wMonth++;
+
+						if (lpNMDayState->stStart.wMonth > 12) {
+							lpNMDayState->stStart.wMonth = 1;
+							lpNMDayState->stStart.wYear++;
+						}
 					}
 
-						//BOLDDAY(mds[i],15);
-
 					lpNMDayState->prgDayState = mds;
-					//mIRCError("daystate");
 					bParsed = TRUE;
 					return FALSE;
 					break;
 				}
-*/
+
 				case MCN_SELCHANGE: {
 					char ret[256];
 					this->callAliasEx(ret, "%s,%d", "selchange", this->getUserID());
