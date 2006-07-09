@@ -1,5 +1,6 @@
 /*!
 http://www.codeguru.com/cpp/controls/controls/dateselectioncontrolsetc/article.php/c2229/
+http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sysinfo/base/converting_a_time_t_value_to_a_file_time.asp
 
  * \file dcxcalendar.cpp
  * \brief blah
@@ -243,55 +244,29 @@ mIRCDebug("max %d", iMax);
 					break;
 				}
 				case MCN_SELECT: {
-/*
-					// the most days you can select at a time
-					//mIRCDebug("selcount %d", MonthCal_GetMaxSelCount(this->m_Hwnd));
-					// get the selected range
-					SYSTEMTIME monthrange[2];
-
-					MonthCal_GetSelRange(this->m_Hwnd, monthrange);
-
-//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sysinfo/base/converting_a_time_t_value_to_a_file_time.asp
-					FILETIME ft1;
-					FILETIME ft2;
-
-					SYSTEMTIME st1 = monthrange[0];
-					SYSTEMTIME st2 = monthrange[1];
-
-					SystemTimeToFileTime(&st1, &ft1);
-					SystemTimeToFileTime(&st2, &ft2);
-
-					//LONGLONG long64a = Int32x32To64(t, 10000000);
-					//LONGLONG long64b = Int32x32To64(t, 10000000);
-					//pft->dwLowDateTime = (DWORD) ll;
-					//pft->dwHighDateTime = ll >>32;
-
-//					SystemTimeToFileTime(*(monthrange[0]), &ft1);
-//					SystemTimeToFileTime(*(monthrange[1]), &ft2);
-
-					//INT64 tt = (ft1.dwHighDateTime << 32) +  ft1.dwLowDateTime;
-
-	LARGE_INTEGER li;    //[more info]
-	li.LowPart = ft1.dwLowDateTime;
-	li.HighPart = ft1.dwHighDateTime;
-
-					//mIRCDebug("%d, %d", ft1, ft2);
-					mIRCDebug("%d %d %d", ft1.dwHighDateTime, ft1.dwLowDateTime, li.QuadPart);
-*/
-/*
-    SYSTEMTIME st;
-    FILETIME ft;
-    LARGE_INTEGER li;    
-    GetSystemTime(&st);
-    SystemTimeToFileTime(&st, &ft);
-    
-    li.LowPart = ft.dwLowDateTime;
-    li.HighPart = ft.dwHighDateTime;
-
-mIRCDebug("$asctime(%d)", ft);
-*/
 					char ret[256];
-					this->callAliasEx(ret, "%s,%d", "select", this->getUserID());
+
+					// specific code to handle multiselect dates
+					if (this->isStyle(MCS_MULTISELECT)) {
+						// get the selected range
+						SYSTEMTIME selrange[2];
+
+						MonthCal_GetSelRange(this->m_Hwnd, selrange);
+
+						// send event to callback
+						this->callAliasEx(ret, "%s,%d,%d,%d", "select", this->getUserID(),
+							SystemTimeToMircTime(selrange[0]),
+							SystemTimeToMircTime(selrange[1]));
+					}
+					// code to handle single selected dates
+					else {
+						SYSTEMTIME st;
+						MonthCal_GetCurSel(this->m_Hwnd, &st);
+
+						// send event to callback
+						this->callAliasEx(ret, "%s,%d,%d", "select", this->getUserID(), SystemTimeToMircTime(st));
+					}
+
 					break;
 				}
 				case NM_RELEASEDCAPTURE: {
@@ -338,4 +313,31 @@ mIRCDebug("$asctime(%d)", ft);
 	}
 
 	return 0L;
+}
+
+long DcxCalendar::SystemTimeToMircTime(SYSTEMTIME st) {
+	char *ret = new char[100];
+
+	TString months[12] = {
+		"January",
+		"Feburary",
+		"March",
+		"April",
+		"May",
+		"June",
+		"July",
+		"August",
+		"September",
+		"October",
+		"November",
+		"December"
+	};
+
+	wsprintf(ret, "$ctime(%d %s %d)",
+		st.wDay,
+		months[st.wMonth -1],
+		st.wYear);
+
+	mIRCeval(ret, ret);
+	return atoi(ret);
 }
