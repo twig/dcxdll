@@ -25,6 +25,7 @@
 DcxDialogCollection::DcxDialogCollection( ) {
 
   this->m_vpDialog.clear( );
+	this->m_closeall = false;
 }
 
 /*!
@@ -112,7 +113,8 @@ void DcxDialogCollection::deleteDialog( DcxDialog * p_Dialog ) {
 
   if ( p_Dialog == NULL )
     return;
-
+	if (this->m_closeall)
+		return;
   VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
   VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
 
@@ -136,6 +138,7 @@ void DcxDialogCollection::deleteDialog( DcxDialog * p_Dialog ) {
 
 void DcxDialogCollection::closeDialogs( ) {
 
+	this->m_closeall = true;
   VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
   VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
 
@@ -146,4 +149,6 @@ void DcxDialogCollection::closeDialogs( ) {
 
     itStart++;
   }
+	this->m_vpDialog.clear(); // clear list.
+	this->m_closeall = false;
 }

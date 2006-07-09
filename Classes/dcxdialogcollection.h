@@ -43,7 +43,7 @@ public:
 protected:
 
 private:
-
+	bool m_closeall; // protects against freeing of vector objects when looping through them.
   VectorOfDialogPtrs m_vpDialog;
 
 };
