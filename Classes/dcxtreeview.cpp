@@ -206,7 +206,7 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
       if ( this->correctTargetItem( &hParent, &hAfter ) ) {
 
         TVITEMEX tvi; 
-        tvi.hItem = hAfter;
+		  tvi.hItem = hAfter;
         tvi.mask = TVIF_IMAGE | TVIF_HANDLE;
 
         TreeView_GetItem( this->m_Hwnd, &tvi );
@@ -234,7 +234,7 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
 
         if ( lpdcxtvi != NULL )
           lstrcpy( szReturnValue, lpdcxtvi->tsTipText.to_chr( ) );
-        
+
         return;
       }
     }
@@ -394,7 +394,7 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
     ScreenToClient( this->m_Hwnd, &tvh.pt );
     TreeView_HitTest( this->m_Hwnd, &tvh );
 
-    if ( tvh.flags & TVHT_ONITEM ) {
+	 if ( tvh.flags & TVHT_ONITEM ) {
 
       VectorOfInts numPath;
       HTREEITEM hStart = TVI_ROOT;
@@ -676,28 +676,24 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
   }
   // xdid -Q [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] N N N
   else if ( flags.switch_cap_flags[16] && numtok > 5 ) {
-
     HTREEITEM hParent = TVI_ROOT;
     HTREEITEM hAfter = TVI_ROOT;
 
     if ( this->parsePath( &input.gettok( 6, -1, " " ), &hParent, &hAfter ) ) {
-
       COLORREF clrText = (COLORREF) atol( input.gettok( 5, " " ).to_chr( ) );
 
       if ( !this->correctTargetItem( &hParent, &hAfter ) )
         return;
 
-      TVITEMEX tvi; 
+		TVITEMEX tvi; 
 
       tvi.hItem = hAfter;
       tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
 
       if ( TreeView_GetItem( this->m_Hwnd, &tvi ) ) {
-
         LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
 
         if ( lpdcxtvitem != NULL ) {
-
           int iFlags = this->parseItemFlags( input.gettok( 4, " " ) );
 
           if ( iFlags & TVIS_UNDERLINE )
@@ -1092,6 +1088,7 @@ UINT DcxTreeView::parseItemFlags( TString & flags ) {
 
     ++i;
   }
+
   return iFlags;
 }
 
@@ -1898,8 +1895,7 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                     if ( lpdcxtvi->clrText != -1 )
                       lpntvcd->clrText = lpdcxtvi->clrText;
 
-                    if ( lpdcxtvi->bUline || lpdcxtvi->bBold ) {
-
+                    //if ( lpdcxtvi->bUline || lpdcxtvi->bBold) {
                       HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
 
                       LOGFONT lf;
@@ -1914,7 +1910,7 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                       HFONT hOldFont = (HFONT) SelectObject( lpntvcd->nmcd.hdc, hFontNew );
 
                       DeleteObject( hFontNew );
-                    }
+                    //}
                   }
                   return ( CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT );
                   
