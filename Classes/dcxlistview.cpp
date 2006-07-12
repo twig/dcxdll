@@ -81,7 +81,7 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
     ExStyles, 
     DCX_LISTVIEWCLASS,
     NULL,
-    WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN | WS_CLIPCHILDREN, 
+    WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
@@ -2007,15 +2007,31 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case LVN_BEGINDRAG:
             {
-
               char ret[256];
               this->callAliasEx( ret, "%s,%d", "begindrag", this->getUserID( ) );
             }
             break;
 
+			 //case LVN_ENDSCROLL:
+				// {
+				//	 if (this->isExStyle(LVS_EX_GRIDLINES)) {
+				//		 mIRCError("scroll");
+				//		 //this->redrawWindow();
+				//	 }
+				//	 break;
+				// }
+
         } // switch
       }
       break;
+
+		case WM_HSCROLL:
+			{
+				if (this->isExStyle(LVS_EX_GRIDLINES)) {
+					this->redrawWindow();
+				}
+				break;
+			}
 
 		case WM_VSCROLL:
 		{
@@ -2024,17 +2040,12 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				this->callAliasEx(ret, "%s,%d", "scrollend", this->getUserID());
 			}
 
-			//this->UpdateScrollPbars();
+			if (this->isExStyle(LVS_EX_GRIDLINES)) {
+				this->redrawWindow();
+			}
+
 			break;
 		}
-/*
-		case WM_HSCROLL:
-		{
-			//ResizePbars();
-			//this->UpdateScrollPbars();
-			break;
-		}
-*/
 
     case WM_MOUSEMOVE:
       {
