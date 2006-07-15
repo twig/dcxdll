@@ -129,16 +129,19 @@ DcxMDialog::~DcxMDialog( ) {
  * \return > void
  */
 
-void DcxMDialog::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxMDialog::parseInfoRequest(TString &input, char *szReturnValue) {
+	int numtok = input.numtok(" ");
 
-  int numtok = input.numtok( " " );
+	// [NAME] [ID] [PROP]
+	if (input.gettok(3, " ") == "dname") {
+		wsprintf(szReturnValue, "%s", this->m_OrigName.to_chr());
+		return;
+	}
+	else if (this->parseGlobalInfoRequest(input, szReturnValue)) {
+		return;
+	}
 
-  if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
-    return;
-  }
-  
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -157,6 +160,16 @@ void DcxMDialog::parseCommandRequest( TString & input ) {
 
   this->parseGlobalCommandRequest( input, flags );
 }
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+void DcxMDialog::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) {
+	this->m_OrigName = styles;
+};
 
 /*!
  * \brief Subclassed Window Procedure

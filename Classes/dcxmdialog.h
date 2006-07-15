@@ -38,7 +38,7 @@ public:
 
   void parseInfoRequest( TString & input, char * szReturnValue );
   void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ){ };
+  void parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme);
 
   inline TString getType( ) { return TString( "dialog" ); };
 
@@ -48,6 +48,7 @@ protected:
   LONG m_OrigExStyles;    //!< Dialog Original Extended Styles
   HWND m_OrigParentHwnd;  //!< Dialog Original Parent Handle
   UINT m_OrigID;          //!< Dialog Original Control ID
+  TString m_OrigName;     //!< Dialog Original Name
 
 };
 
