@@ -41,6 +41,7 @@ typedef struct tagDCXTBBUTTON {
   COLORREF clrText;   //!< Button Caption Color
   BOOL bBold;          //!< Is Button Caption Bold ?
   BOOL bUline;         //!< Is Button Caption Underlined
+	TString bText;			//!< Buttons text, MUST be persistant.
 
 } DCXTBBUTTON,*LPDCXTBBUTTON;
 

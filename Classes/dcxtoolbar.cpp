@@ -380,7 +380,8 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
       lpdcxtbb->clrText = -1;
 
     tbb.dwData = (LPARAM) lpdcxtbb;
-    tbb.iString = (INT_PTR) itemtext.to_chr( );
+		lpdcxtbb->bText = itemtext;
+		tbb.iString = (INT_PTR)lpdcxtbb->bText.to_chr();
 
     // insert button
     this->insertButton( nPos, &tbb );
@@ -566,19 +567,38 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
   else if ( flags.switch_flags[21] && numtok > 3 ) {
 
     int nButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-
+		//mIRCDebug("but: %d cnt: %d", nButton, this->getButtonCount( ));
     if ( nButton > -1 && nButton < this->getButtonCount( ) ) {
+			int nIndex = this->getIndexToCommand(nButton);
+			//mIRCDebug("index: %d", nIndex);
+			TBBUTTONINFO tbbi;
 
-      TString itemtext = "";
-      if ( numtok > 4 )
-        itemtext = input.gettok( 5, -1, " " );
+			ZeroMemory(&tbbi, sizeof(TBBUTTONINFO));
+			tbbi.cbSize = sizeof(TBBUTTONINFO);
+			tbbi.dwMask = TBIF_LPARAM;
+			if (this->getButtonInfo(nIndex, &tbbi) > -1) {
+				//mIRCError("Got Info");
+				LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
+				if ( numtok > 4 )
+					lpdcxtbb->bText = input.gettok( 5, -1, " " );
+				else
+					lpdcxtbb->bText = "";
+				ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
+				tbbi.cbSize = sizeof( TBBUTTONINFO );
+				tbbi.dwMask = TBIF_TEXT;
+				tbbi.pszText = lpdcxtbb->bText.to_chr();
+				this->setButtonInfo(nIndex, &tbbi);
+			}
+      //TString itemtext = "";
+      //if ( numtok > 4 )
+      //  itemtext = input.gettok( 5, -1, " " );
 
-      TBBUTTONINFO tbbi;
-      ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
-      tbbi.cbSize = sizeof( TBBUTTONINFO );
-      tbbi.dwMask = TBIF_TEXT;
-      tbbi.pszText = itemtext.to_chr( );
-      this->setButtonInfo( this->getIndexToCommand( nButton ), &tbbi );
+      //TBBUTTONINFO tbbi;
+      //ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
+      //tbbi.cbSize = sizeof( TBBUTTONINFO );
+      //tbbi.dwMask = TBIF_TEXT;
+      //tbbi.pszText = itemtext.to_chr( );
+      //this->setButtonInfo( this->getIndexToCommand( nButton ), &tbbi );
     }
   }
   // xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
@@ -1383,6 +1403,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
                 if ( lpdtbb != NULL ) {
 
                   //mIRCError( "Toolbar Tooltips Here3!" );
+									mIRCDebug("tip: %s", lpdtbb->tsTipText.to_chr( ));
                   tcgit->pszText = lpdtbb->tsTipText.to_chr( );
                   tcgit->cchTextMax = lpdtbb->tsTipText.len( );
                 }
