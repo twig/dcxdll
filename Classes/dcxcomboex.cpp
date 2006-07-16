@@ -143,7 +143,6 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 DcxComboEx::~DcxComboEx( ) {
 
   ImageList_Destroy( this->getImageList( ) );
-
   this->unregistreDefaultWindowProc( );
 }
 
@@ -723,7 +722,7 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 
   LPDCXCOMBOEXEDIT lpce = (LPDCXCOMBOEXEDIT) GetWindowLong( mHwnd, GWL_USERDATA );
-
+	if (lpce == NULL)	return DefWindowProc( mHwnd, uMsg, wParam, lParam );
   //mIRCError( "DcxComboEx::ComboExEditProc" );
   switch( uMsg ) {
 

@@ -33,7 +33,7 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0, 
+		0,
     DCX_IPADDRESSCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 
@@ -289,6 +289,9 @@ LRESULT DcxIpAddress::clearAddress( ) {
 
 LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
+	//char buf[1024];
+	//sprintf(buf,"IPAddress: %d", uMsg);
+	//mIRCError(buf);
   switch( uMsg ) {
 /*
     case WM_HELP:
@@ -360,7 +363,13 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
       }
       break;
       */
-
+		case WM_MOUSEACTIVATE:
+			{
+				mIRCError( "WM_MOUSEACTIVATE" );
+				bParsed = TRUE;
+				return MA_NOACTIVATE;
+			}
+			break;
     case WM_DESTROY:
       {
         //mIRCError( "WM_DESTROY" );

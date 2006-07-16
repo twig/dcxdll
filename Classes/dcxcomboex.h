@@ -81,7 +81,6 @@ public:
 protected:
 
   HWND m_EditHwnd;  //!< Combo's Edit Control Handle
-  
 };
 
 #endif // _DCXCOMBOEX_H_

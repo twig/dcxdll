@@ -629,20 +629,18 @@ LRESULT CALLBACK DcxControl::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
   DcxControl * pthis = (DcxControl *) GetProp( mHwnd, "dcx_cthis" );
 	// sanity check, see that prop exists.
-	if (pthis != NULL) {
-	  BOOL bParsed = FALSE;
-	  if ( uMsg != WM_DESTROY ) { pthis->incRef( ); }
-	  LRESULT lrRes = pthis->PostMessage( uMsg, wParam, lParam, bParsed );
-	  if ( uMsg != WM_DESTROY ) { pthis->decRef( ); }
+	if (pthis == NULL) return DefWindowProc( mHwnd, uMsg, wParam, lParam );
+  BOOL bParsed = FALSE;
+  if (( uMsg != WM_DESTROY ) && (uMsg != WM_NCDESTROY)) { pthis->incRef( ); }
+  LRESULT lrRes = pthis->PostMessage( uMsg, wParam, lParam, bParsed );
+  if (( uMsg != WM_DESTROY ) && (uMsg != WM_NCDESTROY)) { pthis->decRef( ); }
 
-	  if ( bParsed )
-			return lrRes;
-	  else if ( pthis->m_DefaultWindowProc != NULL )
-			return CallWindowProc( pthis->m_DefaultWindowProc, mHwnd, uMsg, wParam, lParam );
-	  else
-			return DefWindowProc( mHwnd, uMsg, wParam, lParam );
-	}
-	else return DefWindowProc( mHwnd, uMsg, wParam, lParam );
+  if ( bParsed )
+		return lrRes;
+  else if ( pthis->m_DefaultWindowProc != NULL )
+		return CallWindowProc( pthis->m_DefaultWindowProc, mHwnd, uMsg, wParam, lParam );
+  else
+		return DefWindowProc( mHwnd, uMsg, wParam, lParam );
 }
 
 /*!

@@ -1115,6 +1115,7 @@ void DcxDialog::setFocusControl( UINT mUID ) {
 LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 
   DcxDialog * p_this = (DcxDialog *) GetProp( mHwnd, "dcx_this" );
+	if (p_this == NULL)	return DefWindowProc( mHwnd, uMsg, wParam, lParam ); // sanity check for prop existing.
 
   switch( uMsg ) {
 		case WM_THEMECHANGED:
@@ -1188,8 +1189,8 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
                 else if ( lstrcmp( DCX_REBARCTRLCLASS, ClassName ) == 0 )
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-						else if (lstrcmp(DCX_TRACKBARCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
+								else if (lstrcmp(DCX_TRACKBARCLASS, ClassName) == 0)
+									return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
               }
               break;
 
@@ -1275,7 +1276,6 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
               }
               break;
-
             case IPN_FIELDCHANGED:
               {
                 mIRCError( "Dialog WM_NOTIFY - IPN_FIELDCHANGED" );
