@@ -1278,7 +1278,7 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
               break;
             case IPN_FIELDCHANGED:
               {
-                mIRCError( "Dialog WM_NOTIFY - IPN_FIELDCHANGED" );
+                //mIRCError( "Dialog WM_NOTIFY - IPN_FIELDCHANGED" );
                 if ( lstrcmp( DCX_IPADDRESSCLASS, ClassName ) == 0 )
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
               }

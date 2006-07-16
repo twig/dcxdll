@@ -293,7 +293,7 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	//sprintf(buf,"IPAddress: %d", uMsg);
 	//mIRCError(buf);
   switch( uMsg ) {
-/*
+
     case WM_HELP:
       {
         char ret[256];
@@ -303,7 +303,7 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
     case WM_NOTIFY : 
       {
-        mIRCError( "Control WM_NOTIFY" );
+        //mIRCError( "Control WM_NOTIFY" );
 
         LPNMHDR hdr = (LPNMHDR) lParam;
 
@@ -323,22 +323,6 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
         }
       }
       break;
-
-    case WM_CONTEXTMENU:
-      {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "rclick", this->getUserID( ) );
-      }
-      break;
-
-    case WM_LBUTTONDOWN:
-      {
-        mIRCError( "IPAddress WM_LBUTTONDOWN" );
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "sclick", this->getUserID( ) );
-      }
-      break;
-
     case WM_MOUSEMOVE:
       {
         this->m_pParentDialog->setMouseControl( this->getUserID( ) );
@@ -350,7 +334,7 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
         this->m_pParentDialog->setFocusControl( this->getUserID( ) );
       }
       break;
-*/
+
       /*
     case WM_SETCURSOR:
       {
@@ -365,7 +349,24 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
       */
 		case WM_MOUSEACTIVATE:
 			{
-				mIRCError( "WM_MOUSEACTIVATE" );
+				//mIRCError( "WM_MOUSEACTIVATE" );
+				switch (HIWORD(lParam))
+				{
+				case WM_LBUTTONDOWN:
+					{
+						//mIRCError( "IPAddress WM_LBUTTONDOWN" );
+						char ret[256];
+						this->callAliasEx( ret, "%s,%d", "sclick", this->getUserID( ) );
+					}
+					break;
+				case WM_RBUTTONDOWN:
+					{
+						//mIRCError( "IPAddress WM_RBUTTONDOWN" );
+						char ret[256];
+						this->callAliasEx( ret, "%s,%d", "rclick", this->getUserID( ) );
+					}
+					break;
+				}
 				bParsed = TRUE;
 				return MA_NOACTIVATE;
 			}
