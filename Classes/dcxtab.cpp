@@ -733,6 +733,7 @@ void DcxTab::activateSelectedTab( ) {
 
 LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
+	//mIRCDebug("tab: %d", uMsg);
   switch( uMsg ) {
 
     case WM_HELP:
@@ -759,7 +760,7 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
             case NM_CLICK:
               {
-                //mIRCError( "Rebar WM_NOTIFY - NM_CLICK" );
+                //mIRCError( "Tab WM_NOTIFY - NM_CLICK" );
                 if ( lstrcmp( DCX_STATUSBARCLASS, ClassName ) == 0 ) {
                   bParsed = TRUE;
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
@@ -781,7 +782,7 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
             case NM_DBLCLK:
               {
-                //mIRCError( "Dialog WM_NOTIFY - NM_DBLCLK" );
+                //mIRCError( "Tab WM_NOTIFY - NM_DBLCLK" );
                 if ( lstrcmp( DCX_STATUSBARCLASS, ClassName ) == 0 ) {
                   bParsed = TRUE;
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
@@ -1000,7 +1001,7 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_DELETEITEM:
       {
-        //mIRCError( "Rebar WM_DELETEITEM" );
+        //mIRCError( "Tab WM_DELETEITEM" );
 
         char ClassName[256];
         HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
@@ -1018,30 +1019,30 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_MEASUREITEM:
       {
-        //mIRCError( "Dialog WM_MEASUREITEM" );
+        //mIRCError( "Tab WM_MEASUREITEM" );
+				if (ctrl_MeasureItem(this->m_Hwnd, wParam, lParam)) return TRUE;
+        //char ClassName[256];
+        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
+        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
 
-        char ClassName[256];
-        HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
+        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
 
-          if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
+        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_MEASUREITEM" );
 
-            //mIRCError( "DCX_COLORCOMBOCLASS WM_MEASUREITEM" );
+        //    LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
 
-            LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
+        //    if ( lpmis != NULL )
+        //      lpmis->itemHeight = 16; 
 
-            if ( lpmis != NULL )
-              lpmis->itemHeight = 16; 
-
-            return TRUE;
-          }
-        }
+        //    return TRUE;
+        //  }
+        //}
       }
       break;
 
     case WM_DRAWITEM:
       {
-        //mIRCError( "Rebar WM_DRAWITEM" );
+        //mIRCError( "Tab WM_DRAWITEM" );
 
         char ClassName[256];
         HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
@@ -1059,32 +1060,28 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_COMMAND:
       {
-        //mIRCError( "Rebar WM_COMMAND" );
+        //mIRCError( "Tab WM_COMMAND" );
         char ClassName[256];
 
-        if ( IsWindow( (HWND) lParam ) && GetClassName( (HWND) lParam, ClassName, 256 ) != 0 ) {
+				if ( IsWindow( (HWND) lParam ) && GetClassName( (HWND) lParam, ClassName, 256 ) != 0 ) {
 
           // ComboEx Notifications
           if ( lstrcmp( DCX_COMBOEXCLASS, ClassName ) == 0 ) {
-
             bParsed = TRUE;
             return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
           }
           // ColorCombo notifications
           else if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
             bParsed = TRUE;
             return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
           }
           // Edit notifications
-          else if ( lstrcmpi( "EDIT", ClassName ) == 0 ) {
-
+					else if ( lstrcmpi( "EDIT", ClassName ) == 0 ) {
             bParsed = TRUE;
             return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
-          }
+					}
           // List notifications
           else if ( lstrcmpi( "LISTBOX", ClassName ) == 0 ) {
-
             bParsed = TRUE;
             return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
           }
@@ -1120,6 +1117,38 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
         }
       }
       break;
+
+		//case WM_GETDLGCODE:
+		//	{
+		//		//mIRCError("Tab WM_GETDLGCODE");
+		//		bParsed = TRUE;
+		//		return 0L;
+		//	}
+		//	break;
+		//case WM_ACTIVATE:
+		//	{
+		//		switch (wParam)
+		//		{
+		//		case WA_ACTIVE:
+		//			{
+		//				mIRCError("Tab Activate");
+		//			}
+		//			break;
+		//		case WA_CLICKACTIVE:
+		//			{
+		//				mIRCError("Tab Click Activate");
+		//			}
+		//			break;
+		//		case WA_INACTIVE:
+		//			{
+		//				mIRCError("Tab De-Activate");
+		//			}
+		//			break;
+		//		}
+		//		bParsed = TRUE;
+		//		return 0L;
+		//	}
+		//	break;
 
     case WM_DESTROY:
       {

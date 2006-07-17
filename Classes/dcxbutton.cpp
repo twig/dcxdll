@@ -636,6 +636,14 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
       }
       break;
 
+		case WM_GETDLGCODE:
+			{
+				//mIRCError("Button WM_GETDLGCODE");
+				bParsed = TRUE;
+				return DLGC_BUTTON;
+			}
+			break;
+
     case WM_DESTROY:
       {
         //mIRCError( "WM_DESTROY" );

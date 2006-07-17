@@ -552,7 +552,7 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
     case WM_DESTROY:
       {
         //mIRCError( "WM_DESTROY" );
-        delete this;
+	      delete this;
         bParsed = TRUE;
       }
       break;

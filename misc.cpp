@@ -672,3 +672,22 @@ HICON CreateGrayscaleIcon(HICON hIcon) {
 
 	return hGrayIcon;
 } // End of CreateGrayscaleIcon
+
+LRESULT ctrl_MeasureItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
+{
+  char ClassName[256];
+  HWND cHwnd = GetDlgItem( mHwnd, wParam );
+  if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
+
+    if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
+
+      LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
+
+      if ( lpmis != NULL )
+        lpmis->itemHeight = 16; 
+
+      return TRUE;
+    }
+  }
+	return 0L;
+}

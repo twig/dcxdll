@@ -698,6 +698,32 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		DragFinish(files);
 		break;
 	}
+		case WM_MOUSEACTIVATE:
+			{
+				//mIRCError( "WM_MOUSEACTIVATE" );
+				switch (HIWORD(lParam))
+				{
+				//case WM_LBUTTONDOWN:
+				//	{
+				//		//mIRCError( "ComboEx WM_LBUTTONDOWN" );
+				//		char ret[256];
+				//		this->callAliasEx( ret, "%s,%d", "msclick", this->getUserID( ) );
+				//	}
+				//	break;
+				case WM_RBUTTONDOWN:
+					{
+						//mIRCError( "ComboEx WM_RBUTTONDOWN" );
+						char ret[256]; // NB: rclick doesnt change selection!
+						this->callAliasEx( ret, "%s,%d,%d", "rclick", this->getUserID( ), this->getCurSel( ) + 1 );
+					}
+					break;
+				}
+				//TODO: Add `ownmenu` setting or similar to stop default edit menu & replace with own.
+				// this could be done with most if not all controls.
+				//bParsed = TRUE;
+				//return MA_ACTIVATE;
+			}
+			break;
     case WM_DESTROY:
       {
         //mIRCError( "WM_DESTROY" );

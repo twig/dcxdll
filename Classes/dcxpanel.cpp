@@ -889,30 +889,30 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_MEASUREITEM:
       {
-        //mIRCError( "Dialog WM_MEASUREITEM" );
+        //mIRCError( "Panel WM_MEASUREITEM" );
+				if (ctrl_MeasureItem(this->m_Hwnd, wParam, lParam)) return TRUE;
+        //char ClassName[256];
+        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
+        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
 
-        char ClassName[256];
-        HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
+        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
 
-          if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
+        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_MEASUREITEM" );
 
-            //mIRCError( "DCX_COLORCOMBOCLASS WM_MEASUREITEM" );
+        //    LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
 
-            LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
+        //    if ( lpmis != NULL )
+        //      lpmis->itemHeight = 16; 
 
-            if ( lpmis != NULL )
-              lpmis->itemHeight = 16; 
-
-            return TRUE;
-          }
-        }
+        //    return TRUE;
+        //  }
+        //}
       }
       break;
 
     case WM_DRAWITEM:
       {
-        //mIRCError( "Rebar WM_DRAWITEM" );
+        //mIRCError( "Panel WM_DRAWITEM" );
 
         char ClassName[256];
         HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
@@ -1146,6 +1146,14 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
         this->m_pParentDialog->setFocusControl( this->getUserID( ) );
       }
       break;
+
+		//case WM_GETDLGCODE:
+		//{
+		//	mIRCError("Panel WM_GETDLGCODE");
+  //    bParsed = TRUE;
+		//	return 0L;
+		//}
+		//break;
 
     case WM_DESTROY:
       {

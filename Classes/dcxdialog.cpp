@@ -1278,7 +1278,7 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
               break;
             case IPN_FIELDCHANGED:
               {
-                //mIRCError( "Dialog WM_NOTIFY - IPN_FIELDCHANGED" );
+                //mIRCError( "Tab WM_NOTIFY - IPN_FIELDCHANGED" );
                 if ( lstrcmp( DCX_IPADDRESSCLASS, ClassName ) == 0 )
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
               }
@@ -1362,21 +1362,21 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
     case WM_MEASUREITEM:
       {
         //mIRCError( "Dialog WM_MEASUREITEM" );
+				if (ctrl_MeasureItem(mHwnd, wParam, lParam)) return TRUE;
+        //char ClassName[256];
+        //HWND cHwnd = GetDlgItem( mHwnd, wParam );
+        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
 
-        char ClassName[256];
-        HWND cHwnd = GetDlgItem( mHwnd, wParam );
-        if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
+        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
 
-          if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
+        //    LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
 
-            LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
+        //    if ( lpmis != NULL )
+        //      lpmis->itemHeight = 16; 
 
-            if ( lpmis != NULL )
-              lpmis->itemHeight = 16; 
-
-            return TRUE;
-          }
-        }
+        //    return TRUE;
+        //  }
+        //}
       }
       break;
 
@@ -1883,6 +1883,33 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 		DragFinish(files);
 		break;
 	}
+			//case WM_GETDLGCODE:
+			//{
+			//	mIRCError("Dialog WM_GETDLGCODE");
+			//	return 0L;
+			//}
+			//break;
+		case WM_ACTIVATE:
+			{
+				char ret[20];
+				switch (wParam)
+				{
+				case WA_ACTIVE:
+				case WA_CLICKACTIVE:
+					{
+						p_this->callAliasEx(ret, "%s,%d", "activate", 0);
+					}
+					break;
+				case WA_INACTIVE:
+					{
+						p_this->callAliasEx(ret, "%s,%d", "deactivate", 0);
+					}
+					break;
+				}
+				return 0L;
+			}
+			break;
+
     case WM_NCDESTROY: 
       {
         //mIRCError( "WM_NCDESTROY" );
