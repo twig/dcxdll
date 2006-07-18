@@ -663,12 +663,12 @@ function format_changes() {
 function print_changes($version, $changes) {
 	ob_start();
 	
-	echo "<b>$version</b>\n<ul>";
+	echo "<a name=\"$version\"></a><b>$version</b>\n<ul>";
 
 	foreach ($changes as $change)
 	    echo "<li>$change</li>";
 
-	echo "</ul>";
+	echo "</ul>\n";
 	return ob_get_clean();
 }
 ?>
