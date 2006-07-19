@@ -389,6 +389,7 @@ void DcxEdit::parseCommandRequest( TString & input ) {
  */
 
 LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+	//mIRCDebug("edit: %d", uMsg);
   switch( uMsg ) {
     case WM_HELP:
       {
@@ -397,17 +398,19 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
       }
       break;
 
-/*
+
 		// disabled this to fix the tabbing problem
 		case WM_GETDLGCODE:
       {
-			if (!this->isStyle(WS_TABSTOP)) {
-				bParsed = TRUE;
-				return DLGC_WANTALLKEYS;
-			}
+				/*
+					When we don't grab TAB mIRC crashes! WTF!
+				*/
+				//bParsed = TRUE;
+				//if (!this->isStyle(WS_TABSTOP)) return DLGC_WANTALLKEYS;
+				//else return DLGC_WANTCHARS | DLGC_WANTARROWS;
       }
       break;
-*/
+
     case WM_COMMAND:
       {
 
@@ -438,7 +441,7 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 		if (wParam == VK_RETURN)
 			this->callAliasEx(ret, "%s,%d", "return", this->getUserID());
 
-		// TODO: add ignore repeated keystrokes
+		if (lParam & 0x40000000) break; // ignore repeats.
 		this->callAliasEx(ret, "%s,%d,%d", "keydown", this->getUserID(), wParam);
 
 		/*

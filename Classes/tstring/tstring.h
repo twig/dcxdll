@@ -27,6 +27,8 @@
  *	1.6
  *		Added addtok() function. Ook
  *		Added Visual Studio 2005 specific defines. Ook
+ *	1.7
+ *		Added sprintf() function. Ook
  *
  * © ScriptsDB.org - 2005
  */
@@ -38,7 +40,7 @@
 #define _CRT_SECURE_NO_DEPRECATE 1
 // end VS2005
 
-//#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 //#include <string.h>
 
@@ -148,6 +150,7 @@ public:
   TString mid(int pos, int n);
   TString left(int n);
   TString right(int n);
+	int sprintf(const char *fmt, ...);
   //
 };
 

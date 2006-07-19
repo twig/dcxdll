@@ -27,6 +27,8 @@
  *	1.6
  *		Added addtok() function. Ook
  *		Added Visual Studio 2005 specific defines. Ook
+ *	1.7
+ *		Added sprintf() function. Ook
  *
  * © ScriptsDB.org - 2005
  */
@@ -1929,4 +1931,16 @@ int TString::nwildtok( char * wildString, char * sepChars )
 		tmp = this->gettok(cnt++,sepChars);
 	}
 	return m;
+}
+int TString::sprintf(const char *fmt, ...)
+{
+  va_list args;
+  va_start( args, fmt );
+	int cnt = _vscprintf(fmt, args);
+	char *txt = new char[cnt +1];
+  vsprintf(txt, fmt, args );
+	delete [] this->m_pString;
+	this->m_pString = txt;
+	va_end( args );
+	return cnt;
 }
