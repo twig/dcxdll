@@ -11,6 +11,7 @@ $versions = array(
 	'1.3.2' => 1149180480,
 	'1.3.1' => 1147423920,
 	'1.3.0' => 1145517420,
+	'1.1.5' => 0,
 );
 
 //echo "hello downloader " . time();
@@ -22,13 +23,27 @@ if ($version) {
 	exit();
 }
 
-echo "<table border=1>";
+echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?".">";
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX Download Archive - Dialog Control Xtension DLL v<?php echo $versio; ?> by ClickHeRe &amp; twig*</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+<base target="_top" />
+</head>
+
+<body>
+
+<table>
+<?
 echo "<tr><th>Version</th><th>Release Date</th><th>Link</th><th>Change Log</th></tr>";
 
 foreach ($versions as $version => $datereleased) {
 	echo "<tr>
-	<td>v$version</td>
-	<td>" . date("dS F, Y", $datereleased) . "</td>
+	<td><strong>v$version</strong></td>
+	<td>" . ($datereleased ? date("jS F, Y", $datereleased) : 'Unknown') . "</td>
  	<td>";
 
 	if (file_exists("$archive/dcx_v$version.zip"))
@@ -42,5 +57,7 @@ foreach ($versions as $version => $datereleased) {
 }
 
 echo "</table>";
-
 ?>
+
+</body>
+</html>

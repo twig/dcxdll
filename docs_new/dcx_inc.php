@@ -157,7 +157,7 @@ function dcxdoc_header($page, $pagelabel) {
 	<tr>
 		<td>
 			<a href='index.htm'>Home</a> |
-			<a href="http://scriptsdb.org/download.php?id=1155">Download</a> |
+			<a href="download.php?v=v<?php echo $VERSION; ?>">Download</a> |
 			<a href="http://dcx.scriptsdb.org/forum/">Forum</a> |
 			<a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a> |
 		</td>
@@ -205,6 +205,7 @@ function dcxdoc_menu_left() {
 	<a class="section">About DCX</a><br />
 	<ul>
 		<li><a href="changes.htm">Version History</a></li>
+		<li><a href="archive.htm">Download Archive</a></li>
 		<li><a href="dcxvsmdx.htm">DCX vs MDX</a></li>
     </ul>
 </td>
@@ -592,7 +593,7 @@ function dcxdoc_print_intro($page) {
 	$fninfo();
 
 	// image at the end of intro
-	if (!in_array($page, array('index', 'cla'))) {
+	if (!in_array($page, array('index', 'cla', 'archive'))) {
 ?><br /><br />
 <div style="text-align: center;">
 	<img src="images/<?php echo $page; ?>.png" alt="" />

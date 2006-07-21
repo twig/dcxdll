@@ -3,7 +3,7 @@ require('dcx_inc.php');
 require('dcx_changes.php');
 
 // globals
-$VERSION = "1.3.4";
+$VERSION = "1.3.5";
 
 $DOCPATH = "./doc/";
 $INCPATH = "./inc/";
@@ -27,6 +27,7 @@ $PAGES = array(
     'xpopup' => 'XPopup',
     'cla' => 'Cell Layout Algorithm',
     'dcxvsmdx' => 'DCX vs MDX',
+    'archive' => 'Download Archive',
 
     "button" => "Button",
     "pbar" => "Progress Bar",
