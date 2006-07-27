@@ -627,20 +627,22 @@ void DcxControl::unregistreDefaultWindowProc( ) {
 
 LRESULT CALLBACK DcxControl::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 
+	//mIRCDebug("WndProc: start %d", uMsg);
   DcxControl * pthis = (DcxControl *) GetProp( mHwnd, "dcx_cthis" );
 	// sanity check, see that prop exists.
 	if (pthis == NULL) return DefWindowProc( mHwnd, uMsg, wParam, lParam );
-  BOOL bParsed = FALSE;
-  if (( uMsg != WM_DESTROY ) && (uMsg != WM_NCDESTROY)) { pthis->incRef( ); }
-  LRESULT lrRes = pthis->PostMessage( uMsg, wParam, lParam, bParsed );
-  if (( uMsg != WM_DESTROY ) && (uMsg != WM_NCDESTROY)) { pthis->decRef( ); }
+	bool fBlocked = ( InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND) ) == ISMEX_SEND;
+	if (!fBlocked) {
+		// If Message is blocking just call old win proc
+		BOOL bParsed = FALSE;
+		if (( uMsg != WM_DESTROY ) && (uMsg != WM_NCDESTROY)) { pthis->incRef( ); }
+		LRESULT lrRes = pthis->PostMessage( uMsg, wParam, lParam, bParsed );
+		if (( uMsg != WM_DESTROY ) && (uMsg != WM_NCDESTROY)) { pthis->decRef( ); }
+	  if ( bParsed ) return lrRes;
+	}
 
-  if ( bParsed )
-		return lrRes;
-  else if ( pthis->m_DefaultWindowProc != NULL )
-		return CallWindowProc( pthis->m_DefaultWindowProc, mHwnd, uMsg, wParam, lParam );
-  else
-		return DefWindowProc( mHwnd, uMsg, wParam, lParam );
+	if ( pthis->m_DefaultWindowProc != NULL ) return CallWindowProc( pthis->m_DefaultWindowProc, mHwnd, uMsg, wParam, lParam );
+	return DefWindowProc( mHwnd, uMsg, wParam, lParam );
 }
 
 /*!

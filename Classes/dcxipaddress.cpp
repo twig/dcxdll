@@ -289,9 +289,7 @@ LRESULT DcxIpAddress::clearAddress( ) {
 
 LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-	//char buf[1024];
-	//sprintf(buf,"IPAddress: %d", uMsg);
-	//mIRCError(buf);
+	//mIRCDebug("IPAddress: %d", uMsg);
   switch( uMsg ) {
 
     case WM_HELP:

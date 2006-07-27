@@ -627,6 +627,7 @@ UINT DcxPanel::parseLayoutFlags( TString & flags ) {
 
 LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
+	//mIRCDebug("panel: %d", uMsg);
   switch( uMsg ) {
 
     case WM_HELP:
@@ -643,16 +644,16 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
         if (!hdr)
           break;
+				if (hdr->hwndFrom == this->m_Hwnd)
+					return 0L;
 
         char ClassName[256];
 
         if ( IsWindow( hdr->hwndFrom ) && GetClassName( hdr->hwndFrom, ClassName, 256 ) != 0 ) {
 
-          /*
-          char error[500];
-          wsprintf( error, "%d == %d == %d -> %X %X", hdr->code, HDN_ITEMCLICKA, HDN_ITEMCLICKW, hdr->hwndFrom, GetParent( hdr->hwndFrom ) );
-          mIRCError( error );
-          */
+          //char error[500];
+          //wsprintf( error, "%d == %d == %d -> %X %X", hdr->code, HDN_ITEMCLICKA, HDN_ITEMCLICKW, hdr->hwndFrom, GetParent( hdr->hwndFrom ) );
+          //mIRCError( error );
 
           switch( hdr->code ) {
 
@@ -667,12 +668,10 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
                   bParsed = TRUE;
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
                 }
-                /*
-                else if ( lstrcmp( DCX_TOOLBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                */
+                //else if ( lstrcmp( DCX_TOOLBARCLASS, ClassName ) == 0 ) {
+                //  bParsed = TRUE;
+                //  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
+                //}
                 else if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
                   bParsed = TRUE;
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
@@ -874,16 +873,25 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
         //mIRCError( "Rebar WM_DELETEITEM" );
 
         char ClassName[256];
-        HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
+				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
+				if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName( idata->hwndItem, ClassName, 256 ) != 0)) {
           if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
             //mIRCError( "DCX_COLORCOMBOCLASS WM_DELETEITEM" );
             bParsed = TRUE;
-            return SendMessage( cHwnd, uMsg, wParam, lParam );
+            return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
           }
-        }
+				}
+        //char ClassName[256];
+        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
+        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
+
+        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
+
+        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_DELETEITEM" );
+        //    bParsed = TRUE;
+        //    return SendMessage( cHwnd, uMsg, wParam, lParam );
+        //  }
+        //}
       }
       break;
 
@@ -915,22 +923,34 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
         //mIRCError( "Panel WM_DRAWITEM" );
 
         char ClassName[256];
-        HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
+				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
+				if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName( idata->hwndItem, ClassName, 256 ) != 0)) {
           if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
             //mIRCError( "DCX_COLORCOMBOCLASS WM_DRAWITEM" );
             bParsed = TRUE;
-            return SendMessage( cHwnd, uMsg, wParam, lParam );
+            return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
           }
-        }
+				}
+        //char ClassName[256];
+        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
+        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
+
+        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
+
+        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_DRAWITEM" );
+        //    bParsed = TRUE;
+        //    return SendMessage( cHwnd, uMsg, wParam, lParam );
+        //  }
+        //}
       }
      break;
 
     case WM_COMMAND:
       {
-        //mIRCError( "Rebar WM_COMMAND" );
+        //mIRCError( "Panel WM_COMMAND" );
+				if ((HWND)lParam == this->m_Hwnd)
+					return 0L;
+
         char ClassName[256];
 
         if ( IsWindow( (HWND) lParam ) && GetClassName( (HWND) lParam, ClassName, 256 ) != 0 ) {
@@ -948,7 +968,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
             return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
           }
           // Button notifications
-          if ( lstrcmp( DCX_BUTTONCLASS, ClassName ) == 0 ) {
+          else if ( lstrcmp( DCX_BUTTONCLASS, ClassName ) == 0 ) {
 
             bParsed = TRUE;
             return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
@@ -1147,13 +1167,13 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
-		//case WM_GETDLGCODE:
-		//{
-		//	mIRCError("Panel WM_GETDLGCODE");
-  //    bParsed = TRUE;
-		//	return 0L;
-		//}
-		//break;
+		case WM_GETDLGCODE:
+		{
+			//mIRCError("Panel WM_GETDLGCODE");
+      bParsed = TRUE;
+			return 0L; //DLGC_STATIC;
+		}
+		break;
 
     case WM_DESTROY:
       {

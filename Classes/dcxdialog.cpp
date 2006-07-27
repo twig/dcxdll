@@ -1001,14 +1001,27 @@ void DcxDialog::parseInfoRequest( TString & input, char * szReturnValue ) {
       iKeyState |= 128;
     if ( GetAsyncKeyState( VK_RMENU ) < 0 )
       iKeyState |= 256;
+    if ( GetAsyncKeyState( VK_LEFT ) < 0 )
+      iKeyState |= 512;
+    if ( GetAsyncKeyState( VK_UP ) < 0 )
+      iKeyState |= 1024;
+    if ( GetAsyncKeyState( VK_RIGHT ) < 0 )
+      iKeyState |= 2048;
+    if ( GetAsyncKeyState( VK_DOWN ) < 0 )
+      iKeyState |= 4096;
+    if ( GetAsyncKeyState( VK_CAPITAL ) < 0 )
+      iKeyState |= 8192;
 
     wsprintf( szReturnValue, "%d", iKeyState );
     return;
   }
   else {
-    char error[500];
-    wsprintf( error, "Invalid $ $+ xdialog property : %s : or number of arguments", input.gettok( 2, " " ).to_chr( ) );
-    mIRCError( error );
+    //char error[500];
+    //wsprintf( error, "Invalid $ $+ xdialog property : %s : or number of arguments", input.gettok( 2, " " ).to_chr( ) );
+    //mIRCError( error );
+		TString error;
+		error.sprintf("Invalid $ $+ xdialog property : %s : or number of arguments", input.gettok( 2, " " ).to_chr( ) );
+		mIRCError( error.to_chr() );
   }
 
   szReturnValue[0] = 0;
@@ -1075,16 +1088,15 @@ HBRUSH DcxDialog::getBackClrBrush( ) {
 
 void DcxDialog::setMouseControl( UINT mUID ) {
 
+  char ret[256];
   if ( mUID != this->m_MouseID ) {
 
-    char ret[256];
     this->callAliasEx( ret, "%s,%d", "mouseleave", this->m_MouseID );
     this->callAliasEx( ret, "%s,%d", "mouseenter", mUID );
     this->m_MouseID = mUID;
   }
   else {
 
-    char ret[256];
     this->callAliasEx( ret, "%s,%d", "mouse", mUID );
   }
 }
@@ -1116,8 +1128,13 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 
   DcxDialog * p_this = (DcxDialog *) GetProp( mHwnd, "dcx_this" );
 	if (p_this == NULL)	return DefWindowProc( mHwnd, uMsg, wParam, lParam ); // sanity check for prop existing.
-
-  switch( uMsg ) {
+	bool fBlocked = ( InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND) ) == ISMEX_SEND;
+	if (fBlocked) {
+		// If Message is blocking just call old win proc
+		return CallWindowProc( p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam );
+	}
+ 	//mIRCDebug("dialog: %d", uMsg);
+	switch( uMsg ) {
 		case WM_THEMECHANGED:
 		{
 			char ret[256];
@@ -1346,16 +1363,23 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
     case WM_DELETEITEM:
       {
         //mIRCError( "Dialog WM_DELETEITEM" );
-
         char ClassName[256];
-        HWND cHwnd = GetDlgItem( mHwnd, wParam );
-        if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
+				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
+				if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName( idata->hwndItem, ClassName, 256 ) != 0)) {
           if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-            return SendMessage( cHwnd, uMsg, wParam, lParam );
+            //mIRCError( "DCX_COLORCOMBOCLASS WM_DELETEITEM" );
+            return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
           }
-        }
+				}
+        //char ClassName[256];
+        //HWND cHwnd = GetDlgItem( mHwnd, wParam );
+        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
+
+        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
+
+        //    return SendMessage( cHwnd, uMsg, wParam, lParam );
+        //  }
+        //}
       }
       break;
 
@@ -1385,15 +1409,23 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
         //mIRCError( "Dialog WM_DRAWITEM" );
 
         char ClassName[256];
-        HWND cHwnd = GetDlgItem( mHwnd, wParam );
-
-        if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
-          // ColorCombo notifications
+				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
+				if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName( idata->hwndItem, ClassName, 256 ) != 0)) {
           if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-            return SendMessage( (HWND) cHwnd, uMsg, wParam, lParam );
+            //mIRCError( "DCX_COLORCOMBOCLASS WM_DRAWITEM" );
+            return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
           }
-        }
+				}
+        //char ClassName[256];
+        //HWND cHwnd = GetDlgItem( mHwnd, wParam );
+
+        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
+
+        //  // ColorCombo notifications
+        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
+        //    return SendMessage( (HWND) cHwnd, uMsg, wParam, lParam );
+        //  }
+        //}
       }
      break;
 
@@ -1690,8 +1722,8 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
         if ( p_Control != NULL ) {
 
           COLORREF clrText = p_Control->getTextColor( );
-          COLORREF clrBackText = p_Control->getBackColor( );
-          HBRUSH hBackBrush = p_Control->getBackClrBrush( );
+          //COLORREF clrBackText = p_Control->getBackColor( );
+          //HBRUSH hBackBrush = p_Control->getBackClrBrush( );
 
           /*
           
@@ -1885,8 +1917,8 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 	}
 			//case WM_GETDLGCODE:
 			//{
-			//	mIRCError("Dialog WM_GETDLGCODE");
-			//	return 0L;
+				//mIRCError("Dialog WM_GETDLGCODE");
+				//return 0L;
 			//}
 			//break;
 		case WM_ACTIVATE:
@@ -1909,7 +1941,11 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 				return 0L;
 			}
 			break;
-
+		//case WM_NEXTDLGCTL:
+		//	{
+  //      mIRCError( "WM_NEXTDLGCTL" );
+		//	}
+		//	break;
     case WM_NCDESTROY: 
       {
         //mIRCError( "WM_NCDESTROY" );
@@ -1945,8 +1981,10 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
   return lRes;
   */
 
-  if ( p_this != NULL )
+	if ( p_this != NULL ) {
+
     return CallWindowProc( p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam );
+	}
 
   return DefWindowProc( mHwnd, uMsg, wParam, lParam );
 }
