@@ -32,7 +32,7 @@ echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?".">";
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title>DCX Download Archive - Dialog Control Xtension DLL v<?php echo $versio; ?> by ClickHeRe &amp; twig*</title>
+<title>DCX Download Archive - Dialog Control Xtension DLL by ClickHeRe &amp; twig*</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 <base target="_top" />
@@ -41,7 +41,7 @@ echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?".">";
 <body>
 
 <table>
-<tr><th>Stable Release</th><th>Release Date</th><th>Link</th><th>Change Log</th></tr>
+<tr><th>Latest Stable</th><th>Release Date</th><th>Link</th><th>Change Log</th></tr>
 <?
 // show link for latest stable release
 echo "<tr>
@@ -58,13 +58,8 @@ echo "</td>
 <td><a href=\"changes.htm#v$stable\">Changes</a></td>
 </tr>";
 
-echo "</table>";
-?>
+echo "<tr><td colspan='4'>&nbsp;</td></tr>";
 
-<br />
-
-<table>
-<?
 // list all download versions
 echo "<tr><th>Version</th><th>Release Date</th><th>Link</th><th>Change Log</th></tr>";
 
