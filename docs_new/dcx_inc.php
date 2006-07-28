@@ -157,7 +157,7 @@ function dcxdoc_header($page, $pagelabel) {
 	<tr>
 		<td>
 			<a href='index.htm'>Home</a> |
-			<a href="download.php?v=v<?php echo $VERSION; ?>">Download</a> |
+			<a href="archive.htm">Download</a> |
 			<a href="http://dcx.scriptsdb.org/forum/">Forum</a> |
 			<a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a> |
 		</td>
@@ -204,8 +204,8 @@ function dcxdoc_menu_left() {
 	</ul>
 	<a class="section">About DCX</a><br />
 	<ul>
-		<li><a href="changes.htm">Version History</a></li>
 		<li><a href="archive.htm">Download Archive</a></li>
+		<li><a href="changes.htm">Version History</a></li>
 		<li><a href="dcxvsmdx.htm">DCX vs MDX</a></li>
     </ul>
 </td>
