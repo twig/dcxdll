@@ -751,6 +751,8 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
         if (!hdr)
           break;
+				//if (hdr->hwndFrom == this->m_Hwnd)
+				//	return 0L;
 
         char ClassName[256];
 
@@ -1079,6 +1081,8 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
     case WM_COMMAND:
       {
         //mIRCError( "Tab WM_COMMAND" );
+				//if ((HWND)lParam == this->m_Hwnd)
+				//	return 0L;
         char ClassName[256];
 
 				if ( IsWindow( (HWND) lParam ) && GetClassName( (HWND) lParam, ClassName, 256 ) != 0 ) {
@@ -1136,13 +1140,13 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
       }
       break;
 
-		case WM_GETDLGCODE:
-			{
-				//mIRCError("Tab WM_GETDLGCODE");
-				bParsed = TRUE;
-				return 0L; //DLGC_STATIC;
-			}
-			break;
+		//case WM_GETDLGCODE:
+		//	{
+		//		//mIRCError("Tab WM_GETDLGCODE");
+		//		bParsed = TRUE;
+		//		return 0L; //DLGC_STATIC;
+		//	}
+		//	break;
 		//case WM_ACTIVATE:
 		//	{
 		//		switch (wParam)

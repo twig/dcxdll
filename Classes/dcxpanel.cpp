@@ -644,8 +644,8 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
         if (!hdr)
           break;
-				if (hdr->hwndFrom == this->m_Hwnd)
-					return 0L;
+				//if (hdr->hwndFrom == this->m_Hwnd)
+				//	return 0L;
 
         char ClassName[256];
 
@@ -948,8 +948,8 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
     case WM_COMMAND:
       {
         //mIRCError( "Panel WM_COMMAND" );
-				if ((HWND)lParam == this->m_Hwnd)
-					return 0L;
+				//if ((HWND)lParam == this->m_Hwnd)
+				//	return 0L;
 
         char ClassName[256];
 
@@ -1167,13 +1167,13 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
-		case WM_GETDLGCODE:
-		{
-			//mIRCError("Panel WM_GETDLGCODE");
-      bParsed = TRUE;
-			return 0L; //DLGC_STATIC;
-		}
-		break;
+		//case WM_GETDLGCODE:
+		//{
+		//	//mIRCError("Panel WM_GETDLGCODE");
+  //    bParsed = TRUE;
+		//	return 0L; //DLGC_STATIC;
+		//}
+		//break;
 
     case WM_DESTROY:
       {
