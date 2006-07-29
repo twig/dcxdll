@@ -136,7 +136,7 @@ typedef struct {
   HANDLE m_hFileMap; //!< Handle to the mIRC DLL File Map
   LPSTR m_pData;     //!< Pointer to a character buffer of size 900 to send mIRC custom commands
   HWND m_mIRCHWND;   //!< mIRC Window Handle
-
+	int m_map_cnt;     //!< MapFile counter.
 } mIRCDLL;
 
 /*!

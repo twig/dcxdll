@@ -49,7 +49,7 @@ void mIRCSignal( const char * data ) {
 	*/
 
 	wsprintf( mIRCLink.m_pData, "//.signal -n DCX %s", data );
-	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 200, 0, 0 );
+	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt );
 }
 
 /*!
@@ -83,7 +83,7 @@ void mIRCError( const char * data ) {
 	}
 	*/
 	wsprintf( mIRCLink.m_pData, "//echo -s %s", data );
-	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 200, 0, 0 );
+	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt );
 }
 
 /*!
@@ -94,7 +94,7 @@ void mIRCError( const char * data ) {
 
 void mIRCeval( const char * data, char * res ) {
 	lstrcpy( mIRCLink.m_pData, data );
-	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 201, 0, 0 );
+	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 201, 0, mIRCLink.m_map_cnt );
 	lstrcpy( res, mIRCLink.m_pData );
 }
 
@@ -106,7 +106,7 @@ void mIRCeval( const char * data, char * res ) {
 
 void mIRCcom( const char * data ) {
 	lstrcpy( mIRCLink.m_pData, data );
-	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 200, 0, 0 );
+	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt );
 }
 
 /*!

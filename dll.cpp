@@ -75,7 +75,33 @@ WNDPROC g_OldmIRCWindowProc;
 */
 
 void WINAPI LoadDll( LOADINFO * load ) {
-	mIRCLink.m_hFileMap = CreateFileMapping( INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, 4096, "mIRC" );     
+	int cnt = 0;
+	if ((HIWORD(load->mVersion) >= 2) && (LOWORD(load->mVersion) >= 6)) {
+		// If mIRC V6.2+ then try & create our own unique mapfile.
+		TString map_name;
+		cnt = 1;
+		mIRCLink.m_hFileMap = NULL;
+		while ((mIRCLink.m_hFileMap == NULL) && (cnt < 256)) {
+			map_name.sprintf("mIRC%d",cnt); // create mapfile name.
+			mIRCLink.m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE,0,PAGE_READWRITE,0,4096,map_name.to_chr()); // cretae mapfile.
+			if ((mIRCLink.m_hFileMap == NULL) || (mIRCLink.m_hFileMap == INVALID_HANDLE_VALUE)) { // if create failed, fall back on old method.
+				cnt = 0;
+				break;
+			}
+			if (GetLastError() == ERROR_ALREADY_EXISTS) { // if mapfile already exists then close & try another name.
+				CloseHandle(mIRCLink.m_hFileMap);
+				mIRCLink.m_hFileMap = NULL;
+			}
+			else
+				break;
+			cnt++;
+		}
+		if (cnt == 256) cnt = 0;
+	}
+	mIRCLink.m_map_cnt = cnt; // set mapfile counter for SendMessage()'s
+	if (cnt == 0) { // use old method for < mirc 6.2 or when new method fails.
+		mIRCLink.m_hFileMap = CreateFileMapping( INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, 4096, "mIRC" );
+	}
 	mIRCLink.m_pData = (LPSTR) MapViewOfFile( mIRCLink.m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0 );
 	mIRCLink.m_mIRCHWND = load->mHwnd;
 

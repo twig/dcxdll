@@ -1044,7 +1044,7 @@ BOOL DcxDialog::callAliasEx( char * szReturn, const char * szFormat, ... ) {
     this->getName( ).to_chr( ),
     parms );
 
-  SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 201, 0, 0 );
+	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 201, 0, mIRCLink.m_map_cnt );
   //MessageBox(NULL, mData, NULL, MB_OK);
   //Signal(mData);
   if ( szReturn )
@@ -1938,6 +1938,9 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 					}
 					break;
 				}
+				// Activate bug: If we return 0 here its fixed, If we comment out CallWindowProc() below, its fixed.
+				//							If on the other hand we do neither of these the code enters a WM_GETDLGCODE loop
+				//							where this message is constantly sent to the button & tab controls (in tab_prob example)
 				return 0L;
 			}
 			break;
