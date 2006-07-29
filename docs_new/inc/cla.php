@@ -111,7 +111,8 @@ function cla_examples() {
 <ul>
 	<li><a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=120">DCX Forum: Help: CLA</a></li>
 	<li><a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=127">DCX Forum: CLA :(</a></li>
-	<li><a href="http://www.mircscripts.org/comments.php?cid=2977">Mpdreamz's Cell Layout Algorithm Tutorial</a></li>
+	<li><a href="http://www.mircscripts.org/comments.php?cid=2977">Mpdreamz's Cell Layout Algorithm Tutorial</a></li><?php //'; ?>
+	<li><a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=320">EinsteinXXL's CLA Tutorial (German)</a></li>
 </ul>
 <br />
 Feel free to post any messages after reading those threads if you still need any help.
