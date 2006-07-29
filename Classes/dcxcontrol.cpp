@@ -158,7 +158,7 @@ BOOL DcxControl::callAliasEx( char * szReturn, const char * szFormat, ... ) {
     this->m_pParentDialog->getName( ).to_chr( ),
     parms );
 
-  SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 201, 0, 0 );
+	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 201, 0, mIRCLink.m_map_cnt );
   //MessageBox(NULL, mData, NULL, MB_OK);
   //Signal(mData);
   if ( szReturn )
