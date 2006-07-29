@@ -76,8 +76,10 @@ WNDPROC g_OldmIRCWindowProc;
 
 void WINAPI LoadDll( LOADINFO * load ) {
 	int cnt = 0;
-	if ((HIWORD(load->mVersion) >= 2) && (LOWORD(load->mVersion) >= 6)) {
+	if ((HIWORD(load->mVersion) == 2) && (LOWORD(load->mVersion) == 6)) {
 		// If mIRC V6.2+ then try & create our own unique mapfile.
+		// damn mIRC reports as 6.2 instead of 6.20!
+		// meaning mirc v6.17 appears to be a higher version.
 		TString map_name;
 		cnt = 1;
 		mIRCLink.m_hFileMap = NULL;
