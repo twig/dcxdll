@@ -520,7 +520,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
         // Regular button
 		  if ((!isBitmap) || (this->m_bBitmapText)) {
-
           bParsed = TRUE;
           
 			 // draw default window bg
@@ -539,16 +538,16 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
           int nIcon;
 
           // Button colors and icon
-          if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
+          if (IsWindowEnabled(this->m_Hwnd) == FALSE)
             nIcon = 3;
-          else if ( this->m_bSelected )
+          else if (this->m_bSelected)
             nIcon = 2;
-          else if ( this->m_bHover )
+          else if (this->m_bHover)
             nIcon = 1;
           else
             nIcon = 0;
 
-          SetTextColor( hdc, this->m_aColors[nIcon] );
+          SetTextColor(hdc, this->m_aColors[nIcon]);
 
           if ( this->m_tsCaption.len( ) > 0 )
             DrawText( hdc, this->m_tsCaption.to_chr( ), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE );

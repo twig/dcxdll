@@ -40,11 +40,6 @@ DcxDialog::DcxDialog( HWND mHwnd, TString & tsName, TString & tsAliasName )
 : DcxWindow( mHwnd, 0 )
 , m_uStyleBg(DBS_BKGNORMAL)
 {
-
-  //mIRCError( "Marking Dialog" );
-  //mIRCError( tsName.to_chr( ) );
-  //mIRCError( tsAliasName.to_chr( ) );
-
   this->m_tsName = tsName;
   this->m_tsAliasName = tsAliasName;
   this->m_hBackBrush = NULL;
@@ -74,16 +69,14 @@ DcxDialog::DcxDialog( HWND mHwnd, TString & tsName, TString & tsAliasName )
  * blah
  */
 
-DcxDialog::~DcxDialog( ) {
+DcxDialog::~DcxDialog() {
+	if (this->m_pLayoutManager != NULL)
+		delete this->m_pLayoutManager;
 
-  if ( this->m_pLayoutManager != NULL )
-    delete this->m_pLayoutManager;
-
-  if (this->m_bitmapBg)
+	if (this->m_bitmapBg)
 		DeleteObject(m_bitmapBg);
 
-  //mIRCError( "Dialog Destructor - Removing Prop" );
-  RemoveProp( this->m_Hwnd, "dcx_this" );
+	RemoveProp(this->m_Hwnd, "dcx_this");
 }
 
 /*!
@@ -126,14 +119,11 @@ void DcxDialog::addControl( DcxControl * p_Control ) {
  */
 
 void DcxDialog::deleteControl( DcxControl * p_Control ) {
-
   VectorOfControlPtrs::iterator itStart = this->m_vpControls.begin( );
   VectorOfControlPtrs::iterator itEnd = this->m_vpControls.end( );
 
   while ( itStart != itEnd ) {
-
     if ( *itStart == p_Control && *itStart != NULL ) {
-
       this->m_vpControls.erase( itStart );
       return;
     }
@@ -142,8 +132,7 @@ void DcxDialog::deleteControl( DcxControl * p_Control ) {
   }
 }
 
-void DcxDialog::deleteAllControls( ) {
-
+void DcxDialog::deleteAllControls() {
   /*
   char error[500];
   wsprintf( error, "%d Controls", this->m_vpControls.size( ) );
@@ -181,12 +170,10 @@ void DcxDialog::deleteAllControls( ) {
  */
 
 DcxControl * DcxDialog::getControlByID( UINT ID ) {
-
   VectorOfControlPtrs::iterator itStart = this->m_vpControls.begin( );
   VectorOfControlPtrs::iterator itEnd = this->m_vpControls.end( );
 
   while ( itStart != itEnd ) {
-
     if ( (*itStart)->getID( ) == ID )
       return *itStart;
 
@@ -203,17 +190,16 @@ DcxControl * DcxDialog::getControlByID( UINT ID ) {
  */
 
 DcxControl * DcxDialog::getControlByHWND( HWND mHwnd ) {
-
   VectorOfControlPtrs::iterator itStart = this->m_vpControls.begin( );
   VectorOfControlPtrs::iterator itEnd = this->m_vpControls.end( );
 
   while ( itStart != itEnd ) {
-
     if ( (*itStart)->getHwnd( ) == mHwnd )
       return *itStart;
 
     itStart++;
   }
+
   return NULL;
 }
 
@@ -223,19 +209,16 @@ DcxControl * DcxDialog::getControlByHWND( HWND mHwnd ) {
  * blah
  */
 
-void DcxDialog::parseCommandRequest( TString & input ) {
-
+void DcxDialog::parseCommandRequest(TString & input) {
   XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( &input.gettok( 2, " " ), &flags );
+
+  ZeroMemory((void*)&flags, sizeof(XSwitchFlags));
+  this->parseSwitchFlags( &input.gettok(2, " "), &flags);
 
   int numtok = input.numtok( " " );
 
-  //mIRCSignal( input.to_chr( ) );
-
   // xdialog -a [NAME] [SWITCH] [+FLAGS] [DURATION]
-  if ( flags.switch_flags[0] && numtok > 3 ) {
-
+  if (flags.switch_flags[0] && numtok > 3) {
     AnimateWindow( this->m_Hwnd, 
                    atoi( input.gettok( 4, " " ).to_chr( ) ), 
                    getAnimateStyles( input.gettok( 3, " " ) ) );
@@ -328,7 +311,6 @@ void DcxDialog::parseCommandRequest( TString & input ) {
 	}
   // xdid -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
   else if ( flags.switch_flags[5] && numtok > 4 ) {
-
     UINT iFlags = this->parseFlashFlags( input.gettok( 3, " " ) );
     INT iCount = atoi( input.gettok( 4, " " ).to_chr( ) );
     DWORD dwTimeout = atol( input.gettok( 5, " " ).to_chr( ) );
@@ -371,7 +353,6 @@ void DcxDialog::parseCommandRequest( TString & input ) {
 				this->m_bitmapBg = LoadBitmap(this->m_bitmapBg, filename);
 		}
 
-		//this->m_uStyleBg
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
   // xdid -j [NAME] [SWITCH]
@@ -628,7 +609,6 @@ void DcxDialog::parseCommandRequest( TString & input ) {
  */
 
 void DcxDialog::parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles ) {
-
   INT i = 1, len = flags.len( );
 
   // no +sign, missing params
@@ -636,7 +616,6 @@ void DcxDialog::parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyl
     return;
 
   while ( i < len ) {
-
     if ( flags[i] == 'b' )
       *Styles |= WS_BORDER;
     else if ( flags[i] == 'c' )
@@ -675,12 +654,10 @@ void DcxDialog::parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyl
  */
 
 DWORD DcxDialog::getAnimateStyles( TString & flags ) {
-
   DWORD Styles = 0;
 
   int i = 1, len = flags.len( );
   while ( i < len ) {
-
     if ( flags[i] == 's' )
       Styles |= AW_SLIDE;
     else if ( flags[i] == 'h' )
@@ -702,6 +679,7 @@ DWORD DcxDialog::getAnimateStyles( TString & flags ) {
 
     i++;
   }
+
   return Styles;
 }
 
@@ -712,7 +690,6 @@ DWORD DcxDialog::getAnimateStyles( TString & flags ) {
  */
 
 UINT DcxDialog::parseLayoutFlags( TString & flags ) {
-
   INT i = 1, len = flags.len( );
   UINT iFlags = 0;
 
@@ -721,7 +698,6 @@ UINT DcxDialog::parseLayoutFlags( TString & flags ) {
     return iFlags;
 
   while ( i < len ) {
-
     if ( flags[i] == 'f' )
       iFlags |= LAYOUTFIXED;
     else if ( flags[i] == 'h' )
@@ -791,15 +767,13 @@ UINT DcxDialog::parseBkgFlags(TString & flags) {
  */
 
 UINT DcxDialog::parseFlashFlags( TString & flags ) {
-
-INT i = 1, len = flags.len( ), iFlags = 0;
+	INT i = 1, len = flags.len( ), iFlags = 0;
 
   // no +sign, missing params
   if ( flags[0] != '+' ) 
     return iFlags;
 
   while ( i < len ) {
-
     if ( flags[i] == 'a' )
       iFlags |= FLASHW_ALL;
     else if ( flags[i] == 'c' )
@@ -815,6 +789,7 @@ INT i = 1, len = flags.len( ), iFlags = 0;
 
     ++i;
   }
+
   return iFlags;
 }
 
@@ -825,7 +800,6 @@ INT i = 1, len = flags.len( ), iFlags = 0;
  */
 
 UINT DcxDialog::parseCursorFlags( TString & flags ) {
-
   INT i = 1, len = flags.len( );
   UINT iFlags = 0;
 
@@ -834,7 +808,6 @@ UINT DcxDialog::parseCursorFlags( TString & flags ) {
     return iFlags;
 
   while ( i < len ) {
-
     if ( flags[i] == 'f' )
       iFlags |= DCCS_FROMFILE;
     else if ( flags[i] == 'r' )
@@ -853,7 +826,6 @@ UINT DcxDialog::parseCursorFlags( TString & flags ) {
  */
 
 LPSTR DcxDialog::parseCursorType( TString & cursor ) {
-
   if ( cursor == "appstarting" )
     return IDC_APPSTARTING;
   else if ( cursor == "arrow" )
@@ -893,12 +865,10 @@ LPSTR DcxDialog::parseCursorType( TString & cursor ) {
  */
 
 void DcxDialog::parseInfoRequest( TString & input, char * szReturnValue ) {
-
   int numtok = input.numtok( " " );
 
   // [NAME] [PROP] [ID]
   if ( input.gettok( 2, " " ) == "isid" && numtok > 2 ) {
-
     int nID = atoi( input.gettok( 3, " " ).to_chr( ) );
 
     if ( IsWindow( GetDlgItem( this->m_Hwnd, nID + mIRC_ID_OFFSET ) ) || 
@@ -1016,12 +986,13 @@ void DcxDialog::parseInfoRequest( TString & input, char * szReturnValue ) {
     return;
   }
   else {
-    //char error[500];
-    //wsprintf( error, "Invalid $ $+ xdialog property : %s : or number of arguments", input.gettok( 2, " " ).to_chr( ) );
-    //mIRCError( error );
-		TString error;
-		error.sprintf("Invalid $ $+ xdialog property : %s : or number of arguments", input.gettok( 2, " " ).to_chr( ) );
-		mIRCError( error.to_chr() );
+	  //char error[500];
+	  //wsprintf( error, "Invalid $ $+ xdialog property : %s : or number of arguments", input.gettok( 2, " " ).to_chr( ) );
+	  //mIRCError( error );
+		//TString error;
+		//error.sprintf("Invalid $ $+ xdialog property : %s : or number of arguments", input.gettok( 2, " " ).to_chr( ) );
+		//mIRCError( error.to_chr() );
+		mIRCDebug("Invalid $xdialog property : %s : or number of arguments", input.gettok(2, " ").to_chr());
   }
 
   szReturnValue[0] = 0;
@@ -1087,16 +1058,14 @@ HBRUSH DcxDialog::getBackClrBrush( ) {
  */
 
 void DcxDialog::setMouseControl( UINT mUID ) {
-
   char ret[256];
-  if ( mUID != this->m_MouseID ) {
 
+  if ( mUID != this->m_MouseID ) {
     this->callAliasEx( ret, "%s,%d", "mouseleave", this->m_MouseID );
     this->callAliasEx( ret, "%s,%d", "mouseenter", mUID );
     this->m_MouseID = mUID;
   }
   else {
-
     this->callAliasEx( ret, "%s,%d", "mouse", mUID );
   }
 }
@@ -1108,10 +1077,9 @@ void DcxDialog::setMouseControl( UINT mUID ) {
  */
 
 void DcxDialog::setFocusControl( UINT mUID ) {
-
   if ( mUID != this->m_FocusID ) {
-
     char ret[256];
+
     this->callAliasEx( ret, "%s,%d", "focusout", this->m_FocusID );
     this->callAliasEx( ret, "%s,%d", "focus", mUID );
     this->m_FocusID = mUID;
@@ -1125,15 +1093,19 @@ void DcxDialog::setFocusControl( UINT mUID ) {
  */
 
 LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
+	DcxDialog *p_this = (DcxDialog *) GetProp(mHwnd, "dcx_this");
 
-  DcxDialog * p_this = (DcxDialog *) GetProp( mHwnd, "dcx_this" );
-	if (p_this == NULL)	return DefWindowProc( mHwnd, uMsg, wParam, lParam ); // sanity check for prop existing.
-	bool fBlocked = ( InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND) ) == ISMEX_SEND;
+	// sanity check for prop existing.
+	if (p_this == NULL)
+		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+
+	bool fBlocked = (InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
+
+	// If Message is blocking just call old win proc
 	if (fBlocked) {
-		// If Message is blocking just call old win proc
-		return CallWindowProc( p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam );
+		return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 	}
- 	//mIRCDebug("dialog: %d", uMsg);
+
 	switch( uMsg ) {
 		case WM_THEMECHANGED:
 		{
@@ -1236,6 +1208,7 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
             case LVN_ENDLABELEDIT:
             case LVN_DELETEITEM:
             case LVN_BEGINDRAG:
+				case LVN_ENDSCROLL:
               {
                 if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 )
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
@@ -1360,28 +1333,29 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
       }
       break;
 
-    case WM_DELETEITEM:
-      {
-        //mIRCError( "Dialog WM_DELETEITEM" );
-        char ClassName[256];
-				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName( idata->hwndItem, ClassName, 256 ) != 0)) {
-          if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-            //mIRCError( "DCX_COLORCOMBOCLASS WM_DELETEITEM" );
-            return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
-          }
+		case WM_DELETEITEM:
+		{
+			//mIRCError( "Dialog WM_DELETEITEM" );
+			char ClassName[256];
+			DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
+
+			if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName( idata->hwndItem, ClassName, 256 ) != 0)) {
+				if (lstrcmp(DCX_COLORCOMBOCLASS, ClassName) == 0) {
+					//mIRCError( "DCX_COLORCOMBOCLASS WM_DELETEITEM" );
+					return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
 				}
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( mHwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
+			}
+			//char ClassName[256];
+			//HWND cHwnd = GetDlgItem( mHwnd, wParam );
+			//if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
 
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
+			//  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
 
-        //    return SendMessage( cHwnd, uMsg, wParam, lParam );
-        //  }
-        //}
-      }
-      break;
+			//    return SendMessage( cHwnd, uMsg, wParam, lParam );
+			//  }
+			//}
+		}
+		break;
 
     case WM_MEASUREITEM:
       {
@@ -1404,30 +1378,30 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
       }
       break;
 
-    case WM_DRAWITEM:
-      {
-        //mIRCError( "Dialog WM_DRAWITEM" );
+		case WM_DRAWITEM:
+		{
+			//mIRCError( "Dialog WM_DRAWITEM" );
+			char ClassName[256];
+			DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 
-        char ClassName[256];
-				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName( idata->hwndItem, ClassName, 256 ) != 0)) {
-          if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-            //mIRCError( "DCX_COLORCOMBOCLASS WM_DRAWITEM" );
-            return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
-          }
+			if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName( idata->hwndItem, ClassName, 256 ) != 0)) {
+				if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
+					//mIRCError( "DCX_COLORCOMBOCLASS WM_DRAWITEM" );
+					return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
 				}
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( mHwnd, wParam );
+			}
+			//char ClassName[256];
+			//HWND cHwnd = GetDlgItem( mHwnd, wParam );
 
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
+			//if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
 
-        //  // ColorCombo notifications
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-        //    return SendMessage( (HWND) cHwnd, uMsg, wParam, lParam );
-        //  }
-        //}
-      }
-     break;
+			//  // ColorCombo notifications
+			//  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
+			//    return SendMessage( (HWND) cHwnd, uMsg, wParam, lParam );
+			//  }
+			//}
+		}
+		break;
 
     case WM_COMMAND:
       {
@@ -1984,11 +1958,9 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
   return lRes;
   */
 
-	if ( p_this != NULL ) {
-
-    return CallWindowProc( p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam );
+	if (p_this != NULL) {
+		return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 	}
 
-  return DefWindowProc( mHwnd, uMsg, wParam, lParam );
+	return DefWindowProc( mHwnd, uMsg, wParam, lParam );
 }
-

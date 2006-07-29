@@ -398,6 +398,20 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
+    case WM_LBUTTONDOWN:
+      {
+        char ret[256];
+        this->callAliasEx( ret, "%s,%d", "sclick", this->getUserID( ) );
+      }
+      break;
+
+    case WM_LBUTTONUP:
+      {
+        char ret[256];
+        this->callAliasEx( ret, "%s,%d", "lbup", this->getUserID( ) );
+      }
+      break;
+
     case WM_MOUSEMOVE:
       {
         this->m_pParentDialog->setMouseControl( this->getUserID( ) );
