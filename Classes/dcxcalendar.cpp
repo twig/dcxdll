@@ -194,8 +194,7 @@ void DcxCalendar::parseCommandRequest( TString & input ) {
 LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) {
 	switch (uMsg) {
 		case WM_HELP: {
-			char ret[256];
-			this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+			this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
 			break;
 		}
 
@@ -217,7 +216,7 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					MONTHDAYSTATE mds[12];
 
 					int iMax = lpNMDayState->cDayState;
-					char *eval = new char[100];
+					char eval[100];
 
 					for (int i = 0; i < iMax; i++) {
 						// daystate ctrlid startdate
@@ -250,13 +249,10 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				}
 
 				case MCN_SELCHANGE: {
-					char ret[256];
-					this->callAliasEx(ret, "%s,%d", "selchange", this->getUserID());
+					this->callAliasEx(NULL, "%s,%d", "selchange", this->getUserID());
 					break;
 				}
 				case MCN_SELECT: {
-					char ret[256];
-
 					// specific code to handle multiselect dates
 					if (this->isStyle(MCS_MULTISELECT)) {
 						// get the selected range
@@ -265,7 +261,7 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 						MonthCal_GetSelRange(this->m_Hwnd, selrange);
 
 						// send event to callback
-						this->callAliasEx(ret, "%s,%d,%d,%d", "select", this->getUserID(),
+						this->callAliasEx(NULL, "%s,%d,%d,%d", "select", this->getUserID(),
 							SystemTimeToMircTime(selrange[0]),
 							SystemTimeToMircTime(selrange[1]));
 					}
@@ -275,14 +271,13 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 						MonthCal_GetCurSel(this->m_Hwnd, &st);
 
 						// send event to callback
-						this->callAliasEx(ret, "%s,%d,%d", "select", this->getUserID(), SystemTimeToMircTime(st));
+						this->callAliasEx(NULL, "%s,%d,%d", "select", this->getUserID(), SystemTimeToMircTime(st));
 					}
 
 					break;
 				}
 				case NM_RELEASEDCAPTURE: {
-					char ret[256];
-					this->callAliasEx(ret, "%s,%d", "sclick", this->getUserID());
+					this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
 					break;
 				}
 				default: {
@@ -327,7 +322,7 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 }
 
 long DcxCalendar::SystemTimeToMircTime(SYSTEMTIME st) {
-	char *ret = new char[100];
+	char ret[100];
 
 	TString months[12] = {
 		"January",
