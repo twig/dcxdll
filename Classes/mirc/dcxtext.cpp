@@ -214,8 +214,7 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -227,15 +226,13 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
           case STN_CLICKED:
             {
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d", "sclick", this->getUserID( ) );
+              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
             }
             break;
 
           case STN_DBLCLK:
             {
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d", "dclick", this->getUserID( ) );
+              this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
             }
             break;
         }
@@ -244,8 +241,7 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
     case WM_CONTEXTMENU:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "rclick", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
       }
       break;
 

@@ -632,8 +632,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -881,17 +880,6 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
             return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
           }
 				}
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_DELETEITEM" );
-        //    bParsed = TRUE;
-        //    return SendMessage( cHwnd, uMsg, wParam, lParam );
-        //  }
-        //}
       }
       break;
 
@@ -899,22 +887,6 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       {
         //mIRCError( "Panel WM_MEASUREITEM" );
 				if (ctrl_MeasureItem(this->m_Hwnd, wParam, lParam)) return TRUE;
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_MEASUREITEM" );
-
-        //    LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
-
-        //    if ( lpmis != NULL )
-        //      lpmis->itemHeight = 16; 
-
-        //    return TRUE;
-        //  }
-        //}
       }
       break;
 
@@ -931,17 +903,6 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
             return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
           }
 				}
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_DRAWITEM" );
-        //    bParsed = TRUE;
-        //    return SendMessage( cHwnd, uMsg, wParam, lParam );
-        //  }
-        //}
       }
      break;
 
@@ -1035,8 +996,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
           SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
         }
 
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "sizing", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
 
         RECT rc;
         SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
@@ -1140,24 +1100,21 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_LBUTTONDOWN:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "sclick", this->getUserID( ) );
-        this->callAliasEx( ret, "%s,%d", "lbdown", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "lbdown", this->getUserID( ) );
       }
       break;
 
     case WM_LBUTTONUP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "lbup", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
       }
       break;
 
     case WM_LBUTTONDBLCLK:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "dclick", this->getUserID( ) );
-        this->callAliasEx( ret, "%s,%d", "lbdblclk", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "lbdblclk", this->getUserID( ) );
       }
       break;
 

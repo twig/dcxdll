@@ -319,8 +319,7 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -332,20 +331,17 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
           case LBN_SELCHANGE:
             {
-              
-              char ret[256];
-
               int nItem = ListBox_GetCurSel( this->m_Hwnd );
 
               if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
 
                 if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-                  this->callAliasEx( ret, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
+                  this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
               }
               else {
 
                 if ( nItem != LB_ERR )
-                  this->callAliasEx( ret, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
+                  this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
               }
 
             }
@@ -353,19 +349,17 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
           case LBN_DBLCLK:
             {
-              char ret[256];
-
               int nItem = ListBox_GetCurSel( this->m_Hwnd );
 
               if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
 
                 if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-                  this->callAliasEx( ret, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
+                  this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
               }
               else {
 
                 if ( nItem != LB_ERR )
-                  this->callAliasEx( ret, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
+                  this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
               }
             }
             break;
@@ -381,8 +375,7 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
     case WM_CONTEXTMENU:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "rclick", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
       }
       break;
 

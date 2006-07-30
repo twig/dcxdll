@@ -593,8 +593,7 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -606,8 +605,7 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
           case CBN_DBLCLK:
             {
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d,%d", "dclick", this->getUserID( ), this->getCurSel( ) + 1 );
+              this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), this->getCurSel( ) + 1 );
               bParsed = TRUE;
               return TRUE;
             }
@@ -615,8 +613,7 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
           case CBN_SELENDOK:
             {
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
+              this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
               char itemtext[500];
               COMBOBOXEXITEM cbex;
               ZeroMemory( &cbex, sizeof( COMBOBOXEXITEM ) );
@@ -633,8 +630,7 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
           case CBN_EDITCHANGE:
             {
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d", "edit", this->getUserID( ) );
+              this->callAliasEx( NULL, "%s,%d", "edit", this->getUserID( ) );
               bParsed = TRUE;
               return TRUE;
             }
@@ -703,18 +699,11 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				//mIRCError( "WM_MOUSEACTIVATE" );
 				switch (HIWORD(lParam))
 				{
-				//case WM_LBUTTONDOWN:
-				//	{
-				//		//mIRCError( "ComboEx WM_LBUTTONDOWN" );
-				//		char ret[256];
-				//		this->callAliasEx( ret, "%s,%d", "msclick", this->getUserID( ) );
-				//	}
-				//	break;
 				case WM_RBUTTONDOWN:
 					{
 						//mIRCError( "ComboEx WM_RBUTTONDOWN" );
-						char ret[256]; // NB: rclick doesnt change selection!
-						this->callAliasEx( ret, "%s,%d,%d", "rclick", this->getUserID( ), this->getCurSel( ) + 1 );
+						// NB: rclick doesnt change selection!
+						this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), this->getCurSel( ) + 1 );
 					}
 					break;
 				}
@@ -762,9 +751,7 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wPar
           DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, "dcx_cthis" );
 
           if ( pthis != NULL ) {
-            
-            char ret[256];
-            pthis->callAliasEx( ret, "%s,%d", "return", pthis->getUserID( ) );
+            pthis->callAliasEx( NULL, "%s,%d", "return", pthis->getUserID( ) );
           }
         }
       }

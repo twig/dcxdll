@@ -393,8 +393,7 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
   switch( uMsg ) {
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -406,8 +405,10 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 					When we don't grab TAB mIRC crashes! WTF!
 				*/
 				//bParsed = TRUE;
-				//if (!this->isStyle(WS_TABSTOP)) return DLGC_WANTALLKEYS;
-				//else return DLGC_WANTCHARS | DLGC_WANTARROWS;
+				//if (!this->isStyle(WS_TABSTOP)) {
+				//	return DLGC_WANTALLKEYS;
+				//}
+				//else return DLGC_WANTCHARS | DLGC_WANTARROWS; // | DLGC_WANTTAB;
       }
       break;
 
@@ -423,8 +424,7 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
               GetWindowText( this->m_Hwnd, text, n+1 );
               this->m_tsText = text;
 
-              char ret[256];
-              this->callAliasEx(ret, "%s,%d", "edit", this->getUserID());
+              this->callAliasEx(NULL, "%s,%d", "edit", this->getUserID());
 
               delete []text;
             }
@@ -436,13 +436,11 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 //		break;
 //					}
 	case WM_KEYDOWN: {
-		char ret[256];
-
 		if (wParam == VK_RETURN)
-			this->callAliasEx(ret, "%s,%d", "return", this->getUserID());
+			this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
 
 		if (lParam & 0x40000000) break; // ignore repeats.
-		this->callAliasEx(ret, "%s,%d,%d", "keydown", this->getUserID(), wParam);
+		this->callAliasEx(NULL, "%s,%d,%d", "keydown", this->getUserID(), wParam);
 
 		/*
 		// CTRL+A, select text and return so control doesnt beep
@@ -497,8 +495,14 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			break;
 		}
 	case WM_KEYUP: {
-		char ret[256];
-		this->callAliasEx(ret, "%s,%d,%d", "keyup", this->getUserID(), wParam);
+		this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
+//		if ((wParam == VK_TAB) && (this->isStyle(WS_TABSTOP))) {
+//			bParsed = TRUE;
+//			HWND nxt = GetNextDlgTabItem(this->m_pParentDialog->getHwnd(),this->getHwnd(),FALSE);
+//			if (nxt != NULL) SetFocus(nxt);
+			//::PostMessage(this->m_pParentDialog->getHwnd(),WM_NEXTDLGCTL,(WPARAM)0,(LPARAM)0);
+//			return 0L;
+//		}
 		break;
 	}
 	 case WM_MOUSEMOVE:
@@ -543,10 +547,10 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			// for each file, send callback message
 			for (int i = 0; i < count; i++) {
 				if (DragQueryFile(files, i, filename, 500))
-					this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
+					this->callAliasEx(NULL, "%s,%d,%s", "dragfile", this->getUserID(), filename);
 			}
 
-			this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
+			this->callAliasEx(NULL, "%s,%d", "dragfinish", this->getUserID());
 		}
 
 		DragFinish(files);

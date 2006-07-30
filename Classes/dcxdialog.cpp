@@ -1058,15 +1058,13 @@ HBRUSH DcxDialog::getBackClrBrush( ) {
  */
 
 void DcxDialog::setMouseControl( UINT mUID ) {
-  char ret[256];
-
   if ( mUID != this->m_MouseID ) {
-    this->callAliasEx( ret, "%s,%d", "mouseleave", this->m_MouseID );
-    this->callAliasEx( ret, "%s,%d", "mouseenter", mUID );
+    this->callAliasEx( NULL, "%s,%d", "mouseleave", this->m_MouseID );
+    this->callAliasEx( NULL, "%s,%d", "mouseenter", mUID );
     this->m_MouseID = mUID;
   }
   else {
-    this->callAliasEx( ret, "%s,%d", "mouse", mUID );
+    this->callAliasEx( NULL, "%s,%d", "mouse", mUID );
   }
 }
 
@@ -1078,10 +1076,8 @@ void DcxDialog::setMouseControl( UINT mUID ) {
 
 void DcxDialog::setFocusControl( UINT mUID ) {
   if ( mUID != this->m_FocusID ) {
-    char ret[256];
-
-    this->callAliasEx( ret, "%s,%d", "focusout", this->m_FocusID );
-    this->callAliasEx( ret, "%s,%d", "focus", mUID );
+    this->callAliasEx( NULL, "%s,%d", "focusout", this->m_FocusID );
+    this->callAliasEx( NULL, "%s,%d", "focus", mUID );
     this->m_FocusID = mUID;
   }
 }
@@ -1345,15 +1341,6 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 					return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
 				}
 			}
-			//char ClassName[256];
-			//HWND cHwnd = GetDlgItem( mHwnd, wParam );
-			//if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
-			//  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-			//    return SendMessage( cHwnd, uMsg, wParam, lParam );
-			//  }
-			//}
 		}
 		break;
 
@@ -1361,20 +1348,6 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
       {
         //mIRCError( "Dialog WM_MEASUREITEM" );
 				if (ctrl_MeasureItem(mHwnd, wParam, lParam)) return TRUE;
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( mHwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
-
-        //    if ( lpmis != NULL )
-        //      lpmis->itemHeight = 16; 
-
-        //    return TRUE;
-        //  }
-        //}
       }
       break;
 
@@ -1390,16 +1363,6 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 					return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
 				}
 			}
-			//char ClassName[256];
-			//HWND cHwnd = GetDlgItem( mHwnd, wParam );
-
-			//if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
-			//  // ColorCombo notifications
-			//  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-			//    return SendMessage( (HWND) cHwnd, uMsg, wParam, lParam );
-			//  }
-			//}
 		}
 		break;
 
@@ -1517,8 +1480,7 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
             {
               if ( p_this != NULL ) {
 
-                char ret[256];
-                p_this->callAliasEx( ret, "%s,%d", "restore", 0 );
+                p_this->callAliasEx( NULL, "%s,%d", "restore", 0 );
                 
                 return DefWindowProc( mHwnd, uMsg, wParam, lParam );
               }
@@ -1552,11 +1514,10 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 
         if ( p_this != NULL ) {
 
-          char ret[256];
           if ( p_this->m_bInSizing )
-            p_this->callAliasEx( ret, "%s,%d", "endsize", 0 );
+            p_this->callAliasEx( NULL, "%s,%d", "endsize", 0 );
           else if ( p_this->m_bInMoving )
-            p_this->callAliasEx( ret, "%s,%d", "endmove", 0 );
+            p_this->callAliasEx( NULL, "%s,%d", "endmove", 0 );
 
           p_this->m_bInMoving = false;
           p_this->m_bInSizing = false;
@@ -1568,10 +1529,7 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
       {
 
         if ( p_this != NULL ) {
-
-          char ret[256];
-          p_this->callAliasEx( ret, "%s,%d", "moving", 0 );
-
+          p_this->callAliasEx( NULL, "%s,%d", "moving", 0 );
         }
       }
       break;
@@ -1605,7 +1563,7 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
           RECT rc;
           SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
           p_this->updateLayout( rc );
-			 p_this->redrawWindow();
+					p_this->redrawWindow();
 
           if ( lstrcmp( "nosize", ret ) == 0 )
             return 0L;
@@ -1770,75 +1728,65 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
     case WM_LBUTTONDOWN:
       {
 	      //mIRCError( "Dialog WM_LBUTTONDOWN" );
-        char ret[256];
-        p_this->callAliasEx( ret, "%s,%d", "sclick", 0 );
-        p_this->callAliasEx( ret, "%s,%d", "lbdown", 0 );
+        p_this->callAliasEx( NULL, "%s,%d", "sclick", 0 );
+        p_this->callAliasEx( NULL, "%s,%d", "lbdown", 0 );
       }
       break;
 
     case WM_LBUTTONUP:
       {
-        char ret[256];
-        p_this->callAliasEx( ret, "%s,%d", "lbup", 0 );
+        p_this->callAliasEx( NULL, "%s,%d", "lbup", 0 );
       }
       break;
 
     case WM_LBUTTONDBLCLK:
       {
-        char ret[256];
-        p_this->callAliasEx( ret, "%s,%d", "dclick", 0 );
-        p_this->callAliasEx( ret, "%s,%d", "lbdblclk", 0 );
+        p_this->callAliasEx( NULL, "%s,%d", "dclick", 0 );
+        p_this->callAliasEx( NULL, "%s,%d", "lbdblclk", 0 );
       }
       break;
 
     case WM_RBUTTONDOWN:
       {
-        char ret[256];
-        p_this->callAliasEx( ret, "%s,%d", "rclick", 0 );
-        p_this->callAliasEx( ret, "%s,%d", "rbdown", 0 );
+        p_this->callAliasEx( NULL, "%s,%d", "rclick", 0 );
+        p_this->callAliasEx( NULL, "%s,%d", "rbdown", 0 );
       }
       break;
 
     case WM_RBUTTONUP:
       {
-        char ret[256];
-        p_this->callAliasEx( ret, "%s,%d", "rbup", 0 );
+        p_this->callAliasEx( NULL, "%s,%d", "rbup", 0 );
       }
       break;
 
     case WM_RBUTTONDBLCLK:
       {
-        char ret[256];
-        p_this->callAliasEx( ret, "%s,%d", "rbdblclk", 0 );
+        p_this->callAliasEx( NULL, "%s,%d", "rbdblclk", 0 );
       }
       break;
 
     case WM_MBUTTONDOWN:
       {
-        char ret[256];
-        p_this->callAliasEx( ret, "%s,%d", "mbdown", 0 );
+        p_this->callAliasEx( NULL, "%s,%d", "mbdown", 0 );
       }
       break;
 
     case WM_MBUTTONUP:
       {
-        char ret[256];
-        p_this->callAliasEx( ret, "%s,%d", "mbup", 0 );
+        p_this->callAliasEx( NULL, "%s,%d", "mbup", 0 );
       }
       break;
     
     case WM_MBUTTONDBLCLK:
       {
-        char ret[256];
-        p_this->callAliasEx( ret, "%s,%d", "mbdblclk", 0 );
+        p_this->callAliasEx( NULL, "%s,%d", "mbdblclk", 0 );
       }
       break;
 
       /*
     case WM_MOUSEWHEEL:
       {
-        char ret[256];
-        p_this->callAliasEx( ret, "%s,%d,%d", "mwheel", 0, HIWORD( wParam ) );
+        p_this->callAliasEx( NULL, "%s,%d,%d", "mwheel", 0, HIWORD( wParam ) );
       }
       break;
       */
@@ -1891,8 +1839,8 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 	}
 			//case WM_GETDLGCODE:
 			//{
-				//mIRCError("Dialog WM_GETDLGCODE");
-				//return 0L;
+			//	//mIRCError("Dialog WM_GETDLGCODE");
+			//	return 0L;
 			//}
 			//break;
 		case WM_ACTIVATE:

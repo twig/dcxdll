@@ -294,8 +294,7 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -312,9 +311,7 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
           case IPN_FIELDCHANGED:
             {
-
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d", "edit", this->getUserID( ) );
+              this->callAliasEx( NULL, "%s,%d", "edit", this->getUserID( ) );
               bParsed = TRUE;
             }
             break;
@@ -353,15 +350,13 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				case WM_LBUTTONDOWN:
 					{
 						//mIRCError( "IPAddress WM_LBUTTONDOWN" );
-						char ret[256];
-						this->callAliasEx( ret, "%s,%d", "sclick", this->getUserID( ) );
+						this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
 					}
 					break;
 				case WM_RBUTTONDOWN:
 					{
 						//mIRCError( "IPAddress WM_RBUTTONDOWN" );
-						char ret[256];
-						this->callAliasEx( ret, "%s,%d", "rclick", this->getUserID( ) );
+						this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
 					}
 					break;
 				}

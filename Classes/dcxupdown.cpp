@@ -310,8 +310,7 @@ LRESULT DcxUpDown::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -326,9 +325,7 @@ LRESULT DcxUpDown::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
           case UDN_DELTAPOS:
             {
-
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d", "sclick", this->getUserID( ) );
+              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
               bParsed = TRUE;
             }
             break;

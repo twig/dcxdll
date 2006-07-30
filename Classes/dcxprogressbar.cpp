@@ -395,8 +395,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -477,8 +476,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
         int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d,%d,%d,%d", "sclick", this->getUserID( ), nPos, iLower, iHigher );
+        this->callAliasEx( NULL, "%s,%d,%d,%d,%d", "sclick", this->getUserID( ), nPos, iLower, iHigher );
       }
       break;
 
@@ -493,8 +491,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
         int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d,%d,%d,%d", "rclick", this->getUserID( ), nPos, iLower, iHigher );
+        this->callAliasEx( NULL, "%s,%d,%d,%d,%d", "rclick", this->getUserID( ), nPos, iLower, iHigher );
       }
       break;
 
@@ -513,8 +510,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
           int nPos = iLower + (int)( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-          char ret[256];
-          this->callAliasEx( ret, "%s,%d,%d,%d,%d", "mousebar", this->getUserID( ), nPos, iLower, iHigher );
+          this->callAliasEx( NULL, "%s,%d,%d,%d,%d", "mousebar", this->getUserID( ), nPos, iLower, iHigher );
         }
       }
       break;

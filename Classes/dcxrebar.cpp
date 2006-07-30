@@ -893,8 +893,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -1127,8 +1126,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
                 if ( this->m_iWidth != width || this->m_iHeight != height ) {
 
-                  char ret[256];
-                  this->callAliasEx( ret, "%s,%d,%d,%d", "change", this->getUserID( ),
+                  this->callAliasEx( NULL, "%s,%d,%d,%d", "change", this->getUserID( ),
                     width, height );
 
                   this->m_iWidth = width;
@@ -1323,8 +1321,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
           this->m_iClickedBand = band;
 
-          char ret[256];
-          this->callAliasEx( ret, "%s,%d,%d", "sclick", this->getUserID( ), band + 1 );
+          this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), band + 1 );
         }
       }
       break;
@@ -1338,8 +1335,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
         int band = this->hitTest( &rbhi );
 
         if ( band != -1 ) {
-          char ret[256];
-          this->callAliasEx( ret, "%s,%d,%d", "rclick", this->getUserID( ), band + 1 );
+          this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), band + 1 );
         }
       }
       break;

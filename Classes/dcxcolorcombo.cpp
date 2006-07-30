@@ -362,8 +362,7 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -376,8 +375,7 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
           case CBN_SELENDOK:
             {
               //mIRCError( "Control CBN_SELENDOK" );
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
+              this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
               bParsed = TRUE;
               return 0L;
             }

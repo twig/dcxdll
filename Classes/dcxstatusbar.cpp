@@ -526,8 +526,7 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -546,13 +545,12 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
               //mIRCError( "Control WM_NOTIFY - NM_CLICK" );
 
               POINT pt;
-              char ret[256];
               GetCursorPos( &pt );
               ScreenToClient( this->m_Hwnd, &pt );
               int cell = this->hitTest( pt );
 
               if ( cell != -1 )
-                this->callAliasEx( ret, "%s,%d,%d", "sclick", this->getUserID( ), cell + 1 );
+                this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), cell + 1 );
 
               bParsed = TRUE;
             }
@@ -563,13 +561,12 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
               //mIRCError( "Control WM_NOTIFY - NM_RCLICK" );
 
               POINT pt;
-              char ret[256];
               GetCursorPos( &pt );
               ScreenToClient( this->m_Hwnd, &pt );
               int cell = this->hitTest( pt );
 
               if ( cell != -1 )
-                this->callAliasEx( ret, "%s,%d,%d", "rclick", this->getUserID( ), cell + 1 );
+                this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), cell + 1 );
 
               bParsed = TRUE;
             }
@@ -580,13 +577,12 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
               //mIRCError( "Control WM_NOTIFY - NM_DBLCLK" );
 
               POINT pt;
-              char ret[256];
               GetCursorPos( &pt );
               ScreenToClient( this->m_Hwnd, &pt );
               int cell = this->hitTest( pt );
 
               if ( cell != -1 )
-                this->callAliasEx( ret, "%s,%d,%d", "dclick", this->getUserID( ), cell + 1 );
+                this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), cell + 1 );
 
               bParsed = TRUE;
             }

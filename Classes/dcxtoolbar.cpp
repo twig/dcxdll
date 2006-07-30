@@ -1196,8 +1196,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -1209,8 +1208,6 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
         int iButton = (int) wParam;
         
         if ( iButton > -1 ) {
-
-          char ret[256];
           /*
           RECT rc;
           this->getItemRect( this->getCommandToIndex( iButton ), &rc );
@@ -1222,10 +1219,10 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
           ClientToScreen( this->m_Hwnd, &pt );
           ClientToScreen( this->m_Hwnd, &pt2 );
           
-          this->callAliasEx( ret, "%s,%d,%d,%d,%d,%d,%d", "sclick", 
+          this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "sclick", 
             this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
             */
-          this->callAliasEx( ret, "%s,%d,%d", "sclick", 
+          this->callAliasEx( NULL, "%s,%d,%d", "sclick", 
             this->getUserID( ), this->getCommandToIndex( iButton ) + 1 );
         }
 
@@ -1282,8 +1279,6 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
               int iButton = (int) this->hitTest( &pt );
 
               if ( iButton > -1 ) {
-
-                char ret[256];
                 RECT rc;
                 this->getItemRect( iButton, &rc );
                 POINT pt2 = pt;
@@ -1293,7 +1288,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
                 pt2.y = rc.top;
                 ClientToScreen( this->m_Hwnd, &pt );
                 ClientToScreen( this->m_Hwnd, &pt2 );
-                this->callAliasEx( ret, "%s,%d,%d,%d,%d,%d,%d", "rclick", 
+                this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", 
                   this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
               }
 
@@ -1311,8 +1306,6 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
               int iButton = (int) this->hitTest( &pt );
 
               if ( iButton > -1 ) {
-
-                char ret[256];
                 RECT rc;
                 this->getItemRect( iButton, &rc );
                 POINT pt2 = pt;
@@ -1322,7 +1315,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
                 pt2.y = rc.top;
                 ClientToScreen( this->m_Hwnd, &pt );
                 ClientToScreen( this->m_Hwnd, &pt2 );
-                this->callAliasEx( ret, "%s,%d,%d,%d,%d,%d,%d", "dropdown", 
+                this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown", 
                   this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
               }
 

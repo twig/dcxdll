@@ -1701,8 +1701,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -1725,7 +1724,6 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
               GetCursorPos( &lvh.pt );
               ScreenToClient( this->m_Hwnd, &lvh.pt );
               ListView_HitTest( this->m_Hwnd, &lvh );
-              char ret[256];
 
               if ( ( lvh.flags & LVHT_ONITEMSTATEICON ) &&
                 ( ListView_GetExtendedListViewStyle( this->m_Hwnd ) & LVS_EX_CHECKBOXES ) &&
@@ -1733,13 +1731,13 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                 !( lvh.flags & LVHT_ONITEMLABEL ) ) 
               {
 					  //TODO: int state = ListView_GetCheckState(this->m_Hwnd, lvh.iItem);
-                this->callAliasEx( ret, "%s,%d,%d", "stateclick", this->getUserID( ), lvh.iItem + 1 );
+                this->callAliasEx( NULL, "%s,%d,%d", "stateclick", this->getUserID( ), lvh.iItem + 1 );
               }
               else if ( lvh.flags & LVHT_ONITEM )
-                this->callAliasEx( ret, "%s,%d,%d", "sclick", this->getUserID( ), lvh.iItem + 1 );
-					else if (lvh.flags & LVHT_NOWHERE)
-						this->callAliasEx(ret, "%s,%d", "sclick", this->getUserID());
-				}
+                this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), lvh.iItem + 1 );
+							else if (lvh.flags & LVHT_NOWHERE)
+								this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+						}
             break;
 
           case NM_DBLCLK:
@@ -1751,10 +1749,9 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
               GetCursorPos( &lvh.pt );
               ScreenToClient( this->m_Hwnd, &lvh.pt );
               ListView_HitTest( this->m_Hwnd, &lvh );
-              char ret[256];
 
               if ( lvh.flags & LVHT_ONITEM )
-                this->callAliasEx( ret, "%s,%d,%d", "dclick", this->getUserID( ), lvh.iItem + 1 );
+                this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), lvh.iItem + 1 );
             }
             break;
 
@@ -1771,8 +1768,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                 ScreenToClient( hdr->hwndFrom, &hdti.pt );
                 if ( SendMessage( hdr->hwndFrom, HDM_HITTEST, (WPARAM) 0, (LPARAM) &hdti ) != -1 ) {
 
-                  char ret[256];
-                  this->callAliasEx( ret, "%s,%d,%d", "hrclick", this->getUserID( ), hdti.iItem + 1 );
+                  this->callAliasEx( NULL, "%s,%d,%d", "hrclick", this->getUserID( ), hdti.iItem + 1 );
                 }
               }
               else {
@@ -1782,14 +1778,13 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                 GetCursorPos( &lvh.pt );
                 ScreenToClient( this->m_Hwnd, &lvh.pt );
                 ListView_HitTest( this->m_Hwnd, &lvh );
-                char ret[256];
 
                 if ( lvh.flags & LVHT_ONITEM )
-                  this->callAliasEx( ret, "%s,%d,%d", "rclick", this->getUserID( ), lvh.iItem + 1 );
-					 else
-						 this->callAliasEx(ret, "%s,%d", "rclick", this->getUserID());
-              }
-              bParsed = TRUE;
+                  this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), lvh.iItem + 1 );
+								else
+									this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
+	             }
+		           bParsed = TRUE;
             }
             break;
 
@@ -1820,15 +1815,14 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
               bParsed = TRUE;
 
-              char ret[256];
               LPNMLVDISPINFO lplvdi = (LPNMLVDISPINFO) lParam;
 
               if ( lplvdi->item.pszText == NULL ) {
 
-                this->callAliasEx( ret, "%s,%d", "labelcancel", this->getUserID( ) );
+                this->callAliasEx( NULL, "%s,%d", "labelcancel", this->getUserID( ) );
               }
               else {
-
+	              char ret[256];
                 this->callAliasEx( ret, "%s,%d,%s", "labelend", this->getUserID( ), lplvdi->item.pszText );
 
                 if ( !lstrcmp( "noedit", ret ) )
@@ -1987,8 +1981,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
               LPNMHEADER lphdr = (LPNMHEADER) lParam; 
 
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d,%d", "hsclick", this->getUserID( ), lphdr->iItem + 1 );
+              this->callAliasEx( NULL, "%s,%d,%d", "hsclick", this->getUserID( ), lphdr->iItem + 1 );
             }
             break;
 
@@ -2000,15 +1993,13 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
               LPNMHEADER lphdr = (LPNMHEADER) lParam; 
 
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d,%d", "hdclick", this->getUserID( ), lphdr->iItem + 1 );
+              this->callAliasEx( NULL, "%s,%d,%d", "hdclick", this->getUserID( ), lphdr->iItem + 1 );
             }
             break;
 
           case LVN_BEGINDRAG:
             {
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d", "begindrag", this->getUserID( ) );
+              this->callAliasEx( NULL, "%s,%d", "begindrag", this->getUserID( ) );
             }
             break;
 

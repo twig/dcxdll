@@ -222,8 +222,7 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -236,8 +235,7 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
           case BN_CLICKED:
             {
               //mIRCError( "Control BN_CLICKED" );
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d", "sclick", this->getUserID( ) );
+              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
             }
             break;
         }
@@ -246,8 +244,7 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_CONTEXTMENU:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "rclick", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
       }
       break;
 

@@ -1652,8 +1652,7 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -1675,7 +1674,6 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
               GetCursorPos( &tvh.pt );
               ScreenToClient( this->m_Hwnd, &tvh.pt );
               TreeView_HitTest( this->m_Hwnd, &tvh );
-              char ret[256];
 
               if ( tvh.flags & TVHT_ONITEMBUTTON ) {
 
@@ -1684,7 +1682,7 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                 this->getPath( &numPath, &hStart, &tvh.hItem );
                 std::string path = this->getPathFromVector( &numPath );
 
-                this->callAliasEx( ret, "%s,%d,%s", "buttonclick", this->getUserID( ), path.c_str( ) );
+                this->callAliasEx( NULL, "%s,%d,%s", "buttonclick", this->getUserID( ), path.c_str( ) );
 
               }
                //&& this->isStyle( TVS_CHECKBOXES )
@@ -1699,12 +1697,12 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
                   int state = TreeView_GetCheckState( this->m_Hwnd, tvh.hItem );
 
-                  this->callAliasEx( ret, "%s,%d,%d,%s", "stateclick", this->getUserID( ), 
+                  this->callAliasEx( NULL, "%s,%d,%d,%s", "stateclick", this->getUserID( ), 
                     state == 0 ? 2 : 1 , path.c_str( ) );
                 }
                 else {
 
-                  this->callAliasEx( ret, "%s,%d,%d,%s", "stateclick", this->getUserID( ), 
+                  this->callAliasEx( NULL, "%s,%d,%d,%s", "stateclick", this->getUserID( ), 
                     TreeView_GetItemState( this->m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK ) , path.c_str( ) );
                 }
               }
@@ -1718,12 +1716,12 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
                 TreeView_SelectItem( this->m_Hwnd, tvh.hItem );
                 
-                this->callAliasEx( ret, "%s,%d,%s", "sclick", this->getUserID( ), path.c_str( ) );
+                this->callAliasEx( NULL, "%s,%d,%s", "sclick", this->getUserID( ), path.c_str( ) );
               }
-					// single click not on item
-					else if ((tvh.flags & TVHT_NOWHERE) || (tvh.flags & TVHT_ONITEMRIGHT)) {
-						this->callAliasEx(ret, "%s,%d", "sclick", this->getUserID());
-					}
+							// single click not on item
+							else if ((tvh.flags & TVHT_NOWHERE) || (tvh.flags & TVHT_ONITEMRIGHT)) {
+								this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID());
+							}
               bParsed = TRUE;
             }
             break;
@@ -1736,7 +1734,6 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
               GetCursorPos( &tvh.pt );
               ScreenToClient( this->m_Hwnd, &tvh.pt );
               TreeView_HitTest( this->m_Hwnd, &tvh );
-              char ret[256];
 
               //|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
               if ( tvh.flags & TVHT_ONITEM ) {
@@ -1748,7 +1745,7 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
                 TreeView_SelectItem( this->m_Hwnd, tvh.hItem );
 
-                this->callAliasEx( ret, "%s,%d,%s", "dclick", this->getUserID( ), path.c_str( ) );
+                this->callAliasEx( NULL, "%s,%d,%s", "dclick", this->getUserID( ), path.c_str( ) );
               }
               bParsed = TRUE;
             }
@@ -1762,7 +1759,6 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
               GetCursorPos( &tvh.pt );
               ScreenToClient( this->m_Hwnd, &tvh.pt );
               TreeView_HitTest( this->m_Hwnd, &tvh );
-              char ret[256];
 
               //|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
               if ( tvh.flags & TVHT_ONITEM ) {
@@ -1774,11 +1770,11 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
                 TreeView_SelectItem( this->m_Hwnd, tvh.hItem );
 
-                this->callAliasEx( ret, "%s,%d,%s", "rclick", this->getUserID( ), path.c_str( ) );
+                this->callAliasEx( NULL, "%s,%d,%s", "rclick", this->getUserID( ), path.c_str( ) );
               }
-				  else {
-					  this->callAliasEx(ret, "%s,%d", "rclick", this->getUserID());
-				  }
+						  else {
+							  this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
+						  }
               bParsed = TRUE;
             }
             break;
@@ -1802,7 +1798,6 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
               bParsed = TRUE;
               LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
-              char ret[256];
 
               if ( lpnmtv->action & TVE_COLLAPSE ) {
 
@@ -1811,7 +1806,7 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                 this->getPath( &numPath, &hStart, &lpnmtv->itemNew.hItem );
                 std::string path = this->getPathFromVector( &numPath );
 
-                this->callAliasEx( ret, "%s,%d,%s", "collapse", this->getUserID( ), path.c_str( ) );
+                this->callAliasEx( NULL, "%s,%d,%s", "collapse", this->getUserID( ), path.c_str( ) );
               }
               else if ( lpnmtv->action & TVE_EXPAND ) {
 
@@ -1820,7 +1815,7 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                 this->getPath( &numPath, &hStart, &lpnmtv->itemNew.hItem );
                 std::string path = this->getPathFromVector( &numPath );
 
-                this->callAliasEx( ret, "%s,%d,%s", "expand", this->getUserID( ), path.c_str( ) );
+                this->callAliasEx( NULL, "%s,%d,%s", "expand", this->getUserID( ), path.c_str( ) );
               }
             }
             break;
@@ -1854,15 +1849,14 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
               bParsed = TRUE;
 
-              char ret[256];
               LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO) lParam;
 
               if ( lptvdi->item.pszText == NULL ) {
 
-                this->callAliasEx( ret, "%s,%d", "labelcancel", this->getUserID( ) );
+                this->callAliasEx( NULL, "%s,%d", "labelcancel", this->getUserID( ) );
               }
               else {
-
+	              char ret[256];
                 this->callAliasEx( ret, "%s,%d,%s", "labelend", this->getUserID( ), lptvdi->item.pszText );
 
                 if ( !lstrcmp( "noedit", ret ) )

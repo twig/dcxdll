@@ -264,8 +264,7 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -277,21 +276,19 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
         si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
         GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
 
-        char ret[256];
-
         switch( LOWORD( wParam ) ) {
 
           case SB_TOP:
             {
               si.nPos = si.nMin;
-              this->callAliasEx( ret, "%s,%d,%d", "top", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "top", this->getUserID( ), si.nPos );
             }
             break;
 
           case SB_BOTTOM:
             {
               si.nPos = si.nMax;
-              this->callAliasEx( ret, "%s,%d,%d", "bottom", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "bottom", this->getUserID( ), si.nPos );
             }
             break;
 
@@ -307,7 +304,7 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
               else
                 si.nPos = si.nMin;
 
-              this->callAliasEx( ret, "%s,%d,%d", "pageup", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "pageup", this->getUserID( ), si.nPos );
             }
             break;
 
@@ -318,7 +315,7 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
               else
                 si.nPos = si.nMax;
 
-              this->callAliasEx( ret, "%s,%d,%d", "pagedown", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "pagedown", this->getUserID( ), si.nPos );
             }
             break;
 
@@ -329,7 +326,7 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
               else
                 si.nPos = si.nMin;
 
-              this->callAliasEx( ret, "%s,%d,%d", "lineup", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "lineup", this->getUserID( ), si.nPos );
             }
             break;
 
@@ -340,20 +337,20 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
               else
                 si.nPos = si.nMax;
 
-              this->callAliasEx( ret, "%s,%d,%d", "linedown", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "linedown", this->getUserID( ), si.nPos );
             }
             break;
 
           case SB_THUMBPOSITION:
             {
-              this->callAliasEx( ret, "%s,%d,%d", "trackend", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "trackend", this->getUserID( ), si.nPos );
             }
             break;
 
           case SB_THUMBTRACK:
             {
               si.nPos = si.nTrackPos;
-              this->callAliasEx( ret, "%s,%d,%d", "tracking", this->getUserID( ), si.nTrackPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "tracking", this->getUserID( ), si.nTrackPos );
             }
             break;
         }
@@ -372,21 +369,19 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
         si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
         GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
 
-        char ret[256];
-
         switch( LOWORD( wParam ) ) {
 
           case SB_TOP:
             {
               si.nPos = si.nMin;
-              this->callAliasEx( ret, "%s,%d,%d", "top", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "top", this->getUserID( ), si.nPos );
             }
             break;
 
           case SB_BOTTOM:
             {
               si.nPos = si.nMax;
-              this->callAliasEx( ret, "%s,%d,%d", "bottom", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "bottom", this->getUserID( ), si.nPos );
             }
             break;
 
@@ -402,7 +397,7 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
               else
                 si.nPos = si.nMin;
 
-              this->callAliasEx( ret, "%s,%d,%d", "pageup", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "pageup", this->getUserID( ), si.nPos );
             }
             break;
 
@@ -413,7 +408,7 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
               else
                 si.nPos = si.nMax;
 
-              this->callAliasEx( ret, "%s,%d,%d", "pagedown", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "pagedown", this->getUserID( ), si.nPos );
             }
             break;
 
@@ -424,7 +419,7 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
               else
                 si.nPos = si.nMin;
 
-              this->callAliasEx( ret, "%s,%d,%d", "lineup", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "lineup", this->getUserID( ), si.nPos );
             }
             break;
 
@@ -435,20 +430,20 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
               else
                 si.nPos = si.nMax;
 
-              this->callAliasEx( ret, "%s,%d,%d", "linedown", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "linedown", this->getUserID( ), si.nPos );
             }
             break;
 
           case SB_THUMBPOSITION:
             {
-              this->callAliasEx( ret, "%s,%d,%d", "trackend", this->getUserID( ), si.nPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "trackend", this->getUserID( ), si.nPos );
             }
             break;
 
           case SB_THUMBTRACK:
             {
               si.nPos = si.nTrackPos;
-              this->callAliasEx( ret, "%s,%d,%d", "tracking", this->getUserID( ), si.nTrackPos );
+              this->callAliasEx( NULL, "%s,%d,%d", "tracking", this->getUserID( ), si.nTrackPos );
             }
             break;
         }

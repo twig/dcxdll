@@ -738,8 +738,7 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -837,9 +836,7 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
                     int stab = TabCtrl_GetCurSel( this->m_Hwnd );
 
                     if ( tab != -1 && tab == stab ) {
-
-                      char ret[256];
-                      this->callAliasEx( ret, "%s,%d,%d", "rclick", this->getUserID( ), tab+1 );
+                      this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), tab+1 );
                     }
                     bParsed = TRUE;
                   }
@@ -962,9 +959,7 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
                     int tab = TabCtrl_GetCurSel( this->m_Hwnd );
 
                     if ( tab != -1 ) {
-
-                      char ret[256];
-                      this->callAliasEx( ret, "%s,%d,%d", "sclick", this->getUserID( ), tab+1 );
+                      this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), tab+1 );
                     }
                     this->activateSelectedTab( );
                     bParsed = TRUE;
@@ -1014,17 +1009,6 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
             return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
           }
 				}
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_DELETEITEM" );
-        //    bParsed = TRUE;
-        //    return SendMessage( cHwnd, uMsg, wParam, lParam );
-        //  }
-        //}
       }
       break;
 
@@ -1032,22 +1016,6 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
       {
         //mIRCError( "Tab WM_MEASUREITEM" );
 				if (ctrl_MeasureItem(this->m_Hwnd, wParam, lParam)) return TRUE;
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_MEASUREITEM" );
-
-        //    LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
-
-        //    if ( lpmis != NULL )
-        //      lpmis->itemHeight = 16; 
-
-        //    return TRUE;
-        //  }
-        //}
       }
       break;
 
@@ -1064,17 +1032,6 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
             return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
           }
 				}
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_DRAWITEM" );
-        //    bParsed = TRUE;
-        //    return SendMessage( cHwnd, uMsg, wParam, lParam );
-        //  }
-        //}
       }
      break;
 
@@ -1144,31 +1101,7 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		//	{
 		//		//mIRCError("Tab WM_GETDLGCODE");
 		//		bParsed = TRUE;
-		//		return 0L; //DLGC_STATIC;
-		//	}
-		//	break;
-		//case WM_ACTIVATE:
-		//	{
-		//		switch (wParam)
-		//		{
-		//		case WA_ACTIVE:
-		//			{
-		//				mIRCError("Tab Activate");
-		//			}
-		//			break;
-		//		case WA_CLICKACTIVE:
-		//			{
-		//				mIRCError("Tab Click Activate");
-		//			}
-		//			break;
-		//		case WA_INACTIVE:
-		//			{
-		//				mIRCError("Tab De-Activate");
-		//			}
-		//			break;
-		//		}
-		//		bParsed = TRUE;
-		//		return 0L;
+		//		return DLGC_STATIC;
 		//	}
 		//	break;
 

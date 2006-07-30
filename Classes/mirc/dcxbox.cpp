@@ -679,8 +679,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -913,17 +912,6 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
             return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
           }
 				}
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_DELETEITEM" );
-        //    bParsed = TRUE;
-        //    return SendMessage( cHwnd, uMsg, wParam, lParam );
-        //  }
-        //}
       }
       break;
 
@@ -932,22 +920,6 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
         //mIRCError( "Box WM_MEASUREITEM" );
 
 				if (ctrl_MeasureItem(this->m_Hwnd, wParam, lParam)) return TRUE;
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_MEASUREITEM" );
-
-        //    LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
-
-        //    if ( lpmis != NULL )
-        //      lpmis->itemHeight = 16; 
-
-        //    return TRUE;
-        //  }
-        //}
       }
       break;
 
@@ -964,17 +936,6 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
             return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
           }
 				}
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_DRAWITEM" );
-        //    bParsed = TRUE;
-        //    return SendMessage( cHwnd, uMsg, wParam, lParam );
-        //  }
-        //}
       }
      break;
 
@@ -989,8 +950,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
             case BN_CLICKED:
               {
                 //mIRCError( "Control BN_CLICKED" );
-                char ret[256];
-                this->callAliasEx( ret, "%s,%d", "sclick", this->getUserID( ) );
+                this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
               }
               break;
           }
@@ -1082,8 +1042,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
           SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
         }
 
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "sizing", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
 
         RECT rc;
         SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
@@ -1137,122 +1096,123 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			}
 		}
 
-		case WM_PAINT: {
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(this->m_Hwnd, &ps);
-		RECT rc, rc2, rcText, rcText2;
-		int n = GetWindowTextLength(this->m_Hwnd);
-		HBRUSH hBrush;
+		case WM_PAINT:
+			{
+				PAINTSTRUCT ps;
+				HDC hdc = BeginPaint(this->m_Hwnd, &ps);
+				RECT rc, rc2, rcText, rcText2;
+				int n = GetWindowTextLength(this->m_Hwnd);
+				HBRUSH hBrush;
 
-		GetClientRect(this->m_Hwnd, &rc);
-		CopyRect(&rc2, &rc);
+				GetClientRect(this->m_Hwnd, &rc);
+				CopyRect(&rc2, &rc);
 
-		if (!this->isExStyle(WS_EX_TRANSPARENT)) {
-			// set up brush colors
-			if (this->m_hBackBrush != NULL)
-				hBrush = this->m_hBackBrush;
-			else
-				hBrush = GetSysColorBrush(COLOR_3DFACE);
+				if (!this->isExStyle(WS_EX_TRANSPARENT)) {
+					// set up brush colors
+					if (this->m_hBackBrush != NULL)
+						hBrush = this->m_hBackBrush;
+					else
+						hBrush = GetSysColorBrush(COLOR_3DFACE);
 
-			// paint the background
-			FillRect(hdc, &rc2, hBrush);
-		}
+					// paint the background
+					FillRect(hdc, &rc2, hBrush);
+				}
 
-		// if no border, dont bother
-		if (this->m_iBoxStyles & BOXS_BOTTOM) {
-			EndPaint(this->m_Hwnd, &ps);
+				// if no border, dont bother
+				if (this->m_iBoxStyles & BOXS_BOTTOM) {
+					EndPaint(this->m_Hwnd, &ps);
 
-			bParsed = TRUE;
-			return 0L;
-		}
+					bParsed = TRUE;
+					return 0L;
+				}
 
-		SetBkMode(hdc, TRANSPARENT);
+				SetBkMode(hdc, TRANSPARENT);
 
-		// no text, no box!
-		if (!n) {
-			DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
-		}
-		// draw text
-		else {
-			// prepare for appearance
-			if (this->m_hFont != NULL)
-				SelectObject(hdc, this->m_hFont);
+				// no text, no box!
+				if (!n) {
+					DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
+				}
+				// draw text
+				else {
+					// prepare for appearance
+					if (this->m_hFont != NULL)
+						SelectObject(hdc, this->m_hFont);
 
-			if (this->m_clrText != -1)
-				SetTextColor(hdc, this->m_clrText);
-			else
-				SetTextColor(hdc, GetSysColor(
-					IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
-				);
+					if (this->m_clrText != -1)
+						SetTextColor(hdc, this->m_clrText);
+					else
+						SetTextColor(hdc, GetSysColor(
+							IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
+						);
 
-			char *text = new char[n +2];
-			GetWindowText(this->m_Hwnd, text, n +1);
+					char *text = new char[n +2];
+					GetWindowText(this->m_Hwnd, text, n +1);
 
-			DrawText(hdc, text, n, &rcText, DT_CALCRECT);
-			int w = rcText.right - rcText.left;
-			int h = rcText.bottom - rcText.top;
+					DrawText(hdc, text, n, &rcText, DT_CALCRECT);
+					int w = rcText.right - rcText.left;
+					int h = rcText.bottom - rcText.top;
 
-			// shift border and text locations
-			// text at bottom?
-			if (this->m_iBoxStyles & BOXS_BOTTOM) {
-				rcText.top = rc2.bottom - h;
-				rc2.bottom -= h/2;
+					// shift border and text locations
+					// text at bottom?
+					if (this->m_iBoxStyles & BOXS_BOTTOM) {
+						rcText.top = rc2.bottom - h;
+						rc2.bottom -= h/2;
+					}
+					// text at top
+					else {
+						rcText.top = rc2.top;
+						rc2.top += h/2;
+					}
+
+					// text location
+					rcText.bottom = rcText.top + h;
+
+					// align text horizontally
+					int bw = rc.right - rc.left - (2 * DCX_BOXTEXTSPACING);
+
+					if (w > bw) {
+						rcText.left = rc.left + DCX_BOXTEXTSPACING;
+						rcText.right = rc.right - DCX_BOXTEXTSPACING;
+					}
+					else {
+						if (this->m_iBoxStyles & BOXS_RIGHT)
+							rcText.left = rc.right - DCX_BOXTEXTSPACING - w;
+						else if (this->m_iBoxStyles & BOXS_CENTER)
+							rcText.left = (rc.left + rc.right - w) /2;
+						else
+							rcText.left = rc.left + DCX_BOXTEXTSPACING;
+
+						rcText.right = rcText.left + w;
+					}
+
+
+					// clear some space for the text
+					CopyRect(&rcText2, &rcText);
+					InflateRect(&rcText2, 3, 0);
+
+					//if (this->isExStyle(WS_EX_TRANSPARENT))
+					//	ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
+
+					// draw the border
+					DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
+
+					if (!this->isExStyle(WS_EX_TRANSPARENT))
+						FillRect(hdc, &rcText2, hBrush);
+					//else
+					//	IntersectClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
+
+					// draw the text
+					DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
+
+					delete text;
+				}
+
+				EndPaint(this->m_Hwnd, &ps);
+
+				bParsed = TRUE;
+				return 0L;
 			}
-			// text at top
-			else {
-				rcText.top = rc2.top;
-				rc2.top += h/2;
-			}
-
-			// text location
-			rcText.bottom = rcText.top + h;
-
-			// align text horizontally
-			int bw = rc.right - rc.left - (2 * DCX_BOXTEXTSPACING);
-
-			if (w > bw) {
-				rcText.left = rc.left + DCX_BOXTEXTSPACING;
-				rcText.right = rc.right - DCX_BOXTEXTSPACING;
-			}
-			else {
-				if (this->m_iBoxStyles & BOXS_RIGHT)
-					rcText.left = rc.right - DCX_BOXTEXTSPACING - w;
-				else if (this->m_iBoxStyles & BOXS_CENTER)
-					rcText.left = (rc.left + rc.right - w) /2;
-				else
-					rcText.left = rc.left + DCX_BOXTEXTSPACING;
-
-				rcText.right = rcText.left + w;
-			}
-
-
-			// clear some space for the text
-			CopyRect(&rcText2, &rcText);
-			InflateRect(&rcText2, 3, 0);
-
-			//if (this->isExStyle(WS_EX_TRANSPARENT))
-			//	ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
-
-			// draw the border
-			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
-
-			if (!this->isExStyle(WS_EX_TRANSPARENT))
-				FillRect(hdc, &rcText2, hBrush);
-			//else
-			//	IntersectClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
-
-			// draw the text
-			DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
-
-			delete text;
-		}
-
-		EndPaint(this->m_Hwnd, &ps);
-
-		bParsed = TRUE;
-		return 0L;
-		break;
-	}
+			break;
 
     case WM_MOUSEMOVE:
       {
@@ -1278,30 +1238,26 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_LBUTTONDOWN:
 		{
-			char ret[900];
-			this->callAliasEx(ret, "%s,%d", "lbdown", this->getUserID());
-			this->callAliasEx(ret, "%s,%d", "sclick", this->getUserID());
+			this->callAliasEx(NULL, "%s,%d", "lbdown", this->getUserID());
+			this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
 			break;
 		}
 
 		case WM_LBUTTONUP:
 		{
-			char ret[900];
-			this->callAliasEx(ret, "%s,%d", "lbup", this->getUserID());
+			this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
 			break;
 		}
 
 		case WM_LBUTTONDBLCLK:
 		{
-			char ret[900];
-			this->callAliasEx(ret, "%s,%d", "dclick", this->getUserID());
+			this->callAliasEx(NULL, "%s,%d", "dclick", this->getUserID());
 			break;
 		}
 
 		case WM_RBUTTONDOWN:
 		{
-			char ret[900];
-			this->callAliasEx(ret, "%s,%d", "rclick", this->getUserID());
+			this->callAliasEx(NULL, "%s,%d", "rclick", this->getUserID());
 			break;
 		}
 		case WM_GETDLGCODE:

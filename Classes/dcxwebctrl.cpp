@@ -379,8 +379,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	
 	case DISPID_NAVIGATECOMPLETE2:
     {
-      char ret[256];
-      this->callAliasEx( ret, "%s,%d,%ws", "nav_complete", this->getUserID( ), arg2.bstrVal );
+      this->callAliasEx( NULL, "%s,%d,%ws", "nav_complete", this->getUserID( ), arg2.bstrVal );
     }
 		break;
     
@@ -398,28 +397,24 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 
 	case DISPID_DOCUMENTCOMPLETE:
     {
-      char ret[256];
-      this->callAliasEx( ret, "%s,%d,%ws", "doc_complete", this->getUserID( ), arg2.bstrVal );
+      this->callAliasEx( NULL, "%s,%d,%ws", "doc_complete", this->getUserID( ), arg2.bstrVal );
     }
 		break;
 
 	case DISPID_DOWNLOADBEGIN:
     {
-      char ret[256];
-      this->callAliasEx( ret, "%s,%d", "dl_begin", this->getUserID( ) );
+      this->callAliasEx( NULL, "%s,%d", "dl_begin", this->getUserID( ) );
     }
 		break;
 
 	case DISPID_DOWNLOADCOMPLETE:
     {
-      char ret[256];
-      this->callAliasEx( ret, "%s,%d", "dl_complete", this->getUserID( ) );
+      this->callAliasEx( NULL, "%s,%d", "dl_complete", this->getUserID( ) );
     }
 		break;
 
 	case DISPID_NEWWINDOW2:
     {
-
       char ret[256];
       this->callAliasEx( ret, "%s,%d", "win_open", this->getUserID( ) );
 
@@ -432,41 +427,35 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 
 	case DISPID_STATUSTEXTCHANGE:
     {
-		  char ret[256];
-      this->callAliasEx( ret, "%s,%d,%ws", "status", this->getUserID( ), arg1.bstrVal );
+      this->callAliasEx( NULL, "%s,%d,%ws", "status", this->getUserID( ), arg1.bstrVal );
     }
 		break;
 
 	case DISPID_TITLECHANGE:
     {
-      char ret[256];
-      this->callAliasEx( ret, "%s,%d,%ws", "title", this->getUserID( ), arg1.bstrVal );
+      this->callAliasEx( NULL, "%s,%d,%ws", "title", this->getUserID( ), arg1.bstrVal );
     }
 		break;
 
 	case DISPID_PROGRESSCHANGE:
     {
-      char ret[256];
-      this->callAliasEx( ret, "%s,%d,%ws,%ws", "dl_progress", this->getUserID( ), arg1.bstrVal, arg2.bstrVal );
+      this->callAliasEx( NULL, "%s,%d,%ws,%ws", "dl_progress", this->getUserID( ), arg1.bstrVal, arg2.bstrVal );
     }
 		break;
 
 	case DISPID_COMMANDSTATECHANGE:
     {
-    
       switch( arg1.bstrVal[0] ) {
 
 		    case L'1':
           {
-            char ret[256];
-            this->callAliasEx( ret, "%s,%d,%s", "forward", this->getUserID( ), arg2.boolVal ? "$true" : "$false" );
+            this->callAliasEx( NULL, "%s,%d,%s", "forward", this->getUserID( ), arg2.boolVal ? "$true" : "$false" );
           }
 			    break;
 
 		    case L'2':
           {
-			      char ret[256];
-            this->callAliasEx( ret, "%s,%d,%s", "back", this->getUserID( ), arg2.boolVal ? "$true" : "$false" );
+            this->callAliasEx( NULL, "%s,%d,%s", "back", this->getUserID( ), arg2.boolVal ? "$true" : "$false" );
           }
           break;
 		  }
@@ -543,8 +532,7 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
     case WM_HELP:
       {
-        char ret[256];
-        this->callAliasEx( ret, "%s,%d", "help", this->getUserID( ) );
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
