@@ -457,12 +457,15 @@ void DcxTab::parseCommandRequest( TString & input ) {
         if ( p_Control != NULL ) {
           lpdtci->mChildHwnd = p_Control->getHwnd( );
           this->m_pParentDialog->addControl( p_Control );
+					if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
+						this->addExStyle(WS_EX_CONTROLPARENT);
+					}
         }
       }
       else {
-        char error[500];
-        wsprintf( error, "/xdid -a : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-        mIRCError( error );
+        TString error;
+        error.sprintf("/xdid -a : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+				mIRCError( error.to_chr() );
       }
     }
 
@@ -501,6 +504,11 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
 		  TabCtrl_DeleteItem( this->m_Hwnd, nItem );
 
+			if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
+				if (this->isExStyle(WS_EX_CONTROLPARENT)) {
+					this->removeExStyle(WS_EX_CONTROLPARENT);
+				}
+			}
 		  // select the next tab item if its the current one
 		  if (curSel == nItem) {
 			  if (nItem < TabCtrl_GetItemCount(this->m_Hwnd))
@@ -1096,14 +1104,6 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
         }
       }
       break;
-
-		//case WM_GETDLGCODE:
-		//	{
-		//		//mIRCError("Tab WM_GETDLGCODE");
-		//		bParsed = TRUE;
-		//		return DLGC_STATIC;
-		//	}
-		//	break;
 
     case WM_DESTROY:
       {

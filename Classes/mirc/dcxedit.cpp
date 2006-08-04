@@ -399,18 +399,17 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 
 		// disabled this to fix the tabbing problem
-		case WM_GETDLGCODE:
-      {
-				/*
-					When we don't grab TAB mIRC crashes! WTF!
-				*/
-				//bParsed = TRUE;
-				//if (!this->isStyle(WS_TABSTOP)) {
-				//	return DLGC_WANTALLKEYS;
-				//}
-				//else return DLGC_WANTCHARS | DLGC_WANTARROWS; // | DLGC_WANTTAB;
-      }
-      break;
+		//case WM_GETDLGCODE:
+  //    {
+		//		/*
+		//			When we don't grab TAB mIRC crashes! WTF!
+		//		*/
+		//		if (!this->isStyle(WS_TABSTOP)) {
+		//			bParsed = TRUE;
+		//			return DLGC_WANTALLKEYS;
+		//		}
+  //    }
+  //    break;
 
     case WM_COMMAND:
       {

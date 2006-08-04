@@ -154,7 +154,7 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
   unsigned int i = 1, numtok = styles.numtok( " " );
   this->m_iBoxStyles = 0;
   
-	*ExStyles = WS_EX_CONTROLPARENT;
+	//*ExStyles = WS_EX_CONTROLPARENT; removed by Ook
 
   while ( i <= numtok ) {
 
@@ -366,9 +366,9 @@ void DcxBox::parseCommandRequest( TString & input ) {
         if ( styles.numtok( " " ) > 0 ) {
 
           char windowHwnd[30];
-          char expression[200];
-          wsprintf( expression, "$window(%s).hwnd", styles.gettok( 1, " " ).to_chr( ) );
-          mIRCeval( expression, windowHwnd );
+          TString expression;
+          expression.sprintf("$window(%s).hwnd", styles.gettok( 1, " " ).to_chr( ) );
+					mIRCeval( expression.to_chr(), windowHwnd );
 
           HWND winHwnd = (HWND) atoi( windowHwnd );
 
@@ -383,9 +383,9 @@ void DcxBox::parseCommandRequest( TString & input ) {
         if ( styles.numtok( " " ) > 0 ) {
 
           char windowHwnd[30];
-          char expression[200];
-          wsprintf( expression, "$dialog(%s).hwnd", styles.gettok( 1, " " ).to_chr( ) );
-          mIRCeval( expression, windowHwnd );
+          TString expression;
+          expression.sprintf("$dialog(%s).hwnd", styles.gettok( 1, " " ).to_chr( ) );
+					mIRCeval( expression.to_chr(), windowHwnd );
 
           HWND winHwnd = (HWND) atoi( windowHwnd );
 
@@ -399,15 +399,17 @@ void DcxBox::parseCommandRequest( TString & input ) {
       if ( p_Control != NULL ) {
 
         this->m_pParentDialog->addControl( p_Control );
+				if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
+					this->addExStyle(WS_EX_CONTROLPARENT);
+				}
 
         this->redrawWindow( );
       }
     }
     else {
-
-      char error[500];
-      wsprintf( error, "/xdid -c : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-      mIRCError( error );
+      TString error;
+      error.sprintf("/xdid -c : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+			mIRCError( error.to_chr() );
     }
   }
   // xdid -d [NAME] [ID] [SWITCH] [ID]
@@ -423,22 +425,28 @@ void DcxBox::parseCommandRequest( TString & input ) {
       HWND cHwnd = p_Control->getHwnd( );
       if ( p_Control->getType( ) == "dialog" || p_Control->getType( ) == "window" )
         delete p_Control;
-      else if ( p_Control->getRefCount( ) == 0 )
+			else if ( p_Control->getRefCount( ) == 0 ) {
         DestroyWindow( cHwnd );
+				if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
+					if (this->isExStyle(WS_EX_CONTROLPARENT)) {
+						this->removeExStyle(WS_EX_CONTROLPARENT);
+					}
+				}
+			}
       else {
 
-        char error[500];
-        wsprintf( error, "Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", 
+        TString error;
+        error.sprintf("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", 
                   p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
-        mIRCError( error );
+				mIRCError( error.to_chr() );
       }
     }
     else {
 
-      char error[500];
-      wsprintf( error, "/ $+ xdialog -d : Unknown control with ID \"%d\" (dialog %s)", 
+      TString error;
+      error.sprintf("/ $+ xdialog -d : Unknown control with ID \"%d\" (dialog %s)", 
                 ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
-      mIRCError( error );
+			mIRCError( error.to_chr() );
     }
   }
   /*
@@ -502,9 +510,9 @@ void DcxBox::parseCommandRequest( TString & input ) {
             if ( cHwnd != NULL && IsWindow( cHwnd ) )
               p_Cell = new LayoutCellFill( cHwnd );
             else {
-              char error[500];
-                wsprintf( error, "/xdid -l : Cell Fill -> Invalid ID : %d", ID );
-                mIRCError( error );
+							TString error;
+              error.sprintf("/xdid -l : Cell Fill -> Invalid ID : %d", ID );
+							mIRCError( error.to_chr() );
               return;
             }
           }
@@ -535,9 +543,9 @@ void DcxBox::parseCommandRequest( TString & input ) {
               if ( cHwnd != NULL && IsWindow( cHwnd ) )
                 p_Cell = new LayoutCellFixed( cHwnd, rc, type );
               else {
-                char error[500];
-                wsprintf( error, "/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
-                mIRCError( error );
+                TString error;
+                error.sprintf("/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
+								mIRCError( error.to_chr() );
                 return;
               }
             }
@@ -553,9 +561,9 @@ void DcxBox::parseCommandRequest( TString & input ) {
               if ( cHwnd != NULL && IsWindow( cHwnd ) )
                 p_Cell = new LayoutCellFixed( cHwnd, type );
               else {
-                char error[500];
-                wsprintf( error, "/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
-                mIRCError( error );
+                TString error;
+                error.sprintf("/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
+								mIRCError( error.to_chr() );
                 return;
               }
             }
@@ -584,10 +592,9 @@ void DcxBox::parseCommandRequest( TString & input ) {
               p_GetCell = this->m_pLayoutManager->getCell( path );
 
             if ( p_GetCell == NULL ) {
-
-              char error[500];
-              wsprintf( error, "/xdid -l : Invalid item path: %s", path.to_chr( ) );
-              mIRCError( error );
+              TString error;
+              error.sprintf("/xdid -l : Invalid item path: %s", path.to_chr( ) );
+							mIRCError( error.to_chr() );
               return;
             }
             
@@ -1260,13 +1267,13 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			this->callAliasEx(NULL, "%s,%d", "rclick", this->getUserID());
 			break;
 		}
-		case WM_GETDLGCODE:
-		{
-			//mIRCError("Box WM_GETDLGCODE");
-      bParsed = TRUE;
-			return 0L; //DLGC_STATIC;
-		}
-		break;
+		//case WM_GETDLGCODE:
+		//{
+		//	//mIRCError("Box WM_GETDLGCODE");
+  //    bParsed = TRUE;
+		//	return 0L; //DLGC_STATIC;
+		//}
+		//break;
 
     case WM_DESTROY:
       {

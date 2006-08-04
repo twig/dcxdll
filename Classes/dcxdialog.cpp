@@ -262,10 +262,9 @@ void DcxDialog::parseCommandRequest(TString & input) {
 
     }
     else {
-
-      char error[500];
-      wsprintf( error, "/xdialog -c : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-      mIRCError( error );
+      TString error;
+      error.sprintf("/xdialog -c : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+			mIRCError( error.to_chr() );
     }
   }
 	// xdialog -d [NAME] [SWITCH] [ID]
@@ -1828,49 +1827,33 @@ LRESULT WINAPI DcxDialog::WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 			// for each file, send callback message
 			for (int i = 0; i < count; i++) {
 				if (DragQueryFile(files, i, filename, 500))
-					p_this->callAliasEx(ret, "%s,%d,%s", "dragfile", 0, filename);
+					p_this->callAliasEx( NULL, "%s,%d,%s", "dragfile", 0, filename);
 			}
 
-			p_this->callAliasEx(ret, "%s,%d", "dragfinish", 0);
+			p_this->callAliasEx( NULL, "%s,%d", "dragfinish", 0);
 		}
 
 		DragFinish(files);
 		break;
 	}
-			//case WM_GETDLGCODE:
-			//{
-			//	//mIRCError("Dialog WM_GETDLGCODE");
-			//	return 0L;
-			//}
-			//break;
 		case WM_ACTIVATE:
 			{
-				char ret[20];
 				switch (wParam)
 				{
 				case WA_ACTIVE:
 				case WA_CLICKACTIVE:
 					{
-						p_this->callAliasEx(ret, "%s,%d", "activate", 0);
+						p_this->callAliasEx( NULL, "%s,%d", "activate", 0);
 					}
 					break;
 				case WA_INACTIVE:
 					{
-						p_this->callAliasEx(ret, "%s,%d", "deactivate", 0);
+						p_this->callAliasEx( NULL, "%s,%d", "deactivate", 0);
 					}
 					break;
 				}
-				// Activate bug: If we return 0 here its fixed, If we comment out CallWindowProc() below, its fixed.
-				//							If on the other hand we do neither of these the code enters a WM_GETDLGCODE loop
-				//							where this message is constantly sent to the button & tab controls (in tab_prob example)
-				return 0L;
 			}
 			break;
-		//case WM_NEXTDLGCTL:
-		//	{
-  //      mIRCError( "WM_NEXTDLGCTL" );
-		//	}
-		//	break;
     case WM_NCDESTROY: 
       {
         //mIRCError( "WM_NCDESTROY" );

@@ -140,7 +140,7 @@ void DcxReBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
   *Styles |= RBS_AUTOSIZE;
   unsigned int i = 1, numtok = styles.numtok( " " );
 
-	*ExStyles |= WS_EX_CONTROLPARENT;
+	//*ExStyles |= WS_EX_CONTROLPARENT;
 
   while ( i <= numtok ) {
 
@@ -433,13 +433,15 @@ void DcxReBar::parseCommandRequest( TString & input ) {
           rbBand.cxMinChild = cx;
           rbBand.cyMinChild = cy;
           rbBand.cx = width;
+					if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
+						this->addExStyle(WS_EX_CONTROLPARENT);
+					}
         }
       }
       else {
-
-        char error[500];
-        wsprintf( error, "/xdid -a : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-        mIRCError( error );
+        TString error;
+        error.sprintf("/xdid -a : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+				mIRCError( error.to_chr() );
       }
     }
   
@@ -453,6 +455,11 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
      
       this->deleteBand( nIndex );
+			if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
+				if (this->isExStyle(WS_EX_CONTROLPARENT)) {
+					this->removeExStyle(WS_EX_CONTROLPARENT);
+				}
+			}
     }
   }
   // xdid -i [NAME] [ID] [SWITCH] [N]

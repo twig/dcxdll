@@ -291,15 +291,18 @@ void DcxDivider::parseCommandRequest( TString & input ) {
             this->setPane( DVF_PANELEFT, &dvpi );
           else if ( flags.switch_flags[17] )
             this->setPane( DVF_PANERIGHT, &dvpi );
+					if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
+						this->addExStyle(WS_EX_CONTROLPARENT);
+					}
 
           this->redrawWindow( );
         }
       }
       else {
 
-        char error[500];
-        wsprintf( error, "/xdid -l|r : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-        mIRCError( error );
+        TString error;
+        error.sprintf("/xdid -l|r : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+				mIRCError( error.to_chr() );
       }
     }
   }

@@ -338,10 +338,17 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
   }
 	// xdid -U [NAME] [ID]
   else if (flags.switch_cap_flags[20]) {
+		// Box Double click Bug: the GetNextDlgtabItem() function never returns & seems to just loop forever.
+		// from functions doc:
+		//	If the search for the next control with the WS_TABSTOP
+		//	style encounters a window with the WS_EX_CONTROLPARENT style,
+		//	the system recursively searches the window's children.
+		//
 	  HWND hNextCtrl = GetNextDlgTabItem(this->m_pParentDialog->getHwnd(), this->m_Hwnd, FALSE);
 
-	  if (hNextCtrl)
+	  if (hNextCtrl && (hNextCtrl != this->m_Hwnd))
 		  SendMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, (WPARAM) hNextCtrl, TRUE);
+		//::PostMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, NULL, FALSE);
   }
   /*
   else {
@@ -584,9 +591,9 @@ BOOL DcxControl::parseGlobalInfoRequest( TString & input, char * szReturnValue )
 		}
   }
   else {
-    char error[500];
-    wsprintf( error, "Invalid $ $+ xdid property : %s : or number of arguments on control ID: %d", input.gettok( 3, " " ).to_chr( ), this->getUserID( ) );
-    mIRCError( error );
+    TString error;
+    error.sprintf("Invalid $ $+ xdid property : %s : or number of arguments on control ID: %d", input.gettok( 3, " " ).to_chr( ), this->getUserID( ) );
+		mIRCError( error.to_chr() );
   }
 
   return FALSE;
@@ -729,9 +736,9 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, UINT mID, TString
     if ( tsInput.numtok( " " ) > 8 ) {
 
       char windowHwnd[30];
-      char expression[200];
-      wsprintf( expression, "$window(%s).hwnd", tsInput.gettok( 9, " " ).to_chr( ) );
-      mIRCeval( expression, windowHwnd );
+      TString expression;
+      expression.sprintf("$window(%s).hwnd", tsInput.gettok( 9, " " ).to_chr( ) );
+			mIRCeval( expression.to_chr(), windowHwnd );
 
       HWND winHwnd = (HWND) atoi( windowHwnd );
 
@@ -746,9 +753,9 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, UINT mID, TString
     if ( tsInput.numtok( " " ) > 8 ) {
 
       char windowHwnd[30];
-      char expression[200];
-      wsprintf( expression, "$dialog(%s).hwnd", tsInput.gettok( 9, " " ).to_chr( ) );
-      mIRCeval( expression, windowHwnd );
+      TString expression;
+      expression.sprintf("$dialog(%s).hwnd", tsInput.gettok( 9, " " ).to_chr( ) );
+			mIRCeval( expression.to_chr(), windowHwnd );
 
       HWND winHwnd = (HWND) atoi( windowHwnd );
 
