@@ -67,6 +67,8 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString 
   {
     //mIRCError( "Created Browser Window!!!" );
   }
+  this->registreDefaultWindowProc( );
+  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
   OLECHAR url[4096];
   MultiByteToWideChar( CP_ACP, 0, "about:blank", -1, url, 4095 );			
@@ -75,8 +77,6 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString 
   this->m_pWebBrowser2->Navigate( url, &v, &v, &v, &v );
   VariantClear( &v );
 
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -126,6 +126,8 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
   {
     //mIRCError( "Created Browser Window!!!" );
   }
+  this->registreDefaultWindowProc( );
+  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
   OLECHAR url[4096];
   MultiByteToWideChar( CP_ACP, 0, "about:blank", -1, url, 4095 );			
@@ -134,8 +136,6 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
   this->m_pWebBrowser2->Navigate( url, &v, &v, &v, &v );
   VariantClear( &v );
 
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -536,6 +536,7 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
       }
       break;
 
+    case WM_CHILDACTIVATE:
     case WM_SIZE:
       {
 			  RECT rc; 
@@ -555,7 +556,12 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
         this->m_pParentDialog->setFocusControl( this->getUserID( ) );
       }
       break;
-
+		case WM_MOUSEACTIVATE:
+			{
+				bParsed = TRUE;
+				return MA_ACTIVATE;
+			}
+			break;
     case WM_DESTROY:
       {
         //mIRCError( "WM_DESTROY" );

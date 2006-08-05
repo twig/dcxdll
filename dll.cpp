@@ -437,9 +437,9 @@ mIRC(GetSystemColor) {
 	//mIRCSignal( d.to_chr( ) );
 
 	if (d.numtok(" ") < 1) {
-		char error[900];
-		wsprintf(error, "dcx(GetSysColor): invalid arguments");
-		mIRCError(error);
+		TString error;
+		error.sprintf("dcx(GetSysColor): invalid arguments");
+		mIRCError(error.to_chr());
 		return 0;
 	}
 
@@ -744,9 +744,6 @@ mIRC(xdid) {
 	DcxDialog * p_Dialog = Dialogs.getDialogByName( d.gettok( 1, " " ) );
 
 	if (p_Dialog == NULL) {
-		//char error[200];
-		//wsprintf( error, "/xdid unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
-		//mIRCError( error );
 		TString error;
 		error.sprintf("/xdid unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
 		mIRCError( error.to_chr() );
@@ -766,9 +763,6 @@ mIRC(xdid) {
 			//mIRCError( p_Dialog->getName( ).to_chr( ) );
 
 			if (p_Control == NULL) {
-				//char error[200];
-				//wsprintf( error, "/xdid invalid ID : %s (dialog : %s)", IDs.gettok( i, "," ).to_chr( ), d.gettok( 1, " " ).to_chr( ) );
-				//mIRCError( error );
 				TString error;
 				error.sprintf("/xdid invalid ID : %s (dialog : %s)", IDs.gettok( i, "," ).to_chr( ), d.gettok( 1, " " ).to_chr( ) );
 				mIRCError( error.to_chr() );
@@ -789,9 +783,6 @@ mIRC(xdid) {
 		p_Control = p_Dialog->getControlByID( (UINT) atoi( d.gettok( 2, " " ).to_chr( ) ) + mIRC_ID_OFFSET );
 
 		if ( p_Control == NULL ) {
-			//char error[200];
-			//wsprintf( error, "/xdid invalid ID : %s (dialog : %s)", d.gettok(2, " ").to_chr( ), d.gettok( 1, " " ).to_chr());
-			//mIRCError( error );
 			TString error;
 			error.sprintf("/xdid invalid ID : %s (dialog : %s)", d.gettok(2, " ").to_chr( ), d.gettok( 1, " " ).to_chr());
 			mIRCError( error.to_chr() );
@@ -827,9 +818,6 @@ mIRC( _xdid ) {
 	DcxDialog * p_Dialog = Dialogs.getDialogByName( d.gettok( 1, " " ) );
 
 	if ( p_Dialog == NULL ) {
-		//char error[200];
-		//wsprintf( error, "$ $+ xdid unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
-		//mIRCError( error );
 		TString error;
 		error.sprintf("$ $+ xdid unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
 		mIRCError( error.to_chr() );
@@ -839,9 +827,6 @@ mIRC( _xdid ) {
 	DcxControl * p_Control = p_Dialog->getControlByID( (UINT) atoi( d.gettok( 2, " " ).to_chr( ) ) + mIRC_ID_OFFSET );
 
 	if ( p_Control == NULL ) {
-		//char error[200];
-		//wsprintf( error, "$ $+ xdid invalid ID : %s (dialog %s)", d.gettok( 2, " " ).to_chr( ), d.gettok( 1, " " ).to_chr( ) );
-		//mIRCError( error );
 		TString error;
 		error.sprintf("$ $+ xdid invalid ID : %s (dialog %s)", d.gettok( 2, " " ).to_chr( ), d.gettok( 1, " " ).to_chr( ) );
 		mIRCError( error.to_chr() );
@@ -899,9 +884,6 @@ mIRC( xdialog ) {
 	//mIRCSignal( d.to_chr( ) );
 
 	if ( d.numtok( " " ) < 2 ) {
-		//char error[900];
-		//wsprintf( error, "/xdialog invalid arguments ( dialog %s)", d.gettok( 1, " " ).to_chr( ) );
-		//mIRCError( error );
 		TString error;
 		error.sprintf("/xdialog invalid arguments ( dialog %s)", d.gettok( 1, " " ).to_chr( ) );
 		mIRCError( error.to_chr() );
@@ -911,9 +893,6 @@ mIRC( xdialog ) {
 	DcxDialog * p_Dialog = Dialogs.getDialogByName( d.gettok( 1, " " ) );
 
 	if ( p_Dialog == NULL ) {
-		//char error[200];
-		//wsprintf( error, "/xdialog unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
-		//mIRCError( error );
 		TString error;
 		error.sprintf("/xdialog unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
 		mIRCError( error.to_chr() );
@@ -940,9 +919,6 @@ mIRC( _xdialog ) {
 	data[0] = 0;
 
 	if ( d.numtok( " " ) < 2 ) {
-		//char error[900];
-		//wsprintf( error, "$ $+ xdialog invalid arguments ( dialog %s)", d.gettok( 1, " " ).to_chr( ) );
-		//mIRCError( error );
 		TString error;
 		error.sprintf("$ $+ xdialog invalid arguments ( dialog %s)", d.gettok( 1, " " ).to_chr( ) );
 		mIRCError( error.to_chr() );
@@ -953,9 +929,6 @@ mIRC( _xdialog ) {
 
 	if ( p_Dialog == NULL ) {
 		if ( d.gettok( 2, " " ) != "ismarked") {
-			//char error[200];
-			//wsprintf( error, "$ $+ xdialog unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
-			//mIRCError( error );
 			TString error;
 			error.sprintf("$ $+ xdialog unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
 			mIRCError( error.to_chr() );
@@ -1119,9 +1092,9 @@ mIRC( xpop ) {
 	//mIRCError( d.gettok( 1, " " ).to_chr( ) );
 
 	if ( p_Menu == NULL ) {
-		char error[200];
-		wsprintf( error, "/ $+ xpop unknown menu \"%s\": see /xpopup -c command", d.gettok( 1, " " ).to_chr( ) );
-		mIRCError( error );
+		TString error;
+		error.sprintf("/ $+ xpop unknown menu \"%s\": see /xpopup -c command", d.gettok( 1, " " ).to_chr( ) );
+		mIRCError( error.to_chr() );
 		data[0] = 0;
 		return 3;
 	}
@@ -1158,9 +1131,9 @@ mIRC( _xpop ) {
 	//mIRCError( d.gettok( 1, " " ).to_chr( ) );
 
 	if ( p_Menu == NULL ) {
-		char error[200];
-		wsprintf( error, "$ $+ xpop unknown menu \"%s\": see /xpopup -c command", d.gettok( 1, " " ).to_chr( ) );
-		mIRCError( error );
+		TString error;
+		error.sprintf("$ $+ xpop unknown menu \"%s\": see /xpopup -c command", d.gettok( 1, " " ).to_chr( ) );
+		mIRCError( error.to_chr() );
 		data[0] = 0;
 		return 3;
 	}

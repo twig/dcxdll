@@ -420,9 +420,9 @@ void DcxDialog::parseCommandRequest(TString & input) {
             if ( cHwnd != NULL && IsWindow( cHwnd ) )
               p_Cell = new LayoutCellFill( cHwnd );
             else {
-              char error[500];
-                wsprintf( error, "/xdialog -l : Cell Fill -> Invalid ID : %d", ID );
-                mIRCError( error );
+              TString error;
+              error.sprintf("/xdialog -l : Cell Fill -> Invalid ID : %d", ID );
+							mIRCError( error.to_chr() );
               return;
             }
           }
@@ -453,9 +453,9 @@ void DcxDialog::parseCommandRequest(TString & input) {
               if ( cHwnd != NULL && IsWindow( cHwnd ) )
                 p_Cell = new LayoutCellFixed( cHwnd, rc, type );
               else {
-                char error[500];
-                wsprintf( error, "/xdialog -l : Cell Fixed -> Invalid ID : %d", ID );
-                mIRCError( error );
+                TString error;
+                error.sprintf("/xdialog -l : Cell Fixed -> Invalid ID : %d", ID );
+								mIRCError( error.to_chr() );
                 return;
               }
             }
@@ -471,9 +471,9 @@ void DcxDialog::parseCommandRequest(TString & input) {
               if ( cHwnd != NULL && IsWindow( cHwnd ) )
                 p_Cell = new LayoutCellFixed( cHwnd, type );
               else {
-                char error[500];
-                wsprintf( error, "/xdialog -l : Cell Fixed -> Invalid ID : %d", ID );
-                mIRCError( error );
+                TString error;
+                error.sprintf("/xdialog -l : Cell Fixed -> Invalid ID : %d", ID );
+								mIRCError( error.to_chr() );
                 return;
               }
             }
@@ -503,9 +503,9 @@ void DcxDialog::parseCommandRequest(TString & input) {
 
             if ( p_GetCell == NULL ) {
 
-              char error[500];
-              wsprintf( error, "/xdialog -l : Invalid item path: %s", path.to_chr( ) );
-              mIRCError( error );
+              TString error;
+              error.sprintf("/xdialog -l : Invalid item path: %s", path.to_chr( ) );
+							mIRCError( error.to_chr() );
               return;
             }
             

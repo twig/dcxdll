@@ -459,9 +459,9 @@ void DcxPanel::parseCommandRequest( TString & input ) {
             if ( cHwnd != NULL && IsWindow( cHwnd ) )
               p_Cell = new LayoutCellFill( cHwnd );
             else {
-              char error[500];
-                wsprintf( error, "/xdid -l : Cell Fill -> Invalid ID : %d", ID );
-                mIRCError( error );
+              TString error;
+              error.sprintf("/xdid -l : Cell Fill -> Invalid ID : %d", ID );
+							mIRCError( error.to_chr() );
               return;
             }
           }
@@ -492,9 +492,9 @@ void DcxPanel::parseCommandRequest( TString & input ) {
               if ( cHwnd != NULL && IsWindow( cHwnd ) )
                 p_Cell = new LayoutCellFixed( cHwnd, rc, type );
               else {
-                char error[500];
-                wsprintf( error, "/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
-                mIRCError( error );
+                TString error;
+                error.sprintf("/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
+								mIRCError( error.to_chr() );
                 return;
               }
             }
@@ -510,9 +510,9 @@ void DcxPanel::parseCommandRequest( TString & input ) {
               if ( cHwnd != NULL && IsWindow( cHwnd ) )
                 p_Cell = new LayoutCellFixed( cHwnd, type );
               else {
-                char error[500];
-                wsprintf( error, "/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
-                mIRCError( error );
+                TString error;
+                error.sprintf("/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
+								mIRCError( error.to_chr() );
                 return;
               }
             }
@@ -542,9 +542,9 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 
             if ( p_GetCell == NULL ) {
 
-              char error[500];
-              wsprintf( error, "/xdid -l : Invalid item path: %s", path.to_chr( ) );
-              mIRCError( error );
+              TString error;
+              error.sprintf("/xdid -l : Invalid item path: %s", path.to_chr( ) );
+							mIRCError( error.to_chr() );
               return;
             }
             
@@ -567,9 +567,9 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 
         if ( p_GetCell == NULL ) {
 
-          char error[500];
-          wsprintf( error, "/xdid -l : Invalid item path: %s", path.to_chr( ) );
-          mIRCError( error );
+          TString error;
+          error.sprintf("/xdid -l : Invalid item path: %s", path.to_chr( ) );
+					mIRCError( error.to_chr() );
           return;
         }
         else {
@@ -659,9 +659,9 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
         if ( IsWindow( hdr->hwndFrom ) && GetClassName( hdr->hwndFrom, ClassName, 256 ) != 0 ) {
 
-          //char error[500];
-          //wsprintf( error, "%d == %d == %d -> %X %X", hdr->code, HDN_ITEMCLICKA, HDN_ITEMCLICKW, hdr->hwndFrom, GetParent( hdr->hwndFrom ) );
-          //mIRCError( error );
+          //TString error;
+          //error.sprintf("%d == %d == %d -> %X %X", hdr->code, HDN_ITEMCLICKA, HDN_ITEMCLICKW, hdr->hwndFrom, GetParent( hdr->hwndFrom ) );
+          //mIRCError( error.to_chr() );
 
           switch( hdr->code ) {
 

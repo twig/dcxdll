@@ -489,20 +489,20 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
     if ( size != 32 && size != 24 )
       size = 16;
 
-    //char error[500];
+    //TString error;
     
     himl = this->createImageList( size );
     this->setImageList( himl, TB_IML_NORMAL );
-    //wsprintf( error, "Image List Normal %X", himl );
-    //mIRCError( error );
+    //error.sprintf("Image List Normal %X", himl );
+    //mIRCError( error.to_chr() );
     himl = this->createImageList( size );
     this->setImageList( himl, TB_IML_DISABLE );
-    //wsprintf( error, "Image List Disabled %X", himl );
-    //mIRCError( error );
+    //error.sprintf("Image List Disabled %X", himl );
+    //mIRCError( error.to_chr() );
     himl = this->createImageList( size );
     this->setImageList( himl, TB_IML_HOT );
-    //wsprintf( error, "Image List Hot %X", himl );
-    //mIRCError( error );
+    //error.sprintf("Image List Hot %X", himl );
+    //mIRCError( error.to_chr() );
 
     this->redrawWindow( );
   }
@@ -619,9 +619,9 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
       if ( himl != NULL ) {
 
-        //char error[100];
-        //wsprintf( error, "Normal Icons : %d %X", ImageList_GetImageCount( himl ), himl );
-        //mIRCError( error );
+        //TString error;
+        //error.sprintf("Normal Icons : %d %X", ImageList_GetImageCount( himl ), himl );
+        //mIRCError( error.to_chr() );
 
         int cx, cy;
         ImageList_GetIconSize( himl, &cx, &cy );
@@ -634,8 +634,8 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
         ImageList_AddIcon( himl, icon );
         DestroyIcon( icon );
 
-        //wsprintf( error, "Normal Icons : %d %X", ImageList_GetImageCount( himl ), himl );
-        //mIRCError( error );
+        //error.sprintf("Normal Icons : %d %X", ImageList_GetImageCount( himl ), himl );
+        //mIRCError( error.to_chr() );
       }
     }
     // DISABLED IML
@@ -646,9 +646,9 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
       if ( himl != NULL ) {
 
-        //char error[100];
-        //wsprintf( error, "Disabled Icons : %d %X", ImageList_GetImageCount( himl ), himl );
-        //mIRCError( error );
+        //TString error;
+        //error.sprintf("Disabled Icons : %d %X", ImageList_GetImageCount( himl ), himl );
+        //mIRCError( error.to_chr() );
 
         int cx, cy;
         ImageList_GetIconSize( himl, &cx, &cy );
@@ -661,8 +661,8 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
         ImageList_AddIcon( himl, icon );
         DestroyIcon( icon );
 
-        //wsprintf( error, "Disabled Icons : %d %X", ImageList_GetImageCount( himl ), himl );
-        //mIRCError( error );
+        //error.sprintf("Disabled Icons : %d %X", ImageList_GetImageCount( himl ), himl );
+        //mIRCError( error.to_chr() );
       }
     }
     // HOT IML
@@ -673,9 +673,9 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
       if ( himl != NULL ) {
 
-        //char error[100];
-        //wsprintf( error, "Hot Icons : %d %X", ImageList_GetImageCount( himl ), himl );
-        //mIRCError( error );
+        //TString error;
+        //error.sprintf("Hot Icons : %d %X", ImageList_GetImageCount( himl ), himl );
+        //mIRCError( error.to_chr() );
 
         int cx, cy;
         ImageList_GetIconSize( himl, &cx, &cy );
@@ -688,8 +688,8 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
         ImageList_AddIcon( himl, icon );
         DestroyIcon( icon );
 
-        //wsprintf( error, "Hot Icons : %d %X", ImageList_GetImageCount( himl ), himl );
-        //mIRCError( error );
+        //error.sprintf("Hot Icons : %d %X", ImageList_GetImageCount( himl ), himl );
+        //mIRCError( error.to_chr() );
       }
     }
   }

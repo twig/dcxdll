@@ -522,9 +522,9 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
 
       //mIRCError( "Got Information!" );
       int n = WideCharToMultiByte( CP_ACP, 0, wstr, lstrlenW( wstr ) + 1, szReturnValue, 900, NULL, NULL );
-      char error[500];
-      wsprintf( error, "Chars %d", n );
-      mIRCError( error );
+      TString error;
+      error.sprintf("Chars %d", n );
+			mIRCError( error.to_chr() );
       mIRCError( szReturnValue );
       return;
     }

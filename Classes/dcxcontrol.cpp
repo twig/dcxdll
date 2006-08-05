@@ -352,9 +352,9 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
   }
   /*
   else {
-    char error[500];
-    wsprintf( error, "Invalid /xdid switch : %s : or number of arguments on control ID: %d", input.gettok( 3, " " ).to_chr( ), this->getUserID( ) );
-    mIRCError( error );
+    TString error;
+    error.sprintf("Invalid /xdid switch : %s : or number of arguments on control ID: %d", input.gettok( 3, " " ).to_chr( ), this->getUserID( ) );
+    mIRCError( error.to_chr() );
   }
   */
 }
