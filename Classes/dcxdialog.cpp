@@ -299,8 +299,10 @@ void DcxDialog::parseCommandRequest(TString & input) {
 
 			if ((p_Control->getType() == "dialog") || (p_Control->getType() == "window"))
 				delete p_Control;
-			else if (p_Control->getRefCount() == 0)
+			else if (p_Control->getRefCount() == 0) {
+				this->deleteControl(p_Control); // remove control from internal list!
 				DestroyWindow(cHwnd);
+			}
 			else
 				mIRCDebug("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", p_Control->getUserID(), this->m_tsName.to_chr());
 		}

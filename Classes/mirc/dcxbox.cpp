@@ -428,6 +428,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
       if ( p_Control->getType( ) == "dialog" || p_Control->getType( ) == "window" )
         delete p_Control;
 			else if ( p_Control->getRefCount( ) == 0 ) {
+				this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
         DestroyWindow( cHwnd );
 				if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
 					if (this->isExStyle(WS_EX_CONTROLPARENT)) {

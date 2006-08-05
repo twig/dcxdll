@@ -713,7 +713,7 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				//return MA_ACTIVATE;
 			}
 			break;
-    case WM_DESTROY:
+    case WM_NCDESTROY:
       {
         //mIRCError( "WM_DESTROY" );
         delete this;
