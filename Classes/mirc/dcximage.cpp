@@ -394,12 +394,6 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
-    case WM_LBUTTONDOWN:
-      {
-        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-      }
-      break;
-
     case WM_LBUTTONUP:
       {
         this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
