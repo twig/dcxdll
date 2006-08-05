@@ -38,13 +38,9 @@ PFNISTHEMEACTIVE IsThemeActiveUx = NULL; //!< blah
 HMODULE UXModule = NULL;             //!< UxTheme.dll Module Handle
 BOOL XPPlus = FALSE;                 //!< Is OS WinXP+ ?
 
-FILE * logFile;
-
-//GdiplusStartupInput gdiplusStartupInput; // GDI+ Startup Input Param
-//ULONG_PTR           gdiplusToken;        // GDI+ Token Param
+//FILE * logFile;
 
 IClassFactory * g_pClassFactory; //!< Web Control Factory
-
 
 
 // XPopup Stuff
@@ -63,6 +59,7 @@ HWND mhMenuOwner; //!< Menu Owner Window Which Processes WM_ Menu Messages
 
 WNDPROC g_OldmIRCWindowProc;
 
+
 /*!
 * \brief mIRC DLL Load Function
 *
@@ -73,169 +70,181 @@ WNDPROC g_OldmIRCWindowProc;
 *
 * \param load mIRC Load Structure Pointer
 */
-
-void WINAPI LoadDll( LOADINFO * load ) {
+void WINAPI LoadDll(LOADINFO * load) {
 	int cnt = 0;
+
+	// If mIRC V6.2+ then try & create our own unique mapfile.
+	// damn mIRC reports as 6.2 instead of 6.20!
+	// meaning mirc v6.17 appears to be a higher version.
 	if ((HIWORD(load->mVersion) == 2) && (LOWORD(load->mVersion) == 6)) {
-		// If mIRC V6.2+ then try & create our own unique mapfile.
-		// damn mIRC reports as 6.2 instead of 6.20!
-		// meaning mirc v6.17 appears to be a higher version.
 		TString map_name;
 		cnt = 1;
 		mIRCLink.m_hFileMap = NULL;
+
 		while ((mIRCLink.m_hFileMap == NULL) && (cnt < 256)) {
-			map_name.sprintf("mIRC%d",cnt); // create mapfile name.
-			mIRCLink.m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE,0,PAGE_READWRITE,0,4096,map_name.to_chr()); // cretae mapfile.
-			if ((mIRCLink.m_hFileMap == NULL) || (mIRCLink.m_hFileMap == INVALID_HANDLE_VALUE)) { // if create failed, fall back on old method.
+			// create mapfile name.
+			map_name.sprintf("mIRC%d",cnt);
+			// create mapfile.
+			mIRCLink.m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE,0,PAGE_READWRITE,0,4096,map_name.to_chr());
+
+			// if create failed, fall back on old method.
+			if ((mIRCLink.m_hFileMap == NULL) || (mIRCLink.m_hFileMap == INVALID_HANDLE_VALUE)) {
 				cnt = 0;
 				break;
 			}
-			if (GetLastError() == ERROR_ALREADY_EXISTS) { // if mapfile already exists then close & try another name.
+
+			// if mapfile already exists then close & try another name.
+			if (GetLastError() == ERROR_ALREADY_EXISTS) {
 				CloseHandle(mIRCLink.m_hFileMap);
 				mIRCLink.m_hFileMap = NULL;
 			}
 			else
 				break;
+
 			cnt++;
 		}
-		if (cnt == 256) cnt = 0;
+
+		if (cnt == 256)
+			cnt = 0;
 	}
+
 	mIRCLink.m_map_cnt = cnt; // set mapfile counter for SendMessage()'s
-	if (cnt == 0) { // use old method for < mirc 6.2 or when new method fails.
-		mIRCLink.m_hFileMap = CreateFileMapping( INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, 4096, "mIRC" );
+
+	// use old method for < mirc 6.2 or when new method fails.
+	if (cnt == 0) {
+		mIRCLink.m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, 4096, "mIRC");
 	}
-	mIRCLink.m_pData = (LPSTR) MapViewOfFile( mIRCLink.m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0 );
+
+	mIRCLink.m_pData = (LPSTR) MapViewOfFile(mIRCLink.m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 	mIRCLink.m_mIRCHWND = load->mHwnd;
 
 	// Initializing OLE Support
 	//CoInitialize( NULL );
 
 	// Initializing OLE Support
-	OleInitialize( NULL );
+	OleInitialize(NULL);
 
 	//get IClassFactory* for WebBrowser
-	CoGetClassObject( CLSID_WebBrowser, CLSCTX_INPROC_SERVER, 0, IID_IClassFactory, (void**) &g_pClassFactory );
+	CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, 0, IID_IClassFactory, (void**) &g_pClassFactory);
 	//6BF52A52-394A-11D3-B153-00C04F79FAA6
 
 	// RichEdit DLL Loading
-	LoadLibrary( "RICHED20.DLL" );
+	LoadLibrary("RICHED20.DLL");
 
 	// UXModule Loading
-	UXModule = LoadLibrary( "UXTHEME.DLL" );
+	UXModule = LoadLibrary("UXTHEME.DLL");
 
-	if( UXModule ) {
-		SetWindowThemeUx = (PFNSETTHEME) GetProcAddress( UXModule, "SetWindowTheme" );
-		IsThemeActiveUx = (PFNISTHEMEACTIVE) GetProcAddress( UXModule, "IsThemeActive" );
+	if (UXModule) {
+		SetWindowThemeUx = (PFNSETTHEME) GetProcAddress(UXModule, "SetWindowTheme");
+		IsThemeActiveUx = (PFNISTHEMEACTIVE) GetProcAddress(UXModule, "IsThemeActive");
 
-		if ( SetWindowThemeUx )
+		if (SetWindowThemeUx)
 			XPPlus = TRUE;
 		else {
-			FreeLibrary( UXModule );
+			FreeLibrary(UXModule);
 			UXModule = NULL;
 			XPPlus = FALSE;
 		}
 
 		if (!IsThemeActiveUx)
-			mIRCError("There was a problem loading IsThemedXP");
+			mIRCError("DCX: There was a problem loading IsThemedXP");
 	}
-
-	// Initialize GDI+.
-	//GdiplusStartup( &gdiplusToken, &gdiplusStartupInput, NULL );
 
 	// Load Control definitions
 	INITCOMMONCONTROLSEX icex;
-	icex.dwSize = sizeof( INITCOMMONCONTROLSEX );
+
+	icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
 	icex.dwICC  = ICC_TREEVIEW_CLASSES | ICC_BAR_CLASSES | ICC_PROGRESS_CLASS | ICC_LISTVIEW_CLASSES | 
 		ICC_USEREX_CLASSES | ICC_COOL_CLASSES | ICC_STANDARD_CLASSES | ICC_UPDOWN_CLASS | ICC_DATE_CLASSES | 
 		ICC_TAB_CLASSES | ICC_INTERNET_CLASSES;
 	InitCommonControlsEx( &icex ); 
 
 	WNDCLASSEX wc;
-	ZeroMemory( (void*)&wc , sizeof(WNDCLASSEX) );
-	wc.cbSize = sizeof( WNDCLASSEX );
+	ZeroMemory((void*)&wc , sizeof(WNDCLASSEX));
+	wc.cbSize = sizeof(WNDCLASSEX);
 
 	// Custom ProgressBar
-	GetClassInfoEx( NULL, PROGRESS_CLASS, &wc );
+	GetClassInfoEx(NULL, PROGRESS_CLASS, &wc);
 	wc.lpszClassName = DCX_PROGRESSBARCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom TreeView
-	GetClassInfoEx( NULL, WC_TREEVIEW, &wc );
+	GetClassInfoEx(NULL, WC_TREEVIEW, &wc);
 	wc.lpszClassName = DCX_TREEVIEWCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom Toolbar
-	GetClassInfoEx( NULL, TOOLBARCLASSNAME, &wc );
+	GetClassInfoEx(NULL, TOOLBARCLASSNAME, &wc);
 	wc.lpszClassName = DCX_TOOLBARCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom StatusBar
-	GetClassInfoEx( NULL, STATUSCLASSNAME, &wc );
+	GetClassInfoEx(NULL, STATUSCLASSNAME, &wc);
 	wc.lpszClassName = DCX_STATUSBARCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom ListView
-	GetClassInfoEx( NULL, WC_LISTVIEW, &wc );
+	GetClassInfoEx(NULL, WC_LISTVIEW, &wc);
 	wc.lpszClassName = DCX_LISTVIEWCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom ComboEx
-	GetClassInfoEx( NULL, WC_COMBOBOXEX, &wc );
+	GetClassInfoEx(NULL, WC_COMBOBOXEX, &wc);
 	wc.lpszClassName = DCX_COMBOEXCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom TrackBar
-	GetClassInfoEx( NULL, TRACKBAR_CLASS, &wc );
+	GetClassInfoEx(NULL, TRACKBAR_CLASS, &wc);
 	wc.lpszClassName = DCX_TRACKBARCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom RichEdit
-	GetClassInfoEx( NULL, "RichEdit20A", &wc );
+	GetClassInfoEx(NULL, "RichEdit20A", &wc);
 	wc.lpszClassName = DCX_RICHEDITCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom RebarCtrl
-	GetClassInfoEx( NULL, REBARCLASSNAME, &wc );
+	GetClassInfoEx(NULL, REBARCLASSNAME, &wc);
 	wc.lpszClassName = DCX_REBARCTRLCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom Color Combo
-	GetClassInfoEx( NULL, "COMBOBOX", &wc );
+	GetClassInfoEx(NULL, "COMBOBOX", &wc);
 	wc.lpszClassName = DCX_COLORCOMBOCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom TabCtrl
-	GetClassInfoEx( NULL, WC_TABCONTROL, &wc );
+	GetClassInfoEx(NULL, WC_TABCONTROL, &wc);
 	wc.lpszClassName = DCX_TABCTRLCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom UpDown
-	GetClassInfoEx( NULL, UPDOWN_CLASS, &wc );
+	GetClassInfoEx(NULL, UPDOWN_CLASS, &wc);
 	wc.lpszClassName = DCX_UPDOWNCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom IppAddress
-	GetClassInfoEx( NULL, WC_IPADDRESS, &wc );
+	GetClassInfoEx(NULL, WC_IPADDRESS, &wc);
 	wc.lpszClassName = DCX_IPADDRESSCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Init Divider Control
 	//InitDivider( GetModuleHandle( NULL ) );
 
 	// Custom Divider
-	wc.cbSize		= sizeof( WNDCLASSEX );
-	wc.style			= 0;
-	wc.lpfnWndProc	= DividerWndProc;
-	wc.cbClsExtra	= 0;
-	wc.cbWndExtra	= 0;
-	wc.hInstance	= GetModuleHandle( NULL );
-	wc.hIcon			= NULL;
-	wc.hCursor		= NULL;
-	wc.hbrBackground	= (HBRUSH)(COLOR_3DFACE+1);
-	wc.lpszMenuName	= 0;
-	wc.lpszClassName	= DCX_DIVIDERCLASS;
-	wc.hIconSm			= NULL;
-	RegisterClassEx( &wc );
+	wc.cbSize         = sizeof(WNDCLASSEX);
+	wc.style          = 0;
+	wc.lpfnWndProc    = DividerWndProc;
+	wc.cbClsExtra     = 0;
+	wc.cbWndExtra     = 0;
+	wc.hInstance      = GetModuleHandle(NULL);
+	wc.hIcon          = NULL;
+	wc.hCursor        = NULL;
+	wc.hbrBackground  = (HBRUSH) (COLOR_3DFACE +1);
+	wc.lpszMenuName   = 0;
+	wc.lpszClassName  = DCX_DIVIDERCLASS;
+	wc.hIconSm        = NULL;
+	RegisterClassEx(&wc);
 
 	//GetClassInfoEx( NULL, DIVIDERCLASSNAME, &wc );
 	//wc.lpszClassName = ;
@@ -259,41 +268,41 @@ void WINAPI LoadDll( LOADINFO * load ) {
 	*/
 
 	// Custom Panel
-	GetClassInfoEx( NULL, "#32770", &wc );
+	GetClassInfoEx(NULL, "#32770", &wc);
 	wc.lpszClassName = DCX_PANELCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom Box
-	GetClassInfoEx( NULL, "#32770", &wc );
+	GetClassInfoEx(NULL, "#32770", &wc);
 	wc.lpszClassName = DCX_BOXCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom Button
-	GetClassInfoEx( NULL, "BUTTON", &wc );
+	GetClassInfoEx(NULL, "BUTTON", &wc);
 	wc.lpszClassName = DCX_BUTTONCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 	// Custom Calendar
-	GetClassInfoEx( NULL, MONTHCAL_CLASS, &wc );
+	GetClassInfoEx(NULL, MONTHCAL_CLASS, &wc);
 	wc.lpszClassName = DCX_CALENDARCLASS;
-	RegisterClassEx( &wc );
+	RegisterClassEx(&wc);
 
 
 
 	/***** XPopup Stuff *****/
-	g_OldmIRCWindowProc = (WNDPROC) SetWindowLong( mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) mIRCSubClassWinProc );
+	g_OldmIRCWindowProc = (WNDPROC) SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) mIRCSubClassWinProc);
 
 	WNDCLASS wcpop;
-	ZeroMemory( &wcpop, sizeof( WNDCLASS ) );
-	wcpop.hInstance = GetModuleHandle( NULL );
+	ZeroMemory(&wcpop, sizeof(WNDCLASS));
+	wcpop.hInstance = GetModuleHandle(NULL);
 	wcpop.lpszClassName = XPOPUPMENUCLASS;
 	wcpop.lpfnWndProc = XPopupMenu::XPopupWinProc;
-	RegisterClass( &wcpop );
+	RegisterClass(&wcpop);
 
-	mhMenuOwner = CreateWindow( XPOPUPMENUCLASS, NULL, 0, 0, 0, 0, 0, 0, 0, GetModuleHandle( NULL ), 0 );
+	mhMenuOwner = CreateWindow(XPOPUPMENUCLASS, NULL, 0, 0, 0, 0, 0, 0, 0, GetModuleHandle(NULL), 0);
 
-	g_mIRCPopupMenu = new XPopupMenu( NULL );
-	g_mIRCMenuBar = new XPopupMenu( GetMenu( mIRCLink.m_mIRCHWND ) );
+	g_mIRCPopupMenu = new XPopupMenu(NULL);
+	g_mIRCMenuBar = new XPopupMenu(GetMenu(mIRCLink.m_mIRCHWND));
 }
 
 /*!
@@ -305,75 +314,69 @@ void WINAPI LoadDll( LOADINFO * load ) {
 *
 * \param timeout Unload trigger indicator (0 = timeout unload after 10 min - 1 = exit or /dll -u)
 */
-
-int WINAPI UnloadDll( int timeout ) {
+int WINAPI UnloadDll(int timeout) {
 	// DLL unloaded because mIRC exits or /dll -u used
-	if ( timeout == 0 ) {
-		//mIRCError( "Unloading DCX DLL" );
-		Dialogs.closeDialogs( );
+	if (timeout == 0) {
+		//mIRCError("Unloading DCX DLL");
+		Dialogs.closeDialogs();
 
-		UnregisterClass( DCX_PROGRESSBARCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_TREEVIEWCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_TOOLBARCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_STATUSBARCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_LISTVIEWCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_COMBOEXCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_TRACKBARCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_RICHEDITCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_REBARCTRLCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_COLORCOMBOCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_UPDOWNCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_BUTTONCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_DIVIDERCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_PANELCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_TABCTRLCLASS, GetModuleHandle(NULL) );
-		UnregisterClass( DCX_CALENDARCLASS, GetModuleHandle(NULL) );
-
-		UnregisterClass( DCX_BOXCLASS, GetModuleHandle(NULL) );
+		UnregisterClass(DCX_PROGRESSBARCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_TREEVIEWCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_TOOLBARCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_STATUSBARCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_LISTVIEWCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_COMBOEXCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_TRACKBARCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_RICHEDITCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_REBARCTRLCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_COLORCOMBOCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_UPDOWNCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_BUTTONCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_DIVIDERCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_PANELCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_TABCTRLCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_CALENDARCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_BOXCLASS, GetModuleHandle(NULL));
 
 		// Class Factory of Web Control
-		if ( g_pClassFactory != NULL )
-			g_pClassFactory->Release( );
+		if (g_pClassFactory != NULL)
+			g_pClassFactory->Release();
 
 		// Terminating OLE Support
-		OleUninitialize( );
-
-		// GDI+ Shutdown
-		//GdiplusShutdown( gdiplusToken );
+		OleUninitialize();
 
 
 
 		/***** XPopup Stuff *****/
-		SetWindowLong( mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) g_OldmIRCWindowProc );
+		SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) g_OldmIRCWindowProc);
 
-		g_XPopupMenuManager.clearMenus( );
+		g_XPopupMenuManager.clearMenus();
 
 		delete g_mIRCPopupMenu;
-		g_mIRCMenuBar->cleanMenu( GetMenu( mIRCLink.m_mIRCHWND ) );
+		g_mIRCMenuBar->cleanMenu(GetMenu(mIRCLink.m_mIRCHWND));
 		delete g_mIRCMenuBar;
 
-		if ( mhMenuOwner != NULL )
-			DestroyWindow( mhMenuOwner );
+		if (mhMenuOwner != NULL)
+			DestroyWindow(mhMenuOwner);
 
-		UnregisterClass( XPOPUPMENUCLASS, GetModuleHandle( NULL ) );
+		UnregisterClass(XPOPUPMENUCLASS, GetModuleHandle(NULL));
 
-		UnmapViewOfFile( mIRCLink.m_pData );
-		CloseHandle( mIRCLink.m_hFileMap );
+		UnmapViewOfFile(mIRCLink.m_pData);
+		CloseHandle(mIRCLink.m_hFileMap);
 
 		return 1;
 	}
 	// keep DLL in memory
-	else 
+	else
 		return 0;
 }
 
 /*!
 * \brief DCX DLL Version Function
 */
-
-mIRC( Version ) {
+mIRC(Version) {
 	wsprintf(data,
-		"DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe and twig* ©2006 - http://dcx.scriptsdb.org",
+		"DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe, twig*, and Ook ©2006 - http://dcx.scriptsdb.org",
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
 	return 3;
 }
@@ -381,12 +384,10 @@ mIRC( Version ) {
 /*!
 * \brief Check if windows is themed
 */
-
-mIRC( IsThemedXP ) {
+mIRC(IsThemedXP) {
 	wsprintf(data, "%s", (IsThemeActive() ? "$true" : "$false"));
 	return 3;
 }
-
 
 /*!
 * \brief DCX DLL Mark Function
@@ -404,8 +405,9 @@ mIRC(Mark) {
 
 	char com[100];
 	char res[20];
+
 	wsprintf(com, "$dialog(%s).hwnd", d.gettok(1, " ").to_chr());
-	mIRCeval(com, res );
+	mIRCeval(com, res);
 
 	HWND mHwnd = (HWND) atoi(res);
 
@@ -428,17 +430,14 @@ mIRC(Mark) {
 *
 * Argument \b data contains -> [ATTRIB] (not implemented yet, [DEFAULT])
 */
-
 // GetSystemColor [ATTRIBUTE]
 mIRC(GetSystemColor) {
 	TString d(data);
 	d.trim();
 
-	//mIRCSignal( d.to_chr( ) );
-
 	if (d.numtok(" ") < 1) {
 		TString error;
-		error.sprintf("dcx(GetSysColor): invalid arguments");
+		error.sprintf("D_ERROR GetSysColor: Invalid arguments");
 		mIRCError(error.to_chr());
 		return 0;
 	}
@@ -482,7 +481,7 @@ mIRC(GetSystemColor) {
 	else if (coltype == "COLOR_WINDOWFRAME"	) { col = COLOR_WINDOWFRAME; }
 	else if (coltype == "COLOR_WINDOWTEXT"		) { col = COLOR_WINDOWTEXT; }
 	else
-		ret("$dcx(GetSystemColor): Invalid parameter specified");
+		ret("D_ERROR GetSystemColor: Invalid parameter specified");
 
 	// max of 8 digits, 9 for null terminator
 	char val[9];
@@ -496,7 +495,6 @@ mIRC(GetSystemColor) {
 *
 * Argument \b data contains -> (DEFAULT) [STYLES]
 */
-
 // ColorDialog (DEFAULT) [STYLES]
 mIRC(ColorDialog) {
 	TString d(data);
@@ -548,7 +546,6 @@ mIRC(ColorDialog) {
 * http://www.winprog.org/tutorial/app_two.html
 * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/userinput/commondialogboxlibrary/commondialogboxreference/commondialogboxstructures/openfilename.asp
 */
-
 // OpenDialog (styles) [TAB] (file) [TAB] (filter)
 mIRC(OpenDialog) {
 	TString d(data);
@@ -556,7 +553,7 @@ mIRC(OpenDialog) {
 
 	// count number of tab tokens
 	if (d.numtok("\t") != 3) {
-		mIRCError("$dcx(OpenDialog): Invalid parameters");
+		mIRCError("D_ERROR OpenDialog: Invalid parameters");
 		ret("");
 	}
 
@@ -570,7 +567,7 @@ mIRC(SaveDialog) {
 
 	// count number of tab tokens
 	if (d.numtok("\t") != 3) {
-		mIRCError("$dcx(SaveDialog): Invalid parameters");
+		mIRCError("D_ERROR SaveDialog: Invalid parameters");
 		ret("");
 	}
 
@@ -613,36 +610,29 @@ mIRC(FontDialog) {
 
 		option.trim();
 		numtok = option.numtok(" ");
-		//mIRCDebug("parsing option: %s", option.to_chr());
 
-/*
-default +flags(ibsua) charset size fontname
-flags +etc
-color rgb
-minmaxsize min max (Ranges from 8 to 72, if "D" is used 5 to 30)
-owner hwnd
+		/*
+		default +flags(ibsua) charset size fontname
+		flags +etc
+		color rgb
+		minmaxsize min max (Ranges from 8 to 72, if "D" is used 5 to 30)
+		owner hwnd
 
-+flag to use mirc colors
-palette col...16...col
+		+flag to use mirc colors
+		palette col...16...col
 
-//clear | echo -a $dcx(FontDialog, hello asd $chr(9) flags +abcdef $chr(9) color 255 $chr(9) owner dcxtest_1146984371 $chr(9) default + default 10 Verdana) | /udcx
+		//clear | echo -a $dcx(FontDialog, hello asd $chr(9) flags +abcdef $chr(9) color 255 $chr(9) owner dcxtest_1146984371 $chr(9) default + default 10 Verdana) | /udcx
 
-http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/userinput/commondialogboxlibrary/commondialogboxreference/commondialogboxstructures/choosefont.asp
-*/
+		http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/userinput/commondialogboxlibrary/commondialogboxreference/commondialogboxstructures/choosefont.asp
+		*/
 
 		// flags +
 		if (option.gettok(1, " ") == "flags" && numtok > 1) {
-			//style |= OFN_ALLOWMULTISELECT;
-			//mIRCDebug("flags: %s (todo)", option.gettok(2, " ").to_chr());
-
 			TString flag(option.gettok(2, " "));
-			//mIRCError(flag.to_chr());
 			int c = flag.len();
 			int i = 0;
 
 			while (i < c) {
-				//mIRCDebug("checking flag %c", flag[i]);
-
 				if (flag[i] == 'a')
 					style |= CF_NOFACESEL;
 				else if (flag[i] == 'b')
@@ -726,12 +716,9 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/win
 *
 * Argument \b data contains -> [NAME] [ID] [SWITCH] (OPTIONS)
 */
-
 mIRC(xdid) {
 	TString d(data);
 	d.trim();
-
-	//mIRCError( d.to_chr( ) );
 
 	if (d.numtok(" ") < 3) {
 		mIRCError("/xdid invalid arguments");
@@ -739,14 +726,12 @@ mIRC(xdid) {
 		return 3;
 	}
 
-	//mIRCError( d.gettok( 1, " " ).to_chr( ) );
-
-	DcxDialog * p_Dialog = Dialogs.getDialogByName( d.gettok( 1, " " ) );
+	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok(1, " "));
 
 	if (p_Dialog == NULL) {
 		TString error;
-		error.sprintf("/xdid unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
-		mIRCError( error.to_chr() );
+		error.sprintf("/xdid unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
+		mIRCError(error.to_chr());
 		data[0] = 0;
 		return 3;
 	}
@@ -758,21 +743,17 @@ mIRC(xdid) {
 	// Multiple IDs
 	if (n > 1) {
 		while (i <= n) {
-			p_Control = p_Dialog->getControlByID( (UINT) atoi( IDs.gettok( i, "," ).to_chr( ) ) + mIRC_ID_OFFSET );
-
-			//mIRCError( p_Dialog->getName( ).to_chr( ) );
+			p_Control = p_Dialog->getControlByID((UINT) atoi(IDs.gettok(i, ",").to_chr()) + mIRC_ID_OFFSET);
 
 			if (p_Control == NULL) {
 				TString error;
-				error.sprintf("/xdid invalid ID : %s (dialog : %s)", IDs.gettok( i, "," ).to_chr( ), d.gettok( 1, " " ).to_chr( ) );
-				mIRCError( error.to_chr() );
+				error.sprintf("/xdid invalid ID : %s (dialog : %s)", IDs.gettok(i, ",").to_chr(), d.gettok(1, " ").to_chr());
+				mIRCError(error.to_chr());
 				data[0] = 0;
 				return 3;
 			}
 
 			d2 = d.gettok(1, " ") + " " + IDs.gettok(i, ",") + " " + d.gettok(3, -1, " ");
-
-			//mIRCError( d2.to_chr( ) );
 
 			p_Control->parseCommandRequest(d2);
 			i++;
@@ -780,17 +761,17 @@ mIRC(xdid) {
 	}
 	//Single ID
 	else {
-		p_Control = p_Dialog->getControlByID( (UINT) atoi( d.gettok( 2, " " ).to_chr( ) ) + mIRC_ID_OFFSET );
+		p_Control = p_Dialog->getControlByID((UINT) atoi(d.gettok(2, " ").to_chr()) + mIRC_ID_OFFSET);
 
-		if ( p_Control == NULL ) {
+		if (p_Control == NULL) {
 			TString error;
-			error.sprintf("/xdid invalid ID : %s (dialog : %s)", d.gettok(2, " ").to_chr( ), d.gettok( 1, " " ).to_chr());
-			mIRCError( error.to_chr() );
+			error.sprintf("/xdid invalid ID : %s (dialog : %s)", d.gettok(2, " ").to_chr(), d.gettok(1, " ").to_chr());
+			mIRCError(error.to_chr());
 			data[0] = 0;
 			return 3;
 		}
 
-		p_Control->parseCommandRequest( d );
+		p_Control->parseCommandRequest(d);
 	}
 
 	return 3;
@@ -803,37 +784,36 @@ mIRC(xdid) {
 *
 * Argument \b data contains -> [NAME] [ID] [PROP] (OPTIONS)
 */
-
-mIRC( _xdid ) {
-	TString d( data );
-	d.trim( );
+mIRC(_xdid) {
+	TString d(data);
+	d.trim();
 
 	data[0] = 0;
 
-	if ( d.numtok( " " ) < 3 ) {
-		mIRCError( "$ $+ xdid invalid arguments" );
+	if (d.numtok(" ") < 3) {
+		mIRCError("$ $+ xdid invalid arguments");
 		return 3;
 	}
 
-	DcxDialog * p_Dialog = Dialogs.getDialogByName( d.gettok( 1, " " ) );
+	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok(1, " "));
 
-	if ( p_Dialog == NULL ) {
+	if (p_Dialog == NULL) {
 		TString error;
-		error.sprintf("$ $+ xdid unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
-		mIRCError( error.to_chr() );
+		error.sprintf("$ $+ xdid unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
+		mIRCError(error.to_chr());
 		return 3;
 	}
 
-	DcxControl * p_Control = p_Dialog->getControlByID( (UINT) atoi( d.gettok( 2, " " ).to_chr( ) ) + mIRC_ID_OFFSET );
+	DcxControl * p_Control = p_Dialog->getControlByID((UINT) atoi(d.gettok(2, " ").to_chr()) + mIRC_ID_OFFSET);
 
-	if ( p_Control == NULL ) {
+	if (p_Control == NULL) {
 		TString error;
-		error.sprintf("$ $+ xdid invalid ID : %s (dialog %s)", d.gettok( 2, " " ).to_chr( ), d.gettok( 1, " " ).to_chr( ) );
-		mIRCError( error.to_chr() );
+		error.sprintf("$ $+ xdid invalid ID : %s (dialog %s)", d.gettok(2, " ").to_chr(), d.gettok(1, " ").to_chr());
+		mIRCError(error.to_chr());
 		return 3;
 	}
 
-	p_Control->parseInfoRequest( d, data );
+	p_Control->parseInfoRequest(d, data);
 	return 3;
 }
 
@@ -844,17 +824,10 @@ mIRC( _xdid ) {
 * $dcx(GetTaskbarPos) interface
 *
 */
-
 mIRC(GetTaskbarPos) {
 	HWND hTaskbar = FindWindow("Shell_TrayWnd", NULL);
 	
 	if (hTaskbar) {
-		//char *val = new char[100]; // <-- never freed.
-		//RECT rc;
-
-		//GetWindowRect(hTaskbar, &rc);
-		//wsprintf(val, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-		//ret(val);
 		TString val;
 		RECT rc;
 
@@ -863,7 +836,7 @@ mIRC(GetTaskbarPos) {
 		ret(val.to_chr());
 	}
 
-	ret("D_ERROR: GetTaskbarPos");
+	ret("D_ERROR GetTaskbarPos: could not find taskbar");
 }
 
 
@@ -874,32 +847,29 @@ mIRC(GetTaskbarPos) {
 *
 * Argument \b data contains -> [NAME] [SWITCH] (OPTIONS)
 */
-
-mIRC( xdialog ) {
-	TString d( data );
-	d.trim( );
+mIRC(xdialog) {
+	TString d(data);
+	d.trim();
 
 	data[0] = 0;
 
-	//mIRCSignal( d.to_chr( ) );
-
-	if ( d.numtok( " " ) < 2 ) {
+	if (d.numtok(" ") < 2) {
 		TString error;
-		error.sprintf("/xdialog invalid arguments ( dialog %s)", d.gettok( 1, " " ).to_chr( ) );
-		mIRCError( error.to_chr() );
+		error.sprintf("/xdialog invalid arguments ( dialog %s)", d.gettok(1, " ").to_chr());
+		mIRCError(error.to_chr());
 		return 3;
 	}
 
-	DcxDialog * p_Dialog = Dialogs.getDialogByName( d.gettok( 1, " " ) );
+	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok(1, " "));
 
-	if ( p_Dialog == NULL ) {
+	if (p_Dialog == NULL) {
 		TString error;
-		error.sprintf("/xdialog unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
-		mIRCError( error.to_chr() );
+		error.sprintf("/xdialog unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
+		mIRCError(error.to_chr());
 		return 3;
 	}
 
-	p_Dialog->parseCommandRequest( d );
+	p_Dialog->parseCommandRequest(d);
 	return 3;
 }
 
@@ -910,36 +880,36 @@ mIRC( xdialog ) {
 *
 * Argument \b data contains -> [NAME] [SWITCH] (OPTIONS)
 */
-
-mIRC( _xdialog ) {
-	TString d( data );
-	d.trim( );
+mIRC(_xdialog) {
+	TString d(data);
+	d.trim();
 
 	// reset mIRC data
 	data[0] = 0;
 
-	if ( d.numtok( " " ) < 2 ) {
+	if (d.numtok(" ") < 2) {
 		TString error;
-		error.sprintf("$ $+ xdialog invalid arguments ( dialog %s)", d.gettok( 1, " " ).to_chr( ) );
-		mIRCError( error.to_chr() );
+		error.sprintf("$ $+ xdialog invalid arguments ( dialog %s)", d.gettok(1, " ").to_chr());
+		mIRCError(error.to_chr());
 		return 3;
 	}
 
-	DcxDialog * p_Dialog = Dialogs.getDialogByName( d.gettok( 1, " " ) );
+	DcxDialog *p_Dialog = Dialogs.getDialogByName(d.gettok(1, " "));
 
-	if ( p_Dialog == NULL ) {
-		if ( d.gettok( 2, " " ) != "ismarked") {
+	if (p_Dialog == NULL) {
+		if (d.gettok(2, " ") != "ismarked") {
 			TString error;
-			error.sprintf("$ $+ xdialog unknown dialog \"%s\": see Mark command", d.gettok( 1, " " ).to_chr( ) );
-			mIRCError( error.to_chr() );
+			error.sprintf("$ $+ xdialog unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
+			mIRCError(error.to_chr());
 			return 3;
 		}
-		else 
-			ret("$false")
-			return 3;
+		else
+			ret("$false");
+
+		return 3;
 	}
 
-	p_Dialog->parseInfoRequest( d, data );
+	p_Dialog->parseInfoRequest(d, data);
 	return 3;
 }
 
@@ -951,26 +921,25 @@ mIRC( _xdialog ) {
 *
 * blah
 */
-
-LRESULT CALLBACK mIRCSubClassWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
-	switch ( uMsg ) {
-	case WM_INITMENUPOPUP:
+LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+	switch (uMsg) {
+		case WM_INITMENUPOPUP:
 		{
-			if ( HIWORD( lParam ) == FALSE ) {
+			if (HIWORD(lParam) == FALSE) {
 				// let mIRC populate the menus dynamically
-				LRESULT lRes = CallWindowProc( g_OldmIRCWindowProc, mHwnd, uMsg, wParam, lParam );
+				LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc, mHwnd, uMsg, wParam, lParam);
 
-				if ( isMenuBarMenu( GetMenu( mHwnd ), (HMENU) wParam ) ) {
-					//mIRCError( "Part of the mIRC Menubar" );
+				if (isMenuBarMenu(GetMenu(mHwnd), (HMENU) wParam)) {
 					isMenuBar = TRUE;
-					if ( bIsActiveMircMenubarPopup == TRUE )
-						g_mIRCMenuBar->convertMenu( (HMENU) wParam, TRUE );
+
+					if (bIsActiveMircMenubarPopup == TRUE)
+						g_mIRCMenuBar->convertMenu((HMENU) wParam, TRUE);
 				}
 				else {
-					//mIRCError( "Not Part of the mIRC Menubar" );
 					isMenuBar = FALSE;
-					if ( bIsActiveMircPopup == TRUE )
-						g_mIRCPopupMenu->convertMenu( (HMENU) wParam, FALSE );
+
+					if (bIsActiveMircPopup == TRUE)
+						g_mIRCPopupMenu->convertMenu((HMENU) wParam, FALSE);
 				}
 
 				isSysMenu = FALSE;
@@ -978,87 +947,94 @@ LRESULT CALLBACK mIRCSubClassWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPAR
 			}
 			else
 				isSysMenu = TRUE;
-		}
-		break;
 
-	case WM_EXITMENULOOP:
+			break;
+		}
+
+		case WM_EXITMENULOOP:
 		{
-			//mIRCError( "mIRC WM_EXITMENULOOP" );
-			if ( isMenuBar == FALSE && bIsActiveMircPopup == TRUE )
-				g_mIRCPopupMenu->clearAllMenuItems( );
+			if ((isMenuBar == FALSE) && (bIsActiveMircPopup == TRUE))
+				g_mIRCPopupMenu->clearAllMenuItems();
 
 			//return 0L;
+			break;
 		}
-		break;
 
-	case WM_UNINITMENUPOPUP:
+		case WM_UNINITMENUPOPUP:
 		{
-			//mIRCError( "mIRC WM_UNINITMENUPOPUP" );
-			if ( isMenuBar == TRUE && isSysMenu == FALSE && bIsActiveMircMenubarPopup == TRUE )
-				g_mIRCMenuBar->deleteAllItemData( (HMENU) wParam );
+			if ((isMenuBar == TRUE) && (isSysMenu == FALSE) && (bIsActiveMircMenubarPopup == TRUE))
+				g_mIRCMenuBar->deleteAllItemData((HMENU) wParam);
 
 			//return 0L;
+			break;
 		}
-		break;
 
-	case WM_MEASUREITEM:
+		case WM_MEASUREITEM:
 		{
 			LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
-			if ( lpmis->CtlType == ODT_MENU ) {
-				XPopupMenuItem * p_Item = (XPopupMenuItem *) lpmis->itemData;
 
-				if ( p_Item != NULL ) {
-					SIZE size = p_Item->getItemSize( mHwnd );
+			if (lpmis->CtlType == ODT_MENU) {
+				XPopupMenuItem *p_Item = (XPopupMenuItem*) lpmis->itemData;
+
+				if (p_Item != NULL) {
+					SIZE size = p_Item->getItemSize(mHwnd);
+
 					lpmis->itemWidth = size.cx;
 					lpmis->itemHeight = size.cy;
 					return TRUE; 
 				}
 			}
-		}
-		break;
 
-	case WM_DRAWITEM:
+			break;
+		}
+
+		case WM_DRAWITEM:
 		{
 			LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT) lParam;
-			if ( lpdis->CtlType == ODT_MENU ) {
-				XPopupMenuItem * p_Item = (XPopupMenuItem *) lpdis->itemData;
 
-				if ( p_Item != NULL ) {
-					p_Item->DrawItem( lpdis );
+			if (lpdis->CtlType == ODT_MENU) {
+				XPopupMenuItem *p_Item = (XPopupMenuItem*) lpdis->itemData;
+
+				if (p_Item != NULL) {
+					p_Item->DrawItem(lpdis);
 					return TRUE; 
 				}
 			}
-		}
-		break;
 
-	case WM_CLOSE:
+			break;
+		}
+
+		case WM_CLOSE:
 		{
-			SetWindowLong( mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) g_OldmIRCWindowProc );
-			PostMessage( mHwnd, uMsg, 0, 0 );
+			SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) g_OldmIRCWindowProc);
+			PostMessage(mHwnd, uMsg, 0, 0);
 			return 0L;
+			break;
 		}
-		break;
 
-	default:
-		break;
+		default:
+			break;
 	}
 
-	return CallWindowProc( g_OldmIRCWindowProc, mHwnd, uMsg, wParam, lParam );
+	return CallWindowProc(g_OldmIRCWindowProc, mHwnd, uMsg, wParam, lParam);
 }
 
-BOOL isMenuBarMenu( HMENU hMenu, HMENU hMatch ) {
+BOOL isMenuBarMenu(HMENU hMenu, HMENU hMatch) {
 	HMENU hTemp;
-	int i = 0, n = GetMenuItemCount( hMenu );
-	while ( i < n ) {
-		if ( ( hTemp = GetSubMenu( hMenu, i ) ) != NULL ) {
-			if ( hTemp == hMatch )
+	int i = 0, n = GetMenuItemCount(hMenu);
+
+	while (i < n) {
+		if ((hTemp = GetSubMenu(hMenu, i)) != NULL) {
+			if (hTemp == hMatch)
 				return TRUE;
 
-			if ( isMenuBarMenu( hTemp, hMatch ) == TRUE )
+			if (isMenuBarMenu(hTemp, hMatch) == TRUE)
 				return TRUE;
 		}
+
 		++i;
 	}
+
 	return FALSE;
 }
 
@@ -1069,37 +1045,33 @@ BOOL isMenuBarMenu( HMENU hMenu, HMENU hMatch ) {
 *
 * Argument \b data contains -> [MENU] [SWITCH] [PATH] [TAB] [OPTION]
 */
+mIRC(xpop) {
+	TString d(data);
+	d.trim();
 
-mIRC( xpop ) {
-	TString d( data );
-	d.trim( );
-
-	//mIRCError( d.to_chr( ) );
-
-	if ( d.numtok( " " ) < 3 ) {
-		mIRCError( "/ $+ xpop invalid arguments" );
+	if (d.numtok(" ") < 3) {
+		mIRCError("/ $+ xpop invalid arguments");
 		data[0] = 0;
 		return 3;
 	}
 
-	if ( d.gettok( 1, " " ) == "mirc" || d.gettok( 1, " " ) == "mircbar" ) {
-		mIRCError( "/ $+ xpop invalid menu name : mirc or mircbar menus don't have acces to this feature." );
+	if ((d.gettok(1, " ") == "mirc") || (d.gettok(1, " ") == "mircbar")) {
+		mIRCError("/ $+ xpop invalid menu name : mirc or mircbar menus don't have access to this feature.");
 		data[0] = 0;
 		return 3;
 	}
 
-	XPopupMenu * p_Menu = g_XPopupMenuManager.getMenuByName( d.gettok( 1, " " ) );
-	//mIRCError( d.gettok( 1, " " ).to_chr( ) );
+	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok(1, " "));
 
-	if ( p_Menu == NULL ) {
+	if (p_Menu == NULL) {
 		TString error;
-		error.sprintf("/ $+ xpop unknown menu \"%s\": see /xpopup -c command", d.gettok( 1, " " ).to_chr( ) );
-		mIRCError( error.to_chr() );
+		error.sprintf("/ $+ xpop unknown menu \"%s\": see /xpopup -c command", d.gettok(1, " ").to_chr());
+		mIRCError(error.to_chr());
 		data[0] = 0;
 		return 3;
 	}
 
-	p_Menu->parseXPopCommand( d );
+	p_Menu->parseXPopCommand(d);
 	return 3;
 }
 
@@ -1110,35 +1082,33 @@ mIRC( xpop ) {
 *
 * Argument \b data contains -> [MENU] [PROP] [PATH] [TAB] [OPTION]
 */
+mIRC(_xpop) {
+	TString d(data);
+	d.trim();
 
-mIRC( _xpop ) {
-	TString d( data );
-	d.trim( );
-
-	if ( d.numtok( " " ) < 3 ) {
-		mIRCError( "$ $+ xpop invalid arguments" );
+	if (d.numtok(" ") < 3) {
+		mIRCError("$ $+ xpop invalid arguments");
 		data[0] = 0;
 		return 3;
 	}
 
-	if ( d.gettok( 1, " " ) == "mirc" || d.gettok( 1, " " ) == "mircbar" ) {
-		mIRCError( "$ $+ xpop invalid menu name : mirc or mircbar menus don't have acces to this feature." );
+	if ((d.gettok(1, " ") == "mirc") || (d.gettok(1, " ") == "mircbar")) {
+		mIRCError("$ $+ xpop invalid menu name : mirc or mircbar menus don't have access to this feature.");
 		data[0] = 0;
 		return 3;
 	}
 
-	XPopupMenu * p_Menu = g_XPopupMenuManager.getMenuByName( d.gettok( 1, " " ) );
-	//mIRCError( d.gettok( 1, " " ).to_chr( ) );
+	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok(1, " "));
 
-	if ( p_Menu == NULL ) {
+	if (p_Menu == NULL) {
 		TString error;
-		error.sprintf("$ $+ xpop unknown menu \"%s\": see /xpopup -c command", d.gettok( 1, " " ).to_chr( ) );
-		mIRCError( error.to_chr() );
+		error.sprintf("$ $+ xpop unknown menu \"%s\": see /xpopup -c command", d.gettok(1, " ").to_chr());
+		mIRCError(error.to_chr());
 		data[0] = 0;
 		return 3;
 	}
 
-	p_Menu->parseXPopIdentifier( d, data );
+	p_Menu->parseXPopIdentifier(d, data);
 	return 3;
 }
 
@@ -1149,18 +1119,17 @@ mIRC( _xpop ) {
 *
 * Argument \b data contains -> [MENU] [SWITCH] (OPTIONS)
 */
+mIRC(xpopup) {
+	TString d(data);
+	d.trim();
 
-mIRC( xpopup ) {
-	TString d( data );
-	d.trim( );
-
-	if ( d.numtok( " " ) < 2 ) {
-		mIRCError( "/ $+ xpopup invalid arguments" );
+	if (d.numtok(" ") < 2) {
+		mIRCError("/ $+ xpopup invalid arguments");
 		data[0] = 0;
 		return 3;
 	}
 
-	g_XPopupMenuManager.parseXPopupCommand( d );
+	g_XPopupMenuManager.parseXPopupCommand(d);
 	return 3;
 }
 
@@ -1171,18 +1140,17 @@ mIRC( xpopup ) {
 *
 * Argument \b data contains -> [MENU] [PROP] (OPTIONS)
 */
+mIRC(_xpopup) {
+	TString d(data);
+	d.trim();
 
-mIRC( _xpopup ) {
-	TString d( data );
-	d.trim( );
-
-	if ( d.numtok( " " ) < 2 ) {
-		mIRCError( "$ $+ xpopup invalid arguments" );
+	if (d.numtok(" ") < 2) {
+		mIRCError("$ $+ xpopup invalid arguments");
 		data[0] = 0;
 		return 3;
 	}
 
-	g_XPopupMenuManager.parseXPopupIdentifier( d, data );
+	g_XPopupMenuManager.parseXPopupIdentifier(d, data);
 	return 3;
 }
 
@@ -1193,32 +1161,28 @@ mIRC( _xpopup ) {
 *
 * Argument \b data contains -> [MENU] [0|1]
 */
+mIRC(mpopup) {
+	TString d(data);
+	d.trim();
 
-mIRC( mpopup ) {
-	TString d( data );
-	d.trim( );
-
-	if ( d.numtok( " " ) < 2 ) {
-		mIRCError( "/ $+ mpopup invalid arguments" );
+	if (d.numtok(" ") < 2) {
+		mIRCError("/ $+ mpopup invalid arguments");
 		data[0] = 0;
 		return 3;
 	}
 
-	//BOOL isActiveMircPopup;
-	//BOOL isActiveMircMenubarPopup;
-
-	if ( d.gettok( 1, " " ) == "mirc" ) {
-		if ( d.gettok( 2, " " ) == "1" )
+	if (d.gettok(1, " ") == "mirc") {
+		if (d.gettok(2, " ") == "1")
 			bIsActiveMircPopup = TRUE;
 		else
 			bIsActiveMircPopup = FALSE;
 	}
-	else if ( d.gettok( 1, " " ) == "mircbar" ) {
-		if ( d.gettok( 2, " " ) == "1" )
+	else if (d.gettok(1, " ") == "mircbar") {
+		if (d.gettok(2, " ") == "1")
 			bIsActiveMircMenubarPopup = TRUE;
 		else {
 			bIsActiveMircMenubarPopup = FALSE;
-			g_mIRCMenuBar->cleanMenu( GetMenu( mIRCLink.m_mIRCHWND ) );
+			g_mIRCMenuBar->cleanMenu(GetMenu(mIRCLink.m_mIRCHWND));
 		}
 	}
 

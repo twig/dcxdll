@@ -23,6 +23,7 @@
 
 #define _WIN32_WINNT 0x0501
 #define _WIN32_IE 0x0501
+
 // Required for VS 2005
 #define _CRT_SECURE_NO_DEPRECATE 1
 // comment this define out when not using Visual Studio 2005
@@ -35,13 +36,9 @@
 #include <windowsx.h>
 #include <vector>
 #include <commctrl.h>
-//#include <gdiplus.h>
-
-//using namespace Gdiplus;
 
 #include "classes/tstring/tstring.h"
 //#include <uxtheme.h>
-//#include "dialog.h"
 
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 3
@@ -61,7 +58,6 @@
 // end of VS 2005
 
 // DCX Stuff
-
 #define DCX_LISTVIEWCLASS    "DCXListViewClass"     //!< DCX Listview Class Name
 #define DCX_PROGRESSBARCLASS "DCXProgressBarClass"  //!< DCX ProgressBar Class Name
 #define DCX_TREEVIEWCLASS    "DCXTreeViewClass"     //!< DCX TreeView Class Name
@@ -79,7 +75,7 @@
 #define DCX_DIVIDERCLASS     "DCXDividerClass"      //!< DCX Divider Class Name
 #define DCX_PANELCLASS       "DCXPanelClass"        //!< DCX Panel Class Name
 #define DCX_CALENDARCLASS    "DCXCalendarClass"     //!< DCX Panel Class Name
-#define DCX_PAGERCLASS    "DCXCPagerClass"     //!< DCX Panel Class Name
+#define DCX_PAGERCLASS       "DCXCPagerClass"       //!< DCX Panel Class Name
 #define DCX_BOXCLASS         "DCXBoxClass"          //!< DCX Box Class Name
 //#define DCX_RADIOCLASS       "DCXRadioClass"        //!< DCX Radio Class Name
 //#define DCX_CHECKCLASS       "DCXCheckClass"        //!< DCX Check Class Name
@@ -103,40 +99,37 @@
 #define DCF_DEFAULT       0x20 //!< Control Font Default Style
 
 // XPopup Stuff
-
 #define XPOPUPMENUCLASS "XPopupMenu32" //!< XPopupMenu Window Class Name
 
-LRESULT CALLBACK mIRCSubClassWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-BOOL isMenuBarMenu( HMENU hMenu, HMENU hMatch );
+LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+BOOL isMenuBarMenu(HMENU hMenu, HMENU hMatch);
+
+
 
 /*! \brief mIRC Function Alias */
-#define mIRC( x ) int __stdcall WINAPI x( HWND mWnd, HWND aWnd, char * data, char * parms, BOOL, BOOL )
+#define mIRC(x) int __stdcall WINAPI x(HWND mWnd, HWND aWnd, char * data, char * parms, BOOL, BOOL)
 
 /*! \brief Return String DLL Alias */
-#define ret( x ) { lstrcpy( data, x ); lstrcat( data, "\0" ); return 3; }
+#define ret(x) { lstrcpy(data, x); lstrcat(data, "\0"); return 3; }
+
 
 /*!
  * \brief mIRC DLL Loading Structure
  */
-
 typedef struct {
-
-  DWORD  mVersion; //!< mIRC Version
-  HWND   mHwnd;    //!< mIRC Hwnd 
-  BOOL   mKeep;    //!< mIRC variable stating to keep DLL in memory
-
+	DWORD  mVersion; //!< mIRC Version
+	HWND   mHwnd;    //!< mIRC Hwnd 
+	BOOL   mKeep;    //!< mIRC variable stating to keep DLL in memory
 } LOADINFO;
 
 /*!
  * \brief DCX DLL mIRC Information Structure
  */
-
 typedef struct {
-
-  HANDLE m_hFileMap; //!< Handle to the mIRC DLL File Map
-  LPSTR m_pData;     //!< Pointer to a character buffer of size 900 to send mIRC custom commands
-  HWND m_mIRCHWND;   //!< mIRC Window Handle
-	int m_map_cnt;     //!< MapFile counter.
+	HANDLE m_hFileMap; //!< Handle to the mIRC DLL File Map
+	LPSTR  m_pData;    //!< Pointer to a character buffer of size 900 to send mIRC custom commands
+	HWND   m_mIRCHWND; //!< mIRC Window Handle
+	int    m_map_cnt;  //!< MapFile counter.
 } mIRCDLL;
 
 /*!
@@ -174,34 +167,34 @@ typedef struct {
  */
 
 typedef struct {
-  int switch_flags[26];     //!< Lowercase switches a-z
-  int switch_cap_flags[26]; //!< Uppercase switches A-Z
+	int switch_flags[26];     //!< Lowercase switches a-z
+	int switch_cap_flags[26]; //!< Uppercase switches A-Z
 } XSwitchFlags;
-
 
 typedef std::vector<int> VectorOfInts; //<! Vector of int
 
-void mIRCDebug(const char * szFormat, ...);
-void mIRCSignal( const char * data );
-void mIRCError( const char * data );
-void mIRCeval( const char * text, char * res );
-void mIRCcom( const char * data );
+void mIRCDebug(const char *szFormat, ...);
+void mIRCSignal(const char *data);
+void mIRCError(const char *data);
+void mIRCeval(const char *text, char *res);
+void mIRCcom(const char *data);
 
-int round( float x );
+int round(float x);
 BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf);
 TString ParseLogfontToCommand(LPLOGFONT lf);
 UINT parseFontFlags(TString &flags);
 UINT parseFontCharSet(TString &charset);
 
 
-char * readFile( const char * filename );
+char * readFile(const char * filename);
 TString FileDialog(TString data, TString method, HWND pWnd);
 
-typedef HRESULT (__stdcall *PFNSETTHEME)( HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList );
+typedef HRESULT (__stdcall *PFNSETTHEME)(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
 typedef HRESULT (__stdcall *PFNISTHEMEACTIVE)();
-HRESULT SetWindowTheme( HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList );
+HRESULT SetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
 BOOL IsThemeActive();
-BOOL isXP( );
+BOOL isXP();
+
 HWND FindOwner(TString data, HWND defaultWnd);
 BOOL CopyToClipboard(HWND owner, TString str);
 HBITMAP LoadBitmap(HBITMAP dest, TString &filename);

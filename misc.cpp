@@ -24,11 +24,10 @@ extern BOOL XPPlus;                   //!< Is OS WinXP+ ?
 /*!
 * \brief Rounding function
 */
-
-int round( float x ) { 
-	if ( x - (float)(int) x > 0.5 ) 
-		return (int) x + 1; 
-	else 
+int round(float x) { 
+	if (x - (float) (int) x > 0.5)
+		return (int) x +1;
+	else
 		return (int) x;
 }
 
@@ -37,8 +36,7 @@ int round( float x ) {
 *
 * blah
 */
-
-void mIRCSignal( const char * data ) {
+void mIRCSignal(const char *data) {
 	/*
 	logFile = fopen( "dcxlog.txt", "a" );
 
@@ -48,8 +46,8 @@ void mIRCSignal( const char * data ) {
 	}
 	*/
 
-	wsprintf( mIRCLink.m_pData, "//.signal -n DCX %s", data );
-	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt );
+	wsprintf(mIRCLink.m_pData, "//.signal -n DCX %s", data);
+	SendMessage(mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt);
 }
 
 /*!
@@ -57,8 +55,7 @@ void mIRCSignal( const char * data ) {
  *
  * blah
  */
-
-void mIRCDebug(const char * szFormat, ...) {
+void mIRCDebug(const char *szFormat, ...) {
 	va_list args;
 	va_start(args, szFormat);
 
@@ -72,8 +69,7 @@ void mIRCDebug(const char * szFormat, ...) {
 *
 * blah
 */
-
-void mIRCError( const char * data ) {
+void mIRCError(const char *data) {
 	/*
 	logFile = fopen( "dcxlog.txt", "a" );
 
@@ -82,8 +78,9 @@ void mIRCError( const char * data ) {
 	fclose( logFile );
 	}
 	*/
-	wsprintf( mIRCLink.m_pData, "//echo -s %s", data );
-	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt );
+
+	wsprintf(mIRCLink.m_pData, "//echo -s %s", data);
+	SendMessage(mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt);
 }
 
 /*!
@@ -91,11 +88,10 @@ void mIRCError( const char * data ) {
 *
 * blah
 */
-
-void mIRCeval( const char * data, char * res ) {
-	lstrcpy( mIRCLink.m_pData, data );
-	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 201, 0, mIRCLink.m_map_cnt );
-	lstrcpy( res, mIRCLink.m_pData );
+void mIRCeval(const char *data, char *res) {
+	lstrcpy(mIRCLink.m_pData, data);
+	SendMessage(mIRCLink.m_mIRCHWND, WM_USER + 201, 0, mIRCLink.m_map_cnt);
+	lstrcpy(res, mIRCLink.m_pData);
 }
 
 /*!
@@ -103,10 +99,9 @@ void mIRCeval( const char * data, char * res ) {
 *
 * blah
 */
-
-void mIRCcom( const char * data ) {
-	lstrcpy( mIRCLink.m_pData, data );
-	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt );
+void mIRCcom(const char *data) {
+	lstrcpy(mIRCLink.m_pData, data);
+	SendMessage(mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt);
 }
 
 /*!
@@ -114,37 +109,39 @@ void mIRCcom( const char * data ) {
 *
 * blah
 */
-
-char * readFile( const char * filename ) {
+char* readFile(const char *filename) {
 	//Ouvrir le fichier, read en mode binaire
-	FILE * file;
+	FILE *file;
 
 	// Open file in binary mode and read
-	if ( ( file = fopen( filename, "rb" ) ) == NULL ) return NULL;
+	if ((file = fopen(filename, "rb")) == NULL)
+		return NULL;
 
 	// Seek End of file
-	if ( fseek( file, 0, SEEK_END ) ) return NULL;
+	if (fseek(file, 0, SEEK_END))
+		return NULL;
 
 	// Read pointer location, because pointer is at the end, results into file size
-	unsigned long size = ftell( file );
+	unsigned long size = ftell(file);
 
 	// Get back to file beginning
-	if ( fseek( file, 0, SEEK_SET ) ) return NULL;
+	if (fseek(file, 0, SEEK_SET))
+		return NULL;
 
 	// make data container for file contents
-	char * fileContents = new char[ size + 1 ];
+	char *fileContents = new char[size + 1];
 
 	// Null terminate the string
-	fileContents[ size ] = 0;
+	fileContents[size] = 0;
 
 	// read the file, fails, destroy memory and return NULL
-	if ( fread( fileContents, 1, size, file ) != size ) {
+	if (fread(fileContents, 1, size, file) != size) {
 		delete fileContents;
 		return NULL;
 	}
 
 	// close file
-	fclose( file );
+	fclose(file);
 	file = NULL;
 
 	// return memory block containing file data
@@ -156,10 +153,9 @@ char * readFile( const char * filename ) {
 *
 * Used to remove theme on controls
 */
-
-HRESULT SetWindowTheme( HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList ) {
-	if ( XPPlus )
-		return SetWindowThemeUx( hwnd, L" ", L" " );
+HRESULT SetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList) {
+	if (XPPlus)
+		return SetWindowThemeUx(hwnd, L" ", L" ");
 	else
 		return 0;
 }
@@ -281,7 +277,8 @@ TString FileDialog(TString data, TString method, HWND pWnd) {
 				p += strlen(p)+1;
 			} 
 		}
-		else	// copy the string directly
+		// copy the string directly
+		else
 			str = szFilename;
 
 		return str;
@@ -341,7 +338,7 @@ HWND FindOwner(TString data, HWND defaultWnd) {
 */
 BOOL CopyToClipboard(HWND owner, TString str) {
 	if (!OpenClipboard(owner)) {
-		mIRCError("CopyToClipboard: couldnt open clipboard");
+		mIRCError("D_ERROR CopyToClipboard: couldnt open clipboard");
 		return FALSE;
 	}
 
@@ -351,7 +348,7 @@ BOOL CopyToClipboard(HWND owner, TString str) {
 
 	if (hglbCopy == NULL) {
 		CloseClipboard();
-		mIRCError("CopyToClipboard: couldnt open global memory");
+		mIRCError("D_ERROR CopyToClipboard: couldnt open global memory");
 		return FALSE;
 	}
 
@@ -362,7 +359,7 @@ BOOL CopyToClipboard(HWND owner, TString str) {
 
 	// demo code from msdn, copies everything
 	memcpy(strCopy, str.to_chr(), cbsize);
-	strCopy[cbsize] = (TCHAR) 0;    // null character
+	strCopy[cbsize] = (TCHAR) 0; // null character
 
 	GlobalUnlock(hglbCopy);
 	SetClipboardData(CF_TEXT, hglbCopy);
@@ -370,8 +367,6 @@ BOOL CopyToClipboard(HWND owner, TString str) {
 
 	return TRUE;
 }
-
-
 
 
 // Turns a command (+flags CHARSET SIZE FONTNAME) into a LOGFONT struct
@@ -391,16 +386,15 @@ BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf) {
 		int fSize = atoi(cmd.gettok(3, " ").to_chr());
 		TString fName = cmd.gettok(4, -1, " ");
 		fName.trim();
-//mIRCError("trim");
+
 		if (!fSize)
 			return FALSE;
-//mIRCError("hdc");
+
 		HDC hdc = GetDC(NULL);
 		lf->lfHeight = -MulDiv(fSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
-//		mIRCError("hdc3");
+
 		ReleaseDC(NULL, hdc);
 
-//mIRCError("flags");
 		if (flags & DCF_ANTIALIASE)
 			lf->lfQuality = ANTIALIASED_QUALITY;
 
@@ -418,12 +412,9 @@ BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf) {
 		if (flags & DCF_UNDERLINE)
 			lf->lfUnderline = TRUE;
 
-		//mIRCError("charset");
 		lf->lfCharSet = parseFontCharSet(cmd.gettok(2, " "));
-//mIRCError("face");
 		lstrcpyn(lf->lfFaceName, fName.to_chr(), 31);
 		lf->lfFaceName[31] = 0;
-//		mIRCError("done");
 		return TRUE;
 	}
 }
@@ -434,33 +425,31 @@ BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf) {
  *
  * blah
  */
+UINT parseFontFlags(TString &flags) {
+	INT i = 1, len = flags.len(), iFlags = 0;
 
-UINT parseFontFlags( TString & flags ) {
+	// no +sign, missing params
+	if (flags[0] != '+')
+		return iFlags;
 
-  INT i = 1, len = flags.len( ), iFlags = 0;
+	while (i < len) {
+		if (flags[i] == 'a')
+			iFlags |= DCF_ANTIALIASE;
+		else if (flags[i] == 'b')
+			iFlags |= DCF_BOLD;
+		else if (flags[i] == 'd')
+			iFlags |= DCF_DEFAULT;
+		else if (flags[i] == 'i')
+			iFlags |= DCF_ITALIC;
+		else if (flags[i] == 's')
+			iFlags |= DCF_STRIKEOUT;
+		else if (flags[i] == 'u')
+			iFlags |= DCF_UNDERLINE;
 
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return iFlags;
+		++i;
+	}
 
-  while ( i < len ) {
-
-    if ( flags[i] == 'a' )
-      iFlags |= DCF_ANTIALIASE;
-    else if ( flags[i] == 'b' )
-      iFlags |= DCF_BOLD;
-    else if ( flags[i] == 'd' )
-      iFlags |= DCF_DEFAULT;
-    else if ( flags[i] == 'i' )
-      iFlags |= DCF_ITALIC;
-    else if ( flags[i] == 's' )
-      iFlags |= DCF_STRIKEOUT;
-    else if ( flags[i] == 'u' )
-      iFlags |= DCF_UNDERLINE;
-
-    ++i;
-  }
-  return iFlags;
+	return iFlags;
 }
 
 /*!
@@ -468,49 +457,45 @@ UINT parseFontFlags( TString & flags ) {
  *
  * blah
  */
+UINT parseFontCharSet(TString &charset) {
+	if (charset == "ansi")
+		return ANSI_CHARSET;
+	else if (charset == "baltic")
+		return BALTIC_CHARSET;
+	else if (charset == "chinesebig")
+		return CHINESEBIG5_CHARSET;
+	else if (charset == "default")
+		return DEFAULT_CHARSET;
+	else if (charset == "easteurope")
+		return EASTEUROPE_CHARSET;
+	else if (charset == "gb2312")
+		return GB2312_CHARSET;
+	else if (charset == "greek")
+		return GREEK_CHARSET;
+	else if (charset == "hangul")
+		return HANGUL_CHARSET;
+	else if (charset == "mac")
+		return MAC_CHARSET;
+	else if (charset == "oem")
+		return OEM_CHARSET;
+	else if (charset == "russian")
+		return RUSSIAN_CHARSET;
+	else if (charset == "shiftjis")
+		return SHIFTJIS_CHARSET;
+	else if (charset == "symbol")
+		return SYMBOL_CHARSET;
+	else if (charset == "turkish")
+		return TURKISH_CHARSET;
+	else if (charset == "vietnamese")
+		return VIETNAMESE_CHARSET;
 
-UINT parseFontCharSet( TString & charset ) {
-
-  if ( charset == "ansi" )
-    return ANSI_CHARSET;
-  else if ( charset == "baltic" )
-    return BALTIC_CHARSET;
-  else if ( charset == "chinesebig" )
-    return CHINESEBIG5_CHARSET;
-  else if ( charset == "default" )
-    return DEFAULT_CHARSET;
-  else if ( charset == "easteurope" )
-    return EASTEUROPE_CHARSET;
-  else if ( charset == "gb2312" )
-    return GB2312_CHARSET;
-  else if ( charset == "greek" )
-    return GREEK_CHARSET;
-  else if ( charset == "hangul" )
-    return HANGUL_CHARSET;
-  else if ( charset == "mac" )
-    return MAC_CHARSET;
-  else if ( charset == "oem" )
-    return OEM_CHARSET;
-  else if ( charset == "russian" )
-    return RUSSIAN_CHARSET;
-  else if ( charset == "shiftjis" )
-    return SHIFTJIS_CHARSET;
-  else if ( charset == "symbol" )
-    return SYMBOL_CHARSET;
-  else if ( charset == "turkish" )
-    return TURKISH_CHARSET;
-  else if ( charset == "vietnamese" )
-    return VIETNAMESE_CHARSET;
-
-  return DEFAULT_CHARSET;
+	return DEFAULT_CHARSET;
 }
 
 
 TString ParseLogfontToCommand(LPLOGFONT lf) {
 	TString flags("+");
 	TString charset("default");
-
-//mIRCError("charset");
 
 	// get charset
 	switch (lf->lfCharSet) {
@@ -531,7 +516,7 @@ TString ParseLogfontToCommand(LPLOGFONT lf) {
 		case DEFAULT_CHARSET		:
 		default						: charset = "default"; break;
 	}
-//mIRCError("flags");
+
 	// get flags
 	if (lf->lfQuality == ANTIALIASED_QUALITY)
 		flags += "a";
@@ -543,26 +528,25 @@ TString ParseLogfontToCommand(LPLOGFONT lf) {
 		flags += "s";
 	if (lf->lfUnderline)
 		flags += "u";
-//mIRCError("height");
+
 	//lf.lfHeight = -MulDiv( fSize, GetDeviceCaps(hdc, LOGPIXELSY ), 72 );
 	HDC hdc = GetDC(NULL);
 	HFONT hf = CreateFontIndirect(lf);
 	TEXTMETRIC tm;
-//mIRCError("select");
+
 	SelectObject(hdc, hf);
 	GetTextMetrics(hdc, &tm);
-//mIRCError("point");
+
 	//int ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
 	int ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
 	DeleteFont(hf);
 	ReleaseDC(NULL, hdc);
-//mIRCError("print");
-	// [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-	char cstr[900];
 
-	wsprintf(cstr, "%s %s %d %s", flags.to_chr(), charset.to_chr(), ptSize, lf->lfFaceName);
-//	mIRCError("die");
-	return TString(cstr);
+	// [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
+	TString tmp;
+	
+	tmp.sprintf("%s %s %d %s", flags.to_chr(), charset.to_chr(), ptSize, lf->lfFaceName);
+	return tmp;
 }
 
 
@@ -581,6 +565,7 @@ HBITMAP LoadBitmap(HBITMAP dest, TString &filename) {
 
 
 /*
+NOTE: Still experimental
 from
 http://www.codeproject.com/bitmap/creategrayscaleicon.asp
 update for xp icons
@@ -675,19 +660,19 @@ HICON CreateGrayscaleIcon(HICON hIcon) {
 
 LRESULT ctrl_MeasureItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
-  char ClassName[256];
-  HWND cHwnd = GetDlgItem( mHwnd, wParam );
-  if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
+	char ClassName[256];
+	HWND cHwnd = GetDlgItem(mHwnd, wParam);
 
-    if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
+	if (IsWindow(cHwnd) && GetClassName(cHwnd, ClassName, 256) != 0) {
+		if (lstrcmp(DCX_COLORCOMBOCLASS, ClassName) == 0) {
+			LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
 
-      LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
+			if (lpmis != NULL)
+				lpmis->itemHeight = 16; 
 
-      if ( lpmis != NULL )
-        lpmis->itemHeight = 16; 
+			return TRUE;
+		}
+	}
 
-      return TRUE;
-    }
-  }
 	return 0L;
 }
