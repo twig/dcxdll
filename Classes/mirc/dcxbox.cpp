@@ -166,6 +166,8 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
       this->m_iBoxStyles |= BOXS_BOTTOM;
 	 else if (styles.gettok(i , " ") == "none")
       this->m_iBoxStyles |= BOXS_NONE;
+	 else if (styles.gettok(i , " ") == "rounded")
+      this->m_iBoxStyles |= BOXS_ROUNDED;
 		else if (styles.gettok(i , " ") == "transparent")
 			*ExStyles |= WS_EX_TRANSPARENT;
 
@@ -1137,7 +1139,13 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 				// no text, no box!
 				if (!n) {
-					DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
+					if (this->m_iBoxStyles & BOXS_ROUNDED) {
+						HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
+						RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
+						SelectObject(hdc,OldhBrush);
+					}
+					else
+						DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
 				}
 				// draw text
 				else {
@@ -1201,7 +1209,13 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					//	ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
 
 					// draw the border
-					DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
+					if (this->m_iBoxStyles & BOXS_ROUNDED) {
+						HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
+						RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
+						SelectObject(hdc,OldhBrush);
+					}
+					else
+						DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
 
 					if (!this->isExStyle(WS_EX_TRANSPARENT))
 						FillRect(hdc, &rcText2, hBrush);

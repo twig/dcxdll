@@ -27,7 +27,7 @@
 #define BOXS_RIGHT   0x02 //!< Box Right Style
 #define BOXS_BOTTOM  0x04 //!< Box Bottom Style
 #define BOXS_NONE		0x08 //!< Box No Border Style
-
+#define BOXS_ROUNDED 0x10 //!< Box has rounded corners.
 
 class DcxDialog;
 
