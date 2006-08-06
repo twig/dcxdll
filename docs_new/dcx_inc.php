@@ -124,7 +124,7 @@ function dcxdoc_header($page, $pagelabel) {
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title>DCX <?php if ($page != 'index') echo "$pagelabel "; ?>- Dialog Control Xtension DLL v<?php echo $VERSION; ?> by ClickHeRe &amp; twig*</title>
+<title>DCX <?php if ($page != 'index') echo "$pagelabel "; ?>- Dialog Control Xtension DLL v<?php echo $VERSION; ?> by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
