@@ -27,3 +27,20 @@ xpopup
 _xpopup
 
 mpopup
+
+Dock
+UnDock
+DockPos
+DockSide
+DockRefresh
+SBSize
+TBSize
+SBPos
+ShowMenubar
+ShowSwitchbar
+ShowToolbar
+ShowTreebar
+IsSwitchbar
+IsToolbar
+IsTreebar
+IsMenubar

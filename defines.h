@@ -104,6 +104,19 @@
 LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 BOOL isMenuBarMenu(HMENU hMenu, HMENU hMatch);
 
+// UltraDock Stuff
+#define SWB_NONE    0
+#define SWB_LEFT    1
+#define SWB_RIGHT   2
+#define SWB_TOP     3
+#define SWB_BOTTOM  4
+
+// Dialog info structure
+typedef struct tagMYDCXWINDOW {
+
+  RECT rc;
+
+} MYDCXWINDOW,*LPMYDCXWINDOW;
 
 
 /*! \brief mIRC Function Alias */
@@ -200,5 +213,11 @@ BOOL CopyToClipboard(HWND owner, TString str);
 HBITMAP LoadBitmap(HBITMAP dest, TString &filename);
 HICON CreateGrayscaleIcon(HICON hIcon);
 LRESULT ctrl_MeasureItem(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+void DrawRoundRect(HDC hdc, RECT *rc, int w, int h);
+// UltraDock
+int SwitchbarPos(void);
+void mIRC_size(void);
+void AttachWindow(HWND dhwnd);
+void EjectWindow(HWND dhwnd);
 
 #endif // _DEFINES_H_
