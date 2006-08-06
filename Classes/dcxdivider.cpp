@@ -292,7 +292,7 @@ void DcxDivider::parseCommandRequest( TString & input ) {
           else if ( flags.switch_flags[17] )
             this->setPane( DVF_PANERIGHT, &dvpi );
 					if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
-						this->addExStyle(WS_EX_CONTROLPARENT);
+						if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
 					}
 
           this->redrawWindow( );

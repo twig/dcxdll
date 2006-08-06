@@ -402,7 +402,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
 
         this->m_pParentDialog->addControl( p_Control );
 				if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
-					this->addExStyle(WS_EX_CONTROLPARENT);
+					if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
 				}
 
         this->redrawWindow( );
@@ -1145,8 +1145,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 						RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
 						SelectObject(hdc,OldhBrush);
 					}
-					else
+					else {
+						//if (!this->isExStyle(WS_EX_TRANSPARENT)) 
+						//	FillRect(hdc, &rc2, hBrush);
 						DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
+					}
 				}
 				// draw text
 				else {
@@ -1211,12 +1214,16 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 					// draw the border
 					if (this->m_iBoxStyles & BOXS_ROUNDED) {
+						//DrawRoundRect(hdc,&rc2,10,10);
 						HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
 						RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
 						SelectObject(hdc,OldhBrush);
 					}
-					else
+					else {
+						//if (!this->isExStyle(WS_EX_TRANSPARENT)) 
+						//	FillRect(hdc, &rc2, hBrush);
 						DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
+					}
 
 					if (!this->isExStyle(WS_EX_TRANSPARENT))
 						FillRect(hdc, &rcText2, hBrush);
@@ -1226,7 +1233,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					// draw the text
 					DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
 
-					delete text;
+					delete [] text;
 				}
 
 				EndPaint(this->m_Hwnd, &ps);

@@ -434,7 +434,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
           rbBand.cyMinChild = cy;
           rbBand.cx = width;
 					if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
-						this->addExStyle(WS_EX_CONTROLPARENT);
+						if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
 					}
         }
       }

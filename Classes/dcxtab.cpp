@@ -458,7 +458,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
           lpdtci->mChildHwnd = p_Control->getHwnd( );
           this->m_pParentDialog->addControl( p_Control );
 					if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
-						this->addExStyle(WS_EX_CONTROLPARENT);
+						if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
 					}
         }
       }
