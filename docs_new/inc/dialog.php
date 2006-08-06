@@ -11,9 +11,7 @@ Please take note that the dialog controls are ejected when the main dialog is cl
 
 function get_xdidprops_dialog(&$XDIDPROPS) {
 	$XDIDPROPS = array(
-		"dname" => array(
-		    '__desc' => "This property lets you retreive the name of the dialog which has been docked.",
-		),
+		"dname" => "This property lets you retreive the name of the dialog which has been docked.",
 	);
 }
 

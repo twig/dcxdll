@@ -49,6 +49,7 @@ function get_events_image(&$EVENTS) {
 	    "sclick" => "When the image is clicked.",
 	    "dclick" => "When the image is double-clicked.",
 	    "rclick" => "When you right-click on the image.",
+	    "lbup" => "When you release the left mouse button.",
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
 	);
 }
