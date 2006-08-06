@@ -976,6 +976,11 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		wsprintf(szReturnValue, "%d", iKeyState);
 		return;
 	}
+	// [NAME] [PROP]
+	else if (input.gettok(2, " ") == "alias") {
+		wsprintf(szReturnValue, "%s", this->getAliasName().to_chr());
+		return;
+	}
 	// invalid info request
 	else {
 		mIRCDebug("D_ERROR $xdialog: Invalid property '%s' or parameters", input.gettok(2, -1, " ").to_chr());
@@ -1755,13 +1760,32 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 		}
 
-			/*
-			case WM_MOUSEWHEEL:
-			{
-			p_this->callAliasEx( NULL, "%s,%d,%d", "mwheel", 0, HIWORD( wParam ) );
-			}
+		case WM_MOUSEWHEEL:
+		{
+			DWORD fwKeys = GET_KEYSTATE_WPARAM(wParam);
+			DWORD zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+			TString flags("+");
+			
+			if (fwKeys & MK_CONTROL) // control button
+				flags = flags + "c";
+			if (fwKeys & MK_LBUTTON) // left mouse button
+				flags = flags + "l";
+			if (fwKeys & MK_MBUTTON) // middle mouse button button
+				flags = flags + "m";
+			if (fwKeys & MK_RBUTTON) // right mouse button
+				flags = flags + "r";
+			if (fwKeys & MK_SHIFT) // shift button
+				flags = flags + "s";
+
+			p_this->callAliasEx(NULL, "%s,%d,%s,%s",
+				"mwheel",
+				p_this->m_MouseID,
+				(zDelta > 0 ? "up" : "down"),
+				flags.to_chr());
+
+			return FALSE; // stop parsing of WM_MOUSEWHEEL
 			break;
-			*/
+		}
 
 		//case WM_INITMENUPOPUP:
 		//{
