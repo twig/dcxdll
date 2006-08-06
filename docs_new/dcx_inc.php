@@ -666,8 +666,20 @@ function print_changes($version, $changes) {
 	
 	echo "<a name=\"$version\"></a><b>$version</b>\n<ul>";
 
-	foreach ($changes as $change)
-	    echo "<li>$change</li>";
+	foreach ($changes as $key => $change) {
+		// organised/detailed list
+		if (is_array($change)) {
+			echo "<li><strong>$key</strong><ul>";
+			
+			foreach ($change as $item)
+			    echo "<li>$item</li>";
+			    
+			echo "</ul></li>";
+		}
+		// normal big list
+		else
+		    echo "<li>$change</li>";
+	}
 
 	echo "</ul>\n";
 	return ob_get_clean();
