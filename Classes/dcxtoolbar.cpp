@@ -1396,7 +1396,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
                 if ( lpdtbb != NULL ) {
 
                   //mIRCError( "Toolbar Tooltips Here3!" );
-									mIRCDebug("tip: %s", lpdtbb->tsTipText.to_chr( ));
+//									mIRCDebug("tip: %s", lpdtbb->tsTipText.to_chr( ));
                   tcgit->pszText = lpdtbb->tsTipText.to_chr( );
                   tcgit->cchTextMax = lpdtbb->tsTipText.len( );
                 }
