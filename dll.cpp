@@ -435,11 +435,11 @@ mIRC(Mark) {
 	if (d.numtok(" ") < 2)
 		ret("D_ERROR Mark: [NAME] [ALIAS]");
 
-	char com[100];
+	TString com;
 	char res[20];
 
-	wsprintf(com, "$dialog(%s).hwnd", d.gettok(1, " ").to_chr());
-	mIRCeval(com, res);
+	com.sprintf("$dialog(%s).hwnd", d.gettok(1, " ").to_chr());
+	mIRCeval(com.to_chr(), res);
 
 	HWND mHwnd = (HWND) atoi(res);
 
@@ -1555,7 +1555,7 @@ mIRC(Dock) {
     if (IsWindow(dhwnd) && AlreadyWindow(dhwnd) == -1) {
 			if ((d.gettok(3," ") == "left") || (d.gettok(3," ") == "right") || (d.gettok(3," ") == "top") || (d.gettok(3," ") == "bottom")) {
         AttachWindow(dhwnd);
-				ListBox_InsertString(lb_hwnd, pos, d.gettok(2," ").to_chr());
+				ListBox_InsertString(lb_hwnd, pos, d.gettok(2,-1," ").to_chr());
 
         mIRC_size();
         ret("U_OK");
