@@ -577,6 +577,16 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdialog -z [NAME] [SWITCH] [COLOR]
 	else if (flags.switch_flags[25] && numtok > 2) {
 		mIRCError("-z");
+
+		/*
+		/xdialog -z [dname] [+flags] [groupname] (controlid)
+
+		+c create new group
+		+a add new control to group
+		+s show page in group
+		+d remove control from group
+		+r remove group
+		*/
 	}
 	// invalid command
 	else {

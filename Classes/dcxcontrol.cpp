@@ -178,9 +178,9 @@ BOOL DcxControl::callAliasEx( char * szReturn, const char * szFormat, ... ) {
  */
 
 void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flags ) {
-  int numtok = input.numtok( " " );
+	int numtok = input.numtok( " " );
 
-  // xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
+	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	if ( flags.switch_flags[5] && numtok > 3 ) {
 		LOGFONT lf;
 
@@ -191,172 +191,187 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 
 		this->redrawWindow( );
 	}
-  // xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
-  else if ( flags.switch_flags[15] && numtok > 6 ) {
+	// xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
+	else if ( flags.switch_flags[15] && numtok > 6 ) {
 
-    int x = atoi( input.gettok( 4, " " ).to_chr( ) );
-    int y = atoi( input.gettok( 5, " " ).to_chr( ) );
-    int w = atoi( input.gettok( 6, " " ).to_chr( ) );
-    int h = atoi( input.gettok( 7, " " ).to_chr( ) );
+		int x = atoi( input.gettok( 4, " " ).to_chr( ) );
+		int y = atoi( input.gettok( 5, " " ).to_chr( ) );
+		int w = atoi( input.gettok( 6, " " ).to_chr( ) );
+		int h = atoi( input.gettok( 7, " " ).to_chr( ) );
 
-    MoveWindow( this->m_Hwnd, x, y, w, h, FALSE );
-    InvalidateRect( GetParent( this->m_Hwnd ), NULL, TRUE );
-    this->redrawWindow( );
-    SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
-  }
-  // xdid -x [NAME] [ID] [SWITCH] [+FLAGS]
-  else if ( flags.switch_flags[23] && numtok > 3 ) {
+		MoveWindow( this->m_Hwnd, x, y, w, h, FALSE );
+		InvalidateRect( GetParent( this->m_Hwnd ), NULL, TRUE );
+		this->redrawWindow( );
+		SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
+	}
+	// xdid -x [NAME] [ID] [SWITCH] [+FLAGS]
+	else if ( flags.switch_flags[23] && numtok > 3 ) {
 
-    this->removeStyle( WS_BORDER|WS_DLGFRAME );
-    this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
+		this->removeStyle( WS_BORDER|WS_DLGFRAME );
+		this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
 
-    LONG Styles = 0, ExStyles = 0;
-    this->parseBorderStyles( input.gettok( 4, " " ), &Styles, &ExStyles );
+		LONG Styles = 0, ExStyles = 0;
+		this->parseBorderStyles( input.gettok( 4, " " ), &Styles, &ExStyles );
 
-    this->addStyle( Styles );
-    this->addExStyle( ExStyles );
+		this->addStyle( Styles );
+		this->addExStyle( ExStyles );
 
-    SetWindowPos( this->m_Hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
-    InvalidateRect( this->m_Hwnd, NULL, TRUE );
-    SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
-  }
-  // xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
-  else if ( flags.switch_cap_flags[2] && numtok > 4 ) {
-    UINT iFlags = this->parseColorFlags( input.gettok( 4, " " ) );
-    COLORREF clrColor = atol( input.gettok( 5, " " ).to_chr( ) );
+		SetWindowPos( this->m_Hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
+		InvalidateRect( this->m_Hwnd, NULL, TRUE );
+		SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
+	}
+	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
+	else if ( flags.switch_cap_flags[2] && numtok > 4 ) {
+		UINT iFlags = this->parseColorFlags( input.gettok( 4, " " ) );
+		COLORREF clrColor = atol( input.gettok( 5, " " ).to_chr( ) );
 
-    if ( iFlags & DCC_BKGCOLOR ) {
-      if ( this->m_hBackBrush != NULL ) {
-        DeleteObject( this->m_hBackBrush );
-        this->m_hBackBrush = NULL;
-      }
+		if ( iFlags & DCC_BKGCOLOR ) {
+			if ( this->m_hBackBrush != NULL ) {
+				DeleteObject( this->m_hBackBrush );
+				this->m_hBackBrush = NULL;
+			}
 
-      if ( clrColor != -1 )
-        this->m_hBackBrush = CreateSolidBrush( clrColor );
-    }
+			if ( clrColor != -1 )
+				this->m_hBackBrush = CreateSolidBrush( clrColor );
+		}
 
-    if ( iFlags & DCC_TEXTCOLOR )
-      this->m_clrText = clrColor;
+		if ( iFlags & DCC_TEXTCOLOR )
+			this->m_clrText = clrColor;
 
-    if ( iFlags & DCC_TEXTBKGCOLOR )
-      this->m_clrBackText = clrColor;
+		if ( iFlags & DCC_TEXTBKGCOLOR )
+			this->m_clrBackText = clrColor;
 
-    // force a control redraw
-    this->redrawWindow( );
-  }
-  // xdid -F [NAME] [ID] [SWITCH]
-  else if ( flags.switch_cap_flags[5] ) {
+		// force a control redraw
+		this->redrawWindow( );
+	}
+	// xdid -F [NAME] [ID] [SWITCH]
+	else if ( flags.switch_cap_flags[5] ) {
 
-    SetFocus( this->m_Hwnd );
-  }
-  // xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
-  else if ( flags.switch_cap_flags[9] && numtok > 4 ) {
-    if ( this->m_bCursorFromFile ) {
-      DeleteObject( this->m_hCursor );
-      this->m_hCursor = NULL;
-      this->m_bCursorFromFile = FALSE;
-    }
-    else
-      this->m_hCursor = NULL;
+		SetFocus( this->m_Hwnd );
+	}
+	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
+	else if ( flags.switch_cap_flags[9] && numtok > 4 ) {
+		if ( this->m_bCursorFromFile ) {
+			DeleteObject( this->m_hCursor );
+			this->m_hCursor = NULL;
+			this->m_bCursorFromFile = FALSE;
+		}
+		else
+			this->m_hCursor = NULL;
 
-    UINT iFlags = this->parseCursorFlags( input.gettok( 4, " " ) );
+		UINT iFlags = this->parseCursorFlags( input.gettok( 4, " " ) );
 
-    if ( iFlags & DCCS_FROMRESSOURCE )
-      this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.gettok( 5, " " ) ) );
-    else if ( iFlags & DCCS_FROMFILE ) {
-      this->m_hCursor = LoadCursorFromFile( input.gettok( 5, -1, " " ).to_chr( ) );
-      this->m_bCursorFromFile = TRUE;
-    }
-  }
-  // xdid -M [NAME] [ID] [SWITCH] [MARK INFO]
-  else if ( flags.switch_cap_flags[12] ) {
+		if ( iFlags & DCCS_FROMRESSOURCE )
+			this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.gettok( 5, " " ) ) );
+		else if ( iFlags & DCCS_FROMFILE ) {
+			this->m_hCursor = LoadCursorFromFile( input.gettok( 5, -1, " " ).to_chr( ) );
+			this->m_bCursorFromFile = TRUE;
+		}
+	}
+	// xdid -M [NAME] [ID] [SWITCH] [MARK INFO]
+	else if ( flags.switch_cap_flags[12] ) {
 
-    TString info = "";
-    if ( numtok > 3 ) {
+		TString info = "";
+		if ( numtok > 3 ) {
 
-      info = input.gettok( 4, -1 , " " );
-      info.trim( );
-    }
-    this->m_tsMark = info;
-  }
-  // xdid -Z [NAME] [ID] [SWITCH] [%]
-  else if ( flags.switch_cap_flags[25] && numtok > 3 ) {
+			info = input.gettok( 4, -1 , " " );
+			info.trim( );
+		}
+		this->m_tsMark = info;
+	}
+	// xdid -Z [NAME] [ID] [SWITCH] [%]
+	else if ( flags.switch_cap_flags[25] && numtok > 3 ) {
 
-    int perc = atoi( input.gettok( 4, " " ).to_chr( ) );
+		int perc = atoi( input.gettok( 4, " " ).to_chr( ) );
 
-    if ( perc >= 0 || perc <= 100 ) {
+		if ( perc >= 0 || perc <= 100 ) {
 
-      int min, max;
-      GetScrollRange( this->m_Hwnd, SB_VERT, &min, &max );
+			int min, max;
+			GetScrollRange( this->m_Hwnd, SB_VERT, &min, &max );
 
-      /*
-      char data[500];
-      wsprintf( data, "%d %d", min, max );
-      mIRCError( data );
-      */
+			/*
+			char data[500];
+			wsprintf( data, "%d %d", min, max );
+			mIRCError( data );
+			*/
 
-      //switchbar is defined and has visible range
-      if ( min != 0 || max != 0 ) {
+			//switchbar is defined and has visible range
+			if ( min != 0 || max != 0 ) {
 
-        int pos = round( (float) ( max - min ) * (float) perc / (float) 100.0 );
+				int pos = round( (float) ( max - min ) * (float) perc / (float) 100.0 );
 
-        /*
-        char data[500];
-        wsprintf( data, "%d", pos );
-        mIRCError( data );
-        */
+				/*
+				char data[500];
+				wsprintf( data, "%d", pos );
+				mIRCError( data );
+				*/
 
-        SCROLLINFO si;
-        ZeroMemory( &si, sizeof ( SCROLLINFO ) );
-        si.cbSize = sizeof( SCROLLINFO );
-        GetScrollInfo( this->m_Hwnd, SB_VERT, &si );
-        si.nPos = pos;
-        SetScrollInfo( this->m_Hwnd, SB_VERT, &si, TRUE );
-        SendMessage( this->m_Hwnd, WM_VSCROLL, MAKEWPARAM( SB_THUMBPOSITION, si.nPos ), NULL );
+				SCROLLINFO si;
+				ZeroMemory( &si, sizeof ( SCROLLINFO ) );
+				si.cbSize = sizeof( SCROLLINFO );
+				GetScrollInfo( this->m_Hwnd, SB_VERT, &si );
+				si.nPos = pos;
+				SetScrollInfo( this->m_Hwnd, SB_VERT, &si, TRUE );
+				SendMessage( this->m_Hwnd, WM_VSCROLL, MAKEWPARAM( SB_THUMBPOSITION, si.nPos ), NULL );
 
-        //SetScrollPos( this->m_Hwnd, SB_VERT, pos, TRUE );
-        //InvalidateRect( this->m_Hwnd, NULL, TRUE );
-      }
-    }
-  }
+				//SetScrollPos( this->m_Hwnd, SB_VERT, pos, TRUE );
+				//InvalidateRect( this->m_Hwnd, NULL, TRUE );
+			}
+		}
+	}
 
-  // xdid -b [NAME] [ID]
-  if ( flags.switch_flags[1] ) {
-    EnableWindow( this->m_Hwnd, FALSE );
-  }
-  // xdid -e [NAME] [ID]
-  else if ( flags.switch_flags[4] ) {
-    EnableWindow( this->m_Hwnd, TRUE );
-  }
-  // xdid -h [NAME] [ID]
-  if ( flags.switch_flags[7] ) {
-    ShowWindow( this->m_Hwnd, SW_HIDE );
-  }
-  // xdid -s [NAME] [ID]
-  else if ( flags.switch_flags[18] ) {
-    ShowWindow( this->m_Hwnd, SW_SHOW );
-  }
+	// xdid -b [NAME] [ID]
+	else if ( flags.switch_flags[1] ) {
+		EnableWindow( this->m_Hwnd, FALSE );
+	}
+	// xdid -e [NAME] [ID]
+	else if ( flags.switch_flags[4] ) {
+		EnableWindow( this->m_Hwnd, TRUE );
+	}
+	// xdid -h [NAME] [ID]
+	else if ( flags.switch_flags[7] ) {
+		ShowWindow( this->m_Hwnd, SW_HIDE );
+	}
+	// xdid -s [NAME] [ID]
+	else if ( flags.switch_flags[18] ) {
+		ShowWindow( this->m_Hwnd, SW_SHOW );
+	}
 	// xdid -U [NAME] [ID]
-  else if (flags.switch_cap_flags[20]) {
+	else if (flags.switch_cap_flags[20]) {
 		// Box Double click Bug: the GetNextDlgtabItem() function never returns & seems to just loop forever.
 		// from functions doc:
 		//	If the search for the next control with the WS_TABSTOP
 		//	style encounters a window with the WS_EX_CONTROLPARENT style,
 		//	the system recursively searches the window's children.
 		//
-	  HWND hNextCtrl = GetNextDlgTabItem(this->m_pParentDialog->getHwnd(), this->m_Hwnd, FALSE);
+		HWND hNextCtrl = GetNextDlgTabItem(this->m_pParentDialog->getHwnd(), this->m_Hwnd, FALSE);
 
-	  if (hNextCtrl && (hNextCtrl != this->m_Hwnd))
-		  SendMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, (WPARAM) hNextCtrl, TRUE);
+		if (hNextCtrl && (hNextCtrl != this->m_Hwnd))
+			SendMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, (WPARAM) hNextCtrl, TRUE);
 		//::PostMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, NULL, FALSE);
-  }
-  /*
-  else {
-    TString error;
-    error.sprintf("Invalid /xdid switch : %s : or number of arguments on control ID: %d", input.gettok( 3, " " ).to_chr( ), this->getUserID( ) );
-    mIRCError( error.to_chr() );
-  }
-  */
+	}
+	// invalid command
+	else {
+		TString error;
+
+		if (numtok > 3) {
+			error.sprintf("D_ERROR /xdid: Invalid command /xdid %s %s %s %s (or invalid arguments) on Control %d",
+				input.gettok(3, " ").to_chr(),
+				input.gettok(1, " ").to_chr(),
+				input.gettok(2, " ").to_chr(),
+				input.gettok(4, -1, " ").to_chr(),
+				this->getUserID());
+		}
+		else {
+			error.sprintf("D_ERROR /xdid: Invalid command /xdid %s %s %s (or invalid arguments) on Control %d",
+				input.gettok(3, " ").to_chr(),
+				input.gettok(1, " ").to_chr(),
+				input.gettok(2, " ").to_chr(),
+				this->getUserID());
+		}
+
+		mIRCError(error.to_chr());
+	}
 }
 
 /*!
