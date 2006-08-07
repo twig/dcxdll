@@ -1386,10 +1386,11 @@ void mIRC_size(void)
 
   // DeferWindowPos Multiple Handle
   HDWP hdwp = BeginDeferWindowPos(nWin);
-	HDWP tmp;
+	HDWP tmp = NULL;
 
   // reajust top
   if (IsWindowVisible(tb_hwnd)) {
+    //DeferWindowPos(hdwp, tb_hwnd, NULL, 0, 0, rmdi.right - rmdi.left, rtb.bottom - rtb.top, SWP_NOZORDER);
     tmp = DeferWindowPos(hdwp, tb_hwnd, NULL, 0, 0, rmdi.right - rmdi.left, rtb.bottom - rtb.top, SWP_NOZORDER);
 		if (tmp != NULL) hdwp = tmp;
     //MoveWindow(tb_hwnd, 0, 0, rmdi.right - rmdi.left, rtb.bottom - rtb.top, false);
@@ -1400,37 +1401,39 @@ void mIRC_size(void)
   switch (swb_pos) {
 
     case SWB_LEFT:
+      //DeferWindowPos(hdwp, sb_hwnd, NULL ,rmdi.left, rmdi.top, rsb.right - rsb.left, rmdi.bottom-rmdi.top, SWP_NOZORDER);
       tmp = DeferWindowPos(hdwp, sb_hwnd, NULL ,rmdi.left, rmdi.top, rsb.right - rsb.left, rmdi.bottom-rmdi.top, SWP_NOZORDER);
-			if (tmp != NULL) hdwp = tmp;
       //MoveWindow(sb_hwnd, rmdi.left, rmdi.top, rsb.right - rsb.left, rmdi.bottom-rmdi.top, false);
       rmdi.left += rsb.right - rsb.left;
       break;
 
     case SWB_RIGHT:
+      //DeferWindowPos(hdwp, sb_hwnd, NULL, rmdi.right - (rsb.right-rsb.left), rmdi.top, rsb.right-rsb.left, rmdi.bottom-rmdi.top, SWP_NOZORDER);
       tmp = DeferWindowPos(hdwp, sb_hwnd, NULL, rmdi.right - (rsb.right-rsb.left), rmdi.top, rsb.right-rsb.left, rmdi.bottom-rmdi.top, SWP_NOZORDER);
-			if (tmp != NULL) hdwp = tmp;
       //MoveWindow(sb_hwnd, rmdi.right - (rsb.right - rsb.left), rmdi.top, rsb.right - rsb.left, rmdi.bottom-rmdi.top, false);
       rmdi.right -= rsb.right - rsb.left;
       break;
 
     case SWB_TOP:
+      //DeferWindowPos(hdwp, sb_hwnd, NULL, rmdi.left, rmdi.top, rmdi.right - rmdi.left, rsb.bottom-rsb.top, SWP_NOZORDER);
       tmp = DeferWindowPos(hdwp, sb_hwnd, NULL, rmdi.left, rmdi.top, rmdi.right - rmdi.left, rsb.bottom-rsb.top, SWP_NOZORDER);
-			if (tmp != NULL) hdwp = tmp;
       //MoveWindow(sb_hwnd, rmdi.left, rmdi.top, rmdi.right - rmdi.left, rsb.bottom-rsb.top, false);
       rmdi.top += rsb.bottom - rsb.top;
       break;
 
     case SWB_BOTTOM:
+      //DeferWindowPos(hdwp, sb_hwnd, NULL, rmdi.left, rmdi.bottom - (rsb.bottom-rsb.top), rmdi.right - rmdi.left, rsb.bottom-rsb.top, SWP_NOZORDER);
       tmp = DeferWindowPos(hdwp, sb_hwnd, NULL, rmdi.left, rmdi.bottom - (rsb.bottom-rsb.top), rmdi.right - rmdi.left, rsb.bottom-rsb.top, SWP_NOZORDER);
-			if (tmp != NULL) hdwp = tmp;
       //MoveWindow(sb_hwnd, rmdi.left, rmdi.bottom - (rsb.bottom-rsb.top), rmdi.right - rmdi.left, rsb.bottom-rsb.top, false);
       rmdi.bottom -= rsb.bottom - rsb.top;
       break;
 
     case SWB_NONE:
     default:
+			tmp = NULL;
       break;
   }
+	if (tmp != NULL) hdwp = tmp;
 
   HWND dhwnd;
   RECT drc;
@@ -1450,24 +1453,28 @@ void mIRC_size(void)
       GetWindowRect(dhwnd, &drc);
 
 			if (d.gettok(2," ") == "left") {
+        //DeferWindowPos(hdwp, dhwnd, NULL, rmdi.left, rmdi.top, drc.right - drc.left, rmdi.bottom - rmdi.top, SWP_NOZORDER);
         tmp = DeferWindowPos(hdwp, dhwnd, NULL, rmdi.left, rmdi.top, drc.right - drc.left, rmdi.bottom - rmdi.top, SWP_NOZORDER);
 				if (tmp != NULL) hdwp = tmp;
         //MoveWindow(dhwnd, rmdi.left, rmdi.top, drc.right - drc.left, rmdi.bottom - rmdi.top, false);
         rmdi.left += drc.right - drc.left;
       }
       else if (d.gettok(2," ") == "right") {
+        //DeferWindowPos(hdwp, dhwnd, NULL, rmdi.right - (drc.right - drc.left), rmdi.top, drc.right - drc.left, rmdi.bottom - rmdi.top, SWP_NOZORDER);
         tmp = DeferWindowPos(hdwp, dhwnd, NULL, rmdi.right - (drc.right - drc.left), rmdi.top, drc.right - drc.left, rmdi.bottom - rmdi.top, SWP_NOZORDER);
 				if (tmp != NULL) hdwp = tmp;
         //MoveWindow(dhwnd, rmdi.right - (drc.right - drc.left), rmdi.top, drc.right - drc.left, rmdi.bottom - rmdi.top, false);
         rmdi.right -= drc.right - drc.left;
       }
       else if (d.gettok(2," ") == "top") {
+        //DeferWindowPos(hdwp, dhwnd, NULL, rmdi.left, rmdi.top, rmdi.right - rmdi.left, drc.bottom - drc.top, SWP_NOZORDER);
         tmp = DeferWindowPos(hdwp, dhwnd, NULL, rmdi.left, rmdi.top, rmdi.right - rmdi.left, drc.bottom - drc.top, SWP_NOZORDER);
 				if (tmp != NULL) hdwp = tmp;
         //MoveWindow(dhwnd, rmdi.left, rmdi.top, rmdi.right - rmdi.left, drc.bottom - drc.top, false);
         rmdi.top += drc.bottom - drc.top;
       }
       else if (d.gettok(2," ") == "bottom") {
+        //DeferWindowPos(hdwp, dhwnd, NULL, rmdi.left, rmdi.bottom -(drc.bottom - drc.top) , rmdi.right - rmdi.left, drc.bottom - drc.top, SWP_NOZORDER);
         tmp = DeferWindowPos(hdwp, dhwnd, NULL, rmdi.left, rmdi.bottom -(drc.bottom - drc.top) , rmdi.right - rmdi.left, drc.bottom - drc.top, SWP_NOZORDER);
 				if (tmp != NULL) hdwp = tmp;
         //MoveWindow(dhwnd, rmdi.left, rmdi.bottom -(drc.bottom - drc.top) , rmdi.right - rmdi.left, drc.bottom - drc.top, false);
@@ -1477,6 +1484,7 @@ void mIRC_size(void)
     i++;
   }
 
+  //DeferWindowPos(hdwp, mdi_hwnd, NULL, rmdi.left, rmdi.top+1, rmdi.right - rmdi.left, rmdi.bottom - rmdi.top - 1, SWP_NOZORDER);
   tmp = DeferWindowPos(hdwp, mdi_hwnd, NULL, rmdi.left, rmdi.top+1, rmdi.right - rmdi.left, rmdi.bottom - rmdi.top - 1, SWP_NOZORDER);
 	if (tmp != NULL) hdwp = tmp;
   //MoveWindow(mdi_hwnd, rmdi.left, rmdi.top+1, rmdi.right - rmdi.left, rmdi.bottom - rmdi.top - 1, true);
