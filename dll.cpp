@@ -971,6 +971,23 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
       }
       break;
 
+		case WM_PARENTNOTIFY:
+			{
+				if (LOWORD(wParam) == WM_DESTROY)
+				{ // cleanup any dialog thats closed without being undocked.
+					TString text;
+					text.sprintf("%ld", lParam);
+					int nIndex = ListBox_FindString(lb_hwnd,-1,text.to_chr());
+					if (nIndex != LB_ERR) {
+						EjectWindow((HWND)lParam);
+		        ListBox_DeleteString(lb_hwnd, nIndex);
+						mIRC_size();
+						return 0L;
+					}
+				}
+			}
+			break;
+
     //case WM_EXITSIZEMOVE:
     //  {
     //    mIRCError("SIZEEND");
@@ -1002,7 +1019,7 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
     case WM_COMMAND:
       {
         int wID = LOWORD(wParam);
-        if (wID == 112 || wID == 111 || wID == 32924) {
+        if (wID == 112 || wID == 111) {
           LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
           swb_pos = SwitchbarPos();
           mIRC_size();
