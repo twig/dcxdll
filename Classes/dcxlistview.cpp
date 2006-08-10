@@ -34,8 +34,9 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
+	// NB: Listview extended styles must ONLY be applied via ListView_SetExtendedListViewStyle macros
   this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
+    WS_EX_CLIENTEDGE, //ExStyles, 
     DCX_LISTVIEWCLASS,
     NULL,
 	 WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN,
@@ -78,7 +79,7 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
+    WS_EX_CLIENTEDGE, //ExStyles, 
     DCX_LISTVIEWCLASS,
     NULL,
     WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN, 
@@ -139,7 +140,7 @@ void DcxListView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
   //*ExStyles |= LVS_EX_SUBITEMIMAGES;
   //*Styles |= LVS_SINGLESEL;
 
-	*ExStyles = WS_EX_CLIENTEDGE;
+	*ExStyles = 0; //WS_EX_CLIENTEDGE;
 
   unsigned int i = 1, numtok = styles.numtok( " " );
 
