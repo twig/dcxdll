@@ -36,7 +36,7 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
 
 	// NB: Listview extended styles must ONLY be applied via ListView_SetExtendedListViewStyle macros
   this->m_Hwnd = CreateWindowEx(	
-    WS_EX_CLIENTEDGE, //ExStyles, 
+    ExStyles, 
     DCX_LISTVIEWCLASS,
     NULL,
 	 WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN,
@@ -50,6 +50,8 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
     SetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
+
+	this->parseListviewExStyles( styles, &ExStyles);
 
   ListView_SetExtendedListViewStyleEx( this->m_Hwnd, ExStyles, ExStyles);
 
@@ -79,7 +81,7 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    WS_EX_CLIENTEDGE, //ExStyles, 
+    ExStyles, 
     DCX_LISTVIEWCLASS,
     NULL,
     WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN, 
@@ -140,7 +142,7 @@ void DcxListView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
   //*ExStyles |= LVS_EX_SUBITEMIMAGES;
   //*Styles |= LVS_SINGLESEL;
 
-	*ExStyles = 0; //WS_EX_CLIENTEDGE;
+	*ExStyles = WS_EX_CLIENTEDGE;
 
   unsigned int i = 1, numtok = styles.numtok( " " );
 
@@ -156,7 +158,41 @@ void DcxListView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
       *Styles |= LVS_LIST;
     else if ( styles.gettok( i , " " ) == "noheader" ) 
       *Styles |= LVS_NOCOLUMNHEADER;
-    else if ( styles.gettok( i , " " ) == "grid" ) 
+    else if ( styles.gettok( i , " " ) == "alignleft" ) 
+      *Styles |= LVS_ALIGNLEFT;
+    else if ( styles.gettok( i , " " ) == "aligntop" ) 
+      *Styles |= LVS_ALIGNTOP;
+    else if ( styles.gettok( i , " " ) == "autoarrange" ) 
+      *Styles |= LVS_AUTOARRANGE;
+    else if ( styles.gettok( i , " " ) == "nolabelwrap" ) 
+      *Styles |= LVS_NOLABELWRAP;
+    else if ( styles.gettok( i , " " ) == "showsel" ) 
+      *Styles |= LVS_SHOWSELALWAYS;
+    else if ( styles.gettok( i , " " ) == "singlesel" ) 
+      *Styles |= LVS_SINGLESEL;
+    else if ( styles.gettok( i , " " ) == "editlabel" ) 
+      *Styles |= LVS_EDITLABELS;
+    else if ( styles.gettok( i , " " ) == "sortasc" ) 
+      *Styles |= LVS_SORTASCENDING;
+    else if ( styles.gettok( i , " " ) == "sortdesc" ) 
+      *Styles |= LVS_SORTDESCENDING;
+    else if ( styles.gettok( i , " " ) == "noscroll" ) 
+      *Styles |= LVS_NOSCROLL;
+
+    i++;
+  }
+  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+}
+
+void DcxListView::parseListviewExStyles( TString & styles, LONG * ExStyles )
+{
+	*ExStyles = 0;
+
+  unsigned int i = 1, numtok = styles.numtok( " " );
+
+  while ( i <= numtok )
+	{
+    if ( styles.gettok( i , " " ) == "grid" ) 
       *ExStyles |= LVS_EX_GRIDLINES;
     else if ( styles.gettok( i , " " ) == "borderselect" ) 
       *ExStyles |= LVS_EX_BORDERSELECT;
@@ -178,26 +214,6 @@ void DcxListView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
       *ExStyles |= LVS_EX_UNDERLINEHOT;
     else if ( styles.gettok( i , " " ) == "underlinecold" ) 
       *ExStyles |= LVS_EX_UNDERLINECOLD;
-    else if ( styles.gettok( i , " " ) == "alignleft" ) 
-      *Styles |= LVS_ALIGNLEFT;
-    else if ( styles.gettok( i , " " ) == "aligntop" ) 
-      *Styles |= LVS_ALIGNTOP;
-    else if ( styles.gettok( i , " " ) == "autoarrange" ) 
-      *Styles |= LVS_AUTOARRANGE;
-    else if ( styles.gettok( i , " " ) == "nolabelwrap" ) 
-      *Styles |= LVS_NOLABELWRAP;
-    else if ( styles.gettok( i , " " ) == "showsel" ) 
-      *Styles |= LVS_SHOWSELALWAYS;
-    else if ( styles.gettok( i , " " ) == "singlesel" ) 
-      *Styles |= LVS_SINGLESEL;
-    else if ( styles.gettok( i , " " ) == "editlabel" ) 
-      *Styles |= LVS_EDITLABELS;
-    else if ( styles.gettok( i , " " ) == "sortasc" ) 
-      *Styles |= LVS_SORTASCENDING;
-    else if ( styles.gettok( i , " " ) == "sortdesc" ) 
-      *Styles |= LVS_SORTDESCENDING;
-    else if ( styles.gettok( i , " " ) == "noscroll" ) 
-      *Styles |= LVS_NOSCROLL;
     else if ( styles.gettok( i , " " ) == "subitemimage" ) 
       *ExStyles |= LVS_EX_SUBITEMIMAGES;
     else if ( styles.gettok( i , " " ) == "tooltip" ) 
@@ -205,7 +221,6 @@ void DcxListView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 
     i++;
   }
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
