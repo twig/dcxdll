@@ -436,8 +436,19 @@ mIRC(Mark) {
 		ret("D_ERROR Mark: [NAME] [ALIAS]");
 
 	TString com;
-	char res[20];
+	char res[40];
 
+	// check if the alias exists
+	com.sprintf("$isalias(%s)", d.gettok(2, " ").to_chr());
+	mIRCeval(com.to_chr(), res);
+
+	if (lstrcmp(res, "$false") == 0) {
+		wsprintf(data, "D_ERROR Mark : No such alias : %s", d.gettok(2, " ").to_chr());
+		mIRCError(data);
+		return 3;
+	}
+
+	// check if valid dialog
 	com.sprintf("$dialog(%s).hwnd", d.gettok(1, " ").to_chr());
 	mIRCeval(com.to_chr(), res);
 
@@ -445,11 +456,13 @@ mIRC(Mark) {
 
 	if (IsWindow(mHwnd) == FALSE) {
 		wsprintf(data, "D_ERROR Mark : Invalid Dialog Window : %s", d.gettok(1, " ").to_chr());
+		mIRCError(data);
 		return 3;
 	}
 
 	if (Dialogs.getDialogByHandle(mHwnd) != NULL) {
 		wsprintf(data, "D_ERROR Mark: Window Already Marked : %s", d.gettok(1, " ").to_chr());
+		mIRCError(data);
 		return 3;
 	}
 
