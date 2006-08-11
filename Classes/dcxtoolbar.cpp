@@ -1235,7 +1235,6 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
         //mIRCError( "Control WM_NOTIFY" );
 
         LPNMHDR hdr = (LPNMHDR) lParam;
-
         if (!hdr)
           break;
 
@@ -1322,7 +1321,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
               bParsed = TRUE;
               return TBDDRET_DEFAULT;
             }
-            break;
+	          break;
 
           case NM_CUSTOMDRAW:
             {
@@ -1339,7 +1338,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
                     
                     LPDCXTBBUTTON lpdtbb = (LPDCXTBBUTTON) lpntbcd->nmcd.lItemlParam;
 
-						  if ( lpdtbb == NULL )
+										if ( lpdtbb == NULL )
                       return CDRF_DODEFAULT;
 
 //mIRCError("getting tt");
@@ -1372,7 +1371,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 //mIRCError("getting delete");
                   }
 //mIRCError("getting ret");
-                    return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
+                  return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
 
                 case CDDS_ITEMPOSTPAINT:
                   return CDRF_DODEFAULT;
@@ -1396,9 +1395,10 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
                 if ( lpdtbb != NULL ) {
 
                   //mIRCError( "Toolbar Tooltips Here3!" );
-//									mIRCDebug("tip: %s", lpdtbb->tsTipText.to_chr( ));
-                  tcgit->pszText = lpdtbb->tsTipText.to_chr( );
-                  tcgit->cchTextMax = lpdtbb->tsTipText.len( );
+									//mIRCDebug("tip: %s", lpdtbb->tsTipText.to_chr( ));
+									if (tcgit->pszText != NULL) {
+										lstrcpyn(tcgit->pszText,lpdtbb->tsTipText.to_chr(), tcgit->cchTextMax);
+									}
                 }
 					 //mIRCError("ugh!!!!");
               }
@@ -1415,9 +1415,10 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
               TBBUTTON tbb;
               ZeroMemory( &tbb, sizeof(TBBUTTON) );
 
-              this->getButton( lpnmtb->iItem, &tbb );
-              if ( tbb.dwData != NULL )
+              this->getButton( lpnmtb->iItem -1, &tbb );
+							if ( tbb.dwData != NULL ) {
                 delete (LPDCXTBBUTTON) tbb.dwData;
+							}
 
               bParsed = TRUE;
             }
