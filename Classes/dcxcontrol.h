@@ -92,6 +92,8 @@ protected:
   HCURSOR m_hCursor;  //!< Cursor Handle
   BOOL m_bCursorFromFile; //!< Cursor comes from a file?
 
+	HWND m_ToolTipHWND; //!< Tooltip window (if any)
+
   /* ***** */
 
   void parseGlobalCommandRequest( TString & input, XSwitchFlags & flags );

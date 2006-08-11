@@ -28,6 +28,8 @@ class DcxDialog;
 #define BTNS_BOLD       0x2000  //!< Toolbar Button Caption Bold Style
 #define BTNS_UNDERLINE  0x4000  //!< Toolbar Button Caption Underline Style
 #define BTNS_COLOR      0x8000  //!< Toolbar Button Caption Color Style
+#define BTNS_TBKGCOLOR  0x10000 //!< Toolbar Tooltip Background Color Style
+#define BTNS_TTXTCOLOR  0x20000 //!< Toolbar Tooltip Text Color Style
 
 /*!
  * \brief blah

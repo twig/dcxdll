@@ -98,6 +98,8 @@ DcxToolBar::DcxToolBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
     SendMessage( this->m_Hwnd, TB_SETEXTENDEDSTYLE, (WPARAM) 0, (LPARAM) ExStyles );
 
   SendMessage( this->m_Hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM) sizeof(TBBUTTON), (LPARAM) 0 );
+	this->m_ToolTipHWND = (HWND)SendMessage( this->m_Hwnd, TB_GETTOOLTIPS, NULL, NULL);
+	//SendMessage( this->m_Hwnd, TB_SETPARENT, (WPARAM)mParentHwnd, NULL);
 
   this->autoSize( );
   this->m_bAutoStretch = FALSE;
@@ -284,6 +286,22 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
+  // [NAME] [ID] [PROP]
+  else if ( input.gettok( 3, " " ) == "tip_bkgcolour") {
+		DWORD cref = 0;
+		if (this->m_ToolTipHWND != NULL)
+			cref = (DWORD)SendMessage(this->m_ToolTipHWND,TTM_GETTIPBKCOLOR, NULL, NULL);
+		wsprintf(szReturnValue,"%ld", cref);
+		return;
+	}
+  // [NAME] [ID] [PROP]
+  else if ( input.gettok( 3, " " ) == "tip_txtcolour") {
+		DWORD cref = 0;
+		if (this->m_ToolTipHWND != NULL)
+			cref = (DWORD)SendMessage(this->m_ToolTipHWND,TTM_GETTIPTEXTCOLOR, NULL, NULL);
+		wsprintf(szReturnValue,"%ld", cref);
+		return;
+	}
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
 
     return;
@@ -404,14 +422,18 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
       this->autoStretchButtons( );
   }
   // xdid -c [NAME] [ID] [SWITCH] [N] [+FLAGS] [RGB]
-  else if ( flags.switch_flags[3] && numtok > 5 ) {
+  else if ( flags.switch_flags[2] && numtok > 5 ) {
 
     int nButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-
-    if ( nButton > -1 && nButton < this->getButtonCount( ) ) {
-
-      UINT buttonStyles = parseButtonStyleFlags( input.gettok( 5, " " ) );
-      COLORREF clrColor = atol( input.gettok( 6, " " ).to_chr( ) );
+    UINT buttonStyles = parseButtonStyleFlags( input.gettok( 5, " " ) );
+    COLORREF clrColor = atol( input.gettok( 6, " " ).to_chr( ) );
+		if (nButton == -1 && this->m_ToolTipHWND != NULL) {
+			if (buttonStyles & BTNS_TBKGCOLOR)
+				SendMessage(this->m_ToolTipHWND,TTM_SETTIPBKCOLOR, (WPARAM)clrColor, NULL);
+			else if (buttonStyles & BTNS_TTXTCOLOR)
+				SendMessage(this->m_ToolTipHWND,TTM_SETTIPTEXTCOLOR, (WPARAM)clrColor, NULL);
+		}
+    else if ( nButton > -1 && nButton < this->getButtonCount( ) ) {
 
       TBBUTTONINFO tbbi;
       ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
@@ -764,6 +786,10 @@ UINT DcxToolBar::parseButtonStyleFlags( TString & flags ) {
       iFlags |= BTNS_COLOR;
     else if ( flags[i] == 'u' )
       iFlags |= BTNS_UNDERLINE;
+    else if ( flags[i] == 'x' )
+      iFlags |= BTNS_TBKGCOLOR;
+    else if ( flags[i] == 'z' )
+      iFlags |= BTNS_TTXTCOLOR;
 
     ++i;
   }

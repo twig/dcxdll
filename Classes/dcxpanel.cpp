@@ -668,7 +668,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
             case NM_CLICK:
               {
-                //mIRCError( "Rebar WM_NOTIFY - NM_CLICK" );
+                //mIRCError( "Panel WM_NOTIFY - NM_CLICK" );
                 if ( lstrcmp( DCX_STATUSBARCLASS, ClassName ) == 0 ) {
                   bParsed = TRUE;
                   return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
@@ -775,7 +775,6 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
                 }
               }
               break;
-
             case LVN_BEGINLABELEDIT:
             case LVN_ENDLABELEDIT:
             case LVN_DELETEITEM:
