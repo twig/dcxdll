@@ -1246,7 +1246,7 @@ TString TString::gettok( int N, char * sepChars ) {
     if ( iCount == N ) {
 
       int len = p_cEnd - p_cStart;
-	delete [] token.m_pString; // change by Ook
+			delete [] token.m_pString; // change by Ook
       token.m_pString = new char [len + 1];
       token.m_pString[len] = 0;
       lstrcpyn( token.m_pString, p_cStart, len + 1 );
@@ -1262,7 +1262,7 @@ TString TString::gettok( int N, char * sepChars ) {
     p_cEnd = this->m_pString + lstrlen( this->m_pString );
     int len = p_cEnd - p_cStart;
 
-	delete [] token.m_pString; // change by Ook
+		delete [] token.m_pString; // change by Ook
     token.m_pString = new char [len + 1];
     token.m_pString[len] = 0;
     lstrcpyn( token.m_pString, p_cStart, len + 1 );    
@@ -1579,17 +1579,18 @@ bool TString::istok(char * cToken, char * sepChars ) {
   if ( sepChars == NULL || this->m_pString == NULL )
     return false;
 
-  char * p_cStart = this->m_pString, * p_cEnd = this->m_pString, *tmp = NULL;
+  char * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
 	int l = 0;
 	int sepl = lstrlen( sepChars );
 
   while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
-	l = (int)(p_cEnd - p_cStart);
-	if (l > 0) {
-		if (strncmp(cToken,p_cStart,l) == 0) return true;
-	}
+		l = (int)(p_cEnd - p_cStart);
+		if (l > 0) {
+			if (strncmp(cToken,p_cStart,l) == 0) return true;
+		}
     p_cStart = p_cEnd + sepl;
   }
+	if (strcmp(cToken,p_cStart) == 0) return true;
 
   return false;
 }

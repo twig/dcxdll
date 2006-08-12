@@ -53,6 +53,10 @@ DcxToolBar::DcxToolBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styl
     SendMessage( this->m_Hwnd, TB_SETEXTENDEDSTYLE, (WPARAM) 0, (LPARAM) ExStyles );
 
   SendMessage( this->m_Hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM) sizeof(TBBUTTON), (LPARAM) 0 );
+	this->m_ToolTipHWND = (HWND)SendMessage( this->m_Hwnd, TB_GETTOOLTIPS, NULL, NULL);
+	if (styles.istok("balloon"," ") && this->m_ToolTipHWND != NULL) {
+		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+	}
 
   this->autoSize( );
   this->m_bAutoStretch = FALSE;
@@ -99,6 +103,9 @@ DcxToolBar::DcxToolBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 
   SendMessage( this->m_Hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM) sizeof(TBBUTTON), (LPARAM) 0 );
 	this->m_ToolTipHWND = (HWND)SendMessage( this->m_Hwnd, TB_GETTOOLTIPS, NULL, NULL);
+	if (styles.istok("balloon"," ") && this->m_ToolTipHWND != NULL) {
+		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+	}
 	//SendMessage( this->m_Hwnd, TB_SETPARENT, (WPARAM)mParentHwnd, NULL);
 
   this->autoSize( );
