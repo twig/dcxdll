@@ -47,8 +47,8 @@ DcxRichEdit::DcxRichEdit( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
     SetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_tsText = "";
-  this->m_clrBackText = RGB(255,255,255);
-  this->m_clrText = RGB(0,0,0);
+  this->m_clrBackText = GetSysColor(COLOR_WINDOW);
+  this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
   this->m_iFontSize = 10*20;
   this->m_bFontBold = FALSE;
   this->m_bFontItalic = FALSE;
@@ -101,8 +101,8 @@ DcxRichEdit::DcxRichEdit( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
     SetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_tsText = "";
-  this->m_clrBackText = RGB(255,255,255);
-  this->m_clrText = RGB(0,0,0);
+  this->m_clrBackText = GetSysColor(COLOR_WINDOW);
+  this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
   this->m_iFontSize = 10*20;
   this->m_bFontBold = FALSE;
   this->m_bFontItalic = FALSE;
@@ -294,8 +294,8 @@ void DcxRichEdit::parseCommandRequest( TString & input ) {
 
     if ( iFontFlags & DCF_DEFAULT ) {
 
-      this->m_clrBackText = RGB(255,255,255);
-      this->m_clrText = RGB(0,0,0);
+      this->m_clrBackText = GetSysColor(COLOR_WINDOW);
+      this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
       this->m_iFontSize = 10*20;
       this->m_bFontBold = FALSE;
       this->m_bFontItalic = FALSE;
@@ -365,6 +365,9 @@ void DcxRichEdit::parseCommandRequest( TString & input ) {
       SendMessage( this->m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, (LPARAM) 0 );
     else
       SendMessage( this->m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 0, (LPARAM) clrColor );
+
+	 this->m_clrBackText = clrColor;
+	 this->redrawWindow();
   }
   // xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
   else if ( flags.switch_flags[11] && numtok > 4 ) {
