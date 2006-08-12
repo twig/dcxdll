@@ -2,11 +2,12 @@
 header("Cache-Control: no-cache, must-revalidate");	// HTTP/1.1
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");	// Date in the past
 
-$stable = '1.3.1';
+$stable = '1.3.5';
 $archive = 'archive';
 
 // version => date released
 $versions = array(
+    '1.3.5' => 1155404032,
 	'1.3.4' => 1150614000,
 	'1.3.3' => 1149420240,
 	'1.3.2' => 1149180480,
