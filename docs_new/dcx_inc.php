@@ -137,6 +137,8 @@ function dcxdoc_header($page, $pagelabel) {
 			<a href="index.htm"><img src="images/dcx.png" alt="DCX - Dialog Control Xtension" /></a>
 		</td>
 		<td style="vertical-align: bottom; text-align: right;">
+<?php
+/*
 			<a href="translations/nl/index.htm">Dutch</a> |
 			<a href="index.htm">English</a> |
 			<a href="translations/fi/index.htm">Finnish</a> |
@@ -149,6 +151,13 @@ function dcxdoc_header($page, $pagelabel) {
 			<a href="translations/pt/index.htm">Portuguese</a> |
 			<a href="translations/sp/index.htm">Spanish</a> |
 			<a href="translations/sw/index.htm">Swedish</a>
+*/
+?>
+			<a href='index.htm'>Home</a> |
+			<a href='http://dcx.scriptsdb.org/translations'>Translations</a> |
+			<a href="archive.htm">Download</a> |
+			<a href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a>
 		</td>
 	</tr>
 </table>
@@ -156,10 +165,15 @@ function dcxdoc_header($page, $pagelabel) {
 <table class="bar">
 	<tr>
 		<td>
+<?
+/*
 			<a href='index.htm'>Home</a> |
 			<a href="archive.htm">Download</a> |
 			<a href="http://dcx.scriptsdb.org/forum/">Forum</a> |
 			<a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a> |
+*/
+?>
+			&nbsp;
 		</td>
 		<td style="text-align: center;">Dialog Control Xtension<?php
 	if ($page == 'xpopup')

@@ -102,6 +102,7 @@ $CHANGES = array(
 			'script batch file now pauses to display output',
 			'changed some credits titles',
 			'updated screenshot for listview and treeview',
+			'removed direct links to translation docs',
 		),
 	),
     'v1.3.4' => array(
