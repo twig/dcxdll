@@ -705,6 +705,11 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
           else
             lpdcxtvitem->bBold = FALSE;
 
+			if (iFlags & TVIS_ITALIC)
+				lpdcxtvitem->bItalic = TRUE;
+          else
+            lpdcxtvitem->bItalic = FALSE;
+
           if ( iFlags & TVIS_COLOR )
             lpdcxtvitem->clrText = clrText;
           else
@@ -983,6 +988,11 @@ HTREEITEM DcxTreeView::insertItem(TString * path, TString * data, TString * Tool
 	else
 		lpmytvi->bBold = FALSE;
 
+	if (iFlags & TVIS_ITALIC)
+		lpmytvi->bItalic = TRUE;
+	else
+		lpmytvi->bItalic = FALSE;
+
 	if (iFlags & TVIS_COLOR)
 		lpmytvi->clrText = clrText;
 	else
@@ -1064,31 +1074,31 @@ UINT DcxTreeView::parseIconFlagOptions( TString & flags ) {
  * blah
  */
 
-UINT DcxTreeView::parseItemFlags( TString & flags ) {
+UINT DcxTreeView::parseItemFlags(TString &flags) {
+	INT i = 1, len = flags.len(), iFlags = 0;
 
-  INT i = 1, len = flags.len( ), iFlags = 0;
+	// no +sign, missing params
+	if (flags[0] != '+') 
+		return iFlags;
 
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return iFlags;
+	while (i < len) {
+		if (flags[i] == 'b')
+			iFlags |= TVIS_BOLD;
+		else if (flags[i] == 'c')
+			iFlags |= TVIS_COLOR;
+		else if (flags[i] == 'e')
+			iFlags |= TVIS_EXPANDED;
+		else if (flags[i] == 'i')
+			iFlags |= TVIS_ITALIC;
+		else if (flags[i] == 's')
+			iFlags |= TVIS_SELECTED;
+		else if (flags[i] == 'u')
+			iFlags |= TVIS_UNDERLINE;
 
-  while ( i < len ) {
+		++i;
+	}
 
-    if ( flags[i] == 'b' )
-      iFlags |= TVIS_BOLD;
-    else if ( flags[i] == 'c' )
-      iFlags |= TVIS_COLOR;
-    else if ( flags[i] == 'e' )
-      iFlags |= TVIS_EXPANDED;
-    else if ( flags[i] == 's' )
-      iFlags |= TVIS_SELECTED;
-    else if ( flags[i] == 'u' )
-      iFlags |= TVIS_UNDERLINE;
-
-    ++i;
-  }
-
-  return iFlags;
+	return iFlags;
 }
 
 /*!
@@ -1894,10 +1904,12 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                       LOGFONT lf;
                       GetObject( hFont, sizeof(LOGFONT), &lf );
 
-                      if ( lpdcxtvi->bBold )
-                        lf.lfWeight |= FW_BOLD;
-                      if ( lpdcxtvi->bUline )
-                        lf.lfUnderline = true;
+								if (lpdcxtvi->bBold)
+									lf.lfWeight |= FW_BOLD;
+								if (lpdcxtvi->bUline)
+									lf.lfUnderline = true;
+								if (lpdcxtvi->bItalic)
+									lf.lfItalic = true;
 
                       HFONT hFontNew = CreateFontIndirect( &lf );
                       //HFONT hOldFont = (HFONT) SelectObject( lpntvcd->nmcd.hdc, hFontNew );
