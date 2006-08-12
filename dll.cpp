@@ -393,6 +393,8 @@ int WINAPI UnloadDll(int timeout) {
 
 		UnregisterClass(XPOPUPMENUCLASS, GetModuleHandle(NULL));
 
+		//CloseWindow(lb_hwnd);
+
 		UnmapViewOfFile(mIRCLink.m_pData);
 		CloseHandle(mIRCLink.m_hFileMap);
 
@@ -966,56 +968,62 @@ mIRC(_xdialog) {
 */
 LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
-    case WM_SIZE: 
-      {
-        mIRC_size();
-        return 0L;
-      }
-      break;
+	// WM_SIZE/WM_CAPTURECHANGED/WM_PARENTNOTIFY/WM_ENABLE/WM_COMMAND commented out for release build 1.3.5
+  //  case WM_SIZE:
+  //    {
+  //      mIRC_size();
+  //      return 0L;
+  //    }
+  //    break;
 
-    case WM_CAPTURECHANGED:
-      {
-        LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
-        swb_pos = SwitchbarPos();
-        mIRC_size();
-        return lRes;
-      }
-      break;
+  //  case WM_CAPTURECHANGED:
+  //    {
+  //      LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
+  //      swb_pos = SwitchbarPos();
+  //      mIRC_size();
+  //      return lRes;
+  //    }
+  //    break;
 
-		case WM_PARENTNOTIFY:
-			{
-				if (LOWORD(wParam) == WM_DESTROY)
-				{ // cleanup any dialog thats closed without being undocked.
-					TString text;
-					text.sprintf("%ld", lParam);
-					int nIndex = ListBox_FindString(lb_hwnd,-1,text.to_chr());
-					if (nIndex != LB_ERR) {
-						EjectWindow((HWND)lParam);
-		        ListBox_DeleteString(lb_hwnd, nIndex);
-						mIRC_size();
-						return 0L;
-					}
-				}
-			}
-			break;
+		//case WM_PARENTNOTIFY:
+		//	{
+		//		if (LOWORD(wParam) == WM_DESTROY)
+		//		{ // cleanup any dialog thats closed without being undocked.
+		//			TString text;
+		//			text.sprintf("%ld", lParam);
+		//			int nIndex = ListBox_FindString(lb_hwnd,-1,text.to_chr());
+		//			if (nIndex != LB_ERR) {
+		//				EjectWindow((HWND)lParam);
+		//        ListBox_DeleteString(lb_hwnd, nIndex);
+		//				mIRC_size();
+		//				return 0L;
+		//			}
+		//		}
+		//	}
+		//	break;
 
-    //case WM_EXITSIZEMOVE:
+    //case WM_ENABLE:
     //  {
-    //    mIRCError("SIZEEND");
+    //    if (wParam) {
+    //      LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
+    //      swb_pos = SwitchbarPos();
+    //      mIRC_size();
+    //      return lRes;
+    //    }
     //  }
     //  break;
 
-    case WM_ENABLE:
-      {
-        if (wParam) {
-          LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
-          swb_pos = SwitchbarPos();
-          mIRC_size();
-          return lRes;
-        }
-      }
-      break;
-
+    //case WM_COMMAND:
+    //  {
+    //    int wID = LOWORD(wParam);
+    //    if (wID == 112 || wID == 111) {
+    //      LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
+    //      swb_pos = SwitchbarPos();
+    //      mIRC_size();
+    //      return lRes;
+    //    }
+    //  }
+    //  break;
       /*
       case WM_ACTIVATEAPP: 
       {
@@ -1027,17 +1035,6 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
       }
       break;
       */
-    case WM_COMMAND:
-      {
-        int wID = LOWORD(wParam);
-        if (wID == 112 || wID == 111) {
-          LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
-          swb_pos = SwitchbarPos();
-          mIRC_size();
-          return lRes;
-        }
-      }
-      break;
 		case WM_INITMENUPOPUP:
 		{
 			if (HIWORD(lParam) == FALSE) {
@@ -1531,8 +1528,12 @@ void AttachWindow(HWND dhwnd)
   SetWindowLong(dhwnd, GWL_USERDATA, (LONG) lpdcx);
 
   // Remove Style for docking purpose
+	lpdcx->old_styles = GetWindowLong(dhwnd, GWL_STYLE);
+	lpdcx->old_exstyles = GetWindowLong(dhwnd, GWL_EXSTYLE);
+	//SetWindowLong(dhwnd,GWL_STYLE, (lpdcx->old_styles & ~(WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED)) | WS_CHILDWINDOW);
   RemStyles(dhwnd,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);	
-  RemStyles(dhwnd,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE);
+	//SetWindowLong(dhwnd,GWL_EXSTYLE, (lpdcx->old_exstyles & ~(WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY)));
+  RemStyles(dhwnd,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
   AddStyles(dhwnd,GWL_STYLE,WS_CHILDWINDOW);
 
   // save parent window
@@ -1552,7 +1553,8 @@ void EjectWindow(HWND dhwnd)
   AddStyles(dhwnd,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);	
   AddStyles(dhwnd,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE);
   RemStyles(dhwnd,GWL_STYLE,WS_CHILDWINDOW);
-
+	//SetWindowLong(dhwnd,GWL_STYLE, lpdcx->old_styles);
+	//SetWindowLong(dhwnd,GWL_EXSTYLE, lpdcx->old_exstyles);
   //SetParent(dhwnd, lpdcx->hParent);
   SetParent(dhwnd, NULL);
   SetWindowPos(dhwnd, NULL, lpdcx->rc.left, lpdcx->rc.top, lpdcx->rc.right - lpdcx->rc.left, lpdcx->rc.bottom - lpdcx->rc.top, SWP_NOZORDER);
@@ -1758,6 +1760,7 @@ mIRC(ShowToolbar) {
 }
 
 // ShowTreebar 1|0
+// non functional!
 mIRC(ShowTreebar) {
 	TString d(data);
 	d.trim();

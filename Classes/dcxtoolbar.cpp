@@ -1445,7 +1445,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
               TBBUTTON tbb;
               ZeroMemory( &tbb, sizeof(TBBUTTON) );
 
-              this->getButton( lpnmtb->iItem -1, &tbb );
+							this->getButton( this->getCommandToIndex(lpnmtb->iItem), &tbb );
 							if ( tbb.dwData != NULL ) {
                 delete (LPDCXTBBUTTON) tbb.dwData;
 							}

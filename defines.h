@@ -115,7 +115,8 @@ BOOL isMenuBarMenu(HMENU hMenu, HMENU hMatch);
 typedef struct tagMYDCXWINDOW {
 
   RECT rc;
-
+	DWORD old_styles;
+	DWORD old_exstyles;
 } MYDCXWINDOW,*LPMYDCXWINDOW;
 
 
