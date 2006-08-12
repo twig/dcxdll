@@ -286,28 +286,31 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
-  // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "tip_bkgcolour") {
+	// [NAME] [ID] [PROP]
+	else if (input.gettok(3, " ") == "tooltipbgcolor") {
 		DWORD cref = 0;
+
 		if (this->m_ToolTipHWND != NULL)
-			cref = (DWORD)SendMessage(this->m_ToolTipHWND,TTM_GETTIPBKCOLOR, NULL, NULL);
-		wsprintf(szReturnValue,"%ld", cref);
+			cref = (DWORD) SendMessage(this->m_ToolTipHWND,TTM_GETTIPBKCOLOR, NULL, NULL);
+
+		wsprintf(szReturnValue, "%ld", cref);
 		return;
 	}
-  // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "tip_txtcolour") {
+	// [NAME] [ID] [PROP]
+	else if (input.gettok(3, " ") == "tooltiptextcolor") {
 		DWORD cref = 0;
+
 		if (this->m_ToolTipHWND != NULL)
-			cref = (DWORD)SendMessage(this->m_ToolTipHWND,TTM_GETTIPTEXTCOLOR, NULL, NULL);
-		wsprintf(szReturnValue,"%ld", cref);
+			cref = (DWORD) SendMessage(this->m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL);
+
+		wsprintf(szReturnValue, "%ld", cref);
 		return;
 	}
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
+	else if (this->parseGlobalInfoRequest(input, szReturnValue)) {
+		return;
+	}
 
-    return;
-  }
-
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
