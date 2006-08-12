@@ -119,9 +119,8 @@ DcxIpAddress::~DcxIpAddress( ) {
  * blah
  */
 
-void DcxIpAddress::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-  unsigned int i = 1, numtok = styles.numtok( " " );
+void DcxIpAddress::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
+	//unsigned int i = 1, numtok = styles.numtok( " " );
 /*
   while ( i <= numtok ) {
 
@@ -133,7 +132,8 @@ void DcxIpAddress::parseControlStyles( TString & styles, LONG * Styles, LONG * E
     i++;
   }
 */
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+
+	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
 /*!
@@ -147,7 +147,7 @@ void DcxIpAddress::parseControlStyles( TString & styles, LONG * Styles, LONG * E
 
 void DcxIpAddress::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   // [NAME] [ID] [PROP]
   if ( input.gettok( 3, " " ) == "ip" ) {
@@ -177,58 +177,52 @@ void DcxIpAddress::parseInfoRequest( TString & input, char * szReturnValue ) {
  * blah
  */
 
-void DcxIpAddress::parseCommandRequest( TString & input ) {
+void DcxIpAddress::parseCommandRequest(TString &input) {
+	XSwitchFlags flags;
+	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
+	this->parseSwitchFlags(&input.gettok(3, " "), &flags);
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
+	int numtok = input.numtok(" ");
 
-  int numtok = input.numtok( " " );
+	// xdid -r [NAME] [ID] [SWITCH] ItemText
+	if (flags.switch_flags[17] && numtok > 3) {
+		this->clearAddress();
+	}
 
-  // xdid -r [NAME] [ID] [SWITCH] ItemText
-  if ( flags.switch_flags[17] && numtok > 3 ) {
-    this->clearAddress( );
-  }
-  
-  // xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
-  if ( flags.switch_flags[0] && numtok > 3 ) {
-    
-    TString IP = input.gettok( 4, " " );
+	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
+	if (flags.switch_flags[0] && numtok > 3) {
+		TString IP = input.gettok( 4, " " );
 
-    if ( IP.numtok( ".") == 4 ) {
+		if (IP.numtok(".") == 4) {
+			BYTE b[4];
 
-      BYTE b[4];
+			for (int i = 0; i < 4; i++) {
+				b[i] = (BYTE) atoi(IP.gettok(i +1, ".").to_chr());
+			}
 
-      for ( int i = 0; i < 4; i++ ) {
+			DWORD adr = MAKEIPADDRESS(b[0], b[1], b[2], b[3]);
+			this->setAddress(adr);
+		}
+	}
+	// xdid -g [NAME] [ID] [SWITCH] [N] [MIN] [MAX]
+	else if (flags.switch_flags[6] && numtok > 5) {
+		int nField	= atoi(input.gettok(4, " ").to_chr()) -1;
+		BYTE min		= atoi(input.gettok(5, " ").to_chr());
+		BYTE max		= atoi(input.gettok(6, " ").to_chr());
 
-        b[i] = atoi( IP.gettok( i+1, "." ).to_chr( ) );
-      }
+		if (nField > -1 && nField < 4)
+			this->setRange(nField, min, max);
+	}
+	// xdid -j [NAME] [ID] [SWITCH] [N]
+	else if (flags.switch_flags[9] && numtok > 3) {
+		int nField = atoi(input.gettok(4, " ").to_chr()) -1;
 
-      DWORD adr = MAKEIPADDRESS( b[0], b[1], b[2], b[3] );
-      this->setAddress( adr );
-    }
-  }
-  // xdid -g [NAME] [ID] [SWITCH] [N] [MIN] [MAX]
-  else if ( flags.switch_flags[6] && numtok > 5 ) {
-
-     int nField = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-     BYTE min = atoi( input.gettok( 5, " " ).to_chr( ) );
-     BYTE max = atoi( input.gettok( 6, " " ).to_chr( ) );
-
-     if ( nField > -1 && nField < 4 )
-       this->setRange( nField, min, max );
-  }
-  // xdid -j [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[9] && numtok > 3 ) {
-
-    int nField = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-
-    if ( nField > -1 && nField < 4 )
-      this->setFocus( nField );
-  }
-  else {
-    this->parseGlobalCommandRequest( input, flags );
-  }
+		if (nField > -1 && nField < 4)
+			this->setFocus(nField);
+	}
+	else {
+		this->parseGlobalCommandRequest(input, flags);
+	}
 }
 
 /*!

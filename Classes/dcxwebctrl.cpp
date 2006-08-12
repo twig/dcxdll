@@ -169,9 +169,8 @@ DcxWebControl::~DcxWebControl( ) {
  * blah
  */
 
-void DcxWebControl::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-  unsigned int i = 1, numtok = styles.numtok( " " );
+void DcxWebControl::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
+	//unsigned int i = 1, numtok = styles.numtok( " " );
 
   /*
   while ( i <= numtok ) {
@@ -196,7 +195,8 @@ void DcxWebControl::parseControlStyles( TString & styles, LONG * Styles, LONG * 
     i++;
   }
   */
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+
+	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
 /*!
@@ -210,7 +210,7 @@ void DcxWebControl::parseControlStyles( TString & styles, LONG * Styles, LONG * 
 
 void DcxWebControl::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   // [NAME] [ID] [PROP]
   if ( input.gettok( 3, " " ) == "url" ) {

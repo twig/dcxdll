@@ -573,7 +573,7 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
 		}
 */
 		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
-		int nSubItem = atoi(input.gettok(5, " ").to_chr());
+		//int nSubItem = atoi(input.gettok(5, " ").to_chr());
 
 		if (nItem > -1 && nItem < ListView_GetItemCount(this->m_Hwnd)) {
 			LVITEM lvi;
@@ -644,7 +644,7 @@ void DcxListView::parseCommandRequest( TString & input ) {
 			UINT stateFlags = this->parseItemFlags( data.gettok( 3, " " ) );
 			int icon = atoi( data.gettok( 4, " " ).to_chr( ) ) - 1;
 			int state = atoi( data.gettok( 5, " " ).to_chr( ) );
-			int overlay = atoi( data.gettok( 6, " " ).to_chr( ) );
+			//int overlay = atoi( data.gettok( 6, " " ).to_chr( ) );
 			int group = atoi( data.gettok( 7, " " ).to_chr( ) );
 			COLORREF clrText = atol( data.gettok( 8, " " ).to_chr( ) );
 			COLORREF clrBack = atol( data.gettok( 9, " " ).to_chr( ) );
@@ -757,12 +757,12 @@ void DcxListView::parseCommandRequest( TString & input ) {
 			if ( nPos == -1 )
 				nPos += ListView_GetItemCount( this->m_Hwnd ) + 1;
 
-			int indent = atoi( data.gettok( 2, " " ).to_chr( ) );
+			//int indent = atoi( data.gettok( 2, " " ).to_chr( ) );
 			UINT stateFlags = this->parseItemFlags( data.gettok( 3, " " ) );
 			int icon = atoi( data.gettok( 4, " " ).to_chr( ) ) - 1;
 			int state = atoi( data.gettok( 5, " " ).to_chr( ) );
-			int overlay = atoi( data.gettok( 6, " " ).to_chr( ) );
-			int group = atoi( data.gettok( 7, " " ).to_chr( ) );
+			//int overlay = atoi( data.gettok( 6, " " ).to_chr( ) );
+			//int group = atoi( data.gettok( 7, " " ).to_chr( ) );
 
 			TString itemtext;
 
@@ -1933,9 +1933,10 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                         lf.lfUnderline = true; 
 
                       HFONT hFontNew = CreateFontIndirect( &lf );
-                      HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
+                      //HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
+							 SelectObject(lplvcd->nmcd.hdc, hFontNew);
 
-                      DeleteObject( hFontNew );
+                      DeleteObject(hFontNew);
                     }
 						}
 

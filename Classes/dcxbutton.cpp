@@ -161,7 +161,7 @@ void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 
 void DcxButton::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   // [NAME] [ID] [PROP]
   if ( input.gettok( 3, " " ) == "text" ) {

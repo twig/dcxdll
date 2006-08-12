@@ -140,7 +140,7 @@ void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 
 void DcxRadio::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   // [NAME] [ID] [PROP]
   if ( input.gettok( 3, " " ) == "text" ) {

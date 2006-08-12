@@ -950,8 +950,6 @@ mIRC(_xdialog) {
 		}
 		else
 			ret("$false");
-
-		return 3;
 	}
 
 	p_Dialog->parseInfoRequest(d, data);

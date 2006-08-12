@@ -502,7 +502,6 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
   }
   // xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
   else if ( flags.switch_flags[8] && numtok > 4 ) {
-
     UINT iFlags = this->parseColorFlags( input.gettok( 4, " " ) );
 
     COLORREF clr = (COLORREF) atol( input.gettok( 5, " " ).to_chr( ) );
@@ -1901,7 +1900,8 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                         lf.lfUnderline = true;
 
                       HFONT hFontNew = CreateFontIndirect( &lf );
-                      HFONT hOldFont = (HFONT) SelectObject( lpntvcd->nmcd.hdc, hFontNew );
+                      //HFONT hOldFont = (HFONT) SelectObject( lpntvcd->nmcd.hdc, hFontNew );
+							 SelectObject(lpntvcd->nmcd.hdc, hFontNew);
 
                       DeleteObject( hFontNew );
                     //}

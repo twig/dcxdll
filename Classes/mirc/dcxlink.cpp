@@ -126,10 +126,9 @@ DcxLink::~DcxLink( ) {
  * blah
  */
 
-void DcxLink::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-  unsigned int i = 1, numtok = styles.numtok( " " );
-  *Styles |= SS_NOTIFY;
+void DcxLink::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
+	//unsigned int i = 1, numtok = styles.numtok( " " );
+	*Styles |= SS_NOTIFY;
 
   /*
   while ( i <= numtok ) {
@@ -145,7 +144,7 @@ void DcxLink::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
   }
   */
 
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
 /*!
@@ -159,7 +158,7 @@ void DcxLink::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
 
 void DcxLink::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   // [NAME] [ID] [PROP]
   if ( input.gettok( 3, " " ) == "text" ) {

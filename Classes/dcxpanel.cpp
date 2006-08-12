@@ -147,9 +147,8 @@ DcxPanel::~DcxPanel( ) {
  * blah
  */
 
-void DcxPanel::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-  unsigned int i = 1, numtok = styles.numtok( " " );
+void DcxPanel::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
+	//unsigned int i = 1, numtok = styles.numtok(" ");
 
   //*ExStyles = WS_EX_CONTROLPARENT;
 
@@ -162,7 +161,8 @@ void DcxPanel::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
     i++;
   }
   */
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+
+	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
 /*!
@@ -176,7 +176,7 @@ void DcxPanel::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 
 void DcxPanel::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
 

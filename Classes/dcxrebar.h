@@ -65,7 +65,7 @@ public:
 
   void resetContents( );
 
-  LRESULT insertBand( UINT uIndex, LPREBARBANDINFO lprbbi );
+  LRESULT insertBand( int uIndex, LPREBARBANDINFO lprbbi );
   LRESULT deleteBand( UINT uIndex );
   LRESULT getBandInfo( UINT uBand, LPREBARBANDINFO lprbbi );
   LRESULT setBandInfo( UINT uBand, LPREBARBANDINFO lprbbi );

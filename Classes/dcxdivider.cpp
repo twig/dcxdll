@@ -152,7 +152,7 @@ void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 void DcxDivider::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
 

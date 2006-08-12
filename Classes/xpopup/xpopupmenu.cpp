@@ -944,8 +944,6 @@ LRESULT CALLBACK XPopupMenu::XPopupMenuProc( HWND mHwnd, UINT uMsg, WPARAM wPara
     default:
       return DefWindowProc( mHwnd, uMsg, wParam, lParam );
   }
-
-  return 0;
 }
 
 /*!
@@ -974,7 +972,6 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam
       {
         LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT) lParam;
         if ( lpdis->CtlType == ODT_MENU ) {
-
           //mIRCError( "XPopup WM_DRAWITEM" );
           OnDrawItem( mHwnd, lpdis ); 
           return TRUE; 
@@ -1022,8 +1019,8 @@ LRESULT XPopupMenu::OnDrawItem( HWND mHwnd, LPDRAWITEMSTRUCT lpdis ) {
   XPopupMenuItem * p_Item = (XPopupMenuItem *) lpdis->itemData;
 
   if ( p_Item != NULL ) {
-
     //mIRCError( "WM_DRAWITEM" );
+	  
     p_Item->DrawItem( lpdis );
   }
   

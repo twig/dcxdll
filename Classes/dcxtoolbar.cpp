@@ -1327,7 +1327,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
            case TBN_DROPDOWN:
             {
 
-              LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
+              //LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
               POINT pt;
               GetCursorPos( &pt );
               ScreenToClient( this->m_Hwnd, &pt );
@@ -1394,7 +1394,8 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
                       lf.lfUnderline = FALSE;
 //mIRCError("getting new font");
                     HFONT hFontNew = CreateFontIndirect( &lf );
-                    HFONT hOldFont = (HFONT) SelectObject( lpntbcd->nmcd.hdc, hFontNew );
+                    //HFONT hOldFont = (HFONT) SelectObject( lpntbcd->nmcd.hdc, hFontNew );
+						  SelectObject(lpntbcd->nmcd.hdc, hFontNew);
 //mIRCError("getting blah");
                     DeleteObject(hFontNew);
 //mIRCError("getting delete");

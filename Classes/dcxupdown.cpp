@@ -145,7 +145,7 @@ void DcxUpDown::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 
 void DcxUpDown::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   // [NAME] [ID] [PROP]
   if ( input.gettok( 3, " " ) == "value" ) {

@@ -591,7 +591,7 @@ HICON CreateGrayscaleIcon(HICON hIcon) {
 	BITMAP	bmp;
 	HBITMAP	hOldBmp1 = NULL, hOldBmp2 = NULL;
 	ICONINFO	csII, csGrayII;
-	BOOL		bRetValue = FALSE;
+	//BOOL		bRetValue = FALSE;
 
 	if (!GetIconInfo(hIcon, &csII))
 		return NULL;

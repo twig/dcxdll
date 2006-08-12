@@ -130,7 +130,7 @@ DcxMDialog::~DcxMDialog( ) {
  */
 
 void DcxMDialog::parseInfoRequest(TString &input, char *szReturnValue) {
-	int numtok = input.numtok(" ");
+//	int numtok = input.numtok(" ");
 
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3, " ") == "dname") {
@@ -156,7 +156,7 @@ void DcxMDialog::parseCommandRequest( TString & input ) {
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
   this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
 
-  int numtok = input.numtok( " " );
+  //int numtok = input.numtok( " " );
 
   this->parseGlobalCommandRequest( input, flags );
 }

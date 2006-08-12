@@ -174,7 +174,7 @@ void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 
 void DcxTrackBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   if ( input.gettok( 3, " " ) == "value" ) {
 
@@ -688,7 +688,7 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 								HBITMAP pBmp = NULL;
 
 								// if thumb is selected/focussed, switch brushes
-								if (nmcd.uItemState && CDIS_FOCUS)
+								if (nmcd.uItemState & CDIS_FOCUS)
 									pBmp = this->m_hbmp[TBBMP_THUMBDRAG];
 								else
 									pBmp = this->m_hbmp[TBBMP_THUMB];
@@ -729,8 +729,9 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 					} // end drawstage
 
 					break;
-				}
 				} // end NM_CUSTOMDRAW
+
+			} // end SWITCH
 		} // end notify
 
     default:

@@ -141,7 +141,7 @@ void DcxCalendar::parseControlStyles(TString & styles, LONG * Styles, LONG * ExS
 
 void DcxCalendar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   // [NAME] [ID] [PROP]
   if ( input.gettok( 3, " " ) == "text" ) {
@@ -173,7 +173,7 @@ void DcxCalendar::parseCommandRequest( TString & input ) {
   // set sel range
   // set today
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   //xdid -t [NAME] [ID] [SWITCH]
   if ( flags.switch_flags[19] ) {

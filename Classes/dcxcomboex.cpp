@@ -330,7 +330,7 @@ void DcxComboEx::parseCommandRequest( TString & input ) {
     int indent = atoi( input.gettok( 5, " " ).to_chr( ) );
     int icon = atoi( input.gettok( 6, " " ).to_chr( ) ) - 1;
     int state = atoi( input.gettok( 7, " " ).to_chr( ) ) - 1;
-    int overlay = atoi( input.gettok( 8, " " ).to_chr( ) ) - 1;
+    //int overlay = atoi( input.gettok( 8, " " ).to_chr( ) ) - 1;
     TString itemtext = input.gettok( 9, -1, " " );
 
     COMBOBOXEXITEM cbi;
@@ -353,10 +353,7 @@ void DcxComboEx::parseCommandRequest( TString & input ) {
     int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
 
 	 if ( nItem > -1 ) {
-		char *cb = new char[10];
-
       this->setCurSel( nItem );
-		//this->callAliasEx(cb, "%s,%d,%d", "sclick", this->getUserID(), nItem +1);
 	 }
   }
   // xdid -d [NAME] [ID] [SWITCH] [N]

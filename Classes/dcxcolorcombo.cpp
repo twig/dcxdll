@@ -104,10 +104,9 @@ DcxColorCombo::~DcxColorCombo( ) {
  * blah
  */
 
-void DcxColorCombo::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-  *Styles |= CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED; 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+void DcxColorCombo::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
+	*Styles |= CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED; 
+	//unsigned int i = 1, numtok = styles.numtok( " " );
 
   /*
   while ( i <= numtok ) {
@@ -118,7 +117,8 @@ void DcxColorCombo::parseControlStyles( TString & styles, LONG * Styles, LONG * 
     i++;
   }
   */
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+
+	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
 /*!

@@ -117,26 +117,24 @@ DcxImage::~DcxImage() {
  * blah
  */
 
-void DcxImage::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxImage::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
+//  unsigned int i = 1, numtok = styles.numtok( " " );
+	*Styles |= SS_NOTIFY;
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
-  *Styles |= SS_NOTIFY;
+	/*
+	while ( i <= numtok ) {
+		if ( styles.gettok( i , " " ) == "center" )
+			*Styles |= SS_CENTER;
+		else if ( styles.gettok( i , " " ) == "right" )
+			*Styles |= SS_RIGHT;
+		else if ( styles.gettok( i , " " ) == "endellipsis" )
+			*Styles |= SS_ENDELLIPSIS;
 
-  /*
-  while ( i <= numtok ) {
+		i++;
+	}
+	*/
 
-    if ( styles.gettok( i , " " ) == "center" )
-      *Styles |= SS_CENTER;
-    else if ( styles.gettok( i , " " ) == "right" )
-      *Styles |= SS_RIGHT;
-    else if ( styles.gettok( i , " " ) == "endellipsis" )
-      *Styles |= SS_ENDELLIPSIS;
-
-    i++;
-  }
-  */
-
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
 /*!
@@ -150,7 +148,7 @@ void DcxImage::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 
 void DcxImage::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
 

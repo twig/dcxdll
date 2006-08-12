@@ -131,7 +131,7 @@ DcxMWindow::~DcxMWindow( ) {
 
 void DcxMWindow::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
 
@@ -153,7 +153,7 @@ void DcxMWindow::parseCommandRequest( TString & input ) {
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
   this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   this->parseGlobalCommandRequest( input, flags );
 }

@@ -188,7 +188,7 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 
 void DcxBox::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   // [NAME] [ID] [PROP]
   if ( input.gettok( 3, " " ) == "text" ) {
@@ -208,14 +208,17 @@ void DcxBox::parseInfoRequest( TString & input, char * szReturnValue ) {
 
       HDC hdc = GetDC( this->m_Hwnd );
       HFONT oldFont;
-      if ( this->m_hFont != NULL )
-        oldFont = (HFONT) SelectObject( hdc, this->m_hFont );
+
+      if (this->m_hFont != NULL)
+        oldFont = (HFONT) SelectObject(hdc, this->m_hFont);
 
       char * text = new char[n+2];
       GetWindowText( this->m_Hwnd, text, n+1 );
       DrawText( hdc, text, n, &rcText, DT_CALCRECT );
 
-      SelectObject( hdc, oldFont );
+		if (this->m_hFont != NULL)
+			SelectObject(hdc, oldFont);
+
       ReleaseDC( this->m_Hwnd, hdc );
 
       //int w = rcText.right - rcText.left;
@@ -1126,6 +1129,9 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 					// paint the background
 					FillRect(hdc, &rc2, hBrush);
+				}
+				else {
+					hBrush = GetSysColorBrush(COLOR_3DFACE);
 				}
 
 				// if no border, dont bother

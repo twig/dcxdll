@@ -316,7 +316,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
       tooltip.trim( );
     }
 
-    int nIndex = atoi( data.gettok( 4, " " ).to_chr( ) ) - 1;
+    //int nIndex = atoi( data.gettok( 4, " " ).to_chr( ) ) - 1;
     int cx = atoi( data.gettok( 6, " " ).to_chr( ) );
     int cy = atoi( data.gettok( 7, " " ).to_chr( ) );
     int width = atoi( data.gettok( 8, " " ).to_chr( ) );
@@ -724,8 +724,8 @@ UINT DcxReBar::parseBandStyleFlags( TString & flags ) {
  * blah
  */
 
-LRESULT DcxReBar::insertBand( UINT uIndex, LPREBARBANDINFO lprbbi ) {
-  return SendMessage( this->m_Hwnd, RB_INSERTBAND, (WPARAM) uIndex, (LPARAM) lprbbi ); 
+LRESULT DcxReBar::insertBand(int uIndex, LPREBARBANDINFO lprbbi ) {
+  return SendMessage(this->m_Hwnd, RB_INSERTBAND, (WPARAM) uIndex, (LPARAM) lprbbi ); 
 }
 
 /*!

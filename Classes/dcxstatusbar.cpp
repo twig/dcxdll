@@ -500,7 +500,8 @@ LRESULT DcxStatusBar::getIcon( int iPart ) {
 int DcxStatusBar::hitTest( POINT & pt ) {
 
   RECT rc;
-  int n = 0, tx = 0;
+  int n = 0;
+  //int tx = 0;
   int nParts = this->getParts( 256, 0 );
 
   while ( n < nParts ) {

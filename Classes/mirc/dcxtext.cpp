@@ -142,7 +142,7 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
 
 void DcxText::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
   // [NAME] [ID] [PROP]
   if ( input.gettok( 3, " " ) == "text" ) {
@@ -164,13 +164,12 @@ void DcxText::parseInfoRequest( TString & input, char * szReturnValue ) {
  * blah
  */
 
-void DcxText::parseCommandRequest( TString & input ) {
+void DcxText::parseCommandRequest(TString &input) {
+	XSwitchFlags flags;
+	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
+	this->parseSwitchFlags(&input.gettok(3, " "), &flags);
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
-
-  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( " " );
 
 	//xdid -t [NAME] [ID] [SWITCH]
 	if (flags.switch_flags[19]) {
