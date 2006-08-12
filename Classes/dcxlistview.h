@@ -26,6 +26,7 @@ class DcxDialog;
 #define LVIS_COLOR      0x0400 //!< ListView Caption Color Style
 #define LVIS_BGCOLOR    0x0800 //!< ListView Caption Background Color Style
 #define LVIS_PBAR       0x1000 //!< ListView ProgressBar Style
+#define LVIS_ITALIC     0x2000 //!< ListView Caption Italic Style
 
 #define LVSS_ASC        0x01   //!< ListView Sort Ascending Style
 #define LVSS_DESC       0x02   //!< ListView Sort Descending Style
@@ -64,14 +65,14 @@ typedef struct tagDCXLVSORT {
  */
 
 typedef struct tagDCXLVITEM {
-
-  TString tsTipText;  //!< Tooltip text
-  COLORREF clrBack;   //!< Line Background Caption Color
-  COLORREF clrText;   //!< Line Caption Color
-  BOOL bBold;         //!< Is Line Caption Bold ?
-  BOOL bUline;        //!< Is Line Caption Underlined
-  DcxProgressBar *pbar;
-  int iPbarCol;
+	TString tsTipText;  //!< Tooltip text
+	COLORREF clrBack;   //!< Line Background Caption Color
+	COLORREF clrText;   //!< Line Caption Color
+	BOOL bBold;         //!< Is Line Caption Bold ?
+	BOOL bUline;        //!< Is Line Caption Underlined
+	BOOL bItalic;       //!< Is Line Caption Italicised
+	DcxProgressBar *pbar;
+	int iPbarCol;
 } DCXLVITEM,*LPDCXLVITEM;
 
 

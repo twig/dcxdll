@@ -682,6 +682,11 @@ void DcxListView::parseCommandRequest( TString & input ) {
 			else
 				lpmylvi->bBold = FALSE;
 
+			if (stateFlags & LVIS_ITALIC)
+				lpmylvi->bItalic = TRUE;
+			else
+				lpmylvi->bItalic = FALSE;
+
 			if (stateFlags & LVIS_COLOR)
 				lpmylvi->clrText = clrText;
 			else
@@ -921,8 +926,9 @@ void DcxListView::parseCommandRequest( TString & input ) {
 		UINT flags = this->parseItemFlags(input.gettok(6, " "));
 		LPDCXLVITEM lviDcx = (LPDCXLVITEM) lvi.lParam;
 
-		lviDcx->bUline = (flags & LVIS_UNDERLINE) ? TRUE : FALSE;
-		lviDcx->bBold  = (flags & LVIS_BOLD) ? TRUE : FALSE;
+		lviDcx->bUline  = (flags & LVIS_UNDERLINE) ? TRUE : FALSE;
+		lviDcx->bBold   = (flags & LVIS_BOLD) ? TRUE : FALSE;
+		lviDcx->bItalic = (flags & LVIS_ITALIC) ? TRUE : FALSE;
 		
 		ListView_SetItemState(this->m_Hwnd, nItem, flags, 0xFFFFFF);
 	}
@@ -1342,6 +1348,8 @@ UINT DcxListView::parseItemFlags(TString & flags) {
 			iFlags |= LVIS_DROPHILITED;
 		else if (flags[i] == 'f')
 			iFlags |= LVIS_FOCUSED;
+		else if (flags[i] == 'i')
+			iFlags |= LVIS_ITALIC;
 		else if (flags[i] == 'k')
 			iFlags |= LVIS_BGCOLOR;
 		else if (flags[i] == 's')
@@ -1920,25 +1928,26 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                     if ( lpdcxlvi->clrBack != -1 )
                       lplvcd->clrTextBk = lpdcxlvi->clrBack;
 
-                    if ( lpdcxlvi->bUline || lpdcxlvi->bBold ) {
+							if (lpdcxlvi->bUline || lpdcxlvi->bBold || lpdcxlvi->bItalic) {
+								HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
+								LOGFONT lf;
 
-                      HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
+								GetObject(hFont, sizeof(LOGFONT), &lf);
 
-                      LOGFONT lf;
-                      GetObject( hFont, sizeof(LOGFONT), &lf );
+								if (lpdcxlvi->bBold)
+									lf.lfWeight |= FW_BOLD;
+								if (lpdcxlvi->bUline)
+									lf.lfUnderline = true;
+								if (lpdcxlvi->bItalic)
+									lf.lfItalic = true;
 
-                      if ( lpdcxlvi->bBold )
-                        lf.lfWeight |= FW_BOLD;
-                      if ( lpdcxlvi->bUline )
-                        lf.lfUnderline = true; 
+								HFONT hFontNew = CreateFontIndirect( &lf );
+								//HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
+								SelectObject(lplvcd->nmcd.hdc, hFontNew);
 
-                      HFONT hFontNew = CreateFontIndirect( &lf );
-                      //HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
-							 SelectObject(lplvcd->nmcd.hdc, hFontNew);
-
-                      DeleteObject(hFontNew);
-                    }
-						}
+								DeleteObject(hFontNew);
+							}
+						 }
 
 						 return ( CDRF_NEWFONT );
 						break;
