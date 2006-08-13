@@ -188,9 +188,8 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 	if (flags.switch_flags[17] && numtok > 3) {
 		this->clearAddress();
 	}
-
 	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
-	if (flags.switch_flags[0] && numtok > 3) {
+	else if (flags.switch_flags[0] && numtok > 3) {
 		TString IP = input.gettok( 4, " " );
 
 		if (IP.numtok(".") == 4) {

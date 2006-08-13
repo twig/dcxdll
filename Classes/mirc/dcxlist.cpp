@@ -246,7 +246,7 @@ void DcxList::parseCommandRequest( TString & input ) {
     ListBox_InsertString( this->m_Hwnd, nPos, input.gettok( 5, -1, " " ).to_chr( ) );
   }
   //xdid -c [NAME] [ID] [SWITCH] [N,[N,[...]]]
-  if ( flags.switch_flags[2] && numtok > 3 ) {
+  else if ( flags.switch_flags[2] && numtok > 3 ) {
 
     if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
 

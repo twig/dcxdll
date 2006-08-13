@@ -228,7 +228,7 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
     this->setTic( lPosition );
   }
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
-	if (flags.switch_flags[6] && numtok > 4) {
+	else if (flags.switch_flags[6] && numtok > 4) {
 		UINT flags = parseImageFlags(input.gettok(4, " "));
 		TString filename = input.gettok(5, -1, " ");
 		filename.trim();

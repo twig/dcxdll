@@ -268,7 +268,7 @@ void DcxEdit::parseCommandRequest( TString & input ) {
   }
 
   // xdid -a [NAME] [ID] [SWITCH] [TEXT]
-  if ( flags.switch_flags[0] && numtok > 3 ) {
+  else if ( flags.switch_flags[0] && numtok > 3 ) {
     
     this->m_tsText += input.gettok( 4, -1, " " );
     SetWindowText( this->m_Hwnd, this->m_tsText.to_chr( ) );

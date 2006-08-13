@@ -437,7 +437,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
   }
 
 	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] Text[TAB]Tooltip Text
-	if (flags.switch_flags[0]) {
+	else if (flags.switch_flags[0]) {
 		int n = input.numtok("\t");
 
 		if (n > 1) {
