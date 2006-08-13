@@ -1150,6 +1150,79 @@ BOOL isMenuBarMenu(HMENU hMenu, HMENU hMatch) {
 	return FALSE;
 }
 
+/*
+ *
+ * /dll dcx.dll messagebox <styles> > <title> > <message>
+ *
+ */
+
+mIRC(messagebox) {
+	TString d(data);
+	d.trim();
+
+	if (d.numtok(">") < 3) {
+		mIRCError("/ $+ MessageBox invalid arguments");
+		data[0] = 0;
+		return 3;
+	}
+	DWORD Styles = MB_DEFBUTTON1;
+	TString styles = d.gettok(1,">"), title = d.gettok(3,">"), message = d.gettok(2,">");
+	title.trim();
+	message.trim();
+	int n = styles.numtok(" ");
+	for (int i = 1;i <= n;i++)
+	{
+		if (styles.gettok(i," ") == "help")
+			Styles |= MB_HELP;
+		if (styles.gettok(i," ") == "ok")
+			Styles |= MB_OK;
+		if (styles.gettok(i," ") == "okcancel")
+			Styles |= MB_OKCANCEL;
+		if (styles.gettok(i," ") == "retrycancel")
+			Styles |= MB_RETRYCANCEL;
+		if (styles.gettok(i," ") == "yesno")
+			Styles |= MB_YESNO;
+		if (styles.gettok(i," ") == "yesnocancel")
+			Styles |= MB_YESNOCANCEL;
+		if (styles.gettok(i," ") == "iconexclamation")
+			Styles |= MB_ICONEXCLAMATION;
+		if (styles.gettok(i," ") == "iconwarning")
+			Styles |= MB_ICONWARNING;
+		if (styles.gettok(i," ") == "iconinformation")
+			Styles |= MB_ICONINFORMATION;
+		if (styles.gettok(i," ") == "iconasterik")
+			Styles |= MB_ICONASTERISK;
+		if (styles.gettok(i," ") == "stop")
+			Styles |= MB_ICONSTOP;
+		if (styles.gettok(i," ") == "error")
+			Styles |= MB_ICONERROR;
+		if (styles.gettok(i," ") == "hand")
+			Styles |= MB_ICONHAND;
+		if (styles.gettok(i," ") == "defbutton2")
+			Styles |= MB_DEFBUTTON2;
+		if (styles.gettok(i," ") == "defbutton3")
+			Styles |= MB_DEFBUTTON3;
+		if (styles.gettok(i," ") == "defbutton4")
+			Styles |= MB_DEFBUTTON4;
+		if (styles.gettok(i," ") == "modal")
+			Styles |= MB_APPLMODAL;
+		if (styles.gettok(i," ") == "sysmodal")
+			Styles |= MB_SYSTEMMODAL;
+		if (styles.gettok(i," ") == "taskmodal")
+			Styles |= MB_TASKMODAL;
+		if (styles.gettok(i," ") == "right")
+			Styles |= MB_RIGHT;
+		if (styles.gettok(i," ") == "rtl")
+			Styles |= MB_RTLREADING;
+		if (styles.gettok(i," ") == "foreground")
+			Styles |= MB_SETFOREGROUND;
+		if (styles.gettok(i," ") == "topmost")
+			Styles |= MB_TOPMOST;
+	}
+	wsprintf(data,"%d",MessageBox(mIRCLink.m_mIRCHWND,message.to_chr(),title.to_chr(),Styles));
+	return 3;
+}
+
 /*!
 * \brief XPopup DLL /xpop Function
 *
