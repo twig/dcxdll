@@ -49,7 +49,7 @@ public:
   inline TString getType( ) { return TString( "ipaddress" ); };
 
 protected:
-
+	TString m_tsToolTip; //!< This controls tooltip.
   
 };
 

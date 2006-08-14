@@ -71,9 +71,6 @@ DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles
 			ti->uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
 			ti->uId = (UINT_PTR)this->m_Hwnd;
 
-			//if (styles.istok("balloon"," ")) {
-			//	ti->uFlags |= TTS_BALLOON;
-			//}
 			if (SendMessage(this->m_ToolTipHWND,TTM_ADDTOOL,NULL,(LPARAM)ti) == FALSE)
 				delete ti;
 		}

@@ -46,6 +46,25 @@ DcxCheck::DcxCheck( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   if ( bNoTheme )
     SetWindowTheme( this->m_Hwnd , L" ", L" " );
 
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+// unsure if this needs to be persistant or not, making it so for now.
+			TOOLINFO *ti = new TOOLINFO;
+			ZeroMemory(ti,sizeof(TOOLINFO));
+			ti->cbSize = sizeof(TOOLINFO);
+			ti->hwnd = this->m_Hwnd;
+			ti->lParam = (LPARAM)ti;
+			ti->lpszText = LPSTR_TEXTCALLBACK;
+			ti->uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
+			ti->uId = (UINT_PTR)this->m_Hwnd;
+
+			if (SendMessage(this->m_ToolTipHWND,TTM_ADDTOOL,NULL,(LPARAM)ti) == FALSE)
+				delete ti;
+		}
+	}
+
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -82,6 +101,25 @@ DcxCheck::DcxCheck( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 
   if ( bNoTheme )
     SetWindowTheme( this->m_Hwnd , L" ", L" " );
+
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			TOOLINFO *ti = new TOOLINFO;
+			ZeroMemory(ti,sizeof(TOOLINFO));
+			ti->cbSize = sizeof(TOOLINFO);
+			ti->hwnd = this->m_Hwnd;
+			ti->lParam = (LPARAM)ti;
+			ti->lpszText = LPSTR_TEXTCALLBACK;
+			ti->uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
+			ti->uId = (UINT_PTR)this->m_Hwnd;
+
+			if (SendMessage(this->m_ToolTipHWND,TTM_ADDTOOL,NULL,(LPARAM)ti) == FALSE)
+				delete ti;
+		}
+	}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
@@ -194,11 +232,13 @@ void DcxCheck::parseCommandRequest( TString & input ) {
     else
       Button_SetCheck( this->m_Hwnd, BST_CHECKED );
   }
-  //xdid -t [NAME] [ID] [SWITCH]
+  //xdid -t [NAME] [ID] [SWITCH] ItemText (tab ToolTipText)
   else if ( flags.switch_flags[19] ) {
 
-    TString text = input.gettok( 4, -1, " " );
+		TString text = input.gettok( 4, -1, " " ).gettok(1,"\t");
     text.trim( );
+		this->m_tsToolTip = input.gettok(4,-1," ").gettok(2,"\t");
+		this->m_tsToolTip.trim();
     SetWindowText( this->m_Hwnd, text.to_chr( ) );
   }
   //xdid -u [NAME] [ID] [SWITCH]
@@ -241,6 +281,23 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
         }
       }
       break;
+		case WM_NOTIFY:
+			{
+        LPNMHDR hdr = (LPNMHDR) lParam;
+        if (!hdr)
+          break;
+
+        switch( hdr->code ) {
+				case TTN_GETDISPINFO:
+					{
+						LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+						di->lpszText = this->m_tsToolTip.to_chr();
+						di->hinst = NULL;
+					}
+					break;
+				}
+			}
+			break;
 
     case WM_CONTEXTMENU:
       {
@@ -274,6 +331,18 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
     case WM_DESTROY:
       {
         //mIRCError( "WM_DESTROY" );
+				if (this->m_ToolTipHWND != NULL) {
+					TOOLINFO ti;
+					ZeroMemory(&ti,sizeof(TOOLINFO));
+					ti.cbSize = sizeof(TOOLINFO);
+					ti.hwnd = this->m_Hwnd;
+					ti.uId = (UINT_PTR)this->m_Hwnd;
+					if (SendMessage(this->m_ToolTipHWND,TTM_GETTOOLINFO,NULL,(LPARAM)&ti)) {
+						TOOLINFO *tmp = (TOOLINFO *)ti.lParam;
+						SendMessage(this->m_ToolTipHWND,TTM_DELTOOL,NULL,(LPARAM)&ti);
+						if (tmp != NULL) delete tmp;
+					}
+				}
         delete this;
         bParsed = TRUE;
       }

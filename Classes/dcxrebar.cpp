@@ -1060,6 +1060,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
             case LVN_BEGINLABELEDIT:
             case LVN_ENDLABELEDIT:
             case LVN_DELETEITEM:
+						case LVN_GETINFOTIP:
               {
                 if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
                   bParsed = TRUE;
