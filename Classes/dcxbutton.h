@@ -74,6 +74,8 @@ protected:
 
   UINT parseColorFlags( TString & flags );
   BOOL m_bBitmapText;
+
+	TString m_tsToolTip;
 };
 
 #endif // _DCXBUTTON_H_

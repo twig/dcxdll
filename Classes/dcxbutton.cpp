@@ -57,6 +57,28 @@ DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles
   this->m_iIconSize = 16;
   this->m_ImageList = NULL;
 
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+// unsure if this needs to be persistant or not, making it so for now.
+			TOOLINFO *ti = new TOOLINFO;
+			ZeroMemory(ti,sizeof(TOOLINFO));
+			ti->cbSize = sizeof(TOOLINFO);
+			ti->hwnd = this->m_Hwnd;
+			ti->lParam = (LPARAM)ti;
+			ti->lpszText = LPSTR_TEXTCALLBACK;
+			ti->uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
+			ti->uId = (UINT_PTR)this->m_Hwnd;
+
+			//if (styles.istok("balloon"," ")) {
+			//	ti->uFlags |= TTS_BALLOON;
+			//}
+			if (SendMessage(this->m_ToolTipHWND,TTM_ADDTOOL,NULL,(LPARAM)ti) == FALSE)
+				delete ti;
+		}
+	}
+
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -104,6 +126,25 @@ DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
 
   this->m_iIconSize = 16;
   this->m_ImageList = NULL;
+
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			TOOLINFO *ti = new TOOLINFO;
+			ZeroMemory(ti,sizeof(TOOLINFO));
+			ti->cbSize = sizeof(TOOLINFO);
+			ti->hwnd = this->m_Hwnd;
+			ti->lParam = (LPARAM)ti;
+			ti->lpszText = LPSTR_TEXTCALLBACK;
+			ti->uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
+			ti->uId = (UINT_PTR)this->m_Hwnd;
+
+			if (SendMessage(this->m_ToolTipHWND,TTM_ADDTOOL,NULL,(LPARAM)ti) == FALSE)
+				delete ti;
+		}
+	}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
@@ -254,10 +295,12 @@ void DcxButton::parseCommandRequest( TString & input ) {
     }
 
   }
-  // xdid -t [NAME] [ID] [SWITCH] ItemText
+  // xdid -t [NAME] [ID] [SWITCH] ItemText (tab ToolTipText)
   else if ( flags.switch_flags[19] && numtok > 2 ) {
-	  this->m_tsCaption = (numtok > 3 ? input.gettok( 4, -1, " " ) : "");
+		this->m_tsCaption = (numtok > 3 ? input.gettok( 4, -1, " " ).gettok(1,"\t") : "");
     this->m_tsCaption.trim( );
+		this->m_tsToolTip = (numtok > 3 ? input.gettok( 4, -1, " " ).gettok(2,-1,"\t") : "");
+		this->m_tsToolTip.trim();
     this->redrawWindow( );
   }
   // xdid -w [NAME] [ID] [SWITCH] [INDEX] [FILENAME]
@@ -390,6 +433,23 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
         }
       }
       break;
+		case WM_NOTIFY:
+			{
+        LPNMHDR hdr = (LPNMHDR) lParam;
+        if (!hdr)
+          break;
+
+        switch( hdr->code ) {
+				case TTN_GETDISPINFO:
+					{
+						LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+						di->lpszText = this->m_tsToolTip.to_chr();
+						di->hinst = NULL;
+					}
+					break;
+				}
+			}
+			break;
 
     case WM_MOUSEMOVE:
       {
@@ -405,6 +465,19 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
           tme.dwHoverTime = 1;
           this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );		
         }
+				//if (this->m_ToolTipHWND != NULL) {
+				//	MSG tmp;
+				//	DWORD pos;
+				//	tmp.hwnd = this->m_Hwnd;
+				//	tmp.lParam = lParam;
+				//	tmp.message = uMsg;
+				//	pos = GetMessagePos();
+				//	tmp.pt.x = GET_X_LPARAM(pos);
+				//	tmp.pt.y = GET_Y_LPARAM(pos);
+				//	tmp.time = GetMessageTime();
+				//	tmp.wParam = wParam;
+				//	SendMessage(this->m_ToolTipHWND,TTM_RELAYEVENT,NULL,(LPARAM)&tmp);
+				//}
       }
       break;
 
@@ -440,13 +513,45 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
           this->m_bSelected = TRUE;
           InvalidateRect( this->m_Hwnd, NULL, FALSE );
         }
+				//if (this->m_ToolTipHWND != NULL) {
+				//	MSG tmp;
+				//	DWORD pos;
+				//	tmp.hwnd = this->m_Hwnd;
+				//	tmp.lParam = lParam;
+				//	tmp.message = uMsg;
+				//	pos = GetMessagePos();
+				//	tmp.pt.x = GET_X_LPARAM(pos);
+				//	tmp.pt.y = GET_Y_LPARAM(pos);
+				//	tmp.time = GetMessageTime();
+				//	tmp.wParam = wParam;
+				//	SendMessage(this->m_ToolTipHWND,TTM_RELAYEVENT,NULL,(LPARAM)&tmp);
+				//}
       }
       break;
 
     case WM_LBUTTONUP:
       {
         this->m_bSelected = FALSE;
-      }
+			}
+		//case WM_MBUTTONDOWN:
+		//case WM_MBUTTONUP:
+		//case WM_RBUTTONDOWN:
+		//case WM_RBUTTONUP:
+		//	{
+		//		if (this->m_ToolTipHWND != NULL) {
+		//			MSG tmp;
+		//			DWORD pos;
+		//			tmp.hwnd = this->m_Hwnd;
+		//			tmp.lParam = lParam;
+		//			tmp.message = uMsg;
+		//			pos = GetMessagePos();
+		//			tmp.pt.x = GET_X_LPARAM(pos);
+		//			tmp.pt.y = GET_Y_LPARAM(pos);
+		//			tmp.time = GetMessageTime();
+		//			tmp.wParam = wParam;
+		//			SendMessage(this->m_ToolTipHWND,TTM_RELAYEVENT,NULL,(LPARAM)&tmp);
+		//		}
+  //    }
       break;
 
     case WM_CONTEXTMENU:
@@ -563,10 +668,10 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
           mIRCError( data );
           */
 
-			 rcTxt.left = iCenter - iTextW / 2;
+			    rcTxt.left = iCenter - iTextW / 2;
           rcTxt.top = iVCenter - iTextH / 2;
 
-			 if ( rcTxt.left < BUTTON_XPAD )
+				 if ( rcTxt.left < BUTTON_XPAD )
             rcTxt.left = BUTTON_XPAD;
 
           if ( rcTxt.top < BUTTON_YPAD )
@@ -642,6 +747,18 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
     case WM_DESTROY:
       {
+				if (this->m_ToolTipHWND != NULL) {
+					TOOLINFO ti;
+					ZeroMemory(&ti,sizeof(TOOLINFO));
+					ti.cbSize = sizeof(TOOLINFO);
+					ti.hwnd = this->m_Hwnd;
+					ti.uId = (UINT_PTR)this->m_Hwnd;
+					if (SendMessage(this->m_ToolTipHWND,TTM_GETTOOLINFO,NULL,(LPARAM)&ti)) {
+						TOOLINFO *tmp = (TOOLINFO *)ti.lParam;
+						SendMessage(this->m_ToolTipHWND,TTM_DELTOOL,NULL,(LPARAM)&ti);
+						if (tmp != NULL) delete tmp;
+					}
+				}
         //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;

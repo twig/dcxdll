@@ -58,6 +58,13 @@ DcxDialog::DcxDialog(HWND mHwnd, TString &tsName, TString &tsAliasName)
 	this->m_MouseID = 0;
 	this->m_FocusID = 0;
 
+	this->m_ToolTipHWND = CreateWindowEx(WS_EX_TOPMOST,
+		TOOLTIPS_CLASS,NULL,
+		WS_POPUP | TTS_BALLOON,
+		CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,
+		this->m_Hwnd,
+		NULL,GetModuleHandle(NULL),NULL);
+
 	SetProp(this->m_Hwnd, "dcx_this", (HANDLE) this);
 
 	DragAcceptFiles(this->m_Hwnd, TRUE);
@@ -1204,6 +1211,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					case LVN_DELETEITEM:
 					case LVN_BEGINDRAG:
 					case LVN_ENDSCROLL:
+					case LVN_GETINFOTIP:
 					{
 						if (lstrcmp(DCX_LISTVIEWCLASS, ClassName) == 0)
 							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);

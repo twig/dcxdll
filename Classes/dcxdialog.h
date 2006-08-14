@@ -74,6 +74,7 @@ public:
   void setFocusControl( UINT mUID );
 
   inline HCURSOR getCursor( ) { return this->m_hCursor; };
+	inline HWND getToolTip(void) { return this->m_ToolTipHWND; };
 
 protected:
 
@@ -99,6 +100,7 @@ protected:
   HBITMAP m_bitmapBg;
   UINT m_uStyleBg;
   COLORREF m_colTransparentBg;
+	HWND m_ToolTipHWND; //!< Dialogs general tooltip control for use with all controls that don't have their own tooltips.
   /* **** */
 
   void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
