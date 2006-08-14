@@ -55,6 +55,11 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
 
   ListView_SetExtendedListViewStyleEx( this->m_Hwnd, ExStyles, ExStyles);
 
+	this->m_ToolTipHWND = ListView_GetToolTips(this->m_Hwnd);
+	if (styles.istok("balloon"," ") && this->m_ToolTipHWND != NULL) {
+		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+	}
+
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -97,6 +102,11 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
   SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
 
   ListView_SetExtendedListViewStyleEx( this->m_Hwnd, ExStyles, ExStyles );
+
+	this->m_ToolTipHWND = ListView_GetToolTips(this->m_Hwnd);
+	if (styles.istok("balloon"," ") && this->m_ToolTipHWND != NULL) {
+		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+	}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
@@ -2037,6 +2047,11 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				//	 }
 				//	 break;
 				// }
+					//case LVN_GETINFOTIP:
+					//	{
+					//		bParsed = TRUE;
+					//	}
+					//	break;
 
         } // switch
       }

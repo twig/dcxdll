@@ -605,6 +605,26 @@ BOOL DcxControl::parseGlobalInfoRequest( TString & input, char * szReturnValue )
 			return TRUE;
 		}
   }
+	// [NAME] [ID] [PROP]
+	else if (input.gettok(3, " ") == "tooltipbgcolor") {
+		DWORD cref = 0;
+
+		if (this->m_ToolTipHWND != NULL)
+			cref = (DWORD) SendMessage(this->m_ToolTipHWND,TTM_GETTIPBKCOLOR, NULL, NULL);
+
+		wsprintf(szReturnValue, "%ld", cref);
+		return TRUE;
+	}
+	// [NAME] [ID] [PROP]
+	else if (input.gettok(3, " ") == "tooltiptextcolor") {
+		DWORD cref = 0;
+
+		if (this->m_ToolTipHWND != NULL)
+			cref = (DWORD) SendMessage(this->m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL);
+
+		wsprintf(szReturnValue, "%ld", cref);
+		return TRUE;
+	}
   else {
     TString error;
     error.sprintf("Invalid $ $+ xdid property : %s : or number of arguments on control ID: %d", input.gettok( 3, " " ).to_chr( ), this->getUserID( ) );
