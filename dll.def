@@ -13,7 +13,7 @@ OpenDialog
 SaveDialog
 Version
 GetTaskbarPos
-messagebox
+MsgBox
 
 xdid
 _xdid

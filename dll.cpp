@@ -1151,76 +1151,113 @@ BOOL isMenuBarMenu(HMENU hMenu, HMENU hMatch) {
 }
 
 /*
- *
- * /dll dcx.dll messagebox <styles> > <title> > <message>
- *
+ * /dcx MsgBox [STYLES] [TAB] [TITLE] [TAB] [MSG]
+ * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/windowing/dialogboxes/dialogboxreference/dialogboxfunctions/messagebox.asp
  */
-
-mIRC(messagebox) {
+mIRC(MsgBox) {
 	TString d(data);
 	d.trim();
 
-	if (d.numtok(">") < 3) {
-		mIRCError("/ $+ MessageBox invalid arguments");
-		data[0] = 0;
-		return 3;
+	if (d.numtok("\t") < 3) {
+		ret("D_ERROR MessageBox: invalid parameters");
 	}
-	DWORD Styles = MB_DEFBUTTON1;
-	TString styles = d.gettok(1,">"), title = d.gettok(3,">"), message = d.gettok(2,">");
-	title.trim();
-	message.trim();
-	int n = styles.numtok(" ");
-	for (int i = 1;i <= n;i++)
-	{
-		if (styles.gettok(i," ") == "help")
-			Styles |= MB_HELP;
-		if (styles.gettok(i," ") == "ok")
-			Styles |= MB_OK;
-		if (styles.gettok(i," ") == "okcancel")
-			Styles |= MB_OKCANCEL;
-		if (styles.gettok(i," ") == "retrycancel")
-			Styles |= MB_RETRYCANCEL;
-		if (styles.gettok(i," ") == "yesno")
-			Styles |= MB_YESNO;
-		if (styles.gettok(i," ") == "yesnocancel")
-			Styles |= MB_YESNOCANCEL;
-		if (styles.gettok(i," ") == "iconexclamation")
-			Styles |= MB_ICONEXCLAMATION;
-		if (styles.gettok(i," ") == "iconwarning")
-			Styles |= MB_ICONWARNING;
-		if (styles.gettok(i," ") == "iconinformation")
-			Styles |= MB_ICONINFORMATION;
-		if (styles.gettok(i," ") == "iconasterik")
-			Styles |= MB_ICONASTERISK;
-		if (styles.gettok(i," ") == "stop")
-			Styles |= MB_ICONSTOP;
-		if (styles.gettok(i," ") == "error")
-			Styles |= MB_ICONERROR;
-		if (styles.gettok(i," ") == "hand")
-			Styles |= MB_ICONHAND;
-		if (styles.gettok(i," ") == "defbutton2")
-			Styles |= MB_DEFBUTTON2;
-		if (styles.gettok(i," ") == "defbutton3")
-			Styles |= MB_DEFBUTTON3;
-		if (styles.gettok(i," ") == "defbutton4")
-			Styles |= MB_DEFBUTTON4;
-		if (styles.gettok(i," ") == "modal")
-			Styles |= MB_APPLMODAL;
-		if (styles.gettok(i," ") == "sysmodal")
-			Styles |= MB_SYSTEMMODAL;
-		if (styles.gettok(i," ") == "taskmodal")
-			Styles |= MB_TASKMODAL;
-		if (styles.gettok(i," ") == "right")
-			Styles |= MB_RIGHT;
-		if (styles.gettok(i," ") == "rtl")
-			Styles |= MB_RTLREADING;
-		if (styles.gettok(i," ") == "foreground")
-			Styles |= MB_SETFOREGROUND;
-		if (styles.gettok(i," ") == "topmost")
-			Styles |= MB_TOPMOST;
+
+	DWORD   style     = MB_DEFBUTTON1;
+	TString strStyles = d.gettok(1, "\t");
+	TString strTitle  = d.gettok(2, "\t");
+	TString strMsg    = d.gettok(3, -1, "\t");
+	int     n         = strStyles.numtok(" ");
+
+	strTitle.trim();
+	strMsg.trim();
+	strStyles.trim();
+
+	for (int i = 1; i <= n; i++) {
+//		MB_ABORTRETRYIGNORE
+//		MB_CANCELTRYCONTINUE && isXP()
+
+		if (strStyles.gettok(i, " ") == "ok")
+			style |= MB_OK;
+		else if (strStyles.gettok(i, " ") == "okcancel")
+			style |= MB_OKCANCEL;
+		else if (strStyles.gettok(i, " ") == "retrycancel")
+			style |= MB_RETRYCANCEL;
+		else if (strStyles.gettok(i, " ") == "yesno")
+			style |= MB_YESNO;
+		else if (strStyles.gettok(i, " ") == "yesnocancel")
+			style |= MB_YESNOCANCEL;
+		else if (strStyles.gettok(i, " ") == "exclamation")
+			style |= MB_ICONEXCLAMATION;
+		else if (strStyles.gettok(i, " ") == "warning")
+			style |= MB_ICONWARNING;
+		else if (strStyles.gettok(i, " ") == "information")
+			style |= MB_ICONINFORMATION;
+		else if (strStyles.gettok(i, " ") == "asterik")
+			style |= MB_ICONASTERISK;
+		else if (strStyles.gettok(i, " ") == "iconquestion")
+			style |= MB_ICONQUESTION;
+		else if (strStyles.gettok(i, " ") == "stop")
+			style |= MB_ICONSTOP;
+		else if (strStyles.gettok(i, " ") == "error")
+			style |= MB_ICONERROR;
+		else if (strStyles.gettok(i, " ") == "hand")
+			style |= MB_ICONHAND;
+		else if (strStyles.gettok(i, " ") == "help")
+			style |= MB_HELP;
+		else if (strStyles.gettok(i, " ") == "defbutton2")
+			style |= MB_DEFBUTTON2;
+		else if (strStyles.gettok(i, " ") == "defbutton3")
+			style |= MB_DEFBUTTON3;
+		else if (strStyles.gettok(i, " ") == "defbutton4")
+			style |= MB_DEFBUTTON4;
+		else if (strStyles.gettok(i, " ") == "modal")
+			style |= MB_APPLMODAL;
+		else if (strStyles.gettok(i, " ") == "sysmodal")
+			style |= MB_SYSTEMMODAL;
+		else if (strStyles.gettok(i, " ") == "taskmodal")
+			style |= MB_TASKMODAL;
+		else if (strStyles.gettok(i, " ") == "right")
+			style |= MB_RIGHT;
+		else if (strStyles.gettok(i, " ") == "rtl")
+			style |= MB_RTLREADING;
+		else if (strStyles.gettok(i, " ") == "foreground")
+			style |= MB_SETFOREGROUND;
+		else if (strStyles.gettok(i, " ") == "topmost")
+			style |= MB_TOPMOST;
 	}
-	wsprintf(data,"%d",MessageBox(mIRCLink.m_mIRCHWND,message.to_chr(),title.to_chr(),Styles));
-	return 3;
+
+	switch (MessageBox(mWnd, strMsg.to_chr(), strTitle.to_chr(), style)) {
+		case IDABORT:
+			ret("abort");
+			break;
+		case IDCANCEL:
+			ret("cancel");
+			break;
+		case IDCONTINUE:
+			ret("continue");
+			break;
+		case IDIGNORE:
+			ret("ignore");
+			break;
+		case IDNO:
+			ret("no");
+			break;
+		case IDOK:
+			ret("ok");
+			break;
+		case IDRETRY:
+			ret("retry");
+			break;
+		case IDTRYAGAIN:
+			ret("tryagain");
+			break;
+		case IDYES:
+			ret("yes");
+			break;
+		default:
+			ret("");
+			break;
+	}
 }
 
 /*!
