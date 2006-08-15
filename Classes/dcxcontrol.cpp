@@ -350,6 +350,11 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 			SendMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, (WPARAM) hNextCtrl, TRUE);
 		//::PostMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, NULL, FALSE);
 	}
+	// xdid -T [NAME] [ID] [SWITCH] (ToolTipText)
+  else if (flags.switch_cap_flags[19] && numtok > 2) {
+		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1, " ") : "");
+		this->m_tsToolTip.trim();
+  }
 	// invalid command
 	else {
 		TString error;

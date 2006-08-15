@@ -53,6 +53,15 @@ DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   this->m_clrTransColor = -1;
   this->m_hIcon = NULL;
 
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+	}
+
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
@@ -94,6 +103,15 @@ DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
   this->m_hBitmap = NULL;
   this->m_clrTransColor = -1;
   this->m_hIcon = NULL;
+
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+	}
 
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );

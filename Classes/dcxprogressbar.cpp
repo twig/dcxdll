@@ -51,6 +51,14 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TStrin
   this->m_bIsAbsoluteValue = FALSE;
   this->m_hfontVertical = NULL;
 
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+	}
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -93,6 +101,14 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd,
   this->m_bIsAbsoluteValue = FALSE;
   this->m_hfontVertical = NULL;
 
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+	}
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );

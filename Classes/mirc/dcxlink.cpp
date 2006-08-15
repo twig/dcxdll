@@ -55,6 +55,15 @@ DcxLink::DcxLink( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   this->m_bTracking = FALSE;
   this->m_bVisited = FALSE;
 
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+	}
+
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -100,6 +109,15 @@ DcxLink::DcxLink( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
   this->m_bHover = FALSE;
   this->m_bTracking = FALSE;
   this->m_bVisited = FALSE;
+
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+	}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );

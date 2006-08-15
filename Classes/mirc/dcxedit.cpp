@@ -50,6 +50,15 @@ DcxEdit::DcxEdit( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
 
   Edit_LimitText( this->m_Hwnd, 0 );
 
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+	}
+
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -92,6 +101,15 @@ DcxEdit::DcxEdit( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
   Edit_LimitText( this->m_Hwnd, 0 );
 
   this->m_tsText = "";
+
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+	}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
@@ -355,6 +373,7 @@ void DcxEdit::parseCommandRequest( TString & input ) {
 
       this->m_tsText = contents;
       SetWindowText( this->m_Hwnd, contents );
+			delete [] contents;
     }
   }
   // xdid -u [NAME] [ID] [SWITCH] [FILENAME]
@@ -370,8 +389,6 @@ void DcxEdit::parseCommandRequest( TString & input ) {
     }
   }
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
-
-
   else if (flags.switch_cap_flags[18] && numtok > 4) {
 		int istart = atoi(input.gettok(4, " ").to_chr());
 		int iend = atoi(input.gettok(5, " ").to_chr());
@@ -431,9 +448,23 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
         }
       }
       break;
-//	case WM_CHAR:{
-//		break;
-//					}
+		case WM_NOTIFY:
+			{
+        LPNMHDR hdr = (LPNMHDR) lParam;
+        if (!hdr)
+          break;
+
+        switch( hdr->code ) {
+				case TTN_GETDISPINFO:
+					{
+						LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+						di->lpszText = this->m_tsToolTip.to_chr();
+						di->hinst = NULL;
+					}
+					break;
+				}
+			}
+			break;
 	case WM_KEYDOWN: {
 		if (wParam == VK_RETURN)
 			this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
@@ -495,13 +526,6 @@ LRESULT DcxEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 		}
 	case WM_KEYUP: {
 		this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
-//		if ((wParam == VK_TAB) && (this->isStyle(WS_TABSTOP))) {
-//			bParsed = TRUE;
-//			HWND nxt = GetNextDlgTabItem(this->m_pParentDialog->getHwnd(),this->getHwnd(),FALSE);
-//			if (nxt != NULL) SetFocus(nxt);
-			//::PostMessage(this->m_pParentDialog->getHwnd(),WM_NEXTDLGCTL,(WPARAM)0,(LPARAM)0);
-//			return 0L;
-//		}
 		break;
 	}
 	 case WM_MOUSEMOVE:

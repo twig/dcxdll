@@ -64,6 +64,14 @@ DcxRichEdit::DcxRichEdit( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
 		this->m_Hwnd, EM_SETEVENTMASK, NULL,
 		(LPARAM) (ENM_SELCHANGE | ENM_CHANGE /*| ENM_LINK | ENM_UPDATE*/));
 
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+	}
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
@@ -116,6 +124,14 @@ DcxRichEdit::DcxRichEdit( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
 
 	SendMessage(this->m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE));
 
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+	}
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }

@@ -215,6 +215,7 @@ HBITMAP LoadBitmap(HBITMAP dest, TString &filename);
 HICON CreateGrayscaleIcon(HICON hIcon);
 LRESULT ctrl_MeasureItem(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 void DrawRoundRect(HDC hdc, RECT *rc, int w, int h);
+void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl);
 // UltraDock
 int SwitchbarPos(void);
 void mIRC_size(void);

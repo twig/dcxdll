@@ -93,6 +93,7 @@ protected:
   BOOL m_bCursorFromFile; //!< Cursor comes from a file?
 
 	HWND m_ToolTipHWND; //!< Tooltip window (if any)
+	TString m_tsToolTip; //!< This controls tooltip text (if any).
 
   /* ***** */
 

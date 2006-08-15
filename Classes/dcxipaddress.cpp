@@ -46,22 +46,13 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & 
   if ( bNoTheme )
     SetWindowTheme( this->m_Hwnd , L" ", L" " );
 
+	// IPAddress tooltips only show when pointed is over the . between numbers, child controls?
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
-// IPAddress tooltips only show when pointed is over the . between numbers, child controls?
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-// unsure if this needs to be persistant or not, making it so for now.
-			TOOLINFO *ti = new TOOLINFO;
-			ZeroMemory(ti,sizeof(TOOLINFO));
-			ti->cbSize = sizeof(TOOLINFO);
-			ti->hwnd = this->m_Hwnd;
-			ti->lParam = (LPARAM)ti;
-			ti->lpszText = LPSTR_TEXTCALLBACK;
-			ti->uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
-			ti->uId = (UINT_PTR)this->m_Hwnd;
 
-			if (SendMessage(this->m_ToolTipHWND,TTM_ADDTOOL,NULL,(LPARAM)ti) == FALSE)
-				delete ti;
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
 
@@ -114,17 +105,7 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 
-			TOOLINFO *ti = new TOOLINFO;
-			ZeroMemory(ti,sizeof(TOOLINFO));
-			ti->cbSize = sizeof(TOOLINFO);
-			ti->hwnd = this->m_Hwnd;
-			ti->lParam = (LPARAM)ti;
-			ti->lpszText = LPSTR_TEXTCALLBACK;
-			ti->uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
-			ti->uId = (UINT_PTR)this->m_Hwnd;
-
-			if (SendMessage(this->m_ToolTipHWND,TTM_ADDTOOL,NULL,(LPARAM)ti) == FALSE)
-				delete ti;
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
 
@@ -226,12 +207,10 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 	if (flags.switch_flags[17] && numtok > 3) {
 		this->clearAddress();
 	}
-	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP (tab ToolTipText)
+	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
 	else if (flags.switch_flags[0] && numtok > 3) {
-		TString IP = input.gettok( 4,-1, " " ).gettok(1,"\t");
+		TString IP = input.gettok( 4, " " );
 		IP.trim();
-		this->m_tsToolTip = input.gettok(4,-1," ").gettok(2,"\t");
-		this->m_tsToolTip.trim();
 
 		if (IP.numtok(".") == 4) {
 			BYTE b[4];
@@ -408,18 +387,6 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
     case WM_DESTROY:
       {
         //mIRCError( "WM_DESTROY" );
-				if (this->m_ToolTipHWND != NULL) {
-					TOOLINFO ti;
-					ZeroMemory(&ti,sizeof(TOOLINFO));
-					ti.cbSize = sizeof(TOOLINFO);
-					ti.hwnd = this->m_Hwnd;
-					ti.uId = (UINT_PTR)this->m_Hwnd;
-					if (SendMessage(this->m_ToolTipHWND,TTM_GETTOOLINFO,NULL,(LPARAM)&ti)) {
-						TOOLINFO *tmp = (TOOLINFO *)ti.lParam;
-						SendMessage(this->m_ToolTipHWND,TTM_DELTOOL,NULL,(LPARAM)&ti);
-						if (tmp != NULL) delete tmp;
-					}
-				}
         delete this;
         bParsed = TRUE;
       }

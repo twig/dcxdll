@@ -43,7 +43,6 @@ public:
   inline TString getType( ) { return TString( "check" ); };
 
 protected:
-	TString m_tsToolTip; //!< This controls tooltip.
 };
 
 #endif // _DCXCHECK_H_

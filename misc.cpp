@@ -676,3 +676,26 @@ LRESULT ctrl_MeasureItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 	return 0L;
 }
+//void DrawRoundRect(HDC hdc, RECT *rc, int w, int h)
+//{
+//	// draw top line, left to right
+//	MoveToEx(hdc,(rc->left + w),rc->top,NULL);
+//	//LineTo(hdc,(rc->right - w),rc->top);
+//	// draw ellipse at top right.
+//	SetArcDirection(hdc,AD_CLOCKWISE);
+//	ArcTo(hdc,(rc->right - w),rc->top,rc->right,(rc->top + h),(rc->right - w),rc->top,rc->right,(rc->top + h));
+//	// draw line from top right to bottom right
+//	ArcTo(hdc,(rc->right - w),(rc->bottom - h),rc->right,rc->bottom,(rc->right - w),(rc->bottom - h),rc->right,rc->bottom);
+//}
+void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl)
+{
+		TOOLINFO ti;
+		ZeroMemory(&ti,sizeof(TOOLINFO));
+		ti.cbSize = sizeof(TOOLINFO);
+		ti.hwnd = ctrl;
+		ti.lpszText = LPSTR_TEXTCALLBACK;
+		ti.uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
+		ti.uId = (UINT_PTR)ctrl;
+
+		SendMessage(tiphwnd,TTM_ADDTOOL,NULL,(LPARAM)&ti);
+}

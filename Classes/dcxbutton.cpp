@@ -61,18 +61,8 @@ DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles
 		if (styles.istok("tooltips"," ")) {
 
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
-// unsure if this needs to be persistant or not, making it so for now.
-			TOOLINFO *ti = new TOOLINFO;
-			ZeroMemory(ti,sizeof(TOOLINFO));
-			ti->cbSize = sizeof(TOOLINFO);
-			ti->hwnd = this->m_Hwnd;
-			ti->lParam = (LPARAM)ti;
-			ti->lpszText = LPSTR_TEXTCALLBACK;
-			ti->uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
-			ti->uId = (UINT_PTR)this->m_Hwnd;
 
-			if (SendMessage(this->m_ToolTipHWND,TTM_ADDTOOL,NULL,(LPARAM)ti) == FALSE)
-				delete ti;
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
 
@@ -129,17 +119,7 @@ DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
 
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 
-			TOOLINFO *ti = new TOOLINFO;
-			ZeroMemory(ti,sizeof(TOOLINFO));
-			ti->cbSize = sizeof(TOOLINFO);
-			ti->hwnd = this->m_Hwnd;
-			ti->lParam = (LPARAM)ti;
-			ti->lpszText = LPSTR_TEXTCALLBACK;
-			ti->uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
-			ti->uId = (UINT_PTR)this->m_Hwnd;
-
-			if (SendMessage(this->m_ToolTipHWND,TTM_ADDTOOL,NULL,(LPARAM)ti) == FALSE)
-				delete ti;
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
 
@@ -292,12 +272,10 @@ void DcxButton::parseCommandRequest( TString & input ) {
     }
 
   }
-  // xdid -t [NAME] [ID] [SWITCH] ItemText (tab ToolTipText)
+  // xdid -t [NAME] [ID] [SWITCH] ItemText
   else if ( flags.switch_flags[19] && numtok > 2 ) {
-		this->m_tsCaption = (numtok > 3 ? input.gettok( 4, -1, " " ).gettok(1,"\t") : "");
+		this->m_tsCaption = (numtok > 3 ? input.gettok( 4, -1, " " ) : "");
     this->m_tsCaption.trim( );
-		this->m_tsToolTip = (numtok > 3 ? input.gettok( 4, -1, " " ).gettok(2,-1,"\t") : "");
-		this->m_tsToolTip.trim();
     this->redrawWindow( );
   }
   // xdid -w [NAME] [ID] [SWITCH] [INDEX] [FILENAME]
@@ -744,18 +722,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
     case WM_DESTROY:
       {
-				if (this->m_ToolTipHWND != NULL) {
-					TOOLINFO ti;
-					ZeroMemory(&ti,sizeof(TOOLINFO));
-					ti.cbSize = sizeof(TOOLINFO);
-					ti.hwnd = this->m_Hwnd;
-					ti.uId = (UINT_PTR)this->m_Hwnd;
-					if (SendMessage(this->m_ToolTipHWND,TTM_GETTOOLINFO,NULL,(LPARAM)&ti)) {
-						TOOLINFO *tmp = (TOOLINFO *)ti.lParam;
-						SendMessage(this->m_ToolTipHWND,TTM_DELTOOL,NULL,(LPARAM)&ti);
-						if (tmp != NULL) delete tmp;
-					}
-				}
         //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;

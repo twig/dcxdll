@@ -50,18 +50,8 @@ DcxCheck::DcxCheck( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
 		if (styles.istok("tooltips"," ")) {
 
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
-// unsure if this needs to be persistant or not, making it so for now.
-			TOOLINFO *ti = new TOOLINFO;
-			ZeroMemory(ti,sizeof(TOOLINFO));
-			ti->cbSize = sizeof(TOOLINFO);
-			ti->hwnd = this->m_Hwnd;
-			ti->lParam = (LPARAM)ti;
-			ti->lpszText = LPSTR_TEXTCALLBACK;
-			ti->uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
-			ti->uId = (UINT_PTR)this->m_Hwnd;
 
-			if (SendMessage(this->m_ToolTipHWND,TTM_ADDTOOL,NULL,(LPARAM)ti) == FALSE)
-				delete ti;
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
 
@@ -107,17 +97,7 @@ DcxCheck::DcxCheck( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 
-			TOOLINFO *ti = new TOOLINFO;
-			ZeroMemory(ti,sizeof(TOOLINFO));
-			ti->cbSize = sizeof(TOOLINFO);
-			ti->hwnd = this->m_Hwnd;
-			ti->lParam = (LPARAM)ti;
-			ti->lpszText = LPSTR_TEXTCALLBACK;
-			ti->uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
-			ti->uId = (UINT_PTR)this->m_Hwnd;
-
-			if (SendMessage(this->m_ToolTipHWND,TTM_ADDTOOL,NULL,(LPARAM)ti) == FALSE)
-				delete ti;
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
 
@@ -232,13 +212,11 @@ void DcxCheck::parseCommandRequest( TString & input ) {
     else
       Button_SetCheck( this->m_Hwnd, BST_CHECKED );
   }
-  //xdid -t [NAME] [ID] [SWITCH] ItemText (tab ToolTipText)
+  //xdid -t [NAME] [ID] [SWITCH] ItemText
   else if ( flags.switch_flags[19] ) {
 
-		TString text = input.gettok( 4, -1, " " ).gettok(1,"\t");
+		TString text = input.gettok( 4, -1, " " );
     text.trim( );
-		this->m_tsToolTip = input.gettok(4,-1," ").gettok(2,"\t");
-		this->m_tsToolTip.trim();
     SetWindowText( this->m_Hwnd, text.to_chr( ) );
   }
   //xdid -u [NAME] [ID] [SWITCH]
