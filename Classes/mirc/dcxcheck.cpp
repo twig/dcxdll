@@ -271,6 +271,13 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 						LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
 						di->lpszText = this->m_tsToolTip.to_chr();
 						di->hinst = NULL;
+						bParsed = TRUE;
+					}
+					break;
+				case TTN_LINKCLICK:
+					{
+						bParsed = TRUE;
+						this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
 					}
 					break;
 				}

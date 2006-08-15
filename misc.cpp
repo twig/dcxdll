@@ -694,7 +694,7 @@ void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl)
 		ti.cbSize = sizeof(TOOLINFO);
 		ti.hwnd = ctrl;
 		ti.lpszText = LPSTR_TEXTCALLBACK;
-		ti.uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS;
+		ti.uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS | TTF_PARSELINKS;
 		ti.uId = (UINT_PTR)ctrl;
 
 		SendMessage(tiphwnd,TTM_ADDTOOL,NULL,(LPARAM)&ti);

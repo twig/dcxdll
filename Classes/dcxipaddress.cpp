@@ -330,11 +330,18 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
             break;
 					case TTN_GETDISPINFO:
 						{
+							bParsed = TRUE;
 							LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
 							di->lpszText = this->m_tsToolTip.to_chr();
 							di->hinst = NULL;
 						}
 						break;
+				case TTN_LINKCLICK:
+					{
+						bParsed = TRUE;
+						this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
+					}
+					break;
         }
       }
       break;

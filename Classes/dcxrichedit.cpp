@@ -847,14 +847,14 @@ LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 	switch( uMsg ) {
 		case WM_LBUTTONDOWN:
 		{
-			char *ret = new char[900];
-			this->callAliasEx(ret, "%s,%d", "sclick", this->getUserID());
+			//char *ret = new char[900];
+			this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
 			break;
 		}
 		case WM_LBUTTONUP:
 		{
-			char *ret = new char[900];
-			this->callAliasEx(ret, "%s,%d", "lbup", this->getUserID());
+			//char *ret = new char[900];
+			this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
 			break;
 		}
 		case WM_NOTIFY:
@@ -877,7 +877,7 @@ LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 						{
 								TEXTRANGE tr;
 								TString event;
-								char *ret = new char[900];
+								//char *ret = new char[900];
 
 								// get information about link text
 								ZeroMemory(&tr, sizeof(TEXTRANGE));
@@ -893,7 +893,8 @@ LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 								else if (enl->msg == WM_RBUTTONDOWN)
 									event = "rclick";
 
-								this->callAliasEx(ret, "%s,%d,%s,%s", "link", this->getUserID(), event.to_chr(), tr.lpstrText);
+								this->callAliasEx(NULL, "%s,%d,%s,%s", "link", this->getUserID(), event.to_chr(), tr.lpstrText);
+								delete [] str;
 						}
 
 						break;
@@ -908,7 +909,7 @@ LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 						//if ((sel->seltyp == SEL_TEXT) || (sel->seltyp == SEL_MULTICHAR))
 							//mIRCDebug("selected some text %d %d", sel->chrg.cpMin, sel->chrg.cpMax);
 							TEXTRANGE tr;
-							char *ret = new char[900];
+							//char *ret = new char[900];
 
 							// get information about selected text
 							ZeroMemory(&tr, sizeof(TEXTRANGE));
@@ -917,11 +918,26 @@ LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 							tr.lpstrText = str;
 							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
 
-							this->callAliasEx(ret, "%s,%d,%d,%d,%s", "selchange", this->getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
+							this->callAliasEx(NULL, "%s,%d,%d,%d,%s", "selchange", this->getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
+							delete [] str;
 						}
 
 						break;
 					}
+				case TTN_GETDISPINFO:
+					{
+						LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+						di->lpszText = this->m_tsToolTip.to_chr();
+						di->hinst = NULL;
+						bParsed = TRUE;
+					}
+					break;
+				case TTN_LINKCLICK:
+					{
+						bParsed = TRUE;
+						this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
+					}
+					break;
 				}
 
 				break;
@@ -963,18 +979,18 @@ LRESULT DcxRichEdit::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
       break;
 	case WM_KEYDOWN:
 	{
-		char ret[256];
+		//char ret[256];
 
 		if (wParam == VK_RETURN)
-			this->callAliasEx(ret, "%s,%d", "return", this->getUserID());
+			this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
 
 		// TODO: add ignore repeated keystrokes
-		this->callAliasEx(ret, "%s,%d,%d", "keydown", this->getUserID(), wParam);
+		this->callAliasEx(NULL, "%s,%d,%d", "keydown", this->getUserID(), wParam);
 		break;
 	}
 	case WM_KEYUP: {
-		char ret[256];
-		this->callAliasEx(ret, "%s,%d,%d", "keyup", this->getUserID(), wParam);
+		//char ret[256];
+		this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
 		break;
 	}
 	case WM_DESTROY:

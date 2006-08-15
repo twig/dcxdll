@@ -254,6 +254,31 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
       }
       break;
 
+		case WM_NOTIFY:
+			{
+        LPNMHDR hdr = (LPNMHDR) lParam;
+        if (!hdr)
+          break;
+
+        switch( hdr->code ) {
+				case TTN_GETDISPINFO:
+					{
+						LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+						di->lpszText = this->m_tsToolTip.to_chr();
+						di->hinst = NULL;
+						bParsed = TRUE;
+					}
+					break;
+				case TTN_LINKCLICK:
+					{
+						bParsed = TRUE;
+						this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
+					}
+					break;
+				}
+			}
+			break;
+
     case WM_CONTEXTMENU:
       {
         this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );

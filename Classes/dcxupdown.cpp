@@ -345,7 +345,21 @@ LRESULT DcxUpDown::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
               bParsed = TRUE;
             }
             break;
-        }
+					case TTN_GETDISPINFO:
+						{
+							LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+							di->lpszText = this->m_tsToolTip.to_chr();
+							di->hinst = NULL;
+							bParsed = TRUE;
+						}
+						break;
+					case TTN_LINKCLICK:
+						{
+							bParsed = TRUE;
+							this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
+						}
+						break;
+					}
       }
       break;
 
