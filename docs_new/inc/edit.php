@@ -142,7 +142,7 @@ function get_events_edit(&$EVENTS) {
 			'__return' => '[r]cancel[/r] to stop the drag drop events from occuring.',
 		),
 		'dragfile' => array(
-			'__desc' => "The filename of the file that has",
+			'__desc' => "The filename of the file which was dropped onto the edit control.",
 			'__cmd' => 'FILENAME',
 			'__eg' => 'C:\mIRC\blah.txt',
 		),
