@@ -35,7 +35,7 @@ DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0, 
+    ExStyles, 
     "STATIC", 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -86,7 +86,7 @@ DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0, 
+    ExStyles, 
     "STATIC", 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 

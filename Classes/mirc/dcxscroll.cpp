@@ -33,7 +33,7 @@ DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0, 
+    ExStyles, 
     "SCROLLBAR", 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -80,7 +80,7 @@ DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0, 
+    ExStyles, 
     "SCROLLBAR", 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 

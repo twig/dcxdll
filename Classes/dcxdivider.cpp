@@ -56,7 +56,7 @@ DcxDivider::DcxDivider( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styl
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0, 
+    ExStyles | WS_EX_CONTROLPARENT, 
     DCX_DIVIDERCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -92,7 +92,7 @@ DcxDivider::DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0, 
+    ExStyles | WS_EX_CONTROLPARENT, 
     DCX_DIVIDERCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -291,9 +291,9 @@ void DcxDivider::parseCommandRequest( TString & input ) {
             this->setPane( DVF_PANELEFT, &dvpi );
           else if ( flags.switch_flags[17] )
             this->setPane( DVF_PANERIGHT, &dvpi );
-					if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
-						if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
-					}
+					//if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
+					//	if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
+					//}
 
           this->redrawWindow( );
         }

@@ -49,7 +49,7 @@ DcxReBar::DcxReBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    ExStyles,
+    ExStyles | WS_EX_CONTROLPARENT,
     DCX_REBARCTRLCLASS,
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -91,7 +91,7 @@ DcxReBar::DcxReBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
+    ExStyles | WS_EX_CONTROLPARENT, 
     DCX_REBARCTRLCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -433,9 +433,9 @@ void DcxReBar::parseCommandRequest( TString & input ) {
           rbBand.cxMinChild = cx;
           rbBand.cyMinChild = cy;
           rbBand.cx = width;
-					if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
-						if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
-					}
+					//if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
+					//	if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
+					//}
         }
       }
       else {
@@ -455,11 +455,11 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
      
       this->deleteBand( nIndex );
-			if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
-				if (this->isExStyle(WS_EX_CONTROLPARENT)) {
-					this->removeExStyle(WS_EX_CONTROLPARENT);
-				}
-			}
+			//if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
+			//	if (this->isExStyle(WS_EX_CONTROLPARENT)) {
+			//		this->removeExStyle(WS_EX_CONTROLPARENT);
+			//	}
+			//}
     }
   }
   // xdid -i [NAME] [ID] [SWITCH] [N]

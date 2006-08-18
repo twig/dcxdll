@@ -33,7 +33,7 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-		0,
+		ExStyles,
     DCX_IPADDRESSCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 
@@ -87,7 +87,7 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0, 
+    ExStyles, 
     DCX_IPADDRESSCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 

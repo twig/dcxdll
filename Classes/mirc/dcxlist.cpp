@@ -35,7 +35,7 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    WS_EX_CLIENTEDGE, 
+    ExStyles | WS_EX_CLIENTEDGE, 
     "LISTBOX", 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -74,7 +74,7 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    WS_EX_CLIENTEDGE, 
+    ExStyles | WS_EX_CLIENTEDGE, 
     "LISTBOX", 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 

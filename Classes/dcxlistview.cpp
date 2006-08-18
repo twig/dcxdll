@@ -56,8 +56,15 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
   ListView_SetExtendedListViewStyleEx( this->m_Hwnd, ExStyles, ExStyles);
 
 	this->m_ToolTipHWND = ListView_GetToolTips(this->m_Hwnd);
-	if (styles.istok("balloon"," ") && this->m_ToolTipHWND != NULL) {
-		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+	//this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+	if (this->m_ToolTipHWND != NULL) {
+		if (styles.istok("balloon"," "))
+			SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+		//if (styles.istok("tooltips"," ")) {
+		//	AddToolTipToolInfo(this->m_ToolTipHWND,this->m_Hwnd);
+		//	this->m_tsToolTip = "this is a test";
+		//}
 	}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
@@ -104,8 +111,15 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
   ListView_SetExtendedListViewStyleEx( this->m_Hwnd, ExStyles, ExStyles );
 
 	this->m_ToolTipHWND = ListView_GetToolTips(this->m_Hwnd);
-	if (styles.istok("balloon"," ") && this->m_ToolTipHWND != NULL) {
-		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+	//this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+	if (this->m_ToolTipHWND != NULL) {
+		if (styles.istok("balloon"," "))
+			SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+		//if (styles.istok("tooltips"," ")) {
+		//	AddToolTipToolInfo(this->m_ToolTipHWND,this->m_Hwnd);
+		//	this->m_tsToolTip = "this is a test";
+		//}
 	}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
@@ -1264,6 +1278,22 @@ void DcxListView::parseCommandRequest( TString & input ) {
 
     ListView_SortItemsEx( this->m_Hwnd, DcxListView::sortItemsEx, &lvsort );
   }
+	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
+  //else if (flags.switch_cap_flags[19] && numtok > 4) {
+		//this->m_tsToolTip = (numtok > 3 ? input.gettok(6, -1, " ") : "");
+		//this->m_tsToolTip.trim();
+		//LVSETINFOTIP sit;
+		//TString item = input.gettok(4," ");
+		//item.trim();
+		//TString subitem = input.gettok(5," ");
+		//subitem.trim();
+		//sit.cbSize = sizeof(LVSETINFOTIP);
+		//sit.dwFlags = 0;
+		//sit.iItem = atol(item.to_chr());
+		//sit.iSubItem = atol(subitem.to_chr());
+		//sit.pszText = L"test"; //this->m_tsToolTip.to_chr();
+		//ListView_SetInfoTip(this->m_Hwnd,&sit);
+  //}
   else {
     this->parseGlobalCommandRequest( input, flags );
   }
@@ -1870,21 +1900,19 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case NM_CUSTOMDRAW:
             {
-
               //mIRCSignal( "NM_CUSTOMDRAW" );
               LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW) lParam;
               bParsed = TRUE;
 
               switch( lplvcd->nmcd.dwDrawStage ) {
-
                 case CDDS_PREPAINT:
                   return CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW | CDRF_NOTIFYPOSTPAINT;
 
                 case CDDS_ITEMPREPAINT:
-						 return CDRF_NOTIFYSUBITEMDRAW;
+									return CDRF_NOTIFYSUBITEMDRAW;
 
                 case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
-						 {
+									{
                     //mIRCError( "CDDS_ITEMPREPAINT CDDS_SUBITEM" );
 
                     /*
@@ -1938,41 +1966,40 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                     if ( lpdcxlvi->clrBack != -1 )
                       lplvcd->clrTextBk = lpdcxlvi->clrBack;
 
-							if (lpdcxlvi->bUline || lpdcxlvi->bBold || lpdcxlvi->bItalic) {
-								HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
-								LOGFONT lf;
+										if (lpdcxlvi->bUline || lpdcxlvi->bBold || lpdcxlvi->bItalic) {
+											HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
+											LOGFONT lf;
 
-								GetObject(hFont, sizeof(LOGFONT), &lf);
+											GetObject(hFont, sizeof(LOGFONT), &lf);
 
-								if (lpdcxlvi->bBold)
-									lf.lfWeight |= FW_BOLD;
-								if (lpdcxlvi->bUline)
-									lf.lfUnderline = true;
-								if (lpdcxlvi->bItalic)
-									lf.lfItalic = true;
+											if (lpdcxlvi->bBold)
+												lf.lfWeight |= FW_BOLD;
+											if (lpdcxlvi->bUline)
+												lf.lfUnderline = true;
+											if (lpdcxlvi->bItalic)
+												lf.lfItalic = true;
 
-								HFONT hFontNew = CreateFontIndirect( &lf );
-								//HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
-								SelectObject(lplvcd->nmcd.hdc, hFontNew);
+											HFONT hFontNew = CreateFontIndirect( &lf );
+											//HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
+											SelectObject(lplvcd->nmcd.hdc, hFontNew);
 
-								DeleteObject(hFontNew);
-							}
-						 }
+											DeleteObject(hFontNew);
+										}
+									}
+									return ( CDRF_NEWFONT );
+									break;
 
-						 return ( CDRF_NEWFONT );
-						break;
+								case CDDS_ITEMPOSTPAINT | CDDS_SUBITEM:
+									return CDRF_DODEFAULT;
 
-                case CDDS_ITEMPOSTPAINT | CDDS_SUBITEM:
-                  return CDRF_DODEFAULT;
+								case CDDS_POSTPAINT:
+									// update the pbar positions
+									//this->ScrollPbars((int) lplvcd->nmcd.dwItemSpec);
+									this->UpdateScrollPbars();
+									return CDRF_DODEFAULT;
 
-					 case CDDS_POSTPAINT:
-						// update the pbar positions
-						//this->ScrollPbars((int) lplvcd->nmcd.dwItemSpec);
-						 this->UpdateScrollPbars();
-						return CDRF_DODEFAULT;
-
-                default:
-                  return CDRF_DODEFAULT;
+								default:
+									return CDRF_DODEFAULT;
               }
             }
             break;
@@ -1985,12 +2012,12 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
               LPNMLISTVIEW lpnmlv = (LPNMLISTVIEW) lParam;
               LPDCXLVITEM lpdcxlvi = (LPDCXLVITEM) lpnmlv->lParam;
 
-						if (lpdcxlvi != NULL) {
-							if (lpdcxlvi->pbar)
-								DestroyWindow(lpdcxlvi->pbar->getHwnd());
+							if (lpdcxlvi != NULL) {
+								if (lpdcxlvi->pbar)
+									DestroyWindow(lpdcxlvi->pbar->getHwnd());
 
-							delete lpdcxlvi;
-						}
+								delete lpdcxlvi;
+							}
             }
             break;
 
@@ -2047,12 +2074,44 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				//	 }
 				//	 break;
 				// }
+						// LVN_GETTOOLTIP/TTN_GETDISPINFO/TTN_LINKCLICK fail....
 					//case LVN_GETINFOTIP:
 					//	{
+
+					//	}
+					//	break;
+					//case TTN_GETDISPINFO:
+					//	{
+					//		LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+					//		//LVHITTESTINFO hti;
+					//		//DWORD mPos = GetMessagePos();
+					//		//ZeroMemory(&hti,sizeof(LVHITTESTINFO));
+					//		//hti.flags = LVHT_ONITEM;
+					//		//hti.pt.x = GET_X_LPARAM(mPos);
+					//		//hti.pt.y = GET_Y_LPARAM(mPos);
+					//		//int nPos = ListView_HitTest(this->m_Hwnd,&hti);
+					//		//if (nPos != -1) {
+					//		//	LVITEM lvi;
+					//		//	ZeroMemory(&lvi,sizeof(LVITEM));
+					//		//	lvi.mask = LVIF_PARAM;
+					//		//	lvi.iItem = hti.iItem;
+					//		//	lvi.iSubItem = hti.iSubItem;
+					//		//	if (ListView_GetItem(this->m_Hwnd,&lvi)) {
+					//		//		LPDCXLVITEM dci = (LPDCXLVITEM) lvi.lParam;
+					//		//		di->lpszText = dci->tsTipText.to_chr();
+					//		//	}
+					//		//}
+					//		di->lpszText = this->m_tsToolTip.to_chr();
+					//		di->hinst = NULL;
 					//		bParsed = TRUE;
 					//	}
 					//	break;
-
+					//case TTN_LINKCLICK:
+					//	{
+					//		bParsed = TRUE;
+					//		this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
+					//	}
+					//	break;
         } // switch
       }
       break;

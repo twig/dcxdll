@@ -56,7 +56,7 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
+    ExStyles | WS_EX_CONTROLPARENT, 
     DCX_TABCTRLCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -112,7 +112,7 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
+    ExStyles | WS_EX_CONTROLPARENT, 
     DCX_TABCTRLCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -457,9 +457,9 @@ void DcxTab::parseCommandRequest( TString & input ) {
         if ( p_Control != NULL ) {
           lpdtci->mChildHwnd = p_Control->getHwnd( );
           this->m_pParentDialog->addControl( p_Control );
-					if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
-						if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
-					}
+					//if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
+					//	if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
+					//}
         }
       }
       else {
@@ -504,11 +504,11 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
 		  TabCtrl_DeleteItem( this->m_Hwnd, nItem );
 
-			if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
-				if (this->isExStyle(WS_EX_CONTROLPARENT)) {
-					this->removeExStyle(WS_EX_CONTROLPARENT);
-				}
-			}
+			//if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
+			//	if (this->isExStyle(WS_EX_CONTROLPARENT)) {
+			//		this->removeExStyle(WS_EX_CONTROLPARENT);
+			//	}
+			//}
 		  // select the next tab item if its the current one
 		  if (curSel == nItem) {
 			  if (nItem < TabCtrl_GetItemCount(this->m_Hwnd))

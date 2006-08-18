@@ -33,7 +33,7 @@ DcxColorCombo::DcxColorCombo( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0,
+    ExStyles,
     DCX_COLORCOMBOCLASS,
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 
@@ -69,7 +69,7 @@ DcxColorCombo::DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0,
+    ExStyles,
     DCX_COLORCOMBOCLASS,
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 

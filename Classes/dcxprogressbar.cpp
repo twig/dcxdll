@@ -33,7 +33,7 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TStrin
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    WS_EX_CLIENTEDGE,
+    ExStyles | WS_EX_CLIENTEDGE,
     DCX_PROGRESSBARCLASS,
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 
@@ -83,7 +83,7 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd,
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    WS_EX_CLIENTEDGE,
+    ExStyles | WS_EX_CLIENTEDGE,
     DCX_PROGRESSBARCLASS,
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 

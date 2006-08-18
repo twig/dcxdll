@@ -31,7 +31,7 @@ DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0, 
+    ExStyles, 
     DCX_STATUSBARCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 
@@ -70,7 +70,7 @@ DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0, 
+    ExStyles, 
     DCX_STATUSBARCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 

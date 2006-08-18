@@ -70,7 +70,7 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
+    ExStyles | WS_EX_CONTROLPARENT,
     DCX_PANELCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -108,7 +108,7 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
+    ExStyles | WS_EX_CONTROLPARENT, 
     DCX_PANELCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -347,9 +347,9 @@ void DcxPanel::parseCommandRequest( TString & input ) {
       if ( p_Control != NULL ) {
 
         this->m_pParentDialog->addControl( p_Control );
-				if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
-					if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
-				}
+				//if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
+				//	if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
+				//}
 
         this->redrawWindow( );
       }
@@ -377,11 +377,11 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 			else if ( p_Control->getRefCount( ) == 0 ) {
 				this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
         DestroyWindow( cHwnd );
-				if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
-					if (this->isExStyle(WS_EX_CONTROLPARENT)) {
-						this->removeExStyle(WS_EX_CONTROLPARENT);
-					}
-				}
+				//if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
+				//	if (this->isExStyle(WS_EX_CONTROLPARENT)) {
+				//		this->removeExStyle(WS_EX_CONTROLPARENT);
+				//	}
+				//}
 			}
       else {
 

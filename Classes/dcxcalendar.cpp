@@ -37,7 +37,7 @@ DcxCalendar::DcxCalendar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    WS_EX_CLIENTEDGE, 
+    ExStyles | WS_EX_CLIENTEDGE, 
     DCX_CALENDARCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -74,7 +74,7 @@ DcxCalendar::DcxCalendar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    WS_EX_CLIENTEDGE, 
+    ExStyles | WS_EX_CLIENTEDGE, 
     DCX_CALENDARCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 

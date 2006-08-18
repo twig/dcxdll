@@ -33,7 +33,7 @@ DcxTrackBar::DcxTrackBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0,
+    ExStyles,
     DCX_TRACKBARCLASS,
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 
@@ -75,7 +75,7 @@ DcxTrackBar::DcxTrackBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    0,
+    ExStyles,
     DCX_TRACKBARCLASS,
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 

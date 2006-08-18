@@ -33,7 +33,7 @@ DcxRichEdit::DcxRichEdit( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    WS_EX_CLIENTEDGE, 
+    ExStyles | WS_EX_CLIENTEDGE, 
     DCX_RICHEDITCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 
@@ -95,7 +95,7 @@ DcxRichEdit::DcxRichEdit( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    WS_EX_CLIENTEDGE, 
+    ExStyles | WS_EX_CLIENTEDGE, 
     DCX_RICHEDITCLASS, 
     NULL,
     WS_CHILD | WS_VISIBLE | Styles, 
