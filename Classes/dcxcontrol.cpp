@@ -115,7 +115,7 @@ void DcxControl::parseGeneralControlStyles( TString & styles, LONG * Styles, LON
 
   unsigned int i = 1, numtok = styles.numtok( " " );
 
-	*ExStyles |= WS_EX_NOPARENTNOTIFY;
+	//*ExStyles |= WS_EX_NOPARENTNOTIFY;
 
   while ( i <= numtok ) {
 
