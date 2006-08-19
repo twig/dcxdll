@@ -84,6 +84,18 @@ void mIRCError(const char *data) {
 }
 
 /*!
+* \brief blah
+*
+* blah
+*/
+void dcxInfoError(const char *ctrl, const char *functn, const char* dlg, const int ctrlid, const char *msg) {
+	TString err;
+
+	err.sprintf("D_ERROR %s(%s, %d).%s: %s", ctrl, dlg, ctrlid, functn, msg);
+	mIRCError(err.to_chr());
+}
+
+/*!
 * \brief mIRC $identifier evaluation function
 *
 * blah

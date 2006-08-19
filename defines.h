@@ -193,6 +193,8 @@ void mIRCError(const char *data);
 void mIRCeval(const char *text, char *res);
 void mIRCcom(const char *data);
 
+void dcxInfoError(const char *ctrl, const char *functn, const char *dlg, const int ctrlid, const char *msg);
+
 int round(float x);
 BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf);
 TString ParseLogfontToCommand(LPLOGFONT lf);
