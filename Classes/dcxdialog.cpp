@@ -1104,9 +1104,11 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	bool fBlocked = (InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
 
 	// If Message is blocking just call old win proc
-	if (fBlocked) {
+	if (fBlocked)
 		return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-	}
+
+	BOOL bParsed = FALSE;
+	LRESULT lRes = 0L;
 
 	switch(uMsg) {
 		case WM_THEMECHANGED:
@@ -1121,241 +1123,34 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			if (!hdr)
 				break;
 
-			char ClassName[256];
-
-			if (IsWindow(hdr->hwndFrom) && GetClassName(hdr->hwndFrom, ClassName, 256) != 0) {
-				switch (hdr->code) {
-					case NM_CLICK:
-					{
-						if (lstrcmp(DCX_STATUSBARCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-						else if (lstrcmp(DCX_TREEVIEWCLASS, ClassName ) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-						//else if ( lstrcmp( DCX_TOOLBARCLASS, ClassName ) == 0 )
-						//return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-						else if (lstrcmp(DCX_LISTVIEWCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-
-					case NM_DBLCLK:
-					{
-						if (lstrcmp(DCX_STATUSBARCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-						else if (lstrcmp(DCX_TREEVIEWCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-						else if (lstrcmp(DCX_LISTVIEWCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-
-					case NM_RCLICK:
-					{
-						if (lstrcmp(DCX_STATUSBARCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-						else if (lstrcmp(DCX_TREEVIEWCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-						else if (lstrcmp(DCX_TOOLBARCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-						else if (lstrcmp(DCX_LISTVIEWCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-						else if (lstrcmp(DCX_TABCTRLCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-
-					case NM_CUSTOMDRAW:
-					{
-						if (lstrcmp(DCX_TREEVIEWCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-						else if (lstrcmp(DCX_TOOLBARCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-						else if (lstrcmp(DCX_LISTVIEWCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-						else if (lstrcmp(DCX_REBARCTRLCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-						else if (lstrcmp(DCX_TRACKBARCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-
-					// TreeView Related Notifications
-					case TVN_GETINFOTIP:
-					case TVN_ITEMEXPANDED:
-					case TVN_BEGINLABELEDIT:
-					case TVN_ENDLABELEDIT:
-					case TVN_DELETEITEM:
-					{
-						if (lstrcmp(DCX_TREEVIEWCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-
-					case TBN_DELETINGBUTTON:
-					case TBN_DROPDOWN:
-					case TBN_GETINFOTIP:
-					{
-						if (lstrcmp(DCX_TOOLBARCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-
-					case LVN_BEGINLABELEDIT:
-					case LVN_ENDLABELEDIT:
-					case LVN_DELETEITEM:
-					case LVN_BEGINDRAG:
-					case LVN_ENDSCROLL:
-					case LVN_GETINFOTIP:
-					{
-						if (lstrcmp(DCX_LISTVIEWCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-
-					case HDN_BEGINTRACK:
-					case HDN_ITEMCLICK:
-					case HDN_ITEMDBLCLICK:
-					{
-						GetClassName(GetParent(hdr->hwndFrom), ClassName, 256);
-
-						if (lstrcmp(DCX_LISTVIEWCLASS, ClassName) == 0)
-							return SendMessage(GetParent(hdr->hwndFrom), uMsg, wParam, lParam);
-
-						break;
-					}
-
-					case RBN_ENDDRAG:
-					case RBN_HEIGHTCHANGE:
-					case RBN_DELETINGBAND:
-					{
-						if (lstrcmp(DCX_REBARCTRLCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-
-			/*
-			case TTN_GETDISPINFO: 
-			{
-
-			char data[500];
-			wsprintf( data, "TTN_GETDISPINFO %x %d", hdr->hwndFrom, hdr->idFrom );
-			mIRCError( data );
-
-			TOOLINFO ti;
-			ZeroMemory( &ti, sizeof( TOOLINFO ) );
-			ti.cbSize = sizeof( TOOLINFO );
-			ti.uFlags = TTF_IDISHWND;
-			ti.hwnd = p_this->getHwnd( );
-
-			if ( SendMessage( hdr->hwndFrom, TTM_GETTOOLINFO, (WPARAM) 0, (LPARAM) &ti ) )
-			mIRCError( "Got Infotip" );
-
-			GetClassName( GetParent( (HWND) hdr->idFrom ), ClassName, 256 );
-			if ( lstrcmp( DCX_TABCTRLCLASS, ClassName ) == 0 ) {
-
-			return SendMessage( (HWND) hdr->idFrom, uMsg, wParam, lParam );
+			if (IsWindow(hdr->hwndFrom)) {
+				DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+				if (c_this != NULL) lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
-			}
-			break;
-			*/
-
-					case TCN_SELCHANGE:
-					{
-						if (lstrcmp(DCX_TABCTRLCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-
-					case IPN_FIELDCHANGED:
-					{
-						if (lstrcmp(DCX_IPADDRESSCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-
-					case UDN_DELTAPOS:
-					{
-						if (lstrcmp(DCX_UPDOWNCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-
-					// richedit notifications
-					case EN_SELCHANGE:
-					case EN_LINK:
-					{
-						if (lstrcmp(DCX_RICHEDITCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-
-					case MCN_GETDAYSTATE:
-					case MCN_SELCHANGE:
-					case MCN_SELECT:
-					case NM_RELEASEDCAPTURE:
-					{
-						if (lstrcmp(DCX_CALENDARCLASS, ClassName) == 0)
-							return SendMessage(hdr->hwndFrom, uMsg, wParam, lParam);
-
-						break;
-					}
-				} // switch
-			} // if classname
-
-			break;
-		} // switch WM_NOTIFY
-
-		case WM_HSCROLL:
-		{
-			char ClassName[256];
-
-			if (IsWindow((HWND) lParam) && GetClassName((HWND) lParam, ClassName, 256) != 0) {
-				if (lstrcmp(DCX_TRACKBARCLASS, ClassName) == 0)
-					return SendMessage((HWND) lParam, uMsg, wParam, lParam);
-				else if (lstrcmpi( "SCROLLBAR", ClassName ) == 0 )
-					return SendMessage((HWND) lParam, uMsg, wParam, lParam);
-			}
-
 			break;
 		}
 
+		case WM_HSCROLL:
 		case WM_VSCROLL:
 		{
-			char ClassName[256];
-
-			if (IsWindow((HWND) lParam) && GetClassName((HWND) lParam, ClassName, 256) != 0) {
-				if (lstrcmp(DCX_TRACKBARCLASS, ClassName) == 0)
-					return SendMessage( (HWND) lParam, uMsg, wParam, lParam);
-				else if (lstrcmpi("SCROLLBAR", ClassName) == 0)
-					return SendMessage((HWND) lParam, uMsg, wParam, lParam);
+			if (IsWindow((HWND) lParam)) {
+				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+				if (c_this != NULL) {
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				}
 			}
-
 			break;
 		}
 
 		case WM_DELETEITEM:
 		{
-			char ClassName[256];
-			DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT*) lParam;
-
-			if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName(idata->hwndItem, ClassName, 256 ) != 0)) {
-				if (lstrcmp(DCX_COLORCOMBOCLASS, ClassName) == 0) {
-					return SendMessage(idata->hwndItem, uMsg, wParam, lParam);
+			DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
+			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+				if (c_this != NULL) {
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
-
 			break;
 		}
 
@@ -1369,22 +1164,18 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_DRAWITEM:
 		{
-			char ClassName[256];
-			DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT*) lParam;
-
-			if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName(idata->hwndItem, ClassName, 256 ) != 0)) {
-				if (lstrcmp(DCX_COLORCOMBOCLASS, ClassName) == 0) {
-					return SendMessage(idata->hwndItem, uMsg, wParam, lParam);
+			DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
+			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+				if (c_this != NULL) {
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
-
 			break;
 		}
 
 		case WM_COMMAND:
 		{
-			char ClassName[256];
-
 			if ((HIWORD(wParam) == 0) && (LOWORD(wParam) == 2) && (lParam == NULL)) {
 				char ret[256];
 
@@ -1393,36 +1184,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				if (lstrcmp("noclose", ret) == 0)
 					return 0L;
 			}
-			else if (IsWindow((HWND) lParam) && GetClassName((HWND) lParam, ClassName, 256) != 0) {
-				// ComboEx Notifications
-				if (lstrcmp(DCX_COMBOEXCLASS, ClassName) == 0)
-					return SendMessage((HWND) lParam, uMsg, wParam, lParam);
-				// ColorCombo notifications
-				else if (lstrcmp(DCX_COLORCOMBOCLASS, ClassName) == 0)
-					return SendMessage((HWND) lParam, uMsg, wParam, lParam);
-				// Button notifications
-				else if (lstrcmp(DCX_BUTTONCLASS, ClassName) == 0)
-					return SendMessage((HWND) lParam, uMsg, wParam, lParam);
-				// Box/Radio/Check notifications
-				else if (lstrcmpi("BUTTON", ClassName) == 0 && (p_this->getControlByHWND((HWND) lParam) != NULL))
-					return SendMessage((HWND) lParam, uMsg, wParam, lParam);
-				// Text/Image notifications
-				else if (lstrcmpi("STATIC", ClassName) == 0 && (p_this->getControlByHWND((HWND) lParam) != NULL))
-					return SendMessage((HWND) lParam, uMsg, wParam, lParam);
-				// Edit notifications
-				else if (lstrcmpi("EDIT", ClassName) == 0 && (p_this->getControlByHWND((HWND) lParam) != NULL))
-					return SendMessage((HWND) lParam, uMsg, wParam, lParam);
-				// List notifications
-				else if (lstrcmpi("LISTBOX", ClassName) == 0 && (p_this->getControlByHWND((HWND) lParam) != NULL))
-					return SendMessage((HWND) lParam, uMsg, wParam, lParam);
-				// Toolbar notifications
-				else if (lstrcmp(DCX_TOOLBARCLASS, ClassName) == 0)
-					return SendMessage((HWND) lParam, uMsg, wParam, lParam);
-				// IP Address notifications
-				//else if ( lstrcmp( DCX_IPADDRESSCLASS, ClassName ) == 0 )
-				//return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
+			else if (IsWindow((HWND) lParam)) {
+				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+				if (c_this != NULL) {
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				}
 			}
-
 			break;
 		}
 
@@ -1907,6 +1674,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	mIRCError( data );
 	return lRes;
 	*/
+	if (bParsed) return lRes;
 
 	if (p_this != NULL) {
 		return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);

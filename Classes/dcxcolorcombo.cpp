@@ -355,6 +355,25 @@ LRESULT DcxColorCombo::resetContent( ) {
  *
  * blah
  */
+LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+  switch( uMsg ) {
+    case WM_COMMAND:
+      {
+        switch ( HIWORD( wParam ) ) {
+
+          case CBN_SELENDOK:
+            {
+              this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
+              bParsed = TRUE;
+              return 0L;
+            }
+            break;
+        }
+      }
+      break;
+	}
+	return 0L;
+}
 
 LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
@@ -363,24 +382,6 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
     case WM_HELP:
       {
         this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
-
-    case WM_COMMAND:
-      {
-        //mIRCError( "Control WM_COMMAND" );
-
-        switch ( HIWORD( wParam ) ) {
-
-          case CBN_SELENDOK:
-            {
-              //mIRCError( "Control CBN_SELENDOK" );
-              this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
-              bParsed = TRUE;
-              return 0L;
-            }
-            break;
-        }
       }
       break;
 

@@ -299,10 +299,31 @@ LRESULT DcxIpAddress::clearAddress( ) {
  *
  * blah
  */
+LRESULT DcxIpAddress::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+  switch( uMsg ) {
+    case WM_NOTIFY : 
+      {
+        LPNMHDR hdr = (LPNMHDR) lParam;
+
+        if (!hdr)
+          break;
+
+        switch( hdr->code ) {
+          case IPN_FIELDCHANGED:
+            {
+              this->callAliasEx( NULL, "%s,%d", "edit", this->getUserID( ) );
+              bParsed = TRUE;
+            }
+            break;
+        }
+      }
+      break;
+	}
+	return 0L;
+}
 
 LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-	//mIRCDebug("IPAddress: %d", uMsg);
   switch( uMsg ) {
 
     case WM_HELP:
@@ -322,12 +343,6 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
         switch( hdr->code ) {
 
-          case IPN_FIELDCHANGED:
-            {
-              this->callAliasEx( NULL, "%s,%d", "edit", this->getUserID( ) );
-              bParsed = TRUE;
-            }
-            break;
 					case TTN_GETDISPINFO:
 						{
 							bParsed = TRUE;
@@ -336,12 +351,12 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							di->hinst = NULL;
 						}
 						break;
-				case TTN_LINKCLICK:
-					{
-						bParsed = TRUE;
-						this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
-					}
-					break;
+					case TTN_LINKCLICK:
+						{
+							bParsed = TRUE;
+							this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
+						}
+						break;
         }
       }
       break;

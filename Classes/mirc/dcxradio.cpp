@@ -222,6 +222,23 @@ void DcxRadio::parseCommandRequest( TString & input ) {
  *
  * blah
  */
+LRESULT DcxRadio::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+  switch( uMsg ) {
+    case WM_COMMAND:
+      {
+        switch ( HIWORD( wParam ) ) {
+
+          case BN_CLICKED:
+            {
+              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+            }
+            break;
+        }
+      }
+      break;
+	}
+	return 0L;
+}
 
 LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
@@ -252,19 +269,6 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
       */
-
-    case WM_COMMAND:
-      {
-        switch ( HIWORD( wParam ) ) {
-
-          case BN_CLICKED:
-            {
-              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-            }
-            break;
-        }
-      }
-      break;
 
 		case WM_NOTIFY:
 			{
@@ -322,7 +326,6 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

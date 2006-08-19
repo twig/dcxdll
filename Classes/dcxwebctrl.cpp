@@ -525,6 +525,9 @@ HRESULT STDMETHODCALLTYPE DcxWebControl::GetWindowContext( IOleInPlaceFrame __RP
  *
  * blah
  */
+LRESULT DcxWebControl::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+	return 0L;
+}
 
 LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
@@ -564,7 +567,6 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 			break;
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

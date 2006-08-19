@@ -163,6 +163,9 @@ void DcxLine::parseCommandRequest( TString & input ) {
  *
  * blah
  */
+LRESULT DcxLine::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+	return 0L;
+}
 
 LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
@@ -199,7 +202,6 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

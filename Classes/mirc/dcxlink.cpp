@@ -254,6 +254,29 @@ void DcxLink::parseCommandRequest( TString & input ) {
  *
  * blah
  */
+LRESULT DcxLink::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+  switch( uMsg ) {
+	    case WM_COMMAND:
+      {
+        switch ( HIWORD( wParam ) ) {
+
+          case STN_CLICKED:
+            {
+              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+            }
+            break;
+
+          case STN_DBLCLK:
+            {
+              this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+            }
+            break;
+        }
+      }
+      break;
+	}
+	return 0L;
+}
 
 LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
@@ -405,27 +428,6 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
       }
       break;
 
-    case WM_COMMAND:
-      {
-        //mIRCError( "Control WM_COMMAND" );
-
-        switch ( HIWORD( wParam ) ) {
-
-          case STN_CLICKED:
-            {
-              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-            }
-            break;
-
-          case STN_DBLCLK:
-            {
-              this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
-            }
-            break;
-        }
-      }
-      break;
-
 		case WM_NOTIFY:
 			{
         LPNMHDR hdr = (LPNMHDR) lParam;
@@ -463,12 +465,12 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
       }
       break;
 
-    case WM_CLOSE: 
-      {
+    //case WM_CLOSE: 
+    //  {
 
-        mIRCError( "WM_CLOSE" );
-      }
-      break;
+    //    mIRCError( "WM_CLOSE" );
+    //  }
+    //  break;
 
     case WM_DESTROY:
       {

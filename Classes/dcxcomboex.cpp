@@ -583,21 +583,10 @@ LRESULT DcxComboEx::limitText( int iLimit ) {
  *
  * blah
  */
-
-LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
+LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
   switch( uMsg ) {
-
-    case WM_HELP:
-      {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
-
     case WM_COMMAND:
       {
-
-        //mIRCError( "Control WM_COMMAND" );
         switch( HIWORD( wParam ) ) {
 
           case CBN_DBLCLK:
@@ -631,12 +620,22 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
               bParsed = TRUE;
               return TRUE;
             }
-            break;
-
-          
+            break;          
         } // switch
-
         bParsed = TRUE;
+      }
+      break;
+	}
+	return 0L;
+}
+
+LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+
+  switch( uMsg ) {
+
+    case WM_HELP:
+      {
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 

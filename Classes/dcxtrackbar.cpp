@@ -522,91 +522,8 @@ LRESULT DcxTrackBar::getSelEnd(  ) {
  *
  * blah
  */
-
-LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
-  switch( uMsg ) {
-
-    case WM_HELP:
-      {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
-
-
-    case WM_VSCROLL:
-    case WM_HSCROLL: 
-      {
-
-		  switch( LOWORD( wParam ) ) {
-
-          case TB_TOP:
-            this->callAliasEx( NULL, "%s,%d,%d", "top", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case TB_BOTTOM:
-            this->callAliasEx( NULL, "%s,%d,%d", "bottom", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case TB_PAGEUP:
-            this->callAliasEx( NULL, "%s,%d,%d", "pageup", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case TB_PAGEDOWN:
-            this->callAliasEx( NULL, "%s,%d,%d", "pagedown", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case TB_LINEUP:
-            this->callAliasEx( NULL, "%s,%d,%d", "lineup", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case TB_LINEDOWN:
-            this->callAliasEx( NULL, "%s,%d,%d", "linedown", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case TB_THUMBPOSITION:
-            this->callAliasEx( NULL, "%s,%d,%d", "trackend", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case SB_THUMBTRACK:
-            this->callAliasEx( NULL, "%s,%d,%d", "tracking", this->getUserID( ), this->getPos( ) );
-            break;
-        }
-      }
-      break;
-
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-
-          SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
-
-    case WM_DESTROY:
-      {
-        //mIRCError( "WM_DESTROY" );
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
-
-
+LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+	switch( uMsg ) {
 		case WM_NOTIFY: {
 			LPNMHDR hdr = (LPNMHDR) lParam;
 
@@ -733,6 +650,90 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 			} // end SWITCH
 		} // end notify
+	}
+	return 0L;
+}
+
+LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+
+  switch( uMsg ) {
+
+    case WM_HELP:
+      {
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+      }
+      break;
+
+    case WM_VSCROLL:
+    case WM_HSCROLL: 
+      {
+
+		  switch( LOWORD( wParam ) ) {
+
+          case TB_TOP:
+            this->callAliasEx( NULL, "%s,%d,%d", "top", this->getUserID( ), this->getPos( ) );
+            break;
+
+          case TB_BOTTOM:
+            this->callAliasEx( NULL, "%s,%d,%d", "bottom", this->getUserID( ), this->getPos( ) );
+            break;
+
+          case TB_PAGEUP:
+            this->callAliasEx( NULL, "%s,%d,%d", "pageup", this->getUserID( ), this->getPos( ) );
+            break;
+
+          case TB_PAGEDOWN:
+            this->callAliasEx( NULL, "%s,%d,%d", "pagedown", this->getUserID( ), this->getPos( ) );
+            break;
+
+          case TB_LINEUP:
+            this->callAliasEx( NULL, "%s,%d,%d", "lineup", this->getUserID( ), this->getPos( ) );
+            break;
+
+          case TB_LINEDOWN:
+            this->callAliasEx( NULL, "%s,%d,%d", "linedown", this->getUserID( ), this->getPos( ) );
+            break;
+
+          case TB_THUMBPOSITION:
+            this->callAliasEx( NULL, "%s,%d,%d", "trackend", this->getUserID( ), this->getPos( ) );
+            break;
+
+          case SB_THUMBTRACK:
+            this->callAliasEx( NULL, "%s,%d,%d", "tracking", this->getUserID( ), this->getPos( ) );
+            break;
+        }
+      }
+      break;
+
+    case WM_MOUSEMOVE:
+      {
+        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
+      }
+      break;
+
+    case WM_SETFOCUS:
+      {
+        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
+      }
+      break;
+
+    case WM_SETCURSOR:
+      {
+        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
+
+          SetCursor( this->m_hCursor );
+          bParsed = TRUE;
+          return TRUE;
+        }
+      }
+      break;
+
+    case WM_DESTROY:
+      {
+        delete this;
+        bParsed = TRUE;
+      }
+      break;
 
     default:
       break;

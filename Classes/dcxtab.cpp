@@ -73,9 +73,9 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   HWND hHwndTip = TabCtrl_GetToolTips( this->m_Hwnd );
   if ( IsWindow( hHwndTip ) ) {
 
-    char data[500];
-    wsprintf( data, "Activating Tooltips TT HWND %x", hHwndTip );
-    mIRCError( data );
+		TString data;
+    data.sprintf("Activating Tooltips TT HWND %x", hHwndTip );
+    mIRCError( data.to_chr() );
 
     TOOLINFO ti;
     ZeroMemory( &ti, sizeof( TOOLINFO ) );
@@ -88,6 +88,9 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   }
   */
 
+	if (this->m_ToolTipHWND != NULL) {
+		if (styles.istok("tooltips"," ")) TabCtrl_SetToolTips(this->m_Hwnd,this->m_ToolTipHWND);
+	}
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -463,6 +466,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
         }
       }
       else {
+				//dcxInfoError("tab", "xdid", input.gettok(1, " ").to_chr(), ID - mIRC_ID_OFFSET, "Control already exists!");
         TString error;
         error.sprintf("/xdid -a : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
 				mIRCError( error.to_chr() );
@@ -738,10 +742,52 @@ void DcxTab::activateSelectedTab( ) {
  *
  * blah
  */
+LRESULT DcxTab::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+  switch( uMsg ) {
+    case WM_NOTIFY : 
+      {
+        LPNMHDR hdr = (LPNMHDR) lParam;
+
+        if (!hdr)
+          break;
+        switch( hdr->code ) {
+				case NM_RCLICK:
+          {
+						TCHITTESTINFO tchi;
+						tchi.flags = TCHT_ONITEM;
+						GetCursorPos( &tchi.pt );
+						ScreenToClient( this->m_Hwnd, &tchi.pt );
+
+						int tab = TabCtrl_HitTest( this->m_Hwnd, &tchi );
+						int stab = TabCtrl_GetCurSel( this->m_Hwnd );
+
+						if ( tab != -1 && tab == stab ) {
+							this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), tab+1 );
+						}
+						bParsed = TRUE;
+					}
+					break;
+        case TCN_SELCHANGE:
+					{
+						int tab = TabCtrl_GetCurSel( this->m_Hwnd );
+
+						if ( tab != -1 ) {
+							this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), tab+1 );
+						}
+						this->activateSelectedTab( );
+						bParsed = TRUE;
+					}
+					break;
+				}
+			}
+			break;
+	}
+	return 0L;
+}
 
 LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-	//mIRCDebug("tab: %d", uMsg);
+	LRESULT lRes = 0L;
   switch( uMsg ) {
 
     case WM_HELP:
@@ -752,330 +798,65 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_NOTIFY : 
       {
-
-        //mIRCError( "Tab WM_NOTIFY" );
         LPNMHDR hdr = (LPNMHDR) lParam;
 
         if (!hdr)
           break;
-				//if (hdr->hwndFrom == this->m_Hwnd)
-				//	return 0L;
 
-        char ClassName[256];
-
-        if ( IsWindow( hdr->hwndFrom ) && GetClassName( hdr->hwndFrom, ClassName, 256 ) != 0 ) {
-
-          switch( hdr->code ) {
-
-            case NM_CLICK:
-              {
-                //mIRCError( "Tab WM_NOTIFY - NM_CLICK" );
-                if ( lstrcmp( DCX_STATUSBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_TREEVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_TOOLBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            case NM_DBLCLK:
-              {
-                //mIRCError( "Tab WM_NOTIFY - NM_DBLCLK" );
-                if ( lstrcmp( DCX_STATUSBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_TREEVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            case NM_RCLICK:
-              {
-                //mIRCError( "Dialog WM_NOTIFY - NM_RCLICK" );
-                if ( lstrcmp( DCX_STATUSBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_TREEVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_TOOLBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_TABCTRLCLASS, ClassName ) == 0) {
-
-                  // Not a forward to this window, comes from a child window
-                  if ( this->m_Hwnd != hdr->hwndFrom ) {
-                    bParsed = TRUE;
-                    return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                  }
-                  else {
-
-                    TCHITTESTINFO tchi;
-                    tchi.flags = TCHT_ONITEM;
-                    GetCursorPos( &tchi.pt );
-                    ScreenToClient( this->m_Hwnd, &tchi.pt );
-
-                    int tab = TabCtrl_HitTest( this->m_Hwnd, &tchi );
-                    int stab = TabCtrl_GetCurSel( this->m_Hwnd );
-
-                    if ( tab != -1 && tab == stab ) {
-                      this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), tab+1 );
-                    }
-                    bParsed = TRUE;
-                  }
-                }
-              }
-              break;
-
-            case NM_CUSTOMDRAW:
-              {
-                if ( lstrcmp( DCX_TREEVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_TOOLBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              } // NM_CUSTOMDRAW
-              break;
-
-            // TreeView Related Notifications
-            case TVN_GETINFOTIP:
-            case TVN_ITEMEXPANDED:
-            case TVN_BEGINLABELEDIT:
-            case TVN_ENDLABELEDIT:
-            case TVN_DELETEITEM:
-              {
-                if ( lstrcmp( DCX_TREEVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            // Toolbar stuff
-            case TBN_DELETINGBUTTON:
-            case TBN_DROPDOWN:
-            case TBN_GETINFOTIP:
-              {
-                if ( lstrcmp( DCX_TOOLBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            // Listview stuff
-            case LVN_BEGINLABELEDIT:
-            case LVN_ENDLABELEDIT:
-            case LVN_DELETEITEM:
-						case LVN_GETINFOTIP:
-              {
-                if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            case HDN_BEGINTRACK:
-            case HDN_ITEMCLICK:
-            case HDN_ITEMDBLCLICK:
-              {
-                GetClassName( GetParent( hdr->hwndFrom ), ClassName, 256 );
-                if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            case RBN_ENDDRAG:
-            case RBN_HEIGHTCHANGE:
-            case RBN_DELETINGBAND:
-              {
-                if ( lstrcmp( DCX_REBARCTRLCLASS, ClassName ) == 0 ) {
-
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-              /*
-            case TTN_GETDISPINFO: 
-              {
-                mIRCError( "Tooltip requested" );
-
-                if ( lstrcmp( DCX_TABCTRLCLASS, ClassName ) == 0) {
-
-                  // Not a forward to this window, comes from a child window
-                  if ( this->m_Hwnd != hdr->hwndFrom ) {
-                    bParsed = TRUE;
-                    return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                  }
-                  else {
-                    mIRCError( "Tooltip requested" );
-                    bParsed = TRUE;
-                  }
-                }
-              }
-              break;
-              */
-
-            // Tab Stuff
-            case TCN_SELCHANGE:
-              {
-                if ( lstrcmp( DCX_TABCTRLCLASS, ClassName ) == 0) {
-
-                  // Not a forward to this window, comes from a child window
-                  if ( this->m_Hwnd != hdr->hwndFrom ) {
-                    bParsed = TRUE;
-                    return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                  }
-                  else {
-                   
-                    int tab = TabCtrl_GetCurSel( this->m_Hwnd );
-
-                    if ( tab != -1 ) {
-                      this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), tab+1 );
-                    }
-                    this->activateSelectedTab( );
-                    bParsed = TRUE;
-                  }
-                }
-              }
-              break;
-          }
-        }
+				if (IsWindow(hdr->hwndFrom)) {
+					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
+				}
       }
       break;
 
     case WM_HSCROLL: 
-      {
-        char ClassName[256];
-        if ( IsWindow( (HWND) lParam ) && GetClassName( (HWND) lParam, ClassName, 256 ) != 0 ) {
-
-          if ( lstrcmp( DCX_TRACKBARCLASS, ClassName ) == 0 ) {
-            return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
-          }
-        }
-      }
-      break;
-
     case WM_VSCROLL: 
+    case WM_COMMAND:
       {
-        char ClassName[256];
-        if ( IsWindow( (HWND) lParam ) && GetClassName( (HWND) lParam, ClassName, 256 ) != 0 ) {
-
-          if ( lstrcmp( DCX_TRACKBARCLASS, ClassName ) == 0 ) {
-            return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
-          }
-        }
+				if (IsWindow((HWND) lParam)) {
+					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
+				}
       }
       break;
 
     case WM_DELETEITEM:
       {
-        //mIRCError( "Tab WM_DELETEITEM" );
-
-        char ClassName[256];
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName( idata->hwndItem, ClassName, 256 ) != 0)) {
-          if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-            //mIRCError( "DCX_COLORCOMBOCLASS WM_DELETEITEM" );
-            bParsed = TRUE;
-            return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
-          }
+				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
 				}
       }
       break;
 
     case WM_MEASUREITEM:
       {
-        //mIRCError( "Tab WM_MEASUREITEM" );
-				if (ctrl_MeasureItem(this->m_Hwnd, wParam, lParam)) return TRUE;
+				if (ctrl_MeasureItem(this->m_Hwnd, wParam, lParam)) {
+					bParsed = TRUE;
+					return TRUE;
+				}
       }
       break;
 
     case WM_DRAWITEM:
       {
-        //mIRCError( "Tab WM_DRAWITEM" );
-
-        char ClassName[256];
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName( idata->hwndItem, ClassName, 256 ) != 0)) {
-          if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-            //mIRCError( "DCX_COLORCOMBOCLASS WM_DRAWITEM" );
-            bParsed = TRUE;
-            return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
-          }
+				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
 				}
       }
-     break;
-
-    case WM_COMMAND:
-      {
-        //mIRCError( "Tab WM_COMMAND" );
-				//if ((HWND)lParam == this->m_Hwnd)
-				//	return 0L;
-        char ClassName[256];
-
-				if ( IsWindow( (HWND) lParam ) && GetClassName( (HWND) lParam, ClassName, 256 ) != 0 ) {
-
-          // ComboEx Notifications
-          if ( lstrcmp( DCX_COMBOEXCLASS, ClassName ) == 0 ) {
-            bParsed = TRUE;
-            return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
-          }
-          // ColorCombo notifications
-          else if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-            bParsed = TRUE;
-            return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
-          }
-          // Edit notifications
-					else if ( lstrcmpi( "EDIT", ClassName ) == 0 ) {
-            bParsed = TRUE;
-            return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
-					}
-          // List notifications
-          else if ( lstrcmpi( "LISTBOX", ClassName ) == 0 ) {
-            bParsed = TRUE;
-            return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
-          }
-        }
-      }
-      break;
+			break;
 
     case WM_SIZE:
       {

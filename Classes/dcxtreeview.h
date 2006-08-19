@@ -98,6 +98,7 @@ public:
   virtual ~DcxTreeView( );
 
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
   void parseInfoRequest( TString & input, char * szReturnValue );
   void parseCommandRequest( TString & input );

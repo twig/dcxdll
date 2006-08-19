@@ -257,6 +257,9 @@ void DcxScroll::parseCommandRequest( TString & input ) {
  *
  * blah
  */
+LRESULT DcxScroll::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+	return 0L;
+}
 
 LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
@@ -479,7 +482,6 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

@@ -520,20 +520,10 @@ int DcxStatusBar::hitTest( POINT & pt ) {
  *
  * blah
  */
-
-LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
+LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
   switch( uMsg ) {
-
-    case WM_HELP:
+    case WM_NOTIFY:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
-
-    case WM_NOTIFY : 
-      {
-
         LPNMHDR hdr = (LPNMHDR) lParam;
 
         if (!hdr)
@@ -543,8 +533,6 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
           case NM_CLICK:
             {
-              //mIRCError( "Control WM_NOTIFY - NM_CLICK" );
-
               POINT pt;
               GetCursorPos( &pt );
               ScreenToClient( this->m_Hwnd, &pt );
@@ -559,8 +547,6 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
           case NM_RCLICK:
             {
-              //mIRCError( "Control WM_NOTIFY - NM_RCLICK" );
-
               POINT pt;
               GetCursorPos( &pt );
               ScreenToClient( this->m_Hwnd, &pt );
@@ -575,8 +561,6 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
           case NM_DBLCLK: 
             {
-              //mIRCError( "Control WM_NOTIFY - NM_DBLCLK" );
-
               POINT pt;
               GetCursorPos( &pt );
               ScreenToClient( this->m_Hwnd, &pt );
@@ -590,6 +574,19 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
             break;
 
         } // switch
+      }
+      break;
+	}
+	return 0L;
+}
+
+LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+
+  switch( uMsg ) {
+
+    case WM_HELP:
+      {
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -618,7 +615,6 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

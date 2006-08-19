@@ -324,11 +324,11 @@ HWND FindOwner(TString data, HWND defaultWnd) {
 			return wnd;
 
 		// try to retrieve dialog hwnd from name
-		char com[100];
+		TString com;
 		char res[10];
 
-		wsprintf(com, "$dialog(%s).hwnd", data.gettok(i +1, " ").to_chr());
-		mIRCeval(com, res);
+		com.sprintf("$dialog(%s).hwnd", data.gettok(i +1, " ").to_chr());
+		mIRCeval(com.to_chr(), res);
 		wnd = (HWND) atoi(res);
 
 		if (wnd)
@@ -707,6 +707,7 @@ void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl)
 		ti.hwnd = ctrl;
 		ti.lpszText = LPSTR_TEXTCALLBACK;
 		ti.uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS | TTF_PARSELINKS;
+		//ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS | TTF_PARSELINKS;
 		ti.uId = (UINT_PTR)ctrl;
 
 		SendMessage(tiphwnd,TTM_ADDTOOL,NULL,(LPARAM)&ti);

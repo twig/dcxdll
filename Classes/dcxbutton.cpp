@@ -382,6 +382,23 @@ HIMAGELIST DcxButton::createImageList( ) {
  *
  * blah
  */
+LRESULT DcxButton::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+  switch( uMsg ) {
+    case WM_COMMAND:
+      {
+        switch ( HIWORD( wParam ) ) {
+
+          case BN_CLICKED:
+            {
+              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+            }
+            break;
+        }
+      }
+      break;
+	}
+	return 0L;
+}
 
 LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
@@ -393,21 +410,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
       }
       break;
 
-    case WM_COMMAND:
-      {
-        //mIRCError( "Control WM_COMMAND" );
-
-        switch ( HIWORD( wParam ) ) {
-
-          case BN_CLICKED:
-            {
-              //mIRCError( "Control BN_CLICKED" );
-              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-            }
-            break;
-        }
-      }
-      break;
 		case WM_NOTIFY:
 			{
         LPNMHDR hdr = (LPNMHDR) lParam;
@@ -447,19 +449,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
           tme.dwHoverTime = 1;
           this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );		
         }
-				//if (this->m_ToolTipHWND != NULL) {
-				//	MSG tmp;
-				//	DWORD pos;
-				//	tmp.hwnd = this->m_Hwnd;
-				//	tmp.lParam = lParam;
-				//	tmp.message = uMsg;
-				//	pos = GetMessagePos();
-				//	tmp.pt.x = GET_X_LPARAM(pos);
-				//	tmp.pt.y = GET_Y_LPARAM(pos);
-				//	tmp.time = GetMessageTime();
-				//	tmp.wParam = wParam;
-				//	SendMessage(this->m_ToolTipHWND,TTM_RELAYEVENT,NULL,(LPARAM)&tmp);
-				//}
       }
       break;
 
@@ -495,19 +484,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
           this->m_bSelected = TRUE;
           InvalidateRect( this->m_Hwnd, NULL, FALSE );
         }
-				//if (this->m_ToolTipHWND != NULL) {
-				//	MSG tmp;
-				//	DWORD pos;
-				//	tmp.hwnd = this->m_Hwnd;
-				//	tmp.lParam = lParam;
-				//	tmp.message = uMsg;
-				//	pos = GetMessagePos();
-				//	tmp.pt.x = GET_X_LPARAM(pos);
-				//	tmp.pt.y = GET_Y_LPARAM(pos);
-				//	tmp.time = GetMessageTime();
-				//	tmp.wParam = wParam;
-				//	SendMessage(this->m_ToolTipHWND,TTM_RELAYEVENT,NULL,(LPARAM)&tmp);
-				//}
       }
       break;
 
@@ -515,25 +491,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
       {
         this->m_bSelected = FALSE;
 			}
-		//case WM_MBUTTONDOWN:
-		//case WM_MBUTTONUP:
-		//case WM_RBUTTONDOWN:
-		//case WM_RBUTTONUP:
-		//	{
-		//		if (this->m_ToolTipHWND != NULL) {
-		//			MSG tmp;
-		//			DWORD pos;
-		//			tmp.hwnd = this->m_Hwnd;
-		//			tmp.lParam = lParam;
-		//			tmp.message = uMsg;
-		//			pos = GetMessagePos();
-		//			tmp.pt.x = GET_X_LPARAM(pos);
-		//			tmp.pt.y = GET_Y_LPARAM(pos);
-		//			tmp.time = GetMessageTime();
-		//			tmp.wParam = wParam;
-		//			SendMessage(this->m_ToolTipHWND,TTM_RELAYEVENT,NULL,(LPARAM)&tmp);
-		//		}
-  //    }
       break;
 
     case WM_CONTEXTMENU:
@@ -719,17 +676,8 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
       }
       break;
 
-		//case WM_GETDLGCODE:
-		//	{
-		//		//mIRCError("Button WM_GETDLGCODE");
-		//		bParsed = TRUE;
-		//		return DLGC_BUTTON;
-		//	}
-		//	break;
-
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

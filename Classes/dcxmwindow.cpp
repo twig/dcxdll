@@ -166,6 +166,9 @@ void DcxMWindow::parseCommandRequest( TString & input ) {
  * \param lParam Window Procedure LPARAM
  * \param bParsed Indicates if subclassed procedure parsed the message
  */
+LRESULT DcxMWindow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+	return 0L;
+}
 
 LRESULT DcxMWindow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 

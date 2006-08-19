@@ -179,6 +179,9 @@ void DcxMDialog::parseControlStyles(TString & styles, LONG * Styles, LONG * ExSt
  * \param lParam Window Procedure LPARAM
  * \param bParsed Indicates if subclassed procedure parsed the message
  */
+LRESULT DcxMDialog::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+	return 0L;
+}
 
 LRESULT DcxMDialog::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
@@ -215,7 +218,6 @@ LRESULT DcxMDialog::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

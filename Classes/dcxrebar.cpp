@@ -893,9 +893,105 @@ LRESULT DcxReBar::minBand( UINT uBand, BOOL fIdeal ) {
  *
  * blah
  */
+LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+  switch( uMsg ) {
+    case WM_NOTIFY : 
+      {
+        LPNMHDR hdr = (LPNMHDR) lParam;
+
+        if (!hdr)
+          break;
+
+					switch( hdr->code ) {
+						case NM_CUSTOMDRAW:
+							{
+								LPNMCUSTOMDRAW lpncd = (LPNMCUSTOMDRAW) lParam;
+
+								bParsed = TRUE;
+
+								switch( lpncd->dwDrawStage ) {
+									case CDDS_PREPAINT:
+										return (CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW);
+									case CDDS_ITEMPREPAINT:
+										{
+											LPDCXRBBAND lpdcxrbb = (LPDCXRBBAND) lpncd->lItemlParam;
+
+											if ( lpdcxrbb == NULL )
+												return CDRF_DODEFAULT;
+
+											if ( lpdcxrbb->clrText != -1 )
+												SetTextColor( lpncd->hdc, lpdcxrbb->clrText );
+										}
+										return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
+									case CDDS_ITEMPOSTPAINT:
+										return CDRF_DODEFAULT;
+									default:
+										return CDRF_DODEFAULT;
+								}
+							} // NM_CUSTOMDRAW
+							break;
+
+						case RBN_HEIGHTCHANGE:
+							{
+								bParsed = TRUE;
+								RECT rc;
+								GetWindowRect( this->m_Hwnd, &rc );
+								int width = rc.right - rc.left;
+								int height = rc.bottom - rc.top;
+
+								if ( this->m_iWidth != width || this->m_iHeight != height ) {
+
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "change", this->getUserID( ),
+										width, height );
+
+									this->m_iWidth = width;
+									this->m_iHeight = height;
+								}
+							}
+							break;
+
+						case RBN_ENDDRAG:
+							{
+								bParsed = TRUE;
+								this->redrawWindow( );
+							}
+							break;
+
+						case RBN_DELETINGBAND:
+							{
+								bParsed = TRUE;
+	              
+								LPNMREBAR lpnmrb = (LPNMREBAR) lParam;
+
+								REBARBANDINFO rbBand;
+								ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
+								rbBand.cbSize = sizeof( REBARBANDINFO );
+								rbBand.fMask = RBBIM_CHILD;
+
+								if ( this->getBandInfo( lpnmrb->uBand, &rbBand ) != 0 ) {
+
+									if ( IsWindow( rbBand.hwndChild ) ) {
+
+										DcxControl * p_delControl = this->m_pParentDialog->getControlByHWND( rbBand.hwndChild );
+										this->m_pParentDialog->deleteControl( p_delControl );
+									}
+
+									LPDCXRBBAND lpdcxrbb = (LPDCXRBBAND) lpnmrb->lParam;
+									if ( lpdcxrbb != NULL )
+										delete lpdcxrbb;
+								}
+							}
+							break;
+						} // switch
+      }
+      break;
+	}
+	return 0L;
+}
 
 LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
+	LRESULT lRes = 0L;
   switch( uMsg ) {
 
     case WM_HELP:
@@ -906,420 +1002,68 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_NOTIFY : 
       {
-
-        //mIRCError( "Rebar WM_NOTIFY" );
         LPNMHDR hdr = (LPNMHDR) lParam;
 
         if (!hdr)
           break;
 
-        char ClassName[256];
-
-        if ( IsWindow( hdr->hwndFrom ) && GetClassName( hdr->hwndFrom, ClassName, 256 ) != 0 ) {
-
-          switch( hdr->code ) {
-
-            case NM_CLICK:
-              {
-                //mIRCError( "Rebar WM_NOTIFY - NM_CLICK" );
-                if ( lstrcmp( DCX_STATUSBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_TREEVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                /*
-                else if ( lstrcmp( DCX_TOOLBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                */
-                else if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            case NM_DBLCLK:
-              {
-                //mIRCError( "Rebar WM_NOTIFY - NM_DBLCLK" );
-                if ( lstrcmp( DCX_STATUSBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_TREEVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
-                 bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            case NM_RCLICK:
-              {
-                //mIRCError( "Rebar WM_NOTIFY - NM_RCLICK" );
-                if ( lstrcmp( DCX_STATUSBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_TREEVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_TOOLBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            case NM_CUSTOMDRAW:
-              {
-                if ( lstrcmp( DCX_TREEVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_TOOLBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-                else {
-
-                  LPNMCUSTOMDRAW lpncd = (LPNMCUSTOMDRAW) lParam;
-
-                  bParsed = TRUE;
-
-                  switch( lpncd->dwDrawStage ) {
-
-                    case CDDS_PREPAINT:
-                      return (CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW);
-
-                    case CDDS_ITEMPREPAINT:
-                      {
-                        
-                        LPDCXRBBAND lpdcxrbb = (LPDCXRBBAND) lpncd->lItemlParam;
-
-                        if ( lpdcxrbb == NULL )
-                          return CDRF_DODEFAULT;
-
-                        if ( lpdcxrbb->clrText != -1 )
-                          SetTextColor( lpncd->hdc, lpdcxrbb->clrText );
-                      }
-                     
-                      return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
-
-                    case CDDS_ITEMPOSTPAINT:
-                      return CDRF_DODEFAULT;
-
-                    default:
-                      return CDRF_DODEFAULT;
-                  }
-                } // Rebar
-              } // NM_CUSTOMDRAW
-              break;
-
-              // TreeView Related Notifications
-            case TVN_GETINFOTIP:
-            case TVN_ITEMEXPANDED:
-            case TVN_BEGINLABELEDIT:
-            case TVN_ENDLABELEDIT:
-            case TVN_DELETEITEM:
-              {
-                if ( lstrcmp( DCX_TREEVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            case TBN_DELETINGBUTTON:
-            case TBN_DROPDOWN:
-            case TBN_GETINFOTIP:
-              {
-                if ( lstrcmp( DCX_TOOLBARCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            case LVN_BEGINLABELEDIT:
-            case LVN_ENDLABELEDIT:
-            case LVN_DELETEITEM:
-						case LVN_GETINFOTIP:
-              {
-                if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            case HDN_BEGINTRACK:
-            case HDN_ITEMCLICK:
-            case HDN_ITEMDBLCLICK:
-              {
-                GetClassName( GetParent( hdr->hwndFrom ), ClassName, 256 );
-                if ( lstrcmp( DCX_LISTVIEWCLASS, ClassName ) == 0 ) {
-                  bParsed = TRUE;
-                  return SendMessage( GetParent( hdr->hwndFrom ), uMsg, wParam, lParam );
-                }
-              }
-              break;
-
-            case TCN_SELCHANGE:
-              {
-                if ( lstrcmp( DCX_TABCTRLCLASS, ClassName ) == 0 )
-                  return SendMessage( hdr->hwndFrom, uMsg, wParam, lParam );
-              }
-              break;
-
-            case RBN_HEIGHTCHANGE:
-              {
-
-                //mIRCSignal( "RBN_HEIGHTCHANGE" );
-                bParsed = TRUE;
-
-                /*
-                LPNMREBAR lpnmrb = (LPNMREBAR) lParam;
-
-                REBARBANDINFO rbBand;
-                ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
-                rbBand.cbSize = sizeof( REBARBANDINFO );
-                rbBand.fMask = RBBIM_STYLE;
-
-
-                char data[500];
-                wsprintf( data, "RL %d - GETR %d - CLB %d", this->m_iRowLimit, this->getRowCount( ), this->m_iClickedBand );
-                mIRCError( data );
-
-                if ( this->m_iRowLimit > 0 && this->getRowCount( ) > this->m_iRowLimit ) {
-
-                  if ( this->getBandInfo( this->m_iClickedBand, &rbBand ) != 0 ) {
-
-                    mIRCError( "Got Band Info" );
-
-                    if ( rbBand.fStyle & RBBS_BREAK ) {
-
-                      mIRCError( "Reverting Band Here" );
-
-                      //SendMessage( this->m_Hwnd, WM_SETREDRAW, FALSE, 0 );
-                      rbBand.fStyle &= ~RBBS_BREAK;
-                      this->setBandInfo( this->m_iClickedBand, &rbBand );
-                      //SendMessage( this->m_Hwnd, WM_SETREDRAW, TRUE, 0 );
-                    }
-                  }
-                }
-                else {
-                */
-
-                RECT rc;
-                GetWindowRect( this->m_Hwnd, &rc );
-                int width = rc.right - rc.left;
-                int height = rc.bottom - rc.top;
-
-                if ( this->m_iWidth != width || this->m_iHeight != height ) {
-
-                  this->callAliasEx( NULL, "%s,%d,%d,%d", "change", this->getUserID( ),
-                    width, height );
-
-                  this->m_iWidth = width;
-                  this->m_iHeight = height;
-                }
-
-              /*}
-                this->redrawWindow( );
-                */
-              }
-              break;
-
-            case RBN_ENDDRAG:
-              {
-                bParsed = TRUE;
-                this->redrawWindow( );
-              }
-              break;
-
-            case RBN_DELETINGBAND:
-              {
-                //mIRCSignal( "RBN_DELETINGBAND" );
-                bParsed = TRUE;
-                
-                LPNMREBAR lpnmrb = (LPNMREBAR) lParam;
-
-                REBARBANDINFO rbBand;
-                ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
-                rbBand.cbSize = sizeof( REBARBANDINFO );
-                rbBand.fMask = RBBIM_CHILD;
-
-                if ( this->getBandInfo( lpnmrb->uBand, &rbBand ) != 0 ) {
-
-                  if ( IsWindow( rbBand.hwndChild ) ) {
-
-                    DcxControl * p_delControl = this->m_pParentDialog->getControlByHWND( rbBand.hwndChild );
-                    this->m_pParentDialog->deleteControl( p_delControl );
-                  }
-
-                  LPDCXRBBAND lpdcxrbb = (LPDCXRBBAND) lpnmrb->lParam;
-                  if ( lpdcxrbb != NULL )
-                    delete lpdcxrbb;
-                }
-              }
-              break;
-
-          } // switch
-        }
+				if (IsWindow(hdr->hwndFrom)) {
+					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
+				}
       }
       break;
 
     case WM_HSCROLL: 
-      {
-        char ClassName[256];
-        if ( IsWindow( (HWND) lParam ) && GetClassName( (HWND) lParam, ClassName, 256 ) != 0 ) {
-
-          if ( lstrcmp( DCX_TRACKBARCLASS, ClassName ) == 0 ) {
-            return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
-          }
-        }
-      }
-      break;
-
     case WM_VSCROLL: 
+    case WM_COMMAND:
       {
-        char ClassName[256];
-        if ( IsWindow( (HWND) lParam ) && GetClassName( (HWND) lParam, ClassName, 256 ) != 0 ) {
-
-          if ( lstrcmp( DCX_TRACKBARCLASS, ClassName ) == 0 ) {
-            return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
-          }
-        }
+				if (IsWindow((HWND) lParam)) {
+					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
+				}
       }
       break;
 
     case WM_DELETEITEM:
       {
-        //mIRCError( "Rebar WM_DELETEITEM" );
-
-        char ClassName[256];
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName( idata->hwndItem, ClassName, 256 ) != 0)) {
-          if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-            //mIRCError( "DCX_COLORCOMBOCLASS WM_DELETEITEM" );
-            bParsed = TRUE;
-            return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
-          }
+				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
 				}
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_DELETEITEM" );
-        //    bParsed = TRUE;
-        //    return SendMessage( cHwnd, uMsg, wParam, lParam );
-        //  }
-        //}
       }
       break;
 
     case WM_MEASUREITEM:
       {
-        //mIRCError( "Rebar WM_MEASUREITEM" );
-
-				if (ctrl_MeasureItem(this->m_Hwnd, wParam, lParam)) return TRUE;
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0 ) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_MEASUREITEM" );
-
-        //    LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
-
-        //    if ( lpmis != NULL )
-        //      lpmis->itemHeight = 16; 
-
-        //    return TRUE;
-        //  }
-        //}
+				if (ctrl_MeasureItem(this->m_Hwnd, wParam, lParam)) {
+					bParsed = TRUE;
+					return TRUE;
+				}
       }
       break;
 
     case WM_DRAWITEM:
       {
-        //mIRCError( "Rebar WM_DRAWITEM" );
-
-        char ClassName[256];
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem)) && (GetClassName( idata->hwndItem, ClassName, 256 ) != 0)) {
-          if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-            //mIRCError( "DCX_COLORCOMBOCLASS WM_DRAWITEM" );
-            bParsed = TRUE;
-            return SendMessage( idata->hwndItem, uMsg, wParam, lParam );
-          }
+				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
 				}
-        //char ClassName[256];
-        //HWND cHwnd = GetDlgItem( this->m_Hwnd, wParam );
-        //if ( IsWindow( cHwnd ) && GetClassName( cHwnd, ClassName, 256 ) != 0) {
-
-        //  if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-        //    //mIRCError( "DCX_COLORCOMBOCLASS WM_DRAWITEM" );
-        //    bParsed = TRUE;
-        //    return SendMessage( cHwnd, uMsg, wParam, lParam );
-        //  }
-        //}
       }
      break;
 
-    case WM_COMMAND:
-      {
-        //mIRCError( "Rebar WM_COMMAND" );
-        char ClassName[256];
-
-        if ( IsWindow( (HWND) lParam ) && GetClassName( (HWND) lParam, ClassName, 256 ) != 0 ) {
-
-          // ComboEx Notifications
-          if ( lstrcmp( DCX_COMBOEXCLASS, ClassName ) == 0 ) {
-
-            bParsed = TRUE;
-            return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
-          }
-          // ColorCombo notifications
-          else if ( lstrcmp( DCX_COLORCOMBOCLASS, ClassName ) == 0 ) {
-
-            bParsed = TRUE;
-            return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
-          }
-          // Toolbar notifications
-          else if ( lstrcmp( DCX_TOOLBARCLASS, ClassName ) == 0 ) {
-
-            bParsed = TRUE;
-            return SendMessage( (HWND) lParam, uMsg, wParam, lParam );
-          }
-        }
-      }
-      break;
-
     case WM_LBUTTONDOWN:
       {
-
         RBHITTESTINFO rbhi;
         GetCursorPos( &rbhi.pt );
         ScreenToClient( this->m_Hwnd, &rbhi.pt );
@@ -1379,7 +1123,6 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

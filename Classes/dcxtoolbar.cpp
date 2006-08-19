@@ -1205,17 +1205,8 @@ int DcxToolBar::getIndexToCommand(int iIndex) {
  *
  * blah
  */
-
-LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
+LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
   switch( uMsg ) {
-
-    case WM_HELP:
-      {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
-
     case WM_COMMAND:
       {
 
@@ -1248,8 +1239,6 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
     case WM_NOTIFY : 
       {
-        //mIRCError( "Control WM_NOTIFY" );
-
         LPNMHDR hdr = (LPNMHDR) lParam;
         if (!hdr)
           break;
@@ -1313,7 +1302,6 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
            case TBN_DROPDOWN:
             {
-
               //LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
               POINT pt;
               GetCursorPos( &pt );
@@ -1357,37 +1345,26 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 										if ( lpdtbb == NULL )
                       return CDRF_DODEFAULT;
 
-//mIRCError("getting tt");
-
-
                     if ( lpdtbb->clrText != -1 )
                       lpntbcd->clrText = lpdtbb->clrText;
 
                     HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
 
-//mIRCError("getting hfont");
-
                     LOGFONT lf;
                     GetObject( hFont, sizeof(LOGFONT), &lf );
-//mIRCError("getting logfont");
                     if ( lpdtbb->bBold )
                       lf.lfWeight |= FW_BOLD;
                     else
                       lf.lfWeight &= ~FW_BOLD;
-//mIRCError("getting uline");
                     if ( lpdtbb->bUline )
                       lf.lfUnderline = TRUE;
                     else
                       lf.lfUnderline = FALSE;
-//mIRCError("getting new font");
                     HFONT hFontNew = CreateFontIndirect( &lf );
                     //HFONT hOldFont = (HFONT) SelectObject( lpntbcd->nmcd.hdc, hFontNew );
-						  SelectObject(lpntbcd->nmcd.hdc, hFontNew);
-//mIRCError("getting blah");
+										SelectObject(lpntbcd->nmcd.hdc, hFontNew);
                     DeleteObject(hFontNew);
-//mIRCError("getting delete");
                   }
-//mIRCError("getting ret");
                   return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
 
                 case CDDS_ITEMPOSTPAINT:
@@ -1401,33 +1378,23 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
           case TBN_GETINFOTIP:
             {
-              //mIRCError( "Control WM_NOTIFY - TBN_GETINFOTIP" );
-
               LPNMTBGETINFOTIP tcgit = (LPNMTBGETINFOTIP) lParam;
               if ( tcgit != NULL ) {
 
-                //mIRCError( "Toolbar Tooltips Here2!" );
                 LPDCXTBBUTTON lpdtbb = (LPDCXTBBUTTON) tcgit->lParam;
 
                 if ( lpdtbb != NULL ) {
-
-                  //mIRCError( "Toolbar Tooltips Here3!" );
-									//mIRCDebug("tip: %s", lpdtbb->tsTipText.to_chr( ));
 									if (tcgit->pszText != NULL) {
 										lstrcpyn(tcgit->pszText,lpdtbb->tsTipText.to_chr(), tcgit->cchTextMax);
 									}
                 }
-					 //mIRCError("ugh!!!!");
               }
-				  //mIRCError("parsed");
               bParsed = TRUE;
             }
             break;
 
           case TBN_DELETINGBUTTON:
             {
-              //mIRCError( "Control WM_NOTIFY - TBN_DELETINGBUTTON" );
-
               LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
               TBBUTTON tbb;
               ZeroMemory( &tbb, sizeof(TBBUTTON) );
@@ -1442,6 +1409,19 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
             break;
 
         } // switch
+      }
+      break;
+	}
+	return 0L;
+}
+
+LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+
+  switch( uMsg ) {
+
+    case WM_HELP:
+      {
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -1478,7 +1458,6 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

@@ -222,21 +222,10 @@ void DcxText::parseCommandRequest(TString &input) {
  *
  * blah
  */
-
-LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
+LRESULT DcxText::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
   switch( uMsg ) {
-
-    case WM_HELP:
-      {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
-
     case WM_COMMAND:
       {
-        //mIRCError( "Control WM_COMMAND" );
-
         switch ( HIWORD( wParam ) ) {
 
           case STN_CLICKED:
@@ -251,6 +240,19 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
             }
             break;
         }
+      }
+      break;
+	}
+	return 0L;
+}
+
+LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+
+  switch( uMsg ) {
+
+    case WM_HELP:
+      {
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 

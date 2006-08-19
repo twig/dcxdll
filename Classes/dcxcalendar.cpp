@@ -190,20 +190,8 @@ void DcxCalendar::parseCommandRequest( TString & input ) {
  *
  * blah
  */
-
-LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) {
+LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) {
 	switch (uMsg) {
-		case WM_HELP: {
-			this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-			break;
-		}
-
-		//case WM_GETDLGCODE:
-		//{
-		//	return DLGC_WANTARROWS;
-		//	break;
-		//}
-
 		case WM_NOTIFY: {
 			LPNMHDR hdr = (LPNMHDR) lParam;
 
@@ -286,6 +274,22 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				}
 			} // end switch
 		}
+	}
+	return 0L;
+}
+
+LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) {
+	switch (uMsg) {
+		case WM_HELP: {
+			this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+			break;
+		}
+
+		//case WM_GETDLGCODE:
+		//{
+		//	return DLGC_WANTARROWS;
+		//	break;
+		//}
 
 		case WM_MOUSEMOVE: {
 			this->m_pParentDialog->setMouseControl(this->getUserID());
@@ -303,12 +307,10 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				bParsed = TRUE;
 				return TRUE;
 			}
-
 			break;
 		}
 
 		case WM_DESTROY: {
-			//mIRCError( "WM_DESTROY" );
 			delete this;
 			bParsed = TRUE;
 			break;

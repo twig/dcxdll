@@ -319,6 +319,28 @@ LRESULT DcxUpDown::getPos32( LPBOOL pfError ) {
  *
  * blah
  */
+LRESULT DcxUpDown::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+  switch( uMsg ) {
+    case WM_NOTIFY : 
+      {
+        LPNMHDR hdr = (LPNMHDR) lParam;
+
+        if (!hdr)
+          break;
+
+        switch( hdr->code ) {
+          case UDN_DELTAPOS:
+            {
+              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+              bParsed = TRUE;
+            }
+            break;
+					}
+      }
+      break;
+	}
+	return 0L;
+}
 
 LRESULT DcxUpDown::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
@@ -338,13 +360,6 @@ LRESULT DcxUpDown::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
           break;
 
         switch( hdr->code ) {
-
-          case UDN_DELTAPOS:
-            {
-              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-              bParsed = TRUE;
-            }
-            break;
 					case TTN_GETDISPINFO:
 						{
 							LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
@@ -388,7 +403,6 @@ LRESULT DcxUpDown::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

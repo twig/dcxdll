@@ -312,6 +312,9 @@ void DcxList::parseCommandRequest( TString & input ) {
  *
  * blah
  */
+LRESULT DcxList::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+	return 0L;
+}
 
 LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 

@@ -1652,17 +1652,8 @@ void DcxTreeView::copyAllItems( HTREEITEM *hItem, HTREEITEM * hParentTo ) {
  *
  * blah
  */
-
-LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
+LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
   switch( uMsg ) {
-
-    case WM_HELP:
-      {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
-
     case WM_NOTIFY : 
       {
 
@@ -1675,7 +1666,6 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case NM_CLICK:
             {
-              //mIRCError( "Control WM_NOTIFY - NM_CLICK" );
 //http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
               TVHITTESTINFO tvh;
               GetCursorPos( &tvh.pt );
@@ -1735,8 +1725,6 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case NM_DBLCLK:
             {
-              //mIRCError( "Control WM_NOTIFY - NM_DBLCLK" );
-
               TVHITTESTINFO tvh;
               GetCursorPos( &tvh.pt );
               ScreenToClient( this->m_Hwnd, &tvh.pt );
@@ -1760,8 +1748,6 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case NM_RCLICK:
             {
-              //mIRCError( "Control WM_NOTIFY - NM_RCLICK" );
-
               TVHITTESTINFO tvh;
               GetCursorPos( &tvh.pt );
               ScreenToClient( this->m_Hwnd, &tvh.pt );
@@ -1788,9 +1774,6 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case TVN_GETINFOTIP:
             {
-
-              //mIRCError( "Control WM_NOTIFY - TVN_GETINFOTIP" );
-              
               LPNMTVGETINFOTIP tcgit = (LPNMTVGETINFOTIP) lParam;
               LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) tcgit->lParam;
               tcgit->pszText = lpdcxtvi->tsTipText.to_chr( );
@@ -1801,8 +1784,6 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case TVN_ITEMEXPANDED:
             {
-              //mIRCError( "Control WM_NOTIFY - TVN_ITEMEXPANDED" );
-
               bParsed = TRUE;
               LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
 
@@ -1830,7 +1811,6 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
           case TVN_BEGINLABELEDIT:
             {
               bParsed = TRUE;
-              //mIRCError( "Control WM_NOTIFY - TVN_BEGINLABELEDIT" );
               LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO) lParam;
 
               TreeView_SelectItem( this->m_Hwnd,lptvdi->item.hItem );
@@ -1852,8 +1832,6 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case TVN_ENDLABELEDIT:
             {
-              //mIRCError( "Control WM_NOTIFY - TVN_ENDLABELEDIT" );
-
               bParsed = TRUE;
 
               LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO) lParam;
@@ -1875,9 +1853,6 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case NM_CUSTOMDRAW:
             {
-
-              //mIRCError( "Control WM_NOTIFY - NM_CUSTOMDRAW" );
-
               LPNMTVCUSTOMDRAW lpntvcd = (LPNMTVCUSTOMDRAW) lParam;
               bParsed = TRUE;
 
@@ -1902,16 +1877,16 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
                       LOGFONT lf;
                       GetObject( hFont, sizeof(LOGFONT), &lf );
 
-								if (lpdcxtvi->bBold)
-									lf.lfWeight |= FW_BOLD;
-								if (lpdcxtvi->bUline)
-									lf.lfUnderline = true;
-								if (lpdcxtvi->bItalic)
-									lf.lfItalic = true;
+											if (lpdcxtvi->bBold)
+												lf.lfWeight |= FW_BOLD;
+											if (lpdcxtvi->bUline)
+												lf.lfUnderline = true;
+											if (lpdcxtvi->bItalic)
+												lf.lfItalic = true;
 
                       HFONT hFontNew = CreateFontIndirect( &lf );
                       //HFONT hOldFont = (HFONT) SelectObject( lpntvcd->nmcd.hdc, hFontNew );
-							 SelectObject(lpntvcd->nmcd.hdc, hFontNew);
+											SelectObject(lpntvcd->nmcd.hdc, hFontNew);
 
                       DeleteObject( hFontNew );
                     //}
@@ -1941,6 +1916,19 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
             break;
 
         } // switch
+      }
+      break;
+	}
+	return 0L;
+}
+
+LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+
+  switch( uMsg ) {
+
+    case WM_HELP:
+      {
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 

@@ -1758,20 +1758,10 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
  *
  * blah
  */
-
-LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
+LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
   switch( uMsg ) {
-
-    case WM_HELP:
-      {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
-
     case WM_NOTIFY : 
       {
-
         LPNMHDR hdr = (LPNMHDR) lParam;
 
         if (!hdr)
@@ -1781,7 +1771,6 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case NM_CLICK:
             {
-              //mIRCError( "Control WM_NOTIFY - NM_CLICK" );
               bParsed = TRUE;
 
               LVHITTESTINFO lvh;
@@ -1821,34 +1810,16 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case NM_RCLICK:
             {
-              char ClassName[257];
+              LVHITTESTINFO lvh;
+              GetCursorPos( &lvh.pt );
+              ScreenToClient( this->m_Hwnd, &lvh.pt );
+              ListView_HitTest( this->m_Hwnd, &lvh );
 
-              GetClassName( hdr->hwndFrom, ClassName, 256 );
-
-              if ( lstrcmpi( ClassName, "SysHeader32" ) == 0 ) {
-
-                HDHITTESTINFO hdti;
-                GetCursorPos( &hdti.pt );
-                ScreenToClient( hdr->hwndFrom, &hdti.pt );
-                if ( SendMessage( hdr->hwndFrom, HDM_HITTEST, (WPARAM) 0, (LPARAM) &hdti ) != -1 ) {
-
-                  this->callAliasEx( NULL, "%s,%d,%d", "hrclick", this->getUserID( ), hdti.iItem + 1 );
-                }
-              }
-              else {
-                //mIRCError( "Control WM_NOTIFY - NM_RCLICK" );
-
-                LVHITTESTINFO lvh;
-                GetCursorPos( &lvh.pt );
-                ScreenToClient( this->m_Hwnd, &lvh.pt );
-                ListView_HitTest( this->m_Hwnd, &lvh );
-
-                if ( lvh.flags & LVHT_ONITEM )
-                  this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), lvh.iItem + 1 );
-								else
-									this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
-	             }
-		           bParsed = TRUE;
+              if ( lvh.flags & LVHT_ONITEM )
+                this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), lvh.iItem + 1 );
+							else
+								this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
+							bParsed = TRUE;
             }
             break;
 
@@ -1900,7 +1871,6 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case NM_CUSTOMDRAW:
             {
-              //mIRCSignal( "NM_CUSTOMDRAW" );
               LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW) lParam;
               bParsed = TRUE;
 
@@ -1913,48 +1883,6 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
                 case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
 									{
-                    //mIRCError( "CDDS_ITEMPREPAINT CDDS_SUBITEM" );
-
-                    /*
-                    if ( lplvcd->iSubItem == 1  ) {
-
-                      char data[500];
-                      wsprintf( data, "GIVEN RECT %d %d %d %d - %d %d", lplvcd->nmcd.rc.left, 
-                        lplvcd->nmcd.rc.top, lplvcd->nmcd.rc.right, lplvcd->nmcd.rc.bottom, 
-                        lplvcd->nmcd.rc.right - lplvcd->nmcd.rc.left,
-                        lplvcd->nmcd.rc.bottom - lplvcd->nmcd.rc.top);
-
-                      mIRCError( data );
-
-                      RECT rc;
-                      ListView_GetItemRect( this->m_Hwnd, lplvcd->nmcd.dwItemSpec, &rc, LVIR_BOUNDS );
-                      lplvcd->nmcd.rc.top = rc.top;
-                      lplvcd->nmcd.rc.bottom = rc.bottom;
-
-                      wsprintf( data, "ITEM RECT %d %d %d %d - %d %d", rc.left, 
-                        rc.top, rc.right, rc.bottom, rc.right - rc.left, rc.bottom - rc.top );
-
-                      mIRCError( data );
-
-                      SetBkColor( lplvcd->nmcd.hdc, RGB(255,255,255) );
-
-                      ExtTextOut( lplvcd->nmcd.hdc, lplvcd->nmcd.rc.left, lplvcd->nmcd.rc.top, 
-                        ETO_CLIPPED | ETO_OPAQUE, &lplvcd->nmcd.rc, "", NULL, NULL);
-
-                      SetBkColor( lplvcd->nmcd.hdc, RGB(128,0,255) );
-
-                      //lplvcd->nmcd.rc.right -= 20;
-
-                      InflateRect( &lplvcd->nmcd.rc, 0, -1 );
-
-                      ExtTextOut( lplvcd->nmcd.hdc, lplvcd->nmcd.rc.left, lplvcd->nmcd.rc.top, 
-                        ETO_CLIPPED | ETO_OPAQUE, &lplvcd->nmcd.rc, "", NULL, NULL);
-
-                      mIRCError( "SUBITEM 1" );
-                      return CDRF_SKIPDEFAULT;
-                    }
-                    */
-
                     LPDCXLVITEM lpdcxlvi = (LPDCXLVITEM) lplvcd->nmcd.lItemlParam;
 
                     if ( lpdcxlvi == NULL )
@@ -2006,9 +1934,6 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case LVN_DELETEITEM: 
             {
-
-              //mIRCError( "Control WM_NOTIFY - LVN_DELETEITEM" );
-
               LPNMLISTVIEW lpnmlv = (LPNMLISTVIEW) lParam;
               LPDCXLVITEM lpdcxlvi = (LPDCXLVITEM) lpnmlv->lParam;
 
@@ -2021,44 +1946,6 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
             }
             break;
 
-          case HDN_BEGINTRACKW:
-          case HDN_BEGINTRACK:
-            {
-
-              //mIRCError( "Control WM_NOTIFY - HDN_BEGINTRACK" );
-              bParsed = TRUE;
-
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d", "trackbegin", this->getUserID( ) );
-
-              if ( !lstrcmp( "notrack", ret ) )
-                return TRUE;
-            }
-            break;
-
-          case HDN_ITEMCLICKW:
-          case HDN_ITEMCLICK:
-            {
-              //mIRCError( "Control WM_NOTIFY - HDN_ITEMCLICK" );
-              bParsed = TRUE;
-
-              LPNMHEADER lphdr = (LPNMHEADER) lParam; 
-
-              this->callAliasEx( NULL, "%s,%d,%d", "hsclick", this->getUserID( ), lphdr->iItem + 1 );
-            }
-            break;
-
-          case HDN_ITEMDBLCLICKW:
-          case HDN_ITEMDBLCLICK:
-            {
-              //mIRCError( "Control WM_NOTIFY - HDN_ITEMDBLCLICK" );
-              bParsed = TRUE;
-
-              LPNMHEADER lphdr = (LPNMHEADER) lParam; 
-
-              this->callAliasEx( NULL, "%s,%d,%d", "hdclick", this->getUserID( ), lphdr->iItem + 1 );
-            }
-            break;
 
           case LVN_BEGINDRAG:
             {
@@ -2074,6 +1961,85 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				//	 }
 				//	 break;
 				// }
+        } // switch
+      }
+      break;
+	}
+	return 0L;
+}
+
+LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+
+  switch( uMsg ) {
+
+    case WM_HELP:
+      {
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+      }
+      break;
+
+    case WM_NOTIFY : 
+      {
+
+        LPNMHDR hdr = (LPNMHDR) lParam;
+
+        if (!hdr)
+          break;
+
+        switch( hdr->code ) {
+          case NM_RCLICK:
+            {
+              char ClassName[257];
+
+              GetClassName( hdr->hwndFrom, ClassName, 256 );
+
+              if ( lstrcmpi( ClassName, "SysHeader32" ) == 0 ) {
+
+                HDHITTESTINFO hdti;
+                GetCursorPos( &hdti.pt );
+                ScreenToClient( hdr->hwndFrom, &hdti.pt );
+                if ( SendMessage( hdr->hwndFrom, HDM_HITTEST, (WPARAM) 0, (LPARAM) &hdti ) != -1 ) {
+
+                  this->callAliasEx( NULL, "%s,%d,%d", "hrclick", this->getUserID( ), hdti.iItem + 1 );
+                }
+              }
+							bParsed = TRUE;
+            }
+            break;
+          case HDN_BEGINTRACKW:
+          case HDN_BEGINTRACK:
+            {
+              bParsed = TRUE;
+
+              char ret[256];
+              this->callAliasEx( ret, "%s,%d", "trackbegin", this->getUserID( ) );
+
+              if ( !lstrcmp( "notrack", ret ) )
+                return TRUE;
+            }
+            break;
+
+          case HDN_ITEMCLICKW:
+          case HDN_ITEMCLICK:
+            {
+              bParsed = TRUE;
+
+              LPNMHEADER lphdr = (LPNMHEADER) lParam; 
+
+              this->callAliasEx( NULL, "%s,%d,%d", "hsclick", this->getUserID( ), lphdr->iItem + 1 );
+            }
+            break;
+
+          case HDN_ITEMDBLCLICKW:
+          case HDN_ITEMDBLCLICK:
+            {
+              bParsed = TRUE;
+
+              LPNMHEADER lphdr = (LPNMHEADER) lParam; 
+
+              this->callAliasEx( NULL, "%s,%d,%d", "hdclick", this->getUserID( ), lphdr->iItem + 1 );
+            }
+            break;
 						// LVN_GETTOOLTIP/TTN_GETDISPINFO/TTN_LINKCLICK fail....
 					//case LVN_GETINFOTIP:
 					//	{
@@ -2127,8 +2093,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 		case WM_VSCROLL:
 		{
 			if (LOWORD(wParam) == SB_ENDSCROLL) {
-				char ret[256];
-				this->callAliasEx(ret, "%s,%d", "scrollend", this->getUserID());
+				this->callAliasEx(NULL, "%s,%d", "scrollend", this->getUserID());
 			}
 
 			if (this->isExStyle(LVS_EX_GRIDLINES)) {
@@ -2152,7 +2117,6 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

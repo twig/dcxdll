@@ -404,82 +404,84 @@ LRESULT DcxProgressBar::setBKColor( COLORREF clrBk ) {
  *
  * blah
  */
+LRESULT DcxProgressBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+	return 0L;
+}
 
 LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
   switch( uMsg ) {
-
     case WM_HELP:
       {
         this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
-	case WM_PAINT:
-	{
-		//mIRCError( "WM_PAINT" );
-		PAINTSTRUCT ps; 
-		HDC hdc; 
+		case WM_PAINT:
+			{
+				//mIRCError( "WM_PAINT" );
+				PAINTSTRUCT ps; 
+				HDC hdc; 
 
-		hdc = BeginPaint(this->m_Hwnd, &ps);
+				hdc = BeginPaint(this->m_Hwnd, &ps);
 
-		bParsed = TRUE;
-		LRESULT res = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam);
+				bParsed = TRUE;
+				LRESULT res = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam);
 
-		if (this->m_tsText.len() > 0) {
-			SetBkMode(hdc, TRANSPARENT);
-			SetTextColor(hdc, this->m_clrText);
+				if (this->m_tsText.len() > 0) {
+					SetBkMode(hdc, TRANSPARENT);
+					SetTextColor(hdc, this->m_clrText);
 
-			// rect for control
-			RECT rc;
-			GetClientRect(this->m_Hwnd, &rc);
+					// rect for control
+					RECT rc;
+					GetClientRect(this->m_Hwnd, &rc);
 
-			// used to calc text value on pbar
-			char text[500];
-			int iPos = this->CalculatePosition();
+					// used to calc text value on pbar
+					char text[500];
+					int iPos = this->CalculatePosition();
 
-			wsprintf(text, this->m_tsText.to_chr(), iPos);
+					wsprintf(text, this->m_tsText.to_chr(), iPos);
 
-			HFONT oldfont = NULL;
+					HFONT oldfont = NULL;
 
-			if (this->m_hFont != NULL)
-				oldfont = (HFONT) SelectObject(hdc, this->m_hFont);
+					if (this->m_hFont != NULL)
+						oldfont = (HFONT) SelectObject(hdc, this->m_hFont);
 
-			// rect for text
-			RECT rcText = rc;
-			DrawText(hdc, text, lstrlen(text), &rcText,
-				DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
+					// rect for text
+					RECT rcText = rc;
+					DrawText(hdc, text, lstrlen(text), &rcText,
+						DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
 
-			int w = rcText.right - rcText.left;
-			int h = rcText.bottom - rcText.top;
+					int w = rcText.right - rcText.left;
+					int h = rcText.bottom - rcText.top;
 
-			// reposition the new text area to be at the center
-			if (this->m_hfontVertical) {
-				rc.left = ((rc.right - rc.left) - h) /2;
-				// added a +w +h as well to as text is drawn ABOVE the damn rect
-				rc.top = ((rc.bottom - rc.top) + w + h) /2;
-				rc.right = rc.left + h;
-				rc.bottom = rc.top + w;
-				SelectObject(hdc, this->m_hfontVertical);
+					// reposition the new text area to be at the center
+					if (this->m_hfontVertical) {
+						rc.left = ((rc.right - rc.left) - h) /2;
+						// added a +w +h as well to as text is drawn ABOVE the damn rect
+						rc.top = ((rc.bottom - rc.top) + w + h) /2;
+						rc.right = rc.left + h;
+						rc.bottom = rc.top + w;
+						SelectObject(hdc, this->m_hfontVertical);
+					}
+					else {
+						rc.left = ((rc.right - rc.left) - w) /2;
+						rc.top = ((rc.bottom - rc.top) - h) /2;
+						rc.right = rc.left + w;
+						rc.bottom = rc.top + h;
+					}
+
+					DrawText(hdc, text, lstrlen(text), &rc,
+						DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
+
+					if (oldfont != NULL)
+						SelectObject(hdc, oldfont);
+				}
+
+				EndPaint(this->m_Hwnd, &ps); 
+				return res;
 			}
-			else {
-				rc.left = ((rc.right - rc.left) - w) /2;
-				rc.top = ((rc.bottom - rc.top) - h) /2;
-				rc.right = rc.left + w;
-				rc.bottom = rc.top + h;
-			}
-
-			DrawText(hdc, text, lstrlen(text), &rc,
-				DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
-
-			if (oldfont != NULL)
-				SelectObject(hdc, oldfont);
-		}
-
-		EndPaint(this->m_Hwnd, &ps); 
-		return res;
-	}
-	break;
+			break;
 
     case WM_LBUTTONDOWN:
       {
@@ -574,8 +576,6 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
     case WM_DESTROY:
       {
-
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }
