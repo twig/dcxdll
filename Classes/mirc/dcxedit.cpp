@@ -218,7 +218,7 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 			// caret startsel position
 			SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
 
-			wsprintf(szReturnValue, "%d %d", iLinePos, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			wsprintf(szReturnValue, "%d %d", iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 			return;
 		}
 		else
