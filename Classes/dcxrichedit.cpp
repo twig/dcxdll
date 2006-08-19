@@ -671,13 +671,7 @@ void DcxRichEdit::parseContents(BOOL fNewLine) {
 * blah
 */
 int DcxRichEdit::unfoldColor(char *color) {
-	int nColor = atoi(color);
-
-	while (nColor > 15) {
-		nColor -=16;
-	}
-
-	return nColor;
+	return atoi(color) % 16;
 }
 
 /*!
