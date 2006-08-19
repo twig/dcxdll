@@ -432,10 +432,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
   // xdid -r [NAME] [ID] [SWITCH]
   if ( flags.switch_flags[17] && numtok > 2 ) {
-
     TreeView_DeleteAllItems( this->m_Hwnd );
   }
-
 	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] Text[TAB]Tooltip Text
 	else if (flags.switch_flags[0]) {
 		int n = input.numtok("\t");
