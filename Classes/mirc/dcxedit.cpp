@@ -206,23 +206,28 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 	}
 	// [NAME] [ID] [PROP]
 	else if (input.gettok(3, " ") == "caretpos") {
+		DWORD dwAbsoluteStartSelPos = 0;
+
+		// caret startsel position
+		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
+
 		if (this->isStyle(ES_MULTILINE)) {
 			int iLinePos = 0;
 			int iAbsoluteCharPos = 0;
-			DWORD dwAbsoluteStartSelPos = 0;
 
 			// current line
 			iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, -1, NULL);
 			// line offset
 			iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, -1, NULL);
-			// caret startsel position
-			SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
 
 			wsprintf(szReturnValue, "%d %d", iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
-			return;
 		}
-		else
-			dcxInfoError("edit", "caretpos", input.gettok(1, " ").to_chr(), this->getUserID(), "not multiline");
+		else {
+			// return selstart
+			wsprintf(szReturnValue, "%d %d", 1, dwAbsoluteStartSelPos);
+		}
+
+		return;
 	}
 	else if (input.gettok(3, " ") == "selstart") {
 		DWORD dwSelStart = 0; // selection range starting position
