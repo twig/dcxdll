@@ -38,7 +38,7 @@ public:
 	void parseInfoRequest(TString &input, char *szReturnValue);
 	void parseCommandRequest(TString &input);
 	void parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme);
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 
 	inline TString getType() {
 		return TString("edit");
