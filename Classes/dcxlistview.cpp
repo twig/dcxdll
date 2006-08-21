@@ -1979,16 +1979,16 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
       }
       break;
 
-		case WM_COMMAND:
-			{
-				if (IsWindow((HWND) lParam)) {
-					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
-					if (c_this != NULL) {
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
-				}
-			}
-			break;
+		//case WM_COMMAND:
+		//	{
+		//		if (IsWindow((HWND) lParam)) {
+		//			DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+		//			if (c_this != NULL) {
+		//				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+		//			}
+		//		}
+		//	}
+		//	break;
     case WM_NOTIFY: 
       {
 
