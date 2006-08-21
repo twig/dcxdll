@@ -1608,17 +1608,17 @@ BOOL DcxListView::matchItemText( int nItem, int nSubItem, TString * search, UINT
 
   char res[10];
   char itemtext[900];
-  char com[1000];
+  TString com;
 
   ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext, 900 );
   // Regex Search
   if ( SearchType == LVSEARCH_R )
-    wsprintf( com, "$regex(%s,%s)", itemtext, search->to_chr( ) );
+    com.sprintf("$regex(%s,%s)", itemtext, search->to_chr( ) );
   // Wildcard Search
   else
-    wsprintf( com, "$iif(%s iswm %s,1,0)", search->to_chr( ), itemtext );
+    com.sprintf("$iif(%s iswm %s,1,0)", search->to_chr( ), itemtext );
 
-  mIRCeval( com, res );
+	mIRCeval( com.to_chr(), res );
 
   if ( !lstrcmp( res, "1" ) )
       return TRUE;
@@ -1683,7 +1683,7 @@ int DcxListView::getBottomIndex( ) {
 int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort ) {
 
   LPDCXLVSORT plvsort = (LPDCXLVSORT) lParamSort;
-  char com[900];
+  TString com;
   char res[20];
   char itemtext1[900];
   char itemtext2[900];
@@ -1694,8 +1694,8 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
   // CUSTOM Sort
   if ( plvsort->iSortFlags & LVSS_CUSTOM ) {
 
-    wsprintf( com, "$%s(%s,%s)", plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
-    mIRCeval( com, res );
+    com.sprintf("$%s(%s,%s)", plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
+		mIRCeval( com.to_chr(), res );
 
     if ( plvsort->iSortFlags & LVSS_DESC ) {
 
@@ -1876,10 +1876,10 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
               switch( lplvcd->nmcd.dwDrawStage ) {
                 case CDDS_PREPAINT:
-                  return CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW | CDRF_NOTIFYPOSTPAINT;
+	                  return CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW | CDRF_NOTIFYPOSTPAINT;
 
                 case CDDS_ITEMPREPAINT:
-									return CDRF_NOTIFYSUBITEMDRAW;
+										return CDRF_NOTIFYSUBITEMDRAW;
 
                 case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
 									{
@@ -1970,6 +1970,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
+	LRESULT lRes = 0L;
   switch( uMsg ) {
 
     case WM_HELP:
@@ -1978,7 +1979,17 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
       }
       break;
 
-    case WM_NOTIFY : 
+		case WM_COMMAND:
+			{
+				if (IsWindow((HWND) lParam)) {
+					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
+				}
+			}
+			break;
+    case WM_NOTIFY: 
       {
 
         LPNMHDR hdr = (LPNMHDR) lParam;
@@ -1986,120 +1997,145 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
         if (!hdr)
           break;
 
-        switch( hdr->code ) {
-          case NM_RCLICK:
-            {
-              char ClassName[257];
+				//if (this->m_Hwnd != hdr->hwndFrom) {
+				//	if (IsWindow(hdr->hwndFrom)) {
+				//		DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+				//		if (c_this != NULL) {
+				//			lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				//		}
+				//	}
+				//}
+				//if (!bParsed) {
+					switch( hdr->code ) {
+						case NM_RCLICK:
+							{
+								char ClassName[257];
 
-              GetClassName( hdr->hwndFrom, ClassName, 256 );
+								GetClassName( hdr->hwndFrom, ClassName, 256 );
 
-              if ( lstrcmpi( ClassName, "SysHeader32" ) == 0 ) {
+								if ( lstrcmpi( ClassName, "SysHeader32" ) == 0 ) {
 
-                HDHITTESTINFO hdti;
-                GetCursorPos( &hdti.pt );
-                ScreenToClient( hdr->hwndFrom, &hdti.pt );
-                if ( SendMessage( hdr->hwndFrom, HDM_HITTEST, (WPARAM) 0, (LPARAM) &hdti ) != -1 ) {
+									HDHITTESTINFO hdti;
+									GetCursorPos( &hdti.pt );
+									ScreenToClient( hdr->hwndFrom, &hdti.pt );
+									if ( SendMessage( hdr->hwndFrom, HDM_HITTEST, (WPARAM) 0, (LPARAM) &hdti ) != -1 ) {
 
-                  this->callAliasEx( NULL, "%s,%d,%d", "hrclick", this->getUserID( ), hdti.iItem + 1 );
-                }
-              }
-							bParsed = TRUE;
-            }
-            break;
-          case HDN_BEGINTRACKW:
-          case HDN_BEGINTRACK:
-            {
-              bParsed = TRUE;
+										this->callAliasEx( NULL, "%s,%d,%d", "hrclick", this->getUserID( ), hdti.iItem + 1 );
+									}
+								}
+								bParsed = TRUE;
+							}
+							break;
+						case HDN_BEGINTRACKW:
+						case HDN_BEGINTRACK:
+							{
+								bParsed = TRUE;
 
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d", "trackbegin", this->getUserID( ) );
+								char ret[256];
+								this->callAliasEx( ret, "%s,%d", "trackbegin", this->getUserID( ) );
 
-              if ( !lstrcmp( "notrack", ret ) )
-                return TRUE;
-            }
-            break;
+								if ( !lstrcmp( "notrack", ret ) )
+									return TRUE;
+							}
+							break;
 
-          case HDN_ITEMCLICKW:
-          case HDN_ITEMCLICK:
-            {
-              bParsed = TRUE;
+						case HDN_ITEMCLICKW:
+						case HDN_ITEMCLICK:
+							{
+								bParsed = TRUE;
 
-              LPNMHEADER lphdr = (LPNMHEADER) lParam; 
+								LPNMHEADER lphdr = (LPNMHEADER) lParam; 
 
-              this->callAliasEx( NULL, "%s,%d,%d", "hsclick", this->getUserID( ), lphdr->iItem + 1 );
-            }
-            break;
+								this->callAliasEx( NULL, "%s,%d,%d", "hsclick", this->getUserID( ), lphdr->iItem + 1 );
+							}
+							break;
 
-          case HDN_ITEMDBLCLICKW:
-          case HDN_ITEMDBLCLICK:
-            {
-              bParsed = TRUE;
+						case HDN_ITEMDBLCLICKW:
+						case HDN_ITEMDBLCLICK:
+							{
+								bParsed = TRUE;
 
-              LPNMHEADER lphdr = (LPNMHEADER) lParam; 
+								LPNMHEADER lphdr = (LPNMHEADER) lParam; 
 
-              this->callAliasEx( NULL, "%s,%d,%d", "hdclick", this->getUserID( ), lphdr->iItem + 1 );
-            }
-            break;
-						// LVN_GETTOOLTIP/TTN_GETDISPINFO/TTN_LINKCLICK fail....
-					//case LVN_GETINFOTIP:
-					//	{
+								this->callAliasEx( NULL, "%s,%d,%d", "hdclick", this->getUserID( ), lphdr->iItem + 1 );
+							}
+							break;
+							// LVN_GETTOOLTIP/TTN_GETDISPINFO/TTN_LINKCLICK fail....
+						//case LVN_GETINFOTIP:
+						//	{
 
-					//	}
-					//	break;
-					//case TTN_GETDISPINFO:
-					//	{
-					//		LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-					//		//LVHITTESTINFO hti;
-					//		//DWORD mPos = GetMessagePos();
-					//		//ZeroMemory(&hti,sizeof(LVHITTESTINFO));
-					//		//hti.flags = LVHT_ONITEM;
-					//		//hti.pt.x = GET_X_LPARAM(mPos);
-					//		//hti.pt.y = GET_Y_LPARAM(mPos);
-					//		//int nPos = ListView_HitTest(this->m_Hwnd,&hti);
-					//		//if (nPos != -1) {
-					//		//	LVITEM lvi;
-					//		//	ZeroMemory(&lvi,sizeof(LVITEM));
-					//		//	lvi.mask = LVIF_PARAM;
-					//		//	lvi.iItem = hti.iItem;
-					//		//	lvi.iSubItem = hti.iSubItem;
-					//		//	if (ListView_GetItem(this->m_Hwnd,&lvi)) {
-					//		//		LPDCXLVITEM dci = (LPDCXLVITEM) lvi.lParam;
-					//		//		di->lpszText = dci->tsTipText.to_chr();
-					//		//	}
-					//		//}
-					//		di->lpszText = this->m_tsToolTip.to_chr();
-					//		di->hinst = NULL;
-					//		bParsed = TRUE;
-					//	}
-					//	break;
-					//case TTN_LINKCLICK:
-					//	{
-					//		bParsed = TRUE;
-					//		this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
-					//	}
-					//	break;
-        } // switch
+						//	}
+						//	break;
+						//case TTN_GETDISPINFO:
+						//	{
+						//		LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+						//		//LVHITTESTINFO hti;
+						//		//DWORD mPos = GetMessagePos();
+						//		//ZeroMemory(&hti,sizeof(LVHITTESTINFO));
+						//		//hti.flags = LVHT_ONITEM;
+						//		//hti.pt.x = GET_X_LPARAM(mPos);
+						//		//hti.pt.y = GET_Y_LPARAM(mPos);
+						//		//int nPos = ListView_HitTest(this->m_Hwnd,&hti);
+						//		//if (nPos != -1) {
+						//		//	LVITEM lvi;
+						//		//	ZeroMemory(&lvi,sizeof(LVITEM));
+						//		//	lvi.mask = LVIF_PARAM;
+						//		//	lvi.iItem = hti.iItem;
+						//		//	lvi.iSubItem = hti.iSubItem;
+						//		//	if (ListView_GetItem(this->m_Hwnd,&lvi)) {
+						//		//		LPDCXLVITEM dci = (LPDCXLVITEM) lvi.lParam;
+						//		//		di->lpszText = dci->tsTipText.to_chr();
+						//		//	}
+						//		//}
+						//		di->lpszText = this->m_tsToolTip.to_chr();
+						//		di->hinst = NULL;
+						//		bParsed = TRUE;
+						//	}
+						//	break;
+						//case TTN_LINKCLICK:
+						//	{
+						//		bParsed = TRUE;
+						//		this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
+						//	}
+						//	break;
+					} // switch
+				//}
       }
       break;
 
 		case WM_HSCROLL:
 			{
-				if (this->isExStyle(LVS_EX_GRIDLINES)) {
-					this->redrawWindow();
-				}
+				//if (IsWindow((HWND) lParam)) {
+				//	DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+				//	if (c_this != NULL) {
+				//		lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				//	}
+				//	else {
+						if (this->isExStyle(LVS_EX_GRIDLINES)) {
+							this->redrawWindow();
+						}
+				//	}
+				//}
 				break;
 			}
 
 		case WM_VSCROLL:
 		{
-			if (LOWORD(wParam) == SB_ENDSCROLL) {
-				this->callAliasEx(NULL, "%s,%d", "scrollend", this->getUserID());
-			}
+			//if (IsWindow((HWND) lParam)) {
+			//	DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+			//	if (c_this != NULL) {
+			//		lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			//	}
+			//	else {
+					if (LOWORD(wParam) == SB_ENDSCROLL) {
+						this->callAliasEx(NULL, "%s,%d", "scrollend", this->getUserID());
+					}
 
-			if (this->isExStyle(LVS_EX_GRIDLINES)) {
-				this->redrawWindow();
-			}
-
+					if (this->isExStyle(LVS_EX_GRIDLINES)) {
+						this->redrawWindow();
+					}
+			//	}
+			//}
 			break;
 		}
 
@@ -2160,12 +2196,19 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
         }
       }
       break;
-
+		//case WM_MEASUREITEM:
+		//	{
+		//		if (ctrl_MeasureItem(this->m_Hwnd, wParam, lParam)) {
+		//			bParsed = TRUE;
+		//			return TRUE;
+		//		}
+		//	}
+		//	break;
     default:
       break;
   }
 
-  return 0L;
+  return lRes;
 }
 
 /*!
@@ -2196,7 +2239,7 @@ LRESULT CALLBACK DcxListView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wPara
 }
 
 
-DcxProgressBar* DcxListView::CreatePbar(LPLVITEM lvi, TString styles) {
+DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, TString styles) {
 	// can only create progress for an existing item
 	if (!lvi || !lvi->lParam)
 		return NULL;
@@ -2215,8 +2258,29 @@ DcxProgressBar* DcxListView::CreatePbar(LPLVITEM lvi, TString styles) {
 		ListView_GetSubItemRect(this->m_Hwnd, lvi->iItem, lvi->iSubItem, LVIR_LABEL, &rItem);
 
 	lpdcxlvi->iPbarCol = lvi->iSubItem;
-	lpdcxlvi->pbar = new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
-
+	// controls within a listview have a problem in that they cant set an item height,
+	// so they all appear very small, & dont look very good.
+	//UINT ID = mIRC_ID_OFFSET + atoi(styles.gettok(2," ").to_chr());
+ // if ( ID > mIRC_ID_OFFSET - 1 && 
+	//	!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
+	//	this->m_pParentDialog->getControlByID( ID ) == NULL ) 
+	//{
+	//	if (styles.gettok(1," ") == "pbar")
+	//		lpdcxlvi->pbar = (DcxControl *)new DcxProgressBar(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
+	//	else if (styles.gettok(1," ") == "button")
+	//		lpdcxlvi->pbar = (DcxControl *)new DcxButton(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
+	//	else if (styles.gettok(1," ") == "colorcombo")
+	//		lpdcxlvi->pbar = (DcxControl *)new DcxColorCombo(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
+	//	else if (styles.gettok(1," ") == "ipaddress")
+	//		lpdcxlvi->pbar = (DcxControl *)new DcxIpAddress(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
+	//	else if (styles.gettok(1," ") == "updown")
+	//		lpdcxlvi->pbar = (DcxControl *)new DcxUpDown(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
+	//	else if (styles.gettok(1," ") == "edit")
+	//		lpdcxlvi->pbar = (DcxControl *)new DcxEdit(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
+	//	else if (styles.gettok(1," ") == "richedit")
+	//		lpdcxlvi->pbar = (DcxControl *)new DcxRichEdit(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
+	//}
+	lpdcxlvi->pbar = (DcxControl *)new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
 	return lpdcxlvi->pbar;
 }
 

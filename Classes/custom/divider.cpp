@@ -12,8 +12,8 @@
  * © ScriptsDB.org - 2006
  */
 
-#include "divider.h"
 #include "../../defines.h"
+#include "divider.h"
 
 /*!
  * \brief blah

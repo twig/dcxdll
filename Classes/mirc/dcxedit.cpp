@@ -190,10 +190,11 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 	}
 	// [NAME] [ID] [PROP]
 	else if (input.gettok(3, " ") == "num") {
-		if (this->isStyle(ES_MULTILINE)) {
+		if (this->isStyle(ES_MULTILINE))
 			wsprintf(szReturnValue, "%d", this->m_tsText.numtok("\r\n"));
-			return;
-		}
+		else
+			lstrcpy(szReturnValue,"1");	// single line control so always 1 line.
+		return;
 	}
 	// [NAME] [ID] [PROP]
 	else if (input.gettok(3, " ") == "ispass") {

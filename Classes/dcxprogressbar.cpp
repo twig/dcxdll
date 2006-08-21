@@ -134,6 +134,7 @@ DcxProgressBar::~DcxProgressBar( ) {
 void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
   unsigned int i = 1, numtok = styles.numtok( " " );
+	this->m_bIsGrad = FALSE;
 
   while ( i <= numtok ) {
 
@@ -143,6 +144,10 @@ void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG *
       *Styles |= PBS_VERTICAL;
     else if ( styles.gettok( i , " " ) == "marquee" ) 
       *Styles |= PBS_MARQUEE;
+		else if ( styles.gettok( i , " " ) == "gradient" ) {
+      *Styles |= PBS_SMOOTH;
+			this->m_bIsGrad = TRUE;
+		}
 
     i++;
   }
@@ -199,6 +204,10 @@ void DcxProgressBar::parseCommandRequest( TString & input ) {
 
     this->setBarColor( (COLORREF) atol( input.gettok( 4, " " ).to_chr( ) ) );
   }
+  //// xdid -g name ID [1|0]
+  //else if ( flags.switch_flags[6] ) {
+		//this->m_bIsGrad = (BOOL) atol( input.gettok( 4, " " ).to_chr( ) );
+  //}
   // xdid -i name ID (TEXT)
   else if ( flags.switch_flags[8] ) {
 
@@ -272,41 +281,41 @@ void DcxProgressBar::parseCommandRequest( TString & input ) {
   // xdid [-o] [NAME] [ID] [ENABLED]
   // vertical fonts [1|0]
 	else if (flags.switch_flags[14]) {
-    if (numtok < 4)
-		 return;
+		if (numtok < 4)
+			return;
 
-	 LOGFONT lfCurrent;
-	 ZeroMemory(&lfCurrent, sizeof(LOGFONT));
+		LOGFONT lfCurrent;
+		ZeroMemory(&lfCurrent, sizeof(LOGFONT));
 
-	 GetObject(this->m_hFont, sizeof(LOGFONT), &lfCurrent);
-	int angle = atoi(input.gettok(4, " ").to_chr());
+		GetObject(this->m_hFont, sizeof(LOGFONT), &lfCurrent);
+		int angle = atoi(input.gettok(4, " ").to_chr());
 
-	//TODO: let user specify angle of text?
-	 if (angle) {
-		 // input is angle based, expected angle = *10
-		 //lfCurrent.lfEscapement = angle * 10;
-		 //lfCurrent.lfOrientation = angle * 10;
-		 lfCurrent.lfEscapement = 900;
-		 lfCurrent.lfOrientation = 900;
-	 }
-	 else {
-		 DeleteObject(this->m_hfontVertical);
-		 this->m_hfontVertical = NULL;
-		 this->redrawWindow();
-		 return;
-	 }
+		//TODO: let user specify angle of text?
+		if (angle) {
+			// input is angle based, expected angle = *10
+			//lfCurrent.lfEscapement = angle * 10;
+			//lfCurrent.lfOrientation = angle * 10;
+			lfCurrent.lfEscapement = 900;
+			lfCurrent.lfOrientation = 900;
+		}
+		else {
+			DeleteObject(this->m_hfontVertical);
+			this->m_hfontVertical = NULL;
+			this->redrawWindow();
+			return;
+		}
 
-	 if (this->m_hfontVertical) {
-		 DeleteObject(this->m_hfontVertical);
-	 }
+		if (this->m_hfontVertical) {
+			DeleteObject(this->m_hfontVertical);
+		}
 
-	this->m_hfontVertical = CreateFontIndirect(&lfCurrent);
-	 //this->setControlFont(hfNew, FALSE);
-	 this->redrawWindow();
-  }
-  else {
-    this->parseGlobalCommandRequest( input, flags );
-  }
+		this->m_hfontVertical = CreateFontIndirect(&lfCurrent);
+		//this->setControlFont(hfNew, FALSE);
+		this->redrawWindow();
+	}
+	else {
+		this->parseGlobalCommandRequest( input, flags );
+	}
 }
 
 /*!
@@ -386,6 +395,7 @@ LRESULT DcxProgressBar::setStep( int nStepInc ) {
  */
 
 LRESULT DcxProgressBar::setBarColor( COLORREF clrBar ) {
+	this->m_clrGrad = clrBar;
   return SendMessage( this->m_Hwnd, PBM_SETBARCOLOR, (WPARAM) 0, (LPARAM) clrBar );
 }
 
@@ -428,6 +438,15 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 				bParsed = TRUE;
 				LRESULT res = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam);
 
+				if (this->m_bIsGrad) {
+					RECT rc;
+
+					GetClientRect(this->m_Hwnd, &rc);
+
+					rc.right = (this->CalculatePosition() * rc.right) / 100;
+					XPopupMenuItem::DrawGradient(hdc,&rc,this->m_clrGrad,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),FALSE);
+				}
+
 				if (this->m_tsText.len() > 0) {
 					SetBkMode(hdc, TRANSPARENT);
 					SetTextColor(hdc, this->m_clrText);
@@ -437,10 +456,10 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 					GetClientRect(this->m_Hwnd, &rc);
 
 					// used to calc text value on pbar
-					char text[500];
+					TString text;
 					int iPos = this->CalculatePosition();
 
-					wsprintf(text, this->m_tsText.to_chr(), iPos);
+					text.sprintf(this->m_tsText.to_chr(), iPos);
 
 					HFONT oldfont = NULL;
 
@@ -449,7 +468,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 					// rect for text
 					RECT rcText = rc;
-					DrawText(hdc, text, lstrlen(text), &rcText,
+					DrawText(hdc, text.to_chr(), text.len(), &rcText,
 						DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
 
 					int w = rcText.right - rcText.left;
@@ -471,7 +490,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 						rc.bottom = rc.top + h;
 					}
 
-					DrawText(hdc, text, lstrlen(text), &rc,
+					DrawText(hdc, text.to_chr(), text.len(), &rc,
 						DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
 
 					if (oldfont != NULL)

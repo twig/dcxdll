@@ -14,6 +14,7 @@
 
 #include "dcxrichedit.h"
 #include "dcxdialog.h"
+#include "Custom/RichEditThemed.h"
 
 /*!
 * \brief Constructor
@@ -45,6 +46,9 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, RECT *rc, TString &styles
 
 	if (bNoTheme)
 		SetWindowTheme(this->m_Hwnd , L" ", L" ");
+	else {
+		CRichEditThemed::Attach(this->m_Hwnd);
+	}
 
 	this->m_tsText = "";
 	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
@@ -104,6 +108,9 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 
 	if (bNoTheme)
 		SetWindowTheme(this->m_Hwnd , L" ", L" ");
+	else {
+		CRichEditThemed::Attach(this->m_Hwnd);
+	}
 
 	this->m_tsText = "";
 	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
@@ -214,10 +221,11 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 	}
 	// [NAME] [ID] [PROP]
 	else if (input.gettok(3, " ") == "num") {
-		if (this->isStyle(ES_MULTILINE)) {
+		if (this->isStyle(ES_MULTILINE))
 			wsprintf(szReturnValue, "%d", this->m_tsText.numtok("\r\n"));
-			return;
-		}
+		else
+			lstrcpy(szReturnValue,"1");	// single line control so always 1 line.
+		return;
 	}
 	// [NAME] [ID] [PROP]
 	else if (input.gettok(3, " ") == "caretpos") {

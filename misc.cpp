@@ -16,8 +16,8 @@
 
 extern mIRCDLL mIRCLink; //!< blah
 
-extern PFNSETTHEME SetWindowThemeUx;  //!< blah
-extern PFNISTHEMEACTIVE IsThemeActiveUx;
+//extern PFNSETTHEME SetWindowThemeUx;  //!< blah
+//extern PFNISTHEMEACTIVE IsThemeActiveUx;
 extern BOOL XPPlus;                   //!< Is OS WinXP+ ?
 
 
@@ -165,26 +165,26 @@ char* readFile(const char *filename) {
 *
 * Used to remove theme on controls
 */
-HRESULT SetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList) {
-	if (XPPlus)
-		return SetWindowThemeUx(hwnd, L" ", L" ");
-	else
-		return 0;
-}
+//HRESULT SetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList) {
+//	if (XPPlus)
+//		return SetWindowThemeUx(hwnd, L" ", L" ");
+//	else
+//		return 0;
+//}
 
 /*!
 * \brief Check fi theme is active
 *
 * Used to remove theme on controls
 */
-BOOL IsThemeActive() {
-	if (!IsThemeActiveUx)
-		return FALSE;
-	else if (XPPlus)
-		return IsThemeActiveUx();
-	else
-		return FALSE;
-}
+//BOOL IsThemeActive() {
+//	if (!IsThemeActiveUx)
+//		return FALSE;
+//	else if (XPPlus)
+//		return IsThemeActiveUx();
+//	else
+//		return FALSE;
+//}
 
 /*!
 * \brief Windows XP function

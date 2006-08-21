@@ -633,10 +633,10 @@ BOOL DcxControl::parseGlobalInfoRequest( TString & input, char * szReturnValue )
 		return TRUE;
 	}
   else {
-		//dcxInfoError("General", input.gettok( 3, " " ).to_chr( ), input.gettok(1, " ").to_chr(), this->getUserID(), "Invalid property or number of arguments");
-    TString error;
-    error.sprintf("Invalid $ $+ xdid property : %s : or number of arguments on control ID: %d", input.gettok( 3, " " ).to_chr( ), this->getUserID( ) );
-		mIRCError( error.to_chr() );
+		dcxInfoError("General", input.gettok( 3, " " ).to_chr( ), input.gettok(1, " ").to_chr(), this->getUserID(), "Invalid property or number of arguments");
+    //TString error;
+    //error.sprintf("Invalid $ $+ xdid property : %s : or number of arguments on control ID: %d", input.gettok( 3, " " ).to_chr( ), this->getUserID( ) );
+		//mIRCError( error.to_chr() );
   }
 
   return FALSE;

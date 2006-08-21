@@ -18,6 +18,12 @@
 #include "../defines.h"
 #include "dcxcontrol.h"
 #include "dcxprogressbar.h"
+#include "dcxbutton.h"
+#include "dcxcolorcombo.h"
+#include "dcxipaddress.h"
+#include "dcxupdown.h"
+#include "mIRC/dcxedit.h"
+#include "dcxrichedit.h"
 
 class DcxDialog;
 
@@ -71,7 +77,7 @@ typedef struct tagDCXLVITEM {
 	BOOL bBold;         //!< Is Line Caption Bold ?
 	BOOL bUline;        //!< Is Line Caption Underlined
 	BOOL bItalic;       //!< Is Line Caption Italicised
-	DcxProgressBar *pbar;
+	DcxControl *pbar;
 	int iPbarCol;
 } DCXLVITEM,*LPDCXLVITEM;
 
@@ -133,7 +139,7 @@ protected:
   BOOL m_bDrag; //!< Dragging Items ?
 
 private:
-	DcxProgressBar* CreatePbar(LPLVITEM lvi, TString style);
+	DcxControl* CreatePbar(LPLVITEM lvi, TString style);
 	void ScrollPbars(int row);
 	void UpdateScrollPbars();
 };

@@ -21,8 +21,13 @@
 
 //#define WIN32_LEAN_AND_MEAN //!< blah
 
-#define _WIN32_WINNT 0x0501
-#define _WIN32_IE 0x0501
+// normal Windows XP + IE V5.01
+//#define _WIN32_WINNT 0x0501
+//#define _WIN32_IE 0x0501
+
+// Windows XP SP2 + IE V6
+#define _WIN32_WINNT 0x0503
+#define _WIN32_IE 0x0600
 
 // Required for VS 2005
 #define _CRT_SECURE_NO_DEPRECATE 1
@@ -38,7 +43,7 @@
 #include <commctrl.h>
 
 #include "classes/tstring/tstring.h"
-//#include <uxtheme.h>
+#include <uxtheme.h>
 
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 3
@@ -207,8 +212,8 @@ TString FileDialog(TString data, TString method, HWND pWnd);
 
 typedef HRESULT (__stdcall *PFNSETTHEME)(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
 typedef HRESULT (__stdcall *PFNISTHEMEACTIVE)();
-HRESULT SetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
-BOOL IsThemeActive();
+//HRESULT SetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
+//BOOL IsThemeActive();
 BOOL isXP();
 
 HWND FindOwner(TString data, HWND defaultWnd);
