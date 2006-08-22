@@ -430,29 +430,49 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		case WM_PAINT:
 			{
 				//mIRCError( "WM_PAINT" );
-				PAINTSTRUCT ps; 
-				HDC hdc; 
+				PAINTSTRUCT ps;
+				HDC hdc;
+				RECT rc;
+        // A window may receive internal paint messages as a result of calling RedrawWindow with the RDW_INTERNALPAINT flag set.
+				// In this case, the window may not have an update region.
+				// An application should call the GetUpdateRect function to determine whether the window has an update region.
+				// If GetUpdateRect returns zero, the application should not call the BeginPaint and EndPaint functions.
+				if (GetUpdateRect(this->m_Hwnd,&rc,FALSE) == 0) return 0L;
 
 				hdc = BeginPaint(this->m_Hwnd, &ps);
 
 				bParsed = TRUE;
-				LRESULT res = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam);
+				LRESULT res = 0L;
 
 				if (this->m_bIsGrad) {
-					RECT rc;
+					//RECT rc;
 
 					GetClientRect(this->m_Hwnd, &rc);
 
-					rc.right = (this->CalculatePosition() * rc.right) / 100;
-					XPopupMenuItem::DrawGradient(hdc,&rc,this->m_clrGrad,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),FALSE);
+          if ( this->m_hBackBrush != NULL )
+            FillRect( hdc, &rc, this->m_hBackBrush );
+          else {
+            HBRUSH hBrush = GetSysColorBrush( COLOR_3DFACE );
+            FillRect( hdc, &rc, hBrush );
+          }
+					if (this->isStyle(PBS_VERTICAL)) {
+						rc.top += (rc.bottom - rc.top) - (this->CalculatePosition() * (rc.bottom - rc.top)) / 100;
+						XPopupMenuItem::DrawGradient(hdc,&rc,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),this->m_clrGrad,TRUE);
+					}
+					else {
+						rc.right = (this->CalculatePosition() * rc.right) / 100;
+						XPopupMenuItem::DrawGradient(hdc,&rc,this->m_clrGrad,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),FALSE);
+					}
 				}
+				else
+					res = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam);
 
 				if (this->m_tsText.len() > 0) {
 					SetBkMode(hdc, TRANSPARENT);
 					SetTextColor(hdc, this->m_clrText);
 
 					// rect for control
-					RECT rc;
+					//RECT rc;
 					GetClientRect(this->m_Hwnd, &rc);
 
 					// used to calc text value on pbar

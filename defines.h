@@ -30,10 +30,9 @@
 #define _WIN32_IE 0x0600
 
 // Required for VS 2005
-#define _CRT_SECURE_NO_DEPRECATE 1
-// comment this define out when not using Visual Studio 2005
-#ifdef _VC80_UPGRADE
+#if _MSC_VER == 1400
 #define VS2005 1
+#define _CRT_SECURE_NO_DEPRECATE 1
 #endif
 // end of VS 2005
 
