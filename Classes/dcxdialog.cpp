@@ -588,11 +588,38 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		/*
 		/xdialog -z [dname] [+flags] [groupname] (controlid)
 
+		group manager
+		- list of groups (vector)
+		- add group (by string)
+		- remove group (by string)
+
 		+c create new group
+		+c [group]
+
 		+a add new control to group
-		+s show page in group
+		+a [group] [id]
+
+		+s show control in group
+		+s [group] [id]
+
 		+d remove control from group
+		+d [group] [id]
+
+		+k clear controls in group
+		+k [group]
+
 		+r remove group
+		+r [group]
+
+
+		group requires (all by id)
+		- list of controls in group (vector)
+		- currently visible control (id)
+		- name of group (strign)
+
+		- show control in group (by id)
+		- add controls to groups (by id)
+		- remove controls from gorups (by id)
 		*/
 	}
 	// invalid command
@@ -1110,7 +1137,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	BOOL bParsed = FALSE;
 	LRESULT lRes = 0L;
 
-	switch(uMsg) {
+	switch (uMsg) {
 		case WM_THEMECHANGED:
 		{
 			p_this->callAliasEx(NULL, "%s,%d", "themechanged", 0);
@@ -1565,7 +1592,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			p_this->callAliasEx(NULL, "%s,%d,%s,%s",
 				"mwheel",
 				p_this->m_MouseID,
-				(zDelta > 0 ? "up" : "down"),
+				((int) zDelta > 0 ? "up" : "down"),
 				flags.to_chr());
 
 			return FALSE; // stop parsing of WM_MOUSEWHEEL
