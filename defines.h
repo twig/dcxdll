@@ -223,6 +223,8 @@ LRESULT ctrl_MeasureItem(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 void DrawRoundRect(HDC hdc, RECT *rc, int w, int h);
 void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl);
 // UltraDock
+void InitUltraDock(void);
+void CloseUltraDock(void);
 int SwitchbarPos(void);
 void mIRC_size(void);
 void AttachWindow(HWND dhwnd);

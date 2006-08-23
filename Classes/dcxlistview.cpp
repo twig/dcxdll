@@ -2328,9 +2328,9 @@ void DcxListView::ScrollPbars(int row) {
 
 		// get coordinates to move to
 		if (col == 0)
-			ListView_GetItemRect(this->m_Hwnd, lvi->iItem, &rItem, LVIR_LABEL);
+			ListView_GetItemRect(this->m_Hwnd, lvi->iItem, &rItem, LVIR_BOUNDS);
 		else
-			ListView_GetSubItemRect(this->m_Hwnd, lvi->iItem, lvi->iSubItem, LVIR_LABEL, &rItem);
+			ListView_GetSubItemRect(this->m_Hwnd, lvi->iItem, lvi->iSubItem, LVIR_BOUNDS, &rItem);
 
 		// show boders correctly
 		rItem.bottom--;

@@ -631,6 +631,14 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="UltraDock"
+				>
+				<File
+					RelativePath=".\Classes\UltraDock\dcxUltraDock.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"

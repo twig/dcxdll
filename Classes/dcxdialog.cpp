@@ -1667,6 +1667,21 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 			break;
 		}
+		case LB_GETITEMRECT:
+			{
+				/*
+					*	NB: This message is sent by mIRC V6.20 when you click on a docked dialog,
+					*			causing an infinite loop, returning LB_ERR stops the loop.
+					*	This affects ALL dialogs not just dcx ones.
+				*/
+				//RECT *rc = (RECT *)lParam;
+				//RECT rcClient;
+				//GetWindowRect(p_this->m_Hwnd,&rcClient);
+				//SetRect(rc,rcClient.left,rcClient.top,rcClient.right,rcClient.bottom);
+				//return 0L;
+				return LB_ERR;
+			}
+			break;
 
 		case WM_NCDESTROY: 
 		{
