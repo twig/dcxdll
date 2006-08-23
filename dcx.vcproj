@@ -214,6 +214,9 @@
 					<File
 						RelativePath=".\Classes\custom\divider.cpp">
 					</File>
+					<File
+						RelativePath=".\Classes\custom\RichEditThemed.cpp">
+					</File>
 				</Filter>
 				<Filter
 					Name="mIRC"
@@ -384,6 +387,9 @@
 					Filter="">
 					<File
 						RelativePath=".\Classes\custom\divider.h">
+					</File>
+					<File
+						RelativePath=".\Classes\custom\RichEditThemed.h">
 					</File>
 				</Filter>
 				<Filter
