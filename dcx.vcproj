@@ -311,6 +311,13 @@
 					RelativePath=".\Classes\xpopup\xpopupmenuwindow.cpp">
 				</File>
 			</Filter>
+			<Filter
+				Name="Ultradock"
+				Filter="">
+				<File
+					RelativePath=".\Classes\UltraDock\dcxUltraDock.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
