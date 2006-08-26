@@ -56,15 +56,15 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
   ListView_SetExtendedListViewStyleEx( this->m_Hwnd, ExStyles, ExStyles);
 
 	this->m_ToolTipHWND = ListView_GetToolTips(this->m_Hwnd);
-	//this->m_ToolTipHWND = p_Dialog->getToolTip();
 
 	if (this->m_ToolTipHWND != NULL) {
 		if (styles.istok("balloon"," "))
 			SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
-		//if (styles.istok("tooltips"," ")) {
-		//	AddToolTipToolInfo(this->m_ToolTipHWND,this->m_Hwnd);
-		//	this->m_tsToolTip = "this is a test";
-		//}
+		//SendMessage(this->m_ToolTipHWND,TTM_ACTIVATE,TRUE,0);
+		if (styles.istok("tooltips"," ")) {
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+			AddToolTipToolInfo(this->m_ToolTipHWND,this->m_Hwnd);
+		}
 	}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
@@ -113,15 +113,15 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
   ListView_SetExtendedListViewStyleEx( this->m_Hwnd, ExStyles, ExStyles);
 
 	this->m_ToolTipHWND = ListView_GetToolTips(this->m_Hwnd);
-	//this->m_ToolTipHWND = p_Dialog->getToolTip();
 
 	if (this->m_ToolTipHWND != NULL) {
 		if (styles.istok("balloon"," "))
 			SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
-		//if (styles.istok("tooltips"," ")) {
-		//	AddToolTipToolInfo(this->m_ToolTipHWND,this->m_Hwnd);
-		//	this->m_tsToolTip = "this is a test";
-		//}
+		//SendMessage(this->m_ToolTipHWND,TTM_ACTIVATE,TRUE,0);
+		if (styles.istok("tooltips"," ")) {
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+			AddToolTipToolInfo(this->m_ToolTipHWND,this->m_Hwnd);
+		}
 	}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
@@ -1281,21 +1281,19 @@ void DcxListView::parseCommandRequest( TString & input ) {
     ListView_SortItemsEx( this->m_Hwnd, DcxListView::sortItemsEx, &lvsort );
   }
 	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
-  //else if (flags.switch_cap_flags[19] && numtok > 4) {
-		//this->m_tsToolTip = (numtok > 3 ? input.gettok(6, -1, " ") : "");
-		//this->m_tsToolTip.trim();
-		//LVSETINFOTIP sit;
-		//TString item = input.gettok(4," ");
-		//item.trim();
-		//TString subitem = input.gettok(5," ");
-		//subitem.trim();
-		//sit.cbSize = sizeof(LVSETINFOTIP);
-		//sit.dwFlags = 0;
-		//sit.iItem = atol(item.to_chr());
-		//sit.iSubItem = atol(subitem.to_chr());
-		//sit.pszText = L"test"; //this->m_tsToolTip.to_chr();
-		//ListView_SetInfoTip(this->m_Hwnd,&sit);
-  //}
+  else if (flags.switch_cap_flags[19] && numtok > 4) {
+		input.trim();
+		LVITEM lvi;
+		ZeroMemory(&lvi, sizeof(LVITEM));
+		lvi.iItem = atol(input.gettok(4," ").to_chr());
+		lvi.iSubItem = atol(input.gettok(5," ").to_chr());
+		lvi.mask = LVIF_PARAM;
+		if (ListView_GetItem(this->m_Hwnd,&lvi)) {
+			LPDCXLVITEM lpmylvi = (LPDCXLVITEM) lvi.lParam;
+			if (lpmylvi != NULL)
+				lpmylvi->tsTipText = (numtok > 3 ? input.gettok(6, -1, " ") : "");
+		}
+  }
   else {
     this->parseGlobalCommandRequest( input, flags );
   }
@@ -1845,6 +1843,42 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
             }
             break;
 
+          case NM_HOVER:
+            {
+              LVHITTESTINFO lvh;
+              GetCursorPos( &lvh.pt );
+              ScreenToClient( this->m_Hwnd, &lvh.pt );
+              ListView_SubItemHitTest( this->m_Hwnd, &lvh );
+
+							if ( lvh.flags & LVHT_ONITEM ) {
+								//TOOLINFO ti;
+								//ZeroMemory(&ti,sizeof(TOOLINFO));
+								//ti.cbSize = sizeof(TOOLINFO);
+								//ti.uId = (UINT)this->m_Hwnd;
+								//ti.hwnd = this->m_Hwnd;
+								//if ((BOOL)SendMessage(this->m_ToolTipHWND,TTM_GETTOOLINFO,0,(LPARAM)&ti)) {
+								//	LVITEM lvi;
+								//	ZeroMemory(&lvi, sizeof(LVITEM));
+								//	lvi.iItem = lvh.iItem;
+								//	lvi.iSubItem = lvh.iSubItem;
+								//	lvi.mask = LVIF_PARAM;
+								//	if (ListView_GetItem(this->m_Hwnd,&lvi)) {
+								//		LPDCXLVITEM lpmylvi = (LPDCXLVITEM) lvi.lParam;
+								//		if (lpmylvi != NULL) {
+								//			ti.lpszText = lpmylvi->tsTipText.to_chr();
+								//			SendMessage(this->m_ToolTipHWND,TTM_UPDATETIPTEXT,0,(LPARAM)&ti);
+								//			SendMessage(this->m_ToolTipHWND,TTM_POPUP,0,0);
+								//		}
+								//	}
+								//}
+								this->callAliasEx( NULL, "%s,%d,%d,%d", "hover", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+							}
+							else
+								this->callAliasEx( NULL, "%s,%d", "hover", this->getUserID());
+							bParsed = TRUE;
+            }
+            break;
+
           case LVN_BEGINLABELEDIT:
             {
 
@@ -2085,41 +2119,41 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 							// LVN_GETTOOLTIP/TTN_GETDISPINFO/TTN_LINKCLICK fail....
 						//case LVN_GETINFOTIP:
 						//	{
-
 						//	}
 						//	break;
-						//case TTN_GETDISPINFO:
-						//	{
-						//		LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-						//		//LVHITTESTINFO hti;
-						//		//DWORD mPos = GetMessagePos();
-						//		//ZeroMemory(&hti,sizeof(LVHITTESTINFO));
-						//		//hti.flags = LVHT_ONITEM;
-						//		//hti.pt.x = GET_X_LPARAM(mPos);
-						//		//hti.pt.y = GET_Y_LPARAM(mPos);
-						//		//int nPos = ListView_HitTest(this->m_Hwnd,&hti);
-						//		//if (nPos != -1) {
-						//		//	LVITEM lvi;
-						//		//	ZeroMemory(&lvi,sizeof(LVITEM));
-						//		//	lvi.mask = LVIF_PARAM;
-						//		//	lvi.iItem = hti.iItem;
-						//		//	lvi.iSubItem = hti.iSubItem;
-						//		//	if (ListView_GetItem(this->m_Hwnd,&lvi)) {
-						//		//		LPDCXLVITEM dci = (LPDCXLVITEM) lvi.lParam;
-						//		//		di->lpszText = dci->tsTipText.to_chr();
-						//		//	}
-						//		//}
-						//		di->lpszText = this->m_tsToolTip.to_chr();
-						//		di->hinst = NULL;
-						//		bParsed = TRUE;
-						//	}
-						//	break;
-						//case TTN_LINKCLICK:
-						//	{
-						//		bParsed = TRUE;
-						//		this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
-						//	}
-						//	break;
+						case TTN_GETDISPINFO:
+							{
+								LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+								LVHITTESTINFO hti;
+								GetCursorPos( &hti.pt );
+								ScreenToClient( this->m_Hwnd, &hti.pt );
+								ZeroMemory(&hti,sizeof(LVHITTESTINFO));
+								hti.flags = LVHT_ONITEM;
+								if (ListView_SubItemHitTest(this->m_Hwnd,&hti) != -1) {
+									if (hti.flags & LVHT_ONITEM) {
+										LVITEM lvi;
+										ZeroMemory(&lvi,sizeof(LVITEM));
+										lvi.mask = LVIF_PARAM;
+										lvi.iItem = hti.iItem;
+										lvi.iSubItem = hti.iSubItem;
+										if (ListView_GetItem(this->m_Hwnd,&lvi)) {
+											LPDCXLVITEM dci = (LPDCXLVITEM) lvi.lParam;
+											if (dci != NULL)
+												di->lpszText = dci->tsTipText.to_chr();
+										}
+									}
+								}
+								//di->lpszText = this->m_tsToolTip.to_chr();
+								di->hinst = NULL;
+								bParsed = TRUE;
+							}
+							break;
+						case TTN_LINKCLICK:
+							{
+								bParsed = TRUE;
+								this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
+							}
+							break;
 					} // switch
 				//}
       }
