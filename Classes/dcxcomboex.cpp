@@ -15,78 +15,8 @@
 #include "dcxcomboex.h"
 #include "dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+void DcxComboEx::ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
 {
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    DCX_COMBOEXCLASS, 
-    NULL,
-    WS_CHILD | WS_VISIBLE | CBS_AUTOHSCROLL | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
-
-  if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  this->m_EditHwnd = (HWND) this->getEditControl( );
-
-  if ( IsWindow( this->m_EditHwnd ) ) {
-
-    LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
-
-    lpce->cHwnd = this->m_Hwnd;
-    lpce->pHwnd = p_Dialog->getHwnd( );
-
-    lpce->OldProc = (WNDPROC) SetWindowLong( this->m_EditHwnd, GWL_WNDPROC, (LONG) DcxComboEx::ComboExEditProc );
-    SetWindowLong( this->m_EditHwnd, GWL_USERDATA, (LONG) lpce );    
-  }
-
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-
-  DragAcceptFiles(this->m_Hwnd, TRUE);
-
-	// fix bug with disabled creation
-	// todo: fix this properly
-	if (Styles & WS_DISABLED) {
-		EnableWindow(this->m_Hwnd, TRUE);
-		EnableWindow(this->m_Hwnd, FALSE);
-	}
-}
-
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-{
-
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
@@ -108,6 +38,8 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
   this->m_EditHwnd = (HWND) this->getEditControl( );
 
   if ( IsWindow( this->m_EditHwnd ) ) {
+		if ( bNoTheme )
+			SetWindowTheme( this->m_EditHwnd , L" ", L" " );
 
     LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
 
@@ -119,6 +51,20 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
     lpce->OldProc = (WNDPROC) SetWindowLong( this->m_EditHwnd, GWL_WNDPROC, (LONG) DcxComboEx::ComboExEditProc );
     SetWindowLong( this->m_EditHwnd, GWL_USERDATA, (LONG) lpce );
   }
+
+	HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);
+	if (IsWindow(combo) && bNoTheme)
+		SetWindowTheme( combo , L" ", L" " );
+
+	//if (p_Dialog->getToolTip() != NULL) {
+	//	if (styles.istok("tooltips"," ")) {
+
+	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
+
+	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_EditHwnd);
+	//	}
+	//}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
@@ -132,6 +78,36 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		EnableWindow(this->m_Hwnd, TRUE);
 		EnableWindow(this->m_Hwnd, FALSE);
 	}
+}
+/*!
+ * \brief Constructor
+ *
+ * \param ID Control ID
+ * \param p_Dialog Parent DcxDialog Object
+ * \param rc Window Rectangle
+ * \param styles Window Style Tokenized List
+ */
+
+DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+: DcxControl( ID, p_Dialog ) 
+{
+	this->ConstructComboEx(ID,p_Dialog,p_Dialog->getHwnd(),rc,styles);
+}
+
+/*!
+ * \brief Constructor
+ *
+ * \param ID Control ID
+ * \param p_Dialog Parent DcxDialog Object
+ * \param mParentHwnd Parent Window Handle
+ * \param rc Window Rectangle
+ * \param styles Window Style Tokenized List
+ */
+
+DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+: DcxControl( ID, p_Dialog ) 
+{
+	this->ConstructComboEx(ID,p_Dialog,mParentHwnd,rc,styles);
 }
 
 /*!
@@ -711,7 +687,6 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			break;
     case WM_NCDESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }
@@ -752,6 +727,36 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wPar
         }
       }
       break;
+		//case WM_NOTIFY:
+		//	{
+  //      LPNMHDR hdr = (LPNMHDR) lParam;
+  //      if (!hdr)
+  //        break;
+
+  //      switch( hdr->code ) {
+		//		case TTN_GETDISPINFO:
+		//			{
+	 //         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, "dcx_cthis" );
+	 //         if ( pthis != NULL ) {
+		//					LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+		//					di->lpszText = "test";
+		//					di->hinst = NULL;
+		//				}
+		//				return 0L;
+		//			}
+		//			break;
+		//		case TTN_LINKCLICK:
+		//			{
+	 //         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, "dcx_cthis" );
+	 //         if ( pthis != NULL ) {
+		//					pthis->callAliasEx( NULL, "%s,%d", "tooltiplink", pthis->getUserID( ) );
+		//				}
+		//				return 0L;
+		//			}
+		//			break;
+		//		}
+		//	}
+		//	break;
 
     case WM_NCDESTROY:
       {

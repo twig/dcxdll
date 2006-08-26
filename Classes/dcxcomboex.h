@@ -79,6 +79,9 @@ public:
 
   inline TString getType( ) { return TString( "comboex" ); };
 
+private:
+		void ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+
 protected:
 
   HWND m_EditHwnd;  //!< Combo's Edit Control Handle
