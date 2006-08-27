@@ -155,6 +155,7 @@ DcxButton::~DcxButton( ) {
 void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
   unsigned int i = 1, numtok = styles.numtok( " " );
+	*Styles |= BS_NOTIFY;
 
   while ( i <= numtok ) {
 
@@ -393,6 +394,11 @@ LRESULT DcxButton::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
               this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
             }
             break;
+          case BN_DBLCLK:
+            {
+              this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+            }
+            break;
         }
       }
       break;
@@ -515,177 +521,173 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
     case WM_PAINT:
       {
-        //mIRCError( "WM_PAINT" );
-
         PAINTSTRUCT ps; 
-        HDC hdc; 
+        HDC hdc;
 
         hdc = BeginPaint( this->m_Hwnd, &ps );
 
-        LRESULT res = 0L;
-		  BOOL isBitmap = this->isStyle(BS_BITMAP);
+				LRESULT res = 0L;
+				BOOL isBitmap = this->isStyle(BS_BITMAP);
 
-        // Bitmapped button
-        if (isBitmap) {
+				// Bitmapped button
+				if (isBitmap) {
+					RECT rcClient;
+					GetClientRect( this->m_Hwnd, &rcClient );
 
-          RECT rcClient;
-          GetClientRect( this->m_Hwnd, &rcClient );
+					int nBitmap;
+					HDC hdcbmp = CreateCompatibleDC( hdc );
+					BITMAP bmp;
 
-          int nBitmap;
-          HDC hdcbmp = CreateCompatibleDC( hdc );
-          BITMAP bmp;
+					if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
+						nBitmap = 3;
+					else if ( this->m_bSelected )
+						nBitmap = 2;
+					else if ( this->m_bHover )
+						nBitmap = 1;
+					else
+						nBitmap = 0;
 
-          if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
-            nBitmap = 3;
-          else if ( this->m_bSelected )
-            nBitmap = 2;
-          else if ( this->m_bHover )
-            nBitmap = 1;
-          else
-            nBitmap = 0;
+					if ( this->m_hBackBrush != NULL )
+						FillRect( hdc, &rcClient, this->m_hBackBrush );
+					else {
+						HBRUSH hBrush = GetSysColorBrush( COLOR_3DFACE );
+						FillRect( hdc, &rcClient, hBrush );
+					}
+					GetObject( this->m_aBitmaps[nBitmap], sizeof(BITMAP), &bmp );
+					SelectObject( hdcbmp, this->m_aBitmaps[nBitmap] );
+					TransparentBlt( hdc, rcClient.left, rcClient.top, rcClient.right - rcClient.left, 
+						rcClient.bottom - rcClient.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nBitmap] );
+
+					DeleteDC( hdcbmp );
+				}
+
+				// Regular button
+				if ((!isBitmap) || (this->m_bBitmapText)) {
+					bParsed = TRUE;
           
-          if ( this->m_hBackBrush != NULL )
-            FillRect( hdc, &rcClient, this->m_hBackBrush );
-          else {
-            HBRUSH hBrush = GetSysColorBrush( COLOR_3DFACE );
-            FillRect( hdc, &rcClient, hBrush );
-          }
+					// draw default window bg
+					if (!isBitmap)
+						res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
-          GetObject( this->m_aBitmaps[nBitmap], sizeof(BITMAP), &bmp );
-          SelectObject( hdcbmp, this->m_aBitmaps[nBitmap] );
-          TransparentBlt( hdc, rcClient.left, rcClient.top, rcClient.right - rcClient.left, 
-            rcClient.bottom - rcClient.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nBitmap] );
+					HFONT hFontOld = (HFONT) SelectObject( hdc, this->m_hFont );
 
-          DeleteDC( hdcbmp );
-        }
+					RECT rcTxt, rcClient;
+					SetRectEmpty( &rcTxt );
+					GetClientRect( this->m_Hwnd, &rcClient );
 
-        // Regular button
-		  if ((!isBitmap) || (this->m_bBitmapText)) {
-          bParsed = TRUE;
-          
-			 // draw default window bg
-			 if (!isBitmap)
-				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+					SetBkMode( hdc, TRANSPARENT );
 
-          HFONT hFontOld = (HFONT) SelectObject( hdc, this->m_hFont );
+					HIMAGELIST himl = this->getImageList( );
+					int nIcon;
 
-          RECT rcTxt, rcClient;
-          SetRectEmpty( &rcTxt );
-          GetClientRect( this->m_Hwnd, &rcClient );
+					// Button colors and icon
+					if (IsWindowEnabled(this->m_Hwnd) == FALSE)
+						nIcon = 3;
+					else if (this->m_bSelected)
+						nIcon = 2;
+					else if (this->m_bHover)
+						nIcon = 1;
+					else
+						nIcon = 0;
 
-          SetBkMode( hdc, TRANSPARENT );
+					SetTextColor(hdc, this->m_aColors[nIcon]);
 
-          HIMAGELIST himl = this->getImageList( );
-          int nIcon;
+					if ( this->m_tsCaption.len( ) > 0 )
+						DrawText( hdc, this->m_tsCaption.to_chr( ), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE );
 
-          // Button colors and icon
-          if (IsWindowEnabled(this->m_Hwnd) == FALSE)
-            nIcon = 3;
-          else if (this->m_bSelected)
-            nIcon = 2;
-          else if (this->m_bHover)
-            nIcon = 1;
-          else
-            nIcon = 0;
+					int iCenter = ( rcClient.right - rcClient.left ) / 2;
+					int iVCenter = ( rcClient.bottom - rcClient.top ) / 2;
+					int iTextW = ( rcTxt.right - rcTxt.left );
+					int iTextH = ( rcTxt.bottom - rcTxt.top );
 
-          SetTextColor(hdc, this->m_aColors[nIcon]);
+					int iIconLeft = 0;
+					int iIconTop = 0;
 
-          if ( this->m_tsCaption.len( ) > 0 )
-            DrawText( hdc, this->m_tsCaption.to_chr( ), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE );
+					/*
+					char data[500];
+					wsprintf( data, "Cen %d, VCen %d, TW %d, TH, %d", iCenter, iVCenter, iTextW, iTextH );
+					mIRCError( data );
+					*/
 
-          int iCenter = ( rcClient.right - rcClient.left ) / 2;
-          int iVCenter = ( rcClient.bottom - rcClient.top ) / 2;
-          int iTextW = ( rcTxt.right - rcTxt.left );
-          int iTextH = ( rcTxt.bottom - rcTxt.top );
+					rcTxt.left = iCenter - iTextW / 2;
+					rcTxt.top = iVCenter - iTextH / 2;
 
-          int iIconLeft = 0;
-          int iIconTop = 0;
+					if ( rcTxt.left < BUTTON_XPAD )
+						rcTxt.left = BUTTON_XPAD;
 
-          /*
-          char data[500];
-          wsprintf( data, "Cen %d, VCen %d, TW %d, TH, %d", iCenter, iVCenter, iTextW, iTextH );
-          mIRCError( data );
-          */
+					if ( rcTxt.top < BUTTON_YPAD )
+						rcTxt.top = BUTTON_YPAD;
 
-			    rcTxt.left = iCenter - iTextW / 2;
-          rcTxt.top = iVCenter - iTextH / 2;
+					rcTxt.right = rcClient.right - BUTTON_XPAD;
+					rcTxt.bottom = rcClient.bottom - BUTTON_YPAD;
 
-				 if ( rcTxt.left < BUTTON_XPAD )
-            rcTxt.left = BUTTON_XPAD;
+					// If there is an icon
+					if ( himl != NULL && nIcon < ImageList_GetImageCount( himl ) ) {
 
-          if ( rcTxt.top < BUTTON_YPAD )
-            rcTxt.top = BUTTON_YPAD;
+						iIconLeft = iCenter - ( this->m_iIconSize + ICON_XPAD + iTextW ) / 2;
+						iIconTop = iVCenter - this->m_iIconSize / 2;
 
-          rcTxt.right = rcClient.right - BUTTON_XPAD;
-          rcTxt.bottom = rcClient.bottom - BUTTON_YPAD;
+						if ( iIconLeft < BUTTON_XPAD )
+							iIconLeft = BUTTON_XPAD;
 
-          // If there is an icon
-          if ( himl != NULL && nIcon < ImageList_GetImageCount( himl ) ) {
+						if ( iIconTop < BUTTON_YPAD )
+							iIconTop = BUTTON_YPAD;
 
-            iIconLeft = iCenter - ( this->m_iIconSize + ICON_XPAD + iTextW ) / 2;
-            iIconTop = iVCenter - this->m_iIconSize / 2;
+						rcTxt.left = iIconLeft + this->m_iIconSize + ICON_XPAD;
 
-            if ( iIconLeft < BUTTON_XPAD )
-              iIconLeft = BUTTON_XPAD;
+						if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
+							ImageList_Draw( himl, nIcon, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT|ILD_BLEND50 );
+						else
+							ImageList_Draw( himl, nIcon, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT );
+					}
 
-            if ( iIconTop < BUTTON_YPAD )
-              iIconTop = BUTTON_YPAD;
+					/*
+					wsprintf( data, "Ileft %d, Itop %d, TL %d, TT, %d", iIconLeft, iIconTop, rcTxt.left, rcTxt.top );
+					mIRCError( data );
+					*/
 
-            rcTxt.left = iIconLeft + this->m_iIconSize + ICON_XPAD;
+					if ( this->m_tsCaption.len( ) > 0 ) {
 
-            if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
-              ImageList_Draw( himl, nIcon, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT|ILD_BLEND50 );
-            else
-              ImageList_Draw( himl, nIcon, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT );
-          }
+						DrawText( hdc, this->m_tsCaption.to_chr( ), this->m_tsCaption.len( ), 
+							&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+					}
 
-          /*
-          wsprintf( data, "Ileft %d, Itop %d, TL %d, TT, %d", iIconLeft, iIconTop, rcTxt.left, rcTxt.top );
-          mIRCError( data );
-          */
+					SelectObject( hdc, hFontOld );
+				}
 
-          if ( this->m_tsCaption.len( ) > 0 ) {
+				EndPaint( this->m_Hwnd, &ps ); 
 
-            DrawText( hdc, this->m_tsCaption.to_chr( ), this->m_tsCaption.len( ), 
-              &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
-          }
+				return res;
+			}
+			break;
 
-          SelectObject( hdc, hFontOld );
-        }
+		case WM_SETFOCUS:
+			{
+				this->m_pParentDialog->setFocusControl( this->getUserID( ) );
+			}
+			break;
 
-        EndPaint( this->m_Hwnd, &ps ); 
+		case WM_SETCURSOR:
+			{
+				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
 
-        return res;
-      }
-      break;
+					SetCursor( this->m_hCursor );
+					bParsed = TRUE;
+					return TRUE;
+				}
+			}
+			break;
 
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
+		default:
+			break;
+		}
 
-          SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
-
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
-
-    default:
-      break;
-  }
-
-  return 0L;
+		return 0L;
 }

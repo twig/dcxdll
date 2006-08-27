@@ -163,7 +163,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
 	icex.dwICC  = ICC_TREEVIEW_CLASSES | ICC_BAR_CLASSES | ICC_PROGRESS_CLASS | ICC_LISTVIEW_CLASSES | 
 		ICC_USEREX_CLASSES | ICC_COOL_CLASSES | ICC_STANDARD_CLASSES | ICC_UPDOWN_CLASS | ICC_DATE_CLASSES | 
-		ICC_TAB_CLASSES | ICC_INTERNET_CLASSES;
+		ICC_TAB_CLASSES | ICC_INTERNET_CLASSES | ICC_PAGESCROLLER_CLASS;
 	InitCommonControlsEx( &icex ); 
 
 	WNDCLASSEX wc;
@@ -294,6 +294,10 @@ void WINAPI LoadDll(LOADINFO * load) {
 	wc.lpszClassName = DCX_CALENDARCLASS;
 	RegisterClassEx(&wc);
 
+	// Custom Pager
+	GetClassInfoEx(NULL, WC_PAGESCROLLER, &wc);
+	wc.lpszClassName = DCX_PAGERCLASS;
+	RegisterClassEx(&wc);
 
 
 	/***** XPopup Stuff *****/
@@ -348,6 +352,7 @@ int WINAPI UnloadDll(int timeout) {
 		UnregisterClass(DCX_TABCTRLCLASS, GetModuleHandle(NULL));
 		UnregisterClass(DCX_CALENDARCLASS, GetModuleHandle(NULL));
 		UnregisterClass(DCX_BOXCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_PAGERCLASS, GetModuleHandle(NULL));
 
 		// Class Factory of Web Control
 		if (g_pClassFactory != NULL)
@@ -946,65 +951,65 @@ mIRC(_xdialog) {
 LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
 	// WM_SIZE/WM_CAPTURECHANGED/WM_PARENTNOTIFY/WM_ENABLE/WM_COMMAND commented out for release build 1.3.5
-    case WM_SIZE:
-      {
-        mIRC_size();
-        return 0L;
-      }
-      break;
+  //  case WM_SIZE:
+  //    {
+  //      mIRC_size();
+  //      return 0L;
+  //    }
+  //    break;
 
-    case WM_CAPTURECHANGED:
-      {
-        LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
-        swb_pos = SwitchbarPos();
-        mIRC_size();
-        return lRes;
-      }
-      break;
+  //  case WM_CAPTURECHANGED:
+  //    {
+  //      LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
+  //      swb_pos = SwitchbarPos();
+  //      mIRC_size();
+  //      return lRes;
+  //    }
+  //    break;
 
-		case WM_PARENTNOTIFY:
-			{
-				TString text;
-				text.sprintf("%ld", lParam);
-				int nIndex = ListBox_FindString(lb_hwnd,-1,text.to_chr());
-				if (nIndex != LB_ERR) {
-					switch (LOWORD(wParam))	{
-						case WM_DESTROY: // cleanup any dialog thats closed without being undocked.
-							{
-								EjectWindow((HWND)lParam);
-								ListBox_DeleteString(lb_hwnd, nIndex);
-								mIRC_size();
-							}
-						default:
-							return 0L;
-							break;
-					}
-				}
-			}
-			break;
+		//case WM_PARENTNOTIFY:
+		//	{
+		//		TString text;
+		//		text.sprintf("%ld", lParam);
+		//		int nIndex = ListBox_FindString(lb_hwnd,-1,text.to_chr());
+		//		if (nIndex != LB_ERR) {
+		//			switch (LOWORD(wParam))	{
+		//				case WM_DESTROY: // cleanup any dialog thats closed without being undocked.
+		//					{
+		//						EjectWindow((HWND)lParam);
+		//						ListBox_DeleteString(lb_hwnd, nIndex);
+		//						mIRC_size();
+		//					}
+		//				default:
+		//					return 0L;
+		//					break;
+		//			}
+		//		}
+		//	}
+		//	break;
 
-    case WM_ENABLE:
-      {
-        if (wParam) {
-          LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
-          swb_pos = SwitchbarPos();
-          mIRC_size();
-          return lRes;
-        }
-      }
-      break;
+  //  case WM_ENABLE:
+  //    {
+  //      if (wParam) {
+  //        LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
+  //        swb_pos = SwitchbarPos();
+  //        mIRC_size();
+  //        return lRes;
+  //      }
+  //    }
+  //    break;
 
-    case WM_COMMAND:
-      {
-        int wID = LOWORD(wParam);
-        if (wID == 112 || wID == 111) {
-          LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
-          swb_pos = SwitchbarPos();
-          mIRC_size();
-          return lRes;
-        }
-      }
-      break;
+  //  case WM_COMMAND:
+  //    {
+  //      int wID = LOWORD(wParam);
+  //      if (wID == 112 || wID == 111) {
+  //        LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
+  //        swb_pos = SwitchbarPos();
+  //        mIRC_size();
+  //        return lRes;
+  //      }
+  //    }
+  //    break;
       /*
       case WM_ACTIVATEAPP: 
       {

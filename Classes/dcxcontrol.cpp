@@ -32,6 +32,7 @@
 #include "dcxipaddress.h"
 #include "dcxwebctrl.h"
 #include "dcxcalendar.h"
+#include "dcxpager.h"
 
 #include "dcxdivider.h"
 #include "dcxpanel.h"
@@ -787,6 +788,8 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, UINT mID, TString
     return new DcxLink( mID, p_Dialog, &rc, styles );
   else if ( type == "image" )
     return new DcxImage( mID, p_Dialog, &rc, styles );
+  else if ( type == "pager" )
+    return new DcxPager( mID, p_Dialog, &rc, styles );
   else if ( type == "window" ) {
 
     if ( tsInput.numtok( " " ) > 8 ) {

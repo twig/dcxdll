@@ -1714,7 +1714,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				//RECT rcClient;
 				//GetWindowRect(p_this->m_Hwnd,&rcClient);
 				//SetRect(rc,rcClient.left,rcClient.top,rcClient.right,rcClient.bottom);
-				//return 0L;
+				//return TRUE;
 				return LB_ERR;
 			}
 			break;

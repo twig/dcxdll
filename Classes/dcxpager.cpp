@@ -1,20 +1,11 @@
-/*!
- * \file dcxpanel.cpp
- * \brief blah
- *
- * blah
- *
- * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.0
- *
- * \b Revisions
- *
- * © ScriptsDB.org - 2006
- */
+/*
+	* Pager Control
+*/
 
-#include "dcxpanel.h"
+#include "dcxpager.h"
 #include "dcxdialog.h"
 
+#include "dcxpanel.h"
 #include "dcxprogressbar.h"
 #include "dcxtrackbar.h"
 #include "dcxcolorcombo.h"
@@ -30,7 +21,6 @@
 #include "dcxupdown.h"
 #include "dcxwebctrl.h"
 #include "dcxcalendar.h"
-#include "dcxpager.h"
 
 #include "dcxdivider.h"
 #include "dcxtab.h"
@@ -62,7 +52,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 {
 
@@ -72,9 +62,10 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
 
   this->m_Hwnd = CreateWindowEx(	
     ExStyles | WS_EX_CONTROLPARENT,
-    DCX_PANELCLASS, 
+    DCX_PAGERCLASS, 
     NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+    //WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+    WS_CHILD | WS_VISIBLE | Styles, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     p_Dialog->getHwnd( ),
     (HMENU) ID,
@@ -84,7 +75,10 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   if ( bNoTheme )
     SetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
+	this->m_ChildHWND = NULL;
+	//GetStockObject();
+	//Pager_SetButtonSize(this->m_Hwnd,15);
+	//Pager_SetBkColor(this->m_Hwnd,0);
 
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -100,7 +94,7 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
  * \param styles Window Style Tokenized List
  */
 
-DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 {
 
@@ -110,9 +104,10 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 
   this->m_Hwnd = CreateWindowEx(	
     ExStyles | WS_EX_CONTROLPARENT, 
-    DCX_PANELCLASS, 
+    DCX_PAGERCLASS, 
     NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+    //WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+    WS_CHILD | WS_VISIBLE | Styles, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
@@ -122,7 +117,9 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
   if ( bNoTheme )
     SetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
+	this->m_ChildHWND = NULL;
+	//Pager_SetButtonSize(this->m_Hwnd,15);
+	//Pager_SetBkColor(this->m_Hwnd,0);
 
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -134,10 +131,7 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
  * blah
  */
 
-DcxPanel::~DcxPanel( ) {
-
-  if ( this->m_pLayoutManager != NULL )
-    delete this->m_pLayoutManager;
+DcxPager::~DcxPager( ) {
 
   this->unregistreDefaultWindowProc( );
 }
@@ -148,20 +142,18 @@ DcxPanel::~DcxPanel( ) {
  * blah
  */
 
-void DcxPanel::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	//unsigned int i = 1, numtok = styles.numtok(" ");
+void DcxPager::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
+	unsigned int i = 1, numtok = styles.numtok(" ");
 
-  //*ExStyles = WS_EX_CONTROLPARENT;
-
-  /*
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "notheme" )
-      *bNoTheme = TRUE;
+		if (styles.gettok( i, " ") == "horiz")
+			*Styles |= PGS_HORZ;
+		else if (styles.gettok( i, " ") == "autoscroll")
+			*Styles |= PGS_AUTOSCROLL;
 
     i++;
   }
-  */
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -175,7 +167,7 @@ void DcxPanel::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
  * \return > void
  */
 
-void DcxPanel::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxPager::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 //  int numtok = input.numtok( " " );
 
@@ -193,17 +185,24 @@ void DcxPanel::parseInfoRequest( TString & input, char * szReturnValue ) {
  * blah
  */
 
-void DcxPanel::parseCommandRequest( TString & input ) {
+void DcxPager::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
   this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
 
   int numtok = input.numtok( " " );
-
+  // xdid -b [NAME] [ID] [SWITCH] [W]
+  if ( flags.switch_flags[1] && numtok > 3 ) {
+		this->setBorderSize(atol(input.gettok(4," ").to_chr()));
+	}
   // xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-  if ( flags.switch_flags[2] && numtok > 8 ) {
+  else if ( flags.switch_flags[2] && numtok > 8 ) {
 
+		if (IsWindow(this->m_ChildHWND)) {
+			mIRCError( "/xdid -c : Child Control already exists" );
+			return;
+		}
     UINT ID = mIRC_ID_OFFSET + atoi( input.gettok( 4, " " ).to_chr( ) );
 
     if ( ID > mIRC_ID_OFFSET - 1 && 
@@ -226,41 +225,11 @@ void DcxPanel::parseCommandRequest( TString & input ) {
         styles = input.gettok( 10, -1, " " );
       }
 
-      if ( type == "trackbar" ) {
-        p_Control = new DcxTrackBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "pbar" ) {
-        p_Control = new DcxProgressBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "comboex" ) {
-        p_Control = new DcxComboEx( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "toolbar" ) {
+      if ( type == "toolbar" ) {
         p_Control = new DcxToolBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "statusbar" ) {
-        p_Control = new DcxStatusBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "treeview" ) {
-        p_Control = new DcxTreeView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "listview" ) {
-        p_Control = new DcxListView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "colorcombo" ) {
-        p_Control = new DcxColorCombo( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "button" ) {
-        p_Control = new DcxButton( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "richedit" ) {
-        p_Control = new DcxRichEdit( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
       }
       else if ( type == "rebar" ) {
         p_Control = new DcxReBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "divider" ) {
-        p_Control = new DcxDivider( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
       }
       else if ( type == "panel" ) {
         p_Control = new DcxPanel( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
@@ -268,44 +237,8 @@ void DcxPanel::parseCommandRequest( TString & input ) {
       else if ( type == "tab" ) {
         p_Control = new DcxTab( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
       }
-      else if ( type == "ipaddress" ) {
-        p_Control = new DcxIpAddress( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "updown" ) {
-        p_Control = new DcxUpDown( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "webctrl" ) {
-        p_Control = new DcxWebControl( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "calendar" ) {
-        p_Control = new DcxCalendar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "line" ) {
-        p_Control = new DcxLine( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
       else if ( type == "box" ) {
         p_Control = new DcxBox( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "radio" ) {
-        p_Control = new DcxRadio( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "check" ) {
-        p_Control = new DcxCheck( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "text" ) {
-        p_Control = new DcxText( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "edit" ) {
-        p_Control = new DcxEdit( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "scroll" ) {
-        p_Control = new DcxScroll( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "list" ) {
-        p_Control = new DcxList( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "link" ) {
-        p_Control = new DcxLink( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
       }
       else if ( type == "image" ) {
         p_Control = new DcxImage( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
@@ -349,14 +282,14 @@ void DcxPanel::parseCommandRequest( TString & input ) {
       }
 
       if ( p_Control != NULL ) {
-
         this->m_pParentDialog->addControl( p_Control );
+				p_Control->addStyle(CCS_NORESIZE);
+				this->setChild(p_Control->getHwnd());
 
         this->redrawWindow( );
       }
     }
     else {
-
       TString error;
       error.sprintf("/xdid -c : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
 			mIRCError( error.to_chr() );
@@ -373,14 +306,16 @@ void DcxPanel::parseCommandRequest( TString & input ) {
     {
 
       HWND cHwnd = p_Control->getHwnd( );
-      if ( p_Control->getType( ) == "dialog" || p_Control->getType( ) == "window" )
+			if ( p_Control->getType( ) == "dialog" || p_Control->getType( ) == "window" ) {
         delete p_Control;
+				this->m_ChildHWND = NULL;
+			}
 			else if ( p_Control->getRefCount( ) == 0 ) {
 				this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
         DestroyWindow( cHwnd );
+				this->m_ChildHWND = NULL;
 			}
       else {
-
         TString error;
         error.sprintf("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", 
                   p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
@@ -388,253 +323,105 @@ void DcxPanel::parseCommandRequest( TString & input ) {
       }
     }
     else {
-
       TString error;
       error.sprintf("/ $+ xdialog -d : Unknown control with ID \"%d\" (dialog %s)", 
                 ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
 			mIRCError( error.to_chr() );
     }
   }
-  /*
-  //xdid -l [NAME] [ID] [SWITCH] [OPTIONS]
-
-  [OPTIONS] :
-
-  root [TAB]+flpiw [ID] [WEIGHT] [W] [H]
-  add PATH[TAB]+flpiw [ID] [WEIGHT] [W] [H]
-  space PATH[TAB]+ [L] [T] [R] [B]
-  */
-  else if ( flags.switch_flags[11] && numtok > 3 ) {
-
-    if ( input.gettok( 4, " " ) == "update" ) {
-
-      if ( this->m_pLayoutManager != NULL ) {
-
-        RECT rc;
-        GetClientRect( this->m_Hwnd, &rc );
-        this->m_pLayoutManager->updateLayout( rc );
-      }
-    }
-    else if ( numtok > 8 ) {
-
-      TString com = input.gettok( 1, "\t" ).gettok( 4, " " );
-      com.trim( );
-      TString path = input.gettok( 1, "\t" ).gettok( 5, -1, " " );
-      path.trim( );
-      TString p2 = input.gettok( 2, "\t" );
-      p2.trim( );
-
-      UINT flags = this->parseLayoutFlags( p2.gettok( 1, " " ) );
-      UINT ID = atoi( p2.gettok( 2, " " ).to_chr( ) );
-      UINT WGT = atoi( p2.gettok( 3, " " ).to_chr( ) );
-      UINT W = atoi( p2.gettok( 4, " " ).to_chr( ) );
-      UINT H = atoi( p2.gettok( 5, " " ).to_chr( ) );
-
-      if ( com ==  "root" || com == "cell" ) {
-
-        HWND cHwnd = GetDlgItem( this->m_Hwnd, mIRC_ID_OFFSET + ID );
-
-        LayoutCell * p_Cell = NULL;
-
-        // LayoutCellPane
-        if ( flags & LAYOUTPANE ) {
-
-          if ( flags & LAYOUTHORZ )
-            p_Cell = new LayoutCellPane( LayoutCellPane::HORZ );
-          else
-            p_Cell = new LayoutCellPane( LayoutCellPane::VERT );
-        } // if ( flags & LAYOUTPANE )
-        // LayoutFill Cell
-        else if ( flags & LAYOUTFILL ) {
-
-          //mIRCError( "LayoutFill" );
-
-          if ( flags & LAYOUTID ) {
-
-            //mIRCError( "LayoutFillID" );
-
-            if ( cHwnd != NULL && IsWindow( cHwnd ) )
-              p_Cell = new LayoutCellFill( cHwnd );
-            else {
-              TString error;
-              error.sprintf("/xdid -l : Cell Fill -> Invalid ID : %d", ID );
-							mIRCError( error.to_chr() );
-              return;
-            }
-          }
-          else {
-            p_Cell = new LayoutCellFill( );
-          }
-        } // else if ( flags & LAYOUTFILL )
-        // LayoutCellFixed
-        else if ( flags & LAYOUTFIXED ) {
-
-          LayoutCellFixed::FixedType type;
-
-          if ( flags & LAYOUTVERT && flags & LAYOUTHORZ )
-            type = LayoutCellFixed::BOTH;
-          else if ( flags & LAYOUTVERT )
-            type = LayoutCellFixed::HEIGHT;
-          else
-            type = LayoutCellFixed::WIDTH;
-
-          // Defined Rectangle
-          if ( flags & LAYOUTDIM ) {
-
-            RECT rc;
-            SetRect( &rc, 0, 0, W, H );
-
-            if ( flags & LAYOUTID ) {
-
-              if ( cHwnd != NULL && IsWindow( cHwnd ) )
-                p_Cell = new LayoutCellFixed( cHwnd, rc, type );
-              else {
-                TString error;
-                error.sprintf("/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
-								mIRCError( error.to_chr() );
-                return;
-              }
-            }
-            else
-              p_Cell = new LayoutCellFixed( rc, type );
-
-          }
-          // No defined Rectangle
-          else {
-
-            if ( flags & LAYOUTID ) {
-
-              if ( cHwnd != NULL && IsWindow( cHwnd ) )
-                p_Cell = new LayoutCellFixed( cHwnd, type );
-              else {
-                TString error;
-                error.sprintf("/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
-								mIRCError( error.to_chr() );
-                return;
-              }
-            }
-          } //else
-        } // else if ( flags & LAYOUTFIXED )
-        else {
-          mIRCError( "/xdid -l : Unknown Cell Type" );
-          return;
-        }
-
-        if ( com == "root" ) {
-
-          if ( p_Cell != NULL )
-            this->m_pLayoutManager->setRoot( p_Cell );
-  
-        } // if ( com == "root" )
-        else if ( com == "cell" ) {
-
-          if ( p_Cell != NULL ) {
-
-            LayoutCell * p_GetCell;
-
-            if ( path == "root" )
-              p_GetCell = this->m_pLayoutManager->getRoot( );
-            else
-              p_GetCell = this->m_pLayoutManager->getCell( path );
-
-            if ( p_GetCell == NULL ) {
-
-              TString error;
-              error.sprintf("/xdid -l : Invalid item path: %s", path.to_chr( ) );
-							mIRCError( error.to_chr() );
-              return;
-            }
-            
-            if ( p_GetCell->getType( ) == LayoutCell::PANE ) {
-
-              LayoutCellPane * p_PaneCell = (LayoutCellPane *) p_GetCell;
-              p_PaneCell->addChild( p_Cell, WGT );
-            }
-          }
-        } // else if ( com == "cell" )
-      } // if ( com ==  "root" || com == "cell" )
-      else if ( com ==  "space" ) {
-
-        LayoutCell * p_GetCell;
-
-        if ( path == "root" )
-          p_GetCell = this->m_pLayoutManager->getRoot( );
-        else
-          p_GetCell = this->m_pLayoutManager->getCell( path );
-
-        if ( p_GetCell == NULL ) {
-
-          TString error;
-          error.sprintf("/xdid -l : Invalid item path: %s", path.to_chr( ) );
-					mIRCError( error.to_chr() );
-          return;
-        }
-        else {
-
-          RECT rc;
-          SetRect( &rc, ID, WGT, W, H );
-          p_GetCell->setBorder( rc );
-        }
-      } // else if ( com == "space" )
-    } // if ( numtok > 7 )
-  }
-	// xdid -t [NAME] [ID] [SWITCH] [TEXT]
+	// xdid -s [NAME] [ID] [SWITCH] [SIZE]
+	else if (flags.switch_flags[18] && numtok > 3) {
+		this->setButtonSize(atol(input.gettok(4, -1, " ").to_chr()));
+	}
+	// xdid -t [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags.switch_flags[19] && numtok > 3) {
-		SetWindowText(this->m_Hwnd, input.gettok(4, -1, " ").to_chr());
+		this->setBkColor(atol(input.gettok(4, -1, " ").to_chr()));
+	}
+	// xdid -z [NAME] [ID] [SWITCH]
+	else if (flags.switch_flags[25] && numtok > 2) {
+		this->reCalcSize();
 	}
   else {
     this->parseGlobalCommandRequest( input, flags );
   }
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-UINT DcxPanel::parseLayoutFlags( TString & flags ) {
-
-  INT i = 1, len = flags.len( );
-  UINT iFlags = 0;
-
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return iFlags;
-
-  while ( i < len ) {
-
-    if ( flags[i] == 'f' )
-      iFlags |= LAYOUTFIXED;
-    else if ( flags[i] == 'h' )
-      iFlags |= LAYOUTHORZ;
-    else if ( flags[i] == 'i' )
-      iFlags |= LAYOUTID;
-    else if ( flags[i] == 'l' )
-      iFlags |= LAYOUTFILL ;
-    else if ( flags[i] == 'p' )
-      iFlags |= LAYOUTPANE;
-    else if ( flags[i] == 'v' )
-      iFlags |= LAYOUTVERT;
-    else if ( flags[i] == 'w' )
-      iFlags |= LAYOUTDIM;
-
-    ++i;
-  }
-
-  return iFlags;
+void DcxPager::setChild(HWND child)
+{
+	this->m_ChildHWND = child;
+	Pager_SetChild(this->m_Hwnd,child);
 }
-
+void DcxPager::setBkColor(COLORREF c)
+{
+	Pager_SetBkColor(this->m_Hwnd,c);
+}
+void DcxPager::setBorderSize(int bSize)
+{
+	Pager_SetBorder(this->m_Hwnd,bSize);
+}
+void DcxPager::setButtonSize(int bSize)
+{
+	Pager_SetButtonSize(this->m_Hwnd,bSize);
+}
+void DcxPager::reCalcSize(void)
+{
+	Pager_RecalcSize(this->m_Hwnd);
+}
 /*!
  * \brief blah
  *
  * blah
  */
-LRESULT DcxPanel::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxPager::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+	switch( uMsg ) {
+    case WM_NOTIFY : 
+      {
+
+        LPNMHDR hdr = (LPNMHDR) lParam;
+
+        if (!hdr)
+          break;
+
+				switch( hdr->code ) {
+				case PGN_CALCSIZE:
+					{
+						bParsed = TRUE;
+						LPNMPGCALCSIZE lpnmcs = (LPNMPGCALCSIZE) lParam;
+						RECT rc;
+						ZeroMemory(&rc,sizeof(RECT));
+						//GetWindowRect(this->m_ChildHWND,&rc);
+						//if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
+						//	lpnmcs->iHeight = (rc.bottom - rc.top);
+						//else
+						//	lpnmcs->iWidth = (rc.right - rc.left);
+						DcxControl *cthis = (DcxControl *)GetProp(this->m_ChildHWND,"dcx_cthis");
+						if (cthis != NULL) {
+							int bSize = Pager_GetButtonSize(this->m_Hwnd);
+							if (cthis->getType() == "toolbar") {
+								SIZE sz;
+								SendMessage(this->m_ChildHWND, TB_GETMAXSIZE, 0, (LPARAM)&sz);
+								if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
+									lpnmcs->iHeight = sz.cy+bSize;
+								else
+									lpnmcs->iWidth = sz.cx+bSize;
+							}
+							else {
+								GetWindowRect(this->m_ChildHWND,&rc);
+								if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
+									lpnmcs->iHeight = (rc.bottom - rc.top)+bSize;
+								else
+									lpnmcs->iWidth = (rc.right - rc.left)+bSize;
+							}
+						}
+					}
+					break;
+				}
+      }
+      break;
+	}
 	return 0L;
 }
 
-LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	LRESULT lRes = 0L;
   switch( uMsg ) {
@@ -652,12 +439,18 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
         if (!hdr)
           break;
-
 				if (IsWindow(hdr->hwndFrom)) {
 					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
 					if (c_this != NULL) {
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
+				}
+				switch( hdr->code ) {
+				case TBN_DELETINGBUTTON:
+					{ // handle toolbar button delete.
+						this->reCalcSize();
+					}
+					break;
 				}
       }
       break;
@@ -710,7 +503,6 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_SIZE:
       {
-
         HWND bars = NULL;
 
         while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_REBARCTRLCLASS, NULL ) ) != NULL ) {
@@ -729,10 +521,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
         }
 
         this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
-
-        RECT rc;
-        SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
-        this->m_pLayoutManager->updateLayout( rc );
+				this->reCalcSize();
         this->redrawWindow( );
       }
       break;
@@ -743,36 +532,6 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
         return (INT_PTR) this->getBackClrBrush( );
       }
       break;
-
-      /*
-    case WM_ERASEBKGND: 
-      {
-
-        if ( this->m_hBackBrush != NULL ) {
-
-          bParsed = TRUE;
-
-          HDC hdc = GetDC( this->m_Hwnd );
-
-          HBRUSH hBrush;
-
-          if ( this->m_hBackBrush != NULL )
-            hBrush = this->m_hBackBrush;
-          else
-            hBrush = GetSysColorBrush( COLOR_3DFACE );
-
-          RECT rect;
-          GetWindowRect( this->m_Hwnd, &rect );
-          OffsetRect( &rect, -rect.left, -rect.top );
-          FillRect( hdc, &rect, hBrush );
-
-          ReleaseDC( this->m_Hwnd, hdc );
-
-          return TRUE;
-        }
-      }
-      break;
-      */
 
     case WM_CTLCOLORBTN:
     case WM_CTLCOLORLISTBOX:
@@ -853,9 +612,31 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
     case WM_SETFOCUS:
       {
         this->m_pParentDialog->setFocusControl( this->getUserID( ) );
+				this->reCalcSize();
       }
       break;
+   // case WM_PAINT:
+   //   {
+   //     PAINTSTRUCT ps; 
+   //     HDC hdc;
+			//	LRESULT res = 0L;
 
+   //     hdc = BeginPaint( this->m_Hwnd, &ps );
+			//	// Center icon in client rectangle
+			//	int cxIcon = GetSystemMetrics(SM_CXICON);
+			//	int cyIcon = GetSystemMetrics(SM_CYICON);
+			//	RECT rc;
+			//	GetClientRect(this->m_Hwnd,&rc);
+			//	int x = ((rc.right - rc.left) - cxIcon + 1) / 2;
+			//	int y = ((rc.bottom - rc.top) - cyIcon + 1) / 2;
+
+			//	// Draw the icon
+			//	//DrawIcon(hdc, x, y, m_hIcon);
+   //     EndPaint( this->m_Hwnd, &ps ); 
+
+   //     return res;
+			//}
+			//break;
     case WM_DESTROY:
       {
         delete this;

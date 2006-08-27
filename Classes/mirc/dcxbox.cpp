@@ -30,6 +30,7 @@
 #include "../dcxupdown.h"
 #include "../dcxwebctrl.h"
 #include "../dcxcalendar.h"
+#include "../dcxpager.h"
 
 #include "../dcxpanel.h"
 #include "../dcxdivider.h"
@@ -365,6 +366,9 @@ void DcxBox::parseCommandRequest( TString & input ) {
       }
       else if ( type == "image" ) {
         p_Control = new DcxImage( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+      }
+      else if ( type == "pager" ) {
+        p_Control = new DcxPager( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
       }
       else if ( type == "window" ) {
 

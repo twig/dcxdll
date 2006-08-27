@@ -459,6 +459,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Classes\dcxpager.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Classes\dcxpanel.cpp"
 					>
 				</File>
@@ -686,6 +690,10 @@
 				</File>
 				<File
 					RelativePath=".\Classes\dcxmwindow.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Classes\dcxpager.h"
 					>
 				</File>
 				<File
