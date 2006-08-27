@@ -581,6 +581,42 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		this->m_colTransparentBg = atoi(input.gettok(3, " ").to_chr());
 		this->redrawWindow();
 	}
+	// xdialog -w [NAME] [SWITCH] [INDEX] [FILENAME]
+	else if (flags.switch_flags[22] && numtok > 3) {
+		int index = atoi(input.gettok(3, " ").to_chr());
+		TString filename = input.gettok(4, -1, " ");
+		HICON iconSmall;
+		HICON iconLarge;
+
+		filename.trim();
+
+		ExtractIconEx(filename.to_chr(), index, NULL, &iconSmall, 1);
+		ExtractIconEx(filename.to_chr(), index, &iconLarge, NULL, 1);
+
+		// copy the icon over in case there was no small icon
+		if (!iconLarge)
+			iconLarge = iconSmall;
+		// copy the icon over in case there was no large icon
+		if (!iconSmall)
+			iconSmall = iconLarge;
+
+		// TODO: add more meaningful error messages
+		// No icon in file
+		if (!iconLarge && !iconSmall) {
+			mIRCError("/xdialog -w: no icon in file");
+			return;
+		}
+
+		// set the new icons, get back the current icon
+		iconSmall = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_SMALL, (LPARAM) iconSmall);
+		iconLarge = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_BIG, (LPARAM) iconLarge);
+
+		// delete the old icons
+		if (iconSmall)
+			DestroyIcon(iconSmall);
+		if (iconLarge)
+			DestroyIcon(iconLarge);
+	}
 	// xdialog -z [NAME] [SWITCH] [COLOR]
 	else if (flags.switch_flags[25] && numtok > 2) {
 		mIRCError("-z");
