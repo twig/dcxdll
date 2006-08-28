@@ -292,7 +292,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
-  if ( input.gettok( 3, " " ) == "childid" && numtok > 3 ) {
+  else if ( input.gettok( 3, " " ) == "childid" && numtok > 3 ) {
 
     int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
 

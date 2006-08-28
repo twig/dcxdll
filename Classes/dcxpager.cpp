@@ -64,8 +64,8 @@ DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
     ExStyles | WS_EX_CONTROLPARENT,
     DCX_PAGERCLASS, 
     NULL,
-    //WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-    WS_CHILD | WS_VISIBLE | Styles, 
+    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+    //WS_CHILD | WS_VISIBLE | Styles, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     p_Dialog->getHwnd( ),
     (HMENU) ID,
@@ -106,8 +106,8 @@ DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
     ExStyles | WS_EX_CONTROLPARENT, 
     DCX_PAGERCLASS, 
     NULL,
-    //WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-    WS_CHILD | WS_VISIBLE | Styles, 
+    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+    //WS_CHILD | WS_VISIBLE | Styles, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
@@ -170,8 +170,19 @@ void DcxPager::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
 void DcxPager::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 //  int numtok = input.numtok( " " );
-
-  if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
+  if ( input.gettok( 3, " " ) == "color") {
+    wsprintf( szReturnValue, "%d", Pager_GetBkColor(this->m_Hwnd) );
+    return;
+	}
+  else if ( input.gettok( 3, " " ) == "bsize") {
+    wsprintf( szReturnValue, "%d", Pager_GetButtonSize(this->m_Hwnd) );
+    return;
+	}
+  else if ( input.gettok( 3, " " ) == "border") {
+    wsprintf( szReturnValue, "%d", Pager_GetBorder(this->m_Hwnd) );
+    return;
+	}
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
 
     return;
   }
