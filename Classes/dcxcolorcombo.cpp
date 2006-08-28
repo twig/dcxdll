@@ -371,24 +371,8 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
         }
       }
       break;
-	}
-	return 0L;
-}
-
-LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
-  switch( uMsg ) {
-
-    case WM_HELP:
-      {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
-
     case WM_DELETEITEM:
       {
-        //mIRCError( "Control WM_DELETEITEM" );
-
         PDELETEITEMSTRUCT delis = (PDELETEITEMSTRUCT) lParam;
         LPDCXCCOMBOITEM lpdcxcci = (LPDCXCCOMBOITEM) delis->itemData;
 
@@ -402,8 +386,6 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
     case WM_DRAWITEM:
       {
-        //mIRCError( "Control WM_DRAWITEM" );
-
         LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT) lParam;
 
         if ( lpdis != NULL && lpdis->itemID != -1 ) {
@@ -450,6 +432,19 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
         }
         bParsed = TRUE;
         return TRUE;
+      }
+      break;
+	}
+	return 0L;
+}
+
+LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+
+  switch( uMsg ) {
+
+    case WM_HELP:
+      {
+        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
