@@ -1217,13 +1217,17 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 		}
 
-		case WM_MEASUREITEM:
-		{
-			if (ctrl_MeasureItem(mHwnd, wParam, lParam))
-				return TRUE;
-
-			break;
-		}
+    case WM_MEASUREITEM:
+      {
+				HWND cHwnd = GetDlgItem(mHwnd, wParam);
+				if (IsWindow(cHwnd)) {
+					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
+				}
+      }
+      break;
 
 		case WM_DRAWITEM:
 		{

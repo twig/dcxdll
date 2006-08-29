@@ -163,9 +163,9 @@ void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
     else if ( styles.gettok( i , " " ) == "right" ) 
       *Styles |= CCS_RIGHT;
     //else if ( styles.gettok( i , " " ) == "noresize" ) 
-      //*Styles |= CCS_NORESIZE;
+    //  *Styles |= CCS_NORESIZE;
     //else if ( styles.gettok( i , " " ) == "noparentalign" ) 
-      //*Styles |= CCS_NOPARENTALIGN ;
+    //  *Styles |= CCS_NOPARENTALIGN ;
     else if ( styles.gettok( i , " " ) == "noauto" )
       *Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
     else if ( styles.gettok( i , " " ) == "adjustable" ) 
@@ -1237,7 +1237,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
       }
       break;
 
-    case WM_NOTIFY : 
+    case WM_NOTIFY:
       {
         LPNMHDR hdr = (LPNMHDR) lParam;
         if (!hdr)
@@ -1245,35 +1245,29 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
         switch( hdr->code ) {
 
-          /*
-          case NM_CLICK:
-            {
+          //case NM_CLICK:
+          //  {
+          //    LPNMMOUSE lpnm = (LPNMMOUSE) lParam;
+          //    POINT pt = lpnm->pt;
+          //    int iButton = (int) this->hitTest( &pt );
 
-              
-              LPNMMOUSE lpnm = (LPNMMOUSE) lParam;
-              POINT pt = lpnm->pt;
-              int iButton = (int) this->hitTest( &pt );
+          //    if ( iButton > -1 ) {
+          //      RECT rc;
+          //      this->getItemRect( iButton, &rc );
+          //      POINT pt2 = pt;
+          //      pt.x = rc.left; 
+          //      pt.y = rc.bottom;
+          //      pt2.x = rc.left;
+          //      pt2.y = rc.top;
+          //      ClientToScreen( this->m_Hwnd, &pt );
+          //      ClientToScreen( this->m_Hwnd, &pt2 );
+          //      this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "sclick", 
+          //        this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
+          //    }
 
-              if ( iButton > -1 ) {
-
-                char ret[256];
-                RECT rc;
-                this->getItemRect( iButton, &rc );
-                POINT pt2 = pt;
-                pt.x = rc.left; 
-                pt.y = rc.bottom;
-                pt2.x = rc.left;
-                pt2.y = rc.top;
-                ClientToScreen( this->m_Hwnd, &pt );
-                ClientToScreen( this->m_Hwnd, &pt2 );
-                this->callAliasEx( ret, "%s,%d,%d,%d,%d,%d,%d", "sclick", 
-                  this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
-              }
-
-              bParsed = TRUE;
-            }
-            break;
-            */
+          //    bParsed = TRUE;
+          //  }
+          //  break;
 
           case NM_RCLICK:
             {
@@ -1403,7 +1397,6 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							if ( tbb.dwData != NULL ) {
                 delete (LPDCXTBBUTTON) tbb.dwData;
 							}
-
               bParsed = TRUE;
             }
             break;

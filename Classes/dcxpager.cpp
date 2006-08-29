@@ -493,9 +493,12 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_MEASUREITEM:
       {
-				if (ctrl_MeasureItem(this->m_Hwnd, wParam, lParam)) {
-					bParsed = TRUE;
-					return TRUE;
+				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
+				if (IsWindow(cHwnd)) {
+					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
 				}
       }
       break;

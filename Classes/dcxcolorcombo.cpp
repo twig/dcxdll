@@ -408,9 +408,19 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
             HPEN oldPen = (HPEN) SelectObject( lpdis->hDC, hPen );
 
             RECT rcItem = lpdis->rcItem;
+
+						// draw selection indicator
+						if (lpdis->itemState & ODS_COMBOBOXEDIT)
+							SetBkColor(lpdis->hDC, GetSysColor(COLOR_WINDOW));
+						else if (lpdis->itemState & ODS_SELECTED)
+							SetBkColor(lpdis->hDC, GetSysColor(COLOR_MENUHILIGHT));
+						else
+							SetBkColor(lpdis->hDC, GetSysColor(COLOR_WINDOW));
+            ExtTextOut( lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, "", NULL, NULL );
+
             InflateRect( &rcItem, -4, -2 );
 
-            SetBkColor( lpdis->hDC, lpdcxcci->clrItem );
+						SetBkColor( lpdis->hDC, lpdcxcci->clrItem );
 
             ExtTextOut( lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, "", NULL, NULL );
 
@@ -434,6 +444,16 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
         return TRUE;
       }
       break;
+		case WM_MEASUREITEM:
+			{
+				LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
+
+				if (lpmis != NULL)
+					lpmis->itemHeight = 16; 
+				bParsed = TRUE;
+				return TRUE;
+			}
+			break;
 	}
 	return 0L;
 }
