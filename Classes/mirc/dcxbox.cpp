@@ -882,7 +882,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				}
 
 				// if no border, dont bother
-				if (this->m_iBoxStyles & BOXS_BOTTOM) {
+				if (this->m_iBoxStyles & BOXS_NONE) {
 					EndPaint(this->m_Hwnd, &ps);
 
 					bParsed = TRUE;
