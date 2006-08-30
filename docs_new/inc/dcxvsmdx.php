@@ -25,7 +25,7 @@ function dcx_vs_mdx() {
 		<td><img src="images/ok.gif" alt="Has feature" /></td>
 		<td>
 			<img src="images/no.gif" alt="Does not have feature" /><br />
-			(DynamicControl is useless as it cant receive sclick events)
+			(DynamicControl is useless as it cant receive events other than sclick)
 		</td>
 	</tr>
 
@@ -217,13 +217,13 @@ function dcx_vs_mdx() {
 	<tr>
 		<td class="comparison">Sub item images:</td>
         <td><img src="images/ok.gif" alt="Has feature" /></td>
-        <td><img src="images/no.gif" alt="Does not have feature" /></td>
+        <td><img src="images/ok.gif" alt="Has feature" /></td>
 	</tr>
 
 	<tr>
 		<td class="comparison">Column icons</td>
         <td><img src="images/ok.gif" alt="Has feature" /></td>
-        <td><img src="images/no.gif" alt="Does not have feature" /></td>
+        <td><img src="images/ok.gif" alt="Has feature" /></td>
 	</tr>
 
 	<tr>
@@ -375,7 +375,7 @@ function dcx_vs_mdx() {
 	<tr>
 		<td class="comparison">Dock more then 1 @window:</td>
         <td><img src="images/ok.gif" alt="Has feature" /></td>
-        <td><img src="images/no.gif" alt="Does not have feature" /></td>
+        <td><img src="images/ok.gif" alt="Has feature" /></td>
 	</tr>
 
 	<tr>
