@@ -59,6 +59,7 @@ $PAGES = array(
     'panel' => 'Panel',
     'tab' => 'Tab',
     'rebar' => 'Rebar',
+    'pager' => 'Pager',
 );
 
 $XDID = array();

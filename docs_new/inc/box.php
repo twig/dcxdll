@@ -44,6 +44,7 @@ function get_xdid_box(&$XDID) {
 						'ipaddress' => "Creates a IpAddress control.",
 						'updown' => "Creates an UpDown control.",
 						'webctrl' => "Creates a Web control.",
+						'pager' => "Creates a Pager control.",
 						'&nbsp;' => '&nbsp;',
 						'line' => "Creates a Line control.",
 						'box' => "Creates a Box control.",

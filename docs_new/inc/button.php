@@ -106,6 +106,7 @@ function get_events_button(&$EVENTS) {
 	$EVENTS = array(
 		"sclick" => "When you left-click on the button.",
 		"rclick" => "When you right-click on the button.",
+		"dclick" => "When you double-click on the button.",
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
 	);
 }

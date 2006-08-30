@@ -147,7 +147,7 @@ void DcxPager::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
 
   while ( i <= numtok ) {
 
-		if (styles.gettok( i, " ") == "horiz")
+		if (styles.gettok( i, " ") == "horizontal")
 			*Styles |= PGS_HORZ;
 		else if (styles.gettok( i, " ") == "autoscroll")
 			*Styles |= PGS_AUTOSCROLL;
