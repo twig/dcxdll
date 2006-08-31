@@ -1293,7 +1293,7 @@ BOOL DcxTreeView::parsePath( TString * path, HTREEITEM * hParent, HTREEITEM * hI
 
   int n = path->numtok( " " ), i = 1;
   int k = atoi( path->gettok( depth, " " ).to_chr( ) );
-  HTREEITEM hPreviousItem, hCurrentItem;
+  HTREEITEM hPreviousItem = NULL, hCurrentItem;
 
   //char data[50];
 

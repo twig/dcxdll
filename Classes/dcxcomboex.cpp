@@ -33,13 +33,15 @@ void DcxComboEx::ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHw
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    SendMessage( this->m_Hwnd , CBEM_SETWINDOWTHEME, 0, (LPARAM)L" " );
+  //if ( bNoTheme )
+  //  SetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_EditHwnd = (HWND) this->getEditControl( );
 
   if ( IsWindow( this->m_EditHwnd ) ) {
-		if ( bNoTheme )
-			SetWindowTheme( this->m_EditHwnd , L" ", L" " );
+		//if ( bNoTheme )
+		//	SetWindowTheme( this->m_EditHwnd , L" ", L" " );
 
     LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
 
@@ -52,9 +54,9 @@ void DcxComboEx::ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHw
     SetWindowLong( this->m_EditHwnd, GWL_USERDATA, (LONG) lpce );
   }
 
-	HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);
-	if (IsWindow(combo) && bNoTheme)
-		SetWindowTheme( combo , L" ", L" " );
+	//HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);
+	//if (IsWindow(combo) && bNoTheme)
+	//	SetWindowTheme( combo , L" ", L" " );
 
 	//if (p_Dialog->getToolTip() != NULL) {
 	//	if (styles.istok("tooltips"," ")) {

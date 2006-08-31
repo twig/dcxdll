@@ -28,6 +28,8 @@
 #define BOXS_BOTTOM  0x04 //!< Box Bottom Style
 #define BOXS_NONE		0x08 //!< Box No Border Style
 #define BOXS_ROUNDED 0x10 //!< Box has rounded corners.
+#define BOXS_CHECK	0x20 //!< Box has check button in title to enable/disable contents.
+#define BOXS_RADIO	0x40 //!< Box has radio button in title to enable/disable contents.
 
 class DcxDialog;
 
@@ -62,6 +64,14 @@ protected:
 
   LayoutManager * m_pLayoutManager; //!< Layout Manager Object
 
+	HWND m_TitleButton; //!< enable/disable button.
 };
+
+typedef struct tagDCXENUM {
+
+  HWND mChildHwnd;    //!< Hwnd to child window
+	BOOL mState;
+
+} DCXENUM, * LPDCXENUM;
 
 #endif // _DCXBOX_H_

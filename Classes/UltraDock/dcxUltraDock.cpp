@@ -15,21 +15,6 @@ int swb_pos;
 BOOL MDIismax;
 
 // UltraDock commands
-// Removes window style to a window
-void RemStyles(HWND hwnd,int parm,long RemStyles)
-{
-  LONG Styles = GetWindowLong(hwnd, parm);
-  Styles &= ~RemStyles;
-  SetWindowLong(hwnd, parm, Styles);
-}
-
-//	Adds window styles to a window
-void AddStyles(HWND hwnd,int parm,long AddStyles)
-{
-  LONG Styles = GetWindowLong(hwnd, parm);
-  Styles |= AddStyles;
-  SetWindowLong(hwnd, parm, Styles);
-}
 /*
 	* Setup Everything for UltraDock
 */
@@ -60,7 +45,7 @@ void InitUltraDock(void)
 }
 /*
 	*	Eject ALL Docked dialogs.
-	* BUG: Leaves odd dragbar type window in midclient window (wtf?)
+	* BUG: Leaves odd dragbar type window in midclient window (DOH did CloseWindow instead of DestroyWindow!)
 */
 void CloseUltraDock(void)
 {
@@ -78,7 +63,7 @@ void CloseUltraDock(void)
 		ListBox_DeleteString(lb_hwnd, 0);
   }
 	mIRC_size();
-	CloseWindow(lb_hwnd);
+	DestroyWindow(lb_hwnd);
 	lb_hwnd = NULL;
 }
 // #####################################################################################

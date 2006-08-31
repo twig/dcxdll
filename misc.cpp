@@ -712,3 +712,18 @@ void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl)
 
 		SendMessage(tiphwnd,TTM_ADDTOOL,NULL,(LPARAM)&ti);
 }
+// Removes window style to a window
+void RemStyles(HWND hwnd,int parm,long RemStyles)
+{
+  LONG Styles = GetWindowLong(hwnd, parm);
+  Styles &= ~RemStyles;
+  SetWindowLong(hwnd, parm, Styles);
+}
+
+//	Adds window styles to a window
+void AddStyles(HWND hwnd,int parm,long AddStyles)
+{
+  LONG Styles = GetWindowLong(hwnd, parm);
+  Styles |= AddStyles;
+  SetWindowLong(hwnd, parm, Styles);
+}

@@ -223,6 +223,8 @@ HICON CreateGrayscaleIcon(HICON hIcon);
 void DrawRoundRect(HDC hdc, RECT *rc, int w, int h);
 void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl);
 // UltraDock
+void RemStyles(HWND hwnd,int parm,long RemStyles);
+void AddStyles(HWND hwnd,int parm,long AddStyles);
 void InitUltraDock(void);
 void CloseUltraDock(void);
 int SwitchbarPos(void);

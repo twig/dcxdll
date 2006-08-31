@@ -275,12 +275,12 @@ void WINAPI LoadDll(LOADINFO * load) {
 	*/
 
 	// Custom Panel
-	GetClassInfoEx(NULL, "#32770", &wc);
+	GetClassInfoEx(NULL, "#32770", &wc); // NB: using this class causes tooltips in toolbar children to not show
 	wc.lpszClassName = DCX_PANELCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom Box
-	GetClassInfoEx(NULL, "#32770", &wc);
+	GetClassInfoEx(NULL, "#32770", &wc); // NB: using this class causes tooltips in toolbar children to not show
 	wc.lpszClassName = DCX_BOXCLASS;
 	RegisterClassEx(&wc);
 

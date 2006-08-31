@@ -68,13 +68,14 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
 
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
+	this->m_TitleButton = NULL;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
 	  ExStyles | WS_EX_CONTROLPARENT, 
     DCX_BOXCLASS, //"BUTTON", 
     NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN, 
+    Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     p_Dialog->getHwnd( ),
     (HMENU) ID,
@@ -89,6 +90,37 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+
+	if (this->m_iBoxStyles & BOXS_CHECK) {
+			this->m_TitleButton = CreateWindowEx(
+				ExStyles,
+				"BUTTON",
+				NULL,
+				WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTOCHECKBOX,
+				CW_USEDEFAULT,CW_USEDEFAULT,11,10,
+				this->m_Hwnd,
+				(HMENU) ID,
+				GetModuleHandle(NULL), 
+				NULL);
+	}
+	else if (this->m_iBoxStyles & BOXS_RADIO) {
+			this->m_TitleButton = CreateWindowEx(
+				ExStyles,
+				"BUTTON",
+				NULL,
+				WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTORADIOBUTTON,
+				CW_USEDEFAULT,CW_USEDEFAULT,11,10,
+				this->m_Hwnd,
+				(HMENU) ID,
+				GetModuleHandle(NULL), 
+				NULL);
+	}
+	if (IsWindow(this->m_TitleButton)) {
+		if ( bNoTheme )
+			SetWindowTheme( this->m_TitleButton , L" ", L" " );
+		if (!(Styles & WS_DISABLED))
+			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
+	}
 }
 
 /*!
@@ -107,13 +139,14 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
 
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->m_TitleButton = NULL;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
     ExStyles | WS_EX_CONTROLPARENT, 
     DCX_BOXCLASS, //"BUTTON", 
     NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN, 
+    Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
@@ -128,6 +161,37 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+
+	if (this->m_iBoxStyles & BOXS_CHECK) {
+			this->m_TitleButton = CreateWindowEx(
+				ExStyles,
+				"BUTTON",
+				NULL,
+				WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTOCHECKBOX,
+				CW_USEDEFAULT,CW_USEDEFAULT,11,10,
+				this->m_Hwnd,
+				(HMENU) ID,
+				GetModuleHandle(NULL), 
+				NULL);
+	}
+	else if (this->m_iBoxStyles & BOXS_RADIO) {
+			this->m_TitleButton = CreateWindowEx(
+				ExStyles,
+				"BUTTON",
+				NULL,
+				WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTORADIOBUTTON,
+				CW_USEDEFAULT,CW_USEDEFAULT,11,10,
+				this->m_Hwnd,
+				(HMENU) ID,
+				GetModuleHandle(NULL),
+				NULL);
+	}
+	if (IsWindow(this->m_TitleButton)) {
+		if ( bNoTheme )
+			SetWindowTheme( this->m_TitleButton , L" ", L" " );
+		if (!(Styles & WS_DISABLED))
+			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
+	}
 }
 
 /*!
@@ -152,30 +216,36 @@ DcxBox::~DcxBox( ) {
 
 void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
-  this->m_iBoxStyles = 0;
-  
-	//*ExStyles = WS_EX_CONTROLPARENT; removed by Ook
+	unsigned int i = 1, numtok = styles.numtok( " " );
+	this->m_iBoxStyles = 0;
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    if (styles.gettok(i , " ") == "right")
-      this->m_iBoxStyles |= BOXS_RIGHT;
-    else if (styles.gettok(i , " ") == "center")
-      this->m_iBoxStyles |= BOXS_CENTER;
-    else if (styles.gettok(i , " ") == "bottom")
-      this->m_iBoxStyles |= BOXS_BOTTOM;
-	 else if (styles.gettok(i , " ") == "none")
-      this->m_iBoxStyles |= BOXS_NONE;
-	 else if (styles.gettok(i , " ") == "rounded")
-      this->m_iBoxStyles |= BOXS_ROUNDED;
+		if (styles.gettok(i , " ") == "right")
+			this->m_iBoxStyles |= BOXS_RIGHT;
+		else if (styles.gettok(i , " ") == "center")
+			this->m_iBoxStyles |= BOXS_CENTER;
+		else if (styles.gettok(i , " ") == "bottom")
+			this->m_iBoxStyles |= BOXS_BOTTOM;
+		else if (styles.gettok(i , " ") == "none")
+			this->m_iBoxStyles |= BOXS_NONE;
+		else if (styles.gettok(i , " ") == "rounded")
+			this->m_iBoxStyles |= BOXS_ROUNDED;
+		else if (styles.gettok(i , " ") == "check") {
+			this->m_iBoxStyles &= ~BOXS_RADIO;
+			this->m_iBoxStyles |= BOXS_CHECK;
+		}
+		else if (styles.gettok(i , " ") == "radio") {
+			this->m_iBoxStyles &= ~BOXS_CHECK;
+			this->m_iBoxStyles |= BOXS_RADIO;
+		}
 		else if (styles.gettok(i , " ") == "transparent")
 			*ExStyles |= WS_EX_TRANSPARENT;
 
-    i++;
-  }
-  
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+		i++;
+	}
+
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -683,6 +753,13 @@ UINT DcxBox::parseLayoutFlags( TString & flags ) {
 
   return iFlags;
 }
+BOOL CALLBACK EnumBoxChildren(HWND hwnd,LPDCXENUM de)
+{
+	//LPDCXENUM de = (LPDCXENUM)lParam;
+	if (de->mChildHwnd != hwnd)
+		EnableWindow(hwnd,de->mState);
+	return TRUE;
+}
 
 /*!
  * \brief blah
@@ -733,9 +810,27 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
       }
       break;
 
+    case WM_COMMAND:
+			{
+				if (((HWND)lParam != NULL) && ((HWND)lParam == this->m_TitleButton) ) {
+					switch ( HIWORD( wParam ) ) {
+						case BN_CLICKED:
+							{
+								DCXENUM de;
+								de.mChildHwnd = this->m_TitleButton;
+								if (SendMessage(this->m_TitleButton,BM_GETCHECK,0,0) == BST_CHECKED)
+									de.mState = TRUE;
+								else
+									de.mState = FALSE;
+								EnumChildWindows(this->m_Hwnd,(WNDENUMPROC)EnumBoxChildren,(LPARAM)&de);
+							}
+							break;
+					}
+					break;
+				}
+			}
     case WM_HSCROLL: 
     case WM_VSCROLL: 
-    case WM_COMMAND:
       {
 				if (IsWindow((HWND) lParam)) {
 					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
@@ -903,6 +998,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 						//	FillRect(hdc, &rc2, hBrush);
 						DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
 					}
+					if (IsWindow(this->m_TitleButton))
+						SetWindowPos(this->m_TitleButton,NULL,rc2.left,rc2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
 				}
 				// draw text
 				else {
@@ -987,6 +1084,12 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
 
 					delete [] text;
+					if (IsWindow(this->m_TitleButton))
+					{
+						RECT bSZ;
+						GetWindowRect(this->m_TitleButton,&bSZ);
+						SetWindowPos(this->m_TitleButton,NULL,rcText2.left - (bSZ.right - bSZ.left),rcText2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
+					}
 				}
 
 				EndPaint(this->m_Hwnd, &ps);
