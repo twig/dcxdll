@@ -27,10 +27,10 @@ void InitUltraDock(void)
   treeb_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_TreeList",NULL);
 
   swb_pos = SwitchbarPos();
-
+	//lb_hwnd = NULL;
   // Listbox opration creation
   lb_hwnd = CreateWindowEx(
-    NULL,
+    WS_EX_NOPARENTNOTIFY,
     "ListBox",
     NULL,
     WS_CHILD,

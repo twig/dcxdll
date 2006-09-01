@@ -1713,6 +1713,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					*	NB: This message is sent by mIRC V6.20 when you click on a docked dialog,
 					*			causing an infinite loop, returning LB_ERR stops the loop.
 					*	This affects ALL dialogs not just dcx ones.
+					* This is not a real fix but a workaround.
 				*/
 				//RECT *rc = (RECT *)lParam;
 				//RECT rcClient;
