@@ -85,7 +85,11 @@ if (!function_exists('array_walk_recursive')) {
 	}
 }
 
+// do formatting of wiki code here
+// http://www.phpit.net/article/create-bbcode-php/
 function wikiData(&$value, $userdata = "") {
+/*
+	// old code
 	if (preg_match_all('/\\[([vesproi]+)\\](.+?)\\[\/([vesproi]+)\\]/', $value, $regs)) {
 		foreach ($regs[0] as $id => $matchtext) {
 			$style = '';
@@ -111,6 +115,33 @@ function wikiData(&$value, $userdata = "") {
 			}
 		}
 	}
+*/
+
+	// new code
+	$str = $value;
+
+	$simple_search = array(
+		'/\[v\](.*?)\[\/v\]/is', // value
+		'/\[e\](.*?)\[\/e\]/is', // event
+		'/\[r\](.*?)\[\/r\]/is', // returnevent
+		'/\[s\](.*?)\[\/s\]/is', // style
+		'/\[p\](.*?)\[\/p\]/is', // param
+		'/\[i\](.*?)\[\/i\]/is', // property
+		'/\[o\](.*?)\[\/o\]/is', // operating system
+	);
+
+	$simple_replace = array(
+		'<a class="value">$1</a>',
+		'<a class="event">$1</a>',
+		'<a class="returnevent">$1</a>',
+		'<a class="style">$1</a>',
+		'<a class="param">$1</a>',
+		'<a class="property">$1</a>',
+		'<a class="os">($1)</a>',
+	);
+
+	// Do simple BBCode's
+	$value = preg_replace($simple_search, $simple_replace, $str);
 }
 
 

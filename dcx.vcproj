@@ -318,6 +318,9 @@
 				Name="Ultradock"
 				Filter="">
 				<File
+					RelativePath=".\Classes\UltraDock\dcxDockCommands.cpp">
+				</File>
+				<File
 					RelativePath=".\Classes\UltraDock\dcxUltraDock.cpp">
 				</File>
 			</Filter>
