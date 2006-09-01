@@ -22,26 +22,26 @@ void DcxComboEx::ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHw
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    DCX_COMBOEXCLASS, 
+    ExStyles,
+    DCX_COMBOEXCLASS,
     NULL,
-    WS_CHILD | WS_VISIBLE | CBS_AUTOHSCROLL | Styles, 
+    WS_CHILD | WS_VISIBLE | CBS_AUTOHSCROLL | Styles,
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
-    GetModuleHandle(NULL), 
+    GetModuleHandle(NULL),
     NULL);
 
-  if ( bNoTheme )
-    SendMessage( this->m_Hwnd , CBEM_SETWINDOWTHEME, 0, (LPARAM)L" " );
   //if ( bNoTheme )
-  //  SetWindowTheme( this->m_Hwnd , L" ", L" " );
+  //  SendMessage( this->m_Hwnd , CBEM_SETWINDOWTHEME, 0, (LPARAM)L" " );
+  if ( bNoTheme )
+    SetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_EditHwnd = (HWND) this->getEditControl( );
 
   if ( IsWindow( this->m_EditHwnd ) ) {
-		//if ( bNoTheme )
-		//	SetWindowTheme( this->m_EditHwnd , L" ", L" " );
+		if ( bNoTheme )
+			SetWindowTheme( this->m_EditHwnd , L" ", L" " );
 
     LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
 
@@ -54,9 +54,9 @@ void DcxComboEx::ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHw
     SetWindowLong( this->m_EditHwnd, GWL_USERDATA, (LONG) lpce );
   }
 
-	//HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);
-	//if (IsWindow(combo) && bNoTheme)
-	//	SetWindowTheme( combo , L" ", L" " );
+	HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);
+	if (IsWindow(combo) && bNoTheme)
+		SetWindowTheme( combo , L" ", L" " );
 
 	//if (p_Dialog->getToolTip() != NULL) {
 	//	if (styles.istok("tooltips"," ")) {
@@ -598,7 +598,7 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
               bParsed = TRUE;
               return TRUE;
             }
-            break;          
+            break;
         } // switch
         bParsed = TRUE;
       }
@@ -759,6 +759,14 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wPar
 		//		}
 		//	}
 		//	break;
+		case LB_GETITEMRECT:
+			{
+				// This fixes the lockup on clicking the comboex editbox. (why?)
+				// this is not a real fix, but a workaround.
+				// NB: when we dont replace the editbox wndproc this crash doesnt happen.
+				return LB_ERR;
+			}
+			break;
 
     case WM_NCDESTROY:
       {

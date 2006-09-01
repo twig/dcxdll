@@ -711,7 +711,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
           if ( iFlags & TVIS_COLOR )
             lpdcxtvitem->clrText = clrText;
           else
-            lpdcxtvitem->clrText = -1;
+            lpdcxtvitem->clrText = (COLORREF)-1;
 
           this->redrawWindow( );
         }
@@ -994,7 +994,7 @@ HTREEITEM DcxTreeView::insertItem(TString * path, TString * data, TString * Tool
 	if (iFlags & TVIS_COLOR)
 		lpmytvi->clrText = clrText;
 	else
-		lpmytvi->clrText = -1;
+		lpmytvi->clrText = (COLORREF)-1;
 
 	// path
 	this->parsePath(path, &hParent, &hAfter);
@@ -1288,77 +1288,56 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
  *
  * blah
  */
-
 BOOL DcxTreeView::parsePath( TString * path, HTREEITEM * hParent, HTREEITEM * hInsertAfter, int depth ) {
 
   int n = path->numtok( " " ), i = 1;
   int k = atoi( path->gettok( depth, " " ).to_chr( ) );
-  HTREEITEM hPreviousItem = NULL, hCurrentItem;
+  HTREEITEM hPreviousItem = TVI_FIRST, hCurrentItem;
 
   //char data[50];
 
   hCurrentItem = TreeView_GetChild( this->m_Hwnd, *hParent );
 
-  if ( hCurrentItem == NULL ) {
-
-    //mIRCSignal( "NULL" );
-    return FALSE;
-  }
-
-  do {
-
-    //wsprintf( data, "Depth: %d - I: %d - k: %d - N: %d", depth, i, k, n );
-    //mIRCSignal( data );
-
-    if ( i == k ) {
-
-      if ( depth == n ) {
-
-        //mIRCSignal( "final depth" );
-
-        if ( i == 1 ) {
-          //mIRCSignal( "TVI_FIRST" );
-          *hInsertAfter = TVI_FIRST;
-        }
-        else {
-          //mIRCSignal( "TVI_PREVITEM" );
-          *hInsertAfter = hPreviousItem;
-        }
-
-        return TRUE;
-      }
-      else {
-
-        //mIRCSignal( "next depth" );
-
-        *hParent = hCurrentItem;
-        *hInsertAfter = TVI_FIRST;
-        return this->parsePath( path, hParent, hInsertAfter, depth + 1 );
-      }
-    }
-    i++;
-    hPreviousItem = hCurrentItem;
-
-  } while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
+	if ( hCurrentItem == NULL )
+		return FALSE;
 
   if ( k == -1 ) {
 
     if ( depth == n ) {
-
-      //mIRCSignal( "final depth -1" );
 
       *hInsertAfter = TVI_LAST;
       return TRUE;
     }
     else {
 
-      //mIRCSignal( "next depth -1" );
-
-      *hParent = hPreviousItem;
+			*hParent = hPreviousItem;
       *hInsertAfter = TVI_FIRST;
-      return this->parsePath( path, hParent, hInsertAfter, depth + 1 );
+      return this->parsePath( path, hParent, hInsertAfter, depth +1);
     }
   }
+	else {
+		do {
+			if ( i == k ) {
+
+				if ( depth == n ) {
+
+					*hInsertAfter = hPreviousItem;
+					return TRUE;
+				}
+				else {
+
+					*hParent = hCurrentItem;
+					*hInsertAfter = TVI_FIRST;
+		      return this->parsePath( path, hParent, hInsertAfter, depth +1);
+				}
+			}
+			i++;
+			hPreviousItem = hCurrentItem;
+
+		} while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
+	}
+	if ((depth == n) && (i == k))
+		*hInsertAfter = hPreviousItem;
   return FALSE;
 }
 
