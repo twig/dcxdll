@@ -55,6 +55,11 @@ DcxTreeView::DcxTreeView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
 
   this->m_iIconSize = 16;
 
+	this->m_ToolTipHWND = (HWND)TreeView_GetToolTips(this->m_Hwnd);
+	if (styles.istok("balloon"," ") && this->m_ToolTipHWND != NULL) {
+		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+	}
+
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -100,6 +105,11 @@ DcxTreeView::DcxTreeView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
     this->addStyle( TVS_CHECKBOXES );
 
   this->m_iIconSize = 16;
+
+	this->m_ToolTipHWND = (HWND)TreeView_GetToolTips(this->m_Hwnd);
+	if (styles.istok("balloon"," ") && this->m_ToolTipHWND != NULL) {
+		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+	}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
@@ -461,6 +471,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
 		if (this->parsePath(&input.gettok(4, -1, " "), &hParent, &hAfter)) {
 			if (this->correctTargetItem(&hParent, &hAfter))
+				TreeView_EnsureVisible(this->m_Hwnd, hAfter); // make sure selected item is visible.
 				TreeView_EditLabel(this->m_Hwnd, hAfter);
 		}
 	}
@@ -472,8 +483,10 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
     if ( this->parsePath( &input.gettok( 4, -1, " " ), &hParent, &hAfter ) ) {
 
-      if ( this->correctTargetItem( &hParent, &hAfter ) )
+			if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+				TreeView_EnsureVisible(this->m_Hwnd, hAfter); // make sure selected item is visible.
         TreeView_SelectItem( this->m_Hwnd, hAfter );
+			}
     }
   }
   // xdid -d [NAME] [ID] [SWITCH] N N N
