@@ -351,7 +351,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
     TString tooltip = "";
     if ( input.numtok( "\t" ) > 2 ) {
-      tooltip = input.gettok( 3, "\t" );
+      tooltip = input.gettok( 3, -1, "\t" );
       tooltip.trim( );
     }
 

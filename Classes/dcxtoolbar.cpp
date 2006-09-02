@@ -368,7 +368,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
     lpdcxtbb->tsTipText = "";
 
     if ( input.numtok( "\t" ) > 1 ) {
-      lpdcxtbb->tsTipText = input.gettok( 2, "\t" );
+      lpdcxtbb->tsTipText = input.gettok( 2, -1, "\t" );
       lpdcxtbb->tsTipText.trim( );
     }
     

@@ -456,7 +456,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			TString tooltip;
 
 			if (n > 2) {
-				tooltip = input.gettok(3, "\t");
+				tooltip = input.gettok(3, -1, "\t");
 				tooltip.trim();
 			}
 

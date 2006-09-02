@@ -120,6 +120,7 @@ function wikiData(&$value, $userdata = "") {
 	// new code
 	$str = $value;
 
+	// TODO: links for tags
 	$simple_search = array(
 		'/\[v\](.*?)\[\/v\]/is', // value
 		'/\[e\](.*?)\[\/e\]/is', // event
@@ -128,6 +129,8 @@ function wikiData(&$value, $userdata = "") {
 		'/\[p\](.*?)\[\/p\]/is', // param
 		'/\[i\](.*?)\[\/i\]/is', // property
 		'/\[o\](.*?)\[\/o\]/is', // operating system
+		'/\[n\](.*?)\[\/n\]/is', // note
+		'/\[f\](.*?)\[\/f\]/is', // flag
 	);
 
 	$simple_replace = array(
@@ -138,6 +141,8 @@ function wikiData(&$value, $userdata = "") {
 		'<a class="param">$1</a>',
 		'<a class="property">$1</a>',
 		'<a class="os">($1)</a>',
+		'<a class="note">Note:</a> $1',
+		'<a class="value">$1</a>', // flag
 	);
 
 	// Do simple BBCode's
