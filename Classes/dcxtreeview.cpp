@@ -1314,6 +1314,26 @@ BOOL DcxTreeView::parsePath( TString * path, HTREEITEM * hParent, HTREEITEM * hI
 	if ( hCurrentItem == NULL )
 		return FALSE;
 
+	do {
+		if ( i == k ) {
+
+			if ( depth == n ) {
+
+				*hInsertAfter = hPreviousItem;
+				return TRUE;
+			}
+			else {
+
+				*hParent = hCurrentItem;
+				*hInsertAfter = TVI_FIRST;
+	      return this->parsePath( path, hParent, hInsertAfter, depth +1);
+			}
+		}
+		i++;
+		hPreviousItem = hCurrentItem;
+
+	} while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
+
   if ( k == -1 ) {
 
     if ( depth == n ) {
@@ -1328,28 +1348,7 @@ BOOL DcxTreeView::parsePath( TString * path, HTREEITEM * hParent, HTREEITEM * hI
       return this->parsePath( path, hParent, hInsertAfter, depth +1);
     }
   }
-	else {
-		do {
-			if ( i == k ) {
-
-				if ( depth == n ) {
-
-					*hInsertAfter = hPreviousItem;
-					return TRUE;
-				}
-				else {
-
-					*hParent = hCurrentItem;
-					*hInsertAfter = TVI_FIRST;
-		      return this->parsePath( path, hParent, hInsertAfter, depth +1);
-				}
-			}
-			i++;
-			hPreviousItem = hCurrentItem;
-
-		} while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
-	}
-	if ((depth == n) && (i == k))
+	else if ((depth == n) && (i == k))
 		*hInsertAfter = hPreviousItem;
   return FALSE;
 }
