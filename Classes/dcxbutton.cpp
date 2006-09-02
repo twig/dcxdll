@@ -66,6 +66,11 @@ DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles
 		}
 	}
 
+	this->m_aColors[0] = GetSysColor(COLOR_BTNTEXT); // normal
+	this->m_aColors[1] = GetSysColor(COLOR_BTNTEXT); // hover
+	this->m_aColors[2] = GetSysColor(COLOR_BTNTEXT); // pushed
+	this->m_aColors[3] = GetSysColor(COLOR_GRAYTEXT); // disabled
+
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -122,6 +127,11 @@ DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
+
+	this->m_aColors[0] = GetSysColor(COLOR_BTNTEXT); // normal
+	this->m_aColors[1] = GetSysColor(COLOR_BTNTEXT); // hover
+	this->m_aColors[2] = GetSysColor(COLOR_BTNTEXT); // pushed
+	this->m_aColors[3] = GetSysColor(COLOR_GRAYTEXT); // disabled
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
