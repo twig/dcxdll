@@ -69,6 +69,7 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
 	this->m_TitleButton = NULL;
+	//this->m_Region = NULL;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
@@ -120,6 +121,9 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
 			SetWindowTheme( this->m_TitleButton , L" ", L" " );
 		if (!(Styles & WS_DISABLED))
 			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
+		//SIZE sz;
+		//Button_GetIdealSize(this->m_TitleButton, &sz);
+		//SetWindowPos(this->m_TitleButton,NULL,0,0,sz.cx,sz.cy,SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE|SWP_NOOWNERZORDER);
 	}
 }
 
@@ -140,6 +144,7 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
 	this->m_TitleButton = NULL;
+	//this->m_Region = NULL;
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
@@ -191,6 +196,9 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
 			SetWindowTheme( this->m_TitleButton , L" ", L" " );
 		if (!(Styles & WS_DISABLED))
 			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
+		//SIZE sz;
+		//Button_GetIdealSize(this->m_TitleButton, &sz);
+		//SetWindowPos(this->m_TitleButton,NULL,0,0,sz.cx,sz.cy,SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE|SWP_NOOWNERZORDER);
 	}
 }
 
@@ -204,7 +212,8 @@ DcxBox::~DcxBox( ) {
 
   if ( this->m_pLayoutManager != NULL )
     delete this->m_pLayoutManager;
-
+	//if (this->m_Region)
+	//	DeleteObject(this->m_Region);
   this->unregistreDefaultWindowProc( );
 }
 
@@ -278,7 +287,7 @@ void DcxBox::parseInfoRequest( TString & input, char * szReturnValue ) {
     if ( n > 0 ) {
 
       HDC hdc = GetDC( this->m_Hwnd );
-      HFONT oldFont;
+      HFONT oldFont = NULL;
 
       if (this->m_hFont != NULL)
         oldFont = (HFONT) SelectObject(hdc, this->m_hFont);
@@ -287,8 +296,8 @@ void DcxBox::parseInfoRequest( TString & input, char * szReturnValue ) {
       GetWindowText( this->m_Hwnd, text, n+1 );
       DrawText( hdc, text, n, &rcText, DT_CALCRECT );
 
-		if (this->m_hFont != NULL)
-			SelectObject(hdc, oldFont);
+			if (this->m_hFont != NULL)
+				SelectObject(hdc, oldFont);
 
       ReleaseDC( this->m_Hwnd, hdc );
 
@@ -478,10 +487,6 @@ void DcxBox::parseCommandRequest( TString & input ) {
       if ( p_Control != NULL ) {
 
         this->m_pParentDialog->addControl( p_Control );
-				//if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
-				//	if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
-				//}
-
         this->redrawWindow( );
       }
     }
@@ -507,11 +512,6 @@ void DcxBox::parseCommandRequest( TString & input ) {
 			else if ( p_Control->getRefCount( ) == 0 ) {
 				this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
         DestroyWindow( cHwnd );
-				//if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
-				//	if (this->isExStyle(WS_EX_CONTROLPARENT)) {
-				//		this->removeExStyle(WS_EX_CONTROLPARENT);
-				//	}
-				//}
 			}
       else {
 
@@ -962,6 +962,12 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				GetClientRect(this->m_Hwnd, &rc);
 				CopyRect(&rc2, &rc);
 
+				//if (this->m_iBoxStyles & BOXS_ROUNDED) {
+				//	this->m_Region = CreateRoundRectRgn(0,0,rc.right,rc.bottom,10,10);
+				//	if (this->m_Region) {
+				//		SelectClipRgn(hdc,this->m_Region);
+				//	}
+				//}
 				if (!this->isExStyle(WS_EX_TRANSPARENT)) {
 					// set up brush colors
 					if (this->m_hBackBrush != NULL)
@@ -992,6 +998,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 						HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
 						RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
 						SelectObject(hdc,OldhBrush);
+						//FrameRgn(hdc,this->m_Region,GetSysColorBrush(COLOR_BTNSHADOW),1,1);
 					}
 					else {
 						//if (!this->isExStyle(WS_EX_TRANSPARENT)) 
@@ -1059,6 +1066,18 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					CopyRect(&rcText2, &rcText);
 					InflateRect(&rcText2, 3, 0);
 
+					RECT bSZ;
+					if (IsWindow(this->m_TitleButton))
+					{
+						GetWindowRect(this->m_TitleButton,&bSZ);
+						SetWindowPos(this->m_TitleButton,NULL,rcText2.left,rcText2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
+						bSZ.bottom = (bSZ.right - bSZ.left);
+						rcText.left += bSZ.bottom;
+						rcText.right += bSZ.bottom;
+						rcText2.left += bSZ.bottom;
+						rcText2.right += bSZ.bottom;
+					}
+
 					//if (this->isExStyle(WS_EX_TRANSPARENT))
 					//	ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
 
@@ -1068,6 +1087,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 						HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
 						RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
 						SelectObject(hdc,OldhBrush);
+						//FrameRgn(hdc,this->m_Region,GetSysColorBrush(COLOR_BTNSHADOW),1,1);
 					}
 					else {
 						//if (!this->isExStyle(WS_EX_TRANSPARENT)) 
@@ -1084,12 +1104,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
 
 					delete [] text;
-					if (IsWindow(this->m_TitleButton))
-					{
-						RECT bSZ;
-						GetWindowRect(this->m_TitleButton,&bSZ);
-						SetWindowPos(this->m_TitleButton,NULL,rcText2.left - (bSZ.right - bSZ.left),rcText2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
-					}
+					//if (IsWindow(this->m_TitleButton))
+					//	SetWindowPos(this->m_TitleButton,NULL,bSZ.left,rcText2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
 				}
 
 				EndPaint(this->m_Hwnd, &ps);
