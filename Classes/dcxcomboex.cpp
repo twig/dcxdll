@@ -311,19 +311,25 @@ void DcxComboEx::parseCommandRequest( TString & input ) {
     //int overlay = atoi( input.gettok( 8, " " ).to_chr( ) ) - 1;
     TString itemtext = input.gettok( 9, -1, " " );
 
-    COMBOBOXEXITEM cbi;
-    ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
+		if (nPos == -2) {
+			if (IsWindow(this->m_EditHwnd))
+				SetWindowText(this->m_EditHwnd, itemtext.to_chr());
+				//SendMessage(this->m_EditHwnd, WM_SETTEXT,0, (LPARAM)itemtext.to_chr());
+		}
+		else {
+			COMBOBOXEXITEM cbi;
+			ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
 
-    cbi.mask = CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE;
-    cbi.iIndent = indent;
-    cbi.iImage = icon;
-    cbi.iSelectedImage = state;
-    //cbi.iOverlay = overlay;
-    cbi.pszText = itemtext.to_chr( );
-    cbi.iItem = nPos;
+			cbi.mask = CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE;
+			cbi.iIndent = indent;
+			cbi.iImage = icon;
+			cbi.iSelectedImage = state;
+			//cbi.iOverlay = overlay;
+			cbi.pszText = itemtext.to_chr( );
+			cbi.iItem = nPos;
 
-    this->insertItem( &cbi );
-
+			this->insertItem( &cbi );
+		}
   }
   // xdid -c [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[2] && numtok > 3 ) {
