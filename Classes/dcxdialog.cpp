@@ -82,6 +82,8 @@ DcxDialog::~DcxDialog() {
 
 	if (this->m_bitmapBg)
 		DeleteObject(m_bitmapBg);
+	//if (this->m_Region)
+	//	DeleteObject(this->m_Region); // system deletes this for us.
 
 	RemoveProp(this->m_Hwnd, "dcx_this");
 }
@@ -351,7 +353,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			filename.trim();
 
 			if (filename != "none")
-				this->m_bitmapBg = LoadBitmap(this->m_bitmapBg, filename);
+				this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg, filename);
 		}
 
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
@@ -657,6 +659,21 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		- add controls to groups (by id)
 		- remove controls from gorups (by id)
 		*/
+	}
+	// xdialog -R [NAME] [SWITCH] [COLOR] [PICTURE FILENAME]
+	else if (flags.switch_flags[25+18] && numtok > 3) {
+		this->m_colTransparentBg = atol(input.gettok(3," ").to_chr());
+		//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
+		this->m_uStyleBg = DBS_BKGBITMAP;
+		this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg,input.gettok(4,-1," "));
+		if (this->m_bitmapBg != NULL) {
+			this->m_Region = BitmapRegion(this->m_bitmapBg,this->m_colTransparentBg,TRUE);
+			if (this->m_Region != NULL)
+				SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
+		}
+		//this->m_Region = CreateRoundRectRgn(0,0,100,200,10,10);
+		//if (this->m_Region)
+		//	SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
 	}
 	// invalid command
 	else {
@@ -1422,7 +1439,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		{
 			if (mHwnd != p_this->getHwnd())
 				break;
-
+			//if (p_this->m_Region != NULL)
+			//	break;
 			HDC hdc = (HDC) wParam;
 			RECT rwnd;
 

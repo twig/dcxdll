@@ -239,7 +239,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 		filename.trim();
 		PreloadData();
 
-		this->m_hBitmap = LoadBitmap(this->m_hBitmap, filename);
+		this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
 
 		this->m_bIsIcon = FALSE;
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);

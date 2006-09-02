@@ -217,8 +217,10 @@ BOOL isXP();
 
 HWND FindOwner(TString data, HWND defaultWnd);
 BOOL CopyToClipboard(HWND owner, TString str);
-HBITMAP LoadBitmap(HBITMAP dest, TString &filename);
+HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
 HICON CreateGrayscaleIcon(HICON hIcon);
+HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
+
 //LRESULT ctrl_MeasureItem(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 void DrawRoundRect(HDC hdc, RECT *rc, int w, int h);
 void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl);

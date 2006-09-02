@@ -235,16 +235,16 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
 
 		// background
 		if (flags & TBCS_BACK)
-			this->m_hbmp[TBBMP_BACK] = LoadBitmap(this->m_hbmp[TBBMP_BACK], filename);
+			this->m_hbmp[TBBMP_BACK] = dcxLoadBitmap(this->m_hbmp[TBBMP_BACK], filename);
 		// thumb
 		if (flags & TBCS_THUMB)
-			this->m_hbmp[TBBMP_THUMB] = LoadBitmap(this->m_hbmp[TBBMP_THUMB], filename);
+			this->m_hbmp[TBBMP_THUMB] = dcxLoadBitmap(this->m_hbmp[TBBMP_THUMB], filename);
 		// thumb hover
 		if (flags & TBCS_THUMBDRAG)
-			this->m_hbmp[TBBMP_THUMBDRAG] = LoadBitmap(this->m_hbmp[TBBMP_THUMBDRAG], filename);
+			this->m_hbmp[TBBMP_THUMBDRAG] = dcxLoadBitmap(this->m_hbmp[TBBMP_THUMBDRAG], filename);
 		// channel
 		if (flags & TBCS_CHANNEL)
-			this->m_hbmp[TBBMP_CHANNEL] = LoadBitmap(this->m_hbmp[TBBMP_CHANNEL], filename);
+			this->m_hbmp[TBBMP_CHANNEL] = dcxLoadBitmap(this->m_hbmp[TBBMP_CHANNEL], filename);
 
 		// these dont seem to work so dont bother calling it
 		//this->redrawWindow();

@@ -245,19 +245,19 @@ void DcxButton::parseCommandRequest( TString & input ) {
 		filename.trim();
 
 		if (iColorStyles & BTNCS_NORMAL) {
-			this->m_aBitmaps[0] = LoadBitmap(this->m_aBitmaps[0], filename);
+			this->m_aBitmaps[0] = dcxLoadBitmap(this->m_aBitmaps[0], filename);
 			this->m_aTransp[0] = clrColor;
 		}
 		if (iColorStyles & BTNCS_HOVER) {
-			this->m_aBitmaps[1] = LoadBitmap(this->m_aBitmaps[1], filename);
+			this->m_aBitmaps[1] = dcxLoadBitmap(this->m_aBitmaps[1], filename);
 			this->m_aTransp[1] = clrColor;
 		}
 		if (iColorStyles & BTNCS_SELECTED) {
-			this->m_aBitmaps[2] = LoadBitmap(this->m_aBitmaps[2], filename);
+			this->m_aBitmaps[2] = dcxLoadBitmap(this->m_aBitmaps[2], filename);
 			this->m_aTransp[2] = clrColor;
 		}
 		if (iColorStyles & BTNCS_DISABLED) {
-			this->m_aBitmaps[3] = LoadBitmap(this->m_aBitmaps[3], filename);
+			this->m_aBitmaps[3] = dcxLoadBitmap(this->m_aBitmaps[3], filename);
 			this->m_aTransp[3] = clrColor;
 		}
 
