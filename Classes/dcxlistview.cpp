@@ -643,37 +643,42 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
  * blah
  */
 
-void DcxListView::parseCommandRequest( TString & input ) {
+void DcxListView::parseCommandRequest(TString &input) {
+	XSwitchFlags flags;
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
+	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
+	this->parseSwitchFlags(&input.gettok(3, " "), &flags);
 
-  int numtok = input.numtok( " " );
+	int numtok = input.numtok(" ");
+
+	// xdid -r [NAME] [ID] [SWITCH]
+	if (flags.switch_flags[17]) {
+		ListView_DeleteAllItems(this->m_Hwnd);
+	}
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] Item Text ...
 	if (flags.switch_flags[0] && numtok > 12) {
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
 
-		TString data = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
-		data.trim( );
+		TString data = input.gettok(1, "\t").gettok(4, -1, " ");
+		data.trim();
 
 		// LVS_REPORT view
 		if (this->isListViewStyle(LVS_REPORT)) {
-			int nPos = atoi( data.gettok( 1, " " ).to_chr( ) ) - 1;
+			int nPos = atoi(data.gettok(1, " ").to_chr()) -1;
 
 			if (nPos == -1)
-				nPos += ListView_GetItemCount( this->m_Hwnd ) + 1;
+				nPos += ListView_GetItemCount(this->m_Hwnd) +1;
 
-			int indent = atoi( data.gettok( 2, " " ).to_chr( ) );
-			UINT stateFlags = this->parseItemFlags( data.gettok( 3, " " ) );
-			int icon = atoi( data.gettok( 4, " " ).to_chr( ) ) - 1;
-			int state = atoi( data.gettok( 5, " " ).to_chr( ) );
+			int indent = atoi(data.gettok(2, " ").to_chr());
+			UINT stateFlags = this->parseItemFlags(data.gettok(3, " "));
+			int icon = atoi(data.gettok(4, " ").to_chr()) -1;
+			int state = atoi(data.gettok(5, " ").to_chr());
 			//int overlay = atoi( data.gettok( 6, " " ).to_chr( ) );
-			int group = atoi( data.gettok( 7, " " ).to_chr( ) );
-			COLORREF clrText = atol( data.gettok( 8, " " ).to_chr( ) );
-			COLORREF clrBack = atol( data.gettok( 9, " " ).to_chr( ) );
+			int group = atoi(data.gettok(7, " ").to_chr());
+			COLORREF clrText = atol(data.gettok(8, " ").to_chr());
+			COLORREF clrBack = atol(data.gettok(9, " ").to_chr());
 
 			TString itemtext = "";
 
@@ -738,6 +743,7 @@ void DcxListView::parseCommandRequest( TString & input ) {
 
 			// subitems
 			int tabs;
+
 			if ((tabs = input.numtok("\t")) > 1) {
 				int i = 2;
 
@@ -775,30 +781,29 @@ void DcxListView::parseCommandRequest( TString & input ) {
 				}
 			}
 
-			if ( state > -1 )
-				ListView_SetItemState( this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK( state ), LVIS_STATEIMAGEMASK );
+			if (state > -1)
+				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
 			// if ( overlay > -1 )
 			//ListView_SetItemState(hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(overlay), LVIS_OVERLAYMASK);
 		}
 		// LVS_ICON | LVS_SMALLICON | LVS_LIST views
 		else {
+			int nPos = atoi(data.gettok(1, " ").to_chr()) -1;
 
-			int nPos = atoi( data.gettok( 1, " " ).to_chr( ) ) - 1;
-
-			if ( nPos == -1 )
-				nPos += ListView_GetItemCount( this->m_Hwnd ) + 1;
+			if (nPos == -1)
+				nPos += ListView_GetItemCount(this->m_Hwnd) +1;
 
 			//int indent = atoi( data.gettok( 2, " " ).to_chr( ) );
-			UINT stateFlags = this->parseItemFlags( data.gettok( 3, " " ) );
-			int icon = atoi( data.gettok( 4, " " ).to_chr( ) ) - 1;
-			int state = atoi( data.gettok( 5, " " ).to_chr( ) );
+			UINT stateFlags = this->parseItemFlags(data.gettok(3, " "));
+			int icon = atoi(data.gettok(4, " ").to_chr()) -1;
+			int state = atoi(data.gettok(5, " ").to_chr());
 			//int overlay = atoi( data.gettok( 6, " " ).to_chr( ) );
 			//int group = atoi( data.gettok( 7, " " ).to_chr( ) );
 
 			TString itemtext;
 
-			if ( data.numtok( " " ) > 9 )
-				itemtext = data.gettok( 10, -1, " " );
+			if (data.numtok(" ") > 9)
+				itemtext = data.gettok(10, -1, " ");
 
 			lvi.iItem = nPos;
 			lvi.iImage = -1;
@@ -806,17 +811,16 @@ void DcxListView::parseCommandRequest( TString & input ) {
 			lvi.iSubItem = 0;
 			lvi.mask = LVIF_TEXT | LVIF_STATE;
 
-			if ( icon > -1 ) {
+			if (icon > -1) {
 				lvi.iImage = icon;
 				lvi.mask |= LVIF_IMAGE;
-		 }
+			}
 
-			lvi.pszText = itemtext.to_chr( );
+			lvi.pszText = itemtext.to_chr();
+			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
 
-			lvi.iItem = ListView_InsertItem( this->m_Hwnd, &lvi );
-
-			if ( state > -1 )
-				ListView_SetItemState( this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK( state ), LVIS_STATEIMAGEMASK );
+			if (state > -1)
+				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
 			//ListView_SetItemState(hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(overlay), LVIS_OVERLAYMASK);
 		}
 	}
@@ -827,108 +831,107 @@ void DcxListView::parseCommandRequest( TString & input ) {
 		if (nItem > -1)
 			ListView_EditLabel(this->m_Hwnd, nItem);
 	}
-  // xdid -c [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[2] && numtok > 3 ) {
+	// xdid -c [NAME] [ID] [SWITCH] [N]
+	else if (flags.switch_flags[2] && numtok > 3) {
+		if (this->isStyle(LVS_SINGLESEL)) {
+			int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
 
-    if ( this->isStyle( LVS_SINGLESEL ) ) {
+			if (nItem > -1)
+				ListView_SetItemState(this->m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
+		}
+		else {
+			TString Ns = input.gettok(4, " ");
+			int i = 1;
+			int n = Ns.numtok(",");
+			int nItems = ListView_GetItemCount(this->m_Hwnd);
 
-      int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-      if ( nItem > -1 )
-        ListView_SetItemState( this->m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED );
-    }
-    else {
+			while (i <= n) {
+				int nItem = atoi(Ns.gettok(i, ",").to_chr()) -1;
 
-      TString Ns = input.gettok( 4, " " );
-      
-      int i = 1, n = Ns.numtok( "," ), nItems = ListView_GetItemCount( this->m_Hwnd );
+				if (nItem > -1 && nItem < nItems)
+					ListView_SetItemState(this->m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
 
-      while ( i <= n ) {
-
-        int nItem = atoi( Ns.gettok( i, "," ).to_chr( ) ) - 1;
-
-        if ( nItem > -1 && nItem < nItems )
-          ListView_SetItemState( this->m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED );
-
-        i++;
-      }
-    }
-  }
+				i++;
+			}
+		}
+	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[3] && (numtok > 3)) {
 		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
 
 		if (nItem > -1)
 			ListView_DeleteItem(this->m_Hwnd, nItem);
-/*
+		/*
 		// delete pbars if in row
 		for (int i = (int) m_lvpbars.size() -1; i >= 0 ; i--) {
-			DCXLVPBAR* pbarCell = &(m_lvpbars[i]);
+		DCXLVPBAR* pbarCell = &(m_lvpbars[i]);
 
-			if (pbarCell->row == nItem) {
-				DestroyWindow(pbarCell->pbar->getHwnd());
-				//delete pbarCell->pbar;
+		if (pbarCell->row == nItem) {
+		DestroyWindow(pbarCell->pbar->getHwnd());
+		//delete pbarCell->pbar;
 
-				m_lvpbars.erase(m_lvpbars.begin() + i, m_lvpbars.begin() + i +1);
-			}
+		m_lvpbars.erase(m_lvpbars.begin() + i, m_lvpbars.begin() + i +1);
+		}
 		}
 
 		// shift the pbars below it to keep alignment correct
 		for (int i = 0; i < (int) m_lvpbars.size(); i++) {
-			DCXLVPBAR* pbarCell = &(m_lvpbars[i]);
+		DCXLVPBAR* pbarCell = &(m_lvpbars[i]);
 
-			if (pbarCell->row > nItem) {
-				pbarCell->row--;
-			}
+		if (pbarCell->row > nItem) {
+		pbarCell->row--;
+		}
 		}
 
 		ResizePbars();
-*/
-  }
-  // xdid -g [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
-  else if ( flags.switch_flags[6] && numtok > 5 ) {
+		*/
+	}
+	// xdid -g [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
+	else if (flags.switch_flags[6] && numtok > 5) {
+		LVBKIMAGE lvbki;
+		ZeroMemory(&lvbki, sizeof(LVBKIMAGE));
+		TString filename;
 
-    LVBKIMAGE lvbki;
-    ZeroMemory( &lvbki, sizeof( LVBKIMAGE ) );
+		lvbki.ulFlags = this->parseImageFlags(input.gettok(4, " "));
+		lvbki.xOffsetPercent = atoi(input.gettok(5, " ").to_chr());
+		lvbki.yOffsetPercent = atoi(input.gettok(6, " ").to_chr());
 
-    lvbki.ulFlags = this->parseImageFlags( input.gettok( 4, " " ) );
-    lvbki.xOffsetPercent = atoi( input.gettok( 5, " " ).to_chr( ) );
-    lvbki.yOffsetPercent = atoi( input.gettok( 6, " " ).to_chr( ) );
-    TString filename;
+		if (numtok > 6) {
+			filename = input.gettok(7, -1, " ");
+			filename.trim();
+			lvbki.pszImage = filename.to_chr();
+			lvbki.ulFlags |= LVBKIF_SOURCE_URL;
+		}
 
-    if ( numtok > 6 ) {
-      filename = input.gettok( 7, -1, " " );
-      filename.trim( );
-      lvbki.pszImage = filename.to_chr( );
-      lvbki.ulFlags |= LVBKIF_SOURCE_URL;
-    }
+		ListView_SetBkImage(this->m_Hwnd, &lvbki);
+	}
+	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
+	else if (flags.switch_flags[8] && numtok > 4) {
+		UINT iColorFlags = this->parseColorFlags(input.gettok(4, " "));
+		COLORREF clrColor = atol(input.gettok(5, " ").to_chr());
 
-    ListView_SetBkImage( this->m_Hwnd, &lvbki );
-  }
-  // xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
-  else if ( flags.switch_flags[8] && numtok > 4 ) {
+		if (iColorFlags & LVCS_TEXT)
+			ListView_SetTextColor(this->m_Hwnd, clrColor);
 
-    UINT iColorFlags = this->parseColorFlags( input.gettok( 4, " " ) );
-    COLORREF clrColor = atol( input.gettok( 5, " " ).to_chr( ) );
+		if (iColorFlags & LVCS_BKG) {
+			if (input.gettok(5, " ") == "none")
+				ListView_SetBkColor(this->m_Hwnd, CLR_NONE);
+			else
+				ListView_SetBkColor(this->m_Hwnd, clrColor);
+		}
 
-    if ( iColorFlags & LVCS_TEXT )
-      ListView_SetTextColor( this->m_Hwnd, clrColor );
-    if ( iColorFlags & LVCS_BKG ) {
-      if ( input.gettok( 5, " " ) == "none" )
-        ListView_SetBkColor( this->m_Hwnd, CLR_NONE );
-      else
-        ListView_SetBkColor( this->m_Hwnd, clrColor );
-    }
-    if ( iColorFlags & LVCS_BKGTEXT ) {
-      if ( input.gettok( 5, " " ) == "none" )
-        ListView_SetTextBkColor( this->m_Hwnd, CLR_NONE );
-      else
-        ListView_SetTextBkColor( this->m_Hwnd, clrColor );
-    }
-    if ( iColorFlags & LVCS_OUTLINE )
-      ListView_SetOutlineColor( this->m_Hwnd, clrColor );
+		if (iColorFlags & LVCS_BKGTEXT) {
+			if (input.gettok(5, " ") == "none")
+				ListView_SetTextBkColor(this->m_Hwnd, CLR_NONE);
+			else
+				ListView_SetTextBkColor(this->m_Hwnd, clrColor);
+		}
 
-    this->redrawWindow( );
-  }
+		if (iColorFlags & LVCS_OUTLINE)
+			ListView_SetOutlineColor(this->m_Hwnd, clrColor);
+
+		this->redrawWindow();
+	}
 	// xdid -j [NAME] [ID] [SWITCH] [ROW] [COL] [FLAGS]
 	else if (flags.switch_flags[9] && numtok > 5) {
 		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
@@ -942,8 +945,8 @@ void DcxListView::parseCommandRequest( TString & input ) {
 		ZeroMemory(&lvi, sizeof(LVITEM));
 
 		lvi.mask = LVIF_PARAM | LVIF_STATE;
-      lvi.iItem = nItem;
-      lvi.iSubItem = nCol;
+		lvi.iItem = nItem;
+		lvi.iSubItem = nCol;
 
 		// couldnt retrieve info
 		if (!ListView_GetItem(this->m_Hwnd, &lvi))
@@ -955,196 +958,176 @@ void DcxListView::parseCommandRequest( TString & input ) {
 		lviDcx->bUline  = (flags & LVIS_UNDERLINE) ? TRUE : FALSE;
 		lviDcx->bBold   = (flags & LVIS_BOLD) ? TRUE : FALSE;
 		lviDcx->bItalic = (flags & LVIS_ITALIC) ? TRUE : FALSE;
-		
+
 		ListView_SetItemState(this->m_Hwnd, nItem, flags, 0xFFFFFF);
 	}
-  // xdid -k [NAME] [ID] [SWITCH] [STATE] [N]
-  else if ( flags.switch_flags[10] && numtok > 4 ) {
+	// xdid -k [NAME] [ID] [SWITCH] [STATE] [N]
+	else if (flags.switch_flags[10] && numtok > 4) {
+		int state = atoi(input.gettok(4, " ").to_chr());
+		int nItem = atoi(input.gettok(5, " ").to_chr()) -1;
 
-    int state = atoi( input.gettok( 4, " " ).to_chr( ) );
-    int nItem = atoi( input.gettok( 5, " " ).to_chr( ) ) - 1;
+		ListView_SetItemState(this->m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
+	}
+	// xdid -l [NAME] [ID] [SWITCH] [N] [M] [ICON]
+	else if (flags.switch_flags[11] && numtok > 5) {
+		int nItem    = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nSubItem = atoi(input.gettok(5, " ").to_chr());
+		int nIcon    = atoi(input.gettok(6, " ").to_chr()) -1;
 
-    ListView_SetItemState( this->m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK( state ), LVIS_STATEIMAGEMASK );
-  }
-  // xdid -l [NAME] [ID] [SWITCH] [N] [M] [ICON]
-  else if ( flags.switch_flags[11] && numtok > 5 ) {
+		if (nItem > -1 && nSubItem > -1 && nSubItem <= this->getColumnCount() && nIcon > -2) {
+			LVITEM lvi;
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-    int nSubItem = atoi( input.gettok( 5, " " ).to_chr( ) );
-    int nIcon = atoi( input.gettok( 6, " " ).to_chr( ) ) - 1;
+			lvi.mask = LVIF_IMAGE;
+			lvi.iItem = nItem;
+			lvi.iSubItem = nSubItem;
+			lvi.iImage = nIcon;
+			ListView_SetItem(this->m_Hwnd, &lvi);
+		}
+	}
+	// xdid -m [NAME] [ID] [SWITCH] [0|1]
+	else if (flags.switch_flags[12] && numtok > 3) {
+		if (input.gettok(4, " ") == "1")
+			ListView_EnableGroupView(this->m_Hwnd, TRUE);
+		else
+			ListView_EnableGroupView(this->m_Hwnd, FALSE);
+	}
+	// xdid -n [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH]
+	else if (flags.switch_flags[13] && numtok > 5) {
+		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+		UINT iFlags = this->parseHeaderFlags2(input.gettok(5, " "));
+		int width = atoi(input.gettok(6, " ").to_chr());
 
-    if ( nItem > -1 && nSubItem > -1 && nSubItem <= this->getColumnCount( ) && nIcon > -2 ) {
+		if (nItem > -1 && nItem < this->getColumnCount()) {
+			if (iFlags & LVSCW_AUTOSIZE)
+				ListView_SetColumnWidth(this->m_Hwnd, nItem, LVSCW_AUTOSIZE);
+			else if (iFlags & LVSCW_AUTOSIZE_USEHEADER)
+				ListView_SetColumnWidth(this->m_Hwnd, nItem, LVSCW_AUTOSIZE_USEHEADER);
+			else
+				ListView_SetColumnWidth(this->m_Hwnd, nItem, width);
+		}
+	}
+	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text]
+	else if (flags.switch_flags[16] && numtok > 6) {
+		int index = atoi(input.gettok(4, " ").to_chr()) -1;
+		UINT iFlags = this->parseGroupFlags(input.gettok(5, " "));
+		int gid = atoi(input.gettok(6, " ").to_chr());
 
-      LVITEM lvi;
+		if (isXP() && index > -1 && gid > 0) {
+			TString text = input.gettok(7, -1, " ");
 
-      lvi.mask = LVIF_IMAGE;
-      lvi.iItem = nItem;
-      lvi.iSubItem = nSubItem;
-      lvi.iImage = nIcon;
-      ListView_SetItem( this->m_Hwnd, &lvi );
-    }
-  }
-  // xdid -m [NAME] [ID] [SWITCH] [0|1]
-  else if ( flags.switch_flags[12] && numtok > 3 ) {
+			LVGROUP lvg;
+			ZeroMemory(&lvg, sizeof(LVGROUP));
+			lvg.cbSize = sizeof(LVGROUP);
+			lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID;
 
-    if ( input.gettok( 4, " " ) == "1" )
-      ListView_EnableGroupView( this->m_Hwnd, TRUE );
-    else
-      ListView_EnableGroupView( this->m_Hwnd, FALSE );
-  }
-  // xdid -n [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH]
-  else if ( flags.switch_flags[13] && numtok > 5 ) {
+			LPWSTR wstr = new WCHAR[text.len() + 1];
+			MultiByteToWideChar(CP_ACP, 0, text.to_chr(), text.len() +1, wstr, text.len() +1);
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-    UINT iFlags = this->parseHeaderFlags2( input.gettok( 5, " " ) );
-    int width = atoi( input.gettok( 6, " " ).to_chr( ) );
+			lvg.iGroupId = gid;
+			lvg.pszHeader = wstr;
+			lvg.uAlign = iFlags;
 
-    if ( nItem > -1 && nItem < this->getColumnCount( ) ) {
-
-      if ( iFlags & LVSCW_AUTOSIZE )
-        ListView_SetColumnWidth( this->m_Hwnd, nItem, LVSCW_AUTOSIZE );
-      else if ( iFlags & LVSCW_AUTOSIZE_USEHEADER )
-        ListView_SetColumnWidth( this->m_Hwnd, nItem, LVSCW_AUTOSIZE_USEHEADER );
-      else
-        ListView_SetColumnWidth( this->m_Hwnd, nItem, width );
-    }
-  }
-  // xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text]
-  else if ( flags.switch_flags[16] && numtok > 6 ) {
-
-    int index = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-    UINT iFlags = this->parseGroupFlags( input.gettok( 5, " " ) );
-    int gid = atoi( input.gettok( 6, " " ).to_chr( ) );
-
-    if ( isXP( ) && index > -1 && gid > 0 ) {
-
-      TString text = input.gettok( 7, -1, " " );
-
-      LVGROUP lvg;
-      ZeroMemory( &lvg, sizeof( LVGROUP ) );
-      lvg.cbSize = sizeof( LVGROUP );
-      lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID;
-
-      LPWSTR wstr = new WCHAR[text.len( ) + 1];
-      MultiByteToWideChar( CP_ACP, 0, text.to_chr( ), text.len( ) + 1, 
-                           wstr, text.len( ) + 1 );
-
-      lvg.iGroupId = gid;
-      lvg.pszHeader = wstr;
-      lvg.uAlign = iFlags;
-
-      ListView_InsertGroup( this->m_Hwnd, index, &lvg );
-    }
-  }
+			ListView_InsertGroup(this->m_Hwnd, index, &lvg);
+		}
+	}
 	// xdid -r [NAME] [ID] [SWITCH]
 	else if (flags.switch_flags[17]) {
-		ListView_DeleteAllItems(this->m_Hwnd);
+		//ListView_DeleteAllItems(this->m_Hwnd);
+	}
+	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] [#ICON] [WIDTH] (Header text) [{TAB} [+FLAGS] [#ICON] [WIDTH] Header text {TAB} ... ]
+	else if (flags.switch_flags[19] && numtok > 5) {
+		int nCol = this->getColumnCount();
 
-/*
-		for (int i = 0; i < (int) m_lvpbars.size(); i++) {
-			DestroyWindow(m_lvpbars[i].pbar->getHwnd());
-			//delete m_lvpbars[i].pbar;
+		if (nCol > 0) {
+			while (--nCol > 0)
+				ListView_DeleteColumn(this->m_Hwnd, nCol);
 		}
 
-		m_lvpbars.clear();
-*/
-  }
-  // xdid -t [NAME] [ID] [SWITCH] [+FLAGS] [#ICON] [WIDTH] (Header text) [{TAB} [+FLAGS] [#ICON] [WIDTH] Header text {TAB} ... ]
-  else if ( flags.switch_flags[19] && numtok > 5 ) {
+		LVCOLUMN lvc;
+		ZeroMemory(&lvc, sizeof(LVCOLUMN));
+		int nColumn = 0;
+		TString data = input.gettok(1, "\t" ).gettok(4, -1, " ");
+		data.trim();
 
-    int nCol;
-    if ( ( nCol = this->getColumnCount( ) ) > 0 ) {
-      while ( --nCol > 0 )
-        ListView_DeleteColumn( this->m_Hwnd, nCol );
-    }
+		int icon  = atoi(data.gettok(2, " ").to_chr()) -1;
+		int width = atoi(data.gettok(3, " ").to_chr());
 
-    LVCOLUMN lvc;
-    ZeroMemory( &lvc, sizeof( LVCOLUMN ) );
-    int nColumn = 0;
-    TString data = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
-    data.trim( );
+		TString itemtext;
+		if (data.numtok(" ") > 3)
+			itemtext = data.gettok(4, -1, " ");
 
-    int icon = atoi( data.gettok( 2, " " ).to_chr( ) ) - 1;
-    int width = atoi( data.gettok( 3, " " ).to_chr( ) );
+		lvc.iImage = -1;
+		lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
+		lvc.cx = width;
+		lvc.fmt = this->parseHeaderFlags(data.gettok(1, " "));
+		lvc.iSubItem = 0;
+		lvc.pszText = itemtext.to_chr();
 
-    TString itemtext;
-    if ( data.numtok( " " ) > 3 )
-      itemtext = data.gettok( 4, -1, " " );
+		UINT iFlags2 = this->parseHeaderFlags2(data.gettok(1, " "));
 
-    lvc.iImage = -1;
-    lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
-    lvc.cx = width;
-    lvc.fmt = this->parseHeaderFlags( data.gettok( 1, " " ) ) ;
-    lvc.iSubItem = 0;
-    lvc.pszText = itemtext.to_chr( );
+		if (icon > -1) {
+			lvc.mask |= LVCF_IMAGE;
+			lvc.iImage = icon;
+		}
 
-    UINT iFlags2 = this->parseHeaderFlags2( data.gettok( 1, " " ) );
+		if (this->getColumnCount() > 0)
+			ListView_SetColumn(this->m_Hwnd, nColumn, &lvc);
+		else
+			ListView_InsertColumn(this->m_Hwnd, nColumn, &lvc);
 
-    if ( icon > -1 ) {
+		if (iFlags2 & LVSCW_AUTOSIZE)
+			ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
+		else if (iFlags2 & LVSCW_AUTOSIZE_USEHEADER)
+			ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
 
-      lvc.mask |= LVCF_IMAGE;
-      lvc.iImage = icon;
-    }
+		int tabs = input.numtok("\t");
 
-    if ( this->getColumnCount( ) > 0 )
-      ListView_SetColumn( this->m_Hwnd, nColumn, &lvc );
-    else
-      ListView_InsertColumn( this->m_Hwnd, nColumn, &lvc );
+		if (tabs > 1 ) {
+			int i = 2;
 
-    if ( iFlags2 & LVSCW_AUTOSIZE )
-      ListView_SetColumnWidth( this->m_Hwnd, nColumn, LVSCW_AUTOSIZE );
-    else if ( iFlags2 & LVSCW_AUTOSIZE_USEHEADER )
-      ListView_SetColumnWidth( this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER );
-    
-    int tabs;
-    if ( ( tabs = input.numtok( "\t" ) ) > 1 ) {
+			while (i <= tabs) {
+				nColumn++;
 
-      int i = 2;
-      while ( i <= tabs ) {
+				data = input.gettok(i, "\t");
+				data.trim();
 
-        nColumn++;
-        data = input.gettok( i, "\t" );
-        data.trim( );
+				icon  = atoi(data.gettok(2, " ").to_chr()) -1;
+				width = atoi(data.gettok(3, " ").to_chr());
+				itemtext = "";
 
-        icon = atoi( data.gettok( 2, " " ).to_chr( ) ) - 1;
-        width = atoi( data.gettok( 3, " " ).to_chr( ) );
+				if (data.numtok(" ") > 3)
+					itemtext = data.gettok(4, -1, " ");
 
-        itemtext = "";
-        if ( data.numtok( " " ) > 3 )
-          itemtext = data.gettok( 4, -1, " " );
+				lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
+				lvc.cx = width;
+				lvc.fmt = this->parseHeaderFlags(data.gettok(1, " "));
+				lvc.iImage = -1;
+				lvc.iSubItem = 0;
+				lvc.pszText = itemtext.to_chr();
 
-        lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
-        lvc.cx = width;
-        lvc.fmt = this->parseHeaderFlags( data.gettok( 1, " " ) );
-        lvc.iImage = -1;
-        lvc.iSubItem = 0;
-        lvc.pszText = itemtext.to_chr( );
+				iFlags2 = this->parseHeaderFlags2(data.gettok(1, " "));
 
-        iFlags2 = this->parseHeaderFlags2( data.gettok( 1, " " ) );
+				if (icon > -1) {
+					lvc.mask |= LVCF_IMAGE;
+					lvc.iImage = icon;
+				}
 
-        if ( icon > -1 ) {
+				ListView_InsertColumn(this->m_Hwnd, nColumn, &lvc);
 
-          lvc.mask |= LVCF_IMAGE;
-          lvc.iImage = icon;
-        }
+				if (iFlags2 & LVSCW_AUTOSIZE)
+					ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
+				else if (iFlags2 & LVSCW_AUTOSIZE_USEHEADER)
+					ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
 
-        ListView_InsertColumn( this->m_Hwnd, nColumn, &lvc );
-
-        if ( iFlags2 & LVSCW_AUTOSIZE )
-          ListView_SetColumnWidth( this->m_Hwnd, nColumn, LVSCW_AUTOSIZE );
-        else if ( iFlags2 & LVSCW_AUTOSIZE_USEHEADER )
-          ListView_SetColumnWidth( this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER );
-
-        i++;
-      }
-    }
-  }
-  // xdid -u [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[20] ) {
-
-    ListView_SetItemState( this->m_Hwnd, -1, 0, LVIS_SELECTED );
-  }
-  // xdid -v [NAME] [ID] [SWITCH] [N] [M] (ItemText)
+				i++;
+			}
+		}
+	}
+	// xdid -u [NAME] [ID] [SWITCH]
+	else if (flags.switch_flags[20]) {
+		ListView_SetItemState(this->m_Hwnd, -1, 0, LVIS_SELECTED);
+	}
+	// xdid -v [NAME] [ID] [SWITCH] [N] [M] (ItemText)
 	else if (flags.switch_flags[21] && numtok > 4) {
 		int nItem = atoi(input.gettok(4, " ").to_chr()) - 1;
 		int nSubItem = atoi(input.gettok(5, " ").to_chr());
@@ -1173,130 +1156,119 @@ void DcxListView::parseCommandRequest( TString & input ) {
 			}
 		}
 	}
-  // xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-  else if ( flags.switch_flags[22] && numtok > 5 ) {
+	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
+	else if (flags.switch_flags[22] && numtok > 5) {
+		UINT iFlags = this->parseIconFlagOptions(input.gettok(4, " "));
+		HIMAGELIST himl;
+		HICON icon;
+		int index;
+		TString filename;
 
-    UINT iFlags = this->parseIconFlagOptions( input.gettok( 4, " " ) );
+		if (iFlags & LVSIL_SMALL) {
+			if ((himl = this->getImageList(LVSIL_NORMAL)) == NULL) {
+				himl = this->createImageList(TRUE);
 
-    HIMAGELIST himl;
-    HICON icon;
-    int index;
-    TString filename;
+				if (himl)
+					this->setImageList(himl, LVSIL_NORMAL);
+			}
 
-    if ( iFlags & LVSIL_SMALL ) {
+			index = atoi(input.gettok(5, " ").to_chr());
+			filename = input.gettok(6, -1, " ");
+			ExtractIconEx(filename.to_chr(), index, &icon, 0, 1);
+			ImageList_AddIcon(himl, icon);
+			DestroyIcon(icon);
 
-      if ( ( himl = this->getImageList( LVSIL_NORMAL ) ) == NULL ) {
+			if ((himl = this->getImageList(LVSIL_SMALL)) == NULL) {
+				himl = this->createImageList(FALSE);
 
-        himl = this->createImageList( TRUE );
+				if (himl)
+					this->setImageList(himl, LVSIL_SMALL);
+			}
 
-        if ( himl )
-          this->setImageList( himl, LVSIL_NORMAL );
-      }
+			index = atoi(input.gettok(5, " ").to_chr());
+			filename = input.gettok(6, -1, " ");
+			ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
+			ImageList_AddIcon(himl, icon);
+			DestroyIcon(icon);
+		}
 
-      index = atoi( input.gettok( 5, " ").to_chr( ) );
-      filename = input.gettok( 6, -1, " " );
-      ExtractIconEx( filename.to_chr( ), index, &icon, 0, 1 );
-      ImageList_AddIcon( himl, icon );
-      DestroyIcon( icon );
+		if (iFlags & LVSIL_STATE) {
+			if ((himl = this->getImageList(LVSIL_STATE)) == NULL) {
+				himl = this->createImageList(FALSE);
 
-      if ( ( himl = this->getImageList( LVSIL_SMALL ) ) == NULL ) {
+				if (himl)
+					this->setImageList(himl, LVSIL_STATE);
+			}
 
-        himl = this->createImageList( FALSE );
+			index = atoi(input.gettok(5, " ").to_chr());
+			filename = input.gettok(6, -1, " ");
+			ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
+			ImageList_AddIcon(himl, icon);
+			DestroyIcon(icon);
+		}
+	}
+	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
+	else if (flags.switch_flags[24] && numtok > 3) {
+		UINT iFlags = this->parseIconFlagOptions(input.gettok(4, " "));
+		HIMAGELIST himl;
 
-        if ( himl )
-          this->setImageList( himl, LVSIL_SMALL );
-      }
+		if (iFlags & LVSIL_SMALL) {
+			if ((himl = this->getImageList(LVSIL_SMALL)) != NULL) {
+				ImageList_Destroy(himl);
+				this->setImageList(NULL, LVSIL_SMALL);
+			}
 
-      index = atoi( input.gettok( 5, " ").to_chr( ) );
-      filename = input.gettok( 6, -1, " " );
-      ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
-      ImageList_AddIcon( himl, icon );
-      DestroyIcon( icon );
-    }
+			if ((himl = this->getImageList(LVSIL_NORMAL)) != NULL) {
+				ImageList_Destroy(himl);
+				this->setImageList(NULL, LVSIL_NORMAL);
+			}
+		}
 
-    if ( iFlags & LVSIL_STATE ) {
+		if (iFlags & LVSIL_STATE) {
+			if ((himl = this->getImageList(LVSIL_STATE)) != NULL) {
+				ImageList_Destroy(himl);
+			}
+		}
+	}
+	// xdid -z [NAME] [ID] [SWITCH] [+FLAGS] [N] (ALIAS)
+	else if (flags.switch_flags[25] && numtok > 4) {
+		DCXLVSORT lvsort;
+		int nColumn = atoi(input.gettok(5, " ").to_chr()) -1;
 
-      if ( ( himl = this->getImageList( LVSIL_STATE ) ) == NULL ) {
+		lvsort.m_Hwnd = this->m_Hwnd;
+		lvsort.iSortFlags = this->parseSortFlags(input.gettok(4, " "));
+		lvsort.nColumn = nColumn;
 
-        himl = this->createImageList( FALSE );
+		if (nColumn < 0 || nColumn >= this->getColumnCount())
+			return;
 
-        if ( himl )
-          this->setImageList( himl, LVSIL_STATE );
-      }
+		if (lvsort.iSortFlags & LVSS_CUSTOM && numtok < 6)
+			return;
+		else
+			lvsort.tsCustomAlias = input.gettok(6, " ");
 
-      index = atoi( input.gettok( 5, " ").to_chr( ) );
-      filename = input.gettok( 6, -1, " " );
-      ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
-      ImageList_AddIcon( himl, icon );
-      DestroyIcon( icon );
-    }
-  }
-  // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-  else if ( flags.switch_flags[24] && numtok > 3 ) {
-
-    UINT iFlags = this->parseIconFlagOptions( input.gettok( 4, " " ) );
-
-    HIMAGELIST himl;
-
-    if ( iFlags & LVSIL_SMALL ) {
-
-      if ( ( himl = this->getImageList( LVSIL_SMALL ) ) != NULL ) {
-
-        ImageList_Destroy( himl );
-        this->setImageList( NULL, LVSIL_SMALL );
-      }
-
-      if ( ( himl = this->getImageList( LVSIL_NORMAL ) ) != NULL ) {
-
-        ImageList_Destroy( himl );
-        this->setImageList( NULL, LVSIL_NORMAL );
-      }
-    }
-
-    if ( iFlags & LVSIL_STATE ) {
-
-      if ( ( himl = this->getImageList( LVSIL_STATE ) ) != NULL ) {
-
-        ImageList_Destroy( himl );
-      }
-    }
-  }
-   // xdid -z [NAME] [ID] [SWITCH] [+FLAGS] [N] (ALIAS)
-  else if ( flags.switch_flags[25] && numtok > 4 ) {
-
-    DCXLVSORT lvsort;
-    lvsort.m_Hwnd = this->m_Hwnd;
-    lvsort.iSortFlags = this->parseSortFlags( input.gettok( 4, " " ) );
-    int nColumn = atoi( input.gettok( 5, " " ).to_chr( ) ) - 1;
-    lvsort.nColumn = nColumn;
-
-    if ( nColumn < 0 || nColumn >= this->getColumnCount( ) )
-      return;
-
-      if ( lvsort.iSortFlags & LVSS_CUSTOM && numtok < 6 )
-        return;
-      else
-        lvsort.tsCustomAlias = input.gettok( 6, " " );
-
-    ListView_SortItemsEx( this->m_Hwnd, DcxListView::sortItemsEx, &lvsort );
-  }
+		ListView_SortItemsEx(this->m_Hwnd, DcxListView::sortItemsEx, &lvsort);
+	}
 	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
-  else if (flags.switch_cap_flags[19] && numtok > 4) {
+	else if (flags.switch_cap_flags[19] && numtok > 4) {
 		input.trim();
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
+
 		lvi.iItem = atol(input.gettok(4," ").to_chr());
 		lvi.iSubItem = atol(input.gettok(5," ").to_chr());
 		lvi.mask = LVIF_PARAM;
+
 		if (ListView_GetItem(this->m_Hwnd,&lvi)) {
 			LPDCXLVITEM lpmylvi = (LPDCXLVITEM) lvi.lParam;
+
 			if (lpmylvi != NULL)
 				lpmylvi->tsTipText = (numtok > 3 ? input.gettok(6, -1, " ") : "");
 		}
-  }
-  else {
-    this->parseGlobalCommandRequest( input, flags );
-  }
+	}
+	else {
+		this->parseGlobalCommandRequest(input, flags);
+	}
 }
 
 /*!

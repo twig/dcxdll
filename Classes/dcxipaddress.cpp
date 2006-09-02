@@ -203,12 +203,13 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 
 	int numtok = input.numtok(" ");
 
-	// xdid -r [NAME] [ID] [SWITCH] ItemText
-	if (flags.switch_flags[17] && numtok > 3) {
+	// xdid -r [NAME] [ID] [SWITCH]
+	if (flags.switch_flags[17]) {
 		this->clearAddress();
 	}
+
 	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
-	else if (flags.switch_flags[0] && numtok > 3) {
+	if (flags.switch_flags[0] && numtok > 3) {
 		TString IP = input.gettok( 4, " " );
 		IP.trim();
 
@@ -238,6 +239,10 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 
 		if (nField > -1 && nField < 4)
 			this->setFocus(nField);
+	}
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (flags.switch_flags[17]) {
+		//this->clearAddress();
 	}
 	else {
 		this->parseGlobalCommandRequest(input, flags);

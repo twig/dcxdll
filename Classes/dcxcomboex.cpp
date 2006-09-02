@@ -293,103 +293,103 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
  * blah
  */
 
-void DcxComboEx::parseCommandRequest( TString & input ) {
+void DcxComboEx::parseCommandRequest(TString &input) {
+	XSwitchFlags flags;
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
+	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
+	this->parseSwitchFlags(&input.gettok(3, " "), &flags);
 
-  int numtok = input.numtok( " " );
+	int numtok = input.numtok(" ");
 
-  // xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
-  if ( flags.switch_flags[0] && numtok > 8 ) {
+	// xdid -r [NAME] [ID] [SWITCH]
+	if (flags.switch_flags[17]) {
+		this->resetContent();
+	}
 
-    int nPos = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-    int indent = atoi( input.gettok( 5, " " ).to_chr( ) );
-    int icon = atoi( input.gettok( 6, " " ).to_chr( ) ) - 1;
-    int state = atoi( input.gettok( 7, " " ).to_chr( ) ) - 1;
-    //int overlay = atoi( input.gettok( 8, " " ).to_chr( ) ) - 1;
-    TString itemtext = input.gettok( 9, -1, " " );
+	// xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
+	if (flags.switch_flags[0] && numtok > 8) {
+		int nPos   = atoi(input.gettok(4, " ").to_chr()) -1;
+		int indent = atoi(input.gettok(5, " ").to_chr());
+		int icon   = atoi(input.gettok(6, " ").to_chr()) -1;
+		int state  = atoi(input.gettok(7, " ").to_chr()) -1;
+		//int overlay = atoi( input.gettok( 8, " " ).to_chr( ) ) - 1;
+		TString itemtext = input.gettok(9, -1, " ");
 
 		if (nPos == -2) {
 			if (IsWindow(this->m_EditHwnd))
 				SetWindowText(this->m_EditHwnd, itemtext.to_chr());
-				//SendMessage(this->m_EditHwnd, WM_SETTEXT,0, (LPARAM)itemtext.to_chr());
+
+			//SendMessage(this->m_EditHwnd, WM_SETTEXT,0, (LPARAM)itemtext.to_chr());
 		}
 		else {
 			COMBOBOXEXITEM cbi;
-			ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
+
+			ZeroMemory(&cbi, sizeof(COMBOBOXEXITEM));
 
 			cbi.mask = CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE;
 			cbi.iIndent = indent;
 			cbi.iImage = icon;
 			cbi.iSelectedImage = state;
 			//cbi.iOverlay = overlay;
-			cbi.pszText = itemtext.to_chr( );
+			cbi.pszText = itemtext.to_chr();
 			cbi.iItem = nPos;
 
-			this->insertItem( &cbi );
+			this->insertItem(&cbi);
 		}
-  }
-  // xdid -c [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[2] && numtok > 3 ) {
+	}
+	// xdid -c [NAME] [ID] [SWITCH] [N]
+	else if (flags.switch_flags[2] && numtok > 3) {
+		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+		if (nItem > -1) {
+			this->setCurSel(nItem);
+		}
+	}
+	// xdid -d [NAME] [ID] [SWITCH] [N]
+	else if (flags.switch_flags[3] && numtok > 3) {
+		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
 
-	 if ( nItem > -1 ) {
-      this->setCurSel( nItem );
-	 }
-  }
-  // xdid -d [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[3] && numtok > 3 ) {
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+		if (nItem > -1 && nItem < this->getCount())
+			this->deleteItem(nItem);
 
-	 if (nItem > -1 && nItem < this->getCount())
-      this->deleteItem( nItem );
+		if (!this->getCount())
+			this->redrawWindow();
+	}
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (flags.switch_flags[17]) {
+		//this->resetContent();
+	}
+	// xdid -u [NAME] [ID] [SWITCH]
+	else if (flags.switch_flags[20]) {
+		this->setCurSel(-1);
+	}
+	// xdid -w [NAME] [ID] [SWITCH] [INDEX] [FILENAME]
+	else if (flags.switch_flags[22] && numtok > 4) {
+		HIMAGELIST himl;
+		HICON icon;
+		int index;
+		TString filename = input.gettok(5, -1, " ");
 
-	 if (!this->getCount())
-		 this->redrawWindow();
-  }
-  // xdid -r [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[17] ) {
+		if ((himl = this->getImageList()) == NULL) {
+			himl = this->createImageList();
 
-    this->resetContent( );
-  }
-  // xdid -u [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[20] ) {
+			if (himl)
+				this->setImageList(himl);
+		}
 
-    this->setCurSel( -1 );
-  }
-  // xdid -w [NAME] [ID] [SWITCH] [INDEX] [FILENAME]
-  else if ( flags.switch_flags[22] && numtok > 4 ) {
-
-    HIMAGELIST himl;
-    HICON icon;
-    int index;
-
-    if ( ( himl = this->getImageList( ) ) == NULL ) {
-
-      himl = this->createImageList( );
-
-      if ( himl )
-        this->setImageList( himl );
-    }
-
-    index = atoi( input.gettok( 4, " ").to_chr( ) );
-    TString filename = input.gettok( 5, -1, " " );
-    ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
-    ImageList_AddIcon( himl, icon );
-    DestroyIcon( icon );
-  }
-  // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-  else if ( flags.switch_flags[24] ) {
-
-    ImageList_Destroy( this->getImageList( ) );
-    this->setImageList( NULL );
-  }
-  else {
-    this->parseGlobalCommandRequest( input, flags );
-  }
+		index = atoi(input.gettok(4, " ").to_chr());
+		ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
+		ImageList_AddIcon(himl, icon);
+		DestroyIcon(icon);
+	}
+	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
+	else if (flags.switch_flags[24]) {
+		ImageList_Destroy(this->getImageList());
+		this->setImageList(NULL);
+	}
+	else {
+		this->parseGlobalCommandRequest(input, flags);
+	}
 }
 
 /*!

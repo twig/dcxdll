@@ -191,95 +191,80 @@ void DcxProgressBar::parseInfoRequest( TString & input, char * szReturnValue ) {
  * \param input [NAME] [SWITCH] [ID] (OPTIONS)
  */
 
-void DcxProgressBar::parseCommandRequest( TString & input ) {
+void DcxProgressBar::parseCommandRequest(TString &input) {
+	XSwitchFlags flags;
+	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
+	this->parseSwitchFlags(&input.gettok(3, " "), &flags);
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
+	int numtok = input.numtok(" ");
 
-  int numtok = input.numtok( " " );
+	// xdid -c name ID $rgb(color)
+	if (flags.switch_flags[2]) {
+		this->setBarColor((COLORREF) atol(input.gettok(4, " ").to_chr()));
+	}
+	//// xdid -g name ID [1|0]
+	//else if ( flags.switch_flags[6] ) {
+	//this->m_bIsGrad = (BOOL) atol( input.gettok( 4, " " ).to_chr( ) );
+	//}
+	// xdid -i name ID (TEXT)
+	else if (flags.switch_flags[8]) {
+		if (input.numtok(" ") > 3)
+			this->m_tsText = input.gettok(4, -1, " ");
+		else
+			this->m_tsText = "";
 
-  // xdid -c name ID $rgb(color)
-  if ( flags.switch_flags[2] ) {
+		this->redrawWindow();
+	}
+	// xdid -j name ID [a|p]
+	else if (flags.switch_flags[9]) {
+		if (input.gettok(4, " ") == "a")
+			this->m_bIsAbsoluteValue = TRUE;
+		else
+			this->m_bIsAbsoluteValue = FALSE;
 
-    this->setBarColor( (COLORREF) atol( input.gettok( 4, " " ).to_chr( ) ) );
-  }
-  //// xdid -g name ID [1|0]
-  //else if ( flags.switch_flags[6] ) {
-		//this->m_bIsGrad = (BOOL) atol( input.gettok( 4, " " ).to_chr( ) );
-  //}
-  // xdid -i name ID (TEXT)
-  else if ( flags.switch_flags[8] ) {
-
-    if ( input.numtok( " " ) > 3 )
-      this->m_tsText = input.gettok( 4, -1, " " );
-    else
-      this->m_tsText = "";
-
-    this->redrawWindow( );
-  }
-  // xdid -j name ID [a|p]
-  else if ( flags.switch_flags[9] ) {
-
-    if ( input.gettok( 4, " " ) == "a" )
-      this->m_bIsAbsoluteValue = TRUE;
-    else
-      this->m_bIsAbsoluteValue = FALSE;
-    
-    this->redrawWindow( );
-  }
-  // xdid -k name ID $rgb(color)
-  else if ( flags.switch_flags[10] ) {
-
-    this->setBKColor( (COLORREF) atol( input.gettok( 4, " " ).to_chr( ) ) );
-  }
-  // xdid -m(o|g) name ID N
-  else if ( flags.switch_flags[12] ) {
-
-    // -mo
-    if ( flags.switch_flags[14] ) {
-
-      this->setMarquee( TRUE, atoi( input.gettok( 4, " " ).to_chr( ) ) );
-    }
-    // -mg
-    else if ( flags.switch_flags[6] ) {
-
-      this->setMarquee( FALSE, 0 );
-    }
-  }
-  // xdid -q name ID [COLOR]
-  else if ( flags.switch_flags[16] ) {
-
-    this->m_clrText = (COLORREF) atol( input.gettok( 4, " " ).to_chr( ) );
-
-    this->redrawWindow( );
-  }
-  // xdid -r name ID RLow RHigh
-  else if ( flags.switch_flags[17] ) {
-
-    if ( numtok > 4 )
-      this->setRange( (int) atoi( input.gettok( 4, " " ).to_chr( ) ),
-                      (int) atoi( input.gettok( 5, " " ).to_chr( ) ) );
-
-  }
-  // xdid -t name ID
-  else if ( flags.switch_flags[19] ) {
-
-    this->stepIt( );
-  }
-  // xdid -u name ID N
-  else if ( flags.switch_flags[20] ) {
-
-    this->setStep( atoi( input.gettok( 4, " " ).to_chr( ) ) );
-  }
-  // xdid -v name ID N
-  else if ( flags.switch_flags[21] ) {
-
-    if ( numtok > 3 )
-      this->setPosition( (int) atoi( input.gettok( 4, " " ).to_chr( ) ) );
-  }
-  // xdid [-o] [NAME] [ID] [ENABLED]
-  // vertical fonts [1|0]
+		this->redrawWindow();
+	}
+	// xdid -k name ID $rgb(color)
+	else if (flags.switch_flags[10]) {
+		this->setBKColor((COLORREF) atol(input.gettok(4, " ").to_chr()));
+	}
+	// xdid -m(o|g) name ID N
+	else if (flags.switch_flags[12]) {
+		// -mo
+		if (flags.switch_flags[14]) {
+			this->setMarquee(TRUE, atoi(input.gettok(4, " ").to_chr()));
+		}
+		// -mg
+		else if (flags.switch_flags[6]) {
+			this->setMarquee(FALSE, 0);
+		}
+	}
+	// xdid -q name ID [COLOR]
+	else if ( flags.switch_flags[16] ) {
+		this->m_clrText = (COLORREF) atol(input.gettok(4, " ").to_chr());
+		this->redrawWindow();
+	}
+	// xdid -r name ID RLow RHigh
+	else if (flags.switch_flags[17]) {
+		if (numtok > 4)
+			this->setRange((int) atoi(input.gettok(4, " ").to_chr()),
+			(int) atoi(input.gettok(5, " ").to_chr()));
+	}
+	// xdid -t name ID
+	else if (flags.switch_flags[19]) {
+		this->stepIt();
+	}
+	// xdid -u name ID N
+	else if (flags.switch_flags[20]) {
+		this->setStep(atoi(input.gettok(4, " ").to_chr()));
+	}
+	// xdid -v name ID N
+	else if (flags.switch_flags[21]) {
+		if (numtok > 3)
+			this->setPosition((int) atoi(input.gettok(4, " ").to_chr()));
+	}
+	// xdid [-o] [NAME] [ID] [ENABLED]
+	// vertical fonts [1|0]
 	else if (flags.switch_flags[14]) {
 		if (numtok < 4)
 			return;
@@ -314,7 +299,7 @@ void DcxProgressBar::parseCommandRequest( TString & input ) {
 		this->redrawWindow();
 	}
 	else {
-		this->parseGlobalCommandRequest( input, flags );
+		this->parseGlobalCommandRequest(input, flags);
 	}
 }
 
