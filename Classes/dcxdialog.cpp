@@ -58,13 +58,7 @@ DcxDialog::DcxDialog(HWND mHwnd, TString &tsName, TString &tsAliasName)
 	this->m_MouseID = 0;
 	this->m_FocusID = 0;
 
-	// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/tooltip/styles.asp
-	this->m_ToolTipHWND = CreateWindowEx(WS_EX_TOPMOST,
-		TOOLTIPS_CLASS,NULL,
-		WS_POPUP | TTS_BALLOON,
-		CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,
-		this->m_Hwnd,
-		NULL,GetModuleHandle(NULL),NULL);
+	this->m_ToolTipHWND = NULL;
 
 	SetProp(this->m_Hwnd, "dcx_this", (HANDLE) this);
 
@@ -584,6 +578,23 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		this->m_colTransparentBg = atoi(input.gettok(3, " ").to_chr());
 		this->redrawWindow();
 	}
+	// xdialog -T [NAME] [SWITCH] [FLAGS] [STYLES]
+	else if (flags.switch_cap_flags[19] && numtok > 2) {
+		if (this->m_ToolTipHWND != NULL) {
+			mIRCError("Tooltip already exists. Cannot recreate");
+			return;
+		}
+
+		UINT styles = parseTooltipFlags(input.gettok(3, " "));
+
+		// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/tooltip/styles.asp
+		this->m_ToolTipHWND = CreateWindowEx(WS_EX_TOPMOST,
+			TOOLTIPS_CLASS, NULL,
+			styles,
+			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+			this->m_Hwnd,
+			NULL, GetModuleHandle(NULL), NULL);
+	}
 	// xdialog -w [NAME] [SWITCH] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 3) {
 		int index = atoi(input.gettok(3, " ").to_chr());
@@ -904,6 +915,37 @@ UINT DcxDialog::parseLayoutFlags(TString &flags) {
 			iFlags |= LAYOUTVERT;
 		else if (flags[i] == 'w')
 			iFlags |= LAYOUTDIM;
+
+		++i;
+	}
+
+	return iFlags;
+}
+
+UINT DcxDialog::parseTooltipFlags(TString &flags) {
+	int i = 1;
+	int len = flags.len();
+	UINT iFlags = 0;
+
+	// no +sign, missing params
+	if (flags[0] != '+') 
+		return iFlags;
+
+	while (i < len) {
+		if (flags[i] == 'a')
+			iFlags |= TTS_ALWAYSTIP;
+		else if (flags[i] == 'b')
+			iFlags |= TTS_BALLOON;
+		else if (flags[i] == 'c') // no idea what this does or if it works at all
+			iFlags |= TTS_CLOSE;
+		else if (flags[i] == 'f')
+			iFlags |= TTS_NOFADE;
+		else if (flags[i] == 'p')
+			iFlags |= TTS_NOPREFIX;
+		else if (flags[i] == 's')
+			iFlags |= TTS_NOANIMATE;
+		//else if (flags[i] == 't')
+		//	iFlags |= TTS_USEVISUALSTYLE;
 
 		++i;
 	}

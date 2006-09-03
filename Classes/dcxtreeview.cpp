@@ -1023,6 +1023,7 @@ HTREEITEM DcxTreeView::insertItem(TString * path, TString * data, TString * Tool
 	tvi.cchTextMax = sizeof(tvi.pszText) / sizeof(tvi.pszText[0]);
 
 	// icons
+	// http://dcx.scriptsdb.org/bug/?do=details&id=350
 	tvi.iImage = 10000;
 	tvi.iSelectedImage = 10000;
 

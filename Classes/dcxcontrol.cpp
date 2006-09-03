@@ -248,9 +248,8 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 		this->redrawWindow( );
 	}
 	// xdid -F [NAME] [ID] [SWITCH]
-	else if ( flags.switch_cap_flags[5] ) {
-
-		SetFocus( this->m_Hwnd );
+	else if (flags.switch_cap_flags[5]) {
+		SetFocus(this->m_Hwnd);
 	}
 	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	else if ( flags.switch_cap_flags[9] && numtok > 4 ) {

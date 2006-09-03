@@ -112,6 +112,7 @@ protected:
   UINT parseFlashFlags( TString & flags );
   UINT parseCursorFlags( TString & flags );
   LPSTR parseCursorType( TString & cursor );
+  UINT parseTooltipFlags(TString &flags);
 };
 
 #endif // _DCXDIALOG_H_
