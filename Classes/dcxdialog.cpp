@@ -726,10 +726,10 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				break;
 			}
 
-			case 'c': // FIXME: circle - no args, odd bug, dialog disappears.
+			case 'c': // circle - no args
 			{
 				// TODO: make it accept radius
-				this->m_Region = CreateEllipticRgnIndirect(&rc);
+				this->m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
 
 				if (this->m_Region)
 					SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
