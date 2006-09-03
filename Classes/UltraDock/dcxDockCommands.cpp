@@ -16,7 +16,8 @@ void DockWindow(HWND mWnd,char *data,HWND temp,char *find)
 		else sWnd = FindWindowEx(mWnd,NULL,find,NULL);
 		if (IsWindow(sWnd)) {
 			// change win style to child
-			RemStyles(temp,GWL_STYLE,WS_POPUP);
+			RemStyles(temp,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);
+			//RemStyles(temp,GWL_STYLE,WS_POPUP);
 			AddStyles(temp,GWL_STYLE,WS_CHILDWINDOW);
 
 			// get window pos
@@ -63,8 +64,8 @@ mIRC(xdock)
 	case 'n':
 		{
 			if (d.numtok(" ") == 3) {
-				mWnd = (HWND)atol(d.gettok(2," ").to_chr());
-				DockWindow(mWnd,data,(HWND)atol(d.gettok(3," ").to_chr()),"ListBox");
+				mWnd = (HWND)atol(d.gettok(3," ").to_chr());
+				DockWindow(mWnd,data,(HWND)atol(d.gettok(2," ").to_chr()),"ListBox");
 			}
 			else lstrcpy(data,"-ERR Invalid Args");
 		}
@@ -72,8 +73,8 @@ mIRC(xdock)
 	case 'c':
 		{
 			if (d.numtok(" ") == 3) {
-				mWnd = (HWND)atol(d.gettok(2," ").to_chr());
-				DockWindow(mWnd,data,(HWND)atol(d.gettok(3," ").to_chr()),NULL);
+				mWnd = (HWND)atol(d.gettok(3," ").to_chr());
+				DockWindow(mWnd,data,(HWND)atol(d.gettok(2," ").to_chr()),NULL);
 			}
 			else lstrcpy(data,"-ERR Invalid Args");
 		}
