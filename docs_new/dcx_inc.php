@@ -127,7 +127,7 @@ function wikiData(&$value, $userdata = "") {
 		'/\[r\](.*?)\[\/r\]/is', // returnevent
 		'/\[s\](.*?)\[\/s\]/is', // style
 		'/\[p\](.*?)\[\/p\]/is', // param
-		'/\[i\](.*?)\[\/i\]/is', // property
+//		'/\[i\](.*?)\[\/i\]/is', // property - unused
 		'/\[o\](.*?)\[\/o\]/is', // operating system
 		'/\[n\](.*?)\[\/n\]/is', // note
 		'/\[f\](.*?)\[\/f\]/is', // flag
@@ -139,7 +139,7 @@ function wikiData(&$value, $userdata = "") {
 		'<a class="returnevent">$1</a>',
 		'<a class="style">$1</a>',
 		'<a class="param">$1</a>',
-		'<a class="property">$1</a>',
+//		'<a class="property">$1</a>',
 		'<a class="os">($1)</a>',
 		'<a class="note">Note:</a> $1',
 		'<a class="value">$1</a>', // flag
@@ -722,13 +722,13 @@ function print_changes($version, $changes) {
 			echo "<li><strong>$key</strong><ul>";
 			
 			foreach ($change as $item)
-			    echo "<li>$item</li>";
+			    echo "<li>" . htmlentities($item) . "</li>";
 			    
 			echo "</ul></li>";
 		}
 		// normal big list
 		else
-		    echo "<li>$change</li>";
+		    echo "<li>" . htmlentities($change) . "</li>";
 	}
 
 	echo "</ul>\n";

@@ -109,8 +109,9 @@ a.event {
 a.eventreturn {
 	color: #007700;
 }
+/* TODO: unused class */
 a.property {
-	color: pink;
+	color: #ff0000;
 }
 
 .menuleft ul, .menuright ul {
