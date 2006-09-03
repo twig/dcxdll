@@ -709,14 +709,14 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				break;
 			}
 			
-			case 'r': // rounded rect - no args
+			case 'r': // rounded rect - radius args (optional)
 			{
-				if (numtok < 4) {
-					mIRCError("Invalid arguments for /xdialog +R +r");
-					return;
-				}
+				int radius;
 
-				int radius = atoi(input.gettok(4, " ").to_chr());
+				if (numtok < 4)
+					radius = atoi(input.gettok(4, " ").to_chr());
+				else
+					radius = 20;
 
 				this->m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
 
