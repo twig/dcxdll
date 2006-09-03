@@ -694,6 +694,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 					return;
 				}
 
+				//SetWindowRgn(this->m_Hwnd,NULL,TRUE);
 				this->m_colTransparentBg = atol(input.gettok(4," ").to_chr());
 				//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
 				this->m_uStyleBg = DBS_BKGBITMAP;
@@ -704,6 +705,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 					if (this->m_Region != NULL)
 						SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
+					this->redrawWindow();
 				}
 
 				break;
@@ -726,7 +728,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				break;
 			}
 
-			case 'c': // circle - no args
+			case 'c': // circle - radius arg (optional)
 			{
 				if (numtok > 3) {
 					int radius = atoi(input.gettok(4, " ").to_chr());
