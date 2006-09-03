@@ -818,16 +818,12 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 						case BN_CLICKED:
 						{
 							BOOL state = (SendMessage(this->m_TitleButton,BM_GETCHECK,0,0) == BST_CHECKED);
-							char *ret = new char[10];
+							char ret[10];
 
 							this->callAliasEx(ret, "%s,%d,%d", "checkchange", this->getUserID(), state);
 
-							if (lstrcmp("nochange", ret) == 0) {
-								delete ret;
+							if (lstrcmp("nochange", ret) == 0)
 								return 0L;
-							}
-
-							delete ret;
 
 							DCXENUM de;
 							de.mChildHwnd = this->m_TitleButton;
@@ -1078,9 +1074,9 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					CopyRect(&rcText2, &rcText);
 					InflateRect(&rcText2, 3, 0);
 
-					RECT bSZ;
 					if (IsWindow(this->m_TitleButton))
 					{
+						RECT bSZ;
 						GetWindowRect(this->m_TitleButton,&bSZ);
 						SetWindowPos(this->m_TitleButton,NULL,rcText2.left,rcText2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
 						bSZ.bottom = (bSZ.right - bSZ.left);

@@ -713,7 +713,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			{
 				int radius;
 
-				if (numtok < 4)
+				if (numtok > 3)
 					radius = atoi(input.gettok(4, " ").to_chr());
 				else
 					radius = 20;
@@ -728,8 +728,15 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 			case 'c': // circle - no args
 			{
-				// TODO: make it accept radius
-				this->m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
+				if (numtok > 3) {
+					int radius = atoi(input.gettok(4, " ").to_chr());
+					if (radius < 1) radius = 100; // handle cases where arg isnt a number or is a negative.
+					int cx = ((rc.right - rc.left)/2);
+					int cy = ((rc.bottom - rc.top)/2);
+					this->m_Region = CreateEllipticRgn(cx-radius,cy-radius,cx+radius,cy+radius);
+				}
+				else
+					this->m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
 
 				if (this->m_Region)
 					SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
