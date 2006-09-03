@@ -235,6 +235,10 @@ void DcxList::parseCommandRequest( TString & input ) {
 
   int numtok = input.numtok( " " );
 
+  if (flags.switch_flags[17]) {
+    SendMessage(this->m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0);
+  }
+
   //xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
   if ( flags.switch_flags[0] && numtok > 4 ) {
 
@@ -281,9 +285,7 @@ void DcxList::parseCommandRequest( TString & input ) {
         ListBox_DeleteString( this->m_Hwnd, nPos );
   }
   //xdid -r [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[17] ) {
-
-    SendMessage( this->m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0 );
+  else if (flags.switch_flags[17]) {
   }
   //xdid -u [NAME] [ID] [SWITCH]
   else if ( flags.switch_flags[20] ) {

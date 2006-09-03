@@ -307,8 +307,9 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		this->m_tsText = "";
 		this->clearContents();
 	}
+
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
-	else if (flags.switch_flags[0] && numtok > 3) {
+	if (flags.switch_flags[0] && numtok > 3) {
 		this->m_tsText += input.gettok(4, -1, " ");
 		this->parseContents(TRUE);
 	}
@@ -444,6 +445,9 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		}
 
 		this->parseContents(TRUE);
+	}
+	// xdid -r [NAME] [ID] [SWITCH]
+	if (flags.switch_flags[17]) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags.switch_flags[19] && numtok > 3) {

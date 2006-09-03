@@ -334,6 +334,32 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
   int numtok = input.numtok( " " );
 
+  // xdid -r [NAME] [ID] [SWITCH]
+  if (flags.switch_flags[17]) {
+    int n = 0;
+	 int nItems = TabCtrl_GetItemCount(this->m_Hwnd);
+
+    while (n < nItems) {
+      TCITEM tci;
+      ZeroMemory(&tci, sizeof(TCITEM));
+
+      tci.mask = TCIF_PARAM;
+
+      if (TabCtrl_GetItem(this->m_Hwnd, n, &tci)) {
+        LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
+
+        if (lpdtci != NULL && lpdtci->mChildHwnd != NULL && IsWindow(lpdtci->mChildHwnd)) {
+          DestroyWindow(lpdtci->mChildHwnd);
+          delete lpdtci;
+        }
+      }
+
+      ++n;
+    }
+
+    TabCtrl_DeleteAllItems(this->m_Hwnd);
+  }
+
   // xdid -a [NAME] [ID] [SWITCH] [N] [ICON] [TEXT][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB](TOOLTIP)
   if ( flags.switch_flags[0] && numtok > 4 ) {
     TCITEM tci;
@@ -548,27 +574,6 @@ void DcxTab::parseCommandRequest( TString & input ) {
   }
   // xdid -r [NAME] [ID] [SWITCH]
   else if ( flags.switch_flags[17] ) {
-
-    int n = 0, nItems = TabCtrl_GetItemCount( this->m_Hwnd );
-    while ( n < nItems ) {
-
-      TCITEM tci;
-      ZeroMemory( &tci, sizeof( TCITEM ) );
-
-      tci.mask = TCIF_PARAM;
-
-      if ( TabCtrl_GetItem( this->m_Hwnd, n, &tci ) ) {
-
-        LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
-        if ( lpdtci != NULL && lpdtci->mChildHwnd != NULL && IsWindow( lpdtci->mChildHwnd ) ) {
-          DestroyWindow( lpdtci->mChildHwnd );
-          delete lpdtci;
-        }
-      }
-      ++n;
-    }
-
-    TabCtrl_DeleteAllItems( this->m_Hwnd );
   }
   // xdid -t [NAME] [ID] [SWITCH] [N] (text)
   else if ( flags.switch_flags[19] && numtok > 3 ) {

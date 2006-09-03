@@ -314,6 +314,10 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
   int numtok = input.numtok( " " );
 
+  if (flags.switch_flags[17]) {
+    this->resetContent();
+  }
+
   // xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] [Button Text][TAB]Tooltip Text
   if ( flags.switch_flags[0] && numtok > 4 ) {
 
@@ -552,9 +556,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		}
 	}
   // xdid -r [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[17] ) {
-
-    this->resetContent( );
+  else if (flags.switch_flags[17]) {
   }
   // xdid -t [NAME] [ID] [SWITCH] [N] [+FLAGS]
   else if ( flags.switch_flags[19] && numtok > 4 ) {

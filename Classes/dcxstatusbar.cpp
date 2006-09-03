@@ -218,10 +218,9 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 
   int numtok = input.numtok( " " );
 
-  // xdid -k name ID [COLOR]
-  if ( flags.switch_flags[10] ) {
-
-    this->setBkColor( (COLORREF) atol( input.gettok( 4, " " ).to_chr( ) ) );
+  // xdid -k [NAME] [ID] [SWITCH] [COLOR]
+  if (flags.switch_flags[10] && numtok > 3) {
+    this->setBkColor((COLORREF) atol(input.gettok(4, " ").to_chr()));
   }
   // xdid -l [NAME] [ID] [SWITCH] [POS [POS POS ...]]
   else if ( flags.switch_flags[11] && numtok > 3 ) {

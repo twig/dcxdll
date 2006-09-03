@@ -441,11 +441,12 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
   int numtok = input.numtok( " " );
 
   // xdid -r [NAME] [ID] [SWITCH]
-  if ( flags.switch_flags[17] && numtok > 2 ) {
-    TreeView_DeleteAllItems( this->m_Hwnd );
+  if (flags.switch_flags[17]) {
+    TreeView_DeleteAllItems(this->m_Hwnd);
   }
+
 	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] Text[TAB]Tooltip Text
-	else if (flags.switch_flags[0]) {
+	if (flags.switch_flags[0]) {
 		int n = input.numtok("\t");
 
 		if (n > 1) {
@@ -730,6 +731,9 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
         }
       }
     }
+  }
+  // xdid -r [NAME] [ID] [SWITCH]
+  if (flags.switch_flags[17]) {
   }
   // xdid -t [NAME] [ID] [SWITCH] [+FLAGS] N N N
   else if ( flags.switch_flags[19] && numtok > 4 ) {

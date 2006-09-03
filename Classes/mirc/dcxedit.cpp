@@ -284,8 +284,9 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		this->m_tsText = "";
 		SetWindowText(this->m_Hwnd, "");
 	}
+
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
-	else if (flags.switch_flags[0] && numtok > 3) {
+	if (flags.switch_flags[0] && numtok > 3) {
 		this->m_tsText += input.gettok(4, -1, " ");
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 	}
@@ -350,6 +351,9 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		if (N > -1) {
 			Edit_LimitText(this->m_Hwnd, N);
 		}
+	}
+	// xdid -r [NAME] [ID] [SWITCH]
+	if (flags.switch_flags[17]) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags.switch_flags[19] && numtok > 3) {
