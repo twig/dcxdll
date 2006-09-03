@@ -235,6 +235,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 
   int numtok = input.numtok( " " );
 
+  //xdid -r [NAME] [ID] [SWITCH]
   if (flags.switch_flags[17]) {
     SendMessage(this->m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0);
   }

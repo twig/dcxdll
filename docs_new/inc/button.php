@@ -98,6 +98,7 @@ function get_styles_button(&$STYLES) {
 	$STYLES = array(
 		"bitmap" => "Button is drawed using supplied bitmaps.",
 		"default" => "Button has default focus.",
+		'tooltips' => 'The button will have a tooltip.',
 	);
 }
 
@@ -105,6 +106,8 @@ function get_styles_button(&$STYLES) {
 function get_events_button(&$EVENTS) {
 	$EVENTS = array(
 		"sclick" => "When you left-click on the button.",
+		"lbdown" => "When the left mouse button is clicked down.",
+		"lbup" => "When the left mouse button is released.",
 		"rclick" => "When you right-click on the button.",
 		"dclick" => "When you double-click on the button.",
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",

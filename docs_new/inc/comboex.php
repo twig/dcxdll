@@ -30,6 +30,7 @@ function get_xdid_comboex(&$XDID) {
 				"You can use [v]0[/v] for the [p]N[/p] value to insert the item at the end of the comboex.",
 				"Every unit of [p]INDENT[/p] is a 10 pixel indent.",
 				"Use [v]0[/v] for [p]#ICON[/p] or [p]#SELECTED[/p] if you wish to use no icon.",
+				"Use [v]-1[/v] for [p]N[/p] to set the text for the editable part of the comboex (only used with [s]dropedit[/s] style).",
 			),
 		),
 		'c' => array(

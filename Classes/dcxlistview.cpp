@@ -1780,6 +1780,8 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
               if ( lvh.flags & LVHT_ONITEM )
 								this->callAliasEx( NULL, "%s,%d,%d,%d", "dclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+				  else
+						this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID());
             }
             break;
 

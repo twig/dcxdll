@@ -11,6 +11,7 @@ function get_styles_check(&$STYLES) {
 	    'rjustify' => 'Control text is right justified.',
 	    'pushlike' => 'Makes the check act and look like a push button.',
 	    '3state' => 'Creates a 3 state checkbox.',
+	    'tooltips' => 'The checkbox will have a tooltip.',
 	);
 }
 

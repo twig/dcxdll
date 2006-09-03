@@ -733,7 +733,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -r [NAME] [ID] [SWITCH]
-  if (flags.switch_flags[17]) {
+  else if (flags.switch_flags[17]) {
   }
   // xdid -t [NAME] [ID] [SWITCH] [+FLAGS] N N N
   else if ( flags.switch_flags[19] && numtok > 4 ) {

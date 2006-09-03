@@ -24,6 +24,7 @@ function get_styles_edit(&$STYLES) {
 		'password' => "Displays an asterisk (*) for each character typed into the edit control. Only works when [s]multi[/s] style is NOT set.",
 		'return' => "Specifies that a carriage return be inserted when the user presses the ENTER key while entering text into a multiline edit control in a dialog box.",
 		'readonly' => "Prevents the user from typing or editing text in the edit control.",
+		'tooltips' => 'The edit will have a tooltip.',
 	);
 }
 
@@ -95,10 +96,7 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		    '__eg' => '2',
 		    '__notes' => 'If the [s]multi[/s] is not used, you can ignore [p]N[/p] when retrieving the edit text.'
 		),
-		"num" => array(
-		    '__desc' => 'This property lets you retreive the number of lines in the edit.',
-		    '__notes' => 'Only works with the [s]multi[/s] style.'
-		),
+		"num" => 'This property lets you retreive the number of lines in the edit.',
 		"ispass" => 'This property lets you retreive if the password style is set on the edit control.',
 		"sel" => 'This returns the index of the first and last selected character position in the control.',
 		"selstart" => 'This returns the index of the first selected character position in the control.',

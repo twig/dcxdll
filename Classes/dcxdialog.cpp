@@ -58,6 +58,7 @@ DcxDialog::DcxDialog(HWND mHwnd, TString &tsName, TString &tsAliasName)
 	this->m_MouseID = 0;
 	this->m_FocusID = 0;
 
+	// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/tooltip/styles.asp
 	this->m_ToolTipHWND = CreateWindowEx(WS_EX_TOPMOST,
 		TOOLTIPS_CLASS,NULL,
 		WS_POPUP | TTS_BALLOON,
@@ -663,73 +664,115 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
 	else if (flags.switch_flags[25+18] && numtok > 2) {
 		TString flag = input.gettok(3," ");
+
 		if ((flag.len() < 2) || (flag[0] != '+')) {
 			mIRCError("Invalid Flag");
 			return;
 		}
+
 		RECT rc;
 		GetWindowRect(this->m_Hwnd,&rc);
+
 		switch (flag[1])
 		{
-		case 'f': // image file
-			{ // [COLOR] [FILE]
+			// image file - [COLOR] [FILE]
+			case 'f': 
+			{
+				if (numtok < 5) {
+					mIRCError("Invalid arguments for /xdialog +R +f");
+					return;
+				}
+
 				this->m_colTransparentBg = atol(input.gettok(4," ").to_chr());
 				//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
 				this->m_uStyleBg = DBS_BKGBITMAP;
 				this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg,input.gettok(5,-1," "));
+
 				if (this->m_bitmapBg != NULL) {
 					this->m_Region = BitmapRegion(this->m_bitmapBg,this->m_colTransparentBg,TRUE);
+
 					if (this->m_Region != NULL)
 						SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
 				}
+
+				break;
 			}
-			break;
-		case 'r': // rounded rect
-			{ // no args
-				this->m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top,20,20);
-				if (this->m_Region)
-					SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
-			}
-			break;
-		case 'c': // circle
-			{ // no args, odd bug, dialog disappears.
-				this->m_Region = CreateEllipticRgnIndirect(&rc);
-				if (this->m_Region)
-					SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
-			}
-			break;
-		case 'p': // polygon
+			
+			case 'r': // rounded rect - no args
 			{
-				TString strPoints = input.gettok(4,-1," ");
+				if (numtok < 4) {
+					mIRCError("Invalid arguments for /xdialog +R +r");
+					return;
+				}
+
+				int radius = atoi(input.gettok(4, " ").to_chr());
+
+				this->m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
+
+				if (this->m_Region)
+					SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
+
+				break;
+			}
+
+			case 'c': // FIXME: circle - no args, odd bug, dialog disappears.
+			{
+				// TODO: make it accept radius
+				this->m_Region = CreateEllipticRgnIndirect(&rc);
+
+				if (this->m_Region)
+					SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
+
+				break;
+			}
+			
+			case 'p': // polygon
+			{
+				// u need at least 3 points for a shape
+				if (numtok < 6) {
+					mIRCError("Invalid arguments for /xdialog +R +p");
+					return;
+				}
+
+				TString strPoints = input.gettok(4, -1, " ");
 				TString strPoint;
 				int tPoints = strPoints.numtok(" ");
+
 				if (tPoints < 1) {
 					mIRCError("Invalid Points");
 					return;
 				}
+
 				int cnt = 1;
 				POINT *pnts = new POINT[tPoints];
-				while (cnt <= tPoints)
-				{
+
+				while (cnt <= tPoints) {
 					strPoint = strPoints.gettok(cnt," ");
-					pnts[cnt-1].x = atol(strPoint.gettok(1,",").to_chr());
-					pnts[cnt-1].y = atol(strPoint.gettok(2,",").to_chr());
+					pnts[cnt-1].x = atol(strPoint.gettok(1, ",").to_chr());
+					pnts[cnt-1].y = atol(strPoint.gettok(2, ",").to_chr());
 					cnt++;
 				}
+
 				this->m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
+
 				if (this->m_Region)
 					SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
+
 				delete [] pnts;
+				break;
 			}
-			break;
-		case 'n': // none, no args
-			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
-			break;
-		default:
+
+			case 'n': // none, no args
+			{
+				SetWindowRgn(this->m_Hwnd,NULL,TRUE);
+				break;
+			}
+
+			default:
 			{
 				mIRCError("Invalid Flag");
+				break;
 			}
-			break;
 		}
 	}
 	// invalid command

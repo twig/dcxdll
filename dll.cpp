@@ -633,8 +633,8 @@ mIRC(FontDialog) {
 	cf.nSizeMin = 8;
 	cf.nSizeMax = 72;
 
-	for (int i = 1; i <= input.numtok("	"); i++) {
-		TString option(input.gettok(i, "	"));
+	for (int i = 1; i <= input.numtok("\t"); i++) {
+		TString option(input.gettok(i, "\t"));
 		int numtok = 0;
 
 		option.trim();
@@ -1154,6 +1154,7 @@ mIRC(MsgBox) {
 	TString strTitle  = d.gettok(2, "\t");
 	TString strMsg    = d.gettok(3, -1, "\t");
 	int     n         = strStyles.numtok(" ");
+	HWND    owner     = aWnd;
 
 	strTitle.trim();
 	strMsg.trim();
@@ -1179,9 +1180,9 @@ mIRC(MsgBox) {
 			style |= MB_ICONWARNING;
 		else if (strStyles.gettok(i, " ") == "information")
 			style |= MB_ICONINFORMATION;
-		else if (strStyles.gettok(i, " ") == "asterik")
+		else if (strStyles.gettok(i, " ") == "asterisk")
 			style |= MB_ICONASTERISK;
-		else if (strStyles.gettok(i, " ") == "iconquestion")
+		else if (strStyles.gettok(i, " ") == "question")
 			style |= MB_ICONQUESTION;
 		else if (strStyles.gettok(i, " ") == "stop")
 			style |= MB_ICONSTOP;
@@ -1189,8 +1190,8 @@ mIRC(MsgBox) {
 			style |= MB_ICONERROR;
 		else if (strStyles.gettok(i, " ") == "hand")
 			style |= MB_ICONHAND;
-		else if (strStyles.gettok(i, " ") == "help")
-			style |= MB_HELP;
+		//else if (strStyles.gettok(i, " ") == "help")
+		//	style |= MB_HELP;
 		else if (strStyles.gettok(i, " ") == "defbutton2")
 			style |= MB_DEFBUTTON2;
 		else if (strStyles.gettok(i, " ") == "defbutton3")
@@ -1211,9 +1212,16 @@ mIRC(MsgBox) {
 			style |= MB_SETFOREGROUND;
 		else if (strStyles.gettok(i, " ") == "topmost")
 			style |= MB_TOPMOST;
+		else if (strStyles.gettok(i, " ") == "owner")
+			owner = FindOwner(strStyles, mWnd);
 	}
 
-	switch (MessageBox(mWnd, strMsg.to_chr(), strTitle.to_chr(), style)) {
+	// if task modal, send in null to block app
+	if (style & MB_TASKMODAL) {
+		owner = NULL;
+	}
+
+	switch (MessageBox(owner, strMsg.to_chr(), strTitle.to_chr(), style)) {
 		case IDABORT:
 			ret("abort");
 			break;

@@ -500,12 +500,15 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
           this->m_bSelected = TRUE;
           InvalidateRect( this->m_Hwnd, NULL, FALSE );
         }
+
+		  this->callAliasEx(NULL, "%s,%d", "lbdown", this->getUserID());
       }
       break;
 
     case WM_LBUTTONUP:
       {
         this->m_bSelected = FALSE;
+		  this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
 			}
       break;
 

@@ -3,8 +3,11 @@ function get_intro_image() {
 	echo "Image control that lets you display BMP images.";
 }
 
-
-
+function get_styles_image(&$STYLES) {
+	$STYLES = array(
+		'tooltips' => 'The image will have a tooltip.',
+	);
+}
 
 function get_xdid_image(&$XDID) {
 	$XDID = array(
