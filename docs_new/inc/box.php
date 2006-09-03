@@ -105,6 +105,14 @@ function get_events_box(&$EVENTS) {
 	    'lbup' => 'When the left mouse button is released.',
 	    'dclick' => 'When the left mouse button is double clicked.',
 	    'rclick' => 'When the right mouse button is clicked.',
+	    'checkchange' => array(
+			'__desc' => "When the checkbox has been clicked.",
+			'__cmd' => 'STATE',
+			'__params' => array(
+				'STATE' => 'The state of the checkbox, [v]1[/v] for checked, [v]0[/v] for unchecked.',
+			),
+            '__return' => '[r]nochange[/r] to cancel automatic enabling/disabling of the child controls in the box.'
+		),
 	);
 }
 ?>

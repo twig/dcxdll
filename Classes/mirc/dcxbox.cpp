@@ -758,6 +758,7 @@ BOOL CALLBACK EnumBoxChildren(HWND hwnd,LPDCXENUM de)
 	//LPDCXENUM de = (LPDCXENUM)lParam;
 	if (de->mChildHwnd != hwnd)
 		EnableWindow(hwnd,de->mState);
+
 	return TRUE;
 }
 
@@ -815,17 +816,28 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				if (((HWND)lParam != NULL) && ((HWND)lParam == this->m_TitleButton) ) {
 					switch ( HIWORD( wParam ) ) {
 						case BN_CLICKED:
-							{
-								DCXENUM de;
-								de.mChildHwnd = this->m_TitleButton;
-								if (SendMessage(this->m_TitleButton,BM_GETCHECK,0,0) == BST_CHECKED)
-									de.mState = TRUE;
-								else
-									de.mState = FALSE;
-								EnumChildWindows(this->m_Hwnd,(WNDENUMPROC)EnumBoxChildren,(LPARAM)&de);
+						{
+							BOOL state = (SendMessage(this->m_TitleButton,BM_GETCHECK,0,0) == BST_CHECKED);
+							char *ret = new char[10];
+
+							this->callAliasEx(ret, "%s,%d,%d", "checkchange", this->getUserID(), state);
+
+							if (lstrcmp("nochange", ret) == 0) {
+								delete ret;
+								return 0L;
 							}
+
+							delete ret;
+
+							DCXENUM de;
+							de.mChildHwnd = this->m_TitleButton;
+							de.mState = state;
+
+							EnumChildWindows(this->m_Hwnd,(WNDENUMPROC)EnumBoxChildren,(LPARAM)&de);
 							break;
-					}
+						}
+					} // end switch
+
 					break;
 				}
 			}

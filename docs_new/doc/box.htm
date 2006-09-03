@@ -423,7 +423,26 @@
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>dclick	</td></tr>
+			<a name="8.1"></a>checkchange	</td></tr>
+	<tr><td colspan="2">When the checkbox has been clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME checkchange ID STATE</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx checkchange 4 </div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STATE</td>
+		<td>The state of the checkbox, <a class="value">1</a> for checked, <a class="value">0</a> for unchecked.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nochange</a> to cancel automatic enabling/disabling of the child controls in the box.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.2"></a>dclick	</td></tr>
 	<tr><td colspan="2">When the left mouse button is double clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -437,7 +456,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>help	</td></tr>
+			<a name="8.3"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -451,7 +470,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>lbdown	</td></tr>
+			<a name="8.4"></a>lbdown	</td></tr>
 	<tr><td colspan="2">When the left mouse button is clicked down.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -465,7 +484,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>lbup	</td></tr>
+			<a name="8.5"></a>lbup	</td></tr>
 	<tr><td colspan="2">When the left mouse button is released.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -479,7 +498,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.5"></a>rclick	</td></tr>
+			<a name="8.6"></a>rclick	</td></tr>
 	<tr><td colspan="2">When the right mouse button is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -493,7 +512,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.6"></a>sclick	</td></tr>
+			<a name="8.7"></a>sclick	</td></tr>
 	<tr><td colspan="2">When the left mouse button is clicked and released.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -507,7 +526,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">bottom</a></li><li><a href="#3.2" style="color: #B52929;">center</a></li><li><a href="#3.3" style="color: #B52929;">none</a></li><li><a href="#3.4" style="color: #B52929;">right</a></li><li><a href="#3.5" style="color: #B52929;">rounded</a></li><li><a href="#3.6" style="color: #B52929;">transparent</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-c</a></li><li><a href="#4.2" style="color: #0000FF;">-d</a></li><li><a href="#4.3" style="color: #0000FF;">-l</a></li><li><a href="#4.4" style="color: #0000FF;">-t</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">inbox</a></li><li><a href="#9.2" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">dclick</a></li><li><a href="#8.2" style="color: #009900;">help</a></li><li><a href="#8.3" style="color: #009900;">lbdown</a></li><li><a href="#8.4" style="color: #009900;">lbup</a></li><li><a href="#8.5" style="color: #009900;">rclick</a></li><li><a href="#8.6" style="color: #009900;">sclick</a></li></ul></td>
+<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">bottom</a></li><li><a href="#3.2" style="color: #B52929;">center</a></li><li><a href="#3.3" style="color: #B52929;">none</a></li><li><a href="#3.4" style="color: #B52929;">right</a></li><li><a href="#3.5" style="color: #B52929;">rounded</a></li><li><a href="#3.6" style="color: #B52929;">transparent</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-c</a></li><li><a href="#4.2" style="color: #0000FF;">-d</a></li><li><a href="#4.3" style="color: #0000FF;">-l</a></li><li><a href="#4.4" style="color: #0000FF;">-t</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">inbox</a></li><li><a href="#9.2" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">checkchange</a></li><li><a href="#8.2" style="color: #009900;">dclick</a></li><li><a href="#8.3" style="color: #009900;">help</a></li><li><a href="#8.4" style="color: #009900;">lbdown</a></li><li><a href="#8.5" style="color: #009900;">lbup</a></li><li><a href="#8.6" style="color: #009900;">rclick</a></li><li><a href="#8.7" style="color: #009900;">sclick</a></li></ul></td>
   </tr>
 </table>
 
