@@ -699,6 +699,28 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			}
 			break;
 		case 'p': // polygon
+			{
+				TString strPoints = input.gettok(4,-1," ");
+				TString strPoint;
+				int tPoints = strPoints.numtok(" ");
+				if (tPoints < 1) {
+					mIRCError("Invalid Points");
+					return;
+				}
+				int cnt = 1;
+				POINT *pnts = new POINT[tPoints];
+				while (cnt <= tPoints)
+				{
+					strPoint = strPoints.gettok(cnt," ");
+					pnts[cnt-1].x = atol(strPoint.gettok(1,",").to_chr());
+					pnts[cnt-1].y = atol(strPoint.gettok(2,",").to_chr());
+					cnt++;
+				}
+				this->m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
+				if (this->m_Region)
+					SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
+				delete [] pnts;
+			}
 			break;
 		case 'n': // none, no args
 			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
