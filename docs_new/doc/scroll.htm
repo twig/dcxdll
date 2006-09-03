@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX Scroll - Dialog Control Xtension DLL v1.3.6 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table>
+	<tr>
+		<td>
+			<a href="index.htm"><img src="images/dcx.png" alt="DCX - Dialog Control Xtension" /></a>
+		</td>
+		<td style="vertical-align: bottom; text-align: right;">
+			<a href='index.htm'>Home</a> |
+			<a href='http://dcx.scriptsdb.org/translations'>Translations</a> |
+			<a href="archive.htm">Download</a> |
+			<a href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a>
+		</td>
+	</tr>
+</table>
+
+<table class="bar">
+	<tr>
+		<td>
+			&nbsp;
+		</td>
+		<td style="text-align: center;">Dialog Control Xtension - Scroll</td>
+		<td style="text-align: right;">v1.3.6</td>
+	</tr>
+</table>
+
+<table>
+	<tr>
+<td class="menuleft">
+	<br />
+	<a class="section" href="#1">Introduction</a><br />
+	<br />
+	<a class="section" href="index.htm">DCX Controls</a><br />
+	<ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window</a></li>	</ul>
+	<a class="section">DCX Features</a><br />
+	<ul>
+		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
+		<li><a href="xdock.htm">XDock</a></li>
+		<li><a href="xpopup.htm">XPopup Menus</a></li>
+	</ul>
+	<a class="section">About DCX</a><br />
+	<ul>
+		<li><a href="archive.htm">Download Archive</a></li>
+		<li><a href="changes.htm">Version History</a></li>
+		<li><a href="dcxvsmdx.htm">DCX vs MDX</a></li>
+    </ul>
+</td>
+<td><br /><table class="description">
+	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td>This control enables you to create a scroll bar.<br /><br />
+<div style="text-align: center;">
+	<img src="images/scroll.png" alt="" />
+</div>
+</td></tr>
+</table>
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td>These control styles are available when creating a Scroll control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
+</table>
+<table class="styles">
+	<tr>
+		<td class="style"><a name="3.1" class="style">vertical</a></td>
+		<td>Vertical scroll bar.</td>
+	</tr>
+</table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
+</table>
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.1"></a>/xdid -l	</td></tr>
+	<tr><td colspan="2">This command lets you set the line step value.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -l [DNAME] [ID] [VALUE]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -l dcx 4 5</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> See <a class="event">Lineup</a> and <a class="event">Linedown</a> events.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.2"></a>/xdid -m	</td></tr>
+	<tr><td colspan="2">This command lets you set the page step value.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -m [DNAME] [ID] [VALUE]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -m dcx 4 10</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> See <a class="event">Pageup</a> and <a class="event">Pagedown</a> events</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.3"></a>/xdid -r	</td></tr>
+	<tr><td colspan="2">This command lets you set the scrollbar range.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -r [DNAME] [ID] [MIN] [MAX]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -r dcx 4 0 100</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.4"></a>/xdid -v	</td></tr>
+	<tr><td colspan="2">This command lets you set the tracker position.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -v [DNAME] [ID] [POS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -v dcx 4 50</div></td>
+	</tr>
+</table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
+</table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.1"></a>$xdid().line	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the scroll bar line step value.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).line</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).line</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.2"></a>$xdid().page	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the scroll bar page step value.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).page</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).page</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.3"></a>$xdid().range	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the scroll bar range.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).range</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).range</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.4"></a>$xdid().value	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the scroll bar position value.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).value</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).value</div></td>
+	</tr>
+</table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Scroll Events</div></td></tr>
+	<tr><td>These events are fired when activity occurs in the Scroll control.</td></tr>
+</table>
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.1"></a>bottom	</td></tr>
+	<tr><td colspan="2">When the user presses the end key.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME bottom ID POS</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx bottom 4 </div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POS</td>
+		<td>Scroll bar position.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.2"></a>help	</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx help 4 </div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.3"></a>linedown	</td></tr>
+	<tr><td colspan="2">When the user presses down/right arrow keys.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME linedown ID POS</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx linedown 4 </div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POS</td>
+		<td>Scroll bar position.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.4"></a>lineup	</td></tr>
+	<tr><td colspan="2">When the user presses up/left arrow keys.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME lineup ID POS</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx lineup 4 </div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POS</td>
+		<td>Scroll bar position.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.5"></a>pagedown	</td></tr>
+	<tr><td colspan="2">When the user presses the pagedown key or clicks on the right/bottom of the scrollbar thumb track.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME pagedown ID POS</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx pagedown 4 </div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POS</td>
+		<td>Scroll bar position.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.6"></a>pageup	</td></tr>
+	<tr><td colspan="2">When the user presses the pageup key or clicks on the left/top of the scrollbar thumb track.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME pageup ID POS</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx pageup 4 </div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POS</td>
+		<td>Scroll bar position.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.7"></a>top	</td></tr>
+	<tr><td colspan="2">When the user presses the home key.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME top ID POS</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx top 4 </div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POS</td>
+		<td>Scroll bar position.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.8"></a>trackend	</td></tr>
+	<tr><td colspan="2">When the user releases the left mouse button after dragging the thumb.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME trackend ID POS</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx trackend 4 </div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POS</td>
+		<td>Scroll bar position.</td>
+	</tr>
+</table>
+<br />
+</td><td class="menuright">
+	<br />
+<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">vertical</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-l</a></li><li><a href="#4.2" style="color: #0000FF;">-m</a></li><li><a href="#4.3" style="color: #0000FF;">-r</a></li><li><a href="#4.4" style="color: #0000FF;">-v</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">line</a></li><li><a href="#9.2" style="color: #6666FF;">page</a></li><li><a href="#9.3" style="color: #6666FF;">range</a></li><li><a href="#9.4" style="color: #6666FF;">value</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">bottom</a></li><li><a href="#8.2" style="color: #009900;">help</a></li><li><a href="#8.3" style="color: #009900;">linedown</a></li><li><a href="#8.4" style="color: #009900;">lineup</a></li><li><a href="#8.5" style="color: #009900;">pagedown</a></li><li><a href="#8.6" style="color: #009900;">pageup</a></li><li><a href="#8.7" style="color: #009900;">top</a></li><li><a href="#8.8" style="color: #009900;">trackend</a></li></ul></td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2006</td>
+		<td style="text-align: right;">Last Updated: 3rd September, 06</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>

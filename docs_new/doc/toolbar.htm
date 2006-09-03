@@ -1,0 +1,734 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX ToolBar - Dialog Control Xtension DLL v1.3.6 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table>
+	<tr>
+		<td>
+			<a href="index.htm"><img src="images/dcx.png" alt="DCX - Dialog Control Xtension" /></a>
+		</td>
+		<td style="vertical-align: bottom; text-align: right;">
+			<a href='index.htm'>Home</a> |
+			<a href='http://dcx.scriptsdb.org/translations'>Translations</a> |
+			<a href="archive.htm">Download</a> |
+			<a href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a>
+		</td>
+	</tr>
+</table>
+
+<table class="bar">
+	<tr>
+		<td>
+			&nbsp;
+		</td>
+		<td style="text-align: center;">Dialog Control Xtension - ToolBar</td>
+		<td style="text-align: right;">v1.3.6</td>
+	</tr>
+</table>
+
+<table>
+	<tr>
+<td class="menuleft">
+	<br />
+	<a class="section" href="#1">Introduction</a><br />
+	<br />
+	<a class="section" href="index.htm">DCX Controls</a><br />
+	<ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window</a></li>	</ul>
+	<a class="section">DCX Features</a><br />
+	<ul>
+		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
+		<li><a href="xdock.htm">XDock</a></li>
+		<li><a href="xpopup.htm">XPopup Menus</a></li>
+	</ul>
+	<a class="section">About DCX</a><br />
+	<ul>
+		<li><a href="archive.htm">Download Archive</a></li>
+		<li><a href="changes.htm">Version History</a></li>
+		<li><a href="dcxvsmdx.htm">DCX vs MDX</a></li>
+    </ul>
+</td>
+<td><br /><table class="description">
+	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td>This control enables you to create a toolbar.<br /><br />
+<div style="text-align: center;">
+	<img src="images/toolbar.png" alt="" />
+</div>
+</td></tr>
+</table>
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td>These control styles are available when creating a ToolBar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
+</table>
+<table class="styles">
+	<tr>
+		<td class="style"><a name="3.1" class="style">arrows</a></td>
+		<td>Displays a dropdown arrow on the buttons having the <a class="value">+v</a> flag set.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.2" class="style">bottom</a></td>
+		<td>The toolbar is auto-positioned at bottom of dialog window.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.3" class="style">flat</a></td>
+		<td>Toolbar style is flat with buttons having a hot mode (hover). This style also includes the <a class="style">transparent</a> style.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.4" class="style">left</a></td>
+		<td>Toolbar is auto-positioned to the left side of the dialog (makes the toolbar vertical).</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.5" class="style">list</a></td>
+		<td>Toolbar item text is to the right of the icon.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.6" class="style">noauto</a></td>
+		<td>Prevents the toolbar from being auto-positioned and resized by the parent window. The user is responsible for the positioning and resizing of the toolbar.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.7" class="style">nodivider</a></td>
+		<td>The 2 pixel line divider is not included in the toolbar.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.8" class="style">right</a></td>
+		<td>Toolbar is auto-positioned to the right side of the dialog (makes the toolbar vertical).</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.9" class="style">tooltips</a></td>
+		<td>Toolbar items support tooltips.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.10" class="style">top</a></td>
+		<td>The toolbar is auto-positioned at top of dialog window.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.11" class="style">transparent</a></td>
+		<td>Toolbar control is transparent letting the dialog background color through.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.12" class="style">wrap</a></td>
+		<td>Toolbar can have multiple lines of buttons. Toolbar buttons "break" off to the next line when the toolbar becomes too narrow to include all buttons on the same line. The break will occur on the rightmost separator item or the rightmost button if there are no separators on the bar.</td>
+	</tr>
+</table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
+</table>
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.1"></a>/xdid -a	</td></tr>
+	<tr><td colspan="2">This command lets you add an item to the toolbar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] (Button Text)[TAB](Tooltip Text)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -a dcx 4 1 +cv 100 1 $rgb(255,0,0) Button $chr(9) Tooltip</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Button index number.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Item flags.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>The button is auto-sized to fit in the icon and text.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>The button text is bold. (Only works with XP themes disabled)</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>The button text is colored, defined by <a class="param">COLOR</a>. (Only works with XP themes disabled)</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>The button is disabled.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>The button is part of a checkgroup (radio checks) (used with <a>-k</a> flag).</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>The button is hidden (but still part of the toolbar).</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>The button is in indeterminate state (greyed out).</td>
+	</tr>
+	<tr>
+		<td class="value">k</td>
+		<td>The button acts like a checkbox.</td>
+	</tr>
+	<tr>
+		<td class="value">l</td>
+		<td>Specifies that <a class="param">WIDTH</a> is the button width.</td>
+	</tr>
+	<tr>
+		<td class="value">p</td>
+		<td>The button appears like pressed.</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>Item text is underlined. (Only works with XP themes disabled)</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>The button acts like a dropdown button. (If the <a class="style">arrows</a> style is specified, a dropdown arrow will be drawn beside the button)</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>The button after (and all other buttons following) a button with this style will be forced to the next line.</td>
+	</tr>
+	<tr>
+		<td class="value">x</td>
+		<td>The button is checked.</td>
+	</tr>
+	<tr>
+		<td class="param">WIDTH</td>
+		<td>Button width (Use 0 if not used).</td>
+	</tr>
+	<tr>
+		<td class="param">ICON</td>
+		<td>Icon displayed when item is not selected.</td>
+	</tr>
+	<tr>
+		<td class="param">COLOR</td>
+		<td>Toolbar button text color (Only works with XP themes disabled).</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">Button Text</a> and <a class="param">Tooltip Text</a> parameters are optional.</li><li>If <a class="param">Button Text</a> is '<a class="value">-</a>' the button will be a separator item.</li><li>If the button is a separator item, the value used for <a class="param">ICON</a> will be the separator width in pixels.</li><li>Icons must be added before it can be used in the toolbar. (see <a>/xdid -l</a>)</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.2"></a>/xdid -c	</td></tr>
+	<tr><td colspan="2">This command lets you change the Nth toolbar button (or tooltip) colors and text styles.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] [N] [+FLAGS] [COLOR]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -c dcx 4 3 +bc $rgb(0,0,255)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>The index of the button to modify.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Properties to set to the button.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>The text is bold.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>The text is in a color defined by <a class="param">COLOR</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>The text is underlined.</td>
+	</tr>
+	<tr>
+		<td class="value">x</td>
+		<td>The background color of the toolbar tooltip.</td>
+	</tr>
+	<tr>
+		<td class="value">z</td>
+		<td>The text color of the toolbar tooltip.</td>
+	</tr>
+	<tr>
+		<td class="param">COLOR</td>
+		<td>The color to assign the button (or tooltip)</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using flags +x and +z, you MUST use <a class="param">N</a> to be <a class="value">0</a>.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.3"></a>/xdid -d	</td></tr>
+	<tr><td colspan="2">This command lets you delete the Nth toolbar button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -d [DNAME] [ID] [N]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -d dcx 4 6</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.4"></a>/xdid -i	</td></tr>
+	<tr><td colspan="2">This command lets you change the Nth toolbar button icon.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -i [DNAME] [ID] [N] [ICON]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -i dcx 4 7 2</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use 0 for no icon.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.5"></a>/xdid -j	</td></tr>
+	<tr><td colspan="2">This command lets you set the minimum and maximum width of toolbar buttons.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -j [DNAME] [ID] [MIN] [MAX]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -j dcx 4 50 100</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only applies on toolbars with the <a class="style">list</a> style set.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.6"></a>/xdid -l	</td></tr>
+	<tr><td colspan="2">This command lets you set the icon size of the toolbar image lists.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -l [DNAME] [ID] [SIZE]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -l dcx 4 16</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">SIZE</td>
+		<td>Image list image size</td>
+	</tr>
+	<tr>
+		<td class="value">16</td>
+		<td>Icons are 16x16 pixels.</td>
+	</tr>
+	<tr>
+		<td class="value">24</td>
+		<td>Icons are 24x24 pixels.</td>
+	</tr>
+	<tr>
+		<td class="value">32</td>
+		<td>Icons are 32x32 pixels.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>This command can also be used to clear the images lists.</li><li>This command must be issued before adding icons to the toolbar image lists.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.7"></a>/xdid -m	</td></tr>
+	<tr><td colspan="2">This command lets you toggle the toolbar autostretch feature. This feature resizes automatically the toolbar buttons to stretch the full width of the toolbar when the control width changes. Does not work on vertical toolbars.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -m [DNAME] [ID] [ON]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -m dcx 4 1</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">ON</a> can either be <a class="value">1</a> or <a class="value">0</a></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.8"></a>/xdid -q	</td></tr>
+	<tr><td colspan="2">This command lets you change the Nth button tooltip text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -q [DNAME] [ID] [N] (TEXT)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -q dcx 4 2 New TipText</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">TEXT</a> is optional.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.9"></a>/xdid -r	</td></tr>
+	<tr><td colspan="2">This command lets you clear all the toolbar items.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -r [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -r dcx 4 </div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.10"></a>/xdid -t	</td></tr>
+	<tr><td colspan="2">This command lets you change the state of a toolbar button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -t [DNAME] [ID] [N] [+FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -t dcx 4 2 +d</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Button index number</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Item flags.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>The button is disabled.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>The button is hidden (but still part of the toolbar).</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>The button is in indeterminate state (greyed out).</td>
+	</tr>
+	<tr>
+		<td class="value">p</td>
+		<td>The button appears like pressed.</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>The button after (and all other buttons following) a button with this style will be forced to the next line.</td>
+	</tr>
+	<tr>
+		<td class="value">x</td>
+		<td>The button is checked.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> A flags value of <a class="value">+</a> resets the button to it's normal state.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.11"></a>/xdid -u	</td></tr>
+	<tr><td colspan="2">This command lets change the toolbar default button size.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -u [DNAME] [ID] [WIDTH] [HEIGHT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -u dcx 4 20 15</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.12"></a>/xdid -v	</td></tr>
+	<tr><td colspan="2">This command lets you change the Nth button text (text is optional).</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -v [DNAME] [ID] [N] (TEXT)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -v dcx 4 2 New Text</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.13"></a>/xdid -w	</td></tr>
+	<tr><td colspan="2">This command lets you add an icon to the toolbar image lists.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -w dcx 4 +n 113 C:/mIRC/shell.dll</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Image list flags.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Disabled icon list.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Normal icon list.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Hottrack icon list.</td>
+	</tr>
+	<tr>
+		<td class="param">INDEX</td>
+		<td>Icon index in icon archive</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>Icon archive filename</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use 0 if the file is a single icon file.</td></tr></table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
+</table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.1"></a>$xdid().icon	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the Nth button icon.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N).icon</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 1).icon</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.2"></a>$xdid().mouseitem	</td></tr>
+	<tr><td colspan="2">Returns the item which the mouse is currently over.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).mouseitem</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).mouseitem</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Returns <a class="value">-1</a> when mouse is not over an item, or is currently over a disabled item.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.3"></a>$xdid().num	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the total number of buttons on the toolbar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).num</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).num</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.4"></a>$xdid().state	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the state of the Nth toolbar button. The flags returned are in the same format specified in <a>/xdid -t</a>.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N).state</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 6).state</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.5"></a>$xdid().text	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the Nth button text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N).text</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 1).text</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.6"></a>$xdid().tooltip	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the Nth toolbar button tooltip.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N).tooltip</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 1).tooltip</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.7"></a>$xdid().tooltipbgcolor	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the tooltip background color.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).tooltipbgcolor</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).tooltipbgcolor</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.8"></a>$xdid().tooltiptextcolor	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the tooltip text color.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).tooltiptextcolor</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).tooltiptextcolor</div></td>
+	</tr>
+</table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>ToolBar Events</div></td></tr>
+	<tr><td>These events are fired when activity occurs in the ToolBar control.</td></tr>
+</table>
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.1"></a>dropdown	</td></tr>
+	<tr><td colspan="2">When a dropdown button (or arrow if <a class="style">arrow</a> style is set) event is fired on a button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dropdown ID BTN_ID Bottom_X Bottom_Y Top_X Top_Y</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dropdown 4 10 586 73 586 27</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">BTN_ID</td>
+		<td>Button that triggered the event.</td>
+	</tr>
+	<tr>
+		<td class="param">Bottom_X</td>
+		<td>Coordinates of a possible popup menu aligned under the button where the dropdown was fired.</td>
+	</tr>
+	<tr>
+		<td class="param">Bottom_Y</td>
+		<td>Coordinates of a possible popup menu aligned under the button where the dropdown was fired.</td>
+	</tr>
+	<tr>
+		<td class="param">Top_X</td>
+		<td>Coordinates of a possible popup menu aligned over the button where the dropdown was fired.</td>
+	</tr>
+	<tr>
+		<td class="param">Top_Y</td>
+		<td>Coordinates of a possible popup menu aligned over the button where the dropdown was fired.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.2"></a>help	</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx help 4 </div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.3"></a>rclick	</td></tr>
+	<tr><td colspan="2">When a the right mouse button is clicked over a button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME rclick ID BTN_ID Bottom_X Bottom_Y Top_X Top_Y</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx rclick 4 3 165 73 165 27</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">BTN_ID</td>
+		<td>Button that triggered the event.</td>
+	</tr>
+	<tr>
+		<td class="param">Bottom_X</td>
+		<td>Coordinates of a possible popup menu aligned under the button where the rclick was fired.</td>
+	</tr>
+	<tr>
+		<td class="param">Bottom_Y</td>
+		<td>Coordinates of a possible popup menu aligned under the button where the rclick was fired.</td>
+	</tr>
+	<tr>
+		<td class="param">Top_X</td>
+		<td>Coordinates of a possible popup menu aligned over the button where the rclick was fired.</td>
+	</tr>
+	<tr>
+		<td class="param">Top_Y</td>
+		<td>Coordinates of a possible popup menu aligned over the button where the rclick was fired.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.4"></a>sclick	</td></tr>
+	<tr><td colspan="2">When a button is clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME sclick ID BTN_ID</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx sclick 4 2</div></td>
+	</tr>
+</table>
+<br />
+</td><td class="menuright">
+	<br />
+<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">arrows</a></li><li><a href="#3.2" style="color: #B52929;">bottom</a></li><li><a href="#3.3" style="color: #B52929;">flat</a></li><li><a href="#3.4" style="color: #B52929;">left</a></li><li><a href="#3.5" style="color: #B52929;">list</a></li><li><a href="#3.6" style="color: #B52929;">noauto</a></li><li><a href="#3.7" style="color: #B52929;">nodivider</a></li><li><a href="#3.8" style="color: #B52929;">right</a></li><li><a href="#3.9" style="color: #B52929;">tooltips</a></li><li><a href="#3.10" style="color: #B52929;">top</a></li><li><a href="#3.11" style="color: #B52929;">transparent</a></li><li><a href="#3.12" style="color: #B52929;">wrap</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-a</a></li><li><a href="#4.2" style="color: #0000FF;">-c</a></li><li><a href="#4.3" style="color: #0000FF;">-d</a></li><li><a href="#4.4" style="color: #0000FF;">-i</a></li><li><a href="#4.5" style="color: #0000FF;">-j</a></li><li><a href="#4.6" style="color: #0000FF;">-l</a></li><li><a href="#4.7" style="color: #0000FF;">-m</a></li><li><a href="#4.8" style="color: #0000FF;">-q</a></li><li><a href="#4.9" style="color: #0000FF;">-r</a></li><li><a href="#4.10" style="color: #0000FF;">-t</a></li><li><a href="#4.11" style="color: #0000FF;">-u</a></li><li><a href="#4.12" style="color: #0000FF;">-v</a></li><li><a href="#4.13" style="color: #0000FF;">-w</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">icon</a></li><li><a href="#9.2" style="color: #6666FF;">mouseitem</a></li><li><a href="#9.3" style="color: #6666FF;">num</a></li><li><a href="#9.4" style="color: #6666FF;">state</a></li><li><a href="#9.5" style="color: #6666FF;">text</a></li><li><a href="#9.6" style="color: #6666FF;">tooltip</a></li><li><a href="#9.7" style="color: #6666FF;">tooltipbgcolor</a></li><li><a href="#9.8" style="color: #6666FF;">tooltiptextcolor</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">dropdown</a></li><li><a href="#8.2" style="color: #009900;">help</a></li><li><a href="#8.3" style="color: #009900;">rclick</a></li><li><a href="#8.4" style="color: #009900;">sclick</a></li></ul></td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2006</td>
+		<td style="text-align: right;">Last Updated: 3rd September, 06</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>

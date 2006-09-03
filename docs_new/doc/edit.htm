@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX Edit - Dialog Control Xtension DLL v1.3.6 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table>
+	<tr>
+		<td>
+			<a href="index.htm"><img src="images/dcx.png" alt="DCX - Dialog Control Xtension" /></a>
+		</td>
+		<td style="vertical-align: bottom; text-align: right;">
+			<a href='index.htm'>Home</a> |
+			<a href='http://dcx.scriptsdb.org/translations'>Translations</a> |
+			<a href="archive.htm">Download</a> |
+			<a href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a>
+		</td>
+	</tr>
+</table>
+
+<table class="bar">
+	<tr>
+		<td>
+			&nbsp;
+		</td>
+		<td style="text-align: center;">Dialog Control Xtension - Edit</td>
+		<td style="text-align: right;">v1.3.6</td>
+	</tr>
+</table>
+
+<table>
+	<tr>
+<td class="menuleft">
+	<br />
+	<a class="section" href="#1">Introduction</a><br />
+	<br />
+	<a class="section" href="index.htm">DCX Controls</a><br />
+	<ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window</a></li>	</ul>
+	<a class="section">DCX Features</a><br />
+	<ul>
+		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
+		<li><a href="xdock.htm">XDock</a></li>
+		<li><a href="xpopup.htm">XPopup Menus</a></li>
+	</ul>
+	<a class="section">About DCX</a><br />
+	<ul>
+		<li><a href="archive.htm">Download Archive</a></li>
+		<li><a href="changes.htm">Version History</a></li>
+		<li><a href="dcxvsmdx.htm">DCX vs MDX</a></li>
+    </ul>
+</td>
+<td><br /><table class="description">
+	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td>Normal edit control.<br /><br />
+<div style="text-align: center;">
+	<img src="images/edit.png" alt="" />
+</div>
+</td></tr>
+</table>
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td>These control styles are available when creating a Edit control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
+</table>
+<table class="styles">
+	<tr>
+		<td class="style"><a name="3.1" class="style">autohs</a></td>
+		<td>Text scrolling is automatically scrolled horizontally without need of a horizontal scrollbar.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.2" class="style">autovs</a></td>
+		<td>Text scrolling is automatically scrolled vertically without need of a vertical scrollbar.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.3" class="style">center</a></td>
+		<td>Text is centered.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.4" class="style">hsbar</a></td>
+		<td>Displays a horizontal scrollbar.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.5" class="style">lowercase</a></td>
+		<td>Converts all characters to lowercase as they are typed into the edit control.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.6" class="style">multi</a></td>
+		<td>Enables a multiline edit.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.7" class="style">number</a></td>
+		<td>Allows only digits to be entered into the edit control.<br /><a class="note">Note.</a> Even with <a class="style">number</a> set, it is still possible to paste non-digits into the edit control.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.8" class="style">password</a></td>
+		<td>Displays an asterisk (*) for each character typed into the edit control. Only works when <a class="style">multi</a> style is NOT set.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.9" class="style">readonly</a></td>
+		<td>Prevents the user from typing or editing text in the edit control.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.10" class="style">return</a></td>
+		<td>Specifies that a carriage return be inserted when the user presses the ENTER key while entering text into a multiline edit control in a dialog box.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.11" class="style">right</a></td>
+		<td>Text is right justified.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.12" class="style">tooltips</a></td>
+		<td>The edit will have a tooltip.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.13" class="style">uppercase</a></td>
+		<td>Converts all characters to uppercase as they are typed into the edit control.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.14" class="style">vsbar</a></td>
+		<td>Displays a vertical scrollbar.</td>
+	</tr>
+</table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
+</table>
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.1"></a>/xdid -S	</td></tr>
+	<tr><td colspan="2">This command lets you set the selection range in the edit.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -S [DNAME] [ID] [START] [END]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -S dcx 4 1 3</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.2"></a>/xdid -a	</td></tr>
+	<tr><td colspan="2">This command lets you add text to the end of the edit.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [TEXT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -a dcx 4 New Text</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.3"></a>/xdid -c	</td></tr>
+	<tr><td colspan="2">This command will copy the text in the edit to the clipboard.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -c dcx 4 </div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.4"></a>/xdid -d	</td></tr>
+	<tr><td colspan="2">This command lets you delete the Nth line of text in the edit.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -d [DNAME] [ID] [N]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -d dcx 4 2</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only works with <a class="style">multi</a>.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.5"></a>/xdid -i	</td></tr>
+	<tr><td colspan="2">This command lets you insert a line at the Nth position in the edit.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -i [DNAME] [ID] [N] (TEXT)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -i dcx 4 5 New Text</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">multi</a> style is not used, will overwrite the whole text.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.6"></a>/xdid -j	</td></tr>
+	<tr><td colspan="2">This command lets you trigger the password style of the edit control on the fly.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -j [DNAME] [ID] [ENABLED]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -j dcx 4 1</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use either <a class="value">1</a> or <a class="value">0</a> for <a class="param">ENABLED</a>.</li><li>If anyone could find me the ascii value of the big DOT used for the default password character on XP, please leave a message.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.7"></a>/xdid -o	</td></tr>
+	<tr><td colspan="2">This command lets you overwrite the Nth line in the edit.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -o [DNAME] [ID] [N] [TEXT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -o dcx 4 5 New Text</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">multi</a> style is not used, will overwrite the whole text.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.8"></a>/xdid -q	</td></tr>
+	<tr><td colspan="2">This command lets you set a char length limit on the edit.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -q [DNAME] [ID] [LIMIT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -q dcx 4 8</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.9"></a>/xdid -r	</td></tr>
+	<tr><td colspan="2">This command lets you clear the contents of the edit.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -r [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -r dcx 4 </div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.10"></a>/xdid -t	</td></tr>
+	<tr><td colspan="2">This command lets you load the contents of a file directly in the edit.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -t [DNAME] [ID] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -t dcx 4 C:\mIRC\blah.txt</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.11"></a>/xdid -u	</td></tr>
+	<tr><td colspan="2">This command lets you save the contents of the edit directly in a file.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -u [DNAME] [ID] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -u dcx 4 C:\mIRC\blah.txt</div></td>
+	</tr>
+</table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
+</table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.1"></a>$xdid().ispass	</td></tr>
+	<tr><td colspan="2">This property lets you retreive if the password style is set on the edit control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).ispass</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).ispass</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.2"></a>$xdid().num	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the number of lines in the edit.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).num</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).num</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.3"></a>$xdid().sel	</td></tr>
+	<tr><td colspan="2">This returns the index of the first and last selected character position in the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).sel</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).sel</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.4"></a>$xdid().selend	</td></tr>
+	<tr><td colspan="2">This returns the index of the last selected character position in the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).selend</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).selend</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.5"></a>$xdid().selstart	</td></tr>
+	<tr><td colspan="2">This returns the index of the first selected character position in the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).selstart</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).selstart</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.6"></a>$xdid().seltext	</td></tr>
+	<tr><td colspan="2">This returns the selected text in the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).seltext</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).seltext</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.7"></a>$xdid().text	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the Nth line in the edit or the whole edit text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [N]).text</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 2).text</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">multi</a> is not used, you can ignore <a class="param">N</a> when retrieving the edit text.</td></tr></table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Edit Events</div></td></tr>
+	<tr><td>These events are fired when activity occurs in the Edit control.</td></tr>
+</table>
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.1"></a>copy	</td></tr>
+	<tr><td colspan="2">When the user copies text from the edit control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME copy ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx copy 4 </div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nocopy</a> this value to block the copy operation.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.2"></a>cut	</td></tr>
+	<tr><td colspan="2">When the user cuts text from the edit control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME cut ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx cut 4 </div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nocut</a> Return this value to block the cut operation.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.3"></a>dragbegin	</td></tr>
+	<tr><td colspan="2">Triggers when one or more files are dropped onto the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dragbegin ID COUNT</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dragbegin 4 3</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">COUNT</td>
+		<td>Total number of files dragged into the control.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> to stop the drag drop events from occuring.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.4"></a>dragfile	</td></tr>
+	<tr><td colspan="2">The filename of the file which was dropped onto the edit control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dragfile ID FILENAME</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dragfile 4 C:\mIRC\blah.txt</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.5"></a>dragfinish	</td></tr>
+	<tr><td colspan="2">Event triggered when processing of drag drop is complete.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dragfinish ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dragfinish 4 </div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.6"></a>edit	</td></tr>
+	<tr><td colspan="2">When the text is edited in the edit control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME edit ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx edit 4 </div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.7"></a>help	</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx help 4 </div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.8"></a>keydown	</td></tr>
+	<tr><td colspan="2">When a key is pressed in the edit control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME keydown ID KEYCODE</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx keydown 4 </div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.9"></a>keyup	</td></tr>
+	<tr><td colspan="2">When a key is unpressed in the edit control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME keyup ID KEYCODe</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx keyup 4 </div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.10"></a>paste	</td></tr>
+	<tr><td colspan="2">When the user pastes text into the edit control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME paste ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx paste 4 </div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nopaste</a> Return this value to block the paste operation.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.11"></a>return	</td></tr>
+	<tr><td colspan="2">When the <b>enter</b> key is pressed in the edit control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME return ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx return 4 </div></td>
+	</tr>
+</table>
+<br />
+</td><td class="menuright">
+	<br />
+<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">autohs</a></li><li><a href="#3.2" style="color: #B52929;">autovs</a></li><li><a href="#3.3" style="color: #B52929;">center</a></li><li><a href="#3.4" style="color: #B52929;">hsbar</a></li><li><a href="#3.5" style="color: #B52929;">lowercase</a></li><li><a href="#3.6" style="color: #B52929;">multi</a></li><li><a href="#3.7" style="color: #B52929;">number</a></li><li><a href="#3.8" style="color: #B52929;">password</a></li><li><a href="#3.9" style="color: #B52929;">readonly</a></li><li><a href="#3.10" style="color: #B52929;">return</a></li><li><a href="#3.11" style="color: #B52929;">right</a></li><li><a href="#3.12" style="color: #B52929;">tooltips</a></li><li><a href="#3.13" style="color: #B52929;">uppercase</a></li><li><a href="#3.14" style="color: #B52929;">vsbar</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-S</a></li><li><a href="#4.2" style="color: #0000FF;">-a</a></li><li><a href="#4.3" style="color: #0000FF;">-c</a></li><li><a href="#4.4" style="color: #0000FF;">-d</a></li><li><a href="#4.5" style="color: #0000FF;">-i</a></li><li><a href="#4.6" style="color: #0000FF;">-j</a></li><li><a href="#4.7" style="color: #0000FF;">-o</a></li><li><a href="#4.8" style="color: #0000FF;">-q</a></li><li><a href="#4.9" style="color: #0000FF;">-r</a></li><li><a href="#4.10" style="color: #0000FF;">-t</a></li><li><a href="#4.11" style="color: #0000FF;">-u</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">ispass</a></li><li><a href="#9.2" style="color: #6666FF;">num</a></li><li><a href="#9.3" style="color: #6666FF;">sel</a></li><li><a href="#9.4" style="color: #6666FF;">selend</a></li><li><a href="#9.5" style="color: #6666FF;">selstart</a></li><li><a href="#9.6" style="color: #6666FF;">seltext</a></li><li><a href="#9.7" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">copy</a></li><li><a href="#8.2" style="color: #009900;">cut</a></li><li><a href="#8.3" style="color: #009900;">dragbegin</a></li><li><a href="#8.4" style="color: #009900;">dragfile</a></li><li><a href="#8.5" style="color: #009900;">dragfinish</a></li><li><a href="#8.6" style="color: #009900;">edit</a></li><li><a href="#8.7" style="color: #009900;">help</a></li><li><a href="#8.8" style="color: #009900;">keydown</a></li><li><a href="#8.9" style="color: #009900;">keyup</a></li><li><a href="#8.10" style="color: #009900;">paste</a></li><li><a href="#8.11" style="color: #009900;">return</a></li></ul></td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2006</td>
+		<td style="text-align: right;">Last Updated: 3rd September, 06</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>
