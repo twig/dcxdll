@@ -20,11 +20,14 @@ define('SECTION_XPOPUP', 12);
 define('SECTION_XPOPUPPROPS', 13);
 define('SECTION_XPOP', 14);
 define('SECTION_XPOPPROPS', 15);
+define('SECTION_XDOCK', 16);
+define('SECTION_XDOCKPROPS', 17);
 
 $PAGES = array(
     "index" => "DCX",
     'changes' => 'Version History',
     'xpopup' => 'XPopup',
+    'xdock' => 'XDock',
     'cla' => 'Cell Layout Algorithm',
     'dcxvsmdx' => 'DCX vs MDX',
     'archive' => 'Download Archive',
@@ -66,6 +69,8 @@ $XDID = array();
 $XDIDPROPS = array();
 $XDIALOG = array();
 $XDIALOGPROPS = array();
+$XDOCK = array();
+$XDOCKPROPS = array();
 $EVENTS = array();
 $GENERAL = array();
 $STYLES = array();
@@ -119,10 +124,19 @@ foreach ($PAGES as $page => $pagelabel) {
 		loadSection($XPOPPROPS, "get_xpopprops");
 	}
 	else {
-        $XPOPUP = array();
+		$XPOPUP = array();
         $XPOPUPPROPS = array();
         $XPOP = array();
         $XPOPPROPS = array();
+	}
+	
+	if ($page == 'xdock') {
+		loadSection($XDOCK, "get_xdock");
+		loadSection($XDOCKPROPS, "get_xdockprops");
+	}
+	else {
+		$XDOCK = array();
+		$XDOCKPROPS = array();
 	}
 
 	// start output buffer
@@ -212,6 +226,32 @@ foreach ($PAGES as $page => $pagelabel) {
   		}
 	}
 
+
+	// /xdock commands
+	if ($XDOCK) {
+        $SECTION = SECTION_XDOCK;
+        $count = 1;
+
+//        dcxdoc_print_description('/xdock Command', "The /xpopup command is used to create/modify/destroy an XPopup menu.");
+
+        foreach ($XDOCK as $cmd => $data) {
+       		dcxdoc_format_xdock($cmd, $data, $count);
+      		$count++;
+		}
+	}
+	
+		// /xdock commands
+	if ($XDOCKPROPS) {
+        $SECTION = SECTION_XDOCKPROPS;
+        $count = 1;
+
+        dcxdoc_print_description('$xdock Command', "The /xpopup command is used to create/modify/destroy an XPopup menu.");
+
+        foreach ($XDOCKPROPS as $cmd => $data) {
+       		dcxdoc_format_xdockprops($cmd, $data, $count);
+      		$count++;
+		}
+	}
 
 	// /xdialog commands
 	if ($XDIALOG) {

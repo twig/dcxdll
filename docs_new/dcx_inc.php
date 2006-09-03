@@ -240,7 +240,7 @@ function dcxdoc_menu_left() {
 	asort($pages);
 
 	foreach ($pages as $page => $pagelabel) {
-		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive')))
+		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock')))
 			continue;
 
 	    echo "<li><a href=\"$page.htm\">$pagelabel</a></li>";
@@ -250,6 +250,7 @@ function dcxdoc_menu_left() {
 	<a class="section">DCX Features</a><br />
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
+		<li><a href="xdock.htm">XDock</a></li>
 		<li><a href="xpopup.htm">XPopup Menus</a></li>
 	</ul>
 	<a class="section">About DCX</a><br />
@@ -264,7 +265,7 @@ function dcxdoc_menu_left() {
 
 
 function dcxdoc_menu_right($page) {
-	global $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL, $STYLES, $SECTION, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS;
+	global $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL, $STYLES, $SECTION, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS, $XDOCK, $XDOCKPROPS;
 
 ?><td class="menuright">
 	<br />
@@ -280,6 +281,9 @@ function dcxdoc_menu_right($page) {
     print_menu_items($XPOPUPPROPS, SECTION_XPOPUPPROPS, "\$xpopup() Properties");
     print_menu_items($XPOP, SECTION_XPOP, "/xpop Flags");
     print_menu_items($XPOPPROPS, SECTION_XPOPPROPS, "\$xpop() Properties");
+    
+    print_menu_items($XDOCK, SECTION_XDOCK, "/xdock Commands");
+    print_menu_items($XDOCKPROPS, SECTION_XDOCKPROPS, "\$xdock() Properties");
     
     print_menu_items($EVENTS, SECTION_EVENTS, "Events");
 	//echo "<a href=\"#\">$page Notes</a><br />";
@@ -327,6 +331,9 @@ function dcxdoc_footer() {
 	<a href="http://validator.w3.org/check?uri=referer">
 		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
 	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
 </div>
 </body>
 </html>
@@ -364,6 +371,12 @@ function dcxdoc_format_xpop($event, $data, $count) {
 }
 function dcxdoc_format_xpopprops($event, $data, $count) {
     format_xcmd("xpopprops", $event, $data, $count);
+}
+function dcxdoc_format_xdock($event, $data, $count) {
+	format_xcmd("xdock", $event, $data, $count);
+}
+function dcxdoc_format_xdockprops($event, $data, $count) {
+	format_xcmd("xdockprops", $event, $data, $count);
 }
 
 function format_xcmd($type, $flag, $data, $id) {
@@ -456,6 +469,17 @@ function format_xcmd($type, $flag, $data, $id) {
 			$syntax = "\$xpop(MENU, PATH" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
 			$example = "\$xpop(mymenu, 2 5" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
 		    break;
+		case "xdock":
+			$heading = "/$type -$flag";
+			$syntax = "/$type -$flag [UNKNOWN] {$data['__cmd']}";
+			$example = "/$type -$flag [STILL_WIP] {$data['__eg']}";
+			break;
+        case "xdockprops":
+			$heading = "\$xpopup().$flag";
+			$syntax = "\$xpopup(MENU" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
+			$example = "\$xpopup(mymenu" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
+		    break;
+
 		default:
 		    error_log("format_xcmd: Unknown type $type");
 		    exit();
