@@ -705,7 +705,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 					if (this->m_Region != NULL)
 						SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
-					this->redrawWindow();
 				}
 
 				break;
@@ -794,6 +793,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				break;
 			}
 		}
+		this->redrawWindow();
 	}
 	// invalid command
 	else {

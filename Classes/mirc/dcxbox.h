@@ -59,6 +59,7 @@ public:
 protected:
 
   UINT parseLayoutFlags( TString & flags );
+	void FillBkg(HDC hdc, LPRECT rc, HBRUSH hBrush);
 
   LONG m_iBoxStyles; //!< Custom Box Styles
 

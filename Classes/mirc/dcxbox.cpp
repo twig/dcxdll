@@ -783,6 +783,14 @@ LRESULT DcxBox::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	return 0L;
 }
 
+void DcxBox::FillBkg(HDC hdc, LPRECT rc, HBRUSH hBrush)
+{
+	if (!this->isExStyle(WS_EX_TRANSPARENT)) {
+		// paint the background
+		FillRect(hdc, rc, hBrush);
+	}
+}
+
 LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	LRESULT lRes = 0L;
@@ -970,28 +978,21 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				GetClientRect(this->m_Hwnd, &rc);
 				CopyRect(&rc2, &rc);
 
-				//if (this->m_iBoxStyles & BOXS_ROUNDED) {
-				//	this->m_Region = CreateRoundRectRgn(0,0,rc.right,rc.bottom,10,10);
-				//	if (this->m_Region) {
-				//		SelectClipRgn(hdc,this->m_Region);
-				//	}
-				//}
 				if (!this->isExStyle(WS_EX_TRANSPARENT)) {
 					// set up brush colors
 					if (this->m_hBackBrush != NULL)
 						hBrush = this->m_hBackBrush;
 					else
 						hBrush = GetSysColorBrush(COLOR_3DFACE);
-
 					// paint the background
-					FillRect(hdc, &rc2, hBrush);
+					FillRect(hdc, &rc2, GetSysColorBrush(COLOR_3DFACE));
 				}
-				else {
+				else
 					hBrush = GetSysColorBrush(COLOR_3DFACE);
-				}
 
 				// if no border, dont bother
 				if (this->m_iBoxStyles & BOXS_NONE) {
+					this->FillBkg(hdc, &rc2, hBrush);
 					EndPaint(this->m_Hwnd, &ps);
 
 					bParsed = TRUE;
@@ -1006,11 +1007,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 						HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
 						RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
 						SelectObject(hdc,OldhBrush);
-						//FrameRgn(hdc,this->m_Region,GetSysColorBrush(COLOR_BTNSHADOW),1,1);
 					}
 					else {
 						//if (!this->isExStyle(WS_EX_TRANSPARENT)) 
 						//	FillRect(hdc, &rc2, hBrush);
+						this->FillBkg(hdc, &rc2, hBrush);
 						DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
 					}
 					if (IsWindow(this->m_TitleButton))
@@ -1091,20 +1092,25 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 					// draw the border
 					if (this->m_iBoxStyles & BOXS_ROUNDED) {
-						//DrawRoundRect(hdc,&rc2,10,10);
 						HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
 						RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
 						SelectObject(hdc,OldhBrush);
-						//FrameRgn(hdc,this->m_Region,GetSysColorBrush(COLOR_BTNSHADOW),1,1);
 					}
 					else {
-						//if (!this->isExStyle(WS_EX_TRANSPARENT)) 
-						//	FillRect(hdc, &rc2, hBrush);
+						this->FillBkg(hdc, &rc2, hBrush);
 						DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
 					}
 
-					if (!this->isExStyle(WS_EX_TRANSPARENT))
+					if (!this->isExStyle(WS_EX_TRANSPARENT)) {
+						HRGN m_Region = CreateRectRgn(rc2.left,rc2.top,rc2.right,rc2.bottom);
+						if (m_Region)
+							SelectClipRgn(hdc,m_Region);
 						FillRect(hdc, &rcText2, hBrush);
+						if (m_Region) {
+							SelectClipRgn(hdc,NULL);
+							DeleteObject(m_Region);
+						}
+					}
 					//else
 					//	IntersectClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
 
@@ -1112,8 +1118,6 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
 
 					delete [] text;
-					//if (IsWindow(this->m_TitleButton))
-					//	SetWindowPos(this->m_TitleButton,NULL,bSZ.left,rcText2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
 				}
 
 				EndPaint(this->m_Hwnd, &ps);
