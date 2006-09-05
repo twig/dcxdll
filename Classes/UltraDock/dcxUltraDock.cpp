@@ -5,6 +5,7 @@
 #include "../../defines.h"
 
 extern mIRCDLL mIRCLink;
+BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam);
 
 // UltraDock stuff
 // mIRC components HWND
@@ -45,7 +46,6 @@ void InitUltraDock(void)
 }
 /*
 	*	Eject ALL Docked dialogs.
-	* BUG: Leaves odd dragbar type window in midclient window (DOH did CloseWindow instead of DestroyWindow!)
 */
 void CloseUltraDock(void)
 {
@@ -62,6 +62,7 @@ void CloseUltraDock(void)
 		}
 		ListBox_DeleteString(lb_hwnd, 0);
   }
+	EnumChildWindows(mIRCLink.m_mIRCHWND,(WNDENUMPROC)EnumDocked,NULL);
 	mIRC_size();
 	DestroyWindow(lb_hwnd);
 	lb_hwnd = NULL;
@@ -278,7 +279,7 @@ void AttachWindow(HWND dhwnd)
 	lpdcx->old_styles = GetWindowLong(dhwnd, GWL_STYLE);
 	lpdcx->old_exstyles = GetWindowLong(dhwnd, GWL_EXSTYLE);
 	//SetWindowLong(dhwnd,GWL_STYLE, (lpdcx->old_styles & ~(WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED)) | WS_CHILDWINDOW);
-  RemStyles(dhwnd,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);	
+  RemStyles(dhwnd,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);
 	//SetWindowLong(dhwnd,GWL_EXSTYLE, (lpdcx->old_exstyles & ~(WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY)));
   RemStyles(dhwnd,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
   //RemStyles(dhwnd,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);

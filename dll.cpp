@@ -950,13 +950,15 @@ mIRC(_xdialog) {
 */
 LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
-	// WM_SIZE/WM_CAPTURECHANGED/WM_PARENTNOTIFY/WM_ENABLE/WM_COMMAND commented out for release build 1.3.5
-  //  case WM_SIZE:
-  //    {
+	// WM_SIZE/WM_CAPTURECHANGED/WM_PARENTNOTIFY/WM_ENABLE/WM_COMMAND commented out for release build
+    case WM_SIZE:
+      {
   //      mIRC_size();
   //      return 0L;
-  //    }
-  //    break;
+				wsprintf(mIRCLink.m_pData, "/.signal DCX size mIRC %d %d", LOWORD(lParam), HIWORD(lParam));
+				SendMessage(mIRCLink.m_mIRCHWND, WM_USER +200, 0, mIRCLink.m_map_cnt);
+      }
+      break;
 
   //  case WM_CAPTURECHANGED:
   //    {

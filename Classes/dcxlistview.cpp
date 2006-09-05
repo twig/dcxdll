@@ -2283,9 +2283,9 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, TString styles) {
 
 	// initial rect for pbar
 	if (lvi->iSubItem == 0)
-		ListView_GetItemRect(this->m_Hwnd, lvi->iItem, &rItem, LVIR_LABEL);
+		ListView_GetItemRect(this->m_Hwnd, lvi->iItem, &rItem, LVIR_BOUNDS);
 	else
-		ListView_GetSubItemRect(this->m_Hwnd, lvi->iItem, lvi->iSubItem, LVIR_LABEL, &rItem);
+		ListView_GetSubItemRect(this->m_Hwnd, lvi->iItem, lvi->iSubItem, LVIR_BOUNDS, &rItem);
 
 	lpdcxlvi->iPbarCol = lvi->iSubItem;
 	// controls within a listview have a problem in that they cant set an item height,
