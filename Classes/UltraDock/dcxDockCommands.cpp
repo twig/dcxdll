@@ -10,6 +10,7 @@ extern mIRCDLL mIRCLink;
 
 typedef struct tagDCXDOCK {
 	WNDPROC oldProc;
+	HWND win;
 } DCXDOCK, *LPDCXDOCK;
 
 BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam)
@@ -31,7 +32,7 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	switch (uMsg) {
     case WM_SIZE:
       {
-				wsprintf(mIRCLink.m_pData, "/.signal DCX size %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
+				wsprintf(mIRCLink.m_pData, "/.signal DCX size %d %d %d", dd->win, LOWORD(lParam), HIWORD(lParam));
 				SendMessage(mIRCLink.m_mIRCHWND, WM_USER +200, 0, mIRCLink.m_map_cnt);
       }
       break;
@@ -73,6 +74,7 @@ void DockWindow(HWND mWnd,char *data,HWND temp,char *find)
 				if (SetProp(sWnd,"dcx_dock",dd))
 				{
 					dd->oldProc = (WNDPROC)SetWindowLong(sWnd,GWL_WNDPROC, (LONG)mIRCDockWinProc);
+					dd->win = mWnd;
 				}
 				else {
 					delete dd;

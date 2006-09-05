@@ -2283,9 +2283,9 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, TString styles) {
 
 	// initial rect for pbar
 	if (lvi->iSubItem == 0)
-		ListView_GetItemRect(this->m_Hwnd, lvi->iItem, &rItem, LVIR_BOUNDS);
+		ListView_GetItemRect(this->m_Hwnd, lvi->iItem, &rItem, LVIR_LABEL);
 	else
-		ListView_GetSubItemRect(this->m_Hwnd, lvi->iItem, lvi->iSubItem, LVIR_BOUNDS, &rItem);
+		ListView_GetSubItemRect(this->m_Hwnd, lvi->iItem, lvi->iSubItem, LVIR_LABEL, &rItem);
 
 	lpdcxlvi->iPbarCol = lvi->iSubItem;
 	// controls within a listview have a problem in that they cant set an item height,
@@ -2358,11 +2358,11 @@ void DcxListView::ScrollPbars(int row) {
 
 		// get coordinates to move to
 		if (col == 0)
-			ListView_GetItemRect(this->m_Hwnd, lvi->iItem, &rItem, LVIR_BOUNDS);
+			ListView_GetItemRect(this->m_Hwnd, lvi->iItem, &rItem, LVIR_LABEL);
 		else
-			ListView_GetSubItemRect(this->m_Hwnd, lvi->iItem, lvi->iSubItem, LVIR_BOUNDS, &rItem);
+			ListView_GetSubItemRect(this->m_Hwnd, lvi->iItem, lvi->iSubItem, LVIR_LABEL, &rItem);
 
-		// show boders correctly
+		// show borders correctly
 		rItem.bottom--;
 		rItem.top++;
 		rItem.left++;
