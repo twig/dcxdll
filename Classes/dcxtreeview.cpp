@@ -1509,22 +1509,36 @@ int DcxTreeView::getItemCount( HTREEITEM * hParent ) {
 
 BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, TString * search, UINT SearchType ) {
 
-  char res[10];
-  char itemtext[900];
-  char com[1000];
+	char itemtext[900];
+	this->getItemText(hItem, itemtext, 900);
+	if (SearchType == TVSEARCH_R) {
+		TString com;
+		char res[10];
+		com.sprintf("$regex(%s,%s)", itemtext, search->to_chr( ) );
+		mIRCeval( com.to_chr(), res );
+		if ( !lstrcmp( res, "1" ) )
+			return TRUE;
+	}
+	else {
+		TString text(itemtext);
+		return text.iswm(search->to_chr());
+	}
+  //char res[10];
+  //char itemtext[900];
+  //char com[1000];
 
-  this->getItemText( hItem, itemtext, 900 );
-  // Regex Search
-  if ( SearchType == TVSEARCH_R )
-    wsprintf( com, "$regex(%s,%s)", itemtext, search->to_chr( ) );
-  // Wildcard Search
-  else
-    wsprintf( com, "$iif(%s iswm %s,1,0)", search->to_chr( ), itemtext );
+  //this->getItemText( hItem, itemtext, 900 );
+  //// Regex Search
+  //if ( SearchType == TVSEARCH_R )
+  //  wsprintf( com, "$regex(%s,%s)", itemtext, search->to_chr( ) );
+  //// Wildcard Search
+  //else
+  //  wsprintf( com, "$iif(%s iswm %s,1,0)", search->to_chr( ), itemtext );
 
-  mIRCeval(com, res);
+  //mIRCeval(com, res);
 
-  if ( !lstrcmp( res, "1" ) )
-    return TRUE;
+  //if ( !lstrcmp( res, "1" ) )
+  //  return TRUE;
 
   return FALSE;
 }

@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.6
+ * \version 1.8
  *
  * \b Revisions
  *	1.1
@@ -29,6 +29,8 @@
  *		Added Visual Studio 2005 specific defines. Ook
  *	1.7
  *		Added sprintf() function. Ook
+ *	1.8
+ *		Added iswm() & iswmcs(). Ook
  *
  * © ScriptsDB.org - 2005
  */
@@ -1944,4 +1946,25 @@ int TString::sprintf(const char *fmt, ...)
 	this->m_pString = txt;
 	va_end( args );
 	return cnt;
+}
+/*
+ * iswm(*mask*)
+ *    returns TRUE if *mask* matches string
+ *    else it returns FALSE
+ *    case insensitive
+ */
+bool TString::iswm(char *a)
+{
+	return match(a, this->m_pString,false)?true:false;
+}
+
+/*
+ * iswmcs(*mask*)
+ *    returns TRUE if *mask* matches string
+ *    else it returns FALSE
+ *    case sensitive
+ */
+bool TString::iswmcs(char *a)
+{
+	return match(a, this->m_pString,true)?true:false;
 }

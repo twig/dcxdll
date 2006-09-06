@@ -433,31 +433,56 @@ HIMAGELIST DcxComboEx::createImageList( ) {
 
 BOOL DcxComboEx::matchItemText( int nItem, TString * search, UINT SearchType ) {
 
-  char res[10];
-  char itemtext[900];
-  char com[1000];
+	char itemtext[900];
 
-  COMBOBOXEXITEM cbi;
-  ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
+	COMBOBOXEXITEM cbi;
+	ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
 
-  cbi.mask = CBEIF_TEXT;
-  cbi.iItem = nItem;
-  cbi.pszText = itemtext;
-  cbi.cchTextMax = 900;
+	cbi.mask = CBEIF_TEXT;
+	cbi.iItem = nItem;
+	cbi.pszText = itemtext;
+	cbi.cchTextMax = 900;
 
-  this->getItem( &cbi );
+	this->getItem( &cbi );
 
-  // Regex Search
-  if ( SearchType == CBEXSEARCH_R )
-    wsprintf( com, "$regex(%s,%s)", itemtext, search->to_chr( ) );
-  // Wildcard Search
-  else
-    wsprintf( com, "$iif(%s iswm %s,1,0)", search->to_chr( ), itemtext );
+	if ( SearchType == CBEXSEARCH_R ) {
+		TString com;
+		char res[10];
+		com.sprintf("$regex(%s,%s)", itemtext, search->to_chr( ) );
+		mIRCeval( com.to_chr(), res );
+		if ( !lstrcmp( res, "1" ) )
+			return TRUE;
+	}
+	else {
+		TString text(itemtext);
+		return text.iswm(search->to_chr());
+	}
 
-  mIRCeval( com, res );
+  //char res[10];
+  //char itemtext[900];
+  //TString com;
 
-  if ( !lstrcmp( res, "1" ) )
-      return TRUE;
+  //COMBOBOXEXITEM cbi;
+  //ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
+
+  //cbi.mask = CBEIF_TEXT;
+  //cbi.iItem = nItem;
+  //cbi.pszText = itemtext;
+  //cbi.cchTextMax = 900;
+
+  //this->getItem( &cbi );
+
+  //// Regex Search
+  //if ( SearchType == CBEXSEARCH_R )
+  //  com.sprintf("$regex(%s,%s)", itemtext, search->to_chr( ) );
+  //// Wildcard Search
+  //else
+  //  com.sprintf("$iif(%s iswm %s,1,0)", search->to_chr( ), itemtext );
+
+  //mIRCeval( com.to_chr(), res );
+
+  //if ( !lstrcmp( res, "1" ) )
+  //    return TRUE;
 
   return FALSE;
 }

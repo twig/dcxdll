@@ -1578,24 +1578,39 @@ BOOL DcxListView::isListViewStyle( long dwView ) {
 
 BOOL DcxListView::matchItemText( int nItem, int nSubItem, TString * search, UINT SearchType ) {
 
-  char res[10];
-  char itemtext[900];
-  TString com;
+	char itemtext[900];
 
-  ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext, 900 );
-  // Regex Search
-  if ( SearchType == LVSEARCH_R )
-    com.sprintf("$regex(%s,%s)", itemtext, search->to_chr( ) );
-  // Wildcard Search
-  else
-    com.sprintf("$iif(%s iswm %s,1,0)", search->to_chr( ), itemtext );
+	ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext, 900 );
+	if (SearchType == LVSEARCH_R) {
+		TString com;
+		char res[10];
+		com.sprintf("$regex(%s,%s)", itemtext, search->to_chr( ) );
+		mIRCeval( com.to_chr(), res );
+		if ( !lstrcmp( res, "1" ) )
+			return TRUE;
+	}
+	else {
+		TString text(itemtext);
+		return text.iswm(search->to_chr());
+	}
+ // char res[10];
+ // char itemtext[900];
+ // TString com;
 
-	mIRCeval( com.to_chr(), res );
+ // ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext, 900 );
+ // // Regex Search
+ // if ( SearchType == LVSEARCH_R )
+ //   com.sprintf("$regex(%s,%s)", itemtext, search->to_chr( ) );
+ // // Wildcard Search
+ // else
+ //   com.sprintf("$iif(%s iswm %s,1,0)", search->to_chr( ), itemtext );
 
-  if ( !lstrcmp( res, "1" ) )
-      return TRUE;
+	//mIRCeval( com.to_chr(), res );
 
-  return FALSE;
+ // if ( !lstrcmp( res, "1" ) )
+ //     return TRUE;
+
+	return FALSE;
 }
 
 /*!

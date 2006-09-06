@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.6
+ * \version 1.8
  *
  * \b Revisions
  *	1.1
@@ -29,6 +29,8 @@
  *		Added Visual Studio 2005 specific defines. Ook
  *	1.7
  *		Added sprintf() function. Ook
+ *	1.8
+ *		Added iswm() & iswmcs(). Ook
  *
  * © ScriptsDB.org - 2005
  */
@@ -151,6 +153,8 @@ public:
   TString left(int n);
   TString right(int n);
 	int sprintf(const char *fmt, ...);
+  bool iswm(char *a);
+  bool iswmcs(char *a);
   //
 };
 

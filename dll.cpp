@@ -955,7 +955,7 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
       {
   //      mIRC_size();
   //      return 0L;
-				wsprintf(mIRCLink.m_pData, "/.signal DCX size mIRC %d %d", LOWORD(lParam), HIWORD(lParam));
+				wsprintf(mIRCLink.m_pData, "/.signal DCX size mIRC %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
 				SendMessage(mIRCLink.m_mIRCHWND, WM_USER +200, 0, mIRCLink.m_map_cnt);
       }
       break;
