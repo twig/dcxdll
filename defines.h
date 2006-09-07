@@ -222,7 +222,7 @@ HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
 
 //LRESULT ctrl_MeasureItem(HWND mHwnd, WPARAM wParam, LPARAM lParam);
-void DrawRoundRect(HDC hdc, RECT *rc, int w, int h);
+//void DrawRoundRect(HDC hdc, RECT *rc, int w, int h);
 void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl);
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);

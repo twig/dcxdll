@@ -438,24 +438,6 @@ mIRC(DockRefresh) {
   mIRC_size();
   ret("U_OK");
 }
-mIRC(SBSize) {
-  RECT rc;
-  GetWindowRect(sb_hwnd, &rc);
-  wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
-  return 3;
-}
-
-mIRC(TBSize) {
-  RECT rc;
-  GetWindowRect(tb_hwnd, &rc);
-  wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
-  return 3;
-}
-
-mIRC(SBPos) {
-  wsprintf(data,"%d",swb_pos);
-  return 3;
-}
 
 // ShowMenubar 1|0
 mIRC(ShowMenubar) {
@@ -528,48 +510,4 @@ mIRC(ShowTreebar) {
     ret("U_OK");
   }
   ret("U_ERROR");
-}
-
-// IsSwitchbar
-mIRC(IsSwitchbar) {
-
-  if (IsWindowVisible(sb_hwnd)) {
-    ret("$true");
-  }
-  else {
-    ret("$false");
-  }
-}
-
-// IsToolbar
-mIRC(IsToolbar) {
-
-  if (IsWindowVisible(tb_hwnd)) {
-    ret("$true");
-  }
-  else {
-    ret("$false");
-  }
-}
-
-// IsMenubar
-mIRC(IsMenubar) {
-
-  if (GetMenu(mIRCLink.m_mIRCHWND)) {
-    ret("$true");
-  }
-  else {
-    ret("$false");
-  }
-}
-
-// IsTreebar
-mIRC(IsTreebar) {
-
-  if (IsWindowVisible(treeb_hwnd)) {
-    ret("$true");
-  }
-  else {
-    ret("$false");
-  }
 }

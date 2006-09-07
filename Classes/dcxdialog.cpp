@@ -575,7 +575,16 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -t [NAME] [SWITCH] [COLOR]
 	else if (flags.switch_flags[19] && numtok > 2) {
-		this->m_colTransparentBg = atoi(input.gettok(3, " ").to_chr());
+		if (input.gettok(3, " ") == "alpha") {
+			// Set WS_EX_LAYERED on this window 
+			SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+
+			// Make this window x% alpha
+			SetLayeredWindowAttributes(this->m_Hwnd, 0, (255 * atoi(input.gettok(4, " ").to_chr())) / 100, LWA_ALPHA);
+		}
+		else {
+			this->m_colTransparentBg = atoi(input.gettok(3, " ").to_chr());
+		}
 		this->redrawWindow();
 	}
 	// xdialog -T [NAME] [SWITCH] [FLAGS] [STYLES]

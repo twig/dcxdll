@@ -34,16 +34,10 @@ UnDock
 DockPos
 DockSide
 DockRefresh
-SBSize
-TBSize
-SBPos
 ShowMenubar
 ShowSwitchbar
 ShowToolbar
 ShowTreebar
-IsSwitchbar
-IsToolbar
-IsTreebar
-IsMenubar
 
 xdock
+_xdock
