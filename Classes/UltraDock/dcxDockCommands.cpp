@@ -35,6 +35,9 @@ BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam)
 		SetWindowLong(hwnd, GWL_WNDPROC, (LONG)dd->oldProc);
 		delete dd;
 	}
+	if (GetProp(hwnd,"dcx_docked")) {
+		RemoveProp(hwnd,"dcx_docked");
+	}
 	return TRUE;
 }
 BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)

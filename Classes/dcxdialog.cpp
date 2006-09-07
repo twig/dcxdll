@@ -582,6 +582,13 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			// Make this window x% alpha
 			SetLayeredWindowAttributes(this->m_Hwnd, 0, (255 * atoi(input.gettok(4, " ").to_chr())) / 100, LWA_ALPHA);
 		}
+		else if (input.gettok(3, " ") == "tColor") {
+			// Set WS_EX_LAYERED on this window
+			SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+
+			// Make colour transparent
+			SetLayeredWindowAttributes(this->m_Hwnd, atoi(input.gettok(4, " ").to_chr()), 0, LWA_COLORKEY);
+		}
 		else {
 			this->m_colTransparentBg = atoi(input.gettok(3, " ").to_chr());
 		}
