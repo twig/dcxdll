@@ -70,12 +70,12 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				EnumChildWindows(mHwnd,(WNDENUMPROC)SizeDocked,NULL);
       }
       break;
-		//case WM_PARENTNOTIFY:
-		//	{
-		//		if (LOWORD(wParam) == WM_DESTROY) {
-		//		}
-		//	}
-		//	break;
+		case WM_PARENTNOTIFY:
+			{
+				if (LOWORD(wParam) == WM_DESTROY)
+					RemoveProp((HWND)lParam,"dcx_docked");
+			}
+			break;
 		case WM_DESTROY:
 			{
 				RemoveProp(mHwnd,"dcx_dock");
@@ -145,6 +145,7 @@ void DockWindow(HWND mWnd,char *data,HWND temp,char *find, TString flag)
 			// set parent and move it to top-left corner
 			SetParent(temp,sWnd);
 			MoveWindow(temp,0,0,rc.right-rc.left,rc.bottom-rc.top,1);
+			EnumChildWindows(sWnd,(WNDENUMPROC)SizeDocked,NULL);
 
 			// return OK
 			lstrcpy(data,"+OK Window Docked");
