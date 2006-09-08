@@ -801,27 +801,32 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, UINT mID, TString
       HWND winHwnd = (HWND) atoi( windowHwnd );
 
       if ( IsWindow( winHwnd ) && p_Dialog->getControlByHWND( winHwnd ) == NULL ) {
-
-        return new DcxMWindow( winHwnd, mID, p_Dialog, &rc, styles );
+			return new DcxMWindow( winHwnd, mID, p_Dialog, &rc, styles );
       }
     }
   }
-  else if ( type == "dialog" ) {
+	else if (type == "dialog") {
+		if (tsInput.numtok(" ") > 8) {
+			char windowHwnd[30];
+			TString expression;
 
-    if ( tsInput.numtok( " " ) > 8 ) {
+			expression.sprintf("$dialog(%s).hwnd", tsInput.gettok(9, " ").to_chr());
+			mIRCeval(expression.to_chr(), windowHwnd);
 
-      char windowHwnd[30];
-      TString expression;
-      expression.sprintf("$dialog(%s).hwnd", tsInput.gettok( 9, " " ).to_chr( ) );
-			mIRCeval( expression.to_chr(), windowHwnd );
+			HWND winHwnd = (HWND) atoi(windowHwnd);
 
-      HWND winHwnd = (HWND) atoi( windowHwnd );
+			if (IsWindow(winHwnd) && p_Dialog->getControlByHWND(winHwnd) == NULL) {
+				DcxControl* newDialog = new DcxMDialog(winHwnd, mID, p_Dialog, &rc, styles);
+				DcxDialog* dlg = dcxDialogs().getDialogByHandle(winHwnd);
 
-      if ( IsWindow( winHwnd ) && p_Dialog->getControlByHWND( winHwnd ) == NULL ) {
+				// if its a dcx marked dialog, mark the parent name
+				if (dlg != NULL) {
+					dlg->setParentName(p_Dialog->getName());
+				}
 
-        return new DcxMDialog( winHwnd, mID, p_Dialog, &rc, styles );
-      }
-    }
+				return newDialog;
+			}
+		}
   }
 
   return NULL;

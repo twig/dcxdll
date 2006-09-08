@@ -1120,6 +1120,10 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	return CallWindowProc(g_OldmIRCWindowProc, mHwnd, uMsg, wParam, lParam);
 }
 
+DcxDialogCollection dcxDialogs() {
+	return Dialogs;
+}
+
 BOOL isMenuBarMenu(HMENU hMenu, HMENU hMatch) {
 	HMENU hTemp;
 	int i = 0, n = GetMenuItemCount(hMenu);

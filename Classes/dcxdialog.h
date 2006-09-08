@@ -73,6 +73,9 @@ public:
   void setMouseControl( UINT mUID );
   void setFocusControl( UINT mUID );
 
+  void setParentName(TString &strParent);
+  TString getParentName();
+
   inline HCURSOR getCursor( ) { return this->m_hCursor; };
 	inline HWND getToolTip(void) { return this->m_ToolTipHWND; };
 
@@ -80,6 +83,7 @@ protected:
 
   TString m_tsName;       //!< Dialog Name
   TString m_tsAliasName;  //!< Callback Alias Name
+	TString m_tsParentName; //!< Parent name (only if docked)
 
   WNDPROC m_hOldWindowProc; //!< Dialog Old Window Procedure
 

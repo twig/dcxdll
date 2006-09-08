@@ -43,6 +43,7 @@
 
 #include "classes/tstring/tstring.h"
 #include <uxtheme.h>
+#include "classes/dcxdialogcollection.h"
 
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 3
@@ -204,6 +205,7 @@ BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf);
 TString ParseLogfontToCommand(LPLOGFONT lf);
 UINT parseFontFlags(TString &flags);
 UINT parseFontCharSet(TString &charset);
+DcxDialogCollection dcxDialogs();
 
 
 char * readFile(const char * filename);

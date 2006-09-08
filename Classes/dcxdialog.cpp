@@ -641,6 +641,9 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		iconSmall = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_SMALL, (LPARAM) iconSmall);
 		iconLarge = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_BIG, (LPARAM) iconLarge);
 
+		//iconLarge = CreateGrayscaleIcon(iconLarge);
+		//DrawState(GetDC(this->m_Hwnd), NULL, NULL, 0, 0, iconLarge, 0, 0, NULL, NULL, DI_NORMAL | DI_DEFAULTSIZE);
+
 		// delete the old icons
 		if (iconSmall)
 			DestroyIcon(iconSmall);
@@ -1182,6 +1185,11 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		else
 			lstrcpy(szReturnValue, "$false");
 
+		return;
+	}
+	else if (input.gettok(2, " ") == "parent") {
+		mIRCDebug("parent = %s", this->getParentName().to_chr());
+		wsprintf(szReturnValue, "%s", this->getParentName().to_chr());
 		return;
 	}
 	// [NAME] [PROP]
@@ -1949,4 +1957,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	}
 
 	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+}
+
+
+void DcxDialog::setParentName(TString &strParent) {
+	this->m_tsParentName.sprintf("%s", strParent.to_chr());
+}
+
+TString DcxDialog::getParentName() {
+	return this->m_tsParentName;
 }
