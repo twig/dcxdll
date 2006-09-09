@@ -8,8 +8,8 @@ alias udcx {
 }
 
 alias xdid {
-  if ( $isid ) {
-    return $dcx( _xdid, $1 $2 $prop $3- )
+  if ($isid) {
+    return $dcx(_xdid, $1 $2 $prop $3-)
   }
   else {
     dcx xdid $2 $3 $1 $4-
@@ -17,8 +17,8 @@ alias xdid {
 }
 
 alias xdialog {
-  if ( $isid ) {
-    return $dcx( _xdialog, $1 $prop $2- )
+  if ($isid) {
+    return $dcx(_xdialog, $1 $prop $2-)
   }
   else {
     dcx xdialog $2 $1 $3-
@@ -26,9 +26,8 @@ alias xdialog {
 }
 
 alias xpop {
-
-  if ( $isid ) {
-    return $dcx( _xpop, $1 $prop $2- )
+  if ($isid) {
+    return $dcx(_xpop, $1 $prop $2-)
   }
   else {
     dcx xpop $2 $1 $3-
@@ -36,12 +35,20 @@ alias xpop {
 }
 
 alias xpopup {
-
-  if ( $isid ) {
-    return $dcx( _xpopup, $1 $prop $2- )
+  if ($isid) {
+    return $dcx(_xpopup, $1 $prop $2-)
   }
   else {
     dcx xpopup $2 $1 $3-
+  }
+}
+
+alias xdock {
+  if ($isid) {
+    return $dcx(_xdock, $1 $prop $2-)
+  }
+  else {
+    dcx xdock $2 $1 $3-
   }
 }
 
