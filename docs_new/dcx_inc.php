@@ -1,4 +1,45 @@
 <?php
+// defines
+define('SECTION_INTRO', 1);
+define('SECTION_GENERAL', 2);
+define('SECTION_STYLES', 3);
+define('SECTION_XDID', 4);
+define('SECTION_EVENTS', 8);
+define('SECTION_XDIDPROPS', 9);
+define('SECTION_XDIALOG', 10);
+define('SECTION_XDIALOGPROPS', 11);
+define('SECTION_XPOPUP', 12);
+define('SECTION_XPOPUPPROPS', 13);
+define('SECTION_XPOP', 14);
+define('SECTION_XPOPPROPS', 15);
+define('SECTION_XDOCK', 16);
+define('SECTION_XDOCKPROPS', 17);
+
+
+// global variables
+$VERSION = "1.3.6";
+
+$DOCPATH = "./doc/";
+$INCPATH = "./inc/";
+
+$XDID = array();
+$XDIDPROPS = array();
+$XDIALOG = array();
+$XDIALOGPROPS = array();
+$XDOCK = array();
+$XDOCKPROPS = array();
+$EVENTS = array();
+$GENERAL = array();
+$STYLES = array();
+$XPOPUP = array();
+$XPOPUPPROPS = array();
+$XPOP = array();
+$XPOPPROPS = array();
+
+$SECTION = 0;
+
+
+// information to be displayed in the CLA details (for dialog, panel, box, etc)
 $CLA = array(
 	'__desc' => "This command lets you add Cell Layout Algorithm rules to your dialog controls for automatic resizing of the child controls.",
 	'__cmd' => "[COMMAND] [PATH] [TAB] [+FLAGS] [ID] [WEIGHT] [W] [H]",
@@ -150,6 +191,89 @@ function wikiData(&$value, $userdata = "") {
 }
 
 
+// Generates styles for the specified page
+function gen_styles($page, $pagelabel) {
+	global $STYLES, $SECTION;
+	
+	loadSection($STYLES, "get_styles_$page");
+	
+	// control styles
+	if ($STYLES) {
+		$SECTION = SECTION_STYLES;
+
+		dcxdoc_print_description("Control Styles", "These control styles are available when creating a $pagelabel control. Remember that the general styles [s]disabled[/s], [s]group[/s], [s]notheme[/s], and [s]tabstop[/s] apply to all DCX controls.");
+
+   		dcxdoc_format_styles($STYLES);
+	}
+}
+
+
+// Generates /xdid commands for the specified page
+function gen_xdid($page, $pagelabel) {
+	global $XDID, $SECTION;
+	
+	loadSection($XDID, "get_xdid_$page");
+	
+	// /xdid commands
+	if ($XDID) {
+		$SECTION = SECTION_XDID;
+		$count = 1;
+
+		dcxdoc_print_description("/xdid flags", "Control commands are input to the control with the <b>/xdid</b> command.");
+
+		foreach ($XDID as $flag => $data) {
+	        dcxdoc_format_xdid($flag, $data, $count);
+	        $count++;
+  		}
+	}
+}
+
+
+// Generates xdid properties for the specified page
+function gen_xdidprops($page, $pagelabel) {
+	global $XDIDPROPS, $SECTION;
+	
+	loadSection($XDIDPROPS, "get_xdidprops_$page");
+	
+	// /xdid properties
+	if ($XDIDPROPS) {
+		$SECTION = SECTION_XDIDPROPS;
+		$count = 1;
+
+		dcxdoc_print_description('$xdid() Properties', 'The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.');
+
+		foreach ($XDIDPROPS as $prop => $data) {
+	        dcxdoc_format_xdidprop($prop, $data, $count);
+	        $count++;
+  		}
+	}
+}
+
+
+// Generates events for the specified page
+function gen_events($page, $pagelabel) {
+	global $EVENTS, $SECTION;
+	
+	loadSection($EVENTS, "get_events_$page");
+	
+	// events
+	if ($EVENTS) {
+		$SECTION = SECTION_EVENTS;
+		$count = 1;
+
+		if ($page == 'index')
+			$str = "These events are fired when events occur in the dialog itself.";
+		else
+		    $str = "These events are fired when activity occurs in the $pagelabel control.";
+
+		dcxdoc_print_description("$pagelabel Events", $str);
+
+		foreach ($EVENTS as $event => $data) {
+	        dcxdoc_format_event($event, $data, $count);
+	        $count++;
+  		}
+	}
+}
 
 
 function dcxdoc_header($page, $pagelabel) {
@@ -251,7 +375,7 @@ function dcxdoc_menu_left() {
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
 		<li><a href="xdock.htm">XDock</a></li>
-		<li><a href="xpopup.htm">XPopup Menus</a></li>
+		<li><a href="xpopup.htm">XPopup</a></li>
 	</ul>
 	<a class="section">About DCX</a><br />
 	<ul>
@@ -265,7 +389,8 @@ function dcxdoc_menu_left() {
 
 
 function dcxdoc_menu_right($page) {
-	global $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL, $STYLES, $SECTION, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS, $XDOCK, $XDOCKPROPS;
+	global $SECTION, $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL,
+	$STYLES, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS, $XDOCK, $XDOCKPROPS;
 
 ?><td class="menuright">
 	<br />
@@ -611,17 +736,22 @@ function get_section_color($col = 0) {
 	}
 
 	switch ($col) {
-        case SECTION_GENERAL		: return '#888888';
-		case SECTION_STYLES			: return '#B52929';
-        case SECTION_XDIALOG		: return '#800080';
-	    case SECTION_XDIALOGPROPS	: return '#AC59AC';
-		case SECTION_XDID			: return '#0000FF';
-		case SECTION_XDIDPROPS		: return '#6666FF';
-		case SECTION_EVENTS			: return '#009900';
-		case SECTION_XPOPUP			: return '#800080';
-		case SECTION_XPOPUPPROPS	: return '#AC59AC';
-        case SECTION_XPOP			: return '#0000FF';
-		case SECTION_XPOPPROPS		: return '#6666FF';
+        case SECTION_GENERAL		: return '#888888'; // grey
+        case SECTION_XDIALOG		: return '#800080'; // purple
+	    case SECTION_XDIALOGPROPS	: return '#AC59AC'; // light purple
+        
+		case SECTION_STYLES			: return '#B52929'; // brown
+		case SECTION_XDID			: return '#0000FF'; // blue
+		case SECTION_XDIDPROPS		: return '#6666FF'; // light blue
+		case SECTION_EVENTS			: return '#009900'; // green
+
+		case SECTION_XPOPUP			: return '#800080'; // purple
+		case SECTION_XPOPUPPROPS	: return '#AC59AC'; // light purple
+        case SECTION_XPOP			: return '#0000FF'; // blue
+		case SECTION_XPOPPROPS		: return '#6666FF'; // light blue
+
+		case SECTION_XDOCK			: return '#0000FF'; // blue
+		case SECTION_XDOCKPROPS		: return '#6666FF'; // light blue
 		
 		case SECTION_INTRO:
 		default:

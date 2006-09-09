@@ -1,4 +1,9 @@
 <?php
+
+function dcxvsmdx_layout($page, $pagelabel) {
+	dcxdoc_print_description("Comparison Chart", dcx_vs_mdx());
+}
+
 function dcx_vs_mdx() {
 	ob_start();
 ?>

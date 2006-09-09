@@ -2,27 +2,6 @@
 require('dcx_inc.php');
 require('dcx_changes.php');
 
-// globals
-$VERSION = "1.3.6";
-
-$DOCPATH = "./doc/";
-$INCPATH = "./inc/";
-
-define('SECTION_INTRO', 1);
-define('SECTION_GENERAL', 2);
-define('SECTION_STYLES', 3);
-define('SECTION_XDID', 4);
-define('SECTION_EVENTS', 8);
-define('SECTION_XDIDPROPS', 9);
-define('SECTION_XDIALOG', 10);
-define('SECTION_XDIALOGPROPS', 11);
-define('SECTION_XPOPUP', 12);
-define('SECTION_XPOPUPPROPS', 13);
-define('SECTION_XPOP', 14);
-define('SECTION_XPOPPROPS', 15);
-define('SECTION_XDOCK', 16);
-define('SECTION_XDOCKPROPS', 17);
-
 $PAGES = array(
     "index" => "DCX",
     'changes' => 'Version History',
@@ -65,28 +44,23 @@ $PAGES = array(
     'pager' => 'Pager',
 );
 
-$XDID = array();
-$XDIDPROPS = array();
-$XDIALOG = array();
-$XDIALOGPROPS = array();
-$XDOCK = array();
-$XDOCKPROPS = array();
-$EVENTS = array();
-$GENERAL = array();
-$STYLES = array();
-$XPOPUP = array();
-$XPOPUPPROPS = array();
-$XPOP = array();
-$XPOPPROPS = array();
-
 array_walk_recursive($CHANGES, "wikiData");
 
-$SECTION = 0;
-
 // ----------------------------------------------------------------------------
+// load up all the files first
+foreach ($PAGES as $page => $pagelabel) {
+	// include the data files required for generation
+	// $STYLES, $X?, $X?PROPS, $EVENTS, etc
+	// dont bother loading changes, thats a massive array
+	if (!in_array($page, array('changes'))) {
+		require_once($INCPATH . $page . ".php");
+	}
+}
+
 // page generation begins here
 // function generate() {}
 foreach ($PAGES as $page => $pagelabel) {
+	// set variables for timing
 	$start = explode(" ", microtime());
 	$start = $start[0] + $start[1];
 
@@ -96,289 +70,85 @@ foreach ($PAGES as $page => $pagelabel) {
 	else
 	    $hfile = fopen($DOCPATH . "$page.htm", "w");
     
-    // couldnt open
+    // couldnt open file for writing
     if (!$hfile) {
 		error_log("Could not open file for writing. Terminating batch.");
 		exit();
 	}
 
-	// include the data files required for generation
-	// $STYLES, $XDID (command flags), $INFO (property flags), $EVENTS
-	if (!in_array($page, array('changes'))) {
-		require_once($INCPATH . $page . ".php");
-	}
-
-	// retrieve data for processing
-	loadSection($XDID, "get_xdid_$page");
-	loadSection($XDIALOG, "get_xdialog_$page");
-	loadSection($EVENTS, "get_events_$page");
-	loadSection($XDIDPROPS, "get_xdidprops_$page");
-	loadSection($XDIALOGPROPS, "get_xdialogprops_$page");
-	loadSection($GENERAL, "get_general_$page");
-	loadSection($STYLES, "get_styles_$page");
-	
-	if ($page == 'xpopup') {
-		loadSection($XPOPUP, "get_xpopup");
-		loadSection($XPOPUPPROPS, "get_xpopupprops");
-		loadSection($XPOP, "get_xpop");
-		loadSection($XPOPPROPS, "get_xpopprops");
-	}
-	else {
-		$XPOPUP = array();
-        $XPOPUPPROPS = array();
-        $XPOP = array();
-        $XPOPPROPS = array();
-	}
-	
-	if ($page == 'xdock') {
-		loadSection($XDOCK, "get_xdock");
-		loadSection($XDOCKPROPS, "get_xdockprops");
-	}
-	else {
-		$XDOCK = array();
-		$XDOCKPROPS = array();
-	}
-
 	// start output buffer
 	ob_start();
-	
+
+	// initialise function pointers
+	$loadfn = $page . "_load";
+	$layoutfn = $page . "_layout";
+	$unloadfn = $page . "_unload";
+
+	// if we need to load data for a specialised page
+	if (function_exists($loadfn))
+		$loadfn($page);
+
+	// write the page ehader and menu for all pages
 	dcxdoc_header($page, $pagelabel);
 	dcxdoc_menu_left();
 
 	// center info cell
 	echo "<td>";
-	
-	// info/intro
-	dcxdoc_print_intro($page);
-	
-	if ($page == "index") {
-        dcxdoc_print_description("Latest Changes", "You may have noticed that the DCX documentation files have changed recently. They have been rewritten from scratch to keep them maintainable. The old documentation can be found <a href=\"http://dcx.scriptsdb.org/dcxdoc_old\">here</a>. If you notice any inconsistancies, please put a post on the forum on this <a href=\"http://dcx.scriptsdb.org/forum/showthread.php?tid=171\">thread</a>! <br /><br />" . format_changes_latest());
-	    intro2_index();
-	    callback_index();
+
+	// since 'changes' isnt a normal dcxdoc include file, just print changes
+	if ($page == "changes") {
+		$SECTION = SECTION_INTRO;
+		echo dcxdoc_print_description("Version History", format_changes());
 	}
-	else if ($page == "changes") {
-        echo dcxdoc_print_description("Version History", format_changes());
+	// specialised page layout - page must also handle intro, /xdid, $xdid, events, etc
+	else if (function_exists($layoutfn)) {
+		$layoutfn($page, $pagelabel);
 	}
-	else if ($page == 'xpopup') {
-        dcxdoc_print_description("Special Menus", xpopup_special());
-        dcxdoc_print_description('XPopup Item Path', xpopup_paths());
-	}
-	else if ($page == 'cla') {
-		dcxdoc_print_description("CLA Details", cla_details());
-		dcxdoc_print_description("CLA Visual Example", cla_visual());
-		dcxdoc_print_description("Tutorials", cla_examples());
-	}
-	else if ($page == 'dcxvsmdx') {
-		dcxdoc_print_description("Comparison Chart", dcx_vs_mdx());
-	}
-
-	// general commands
-	if ($GENERAL) {
-		$SECTION = SECTION_GENERAL;
-		$count = 1;
-
-		dcxdoc_print_description("General Commands", "These commands are general DCX commands and not oriented on any particular DCX controls.");
-
-		foreach ($GENERAL as $cmd => $data) {
-       		dcxdoc_format_general($cmd, $data, $count);
-      		$count++;
-		}
-	}
-	
-	// control styles
-	if ($STYLES) {
-		$SECTION = SECTION_STYLES;
-
-		dcxdoc_print_description("Control Styles", "These control styles are available when creating a $pagelabel control. Remember that the general styles [s]disabled[/s], [s]group[/s], [s]notheme[/s], and [s]tabstop[/s] apply to all DCX controls.");
-
-   		dcxdoc_format_styles($STYLES);
-	}
-
-	if ($page == 'treeview') {
-		$SECTION = 0;
-		paths_treeview();
-	}
-
-
-	// /xpopup commands
-	if ($XPOPUP) {
-        $SECTION = SECTION_XPOPUP;
-        $count = 1;
-
-        dcxdoc_print_description('/xpopup Command', "The /xpopup command is used to create/modify/destroy an XPopup menu.");
-
-        foreach ($XPOPUP as $cmd => $data) {
-       		dcxdoc_format_xpopup($cmd, $data, $count);
-      		$count++;
-		}
-	}
-
-	// /xpopup properties
-	if ($XPOPUPPROPS) {
-		$SECTION = SECTION_XPOPUPPROPS;
-		$count = 1;
-
-		dcxdoc_print_description('$xpopup() Properties', 'The $xpopup identifier is a given mIRC alias that communicates with the XPopup DLL to extract information from XPopup menus.');
-
-		foreach ($XPOPUPPROPS as $prop => $data) {
-	        dcxdoc_format_xpopupprop($prop, $data, $count);
-	        $count++;
-  		}
-	}
-
-
-	// /xdock commands
-	if ($XDOCK) {
-        $SECTION = SECTION_XDOCK;
-        $count = 1;
-
-//        dcxdoc_print_description('/xdock Command', "The /xpopup command is used to create/modify/destroy an XPopup menu.");
-
-        foreach ($XDOCK as $cmd => $data) {
-       		dcxdoc_format_xdock($cmd, $data, $count);
-      		$count++;
-		}
-	}
-	
-		// /xdock commands
-	if ($XDOCKPROPS) {
-        $SECTION = SECTION_XDOCKPROPS;
-        $count = 1;
-
-        dcxdoc_print_description('$xdock Command', "The /xpopup command is used to create/modify/destroy an XPopup menu.");
-
-        foreach ($XDOCKPROPS as $cmd => $data) {
-       		dcxdoc_format_xdockprops($cmd, $data, $count);
-      		$count++;
-		}
-	}
-
-	// /xdialog commands
-	if ($XDIALOG) {
-		$SECTION = SECTION_XDIALOG;
-		$count = 1;
-
-		dcxdoc_print_description("/xdialog flags", "The /xdialog command is used to modify a DCX marked dialog.");
-
-		foreach ($XDIALOG as $flag => $data) {
-       		dcxdoc_format_xdialog($flag, $data, $count);
-      		$count++;
-		}
-	}
-
-	// /xdialog properties
-	if ($XDIALOGPROPS) {
-		$SECTION = SECTION_XDIALOGPROPS;
-		$count = 1;
-
-		dcxdoc_print_description('$xdialog() Properties', 'The $xdialog identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX dialogs.');
-
-		foreach ($XDIALOGPROPS as $prop => $data) {
-	        dcxdoc_format_xdialogprop($prop, $data, $count);
-	        $count++;
-  		}
-	}
-
-
-	// /xpop commands
-	if ($XPOP) {
-        $SECTION = SECTION_XPOP;
-        $count = 1;
-
-        dcxdoc_print_description("/xpop Command", "The /xpop command is used to add/modify/remove menu items in XPopup menus.");
-
-        foreach ($XPOP as $cmd => $data) {
-       		dcxdoc_format_xpop($cmd, $data, $count);
-      		$count++;
-		}
-	}
-
-	// /xpropprops properties
-	if ($XPOPPROPS) {
-		$SECTION = SECTION_XPOPPROPS;
-		$count = 1;
-
-		dcxdoc_print_description('$xpop Identifier', 'The $xpop identifier is a given mIRC alias that communicates with the XPopup DLL to extract information in XPopup menu items.)');
-
-		foreach ($XPOPPROPS as $prop => $data) {
-	        dcxdoc_format_xpopprops($prop, $data, $count);
-	        $count++;
-  		}
-	}
-
-	// /xdid commands
-	if ($XDID) {
-		$SECTION = SECTION_XDID;
-		$count = 1;
-
-		dcxdoc_print_description("/xdid flags", "Control commands are input to the control with the <b>/xdid</b> command.");
-
-		foreach ($XDID as $flag => $data) {
-	        dcxdoc_format_xdid($flag, $data, $count);
-	        $count++;
-  		}
-	}
-
-	// /xdid properties
-	if ($XDIDPROPS) {
-		$SECTION = SECTION_XDIDPROPS;
-		$count = 1;
-
-		dcxdoc_print_description('$xdid() Properties', 'The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.');
-
-		foreach ($XDIDPROPS as $prop => $data) {
-	        dcxdoc_format_xdidprop($prop, $data, $count);
-	        $count++;
-  		}
-	}
-
-	// events
-	if ($EVENTS) {
-		$SECTION = SECTION_EVENTS;
-		$count = 1;
-
-		if ($page == 'index')
-			$str = "These events are fired when events occur in the dialog itself.";
-		else
-		    $str = "These events are fired when activity occurs in the $pagelabel control.";
-
-		dcxdoc_print_description("$pagelabel Events", $str);
-
-		foreach ($EVENTS as $event => $data) {
-	        dcxdoc_format_event($event, $data, $count);
-	        $count++;
-  		}
-	}
-
-	if ($page == "index") {
-		$SECTION = 0;
-		credits_index();
-	}
-	else if ($page == 'xpopup') {
-		$SECTION = SECTION_EVENTS;
-
-		dcxdoc_print_description('XPopup Events', xpopup_events());
+	// otherwise it is a regular control page
+	else {
+		// write intro
+		dcxdoc_print_intro($page);
+		// generate styles
+		gen_styles($page, $pagelabel);
+		// generate /xdid commands
+		gen_xdid($page, $pagelabel);
+		// generate $xdid props
+		gen_xdidprops($page, $pagelabel);
+		// generate events
+		gen_events($page, $pagelabel);
 	}
 
 	// close center info cell
 	echo "</td>";
 	
 	
-	// right menu
+	// right menu - dont bother for these pages listed below
     if (!in_array($page, array('changes', 'cla', 'dcxvsmdx')))
 		dcxdoc_menu_right($pagelabel);
 
-	// footer
+	// unload data if it is a specialised page
+	if (function_exists($unloadfn)) {
+		$unloadfn();
+	}
+
+	// unload data, otherwise it will carry onto the next page
+	// (usually the right menu will show stuff thats not meant to be there)
+	$STYLES = array();
+	$XDID = array();
+	$XDIDPROPS = array();
+	$EVENTS = array();
+
+	// generate footer and date updated
 	dcxdoc_footer();
 	
-	// get buffered output
+	// prepare buffered output for writing and close buffer
 	$str = ob_get_clean();
 	
-	// write page content to file
+	// write page content to file, close file
 	fwrite($hfile, $str);
 	fclose($hfile);
 	
-	// show statistics
+	// show statistics in console
 	$end = explode(" ", microtime());
 	$end = $end[0] + $end[1];
 	

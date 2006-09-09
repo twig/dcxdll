@@ -1,4 +1,13 @@
 <?php
+
+function cla_layout($page, $pagelabel) {
+	dcxdoc_print_intro($page);
+	
+	dcxdoc_print_description("CLA Details", cla_details());
+	dcxdoc_print_description("CLA Visual Example", cla_visual());
+	dcxdoc_print_description("Tutorials", cla_examples());
+}
+
 function get_intro_cla() {
 	echo "The Cell Layout Algorithm is a dynamic autosizing algorithm aimed at making child controls of dialogs or container windows fully resizeable with a set of predefined rules. The rules are encapsulated in a container-like objects called [v]cells[/v]. People with knowledge of HTML table structures will recognize the type of operations at stake.";
 }
