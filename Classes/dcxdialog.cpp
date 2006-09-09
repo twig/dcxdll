@@ -1188,7 +1188,6 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	else if (input.gettok(2, " ") == "parent") {
-		mIRCDebug("parent = %s", this->getParentName().to_chr());
 		wsprintf(szReturnValue, "%s", this->getParentName().to_chr());
 		return;
 	}
