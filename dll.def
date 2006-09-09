@@ -29,15 +29,5 @@ _xpopup
 
 mpopup
 
-Dock
-UnDock
-DockPos
-DockSide
-DockRefresh
-ShowMenubar
-ShowSwitchbar
-ShowToolbar
-ShowTreebar
-
 xdock
 _xdock

@@ -10,17 +10,15 @@ extern mIRCDLL mIRCLink;
 // mIRC components HWND
 extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, lb_hwnd;
 
+extern VectorOfDocks v_docks;
+extern void UltraDock(HWND mWnd,char *data,HWND temp,TString flag);
+
 typedef struct tagDCXDOCK {
 	WNDPROC oldProc;
 	HWND win;
 	TString type;
 	DWORD flags;
 } DCXDOCK, *LPDCXDOCK;
-
-#define DOCKF_NORMAL	0x01	//!< No special flags.
-#define DOCKF_AUTOH		0x02	//!< Auto Horizontal size.
-#define DOCKF_AUTOV		0x04	//!< Auto Vertical size.
-#define DOCKF_SIZE		0x08	//!< Auto Horizontal & Vertical size.
 
 typedef struct tagDCXDOCSIZE {
 	DWORD	width;
@@ -35,9 +33,8 @@ BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam)
 		SetWindowLong(hwnd, GWL_WNDPROC, (LONG)dd->oldProc);
 		delete dd;
 	}
-	if (GetProp(hwnd,"dcx_docked")) {
+	if (GetProp(hwnd,"dcx_docked"))
 		RemoveProp(hwnd,"dcx_docked");
-	}
 	return TRUE;
 }
 BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
@@ -91,6 +88,7 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	}
 	return CallWindowProc(dd->oldProc,mHwnd,uMsg,wParam,lParam);
 }
+
 void DockWindow(HWND mWnd,char *data,HWND temp,char *find, TString flag)
 {
 	RECT rc;
@@ -173,17 +171,17 @@ mIRC(xdock)
 	}
 	switch (flag[1])
 	{
-	case 't':
+	case 't': // dock to toolbar
 		{
 			DockWindow(mWnd,data,(HWND)atol(d.gettok(2," ").to_chr()),"mIRC_Toolbar",flag);
 		}
 		break;
-	case 's':
+	case 's': // dock to switchbar
 		{
 			DockWindow(mWnd,data,(HWND)atol(d.gettok(2," ").to_chr()),"mIRC_Switchbar",flag);
 		}
 		break;
-	case 'n':
+	case 'n': // dock to nicklist/sidelistbox
 		{
 			if (d.numtok(" ") == 3) {
 				mWnd = (HWND)atol(d.gettok(3," ").to_chr());
@@ -192,7 +190,7 @@ mIRC(xdock)
 			else lstrcpy(data,"-ERR Invalid Args");
 		}
 		break;
-	case 'c':
+	case 'c': //dock to custom/channel/query/status
 		{
 			if (d.numtok(" ") == 3) {
 				mWnd = (HWND)atol(d.gettok(3," ").to_chr());
@@ -201,9 +199,14 @@ mIRC(xdock)
 			else lstrcpy(data,"-ERR Invalid Args");
 		}
 		break;
-	case 'b':
+	case 'b': // dock to treelist
 		{
 			DockWindow(mWnd,data,(HWND)atol(d.gettok(2," ").to_chr()),"mIRC_TreeList",flag);
+		}
+		break;
+	case 'm': // dock to mIRC (UltraDock)
+		{
+			UltraDock(mWnd,data,(HWND)atol(d.gettok(2," ").to_chr()),flag);
 		}
 		break;
 	default:

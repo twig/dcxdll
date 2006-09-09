@@ -66,6 +66,7 @@ extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, lb_hwnd;
 extern int swb_pos;
 // indicate if MDI is maxed out
 extern BOOL MDIismax;
+extern VectorOfDocks v_docks;
 
 /*!
 * \brief mIRC DLL Load Function
@@ -940,8 +941,6 @@ mIRC(_xdialog) {
 	return 3;
 }
 
-
-
 /***** XPopup Stuff *****/
 /*!
 * \brief blah
@@ -953,12 +952,30 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	// WM_SIZE/WM_CAPTURECHANGED/WM_PARENTNOTIFY/WM_ENABLE/WM_COMMAND commented out for release build
     case WM_SIZE:
       {
-  //      mIRC_size();
-  //      return 0L;
+				LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc, mHwnd, uMsg, wParam, lParam);
 				wsprintf(mIRCLink.m_pData, "/.signal DCX size mIRC %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
 				SendMessage(mIRCLink.m_mIRCHWND, WM_USER +200, 0, mIRCLink.m_map_cnt);
+				UltraDockSize();
+				return lRes;
       }
       break;
+
+		//case WM_NCCALCSIZE:
+		//	{
+		//		RECT *rc, oldrc;
+		//		rc = (LPRECT)lParam;
+		//		oldrc = *rc;
+		//		LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc, mHwnd, uMsg, wParam, lParam);
+		//		mIRCLink.cxLeftEdge		= rc->left			- oldrc.left;
+		//		mIRCLink.cxRightEdge		= oldrc.right		- rc->right;
+		//		mIRCLink.cyTopEdge			= rc->top			- oldrc.top;
+		//		mIRCLink.cyBottomEdge	= oldrc.bottom	- rc->bottom;
+		//		AdjustMircClientRect(rc);
+		//		return lRes;
+		//	}
+		//	break;
+		//case WM_NCPAINT:
+		//	break;
 
   //  case WM_CAPTURECHANGED:
   //    {
@@ -969,26 +986,28 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
   //    }
   //    break;
 
-		//case WM_PARENTNOTIFY:
-		//	{
-		//		TString text;
-		//		text.sprintf("%ld", lParam);
-		//		int nIndex = ListBox_FindString(lb_hwnd,-1,text.to_chr());
-		//		if (nIndex != LB_ERR) {
-		//			switch (LOWORD(wParam))	{
-		//				case WM_DESTROY: // cleanup any dialog thats closed without being undocked.
-		//					{
-		//						EjectWindow((HWND)lParam);
-		//						ListBox_DeleteString(lb_hwnd, nIndex);
-		//						mIRC_size();
-		//					}
-		//				default:
-		//					return 0L;
-		//					break;
-		//			}
-		//		}
-		//	}
-		//	break;
+		case WM_PARENTNOTIFY:
+			{
+				//TString text;
+				//text.sprintf("%ld", lParam);
+				//int nIndex = ListBox_FindString(lb_hwnd,-1,text.to_chr());
+				//if (nIndex != LB_ERR) {
+				//	switch (LOWORD(wParam))	{
+				//		case WM_DESTROY: // cleanup any dialog thats closed without being undocked.
+				//			{
+				//				EjectWindow((HWND)lParam);
+				//				ListBox_DeleteString(lb_hwnd, nIndex);
+				//				mIRC_size();
+				//			}
+				//		default:
+				//			return 0L;
+				//			break;
+				//	}
+				//}
+				if (LOWORD(lParam) == WM_DESTROY)
+					UltraUnDock((HWND)lParam);
+			}
+			break;
 
   //  case WM_ENABLE:
   //    {
