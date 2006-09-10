@@ -953,7 +953,7 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
     case WM_SIZE:
       {
 				LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc, mHwnd, uMsg, wParam, lParam);
-				wsprintf(mIRCLink.m_pData, "/.signal DCX size mIRC %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
+				mIRCSignal("/.signal DCX size mIRC %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
 				SendMessage(mIRCLink.m_mIRCHWND, WM_USER +200, 0, mIRCLink.m_map_cnt);
 				UltraDockSize();
 				return lRes;

@@ -209,7 +209,8 @@ typedef struct tagDCXULTRADOCK {
 typedef std::vector<LPDCXULTRADOCK> VectorOfDocks;
 
 void mIRCDebug(const char *szFormat, ...);
-void mIRCSignal(const char *data);
+void mIRCSignal(const char *szFormat, ...);
+void mIRCSignalFixed(const char *data);
 void mIRCError(const char *data);
 void mIRCeval(const char *text, char *res);
 void mIRCcom(const char *data);

@@ -63,10 +63,10 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case WM_SIZE:
       {
 				if (dd->type.len())
-					wsprintf(mIRCLink.m_pData, "/.signal DCX size %s %d %d %d", dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
+					mIRCSignal("/.signal DCX size %s %d %d %d", dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
 				else
-					wsprintf(mIRCLink.m_pData, "/.signal DCX size Custom %d %d %d", dd->win, LOWORD(lParam), HIWORD(lParam));
-				SendMessage(mIRCLink.m_mIRCHWND, WM_USER +200, 0, mIRCLink.m_map_cnt);
+					mIRCSignal("/.signal DCX size Custom %d %d %d", dd->win, LOWORD(lParam), HIWORD(lParam));
+
 				EnumChildWindows(mHwnd,(WNDENUMPROC)SizeDocked,NULL);
       }
       break;
@@ -230,7 +230,7 @@ mIRC(_xdock)
 		error.sprintf("$ $+ xdock invalid arguments (%s)", d.gettok(1, " ").to_chr());
 		mIRCError(error.to_chr());
 		
-		ret("D_ERR: invalid xdock arguments";
+		ret("D_ERR: invalid xdock arguments");
 	}
 
 	if (d.gettok(1," ") == "mIRC") {
