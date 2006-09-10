@@ -576,7 +576,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdialog -t [NAME] [SWITCH] [COLOR]
 	else if (flags.switch_flags[19] && numtok > 2) {
 		if (input.gettok(3, " ") == "alpha") {
-			// Set WS_EX_LAYERED on this window 
+			// Set WS_EX_LAYERED on this window
 			SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
 			// Make this window x% alpha
@@ -1575,40 +1575,51 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_SIZE:
 		{
-			HWND bars = NULL;
-
-			while ((bars = FindWindowEx(mHwnd, bars, DCX_REBARCTRLCLASS, NULL)) != NULL) {
-				SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
-			}
-
-			while ((bars = FindWindowEx(mHwnd, bars, DCX_STATUSBARCLASS, NULL)) != NULL) {
-				SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
-			}
-
-			while ((bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, NULL)) != NULL) {
-				DcxToolBar *t = (DcxToolBar*) p_this->getControlByHWND(bars);
-
-				t->autoPosition(LOWORD(lParam), HIWORD(lParam));
-				//SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) lParam );
-			}
-
 			if (p_this != NULL) {
-				char ret[256];
-				RECT rc;
+				p_this->callAliasEx(NULL, "%s,%d,%d,%d", "sizing", 0, LOWORD(lParam), HIWORD(lParam));
 
-				p_this->callAliasEx(ret, "%s,%d,%d,%d", "sizing", 0, LOWORD(lParam), HIWORD(lParam));
+				HWND bars = NULL;
+
+				while ((bars = FindWindowEx(mHwnd, bars, DCX_REBARCTRLCLASS, NULL)) != NULL) {
+					SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
+				}
+
+				while ((bars = FindWindowEx(mHwnd, bars, DCX_STATUSBARCLASS, NULL)) != NULL) {
+					SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
+				}
+
+				while ((bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, NULL)) != NULL) {
+					DcxToolBar *t = (DcxToolBar*) p_this->getControlByHWND(bars);
+
+					t->autoPosition(LOWORD(lParam), HIWORD(lParam));
+					//SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) lParam );
+				}
+
+				RECT rc;
 
 				SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
 				p_this->updateLayout(rc);
 				p_this->redrawWindow();
-
-				if (lstrcmp("nosize", ret) == 0)
-					return 0L;
 			}
-
 			break;
 		}
+		case WM_WINDOWPOSCHANGING:
+			{
+				if (p_this != NULL) {
+					char ret[256];
 
+					p_this->callAliasEx(ret, "%s,%d", "changing", 0);
+
+					WINDOWPOS *wp = (WINDOWPOS *)lParam;
+					if (lstrcmp("nosize", ret) == 0)
+						wp->flags |= SWP_NOSIZE;
+					else if (lstrcmp("nomove", ret) == 0)
+						wp->flags |= SWP_NOMOVE;
+					else if (lstrcmp("nochange", ret) == 0)
+						wp->flags |= SWP_NOSIZE|SWP_NOMOVE;
+				}
+			}
+			break;
 		case WM_ERASEBKGND:
 		{
 			if (mHwnd != p_this->getHwnd())
