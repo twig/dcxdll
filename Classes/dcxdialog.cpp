@@ -1601,25 +1601,30 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				p_this->updateLayout(rc);
 				p_this->redrawWindow();
 			}
+
 			break;
 		}
+
 		case WM_WINDOWPOSCHANGING:
-			{
-				if (p_this != NULL) {
-					char ret[256];
+		{
+			if (p_this != NULL) {
+				char ret[256];
 
-					p_this->callAliasEx(ret, "%s,%d", "changing", 0);
+				p_this->callAliasEx(ret, "%s,%d", "changing", 0);
 
-					WINDOWPOS *wp = (WINDOWPOS *)lParam;
-					if (lstrcmp("nosize", ret) == 0)
-						wp->flags |= SWP_NOSIZE;
-					else if (lstrcmp("nomove", ret) == 0)
-						wp->flags |= SWP_NOMOVE;
-					else if (lstrcmp("nochange", ret) == 0)
-						wp->flags |= SWP_NOSIZE|SWP_NOMOVE;
-				}
+				WINDOWPOS *wp = (WINDOWPOS *) lParam;
+
+				if (lstrcmp("nosize", ret) == 0)
+					wp->flags |= SWP_NOSIZE;
+				else if (lstrcmp("nomove", ret) == 0)
+					wp->flags |= SWP_NOMOVE;
+				else if (lstrcmp("nochange", ret) == 0)
+					wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
 			}
+
 			break;
+		}
+
 		case WM_ERASEBKGND:
 		{
 			if (mHwnd != p_this->getHwnd())

@@ -40,7 +40,7 @@
 	<br />
 	<a class="section" href="#1">Introduction</a><br />
 	<br />
-	<a class="section" href="index.htm">DCX Controls</a><br />
+	<a class="section">DCX Controls</a><br />
 	<ul>
 <li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window</a></li>	</ul>
 	<a class="section">DCX Features</a><br />
@@ -2442,7 +2442,21 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>close	</td></tr>
+			<a name="8.4"></a>changing	</td></tr>
+	<tr><td colspan="2">When the dialog is about to be resized or moved.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME changing ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx changing 4</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nosize</a> Return this value to block the window from resizing.<br /><a class="returnevent">nomove</a> Return this value to block the window from moving.<br /><a class="returnevent">nochange</a> Return this value to block the window from moving and resizing.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.5"></a>close	</td></tr>
 	<tr><td colspan="2">When the X button is clicked on a dialog.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2456,7 +2470,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.5"></a>dclick	</td></tr>
+			<a name="8.6"></a>dclick	</td></tr>
 	<tr><td colspan="2">When the left mouse button is double-clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2470,7 +2484,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.6"></a>deactivate	</td></tr>
+			<a name="8.7"></a>deactivate	</td></tr>
 	<tr><td colspan="2">Event triggered when dialog is deactivated.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2484,7 +2498,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.7"></a>dragbegin	</td></tr>
+			<a name="8.8"></a>dragbegin	</td></tr>
 	<tr><td colspan="2">Triggers when one or more files are dropped onto the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2503,7 +2517,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.8"></a>dragfile	</td></tr>
+			<a name="8.9"></a>dragfile	</td></tr>
 	<tr><td colspan="2">The filename of the file that has</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2517,7 +2531,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.9"></a>dragfinish	</td></tr>
+			<a name="8.10"></a>dragfinish	</td></tr>
 	<tr><td colspan="2">Event triggered when processing of drag drop is complete.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2531,7 +2545,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.10"></a>endmove	</td></tr>
+			<a name="8.11"></a>endmove	</td></tr>
 	<tr><td colspan="2">When the dialog has finished being moved.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2545,7 +2559,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.11"></a>endsize	</td></tr>
+			<a name="8.12"></a>endsize	</td></tr>
 	<tr><td colspan="2">When the dialog has finished being resized.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2559,7 +2573,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.12"></a>focus	</td></tr>
+			<a name="8.13"></a>focus	</td></tr>
 	<tr><td colspan="2">Triggered when a control gains the focus where $3 is the control ID.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2573,7 +2587,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.13"></a>focusout	</td></tr>
+			<a name="8.14"></a>focusout	</td></tr>
 	<tr><td colspan="2">Triggered when a control loses the focus where $3 is the control ID.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2587,7 +2601,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.14"></a>lbdblclk	</td></tr>
+			<a name="8.15"></a>lbdblclk	</td></tr>
 	<tr><td colspan="2">When the left mouse button is double-clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2601,7 +2615,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.15"></a>lbdown	</td></tr>
+			<a name="8.16"></a>lbdown	</td></tr>
 	<tr><td colspan="2">When the left mouse button is pressed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2615,7 +2629,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.16"></a>lbup	</td></tr>
+			<a name="8.17"></a>lbup	</td></tr>
 	<tr><td colspan="2">When the left mouse button is released.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2629,7 +2643,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.17"></a>max	</td></tr>
+			<a name="8.18"></a>max	</td></tr>
 	<tr><td colspan="2">When the dialog is about to be maximized.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2643,7 +2657,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.18"></a>mbdblclk	</td></tr>
+			<a name="8.19"></a>mbdblclk	</td></tr>
 	<tr><td colspan="2">When the middle mouse button is double-clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2657,7 +2671,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.19"></a>mbdown	</td></tr>
+			<a name="8.20"></a>mbdown	</td></tr>
 	<tr><td colspan="2">When the middle mouse button is pressed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2671,7 +2685,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.20"></a>mbup	</td></tr>
+			<a name="8.21"></a>mbup	</td></tr>
 	<tr><td colspan="2">When the middle mouse button is released.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2685,7 +2699,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.21"></a>min	</td></tr>
+			<a name="8.22"></a>min	</td></tr>
 	<tr><td colspan="2">When the dialog is about to be minimized.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2699,7 +2713,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.22"></a>mouse	</td></tr>
+			<a name="8.23"></a>mouse	</td></tr>
 	<tr><td colspan="2">When the mouse hovers a control where $3 is the ID of the control (dialog: ID of 0).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2713,7 +2727,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.23"></a>mouseenter	</td></tr>
+			<a name="8.24"></a>mouseenter	</td></tr>
 	<tr><td colspan="2">When the mouse enters a control where $3 is the ID of the control (dialog: ID of 0).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2727,7 +2741,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.24"></a>mouseleave	</td></tr>
+			<a name="8.25"></a>mouseleave	</td></tr>
 	<tr><td colspan="2">When the mouse leaves a control where $3 is the ID of the control (dialog: ID of 0).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2741,7 +2755,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.25"></a>moving	</td></tr>
+			<a name="8.26"></a>moving	</td></tr>
 	<tr><td colspan="2">When the dialog is being moved.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2755,7 +2769,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.26"></a>mwheel	</td></tr>
+			<a name="8.27"></a>mwheel	</td></tr>
 	<tr><td colspan="2">Event triggered when the mouse wheel is scrolled.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2806,7 +2820,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.27"></a>rbdblclk	</td></tr>
+			<a name="8.28"></a>rbdblclk	</td></tr>
 	<tr><td colspan="2">When the right mouse button is double-clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2820,7 +2834,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.28"></a>rbdown	</td></tr>
+			<a name="8.29"></a>rbdown	</td></tr>
 	<tr><td colspan="2">When the right mouse button is pressed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2834,7 +2848,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.29"></a>rbup	</td></tr>
+			<a name="8.30"></a>rbup	</td></tr>
 	<tr><td colspan="2">When the right mouse button is released.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2848,7 +2862,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.30"></a>rclick	</td></tr>
+			<a name="8.31"></a>rclick	</td></tr>
 	<tr><td colspan="2">When the right mouse button is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2862,7 +2876,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.31"></a>restore	</td></tr>
+			<a name="8.32"></a>restore	</td></tr>
 	<tr><td colspan="2">When the dialog is about to be restored.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2876,7 +2890,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.32"></a>sclick	</td></tr>
+			<a name="8.33"></a>sclick	</td></tr>
 	<tr><td colspan="2">When the left mouse button is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2890,7 +2904,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.33"></a>sizing	</td></tr>
+			<a name="8.34"></a>sizing	</td></tr>
 	<tr><td colspan="2">When the dialog is being resized where $3 is the new width and $4 is the new height.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -2900,11 +2914,11 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx sizing 4 90 60</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">nosize</a> Return this value to block the window resizing.</td></tr></table>
+</table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.34"></a>themechanged	</td></tr>
+			<a name="8.35"></a>themechanged	</td></tr>
 	<tr><td colspan="2">Event triggered when aspects of the windows theme is changed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -3044,7 +3058,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 </table>
 </td><td class="menuright">
 	<br />
-<a href="#2" style="color: #888888;">General Commands</a><br /><ul><li><a href="#2.1" style="color: #888888;">ColorDialog</a></li><li><a href="#2.2" style="color: #888888;">FontDialog</a></li><li><a href="#2.3" style="color: #888888;">GetSystemColor</a></li><li><a href="#2.4" style="color: #888888;">GetTaskbarPos</a></li><li><a href="#2.5" style="color: #888888;">IsThemedXP</a></li><li><a href="#2.6" style="color: #888888;">Mark</a></li><li><a href="#2.7" style="color: #888888;">MsgBox</a></li><li><a href="#2.8" style="color: #888888;">OpenDialog/SaveDialog</a></li><li><a href="#2.9" style="color: #888888;">Version</a></li></ul><a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">disabled</a></li><li><a href="#3.2" style="color: #B52929;">group</a></li><li><a href="#3.3" style="color: #B52929;">notheme</a></li><li><a href="#3.4" style="color: #B52929;">tabstop</a></li></ul><a href="#10" style="color: #800080;">/xdialog Flags</a><br /><ul><li><a href="#10.1" style="color: #800080;">-R</a></li><li><a href="#10.2" style="color: #800080;">-T</a></li><li><a href="#10.3" style="color: #800080;">-a</a></li><li><a href="#10.4" style="color: #800080;">-b</a></li><li><a href="#10.5" style="color: #800080;">-c</a></li><li><a href="#10.6" style="color: #800080;">-d</a></li><li><a href="#10.7" style="color: #800080;">-f</a></li><li><a href="#10.8" style="color: #800080;">-g</a></li><li><a href="#10.9" style="color: #800080;">-h</a></li><li><a href="#10.10" style="color: #800080;">-j</a></li><li><a href="#10.11" style="color: #800080;">-l</a></li><li><a href="#10.12" style="color: #800080;">-m</a></li><li><a href="#10.13" style="color: #800080;">-n</a></li><li><a href="#10.14" style="color: #800080;">-q</a></li><li><a href="#10.15" style="color: #800080;">-r</a></li><li><a href="#10.16" style="color: #800080;">-s</a></li><li><a href="#10.17" style="color: #800080;">-t</a></li><li><a href="#10.18" style="color: #800080;">-w</a></li><li><a href="#10.19" style="color: #800080;">-x</a></li></ul><a href="#11" style="color: #AC59AC;">$xdialog() Properties</a><br /><ul><li><a href="#11.1" style="color: #AC59AC;">alias</a></li><li><a href="#11.2" style="color: #AC59AC;">focusid</a></li><li><a href="#11.3" style="color: #AC59AC;">id</a></li><li><a href="#11.4" style="color: #AC59AC;">isid</a></li><li><a href="#11.5" style="color: #AC59AC;">ismarked</a></li><li><a href="#11.6" style="color: #AC59AC;">ismenu</a></li><li><a href="#11.7" style="color: #AC59AC;">key</a></li><li><a href="#11.8" style="color: #AC59AC;">mouse</a></li><li><a href="#11.9" style="color: #AC59AC;">mouseid</a></li><li><a href="#11.10" style="color: #AC59AC;">nextid</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-C</a></li><li><a href="#4.2" style="color: #0000FF;">-F</a></li><li><a href="#4.3" style="color: #0000FF;">-J</a></li><li><a href="#4.4" style="color: #0000FF;">-M</a></li><li><a href="#4.5" style="color: #0000FF;">-T</a></li><li><a href="#4.6" style="color: #0000FF;">-U</a></li><li><a href="#4.7" style="color: #0000FF;">-Z</a></li><li><a href="#4.8" style="color: #0000FF;">-b</a></li><li><a href="#4.9" style="color: #0000FF;">-e</a></li><li><a href="#4.10" style="color: #0000FF;">-f</a></li><li><a href="#4.11" style="color: #0000FF;">-h</a></li><li><a href="#4.12" style="color: #0000FF;">-p</a></li><li><a href="#4.13" style="color: #0000FF;">-s</a></li><li><a href="#4.14" style="color: #0000FF;">-x</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">dpos</a></li><li><a href="#9.2" style="color: #6666FF;">enabled</a></li><li><a href="#9.3" style="color: #6666FF;">font</a></li><li><a href="#9.4" style="color: #6666FF;">hwnd</a></li><li><a href="#9.5" style="color: #6666FF;">mark</a></li><li><a href="#9.6" style="color: #6666FF;">mouse</a></li><li><a href="#9.7" style="color: #6666FF;">pid</a></li><li><a href="#9.8" style="color: #6666FF;">pos</a></li><li><a href="#9.9" style="color: #6666FF;">tooltipbgcolor</a></li><li><a href="#9.10" style="color: #6666FF;">tooltiptextcolor</a></li><li><a href="#9.11" style="color: #6666FF;">type</a></li><li><a href="#9.12" style="color: #6666FF;">visible</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">activate</a></li><li><a href="#8.2" style="color: #009900;">beginmove</a></li><li><a href="#8.3" style="color: #009900;">beginsize</a></li><li><a href="#8.4" style="color: #009900;">close</a></li><li><a href="#8.5" style="color: #009900;">dclick</a></li><li><a href="#8.6" style="color: #009900;">deactivate</a></li><li><a href="#8.7" style="color: #009900;">dragbegin</a></li><li><a href="#8.8" style="color: #009900;">dragfile</a></li><li><a href="#8.9" style="color: #009900;">dragfinish</a></li><li><a href="#8.10" style="color: #009900;">endmove</a></li><li><a href="#8.11" style="color: #009900;">endsize</a></li><li><a href="#8.12" style="color: #009900;">focus</a></li><li><a href="#8.13" style="color: #009900;">focusout</a></li><li><a href="#8.14" style="color: #009900;">lbdblclk</a></li><li><a href="#8.15" style="color: #009900;">lbdown</a></li><li><a href="#8.16" style="color: #009900;">lbup</a></li><li><a href="#8.17" style="color: #009900;">max</a></li><li><a href="#8.18" style="color: #009900;">mbdblclk</a></li><li><a href="#8.19" style="color: #009900;">mbdown</a></li><li><a href="#8.20" style="color: #009900;">mbup</a></li><li><a href="#8.21" style="color: #009900;">min</a></li><li><a href="#8.22" style="color: #009900;">mouse</a></li><li><a href="#8.23" style="color: #009900;">mouseenter</a></li><li><a href="#8.24" style="color: #009900;">mouseleave</a></li><li><a href="#8.25" style="color: #009900;">moving</a></li><li><a href="#8.26" style="color: #009900;">mwheel</a></li><li><a href="#8.27" style="color: #009900;">rbdblclk</a></li><li><a href="#8.28" style="color: #009900;">rbdown</a></li><li><a href="#8.29" style="color: #009900;">rbup</a></li><li><a href="#8.30" style="color: #009900;">rclick</a></li><li><a href="#8.31" style="color: #009900;">restore</a></li><li><a href="#8.32" style="color: #009900;">sclick</a></li><li><a href="#8.33" style="color: #009900;">sizing</a></li><li><a href="#8.34" style="color: #009900;">themechanged</a></li></ul></td>
+<a href="#2" style="color: #888888;">General Commands</a><br /><ul><li><a href="#2.1" style="color: #888888;">ColorDialog</a></li><li><a href="#2.2" style="color: #888888;">FontDialog</a></li><li><a href="#2.3" style="color: #888888;">GetSystemColor</a></li><li><a href="#2.4" style="color: #888888;">GetTaskbarPos</a></li><li><a href="#2.5" style="color: #888888;">IsThemedXP</a></li><li><a href="#2.6" style="color: #888888;">Mark</a></li><li><a href="#2.7" style="color: #888888;">MsgBox</a></li><li><a href="#2.8" style="color: #888888;">OpenDialog/SaveDialog</a></li><li><a href="#2.9" style="color: #888888;">Version</a></li></ul><a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">disabled</a></li><li><a href="#3.2" style="color: #B52929;">group</a></li><li><a href="#3.3" style="color: #B52929;">notheme</a></li><li><a href="#3.4" style="color: #B52929;">tabstop</a></li></ul><a href="#10" style="color: #800080;">/xdialog Flags</a><br /><ul><li><a href="#10.1" style="color: #800080;">-R</a></li><li><a href="#10.2" style="color: #800080;">-T</a></li><li><a href="#10.3" style="color: #800080;">-a</a></li><li><a href="#10.4" style="color: #800080;">-b</a></li><li><a href="#10.5" style="color: #800080;">-c</a></li><li><a href="#10.6" style="color: #800080;">-d</a></li><li><a href="#10.7" style="color: #800080;">-f</a></li><li><a href="#10.8" style="color: #800080;">-g</a></li><li><a href="#10.9" style="color: #800080;">-h</a></li><li><a href="#10.10" style="color: #800080;">-j</a></li><li><a href="#10.11" style="color: #800080;">-l</a></li><li><a href="#10.12" style="color: #800080;">-m</a></li><li><a href="#10.13" style="color: #800080;">-n</a></li><li><a href="#10.14" style="color: #800080;">-q</a></li><li><a href="#10.15" style="color: #800080;">-r</a></li><li><a href="#10.16" style="color: #800080;">-s</a></li><li><a href="#10.17" style="color: #800080;">-t</a></li><li><a href="#10.18" style="color: #800080;">-w</a></li><li><a href="#10.19" style="color: #800080;">-x</a></li></ul><a href="#11" style="color: #AC59AC;">$xdialog() Properties</a><br /><ul><li><a href="#11.1" style="color: #AC59AC;">alias</a></li><li><a href="#11.2" style="color: #AC59AC;">focusid</a></li><li><a href="#11.3" style="color: #AC59AC;">id</a></li><li><a href="#11.4" style="color: #AC59AC;">isid</a></li><li><a href="#11.5" style="color: #AC59AC;">ismarked</a></li><li><a href="#11.6" style="color: #AC59AC;">ismenu</a></li><li><a href="#11.7" style="color: #AC59AC;">key</a></li><li><a href="#11.8" style="color: #AC59AC;">mouse</a></li><li><a href="#11.9" style="color: #AC59AC;">mouseid</a></li><li><a href="#11.10" style="color: #AC59AC;">nextid</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-C</a></li><li><a href="#4.2" style="color: #0000FF;">-F</a></li><li><a href="#4.3" style="color: #0000FF;">-J</a></li><li><a href="#4.4" style="color: #0000FF;">-M</a></li><li><a href="#4.5" style="color: #0000FF;">-T</a></li><li><a href="#4.6" style="color: #0000FF;">-U</a></li><li><a href="#4.7" style="color: #0000FF;">-Z</a></li><li><a href="#4.8" style="color: #0000FF;">-b</a></li><li><a href="#4.9" style="color: #0000FF;">-e</a></li><li><a href="#4.10" style="color: #0000FF;">-f</a></li><li><a href="#4.11" style="color: #0000FF;">-h</a></li><li><a href="#4.12" style="color: #0000FF;">-p</a></li><li><a href="#4.13" style="color: #0000FF;">-s</a></li><li><a href="#4.14" style="color: #0000FF;">-x</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">dpos</a></li><li><a href="#9.2" style="color: #6666FF;">enabled</a></li><li><a href="#9.3" style="color: #6666FF;">font</a></li><li><a href="#9.4" style="color: #6666FF;">hwnd</a></li><li><a href="#9.5" style="color: #6666FF;">mark</a></li><li><a href="#9.6" style="color: #6666FF;">mouse</a></li><li><a href="#9.7" style="color: #6666FF;">pid</a></li><li><a href="#9.8" style="color: #6666FF;">pos</a></li><li><a href="#9.9" style="color: #6666FF;">tooltipbgcolor</a></li><li><a href="#9.10" style="color: #6666FF;">tooltiptextcolor</a></li><li><a href="#9.11" style="color: #6666FF;">type</a></li><li><a href="#9.12" style="color: #6666FF;">visible</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">activate</a></li><li><a href="#8.2" style="color: #009900;">beginmove</a></li><li><a href="#8.3" style="color: #009900;">beginsize</a></li><li><a href="#8.4" style="color: #009900;">changing</a></li><li><a href="#8.5" style="color: #009900;">close</a></li><li><a href="#8.6" style="color: #009900;">dclick</a></li><li><a href="#8.7" style="color: #009900;">deactivate</a></li><li><a href="#8.8" style="color: #009900;">dragbegin</a></li><li><a href="#8.9" style="color: #009900;">dragfile</a></li><li><a href="#8.10" style="color: #009900;">dragfinish</a></li><li><a href="#8.11" style="color: #009900;">endmove</a></li><li><a href="#8.12" style="color: #009900;">endsize</a></li><li><a href="#8.13" style="color: #009900;">focus</a></li><li><a href="#8.14" style="color: #009900;">focusout</a></li><li><a href="#8.15" style="color: #009900;">lbdblclk</a></li><li><a href="#8.16" style="color: #009900;">lbdown</a></li><li><a href="#8.17" style="color: #009900;">lbup</a></li><li><a href="#8.18" style="color: #009900;">max</a></li><li><a href="#8.19" style="color: #009900;">mbdblclk</a></li><li><a href="#8.20" style="color: #009900;">mbdown</a></li><li><a href="#8.21" style="color: #009900;">mbup</a></li><li><a href="#8.22" style="color: #009900;">min</a></li><li><a href="#8.23" style="color: #009900;">mouse</a></li><li><a href="#8.24" style="color: #009900;">mouseenter</a></li><li><a href="#8.25" style="color: #009900;">mouseleave</a></li><li><a href="#8.26" style="color: #009900;">moving</a></li><li><a href="#8.27" style="color: #009900;">mwheel</a></li><li><a href="#8.28" style="color: #009900;">rbdblclk</a></li><li><a href="#8.29" style="color: #009900;">rbdown</a></li><li><a href="#8.30" style="color: #009900;">rbup</a></li><li><a href="#8.31" style="color: #009900;">rclick</a></li><li><a href="#8.32" style="color: #009900;">restore</a></li><li><a href="#8.33" style="color: #009900;">sclick</a></li><li><a href="#8.34" style="color: #009900;">sizing</a></li><li><a href="#8.35" style="color: #009900;">themechanged</a></li></ul></td>
   </tr>
 </table>
 

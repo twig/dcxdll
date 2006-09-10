@@ -807,12 +807,19 @@ function format_notes(&$data) {
 
 
 function format_return(&$data) {
+	$txt = "";
+	
 	if (!is_array($data))
-	    $data = array($data);
-
-	foreach ($data as $ret) {
-		echo "<tr><td class=\"syntax\">Return</td><td>$ret</td></tr>";
+    	$txt = $data;
+	else {
+		foreach ($data as $k => $ret) {
+			$txt .= ($txt ? "<br />" : "") . '[r]' . $k . '[/r] ' . $ret; 
+		}
+		
+		wikiData($txt);
 	}
+	
+	echo "<tr><td class=\"syntax\">Return</td><td>$txt</td></tr>";
 }
 
 // returns the color associated with a particular section
