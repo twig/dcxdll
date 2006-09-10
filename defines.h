@@ -234,6 +234,8 @@ typedef HRESULT (__stdcall *PFNISTHEMEACTIVE)();
 //BOOL IsThemeActive();
 BOOL isXP();
 
+HWND GetHwndFromString(TString &str);
+HWND GetHwndFromString(char *str);
 HWND FindOwner(TString data, HWND defaultWnd);
 BOOL CopyToClipboard(HWND owner, TString str);
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);

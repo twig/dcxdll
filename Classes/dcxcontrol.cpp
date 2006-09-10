@@ -812,13 +812,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, UINT mID, TString
   }
 	else if (type == "dialog") {
 		if (tsInput.numtok(" ") > 8) {
-			char windowHwnd[30];
-			TString expression;
-
-			expression.sprintf("$dialog(%s).hwnd", tsInput.gettok(9, " ").to_chr());
-			mIRCeval(expression.to_chr(), windowHwnd);
-
-			HWND winHwnd = (HWND) atoi(windowHwnd);
+			HWND winHwnd = GetHwndFromString(tsInput.gettok(9, " "));
 
 			if (IsWindow(winHwnd)) {
 				if (p_Dialog->getControlByHWND(winHwnd) == NULL) {

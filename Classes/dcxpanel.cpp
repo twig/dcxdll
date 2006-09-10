@@ -330,23 +330,15 @@ void DcxPanel::parseCommandRequest( TString & input ) {
           }
         }
       }
-      else if ( type == "dialog" ) {
+		else if (type == "dialog") {
+			if (styles.numtok(" ") > 0) {
+				HWND winHwnd = GetHwndFromString(styles.gettok(1, " "));
 
-        if ( styles.numtok( " " ) > 0 ) {
-
-          char windowHwnd[30];
-          TString expression;
-          expression.sprintf("$dialog(%s).hwnd", styles.gettok( 1, " " ).to_chr( ) );
-					mIRCeval( expression.to_chr(), windowHwnd );
-
-          HWND winHwnd = (HWND) atoi( windowHwnd );
-
-          if ( IsWindow( winHwnd ) && this->m_pParentDialog->getControlByHWND( winHwnd ) == NULL ) {
-
-            p_Control = new DcxMDialog( winHwnd, this->m_Hwnd, ID, this->m_pParentDialog, &rc, styles );
-          }
-        }
-      }
+				if (IsWindow(winHwnd) && this->m_pParentDialog->getControlByHWND(winHwnd) == NULL) {
+					p_Control = new DcxMDialog(winHwnd, this->m_Hwnd, ID, this->m_pParentDialog, &rc, styles);
+				}
+			}
+		}
 
       if ( p_Control != NULL ) {
 

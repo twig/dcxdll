@@ -434,10 +434,7 @@ mIRC(Mark) {
 	}
 
 	// check if valid dialog
-	com.sprintf("$dialog(%s).hwnd", d.gettok(1, " ").to_chr());
-	mIRCeval(com.to_chr(), res);
-
-	HWND mHwnd = (HWND) atoi(res);
+	HWND mHwnd = GetHwndFromString(d.gettok(1, " "));
 
 	if (IsWindow(mHwnd) == FALSE) {
 		wsprintf(data, "D_ERROR Mark : Invalid Dialog Window : %s", d.gettok(1, " ").to_chr());

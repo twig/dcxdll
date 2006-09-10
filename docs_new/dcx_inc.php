@@ -366,7 +366,7 @@ function dcxdoc_menu_left() {
 	<br />
 	<a class="section" href="#<?php echo SECTION_INTRO; ?>">Introduction</a><br />
 	<br />
-	<a class="section" href="index.htm">DCX Controls</a><br />
+	<a class="section">DCX Controls</a><br />
 	<ul>
 <?php
 	$pages = $PAGES;
