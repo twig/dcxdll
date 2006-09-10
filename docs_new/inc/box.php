@@ -24,10 +24,10 @@ function get_xdid_box(&$XDID) {
 	$XDID = array(
 		"c" => array(
 			'__desc' => "This command lets you add a child control to a box control.",
-			'__cmd' => "[ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)",
+			'__cmd' => "[CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)",
 			'__eg' => "12 richedit 10 10 400 25 multi",
 			'__params' => array(
-			    'ID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
+			    'CID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
 				'CONTROL' => array(
 					'__desc' => "The type of DCX Control to be created.",
 					'__values' => array(
@@ -44,7 +44,7 @@ function get_xdid_box(&$XDID) {
 						'richedit' => "Creates a RichEdit control.",
 						'ipaddress' => "Creates a IpAddress control.",
 						'updown' => "Creates an UpDown control.",
-						'webctrl' => "Creates a Web control.",
+						'webctrl' => "Creates a WebCtrl.",
 						'pager' => "Creates a Pager control.",
 						'&nbsp;' => '&nbsp;',
 						'line' => "Creates a Line control.",

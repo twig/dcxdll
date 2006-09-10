@@ -125,7 +125,7 @@ function dcx_vs_mdx() {
     <tr><td colspan="3"></td></tr>
 
 	<tr>
-		<td class="section_title section_bg">WebControl</td>
+		<td class="section_title section_bg">WebCtrl</td>
         <td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>

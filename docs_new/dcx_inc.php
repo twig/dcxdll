@@ -42,7 +42,7 @@ $SECTION = 0;
 // information to be displayed in the CLA details (for dialog, panel, box, etc)
 $CLA = array(
 	'__desc' => "This command lets you add Cell Layout Algorithm rules to your dialog controls for automatic resizing of the child controls.",
-	'__cmd' => "[COMMAND] [PATH] [TAB] [+FLAGS] [ID] [WEIGHT] [W] [H]",
+	'__cmd' => "[COMMAND] [PATH] [TAB] [+FLAGS] [CID] [WEIGHT] [W] [H]",
 	'__eg' => //array(
 // EXAMPLE
 		"root \$chr(9) +pv 0 1 0 0",
@@ -72,7 +72,7 @@ $CLA = array(
 				'w' => "When used, it means that the supplied [p]W[/p] and [p]H[/p] represent the fixed cell width in the applicable direction (if the fixed cell is fixed in width, height or both).",
 			),
 		),
-		'ID' => "ID of the control (used with fixed or fill cells - use 0 if no control is to be linked to the cell).",
+		'CID' => "ID of the control (used with fixed or fill cells - use 0 if no control is to be linked to the cell).",
 		'WEIGHT' => "Cell child weight. (used when adding a child cell to a pane cell)",
 		'W' => "Fixed width of control (used with [v]fixed[/v] cell).",
 		'H' => "Fixed height of control. (used with [v]fixed[/v] cell)",
@@ -284,7 +284,17 @@ function dcxdoc_header($page, $pagelabel) {
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title>DCX <?php if ($page != 'index') echo "$pagelabel "; ?>- Dialog Control Xtension DLL v<?php echo $VERSION; ?> by ClickHeRe, twig* &amp; Ook</title>
+<title><?php
+// Prevent DCX DCX vs MDX
+if ($page == "dcxvsmdx")
+	echo $pagelabel;
+// eg. DCX Box
+else if ($page != 'index')
+	echo "DCX $pagelabel";
+// Prevent DCX DCX
+else
+	echo "DCX";
+?> - Dialog Control Xtension DLL v<?php echo $VERSION; ?> by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -595,14 +605,14 @@ function format_xcmd($type, $flag, $data, $id) {
 			$example = "\$xpop(mymenu, 2 5" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
 		    break;
 		case "xdock":
-			$heading = "/$type -$flag";
-			$syntax = "/$type -$flag [UNKNOWN] {$data['__cmd']}";
-			$example = "/$type -$flag [STILL_WIP] {$data['__eg']}";
+			$heading = "FIXME /$type $flag";
+			$syntax = "/$type $flag [UNKNOWN] {$data['__cmd']}";
+			$example = "/$type $flag [STILL_WIP] {$data['__eg']}";
 			break;
         case "xdockprops":
-			$heading = "\$xpopup().$flag";
-			$syntax = "\$xpopup(MENU" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
-			$example = "\$xpopup(mymenu" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
+			$heading = "DONT KNOW \$xdock().$flag";
+			$syntax = "\$xdock(MENU" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
+			$example = "\$xdock(mymenu" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
 		    break;
 
 		default:

@@ -15,12 +15,12 @@ function get_xdid_divider(&$XDID) {
 	$XDID = array(
 		"l|-r" => array(
 			'__desc' => "This command lets you add a child control to a divider pane. The -l switch is for the left/top pane, and -r for the right/bottom pane.",
-			'__cmd' => "[MIN] [IDEAL] [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)",
+			'__cmd' => "[MIN] [IDEAL] [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)",
 			'__eg' => '100 0 $chr(9) 12 richedit 10 10 400 25 multi',
 			'__params' => array(
 			    'MIN' => "Minimum Pane Width/Height.",
 			    'IDEAL' => 'Not used yet. Use [v]0[/v], required but ignored.',
-			    'ID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
+			    'CID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
 				'CONTROL' => array(
 					'__desc' => "The type of DCX Control to be created.",
 					'__values' => array(
@@ -28,7 +28,7 @@ function get_xdid_divider(&$XDID) {
 						'listview' => "Creates a Listview control.",
 						'rebar' => "Creates a Rebar control.",
 						'richedit' => "Creates a RichEdit control.",
-						'webctrl' => "Creates a Web control.",
+						'webctrl' => "Creates a WebCtrl.",
 						'&nbsp;' => '&nbsp;',
 						'edit' => "Creates a Edit control.",
 						'image' => "Creates a Image control.",

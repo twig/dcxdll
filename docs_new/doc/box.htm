@@ -109,7 +109,7 @@
 	<tr><td colspan="2">This command lets you add a child control to a box control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -c [DNAME] [ID] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)</div></td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -117,7 +117,7 @@
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
-		<td class="param">ID</td>
+		<td class="param">CID</td>
 		<td>Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b></td>
 	</tr>
 	<tr>
@@ -178,7 +178,7 @@
 	</tr>
 	<tr>
 		<td class="value">webctrl</td>
-		<td>Creates a Web control.</td>
+		<td>Creates a WebCtrl.</td>
 	</tr>
 	<tr>
 		<td class="value">pager</td>
@@ -294,7 +294,7 @@
 	<tr><td colspan="2">This command lets you add Cell Layout Algorithm rules to your dialog controls for automatic resizing of the child controls.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -l [DNAME] [ID] [COMMAND] [PATH] [TAB] [+FLAGS] [ID] [WEIGHT] [W] [H]</div></td>
+		<td><div class="syntax">/xdid -l [DNAME] [ID] [COMMAND] [PATH] [TAB] [+FLAGS] [CID] [WEIGHT] [W] [H]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -358,7 +358,7 @@
 		<td>When used, it means that the supplied <a class="param">W</a> and <a class="param">H</a> represent the fixed cell width in the applicable direction (if the fixed cell is fixed in width, height or both).</td>
 	</tr>
 	<tr>
-		<td class="param">ID</td>
+		<td class="param">CID</td>
 		<td>ID of the control (used with fixed or fill cells - use 0 if no control is to be linked to the cell).</td>
 	</tr>
 	<tr>
