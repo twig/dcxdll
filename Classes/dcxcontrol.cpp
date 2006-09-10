@@ -796,13 +796,18 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, UINT mID, TString
       char windowHwnd[30];
       TString expression;
       expression.sprintf("$window(%s).hwnd", tsInput.gettok( 9, " " ).to_chr( ) );
-			mIRCeval( expression.to_chr(), windowHwnd );
+		mIRCeval( expression.to_chr(), windowHwnd );
 
       HWND winHwnd = (HWND) atoi( windowHwnd );
 
-      if ( IsWindow( winHwnd ) && p_Dialog->getControlByHWND( winHwnd ) == NULL ) {
-			return new DcxMWindow( winHwnd, mID, p_Dialog, &rc, styles );
+		if (IsWindow(winHwnd)) {
+			if (p_Dialog->getControlByHWND(winHwnd) == NULL) {
+				return new DcxMWindow(winHwnd, mID, p_Dialog, &rc, styles);
+			}
       }
+		else {
+			mIRCDebug("Docking: No such window %s", tsInput.gettok(9, " ").to_chr());
+		}
     }
   }
 	else if (type == "dialog") {
@@ -815,16 +820,21 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, UINT mID, TString
 
 			HWND winHwnd = (HWND) atoi(windowHwnd);
 
-			if (IsWindow(winHwnd) && p_Dialog->getControlByHWND(winHwnd) == NULL) {
-				DcxControl* newDialog = new DcxMDialog(winHwnd, mID, p_Dialog, &rc, styles);
-				DcxDialog* dlg = dcxDialogs().getDialogByHandle(winHwnd);
+			if (IsWindow(winHwnd)) {
+				if (p_Dialog->getControlByHWND(winHwnd) == NULL) {
+					DcxControl* newDialog = new DcxMDialog(winHwnd, mID, p_Dialog, &rc, styles);
+					DcxDialog* dlg = dcxDialogs().getDialogByHandle(winHwnd);
 
-				// if its a dcx marked dialog, mark the parent name
-				if (dlg != NULL) {
-					dlg->setParentName(p_Dialog->getName());
+					// if its a dcx marked dialog, mark the parent name
+					if (dlg != NULL) {
+						dlg->setParentName(p_Dialog->getName());
+					}
+
+					return newDialog;
 				}
-
-				return newDialog;
+			}
+			else {
+				mIRCDebug("Docking: No such dialog %s", tsInput.gettok(9, " ").to_chr());
 			}
 		}
   }

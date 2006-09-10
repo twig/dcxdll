@@ -71,14 +71,18 @@ The event handling in the DLL is supported by a callback alias supplied by the u
 <br />
 Every function in this DLL returns a value if used with the $dll identifier. <a class="value">D_OK [function]: [message]</a> if successful, <a class="value">D_ERROR [function]: [message]</a> otherwise.<br />
 <br />
-<a class="note">Note.</a> Mandatory parameters are expressed in <a class="param">[]</a> and optional parameters in <a class="param">()</a>.<br />
-<a class="note">Note.</a> I strongly suggest you load the <b>dcx_tools.mrc</b> file included in the zip as it contains the necessary <b>/xdialog</b> and <b>/xdid</b> aliases and identifiers needed to use the DLL.<br />
-<a class="note">Note.</a> Function calls, styles, and references to anything DCX related are all <strong>case sensitive</strong>!
+<a class="note">Note:</a> Mandatory parameters are expressed in <a class="param">[SQUARE]</a> brackets and optional parameters in <a class="param">(ROUNDED)</a> brackets.<br />
+<a class="note">Note:</a> We strongly suggest you load the <b>dcx_tools.mrc</b> file included in the zip as it contains the necessary <b>/xdialog</b> and <b>/xdid</b> aliases and identifiers needed to use the DLL.<br />
+<a class="note">Note:</a> Function calls, styles, and references to anything DCX related are all <strong>case sensitive</strong>!
 </td></tr>
 </table>
 <br /><table class="description">
 	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'>Latest Changes</div></td></tr>
-	<tr><td>You may have noticed that the DCX documentation files have changed recently. They have been rewritten from scratch to keep them maintainable. The old documentation can be found <a href="http://dcx.scriptsdb.org/dcxdoc_old">here</a>. If you notice any inconsistancies, please put a post on the forum on this <a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=171">thread</a>! <br /><br /><a name="v1.3.5"></a><b>v1.3.5</b>
+	<tr><td>You may have noticed that the DCX documentation files have changed recently. They have been rewritten from scratch to keep them maintainable. The old documentation can be found <a href="http://dcx.scriptsdb.org/dcxdoc_old">here</a>.<br />
+<br />
+If you notice any inconsistancies or errors, please put a post on the forum on this <a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=394">thread</a>!<br />
+<br />
+<a name="v1.3.5"></a><b>v1.3.5</b>
 <ul><li><strong>DCX Changes</strong><ul><li>fixed bug that caused mIRC to crash when changing text in a listview when no progressbar exists</li><li>fixed a bug where edit ctrl /xdid -o wouldnt accept 1 word</li><li>added 'vertical' and 'verticalrev' styles to xpopup menus</li><li>got calendar select date event working properly</li><li>fixed a bug causing /xdid -Q not to update removal of bold and underline from treeview item</li><li>added $xdid().mouseitem for toolbar</li><li>changed the way /xdialog -g background image options work</li><li>fixed crash on /dll -u when dcx dialogs open.</li><li>fixed grid scroll redraw issue (flickers alot though)</li><li>added $xdid().dname to dialog control to retrieve its original dialog name</li><li>fixed ipaddress mouse click crash.</li><li>re-enabled ipaddress rclick &amp; edit events.</li><li>added sclick event to ipaddress controls.</li><li>fixed corruption of toolbar button text when one is deleted (tooltip text still goes missing though)</li><li>fixed button in tab crash.</li><li>fixed edit control with text causing crash in tab &amp; panel.</li><li>added activate &amp; deactivate events when dialog is activated &amp; deactivated.</li><li>keydown event no longer sends repeated keys (edit control)</li><li>added arrow keys &amp; caps lock to $dialog().key</li><li>fixed GetTaskbarPos() bug where memory was never freed.</li><li>added lbup event to image control</li><li>removed same control checks from tab/panel, was causing a loop leading to stack overflow.</li><li>fixed 2 memory leaks in calendar control.</li><li>fixed xdid -U lockup, fixing this also solved many others.</li><li>added 'rounded' style to box control.</li><li>fixed webctrl activate crash bug.</li><li>fixed comboex delete crashbug.</li><li>/xdialog -d and /xdid -d (for panel/box) now removes control from internal list as well as destroying it.</li><li>added mwheel event</li><li>added /xdialog -j [id] support for individual control redraw</li><li>added $xdialog().alias to retrieve alias function name</li><li>added a check for existing alias upon marking</li><li>made errors on marking more verbose</li><li>fixed problem with listview extended styles being misapplied, causing listview to not appear when borderselect style is used</li><li>added ability to set and retrieve tooltip background and text colors for toolbar.</li><li>fixed toolbar bug that caused /xdid -c to always fail with invalid args error.</li><li>added italics to treeview item styles</li><li>added italic item support to listview</li><li>fixed a bug with /xdid -k for richedit not applying background color to new text</li><li>added balloon style to toolbar to be used with tooltips style to enable balloon tooltips.</li></ul></li><li><strong>DCX Project</strong><ul><li>removed &quot;alias ttop&quot; from dcx_demo.mrc (thanks TheShadowOne)</li><li>general code reformatting in listview</li><li>moved ExStyle to parseControlStyles for listview</li><li>added function for grayscaling icons (incomplete)</li><li>added dcx_VS2005.sln to compile under Visual Studio 2005</li><li>added addtok() to tstring class</li><li>added UNICODE listview declarations to define.h so there is no longer a need to edit internal Visual Studio files</li><li>added sanity check to WindowProc for props existance.</li><li>removed duplicate WS_CLIPCHILDREN style</li><li>merged the 3 copies WM_MEARSUREITEM code into one.</li><li>added sprintf function to TString.</li><li>changed error responses to use TString.</li><li>changed WM_DELETEITEM &amp; WM_DRAWITEM messages to not use GetDlgItem().</li><li>added check to panels WM_NOTIFY &amp; WM_COMMAND messages to stop messages from itself.</li><li>added code to attempt to get &quot;mIRCN&quot; mapfile when dll is loaded on mIRC V6.2+, otherwise old &quot;mIRC&quot; mapfile is used.</li><li>removed alot of unneeded buffers used with callAliasEx().</li><li>removed some commented out code.</li><li>added checks for blocking messages.</li><li>added code to add/remove WS_EX_CONTROLPARENT to parent controls as children are added/removed.</li><li>starting to clean up code to make it more consistant</li><li>fixed a few error message inconsistencies and typos</li><li>removed some unecessary comments, includes, and variables</li><li>added Ook to Version credits</li><li>added an error message when /xdialog commands are invalid</li><li>added invalid command message for /xdid</li><li>changed some error messages to make them more consistant</li><li>added check for WS_TABSTOP style in child before enabling WS_EX_CONTROLPARENT in parent control.</li><li>moved listview extended styles parsing to its own function.</li><li>fixed TBN_GETINFOTIP event in toolbar, was handled incorrectly.</li><li>fixed TBN_DELETING event in toolbar, was deleting the wrong buttons data.</li><li>removed a whole bunch of redundant assignments to variables to improve speed slightly</li><li>removed some unreachable code</li><li>added extra checks for uninitialised variables</li><li>fixed a code flow bug in trackbar upon drawing the thumb when using bitmaps</li><li>fixed bug in TString.istok() function which caused it to miss the last token.</li></ul></li><li><strong>DCX Doc</strong><ul><li>fixed a typo with /xdid -n for listview</li><li>removed an unnecessary flag from /xpopup -i example in dcxdoc</li><li>added daystate style and event to calendar control</li><li>TODO: still a bug with dcxdoc where dialog events ID's are not 0</li><li>added a few more people to the credits list</li><li>added download.php</li><li>included a reference to the version on changes.htm</li><li>added an archive page</li><li>incremented dcxdoc version to 1.3.5</li><li>shifted some menu items for dcxdoc</li><li>main download link now points to archive page</li><li>added zipster to credits for testing</li><li>changed the way some links worked for credits (tutorials)</li><li>added link to EinsteinXXL's CLA tutorial</li><li>added some comments at the end of long switch cases to make it easier to notice where they end</li><li>fixed an error with /xpopup -x</li><li>formatting of changes can now be structured to include categories</li><li>added Ook to dcxdoc title</li><li>script batch file now pauses to display output</li><li>changed some credits titles</li><li>updated screenshot for listview and treeview</li><li>removed direct links to translation docs</li></ul></li></ul>
 </td></tr>
 </table>
@@ -86,7 +90,7 @@ Every function in this DLL returns a value if used with the $dll identifier. <a 
 	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'>DCX Supported Controls</div></td></tr>
 	<tr><td>The DCX supported controls are extended controls built directly on the mIRC dialog. These are used to extend the capabilities of the existing controls in mIRC dialogs which are very limited in use for GUI design.<br />
 <br/>
-<a class="note">Note.</a> Please note that some features of some DCX controls are only available to Windows XP+ machines. These commands have the symbol <a class="os">(OperatingSystem+)</a> beside their listing.
+<a class="note">Note:</a> Please note that some features of some DCX controls are only available to Windows XP+ machines. These commands have the symbol <a class="os">(OperatingSystem+)</a> beside their listing.
 </td></tr>
 </table>
 <br /><table class="description">
@@ -798,7 +802,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -R dcx +f $rgb(255,0,255) dialog_shape.bmp</div></td>
+		<td><div class="example">/xdialog -R dcx +f $rgb(255,0,255) dialog_shape.bmp<br />/xdialog -R dcx +p 0,0 $+($dialog(dcxtest).w,$chr(44),0) $+($calc($dialog(dcxtest).w /2),$chr(44),$dialog(dcxtest).h)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1326,7 +1330,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -h dcx </div></td>
+		<td><div class="example">/xdialog -h dcx</div></td>
 	</tr>
 </table>
 <br />
@@ -1354,7 +1358,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -l dcx root $chr(9) +pv 0 1 0 0</div></td>
+		<td><div class="example">/xdialog -l dcx root $chr(9) +pv 0 1 0 0<br />/xdialog -l dcx root 1 2 $chr(9) +fi 7 1 200 300<br />/xdialog -l dcx space 1 $chr(9) + 5 5 5 5<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1441,7 +1445,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -m dcx </div></td>
+		<td><div class="example">/xdialog -m dcx</div></td>
 	</tr>
 </table>
 <br />
@@ -1455,7 +1459,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -n dcx </div></td>
+		<td><div class="example">/xdialog -n dcx</div></td>
 	</tr>
 </table>
 <br />
@@ -1560,7 +1564,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -r dcx </div></td>
+		<td><div class="example">/xdialog -r dcx</div></td>
 	</tr>
 </table>
 <br />
@@ -1574,7 +1578,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -s dcx </div></td>
+		<td><div class="example">/xdialog -s dcx</div></td>
 	</tr>
 </table>
 <br />
@@ -1625,7 +1629,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -x dcx </div></td>
+		<td><div class="example">/xdialog -x dcx</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You will have to use this command to close a dialog if you return <a class="returnevent">noclose</a> in the <a class="event">close</a> event. mIRC's /dialog -x will be ineffective to close the dialog.</td></tr></table>
 <br />
@@ -1882,7 +1886,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -F dcx 4 </div></td>
+		<td><div class="example">/xdid -F dcx 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2015,7 +2019,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -U dcx 4 </div></td>
+		<td><div class="example">/xdid -U dcx 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2043,7 +2047,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -b dcx 4 </div></td>
+		<td><div class="example">/xdid -b dcx 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2057,7 +2061,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -e dcx 4 </div></td>
+		<td><div class="example">/xdid -e dcx 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2126,7 +2130,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -h dcx 4 </div></td>
+		<td><div class="example">/xdid -h dcx 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2171,7 +2175,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -s dcx 4 </div></td>
+		<td><div class="example">/xdid -s dcx 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2404,7 +2408,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx activate 4 </div></td>
+		<td><div class="example">/cb_alias dcx activate 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2418,7 +2422,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx beginmove 4 </div></td>
+		<td><div class="example">/cb_alias dcx beginmove 4</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">nomove</a> Return this value to block the window moving.</td></tr></table>
 <br />
@@ -2432,7 +2436,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx beginsize 4 </div></td>
+		<td><div class="example">/cb_alias dcx beginsize 4</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">nosize</a> Return this value to block the window resizing.</td></tr></table>
 <br />
@@ -2446,9 +2450,9 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx close 4 </div></td>
+		<td><div class="example">/cb_alias dcx close 4</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">noclose</a> Return this value to block the window closing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You will have to use /xdialog -x to close the dialog instead of mIRC's /dialog -x if you return <a class="returnevent">noclose</a> on this event.</li><li>Calling the /xdialog -x command will still trigger the <a class="event">close</a> event.</li></ul></td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">noclose</a> Return this value to block the window closing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You will have to use /xdialog -x to close the dialog instead of mIRC's /dialog -x if you return <a class="returnevent">noclose</a> on this event.</li><li>Calling the /xdialog -x command will still trigger the <a class="event">close</a> event.</li><li>There are two close messages sent. One from clicking the X in the top right corner of the dialog, and the other when the dialog is actually closed.</li></ul></td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
@@ -2460,7 +2464,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dclick 4 </div></td>
+		<td><div class="example">/cb_alias dcx dclick 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2474,7 +2478,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx deactivate 4 </div></td>
+		<td><div class="example">/cb_alias dcx deactivate 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2521,7 +2525,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dragfinish 4 </div></td>
+		<td><div class="example">/cb_alias dcx dragfinish 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2535,7 +2539,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx endmove 4 </div></td>
+		<td><div class="example">/cb_alias dcx endmove 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2549,7 +2553,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx endsize 4 </div></td>
+		<td><div class="example">/cb_alias dcx endsize 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2563,7 +2567,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx focus 4 </div></td>
+		<td><div class="example">/cb_alias dcx focus 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2577,7 +2581,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx focusout 4 </div></td>
+		<td><div class="example">/cb_alias dcx focusout 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2591,7 +2595,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbdblclk 4 </div></td>
+		<td><div class="example">/cb_alias dcx lbdblclk 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2605,7 +2609,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbdown 4 </div></td>
+		<td><div class="example">/cb_alias dcx lbdown 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2619,7 +2623,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbup 4 </div></td>
+		<td><div class="example">/cb_alias dcx lbup 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2633,7 +2637,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx max 4 </div></td>
+		<td><div class="example">/cb_alias dcx max 4</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">stop</a> Return this value to block the window maximizing.</td></tr></table>
 <br />
@@ -2647,7 +2651,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mbdblclk 4 </div></td>
+		<td><div class="example">/cb_alias dcx mbdblclk 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2661,7 +2665,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mbdown 4 </div></td>
+		<td><div class="example">/cb_alias dcx mbdown 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2675,7 +2679,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mbup 4 </div></td>
+		<td><div class="example">/cb_alias dcx mbup 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2689,7 +2693,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx min 4 </div></td>
+		<td><div class="example">/cb_alias dcx min 4</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">stop</a> Return this value to block the window minimizing.</td></tr></table>
 <br />
@@ -2703,7 +2707,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mouse 4 </div></td>
+		<td><div class="example">/cb_alias dcx mouse 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2717,7 +2721,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mouseenter 4 </div></td>
+		<td><div class="example">/cb_alias dcx mouseenter 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2731,7 +2735,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mouseleave 4 </div></td>
+		<td><div class="example">/cb_alias dcx mouseleave 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2745,7 +2749,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx moving 4 </div></td>
+		<td><div class="example">/cb_alias dcx moving 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2810,7 +2814,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rbdblclk 4 </div></td>
+		<td><div class="example">/cb_alias dcx rbdblclk 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2824,7 +2828,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rbdown 4 </div></td>
+		<td><div class="example">/cb_alias dcx rbdown 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2838,7 +2842,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rbup 4 </div></td>
+		<td><div class="example">/cb_alias dcx rbup 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2852,7 +2856,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rclick 4 </div></td>
+		<td><div class="example">/cb_alias dcx rclick 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2866,7 +2870,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx restore 4 </div></td>
+		<td><div class="example">/cb_alias dcx restore 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2880,7 +2884,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sclick 4 </div></td>
+		<td><div class="example">/cb_alias dcx sclick 4</div></td>
 	</tr>
 </table>
 <br />
@@ -2908,7 +2912,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx themechanged 4 </div></td>
+		<td><div class="example">/cb_alias dcx themechanged 4</div></td>
 	</tr>
 </table>
 <br />

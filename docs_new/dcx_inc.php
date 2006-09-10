@@ -43,12 +43,11 @@ $SECTION = 0;
 $CLA = array(
 	'__desc' => "This command lets you add Cell Layout Algorithm rules to your dialog controls for automatic resizing of the child controls.",
 	'__cmd' => "[COMMAND] [PATH] [TAB] [+FLAGS] [CID] [WEIGHT] [W] [H]",
-	'__eg' => //array(
-// EXAMPLE
+	'__eg' => array(
 		"root \$chr(9) +pv 0 1 0 0",
-//		"root 1 2 \$chr(9) +fi 7 1 200 300",
-//		"space 1 \$chr(9) + 5 5 5 5",
-//	),
+		"root 1 2 \$chr(9) +fi 7 1 200 300",
+		"space 1 \$chr(9) + 5 5 5 5",
+	),
 	'__params' => array(
 		'COMMAND' => array(
 			'__desc' => "Layout command.",
@@ -478,43 +477,49 @@ function dcxdoc_footer() {
 
 // call generic function
 function dcxdoc_format_general($cmd, &$data, $id) {
-    format_xcmd("general", $cmd, $data, $id);
-}
-function dcxdoc_format_xdialog($flag, &$data, $id) {
-    format_xcmd("xdialog", $flag, $data, $id);
-}
-function dcxdoc_format_xdid($flag, &$data, $id) {
-    format_xcmd("xdid", $flag, $data, $id);
-}
-function dcxdoc_format_xdidprop($prop, $data, $id) {
-    format_xcmd("xdidprop", $prop, $data, $id);
-}
-function dcxdoc_format_xdialogprop($prop, $data, $id) {
-    format_xcmd("xdialogprop", $prop, $data, $id);
-}
-function dcxdoc_format_event($event, $data, $count) {
-    format_xcmd("event", $event, $data, $count);
-}
-function dcxdoc_format_xpopup($event, $data, $count) {
-    format_xcmd("xpopup", $event, $data, $count);
-}
-function dcxdoc_format_xpopupprop($event, $data, $count) {
-    format_xcmd("xpopupprop", $event, $data, $count);
-}
-function dcxdoc_format_xpop($event, $data, $count) {
-    format_xcmd("xpop", $event, $data, $count);
-}
-function dcxdoc_format_xpopprops($event, $data, $count) {
-    format_xcmd("xpopprops", $event, $data, $count);
-}
-function dcxdoc_format_xdock($event, $data, $count) {
-	format_xcmd("xdock", $event, $data, $count);
-}
-function dcxdoc_format_xdockprops($event, $data, $count) {
-	format_xcmd("xdockprops", $event, $data, $count);
+    format_xcmd(SECTION_GENERAL, $cmd, $data, $id);
 }
 
-function format_xcmd($type, $flag, $data, $id) {
+function dcxdoc_format_xdialog($flag, &$data, $id) {
+    format_xcmd(SECTION_XDIALOG, $flag, $data, $id);
+}
+function dcxdoc_format_xdialogprop($prop, $data, $id) {
+    format_xcmd(SECTION_XDIALOGPROPS, $prop, $data, $id);
+}
+
+function dcxdoc_format_xdid($flag, &$data, $id) {
+    format_xcmd(SECTION_XDID, $flag, $data, $id);
+}
+function dcxdoc_format_xdidprop($prop, $data, $id) {
+    format_xcmd(SECTION_XDIDPROPS, $prop, $data, $id);
+}
+
+function dcxdoc_format_event($event, $data, $count) {
+    format_xcmd(SECTION_EVENTS, $event, $data, $count);
+}
+
+function dcxdoc_format_xpopup($event, $data, $count) {
+    format_xcmd(SECTION_XPOPUP, $event, $data, $count);
+}
+function dcxdoc_format_xpopupprop($event, $data, $count) {
+    format_xcmd(SECTION_XPOPUPPROPS, $event, $data, $count);
+}
+
+function dcxdoc_format_xpop($event, $data, $count) {
+    format_xcmd(SECTION_XPOP, $event, $data, $count);
+}
+function dcxdoc_format_xpopprops($event, $data, $count) {
+    format_xcmd(SECTION_XPOPPROPS, $event, $data, $count);
+}
+
+function dcxdoc_format_xdock($event, $data, $count) {
+	format_xcmd(SECTION_XDOCK, $event, $data, $count);
+}
+function dcxdoc_format_xdockprops($event, $data, $count) {
+	format_xcmd(SECTION_XDOCKPROPS, $event, $data, $count);
+}
+
+function format_xcmd($section, $flag, $data, $id) {
 	if (!is_array($data)) {
 		$data = array('__desc' => $data);
 	}
@@ -528,102 +533,34 @@ function format_xcmd($type, $flag, $data, $id) {
 	if (!isset($data['__cmd']))
 		$data['__cmd'] = '';
 
+	// TODO: make this support multiple examples
 	// error_log("ERROR: __eg not set for $flag");
 	if (!isset($data['__eg']))
-		$data['__eg'] = '';
+		$data['__eg'] = array('');
+	// if single value, format it into an array to make it easier to manipulate later
+	else if (!is_array($data['__eg'])) {
+		$data['__eg'] = array($data['__eg']);
+	}
 
     // error_log("ERROR: __return not set for $flag");
 	if (!isset($data['__return']))
 		$data['__return'] = '';
 
-	global $SECTION;
-
 	// generate syntax
-	$color = get_section_color();
+	$color = get_section_color($section);
+	$heading = "HEADING GENERATION ERROR";
 	$syntax = "SYNTAX GENERATION ERROR";
 	$example = "EXAMPLE GENERATION ERROR";
-
-	switch ($type) {
-		case "general":
-		    if (isset($data['__isid']) && $data['__isid']) {
-                $heading = "\$dcx($flag)";
-				$syntax = "\$dcx($flag" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ")";
-				$example = "\$dcx($flag" . ($data['__eg'] ? ", {$data['__eg']}" : '') . ")";
-			}
-			else {
-                $heading = "/dcx $flag";
-				$syntax = "/dcx $flag " . ($data['__cmd'] ? $data['__cmd'] : '');
-				$example = "/dcx $flag " . ($data['__eg'] ? $data['__eg'] : '');
-			}
-		    break;
-		case "xdid":
-			$heading = "/$type -$flag";
-			$syntax = "/$type -$flag [DNAME] [ID] {$data['__cmd']}";
-			$example = "/$type -$flag dcx 4 {$data['__eg']}";
-			break;
-		case "xdialog":
-			$heading = "/$type -$flag";
-			$syntax = "/$type -$flag [DNAME] {$data['__cmd']}";
-			$example = "/$type -$flag dcx {$data['__eg']}";
-			break;
-		case "xdidprop":
-			$heading = "\$xdid().$flag";
-			$syntax = "\$xdid(dialog, ID" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
-			$example = "\$xdid(dcx, 4" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
-			break;
-		case "xdialogprop":
-			$heading = "\$xdialog().$flag";
-			$syntax = "\$xdialog(dialog" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
-			$example = "\$xdialog(dcx" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
-		    break;
-        case "event":
-            $dialogspecific = array('mouseleave', 'mouseenter', 'mouse', 'focusout', 'focus');
-            
-        	$heading = "$flag";
-			$syntax = "/cb_alias DNAME $flag ID {$data['__cmd']}";
-//			$example = "/cb_alias dcx $flag " . (!in_array($flag, $dialogspecific) ? ' 0 ' : ' 4 ') . $data['__eg'];
-			$example = "/cb_alias dcx $flag 4 {$data['__eg']}";
-            break;
-        case "xpopup":
-			$heading = "/$type -$flag";
-			$syntax = "/$type -$flag [MENU] {$data['__cmd']}";
-			$example = "/$type -$flag mymenu {$data['__eg']}";
-			break;
-        case "xpopupprop":
-			$heading = "\$xpopup().$flag";
-			$syntax = "\$xpopup(MENU" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
-			$example = "\$xpopup(mymenu" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
-		    break;
-		case "xpop":
-			$heading = "/$type -$flag";
-			$syntax = "/$type -$flag [MENU] [PATH] {$data['__cmd']}";
-			$example = "/$type -$flag mymenu 2 1 {$data['__eg']}";
-			break;
-        case "xpopprops":
-			$heading = "\$xpop().$flag";
-			$syntax = "\$xpop(MENU, PATH" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
-			$example = "\$xpop(mymenu, 2 5" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
-		    break;
-		case "xdock":
-			$heading = "FIXME /$type $flag";
-			$syntax = "/$type $flag [UNKNOWN] {$data['__cmd']}";
-			$example = "/$type $flag [STILL_WIP] {$data['__eg']}";
-			break;
-        case "xdockprops":
-			$heading = "DONT KNOW \$xdock().$flag";
-			$syntax = "\$xdock(MENU" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
-			$example = "\$xdock(mymenu" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
-		    break;
-
-		default:
-		    error_log("format_xcmd: Unknown type $type");
-		    exit();
-		    break;
+	
+	// set up the information header for the xcmd
+	if (!format_xcmd_header($section, $heading, $syntax, $example, $flag, $data)) {
+		error_log("format_xcmd: Unknown type $section");
+	    exit();
 	}
 ?>
-<table class="<?php echo $type; ?>">
+<table class="<?php echo get_section_name($section); ?>">
 	<tr><td colspan="2" class="flag" style="<?php echo "color: $color; border-color: $color;";?>">
-			<a name="<?php echo "$SECTION.$id"; ?>"></a><?php echo $heading; ?>
+			<a name="<?php echo "$section.$id"; ?>"></a><?php echo $heading; ?>
 	</td></tr>
 	<tr><td colspan="2"><?php echo $data['__desc']; ?></td></tr>
 	<tr>
@@ -655,7 +592,147 @@ function format_xcmd($type, $flag, $data, $id) {
 <?php
 }
 
+function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$data) {
+	$examplefmt = array("", "");
+	$ARGS = 0;
+	$NOARGS = 1;
+	
+	switch ($section) {
+		case SECTION_GENERAL:
+		    if (isset($data['__isid']) && $data['__isid']) {
+                $heading = "\$dcx($flag)";
+				$syntax = "\$dcx($flag" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ")";
+//				$example = "\$dcx($flag" . ($data['__eg'] ? ", {$data['__eg']}" : '') . ")";
+				$examplefmt[$ARGS]   = "\$dcx($flag, [-EXAMPLE])";
+				$examplefmt[$NOARGS] = "\$dcx($flag)";
+			}
+			else {
+                $heading = "/dcx $flag";
+				$syntax = "/dcx $flag " . ($data['__cmd'] ? $data['__cmd'] : '');
+//				$example = "/dcx $flag " . ($data['__eg'] ? $data['__eg'] : '');
+				$examplefmt[$ARGS]   = "/dcx $flag [-EXAMPLE]";
+				$examplefmt[$NOARGS] = "/dcx $flag";
+			}
+		    break;
+		    
+		case SECTION_XDID:
+			$heading = "/xdid -$flag";
+			$syntax = "/xdid -$flag [DNAME] [ID] {$data['__cmd']}";
+//			$example = "/xdid -$flag dcx 4 {$data['__eg']}";
+			$examplefmt[$ARGS]   = "/xdid -$flag dcx 4 [-EXAMPLE]";
+			$examplefmt[$NOARGS] = "/xdid -$flag dcx 4";
+			break;
 
+		case SECTION_XDIDPROPS:
+			$heading = "\$xdid().$flag";
+			$syntax = "\$xdid(dialog, ID" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
+//			$example = "\$xdid(dcx, 4" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
+			$examplefmt[$ARGS]   = "\$xdid(dcx, 4, [-EXAMPLE]).$flag";
+			$examplefmt[$NOARGS] = "\$xdid(dcx, 4).$flag";
+			break;
+			
+		case SECTION_XDIALOG:
+			$heading = "/xdialog -$flag";
+			$syntax = "/xdialog -$flag [DNAME] {$data['__cmd']}";
+//			$example = "/xdialog -$flag dcx {$data['__eg']}";
+			$examplefmt[$ARGS]   = "/xdialog -$flag dcx [-EXAMPLE]";
+			$examplefmt[$NOARGS] = "/xdialog -$flag dcx";
+			break;
+			
+		case SECTION_XDIALOGPROPS:
+			$heading = "\$xdialog().$flag";
+			$syntax = "\$xdialog(dialog" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
+//			$example = "\$xdialog(dcx" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
+			$examplefmt[$ARGS]   = "\$xdialog(dcx, [-EXAMPLE]).$flag";
+			$examplefmt[$NOARGS] = "\$xdialog(dcx).$flag";
+		    break;
+		    
+        case SECTION_EVENTS:
+            $dialogspecific = array('mouseleave', 'mouseenter', 'mouse', 'focusout', 'focus');
+            
+        	$heading = "$flag";
+			$syntax = "/cb_alias DNAME $flag ID {$data['__cmd']}";
+			// TODO: fix this since index page has 0 for ID when its a dialog
+//			$example = "/cb_alias dcx $flag " . (!in_array($flag, $dialogspecific) ? ' 0 ' : ' 4 ') . $data['__eg'];
+//			$example = "/cb_alias dcx $flag 4 {$data['__eg']}";
+			$examplefmt[$ARGS]   = "/cb_alias dcx $flag 4 [-EXAMPLE]";
+			$examplefmt[$NOARGS] = "/cb_alias dcx $flag 4";
+			
+            break;
+            
+        case SECTION_XPOPUP:
+			$heading = "/xpopup -$flag";
+			$syntax = "/xpopup -$flag [MENU] {$data['__cmd']}";
+//			$example = "/xpopup -$flag mymenu {$data['__eg']}";
+			$examplefmt[$ARGS]   = "/xpopup -$flag mymenu [-EXAMPLE]";
+			$examplefmt[$NOARGS] = "/xpopup -$flag mymenu";
+			break;
+			
+        case SECTION_XPOPUPPROPS:
+			$heading = "\$xpopup().$flag";
+			$syntax = "\$xpopup(MENU" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
+//			$example = "\$xpopup(mymenu" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
+			$examplefmt[$ARGS]   = "\$xpopup(mymenu, [-EXAMPLE]).$flag";
+			$examplefmt[$NOARGS] = "\$xpopup(mymenu).$flag";
+		    break;
+		    
+		case SECTION_XPOP:
+			$heading = "/xpop -$flag";
+			$syntax = "/xpop -$flag [MENU] [PATH] {$data['__cmd']}";
+//			$example = "/xpop -$flag mymenu 2 1 {$data['__eg']}";
+			$examplefmt[$ARGS]   = "/xpop -$flag mymenu 2 1 [-EXAMPLE]";
+			$examplefmt[$NOARGS] = "/xpop -$flag mymenu 2 1";
+			break;
+			
+        case SECTION_XPOPPROPS:
+			$heading = "\$xpop().$flag";
+			$syntax = "\$xpop(MENU, PATH" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
+//			$example = "\$xpop(mymenu, 2 5" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
+			$examplefmt[$ARGS]   = "\$xpop(mymenu, 2 5, [-EXAMPLE]).$flag";
+			$examplefmt[$NOARGS] = "\$xpop(mymenu, 2 5).$flag";
+		    break;
+		    
+		case SECTION_XDOCK:
+			$heading = "FIXME /xdock $flag";
+			$syntax = "/xdock $flag [UNKNOWN] {$data['__cmd']}";
+			$examplefmt[$ARGS]   = "/xdock $flag [STILL_WIP] [-EXAMPLE]";
+			$examplefmt[$NOARGS] = "/xdock $flag [STILL_WIP]";
+			break;
+			
+        case SECTION_XDOCKPROPS:
+			$heading = "DONT KNOW \$xdock().$flag";
+			$syntax = "\$xdock(MENU" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
+			$examplefmt[$ARGS]   = "\$xdock(mymenu, [-EXAMPLE]).$flag";
+			$examplefmt[$NOARGS] = "\$xdock(mymenu).$flag";
+		    break;
+
+		// unknown section type, failed
+		default:
+		    return false;
+	}
+	
+	// handle multiple examples
+	$egcount = count($data['__eg']);
+	$egcurrent = 1;
+	$egtemp = "";
+	
+	foreach ($data['__eg'] as $eg) {
+		$tmp = "";
+		
+		// if example has a value
+		if ($eg)
+			$tmp = str_replace("[-EXAMPLE]", $eg, $examplefmt[$ARGS]);
+		// otherwise just use a fixed example
+		else
+			$tmp = $examplefmt[$NOARGS];
+		
+		// append it to the string buffer
+		$egtemp = ($egtemp ? $egtemp : "") . $tmp . ($egcurrent != $egcount ? "<br />" : "");
+	}
+	
+	$example = $egtemp;
+	return true;
+}
 
 
 /*
@@ -738,14 +815,14 @@ function format_return(&$data) {
 	}
 }
 
-
-function get_section_color($col = 0) {
-	if (!$col) {
+// returns the color associated with a particular section
+function get_section_color($section = 0) {
+	if (!$section) {
 		global $SECTION;
-		$col = $SECTION;
+		$section = $SECTION;
 	}
 
-	switch ($col) {
+	switch ($section) {
         case SECTION_GENERAL		: return '#888888'; // grey
         case SECTION_XDIALOG		: return '#800080'; // purple
 	    case SECTION_XDIALOGPROPS	: return '#AC59AC'; // light purple
@@ -766,6 +843,38 @@ function get_section_color($col = 0) {
 		case SECTION_INTRO:
 		default:
 			return '#000000';
+	}
+}
+
+// returns the textual name, given the section id
+function get_section_name($section = 0) {
+	if (!$section) {
+		global $SECTION;
+		$section = $SECTION;
+	}
+
+	switch ($section) {
+        case SECTION_GENERAL		: return 'general'; // grey
+        case SECTION_XDIALOG		: return 'xdialog'; // purple
+	    case SECTION_XDIALOGPROPS	: return 'xdialogprop'; // light purple
+        
+		case SECTION_STYLES			: return 'styles'; // brown
+		case SECTION_XDID			: return 'xdid'; // blue
+		case SECTION_XDIDPROPS		: return 'xdidprop'; // light blue
+		case SECTION_EVENTS			: return 'event'; // green
+
+		case SECTION_XPOPUP			: return 'xpopup'; // purple
+		case SECTION_XPOPUPPROPS	: return 'xpopupprop'; // light purple
+        case SECTION_XPOP			: return 'xpop'; // blue
+		case SECTION_XPOPPROPS		: return 'xpopprops'; // light blue
+
+		case SECTION_XDOCK			: return 'xdock'; // blue
+		case SECTION_XDOCKPROPS		: return 'xdockprops'; // light blue
+		
+		case SECTION_INTRO:
+		default:
+			error_log("get_section_name(): unknown section $section");
+			return '';
 	}
 }
 
@@ -855,6 +964,7 @@ function format_changes_latest() {
 	if (!$CHANGES)
 		return;
 
+	// just return the first one
 	foreach ($CHANGES as $version => $changes)
 		return print_changes($version, $changes);
 }

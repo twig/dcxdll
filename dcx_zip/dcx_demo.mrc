@@ -1,5 +1,4 @@
 alias demo {
-  clearall
   dialog -m dcx_demo dcx_demo
 }
 

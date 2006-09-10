@@ -15,16 +15,13 @@ function get_styles_edit(&$STYLES) {
 		'vsbar' => "Displays a vertical scrollbar.",
 		'lowercase' => "Converts all characters to lowercase as they are typed into the edit control.",
 		'uppercase' => "Converts all characters to uppercase as they are typed into the edit control.",
-		'number' => 'Allows only digits to be entered into the edit control.<br /><a class="note">Note.</a> Even with [s]number[/s] set, it is still possible to paste non-digits into the edit control.',
- // TODO: arrays for styles
-		//array(
-//			'__desc' => "Allows only digits to be entered into the edit control.<br />[n]Even with [s]number[/s] set, it is still possible to paste non-digits into the edit control.[/n]",
-//			'__notes' => "Even with [s]number[/s] set, it is still possible to paste non-digits into the edit control.",
-//		),
+		'number' => 'Allows only digits to be entered into the edit control.',
 		'password' => "Displays an asterisk (*) for each character typed into the edit control. Only works when [s]multi[/s] style is NOT set.",
 		'return' => "Specifies that a carriage return be inserted when the user presses the ENTER key while entering text into a multiline edit control in a dialog box.",
 		'readonly' => "Prevents the user from typing or editing text in the edit control.",
 		'tooltips' => 'The edit will have a tooltip.',
+		
+		'__notes' => 'Even with [s]number[/s] style, it is still possible to paste non-digits into the edit control.',
 	);
 }
 

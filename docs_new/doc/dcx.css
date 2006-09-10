@@ -15,7 +15,7 @@
 
 
 body,div,td, th {
-	font-size: 8pt;
+	font-size: 9pt;
 	font-family: tahoma;
 	color: #000000;
 	cursor: default;
@@ -143,13 +143,11 @@ table.description .heading {
 .xdid, .xdialog, .xdidprop {
 }
 
-/*.xdid td.syntax, .xdid td.example, .xdialog td.syntax, .xdialog td.example, .xdidprop td.syntax, .xdidprop td.example {*/
 td.syntax, td.example {
 	font-weight: bold;
 	width: 100px;
 }
 
-/*.xdid div.syntax, .xdid div.example, .xdialog div.syntax, .xdialog div.example, .xdidprop div.syntax, .xdidprop div.example {*/
 div.syntax, div.example {
 	font-weight: bold;
 	color: #EE9900;
@@ -157,14 +155,33 @@ div.syntax, div.example {
 
 
 /* xdid flag heading */
-/*.xdid .flag, .xdialog .flag, .xdidprop .flag {*/
 td.flag {
 	border-bottom: 1px dotted black;
 	font-weight: bold;
 	
 }
 
-.xdid td.value, .xdialog td.value, .xdidprop td.value, .xdialogprop td.value, .general td.value, .styles td.style, .xpopup td.value, .xpopupprop td.value, .xpop td.value, .xpopprops td.value, .event td.value {
+/*
+.general td.value,
+.styles td.style,
+.event td.value
+
+.xdid td.value,
+.xdidprop td.value,
+
+.xdialog td.value,
+.xdialogprop td.value,
+
+.xpopup td.value,
+.xpopupprop td.value,
+.xpop td.value,
+.xpopprops td.value,
+
+.xdock td.value,
+.xdockprops td.value,
+*/
+
+.xdid td.value, .xdialog td.value, .xdidprop td.value, .xdialogprop td.value, .general td.value, .styles td.style, .xpopup td.value, .xpopupprop td.value, .xpop td.value, .xpopprops td.value, .event td.value, .xdock td.value, .xdockprops td.value {
 	font-weight: bold;
 	color: #D60000;
 	padding-left: 25px;
