@@ -48,7 +48,7 @@ alias xdock {
     return $dcx(_xdock, $1 $prop $2-)
   }
   else {
-    dcx xdock $2 $1 $3-
+    dcx xdock $1-
   }
 }
 
