@@ -69,7 +69,7 @@ echo "<tr>
 	$file = "$archive/dcx_v$stable.zip";
 
 	if (file_exists($file)) {
-		echo "<td><a href=\"{$_SERVER['PHP_SELF']}?v=$version\">Download</a></td>";
+		echo "<td><a href=\"{$_SERVER['PHP_SELF']}?v=$stable\">Download</a></td>";
 		echo "<td>" . format_filesize(filesize($file)) . "</td>";
 	}
 	else {
@@ -85,6 +85,10 @@ echo "<tr><td colspan='4'>&nbsp;</td></tr>";
 echo "<tr><th>Version</th><th>Release Date</th><th>Link</th><th>Size</th><th>Change Log</th></tr>";
 
 foreach ($versions as $version => $datereleased) {
+	// skip stable version
+	if ($version == $stable)
+		continue;
+	
 	echo "<tr>
 	<td><strong>v$version</strong></td>
 	<td>" . ($datereleased ? date("jS F, Y", $datereleased) : 'Unknown') . "</td>";
