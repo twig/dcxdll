@@ -203,7 +203,10 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
     */
     
     UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | flags, x, y, mhMenuOwner, NULL );
-	 mIRCSignal("/.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID);
+
+    char com[900];
+    wsprintf(com, "//.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID );
+    mIRCcom(com);
   }
 	// xpopup -t -> [MENU] [SWITCH] [STYLE]
 	else if (flags.switch_flags[19] && numtok > 2) {
