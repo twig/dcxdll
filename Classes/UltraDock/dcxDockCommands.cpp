@@ -229,23 +229,25 @@ mIRC(_xdock)
 		TString error;
 		error.sprintf("$ $+ xdock invalid arguments (%s)", d.gettok(1, " ").to_chr());
 		mIRCError(error.to_chr());
-		return 3;
+		
+		ret("D_ERR: invalid xdock arguments";
 	}
+
 	if (d.gettok(1," ") == "mIRC") {
-		if (d.gettok(2," ") == "SBPos") {
+		if (d.gettok(2," ") == "SwitchbarPos") {
 			wsprintf(data,"%d",SwitchbarPos());
 		}
-		else if (d.gettok(2," ") == "SBSize") {
+		else if (d.gettok(2," ") == "SwitchbarSize") {
 			RECT rc;
 			GetWindowRect(sb_hwnd, &rc);
 			wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
 		}
-		else if (d.gettok(2," ") == "TBSize") {
+		else if (d.gettok(2," ") == "ToolbarSize") {
 			RECT rc;
 			GetWindowRect(tb_hwnd, &rc);
 			wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
 		}
-		else if (d.gettok(2," ") == "TLSize") {
+		else if (d.gettok(2," ") == "TreebarSize") {
 			RECT rc;
 			GetWindowRect(treeb_hwnd, &rc);
 			wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
