@@ -204,6 +204,9 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 typedef struct tagDCXULTRADOCK {
 	HWND hwnd;
 	DWORD flags;
+	DWORD old_styles;
+	DWORD old_exstyles;
+	RECT rc;
 } DCXULTRADOCK, *LPDCXULTRADOCK;
 
 typedef std::vector<LPDCXULTRADOCK> VectorOfDocks;

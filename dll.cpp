@@ -67,6 +67,7 @@ extern int swb_pos;
 // indicate if MDI is maxed out
 extern BOOL MDIismax;
 extern VectorOfDocks v_docks;
+bool dcxSignal;
 
 /*!
 * \brief mIRC DLL Load Function
@@ -317,6 +318,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	g_mIRCMenuBar = new XPopupMenu(GetMenu(mIRCLink.m_mIRCHWND));
 
 	InitUltraDock();
+	dcxSignal = false;
 }
 
 /*!
@@ -952,23 +954,6 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
       }
       break;
 
-		//case WM_NCCALCSIZE:
-		//	{
-		//		RECT *rc, oldrc;
-		//		rc = (LPRECT)lParam;
-		//		oldrc = *rc;
-		//		LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc, mHwnd, uMsg, wParam, lParam);
-		//		mIRCLink.cxLeftEdge		= rc->left			- oldrc.left;
-		//		mIRCLink.cxRightEdge		= oldrc.right		- rc->right;
-		//		mIRCLink.cyTopEdge			= rc->top			- oldrc.top;
-		//		mIRCLink.cyBottomEdge	= oldrc.bottom	- rc->bottom;
-		//		AdjustMircClientRect(rc);
-		//		return lRes;
-		//	}
-		//	break;
-		//case WM_NCPAINT:
-		//	break;
-
 		case WM_PARENTNOTIFY:
 			{
 				if (LOWORD(wParam) == WM_DESTROY)
@@ -1364,4 +1349,14 @@ mIRC(mpopup) {
 
 	data[0] = 0;
 	return 3;
+}
+mIRC(xSignal) {
+	TString d(data);
+	d.trim();
+	if ((BOOL)d.to_num())
+		dcxSignal = true;
+	else
+		dcxSignal = false;
+	data[0] = 0;
+	return 1;
 }

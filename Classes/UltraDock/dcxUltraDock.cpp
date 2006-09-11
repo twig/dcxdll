@@ -18,9 +18,6 @@ WNDPROC oldMDIProc; // old MDI window proc
 void UpdatemIRC(void)
 { // force a window update.
 	RECT rc;
-	//GetWindowRect(mdi_hwnd,&rc);
-	//SetWindowPos(mdi_hwnd,NULL,0,0,(rc.right-rc.left-10),(rc.bottom-rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE|SWP_NOREDRAW);
-	//SetWindowPos(mdi_hwnd,NULL,0,0,(rc.right-rc.left),(rc.bottom-rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE);
 	GetWindowRect(mIRCLink.m_mIRCHWND,&rc);
 	SetWindowPos(mIRCLink.m_mIRCHWND,NULL,0,0,(rc.right-rc.left-10),(rc.bottom-rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE|SWP_NOREDRAW);
 	SetWindowPos(mIRCLink.m_mIRCHWND,NULL,0,0,(rc.right-rc.left),(rc.bottom-rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE);
@@ -76,19 +73,35 @@ bool FindUltraDock(HWND hwnd)
 	}
 	return false;
 }
+LPDCXULTRADOCK GetUltraDock(HWND hwnd)
+{
+	VectorOfDocks::iterator itStart = v_docks.begin();
+	VectorOfDocks::iterator itEnd = v_docks.end();
 
-void UltraDock(HWND mWnd,char *data,HWND temp,TString flag)
+	while (itStart != itEnd) {
+		if (*itStart != NULL) {
+			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
+			if (ud->hwnd == hwnd)
+				return ud;
+		}
+
+		itStart++;
+	}
+	return NULL;
+}
+
+void UltraDock(HWND mWnd,HWND temp,TString flag)
 {
 	if (IsWindow(temp)) {
 		if (FindUltraDock(temp)) {
-			lstrcpy(data,"D_ERROR Window already docked");
+			mIRCError("D_ERROR Window already docked");
 			return;
 		}
-		RemStyles(temp,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);
-		RemStyles(temp,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
-		//RemStyles(temp,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
-		AddStyles(temp,GWL_STYLE,WS_CHILDWINDOW);
 		LPDCXULTRADOCK ud = new DCXULTRADOCK;
+
+		RECT rc;
+		GetWindowRect(temp,&rc);
+
 		ud->hwnd = temp;
 		ud->flags = DOCKF_LEFT;
 		if (flag.len() == 3) {
@@ -108,13 +121,20 @@ void UltraDock(HWND mWnd,char *data,HWND temp,TString flag)
 				break;
 			}
 		}
+		ud->old_exstyles = GetWindowLong(temp,GWL_EXSTYLE);
+		ud->old_styles = GetWindowLong(temp,GWL_STYLE);
+		CopyRect(&ud->rc,&rc);
 		v_docks.push_back(ud);
+		RemStyles(temp,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);
+		RemStyles(temp,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
+		//RemStyles(temp,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
+		AddStyles(temp,GWL_STYLE,WS_CHILDWINDOW);
 		SetParent(temp, mIRCLink.m_mIRCHWND);
 		UpdatemIRC();
 	}
 	else {
 		// if HWND invalid, return an error msg
-		lstrcpy(data,"-ERR Invalid window");
+		mIRCError("D_ERROR Invalid window");
 	}
 }
 
@@ -128,6 +148,11 @@ void UltraUnDock(HWND hwnd)
 			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
 			if (ud->hwnd == hwnd) {
 				v_docks.erase(itStart);
+				SetWindowLong(ud->hwnd,GWL_STYLE, ud->old_styles);
+				SetWindowLong(ud->hwnd,GWL_EXSTYLE, ud->old_exstyles);
+			  RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
+				SetParent(ud->hwnd, NULL);
+				SetWindowPos(ud->hwnd, NULL, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED);
 				delete ud;
 				UpdatemIRC();
 				return;
@@ -138,6 +163,9 @@ void UltraUnDock(HWND hwnd)
 }
 void AdjustMDIRect(WINDOWPOS *wp)
 {
+	if (wp->cy == 0 && wp->y == 0 && wp->cx == 0 && wp->x == 0) // handle min/max case;
+		return;
+
 	VectorOfDocks::iterator itStart = v_docks.begin();
 	VectorOfDocks::iterator itEnd = v_docks.end();
 	RECT rcDocked;
@@ -152,9 +180,6 @@ void AdjustMDIRect(WINDOWPOS *wp)
 	}
 	if (nWin == 0) return;
 	itStart = v_docks.begin();
-
-	if (wp->cy == 0 && wp->y == 0 && wp->cx == 0 && wp->x == 0) // handle min/max case;
-		return;
 
 	mdih = wp->cy;
 	mdiw = wp->cx;
@@ -217,8 +242,6 @@ void AdjustMDIRect(WINDOWPOS *wp)
 	wp->y = ytopoffset;
 	wp->cx = mdiw;
 	wp->cy = mdih;
-	//tmp = DeferWindowPos(hdwp,mdi_hwnd,NULL,xleftoffset,ytopoffset,mdiw,mdih,SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE);
-	//if (tmp != NULL) hdwp = tmp;
 	EndDeferWindowPos(hdwp);
 }
 
@@ -265,204 +288,6 @@ int SwitchbarPos(void)
 //  SetWindowLong(dhwnd, GWL_USERDATA, NULL);
 //}
 //
-//int AlreadyWindow(HWND dhwnd) {
-//
-//  HWND dchwnd;
-//  char text[256];
-//	TString d;
-//  int nItem = ListBox_GetCount(lb_hwnd);
-//
-//  int i = 0;
-//  while (i < nItem) {
-//
-//    ListBox_GetText(lb_hwnd, i, text);
-//
-//		d = text;
-//		dchwnd = (HWND) d.gettok(1," ").to_num();
-//    if (dchwnd == dhwnd) return i;
-//    i++;
-//  }
-//  return -1;
-//}
-//
-//// Dock N HWND POS NAME
-//mIRC(Dock) {
-//	TString d(data);
-//	d.trim();
-//
-//  if (d.numtok(" ") > 3) {
-//		int pos = (int) d.gettok(1," ").to_num();
-//		HWND dhwnd = (HWND) d.gettok(2," ").to_num();
-//    if (IsWindow(dhwnd) && AlreadyWindow(dhwnd) == -1) {
-//			if ((d.gettok(3," ") == "left") || (d.gettok(3," ") == "right") || (d.gettok(3," ") == "top") || (d.gettok(3," ") == "bottom")) {
-//        AttachWindow(dhwnd);
-//				ListBox_InsertString(lb_hwnd, pos, d.gettok(2,-1," ").to_chr());
-//
-//        mIRC_size();
-//        ret("U_OK");
-//      }
-//    }
-//  }
-//  ret("U_ERROR");
-//}
-//// UnDock N
-//mIRC(UnDock) {
-//	TString d(data);
-//	d.trim();
-//
-//	int pos = (int) atoi(d.gettok(1," ").to_chr());
-//  int nItem = ListBox_GetCount(lb_hwnd);
-//
-//  // valid position
-//  if (pos >= 0 && pos < nItem) {
-//
-//    char text[256];
-//    if (ListBox_GetText(lb_hwnd, pos, text) != 0) {
-//			d = text;
-//			HWND dhwnd = (HWND) d.gettok(1," ").to_num();
-//      if (IsWindow(dhwnd)) {
-//        EjectWindow(dhwnd);
-//        ListBox_DeleteString(lb_hwnd, pos);
-//
-//        mIRC_size();
-//        ret("U_OK");
-//      }
-//    }
-//  }
-//  ret("U_ERROR");
-//}
-//// DockPos NAME
-//mIRC(DockPos) {
-//	TString d(data);
-//	d.trim();
-//
-//	if (d.numtok(" ") > 0) {
-//
-//    char text[256];
-//		TString tmp;
-//    int nItem = ListBox_GetCount(lb_hwnd);
-//
-//    int i = 0;
-//    while (i < nItem) {
-//
-//      ListBox_GetText(lb_hwnd, i, text);
-//			tmp = text;
-//
-//			if (d.gettok(1," ") == tmp.gettok(3," ")) {
-//        wsprintf(data,"%d",i);
-//        return 3;
-//      }
-//      i++;
-//    }
-//  }
-//  ret("-1");
-//}
-//
-//// DockSide NAME
-//mIRC(DockSide) {
-//	TString d(data);
-//	d.trim();
-//
-//  if (d.numtok(" ") > 0) {
-//
-//    char text[256];
-//		TString tmp;
-//    int nItem = ListBox_GetCount(lb_hwnd);
-//
-//    int i = 0;
-//    while (i < nItem) {
-//
-//      ListBox_GetText(lb_hwnd, i, text);
-//			tmp = text;
-//
-//			if (d.gettok(1," ") == tmp.gettok(3," ")) {
-//				lstrcpy(data,tmp.gettok(2," ").to_chr());
-//        return 3;
-//      }
-//      i++;
-//    }
-//  }
-//  ret("-1");
-//}
-//
-//mIRC(DockRefresh) {
-//
-//  mIRC_size();
-//  ret("U_OK");
-//}
-//
-//// ShowMenubar 1|0
-//mIRC(ShowMenubar) {
-//	TString d(data);
-//	d.trim();
-//
-//  if (d.numtok(" ") > 0) {
-//		int show = (int) atoi(d.gettok(1," ").to_chr());
-//
-//		if (show && !GetMenu(mIRCLink.m_mIRCHWND))
-//			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
-//		else if(!show && GetMenu(mIRCLink.m_mIRCHWND))
-//      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
-//
-//    ret("U_OK");
-//  }
-//  ret("U_ERROR");
-//}
-//
-//// ShowSwitchbar 1|0
-//mIRC(ShowSwitchbar) {
-//	TString d(data);
-//	d.trim();
-//
-//  if (d.numtok(" ") > 0) {
-//		int show = (int) atoi(d.gettok(1," ").to_chr());
-//
-//    if (show && !IsWindowVisible(sb_hwnd))
-//      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
-//    else if(!show && IsWindowVisible(sb_hwnd))
-//      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
-//
-//    ret("U_OK");
-//  }
-//  ret("U_ERROR");
-//}
-//
-//// ShowToolbar 1|0
-//mIRC(ShowToolbar) {
-//	TString d(data);
-//	d.trim();
-//
-//  if (d.numtok(" ") > 0) {
-//		int show = (int) atoi(d.gettok(1," ").to_chr());
-//
-//    if (show && !IsWindowVisible(tb_hwnd))
-//      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
-//    else if(!show && IsWindowVisible(tb_hwnd))
-//      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
-//
-//    ret("U_OK");
-//  }
-//  ret("U_ERROR");
-//}
-//
-//// ShowTreebar 1|0
-//// non functional!
-//mIRC(ShowTreebar) {
-//	TString d(data);
-//	d.trim();
-//
-//  if (d.numtok(" ") > 0) {
-//		int show = (int) d.gettok(1," ").to_num();
-//
-//    if (show && !IsWindowVisible(treeb_hwnd))
-//      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
-//    else if(!show && IsWindowVisible(treeb_hwnd))
-//      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
-//
-//    ret("U_OK");
-//  }
-//  ret("U_ERROR");
-//}
 LRESULT CALLBACK mIRCMDIProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
 		case WM_WINDOWPOSCHANGING:

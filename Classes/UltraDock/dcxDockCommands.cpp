@@ -11,7 +11,9 @@ extern mIRCDLL mIRCLink;
 extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, lb_hwnd;
 
 extern VectorOfDocks v_docks;
-extern void UltraDock(HWND mWnd,char *data,HWND temp,TString flag);
+extern void UltraDock(HWND mWnd,HWND temp,TString flag);
+extern bool FindUltraDock(HWND hwnd);
+extern LPDCXULTRADOCK GetUltraDock(HWND hwnd);
 
 typedef struct tagDCXDOCK {
 	WNDPROC oldProc;
@@ -89,7 +91,23 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	return CallWindowProc(dd->oldProc,mHwnd,uMsg,wParam,lParam);
 }
 
-void DockWindow(HWND mWnd,char *data,HWND temp,char *find, TString flag)
+void UnDock(HWND hwnd)
+{
+	if (GetProp(hwnd,"dcx_docked") == NULL)
+		return;
+  // Remove Style for undocking purpose
+  RemStyles(hwnd,GWL_STYLE,WS_BORDER);
+  //WS_CHILDWINDOW |
+  RemStyles(hwnd,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE);
+  // Add Styles input by user
+  AddStyles(hwnd,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);	
+  AddStyles(hwnd,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE);
+  RemStyles(hwnd,GWL_STYLE,WS_CHILDWINDOW);
+  SetParent(hwnd, NULL);
+	SetWindowPos(hwnd,NULL,0,0,0,0,SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_FRAMECHANGED);
+}
+
+bool DockWindow(HWND mWnd,HWND temp,char *find, TString flag)
 {
 	RECT rc;
 	HWND sWnd;
@@ -120,8 +138,8 @@ void DockWindow(HWND mWnd,char *data,HWND temp,char *find, TString flag)
 				}
 				else {
 					delete dd;
-					lstrcpy(data,"-ERR Unable to SetProp");
-					return;
+					mIRCError("D_ERROR Unable to SetProp");
+					return false;
 				}
 			}
 			DWORD flags = DOCKF_NORMAL;
@@ -147,75 +165,87 @@ void DockWindow(HWND mWnd,char *data,HWND temp,char *find, TString flag)
 			SetParent(temp,sWnd);
 			MoveWindow(temp,0,0,rc.right-rc.left,rc.bottom-rc.top,1);
 			EnumChildWindows(sWnd,(WNDENUMPROC)SizeDocked,NULL);
-
-			// return OK
-			lstrcpy(data,"+OK Window Docked");
+			return true;
 		}
 		else
-			lstrcpy(data,"-ERR Unable to find Window");
+			mIRCError("D_ERROR Unable to find Window");
 	}
 	else {
 		// if HWND invalid, return an error msg
-		lstrcpy(data,"-ERR Invalid window");
+		mIRCError("D_ERROR Invalid window");
 	}
+	return false;
 }
 // +tsncb[hvs] <hwnd to dock> [hwnd to dock too]
 mIRC(xdock)
 {
 	TString d(data);
 	d.trim();
+	data[0] = 0;
 	TString flag = d.gettok(1," ");
 	if ((flag.len() < 2) || (flag.len() > 3) || (flag[0] != '+')) {
-		lstrcpy(data,"-ERR Invalid Flag");
-		return 3;
+		mIRCError("D_ERROR Invalid Flag");
+		return 0;
 	}
 	switch (flag[1])
 	{
 	case 't': // dock to toolbar
 		{
-			DockWindow(mWnd,data,(HWND)d.gettok(2," ").to_num(),"mIRC_Toolbar",flag);
+			DockWindow(mWnd,(HWND)d.gettok(2," ").to_num(),"mIRC_Toolbar",flag);
 		}
 		break;
 	case 's': // dock to switchbar
 		{
-			DockWindow(mWnd,data,(HWND)d.gettok(2," ").to_num(),"mIRC_Switchbar",flag);
+			DockWindow(mWnd,(HWND)d.gettok(2," ").to_num(),"mIRC_Switchbar",flag);
 		}
 		break;
 	case 'n': // dock to nicklist/sidelistbox
 		{
 			if (d.numtok(" ") == 3) {
 				mWnd = (HWND)d.gettok(3," ").to_num();
-				DockWindow(mWnd,data,(HWND)d.gettok(2," ").to_num(),"ListBox",flag);
+				DockWindow(mWnd,(HWND)d.gettok(2," ").to_num(),"ListBox",flag);
 			}
-			else lstrcpy(data,"-ERR Invalid Args");
+			else
+				mIRCError("D_ERROR Invalid Args");
 		}
 		break;
 	case 'c': //dock to custom/channel/query/status
 		{
 			if (d.numtok(" ") == 3) {
 				mWnd = (HWND)d.gettok(3," ").to_num();
-				DockWindow(mWnd,data,(HWND)d.gettok(2," ").to_num(),NULL,flag);
+				DockWindow(mWnd,(HWND)d.gettok(2," ").to_num(),NULL,flag);
 			}
-			else lstrcpy(data,"-ERR Invalid Args");
+			else
+				mIRCError("D_ERROR Invalid Args");
 		}
 		break;
 	case 'b': // dock to treelist
 		{
-			DockWindow(mWnd,data,(HWND)d.gettok(2," ").to_num(),"mIRC_TreeList",flag);
+			DockWindow(mWnd,(HWND)d.gettok(2," ").to_num(),"mIRC_TreeList",flag);
 		}
 		break;
 	case 'm': // dock to mIRC (UltraDock)
 		{
-			UltraDock(mWnd,data,(HWND)d.gettok(2," ").to_num(),flag);
+			UltraDock(mWnd,(HWND)d.gettok(2," ").to_num(),flag);
+		}
+		break;
+	case 'u':
+		{
+			HWND hwnd = (HWND)d.gettok(2," ").to_num();
+			if (FindUltraDock(hwnd))
+				UltraUnDock(hwnd);
+			else
+				UnDock(hwnd);
 		}
 		break;
 	default:
 		{
-			lstrcpy(data,"-ERR Invalid Flag");
+			mIRCError("D_ERROR Invalid Flag");
+			return 0;
 		}
 		break;
 	}
-	return 3;
+	return 1;
 }
 // hwnd|mIRC prop
 mIRC(_xdock)
@@ -286,7 +316,7 @@ mIRC(_xdock)
 		HWND hwnd = (HWND)d.gettok(1," ").to_num();
 		if (IsWindow(hwnd)) {
 			if (d.gettok(2," ") == "IsDocked") {
-				if (GetProp(hwnd,"dcx_docked"))
+				if (GetProp(hwnd,"dcx_docked") || FindUltraDock(hwnd))
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");
@@ -317,6 +347,39 @@ mIRC(_xdock)
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");
+			}
+			else if (d.gettok(2," ") == "DockSide") {
+				LPDCXULTRADOCK ud = GetUltraDock(hwnd);
+				if (ud != NULL) {
+					switch(ud->flags)
+					{
+					case DOCKF_LEFT:
+						lstrcpy(data,"left");
+						break;
+					case DOCKF_RIGHT:
+						lstrcpy(data,"right");
+						break;
+					case DOCKF_TOP:
+						lstrcpy(data,"top");
+						break;
+					case DOCKF_BOTTOM:
+						lstrcpy(data,"bottom");
+						break;
+					default:
+						lstrcpy(data,"unknown");
+						break;
+					}
+				}
+				else {
+					TString error;
+					error.sprintf("$ $+ xdock window not docked to main mIRC window (%d).%s", hwnd, d.gettok(2, " ").to_chr());
+					mIRCError(error.to_chr());
+				}
+			}
+			else {
+				TString error;
+				error.sprintf("$ $+ xdock invalid prop (%d).%s", hwnd, d.gettok(2, " ").to_chr());
+				mIRCError(error.to_chr());
 			}
 		}
 		else {
