@@ -173,19 +173,19 @@ mIRC(xdock)
 	{
 	case 't': // dock to toolbar
 		{
-			DockWindow(mWnd,data,(HWND)atol(d.gettok(2," ").to_chr()),"mIRC_Toolbar",flag);
+			DockWindow(mWnd,data,(HWND)d.gettok(2," ").to_num(),"mIRC_Toolbar",flag);
 		}
 		break;
 	case 's': // dock to switchbar
 		{
-			DockWindow(mWnd,data,(HWND)atol(d.gettok(2," ").to_chr()),"mIRC_Switchbar",flag);
+			DockWindow(mWnd,data,(HWND)d.gettok(2," ").to_num(),"mIRC_Switchbar",flag);
 		}
 		break;
 	case 'n': // dock to nicklist/sidelistbox
 		{
 			if (d.numtok(" ") == 3) {
-				mWnd = (HWND)atol(d.gettok(3," ").to_chr());
-				DockWindow(mWnd,data,(HWND)atol(d.gettok(2," ").to_chr()),"ListBox",flag);
+				mWnd = (HWND)d.gettok(3," ").to_num();
+				DockWindow(mWnd,data,(HWND)d.gettok(2," ").to_num(),"ListBox",flag);
 			}
 			else lstrcpy(data,"-ERR Invalid Args");
 		}
@@ -193,20 +193,20 @@ mIRC(xdock)
 	case 'c': //dock to custom/channel/query/status
 		{
 			if (d.numtok(" ") == 3) {
-				mWnd = (HWND)atol(d.gettok(3," ").to_chr());
-				DockWindow(mWnd,data,(HWND)atol(d.gettok(2," ").to_chr()),NULL,flag);
+				mWnd = (HWND)d.gettok(3," ").to_num();
+				DockWindow(mWnd,data,(HWND)d.gettok(2," ").to_num(),NULL,flag);
 			}
 			else lstrcpy(data,"-ERR Invalid Args");
 		}
 		break;
 	case 'b': // dock to treelist
 		{
-			DockWindow(mWnd,data,(HWND)atol(d.gettok(2," ").to_chr()),"mIRC_TreeList",flag);
+			DockWindow(mWnd,data,(HWND)d.gettok(2," ").to_num(),"mIRC_TreeList",flag);
 		}
 		break;
 	case 'm': // dock to mIRC (UltraDock)
 		{
-			UltraDock(mWnd,data,(HWND)atol(d.gettok(2," ").to_chr()),flag);
+			UltraDock(mWnd,data,(HWND)d.gettok(2," ").to_num(),flag);
 		}
 		break;
 	default:
@@ -283,7 +283,7 @@ mIRC(_xdock)
 		}
 	}
 	else {
-		HWND hwnd = (HWND)atol(d.gettok(1," ").to_chr());
+		HWND hwnd = (HWND)d.gettok(1," ").to_num();
 		if (IsWindow(hwnd)) {
 			if (d.gettok(2," ") == "IsDocked") {
 				if (GetProp(hwnd,"dcx_docked"))

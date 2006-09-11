@@ -155,6 +155,7 @@ public:
 	int sprintf(const char *fmt, ...);
   bool iswm(char *a);
   bool iswmcs(char *a);
+  __int64 to_num( ) { return _atoi64(this->m_pString); }
   //
 };
 

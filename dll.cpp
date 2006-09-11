@@ -946,14 +946,9 @@ mIRC(_xdialog) {
 */
 LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
-	// WM_SIZE/WM_CAPTURECHANGED/WM_PARENTNOTIFY/WM_ENABLE/WM_COMMAND commented out for release build
     case WM_SIZE:
       {
-				LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc, mHwnd, uMsg, wParam, lParam);
 				mIRCSignalDCX("size mIRC %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
-				SendMessage(mIRCLink.m_mIRCHWND, WM_USER +200, 0, mIRCLink.m_map_cnt);
-				UltraDockSize();
-				return lRes;
       }
       break;
 
@@ -974,71 +969,13 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		//case WM_NCPAINT:
 		//	break;
 
-  //  case WM_CAPTURECHANGED:
-  //    {
-  //      LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
-  //      swb_pos = SwitchbarPos();
-  //      mIRC_size();
-  //      return lRes;
-  //    }
-  //    break;
-
 		case WM_PARENTNOTIFY:
 			{
-				//TString text;
-				//text.sprintf("%ld", lParam);
-				//int nIndex = ListBox_FindString(lb_hwnd,-1,text.to_chr());
-				//if (nIndex != LB_ERR) {
-				//	switch (LOWORD(wParam))	{
-				//		case WM_DESTROY: // cleanup any dialog thats closed without being undocked.
-				//			{
-				//				EjectWindow((HWND)lParam);
-				//				ListBox_DeleteString(lb_hwnd, nIndex);
-				//				mIRC_size();
-				//			}
-				//		default:
-				//			return 0L;
-				//			break;
-				//	}
-				//}
-				if (LOWORD(lParam) == WM_DESTROY)
+				if (LOWORD(wParam) == WM_DESTROY)
 					UltraUnDock((HWND)lParam);
 			}
 			break;
 
-  //  case WM_ENABLE:
-  //    {
-  //      if (wParam) {
-  //        LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
-  //        swb_pos = SwitchbarPos();
-  //        mIRC_size();
-  //        return lRes;
-  //      }
-  //    }
-  //    break;
-
-  //  case WM_COMMAND:
-  //    {
-  //      int wID = LOWORD(wParam);
-  //      if (wID == 112 || wID == 111) {
-  //        LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc,mHwnd,uMsg,wParam,lParam);
-  //        swb_pos = SwitchbarPos();
-  //        mIRC_size();
-  //        return lRes;
-  //      }
-  //    }
-  //    break;
-      /*
-      case WM_ACTIVATEAPP: 
-      {
-      if (wParam) {
-      CallWindowProc(g_OldmIRCWindowProc,hwnd,uMsg,wParam,lParam);
-      SetFocus(hwnd);
-      return 0L;
-      }
-      }
-      break;
-      */
 		//case WM_CONTEXTMENU:
 		case WM_INITMENUPOPUP:
 		{

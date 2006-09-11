@@ -251,8 +251,7 @@ void AddStyles(HWND hwnd,int parm,long AddStyles);
 void InitUltraDock(void);
 void CloseUltraDock(void);
 int SwitchbarPos(void);
-void AdjustMircClientRect(LPRECT rc);
-void UltraDockSize(void);
 void UltraUnDock(HWND hwnd);
+void UpdatemIRC(void);
 
 #endif // _DEFINES_H_
