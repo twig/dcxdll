@@ -246,7 +246,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags.switch_flags[10] && numtok > 3) {
-		this->m_clrTransColor = atol(input.gettok(4, " ").to_chr());
+		this->m_clrTransColor = (COLORREF)input.gettok(4, " ").to_num();
 		this->redrawWindow();
 	}
 	else

@@ -209,10 +209,10 @@ void DcxDivider::parseCommandRequest( TString & input ) {
         TString type = control_data.gettok( 2, " " );
         RECT rc;
 
-        rc.left = atol( control_data.gettok( 3, " " ).to_chr( ) );
-        rc.top = atol( control_data.gettok( 4, " " ).to_chr( ) );
-        rc.right = rc.left + atol( control_data.gettok( 5, " " ).to_chr( ) );
-        rc.bottom = rc.top + atol( control_data.gettok( 6, " " ).to_chr( ) );
+        rc.left = (LONG)control_data.gettok( 3, " " ).to_num( );
+        rc.top = (LONG)control_data.gettok( 4, " " ).to_num( );
+        rc.right = rc.left + (LONG)control_data.gettok( 5, " " ).to_num( );
+        rc.bottom = rc.top + (LONG)control_data.gettok( 6, " " ).to_num( );
 
         DcxControl * p_Control = NULL;
 

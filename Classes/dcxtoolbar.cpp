@@ -328,9 +328,9 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
       nPos += this->getButtonCount( ) + 1;
 
     TString flags = input.gettok( 5, " " );
-    int width = atoi( input.gettok( 6, " " ).to_chr( ) );
-    int icon = atoi( input.gettok( 7, " " ).to_chr( ) ) - 1;
-    COLORREF clrText = (COLORREF) atol( input.gettok( 8, " " ).to_chr( ) );
+    int width = (int)input.gettok( 6, " " ).to_num( );
+    int icon = (int)input.gettok( 7, " " ).to_num( ) - 1;
+    COLORREF clrText = (COLORREF) input.gettok( 8, " " ).to_num( );
 
     TBBUTTON tbb;
     ZeroMemory( &tbb, sizeof( TBBUTTON ) );
@@ -419,9 +419,9 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
   // xdid -c [NAME] [ID] [SWITCH] [N] [+FLAGS] [RGB]
   else if ( flags.switch_flags[2] && numtok > 5 ) {
 
-    int nButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nButton = (int)input.gettok( 4, " " ).to_num( ) - 1;
     UINT buttonStyles = parseButtonStyleFlags( input.gettok( 5, " " ) );
-    COLORREF clrColor = atol( input.gettok( 6, " " ).to_chr( ) );
+    COLORREF clrColor = (COLORREF)input.gettok( 6, " " ).to_num( );
 		if (nButton == -1 && this->m_ToolTipHWND != NULL) {
 			if (buttonStyles & BTNS_TBKGCOLOR)
 				SendMessage(this->m_ToolTipHWND,TTM_SETTIPBKCOLOR, (WPARAM)clrColor, NULL);

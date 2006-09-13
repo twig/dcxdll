@@ -214,10 +214,10 @@ void DcxPanel::parseCommandRequest( TString & input ) {
       TString type = input.gettok( 5, " " );
       RECT rc;
 
-      rc.left = atol( input.gettok( 6, " " ).to_chr( ) );
-      rc.top = atol( input.gettok( 7, " " ).to_chr( ) );
-      rc.right = rc.left + atol( input.gettok( 8, " " ).to_chr( ) );
-      rc.bottom = rc.top + atol( input.gettok( 9, " " ).to_chr( ) );
+      rc.left = (LONG)input.gettok( 6, " " ).to_num( );
+      rc.top = (LONG)input.gettok( 7, " " ).to_num( );
+      rc.right = rc.left + (LONG)input.gettok( 8, " " ).to_num( );
+      rc.bottom = rc.top + (LONG)input.gettok( 9, " " ).to_num( );
 
       DcxControl * p_Control = NULL;
 

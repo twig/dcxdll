@@ -287,7 +287,7 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
       else
         SearchType = TVSEARCH_W;
 
-      int N = (int) atoi( params.gettok( 2, " " ).to_chr( ) );
+      int N = (int) params.gettok( 2, " " ).to_num( );
       int NC = 0;
 
       HTREEITEM hParent = TVI_ROOT;

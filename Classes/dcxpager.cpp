@@ -205,7 +205,7 @@ void DcxPager::parseCommandRequest( TString & input ) {
   int numtok = input.numtok( " " );
   // xdid -b [NAME] [ID] [SWITCH] [W]
   if ( flags.switch_flags[1] && numtok > 3 ) {
-		this->setBorderSize(atol(input.gettok(4," ").to_chr()));
+		this->setBorderSize((int)input.gettok(4," ").to_num());
 	}
   // xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
   else if ( flags.switch_flags[2] && numtok > 8 ) {
@@ -214,7 +214,7 @@ void DcxPager::parseCommandRequest( TString & input ) {
 			mIRCError( "/xdid -c : Child Control already exists" );
 			return;
 		}
-    UINT ID = mIRC_ID_OFFSET + atoi( input.gettok( 4, " " ).to_chr( ) );
+    UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4, " " ).to_num( );
 
     if ( ID > mIRC_ID_OFFSET - 1 && 
       !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -224,10 +224,10 @@ void DcxPager::parseCommandRequest( TString & input ) {
       TString type = input.gettok( 5, " " );
       RECT rc;
 
-      rc.left = atol( input.gettok( 6, " " ).to_chr( ) );
-      rc.top = atol( input.gettok( 7, " " ).to_chr( ) );
-      rc.right = rc.left + atol( input.gettok( 8, " " ).to_chr( ) );
-      rc.bottom = rc.top + atol( input.gettok( 9, " " ).to_chr( ) );
+      rc.left = (LONG)input.gettok( 6, " " ).to_num( );
+      rc.top = (LONG)input.gettok( 7, " " ).to_num( );
+      rc.right = rc.left + (LONG)input.gettok( 8, " " ).to_num( );
+      rc.bottom = rc.top + (LONG)input.gettok( 9, " " ).to_num( );
 
       DcxControl * p_Control = NULL;
 
@@ -334,11 +334,11 @@ void DcxPager::parseCommandRequest( TString & input ) {
   }
 	// xdid -s [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags.switch_flags[18] && numtok > 3) {
-		this->setButtonSize(atol(input.gettok(4, -1, " ").to_chr()));
+		this->setButtonSize((LONG)input.gettok(4, -1, " ").to_num());
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags.switch_flags[19] && numtok > 3) {
-		this->setBkColor(atol(input.gettok(4, -1, " ").to_chr()));
+		this->setBkColor((COLORREF)input.gettok(4, -1, " ").to_num());
 	}
 	// xdid -z [NAME] [ID] [SWITCH]
 	else if (flags.switch_flags[25] && numtok > 2) {

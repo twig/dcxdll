@@ -212,7 +212,7 @@ void DcxLink::parseCommandRequest( TString & input ) {
     int nColor = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
 
     if ( nColor > -1 && nColor < 4 )
-      this->m_aColors[nColor] = atol( input.gettok( 5, " " ).to_chr( ) );
+      this->m_aColors[nColor] = (COLORREF)input.gettok( 5, " " ).to_num( );
   }
   // xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR4]
   else if ( flags.switch_flags[16] && numtok > 3 ) {
@@ -220,7 +220,7 @@ void DcxLink::parseCommandRequest( TString & input ) {
     int i = 0, len = input.gettok( 4, -1, " " ).numtok( " " );
     while ( i < len && i < 4 ) {
 
-      this->m_aColors[i] = atol( input.gettok( 4 + i, " " ).to_chr( ) );
+      this->m_aColors[i] = (COLORREF)input.gettok( 4 + i, " " ).to_num( );
 
       i++;
     }

@@ -163,8 +163,10 @@ void UltraUnDock(HWND hwnd)
 }
 void AdjustMDIRect(WINDOWPOS *wp)
 {
-	if (wp->cy == 0 && wp->y == 0 && wp->cx == 0 && wp->x == 0) // handle min/max case;
+	if ((wp->flags & SWP_NOSIZE) && (wp->flags & SWP_NOMOVE)) // handle min/max case;
 		return;
+	//if (wp->cy == 0 && wp->y == 0 && wp->cx == 0 && wp->x == 0) // handle min/max case;
+	//	return;
 
 	VectorOfDocks::iterator itStart = v_docks.begin();
 	VectorOfDocks::iterator itEnd = v_docks.end();
@@ -265,29 +267,6 @@ int SwitchbarPos(void)
 	return SWB_NONE;
 }
 
-//void EjectWindow(HWND dhwnd)
-//{
-//  LPMYDCXWINDOW lpdcx = (LPMYDCXWINDOW) GetWindowLong(dhwnd, GWL_USERDATA);
-//	if (lpdcx == NULL) return;
-//
-//  // Remove Style for undocking purpose
-//  RemStyles(dhwnd,GWL_STYLE,WS_BORDER);
-//  //WS_CHILDWINDOW |
-//  RemStyles(dhwnd,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE);
-//  // Add Styles input by user
-//  AddStyles(dhwnd,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);	
-//  AddStyles(dhwnd,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE);
-//  RemStyles(dhwnd,GWL_STYLE,WS_CHILDWINDOW);
-//	//SetWindowLong(dhwnd,GWL_STYLE, lpdcx->old_styles);
-//	//SetWindowLong(dhwnd,GWL_EXSTYLE, lpdcx->old_exstyles);
-//  //SetParent(dhwnd, lpdcx->hParent);
-//  SetParent(dhwnd, NULL);
-//  SetWindowPos(dhwnd, NULL, lpdcx->rc.left, lpdcx->rc.top, lpdcx->rc.right - lpdcx->rc.left, lpdcx->rc.bottom - lpdcx->rc.top, SWP_NOZORDER);
-//
-//  delete lpdcx;
-//  SetWindowLong(dhwnd, GWL_USERDATA, NULL);
-//}
-//
 LRESULT CALLBACK mIRCMDIProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
 		case WM_WINDOWPOSCHANGING:

@@ -317,11 +317,11 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
 
     //int nIndex = atoi( data.gettok( 4, " " ).to_chr( ) ) - 1;
-    int cx = atoi( data.gettok( 6, " " ).to_chr( ) );
-    int cy = atoi( data.gettok( 7, " " ).to_chr( ) );
-    int width = atoi( data.gettok( 8, " " ).to_chr( ) );
-    int nIcon = atoi( data.gettok( 9, " " ).to_chr( ) ) - 1;
-    COLORREF clrText = atol( data.gettok( 10, " " ).to_chr( ) );
+    int cx = (int)data.gettok( 6, " " ).to_num( );
+    int cy = (int)data.gettok( 7, " " ).to_num( );
+    int width = (int)data.gettok( 8, " " ).to_num( );
+    int nIcon = (int)data.gettok( 9, " " ).to_num( ) - 1;
+    COLORREF clrText = (COLORREF)data.gettok( 10, " " ).to_num( );
 
     TString itemtext;
     if ( data.numtok( " " ) > 10 ) {
@@ -371,10 +371,10 @@ void DcxReBar::parseCommandRequest( TString & input ) {
         TString type = control_data.gettok( 2, " " );
         RECT rc;
 
-        rc.left = atol( control_data.gettok( 3, " " ).to_chr( ) );
-        rc.top = atol( control_data.gettok( 4, " " ).to_chr( ) );
-        rc.right = rc.left + atol( control_data.gettok( 5, " " ).to_chr( ) );
-        rc.bottom = rc.top + atol( control_data.gettok( 6, " " ).to_chr( ) );
+        rc.left = (LONG)control_data.gettok( 3, " " ).to_num( );
+        rc.top = (LONG)control_data.gettok( 4, " " ).to_num( );
+        rc.right = rc.left + (LONG)control_data.gettok( 5, " " ).to_num( );
+        rc.bottom = rc.top + (LONG)control_data.gettok( 6, " " ).to_num( );
 
         DcxControl * p_Control = NULL;
 

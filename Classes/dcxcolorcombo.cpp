@@ -194,8 +194,8 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [RGB]
 	if (flags.switch_flags[0] && numtok > 4) {
-		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
-		COLORREF clrItem = atol(input.gettok(5, " ").to_chr());
+		int nItem = (int)input.gettok(4, " ").to_num() -1;
+		COLORREF clrItem = (COLORREF)input.gettok(5, " ").to_num();
 
 		if (nItem > -2 && nItem < this->getCount()) {
 			LPDCXCCOMBOITEM lpdcxcci = new DCXCCOMBOITEM;
@@ -207,7 +207,7 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[2] && numtok > 3) {
-		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nItem = (int)input.gettok(4, " ").to_num() -1;
 
 		if (nItem > -1 && nItem < this->getCount()) {
 			this->setCurSel(nItem);
@@ -215,7 +215,7 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[3] && numtok > 3) {
-		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nItem = (int)input.gettok(4, " ").to_num() -1;
 
 		if (nItem > -1 && nItem < this->getCount()) {
 			this->deleteItem(nItem);
@@ -228,7 +228,7 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 	// xdid -o [NAME] [ID] [SWITCH] [N] [RGB]
 	else if (flags.switch_flags[14] && numtok > 4) {
 		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
-		COLORREF clrItem = atol(input.gettok(5, " ").to_chr());
+		COLORREF clrItem = (COLORREF)input.gettok(5, " ").to_num();
 
 		if (nItem > -1 && nItem < this->getCount()) {
 			LPDCXCCOMBOITEM lpdcxcci = (LPDCXCCOMBOITEM) this->getItemData(nItem);
@@ -266,7 +266,7 @@ void DcxColorCombo::setmIRCPalette( ) {
   while ( i <= len ) {
 
     lpdcxcci = new DCXCCOMBOITEM;
-    lpdcxcci->clrItem = (COLORREF) atol( cols.gettok( i, " " ).to_chr( ) );
+    lpdcxcci->clrItem = (COLORREF) cols.gettok( i, " " ).to_num( );
     //lpmycci->itemtext = "";
     this->insertItem( -1, (LPARAM) lpdcxcci );
 

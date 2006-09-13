@@ -223,7 +223,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	// xdid -c [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	if (flags.switch_flags[2] && numtok > 4) {
 		UINT iColorStyles = this->parseColorFlags(input.gettok(4, " "));
-		COLORREF clrColor = atol(input.gettok(5, " ").to_chr());
+		COLORREF clrColor = (COLORREF)input.gettok(5, " ").to_num();
 
 		if (iColorStyles & BTNCS_NORMAL)
 			this->m_aColors[0] = clrColor;
@@ -239,7 +239,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] [FILENAME]
 	else if (flags.switch_flags[10] && (numtok > 5) && (this->isStyle(BS_BITMAP))) {
 		UINT iColorStyles = this->parseColorFlags(input.gettok(4, " "));
-		COLORREF clrColor = atol(input.gettok(5, " ").to_chr());
+		COLORREF clrColor = (COLORREF)input.gettok(5, " ").to_num();
 
 		TString filename = input.gettok(6, -1, " ");
 		filename.trim();

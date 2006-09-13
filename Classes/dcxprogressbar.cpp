@@ -200,11 +200,11 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 
 	// xdid -c name ID $rgb(color)
 	if (flags.switch_flags[2]) {
-		this->setBarColor((COLORREF) atol(input.gettok(4, " ").to_chr()));
+		this->setBarColor((COLORREF) input.gettok(4, " ").to_num());
 	}
 	//// xdid -g name ID [1|0]
 	//else if ( flags.switch_flags[6] ) {
-	//this->m_bIsGrad = (BOOL) atol( input.gettok( 4, " " ).to_chr( ) );
+	//this->m_bIsGrad = (BOOL) input.gettok( 4, " " ).to_num( );
 	//}
 	// xdid -i name ID (TEXT)
 	else if (flags.switch_flags[8]) {
@@ -226,13 +226,13 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 	}
 	// xdid -k name ID $rgb(color)
 	else if (flags.switch_flags[10]) {
-		this->setBKColor((COLORREF) atol(input.gettok(4, " ").to_chr()));
+		this->setBKColor((COLORREF) input.gettok(4, " ").to_num());
 	}
 	// xdid -m(o|g) name ID N
 	else if (flags.switch_flags[12]) {
 		// -mo
 		if (flags.switch_flags[14]) {
-			this->setMarquee(TRUE, atoi(input.gettok(4, " ").to_chr()));
+			this->setMarquee(TRUE, (int)input.gettok(4, " ").to_num());
 		}
 		// -mg
 		else if (flags.switch_flags[6]) {
@@ -241,7 +241,7 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 	}
 	// xdid -q name ID [COLOR]
 	else if ( flags.switch_flags[16] ) {
-		this->m_clrText = (COLORREF) atol(input.gettok(4, " ").to_chr());
+		this->m_clrText = (COLORREF) input.gettok(4, " ").to_num();
 		this->redrawWindow();
 	}
 	// xdid -r name ID RLow RHigh

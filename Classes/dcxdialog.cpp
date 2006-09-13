@@ -310,8 +310,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdid -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
 	else if (flags.switch_flags[5] && numtok > 4) {
 		UINT iFlags = this->parseFlashFlags(input.gettok(3, " "));
-		INT iCount = atoi(input.gettok(4, " ").to_chr());
-		DWORD dwTimeout = atol(input.gettok(5, " ").to_chr());
+		INT iCount = (INT)input.gettok(4, " ").to_num();
+		DWORD dwTimeout = (DWORD)input.gettok(5, " ").to_num();
 		FLASHWINFO fli;
 
 		ZeroMemory(&fli, sizeof(FLASHWINFO));
@@ -328,7 +328,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		this->m_uStyleBg = this->parseBkgFlags(input.gettok(3, " "));
 
 		if (this->m_uStyleBg & DBS_BKGCOLOR) {
-			COLORREF clrColor = atol(input.gettok(4, " ").to_chr());
+			COLORREF clrColor = (COLORREF)input.gettok(4, " ").to_num();
 
 			if (this->m_hBackBrush != NULL) {
 				DeleteObject(this->m_hBackBrush);
@@ -714,7 +714,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				}
 
 				//SetWindowRgn(this->m_Hwnd,NULL,TRUE);
-				this->m_colTransparentBg = atol(input.gettok(4," ").to_chr());
+				this->m_colTransparentBg = (COLORREF)input.gettok(4," ").to_num();
 				//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
 				this->m_uStyleBg = DBS_BKGBITMAP;
 				this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg,input.gettok(5,-1," "));
@@ -786,8 +786,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 				while (cnt <= tPoints) {
 					strPoint = strPoints.gettok(cnt," ");
-					pnts[cnt-1].x = atol(strPoint.gettok(1, ",").to_chr());
-					pnts[cnt-1].y = atol(strPoint.gettok(2, ",").to_chr());
+					pnts[cnt-1].x = (LONG)strPoint.gettok(1, ",").to_num();
+					pnts[cnt-1].y = (LONG)strPoint.gettok(2, ",").to_num();
 					cnt++;
 				}
 
@@ -1613,13 +1613,14 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				p_this->callAliasEx(ret, "%s,%d", "changing", 0);
 
 				WINDOWPOS *wp = (WINDOWPOS *) lParam;
-
-				if (lstrcmp("nosize", ret) == 0)
-					wp->flags |= SWP_NOSIZE;
-				else if (lstrcmp("nomove", ret) == 0)
-					wp->flags |= SWP_NOMOVE;
-				else if (lstrcmp("nochange", ret) == 0)
-					wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
+				if (wp != NULL) {
+					if (lstrcmp("nosize", ret) == 0)
+						wp->flags |= SWP_NOSIZE;
+					else if (lstrcmp("nomove", ret) == 0)
+						wp->flags |= SWP_NOMOVE;
+					else if (lstrcmp("nochange", ret) == 0)
+						wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
+				}
 			}
 
 			break;

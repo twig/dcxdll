@@ -224,7 +224,7 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
   // xdid -c [NAME] [ID] [SWITCH] [VALUE]
   if ( flags.switch_flags[2] && numtok > 3 ) {
 
-    LONG lPosition = atol( input.gettok( 4, " " ).to_chr( ) );
+    LONG lPosition = (LONG)input.gettok( 4, " " ).to_num( );
     this->setTic( lPosition );
   }
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
@@ -253,26 +253,26 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
   // xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
   else if ( flags.switch_flags[9] && numtok > 4 ) {
 
-    INT iMin = atol( input.gettok( 4, " " ).to_chr( ) );
-    INT iMax = atol( input.gettok( 5, " " ).to_chr( ) );
+    LONG iMin = (LONG)input.gettok( 4, " " ).to_num( );
+    LONG iMax = (LONG)input.gettok( 5, " " ).to_num( );
     this->setSel( iMin, iMax );
   }
   // xdid -l [NAME] [ID] [SWITCH] [VALUE]
   else if ( flags.switch_flags[11] && numtok > 3 ) {
 
-    LONG lLineSize = atol( input.gettok( 4, " " ).to_chr( ) );
+    LONG lLineSize = (LONG)input.gettok( 4, " " ).to_num( );
     this->setLineSize( lLineSize );
   }
   // xdid -m [NAME] [ID] [SWITCH] [VALUE]
   else if ( flags.switch_flags[12] && numtok > 3 ) {
 
-    LONG lPageSize = atol( input.gettok( 4, " " ).to_chr( ) );
+    LONG lPageSize = (LONG)input.gettok( 4, " " ).to_num( );
     this->setPageSize( lPageSize );
   }
   // xdid -n [NAME] [ID] [SWITCH] [VALUE]
   else if ( flags.switch_flags[13] && numtok > 3 ) {
 
-    int iTicFreq = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int iTicFreq = (int)input.gettok( 4, " " ).to_num( );
     this->setTicFreq( iTicFreq );
   }
   // xdid -q [NAME] [ID] [SWITCH] [VALUE]
@@ -283,15 +283,15 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
   // xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
   else if ( flags.switch_flags[17] && numtok > 4 ) {
 
-    LONG lMinRange = atol( input.gettok( 4, " " ).to_chr( ) );
-    LONG lMaxRange = atol( input.gettok( 5, " " ).to_chr( ) );
+    LONG lMinRange = (LONG)input.gettok( 4, " " ).to_num( );
+    LONG lMaxRange = (LONG)input.gettok( 5, " " ).to_num( );
 
     this->setRangeMin( lMinRange );
     this->setRangeMax( lMaxRange );
   }
 	// xdid -o [NAME] [ID] [SWITCH] [VALUE]
 	else if (flags.switch_flags[14] && numtok > 3) {
-		m_colTransparent = atoi(input.gettok(4, " ").to_chr());
+		m_colTransparent = (COLORREF)input.gettok(4, " ").to_num();
 		this->redrawWindow();
 	}
   // xdid -t [NAME] [ID] [SWITCH] [VALUE]
@@ -311,14 +311,14 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
   // xdid -u [NAME] [ID] [SWITCH] [VALUE]
   else if ( flags.switch_flags[20] && numtok > 3 ) {
 
-    LONG lLength = atol( input.gettok( 4, " " ).to_chr( ) );
+    LONG lLength = (LONG)input.gettok( 4, " " ).to_num( );
 
     this->setThumbLength( lLength );
   }
   // xdid -v [NAME] [ID] [SWITCH] [VALUE]
   else if ( flags.switch_flags[21] && numtok > 3 ) {
 
-    LONG lPosition = atol( input.gettok( 4, " " ).to_chr( ) );
+    LONG lPosition = (LONG)input.gettok( 4, " " ).to_num( );
 
     this->setPos( lPosition );
   }

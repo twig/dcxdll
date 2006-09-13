@@ -65,8 +65,8 @@ DcxControl::DcxControl( UINT mID, DcxDialog * p_Dialog ) : DcxWindow( mID ), m_p
 
   this->m_hFont = NULL;
   this->m_tsMark = "";
-  this->m_clrText = -1;
-  this->m_clrBackText = -1;
+  this->m_clrText = (COLORREF)-1;
+  this->m_clrBackText = (COLORREF)-1;
   this->m_hBackBrush = NULL;
   this->m_iRefCount = 0;
 

@@ -393,7 +393,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags.switch_flags[10] && numtok > 3) {
-		COLORREF clrColor = atol(input.gettok(4, " ").to_chr());
+		COLORREF clrColor = (COLORREF)input.gettok(4, " ").to_num();
 
 		if (clrColor == -1)
 			SendMessage(this->m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, (LPARAM) GetSysColor(COLOR_WINDOWTEXT));
@@ -405,10 +405,10 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
 	else if (flags.switch_flags[11] && numtok > 4) {
-		int nColor = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nColor = (int)input.gettok(4, " ").to_num() -1;
 
 		if (nColor > -1 && nColor < 16) {
-			this->m_aColorPalette[nColor] = atol(input.gettok(5, " ").to_chr());
+			this->m_aColorPalette[nColor] = (COLORREF)input.gettok(5, " ").to_num();
 			this->parseContents(TRUE);
 		}
 	}
@@ -426,7 +426,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags.switch_flags[14] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = atoi(input.gettok(4, " ").to_chr());
+			int nLine = (int)input.gettok(4, " ").to_num();
 			this->m_tsText.puttok(input.gettok(5, -1, " ").to_chr(), nLine, "\r\n");
 		}
 		else {
@@ -440,7 +440,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		int i = 0, len = input.gettok(4, -1, " ").numtok(" ");
 
 		while (i < len && i < 16) {
-			this->m_aColorPalette[i] = atol(input.gettok(4 + i, " ").to_chr());
+			this->m_aColorPalette[i] = (COLORREF)input.gettok(4 + i, " ").to_num();
 			i++;
 		}
 
@@ -496,15 +496,17 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 * blah
 */
 void DcxRichEdit::loadmIRCPalette() {
-	char com[512], res[512];
-	lstrcpy(com, "$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
+	//char com[512], res[512];
+	char res[512];
+	char com[] = "$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)";
+	//lstrcpy(com, "$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
 	mIRCeval(com, res);
 
 	TString colors = res;
 	int i = 0, len = colors.numtok(" ");
 
 	while (i < len) {
-		this->m_aColorPalette[i] = atol(colors.gettok(i +1, " ").to_chr());
+		this->m_aColorPalette[i] = (COLORREF)colors.gettok(i +1, " ").to_num();
 		i++;
 	}
 }

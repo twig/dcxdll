@@ -340,7 +340,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
   // xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
   if ( flags.switch_flags[2] && numtok > 8 ) {
 
-    UINT ID = mIRC_ID_OFFSET + atoi( input.gettok( 4, " " ).to_chr( ) );
+    UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4, " " ).to_num( );
 
     if ( ID > mIRC_ID_OFFSET - 1 && 
       !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -350,10 +350,10 @@ void DcxBox::parseCommandRequest( TString & input ) {
       TString type = input.gettok( 5, " " );
       RECT rc;
 
-      rc.left = atol( input.gettok( 6, " " ).to_chr( ) );
-      rc.top = atol( input.gettok( 7, " " ).to_chr( ) );
-      rc.right = rc.left + atol( input.gettok( 8, " " ).to_chr( ) );
-      rc.bottom = rc.top + atol( input.gettok( 9, " " ).to_chr( ) );
+      rc.left = (LONG)input.gettok( 6, " " ).to_num( );
+      rc.top = (LONG)input.gettok( 7, " " ).to_num( );
+      rc.right = rc.left + (LONG)input.gettok( 8, " " ).to_num( );
+      rc.bottom = rc.top + (LONG)input.gettok( 9, " " ).to_num( );
 
       DcxControl * p_Control = NULL;
 
