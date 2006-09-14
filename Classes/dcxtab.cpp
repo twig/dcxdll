@@ -88,9 +88,13 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   }
   */
 
-	if (this->m_ToolTipHWND != NULL) {
-		if (styles.istok("tooltips"," ")) TabCtrl_SetToolTips(this->m_Hwnd,this->m_ToolTipHWND);
-	}
+	//if (p_Dialog->getToolTip() != NULL) {
+	//	if (styles.istok("tooltips", " ")) {
+	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
+	//		TabCtrl_SetToolTips(this->m_Hwnd,this->m_ToolTipHWND);
+	//		//AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+	//	}
+	//}
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -142,6 +146,13 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
     SendMessage( hHwndTip, TTM_ADDTOOL, (WPARAM) 0, (LPARAM) &ti );
   }
   */
+	//if (p_Dialog->getToolTip() != NULL) {
+	//	if (styles.istok("tooltips", " ")) {
+	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
+	//		TabCtrl_SetToolTips(this->m_Hwnd,this->m_ToolTipHWND);
+	//		//AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+	//	}
+	//}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
@@ -203,7 +214,7 @@ void DcxTab::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
     else if ( styles.gettok( i , " " ) == "scrollopposite" )
       *Styles |= TCS_SCROLLOPPOSITE;
     //else if ( styles.gettok( i , " " ) == "tooltips" )
-      //*Styles |= TCS_TOOLTIPS;
+    //  *Styles |= TCS_TOOLTIPS;
     else if ( styles.gettok( i , " " ) == "flatseps" )
       *ExStyles |= TCS_EX_FLATSEPARATORS;
 
@@ -227,7 +238,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
 
   if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nItem = (int)input.gettok( 4, " " ).to_num( ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
       
@@ -250,7 +261,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N]
   else if ( input.gettok( 3, " " ) == "icon" && numtok > 3 ) {
 
-    int iTab = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int iTab = (int)input.gettok( 4, " " ).to_num( ) - 1;
 
     if ( iTab > -1 && iTab < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -294,7 +305,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
   }
   else if ( input.gettok( 3, " " ) == "childid" && numtok > 3 ) {
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nItem = (int)input.gettok( 4, " " ).to_num( ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
       
@@ -381,12 +392,12 @@ void DcxTab::parseCommandRequest( TString & input ) {
       tooltip.trim( );
     }
 
-    int nIndex = atoi( data.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nIndex = (int)data.gettok( 4, " " ).to_num( ) - 1;
 
     if ( nIndex == -1 )
       nIndex += TabCtrl_GetItemCount( this->m_Hwnd ) + 1;
 
-	 tci.iImage = atoi( data.gettok( 5, " " ).to_chr( ) ) - 1;
+	 tci.iImage = (int)data.gettok( 5, " " ).to_num( ) - 1;
 
     // Extra params
     LPDCXTCITEM lpdtci = new DCXTCITEM;
@@ -402,7 +413,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
     }
 
     if ( control_data.numtok( " " ) > 5 ) {
-      UINT ID = mIRC_ID_OFFSET + atoi( control_data.gettok( 1, " " ).to_chr( ) );
+      UINT ID = mIRC_ID_OFFSET + (UINT)control_data.gettok( 1, " " ).to_num( );
 
       if ( ID > mIRC_ID_OFFSET - 1 && 
         !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -411,10 +422,10 @@ void DcxTab::parseCommandRequest( TString & input ) {
         TString type = control_data.gettok( 2, " " );
         RECT rc;
 
-        rc.left = atol( control_data.gettok( 3, " " ).to_chr( ) );
-        rc.top = atol( control_data.gettok( 4, " " ).to_chr( ) );
-        rc.right = rc.left + atol( control_data.gettok( 5, " " ).to_chr( ) );
-        rc.bottom = rc.top + atol( control_data.gettok( 6, " " ).to_chr( ) );
+        rc.left = (LONG)control_data.gettok( 3, " " ).to_num( );
+        rc.top = (LONG)control_data.gettok( 4, " " ).to_num( );
+        rc.right = rc.left + (LONG)control_data.gettok( 5, " " ).to_num( );
+        rc.bottom = rc.top + (LONG)control_data.gettok( 6, " " ).to_num( );
 
         DcxControl * p_Control = NULL;
 
@@ -486,9 +497,6 @@ void DcxTab::parseCommandRequest( TString & input ) {
         if ( p_Control != NULL ) {
           lpdtci->mChildHwnd = p_Control->getHwnd( );
           this->m_pParentDialog->addControl( p_Control );
-					//if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
-					//	if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
-					//}
         }
       }
       else {
@@ -504,7 +512,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
   }
   // xdid -c [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[2] && numtok > 3 ) {
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nItem = (int)input.gettok( 4, " " ).to_num( ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
       TabCtrl_SetCurSel( this->m_Hwnd, nItem );
@@ -513,7 +521,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
   }
   // xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
-	  int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+	  int nItem = (int)input.gettok( 4, " " ).to_num( ) - 1;
 
 	  // if a valid item to delete
 	  if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
@@ -534,11 +542,6 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
 		  TabCtrl_DeleteItem( this->m_Hwnd, nItem );
 
-			//if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
-			//	if (this->isExStyle(WS_EX_CONTROLPARENT)) {
-			//		this->removeExStyle(WS_EX_CONTROLPARENT);
-			//	}
-			//}
 		  // select the next tab item if its the current one
 		  if (curSel == nItem) {
 			  if (nItem < TabCtrl_GetItemCount(this->m_Hwnd))
@@ -552,8 +555,8 @@ void DcxTab::parseCommandRequest( TString & input ) {
   }
   // xdid -l [NAME] [ID] [SWITCH] [N] [ICON]
   else if ( flags.switch_flags[11] && numtok > 4 ) {
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-    int nIcon = atoi( input.gettok( 5, " " ).to_chr( ) ) - 1;
+    int nItem = (int)input.gettok( 4, " " ).to_num( ) - 1;
+    int nIcon = (int)input.gettok( 5, " " ).to_num( ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
      TCITEM tci;
@@ -567,8 +570,8 @@ void DcxTab::parseCommandRequest( TString & input ) {
   // xdid -m [NAME] [ID] [SWITCH] [X] [Y]
   else if ( flags.switch_flags[12] && numtok > 4 ) {
 
-    int X = atoi( input.gettok( 4, " " ).to_chr( ) );
-    int Y = atoi( input.gettok( 5, " " ).to_chr( ) );
+    int X = (int)input.gettok( 4, " " ).to_num( );
+    int Y = (int)input.gettok( 5, " " ).to_num( );
 
     TabCtrl_SetItemSize( this->m_Hwnd, X, Y );
   }
@@ -578,7 +581,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
   // xdid -t [NAME] [ID] [SWITCH] [N] (text)
   else if ( flags.switch_flags[19] && numtok > 3 ) {
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nItem = (int)input.gettok( 4, " " ).to_num( ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -614,7 +617,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
         this->setImageList( himl );
     }
 
-    index = atoi( input.gettok( 4, " ").to_chr( ) );
+    index = (int)input.gettok( 4, " ").to_num( );
     TString filename = input.gettok( 5, -1, " " );
     ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
     ImageList_AddIcon( himl, icon );
@@ -766,9 +769,8 @@ LRESULT DcxTab::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 						int tab = TabCtrl_HitTest( this->m_Hwnd, &tchi );
 						int stab = TabCtrl_GetCurSel( this->m_Hwnd );
 
-						if ( tab != -1 && tab == stab ) {
+						if ( tab != -1 && tab == stab )
 							this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), tab+1 );
-						}
 						bParsed = TRUE;
 					}
 					break;
@@ -776,9 +778,8 @@ LRESULT DcxTab::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					{
 						int tab = TabCtrl_GetCurSel( this->m_Hwnd );
 
-						if ( tab != -1 ) {
+						if ( tab != -1 )
 							this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), tab+1 );
-						}
 						this->activateSelectedTab( );
 						bParsed = TRUE;
 					}
@@ -808,6 +809,26 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
         if (!hdr)
           break;
 
+				//if (hdr->hwndFrom == this->m_ToolTipHWND) {
+				//	switch(hdr->code) {
+				//	case TTN_GETDISPINFO:
+				//		{
+				//			LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+				//			di->lpszText = this->m_tsToolTip.to_chr();
+				//			di->hinst = NULL;
+				//			bParsed = TRUE;
+				//		}
+				//		break;
+				//	case TTN_LINKCLICK:
+				//		{
+				//			bParsed = TRUE;
+				//			this->callAliasEx(NULL, "%s,%d", "tooltiplink", this->getUserID());
+				//		}
+				//		break;
+				//	default:
+				//		break;
+				//	}
+				//}
 				if (IsWindow(hdr->hwndFrom)) {
 					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
 					if (c_this != NULL) {
@@ -897,7 +918,6 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

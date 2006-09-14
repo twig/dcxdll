@@ -637,6 +637,24 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
   szReturnValue[0] = 0;
 }
 
+void DcxListView::autoSize(int nColumn, TString flags)
+{
+	UINT iFlags = this->parseHeaderFlags2(flags);
+
+	if (iFlags == -3) {
+		int n = 0;
+		ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
+		n = ListView_GetColumnWidth(this->m_Hwnd, nColumn);
+		ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
+		n = max(ListView_GetColumnWidth(this->m_Hwnd, nColumn),n);
+		ListView_SetColumnWidth(this->m_Hwnd, nColumn, n);
+	}
+	else if (iFlags & LVSCW_AUTOSIZE)
+		ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
+	else if (iFlags & LVSCW_AUTOSIZE_USEHEADER)
+		ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
+}
+
 /*!
  * \brief blah
  *
@@ -676,7 +694,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			int icon = (int)data.gettok(4, " ").to_num() -1;
 			int state = (int)data.gettok(5, " ").to_num();
 			//int overlay = atoi( data.gettok( 6, " " ).to_chr( ) );
-			int group = atoi(data.gettok(7, " ").to_chr());
+			int group = (int)data.gettok(7, " ").to_num();
 			COLORREF clrText = (COLORREF)data.gettok(8, " ").to_num();
 			COLORREF clrBack = (COLORREF)data.gettok(9, " ").to_num();
 
@@ -757,7 +775,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 					lvi.mask = LVIF_TEXT | LVIF_IMAGE;
 
 					// icon
-					icon = atoi(data.gettok(2, " ").to_chr()) -1;
+					icon = (int)data.gettok(2, " ").to_num() -1;
 
 					if (icon > -1)
 						lvi.iImage = icon;
@@ -776,7 +794,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 					lvi.pszText = itemtext.to_chr();
 					ListView_SetItem(this->m_Hwnd, &lvi);
-
+					this->autoSize(i -1,data.gettok(1," "));
 					i++;
 				}
 			}
@@ -785,18 +803,19 @@ void DcxListView::parseCommandRequest(TString &input) {
 				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
 			// if ( overlay > -1 )
 			//ListView_SetItemState(hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(overlay), LVIS_OVERLAYMASK);
+			this->autoSize(0,input.gettok(6, " "));
 		}
 		// LVS_ICON | LVS_SMALLICON | LVS_LIST views
 		else {
-			int nPos = atoi(data.gettok(1, " ").to_chr()) -1;
+			int nPos = (int)data.gettok(1, " ").to_num() -1;
 
 			if (nPos == -1)
 				nPos += ListView_GetItemCount(this->m_Hwnd) +1;
 
 			//int indent = atoi( data.gettok( 2, " " ).to_chr( ) );
 			UINT stateFlags = this->parseItemFlags(data.gettok(3, " "));
-			int icon = atoi(data.gettok(4, " ").to_chr()) -1;
-			int state = atoi(data.gettok(5, " ").to_chr());
+			int icon = (int)data.gettok(4, " ").to_num() -1;
+			int state = (int)data.gettok(5, " ").to_num();
 			//int overlay = atoi( data.gettok( 6, " " ).to_chr( ) );
 			//int group = atoi( data.gettok( 7, " " ).to_chr( ) );
 
@@ -826,7 +845,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	// xdid -B [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_cap_flags[1] && numtok > 3) {
-		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nItem = (int)input.gettok(4, " ").to_num() -1;
 
 		if (nItem > -1)
 			ListView_EditLabel(this->m_Hwnd, nItem);
@@ -834,7 +853,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[2] && numtok > 3) {
 		if (this->isStyle(LVS_SINGLESEL)) {
-			int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+			int nItem = (int)input.gettok(4, " ").to_num() -1;
 
 			if (nItem > -1)
 				ListView_SetItemState(this->m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
@@ -846,7 +865,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			int nItems = ListView_GetItemCount(this->m_Hwnd);
 
 			while (i <= n) {
-				int nItem = atoi(Ns.gettok(i, ",").to_chr()) -1;
+				int nItem = (int)Ns.gettok(i, ",").to_num() -1;
 
 				if (nItem > -1 && nItem < nItems)
 					ListView_SetItemState(this->m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
@@ -857,7 +876,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[3] && (numtok > 3)) {
-		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nItem = (int)input.gettok(4, " ").to_num() -1;
 
 		if (nItem > -1)
 			ListView_DeleteItem(this->m_Hwnd, nItem);
@@ -934,8 +953,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [ROW] [COL] [FLAGS]
 	else if (flags.switch_flags[9] && numtok > 5) {
-		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
-		int nCol = atoi(input.gettok(5, " ").to_chr()) -1;
+		int nItem = (int)input.gettok(4, " ").to_num() -1;
+		int nCol = (int)input.gettok(5, " ").to_num() -1;
 
 		// invalid info
 		if ((nItem == -1) || (nCol == -1))
@@ -1004,8 +1023,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 				n = ListView_GetColumnWidth(this->m_Hwnd, nColumn);
 				ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
 				n = max(ListView_GetColumnWidth(this->m_Hwnd, nColumn),n);
-				//ListView_SetColumnWidth(this->m_Hwnd, nColumn, width);
-				//n = max(ListView_GetColumnWidth(this->m_Hwnd, nColumn),n);
 				ListView_SetColumnWidth(this->m_Hwnd, nColumn, n);
 			}
 			else if (iFlags & LVSCW_AUTOSIZE)
@@ -1078,17 +1095,20 @@ void DcxListView::parseCommandRequest(TString &input) {
 			lvc.iImage = icon;
 		}
 
-		UINT iFlags2 = this->parseHeaderFlags2(data.gettok(1, " "));
+		//UINT iFlags2 = this->parseHeaderFlags2(data.gettok(1, " "));
 
 		if (this->getColumnCount() > 0)
 			ListView_SetColumn(this->m_Hwnd, nColumn, &lvc);
 		else
 			ListView_InsertColumn(this->m_Hwnd, nColumn, &lvc);
-
-		if (iFlags2 & LVSCW_AUTOSIZE) // these flags fail to work for some reason :/
-			ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
-		else if (iFlags2 & LVSCW_AUTOSIZE_USEHEADER)
-			ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
+		/*
+			*	These flags do NOT make the columns auto size as text is added
+			* They auto size the columns to match the text already present (none).
+		*/
+		//if (iFlags2 & LVSCW_AUTOSIZE)
+		//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
+		//else if (iFlags2 & LVSCW_AUTOSIZE_USEHEADER)
+		//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
 
 		int tabs = input.numtok("\t");
 
@@ -1115,7 +1135,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 				lvc.iSubItem = 0;
 				lvc.pszText = itemtext.to_chr();
 
-				iFlags2 = this->parseHeaderFlags2(data.gettok(1, " "));
+				//iFlags2 = this->parseHeaderFlags2(data.gettok(1, " "));
 
 				if (icon > -1) {
 					lvc.mask |= LVCF_IMAGE;
@@ -1124,10 +1144,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 				ListView_InsertColumn(this->m_Hwnd, nColumn, &lvc);
 
-				if (iFlags2 & LVSCW_AUTOSIZE)
-					ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
-				else if (iFlags2 & LVSCW_AUTOSIZE_USEHEADER)
-					ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
+				//if (iFlags2 & LVSCW_AUTOSIZE)
+				//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
+				//else if (iFlags2 & LVSCW_AUTOSIZE_USEHEADER)
+				//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
 
 				i++;
 			}
@@ -1139,8 +1159,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [N] [M] (ItemText)
 	else if (flags.switch_flags[21] && numtok > 4) {
-		int nItem = atoi(input.gettok(4, " ").to_chr()) - 1;
-		int nSubItem = atoi(input.gettok(5, " ").to_chr());
+		int nItem = (int)input.gettok(4, " ").to_num() - 1;
+		int nSubItem = (int)input.gettok(5, " ").to_num();
 
 		if (nItem > -1) {
 			TString itemtext = input.gettok(6, -1 , " ");
@@ -1210,7 +1230,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 					this->setImageList(himl, LVSIL_STATE);
 			}
 
-			index = input.gettok(5, " ").to_num();
+			index = (int)input.gettok(5, " ").to_num();
 			filename = input.gettok(6, -1, " ");
 			ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
 			ImageList_AddIcon(himl, icon);
@@ -1435,11 +1455,11 @@ UINT DcxListView::parseHeaderFlags2( TString & flags ) {
 
   while ( i < len ) {
 
-    if ( flags[i] == 'a' )
-      iFlags |= LVSCW_AUTOSIZE;
-    else if ( flags[i] == 'h' )
-      iFlags |= LVSCW_AUTOSIZE_USEHEADER;
-    else if ( flags[i] == 's' )
+    if ( flags[i] == 'a' ) // auto size
+      iFlags = LVSCW_AUTOSIZE;
+    else if ( flags[i] == 'h' ) // header size
+      iFlags = LVSCW_AUTOSIZE_USEHEADER;
+    else if ( flags[i] == 'm' ) // max size (max of auto & header)
 			iFlags = -3;
 
     ++i;

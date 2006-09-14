@@ -307,6 +307,7 @@ mIRC(_xdock)
 				lstrcpy(data,"$false");
 		}
 		else {
+			//dcxInfoError("$xdock",d.gettok(2," ").to_chr(),"mIRC",0,"Invalid prop");
 			TString error;
 			error.sprintf("$ $+ xdock invalid prop (mIRC).%s", d.gettok(2, " ").to_chr());
 			mIRCError(error.to_chr());

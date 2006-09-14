@@ -231,7 +231,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
     int i = 0;
     while ( i < nParts ) {
 
-      parts[i] = atoi( input.gettok( i+4, " " ).to_chr( ) );
+      parts[i] = (int)input.gettok( i+4, " " ).to_num( );
       i++;
     }
     this->setParts( nParts, parts );
@@ -239,9 +239,9 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
   // xdid -t [NAME] [ID] [SWITCH] N [+FLAGS] [#ICON] [Cell Text][TAB]Tooltip Text
   else if ( flags.switch_flags[19] && numtok > 5 ) {
 
-    int nPos = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nPos = (int)input.gettok( 4, " " ).to_num( ) - 1;
     TString flags = input.gettok( 5, " " );
-    int icon = atoi( input.gettok( 6, " " ).to_chr( ) ) - 1;
+    int icon = (int)input.gettok( 6, " " ).to_num( ) - 1;
 
     TString itemtext;
 
@@ -272,7 +272,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
   // xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
   else if ( flags.switch_flags[21] && numtok > 3 ) {
 
-    int nPos = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nPos = (int)input.gettok( 4, " " ).to_num( ) - 1;
 
     if ( nPos > -1 && nPos < this->getParts( 256, 0 ) ) {
 
@@ -299,7 +299,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
         this->setImageList( himl );
     }
 
-    index = atoi( input.gettok( 4, " ").to_chr( ) );
+    index = (int)input.gettok( 4, " ").to_num( );
     TString filename = input.gettok( 5, -1, " " );
     ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
     ImageList_AddIcon( himl, icon );
@@ -356,22 +356,31 @@ HIMAGELIST DcxStatusBar::createImageList( ) {
 
 UINT DcxStatusBar::parseItemFlags( TString & flags ) {
 
-  INT i = 1, len = flags.len( ), iFlags = 0;
+	INT i = 1, len = flags.len( ), iFlags = 0;
 
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return iFlags;
+	// no +sign, missing params
+	if ( flags[0] != '+' ) 
+		return iFlags;
 
-  while ( i < len ) {
+	while ( i < len ) {
+		switch(flags[i])
+		{
+		case 'n':
+			iFlags |= SBT_NOBORDERS;
+			break;
+		case 'p':
+			iFlags |= SBT_POPOUT;
+			break;
+		}
 
-    if ( flags[i] == 'n' )
-      iFlags |= SBT_NOBORDERS;
-    else if ( flags[i] == 'p' )
-      iFlags |= SBT_POPOUT;
+		//if ( flags[i] == 'n' )
+		//	iFlags |= SBT_NOBORDERS;
+		//else if ( flags[i] == 'p' )
+		//	iFlags |= SBT_POPOUT;
 
-    ++i;
-  }
-  return iFlags;
+		++i;
+	}
+	return iFlags;
 }
 
 /*!

@@ -136,6 +136,8 @@ protected:
 
   BOOL matchItemText( int nItem, int nSubItem, TString * search, UINT SearchType );
 
+	void autoSize(int nColumn, TString flags);
+
   BOOL m_bDrag; //!< Dragging Items ?
 
 private:
