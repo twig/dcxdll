@@ -44,7 +44,7 @@ DcxLink::DcxLink( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_hIcon = NULL;
   this->m_aColors[0] = RGB( 0, 0, 255 );
@@ -99,7 +99,7 @@ DcxLink::DcxLink( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_hIcon = NULL;
   this->m_aColors[0] = RGB( 0, 0, 255 );

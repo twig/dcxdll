@@ -67,7 +67,7 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   /*
   HWND hHwndTip = TabCtrl_GetToolTips( this->m_Hwnd );
@@ -130,7 +130,7 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   /*
   HWND hHwndTip = TabCtrl_GetToolTips( this->m_Hwnd );

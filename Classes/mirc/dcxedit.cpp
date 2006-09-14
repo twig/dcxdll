@@ -43,7 +43,7 @@ DcxEdit::DcxEdit(UINT ID, DcxDialog *p_Dialog, RECT *rc, TString &styles)
 		NULL);
 
 	if (bNoTheme)
-		SetWindowTheme(this->m_Hwnd , L" ", L" ");
+		dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 
 	this->m_tsText = "";
 	Edit_LimitText(this->m_Hwnd, 0);
@@ -91,7 +91,7 @@ DcxEdit::DcxEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, TStri
 		NULL);
 
 	if (bNoTheme)
-		SetWindowTheme(this->m_Hwnd , L" ", L" ");
+		dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 
 	Edit_LimitText(this->m_Hwnd, 0);
 	this->m_tsText = "";

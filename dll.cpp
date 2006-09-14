@@ -404,7 +404,7 @@ mIRC(Version) {
 * \brief Check if windows is themed
 */
 mIRC(IsThemedXP) {
-	wsprintf(data, "%s", (IsThemeActive() ? "$true" : "$false"));
+	wsprintf(data, "%s", (dcxIsThemeActive() ? "$true" : "$false"));
 	return 3;
 }
 

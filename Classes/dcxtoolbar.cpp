@@ -47,7 +47,7 @@ DcxToolBar::DcxToolBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styl
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   if ( ExStyles != 0 )
     SendMessage( this->m_Hwnd, TB_SETEXTENDEDSTYLE, (WPARAM) 0, (LPARAM) ExStyles );
@@ -96,7 +96,7 @@ DcxToolBar::DcxToolBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   if ( ExStyles != 0 )
     SendMessage( this->m_Hwnd, TB_SETEXTENDEDSTYLE, (WPARAM) 0, (LPARAM) ExStyles );

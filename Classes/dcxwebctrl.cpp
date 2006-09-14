@@ -46,7 +46,7 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString 
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   /* Web Control Stuff */
 
@@ -109,7 +109,7 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   /* Web Control Stuff */
 

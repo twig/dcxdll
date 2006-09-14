@@ -44,7 +44,7 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TStrin
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_clrText = RGB(0,0,0);
   this->m_tsText = "%d %%";
@@ -94,7 +94,7 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd,
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_clrText = RGB(0,0,0);
   this->m_tsText = "%d %%";

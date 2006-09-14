@@ -44,7 +44,7 @@ DcxTrackBar::DcxTrackBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & st
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_hbmp[TBBMP_BACK] = NULL;
 	this->m_hbmp[TBBMP_THUMB] = NULL;
@@ -86,7 +86,7 @@ DcxTrackBar::DcxTrackBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_hbmp[TBBMP_BACK] = NULL;
 	this->m_hbmp[TBBMP_THUMB] = NULL;

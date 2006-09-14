@@ -44,7 +44,7 @@ DcxCheck::DcxCheck( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
@@ -90,7 +90,7 @@ DcxCheck::DcxCheck( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {

@@ -42,7 +42,7 @@ DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & 
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_hImageList = NULL;
 
@@ -81,7 +81,7 @@ DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_hImageList = NULL;
 

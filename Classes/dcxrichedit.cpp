@@ -45,7 +45,7 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, RECT *rc, TString &styles
 		NULL);
 
 	if (bNoTheme)
-		SetWindowTheme(this->m_Hwnd , L" ", L" ");
+		dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 	else {
 		CRichEditThemed::Attach(this->m_Hwnd);
 	}
@@ -107,7 +107,7 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 		NULL);
 
 	if (bNoTheme)
-		SetWindowTheme(this->m_Hwnd , L" ", L" ");
+		dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 	else {
 		CRichEditThemed::Attach(this->m_Hwnd);
 	}

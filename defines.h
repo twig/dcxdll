@@ -233,8 +233,8 @@ TString FileDialog(TString data, TString method, HWND pWnd);
 
 typedef HRESULT (__stdcall *PFNSETTHEME)(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
 typedef HRESULT (__stdcall *PFNISTHEMEACTIVE)();
-//HRESULT SetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
-//BOOL IsThemeActive();
+HRESULT dcxSetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
+BOOL dcxIsThemeActive();
 BOOL isXP();
 
 HWND GetHwndFromString(TString &str);

@@ -44,7 +44,7 @@ DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   SCROLLINFO si;
   si.cbSize = sizeof( SCROLLINFO );
@@ -91,7 +91,7 @@ DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   SCROLLINFO si;
   si.cbSize = sizeof( SCROLLINFO );

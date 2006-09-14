@@ -84,7 +84,7 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
 
@@ -118,7 +118,7 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
 	}
 	if (IsWindow(this->m_TitleButton)) {
 		if ( bNoTheme )
-			SetWindowTheme( this->m_TitleButton , L" ", L" " );
+			dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
 		if (!(Styles & WS_DISABLED))
 			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
 		//SIZE sz;
@@ -159,7 +159,7 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
     NULL);
 
   if ( bNoTheme )
-    SetWindowTheme( this->m_Hwnd , L" ", L" " );
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
 
@@ -193,7 +193,7 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
 	}
 	if (IsWindow(this->m_TitleButton)) {
 		if ( bNoTheme )
-			SetWindowTheme( this->m_TitleButton , L" ", L" " );
+			dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
 		if (!(Styles & WS_DISABLED))
 			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
 		//SIZE sz;
