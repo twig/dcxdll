@@ -295,29 +295,29 @@ void TString::operator +=( const char * cString ) {
 
 void TString::operator +=( const char chr ) {
 
-  if ( this->m_pString != NULL ) {
-    //int len = lstrlen( this->m_pString );
-    //char * temp = new char[ len + 1 ];
-    //lstrcpy( temp, this->m_pString );
-    //this->deleteString( );
-    //this->m_pString = new char [ len + 2 ];
-    //lstrcpy( this->m_pString, temp );
-    //this->m_pString[ len ] = chr;
-    //this->m_pString[ len + 1 ] = 0;
-    //delete []temp;
-	int len = lstrlen( this->m_pString );
-	char * temp = new char [ len + 2 ];
-    lstrcpy( temp, this->m_pString );
-	temp[len] = chr;
-	temp[len+1] = 0;
-	delete [] this->m_pString;
-	this->m_pString = temp;
-  }
-  else {
-    this->m_pString = new char[2];
-    this->m_pString[0] = chr;
-    this->m_pString[1] = 0;
-  }
+	if ( this->m_pString != NULL ) {
+		//int len = lstrlen( this->m_pString );
+		//char * temp = new char[ len + 1 ];
+		//lstrcpy( temp, this->m_pString );
+		//this->deleteString( );
+		//this->m_pString = new char [ len + 2 ];
+		//lstrcpy( this->m_pString, temp );
+		//this->m_pString[ len ] = chr;
+		//this->m_pString[ len + 1 ] = 0;
+		//delete []temp;
+		int len = lstrlen( this->m_pString );
+		char * temp = new char [ len + 2 ];
+		lstrcpy( temp, this->m_pString );
+		temp[len] = chr;
+		temp[len+1] = 0;
+		delete [] this->m_pString;
+		this->m_pString = temp;
+	}
+	else {
+		this->m_pString = new char[2];
+		this->m_pString[0] = chr;
+		this->m_pString[1] = 0;
+	}
 }
 
 /****************************/
@@ -330,21 +330,21 @@ void TString::operator +=( const char chr ) {
 
 void TString::operator +=( const TString & tString ) {
 
-  if ( tString.m_pString ) {
-    //int len = lstrlen( this->m_pString );
-    //char * temp = new char[ len + 1 ];
-    //lstrcpy( temp, this->m_pString );
-    //this->deleteString( );
-    //this->m_pString = new char [ len + lstrlen( tString.m_pString ) + 1 ];
-    //lstrcpy( this->m_pString, temp );
-    //lstrcat( this->m_pString, tString.m_pString );
-    //delete []temp;
-	char * temp = new char [ lstrlen( this->m_pString ) + lstrlen( tString.m_pString ) + 1 ];
-    lstrcpy( temp, this->m_pString );
-    lstrcat( temp, tString.m_pString );
-	delete [] this->m_pString;
-	this->m_pString = temp;
-  }
+	if ( tString.m_pString ) {
+		//int len = lstrlen( this->m_pString );
+		//char * temp = new char[ len + 1 ];
+		//lstrcpy( temp, this->m_pString );
+		//this->deleteString( );
+		//this->m_pString = new char [ len + lstrlen( tString.m_pString ) + 1 ];
+		//lstrcpy( this->m_pString, temp );
+		//lstrcat( this->m_pString, tString.m_pString );
+		//delete []temp;
+		char * temp = new char [ lstrlen( this->m_pString ) + lstrlen( tString.m_pString ) + 1 ];
+		lstrcpy( temp, this->m_pString );
+		lstrcat( temp, tString.m_pString );
+		delete [] this->m_pString;
+		this->m_pString = temp;
+	}
 }
 
 /****************************/
@@ -1000,28 +1000,27 @@ size_t TString::len( ) {
 
 int TString::find( const char * substring, int N ) {
 
-  if ( substring && this->m_pString ) {
+	if ( substring && this->m_pString ) {
 
-    char * temp, * temp2 = this->m_pString;
+		char * temp, * temp2 = this->m_pString;
 
-    int i = 0;
-	int subl = lstrlen( substring ); // Ook
-    while ( ( temp = strstr( temp2, substring ) ) != NULL ) {
+		int i = 0;
+		int subl = lstrlen( substring ); // Ook
+		while ( ( temp = strstr( temp2, substring ) ) != NULL ) {
 
-      i++;
+			i++;
 
-      if ( N != 0 && i == N ) {
+			if ( N != 0 && i == N ) {
 
-        return (int) (temp - this->m_pString);
-      }
+			return (int) (temp - this->m_pString);
+			}
 
-      //temp2 = (temp + lstrlen( substring ));
-      temp2 = (temp + subl); // Ook
-    }
-    if (N == 0)
-      return i;
-  }
-  return -1;
+			temp2 = (temp + subl); // Ook
+		}
+		if (N == 0)
+			return i;
+	}
+	return -1;
 }
 
 /****************************/
@@ -1255,7 +1254,6 @@ TString TString::gettok( int N, char * sepChars ) {
 
       break;
     }
-    //p_cStart = p_cEnd + lstrlen( sepChars );
     p_cStart = p_cEnd + sepl; // Ook
   }
   
@@ -1347,7 +1345,6 @@ TString TString::gettok( int N, int M, char * sepChars ) {
     //p_cStart = p_cEnd + lstrlen( sepChars );
     p_cStart = p_cEnd + sepl;
   }
-
   if ( M == -1 ) {
 
     if ( iCount == nToks - 1 )
@@ -1356,14 +1353,15 @@ TString TString::gettok( int N, int M, char * sepChars ) {
     token = p_cFirst;
   }
   else {
+		if (iCount == nToks - 1)
+			p_cLast = p_cEnd;
+		int len =  p_cLast - p_cFirst + 1;
 
-    int len =  p_cLast - p_cFirst + 1;
+		if ( token.m_pString != NULL )
+			token.deleteString( );
 
-    if ( token.m_pString != NULL )
-      token.deleteString( );
-
-    token.m_pString = new char[ len + 1 ];
-    lstrcpyn( token.m_pString, p_cFirst, len + 1 );
+		token.m_pString = new char[ len ];
+		lstrcpyn( token.m_pString, p_cFirst, len );
   }
 
   return token;
@@ -1388,7 +1386,6 @@ int TString::numtok( char * sepChars ) {
   while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
 
     iCount++;
-    //p_cStart = p_cEnd + lstrlen( sepChars );
     p_cStart = p_cEnd + sepl; // Ook
   }
   return iCount + 1;
@@ -1490,7 +1487,6 @@ void TString::instok( char * cToken, int N, char * sepChars ) {
 
     i++;
 
-    //p_cStart = p_cEnd + lstrlen( sepChars );
     p_cStart = p_cEnd + sepl; // Ook
   }
 
@@ -1509,10 +1505,8 @@ void TString::instok( char * cToken, int N, char * sepChars ) {
 
     if ( i == N ) {
 
-      //p_cStart -= lstrlen( sepChars );
       p_cStart -= sepl; // Ook
       *p_cStart = 0;
-      //p_cStart += lstrlen( sepChars );
       p_cStart += sepl; // Ook
 
       lstrcpy( pNew, this->m_pString );
@@ -1534,11 +1528,8 @@ void TString::instok( char * cToken, int N, char * sepChars ) {
     }
   }
   else {
-
-    //p_cStart -= lstrlen( sepChars );
     p_cStart -= sepl; // Ook
     *p_cStart = 0;
-    //p_cStart += lstrlen( sepChars );
     p_cStart += sepl; // Ook
 
     lstrcpy( pNew, this->m_pString );
@@ -1619,7 +1610,6 @@ void TString::puttok( char * cToken, int N, char * sepChars ) {
     if ( i == N )
       break;
 
-    //p_cStart = p_cEnd + lstrlen( sepChars );
     p_cStart = p_cEnd + sepl; // Ook
   }
 
