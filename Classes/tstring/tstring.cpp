@@ -1342,7 +1342,6 @@ TString TString::gettok( int N, int M, char * sepChars ) {
       break;
     }
 
-    //p_cStart = p_cEnd + lstrlen( sepChars );
     p_cStart = p_cEnd + sepl;
   }
   if ( M == -1 ) {
