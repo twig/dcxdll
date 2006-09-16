@@ -270,7 +270,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[11] && numtok > 3) {
 		int size = input.gettok(4, " ").to_int();
 
-		if (size == 32 || 24)
+		if (size == 32 || size == 24)
 			this->m_iIconSize = size;
 		else
 			this->m_iIconSize = 16;
@@ -291,31 +291,21 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[22] && numtok > 4) {
 		HIMAGELIST himl;
 		HICON icon;
-		int index;
-
-		index = atoi(input.gettok(4, " ").to_chr());
+		int index = atoi(input.gettok(4, " ").to_chr());
 		UINT flags = parseColorFlags(input.gettok(5, " "));
 		TString filename = input.gettok(6, -1, " ");
-		int himlIndex = 0;
 
+		// load the icon
 		if (this->m_iIconSize > 16)
 			ExtractIconEx(filename.to_chr(), index, &icon, NULL, 1);
 		else
 			ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
 
-
-		if (flags & BTNCS_DISABLED)
-			himlIndex = 3;
-		else if (flags & BTNCS_SELECTED)
-			himlIndex = 2;
-		else if (flags & BTNCS_HOVER)
-			himlIndex = 1;
-		else
-			himlIndex = 0;
-
+		// convert to greyscale
 		if (flags & BTNIS_GREY)
 			icon = CreateGrayscaleIcon(icon);
 
+		// prepare the image list
 		if ((himl = this->getImageList()) == NULL) {
 			himl = this->createImageList();
 
@@ -330,6 +320,15 @@ void DcxButton::parseCommandRequest( TString & input ) {
 				this->m_bHasIcons = TRUE;
 			}
 		}
+
+		if (flags & BTNCS_DISABLED)
+			ImageList_ReplaceIcon(himl, 3, icon);
+		if (flags & BTNCS_SELECTED)
+			ImageList_ReplaceIcon(himl, 2, icon);
+		if (flags & BTNCS_HOVER)
+			ImageList_ReplaceIcon(himl, 1, icon);
+		if (flags & BTNCS_NORMAL)
+			ImageList_ReplaceIcon(himl, 0, icon);
 
 		DestroyIcon(icon);
 	}

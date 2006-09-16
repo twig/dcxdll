@@ -14,6 +14,7 @@
  * © ScriptsDB.org - 2006
  */
 
+#pragma warning( disable : 4100 ) // unreferenced formal parameter
 #pragma warning( disable : 4530 )
 
 #ifndef _DEFINES_H_

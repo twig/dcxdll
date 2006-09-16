@@ -844,7 +844,7 @@ HIMAGELIST DcxToolBar::getImageList( int iImageList ) {
  */
 
 void DcxToolBar::setImageList(HIMAGELIST himl, int iImageList) {
-	HIMAGELIST himlOld;
+	HIMAGELIST himlOld = NULL;
 
 	if (iImageList == TB_IML_NORMAL) {
 		himlOld = (HIMAGELIST) SendMessage(this->m_Hwnd, TB_SETIMAGELIST, (WPARAM) NULL, (LPARAM) himl);
