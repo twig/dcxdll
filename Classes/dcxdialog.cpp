@@ -636,7 +636,9 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			mIRCError("/xdialog -w: no icon in file");
 			return;
 		}
-
+		//HICON iconGSmall = CreateGrayscaleIcon(iconSmall);
+		//DeleteObject(iconSmall);
+		//iconSmall = iconGSmall;
 		// set the new icons, get back the current icon
 		iconSmall = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_SMALL, (LPARAM) iconSmall);
 		iconLarge = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_BIG, (LPARAM) iconLarge);

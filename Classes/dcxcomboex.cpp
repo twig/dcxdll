@@ -165,7 +165,7 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N]
   if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nItem = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nItem > -1 ) {
       
@@ -239,7 +239,7 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
       else
         SearchType = CBEXSEARCH_W;
 
-      int N = (int) atoi( params.gettok( 2, " " ).to_chr( ) );
+      int N = params.gettok( 2, " " ).to_int( );
 
       // count total
       if ( N == 0 ) {
@@ -308,11 +308,11 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	if (flags.switch_flags[0] && numtok > 8) {
-		int nPos   = atoi(input.gettok(4, " ").to_chr()) -1;
-		int indent = atoi(input.gettok(5, " ").to_chr());
-		int icon   = atoi(input.gettok(6, " ").to_chr()) -1;
-		int state  = atoi(input.gettok(7, " ").to_chr()) -1;
-		//int overlay = atoi( input.gettok( 8, " " ).to_chr( ) ) - 1;
+		int nPos   = input.gettok(4, " ").to_int() -1;
+		int indent = input.gettok(5, " ").to_int();
+		int icon   = input.gettok(6, " ").to_int() -1;
+		int state  = input.gettok(7, " ").to_int() -1;
+		//int overlay = input.gettok( 8, " " ).to_int() - 1;
 		TString itemtext = input.gettok(9, -1, " ");
 
 		if (nPos == -2) {
@@ -339,7 +339,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[2] && numtok > 3) {
-		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nItem = input.gettok(4, " ").to_int() -1;
 
 		if (nItem > -1) {
 			this->setCurSel(nItem);
@@ -347,7 +347,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[3] && numtok > 3) {
-		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nItem = input.gettok(4, " ").to_int() -1;
 
 		if (nItem > -1 && nItem < this->getCount())
 			this->deleteItem(nItem);
@@ -377,7 +377,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 				this->setImageList(himl);
 		}
 
-		index = atoi(input.gettok(4, " ").to_chr());
+		index = input.gettok(4, " ").to_int();
 		ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
 		ImageList_AddIcon(himl, icon);
 		DestroyIcon(icon);

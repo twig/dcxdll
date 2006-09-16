@@ -44,6 +44,7 @@
 
 #include "classes/tstring/tstring.h"
 #include <uxtheme.h>
+#include <tmschema.h>
 #include "classes/dcxdialogcollection.h"
 
 #define DLL_VERSION    1
@@ -233,6 +234,13 @@ TString FileDialog(TString data, TString method, HWND pWnd);
 
 typedef HRESULT (__stdcall *PFNSETTHEME)(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
 typedef HRESULT (__stdcall *PFNISTHEMEACTIVE)();
+typedef HTHEME (WINAPI *PFNOPENTHEMEDATA)(HWND, LPCWSTR);
+typedef HRESULT (WINAPI *PFNCLOSETHEMEDATA)(HTHEME);
+typedef HRESULT (WINAPI *PFNDRAWTHEMEBACKGROUND)(HTHEME, HDC, int, int, const RECT*, const RECT *);
+typedef HRESULT (WINAPI *PFNGETTHEMEBACKGROUNDCONTENTRECT)(HTHEME, HDC, int, int,  const RECT *, RECT *);
+typedef BOOL (WINAPI *PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT)(HTHEME, int, int);
+typedef HRESULT (WINAPI *PFNDRAWTHEMEPARENTBACKGROUND)(HWND, HDC, RECT*);
+typedef HRESULT (WINAPI *PFNDRAWTHEMETEXT)(HTHEME, HDC, int, int, LPCWSTR, int, DWORD, DWORD, const RECT *);
 HRESULT dcxSetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
 BOOL dcxIsThemeActive();
 BOOL isXP();
@@ -245,8 +253,6 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
 HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
 
-//LRESULT ctrl_MeasureItem(HWND mHwnd, WPARAM wParam, LPARAM lParam);
-//void DrawRoundRect(HDC hdc, RECT *rc, int w, int h);
 void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl);
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);

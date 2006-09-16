@@ -218,7 +218,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						for (int x = 1; x <= strDays.numtok(","); x++) {
 							TString tok = strDays.gettok(x, ",");
 							tok.trim();
-							BOLDDAY(mds[i], atoi(tok.to_chr()));
+							BOLDDAY(mds[i], tok.to_int());
 						}
 
 						// increment the month so we get a proper offset

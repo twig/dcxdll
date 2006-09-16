@@ -209,7 +209,7 @@ void AdjustMDIRect(WINDOWPOS *wp)
 					xleftoffset += rcDocked.right;
 					mdiw -= rcDocked.right;
 				}
-				else if (ud->flags == DOCKF_RIGHT) { // docked to left
+				else if (ud->flags == DOCKF_RIGHT) { // docked to right
 					x = xrightoffset - rcDocked.right;
 					y = ytopoffset;
 					w = rcDocked.right;

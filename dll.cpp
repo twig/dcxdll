@@ -34,6 +34,13 @@ mIRCDLL mIRCLink; //!< blah
 
 PFNSETTHEME SetWindowThemeUx = NULL; //!< blah
 PFNISTHEMEACTIVE IsThemeActiveUx = NULL; //!< blah
+PFNOPENTHEMEDATA OpenThemeDataUx = NULL;
+PFNCLOSETHEMEDATA CloseThemeDataUx = NULL;
+PFNDRAWTHEMEBACKGROUND DrawThemeBackgroundUx = NULL;
+PFNGETTHEMEBACKGROUNDCONTENTRECT GetThemeBackgroundContentRectUx = NULL;
+PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT IsThemeBackgroundPartiallyTransparentUx = NULL;
+PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx = NULL;
+PFNDRAWTHEMETEXT DrawThemeTextUx = NULL;
 
 HMODULE UXModule = NULL;             //!< UxTheme.dll Module Handle
 BOOL XPPlus = FALSE;                 //!< Is OS WinXP+ ?
@@ -146,19 +153,27 @@ void WINAPI LoadDll(LOADINFO * load) {
 	if (UXModule) {
 		SetWindowThemeUx = (PFNSETTHEME) GetProcAddress(UXModule, "SetWindowTheme");
 		IsThemeActiveUx = (PFNISTHEMEACTIVE) GetProcAddress(UXModule, "IsThemeActive");
+		OpenThemeDataUx = (PFNOPENTHEMEDATA) GetProcAddress(UXModule, "OpenThemeData");
+		CloseThemeDataUx = (PFNCLOSETHEMEDATA) GetProcAddress(UXModule, "CloseThemeData");
+		DrawThemeBackgroundUx = (PFNDRAWTHEMEBACKGROUND) GetProcAddress(UXModule, "DrawThemeBackground");
+		GetThemeBackgroundContentRectUx = (PFNGETTHEMEBACKGROUNDCONTENTRECT) GetProcAddress(UXModule, "GetThemeBackgroundContentRect");
+		IsThemeBackgroundPartiallyTransparentUx = (PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT) GetProcAddress(UXModule, "IsThemeBackgroundPartiallyTransparent");
+		DrawThemeParentBackgroundUx = (PFNDRAWTHEMEPARENTBACKGROUND) GetProcAddress(UXModule, "DrawThemeParentBackground");
+		DrawThemeTextUx = (PFNDRAWTHEMETEXT) GetProcAddress(UXModule, "DrawThemeText");
 
-		if (SetWindowThemeUx)
+		if (SetWindowThemeUx && IsThemeActiveUx && OpenThemeDataUx && CloseThemeDataUx &&
+			DrawThemeBackgroundUx && GetThemeBackgroundContentRectUx && IsThemeBackgroundPartiallyTransparentUx &&
+			DrawThemeParentBackgroundUx && DrawThemeTextUx)
 			XPPlus = TRUE;
 		else {
 			FreeLibrary(UXModule);
 			UXModule = NULL;
 			XPPlus = FALSE;
-		}
-
-		if (!IsThemeActiveUx)
 			mIRCError("DCX: There was a problem loading IsThemedXP");
+		}
 	}
-
+	else
+		XPPlus = FALSE;
 	// Load Control definitions
 	INITCOMMONCONTROLSEX icex;
 
@@ -1350,6 +1365,7 @@ mIRC(mpopup) {
 	data[0] = 0;
 	return 3;
 }
+// <1|0>
 mIRC(xSignal) {
 	TString d(data);
 	d.trim();
@@ -1358,5 +1374,21 @@ mIRC(xSignal) {
 	else
 		dcxSignal = false;
 	data[0] = 0;
+	return 1;
+}
+// <hwnd>
+mIRC(xNoTheme) {
+	TString d(data);
+	d.trim();
+	if (!XPPlus)
+		mIRCError("This function is for XP+ ONLY");
+	HWND hwnd = (HWND)d.to_num();
+	if (IsWindow(hwnd)) {
+		if (dcxSetWindowTheme(hwnd,L" ",L" ") != S_OK) {
+			mIRCError("Unable to set theme");
+		}
+		return 1;
+	}
+	mIRCError("Invalid HWND");
 	return 1;
 }

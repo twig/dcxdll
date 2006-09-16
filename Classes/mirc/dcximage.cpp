@@ -204,8 +204,8 @@ void DcxImage::parseCommandRequest(TString & input) {
 	//xdid -w [NAME] [ID] [SWITCH] [INDEX] [SIZE] [ICON]
 	if (flags.switch_flags[22] && numtok > 5) {
 		TString filename = input.gettok(6, -1, " ");
-		int index = atoi(input.gettok(4, " ").to_chr());
-		int size = atoi(input.gettok(5, " ").to_chr());
+		int index = input.gettok(4, " ").to_int();
+		int size = input.gettok(5, " ").to_int();
 
 		filename.trim();
 		PreloadData();

@@ -194,12 +194,12 @@ void DcxDivider::parseCommandRequest( TString & input ) {
     }
 
     dvpi.fMask = DVPIM_CHILD | DVPIM_MIN | DVPIM_IDEAL;
-    dvpi.cxMin = atoi( data.gettok( 4, " " ).to_chr( ) );
-    dvpi.cxIdeal = atoi( data.gettok( 5, " " ).to_chr( ) );
+    dvpi.cxMin = data.gettok( 4, " " ).to_int( );
+    dvpi.cxIdeal = data.gettok( 5, " " ).to_int( );
 
     if ( control_data.numtok( " " ) > 5 ) {
 
-      UINT ID = mIRC_ID_OFFSET + atoi( control_data.gettok( 1, " " ).to_chr( ) );
+      UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1, " " ).to_int( );
 
       if ( ID > mIRC_ID_OFFSET - 1 && 
         !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 

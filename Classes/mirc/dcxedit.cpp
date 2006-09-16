@@ -175,7 +175,7 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 	if (input.gettok(3, " ") == "text") {
 		if (this->isStyle(ES_MULTILINE)) {
 			if (numtok > 3) {
-				int nLine = atoi(input.gettok(4, " ").to_chr());
+				int nLine = input.gettok(4, " ").to_int();
 
 				if (nLine > 0 && nLine <= this->m_tsText.numtok("\r\n")) {
 					lstrcpyn(szReturnValue, this->m_tsText.gettok(nLine, "\r\n").to_chr(), 900);
@@ -297,7 +297,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[3] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = atoi(input.gettok(4, " ").to_chr());
+			int nLine = input.gettok(4, " ").to_int();
 			this->m_tsText.deltok(nLine, "\r\n");
 			SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 		}
@@ -305,7 +305,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags.switch_flags[8] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = atoi(input.gettok(4, " ").to_chr());
+			int nLine = input.gettok(4, " ").to_int();
 			this->m_tsText.instok(input.gettok(5, -1, " ").to_chr(), nLine, "\r\n");
 		}
 		else {
@@ -315,7 +315,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
 	else if (flags.switch_flags[9] && numtok > 3) {
-		int i = atoi(input.gettok(4, " ").to_chr());
+		int i = input.gettok(4, " ").to_int();
 
 		if (i) {
 			char c = Edit_GetPasswordChar(this->m_Hwnd);
@@ -336,7 +336,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags.switch_flags[14] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = atoi(input.gettok(4, " ").to_chr());
+			int nLine = input.gettok(4, " ").to_int();
 			this->m_tsText.puttok(input.gettok(5, -1, " ").to_chr(), nLine, "\r\n");
 		}
 		else {
@@ -346,7 +346,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags.switch_flags[16] && numtok > 3) {
-		int N = atoi(input.gettok(4, " ").to_chr());
+		int N = input.gettok(4, " ").to_int();
 
 		if (N > -1) {
 			Edit_LimitText(this->m_Hwnd, N);
@@ -377,8 +377,8 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
 	else if (flags.switch_cap_flags[18] && numtok > 4) {
-		int istart = atoi(input.gettok(4, " ").to_chr());
-		int iend = atoi(input.gettok(5, " ").to_chr());
+		int istart = input.gettok(4, " ").to_int();
+		int iend = input.gettok(5, " ").to_int();
 
 		SendMessage(this->m_Hwnd, EM_SETSEL, istart, iend);
 	}

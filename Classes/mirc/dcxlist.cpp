@@ -155,7 +155,7 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N]
   if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
 
-    int nSel = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nSel = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
      
@@ -243,7 +243,7 @@ void DcxList::parseCommandRequest( TString & input ) {
   //xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
   if ( flags.switch_flags[0] && numtok > 4 ) {
 
-    int nPos = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nPos == -1 )
       nPos += ListBox_GetCount( this->m_Hwnd ) + 1;
@@ -261,7 +261,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 
       while ( i <= n ) {
 
-        int nSel = atoi( Ns.gettok( i, "," ).to_chr( ) ) - 1;
+        int nSel = Ns.gettok( i, "," ).to_int( ) - 1;
 
         if ( nSel > -1 && nSel < nItems )
           ListBox_SetSel( this->m_Hwnd, TRUE, nSel );
@@ -271,7 +271,7 @@ void DcxList::parseCommandRequest( TString & input ) {
     }
     else {
 
-      int nSel = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+      int nSel = input.gettok( 4, " " ).to_int( ) - 1;
 
       if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) )
         ListBox_SetCurSel( this->m_Hwnd, nSel );
@@ -280,7 +280,7 @@ void DcxList::parseCommandRequest( TString & input ) {
   //xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
 
-    int nPos = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
         ListBox_DeleteString( this->m_Hwnd, nPos );
@@ -298,7 +298,7 @@ void DcxList::parseCommandRequest( TString & input ) {
   }
   //xdid -o [NAME] [ID] [N] [TEXT]
   else if ( flags.switch_flags[14] ) {
-		int nPos = atoi(input.gettok(4, " ").to_chr( )) - 1;
+		int nPos = input.gettok(4, " ").to_int() - 1;
 
 		if (nPos > -1 && nPos < ListBox_GetCount(this->m_Hwnd)) {
 			//ListBox_SetItemData(this->m_Hwnd, nPos, input.to_chr()); //.gettok(5, -1, " ").to_chr());

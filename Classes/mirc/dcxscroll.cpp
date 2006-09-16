@@ -211,7 +211,7 @@ void DcxScroll::parseCommandRequest( TString & input ) {
   //xdid -l [NAME] [ID] [SWITCH] [N]
   if ( flags.switch_flags[11] && numtok > 3 ) {
 
-    int nLine = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int nLine = input.gettok( 4, " " ).to_int( );
 
     if ( nLine > 0 )
       this->m_nLine = nLine;
@@ -219,7 +219,7 @@ void DcxScroll::parseCommandRequest( TString & input ) {
   //xdid -m [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[12] && numtok > 3 ) {
 
-    int nPage = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int nPage = input.gettok( 4, " " ).to_int( );
 
     if ( nPage > 0 )
       this->m_nPage = nPage;
@@ -227,8 +227,8 @@ void DcxScroll::parseCommandRequest( TString & input ) {
   //xdid -r [NAME] [ID] [SWITCH] [L] [R]
   else if ( flags.switch_flags[17] && numtok > 4 ) {
 
-    INT L = atoi( input.gettok( 4, " " ).to_chr( ) );
-    INT R = atoi( input.gettok( 5, " " ).to_chr( ) );
+    INT L = input.gettok( 4, " " ).to_int( );
+    INT R = input.gettok( 5, " " ).to_int( );
 
     SCROLLINFO si;
     si.cbSize = sizeof( SCROLLINFO );
@@ -240,7 +240,7 @@ void DcxScroll::parseCommandRequest( TString & input ) {
   //xdid -v [NAME] [ID] [SWITCH] [VALUE]
   else if ( flags.switch_flags[21] && numtok > 3 ) {
 
-    int pos = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int pos = input.gettok( 4, " " ).to_int( );
 
     SCROLLINFO si;
     si.cbSize = sizeof( SCROLLINFO );

@@ -209,7 +209,7 @@ void DcxLink::parseCommandRequest( TString & input ) {
   // xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
   if ( flags.switch_flags[11] && numtok > 4 ) {
 
-    int nColor = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nColor = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nColor > -1 && nColor < 4 )
       this->m_aColors[nColor] = (COLORREF)input.gettok( 5, " " ).to_num( );
@@ -236,8 +236,7 @@ void DcxLink::parseCommandRequest( TString & input ) {
   // xdid -w [NAME] [ID] [SWITCH] [INDEX] [FILENAME]
   else if ( flags.switch_flags[22] && numtok > 4 ) {
 
-    int index;
-    index = atoi( input.gettok( 4, " ").to_chr( ) );
+    int index = input.gettok( 4, " ").to_int( );
 
     if ( this->m_hIcon != NULL )
       DestroyIcon( this->m_hIcon );

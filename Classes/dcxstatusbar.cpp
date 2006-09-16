@@ -145,63 +145,64 @@ void DcxStatusBar::parseControlStyles( TString & styles, LONG * Styles, LONG * E
 
 void DcxStatusBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+	int numtok = input.numtok( " " );
 
-  // [NAME] [ID] [PROP] [N]
-  if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
+	// [NAME] [ID] [PROP] [N]
+	if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
 
-    int iPart = atoi( input.gettok( 3, " " ).to_chr( ) ), nParts = this->getParts( 256, 0 );
+		int iPart = input.gettok( 4, " " ).to_int( ), nParts = this->getParts( 256, 0 );
 
-    if ( iPart > -1 && iPart < nParts ) {
-      
-      this->getText( iPart, szReturnValue );
-      return;
-    }
-  }
-  // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "parts" ) {
+		if ( iPart > -1 && iPart < nParts ) {
 
-    INT parts[256];
-    int nParts = this->getParts( 256, 0 );
+			this->getText( iPart, szReturnValue );
+			return;
+		}
+	}
+	// [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "parts" ) {
 
-    this->getParts( 256, parts );
+		INT parts[256];
+		int nParts = this->getParts( 256, 0 );
 
-    int i = 0;
-    szReturnValue[0] = 0;
-    char d[10];
+		this->getParts( 256, parts );
 
-    while ( i < nParts ) {
+		int i = 0;
+		szReturnValue[0] = 0;
+		char d[10];
 
-      wsprintf( d, "%d", parts[i] );
+		while ( i < nParts ) {
 
-      if ( i == 0 ) {
-        lstrcat( szReturnValue, d );
-      }
-      else {
-        lstrcat( szReturnValue, " " );
-        lstrcat( szReturnValue, d );
-      }
+			wsprintf( d, "%d", parts[i] );
 
-      i++;
-    }
-  }
-  // [NAME] [ID] [PROP] [N]
-  else if ( input.gettok( 3, " " ) == "tooltip" && numtok > 3 ) {
+			if ( i == 0 ) {
+				lstrcat( szReturnValue, d );
+			}
+			else {
+				lstrcat( szReturnValue, " " );
+				lstrcat( szReturnValue, d );
+			}
 
-    int iPart = atoi( input.gettok( 3, " " ).to_chr( ) ), nParts = this->getParts( 256, 0 );
+			i++;
+		}
+		return;
+	}
+	// [NAME] [ID] [PROP] [N]
+	else if ( input.gettok( 3, " " ) == "tooltip" && numtok > 3 ) {
 
-    if ( iPart > -1 && iPart < nParts ) {
-      
-      this->getTipText( iPart, 900, szReturnValue );
-      return;
-    }
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
+		int iPart = input.gettok( 3, " " ).to_int( ), nParts = this->getParts( 256, 0 );
 
-    return;
-  }
+		if ( iPart > -1 && iPart < nParts ) {
 
-  szReturnValue[0] = 0;
+			this->getTipText( iPart, 900, szReturnValue );
+			return;
+		}
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
+
+		return;
+	}
+
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -231,7 +232,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
     int i = 0;
     while ( i < nParts ) {
 
-      parts[i] = (int)input.gettok( i+4, " " ).to_num( );
+      parts[i] = input.gettok( i+4, " " ).to_int( );
       i++;
     }
     this->setParts( nParts, parts );
@@ -239,9 +240,9 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
   // xdid -t [NAME] [ID] [SWITCH] N [+FLAGS] [#ICON] [Cell Text][TAB]Tooltip Text
   else if ( flags.switch_flags[19] && numtok > 5 ) {
 
-    int nPos = (int)input.gettok( 4, " " ).to_num( ) - 1;
+    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
     TString flags = input.gettok( 5, " " );
-    int icon = (int)input.gettok( 6, " " ).to_num( ) - 1;
+    int icon = input.gettok( 6, " " ).to_int( ) - 1;
 
     TString itemtext;
 
@@ -272,7 +273,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
   // xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
   else if ( flags.switch_flags[21] && numtok > 3 ) {
 
-    int nPos = (int)input.gettok( 4, " " ).to_num( ) - 1;
+    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nPos > -1 && nPos < this->getParts( 256, 0 ) ) {
 
@@ -299,7 +300,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
         this->setImageList( himl );
     }
 
-    index = (int)input.gettok( 4, " ").to_num( );
+    index = input.gettok( 4, " ").to_int( );
     TString filename = input.gettok( 5, -1, " " );
     ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
     ImageList_AddIcon( himl, icon );
@@ -309,6 +310,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
   else if ( flags.switch_flags[24] ) {
 
     ImageList_Destroy( this->getImageList( ) );
+		this->setImageList(NULL);
   }
   else {
     this->parseGlobalCommandRequest( input, flags );

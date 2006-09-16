@@ -291,7 +291,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[22] && numtok > 4) {
 		HIMAGELIST himl;
 		HICON icon;
-		int index = atoi(input.gettok(5, " ").to_chr());
+		int index = input.gettok(5, " ").to_int();
 		UINT flags = parseColorFlags(input.gettok(4, " "));
 		TString filename = input.gettok(6, -1, " ");
 
@@ -334,7 +334,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [ENABLED]
   else if (flags.switch_flags[12] && numtok > 3) {
-		int b = atoi(input.gettok(4, " ").to_chr());
+		int b = input.gettok(4, " ").to_int();
 
 		this->m_bBitmapText = (b ? TRUE : FALSE);
 		this->redrawWindow();

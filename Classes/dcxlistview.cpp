@@ -265,8 +265,8 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N] [NSUB]
   if ( input.gettok( 3, " " ) == "text" && numtok > 4 ) {
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-    int nSubItem = atoi( input.gettok( 5, " " ).to_chr( ) );
+    int nItem = input.gettok( 4, " " ).to_int( ) - 1;
+    int nSubItem = input.gettok( 5, " " ).to_int( );
 
     if ( nItem > -1 && nItem < ListView_GetItemCount( this->m_Hwnd ) ) {
       ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, szReturnValue, 900 );
@@ -276,8 +276,8 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N] [NSUB]
   else if ( input.gettok( 3, " " ) == "icon" && numtok > 4 ) {
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-    int nSubItem = atoi( input.gettok( 5, " " ).to_chr( ) );
+    int nItem = input.gettok( 4, " " ).to_int( ) - 1;
+    int nSubItem = input.gettok( 5, " " ).to_int( );
 
     if ( nItem > -1 && nItem < ListView_GetItemCount( this->m_Hwnd ) ) {
 
@@ -295,7 +295,7 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
   else if ( input.gettok( 3, " " ) == "seltext" && numtok > 3 ) {
 
     int nItem = ListView_GetNextItem( this->m_Hwnd, -1, LVIS_SELECTED );
-    int nSubItem = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int nSubItem = input.gettok( 4, " " ).to_int( );
 
     if ( nItem > -1 ) {
 
@@ -349,7 +349,7 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N]
   else if ( input.gettok( 3, " " ) == "state" && numtok > 3 ) {
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nItem = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nItem > -1 && nItem < ListView_GetItemCount( this->m_Hwnd ) ) {
 
@@ -392,8 +392,8 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
       else
         SearchType = LVSEARCH_W;
 
-      int nColumn = (int) atoi( params.gettok( 2, " " ).to_chr( ) ) - 1;
-      int N = (int) atoi( params.gettok( 3, " " ).to_chr( ) );
+      int nColumn = (int) params.gettok( 2, " " ).to_int( ) - 1;
+      int N = (int) params.gettok( 3, " " ).to_int( );
 
       // count total
       if ( N == 0 ) {
@@ -503,7 +503,7 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N]
   else if ( input.gettok( 3, " " ) == "hwidth" && numtok > 3 ) {
 
-    int nColumn = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nColumn = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nColumn > -1 && nColumn < this->getColumnCount( ) ) {
 
@@ -514,7 +514,7 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N]
   else if ( input.gettok( 3, " " ) == "htext" && numtok > 3 ) {
 
-    int nColumn = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nColumn = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nColumn > -1 && nColumn < this->getColumnCount( ) ) {
 
@@ -531,7 +531,7 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N]
   else if ( input.gettok( 3, " " ) == "hicon" && numtok > 3 ) {
 
-    int nColumn = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nColumn = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nColumn > -1 && nColumn < this->getColumnCount( ) ) {
 
@@ -549,7 +549,7 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [GID]
   else if ( input.gettok( 3, " " ) == "gtext" && numtok > 3 ) {
 
-    int GID = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int GID = input.gettok( 4, " " ).to_int( );
 
     WCHAR wstr[901];
 
@@ -598,8 +598,8 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
 			pbarCell->pbar->parseInfoRequest(cmd, szReturnValue);
 		}
 */
-		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
-		//int nSubItem = atoi(input.gettok(5, " ").to_chr());
+		int nItem = input.gettok(4, " ").to_int() -1;
+		//int nSubItem = input.gettok(5, " ").to_int();
 
 		if (nItem > -1 && nItem < ListView_GetItemCount(this->m_Hwnd)) {
 			LVITEM lvi;
@@ -693,7 +693,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			UINT stateFlags = this->parseItemFlags(data.gettok(3, " "));
 			int icon = (int)data.gettok(4, " ").to_num() -1;
 			int state = (int)data.gettok(5, " ").to_num();
-			//int overlay = atoi( data.gettok( 6, " " ).to_chr( ) );
+			//int overlay = data.gettok( 6, " " ).to_int( );
 			int group = (int)data.gettok(7, " ").to_num();
 			COLORREF clrText = (COLORREF)data.gettok(8, " ").to_num();
 			COLORREF clrBack = (COLORREF)data.gettok(9, " ").to_num();
@@ -812,12 +812,12 @@ void DcxListView::parseCommandRequest(TString &input) {
 			if (nPos == -1)
 				nPos += ListView_GetItemCount(this->m_Hwnd) +1;
 
-			//int indent = atoi( data.gettok( 2, " " ).to_chr( ) );
+			//int indent = data.gettok( 2, " " ).to_int( );
 			UINT stateFlags = this->parseItemFlags(data.gettok(3, " "));
 			int icon = (int)data.gettok(4, " ").to_num() -1;
 			int state = (int)data.gettok(5, " ").to_num();
-			//int overlay = atoi( data.gettok( 6, " " ).to_chr( ) );
-			//int group = atoi( data.gettok( 7, " " ).to_chr( ) );
+			//int overlay = data.gettok( 6, " " ).to_int( );
+			//int group = data.gettok( 7, " " ).to_int( );
 
 			TString itemtext;
 
@@ -2348,7 +2348,7 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, TString styles) {
 	lpdcxlvi->iPbarCol = lvi->iSubItem;
 	// controls within a listview have a problem in that they cant set an item height,
 	// so they all appear very small, & dont look very good.
-	//UINT ID = mIRC_ID_OFFSET + atoi(styles.gettok(2," ").to_chr());
+	//UINT ID = mIRC_ID_OFFSET + styles.gettok(2," ").to_int();
  // if ( ID > mIRC_ID_OFFSET - 1 && 
 	//	!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 	//	this->m_pParentDialog->getControlByID( ID ) == NULL ) 

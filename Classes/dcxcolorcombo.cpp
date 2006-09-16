@@ -143,7 +143,7 @@ void DcxColorCombo::parseInfoRequest( TString & input, char * szReturnValue ) {
    // [NAME] [ID] [PROP] [N]
   else if ( input.gettok( 3, " " ) == "color" && numtok > 3 ) {
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nItem = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nItem > -1 && nItem < this->getCount( ) ) {
 
@@ -227,7 +227,7 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [RGB]
 	else if (flags.switch_flags[14] && numtok > 4) {
-		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nItem = input.gettok(4, " ").to_int() -1;
 		COLORREF clrItem = (COLORREF)input.gettok(5, " ").to_num();
 
 		if (nItem > -1 && nItem < this->getCount()) {
