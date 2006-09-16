@@ -70,99 +70,262 @@
 </table>
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="16.1"></a>FIXME /xdock Dock	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="16.1"></a>/xdock -b	</td></tr>
+	<tr><td colspan="2">This command docks a window to the mIRC TreeBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdock Dock [UNKNOWN] N HWND POS NAME</div></td>
+		<td><div class="syntax">/xdock -b [HWND_DOCK] [+FLAGS]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdock Dock [STILL_WIP] 100</div></td>
+		<td><div class="example">/xdock -b $dialog(dcx).hwnd +h</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to dock.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for docking into the mIRC TreeBar.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Docked window will be resized to fit its parent width & height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Docked window will be resized to fit its parent width automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Docked window will be resized to fit its parent height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Docked window will be <strong>not</strong> be resized automatically.</td>
 	</tr>
 </table>
 <br />
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="16.2"></a>FIXME /xdock DockRefresh	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="16.2"></a>/xdock -c	</td></tr>
+	<tr><td colspan="2">This command docks a window to a custom window (channel, query, custom, or status windows).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdock DockRefresh [UNKNOWN] N</div></td>
+		<td><div class="syntax">/xdock -c [HWND_DOCK] [+FLAGS] [DESTINATION]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdock DockRefresh [STILL_WIP] 100</div></td>
+		<td><div class="example">/xdock -c $dialog(dcx).hwnd +h $query(ClickHeRe).hwnd</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to dock.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for docking into a custom window.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Docked window will be resized to fit its parent width & height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Docked window will be resized to fit its parent width automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Docked window will be resized to fit its parent height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Docked window will be <strong>not</strong> be resized automatically.</td>
+	</tr>
+	<tr>
+		<td class="param">DESTINATION</td>
+		<td>The HWND of the window that you wish to dock your window into.</td>
 	</tr>
 </table>
 <br />
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="16.3"></a>FIXME /xdock ShowMenubar	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="16.3"></a>/xdock -m	</td></tr>
+	<tr><td colspan="2">This command docks a window to your mIRC window.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdock ShowMenubar [UNKNOWN] N</div></td>
+		<td><div class="syntax">/xdock -m [HWND_DOCK] [+FLAGS]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdock ShowMenubar [STILL_WIP] 100</div></td>
+		<td><div class="example">/xdock -m $dialog(dcx).hwnd +r</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to dock.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for docking into a mIRC window.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Docks the window to the top.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Docks the window to the bottom.</td>
+	</tr>
+	<tr>
+		<td class="value">l</td>
+		<td>Docks the window to the left.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Docks the window to the right.</td>
 	</tr>
 </table>
 <br />
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="16.4"></a>FIXME /xdock ShowSwitchbar	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="16.4"></a>/xdock -n	</td></tr>
+	<tr><td colspan="2">This command docks a window to a nicklist listbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdock ShowSwitchbar [UNKNOWN] N</div></td>
+		<td><div class="syntax">/xdock -n [HWND_DOCK] [+FLAGS] [DESTINATION]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdock ShowSwitchbar [STILL_WIP] 100</div></td>
+		<td><div class="example">/xdock -n $dialog(dcx).hwnd +h $channel(#help).hwnd</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to dock.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for docking into a custom window.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Docked window will be resized to fit its parent width & height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Docked window will be resized to fit its parent width automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Docked window will be resized to fit its parent height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Docked window will be <strong>not</strong> be resized automatically.</td>
+	</tr>
+	<tr>
+		<td class="param">DESTINATION</td>
+		<td>The HWND of the channel window that you wish to dock your window into.</td>
 	</tr>
 </table>
 <br />
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="16.5"></a>FIXME /xdock ShowToolbar	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="16.5"></a>/xdock -s	</td></tr>
+	<tr><td colspan="2">This command docks a window to the mIRC SwitchBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdock ShowToolbar [UNKNOWN] N</div></td>
+		<td><div class="syntax">/xdock -s [HWND_DOCK] [+FLAGS]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdock ShowToolbar [STILL_WIP] 100</div></td>
+		<td><div class="example">/xdock -s $dialog(dcx).hwnd +v</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to dock.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for docking into the mIRC SwitchBar.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Docked window will be resized to fit its parent width & height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Docked window will be resized to fit its parent width automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Docked window will be resized to fit its parent height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Docked window will be <strong>not</strong> be resized automatically.</td>
 	</tr>
 </table>
 <br />
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="16.6"></a>FIXME /xdock ShowTreebar	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="16.6"></a>/xdock -t	</td></tr>
+	<tr><td colspan="2">This command docks a window to the mIRC ToolBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdock ShowTreebar [UNKNOWN] N</div></td>
+		<td><div class="syntax">/xdock -t [HWND_DOCK] [+FLAGS]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdock ShowTreebar [STILL_WIP] 100</div></td>
+		<td><div class="example">/xdock -t $dialog(dcx).hwnd +v</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to dock.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for docking into the mIRC ToolBar.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Docked window will be resized to fit its parent width & height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Docked window will be resized to fit its parent width automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Docked window will be resized to fit its parent height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Docked window will be <strong>not</strong> be resized automatically.</td>
 	</tr>
 </table>
 <br />
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="16.7"></a>FIXME /xdock UnDock	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="16.7"></a>/xdock -u	</td></tr>
+	<tr><td colspan="2">This command undocks a window.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdock UnDock [UNKNOWN] N</div></td>
+		<td><div class="syntax">/xdock -u [HWND_DOCK]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdock UnDock [STILL_WIP] 100</div></td>
+		<td><div class="example">/xdock -u $dialog(dcx).hwnd</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to undock.</td>
 	</tr>
 </table>
 <br />
@@ -172,133 +335,288 @@
 </table>
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="17.1"></a>DONT KNOW $xdock().DockPos	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="17.1"></a>$xdock().DockSide	</td></tr>
+	<tr><td colspan="2">Returns the side which the dialog is docked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(MENU, NAME).DockPos</div></td>
+		<td><div class="syntax">$xdock(HWND).DockSide</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mymenu, 100).DockPos</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).DockSide</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">SIDE</td>
+		<td>Possible return values.</td>
+	</tr>
+	<tr>
+		<td class="value">top</td>
+		<td>The window is docked in the top position.</td>
+	</tr>
+	<tr>
+		<td class="value">bottom</td>
+		<td>The window is docked in the bottom position.</td>
+	</tr>
+	<tr>
+		<td class="value">left</td>
+		<td>The window is docked in the left position.</td>
+	</tr>
+	<tr>
+		<td class="value">right</td>
+		<td>The window is docked in the right position.</td>
 	</tr>
 </table>
 <br />
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="17.2"></a>DONT KNOW $xdock().DockSide	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="17.2"></a>$xdock().HasDocked	</td></tr>
+	<tr><td colspan="2">Return whether this window/dialog has another window docked in it.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(MENU, NAME).DockSide</div></td>
+		<td><div class="syntax">$xdock(HWND).HasDocked</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mymenu, 100).DockSide</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).HasDocked</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="17.3"></a>DONT KNOW $xdock().IsMenubar	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="17.3"></a>$xdock().IsAutoH	</td></tr>
+	<tr><td colspan="2">Returns whether the docked window automatically resize horizontally or not.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(MENU, N).IsMenubar</div></td>
+		<td><div class="syntax">$xdock(HWND).IsAutoH</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mymenu, 100).IsMenubar</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).IsAutoH</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="17.4"></a>DONT KNOW $xdock().IsSwitchbar	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="17.4"></a>$xdock().IsAutoS	</td></tr>
+	<tr><td colspan="2">Returns whether the docked window automatically resize both horizontally and vertically or not.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(MENU, N).IsSwitchbar</div></td>
+		<td><div class="syntax">$xdock(HWND).IsAutoS</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mymenu, 100).IsSwitchbar</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).IsAutoS</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="17.5"></a>DONT KNOW $xdock().IsToolbar	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="17.5"></a>$xdock().IsAutoV	</td></tr>
+	<tr><td colspan="2">Returns whether the docked window automatically resize vertically or not.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(MENU, N).IsToolbar</div></td>
+		<td><div class="syntax">$xdock(HWND).IsAutoV</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mymenu, 100).IsToolbar</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).IsAutoV</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="17.6"></a>DONT KNOW $xdock().IsTreebar	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="17.6"></a>$xdock().IsDocked	</td></tr>
+	<tr><td colspan="2">Return whether this window/dialog is docked or not.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(MENU, N).IsTreebar</div></td>
+		<td><div class="syntax">$xdock(HWND).IsDocked</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mymenu, 100).IsTreebar</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).IsDocked</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="17.7"></a>DONT KNOW $xdock().SwitchbarPos	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="17.7"></a>$xdock().IsMenuBar	</td></tr>
+	<tr><td colspan="2">Returns whether or not the mIRC MenuBar is visible.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(MENU, N).SwitchbarPos</div></td>
+		<td><div class="syntax">$xdock(mIRC).IsMenuBar</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mymenu, 100).SwitchbarPos</div></td>
+		<td><div class="example">$xdock(mIRC).IsMenuBar</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="17.8"></a>DONT KNOW $xdock().SwitchbarSize	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="17.8"></a>$xdock().IsSwitchBar	</td></tr>
+	<tr><td colspan="2">Returns whether or not the mIRC SwitchBar is visible.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(MENU, N).SwitchbarSize</div></td>
+		<td><div class="syntax">$xdock(mIRC).IsSwitchBar</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mymenu, 100).SwitchbarSize</div></td>
+		<td><div class="example">$xdock(mIRC).IsSwitchBar</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="17.9"></a>DONT KNOW $xdock().ToolbarSize	</td></tr>
-	<tr><td colspan="2">This command lets you sets border width.</td></tr>
+			<a name="17.9"></a>$xdock().IsToolBar	</td></tr>
+	<tr><td colspan="2">Returns whether or not the mIRC ToolBar is visible.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(MENU, N).ToolbarSize</div></td>
+		<td><div class="syntax">$xdock(mIRC).IsToolBar</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mymenu, 100).ToolbarSize</div></td>
+		<td><div class="example">$xdock(mIRC).IsToolBar</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="17.10"></a>$xdock().IsTreeBar	</td></tr>
+	<tr><td colspan="2">Returns whether or not the mIRC TreeBar is visible.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(mIRC).IsTreeBar</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock(mIRC).IsTreeBar</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="17.11"></a>$xdock().SwitchBarPos	</td></tr>
+	<tr><td colspan="2">Returns the mIRC SwitchBar dock position.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(mIRC).SwitchBarPos</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock(mIRC).SwitchBarPos</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POSITION</td>
+		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">none</td>
+		<td>The SwitchBar is not shown in mIRC.</td>
+	</tr>
+	<tr>
+		<td class="value">top</td>
+		<td>The SwitchBar is docked in the top position.</td>
+	</tr>
+	<tr>
+		<td class="value">bottom</td>
+		<td>The SwitchBar is docked in the bottom position.</td>
+	</tr>
+	<tr>
+		<td class="value">left</td>
+		<td>The SwitchBar is docked in the left position.</td>
+	</tr>
+	<tr>
+		<td class="value">right</td>
+		<td>The SwitchBar is docked in the right position.</td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="17.12"></a>$xdock().SwitchBarSize	</td></tr>
+	<tr><td colspan="2">Returns the mIRC SwitchBar size.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(mIRC).SwitchBarSize</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock(mIRC).SwitchBarSize</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">DIMENSIONS</td>
+		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>The width of the mIRC SwitchBar.</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>The height of the mIRC SwitchBar.</td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="17.13"></a>$xdock().ToolBarSize	</td></tr>
+	<tr><td colspan="2">Returns the mIRC ToolBar size.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(mIRC).ToolBarSize</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock(mIRC).ToolBarSize</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">DIMENSIONS</td>
+		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>The width of the mIRC ToolBar.</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>The height of the mIRC ToolBar.</td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="17.14"></a>$xdock().TreeBarSize	</td></tr>
+	<tr><td colspan="2">Returns the mIRC TreeBar size.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(mIRC).TreeBarSize</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock(mIRC).TreeBarSize</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">DIMENSIONS</td>
+		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>The width of the mIRC TreeBar.</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>The height of the mIRC TreeBar.</td>
 	</tr>
 </table>
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#16" style="color: #0000FF;">/xdock Commands</a><br /><ul><li><a href="#16.1" style="color: #0000FF;">Dock</a></li><li><a href="#16.2" style="color: #0000FF;">DockRefresh</a></li><li><a href="#16.3" style="color: #0000FF;">ShowMenubar</a></li><li><a href="#16.4" style="color: #0000FF;">ShowSwitchbar</a></li><li><a href="#16.5" style="color: #0000FF;">ShowToolbar</a></li><li><a href="#16.6" style="color: #0000FF;">ShowTreebar</a></li><li><a href="#16.7" style="color: #0000FF;">UnDock</a></li></ul><a href="#17" style="color: #6666FF;">$xdock() Properties</a><br /><ul><li><a href="#17.1" style="color: #6666FF;">DockPos</a></li><li><a href="#17.2" style="color: #6666FF;">DockSide</a></li><li><a href="#17.3" style="color: #6666FF;">IsMenubar</a></li><li><a href="#17.4" style="color: #6666FF;">IsSwitchbar</a></li><li><a href="#17.5" style="color: #6666FF;">IsToolbar</a></li><li><a href="#17.6" style="color: #6666FF;">IsTreebar</a></li><li><a href="#17.7" style="color: #6666FF;">SwitchbarPos</a></li><li><a href="#17.8" style="color: #6666FF;">SwitchbarSize</a></li><li><a href="#17.9" style="color: #6666FF;">ToolbarSize</a></li></ul></td>
+<a href="#16" style="color: #0000FF;">/xdock Commands</a><br /><ul><li><a href="#16.1" style="color: #0000FF;">b</a></li><li><a href="#16.2" style="color: #0000FF;">c</a></li><li><a href="#16.3" style="color: #0000FF;">m</a></li><li><a href="#16.4" style="color: #0000FF;">n</a></li><li><a href="#16.5" style="color: #0000FF;">s</a></li><li><a href="#16.6" style="color: #0000FF;">t</a></li><li><a href="#16.7" style="color: #0000FF;">u</a></li></ul><a href="#17" style="color: #6666FF;">$xdock() Properties</a><br /><ul><li><a href="#17.1" style="color: #6666FF;">DockSide</a></li><li><a href="#17.2" style="color: #6666FF;">HasDocked</a></li><li><a href="#17.3" style="color: #6666FF;">IsAutoH</a></li><li><a href="#17.4" style="color: #6666FF;">IsAutoS</a></li><li><a href="#17.5" style="color: #6666FF;">IsAutoV</a></li><li><a href="#17.6" style="color: #6666FF;">IsDocked</a></li><li><a href="#17.7" style="color: #6666FF;">IsMenuBar</a></li><li><a href="#17.8" style="color: #6666FF;">IsSwitchBar</a></li><li><a href="#17.9" style="color: #6666FF;">IsToolBar</a></li><li><a href="#17.10" style="color: #6666FF;">IsTreeBar</a></li><li><a href="#17.11" style="color: #6666FF;">SwitchBarPos</a></li><li><a href="#17.12" style="color: #6666FF;">SwitchBarSize</a></li><li><a href="#17.13" style="color: #6666FF;">ToolBarSize</a></li><li><a href="#17.14" style="color: #6666FF;">TreeBarSize</a></li></ul></td>
   </tr>
 </table>
 
@@ -306,7 +624,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 10th September, 06</td>
+		<td style="text-align: right;">Last Updated: 17th September, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

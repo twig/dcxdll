@@ -274,43 +274,65 @@ mIRC(_xdock)
 	}
 
 	if (d.gettok(1," ") == "mIRC") {
-		if (d.gettok(2," ") == "SwitchbarPos") {
-			wsprintf(data,"%d",SwitchbarPos());
+		if (d.gettok(2," ") == "SwitchBarPos") {
+			switch (SwitchbarPos())
+			{
+				case SWB_RIGHT:
+					wsprintf(data, "%s", "right");
+					break;
+
+				case SWB_BOTTOM:
+					wsprintf(data, "%s", "bottom");
+					break;
+
+				case SWB_TOP:
+					wsprintf(data, "%s", "top");
+					break;
+
+				case SWB_LEFT:
+					wsprintf(data, "%s", "left");
+					break;
+
+				case SWB_NONE:
+				default:
+					wsprintf(data, "%s", "none");
+					break;
+			}
 		}
-		else if (d.gettok(2," ") == "SwitchbarSize") {
+		else if (d.gettok(2," ") == "SwitchBarSize") {
 			RECT rc;
 			GetWindowRect(sb_hwnd, &rc);
 			wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
 		}
-		else if (d.gettok(2," ") == "ToolbarSize") {
+		else if (d.gettok(2," ") == "ToolBarSize") {
 			RECT rc;
 			GetWindowRect(tb_hwnd, &rc);
 			wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
 		}
-		else if (d.gettok(2," ") == "TreebarSize") {
+		else if (d.gettok(2," ") == "TreeBarSize") {
 			RECT rc;
 			GetWindowRect(treeb_hwnd, &rc);
 			wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
 		}
-		else if (d.gettok(2," ") == "IsSwitchbar") {
+		else if (d.gettok(2," ") == "IsSwitchBar") {
 			if (IsWindowVisible(sb_hwnd))
 				lstrcpy(data,"$true");
 			else
 				lstrcpy(data,"$false");
 		}
-		else if (d.gettok(2," ") == "IsToolbar") {
+		else if (d.gettok(2," ") == "IsToolBar") {
 			if (IsWindowVisible(tb_hwnd))
 				lstrcpy(data,"$true");
 			else
 				lstrcpy(data,"$false");
 		}
-		else if (d.gettok(2," ") == "IsTreebar") {
+		else if (d.gettok(2," ") == "IsTreeBar") {
 			if (IsWindowVisible(treeb_hwnd))
 				lstrcpy(data,"$true");
 			else
 				lstrcpy(data,"$false");
 		}
-		else if (d.gettok(2," ") == "IsMenubar") {
+		else if (d.gettok(2," ") == "IsMenuBar") {
 			if (GetMenu(mIRCLink.m_mIRCHWND))
 				lstrcpy(data,"$true");
 			else

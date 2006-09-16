@@ -693,17 +693,21 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 		    break;
 		    
 		case SECTION_XDOCK:
-			$heading = "FIXME /xdock $flag";
-			$syntax = "/xdock $flag [UNKNOWN] {$data['__cmd']}";
-			$examplefmt[$ARGS]   = "/xdock $flag [STILL_WIP] [-EXAMPLE]";
-			$examplefmt[$NOARGS] = "/xdock $flag [STILL_WIP]";
+			$heading = "/xdock -$flag";
+			$syntax = "/xdock -$flag {$data['__cmd']}";
+			$examplefmt[$ARGS]   = "/xdock -$flag [-EXAMPLE]";
+			$examplefmt[$NOARGS] = "/xdock -$flag";
 			break;
 			
         case SECTION_XDOCKPROPS:
-			$heading = "DONT KNOW \$xdock().$flag";
-			$syntax = "\$xdock(MENU" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
-			$examplefmt[$ARGS]   = "\$xdock(mymenu, [-EXAMPLE]).$flag";
-			$examplefmt[$NOARGS] = "\$xdock(mymenu).$flag";
+        	$mircParam = (isset($data['__mircParam']) ? $data['__mircParam'] : false);
+        	$paramExample = ($mircParam ? 'mIRC' : '$dialog(dcx).hwnd');
+        	$mircParam = ($mircParam ? 'mIRC' : 'HWND');
+        
+			$heading = "\$xdock().$flag";
+			$syntax = "\$xdock($mircParam" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
+			$examplefmt[$ARGS]   = "\$xdock($paramExample, [-EXAMPLE]).$flag";
+			$examplefmt[$NOARGS] = "\$xdock($paramExample).$flag";
 		    break;
 
 		// unknown section type, failed

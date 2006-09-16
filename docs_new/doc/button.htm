@@ -218,22 +218,46 @@
 	<tr><td colspan="2">This command lets you add an icon to the button image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -w [DNAME] [ID] [INDEX] [FILENAME]</div></td>
+		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 113 C:/mIRC/shell.dll</div></td>
+		<td><div class="example">/xdid -w dcx 4 +ng 113 C:/mIRC/shell.dll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Disabled icon.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Hovering icon.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Normal icon.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Selected icon.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
+	<tr>
 		<td class="param">INDEX</td>
-		<td>Icon index in icon archive (use 0 if the file is a single icon file)</td>
+		<td>Icon index in icon archive</td>
 	</tr>
 	<tr>
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The insert order is important and is as follows <a class="event">normal</a>, <a class="event">hover</a>, <a class="event">selected</a> and <a class="event">disabled</a>.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>The first icon added will be used for ALL button icon states, unless changed manually.</li><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li></ul></td></tr></table>
 <br />
 <br /><table class="description">
 	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
@@ -351,7 +375,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 10th September, 06</td>
+		<td style="text-align: right;">Last Updated: 17th September, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">
