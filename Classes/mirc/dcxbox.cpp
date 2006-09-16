@@ -53,6 +53,17 @@
 #include "../layout/layoutcellfill.h"
 #include "../layout/layoutcellpane.h"
 
+extern PFNSETTHEME SetWindowThemeUx;  //!< blah
+extern PFNISTHEMEACTIVE IsThemeActiveUx;
+extern PFNOPENTHEMEDATA OpenThemeDataUx;
+extern PFNCLOSETHEMEDATA CloseThemeDataUx;
+extern PFNDRAWTHEMEBACKGROUND DrawThemeBackgroundUx;
+extern PFNGETTHEMEBACKGROUNDCONTENTRECT GetThemeBackgroundContentRectUx;
+extern PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT IsThemeBackgroundPartiallyTransparentUx;
+extern PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx;
+extern PFNDRAWTHEMETEXT DrawThemeTextUx;
+extern BOOL XPPlus;
+
 /*!
  * \brief Constructor
  *
@@ -69,7 +80,8 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
 	this->m_TitleButton = NULL;
-	//this->m_Region = NULL;
+	this->_hTheme = NULL;
+
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
@@ -121,10 +133,9 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
 			dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
 		if (!(Styles & WS_DISABLED))
 			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
-		//SIZE sz;
-		//Button_GetIdealSize(this->m_TitleButton, &sz);
-		//SetWindowPos(this->m_TitleButton,NULL,0,0,sz.cx,sz.cy,SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE|SWP_NOOWNERZORDER);
 	}
+	if (XPPlus)
+		this->_hTheme = OpenThemeDataUx(this->m_Hwnd,L"BUTTON");
 }
 
 /*!
@@ -144,7 +155,8 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
 	this->m_TitleButton = NULL;
-	//this->m_Region = NULL;
+	this->_hTheme = NULL;
+
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
@@ -196,10 +208,9 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
 			dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
 		if (!(Styles & WS_DISABLED))
 			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
-		//SIZE sz;
-		//Button_GetIdealSize(this->m_TitleButton, &sz);
-		//SetWindowPos(this->m_TitleButton,NULL,0,0,sz.cx,sz.cy,SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE|SWP_NOOWNERZORDER);
 	}
+	if (XPPlus)
+		this->_hTheme = OpenThemeDataUx(this->m_Hwnd,L"BUTTON");
 }
 
 /*!
@@ -212,8 +223,8 @@ DcxBox::~DcxBox( ) {
 
   if ( this->m_pLayoutManager != NULL )
     delete this->m_pLayoutManager;
-	//if (this->m_Region)
-	//	DeleteObject(this->m_Region);
+	if (this->_hTheme)
+		CloseThemeDataUx(this->_hTheme);
   this->unregistreDefaultWindowProc( );
 }
 
@@ -491,7 +502,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
   // xdid -d [NAME] [ID] [SWITCH] [ID]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
 
-    UINT ID = mIRC_ID_OFFSET + atoi( input.gettok( 4, " " ).to_chr( ) );
+    UINT ID = mIRC_ID_OFFSET + input.gettok( 4, " " ).to_int( );
     DcxControl * p_Control;
     
     if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
@@ -551,10 +562,10 @@ void DcxBox::parseCommandRequest( TString & input ) {
       p2.trim( );
 
       UINT flags = this->parseLayoutFlags( p2.gettok( 1, " " ) );
-      UINT ID = atoi( p2.gettok( 2, " " ).to_chr( ) );
-      UINT WGT = atoi( p2.gettok( 3, " " ).to_chr( ) );
-      UINT W = atoi( p2.gettok( 4, " " ).to_chr( ) );
-      UINT H = atoi( p2.gettok( 5, " " ).to_chr( ) );
+      UINT ID = p2.gettok( 2, " " ).to_int( );
+      UINT WGT = p2.gettok( 3, " " ).to_int( );
+      UINT W = p2.gettok( 4, " " ).to_int( );
+      UINT H = p2.gettok( 5, " " ).to_int( );
 
       if ( com ==  "root" || com == "cell" ) {
 
@@ -965,26 +976,25 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				HDC hdc = BeginPaint(this->m_Hwnd, &ps);
 				RECT rc, rc2, rcText, rcText2;
 				int n = GetWindowTextLength(this->m_Hwnd);
-				HBRUSH hBrush;
+				HBRUSH hBrush = GetSysColorBrush(COLOR_3DFACE);
 
 				GetClientRect(this->m_Hwnd, &rc);
 				CopyRect(&rc2, &rc);
 
+				// paint the background
+				if (this->_hTheme != NULL)
+					DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rc2);
+				else
+					this->FillBkg(hdc, &rc2, hBrush);
 				if (!this->isExStyle(WS_EX_TRANSPARENT)) {
 					// set up brush colors
 					if (this->m_hBackBrush != NULL)
 						hBrush = this->m_hBackBrush;
-					else
-						hBrush = GetSysColorBrush(COLOR_3DFACE);
-					// paint the background
-					FillRect(hdc, &rc2, GetSysColorBrush(COLOR_3DFACE));
 				}
-				else
-					hBrush = GetSysColorBrush(COLOR_3DFACE);
 
 				// if no border, dont bother
 				if (this->m_iBoxStyles & BOXS_NONE) {
-					this->FillBkg(hdc, &rc2, hBrush);
+					//this->FillBkg(hdc, &rc2, hBrush);
 					EndPaint(this->m_Hwnd, &ps);
 
 					bParsed = TRUE;
@@ -996,13 +1006,18 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				// no text, no box!
 				if (!n) {
 					if (this->m_iBoxStyles & BOXS_ROUNDED) {
-						HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
-						RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-						SelectObject(hdc,OldhBrush);
+						if (this->isExStyle(WS_EX_TRANSPARENT)) {
+							HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
+							FrameRgn(hdc,m_Region,(HBRUSH)GetStockObject(BLACK_BRUSH),1,1);
+							DeleteObject(m_Region);
+						}
+						else {
+							HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
+							RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
+							SelectObject(hdc,OldhBrush);
+						}
 					}
 					else {
-						//if (!this->isExStyle(WS_EX_TRANSPARENT)) 
-						//	FillRect(hdc, &rc2, hBrush);
 						this->FillBkg(hdc, &rc2, hBrush);
 						DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
 					}
@@ -1079,14 +1094,21 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 						rcText2.right += bSZ.bottom;
 					}
 
-					//if (this->isExStyle(WS_EX_TRANSPARENT))
-					//	ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
+					if (this->isExStyle(WS_EX_TRANSPARENT))
+						ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
 
 					// draw the border
 					if (this->m_iBoxStyles & BOXS_ROUNDED) {
-						HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
-						RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-						SelectObject(hdc,OldhBrush);
+						if (this->isExStyle(WS_EX_TRANSPARENT)) {
+							HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
+							FrameRgn(hdc,m_Region,(HBRUSH)GetStockObject(BLACK_BRUSH),1,1);
+							DeleteObject(m_Region);
+						}
+						else {
+							HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
+							RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
+							SelectObject(hdc,OldhBrush);
+						}
 					}
 					else {
 						this->FillBkg(hdc, &rc2, hBrush);
@@ -1098,11 +1120,14 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 						if (m_Region)
 							SelectClipRgn(hdc,m_Region);
 						FillRect(hdc, &rcText2, hBrush);
+						//this->FillBkg(hdc, &rcText2, hBrush);
 						if (m_Region) {
 							SelectClipRgn(hdc,NULL);
 							DeleteObject(m_Region);
 						}
 					}
+					else
+						SelectClipRgn(hdc,NULL);
 					//else
 					//	IntersectClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
 

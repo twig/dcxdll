@@ -66,6 +66,7 @@ protected:
   LayoutManager * m_pLayoutManager; //!< Layout Manager Object
 
 	HWND m_TitleButton; //!< enable/disable button.
+	HTHEME _hTheme;
 };
 
 typedef struct tagDCXENUM {

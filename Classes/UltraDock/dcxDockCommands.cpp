@@ -278,24 +278,24 @@ mIRC(_xdock)
 			switch (SwitchbarPos())
 			{
 				case SWB_RIGHT:
-					wsprintf(data, "%s", "right");
+					lstrcpy(data, "right");
 					break;
 
 				case SWB_BOTTOM:
-					wsprintf(data, "%s", "bottom");
+					lstrcpy(data, "bottom");
 					break;
 
 				case SWB_TOP:
-					wsprintf(data, "%s", "top");
+					lstrcpy(data, "top");
 					break;
 
 				case SWB_LEFT:
-					wsprintf(data, "%s", "left");
+					lstrcpy(data, "left");
 					break;
 
 				case SWB_NONE:
 				default:
-					wsprintf(data, "%s", "none");
+					lstrcpy(data, "none");
 					break;
 			}
 		}
@@ -362,21 +362,21 @@ mIRC(_xdock)
 			}
 			else if (d.gettok(2," ") == "IsAutoV") {
 				DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
-				if (flags & DOCKF_AUTOV)
+				if (flags == DOCKF_AUTOV)
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");
 			}
 			else if (d.gettok(2," ") == "IsAutoH") {
 				DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
-				if (flags & DOCKF_AUTOH)
+				if (flags == DOCKF_AUTOH)
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");
 			}
 			else if (d.gettok(2," ") == "IsAutoS") {
 				DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
-				if (flags & DOCKF_SIZE)
+				if (flags == DOCKF_SIZE)
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");
