@@ -27,6 +27,7 @@
 DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 , m_bBitmapText(FALSE)
+, m_bHasIcons(FALSE)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -88,6 +89,8 @@ DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles
 
 DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
+, m_bBitmapText(FALSE)
+, m_bHasIcons(FALSE)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -263,56 +266,73 @@ void DcxButton::parseCommandRequest( TString & input ) {
 
 		this->redrawWindow( );
 	}
-  // xdid -l [NAME] [ID] [SWITCH] [SIZE]
-  else if ( flags.switch_flags[11] && numtok > 3 ) {
+	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
+	else if (flags.switch_flags[11] && numtok > 3) {
+		int size = input.gettok(4, " ").to_int();
 
-    TString size = input.gettok( 4, " " );
-    size.trim( );
+		if (size == 32 || 24)
+			this->m_iIconSize = size;
+		else
+			this->m_iIconSize = 16;
 
-    if ( size == "32" )
-      this->m_iIconSize = 32;
-    else if ( size == "24" )
-      this->m_iIconSize = 24;
-    else
-      this->m_iIconSize = 16;
-
-    if ( this->getImageList( ) != NULL ) {
-      
-      ImageList_Destroy( this->getImageList( ) );
-      this->setImageList( NULL );
-    }
-
-  }
+		if (this->getImageList() != NULL) {
+			ImageList_Destroy(this->getImageList());
+			this->setImageList(NULL);
+			this->m_bHasIcons = FALSE;
+		}
+	}
   // xdid -t [NAME] [ID] [SWITCH] ItemText
   else if ( flags.switch_flags[19] && numtok > 2 ) {
 		this->m_tsCaption = (numtok > 3 ? input.gettok( 4, -1, " " ) : "");
     this->m_tsCaption.trim( );
     this->redrawWindow( );
   }
-  // xdid -w [NAME] [ID] [SWITCH] [INDEX] [FILENAME]
-  else if ( flags.switch_flags[22] && numtok > 4 ) {
+	// xdid -w [NAME] [ID] [SWITCH] [INDEX] [FLAGS] [FILENAME]
+	else if (flags.switch_flags[22] && numtok > 4) {
+		HIMAGELIST himl;
+		HICON icon;
+		int index;
 
-    HIMAGELIST himl;
-    HICON icon;
-    int index;
+		index = atoi(input.gettok(4, " ").to_chr());
+		UINT flags = parseColorFlags(input.gettok(5, " "));
+		TString filename = input.gettok(6, -1, " ");
+		int himlIndex = 0;
 
-    if ( ( himl = this->getImageList( ) ) == NULL ) {
+		if (this->m_iIconSize > 16)
+			ExtractIconEx(filename.to_chr(), index, &icon, NULL, 1);
+		else
+			ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
 
-      himl = this->createImageList( );
 
-      if ( himl )
-        this->setImageList( himl );
-    }
+		if (flags & BTNCS_DISABLED)
+			himlIndex = 3;
+		else if (flags & BTNCS_SELECTED)
+			himlIndex = 2;
+		else if (flags & BTNCS_HOVER)
+			himlIndex = 1;
+		else
+			himlIndex = 0;
 
-    index = atoi( input.gettok( 4, " ").to_chr( ) );
-    TString filename = input.gettok( 5, -1, " " );
-    if ( this->m_iIconSize > 16 )
-      ExtractIconEx( filename.to_chr( ), index, &icon, NULL, 1 );
-    else
-      ExtractIconEx( filename.to_chr( ), index, NULL, &icon, 1 );
-    ImageList_AddIcon( himl, icon );
-    DestroyIcon( icon );
-  }
+		if (flags & BTNIS_GREY)
+			icon = CreateGrayscaleIcon(icon);
+
+		if ((himl = this->getImageList()) == NULL) {
+			himl = this->createImageList();
+
+			if (himl) {
+				this->setImageList(himl);
+
+				ImageList_AddIcon(himl, icon);
+				ImageList_AddIcon(himl, icon);
+				ImageList_AddIcon(himl, icon);
+				ImageList_AddIcon(himl, icon);
+
+				this->m_bHasIcons = TRUE;
+			}
+		}
+
+		DestroyIcon(icon);
+	}
 	// xdid -m [NAME] [ID] [SWITCH] [ENABLED]
   else if (flags.switch_flags[12] && numtok > 3) {
 		int b = atoi(input.gettok(4, " ").to_chr());
@@ -331,28 +351,29 @@ void DcxButton::parseCommandRequest( TString & input ) {
  * blah
  */
 
-UINT DcxButton::parseColorFlags( TString & flags ) {
+UINT DcxButton::parseColorFlags(TString & flags) {
+	INT i = 1, len = flags.len(), iFlags = 0;
 
-  INT i = 1, len = flags.len( ), iFlags = 0;
+	// no +sign, missing params
+	if (flags[0] != '+') 
+		return iFlags;
 
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return iFlags;
+	while (i < len) {
+		if (flags[i] == 'd')
+			iFlags |= BTNCS_DISABLED;
+		else if (flags[i] == 'h')
+			iFlags |= BTNCS_HOVER;
+		else if (flags[i] == 'n')
+			iFlags |= BTNCS_NORMAL;
+		else if (flags[i] == 's')
+			iFlags |= BTNCS_SELECTED;
+		else if (flags[i] == 'g')
+			iFlags |= BTNIS_GREY;
 
-  while ( i < len ) {
+		++i;
+	}
 
-    if ( flags[i] == 'd' )
-      iFlags |= BTNCS_DISABLED;
-    else if ( flags[i] == 'h' )
-      iFlags |= BTNCS_HOVER;
-    else if ( flags[i] == 'n' )
-      iFlags |= BTNCS_NORMAL;
-    else if ( flags[i] == 's' )
-      iFlags |= BTNCS_SELECTED;
-
-    ++i;
-  }
-  return iFlags;
+	return iFlags;
 }
 
 /*!
@@ -383,9 +404,8 @@ void DcxButton::setImageList( HIMAGELIST himl ) {
  * blah
  */
 
-HIMAGELIST DcxButton::createImageList( ) {
-
-  return ImageList_Create( this->m_iIconSize, this->m_iIconSize, ILC_COLOR32|ILC_MASK, 1, 0 );
+HIMAGELIST DcxButton::createImageList() {
+  return ImageList_Create(this->m_iIconSize, this->m_iIconSize, ILC_COLOR32 | ILC_MASK, 1, 0);
 }
 
 /*!
@@ -635,23 +655,22 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 					rcTxt.bottom = rcClient.bottom - BUTTON_YPAD;
 
 					// If there is an icon
-					if ( himl != NULL && nIcon < ImageList_GetImageCount( himl ) ) {
-
-						iIconLeft = iCenter - ( this->m_iIconSize + ICON_XPAD + iTextW ) / 2;
+					if (himl != NULL && this->m_bHasIcons) {
+						iIconLeft = iCenter - (this->m_iIconSize + ICON_XPAD + iTextW) / 2;
 						iIconTop = iVCenter - this->m_iIconSize / 2;
 
-						if ( iIconLeft < BUTTON_XPAD )
+						if (iIconLeft < BUTTON_XPAD)
 							iIconLeft = BUTTON_XPAD;
 
-						if ( iIconTop < BUTTON_YPAD )
+						if (iIconTop < BUTTON_YPAD)
 							iIconTop = BUTTON_YPAD;
 
 						rcTxt.left = iIconLeft + this->m_iIconSize + ICON_XPAD;
 
-						if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
-							ImageList_Draw( himl, nIcon, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT|ILD_BLEND50 );
+						if (IsWindowEnabled(this->m_Hwnd) == FALSE)
+							ImageList_Draw(himl, nIcon, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT | ILD_BLEND50);
 						else
-							ImageList_Draw( himl, nIcon, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT );
+							ImageList_Draw(himl, nIcon, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT);
 					}
 
 					/*

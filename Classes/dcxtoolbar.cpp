@@ -641,10 +641,10 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
         int cx, cy;
         ImageList_GetIconSize( himl, &cx, &cy );
 
-        if ( cx == 32 || cx == 24 )
-          ExtractIconEx( filename.to_chr( ), index, &icon, 0, 1 );
+        if (cx > 16)
+          ExtractIconEx( filename.to_chr( ), index, &icon, NULL, 1 );
         else
-          ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
+          ExtractIconEx( filename.to_chr( ), index, NULL, &icon, 1 );
 
         ImageList_AddIcon( himl, icon );
         DestroyIcon( icon );
@@ -668,10 +668,10 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
         int cx, cy;
         ImageList_GetIconSize( himl, &cx, &cy );
 
-        if ( cx == 32 || cx == 24 )
-          ExtractIconEx( filename.to_chr( ), index, &icon, 0, 1 );
+        if (cx > 16)
+          ExtractIconEx( filename.to_chr( ), index, &icon, NULL, 1 );
         else
-          ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
+          ExtractIconEx( filename.to_chr( ), index, NULL, &icon, 1 );
 
         ImageList_AddIcon( himl, icon );
         DestroyIcon( icon );
@@ -695,10 +695,10 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
         int cx, cy;
         ImageList_GetIconSize( himl, &cx, &cy );
 
-        if ( cx == 32 || cx == 24 )
-          ExtractIconEx( filename.to_chr( ), index, &icon, 0, 1 );
+        if (cx > 16)
+          ExtractIconEx( filename.to_chr( ), index, &icon, NULL, 1 );
         else
-          ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
+          ExtractIconEx( filename.to_chr( ), index, NULL, &icon, 1 );
 
         ImageList_AddIcon( himl, icon );
         DestroyIcon( icon );
@@ -843,17 +843,22 @@ HIMAGELIST DcxToolBar::getImageList( int iImageList ) {
  * blah
  */
 
-void DcxToolBar::setImageList( HIMAGELIST himl, int iImageList ) {
+void DcxToolBar::setImageList(HIMAGELIST himl, int iImageList) {
+	HIMAGELIST himlOld;
 
-  if ( iImageList == TB_IML_NORMAL ) {
-    SendMessage( this->m_Hwnd, TB_SETIMAGELIST, (WPARAM) 0, (LPARAM) himl );
-  }
-  else if ( iImageList == TB_IML_DISABLE ) {
-    SendMessage( this->m_Hwnd, TB_SETDISABLEDIMAGELIST, (WPARAM) 0, (LPARAM) himl );
-  }
-  else if ( iImageList == TB_IML_HOT ) {
-    SendMessage( this->m_Hwnd, TB_SETHOTIMAGELIST, (WPARAM) 0, (LPARAM) himl );
-  }
+	if (iImageList == TB_IML_NORMAL) {
+		himlOld = (HIMAGELIST) SendMessage(this->m_Hwnd, TB_SETIMAGELIST, (WPARAM) NULL, (LPARAM) himl);
+	}
+	else if (iImageList == TB_IML_DISABLE) {
+		himlOld = (HIMAGELIST) SendMessage(this->m_Hwnd, TB_SETDISABLEDIMAGELIST, (WPARAM) NULL, (LPARAM) himl);
+	}
+	else if (iImageList == TB_IML_HOT) {
+		himlOld = (HIMAGELIST) SendMessage(this->m_Hwnd, TB_SETHOTIMAGELIST, (WPARAM) NULL, (LPARAM) himl);
+	}
+
+	if (himlOld) {
+		ImageList_Destroy(himlOld);
+	}
 }
 
 /*!
@@ -864,7 +869,7 @@ void DcxToolBar::setImageList( HIMAGELIST himl, int iImageList ) {
 
 HIMAGELIST DcxToolBar::createImageList( UINT iSize ) {
 
-  return ImageList_Create( iSize, iSize, ILC_COLOR32|ILC_MASK, 1, 0 );
+	return ImageList_Create(iSize, iSize, ILC_COLOR32 | ILC_MASK, 1, 0);
 }
 
 /*!

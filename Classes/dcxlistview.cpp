@@ -1230,7 +1230,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 					this->setImageList(himl, LVSIL_STATE);
 			}
 
-			index = (int)input.gettok(5, " ").to_num();
+			index = (int) input.gettok(5, " ").to_num();
 			filename = input.gettok(6, -1, " ");
 			ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
 			ImageList_AddIcon(himl, icon);

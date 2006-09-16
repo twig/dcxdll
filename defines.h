@@ -52,7 +52,7 @@
 
 #define mIRC_ID_OFFSET 6000 //!< mIRC Dialog ID Offset
 
-// Required for VS 2005
+// listview stuff
 #ifndef LPNMLVDISPINFO
 #ifdef UNICODE
 #define LPNMLVDISPINFO LPNMLVDISPINFOW
@@ -60,7 +60,6 @@
 #define LPNMLVDISPINFO LPNMLVDISPINFOA
 #endif
 #endif
-// end of VS 2005
 
 // DCX Stuff
 #define DCX_LISTVIEWCLASS    "DCXListViewClass"     //!< DCX Listview Class Name

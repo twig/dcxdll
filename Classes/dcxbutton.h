@@ -29,6 +29,7 @@ class DcxDialog;
 #define BTNCS_SELECTED  0x02 //!< Button Selected Color Style
 #define BTNCS_HOVER     0x04 //!< Button Hover Color Style
 #define BTNCS_DISABLED  0x08 //!< Button Disabled Color Style
+#define BTNIS_GREY      0x10 //!< Button Grey Icon
 
 /*!
  * \brief blah
@@ -75,7 +76,7 @@ protected:
 
   UINT parseColorFlags( TString & flags );
   BOOL m_bBitmapText;
-
+  BOOL m_bHasIcons;
 };
 
 #endif // _DCXBUTTON_H_
