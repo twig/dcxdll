@@ -53,10 +53,9 @@ function get_xdid_button(&$XDID) {
 		),
 		"w" => array(
 			'__desc' => "This command lets you add an icon to the button image list.",
-			'__cmd' => "[INDEX] [+FLAGS] [FILENAME]",
-			'__eg' => "113 C:/mIRC/shell.dll",
+			'__cmd' => "[+FLAGS] [INDEX] [FILENAME]",
+			'__eg' => "+ng 113 C:/mIRC/shell.dll",
 			'__params' => array(
-				'INDEX' => "Icon index in icon archive (use [v]0[/v] if the file is a single icon file)",
 				'+FLAGS' => array(
 					'__desc' => "Icon flags",
 					'__values' => array(
@@ -67,9 +66,13 @@ function get_xdid_button(&$XDID) {
 						'g' => "Convert to grayscale icon.",
 					),
 				),
+				'INDEX' => "Icon index in icon archive",
 				'FILENAME' => "Icon archive filename",
 			),
-			'__notes' => "The first icon added will be used for ALL button icon states, unless changed manually.",
+			'__notes' => array(
+				"The first icon added will be used for ALL button icon states, unless changed manually.",
+				"Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
+			),
 		),
 		"m" => array(
 			'__desc' => "This command lets you enable text on a bitmap button.",

@@ -492,37 +492,30 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
     this->setButtonWidth( nMin, nMax );
   }
-  // xdid -l [NAME] [ID] [SWITCH] [SIZE]
-  else if ( flags.switch_flags[11] && numtok > 3 ) {
+	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
+	else if (flags.switch_flags[11] && numtok > 3) {
+		HIMAGELIST himl;
 
-    HIMAGELIST himl;
+		int size = atoi(input.gettok(4, " ").to_chr());
 
-    int size = atoi( input.gettok( 4, " " ).to_chr( ) );
+		ImageList_Destroy(this->getImageList(TB_IML_NORMAL));
+		ImageList_Destroy(this->getImageList(TB_IML_DISABLE));
+		ImageList_Destroy(this->getImageList(TB_IML_HOT));
 
-    ImageList_Destroy( this->getImageList( TB_IML_NORMAL ) );
-    ImageList_Destroy( this->getImageList( TB_IML_DISABLE ) );
-    ImageList_Destroy( this->getImageList( TB_IML_HOT ) );
+		if (size != 32 && size != 24)
+			size = 16;
 
-    if ( size != 32 && size != 24 )
-      size = 16;
+		himl = this->createImageList(size);
+		this->setImageList(himl, TB_IML_NORMAL);
 
-    //TString error;
-    
-    himl = this->createImageList( size );
-    this->setImageList( himl, TB_IML_NORMAL );
-    //error.sprintf("Image List Normal %X", himl );
-    //mIRCError( error.to_chr() );
-    himl = this->createImageList( size );
-    this->setImageList( himl, TB_IML_DISABLE );
-    //error.sprintf("Image List Disabled %X", himl );
-    //mIRCError( error.to_chr() );
-    himl = this->createImageList( size );
-    this->setImageList( himl, TB_IML_HOT );
-    //error.sprintf("Image List Hot %X", himl );
-    //mIRCError( error.to_chr() );
+		himl = this->createImageList(size);
+		this->setImageList(himl, TB_IML_DISABLE);
 
-    this->redrawWindow( );
-  }
+		himl = this->createImageList(size);
+		this->setImageList(himl, TB_IML_HOT);
+
+		this->redrawWindow();
+	}
   // xdid -m [NAME] [ID] [SWITCH] [1|0]
   else if ( flags.switch_flags[12] && numtok > 3 ) {
 
@@ -616,98 +609,61 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
       //this->setButtonInfo( this->getIndexToCommand( nButton ), &tbbi );
     }
   }
-  // xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-  else if ( flags.switch_flags[22] && numtok > 5 ) {
+	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
+	else if (flags.switch_flags[22] && numtok > 5) {
+		UINT iFlags = this->parseImageListFlags(input.gettok(4, " "));
 
-    UINT iFlags = this->parseImageListFlags( input.gettok( 4, " " ) );
+		HIMAGELIST himl;
+		HICON icon = NULL;
+		int index = atoi(input.gettok(5, " ").to_chr());
+		TString filename = input.gettok(6, -1, " ");
 
-    HIMAGELIST himl;
-    HICON icon;
-    int index = atoi( input.gettok( 5, " ").to_chr( ) );
-    TString filename = input.gettok( 6, -1, " " );
+		himl = this->getImageList(TB_IML_NORMAL);
 
-    // NORMAL IML
-    if ( iFlags & TB_IML_NORMAL ) {
+		// load the icon
+		if (himl != NULL) {
+			int cx, cy;
+			ImageList_GetIconSize(himl, &cx, &cy);
 
-      //mIRCError( "Adding Normal Icon" );
-      himl = this->getImageList( TB_IML_NORMAL );
+			if (cx > 16)
+				ExtractIconEx(filename.to_chr(), index, &icon, NULL, 1);
+			else
+				ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
 
-      if ( himl != NULL ) {
+			// Grayscale the icon
+			if ((iFlags & TB_ICO_GREY) && icon)
+				icon = CreateGrayscaleIcon(icon);
+		}
 
-        //TString error;
-        //error.sprintf("Normal Icons : %d %X", ImageList_GetImageCount( himl ), himl );
-        //mIRCError( error.to_chr() );
+		// if there is an icon to process
+		if (icon) {
+			// NORMAL IML
+			if (iFlags & TB_IML_NORMAL) {
+				himl = this->getImageList(TB_IML_NORMAL);
 
-        int cx, cy;
-        ImageList_GetIconSize( himl, &cx, &cy );
+				if (himl != NULL)
+					ImageList_AddIcon(himl, icon);
+			}
 
-        if (cx > 16)
-          ExtractIconEx( filename.to_chr( ), index, &icon, NULL, 1 );
-        else
-          ExtractIconEx( filename.to_chr( ), index, NULL, &icon, 1 );
+			// DISABLED IML
+			if (iFlags & TB_IML_DISABLE) {
+				himl = this->getImageList(TB_IML_DISABLE);
 
-        ImageList_AddIcon( himl, icon );
-        DestroyIcon( icon );
+				if (himl != NULL)
+					ImageList_AddIcon(himl, icon);
+			}
 
-        //error.sprintf("Normal Icons : %d %X", ImageList_GetImageCount( himl ), himl );
-        //mIRCError( error.to_chr() );
-      }
-    }
-    // DISABLED IML
-    if ( iFlags & TB_IML_DISABLE ) {
+			// HOT IML
+			if (iFlags & TB_IML_HOT) {
+				himl = this->getImageList(TB_IML_HOT);
 
-      //mIRCError( "Adding Disabled Icon" );
-      himl = this->getImageList( TB_IML_DISABLE );
+				if (himl != NULL)
+					ImageList_AddIcon(himl, icon);
+			}
 
-      if ( himl != NULL ) {
-
-        //TString error;
-        //error.sprintf("Disabled Icons : %d %X", ImageList_GetImageCount( himl ), himl );
-        //mIRCError( error.to_chr() );
-
-        int cx, cy;
-        ImageList_GetIconSize( himl, &cx, &cy );
-
-        if (cx > 16)
-          ExtractIconEx( filename.to_chr( ), index, &icon, NULL, 1 );
-        else
-          ExtractIconEx( filename.to_chr( ), index, NULL, &icon, 1 );
-
-        ImageList_AddIcon( himl, icon );
-        DestroyIcon( icon );
-
-        //error.sprintf("Disabled Icons : %d %X", ImageList_GetImageCount( himl ), himl );
-        //mIRCError( error.to_chr() );
-      }
-    }
-    // HOT IML
-    if ( iFlags & TB_IML_HOT ) {
-
-      //mIRCError( "Adding Hot Icon" );
-      himl = this->getImageList( TB_IML_HOT );
-
-      if ( himl != NULL ) {
-
-        //TString error;
-        //error.sprintf("Hot Icons : %d %X", ImageList_GetImageCount( himl ), himl );
-        //mIRCError( error.to_chr() );
-
-        int cx, cy;
-        ImageList_GetIconSize( himl, &cx, &cy );
-
-        if (cx > 16)
-          ExtractIconEx( filename.to_chr( ), index, &icon, NULL, 1 );
-        else
-          ExtractIconEx( filename.to_chr( ), index, NULL, &icon, 1 );
-
-        ImageList_AddIcon( himl, icon );
-        DestroyIcon( icon );
-
-        //error.sprintf("Hot Icons : %d %X", ImageList_GetImageCount( himl ), himl );
-        //mIRCError( error.to_chr() );
-      }
-    }
-  }
+			DestroyIcon(icon);
+		}
+	}
   else {
     this->parseGlobalCommandRequest( input, flags );
   }
@@ -794,27 +750,27 @@ UINT DcxToolBar::parseButtonStyleFlags( TString & flags ) {
  *
  * blah
  */
+UINT DcxToolBar::parseImageListFlags(TString &flags) {
+	INT i = 1, len = flags.len(), iFlags = 0;
 
-UINT DcxToolBar::parseImageListFlags( TString & flags ) {
+	// no +sign, missing params
+	if (flags[0] != '+')
+		return iFlags;
 
-  INT i = 1, len = flags.len( ), iFlags = 0;
+	while (i < len) {
+		if (flags[i] == 'n')
+			iFlags |= TB_IML_NORMAL;
+		else if (flags[i] == 'd')
+			iFlags |= TB_IML_DISABLE;
+		else if (flags[i] == 'h')
+			iFlags |= TB_IML_HOT;
+		else if (flags[i] == 'g')
+			iFlags |= TB_ICO_GREY;
 
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return iFlags;
+		++i;
+	}
 
-  while ( i < len ) {
-
-    if ( flags[i] == 'n' )
-      iFlags |= TB_IML_NORMAL;
-    else if ( flags[i] == 'd' )
-      iFlags |= TB_IML_DISABLE;
-    else if ( flags[i] == 'h' )
-      iFlags |= TB_IML_HOT;
-
-    ++i;
-  }
-  return iFlags;
+	return iFlags;
 }
 
 /*!

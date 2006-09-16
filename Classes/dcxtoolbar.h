@@ -23,6 +23,7 @@ class DcxDialog;
 #define TB_IML_NORMAL   0x01    //!< Toolbar Normal ImageList
 #define TB_IML_DISABLE  0x02    //!< Toolbar Disabled ImageList
 #define TB_IML_HOT      0x04    //!< Toolbar HotTrack ImageList
+#define TB_ICO_GREY     0x08    //!< Toolbar HotTrack ImageList
 
 #define BTNS_WIDTH      0x1000  //!< Toolbar Button Width Style
 #define BTNS_BOLD       0x2000  //!< Toolbar Button Caption Bold Style

@@ -287,12 +287,12 @@ void DcxButton::parseCommandRequest( TString & input ) {
     this->m_tsCaption.trim( );
     this->redrawWindow( );
   }
-	// xdid -w [NAME] [ID] [SWITCH] [INDEX] [FLAGS] [FILENAME]
+	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 4) {
 		HIMAGELIST himl;
 		HICON icon;
-		int index = atoi(input.gettok(4, " ").to_chr());
-		UINT flags = parseColorFlags(input.gettok(5, " "));
+		int index = atoi(input.gettok(5, " ").to_chr());
+		UINT flags = parseColorFlags(input.gettok(4, " "));
 		TString filename = input.gettok(6, -1, " ");
 
 		// load the icon

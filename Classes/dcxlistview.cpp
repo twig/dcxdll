@@ -1193,6 +1193,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		HICON icon;
 		int index;
 		TString filename;
+		BOOL isGray = (input.gettok(4, " ").find('g', 1) > 0 ? TRUE : FALSE);
 
 		if (iFlags & LVSIL_SMALL) {
 			if ((himl = this->getImageList(LVSIL_NORMAL)) == NULL) {
@@ -1205,6 +1206,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 			index = (int)input.gettok(5, " ").to_num();
 			filename = input.gettok(6, -1, " ");
 			ExtractIconEx(filename.to_chr(), index, &icon, 0, 1);
+
+			if (isGray)
+				icon = CreateGrayscaleIcon(icon);
+
 			ImageList_AddIcon(himl, icon);
 			DestroyIcon(icon);
 
@@ -1218,6 +1223,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 			index = (int)input.gettok(5, " ").to_num();
 			filename = input.gettok(6, -1, " ");
 			ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
+
+			if (isGray)
+				icon = CreateGrayscaleIcon(icon);
+
 			ImageList_AddIcon(himl, icon);
 			DestroyIcon(icon);
 		}
@@ -1233,6 +1242,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 			index = (int) input.gettok(5, " ").to_num();
 			filename = input.gettok(6, -1, " ");
 			ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
+
+			if (isGray)
+				icon = CreateGrayscaleIcon(icon);
+
 			ImageList_AddIcon(himl, icon);
 			DestroyIcon(icon);
 		}
@@ -1318,9 +1331,8 @@ HIMAGELIST DcxListView::getImageList( int iImageList ) {
  * blah
  */
 
-void DcxListView::setImageList( HIMAGELIST himl, int iImageList ) {
-
-  ListView_SetImageList( this->m_Hwnd, himl, iImageList );
+void DcxListView::setImageList(HIMAGELIST himl, int iImageList) {
+	ImageList_Destroy(ListView_SetImageList(this->m_Hwnd, himl, iImageList));
 }
 
 /*!
@@ -1357,7 +1369,6 @@ UINT DcxListView::parseIconFlagOptions( TString & flags ) {
     return iFlags;
 
   while ( i < len ) {
-
     if ( flags[i] == 'n' )
       iFlags |= LVSIL_SMALL;
     else if ( flags[i] == 's' )

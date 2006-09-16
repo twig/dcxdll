@@ -1028,11 +1028,26 @@ int TString::find( const char * substring, int N ) {
     \brief Function to find position or number of occurences of a char in the string
 */
 /****************************/
+int TString::find(const char chr, int N) {
+	int c = 0;
+	int len = this->len();
 
-int TString::find( const char chr, int N ) {
+	for (int i = 0; i < len; i++) {
+		// found a match, increase counter
+		if (this->m_pString[i] == chr)
+			c++;
 
+		// if we've reached the Nth match we want, return the position
+		if ((N > 0) && (c == N))
+			return i;
+	}
 
-  return -1;
+	// if there were matches
+	if (c)
+		return c;
+	// -1 if no matches
+	else
+		return -1;
 }
 
 
