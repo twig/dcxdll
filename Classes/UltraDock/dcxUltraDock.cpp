@@ -90,52 +90,52 @@ LPDCXULTRADOCK GetUltraDock(HWND hwnd)
 	return NULL;
 }
 
-void UltraDock(HWND mWnd,HWND temp,TString flag)
+void UltraDock(HWND mWnd, HWND temp, TString flag)
 {
-	if (IsWindow(temp)) {
-		if (FindUltraDock(temp)) {
-			mIRCError("D_ERROR Window already docked");
-			return;
-		}
-		LPDCXULTRADOCK ud = new DCXULTRADOCK;
+	if (FindUltraDock(temp)) {
+		mIRCError("D_ERROR Window already docked");
+		return;
+	}
 
-		RECT rc;
-		GetWindowRect(temp,&rc);
+	LPDCXULTRADOCK ud = new DCXULTRADOCK;
+	RECT rc;
+	GetWindowRect(temp,&rc);
 
-		ud->hwnd = temp;
-		ud->flags = DOCKF_LEFT;
-		if (flag.len() == 3) {
-			switch(flag[2])
-			{
+	ud->hwnd = temp;
+	ud->flags = DOCKF_LEFT;
+
+	if (flag.len() > 1) {
+		mIRCDebug("docking to %s", flag.to_chr());
+
+		switch(flag[1]) {
 			case 'r':
 				ud->flags = DOCKF_RIGHT;
 				break;
+
 			case 't':
 				ud->flags = DOCKF_TOP;
 				break;
+
 			case 'b':
 				ud->flags = DOCKF_BOTTOM;
 				break;
+
 			default:
 				ud->flags = DOCKF_LEFT;
 				break;
-			}
 		}
-		ud->old_exstyles = GetWindowLong(temp,GWL_EXSTYLE);
-		ud->old_styles = GetWindowLong(temp,GWL_STYLE);
-		CopyRect(&ud->rc,&rc);
-		v_docks.push_back(ud);
-		RemStyles(temp,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);
-		RemStyles(temp,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
-		//RemStyles(temp,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
-		AddStyles(temp,GWL_STYLE,WS_CHILDWINDOW);
-		SetParent(temp, mIRCLink.m_mIRCHWND);
-		UpdatemIRC();
 	}
-	else {
-		// if HWND invalid, return an error msg
-		mIRCError("D_ERROR Invalid window");
-	}
+
+	ud->old_exstyles = GetWindowLong(temp,GWL_EXSTYLE);
+	ud->old_styles = GetWindowLong(temp,GWL_STYLE);
+	CopyRect(&ud->rc,&rc);
+	v_docks.push_back(ud);
+	RemStyles(temp,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);
+	RemStyles(temp,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
+	//RemStyles(temp,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
+	AddStyles(temp,GWL_STYLE,WS_CHILDWINDOW);
+	SetParent(temp, mIRCLink.m_mIRCHWND);
+	UpdatemIRC();
 }
 
 void UltraUnDock(HWND hwnd)
