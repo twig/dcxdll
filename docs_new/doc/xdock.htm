@@ -58,7 +58,7 @@
 </td>
 <td><br /><table class="description">
 	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
-	<tr><td>XDOCK USED FOR DOCKING! DUH!.<br /><br />
+	<tr><td>XDock is the complete rewrite of UltraDock. It handles docking of all types of windows and customisation of behaviour upon resizing.<br /><br />
 <div style="text-align: center;">
 	<img src="images/xdock.png" alt="" />
 </div>
@@ -66,7 +66,7 @@
 </table>
 <br /><table class="description">
 	<tr><td class="heading" style="border-color: #0000FF"><a name="16"></a><div style='color: #0000FF;'>/xdock Command</div></td></tr>
-	<tr><td>The /xpopup command is used to create/modify/destroy an XPopup menu.</td></tr>
+	<tr><td>The /xdock command is used to force the positioning of a window within another window, with specific behaviour.</td></tr>
 </table>
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -331,7 +331,7 @@
 <br />
 <br /><table class="description">
 	<tr><td class="heading" style="border-color: #6666FF"><a name="17"></a><div style='color: #6666FF;'>$xdock Command</div></td></tr>
-	<tr><td>The /xpopup command is used to create/modify/destroy an XPopup menu.</td></tr>
+	<tr><td>The $xdock command is used to retrieve docking information about windows and various mIRC components.</td></tr>
 </table>
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
@@ -614,6 +614,66 @@
 	</tr>
 </table>
 <br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>XPopup Events</div></td></tr>
+	<tr><td><table class="event">
+	<tr><td colspan="2">Signals are sent to mIRC containing information about components which have resized.</td></tr>
+	<tr>
+		<td class="syntax">Signal:</td>
+		<td><div class="syntax">DCX size WINDOW_TYPE HWND W H</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">DCX size mIRC_Toolbar 345564 1024 32</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">size</td>
+		<td>The event signal identifier.</td>
+	</tr>
+	<tr>
+		<td class="param">WINDOW_TYPE</td>
+		<td>Information about which window type this information is describing.</td>
+	</tr>
+	<tr>
+		<td class="value">mIRC</td>
+		<td>The mIRC window has resized.</td>
+	</tr>
+	<tr>
+		<td class="value">mIRC_Switchbar</td>
+		<td>The mIRC SwitchBar has resized.</td>
+	</tr>
+	<tr>
+		<td class="value">mIRC_Toolbar</td>
+		<td>The mIRC ToolBar has resized.</td>
+	</tr>
+	<tr>
+		<td class="value">mIRC_TreeList</td>
+		<td>The mIRC TreeList has resized.</td>
+	</tr>
+	<tr>
+		<td class="value">ListBox</td>
+		<td>The channel ListBox has been resized.</td>
+	</tr>
+	<tr>
+		<td class="value">Custom</td>
+		<td>A custom window has been resized.</td>
+	</tr>
+	<tr>
+		<td class="param">HWND</td>
+		<td>The hwnd of the window which resized.</td>
+	</tr>
+	<tr>
+		<td class="param">W</td>
+		<td>The new width of the window.</td>
+	</tr>
+	<tr>
+		<td class="param">H</td>
+		<td>The new height of the window.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> For <a class="value">ListBox</a> and <a class="value">Custom</a>, the <a class="param">HWND</a> will be the HWND of the window which triggered the event. For the other events, the HWND will be for the main mIRC window.</td></tr></table>
+</td></tr>
+</table>
 </td><td class="menuright">
 	<br />
 <a href="#16" style="color: #0000FF;">/xdock Commands</a><br /><ul><li><a href="#16.1" style="color: #0000FF;">b</a></li><li><a href="#16.2" style="color: #0000FF;">c</a></li><li><a href="#16.3" style="color: #0000FF;">m</a></li><li><a href="#16.4" style="color: #0000FF;">n</a></li><li><a href="#16.5" style="color: #0000FF;">s</a></li><li><a href="#16.6" style="color: #0000FF;">t</a></li><li><a href="#16.7" style="color: #0000FF;">u</a></li></ul><a href="#17" style="color: #6666FF;">$xdock() Properties</a><br /><ul><li><a href="#17.1" style="color: #6666FF;">DockSide</a></li><li><a href="#17.2" style="color: #6666FF;">HasDocked</a></li><li><a href="#17.3" style="color: #6666FF;">IsAutoH</a></li><li><a href="#17.4" style="color: #6666FF;">IsAutoS</a></li><li><a href="#17.5" style="color: #6666FF;">IsAutoV</a></li><li><a href="#17.6" style="color: #6666FF;">IsDocked</a></li><li><a href="#17.7" style="color: #6666FF;">IsMenuBar</a></li><li><a href="#17.8" style="color: #6666FF;">IsSwitchBar</a></li><li><a href="#17.9" style="color: #6666FF;">IsToolBar</a></li><li><a href="#17.10" style="color: #6666FF;">IsTreeBar</a></li><li><a href="#17.11" style="color: #6666FF;">SwitchBarPos</a></li><li><a href="#17.12" style="color: #6666FF;">SwitchBarSize</a></li><li><a href="#17.13" style="color: #6666FF;">ToolBarSize</a></li><li><a href="#17.14" style="color: #6666FF;">TreeBarSize</a></li></ul></td>
