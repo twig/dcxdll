@@ -261,6 +261,6 @@ void InitUltraDock(void);
 void CloseUltraDock(void);
 int SwitchbarPos(void);
 void UltraUnDock(HWND hwnd);
-void UpdatemIRC(void);
+void UpdatemIRC(LPRECT adjustrc);
 
 #endif // _DEFINES_H_

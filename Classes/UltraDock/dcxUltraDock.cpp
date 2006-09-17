@@ -15,12 +15,23 @@ HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd;
 VectorOfDocks v_docks; // list of all docked windows.
 WNDPROC oldMDIProc; // old MDI window proc
 
-void UpdatemIRC(void)
+void UpdatemIRC(LPRECT adjustrc)
 { // force a window update.
 	RECT rc;
-	GetWindowRect(mIRCLink.m_mIRCHWND,&rc);
-	SetWindowPos(mIRCLink.m_mIRCHWND,NULL,0,0,(rc.right-rc.left-10),(rc.bottom-rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE|SWP_NOREDRAW);
-	SetWindowPos(mIRCLink.m_mIRCHWND,NULL,0,0,(rc.right-rc.left),(rc.bottom-rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE);
+	if (adjustrc == NULL) {
+		GetWindowRect(mIRCLink.m_mIRCHWND,&rc);
+		SetWindowPos(mIRCLink.m_mIRCHWND,NULL,0,0,(rc.right-rc.left-10),(rc.bottom-rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE|SWP_NOREDRAW);
+		SetWindowPos(mIRCLink.m_mIRCHWND,NULL,0,0,(rc.right-rc.left),(rc.bottom-rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE);
+	}
+	else {
+		POINT pt;
+		GetWindowRect(mdi_hwnd,&rc);
+		OffsetRect(&rc,-(adjustrc->right - adjustrc->left),-(adjustrc->bottom - adjustrc->top));
+		pt.x = rc.left;
+		pt.y = rc.top;
+		ScreenToClient(mIRCLink.m_mIRCHWND,&pt);
+		SetWindowPos(mdi_hwnd,NULL,pt.x,pt.y,((rc.right - rc.left) + (adjustrc->right - adjustrc->left)),((rc.bottom - rc.top) + (adjustrc->bottom - adjustrc->top)),SWP_NOZORDER|SWP_NOOWNERZORDER);
+	}
 }
 /*
 	* Setup Everything for UltraDock
@@ -48,13 +59,42 @@ void CloseUltraDock(void)
 	while (itStart != itEnd) {
 		if (*itStart != NULL) {
 			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
+			RECT rc;
+			GetWindowRect(ud->hwnd,&rc);
+			SetWindowLong(ud->hwnd,GWL_STYLE, ud->old_styles);
+			SetWindowLong(ud->hwnd,GWL_EXSTYLE, ud->old_exstyles);
+		  RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
+			SetParent(ud->hwnd, NULL);
+			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED);
+			switch(ud->flags) {
+				case DOCKF_RIGHT:
+					rc.bottom = 0;
+					rc.top = 0;
+					break;
+
+				case DOCKF_TOP:
+					rc.left = 0;
+					rc.right = 0;
+					break;
+
+				case DOCKF_BOTTOM:
+					rc.left = 0;
+					rc.right = 0;
+					break;
+
+				default: // left
+					rc.bottom = 0;
+					rc.top = 0;
+					break;
+			}
+			//UpdatemIRC(&rc);
 			delete ud;
 		}
 		itStart++;
 	}
 	v_docks.clear();
 	SetWindowLong(mdi_hwnd, GWL_WNDPROC, (LONG)oldMDIProc);
-	UpdatemIRC();
+	UpdatemIRC(NULL);
 }
 
 bool FindUltraDock(HWND hwnd)
@@ -102,6 +142,9 @@ void UltraDock(HWND mWnd, HWND temp, TString flag)
 	GetWindowRect(temp,&rc);
 
 	ud->hwnd = temp;
+	ud->old_exstyles = GetWindowLong(temp,GWL_EXSTYLE);
+	ud->old_styles = GetWindowLong(temp,GWL_STYLE);
+	CopyRect(&ud->rc,&rc);
 	ud->flags = DOCKF_LEFT;
 
 	if (flag.len() > 1) {
@@ -126,16 +169,17 @@ void UltraDock(HWND mWnd, HWND temp, TString flag)
 		}
 	}
 
-	ud->old_exstyles = GetWindowLong(temp,GWL_EXSTYLE);
-	ud->old_styles = GetWindowLong(temp,GWL_STYLE);
-	CopyRect(&ud->rc,&rc);
 	v_docks.push_back(ud);
 	RemStyles(temp,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);
 	RemStyles(temp,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
 	//RemStyles(temp,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
 	AddStyles(temp,GWL_STYLE,WS_CHILDWINDOW);
 	SetParent(temp, mIRCLink.m_mIRCHWND);
-	UpdatemIRC();
+	rc.bottom = 0;
+	rc.top = 0;
+	rc.left = 0;
+	rc.right = 0;
+	UpdatemIRC(&rc);
 }
 
 void UltraUnDock(HWND hwnd)
@@ -148,13 +192,36 @@ void UltraUnDock(HWND hwnd)
 			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
 			if (ud->hwnd == hwnd) {
 				v_docks.erase(itStart);
+				RECT rc;
+				GetWindowRect(ud->hwnd,&rc);
 				SetWindowLong(ud->hwnd,GWL_STYLE, ud->old_styles);
 				SetWindowLong(ud->hwnd,GWL_EXSTYLE, ud->old_exstyles);
 			  RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
 				SetParent(ud->hwnd, NULL);
-				SetWindowPos(ud->hwnd, NULL, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED);
+				SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED);
+				switch(ud->flags) {
+					case DOCKF_RIGHT:
+						rc.bottom = 0;
+						rc.top = 0;
+						break;
+
+					case DOCKF_TOP:
+						rc.left = 0;
+						rc.right = 0;
+						break;
+
+					case DOCKF_BOTTOM:
+						rc.left = 0;
+						rc.right = 0;
+						break;
+
+					default: // left
+						rc.bottom = 0;
+						rc.top = 0;
+						break;
+				}
 				delete ud;
-				UpdatemIRC();
+				UpdatemIRC(&rc);
 				return;
 			}
 		}
@@ -201,37 +268,48 @@ void AdjustMDIRect(WINDOWPOS *wp)
 			if (IsWindow(ud->hwnd)) {
 				GetWindowRect(ud->hwnd,&rcDocked);
 				OffsetRect(&rcDocked,-rcDocked.left,-rcDocked.top);
-				if (ud->flags == DOCKF_LEFT) { // docked to left
-					x = xleftoffset;
-					y = ytopoffset;
-					w = rcDocked.right;
-					h = mdih;
-					xleftoffset += rcDocked.right;
-					mdiw -= rcDocked.right;
-				}
-				else if (ud->flags == DOCKF_RIGHT) { // docked to right
-					x = xrightoffset - rcDocked.right;
-					y = ytopoffset;
-					w = rcDocked.right;
-					h = mdih;
-					xrightoffset += rcDocked.right;
-					mdiw -= rcDocked.right;
-				}
-				else if (ud->flags == DOCKF_TOP) { // dock to top
-					x = xleftoffset;
-					y = ytopoffset;
-					w = mdiw;
-					h = rcDocked.bottom;
-					ytopoffset += rcDocked.bottom;
-					mdih -= rcDocked.bottom;
-				}
-				else { // dock to bottom
-					x = xleftoffset;
-					y = ybottomoffset - rcDocked.bottom;
-					w = mdiw;
-					h = rcDocked.bottom;
-					ybottomoffset -= rcDocked.bottom;
-					mdih -= rcDocked.bottom;
+				switch (ud->flags)
+				{
+				case DOCKF_LEFT:
+					{ // docked to left
+						x = xleftoffset;
+						y = ytopoffset;
+						w = rcDocked.right;
+						h = mdih;
+						xleftoffset += rcDocked.right;
+						mdiw -= rcDocked.right;
+					}
+					break;
+				case DOCKF_RIGHT:
+					{ // docked to right
+						x = xrightoffset - rcDocked.right;
+						y = ytopoffset;
+						w = rcDocked.right;
+						h = mdih;
+						xrightoffset += rcDocked.right;
+						mdiw -= rcDocked.right;
+					}
+					break;
+				case DOCKF_TOP:
+					{ // dock to top
+						x = xleftoffset;
+						y = ytopoffset;
+						w = mdiw;
+						h = rcDocked.bottom;
+						ytopoffset += rcDocked.bottom;
+						mdih -= rcDocked.bottom;
+					}
+					break;
+				default:
+					{ // dock to bottom
+						x = xleftoffset;
+						y = ybottomoffset - rcDocked.bottom;
+						w = mdiw;
+						h = rcDocked.bottom;
+						ybottomoffset -= rcDocked.bottom;
+						mdih -= rcDocked.bottom;
+					}
+					break;
 				}
 				tmp = DeferWindowPos(hdwp,ud->hwnd,NULL,x,y,w,h,SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE);
 				if (tmp != NULL) hdwp = tmp;

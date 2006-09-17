@@ -93,8 +93,10 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 void UnDock(HWND hwnd)
 {
-	if (GetProp(hwnd,"dcx_docked") == NULL)
+	if (GetProp(hwnd,"dcx_docked") == NULL) {
+		mIRCError("D_ERROR Window is not docked");
 		return;
+	}
   // Remove Style for undocking purpose
   RemStyles(hwnd,GWL_STYLE,WS_BORDER);
   //WS_CHILDWINDOW |
