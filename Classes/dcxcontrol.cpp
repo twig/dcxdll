@@ -160,13 +160,14 @@ BOOL DcxControl::callAliasEx( char * szReturn, const char * szFormat, ... ) {
     this->m_pParentDialog->getAliasName( ).to_chr( ), 
     this->m_pParentDialog->getName( ).to_chr( ),
     parms );
-
+	this->m_pParentDialog->incRef();
 	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 201, 0, mIRCLink.m_map_cnt );
   //MessageBox(NULL, mData, NULL, MB_OK);
   //Signal(mData);
   if ( szReturn )
     lstrcpy( szReturn, mIRCLink.m_pData );
   //MessageBox(NULL, szReturn, NULL, MB_OK);
+	this->m_pParentDialog->decRef();
   va_end( args );
   if ( !lstrcmp( mIRCLink.m_pData, "$false" ) )
     return FALSE;

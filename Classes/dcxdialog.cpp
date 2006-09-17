@@ -60,6 +60,8 @@ DcxDialog::DcxDialog(HWND mHwnd, TString &tsName, TString &tsAliasName)
 
 	this->m_ToolTipHWND = NULL;
 
+	this->m_iRefCount = 0;
+
 	SetProp(this->m_Hwnd, "dcx_this", (HANDLE) this);
 
 	DragAcceptFiles(this->m_Hwnd, TRUE);
@@ -274,7 +276,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		else {
 		*/
 
-		UINT ID = mIRC_ID_OFFSET + atoi(input.gettok(3, " ").to_chr());
+		UINT ID = mIRC_ID_OFFSET + input.gettok(3, " ").to_int();
 		DcxControl * p_Control;
 
 		if (IsWindow(GetDlgItem(this->m_Hwnd, ID)) && 
@@ -551,7 +553,11 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -x [NAME] [SWITCH]
 	else if (flags.switch_flags[23]) {
-		DestroyWindow(this->m_Hwnd);
+		int cnt = this->getRefCount();
+		if (cnt == 0)
+			DestroyWindow(this->m_Hwnd);
+		else
+			mIRCError("D_ERROR Dialog can not be closed within the callback alias");
 	}
 	// xdialog -h [NAME] [SWITCH]
 	else if (flags.switch_flags[7]) {
@@ -1367,6 +1373,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	BOOL bParsed = FALSE;
 	LRESULT lRes = 0L;
 
+	p_this->incRef();
 	switch (uMsg) {
 		case WM_THEMECHANGED:
 		{
@@ -1443,7 +1450,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				p_this->callAliasEx(ret, "%s,%d", "close", 0);
 
 				if (lstrcmp("noclose", ret) == 0)
-					return 0L;
+					bParsed = TRUE;
 			}
 			else if (IsWindow((HWND) lParam)) {
 				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
@@ -1463,11 +1470,11 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						char ret[256];
 						p_this->callAliasEx(ret, "%s,%d", "beginmove", 0);
 
-						if (lstrcmp("nomove", ret) == 0)
-							return 0L;
-
-						p_this->m_bInMoving = true;
-						return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+						bParsed = TRUE;
+						if (lstrcmp("nomove", ret) != 0) {
+							p_this->m_bInMoving = true;
+							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+						}
 					}
 
 					break;
@@ -1481,7 +1488,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						p_this->callAliasEx(ret, "%s,%d", "close", 0);
 
 						if (lstrcmp("noclose", ret) == 0)
-							return 0L;
+							bParsed = TRUE;
 					}
 
 					break;
@@ -1494,10 +1501,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 						p_this->callAliasEx(ret, "%s,%d", "min", 0);
 
-						if (lstrcmp("stop", ret) == 0)
-							return 0L;
-
-						return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+						bParsed = TRUE;
+						if (lstrcmp("stop", ret) != 0)
+							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 					}
 
 					break;
@@ -1510,10 +1516,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 						p_this->callAliasEx(ret, "%s,%d", "max", 0);
 
-						if (lstrcmp("stop", ret) == 0)
-							return 0L;
-
-						return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+						bParsed = TRUE;
+						if (lstrcmp("stop", ret) != 0)
+							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 					}
 
 					break;
@@ -1524,7 +1529,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					if (p_this != NULL) {
 						p_this->callAliasEx(NULL, "%s,%d", "restore", 0);
 
-						return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+						bParsed = TRUE;
+						lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 					}
 
 					break;
@@ -1537,12 +1543,11 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 						p_this->callAliasEx(ret, "%s,%d", "beginsize", 0);
 
-						if (lstrcmp("nosize", ret) == 0)
-							return 0L;
-
-						p_this->m_bInSizing = true;
-
-						return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+						bParsed = TRUE;
+						if (lstrcmp("nosize", ret) != 0) {
+							p_this->m_bInSizing = true;
+							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+						}
 					}
 
 					break;
@@ -1569,10 +1574,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_MOVING:
 		{
-			if (p_this != NULL) {
+			if (p_this != NULL)
 				p_this->callAliasEx(NULL, "%s,%d", "moving", 0);
-			}
-
 			break;
 		}
 
@@ -1694,13 +1697,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				DeleteDC(hdcbmp);
 			}
 
-			return TRUE;
+			bParsed = TRUE;
+			lRes = TRUE;
 			break;
 		}
 
 		case WM_CTLCOLORDLG:
 		{
-			return (INT_PTR) p_this->getBackClrBrush();
+			bParsed = TRUE;
+			lRes = (INT_PTR) p_this->getBackClrBrush();
 			break;
 		}
 
@@ -1724,7 +1729,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				//if ( hBackBrush != NULL )
 				//return (LRESULT) hBackBrush;
 
-				return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+				bParsed = TRUE;
+				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 			}
 
 			break;
@@ -1754,8 +1760,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				if (clrBackText != -1)
 					SetBkColor((HDC) wParam, clrBackText);
 
-				if (hBackBrush != NULL)
-					return (LRESULT) hBackBrush;
+				if (hBackBrush != NULL) {
+					bParsed = TRUE;
+					lRes = (LRESULT) hBackBrush;
+				}
 			}
 
 			break;
@@ -1847,7 +1855,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				((int) zDelta > 0 ? "up" : "down"),
 				flags.to_chr());
 
-			return FALSE; // stop parsing of WM_MOUSEWHEEL
+			bParsed = TRUE;
+			lRes = FALSE; // stop parsing of WM_MOUSEWHEEL
 			break;
 		}
 
@@ -1864,7 +1873,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				(p_this->getCursor() != NULL)) 
 			{
 				SetCursor(p_this->getCursor());
-				return TRUE;
+				bParsed = TRUE;
+				lRes = TRUE;
 			}
 
 			break;
@@ -1884,7 +1894,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				// cancel drag drop event
 				if (lstrcmpi(ret, "cancel") == 0) {
 					DragFinish(files);
-					return 0L;
+					bParsed = TRUE;
+					break;
 				}
 
 				// for each file, send callback message
@@ -1927,12 +1938,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					*	This affects ALL dialogs not just dcx ones.
 					* This is not a real fix but a workaround.
 				*/
-				//RECT *rc = (RECT *)lParam;
-				//RECT rcClient;
-				//GetWindowRect(p_this->m_Hwnd,&rcClient);
-				//SetRect(rc,rcClient.left,rcClient.top,rcClient.right,rcClient.bottom);
-				//return TRUE;
-				return LB_ERR;
+				lRes = LB_ERR;
+				bParsed = TRUE;
 			}
 			break;
 
@@ -1952,28 +1959,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		default:
 			break;
 	}
+	p_this->decRef();
+	if (bParsed)
+		return lRes;
 
-	/*
-	LRESULT lRes;
-	char data[500];
-
-	if ( p_this != NULL ) {
-	lRes = CallWindowProc( p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam );
-	wsprintf( data, "DIALOG RETURN %d %x", lRes, lRes );
-	mIRCError( data );
-	return lRes;
-	}
-
-	lRes = DefWindowProc( mHwnd, uMsg, wParam, lParam );
-	wsprintf( data, "DIALOG RETURN %d", lRes );
-	mIRCError( data );
-	return lRes;
-	*/
-	if (bParsed) return lRes;
-
-	if (p_this != NULL) {
+	if (p_this != NULL)
 		return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-	}
 
 	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 }

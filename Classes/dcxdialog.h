@@ -78,6 +78,9 @@ public:
 
   inline HCURSOR getCursor( ) { return this->m_hCursor; };
 	inline HWND getToolTip(void) { return this->m_ToolTipHWND; };
+  inline void incRef( ) { ++this->m_iRefCount; };
+  inline void decRef( ) { --this->m_iRefCount; };
+  inline UINT getRefCount( ) { return this->m_iRefCount; };
 
 protected:
 
@@ -106,6 +109,7 @@ protected:
   COLORREF m_colTransparentBg;
 	HWND m_ToolTipHWND; //!< Dialogs general tooltip control for use with all controls that don't have their own tooltips.
 	HRGN m_Region;
+  UINT m_iRefCount;
   /* **** */
 
   void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
