@@ -611,10 +611,11 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			this->m_Hwnd,
 			NULL, GetModuleHandle(NULL), NULL);
 	}
-	// xdialog -w [NAME] [SWITCH] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 3) {
-		int index = atoi(input.gettok(3, " ").to_chr());
-		TString filename = input.gettok(4, -1, " ");
+	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
+	else if (flags.switch_flags[22] && numtok > 4) {
+		TString flags = input.gettok(3, " ");
+		int index = input.gettok(4, " ").to_int();
+		TString filename = input.gettok(5, -1, " ");
 		HICON iconSmall;
 		HICON iconLarge;
 
@@ -636,15 +637,15 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			mIRCError("/xdialog -w: no icon in file");
 			return;
 		}
-		//HICON iconGSmall = CreateGrayscaleIcon(iconSmall);
-		//DeleteObject(iconSmall);
-		//iconSmall = iconGSmall;
+
+		if (flags.find('g', 0)) {
+			iconSmall = CreateGrayscaleIcon(iconSmall);
+			iconLarge = CreateGrayscaleIcon(iconLarge);
+		}
+
 		// set the new icons, get back the current icon
 		iconSmall = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_SMALL, (LPARAM) iconSmall);
 		iconLarge = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_BIG, (LPARAM) iconLarge);
-
-		//iconLarge = CreateGrayscaleIcon(iconLarge);
-		//DrawState(GetDC(this->m_Hwnd), NULL, NULL, 0, 0, iconLarge, 0, 0, NULL, NULL, DI_NORMAL | DI_DEFAULTSIZE);
 
 		// delete the old icons
 		if (iconSmall)

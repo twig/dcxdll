@@ -201,11 +201,12 @@ void DcxImage::parseCommandRequest(TString & input) {
 	this->parseSwitchFlags(&input.gettok(3, " "), &flags);
 	int numtok = input.numtok(" ");
 
-	//xdid -w [NAME] [ID] [SWITCH] [INDEX] [SIZE] [ICON]
-	if (flags.switch_flags[22] && numtok > 5) {
-		TString filename = input.gettok(6, -1, " ");
-		int index = input.gettok(4, " ").to_int();
-		int size = input.gettok(5, " ").to_int();
+	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
+	if (flags.switch_flags[22] && numtok > 6) {
+		TString flags = input.gettok(4, " ");
+		int index = input.gettok(5, " ").to_int();
+		int size = input.gettok(6, " ").to_int();
+		TString filename = input.gettok(7, -1, " ");
 
 		filename.trim();
 		PreloadData();
@@ -214,6 +215,9 @@ void DcxImage::parseCommandRequest(TString & input) {
 			ExtractIconEx(filename.to_chr(), index, &(this->m_hIcon), NULL, 1);
 		else
 			ExtractIconEx(filename.to_chr(), index, NULL, &(this->m_hIcon), 1);
+
+		if (flags.find('g', 0))
+			this->m_hIcon = CreateGrayscaleIcon(this->m_hIcon);
 
 		this->m_iIconSize = size;
 		this->m_bIsIcon = TRUE;

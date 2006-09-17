@@ -1193,7 +1193,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		HICON icon;
 		int index;
 		TString filename;
-		BOOL isGray = (input.gettok(4, " ").find('g', 1) > 0 ? TRUE : FALSE);
+		BOOL isGray = (input.gettok(4, " ").find('g', 0) ? TRUE : FALSE);
 
 		if (iFlags & LVSIL_SMALL) {
 			if ((himl = this->getImageList(LVSIL_NORMAL)) == NULL) {

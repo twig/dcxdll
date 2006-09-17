@@ -801,55 +801,49 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
       }
     }
   }
-  // xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-  else if ( flags.switch_flags[22] && numtok > 5 ) {
+	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
+	else if (flags.switch_flags[22] && numtok > 5) {
+		UINT iFlags = this->parseIconFlagOptions( input.gettok( 4, " " ) );
 
-    UINT iFlags = this->parseIconFlagOptions( input.gettok( 4, " " ) );
+		HIMAGELIST himl;
+		HICON icon;
 
-    HIMAGELIST himl;
-    HICON icon;
+		int index = input.gettok(5, " ").to_int();
+		TString filename = input.gettok(6, -1, " ");
+		BOOL isGray = (input.gettok(4, " ").find('g', 0) ? TRUE : FALSE);
 
-    int index = atoi( input.gettok( 5, " ").to_chr( ) );
-    TString filename = input.gettok( 6, -1, " " );
+			if (this->m_iIconSize > 16)
+				ExtractIconEx(filename.to_chr(), index, &icon, NULL, 1 );
+			else	
+				ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
 
-    if ( iFlags & TVIT_NORMAL ) {
+		if (isGray)
+			icon = CreateGrayscaleIcon(icon);
 
-      if ( ( himl = this->getImageList( TVSIL_NORMAL ) ) == NULL ) {
+		if (iFlags & TVIT_NORMAL) {
+			if ((himl = this->getImageList(TVSIL_NORMAL)) == NULL) {
+				himl = this->createImageList();
 
-        himl = this->createImageList( );
+				if (himl)
+					this->setImageList(himl, TVSIL_NORMAL);
+			}
 
-        if ( himl )
-          this->setImageList( himl, TVSIL_NORMAL );
-      }
+			ImageList_AddIcon(himl, icon);
+			DestroyIcon(icon);
+		}
 
-      if ( this->m_iIconSize == 16 )
-        ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
-      else
-        ExtractIconEx( filename.to_chr( ), index, &icon, 0, 1 );
+		if (iFlags & TVIT_STATE) {
+			if ((himl = this->getImageList(TVSIL_STATE)) == NULL) {
+				himl = this->createImageList();
 
-      ImageList_AddIcon( himl, icon );
-      DestroyIcon( icon );
-    }
-    
-    if ( iFlags & TVIT_STATE ) {
+				if (himl)
+					this->setImageList(himl, TVSIL_STATE);
+			}
 
-      if ( ( himl = this->getImageList( TVSIL_STATE ) ) == NULL ) {
-
-        himl = this->createImageList( );
-
-        if ( himl )
-          this->setImageList( himl, TVSIL_STATE );
-      }
-
-      if ( this->m_iIconSize == 16 )
-        ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
-      else
-        ExtractIconEx( filename.to_chr( ), index, &icon, 0, 1 );
-
-      ImageList_AddIcon( himl, icon );
-      DestroyIcon( icon );
-    }
-  }
+			ImageList_AddIcon(himl, icon);
+			DestroyIcon(icon);
+		}
+	}
   // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
   else if ( flags.switch_flags[24] && numtok > 3 ) {
 
@@ -1064,24 +1058,23 @@ HTREEITEM DcxTreeView::insertItem(TString * path, TString * data, TString * Tool
  * blah
  */
 
-UINT DcxTreeView::parseIconFlagOptions( TString & flags ) {
+UINT DcxTreeView::parseIconFlagOptions(TString &flags) {
+	UINT i = 1, len = flags.len(), iFlags = 0;
 
-  UINT i = 1, len = flags.len( ), iFlags = 0;
+	// no +sign, missing params
+	if (flags[0] != '+') 
+		return iFlags;
 
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return iFlags;
+	while (i < len) {
+		if (flags[i] == 'n')
+			iFlags |= TVIT_NORMAL;
+		else if (flags[i] == 's')
+			iFlags |= TVIT_STATE;
 
-  while ( i < len ) {
+		++i;
+	}
 
-    if ( flags[i] == 'n' )
-      iFlags |= TVIT_NORMAL;
-    else if ( flags[i] == 's' )
-      iFlags |= TVIT_STATE;
-
-    ++i;
-  }
-  return iFlags;
+	return iFlags;
 }
 
 /*!

@@ -362,7 +362,8 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 		TString error;
 
 		if (numtok > 3) {
-			error.sprintf("D_ERROR /xdid: Invalid command /xdid %s %s %s %s (or invalid arguments) on Control %d",
+			error.sprintf("D_ERROR /xdid: Invalid %s command /xdid %s %s %s %s (or invalid arguments) on Control %d",
+				this->getType().to_chr(),
 				input.gettok(3, " ").to_chr(),
 				input.gettok(1, " ").to_chr(),
 				input.gettok(2, " ").to_chr(),
@@ -370,7 +371,8 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 				this->getUserID());
 		}
 		else {
-			error.sprintf("D_ERROR /xdid: Invalid command /xdid %s %s %s (or invalid arguments) on Control %d",
+			error.sprintf("D_ERROR /xdid: Invalid %s command /xdid %s %s %s (or invalid arguments) on Control %d",
+				this->getType().to_chr(),
 				input.gettok(3, " ").to_chr(),
 				input.gettok(1, " ").to_chr(),
 				input.gettok(2, " ").to_chr(),

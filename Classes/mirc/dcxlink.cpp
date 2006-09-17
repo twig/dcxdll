@@ -233,17 +233,22 @@ void DcxLink::parseCommandRequest( TString & input ) {
     SetWindowText( this->m_Hwnd, text.to_chr( ) );
     this->redrawWindow( );
   }
-  // xdid -w [NAME] [ID] [SWITCH] [INDEX] [FILENAME]
-  else if ( flags.switch_flags[22] && numtok > 4 ) {
+	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
+	else if (flags.switch_flags[22] && numtok > 5) {
+		TString flags = input.gettok(4, " ");
+		int index = input.gettok(5, " ").to_int();
+		TString filename = input.gettok(6, -1, " ");
 
-    int index = input.gettok( 4, " ").to_int( );
+		if (this->m_hIcon != NULL)
+			DestroyIcon(this->m_hIcon);
 
-    if ( this->m_hIcon != NULL )
-      DestroyIcon( this->m_hIcon );
+		ExtractIconEx(filename.to_chr(), index, NULL, &this->m_hIcon, 1);
 
-    TString filename = input.gettok( 5, -1, " " );
-    ExtractIconEx( filename.to_chr( ), index, NULL, &this->m_hIcon, 1 );
-  }
+		if (flags.find('g', 0))
+			this->m_hIcon = CreateGrayscaleIcon(this->m_hIcon);
+
+		this->redrawWindow();
+	}
   else
     this->parseGlobalCommandRequest( input, flags );
 }

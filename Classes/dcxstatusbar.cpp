@@ -285,27 +285,29 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
       this->setText( nPos, HIWORD( this->getText( nPos, text ) ), itemtext.to_chr( ) );
     }
   }
-  // xdid -w [NAME] [ID] [SWITCH] [INDEX] [FILENAME]
-  else if ( flags.switch_flags[22] && numtok > 4 ) {
+	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
+	else if (flags.switch_flags[22] && numtok > 5) {
+		HIMAGELIST himl;
+		HICON icon;
+		TString flags = input.gettok(4, " ");
+		int index = input.gettok(5, " ").to_int();
+		TString filename = input.gettok(6, -1, " ");
 
-    HIMAGELIST himl;
-    HICON icon;
-    int index;
+		if ((himl = this->getImageList()) == NULL) {
+			himl = this->createImageList();
 
-    if ( ( himl = this->getImageList( ) ) == NULL ) {
+			if (himl)
+				this->setImageList(himl);
+		}
 
-      himl = this->createImageList( );
+		ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
 
-      if ( himl )
-        this->setImageList( himl );
-    }
+		if (flags.find('g', 0))
+			icon = CreateGrayscaleIcon(icon);
 
-    index = input.gettok( 4, " ").to_int( );
-    TString filename = input.gettok( 5, -1, " " );
-    ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
-    ImageList_AddIcon( himl, icon );
-    DestroyIcon( icon );
-  }
+		ImageList_AddIcon(himl, icon);
+		DestroyIcon(icon);
+	}
   // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
   else if ( flags.switch_flags[24] ) {
 

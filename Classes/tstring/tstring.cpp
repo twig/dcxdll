@@ -1042,9 +1042,10 @@ int TString::find(const char chr, int N) {
 			return i;
 	}
 
-	// if there were matches
-	if (c)
+	// return number of results
+	if (N == 0)
 		return c;
+
 	// -1 if no matches
 	else
 		return -1;

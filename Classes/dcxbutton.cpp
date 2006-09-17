@@ -288,7 +288,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
     this->redrawWindow( );
   }
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 4) {
+	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
 		int index = input.gettok(5, " ").to_int();
