@@ -10,6 +10,7 @@ $PAGES = array(
     'cla' => 'Cell Layout Algorithm',
     'dcxvsmdx' => 'DCX vs MDX',
     'archive' => 'Download Archive',
+    'tutorials' => 'Tutorials',
 
     "button" => "Button",
     "pbar" => "Progress Bar",
@@ -123,7 +124,7 @@ foreach ($PAGES as $page => $pagelabel) {
 	
 	
 	// right menu - dont bother for these pages listed below
-    if (!in_array($page, array('changes', 'cla', 'dcxvsmdx')))
+    if (!in_array($page, array('changes', 'cla', 'dcxvsmdx', 'tutorials')))
 		dcxdoc_menu_right($pagelabel);
 
 	// unload data if it is a specialised page

@@ -14,7 +14,7 @@
 
 
 
-body,div,td, th {
+body,div,td,th {
 	font-size: 9pt;
 	font-family: tahoma;
 	color: #000000;
@@ -261,4 +261,11 @@ td.param {
 	color: #D60000;
 	text-align: left;
 	font-weight: bold;
+}
+
+pre.code {
+	background-color: #ededed;
+	border: 1px solid black;
+	font-family: mono, monospace;
+	padding: 5px;
 }

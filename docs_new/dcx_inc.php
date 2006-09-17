@@ -21,6 +21,7 @@ $VERSION = "1.3.6";
 
 $DOCPATH = "./doc/";
 $INCPATH = "./inc/";
+$EGPATH  = "./examples/";
 
 $XDID = array();
 $XDIDPROPS = array();
@@ -128,35 +129,6 @@ if (!function_exists('array_walk_recursive')) {
 // do formatting of wiki code here
 // http://www.phpit.net/article/create-bbcode-php/
 function wikiData(&$value, $userdata = "") {
-/*
-	// old code
-	if (preg_match_all('/\\[([vesproi]+)\\](.+?)\\[\/([vesproi]+)\\]/', $value, $regs)) {
-		foreach ($regs[0] as $id => $matchtext) {
-			$style = '';
-			$format = '';
-
-			// $regs[2][$id] = text in the tags
-			switch ($regs[1][$id]) {
-				case 'v': $style = 'value'; break;
-				case 'e': $style = 'event'; break;
-				case 'r': $style = 'eventreturn'; break;
-				case 's': $style = 'style'; break;
-				case 'p': $style = 'param'; break;
-				case 'i': $style = 'property'; break;
-				case 'o': $style = 'os'; $format = "({$regs[2][$id]})"; break;
-			}
-
-		    // perform replacement
-			if ($style) {
-				if (!$format)
-				    $format = $regs[2][$id];
-
-				$value = str_replace($matchtext, "<a class=\"$style\">$format</a>", $value);
-			}
-		}
-	}
-*/
-
 	// new code
 	$str = $value;
 
@@ -171,6 +143,7 @@ function wikiData(&$value, $userdata = "") {
 		'/\[o\](.*?)\[\/o\]/is', // operating system
 		'/\[n\](.*?)\[\/n\]/is', // note
 		'/\[f\](.*?)\[\/f\]/is', // flag
+		'/\[code\](.*?)\[\/code\]/is', // code
 	);
 
 	$simple_replace = array(
@@ -183,6 +156,7 @@ function wikiData(&$value, $userdata = "") {
 		'<a class="os">($1)</a>',
 		'<a class="note">Note:</a> $1',
 		'<a class="value">$1</a>', // flag
+		'<pre class="code">$1</pre>', // code
 	);
 
 	// Do simple BBCode's
@@ -333,17 +307,7 @@ else
 
 <table class="bar">
 	<tr>
-		<td>
-<?
-/*
-			<a href='index.htm'>Home</a> |
-			<a href="archive.htm">Download</a> |
-			<a href="http://dcx.scriptsdb.org/forum/">Forum</a> |
-			<a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a> |
-*/
-?>
-			&nbsp;
-		</td>
+		<td>&nbsp;</td>
 		<td style="text-align: center;">Dialog Control Xtension<?php
 	if ($page == 'xpopup')
 	    echo " - $pagelabel Menus";
@@ -373,7 +337,7 @@ function dcxdoc_menu_left() {
 	asort($pages);
 
 	foreach ($pages as $page => $pagelabel) {
-		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock')))
+		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials')))
 			continue;
 
 	    echo "<li><a href=\"$page.htm\">$pagelabel</a></li>";
@@ -388,9 +352,9 @@ function dcxdoc_menu_left() {
 	</ul>
 	<a class="section">About DCX</a><br />
 	<ul>
-		<li><a href="archive.htm">Download Archive</a></li>
-		<li><a href="changes.htm">Version History</a></li>
 		<li><a href="dcxvsmdx.htm">DCX vs MDX</a></li>
+		<li><a href="tutorials.htm">Tutorials</a></li>
+		<li><a href="changes.htm">Version History</a></li>
     </ul>
 </td>
 <?php
@@ -927,7 +891,7 @@ function dcxdoc_print_intro($page) {
 	$fninfo();
 
 	// image at the end of intro
-	if (!in_array($page, array('index', 'cla', 'archive'))) {
+	if (!in_array($page, array('index', 'cla', 'archive', 'tutorials'))) {
 ?><br /><br />
 <div style="text-align: center;">
 	<img src="images/<?php echo $page; ?>.png" alt="" />

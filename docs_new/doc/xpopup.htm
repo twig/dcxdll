@@ -26,9 +26,7 @@
 
 <table class="bar">
 	<tr>
-		<td>
-			&nbsp;
-		</td>
+		<td>&nbsp;</td>
 		<td style="text-align: center;">Dialog Control Xtension - XPopup Menus</td>
 		<td style="text-align: right;">v1.3.6</td>
 	</tr>
@@ -51,9 +49,9 @@
 	</ul>
 	<a class="section">About DCX</a><br />
 	<ul>
-		<li><a href="archive.htm">Download Archive</a></li>
-		<li><a href="changes.htm">Version History</a></li>
 		<li><a href="dcxvsmdx.htm">DCX vs MDX</a></li>
+		<li><a href="tutorials.htm">Tutorials</a></li>
+		<li><a href="changes.htm">Version History</a></li>
     </ul>
 </td>
 <td><br /><table class="description">
@@ -754,7 +752,8 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 An example of the XPopup signal handler code is shown below:<br />
 
-<pre>ON *:SIGNAL:Xpopup-*: {
+<pre class="code">
+ON *:SIGNAL:Xpopup-*: {
 	;// get the menu name from Xpopup-[MENUNAME]
 	var %m $gettok($signal, 2-, 45)
 
@@ -773,7 +772,8 @@ An example of the XPopup signal handler code is shown below:<br />
 	else {
 	    echo -a unknown menu
 	}
-}</pre>
+}
+</pre>
 </td></tr>
 </table>
 </td><td class="menuright">

@@ -1,0 +1,52 @@
+alias tb_ex {
+	if !$dialog(tb_ex) { dialog -m tb_ex tb_ex }
+}
+
+dialog tb_ex {
+	title "New Project"
+	size -1 -1 662 136
+	option pixels
+}
+
+on *:DIALOG:tb_ex:init:*:{
+	;Mark the dialog
+	dcx Mark $dname callback_tb_ex
+
+	;create the toolbar
+	;Syntax: /xdialog -c [DNAME] [ID] [TYPE] [X] [Y] [W] [H] (OPTIONS)
+	xdialog -c $dname 1 toolbar 0 0 0 25 top list
+
+	;Set the Icon Size
+	;Syntax: /xdid -l [DNAME] [ID] [SIZE]
+	xdid -l $dname 1 16
+
+	;Add an Icon to the Toolbars internal Icon list
+	;Syntax: /xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [FILENAME]
+	;Note: this uses the shell.dll provided with dcx and assumes it is in <mirc-directory>/DCX
+	xdid -w $dname 1 +ndh 10 $mircexe
+
+	;Add a Button
+	;Syntax: /xdid -a [DNAME] [ID] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] (Button Text)[TAB](Tooltip Text)
+	xdid -a $dname 1 1 +bkl 100 1 0 ClickMe $tab This is a tooltip
+
+	;Some more Buttons with Icons
+	;Note how they behave differently because of the flags
+
+	xdid -w $dname 1 +ndh 5 $mircexe
+	xdid -w $dname 1 +ndh 3 $mircexe
+	xdid -w $dname 1 +ndh 12 $mircexe
+	xdid -w $dname 1 +ndh 8 $mircexe
+
+	xdid -a $dname 1 2 +dl 80 2 0 Im disabled $tab Cant click this!!!
+	xdid -a $dname 1 3 +kgl 80 3 0 Group 1 $tab I co-operate with "Group 2"
+	xdid -a $dname 1 4 +kgl 120 4 0 Group 2 $tab I co-operate with "Group 1"
+	xdid -a $dname 1 5 +a 120 5 0 Im Autosized to fit the width of text $tab This is a tooltip
+}
+
+alias callback_tb_ex {
+	if $3 == 1 {
+		if $2 == sclick {
+			echo -a BUTTON NUMBER $4 WAS CLICKED!!! HOORRAY!!!
+		}
+	}
+}

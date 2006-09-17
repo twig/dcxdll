@@ -1,0 +1,52 @@
+;// the entry function to create a normal mIRC dialog
+;// this creates a dialog called "very_basic" using the table "very_basic_table"
+alias very_basic {
+	dialog -ma very_basic very_basic_table
+}
+
+;// this is the table which we are using
+dialog very_basic_table {
+	title "Very Basic"
+	size -1 -1 173 31
+}
+
+;// this is the normal mIRC dialog event handler, for the "very_basic" dialog
+on *:dialog:very_basic:*:*: {
+	;// on the initialise event...
+	if ($devent == init) {
+		;// call DCX Mark to specify which dialog you are marking, and the callback function "very_basic_cb"
+		dcx Mark $dname very_basic_cb
+
+		;// Creating a button with the ID #1 at position (5, 5) with the width of 75x20 pixels
+		xdialog -c $dname 1 button 5 5 75 20
+		;// Label the button(#1) with the caption "Hello" 
+		xdid -t $dname 1 Hello
+
+
+		;// Creating a button with the ID #2 at position (90, 5) with the width of 75x20 pixels
+		xdialog -c $dname 2 button 90 5 75 20
+		;// Label the button(#2) with the caption "Close"
+		xdid -t $dname 2 Close
+	}
+}
+
+
+;// Callback alias for "very_basic"
+;// The basic format of callback parameters are:
+;// Parameter $1 = the dialog name (ie. very_basic)
+;// Parameter $2 = the event name (ie. sclick) 
+;// Parameter $3 = the ID of the control for which the event occurred (ie. ID #1)
+alias very_basic_cb {
+	;// If the event was a single click on the dialog (ID is #0 for a dialog event)
+	if (($2 == sclick) && ($3 == 0)) {
+		echo -s You have clicked on the dialog!
+	}
+	;// If the event was a single click on the hello button (remeber the ID is #1 for the hello button?)
+	else if (($2 == sclick) && ($3 == 1)) {
+		echo -s You have clicked on the Hello button!
+	}
+	;// If the event was a single click on the close button (remeber the ID is #2 for the hello button?)
+	else if (($2 == sclick) && ($3 == 2)) {
+		xdialog -x $1
+	}
+}

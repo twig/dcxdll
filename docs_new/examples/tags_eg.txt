@@ -1,0 +1,66 @@
+; --------< Zion Plugin >------------------------------------------
+; Name....: Tag
+; Author..: sprion
+; Email...: sprion@lyniq.com
+; Date....: 11 Aug 06
+; URL.....: http://zion-irc.sourceforge.net
+; Info....: Ripped from a plugin from the addon Zion Sphinx 3.0
+;---------------------------------------------------------------------
+
+; use /tags_eg to display
+alias tags_eg {
+	dialog -ma tags_eg tags_eg_table
+}
+
+dialog tags_eg_table {
+	title "Tags"
+	size -1 -1 218 257
+}
+
+on *:dialog:tags_eg:*:*: {
+	if ($devent == init) {
+		; attaching a callback alias (event handler) to this dialog (important)
+		dcx Mark $dname tags_eg_cb
+		; setting dialog border/look
+		xdialog -b $dname +oty
+		; Call initilisation alias
+		tags_eg_init_dcx
+	}
+}
+
+alias -l tags_eg_init_dcx {
+
+	; ---creating a button with ID 3, tabstop parameter, allows tabbing to this control
+	xdialog -c $dname 3 button 145 225 65 25 tabstop
+	xdid -t $dname 3 Close
+	; ---end
+
+	; ---creating another button with ID 2
+	xdialog -c $dname 2 button 80 225 60 25 tabstop
+	xdid -t $dname 2 De-Tag
+	; ---end
+
+	;---listview ID 1
+	xdialog -c $dname 1 listview 10 10 200 210 report fullrow showsel nolabelwrap tooltip tabstop grid
+
+	; adding columns
+	xdid -t $dname 1 +c 0 130 IRC Nick $chr(9) +l 0 70 Tag Type
+
+	; adding new line, using custom alias
+	xdid -a tags_eg 1 0 0 +c 0 1 0 0 0 0 sprion $chr(9) + 0 Outgoing
+	;---end
+}
+
+;// Callback alias for tags_eg
+alias tags_eg_cb {
+	if ($2 = sclick) {
+		if ($3 = 3) {
+			; close
+			dialog -x $1
+		}
+		elseif ($3 = 2) {
+			; deleting tag
+			xdid -d $1 1 $xdid($1,1,1).selnum
+		}
+	}
+}
