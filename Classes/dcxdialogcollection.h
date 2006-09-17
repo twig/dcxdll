@@ -38,7 +38,7 @@ public:
   DcxDialog * getDialogByHandle( HWND mHwnd );
   DcxDialog * getDialogByName( TString & tsName );
 
-  void closeDialogs( );
+  bool closeDialogs( );
 
 protected:
 

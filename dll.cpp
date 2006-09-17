@@ -348,10 +348,9 @@ void WINAPI LoadDll(LOADINFO * load) {
 int WINAPI UnloadDll(int timeout) {
 	// DLL unloaded because mIRC exits or /dll -u used
 	if (timeout == 0) {
-		//mIRCError("Unloading DCX DLL");
-		CloseUltraDock(); // UnDock All.
-
 		Dialogs.closeDialogs();
+
+		CloseUltraDock(); // UnDock All.
 
 		UnregisterClass(DCX_PROGRESSBARCLASS, GetModuleHandle(NULL));
 		UnregisterClass(DCX_TREEVIEWCLASS, GetModuleHandle(NULL));

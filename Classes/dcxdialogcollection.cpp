@@ -136,19 +136,36 @@ void DcxDialogCollection::deleteDialog( DcxDialog * p_Dialog ) {
  * blah
  */
 
-void DcxDialogCollection::closeDialogs( ) {
+bool DcxDialogCollection::closeDialogs( ) {
 
 	this->m_closeall = true;
   VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
   VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
 
+	bool inUse = false;
   while ( itStart != itEnd ) {
 
-    if ( *itStart != NULL )
-      DestroyWindow( (*itStart)->getHwnd( ) );
-
+		if ( *itStart != NULL ) {
+			if ((*itStart)->getRefCount() != 0) {
+				inUse = true;
+				break;
+			}
+		}
     itStart++;
   }
-	this->m_vpDialog.clear(); // clear list.
+
+	if (!inUse) {
+		itStart = this->m_vpDialog.begin( );
+		while ( itStart != itEnd ) {
+
+			if ( *itStart != NULL ) {
+				DestroyWindow( (*itStart)->getHwnd( ) );
+			}
+
+			itStart++;
+		}
+		this->m_vpDialog.clear(); // clear list.
+	}
 	this->m_closeall = false;
+	return inUse;
 }

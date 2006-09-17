@@ -553,8 +553,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -x [NAME] [SWITCH]
 	else if (flags.switch_flags[23]) {
-		int cnt = this->getRefCount();
-		if (cnt == 0)
+		if (this->getRefCount() == 0)
 			DestroyWindow(this->m_Hwnd);
 		else
 			mIRCError("D_ERROR Dialog can not be closed within the callback alias");
