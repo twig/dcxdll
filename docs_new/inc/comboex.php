@@ -48,15 +48,19 @@ function get_xdid_comboex(&$XDID) {
 		),
 		'w' => array(
 	        '__desc' => 'This command lets you add an icon to the comboex image list.',
-	        '__cmd' => '[INDEX] [FILENAME]',
-	        '__eg' => '113 C:/mIRC/shell.dll',
+	        '__cmd' => "[+FLAGS] [INDEX] [FILENAME]",
+	        '__eg' => "+ 113 C:/mIRC/shell.dll",
             '__params' => array(
-                'INDEX' => "Icon index in icon archive",
-                'FILENAME' => "Icon archive filename",
+                '+FLAGS' => array(
+					'__desc' => "Icon flags",
+					'__values' => array(
+						'g' => "Convert to grayscale icon.",
+					),
+				),
+				'INDEX' => "Icon index in icon archive",
+				'FILENAME' => "Icon archive filename",
 			),
-	        '__notes' => array(
-	            "Use [v]0[/v] for [p]ICON[/p] if the file is a single icon file.",
-			),
+	        '__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
 		),
 		'y' => 'This command lets you clear the comboex image list.',
 		'r' => 'This command lets you clear all the comboex items.',

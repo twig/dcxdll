@@ -111,13 +111,21 @@
 	<tr><td colspan="2">This command lets you set an icon for the image.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -w [DNAME] [ID] [INDEX] [SIZE] [ICON]</div></td>
+		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [SIZE] [ICON]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 2 48 C:/mIRC/shell.dll</div></td>
+		<td><div class="example">/xdid -w dcx 4 +g 2 48 C:/mIRC/shell.dll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
 	<tr>
 		<td class="param">INDEX</td>
 		<td>Icon index in icon archive.</td>
@@ -130,7 +138,7 @@
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use 0 if the file is a single icon file.</li><li>When the icon is loaded, the Image control is resized to <a class="param">SIZE</a> width and height.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>When the icon is loaded, the Image control is resized to <a class="param">SIZE</a> for width and height.</li></ul></td></tr></table>
 <br />
 <br /><table class="description">
 	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Image Events</div></td></tr>

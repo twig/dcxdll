@@ -31,16 +31,22 @@ function get_xdid_image(&$XDID) {
 		),
 		'w' => array(
 	        '__desc' => 'This command lets you set an icon for the image.',
-	        '__cmd' => '[INDEX] [SIZE] [ICON]',
-	        '__eg' => '2 48 C:/mIRC/shell.dll',
+	        '__cmd' => '[+FLAGS] [INDEX] [SIZE] [ICON]',
+	        '__eg' => '+g 2 48 C:/mIRC/shell.dll',
 	        '__params' => array(
+	        	'+FLAGS' => array(
+					'__desc' => "Icon flags",
+					'__values' => array(
+						'g' => "Convert to grayscale icon.",
+					),
+				),
 	            'INDEX' => 'Icon index in icon archive.',
 	            'SIZE' => 'Size of the icon.',
 				'FILENAME' => 'Icon archive filename.',
 			),
 	        '__notes' => array(
-				"Use 0 if the file is a single icon file.",
-				"When the icon is loaded, the Image control is resized to [p]SIZE[/p] width and height.",
+				"Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
+				"When the icon is loaded, the Image control is resized to [p]SIZE[/p] for width and height.",
 			),
 		),
 	);

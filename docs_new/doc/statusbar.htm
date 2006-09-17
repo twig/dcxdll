@@ -176,13 +176,21 @@
 	<tr><td colspan="2">This command lets you add an icon to the statusbar image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -w [DNAME] [ID] [INDEX] [FILENAME]</div></td>
+		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 113 C:/mIRC/shell.dll</div></td>
+		<td><div class="example">/xdid -w dcx 4 + 113 C:/mIRC/shell.dll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
 	<tr>
 		<td class="param">INDEX</td>
 		<td>Icon index in icon archive</td>
@@ -191,7 +199,7 @@
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use 0 if the file is a single icon file.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">

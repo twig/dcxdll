@@ -314,13 +314,21 @@
 	<tr><td colspan="2">This command lets you add an icon to the tab image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -w [DNAME] [ID] [INDEX] [FILENAME]</div></td>
+		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 113 C:/mIRC/shell.dll</div></td>
+		<td><div class="example">/xdid -w dcx 4 +g 113 C:/mIRC/shell.dll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
 	<tr>
 		<td class="param">INDEX</td>
 		<td>Icon index in icon archive</td>
