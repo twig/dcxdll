@@ -15,23 +15,24 @@ HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd;
 VectorOfDocks v_docks; // list of all docked windows.
 WNDPROC oldMDIProc; // old MDI window proc
 
-void UpdatemIRC(LPRECT adjustrc)
-{ // force a window update.
-	RECT rc;
-	if (adjustrc == NULL) {
-		GetWindowRect(mIRCLink.m_mIRCHWND,&rc);
-		SetWindowPos(mIRCLink.m_mIRCHWND,NULL,0,0,(rc.right-rc.left-10),(rc.bottom-rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE|SWP_NOREDRAW);
-		SetWindowPos(mIRCLink.m_mIRCHWND,NULL,0,0,(rc.right-rc.left),(rc.bottom-rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE);
-	}
-	else {
-		POINT pt;
-		GetWindowRect(mdi_hwnd,&rc);
-		OffsetRect(&rc,-(adjustrc->right - adjustrc->left),-(adjustrc->bottom - adjustrc->top));
-		pt.x = rc.left;
-		pt.y = rc.top;
-		ScreenToClient(mIRCLink.m_mIRCHWND,&pt);
-		SetWindowPos(mdi_hwnd,NULL,pt.x,pt.y,((rc.right - rc.left) + (adjustrc->right - adjustrc->left)),((rc.bottom - rc.top) + (adjustrc->bottom - adjustrc->top)),SWP_NOZORDER|SWP_NOOWNERZORDER);
-	}
+// force a window update.
+void UpdatemIRC(LPRECT adjustrc) {
+	SendMessage(mIRCLink.m_mIRCHWND, WM_SIZE, NULL, NULL);
+	//RECT rc;
+	//if (adjustrc == NULL) {
+	//	GetWindowRect(mIRCLink.m_mIRCHWND,&rc);
+	//	SetWindowPos(mIRCLink.m_mIRCHWND,NULL,0,0,(rc.right-rc.left-10),(rc.bottom-rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE|SWP_NOREDRAW);
+	//	SetWindowPos(mIRCLink.m_mIRCHWND,NULL,0,0,(rc.right-rc.left),(rc.bottom-rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE);
+	//}
+	//else {
+	//	POINT pt;
+	//	GetWindowRect(mdi_hwnd,&rc);
+	//	OffsetRect(&rc,-(adjustrc->right - adjustrc->left),-(adjustrc->bottom - adjustrc->top));
+	//	pt.x = rc.left;
+	//	pt.y = rc.top;
+	//	ScreenToClient(mIRCLink.m_mIRCHWND,&pt);
+	//	SetWindowPos(mdi_hwnd,NULL,pt.x,pt.y,((rc.right - rc.left) + (adjustrc->right - adjustrc->left)),((rc.bottom - rc.top) + (adjustrc->bottom - adjustrc->top)),SWP_NOZORDER|SWP_NOOWNERZORDER);
+	//}
 }
 /*
 	* Setup Everything for UltraDock
