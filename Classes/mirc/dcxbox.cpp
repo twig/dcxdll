@@ -1006,16 +1006,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				// no text, no box!
 				if (!n) {
 					if (this->m_iBoxStyles & BOXS_ROUNDED) {
-						if (this->isExStyle(WS_EX_TRANSPARENT)) {
-							HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-							FrameRgn(hdc,m_Region,(HBRUSH)GetStockObject(BLACK_BRUSH),1,1);
-							DeleteObject(m_Region);
-						}
-						else {
-							HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
-							RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-							SelectObject(hdc,OldhBrush);
-						}
+						HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
+						if (!this->isExStyle(WS_EX_TRANSPARENT))
+							FillRgn(hdc,m_Region,hBrush);
+						FrameRgn(hdc,m_Region,(HBRUSH)GetStockObject(DC_PEN),1,1);
+						DeleteObject(m_Region);
 					}
 					else {
 						this->FillBkg(hdc, &rc2, hBrush);
@@ -1099,16 +1094,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 					// draw the border
 					if (this->m_iBoxStyles & BOXS_ROUNDED) {
-						if (this->isExStyle(WS_EX_TRANSPARENT)) {
-							HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-							FrameRgn(hdc,m_Region,(HBRUSH)GetStockObject(BLACK_BRUSH),1,1);
-							DeleteObject(m_Region);
-						}
-						else {
-							HBRUSH OldhBrush = (HBRUSH) SelectObject(hdc,hBrush);
-							RoundRect(hdc, rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-							SelectObject(hdc,OldhBrush);
-						}
+						HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
+						if (!this->isExStyle(WS_EX_TRANSPARENT))
+							FillRgn(hdc,m_Region,hBrush);
+						FrameRgn(hdc,m_Region,(HBRUSH)GetStockObject(BLACK_BRUSH),1,1);
+						DeleteObject(m_Region);
 					}
 					else {
 						this->FillBkg(hdc, &rc2, hBrush);
