@@ -555,8 +555,12 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	else if (flags.switch_flags[23]) {
 		if (this->getRefCount() == 0)
 			DestroyWindow(this->m_Hwnd);
-		else
-			mIRCError("D_ERROR Dialog can not be closed within the callback alias");
+		else {
+			TString cmd;
+
+			cmd.sprintf("/.timer -m 1 0 xdialog -x %s", this->getName().to_chr());
+			mIRCcom(cmd.to_chr());
+		}
 	}
 	// xdialog -h [NAME] [SWITCH]
 	else if (flags.switch_flags[7]) {
@@ -1945,6 +1949,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_NCDESTROY: 
 		{
 			if (p_this != NULL) {
+
+
 				LRESULT res = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 
 				Dialogs.deleteDialog(p_this);
