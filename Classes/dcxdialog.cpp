@@ -1639,8 +1639,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		{
 			if (mHwnd != p_this->getHwnd())
 				break;
-			//if (p_this->m_Region != NULL)
-			//	break;
 			HDC hdc = (HDC) wParam;
 			RECT rwnd;
 

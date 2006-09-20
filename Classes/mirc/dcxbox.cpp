@@ -964,11 +964,32 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_ERASEBKGND:
 		{
-			if (this->isExStyle(WS_EX_TRANSPARENT)) {
-				bParsed = TRUE;
-				return TRUE;
+			//if (this->isExStyle(WS_EX_TRANSPARENT)) {
+			//	bParsed = TRUE;
+			//	return TRUE;
+			//}
+			HDC hdc = (HDC)wParam;
+			RECT rc;
+			GetClientRect(this->m_Hwnd, &rc);
+			// paint the background
+			//if (this->_hTheme != NULL) {
+			//	int _iStateId = (IsWindowEnabled(this->m_Hwnd) ? GBS_NORMAL : GBS_DISABLED);
+			//	if (IsThemeBackgroundPartiallyTransparentUx(this->_hTheme, BP_GROUPBOX, _iStateId))
+			//		DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rc);
+			//}
+			if (!this->isExStyle(WS_EX_TRANSPARENT)) {
+				// set up brush colors
+				HBRUSH hBrush = GetSysColorBrush(COLOR_3DFACE);
+				if (this->m_hBackBrush != NULL)
+					hBrush = this->m_hBackBrush;
+				else
+					hBrush = GetSysColorBrush(COLOR_3DFACE);
+				FillRect(hdc, &rc, hBrush);
 			}
+			bParsed = TRUE;
+			return TRUE;
 		}
+		break;
 
 		case WM_PAINT:
 			{
@@ -1180,7 +1201,14 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			this->callAliasEx(NULL, "%s,%d", "rclick", this->getUserID());
 			break;
 		}
-
+		case WM_THEMECHANGED:
+			{
+				if (this->_hTheme != NULL) {
+					CloseThemeDataUx(this->_hTheme);
+					this->_hTheme = OpenThemeDataUx(this->m_Hwnd,L"BUTTON");
+				}
+			}
+			break;
     case WM_DESTROY:
       {
         delete this;

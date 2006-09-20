@@ -75,6 +75,7 @@ extern int swb_pos;
 extern BOOL MDIismax;
 extern VectorOfDocks v_docks;
 bool dcxSignal;
+ULONG_PTR gdi_token = NULL;
 
 /*!
 * \brief mIRC DLL Load Function
@@ -139,6 +140,17 @@ void WINAPI LoadDll(LOADINFO * load) {
 
 	// Initializing OLE Support
 	OleInitialize(NULL);
+
+	// Initialize GDI+
+	GdiplusStartupInput gsi;
+	gsi.GdiplusVersion = 1;
+	gsi.DebugEventCallback = NULL;
+	gsi.SuppressBackgroundThread = FALSE;
+	gsi.SuppressExternalCodecs = FALSE;
+	if (GdiplusStartup(&gdi_token,&gsi,NULL) != Ok) {
+		mIRCError("Unable to Startup GDI+");
+		return;
+	}
 
 	//get IClassFactory* for WebBrowser
 	CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, 0, IID_IClassFactory, (void**) &g_pClassFactory);
@@ -374,6 +386,10 @@ int WINAPI UnloadDll(int timeout) {
 		// Class Factory of Web Control
 		if (g_pClassFactory != NULL)
 			g_pClassFactory->Release();
+
+		// Shutdown GDI+
+		if (gdi_token != NULL)
+			GdiplusShutdown(gdi_token);
 
 		// Terminating OLE Support
 		OleUninitialize();

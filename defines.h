@@ -45,6 +45,9 @@
 #include "classes/tstring/tstring.h"
 #include <uxtheme.h>
 #include <tmschema.h>
+#include <gdiplus.h>
+using namespace Gdiplus;
+
 #include "classes/dcxdialogcollection.h"
 
 #define DLL_VERSION    1

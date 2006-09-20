@@ -48,7 +48,8 @@ DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
   if ( bNoTheme )
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  //this->m_pImage = NULL;
+  this->m_pImage = NULL;
+	this->m_bResizeImage = false;
   this->m_hBitmap = NULL;
   this->m_clrTransColor = -1;
   this->m_hIcon = NULL;
@@ -99,7 +100,8 @@ DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
   if ( bNoTheme )
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  //this->m_pImage = NULL;
+  this->m_pImage = NULL;
+	this->m_bResizeImage = false;
   this->m_hBitmap = NULL;
   this->m_clrTransColor = -1;
   this->m_hIcon = NULL;
@@ -136,21 +138,15 @@ DcxImage::~DcxImage() {
  */
 
 void DcxImage::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-//  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( " " );
 	*Styles |= SS_NOTIFY;
 
-	/*
 	while ( i <= numtok ) {
-		if ( styles.gettok( i , " " ) == "center" )
-			*Styles |= SS_CENTER;
-		else if ( styles.gettok( i , " " ) == "right" )
-			*Styles |= SS_RIGHT;
-		else if ( styles.gettok( i , " " ) == "endellipsis" )
-			*Styles |= SS_ENDELLIPSIS;
+		if ( styles.gettok( i , " " ) == "transparent" )
+			*ExStyles |= WS_EX_TRANSPARENT;
 
 		i++;
 	}
-	*/
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -186,6 +182,11 @@ void DcxImage::PreloadData() {
 	if (this->m_hIcon != NULL) {
 		DestroyIcon(this->m_hIcon);
 		this->m_hIcon = NULL;
+	}
+
+	if (this->m_pImage != NULL) {
+		delete this->m_pImage;
+		this->m_pImage = NULL;
 	}
 }
 
@@ -243,8 +244,12 @@ void DcxImage::parseCommandRequest(TString & input) {
 		filename.trim();
 		PreloadData();
 
-		this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
-
+		//this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
+		int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, NULL, 0);
+		WCHAR  *wfilename = new WCHAR[widelen+1];
+		MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, wfilename, widelen);
+		this->m_pImage = new Image(wfilename);
+		delete [] wfilename;
 		this->m_bIsIcon = FALSE;
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
@@ -297,45 +302,28 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       break;
 
     case WM_ERASEBKGND:
-      {
-        /*
-        mIRCError( "WM_ERASEBKGND" );
-        if ( this->m_pImage != NULL ) {
+			{
+				if (!this->isExStyle(WS_EX_TRANSPARENT)) {
+					HDC hdc = (HDC) wParam;
 
-          HDC hdc = (HDC) wParam;
+					RECT rect;
+					GetClientRect( this->m_Hwnd, &rect );
 
-          RECT rect;
-          GetClientRect( this->m_Hwnd, &rect );
+					if ( this->m_hBackBrush != NULL )
+						FillRect( hdc, &rect, this->m_hBackBrush );
+					else
+						FillRect( hdc, &rect, GetSysColorBrush( COLOR_3DFACE ));
+				}
 
-          Graphics grphx( hdc );
-
-          HBRUSH hBrush;
-
-          
-          if ( this->m_hBackBrush != NULL )
-          FillRect( hdc, &rect, this->m_hBackBrush );
-          else {
-          hBrush = GetSysColorBrush( COLOR_3DFACE );
-          FillRect( hdc, &rect, hBrush );
-          }
-          
-
-          grphx.DrawImage( this->m_pImage, 0, 0, rect.right - rect.left, rect.bottom - rect.top );
-
-          bParsed = TRUE;
-          return TRUE;
-        }
-        */
-        bParsed = TRUE;
-        return TRUE;
+				bParsed = TRUE;
+				return TRUE;
       }
       break;
-      
 
 		case WM_PAINT:
 		{
 			// default paint method
-			if ((this->m_hBitmap == NULL) && (this->m_hIcon == NULL))
+			if ((this->m_hBitmap == NULL) && (this->m_hIcon == NULL) && (this->m_pImage == NULL))
 				break;
 
 			PAINTSTRUCT ps; 
@@ -345,31 +333,15 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			hdc = BeginPaint(this->m_Hwnd, &ps);
 			GetClientRect(this->m_Hwnd, &rect);
 
-				/*
-				Graphics grphx( hdc );
-
-				HBRUSH hBrush;
-
-				if ( this->m_hBackBrush != NULL )
-				FillRect( hdc, &rect, this->m_hBackBrush );
-				/*
-				else {
-				hBrush = GetSysColorBrush( COLOR_3DFACE );
-				FillRect( hdc, &rect, hBrush );
-				}
-
-				grphx.DrawImage( this->m_pImage, 0, 0, rect.right - rect.left, rect.bottom - rect.top );
-				*/
-
 			// draw bitmap
-			if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon)) {
+			if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon) && (this->m_pImage == NULL)) {
 				HDC hdcbmp = CreateCompatibleDC(hdc);
 				BITMAP bmp;
 
-				if (this->m_hBackBrush != NULL)
-					FillRect(hdc, &rect, this->m_hBackBrush);
-				else
-					FillRect(hdc, &rect, GetSysColorBrush( COLOR_3DFACE ));
+				//if (this->m_hBackBrush != NULL)
+				//	FillRect(hdc, &rect, this->m_hBackBrush);
+				//else
+				//	FillRect(hdc, &rect, GetSysColorBrush( COLOR_3DFACE ));
 
 				GetObject( this->m_hBitmap, sizeof(BITMAP), &bmp );
 				SelectObject( hdcbmp, this->m_hBitmap );
@@ -387,14 +359,25 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 			// draw icon
 			else if ((this->m_hIcon != NULL) && (this->m_bIsIcon)) {
-				if (this->m_hBackBrush != NULL)
-					FillRect(hdc, &rect, this->m_hBackBrush);
-				else
-					FillRect(hdc, &rect, GetSysColorBrush(COLOR_3DFACE));
+				//if (this->m_hBackBrush != NULL)
+				//	FillRect(hdc, &rect, this->m_hBackBrush);
+				//else
+				//	FillRect(hdc, &rect, GetSysColorBrush(COLOR_3DFACE));
 
 				DrawIconEx(hdc, 0, 0, this->m_hIcon, this->m_iIconSize, this->m_iIconSize, 0, this->m_hBackBrush, DI_NORMAL | DI_COMPAT); 
 			}
+			else if (this->m_pImage != NULL) {
+				Graphics grphx( hdc );
 
+				//if ( this->m_hBackBrush != NULL )
+				//	FillRect( hdc, &rect, this->m_hBackBrush );
+				//else
+				//	FillRect( hdc, &rect, GetSysColorBrush( COLOR_3DFACE ));
+				if (this->m_bResizeImage)
+					grphx.DrawImage( this->m_pImage, 0, 0, rect.right - rect.left, rect.bottom - rect.top );
+				else
+					grphx.DrawImage( this->m_pImage, 0, 0);
+			}
 			EndPaint(this->m_Hwnd, &ps);
 
 			bParsed = TRUE;
