@@ -191,6 +191,19 @@ mIRC(xdock) {
 
 	int numtok = input.numtok(" ");
 
+	if (numtok < 1) {
+		mIRCError("D_ERROR Invalid Parameters");
+		return 0;
+	}
+
+	TString switches = input.gettok(1, " ");
+
+	// update mirc
+	if (switches[1] == 'p') {
+		UpdatemIRC();
+		return 1;
+	}
+
 	if (numtok < 2) {
 		mIRCError("D_ERROR Invalid Flag");
 		return 0;
@@ -203,7 +216,6 @@ mIRC(xdock) {
 		return 0;
 	}
 
-	TString switches = input.gettok(1, " ");
 	TString flags = input.gettok(3, " ");
 
 	// dock to toolbar
@@ -250,6 +262,54 @@ mIRC(xdock) {
 			UltraUnDock(dockHwnd);
 		else
 			UnDock(dockHwnd);
+	}
+	// resize docked window
+	else if ((switches[1] == 'r') && (numtok > 3)) {
+		int size = input.gettok(4, " ").to_int();
+
+		LPDCXULTRADOCK ud = GetUltraDock(dockHwnd);
+
+		if (ud != NULL) {
+			RECT rc;
+			GetWindowRect(dockHwnd, &rc);
+
+			//mIRCDebug("box is %d %d %d %d", rc.left, rc.top, rc.right, rc.bottom);
+
+			switch(ud->flags)
+			{
+				case DOCKF_LEFT:
+					rc.right = rc.left + size;
+					break;
+
+				case DOCKF_RIGHT:
+					rc.left = rc.right - size;
+					break;
+
+				case DOCKF_TOP:
+					rc.bottom = rc.top + size;
+					break;
+
+				case DOCKF_BOTTOM:
+					rc.top = rc.bottom - size;
+					break;
+
+				default:
+					mIRCError("unknown dock side");
+					break;
+			}
+
+			//mIRCDebug("box is %d %d %d %d", rc.left, rc.top, rc.right, rc.bottom);
+			// i think this is wrong, it should be x,y 0,0 but that comes out funny.
+			// might have to put this in the Switch() above for each case
+			MoveWindow(dockHwnd, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+
+			UpdatemIRC();
+		}
+
+		//if (FindUltraDock(dockHwnd))
+		//	UltraUnDock(dockHwnd);
+		//else
+		//	UnDock(dockHwnd);
 	}
 	else {
 		mIRCError("D_ERROR Invalid Flag");

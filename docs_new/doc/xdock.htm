@@ -232,7 +232,48 @@
 <br />
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="16.5"></a>/xdock -s	</td></tr>
+			<a name="16.5"></a>/xdock -p	</td></tr>
+	<tr><td colspan="2">This command forces mIRC to update its docked windows.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -p </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -p</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="16.6"></a>/xdock -r	</td></tr>
+	<tr><td colspan="2">This command resizes a docked window.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -r [HWND_DOCK] [+FLAGS] [SIZE]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -r $dialog(dcx).hwnd + 250</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to resize.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>There are currently no flags.</td>
+	</tr>
+	<tr>
+		<td class="param">SIZE</td>
+		<td>The size that the window will be set to.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the window is docked in a top or bottom position, <a class="param">SIZE</a> will be the height.</li><li>If docked in a left or right position, then <a class="param">SIZE</a> will be the width.</li></ul></td></tr></table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="16.7"></a>/xdock -s	</td></tr>
 	<tr><td colspan="2">This command docks a window to the mIRC SwitchBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -271,7 +312,7 @@
 <br />
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="16.6"></a>/xdock -t	</td></tr>
+			<a name="16.8"></a>/xdock -t	</td></tr>
 	<tr><td colspan="2">This command docks a window to the mIRC ToolBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -310,7 +351,7 @@
 <br />
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="16.7"></a>/xdock -u	</td></tr>
+			<a name="16.9"></a>/xdock -u	</td></tr>
 	<tr><td colspan="2">This command undocks a window.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -674,7 +715,7 @@
 </table>
 </td><td class="menuright">
 	<br />
-<a href="#16" style="color: #0000FF;">/xdock Commands</a><br /><ul><li><a href="#16.1" style="color: #0000FF;">b</a></li><li><a href="#16.2" style="color: #0000FF;">c</a></li><li><a href="#16.3" style="color: #0000FF;">m</a></li><li><a href="#16.4" style="color: #0000FF;">n</a></li><li><a href="#16.5" style="color: #0000FF;">s</a></li><li><a href="#16.6" style="color: #0000FF;">t</a></li><li><a href="#16.7" style="color: #0000FF;">u</a></li></ul><a href="#17" style="color: #6666FF;">$xdock() Properties</a><br /><ul><li><a href="#17.1" style="color: #6666FF;">DockSide</a></li><li><a href="#17.2" style="color: #6666FF;">HasDocked</a></li><li><a href="#17.3" style="color: #6666FF;">IsAutoH</a></li><li><a href="#17.4" style="color: #6666FF;">IsAutoS</a></li><li><a href="#17.5" style="color: #6666FF;">IsAutoV</a></li><li><a href="#17.6" style="color: #6666FF;">IsDocked</a></li><li><a href="#17.7" style="color: #6666FF;">IsMenuBar</a></li><li><a href="#17.8" style="color: #6666FF;">IsSwitchBar</a></li><li><a href="#17.9" style="color: #6666FF;">IsToolBar</a></li><li><a href="#17.10" style="color: #6666FF;">IsTreeBar</a></li><li><a href="#17.11" style="color: #6666FF;">SwitchBarPos</a></li><li><a href="#17.12" style="color: #6666FF;">SwitchBarSize</a></li><li><a href="#17.13" style="color: #6666FF;">ToolBarSize</a></li><li><a href="#17.14" style="color: #6666FF;">TreeBarSize</a></li></ul></td>
+<a href="#16" style="color: #0000FF;">/xdock Commands</a><br /><ul><li><a href="#16.1" style="color: #0000FF;">b</a></li><li><a href="#16.2" style="color: #0000FF;">c</a></li><li><a href="#16.3" style="color: #0000FF;">m</a></li><li><a href="#16.4" style="color: #0000FF;">n</a></li><li><a href="#16.5" style="color: #0000FF;">p</a></li><li><a href="#16.6" style="color: #0000FF;">r</a></li><li><a href="#16.7" style="color: #0000FF;">s</a></li><li><a href="#16.8" style="color: #0000FF;">t</a></li><li><a href="#16.9" style="color: #0000FF;">u</a></li></ul><a href="#17" style="color: #6666FF;">$xdock() Properties</a><br /><ul><li><a href="#17.1" style="color: #6666FF;">DockSide</a></li><li><a href="#17.2" style="color: #6666FF;">HasDocked</a></li><li><a href="#17.3" style="color: #6666FF;">IsAutoH</a></li><li><a href="#17.4" style="color: #6666FF;">IsAutoS</a></li><li><a href="#17.5" style="color: #6666FF;">IsAutoV</a></li><li><a href="#17.6" style="color: #6666FF;">IsDocked</a></li><li><a href="#17.7" style="color: #6666FF;">IsMenuBar</a></li><li><a href="#17.8" style="color: #6666FF;">IsSwitchBar</a></li><li><a href="#17.9" style="color: #6666FF;">IsToolBar</a></li><li><a href="#17.10" style="color: #6666FF;">IsTreeBar</a></li><li><a href="#17.11" style="color: #6666FF;">SwitchBarPos</a></li><li><a href="#17.12" style="color: #6666FF;">SwitchBarSize</a></li><li><a href="#17.13" style="color: #6666FF;">ToolBarSize</a></li><li><a href="#17.14" style="color: #6666FF;">TreeBarSize</a></li></ul></td>
   </tr>
 </table>
 
@@ -682,7 +723,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 20th September, 06</td>
+		<td style="text-align: right;">Last Updated: 22nd September, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">
