@@ -265,51 +265,50 @@ mIRC(xdock) {
 	}
 	// resize docked window
 	else if ((switches[1] == 'r') && (numtok > 3)) {
-		int size = input.gettok(4, " ").to_int();
+		int x = input.gettok(4, " ").to_int();
+		int y = input.gettok(5, " ").to_int();
 
 		LPDCXULTRADOCK ud = GetUltraDock(dockHwnd);
+		DWORD flags = 0;
+		if (ud != NULL)
+			flags = ud->flags;
+		else
+			flags = (DWORD)GetProp(dockHwnd,"dcx_docked");
+		if (flags == 0) {
+			mIRCError("D_ERROR Unable to find flags information.");
+			return 0;
+		}
+		RECT rc;
+		GetWindowRect(dockHwnd, &rc);
+		OffsetRect(&rc,-rc.left,-rc.top); // right & bottom now == width & height
 
-		if (ud != NULL) {
-			RECT rc;
-			GetWindowRect(dockHwnd, &rc);
+		switch(flags)
+		{
+			case DOCKF_LEFT:
+			case DOCKF_RIGHT:
+			case DOCKF_AUTOV:
+				rc.right = x;
+				break;
 
-			//mIRCDebug("box is %d %d %d %d", rc.left, rc.top, rc.right, rc.bottom);
+			case DOCKF_TOP:
+			case DOCKF_BOTTOM:
+			case DOCKF_AUTOH:
+				rc.bottom = y;
+				break;
 
-			switch(ud->flags)
-			{
-				case DOCKF_LEFT:
-					rc.right = rc.left + size;
-					break;
+			case DOCKF_NORMAL:
+				rc.bottom = y;
+				rc.right = x;
+				break;
 
-				case DOCKF_RIGHT:
-					rc.left = rc.right - size;
-					break;
-
-				case DOCKF_TOP:
-					rc.bottom = rc.top + size;
-					break;
-
-				case DOCKF_BOTTOM:
-					rc.top = rc.bottom - size;
-					break;
-
-				default:
-					mIRCError("unknown dock side");
-					break;
-			}
-
-			//mIRCDebug("box is %d %d %d %d", rc.left, rc.top, rc.right, rc.bottom);
-			// i think this is wrong, it should be x,y 0,0 but that comes out funny.
-			// might have to put this in the Switch() above for each case
-			MoveWindow(dockHwnd, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
-
-			UpdatemIRC();
+			default:
+				mIRCError("unknown dock side");
+				break;
 		}
 
-		//if (FindUltraDock(dockHwnd))
-		//	UltraUnDock(dockHwnd);
-		//else
-		//	UnDock(dockHwnd);
+		// x & y handled by mIRC update, only change width & height.
+		SetWindowPos(dockHwnd,NULL,0,0,rc.right, rc.bottom,SWP_NOMOVE|SWP_NOSENDCHANGING|SWP_NOZORDER|SWP_NOOWNERZORDER);
+		UpdatemIRC();
 	}
 	else {
 		mIRCError("D_ERROR Invalid Flag");
