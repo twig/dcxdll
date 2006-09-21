@@ -142,15 +142,15 @@ void WINAPI LoadDll(LOADINFO * load) {
 	OleInitialize(NULL);
 
 	// Initialize GDI+
-	GdiplusStartupInput gsi;
-	gsi.GdiplusVersion = 1;
-	gsi.DebugEventCallback = NULL;
-	gsi.SuppressBackgroundThread = FALSE;
-	gsi.SuppressExternalCodecs = FALSE;
-	if (GdiplusStartup(&gdi_token,&gsi,NULL) != Ok) {
-		mIRCError("Unable to Startup GDI+");
-		return;
-	}
+	//GdiplusStartupInput gsi;
+	//gsi.GdiplusVersion = 1;
+	//gsi.DebugEventCallback = NULL;
+	//gsi.SuppressBackgroundThread = FALSE;
+	//gsi.SuppressExternalCodecs = FALSE;
+	//if (GdiplusStartup(&gdi_token,&gsi,NULL) != Ok) {
+	//	mIRCError("Unable to Startup GDI+");
+	//	return;
+	//}
 
 	//get IClassFactory* for WebBrowser
 	CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, 0, IID_IClassFactory, (void**) &g_pClassFactory);
@@ -388,8 +388,8 @@ int WINAPI UnloadDll(int timeout) {
 			g_pClassFactory->Release();
 
 		// Shutdown GDI+
-		if (gdi_token != NULL)
-			GdiplusShutdown(gdi_token);
+		//if (gdi_token != NULL)
+		//	GdiplusShutdown(gdi_token);
 
 		// Terminating OLE Support
 		OleUninitialize();

@@ -979,7 +979,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			//}
 			if (!this->isExStyle(WS_EX_TRANSPARENT)) {
 				// set up brush colors
-				HBRUSH hBrush = GetSysColorBrush(COLOR_3DFACE);
+				HBRUSH hBrush;
 				if (this->m_hBackBrush != NULL)
 					hBrush = this->m_hBackBrush;
 				else

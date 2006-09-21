@@ -244,12 +244,12 @@ void DcxImage::parseCommandRequest(TString & input) {
 		filename.trim();
 		PreloadData();
 
-		//this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
-		int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, NULL, 0);
-		WCHAR  *wfilename = new WCHAR[widelen+1];
-		MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, wfilename, widelen);
-		this->m_pImage = new Image(wfilename);
-		delete [] wfilename;
+		this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
+		//int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, NULL, 0);
+		//WCHAR  *wfilename = new WCHAR[widelen+1];
+		//MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, wfilename, widelen);
+		//this->m_pImage = new Image(wfilename);
+		//delete [] wfilename;
 		this->m_bIsIcon = FALSE;
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
@@ -338,11 +338,6 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				HDC hdcbmp = CreateCompatibleDC(hdc);
 				BITMAP bmp;
 
-				//if (this->m_hBackBrush != NULL)
-				//	FillRect(hdc, &rect, this->m_hBackBrush);
-				//else
-				//	FillRect(hdc, &rect, GetSysColorBrush( COLOR_3DFACE ));
-
 				GetObject( this->m_hBitmap, sizeof(BITMAP), &bmp );
 				SelectObject( hdcbmp, this->m_hBitmap );
 
@@ -359,25 +354,16 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 			// draw icon
 			else if ((this->m_hIcon != NULL) && (this->m_bIsIcon)) {
-				//if (this->m_hBackBrush != NULL)
-				//	FillRect(hdc, &rect, this->m_hBackBrush);
-				//else
-				//	FillRect(hdc, &rect, GetSysColorBrush(COLOR_3DFACE));
-
 				DrawIconEx(hdc, 0, 0, this->m_hIcon, this->m_iIconSize, this->m_iIconSize, 0, this->m_hBackBrush, DI_NORMAL | DI_COMPAT); 
 			}
-			else if (this->m_pImage != NULL) {
-				Graphics grphx( hdc );
+			//else if (this->m_pImage != NULL) {
+			//	Graphics grphx( hdc );
 
-				//if ( this->m_hBackBrush != NULL )
-				//	FillRect( hdc, &rect, this->m_hBackBrush );
-				//else
-				//	FillRect( hdc, &rect, GetSysColorBrush( COLOR_3DFACE ));
-				if (this->m_bResizeImage)
-					grphx.DrawImage( this->m_pImage, 0, 0, rect.right - rect.left, rect.bottom - rect.top );
-				else
-					grphx.DrawImage( this->m_pImage, 0, 0);
-			}
+			//	if (this->m_bResizeImage)
+			//		grphx.DrawImage( this->m_pImage, 0, 0, rect.right - rect.left, rect.bottom - rect.top );
+			//	else
+			//		grphx.DrawImage( this->m_pImage, 0, 0);
+			//}
 			EndPaint(this->m_Hwnd, &ps);
 
 			bParsed = TRUE;
