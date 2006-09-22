@@ -264,23 +264,27 @@ mIRC(xdock) {
 			UnDock(dockHwnd);
 	}
 	// resize docked window
-	else if ((switches[1] == 'r') && (numtok > 3)) {
+	// [SWITCH] [hwnd to dock] [+options] [X] [Y]
+	else if ((switches[1] == 'r') && (numtok > 4)) {
 		int x = input.gettok(4, " ").to_int();
 		int y = input.gettok(5, " ").to_int();
 
 		LPDCXULTRADOCK ud = GetUltraDock(dockHwnd);
 		DWORD flags = 0;
+
 		if (ud != NULL)
 			flags = ud->flags;
 		else
-			flags = (DWORD)GetProp(dockHwnd,"dcx_docked");
-		if (flags == 0) {
+			flags = (DWORD) GetProp(dockHwnd, "dcx_docked");
+
+		if (flags == NULL) {
 			mIRCError("D_ERROR Unable to find flags information.");
 			return 0;
 		}
+
 		RECT rc;
 		GetWindowRect(dockHwnd, &rc);
-		OffsetRect(&rc,-rc.left,-rc.top); // right & bottom now == width & height
+		OffsetRect(&rc, -rc.left, -rc.top); // right & bottom now == width & height
 
 		switch(flags)
 		{
@@ -307,8 +311,15 @@ mIRC(xdock) {
 		}
 
 		// x & y handled by mIRC update, only change width & height.
-		SetWindowPos(dockHwnd,NULL,0,0,rc.right, rc.bottom,SWP_NOMOVE|SWP_NOSENDCHANGING|SWP_NOZORDER|SWP_NOOWNERZORDER);
+		SetWindowPos(dockHwnd, NULL, 0, 0, rc.right, rc.bottom, SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOZORDER | SWP_NOOWNERZORDER);
 		UpdatemIRC();
+		// TODO: there is a redraw issue here
+		/*
+		/xdock -m somewhere
+		/xdock -r size 50
+		/xdock -r size 150
+		notice the border isnt drawn properly
+		*/
 	}
 	else {
 		mIRCError("D_ERROR Invalid Flag");
