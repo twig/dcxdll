@@ -56,7 +56,7 @@ alias tags_eg_cb {
 	if ($2 = sclick) {
 		if ($3 = 3) {
 			; close
-			dialog -x $1
+			xdialog -x $1
 		}
 		elseif ($3 = 2) {
 			; deleting tag

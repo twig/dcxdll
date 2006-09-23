@@ -287,7 +287,7 @@ alias tags_eg_cb {
 	if ($2 = sclick) {
 		if ($3 = 3) {
 			; close
-			dialog -x $1
+			xdialog -x $1
 		}
 		elseif ($3 = 2) {
 			; deleting tag
@@ -417,12 +417,12 @@ alias -l _proxytoggle {
 alias proxy_eg_cb {
 	if ($2 = sclick) {
 		; CANCEL
-		if ($3 = 32) dialog -x $1
+		if ($3 = 32) xdialog -x $1
 		; OK
 		elseif ($3 = 31) {
 			; save & close dialog
 			; you should add a method to save settings here
-			dialog -x $1
+			xdialog -x $1
 		}
 		; any of the radios (ID 12 to 14) clicked, will run this method
 		elseif ($3 isnum 12-14) _proxytoggle $1 $3
