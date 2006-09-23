@@ -1,0 +1,808 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX Controls - Dialog Control Xtension DLL v1.3.6 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table>
+	<tr>
+		<td>
+			<a href="index.htm"><img src="images/dcx.png" alt="DCX - Dialog Control Xtension" /></a>
+		</td>
+		<td style="vertical-align: bottom; text-align: right;">
+			<a href='index.htm'>Home</a> |
+			<a href='http://dcx.scriptsdb.org/translations'>Translations</a> |
+			<a href="archive.htm">Download</a> |
+			<a href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a>
+		</td>
+	</tr>
+</table>
+
+<table class="bar">
+	<tr>
+		<td>&nbsp;</td>
+		<td style="text-align: center;">Dialog Control Xtension - Controls</td>
+		<td style="text-align: right;">v1.3.6</td>
+	</tr>
+</table>
+
+<table>
+	<tr>
+<td class="menuleft">
+	<br />
+	<a class="section" href="#1">Introduction</a><br />
+	<br />
+	<a class="section">General Usage</a><br />
+	<ul>
+		<li><a href="dcx.htm">DCX Commands</a></li>
+		<li><a href="xdialog.htm">Marked Dialog</a></li>
+		<li><a href="xdid.htm">Controls</a></li>
+	</ul>
+	<a class="section">DCX Controls</a><br />
+	<ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dcx.htm">DCX Commands</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li>	</ul>
+	<a class="section">DCX Features</a><br />
+	<ul>
+		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
+		<li><a href="xdock.htm">XDock</a></li>
+		<li><a href="xpopup.htm">XPopup</a></li>
+	</ul>
+	<a class="section">About DCX</a><br />
+	<ul>
+		<li><a href="dcxvsmdx.htm">DCX vs MDX</a></li>
+		<li><a href="tutorials.htm">Tutorials</a></li>
+		<li><a href="changes.htm">Version History</a></li>
+    </ul>
+</td>
+<td><br /><table class="description">
+	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td>The DCX supported controls are extended controls built directly on the DCX marked dialog. These are used to extend the capabilities of the existing controls in mIRC dialogs which are very limited in use for GUI design.<br />
+<br/>
+<a class="note">Note:</a> Please note that some features of some DCX controls are only available to Windows XP+ machines. These commands have the symbol <a class="os">(OperatingSystem+)</a> beside their listing.
+</td></tr>
+</table>
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td>These general control styles are available when creating any DCX control.</td></tr>
+</table>
+<table class="styles">
+	<tr>
+		<td class="style"><a name="3.1" class="style">disabled</a></td>
+		<td>The control is created disabled.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.2" class="style">group</a></td>
+		<td>Specifies the first control of a group of controls. The group consists of this first control and all controls defined after it, up to the next control with the <a class="style">group</a> style. The first control in each group usually has the tabstop style so that the user can move from group to group. The user can subsequently change the keyboard focus from one control in the group to the next control in the group by using the direction keys.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.3" class="style">notheme</a></td>
+		<td>Removes XP Themes on controls.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="3.4" class="style">tabstop</a></td>
+		<td>Specifies a control that can receive the keyboard focus when the user presses the TAB key. Pressing the TAB key changes the keyboard focus to the next control with the <a class="style">tabstop</a> style.</td>
+	</tr>
+</table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td>These are general DCX control commands which apply to any DCX control.</td></tr>
+</table>
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.1"></a>/xdid -C	</td></tr>
+	<tr><td colspan="2">This command lets you modify the colors of the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -C [DNAME] [ID] [+FLAGS] [COLOR]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -C dcx 4 +bk $rgb(0,0,255)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Color Flags.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Background Color.<br />Affects: Edit, Radio, Check, Box, Scroll, Text, List, Panel, Image, Trackbar</td>
+	</tr>
+	<tr>
+		<td class="value">k</td>
+		<td>Text Background Color.<br />Affects: Text, Edit, List</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Text Color.<br />Affects: Text, Edit, List, Box</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using <a class="value">+b</a> on the trackbar, call /xdid -U on the control to force a redraw. /xdialog -j will not work. This is an API bug.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.2"></a>/xdid -F	</td></tr>
+	<tr><td colspan="2">This command lets you set the focus on the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -F [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -F dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.3"></a>/xdid -J	</td></tr>
+	<tr><td colspan="2">This command lets you change the dialog cursor.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -J [DNAME] [ID] [+FLAGS] [CURSOR|FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -J dcx 4 +r wait</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Cursor flags.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Cursor is defined in <a class="param">FILENAME</a></td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Cursor is a system cursor name in the list below.</td>
+	</tr>
+	<tr>
+		<td class="param">CURSOR</td>
+		<td>Cursor system names</td>
+	</tr>
+	<tr>
+		<td class="value">appstarting</td>
+		<td>Standard arrow and small hourglass</td>
+	</tr>
+	<tr>
+		<td class="value">arrow</td>
+		<td>Standard arrow.</td>
+	</tr>
+	<tr>
+		<td class="value">cross</td>
+		<td>Crosshair.</td>
+	</tr>
+	<tr>
+		<td class="value">hand</td>
+		<td>Hand.</td>
+	</tr>
+	<tr>
+		<td class="value">help</td>
+		<td>Arrow and question mark.</td>
+	</tr>
+	<tr>
+		<td class="value">ibeam</td>
+		<td>I-beam.</td>
+	</tr>
+	<tr>
+		<td class="value">no</td>
+		<td>Slashed circle.</td>
+	</tr>
+	<tr>
+		<td class="value">sizeall</td>
+		<td>Four-pointed arrow pointing north, south, east, and west.</td>
+	</tr>
+	<tr>
+		<td class="value">sizenesw</td>
+		<td>Double-pointed arrow pointing northeast and southwest.</td>
+	</tr>
+	<tr>
+		<td class="value">sizens</td>
+		<td>Double-pointed arrow pointing north and south.</td>
+	</tr>
+	<tr>
+		<td class="value">sizenwse</td>
+		<td>Double-pointed arrow pointing northwest and southeast.</td>
+	</tr>
+	<tr>
+		<td class="value">sizewe</td>
+		<td>Double-pointed arrow pointing west and east.</td>
+	</tr>
+	<tr>
+		<td class="value">uparrow</td>
+		<td>Vertical arrow.</td>
+	</tr>
+	<tr>
+		<td class="value">wait</td>
+		<td>Hourglass.</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>Filename containing the cursor.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Cursor files need to be .cur or .ani.</li><li>You can't change the cursor on the divider control.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.4"></a>/xdid -M	</td></tr>
+	<tr><td colspan="2">This command lets you add additional information to a control that can be retrieved later.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -M [DNAME] [ID] [INFO]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -M dcx 4 Mark info here</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.5"></a>/xdid -T	</td></tr>
+	<tr><td colspan="2">This command lets you set the tooltip information for controls that support tooltips.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -T [DNAME] [ID] [TEXT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -T dcx 4 This is the tooltip text</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You must call <a class="value">/xdialog -T</a> to create the tooltip before you can use tooltips with any control. (Except controls which naturally have their own tooltips, such as treeview, listview, toolbar, etc)</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.6"></a>/xdid -U	</td></tr>
+	<tr><td colspan="2">This command lets you remove focus from the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -U [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -U dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.7"></a>/xdid -Z	</td></tr>
+	<tr><td colspan="2">This command lets you scroll a control in the vertical direction where <a class="param">POS</a> is a percentage expressing the area to scroll (0 being top and 100 being bottom).</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -Z [DNAME] [ID] [POS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -Z dcx 4 50</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.8"></a>/xdid -b	</td></tr>
+	<tr><td colspan="2">This command lets you disable the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -b [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -b dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.9"></a>/xdid -e	</td></tr>
+	<tr><td colspan="2">This command lets you enable the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -e [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -e dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.10"></a>/xdid -f	</td></tr>
+	<tr><td colspan="2">This command lets you change a control font.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -f [DNAME] [ID] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -f dcx 4 +abs ansi 10 Tahoma</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Font style flags.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Font is anti-aliased.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Font is bold.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Default font.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Font is italic.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Font is strikedout.</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>Font is underlined.</td>
+	</tr>
+	<tr>
+		<td class="param">CHARSET</td>
+		<td>Can be any of the following: ansi, baltic, chinesebig, default, easteurope, gb2312, greek, hangul, mac, oem, russian, shiftjis, symbol, turkish, vietnamese.</td>
+	</tr>
+	<tr>
+		<td class="param">SIZE</td>
+		<td>Font size in points.</td>
+	</tr>
+	<tr>
+		<td class="param">FONTNAME</td>
+		<td>Font name. Ex: Tahoma, Courier New, Arial, ...</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Font names are limited to 31 chars (system definition).</li><li>When using <a class="value">+d</a>, <a class="param">CHARSET</a> <a class="param">SIZE</a> and <a class="param">FONTNAME</a> can be omitted.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.11"></a>/xdid -h	</td></tr>
+	<tr><td colspan="2">This command lets you hide the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -h [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -h dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.12"></a>/xdid -p	</td></tr>
+	<tr><td colspan="2">This command lets you move/resize the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -p [DNAME] [ID] [X] [Y] [W] [H]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -p dcx 4 10 10 200 120</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">X</td>
+		<td>X position of control.</td>
+	</tr>
+	<tr>
+		<td class="param">Y</td>
+		<td>Y position of control.</td>
+	</tr>
+	<tr>
+		<td class="param">W</td>
+		<td>Width of control.</td>
+	</tr>
+	<tr>
+		<td class="param">H</td>
+		<td>Height of control.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This command will send a <a class="event">sizing</a> event.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.13"></a>/xdid -s	</td></tr>
+	<tr><td colspan="2">This command lets you show the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -s [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -s dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="4.14"></a>/xdid -x	</td></tr>
+	<tr><td colspan="2">This command lets you modify the border styles of the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -x [DNAME] [ID] [+FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -x dcx 4 +w</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Border style flags.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Regular Border.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Clientedge border.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Dialog frame border.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Dialog modal frame border. (Similar to <a class="value">+d</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Staticedge border.</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>Windowedge border.</td>
+	</tr>
+</table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
+</table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.1"></a>$xdid().dpos	</td></tr>
+	<tr><td colspan="2">This property retrieves the position and size of a control in the format [X] [Y] [W] [H] relative to the dialog.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).dpos</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).dpos</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.2"></a>$xdid().enabled	</td></tr>
+	<tr><td colspan="2">This property retrieves if a control is enabled or disabled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).enabled</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).enabled</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.3"></a>$xdid().font	</td></tr>
+	<tr><td colspan="2">This property returns the font used for writing on the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).font</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).font</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The return value is in the format <a class="value">+flags</a> <a class="value">charset</a> <a class="value">size</a> <a class="value">fontname</a>, where <a class="value">+flags</a> is specfied in /xdid -f</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.4"></a>$xdid().hwnd	</td></tr>
+	<tr><td colspan="2">This property retrieves the window handle (HWND) of a control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).hwnd</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).hwnd</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.5"></a>$xdid().mark	</td></tr>
+	<tr><td colspan="2">This property retrieves the additional info given to a control with /xdid -M.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).mark</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).mark</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.6"></a>$xdid().mouse	</td></tr>
+	<tr><td colspan="2">This property retrieves the mouse position from the control viewpoint.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).mouse</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).mouse</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.7"></a>$xdid().pid	</td></tr>
+	<tr><td colspan="2">This property retrieves the control ID of the parent of a control (0 if a dialog is the parent).</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).pid</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).pid</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.8"></a>$xdid().pos	</td></tr>
+	<tr><td colspan="2">This property retrieves the position and size of a control in the format [X] [Y] [W] [H] relative to the parent (which can be the dialog).</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).pos</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).pos</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.9"></a>$xdid().tooltipbgcolor	</td></tr>
+	<tr><td colspan="2">This property retrieves the tooltip background color.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).tooltipbgcolor</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).tooltipbgcolor</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.10"></a>$xdid().tooltiptextcolor	</td></tr>
+	<tr><td colspan="2">This property retrieves the tooltip text color.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).tooltiptextcolor</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).tooltiptextcolor</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.11"></a>$xdid().type	</td></tr>
+	<tr><td colspan="2">This property retrieves the control type.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).type</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).type</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.12"></a>$xdid().visible	</td></tr>
+	<tr><td colspan="2">This property retrieves if a control is visible or hidden.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).visible</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).visible</div></td>
+	</tr>
+</table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Controls Events</div></td></tr>
+	<tr><td>These events are fired when activity occurs in the Controls control.</td></tr>
+</table>
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.1"></a>focus	</td></tr>
+	<tr><td colspan="2">Triggered when a control gains the focus where $3 is the control ID.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME focus ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx focus 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.2"></a>focusout	</td></tr>
+	<tr><td colspan="2">Triggered when a control loses the focus where $3 is the control ID.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME focusout ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx focusout 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.3"></a>mouse	</td></tr>
+	<tr><td colspan="2">When the mouse hovers a control where $3 is the ID of the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME mouse ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx mouse 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.4"></a>mouseenter	</td></tr>
+	<tr><td colspan="2">When the mouse enters a control where $3 is the ID of the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME mouseenter ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx mouseenter 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.5"></a>mouseleave	</td></tr>
+	<tr><td colspan="2">When the mouse leaves a control where $3 is the ID of the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME mouseleave ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx mouseleave 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.6"></a>mwheel	</td></tr>
+	<tr><td colspan="2">Event triggered when the mouse wheel is scrolled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME mwheel ID +FLAGS DIRECTION</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx mwheel 4 +cs up</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Keystate flags during scroll.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Control key.</td>
+	</tr>
+	<tr>
+		<td class="value">l</td>
+		<td>Left mouse button.</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>Middle mouse button.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Right mouse button.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Shift key.</td>
+	</tr>
+	<tr>
+		<td class="param">DIRECTION</td>
+		<td>The direction which the wheel is scrolling.</td>
+	</tr>
+	<tr>
+		<td class="value">up</td>
+		<td>Upwards.</td>
+	</tr>
+	<tr>
+		<td class="value">down</td>
+		<td>Downwards.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="8.7"></a>sizing	</td></tr>
+	<tr><td colspan="2">When the control is resized, where $3 is the new width and $4 is the new height.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME sizing ID W H</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx sizing 4 90 60</div></td>
+	</tr>
+</table>
+<br />
+</td><td class="menuright">
+	<br />
+<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">disabled</a></li><li><a href="#3.2" style="color: #B52929;">group</a></li><li><a href="#3.3" style="color: #B52929;">notheme</a></li><li><a href="#3.4" style="color: #B52929;">tabstop</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-C</a></li><li><a href="#4.2" style="color: #0000FF;">-F</a></li><li><a href="#4.3" style="color: #0000FF;">-J</a></li><li><a href="#4.4" style="color: #0000FF;">-M</a></li><li><a href="#4.5" style="color: #0000FF;">-T</a></li><li><a href="#4.6" style="color: #0000FF;">-U</a></li><li><a href="#4.7" style="color: #0000FF;">-Z</a></li><li><a href="#4.8" style="color: #0000FF;">-b</a></li><li><a href="#4.9" style="color: #0000FF;">-e</a></li><li><a href="#4.10" style="color: #0000FF;">-f</a></li><li><a href="#4.11" style="color: #0000FF;">-h</a></li><li><a href="#4.12" style="color: #0000FF;">-p</a></li><li><a href="#4.13" style="color: #0000FF;">-s</a></li><li><a href="#4.14" style="color: #0000FF;">-x</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">dpos</a></li><li><a href="#9.2" style="color: #6666FF;">enabled</a></li><li><a href="#9.3" style="color: #6666FF;">font</a></li><li><a href="#9.4" style="color: #6666FF;">hwnd</a></li><li><a href="#9.5" style="color: #6666FF;">mark</a></li><li><a href="#9.6" style="color: #6666FF;">mouse</a></li><li><a href="#9.7" style="color: #6666FF;">pid</a></li><li><a href="#9.8" style="color: #6666FF;">pos</a></li><li><a href="#9.9" style="color: #6666FF;">tooltipbgcolor</a></li><li><a href="#9.10" style="color: #6666FF;">tooltiptextcolor</a></li><li><a href="#9.11" style="color: #6666FF;">type</a></li><li><a href="#9.12" style="color: #6666FF;">visible</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">focus</a></li><li><a href="#8.2" style="color: #009900;">focusout</a></li><li><a href="#8.3" style="color: #009900;">mouse</a></li><li><a href="#8.4" style="color: #009900;">mouseenter</a></li><li><a href="#8.5" style="color: #009900;">mouseleave</a></li><li><a href="#8.6" style="color: #009900;">mwheel</a></li><li><a href="#8.7" style="color: #009900;">sizing</a></li></ul></td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2006</td>
+		<td style="text-align: right;">Last Updated: 23rd September, 06</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>
