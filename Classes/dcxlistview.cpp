@@ -1010,14 +1010,13 @@ void DcxListView::parseCommandRequest(TString &input) {
 		else
 			ListView_EnableGroupView(this->m_Hwnd, FALSE);
 	}
-	// xdid -n [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH]
-	else if (flags.switch_flags[13] && numtok > 5) {
+	// xdid -n [NAME] [ID] [SWITCH] [N] [+FLAGS] (WIDTH)
+	else if (flags.switch_flags[13] && numtok > 4) {
 		int nColumn = (int)input.gettok(4, " ").to_num();
 		UINT iFlags = this->parseHeaderFlags2(input.gettok(5, " "));
-		int width = (int)input.gettok(6, " ").to_num();
 
 		if (nColumn > -1 && nColumn < this->getColumnCount()) {
-			if (iFlags == -3) {
+			if (iFlags == -3) { // +s
 				int n = 0;
 				ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
 				n = ListView_GetColumnWidth(this->m_Hwnd, nColumn);
@@ -1025,12 +1024,16 @@ void DcxListView::parseCommandRequest(TString &input) {
 				n = max(ListView_GetColumnWidth(this->m_Hwnd, nColumn),n);
 				ListView_SetColumnWidth(this->m_Hwnd, nColumn, n);
 			}
-			else if (iFlags & LVSCW_AUTOSIZE)
+			else if (iFlags & LVSCW_AUTOSIZE) // +a
 				ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
-			else if (iFlags & LVSCW_AUTOSIZE_USEHEADER)
+			else if (iFlags & LVSCW_AUTOSIZE_USEHEADER) // +h
 				ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
-			else
-				ListView_SetColumnWidth(this->m_Hwnd, nColumn, width);
+			else { // fixed width
+				if (numtok > 5)
+					ListView_SetColumnWidth(this->m_Hwnd, nColumn, input.gettok(6, " ").to_int());
+				else
+					mIRCError("/xdid -n: no width specified");
+			}
 		}
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text]
