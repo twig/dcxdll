@@ -38,9 +38,15 @@
 	<br />
 	<a class="section" href="#1">Introduction</a><br />
 	<br />
+	<a class="section">General Usage</a><br />
+	<ul>
+		<li><a href="dcx.htm">DCX Commands</a></li>
+		<li><a href="xdialog.htm">Marked Dialog</a></li>
+		<li><a href="xdid.htm">Controls</a></li>
+	</ul>
 	<a class="section">DCX Controls</a><br />
 	<ul>
-<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window</a></li>	</ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dcx.htm">DCX Commands</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li>	</ul>
 	<a class="section">DCX Features</a><br />
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
@@ -289,7 +295,21 @@
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().ispass	</td></tr>
+			<a name="9.1"></a>$xdid().caretpos	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the position of the cursor.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, LINE COLUMN).caretpos</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 14 3).caretpos</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="9.2"></a>$xdid().ispass	</td></tr>
 	<tr><td colspan="2">This property lets you retreive if the password style is set on the edit control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -303,7 +323,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.2"></a>$xdid().num	</td></tr>
+			<a name="9.3"></a>$xdid().num	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the number of lines in the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -317,7 +337,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.3"></a>$xdid().sel	</td></tr>
+			<a name="9.4"></a>$xdid().sel	</td></tr>
 	<tr><td colspan="2">This returns the index of the first and last selected character position in the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -331,7 +351,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.4"></a>$xdid().selend	</td></tr>
+			<a name="9.5"></a>$xdid().selend	</td></tr>
 	<tr><td colspan="2">This returns the index of the last selected character position in the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -345,7 +365,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.5"></a>$xdid().selstart	</td></tr>
+			<a name="9.6"></a>$xdid().selstart	</td></tr>
 	<tr><td colspan="2">This returns the index of the first selected character position in the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -359,7 +379,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.6"></a>$xdid().seltext	</td></tr>
+			<a name="9.7"></a>$xdid().seltext	</td></tr>
 	<tr><td colspan="2">This returns the selected text in the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -373,7 +393,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.7"></a>$xdid().text	</td></tr>
+			<a name="9.8"></a>$xdid().text	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the Nth line in the edit or the whole edit text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -550,7 +570,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">autohs</a></li><li><a href="#3.2" style="color: #B52929;">autovs</a></li><li><a href="#3.3" style="color: #B52929;">center</a></li><li><a href="#3.4" style="color: #B52929;">hsbar</a></li><li><a href="#3.5" style="color: #B52929;">lowercase</a></li><li><a href="#3.6" style="color: #B52929;">multi</a></li><li><a href="#3.7" style="color: #B52929;">number</a></li><li><a href="#3.8" style="color: #B52929;">password</a></li><li><a href="#3.9" style="color: #B52929;">readonly</a></li><li><a href="#3.10" style="color: #B52929;">return</a></li><li><a href="#3.11" style="color: #B52929;">right</a></li><li><a href="#3.12" style="color: #B52929;">tooltips</a></li><li><a href="#3.13" style="color: #B52929;">uppercase</a></li><li><a href="#3.14" style="color: #B52929;">vsbar</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-S</a></li><li><a href="#4.2" style="color: #0000FF;">-a</a></li><li><a href="#4.3" style="color: #0000FF;">-c</a></li><li><a href="#4.4" style="color: #0000FF;">-d</a></li><li><a href="#4.5" style="color: #0000FF;">-i</a></li><li><a href="#4.6" style="color: #0000FF;">-j</a></li><li><a href="#4.7" style="color: #0000FF;">-o</a></li><li><a href="#4.8" style="color: #0000FF;">-q</a></li><li><a href="#4.9" style="color: #0000FF;">-r</a></li><li><a href="#4.10" style="color: #0000FF;">-t</a></li><li><a href="#4.11" style="color: #0000FF;">-u</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">ispass</a></li><li><a href="#9.2" style="color: #6666FF;">num</a></li><li><a href="#9.3" style="color: #6666FF;">sel</a></li><li><a href="#9.4" style="color: #6666FF;">selend</a></li><li><a href="#9.5" style="color: #6666FF;">selstart</a></li><li><a href="#9.6" style="color: #6666FF;">seltext</a></li><li><a href="#9.7" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">copy</a></li><li><a href="#8.2" style="color: #009900;">cut</a></li><li><a href="#8.3" style="color: #009900;">dragbegin</a></li><li><a href="#8.4" style="color: #009900;">dragfile</a></li><li><a href="#8.5" style="color: #009900;">dragfinish</a></li><li><a href="#8.6" style="color: #009900;">edit</a></li><li><a href="#8.7" style="color: #009900;">help</a></li><li><a href="#8.8" style="color: #009900;">keydown</a></li><li><a href="#8.9" style="color: #009900;">keyup</a></li><li><a href="#8.10" style="color: #009900;">paste</a></li><li><a href="#8.11" style="color: #009900;">return</a></li></ul></td>
+<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">autohs</a></li><li><a href="#3.2" style="color: #B52929;">autovs</a></li><li><a href="#3.3" style="color: #B52929;">center</a></li><li><a href="#3.4" style="color: #B52929;">hsbar</a></li><li><a href="#3.5" style="color: #B52929;">lowercase</a></li><li><a href="#3.6" style="color: #B52929;">multi</a></li><li><a href="#3.7" style="color: #B52929;">number</a></li><li><a href="#3.8" style="color: #B52929;">password</a></li><li><a href="#3.9" style="color: #B52929;">readonly</a></li><li><a href="#3.10" style="color: #B52929;">return</a></li><li><a href="#3.11" style="color: #B52929;">right</a></li><li><a href="#3.12" style="color: #B52929;">tooltips</a></li><li><a href="#3.13" style="color: #B52929;">uppercase</a></li><li><a href="#3.14" style="color: #B52929;">vsbar</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-S</a></li><li><a href="#4.2" style="color: #0000FF;">-a</a></li><li><a href="#4.3" style="color: #0000FF;">-c</a></li><li><a href="#4.4" style="color: #0000FF;">-d</a></li><li><a href="#4.5" style="color: #0000FF;">-i</a></li><li><a href="#4.6" style="color: #0000FF;">-j</a></li><li><a href="#4.7" style="color: #0000FF;">-o</a></li><li><a href="#4.8" style="color: #0000FF;">-q</a></li><li><a href="#4.9" style="color: #0000FF;">-r</a></li><li><a href="#4.10" style="color: #0000FF;">-t</a></li><li><a href="#4.11" style="color: #0000FF;">-u</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">caretpos</a></li><li><a href="#9.2" style="color: #6666FF;">ispass</a></li><li><a href="#9.3" style="color: #6666FF;">num</a></li><li><a href="#9.4" style="color: #6666FF;">sel</a></li><li><a href="#9.5" style="color: #6666FF;">selend</a></li><li><a href="#9.6" style="color: #6666FF;">selstart</a></li><li><a href="#9.7" style="color: #6666FF;">seltext</a></li><li><a href="#9.8" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">copy</a></li><li><a href="#8.2" style="color: #009900;">cut</a></li><li><a href="#8.3" style="color: #009900;">dragbegin</a></li><li><a href="#8.4" style="color: #009900;">dragfile</a></li><li><a href="#8.5" style="color: #009900;">dragfinish</a></li><li><a href="#8.6" style="color: #009900;">edit</a></li><li><a href="#8.7" style="color: #009900;">help</a></li><li><a href="#8.8" style="color: #009900;">keydown</a></li><li><a href="#8.9" style="color: #009900;">keyup</a></li><li><a href="#8.10" style="color: #009900;">paste</a></li><li><a href="#8.11" style="color: #009900;">return</a></li></ul></td>
   </tr>
 </table>
 
@@ -558,7 +578,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 22nd September, 06</td>
+		<td style="text-align: right;">Last Updated: 23rd September, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

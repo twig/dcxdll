@@ -38,9 +38,15 @@
 	<br />
 	<a class="section" href="#1">Introduction</a><br />
 	<br />
+	<a class="section">General Usage</a><br />
+	<ul>
+		<li><a href="dcx.htm">DCX Commands</a></li>
+		<li><a href="xdialog.htm">Marked Dialog</a></li>
+		<li><a href="xdid.htm">Controls</a></li>
+	</ul>
 	<a class="section">DCX Controls</a><br />
 	<ul>
-<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window</a></li>	</ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dcx.htm">DCX Commands</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li>	</ul>
 	<a class="section">DCX Features</a><br />
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
@@ -76,23 +82,19 @@
 		<td>Control text is centered.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.3" class="style">check</a></td>
-		<td>The box frame will have a checkbox which can enable/disable all children controls (regardless of previous state).</td>
-	</tr>
-	<tr>
-		<td class="style"><a name="3.4" class="style">none</a></td>
+		<td class="style"><a name="3.3" class="style">none</a></td>
 		<td>Control will not display a border or label.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.5" class="style">right</a></td>
+		<td class="style"><a name="3.4" class="style">right</a></td>
 		<td>Control text is right justified.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.6" class="style">rounded</a></td>
+		<td class="style"><a name="3.5" class="style">rounded</a></td>
 		<td>The border drawn for the box control will be a rounded rectangle.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.7" class="style">transparent</a></td>
+		<td class="style"><a name="3.6" class="style">transparent</a></td>
 		<td>This allows the background of the box control to be transparent.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Applying the border <a class="style">regular</a>+<a class="style">dialog frame</a> border styles on the box will give it a titlebar. (/xdid -x DNAME BOX_ID +bd)</td></tr></table>
@@ -528,7 +530,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">bottom</a></li><li><a href="#3.2" style="color: #B52929;">center</a></li><li><a href="#3.3" style="color: #B52929;">check</a></li><li><a href="#3.4" style="color: #B52929;">none</a></li><li><a href="#3.5" style="color: #B52929;">right</a></li><li><a href="#3.6" style="color: #B52929;">rounded</a></li><li><a href="#3.7" style="color: #B52929;">transparent</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-c</a></li><li><a href="#4.2" style="color: #0000FF;">-d</a></li><li><a href="#4.3" style="color: #0000FF;">-l</a></li><li><a href="#4.4" style="color: #0000FF;">-t</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">inbox</a></li><li><a href="#9.2" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">checkchange</a></li><li><a href="#8.2" style="color: #009900;">dclick</a></li><li><a href="#8.3" style="color: #009900;">help</a></li><li><a href="#8.4" style="color: #009900;">lbdown</a></li><li><a href="#8.5" style="color: #009900;">lbup</a></li><li><a href="#8.6" style="color: #009900;">rclick</a></li><li><a href="#8.7" style="color: #009900;">sclick</a></li></ul></td>
+<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">bottom</a></li><li><a href="#3.2" style="color: #B52929;">center</a></li><li><a href="#3.3" style="color: #B52929;">none</a></li><li><a href="#3.4" style="color: #B52929;">right</a></li><li><a href="#3.5" style="color: #B52929;">rounded</a></li><li><a href="#3.6" style="color: #B52929;">transparent</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-c</a></li><li><a href="#4.2" style="color: #0000FF;">-d</a></li><li><a href="#4.3" style="color: #0000FF;">-l</a></li><li><a href="#4.4" style="color: #0000FF;">-t</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">inbox</a></li><li><a href="#9.2" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">checkchange</a></li><li><a href="#8.2" style="color: #009900;">dclick</a></li><li><a href="#8.3" style="color: #009900;">help</a></li><li><a href="#8.4" style="color: #009900;">lbdown</a></li><li><a href="#8.5" style="color: #009900;">lbup</a></li><li><a href="#8.6" style="color: #009900;">rclick</a></li><li><a href="#8.7" style="color: #009900;">sclick</a></li></ul></td>
   </tr>
 </table>
 
@@ -536,7 +538,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 22nd September, 06</td>
+		<td style="text-align: right;">Last Updated: 23rd September, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

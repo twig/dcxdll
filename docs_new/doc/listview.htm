@@ -38,9 +38,15 @@
 	<br />
 	<a class="section" href="#1">Introduction</a><br />
 	<br />
+	<a class="section">General Usage</a><br />
+	<ul>
+		<li><a href="dcx.htm">DCX Commands</a></li>
+		<li><a href="xdialog.htm">Marked Dialog</a></li>
+		<li><a href="xdid.htm">Controls</a></li>
+	</ul>
 	<a class="section">DCX Controls</a><br />
 	<ul>
-<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window</a></li>	</ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dcx.htm">DCX Commands</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li>	</ul>
 	<a class="section">DCX Features</a><br />
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
@@ -167,10 +173,6 @@
 		<td class="style"><a name="3.25" class="style">tooltip</a></td>
 		<td>If a partially hidden label in any view lacks tooltip text, the control will unfold the label. If this style is not set, the control will unfold partly hidden labels only for the <a class="style">icon</a> view.</td>
 	</tr>
-	<tr>
-		<td class="style"><a name="3.26" class="style">tooltips</a></td>
-		<td>The listview will have a tooltip.</td>
-	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Gridlines dont work with groups. See <a>/xdid -q</a>.</li><li><a class="style">sortasc</a> and <a class="style">sortdesc</a> only work with <a class="style">report</a> or <a class="style">list</a> views.</li></ul></td></tr></table>
 <br />
 <br /><table class="description">
@@ -217,6 +219,10 @@
 		<td>Item flags.</td>
 	</tr>
 	<tr>
+		<td class="value">a</td>
+		<td>Autosize.</td>
+	</tr>
+	<tr>
 		<td class="value">b</td>
 		<td>The item is bold.</td>
 	</tr>
@@ -233,12 +239,20 @@
 		<td>The item has focus thus having a dotted box around it.</td>
 	</tr>
 	<tr>
+		<td class="value">h</td>
+		<td>Autosize according to header text width.</td>
+	</tr>
+	<tr>
 		<td class="value">i</td>
 		<td>The item is italic.</td>
 	</tr>
 	<tr>
 		<td class="value">k</td>
 		<td>The item has a background color defined by the <a class="param">BGCOLOR</a> parameter (use <a class="value">-1</a> for no color).</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>Autosize the column to fit header or content.</td>
 	</tr>
 	<tr>
 		<td class="value">s</td>
@@ -569,10 +583,14 @@
 		<td>Autosize according to header text width.</td>
 	</tr>
 	<tr>
+		<td class="value">s</td>
+		<td>Autosize the column to fit header or content. Cannot be used with <a class="value">+a</a>.</td>
+	</tr>
+	<tr>
 		<td class="param">WIDTH</td>
 		<td>Header width (Ignored if you use flags +a or +h).</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the flag +h is used for the last column, the column will be resized to the width of the control.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the flag <a class="value">+h</a> is used for the last column, the column will be resized to the width of the control.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -649,20 +667,12 @@
 		<td>Item flags.</td>
 	</tr>
 	<tr>
-		<td class="value">a</td>
-		<td>Autosize.</td>
-	</tr>
-	<tr>
 		<td class="value">b</td>
 		<td>Header icon appears right of text.</td>
 	</tr>
 	<tr>
 		<td class="value">c</td>
 		<td>Header text is centered.</td>
-	</tr>
-	<tr>
-		<td class="value">h</td>
-		<td>Autosize according to header text width.</td>
 	</tr>
 	<tr>
 		<td class="value">l</td>
@@ -1298,7 +1308,7 @@
 		<td class="param">SUBITEM</td>
 		<td>Column index where the event was triggered.</td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This event does not require an item to be clicked on to be triggered. If no item was clicked clicked, no index is returned.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
@@ -1349,7 +1359,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;"> icon</a></li><li><a href="#3.2" style="color: #B52929;"> list</a></li><li><a href="#3.3" style="color: #B52929;"> report</a></li><li><a href="#3.4" style="color: #B52929;"> smallicon</a></li><li><a href="#3.5" style="color: #B52929;">alignleft</a></li><li><a href="#3.6" style="color: #B52929;">aligntop</a></li><li><a href="#3.7" style="color: #B52929;">autoarrange</a></li><li><a href="#3.8" style="color: #B52929;">balloon</a></li><li><a href="#3.9" style="color: #B52929;">borderselect</a></li><li><a href="#3.10" style="color: #B52929;">checkbox</a></li><li><a href="#3.11" style="color: #B52929;">editlabel</a></li><li><a href="#3.12" style="color: #B52929;">flatsb</a></li><li><a href="#3.13" style="color: #B52929;">fullrow</a></li><li><a href="#3.14" style="color: #B52929;">grid</a></li><li><a href="#3.15" style="color: #B52929;">headerdrag</a></li><li><a href="#3.16" style="color: #B52929;">hottrack</a></li><li><a href="#3.17" style="color: #B52929;">noheader</a></li><li><a href="#3.18" style="color: #B52929;">nolabelwrap</a></li><li><a href="#3.19" style="color: #B52929;">noscroll</a></li><li><a href="#3.20" style="color: #B52929;">showsel</a></li><li><a href="#3.21" style="color: #B52929;">singlesel</a></li><li><a href="#3.22" style="color: #B52929;">sortasc</a></li><li><a href="#3.23" style="color: #B52929;">sortdesc</a></li><li><a href="#3.24" style="color: #B52929;">subitemimage</a></li><li><a href="#3.25" style="color: #B52929;">tooltip</a></li><li><a href="#3.26" style="color: #B52929;">tooltips</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-B</a></li><li><a href="#4.2" style="color: #0000FF;">-a</a></li><li><a href="#4.3" style="color: #0000FF;">-c</a></li><li><a href="#4.4" style="color: #0000FF;">-d</a></li><li><a href="#4.5" style="color: #0000FF;">-g</a></li><li><a href="#4.6" style="color: #0000FF;">-i</a></li><li><a href="#4.7" style="color: #0000FF;">-j</a></li><li><a href="#4.8" style="color: #0000FF;">-k</a></li><li><a href="#4.9" style="color: #0000FF;">-l</a></li><li><a href="#4.10" style="color: #0000FF;">-m</a></li><li><a href="#4.11" style="color: #0000FF;">-n</a></li><li><a href="#4.12" style="color: #0000FF;">-q</a></li><li><a href="#4.13" style="color: #0000FF;">-r</a></li><li><a href="#4.14" style="color: #0000FF;">-t</a></li><li><a href="#4.15" style="color: #0000FF;">-u</a></li><li><a href="#4.16" style="color: #0000FF;">-v</a></li><li><a href="#4.17" style="color: #0000FF;">-w</a></li><li><a href="#4.18" style="color: #0000FF;">-y</a></li><li><a href="#4.19" style="color: #0000FF;">-z</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">find</a></li><li><a href="#9.2" style="color: #6666FF;">genabled</a></li><li><a href="#9.3" style="color: #6666FF;">hicon</a></li><li><a href="#9.4" style="color: #6666FF;">htext</a></li><li><a href="#9.5" style="color: #6666FF;">hwidth</a></li><li><a href="#9.6" style="color: #6666FF;">icon</a></li><li><a href="#9.7" style="color: #6666FF;">mouseitem</a></li><li><a href="#9.8" style="color: #6666FF;">num</a></li><li><a href="#9.9" style="color: #6666FF;">pbar</a></li><li><a href="#9.10" style="color: #6666FF;">sel</a></li><li><a href="#9.11" style="color: #6666FF;">selnum</a></li><li><a href="#9.12" style="color: #6666FF;">seltext</a></li><li><a href="#9.13" style="color: #6666FF;">state</a></li><li><a href="#9.14" style="color: #6666FF;">tbitem</a></li><li><a href="#9.15" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">dclick</a></li><li><a href="#8.2" style="color: #009900;">hdclick</a></li><li><a href="#8.3" style="color: #009900;">help</a></li><li><a href="#8.4" style="color: #009900;">hover</a></li><li><a href="#8.5" style="color: #009900;">hsclick</a></li><li><a href="#8.6" style="color: #009900;">labelbegin</a></li><li><a href="#8.7" style="color: #009900;">labelcancel</a></li><li><a href="#8.8" style="color: #009900;">labelend</a></li><li><a href="#8.9" style="color: #009900;">rclick</a></li><li><a href="#8.10" style="color: #009900;">rdclick</a></li><li><a href="#8.11" style="color: #009900;">sclick</a></li><li><a href="#8.12" style="color: #009900;">scrollend</a></li><li><a href="#8.13" style="color: #009900;">stateclick</a></li><li><a href="#8.14" style="color: #009900;">trackbegin</a></li></ul></td>
+<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;"> icon</a></li><li><a href="#3.2" style="color: #B52929;"> list</a></li><li><a href="#3.3" style="color: #B52929;"> report</a></li><li><a href="#3.4" style="color: #B52929;"> smallicon</a></li><li><a href="#3.5" style="color: #B52929;">alignleft</a></li><li><a href="#3.6" style="color: #B52929;">aligntop</a></li><li><a href="#3.7" style="color: #B52929;">autoarrange</a></li><li><a href="#3.8" style="color: #B52929;">balloon</a></li><li><a href="#3.9" style="color: #B52929;">borderselect</a></li><li><a href="#3.10" style="color: #B52929;">checkbox</a></li><li><a href="#3.11" style="color: #B52929;">editlabel</a></li><li><a href="#3.12" style="color: #B52929;">flatsb</a></li><li><a href="#3.13" style="color: #B52929;">fullrow</a></li><li><a href="#3.14" style="color: #B52929;">grid</a></li><li><a href="#3.15" style="color: #B52929;">headerdrag</a></li><li><a href="#3.16" style="color: #B52929;">hottrack</a></li><li><a href="#3.17" style="color: #B52929;">noheader</a></li><li><a href="#3.18" style="color: #B52929;">nolabelwrap</a></li><li><a href="#3.19" style="color: #B52929;">noscroll</a></li><li><a href="#3.20" style="color: #B52929;">showsel</a></li><li><a href="#3.21" style="color: #B52929;">singlesel</a></li><li><a href="#3.22" style="color: #B52929;">sortasc</a></li><li><a href="#3.23" style="color: #B52929;">sortdesc</a></li><li><a href="#3.24" style="color: #B52929;">subitemimage</a></li><li><a href="#3.25" style="color: #B52929;">tooltip</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-B</a></li><li><a href="#4.2" style="color: #0000FF;">-a</a></li><li><a href="#4.3" style="color: #0000FF;">-c</a></li><li><a href="#4.4" style="color: #0000FF;">-d</a></li><li><a href="#4.5" style="color: #0000FF;">-g</a></li><li><a href="#4.6" style="color: #0000FF;">-i</a></li><li><a href="#4.7" style="color: #0000FF;">-j</a></li><li><a href="#4.8" style="color: #0000FF;">-k</a></li><li><a href="#4.9" style="color: #0000FF;">-l</a></li><li><a href="#4.10" style="color: #0000FF;">-m</a></li><li><a href="#4.11" style="color: #0000FF;">-n</a></li><li><a href="#4.12" style="color: #0000FF;">-q</a></li><li><a href="#4.13" style="color: #0000FF;">-r</a></li><li><a href="#4.14" style="color: #0000FF;">-t</a></li><li><a href="#4.15" style="color: #0000FF;">-u</a></li><li><a href="#4.16" style="color: #0000FF;">-v</a></li><li><a href="#4.17" style="color: #0000FF;">-w</a></li><li><a href="#4.18" style="color: #0000FF;">-y</a></li><li><a href="#4.19" style="color: #0000FF;">-z</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">find</a></li><li><a href="#9.2" style="color: #6666FF;">genabled</a></li><li><a href="#9.3" style="color: #6666FF;">hicon</a></li><li><a href="#9.4" style="color: #6666FF;">htext</a></li><li><a href="#9.5" style="color: #6666FF;">hwidth</a></li><li><a href="#9.6" style="color: #6666FF;">icon</a></li><li><a href="#9.7" style="color: #6666FF;">mouseitem</a></li><li><a href="#9.8" style="color: #6666FF;">num</a></li><li><a href="#9.9" style="color: #6666FF;">pbar</a></li><li><a href="#9.10" style="color: #6666FF;">sel</a></li><li><a href="#9.11" style="color: #6666FF;">selnum</a></li><li><a href="#9.12" style="color: #6666FF;">seltext</a></li><li><a href="#9.13" style="color: #6666FF;">state</a></li><li><a href="#9.14" style="color: #6666FF;">tbitem</a></li><li><a href="#9.15" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">dclick</a></li><li><a href="#8.2" style="color: #009900;">hdclick</a></li><li><a href="#8.3" style="color: #009900;">help</a></li><li><a href="#8.4" style="color: #009900;">hover</a></li><li><a href="#8.5" style="color: #009900;">hsclick</a></li><li><a href="#8.6" style="color: #009900;">labelbegin</a></li><li><a href="#8.7" style="color: #009900;">labelcancel</a></li><li><a href="#8.8" style="color: #009900;">labelend</a></li><li><a href="#8.9" style="color: #009900;">rclick</a></li><li><a href="#8.10" style="color: #009900;">rdclick</a></li><li><a href="#8.11" style="color: #009900;">sclick</a></li><li><a href="#8.12" style="color: #009900;">scrollend</a></li><li><a href="#8.13" style="color: #009900;">stateclick</a></li><li><a href="#8.14" style="color: #009900;">trackbegin</a></li></ul></td>
   </tr>
 </table>
 
@@ -1357,7 +1367,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 22nd September, 06</td>
+		<td style="text-align: right;">Last Updated: 23rd September, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">
