@@ -199,6 +199,7 @@ mIRC(xdock) {
 	TString switches = input.gettok(1, " ");
 
 	// update mirc
+	// [SWITCH]
 	if (switches[1] == 'p') {
 		UpdatemIRC();
 		return 1;
@@ -219,14 +220,17 @@ mIRC(xdock) {
 	TString flags = input.gettok(3, " ");
 
 	// dock to toolbar
+	// [SWITCH] [hwnd to dock] [+options]
 	if ((switches[1] == 't') && (numtok > 2)) {
 		DockWindow(mWnd, dockHwnd, "mIRC_Toolbar", flags);
 	}
 	// dock to switchbar
+	// [SWITCH] [hwnd to dock] [+options]
 	else if ((switches[1] == 's') && (numtok > 2)) {
 		DockWindow(mWnd, dockHwnd, "mIRC_Switchbar", flags);
 	}
 	// dock to nicklist/sidelistbox
+	// [SWITCH] [hwnd to dock] [+options] [hwnd to dock with]
 	else if ((switches[1] == 'n') && (numtok > 3)) {
 		mWnd = (HWND) input.gettok(4," ").to_num();
 
@@ -238,6 +242,7 @@ mIRC(xdock) {
 		}
 	}
 	//dock to custom/channel/query/status
+	// [SWITCH] [hwnd to dock] [+options] [hwnd to dock with]
 	else if ((switches[1] == 'c') && (numtok > 3)) {
 		mWnd = (HWND) input.gettok(4, " ").to_num();
 
@@ -249,14 +254,17 @@ mIRC(xdock) {
 		}
 	}
 	// dock to treelist
+	// [SWITCH] [hwnd to dock] [+options]
 	else if ((switches[1] == 'b') && (numtok > 2)) {
 		DockWindow(mWnd, dockHwnd, "mIRC_TreeList", flags);
 	}
 	// dock to mIRC (UltraDock)
+	// [SWITCH] [hwnd to dock] [+options]
 	else if ((switches[1] == 'm') && (numtok > 2)) {
 		UltraDock(mWnd, dockHwnd, flags);
 	}
 	// undock
+	// [SWITCH] [hwnd to undock]
 	else if (switches[1] == 'u') {
 		if (FindUltraDock(dockHwnd))
 			UltraUnDock(dockHwnd);
@@ -264,10 +272,10 @@ mIRC(xdock) {
 			UnDock(dockHwnd);
 	}
 	// resize docked window
-	// [SWITCH] [hwnd to dock] [+options] [X] [Y]
+	// [SWITCH] [hwnd to dock] [+options] [W] [H]
 	else if ((switches[1] == 'r') && (numtok > 4)) {
-		int x = input.gettok(4, " ").to_int();
-		int y = input.gettok(5, " ").to_int();
+		int w = input.gettok(4, " ").to_int();
+		int h = input.gettok(5, " ").to_int();
 
 		LPDCXULTRADOCK ud = GetUltraDock(dockHwnd);
 		DWORD flags = 0;
@@ -291,23 +299,23 @@ mIRC(xdock) {
 			case DOCKF_LEFT:
 			case DOCKF_RIGHT:
 			case DOCKF_AUTOV:
-				rc.right = x;
+				rc.right = w;
 				break;
 
 			case DOCKF_TOP:
 			case DOCKF_BOTTOM:
 			case DOCKF_AUTOH:
-				rc.bottom = y;
+				rc.bottom = h;
 				break;
 
 			case DOCKF_NORMAL:
-				rc.bottom = y;
-				rc.right = x;
+				rc.bottom = w;
+				rc.right = h;
 				break;
 
 			default:
-				mIRCError("unknown dock side");
-				break;
+				mIRCError("unknown dock flag");
+				return 0;
 		}
 
 		// x & y handled by mIRC update, only change width & height.

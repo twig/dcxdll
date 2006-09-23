@@ -751,7 +751,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				int radius;
 
 				if (numtok > 3)
-					radius = atoi(input.gettok(4, " ").to_chr());
+					radius = input.gettok(4, " ").to_int();
 				else
 					radius = 20;
 
@@ -766,7 +766,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			case 'c': // circle - radius arg (optional)
 			{
 				if (numtok > 3) {
-					int radius = atoi(input.gettok(4, " ").to_chr());
+					int radius = input.gettok(4, " ").to_int();
 					if (radius < 1) radius = 100; // handle cases where arg isnt a number or is a negative.
 					int cx = ((rc.right - rc.left)/2);
 					int cy = ((rc.bottom - rc.top)/2);

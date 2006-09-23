@@ -285,7 +285,7 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
 	else if ( flags.switch_cap_flags[25] && numtok > 3 ) {
 
-		int perc = atoi( input.gettok( 4, " " ).to_chr( ) );
+		int perc = input.gettok( 4, " " ).to_int( );
 
 		if ( perc >= 0 || perc <= 100 ) {
 
@@ -358,6 +358,128 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1, " ") : "");
 		this->m_tsToolTip.trim();
   }
+	// xdid -R [NAME] [ID] [SWITCH] [FLAG] [ARGS]
+	else if (flags.switch_cap_flags[17] && numtok > 3) {
+		TString flag = input.gettok(4," ");
+
+		if ((flag.len() < 2) || (flag[0] != '+')) {
+			mIRCError("Invalid Flag");
+			return;
+		}
+
+		RECT rc;
+		HRGN m_Region = NULL;
+		GetWindowRect(this->m_Hwnd,&rc);
+
+		switch (flag[1])
+		{
+			// image file - [COLOR] [FILE]
+			case 'f': 
+			{
+				if (numtok < 6) {
+					mIRCError("Invalid arguments for /xdid +R +f");
+					return;
+				}
+
+				COLORREF tCol = (COLORREF)input.gettok(5," ").to_num();
+				HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,input.gettok(6,-1," "));
+
+				if (m_bitmapBg != NULL) {
+					m_Region = BitmapRegion(m_bitmapBg,tCol,TRUE);
+
+					if (m_Region != NULL)
+						SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
+					DeleteObject(m_bitmapBg);
+				}
+
+				break;
+			}
+			
+			case 'r': // rounded rect - radius args (optional)
+			{
+				int radius;
+
+				if (numtok > 4)
+					radius = input.gettok(5, " ").to_int();
+				else
+					radius = 20;
+
+				m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
+
+				if (m_Region)
+					SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
+
+				break;
+			}
+
+			case 'c': // circle - radius arg (optional)
+			{
+				if (numtok > 4) {
+					int radius = input.gettok(5, " ").to_int();
+					if (radius < 1) radius = 100; // handle cases where arg isnt a number or is a negative.
+					int cx = ((rc.right - rc.left)/2);
+					int cy = ((rc.bottom - rc.top)/2);
+					m_Region = CreateEllipticRgn(cx-radius,cy-radius,cx+radius,cy+radius);
+				}
+				else
+					m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
+
+				if (m_Region)
+					SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
+
+				break;
+			}
+			
+			case 'p': // polygon
+			{
+				// u need at least 3 points for a shape
+				if (numtok < 7) {
+					mIRCError("Invalid arguments for /xdid +R +p");
+					return;
+				}
+
+				TString strPoints = input.gettok(5, -1, " ");
+				TString strPoint;
+				int tPoints = strPoints.numtok(" ");
+
+				if (tPoints < 1) {
+					mIRCError("Invalid Points");
+					return;
+				}
+
+				int cnt = 1;
+				POINT *pnts = new POINT[tPoints];
+
+				while (cnt <= tPoints) {
+					strPoint = strPoints.gettok(cnt," ");
+					pnts[cnt-1].x = (LONG)strPoint.gettok(1, ",").to_num();
+					pnts[cnt-1].y = (LONG)strPoint.gettok(2, ",").to_num();
+					cnt++;
+				}
+
+				m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
+
+				if (m_Region)
+					SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
+
+				delete [] pnts;
+				break;
+			}
+
+			case 'n': // none, no args
+			{
+				SetWindowRgn(this->m_Hwnd,NULL,TRUE);
+				break;
+			}
+
+			default:
+			{
+				mIRCError("Invalid Flag");
+				break;
+			}
+		}
+		this->redrawWindow();
+	}
 	// invalid command
 	else {
 		TString error;
