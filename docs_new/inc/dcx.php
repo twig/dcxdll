@@ -331,6 +331,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				'This must be enabled in order to receive sizing events upon non-DCX windows resizing (used with [f]/xdock[/f], where you cannot [f]/dcx Mark[/f] @windows or #channels).',
 				"Regular [f]/dcx Mark[/f]'d dialogs will still receive events in the callback aliases.",
 				'A signal will only be sent for a window being resized if it is the main mIRC window, docked, or contains a docked window.',
+				'Refer to XDock Signals documentation for more information.',
 			),
 		),
 	);

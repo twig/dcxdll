@@ -353,7 +353,7 @@ function dcxdoc_menu_left() {
 	asort($pages);
 
 	foreach ($pages as $page => $pagelabel) {
-		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'xdialog', 'xdid')))
+		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'dcx', 'xdialog', 'xdid')))
 			continue;
 
 	    echo "<li><a href=\"$page.htm\">$pagelabel</a></li>";

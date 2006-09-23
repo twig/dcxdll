@@ -178,7 +178,7 @@ typedef struct {
  * o = 14
  * p = 15	xdid
  * q = 16
- * r = 17
+ * r = 17			XDID
  * s = 18	xdid
  * t = 19			XDID
  * u = 20			XDID

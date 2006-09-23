@@ -143,6 +143,8 @@ $CHANGES = array(
 			'added [code] wiki',
 			'modified xpopup dcxdoc to use [code]',
 			'removed old wiki code and some commented out headers',
+			'removed old docs from repository',
+			'moved alot of stuff from dcxdoc index page to dcx.htm, xdialog.htm and xdid.htm'
 		),
 	),
     'v1.3.5' => array(
