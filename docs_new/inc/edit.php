@@ -99,6 +99,11 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		"selstart" => 'This returns the index of the first selected character position in the control.',
 		"selend" => 'This returns the index of the last selected character position in the control.',
 		"seltext" => 'This returns the selected text in the control.',
+		"caretpos" => array(
+		    '__desc' => "This property lets you retreive the position of the cursor.",
+		    '__cmd' => 'LINE COLUMN',
+		    '__eg' => '14 3',
+		),
 	);
 }
 

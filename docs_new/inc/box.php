@@ -12,7 +12,7 @@ function get_styles_box(&$STYLES) {
 		'none' => 'Control will not display a border or label.',
 		'transparent' => 'This allows the background of the box control to be transparent.',
 		'rounded' => 'The border drawn for the box control will be a rounded rectangle.',
-		'check' => 'The box frame will have a checkbox which can enable/disable all children controls (regardless of previous state).',
+//		'check' => 'The box frame will have a checkbox which can enable/disable all children controls (regardless of previous state).',
 		'__notes' => 'Applying the border [s]regular[/s]+[s]dialog frame[/s] border styles on the box will give it a titlebar. (/xdid -x DNAME BOX_ID +bd)',
 	);
 }

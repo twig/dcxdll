@@ -12,6 +12,10 @@ $PAGES = array(
     'archive' => 'Download Archive',
     'tutorials' => 'Tutorials',
 
+	'dcx' => 'DCX Commands',
+	'xdialog' => 'Marked Dialog',
+	'xdid' => 'Controls',
+
     "button" => "Button",
     "pbar" => "Progress Bar",
     "line" => "Line",
@@ -29,8 +33,8 @@ $PAGES = array(
     'trackbar' => 'TrackBar',
     'comboex' => 'ComboEx',
     'statusbar' => "StatusBar",
-    'dialog' => "Dialog",
-    'window' => "Window",
+    'dialog' => "Dialog (embedded)",
+    'window' => "Window (embedded)",
     'toolbar' => "ToolBar",
     'list' => 'List',
     'scroll' => 'Scroll',
@@ -124,7 +128,7 @@ foreach ($PAGES as $page => $pagelabel) {
 	
 	
 	// right menu - dont bother for these pages listed below
-    if (!in_array($page, array('changes', 'cla', 'dcxvsmdx', 'tutorials')))
+    if (!in_array($page, array('changes', 'cla', 'dcxvsmdx', 'index', 'tutorials')))
 		dcxdoc_menu_right($pagelabel);
 
 	// unload data if it is a specialised page

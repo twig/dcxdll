@@ -174,8 +174,12 @@ function gen_styles($page, $pagelabel) {
 	if ($STYLES) {
 		$SECTION = SECTION_STYLES;
 
-		dcxdoc_print_description("Control Styles", "These control styles are available when creating a $pagelabel control. Remember that the general styles [s]disabled[/s], [s]group[/s], [s]notheme[/s], and [s]tabstop[/s] apply to all DCX controls.");
+		if ($page == 'xdid')
+			$str = "These general control styles are available when creating any DCX control.";
+		else
+			$str = "These control styles are available when creating a $pagelabel control. Remember that the general styles [s]disabled[/s], [s]group[/s], [s]notheme[/s], and [s]tabstop[/s] apply to all DCX controls.";
 
+		dcxdoc_print_description("Control Styles", $str);
    		dcxdoc_format_styles($STYLES);
 	}
 }
@@ -192,7 +196,13 @@ function gen_xdid($page, $pagelabel) {
 		$SECTION = SECTION_XDID;
 		$count = 1;
 
-		dcxdoc_print_description("/xdid flags", "Control commands are input to the control with the <b>/xdid</b> command.");
+		if ($page == 'xdid')
+			$str = "These are general DCX control commands which apply to any DCX control.";
+		else
+			$str = "Control commands are input to the control with the <b>/xdid</b> command.";
+
+
+		dcxdoc_print_description("/xdid flags", $str);
 
 		foreach ($XDID as $flag => $data) {
 	        dcxdoc_format_xdid($flag, $data, $count);
@@ -234,10 +244,10 @@ function gen_events($page, $pagelabel) {
 		$SECTION = SECTION_EVENTS;
 		$count = 1;
 
-		if ($page == 'index')
-			$str = "These events are fired when events occur in the dialog itself.";
+		if ($page == 'xdialog')
+			$str = "These events are fired when activity occurs in the dialog. Event ID of [v]0[/v] indicates the event was triggered by the dialog.";
 		else
-		    $str = "These events are fired when activity occurs in the $pagelabel control.";
+	    	$str = "These events are fired when activity occurs in the $pagelabel control.";
 
 		dcxdoc_print_description("$pagelabel Events", $str);
 
@@ -259,7 +269,7 @@ function dcxdoc_header($page, $pagelabel) {
 
 <title><?php
 // Prevent DCX DCX vs MDX
-if ($page == "dcxvsmdx")
+if (in_array($page, array("dcxvsmdx", 'dcx')))
 	echo $pagelabel;
 // eg. DCX Box
 else if ($page != 'index')
@@ -330,6 +340,12 @@ function dcxdoc_menu_left() {
 	<br />
 	<a class="section" href="#<?php echo SECTION_INTRO; ?>">Introduction</a><br />
 	<br />
+	<a class="section">General Usage</a><br />
+	<ul>
+		<li><a href="dcx.htm">DCX Commands</a></li>
+		<li><a href="xdialog.htm">Marked Dialog</a></li>
+		<li><a href="xdid.htm">Controls</a></li>
+	</ul>
 	<a class="section">DCX Controls</a><br />
 	<ul>
 <?php
@@ -337,7 +353,7 @@ function dcxdoc_menu_left() {
 	asort($pages);
 
 	foreach ($pages as $page => $pagelabel) {
-		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials')))
+		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'xdialog', 'xdid')))
 			continue;
 
 	    echo "<li><a href=\"$page.htm\">$pagelabel</a></li>";
@@ -891,7 +907,7 @@ function dcxdoc_print_intro($page) {
 	$fninfo();
 
 	// image at the end of intro
-	if (!in_array($page, array('index', 'cla', 'archive', 'tutorials'))) {
+	if (!in_array($page, array('index', 'cla', 'archive', 'tutorials', 'xdialog', 'xdid'))) {
 ?><br /><br />
 <div style="text-align: center;">
 	<img src="images/<?php echo $page; ?>.png" alt="" />
@@ -962,25 +978,38 @@ function format_changes() {
 
 function print_changes($version, $changes) {
 	ob_start();
+	$nested = false;
 	
-	echo "<a name=\"$version\"></a><b>$version</b>\n<ul>";
+	// check if the array is nested/organised
+	if (is_array($changes)) {
+		$keys = array_keys($changes);
+		
+		if (is_array($changes[$keys[0]])) {
+			$nested = true;
+		}
+	}
+	
+	echo "<a name=\"$version\"></a><b>$version</b>\n";
+	echo ($nested ? "<ul>" : "<ol>");
 
 	foreach ($changes as $key => $change) {
 		// organised/detailed list
-		if (is_array($change)) {
-			echo "<li><strong>$key</strong><ul>";
+		// * Dcx Doc Changes
+		if ($nested) {
+			echo "<li><strong>$key</strong><ol>";
 			
+			// #23. fixed blah blah
 			foreach ($change as $item)
 			    echo "<li>" . htmlentities($item) . "</li>";
-			    
-			echo "</ul></li>";
+
+			echo "</ol></li>";
 		}
 		// normal big list
 		else
 		    echo "<li>" . htmlentities($change) . "</li>";
 	}
 
-	echo "</ul>\n";
+	echo ($nested ? "</ul>" : "</ol>") . "\n";
 	return ob_get_clean();
 }
 ?>
