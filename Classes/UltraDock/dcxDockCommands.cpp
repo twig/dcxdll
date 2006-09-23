@@ -321,13 +321,7 @@ mIRC(xdock) {
 		// x & y handled by mIRC update, only change width & height.
 		SetWindowPos(dockHwnd, NULL, 0, 0, rc.right, rc.bottom, SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOZORDER | SWP_NOOWNERZORDER);
 		UpdatemIRC();
-		// TODO: there is a redraw issue here
-		/*
-		/xdock -m somewhere
-		/xdock -r size 50
-		/xdock -r size 150
-		notice the border isnt drawn properly
-		*/
+		RedrawWindow( mIRCLink.m_mIRCHWND, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 	}
 	else {
 		mIRCError("D_ERROR Invalid Flag");
