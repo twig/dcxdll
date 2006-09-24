@@ -119,34 +119,6 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.S"></a>/xdid -S	</td></tr>
-	<tr><td colspan="2">This command lets you set the selection range in the richedit.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -S [DNAME] [ID] [START] [END]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdid -S dcx 4 1 3</div></td>
-	</tr>
-</table>
-<br />
-<table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.Z"></a>/xdid -Z	</td></tr>
-	<tr><td colspan="2">This command lets you zoom the text of the richedit.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -Z [DNAME] [ID] [NUMERATOR] [DENOMINATOR]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdid -Z dcx 4 200 100</div></td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The percentage of zooming is calculated by dividing the numerator by denominator (<a class="param">NUMERATOR</a> / <a class="param">DENOMINATOR</a> * 100)</td></tr></table>
-<br />
-<table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
 			<a name="xdid.a"></a>/xdid -a	</td></tr>
 	<tr><td colspan="2">This command lets you add text to the end of the richedit.</td></tr>
 	<tr>
@@ -331,6 +303,34 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<td><div class="example">/xdid -u dcx 4 C:\mIRC\blah.txt</div></td>
 	</tr>
 </table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.S"></a>/xdid -S	</td></tr>
+	<tr><td colspan="2">This command lets you set the selection range in the richedit.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -S [DNAME] [ID] [START] [END]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -S dcx 4 1 3</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.Z"></a>/xdid -Z	</td></tr>
+	<tr><td colspan="2">This command lets you zoom the text of the richedit.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -Z [DNAME] [ID] [NUMERATOR] [DENOMINATOR]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -Z dcx 4 200 100</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The percentage of zooming is calculated by dividing the numerator by denominator (<a class="param">NUMERATOR</a> / <a class="param">DENOMINATOR</a> * 100)</td></tr></table>
 <br />
 <br /><table class="description">
 	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
@@ -600,7 +600,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.autohs" style="color: #B52929;">autohs</a></li><li><a href="#style.autovs" style="color: #B52929;">autovs</a></li><li><a href="#style.center" style="color: #B52929;">center</a></li><li><a href="#style.hsbar" style="color: #B52929;">hsbar</a></li><li><a href="#style.multi" style="color: #B52929;">multi</a></li><li><a href="#style.readonly" style="color: #B52929;">readonly</a></li><li><a href="#style.right" style="color: #B52929;">right</a></li><li><a href="#style.tooltips" style="color: #B52929;">tooltips</a></li><li><a href="#style.vsbar" style="color: #B52929;">vsbar</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.S" style="color: #0000FF;">-S</a></li><li><a href="#xdid.Z" style="color: #0000FF;">-Z</a></li><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li><li><a href="#xdid.d" style="color: #0000FF;">-d</a></li><li><a href="#xdid.i" style="color: #0000FF;">-i</a></li><li><a href="#xdid.k" style="color: #0000FF;">-k</a></li><li><a href="#xdid.l" style="color: #0000FF;">-l</a></li><li><a href="#xdid.m" style="color: #0000FF;">-m</a></li><li><a href="#xdid.n" style="color: #0000FF;">-n</a></li><li><a href="#xdid.o" style="color: #0000FF;">-o</a></li><li><a href="#xdid.q" style="color: #0000FF;">-q</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li><li><a href="#xdid.u" style="color: #0000FF;">-u</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.caretpos" style="color: #6666FF;">caretpos</a></li><li><a href="#xdidprop.num" style="color: #6666FF;">num</a></li><li><a href="#xdidprop.sel" style="color: #6666FF;">sel</a></li><li><a href="#xdidprop.selend" style="color: #6666FF;">selend</a></li><li><a href="#xdidprop.selstart" style="color: #6666FF;">selstart</a></li><li><a href="#xdidprop.seltext" style="color: #6666FF;">seltext</a></li><li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.keydown" style="color: #009900;">keydown</a></li><li><a href="#events.keyup" style="color: #009900;">keyup</a></li><li><a href="#events.lbup" style="color: #009900;">lbup</a></li><li><a href="#events.link" style="color: #009900;">link</a></li><li><a href="#events.rclick" style="color: #009900;">rclick</a></li><li><a href="#events.return" style="color: #009900;">return</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li><li><a href="#events.selchange" style="color: #009900;">selchange</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.autohs" style="color: #B52929;">autohs</a></li><li><a href="#style.autovs" style="color: #B52929;">autovs</a></li><li><a href="#style.center" style="color: #B52929;">center</a></li><li><a href="#style.hsbar" style="color: #B52929;">hsbar</a></li><li><a href="#style.multi" style="color: #B52929;">multi</a></li><li><a href="#style.readonly" style="color: #B52929;">readonly</a></li><li><a href="#style.right" style="color: #B52929;">right</a></li><li><a href="#style.tooltips" style="color: #B52929;">tooltips</a></li><li><a href="#style.vsbar" style="color: #B52929;">vsbar</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li><li><a href="#xdid.d" style="color: #0000FF;">-d</a></li><li><a href="#xdid.i" style="color: #0000FF;">-i</a></li><li><a href="#xdid.k" style="color: #0000FF;">-k</a></li><li><a href="#xdid.l" style="color: #0000FF;">-l</a></li><li><a href="#xdid.m" style="color: #0000FF;">-m</a></li><li><a href="#xdid.n" style="color: #0000FF;">-n</a></li><li><a href="#xdid.o" style="color: #0000FF;">-o</a></li><li><a href="#xdid.q" style="color: #0000FF;">-q</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li><li><a href="#xdid.u" style="color: #0000FF;">-u</a></li><li><a href="#xdid.S" style="color: #0000FF;">-S</a></li><li><a href="#xdid.Z" style="color: #0000FF;">-Z</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.caretpos" style="color: #6666FF;">caretpos</a></li><li><a href="#xdidprop.num" style="color: #6666FF;">num</a></li><li><a href="#xdidprop.sel" style="color: #6666FF;">sel</a></li><li><a href="#xdidprop.selend" style="color: #6666FF;">selend</a></li><li><a href="#xdidprop.selstart" style="color: #6666FF;">selstart</a></li><li><a href="#xdidprop.seltext" style="color: #6666FF;">seltext</a></li><li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.keydown" style="color: #009900;">keydown</a></li><li><a href="#events.keyup" style="color: #009900;">keyup</a></li><li><a href="#events.lbup" style="color: #009900;">lbup</a></li><li><a href="#events.link" style="color: #009900;">link</a></li><li><a href="#events.rclick" style="color: #009900;">rclick</a></li><li><a href="#events.return" style="color: #009900;">return</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li><li><a href="#events.selchange" style="color: #009900;">selchange</a></li></ul></td>
   </tr>
 </table>
 

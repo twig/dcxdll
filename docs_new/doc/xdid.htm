@@ -96,6 +96,191 @@
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.b"></a>/xdid -b	</td></tr>
+	<tr><td colspan="2">This command lets you disable the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -b [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -b dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.e"></a>/xdid -e	</td></tr>
+	<tr><td colspan="2">This command lets you enable the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -e [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -e dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.f"></a>/xdid -f	</td></tr>
+	<tr><td colspan="2">This command lets you change a control font.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -f [DNAME] [ID] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -f dcx 4 +abs ansi 10 Tahoma</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Font style flags.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Font is anti-aliased.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Font is bold.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Default font.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Font is italic.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Font is strikedout.</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>Font is underlined.</td>
+	</tr>
+	<tr>
+		<td class="param">CHARSET</td>
+		<td>Can be any of the following: ansi, baltic, chinesebig, default, easteurope, gb2312, greek, hangul, mac, oem, russian, shiftjis, symbol, turkish, vietnamese.</td>
+	</tr>
+	<tr>
+		<td class="param">SIZE</td>
+		<td>Font size in points.</td>
+	</tr>
+	<tr>
+		<td class="param">FONTNAME</td>
+		<td>Font name. Ex: Tahoma, Courier New, Arial, ...</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Font names are limited to 31 chars (system definition).</li><li>When using <a class="value">+d</a>, <a class="param">CHARSET</a> <a class="param">SIZE</a> and <a class="param">FONTNAME</a> can be omitted.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.h"></a>/xdid -h	</td></tr>
+	<tr><td colspan="2">This command lets you hide the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -h [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -h dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.p"></a>/xdid -p	</td></tr>
+	<tr><td colspan="2">This command lets you move/resize the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -p [DNAME] [ID] [X] [Y] [W] [H]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -p dcx 4 10 10 200 120</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">X</td>
+		<td>X position of control.</td>
+	</tr>
+	<tr>
+		<td class="param">Y</td>
+		<td>Y position of control.</td>
+	</tr>
+	<tr>
+		<td class="param">W</td>
+		<td>Width of control.</td>
+	</tr>
+	<tr>
+		<td class="param">H</td>
+		<td>Height of control.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This command will send a <a class="event">sizing</a> event.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.s"></a>/xdid -s	</td></tr>
+	<tr><td colspan="2">This command lets you show the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -s [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -s dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.x"></a>/xdid -x	</td></tr>
+	<tr><td colspan="2">This command lets you modify the border styles of the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -x [DNAME] [ID] [+FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -x dcx 4 +w</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Border style flags.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Regular Border.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Clientedge border.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Dialog frame border.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Dialog modal frame border. (Similar to <a class="value">+d</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Staticedge border.</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>Windowedge border.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
 			<a name="xdid.C"></a>/xdid -C	</td></tr>
 	<tr><td colspan="2">This command lets you modify the colors of the control.</td></tr>
 	<tr>
@@ -283,191 +468,6 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -Z dcx 4 50</div></td>
-	</tr>
-</table>
-<br />
-<table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.b"></a>/xdid -b	</td></tr>
-	<tr><td colspan="2">This command lets you disable the control.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -b [DNAME] [ID] </div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdid -b dcx 4</div></td>
-	</tr>
-</table>
-<br />
-<table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.e"></a>/xdid -e	</td></tr>
-	<tr><td colspan="2">This command lets you enable the control.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -e [DNAME] [ID] </div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdid -e dcx 4</div></td>
-	</tr>
-</table>
-<br />
-<table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.f"></a>/xdid -f	</td></tr>
-	<tr><td colspan="2">This command lets you change a control font.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -f [DNAME] [ID] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdid -f dcx 4 +abs ansi 10 Tahoma</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">+FLAGS</td>
-		<td>Font style flags.</td>
-	</tr>
-	<tr>
-		<td class="value">a</td>
-		<td>Font is anti-aliased.</td>
-	</tr>
-	<tr>
-		<td class="value">b</td>
-		<td>Font is bold.</td>
-	</tr>
-	<tr>
-		<td class="value">d</td>
-		<td>Default font.</td>
-	</tr>
-	<tr>
-		<td class="value">i</td>
-		<td>Font is italic.</td>
-	</tr>
-	<tr>
-		<td class="value">s</td>
-		<td>Font is strikedout.</td>
-	</tr>
-	<tr>
-		<td class="value">u</td>
-		<td>Font is underlined.</td>
-	</tr>
-	<tr>
-		<td class="param">CHARSET</td>
-		<td>Can be any of the following: ansi, baltic, chinesebig, default, easteurope, gb2312, greek, hangul, mac, oem, russian, shiftjis, symbol, turkish, vietnamese.</td>
-	</tr>
-	<tr>
-		<td class="param">SIZE</td>
-		<td>Font size in points.</td>
-	</tr>
-	<tr>
-		<td class="param">FONTNAME</td>
-		<td>Font name. Ex: Tahoma, Courier New, Arial, ...</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Font names are limited to 31 chars (system definition).</li><li>When using <a class="value">+d</a>, <a class="param">CHARSET</a> <a class="param">SIZE</a> and <a class="param">FONTNAME</a> can be omitted.</li></ul></td></tr></table>
-<br />
-<table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.h"></a>/xdid -h	</td></tr>
-	<tr><td colspan="2">This command lets you hide the control.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -h [DNAME] [ID] </div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdid -h dcx 4</div></td>
-	</tr>
-</table>
-<br />
-<table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.p"></a>/xdid -p	</td></tr>
-	<tr><td colspan="2">This command lets you move/resize the control.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -p [DNAME] [ID] [X] [Y] [W] [H]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdid -p dcx 4 10 10 200 120</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">X</td>
-		<td>X position of control.</td>
-	</tr>
-	<tr>
-		<td class="param">Y</td>
-		<td>Y position of control.</td>
-	</tr>
-	<tr>
-		<td class="param">W</td>
-		<td>Width of control.</td>
-	</tr>
-	<tr>
-		<td class="param">H</td>
-		<td>Height of control.</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This command will send a <a class="event">sizing</a> event.</td></tr></table>
-<br />
-<table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.s"></a>/xdid -s	</td></tr>
-	<tr><td colspan="2">This command lets you show the control.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -s [DNAME] [ID] </div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdid -s dcx 4</div></td>
-	</tr>
-</table>
-<br />
-<table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.x"></a>/xdid -x	</td></tr>
-	<tr><td colspan="2">This command lets you modify the border styles of the control.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -x [DNAME] [ID] [+FLAGS]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdid -x dcx 4 +w</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">+FLAGS</td>
-		<td>Border style flags.</td>
-	</tr>
-	<tr>
-		<td class="value">b</td>
-		<td>Regular Border.</td>
-	</tr>
-	<tr>
-		<td class="value">c</td>
-		<td>Clientedge border.</td>
-	</tr>
-	<tr>
-		<td class="value">d</td>
-		<td>Dialog frame border.</td>
-	</tr>
-	<tr>
-		<td class="value">f</td>
-		<td>Dialog modal frame border. (Similar to <a class="value">+d</a>)</td>
-	</tr>
-	<tr>
-		<td class="value">s</td>
-		<td>Staticedge border.</td>
-	</tr>
-	<tr>
-		<td class="value">w</td>
-		<td>Windowedge border.</td>
 	</tr>
 </table>
 <br />
@@ -784,7 +784,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.disabled" style="color: #B52929;">disabled</a></li><li><a href="#style.group" style="color: #B52929;">group</a></li><li><a href="#style.notheme" style="color: #B52929;">notheme</a></li><li><a href="#style.tabstop" style="color: #B52929;">tabstop</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.C" style="color: #0000FF;">-C</a></li><li><a href="#xdid.F" style="color: #0000FF;">-F</a></li><li><a href="#xdid.J" style="color: #0000FF;">-J</a></li><li><a href="#xdid.M" style="color: #0000FF;">-M</a></li><li><a href="#xdid.T" style="color: #0000FF;">-T</a></li><li><a href="#xdid.U" style="color: #0000FF;">-U</a></li><li><a href="#xdid.Z" style="color: #0000FF;">-Z</a></li><li><a href="#xdid.b" style="color: #0000FF;">-b</a></li><li><a href="#xdid.e" style="color: #0000FF;">-e</a></li><li><a href="#xdid.f" style="color: #0000FF;">-f</a></li><li><a href="#xdid.h" style="color: #0000FF;">-h</a></li><li><a href="#xdid.p" style="color: #0000FF;">-p</a></li><li><a href="#xdid.s" style="color: #0000FF;">-s</a></li><li><a href="#xdid.x" style="color: #0000FF;">-x</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.dpos" style="color: #6666FF;">dpos</a></li><li><a href="#xdidprop.enabled" style="color: #6666FF;">enabled</a></li><li><a href="#xdidprop.font" style="color: #6666FF;">font</a></li><li><a href="#xdidprop.hwnd" style="color: #6666FF;">hwnd</a></li><li><a href="#xdidprop.mark" style="color: #6666FF;">mark</a></li><li><a href="#xdidprop.mouse" style="color: #6666FF;">mouse</a></li><li><a href="#xdidprop.pid" style="color: #6666FF;">pid</a></li><li><a href="#xdidprop.pos" style="color: #6666FF;">pos</a></li><li><a href="#xdidprop.tooltipbgcolor" style="color: #6666FF;">tooltipbgcolor</a></li><li><a href="#xdidprop.tooltiptextcolor" style="color: #6666FF;">tooltiptextcolor</a></li><li><a href="#xdidprop.type" style="color: #6666FF;">type</a></li><li><a href="#xdidprop.visible" style="color: #6666FF;">visible</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.focus" style="color: #009900;">focus</a></li><li><a href="#events.focusout" style="color: #009900;">focusout</a></li><li><a href="#events.mouse" style="color: #009900;">mouse</a></li><li><a href="#events.mouseenter" style="color: #009900;">mouseenter</a></li><li><a href="#events.mouseleave" style="color: #009900;">mouseleave</a></li><li><a href="#events.mwheel" style="color: #009900;">mwheel</a></li><li><a href="#events.sizing" style="color: #009900;">sizing</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.disabled" style="color: #B52929;">disabled</a></li><li><a href="#style.group" style="color: #B52929;">group</a></li><li><a href="#style.notheme" style="color: #B52929;">notheme</a></li><li><a href="#style.tabstop" style="color: #B52929;">tabstop</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.b" style="color: #0000FF;">-b</a></li><li><a href="#xdid.e" style="color: #0000FF;">-e</a></li><li><a href="#xdid.f" style="color: #0000FF;">-f</a></li><li><a href="#xdid.h" style="color: #0000FF;">-h</a></li><li><a href="#xdid.p" style="color: #0000FF;">-p</a></li><li><a href="#xdid.s" style="color: #0000FF;">-s</a></li><li><a href="#xdid.x" style="color: #0000FF;">-x</a></li><li><a href="#xdid.C" style="color: #0000FF;">-C</a></li><li><a href="#xdid.F" style="color: #0000FF;">-F</a></li><li><a href="#xdid.J" style="color: #0000FF;">-J</a></li><li><a href="#xdid.M" style="color: #0000FF;">-M</a></li><li><a href="#xdid.T" style="color: #0000FF;">-T</a></li><li><a href="#xdid.U" style="color: #0000FF;">-U</a></li><li><a href="#xdid.Z" style="color: #0000FF;">-Z</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.dpos" style="color: #6666FF;">dpos</a></li><li><a href="#xdidprop.enabled" style="color: #6666FF;">enabled</a></li><li><a href="#xdidprop.font" style="color: #6666FF;">font</a></li><li><a href="#xdidprop.hwnd" style="color: #6666FF;">hwnd</a></li><li><a href="#xdidprop.mark" style="color: #6666FF;">mark</a></li><li><a href="#xdidprop.mouse" style="color: #6666FF;">mouse</a></li><li><a href="#xdidprop.pid" style="color: #6666FF;">pid</a></li><li><a href="#xdidprop.pos" style="color: #6666FF;">pos</a></li><li><a href="#xdidprop.tooltipbgcolor" style="color: #6666FF;">tooltipbgcolor</a></li><li><a href="#xdidprop.tooltiptextcolor" style="color: #6666FF;">tooltiptextcolor</a></li><li><a href="#xdidprop.type" style="color: #6666FF;">type</a></li><li><a href="#xdidprop.visible" style="color: #6666FF;">visible</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.focus" style="color: #009900;">focus</a></li><li><a href="#events.focusout" style="color: #009900;">focusout</a></li><li><a href="#events.mouse" style="color: #009900;">mouse</a></li><li><a href="#events.mouseenter" style="color: #009900;">mouseenter</a></li><li><a href="#events.mouseleave" style="color: #009900;">mouseleave</a></li><li><a href="#events.mwheel" style="color: #009900;">mwheel</a></li><li><a href="#events.sizing" style="color: #009900;">sizing</a></li></ul></td>
   </tr>
 </table>
 

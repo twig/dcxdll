@@ -74,19 +74,19 @@
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="style. icon" class="style"> icon</a></td>
+		<td class="style"><a name="style.icon" class="style">icon</a></td>
 		<td>Creates a listview in icon view.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="style. list" class="style"> list</a></td>
+		<td class="style"><a name="style.list" class="style">list</a></td>
 		<td>Creates a listview in item list view.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="style. report" class="style"> report</a></td>
+		<td class="style"><a name="style.report" class="style">report</a></td>
 		<td>Creates a listview in report view (the view with columns and grid).</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="style. smallicon" class="style"> smallicon</a></td>
+		<td class="style"><a name="style.smallicon" class="style">smallicon</a></td>
 		<td>Creates a listview in smallicon view.<br /><br /></td>
 	</tr>
 	<tr>
@@ -179,20 +179,6 @@
 	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
-<table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.B"></a>/xdid -B	</td></tr>
-	<tr><td colspan="2">This command lets you force label editing on a listview item.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -B [DNAME] [ID] [N]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdid -B dcx 4 3</div></td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You must give the listview focus before forcing the item editing mode.</td></tr></table>
-<br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
 			<a name="xdid.a"></a>/xdid -a	</td></tr>
@@ -853,6 +839,20 @@
 <a class="value">$1 > $2</a> return <a class="value">1</a><br />
 <a class="value">$1 == $2</a> return <a class="value">0</a></li></ul></td></tr></table>
 <br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.B"></a>/xdid -B	</td></tr>
+	<tr><td colspan="2">This command lets you force label editing on a listview item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -B [DNAME] [ID] [N]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -B dcx 4 3</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You must give the listview focus before forcing the item editing mode.</td></tr></table>
+<br />
 <br /><table class="description">
 	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
@@ -1359,7 +1359,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style. icon" style="color: #B52929;"> icon</a></li><li><a href="#style. list" style="color: #B52929;"> list</a></li><li><a href="#style. report" style="color: #B52929;"> report</a></li><li><a href="#style. smallicon" style="color: #B52929;"> smallicon</a></li><li><a href="#style.alignleft" style="color: #B52929;">alignleft</a></li><li><a href="#style.aligntop" style="color: #B52929;">aligntop</a></li><li><a href="#style.autoarrange" style="color: #B52929;">autoarrange</a></li><li><a href="#style.balloon" style="color: #B52929;">balloon</a></li><li><a href="#style.borderselect" style="color: #B52929;">borderselect</a></li><li><a href="#style.checkbox" style="color: #B52929;">checkbox</a></li><li><a href="#style.editlabel" style="color: #B52929;">editlabel</a></li><li><a href="#style.flatsb" style="color: #B52929;">flatsb</a></li><li><a href="#style.fullrow" style="color: #B52929;">fullrow</a></li><li><a href="#style.grid" style="color: #B52929;">grid</a></li><li><a href="#style.headerdrag" style="color: #B52929;">headerdrag</a></li><li><a href="#style.hottrack" style="color: #B52929;">hottrack</a></li><li><a href="#style.noheader" style="color: #B52929;">noheader</a></li><li><a href="#style.nolabelwrap" style="color: #B52929;">nolabelwrap</a></li><li><a href="#style.noscroll" style="color: #B52929;">noscroll</a></li><li><a href="#style.showsel" style="color: #B52929;">showsel</a></li><li><a href="#style.singlesel" style="color: #B52929;">singlesel</a></li><li><a href="#style.sortasc" style="color: #B52929;">sortasc</a></li><li><a href="#style.sortdesc" style="color: #B52929;">sortdesc</a></li><li><a href="#style.subitemimage" style="color: #B52929;">subitemimage</a></li><li><a href="#style.tooltip" style="color: #B52929;">tooltip</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.B" style="color: #0000FF;">-B</a></li><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li><li><a href="#xdid.d" style="color: #0000FF;">-d</a></li><li><a href="#xdid.g" style="color: #0000FF;">-g</a></li><li><a href="#xdid.i" style="color: #0000FF;">-i</a></li><li><a href="#xdid.j" style="color: #0000FF;">-j</a></li><li><a href="#xdid.k" style="color: #0000FF;">-k</a></li><li><a href="#xdid.l" style="color: #0000FF;">-l</a></li><li><a href="#xdid.m" style="color: #0000FF;">-m</a></li><li><a href="#xdid.n" style="color: #0000FF;">-n</a></li><li><a href="#xdid.q" style="color: #0000FF;">-q</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li><li><a href="#xdid.u" style="color: #0000FF;">-u</a></li><li><a href="#xdid.v" style="color: #0000FF;">-v</a></li><li><a href="#xdid.w" style="color: #0000FF;">-w</a></li><li><a href="#xdid.y" style="color: #0000FF;">-y</a></li><li><a href="#xdid.z" style="color: #0000FF;">-z</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.find" style="color: #6666FF;">find</a></li><li><a href="#xdidprop.genabled" style="color: #6666FF;">genabled</a></li><li><a href="#xdidprop.hicon" style="color: #6666FF;">hicon</a></li><li><a href="#xdidprop.htext" style="color: #6666FF;">htext</a></li><li><a href="#xdidprop.hwidth" style="color: #6666FF;">hwidth</a></li><li><a href="#xdidprop.icon" style="color: #6666FF;">icon</a></li><li><a href="#xdidprop.mouseitem" style="color: #6666FF;">mouseitem</a></li><li><a href="#xdidprop.num" style="color: #6666FF;">num</a></li><li><a href="#xdidprop.pbar" style="color: #6666FF;">pbar</a></li><li><a href="#xdidprop.sel" style="color: #6666FF;">sel</a></li><li><a href="#xdidprop.selnum" style="color: #6666FF;">selnum</a></li><li><a href="#xdidprop.seltext" style="color: #6666FF;">seltext</a></li><li><a href="#xdidprop.state" style="color: #6666FF;">state</a></li><li><a href="#xdidprop.tbitem" style="color: #6666FF;">tbitem</a></li><li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.dclick" style="color: #009900;">dclick</a></li><li><a href="#events.hdclick" style="color: #009900;">hdclick</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.hover" style="color: #009900;">hover</a></li><li><a href="#events.hsclick" style="color: #009900;">hsclick</a></li><li><a href="#events.labelbegin" style="color: #009900;">labelbegin</a></li><li><a href="#events.labelcancel" style="color: #009900;">labelcancel</a></li><li><a href="#events.labelend" style="color: #009900;">labelend</a></li><li><a href="#events.rclick" style="color: #009900;">rclick</a></li><li><a href="#events.rdclick" style="color: #009900;">rdclick</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li><li><a href="#events.scrollend" style="color: #009900;">scrollend</a></li><li><a href="#events.stateclick" style="color: #009900;">stateclick</a></li><li><a href="#events.trackbegin" style="color: #009900;">trackbegin</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.alignleft" style="color: #B52929;">alignleft</a></li><li><a href="#style.aligntop" style="color: #B52929;">aligntop</a></li><li><a href="#style.autoarrange" style="color: #B52929;">autoarrange</a></li><li><a href="#style.balloon" style="color: #B52929;">balloon</a></li><li><a href="#style.borderselect" style="color: #B52929;">borderselect</a></li><li><a href="#style.checkbox" style="color: #B52929;">checkbox</a></li><li><a href="#style.editlabel" style="color: #B52929;">editlabel</a></li><li><a href="#style.flatsb" style="color: #B52929;">flatsb</a></li><li><a href="#style.fullrow" style="color: #B52929;">fullrow</a></li><li><a href="#style.grid" style="color: #B52929;">grid</a></li><li><a href="#style.headerdrag" style="color: #B52929;">headerdrag</a></li><li><a href="#style.hottrack" style="color: #B52929;">hottrack</a></li><li><a href="#style.icon" style="color: #B52929;">icon</a></li><li><a href="#style.list" style="color: #B52929;">list</a></li><li><a href="#style.noheader" style="color: #B52929;">noheader</a></li><li><a href="#style.nolabelwrap" style="color: #B52929;">nolabelwrap</a></li><li><a href="#style.noscroll" style="color: #B52929;">noscroll</a></li><li><a href="#style.report" style="color: #B52929;">report</a></li><li><a href="#style.showsel" style="color: #B52929;">showsel</a></li><li><a href="#style.singlesel" style="color: #B52929;">singlesel</a></li><li><a href="#style.smallicon" style="color: #B52929;">smallicon</a></li><li><a href="#style.sortasc" style="color: #B52929;">sortasc</a></li><li><a href="#style.sortdesc" style="color: #B52929;">sortdesc</a></li><li><a href="#style.subitemimage" style="color: #B52929;">subitemimage</a></li><li><a href="#style.tooltip" style="color: #B52929;">tooltip</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li><li><a href="#xdid.d" style="color: #0000FF;">-d</a></li><li><a href="#xdid.g" style="color: #0000FF;">-g</a></li><li><a href="#xdid.i" style="color: #0000FF;">-i</a></li><li><a href="#xdid.j" style="color: #0000FF;">-j</a></li><li><a href="#xdid.k" style="color: #0000FF;">-k</a></li><li><a href="#xdid.l" style="color: #0000FF;">-l</a></li><li><a href="#xdid.m" style="color: #0000FF;">-m</a></li><li><a href="#xdid.n" style="color: #0000FF;">-n</a></li><li><a href="#xdid.q" style="color: #0000FF;">-q</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li><li><a href="#xdid.u" style="color: #0000FF;">-u</a></li><li><a href="#xdid.v" style="color: #0000FF;">-v</a></li><li><a href="#xdid.w" style="color: #0000FF;">-w</a></li><li><a href="#xdid.y" style="color: #0000FF;">-y</a></li><li><a href="#xdid.z" style="color: #0000FF;">-z</a></li><li><a href="#xdid.B" style="color: #0000FF;">-B</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.find" style="color: #6666FF;">find</a></li><li><a href="#xdidprop.genabled" style="color: #6666FF;">genabled</a></li><li><a href="#xdidprop.hicon" style="color: #6666FF;">hicon</a></li><li><a href="#xdidprop.htext" style="color: #6666FF;">htext</a></li><li><a href="#xdidprop.hwidth" style="color: #6666FF;">hwidth</a></li><li><a href="#xdidprop.icon" style="color: #6666FF;">icon</a></li><li><a href="#xdidprop.mouseitem" style="color: #6666FF;">mouseitem</a></li><li><a href="#xdidprop.num" style="color: #6666FF;">num</a></li><li><a href="#xdidprop.pbar" style="color: #6666FF;">pbar</a></li><li><a href="#xdidprop.sel" style="color: #6666FF;">sel</a></li><li><a href="#xdidprop.selnum" style="color: #6666FF;">selnum</a></li><li><a href="#xdidprop.seltext" style="color: #6666FF;">seltext</a></li><li><a href="#xdidprop.state" style="color: #6666FF;">state</a></li><li><a href="#xdidprop.tbitem" style="color: #6666FF;">tbitem</a></li><li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.dclick" style="color: #009900;">dclick</a></li><li><a href="#events.hdclick" style="color: #009900;">hdclick</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.hover" style="color: #009900;">hover</a></li><li><a href="#events.hsclick" style="color: #009900;">hsclick</a></li><li><a href="#events.labelbegin" style="color: #009900;">labelbegin</a></li><li><a href="#events.labelcancel" style="color: #009900;">labelcancel</a></li><li><a href="#events.labelend" style="color: #009900;">labelend</a></li><li><a href="#events.rclick" style="color: #009900;">rclick</a></li><li><a href="#events.rdclick" style="color: #009900;">rdclick</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li><li><a href="#events.scrollend" style="color: #009900;">scrollend</a></li><li><a href="#events.stateclick" style="color: #009900;">stateclick</a></li><li><a href="#events.trackbegin" style="color: #009900;">trackbegin</a></li></ul></td>
   </tr>
 </table>
 

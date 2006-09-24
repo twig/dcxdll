@@ -90,7 +90,7 @@ function loadSection(&$arr, $fn) {
 	if (function_exists($fn)) {
 		$fn($arr);
 		array_walk_recursive($arr, "wikiData");
-		ksort($arr, SORT_STRING);
+		uksort($arr, "flag_sort");
 	}
 	else {
 		$arr = array();
@@ -409,21 +409,108 @@ function print_menu_items(&$arr, $sec, $sectext) {
 
 	if (count($arr)) {
 		$color = get_section_color($sec);
-		$prefix = in_array($sec, array(SECTION_XDID, SECTION_XDIALOG)) ? '-' : '';
+		$prefix = in_array($sec, array(SECTION_XDID, SECTION_XDIALOG, SECTION_XDOCK, SECTION_XPOP, SECTION_XPOPUP)) ? '-' : '';
 
 		echo "<a href=\"#$sec\" style=\"color: $color;\">$sectext</a><br /><ul>";
 
-		foreach (array_keys($arr) as $flag) {
+		$keys = array_keys($arr);
+		usort($keys, "flag_sort_rightmenu");
+
+		foreach ($keys as $flag) {
+			$flag = trim($flag);
+			
+			// ignore __notes, etc
 			if (preg_match("/__.+/i", $flag))
 			    continue;
 			
-			echo "<li><a href=\"#$sec.$flag\" style=\"color: $color;\">$prefix$flag</a></li>";
+			echo "<li><a href=\"#$sec.$flag\" style=\"color: $color;\">$prefix$flag</a></li>\n";
 		}
 
 		echo "</ul>";
 	}
 }
 
+// custom function to sort flags by numbers < lower case < upper case
+function flag_sort($a, $b) {
+	if ($a == $b)
+		return 0;
+
+	// check for numbers
+	$regex = '/[0-9]/';
+	$a_num = (preg_match($regex, $a));
+	$b_num = (preg_match($regex, $b));
+	
+	// both numbers, compare normally
+	if ($a_num && $b_num)
+		return ($a < $b) ? -1 : 1;
+	// $a is a number, $b is not
+	else if ($a_num && !$b_num)
+		return -1;
+	// $a is not a number, $b is
+	else if (!$a_num && $b_num)
+		return 1;
+
+	// check for lower case
+	$regex = '/[a-z]/';
+	$a_lower = (preg_match($regex, $a));
+	$b_lower = (preg_match($regex, $b));
+	
+	if ($a_lower && $b_lower)
+		return strcasecmp($a, $b);
+	// $a is lowercase, $b is not
+	else if ($a_lower && !$b_lower)
+		return -1;
+	// $a is not lowercase, $b is
+	else if (!$a_lower && $b_lower)
+		return 1;
+
+
+	// otherwise both capital letters
+	return strcasecmp($a, $b);
+}
+
+// custom function to sort flags by numbers < lower case < upper case
+// right menu doesnt care about logical groupings so we trim whitespaces
+function flag_sort_rightmenu($a, $b) {
+	$a = trim($a);
+	$b = trim($b);
+	
+	if ($a == $b)
+		return 0;
+
+	// check for numbers
+	$regex = '/[0-9]/';
+	$a_num = (preg_match($regex, $a));
+	$b_num = (preg_match($regex, $b));
+	
+	// both numbers, compare normally
+	if ($a_num && $b_num)
+		return ($a < $b) ? -1 : 1;
+	// $a is a number, $b is not
+	else if ($a_num && !$b_num)
+		return -1;
+	// $a is not a number, $b is
+	else if (!$a_num && $b_num)
+		return 1;
+
+	// check for lower case
+	$regex = '/[a-z]/';
+	$a_lower = (preg_match($regex, $a));
+	$b_lower = (preg_match($regex, $b));
+	
+	if ($a_lower && $b_lower)
+		return strcasecmp($a, $b);
+	// $a is lowercase, $b is not
+	else if ($a_lower && !$b_lower)
+		return -1;
+	// $a is not lowercase, $b is
+	else if (!$a_lower && $b_lower)
+		return 1;
+
+
+	// otherwise both capital letters
+	return strcasecmp($a, $b);
+}
 
 function dcxdoc_footer() {
 ?>  </tr>
@@ -922,6 +1009,8 @@ function dcxdoc_format_styles($data) {
 ?><table class="styles">
 <?php
 	foreach ($data as $style => $info) {
+		$style = trim($style);
+		
 		// allow for notes in styles section
 		if ($style == '__notes')
 			continue;
