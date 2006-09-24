@@ -513,6 +513,10 @@
 					Name="Custom"
 					>
 					<File
+						RelativePath=".\Classes\custom\DcxTrayIcon.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\Classes\custom\divider.cpp"
 						>
 					</File>
@@ -750,6 +754,10 @@
 				<Filter
 					Name="Custom"
 					>
+					<File
+						RelativePath=".\Classes\custom\DcxTrayIcon.h"
+						>
+					</File>
 					<File
 						RelativePath=".\Classes\custom\divider.h"
 						>
