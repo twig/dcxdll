@@ -62,6 +62,8 @@ DcxDialog::DcxDialog(HWND mHwnd, TString &tsName, TString &tsAliasName)
 
 	this->m_iRefCount = 0;
 
+	this->m_bDoDrag = false;
+
 	SetProp(this->m_Hwnd, "dcx_this", (HANDLE) this);
 
 	DragAcceptFiles(this->m_Hwnd, TRUE);
@@ -822,6 +824,14 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				SetWindowRgn(this->m_Hwnd,NULL,TRUE);
 				break;
 			}
+			case 'd':
+			{
+				if ((BOOL)input.gettok(4," ").to_int())
+					this->m_bDoDrag = true;
+				else
+					this->m_bDoDrag = false;
+			}
+			break;
 
 			default:
 			{
@@ -1778,6 +1788,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_MOUSEMOVE:
 		{
 			p_this->setMouseControl(0);
+			if (p_this->m_bDrag) {
+				POINT pt;
+				GetCursorPos(&pt);
+				PostMessage(p_this->m_Hwnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM( pt.x, pt.y));
+				p_this->m_bDrag = false;
+			}
 			break;
 		}
 
@@ -1785,6 +1801,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		{
 			p_this->callAliasEx(NULL, "%s,%d", "sclick", 0);
 			p_this->callAliasEx(NULL, "%s,%d", "lbdown", 0);
+			if (p_this->m_bDoDrag)
+				p_this->m_bDrag = true;
 			break;
 		}
 

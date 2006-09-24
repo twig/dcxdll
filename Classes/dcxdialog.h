@@ -110,6 +110,8 @@ protected:
 	HWND m_ToolTipHWND; //!< Dialogs general tooltip control for use with all controls that don't have their own tooltips.
 	HRGN m_Region;
   UINT m_iRefCount;
+	bool m_bDoDrag;
+	bool m_bDrag;
   /* **** */
 
   void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
