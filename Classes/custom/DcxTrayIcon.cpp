@@ -135,42 +135,28 @@ HWND DcxTrayIcon::GetHwnd() {
 
 LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	if (uMsg == DCXM_TRAYICON) {
-		mIRCDebug("here hwnd %d, uMsg %d, W %d, L %d", mHwnd, uMsg, wParam, lParam);
-	}
+		UINT uMouseMsg = (UINT) lParam;
+		UINT id = (UINT) wParam;
 
-//void On_MYWM_NOTIFYICON(WPARAM wParam, LPARAM lParam) 
-//{ 
-//    UINT uID; 
-//    UINT uMouseMsg; 
-// 
-//    uID = (UINT) wParam; 
-//    uMouseMsg = (UINT) lParam; 
-// 
-//    if (uMouseMsg == WM_LBUTTONDOWN) 
-//    { 
-//        switch (uID) 
-//        { 
-//            case IDI_MYBATTERYICON: 
-// 
-//                // The user clicked the battery icon. Display the 
-//                // battery status. 
-//                ShowBatteryStatus(); 
-//                break; 
-// 
-//            case IDI_MYPRINTERICON: 
-// 
-//                // The user clicked the printer icon. Display the 
-//                // status of the print job. 
-//                ShowJobStatus(); 
-//                break; 
-// 
-//            default: 
-//                break; 
-//        } 
-//     } 
-//
-//     return; 
-// }
+		switch (uMouseMsg)
+		{
+			case WM_LBUTTONDBLCLK:
+				mIRCSignalDCX("trayicon %s %d", "dclick", id);
+				break;
+
+			case WM_LBUTTONUP:
+				mIRCSignalDCX("trayicon %s %d", "sclick", id);
+				break;
+
+			case WM_RBUTTONUP:
+			case WM_CONTEXTMENU:
+				mIRCSignalDCX("trayicon %s %d", "rclick", id);
+				break;
+
+			default:
+				break;
+		}
+	}
 
 	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 }
