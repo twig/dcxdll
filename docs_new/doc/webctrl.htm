@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>Web HTML control.<br /><br />
 <div style="text-align: center;">
 	<img src="images/webctrl.png" alt="" />
@@ -69,12 +69,12 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -g	</td></tr>
+			<a name="xdid.g"></a>/xdid -g	</td></tr>
 	<tr><td colspan="2">This command is like hitting the Home button in IE.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -88,7 +88,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -i	</td></tr>
+			<a name="xdid.i"></a>/xdid -i	</td></tr>
 	<tr><td colspan="2">This command is like hitting the Forward button in IE.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -102,7 +102,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -j	</td></tr>
+			<a name="xdid.j"></a>/xdid -j	</td></tr>
 	<tr><td colspan="2">This command lets you execute some javascript code.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -116,7 +116,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.4"></a>/xdid -k	</td></tr>
+			<a name="xdid.k"></a>/xdid -k	</td></tr>
 	<tr><td colspan="2">This command is like hitting the Back button in IE.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -130,7 +130,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.5"></a>/xdid -n	</td></tr>
+			<a name="xdid.n"></a>/xdid -n	</td></tr>
 	<tr><td colspan="2">This command lets you navigate to an url.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -144,7 +144,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.6"></a>/xdid -r	</td></tr>
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
 	<tr><td colspan="2">This command is like hitting the Refresh button in IE.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -158,7 +158,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.7"></a>/xdid -t	</td></tr>
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
 	<tr><td colspan="2">This command is like hitting the Stop button in IE.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -171,12 +171,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().ready	</td></tr>
+			<a name="xdidprop.ready"></a>$xdid().ready	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the ready state. If it is <a class="value">$true</a> the control is ready for another command, else you should wait.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -190,7 +190,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.2"></a>$xdid().url	</td></tr>
+			<a name="xdidprop.url"></a>$xdid().url	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the current loaded url.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -203,12 +203,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Web Control Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Web Control Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the Web Control control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>back	</td></tr>
+			<a name="events.back"></a>back	</td></tr>
 	<tr><td colspan="2">When the state of the back button changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -222,7 +222,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>dl_begin	</td></tr>
+			<a name="events.dl_begin"></a>dl_begin	</td></tr>
 	<tr><td colspan="2">When downloading is about to begin.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -236,7 +236,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>dl_complete	</td></tr>
+			<a name="events.dl_complete"></a>dl_complete	</td></tr>
 	<tr><td colspan="2">When the downloading is complete.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -250,7 +250,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>dl_progress	</td></tr>
+			<a name="events.dl_progress"></a>dl_progress	</td></tr>
 	<tr><td colspan="2">Downloading progress update.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -273,7 +273,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.5"></a>doc_complete	</td></tr>
+			<a name="events.doc_complete"></a>doc_complete	</td></tr>
 	<tr><td colspan="2">When the document has been downloaded.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -287,7 +287,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.6"></a>forward	</td></tr>
+			<a name="events.forward"></a>forward	</td></tr>
 	<tr><td colspan="2">When the state of the forward button changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -301,7 +301,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.7"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -315,7 +315,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.8"></a>nav_begin	</td></tr>
+			<a name="events.nav_begin"></a>nav_begin	</td></tr>
 	<tr><td colspan="2">When the text is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -329,7 +329,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.9"></a>nav_complete	</td></tr>
+			<a name="events.nav_complete"></a>nav_complete	</td></tr>
 	<tr><td colspan="2">When the control is finished navigating to the URL.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -343,7 +343,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.10"></a>status	</td></tr>
+			<a name="events.status"></a>status	</td></tr>
 	<tr><td colspan="2">When the statusbar changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -357,7 +357,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.11"></a>title	</td></tr>
+			<a name="events.title"></a>title	</td></tr>
 	<tr><td colspan="2">when the title changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -371,7 +371,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.12"></a>win_open	</td></tr>
+			<a name="events.win_open"></a>win_open	</td></tr>
 	<tr><td colspan="2">When a new window is attempted to be opened.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -385,7 +385,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-g</a></li><li><a href="#4.2" style="color: #0000FF;">-i</a></li><li><a href="#4.3" style="color: #0000FF;">-j</a></li><li><a href="#4.4" style="color: #0000FF;">-k</a></li><li><a href="#4.5" style="color: #0000FF;">-n</a></li><li><a href="#4.6" style="color: #0000FF;">-r</a></li><li><a href="#4.7" style="color: #0000FF;">-t</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">ready</a></li><li><a href="#9.2" style="color: #6666FF;">url</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">back</a></li><li><a href="#8.2" style="color: #009900;">dl_begin</a></li><li><a href="#8.3" style="color: #009900;">dl_complete</a></li><li><a href="#8.4" style="color: #009900;">dl_progress</a></li><li><a href="#8.5" style="color: #009900;">doc_complete</a></li><li><a href="#8.6" style="color: #009900;">forward</a></li><li><a href="#8.7" style="color: #009900;">help</a></li><li><a href="#8.8" style="color: #009900;">nav_begin</a></li><li><a href="#8.9" style="color: #009900;">nav_complete</a></li><li><a href="#8.10" style="color: #009900;">status</a></li><li><a href="#8.11" style="color: #009900;">title</a></li><li><a href="#8.12" style="color: #009900;">win_open</a></li></ul></td>
+<a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.g" style="color: #0000FF;">-g</a></li><li><a href="#xdid.i" style="color: #0000FF;">-i</a></li><li><a href="#xdid.j" style="color: #0000FF;">-j</a></li><li><a href="#xdid.k" style="color: #0000FF;">-k</a></li><li><a href="#xdid.n" style="color: #0000FF;">-n</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.ready" style="color: #6666FF;">ready</a></li><li><a href="#xdidprop.url" style="color: #6666FF;">url</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.back" style="color: #009900;">back</a></li><li><a href="#events.dl_begin" style="color: #009900;">dl_begin</a></li><li><a href="#events.dl_complete" style="color: #009900;">dl_complete</a></li><li><a href="#events.dl_progress" style="color: #009900;">dl_progress</a></li><li><a href="#events.doc_complete" style="color: #009900;">doc_complete</a></li><li><a href="#events.forward" style="color: #009900;">forward</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.nav_begin" style="color: #009900;">nav_begin</a></li><li><a href="#events.nav_complete" style="color: #009900;">nav_complete</a></li><li><a href="#events.status" style="color: #009900;">status</a></li><li><a href="#events.title" style="color: #009900;">title</a></li><li><a href="#events.win_open" style="color: #009900;">win_open</a></li></ul></td>
   </tr>
 </table>
 

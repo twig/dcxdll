@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>This control enables you to create a colorcombo.<br /><br />
 <div style="text-align: center;">
 	<img src="images/colorcombo.png" alt="" />
@@ -69,12 +69,12 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -a	</td></tr>
+			<a name="xdid.a"></a>/xdid -a	</td></tr>
 	<tr><td colspan="2">This command lets you add a color to the colorcombo at the specified position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -88,7 +88,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -c	</td></tr>
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
 	<tr><td colspan="2">This command lets you select the Nth item in the colorcombo.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -102,7 +102,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -d	</td></tr>
+			<a name="xdid.d"></a>/xdid -d	</td></tr>
 	<tr><td colspan="2">This command lets you delete the Nth item in the colorcombo.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -116,7 +116,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.4"></a>/xdid -m	</td></tr>
+			<a name="xdid.m"></a>/xdid -m	</td></tr>
 	<tr><td colspan="2">This command lets you load all the mIRC colors into the colorcombo.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -130,7 +130,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.5"></a>/xdid -o	</td></tr>
+			<a name="xdid.o"></a>/xdid -o	</td></tr>
 	<tr><td colspan="2">This command lets you overwrite the Nth item in the colorcombo.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -144,7 +144,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.6"></a>/xdid -r	</td></tr>
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
 	<tr><td colspan="2">This command lets you clear the contents of the colorcombo.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -157,12 +157,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().color	</td></tr>
+			<a name="xdidprop.color"></a>$xdid().color	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the Nth colorcombo color.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -176,7 +176,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.2"></a>$xdid().num	</td></tr>
+			<a name="xdidprop.num"></a>$xdid().num	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the number of items in the colorcombo.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -190,7 +190,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.3"></a>$xdid().sel	</td></tr>
+			<a name="xdidprop.sel"></a>$xdid().sel	</td></tr>
 	<tr><td colspan="2">This property lets you the selected item number in the colorcombo.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -203,12 +203,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>ColorCombo Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>ColorCombo Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the ColorCombo control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -222,7 +222,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>sclick	</td></tr>
+			<a name="events.sclick"></a>sclick	</td></tr>
 	<tr><td colspan="2">When a sclick event is fired on an item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -241,7 +241,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-a</a></li><li><a href="#4.2" style="color: #0000FF;">-c</a></li><li><a href="#4.3" style="color: #0000FF;">-d</a></li><li><a href="#4.4" style="color: #0000FF;">-m</a></li><li><a href="#4.5" style="color: #0000FF;">-o</a></li><li><a href="#4.6" style="color: #0000FF;">-r</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">color</a></li><li><a href="#9.2" style="color: #6666FF;">num</a></li><li><a href="#9.3" style="color: #6666FF;">sel</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">help</a></li><li><a href="#8.2" style="color: #009900;">sclick</a></li></ul></td>
+<a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li><li><a href="#xdid.d" style="color: #0000FF;">-d</a></li><li><a href="#xdid.m" style="color: #0000FF;">-m</a></li><li><a href="#xdid.o" style="color: #0000FF;">-o</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.color" style="color: #6666FF;">color</a></li><li><a href="#xdidprop.num" style="color: #6666FF;">num</a></li><li><a href="#xdidprop.sel" style="color: #6666FF;">sel</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li></ul></td>
   </tr>
 </table>
 

@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>This control enables you to create a rebar control. This control acts as a container for other controls. The rebar control is consisted of <b>bands</b> that host an icon, text and a child control.<br /><br />
 <div style="text-align: center;">
 	<img src="images/rebar.png" alt="" />
@@ -69,63 +69,63 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a Rebar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">borders</a></td>
+		<td class="style"><a name="style.borders" class="style">borders</a></td>
 		<td>Borders appear between rebar bands.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.2" class="style">bottom</a></td>
+		<td class="style"><a name="style.bottom" class="style">bottom</a></td>
 		<td>The rebar is auto-positioned at bottom of dialog window.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.3" class="style">dblclktoggle</a></td>
+		<td class="style"><a name="style.dblclktoggle" class="style">dblclktoggle</a></td>
 		<td>Double click on band text toggles min/max resizing of the band. (Single click is default)</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.4" class="style">fixedorder</a></td>
+		<td class="style"><a name="style.fixedorder" class="style">fixedorder</a></td>
 		<td>Bands are always in the same order but can be dragged on different lins/columns.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.5" class="style">noparentalign</a></td>
+		<td class="style"><a name="style.noparentalign" class="style">noparentalign</a></td>
 		<td>The rebar isnt auto-positioned when dialogs size changes.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.6" class="style">noresize</a></td>
+		<td class="style"><a name="style.noresize" class="style">noresize</a></td>
 		<td>The rebar isnt auto-resized when dialogs size changes.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.7" class="style">right</a></td>
+		<td class="style"><a name="style.right" class="style">right</a></td>
 		<td>The rebar is auto-positioned to the right side of the dialog (must be used with <a class="style">vertical</a> style).</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.8" class="style">tooltips</a></td>
+		<td class="style"><a name="style.tooltips" class="style">tooltips</a></td>
 		<td>The rebar bands have tooltips.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.9" class="style">varheight</a></td>
+		<td class="style"><a name="style.varheight" class="style">varheight</a></td>
 		<td>The rebar control displays bands at the minimum required height, when possible. Without this style, the rebar control displays all bands at the same height, using the height of the tallest visible band to determine the height of other bands. Even if this style is applied, bands on the same row will display the height of the highest band on that row.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.10" class="style">vertical</a></td>
+		<td class="style"><a name="style.vertical" class="style">vertical</a></td>
 		<td>The rebar is auto-positioned to the left side of the dialog (gives a vertical rebar).</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.11" class="style">verticalgrip</a></td>
+		<td class="style"><a name="style.verticalgrip" class="style">verticalgrip</a></td>
 		<td>The size grip will be displayed vertically instead of horizontally in a vertical rebar control. (must be used with <a class="style">vertical</a>)</td>
 	</tr>
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -a	</td></tr>
+			<a name="xdid.a"></a>/xdid -a	</td></tr>
 	<tr><td colspan="2">This command lets you add bands to the rebar. These bands can optionally host a supported child control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -288,7 +288,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -d	</td></tr>
+			<a name="xdid.d"></a>/xdid -d	</td></tr>
 	<tr><td colspan="2">This command lets you delete the Nth rebar band.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -302,7 +302,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -i	</td></tr>
+			<a name="xdid.i"></a>/xdid -i	</td></tr>
 	<tr><td colspan="2">This command lets you hide the Nth rebar band.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -316,7 +316,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.4"></a>/xdid -j	</td></tr>
+			<a name="xdid.j"></a>/xdid -j	</td></tr>
 	<tr><td colspan="2">This command lets you show the Nth rebar band.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -330,7 +330,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.5"></a>/xdid -k	</td></tr>
+			<a name="xdid.k"></a>/xdid -k	</td></tr>
 	<tr><td colspan="2">This command lets you change the icon on a rebar band.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -353,7 +353,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.6"></a>/xdid -l	</td></tr>
+			<a name="xdid.l"></a>/xdid -l	</td></tr>
 	<tr><td colspan="2">This command lets you lock the Nth rebar band or all the bands.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -367,7 +367,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.7"></a>/xdid -m	</td></tr>
+			<a name="xdid.m"></a>/xdid -m	</td></tr>
 	<tr><td colspan="2">This command lets you maximize the Nth rebar band.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -381,7 +381,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.8"></a>/xdid -n	</td></tr>
+			<a name="xdid.n"></a>/xdid -n	</td></tr>
 	<tr><td colspan="2">This command lets you minimize the Nth rebar band.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -395,7 +395,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.9"></a>/xdid -t	</td></tr>
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
 	<tr><td colspan="2">This command lets you change the text on a rebar band.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -409,7 +409,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.10"></a>/xdid -u	</td></tr>
+			<a name="xdid.u"></a>/xdid -u	</td></tr>
 	<tr><td colspan="2">This command lets you move the Nth rebar band to the Mth position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -423,7 +423,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.11"></a>/xdid -w	</td></tr>
+			<a name="xdid.w"></a>/xdid -w	</td></tr>
 	<tr><td colspan="2">This command lets you add an icon to the tab image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -454,7 +454,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.12"></a>/xdid -y	</td></tr>
+			<a name="xdid.y"></a>/xdid -y	</td></tr>
 	<tr><td colspan="2">This command lets you clear the rebar image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -467,12 +467,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().childid	</td></tr>
+			<a name="xdidprop.childid"></a>$xdid().childid	</td></tr>
 	<tr><td colspan="2">This property lets you retreive Nth rebar band child control ID ($null if no child control on the band).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -486,7 +486,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.2"></a>$xdid().num	</td></tr>
+			<a name="xdidprop.num"></a>$xdid().num	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the number of bands of a rebar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -500,7 +500,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.3"></a>$xdid().text	</td></tr>
+			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
 	<tr><td colspan="2">This property lets you retreive a Nth rebar band text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -513,12 +513,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Rebar Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Rebar Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the Rebar control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>change	</td></tr>
+			<a name="events.change"></a>change	</td></tr>
 	<tr><td colspan="2">When the rebar controls height changes because of band movement.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -541,7 +541,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -555,7 +555,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>rclick	</td></tr>
+			<a name="events.rclick"></a>rclick	</td></tr>
 	<tr><td colspan="2">When a rclick event is fired over a rebar band (excluding the area occupied by a child control).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -574,7 +574,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>sclick	</td></tr>
+			<a name="events.sclick"></a>sclick	</td></tr>
 	<tr><td colspan="2">When a sclick event is fired over a rebar band (excluding the area occupied by a child control).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -593,7 +593,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">borders</a></li><li><a href="#3.2" style="color: #B52929;">bottom</a></li><li><a href="#3.3" style="color: #B52929;">dblclktoggle</a></li><li><a href="#3.4" style="color: #B52929;">fixedorder</a></li><li><a href="#3.5" style="color: #B52929;">noparentalign</a></li><li><a href="#3.6" style="color: #B52929;">noresize</a></li><li><a href="#3.7" style="color: #B52929;">right</a></li><li><a href="#3.8" style="color: #B52929;">tooltips</a></li><li><a href="#3.9" style="color: #B52929;">varheight</a></li><li><a href="#3.10" style="color: #B52929;">vertical</a></li><li><a href="#3.11" style="color: #B52929;">verticalgrip</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-a</a></li><li><a href="#4.2" style="color: #0000FF;">-d</a></li><li><a href="#4.3" style="color: #0000FF;">-i</a></li><li><a href="#4.4" style="color: #0000FF;">-j</a></li><li><a href="#4.5" style="color: #0000FF;">-k</a></li><li><a href="#4.6" style="color: #0000FF;">-l</a></li><li><a href="#4.7" style="color: #0000FF;">-m</a></li><li><a href="#4.8" style="color: #0000FF;">-n</a></li><li><a href="#4.9" style="color: #0000FF;">-t</a></li><li><a href="#4.10" style="color: #0000FF;">-u</a></li><li><a href="#4.11" style="color: #0000FF;">-w</a></li><li><a href="#4.12" style="color: #0000FF;">-y</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">childid</a></li><li><a href="#9.2" style="color: #6666FF;">num</a></li><li><a href="#9.3" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">change</a></li><li><a href="#8.2" style="color: #009900;">help</a></li><li><a href="#8.3" style="color: #009900;">rclick</a></li><li><a href="#8.4" style="color: #009900;">sclick</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.borders" style="color: #B52929;">borders</a></li><li><a href="#style.bottom" style="color: #B52929;">bottom</a></li><li><a href="#style.dblclktoggle" style="color: #B52929;">dblclktoggle</a></li><li><a href="#style.fixedorder" style="color: #B52929;">fixedorder</a></li><li><a href="#style.noparentalign" style="color: #B52929;">noparentalign</a></li><li><a href="#style.noresize" style="color: #B52929;">noresize</a></li><li><a href="#style.right" style="color: #B52929;">right</a></li><li><a href="#style.tooltips" style="color: #B52929;">tooltips</a></li><li><a href="#style.varheight" style="color: #B52929;">varheight</a></li><li><a href="#style.vertical" style="color: #B52929;">vertical</a></li><li><a href="#style.verticalgrip" style="color: #B52929;">verticalgrip</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li><li><a href="#xdid.d" style="color: #0000FF;">-d</a></li><li><a href="#xdid.i" style="color: #0000FF;">-i</a></li><li><a href="#xdid.j" style="color: #0000FF;">-j</a></li><li><a href="#xdid.k" style="color: #0000FF;">-k</a></li><li><a href="#xdid.l" style="color: #0000FF;">-l</a></li><li><a href="#xdid.m" style="color: #0000FF;">-m</a></li><li><a href="#xdid.n" style="color: #0000FF;">-n</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li><li><a href="#xdid.u" style="color: #0000FF;">-u</a></li><li><a href="#xdid.w" style="color: #0000FF;">-w</a></li><li><a href="#xdid.y" style="color: #0000FF;">-y</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.childid" style="color: #6666FF;">childid</a></li><li><a href="#xdidprop.num" style="color: #6666FF;">num</a></li><li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.change" style="color: #009900;">change</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.rclick" style="color: #009900;">rclick</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li></ul></td>
   </tr>
 </table>
 

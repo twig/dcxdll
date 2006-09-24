@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>This control enables you to create a scroll bar.<br /><br />
 <div style="text-align: center;">
 	<img src="images/scroll.png" alt="" />
@@ -69,23 +69,23 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a Scroll control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">vertical</a></td>
+		<td class="style"><a name="style.vertical" class="style">vertical</a></td>
 		<td>Vertical scroll bar.</td>
 	</tr>
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -l	</td></tr>
+			<a name="xdid.l"></a>/xdid -l	</td></tr>
 	<tr><td colspan="2">This command lets you set the line step value.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -99,7 +99,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -m	</td></tr>
+			<a name="xdid.m"></a>/xdid -m	</td></tr>
 	<tr><td colspan="2">This command lets you set the page step value.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -113,7 +113,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -r	</td></tr>
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
 	<tr><td colspan="2">This command lets you set the scrollbar range.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -127,7 +127,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.4"></a>/xdid -v	</td></tr>
+			<a name="xdid.v"></a>/xdid -v	</td></tr>
 	<tr><td colspan="2">This command lets you set the tracker position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -140,12 +140,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().line	</td></tr>
+			<a name="xdidprop.line"></a>$xdid().line	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the scroll bar line step value.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -159,7 +159,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.2"></a>$xdid().page	</td></tr>
+			<a name="xdidprop.page"></a>$xdid().page	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the scroll bar page step value.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -173,7 +173,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.3"></a>$xdid().range	</td></tr>
+			<a name="xdidprop.range"></a>$xdid().range	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the scroll bar range.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -187,7 +187,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.4"></a>$xdid().value	</td></tr>
+			<a name="xdidprop.value"></a>$xdid().value	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the scroll bar position value.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -200,12 +200,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Scroll Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Scroll Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the Scroll control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>bottom	</td></tr>
+			<a name="events.bottom"></a>bottom	</td></tr>
 	<tr><td colspan="2">When the user presses the end key.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -224,7 +224,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -238,7 +238,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>linedown	</td></tr>
+			<a name="events.linedown"></a>linedown	</td></tr>
 	<tr><td colspan="2">When the user presses down/right arrow keys.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -257,7 +257,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>lineup	</td></tr>
+			<a name="events.lineup"></a>lineup	</td></tr>
 	<tr><td colspan="2">When the user presses up/left arrow keys.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -276,7 +276,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.5"></a>pagedown	</td></tr>
+			<a name="events.pagedown"></a>pagedown	</td></tr>
 	<tr><td colspan="2">When the user presses the pagedown key or clicks on the right/bottom of the scrollbar thumb track.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -295,7 +295,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.6"></a>pageup	</td></tr>
+			<a name="events.pageup"></a>pageup	</td></tr>
 	<tr><td colspan="2">When the user presses the pageup key or clicks on the left/top of the scrollbar thumb track.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -314,7 +314,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.7"></a>top	</td></tr>
+			<a name="events.top"></a>top	</td></tr>
 	<tr><td colspan="2">When the user presses the home key.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -333,7 +333,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.8"></a>trackend	</td></tr>
+			<a name="events.trackend"></a>trackend	</td></tr>
 	<tr><td colspan="2">When the user releases the left mouse button after dragging the thumb.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -352,7 +352,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">vertical</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-l</a></li><li><a href="#4.2" style="color: #0000FF;">-m</a></li><li><a href="#4.3" style="color: #0000FF;">-r</a></li><li><a href="#4.4" style="color: #0000FF;">-v</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">line</a></li><li><a href="#9.2" style="color: #6666FF;">page</a></li><li><a href="#9.3" style="color: #6666FF;">range</a></li><li><a href="#9.4" style="color: #6666FF;">value</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">bottom</a></li><li><a href="#8.2" style="color: #009900;">help</a></li><li><a href="#8.3" style="color: #009900;">linedown</a></li><li><a href="#8.4" style="color: #009900;">lineup</a></li><li><a href="#8.5" style="color: #009900;">pagedown</a></li><li><a href="#8.6" style="color: #009900;">pageup</a></li><li><a href="#8.7" style="color: #009900;">top</a></li><li><a href="#8.8" style="color: #009900;">trackend</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.vertical" style="color: #B52929;">vertical</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.l" style="color: #0000FF;">-l</a></li><li><a href="#xdid.m" style="color: #0000FF;">-m</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li><li><a href="#xdid.v" style="color: #0000FF;">-v</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.line" style="color: #6666FF;">line</a></li><li><a href="#xdidprop.page" style="color: #6666FF;">page</a></li><li><a href="#xdidprop.range" style="color: #6666FF;">range</a></li><li><a href="#xdidprop.value" style="color: #6666FF;">value</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.bottom" style="color: #009900;">bottom</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.linedown" style="color: #009900;">linedown</a></li><li><a href="#events.lineup" style="color: #009900;">lineup</a></li><li><a href="#events.pagedown" style="color: #009900;">pagedown</a></li><li><a href="#events.pageup" style="color: #009900;">pageup</a></li><li><a href="#events.top" style="color: #009900;">top</a></li><li><a href="#events.trackend" style="color: #009900;">trackend</a></li></ul></td>
   </tr>
 </table>
 

@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>This control enables you to create a divider control. This control acts as a container for other controls. The divider control is consisted of two panes that host a child control. The panes are resized using the divider bar between them. The divider control resizes automaticaly it's child windows when the bar is moved. Multiple dividers can be nested for advanced UI interfaces.<br /><br />
 <div style="text-align: center;">
 	<img src="images/divider.png" alt="" />
@@ -69,23 +69,23 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a Divider control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">vertical</a></td>
+		<td class="style"><a name="style.vertical" class="style">vertical</a></td>
 		<td>The divider has vertical panes.</td>
 	</tr>
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -l|-r	</td></tr>
+			<a name="xdid.l|-r"></a>/xdid -l|-r	</td></tr>
 	<tr><td colspan="2">This command lets you add a child control to a divider pane. The -l switch is for the left/top pane, and -r for the right/bottom pane.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -188,7 +188,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -v	</td></tr>
+			<a name="xdid.v"></a>/xdid -v	</td></tr>
 	<tr><td colspan="2">This command lets you set the divider bar position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -202,12 +202,12 @@
 			<a class="value">Left W/H</a> <= <a class="param">POS</a> <= <a class="value">Right W/H</a>.</td></tr></table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Divider Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Divider Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the Divider control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -221,7 +221,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">vertical</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-l|-r</a></li><li><a href="#4.2" style="color: #0000FF;">-v</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">help</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.vertical" style="color: #B52929;">vertical</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.l|-r" style="color: #0000FF;">-l|-r</a></li><li><a href="#xdid.v" style="color: #0000FF;">-v</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.help" style="color: #009900;">help</a></li></ul></td>
   </tr>
 </table>
 

@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>IP Address control.<br /><br />
 <div style="text-align: center;">
 	<img src="images/ipaddress.png" alt="" />
@@ -69,23 +69,23 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a IP Address control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">tooltips</a></td>
+		<td class="style"><a name="style.tooltips" class="style">tooltips</a></td>
 		<td>The ipaddress will have a tooltip.</td>
 	</tr>
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -a	</td></tr>
+			<a name="xdid.a"></a>/xdid -a	</td></tr>
 	<tr><td colspan="2">This command lets you set the IP Address value.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -99,7 +99,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -g	</td></tr>
+			<a name="xdid.g"></a>/xdid -g	</td></tr>
 	<tr><td colspan="2">This command lets you set the range of one of the four IP Address fields.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -113,7 +113,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -j	</td></tr>
+			<a name="xdid.j"></a>/xdid -j	</td></tr>
 	<tr><td colspan="2">This command lets you set the focus on one of the four IP Address fields.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -127,7 +127,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.4"></a>/xdid -r	</td></tr>
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
 	<tr><td colspan="2">This command lets you clear the IP Address control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -140,12 +140,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().ip	</td></tr>
+			<a name="xdidprop.ip"></a>$xdid().ip	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the ip.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -158,12 +158,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>IP Address Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>IP Address Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the IP Address control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>edit	</td></tr>
+			<a name="events.edit"></a>edit	</td></tr>
 	<tr><td colspan="2">When a field in the control changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -177,7 +177,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -191,7 +191,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>rclick	</td></tr>
+			<a name="events.rclick"></a>rclick	</td></tr>
 	<tr><td colspan="2">When you right-click on the IP Address control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -205,7 +205,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>sclick	</td></tr>
+			<a name="events.sclick"></a>sclick	</td></tr>
 	<tr><td colspan="2">When you left-click on the IpAddress control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -219,7 +219,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">tooltips</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-a</a></li><li><a href="#4.2" style="color: #0000FF;">-g</a></li><li><a href="#4.3" style="color: #0000FF;">-j</a></li><li><a href="#4.4" style="color: #0000FF;">-r</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">ip</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">edit</a></li><li><a href="#8.2" style="color: #009900;">help</a></li><li><a href="#8.3" style="color: #009900;">rclick</a></li><li><a href="#8.4" style="color: #009900;">sclick</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.tooltips" style="color: #B52929;">tooltips</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li><li><a href="#xdid.g" style="color: #0000FF;">-g</a></li><li><a href="#xdid.j" style="color: #0000FF;">-j</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.ip" style="color: #6666FF;">ip</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.edit" style="color: #009900;">edit</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.rclick" style="color: #009900;">rclick</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li></ul></td>
   </tr>
 </table>
 

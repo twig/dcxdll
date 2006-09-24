@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>Normal listbox control.<br /><br />
 <div style="text-align: center;">
 	<img src="images/list.png" alt="" />
@@ -69,43 +69,43 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a List control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">extsel</a></td>
+		<td class="style"><a name="style.extsel" class="style">extsel</a></td>
 		<td>Allows multiple items to be selected.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.2" class="style">multi</a></td>
+		<td class="style"><a name="style.multi" class="style">multi</a></td>
 		<td>Turns string selection on or off each time the user clicks or double-clicks a string in the list box. The user can select any number of strings.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.3" class="style">nointegral</a></td>
+		<td class="style"><a name="style.nointegral" class="style">nointegral</a></td>
 		<td>Specifies that the size of the list box is exactly the size specified by the application when it created the list box. Normally, the system sizes a list box so that the list box does not display partial items.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.4" class="style">noscroll</a></td>
+		<td class="style"><a name="style.noscroll" class="style">noscroll</a></td>
 		<td>Shows a disabled vertical scroll bar for the list box when the box does not contain enough items to scroll. If you do not specify this style, the scroll bar is hidden when the list box does not contain enough items.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.5" class="style">nosel</a></td>
+		<td class="style"><a name="style.nosel" class="style">nosel</a></td>
 		<td>Specifies that the list box contains items that can be viewed but not selected.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.6" class="style">vsbar</a></td>
+		<td class="style"><a name="style.vsbar" class="style">vsbar</a></td>
 		<td>Specifies that the list box should display a vertical scrollbar when it overflows.</td>
 	</tr>
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -a	</td></tr>
+			<a name="xdid.a"></a>/xdid -a	</td></tr>
 	<tr><td colspan="2">This command lets you add a new item to the listbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -119,7 +119,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -c	</td></tr>
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
 	<tr><td colspan="2">This command lets you select items in the listbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -133,7 +133,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -d	</td></tr>
+			<a name="xdid.d"></a>/xdid -d	</td></tr>
 	<tr><td colspan="2">This command lets you delete an item in the listbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -147,7 +147,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.4"></a>/xdid -o	</td></tr>
+			<a name="xdid.o"></a>/xdid -o	</td></tr>
 	<tr><td colspan="2">This command lets you overwrite an item in the listbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -161,7 +161,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.5"></a>/xdid -r	</td></tr>
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
 	<tr><td colspan="2">This command lets you clear the listbox contents.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -175,7 +175,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.6"></a>/xdid -u	</td></tr>
+			<a name="xdid.u"></a>/xdid -u	</td></tr>
 	<tr><td colspan="2">This command lets you unselect items the listbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -188,12 +188,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().num	</td></tr>
+			<a name="xdidprop.num"></a>$xdid().num	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the number of listbox items.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -207,7 +207,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.2"></a>$xdid().sel	</td></tr>
+			<a name="xdidprop.sel"></a>$xdid().sel	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the selected item(s).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -221,7 +221,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.3"></a>$xdid().text	</td></tr>
+			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the Nth listbox item text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -234,12 +234,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>List Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>List Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the List control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>dclick	</td></tr>
+			<a name="events.dclick"></a>dclick	</td></tr>
 	<tr><td colspan="2">When an item is double-clicked in the listbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -258,7 +258,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>dragbegin	</td></tr>
+			<a name="events.dragbegin"></a>dragbegin	</td></tr>
 	<tr><td colspan="2">Triggers when one or more files are dropped onto the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -277,7 +277,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>dragfile	</td></tr>
+			<a name="events.dragfile"></a>dragfile	</td></tr>
 	<tr><td colspan="2">The filename of the file that has</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -291,7 +291,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>dragfinish	</td></tr>
+			<a name="events.dragfinish"></a>dragfinish	</td></tr>
 	<tr><td colspan="2">Event triggered when processing of drag drop is complete.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -305,7 +305,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.5"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -319,7 +319,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.6"></a>rclick	</td></tr>
+			<a name="events.rclick"></a>rclick	</td></tr>
 	<tr><td colspan="2">When you right-click on the list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -333,7 +333,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.7"></a>sclick	</td></tr>
+			<a name="events.sclick"></a>sclick	</td></tr>
 	<tr><td colspan="2">When an item is selected in the listbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -352,7 +352,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">extsel</a></li><li><a href="#3.2" style="color: #B52929;">multi</a></li><li><a href="#3.3" style="color: #B52929;">nointegral</a></li><li><a href="#3.4" style="color: #B52929;">noscroll</a></li><li><a href="#3.5" style="color: #B52929;">nosel</a></li><li><a href="#3.6" style="color: #B52929;">vsbar</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-a</a></li><li><a href="#4.2" style="color: #0000FF;">-c</a></li><li><a href="#4.3" style="color: #0000FF;">-d</a></li><li><a href="#4.4" style="color: #0000FF;">-o</a></li><li><a href="#4.5" style="color: #0000FF;">-r</a></li><li><a href="#4.6" style="color: #0000FF;">-u</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">num</a></li><li><a href="#9.2" style="color: #6666FF;">sel</a></li><li><a href="#9.3" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">dclick</a></li><li><a href="#8.2" style="color: #009900;">dragbegin</a></li><li><a href="#8.3" style="color: #009900;">dragfile</a></li><li><a href="#8.4" style="color: #009900;">dragfinish</a></li><li><a href="#8.5" style="color: #009900;">help</a></li><li><a href="#8.6" style="color: #009900;">rclick</a></li><li><a href="#8.7" style="color: #009900;">sclick</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.extsel" style="color: #B52929;">extsel</a></li><li><a href="#style.multi" style="color: #B52929;">multi</a></li><li><a href="#style.nointegral" style="color: #B52929;">nointegral</a></li><li><a href="#style.noscroll" style="color: #B52929;">noscroll</a></li><li><a href="#style.nosel" style="color: #B52929;">nosel</a></li><li><a href="#style.vsbar" style="color: #B52929;">vsbar</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li><li><a href="#xdid.d" style="color: #0000FF;">-d</a></li><li><a href="#xdid.o" style="color: #0000FF;">-o</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li><li><a href="#xdid.u" style="color: #0000FF;">-u</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.num" style="color: #6666FF;">num</a></li><li><a href="#xdidprop.sel" style="color: #6666FF;">sel</a></li><li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.dclick" style="color: #009900;">dclick</a></li><li><a href="#events.dragbegin" style="color: #009900;">dragbegin</a></li><li><a href="#events.dragfile" style="color: #009900;">dragfile</a></li><li><a href="#events.dragfinish" style="color: #009900;">dragfinish</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.rclick" style="color: #009900;">rclick</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li></ul></td>
   </tr>
 </table>
 

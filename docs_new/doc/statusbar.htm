@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>This control enables you to create a status bar.<br /><br />
 <div style="text-align: center;">
 	<img src="images/statusbar.png" alt="" />
@@ -69,39 +69,39 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a StatusBar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">grip</a></td>
+		<td class="style"><a name="style.grip" class="style">grip</a></td>
 		<td>Status bar displays a sizing grip.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.2" class="style">noparentalign</a></td>
+		<td class="style"><a name="style.noparentalign" class="style">noparentalign</a></td>
 		<td>Status isn't auto-positioned when dialog's size changes.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.3" class="style">noresize</a></td>
+		<td class="style"><a name="style.noresize" class="style">noresize</a></td>
 		<td>Status isn't auto-resized when dialog's size changes</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.4" class="style">tooltips</a></td>
+		<td class="style"><a name="style.tooltips" class="style">tooltips</a></td>
 		<td>Status bar has tooltips (tooltips only work for cells that have no text or cells where the text does not fit in the cell width).</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.5" class="style">top</a></td>
+		<td class="style"><a name="style.top" class="style">top</a></td>
 		<td>The statusbar is auto-positioned at top of dialog window.</td>
 	</tr>
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -k	</td></tr>
+			<a name="xdid.k"></a>/xdid -k	</td></tr>
 	<tr><td colspan="2">This command lets you set the status bar background color.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -115,7 +115,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -l	</td></tr>
+			<a name="xdid.l"></a>/xdid -l	</td></tr>
 	<tr><td colspan="2">This command lets you set the status bar cell divisions. Every value givin is the position of the cell's right border. For example, if you have a 600 pixel width statusbar, you could use the values 200 400 -1 to get 3 200 pixel wide cells. If a cell has the value -1 for right border position, the cell will extend to the right edge of the statusbar control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -129,7 +129,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -t	</td></tr>
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
 	<tr><td colspan="2">This command lets you set the icon, text and tooltip of a statusbar cell.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -164,7 +164,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.4"></a>/xdid -v	</td></tr>
+			<a name="xdid.v"></a>/xdid -v	</td></tr>
 	<tr><td colspan="2">This command lets you change the text of a statusbar cell.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -178,7 +178,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.5"></a>/xdid -w	</td></tr>
+			<a name="xdid.w"></a>/xdid -w	</td></tr>
 	<tr><td colspan="2">This command lets you add an icon to the statusbar image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -209,7 +209,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.6"></a>/xdid -y	</td></tr>
+			<a name="xdid.y"></a>/xdid -y	</td></tr>
 	<tr><td colspan="2">This command lets you clear the statusbar image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -222,12 +222,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().parts	</td></tr>
+			<a name="xdidprop.parts"></a>$xdid().parts	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the status bar cell division parts.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -241,7 +241,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.2"></a>$xdid().selstart	</td></tr>
+			<a name="xdidprop.selstart"></a>$xdid().selstart	</td></tr>
 	<tr><td colspan="2">This returns the index of the first selected character position in the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -255,7 +255,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.3"></a>$xdid().text	</td></tr>
+			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the Nth status bar cell text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -269,7 +269,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.4"></a>$xdid().tooltip	</td></tr>
+			<a name="xdidprop.tooltip"></a>$xdid().tooltip	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the status bar tooltip of the Nth cell.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -282,12 +282,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>StatusBar Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>StatusBar Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the StatusBar control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>dclick	</td></tr>
+			<a name="events.dclick"></a>dclick	</td></tr>
 	<tr><td colspan="2">Double-click over a status bar cell.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -306,7 +306,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -320,7 +320,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>rclick	</td></tr>
+			<a name="events.rclick"></a>rclick	</td></tr>
 	<tr><td colspan="2">Right-click over a status bar cell.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -339,7 +339,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>sclick	</td></tr>
+			<a name="events.sclick"></a>sclick	</td></tr>
 	<tr><td colspan="2">Single left click over a status bar cell.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -358,7 +358,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">grip</a></li><li><a href="#3.2" style="color: #B52929;">noparentalign</a></li><li><a href="#3.3" style="color: #B52929;">noresize</a></li><li><a href="#3.4" style="color: #B52929;">tooltips</a></li><li><a href="#3.5" style="color: #B52929;">top</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-k</a></li><li><a href="#4.2" style="color: #0000FF;">-l</a></li><li><a href="#4.3" style="color: #0000FF;">-t</a></li><li><a href="#4.4" style="color: #0000FF;">-v</a></li><li><a href="#4.5" style="color: #0000FF;">-w</a></li><li><a href="#4.6" style="color: #0000FF;">-y</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">parts</a></li><li><a href="#9.2" style="color: #6666FF;">selstart</a></li><li><a href="#9.3" style="color: #6666FF;">text</a></li><li><a href="#9.4" style="color: #6666FF;">tooltip</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">dclick</a></li><li><a href="#8.2" style="color: #009900;">help</a></li><li><a href="#8.3" style="color: #009900;">rclick</a></li><li><a href="#8.4" style="color: #009900;">sclick</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.grip" style="color: #B52929;">grip</a></li><li><a href="#style.noparentalign" style="color: #B52929;">noparentalign</a></li><li><a href="#style.noresize" style="color: #B52929;">noresize</a></li><li><a href="#style.tooltips" style="color: #B52929;">tooltips</a></li><li><a href="#style.top" style="color: #B52929;">top</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.k" style="color: #0000FF;">-k</a></li><li><a href="#xdid.l" style="color: #0000FF;">-l</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li><li><a href="#xdid.v" style="color: #0000FF;">-v</a></li><li><a href="#xdid.w" style="color: #0000FF;">-w</a></li><li><a href="#xdid.y" style="color: #0000FF;">-y</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.parts" style="color: #6666FF;">parts</a></li><li><a href="#xdidprop.selstart" style="color: #6666FF;">selstart</a></li><li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li><li><a href="#xdidprop.tooltip" style="color: #6666FF;">tooltip</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.dclick" style="color: #009900;">dclick</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.rclick" style="color: #009900;">rclick</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li></ul></td>
   </tr>
 </table>
 

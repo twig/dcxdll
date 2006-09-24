@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>This extension lets you build nice stylish popup menus to be used everywhere in your script including coloring mIRC's own popup menus.<br /><br />
 <div style="text-align: center;">
 	<img src="images/xpopup.png" alt="" />
@@ -69,7 +69,7 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'>Special Menus</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'>Special Menus</div></td></tr>
 	<tr><td>There are two XPopup special menus. They are mIRCs regular popup menus (channel, statusbar, query and nicklist) and mIRCs menubar popup menus which include (menubar). The use the reserved menu names <a class="style">mirc</a> and <a class="style">mircbar</a>. They can be activated with the following command:<br />
 <br />
 <table>
@@ -138,7 +138,7 @@ The image below is an example of a mIRC menubar popup menu skinned with XPopup w
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'>XPopup Item Path</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'>XPopup Item Path</div></td></tr>
 	<tr><td>The XPopup menus have an engine that parses the given item "path" data to know where to insert/delete/modify a given item in the menu structure. The parameters you supply are a space separated numerical token list of the menu submenus that lead to the menu item position:<br />
 <br/>
 
@@ -165,12 +165,12 @@ This position represents the 3rd menu item of the of the second menu item submen
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #800080"><a name="12"></a><div style='color: #800080;'>/xpopup Command</div></td></tr>
+	<tr><td class="heading" style="border-color: #800080"><a name="xpopup"></a><div style='color: #800080;'>/xpopup Command</div></td></tr>
 	<tr><td>The /xpopup command is used to create/modify/destroy an XPopup menu.</td></tr>
 </table>
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
-			<a name="12.1"></a>/xpopup -b	</td></tr>
+			<a name="xpopup.b"></a>/xpopup -b	</td></tr>
 	<tr><td colspan="2">This command lets you set the menu item background image in <a class="style">custom</a> style.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -184,7 +184,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
-			<a name="12.2"></a>/xpopup -c	</td></tr>
+			<a name="xpopup.c"></a>/xpopup -c	</td></tr>
 	<tr><td colspan="2">This command lets you create an XPopup empty menu.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -247,7 +247,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
-			<a name="12.3"></a>/xpopup -d	</td></tr>
+			<a name="xpopup.d"></a>/xpopup -d	</td></tr>
 	<tr><td colspan="2">This command lets you destroy an XPopup empty menu.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -261,7 +261,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
-			<a name="12.4"></a>/xpopup -i	</td></tr>
+			<a name="xpopup.i"></a>/xpopup -i	</td></tr>
 	<tr><td colspan="2">This command lets you add an icon to the menu image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -284,7 +284,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
-			<a name="12.5"></a>/xpopup -j	</td></tr>
+			<a name="xpopup.j"></a>/xpopup -j	</td></tr>
 	<tr><td colspan="2">This command lets you clear the menu image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -298,7 +298,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
-			<a name="12.6"></a>/xpopup -l	</td></tr>
+			<a name="xpopup.l"></a>/xpopup -l	</td></tr>
 	<tr><td colspan="2">This command lets you set the Nth color in the menu as given by the order listed in /xpopup -p.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -312,7 +312,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
-			<a name="12.7"></a>/xpopup -p	</td></tr>
+			<a name="xpopup.p"></a>/xpopup -p	</td></tr>
 	<tr><td colspan="2">This command lets you set the whole menu color palette in one command where <a class="param">COLORS</a> is a space separated list of RGB colors.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -371,7 +371,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
-			<a name="12.8"></a>/xpopup -s	</td></tr>
+			<a name="xpopup.s"></a>/xpopup -s	</td></tr>
 	<tr><td colspan="2">This command lets you display a menu.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -430,7 +430,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
-			<a name="12.9"></a>/xpopup -t	</td></tr>
+			<a name="xpopup.t"></a>/xpopup -t	</td></tr>
 	<tr><td colspan="2">This command lets you change the menu style.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -444,7 +444,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
-			<a name="12.10"></a>/xpopup -x	</td></tr>
+			<a name="xpopup.x"></a>/xpopup -x	</td></tr>
 	<tr><td colspan="2">This command lets you set the menu extended styles.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -474,12 +474,12 @@ This position represents the 3rd menu item of the of the second menu item submen
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #AC59AC"><a name="13"></a><div style='color: #AC59AC;'>$xpopup() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #AC59AC"><a name="xpopupprop"></a><div style='color: #AC59AC;'>$xpopup() Properties</div></td></tr>
 	<tr><td>The $xpopup identifier is a given mIRC alias that communicates with the XPopup DLL to extract information from XPopup menus.</td></tr>
 </table>
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #AC59AC; border-color: #AC59AC;">
-			<a name="13.1"></a>$xpopup().color	</td></tr>
+			<a name="xpopupprop.color"></a>$xpopup().color	</td></tr>
 	<tr><td colspan="2">This property retrieves Nth menu color (see /xpopup -p for the list).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -493,7 +493,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #AC59AC; border-color: #AC59AC;">
-			<a name="13.2"></a>$xpopup().colors	</td></tr>
+			<a name="xpopupprop.colors"></a>$xpopup().colors	</td></tr>
 	<tr><td colspan="2">This property retrieves the menu colors as one line (see /xpopup -p for the list).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -507,7 +507,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #AC59AC; border-color: #AC59AC;">
-			<a name="13.3"></a>$xpopup().exstyle	</td></tr>
+			<a name="xpopupprop.exstyle"></a>$xpopup().exstyle	</td></tr>
 	<tr><td colspan="2">This property retrieves the menu extended styles.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -521,7 +521,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #AC59AC; border-color: #AC59AC;">
-			<a name="13.4"></a>$xpopup().ismenu	</td></tr>
+			<a name="xpopupprop.ismenu"></a>$xpopup().ismenu	</td></tr>
 	<tr><td colspan="2">This property retrieves if a menu exists.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -535,7 +535,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #AC59AC; border-color: #AC59AC;">
-			<a name="13.5"></a>$xpopup().style	</td></tr>
+			<a name="xpopupprop.style"></a>$xpopup().style	</td></tr>
 	<tr><td colspan="2">This property retrieves the menu style.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -548,12 +548,12 @@ This position represents the 3rd menu item of the of the second menu item submen
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="14"></a><div style='color: #0000FF;'>/xpop Command</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xpop"></a><div style='color: #0000FF;'>/xpop Command</div></td></tr>
 	<tr><td>The /xpop command is used to add/modify/remove menu items in XPopup menus.</td></tr>
 </table>
 <table class="xpop">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="14.1"></a>/xpop -a	</td></tr>
+			<a name="xpop.a"></a>/xpop -a	</td></tr>
 	<tr><td colspan="2">This command lets you add a menu item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -596,7 +596,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpop">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="14.2"></a>/xpop -c	</td></tr>
+			<a name="xpop.c"></a>/xpop -c	</td></tr>
 	<tr><td colspan="2">This command lets you create a submenu on a menu item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -610,7 +610,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpop">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="14.3"></a>/xpop -d	</td></tr>
+			<a name="xpop.d"></a>/xpop -d	</td></tr>
 	<tr><td colspan="2">This command lets you destroy a submenu on a menu item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -624,7 +624,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpop">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="14.4"></a>/xpop -f	</td></tr>
+			<a name="xpop.f"></a>/xpop -f	</td></tr>
 	<tr><td colspan="2">This command lets you delete a menu item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -638,7 +638,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpop">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="14.5"></a>/xpop -i	</td></tr>
+			<a name="xpop.i"></a>/xpop -i	</td></tr>
 	<tr><td colspan="2">This command lets you change the icon on a menu item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -652,7 +652,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpop">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="14.6"></a>/xpop -s	</td></tr>
+			<a name="xpop.s"></a>/xpop -s	</td></tr>
 	<tr><td colspan="2">This command lets you change the state flags on an item (see /xpop -a for the switches)</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -666,7 +666,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpop">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="14.7"></a>/xpop -t	</td></tr>
+			<a name="xpop.t"></a>/xpop -t	</td></tr>
 	<tr><td colspan="2">This command lets you change a menu item text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -679,12 +679,12 @@ This position represents the 3rd menu item of the of the second menu item submen
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Remember to use mIRCs $eval(expression,0) to prevent the mIRC evaluation of the $idents that your text contains.</td></tr></table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="15"></a><div style='color: #6666FF;'>$xpop Identifier</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xpopprop"></a><div style='color: #6666FF;'>$xpop Identifier</div></td></tr>
 	<tr><td>The $xpop identifier is a given mIRC alias that communicates with the XPopup DLL to extract information in XPopup menu items.</td></tr>
 </table>
 <table class="xpopprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="15.1"></a>$xpop().enabled	</td></tr>
+			<a name="xpopprop.enabled"></a>$xpop().enabled	</td></tr>
 	<tr><td colspan="2">This property retrieves if a menu item is enabled or disabled.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -698,7 +698,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="15.2"></a>$xpop().icon	</td></tr>
+			<a name="xpopprop.icon"></a>$xpop().icon	</td></tr>
 	<tr><td colspan="2">This property retrieves the menu item icon index number.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -712,7 +712,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="15.3"></a>$xpop().num	</td></tr>
+			<a name="xpopprop.num"></a>$xpop().num	</td></tr>
 	<tr><td colspan="2">This property retrieves the number of menu items in a submenu.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -726,7 +726,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="15.4"></a>$xpop().submenu	</td></tr>
+			<a name="xpopprop.submenu"></a>$xpop().submenu	</td></tr>
 	<tr><td colspan="2">This property retrieves if a menu item has a submenu or not.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -740,7 +740,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="15.5"></a>$xpop().text	</td></tr>
+			<a name="xpopprop.text"></a>$xpop().text	</td></tr>
 	<tr><td colspan="2">This property retrieves the menu item text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -753,7 +753,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>XPopup Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>XPopup Events</div></td></tr>
 	<tr><td>Events are sent through mIRCs &quot;ON SIGNAL&quot; event with the signal name being xpopup-[MENU] where [MENU] is the menu name that sent the event. The $1 parameter is the supplied [ID] of the menu item. This is why it's important that this number be unique for all menu items. A returned value of 0 means no selection was made in the menu.<br />
 <br />
 An example of the XPopup signal handler code is shown below:<br />
@@ -784,7 +784,7 @@ ON *:SIGNAL:Xpopup-*: {
 </table>
 </td><td class="menuright">
 	<br />
-<a href="#12" style="color: #800080;">/xpopup Flags</a><br /><ul><li><a href="#12.1" style="color: #800080;">b</a></li><li><a href="#12.2" style="color: #800080;">c</a></li><li><a href="#12.3" style="color: #800080;">d</a></li><li><a href="#12.4" style="color: #800080;">i</a></li><li><a href="#12.5" style="color: #800080;">j</a></li><li><a href="#12.6" style="color: #800080;">l</a></li><li><a href="#12.7" style="color: #800080;">p</a></li><li><a href="#12.8" style="color: #800080;">s</a></li><li><a href="#12.9" style="color: #800080;">t</a></li><li><a href="#12.10" style="color: #800080;">x</a></li></ul><a href="#13" style="color: #AC59AC;">$xpopup() Properties</a><br /><ul><li><a href="#13.1" style="color: #AC59AC;">color</a></li><li><a href="#13.2" style="color: #AC59AC;">colors</a></li><li><a href="#13.3" style="color: #AC59AC;">exstyle</a></li><li><a href="#13.4" style="color: #AC59AC;">ismenu</a></li><li><a href="#13.5" style="color: #AC59AC;">style</a></li></ul><a href="#14" style="color: #0000FF;">/xpop Flags</a><br /><ul><li><a href="#14.1" style="color: #0000FF;">a</a></li><li><a href="#14.2" style="color: #0000FF;">c</a></li><li><a href="#14.3" style="color: #0000FF;">d</a></li><li><a href="#14.4" style="color: #0000FF;">f</a></li><li><a href="#14.5" style="color: #0000FF;">i</a></li><li><a href="#14.6" style="color: #0000FF;">s</a></li><li><a href="#14.7" style="color: #0000FF;">t</a></li></ul><a href="#15" style="color: #6666FF;">$xpop() Properties</a><br /><ul><li><a href="#15.1" style="color: #6666FF;">enabled</a></li><li><a href="#15.2" style="color: #6666FF;">icon</a></li><li><a href="#15.3" style="color: #6666FF;">num</a></li><li><a href="#15.4" style="color: #6666FF;">submenu</a></li><li><a href="#15.5" style="color: #6666FF;">text</a></li></ul></td>
+<a href="#xpopup" style="color: #800080;">/xpopup Flags</a><br /><ul><li><a href="#xpopup.b" style="color: #800080;">b</a></li><li><a href="#xpopup.c" style="color: #800080;">c</a></li><li><a href="#xpopup.d" style="color: #800080;">d</a></li><li><a href="#xpopup.i" style="color: #800080;">i</a></li><li><a href="#xpopup.j" style="color: #800080;">j</a></li><li><a href="#xpopup.l" style="color: #800080;">l</a></li><li><a href="#xpopup.p" style="color: #800080;">p</a></li><li><a href="#xpopup.s" style="color: #800080;">s</a></li><li><a href="#xpopup.t" style="color: #800080;">t</a></li><li><a href="#xpopup.x" style="color: #800080;">x</a></li></ul><a href="#xpopupprop" style="color: #AC59AC;">$xpopup() Properties</a><br /><ul><li><a href="#xpopupprop.color" style="color: #AC59AC;">color</a></li><li><a href="#xpopupprop.colors" style="color: #AC59AC;">colors</a></li><li><a href="#xpopupprop.exstyle" style="color: #AC59AC;">exstyle</a></li><li><a href="#xpopupprop.ismenu" style="color: #AC59AC;">ismenu</a></li><li><a href="#xpopupprop.style" style="color: #AC59AC;">style</a></li></ul><a href="#xpop" style="color: #0000FF;">/xpop Flags</a><br /><ul><li><a href="#xpop.a" style="color: #0000FF;">a</a></li><li><a href="#xpop.c" style="color: #0000FF;">c</a></li><li><a href="#xpop.d" style="color: #0000FF;">d</a></li><li><a href="#xpop.f" style="color: #0000FF;">f</a></li><li><a href="#xpop.i" style="color: #0000FF;">i</a></li><li><a href="#xpop.s" style="color: #0000FF;">s</a></li><li><a href="#xpop.t" style="color: #0000FF;">t</a></li></ul><a href="#xpopprop" style="color: #6666FF;">$xpop() Properties</a><br /><ul><li><a href="#xpopprop.enabled" style="color: #6666FF;">enabled</a></li><li><a href="#xpopprop.icon" style="color: #6666FF;">icon</a></li><li><a href="#xpopprop.num" style="color: #6666FF;">num</a></li><li><a href="#xpopprop.submenu" style="color: #6666FF;">submenu</a></li><li><a href="#xpopprop.text" style="color: #6666FF;">text</a></li></ul></td>
   </tr>
 </table>
 

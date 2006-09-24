@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>Updown control (without an edit control buddy.)<br /><br />
 <div style="text-align: center;">
 	<img src="images/updown.png" alt="" />
@@ -69,51 +69,51 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a UpDown control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">arrowkeys</a></td>
+		<td class="style"><a name="style.arrowkeys" class="style">arrowkeys</a></td>
 		<td>Causes the up-down control to increment and decrement the position when the UP ARROW and DOWN ARROW keys are pressed.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.2" class="style">buddyint</a></td>
+		<td class="style"><a name="style.buddyint" class="style">buddyint</a></td>
 		<td>Causes the up-down control to set the text of the buddy window when the position changes. The text consists of the position formatted as a decimal or hexadecimal string.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.3" class="style">horz</a></td>
+		<td class="style"><a name="style.horz" class="style">horz</a></td>
 		<td>Causes the up-down control's arrows to point left and right instead of up and down.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.4" class="style">hottrack</a></td>
+		<td class="style"><a name="style.hottrack" class="style">hottrack</a></td>
 		<td>Causes the control to exhibit "hot tracking" behavior. That is, it highlights the UP ARROW and DOWN ARROW on the control as the pointer passes over them.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.5" class="style">left</a></td>
+		<td class="style"><a name="style.left" class="style">left</a></td>
 		<td>Positions the up-down control next to the left edge of the buddy window. The buddy window is moved to the right, and its width is decreased to accommodate the width of the up-down control. (default is right)</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.6" class="style">nothousands</a></td>
+		<td class="style"><a name="style.nothousands" class="style">nothousands</a></td>
 		<td>Does not insert a thousands separator between every three decimal digits.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.7" class="style">tooltips</a></td>
+		<td class="style"><a name="style.tooltips" class="style">tooltips</a></td>
 		<td>The up-down control will have a tooltip.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.8" class="style">wrap</a></td>
+		<td class="style"><a name="style.wrap" class="style">wrap</a></td>
 		<td>Causes the position to "wrap" if it is incremented or decremented beyond the ending or beginning of the range.</td>
 	</tr>
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -c	</td></tr>
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
 	<tr><td colspan="2">This command lets you set the updown buddy control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -127,7 +127,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -r	</td></tr>
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
 	<tr><td colspan="2">This command lets you set the updown range.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -141,7 +141,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -t	</td></tr>
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
 	<tr><td colspan="2">This command lets you set the updown display numerical base.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -168,7 +168,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.4"></a>/xdid -v	</td></tr>
+			<a name="xdid.v"></a>/xdid -v	</td></tr>
 	<tr><td colspan="2">This command lets you set the updown value.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -181,12 +181,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().range	</td></tr>
+			<a name="xdidprop.range"></a>$xdid().range	</td></tr>
 	<tr><td colspan="2">This property lets you retreive updown range.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -200,7 +200,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.2"></a>$xdid().value	</td></tr>
+			<a name="xdidprop.value"></a>$xdid().value	</td></tr>
 	<tr><td colspan="2">This property lets you retreive updown value.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -213,12 +213,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>UpDown Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>UpDown Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the UpDown control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -232,7 +232,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>sclick	</td></tr>
+			<a name="events.sclick"></a>sclick	</td></tr>
 	<tr><td colspan="2">When the text is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -246,7 +246,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">arrowkeys</a></li><li><a href="#3.2" style="color: #B52929;">buddyint</a></li><li><a href="#3.3" style="color: #B52929;">horz</a></li><li><a href="#3.4" style="color: #B52929;">hottrack</a></li><li><a href="#3.5" style="color: #B52929;">left</a></li><li><a href="#3.6" style="color: #B52929;">nothousands</a></li><li><a href="#3.7" style="color: #B52929;">tooltips</a></li><li><a href="#3.8" style="color: #B52929;">wrap</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-c</a></li><li><a href="#4.2" style="color: #0000FF;">-r</a></li><li><a href="#4.3" style="color: #0000FF;">-t</a></li><li><a href="#4.4" style="color: #0000FF;">-v</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">range</a></li><li><a href="#9.2" style="color: #6666FF;">value</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">help</a></li><li><a href="#8.2" style="color: #009900;">sclick</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.arrowkeys" style="color: #B52929;">arrowkeys</a></li><li><a href="#style.buddyint" style="color: #B52929;">buddyint</a></li><li><a href="#style.horz" style="color: #B52929;">horz</a></li><li><a href="#style.hottrack" style="color: #B52929;">hottrack</a></li><li><a href="#style.left" style="color: #B52929;">left</a></li><li><a href="#style.nothousands" style="color: #B52929;">nothousands</a></li><li><a href="#style.tooltips" style="color: #B52929;">tooltips</a></li><li><a href="#style.wrap" style="color: #B52929;">wrap</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li><li><a href="#xdid.v" style="color: #0000FF;">-v</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.range" style="color: #6666FF;">range</a></li><li><a href="#xdidprop.value" style="color: #6666FF;">value</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li></ul></td>
   </tr>
 </table>
 

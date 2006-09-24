@@ -1,19 +1,19 @@
 <?php
 // defines
-define('SECTION_INTRO', 1);
-define('SECTION_GENERAL', 2);
-define('SECTION_STYLES', 3);
-define('SECTION_XDID', 4);
-define('SECTION_EVENTS', 8);
-define('SECTION_XDIDPROPS', 9);
-define('SECTION_XDIALOG', 10);
-define('SECTION_XDIALOGPROPS', 11);
-define('SECTION_XPOPUP', 12);
-define('SECTION_XPOPUPPROPS', 13);
-define('SECTION_XPOP', 14);
-define('SECTION_XPOPPROPS', 15);
-define('SECTION_XDOCK', 16);
-define('SECTION_XDOCKPROPS', 17);
+define('SECTION_INTRO'       , 'intro');
+define('SECTION_GENERAL'     , 'general');
+define('SECTION_STYLES'      , 'style');
+define('SECTION_XDID'        , 'xdid');
+define('SECTION_EVENTS'      , 'events');
+define('SECTION_XDIDPROPS'   , 'xdidprop');
+define('SECTION_XDIALOG'     , 'xdialog');
+define('SECTION_XDIALOGPROPS', 'xdialogprop');
+define('SECTION_XPOPUP'      , 'xpopup');
+define('SECTION_XPOPUPPROPS' , 'xpopupprop');
+define('SECTION_XPOP'        , 'xpop');
+define('SECTION_XPOPPROPS'   , 'xpopprop');
+define('SECTION_XDOCK'       , 'xdock');
+define('SECTION_XDOCKPROPS'  , 'xdockprop');
 
 
 // global variables
@@ -194,7 +194,6 @@ function gen_xdid($page, $pagelabel) {
 	// /xdid commands
 	if ($XDID) {
 		$SECTION = SECTION_XDID;
-		$count = 1;
 
 		if ($page == 'xdid')
 			$str = "These are general DCX control commands which apply to any DCX control.";
@@ -205,8 +204,7 @@ function gen_xdid($page, $pagelabel) {
 		dcxdoc_print_description("/xdid flags", $str);
 
 		foreach ($XDID as $flag => $data) {
-	        dcxdoc_format_xdid($flag, $data, $count);
-	        $count++;
+	        dcxdoc_format_xdid($flag, $data);
   		}
 	}
 }
@@ -411,7 +409,6 @@ function print_menu_items(&$arr, $sec, $sectext) {
 
 	if (count($arr)) {
 		$color = get_section_color($sec);
-		$count = 1;
 		$prefix = in_array($sec, array(SECTION_XDID, SECTION_XDIALOG)) ? '-' : '';
 
 		echo "<a href=\"#$sec\" style=\"color: $color;\">$sectext</a><br /><ul>";
@@ -420,8 +417,7 @@ function print_menu_items(&$arr, $sec, $sectext) {
 			if (preg_match("/__.+/i", $flag))
 			    continue;
 			
-			echo "<li><a href=\"#$sec.$count\" style=\"color: $color;\">$prefix$flag</a></li>";
-			$count++;
+			echo "<li><a href=\"#$sec.$flag\" style=\"color: $color;\">$prefix$flag</a></li>";
 		}
 
 		echo "</ul>";
@@ -456,50 +452,50 @@ function dcxdoc_footer() {
 
 
 // call generic function
-function dcxdoc_format_general($cmd, &$data, $id) {
-    format_xcmd(SECTION_GENERAL, $cmd, $data, $id);
+function dcxdoc_format_general($cmd, &$data) {
+    format_xcmd(SECTION_GENERAL, $cmd, $data);
 }
 
-function dcxdoc_format_xdialog($flag, &$data, $id) {
-    format_xcmd(SECTION_XDIALOG, $flag, $data, $id);
+function dcxdoc_format_xdialog($flag, &$data) {
+    format_xcmd(SECTION_XDIALOG, $flag, $data);
 }
-function dcxdoc_format_xdialogprop($prop, $data, $id) {
-    format_xcmd(SECTION_XDIALOGPROPS, $prop, $data, $id);
-}
-
-function dcxdoc_format_xdid($flag, &$data, $id) {
-    format_xcmd(SECTION_XDID, $flag, $data, $id);
-}
-function dcxdoc_format_xdidprop($prop, $data, $id) {
-    format_xcmd(SECTION_XDIDPROPS, $prop, $data, $id);
+function dcxdoc_format_xdialogprop($prop, $data) {
+    format_xcmd(SECTION_XDIALOGPROPS, $prop, $data);
 }
 
-function dcxdoc_format_event($event, $data, $count) {
-    format_xcmd(SECTION_EVENTS, $event, $data, $count);
+function dcxdoc_format_xdid($flag, &$data) {
+    format_xcmd(SECTION_XDID, $flag, $data);
+}
+function dcxdoc_format_xdidprop($prop, $data) {
+    format_xcmd(SECTION_XDIDPROPS, $prop, $data);
 }
 
-function dcxdoc_format_xpopup($event, $data, $count) {
-    format_xcmd(SECTION_XPOPUP, $event, $data, $count);
-}
-function dcxdoc_format_xpopupprop($event, $data, $count) {
-    format_xcmd(SECTION_XPOPUPPROPS, $event, $data, $count);
+function dcxdoc_format_event($event, $data) {
+    format_xcmd(SECTION_EVENTS, $event, $data);
 }
 
-function dcxdoc_format_xpop($event, $data, $count) {
-    format_xcmd(SECTION_XPOP, $event, $data, $count);
+function dcxdoc_format_xpopup($event, $data) {
+    format_xcmd(SECTION_XPOPUP, $event, $data);
 }
-function dcxdoc_format_xpopprops($event, $data, $count) {
-    format_xcmd(SECTION_XPOPPROPS, $event, $data, $count);
-}
-
-function dcxdoc_format_xdock($event, $data, $count) {
-	format_xcmd(SECTION_XDOCK, $event, $data, $count);
-}
-function dcxdoc_format_xdockprops($event, $data, $count) {
-	format_xcmd(SECTION_XDOCKPROPS, $event, $data, $count);
+function dcxdoc_format_xpopupprop($event, $data) {
+    format_xcmd(SECTION_XPOPUPPROPS, $event, $data);
 }
 
-function format_xcmd($section, $flag, $data, $id) {
+function dcxdoc_format_xpop($event, $data) {
+    format_xcmd(SECTION_XPOP, $event, $data);
+}
+function dcxdoc_format_xpopprops($event, $data) {
+    format_xcmd(SECTION_XPOPPROPS, $event, $data);
+}
+
+function dcxdoc_format_xdock($event, $data) {
+	format_xcmd(SECTION_XDOCK, $event, $data);
+}
+function dcxdoc_format_xdockprops($event, $data) {
+	format_xcmd(SECTION_XDOCKPROPS, $event, $data);
+}
+
+function format_xcmd($section, $flag, $data) {
 	if (!is_array($data)) {
 		$data = array('__desc' => $data);
 	}
@@ -513,7 +509,6 @@ function format_xcmd($section, $flag, $data, $id) {
 	if (!isset($data['__cmd']))
 		$data['__cmd'] = '';
 
-	// TODO: make this support multiple examples
 	// error_log("ERROR: __eg not set for $flag");
 	if (!isset($data['__eg']))
 		$data['__eg'] = array('');
@@ -540,7 +535,7 @@ function format_xcmd($section, $flag, $data, $id) {
 ?>
 <table class="<?php echo get_section_name($section); ?>">
 	<tr><td colspan="2" class="flag" style="<?php echo "color: $color; border-color: $color;";?>">
-			<a name="<?php echo "$section.$id"; ?>"></a><?php echo $heading; ?>
+			<a name="<?php echo "$section.$flag"; ?>"></a><?php echo $heading; ?>
 	</td></tr>
 	<tr><td colspan="2"><?php echo $data['__desc']; ?></td></tr>
 	<tr>
@@ -923,7 +918,6 @@ function dcxdoc_print_intro($page) {
 
 function dcxdoc_format_styles($data) {
 	global $SECTION;
-	$count = 1;
 	
 ?><table class="styles">
 <?php
@@ -933,11 +927,10 @@ function dcxdoc_format_styles($data) {
 			continue;
 ?>
 	<tr>
-		<td class="style"><a name="<?php echo "$SECTION.$count"; ?>" class="style"><?php echo $style; ?></a></td>
+		<td class="style"><a name="<?php echo "$SECTION.$style"; ?>" class="style"><?php echo $style; ?></a></td>
 		<td><?php echo $info; ?></td>
 	</tr>
 <?php
-		$count++;
 	}
 
 	if (isset($data['__notes']) && $data['__notes']) {

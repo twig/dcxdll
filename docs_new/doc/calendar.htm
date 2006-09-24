@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>Calendar control. This control is currently incomplete.<br /><br />
 <div style="text-align: center;">
 	<img src="images/calendar.png" alt="" />
@@ -69,39 +69,39 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a Calendar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">daystate</a></td>
+		<td class="style"><a name="style.daystate" class="style">daystate</a></td>
 		<td>You can specify whether specific dates are bold or not. Refer to <a class="event">daystate</a> event.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.2" class="style">multi</a></td>
+		<td class="style"><a name="style.multi" class="style">multi</a></td>
 		<td>The month calendar will allow the user to select a range of dates within the control. By default, the maximum range is one week.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.3" class="style">notoday</a></td>
+		<td class="style"><a name="style.notoday" class="style">notoday</a></td>
 		<td>The month calendar control will not display the "today" date at the bottom of the control.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.4" class="style">notodaycircle</a></td>
+		<td class="style"><a name="style.notodaycircle" class="style">notodaycircle</a></td>
 		<td>The month calendar control will not circle the "today" date.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.5" class="style">weeknum</a></td>
+		<td class="style"><a name="style.weeknum" class="style">weeknum</a></td>
 		<td>The month calendar control will display week numbers (1-52) to the left of each row of days. Week 1 is defined as the first week that contains at least four days.</td>
 	</tr>
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -t	</td></tr>
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
 	<tr><td colspan="2">This command lets you set the text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -114,12 +114,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().text	</td></tr>
+			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -132,12 +132,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Calendar Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Calendar Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the Calendar control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>daystate	</td></tr>
+			<a name="events.daystate"></a>daystate	</td></tr>
 	<tr><td colspan="2">When the month is JUST about to be shown. Return dates which you wish to be bolded.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -156,7 +156,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -170,7 +170,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>sclick	</td></tr>
+			<a name="events.sclick"></a>sclick	</td></tr>
 	<tr><td colspan="2">When a date is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -184,7 +184,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>selchange	</td></tr>
+			<a name="events.selchange"></a>selchange	</td></tr>
 	<tr><td colspan="2">When the date selection is changed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -198,7 +198,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.5"></a>select	</td></tr>
+			<a name="events.select"></a>select	</td></tr>
 	<tr><td colspan="2">When a new date is selected.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -221,7 +221,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">daystate</a></li><li><a href="#3.2" style="color: #B52929;">multi</a></li><li><a href="#3.3" style="color: #B52929;">notoday</a></li><li><a href="#3.4" style="color: #B52929;">notodaycircle</a></li><li><a href="#3.5" style="color: #B52929;">weeknum</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-t</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">daystate</a></li><li><a href="#8.2" style="color: #009900;">help</a></li><li><a href="#8.3" style="color: #009900;">sclick</a></li><li><a href="#8.4" style="color: #009900;">selchange</a></li><li><a href="#8.5" style="color: #009900;">select</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.daystate" style="color: #B52929;">daystate</a></li><li><a href="#style.multi" style="color: #B52929;">multi</a></li><li><a href="#style.notoday" style="color: #B52929;">notoday</a></li><li><a href="#style.notodaycircle" style="color: #B52929;">notodaycircle</a></li><li><a href="#style.weeknum" style="color: #B52929;">weeknum</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.daystate" style="color: #009900;">daystate</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li><li><a href="#events.selchange" style="color: #009900;">selchange</a></li><li><a href="#events.select" style="color: #009900;">select</a></li></ul></td>
   </tr>
 </table>
 

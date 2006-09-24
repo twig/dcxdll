@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>Image control that lets you display BMP images.<br /><br />
 <div style="text-align: center;">
 	<img src="images/image.png" alt="" />
@@ -69,23 +69,23 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a Image control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">tooltips</a></td>
+		<td class="style"><a name="style.tooltips" class="style">tooltips</a></td>
 		<td>The image will have a tooltip.</td>
 	</tr>
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -i	</td></tr>
+			<a name="xdid.i"></a>/xdid -i	</td></tr>
 	<tr><td colspan="2">This command lets you set the displayed image.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -99,7 +99,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -k	</td></tr>
+			<a name="xdid.k"></a>/xdid -k	</td></tr>
 	<tr><td colspan="2">This command lets you set the image transparent color.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -113,7 +113,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -w	</td></tr>
+			<a name="xdid.w"></a>/xdid -w	</td></tr>
 	<tr><td colspan="2">This command lets you set an icon for the image.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -147,12 +147,12 @@
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>When the icon is loaded, the Image control is resized to <a class="param">SIZE</a> for width and height.</li></ul></td></tr></table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Image Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Image Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the Image control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>dclick	</td></tr>
+			<a name="events.dclick"></a>dclick	</td></tr>
 	<tr><td colspan="2">When the image is double-clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -166,7 +166,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -180,7 +180,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>lbup	</td></tr>
+			<a name="events.lbup"></a>lbup	</td></tr>
 	<tr><td colspan="2">When you release the left mouse button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -194,7 +194,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>rclick	</td></tr>
+			<a name="events.rclick"></a>rclick	</td></tr>
 	<tr><td colspan="2">When you right-click on the image.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -208,7 +208,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.5"></a>sclick	</td></tr>
+			<a name="events.sclick"></a>sclick	</td></tr>
 	<tr><td colspan="2">When the image is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -222,7 +222,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">tooltips</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-i</a></li><li><a href="#4.2" style="color: #0000FF;">-k</a></li><li><a href="#4.3" style="color: #0000FF;">-w</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">dclick</a></li><li><a href="#8.2" style="color: #009900;">help</a></li><li><a href="#8.3" style="color: #009900;">lbup</a></li><li><a href="#8.4" style="color: #009900;">rclick</a></li><li><a href="#8.5" style="color: #009900;">sclick</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.tooltips" style="color: #B52929;">tooltips</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.i" style="color: #0000FF;">-i</a></li><li><a href="#xdid.k" style="color: #0000FF;">-k</a></li><li><a href="#xdid.w" style="color: #0000FF;">-w</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.dclick" style="color: #009900;">dclick</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.lbup" style="color: #009900;">lbup</a></li><li><a href="#events.rclick" style="color: #009900;">rclick</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li></ul></td>
   </tr>
 </table>
 

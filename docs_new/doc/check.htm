@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>Checkbox control.<br /><br />
 <div style="text-align: center;">
 	<img src="images/check.png" alt="" />
@@ -69,43 +69,43 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a Check control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">3state</a></td>
+		<td class="style"><a name="style.3state" class="style">3state</a></td>
 		<td>Creates a 3 state checkbox.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.2" class="style">center</a></td>
+		<td class="style"><a name="style.center" class="style">center</a></td>
 		<td>Control text is centered.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.3" class="style">pushlike</a></td>
+		<td class="style"><a name="style.pushlike" class="style">pushlike</a></td>
 		<td>Makes the check act and look like a push button.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.4" class="style">right</a></td>
+		<td class="style"><a name="style.right" class="style">right</a></td>
 		<td>Check control box is at the right of text.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.5" class="style">rjustify</a></td>
+		<td class="style"><a name="style.rjustify" class="style">rjustify</a></td>
 		<td>Control text is right justified.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.6" class="style">tooltips</a></td>
+		<td class="style"><a name="style.tooltips" class="style">tooltips</a></td>
 		<td>The checkbox will have a tooltip.</td>
 	</tr>
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -c	</td></tr>
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
 	<tr><td colspan="2">This command lets you check the checkbox.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -119,7 +119,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -t	</td></tr>
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
 	<tr><td colspan="2">This command lets you set the check text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -133,7 +133,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -u	</td></tr>
+			<a name="xdid.u"></a>/xdid -u	</td></tr>
 	<tr><td colspan="2">This command lets you uncheck the check control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -146,12 +146,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().state	</td></tr>
+			<a name="xdidprop.state"></a>$xdid().state	</td></tr>
 	<tr><td colspan="2">This property lets you retreive check selection state.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -165,7 +165,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.2"></a>$xdid().text	</td></tr>
+			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the check text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -178,12 +178,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Check Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Check Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the Check control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -197,7 +197,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>rclick	</td></tr>
+			<a name="events.rclick"></a>rclick	</td></tr>
 	<tr><td colspan="2">When you right-click on the text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -211,7 +211,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>sclick	</td></tr>
+			<a name="events.sclick"></a>sclick	</td></tr>
 	<tr><td colspan="2">When the text is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -225,7 +225,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">3state</a></li><li><a href="#3.2" style="color: #B52929;">center</a></li><li><a href="#3.3" style="color: #B52929;">pushlike</a></li><li><a href="#3.4" style="color: #B52929;">right</a></li><li><a href="#3.5" style="color: #B52929;">rjustify</a></li><li><a href="#3.6" style="color: #B52929;">tooltips</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-c</a></li><li><a href="#4.2" style="color: #0000FF;">-t</a></li><li><a href="#4.3" style="color: #0000FF;">-u</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">state</a></li><li><a href="#9.2" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">help</a></li><li><a href="#8.2" style="color: #009900;">rclick</a></li><li><a href="#8.3" style="color: #009900;">sclick</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.3state" style="color: #B52929;">3state</a></li><li><a href="#style.center" style="color: #B52929;">center</a></li><li><a href="#style.pushlike" style="color: #B52929;">pushlike</a></li><li><a href="#style.right" style="color: #B52929;">right</a></li><li><a href="#style.rjustify" style="color: #B52929;">rjustify</a></li><li><a href="#style.tooltips" style="color: #B52929;">tooltips</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li><li><a href="#xdid.u" style="color: #0000FF;">-u</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.state" style="color: #6666FF;">state</a></li><li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.rclick" style="color: #009900;">rclick</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li></ul></td>
   </tr>
 </table>
 

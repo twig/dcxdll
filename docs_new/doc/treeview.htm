@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>This control enables you to create a treeview.<br /><br />
 <div style="text-align: center;">
 	<img src="images/treeview.png" alt="" />
@@ -69,62 +69,62 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a Treeview control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">balloon</a></td>
+		<td class="style"><a name="style.balloon" class="style">balloon</a></td>
 		<td>The treeview and treeview item tooltips will use the balloon style.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.2" class="style">checkbox</a></td>
+		<td class="style"><a name="style.checkbox" class="style">checkbox</a></td>
 		<td>Enables Checkbox support in the treeview.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.3" class="style">editlabel</a></td>
+		<td class="style"><a name="style.editlabel" class="style">editlabel</a></td>
 		<td>Makes the treeview items editable.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.4" class="style">fullrow</a></td>
+		<td class="style"><a name="style.fullrow" class="style">fullrow</a></td>
 		<td>Selection highlight is the full row of the item. Cannot be used with <a class="style">haslines</a>.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.5" class="style">hasbuttons</a></td>
+		<td class="style"><a name="style.hasbuttons" class="style">hasbuttons</a></td>
 		<td>Enables &plusmn; buttons on the side of items containing child items for expand/collapse operations.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.6" class="style">haslines</a></td>
+		<td class="style"><a name="style.haslines" class="style">haslines</a></td>
 		<td>Items are linked with lines.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.7" class="style">linesatroot</a></td>
+		<td class="style"><a name="style.linesatroot" class="style">linesatroot</a></td>
 		<td>Enables lines to be connected to the root item (needs the <a class="style">haslines</a> style to work).</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.8" class="style">nohscroll</a></td>
+		<td class="style"><a name="style.nohscroll" class="style">nohscroll</a></td>
 		<td>Disables horizontal scrolling in the treeview.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.9" class="style">noscroll</a></td>
+		<td class="style"><a name="style.noscroll" class="style">noscroll</a></td>
 		<td>Disables scrolling in the treeview.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.10" class="style">notooltips</a></td>
+		<td class="style"><a name="style.notooltips" class="style">notooltips</a></td>
 		<td>Disables tooltip popup on items.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.11" class="style">showsel</a></td>
+		<td class="style"><a name="style.showsel" class="style">showsel</a></td>
 		<td>Selection is always visible, even when control loses focus.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.12" class="style">singleexpand</a></td>
+		<td class="style"><a name="style.singleexpand" class="style">singleexpand</a></td>
 		<td>Causes the item being selected to expand and the item being unselected to collapse upon selection in the tree view. If the user holds down the CTRL key while selecting an item, the item being unselected will not be collapsed.</td>
 	</tr>
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'>TreeView Item Path</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'>TreeView Item Path</div></td></tr>
 	<tr><td><a name="path"></a>
 The treeview control has an engine that parses the given item "path" data to know where to insert/delete/modify a given item in the control. The parameters you supply are a space separated numerical token list of the treeview branches that lead to the item position:<br />
 <br />
@@ -156,12 +156,12 @@ This would add the item at the end of the last branch in the first column of bra
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -B	</td></tr>
+			<a name="xdid.B"></a>/xdid -B	</td></tr>
 	<tr><td colspan="2">This command lets you force label editing on a treeview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -175,7 +175,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -Q	</td></tr>
+			<a name="xdid.Q"></a>/xdid -Q	</td></tr>
 	<tr><td colspan="2">This command lets you change the font styles and color on a treeview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -214,7 +214,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -a	</td></tr>
+			<a name="xdid.a"></a>/xdid -a	</td></tr>
 	<tr><td colspan="2">This command lets you add an item to the treeview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -296,7 +296,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.4"></a>/xdid -c	</td></tr>
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
 	<tr><td colspan="2">This command lets you select a treeview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -310,7 +310,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.5"></a>/xdid -d	</td></tr>
+			<a name="xdid.d"></a>/xdid -d	</td></tr>
 	<tr><td colspan="2">This command lets you delete a treeview item (and it's sub-items if any).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -324,7 +324,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.6"></a>/xdid -g	</td></tr>
+			<a name="xdid.g"></a>/xdid -g	</td></tr>
 	<tr><td colspan="2">This command lets you set the treeview item height (in pixels).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -338,7 +338,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.7"></a>/xdid -i	</td></tr>
+			<a name="xdid.i"></a>/xdid -i	</td></tr>
 	<tr><td colspan="2">This command lets you change treeview colors.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -373,7 +373,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.8"></a>/xdid -j	</td></tr>
+			<a name="xdid.j"></a>/xdid -j	</td></tr>
 	<tr><td colspan="2">This command lets you change the icon and selected icon of a treeview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -387,7 +387,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.9"></a>/xdid -k	</td></tr>
+			<a name="xdid.k"></a>/xdid -k	</td></tr>
 	<tr><td colspan="2">This command lets you change the check state on a treeview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -422,7 +422,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.10"></a>/xdid -l	</td></tr>
+			<a name="xdid.l"></a>/xdid -l	</td></tr>
 	<tr><td colspan="2">This command lets you change the size of the treeview icons.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -436,7 +436,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.11"></a>/xdid -m	</td></tr>
+			<a name="xdid.m"></a>/xdid -m	</td></tr>
 	<tr><td colspan="2">This command lets you move a treeview item and its sub-items. The first path is the item to be moved to the second path.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -450,7 +450,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.12"></a>/xdid -n	</td></tr>
+			<a name="xdid.n"></a>/xdid -n	</td></tr>
 	<tr><td colspan="2">This command lets you copy a treeview item and its sub-items. The first path is the item to be copied to the second path.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -464,7 +464,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.13"></a>/xdid -o	</td></tr>
+			<a name="xdid.o"></a>/xdid -o	</td></tr>
 	<tr><td colspan="2">This command lets you change the tooltip text of a treeview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -478,7 +478,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.14"></a>/xdid -r	</td></tr>
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
 	<tr><td colspan="2">This command lets you clear all the treeview items.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -492,7 +492,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.15"></a>/xdid -t	</td></tr>
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
 	<tr><td colspan="2">This command lets you toggle/expand/collapse treeview items. You can use <a class="value">root</a> as the path with the <a class="value">+a</a> and <a class="value">+z</a> switches.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -539,7 +539,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.16"></a>/xdid -u	</td></tr>
+			<a name="xdid.u"></a>/xdid -u	</td></tr>
 	<tr><td colspan="2">This command makes the currently selected treeview item unselected.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -553,7 +553,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.17"></a>/xdid -v	</td></tr>
+			<a name="xdid.v"></a>/xdid -v	</td></tr>
 	<tr><td colspan="2">This command lets you change the text of a treeview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -567,7 +567,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.18"></a>/xdid -w	</td></tr>
+			<a name="xdid.w"></a>/xdid -w	</td></tr>
 	<tr><td colspan="2">This command lets you add an icon to the treeview image lists.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -606,7 +606,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.19"></a>/xdid -y	</td></tr>
+			<a name="xdid.y"></a>/xdid -y	</td></tr>
 	<tr><td colspan="2">This command lets you clear the treeview image lists.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -633,7 +633,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.20"></a>/xdid -z	</td></tr>
+			<a name="xdid.z"></a>/xdid -z	</td></tr>
 	<tr><td colspan="2">This command lets you sort the data in the treeview control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -690,12 +690,12 @@ This would add the item at the end of the last branch in the first column of bra
 <a class="value">$1 == $2</a> return <a class="value">0</a></li></ul></td></tr></table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().expand	</td></tr>
+			<a name="xdidprop.expand"></a>$xdid().expand	</td></tr>
 	<tr><td colspan="2">This property lets you retreive whether a treeview item is expanded or not.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -709,7 +709,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.2"></a>$xdid().find	</td></tr>
+			<a name="xdidprop.find"></a>$xdid().find	</td></tr>
 	<tr><td colspan="2">This property lets you retreive a treeview <a href='#path'>Item Path</a> that leads to the Nth found treeview item matching the input search patern. If <a class="param">N</a> is <a class="value">0</a>, returns the total number of matching items. <a class="param">SUBPATH</a> is an optional parameter to start the search at a desired branch.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -748,7 +748,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.3"></a>$xdid().icon	</td></tr>
+			<a name="xdidprop.icon"></a>$xdid().icon	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the treeview item icon.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -762,7 +762,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.4"></a>$xdid().mouseitem	</td></tr>
+			<a name="xdidprop.mouseitem"></a>$xdid().mouseitem	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the treeview Item Path over which the mouse pointer is hovering over.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -776,7 +776,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.5"></a>$xdid().num	</td></tr>
+			<a name="xdidprop.num"></a>$xdid().num	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the number of child items of a treeview item. You can use the value <a class="value">root</a> as <a class="param">ITEMPATH</a> to get the number of childs of the root item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -790,7 +790,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.6"></a>$xdid().selpath	</td></tr>
+			<a name="xdidprop.selpath"></a>$xdid().selpath	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the <a href='#path'>Item Path</a> that leads to the selected item in the treeview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -804,7 +804,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.7"></a>$xdid().seltext	</td></tr>
+			<a name="xdidprop.seltext"></a>$xdid().seltext	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the selected treeview item text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -818,7 +818,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.8"></a>$xdid().state	</td></tr>
+			<a name="xdidprop.state"></a>$xdid().state	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the check item state of an item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -832,7 +832,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.9"></a>$xdid().text	</td></tr>
+			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
 	<tr><td colspan="2">This property lets you retreive a treeview item text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -846,7 +846,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.10"></a>$xdid().tooltip	</td></tr>
+			<a name="xdidprop.tooltip"></a>$xdid().tooltip	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the treeview item tooltip.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -859,12 +859,12 @@ This would add the item at the end of the last branch in the first column of bra
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Treeview Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Treeview Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the Treeview control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>buttonclick	</td></tr>
+			<a name="events.buttonclick"></a>buttonclick	</td></tr>
 	<tr><td colspan="2">When a &plusmn; button is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -883,7 +883,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>collapse	</td></tr>
+			<a name="events.collapse"></a>collapse	</td></tr>
 	<tr><td colspan="2">When a branch is collapsed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -902,7 +902,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>dclick	</td></tr>
+			<a name="events.dclick"></a>dclick	</td></tr>
 	<tr><td colspan="2">When an item is double clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -921,7 +921,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>expand	</td></tr>
+			<a name="events.expand"></a>expand	</td></tr>
 	<tr><td colspan="2">When a branch is expanded.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -940,7 +940,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.5"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -954,7 +954,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.6"></a>labelbegin	</td></tr>
+			<a name="events.labelbegin"></a>labelbegin	</td></tr>
 	<tr><td colspan="2">When item text label editing begins.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -968,7 +968,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.7"></a>labelcancel	</td></tr>
+			<a name="events.labelcancel"></a>labelcancel	</td></tr>
 	<tr><td colspan="2">When the user presses ESC while editing or clicks somewhere else without editing the text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -982,7 +982,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.8"></a>labelend	</td></tr>
+			<a name="events.labelend"></a>labelend	</td></tr>
 	<tr><td colspan="2">When the user clicks elsewhere or presses RETURN while editing or clicks somewhere else but edited the text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -1001,7 +1001,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.9"></a>rclick	</td></tr>
+			<a name="events.rclick"></a>rclick	</td></tr>
 	<tr><td colspan="2">When the treeview is right clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -1020,7 +1020,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.10"></a>sclick	</td></tr>
+			<a name="events.sclick"></a>sclick	</td></tr>
 	<tr><td colspan="2">When an item is single clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -1039,7 +1039,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.11"></a>stateclick	</td></tr>
+			<a name="events.stateclick"></a>stateclick	</td></tr>
 	<tr><td colspan="2">When a checkbox is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -1062,7 +1062,7 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">balloon</a></li><li><a href="#3.2" style="color: #B52929;">checkbox</a></li><li><a href="#3.3" style="color: #B52929;">editlabel</a></li><li><a href="#3.4" style="color: #B52929;">fullrow</a></li><li><a href="#3.5" style="color: #B52929;">hasbuttons</a></li><li><a href="#3.6" style="color: #B52929;">haslines</a></li><li><a href="#3.7" style="color: #B52929;">linesatroot</a></li><li><a href="#3.8" style="color: #B52929;">nohscroll</a></li><li><a href="#3.9" style="color: #B52929;">noscroll</a></li><li><a href="#3.10" style="color: #B52929;">notooltips</a></li><li><a href="#3.11" style="color: #B52929;">showsel</a></li><li><a href="#3.12" style="color: #B52929;">singleexpand</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-B</a></li><li><a href="#4.2" style="color: #0000FF;">-Q</a></li><li><a href="#4.3" style="color: #0000FF;">-a</a></li><li><a href="#4.4" style="color: #0000FF;">-c</a></li><li><a href="#4.5" style="color: #0000FF;">-d</a></li><li><a href="#4.6" style="color: #0000FF;">-g</a></li><li><a href="#4.7" style="color: #0000FF;">-i</a></li><li><a href="#4.8" style="color: #0000FF;">-j</a></li><li><a href="#4.9" style="color: #0000FF;">-k</a></li><li><a href="#4.10" style="color: #0000FF;">-l</a></li><li><a href="#4.11" style="color: #0000FF;">-m</a></li><li><a href="#4.12" style="color: #0000FF;">-n</a></li><li><a href="#4.13" style="color: #0000FF;">-o</a></li><li><a href="#4.14" style="color: #0000FF;">-r</a></li><li><a href="#4.15" style="color: #0000FF;">-t</a></li><li><a href="#4.16" style="color: #0000FF;">-u</a></li><li><a href="#4.17" style="color: #0000FF;">-v</a></li><li><a href="#4.18" style="color: #0000FF;">-w</a></li><li><a href="#4.19" style="color: #0000FF;">-y</a></li><li><a href="#4.20" style="color: #0000FF;">-z</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">expand</a></li><li><a href="#9.2" style="color: #6666FF;">find</a></li><li><a href="#9.3" style="color: #6666FF;">icon</a></li><li><a href="#9.4" style="color: #6666FF;">mouseitem</a></li><li><a href="#9.5" style="color: #6666FF;">num</a></li><li><a href="#9.6" style="color: #6666FF;">selpath</a></li><li><a href="#9.7" style="color: #6666FF;">seltext</a></li><li><a href="#9.8" style="color: #6666FF;">state</a></li><li><a href="#9.9" style="color: #6666FF;">text</a></li><li><a href="#9.10" style="color: #6666FF;">tooltip</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">buttonclick</a></li><li><a href="#8.2" style="color: #009900;">collapse</a></li><li><a href="#8.3" style="color: #009900;">dclick</a></li><li><a href="#8.4" style="color: #009900;">expand</a></li><li><a href="#8.5" style="color: #009900;">help</a></li><li><a href="#8.6" style="color: #009900;">labelbegin</a></li><li><a href="#8.7" style="color: #009900;">labelcancel</a></li><li><a href="#8.8" style="color: #009900;">labelend</a></li><li><a href="#8.9" style="color: #009900;">rclick</a></li><li><a href="#8.10" style="color: #009900;">sclick</a></li><li><a href="#8.11" style="color: #009900;">stateclick</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.balloon" style="color: #B52929;">balloon</a></li><li><a href="#style.checkbox" style="color: #B52929;">checkbox</a></li><li><a href="#style.editlabel" style="color: #B52929;">editlabel</a></li><li><a href="#style.fullrow" style="color: #B52929;">fullrow</a></li><li><a href="#style.hasbuttons" style="color: #B52929;">hasbuttons</a></li><li><a href="#style.haslines" style="color: #B52929;">haslines</a></li><li><a href="#style.linesatroot" style="color: #B52929;">linesatroot</a></li><li><a href="#style.nohscroll" style="color: #B52929;">nohscroll</a></li><li><a href="#style.noscroll" style="color: #B52929;">noscroll</a></li><li><a href="#style.notooltips" style="color: #B52929;">notooltips</a></li><li><a href="#style.showsel" style="color: #B52929;">showsel</a></li><li><a href="#style.singleexpand" style="color: #B52929;">singleexpand</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.B" style="color: #0000FF;">-B</a></li><li><a href="#xdid.Q" style="color: #0000FF;">-Q</a></li><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li><li><a href="#xdid.d" style="color: #0000FF;">-d</a></li><li><a href="#xdid.g" style="color: #0000FF;">-g</a></li><li><a href="#xdid.i" style="color: #0000FF;">-i</a></li><li><a href="#xdid.j" style="color: #0000FF;">-j</a></li><li><a href="#xdid.k" style="color: #0000FF;">-k</a></li><li><a href="#xdid.l" style="color: #0000FF;">-l</a></li><li><a href="#xdid.m" style="color: #0000FF;">-m</a></li><li><a href="#xdid.n" style="color: #0000FF;">-n</a></li><li><a href="#xdid.o" style="color: #0000FF;">-o</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li><li><a href="#xdid.u" style="color: #0000FF;">-u</a></li><li><a href="#xdid.v" style="color: #0000FF;">-v</a></li><li><a href="#xdid.w" style="color: #0000FF;">-w</a></li><li><a href="#xdid.y" style="color: #0000FF;">-y</a></li><li><a href="#xdid.z" style="color: #0000FF;">-z</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.expand" style="color: #6666FF;">expand</a></li><li><a href="#xdidprop.find" style="color: #6666FF;">find</a></li><li><a href="#xdidprop.icon" style="color: #6666FF;">icon</a></li><li><a href="#xdidprop.mouseitem" style="color: #6666FF;">mouseitem</a></li><li><a href="#xdidprop.num" style="color: #6666FF;">num</a></li><li><a href="#xdidprop.selpath" style="color: #6666FF;">selpath</a></li><li><a href="#xdidprop.seltext" style="color: #6666FF;">seltext</a></li><li><a href="#xdidprop.state" style="color: #6666FF;">state</a></li><li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li><li><a href="#xdidprop.tooltip" style="color: #6666FF;">tooltip</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.buttonclick" style="color: #009900;">buttonclick</a></li><li><a href="#events.collapse" style="color: #009900;">collapse</a></li><li><a href="#events.dclick" style="color: #009900;">dclick</a></li><li><a href="#events.expand" style="color: #009900;">expand</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.labelbegin" style="color: #009900;">labelbegin</a></li><li><a href="#events.labelcancel" style="color: #009900;">labelcancel</a></li><li><a href="#events.labelend" style="color: #009900;">labelend</a></li><li><a href="#events.rclick" style="color: #009900;">rclick</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li><li><a href="#events.stateclick" style="color: #009900;">stateclick</a></li></ul></td>
   </tr>
 </table>
 

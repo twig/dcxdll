@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,12 +61,12 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #888888"><a name="2"></a><div style='color: #888888;'>General Commands</div></td></tr>
+	<tr><td class="heading" style="border-color: #888888"><a name="general"></a><div style='color: #888888;'>General Commands</div></td></tr>
 	<tr><td>These commands are general DCX commands and not oriented on any particular DCX controls.</td></tr>
 </table>
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
-			<a name="2.1"></a>$dcx(ColorDialog)	</td></tr>
+			<a name="general.ColorDialog"></a>$dcx(ColorDialog)	</td></tr>
 	<tr><td colspan="2">Opens up the color picker dialog and returns the selected color.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -110,7 +110,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
-			<a name="2.2"></a>$dcx(FontDialog)	</td></tr>
+			<a name="general.FontDialog"></a>$dcx(FontDialog)	</td></tr>
 	<tr><td colspan="2">Opens up the Font dialog and returns the selected font options.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -275,7 +275,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
-			<a name="2.3"></a>$dcx(GetSystemColor)	</td></tr>
+			<a name="general.GetSystemColor"></a>$dcx(GetSystemColor)	</td></tr>
 	<tr><td colspan="2">Returns the RGB value of a specific system color.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -434,7 +434,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
-			<a name="2.4"></a>$dcx(GetTaskbarPos)	</td></tr>
+			<a name="general.GetTaskbarPos"></a>$dcx(GetTaskbarPos)	</td></tr>
 	<tr><td colspan="2">Retreives the position of the taskbar on your desktop.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -448,7 +448,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
-			<a name="2.5"></a>$dcx(IsThemedXP)	</td></tr>
+			<a name="general.IsThemedXP"></a>$dcx(IsThemedXP)	</td></tr>
 	<tr><td colspan="2">Returns $true or $false depending on whether a visual style has been on the Windows system or not. <a class="os">(XP+)</a></td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -462,7 +462,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
-			<a name="2.6"></a>/dcx Mark	</td></tr>
+			<a name="general.Mark"></a>/dcx Mark	</td></tr>
 	<tr><td colspan="2">This command prepares the dialog for DCX-based commands.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -485,7 +485,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
-			<a name="2.7"></a>$dcx(MsgBox)	</td></tr>
+			<a name="general.MsgBox"></a>$dcx(MsgBox)	</td></tr>
 	<tr><td colspan="2">Displays a messagebox which could be used to retrieve feedback from the user.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -605,7 +605,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
-			<a name="2.8"></a>$dcx(OpenDialog/SaveDialog)	</td></tr>
+			<a name="general.OpenDialog/SaveDialog"></a>$dcx(OpenDialog/SaveDialog)	</td></tr>
 	<tr><td colspan="2">Opens up the Open/Save file dialog and returns the selected file.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -689,7 +689,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
-			<a name="2.9"></a>$dcx(Version)	</td></tr>
+			<a name="general.Version"></a>$dcx(Version)	</td></tr>
 	<tr><td colspan="2">Returns information on the DLL Version.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -703,7 +703,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
-			<a name="2.10"></a>/dcx xSignal	</td></tr>
+			<a name="general.xSignal"></a>/dcx xSignal	</td></tr>
 	<tr><td colspan="2">This command enables or disables signals whenever a window (or docked window) is resized.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -722,7 +722,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#2" style="color: #888888;">General Commands</a><br /><ul><li><a href="#2.1" style="color: #888888;">ColorDialog</a></li><li><a href="#2.2" style="color: #888888;">FontDialog</a></li><li><a href="#2.3" style="color: #888888;">GetSystemColor</a></li><li><a href="#2.4" style="color: #888888;">GetTaskbarPos</a></li><li><a href="#2.5" style="color: #888888;">IsThemedXP</a></li><li><a href="#2.6" style="color: #888888;">Mark</a></li><li><a href="#2.7" style="color: #888888;">MsgBox</a></li><li><a href="#2.8" style="color: #888888;">OpenDialog/SaveDialog</a></li><li><a href="#2.9" style="color: #888888;">Version</a></li><li><a href="#2.10" style="color: #888888;">xSignal</a></li></ul></td>
+<a href="#general" style="color: #888888;">General Commands</a><br /><ul><li><a href="#general.ColorDialog" style="color: #888888;">ColorDialog</a></li><li><a href="#general.FontDialog" style="color: #888888;">FontDialog</a></li><li><a href="#general.GetSystemColor" style="color: #888888;">GetSystemColor</a></li><li><a href="#general.GetTaskbarPos" style="color: #888888;">GetTaskbarPos</a></li><li><a href="#general.IsThemedXP" style="color: #888888;">IsThemedXP</a></li><li><a href="#general.Mark" style="color: #888888;">Mark</a></li><li><a href="#general.MsgBox" style="color: #888888;">MsgBox</a></li><li><a href="#general.OpenDialog/SaveDialog" style="color: #888888;">OpenDialog/SaveDialog</a></li><li><a href="#general.Version" style="color: #888888;">Version</a></li><li><a href="#general.xSignal" style="color: #888888;">xSignal</a></li></ul></td>
   </tr>
 </table>
 

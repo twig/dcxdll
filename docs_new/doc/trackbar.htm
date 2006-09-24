@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>This control enables you to create a track bar.<br /><br />
 <div style="text-align: center;">
 	<img src="images/trackbar.png" alt="" />
@@ -69,67 +69,67 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a TrackBar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">autoticks</a></td>
+		<td class="style"><a name="style.autoticks" class="style">autoticks</a></td>
 		<td>Trackbar ticks are displayed at every N intervals (set by <a>/xdid -n</a>)</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.2" class="style">both</a></td>
+		<td class="style"><a name="style.both" class="style">both</a></td>
 		<td>Tic marks are displayed on both side of the bar.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.3" class="style">bottom</a></td>
+		<td class="style"><a name="style.bottom" class="style">bottom</a></td>
 		<td>Tic marks appear on the bottom of the trackbar. (<a class="style">horizontal</a> only)</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.4" class="style">downisleft</a></td>
+		<td class="style"><a name="style.downisleft" class="style">downisleft</a></td>
 		<td>By default, the trackbar control uses down equal to right and up equal to left. Use this style to reverse the default, making down equal left and up equal right.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.5" class="style">left</a></td>
+		<td class="style"><a name="style.left" class="style">left</a></td>
 		<td>Tic marks appear on the left of the trackbar. (<a class="style">vertical</a> only)</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.6" class="style">nothumb</a></td>
+		<td class="style"><a name="style.nothumb" class="style">nothumb</a></td>
 		<td>No track bar thumb appears on the trackbar.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.7" class="style">noticks</a></td>
+		<td class="style"><a name="style.noticks" class="style">noticks</a></td>
 		<td>No tic marks appear on track bar.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.8" class="style">right</a></td>
+		<td class="style"><a name="style.right" class="style">right</a></td>
 		<td>Tic marks appear on the right of the trackbar. (<a class="style">vertical</a> only)</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.9" class="style">select</a></td>
+		<td class="style"><a name="style.select" class="style">select</a></td>
 		<td>Enable selection points for a trackbar.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.10" class="style">tooltips</a></td>
+		<td class="style"><a name="style.tooltips" class="style">tooltips</a></td>
 		<td>Tooltip thumb mouvement displays a tooltip.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.11" class="style">top</a></td>
+		<td class="style"><a name="style.top" class="style">top</a></td>
 		<td>Tic marks appear on the top of the trackbar. (<a class="style">horizontal</a> only)</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.12" class="style">vertical</a></td>
+		<td class="style"><a name="style.vertical" class="style">vertical</a></td>
 		<td>Vertical track bar.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You must specify <a class="style">notheme</a> when using <a class="style">select</a>. Otherwise it will not display the selected range on themed desktops. <a class="os">(XP+)</a>.</td></tr></table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -c	</td></tr>
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
 	<tr><td colspan="2">This command lets you add a tick mark at the specified position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -143,7 +143,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -g	</td></tr>
+			<a name="xdid.g"></a>/xdid -g	</td></tr>
 	<tr><td colspan="2">This command lets you set images for specific parts of the trackbar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -178,7 +178,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -j	</td></tr>
+			<a name="xdid.j"></a>/xdid -j	</td></tr>
 	<tr><td colspan="2">This command lets you set the trackbar selection.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -192,7 +192,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.4"></a>/xdid -l	</td></tr>
+			<a name="xdid.l"></a>/xdid -l	</td></tr>
 	<tr><td colspan="2">This command lets you set the line step value.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -206,7 +206,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.5"></a>/xdid -m	</td></tr>
+			<a name="xdid.m"></a>/xdid -m	</td></tr>
 	<tr><td colspan="2">This command lets you set the page step value</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -220,7 +220,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.6"></a>/xdid -n	</td></tr>
+			<a name="xdid.n"></a>/xdid -n	</td></tr>
 	<tr><td colspan="2">This command lets you set the tick marks frequency.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -234,7 +234,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.7"></a>/xdid -o	</td></tr>
+			<a name="xdid.o"></a>/xdid -o	</td></tr>
 	<tr><td colspan="2">This command lets you set the transparency color for trackbar bitmaps.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -248,7 +248,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.8"></a>/xdid -q	</td></tr>
+			<a name="xdid.q"></a>/xdid -q	</td></tr>
 	<tr><td colspan="2">This command lets you clear the tick marks.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -262,7 +262,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.9"></a>/xdid -r	</td></tr>
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
 	<tr><td colspan="2">This command lets you set the trackbar range.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -276,7 +276,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.10"></a>/xdid -t	</td></tr>
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
 	<tr><td colspan="2">This command lets you set the trackbar tracker tooltip position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -311,7 +311,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.11"></a>/xdid -u	</td></tr>
+			<a name="xdid.u"></a>/xdid -u	</td></tr>
 	<tr><td colspan="2">This command lets you set the trackbar thumb tracker length in pixels.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -325,7 +325,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.12"></a>/xdid -v	</td></tr>
+			<a name="xdid.v"></a>/xdid -v	</td></tr>
 	<tr><td colspan="2">This command lets you set the tracker position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -338,12 +338,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().line	</td></tr>
+			<a name="xdidprop.line"></a>$xdid().line	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the track bar line step value.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -357,7 +357,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.2"></a>$xdid().page	</td></tr>
+			<a name="xdidprop.page"></a>$xdid().page	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the track bar page step value.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -371,7 +371,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.3"></a>$xdid().range	</td></tr>
+			<a name="xdidprop.range"></a>$xdid().range	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the track bar range.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -385,7 +385,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.4"></a>$xdid().selrange	</td></tr>
+			<a name="xdidprop.selrange"></a>$xdid().selrange	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the selected track bar range.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -399,7 +399,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.5"></a>$xdid().value	</td></tr>
+			<a name="xdidprop.value"></a>$xdid().value	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the track bar position value.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -412,12 +412,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>TrackBar Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>TrackBar Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the TrackBar control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>bottom	</td></tr>
+			<a name="events.bottom"></a>bottom	</td></tr>
 	<tr><td colspan="2">When the user presses the end key.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -436,7 +436,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -450,7 +450,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>linedown	</td></tr>
+			<a name="events.linedown"></a>linedown	</td></tr>
 	<tr><td colspan="2">When the user presses down/right arrow keys.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -469,7 +469,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>lineup	</td></tr>
+			<a name="events.lineup"></a>lineup	</td></tr>
 	<tr><td colspan="2">When the user presses up/left arrow keys.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -488,7 +488,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.5"></a>pagedown	</td></tr>
+			<a name="events.pagedown"></a>pagedown	</td></tr>
 	<tr><td colspan="2">When the user presses the pagedown key or clicks on the right/bottom of the trackbar thumb track.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -507,7 +507,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.6"></a>pageup	</td></tr>
+			<a name="events.pageup"></a>pageup	</td></tr>
 	<tr><td colspan="2">When the user presses the pageup key or clicks on the left/top of the trackbar thumb track.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -526,7 +526,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.7"></a>top	</td></tr>
+			<a name="events.top"></a>top	</td></tr>
 	<tr><td colspan="2">When the user presses the home key.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -545,7 +545,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.8"></a>trackend	</td></tr>
+			<a name="events.trackend"></a>trackend	</td></tr>
 	<tr><td colspan="2">When the user releases the left mouse button after dragging the thumb.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -564,7 +564,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">autoticks</a></li><li><a href="#3.2" style="color: #B52929;">both</a></li><li><a href="#3.3" style="color: #B52929;">bottom</a></li><li><a href="#3.4" style="color: #B52929;">downisleft</a></li><li><a href="#3.5" style="color: #B52929;">left</a></li><li><a href="#3.6" style="color: #B52929;">nothumb</a></li><li><a href="#3.7" style="color: #B52929;">noticks</a></li><li><a href="#3.8" style="color: #B52929;">right</a></li><li><a href="#3.9" style="color: #B52929;">select</a></li><li><a href="#3.10" style="color: #B52929;">tooltips</a></li><li><a href="#3.11" style="color: #B52929;">top</a></li><li><a href="#3.12" style="color: #B52929;">vertical</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-c</a></li><li><a href="#4.2" style="color: #0000FF;">-g</a></li><li><a href="#4.3" style="color: #0000FF;">-j</a></li><li><a href="#4.4" style="color: #0000FF;">-l</a></li><li><a href="#4.5" style="color: #0000FF;">-m</a></li><li><a href="#4.6" style="color: #0000FF;">-n</a></li><li><a href="#4.7" style="color: #0000FF;">-o</a></li><li><a href="#4.8" style="color: #0000FF;">-q</a></li><li><a href="#4.9" style="color: #0000FF;">-r</a></li><li><a href="#4.10" style="color: #0000FF;">-t</a></li><li><a href="#4.11" style="color: #0000FF;">-u</a></li><li><a href="#4.12" style="color: #0000FF;">-v</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">line</a></li><li><a href="#9.2" style="color: #6666FF;">page</a></li><li><a href="#9.3" style="color: #6666FF;">range</a></li><li><a href="#9.4" style="color: #6666FF;">selrange</a></li><li><a href="#9.5" style="color: #6666FF;">value</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">bottom</a></li><li><a href="#8.2" style="color: #009900;">help</a></li><li><a href="#8.3" style="color: #009900;">linedown</a></li><li><a href="#8.4" style="color: #009900;">lineup</a></li><li><a href="#8.5" style="color: #009900;">pagedown</a></li><li><a href="#8.6" style="color: #009900;">pageup</a></li><li><a href="#8.7" style="color: #009900;">top</a></li><li><a href="#8.8" style="color: #009900;">trackend</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.autoticks" style="color: #B52929;">autoticks</a></li><li><a href="#style.both" style="color: #B52929;">both</a></li><li><a href="#style.bottom" style="color: #B52929;">bottom</a></li><li><a href="#style.downisleft" style="color: #B52929;">downisleft</a></li><li><a href="#style.left" style="color: #B52929;">left</a></li><li><a href="#style.nothumb" style="color: #B52929;">nothumb</a></li><li><a href="#style.noticks" style="color: #B52929;">noticks</a></li><li><a href="#style.right" style="color: #B52929;">right</a></li><li><a href="#style.select" style="color: #B52929;">select</a></li><li><a href="#style.tooltips" style="color: #B52929;">tooltips</a></li><li><a href="#style.top" style="color: #B52929;">top</a></li><li><a href="#style.vertical" style="color: #B52929;">vertical</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li><li><a href="#xdid.g" style="color: #0000FF;">-g</a></li><li><a href="#xdid.j" style="color: #0000FF;">-j</a></li><li><a href="#xdid.l" style="color: #0000FF;">-l</a></li><li><a href="#xdid.m" style="color: #0000FF;">-m</a></li><li><a href="#xdid.n" style="color: #0000FF;">-n</a></li><li><a href="#xdid.o" style="color: #0000FF;">-o</a></li><li><a href="#xdid.q" style="color: #0000FF;">-q</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li><li><a href="#xdid.u" style="color: #0000FF;">-u</a></li><li><a href="#xdid.v" style="color: #0000FF;">-v</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.line" style="color: #6666FF;">line</a></li><li><a href="#xdidprop.page" style="color: #6666FF;">page</a></li><li><a href="#xdidprop.range" style="color: #6666FF;">range</a></li><li><a href="#xdidprop.selrange" style="color: #6666FF;">selrange</a></li><li><a href="#xdidprop.value" style="color: #6666FF;">value</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.bottom" style="color: #009900;">bottom</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.linedown" style="color: #009900;">linedown</a></li><li><a href="#events.lineup" style="color: #009900;">lineup</a></li><li><a href="#events.pagedown" style="color: #009900;">pagedown</a></li><li><a href="#events.pageup" style="color: #009900;">pageup</a></li><li><a href="#events.top" style="color: #009900;">top</a></li><li><a href="#events.trackend" style="color: #009900;">trackend</a></li></ul></td>
   </tr>
 </table>
 

@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>The panel control is like an empty borderless dialog which is used to host other controls.<br /><br />
 <div style="text-align: center;">
 	<img src="images/panel.png" alt="" />
@@ -69,12 +69,12 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -c	</td></tr>
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
 	<tr><td colspan="2">This command lets you add a child control to a box control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -245,7 +245,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -d	</td></tr>
+			<a name="xdid.d"></a>/xdid -d	</td></tr>
 	<tr><td colspan="2">This command lets you delete a control added on the panel.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -259,7 +259,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -l	</td></tr>
+			<a name="xdid.l"></a>/xdid -l	</td></tr>
 	<tr><td colspan="2">This command lets you add Cell Layout Algorithm rules to your dialog controls for automatic resizing of the child controls.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -346,7 +346,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.4"></a>/xdid -t	</td></tr>
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
 	<tr><td colspan="2">This command lets you set the text for a panel control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -359,12 +359,12 @@
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The panel text (and border) is only visible when used with /xdid -x DIALOG ID +bd</td></tr></table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Panel Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Panel Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the Panel control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>dclick	</td></tr>
+			<a name="events.dclick"></a>dclick	</td></tr>
 	<tr><td colspan="2">When the left mouse button is double-clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -378,7 +378,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -392,7 +392,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>lbdblclk	</td></tr>
+			<a name="events.lbdblclk"></a>lbdblclk	</td></tr>
 	<tr><td colspan="2">When the left mouse button is double-clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -406,7 +406,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>lbdown	</td></tr>
+			<a name="events.lbdown"></a>lbdown	</td></tr>
 	<tr><td colspan="2">When the left mouse button is pressed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -420,7 +420,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.5"></a>lbup	</td></tr>
+			<a name="events.lbup"></a>lbup	</td></tr>
 	<tr><td colspan="2">When the left mouse button is released.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -434,7 +434,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.6"></a>sclick	</td></tr>
+			<a name="events.sclick"></a>sclick	</td></tr>
 	<tr><td colspan="2">When the left mouse button is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -448,7 +448,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-c</a></li><li><a href="#4.2" style="color: #0000FF;">-d</a></li><li><a href="#4.3" style="color: #0000FF;">-l</a></li><li><a href="#4.4" style="color: #0000FF;">-t</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">dclick</a></li><li><a href="#8.2" style="color: #009900;">help</a></li><li><a href="#8.3" style="color: #009900;">lbdblclk</a></li><li><a href="#8.4" style="color: #009900;">lbdown</a></li><li><a href="#8.5" style="color: #009900;">lbup</a></li><li><a href="#8.6" style="color: #009900;">sclick</a></li></ul></td>
+<a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li><li><a href="#xdid.d" style="color: #0000FF;">-d</a></li><li><a href="#xdid.l" style="color: #0000FF;">-l</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.dclick" style="color: #009900;">dclick</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.lbdblclk" style="color: #009900;">lbdblclk</a></li><li><a href="#events.lbdown" style="color: #009900;">lbdown</a></li><li><a href="#events.lbup" style="color: #009900;">lbup</a></li><li><a href="#events.sclick" style="color: #009900;">sclick</a></li></ul></td>
   </tr>
 </table>
 

@@ -36,7 +36,7 @@
 	<tr>
 <td class="menuleft">
 	<br />
-	<a class="section" href="#1">Introduction</a><br />
+	<a class="section" href="#intro">Introduction</a><br />
 	<br />
 	<a class="section">General Usage</a><br />
 	<ul>
@@ -61,7 +61,7 @@
     </ul>
 </td>
 <td><br /><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="1"></a><div style='color: #000000;'><a name="1"></a>Introduction</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
 	<tr><td>Normal edit control.<br /><br />
 <div style="text-align: center;">
 	<img src="images/edit.png" alt="" />
@@ -69,75 +69,75 @@
 </td></tr>
 </table>
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #B52929"><a name="3"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
 	<tr><td>These control styles are available when creating a Edit control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="3.1" class="style">autohs</a></td>
+		<td class="style"><a name="style.autohs" class="style">autohs</a></td>
 		<td>Text scrolling is automatically scrolled horizontally without need of a horizontal scrollbar.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.2" class="style">autovs</a></td>
+		<td class="style"><a name="style.autovs" class="style">autovs</a></td>
 		<td>Text scrolling is automatically scrolled vertically without need of a vertical scrollbar.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.3" class="style">center</a></td>
+		<td class="style"><a name="style.center" class="style">center</a></td>
 		<td>Text is centered.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.4" class="style">hsbar</a></td>
+		<td class="style"><a name="style.hsbar" class="style">hsbar</a></td>
 		<td>Displays a horizontal scrollbar.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.5" class="style">lowercase</a></td>
+		<td class="style"><a name="style.lowercase" class="style">lowercase</a></td>
 		<td>Converts all characters to lowercase as they are typed into the edit control.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.6" class="style">multi</a></td>
+		<td class="style"><a name="style.multi" class="style">multi</a></td>
 		<td>Enables a multiline edit.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.7" class="style">number</a></td>
+		<td class="style"><a name="style.number" class="style">number</a></td>
 		<td>Allows only digits to be entered into the edit control.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.8" class="style">password</a></td>
+		<td class="style"><a name="style.password" class="style">password</a></td>
 		<td>Displays an asterisk (*) for each character typed into the edit control. Only works when <a class="style">multi</a> style is NOT set.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.9" class="style">readonly</a></td>
+		<td class="style"><a name="style.readonly" class="style">readonly</a></td>
 		<td>Prevents the user from typing or editing text in the edit control.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.10" class="style">return</a></td>
+		<td class="style"><a name="style.return" class="style">return</a></td>
 		<td>Specifies that a carriage return be inserted when the user presses the ENTER key while entering text into a multiline edit control in a dialog box.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.11" class="style">right</a></td>
+		<td class="style"><a name="style.right" class="style">right</a></td>
 		<td>Text is right justified.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.12" class="style">tooltips</a></td>
+		<td class="style"><a name="style.tooltips" class="style">tooltips</a></td>
 		<td>The edit will have a tooltip.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.13" class="style">uppercase</a></td>
+		<td class="style"><a name="style.uppercase" class="style">uppercase</a></td>
 		<td>Converts all characters to uppercase as they are typed into the edit control.</td>
 	</tr>
 	<tr>
-		<td class="style"><a name="3.14" class="style">vsbar</a></td>
+		<td class="style"><a name="style.vsbar" class="style">vsbar</a></td>
 		<td>Displays a vertical scrollbar.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Even with <a class="style">number</a> style, it is still possible to paste non-digits into the edit control.</td></tr></table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #0000FF"><a name="4"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.1"></a>/xdid -S	</td></tr>
+			<a name="xdid.S"></a>/xdid -S	</td></tr>
 	<tr><td colspan="2">This command lets you set the selection range in the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -151,7 +151,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.2"></a>/xdid -a	</td></tr>
+			<a name="xdid.a"></a>/xdid -a	</td></tr>
 	<tr><td colspan="2">This command lets you add text to the end of the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -165,7 +165,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.3"></a>/xdid -c	</td></tr>
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
 	<tr><td colspan="2">This command will copy the text in the edit to the clipboard.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -179,7 +179,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.4"></a>/xdid -d	</td></tr>
+			<a name="xdid.d"></a>/xdid -d	</td></tr>
 	<tr><td colspan="2">This command lets you delete the Nth line of text in the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -193,7 +193,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.5"></a>/xdid -i	</td></tr>
+			<a name="xdid.i"></a>/xdid -i	</td></tr>
 	<tr><td colspan="2">This command lets you insert a line at the Nth position in the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -207,7 +207,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.6"></a>/xdid -j	</td></tr>
+			<a name="xdid.j"></a>/xdid -j	</td></tr>
 	<tr><td colspan="2">This command lets you trigger the password style of the edit control on the fly.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -221,7 +221,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.7"></a>/xdid -o	</td></tr>
+			<a name="xdid.o"></a>/xdid -o	</td></tr>
 	<tr><td colspan="2">This command lets you overwrite the Nth line in the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -235,7 +235,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.8"></a>/xdid -q	</td></tr>
+			<a name="xdid.q"></a>/xdid -q	</td></tr>
 	<tr><td colspan="2">This command lets you set a char length limit on the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -249,7 +249,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.9"></a>/xdid -r	</td></tr>
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
 	<tr><td colspan="2">This command lets you clear the contents of the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -263,7 +263,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.10"></a>/xdid -t	</td></tr>
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
 	<tr><td colspan="2">This command lets you load the contents of a file directly in the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -277,7 +277,7 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="4.11"></a>/xdid -u	</td></tr>
+			<a name="xdid.u"></a>/xdid -u	</td></tr>
 	<tr><td colspan="2">This command lets you save the contents of the edit directly in a file.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -290,12 +290,12 @@
 </table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #6666FF"><a name="9"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.1"></a>$xdid().caretpos	</td></tr>
+			<a name="xdidprop.caretpos"></a>$xdid().caretpos	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the position of the cursor.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -309,7 +309,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.2"></a>$xdid().ispass	</td></tr>
+			<a name="xdidprop.ispass"></a>$xdid().ispass	</td></tr>
 	<tr><td colspan="2">This property lets you retreive if the password style is set on the edit control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -323,7 +323,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.3"></a>$xdid().num	</td></tr>
+			<a name="xdidprop.num"></a>$xdid().num	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the number of lines in the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -337,7 +337,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.4"></a>$xdid().sel	</td></tr>
+			<a name="xdidprop.sel"></a>$xdid().sel	</td></tr>
 	<tr><td colspan="2">This returns the index of the first and last selected character position in the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -351,7 +351,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.5"></a>$xdid().selend	</td></tr>
+			<a name="xdidprop.selend"></a>$xdid().selend	</td></tr>
 	<tr><td colspan="2">This returns the index of the last selected character position in the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -365,7 +365,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.6"></a>$xdid().selstart	</td></tr>
+			<a name="xdidprop.selstart"></a>$xdid().selstart	</td></tr>
 	<tr><td colspan="2">This returns the index of the first selected character position in the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -379,7 +379,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.7"></a>$xdid().seltext	</td></tr>
+			<a name="xdidprop.seltext"></a>$xdid().seltext	</td></tr>
 	<tr><td colspan="2">This returns the selected text in the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -393,7 +393,7 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="9.8"></a>$xdid().text	</td></tr>
+			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the Nth line in the edit or the whole edit text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -406,12 +406,12 @@
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the <a class="style">multi</a> is not used, you can ignore <a class="param">N</a> when retrieving the edit text.</td></tr></table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="8"></a><div style='color: #009900;'>Edit Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Edit Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the Edit control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.1"></a>copy	</td></tr>
+			<a name="events.copy"></a>copy	</td></tr>
 	<tr><td colspan="2">When the user copies text from the edit control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -425,7 +425,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.2"></a>cut	</td></tr>
+			<a name="events.cut"></a>cut	</td></tr>
 	<tr><td colspan="2">When the user cuts text from the edit control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -439,7 +439,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.3"></a>dragbegin	</td></tr>
+			<a name="events.dragbegin"></a>dragbegin	</td></tr>
 	<tr><td colspan="2">Triggers when one or more files are dropped onto the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -458,7 +458,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.4"></a>dragfile	</td></tr>
+			<a name="events.dragfile"></a>dragfile	</td></tr>
 	<tr><td colspan="2">The filename of the file which was dropped onto the edit control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -472,7 +472,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.5"></a>dragfinish	</td></tr>
+			<a name="events.dragfinish"></a>dragfinish	</td></tr>
 	<tr><td colspan="2">Event triggered when processing of drag drop is complete.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -486,7 +486,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.6"></a>edit	</td></tr>
+			<a name="events.edit"></a>edit	</td></tr>
 	<tr><td colspan="2">When the text is edited in the edit control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -500,7 +500,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.7"></a>help	</td></tr>
+			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -514,7 +514,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.8"></a>keydown	</td></tr>
+			<a name="events.keydown"></a>keydown	</td></tr>
 	<tr><td colspan="2">When a key is pressed in the edit control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -528,7 +528,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.9"></a>keyup	</td></tr>
+			<a name="events.keyup"></a>keyup	</td></tr>
 	<tr><td colspan="2">When a key is unpressed in the edit control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -542,7 +542,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.10"></a>paste	</td></tr>
+			<a name="events.paste"></a>paste	</td></tr>
 	<tr><td colspan="2">When the user pastes text into the edit control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -556,7 +556,7 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="8.11"></a>return	</td></tr>
+			<a name="events.return"></a>return	</td></tr>
 	<tr><td colspan="2">When the <b>enter</b> key is pressed in the edit control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
@@ -570,7 +570,7 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#3" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#3.1" style="color: #B52929;">autohs</a></li><li><a href="#3.2" style="color: #B52929;">autovs</a></li><li><a href="#3.3" style="color: #B52929;">center</a></li><li><a href="#3.4" style="color: #B52929;">hsbar</a></li><li><a href="#3.5" style="color: #B52929;">lowercase</a></li><li><a href="#3.6" style="color: #B52929;">multi</a></li><li><a href="#3.7" style="color: #B52929;">number</a></li><li><a href="#3.8" style="color: #B52929;">password</a></li><li><a href="#3.9" style="color: #B52929;">readonly</a></li><li><a href="#3.10" style="color: #B52929;">return</a></li><li><a href="#3.11" style="color: #B52929;">right</a></li><li><a href="#3.12" style="color: #B52929;">tooltips</a></li><li><a href="#3.13" style="color: #B52929;">uppercase</a></li><li><a href="#3.14" style="color: #B52929;">vsbar</a></li></ul><a href="#4" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#4.1" style="color: #0000FF;">-S</a></li><li><a href="#4.2" style="color: #0000FF;">-a</a></li><li><a href="#4.3" style="color: #0000FF;">-c</a></li><li><a href="#4.4" style="color: #0000FF;">-d</a></li><li><a href="#4.5" style="color: #0000FF;">-i</a></li><li><a href="#4.6" style="color: #0000FF;">-j</a></li><li><a href="#4.7" style="color: #0000FF;">-o</a></li><li><a href="#4.8" style="color: #0000FF;">-q</a></li><li><a href="#4.9" style="color: #0000FF;">-r</a></li><li><a href="#4.10" style="color: #0000FF;">-t</a></li><li><a href="#4.11" style="color: #0000FF;">-u</a></li></ul><a href="#9" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#9.1" style="color: #6666FF;">caretpos</a></li><li><a href="#9.2" style="color: #6666FF;">ispass</a></li><li><a href="#9.3" style="color: #6666FF;">num</a></li><li><a href="#9.4" style="color: #6666FF;">sel</a></li><li><a href="#9.5" style="color: #6666FF;">selend</a></li><li><a href="#9.6" style="color: #6666FF;">selstart</a></li><li><a href="#9.7" style="color: #6666FF;">seltext</a></li><li><a href="#9.8" style="color: #6666FF;">text</a></li></ul><a href="#8" style="color: #009900;">Events</a><br /><ul><li><a href="#8.1" style="color: #009900;">copy</a></li><li><a href="#8.2" style="color: #009900;">cut</a></li><li><a href="#8.3" style="color: #009900;">dragbegin</a></li><li><a href="#8.4" style="color: #009900;">dragfile</a></li><li><a href="#8.5" style="color: #009900;">dragfinish</a></li><li><a href="#8.6" style="color: #009900;">edit</a></li><li><a href="#8.7" style="color: #009900;">help</a></li><li><a href="#8.8" style="color: #009900;">keydown</a></li><li><a href="#8.9" style="color: #009900;">keyup</a></li><li><a href="#8.10" style="color: #009900;">paste</a></li><li><a href="#8.11" style="color: #009900;">return</a></li></ul></td>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.autohs" style="color: #B52929;">autohs</a></li><li><a href="#style.autovs" style="color: #B52929;">autovs</a></li><li><a href="#style.center" style="color: #B52929;">center</a></li><li><a href="#style.hsbar" style="color: #B52929;">hsbar</a></li><li><a href="#style.lowercase" style="color: #B52929;">lowercase</a></li><li><a href="#style.multi" style="color: #B52929;">multi</a></li><li><a href="#style.number" style="color: #B52929;">number</a></li><li><a href="#style.password" style="color: #B52929;">password</a></li><li><a href="#style.readonly" style="color: #B52929;">readonly</a></li><li><a href="#style.return" style="color: #B52929;">return</a></li><li><a href="#style.right" style="color: #B52929;">right</a></li><li><a href="#style.tooltips" style="color: #B52929;">tooltips</a></li><li><a href="#style.uppercase" style="color: #B52929;">uppercase</a></li><li><a href="#style.vsbar" style="color: #B52929;">vsbar</a></li></ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.S" style="color: #0000FF;">-S</a></li><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li><li><a href="#xdid.d" style="color: #0000FF;">-d</a></li><li><a href="#xdid.i" style="color: #0000FF;">-i</a></li><li><a href="#xdid.j" style="color: #0000FF;">-j</a></li><li><a href="#xdid.o" style="color: #0000FF;">-o</a></li><li><a href="#xdid.q" style="color: #0000FF;">-q</a></li><li><a href="#xdid.r" style="color: #0000FF;">-r</a></li><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li><li><a href="#xdid.u" style="color: #0000FF;">-u</a></li></ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.caretpos" style="color: #6666FF;">caretpos</a></li><li><a href="#xdidprop.ispass" style="color: #6666FF;">ispass</a></li><li><a href="#xdidprop.num" style="color: #6666FF;">num</a></li><li><a href="#xdidprop.sel" style="color: #6666FF;">sel</a></li><li><a href="#xdidprop.selend" style="color: #6666FF;">selend</a></li><li><a href="#xdidprop.selstart" style="color: #6666FF;">selstart</a></li><li><a href="#xdidprop.seltext" style="color: #6666FF;">seltext</a></li><li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li></ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.copy" style="color: #009900;">copy</a></li><li><a href="#events.cut" style="color: #009900;">cut</a></li><li><a href="#events.dragbegin" style="color: #009900;">dragbegin</a></li><li><a href="#events.dragfile" style="color: #009900;">dragfile</a></li><li><a href="#events.dragfinish" style="color: #009900;">dragfinish</a></li><li><a href="#events.edit" style="color: #009900;">edit</a></li><li><a href="#events.help" style="color: #009900;">help</a></li><li><a href="#events.keydown" style="color: #009900;">keydown</a></li><li><a href="#events.keyup" style="color: #009900;">keyup</a></li><li><a href="#events.paste" style="color: #009900;">paste</a></li><li><a href="#events.return" style="color: #009900;">return</a></li></ul></td>
   </tr>
 </table>
 
