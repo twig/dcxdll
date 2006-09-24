@@ -524,6 +524,47 @@ LRESULT DcxTrackBar::getSelEnd(  ) {
  */
 LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 	switch( uMsg ) {
+		case WM_VSCROLL:
+		case WM_HSCROLL: 
+		{
+			switch (LOWORD(wParam)) {
+				case TB_TOP:
+					this->callAliasEx(NULL, "%s,%d,%d", "top", this->getUserID(), this->getPos());
+					break;
+
+				case TB_BOTTOM:
+					this->callAliasEx(NULL, "%s,%d,%d", "bottom", this->getUserID(), this->getPos());
+					break;
+
+				case TB_PAGEUP:
+					this->callAliasEx(NULL, "%s,%d,%d", "pageup", this->getUserID(), this->getPos());
+					break;
+
+				case TB_PAGEDOWN:
+					this->callAliasEx(NULL, "%s,%d,%d", "pagedown", this->getUserID(), this->getPos());
+					break;
+
+				case TB_LINEUP:
+					this->callAliasEx(NULL, "%s,%d,%d", "lineup", this->getUserID(), this->getPos());
+					break;
+
+				case TB_LINEDOWN:
+					this->callAliasEx(NULL, "%s,%d,%d", "linedown", this->getUserID(), this->getPos());
+					break;
+
+				case TB_THUMBPOSITION:
+					this->callAliasEx(NULL, "%s,%d,%d", "trackend", this->getUserID(), this->getPos());
+					break;
+
+				case SB_THUMBTRACK:
+					this->callAliasEx(NULL, "%s,%d,%d", "tracking", this->getUserID(), this->getPos());
+					break;
+			}
+
+			break;
+		}
+
+
 		case WM_NOTIFY: {
 			LPNMHDR hdr = (LPNMHDR) lParam;
 
@@ -661,47 +702,6 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
     case WM_HELP:
       {
         this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
-
-    case WM_VSCROLL:
-    case WM_HSCROLL: 
-      {
-
-		  switch( LOWORD( wParam ) ) {
-
-          case TB_TOP:
-            this->callAliasEx( NULL, "%s,%d,%d", "top", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case TB_BOTTOM:
-            this->callAliasEx( NULL, "%s,%d,%d", "bottom", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case TB_PAGEUP:
-            this->callAliasEx( NULL, "%s,%d,%d", "pageup", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case TB_PAGEDOWN:
-            this->callAliasEx( NULL, "%s,%d,%d", "pagedown", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case TB_LINEUP:
-            this->callAliasEx( NULL, "%s,%d,%d", "lineup", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case TB_LINEDOWN:
-            this->callAliasEx( NULL, "%s,%d,%d", "linedown", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case TB_THUMBPOSITION:
-            this->callAliasEx( NULL, "%s,%d,%d", "trackend", this->getUserID( ), this->getPos( ) );
-            break;
-
-          case SB_THUMBTRACK:
-            this->callAliasEx( NULL, "%s,%d,%d", "tracking", this->getUserID( ), this->getPos( ) );
-            break;
-        }
       }
       break;
 

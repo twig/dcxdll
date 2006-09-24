@@ -257,7 +257,191 @@ void DcxScroll::parseCommandRequest( TString & input ) {
  *
  * blah
  */
-LRESULT DcxScroll::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
+	switch (uMsg) {
+		case WM_HSCROLL: 
+		{
+			SCROLLINFO si;
+			si.cbSize = sizeof(SCROLLINFO);
+			si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
+			GetScrollInfo(this->m_Hwnd, SB_CTL, &si);
+
+			switch (LOWORD(wParam)) {
+				case SB_TOP:
+				{
+					si.nPos = si.nMin;
+					this->callAliasEx( NULL, "%s,%d,%d", "top", this->getUserID( ), si.nPos );
+					break;
+				}
+
+				case SB_BOTTOM:
+				{
+					si.nPos = si.nMax;
+					this->callAliasEx( NULL, "%s,%d,%d", "bottom", this->getUserID( ), si.nPos );
+					break;
+				}
+
+				//case SB_ENDTRACK:
+				//  CallAliasEx( p_Dialog, ret, "%s,%d,%d", "sclick", 
+				//               this->getUserID( ), p_DcxTrackBar->getPos( ) );
+				//  break;
+
+				case SB_PAGEUP:
+				{
+					if ((si.nPos - this->m_nPage) >= si.nMin)
+						si.nPos -= this->m_nPage;
+					else
+						si.nPos = si.nMin;
+
+					this->callAliasEx(NULL, "%s,%d,%d", "pageup", this->getUserID(), si.nPos);
+					break;
+				}
+
+				case SB_PAGEDOWN:
+				{
+					if (si.nPos + this->m_nPage <= si.nMax)
+						si.nPos += this->m_nPage;
+					else
+						si.nPos = si.nMax;
+
+					this->callAliasEx(NULL, "%s,%d,%d", "pagedown", this->getUserID(), si.nPos);
+					break;
+				}
+
+				case SB_LINEUP:
+				{
+					if (si.nPos - this->m_nLine >= si.nMin)
+						si.nPos -= this->m_nLine;
+					else
+						si.nPos = si.nMin;
+
+					this->callAliasEx( NULL, "%s,%d,%d", "lineup", this->getUserID( ), si.nPos );
+					break;
+				}
+
+				case SB_LINEDOWN:
+				{
+					if (si.nPos + this->m_nLine <= si.nMax)
+						si.nPos += this->m_nLine;
+					else
+						si.nPos = si.nMax;
+
+					this->callAliasEx(NULL, "%s,%d,%d", "linedown", this->getUserID(), si.nPos);
+					break;
+				}
+
+				case SB_THUMBPOSITION:
+				{
+					this->callAliasEx(NULL, "%s,%d,%d", "trackend", this->getUserID(), si.nPos);
+					break;
+				}
+
+				case SB_THUMBTRACK:
+				{
+					si.nPos = si.nTrackPos;
+					this->callAliasEx(NULL, "%s,%d,%d", "tracking", this->getUserID(), si.nTrackPos);
+					break;
+				}
+			}
+
+			bParsed = TRUE;
+			si.fMask = SIF_POS;
+			SetScrollInfo(this->m_Hwnd, SB_CTL, &si, TRUE);
+			break;
+		}
+
+		case WM_VSCROLL:
+		{
+			SCROLLINFO si;
+			si.cbSize = sizeof(SCROLLINFO);
+			si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
+			GetScrollInfo(this->m_Hwnd, SB_CTL, &si);
+
+			switch (LOWORD(wParam)) {
+				case SB_TOP:
+				{
+					si.nPos = si.nMin;
+					this->callAliasEx(NULL, "%s,%d,%d", "top", this->getUserID(), si.nPos);
+					break;
+				}
+
+				case SB_BOTTOM:
+				{
+					si.nPos = si.nMax;
+					this->callAliasEx(NULL, "%s,%d,%d", "bottom", this->getUserID(), si.nPos);
+					break;
+				}
+
+				//case SB_ENDTRACK:
+				//  CallAliasEx( p_Dialog, ret, "%s,%d,%d", "sclick", 
+				//               this->getUserID( ), p_DcxTrackBar->getPos( ) );
+				//  break;
+
+				case SB_PAGEUP:
+				{
+					if (si.nPos - this->m_nPage >= si.nMin)
+						si.nPos -= this->m_nPage;
+					else
+						si.nPos = si.nMin;
+
+					this->callAliasEx(NULL, "%s,%d,%d", "pageup", this->getUserID(), si.nPos);
+					break;
+				}
+				
+				case SB_PAGEDOWN:
+				{
+					if (si.nPos + this->m_nPage <= si.nMax)
+						si.nPos += this->m_nPage;
+					else
+						si.nPos = si.nMax;
+
+					this->callAliasEx(NULL, "%s,%d,%d", "pagedown", this->getUserID(), si.nPos);
+					break;
+				}
+				
+				case SB_LINEUP:
+				{
+					if (si.nPos - this->m_nLine >= si.nMin)
+						si.nPos -= this->m_nLine;
+					else
+						si.nPos = si.nMin;
+
+					this->callAliasEx(NULL, "%s,%d,%d", "lineup", this->getUserID(), si.nPos);
+					break;
+				}
+
+				case SB_LINEDOWN:
+				{
+					if ( si.nPos + this->m_nLine <= si.nMax )
+						si.nPos += this->m_nLine;
+					else
+						si.nPos = si.nMax;
+
+					this->callAliasEx( NULL, "%s,%d,%d", "linedown", this->getUserID( ), si.nPos );
+					break;
+				}
+
+				case SB_THUMBPOSITION:
+				{
+					this->callAliasEx(NULL, "%s,%d,%d", "trackend", this->getUserID(), si.nPos);
+					break;
+				}
+
+				case SB_THUMBTRACK:
+				{
+					si.nPos = si.nTrackPos;
+					this->callAliasEx(NULL, "%s,%d,%d", "tracking", this->getUserID(), si.nTrackPos);
+					break;
+				}
+			}
+
+			bParsed = TRUE;
+			si.fMask = SIF_POS;
+			SetScrollInfo(this->m_Hwnd, SB_CTL, &si, TRUE);
+			break;
+		}
+	}
+
 	return 0L;
 }
 
@@ -268,192 +452,6 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
     case WM_HELP:
       {
         this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
-
-    case WM_HSCROLL: 
-      {
-
-        SCROLLINFO si;
-        si.cbSize = sizeof( SCROLLINFO );
-        si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
-        GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
-
-        switch( LOWORD( wParam ) ) {
-
-          case SB_TOP:
-            {
-              si.nPos = si.nMin;
-              this->callAliasEx( NULL, "%s,%d,%d", "top", this->getUserID( ), si.nPos );
-            }
-            break;
-
-          case SB_BOTTOM:
-            {
-              si.nPos = si.nMax;
-              this->callAliasEx( NULL, "%s,%d,%d", "bottom", this->getUserID( ), si.nPos );
-            }
-            break;
-
-            //case SB_ENDTRACK:
-            //  CallAliasEx( p_Dialog, ret, "%s,%d,%d", "sclick", 
-            //               this->getUserID( ), p_DcxTrackBar->getPos( ) );
-            //  break;
-
-          case SB_PAGEUP:
-            {
-              if ( si.nPos - this->m_nPage >= si.nMin )
-                si.nPos -= this->m_nPage;
-              else
-                si.nPos = si.nMin;
-
-              this->callAliasEx( NULL, "%s,%d,%d", "pageup", this->getUserID( ), si.nPos );
-            }
-            break;
-
-          case SB_PAGEDOWN:
-            {
-              if ( si.nPos + this->m_nPage <= si.nMax )
-                si.nPos += this->m_nPage;
-              else
-                si.nPos = si.nMax;
-
-              this->callAliasEx( NULL, "%s,%d,%d", "pagedown", this->getUserID( ), si.nPos );
-            }
-            break;
-
-          case SB_LINEUP:
-            {
-              if ( si.nPos - this->m_nLine >= si.nMin )
-                si.nPos -= this->m_nLine;
-              else
-                si.nPos = si.nMin;
-
-              this->callAliasEx( NULL, "%s,%d,%d", "lineup", this->getUserID( ), si.nPos );
-            }
-            break;
-
-          case SB_LINEDOWN:
-            {
-              if ( si.nPos + this->m_nLine <= si.nMax )
-                si.nPos += this->m_nLine;
-              else
-                si.nPos = si.nMax;
-
-              this->callAliasEx( NULL, "%s,%d,%d", "linedown", this->getUserID( ), si.nPos );
-            }
-            break;
-
-          case SB_THUMBPOSITION:
-            {
-              this->callAliasEx( NULL, "%s,%d,%d", "trackend", this->getUserID( ), si.nPos );
-            }
-            break;
-
-          case SB_THUMBTRACK:
-            {
-              si.nPos = si.nTrackPos;
-              this->callAliasEx( NULL, "%s,%d,%d", "tracking", this->getUserID( ), si.nTrackPos );
-            }
-            break;
-        }
-  
-        bParsed = TRUE;
-        si.fMask = SIF_POS;
-        SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
-      }
-      break;
-
-    case WM_VSCROLL:
-      {
-        
-        SCROLLINFO si;
-        si.cbSize = sizeof( SCROLLINFO );
-        si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
-        GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
-
-        switch( LOWORD( wParam ) ) {
-
-          case SB_TOP:
-            {
-              si.nPos = si.nMin;
-              this->callAliasEx( NULL, "%s,%d,%d", "top", this->getUserID( ), si.nPos );
-            }
-            break;
-
-          case SB_BOTTOM:
-            {
-              si.nPos = si.nMax;
-              this->callAliasEx( NULL, "%s,%d,%d", "bottom", this->getUserID( ), si.nPos );
-            }
-            break;
-
-            //case SB_ENDTRACK:
-            //  CallAliasEx( p_Dialog, ret, "%s,%d,%d", "sclick", 
-            //               this->getUserID( ), p_DcxTrackBar->getPos( ) );
-            //  break;
-
-          case SB_PAGEUP:
-            {
-              if ( si.nPos - this->m_nPage >= si.nMin )
-                si.nPos -= this->m_nPage;
-              else
-                si.nPos = si.nMin;
-
-              this->callAliasEx( NULL, "%s,%d,%d", "pageup", this->getUserID( ), si.nPos );
-            }
-            break;
-
-          case SB_PAGEDOWN:
-            {
-              if ( si.nPos + this->m_nPage <= si.nMax )
-                si.nPos += this->m_nPage;
-              else
-                si.nPos = si.nMax;
-
-              this->callAliasEx( NULL, "%s,%d,%d", "pagedown", this->getUserID( ), si.nPos );
-            }
-            break;
-
-          case SB_LINEUP:
-            {
-              if ( si.nPos - this->m_nLine >= si.nMin )
-                si.nPos -= this->m_nLine;
-              else
-                si.nPos = si.nMin;
-
-              this->callAliasEx( NULL, "%s,%d,%d", "lineup", this->getUserID( ), si.nPos );
-            }
-            break;
-
-          case SB_LINEDOWN:
-            {
-              if ( si.nPos + this->m_nLine <= si.nMax )
-                si.nPos += this->m_nLine;
-              else
-                si.nPos = si.nMax;
-
-              this->callAliasEx( NULL, "%s,%d,%d", "linedown", this->getUserID( ), si.nPos );
-            }
-            break;
-
-          case SB_THUMBPOSITION:
-            {
-              this->callAliasEx( NULL, "%s,%d,%d", "trackend", this->getUserID( ), si.nPos );
-            }
-            break;
-
-          case SB_THUMBTRACK:
-            {
-              si.nPos = si.nTrackPos;
-              this->callAliasEx( NULL, "%s,%d,%d", "tracking", this->getUserID( ), si.nTrackPos );
-            }
-            break;
-        }
-  
-        bParsed = TRUE;
-        si.fMask = SIF_POS;
-        SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
       }
       break;
 
