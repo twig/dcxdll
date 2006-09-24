@@ -19,6 +19,7 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
 #include "classes/dcxcontrol.h"
 
 #include "classes/custom/divider.h"
+#include "classes/custom/dcxtrayicon.h"
 
 #include "classes/xpopup/xpopupmenumanager.h"
 #include "classes/xpopup/xpopupmenu.h"
@@ -48,6 +49,10 @@ BOOL XPPlus = FALSE;                 //!< Is OS WinXP+ ?
 //FILE * logFile;
 
 IClassFactory * g_pClassFactory; //!< Web Control Factory
+
+
+// Tray Icon stuff
+DcxTrayIcon *trayIcons = NULL; // tray icon manager
 
 
 // XPopup Stuff
@@ -395,6 +400,12 @@ int WINAPI UnloadDll(int timeout) {
 		OleUninitialize();
 
 
+		/***** TrayIcon Stuff *****/
+		if (trayIcons != NULL) {
+			delete trayIcons;
+			trayIcons = NULL;
+		}
+		
 
 		/***** XPopup Stuff *****/
 		SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) g_OldmIRCWindowProc);

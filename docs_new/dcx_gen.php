@@ -128,7 +128,7 @@ foreach ($PAGES as $page => $pagelabel) {
 	
 	
 	// right menu - dont bother for these pages listed below
-    if (!in_array($page, array('changes', 'cla', 'dcxvsmdx', 'index', 'tutorials')))
+    if (!in_array($page, array('changes', 'cla', 'dcxvsmdx', 'index', 'tutorials', 'archive')))
 		dcxdoc_menu_right($pagelabel);
 
 	// unload data if it is a specialised page

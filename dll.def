@@ -14,6 +14,7 @@ SaveDialog
 Version
 GetTaskbarPos
 MsgBox
+TrayIcon
 
 xdid
 _xdid
