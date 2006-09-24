@@ -153,6 +153,18 @@ LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 				mIRCSignalDCX("trayicon %s %d", "rclick", id);
 				break;
 
+			case WM_RBUTTONDBLCLK:
+				mIRCSignalDCX("trayicon %s %d", "rdclick", id);
+				break;
+
+			case WM_MBUTTONUP:
+				mIRCSignalDCX("trayicon %s %d", "mclick", id);
+				break;
+
+			case WM_MBUTTONDBLCLK:
+				mIRCSignalDCX("trayicon %s %d", "mdclick", id);
+				break;
+
 			default:
 				break;
 		}
