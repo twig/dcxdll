@@ -244,12 +244,13 @@ void DcxImage::parseCommandRequest(TString & input) {
 		filename.trim();
 		PreloadData();
 
-		this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
-		//int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, NULL, 0);
-		//WCHAR  *wfilename = new WCHAR[widelen+1];
-		//MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, wfilename, widelen);
-		//this->m_pImage = new Image(wfilename);
-		//delete [] wfilename;
+		//this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
+		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
+		int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, NULL, 0);
+		WCHAR  *wfilename = new WCHAR[widelen+1];
+		MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, wfilename, widelen);
+		this->m_pImage = new Image(wfilename);
+		delete [] wfilename;
 		this->m_bIsIcon = FALSE;
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
@@ -257,6 +258,16 @@ void DcxImage::parseCommandRequest(TString & input) {
 	else if (flags.switch_flags[10] && numtok > 3) {
 		this->m_clrTransColor = (COLORREF)input.gettok(4, " ").to_num();
 		this->redrawWindow();
+	}
+	// xdid -S [NAME] [ID] [SWITCH] [ON|OFF]
+	else if (flags.switch_cap_flags[18] && numtok > 3) {
+		if (input.gettok(4," ") == "on")
+			this->m_bResizeImage = true;
+		else
+			this->m_bResizeImage = false;
+		InvalidateRect(this->m_Hwnd, NULL, TRUE);
+		//UpdateWindow(this->m_Hwnd);
+		//this->redrawWindow();
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -356,14 +367,14 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			else if ((this->m_hIcon != NULL) && (this->m_bIsIcon)) {
 				DrawIconEx(hdc, 0, 0, this->m_hIcon, this->m_iIconSize, this->m_iIconSize, 0, this->m_hBackBrush, DI_NORMAL | DI_COMPAT); 
 			}
-			//else if (this->m_pImage != NULL) {
-			//	Graphics grphx( hdc );
+			else if (this->m_pImage != NULL) {
+				Graphics grphx( hdc );
 
-			//	if (this->m_bResizeImage)
-			//		grphx.DrawImage( this->m_pImage, 0, 0, rect.right - rect.left, rect.bottom - rect.top );
-			//	else
-			//		grphx.DrawImage( this->m_pImage, 0, 0);
-			//}
+				if (this->m_bResizeImage)
+					grphx.DrawImage( this->m_pImage, 0, 0, rect.right - rect.left, rect.bottom - rect.top );
+				else
+					grphx.DrawImage( this->m_pImage, 0, 0);
+			}
 			EndPaint(this->m_Hwnd, &ps);
 
 			bParsed = TRUE;

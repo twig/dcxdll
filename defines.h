@@ -52,7 +52,7 @@ using namespace Gdiplus;
 
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 3
-#define DLL_BUILD      6
+#define DLL_BUILD      7
 #define DLL_STATE      "Development Build"
 
 #define mIRC_ID_OFFSET 6000 //!< mIRC Dialog ID Offset

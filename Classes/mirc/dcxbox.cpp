@@ -801,13 +801,12 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
     case WM_NOTIFY:
       {
-
         LPNMHDR hdr = (LPNMHDR) lParam;
 
         if (!hdr)
@@ -968,9 +967,9 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			//	bParsed = TRUE;
 			//	return TRUE;
 			//}
-			HDC hdc = (HDC)wParam;
-			RECT rc;
-			GetClientRect(this->m_Hwnd, &rc);
+			//HDC hdc = (HDC)wParam;
+			//RECT rc;
+			//GetClientRect(this->m_Hwnd, &rc);
 			// paint the background
 			//if (this->_hTheme != NULL) {
 			//	int _iStateId = (IsWindowEnabled(this->m_Hwnd) ? GBS_NORMAL : GBS_DISABLED);
@@ -978,6 +977,9 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			//		DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rc);
 			//}
 			if (!this->isExStyle(WS_EX_TRANSPARENT)) {
+				HDC hdc = (HDC)wParam;
+				RECT rc;
+				GetClientRect(this->m_Hwnd, &rc);
 				// set up brush colors
 				HBRUSH hBrush;
 				if (this->m_hBackBrush != NULL)
@@ -1102,8 +1104,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					{
 						RECT bSZ;
 						GetWindowRect(this->m_TitleButton,&bSZ);
-						SetWindowPos(this->m_TitleButton,NULL,rcText2.left,rcText2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
 						bSZ.bottom = (bSZ.right - bSZ.left);
+						SetWindowPos(this->m_TitleButton,NULL,rcText2.left,rcText2.top,bSZ.bottom,(rcText2.bottom - rcText2.top),SWP_NOZORDER|SWP_NOACTIVATE);
 						rcText.left += bSZ.bottom;
 						rcText.right += bSZ.bottom;
 						rcText2.left += bSZ.bottom;

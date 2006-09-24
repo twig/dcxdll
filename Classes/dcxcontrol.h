@@ -109,7 +109,6 @@ protected:
 
   void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
 
-
 };
 
 #endif // _DCXCONTROL_H_
