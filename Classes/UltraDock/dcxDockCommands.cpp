@@ -204,6 +204,11 @@ mIRC(xdock) {
 		UpdatemIRC();
 		return 1;
 	}
+
+	if (numtok < 2) {
+		mIRCError("D_ERROR Invalid Flag");
+		return 0;
+	}
 	// [SWITCH] [show|hide]
 	else if ((switches[1] == 'S') && (numtok == 2)) { // show/hide switchbar
 		if ((input.gettok(2," ") == "show") && (!IsWindowVisible(sb_hwnd)))
@@ -237,11 +242,6 @@ mIRC(xdock) {
 		return 1;
 	}
 
-	if (numtok < 2) {
-		mIRCError("D_ERROR Invalid Flag");
-		return 0;
-	}
-
 	HWND dockHwnd = (HWND) input.gettok(2, " ").to_num();
 
 	if (!IsWindow(dockHwnd)) {
@@ -250,6 +250,10 @@ mIRC(xdock) {
 	}
 
 	TString flags = input.gettok(3, " ");
+	if (flags[0] != '+') {
+		mIRCError("D_ERROR No Flags Found");
+		return 0;
+	}
 
 	// dock to toolbar
 	// [SWITCH] [hwnd to dock] [+options]
@@ -310,14 +314,14 @@ mIRC(xdock) {
 		int h = input.gettok(5, " ").to_int();
 
 		LPDCXULTRADOCK ud = GetUltraDock(dockHwnd);
-		DWORD flags = 0;
+		DWORD dflags = 0;
 
 		if (ud != NULL)
-			flags = ud->flags;
+			dflags = ud->flags;
 		else
-			flags = (DWORD) GetProp(dockHwnd, "dcx_docked");
+			dflags = (DWORD) GetProp(dockHwnd, "dcx_docked");
 
-		if (flags == NULL) {
+		if (dflags == NULL) {
 			mIRCError("D_ERROR Unable to find flags information.");
 			return 0;
 		}
@@ -326,7 +330,7 @@ mIRC(xdock) {
 		GetWindowRect(dockHwnd, &rc);
 		OffsetRect(&rc, -rc.left, -rc.top); // right & bottom now == width & height
 
-		switch(flags)
+		switch(dflags)
 		{
 			case DOCKF_LEFT:
 			case DOCKF_RIGHT:
@@ -354,6 +358,52 @@ mIRC(xdock) {
 		SetWindowPos(dockHwnd, NULL, 0, 0, rc.right, rc.bottom, SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOZORDER | SWP_NOOWNERZORDER);
 		UpdatemIRC();
 		RedrawWindow( mIRCLink.m_mIRCHWND, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
+	}
+	// [SWITCH] [hwnd to change] [+options] [(index iconfile) ($tab text)]
+	else if ((switches[1] == 'O') && (numtok > 3)) {
+		int index = input.gettok(1,"\t").gettok(4,-1," ").to_int();
+		TString filename = input.gettok(1,"\t").gettok(5,-1," ");
+		filename.trim();
+		TString txt = input.gettok(2,-1,"\t");
+		txt.trim();
+		if (flags.find('t',0)) // set hwnd title text
+			SetWindowText(dockHwnd, txt.to_chr());
+		if (flags.find('i',0)) { // set hwnd's title icon
+			HICON iconSmall;
+			HICON iconLarge;
+
+			ExtractIconEx(filename.to_chr(), index, NULL, &iconSmall, 1);
+			ExtractIconEx(filename.to_chr(), index, &iconLarge, NULL, 1);
+
+			// copy the icon over in case there was no small icon
+			if (!iconLarge)
+				iconLarge = iconSmall;
+			// copy the icon over in case there was no large icon
+			if (!iconSmall)
+				iconSmall = iconLarge;
+
+			// TODO: add more meaningful error messages
+			// No icon in file
+			if (!iconLarge && !iconSmall) {
+				mIRCError("/xdock -O: no icon in file");
+				return 0;
+			}
+
+			if (flags.find('g', 0)) {
+				iconSmall = CreateGrayscaleIcon(iconSmall);
+				iconLarge = CreateGrayscaleIcon(iconLarge);
+			}
+
+			// set the new icons, get back the current icon
+			iconSmall = (HICON) SendMessage(dockHwnd, WM_SETICON, ICON_SMALL, (LPARAM) iconSmall);
+			iconLarge = (HICON) SendMessage(dockHwnd, WM_SETICON, ICON_BIG, (LPARAM) iconLarge);
+
+			// delete the old icons
+			if (iconSmall)
+				DestroyIcon(iconSmall);
+			if (iconLarge)
+				DestroyIcon(iconLarge);
+		}
 	}
 	else {
 		mIRCError("D_ERROR Invalid Flag");
@@ -444,6 +494,10 @@ mIRC(_xdock)
 			else
 				lstrcpy(data,"$false");
 		}
+		else if (d.gettok(2," ") == "text") {
+			if (GetWindowTextLength(mIRCLink.m_mIRCHWND) > 0)
+				GetWindowText(mIRCLink.m_mIRCHWND,data,900);
+		}
 		else {
 			//dcxInfoError("$xdock",d.gettok(2," ").to_chr(),"mIRC",0,"Invalid prop");
 			TString error;
@@ -514,6 +568,10 @@ mIRC(_xdock)
 					error.sprintf("$ $+ xdock window not docked to main mIRC window (%d).%s", hwnd, d.gettok(2, " ").to_chr());
 					mIRCError(error.to_chr());
 				}
+			}
+			else if (d.gettok(2," ") == "text") {
+				if (GetWindowTextLength(hwnd) > 0)
+					GetWindowText(hwnd,data,900);
 			}
 			else {
 				TString error;
