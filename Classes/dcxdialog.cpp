@@ -824,7 +824,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				SetWindowRgn(this->m_Hwnd,NULL,TRUE);
 				break;
 			}
-			case 'd':
+			case 'd': // drag - <1|0>
 			{
 				if ((BOOL)input.gettok(4," ").to_int())
 					this->m_bDoDrag = true;

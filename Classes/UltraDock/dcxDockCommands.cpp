@@ -8,7 +8,7 @@
 
 extern mIRCDLL mIRCLink;
 // mIRC components HWND
-extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, lb_hwnd;
+extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd;
 
 extern VectorOfDocks v_docks;
 extern void UltraDock(HWND mWnd,HWND temp,TString flag);
@@ -202,6 +202,38 @@ mIRC(xdock) {
 	// [SWITCH]
 	if (switches[1] == 'p') {
 		UpdatemIRC();
+		return 1;
+	}
+	// [SWITCH] [show|hide]
+	else if ((switches[1] == 'S') && (numtok == 2)) { // show/hide switchbar
+		if ((input.gettok(2," ") == "show") && (!IsWindowVisible(sb_hwnd)))
+			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
+		else if ((input.gettok(2," ") == "hide") && (IsWindowVisible(sb_hwnd)))
+      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
+		return 1;
+	}
+	// [SWITCH] [show|hide]
+	else if ((switches[1] == 'T') && (numtok == 2)) { // show/hide toolbar
+		if ((input.gettok(2," ") == "show") && (!IsWindowVisible(tb_hwnd)))
+			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
+		else if ((input.gettok(2," ") == "hide") && (IsWindowVisible(tb_hwnd)))
+      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
+		return 1;
+	}
+	// [SWITCH] [show|hide]
+	else if ((switches[1] == 'R') && (numtok == 2)) { // show/hide treebar
+		if ((input.gettok(2," ") == "show") && (!IsWindowVisible(treeb_hwnd)))
+			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
+		else if ((input.gettok(2," ") == "hide") && (IsWindowVisible(treeb_hwnd)))
+      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
+		return 1;
+	}
+	// [SWITCH] [show|hide]
+	else if ((switches[1] == 'M') && (numtok == 2)) { // show/hide menubar
+		if ((input.gettok(2," ") == "show") && (!GetMenu(mIRCLink.m_mIRCHWND)))
+      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
+		else if ((input.gettok(2," ") == "hide") && (GetMenu(mIRCLink.m_mIRCHWND)))
+      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
 		return 1;
 	}
 
