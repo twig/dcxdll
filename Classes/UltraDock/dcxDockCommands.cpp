@@ -369,40 +369,8 @@ mIRC(xdock) {
 		if (flags.find('t',0)) // set hwnd title text
 			SetWindowText(dockHwnd, txt.to_chr());
 		if (flags.find('i',0)) { // set hwnd's title icon
-			HICON iconSmall;
-			HICON iconLarge;
-
-			ExtractIconEx(filename.to_chr(), index, NULL, &iconSmall, 1);
-			ExtractIconEx(filename.to_chr(), index, &iconLarge, NULL, 1);
-
-			// copy the icon over in case there was no small icon
-			if (!iconLarge)
-				iconLarge = iconSmall;
-			// copy the icon over in case there was no large icon
-			if (!iconSmall)
-				iconSmall = iconLarge;
-
-			// TODO: add more meaningful error messages
-			// No icon in file
-			if (!iconLarge && !iconSmall) {
-				mIRCError("/xdock -O: no icon in file");
+			if (!ChangeHwndIcon(dockHwnd,&flags,index,&filename))
 				return 0;
-			}
-
-			if (flags.find('g', 0)) {
-				iconSmall = CreateGrayscaleIcon(iconSmall);
-				iconLarge = CreateGrayscaleIcon(iconLarge);
-			}
-
-			// set the new icons, get back the current icon
-			iconSmall = (HICON) SendMessage(dockHwnd, WM_SETICON, ICON_SMALL, (LPARAM) iconSmall);
-			iconLarge = (HICON) SendMessage(dockHwnd, WM_SETICON, ICON_BIG, (LPARAM) iconLarge);
-
-			// delete the old icons
-			if (iconSmall)
-				DestroyIcon(iconSmall);
-			if (iconLarge)
-				DestroyIcon(iconLarge);
 		}
 	}
 	else {

@@ -632,42 +632,42 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		TString flags = input.gettok(3, " ");
 		int index = input.gettok(4, " ").to_int();
 		TString filename = input.gettok(5, -1, " ");
-		HICON iconSmall;
-		HICON iconLarge;
-
 		filename.trim();
+		ChangeHwndIcon(this->m_Hwnd,&flags,index,&filename);
+		//HICON iconSmall;
+		//HICON iconLarge;
 
-		ExtractIconEx(filename.to_chr(), index, NULL, &iconSmall, 1);
-		ExtractIconEx(filename.to_chr(), index, &iconLarge, NULL, 1);
+		//ExtractIconEx(filename.to_chr(), index, NULL, &iconSmall, 1);
+		//ExtractIconEx(filename.to_chr(), index, &iconLarge, NULL, 1);
 
-		// copy the icon over in case there was no small icon
-		if (!iconLarge)
-			iconLarge = iconSmall;
-		// copy the icon over in case there was no large icon
-		if (!iconSmall)
-			iconSmall = iconLarge;
+		//// copy the icon over in case there was no small icon
+		//if (!iconLarge)
+		//	iconLarge = iconSmall;
+		//// copy the icon over in case there was no large icon
+		//if (!iconSmall)
+		//	iconSmall = iconLarge;
 
-		// TODO: add more meaningful error messages
-		// No icon in file
-		if (!iconLarge && !iconSmall) {
-			mIRCError("/xdialog -w: no icon in file");
-			return;
-		}
+		//// TODO: add more meaningful error messages
+		//// No icon in file
+		//if (!iconLarge && !iconSmall) {
+		//	mIRCError("/xdialog -w: no icon in file");
+		//	return;
+		//}
 
-		if (flags.find('g', 0)) {
-			iconSmall = CreateGrayscaleIcon(iconSmall);
-			iconLarge = CreateGrayscaleIcon(iconLarge);
-		}
+		//if (flags.find('g', 0)) {
+		//	iconSmall = CreateGrayscaleIcon(iconSmall);
+		//	iconLarge = CreateGrayscaleIcon(iconLarge);
+		//}
 
-		// set the new icons, get back the current icon
-		iconSmall = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_SMALL, (LPARAM) iconSmall);
-		iconLarge = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_BIG, (LPARAM) iconLarge);
+		//// set the new icons, get back the current icon
+		//iconSmall = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_SMALL, (LPARAM) iconSmall);
+		//iconLarge = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_BIG, (LPARAM) iconLarge);
 
-		// delete the old icons
-		if (iconSmall)
-			DestroyIcon(iconSmall);
-		if (iconLarge)
-			DestroyIcon(iconLarge);
+		//// delete the old icons
+		//if (iconSmall)
+		//	DestroyIcon(iconSmall);
+		//if (iconLarge)
+		//	DestroyIcon(iconLarge);
 	}
 	// xdialog -z [NAME] [SWITCH] [COLOR]
 	else if (flags.switch_flags[25] && numtok > 2) {

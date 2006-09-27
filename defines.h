@@ -255,6 +255,7 @@ BOOL CopyToClipboard(HWND owner, TString str);
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
 HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
+bool ChangeHwndIcon(const HWND hwnd, TString *flags, const int index, TString *filename);
 
 void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl);
 // UltraDock
