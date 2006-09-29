@@ -395,6 +395,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				GetClientRect(this->m_Hwnd, &rc);
 				this->m_pLayoutManager->updateLayout(rc);
 			}
+			this->redrawWindow();
 		}
 		else if (numtok > 7) {
 			TString com = input.gettok(1, "\t").gettok(3, " ");
