@@ -14,8 +14,8 @@ public:
 	~DcxTrayIcon(void);
 
 	HWND GetHwnd();
-	bool DeleteIconById(int id);
-	void AddIconId(int id);
+	VectorOfInts::iterator idExists(int id);
+	bool modifyIcon(int id, DWORD msg, HICON icon, TString *tooltip);
 
 	static LRESULT CALLBACK TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -23,6 +23,11 @@ private:
 	VectorOfInts trayIconIDs;
 	HWND m_hwnd;
 	WNDPROC m_wndProc;
+
+	HWND m_hwndTooltip; //!< Balloon tooltip control
+
+	bool DeleteIconId(int id);
+	void AddIconId(int id);
 };
 
 #endif // _DCXTRAYICON_H_

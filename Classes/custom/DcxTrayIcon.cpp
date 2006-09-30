@@ -3,11 +3,12 @@
 extern DcxTrayIcon *trayIcons;
 
 // TrayIcon [+flags] [id] [icon index] [icon file] $tab [tooltip]
-// +c create
-// +e edit
+// Create: TrayIcon +c [id] [icon index] [icon file] $tab [tooltip]
+// Edit  : TrayIcon +e [id] [icon index] [icon file] $tab [tooltip]
 // +i icon
 // +t text
-// +d delete
+// +T tooltip stuff
+// Delete: TrayIcon +d [id]
 mIRC(TrayIcon) {
 	if (trayIcons == NULL) {
 		trayIcons = new DcxTrayIcon();
@@ -35,23 +36,36 @@ mIRC(TrayIcon) {
 	TString flags = d.gettok(1, " ");
 	int id = d.gettok(2, " ").to_int();
 
-	if (flags.find('c', 0) && numtok > 3) {
-		// TODO: find icon id in vector
+	// create and edit can use the same function
+	if ((flags.find('c', 0) || flags.find('e', 0)) && numtok > 3) {
+		// find icon id in vector
+		bool exists = (trayIcons->idExists(id) != NULL ? true : false);
+		DWORD msg = NIM_ADD;
+		
+		// if create and it already exists
+		if (flags.find('c', 0) && (exists)) {
+			mIRCError("cant create: id already exists");
+			return 1;
+		}
 
+		// if edit and it doesnt exist
+		if (flags.find('e', 0)) {
+			if (!exists) {
+				mIRCError("cant edit: id doesnt exists");
+				return 1;
+			}
+
+			msg = NIM_MODIFY;
+		}
+
+		// set up info
 		HICON icon;
-		NOTIFYICONDATA nid;
-		ZeroMemory(&nid, sizeof(NOTIFYICONDATA));
+		TString *tooltip = NULL;
 
-		nid.uID = id;
-		nid.uFlags = NIF_ICON | NIF_MESSAGE;
-
-		// if theres a tooltip
+		// if theres a tooltip text
 		if (d.numtok("\t") > 1) {
-			TString tooltip = d.gettok(2, -1, "\t");
-			tooltip.trim();
-
-			nid.uFlags |= NIF_TIP;
-			wsprintf(nid.szTip, "%s", tooltip.to_chr());
+			tooltip = new TString(d.gettok(2, -1, "\t"));
+			tooltip->trim();
 		}
 
 		//NIF_INFO
@@ -65,18 +79,14 @@ mIRC(TrayIcon) {
 		ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
 
 
-		nid.cbSize = sizeof(NOTIFYICONDATA);
-		nid.hWnd = trayIcons->GetHwnd();
-		nid.uCallbackMessage = DCXM_TRAYICON;
-		nid.hIcon = icon;
-
-		if (Shell_NotifyIcon(NIM_ADD, &nid))
-			trayIcons->AddIconId(id);
-		else
-			mIRCError("failed");
+		// add/edit the icon
+		if (!trayIcons->modifyIcon(id, msg, icon, tooltip))
+			mIRCError("add/edit failed");
 	}
 	else if (flags.find('d', 0)) {
-		trayIcons->DeleteIconById(id);
+		if (!trayIcons->modifyIcon(id, NIM_DELETE, NULL, NULL)) {
+			mIRCError("error deleting icon");
+		}
 	}
 	else {
 		mIRCError("unknown flag or insufficient parameters");
@@ -99,6 +109,18 @@ DcxTrayIcon::DcxTrayIcon(void)
 		mIRCError("problem initialising trayicons");
 	}
 
+	m_hwndTooltip = NULL;
+
+	if (isXP()) {
+		mIRCError("try to create tooltip");
+	}
+
+	if (m_hwndTooltip != NULL) {
+		mIRCError("tooltip available");
+	}
+	else
+		mIRCError("balloon tooltips will not be available for TrayIcon");
+
 	trayIconIDs.clear();
 }
 
@@ -120,10 +142,11 @@ DcxTrayIcon::~DcxTrayIcon(void)
 		}
 
 		for (int i = 1; i <= ids.numtok(" "); i++) {
-			this->DeleteIconById(ids.gettok(i, " ").to_int());
+			this->modifyIcon(ids.gettok(i, " ").to_int(), NIM_DELETE, NULL, NULL);
 		}
 
 		SetWindowLong(this->m_hwnd, GWL_WNDPROC, (LONG) this->m_wndProc);
+		this->m_hwndTooltip = NULL;
 		this->m_wndProc = NULL;
 		DestroyWindow(this->m_hwnd);
 	}
@@ -178,30 +201,64 @@ void DcxTrayIcon::AddIconId(int id) {
 	this->trayIconIDs.push_back(id);
 }
 
-bool DcxTrayIcon::DeleteIconById(int id) {
-	NOTIFYICONDATA nid;
-	ZeroMemory(&nid, sizeof(NOTIFYICONDATA));
+bool DcxTrayIcon::DeleteIconId(int id) {
+	// remove from internal vector list
+	VectorOfInts::iterator it = idExists(id);
 
-	nid.uID = id;
-	nid.hWnd = trayIcons->GetHwnd();
-
-	// icon with that id was found and deleted
-	if (Shell_NotifyIcon(NIM_DELETE, &nid)) {
-		// remove from internal vector list
-		VectorOfInts::iterator itStart = trayIconIDs.begin();
-		VectorOfInts::iterator itEnd = trayIconIDs.end();
-
-		while (itStart != itEnd) {
-			if (*itStart == id) {
-				trayIconIDs.erase(itStart);
-				break;
-			}
-
-			itStart++;
-		}
-
+	if (it != NULL) {
+		trayIconIDs.erase(it);
 		return true;
 	}
 
 	return false;
+}
+
+VectorOfInts::iterator DcxTrayIcon::idExists(int id) {
+	// find in internal vector list
+	VectorOfInts::iterator itStart = trayIconIDs.begin();
+	VectorOfInts::iterator itEnd = trayIconIDs.end();
+
+	while (itStart != itEnd) {
+		if (*itStart == id)
+			return itStart;
+
+		itStart++;
+	}
+
+	return NULL;
+}
+
+bool DcxTrayIcon::modifyIcon(int id, DWORD msg, HICON icon, TString *tooltip) {
+	// set up the icon info struct
+	bool res = false;
+	NOTIFYICONDATA nid;
+	ZeroMemory(&nid, sizeof(NOTIFYICONDATA));
+
+
+	nid.uID = id;
+	nid.uFlags = NIF_ICON | NIF_MESSAGE;
+	nid.cbSize = sizeof(NOTIFYICONDATA);
+	nid.hWnd = this->GetHwnd();
+	nid.uCallbackMessage = DCXM_TRAYICON;
+	nid.hIcon = icon;
+
+	if (tooltip != NULL) {
+		nid.uFlags |= NIF_TIP;
+		wsprintf(nid.szTip, "%s", tooltip->to_chr());
+	}
+
+   // add/edit the icon
+	if (Shell_NotifyIcon(msg, &nid)) {
+		if (msg == NIM_ADD)
+			this->AddIconId(id);
+		else if (msg == NIM_DELETE)
+			this->DeleteIconId(id);
+
+		res = true;
+	}
+
+	if (icon)
+		DestroyIcon(icon);
+
+	return res;
 }
