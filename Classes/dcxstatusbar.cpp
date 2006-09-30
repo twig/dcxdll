@@ -545,42 +545,45 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
           case NM_CLICK:
             {
-              POINT pt;
-              GetCursorPos( &pt );
-              ScreenToClient( this->m_Hwnd, &pt );
-              int cell = this->hitTest( pt );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								POINT pt;
+								GetCursorPos( &pt );
+								ScreenToClient( this->m_Hwnd, &pt );
+								int cell = this->hitTest( pt );
 
-              if ( cell != -1 )
-                this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), cell + 1 );
-
+								if ( cell != -1 )
+									this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), cell + 1 );
+							}
               bParsed = TRUE;
             }
             break;
 
           case NM_RCLICK:
             {
-              POINT pt;
-              GetCursorPos( &pt );
-              ScreenToClient( this->m_Hwnd, &pt );
-              int cell = this->hitTest( pt );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								POINT pt;
+								GetCursorPos( &pt );
+								ScreenToClient( this->m_Hwnd, &pt );
+								int cell = this->hitTest( pt );
 
-              if ( cell != -1 )
-                this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), cell + 1 );
-
+								if ( cell != -1 )
+									this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), cell + 1 );
+							}
               bParsed = TRUE;
             }
             break;
 
           case NM_DBLCLK: 
             {
-              POINT pt;
-              GetCursorPos( &pt );
-              ScreenToClient( this->m_Hwnd, &pt );
-              int cell = this->hitTest( pt );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								POINT pt;
+								GetCursorPos( &pt );
+								ScreenToClient( this->m_Hwnd, &pt );
+								int cell = this->hitTest( pt );
 
-              if ( cell != -1 )
-                this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), cell + 1 );
-
+								if ( cell != -1 )
+									this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), cell + 1 );
+							}
               bParsed = TRUE;
             }
             break;
@@ -598,7 +601,8 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 

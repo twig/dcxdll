@@ -408,13 +408,13 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
   switch( uMsg ) {
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
 		case WM_PAINT:
 			{
-				//mIRCError( "WM_PAINT" );
 				PAINTSTRUCT ps;
 				HDC hdc;
 				RECT rc;
@@ -509,31 +509,35 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
     case WM_LBUTTONDOWN:
       {
-        int nXPos = LOWORD(lParam);
-        int iLower = this->getRange( TRUE, NULL );
-        int iHigher = this->getRange( FALSE, NULL );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+					int nXPos = LOWORD(lParam);
+					int iLower = this->getRange( TRUE, NULL );
+					int iHigher = this->getRange( FALSE, NULL );
 
-        RECT rc;
-        GetClientRect( this->m_Hwnd, &rc );
+					RECT rc;
+					GetClientRect( this->m_Hwnd, &rc );
 
-        int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
+					int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-        this->callAliasEx( NULL, "%s,%d,%d,%d,%d", "sclick", this->getUserID( ), nPos, iLower, iHigher );
+					this->callAliasEx( NULL, "%s,%d,%d,%d,%d", "sclick", this->getUserID( ), nPos, iLower, iHigher );
+				}
       }
       break;
 
     case WM_RBUTTONDOWN:
       {
-        int nXPos = LOWORD(lParam);
-        int iLower = this->getRange( TRUE, NULL );
-        int iHigher = this->getRange( FALSE, NULL );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+					int nXPos = LOWORD(lParam);
+					int iLower = this->getRange( TRUE, NULL );
+					int iHigher = this->getRange( FALSE, NULL );
 
-        RECT rc;
-        GetClientRect( this->m_Hwnd, &rc );
+					RECT rc;
+					GetClientRect( this->m_Hwnd, &rc );
 
-        int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
+					int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-        this->callAliasEx( NULL, "%s,%d,%d,%d,%d", "rclick", this->getUserID( ), nPos, iLower, iHigher );
+					this->callAliasEx( NULL, "%s,%d,%d,%d,%d", "rclick", this->getUserID( ), nPos, iLower, iHigher );
+				}
       }
       break;
 
@@ -541,19 +545,21 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
       {
         this->m_pParentDialog->setMouseControl( this->getUserID( ) );
 
-        if ( wParam == MK_LBUTTON ) {
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+					if ( wParam == MK_LBUTTON ) {
 
-          int nXPos = LOWORD(lParam);
-          int iLower = this->getRange( TRUE, NULL );
-          int iHigher = this->getRange( FALSE, NULL );
+						int nXPos = LOWORD(lParam);
+						int iLower = this->getRange( TRUE, NULL );
+						int iHigher = this->getRange( FALSE, NULL );
 
-          RECT rc;
-          GetClientRect( this->m_Hwnd, &rc );
+						RECT rc;
+						GetClientRect( this->m_Hwnd, &rc );
 
-          int nPos = iLower + (int)( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
+						int nPos = iLower + (int)( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-          this->callAliasEx( NULL, "%s,%d,%d,%d,%d", "mousebar", this->getUserID( ), nPos, iLower, iHigher );
-        }
+						this->callAliasEx( NULL, "%s,%d,%d,%d,%d", "mousebar", this->getUserID( ), nPos, iLower, iHigher );
+					}
+				}
       }
       break;
 

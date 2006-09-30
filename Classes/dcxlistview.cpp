@@ -1806,110 +1806,99 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
             {
               bParsed = TRUE;
 
-              LVHITTESTINFO lvh;
-							LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
-							lvh.pt = nmia->ptAction;
-              //GetCursorPos( &lvh.pt );
-              //ScreenToClient( this->m_Hwnd, &lvh.pt );
-              ListView_SubItemHitTest( this->m_Hwnd, &lvh );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LVHITTESTINFO lvh;
+								LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
+								lvh.pt = nmia->ptAction;
+								//GetCursorPos( &lvh.pt );
+								//ScreenToClient( this->m_Hwnd, &lvh.pt );
+								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
-              if ( ( lvh.flags & LVHT_ONITEMSTATEICON ) &&
-                ( ListView_GetExtendedListViewStyle( this->m_Hwnd ) & LVS_EX_CHECKBOXES ) &&
-                !( lvh.flags & LVHT_ONITEMICON ) &&
-                !( lvh.flags & LVHT_ONITEMLABEL ) ) 
-              {
-					  //TODO: int state = ListView_GetCheckState(this->m_Hwnd, lvh.iItem);
-								this->callAliasEx( NULL, "%s,%d,%d,%d", "stateclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
-              }
-              else if ( lvh.flags & LVHT_ONITEM )
-								this->callAliasEx( NULL, "%s,%d,%d,%d", "sclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
-							else if (lvh.flags & LVHT_NOWHERE)
-								this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+								if ( ( lvh.flags & LVHT_ONITEMSTATEICON ) &&
+									( ListView_GetExtendedListViewStyle( this->m_Hwnd ) & LVS_EX_CHECKBOXES ) &&
+									!( lvh.flags & LVHT_ONITEMICON ) &&
+									!( lvh.flags & LVHT_ONITEMLABEL ) ) 
+								{
+							//TODO: int state = ListView_GetCheckState(this->m_Hwnd, lvh.iItem);
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "stateclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								}
+								else if ( lvh.flags & LVHT_ONITEM )
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "sclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								else if (lvh.flags & LVHT_NOWHERE)
+									this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+							}
 						}
             break;
 
           case NM_DBLCLK:
             {
-              bParsed = TRUE;
+							bParsed = TRUE;
 
-              LVHITTESTINFO lvh;
-							LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
-							lvh.pt = nmia->ptAction;
-              //GetCursorPos( &lvh.pt );
-              //ScreenToClient( this->m_Hwnd, &lvh.pt );
-              ListView_SubItemHitTest( this->m_Hwnd, &lvh );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LVHITTESTINFO lvh;
+								LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
+								lvh.pt = nmia->ptAction;
+								//GetCursorPos( &lvh.pt );
+								//ScreenToClient( this->m_Hwnd, &lvh.pt );
+								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
-              if ( lvh.flags & LVHT_ONITEM )
-								this->callAliasEx( NULL, "%s,%d,%d,%d", "dclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
-				  else
-						this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID());
+								if ( lvh.flags & LVHT_ONITEM )
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "dclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								else
+									this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID());
+							}
             }
             break;
 
           case NM_RCLICK:
             {
-              LVHITTESTINFO lvh;
-							LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
-							lvh.pt = nmia->ptAction;
-              //GetCursorPos( &lvh.pt );
-              //ScreenToClient( this->m_Hwnd, &lvh.pt );
-              ListView_SubItemHitTest( this->m_Hwnd, &lvh );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LVHITTESTINFO lvh;
+								LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
+								lvh.pt = nmia->ptAction;
+								//GetCursorPos( &lvh.pt );
+								//ScreenToClient( this->m_Hwnd, &lvh.pt );
+								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
-              if ( lvh.flags & LVHT_ONITEM )
-								this->callAliasEx( NULL, "%s,%d,%d,%d", "rclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
-							else
-								this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
+								if ( lvh.flags & LVHT_ONITEM )
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "rclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								else
+									this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
+							}
 							bParsed = TRUE;
             }
             break;
 
           case NM_RDBLCLK:
             {
-              LVHITTESTINFO lvh;
-							LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
-							lvh.pt = nmia->ptAction;
-              ListView_SubItemHitTest( this->m_Hwnd, &lvh );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LVHITTESTINFO lvh;
+								LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
+								lvh.pt = nmia->ptAction;
+								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
-              if ( lvh.flags & LVHT_ONITEM )
-								this->callAliasEx( NULL, "%s,%d,%d,%d", "rdclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
-							else
-								this->callAliasEx( NULL, "%s,%d", "rdclick", this->getUserID());
+								if ( lvh.flags & LVHT_ONITEM )
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "rdclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								else
+									this->callAliasEx( NULL, "%s,%d", "rdclick", this->getUserID());
+							}
 							bParsed = TRUE;
             }
             break;
 
           case NM_HOVER:
             {
-              LVHITTESTINFO lvh;
-              GetCursorPos( &lvh.pt );
-              ScreenToClient( this->m_Hwnd, &lvh.pt );
-              ListView_SubItemHitTest( this->m_Hwnd, &lvh );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LVHITTESTINFO lvh;
+								GetCursorPos( &lvh.pt );
+								ScreenToClient( this->m_Hwnd, &lvh.pt );
+								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
-							if ( lvh.flags & LVHT_ONITEM ) {
-								//TOOLINFO ti;
-								//ZeroMemory(&ti,sizeof(TOOLINFO));
-								//ti.cbSize = sizeof(TOOLINFO);
-								//ti.uId = (UINT)this->m_Hwnd;
-								//ti.hwnd = this->m_Hwnd;
-								//if ((BOOL)SendMessage(this->m_ToolTipHWND,TTM_GETTOOLINFO,0,(LPARAM)&ti)) {
-								//	LVITEM lvi;
-								//	ZeroMemory(&lvi, sizeof(LVITEM));
-								//	lvi.iItem = lvh.iItem;
-								//	lvi.iSubItem = lvh.iSubItem;
-								//	lvi.mask = LVIF_PARAM;
-								//	if (ListView_GetItem(this->m_Hwnd,&lvi)) {
-								//		LPDCXLVITEM lpmylvi = (LPDCXLVITEM) lvi.lParam;
-								//		if (lpmylvi != NULL) {
-								//			ti.lpszText = lpmylvi->tsTipText.to_chr();
-								//			SendMessage(this->m_ToolTipHWND,TTM_UPDATETIPTEXT,0,(LPARAM)&ti);
-								//			SendMessage(this->m_ToolTipHWND,TTM_POPUP,0,0);
-								//		}
-								//	}
-								//}
-								this->callAliasEx( NULL, "%s,%d,%d,%d", "hover", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								if ( lvh.flags & LVHT_ONITEM )
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "hover", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								else
+									this->callAliasEx( NULL, "%s,%d", "hover", this->getUserID());
 							}
-							else
-								this->callAliasEx( NULL, "%s,%d", "hover", this->getUserID());
 							bParsed = TRUE;
             }
             break;
@@ -2040,7 +2029,8 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
           case LVN_BEGINDRAG:
             {
-              this->callAliasEx( NULL, "%s,%d", "begindrag", this->getUserID( ) );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG)
+	              this->callAliasEx( NULL, "%s,%d", "begindrag", this->getUserID( ) );
             }
             break;
 
@@ -2066,7 +2056,8 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -2100,18 +2091,20 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 					switch( hdr->code ) {
 						case NM_RCLICK:
 							{
-								char ClassName[257];
+								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+									char ClassName[257];
 
-								GetClassName( hdr->hwndFrom, ClassName, 256 );
+									GetClassName( hdr->hwndFrom, ClassName, 256 );
 
-								if ( lstrcmpi( ClassName, "SysHeader32" ) == 0 ) {
+									if ( lstrcmpi( ClassName, "SysHeader32" ) == 0 ) {
 
-									HDHITTESTINFO hdti;
-									GetCursorPos( &hdti.pt );
-									ScreenToClient( hdr->hwndFrom, &hdti.pt );
-									if ( SendMessage( hdr->hwndFrom, HDM_HITTEST, (WPARAM) 0, (LPARAM) &hdti ) != -1 ) {
+										HDHITTESTINFO hdti;
+										GetCursorPos( &hdti.pt );
+										ScreenToClient( hdr->hwndFrom, &hdti.pt );
+										if ( SendMessage( hdr->hwndFrom, HDM_HITTEST, (WPARAM) 0, (LPARAM) &hdti ) != -1 ) {
 
-										this->callAliasEx( NULL, "%s,%d,%d", "hrclick", this->getUserID( ), hdti.iItem + 1 );
+											this->callAliasEx( NULL, "%s,%d,%d", "hrclick", this->getUserID( ), hdti.iItem + 1 );
+										}
 									}
 								}
 								bParsed = TRUE;
@@ -2135,9 +2128,10 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 							{
 								bParsed = TRUE;
 
-								LPNMHEADER lphdr = (LPNMHEADER) lParam; 
-
-								this->callAliasEx( NULL, "%s,%d,%d", "hsclick", this->getUserID( ), lphdr->iItem + 1 );
+								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+									LPNMHEADER lphdr = (LPNMHEADER) lParam;
+									this->callAliasEx( NULL, "%s,%d,%d", "hsclick", this->getUserID( ), lphdr->iItem + 1 );
+								}
 							}
 							break;
 
@@ -2146,9 +2140,10 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 							{
 								bParsed = TRUE;
 
-								LPNMHEADER lphdr = (LPNMHEADER) lParam; 
-
-								this->callAliasEx( NULL, "%s,%d,%d", "hdclick", this->getUserID( ), lphdr->iItem + 1 );
+								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+									LPNMHEADER lphdr = (LPNMHEADER) lParam;
+									this->callAliasEx( NULL, "%s,%d,%d", "hdclick", this->getUserID( ), lphdr->iItem + 1 );
+								}
 							}
 							break;
 							// LVN_GETTOOLTIP/TTN_GETDISPINFO/TTN_LINKCLICK fail....
@@ -2252,26 +2247,28 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 	{
 		HDROP files = (HDROP) wParam;
 		char filename[500];
-      int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
+		int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
 		if (count) {
-			char ret[20];
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
+				char ret[20];
 
-			this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
+				this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
 
-			// cancel drag drop event
-			if (lstrcmpi(ret, "cancel") == 0) {
-				DragFinish(files);
-				return 0L;
+				// cancel drag drop event
+				if (lstrcmpi(ret, "cancel") == 0) {
+					DragFinish(files);
+					return 0L;
+				}
+
+				// for each file, send callback message
+				for (int i = 0; i < count; i++) {
+					if (DragQueryFile(files, i, filename, 500))
+						this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
+				}
+
+				this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
 			}
-
-			// for each file, send callback message
-			for (int i = 0; i < count; i++) {
-				if (DragQueryFile(files, i, filename, 500))
-					this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
-			}
-
-			this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
 		}
 
 		DragFinish(files);
@@ -2319,7 +2316,6 @@ LRESULT CALLBACK DcxListView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wPara
 
     case WM_DESTROY:
       {
-
         RemoveProp( mHwnd, "dcx_pthis" );
         SetWindowLong( mHwnd, GWL_WNDPROC, (LONG) pthis->m_OrigEditProc );
       }

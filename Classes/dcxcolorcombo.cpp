@@ -358,7 +358,8 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 
           case CBN_SELENDOK:
             {
-              this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				        this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
               bParsed = TRUE;
               return 0L;
             }
@@ -459,7 +460,8 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -471,7 +473,6 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

@@ -230,7 +230,8 @@ LRESULT DcxRadio::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
           case BN_CLICKED:
             {
-              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
             }
             break;
         }
@@ -246,7 +247,8 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -297,7 +299,8 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_CONTEXTMENU:
       {
-        this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+	        this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
       }
       break;
 

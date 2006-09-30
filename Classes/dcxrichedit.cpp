@@ -834,55 +834,57 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			switch(hdr->code) {
 				case EN_LINK:
 				{
-					ENLINK* enl = (ENLINK*) lParam;
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+						ENLINK* enl = (ENLINK*) lParam;
 
-					if ((enl->msg == WM_LBUTTONDOWN) ||
-						(enl->msg == WM_LBUTTONDBLCLK) ||
-						(enl->msg == WM_RBUTTONDOWN))
-					{
-						TEXTRANGE tr;
-						TString event;
+						if ((enl->msg == WM_LBUTTONDOWN) ||
+							(enl->msg == WM_LBUTTONDBLCLK) ||
+							(enl->msg == WM_RBUTTONDOWN))
+						{
+							TEXTRANGE tr;
+							TString event;
 
-						// get information about link text
-						ZeroMemory(&tr, sizeof(TEXTRANGE));
-						tr.chrg = enl->chrg;
-						char *str = new char[enl->chrg.cpMax - enl->chrg.cpMin];
+							// get information about link text
+							ZeroMemory(&tr, sizeof(TEXTRANGE));
+							tr.chrg = enl->chrg;
+							char *str = new char[enl->chrg.cpMax - enl->chrg.cpMin];
 
-						tr.lpstrText = str;
-						SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
+							tr.lpstrText = str;
+							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
 
-						if (enl->msg == WM_LBUTTONDOWN)
-							event = "sclick";
-						else if (enl->msg == WM_LBUTTONDBLCLK)
-							event = "dclick";
-						else if (enl->msg == WM_RBUTTONDOWN)
-							event = "rclick";
+							if (enl->msg == WM_LBUTTONDOWN)
+								event = "sclick";
+							else if (enl->msg == WM_LBUTTONDBLCLK)
+								event = "dclick";
+							else if (enl->msg == WM_RBUTTONDOWN)
+								event = "rclick";
 
-						this->callAliasEx(NULL, "%s,%d,%s,%s", "link", this->getUserID(), event.to_chr(), tr.lpstrText);
-						delete [] str;
+							this->callAliasEx(NULL, "%s,%d,%s,%s", "link", this->getUserID(), event.to_chr(), tr.lpstrText);
+							delete [] str;
+						}
 					}
-
 					break;
 				} // EN_LINK
 				//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/richedit/richeditcontrols/richeditcontrolreference/richeditmessages/em_gettextrange.asp
 				case EN_SELCHANGE:
 				{
-					SELCHANGE* sel = (SELCHANGE*) lParam;
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+						SELCHANGE* sel = (SELCHANGE*) lParam;
 
-					if (sel->seltyp != SEL_EMPTY) {
-						TEXTRANGE tr;
+						if (sel->seltyp != SEL_EMPTY) {
+							TEXTRANGE tr;
 
-						// get information about selected text
-						ZeroMemory(&tr, sizeof(TEXTRANGE));
-						tr.chrg = sel->chrg;
-						char *str = new char[sel->chrg.cpMax - sel->chrg.cpMin +1];
-						tr.lpstrText = str;
-						SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
+							// get information about selected text
+							ZeroMemory(&tr, sizeof(TEXTRANGE));
+							tr.chrg = sel->chrg;
+							char *str = new char[sel->chrg.cpMax - sel->chrg.cpMin +1];
+							tr.lpstrText = str;
+							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
 
-						this->callAliasEx(NULL, "%s,%d,%d,%d,%s", "selchange", this->getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
-						delete [] str;
+							this->callAliasEx(NULL, "%s,%d,%d,%d,%s", "selchange", this->getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
+							delete [] str;
+						}
 					}
-
 					break;
 				} // EN_SELCHANGE
 			} // SWITCH 
@@ -898,12 +900,14 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	switch(uMsg) {
 		case WM_LBUTTONDOWN:
 		{
-			this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
 			break;
 		}
 		case WM_LBUTTONUP:
 		{
-			this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
 			break;
 		}
 		case WM_NOTIFY:
@@ -935,11 +939,13 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		} // WM_NOTIFY
 		case WM_CONTEXTMENU:
 		{
-			this->callAliasEx(NULL, "%s,%d", "rclick", this->getUserID());
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				this->callAliasEx(NULL, "%s,%d", "rclick", this->getUserID());
 			break;
 		}
 		case WM_HELP:
       {
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
         this->callAliasEx(NULL, "%s,%d", "help", this->getUserID());
 		  break;
       }
@@ -969,18 +975,21 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		}
 		case WM_KEYDOWN:
 		{
-			if (wParam == VK_RETURN)
-				this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+				if (wParam == VK_RETURN)
+					this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
 
-			if (lParam & 0x40000000) // ignore repeats
-				break;
+				if (lParam & 0x40000000) // ignore repeats
+					break;
 
-			this->callAliasEx(NULL, "%s,%d,%d", "keydown", this->getUserID(), wParam);
+				this->callAliasEx(NULL, "%s,%d,%d", "keydown", this->getUserID(), wParam);
+			}
 			break;
 		}
 		case WM_KEYUP:
 		{
-			this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
+				this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
 			break;
 		}
 		case WM_DESTROY:

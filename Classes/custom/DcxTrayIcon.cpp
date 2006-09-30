@@ -14,13 +14,13 @@ mIRC(TrayIcon) {
 		trayIcons = new DcxTrayIcon();
 
 		if (trayIcons == NULL) {
-			mIRCError("problem creating trayicon obj");
+			DCXError("/xTrayIcon","Problem creating trayicon obj");
 			return 1;
 		}
 	}
 
 	if (!trayIcons->GetHwnd()) {
-		mIRCError("couldnt init trayicon");
+		DCXError("/xTrayIcon","Couldn't init trayicon");
 		return 1;
 	}
 
@@ -29,7 +29,7 @@ mIRC(TrayIcon) {
 	int numtok = d.numtok(" ");
 
 	if (numtok < 2) {
-		mIRCError("insufficient parameters");
+		DCXError("/xTrayIcon","Insufficient parameters");
 		return 1;
 	}
 
@@ -39,19 +39,19 @@ mIRC(TrayIcon) {
 	// create and edit can use the same function
 	if ((flags.find('c', 0) || flags.find('e', 0)) && numtok > 3) {
 		// find icon id in vector
-		bool exists = (trayIcons->idExists(id) != NULL ? true : false);
+		bool exists = (trayIcons->idExists(id) ? true : false);
 		DWORD msg = NIM_ADD;
 		
 		// if create and it already exists
 		if (flags.find('c', 0) && (exists)) {
-			mIRCError("cant create: id already exists");
+			DCXError("/xTrayIcon","Can't create: id already exists");
 			return 1;
 		}
 
 		// if edit and it doesnt exist
 		if (flags.find('e', 0)) {
 			if (!exists) {
-				mIRCError("cant edit: id doesnt exists");
+				DCXError("/xTrayIcon","Can't edit: id doesnt exists");
 				return 1;
 			}
 
@@ -81,18 +81,16 @@ mIRC(TrayIcon) {
 
 		// add/edit the icon
 		if (!trayIcons->modifyIcon(id, msg, icon, tooltip))
-			mIRCError("add/edit failed");
+			DCXError("/xTrayIcon","add/edit failed");
 	}
 	else if (flags.find('d', 0)) {
 		if (!trayIcons->modifyIcon(id, NIM_DELETE, NULL, NULL)) {
-			mIRCError("error deleting icon");
+			DCXError("/xTrayIcon","Error deleting icon");
 		}
 	}
 	else {
-		mIRCError("unknown flag or insufficient parameters");
+		DCXError("/xTrayIcon","Unknown flag or insufficient parameters");
 	}
-
-
 	return 1;
 }
 
@@ -102,24 +100,20 @@ DcxTrayIcon::DcxTrayIcon(void)
 	// create a "dialog" and dont bother showing it
 	this->m_hwnd = CreateWindow("#32770", "", NULL, 0, 0, 48, 48, NULL, NULL, GetModuleHandle(NULL), NULL);
 
-	if (this->m_hwnd) {
+	if (this->m_hwnd)
 		this->m_wndProc = (WNDPROC) SetWindowLong(this->m_hwnd, GWL_WNDPROC, (LONG) DcxTrayIcon::TrayWndProc);
-	}
-	else {
-		mIRCError("problem initialising trayicons");
-	}
+	else
+		DCXError("/xTrayIcon","problem initialising trayicons");
 
 	m_hwndTooltip = NULL;
 
-	if (isXP()) {
-		mIRCError("try to create tooltip");
-	}
+	if (isXP())
+		DCXError("/xTrayIcon","Try to create tooltip");
 
-	if (m_hwndTooltip != NULL) {
-		mIRCError("tooltip available");
-	}
+	if (m_hwndTooltip != NULL)
+		DCXError("/xTrayIcon","Tooltip available");
 	else
-		mIRCError("balloon tooltips will not be available for TrayIcon");
+		DCXError("/xTrayIcon","Balloon tooltips will not be available for TrayIcon");
 
 	trayIconIDs.clear();
 }
@@ -203,29 +197,34 @@ void DcxTrayIcon::AddIconId(int id) {
 
 bool DcxTrayIcon::DeleteIconId(int id) {
 	// remove from internal vector list
-	VectorOfInts::iterator it = idExists(id);
+	VectorOfInts::iterator itStart = trayIconIDs.begin();
+	VectorOfInts::iterator itEnd = trayIconIDs.end();
 
-	if (it != NULL) {
-		trayIconIDs.erase(it);
-		return true;
+	while (itStart != itEnd) {
+		if (*itStart == id) {
+			trayIconIDs.erase(itStart);
+			return true;
+		}
+
+		itStart++;
 	}
 
 	return false;
 }
 
-VectorOfInts::iterator DcxTrayIcon::idExists(int id) {
+bool DcxTrayIcon::idExists(int id) {
 	// find in internal vector list
 	VectorOfInts::iterator itStart = trayIconIDs.begin();
 	VectorOfInts::iterator itEnd = trayIconIDs.end();
 
 	while (itStart != itEnd) {
 		if (*itStart == id)
-			return itStart;
+			return true;
 
 		itStart++;
 	}
 
-	return NULL;
+	return false;
 }
 
 bool DcxTrayIcon::modifyIcon(int id, DWORD msg, HICON icon, TString *tooltip) {

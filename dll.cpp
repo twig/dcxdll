@@ -1402,18 +1402,3 @@ mIRC(xSignal) {
 	data[0] = 0;
 	return 1;
 }
-// <hwnd>
-mIRC(xNoTheme) {
-	TString d(data);
-	d.trim();
-	if (!XPPlus)
-		mIRCError("This function is for XP+ ONLY");
-	HWND hwnd = (HWND)d.gettok(1," ").to_num();
-	if (IsWindow(hwnd)) {
-			if (dcxSetWindowTheme(hwnd,L" ",L" ") != S_OK)
-				mIRCError("Unable to set theme");
-		return 1;
-	}
-	mIRCError("Invalid HWND");
-	return 0;
-}

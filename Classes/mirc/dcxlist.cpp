@@ -321,128 +321,125 @@ LRESULT DcxList::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
+		case WM_HELP:
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+					this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+			}
+			break;
 
-    case WM_HELP:
-      {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-      }
-      break;
+		case WM_COMMAND:
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+					switch ( HIWORD( wParam ) ) {
+						case LBN_SELCHANGE:
+						{
+							int nItem = ListBox_GetCurSel( this->m_Hwnd );
 
-    case WM_COMMAND:
-      {
-        //mIRCError( "Control WM_COMMAND" );
+							if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
 
-        switch ( HIWORD( wParam ) ) {
+							if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
+							this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
+							}
+							else {
 
-          case LBN_SELCHANGE:
-            {
-              int nItem = ListBox_GetCurSel( this->m_Hwnd );
+							if ( nItem != LB_ERR )
+							this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
+							}
+						}
+						break;
 
-              if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
+						case LBN_DBLCLK:
+						{
+							int nItem = ListBox_GetCurSel( this->m_Hwnd );
 
-                if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-                  this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
-              }
-              else {
+							if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
+								if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
+									this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
+							}
+							else {
+								if ( nItem != LB_ERR )
+									this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
+							}
+						}
+						break;
+					} // switch ( HIWORD( wParam ) )
+				}
+			}
+			break;
 
-                if ( nItem != LB_ERR )
-                  this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
-              }
+		case WM_MOUSEMOVE:
+			{
+				this->m_pParentDialog->setMouseControl( this->getUserID( ) );
+			}
+			break;
 
-            }
-            break;
+		case WM_CONTEXTMENU:
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
+			}
+			break;
 
-          case LBN_DBLCLK:
-            {
-              int nItem = ListBox_GetCurSel( this->m_Hwnd );
+		case WM_SETFOCUS:
+			{
+				this->m_pParentDialog->setFocusControl( this->getUserID( ) );
+			}
+			break;
 
-              if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
+		case WM_SETCURSOR:
+			{
+				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
+					SetCursor( this->m_hCursor );
+					bParsed = TRUE;
+					return TRUE;
+				}
+			}
+			break;
 
-                if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-                  this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
-              }
-              else {
+		case WM_DROPFILES:
+			{
+				HDROP files = (HDROP) wParam;
+				char filename[500];
+				int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
-                if ( nItem != LB_ERR )
-                  this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
-              }
-            }
-            break;
-        }
-      }
-      break;
+				if (count) {
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
+						char ret[20];
 
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
+						this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
 
-    case WM_CONTEXTMENU:
-      {
-        this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
-      }
-      break;
+						// cancel drag drop event
+						if (lstrcmpi(ret, "cancel") == 0) {
+							DragFinish(files);
+							return 0L;
+						}
 
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
+						// for each file, send callback message
+						for (int i = 0; i < count; i++) {
+							if (DragQueryFile(files, i, filename, 500))
+								this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
+						}
 
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
+						this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
+					}
+				}
 
-          SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
-
-	case WM_DROPFILES:
-	{
-		HDROP files = (HDROP) wParam;
-		char filename[500];
-      int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
-
-		if (count) {
-			char ret[20];
-
-			this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
-
-			// cancel drag drop event
-			if (lstrcmpi(ret, "cancel") == 0) {
 				DragFinish(files);
-				return 0L;
+				bParsed = TRUE;
+				break;
 			}
-
-			// for each file, send callback message
-			for (int i = 0; i < count; i++) {
-				if (DragQueryFile(files, i, filename, 500))
-					this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
 			}
+			break;
 
-			this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
-		}
-
-		DragFinish(files);
-		bParsed = TRUE;
-		break;
+		default:
+			break;
 	}
-    case WM_DESTROY:
-      {
-        //mIRCError( "WM_DESTROY" );
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
 
-    default:
-      break;
-  }
-
-  return 0L;
+	return 0L;
 }

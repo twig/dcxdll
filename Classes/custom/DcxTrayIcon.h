@@ -14,7 +14,7 @@ public:
 	~DcxTrayIcon(void);
 
 	HWND GetHwnd();
-	VectorOfInts::iterator idExists(int id);
+	bool idExists(int id);
 	bool modifyIcon(int id, DWORD msg, HICON icon, TString *tooltip);
 
 	static LRESULT CALLBACK TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

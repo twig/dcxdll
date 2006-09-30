@@ -403,7 +403,8 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bP
 
 					GetWindowText(this->m_Hwnd, text, n +1);
 					this->m_tsText = text;
-					this->callAliasEx(NULL, "%s,%d", "edit", this->getUserID());
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
+						this->callAliasEx(NULL, "%s,%d", "edit", this->getUserID());
 
 					delete []text;
 				}
@@ -422,7 +423,8 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 	switch (uMsg) {
 		case WM_HELP:
 		{
-			this->callAliasEx(NULL, "%s,%d", "help", this->getUserID());
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+				this->callAliasEx(NULL, "%s,%d", "help", this->getUserID());
 			break;
 		}
 
@@ -464,14 +466,15 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		} // WM_NOTIFY
 		case WM_KEYDOWN:
 		{
-			if (wParam == VK_RETURN)
-				this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+				if (wParam == VK_RETURN)
+					this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
 
-			if (lParam & 0x40000000)
-				break; // ignore repeats.
+				if (lParam & 0x40000000)
+					break; // ignore repeats.
 
-			this->callAliasEx(NULL, "%s,%d,%d", "keydown", this->getUserID(), wParam);
-
+				this->callAliasEx(NULL, "%s,%d,%d", "keydown", this->getUserID(), wParam);
+			}
 			/*
 			// CTRL+A, select text and return so control doesnt beep
 			if ((wParam == 65) &&
@@ -487,46 +490,50 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		}
 		case WM_COPY:
 		{
-			char ret[256];
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+				char ret[256];
 
-			this->callAliasEx(ret, "%s,%d", "copy", this->getUserID());
+				this->callAliasEx(ret, "%s,%d", "copy", this->getUserID());
 
-			if (lstrcmp("nocopy", ret) == 0) {
-				bParsed = TRUE;
-				return 0L;
+				if (lstrcmp("nocopy", ret) == 0) {
+					bParsed = TRUE;
+					return 0L;
+				}
 			}
-
 			break;
 		}
 		case WM_CUT:
 		{
-			char ret[256];
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+				char ret[256];
 
-			this->callAliasEx(ret, "%s,%d", "cut", this->getUserID());
+				this->callAliasEx(ret, "%s,%d", "cut", this->getUserID());
 
-			if (lstrcmp("nocut", ret) == 0) {
-				bParsed = TRUE;
-				return 0L;
+				if (lstrcmp("nocut", ret) == 0) {
+					bParsed = TRUE;
+					return 0L;
+				}
 			}
-
 			break;
 		}
 		case WM_PASTE:
 		{
-			char ret[256];
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+				char ret[256];
 
-			this->callAliasEx(ret, "%s,%d", "paste", this->getUserID());
+				this->callAliasEx(ret, "%s,%d", "paste", this->getUserID());
 
-			if (lstrcmp("nopaste", ret) == 0) {
-				bParsed = TRUE;
-				return 0L;
+				if (lstrcmp("nopaste", ret) == 0) {
+					bParsed = TRUE;
+					return 0L;
+				}
 			}
-
 			break;
 		}
 		case WM_KEYUP:
 		{
-			this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
+				this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
 			break;
 		}
 		case WM_MOUSEMOVE:
@@ -559,23 +566,25 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 			int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
 			if (count) {
-				char ret[20];
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
+					char ret[20];
 
-				this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
+					this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
 
-				// cancel drag drop event
-				if (lstrcmpi(ret, "cancel") == 0) {
-					DragFinish(files);
-					return 0L;
+					// cancel drag drop event
+					if (lstrcmpi(ret, "cancel") == 0) {
+						DragFinish(files);
+						return 0L;
+					}
+
+					// for each file, send callback message
+					for (int i = 0; i < count; i++) {
+						if (DragQueryFile(files, i, filename, 500))
+							this->callAliasEx(NULL, "%s,%d,%s", "dragfile", this->getUserID(), filename);
+					}
+
+					this->callAliasEx(NULL, "%s,%d", "dragfinish", this->getUserID());
 				}
-
-				// for each file, send callback message
-				for (int i = 0; i < count; i++) {
-					if (DragQueryFile(files, i, filename, 500))
-						this->callAliasEx(NULL, "%s,%d,%s", "dragfile", this->getUserID(), filename);
-				}
-
-				this->callAliasEx(NULL, "%s,%d", "dragfinish", this->getUserID());
 			}
 
 			DragFinish(files);

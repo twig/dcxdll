@@ -331,7 +331,8 @@ LRESULT DcxUpDown::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
         switch( hdr->code ) {
           case UDN_DELTAPOS:
             {
-              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
               bParsed = TRUE;
             }
             break;
@@ -348,7 +349,8 @@ LRESULT DcxUpDown::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 

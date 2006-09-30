@@ -95,6 +95,7 @@ protected:
 
 	HWND m_ToolTipHWND; //!< Tooltip window (if any)
 	TString m_tsToolTip; //!< This controls tooltip text (if any).
+	DWORD m_dEventMask;
   /* ***** */
 
   void parseGlobalCommandRequest( TString & input, XSwitchFlags & flags );

@@ -420,12 +420,14 @@ LRESULT DcxButton::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
           case BN_CLICKED:
             {
-              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
             }
             break;
           case BN_DBLCLK:
             {
-              this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				        this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
             }
             break;
         }
@@ -441,7 +443,8 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -501,8 +504,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
     case WM_MOUSELEAVE:
       {
         if ( this->m_bTracking ) {
-
-          //mIRCError( "WM_MOUSELEAVE" );
           this->m_bHover = FALSE;
           this->m_bTracking = FALSE;
           this->m_bSelected = FALSE;
@@ -511,42 +512,40 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
       }
       break;
 
-    case WM_LBUTTONDOWN:
-      {
-        if ( this->m_bSelected == FALSE ) {
-
-          //mIRCError( "WM_LBUTTONDOWN" );
-          this->m_bSelected = TRUE;
-          InvalidateRect( this->m_Hwnd, NULL, FALSE );
-        }
-
-		  this->callAliasEx(NULL, "%s,%d", "lbdown", this->getUserID());
-      }
-      break;
+		case WM_LBUTTONDOWN:
+			{
+				if ( this->m_bSelected == FALSE ) {
+					this->m_bSelected = TRUE;
+					InvalidateRect( this->m_Hwnd, NULL, FALSE );
+				}
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx(NULL, "%s,%d", "lbdown", this->getUserID());
+			}
+			break;
 
     case WM_LBUTTONUP:
       {
-        this->m_bSelected = FALSE;
-		  this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
+				this->m_bSelected = FALSE;
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
 			}
       break;
 
     case WM_CONTEXTMENU:
       {
-        this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
       }
       break;
 
     case WM_ENABLE:
       {
-        //mIRCError( "WM_ENABLE" );
         InvalidateRect( this->m_Hwnd, NULL, TRUE );
       }
       break;
 
     case WM_UPDATEUISTATE:
       {
-        //mIRCError( "WM_UPDATEUISTATE" );
         InvalidateRect( this->m_Hwnd, NULL, TRUE );
       }
       break;

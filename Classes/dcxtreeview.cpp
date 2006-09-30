@@ -1682,8 +1682,8 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
                 this->getPath( &numPath, &hStart, &tvh.hItem );
                 std::string path = this->getPathFromVector( &numPath );
 
-                this->callAliasEx( NULL, "%s,%d,%s", "buttonclick", this->getUserID( ), path.c_str( ) );
-
+								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					        this->callAliasEx( NULL, "%s,%d,%s", "buttonclick", this->getUserID( ), path.c_str( ) );
               }
                //&& this->isStyle( TVS_CHECKBOXES )
               else if ( ( tvh.flags & TVHT_ONITEMSTATEICON ) ) {
@@ -1697,13 +1697,14 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
                   int state = TreeView_GetCheckState( this->m_Hwnd, tvh.hItem );
 
-                  this->callAliasEx( NULL, "%s,%d,%d,%s", "stateclick", this->getUserID( ), 
-                    state == 0 ? 2 : 1 , path.c_str( ) );
+									if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+						        this->callAliasEx( NULL, "%s,%d,%d,%s", "stateclick", this->getUserID( ), 
+							        state == 0 ? 2 : 1 , path.c_str( ) );
                 }
                 else {
-
-                  this->callAliasEx( NULL, "%s,%d,%d,%s", "stateclick", this->getUserID( ), 
-                    TreeView_GetItemState( this->m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK ) , path.c_str( ) );
+									if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+	                  this->callAliasEx( NULL, "%s,%d,%d,%s", "stateclick", this->getUserID( ), 
+		                  TreeView_GetItemState( this->m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK ) , path.c_str( ) );
                 }
               }
               //|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
@@ -1716,11 +1717,13 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
                 TreeView_SelectItem( this->m_Hwnd, tvh.hItem );
                 
-                this->callAliasEx( NULL, "%s,%d,%s", "sclick", this->getUserID( ), path.c_str( ) );
+								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					        this->callAliasEx( NULL, "%s,%d,%s", "sclick", this->getUserID( ), path.c_str( ) );
               }
 							// single click not on item
 							else if ((tvh.flags & TVHT_NOWHERE) || (tvh.flags & TVHT_ONITEMRIGHT)) {
-								this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID());
+								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+									this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID());
 							}
               bParsed = TRUE;
             }
@@ -1743,7 +1746,8 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
                 TreeView_SelectItem( this->m_Hwnd, tvh.hItem );
 
-                this->callAliasEx( NULL, "%s,%d,%s", "dclick", this->getUserID( ), path.c_str( ) );
+								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					        this->callAliasEx( NULL, "%s,%d,%s", "dclick", this->getUserID( ), path.c_str( ) );
               }
               bParsed = TRUE;
             }
@@ -1766,10 +1770,12 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
                 TreeView_SelectItem( this->m_Hwnd, tvh.hItem );
 
-                this->callAliasEx( NULL, "%s,%d,%s", "rclick", this->getUserID( ), path.c_str( ) );
+								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					        this->callAliasEx( NULL, "%s,%d,%s", "rclick", this->getUserID( ), path.c_str( ) );
               }
 						  else {
-							  this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
+								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+								  this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
 						  }
               bParsed = TRUE;
             }
@@ -1908,8 +1914,6 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
           case TVN_DELETEITEM:
             {
-              //mIRCError( "Control WM_NOTIFY - TVN_DELETEITEM" );
-
               LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
               LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) lpnmtv->itemOld.lParam;
 
@@ -1931,7 +1935,8 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -1957,38 +1962,38 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
         }
       }
       break;
-	case WM_DROPFILES:
-	{
-		HDROP files = (HDROP) wParam;
-		char filename[500];
-      int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
+		case WM_DROPFILES:
+			{
+				HDROP files = (HDROP) wParam;
+				char filename[500];
+				int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
-		if (count) {
-			char ret[20];
+				if (count) {
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
+						char ret[20];
 
-			this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
+						this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
 
-			// cancel drag drop event
-			if (lstrcmpi(ret, "cancel") == 0) {
+						// cancel drag drop event
+						if (lstrcmpi(ret, "cancel") == 0) {
+							DragFinish(files);
+							return 0L;
+						}
+
+						// for each file, send callback message
+						for (int i = 0; i < count; i++) {
+							if (DragQueryFile(files, i, filename, 500))
+								this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
+						}
+
+						this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
+					}
+				}
 				DragFinish(files);
-				return 0L;
+				break;
 			}
-
-			// for each file, send callback message
-			for (int i = 0; i < count; i++) {
-				if (DragQueryFile(files, i, filename, 500))
-					this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
-			}
-
-			this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
-		}
-
-		DragFinish(files);
-		break;
-	}
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }
@@ -2018,7 +2023,6 @@ LRESULT CALLBACK DcxTreeView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wPara
 
     case WM_DESTROY:
       {
-
         RemoveProp( mHwnd, "dcx_pthis" );
         SetWindowLong( mHwnd, GWL_WNDPROC, (LONG) pthis->m_OrigEditProc );
       }

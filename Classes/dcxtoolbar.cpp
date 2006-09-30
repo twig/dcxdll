@@ -1193,8 +1193,8 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
           this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "sclick", 
             this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
             */
-          this->callAliasEx( NULL, "%s,%d,%d", "sclick", 
-            this->getUserID( ), this->getCommandToIndex( iButton ) + 1 );
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+		        this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCommandToIndex( iButton ) + 1 );
         }
 
         bParsed = TRUE;
@@ -1235,51 +1235,52 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
           case NM_RCLICK:
             {
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LPNMMOUSE lpnm = (LPNMMOUSE) lParam;
+								POINT pt = lpnm->pt;
+								int iButton = (int) this->hitTest( &pt );
 
-              LPNMMOUSE lpnm = (LPNMMOUSE) lParam;
-              POINT pt = lpnm->pt;
-              int iButton = (int) this->hitTest( &pt );
-
-              if ( iButton > -1 ) {
-                RECT rc;
-                this->getItemRect( iButton, &rc );
-                POINT pt2 = pt;
-                pt.x = rc.left; 
-                pt.y = rc.bottom;
-                pt2.x = rc.left;
-                pt2.y = rc.top;
-                ClientToScreen( this->m_Hwnd, &pt );
-                ClientToScreen( this->m_Hwnd, &pt2 );
-                this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", 
-                  this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
-              }
-
+								if ( iButton > -1 ) {
+									RECT rc;
+									this->getItemRect( iButton, &rc );
+									POINT pt2 = pt;
+									pt.x = rc.left; 
+									pt.y = rc.bottom;
+									pt2.x = rc.left;
+									pt2.y = rc.top;
+									ClientToScreen( this->m_Hwnd, &pt );
+									ClientToScreen( this->m_Hwnd, &pt2 );
+									this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", 
+										this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
+								}
+							}
               bParsed = TRUE;
             }
             break;
 
            case TBN_DROPDOWN:
             {
-              //LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
-              POINT pt;
-              GetCursorPos( &pt );
-              ScreenToClient( this->m_Hwnd, &pt );
-              int iButton = (int) this->hitTest( &pt );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								//LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
+								POINT pt;
+								GetCursorPos( &pt );
+								ScreenToClient( this->m_Hwnd, &pt );
+								int iButton = (int) this->hitTest( &pt );
 
-              if ( iButton > -1 ) {
-                RECT rc;
-                this->getItemRect( iButton, &rc );
-                POINT pt2 = pt;
-                pt.x = rc.left; 
-                pt.y = rc.bottom;
-                pt2.x = rc.left;
-                pt2.y = rc.top;
-                ClientToScreen( this->m_Hwnd, &pt );
-                ClientToScreen( this->m_Hwnd, &pt2 );
-                this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown", 
-                  this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
-              }
-
+								if ( iButton > -1 ) {
+									RECT rc;
+									this->getItemRect( iButton, &rc );
+									POINT pt2 = pt;
+									pt.x = rc.left; 
+									pt.y = rc.bottom;
+									pt2.x = rc.left;
+									pt2.y = rc.top;
+									ClientToScreen( this->m_Hwnd, &pt );
+									ClientToScreen( this->m_Hwnd, &pt2 );
+									this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown", 
+										this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
+								}
+							}
               bParsed = TRUE;
               return TBDDRET_DEFAULT;
             }
@@ -1378,13 +1379,13 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
     case WM_SIZE:
       {
-        
         if ( this->m_bAutoStretch )
           this->autoStretchButtons( );        
       }

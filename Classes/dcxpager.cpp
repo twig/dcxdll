@@ -431,7 +431,8 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -526,7 +527,8 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
           SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
         }
 
-        this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
+	        this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
 				this->reCalcSize();
         this->redrawWindow( );
       }
@@ -597,21 +599,26 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_LBUTTONDOWN:
       {
-        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-        this->callAliasEx( NULL, "%s,%d", "lbdown", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+					this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+					this->callAliasEx( NULL, "%s,%d", "lbdown", this->getUserID( ) );
+				}
       }
       break;
 
     case WM_LBUTTONUP:
       {
-        this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+	        this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
       }
       break;
 
     case WM_LBUTTONDBLCLK:
       {
-        this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
-        this->callAliasEx( NULL, "%s,%d", "lbdblclk", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+					this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+					this->callAliasEx( NULL, "%s,%d", "lbdblclk", this->getUserID( ) );
+				}
       }
       break;
 

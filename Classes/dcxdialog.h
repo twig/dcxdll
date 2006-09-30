@@ -31,6 +31,18 @@
 #define DBS_BKGRIGHT		0x00000080 // right aligned
 #define DBS_BKGBOTTOM	0x00000100 // bottom aligned
 
+// Event mask defines.
+#define DCX_EVENT_MOUSE				0x00000001
+#define DCX_EVENT_FOCUS				0x00000002
+#define DCX_EVENT_THEME				0x00000004
+#define DCX_EVENT_MOVE				0x00000008
+#define DCX_EVENT_CLOSE				0x00000010
+#define DCX_EVENT_SIZE				0x00000020
+#define DCX_EVENT_CLICK				0x00000040
+#define DCX_EVENT_DRAG				0x00000080
+#define DCX_EVENT_HELP				0x00000100
+#define DCX_EVENT_EDIT				0x00000200
+
 // dummy runtime classe definition
 class DcxControl;
 
@@ -81,6 +93,7 @@ public:
   inline void incRef( ) { ++this->m_iRefCount; };
   inline void decRef( ) { --this->m_iRefCount; };
   inline UINT getRefCount( ) { return this->m_iRefCount; };
+	inline DWORD getEventMask( ) { return this->m_dEventMask; };
 
 protected:
 
@@ -112,6 +125,7 @@ protected:
   UINT m_iRefCount;
 	bool m_bDoDrag;
 	bool m_bDrag;
+	DWORD m_dEventMask;
   /* **** */
 
   void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );

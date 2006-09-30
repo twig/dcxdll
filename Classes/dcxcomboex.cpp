@@ -604,7 +604,8 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
           case CBN_DBLCLK:
             {
-              this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), this->getCurSel( ) + 1 );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				        this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), this->getCurSel( ) + 1 );
               bParsed = TRUE;
               return TRUE;
             }
@@ -612,7 +613,8 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
           case CBN_SELENDOK:
             {
-              this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				        this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
               char itemtext[500];
               COMBOBOXEXITEM cbex;
               ZeroMemory( &cbex, sizeof( COMBOBOXEXITEM ) );
@@ -629,7 +631,8 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
           case CBN_EDITCHANGE:
             {
-              this->callAliasEx( NULL, "%s,%d", "edit", this->getUserID( ) );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
+				        this->callAliasEx( NULL, "%s,%d", "edit", this->getUserID( ) );
               bParsed = TRUE;
               return TRUE;
             }
@@ -648,7 +651,8 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -674,45 +678,46 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
         }
       }
       break;
-	case WM_DROPFILES:
-	{
-		HDROP files = (HDROP) wParam;
-		char filename[500];
-      int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
+		case WM_DROPFILES:
+			{
+				HDROP files = (HDROP) wParam;
+				char filename[500];
+				int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
-		if (count) {
-			char ret[20];
+				if (count) {
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
+						char ret[20];
 
-			this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
+						this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
 
-			// cancel drag drop event
-			if (lstrcmpi(ret, "cancel") == 0) {
+						// cancel drag drop event
+						if (lstrcmpi(ret, "cancel") == 0) {
+							DragFinish(files);
+							return 0L;
+						}
+
+						// for each file, send callback message
+						for (int i = 0; i < count; i++) {
+							if (DragQueryFile(files, i, filename, 500))
+								this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
+						}
+
+						this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
+					}
+				}
+
 				DragFinish(files);
-				return 0L;
+				break;
 			}
-
-			// for each file, send callback message
-			for (int i = 0; i < count; i++) {
-				if (DragQueryFile(files, i, filename, 500))
-					this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
-			}
-
-			this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
-		}
-
-		DragFinish(files);
-		break;
-	}
 		case WM_MOUSEACTIVATE:
 			{
-				//mIRCError( "WM_MOUSEACTIVATE" );
 				switch (HIWORD(lParam))
 				{
 				case WM_RBUTTONDOWN:
 					{
-						//mIRCError( "ComboEx WM_RBUTTONDOWN" );
 						// NB: rclick doesnt change selection!
-						this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), this->getCurSel( ) + 1 );
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+							this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), this->getCurSel( ) + 1 );
 					}
 					break;
 				}

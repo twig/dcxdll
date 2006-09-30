@@ -316,7 +316,8 @@ LRESULT DcxIpAddress::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
         switch( hdr->code ) {
           case IPN_FIELDCHANGED:
             {
-              this->callAliasEx( NULL, "%s,%d", "edit", this->getUserID( ) );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
+	              this->callAliasEx( NULL, "%s,%d", "edit", this->getUserID( ) );
               bParsed = TRUE;
             }
             break;
@@ -333,14 +334,13 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
     case WM_NOTIFY : 
       {
-        //mIRCError( "Control WM_NOTIFY" );
-
         LPNMHDR hdr = (LPNMHDR) lParam;
 
         if (!hdr)
@@ -391,21 +391,20 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
       */
 		case WM_MOUSEACTIVATE:
 			{
-				//mIRCError( "WM_MOUSEACTIVATE" );
-				switch (HIWORD(lParam))
-				{
-				case WM_LBUTTONDOWN:
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+					switch (HIWORD(lParam))
 					{
-						//mIRCError( "IPAddress WM_LBUTTONDOWN" );
-						this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+					case WM_LBUTTONDOWN:
+						{
+							this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+						}
+						break;
+					case WM_RBUTTONDOWN:
+						{
+							this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
+						}
+						break;
 					}
-					break;
-				case WM_RBUTTONDOWN:
-					{
-						//mIRCError( "IPAddress WM_RBUTTONDOWN" );
-						this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
-					}
-					break;
 				}
 				bParsed = TRUE;
 				return MA_NOACTIVATE;
@@ -413,7 +412,6 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			break;
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

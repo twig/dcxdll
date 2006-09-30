@@ -72,6 +72,7 @@ DcxControl::DcxControl( UINT mID, DcxDialog * p_Dialog ) : DcxWindow( mID ), m_p
 
   this->m_hCursor = NULL;
   this->m_bCursorFromFile = FALSE;
+	this->m_dEventMask = p_Dialog->getEventMask();
 }
 
 /*!
@@ -155,20 +156,22 @@ BOOL DcxControl::callAliasEx( char * szReturn, const char * szFormat, ... ) {
   va_list args;
   va_start( args, szFormat );
   char parms[2048];
+
   vsprintf( parms, szFormat, args );
   wsprintf( mIRCLink.m_pData, "$%s(%s,%s)", 
     this->m_pParentDialog->getAliasName( ).to_chr( ), 
     this->m_pParentDialog->getName( ).to_chr( ),
     parms );
+
 	this->m_pParentDialog->incRef();
 	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 201, 0, mIRCLink.m_map_cnt );
-  //MessageBox(NULL, mData, NULL, MB_OK);
-  //Signal(mData);
-  if ( szReturn )
+
+	if ( szReturn )
     lstrcpy( szReturn, mIRCLink.m_pData );
-  //MessageBox(NULL, szReturn, NULL, MB_OK);
+
 	this->m_pParentDialog->decRef();
   va_end( args );
+
   if ( !lstrcmp( mIRCLink.m_pData, "$false" ) )
     return FALSE;
 

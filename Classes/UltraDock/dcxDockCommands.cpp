@@ -14,6 +14,7 @@ extern VectorOfDocks v_docks;
 extern void UltraDock(HWND mWnd,HWND temp,TString flag);
 extern bool FindUltraDock(HWND hwnd);
 extern LPDCXULTRADOCK GetUltraDock(HWND hwnd);
+extern BOOL XPPlus;
 
 typedef struct tagDCXDOCK {
 	WNDPROC oldProc;
@@ -94,7 +95,7 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 void UnDock(HWND hwnd)
 {
 	if (GetProp(hwnd,"dcx_docked") == NULL) {
-		mIRCError("D_ERROR Window is not docked");
+		DCXError("/xdock -u","Window is not docked");
 		return;
 	}
   // Remove Style for undocking purpose
@@ -142,7 +143,7 @@ bool DockWindow(HWND mWnd,HWND temp,char *find, TString flag)
 			}
 			else {
 				delete dd;
-				mIRCError("D_ERROR Unable to SetProp");
+				DCXError("/xdock","Unable to SetProp");
 				return false;
 			}
 		}
@@ -178,7 +179,7 @@ bool DockWindow(HWND mWnd,HWND temp,char *find, TString flag)
 		return true;
 	}
 	else
-		mIRCError("D_ERROR Unable to find destination Window");
+		DCXError("/xdock","Unable to find destination Window");
 
 	return false;
 }
@@ -192,7 +193,7 @@ mIRC(xdock) {
 	int numtok = input.numtok(" ");
 
 	if (numtok < 1) {
-		mIRCError("D_ERROR Invalid Parameters");
+		DCXError("/xdock","Invalid Parameters");
 		return 0;
 	}
 
@@ -206,7 +207,7 @@ mIRC(xdock) {
 	}
 
 	if (numtok < 2) {
-		mIRCError("D_ERROR Invalid Flag");
+		DCXError("/xdock","Invalid Flag");
 		return 0;
 	}
 	// [SWITCH] [show|hide]
@@ -245,13 +246,13 @@ mIRC(xdock) {
 	HWND dockHwnd = (HWND) input.gettok(2, " ").to_num();
 
 	if (!IsWindow(dockHwnd)) {
-		mIRCError("D_ERROR Invalid Window to dock");
+		DCXError("/xdock","Invalid Window to dock");
 		return 0;
 	}
 
 	TString flags = input.gettok(3, " ");
 	if (flags[0] != '+') {
-		mIRCError("D_ERROR No Flags Found");
+		DCXError("/xdock","No Flags Found");
 		return 0;
 	}
 
@@ -273,7 +274,7 @@ mIRC(xdock) {
 		if (IsWindow(mWnd))
 			DockWindow(mWnd, dockHwnd, "ListBox", flags);
 		else {
-			mIRCError("D_ERROR: Invalid window");
+			DCXError("/xdock -n","Invalid window");
 			return 0;
 		}
 	}
@@ -285,7 +286,7 @@ mIRC(xdock) {
 		if (IsWindow(mWnd))
 			DockWindow(mWnd, dockHwnd, NULL, flags);
 		else {
-			mIRCError("D_ERROR: Invalid window");
+			DCXError("/xdock -c","Invalid window");
 			return 0;
 		}
 	}
@@ -322,7 +323,7 @@ mIRC(xdock) {
 			dflags = (DWORD) GetProp(dockHwnd, "dcx_docked");
 
 		if (dflags == NULL) {
-			mIRCError("D_ERROR Unable to find flags information.");
+			DCXError("/xdock -r","Unable to find flags information.");
 			return 0;
 		}
 
@@ -350,7 +351,7 @@ mIRC(xdock) {
 				break;
 
 			default:
-				mIRCError("unknown dock flag");
+				DCXError("/xdock -r","Unknown dock flag");
 				return 0;
 		}
 
@@ -360,21 +361,28 @@ mIRC(xdock) {
 		RedrawWindow( mIRCLink.m_mIRCHWND, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 	}
 	// [SWITCH] [hwnd to change] [+options] [(index iconfile) ($tab text)]
-	else if ((switches[1] == 'O') && (numtok > 3)) {
-		int index = input.gettok(1,"\t").gettok(4,-1," ").to_int();
-		TString filename = input.gettok(1,"\t").gettok(5,-1," ");
-		filename.trim();
-		TString txt = input.gettok(2,-1,"\t");
-		txt.trim();
-		if (flags.find('t',0)) // set hwnd title text
+	else if ((switches[1] == 'O') && (numtok > 2)) {
+		if (flags.find('t',0)) { // set hwnd title text
+			TString txt = input.gettok(2,-1,"\t");
+			txt.trim();
 			SetWindowText(dockHwnd, txt.to_chr());
+		}
 		if (flags.find('i',0)) { // set hwnd's title icon
+			int index = input.gettok(1,"\t").gettok(4,-1," ").to_int();
+			TString filename = input.gettok(1,"\t").gettok(5,-1," ");
+			filename.trim();
 			if (!ChangeHwndIcon(dockHwnd,&flags,index,&filename))
 				return 0;
 		}
+		if (flags.find('T',0)) { // set hwnd NoTheme
+			if (XPPlus) {
+				if (dcxSetWindowTheme(dockHwnd,L" ",L" ") != S_OK)
+					DCXError("/xdock -O","Unable to set theme");
+			}
+		}
 	}
 	else {
-		mIRCError("D_ERROR Invalid Flag");
+		DCXError("/xdock","Invalid Flag");
 		return 0;
 	}
 
@@ -391,10 +399,10 @@ mIRC(_xdock)
 
 	if (d.numtok(" ") < 2) {
 		TString error;
-		error.sprintf("$ $+ xdock invalid arguments (%s)", d.gettok(1, " ").to_chr());
-		mIRCError(error.to_chr());
-		
-		ret("D_ERR: invalid xdock arguments");
+		error.sprintf("Invalid arguments (%s)", d.gettok(1, " ").to_chr());
+		DCXError("$ $+ xdock",error.to_chr());
+
+		ret("D_ERR: Invalid xdock arguments");
 	}
 
 	if (d.gettok(1," ") == "mIRC") {
@@ -467,10 +475,10 @@ mIRC(_xdock)
 				GetWindowText(mIRCLink.m_mIRCHWND,data,900);
 		}
 		else {
-			//dcxInfoError("$xdock",d.gettok(2," ").to_chr(),"mIRC",0,"Invalid prop");
+			//dcxInfoError("$ $+ xdock",d.gettok(2," ").to_chr(),"mIRC",0,"Invalid prop");
 			TString error;
-			error.sprintf("$ $+ xdock invalid prop (mIRC).%s", d.gettok(2, " ").to_chr());
-			mIRCError(error.to_chr());
+			error.sprintf("Invalid prop (mIRC).%s", d.gettok(2, " ").to_chr());
+			DCXError("$ $+ xdock",error.to_chr());
 		}
 	}
 	else {
@@ -533,8 +541,8 @@ mIRC(_xdock)
 				}
 				else {
 					TString error;
-					error.sprintf("$ $+ xdock window not docked to main mIRC window (%d).%s", hwnd, d.gettok(2, " ").to_chr());
-					mIRCError(error.to_chr());
+					error.sprintf("Window not docked to main mIRC window (%d).%s", hwnd, d.gettok(2, " ").to_chr());
+					DCXError("$ $+ xdock",error.to_chr());
 				}
 			}
 			else if (d.gettok(2," ") == "text") {
@@ -543,14 +551,14 @@ mIRC(_xdock)
 			}
 			else {
 				TString error;
-				error.sprintf("$ $+ xdock invalid prop (%d).%s", hwnd, d.gettok(2, " ").to_chr());
-				mIRCError(error.to_chr());
+				error.sprintf("Invalid prop (%d).%s", hwnd, d.gettok(2, " ").to_chr());
+				DCXError("$ $+ xdock",error.to_chr());
 			}
 		}
 		else {
 			TString error;
-			error.sprintf("$ $+ xdock invalid window (%s)", d.gettok(1, " ").to_chr());
-			mIRCError(error.to_chr());
+			error.sprintf("Invalid window (%s)", d.gettok(1, " ").to_chr());
+			DCXError("$ $+ xdock",error.to_chr());
 		}
 	}
 	return 3;

@@ -64,6 +64,8 @@ DcxDialog::DcxDialog(HWND mHwnd, TString &tsName, TString &tsAliasName)
 
 	this->m_bDoDrag = false;
 
+	this->m_dEventMask = -1;
+
 	SetProp(this->m_Hwnd, "dcx_this", (HANDLE) this);
 
 	DragAcceptFiles(this->m_Hwnd, TRUE);
@@ -225,12 +227,11 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdialog -a [NAME] [SWITCH] [+FLAGS] [DURATION]
 	if (flags.switch_flags[0] && numtok > 3) {
 		AnimateWindow(this->m_Hwnd,
-			atoi(input.gettok(4, " ").to_chr()), 
+			input.gettok(4, " ").to_int(), 
 			getAnimateStyles(input.gettok(3, " ")));
 
 		if (IsWindowVisible(this->m_Hwnd))
-			RedrawWindow(this->m_Hwnd, NULL, NULL, 
-			RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE);
+			this->redrawWindow();
 	}
 	// xdialog -b [NAME] [SWITCH] [+FLAGS]
 	else if (flags.switch_flags[1] && numtok > 2) {
@@ -252,7 +253,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -c [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	else if (flags.switch_flags[2] && numtok > 7) {
-		UINT ID = mIRC_ID_OFFSET + atoi(input.gettok(3, " ").to_chr());
+		UINT ID = mIRC_ID_OFFSET + input.gettok(3, " ").to_int();
 
 		if ((IsWindow(GetDlgItem(this->m_Hwnd, ID)) == FALSE) && 
 			(ID > mIRC_ID_OFFSET - 1) && (this->getControlByID(ID) == NULL))
@@ -264,8 +265,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		}
 		else {
 			TString error;
-			error.sprintf("/xdialog -c : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET);
-			mIRCError(error.to_chr());
+			error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET);
+			DCXError("/xdialog -c",error.to_chr());
 		}
 	}
 	// xdialog -d [NAME] [SWITCH] [ID]
@@ -304,17 +305,23 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				this->deleteControl(p_Control); // remove control from internal list!
 				DestroyWindow(cHwnd);
 			}
-			else
-				mIRCDebug("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", p_Control->getUserID(), this->m_tsName.to_chr());
+			else {
+				TString error;
+				error.sprintf("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", p_Control->getUserID(), this->m_tsName.to_chr());
+				DCXError("/xdialog -d",error.to_chr());
+			}
 		}
 		// unknown control
-		else
-			mIRCDebug("/ $+ xdialog -d : Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_tsName.to_chr());
+		else {
+			TString error;
+			error.sprintf("Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_tsName.to_chr());
+			DCXError("/xdialog -d",error.to_chr());
+		}
 	}
 	// xdid -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
 	else if (flags.switch_flags[5] && numtok > 4) {
 		UINT iFlags = this->parseFlashFlags(input.gettok(3, " "));
-		INT iCount = (INT)input.gettok(4, " ").to_num();
+		INT iCount = input.gettok(4, " ").to_int();
 		DWORD dwTimeout = (DWORD)input.gettok(5, " ").to_num();
 		FLASHWINFO fli;
 
@@ -357,10 +364,10 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
-	// xdid -j [NAME] [SWITCH] (ID)
+	// xdialog -j [NAME] [SWITCH] (ID)
 	else if (flags.switch_flags[9]) {
 		if (numtok > 2) {
-			UINT id = mIRC_ID_OFFSET + atoi(input.gettok(3, " ").to_chr());
+			UINT id = mIRC_ID_OFFSET + input.gettok(3, " ").to_int();
 			DcxControl * p_Control;
 
 			if ((id > mIRC_ID_OFFSET - 1) &&
@@ -370,12 +377,13 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				p_Control->redrawWindow();
 			}
 			else {
-				mIRCDebug("D_ERROR: Could not find control %d", id - mIRC_ID_OFFSET);
+				TString error;
+				error.sprintf("Could not find control %d", id - mIRC_ID_OFFSET);
+				DCXError("/xdialog -j",error.to_chr());
 			}
 
 			return;
 		}
-
 		this->redrawWindow();
 	}
 	/*
@@ -407,10 +415,10 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			p2.trim();
 
 			UINT flags = this->parseLayoutFlags(p2.gettok(1, " "));
-			UINT ID = atoi(p2.gettok(2, " ").to_chr());
-			UINT WGT = atoi(p2.gettok(3, " ").to_chr());
-			UINT W = atoi(p2.gettok(4, " ").to_chr());
-			UINT H = atoi(p2.gettok(5, " ").to_chr());
+			UINT ID = p2.gettok(2, " ").to_int();
+			UINT WGT = p2.gettok(3, " ").to_int();
+			UINT W = p2.gettok(4, " ").to_int();
+			UINT H = p2.gettok(5, " ").to_int();
 
 			if (com == "root" || com == "cell") {
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, mIRC_ID_OFFSET + ID);
@@ -430,9 +438,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 							p_Cell = new LayoutCellFill(cHwnd);
 						else {
 							TString error;
-
-							error.sprintf("/xdialog -l : Cell Fill -> Invalid ID : %d", ID);
-							mIRCError(error.to_chr());
+							error.sprintf("Cell Fill -> Invalid ID : %d", ID);
+							DCXError("/xdialog -l",error.to_chr());
 							return;
 						}
 					}
@@ -461,9 +468,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 								p_Cell = new LayoutCellFixed(cHwnd, rc, type);
 							else {
 								TString error;
-
-								error.sprintf("/xdialog -l : Cell Fixed -> Invalid ID : %d", ID);
-								mIRCError(error.to_chr());
+								error.sprintf("Cell Fixed -> Invalid ID : %d", ID);
+								DCXError("/xdialog -l",error.to_chr());
 								return;
 							}
 						}
@@ -477,16 +483,15 @@ void DcxDialog::parseCommandRequest(TString &input) {
 								p_Cell = new LayoutCellFixed(cHwnd, type);
 							else {
 								TString error;
-
-								error.sprintf("/xdialog -l : Cell Fixed -> Invalid ID : %d", ID);
-								mIRCError(error.to_chr());
+								error.sprintf("Cell Fixed -> Invalid ID : %d", ID);
+								DCXError("/xdialog -l",error.to_chr());
 								return;
 							}
 						}
 					} //else
 				} // else if ( flags & LAYOUTFIXED )
 				else {
-					mIRCError("/xdialog -l : Unknown Cell Type");
+					DCXError("/xdialog -l","Unknown Cell Type");
 					return;
 				}
 
@@ -505,9 +510,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 						if (p_GetCell == NULL) {
 							TString error;
-
-							error.sprintf("/xdialog -l : Invalid item path: %s", path.to_chr());
-							mIRCError(error.to_chr());
+							error.sprintf("Invalid item path: %s", path.to_chr());
+							DCXError("/xdialog -l",error.to_chr());
 							return;
 						}
 
@@ -599,22 +603,21 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
 			// Make colour transparent
-			SetLayeredWindowAttributes(this->m_Hwnd, atoi(input.gettok(4, " ").to_chr()), 0, LWA_COLORKEY);
+			SetLayeredWindowAttributes(this->m_Hwnd, input.gettok(4, " ").to_int(), 0, LWA_COLORKEY);
 		}
 		else if (input.gettok(3, " ") == "bgcolor") {
-			this->m_colTransparentBg = atoi(input.gettok(3, " ").to_chr());
+			this->m_colTransparentBg = input.gettok(3, " ").to_int();
 		}
 		else {
-			mIRCError("/xdialog -t: unknown switch");
+			DCXError("/xdialog -t","Unknown Switch");
 			return;
 		}
-
 		this->redrawWindow();
 	}
 	// xdialog -T [NAME] [SWITCH] [FLAGS] [STYLES]
 	else if (flags.switch_cap_flags[19] && numtok > 2) {
 		if (this->m_ToolTipHWND != NULL) {
-			mIRCError("Tooltip already exists. Cannot recreate");
+			DCXError("/xdialog -T","Tooltip already exists. Cannot recreate");
 			return;
 		}
 
@@ -635,40 +638,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		TString filename = input.gettok(5, -1, " ");
 		filename.trim();
 		ChangeHwndIcon(this->m_Hwnd,&flags,index,&filename);
-		//HICON iconSmall;
-		//HICON iconLarge;
-
-		//ExtractIconEx(filename.to_chr(), index, NULL, &iconSmall, 1);
-		//ExtractIconEx(filename.to_chr(), index, &iconLarge, NULL, 1);
-
-		//// copy the icon over in case there was no small icon
-		//if (!iconLarge)
-		//	iconLarge = iconSmall;
-		//// copy the icon over in case there was no large icon
-		//if (!iconSmall)
-		//	iconSmall = iconLarge;
-
-		//// TODO: add more meaningful error messages
-		//// No icon in file
-		//if (!iconLarge && !iconSmall) {
-		//	mIRCError("/xdialog -w: no icon in file");
-		//	return;
-		//}
-
-		//if (flags.find('g', 0)) {
-		//	iconSmall = CreateGrayscaleIcon(iconSmall);
-		//	iconLarge = CreateGrayscaleIcon(iconLarge);
-		//}
-
-		//// set the new icons, get back the current icon
-		//iconSmall = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_SMALL, (LPARAM) iconSmall);
-		//iconLarge = (HICON) SendMessage(this->m_Hwnd, WM_SETICON, ICON_BIG, (LPARAM) iconLarge);
-
-		//// delete the old icons
-		//if (iconSmall)
-		//	DestroyIcon(iconSmall);
-		//if (iconLarge)
-		//	DestroyIcon(iconLarge);
 	}
 	// xdialog -z [NAME] [SWITCH] [COLOR]
 	else if (flags.switch_flags[25] && numtok > 2) {
@@ -716,7 +685,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		TString flag = input.gettok(3," ");
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
-			mIRCError("Invalid Flag");
+			DCXError("/xdialog -R","Invalid Flag");
 			return;
 		}
 
@@ -729,7 +698,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			case 'f': 
 			{
 				if (numtok < 5) {
-					mIRCError("Invalid arguments for /xdialog +R +f");
+					DCXError("/xdialog -R","Invalid arguments +f flag");
 					return;
 				}
 
@@ -788,7 +757,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			{
 				// u need at least 3 points for a shape
 				if (numtok < 6) {
-					mIRCError("Invalid arguments for /xdialog +R +p");
+					DCXError("/xdialog -R","Invalid arguments for +p flag");
 					return;
 				}
 
@@ -797,7 +766,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				int tPoints = strPoints.numtok(" ");
 
 				if (tPoints < 1) {
-					mIRCError("Invalid Points");
+					DCXError("/xdialog -R","Invalid Points");
 					return;
 				}
 
@@ -836,11 +805,66 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 			default:
 			{
-				mIRCError("Invalid Flag");
+				DCXError("xdialog -R", "Invalid Flag");
 				break;
 			}
 		}
 		this->redrawWindow();
+	}
+	// xdialog -E [NAME] [SWITCH] [+flags] [-flags]
+	else if (flags.switch_cap_flags[4] && numtok > 3) {
+		//this->m_dEventMask = (DWORD)input.gettok(3," ").to_num();
+		DWORD mask = this->m_dEventMask;
+		TString p_flags = input.gettok(3," ");
+		TString n_flags = input.gettok(4," ");
+
+		if ((p_flags[0] != '+') || (n_flags[0] != '-')) {
+			DCXError("xdialog -E", "Invalid Flag");
+			return;
+		}
+		if (p_flags.find('c',0))
+			mask |= DCX_EVENT_CLICK;
+		if (p_flags.find('d',0))
+			mask |= DCX_EVENT_DRAG;
+		if (p_flags.find('e',0))
+			mask |= DCX_EVENT_EDIT;
+		if (p_flags.find('f',0))
+			mask |= DCX_EVENT_FOCUS;
+		if (p_flags.find('h',0))
+			mask |= DCX_EVENT_HELP;
+		if (p_flags.find('m',0))
+			mask |= DCX_EVENT_MOUSE;
+		if (p_flags.find('s',0))
+			mask |= DCX_EVENT_SIZE;
+		if (p_flags.find('t',0))
+			mask |= DCX_EVENT_THEME;
+		if (p_flags.find('C',0))
+			mask |= DCX_EVENT_CLOSE;
+		if (p_flags.find('M',0))
+			mask |= DCX_EVENT_MOVE;
+
+		if (n_flags.find('c',0))
+			mask &= ~DCX_EVENT_CLICK;
+		if (n_flags.find('d',0))
+			mask &= ~DCX_EVENT_DRAG;
+		if (n_flags.find('e',0))
+			mask &= ~DCX_EVENT_EDIT;
+		if (n_flags.find('f',0))
+			mask &= ~DCX_EVENT_FOCUS;
+		if (n_flags.find('h',0))
+			mask &= ~DCX_EVENT_HELP;
+		if (n_flags.find('m',0))
+			mask &= ~DCX_EVENT_MOUSE;
+		if (n_flags.find('s',0))
+			mask &= ~DCX_EVENT_SIZE;
+		if (n_flags.find('t',0))
+			mask &= ~DCX_EVENT_THEME;
+		if (n_flags.find('C',0))
+			mask &= ~DCX_EVENT_CLOSE;
+		if (n_flags.find('M',0))
+			mask &= ~DCX_EVENT_MOVE;
+
+		this->m_dEventMask = mask;
 	}
 	// invalid command
 	else {
@@ -1159,7 +1183,7 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 
 	// [NAME] [PROP] [ID]
 	if (input.gettok(2, " ") == "isid" && numtok > 2) {
-		int nID = atoi(input.gettok(3, " ").to_chr());
+		int nID = input.gettok(3, " ").to_int();
 
 		if (IsWindow(GetDlgItem(this->m_Hwnd, nID + mIRC_ID_OFFSET)) || 
 			(this->getControlByID(nID + mIRC_ID_OFFSET) != NULL))
@@ -1186,14 +1210,12 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 	}
 	// [NAME] [PROP] [N]
 	if (input.gettok(2, " ") == "id" && numtok > 2) {
-		int N = atoi(input.gettok(3, " ").to_chr()) -1;
+		int N = input.gettok(3, " ").to_int() -1;
 
-		if (N == -1) {
+		if (N == -1)
 			wsprintf(szReturnValue, "%d", this->m_vpControls.size());
-		}
-		else if ((N > -1) && (N < (int) this->m_vpControls.size())) {
+		else if ((N > -1) && (N < (int) this->m_vpControls.size()))
 			wsprintf(szReturnValue, "%d", this->m_vpControls[N]->getUserID());
-		}
 
 		return;
 	}
@@ -1305,11 +1327,13 @@ BOOL DcxDialog::callAliasEx(char *szReturn, const char *szFormat, ...) {
 		this->getName().to_chr(),
 		parms);
 
+	this->incRef();
 	SendMessage(mIRCLink.m_mIRCHWND, WM_USER +201, 0, mIRCLink.m_map_cnt);
 
 	if (szReturn)
 		lstrcpy(szReturn, mIRCLink.m_pData);
 
+	this->decRef();
 	va_end(args);
 
 	if (!lstrcmp(mIRCLink.m_pData, "$false"))
@@ -1347,13 +1371,14 @@ HBRUSH DcxDialog::getBackClrBrush() {
 
 void DcxDialog::setMouseControl(UINT mUID) {
 	if (mUID != this->m_MouseID) {
-		this->callAliasEx(NULL, "%s,%d", "mouseleave", this->m_MouseID);
-		this->callAliasEx(NULL, "%s,%d", "mouseenter", mUID);
+		if (this->m_dEventMask & DCX_EVENT_MOUSE) {
+			this->callAliasEx(NULL, "%s,%d", "mouseleave", this->m_MouseID);
+			this->callAliasEx(NULL, "%s,%d", "mouseenter", mUID);
+		}
 		this->m_MouseID = mUID;
 	}
-	else {
+	else if (this->m_dEventMask & DCX_EVENT_MOUSE)
 		this->callAliasEx(NULL, "%s,%d", "mouse", mUID);
-	}
 }
 
 /*!
@@ -1364,8 +1389,10 @@ void DcxDialog::setMouseControl(UINT mUID) {
 
 void DcxDialog::setFocusControl(UINT mUID) {
 	if (mUID != this->m_FocusID) {
-		this->callAliasEx(NULL, "%s,%d", "focusout", this->m_FocusID);
-		this->callAliasEx(NULL, "%s,%d", "focus", mUID);
+		if (this->m_dEventMask & DCX_EVENT_FOCUS) {
+			this->callAliasEx(NULL, "%s,%d", "focusout", this->m_FocusID);
+			this->callAliasEx(NULL, "%s,%d", "focus", mUID);
+		}
 		this->m_FocusID = mUID;
 	}
 }
@@ -1396,7 +1423,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	switch (uMsg) {
 		case WM_THEMECHANGED:
 		{
-			p_this->callAliasEx(NULL, "%s,%d", "themechanged", 0);
+			if (p_this->m_dEventMask & DCX_EVENT_THEME)
+				p_this->callAliasEx(NULL, "%s,%d", "themechanged", 0);
 			break;
 		}
 		case WM_NOTIFY:
@@ -1464,12 +1492,14 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_COMMAND:
 		{
 			if ((HIWORD(wParam) == 0) && (LOWORD(wParam) == 2) && (lParam == NULL)) {
-				char ret[256];
+				if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
+					char ret[256];
 
-				p_this->callAliasEx(ret, "%s,%d", "close", 0);
+					p_this->callAliasEx(ret, "%s,%d", "close", 0);
 
-				if (lstrcmp("noclose", ret) == 0)
-					bParsed = TRUE;
+					if (lstrcmp("noclose", ret) == 0)
+						bParsed = TRUE;
+				}
 			}
 			else if (IsWindow((HWND) lParam)) {
 				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
@@ -1485,7 +1515,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			switch (wParam & 0xFFF0) {
 				case SC_MOVE:
 				{
-					if (p_this != NULL) {
+					if (p_this->m_dEventMask & DCX_EVENT_MOVE) {
 						char ret[256];
 						p_this->callAliasEx(ret, "%s,%d", "beginmove", 0);
 
@@ -1495,13 +1525,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 						}
 					}
-
 					break;
 				}
 
 				case SC_CLOSE:
 				{
-					if (p_this != NULL) {
+					if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
 						char ret[256];
 
 						p_this->callAliasEx(ret, "%s,%d", "close", 0);
@@ -1509,13 +1538,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						if (lstrcmp("noclose", ret) == 0)
 							bParsed = TRUE;
 					}
-
 					break;
 				}
 
 				case SC_MINIMIZE:
 				{
-					if (p_this != NULL) {
+					if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
 						char ret[256];
 
 						p_this->callAliasEx(ret, "%s,%d", "min", 0);
@@ -1524,13 +1552,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						if (lstrcmp("stop", ret) != 0)
 							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 					}
-
 					break;
 				}
 
 				case SC_MAXIMIZE:
 				{
-					if (p_this != NULL) {
+					if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
 						char ret[256];
 
 						p_this->callAliasEx(ret, "%s,%d", "max", 0);
@@ -1545,7 +1572,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 				case SC_RESTORE:
 				{
-					if (p_this != NULL) {
+					if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
 						p_this->callAliasEx(NULL, "%s,%d", "restore", 0);
 
 						bParsed = TRUE;
@@ -1557,7 +1584,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 				case SC_SIZE:
 				{
-					if (p_this != NULL) {
+					if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
 						char ret[256];
 
 						p_this->callAliasEx(ret, "%s,%d", "beginsize", 0);
@@ -1578,61 +1605,56 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_EXITSIZEMOVE:
 		{
-			if (p_this != NULL) {
-				if (p_this->m_bInSizing)
-					p_this->callAliasEx(NULL, "%s,%d", "endsize", 0);
-				else if ( p_this->m_bInMoving )
-					p_this->callAliasEx(NULL, "%s,%d", "endmove", 0);
+			if ((p_this->m_bInSizing) && (p_this->m_dEventMask & DCX_EVENT_SIZE))
+				p_this->callAliasEx(NULL, "%s,%d", "endsize", 0);
+			else if ((p_this->m_bInMoving)  && (p_this->m_dEventMask & DCX_EVENT_MOVE))
+				p_this->callAliasEx(NULL, "%s,%d", "endmove", 0);
 
-				p_this->m_bInMoving = false;
-				p_this->m_bInSizing = false;
-			}
-
+			p_this->m_bInMoving = false;
+			p_this->m_bInSizing = false;
 			break;
 		}
 
 		case WM_MOVING:
 		{
-			if (p_this != NULL)
+			if (p_this->m_dEventMask & DCX_EVENT_MOVE)
 				p_this->callAliasEx(NULL, "%s,%d", "moving", 0);
 			break;
 		}
 
 		case WM_SIZE:
 		{
-			if (p_this != NULL) {
+			if (p_this->m_dEventMask & DCX_EVENT_SIZE)
 				p_this->callAliasEx(NULL, "%s,%d,%d,%d", "sizing", 0, LOWORD(lParam), HIWORD(lParam));
 
-				HWND bars = NULL;
+			HWND bars = NULL;
 
-				while ((bars = FindWindowEx(mHwnd, bars, DCX_REBARCTRLCLASS, NULL)) != NULL) {
-					SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
-				}
-
-				while ((bars = FindWindowEx(mHwnd, bars, DCX_STATUSBARCLASS, NULL)) != NULL) {
-					SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
-				}
-
-				while ((bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, NULL)) != NULL) {
-					DcxToolBar *t = (DcxToolBar*) p_this->getControlByHWND(bars);
-
-					t->autoPosition(LOWORD(lParam), HIWORD(lParam));
-					//SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) lParam );
-				}
-
-				RECT rc;
-
-				SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
-				p_this->updateLayout(rc);
-				p_this->redrawWindow();
+			while ((bars = FindWindowEx(mHwnd, bars, DCX_REBARCTRLCLASS, NULL)) != NULL) {
+				SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
 			}
 
+			while ((bars = FindWindowEx(mHwnd, bars, DCX_STATUSBARCLASS, NULL)) != NULL) {
+				SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
+			}
+
+			while ((bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, NULL)) != NULL) {
+				DcxToolBar *t = (DcxToolBar*) p_this->getControlByHWND(bars);
+
+				t->autoPosition(LOWORD(lParam), HIWORD(lParam));
+				//SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) lParam );
+			}
+
+			RECT rc;
+
+			SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
+			p_this->updateLayout(rc);
+			p_this->redrawWindow();
 			break;
 		}
 
 		case WM_WINDOWPOSCHANGING:
 		{
-			if (p_this != NULL) {
+			if (p_this->m_dEventMask & DCX_EVENT_MOVE) {
 				char ret[256];
 
 				p_this->callAliasEx(ret, "%s,%d", "changing", 0);
@@ -1647,7 +1669,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
 				}
 			}
-
 			break;
 		}
 
@@ -1800,8 +1821,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_LBUTTONDOWN:
 		{
-			p_this->callAliasEx(NULL, "%s,%d", "sclick", 0);
-			p_this->callAliasEx(NULL, "%s,%d", "lbdown", 0);
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
+				p_this->callAliasEx(NULL, "%s,%d", "sclick", 0);
+				p_this->callAliasEx(NULL, "%s,%d", "lbdown", 0);
+			}
 			if (p_this->m_bDoDrag)
 				p_this->m_bDrag = true;
 			break;
@@ -1809,79 +1832,91 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_LBUTTONUP:
 		{
-			p_this->callAliasEx(NULL, "%s,%d", "lbup", 0);
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+				p_this->callAliasEx(NULL, "%s,%d", "lbup", 0);
 			break;
 		}
 
 		case WM_LBUTTONDBLCLK:
 		{
-			p_this->callAliasEx(NULL, "%s,%d", "dclick", 0);
-			p_this->callAliasEx(NULL, "%s,%d", "lbdblclk", 0);
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
+				p_this->callAliasEx(NULL, "%s,%d", "dclick", 0);
+				p_this->callAliasEx(NULL, "%s,%d", "lbdblclk", 0);
+			}
 			break;
 		}
 
 		case WM_RBUTTONDOWN:
 		{
-			p_this->callAliasEx(NULL, "%s,%d", "rclick", 0);
-			p_this->callAliasEx(NULL, "%s,%d", "rbdown", 0);
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
+				p_this->callAliasEx(NULL, "%s,%d", "rclick", 0);
+				p_this->callAliasEx(NULL, "%s,%d", "rbdown", 0);
+			}
 			break;
 		}
 
 		case WM_RBUTTONUP:
 		{
-			p_this->callAliasEx(NULL, "%s,%d", "rbup", 0);
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+				p_this->callAliasEx(NULL, "%s,%d", "rbup", 0);
 			break;
 		}
 
 		case WM_RBUTTONDBLCLK:
 		{
-			p_this->callAliasEx(NULL, "%s,%d", "rbdblclk", 0);
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+				p_this->callAliasEx(NULL, "%s,%d", "rbdblclk", 0);
 			break;
 		}
 
 		case WM_MBUTTONDOWN:
 		{
-			p_this->callAliasEx(NULL, "%s,%d", "mbdown", 0);
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+				p_this->callAliasEx(NULL, "%s,%d", "mbdown", 0);
 			break;
 		}
 
 		case WM_MBUTTONUP:
 		{
-			p_this->callAliasEx(NULL, "%s,%d", "mbup", 0);
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+				p_this->callAliasEx(NULL, "%s,%d", "mbup", 0);
 			break;
 		}
 
 		case WM_MBUTTONDBLCLK:
 		{
-			p_this->callAliasEx(NULL, "%s,%d", "mbdblclk", 0);
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+				p_this->callAliasEx(NULL, "%s,%d", "mbdblclk", 0);
 			break;
 		}
 
 		case WM_MOUSEWHEEL:
 		{
-			DWORD fwKeys = GET_KEYSTATE_WPARAM(wParam);
-			DWORD zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-			TString flags("+");
-			
-			if (fwKeys & MK_CONTROL) // control button
-				flags = flags + "c";
-			if (fwKeys & MK_LBUTTON) // left mouse button
-				flags = flags + "l";
-			if (fwKeys & MK_MBUTTON) // middle mouse button button
-				flags = flags + "m";
-			if (fwKeys & MK_RBUTTON) // right mouse button
-				flags = flags + "r";
-			if (fwKeys & MK_SHIFT) // shift button
-				flags = flags + "s";
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
+				DWORD fwKeys = GET_KEYSTATE_WPARAM(wParam);
+				DWORD zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+				TString flags("+");
+				
+				if (fwKeys & MK_CONTROL) // control button
+					flags = flags + "c";
+				if (fwKeys & MK_LBUTTON) // left mouse button
+					flags = flags + "l";
+				if (fwKeys & MK_MBUTTON) // middle mouse button button
+					flags = flags + "m";
+				if (fwKeys & MK_RBUTTON) // right mouse button
+					flags = flags + "r";
+				if (fwKeys & MK_SHIFT) // shift button
+					flags = flags + "s";
 
-			p_this->callAliasEx(NULL, "%s,%d,%s,%s",
-				"mwheel",
-				p_this->m_MouseID,
-				((int) zDelta > 0 ? "up" : "down"),
-				flags.to_chr());
+				p_this->callAliasEx(NULL, "%s,%d,%s,%s",
+					"mwheel",
+					p_this->m_MouseID,
+					((int) zDelta > 0 ? "up" : "down"),
+					flags.to_chr());
 
-			bParsed = TRUE;
-			lRes = FALSE; // stop parsing of WM_MOUSEWHEEL
+				bParsed = TRUE;
+				lRes = FALSE; // stop parsing of WM_MOUSEWHEEL
+			}
 			break;
 		}
 
@@ -1912,24 +1947,25 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
 			if (count) {
-				char ret[20];
+				if (p_this->m_dEventMask & DCX_EVENT_DRAG) {
+					char ret[20];
 
-				p_this->callAliasEx(ret, "%s,%d,%d", "dragbegin", 0, count);
+					p_this->callAliasEx(ret, "%s,%d,%d", "dragbegin", 0, count);
 
-				// cancel drag drop event
-				if (lstrcmpi(ret, "cancel") == 0) {
-					DragFinish(files);
-					bParsed = TRUE;
-					break;
+					// cancel drag drop event
+					if (lstrcmpi(ret, "cancel") == 0) {
+						DragFinish(files);
+						bParsed = TRUE;
+						break;
+					}
+					// for each file, send callback message
+					for (int i = 0; i < count; i++) {
+						if (DragQueryFile(files, i, filename, 500))
+							p_this->callAliasEx(NULL, "%s,%d,%s", "dragfile", 0, filename);
+					}
+
+					p_this->callAliasEx(NULL, "%s,%d", "dragfinish", 0);
 				}
-
-				// for each file, send callback message
-				for (int i = 0; i < count; i++) {
-					if (DragQueryFile(files, i, filename, 500))
-						p_this->callAliasEx(NULL, "%s,%d,%s", "dragfile", 0, filename);
-				}
-
-				p_this->callAliasEx(NULL, "%s,%d", "dragfinish", 0);
 			}
 
 			DragFinish(files);
@@ -1938,21 +1974,22 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_ACTIVATE:
 		{
-			switch (wParam) {
-				case WA_ACTIVE:
-				case WA_CLICKACTIVE:
-				{
-					p_this->callAliasEx(NULL, "%s,%d", "activate", 0);
-					break;
-				}
+			if (p_this->m_dEventMask & DCX_EVENT_FOCUS) {
+				switch (wParam) {
+					case WA_ACTIVE:
+					case WA_CLICKACTIVE:
+					{
+						p_this->callAliasEx(NULL, "%s,%d", "activate", 0);
+						break;
+					}
 
-				case WA_INACTIVE:
-				{
-					p_this->callAliasEx(NULL, "%s,%d", "deactivate", 0);
-					break;
-				}
-			} // switch
-
+					case WA_INACTIVE:
+					{
+						p_this->callAliasEx(NULL, "%s,%d", "deactivate", 0);
+						break;
+					}
+				} // switch
+			}
 			break;
 		}
 		case LB_GETITEMRECT:

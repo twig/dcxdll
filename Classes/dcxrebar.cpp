@@ -998,7 +998,8 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -1078,22 +1079,23 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
           this->m_iClickedBand = band;
 
-          this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), band + 1 );
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+		        this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), band + 1 );
         }
       }
       break;
 
     case WM_CONTEXTMENU:
       {
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+					RBHITTESTINFO rbhi;
+					GetCursorPos( &rbhi.pt );
+					ScreenToClient( this->m_Hwnd, &rbhi.pt );
+					int band = this->hitTest( &rbhi );
 
-        RBHITTESTINFO rbhi;
-        GetCursorPos( &rbhi.pt );
-        ScreenToClient( this->m_Hwnd, &rbhi.pt );
-        int band = this->hitTest( &rbhi );
-
-        if ( band != -1 ) {
-          this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), band + 1 );
-        }
+					if ( band != -1 )
+						this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), band + 1 );
+				}
       }
       break;
 

@@ -763,25 +763,28 @@ LRESULT DcxTab::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
         switch( hdr->code ) {
 				case NM_RCLICK:
           {
-						TCHITTESTINFO tchi;
-						tchi.flags = TCHT_ONITEM;
-						GetCursorPos( &tchi.pt );
-						ScreenToClient( this->m_Hwnd, &tchi.pt );
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+							TCHITTESTINFO tchi;
+							tchi.flags = TCHT_ONITEM;
+							GetCursorPos( &tchi.pt );
+							ScreenToClient( this->m_Hwnd, &tchi.pt );
 
-						int tab = TabCtrl_HitTest( this->m_Hwnd, &tchi );
-						int stab = TabCtrl_GetCurSel( this->m_Hwnd );
+							int tab = TabCtrl_HitTest( this->m_Hwnd, &tchi );
+							int stab = TabCtrl_GetCurSel( this->m_Hwnd );
 
-						if ( tab != -1 && tab == stab )
-							this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), tab+1 );
+							if ( tab != -1 && tab == stab )
+								this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), tab+1 );
+						}
 						bParsed = TRUE;
 					}
 					break;
         case TCN_SELCHANGE:
 					{
-						int tab = TabCtrl_GetCurSel( this->m_Hwnd );
-
-						if ( tab != -1 )
-							this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), tab+1 );
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+							int tab = TabCtrl_GetCurSel( this->m_Hwnd );
+							if ( tab != -1 )
+								this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), tab+1 );
+						}
 						this->activateSelectedTab( );
 						bParsed = TRUE;
 					}
@@ -800,7 +803,8 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_HELP:
       {
-        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 

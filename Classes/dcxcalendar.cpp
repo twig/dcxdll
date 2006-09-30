@@ -265,7 +265,8 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					break;
 				}
 				case NM_RELEASEDCAPTURE: {
-					this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+						this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
 					break;
 				}
 				default: {

@@ -777,7 +777,8 @@ LRESULT DcxBox::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
         switch ( HIWORD( wParam ) ) {
           case BN_CLICKED:
             {
-              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+	              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
             }
             break;
         }
@@ -801,7 +802,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_HELP:
       {
-				this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+					this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
       }
       break;
 
@@ -824,16 +826,19 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
     case WM_COMMAND:
 			{
 				if (((HWND)lParam != NULL) && ((HWND)lParam == this->m_TitleButton) ) {
-					switch ( HIWORD( wParam ) ) {
+					switch ( HIWORD( wParam ) )
+					{
 						case BN_CLICKED:
 						{
 							BOOL state = (SendMessage(this->m_TitleButton,BM_GETCHECK,0,0) == BST_CHECKED);
-							char ret[10];
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								char ret[10];
 
-							this->callAliasEx(ret, "%s,%d,%d", "checkchange", this->getUserID(), state);
+								this->callAliasEx(ret, "%s,%d,%d", "checkchange", this->getUserID(), state);
 
-							if (lstrcmp("nochange", ret) == 0)
-								return 0L;
+								if (lstrcmp("nochange", ret) == 0)
+									return 0L;
+							}
 
 							DCXENUM de;
 							de.mChildHwnd = this->m_TitleButton;
@@ -843,12 +848,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 							break;
 						}
 					} // end switch
-
 					break;
 				}
 			}
-    case WM_HSCROLL: 
-    case WM_VSCROLL: 
+    case WM_HSCROLL:
+    case WM_VSCROLL:
       {
 				if (IsWindow((HWND) lParam)) {
 					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
@@ -915,7 +919,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
           SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
         }
 
-        this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
+	        this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
 
         RECT rc;
         SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
@@ -1181,26 +1186,31 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_LBUTTONDOWN:
 		{
-			this->callAliasEx(NULL, "%s,%d", "lbdown", this->getUserID());
-			this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+				this->callAliasEx(NULL, "%s,%d", "lbdown", this->getUserID());
+				this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+			}
 			break;
 		}
 
 		case WM_LBUTTONUP:
 		{
-			this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
 			break;
 		}
 
 		case WM_LBUTTONDBLCLK:
 		{
-			this->callAliasEx(NULL, "%s,%d", "dclick", this->getUserID());
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				this->callAliasEx(NULL, "%s,%d", "dclick", this->getUserID());
 			break;
 		}
 
 		case WM_RBUTTONDOWN:
 		{
-			this->callAliasEx(NULL, "%s,%d", "rclick", this->getUserID());
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				this->callAliasEx(NULL, "%s,%d", "rclick", this->getUserID());
 			break;
 		}
 		case WM_THEMECHANGED:
