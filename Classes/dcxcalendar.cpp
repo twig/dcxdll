@@ -345,7 +345,7 @@ long DcxCalendar::SystemTimeToMircTime(SYSTEMTIME st) {
 
 	wsprintf(ret, "$ctime(%d %s %d)",
 		st.wDay,
-		months[st.wMonth -1],
+		months[st.wMonth -1].to_chr(),
 		st.wYear);
 
 	mIRCeval(ret, ret);

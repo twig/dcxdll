@@ -880,7 +880,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			errmsg.sprintf("D_ERROR xdialog: Invalid command /xdialog %s %s %s",
 				input.gettok(2, " ").to_chr(),
 				input.gettok(1, " ").to_chr(),
-				input.gettok(3, -1, " "));
+				input.gettok(3, -1, " ").to_chr());
 		}
 		else {
 			errmsg.sprintf("D_ERROR xdialog: Invalid command /xdialog %s %s",
