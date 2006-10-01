@@ -91,9 +91,9 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
   }
   else if ( ( p_Menu = this->getMenuByName( input.gettok( 1, " " ) ) ) == NULL && flags.switch_flags[2] == 0 ) {
 
-    char data[500];
-    wsprintf( data, "XPopup : \"%s\" doesn't exist : see /xpopup -c", input.gettok( 1, " " ).to_chr( ) );
-    mIRCError( data );
+    TString error;
+		error.sprintf("\"%s\" doesn't exist : see /xpopup -c", input.gettok( 1, " " ).to_chr( ) );
+		DCXError("/xpopup",error.to_chr());
     return;
   }
 
@@ -115,9 +115,9 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
 		(input.gettok(1, " ") != "mirc" || input.gettok(1, " ") != "mircbar")) {
 
 		if (p_Menu != NULL) {
-			char data[500];
-			wsprintf( data, "/xpopup -c : \"%s\" already exists", input.gettok( 1, " " ).to_chr( ) );
-			mIRCError( data );
+			TString error;
+			error.sprintf("\"%s\" already exists", input.gettok( 1, " " ).to_chr( ) );
+			DCXError("/xpopup -c",error.to_chr());
 		}
 		else {
 			XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
@@ -158,7 +158,7 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
     HICON icon;
     int index;
 
-    index = atoi( input.gettok( 3, " " ).to_chr( ) );
+    index = input.gettok( 3, " " ).to_int( );
     TString filename = input.gettok( 4, -1, " " );
     ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
     ImageList_AddIcon( himl, icon );
@@ -172,8 +172,8 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
   // xpopup -l -> [MENU] [SWITCH] [N] [COLOR]
   else if ( flags.switch_flags[11] && numtok > 3 ) {
 
-    int nColor = atoi( input.gettok( 3, " " ).to_chr( ) );
-    COLORREF clrColor = atol( input.gettok( 4, " " ).to_chr( ) );
+    int nColor = input.gettok( 3, " " ).to_int( );
+    COLORREF clrColor = (COLORREF)input.gettok( 4, " " ).to_num( );
 
     p_Menu->setColor( nColor, clrColor );
   }
@@ -185,7 +185,7 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
 
     while ( i <= len ) {
 
-      p_Menu->setColor( i, atol( colors.gettok( i, " " ).to_chr( ) ) );
+      p_Menu->setColor( i, (COLORREF)colors.gettok( i, " " ).to_num( ) );
       ++i;
     }
   }
@@ -193,8 +193,8 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
   else if ( flags.switch_flags[18] && numtok > 4 ) {
 
     UINT flags = this->parseTrackFlags( input.gettok( 3, " " ) );
-    int x = atoi( input.gettok( 4, " " ).to_chr( ) );
-    int y = atoi( input.gettok( 5, " " ).to_chr( ) );
+    int x = input.gettok( 4, " " ).to_int( );
+    int y = input.gettok( 5, " " ).to_int( );
 
     /*
     char error[500];
@@ -204,9 +204,9 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
     
     UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | flags, x, y, mhMenuOwner, NULL );
 
-    char com[900];
-    wsprintf(com, "//.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID );
-    mIRCcom(com);
+    TString com;
+    com.sprintf("//.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID );
+		mIRCcom(com.to_chr());
   }
 	// xpopup -t -> [MENU] [SWITCH] [STYLE]
 	else if (flags.switch_flags[19] && numtok > 2) {
@@ -275,9 +275,9 @@ void XPopupMenuManager::parseXPopupIdentifier( TString & input, char * szReturnV
   XPopupMenu * p_Menu;
   if ( ( p_Menu = this->getMenuByName( input.gettok( 1, " " ) ) ) == NULL && prop != "ismenu" ) {
 
-    char data[500];
-    wsprintf( data, "XPopop Error : \"%s\" doesn't exist, see /xpopup -c", input.gettok( 1, " " ).to_chr( ) );
-    mIRCError( data );
+    TString error;
+    error.sprintf("\"%s\" doesn't exist, see /xpopup -c", input.gettok( 1, " " ).to_chr( ) );
+		DCXError("$ $+ xpopup", error.to_chr());
     return;
   }
 
@@ -334,7 +334,7 @@ void XPopupMenuManager::parseXPopupIdentifier( TString & input, char * szReturnV
   }
   else if ( prop == "color" && numtok > 2 ) {
 
-    int nColor = atoi( input.gettok( 3, " " ).to_chr( ) );
+    int nColor = input.gettok( 3, " " ).to_int( );
     if ( nColor > 0 && nColor < 11 ) {
 
       wsprintf( szReturnValue, "%ld", p_Menu->getColor( nColor ) );

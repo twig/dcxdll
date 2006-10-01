@@ -217,7 +217,7 @@ void XPopupMenu::parseXPopCommand( TString & input ) {
 
     if ( hMenu == NULL ) {
 
-      mIRCError( "/ $+ xpop : Invalid Menu Item Path" );
+      DCXError("/xpop","Invalid Menu Item Path" );
       return;
     }
     //else {
@@ -227,8 +227,6 @@ void XPopupMenu::parseXPopCommand( TString & input ) {
 
   // xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText [TAB] Command
   if ( flags.switch_flags[0] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 3 ) {
-
-    //mIRCError( input.to_chr( ) );
 
     TString itemdata = input.gettok( 2, "\t" );
     itemdata.trim( );

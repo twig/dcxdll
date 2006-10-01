@@ -282,7 +282,8 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) {
 	switch (uMsg) {
 		case WM_HELP: {
-			this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+				this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
 			break;
 		}
 

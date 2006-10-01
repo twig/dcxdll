@@ -505,7 +505,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
   // xdid -g [NAME] [ID] [SWITCH] [HEIGHT]
   else if ( flags.switch_flags[6] && numtok > 3 ) {
 
-    int iHeight = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int iHeight = input.gettok( 4, " " ).to_int( );
 
     if ( iHeight > -2 ) {
 
@@ -516,7 +516,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
   else if ( flags.switch_flags[8] && numtok > 4 ) {
     UINT iFlags = this->parseColorFlags( input.gettok( 4, " " ) );
 
-    COLORREF clr = (COLORREF) atol( input.gettok( 5, " " ).to_chr( ) );
+    COLORREF clr = (COLORREF) input.gettok( 5, " " ).to_num( );
 
     if ( iFlags & TVCOLOR_B )
       TreeView_SetBkColor( this->m_Hwnd, clr );
@@ -545,8 +545,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
         if ( this->correctTargetItem( &hParent, &hAfter ) ) {
 
-          int nIcon = atoi( icons.gettok( 1, " " ).to_chr( ) ) - 1;
-          int sIcon = atoi( icons.gettok( 2, " " ).to_chr( ) ) - 1;
+          int nIcon = icons.gettok( 1, " " ).to_int( ) - 1;
+          int sIcon = icons.gettok( 2, " " ).to_int( ) - 1;
 
 			 // quickfix so it doesnt display an image
 			 if (nIcon == -1)
@@ -575,7 +575,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
     if ( this->parsePath( &input.gettok( 5, -1, " " ), &hParent, &hAfter ) ) {
 
-      UINT state = atoi( input.gettok( 4, " " ).to_chr( ) );
+      UINT state = input.gettok( 4, " " ).to_int( );
 
       if ( !this->correctTargetItem( &hParent, &hAfter ) )
         return;
@@ -586,7 +586,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
   // xdid -l [NAME] [ID] [SWITCH] [SIZE]
   else if ( flags.switch_flags[11] && numtok > 3 ) {
 
-    int size = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int size = input.gettok( 4, " " ).to_int( );
 
     if ( size != 32 && size != 24 )
       size = 16;
@@ -691,7 +691,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     HTREEITEM hAfter = TVI_ROOT;
 
     if ( this->parsePath( &input.gettok( 6, -1, " " ), &hParent, &hAfter ) ) {
-      COLORREF clrText = (COLORREF) atol( input.gettok( 5, " " ).to_chr( ) );
+      COLORREF clrText = (COLORREF) input.gettok( 5, " " ).to_num( );
 
       if ( !this->correctTargetItem( &hParent, &hAfter ) )
         return;
@@ -975,12 +975,12 @@ HTREEITEM DcxTreeView::insertItem(TString * path, TString * data, TString * Tool
 	tvi.mask = TVIF_TEXT | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM | TVIF_HANDLE | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
 
 	int iFlags			= this->parseItemFlags(data->gettok(1, " "));
-	int icon				= (int) atoi(data->gettok(2, " ").to_chr()) -1;
-	int sicon			= (int) atoi(data->gettok(3, " ").to_chr()) -1;
-	int overlay			= (int) atoi(data->gettok(4, " ").to_chr());
-	int state			= (int) atoi(data->gettok(5, " ").to_chr());
-	int integral		= (int) atoi(data->gettok(6, " ").to_chr()) +1;
-	COLORREF clrText	= (COLORREF) atol(data->gettok(7, " ").to_chr());
+	int icon				= data->gettok(2, " ").to_int() -1;
+	int sicon			= data->gettok(3, " ").to_int() -1;
+	int overlay			= data->gettok(4, " ").to_int();
+	int state			= data->gettok(5, " ").to_int();
+	int integral		= data->gettok(6, " ").to_int() +1;
+	COLORREF clrText	= (COLORREF) data->gettok(7, " ").to_num();
 
 	// parse DCX parameters
 	LPDCXTVITEM lpmytvi = new DCXTVITEM;
@@ -1302,7 +1302,7 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 BOOL DcxTreeView::parsePath( TString * path, HTREEITEM * hParent, HTREEITEM * hInsertAfter, int depth ) {
 
   int n = path->numtok( " " ), i = 1;
-  int k = atoi( path->gettok( depth, " " ).to_chr( ) );
+  int k = path->gettok( depth, " " ).to_int( );
   HTREEITEM hPreviousItem = TVI_FIRST, hCurrentItem;
 
   //char data[50];

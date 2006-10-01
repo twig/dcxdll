@@ -561,8 +561,6 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
     lvg.pszHeader = wstr;
     
     if ( isXP( ) && ListView_GetGroupInfo( this->m_Hwnd, GID, &lvg ) != -1 ) {
-
-      //mIRCError( "Got Information!" );
       int n = WideCharToMultiByte( CP_ACP, 0, wstr, lstrlenW( wstr ) + 1, szReturnValue, 900, NULL, NULL );
       TString error;
       error.sprintf("Chars %d", n );
@@ -584,8 +582,8 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
 	// [NAME] [ID] [PROP] [N] [NSUB] [PBARPROP] [PARAM]
 	else if ((input.gettok(3, " ") == "pbar") && (numtok > 5)) {
 /*
-		int nItem = atoi(input.gettok(4, " ").to_chr()) -1;
-		int nSubItem = atoi(input.gettok(5, " ").to_chr());
+		int nItem = input.gettok(4, " ").to_int() -1;
+		int nSubItem = input.gettok(5, " ").to_int();
 
   		DCXLVPBAR* pbarCell = this->getPbar(nItem, nSubItem);
 
@@ -1032,7 +1030,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 				if (numtok > 5)
 					ListView_SetColumnWidth(this->m_Hwnd, nColumn, input.gettok(6, " ").to_int());
 				else
-					mIRCError("/xdid -n: no width specified");
+					DCXError("/xdid -n","No width specified");
 			}
 		}
 	}

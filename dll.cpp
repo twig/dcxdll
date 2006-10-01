@@ -153,7 +153,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	gsi.SuppressBackgroundThread = FALSE;
 	gsi.SuppressExternalCodecs = FALSE;
 	if (GdiplusStartup(&gdi_token,&gsi,NULL) != Ok) {
-		mIRCError("Unable to Startup GDI+");
+		DCXError("LoadDLL","Unable to Startup GDI+");
 		return;
 	}
 
@@ -186,7 +186,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 			FreeLibrary(UXModule);
 			UXModule = NULL;
 			XPPlus = FALSE;
-			mIRCError("DCX: There was a problem loading IsThemedXP");
+			DCXError("LoadDll","There was a problem loading IsThemedXP");
 		}
 	}
 	else
@@ -506,9 +506,7 @@ mIRC(GetSystemColor) {
 	d.trim();
 
 	if (d.numtok(" ") < 1) {
-		TString error;
-		error.sprintf("D_ERROR GetSysColor: Invalid arguments");
-		mIRCError(error.to_chr());
+		DCXError("GetSysColor","Invalid arguments");
 		return 0;
 	}
 
@@ -572,7 +570,7 @@ mIRC(ColorDialog) {
 
 	CHOOSECOLOR	cc;
 	static COLORREF clr[16];
-	COLORREF		sel = atoi(d.gettok(1, " ").to_chr());
+	COLORREF		sel = (COLORREF)d.gettok(1, " ").to_num();
 	DWORD			styles = CC_RGBINIT;
 	ZeroMemory(&cc, sizeof(CHOOSECOLOR));
 
@@ -623,7 +621,7 @@ mIRC(OpenDialog) {
 
 	// count number of tab tokens
 	if (d.numtok("\t") != 3) {
-		mIRCError("D_ERROR OpenDialog: Invalid parameters");
+		DCXError("OpenDialog","Invalid parameters");
 		ret("");
 	}
 
@@ -637,7 +635,7 @@ mIRC(SaveDialog) {
 
 	// count number of tab tokens
 	if (d.numtok("\t") != 3) {
-		mIRCError("D_ERROR SaveDialog: Invalid parameters");
+		DCXError("SaveDialog","Invalid parameters");
 		ret("");
 	}
 
@@ -746,11 +744,11 @@ mIRC(FontDialog) {
 			ParseCommandToLogfont(option.gettok(2, -1, " "), &lf);
 		// color rgb
 		else if (option.gettok(1, " ") == "color" && numtok > 1)
-			cf.rgbColors = (COLORREF) atoi(option.gettok(2, " ").to_chr());
+			cf.rgbColors = (COLORREF) option.gettok(2, " ").to_num();
 		// minmaxsize min max
 		else if (option.gettok(1, " ") == "minmaxsize" && numtok > 2) {
-			cf.nSizeMin = atoi(option.gettok(2, " ").to_chr());
-			cf.nSizeMax = atoi(option.gettok(3, " ").to_chr());
+			cf.nSizeMin = option.gettok(2, " ").to_int();
+			cf.nSizeMax = option.gettok(3, " ").to_int();
 		}
 		// owner
 		else if (option.gettok(1, " ") == "owner" && numtok > 1)
@@ -790,9 +788,10 @@ mIRC(xdid) {
 	TString d(data);
 	d.trim();
 
+	data[0] = 0;
+
 	if (d.numtok(" ") < 3) {
-		mIRCError("/xdid invalid arguments");
-		data[0] = 0;
+		DCXError("/xdid","Invalid arguments");
 		return 3;
 	}
 
@@ -800,9 +799,8 @@ mIRC(xdid) {
 
 	if (p_Dialog == NULL) {
 		TString error;
-		error.sprintf("/xdid unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
-		mIRCError(error.to_chr());
-		data[0] = 0;
+		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
+		DCXError("/xdid",error.to_chr());
 		return 3;
 	}
 
@@ -813,13 +811,12 @@ mIRC(xdid) {
 	// Multiple IDs
 	if (n > 1) {
 		while (i <= n) {
-			p_Control = p_Dialog->getControlByID((UINT) atoi(IDs.gettok(i, ",").to_chr()) + mIRC_ID_OFFSET);
+			p_Control = p_Dialog->getControlByID((UINT) IDs.gettok(i, ",").to_int() + mIRC_ID_OFFSET);
 
 			if (p_Control == NULL) {
 				TString error;
-				error.sprintf("/xdid invalid ID : %s (dialog : %s)", IDs.gettok(i, ",").to_chr(), d.gettok(1, " ").to_chr());
-				mIRCError(error.to_chr());
-				data[0] = 0;
+				error.sprintf("Invalid ID : %s (dialog : %s)", IDs.gettok(i, ",").to_chr(), d.gettok(1, " ").to_chr());
+				DCXError("/xdid",error.to_chr());
 				return 3;
 			}
 
@@ -831,13 +828,12 @@ mIRC(xdid) {
 	}
 	//Single ID
 	else {
-		p_Control = p_Dialog->getControlByID((UINT) atoi(d.gettok(2, " ").to_chr()) + mIRC_ID_OFFSET);
+		p_Control = p_Dialog->getControlByID((UINT) d.gettok(2, " ").to_int() + mIRC_ID_OFFSET);
 
 		if (p_Control == NULL) {
 			TString error;
-			error.sprintf("/xdid invalid ID : %s (dialog : %s)", d.gettok(2, " ").to_chr(), d.gettok(1, " ").to_chr());
-			mIRCError(error.to_chr());
-			data[0] = 0;
+			error.sprintf("Invalid ID : %s (dialog : %s)", d.gettok(2, " ").to_chr(), d.gettok(1, " ").to_chr());
+			DCXError("/xdid",error.to_chr());
 			return 3;
 		}
 
@@ -861,7 +857,7 @@ mIRC(_xdid) {
 	data[0] = 0;
 
 	if (d.numtok(" ") < 3) {
-		mIRCError("$ $+ xdid invalid arguments");
+		DCXError("$ $+ xdid","Invalid arguments");
 		return 3;
 	}
 
@@ -869,17 +865,17 @@ mIRC(_xdid) {
 
 	if (p_Dialog == NULL) {
 		TString error;
-		error.sprintf("$ $+ xdid unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
-		mIRCError(error.to_chr());
+		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
+		DCXError("$ $+ xdid",error.to_chr());
 		return 3;
 	}
 
-	DcxControl * p_Control = p_Dialog->getControlByID((UINT) atoi(d.gettok(2, " ").to_chr()) + mIRC_ID_OFFSET);
+	DcxControl * p_Control = p_Dialog->getControlByID((UINT) d.gettok(2, " ").to_int() + mIRC_ID_OFFSET);
 
 	if (p_Control == NULL) {
 		TString error;
-		error.sprintf("$ $+ xdid invalid ID : %s (dialog %s)", d.gettok(2, " ").to_chr(), d.gettok(1, " ").to_chr());
-		mIRCError(error.to_chr());
+		error.sprintf("Invalid ID : %s (dialog %s)", d.gettok(2, " ").to_chr(), d.gettok(1, " ").to_chr());
+		DCXError("$ $+ xdid",error.to_chr());
 		return 3;
 	}
 
@@ -925,8 +921,8 @@ mIRC(xdialog) {
 
 	if (d.numtok(" ") < 2) {
 		TString error;
-		error.sprintf("/xdialog invalid arguments ( dialog %s)", d.gettok(1, " ").to_chr());
-		mIRCError(error.to_chr());
+		error.sprintf("Invalid arguments ( dialog %s)", d.gettok(1, " ").to_chr());
+		DCXError("/xdialog",error.to_chr());
 		return 3;
 	}
 
@@ -934,8 +930,8 @@ mIRC(xdialog) {
 
 	if (p_Dialog == NULL) {
 		TString error;
-		error.sprintf("/xdialog unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
-		mIRCError(error.to_chr());
+		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
+		DCXError("/xdialog",error.to_chr());
 		return 3;
 	}
 
@@ -959,8 +955,8 @@ mIRC(_xdialog) {
 
 	if (d.numtok(" ") < 2) {
 		TString error;
-		error.sprintf("$ $+ xdialog invalid arguments ( dialog %s)", d.gettok(1, " ").to_chr());
-		mIRCError(error.to_chr());
+		error.sprintf("Invalid arguments ( dialog %s)", d.gettok(1, " ").to_chr());
+		DCXError("$ $+ xdialog",error.to_chr());
 		return 3;
 	}
 
@@ -969,8 +965,8 @@ mIRC(_xdialog) {
 	if (p_Dialog == NULL) {
 		if (d.gettok(2, " ") != "ismarked") {
 			TString error;
-			error.sprintf("$ $+ xdialog unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
-			mIRCError(error.to_chr());
+			error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
+			DCXError("$ $+ xdialog",error.to_chr());
 			return 3;
 		}
 		else
@@ -1251,15 +1247,15 @@ mIRC(xpop) {
 	TString d(data);
 	d.trim();
 
+	data[0] = 0;
+
 	if (d.numtok(" ") < 3) {
-		mIRCError("/ $+ xpop invalid arguments");
-		data[0] = 0;
+		DCXError("/xpop","Invalid arguments");
 		return 3;
 	}
 
 	if ((d.gettok(1, " ") == "mirc") || (d.gettok(1, " ") == "mircbar")) {
-		mIRCError("/ $+ xpop invalid menu name : mirc or mircbar menus don't have access to this feature.");
-		data[0] = 0;
+		DCXError("/xpop","Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 		return 3;
 	}
 
@@ -1267,9 +1263,8 @@ mIRC(xpop) {
 
 	if (p_Menu == NULL) {
 		TString error;
-		error.sprintf("/ $+ xpop unknown menu \"%s\": see /xpopup -c command", d.gettok(1, " ").to_chr());
-		mIRCError(error.to_chr());
-		data[0] = 0;
+		error.sprintf("Unknown menu \"%s\": see /xpopup -c command", d.gettok(1, " ").to_chr());
+		DCXError("/xpop",error.to_chr());
 		return 3;
 	}
 
@@ -1288,15 +1283,15 @@ mIRC(_xpop) {
 	TString d(data);
 	d.trim();
 
+	data[0] = 0;
+
 	if (d.numtok(" ") < 3) {
-		mIRCError("$ $+ xpop invalid arguments");
-		data[0] = 0;
+		DCXError("$ $+ xpop","Invalid arguments");
 		return 3;
 	}
 
 	if ((d.gettok(1, " ") == "mirc") || (d.gettok(1, " ") == "mircbar")) {
-		mIRCError("$ $+ xpop invalid menu name : mirc or mircbar menus don't have access to this feature.");
-		data[0] = 0;
+		DCXError("$ $+ xpop","Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 		return 3;
 	}
 
@@ -1304,9 +1299,8 @@ mIRC(_xpop) {
 
 	if (p_Menu == NULL) {
 		TString error;
-		error.sprintf("$ $+ xpop unknown menu \"%s\": see /xpopup -c command", d.gettok(1, " ").to_chr());
-		mIRCError(error.to_chr());
-		data[0] = 0;
+		error.sprintf("Unknown menu \"%s\": see /xpopup -c command", d.gettok(1, " ").to_chr());
+		DCXError("$ $+ xpop",error.to_chr());
 		return 3;
 	}
 
@@ -1325,9 +1319,10 @@ mIRC(xpopup) {
 	TString d(data);
 	d.trim();
 
+	data[0] = 0;
+
 	if (d.numtok(" ") < 2) {
-		mIRCError("/ $+ xpopup invalid arguments");
-		data[0] = 0;
+		DCXError("/xpopup","Invalid arguments");
 		return 3;
 	}
 
@@ -1346,9 +1341,10 @@ mIRC(_xpopup) {
 	TString d(data);
 	d.trim();
 
+	data[0] = 0;
+
 	if (d.numtok(" ") < 2) {
-		mIRCError("$ $+ xpopup invalid arguments");
-		data[0] = 0;
+		DCXError("$ $+ xpopup","Invalid arguments");
 		return 3;
 	}
 
@@ -1367,9 +1363,10 @@ mIRC(mpopup) {
 	TString d(data);
 	d.trim();
 
+	data[0] = 0;
+
 	if (d.numtok(" ") < 2) {
-		mIRCError("/ $+ mpopup invalid arguments");
-		data[0] = 0;
+		DCXError("/mpopup","Invalid arguments");
 		return 3;
 	}
 
@@ -1387,8 +1384,6 @@ mIRC(mpopup) {
 			g_mIRCMenuBar->cleanMenu(GetMenu(mIRCLink.m_mIRCHWND));
 		}
 	}
-
-	data[0] = 0;
 	return 3;
 }
 // <1|0>

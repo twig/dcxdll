@@ -318,7 +318,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			DCXError("/xdialog -d",error.to_chr());
 		}
 	}
-	// xdid -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
+	// xdialog -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
 	else if (flags.switch_flags[5] && numtok > 4) {
 		UINT iFlags = this->parseFlashFlags(input.gettok(3, " "));
 		INT iCount = input.gettok(4, " ").to_int();
@@ -334,7 +334,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 		FlashWindowEx(& fli);
 	}
-	// xdid -g [NAME] [SWITCH] [+FLAGS] [COLOR|FILENAME]
+	// xdialog -g [NAME] [SWITCH] [+FLAGS] [COLOR|FILENAME]
 	else if (flags.switch_flags[6] && numtok > 3) {
 		this->m_uStyleBg = this->parseBkgFlags(input.gettok(3, " "));
 
@@ -404,6 +404,12 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				this->m_pLayoutManager->updateLayout(rc);
 			}
 			this->redrawWindow();
+		}
+		else if (input.gettok(3, " ") == "clear") {
+			if (this->m_pLayoutManager != NULL)
+				delete this->m_pLayoutManager;
+			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
+			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
 		else if (numtok > 7) {
 			TString com = input.gettok(1, "\t").gettok(3, " ");
@@ -596,7 +602,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
 			// Make this window x% alpha
-			SetLayeredWindowAttributes(this->m_Hwnd, 0, (255 * atoi(input.gettok(4, " ").to_chr())) / 100, LWA_ALPHA);
+			SetLayeredWindowAttributes(this->m_Hwnd, 0, (255 * input.gettok(4, " ").to_int()) / 100, LWA_ALPHA);
 		}
 		else if (input.gettok(3, " ") == "transparentcolor") {
 			// Set WS_EX_LAYERED on this window

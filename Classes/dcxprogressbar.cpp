@@ -247,8 +247,7 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 	// xdid -r name ID RLow RHigh
 	else if (flags.switch_flags[17]) {
 		if (numtok > 4)
-			this->setRange((int) atoi(input.gettok(4, " ").to_chr()),
-			(int) atoi(input.gettok(5, " ").to_chr()));
+			this->setRange(input.gettok(4, " ").to_int(), input.gettok(5, " ").to_int());
 	}
 	// xdid -t name ID
 	else if (flags.switch_flags[19]) {
@@ -256,12 +255,12 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 	}
 	// xdid -u name ID N
 	else if (flags.switch_flags[20]) {
-		this->setStep(atoi(input.gettok(4, " ").to_chr()));
+		this->setStep(input.gettok(4, " ").to_int());
 	}
 	// xdid -v name ID N
 	else if (flags.switch_flags[21]) {
 		if (numtok > 3)
-			this->setPosition((int) atoi(input.gettok(4, " ").to_chr()));
+			this->setPosition(input.gettok(4, " ").to_int());
 	}
 	// xdid [-o] [NAME] [ID] [ENABLED]
 	// vertical fonts [1|0]
@@ -273,7 +272,7 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 		ZeroMemory(&lfCurrent, sizeof(LOGFONT));
 
 		GetObject(this->m_hFont, sizeof(LOGFONT), &lfCurrent);
-		int angle = atoi(input.gettok(4, " ").to_chr());
+		int angle = input.gettok(4, " ").to_int();
 
 		//TODO: let user specify angle of text?
 		if (angle) {

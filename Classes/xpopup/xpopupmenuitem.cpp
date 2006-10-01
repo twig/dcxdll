@@ -130,7 +130,7 @@ SIZE XPopupMenuItem::getItemSize( HWND mHwnd ) {
         
         //mIRCError( "Special menu evaluation2" );
 
-        this->m_nIcon = atoi( this->m_tsItemText.gettok( 1, "\v").to_chr( ) ) - 1;
+        this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
         this->m_tsItemText = this->m_tsItemText.gettok( 2, "\v" );
         this->m_tsItemText.trim( );
       }
@@ -139,13 +139,11 @@ SIZE XPopupMenuItem::getItemSize( HWND mHwnd ) {
     }
     else {
 
-      char data[900], res[900];
-      lstrcpy( data, this->m_tsItemText.to_chr( ) );
-      mIRCeval( data, res );
+      char res[900];
+      mIRCeval( this->m_tsItemText.to_chr( ), res );
       this->m_tsItemText = res;
       GetTextExtentPoint32( hdc, res, lstrlen( res ), &size );
     }
-
 
     ReleaseDC( mHwnd, hdc );
   }
@@ -188,7 +186,7 @@ void XPopupMenuItem::DrawItem( LPDRAWITEMSTRUCT lpdis ) {
 
     if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
 
-      this->m_nIcon = atoi( this->m_tsItemText.gettok( 1, "\v").to_chr( ) ) - 1;
+      this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
       this->m_tsItemText = this->m_tsItemText.gettok( 2, "\v" );
       this->m_tsItemText.trim( );
     }

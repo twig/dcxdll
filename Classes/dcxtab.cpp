@@ -502,8 +502,8 @@ void DcxTab::parseCommandRequest( TString & input ) {
       else {
 				//dcxInfoError("tab", "xdid", input.gettok(1, " ").to_chr(), ID - mIRC_ID_OFFSET, "Control already exists!");
         TString error;
-        error.sprintf("/xdid -a : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-				mIRCError( error.to_chr() );
+        error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+				DCXError("/xdid -a", error.to_chr() );
       }
     }
 
@@ -512,7 +512,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
   }
   // xdid -c [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[2] && numtok > 3 ) {
-    int nItem = (int)input.gettok( 4, " " ).to_num( ) - 1;
+    int nItem = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
       TabCtrl_SetCurSel( this->m_Hwnd, nItem );
@@ -521,7 +521,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
   }
   // xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
-	  int nItem = (int)input.gettok( 4, " " ).to_num( ) - 1;
+	  int nItem = input.gettok( 4, " " ).to_int( ) - 1;
 
 	  // if a valid item to delete
 	  if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {

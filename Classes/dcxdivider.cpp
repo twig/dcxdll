@@ -291,25 +291,21 @@ void DcxDivider::parseCommandRequest( TString & input ) {
             this->setPane( DVF_PANELEFT, &dvpi );
           else if ( flags.switch_flags[17] )
             this->setPane( DVF_PANERIGHT, &dvpi );
-					//if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
-					//	if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
-					//}
 
           this->redrawWindow( );
         }
       }
       else {
-
         TString error;
-        error.sprintf("/xdid -l|r : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-				mIRCError( error.to_chr() );
+        error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+				DCXError("/xdid -l|r", error.to_chr() );
       }
     }
   }
   // xdid -v [NAME] [ID] [SWITCH] [POS]
   else if ( flags.switch_flags[21] && numtok > 3 ) {
 
-    int iPos = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int iPos = input.gettok( 4, " " ).to_int( );
     this->setDivPos( iPos );
   }
   else {

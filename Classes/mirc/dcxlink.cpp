@@ -314,8 +314,6 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
     case WM_MOUSEHOVER:
       {
         if ( !this->m_bHover && this->m_bTracking ) {
-
-          //mIRCError( "WM_MOUSEHOVER" );
           this->m_bHover = TRUE;
           InvalidateRect( this->m_Hwnd, NULL, FALSE );
         }
@@ -325,8 +323,6 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
     case WM_MOUSELEAVE:
       {
         if ( this->m_bTracking ) {
-
-          //mIRCError( "WM_MOUSELEAVE" );
           this->m_bHover = FALSE;
           this->m_bTracking = FALSE;
           InvalidateRect( this->m_Hwnd, NULL, FALSE );
@@ -337,8 +333,6 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
     case WM_LBUTTONDOWN:
       {
         if ( this->m_bVisited == FALSE ) {
-
-          //mIRCError( "WM_LBUTTONDOWN" );
           this->m_bVisited = TRUE;
           InvalidateRect( this->m_Hwnd, NULL, FALSE );
         }
@@ -347,7 +341,6 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
     case WM_ENABLE:
       {
-        //mIRCError( "WM_ENABLE" );
         InvalidateRect( this->m_Hwnd, NULL, FALSE );
       }
       break;
@@ -482,7 +475,6 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
     case WM_DESTROY:
       {
-        //mIRCError( "WM_DESTROY" );
         delete this;
         bParsed = TRUE;
       }

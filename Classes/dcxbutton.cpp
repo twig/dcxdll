@@ -478,8 +478,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
         this->m_pParentDialog->setMouseControl( this->getUserID( ) );
 
         if ( this->m_bTracking == FALSE ) {
-
-          //mIRCError( "WM_MOUSEMOVE + TRACKING" );
           TRACKMOUSEEVENT tme;
           tme.cbSize = sizeof(TRACKMOUSEEVENT);
           tme.hwndTrack = this->m_Hwnd;
@@ -493,8 +491,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
     case WM_MOUSEHOVER:
       {
         if ( this->m_bHover == FALSE && this->m_bTracking ) {
-
-          //mIRCError( "WM_MOUSEHOVER" );
           this->m_bHover = TRUE;
           InvalidateRect( this->m_Hwnd, NULL, FALSE );
         }

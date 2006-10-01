@@ -201,10 +201,10 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 	// xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
 	else if ( flags.switch_flags[15] && numtok > 6 ) {
 
-		int x = atoi( input.gettok( 4, " " ).to_chr( ) );
-		int y = atoi( input.gettok( 5, " " ).to_chr( ) );
-		int w = atoi( input.gettok( 6, " " ).to_chr( ) );
-		int h = atoi( input.gettok( 7, " " ).to_chr( ) );
+		int x = input.gettok( 4, " " ).to_int( );
+		int y = input.gettok( 5, " " ).to_int( );
+		int w = input.gettok( 6, " " ).to_int( );
+		int h = input.gettok( 7, " " ).to_int( );
 
 		MoveWindow( this->m_Hwnd, x, y, w, h, FALSE );
 		InvalidateRect( GetParent( this->m_Hwnd ), NULL, TRUE );
@@ -366,7 +366,7 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 		TString flag = input.gettok(4," ");
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
-			mIRCError("Invalid Flag");
+			DCXError("/xdid -R","Invalid Flag");
 			return;
 		}
 
@@ -380,7 +380,7 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 			case 'f': 
 			{
 				if (numtok < 6) {
-					mIRCError("Invalid arguments for /xdid +R +f");
+					DCXError("/xdid -R","Invalid arguments for +f flag");
 					return;
 				}
 
@@ -437,7 +437,7 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 			{
 				// u need at least 3 points for a shape
 				if (numtok < 7) {
-					mIRCError("Invalid arguments for /xdid +R +p");
+					DCXError("/xdid -R","Invalid arguments for +p flag");
 					return;
 				}
 
@@ -446,7 +446,7 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 				int tPoints = strPoints.numtok(" ");
 
 				if (tPoints < 1) {
-					mIRCError("Invalid Points");
+					DCXError("/xdid -R","Invalid Points");
 					return;
 				}
 
@@ -477,7 +477,7 @@ void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flag
 
 			default:
 			{
-				mIRCError("Invalid Flag");
+				DCXError("/xdid -R","Invalid Flag");
 				break;
 			}
 		}
@@ -774,9 +774,6 @@ BOOL DcxControl::parseGlobalInfoRequest( TString & input, char * szReturnValue )
  */
 
 void DcxControl::registreDefaultWindowProc( ) {
-
-  //mIRCError( "Registering window Proc" );
-
   this->m_DefaultWindowProc = (WNDPROC) SetWindowLong( this->m_Hwnd, GWL_WNDPROC, (LONG) DcxControl::WindowProc );
 }
 
@@ -787,9 +784,6 @@ void DcxControl::registreDefaultWindowProc( ) {
  */
 
 void DcxControl::unregistreDefaultWindowProc( ) {
-
-  //mIRCError( "unRegistering window Proc" );
-
 	SetWindowLong( this->m_Hwnd, GWL_WNDPROC, (LONG) this->m_DefaultWindowProc );
   this->m_DefaultWindowProc = NULL;
 }
@@ -927,7 +921,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, UINT mID, TString
 					return new DcxMWindow(winHwnd, mID, p_Dialog, &rc, styles);
 			}
 			else
-				mIRCDebug("Docking: No such window %s", tsInput.gettok(9, " ").to_chr());
+				mIRCDebug("D_ERROR: Docking (No such window %s)", tsInput.gettok(9, " ").to_chr());
 		}
 	}
 	else if (type == "dialog") {

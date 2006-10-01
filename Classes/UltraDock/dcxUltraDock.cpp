@@ -95,7 +95,7 @@ LPDCXULTRADOCK GetUltraDock(HWND hwnd)
 void UltraDock(HWND mWnd, HWND temp, TString flag)
 {
 	if (FindUltraDock(temp)) {
-		mIRCError("D_ERROR Window already docked");
+		DCXError("/xdock -m","Window already docked");
 		return;
 	}
 
@@ -107,8 +107,6 @@ void UltraDock(HWND mWnd, HWND temp, TString flag)
 	ud->flags = DOCKF_LEFT;
 
 	if (flag.len() > 1) {
-		//mIRCDebug("docking to %s", flag.to_chr());
-
 		switch(flag[1]) {
 			case 'r':
 				ud->flags = DOCKF_RIGHT;

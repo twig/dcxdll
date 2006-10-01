@@ -495,8 +495,8 @@ void DcxBox::parseCommandRequest( TString & input ) {
     }
     else {
       TString error;
-      error.sprintf("/xdid -c : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-			mIRCError( error.to_chr() );
+      error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+			DCXError("/xdid -c",error.to_chr() );
     }
   }
   // xdid -d [NAME] [ID] [SWITCH] [ID]
@@ -521,15 +521,15 @@ void DcxBox::parseCommandRequest( TString & input ) {
         TString error;
         error.sprintf("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", 
                   p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
-				mIRCError( error.to_chr() );
+				DCXError("/xdid -d",error.to_chr() );
       }
     }
     else {
 
       TString error;
-      error.sprintf("/ $+ xdialog -d : Unknown control with ID \"%d\" (dialog %s)", 
+      error.sprintf("Unknown control with ID \"%d\" (dialog %s)", 
                 ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
-			mIRCError( error.to_chr() );
+			DCXError("/xdid -d",error.to_chr() );
     }
   }
   /*
@@ -543,15 +543,20 @@ void DcxBox::parseCommandRequest( TString & input ) {
   */
   else if ( flags.switch_flags[11] && numtok > 3 ) {
 
-    if ( input.gettok( 4, " " ) == "update" ) {
-
-      if ( this->m_pLayoutManager != NULL ) {
-
-        RECT rc;
-        GetClientRect( this->m_Hwnd, &rc );
-        this->m_pLayoutManager->updateLayout( rc );
-      }
-    }
+		if ( input.gettok( 4, " " ) == "update" ) {
+			if ( this->m_pLayoutManager != NULL ) {
+				RECT rc;
+				GetClientRect( this->m_Hwnd, &rc );
+				this->m_pLayoutManager->updateLayout( rc );
+				this->redrawWindow();
+			}
+		}
+		else if (input.gettok(4, " ") == "clear") {
+			if (this->m_pLayoutManager != NULL)
+				delete this->m_pLayoutManager;
+			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
+			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
+		}
     else if ( numtok > 8 ) {
 
       TString com = input.gettok( 1, "\t" ).gettok( 4, " " );
@@ -583,19 +588,13 @@ void DcxBox::parseCommandRequest( TString & input ) {
         } // if ( flags & LAYOUTPANE )
         // LayoutFill Cell
         else if ( flags & LAYOUTFILL ) {
-
-          //mIRCError( "LayoutFill" );
-
           if ( flags & LAYOUTID ) {
-
-            //mIRCError( "LayoutFillID" );
-
             if ( cHwnd != NULL && IsWindow( cHwnd ) )
               p_Cell = new LayoutCellFill( cHwnd );
             else {
 							TString error;
-              error.sprintf("/xdid -l : Cell Fill -> Invalid ID : %d", ID );
-							mIRCError( error.to_chr() );
+              error.sprintf("Cell Fill -> Invalid ID : %d", ID );
+							DCXError("/xdid -l", error.to_chr() );
               return;
             }
           }
@@ -627,8 +626,8 @@ void DcxBox::parseCommandRequest( TString & input ) {
                 p_Cell = new LayoutCellFixed( cHwnd, rc, type );
               else {
                 TString error;
-                error.sprintf("/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
-								mIRCError( error.to_chr() );
+                error.sprintf("Cell Fixed -> Invalid ID : %d", ID );
+								DCXError("/xdid -l", error.to_chr() );
                 return;
               }
             }
@@ -645,15 +644,15 @@ void DcxBox::parseCommandRequest( TString & input ) {
                 p_Cell = new LayoutCellFixed( cHwnd, type );
               else {
                 TString error;
-                error.sprintf("/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
-								mIRCError( error.to_chr() );
+                error.sprintf("Cell Fixed -> Invalid ID : %d", ID );
+								DCXError("/xdid -l",error.to_chr() );
                 return;
               }
             }
           } //else
         } // else if ( flags & LAYOUTFIXED )
         else {
-          mIRCError( "/xdid -l : Unknown Cell Type" );
+          DCXError("/xdid -l","Unknown Cell Type" );
           return;
         }
 
@@ -676,8 +675,8 @@ void DcxBox::parseCommandRequest( TString & input ) {
 
             if ( p_GetCell == NULL ) {
               TString error;
-              error.sprintf("/xdid -l : Invalid item path: %s", path.to_chr( ) );
-							mIRCError( error.to_chr() );
+              error.sprintf("Invalid item path: %s", path.to_chr( ) );
+							DCXError("/xdid -l",error.to_chr() );
               return;
             }
             

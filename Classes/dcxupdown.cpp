@@ -203,7 +203,7 @@ void DcxUpDown::parseCommandRequest( TString & input ) {
   // xdid -c [NAME] [ID] [SWITCH] [BUDDYID]
   if ( flags.switch_flags[2] && numtok > 3 ) {
     
-    DcxControl * p_Control = this->m_pParentDialog->getControlByID( (UINT) atoi( input.gettok( 4, " " ).to_chr( ) ) + mIRC_ID_OFFSET );
+    DcxControl * p_Control = this->m_pParentDialog->getControlByID( (UINT) input.gettok( 4, " " ).to_int( ) + mIRC_ID_OFFSET );
 
     if ( p_Control != NULL ) {
 
@@ -220,22 +220,22 @@ void DcxUpDown::parseCommandRequest( TString & input ) {
   // xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
   else if ( flags.switch_flags[17] && numtok > 4 ) {
     
-    int iMin = atoi( input.gettok( 4, " " ).to_chr( ) );
-    int iMax = atoi( input.gettok( 5, " " ).to_chr( ) );
+    int iMin = input.gettok( 4, " " ).to_int( );
+    int iMax = input.gettok( 5, " " ).to_int( );
 
     this->setRange32( iMin, iMax );
   }
   // xdid -t [NAME] [ID] [SWITCH] [BASE]
   else if ( flags.switch_flags[19] && numtok > 3 ) {
     
-    int nBase = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int nBase = input.gettok( 4, " " ).to_int( );
 
     this->setBase( nBase );
   }
   // xdid -v [NAME] [ID] [SWITCH] [POS]
   else if ( flags.switch_flags[21] && numtok > 3 ) {
     
-    int nPos = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int nPos = input.gettok( 4, " " ).to_int( );
 
     this->setPos32( nPos );
   }

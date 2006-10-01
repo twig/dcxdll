@@ -201,7 +201,7 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		int line = 0;
 
 		if (numtok > 3)
-			line = atoi(input.gettok(4, " ").to_chr()) -1;
+			line = input.gettok(4, " ").to_int() -1;
 
 		// get index of first character in line
 		int offset = SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM) line, NULL);
@@ -320,7 +320,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[3] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = atoi(input.gettok(4, " ").to_chr());
+			int nLine = input.gettok(4, " ").to_int();
 			this->m_tsText.deltok(nLine, "\r\n");
 		}
 
@@ -346,7 +346,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 			this->setRedraw(FALSE);
 
 			this->m_byteCharset = parseFontCharSet(input.gettok(5, " "));
-			this->m_iFontSize = 20 * atoi(input.gettok(6, " ").to_chr());
+			this->m_iFontSize = 20 * input.gettok(6, " ").to_int();
 			this->m_tsFontFaceName = input.gettok(7, -1, " ");
 			this->m_tsFontFaceName.trim();
 
@@ -382,7 +382,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags.switch_flags[8] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = atoi(input.gettok(4, " ").to_chr());
+			int nLine = input.gettok(4, " ").to_int();
 			this->m_tsText.instok(input.gettok(5, -1, " ").to_chr(), nLine, "\r\n");
 		}
 		else {
@@ -419,7 +419,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [BOOL]
 	else if (flags.switch_flags[13] && numtok > 3) {
-		int b = atoi(input.gettok(4, " ").to_chr());
+		int b = input.gettok(4, " ").to_int();
 
 		this->setAutoUrlDetect(b ? TRUE : FALSE);
 	}
@@ -472,18 +472,18 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	else if (flags.switch_cap_flags[18] && numtok > 4) {
 		CHARRANGE c;
 
-		c.cpMin = atoi(input.gettok(4, " ").to_chr());
-		c.cpMax = atoi(input.gettok(5, " ").to_chr());
+		c.cpMin = input.gettok(4, " ").to_int();
+		c.cpMax = input.gettok(5, " ").to_int();
 
 		SendMessage(this->m_Hwnd, EM_EXSETSEL, NULL, (LPARAM) &c);
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
 	else if (flags.switch_cap_flags[25] && numtok > 4) {
-		int num = atoi(input.gettok(4, " ").to_chr());
-		int den = atoi(input.gettok(5, " ").to_chr());
+		int num = input.gettok(4, " ").to_int();
+		int den = input.gettok(5, " ").to_int();
 
 		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
-			mIRCError("/xdid -Z: richedit zooming error");
+			DCXError("/xdid -Z","Richedit zooming error");
 	}
 	else {
 		this->parseGlobalCommandRequest(input, flags);

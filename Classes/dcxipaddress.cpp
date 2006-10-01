@@ -217,7 +217,7 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 			BYTE b[4];
 
 			for (int i = 0; i < 4; i++) {
-				b[i] = (BYTE) atoi(IP.gettok(i +1, ".").to_chr());
+				b[i] = (BYTE) IP.gettok(i +1, ".").to_int();
 			}
 
 			DWORD adr = MAKEIPADDRESS(b[0], b[1], b[2], b[3]);
@@ -226,23 +226,23 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [N] [MIN] [MAX]
 	else if (flags.switch_flags[6] && numtok > 5) {
-		int nField	= atoi(input.gettok(4, " ").to_chr()) -1;
-		BYTE min		= atoi(input.gettok(5, " ").to_chr());
-		BYTE max		= atoi(input.gettok(6, " ").to_chr());
+		int nField	= input.gettok(4, " ").to_int() -1;
+		BYTE min		= input.gettok(5, " ").to_int();
+		BYTE max		= input.gettok(6, " ").to_int();
 
 		if (nField > -1 && nField < 4)
 			this->setRange(nField, min, max);
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[9] && numtok > 3) {
-		int nField = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nField = input.gettok(4, " ").to_int() -1;
 
 		if (nField > -1 && nField < 4)
 			this->setFocus(nField);
 	}
 	// xdid -r [NAME] [ID] [SWITCH]
 	else if (flags.switch_flags[17]) {
-		//this->clearAddress();
+		this->clearAddress();
 	}
 	else {
 		this->parseGlobalCommandRequest(input, flags);

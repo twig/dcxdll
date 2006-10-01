@@ -204,7 +204,7 @@ void DcxPanel::parseCommandRequest( TString & input ) {
   // xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
   if ( flags.switch_flags[2] && numtok > 8 ) {
 
-    UINT ID = mIRC_ID_OFFSET + atoi( input.gettok( 4, " " ).to_chr( ) );
+    UINT ID = mIRC_ID_OFFSET + input.gettok( 4, " " ).to_int( );
 
     if ( ID > mIRC_ID_OFFSET - 1 && 
       !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -350,14 +350,14 @@ void DcxPanel::parseCommandRequest( TString & input ) {
     else {
 
       TString error;
-      error.sprintf("/xdid -c : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-			mIRCError( error.to_chr() );
+      error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+			DCXError("/xdid -c", error.to_chr() );
     }
   }
   // xdid -d [NAME] [ID] [SWITCH] [ID]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
 
-    UINT ID = mIRC_ID_OFFSET + atoi( input.gettok( 4, " " ).to_chr( ) );
+    UINT ID = mIRC_ID_OFFSET + input.gettok( 4, " " ).to_int( );
     DcxControl * p_Control;
     
     if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
@@ -376,15 +376,15 @@ void DcxPanel::parseCommandRequest( TString & input ) {
         TString error;
         error.sprintf("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", 
                   p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
-				mIRCError( error.to_chr() );
+				DCXError("/xdid -d", error.to_chr() );
       }
     }
     else {
 
       TString error;
-      error.sprintf("/ $+ xdialog -d : Unknown control with ID \"%d\" (dialog %s)", 
+      error.sprintf("Unknown control with ID \"%d\" (dialog %s)", 
                 ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
-			mIRCError( error.to_chr() );
+			DCXError("/xdid -d", error.to_chr() );
     }
   }
   /*
@@ -405,8 +405,15 @@ void DcxPanel::parseCommandRequest( TString & input ) {
         RECT rc;
         GetClientRect( this->m_Hwnd, &rc );
         this->m_pLayoutManager->updateLayout( rc );
+				this->redrawWindow();
       }
     }
+		else if (input.gettok(4, " ") == "clear") {
+			if (this->m_pLayoutManager != NULL)
+				delete this->m_pLayoutManager;
+			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
+			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
+		}
     else if ( numtok > 8 ) {
 
       TString com = input.gettok( 1, "\t" ).gettok( 4, " " );
@@ -417,10 +424,10 @@ void DcxPanel::parseCommandRequest( TString & input ) {
       p2.trim( );
 
       UINT flags = this->parseLayoutFlags( p2.gettok( 1, " " ) );
-      UINT ID = atoi( p2.gettok( 2, " " ).to_chr( ) );
-      UINT WGT = atoi( p2.gettok( 3, " " ).to_chr( ) );
-      UINT W = atoi( p2.gettok( 4, " " ).to_chr( ) );
-      UINT H = atoi( p2.gettok( 5, " " ).to_chr( ) );
+      UINT ID = p2.gettok( 2, " " ).to_int( );
+      UINT WGT = p2.gettok( 3, " " ).to_int( );
+      UINT W = p2.gettok( 4, " " ).to_int( );
+      UINT H = p2.gettok( 5, " " ).to_int( );
 
       if ( com ==  "root" || com == "cell" ) {
 
@@ -438,19 +445,13 @@ void DcxPanel::parseCommandRequest( TString & input ) {
         } // if ( flags & LAYOUTPANE )
         // LayoutFill Cell
         else if ( flags & LAYOUTFILL ) {
-
-          //mIRCError( "LayoutFill" );
-
           if ( flags & LAYOUTID ) {
-
-            //mIRCError( "LayoutFillID" );
-
             if ( cHwnd != NULL && IsWindow( cHwnd ) )
               p_Cell = new LayoutCellFill( cHwnd );
             else {
               TString error;
-              error.sprintf("/xdid -l : Cell Fill -> Invalid ID : %d", ID );
-							mIRCError( error.to_chr() );
+              error.sprintf("Cell Fill -> Invalid ID : %d", ID );
+							DCXError("/xdid -l", error.to_chr() );
               return;
             }
           }
@@ -482,8 +483,8 @@ void DcxPanel::parseCommandRequest( TString & input ) {
                 p_Cell = new LayoutCellFixed( cHwnd, rc, type );
               else {
                 TString error;
-                error.sprintf("/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
-								mIRCError( error.to_chr() );
+                error.sprintf("Cell Fixed -> Invalid ID : %d", ID );
+								DCXError("/xdid -l", error.to_chr() );
                 return;
               }
             }
@@ -500,15 +501,15 @@ void DcxPanel::parseCommandRequest( TString & input ) {
                 p_Cell = new LayoutCellFixed( cHwnd, type );
               else {
                 TString error;
-                error.sprintf("/xdid -l : Cell Fixed -> Invalid ID : %d", ID );
-								mIRCError( error.to_chr() );
+                error.sprintf("Cell Fixed -> Invalid ID : %d", ID );
+								DCXError("/xdid -l", error.to_chr() );
                 return;
               }
             }
           } //else
         } // else if ( flags & LAYOUTFIXED )
         else {
-          mIRCError( "/xdid -l : Unknown Cell Type" );
+          DCXError("/xdid -l", "Unknown Cell Type" );
           return;
         }
 
@@ -532,11 +533,11 @@ void DcxPanel::parseCommandRequest( TString & input ) {
             if ( p_GetCell == NULL ) {
 
               TString error;
-              error.sprintf("/xdid -l : Invalid item path: %s", path.to_chr( ) );
-							mIRCError( error.to_chr() );
+              error.sprintf("Invalid item path: %s", path.to_chr( ) );
+							DCXError("/xdid -l", error.to_chr() );
               return;
             }
-            
+
             if ( p_GetCell->getType( ) == LayoutCell::PANE ) {
 
               LayoutCellPane * p_PaneCell = (LayoutCellPane *) p_GetCell;
@@ -557,8 +558,8 @@ void DcxPanel::parseCommandRequest( TString & input ) {
         if ( p_GetCell == NULL ) {
 
           TString error;
-          error.sprintf("/xdid -l : Invalid item path: %s", path.to_chr( ) );
-					mIRCError( error.to_chr() );
+          error.sprintf("Invalid item path: %s", path.to_chr( ) );
+					DCXError("/xdid -l", error.to_chr() );
           return;
         }
         else {

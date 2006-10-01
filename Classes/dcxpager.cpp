@@ -211,10 +211,10 @@ void DcxPager::parseCommandRequest( TString & input ) {
   else if ( flags.switch_flags[2] && numtok > 8 ) {
 
 		if (IsWindow(this->m_ChildHWND)) {
-			mIRCError( "/xdid -c : Child Control already exists" );
+			DCXError( "/xdid -c","Child Control already exists" );
 			return;
 		}
-    UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4, " " ).to_num( );
+    UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4, " " ).to_int( );
 
     if ( ID > mIRC_ID_OFFSET - 1 && 
       !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -294,14 +294,14 @@ void DcxPager::parseCommandRequest( TString & input ) {
     }
     else {
       TString error;
-      error.sprintf("/xdid -c : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-			mIRCError( error.to_chr() );
+      error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+			DCXError("/xdid -c", error.to_chr() );
     }
   }
   // xdid -d [NAME] [ID] [SWITCH] [ID]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
 
-    UINT ID = mIRC_ID_OFFSET + atoi( input.gettok( 4, " " ).to_chr( ) );
+    UINT ID = mIRC_ID_OFFSET + input.gettok( 4, " " ).to_int( );
     DcxControl * p_Control;
     
     if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
@@ -322,14 +322,14 @@ void DcxPager::parseCommandRequest( TString & input ) {
         TString error;
         error.sprintf("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", 
                   p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
-				mIRCError( error.to_chr() );
+				DCXError("/xdid -d", error.to_chr() );
       }
     }
     else {
       TString error;
-      error.sprintf("/ $+ xdialog -d : Unknown control with ID \"%d\" (dialog %s)", 
+      error.sprintf("Unknown control with ID \"%d\" (dialog %s)", 
                 ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
-			mIRCError( error.to_chr() );
+			DCXError("/xdid -d", error.to_chr() );
     }
   }
 	// xdid -s [NAME] [ID] [SWITCH] [SIZE]

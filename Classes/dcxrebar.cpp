@@ -235,7 +235,7 @@ void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N]
   else if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
 
-    int nIndex = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
@@ -251,7 +251,7 @@ void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
   }
   if ( input.gettok( 3, " " ) == "childid" && numtok > 3 ) {
 
-    int nItem = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nItem = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nItem > -1 && nItem < this->getBandCount( ) ) {
       
@@ -316,11 +316,11 @@ void DcxReBar::parseCommandRequest( TString & input ) {
       tooltip.trim( );
     }
 
-    //int nIndex = atoi( data.gettok( 4, " " ).to_chr( ) ) - 1;
-    int cx = (int)data.gettok( 6, " " ).to_num( );
-    int cy = (int)data.gettok( 7, " " ).to_num( );
-    int width = (int)data.gettok( 8, " " ).to_num( );
-    int nIcon = (int)data.gettok( 9, " " ).to_num( ) - 1;
+    //int nIndex = data.gettok( 4, " " ).to_int( ) - 1;
+    int cx = data.gettok( 6, " " ).to_int( );
+    int cy = data.gettok( 7, " " ).to_int( );
+    int width = data.gettok( 8, " " ).to_int( );
+    int nIcon = data.gettok( 9, " " ).to_int( ) - 1;
     COLORREF clrText = (COLORREF)data.gettok( 10, " " ).to_num( );
 
     TString itemtext;
@@ -361,7 +361,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     if ( control_data.numtok( " " ) > 5 ) {
 
 
-      UINT ID = mIRC_ID_OFFSET + atoi( control_data.gettok( 1, " " ).to_chr( ) );
+      UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1, " " ).to_int( );
 
       if ( ID > mIRC_ID_OFFSET - 1 && 
         !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -440,8 +440,8 @@ void DcxReBar::parseCommandRequest( TString & input ) {
       }
       else {
         TString error;
-        error.sprintf("/xdid -a : Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-				mIRCError( error.to_chr() );
+        error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+				DCXError("/xdid -a", error.to_chr() );
       }
     }
   
@@ -450,22 +450,17 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
 
-    int nIndex = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
      
       this->deleteBand( nIndex );
-			//if (GetWindow(this->m_Hwnd,GW_CHILD) == NULL) { // if no children remove style
-			//	if (this->isExStyle(WS_EX_CONTROLPARENT)) {
-			//		this->removeExStyle(WS_EX_CONTROLPARENT);
-			//	}
-			//}
     }
   }
   // xdid -i [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[8] && numtok > 3 ) {
 
-    int nIndex = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
      
@@ -475,7 +470,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -j [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[9] && numtok > 3 ) {
 
-    int nIndex = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
      
@@ -490,8 +485,8 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     rbBand.cbSize = sizeof( REBARBANDINFO );
     rbBand.fMask = RBBIM_IMAGE;
 
-    int nIndex = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-    int nIcon = atoi( input.gettok( 5, " " ).to_chr( ) ) - 1;
+    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
+    int nIcon = input.gettok( 5, " " ).to_int( ) - 1;
     if ( nIndex > -1 && nIndex < this->getBandCount( ) && nIcon > -2 ) {
 
       rbBand.iImage = nIcon;
@@ -524,7 +519,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
     else {
 
-      int nIndex = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+      int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
 
       if ( nIndex > -1 && nIndex < nItems && this->getBandInfo( nIndex, &rbBand ) != 0 ) {
 
@@ -536,7 +531,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -m [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[12] && numtok > 3 ) {
 
-    int nIndex = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
      
@@ -546,7 +541,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -n [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[13] && numtok > 3 ) {
 
-    int nIndex = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
      
@@ -556,7 +551,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -q [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[16] && numtok > 3 ) {
 
-    int nRows = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int nRows = input.gettok( 4, " " ).to_int( );
 
     if ( nRows > -1 ) {
      
@@ -571,7 +566,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     rbBand.cbSize = sizeof( REBARBANDINFO );
     rbBand.fMask = RBBIM_TEXT;
 
-    int nIndex = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
       TString itemtext;
@@ -610,7 +605,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
     else {
 
-      int nIndex = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+      int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
 
       if ( nIndex > -1 && nIndex < nItems && this->getBandInfo( nIndex, &rbBand ) != 0 ) {
 
@@ -622,8 +617,8 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -v [NAME] [ID] [SWITCH] [NFrom] [NTo]
   else if ( flags.switch_flags[21] && numtok > 4 ) {
 
-    int nIndexFrom = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-    int nIndexTo = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nIndexFrom = input.gettok( 4, " " ).to_int( ) - 1;
+    int nIndexTo = input.gettok( 4, " " ).to_int( ) - 1;
     int nItems = this->getBandCount( );
 
     if ( nIndexFrom > -1 && nIndexFrom < nItems && nIndexTo > -1 && nIndexTo < nItems ) {

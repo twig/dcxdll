@@ -210,7 +210,7 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP]
   else if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
 
-    int nButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nButton = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nButton > -1 && nButton < this->getButtonCount( ) ) {
 
@@ -221,7 +221,7 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N]
   else if ( input.gettok( 3, " " ) == "icon" && numtok > 3 ) {
 
-    int iButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int iButton = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( iButton > -1 && iButton < this->getButtonCount( ) ) {
 
@@ -238,7 +238,7 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N]
   else if ( input.gettok( 3, " " ) == "state" && numtok > 3 ) {
 
-    int iButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int iButton = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( iButton > -1 && iButton < this->getButtonCount( ) ) {
 
@@ -274,7 +274,7 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [N]
   else if ( input.gettok( 3, " " ) == "tooltip" && numtok > 3 ) {
 
-    int iButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int iButton = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( iButton > -1 && iButton < this->getButtonCount( ) ) {
 
@@ -322,7 +322,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
   // xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] [Button Text][TAB]Tooltip Text
   if ( flags.switch_flags[0] && numtok > 4 ) {
 
-    int nPos = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
 
     if ( nPos == -1 )
       nPos += this->getButtonCount( ) + 1;
@@ -460,7 +460,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
   }
   // xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
-    int nButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nButton = input.gettok( 4, " " ).to_int( ) - 1;
 
     if (nButton > -1)
 		 if (this->deleteButton(nButton)) {
@@ -473,8 +473,8 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
   // xdid -i [NAME] [ID] [SWITCH] [N] [IMAGE]
   else if ( flags.switch_flags[8] && numtok > 4 ) {
 
-    int nButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
-    int iImage = atoi( input.gettok( 5, " " ).to_chr( ) ) - 1;
+    int nButton = input.gettok( 4, " " ).to_int( ) - 1;
+    int iImage = input.gettok( 5, " " ).to_int( ) - 1;
 
     TBBUTTONINFO tbbi;
     ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
@@ -487,8 +487,8 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
   // xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
   else if ( flags.switch_flags[9] && numtok > 4 ) {
 
-    int nMin = atoi( input.gettok( 4, " " ).to_chr( ) );
-    int nMax = atoi( input.gettok( 4, " " ).to_chr( ) );
+    int nMin = input.gettok( 4, " " ).to_int( );
+    int nMax = input.gettok( 4, " " ).to_int( );
 
     this->setButtonWidth( nMin, nMax );
   }
@@ -496,7 +496,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[11] && numtok > 3) {
 		HIMAGELIST himl;
 
-		int size = atoi(input.gettok(4, " ").to_chr());
+		int size = input.gettok(4, " ").to_int();
 
 		ImageList_Destroy(this->getImageList(TB_IML_NORMAL));
 		ImageList_Destroy(this->getImageList(TB_IML_DISABLE));
@@ -529,7 +529,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
   }
   // xdid -q [NAME] [ID] [SWITCH] [N] (TIPTEXT)
 	else if (flags.switch_flags[16] && numtok > 3) {
-		int nButton = atoi(input.gettok(4, " ").to_chr()) -1;
+		int nButton = input.gettok(4, " ").to_int() -1;
 
 		if (nButton > -1 && nButton < this->getButtonCount()) {
 			int nIndex = this->getIndexToCommand(nButton) -1;
@@ -555,7 +555,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
   // xdid -t [NAME] [ID] [SWITCH] [N] [+FLAGS]
   else if ( flags.switch_flags[19] && numtok > 4 ) {
 
-    int nButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nButton = input.gettok( 4, " " ).to_int( ) - 1;
     UINT fStates = parseButtonStateFlags( input.gettok( 5, " " ) );
 
     int idButton = this->getIndexToCommand( nButton );
@@ -566,15 +566,15 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
   // xdid -u [NAME] [ID] [SWITCH] [DX] [DY]
   else if ( flags.switch_flags[20] && numtok > 4 ) {
 
-    int dxButton = atoi( input.gettok( 4, " " ).to_chr( ) );
-    int dyButton = atoi( input.gettok( 5, " " ).to_chr( ) );
+    int dxButton = input.gettok( 4, " " ).to_int( );
+    int dyButton = input.gettok( 5, " " ).to_int( );
 
     this->setButtonSize( dxButton, dyButton );
   }
   // xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
   else if ( flags.switch_flags[21] && numtok > 3 ) {
 
-    int nButton = atoi( input.gettok( 4, " " ).to_chr( ) ) - 1;
+    int nButton = input.gettok( 4, " " ).to_int( ) - 1;
 		//mIRCDebug("but: %d cnt: %d", nButton, this->getButtonCount( ));
     if ( nButton > -1 && nButton < this->getButtonCount( ) ) {
 			int nIndex = this->getIndexToCommand(nButton);
@@ -615,7 +615,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
 		HIMAGELIST himl;
 		HICON icon = NULL;
-		int index = atoi(input.gettok(5, " ").to_chr());
+		int index = input.gettok(5, " ").to_int();
 		TString filename = input.gettok(6, -1, " ");
 
 		himl = this->getImageList(TB_IML_NORMAL);
