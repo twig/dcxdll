@@ -1,5 +1,8 @@
 #include ".\dcxtrayicon.h"
 
+// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/reference/structures/notifyicondata.asp
+// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/reference/functions/shell_notifyicon.asp
+
 extern DcxTrayIcon *trayIcons;
 
 // TrayIcon [+flags] [id] [icon index] [icon file] $tab [tooltip]
@@ -75,8 +78,7 @@ mIRC(TrayIcon) {
 		int index = d.gettok(3, " ").to_int();
 		TString filename = d.gettok(1, "\t").gettok(4, -1, " ");
 
-		filename.trim();
-		ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
+		icon = dcxLoadIcon(index, filename);
 
 
 		// add/edit the icon
@@ -84,7 +86,7 @@ mIRC(TrayIcon) {
 			DCXError("/xTrayIcon","add/edit failed");
 	}
 	else if (flags.find('d', 0)) {
-		if (!trayIcons->modifyIcon(id, NIM_DELETE, NULL, NULL)) {
+		if (!trayIcons->modifyIcon(id, NIM_DELETE)) {
 			DCXError("/xTrayIcon","Error deleting icon");
 		}
 	}
@@ -136,7 +138,7 @@ DcxTrayIcon::~DcxTrayIcon(void)
 		}
 
 		for (int i = 1; i <= ids.numtok(" "); i++) {
-			this->modifyIcon(ids.gettok(i, " ").to_int(), NIM_DELETE, NULL, NULL);
+			this->modifyIcon(ids.gettok(i, " ").to_int(), NIM_DELETE);
 		}
 
 		SetWindowLong(this->m_hwnd, GWL_WNDPROC, (LONG) this->m_wndProc);
@@ -233,17 +235,20 @@ bool DcxTrayIcon::modifyIcon(int id, DWORD msg, HICON icon, TString *tooltip) {
 	NOTIFYICONDATA nid;
 	ZeroMemory(&nid, sizeof(NOTIFYICONDATA));
 
-
 	nid.uID = id;
-	nid.uFlags = NIF_ICON | NIF_MESSAGE;
+	nid.uFlags = NIF_MESSAGE;
 	nid.cbSize = sizeof(NOTIFYICONDATA);
 	nid.hWnd = this->GetHwnd();
 	nid.uCallbackMessage = DCXM_TRAYICON;
-	nid.hIcon = icon;
 
 	if (tooltip != NULL) {
 		nid.uFlags |= NIF_TIP;
 		wsprintf(nid.szTip, "%s", tooltip->to_chr());
+	}
+
+	if (icon != NULL) {
+		nid.uFlags |= NIF_ICON;
+		nid.hIcon = icon;
 	}
 
    // add/edit the icon

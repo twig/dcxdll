@@ -15,7 +15,7 @@ public:
 
 	HWND GetHwnd();
 	bool idExists(int id);
-	bool modifyIcon(int id, DWORD msg, HICON icon, TString *tooltip);
+	bool modifyIcon(int id, DWORD msg, HICON icon = NULL, TString *tooltip = NULL);
 
 	static LRESULT CALLBACK TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
