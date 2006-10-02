@@ -14,8 +14,14 @@
  * © ScriptsDB.org - 2006
  */
 
+#ifdef __INTEL_COMPILER
+#pragma warning( disable : 1195 )
+#pragma warning( disable : 504 )
+#pragma warning( disable : 1563 )
+#else
 #pragma warning( disable : 4100 ) // unreferenced formal parameter
 #pragma warning( disable : 4530 )
+#endif
 
 #ifndef _DEFINES_H_
 #define _DEFINES_H_
@@ -234,7 +240,7 @@ DcxDialogCollection dcxDialogs();
 
 
 char * readFile(const char * filename);
-TString FileDialog(TString data, TString method, HWND pWnd);
+TString FileDialog(TString & data, TString method, const HWND pWnd);
 
 typedef HRESULT (__stdcall *PFNSETTHEME)(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
 typedef HRESULT (__stdcall *PFNISTHEMEACTIVE)();
@@ -250,23 +256,23 @@ BOOL dcxIsThemeActive();
 BOOL isXP();
 
 HWND GetHwndFromString(TString &str);
-HWND GetHwndFromString(char *str);
-HWND FindOwner(TString data, HWND defaultWnd);
-BOOL CopyToClipboard(HWND owner, TString str);
+HWND GetHwndFromString(const char *str);
+HWND FindOwner(TString & data, const HWND defaultWnd);
+BOOL CopyToClipboard(const HWND owner, TString & str);
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
 HICON dcxLoadIcon(int index, TString &filename, bool large = false);
 HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
 bool ChangeHwndIcon(const HWND hwnd, TString *flags, const int index, TString *filename);
 
-void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl);
+void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl);
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);
 void AddStyles(HWND hwnd,int parm,long AddStyles);
 void InitUltraDock(void);
 void CloseUltraDock(void);
 int SwitchbarPos(void);
-void UltraUnDock(HWND hwnd);
+void UltraUnDock(const HWND hwnd);
 void UpdatemIRC(void);
 
 #endif // _DEFINES_H_

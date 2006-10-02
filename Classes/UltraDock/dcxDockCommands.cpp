@@ -92,7 +92,7 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	return CallWindowProc(dd->oldProc,mHwnd,uMsg,wParam,lParam);
 }
 
-void UnDock(HWND hwnd)
+void UnDock(const HWND hwnd)
 {
 	if (GetProp(hwnd,"dcx_docked") == NULL) {
 		DCXError("/xdock -u","Window is not docked");
@@ -110,7 +110,7 @@ void UnDock(HWND hwnd)
 	SetWindowPos(hwnd,NULL,0,0,0,0,SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_FRAMECHANGED);
 }
 
-bool DockWindow(HWND mWnd,HWND temp,char *find, TString flag)
+bool DockWindow(const HWND mWnd, const HWND temp, const char *find, TString & flag)
 {
 	RECT rc;
 	HWND sWnd;

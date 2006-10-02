@@ -61,7 +61,7 @@ extern mIRCDLL mIRCLink;
  * \param p_Dialog Parent DcxDialog Object
  */
 
-DcxControl::DcxControl( UINT mID, DcxDialog * p_Dialog ) : DcxWindow( mID ), m_pParentDialog( p_Dialog ) {
+DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog ) : DcxWindow( mID ), m_pParentDialog( p_Dialog ) {
 
   this->m_hFont = NULL;
   this->m_tsMark = "";

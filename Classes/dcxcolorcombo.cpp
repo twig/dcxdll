@@ -183,7 +183,7 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(&input.gettok(3, " "), &flags);
+	this->parseSwitchFlags(input.gettok(3, " "), &flags);
 
 	int numtok = input.numtok(" ");
 

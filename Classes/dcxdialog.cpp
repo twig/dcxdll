@@ -220,7 +220,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(&input.gettok(2, " "), &flags);
+	this->parseSwitchFlags(input.gettok(2, " "), &flags);
 
 	int numtok = input.numtok(" ");
 
@@ -687,7 +687,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		*/
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
-	else if (flags.switch_flags[25+18] && numtok > 2) {
+	else if (flags.switch_cap_flags[17] && numtok > 2) {
 		TString flag = input.gettok(3," ");
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
@@ -704,7 +704,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			case 'f': 
 			{
 				if (numtok < 5) {
-					DCXError("/xdialog -R","Invalid arguments +f flag");
+					DCXError("/xdialog -R","Invalid arguments for +f flag");
 					return;
 				}
 

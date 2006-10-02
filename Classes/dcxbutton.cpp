@@ -24,7 +24,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 , m_bBitmapText(FALSE)
 , m_bHasIcons(FALSE)
@@ -87,7 +87,7 @@ DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles
  * \param styles Window Style Tokenized List
  */
 
-DcxButton::DcxButton( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 , m_bBitmapText(FALSE)
 , m_bHasIcons(FALSE)
@@ -219,8 +219,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( &input.gettok( 3, " " ), &flags );
-
+  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
   int numtok = input.numtok( " " );
 
 	// xdid -c [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
@@ -392,7 +391,7 @@ HIMAGELIST DcxButton::getImageList(  ) {
  * blah
  */
 
-void DcxButton::setImageList( HIMAGELIST himl ) {
+void DcxButton::setImageList( const HIMAGELIST himl ) {
 
   this->m_ImageList = himl;
 }

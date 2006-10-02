@@ -199,7 +199,7 @@ void DcxImage::PreloadData() {
 void DcxImage::parseCommandRequest(TString & input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*)&flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(&input.gettok(3, " "), &flags);
+	this->parseSwitchFlags(input.gettok(3, " "), &flags);
 	int numtok = input.numtok(" ");
 
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]

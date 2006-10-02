@@ -37,7 +37,7 @@ class DcxControl : public DcxWindow {
 
 public:
 
-  DcxControl( UINT mID, DcxDialog * p_Dialog );
+  DcxControl( const UINT mID, DcxDialog * p_Dialog );
   virtual ~DcxControl( );
 
   virtual void parseInfoRequest( TString & input, char * szReturnValue ) = 0;

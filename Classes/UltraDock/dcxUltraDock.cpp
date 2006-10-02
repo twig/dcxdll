@@ -135,7 +135,7 @@ void UltraDock(HWND mWnd, HWND temp, TString flag)
 	UpdatemIRC();
 }
 
-void UltraUnDock(HWND hwnd)
+void UltraUnDock(const HWND hwnd)
 {
 	VectorOfDocks::iterator itStart = v_docks.begin();
 	VectorOfDocks::iterator itEnd = v_docks.end();

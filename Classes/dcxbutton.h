@@ -41,8 +41,8 @@ class DcxButton : public DcxControl {
 
 public:
 
-  DcxButton( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
-  DcxButton( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+  DcxButton( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxButton( );
 
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
@@ -53,7 +53,7 @@ public:
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   HIMAGELIST getImageList( );
-  void setImageList( HIMAGELIST himl );
+  void setImageList( const HIMAGELIST himl );
   HIMAGELIST createImageList( );
 
   inline TString getType( ) { return TString( "button" ); };
@@ -74,7 +74,7 @@ protected:
 
   UINT m_iIconSize; //!< Button Icon Size 16,24,32
 
-  UINT parseColorFlags( TString & flags );
+  UINT parseColorFlags(TString & flags );
   BOOL m_bBitmapText;
   BOOL m_bHasIcons;
 };
