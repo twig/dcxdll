@@ -350,6 +350,10 @@ mIRC(xdock) {
 				rc.right = h;
 				break;
 
+			case DOCKF_SIZE:
+				DCXError("/xdock -r","Can't resize an auto width & height dialog");
+				return 0;
+
 			default:
 				DCXError("/xdock -r","Unknown dock flag");
 				return 0;
