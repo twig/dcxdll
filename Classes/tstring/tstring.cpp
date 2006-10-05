@@ -46,9 +46,8 @@
 
 TString::TString( ) {
 
-  this->m_pString = new char[1];
-  //this->m_pString = 0;
-  this->m_pString[0] = 0; // change by Ook
+	this->m_pString = new char[1];
+	this->m_pString[0] = 0;
 }
 
 /****************************/
@@ -61,19 +60,18 @@ TString::TString( ) {
 
 TString::TString( const char * cString ) {
 
-  this->m_pString = NULL;
+	this->m_pString = NULL;
 
-  if ( cString != NULL ) {
+	if ( cString != NULL ) {
 
-    int size = lstrlen( cString );
-    this->m_pString = new char [ size + 1 ];
-    lstrcpy( this->m_pString, cString );
-  }
-  else {
-    this->m_pString = new char[1];
-    //this->m_pString = 0;
-    this->m_pString[0] = 0; // change by Ook
-  }
+		int size = lstrlen( cString );
+		this->m_pString = new char [ size + 1 ];
+		lstrcpy( this->m_pString, cString );
+	}
+	else {
+		this->m_pString = new char[1];
+		this->m_pString[0] = 0;
+	}
 }
 
 /****************************/
@@ -86,9 +84,9 @@ TString::TString( const char * cString ) {
 
 TString::TString( const char chr ) {
 
-  this->m_pString = new char [2];
-  this->m_pString[0] = chr;
-  this->m_pString[1] = 0;
+	this->m_pString = new char [2];
+	this->m_pString[0] = chr;
+	this->m_pString[1] = 0;
 }
 
 /****************************/
@@ -101,23 +99,21 @@ TString::TString( const char chr ) {
 
 TString::TString( const TString & tString ) {
 
-  if ( tString.m_pString != NULL ) {
+	if ( tString.m_pString != NULL ) {
 
-    size_t size = lstrlen( tString.m_pString );
-    this->m_pString = new char [size+1];
-    lstrcpy( this->m_pString, tString.m_pString );
-  }
-  else {
-    this->m_pString = new char[1];
-    //this->m_pString = 0;
-    this->m_pString[0] = 0; // change By Ook
-  }
+		size_t size = lstrlen( tString.m_pString );
+		this->m_pString = new char [size+1];
+		lstrcpy( this->m_pString, tString.m_pString );
+	}
+	else {
+		this->m_pString = new char[1];
+		this->m_pString[0] = 0;
+	}
 }
 
 TString::~TString( ) {
 
-  //printf( "Destructor: %x\n", this->m_pString );
-  this->deleteString( );
+	this->deleteString( );
 }
 
 /*!
@@ -125,26 +121,22 @@ TString::~TString( ) {
  */
 void TString::deleteString( ) {
 
-  if ( this->m_pString != NULL ) {
-
-    delete []this->m_pString; 
-    this->m_pString = NULL;
-  }
+	if ( this->m_pString != NULL ) {
+		delete []this->m_pString; 
+		this->m_pString = NULL;
+	}
 }
 
 /****************************/
 void TString::operator =( const TString & tString ) {
 
-  //printf( "Equality operator\n" );
+	this->deleteString( );
 
-  this->deleteString( );
-
-  if ( tString.m_pString != NULL ) {
-
-    size_t size = lstrlen( tString.m_pString );
-    this->m_pString = new char [ size + 1 ];
-    lstrcpy( this->m_pString, tString.m_pString );
-  }
+	if ( tString.m_pString != NULL ) {
+		size_t size = lstrlen( tString.m_pString );
+		this->m_pString = new char [ size + 1 ];
+		lstrcpy( this->m_pString, tString.m_pString );
+	}
 }
 
 /****************************/
@@ -156,14 +148,13 @@ void TString::operator =( const TString & tString ) {
 /****************************/
 void TString::operator =( const char * cString ) {
 
-  this->deleteString( );
+	this->deleteString( );
 
-  if ( cString != NULL ) {
-
-    size_t size = lstrlen( cString );
-    this->m_pString = new char [ size + 1 ];
-    lstrcpy( this->m_pString, cString );
-  }
+	if ( cString != NULL ) {
+		size_t size = lstrlen( cString );
+		this->m_pString = new char [ size + 1 ];
+		lstrcpy( this->m_pString, cString );
+	}
 }
 
 /****************************/
@@ -175,10 +166,10 @@ void TString::operator =( const char * cString ) {
 /****************************/
 void TString::operator =( const char chr ) {
 
-  this->deleteString( );
-  this->m_pString = new char[2];
-  this->m_pString[0] = chr;
-  this->m_pString[1] = 0;
+	this->deleteString( );
+	this->m_pString = new char[2];
+	this->m_pString[0] = chr;
+	this->m_pString[1] = 0;
 }
 
 /****************************/
@@ -193,18 +184,18 @@ void TString::operator =( const char chr ) {
 
 TString TString::operator +( const char * cString ) {
 
-  TString newTString;
+	TString newTString;
 
-  if ( cString != NULL ) {
-	delete [] newTString.m_pString; // change by Ook
-    newTString.m_pString = new char [lstrlen( this->m_pString )+lstrlen( cString )+1];
-    lstrcpy( newTString.m_pString, this->m_pString );
-    lstrcat( newTString.m_pString, cString );
-  }
-  else
-    newTString = *this;
+	if ( cString != NULL ) {
+		delete [] newTString.m_pString;
+		newTString.m_pString = new char [lstrlen( this->m_pString )+lstrlen( cString )+1];
+		lstrcpy( newTString.m_pString, this->m_pString );
+		lstrcat( newTString.m_pString, cString );
+	}
+	else
+		newTString = *this;
 
-  return newTString;
+	return newTString;
 }
 
 /****************************/
@@ -219,16 +210,16 @@ TString TString::operator +( const char * cString ) {
 
 TString TString::operator +( const char chr ) {
 
-  TString newTString;
+	TString newTString;
 
-  size_t size = lstrlen( this->m_pString );
-	delete [] newTString.m_pString; // change by Ook
-  newTString.m_pString = new char [ size + 2 ];
-  lstrcpy( newTString.m_pString, this->m_pString );
-  newTString.m_pString[size] = chr;
-  newTString.m_pString[size+1] = 0;
+	size_t size = lstrlen( this->m_pString );
+	delete [] newTString.m_pString;
+	newTString.m_pString = new char [ size + 2 ];
+	lstrcpy( newTString.m_pString, this->m_pString );
+	newTString.m_pString[size] = chr;
+	newTString.m_pString[size+1] = 0;
 
-  return newTString;
+	return newTString;
 }
 
 /****************************/
@@ -243,19 +234,18 @@ TString TString::operator +( const char chr ) {
 
 TString TString::operator +( const TString & tString ) {
 
-  TString newTString;
+	TString newTString;
 
-  if ( tString.m_pString ) {
+	if ( tString.m_pString ) {
+		delete [] newTString.m_pString;
+		newTString.m_pString = new char [lstrlen( this->m_pString )+lstrlen( tString.m_pString )+1];
+		lstrcpy( newTString.m_pString, this->m_pString );
+		lstrcat( newTString.m_pString, tString.m_pString );
+	}
+	else
+		newTString = *this;
 
-	delete [] newTString.m_pString; // change by Ook
-    newTString.m_pString = new char [lstrlen( this->m_pString )+lstrlen( tString.m_pString )+1];
-    lstrcpy( newTString.m_pString, this->m_pString );
-    lstrcat( newTString.m_pString, tString.m_pString );
-  }
-  else
-    newTString = *this;
-  
-  return newTString;
+	return newTString;
 }
 
 /****************************/
@@ -268,21 +258,13 @@ TString TString::operator +( const TString & tString ) {
 
 void TString::operator +=( const char * cString ) {
 
-  if ( cString != NULL ) {
-    //int len = lstrlen( this->m_pString );
-    //char * temp = new char[ len + 1 ];
-    //lstrcpy( temp, this->m_pString );
-    //this->deleteString( );
-    //this->m_pString = new char [ len + lstrlen( cString ) + 1 ];
-    //lstrcpy( this->m_pString, temp );
-    //lstrcat( this->m_pString, cString );
-    //delete []temp;
-	char * temp = new char [ lstrlen( this->m_pString ) + lstrlen( cString ) + 1 ];
-    lstrcpy( temp, this->m_pString );
-    lstrcat( temp, cString );
-	delete [] this->m_pString;
-	this->m_pString = temp;
-  }
+	if ( cString != NULL ) {
+		char * temp = new char [ lstrlen( this->m_pString ) + lstrlen( cString ) + 1 ];
+		lstrcpy( temp, this->m_pString );
+		lstrcat( temp, cString );
+		delete [] this->m_pString;
+		this->m_pString = temp;
+	}
 }
 
 /****************************/
@@ -296,15 +278,6 @@ void TString::operator +=( const char * cString ) {
 void TString::operator +=( const char chr ) {
 
 	if ( this->m_pString != NULL ) {
-		//int len = lstrlen( this->m_pString );
-		//char * temp = new char[ len + 1 ];
-		//lstrcpy( temp, this->m_pString );
-		//this->deleteString( );
-		//this->m_pString = new char [ len + 2 ];
-		//lstrcpy( this->m_pString, temp );
-		//this->m_pString[ len ] = chr;
-		//this->m_pString[ len + 1 ] = 0;
-		//delete []temp;
 		int len = lstrlen( this->m_pString );
 		char * temp = new char [ len + 2 ];
 		lstrcpy( temp, this->m_pString );
@@ -331,14 +304,6 @@ void TString::operator +=( const char chr ) {
 void TString::operator +=( const TString & tString ) {
 
 	if ( tString.m_pString ) {
-		//int len = lstrlen( this->m_pString );
-		//char * temp = new char[ len + 1 ];
-		//lstrcpy( temp, this->m_pString );
-		//this->deleteString( );
-		//this->m_pString = new char [ len + lstrlen( tString.m_pString ) + 1 ];
-		//lstrcpy( this->m_pString, temp );
-		//lstrcat( this->m_pString, tString.m_pString );
-		//delete []temp;
 		char * temp = new char [ lstrlen( this->m_pString ) + lstrlen( tString.m_pString ) + 1 ];
 		lstrcpy( temp, this->m_pString );
 		lstrcat( temp, tString.m_pString );
@@ -358,10 +323,10 @@ void TString::operator +=( const TString & tString ) {
 
 bool TString::operator ==( const int iNull ) {
 
-  if ( !this->m_pString && !iNull )
-    return true;
+	if ( !this->m_pString && !iNull )
+		return true;
 
-  return false;
+	return false;
 }
 
 /****************************/
@@ -379,14 +344,13 @@ bool TString::operator ==( const int iNull ) {
 
 bool TString::operator ==( const char * cString ) {
 
-  if ( cString && this->m_pString ) {
-
-    if ( !lstrcmp( this->m_pString, cString ) )
-      return true;
-    else 
-      return false;
-  }
-  return false;
+	if ( cString && this->m_pString ) {
+		if ( !lstrcmp( this->m_pString, cString ) )
+			return true;
+		else
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -404,18 +368,18 @@ bool TString::operator ==( const char * cString ) {
 
 bool TString::operator ==( const char chr ) {
 
-  if ( this->m_pString ) {
+	if ( this->m_pString ) {
 
-    char temp[2];
-    temp[0] = chr;
-    temp[1] = 0;
+		char temp[2];
+		temp[0] = chr;
+		temp[1] = 0;
 
-    if ( !lstrcmp( this->m_pString, temp ) )
-      return true;
-    else 
-      return false;
-  }
-  return false;
+		if ( !lstrcmp( this->m_pString, temp ) )
+			return true;
+		else 
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -433,14 +397,13 @@ bool TString::operator ==( const char chr ) {
 
 bool TString::operator ==( const TString & tString ) {
 
-  if ( this->m_pString && tString.m_pString ) {
-
-    if ( !lstrcmp( this->m_pString, tString.m_pString ) )
-      return true;
-    else
-      return false;
-  }
-  return false;
+	if ( this->m_pString && tString.m_pString ) {
+		if ( !lstrcmp( this->m_pString, tString.m_pString ) )
+			return true;
+		else
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -454,10 +417,10 @@ bool TString::operator ==( const TString & tString ) {
 
 bool TString::operator !=( const int iNull ) {
 
-  if ( this->m_pString && !iNull )
-    return true;
+	if ( this->m_pString && !iNull )
+		return true;
 
-  return false;
+	return false;
 }
 
 /****************************/
@@ -475,14 +438,14 @@ bool TString::operator !=( const int iNull ) {
 
 bool TString::operator !=( const char * cString ) {
 
-  if ( cString && this->m_pString ) {
+	if ( cString && this->m_pString ) {
 
-    if ( !lstrcmp( this->m_pString, cString ) )
-      return false;
-    else 
-      return true;
-  }
-  return false;
+		if ( !lstrcmp( this->m_pString, cString ) )
+			return false;
+		else 
+			return true;
+	}
+	return false;
 }
 
 /****************************/
@@ -500,18 +463,18 @@ bool TString::operator !=( const char * cString ) {
 
 bool TString::operator !=( const char chr ) {
 
-  if ( this->m_pString != NULL ) {
+	if ( this->m_pString != NULL ) {
 
-    char temp[2];
-    temp[0] = chr;
-    temp[1] = 0;
+		char temp[2];
+		temp[0] = chr;
+		temp[1] = 0;
 
-    if ( !lstrcmp( this->m_pString, temp ) )
-      return false;
-    else 
-      return true;
-  }
-  return false;
+		if ( !lstrcmp( this->m_pString, temp ) )
+			return false;
+		else 
+			return true;
+	}
+	return false;
 }
 
 /****************************/
@@ -529,14 +492,14 @@ bool TString::operator !=( const char chr ) {
 
 bool TString::operator !=( const TString & tString ) {
 
-  if ( this->m_pString != NULL && tString.m_pString != NULL ) {
+	if ( this->m_pString != NULL && tString.m_pString != NULL ) {
 
-    if ( !lstrcmp( this->m_pString, tString.m_pString ) )
-      return false;
-    else
-      return true;
-  }
-  return false;
+		if ( !lstrcmp( this->m_pString, tString.m_pString ) )
+			return false;
+		else
+			return true;
+	}
+	return false;
 }
 
 /****************************/
@@ -554,14 +517,13 @@ bool TString::operator !=( const TString & tString ) {
 
 bool TString::operator >( const char * cString ) {
 
-  if ( cString != NULL && this->m_pString != NULL ) {
-
-    if ( lstrcmp( this->m_pString, cString ) > 0 )
-      return true;
-    else 
-      return false;
-  }
-  return false;
+	if ( cString != NULL && this->m_pString != NULL ) {
+		if ( lstrcmp( this->m_pString, cString ) > 0 )
+			return true;
+		else 
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -579,18 +541,18 @@ bool TString::operator >( const char * cString ) {
 
 bool TString::operator >( const char chr ) {
 
-  if ( this->m_pString != NULL ) {
+	if ( this->m_pString != NULL ) {
 
-    char temp[2];
-    temp[0] = chr;
-    temp[1] = 0;
+		char temp[2];
+		temp[0] = chr;
+		temp[1] = 0;
 
-    if ( lstrcmp( this->m_pString, temp ) > 0 )
-      return true;
-    else 
-      return false;
-  }
-  return false;
+		if ( lstrcmp( this->m_pString, temp ) > 0 )
+			return true;
+		else 
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -608,14 +570,14 @@ bool TString::operator >( const char chr ) {
 
 bool TString::operator >( const TString & tString ) {
 
-  if ( this->m_pString != NULL && tString.m_pString != NULL ) {
+	if ( this->m_pString != NULL && tString.m_pString != NULL ) {
 
-    if ( lstrcmp( this->m_pString, tString.m_pString ) > 0 )
-      return true;
-    else
-      return false;
-  }
-  return false;
+		if ( lstrcmp( this->m_pString, tString.m_pString ) > 0 )
+			return true;
+		else
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -633,14 +595,14 @@ bool TString::operator >( const TString & tString ) {
 
 bool TString::operator >=( const char * cString ) {
 
-  if ( cString != NULL && this->m_pString != NULL ) {
+	if ( cString != NULL && this->m_pString != NULL ) {
 
-    if ( lstrcmp( this->m_pString, cString ) >= 0 )
-      return true;
-    else 
-      return false;
-  }
-  return false;
+		if ( lstrcmp( this->m_pString, cString ) >= 0 )
+			return true;
+		else 
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -658,18 +620,18 @@ bool TString::operator >=( const char * cString ) {
 
 bool TString::operator >=( const char chr ) {
 
-  if ( this->m_pString != NULL ) {
+	if ( this->m_pString != NULL ) {
 
-    char temp[2];
-    temp[0] = chr;
-    temp[1] = 0;
+		char temp[2];
+		temp[0] = chr;
+		temp[1] = 0;
 
-    if ( lstrcmp( this->m_pString, temp ) >= 0 )
-      return true;
-    else 
-      return false;
-  }
-  return false;
+		if ( lstrcmp( this->m_pString, temp ) >= 0 )
+			return true;
+		else 
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -687,14 +649,14 @@ bool TString::operator >=( const char chr ) {
 
 bool TString::operator >=( const TString & tString ) {
 
-  if ( this->m_pString != NULL && tString.m_pString != NULL ) {
+	if ( this->m_pString != NULL && tString.m_pString != NULL ) {
 
-    if ( lstrcmp( this->m_pString, tString.m_pString ) >= 0 )
-      return true;
-    else
-      return false;
-  }
-  return false;
+		if ( lstrcmp( this->m_pString, tString.m_pString ) >= 0 )
+			return true;
+		else
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -712,14 +674,14 @@ bool TString::operator >=( const TString & tString ) {
 
 bool TString::operator <( const char * cString ) {
 
-  if ( cString != NULL && this->m_pString != NULL ) {
+	if ( cString != NULL && this->m_pString != NULL ) {
 
-    if ( lstrcmp( this->m_pString, cString ) < 0 )
-      return true;
-    else 
-      return false;
-  }
-  return false;
+		if ( lstrcmp( this->m_pString, cString ) < 0 )
+			return true;
+		else 
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -737,18 +699,18 @@ bool TString::operator <( const char * cString ) {
 
 bool TString::operator <( const char chr ) {
 
-  if ( this->m_pString != NULL ) {
+	if ( this->m_pString != NULL ) {
 
-    char temp[2];
-    temp[0] = chr;
-    temp[1] = 0;
+		char temp[2];
+		temp[0] = chr;
+		temp[1] = 0;
 
-    if ( lstrcmp( this->m_pString, temp ) < 0 )
-      return true;
-    else 
-      return false;
-  }
-  return false;
+		if ( lstrcmp( this->m_pString, temp ) < 0 )
+			return true;
+		else 
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -766,14 +728,14 @@ bool TString::operator <( const char chr ) {
 
 bool TString::operator <( const TString & tString ) {
 
-  if ( this->m_pString != NULL && tString.m_pString != NULL ) {
+	if ( this->m_pString != NULL && tString.m_pString != NULL ) {
 
-    if ( lstrcmp( this->m_pString, tString.m_pString ) < 0 )
-      return true;
-    else
-      return false;
-  }
-  return false;
+		if ( lstrcmp( this->m_pString, tString.m_pString ) < 0 )
+			return true;
+		else
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -791,14 +753,14 @@ bool TString::operator <( const TString & tString ) {
 
 bool TString::operator <=( const char * cString ) {
 
-  if ( cString != NULL && this->m_pString != NULL ) {
+	if ( cString != NULL && this->m_pString != NULL ) {
 
-    if ( lstrcmp( this->m_pString, cString ) <= 0 )
-      return true;
-    else 
-      return false;
-  }
-  return false;
+		if ( lstrcmp( this->m_pString, cString ) <= 0 )
+			return true;
+		else 
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -816,18 +778,18 @@ bool TString::operator <=( const char * cString ) {
 
 bool TString::operator <=( const char chr ) {
 
-  if ( this->m_pString != NULL ) {
+	if ( this->m_pString != NULL ) {
 
-    char temp[2];
-    temp[0] = chr;
-    temp[1] = 0;
+		char temp[2];
+		temp[0] = chr;
+		temp[1] = 0;
 
-    if ( lstrcmp( this->m_pString, temp ) <= 0 )
-      return true;
-    else 
-      return false;
-  }
-  return false;
+		if ( lstrcmp( this->m_pString, temp ) <= 0 )
+			return true;
+		else 
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -845,14 +807,14 @@ bool TString::operator <=( const char chr ) {
 
 bool TString::operator <=( const TString & tString ) {
 
-  if ( this->m_pString != NULL && tString.m_pString != NULL ) {
+	if ( this->m_pString != NULL && tString.m_pString != NULL ) {
 
-    if ( lstrcmp( this->m_pString, tString.m_pString ) <= 0 )
-      return true;
-    else
-      return false;
-  }
-  return false;
+		if ( lstrcmp( this->m_pString, tString.m_pString ) <= 0 )
+			return true;
+		else
+			return false;
+	}
+	return false;
 }
 
 /****************************/
@@ -869,26 +831,25 @@ bool TString::operator <=( const TString & tString ) {
 
 TString TString::operator *( const int N ) {
 
-  TString newTString;
+	TString newTString;
 
-  if ( N == 0 )
-    return newTString;
+	if ( N == 0 )
+		return newTString;
 
-  if ( N < 0 || N == 1 )
-    return *this;
+	if ( N < 0 || N == 1 )
+		return *this;
 
-  size_t size = lstrlen( this->m_pString );
+	size_t size = lstrlen( this->m_pString );
 	delete [] newTString.m_pString; // change by Ook
-  newTString.m_pString = new char [size*N+1];
-  newTString.m_pString[0] = 0;
+	newTString.m_pString = new char [size*N+1];
+	newTString.m_pString[0] = 0;
 
-  int i = 0;
-  while ( i < N ) {
-
-    lstrcat( newTString.m_pString, this->m_pString );
-    i++;
-  }
-  return newTString;
+	int i = 0;
+	while ( i < N ) {
+		lstrcat( newTString.m_pString, this->m_pString );
+		i++;
+	}
+	return newTString;
 }
 
 /****************************/
@@ -903,42 +864,26 @@ TString TString::operator *( const int N ) {
 
 void TString::operator *=( const int N ) {
 
-  if ( N == 0 ) {
-    this->deleteString( );
-    return;
-  }
+	if ( N == 0 ) {
+		this->deleteString( );
+		return;
+	}
 
-  if ( N == 1 )
-    return;
+	if ( N == 1 )
+		return;
 
-  //size_t size = lstrlen( this->m_pString );
-  //char * temp = new char [size+1];
-  //lstrcpy( temp, this->m_pString );
+	if (this->m_pString == NULL) // if string is null just return.
+		return;
+	char *temp = this->m_pString;
+	this->m_pString = new char [(lstrlen( temp )*N)+1];
+	this->m_pString[0] = 0;
 
-  //this->deleteString( );
-
-  //this->m_pString = new char [size*N+1];
-  //this->m_pString[0] = 0;
-
-  //int i = 0;
-  //while ( i < N ) {
-
-  //  lstrcat( this->m_pString, temp );
-  //  i++;
-  //}
-  //delete []temp;
-  if (this->m_pString == NULL) // if string is null just return.
-	  return;
-  char *temp = this->m_pString;
-  this->m_pString = new char [(lstrlen( temp )*N)+1];
-  this->m_pString[0] = 0;
-
-  int i = 0;
-  while ( i < N ) {
-    lstrcat( this->m_pString, temp );
-    i++;
-  }
-  delete [] temp;
+	int i = 0;
+	while ( i < N ) {
+		lstrcat( this->m_pString, temp );
+		i++;
+	}
+	delete [] temp;
 }
 
 /****************************/
@@ -977,12 +922,12 @@ char & TString::operator []( long int N ) {
     \return String length
 */
 
-size_t TString::len( ) {
+size_t TString::len( ) const {
 
-  if ( this->m_pString )
-    return lstrlen( this->m_pString );
+	if ( this->m_pString )
+		return lstrlen( this->m_pString );
 
-  return 0;
+	return 0;
 }
 
 /****************************/
@@ -998,7 +943,7 @@ size_t TString::len( ) {
 */
 /****************************/
 
-int TString::find( const char * substring, int N ) {
+int TString::find( const char * substring, const int N ) const {
 
 	if ( substring && this->m_pString ) {
 
@@ -1007,14 +952,9 @@ int TString::find( const char * substring, int N ) {
 		int i = 0;
 		int subl = lstrlen( substring ); // Ook
 		while ( ( temp = strstr( temp2, substring ) ) != NULL ) {
-
 			i++;
-
-			if ( N != 0 && i == N ) {
-
-			return (int) (temp - this->m_pString);
-			}
-
+			if ( N != 0 && i == N )
+				return (int) (temp - this->m_pString);
 			temp2 = (temp + subl); // Ook
 		}
 		if (N == 0)
@@ -1028,7 +968,7 @@ int TString::find( const char * substring, int N ) {
     \brief Function to find position or number of occurences of a char in the string
 */
 /****************************/
-int TString::find(const char chr, int N) {
+int TString::find(const char chr, const int N) const {
 	int c = 0;
 	int len = this->len();
 
@@ -1065,7 +1005,7 @@ int TString::find(const char chr, int N) {
     \note > Index starts at \b 1 \n
 */
 /****************************/
-int TString::findtok(char * cToken, int N, char * sepChars) {
+int TString::findtok(const char * cToken, const int N, const char * sepChars) const {
 	int count = 0;
 	TString str(cToken);
 
@@ -1096,33 +1036,33 @@ int TString::findtok(char * cToken, int N, char * sepChars) {
 */
 /****************************/
 
-TString TString::sub( int N, int M ) {
+TString TString::sub( int N, int M ) const {
 
-  TString newTString;
+	TString newTString;
 
-  if ( this->m_pString ) {
+	if ( this->m_pString ) {
 
-    int size = (int) lstrlen( this->m_pString );
+		int size = (int) lstrlen( this->m_pString );
 
-    if ( N < 0 ) N += (long int) size;
+		if ( N < 0 ) N += (long int) size;
 
-    if ( N > size - 1 || N < 0 )
-      return newTString;
+		if ( N > size - 1 || N < 0 )
+			return newTString;
 
-    if ( N + M > size )
-      M = size - N;
+		if ( N + M > size )
+			M = size - N;
 
-	delete [] newTString.m_pString; // change by Ook
-    newTString.m_pString = new char[M+1];
-    newTString.m_pString[0] = 0;
+		delete [] newTString.m_pString; // change by Ook
+		newTString.m_pString = new char[M+1];
+		newTString.m_pString[0] = 0;
 
-    char * temp = this->m_pString;
-    temp += N;
+		char * temp = this->m_pString;
+		temp += N;
 
-    lstrcpyn( newTString.m_pString, temp, M + 1 );
-    newTString.m_pString[M] = 0;
-  }
-  return newTString;
+		lstrcpyn( newTString.m_pString, temp, M + 1 );
+		newTString.m_pString[M] = 0;
+	}
+	return newTString;
 }
 
 /*
@@ -1225,11 +1165,9 @@ int TString::replace( const char chr, const char rchr ) {
  * blah
  */
 
-TString TString::gettok( int N, char * sepChars ) {
+TString TString::gettok( int N, const char * sepChars ) const {
 
-  //printf( "gettok\n" );
   TString token = *this;
-  //token = this->m_pString;
 
   if ( sepChars == NULL || this->m_pString == NULL )
     return token;
@@ -1296,11 +1234,9 @@ TString TString::gettok( int N, char * sepChars ) {
  * blah
  */
 
-TString TString::gettok( int N, int M, char * sepChars ) {
+TString TString::gettok( int N, int M, const char * sepChars ) const {
 
-  //printf( "gettok\n" );
   TString token = *this;
-  //token = this->m_pString;
 
   if ( sepChars == NULL || this->m_pString == NULL )
     return token;
@@ -1389,7 +1325,7 @@ TString TString::gettok( int N, int M, char * sepChars ) {
  * blah
  */
 
-int TString::numtok( char * sepChars ) {
+int TString::numtok( const char * sepChars ) const {
 
   if ( sepChars == NULL || this->m_pString == NULL )
     return 0;
@@ -1412,7 +1348,7 @@ int TString::numtok( char * sepChars ) {
  * blah
  */
 
-void TString::deltok( int N, char * sepChars ) {
+void TString::deltok( const int N, const char * sepChars ) {
 
   if ( sepChars == NULL || this->m_pString == NULL )
     return;
@@ -1438,7 +1374,6 @@ void TString::deltok( int N, char * sepChars ) {
     if ( i == N )
       break;
 
-    //p_cStart = p_cEnd + lstrlen( sepChars );
     p_cStart = p_cEnd + sepl; // Ook
   }
 
@@ -1483,7 +1418,7 @@ void TString::deltok( int N, char * sepChars ) {
  * blah
  */
 
-void TString::instok( char * cToken, int N, char * sepChars ) {
+void TString::instok( const char * cToken, const int N, const char * sepChars ) {
 
   if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
     return;
@@ -1562,7 +1497,7 @@ void TString::instok( char * cToken, int N, char * sepChars ) {
  * added by Ook
  * blah
  */
-void TString::addtok( char * cToken, char * sepChars ) {
+void TString::addtok( const char * cToken, const char * sepChars ) {
 
   if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
     return;
@@ -1582,7 +1517,7 @@ void TString::addtok( char * cToken, char * sepChars ) {
   this->m_pString = pNew;
 }
 
-bool TString::istok(char * cToken, char * sepChars ) {
+bool TString::istok(const char * cToken, const char * sepChars ) const {
 
   if ( sepChars == NULL || this->m_pString == NULL )
     return false;
@@ -1609,7 +1544,7 @@ bool TString::istok(char * cToken, char * sepChars ) {
  * blah
  */
 
-void TString::puttok( char * cToken, int N, char * sepChars ) {
+void TString::puttok( const char * cToken, int N, const char * sepChars ) {
 
   if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
     return;
@@ -1631,8 +1566,6 @@ void TString::puttok( char * cToken, int N, char * sepChars ) {
   // delete the first token
   if ( p_cStart == this->m_pString ) {
 
-    //p_cEnd++;
-
     char * pNew = new char[ lstrlen( cToken ) + lstrlen( p_cEnd ) + 1 ];
 
     lstrcpy( pNew, cToken );
@@ -1643,7 +1576,6 @@ void TString::puttok( char * cToken, int N, char * sepChars ) {
   // last token
   else if ( p_cEnd == NULL ) {
 
-    //p_cStart--;
     *p_cStart = 0;
 
     char * pNew = new char[ lstrlen( cToken ) + lstrlen( this->m_pString ) + 1 ];
@@ -1657,7 +1589,6 @@ void TString::puttok( char * cToken, int N, char * sepChars ) {
   else {
 
     *p_cStart = 0;
-    //p_cEnd++;
 
     char * pNew = new char[ lstrlen( this->m_pString ) + lstrlen( cToken ) + lstrlen( p_cEnd ) + 1 ];
 
@@ -1699,7 +1630,7 @@ void TString::trim( ) {
 
 }
 // pos must be within length of string, n can be < 0
-TString TString::mid(int pos, int n)
+TString TString::mid(int pos, int n) const
 {
 	TString tmp;
 	int l = (int)lstrlen(this->m_pString);
@@ -1715,7 +1646,7 @@ TString TString::mid(int pos, int n)
 	return tmp;
 }
 // if n > string length its truncated, n can be < 0
-TString TString::left(int n)
+TString TString::left(int n) const
 {
 	TString tmp;
 	int l = (int)lstrlen(this->m_pString);
@@ -1730,7 +1661,7 @@ TString TString::left(int n)
 	return tmp;
 }
 // if n > string length its truncated, n can be < 0
-TString TString::right(int n)
+TString TString::right(int n) const
 {
 	TString tmp;
 	int l = (int)lstrlen(this->m_pString);
@@ -1781,7 +1712,7 @@ static inline int rfc_toupper(int c)
  * Features:  Forward, case-insensitive, ?, *, %, ~(optional)
  * Best use:  Generic string matching, such as in IrcII-esque bindings
  */
-int match (register char *m, register char *n, bool cs /* case sensitive */)
+int match (register char *m, register char *n, const bool cs /* case sensitive */)
 {
 	char *ma = m, *lsm = 0, *lsn = 0, *lpm = 0, *lpn = 0;
 	int match = 1, saved = 0;
@@ -1897,7 +1828,7 @@ int match (register char *m, register char *n, bool cs /* case sensitive */)
 		m++;			/* Zap leftover %s & *s */
 	return (*m) ? NOMATCH : MATCH;	/* End of both = match */
 }
-TString TString::wildtok( char * wildString, int N, char * sepChars )
+TString TString::wildtok( char * wildString, int N, const char * sepChars ) const
 {
 	TString tmp;
 	int cnt = 1, m = 0;
@@ -1922,7 +1853,7 @@ TString TString::wildtok( char * wildString, int N, char * sepChars )
 	tmp = "";
 	return tmp;
 }
-int TString::nwildtok( char * wildString, char * sepChars )
+int TString::nwildtok( char * wildString, const char * sepChars ) const
 {
 	TString tmp;
 	int cnt = 1, m = 0;
@@ -1958,7 +1889,7 @@ int TString::sprintf(const char *fmt, ...)
  *    else it returns FALSE
  *    case insensitive
  */
-bool TString::iswm(char *a)
+bool TString::iswm(char *a) const
 {
 	return match(a, this->m_pString,false)?true:false;
 }
@@ -1969,7 +1900,7 @@ bool TString::iswm(char *a)
  *    else it returns FALSE
  *    case sensitive
  */
-bool TString::iswmcs(char *a)
+bool TString::iswmcs(char *a) const
 {
 	return match(a, this->m_pString,true)?true:false;
 }

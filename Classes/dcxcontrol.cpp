@@ -85,7 +85,6 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog ) : DcxWindow( mID 
 
 DcxControl::~DcxControl( ) {
 
-  //mIRCError( "DcxControl, Removing Prop" );
   RemoveProp( this->m_Hwnd, "dcx_cthis" );
 
   // Reverse to old font
@@ -140,7 +139,7 @@ void DcxControl::parseGeneralControlStyles( TString & styles, LONG * Styles, LON
  * blah
  */
 
-UINT DcxControl::getUserID( ) {
+UINT DcxControl::getUserID( ) const {
 
   return this->getID( ) - mIRC_ID_OFFSET;
 }
@@ -964,8 +963,8 @@ LRESULT DcxControl::setFont( HFONT hFont, BOOL fRedraw ) {
  * blah
  */
 
-LRESULT DcxControl::getFont( ) {
-  return SendMessage( this->m_Hwnd, WM_SETFONT, (WPARAM) 0, (LPARAM) 0 );
+LRESULT DcxControl::getFont( ) const {
+  return SendMessage( this->m_Hwnd, WM_GETFONT, (WPARAM) 0, (LPARAM) 0 );
 }
 
 /*!
@@ -1010,7 +1009,7 @@ void DcxControl::setControlFont( HFONT hFont, BOOL fRedraw ) {
  * blah
  */
 
-HBRUSH DcxControl::getBackClrBrush( ) {
+HBRUSH DcxControl::getBackClrBrush( ) const {
 
   return this->m_hBackBrush;
 }
@@ -1021,7 +1020,7 @@ HBRUSH DcxControl::getBackClrBrush( ) {
  * blah
  */
 
-COLORREF DcxControl::getBackColor( ) {
+COLORREF DcxControl::getBackColor( ) const {
 	return this->m_clrBackText;
 }
 
@@ -1031,6 +1030,6 @@ COLORREF DcxControl::getBackColor( ) {
  * blah
  */
 
-COLORREF DcxControl::getTextColor( ) {
+COLORREF DcxControl::getTextColor( ) const {
 	return this->m_clrText;
 }

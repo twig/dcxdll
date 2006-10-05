@@ -229,10 +229,10 @@ void mIRCeval(const char *text, char *res);
 void mIRCcom(const char *data);
 
 void dcxInfoError(const char *ctrl, const char *functn, const char *dlg, const int ctrlid, const char *msg);
-void DCXError(char *cmd,char *msg);
+void DCXError(const char *cmd,const char *msg);
 
-int round(float x);
-BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf);
+int round(const float x);
+BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
 TString ParseLogfontToCommand(LPLOGFONT lf);
 UINT parseFontFlags(TString &flags);
 UINT parseFontCharSet(TString &charset);
@@ -240,7 +240,7 @@ DcxDialogCollection dcxDialogs();
 
 
 char * readFile(const char * filename);
-TString FileDialog(TString & data, TString method, const HWND pWnd);
+TString FileDialog(const TString & data, TString method, const HWND pWnd);
 
 typedef HRESULT (__stdcall *PFNSETTHEME)(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
 typedef HRESULT (__stdcall *PFNISTHEMEACTIVE)();
@@ -255,15 +255,15 @@ HRESULT dcxSetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList
 BOOL dcxIsThemeActive();
 BOOL isXP();
 
-HWND GetHwndFromString(TString &str);
+HWND GetHwndFromString(const TString &str);
 HWND GetHwndFromString(const char *str);
-HWND FindOwner(TString & data, const HWND defaultWnd);
-BOOL CopyToClipboard(const HWND owner, TString & str);
+HWND FindOwner(const TString & data, const HWND defaultWnd);
+BOOL CopyToClipboard(const HWND owner, const TString & str);
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
-HICON dcxLoadIcon(int index, TString &filename, bool large = false);
+HICON dcxLoadIcon(const int index, TString &filename, const bool large = false);
 HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
-bool ChangeHwndIcon(const HWND hwnd, TString *flags, const int index, TString *filename);
+bool ChangeHwndIcon(const HWND hwnd, const TString *flags, const int index, const TString *filename);
 
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl);
 // UltraDock

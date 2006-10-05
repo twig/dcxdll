@@ -53,111 +53,111 @@ class TString {
 
 private:
 
-  void deleteString( );
-  int _replace(const char *subString, const char *rString); // Ook
+	void deleteString( );
+	int _replace(const char *subString, const char *rString); // Ook
 
 public:
 
-  char * m_pString; //!< String buffer
+	char * m_pString; //!< String buffer
 
-  TString( );
-  TString( const char * cString );
-  TString( const char chr );
-  TString( const TString & tString );
-  
-  //! Destructor
-  ~TString( );
+	TString( );
+	TString( const char * cString );
+	TString( const char chr );
+	TString( const TString & tString );
 
-  /*! \fn char * to_chr( )
-      \brief Returns the string as a C char string
-  */
-  char * to_chr( ) { return this->m_pString; };
+	//! Destructor
+	~TString( );
 
-  // Operator Overloads
-  void operator =( const TString & tString );
-  void operator =( const char * cString );
-  void operator =( const char chr );
+	/*! \fn char * to_chr( )
+			\brief Returns the string as a C char string
+	*/
+	char * to_chr( ) const { return this->m_pString; };
 
-  TString operator +( const char * cString );
-  TString operator +( const char chr );
-  TString operator +( const TString & tString );
+	// Operator Overloads
+	void operator =( const TString & tString );
+	void operator =( const char * cString );
+	void operator =( const char chr );
 
-  void operator +=( const char * cString );
-  void operator +=( const char chr );
-  void operator +=( const TString & tString );
+	TString operator +( const char * cString );
+	TString operator +( const char chr );
+	TString operator +( const TString & tString );
 
-  bool operator ==( const int iNull );
-  bool operator ==( const char * cString );
-  bool operator ==( const char chr );
-  bool operator ==( const TString & tString );
+	void operator +=( const char * cString );
+	void operator +=( const char chr );
+	void operator +=( const TString & tString );
 
-  bool operator !=( const int iNull );
-  bool operator !=( const char * cString );
-  bool operator !=( const char chr );
-  bool operator !=( const TString & tString );
+	bool operator ==( const int iNull );
+	bool operator ==( const char * cString );
+	bool operator ==( const char chr );
+	bool operator ==( const TString & tString );
 
-  bool operator >( const char * cString );
-  bool operator >( const char chr );
-  bool operator >( const TString & tString );
+	bool operator !=( const int iNull );
+	bool operator !=( const char * cString );
+	bool operator !=( const char chr );
+	bool operator !=( const TString & tString );
 
-  bool operator >=( const char * cString );
-  bool operator >=( const char chr );
-  bool operator >=( const TString & tString );
+	bool operator >( const char * cString );
+	bool operator >( const char chr );
+	bool operator >( const TString & tString );
 
-  bool operator <( const char * cString );
-  bool operator <( const char chr );
-  bool operator <( const TString & tString );
+	bool operator >=( const char * cString );
+	bool operator >=( const char chr );
+	bool operator >=( const TString & tString );
 
-  bool operator <=( const char * cString );
-  bool operator <=( const char chr );
-  bool operator <=( const TString & tString );
+	bool operator <( const char * cString );
+	bool operator <( const char chr );
+	bool operator <( const TString & tString );
 
-  TString operator *( const int N );
-  void operator *=( const int N );
+	bool operator <=( const char * cString );
+	bool operator <=( const char chr );
+	bool operator <=( const TString & tString );
 
-  char & operator []( long int N );
+	TString operator *( const int N );
+	void operator *=( const int N );
 
-  // General String Lib
-  size_t len( );
+	char & operator []( long int N );
 
-  int find( const char * substring, int N );
-  int find( const char chr, int N );
+	// General String Lib
+	size_t len( ) const;
 
-  TString sub( int N, int M );
+	int find( const char * substring, const int N ) const;
+	int find( const char chr, const int N ) const;
 
-  void trim( );
-  
-  int replace( const char * subString, const char * rString );
-  int replace( const char * subString, const char rchr );
-  int replace( const char chr, const char * rString );
-  int replace( const char chr, const char rchr );
+	TString sub( int N, int M ) const;
 
-  // Token Lib
-  void addtok( char * cToken, char * sepChars );
-  void deltok( int N, char * sepChars );
-  int findtok( char * cToken, int N, char * sepChars );
-  TString gettok( int N, char * sepChars );
-  TString gettok( int N, int M, char * sepChars );
-  void instok( char * cToken, int N, char * sepChars );
-  bool istok( char * cToken, char * sepChars );
-  TString matchtok( char * mString, int N, char * sepChars );
-  int numtok( char * sepChars );
-  void puttok( char * cToken, int N, char * sepChars );
-  void remtok( char * cToken, int N, char * sepChars );
-  void reptok( char * cToken, char * newToken, int N, char * sepChars );
-  void sorttok( char * sortOptions, char * sepChars );
-  // added by Ook
-  TString wildtok( char * wildString, int N, char * sepChars );
-  int nwildtok( char * wildString, char * sepChars );
-  TString mid(int pos, int n);
-  TString left(int n);
-  TString right(int n);
+	void trim( );
+
+	int replace( const char * subString, const char * rString );
+	int replace( const char * subString, const char rchr );
+	int replace( const char chr, const char * rString );
+	int replace( const char chr, const char rchr );
+
+	// Token Lib
+	void addtok( const char * cToken, const char * sepChars );
+	void deltok( const int N, const char * sepChars );
+	int findtok( const char * cToken, const int N, const char * sepChars ) const;
+	TString gettok( int N, const char * sepChars ) const;
+	TString gettok( int N, int M, const char * sepChars ) const;
+	void instok( const char * cToken, const int N, const char * sepChars );
+	bool istok( const char * cToken, const char * sepChars ) const;
+	TString matchtok( char * mString, int N, const char * sepChars ) const;
+	int numtok( const char * sepChars ) const;
+	void puttok( const char * cToken, int N, const char * sepChars );
+	void remtok( const char * cToken, int N, const char * sepChars );
+	void reptok( const char * cToken, const char * newToken, int N, const char * sepChars );
+	void sorttok( char * sortOptions, const char * sepChars );
+	// added by Ook
+	TString wildtok( char * wildString, int N, const char * sepChars ) const;
+	int nwildtok( char * wildString, const char * sepChars ) const;
+	TString mid(int pos, int n) const;
+	TString left(int n) const;
+	TString right(int n) const;
 	int sprintf(const char *fmt, ...);
-  bool iswm(char *a);
-  bool iswmcs(char *a);
-  int to_int() { return atoi(this->m_pString); }
-  __int64 to_num( ) { return _atoi64(this->m_pString); }
-  //
+	bool iswm(char *a) const;
+	bool iswmcs(char *a) const;
+	int to_int() const { return atoi(this->m_pString); }
+	__int64 to_num( ) const { return _atoi64(this->m_pString); }
+	//
 };
 
 #endif // TSTRING_H_

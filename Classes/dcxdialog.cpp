@@ -36,7 +36,7 @@ extern mIRCDLL mIRCLink;
  * \param tsAliasName Dialog Callback alias Name
  */
 
-DcxDialog::DcxDialog(HWND mHwnd, TString &tsName, TString &tsAliasName)
+DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 : DcxWindow(mHwnd, 0)
 , m_uStyleBg(DBS_BKGNORMAL)
 {
@@ -94,7 +94,7 @@ DcxDialog::~DcxDialog() {
  *
  * blah
  */
-TString DcxDialog::getName() {
+TString DcxDialog::getName() const {
 	return this->m_tsName;
 }
 
@@ -104,7 +104,7 @@ TString DcxDialog::getName() {
  * blah
  */
 
-TString DcxDialog::getAliasName() {
+TString DcxDialog::getAliasName() const {
   return this->m_tsAliasName;
 }
 
@@ -176,7 +176,7 @@ void DcxDialog::deleteAllControls() {
  * blah
  */
 
-DcxControl *DcxDialog::getControlByID(UINT ID) {
+DcxControl *DcxDialog::getControlByID(const UINT ID) {
 	VectorOfControlPtrs::iterator itStart = this->m_vpControls.begin();
 	VectorOfControlPtrs::iterator itEnd = this->m_vpControls.end();
 
@@ -196,7 +196,7 @@ DcxControl *DcxDialog::getControlByID(UINT ID) {
  * blah
  */
 
-DcxControl *DcxDialog::getControlByHWND(HWND mHwnd) {
+DcxControl *DcxDialog::getControlByHWND(const HWND mHwnd) {
 	VectorOfControlPtrs::iterator itStart = this->m_vpControls.begin();
 	VectorOfControlPtrs::iterator itEnd = this->m_vpControls.end();
 
@@ -943,7 +943,7 @@ void DcxDialog::parseBorderStyles(TString &flags, LONG *Styles, LONG *ExStyles) 
  * blah
  */
 
-DWORD DcxDialog::getAnimateStyles(TString &flags) {
+DWORD DcxDialog::getAnimateStyles(TString &flags) const {
 	DWORD Styles = 0;
 	int i = 1, len = flags.len();
 

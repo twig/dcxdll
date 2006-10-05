@@ -58,11 +58,11 @@ class DcxDialog : public DcxWindow {
 
 public:
 
-  DcxDialog( HWND mHwnd, TString & tsName, TString & tsAliasName );
+  DcxDialog( const HWND mHwnd, TString & tsName, TString & tsAliasName );
   virtual ~DcxDialog( );
 
-  TString getName( );
-  TString getAliasName( );
+  TString getName( ) const;
+  TString getAliasName( ) const;
 
   static LRESULT WINAPI WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -71,8 +71,8 @@ public:
 
   BOOL callAliasEx( char * szReturn, const char * szFormat, ... );
 
-  DcxControl * getControlByID( UINT ID );
-  DcxControl * getControlByHWND( HWND mHwnd );
+  DcxControl * getControlByID( const UINT ID );
+  DcxControl * getControlByHWND( const HWND mHwnd );
 
   void addControl( DcxControl * p_Control );
   void deleteControl( DcxControl * p_Control );
@@ -88,12 +88,12 @@ public:
   void setParentName(TString &strParent);
   TString getParentName();
 
-  inline HCURSOR getCursor( ) { return this->m_hCursor; };
-	inline HWND getToolTip(void) { return this->m_ToolTipHWND; };
+  inline HCURSOR getCursor( ) const { return this->m_hCursor; };
+	inline HWND getToolTip(void) const { return this->m_ToolTipHWND; };
   inline void incRef( ) { ++this->m_iRefCount; };
   inline void decRef( ) { --this->m_iRefCount; };
-  inline UINT getRefCount( ) { return this->m_iRefCount; };
-	inline DWORD getEventMask( ) { return this->m_dEventMask; };
+  inline UINT getRefCount( ) const { return this->m_iRefCount; };
+	inline DWORD getEventMask( ) const { return this->m_dEventMask; };
 
 protected:
 
@@ -129,7 +129,7 @@ protected:
   /* **** */
 
   void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
-  DWORD getAnimateStyles( TString & flags );
+  DWORD getAnimateStyles( TString & flags ) const;
 
   UINT parseLayoutFlags( TString & flags );
   UINT parseBkgFlags( TString & flags );

@@ -48,7 +48,7 @@ public:
 
   BOOL callAliasEx( char * szReturn, const char * szFormat, ... );
 
-  UINT getUserID( );
+  UINT getUserID( ) const;
 
   static LRESULT CALLBACK WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -56,15 +56,15 @@ public:
   virtual LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
 
   LRESULT setFont( HFONT hFont, BOOL fRedraw );
-  LRESULT getFont( );
+  LRESULT getFont( ) const;
 
   void setControlFont( HFONT hFont, BOOL fRedraw );
 
   LRESULT setRedraw( BOOL fView );
 
-  HBRUSH getBackClrBrush( );
-  COLORREF getBackColor( );
-  COLORREF getTextColor( );
+  HBRUSH getBackClrBrush( ) const;
+  COLORREF getBackColor( ) const;
+  COLORREF getTextColor( ) const;
 
   static DcxControl * controlFactory( DcxDialog * p_Dialog, UINT mID, TString & input );
 
@@ -72,7 +72,7 @@ public:
 
   inline void incRef( ) { ++this->m_iRefCount; };
   inline void decRef( ) { --this->m_iRefCount; };
-  inline UINT getRefCount( ) { return this->m_iRefCount; };
+  inline UINT getRefCount( ) const { return this->m_iRefCount; };
 
 protected:
 

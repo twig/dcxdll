@@ -22,7 +22,7 @@
  * \param mID Window ID
  */
 
-DcxWindow::DcxWindow( HWND mHwnd, UINT mID ) : m_Hwnd( mHwnd ), m_ID( mID ) {
+DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) : m_Hwnd( mHwnd ), m_ID( mID ) {
 
 }
 
@@ -32,7 +32,7 @@ DcxWindow::DcxWindow( HWND mHwnd, UINT mID ) : m_Hwnd( mHwnd ), m_ID( mID ) {
  * \param mID Window ID
  */
 
-DcxWindow::DcxWindow( UINT mID ) : m_ID( mID ) {
+DcxWindow::DcxWindow( const UINT mID ) : m_ID( mID ) {
 
 }
 
@@ -53,7 +53,7 @@ DcxWindow::~DcxWindow( ) {
  * blah
  */
 
-BOOL DcxWindow::isStyle( LONG Styles ) {
+BOOL DcxWindow::isStyle( const LONG Styles ) const {
 
   if ( GetWindowLong( this->m_Hwnd, GWL_STYLE ) & Styles )
     return TRUE;
@@ -67,7 +67,7 @@ BOOL DcxWindow::isStyle( LONG Styles ) {
  * blah
  */
 
-LONG DcxWindow::removeStyle( LONG Styles ) {
+LONG DcxWindow::removeStyle( const LONG Styles ) {
 
   LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_STYLE );
   return SetWindowLong( this->m_Hwnd, GWL_STYLE, winStyles &= ~Styles );
@@ -79,7 +79,7 @@ LONG DcxWindow::removeStyle( LONG Styles ) {
  * blah
  */
 
-LONG DcxWindow::addStyle( LONG Styles ) {
+LONG DcxWindow::addStyle( const LONG Styles ) {
 
   LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_STYLE );
   return SetWindowLong( this->m_Hwnd, GWL_STYLE, winStyles |= Styles );
@@ -91,7 +91,7 @@ LONG DcxWindow::addStyle( LONG Styles ) {
  * blah
  */
 
-LONG DcxWindow::setStyle( LONG Styles ) {
+LONG DcxWindow::setStyle( const LONG Styles ) {
 
   return SetWindowLong( this->m_Hwnd, GWL_STYLE, Styles );
 }
@@ -102,7 +102,7 @@ LONG DcxWindow::setStyle( LONG Styles ) {
  * blah
  */
 
-BOOL DcxWindow::isExStyle( LONG Styles ) {
+BOOL DcxWindow::isExStyle( const LONG Styles ) const {
 
   if ( GetWindowLong( this->m_Hwnd, GWL_EXSTYLE ) & Styles )
     return TRUE;
@@ -116,7 +116,7 @@ BOOL DcxWindow::isExStyle( LONG Styles ) {
  * blah
  */
 
-LONG DcxWindow::removeExStyle( LONG Styles ) {
+LONG DcxWindow::removeExStyle( const LONG Styles ) {
 
   LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_EXSTYLE );
   return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, winStyles &= ~Styles );
@@ -128,7 +128,7 @@ LONG DcxWindow::removeExStyle( LONG Styles ) {
  * blah
  */
 
-LONG DcxWindow::addExStyle( LONG Styles ) {
+LONG DcxWindow::addExStyle( const LONG Styles ) {
 
   LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_EXSTYLE );
   return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, winStyles |= Styles );
@@ -140,7 +140,7 @@ LONG DcxWindow::addExStyle( LONG Styles ) {
  * blah
  */
 
-LONG DcxWindow::setExStyle( LONG Styles ) {
+LONG DcxWindow::setExStyle( const LONG Styles ) {
 
   return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, Styles );
 }
@@ -151,7 +151,7 @@ LONG DcxWindow::setExStyle( LONG Styles ) {
  * blah
  */
 
-void DcxWindow::parseSwitchFlags( TString & switchs, XSwitchFlags * flags ) {
+void DcxWindow::parseSwitchFlags( TString & switchs, XSwitchFlags * flags ) const {
 
   // no -sign, missing params
   if ( switchs[0] != '-' ) 
@@ -176,7 +176,7 @@ void DcxWindow::parseSwitchFlags( TString & switchs, XSwitchFlags * flags ) {
  * blah
  */
 
-UINT DcxWindow::getID( ) {
+UINT DcxWindow::getID( ) const {
 
   return this->m_ID;
 }
@@ -187,7 +187,7 @@ UINT DcxWindow::getID( ) {
  * blah
  */
 
-HWND DcxWindow::getHwnd( ) {
+HWND DcxWindow::getHwnd( ) const {
 
   return this->m_Hwnd;
 }
