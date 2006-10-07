@@ -46,6 +46,7 @@ public:
 
 protected:
 	TString m_tsText; // Edit Text
+	TString m_tsCue; // Cue Text
 };
 
 #endif // _DCXEDIT_H_

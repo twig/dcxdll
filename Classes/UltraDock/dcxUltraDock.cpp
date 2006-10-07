@@ -59,7 +59,7 @@ void CloseUltraDock(void)
 	UpdatemIRC();
 }
 
-bool FindUltraDock(HWND hwnd)
+bool FindUltraDock(const HWND hwnd)
 {
 	VectorOfDocks::iterator itStart = v_docks.begin();
 	VectorOfDocks::iterator itEnd = v_docks.end();
@@ -75,7 +75,7 @@ bool FindUltraDock(HWND hwnd)
 	}
 	return false;
 }
-LPDCXULTRADOCK GetUltraDock(HWND hwnd)
+LPDCXULTRADOCK GetUltraDock(const HWND hwnd)
 {
 	VectorOfDocks::iterator itStart = v_docks.begin();
 	VectorOfDocks::iterator itEnd = v_docks.end();

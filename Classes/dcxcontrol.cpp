@@ -112,7 +112,7 @@ DcxControl::~DcxControl( ) {
  * blah
  */
 
-void DcxControl::parseGeneralControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
   unsigned int i = 1, numtok = styles.numtok( " " );
 
@@ -183,7 +183,7 @@ BOOL DcxControl::callAliasEx( char * szReturn, const char * szFormat, ... ) {
  * blah
  */
 
-void DcxControl::parseGlobalCommandRequest( TString & input, XSwitchFlags & flags ) {
+void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags ) {
 	int numtok = input.numtok( " " );
 
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
@@ -643,7 +643,7 @@ LPSTR DcxControl::parseCursorType( TString & cursor ) {
  * blah
  */
 
-BOOL DcxControl::parseGlobalInfoRequest( TString & input, char * szReturnValue ) {
+BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnValue ) {
 
   if ( input.gettok( 3, " " ) == "hwnd" ) {
 
@@ -759,9 +759,8 @@ BOOL DcxControl::parseGlobalInfoRequest( TString & input, char * szReturnValue )
 		wsprintf(szReturnValue, "%ld", cref);
 		return TRUE;
 	}
-  else {
+  else
 		dcxInfoError("General", input.gettok( 3, " " ).to_chr( ), input.gettok(1, " ").to_chr(), this->getUserID(), "Invalid property or number of arguments");
-  }
 
   return FALSE;
 }

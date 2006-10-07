@@ -450,12 +450,16 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	else if (flags.switch_flags[17]) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
-	else if (flags.switch_flags[19] && numtok > 3) {
+	else if (flags.switch_flags[19] && numtok > 3) { // TODO: replace all this with an EM_STREAMIN message & callback
 		char *contents = readFile(input.gettok(4, -1, " ").to_chr());
 
 		if (contents != NULL) {
 			this->m_tsText = contents;
+			delete [] contents;
+			DWORD mask = this->m_dEventMask;
+			this->m_dEventMask = 0;
 			this->parseContents(TRUE);
+			this->m_dEventMask = mask;
 		}
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
@@ -485,9 +489,8 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
 			DCXError("/xdid -Z","Richedit zooming error");
 	}
-	else {
+	else
 		this->parseGlobalCommandRequest(input, flags);
-	}
 }
 
 /*!

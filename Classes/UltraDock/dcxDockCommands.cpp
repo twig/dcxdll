@@ -12,8 +12,8 @@ extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd;
 
 extern VectorOfDocks v_docks;
 extern void UltraDock(HWND mWnd,HWND temp,TString flag);
-extern bool FindUltraDock(HWND hwnd);
-extern LPDCXULTRADOCK GetUltraDock(HWND hwnd);
+extern bool FindUltraDock(const HWND hwnd);
+extern LPDCXULTRADOCK GetUltraDock(const HWND hwnd);
 extern BOOL XPPlus;
 
 typedef struct tagDCXDOCK {

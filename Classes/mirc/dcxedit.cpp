@@ -260,6 +260,15 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		wsprintf(szReturnValue, "%s", this->m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr());
 		return;
 	}
+	else if (input.gettok(3, " ") == "cue") {
+		if (this->m_tsCue.len())
+			lstrcpy(szReturnValue,this->m_tsCue.to_chr());
+		//WCHAR *wcue = new WCHAR[901];
+		//Edit_GetCueBannerText(this->m_Hwnd,wcue,900); // <- this fails for some reason :/
+		//WideCharToMultiByte( CP_ACP, 0, wcue, lstrlenW( wcue ) + 1, szReturnValue, 900, NULL, NULL );
+		//delete [] wcue;
+		return;
+	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue)) {
 		return;
 	}
@@ -381,6 +390,16 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		int iend = input.gettok(5, " ").to_int();
 
 		SendMessage(this->m_Hwnd, EM_SETSEL, istart, iend);
+	}
+	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
+	else if (flags.switch_cap_flags[4] && numtok > 4) {
+		TString cue(input.gettok(4, -1, " "));
+		int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cue.to_chr(),-1, NULL, 0);
+		WCHAR *wcue = new WCHAR[widelen+1];
+		MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cue.to_chr(),-1, wcue, widelen);
+		Edit_SetCueBannerText(this->m_Hwnd,wcue);
+		this->m_tsCue = cue;
+		delete [] wcue;
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);

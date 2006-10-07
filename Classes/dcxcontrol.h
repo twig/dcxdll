@@ -44,7 +44,7 @@ public:
   virtual void parseCommandRequest( TString & input ) = 0;
   virtual void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
 
-  void parseGeneralControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+  void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   BOOL callAliasEx( char * szReturn, const char * szFormat, ... );
 
@@ -98,8 +98,8 @@ protected:
 	DWORD m_dEventMask;
   /* ***** */
 
-  void parseGlobalCommandRequest( TString & input, XSwitchFlags & flags );
-  BOOL parseGlobalInfoRequest( TString & input, char * szReturnValue );
+  void parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags );
+  BOOL parseGlobalInfoRequest( const TString & input, char * szReturnValue );
 
   UINT parseColorFlags( TString & flags );
   UINT parseCursorFlags( TString & flags );
