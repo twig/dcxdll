@@ -259,12 +259,13 @@ void DcxImage::parseCommandRequest(TString & input) {
 		this->m_clrTransColor = (COLORREF)input.gettok(4, " ").to_num();
 		this->redrawWindow();
 	}
-	// xdid -S [NAME] [ID] [SWITCH] [ON|OFF]
+	// xdid -S [NAME] [ID] [SWITCH] [1|0]
 	else if (flags.switch_cap_flags[18] && numtok > 3) {
-		if (input.gettok(4," ") == "on")
+		if (input.gettok(4, " ").to_int() > 0)
 			this->m_bResizeImage = true;
 		else
 			this->m_bResizeImage = false;
+
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 		//UpdateWindow(this->m_Hwnd);
 		//this->redrawWindow();

@@ -809,6 +809,11 @@ function format_parameters(&$data) {
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 <?php
 	foreach ($data as $param => $val) {
+		if ($param == '__args') {
+			format_args($val);
+			continue;
+		}
+		
 		// if theres only a description for the parameter
 		if (!is_array($val)) {
 ?>
@@ -828,6 +833,45 @@ function format_parameters(&$data) {
 <?php
 			if (isset($val['__values'])) {
 				foreach ($val['__values'] as $p => $info) {
+?>
+	<tr>
+		<td class="value"><?php echo $p; ?></td>
+		<td><?php echo $info; ?></td>
+	</tr>
+<?php
+				}
+			}
+		}
+	}
+}
+
+/*
+prints the variable arguments into formatted table rows
+*/
+function format_args(&$data) {
+?>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+<?php
+	foreach ($data as $param => $val) {
+		// if theres only a description for the parameter
+		if (!is_array($val)) {
+?>
+	<tr>
+		<td class="param"><?php echo $param; ?></td>
+		<td><div class="syntax"><?php echo $val; ?></div></td>
+	</tr>
+<?php
+		}
+		// show parameter desc, then list each value
+		else {
+?>
+	<tr>
+		<td class="param"><?php echo $param; ?></td>
+		<td><div class="syntax"><?php echo $val['__cmd']; ?></div></td>
+	</tr>
+<?php
+			if (isset($val['__params'])) {
+				foreach ($val['__params'] as $p => $info) {
 ?>
 	<tr>
 		<td class="value"><?php echo $p; ?></td>

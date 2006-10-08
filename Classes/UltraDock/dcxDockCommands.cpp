@@ -200,46 +200,56 @@ mIRC(xdock) {
 	TString switches = input.gettok(1, " ");
 
 	// update mirc
-	// [SWITCH]
+	// /xdock -p
 	if (switches[1] == 'p') {
 		UpdatemIRC();
 		return 1;
 	}
 
+	// check if at least 2 parameters
 	if (numtok < 2) {
 		DCXError("/xdock","Invalid Flag");
 		return 0;
 	}
-	// [SWITCH] [show|hide]
-	else if ((switches[1] == 'S') && (numtok == 2)) { // show/hide switchbar
-		if ((input.gettok(2," ") == "show") && (!IsWindowVisible(sb_hwnd)))
+
+	// show/hide switchbar
+	// [-S] [1|0]
+	if ((switches[1] == 'S') && (numtok == 2)) {
+		if ((input.gettok(2," ").to_int() > 0) && (!IsWindowVisible(sb_hwnd)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
-		else if ((input.gettok(2," ") == "hide") && (IsWindowVisible(sb_hwnd)))
-      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
+		else if ((input.gettok(2," ").to_int() == 0) && (IsWindowVisible(sb_hwnd)))
+			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
+
 		return 1;
 	}
-	// [SWITCH] [show|hide]
-	else if ((switches[1] == 'T') && (numtok == 2)) { // show/hide toolbar
-		if ((input.gettok(2," ") == "show") && (!IsWindowVisible(tb_hwnd)))
+	// show/hide toolbar
+	// [-T] [1|0]
+	else if ((switches[1] == 'T') && (numtok == 2)) {
+		if ((input.gettok(2," ").to_int() > 0) && (!IsWindowVisible(tb_hwnd)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
-		else if ((input.gettok(2," ") == "hide") && (IsWindowVisible(tb_hwnd)))
-      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
+		else if ((input.gettok(2," ").to_int() == 0) && (IsWindowVisible(tb_hwnd)))
+			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
+
 		return 1;
 	}
-	// [SWITCH] [show|hide]
-	else if ((switches[1] == 'R') && (numtok == 2)) { // show/hide treebar
-		if ((input.gettok(2," ") == "show") && (!IsWindowVisible(treeb_hwnd)))
+	// show/hide treebar
+	// [-R [1|0]
+	else if ((switches[1] == 'R') && (numtok == 2)) {
+		if ((input.gettok(2," ").to_int() > 0) && (!IsWindowVisible(treeb_hwnd)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
-		else if ((input.gettok(2," ") == "hide") && (IsWindowVisible(treeb_hwnd)))
-      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
+		else if ((input.gettok(2," ").to_int() == 0) && (IsWindowVisible(treeb_hwnd)))
+			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
+
 		return 1;
 	}
-	// [SWITCH] [show|hide]
-	else if ((switches[1] == 'M') && (numtok == 2)) { // show/hide menubar
-		if ((input.gettok(2," ") == "show") && (!GetMenu(mIRCLink.m_mIRCHWND)))
-      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
-		else if ((input.gettok(2," ") == "hide") && (GetMenu(mIRCLink.m_mIRCHWND)))
-      SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
+	// show/hide menubar
+	// [-M] [1|0]
+	else if ((switches[1] == 'M') && (numtok == 2)) {
+		if ((input.gettok(2," ").to_int() > 0) && (!GetMenu(mIRCLink.m_mIRCHWND)))
+			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
+		else if ((input.gettok(2," ").to_int() == 0) && (GetMenu(mIRCLink.m_mIRCHWND)))
+			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
+
 		return 1;
 	}
 
@@ -257,17 +267,17 @@ mIRC(xdock) {
 	}
 
 	// dock to toolbar
-	// [SWITCH] [hwnd to dock] [+options]
+	// [-t] [hwnd to dock] [+options]
 	if ((switches[1] == 't') && (numtok > 2)) {
 		DockWindow(mWnd, dockHwnd, "mIRC_Toolbar", flags);
 	}
 	// dock to switchbar
-	// [SWITCH] [hwnd to dock] [+options]
+	// [-s] [hwnd to dock] [+options]
 	else if ((switches[1] == 's') && (numtok > 2)) {
 		DockWindow(mWnd, dockHwnd, "mIRC_Switchbar", flags);
 	}
 	// dock to nicklist/sidelistbox
-	// [SWITCH] [hwnd to dock] [+options] [hwnd to dock with]
+	// [-n] [hwnd to dock] [+options] [hwnd to dock with]
 	else if ((switches[1] == 'n') && (numtok > 3)) {
 		mWnd = (HWND) input.gettok(4," ").to_num();
 
@@ -279,7 +289,7 @@ mIRC(xdock) {
 		}
 	}
 	//dock to custom/channel/query/status
-	// [SWITCH] [hwnd to dock] [+options] [hwnd to dock with]
+	// [-c] [hwnd to dock] [+options] [hwnd to dock with]
 	else if ((switches[1] == 'c') && (numtok > 3)) {
 		mWnd = (HWND) input.gettok(4, " ").to_num();
 
@@ -291,17 +301,17 @@ mIRC(xdock) {
 		}
 	}
 	// dock to treelist
-	// [SWITCH] [hwnd to dock] [+options]
+	// [-b] [hwnd to dock] [+options]
 	else if ((switches[1] == 'b') && (numtok > 2)) {
 		DockWindow(mWnd, dockHwnd, "mIRC_TreeList", flags);
 	}
 	// dock to mIRC (UltraDock)
-	// [SWITCH] [hwnd to dock] [+options]
+	// [-m] [hwnd to dock] [+options]
 	else if ((switches[1] == 'm') && (numtok > 2)) {
 		UltraDock(mWnd, dockHwnd, flags);
 	}
 	// undock
-	// [SWITCH] [hwnd to undock]
+	// [-u] [hwnd to undock]
 	else if (switches[1] == 'u') {
 		if (FindUltraDock(dockHwnd))
 			UltraUnDock(dockHwnd);
@@ -309,7 +319,7 @@ mIRC(xdock) {
 			UnDock(dockHwnd);
 	}
 	// resize docked window
-	// [SWITCH] [hwnd to dock] [+options] [W] [H]
+	// [-r] [hwnd to dock] [+options] [W] [H]
 	else if ((switches[1] == 'r') && (numtok > 4)) {
 		int w = input.gettok(4, " ").to_int();
 		int h = input.gettok(5, " ").to_int();
@@ -363,27 +373,6 @@ mIRC(xdock) {
 		SetWindowPos(dockHwnd, NULL, 0, 0, rc.right, rc.bottom, SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOZORDER | SWP_NOOWNERZORDER);
 		UpdatemIRC();
 		RedrawWindow( mIRCLink.m_mIRCHWND, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
-	}
-	// [SWITCH] [hwnd to change] [+options] [(index iconfile) ($tab text)]
-	else if ((switches[1] == 'O') && (numtok > 2)) {
-		if (flags.find('t',0)) { // set hwnd title text
-			TString txt = input.gettok(2,-1,"\t");
-			txt.trim();
-			SetWindowText(dockHwnd, txt.to_chr());
-		}
-		if (flags.find('i',0)) { // set hwnd's title icon
-			int index = input.gettok(1,"\t").gettok(4,-1," ").to_int();
-			TString filename = input.gettok(1,"\t").gettok(5,-1," ");
-			filename.trim();
-			if (!ChangeHwndIcon(dockHwnd,&flags,index,&filename))
-				return 0;
-		}
-		if (flags.find('T',0)) { // set hwnd NoTheme
-			if (XPPlus) {
-				if (dcxSetWindowTheme(dockHwnd,L" ",L" ") != S_OK)
-					DCXError("/xdock -O","Unable to set theme");
-			}
-		}
 	}
 	else {
 		DCXError("/xdock","Invalid Flag");
@@ -474,7 +463,7 @@ mIRC(_xdock)
 			else
 				lstrcpy(data,"$false");
 		}
-		else if (d.gettok(2," ") == "text") {
+		else if (d.gettok(2," ") == "Text") {
 			if (GetWindowTextLength(mIRCLink.m_mIRCHWND) > 0)
 				GetWindowText(mIRCLink.m_mIRCHWND,data,900);
 		}

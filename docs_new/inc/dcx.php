@@ -130,11 +130,10 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		'OpenDialog/SaveDialog' => array(
 			'__desc' => "Opens up the Open/Save file dialog and returns the selected file.",
 			'__cmd' => '(STYLES) $chr(9) (FILENAME) $chr(9) (FILTER)',
-			'__eg' => //array(
-// EXAMPLE
+			'__eg' => array(
 				'showhidden filemustexist hidereadonly $chr(9) c:\boot.ini $chr(9) All Files (*.*)|*.*',
-//				'createprompt overwriteprompt owner dcx $chr(9) c:\blah.txt $chr(9) All Files (*.*)|*.*|Music Files|*.mp3;*.wav;*.ogg',
-//			),
+				'createprompt overwriteprompt owner dcx $chr(9) c:\blah.txt $chr(9) All Files (*.*)|*.*|Music Files|*.mp3;*.wav;*.ogg',
+			),
             '__isid' => true,
 			'__params' => array(
 				'STYLES' => array(
@@ -333,6 +332,44 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				'A signal will only be sent for a window being resized if it is the main mIRC window, docked, or contains a docked window.',
 				'Refer to XDock Signals documentation for more information.',
 			),
+		),
+		'WindowProps' => array(
+			'__desc' => 'This command allows you to set the window title text, icon, and remove themes.',
+			'__cmd' => '[HWND] [+FLAGS] [ARGS]',
+			'__eg' => array(
+				'$dialog(dcx).hwnd +t Hello',
+				'$dialog(dcx).hwnd +i 3 mirc.exe',
+				'$dialog(dcx).hwnd +T',
+			),
+			'__params' => array(
+			    'HWND' => 'The HWND of the window.',
+				'+FLAGS' => array(
+					'__desc' => 'Options to apply to the window.',
+					'__values' => array(
+						't' => 'Set the title text.',
+						'i' => 'Set the window icon.',
+						'g' => 'Set the window icon in grayscale.',
+						'T' => 'Remove any themes on the window.',
+					),
+				),
+				'__args' => array(
+					't' => array(
+						'__cmd' => '(TEXT)',
+						'__params' => array(
+							'TEXT' => 'The window title text',
+						),
+					),
+					'i' => array(
+						'__cmd' => '[INDEX] [FILENAME]',
+						'__params' => array(
+				            'INDEX' => 'Icon index in icon archive',
+							'FILENAME' => 'Icon archive filename',
+						),
+					),
+					'g' => '[GRAYSCALE] (YO)',
+				),
+			),
+			'__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
 		),
 	);
 }

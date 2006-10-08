@@ -1,6 +1,6 @@
 <?php
 function get_intro_image() {
-	echo "Image control that lets you display BMP images.";
+	echo "Image control that lets you display BMP, GIF, JPEG, Exif, PNG, TIFF, ICON, WMF and EMF images.";
 }
 
 function get_styles_image(&$STYLES) {
@@ -35,7 +35,7 @@ function get_xdid_image(&$XDID) {
 	        '__eg' => '+g 2 48 C:/mIRC/shell.dll',
 	        '__params' => array(
 	        	'+FLAGS' => array(
-					'__desc' => "Icon flags",
+					'__desc' => "Icon flags.",
 					'__values' => array(
 						'g' => "Convert to grayscale icon.",
 					),
@@ -48,6 +48,21 @@ function get_xdid_image(&$XDID) {
 				"Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
 				"When the icon is loaded, the Image control is resized to [p]SIZE[/p] for width and height.",
 			),
+		),
+		'S' => array(
+	        '__desc' => 'This command lets you enable or disable automatic resizing of the image.',
+	        '__cmd' => '[ENABLED]',
+	        '__eg' => '1',
+	        '__params' => array(
+	    	    'ENABLED' => array(
+					'__desc' => "Value to enable or disable resizing of image",
+					'__values' => array(
+	            		'0' => 'Disable resizing of image.',
+	            		'1' => 'Enable resizing of image.',
+					),
+				),
+			),
+	        '__notes' => "Automatic resizing is disabled by default.",
 		),
 	);
 }

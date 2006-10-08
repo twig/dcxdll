@@ -15,6 +15,7 @@ Version
 GetTaskbarPos
 MsgBox
 TrayIcon
+WindowProps
 
 xdid
 _xdid
