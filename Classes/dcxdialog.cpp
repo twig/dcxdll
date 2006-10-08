@@ -258,7 +258,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		if ((IsWindow(GetDlgItem(this->m_Hwnd, ID)) == FALSE) && 
 			(ID > mIRC_ID_OFFSET - 1) && (this->getControlByID(ID) == NULL))
 		{
-			DcxControl *p_Control = DcxControl::controlFactory(this, ID, input);
+			DcxControl *p_Control = DcxControl::controlFactory(this, ID, input,4);
 
 			if (p_Control != NULL)
 				this->addControl(p_Control);

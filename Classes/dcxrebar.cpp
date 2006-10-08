@@ -367,63 +367,77 @@ void DcxReBar::parseCommandRequest( TString & input ) {
         !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
         this->m_pParentDialog->getControlByID( ID ) == NULL ) 
       {
+				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
+					CTLF_ALLOW_TRACKBAR |
+					CTLF_ALLOW_PBAR |
+					CTLF_ALLOW_COMBOEX |
+					CTLF_ALLOW_TOOLBAR |
+					CTLF_ALLOW_STATUSBAR |
+					CTLF_ALLOW_TREEVIEW |
+					CTLF_ALLOW_LISTVIEW |
+					CTLF_ALLOW_COLORCOMBO |
+					CTLF_ALLOW_BUTTON |
+					CTLF_ALLOW_RICHEDIT |
+					CTLF_ALLOW_DIVIDER |
+					CTLF_ALLOW_PANEL |
+					CTLF_ALLOW_TAB
+					,this->m_Hwnd);
+        //TString type(control_data.gettok( 2, " " ));
+        //RECT rc;
 
-        TString type = control_data.gettok( 2, " " );
-        RECT rc;
+        //rc.left = (LONG)control_data.gettok( 3, " " ).to_num( );
+        //rc.top = (LONG)control_data.gettok( 4, " " ).to_num( );
+        //rc.right = rc.left + (LONG)control_data.gettok( 5, " " ).to_num( );
+        //rc.bottom = rc.top + (LONG)control_data.gettok( 6, " " ).to_num( );
 
-        rc.left = (LONG)control_data.gettok( 3, " " ).to_num( );
-        rc.top = (LONG)control_data.gettok( 4, " " ).to_num( );
-        rc.right = rc.left + (LONG)control_data.gettok( 5, " " ).to_num( );
-        rc.bottom = rc.top + (LONG)control_data.gettok( 6, " " ).to_num( );
+        //DcxControl * p_Control = NULL;
 
-        DcxControl * p_Control = NULL;
+        //TString styles;
+        //if ( control_data.numtok( " " ) > 6 ) {
+        //  styles = control_data.gettok( 7, -1, " " );
+        //}
 
-        TString styles = "";
-        if ( control_data.numtok( " " ) > 6 ) {
-          styles = control_data.gettok( 7, -1, " " );
-        }
-
-        if ( type == "trackbar" ) {
-          p_Control = new DcxTrackBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles  );
-        }
-        else if ( type == "pbar" ) {
-          p_Control = new DcxProgressBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "comboex" ) {
-          p_Control = new DcxComboEx( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "toolbar" ) {
-          p_Control = new DcxToolBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-          p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
-        }
-        else if ( type == "statusbar" ) {
-          p_Control = new DcxStatusBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-          p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
-        }
-        else if ( type == "treeview" ) {
-          p_Control = new DcxTreeView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "listview" ) {
-          p_Control = new DcxListView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "colorcombo" ) {
-          p_Control = new DcxColorCombo( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "button" ) {
-          p_Control = new DcxButton( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "richedit" ) {
-          p_Control = new DcxRichEdit( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "divider" ) {
-          p_Control = new DcxDivider( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "panel" ) {
-          p_Control = new DcxPanel( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-         else if ( type == "tab" ) {
-          p_Control = new DcxTab( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
+        //if ( type == "trackbar" ) {
+        //  p_Control = new DcxTrackBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles  );
+        //}
+        //else if ( type == "pbar" ) {
+        //  p_Control = new DcxProgressBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+        //}
+        //else if ( type == "comboex" ) {
+        //  p_Control = new DcxComboEx( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+        //}
+        //else if ( type == "toolbar" ) {
+        //  p_Control = new DcxToolBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+        //  p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
+        //}
+        //else if ( type == "statusbar" ) {
+        //  p_Control = new DcxStatusBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+        //  p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
+        //}
+        //else if ( type == "treeview" ) {
+        //  p_Control = new DcxTreeView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+        //}
+        //else if ( type == "listview" ) {
+        //  p_Control = new DcxListView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+        //}
+        //else if ( type == "colorcombo" ) {
+        //  p_Control = new DcxColorCombo( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+        //}
+        //else if ( type == "button" ) {
+        //  p_Control = new DcxButton( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+        //}
+        //else if ( type == "richedit" ) {
+        //  p_Control = new DcxRichEdit( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+        //}
+        //else if ( type == "divider" ) {
+        //  p_Control = new DcxDivider( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+        //}
+        //else if ( type == "panel" ) {
+        //  p_Control = new DcxPanel( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+        //}
+        // else if ( type == "tab" ) {
+        //  p_Control = new DcxTab( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+        //}
 
         if ( p_Control != NULL ) {
 
@@ -433,9 +447,6 @@ void DcxReBar::parseCommandRequest( TString & input ) {
           rbBand.cxMinChild = cx;
           rbBand.cyMinChild = cy;
           rbBand.cx = width;
-					//if (!this->isExStyle(WS_EX_CONTROLPARENT)) {
-					//	if (p_Control->isStyle(WS_TABSTOP)) this->addExStyle(WS_EX_CONTROLPARENT);
-					//}
         }
       }
       else {

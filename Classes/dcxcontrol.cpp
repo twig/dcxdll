@@ -833,102 +833,105 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
  * Input [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
  */
 
-DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, UINT mID, TString & tsInput ) {
+DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, TString & tsInput, int offset, DWORD mask, HWND hParent ) {
 
-	TString type = tsInput.gettok( 4, " " );
+	TString type(tsInput.gettok( offset++, " " ));
 
 	RECT rc;
-	rc.left = (LONG)tsInput.gettok( 5, " " ).to_num( );
-	rc.top = (LONG)tsInput.gettok( 6, " " ).to_num( );
-	rc.right = rc.left + (LONG)tsInput.gettok( 7, " " ).to_num( );
-	rc.bottom = rc.top + (LONG)tsInput.gettok( 8, " " ).to_num( );
+	rc.left = (LONG)tsInput.gettok( offset++, " " ).to_num( );
+	rc.top = (LONG)tsInput.gettok( offset++, " " ).to_num( );
+	rc.right = rc.left + (LONG)tsInput.gettok( offset++, " " ).to_num( );
+	rc.bottom = rc.top + (LONG)tsInput.gettok( offset, " " ).to_num( );
 
-	TString styles = "";
-	if ( tsInput.numtok( " " ) > 8 )
-		styles = tsInput.gettok( 9, -1, " " );
+	TString styles;
+	if ( tsInput.numtok( " " ) > offset )
+		styles = tsInput.gettok( offset +1, -1, " " );
 
-	if ( type == "pbar" )
-		return new DcxProgressBar( mID, p_Dialog, &rc, styles );
-	else if ( type == "trackbar" )
-		return new DcxTrackBar( mID, p_Dialog, &rc, styles );
-	else if ( type == "comboex" )
-		return new DcxComboEx( mID, p_Dialog, &rc, styles );
-	else if ( type == "colorcombo" )
-		return new DcxColorCombo( mID, p_Dialog, &rc, styles );
-	else if ( type == "statusbar" )
-		return new DcxStatusBar( mID, p_Dialog, &rc, styles );
-	else if ( type == "toolbar" )
-		return new DcxToolBar( mID, p_Dialog, &rc, styles );
-	else if ( type == "treeview" )
-		return new DcxTreeView( mID, p_Dialog, &rc, styles );
-	else if ( type == "listview" )
-		return new DcxListView( mID, p_Dialog, &rc, styles );
-	else if ( type == "rebar" )
-		return new DcxReBar( mID, p_Dialog, &rc, styles );
-	else if ( type == "button" )
-		return new DcxButton( mID, p_Dialog, &rc, styles );
-	else if ( type == "richedit" )
-		return new DcxRichEdit( mID, p_Dialog, &rc, styles );
-	else if ( type == "updown" )
-		return new DcxUpDown( mID, p_Dialog, &rc, styles );
-	else if ( type == "ipaddress" )
-		return new DcxIpAddress( mID, p_Dialog, &rc, styles );
-	else if ( type == "webctrl" )
-		return new DcxWebControl( mID, p_Dialog, &rc, styles );
-	else if ( type == "calendar" )
-		return new DcxCalendar( mID, p_Dialog, &rc, styles );
-	else if ( type == "divider" )
-		return new DcxDivider( mID, p_Dialog, &rc, styles );
-	else if ( type == "panel" )
-		return new DcxPanel( mID, p_Dialog, &rc, styles );
-	else if ( type == "tab" )
-		return new DcxTab( mID, p_Dialog, &rc, styles );
-	else if ( type == "line" )
-		return new DcxLine( mID, p_Dialog, &rc, styles );
-	else if ( type == "box" )
-		return new DcxBox( mID, p_Dialog, &rc, styles );
-	else if ( type == "radio" )
-		return new DcxRadio( mID, p_Dialog, &rc, styles );
-	else if ( type == "check" )
-		return new DcxCheck( mID, p_Dialog, &rc, styles );
-	else if ( type == "text" )
-		return new DcxText( mID, p_Dialog, &rc, styles );
-	else if ( type == "edit" )
-		return new DcxEdit( mID, p_Dialog, &rc, styles );
-	else if ( type == "scroll" )
-		return new DcxScroll( mID, p_Dialog, &rc, styles );
-	else if ( type == "list" )
-		return new DcxList( mID, p_Dialog, &rc, styles );
-	else if ( type == "link" )
-		return new DcxLink( mID, p_Dialog, &rc, styles );
-	else if ( type == "image" )
-		return new DcxImage( mID, p_Dialog, &rc, styles );
-	else if ( type == "pager" )
-		return new DcxPager( mID, p_Dialog, &rc, styles );
-	else if ( type == "window" ) {
-		if ( tsInput.numtok( " " ) > 8 ) {
+	if (hParent == NULL)
+		hParent = p_Dialog->getHwnd();
+
+	if (( type == "pbar" ) && (mask & CTLF_ALLOW_PBAR))
+		return new DcxProgressBar( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "trackbar" ) && (mask & CTLF_ALLOW_TRACKBAR))
+		return new DcxTrackBar( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "comboex" ) && (mask & CTLF_ALLOW_COMBOEX))
+		return new DcxComboEx( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "colorcombo" ) && (mask & CTLF_ALLOW_COLORCOMBO))
+		return new DcxColorCombo( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "statusbar" ) && (mask & CTLF_ALLOW_STATUSBAR))
+		return new DcxStatusBar( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "toolbar" ) && (mask & CTLF_ALLOW_TOOLBAR))
+		return new DcxToolBar( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "treeview" ) && (mask & CTLF_ALLOW_TREEVIEW))
+		return new DcxTreeView( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "listview" ) && (mask & CTLF_ALLOW_LISTVIEW))
+		return new DcxListView( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "rebar" ) && (mask & CTLF_ALLOW_REBAR))
+		return new DcxReBar( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "button" ) && (mask & CTLF_ALLOW_BUTTON))
+		return new DcxButton( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "richedit" ) && (mask & CTLF_ALLOW_RICHEDIT))
+		return new DcxRichEdit( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "updown" ) && (mask & CTLF_ALLOW_UPDOWN))
+		return new DcxUpDown( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "ipaddress" ) && (mask & CTLF_ALLOW_IPADDRESS))
+		return new DcxIpAddress( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "webctrl" ) && (mask & CTLF_ALLOW_WEBCTRL))
+		return new DcxWebControl( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "calendar" ) && (mask & CTLF_ALLOW_CALANDER))
+		return new DcxCalendar( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "divider" ) && (mask & CTLF_ALLOW_DIVIDER))
+		return new DcxDivider( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "panel" ) && (mask & CTLF_ALLOW_PANEL))
+		return new DcxPanel( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "tab" ) && (mask & CTLF_ALLOW_TAB))
+		return new DcxTab( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "line" ) && (mask & CTLF_ALLOW_LINE))
+		return new DcxLine( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "box" ) && (mask & CTLF_ALLOW_BOX))
+		return new DcxBox( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "radio" ) && (mask & CTLF_ALLOW_RADIO))
+		return new DcxRadio( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "check" ) && (mask & CTLF_ALLOW_CHECK))
+		return new DcxCheck( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "text" ) && (mask & CTLF_ALLOW_TEXT))
+		return new DcxText( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "edit" ) && (mask & CTLF_ALLOW_EDIT))
+		return new DcxEdit( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "scroll" ) && (mask & CTLF_ALLOW_SCROLL))
+		return new DcxScroll( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "list" ) && (mask & CTLF_ALLOW_LIST))
+		return new DcxList( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "link" ) && (mask & CTLF_ALLOW_LINK))
+		return new DcxLink( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "image" ) && (mask & CTLF_ALLOW_IMAGE))
+		return new DcxImage( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "pager" ) && (mask & CTLF_ALLOW_PAGER))
+		return new DcxPager( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "window" ) && (mask & CTLF_ALLOW_DOCK)) {
+		if ( tsInput.numtok( " " ) > offset ) {
 			char windowHwnd[30];
 			TString expression;
-			expression.sprintf("$window(%s).hwnd", tsInput.gettok( 9, " " ).to_chr( ) );
+			expression.sprintf("$window(%s).hwnd", tsInput.gettok( offset +1, " " ).to_chr( ) );
 			mIRCeval( expression.to_chr(), windowHwnd );
 
 			HWND winHwnd = (HWND) atoi( windowHwnd );
 
 			if (IsWindow(winHwnd)) {
 				if (p_Dialog->getControlByHWND(winHwnd) == NULL)
-					return new DcxMWindow(winHwnd, mID, p_Dialog, &rc, styles);
+					return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 			}
 			else
-				mIRCDebug("D_ERROR: Docking (No such window %s)", tsInput.gettok(9, " ").to_chr());
+				mIRCDebug("D_ERROR: Docking (No such window %s)", tsInput.gettok(offset +1, " ").to_chr());
 		}
 	}
-	else if (type == "dialog") {
-		if (tsInput.numtok(" ") > 8) {
-			HWND winHwnd = GetHwndFromString(tsInput.gettok(9, " "));
+	else if ((type == "dialog") && (mask & CTLF_ALLOW_DOCK)) {
+		if (tsInput.numtok(" ") > offset) {
+			HWND winHwnd = GetHwndFromString(tsInput.gettok(offset +1, " "));
 
 			if (IsWindow(winHwnd)) {
 				if (p_Dialog->getControlByHWND(winHwnd) == NULL) {
-					DcxControl* newDialog = new DcxMDialog(winHwnd, mID, p_Dialog, &rc, styles);
+					DcxControl* newDialog = new DcxMDialog(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 					DcxDialog* dlg = dcxDialogs().getDialogByHandle(winHwnd);
 
 					// if its a dcx marked dialog, mark the parent name
@@ -939,7 +942,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, UINT mID, TString
 				}
 			}
 			else
-				mIRCDebug("Docking: No such dialog %s", tsInput.gettok(9, " ").to_chr());
+				mIRCDebug("D_ERROR: Docking (No such dialog %s)", tsInput.gettok(offset +1, " ").to_chr());
 		}
 	}
 

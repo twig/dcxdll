@@ -25,6 +25,37 @@
 #include "../defines.h"
 #include "dcxwindow.h"
 
+#define CTLF_ALLOW_PBAR				0x00000001
+#define CTLF_ALLOW_TRACKBAR		0x00000002
+#define CTLF_ALLOW_COMBOEX		0x00000004
+#define CTLF_ALLOW_COLORCOMBO	0x00000008
+#define CTLF_ALLOW_STATUSBAR	0x00000010
+#define CTLF_ALLOW_TOOLBAR		0x00000020
+#define CTLF_ALLOW_TREEVIEW		0x00000040
+#define CTLF_ALLOW_LISTVIEW		0x00000080
+#define CTLF_ALLOW_REBAR			0x00000100
+#define CTLF_ALLOW_BUTTON			0x00000200
+#define CTLF_ALLOW_RICHEDIT		0x00000400
+#define CTLF_ALLOW_EDIT				0x00000800
+#define CTLF_ALLOW_UPDOWN			0x00001000
+#define CTLF_ALLOW_IPADDRESS	0x00002000
+#define CTLF_ALLOW_WEBCTRL		0x00004000
+#define CTLF_ALLOW_CALANDER		0x00008000
+#define CTLF_ALLOW_DIVIDER		0x00010000
+#define CTLF_ALLOW_PANEL			0x00020000
+#define CTLF_ALLOW_TAB				0x00040000
+#define CTLF_ALLOW_LINE				0x00080000
+#define CTLF_ALLOW_BOX				0x00100000
+#define CTLF_ALLOW_RADIO			0x00200000
+#define CTLF_ALLOW_CHECK			0x00400000
+#define CTLF_ALLOW_TEXT				0x00800000
+#define CTLF_ALLOW_SCROLL			0x01000000
+#define CTLF_ALLOW_LIST				0x02000000
+#define CTLF_ALLOW_LINK				0x04000000
+#define CTLF_ALLOW_IMAGE			0x08000000
+#define CTLF_ALLOW_PAGER			0x10000000
+#define CTLF_ALLOW_DOCK				0x20000000
+
 class DcxDialog;
 
 /*!
@@ -66,7 +97,7 @@ public:
   COLORREF getBackColor( ) const;
   COLORREF getTextColor( ) const;
 
-  static DcxControl * controlFactory( DcxDialog * p_Dialog, UINT mID, TString & input );
+  static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, TString & input, int offset, DWORD mask = -1, HWND hParent = NULL);
 
   virtual TString getType( ) = 0;
 

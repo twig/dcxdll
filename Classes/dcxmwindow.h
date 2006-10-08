@@ -30,8 +30,8 @@ class DcxMWindow : public DcxControl {
 
 public:
 
-  DcxMWindow( HWND cHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
-  DcxMWindow( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  DcxMWindow( const HWND cHwnd, const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  DcxMWindow( const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   virtual ~DcxMWindow( );
 
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );

@@ -73,7 +73,7 @@ extern BOOL XPPlus;
  * \param styles Window Style Tokenized List
  */
 
-DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 {
 
@@ -148,7 +148,7 @@ DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
  * \param styles Window Style Tokenized List
  */
 
-DcxBox::DcxBox( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 {
 
@@ -351,154 +351,152 @@ void DcxBox::parseCommandRequest( TString & input ) {
   // xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
   if ( flags.switch_flags[2] && numtok > 8 ) {
 
-    UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4, " " ).to_num( );
+    UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4, " " ).to_int( );
 
     if ( ID > mIRC_ID_OFFSET - 1 && 
       !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
       this->m_pParentDialog->getControlByID( ID ) == NULL ) 
     {
+			DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,-1,this->m_Hwnd);
+   //   TString type(input.gettok( 5, " " ));
+   //   RECT rc;
 
-      TString type = input.gettok( 5, " " );
-      RECT rc;
+   //   rc.left = (LONG)input.gettok( 6, " " ).to_num( );
+   //   rc.top = (LONG)input.gettok( 7, " " ).to_num( );
+   //   rc.right = rc.left + (LONG)input.gettok( 8, " " ).to_num( );
+   //   rc.bottom = rc.top + (LONG)input.gettok( 9, " " ).to_num( );
 
-      rc.left = (LONG)input.gettok( 6, " " ).to_num( );
-      rc.top = (LONG)input.gettok( 7, " " ).to_num( );
-      rc.right = rc.left + (LONG)input.gettok( 8, " " ).to_num( );
-      rc.bottom = rc.top + (LONG)input.gettok( 9, " " ).to_num( );
+   //   DcxControl * p_Control = NULL;
 
-      DcxControl * p_Control = NULL;
+   //   TString styles;
+   //   if ( numtok > 9 ) {
+   //     styles = input.gettok( 10, -1, " " );
+   //   }
 
-      TString styles = "";
-      if ( numtok > 9 ) {
-        styles = input.gettok( 10, -1, " " );
-      }
+   //   if ( type == "trackbar" ) {
+   //     p_Control = new DcxTrackBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "pbar" ) {
+   //     p_Control = new DcxProgressBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "comboex" ) {
+   //     p_Control = new DcxComboEx( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "toolbar" ) {
+   //     p_Control = new DcxToolBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "statusbar" ) {
+   //     p_Control = new DcxStatusBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "treeview" ) {
+   //     p_Control = new DcxTreeView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "listview" ) {
+   //     p_Control = new DcxListView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "colorcombo" ) {
+   //     p_Control = new DcxColorCombo( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "button" ) {
+   //     p_Control = new DcxButton( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "richedit" ) {
+   //     p_Control = new DcxRichEdit( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "rebar" ) {
+   //     p_Control = new DcxReBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "divider" ) {
+   //     p_Control = new DcxDivider( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "panel" ) {
+   //     p_Control = new DcxPanel( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "tab" ) {
+   //     p_Control = new DcxTab( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "ipaddress" ) {
+   //     p_Control = new DcxIpAddress( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "updown" ) {
+   //     p_Control = new DcxUpDown( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "webctrl" ) {
+   //     p_Control = new DcxWebControl( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "calendar" ) {
+   //     p_Control = new DcxCalendar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "line" ) {
+   //     p_Control = new DcxLine( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "box" ) {
+   //     p_Control = new DcxBox( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "radio" ) {
+   //     p_Control = new DcxRadio( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "check" ) {
+   //     p_Control = new DcxCheck( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "text" ) {
+   //     p_Control = new DcxText( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "edit" ) {
+   //     p_Control = new DcxEdit( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "scroll" ) {
+   //     p_Control = new DcxScroll( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "list" ) {
+   //     p_Control = new DcxList( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "link" ) {
+   //     p_Control = new DcxLink( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "image" ) {
+   //     p_Control = new DcxImage( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "pager" ) {
+   //     p_Control = new DcxPager( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
+   //   }
+   //   else if ( type == "window" ) {
 
-      if ( type == "trackbar" ) {
-        p_Control = new DcxTrackBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "pbar" ) {
-        p_Control = new DcxProgressBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "comboex" ) {
-        p_Control = new DcxComboEx( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "toolbar" ) {
-        p_Control = new DcxToolBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "statusbar" ) {
-        p_Control = new DcxStatusBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "treeview" ) {
-        p_Control = new DcxTreeView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "listview" ) {
-        p_Control = new DcxListView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "colorcombo" ) {
-        p_Control = new DcxColorCombo( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "button" ) {
-        p_Control = new DcxButton( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "richedit" ) {
-        p_Control = new DcxRichEdit( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "rebar" ) {
-        p_Control = new DcxReBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "divider" ) {
-        p_Control = new DcxDivider( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "panel" ) {
-        p_Control = new DcxPanel( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "tab" ) {
-        p_Control = new DcxTab( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "ipaddress" ) {
-        p_Control = new DcxIpAddress( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "updown" ) {
-        p_Control = new DcxUpDown( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "webctrl" ) {
-        p_Control = new DcxWebControl( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "calendar" ) {
-        p_Control = new DcxCalendar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "line" ) {
-        p_Control = new DcxLine( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "box" ) {
-        p_Control = new DcxBox( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "radio" ) {
-        p_Control = new DcxRadio( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "check" ) {
-        p_Control = new DcxCheck( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "text" ) {
-        p_Control = new DcxText( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "edit" ) {
-        p_Control = new DcxEdit( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "scroll" ) {
-        p_Control = new DcxScroll( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "list" ) {
-        p_Control = new DcxList( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "link" ) {
-        p_Control = new DcxLink( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "image" ) {
-        p_Control = new DcxImage( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "pager" ) {
-        p_Control = new DcxPager( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-      }
-      else if ( type == "window" ) {
+   //     if ( styles.numtok( " " ) > 0 ) {
 
-        if ( styles.numtok( " " ) > 0 ) {
+   //       char windowHwnd[30];
+   //       TString expression;
+   //       expression.sprintf("$window(%s).hwnd", styles.gettok( 1, " " ).to_chr( ) );
+			//		mIRCeval( expression.to_chr(), windowHwnd );
 
-          char windowHwnd[30];
-          TString expression;
-          expression.sprintf("$window(%s).hwnd", styles.gettok( 1, " " ).to_chr( ) );
-					mIRCeval( expression.to_chr(), windowHwnd );
+   //       HWND winHwnd = (HWND) atoi( windowHwnd );
 
-          HWND winHwnd = (HWND) atoi( windowHwnd );
+   //       if ( IsWindow( winHwnd ) && this->m_pParentDialog->getControlByHWND( winHwnd ) == NULL ) {
 
-          if ( IsWindow( winHwnd ) && this->m_pParentDialog->getControlByHWND( winHwnd ) == NULL ) {
+   //         p_Control = new DcxMWindow( winHwnd, this->m_Hwnd, ID, this->m_pParentDialog, &rc, styles );
+   //       }
+   //     }
+   //   }
+			//else if (type == "dialog") {
+			//	if (styles.numtok(" ") > 0) {
+			//		HWND winHwnd = GetHwndFromString(styles.gettok(1, " "));
 
-            p_Control = new DcxMWindow( winHwnd, this->m_Hwnd, ID, this->m_pParentDialog, &rc, styles );
-          }
-        }
-      }
-		else if (type == "dialog") {
-			if (styles.numtok(" ") > 0) {
-				HWND winHwnd = GetHwndFromString(styles.gettok(1, " "));
-
-				if (IsWindow(winHwnd) && this->m_pParentDialog->getControlByHWND(winHwnd) == NULL) {
-					p_Control = new DcxMDialog(winHwnd, this->m_Hwnd, ID, this->m_pParentDialog, &rc, styles);
-				}
+			//		if (IsWindow(winHwnd) && this->m_pParentDialog->getControlByHWND(winHwnd) == NULL) {
+			//			p_Control = new DcxMDialog(winHwnd, this->m_Hwnd, ID, this->m_pParentDialog, &rc, styles);
+			//		}
+			//	}
+			//}
+			if ( p_Control != NULL ) {
+				this->m_pParentDialog->addControl( p_Control );
+				this->redrawWindow( );
 			}
 		}
-
-      if ( p_Control != NULL ) {
-
-        this->m_pParentDialog->addControl( p_Control );
-        this->redrawWindow( );
-      }
-    }
-    else {
-      TString error;
-      error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+		else {
+			TString error;
+			error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
 			DCXError("/xdid -c",error.to_chr() );
-    }
-  }
+		}
+	}
   // xdid -d [NAME] [ID] [SWITCH] [ID]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
 

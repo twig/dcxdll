@@ -25,7 +25,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxMWindow::DcxMWindow( HWND cHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
+DcxMWindow::DcxMWindow( const HWND cHwnd, const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
 
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
@@ -64,7 +64,7 @@ DcxMWindow::DcxMWindow( HWND cHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, TS
  * \param styles Window Style Tokenized List
  */
 
-DcxMWindow::DcxMWindow( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
+DcxMWindow::DcxMWindow( const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
 
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
