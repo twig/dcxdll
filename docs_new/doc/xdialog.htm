@@ -46,7 +46,7 @@
 	</ul>
 	<a class="section">DCX Controls</a><br />
 	<ul>
-<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li>	</ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li><li><a href="xtray.htm">XTray</a></li>	</ul>
 	<a class="section">DCX Features</a><br />
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
@@ -209,7 +209,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -c dcx 2 pbar 140 30 100 20 smooth notheme</div></td>
+		<td><div class="example">/xdialog -c dcx 4 pbar 140 30 100 20 smooth notheme</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -380,7 +380,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -d dcx 15</div></td>
+		<td><div class="example">/xdialog -d dcx 4</div></td>
 	</tr>
 </table>
 <br />
@@ -441,7 +441,7 @@
 	<tr><td colspan="2">This command lets you modify the background attributes of the dialog.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdialog -g [DNAME] [+FLAGS] [EXTRA]</div></td>
+		<td><div class="syntax">/xdialog -g [DNAME] [+FLAGS] [ARGS]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -488,10 +488,22 @@
 		<td class="value">o</td>
 		<td>Bottom-align the background image. (Used with <a class="value">+i</a> flag)</td>
 	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
 	<tr>
-		<td class="param">EXTRA</td>
-		<td>If <a class="param">+FLAGS</a> is <a class="value">+b</a>, then <a class="param">EXTRA</a> specifies the background color in a $rgb() format.<br />
-				If <a class="param">+FLAGS</a> is used with <a class="value">+i</a>, then <a class="param">EXTRA</a> specfies the BMP filename.</td>
+		<td class="param">b</td>
+		<td><div class="syntax">[COLOR]</div></td>
+	</tr>
+	<tr>
+		<td class="value">COLOR</td>
+		<td>Specifies the background color in a $rgb() format.</td>
+	</tr>
+	<tr>
+		<td class="param">i</td>
+		<td><div class="syntax">[IMAGE]</div></td>
+	</tr>
+	<tr>
+		<td class="value">IMAGE</td>
+		<td>Specfies the BMP filename.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only bitmap (BMP) files can be loaded for the background image.</td></tr></table>
 <br />
@@ -519,7 +531,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -j dcx 5</div></td>
+		<td><div class="example">/xdialog -j dcx 4</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If no control ID is specified, then all controls will be updated.</td></tr></table>
 <br />
@@ -839,6 +851,65 @@
 <br />
 <table class="xdialog">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
+			<a name="xdialog.E"></a>/xdialog -E	</td></tr>
+	<tr><td colspan="2">This command lets you enable/dishable callback events.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdialog -E [DNAME] [+FLAGS] [-FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdialog -E dcx +c -d</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">FLAGS</td>
+		<td>Flags for events.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Click events (eg. sclick, dclick, rclick, ...).</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Drag events (eg. dragbegin, ect..).</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>Edit events (eg. edit, keydown, keyup, ...).</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Focus events (eg. focus and focusout).</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Help event.</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>Mouse events (eg. mouseleave, mouseenter, mouse, ...).</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Sizing events (eg. sizing, min, max, ...).</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Theme event (eg. themechanged).</td>
+	</tr>
+	<tr>
+		<td class="value">C</td>
+		<td>Close event.</td>
+	</tr>
+	<tr>
+		<td class="value">M</td>
+		<td>Move events (eg. beginmove, endmove, ...).</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>The first parameter <a class="param">+FLAGS</a> allows the you to specify which events should be enabled. The second flag parameter specifies which events to disable.</li><li>If you use the same event flag to <a class="value">+</a> and <a class="value">-</a> flags then the events is disabled.</li></ul></td></tr></table>
+<br />
+<table class="xdialog">
+	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
 			<a name="xdialog.R"></a>/xdialog -R	</td></tr>
 	<tr><td colspan="2">This command lets you clip the dialog region.</td></tr>
 	<tr>
@@ -859,6 +930,10 @@
 		<td>Region is defined in bitmap file.</td>
 	</tr>
 	<tr>
+		<td class="value">d</td>
+		<td>Allows dragging of the window by clicking anywhere on it.</td>
+	</tr>
+	<tr>
 		<td class="value">r</td>
 		<td>Sets a rounded rectangle region.</td>
 	</tr>
@@ -874,29 +949,30 @@
 		<td class="value">n</td>
 		<td>Resets the region.</td>
 	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
 	<tr>
-		<td class="param">ARGS</td>
-		<td>The parameters supplied into this command varies depending on which flag is used. The following list describes what format <a class="param">ARGS</a> should be in order to use each flag.</td>
+		<td class="param">d</td>
+		<td><div class="syntax">[0|1]</div></td>
 	</tr>
 	<tr>
-		<td class="value">f</td>
-		<td>[TRANSPARENT_COLOR] [FILENAME]</td>
+		<td class="param">f</td>
+		<td><div class="syntax">[TRANSPARENT_COLOR] [FILENAME]</div></td>
 	</tr>
 	<tr>
-		<td class="value">r</td>
-		<td><a class="param">ARGS</a> is an optional integer defining how round the rectangle should be.</td>
+		<td class="param">r</td>
+		<td><div class="syntax">(ROUNDNESS)</div></td>
 	</tr>
 	<tr>
-		<td class="value">c</td>
-		<td><a class="param">ARGS</a> is not required for <a class="value">+c</a>.</td>
+		<td class="value">ROUNDNESS</td>
+		<td>An integer defining how round the rectangle should be.</td>
 	</tr>
 	<tr>
-		<td class="value">p</td>
-		<td><a class="param">ARGS</a> is a list of at least 3 coordinates in the format of "x1,y1 x2,y2 x3,y3 ... x12,y12".</td>
+		<td class="param">p</td>
+		<td><div class="syntax">x1,y1 x2,y2 x3,y3 ... x12,y12</div></td>
 	</tr>
 	<tr>
-		<td class="value">n</td>
-		<td><a class="param">ARGS</a> is not required for <a class="value">+n</a>.</td>
+		<td class="value">COORDINATES</td>
+		<td>A list of at least 3 coordinates, each coordinate in the format of <a class="value">X,Y</a>.</td>
 	</tr>
 </table>
 <br />
@@ -1716,6 +1792,7 @@
 <li><a href="#xdialog.t" style="color: #800080;">-t</a></li>
 <li><a href="#xdialog.w" style="color: #800080;">-w</a></li>
 <li><a href="#xdialog.x" style="color: #800080;">-x</a></li>
+<li><a href="#xdialog.E" style="color: #800080;">-E</a></li>
 <li><a href="#xdialog.R" style="color: #800080;">-R</a></li>
 <li><a href="#xdialog.T" style="color: #800080;">-T</a></li>
 </ul><a href="#xdialogprop" style="color: #AC59AC;">$xdialog() Properties</a><br /><ul><li><a href="#xdialogprop.alias" style="color: #AC59AC;">alias</a></li>
@@ -1772,7 +1849,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 24th September, 06</td>
+		<td style="text-align: right;">Last Updated: 8th October, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

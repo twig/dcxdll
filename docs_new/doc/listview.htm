@@ -46,7 +46,7 @@
 	</ul>
 	<a class="section">DCX Controls</a><br />
 	<ul>
-<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li>	</ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li><li><a href="xtray.htm">XTray</a></li>	</ul>
 	<a class="section">DCX Features</a><br />
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
@@ -185,7 +185,7 @@
 	<tr><td colspan="2">This command lets you add an item to the listview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] (Item Text) [TAB] [+FLAGS] [#ICON] (Item Text) [TAB] ...</div></td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [INDENT] [+FLAGS] [ICON] [STATE] [OVERLAY] [GROUPID] [COLOR] [BGCOLOR] (Item Text) [TAB] [+FLAGS] [ICON] (Item Text) [TAB] ...</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -257,7 +257,7 @@
 		<td>The item is underlined.</td>
 	</tr>
 	<tr>
-		<td class="param">#ICON</td>
+		<td class="param">ICON</td>
 		<td>Icon index number from the normal icon list.</td>
 	</tr>
 	<tr>
@@ -277,11 +277,11 @@
 		<td>Checked</td>
 	</tr>
 	<tr>
-		<td class="param">#OVERLAY</td>
+		<td class="param">OVERLAY</td>
 		<td>Icon index number from the normal icon list that was marked as an overlay icon. (<a class="note">Note:</a> Not functional yet)</td>
 	</tr>
 	<tr>
-		<td class="param">#GROUPID</td>
+		<td class="param">GROUPID</td>
 		<td>Group ID. (Use <a class="value">0</a> for no value) <a class="os">(XP+)</a></td>
 	</tr>
 	<tr>
@@ -493,8 +493,8 @@
 		<td>Checked</td>
 	</tr>
 	<tr>
-		<td class="param">COLOR</td>
-		<td>Color in $rgb() format.</td>
+		<td class="param">N</td>
+		<td>The state to set the item to.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using the <a class="style">checkbox</a> style, this function can also change the state icon of an item. Be sure to insert the state icons before you use them.</td></tr></table>
 <br />
@@ -1440,7 +1440,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 24th September, 06</td>
+		<td style="text-align: right;">Last Updated: 8th October, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

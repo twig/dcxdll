@@ -46,7 +46,7 @@
 	</ul>
 	<a class="section">DCX Controls</a><br />
 	<ul>
-<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li>	</ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li><li><a href="xtray.htm">XTray</a></li>	</ul>
 	<a class="section">DCX Features</a><br />
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
@@ -165,7 +165,7 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">This command lets you add an item to the treeview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -a [DNAME] [ID] [PATH] [TAB] [+FLAGS] [#ICON] [#SICON] [#OVERLAY] [STATE] [INTEGRAL] [COLOR] (Item Text) [TAB] (Tooltip Text)</div></td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [PATH] [TAB] [+FLAGS] [ICON] [SICON] [OVERLAY] [STATE] [INTEGRAL] [COLOR] (Item Text) [TAB] (Tooltip Text)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -201,15 +201,15 @@ This would add the item at the end of the last branch in the first column of bra
 		<td>Item text is underlined.</td>
 	</tr>
 	<tr>
-		<td class="param">#ICON</td>
+		<td class="param">ICON</td>
 		<td>Icon index number from the normal icon list.</td>
 	</tr>
 	<tr>
-		<td class="param">#SICON</td>
+		<td class="param">SICON</td>
 		<td>Selected Icon index number from the normal icon list.</td>
 	</tr>
 	<tr>
-		<td class="param">#OVERLAY</td>
+		<td class="param">OVERLAY</td>
 		<td>Icon index number from the normal icon list that was marked as an overlay icon. (<a class="note">Note:</a> Not functional yet)</td>
 	</tr>
 	<tr>
@@ -717,7 +717,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1 2).find</div></td>
+		<td><div class="example">$xdid(dcx, 4, $chr(9) $+ hello * $+ $chr(9), W, 0, 1 2).find</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -872,7 +872,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx buttonclick 4</div></td>
+		<td><div class="example">/cb_alias dcx buttonclick 4 4 2</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -891,7 +891,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx collapse 4</div></td>
+		<td><div class="example">/cb_alias dcx collapse 4 4 2</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -910,7 +910,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dclick 4</div></td>
+		<td><div class="example">/cb_alias dcx dclick 4 4 2</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -929,7 +929,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx expand 4</div></td>
+		<td><div class="example">/cb_alias dcx expand 4 4 2</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -964,7 +964,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx labelbegin 4</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">noedit</a> to block label editing.</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">noedit</a> to block label editing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use $xdid().selpath to determine which path is being edited.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
@@ -990,14 +990,14 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx labelend 4</div></td>
+		<td><div class="example">/cb_alias dcx labelend 4 New Item Text</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">VALUE</td>
 		<td>Edited text label.</td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">noedit</a> to cancel label editing (for example if string is NULL or invalid to your application).</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">noedit</a> to cancel label editing (for example if string is NULL or invalid to your application).</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use $xdid().selpath to determine which path is being edited.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
@@ -1009,7 +1009,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rclick 4</div></td>
+		<td><div class="example">/cb_alias dcx rclick 4 4 2</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1028,7 +1028,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sclick 4</div></td>
+		<td><div class="example">/cb_alias dcx sclick 4 1 4 2</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1047,7 +1047,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx stateclick 4</div></td>
+		<td><div class="example">/cb_alias dcx stateclick 4 1 4 2</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1123,7 +1123,7 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 24th September, 06</td>
+		<td style="text-align: right;">Last Updated: 8th October, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

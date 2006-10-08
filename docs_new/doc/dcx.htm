@@ -46,7 +46,7 @@
 	</ul>
 	<a class="section">DCX Controls</a><br />
 	<ul>
-<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li>	</ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li><li><a href="xtray.htm">XTray</a></li>	</ul>
 	<a class="section">DCX Features</a><br />
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
@@ -613,7 +613,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(OpenDialog/SaveDialog, showhidden filemustexist hidereadonly $chr(9) c:\boot.ini $chr(9) All Files (*.*)|*.*)</div></td>
+		<td><div class="example">$dcx(OpenDialog/SaveDialog, showhidden filemustexist hidereadonly $chr(9) c:\boot.ini $chr(9) All Files (*.*)|*.*)<br />$dcx(OpenDialog/SaveDialog, createprompt overwriteprompt owner dcx $chr(9) c:\blah.txt $chr(9) All Files (*.*)|*.*|Music Files|*.mp3;*.wav;*.ogg)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -703,6 +703,66 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
+			<a name="general.WindowProps"></a>/dcx WindowProps	</td></tr>
+	<tr><td colspan="2">This command allows you to set the window title text, icon, and remove themes.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/dcx WindowProps [HWND] [+FLAGS] [ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/dcx WindowProps $dialog(dcx).hwnd +t Hello<br />/dcx WindowProps $dialog(dcx).hwnd +i 3 mirc.exe<br />/dcx WindowProps $dialog(dcx).hwnd +T<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND</td>
+		<td>The HWND of the window.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Options to apply to the window.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Set the title text.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Set the window icon.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Set the window icon in grayscale.</td>
+	</tr>
+	<tr>
+		<td class="value">T</td>
+		<td>Remove any themes on the window.</td>
+	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">t</td>
+		<td><div class="syntax">(TEXT)</div></td>
+	</tr>
+	<tr>
+		<td class="value">TEXT</td>
+		<td>The window title text</td>
+	</tr>
+	<tr>
+		<td class="param">i</td>
+		<td><div class="syntax">[INDEX] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="value">INDEX</td>
+		<td>Icon index in icon archive</td>
+	</tr>
+	<tr>
+		<td class="value">FILENAME</td>
+		<td>Icon archive filename</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
 			<a name="general.xSignal"></a>/dcx xSignal	</td></tr>
 	<tr><td colspan="2">This command enables or disables signals whenever a window (or docked window) is resized.</td></tr>
 	<tr>
@@ -731,6 +791,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <li><a href="#general.MsgBox" style="color: #888888;">MsgBox</a></li>
 <li><a href="#general.OpenDialog/SaveDialog" style="color: #888888;">OpenDialog/SaveDialog</a></li>
 <li><a href="#general.Version" style="color: #888888;">Version</a></li>
+<li><a href="#general.WindowProps" style="color: #888888;">WindowProps</a></li>
 <li><a href="#general.xSignal" style="color: #888888;">xSignal</a></li>
 </ul></td>
   </tr>
@@ -740,7 +801,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 24th September, 06</td>
+		<td style="text-align: right;">Last Updated: 8th October, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">
