@@ -5,25 +5,24 @@
 
 extern DcxTrayIcon *trayIcons;
 
-// TrayIcon [+flags] [id] [icon index] [icon file] $tab [tooltip]
-// Create: TrayIcon +c [id] [icon index] [icon file] $tab [tooltip]
-// Edit  : TrayIcon +e [id] [icon index] [icon file] $tab [tooltip]
-// +i icon
-// +t text
-// +T tooltip stuff
-// Delete: TrayIcon +d [id]
+// xTray [+flags] [id] [icon index] [icon file] $tab [tooltip]
+// Create : xTray +c [id] [icon index] [icon file] $tab [tooltip]
+// Edit   : xTray +e [id] [icon index] [icon file] $tab [tooltip]
+// Icon   : xTray +i [id] [icon index] [icon file]
+// Tooltip: xTray +T [id] (text)
+// Delete : xTray +d [id]
 mIRC(TrayIcon) {
 	if (trayIcons == NULL) {
 		trayIcons = new DcxTrayIcon();
 
 		if (trayIcons == NULL) {
-			DCXError("/xTrayIcon","Problem creating trayicon obj");
+			DCXError("/xTray", "There was a problem creating the trayicon manager");
 			return 1;
 		}
 	}
 
 	if (!trayIcons->GetHwnd()) {
-		DCXError("/xTrayIcon","Couldn't init trayicon");
+		DCXError("/xTray", "Could not start trayicon manager");
 		return 1;
 	}
 
@@ -32,7 +31,7 @@ mIRC(TrayIcon) {
 	int numtok = d.numtok(" ");
 
 	if (numtok < 2) {
-		DCXError("/xTrayIcon","Insufficient parameters");
+		DCXError("/xTray", "Insufficient parameters");
 		return 1;
 	}
 
@@ -47,14 +46,20 @@ mIRC(TrayIcon) {
 		
 		// if create and it already exists
 		if (flags.find('c', 0) && (exists)) {
-			DCXError("/xTrayIcon","Can't create: id already exists");
+			TString msg;
+
+			msg.sprintf("Cannot create trayicon: id %d already exists", id);
+			DCXError("/xTrayIcon", msg.to_chr());
 			return 1;
 		}
 
 		// if edit and it doesnt exist
 		if (flags.find('e', 0)) {
 			if (!exists) {
-				DCXError("/xTrayIcon","Can't edit: id doesnt exists");
+				TString msg;
+
+				msg.sprintf("Cannot edit trayicon: id %d does not exists", id);
+				DCXError("/xTrayIcon", msg.to_chr());
 				return 1;
 			}
 
@@ -82,17 +87,52 @@ mIRC(TrayIcon) {
 
 
 		// add/edit the icon
-		if (!trayIcons->modifyIcon(id, msg, icon, tooltip))
-			DCXError("/xTrayIcon","add/edit failed");
+		if (!trayIcons->modifyIcon(id, msg, icon, tooltip)) {
+			if (msg == NIM_ADD)
+				DCXError("/xTrayIcon", "Add trayicon failed");
+			else
+				DCXError("/xTrayIcon", "Edit trayicon failed");
+		}
 	}
+	// delete trayicon
 	else if (flags.find('d', 0)) {
 		if (!trayIcons->modifyIcon(id, NIM_DELETE)) {
-			DCXError("/xTrayIcon","Error deleting icon");
+			DCXError("/xTrayIcon", "Error deleting trayicon");
+		}
+	}
+	// change icon
+	else if (flags.find('i', 0) && (numtok > 3)) {
+		// set up info
+		HICON icon;
+		int index = d.gettok(3, " ").to_int();
+		TString filename = d.gettok(4, -1, " ");
+
+		//NIF_INFO
+		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
+
+		// load the icon
+		filename.trim();
+		icon = dcxLoadIcon(index, filename);
+
+		if (!trayIcons->modifyIcon(id, NIM_MODIFY, icon, NULL)) {
+			DCXError("/xTray", "Error changing trayicon icon");
+		}
+	}
+	// change tooltip
+	else if (flags.find('T', 0)) {
+		TString tip = "";
+
+		if (numtok > 2)
+			tip = d.gettok(3, -1, " ");
+
+		if (!trayIcons->modifyIcon(id, NIM_MODIFY, NULL, &tip)) {
+			DCXError("/xTray", "Error changing trayicon tooltip");
 		}
 	}
 	else {
-		DCXError("/xTrayIcon","Unknown flag or insufficient parameters");
+		DCXError("/xTray", "Unknown flag or insufficient parameters");
 	}
+
 	return 1;
 }
 
@@ -105,17 +145,17 @@ DcxTrayIcon::DcxTrayIcon(void)
 	if (this->m_hwnd)
 		this->m_wndProc = (WNDPROC) SetWindowLong(this->m_hwnd, GWL_WNDPROC, (LONG) DcxTrayIcon::TrayWndProc);
 	else
-		DCXError("/xTrayIcon","problem initialising trayicons");
+		DCXError("/xTrayIcon", "Problem initialising trayicons");
 
 	m_hwndTooltip = NULL;
 
-	if (isXP())
-		DCXError("/xTrayIcon","Try to create tooltip");
+	//if (isXP())
+	//	DCXError("/xTrayIcon","Try to create tooltip");
 
-	if (m_hwndTooltip != NULL)
-		DCXError("/xTrayIcon","Tooltip available");
-	else
-		DCXError("/xTrayIcon","Balloon tooltips will not be available for TrayIcon");
+	//if (m_hwndTooltip != NULL)
+	//	DCXError("/xTrayIcon","Tooltip available");
+	//else
+	//	DCXError("/xTrayIcon","Balloon tooltips will not be available for TrayIcon");
 
 	trayIconIDs.clear();
 }

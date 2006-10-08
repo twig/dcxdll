@@ -52,6 +52,15 @@ alias xdock {
   }
 }
 
+alias xtray {
+  if ($isid) {
+    return $dcx(TrayIcon, $1 $prop $2-)
+  }
+  else {
+    dcx TrayIcon $1-
+  }
+}
+
 alias mpopup {
   dcx mpopup $1 $2
 }

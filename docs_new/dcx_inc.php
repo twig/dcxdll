@@ -14,6 +14,7 @@ define('SECTION_XPOP'        , 'xpop');
 define('SECTION_XPOPPROPS'   , 'xpopprop');
 define('SECTION_XDOCK'       , 'xdock');
 define('SECTION_XDOCKPROPS'  , 'xdockprop');
+define('SECTION_XTRAY'       , 'xtray');
 
 
 // global variables
@@ -36,6 +37,7 @@ $XPOPUP = array();
 $XPOPUPPROPS = array();
 $XPOP = array();
 $XPOPPROPS = array();
+$XTRAY = array();
 
 $SECTION = 0;
 
@@ -582,6 +584,10 @@ function dcxdoc_format_xdockprops($event, $data) {
 	format_xcmd(SECTION_XDOCKPROPS, $event, $data);
 }
 
+function dcxdoc_format_xtray($event, $data) {
+	format_xcmd(SECTION_XTRAY, $event, $data);
+}
+
 function format_xcmd($section, $flag, $data) {
 	if (!is_array($data)) {
 		$data = array('__desc' => $data);
@@ -771,6 +777,13 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$ARGS]   = "\$xdock($paramExample, [-EXAMPLE]).$flag";
 			$examplefmt[$NOARGS] = "\$xdock($paramExample).$flag";
 		    break;
+		    
+	    case SECTION_XTRAY:
+			$heading = "/xtray -$flag";
+			$syntax = "/xtray -$flag [ID] {$data['__cmd']}";
+			$examplefmt[$ARGS]   = "/xtray -$flag 3 [-EXAMPLE]";
+			$examplefmt[$NOARGS] = "/xtray -$flag 3";
+			break;
 
 		// unknown section type, failed
 		default:
@@ -957,6 +970,8 @@ function get_section_color($section = 0) {
 		case SECTION_XDOCK			: return '#0000FF'; // blue
 		case SECTION_XDOCKPROPS		: return '#6666FF'; // light blue
 		
+		case SECTION_XTRAY			: return '#0000FF'; // blue
+		
 		case SECTION_INTRO:
 		default:
 			return '#000000';
@@ -987,6 +1002,8 @@ function get_section_name($section = 0) {
 
 		case SECTION_XDOCK			: return 'xdock'; // blue
 		case SECTION_XDOCKPROPS		: return 'xdockprops'; // light blue
+		
+		case SECTION_XTRAY			: return 'xtray'; // blue
 		
 		case SECTION_INTRO:
 		default:

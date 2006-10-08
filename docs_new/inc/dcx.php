@@ -366,7 +366,6 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 							'FILENAME' => 'Icon archive filename',
 						),
 					),
-					'g' => '[GRAYSCALE] (YO)',
 				),
 			),
 			'__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
