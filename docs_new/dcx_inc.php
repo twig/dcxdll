@@ -55,6 +55,7 @@ $CLA = array(
 		'COMMAND' => array(
 			'__desc' => "Layout command.",
 			'__values' => array(
+				'clear' => "Clears all CLA rules.",
 				'root' => "Sets the root cell element.",
 				'cell' => "Adds a cell element as a child of another cell element.",
 				'space' => "Sets the space padding around a cell element.",
