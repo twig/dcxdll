@@ -392,7 +392,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		SendMessage(this->m_Hwnd, EM_SETSEL, istart, iend);
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
-	else if (flags.switch_cap_flags[4] && numtok > 4) {
+	else if (flags.switch_cap_flags[4] && numtok > 3) {
 		TString cue(input.gettok(4, -1, " "));
 		int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cue.to_chr(),-1, NULL, 0);
 		WCHAR *wcue = new WCHAR[widelen+1];

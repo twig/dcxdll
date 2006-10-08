@@ -97,7 +97,7 @@ public:
   COLORREF getBackColor( ) const;
   COLORREF getTextColor( ) const;
 
-  static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, TString & input, int offset, DWORD mask = -1, HWND hParent = NULL);
+  static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, int offset, DWORD mask = -1, HWND hParent = NULL);
 
   virtual TString getType( ) = 0;
 
