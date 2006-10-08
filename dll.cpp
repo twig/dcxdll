@@ -1409,47 +1409,57 @@ mIRC(WindowProps) {
 	}
 
 	HWND hwnd = (HWND) input.gettok(1, " ").to_int();
-	TString flags = input.gettok(2, " ");
 
 	if (!IsWindow(hwnd)) {
 		DCXError("/dcx WindowProps", "Invalid window");
 		return 1;
 	}
 
-	// set hwnd title text
-	// -t [TEXT]
-	if (flags.find('t', 0)) { 
-		TString txt;
-		
-		if (numtok > 2) {
-			txt = input.gettok(3, -1, " ");
-			txt.trim();
-		}
-		else
-			txt = "";
-		
-		SetWindowText(hwnd, txt.to_chr());
-	}
-	// set hwnd's title icon
-	// -i [INDEX] [FILENAME]
-	else if (flags.find('i', 0) && numtok > 3) {
-		int index = input.gettok(3," ").to_int();
-		TString filename = input.gettok(4, -1, " ");
-		filename.trim();
+	TString flags = input.gettok(2, " ");
 
-		if (!ChangeHwndIcon(hwnd,&flags,index,&filename))
-			return 0;
+	if ((flags[0] != '-') || (flags.len() < 2)) {
+		DCXError("/dcx WindowProps","No Flags Found");
+		return 0;
 	}
+
+	if ((flags.find('T', 0) == 0) && (flags.find('i', 0) == 0) && (flags.find('t', 0) == 0)) {
+		DCXError("/dcx WindowProps","Unknown Flags");
+		return 0;
+	}
+
 	// set hwnd NoTheme
 	// -T
-	else if (flags.find('T', 0)) {
+	if (flags.find('T', 0)) {
 		if (XPPlus) {
 			if (dcxSetWindowTheme(hwnd,L" ",L" ") != S_OK)
 				DCXError("/dcx WindowProps", "Unable to set theme");
 		}
 	}
-	else {
-		DCXError("/dcx WindowProps", "Unknown flags or insufficient parameters");
+	// set hwnd's title icon
+	// -i [INDEX] [FILENAME]
+	if (flags.find('i', 0) && numtok > 3) {
+		int index = input.gettok(3," ").to_int();
+		TString filename = input.gettok(1,"\t").gettok(4, -1, " ");
+		filename.trim();
+
+		if (!ChangeHwndIcon(hwnd,&flags,index,&filename))
+			return 0;
+	}
+	// set hwnd title text
+	// -t [TEXT]
+	if (flags.find('t', 0)) { 
+		TString txt;
+		
+		if (flags.find('i', 0)) {
+			if (input.numtok("\t") > 1)
+				txt = input.gettok(2,-1,"\t");
+		}
+		else if (numtok > 2) {
+				txt = input.gettok(3, -1, " ");
+		}
+		txt.trim();
+
+		SetWindowText(hwnd, txt.to_chr());
 	}
 
 	return 1;
