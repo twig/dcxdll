@@ -73,7 +73,7 @@ protected:
 	BOOL m_bFontStrikeout;    //!< Is Font StrikedOut ?
 	TString m_tsFontFaceName; //!< Font Face Name
 
-	int unfoldColor(char *color);
+	int unfoldColor(const char *color);
 };
 
 #endif // _DCXRICHEDIT_H_

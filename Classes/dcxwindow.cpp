@@ -151,7 +151,7 @@ LONG DcxWindow::setExStyle( const LONG Styles ) {
  * blah
  */
 
-void DcxWindow::parseSwitchFlags( TString & switchs, XSwitchFlags * flags ) const {
+void DcxWindow::parseSwitchFlags( TString & switchs, XSwitchFlags * flags ) {
 
   // no -sign, missing params
   if ( switchs[0] != '-' ) 

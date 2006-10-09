@@ -943,7 +943,7 @@ void DcxDialog::parseBorderStyles(TString &flags, LONG *Styles, LONG *ExStyles) 
  * blah
  */
 
-DWORD DcxDialog::getAnimateStyles(TString &flags) const {
+DWORD DcxDialog::getAnimateStyles(TString &flags) {
 	DWORD Styles = 0;
 	int i = 1, len = flags.len();
 

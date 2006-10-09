@@ -75,7 +75,7 @@ public:
   virtual void parseCommandRequest( TString & input ) = 0;
   virtual void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
 
-  void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+  static void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   BOOL callAliasEx( char * szReturn, const char * szFormat, ... );
 
@@ -132,14 +132,14 @@ protected:
   void parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags );
   BOOL parseGlobalInfoRequest( const TString & input, char * szReturnValue );
 
-  UINT parseColorFlags( TString & flags );
-  UINT parseCursorFlags( TString & flags );
-  LPSTR parseCursorType( TString & cursor );
+  static UINT parseColorFlags( TString & flags );
+  static UINT parseCursorFlags( TString & flags );
+  static LPSTR parseCursorType( TString & cursor );
 
   void registreDefaultWindowProc( );
   void unregistreDefaultWindowProc( );
 
-  void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
+  static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
 
 };
 

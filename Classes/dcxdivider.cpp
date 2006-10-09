@@ -205,81 +205,19 @@ void DcxDivider::parseCommandRequest( TString & input ) {
         !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
         this->m_pParentDialog->getControlByID( ID ) == NULL ) 
       {
-
-        TString type = control_data.gettok( 2, " " );
-        RECT rc;
-
-        rc.left = (LONG)control_data.gettok( 3, " " ).to_num( );
-        rc.top = (LONG)control_data.gettok( 4, " " ).to_num( );
-        rc.right = rc.left + (LONG)control_data.gettok( 5, " " ).to_num( );
-        rc.bottom = rc.top + (LONG)control_data.gettok( 6, " " ).to_num( );
-
-        DcxControl * p_Control = NULL;
-
-        TString styles = "";
-        if ( control_data.numtok( " " ) > 6 ) {
-          styles = control_data.gettok( 7, -1, " " );
-        }
-
-        /*
-        if ( type == "trackbar" ) {
-          p_Control = new DcxTrackBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles  );
-        }
-        else if ( type == "pbar" ) {
-          p_Control = new DcxProgressBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "comboex" ) {
-          p_Control = new DcxComboEx( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "toolbar" ) {
-          p_Control = new DcxToolBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-          p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
-        }
-        else if ( type == "statusbar" ) {
-          p_Control = new DcxStatusBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-          p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
-        }
-        else if ( type == "colorcombo" ) {
-          p_Control = new DcxColorCombo( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "button" ) {
-          p_Control = new DcxButton( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        */
-
-        if ( type == "treeview" ) {
-          p_Control = new DcxTreeView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "listview" ) {
-          p_Control = new DcxListView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "richedit" ) {
-          p_Control = new DcxRichEdit( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "divider" ) {
-          p_Control = new DcxDivider( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "panel" ) {
-          p_Control = new DcxPanel( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "tab" ) {
-          p_Control = new DcxTab( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "rebar" ) {
-          p_Control = new DcxReBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "webctrl" ) {
-          p_Control = new DcxWebControl( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "edit" ) {
-          p_Control = new DcxEdit( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "image" ) {
-          p_Control = new DcxImage( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
-        else if ( type == "list" ) {
-          p_Control = new DcxList( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        }
+				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
+					CTLF_ALLOW_TREEVIEW |
+					CTLF_ALLOW_LISTVIEW |
+					CTLF_ALLOW_RICHEDIT |
+					CTLF_ALLOW_DIVIDER |
+					CTLF_ALLOW_PANEL |
+					CTLF_ALLOW_TAB |
+					CTLF_ALLOW_REBAR |
+					CTLF_ALLOW_WEBCTRL |
+					CTLF_ALLOW_EDIT |
+					CTLF_ALLOW_IMAGE |
+					CTLF_ALLOW_LIST
+					,this->m_Hwnd);
 
         if ( p_Control != NULL ) {
 

@@ -230,68 +230,6 @@ void DcxPager::parseCommandRequest( TString & input ) {
 					CTLF_ALLOW_PAGER |
 					CTLF_ALLOW_DOCK
 					,this->m_Hwnd);
-  //    TString type(input.gettok( 5, " " ));
-  //    RECT rc;
-
-  //    rc.left = (LONG)input.gettok( 6, " " ).to_num( );
-  //    rc.top = (LONG)input.gettok( 7, " " ).to_num( );
-  //    rc.right = rc.left + (LONG)input.gettok( 8, " " ).to_num( );
-  //    rc.bottom = rc.top + (LONG)input.gettok( 9, " " ).to_num( );
-
-  //    DcxControl * p_Control = NULL;
-
-  //    TString styles;
-  //    if ( numtok > 9 ) {
-  //      styles = input.gettok( 10, -1, " " );
-  //    }
-
-  //    if ( type == "toolbar" ) {
-  //      p_Control = new DcxToolBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-  //    }
-  //    else if ( type == "rebar" ) {
-  //      p_Control = new DcxReBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-  //    }
-  //    else if ( type == "panel" ) {
-  //      p_Control = new DcxPanel( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-  //    }
-  //    else if ( type == "tab" ) {
-  //      p_Control = new DcxTab( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-  //    }
-  //    else if ( type == "box" ) {
-  //      p_Control = new DcxBox( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-  //    }
-  //    else if ( type == "image" ) {
-  //      p_Control = new DcxImage( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-  //    }
-  //    else if ( type == "pager" ) {
-  //      p_Control = new DcxPager( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-  //    }
-  //    else if ( type == "window" ) {
-
-  //      if ( styles.numtok( " " ) > 0 ) {
-
-  //        char windowHwnd[30];
-  //        TString expression;
-  //        expression.sprintf("$window(%s).hwnd", styles.gettok( 1, " " ).to_chr( ) );
-		//			mIRCeval( expression.to_chr(), windowHwnd );
-
-  //        HWND winHwnd = (HWND) atoi( windowHwnd );
-
-  //        if ( IsWindow( winHwnd ) && this->m_pParentDialog->getControlByHWND( winHwnd ) == NULL ) {
-
-  //          p_Control = new DcxMWindow( winHwnd, this->m_Hwnd, ID, this->m_pParentDialog, &rc, styles );
-  //        }
-  //      }
-  //    }
-		//else if (type == "dialog") {
-		//	if (styles.numtok(" ") > 0) {
-		//		HWND winHwnd = GetHwndFromString(styles.gettok(1, " "));
-
-		//		if (IsWindow(winHwnd) && this->m_pParentDialog->getControlByHWND(winHwnd) == NULL) {
-		//			p_Control = new DcxMDialog(winHwnd, this->m_Hwnd, ID, this->m_pParentDialog, &rc, styles);
-		//		}
-		//	}
-		//}
 
       if ( p_Control != NULL ) {
         this->m_pParentDialog->addControl( p_Control );

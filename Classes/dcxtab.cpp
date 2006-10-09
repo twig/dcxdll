@@ -432,80 +432,6 @@ void DcxTab::parseCommandRequest( TString & input ) {
 					CTLF_ALLOW_IMAGE |
 					CTLF_ALLOW_LIST
 					,this->m_Hwnd);
-        //TString type(control_data.gettok( 2, " " ));
-        //RECT rc;
-
-        //rc.left = (LONG)control_data.gettok( 3, " " ).to_num( );
-        //rc.top = (LONG)control_data.gettok( 4, " " ).to_num( );
-        //rc.right = rc.left + (LONG)control_data.gettok( 5, " " ).to_num( );
-        //rc.bottom = rc.top + (LONG)control_data.gettok( 6, " " ).to_num( );
-
-        //DcxControl * p_Control = NULL;
-
-        //TString styles;
-        //if ( control_data.numtok( " " ) > 6 ) {
-        //  styles = control_data.gettok( 7, -1, " " );
-        //}
-
-        ///*
-        //if ( type == "trackbar" ) {
-        //p_Control = new DcxTrackBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles  );
-        //}
-        //else if ( type == "pbar" ) {
-        //p_Control = new DcxProgressBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "comboex" ) {
-        //p_Control = new DcxComboEx( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "toolbar" ) {
-        //p_Control = new DcxToolBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
-        //}
-        //else if ( type == "statusbar" ) {
-        //p_Control = new DcxStatusBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
-        //}
-        //else if ( type == "colorcombo" ) {
-        //p_Control = new DcxColorCombo( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "button" ) {
-        //p_Control = new DcxButton( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //*/
-
-        //if ( type == "treeview" ) {
-        //  p_Control = new DcxTreeView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "listview" ) {
-        //  p_Control = new DcxListView( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "richedit" ) {
-        //  p_Control = new DcxRichEdit( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "divider" ) {
-        //  p_Control = new DcxDivider( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "panel" ) {
-        //  p_Control = new DcxPanel( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "tab" ) {
-        //  p_Control = new DcxTab( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "rebar" ) {
-        //  p_Control = new DcxReBar( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "webctrl" ) {
-        //  p_Control = new DcxWebControl( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "edit" ) {
-        //  p_Control = new DcxEdit( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "image" ) {
-        //  p_Control = new DcxImage( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
-        //else if ( type == "list" ) {
-        //  p_Control = new DcxList( ID, this->m_pParentDialog, this->m_Hwnd, &rc, styles );
-        //}
 
         if ( p_Control != NULL ) {
           lpdtci->mChildHwnd = p_Control->getHwnd( );
@@ -513,7 +439,6 @@ void DcxTab::parseCommandRequest( TString & input ) {
         }
       }
       else {
-				//dcxInfoError("tab", "xdid", input.gettok(1, " ").to_chr(), ID - mIRC_ID_OFFSET, "Control already exists!");
         TString error;
         error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
 				DCXError("/xdid -a", error.to_chr() );

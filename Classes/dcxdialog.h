@@ -128,15 +128,15 @@ protected:
 	DWORD m_dEventMask;
   /* **** */
 
-  void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
-  DWORD getAnimateStyles( TString & flags ) const;
+  static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
+  static DWORD getAnimateStyles( TString & flags );
 
-  UINT parseLayoutFlags( TString & flags );
-  UINT parseBkgFlags( TString & flags );
-  UINT parseFlashFlags( TString & flags );
-  UINT parseCursorFlags( TString & flags );
-  LPSTR parseCursorType( TString & cursor );
-  UINT parseTooltipFlags(TString &flags);
+  static UINT parseLayoutFlags( TString & flags );
+  static UINT parseBkgFlags( TString & flags );
+  static UINT parseFlashFlags( TString & flags );
+  static UINT parseCursorFlags( TString & flags );
+  static LPSTR parseCursorType( TString & cursor );
+  static UINT parseTooltipFlags(TString &flags);
 };
 
 #endif // _DCXDIALOG_H_
