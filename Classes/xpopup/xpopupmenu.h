@@ -79,7 +79,7 @@ public:
   void parseXPopCommand( TString & input );
   void parseXPopIdentifier( TString & input, char * szReturnValue );
 
-  HMENU parsePath( TString & path, HMENU hParent, int depth = 1 );
+  static HMENU parsePath( TString & path, HMENU hParent, int depth = 1 );
 
   HIMAGELIST getImageList( );
   void destroyImageList( );
@@ -94,7 +94,7 @@ public:
 
   TString getName( );
 
-  HMENU getMenuHandle( ) { return this->m_hMenu; };
+  HMENU getMenuHandle( ) const { return this->m_hMenu; };
 
   LPXPMENUCOLORS getColors( );
   void setColor( int nColor, COLORREF clrColor );
@@ -126,7 +126,7 @@ protected:
 
   XPMENUCOLORS m_MenuColors; //!< Menu Colors
 
-  void parseSwitchFlags( TString * switchs, XSwitchFlags * flags );
+  static void parseSwitchFlags( TString * switchs, XSwitchFlags * flags );
 };
 
 typedef std::vector<XPopupMenu *> VectorOfXPopupMenu; //!< Vector of XPopupMenu Objects

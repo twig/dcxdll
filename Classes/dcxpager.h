@@ -35,11 +35,11 @@ public:
 
   inline TString getType( ) { return TString( "pager" ); };
 
-	void setChild(HWND child);
-	void setBkColor(COLORREF c);
-	void setBorderSize(int bSize);
-	void setButtonSize(int bSize);
-	void reCalcSize(void);
+	void setChild(const HWND child);
+	void setBkColor(const COLORREF c);
+	void setBorderSize(const int bSize);
+	void setButtonSize(const int bSize);
+	void reCalcSize(void) const;
 
 protected:
 	HWND m_ChildHWND;

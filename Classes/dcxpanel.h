@@ -47,7 +47,7 @@ public:
 
 protected:
 
-  UINT parseLayoutFlags( TString & flags );
+  static UINT parseLayoutFlags( TString & flags );
 
   LayoutManager * m_pLayoutManager; //!< Layout Manager Object
 

@@ -635,7 +635,7 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
   szReturnValue[0] = 0;
 }
 
-void DcxListView::autoSize(int nColumn, TString flags)
+void DcxListView::autoSize(int nColumn, TString &flags)
 {
 	UINT iFlags = this->parseHeaderFlags2(flags);
 
@@ -2324,7 +2324,7 @@ LRESULT CALLBACK DcxListView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wPara
 }
 
 
-DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, TString styles) {
+DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, TString &styles) {
 	// can only create progress for an existing item
 	if (!lvi || !lvi->lParam)
 		return NULL;

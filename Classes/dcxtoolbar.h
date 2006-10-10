@@ -71,7 +71,7 @@ public:
 
   HIMAGELIST getImageList( int iImageList );
   void setImageList( HIMAGELIST himl, int iImageList );
-  HIMAGELIST createImageList( UINT iSize );
+  static HIMAGELIST createImageList( UINT iSize );
 
   LRESULT autoSize( );
   LRESULT insertButton( int nPos, LPTBBUTTON lpbb );
@@ -101,13 +101,13 @@ protected:
 
   BOOL m_bAutoStretch; //!< Auto Stretch Variable
 
-  UINT parseImageListFlags( TString & flags );
+  static UINT parseImageListFlags( TString & flags );
 
   int getFreeButtonID( );
   int getIndexToCommand( int iIndex );
 
-  UINT parseButtonStateFlags( TString & flags );
-  UINT parseButtonStyleFlags( TString & flags );
+  static UINT parseButtonStateFlags( TString & flags );
+  static UINT parseButtonStyleFlags( TString & flags );
 
   void resetContent( );
  

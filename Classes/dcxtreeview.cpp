@@ -1221,8 +1221,6 @@ UINT DcxTreeView::parseToggleFlags( TString & flags ) {
 int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort ) {
 
   LPDCXTVSORT ptvsort = (LPDCXTVSORT) lParamSort;
-  char com[900];
-  char res[20];
   char itemtext1[900];
   char itemtext2[900];
 
@@ -1235,8 +1233,10 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
   // CUSTOM Sort
   if ( ptvsort->iSortFlags & TVSS_CUSTOM ) {
 
-    wsprintf( com, "$%s(%s,%s)", ptvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
-    mIRCeval( com, res );
+		TString com;
+		char res[20];
+    com.sprintf("$%s(%s,%s)", ptvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
+		mIRCeval( com.to_chr(), res );
 
     if ( ptvsort->iSortFlags & TVSS_DESC ) {
 

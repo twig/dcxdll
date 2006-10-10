@@ -43,9 +43,9 @@ public:
 
   HIMAGELIST getImageList( );
   void setImageList( HIMAGELIST himl );
-  HIMAGELIST createImageList( );
+  static HIMAGELIST createImageList( );
 
-  UINT parseItemFlags( TString & flags );
+  static UINT parseItemFlags( TString & flags );
   void cleanPartIcons( );
   
   LRESULT setParts( int nParts, LPINT aWidths );

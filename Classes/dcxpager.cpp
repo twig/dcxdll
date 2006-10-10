@@ -295,24 +295,24 @@ void DcxPager::parseCommandRequest( TString & input ) {
     this->parseGlobalCommandRequest( input, flags );
   }
 }
-void DcxPager::setChild(HWND child)
+void DcxPager::setChild(const HWND child)
 {
 	this->m_ChildHWND = child;
 	Pager_SetChild(this->m_Hwnd,child);
 }
-void DcxPager::setBkColor(COLORREF c)
+void DcxPager::setBkColor(const COLORREF c)
 {
 	Pager_SetBkColor(this->m_Hwnd,c);
 }
-void DcxPager::setBorderSize(int bSize)
+void DcxPager::setBorderSize(const int bSize)
 {
 	Pager_SetBorder(this->m_Hwnd,bSize);
 }
-void DcxPager::setButtonSize(int bSize)
+void DcxPager::setButtonSize(const int bSize)
 {
 	Pager_SetButtonSize(this->m_Hwnd,bSize);
 }
-void DcxPager::reCalcSize(void)
+void DcxPager::reCalcSize(void) const
 {
 	Pager_RecalcSize(this->m_Hwnd);
 }

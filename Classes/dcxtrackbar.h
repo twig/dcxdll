@@ -50,7 +50,7 @@ public:
   void parseInfoRequest( TString & input, char * szReturnValue );
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
-	UINT parseImageFlags(TString &flags);
+	static UINT parseImageFlags(TString &flags);
 
   LRESULT setRangeMin( LONG iLowLim );
   LRESULT getRangeMin( );

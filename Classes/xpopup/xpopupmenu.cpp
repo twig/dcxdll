@@ -862,7 +862,7 @@ HMENU XPopupMenu::parsePath( TString & path, HMENU hParent, int depth ) {
   if ( depth == path.numtok( " " ) )
     return GetSubMenu( hParent, iItem );
   else if ( GetSubMenu( hParent, iItem ) != NULL )
-    return this->parsePath( path, GetSubMenu( hParent, iItem ), depth + 1 );
+    return XPopupMenu::parsePath( path, GetSubMenu( hParent, iItem ), depth + 1 );
 
   return NULL;
 }

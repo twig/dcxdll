@@ -56,7 +56,7 @@ public:
 
   HIMAGELIST getImageList( );
   void setImageList( HIMAGELIST himl );
-  HIMAGELIST createImageList( );
+  static HIMAGELIST createImageList( );
 
   void deleteLParamInfo( int nItem );
   void activateSelectedTab( );

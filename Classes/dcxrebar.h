@@ -62,7 +62,7 @@ public:
 
   HIMAGELIST getImageList( );
   void setImageList( HIMAGELIST himl );
-  HIMAGELIST createImageList( );
+  static HIMAGELIST createImageList( );
 
   void resetContents( );
 
@@ -88,7 +88,7 @@ public:
 
 protected:
 
-  UINT parseBandStyleFlags( TString & flags );
+  static UINT parseBandStyleFlags( TString & flags );
 
   int m_iClickedBand;  //!< Last LClicked Band Number
   int m_iRowLimit;       //!< Rebar Band Row/Column Limit

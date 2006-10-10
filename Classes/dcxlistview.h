@@ -125,23 +125,23 @@ protected:
 
   WNDPROC m_OrigEditProc; //!< Label Edit Control Orignal Procedure
 
-  UINT parseIconFlagOptions( TString & flags );
-  UINT parseItemFlags( TString & flags );
-  UINT parseHeaderFlags( TString & flags );
-  UINT parseHeaderFlags2( TString & flags );
-  UINT parseSortFlags( TString & flags );
-  UINT parseColorFlags( TString & flags );
-  UINT parseImageFlags( TString & flags );
-  UINT parseGroupFlags( TString & flags );
+  static UINT parseIconFlagOptions( TString & flags );
+  static UINT parseItemFlags( TString & flags );
+  static UINT parseHeaderFlags( TString & flags );
+  static UINT parseHeaderFlags2( TString & flags );
+  static UINT parseSortFlags( TString & flags );
+  static UINT parseColorFlags( TString & flags );
+  static UINT parseImageFlags( TString & flags );
+  static UINT parseGroupFlags( TString & flags );
 
   BOOL matchItemText( int nItem, int nSubItem, TString * search, UINT SearchType );
 
-	void autoSize(int nColumn, TString flags);
+	void autoSize(int nColumn, TString &flags);
 
   BOOL m_bDrag; //!< Dragging Items ?
 
 private:
-	DcxControl* CreatePbar(LPLVITEM lvi, TString style);
+	DcxControl* CreatePbar(LPLVITEM lvi, TString &style);
 	void ScrollPbars(int row);
 	void UpdateScrollPbars();
 };

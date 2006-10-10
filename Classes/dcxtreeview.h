@@ -141,11 +141,11 @@ protected:
 
   std::string getPathFromVector( VectorOfInts * numPath );
 
-  UINT parseIconFlagOptions( TString & flags );
-  UINT parseItemFlags( TString & flags );
-  UINT parseSortFlags( TString & flags );
-  UINT parseColorFlags( TString & flags );
-  UINT parseToggleFlags( TString & flags );
+  static UINT parseIconFlagOptions( TString & flags );
+  static UINT parseItemFlags( TString & flags );
+  static UINT parseSortFlags( TString & flags );
+  static UINT parseColorFlags( TString & flags );
+  static UINT parseToggleFlags( TString & flags );
   
 };
 
