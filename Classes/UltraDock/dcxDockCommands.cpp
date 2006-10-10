@@ -14,7 +14,6 @@ extern VectorOfDocks v_docks;
 extern void UltraDock(HWND mWnd,HWND temp,TString flag);
 extern bool FindUltraDock(const HWND hwnd);
 extern LPDCXULTRADOCK GetUltraDock(const HWND hwnd);
-extern BOOL XPPlus;
 
 typedef struct tagDCXDOCK {
 	WNDPROC oldProc;
@@ -356,8 +355,8 @@ mIRC(xdock) {
 				break;
 
 			case DOCKF_NORMAL:
-				rc.bottom = w;
-				rc.right = h;
+				rc.bottom = h;
+				rc.right = w;
 				break;
 
 			case DOCKF_SIZE:
