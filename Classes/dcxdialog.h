@@ -126,6 +126,7 @@ protected:
 	bool m_bDoDrag;
 	bool m_bDrag;
 	DWORD m_dEventMask;
+	BOOL m_bTracking;
   /* **** */
 
   static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );

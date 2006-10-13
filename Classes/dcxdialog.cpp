@@ -66,6 +66,8 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 
 	this->m_dEventMask = -1;
 
+	this->m_bTracking = FALSE;
+
 	SetProp(this->m_Hwnd, "dcx_this", (HANDLE) this);
 
 	DragAcceptFiles(this->m_Hwnd, TRUE);
@@ -1235,9 +1237,8 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	else if (input.gettok(2, " ") == "ismarked") {
-		if (Dialogs.getDialogByHandle(this->m_Hwnd) != NULL) {
+		if (Dialogs.getDialogByHandle(this->m_Hwnd) != NULL)
 			lstrcpy(szReturnValue, "$true");
-		}
 		else
 			lstrcpy(szReturnValue, "$false");
 
@@ -1306,6 +1307,14 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 	// [NAME] [PROP]
 	else if (input.gettok(2, " ") == "alias") {
 		wsprintf(szReturnValue, "%s", this->getAliasName().to_chr());
+		return;
+	}
+	// [NAME] [PROP]
+	else if (input.gettok(2, " ") == "visible") {
+		if (IsWindowVisible(this->m_Hwnd))
+			lstrcpy(szReturnValue, "$true");
+		else
+			lstrcpy(szReturnValue, "$false");
 		return;
 	}
 	// invalid info request
@@ -1822,8 +1831,28 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				PostMessage(p_this->m_Hwnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM( pt.x, pt.y));
 				p_this->m_bDrag = false;
 			}
+			if ( p_this->m_bTracking == FALSE ) {
+				TRACKMOUSEEVENT tme;
+				tme.cbSize = sizeof(TRACKMOUSEEVENT);
+				tme.hwndTrack = p_this->m_Hwnd;
+				tme.dwFlags = TME_LEAVE;
+				tme.dwHoverTime = 1;
+				p_this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );
+				if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
+					p_this->callAliasEx(NULL, "%s,%d", "denter", 0); // this tells you when the mouse enters or
+			}
 			break;
 		}
+
+		case WM_MOUSELEAVE:
+		{
+			if ( p_this->m_bTracking ) {
+				p_this->m_bTracking = FALSE;
+				if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
+					p_this->callAliasEx(NULL, "%s,%d", "dleave", 0); // leaves a dialogs client area.
+			}
+		}
+		break;
 
 		case WM_LBUTTONDOWN:
 		{

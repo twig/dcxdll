@@ -88,7 +88,7 @@ void LayoutManager::setRoot( LayoutCell * p_Root ) {
  * blah
  */
 
-LayoutCell * LayoutManager::getRoot( ) {
+LayoutCell * LayoutManager::getRoot( ) const {
 
   return this->m_pRoot;
 }
@@ -99,7 +99,7 @@ LayoutCell * LayoutManager::getRoot( ) {
  * blah
  */
 
-LayoutCell * LayoutManager::getCell( TString & path ) {
+LayoutCell * LayoutManager::getCell( const TString & path ) const {
 
   return this->parsePath( path, this->m_pRoot, 1 );
 }
@@ -110,7 +110,7 @@ LayoutCell * LayoutManager::getCell( TString & path ) {
  * blah
  */
 
-LayoutCell * LayoutManager::parsePath( TString & path, LayoutCell * hParent, int depth ) {
+LayoutCell * LayoutManager::parsePath( const TString & path, LayoutCell * hParent, const int depth ) {
 
   if ( hParent == NULL )
     return NULL;
@@ -135,7 +135,7 @@ LayoutCell * LayoutManager::parsePath( TString & path, LayoutCell * hParent, int
       if ( depth == n )
        return hCurrentCell;
 
-      return this->parsePath( path, hCurrentCell, depth + 1 );
+      return LayoutManager::parsePath( path, hCurrentCell, depth + 1 );
     }
 
     i++;

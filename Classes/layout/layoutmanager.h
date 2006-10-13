@@ -36,11 +36,11 @@ public:
   void updateLayout( RECT & rc );
 
   void setRoot( LayoutCell * p_Root );
-  LayoutCell * getRoot( );
+  LayoutCell * getRoot( ) const;
 
-  LayoutCell * getCell( TString & path );
+  LayoutCell * getCell( const TString & path ) const;
 
-  LayoutCell * parsePath( TString & path, LayoutCell * hParent, int depth );
+  static LayoutCell * parsePath( const TString & path, LayoutCell * hParent, const int depth );
 
 protected:
 
