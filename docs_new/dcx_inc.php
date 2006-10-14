@@ -354,7 +354,7 @@ function dcxdoc_menu_left() {
 	asort($pages);
 
 	foreach ($pages as $page => $pagelabel) {
-		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'dcx', 'xdialog', 'xdid')))
+		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'dcx', 'xdialog', 'xdid', 'xtray')))
 			continue;
 
 	    echo "<li><a href=\"$page.htm\">$pagelabel</a></li>";
@@ -365,6 +365,7 @@ function dcxdoc_menu_left() {
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
 		<li><a href="xdock.htm">XDock</a></li>
+		<li><a href="xtray.htm">XTray</a></li>
 		<li><a href="xpopup.htm">XPopup</a></li>
 	</ul>
 	<a class="section">About DCX</a><br />
@@ -380,7 +381,7 @@ function dcxdoc_menu_left() {
 
 function dcxdoc_menu_right($page) {
 	global $SECTION, $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL,
-	$STYLES, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS, $XDOCK, $XDOCKPROPS;
+	$STYLES, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS, $XDOCK, $XDOCKPROPS, $XTRAY;
 
 ?><td class="menuright">
 	<br />
@@ -391,6 +392,8 @@ function dcxdoc_menu_right($page) {
     print_menu_items($XDIALOGPROPS, SECTION_XDIALOGPROPS, "\$xdialog() Properties");
     print_menu_items($XDID, SECTION_XDID, "/xdid Flags");
     print_menu_items($XDIDPROPS, SECTION_XDIDPROPS, "\$xdid() Properties");
+    
+    print_menu_items($XTRAY, SECTION_XTRAY, "/xtray Flags");
     
     print_menu_items($XPOPUP, SECTION_XPOPUP, "/xpopup Flags");
     print_menu_items($XPOPUPPROPS, SECTION_XPOPUPPROPS, "\$xpopup() Properties");
