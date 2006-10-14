@@ -32,7 +32,7 @@ class DcxPanel : public DcxControl {
 
 public:
 
-  DcxPanel( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxPanel( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxPanel( );
 

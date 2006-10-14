@@ -25,62 +25,60 @@
 * \param styles Window Style Tokenized List
 */
 
-DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, RECT *rc, TString &styles)
-: DcxControl(ID, p_Dialog)
-{
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
-
-	this->m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CLIENTEDGE, 
-		DCX_RICHEDITCLASS, 
-		NULL,
-		WS_CHILD | WS_VISIBLE | Styles, 
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-		p_Dialog->getHwnd(),
-		(HMENU) ID,
-		GetModuleHandle(NULL), 
-		NULL);
-
-	if (bNoTheme)
-		dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
-	else {
-		CRichEditThemed::Attach(this->m_Hwnd);
-	}
-
-	this->m_tsText = "";
-	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
-	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
-	this->m_iFontSize = 10 * 20;
-	this->m_bFontBold = FALSE;
-	this->m_bFontItalic = FALSE;
-	this->m_bFontUnderline = FALSE;
-	this->m_bFontStrikeout = FALSE;
-	this->m_tsFontFaceName = "";
-	this->m_byteCharset = DEFAULT_CHARSET;
-
-	this->loadmIRCPalette();
-	this->setContentsFont();
-
-	this->m_bIgnoreInput = false;
-
-	SendMessage(
-		this->m_Hwnd, EM_SETEVENTMASK, NULL,
-		(LPARAM) (ENM_SELCHANGE | ENM_CHANGE /*| ENM_LINK | ENM_UPDATE*/));
-
-	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips", " ")) {
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
-	}
-
-	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, "dcx_cthis", (HANDLE) this);
-}
-
+//DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, RECT *rc, TString &styles)
+//: DcxControl(ID, p_Dialog)
+//{
+//	LONG Styles = 0, ExStyles = 0;
+//	BOOL bNoTheme = FALSE;
+//
+//	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+//
+//	this->m_Hwnd = CreateWindowEx(
+//		ExStyles | WS_EX_CLIENTEDGE, 
+//		DCX_RICHEDITCLASS, 
+//		NULL,
+//		WS_CHILD | WS_VISIBLE | Styles, 
+//		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//		p_Dialog->getHwnd(),
+//		(HMENU) ID,
+//		GetModuleHandle(NULL), 
+//		NULL);
+//
+//	if (bNoTheme)
+//		dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
+//	else {
+//		CRichEditThemed::Attach(this->m_Hwnd);
+//	}
+//
+//	this->m_tsText = "";
+//	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
+//	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
+//	this->m_iFontSize = 10 * 20;
+//	this->m_bFontBold = FALSE;
+//	this->m_bFontItalic = FALSE;
+//	this->m_bFontUnderline = FALSE;
+//	this->m_bFontStrikeout = FALSE;
+//	this->m_tsFontFaceName = "";
+//	this->m_byteCharset = DEFAULT_CHARSET;
+//
+//	this->loadmIRCPalette();
+//	this->setContentsFont();
+//
+//	SendMessage(
+//		this->m_Hwnd, EM_SETEVENTMASK, NULL,
+//		(LPARAM) (ENM_SELCHANGE | ENM_CHANGE /*| ENM_LINK | ENM_UPDATE*/));
+//
+//	if (p_Dialog->getToolTip() != NULL) {
+//		if (styles.istok("tooltips", " ")) {
+//			this->m_ToolTipHWND = p_Dialog->getToolTip();
+//			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+//		}
+//	}
+//
+//	this->registreDefaultWindowProc();
+//	SetProp(this->m_Hwnd, "dcx_cthis", (HANDLE) this);
+//}
+//
 /*!
 * \brief Constructor
 *
@@ -124,8 +122,6 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 	this->m_bFontStrikeout = FALSE;
 	this->m_tsFontFaceName = "";
 	this->m_byteCharset = DEFAULT_CHARSET;
-
-	this->m_bIgnoreInput = false;
 
 	this->loadmIRCPalette();
 	this->setContentsFont();
@@ -578,8 +574,6 @@ void DcxRichEdit::clearContents() {
 * blah
 */
 void DcxRichEdit::parseContents(BOOL fNewLine) { // old function
-	this->m_bIgnoreInput = true; // remove this when implementing new algorithm
-
 	this->setRedraw(FALSE);
 	this->clearContents();
 
@@ -691,8 +685,6 @@ void DcxRichEdit::parseContents(BOOL fNewLine) { // old function
 	this->setSel(0, 0);
 	this->setRedraw(TRUE);
 	this->redrawWindow();
-
-	this->m_bIgnoreInput = false;
 }
 //void DcxRichEdit::parseContents(BOOL fNewLine) {
 //	this->setRedraw(FALSE);
@@ -999,9 +991,6 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/richedit/richeditcontrols/richeditcontrolreference/richeditmessages/em_gettextrange.asp
 				case EN_SELCHANGE:
 				{
-					if (this->m_bIgnoreInput) // temporary fix to prevent this callback upon /xdid -a
-						break;
-
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 						SELCHANGE* sel = (SELCHANGE*) lParam;
 

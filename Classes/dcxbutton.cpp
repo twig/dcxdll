@@ -24,59 +24,59 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-, m_bBitmapText(FALSE)
-, m_bHasIcons(FALSE)
-{
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    DCX_BUTTONCLASS, 
-    NULL,
-    WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle( NULL ), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  ZeroMemory( &this->m_aBitmaps, 4*sizeof(HBITMAP) );
-  ZeroMemory( &this->m_aColors, 4*sizeof(COLORREF) );
-
-  this->m_bHover = FALSE;
-  this->m_bSelected = FALSE;
-  this->m_bTracking = FALSE;
-
-  this->m_iIconSize = 16;
-  this->m_ImageList = NULL;
-
-	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
-
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
-	}
-
-	this->m_aColors[0] = GetSysColor(COLOR_BTNTEXT); // normal
-	this->m_aColors[1] = GetSysColor(COLOR_BTNTEXT); // hover
-	this->m_aColors[2] = GetSysColor(COLOR_BTNTEXT); // pushed
-	this->m_aColors[3] = GetSysColor(COLOR_GRAYTEXT); // disabled
-
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-}
-
+//DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+//: DcxControl( ID, p_Dialog ) 
+//, m_bBitmapText(FALSE)
+//, m_bHasIcons(FALSE)
+//{
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//  this->m_Hwnd = CreateWindowEx(	
+//    ExStyles, 
+//    DCX_BUTTONCLASS, 
+//    NULL,
+//    WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | Styles, 
+//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//    p_Dialog->getHwnd( ),
+//    (HMENU) ID,
+//    GetModuleHandle( NULL ), 
+//    NULL);
+//
+//  if ( bNoTheme )
+//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//  ZeroMemory( &this->m_aBitmaps, 4*sizeof(HBITMAP) );
+//  ZeroMemory( &this->m_aColors, 4*sizeof(COLORREF) );
+//
+//  this->m_bHover = FALSE;
+//  this->m_bSelected = FALSE;
+//  this->m_bTracking = FALSE;
+//
+//  this->m_iIconSize = 16;
+//  this->m_ImageList = NULL;
+//
+//	if (p_Dialog->getToolTip() != NULL) {
+//		if (styles.istok("tooltips"," ")) {
+//
+//			this->m_ToolTipHWND = p_Dialog->getToolTip();
+//
+//			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+//		}
+//	}
+//
+//	this->m_aColors[0] = GetSysColor(COLOR_BTNTEXT); // normal
+//	this->m_aColors[1] = GetSysColor(COLOR_BTNTEXT); // hover
+//	this->m_aColors[2] = GetSysColor(COLOR_BTNTEXT); // pushed
+//	this->m_aColors[3] = GetSysColor(COLOR_GRAYTEXT); // disabled
+//
+//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//}
+//
 /*!
  * \brief Constructor
  *

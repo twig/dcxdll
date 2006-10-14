@@ -30,7 +30,7 @@ class DcxIpAddress : public DcxControl {
 
 public:
 
-  DcxIpAddress( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxIpAddress( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxIpAddress( );
 

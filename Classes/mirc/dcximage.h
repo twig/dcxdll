@@ -30,8 +30,8 @@ class DcxImage : public DcxControl {
 
 public:
 
-  DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
-  DcxImage( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+  //DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxImage( );
 
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );

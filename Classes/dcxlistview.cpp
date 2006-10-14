@@ -26,54 +26,54 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-{
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-	// NB: Listview extended styles must ONLY be applied via ListView_SetExtendedListViewStyle macros
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    DCX_LISTVIEWCLASS,
-    NULL,
-	 WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN,
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
-
-	this->parseListviewExStyles( styles, &ExStyles);
-
-  ListView_SetExtendedListViewStyleEx( this->m_Hwnd, ExStyles, ExStyles);
-
-	this->m_ToolTipHWND = ListView_GetToolTips(this->m_Hwnd);
-
-	if (this->m_ToolTipHWND != NULL) {
-		if (styles.istok("balloon"," "))
-			SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
-		//SendMessage(this->m_ToolTipHWND,TTM_ACTIVATE,TRUE,0);
-		if (styles.istok("tooltips"," ")) {
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND,this->m_Hwnd);
-		}
-	}
-
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-
-  DragAcceptFiles(this->m_Hwnd, TRUE);
-}
-
+//DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+//: DcxControl( ID, p_Dialog ) 
+//{
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//	// NB: Listview extended styles must ONLY be applied via ListView_SetExtendedListViewStyle macros
+//  this->m_Hwnd = CreateWindowEx(	
+//    ExStyles, 
+//    DCX_LISTVIEWCLASS,
+//    NULL,
+//	 WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN,
+//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//    p_Dialog->getHwnd( ),
+//    (HMENU) ID,
+//    GetModuleHandle(NULL), 
+//    NULL);
+//
+//  if ( bNoTheme )
+//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//  SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
+//
+//	this->parseListviewExStyles( styles, &ExStyles);
+//
+//  ListView_SetExtendedListViewStyleEx( this->m_Hwnd, ExStyles, ExStyles);
+//
+//	this->m_ToolTipHWND = ListView_GetToolTips(this->m_Hwnd);
+//
+//	if (this->m_ToolTipHWND != NULL) {
+//		if (styles.istok("balloon"," "))
+//			SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+//		//SendMessage(this->m_ToolTipHWND,TTM_ACTIVATE,TRUE,0);
+//		if (styles.istok("tooltips"," ")) {
+//			this->m_ToolTipHWND = p_Dialog->getToolTip();
+//			AddToolTipToolInfo(this->m_ToolTipHWND,this->m_Hwnd);
+//		}
+//	}
+//
+//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//
+//  DragAcceptFiles(this->m_Hwnd, TRUE);
+//}
+//
 /*!
  * \brief Constructor
  *

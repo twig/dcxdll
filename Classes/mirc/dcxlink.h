@@ -30,8 +30,8 @@ class DcxLink : public DcxControl {
 
 public:
 
-  DcxLink( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
-  DcxLink( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+  //DcxLink( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxLink( );
 
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );

@@ -43,8 +43,8 @@ class DcxBox : public DcxControl {
 
 public:
 
-  DcxBox( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
-  DcxBox( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+  //DcxBox( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxBox( );
 
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );

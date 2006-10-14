@@ -42,36 +42,36 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxReBar::DcxReBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles | WS_EX_CONTROLPARENT,
-    DCX_REBARCTRLCLASS,
-    NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  this->m_iClickedBand = -1;
-  this->m_iRowLimit = 0;
-  this->m_iWidth = 0;
-  this->m_iHeight = 0;
-
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-}
-
+//DcxReBar::DcxReBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//  this->m_Hwnd = CreateWindowEx(	
+//    ExStyles | WS_EX_CONTROLPARENT,
+//    DCX_REBARCTRLCLASS,
+//    NULL,
+//    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//    p_Dialog->getHwnd( ),
+//    (HMENU) ID,
+//    GetModuleHandle(NULL), 
+//    NULL);
+//
+//  if ( bNoTheme )
+//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//  this->m_iClickedBand = -1;
+//  this->m_iRowLimit = 0;
+//  this->m_iWidth = 0;
+//  this->m_iHeight = 0;
+//
+//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//}
+//
 /*!
  * \brief Constructor
  *
@@ -82,10 +82,9 @@ DcxReBar::DcxReBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
  * \param styles Window Style Tokenized List
  */
 
-DcxReBar::DcxReBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxReBar::DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 {
-
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
@@ -178,7 +177,7 @@ void DcxReBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
  * blah
  */
 
-HIMAGELIST DcxReBar::getImageList( ) {
+HIMAGELIST DcxReBar::getImageList( ) const {
 
   REBARINFO ri;
   ZeroMemory(&ri, sizeof(REBARINFO));
@@ -323,14 +322,13 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     int nIcon = data.gettok( 9, " " ).to_int( ) - 1;
     COLORREF clrText = (COLORREF)data.gettok( 10, " " ).to_num( );
 
-    TString itemtext;
-    if ( data.numtok( " " ) > 10 ) {
-
-      itemtext = data.gettok( 11, -1, " " );
-		itemtext.trim();
-      rbBand.fMask |= RBBIM_TEXT;
-      rbBand.lpText = itemtext.to_chr( );
-    }
+		TString itemtext;
+		if ( data.numtok( " " ) > 10 ) {
+			itemtext = data.gettok( 11, -1, " " );
+			itemtext.trim();
+			rbBand.fMask |= RBBIM_TEXT;
+			rbBand.lpText = itemtext.to_chr( );
+		}
 
     rbBand.fStyle = this->parseBandStyleFlags( data.gettok( 5, " " ) );
 
@@ -382,15 +380,16 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 					CTLF_ALLOW_TAB
 					,this->m_Hwnd);
 
-        if ( p_Control != NULL ) {
-
-          this->m_pParentDialog->addControl( p_Control );
-          rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE;
-          rbBand.hwndChild = p_Control->getHwnd( );
-          rbBand.cxMinChild = cx;
-          rbBand.cyMinChild = cy;
-          rbBand.cx = width;
-        }
+				if ( p_Control != NULL ) {
+					if ((p_Control->getType() == "statusbar") || (p_Control->getType() == "toolbar"))
+						p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
+					this->m_pParentDialog->addControl( p_Control );
+					rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE;
+					rbBand.hwndChild = p_Control->getHwnd( );
+					rbBand.cxMinChild = cx;
+					rbBand.cyMinChild = cy;
+					rbBand.cx = width;
+				}
       }
       else {
         TString error;
@@ -695,7 +694,7 @@ LRESULT DcxReBar::deleteBand( UINT uIndex ) {
  * blah
  */
 
-LRESULT DcxReBar::getBandInfo( UINT uBand, LPREBARBANDINFO lprbbi ) {
+LRESULT DcxReBar::getBandInfo( UINT uBand, LPREBARBANDINFO lprbbi ) const {
   return SendMessage( this->m_Hwnd, RB_GETBANDINFO, (WPARAM) uBand, (LPARAM) lprbbi ); 
 }
 
@@ -725,7 +724,7 @@ LRESULT DcxReBar::setBarInfo( LPREBARINFO lprbi ) {
  * blah
  */
 
-LRESULT DcxReBar::getBarInfo( LPREBARINFO lprbi ) {
+LRESULT DcxReBar::getBarInfo( LPREBARINFO lprbi ) const {
   return SendMessage( this->m_Hwnd, RB_GETBARINFO, (WPARAM) 0, (LPARAM) lprbi ); 
 }
 
@@ -735,7 +734,7 @@ LRESULT DcxReBar::getBarInfo( LPREBARINFO lprbi ) {
  * blah
  */
 
-LRESULT DcxReBar::getRowCount( ) {
+LRESULT DcxReBar::getRowCount( ) const {
   return SendMessage( this->m_Hwnd, RB_GETROWCOUNT, (WPARAM) 0, (LPARAM) 0 ); 
 }
 
@@ -755,7 +754,7 @@ LRESULT DcxReBar::hitTest( LPRBHITTESTINFO lprbht ) {
  * blah
  */
 
-LRESULT DcxReBar::getToolTips( ) {
+LRESULT DcxReBar::getToolTips( ) const {
   return SendMessage( this->m_Hwnd, RB_GETTOOLTIPS, (WPARAM) 0, (LPARAM) 0 ); 
 }
 
@@ -775,7 +774,7 @@ LRESULT DcxReBar::setToolTips( HWND hwndToolTip ) {
  * blah
  */
 
-LRESULT DcxReBar::getIDToIndex( UINT uBandID ) {
+LRESULT DcxReBar::getIDToIndex( UINT uBandID ) const {
   return SendMessage( this->m_Hwnd, RB_IDTOINDEX, (WPARAM) uBandID, (LPARAM) 0 );
 }
 
@@ -785,7 +784,7 @@ LRESULT DcxReBar::getIDToIndex( UINT uBandID ) {
  * blah
  */
 
-LRESULT DcxReBar::getBandCount( ) {
+LRESULT DcxReBar::getBandCount( ) const {
   return SendMessage( this->m_Hwnd, RB_GETBANDCOUNT, (WPARAM) 0, (LPARAM) 0 );
 }
 

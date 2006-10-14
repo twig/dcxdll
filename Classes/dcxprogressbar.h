@@ -31,7 +31,7 @@ class DcxProgressBar : public DcxControl {
 
 public:
 
-  DcxProgressBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxProgressBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxProgressBar( );
 

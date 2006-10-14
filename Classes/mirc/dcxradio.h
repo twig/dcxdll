@@ -30,7 +30,7 @@ class DcxRadio : public DcxControl {
 
 public:
 
-  DcxRadio( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxRadio( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxRadio( );
 

@@ -30,7 +30,7 @@ class DcxText : public DcxControl {
 
 public:
 
-  DcxText( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxText( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxText( );
 

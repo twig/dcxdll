@@ -24,46 +24,46 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-{
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles | WS_EX_CLIENTEDGE,
-    DCX_PROGRESSBARCLASS,
-    NULL,
-    WS_CHILD | WS_VISIBLE | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  this->m_clrText = RGB(0,0,0);
-  this->m_tsText = "%d %%";
-  this->m_bIsAbsoluteValue = FALSE;
-  this->m_hfontVertical = NULL;
-
-	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
-
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
-	}
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-}
-
+//DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+//: DcxControl( ID, p_Dialog ) 
+//{
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//  this->m_Hwnd = CreateWindowEx(	
+//    ExStyles | WS_EX_CLIENTEDGE,
+//    DCX_PROGRESSBARCLASS,
+//    NULL,
+//    WS_CHILD | WS_VISIBLE | Styles, 
+//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//    p_Dialog->getHwnd( ),
+//    (HMENU) ID,
+//    GetModuleHandle(NULL), 
+//    NULL);
+//
+//  if ( bNoTheme )
+//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//  this->m_clrText = RGB(0,0,0);
+//  this->m_tsText = "%d %%";
+//  this->m_bIsAbsoluteValue = FALSE;
+//  this->m_hfontVertical = NULL;
+//
+//	if (p_Dialog->getToolTip() != NULL) {
+//		if (styles.istok("tooltips"," ")) {
+//
+//			this->m_ToolTipHWND = p_Dialog->getToolTip();
+//
+//			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+//		}
+//	}
+//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//}
+//
 /*!
  * \brief Constructor
  *

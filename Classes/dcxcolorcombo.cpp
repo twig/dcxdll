@@ -24,32 +24,32 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxColorCombo::DcxColorCombo( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-{
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles,
-    DCX_COLORCOMBOCLASS,
-    NULL,
-    WS_CHILD | WS_VISIBLE | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-}
-
+//DcxColorCombo::DcxColorCombo( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+//: DcxControl( ID, p_Dialog ) 
+//{
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//  this->m_Hwnd = CreateWindowEx(	
+//    ExStyles,
+//    DCX_COLORCOMBOCLASS,
+//    NULL,
+//    WS_CHILD | WS_VISIBLE | Styles, 
+//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//    p_Dialog->getHwnd( ),
+//    (HMENU) ID,
+//    GetModuleHandle(NULL), 
+//    NULL);
+//
+//  if ( bNoTheme )
+//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//}
+//
 /*!
  * \brief Constructor
  *

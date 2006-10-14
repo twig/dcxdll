@@ -24,49 +24,49 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-, m_bIsIcon(FALSE)
-, m_iIconSize(0)
-{
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    "STATIC", 
-    NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle( NULL ), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  this->m_pImage = NULL;
-	this->m_bResizeImage = false;
-  this->m_hBitmap = NULL;
-  this->m_clrTransColor = -1;
-  this->m_hIcon = NULL;
-
-	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
-
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
-	}
-
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-}
-
+//DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+//: DcxControl( ID, p_Dialog ) 
+//, m_bIsIcon(FALSE)
+//, m_iIconSize(0)
+//{
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//  this->m_Hwnd = CreateWindowEx(	
+//    ExStyles, 
+//    "STATIC", 
+//    NULL,
+//    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//    p_Dialog->getHwnd( ),
+//    (HMENU) ID,
+//    GetModuleHandle( NULL ), 
+//    NULL);
+//
+//  if ( bNoTheme )
+//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//  this->m_pImage = NULL;
+//	this->m_bResizeImage = false;
+//  this->m_hBitmap = NULL;
+//  this->m_clrTransColor = -1;
+//  this->m_hIcon = NULL;
+//
+//	if (p_Dialog->getToolTip() != NULL) {
+//		if (styles.istok("tooltips"," ")) {
+//
+//			this->m_ToolTipHWND = p_Dialog->getToolTip();
+//
+//			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+//		}
+//	}
+//
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//}
+//
 /*!
  * \brief Constructor
  *
@@ -77,7 +77,7 @@ DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
  * \param styles Window Style Tokenized List
  */
 
-DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 , m_bIsIcon(FALSE)
 {

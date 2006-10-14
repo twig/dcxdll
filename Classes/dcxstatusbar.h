@@ -30,7 +30,7 @@ class DcxStatusBar : public DcxControl {
 
 public:
 
-  DcxStatusBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxStatusBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxStatusBar( );
 

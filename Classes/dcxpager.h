@@ -22,7 +22,7 @@ class DcxPager : public DcxControl {
 
 public:
 
-  DcxPager( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxPager( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxPager( );
 

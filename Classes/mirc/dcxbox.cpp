@@ -73,70 +73,70 @@ extern BOOL XPPlus;
  * \param styles Window Style Tokenized List
  */
 
-DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-{
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-	this->m_TitleButton = NULL;
-	this->_hTheme = NULL;
-
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-	  ExStyles | WS_EX_CONTROLPARENT, 
-    DCX_BOXCLASS, //"BUTTON", 
-    NULL,
-    Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle( NULL ), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
-
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-
-	if (this->m_iBoxStyles & BOXS_CHECK) {
-			this->m_TitleButton = CreateWindowEx(
-				ExStyles,
-				"BUTTON",
-				NULL,
-				WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTOCHECKBOX,
-				CW_USEDEFAULT,CW_USEDEFAULT,11,10,
-				this->m_Hwnd,
-				(HMENU) ID,
-				GetModuleHandle(NULL), 
-				NULL);
-	}
-	else if (this->m_iBoxStyles & BOXS_RADIO) {
-			this->m_TitleButton = CreateWindowEx(
-				ExStyles,
-				"BUTTON",
-				NULL,
-				WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTORADIOBUTTON,
-				CW_USEDEFAULT,CW_USEDEFAULT,11,10,
-				this->m_Hwnd,
-				(HMENU) ID,
-				GetModuleHandle(NULL), 
-				NULL);
-	}
-	if (IsWindow(this->m_TitleButton)) {
-		if ( bNoTheme )
-			dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
-		if (!(Styles & WS_DISABLED))
-			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
-	}
-	if (XPPlus)
-		this->_hTheme = OpenThemeDataUx(this->m_Hwnd,L"BUTTON");
-}
+//DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+//: DcxControl( ID, p_Dialog ) 
+//{
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//	this->m_TitleButton = NULL;
+//	this->_hTheme = NULL;
+//
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//  this->m_Hwnd = CreateWindowEx(	
+//	  ExStyles | WS_EX_CONTROLPARENT, 
+//    DCX_BOXCLASS, //"BUTTON", 
+//    NULL,
+//    Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN, 
+//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//    p_Dialog->getHwnd( ),
+//    (HMENU) ID,
+//    GetModuleHandle( NULL ), 
+//    NULL);
+//
+//  if ( bNoTheme )
+//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//  this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
+//
+//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//
+//	if (this->m_iBoxStyles & BOXS_CHECK) {
+//			this->m_TitleButton = CreateWindowEx(
+//				ExStyles,
+//				"BUTTON",
+//				NULL,
+//				WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTOCHECKBOX,
+//				CW_USEDEFAULT,CW_USEDEFAULT,11,10,
+//				this->m_Hwnd,
+//				(HMENU) ID,
+//				GetModuleHandle(NULL), 
+//				NULL);
+//	}
+//	else if (this->m_iBoxStyles & BOXS_RADIO) {
+//			this->m_TitleButton = CreateWindowEx(
+//				ExStyles,
+//				"BUTTON",
+//				NULL,
+//				WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTORADIOBUTTON,
+//				CW_USEDEFAULT,CW_USEDEFAULT,11,10,
+//				this->m_Hwnd,
+//				(HMENU) ID,
+//				GetModuleHandle(NULL), 
+//				NULL);
+//	}
+//	if (IsWindow(this->m_TitleButton)) {
+//		if ( bNoTheme )
+//			dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
+//		if (!(Styles & WS_DISABLED))
+//			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
+//	}
+//	if (XPPlus)
+//		this->_hTheme = OpenThemeDataUx(this->m_Hwnd,L"BUTTON");
+//}
 
 /*!
  * \brief Constructor
@@ -148,7 +148,7 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles
  * \param styles Window Style Tokenized List
  */
 
-DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 {
 

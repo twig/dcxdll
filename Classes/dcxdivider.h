@@ -32,7 +32,7 @@ class DcxDivider : public DcxControl {
 
 public:
 
-  DcxDivider( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxDivider( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxDivider( );
 

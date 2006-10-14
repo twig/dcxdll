@@ -30,8 +30,8 @@ class DcxCheck : public DcxControl {
 
 public:
 
-  DcxCheck( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
-  DcxCheck( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+  //DcxCheck( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  DcxCheck( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxCheck( );
 
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );

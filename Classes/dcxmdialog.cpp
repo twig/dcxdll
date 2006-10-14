@@ -25,33 +25,33 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxMDialog::DcxMDialog( HWND cHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = cHwnd;
-  this->m_OrigParentHwnd = GetParent( this->m_Hwnd );
-
-  this->m_OrigStyles = this->removeStyle( WS_CAPTION|DS_FIXEDSYS|DS_SETFONT|DS_3DLOOK|DS_MODALFRAME|
-    WS_POPUP|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_THICKFRAME );
-
-  this->m_OrigExStyles = this->setExStyle( WS_EX_CONTROLPARENT );
-
-  this->addStyle( WS_CHILD );
-
-  SetParent( this->m_Hwnd, p_Dialog->getHwnd( ) );
-  SetWindowPos( this->m_Hwnd, NULL, rc->left, rc->top, rc->right-rc->left, rc->bottom-rc->top, NULL );
-  ShowWindow( this->m_Hwnd, SW_SHOWNOACTIVATE );
-  UpdateWindow( this->m_Hwnd );
-
-  this->m_OrigID = SetWindowLong( this->m_Hwnd, GWL_ID, ID );
-
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-}
-
+//DcxMDialog::DcxMDialog( HWND cHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//  this->m_Hwnd = cHwnd;
+//  this->m_OrigParentHwnd = GetParent( this->m_Hwnd );
+//
+//  this->m_OrigStyles = this->removeStyle( WS_CAPTION|DS_FIXEDSYS|DS_SETFONT|DS_3DLOOK|DS_MODALFRAME|
+//    WS_POPUP|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_THICKFRAME );
+//
+//  this->m_OrigExStyles = this->setExStyle( WS_EX_CONTROLPARENT );
+//
+//  this->addStyle( WS_CHILD );
+//
+//  SetParent( this->m_Hwnd, p_Dialog->getHwnd( ) );
+//  SetWindowPos( this->m_Hwnd, NULL, rc->left, rc->top, rc->right-rc->left, rc->bottom-rc->top, NULL );
+//  ShowWindow( this->m_Hwnd, SW_SHOWNOACTIVATE );
+//  UpdateWindow( this->m_Hwnd );
+//
+//  this->m_OrigID = SetWindowLong( this->m_Hwnd, GWL_ID, ID );
+//
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//}
+//
 /*!
  * \brief Constructor
  *

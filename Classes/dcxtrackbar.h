@@ -40,7 +40,7 @@ class DcxTrackBar : public DcxControl {
 
 public:
 
-  DcxTrackBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxTrackBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxTrackBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxTrackBar( );
 

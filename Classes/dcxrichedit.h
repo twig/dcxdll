@@ -28,7 +28,7 @@ class DcxDialog;
 
 class DcxRichEdit : public DcxControl {
 public:
-	DcxRichEdit(UINT ID, DcxDialog *p_Dialog, RECT *rc, TString &styles);
+	//DcxRichEdit(UINT ID, DcxDialog *p_Dialog, RECT *rc, TString &styles);
 	DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, TString &styles);
 	virtual ~DcxRichEdit();
 

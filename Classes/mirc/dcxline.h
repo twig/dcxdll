@@ -30,8 +30,8 @@ class DcxLine : public DcxControl {
 
 public:
 
-  DcxLine( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
-  DcxLine( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+  //DcxLine( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  DcxLine( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxLine( );
 
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );

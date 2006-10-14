@@ -26,59 +26,59 @@ extern IClassFactory * g_pClassFactory;
  * \param styles Window Style Tokenized List
  */
 
-DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-{
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    "STATIC", 
-    NULL,
-    WS_CHILD | WS_VISIBLE | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle( NULL ), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  /* Web Control Stuff */
-
-  RECT wbrect;
-  CopyRect( &wbrect, rc );
-  OffsetRect( &wbrect, -wbrect.left, - wbrect.top );
-
-  if( g_pClassFactory	!= NULL &&
-      SUCCEEDED( g_pClassFactory->CreateInstance( 0, IID_IWebBrowser2, (void**) &this->m_pWebBrowser2 ) ) && 
-      SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleObject, (LPVOID*) &this->m_pOleObject ) ) && 
-      SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleInPlaceObject, (LPVOID*) &this->m_pOleInPlaceObject ) ) && 
-      SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IConnectionPointContainer, (LPVOID*) &this->m_pCPC ) ) && 
-      SUCCEEDED( this->m_pOleObject->SetClientSite( (IOleClientSite*) this ) ) && 
-      SUCCEEDED( this->m_pCPC->FindConnectionPoint( DIID_DWebBrowserEvents2, &this->m_pCP ) ) &&
-      SUCCEEDED( this->m_pCP->Advise( (IUnknown*)(IOleClientSite*) this, &this->m_dwCookie ) ) && 
-      SUCCEEDED( this->m_pOleObject->DoVerb( OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*) this, 0, this->m_Hwnd, &wbrect ) )
-    )
-  {
-    //mIRCError( "Created Browser Window!!!" );
-  }
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-
-  OLECHAR url[4096];
-  MultiByteToWideChar( CP_ACP, 0, "about:blank", -1, url, 4095 );			
-  VARIANT v;
-  VariantInit( &v );			
-  this->m_pWebBrowser2->Navigate( url, &v, &v, &v, &v );
-  VariantClear( &v );
-
-}
-
+//DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+//: DcxControl( ID, p_Dialog ) 
+//{
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//  this->m_Hwnd = CreateWindowEx(	
+//    ExStyles, 
+//    "STATIC", 
+//    NULL,
+//    WS_CHILD | WS_VISIBLE | Styles, 
+//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//    p_Dialog->getHwnd( ),
+//    (HMENU) ID,
+//    GetModuleHandle( NULL ), 
+//    NULL);
+//
+//  if ( bNoTheme )
+//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//  /* Web Control Stuff */
+//
+//  RECT wbrect;
+//  CopyRect( &wbrect, rc );
+//  OffsetRect( &wbrect, -wbrect.left, - wbrect.top );
+//
+//  if( g_pClassFactory	!= NULL &&
+//      SUCCEEDED( g_pClassFactory->CreateInstance( 0, IID_IWebBrowser2, (void**) &this->m_pWebBrowser2 ) ) && 
+//      SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleObject, (LPVOID*) &this->m_pOleObject ) ) && 
+//      SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleInPlaceObject, (LPVOID*) &this->m_pOleInPlaceObject ) ) && 
+//      SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IConnectionPointContainer, (LPVOID*) &this->m_pCPC ) ) && 
+//      SUCCEEDED( this->m_pOleObject->SetClientSite( (IOleClientSite*) this ) ) && 
+//      SUCCEEDED( this->m_pCPC->FindConnectionPoint( DIID_DWebBrowserEvents2, &this->m_pCP ) ) &&
+//      SUCCEEDED( this->m_pCP->Advise( (IUnknown*)(IOleClientSite*) this, &this->m_dwCookie ) ) && 
+//      SUCCEEDED( this->m_pOleObject->DoVerb( OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*) this, 0, this->m_Hwnd, &wbrect ) )
+//    )
+//  {
+//    //mIRCError( "Created Browser Window!!!" );
+//  }
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//
+//  OLECHAR url[4096];
+//  MultiByteToWideChar( CP_ACP, 0, "about:blank", -1, url, 4095 );			
+//  VARIANT v;
+//  VariantInit( &v );			
+//  this->m_pWebBrowser2->Navigate( url, &v, &v, &v, &v );
+//  VariantClear( &v );
+//
+//}
+//
 /*!
  * \brief Constructor
  *

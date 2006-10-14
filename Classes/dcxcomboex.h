@@ -47,7 +47,7 @@ class DcxComboEx : public DcxControl {
 
 public:
 
-  DcxComboEx( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxComboEx( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxComboEx( );
 

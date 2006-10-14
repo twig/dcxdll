@@ -24,50 +24,50 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-{
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-		ExStyles,
-    DCX_IPADDRESSCLASS, 
-    NULL,
-    WS_CHILD | WS_VISIBLE | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle( NULL ), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-	// IPAddress tooltips only show when pointed is over the . between numbers, child controls?
-	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
-
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
-	}
-
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-
-  	// fix bug with disabled creation
-	// todo: fix this properly
-	if (Styles & WS_DISABLED) {
-		EnableWindow(this->m_Hwnd, TRUE);
-		EnableWindow(this->m_Hwnd, FALSE);
-	}
-}
-
+//DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+//: DcxControl( ID, p_Dialog ) 
+//{
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//  this->m_Hwnd = CreateWindowEx(	
+//		ExStyles,
+//    DCX_IPADDRESSCLASS, 
+//    NULL,
+//    WS_CHILD | WS_VISIBLE | Styles, 
+//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//    p_Dialog->getHwnd( ),
+//    (HMENU) ID,
+//    GetModuleHandle( NULL ), 
+//    NULL);
+//
+//  if ( bNoTheme )
+//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//	// IPAddress tooltips only show when pointed is over the . between numbers, child controls?
+//	if (p_Dialog->getToolTip() != NULL) {
+//		if (styles.istok("tooltips"," ")) {
+//
+//			this->m_ToolTipHWND = p_Dialog->getToolTip();
+//
+//			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+//		}
+//	}
+//
+//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//
+//  	// fix bug with disabled creation
+//	// todo: fix this properly
+//	if (Styles & WS_DISABLED) {
+//		EnableWindow(this->m_Hwnd, TRUE);
+//		EnableWindow(this->m_Hwnd, FALSE);
+//	}
+//}
+//
 /*!
  * \brief Constructor
  *

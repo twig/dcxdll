@@ -29,20 +29,18 @@ class DcxDialog;
 class DcxEdit : public DcxControl {
 
 public:
-	DcxEdit(UINT ID, DcxDialog *p_Dialog, RECT *rc, TString &styles);
-	DcxEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, TString &styles);
+	//DcxEdit(UINT ID, DcxDialog *p_Dialog, RECT *rc, TString &styles);
+	DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, const RECT *rc, TString &styles);
 	virtual ~DcxEdit();
 
 	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 
 	void parseInfoRequest(TString &input, char *szReturnValue);
 	void parseCommandRequest(TString &input);
 	void parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme);
-	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 
-	inline TString getType() {
-		return TString("edit");
-	};
+	inline TString getType() { return TString("edit"); };
 
 protected:
 	TString m_tsText; // Edit Text

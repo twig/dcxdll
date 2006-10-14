@@ -90,12 +90,12 @@ void DcxComboEx::ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHw
  * \param styles Window Style Tokenized List
  */
 
-DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-{
-	this->ConstructComboEx(ID,p_Dialog,p_Dialog->getHwnd(),rc,styles);
-}
-
+//DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+//: DcxControl( ID, p_Dialog ) 
+//{
+//	this->ConstructComboEx(ID,p_Dialog,p_Dialog->getHwnd(),rc,styles);
+//}
+//
 /*!
  * \brief Constructor
  *

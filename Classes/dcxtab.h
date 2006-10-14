@@ -43,7 +43,7 @@ class DcxTab : public DcxControl {
 
 public:
 
-  DcxTab( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxTab( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxTab( );
 

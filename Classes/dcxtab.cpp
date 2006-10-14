@@ -47,59 +47,59 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-{
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles | WS_EX_CONTROLPARENT, 
-    DCX_TABCTRLCLASS, 
-    NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle( NULL ), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  /*
-  HWND hHwndTip = TabCtrl_GetToolTips( this->m_Hwnd );
-  if ( IsWindow( hHwndTip ) ) {
-
-		TString data;
-    data.sprintf("Activating Tooltips TT HWND %x", hHwndTip );
-    mIRCError( data.to_chr() );
-
-    TOOLINFO ti;
-    ZeroMemory( &ti, sizeof( TOOLINFO ) );
-    ti.cbSize = sizeof( TOOLINFO );
-    ti.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
-    ti.hwnd = p_Dialog->getHwnd( );
-    ti.uId = (UINT) this->m_Hwnd;
-    ti.lpszText = LPSTR_TEXTCALLBACK;
-    SendMessage( hHwndTip, TTM_ADDTOOL, (WPARAM) 0, (LPARAM) &ti );
-  }
-  */
-
-	//if (p_Dialog->getToolTip() != NULL) {
-	//	if (styles.istok("tooltips", " ")) {
-	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
-	//		TabCtrl_SetToolTips(this->m_Hwnd,this->m_ToolTipHWND);
-	//		//AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-	//	}
-	//}
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-}
-
+//DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+//: DcxControl( ID, p_Dialog ) 
+//{
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//  this->m_Hwnd = CreateWindowEx(	
+//    ExStyles | WS_EX_CONTROLPARENT, 
+//    DCX_TABCTRLCLASS, 
+//    NULL,
+//    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//    p_Dialog->getHwnd( ),
+//    (HMENU) ID,
+//    GetModuleHandle( NULL ), 
+//    NULL);
+//
+//  if ( bNoTheme )
+//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//  /*
+//  HWND hHwndTip = TabCtrl_GetToolTips( this->m_Hwnd );
+//  if ( IsWindow( hHwndTip ) ) {
+//
+//		TString data;
+//    data.sprintf("Activating Tooltips TT HWND %x", hHwndTip );
+//    mIRCError( data.to_chr() );
+//
+//    TOOLINFO ti;
+//    ZeroMemory( &ti, sizeof( TOOLINFO ) );
+//    ti.cbSize = sizeof( TOOLINFO );
+//    ti.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
+//    ti.hwnd = p_Dialog->getHwnd( );
+//    ti.uId = (UINT) this->m_Hwnd;
+//    ti.lpszText = LPSTR_TEXTCALLBACK;
+//    SendMessage( hHwndTip, TTM_ADDTOOL, (WPARAM) 0, (LPARAM) &ti );
+//  }
+//  */
+//
+//	//if (p_Dialog->getToolTip() != NULL) {
+//	//	if (styles.istok("tooltips", " ")) {
+//	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
+//	//		TabCtrl_SetToolTips(this->m_Hwnd,this->m_ToolTipHWND);
+//	//		//AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+//	//	}
+//	//}
+//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//}
+//
 /*!
  * \brief Constructor
  *

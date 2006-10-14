@@ -49,8 +49,8 @@ class DcxReBar : public DcxControl {
 
 public:
 
-  DcxReBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
-  DcxReBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+  //DcxReBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxReBar( );
 
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
@@ -60,7 +60,7 @@ public:
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  HIMAGELIST getImageList( );
+  HIMAGELIST getImageList( ) const;
   void setImageList( HIMAGELIST himl );
   static HIMAGELIST createImageList( );
 
@@ -68,16 +68,16 @@ public:
 
   LRESULT insertBand( int uIndex, LPREBARBANDINFO lprbbi );
   LRESULT deleteBand( UINT uIndex );
-  LRESULT getBandInfo( UINT uBand, LPREBARBANDINFO lprbbi );
+  LRESULT getBandInfo( UINT uBand, LPREBARBANDINFO lprbbi ) const;
   LRESULT setBandInfo( UINT uBand, LPREBARBANDINFO lprbbi );
   LRESULT setBarInfo( LPREBARINFO lprbi );
-  LRESULT getBarInfo( LPREBARINFO lprbi );
-  LRESULT getRowCount( );
+  LRESULT getBarInfo( LPREBARINFO lprbi ) const;
+  LRESULT getRowCount( ) const;
   LRESULT hitTest( LPRBHITTESTINFO lprbht );
-  LRESULT getToolTips( );
+  LRESULT getToolTips( ) const;
   LRESULT setToolTips( HWND hwndToolTip );
-  LRESULT getIDToIndex( UINT uBandID );
-  LRESULT getBandCount( );
+  LRESULT getIDToIndex( UINT uBandID ) const;
+  LRESULT getBandCount( ) const;
   LRESULT setReDraw( BOOL uState );
   LRESULT showBand( UINT uBand, BOOL fShow );
   LRESULT moveBand( UINT iFrom, UINT iTo );

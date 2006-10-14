@@ -43,7 +43,7 @@ class DcxColorCombo : public DcxControl {
 
 public:
 
-  DcxColorCombo( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxColorCombo( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxColorCombo( );
 

@@ -52,38 +52,38 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-{
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles | WS_EX_CONTROLPARENT,
-    DCX_PAGERCLASS, 
-    NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-    //WS_CHILD | WS_VISIBLE | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle( NULL ), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-	this->m_ChildHWND = NULL;
-	//GetStockObject();
-	//Pager_SetButtonSize(this->m_Hwnd,15);
-	//Pager_SetBkColor(this->m_Hwnd,0);
-
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-}
-
+//DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+//: DcxControl( ID, p_Dialog ) 
+//{
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//  this->m_Hwnd = CreateWindowEx(	
+//    ExStyles | WS_EX_CONTROLPARENT,
+//    DCX_PAGERCLASS, 
+//    NULL,
+//    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+//    //WS_CHILD | WS_VISIBLE | Styles, 
+//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//    p_Dialog->getHwnd( ),
+//    (HMENU) ID,
+//    GetModuleHandle( NULL ), 
+//    NULL);
+//
+//  if ( bNoTheme )
+//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//	this->m_ChildHWND = NULL;
+//	//GetStockObject();
+//	//Pager_SetButtonSize(this->m_Hwnd,15);
+//	//Pager_SetBkColor(this->m_Hwnd,0);
+//
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//}
+//
 /*!
  * \brief Constructor
  *

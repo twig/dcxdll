@@ -26,47 +26,47 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxTreeView::DcxTreeView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
-{
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles | WS_EX_CLIENTEDGE,
-    DCX_TREEVIEWCLASS,
-    NULL,
-    WS_CHILD | WS_VISIBLE | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    p_Dialog->getHwnd( ),
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
-
-  if ( ExStyles & TVS_CHECKBOXES )
-    this->addStyle( TVS_CHECKBOXES );
-
-  this->m_iIconSize = 16;
-
-	this->m_ToolTipHWND = (HWND)TreeView_GetToolTips(this->m_Hwnd);
-	if (styles.istok("balloon"," ") && this->m_ToolTipHWND != NULL) {
-		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
-	}
-
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-
-  DragAcceptFiles(this->m_Hwnd, TRUE);
-}
-
+//DcxTreeView::DcxTreeView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
+//: DcxControl( ID, p_Dialog ) 
+//{
+//
+//  LONG Styles = 0, ExStyles = 0;
+//  BOOL bNoTheme = FALSE;
+//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//  this->m_Hwnd = CreateWindowEx(	
+//    ExStyles | WS_EX_CLIENTEDGE,
+//    DCX_TREEVIEWCLASS,
+//    NULL,
+//    WS_CHILD | WS_VISIBLE | Styles, 
+//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//    p_Dialog->getHwnd( ),
+//    (HMENU) ID,
+//    GetModuleHandle(NULL), 
+//    NULL);
+//
+//  if ( bNoTheme )
+//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//  SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
+//
+//  if ( ExStyles & TVS_CHECKBOXES )
+//    this->addStyle( TVS_CHECKBOXES );
+//
+//  this->m_iIconSize = 16;
+//
+//	this->m_ToolTipHWND = (HWND)TreeView_GetToolTips(this->m_Hwnd);
+//	if (styles.istok("balloon"," ") && this->m_ToolTipHWND != NULL) {
+//		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+//	}
+//
+//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+//  this->registreDefaultWindowProc( );
+//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//
+//  DragAcceptFiles(this->m_Hwnd, TRUE);
+//}
+//
 /*!
  * \brief Constructor
  *

@@ -92,7 +92,7 @@ class DcxListView : public DcxControl {
 
 public:
 
-  DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
+  //DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxListView( );
 
