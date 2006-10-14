@@ -162,27 +162,68 @@ void DcxCalendar::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxCalendar::parseCommandRequest( TString & input ) {
+	XSwitchFlags flags;
+	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
+	this->parseSwitchFlags(input.gettok(3, " "), &flags);
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
-//MonthCal_SetMaxSelCount(this->m_Hwnd, 7);
-  // set colors
-  // set cur sel
-  // set day state
-  // set sel range
-  // set today
+//GetCurSel
+//GetMaxSelCount
+//GetRange (calendar range)
+//GetSelRange (selection range)
+//GetToday
 
-//  int numtok = input.numtok( " " );
+//SetCurSel
+//SetDayState
+//SetRange
+//SetSelRange
 
-  //xdid -t [NAME] [ID] [SWITCH]
-  if ( flags.switch_flags[19] ) {
-    TString text = input.gettok( 4, -1, " " );
-    text.trim( );
-    SetWindowText( this->m_Hwnd, text.to_chr( ) );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+	int numtok = input.numtok(" ");
+
+	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
+	if (flags.switch_flags[10] && numtok > 4) {
+		TString flags = input.gettok(4, " ");
+		COLORREF col = (COLORREF) input.gettok(5, " ").to_int();
+
+		// Retrieve the background color displayed between months.
+		if (flags.find('b', 0))
+			MonthCal_SetColor(this->m_Hwnd, MCSC_BACKGROUND, col);
+
+		// Retrieve the background color displayed within the month.
+		if (flags.find('g', 0))
+			MonthCal_SetColor(this->m_Hwnd, MCSC_MONTHBK, col);
+
+		// Retrieve the color used to display text within a month.
+		if (flags.find('t', 0))
+			MonthCal_SetColor(this->m_Hwnd, MCSC_TEXT, col);
+
+		// Retrieve the background color displayed in the calendar's title.
+		if (flags.find('i', 0))
+			MonthCal_SetColor(this->m_Hwnd, MCSC_TITLEBK, col);
+
+		// Retrieve the color used to display text within the calendar's title.
+		if (flags.find('a', 0))
+			MonthCal_SetColor(this->m_Hwnd, MCSC_TITLETEXT, col);
+
+		// Retrieve the color used to display header day and trailing day text. Header and trailing days are the days from the previous and following months that appear on the current month calendar.
+		if (flags.find('r', 0))
+			MonthCal_SetColor(this->m_Hwnd, MCSC_TRAILINGTEXT, col);
+	}
+	//xdid -m [NAME] [ID] [SWITCH] [MAX]
+	else if (flags.switch_flags[12] && numtok > 3) {
+		int max = input.gettok(4, -1, " ").to_int();
+
+		MonthCal_SetMaxSelCount(this->m_Hwnd, max);
+	}
+	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
+	else if (flags.switch_flags[19]) {
+		SYSTEMTIME sysTime;
+		long mircTime = (long) input.gettok(4, " ").to_num();
+
+		sysTime = MircTimeToSystemTime(mircTime);
+		MonthCal_SetToday(this->m_Hwnd, &sysTime);
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!
@@ -323,6 +364,27 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	}
 
 	return 0L;
+}
+
+SYSTEMTIME DcxCalendar::MircTimeToSystemTime(long mircTime) {
+	char eval[100];
+	TString str;
+	SYSTEMTIME st;
+
+	ZeroMemory(&st, sizeof(SYSTEMTIME));
+
+	str.sprintf("$asctime(%ld, d m yyyy)", mircTime);
+
+	mIRCeval(str.to_chr(), eval);
+	delete eval;
+
+	str = TString(eval);
+
+	st.wDay = str.gettok(1, " ").to_int();
+	st.wMonth = str.gettok(2, " ").to_int();
+	st.wYear = str.gettok(3, " ").to_int();
+
+	return st;
 }
 
 long DcxCalendar::SystemTimeToMircTime(SYSTEMTIME st) {

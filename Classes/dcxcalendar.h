@@ -46,7 +46,7 @@ public:
   inline TString getType( ) { return TString( "calendar" ); };
 
 protected:
-
+	static SYSTEMTIME MircTimeToSystemTime(long mircTime);
 	static long SystemTimeToMircTime(SYSTEMTIME st);
 };
 
