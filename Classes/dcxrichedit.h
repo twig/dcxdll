@@ -73,6 +73,8 @@ protected:
 	BOOL m_bFontStrikeout;    //!< Is Font StrikedOut ?
 	TString m_tsFontFaceName; //!< Font Face Name
 
+	BOOL m_bIgnoreInput;
+
 	static int unfoldColor(const char *color);
 };
 

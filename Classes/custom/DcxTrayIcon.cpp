@@ -7,6 +7,7 @@ extern DcxTrayIcon *trayIcons;
 
 // xTray [+flags] [id] [icon index] [icon file] $tab [tooltip]
 // Create : xTray +c [id] [icon index] [icon file] $tab [tooltip]
+// ---------> xTray +h [id] [hwnd] $tab [tooltip]
 // Edit   : xTray +e [id] [icon index] [icon file] $tab [tooltip]
 // Icon   : xTray +i [id] [icon index] [icon file]
 // Tooltip: xTray +T [id] (text)
@@ -68,12 +69,12 @@ mIRC(TrayIcon) {
 
 		// set up info
 		HICON icon;
-		TString *tooltip = NULL;
+		TString tooltip;
 
 		// if theres a tooltip text
 		if (d.numtok("\t") > 1) {
-			tooltip = new TString(d.gettok(2, -1, "\t"));
-			tooltip->trim();
+			tooltip = TString(d.gettok(2, -1, "\t"));
+			tooltip.trim();
 		}
 
 		//NIF_INFO
@@ -87,7 +88,7 @@ mIRC(TrayIcon) {
 
 
 		// add/edit the icon
-		if (!trayIcons->modifyIcon(id, msg, icon, tooltip)) {
+		if (!trayIcons->modifyIcon(id, msg, icon, &tooltip)) {
 			if (msg == NIM_ADD)
 				DCXError("/xTrayIcon", "Add trayicon failed");
 			else
@@ -281,7 +282,7 @@ bool DcxTrayIcon::modifyIcon(int id, DWORD msg, HICON icon, TString *tooltip) {
 	nid.hWnd = this->GetHwnd();
 	nid.uCallbackMessage = DCXM_TRAYICON;
 
-	if (tooltip != NULL) {
+	if (tooltip != NULL && tooltip->len() > 0) {
 		nid.uFlags |= NIF_TIP;
 		wsprintf(nid.szTip, "%s", tooltip->to_chr());
 	}
