@@ -11,15 +11,15 @@ dialog dcx_demo {
 ON *:DIALOG:dcx_demo:*:*: {
 
   if ( $devent == init ) {
-    echo -s $dcx( Mark, $dname dcx_event )
+    dcx Mark $dname dcx_event
 
     ; change dialog border and styles settings
     xdialog -b $dname +tyzsmn
 
     ; rebar acting as top toolbar
     xdialog -c $dname 1 rebar 10 10 400 400 varheight nodivider dblclktoggle
-    xdid -w $dname 1 113 $shell
-    xdid -w $dname 1 112 $shell
+    xdid -w $dname 1 + 113 $shell
+    xdid -w $dname 1 + 112 $shell
     ;xdid -q $dname 1 1
 
     ; Toolbar in the rebar
@@ -37,8 +37,8 @@ ON *:DIALOG:dcx_demo:*:*: {
 
     ; Comboex in the rebar
     xdid -a $dname 1 -1 +c 0 23 100 2 $rgb(0,255,0) ComboEx $chr(9) 3 comboex 10 10 100 100 dropedit
-    xdid -w $dname 3 113 $shell
-    xdid -w $dname 3 112 $shell
+    xdid -w $dname 3 + 113 $shell
+    xdid -w $dname 3 + 112 $shell
     xdid -a $dname 3 0 0 1 1 0 Item 1
     xdid -a $dname 3 0 1 2 2 0 Item 2
 
@@ -51,8 +51,8 @@ ON *:DIALOG:dcx_demo:*:*: {
 
 
     xdialog -c $dname 50 tab 10 10 400 100 notheme
-    xdid -w $dname 50 113 $shell
-    xdid -w $dname 50 112 $shell
+    xdid -w $dname 50 + 113 $shell
+    xdid -w $dname 50 + 112 $shell
 
     xdid -a $dname 50 0 1 Tab 1 $chr(9) 51 divider 10 10 420 250 $chr(9) arf
     xdid -l $dname 51 100 100 $chr(9) 52 listview 10 10 420 250 report showsel fullrow checkbox editlabel noheader
@@ -62,8 +62,8 @@ ON *:DIALOG:dcx_demo:*:*: {
     xdid -l $dname 55 100 100 $chr(9) 56 listview 10 10 420 250 report showsel fullrow checkbox editlabel noheader
     xdid -r $dname 55 100 100 $chr(9) 57 tab 10 10 420 250 buttons flat flatseps
 
-    xdid -w $dname 57 113 $shell
-    xdid -w $dname 57 112 $shell
+    xdid -w $dname 57 + 113 $shell
+    xdid -w $dname 57 + 112 $shell
 
     xdid -a $dname 57 0 1 Tab 1 $chr(9) 58 richedit 10 10 420 250 multi vsbar hsbar
 
@@ -73,8 +73,8 @@ ON *:DIALOG:dcx_demo:*:*: {
 
     ; bottom statusbar
     xdialog -c $dname 100 statusbar 10 10 120 250 tooltips grip
-    xdid -w $dname 100 113 $shell
-    xdid -w $dname 100 112 $shell
+    xdid -w $dname 100 + 113 $shell
+    xdid -w $dname 100 + 112 $shell
     xdid -l $dname 100 150 300 -1
 
     xdid -t $dname 100 1 +p 1 DCX $chr(9) Cell Text
@@ -93,15 +93,14 @@ ON *:DIALOG:dcx_demo:*:*: {
 
 ; [DIALOG] [EVENT] [ID] [PARMS]
 alias dcx_event {
+  if (($2 == sizing) || ($2 == moving)) return
+  if ($2 == max) return
+  if ($2 == mouse) return
 
-  if ( $2 == sizing || $2 == moving ) { return }
-  if ( $2 == max ) return
-
-  echo -s 1: $1 - 2: $2 - 3: $3 - 4: $4-
-
+  echo -s ($1): $1 > ($2): $2 > ($3): $3 > ($4): $4-
+/*
   ; capture rebar changing size
   if ( $2 == change && $3 == 1 ) {
-
     if ( $xdialog( $1, 100 ).isid ) {
       var %s = $xdid( $1, 100 ).pos
       xdialog -l $1 space root $chr(9) + 0 $calc($5 + 2) 0 $calc( $gettok( %s, 4, 32 ) - 2 )
@@ -109,52 +108,14 @@ alias dcx_event {
     else {
       xdialog -l $1 space root $chr(9) + 0 $calc($5 + 2) 0 0
     }
+    
     xdialog -l $1 update
   }
-
-}
-
-alias tab {
-
-  if ( $0 == 0 ) return $chr(9)
-
-  var %i = 1, %tab
-  while ( %i <= $0 ) {
-    if ($eval( $+( $, %i ), 2 ) != $null ) {
-      %tab = $instok( %tab, $eval($+($,%i),2), $calc( $numtok( %tab, 9 ) + 1 ), 9 )
-    }
-    inc %i
-  }
-  return %tab
+*/
 }
 
 
-alias shell {
+
+alias -l shell {
   return $scriptdirshell.dll
-}
-
-alias dcx {
-  if ($isid) return $dll($scriptdirdcx\dcx.dll,$1,$2-)
-  else dll " $+ $scriptdirdcx\dcx.dll" $1 $2-
-}
-
-alias udcx dll -u dcx.dll
-
-
-alias xdid {
-  if ( $isid ) {
-    return $dcx( _xdid, $1 $2 $prop $3- )
-  }
-  else {
-    dcx xdid $2 $3 $1 $4-
-  }
-}
-
-alias xdialog {
-  if ( $isid ) {
-    return $dcx( _xdialog, $1 $prop $2- )
-  }
-  else {
-    dcx xdialog $2 $1 $3-
-  }
 }

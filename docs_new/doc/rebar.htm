@@ -46,11 +46,12 @@
 	</ul>
 	<a class="section">DCX Controls</a><br />
 	<ul>
-<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li><li><a href="xtray.htm">XTray</a></li>	</ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li>	</ul>
 	<a class="section">DCX Features</a><br />
 	<ul>
 		<li><a href="layout.htm">Cell Layout Algorithm</a></li>
 		<li><a href="xdock.htm">XDock</a></li>
+		<li><a href="xtray.htm">XTray</a></li>
 		<li><a href="xpopup.htm">XPopup</a></li>
 	</ul>
 	<a class="section">About DCX</a><br />
@@ -87,7 +88,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.fixedorder" class="style">fixedorder</a></td>
-		<td>Bands are always in the same order but can be dragged on different lins/columns.</td>
+		<td>Bands are always in the same order but can be dragged on different lines/columns.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.noparentalign" class="style">noparentalign</a></td>
@@ -146,7 +147,7 @@
 	</tr>
 	<tr>
 		<td class="value">c</td>
-		<td>The button text is colored ([COLOR] is the text color). (Only works with XP themes disabled)</td>
+		<td>The button text is colored, using <a class="param">COLOR</a> as the text color. (Only works with <a class="style">notheme</a>)</td>
 	</tr>
 	<tr>
 		<td class="value">e</td>
@@ -284,7 +285,7 @@
 		<td class="param">TOOLTIP</td>
 		<td>Band tooltip. Not functional yet.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>The control is optional. You can use the tab control without child controls as a toolbar (like bar of buttons).</li><li>If you are using the vertical style, <a class="param">CX</a>, <a class="param">CY</a>, and [p]WIDTH[/o] are the minimal height, minimal width, and height values.</li><li>If the band is the last one created on a band row, the <a class="param">WIDTH</a> value is ignored and the band stretches to the end of the rebar control.</li><li>The control part of the command is optional and can be empty if you do not wish to have a control in the band.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>The control is optional. You can use the tab control without child controls as a toolbar (like bar of buttons).</li><li>If you are using the vertical style, <a class="param">CX</a>, <a class="param">CY</a>, and <a class="param">WIDTH</a> are the minimal height, minimal width, and height values.</li><li>If the band is the last one created on a band row, the <a class="param">WIDTH</a> value is ignored and the band stretches to the end of the rebar control.</li><li>The control part of the command is optional and can be empty if you do not wish to have a control in the band.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -631,7 +632,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 8th October, 06</td>
+		<td style="text-align: right;">Last Updated: 14th October, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

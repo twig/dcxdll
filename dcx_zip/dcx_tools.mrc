@@ -76,7 +76,3 @@ alias tab {
   }
   return %tab
 }
-
-alias shell {
-  return $scriptdirshell.dll
-}
