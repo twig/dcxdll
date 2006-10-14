@@ -139,16 +139,19 @@ void DcxCalendar::parseControlStyles(TString & styles, LONG * Styles, LONG * ExS
  * \return > void
  */
 
-void DcxCalendar::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxCalendar::parseInfoRequest(TString &input, char *szReturnValue) {
+//GetCurSel
+//GetMaxSelCount
+//GetRange (calendar range)
+//GetSelRange (selection range)
+//GetToday
 
 //  int numtok = input.numtok( " " );
 
   // [NAME] [ID] [PROP]
-  if ( input.gettok( 3, " " ) == "text" ) {
-
+  if (input.gettok(3, " ") == "text") {
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if (this->parseGlobalInfoRequest(input, szReturnValue)) {
     return;
   }
   
@@ -160,22 +163,12 @@ void DcxCalendar::parseInfoRequest( TString & input, char * szReturnValue ) {
  *
  * blah
  */
-
-void DcxCalendar::parseCommandRequest( TString & input ) {
+void DcxCalendar::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
 	this->parseSwitchFlags(input.gettok(3, " "), &flags);
 
-//GetCurSel
-//GetMaxSelCount
-//GetRange (calendar range)
-//GetSelRange (selection range)
-//GetToday
-
-//SetCurSel
 //SetDayState
-//SetRange
-//SetSelRange
 
 	int numtok = input.numtok(" ");
 
@@ -210,9 +203,46 @@ void DcxCalendar::parseCommandRequest( TString & input ) {
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [MAX]
 	else if (flags.switch_flags[12] && numtok > 3) {
-		int max = input.gettok(4, -1, " ").to_int();
+		int max = input.gettok(4, " ").to_int();
 
 		MonthCal_SetMaxSelCount(this->m_Hwnd, max);
+	}
+	//xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
+	else if (flags.switch_flags[17] && numtok > 4) {
+		long min = (long) input.gettok(4, " ").to_num();
+		long max = (long) input.gettok(5, " ").to_num();
+		SYSTEMTIME range[2];
+
+		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
+
+		range[0] = MircTimeToSystemTime(min);
+		range[1] = MircTimeToSystemTime(max);
+
+		MonthCal_SetRange(this->m_Hwnd, GDTR_MAX | GDTR_MIN, range);
+	}
+	//xdid -s [NAME] [ID] [SWITCH] [MIN] (MAX)
+	else if (flags.switch_flags[18] && numtok > 3) {
+		long min = (long) input.gettok(4, " ").to_num();
+		long max = 0;
+		SYSTEMTIME range[2];
+
+		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
+		range[0] = MircTimeToSystemTime(min);
+
+		if (isStyle(MCS_MULTISELECT)) {
+			// if only one date specified, select the same date
+			if (numtok < 5)
+				range[1] = range[0];
+			else {
+				max = (long) input.gettok(5, " ").to_num();
+				range[1] = MircTimeToSystemTime(max);
+			}
+
+			MonthCal_SetSelRange(this->m_Hwnd, range);
+		}
+		else {
+			MonthCal_SetCurSel(this->m_Hwnd, &(range[0]));
+		}
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
 	else if (flags.switch_flags[19]) {
@@ -376,7 +406,6 @@ SYSTEMTIME DcxCalendar::MircTimeToSystemTime(long mircTime) {
 	str.sprintf("$asctime(%ld, d m yyyy)", mircTime);
 
 	mIRCeval(str.to_chr(), eval);
-	delete eval;
 
 	str = TString(eval);
 
