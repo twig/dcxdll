@@ -47,7 +47,7 @@ public:
 
 protected:
 	static SYSTEMTIME MircTimeToSystemTime(long mircTime);
-	static long SystemTimeToMircTime(SYSTEMTIME st);
+	static long SystemTimeToMircTime(LPSYSTEMTIME pst);
 };
 
 #endif // _DCXCALENDAR_H_
