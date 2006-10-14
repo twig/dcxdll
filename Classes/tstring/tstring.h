@@ -133,22 +133,22 @@ public:
 	int replace( const char chr, const char rchr );
 
 	// Token Lib
-	void addtok( const char * cToken, const char * sepChars );
-	void deltok( const int N, const char * sepChars );
-	int findtok( const char * cToken, const int N, const char * sepChars ) const;
-	TString gettok( int N, const char * sepChars ) const;
-	TString gettok( int N, int M, const char * sepChars ) const;
-	void instok( const char * cToken, const int N, const char * sepChars );
-	bool istok( const char * cToken, const char * sepChars ) const;
-	TString matchtok( char * mString, int N, const char * sepChars ) const;
-	int numtok( const char * sepChars ) const;
-	void puttok( const char * cToken, int N, const char * sepChars );
-	void remtok( const char * cToken, int N, const char * sepChars );
-	void reptok( const char * cToken, const char * newToken, int N, const char * sepChars );
-	void sorttok( char * sortOptions, const char * sepChars );
+	void addtok( const char * cToken, const char * sepChars = " " );
+	void deltok( const int N, const char * sepChars = " " );
+	int findtok( const char * cToken, const int N, const char * sepChars = " " ) const;
+	TString gettok( int N, const char * sepChars = " " ) const;
+	TString gettok( int N, int M, const char * sepChars = " " ) const;
+	void instok( const char * cToken, const int N, const char * sepChars = " " );
+	bool istok( const char * cToken, const char * sepChars = " " ) const;
+	TString matchtok( char * mString, int N, const char * sepChars = " " ) const;
+	int numtok( const char * sepChars = " " ) const;
+	void puttok( const char * cToken, int N, const char * sepChars = " " );
+	void remtok( const char * cToken, int N, const char * sepChars = " " );
+	void reptok( const char * cToken, const char * newToken, int N, const char * sepChars = " " );
+	void sorttok( char * sortOptions, const char * sepChars = " " );
 	// added by Ook
-	TString wildtok( char * wildString, int N, const char * sepChars ) const;
-	int nwildtok( char * wildString, const char * sepChars ) const;
+	TString wildtok( char * wildString, int N, const char * sepChars = " " ) const;
+	int nwildtok( char * wildString, const char * sepChars = " " ) const;
 	TString mid(int pos, int n) const;
 	TString left(int n) const;
 	TString right(int n) const;

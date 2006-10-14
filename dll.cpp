@@ -460,38 +460,38 @@ mIRC(Mark) {
 	TString d(data);
 	d.trim();
 
-	if (d.numtok(" ") < 2)
+	if (d.numtok() < 2)
 		ret("D_ERROR Mark: [NAME] [ALIAS]");
 
 	TString com;
 	char res[40];
 
 	// check if the alias exists
-	com.sprintf("$isalias(%s)", d.gettok(2, " ").to_chr());
+	com.sprintf("$isalias(%s)", d.gettok(2).to_chr());
 	mIRCeval(com.to_chr(), res);
 
 	if (lstrcmp(res, "$false") == 0) {
-		wsprintf(data, "D_ERROR Mark : No such alias : %s", d.gettok(2, " ").to_chr());
+		wsprintf(data, "D_ERROR Mark : No such alias : %s", d.gettok(2).to_chr());
 		mIRCError(data);
 		return 3;
 	}
 
 	// check if valid dialog
-	HWND mHwnd = GetHwndFromString(d.gettok(1, " "));
+	HWND mHwnd = GetHwndFromString(d.gettok(1));
 
 	if (IsWindow(mHwnd) == FALSE) {
-		wsprintf(data, "D_ERROR Mark : Invalid Dialog Window : %s", d.gettok(1, " ").to_chr());
+		wsprintf(data, "D_ERROR Mark : Invalid Dialog Window : %s", d.gettok(1).to_chr());
 		mIRCError(data);
 		return 3;
 	}
 
 	if (Dialogs.getDialogByHandle(mHwnd) != NULL) {
-		wsprintf(data, "D_ERROR Mark: Window Already Marked : %s", d.gettok(1, " ").to_chr());
+		wsprintf(data, "D_ERROR Mark: Window Already Marked : %s", d.gettok(1).to_chr());
 		mIRCError(data);
 		return 3;
 	}
 
-	Dialogs.markDialog(mHwnd, d.gettok(1, " "), d.gettok(2, " "));
+	Dialogs.markDialog(mHwnd, d.gettok(1), d.gettok(2));
 	ret("D_OK Mark: Dialog Marked");
 }
 
@@ -505,13 +505,13 @@ mIRC(GetSystemColor) {
 	TString d(data);
 	d.trim();
 
-	if (d.numtok(" ") < 1) {
+	if (d.numtok() < 1) {
 		DCXError("GetSysColor","Invalid arguments");
 		return 0;
 	}
 
 	int col;
-	TString coltype = d.gettok(1, " ");
+	TString coltype = d.gettok(1);
 
 	if      (coltype == "COLOR_3DDKSHADOW"		) { col = COLOR_3DDKSHADOW; }
 	else if (coltype == "COLOR_3DFACE"			) { col = COLOR_3DFACE; }
@@ -570,7 +570,7 @@ mIRC(ColorDialog) {
 
 	CHOOSECOLOR	cc;
 	static COLORREF clr[16];
-	COLORREF		sel = (COLORREF)d.gettok(1, " ").to_num();
+	COLORREF		sel = (COLORREF) d.gettok(1).to_num();
 	DWORD			styles = CC_RGBINIT;
 	ZeroMemory(&cc, sizeof(CHOOSECOLOR));
 
@@ -578,17 +578,17 @@ mIRC(ColorDialog) {
 	cc.lStructSize = sizeof(CHOOSECOLOR);
 	cc.hwndOwner = mWnd;
 
-	if (d.numtok(" ") > 1) {
-		for (int i = 1; i <= d.numtok(" "); i++) {
-			if (d.gettok(i, " ") == "anycolor")
+	if (d.numtok() > 1) {
+		for (int i = 1; i <= d.numtok(); i++) {
+			if (d.gettok(i) == "anycolor")
 				styles |= CC_ANYCOLOR;
-			else if (d.gettok(i, " ") == "fullopen")
+			else if (d.gettok(i) == "fullopen")
 				styles |= CC_FULLOPEN;
-			else if (d.gettok(i, " ") == "nofullopen")
+			else if (d.gettok(i) == "nofullopen")
 				styles |= CC_PREVENTFULLOPEN;
-			else if (d.gettok(i, " ") == "solidonly")
+			else if (d.gettok(i) == "solidonly")
 				styles |= CC_SOLIDCOLOR;
-			else if (d.gettok(i, " ") == "owner")
+			else if (d.gettok(i) == "owner")
 				cc.hwndOwner = FindOwner(d, mWnd);
 		}
 	}
