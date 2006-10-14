@@ -327,6 +327,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     if ( data.numtok( " " ) > 10 ) {
 
       itemtext = data.gettok( 11, -1, " " );
+		itemtext.trim();
       rbBand.fMask |= RBBIM_TEXT;
       rbBand.lpText = itemtext.to_chr( );
     }
@@ -359,8 +360,6 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     rbBand.lParam = (LPARAM) lpdcxrbb;
 
     if ( control_data.numtok( " " ) > 5 ) {
-
-
       UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1, " " ).to_int( );
 
       if ( ID > mIRC_ID_OFFSET - 1 && 

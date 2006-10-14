@@ -30,7 +30,6 @@ grey icons
 DcxToolBar::DcxToolBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 {
-
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
@@ -79,7 +78,6 @@ DcxToolBar::DcxToolBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styl
 DcxToolBar::DcxToolBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
 : DcxControl( ID, p_Dialog ) 
 {
-
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );

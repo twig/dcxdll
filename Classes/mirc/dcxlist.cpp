@@ -208,9 +208,25 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
+	// [NAME] [ID] [PROP] [N]
+	else if (input.gettok(3, " ") == "tbitem") {
+		int top;
+		int bottom;
+		int height;
+		RECT rc;
+		
+		GetClientRect(this->m_Hwnd, &rc);
+
+		top = SendMessage(this->m_Hwnd, LB_GETTOPINDEX, NULL, NULL);
+		height = SendMessage(this->m_Hwnd, LB_GETITEMHEIGHT, NULL, NULL);
+
+		bottom = top + ((rc.bottom - rc.top) / height);
+
+		wsprintf(szReturnValue, "%d %d", top, bottom);
+		return;
+	}
   // [NAME] [ID] [PROP] [N]
   else if ( input.gettok( 3, " " ) == "find" ) {
-
     return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {

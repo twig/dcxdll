@@ -16,12 +16,15 @@ function get_styles_edit(&$STYLES) {
 		'lowercase' => "Converts all characters to lowercase as they are typed into the edit control.",
 		'uppercase' => "Converts all characters to uppercase as they are typed into the edit control.",
 		'number' => 'Allows only digits to be entered into the edit control.',
-		'password' => "Displays an asterisk (*) for each character typed into the edit control. Only works when [s]multi[/s] style is NOT set.",
+		'password' => "Displays an asterisk (*) for each character typed into the edit control.",
 		'return' => "Specifies that a carriage return be inserted when the user presses the ENTER key while entering text into a multiline edit control in a dialog box.",
 		'readonly' => "Prevents the user from typing or editing text in the edit control.",
 		'tooltips' => 'The edit will have a tooltip.',
 		
-		'__notes' => 'Even with [s]number[/s] style, it is still possible to paste non-digits into the edit control.',
+		'__notes' => array(
+			'Even with [s]number[/s] style, it is still possible to paste non-digits into the edit control.',
+			'[s]password[/s] does not work with [s]multi[/s] style.',
+		),
 	);
 }
 
