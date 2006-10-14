@@ -446,6 +446,13 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 				bParsed = TRUE;
 				break;
 			}
+
+		case WM_VSCROLL:
+			if (LOWORD(wParam) == SB_ENDSCROLL)
+				this->callAliasEx(NULL, "%s,%d", "scrollend", this->getUserID());
+
+			break;
+
 		case WM_DESTROY:
 			{
 				delete this;
