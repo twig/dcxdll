@@ -213,14 +213,18 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 		int top;
 		int bottom;
 		int height;
+		int count = ListBox_GetCount(this->m_Hwnd);
 		RECT rc;
-		
+
 		GetClientRect(this->m_Hwnd, &rc);
 
 		top = SendMessage(this->m_Hwnd, LB_GETTOPINDEX, NULL, NULL);
 		height = SendMessage(this->m_Hwnd, LB_GETITEMHEIGHT, NULL, NULL);
 
 		bottom = top + ((rc.bottom - rc.top) / height);
+
+		if (bottom > count)
+			bottom = count;
 
 		wsprintf(szReturnValue, "%d %d", top, bottom);
 		return;

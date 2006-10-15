@@ -144,22 +144,28 @@ void DcxCalendar::parseInfoRequest(TString &input, char *szReturnValue) {
 
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == "selected") {
+		long start;
+		long end;
+
 		if (isStyle(MCS_MULTISELECT)) {
 			SYSTEMTIME st[2];
 
 			ZeroMemory(st, sizeof(SYSTEMTIME) *2);
 
 			MonthCal_GetSelRange(this->m_Hwnd, st);
-			wsprintf(szReturnValue, "%ld %ld", SystemTimeToMircTime(&(st[0])), SystemTimeToMircTime(&(st[1])));
-			return;
+			start = SystemTimeToMircTime(&(st[0]));
+			end = SystemTimeToMircTime(&(st[1]));
 		}
 		else {
 			SYSTEMTIME st;
 
 			MonthCal_GetCurSel(this->m_Hwnd, &st);
-			wsprintf(szReturnValue, "%ld", SystemTimeToMircTime(&st));
-			return;
+			start = SystemTimeToMircTime(&st);
+			end = start;
 		}
+
+		wsprintf(szReturnValue, "%ld %ld", start, end);
+		return;
 	}
 	else if (input.gettok(3) == "range") {
 		SYSTEMTIME st[2];
@@ -471,6 +477,11 @@ SYSTEMTIME DcxCalendar::MircTimeToSystemTime(long mircTime) {
 }
 
 long DcxCalendar::SystemTimeToMircTime(LPSYSTEMTIME pst) {
+	if (pst->wMonth == 0) {
+		DCXError("SystemTimeToMircTime", "invalid SYSTEMTIME parameter.");
+		return 0;
+	}
+
 	char ret[100];
 
 	TString months[12] = {

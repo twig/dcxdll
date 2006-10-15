@@ -1,6 +1,6 @@
 <?php
 function get_intro_calendar() {
-	echo "Calendar control. This control is currently incomplete.";
+	echo "The Calendar control allows users to select a date, allowing the range to be customisable.";
 }
 
 
@@ -40,6 +40,7 @@ function get_xdid_calendar(&$XDID) {
 			'__desc' => 'This command lets you set maximum number of days you can select at any one time.',
 			'__cmd' => '[MAX]',
 			'__eg' => '5',
+			'__notes' => 'The default value for [p]MAX[/p] is [v]7[/v].',
 		),
 		'r' => array(
 			'__desc' => 'This command lets you set the range of the first and last selectable dates.',
@@ -70,9 +71,13 @@ function get_xdid_calendar(&$XDID) {
 
 function get_xdidprops_calendar(&$XDIDPROPS) {
 	$XDIDPROPS = array(
-		"text" => array(
-		    '__desc' => "This property lets you retreive the text.",
+		"selected" => "This property lets you retreive the selected date range.",
+		"range" => array(
+		    '__desc' => "This property lets you retreive the calendar date range.",
+			'__notes' => '[v]nolimit[/v] is returned when the calendar range is not bounded.',
 		),
+		"today" => "This property lets you retreive the calendar current day date.",
+		"selcount" => "This property lets you retreive the maximum number of selectable days.",
 	);
 }
 

@@ -398,7 +398,7 @@ mIRC(_xdock)
 	}
 
 	if (d.gettok(1," ") == "mIRC") {
-		if (d.gettok(2," ") == "SwitchBarPos") {
+		if (d.gettok(2," ") == "switchBarPos") {
 			switch (SwitchbarPos())
 			{
 				case SWB_RIGHT:
@@ -423,46 +423,46 @@ mIRC(_xdock)
 					break;
 			}
 		}
-		else if (d.gettok(2," ") == "SwitchBarSize") {
+		else if (d.gettok(2," ") == "switchBarSize") {
 			RECT rc;
 			GetWindowRect(sb_hwnd, &rc);
 			wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
 		}
-		else if (d.gettok(2," ") == "ToolBarSize") {
+		else if (d.gettok(2," ") == "toolBarSize") {
 			RECT rc;
 			GetWindowRect(tb_hwnd, &rc);
 			wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
 		}
-		else if (d.gettok(2," ") == "TreeBarSize") {
+		else if (d.gettok(2," ") == "treeBarSize") {
 			RECT rc;
 			GetWindowRect(treeb_hwnd, &rc);
 			wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
 		}
-		else if (d.gettok(2," ") == "IsSwitchBar") {
+		else if (d.gettok(2," ") == "isSwitchBar") {
 			if (IsWindowVisible(sb_hwnd))
 				lstrcpy(data,"$true");
 			else
 				lstrcpy(data,"$false");
 		}
-		else if (d.gettok(2," ") == "IsToolBar") {
+		else if (d.gettok(2," ") == "isToolBar") {
 			if (IsWindowVisible(tb_hwnd))
 				lstrcpy(data,"$true");
 			else
 				lstrcpy(data,"$false");
 		}
-		else if (d.gettok(2," ") == "IsTreeBar") {
+		else if (d.gettok(2," ") == "isTreeBar") {
 			if (IsWindowVisible(treeb_hwnd))
 				lstrcpy(data,"$true");
 			else
 				lstrcpy(data,"$false");
 		}
-		else if (d.gettok(2," ") == "IsMenuBar") {
+		else if (d.gettok(2," ") == "isMenuBar") {
 			if (GetMenu(mIRCLink.m_mIRCHWND))
 				lstrcpy(data,"$true");
 			else
 				lstrcpy(data,"$false");
 		}
-		else if (d.gettok(2," ") == "Text") {
+		else if (d.gettok(2," ") == "text") {
 			if (GetWindowTextLength(mIRCLink.m_mIRCHWND) > 0)
 				GetWindowText(mIRCLink.m_mIRCHWND,data,900);
 		}
@@ -475,41 +475,42 @@ mIRC(_xdock)
 	}
 	else {
 		HWND hwnd = (HWND)d.gettok(1," ").to_num();
+
 		if (IsWindow(hwnd)) {
-			if (d.gettok(2," ") == "IsDocked") {
+			if (d.gettok(2," ") == "isDocked") {
 				if (GetProp(hwnd,"dcx_docked") || FindUltraDock(hwnd))
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");
 			}
-			else if (d.gettok(2," ") == "HasDocked") {
+			else if (d.gettok(2," ") == "hasDocked") {
 				if (GetProp(hwnd,"dcx_dock"))
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");
 			}
-			else if (d.gettok(2," ") == "IsAutoV") {
+			else if (d.gettok(2," ") == "isAutoV") {
 				DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
 				if (flags == DOCKF_AUTOV)
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");
 			}
-			else if (d.gettok(2," ") == "IsAutoH") {
+			else if (d.gettok(2," ") == "isAutoH") {
 				DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
 				if (flags == DOCKF_AUTOH)
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");
 			}
-			else if (d.gettok(2," ") == "IsAutoS") {
+			else if (d.gettok(2," ") == "isAutoS") {
 				DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
 				if (flags == DOCKF_SIZE)
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");
 			}
-			else if (d.gettok(2," ") == "DockSide") {
+			else if (d.gettok(2," ") == "dockSide") {
 				LPDCXULTRADOCK ud = GetUltraDock(hwnd);
 				if (ud != NULL) {
 					switch(ud->flags)

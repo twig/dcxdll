@@ -101,7 +101,7 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_pImage = NULL;
-	this->m_bResizeImage = false;
+	this->m_bResizeImage = true;
   this->m_hBitmap = NULL;
   this->m_clrTransColor = -1;
   this->m_hIcon = NULL;
