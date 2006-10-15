@@ -64,30 +64,30 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
  * \param styles Window Style Tokenized List
  */
 
-DcxDateTime::DcxDateTime( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog )
+DcxDateTime::DcxDateTime(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, TString &styles)
+: DcxControl(ID, p_Dialog) 
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(	
-		ExStyles | WS_EX_CLIENTEDGE, 
-		DCX_DATETIMECLASS, 
+	this->m_Hwnd = CreateWindowEx(
+		ExStyles | WS_EX_CLIENTEDGE,
+		DCX_DATETIMECLASS,
 		NULL,
-		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
-		GetModuleHandle(NULL), 
+		GetModuleHandle(NULL),
 		NULL);
 
-	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if (bNoTheme)
+		dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 
-	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->setControlFont((HFONT) GetStockObject(DEFAULT_GUI_FONT), FALSE);
+	this->registreDefaultWindowProc();
+	SetProp(this->m_Hwnd, "dcx_cthis", (HANDLE) this);
 }
 
 /*!
@@ -95,9 +95,8 @@ DcxDateTime::DcxDateTime( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
  *
  * blah
  */
-
 DcxDateTime::~DcxDateTime() {
-  this->unregistreDefaultWindowProc();
+	this->unregistreDefaultWindowProc();
 }
 
 /*!
@@ -105,48 +104,26 @@ DcxDateTime::~DcxDateTime() {
  *
  * blah
  */
-
-void DcxDateTime::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) {
+void DcxDateTime::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
 	unsigned int i = 1, numtok = styles.numtok();
 
-/*
-    DTS_LONGDATEFORMAT 
-        Displays the date in long format. The default format string for this style is defined by LOCALE_SLONGDATEFORMAT, which produces output like "Friday, April 19, 1996".
-
-    DTS_RIGHTALIGN 
-        The drop-down month calendar will be right-aligned with the control instead of left-aligned, which is the default. 
-
-    DTS_SHOWNONE 
-        It is possible to have no date currently selected in the control. With this style, the control displays a check box that users can check once they have entered or selected a date. Until this check box is checked, the application will not be able to retrieve the date from the control because, in essence, the control has no date. This state can be set with the DTM_SETSYSTEMTIME message or queried with the DTM_GETSYSTEMTIME message.
-
-    DTS_SHORTDATEFORMAT 
-        Displays the date in short format. The default format string for this style is defined by LOCALE_SSHORTDATE, which produces output like "4/19/96".
-
-    DTS_SHORTDATECENTURYFORMAT 
-        Version 5.80. Similar to the DTS_SHORTDATEFORMAT style, except the year is a four-digit field. The default format string for this style is based on LOCALE_SSHORTDATE. The output looks like: "4/19/1996".
-
-    DTS_TIMEFORMAT 
-        Displays the time. The default format string for this style is defined by LOCALE_STIMEFORMAT, which produces output like "5:31:42 PM".
-
-    DTS_UPDOWN 
-        Places an up-down control to the right of the DTP control to modify date-time values. This style can be used in place of the drop-down month calendar, which is the default style.
-
-Remarks
-
-    The DTS_XXXFORMAT styles that define the display format cannot be combined. If none of the format styles are suitable, use a DTM_SETFORMAT message to define a custom format. 
-*/
-
 	while (i <= numtok) {
-		//if (styles.gettok(i) == "multi")
-		//	*Styles |= MCS_MULTISELECT;
-		//else if (styles.gettok(i) == "notoday")
-		//	*Styles |= MCS_NOTODAY;
-		//else if (styles.gettok(i) == "notodaycircle")
-		//	*Styles |= MCS_NOTODAYCIRCLE;
-		//else if (styles.gettok(i) == "weeknum")
-		//	*Styles |= MCS_WEEKNUMBERS;
-		//else if (styles.gettok(i) == "daystate")
-		//	*Styles |= MCS_DAYSTATE;
+		if (styles.gettok(i) == "longdateformat")
+			*Styles |= DTS_LONGDATEFORMAT;
+		else if (styles.gettok(i) == "shortdateformat")
+			*Styles |= DTS_SHORTDATEFORMAT;
+		else if (styles.gettok(i) == "shortdatecenturyformat")
+			*Styles |= DTS_SHORTDATECENTURYFORMAT;
+
+		else if (styles.gettok(i) == "timeformat")
+			*Styles |= DTS_TIMEFORMAT;
+
+		else if (styles.gettok(i) == "right")
+			*Styles |= DTS_RIGHTALIGN;
+		else if (styles.gettok(i) == "shownone")
+			*Styles |= DTS_SHOWNONE;
+		else if (styles.gettok(i) == "updown")
+			*Styles |= DTS_UPDOWN;
 
 		i++;
 	}
@@ -162,9 +139,11 @@ Remarks
  *
  * \return > void
  */
-
 void DcxDateTime::parseInfoRequest(TString &input, char *szReturnValue) {
-//  int numtok = input.numtok( " " );
+//			DateTime_GetRange
+//			DateTime_GetSystemtime
+
+	//int numtok = input.numtok();
 
 	//// [NAME] [ID] [PROP]
 	//if (input.gettok(3) == "selected") {
@@ -247,96 +226,57 @@ void DcxDateTime::parseCommandRequest(TString &input) {
 
 	int numtok = input.numtok();
 
-	//// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
-	//if (flags.switch_flags[10] && numtok > 4) {
-	//	TString flags = input.gettok(4);
-	//	COLORREF col = (COLORREF) input.gettok(5).to_int();
+	// xdid -f [NAME] [ID] [SWITCH] (FORMAT)
+	if (flags.switch_flags[5]) {
+		if (numtok > 3) {
+			TString format = input.gettok(4, -1);
+			DateTime_SetFormat(this->m_Hwnd, format.to_chr());
+		}
+		else {
+			DateTime_SetFormat(this->m_Hwnd, NULL);
+			return;
+		}
+	}
+	//xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
+	else if (flags.switch_flags[17] && numtok > 4) {
+		DWORD flags = 0;
+		SYSTEMTIME range[2];
 
-	//	// Set the background color displayed between months.
-	//	if (flags.find('b', 0))
-	//		MonthCal_SetColor(this->m_Hwnd, MCSC_BACKGROUND, col);
+		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
 
-	//	// Set the background color displayed within the month.
-	//	if (flags.find('g', 0))
-	//		MonthCal_SetColor(this->m_Hwnd, MCSC_MONTHBK, col);
+		if (input.gettok(4) != "nolimit") {
+			long min = (long) input.gettok(4).to_num();
+			range[0] = MircTimeToSystemTime(min);
+			flags |= GDTR_MIN;
+		}
 
-	//	// Set the color used to display text within a month.
-	//	if (flags.find('t', 0))
-	//		MonthCal_SetColor(this->m_Hwnd, MCSC_TEXT, col);
+		if (input.gettok(5) != "nolimit") {
+			long max = (long) input.gettok(5).to_num();
+			range[1] = MircTimeToSystemTime(max);
+			flags |= GDTR_MAX;
+		}
 
-	//	// Set the background color displayed in the DateTime's title and selection color.
-	//	if (flags.find('i', 0))
-	//		MonthCal_SetColor(this->m_Hwnd, MCSC_TITLEBK, col);
+		DateTime_SetRange(this->m_Hwnd, flags, range);
+	}
+	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
+	else if (flags.switch_flags[19] && numtok > 3) {
+		TString ts = input.gettok(4);
 
-	//	// Set the color used to display text within the DateTime's title.
-	//	if (flags.find('a', 0))
-	//		MonthCal_SetColor(this->m_Hwnd, MCSC_TITLETEXT, col);
+		if (ts == "reset") {
+			if (isStyle(DTS_SHOWNONE)) {
+				DateTime_SetSystemtime(this->m_Hwnd, GDT_NONE, NULL);
+			}
+		}
+		else {
+			SYSTEMTIME sysTime;
+			long mircTime = (long) ts.to_num();
 
-	//	// Set the color used to display header day and trailing day text. Header and trailing days are the days from the previous and following months that appear on the current month DateTime.
-	//	if (flags.find('r', 0))
-	//		MonthCal_SetColor(this->m_Hwnd, MCSC_TRAILINGTEXT, col);
-	//}
-	////xdid -m [NAME] [ID] [SWITCH] [MAX]
-	//else if (flags.switch_flags[12] && numtok > 3) {
-	//	int max = input.gettok(4).to_int();
-
-	//	MonthCal_SetMaxSelCount(this->m_Hwnd, max);
-	//}
-	////xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-	//else if (flags.switch_flags[17] && numtok > 4) {
-	//	DWORD flags = 0;
-	//	SYSTEMTIME range[2];
-
-	//	ZeroMemory(range, sizeof(SYSTEMTIME) *2);
-
-	//	if (input.gettok(4) != "nolimit") {
-	//		long min = (long) input.gettok(4).to_num();
-	//		range[0] = MircTimeToSystemTime(min);
-	//		flags |= GDTR_MIN;
-	//	}
-
-	//	if (input.gettok(5) != "nolimit") {
-	//		long max = (long) input.gettok(5).to_num();
-	//		range[1] = MircTimeToSystemTime(max);
-	//		flags |= GDTR_MAX;
-	//	}
-
-	//	MonthCal_SetRange(this->m_Hwnd, flags, range);
-	//}
-	////xdid -s [NAME] [ID] [SWITCH] [MIN] (MAX)
-	//else if (flags.switch_flags[18] && numtok > 3) {
-	//	long min = (long) input.gettok(4).to_num();
-	//	long max = 0;
-	//	SYSTEMTIME range[2];
-
-	//	ZeroMemory(range, sizeof(SYSTEMTIME) *2);
-	//	range[0] = MircTimeToSystemTime(min);
-
-	//	if (isStyle(MCS_MULTISELECT)) {
-	//		// if only one date specified, select the same date
-	//		if (numtok < 5)
-	//			range[1] = range[0];
-	//		else {
-	//			max = (long) input.gettok(5).to_num();
-	//			range[1] = MircTimeToSystemTime(max);
-	//		}
-
-	//		MonthCal_SetSelRange(this->m_Hwnd, range);
-	//	}
-	//	else {
-	//		MonthCal_SetCurSel(this->m_Hwnd, &(range[0]));
-	//	}
-	//}
-	////xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
-	//else if (flags.switch_flags[19] && numtok > 3) {
-	//	SYSTEMTIME sysTime;
-	//	long mircTime = (long) input.gettok(4).to_num();
-
-	//	sysTime = MircTimeToSystemTime(mircTime);
-	//	MonthCal_SetToday(this->m_Hwnd, &sysTime);
-	//}
-	//else
-		this->parseGlobalCommandRequest( input, flags );
+			sysTime = MircTimeToSystemTime(mircTime);
+			DateTime_SetSystemtime(this->m_Hwnd, GDT_VALID, &sysTime);
+		}
+	}
+	else
+		this->parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -344,7 +284,7 @@ void DcxDateTime::parseCommandRequest(TString &input) {
  *
  * blah
  */
-LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) {
+LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
 	//switch (uMsg) {
 	//	case WM_NOTIFY: {
 	//		LPNMHDR hdr = (LPNMHDR) lParam;
@@ -433,100 +373,39 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	return 0L;
 }
 
-LRESULT DcxDateTime::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) {
+LRESULT DcxDateTime::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
 	switch (uMsg) {
-		case WM_HELP: {
+		case WM_HELP:
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-				this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				this->callAliasEx(NULL, "%s,%d", "help", this->getUserID());
+
 			break;
-		}
 
-		//case WM_GETDLGCODE:
-		//{
-		//	return DLGC_WANTARROWS;
-		//	break;
-		//}
-
-		case WM_MOUSEMOVE: {
+		case WM_MOUSEMOVE:
 			this->m_pParentDialog->setMouseControl(this->getUserID());
 			break;
-		}
 
-		case WM_SETFOCUS: {
+		case WM_SETFOCUS:
 			this->m_pParentDialog->setFocusControl(this->getUserID());
 			break;
-		}
 
-		case WM_SETCURSOR: {
+		case WM_SETCURSOR:
 			if (LOWORD(lParam) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL) {
-				SetCursor( this->m_hCursor );
+				SetCursor(this->m_hCursor);
 				bParsed = TRUE;
 				return TRUE;
 			}
-			break;
-		}
 
-		case WM_DESTROY: {
+			break;
+
+		case WM_DESTROY:
 			delete this;
 			bParsed = TRUE;
 			break;
-		}
 
 		default:
 			break;
 	}
 
 	return 0L;
-}
-
-SYSTEMTIME DcxDateTime::MircTimeToSystemTime(long mircTime) {
-	char eval[100];
-	TString str;
-	SYSTEMTIME st;
-
-	ZeroMemory(&st, sizeof(SYSTEMTIME));
-
-	str.sprintf("$asctime(%ld, d m yyyy)", mircTime);
-
-	mIRCeval(str.to_chr(), eval);
-
-	str = eval;
-
-	st.wDay = str.gettok(1).to_int();
-	st.wMonth = str.gettok(2).to_int();
-	st.wYear = str.gettok(3).to_int();
-
-	return st;
-}
-
-long DcxDateTime::SystemTimeToMircTime(LPSYSTEMTIME pst) {
-	if (pst->wMonth == 0) {
-		DCXError("SystemTimeToMircTime", "invalid SYSTEMTIME parameter.");
-		return 0;
-	}
-
-	char ret[100];
-
-	static const TString months[12] = {
-		"January",
-		"Feburary",
-		"March",
-		"April",
-		"May",
-		"June",
-		"July",
-		"August",
-		"September",
-		"October",
-		"November",
-		"December"
-	};
-
-	wsprintf(ret, "$ctime(%d %s %d)",
-		pst->wDay,
-		months[pst->wMonth -1].to_chr(),
-		pst->wYear);
-
-	mIRCeval(ret, ret);
-	return atoi(ret);
 }

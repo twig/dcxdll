@@ -266,6 +266,9 @@ HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
 bool ChangeHwndIcon(const HWND hwnd, const TString *flags, const int index, const TString *filename);
 
+SYSTEMTIME MircTimeToSystemTime(long mircTime);
+long SystemTimeToMircTime(LPSYSTEMTIME pst);
+
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl);
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);

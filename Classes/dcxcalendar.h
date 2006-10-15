@@ -44,10 +44,6 @@ public:
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   inline TString getType( ) { return TString( "calendar" ); };
-
-protected:
-	static SYSTEMTIME MircTimeToSystemTime(long mircTime);
-	static long SystemTimeToMircTime(LPSYSTEMTIME pst);
 };
 
 #endif // _DCXCALENDAR_H_
