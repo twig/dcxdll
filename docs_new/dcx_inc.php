@@ -18,7 +18,7 @@ define('SECTION_XTRAY'       , 'xtray');
 
 
 // global variables
-$VERSION = "1.3.6";
+$VERSION = "1.3.7";
 
 $DOCPATH = "./doc/";
 $INCPATH = "./inc/";

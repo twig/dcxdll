@@ -32,6 +32,7 @@
 #include "dcxipaddress.h"
 #include "dcxwebctrl.h"
 #include "dcxcalendar.h"
+#include "dcxdatetime.h"
 #include "dcxpager.h"
 
 #include "dcxdivider.h"
@@ -880,6 +881,8 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 		return new DcxWebControl( mID, p_Dialog, hParent, &rc, styles );
 	else if (( type == "calendar" ) && (mask & CTLF_ALLOW_CALANDER))
 		return new DcxCalendar( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "datetime" ) && (mask & CTLF_ALLOW_CALANDER))
+		return new DcxDateTime(mID, p_Dialog, hParent, &rc, styles);
 	else if (( type == "divider" ) && (mask & CTLF_ALLOW_DIVIDER))
 		return new DcxDivider( mID, p_Dialog, hParent, &rc, styles );
 	else if (( type == "panel" ) && (mask & CTLF_ALLOW_PANEL))

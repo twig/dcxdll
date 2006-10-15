@@ -328,6 +328,11 @@ void WINAPI LoadDll(LOADINFO * load) {
 	wc.lpszClassName = DCX_CALENDARCLASS;
 	RegisterClassEx(&wc);
 
+	// Custom DateTime
+	GetClassInfoEx(NULL, DATETIMEPICK_CLASS, &wc);
+	wc.lpszClassName = DCX_DATETIMECLASS;
+	RegisterClassEx(&wc);
+
 	// Custom Pager
 	GetClassInfoEx(NULL, WC_PAGESCROLLER, &wc);
 	wc.lpszClassName = DCX_PAGERCLASS;
@@ -385,6 +390,7 @@ int WINAPI UnloadDll(int timeout) {
 		UnregisterClass(DCX_PANELCLASS, GetModuleHandle(NULL));
 		UnregisterClass(DCX_TABCTRLCLASS, GetModuleHandle(NULL));
 		UnregisterClass(DCX_CALENDARCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_DATETIMECLASS, GetModuleHandle(NULL));
 		UnregisterClass(DCX_BOXCLASS, GetModuleHandle(NULL));
 		UnregisterClass(DCX_PAGERCLASS, GetModuleHandle(NULL));
 

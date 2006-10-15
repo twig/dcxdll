@@ -1,7 +1,11 @@
 /*!
-http://www.codeguru.com/cpp/controls/controls/dateselectioncontrolsetc/article.php/c2229/
-http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sysinfo/base/converting_a_time_t_value_to_a_file_time.asp
+TODO: monthchange event
 http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/monthcal/structures/nmdaystate.asp
+
+MCHT_TITLEBTNNEXT
+    The given point was over the button at the top right corner of the control. If the user clicks here, the month calendar will scroll its display to the next month or set of months.
+MCHT_TITLEBTNPREV
+    The given point was over the button at the top left corner of the control. If the user clicks here, the month calendar will scroll its display to the previous month or set of months.
 
  * \file dcxcalendar.cpp
  * \brief blah

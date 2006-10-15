@@ -442,6 +442,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Classes\dcxdatetime.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Classes\dcxdivider.cpp"
 					>
 				</File>
@@ -681,6 +685,10 @@
 				</File>
 				<File
 					RelativePath=".\Classes\dcxcomboex.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Classes\dcxdatetime.h"
 					>
 				</File>
 				<File
