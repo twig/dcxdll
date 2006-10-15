@@ -17,10 +17,52 @@ function get_styles_calendar(&$STYLES) {
 
 function get_xdid_calendar(&$XDID) {
 	$XDID = array(
+		'k' => array(
+			'__desc' => 'This command lets you change the calendar style.',
+			'__cmd' => '[+FLAGS] [COLOR]',
+			'__eg' => '+bi $rgb(255,0,255)',
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => "Calendar flags.",
+					'__values' => array(
+						'b' => 'Calendar background.',
+						'g' => 'Month background.',
+						't' => 'Day text.',
+						'i' => 'Title background and selected day background color.',
+						'a' => 'Title text and selected day text color.',
+						'r' => 'Trailing text (days not included in this month).',
+					),
+				),
+				'COLOR' => 'The color to set.',
+			),
+		),
+		'm' => array(
+			'__desc' => 'This command lets you set maximum number of days you can select at any one time.',
+			'__cmd' => '[MAX]',
+			'__eg' => '5',
+		),
+		'r' => array(
+			'__desc' => 'This command lets you set the range of the first and last selectable dates.',
+			'__cmd' => '[MIN_TIMESTAMP] [MAX_TIMESTAMP]',
+			'__eg' => array(
+				'$ctime(3rd July 2006) $ctime',
+				'nolimit $ctime',
+			),
+			'__notes' => 'You can use [v]nolimit[/v] for [p]MIN_TIMESTAMP[/p] or [p]MAX_TIMESTAMP[/p] if you wish to specify no minimum or maximum date range.',
+		),
+		's' => array(
+			'__desc' => 'This command lets you select a date, or range of dates.',
+			'__cmd' => '[MIN_TIMESTAMP] (MAX_TIMESTAMP)',
+			'__eg' => '$ctime(3rd July 2006) $ctime',
+			'__notes' => array(
+				'[p]MAX_TIMESTAMP[/p] optional for the [s]multi[/s] style. If no [p]MAX_TIMESTAMP[/p] is specified, the selected date will only be [p]MIN_TIMESTAMP[/p].',
+				'[p]MAX_TIMESTAMP[/p] is ignored for a single select calendar.',
+			),
+		),
 		't' => array(
-	        '__desc' => 'This command lets you set the text.',
-	        '__cmd' => '(Text)',
-	        '__eg' => 'Check Text',
+			'__desc' => 'This command lets you set the current day.',
+			'__cmd' => '[TIMESTAMP]',
+			'__eg' => '$ctime(3rd July 3006)',
 		),
 	);
 }

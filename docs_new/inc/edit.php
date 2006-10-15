@@ -80,6 +80,11 @@ function get_xdid_edit(&$XDID) {
 	        '__cmd' => '[FILENAME]',
 	        '__eg' => 'C:\mIRC\blah.txt',
 		),
+		'E' => array(
+	        '__desc' => 'This command lets you set the cue text. It behaves like a ghostly value when the edit control is empty.',
+	        '__cmd' => '[TEXT]',
+	        '__eg' => 'Username',
+		),
 		'S' => array(
 	        '__desc' => 'This command lets you set the selection range in the edit.',
 	        '__cmd' => '[START] [END]',
@@ -102,6 +107,7 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		"selstart" => 'This returns the index of the first selected character position in the control.',
 		"selend" => 'This returns the index of the last selected character position in the control.',
 		"seltext" => 'This returns the selected text in the control.',
+		"cue" => 'This returns the cue banner text in the control.',
 		"caretpos" => array(
 		    '__desc' => "This property lets you retreive the position of the cursor.",
 		    '__cmd' => 'LINE COLUMN',

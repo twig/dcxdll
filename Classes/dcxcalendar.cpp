@@ -223,27 +223,27 @@ void DcxCalendar::parseCommandRequest(TString &input) {
 		TString flags = input.gettok(4);
 		COLORREF col = (COLORREF) input.gettok(5).to_int();
 
-		// Retrieve the background color displayed between months.
+		// Set the background color displayed between months.
 		if (flags.find('b', 0))
 			MonthCal_SetColor(this->m_Hwnd, MCSC_BACKGROUND, col);
 
-		// Retrieve the background color displayed within the month.
+		// Set the background color displayed within the month.
 		if (flags.find('g', 0))
 			MonthCal_SetColor(this->m_Hwnd, MCSC_MONTHBK, col);
 
-		// Retrieve the color used to display text within a month.
+		// Set the color used to display text within a month.
 		if (flags.find('t', 0))
 			MonthCal_SetColor(this->m_Hwnd, MCSC_TEXT, col);
 
-		// Retrieve the background color displayed in the calendar's title.
+		// Set the background color displayed in the calendar's title and selection color.
 		if (flags.find('i', 0))
 			MonthCal_SetColor(this->m_Hwnd, MCSC_TITLEBK, col);
 
-		// Retrieve the color used to display text within the calendar's title.
+		// Set the color used to display text within the calendar's title.
 		if (flags.find('a', 0))
 			MonthCal_SetColor(this->m_Hwnd, MCSC_TITLETEXT, col);
 
-		// Retrieve the color used to display header day and trailing day text. Header and trailing days are the days from the previous and following months that appear on the current month calendar.
+		// Set the color used to display header day and trailing day text. Header and trailing days are the days from the previous and following months that appear on the current month calendar.
 		if (flags.find('r', 0))
 			MonthCal_SetColor(this->m_Hwnd, MCSC_TRAILINGTEXT, col);
 	}
@@ -299,7 +299,7 @@ void DcxCalendar::parseCommandRequest(TString &input) {
 		}
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
-	else if (flags.switch_flags[19]) {
+	else if (flags.switch_flags[19] && numtok > 3) {
 		SYSTEMTIME sysTime;
 		long mircTime = (long) input.gettok(4).to_num();
 
