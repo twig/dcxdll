@@ -117,19 +117,12 @@ SIZE XPopupMenuItem::getItemSize( HWND mHwnd ) {
   size.cx = 0;
   size.cy = 0;
 
-  //mIRCError( "getItemSize Before" );
-
   if ( this->m_bSep == FALSE ) {
 
     HDC hdc = GetDC( mHwnd );
 
     if ( this->m_pXParentMenu->getName( ) == "mirc" || this->m_pXParentMenu->getName( ) == "mircbar" ) {
-
-      //mIRCError( "Special menu evaluation" );
       if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
-        
-        //mIRCError( "Special menu evaluation2" );
-
         this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
         this->m_tsItemText = this->m_tsItemText.gettok( 2, "\v" );
         this->m_tsItemText.trim( );
@@ -138,7 +131,6 @@ SIZE XPopupMenuItem::getItemSize( HWND mHwnd ) {
       GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
     }
     else {
-
       char res[900];
       mIRCeval( this->m_tsItemText.to_chr( ), res );
       this->m_tsItemText = res;
@@ -147,8 +139,6 @@ SIZE XPopupMenuItem::getItemSize( HWND mHwnd ) {
 
     ReleaseDC( mHwnd, hdc );
   }
-
-  //mIRCError( "getItemSize After" );
 
   size.cx += XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
   if ( this->m_bSep == TRUE )
@@ -263,12 +253,9 @@ void XPopupMenuItem::DrawItemBackground( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS 
 
      case XPopupMenu::XPMS_CUSTOM:
       {
-        //mIRCError( "Custom BackItem" );
         HBITMAP hBitmap = this->m_pXParentMenu->getBackBitmap( );
 
         if ( hBitmap != NULL ) {
-
-          //mIRCError( "Custom BackItem 2" );
 
           HDC hdcbmp = CreateCompatibleDC( lpdis->hDC );
           BITMAP bmp;
@@ -304,7 +291,6 @@ void XPopupMenuItem::DrawItemBackground( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS 
  */
 
 void XPopupMenuItem::DrawItemBox(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol) {
-	//mIRCError( "DrawItemBox" );
 
 	switch (this->m_pXParentMenu->getStyle()) {
 		case XPopupMenu::XPMS_OFFICE2003_REV:
@@ -388,8 +374,6 @@ void XPopupMenuItem::DrawItemSelection( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS l
 
 void XPopupMenuItem::DrawItemCheckBox( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOL bDis ) {
 
-  //mIRCError( "DrawItemCheckBox" );
-
   HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSelectionBorder );
   HBRUSH hBrush = (HBRUSH) CreateSolidBrush( bDis?lpcol->m_clrDisabledCheckBox:lpcol->m_clrCheckBox );
   HPEN hOldPen = (HPEN) SelectObject( lpdis->hDC, hPen );
@@ -448,9 +432,9 @@ void XPopupMenuItem::DrawItemText( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol,
 
   if ( this->m_tsItemText.numtok( "\t" ) > 1 ) {
 
-    TString lefttext = this->m_tsItemText.gettok( 1, "\t" );
+    TString lefttext(this->m_tsItemText.gettok( 1, "\t" ));
     lefttext.trim( );
-    TString righttext = this->m_tsItemText.gettok( 2, "\t" );
+    TString righttext(this->m_tsItemText.gettok( 2, "\t" ));
     righttext.trim( );
 
     DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, 
@@ -477,15 +461,7 @@ void XPopupMenuItem::DrawItemText( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol,
 
 void XPopupMenuItem::DrawItemIcon( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, UINT iExStyles, BOOL bSel, BOOL bDis ) {
 
-  //mIRCError( "DrawItemIcon" );
-
   HIMAGELIST himl = this->m_pXParentMenu->getImageList( );
-
-  /*
-  char data[500];
-  wsprintf( data, "NICON %d, ICONS %d", this->m_nIcon, ImageList_GetImageCount( himl ) );
-  mIRCError( data );
-  */  
 
   int x = ( XPMI_BOXLPAD + XPMI_BOXLPAD + XPMI_BOXWIDTH - XPMI_ICONSIZE ) / 2;
   int y = ( lpdis->rcItem.top + lpdis->rcItem.bottom - XPMI_ICONSIZE ) / 2;
@@ -530,8 +506,6 @@ void XPopupMenuItem::DrawItemIcon( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol,
  */
 
 void XPopupMenuItem::DrawItemSubArrow( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOL bDis ) {
-
-  //mIRCError( "DrawItemSubArrow" );
 
   HPEN hPen = CreatePen( PS_SOLID, 1, bDis?lpcol->m_clrDisabledText:lpcol->m_clrText );
   HPEN hOldPen = (HPEN) SelectObject( lpdis->hDC, hPen );

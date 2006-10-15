@@ -22,21 +22,21 @@
 
 XPopupMenu::XPopupMenu( TString & tsMenuName, MenuStyle mStyle ) : m_tsMenuName( tsMenuName ), m_MenuStyle( mStyle ) {
 
-  this->m_hMenu = CreatePopupMenu( );
-  this->m_MenuItemStyles = 0;
-  this->m_hImageList = NULL;
-  this->m_hBitmap = NULL;
+	this->m_hMenu = CreatePopupMenu( );
+	this->m_MenuItemStyles = 0;
+	this->m_hImageList = NULL;
+	this->m_hBitmap = NULL;
 
-  this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
-  this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
-  this->m_MenuColors.m_clrCheckBox = RGB( 255, 128, 0 );
-  this->m_MenuColors.m_clrDisabledCheckBox = RGB( 200, 200, 200 );
-  this->m_MenuColors.m_clrDisabledSelection = RGB( 255, 255, 255 );
-  this->m_MenuColors.m_clrDisabledText = RGB( 128, 128, 128 );
-  this->m_MenuColors.m_clrSelection = RGB( 255, 229, 179 );
-  this->m_MenuColors.m_clrSelectionBorder = RGB( 0, 0, 0 );
-  this->m_MenuColors.m_clrSeparatorLine = RGB( 128, 128, 128 );
-  this->m_MenuColors.m_clrText = RGB( 0, 0, 0 );
+	this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
+	this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
+	this->m_MenuColors.m_clrCheckBox = RGB( 255, 128, 0 );
+	this->m_MenuColors.m_clrDisabledCheckBox = RGB( 200, 200, 200 );
+	this->m_MenuColors.m_clrDisabledSelection = RGB( 255, 255, 255 );
+	this->m_MenuColors.m_clrDisabledText = RGB( 128, 128, 128 );
+	this->m_MenuColors.m_clrSelection = RGB( 255, 229, 179 );
+	this->m_MenuColors.m_clrSelectionBorder = RGB( 0, 0, 0 );
+	this->m_MenuColors.m_clrSeparatorLine = RGB( 128, 128, 128 );
+	this->m_MenuColors.m_clrText = RGB( 0, 0, 0 );
 }
 
 /*!
@@ -47,124 +47,124 @@ XPopupMenu::XPopupMenu( TString & tsMenuName, MenuStyle mStyle ) : m_tsMenuName(
 
 XPopupMenu::XPopupMenu( HMENU hMenu ) {
 
-  this->m_hMenu = hMenu;
-  this->m_MenuItemStyles = 0;
-  this->m_MenuStyle = XPMS_OFFICE2003;
-  this->m_hImageList = NULL;
-  this->m_hBitmap = NULL;
-  if ( hMenu != NULL )
-    this->m_tsMenuName = "mircbar";
-  else
-    this->m_tsMenuName = "mirc";
+	this->m_hMenu = hMenu;
+	this->m_MenuItemStyles = 0;
+	this->m_MenuStyle = XPMS_OFFICE2003;
+	this->m_hImageList = NULL;
+	this->m_hBitmap = NULL;
+	if ( hMenu != NULL )
+		this->m_tsMenuName = "mircbar";
+	else
+		this->m_tsMenuName = "mirc";
 
-  this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
-  this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
-  this->m_MenuColors.m_clrCheckBox = RGB( 255, 128, 0 );
-  this->m_MenuColors.m_clrDisabledCheckBox = RGB( 200, 200, 200 );
-  this->m_MenuColors.m_clrDisabledSelection = RGB( 255, 255, 255 );
-  this->m_MenuColors.m_clrDisabledText = RGB( 128, 128, 128 );
-  this->m_MenuColors.m_clrSelection = RGB( 255, 229, 179 );
-  this->m_MenuColors.m_clrSelectionBorder = RGB( 0, 0, 0 );
-  this->m_MenuColors.m_clrSeparatorLine = RGB( 128, 128, 128 );
-  this->m_MenuColors.m_clrText = RGB( 0, 0, 0 );
+	this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
+	this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
+	this->m_MenuColors.m_clrCheckBox = RGB( 255, 128, 0 );
+	this->m_MenuColors.m_clrDisabledCheckBox = RGB( 200, 200, 200 );
+	this->m_MenuColors.m_clrDisabledSelection = RGB( 255, 255, 255 );
+	this->m_MenuColors.m_clrDisabledText = RGB( 128, 128, 128 );
+	this->m_MenuColors.m_clrSelection = RGB( 255, 229, 179 );
+	this->m_MenuColors.m_clrSelectionBorder = RGB( 0, 0, 0 );
+	this->m_MenuColors.m_clrSeparatorLine = RGB( 128, 128, 128 );
+	this->m_MenuColors.m_clrText = RGB( 0, 0, 0 );
 
-  /*
+	/*
 
-  XPopupMenuItem * p_Item = NULL;
-  TString itemtext = "";
+	XPopupMenuItem * p_Item = NULL;
+	TString itemtext = "";
 
-  // 
-  this->m_hMenu = CreatePopupMenu( );
-  MENUITEMINFO mii;
-  ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-  mii.cbSize = sizeof( MENUITEMINFO );
+	// 
+	this->m_hMenu = CreatePopupMenu( );
+	MENUITEMINFO mii;
+	ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+	mii.cbSize = sizeof( MENUITEMINFO );
 
-  mii.fMask = MIIM_DATA | MIIM_FTYPE;
-  mii.fType = MFT_OWNERDRAW;
-  itemtext = "Menu Item 1";
-  p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
-  this->m_vpMenuItem.push_back( p_Item );
-  mii.dwItemData = (ULONG_PTR) p_Item;
-  InsertMenuItem( this->m_hMenu, 1, TRUE, &mii );
+	mii.fMask = MIIM_DATA | MIIM_FTYPE;
+	mii.fType = MFT_OWNERDRAW;
+	itemtext = "Menu Item 1";
+	p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
+	this->m_vpMenuItem.push_back( p_Item );
+	mii.dwItemData = (ULONG_PTR) p_Item;
+	InsertMenuItem( this->m_hMenu, 1, TRUE, &mii );
 
-  mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
-  mii.fType = MFT_OWNERDRAW;
-  HMENU hMenu = CreatePopupMenu( );
-  itemtext = "Menu Item 2";
-  mii.hSubMenu = hMenu;
-  p_Item = new XPopupMenuItem( this, itemtext, 0, TRUE );
-  this->m_vpMenuItem.push_back( p_Item );
-  mii.dwItemData = (ULONG_PTR) p_Item;
-  InsertMenuItem( this->m_hMenu, 2, TRUE, &mii );
+	mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+	mii.fType = MFT_OWNERDRAW;
+	HMENU hMenu = CreatePopupMenu( );
+	itemtext = "Menu Item 2";
+	mii.hSubMenu = hMenu;
+	p_Item = new XPopupMenuItem( this, itemtext, 0, TRUE );
+	this->m_vpMenuItem.push_back( p_Item );
+	mii.dwItemData = (ULONG_PTR) p_Item;
+	InsertMenuItem( this->m_hMenu, 2, TRUE, &mii );
 
-  mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
-  mii.fType = MFT_OWNERDRAW;
-  itemtext = "Menu Item 2 1";
-  p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
-  this->m_vpMenuItem.push_back( p_Item );
-  mii.dwItemData = (ULONG_PTR) p_Item;
-  InsertMenuItem( hMenu, 1, TRUE, &mii );
+	mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+	mii.fType = MFT_OWNERDRAW;
+	itemtext = "Menu Item 2 1";
+	p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
+	this->m_vpMenuItem.push_back( p_Item );
+	mii.dwItemData = (ULONG_PTR) p_Item;
+	InsertMenuItem( hMenu, 1, TRUE, &mii );
 
-  mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
-  mii.fType = MFT_SEPARATOR | MFT_OWNERDRAW;
-  p_Item = new XPopupMenuItem( this, TRUE );
-  this->m_vpMenuItem.push_back( p_Item );
-  mii.dwItemData = (ULONG_PTR) p_Item;
-  InsertMenuItem( hMenu, 2, TRUE, &mii );
+	mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+	mii.fType = MFT_SEPARATOR | MFT_OWNERDRAW;
+	p_Item = new XPopupMenuItem( this, TRUE );
+	this->m_vpMenuItem.push_back( p_Item );
+	mii.dwItemData = (ULONG_PTR) p_Item;
+	InsertMenuItem( hMenu, 2, TRUE, &mii );
 
-  mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
-  mii.fType = MFT_OWNERDRAW;
-  itemtext = "Menu Item 2 3";
-  mii.fState = MFS_CHECKED;
-  p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
-  this->m_vpMenuItem.push_back( p_Item );
-  mii.dwItemData = (ULONG_PTR) p_Item;
-  InsertMenuItem( hMenu, 2, TRUE, &mii );
+	mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+	mii.fType = MFT_OWNERDRAW;
+	itemtext = "Menu Item 2 3";
+	mii.fState = MFS_CHECKED;
+	p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
+	this->m_vpMenuItem.push_back( p_Item );
+	mii.dwItemData = (ULONG_PTR) p_Item;
+	InsertMenuItem( hMenu, 2, TRUE, &mii );
 
-  mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
-  mii.fType = MFT_SEPARATOR | MFT_OWNERDRAW;
-  mii.fState = 0;
-  p_Item = new XPopupMenuItem( this, TRUE );
-  this->m_vpMenuItem.push_back( p_Item );
-  mii.dwItemData = (ULONG_PTR) p_Item;
-  InsertMenuItem( this->m_hMenu, 3, TRUE, &mii );
+	mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+	mii.fType = MFT_SEPARATOR | MFT_OWNERDRAW;
+	mii.fState = 0;
+	p_Item = new XPopupMenuItem( this, TRUE );
+	this->m_vpMenuItem.push_back( p_Item );
+	mii.dwItemData = (ULONG_PTR) p_Item;
+	InsertMenuItem( this->m_hMenu, 3, TRUE, &mii );
 
-  mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
-  mii.fType = MFT_OWNERDRAW;
-  itemtext = "Menu Item 4";
-  mii.fState = 0;
-  p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
-  this->m_vpMenuItem.push_back( p_Item );
-  mii.dwItemData = (ULONG_PTR) p_Item;
-  InsertMenuItem( this->m_hMenu, 4, TRUE, &mii );
+	mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+	mii.fType = MFT_OWNERDRAW;
+	itemtext = "Menu Item 4";
+	mii.fState = 0;
+	p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
+	this->m_vpMenuItem.push_back( p_Item );
+	mii.dwItemData = (ULONG_PTR) p_Item;
+	InsertMenuItem( this->m_hMenu, 4, TRUE, &mii );
 
-  mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
-  mii.fType = MFT_OWNERDRAW;
-  mii.fState = MFS_CHECKED;
-  itemtext = "Menu Item 5";
-  p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
-  this->m_vpMenuItem.push_back( p_Item );
-  mii.dwItemData = (ULONG_PTR) p_Item;
-  InsertMenuItem( this->m_hMenu, 5, TRUE, &mii );
+	mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+	mii.fType = MFT_OWNERDRAW;
+	mii.fState = MFS_CHECKED;
+	itemtext = "Menu Item 5";
+	p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
+	this->m_vpMenuItem.push_back( p_Item );
+	mii.dwItemData = (ULONG_PTR) p_Item;
+	InsertMenuItem( this->m_hMenu, 5, TRUE, &mii );
 
-  mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
-  mii.fType = MFT_OWNERDRAW;
-  mii.fState = MFS_CHECKED | MFS_DISABLED;
-  itemtext = "Menu Item 6";
-  p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
-  this->m_vpMenuItem.push_back( p_Item );
-  mii.dwItemData = (ULONG_PTR) p_Item;
-  InsertMenuItem( this->m_hMenu, 6, TRUE, &mii );
+	mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+	mii.fType = MFT_OWNERDRAW;
+	mii.fState = MFS_CHECKED | MFS_DISABLED;
+	itemtext = "Menu Item 6";
+	p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
+	this->m_vpMenuItem.push_back( p_Item );
+	mii.dwItemData = (ULONG_PTR) p_Item;
+	InsertMenuItem( this->m_hMenu, 6, TRUE, &mii );
 
-  mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
-  mii.fType = MFT_OWNERDRAW;
-  mii.fState = MFS_DISABLED;
-  itemtext = "Menu Item 7";
-  p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
-  this->m_vpMenuItem.push_back( p_Item );
-  mii.dwItemData = (ULONG_PTR) p_Item;
-  InsertMenuItem( this->m_hMenu, 7, TRUE, &mii );
-  */
+	mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+	mii.fType = MFT_OWNERDRAW;
+	mii.fState = MFS_DISABLED;
+	itemtext = "Menu Item 7";
+	p_Item = new XPopupMenuItem( this, itemtext, 0, FALSE );
+	this->m_vpMenuItem.push_back( p_Item );
+	mii.dwItemData = (ULONG_PTR) p_Item;
+	InsertMenuItem( this->m_hMenu, 7, TRUE, &mii );
+	*/
 }
 
 /*!
@@ -175,17 +175,13 @@ XPopupMenu::XPopupMenu( HMENU hMenu ) {
 
 XPopupMenu::~XPopupMenu( ) {
 
-  this->clearAllMenuItems( );
+	this->clearAllMenuItems( );
 
-  if ( this->m_hBitmap != NULL )
-    DeleteObject( this->m_hBitmap );
+	if ( this->m_hBitmap != NULL )
+		DeleteObject( this->m_hBitmap );
 
-  //mIRCError( "XPopupMenu::~XPopupMenu( )" );
-  if ( this->m_hMenu != NULL && this->m_tsMenuName != "mircbar" ) {
-
-    //mIRCError( "DestroyMenu( this->m_hMenu );" );
-    DestroyMenu( this->m_hMenu );
-  }
+	if ( this->m_hMenu != NULL && this->m_tsMenuName != "mircbar" )
+		DestroyMenu( this->m_hMenu );
 }
 
 /*!
@@ -196,306 +192,249 @@ XPopupMenu::~XPopupMenu( ) {
 
 void XPopupMenu::parseXPopCommand( TString & input ) {
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( &input.gettok( 2, " " ), &flags );
+	XSwitchFlags flags;
+	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
+	this->parseSwitchFlags( &input.gettok( 2, " " ), &flags );
+
+	TString path(input.gettok( 1, "\t" ).gettok( 3, -1, " " ));
+	path.trim( );
+
+	HMENU hMenu;
+	if ( path.numtok( " " ) == 1 )
+		hMenu = this->m_hMenu;
+	else {
+		hMenu = this->parsePath( path.gettok( 1, path.numtok( " " ) - 1, " " ), this->m_hMenu );
+
+		if ( hMenu == NULL ) {
+			DCXError("/xpop","Invalid Menu Item Path" );
+			return;
+		}
+	}
+
+	// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText [TAB] Command
+	if ( flags.switch_flags[0] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 3 ) {
+		TString itemdata(input.gettok( 2, "\t" ));
+		itemdata.trim( );
+		TString itemcom;
+		if ( input.numtok( "\t" ) > 2 ) {
+			itemcom = input.gettok( 3, "\t" );
+			itemcom.trim( );
+		}
+
+		HMENU hMenu;
+		if ( path.numtok( " " ) == 1 )
+			hMenu = this->m_hMenu;
+		else {
+			hMenu = this->parsePath( path.gettok( 1, path.numtok( " " ) - 1, " " ), this->m_hMenu );
+
+			if ( hMenu == NULL )
+				return;
+		}
+
+		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+		int mID = (int)itemdata.gettok( 2, " " ).to_num( );
+		int nIcon = (int)itemdata.gettok( 3, " " ).to_num( ) - 1;
+
+		TString flags(itemdata.gettok( 1, " " ));
+		TString itemtext(itemdata.gettok( 4, -1 , " " ));
+
+		if ( nPos == -1 )
+			nPos += GetMenuItemCount( hMenu ) + 1;
+
+		MENUITEMINFO mii;
+		ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+		mii.cbSize = sizeof( MENUITEMINFO );
+
+		XPopupMenuItem * p_Item = NULL;
+
+		if ( itemtext == "-" ) {
+			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+			mii.fType = MFT_OWNERDRAW | MFT_SEPARATOR;
+
+			p_Item = new XPopupMenuItem( this, TRUE );
+		}
+		else {
+			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE | MIIM_ID;
+			mii.fType = MFT_OWNERDRAW;
+			mii.wID = mID;
+
+			if ( flags[0] == '+' ) {
+				int i = 1, len = flags.len( );
+				while ( i < len ) {
+					// submenu
+					if ( flags[i] == 's' ) {
+						mii.fMask |= MIIM_SUBMENU;
+						if ( mii.fMask != NULL )
+							DestroyMenu( mii.hSubMenu );
+						mii.hSubMenu = CreatePopupMenu( );
+					}
+					else if ( flags[i] == 'c' )
+						mii.fState |= MFS_CHECKED;
+					else if ( flags[i] == 'g' )
+						mii.fState |= MFS_GRAYED;
+					++i;
+				}
+			}
+			p_Item = new XPopupMenuItem( this, itemtext, nIcon, mii.hSubMenu!=NULL?TRUE:FALSE );
+		}
+
+		this->m_vpMenuItem.push_back( p_Item );
+		mii.dwItemData = (ULONG_PTR) p_Item;
+		InsertMenuItem( hMenu, nPos, TRUE, &mii );
+	}
+	// xpop -c - [MENU] [SWITCH] [PATH]
+	else if ( flags.switch_flags[2] && input.numtok( " " ) > 2 ) {
+		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+		if ( nPos > -1 ) {
+			MENUITEMINFO mii;
+			ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+			mii.cbSize = sizeof( MENUITEMINFO );
+			mii.fMask = MIIM_SUBMENU | MIIM_DATA;
+
+			GetMenuItemInfo( hMenu, nPos, TRUE, &mii );
+
+			if ( mii.hSubMenu != NULL ) {
+				this->deleteAllItemData( mii.hSubMenu );
+				DestroyMenu( mii.hSubMenu );
+			}
 
-  TString path = input.gettok( 1, "\t" ).gettok( 3, -1, " " );
-  path.trim( );
+			mii.hSubMenu = CreatePopupMenu( );
 
-  HMENU hMenu;
-  if ( path.numtok( " " ) == 1 ) {
-
-    hMenu = this->m_hMenu;
-  }
-  else {
-
-    //mIRCError( path.to_chr( ) );
-    //mIRCError( path.gettok( 1, path.numtok( " " ) - 1, " " ).to_chr( ) );
-
-    hMenu = this->parsePath( path.gettok( 1, path.numtok( " " ) - 1, " " ), this->m_hMenu );
-
-    if ( hMenu == NULL ) {
-
-      DCXError("/xpop","Invalid Menu Item Path" );
-      return;
-    }
-    //else {
-      //mIRCError( "Found SubMenu" );
-    //}
-  }
-
-  // xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText [TAB] Command
-  if ( flags.switch_flags[0] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 3 ) {
-
-    TString itemdata = input.gettok( 2, "\t" );
-    itemdata.trim( );
-    TString itemcom = "";
-    if ( input.numtok( "\t" ) > 2 ) {
-      itemcom = input.gettok( 3, "\t" );
-      itemcom.trim( );
-    }
-
-    HMENU hMenu;
-    if ( path.numtok( " " ) == 1 ) {
-
-      //mIRCError( "Root" );
-      hMenu = this->m_hMenu;
-    }
-    else {
-
-      hMenu = this->parsePath( path.gettok( 1, path.numtok( " " ) - 1, " " ), this->m_hMenu );
-
-      if ( hMenu == NULL ) {
-
-        //mIRCError( "No SubMenu" );
-        return;
-      }
-      //else {
-        //mIRCError( "Found SubMenu" );
-      //}
-    }
-
-    int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
-    int mID = (int)itemdata.gettok( 2, " " ).to_num( );
-    int nIcon = (int)itemdata.gettok( 3, " " ).to_num( ) - 1;
-
-    TString flags = itemdata.gettok( 1, " " );
-    TString itemtext = itemdata.gettok( 4, -1 , " " );
-
-    if ( nPos == -1 )
-      nPos += GetMenuItemCount( hMenu ) + 1;
-
-    MENUITEMINFO mii;
-    ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-    mii.cbSize = sizeof( MENUITEMINFO );
-
-    XPopupMenuItem * p_Item = NULL;
-
-    if ( itemtext == "-" ) {
-
-      mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
-      mii.fType = MFT_OWNERDRAW | MFT_SEPARATOR;
-
-      p_Item = new XPopupMenuItem( this, TRUE );
-    }
-    else {
-
-      mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE | MIIM_ID;
-      mii.fType = MFT_OWNERDRAW;
-      mii.wID = mID;
-
-      if ( flags[0] == '+' ) {
-
-        int i = 1, len = flags.len( );
-        while ( i < len ) {
-
-          // submenu
-          if ( flags[i] == 's' ) {
-
-            mii.fMask |= MIIM_SUBMENU;
-            if ( mii.fMask != NULL )
-              DestroyMenu( mii.hSubMenu );
-
-            mii.hSubMenu = CreatePopupMenu( );
-          }
-          else if ( flags[i] == 'c' ) {
-            mii.fState |= MFS_CHECKED;
-          }
-          else if ( flags[i] == 'g' ) {
-            mii.fState |= MFS_GRAYED;
-          }
-
-          ++i;
-        }
-      }
-      p_Item = new XPopupMenuItem( this, itemtext, nIcon, mii.hSubMenu!=NULL?TRUE:FALSE );
-    }
-
-    this->m_vpMenuItem.push_back( p_Item );
-    mii.dwItemData = (ULONG_PTR) p_Item;
-    InsertMenuItem( hMenu, nPos, TRUE, &mii );
-    /*
-      if ( InsertMenuItem( this->m_hMenu, nPos, TRUE, &mii ) == TRUE )
-      mIRCError( "Item Inserted" );
-    else
-      mIRCError( "Item Not Inserted" );
-      */
-  }
-  // xpop -c - [MENU] [SWITCH] [PATH]
-  else if ( flags.switch_flags[2] && input.numtok( " " ) > 2 ) {
-
-    int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
-    if ( nPos > -1 ) {
-
-      MENUITEMINFO mii;
-      ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-      mii.cbSize = sizeof( MENUITEMINFO );
-      mii.fMask = MIIM_SUBMENU | MIIM_DATA;
-
-      GetMenuItemInfo( hMenu, nPos, TRUE, &mii );
-      //if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE )
-        //mIRCError( "Got Item Data" );
-
-      if ( mii.hSubMenu != NULL ) {
-
-        this->deleteAllItemData( mii.hSubMenu );
-        DestroyMenu( mii.hSubMenu );
-      }
-
-      mii.hSubMenu = CreatePopupMenu( );
-      
-      XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-      if ( p_Item != NULL )
-        p_Item->setSubMenu( TRUE );
-
-      mii.fMask = MIIM_SUBMENU;
-
-      SetMenuItemInfo( hMenu, nPos, TRUE, &mii );
-    }
-  }
-  // xpop -d - [MENU] [SWITCH] [PATH]
-  else if ( flags.switch_flags[3] && input.numtok( " " ) > 2 ) {
-
-    int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
-    if ( nPos > -1 ) {
-
-      MENUITEMINFO mii;
-      ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-      mii.cbSize = sizeof( MENUITEMINFO );
-      mii.fMask = MIIM_SUBMENU | MIIM_DATA;
-
-      GetMenuItemInfo( hMenu, nPos, TRUE, &mii );
-      //if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE )
-        //mIRCError( "Got Item Data" );
-
-      if ( mii.hSubMenu != NULL ) {
-
-        //mIRCError( "mii.hSubMenu != NULL" );
-        this->deleteAllItemData( mii.hSubMenu );
-        DestroyMenu( mii.hSubMenu );
-      }
-
-      XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-      if ( p_Item != NULL )
-        p_Item->setSubMenu( FALSE );
-
-      mii.hSubMenu = NULL;
-      mii.fMask = MIIM_SUBMENU;
-
-      SetMenuItemInfo( hMenu, nPos, TRUE, &mii );
-    }
-  }
-  // xpop -f - [MENU] [SWITCH] [PATH]
-  else if ( flags.switch_flags[5] && input.numtok( " " ) > 2 ) {
-
-    int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
-    if ( nPos > -1 ) {
-
-      MENUITEMINFO mii;
-      ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-      mii.cbSize = sizeof( MENUITEMINFO );
-      mii.fMask = MIIM_SUBMENU | MIIM_DATA;
-
-      GetMenuItemInfo( hMenu, nPos, TRUE, &mii );
-      //if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE )
-        //mIRCError( "Got Item Data" );
-
-      if ( mii.hSubMenu != NULL ) {
-
-        //mIRCError( "mii.hSubMenu != NULL" );
-        this->deleteAllItemData( mii.hSubMenu );
-        DestroyMenu( mii.hSubMenu );
-      }
-
-      XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-      if ( p_Item != NULL )
-        this->deleteMenuItemData( p_Item );
-
-      DeleteMenu( hMenu, nPos, MF_BYPOSITION );
-    }
-  }
-  // xpop -i - [MENU] [SWITCH] [PATH] [TAB] [ICON]
-  else if ( flags.switch_flags[8] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 0 ) {
-
-    int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
-    int nIcon = (int)input.gettok( 2, "\t" ).to_num( );
-
-    if ( nPos > -1 ) {
-
-      MENUITEMINFO mii;
-      ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-      mii.cbSize = sizeof( MENUITEMINFO );
-      mii.fMask = MIIM_DATA;
-
-      GetMenuItemInfo( hMenu, nPos, TRUE, &mii );
-      //if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE )
-        //mIRCError( "Got Item Data" );
-
-      XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-      if ( p_Item != NULL )
-        p_Item->setItemIcon( nIcon );
-    }
-  }
-  // xpop -s - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS]
-  else if ( flags.switch_flags[18] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 0 ) {
-
-    int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
-    TString flags = input.gettok( 2, "\t" );
-    flags.trim( );
-
-    if ( nPos > -1 ) {
-
-      MENUITEMINFO mii;
-      ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-      mii.cbSize = sizeof( MENUITEMINFO );
-      mii.fMask = MIIM_STATE;
-
-      if ( flags[0] == '+' ) {
-
-        int i = 1, len = flags.len( );
-        while ( i < len ) {
-
-          if ( flags[i] == 'c' )
-            mii.fState |= MFS_CHECKED;
-          else if ( flags[i] == 'g' )
-            mii.fState |= MFS_GRAYED;
-
-          ++i;
-        }
-      }
-
-      SetMenuItemInfo( hMenu, nPos, TRUE, &mii );
-    }
-  }
-  // xpop -t - [MENU] [SWITCH] [PATH] [TAB] Itemtext
-  else if ( flags.switch_flags[19] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 0 ) {
-
-    int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
-
-    TString itemtext = input.gettok( 2, "\t" );
-    itemtext.trim( );
-
-    if ( nPos > -1 ) {
-
-      MENUITEMINFO mii;
-      ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-      mii.cbSize = sizeof( MENUITEMINFO );
-      mii.fMask = MIIM_DATA | MIIM_STATE | MIIM_SUBMENU | MIIM_FTYPE | MIIM_ID;
-
-      GetMenuItemInfo( hMenu, nPos, TRUE, &mii );
-      //if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE )
-        //mIRCError( "Got Item Data" );
-
-      XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-      if ( p_Item != NULL )
-        p_Item->setItemText( itemtext );
-        
-      // this is to make sure system resets the measurement of the itemwidth on next display
-      DeleteMenu( hMenu, nPos, MF_BYPOSITION );
-      InsertMenuItem( hMenu, nPos, TRUE, &mii );
-    }
-  }
+			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+			if ( p_Item != NULL )
+				p_Item->setSubMenu( TRUE );
+
+			mii.fMask = MIIM_SUBMENU;
+
+			SetMenuItemInfo( hMenu, nPos, TRUE, &mii );
+		}
+	}
+	// xpop -d - [MENU] [SWITCH] [PATH]
+	else if ( flags.switch_flags[3] && input.numtok( " " ) > 2 ) {
+
+		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+		if ( nPos > -1 ) {
+
+			MENUITEMINFO mii;
+			ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+			mii.cbSize = sizeof( MENUITEMINFO );
+			mii.fMask = MIIM_SUBMENU | MIIM_DATA;
+
+			GetMenuItemInfo( hMenu, nPos, TRUE, &mii );
+
+			if ( mii.hSubMenu != NULL ) {
+				this->deleteAllItemData( mii.hSubMenu );
+				DestroyMenu( mii.hSubMenu );
+			}
+
+			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+			if ( p_Item != NULL )
+				p_Item->setSubMenu( FALSE );
+
+			mii.hSubMenu = NULL;
+			mii.fMask = MIIM_SUBMENU;
+
+			SetMenuItemInfo( hMenu, nPos, TRUE, &mii );
+		}
+	}
+	// xpop -f - [MENU] [SWITCH] [PATH]
+	else if ( flags.switch_flags[5] && input.numtok( " " ) > 2 ) {
+
+		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+		if ( nPos > -1 ) {
+
+			MENUITEMINFO mii;
+			ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+			mii.cbSize = sizeof( MENUITEMINFO );
+			mii.fMask = MIIM_SUBMENU | MIIM_DATA;
+
+			GetMenuItemInfo( hMenu, nPos, TRUE, &mii );
+
+			if ( mii.hSubMenu != NULL ) {
+				this->deleteAllItemData( mii.hSubMenu );
+				DestroyMenu( mii.hSubMenu );
+			}
+
+			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+			if ( p_Item != NULL )
+				this->deleteMenuItemData( p_Item );
+
+			DeleteMenu( hMenu, nPos, MF_BYPOSITION );
+		}
+	}
+	// xpop -i - [MENU] [SWITCH] [PATH] [TAB] [ICON]
+	else if ( flags.switch_flags[8] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 0 ) {
+
+		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+		int nIcon = (int)input.gettok( 2, "\t" ).to_num( );
+
+		if ( nPos > -1 ) {
+
+			MENUITEMINFO mii;
+			ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+			mii.cbSize = sizeof( MENUITEMINFO );
+			mii.fMask = MIIM_DATA;
+
+			GetMenuItemInfo( hMenu, nPos, TRUE, &mii );
+
+			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+			if ( p_Item != NULL )
+				p_Item->setItemIcon( nIcon );
+		}
+	}
+	// xpop -s - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS]
+	else if ( flags.switch_flags[18] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 0 ) {
+
+		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+		TString flags(input.gettok( 2, "\t" ));
+		flags.trim( );
+
+		if ( nPos > -1 ) {
+			MENUITEMINFO mii;
+			ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+			mii.cbSize = sizeof( MENUITEMINFO );
+			mii.fMask = MIIM_STATE;
+
+			if ( flags[0] == '+' ) {
+
+				int i = 1, len = flags.len( );
+				while ( i < len ) {
+					if ( flags[i] == 'c' )
+						mii.fState |= MFS_CHECKED;
+					else if ( flags[i] == 'g' )
+						mii.fState |= MFS_GRAYED;
+				++i;
+				}
+			}
+
+			SetMenuItemInfo( hMenu, nPos, TRUE, &mii );
+		}
+	}
+	// xpop -t - [MENU] [SWITCH] [PATH] [TAB] Itemtext
+	else if ( flags.switch_flags[19] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 0 ) {
+
+		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+
+		TString itemtext(input.gettok( 2, "\t" ));
+		itemtext.trim( );
+
+		if ( nPos > -1 ) {
+			MENUITEMINFO mii;
+			ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+			mii.cbSize = sizeof( MENUITEMINFO );
+			mii.fMask = MIIM_DATA | MIIM_STATE | MIIM_SUBMENU | MIIM_FTYPE | MIIM_ID;
+
+			GetMenuItemInfo( hMenu, nPos, TRUE, &mii );
+
+			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+			if ( p_Item != NULL )
+				p_Item->setItemText( itemtext );
+
+			// this is to make sure system resets the measurement of the itemwidth on next display
+			DeleteMenu( hMenu, nPos, MF_BYPOSITION );
+			InsertMenuItem( hMenu, nPos, TRUE, &mii );
+		}
+	}
 }
 
 /*!
@@ -507,24 +446,18 @@ void XPopupMenu::parseXPopCommand( TString & input ) {
 void XPopupMenu::parseXPopIdentifier( TString & input, char * szReturnValue ) {
 
   int numtok = input.numtok( " " );
-  TString prop = input.gettok( 2, " " );
-
-  //mIRCError( input.to_chr( ) );
+  TString prop(input.gettok( 2, " " ));
 
   // [NAME] [ID] [PROP] [PATH]
   if ( prop == "num" && numtok > 2 ) {
 
-    TString path = input.gettok( 3, -1, " " );
+    TString path(input.gettok( 3, -1, " " ));
 
     HMENU hMenu;
-    if ( path == "root" ) {
-
+    if ( path == "root" )
       hMenu = this->m_hMenu;
-    }
-    else {
-
+    else
       hMenu = this->parsePath( path, this->m_hMenu );
-    }
 
     if ( hMenu != NULL ) {
       wsprintf( szReturnValue, "%d", GetMenuItemCount( hMenu ) );
@@ -533,7 +466,7 @@ void XPopupMenu::parseXPopIdentifier( TString & input, char * szReturnValue ) {
   }
   else if ( ( prop == "text" || prop == "icon" ) && numtok > 2 ) {
 
-    TString path = input.gettok( 3, -1, " " );
+    TString path(input.gettok( 3, -1, " " ));
 
     HMENU hMenu;
       
@@ -567,7 +500,7 @@ void XPopupMenu::parseXPopIdentifier( TString & input, char * szReturnValue ) {
   }
   else if ( ( prop == "checked" || prop == "enabled" ) && numtok > 2 ) {
 
-    TString path = input.gettok( 3, -1, " " );
+    TString path(input.gettok( 3, -1, " " ));
 
     HMENU hMenu;
       
@@ -597,7 +530,7 @@ void XPopupMenu::parseXPopIdentifier( TString & input, char * szReturnValue ) {
   }
   else if ( prop == "submenu" && numtok > 2 ) {
 
-    TString path = input.gettok( 3, -1, " " );
+    TString path(input.gettok( 3, -1, " " ));
 
     HMENU hMenu;
       
@@ -958,8 +891,6 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam
       {
         LPMEASUREITEMSTRUCT lpms = (LPMEASUREITEMSTRUCT) lParam;
         if ( lpms->CtlType == ODT_MENU ) {
-
-          //mIRCError( "XPopup WM_MEASUREITEM" );
           OnMeasureItem( mHwnd, lpms );
           return TRUE; 
         }
@@ -970,7 +901,6 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam
       {
         LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT) lParam;
         if ( lpdis->CtlType == ODT_MENU ) {
-          //mIRCError( "XPopup WM_DRAWITEM" );
           OnDrawItem( mHwnd, lpdis ); 
           return TRUE; 
         }
@@ -992,18 +922,15 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam
 
 LRESULT XPopupMenu::OnMeasureItem( HWND mHwnd, LPMEASUREITEMSTRUCT lpmis ) {
 
-  XPopupMenuItem * p_Item = (XPopupMenuItem *) lpmis->itemData;
+	XPopupMenuItem * p_Item = (XPopupMenuItem *) lpmis->itemData;
 
-  if ( p_Item != NULL ) {
+	if ( p_Item != NULL ) {
+		SIZE size = p_Item->getItemSize( mHwnd );
+		lpmis->itemWidth = size.cx;
+		lpmis->itemHeight = size.cy;
+	}
 
-    //mIRCError( "WM_MEASUREITEM" );
-
-    SIZE size = p_Item->getItemSize( mHwnd );
-    lpmis->itemWidth = size.cx;
-    lpmis->itemHeight = size.cy;
-  }
-
-  return TRUE;
+	return TRUE;
 }
 
 /*!
@@ -1014,16 +941,12 @@ LRESULT XPopupMenu::OnMeasureItem( HWND mHwnd, LPMEASUREITEMSTRUCT lpmis ) {
 
 LRESULT XPopupMenu::OnDrawItem( HWND mHwnd, LPDRAWITEMSTRUCT lpdis ) {
 
-  XPopupMenuItem * p_Item = (XPopupMenuItem *) lpdis->itemData;
+	XPopupMenuItem * p_Item = (XPopupMenuItem *) lpdis->itemData;
 
-  if ( p_Item != NULL ) {
-    //mIRCError( "WM_DRAWITEM" );
-	  
-    p_Item->DrawItem( lpdis );
-  }
-  
+	if ( p_Item != NULL )
+		p_Item->DrawItem( lpdis );
 
-  return TRUE;
+	return TRUE;
 }
 
 /*!
@@ -1033,12 +956,6 @@ LRESULT XPopupMenu::OnDrawItem( HWND mHwnd, LPDRAWITEMSTRUCT lpdis ) {
  */
 
 void XPopupMenu::convertMenu( HMENU hMenu, BOOL bForce ) {
-
-  /*
-  char data[500];
-  wsprintf( data, "Population of XPopupMenuItem (s) : %d", this->m_vpMenuItem.size( ) );
-  mIRCError( data );
-  */
 
   MENUITEMINFO mii;
   ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
@@ -1055,22 +972,14 @@ void XPopupMenu::convertMenu( HMENU hMenu, BOOL bForce ) {
 
     if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) == TRUE ) {
 
-      //if ( mii.hSubMenu != NULL )
-        //this->convertMenu( mii.hSubMenu, bForce );
-
       if ( !( mii.fType & MFT_OWNERDRAW ) || bForce == TRUE ) {
 
         mii.fType |= MFT_OWNERDRAW;
         XPopupMenuItem * p_Item;
 
-        if ( mii.fType & MFT_SEPARATOR ) {
-
+        if ( mii.fType & MFT_SEPARATOR )
           p_Item = new XPopupMenuItem( this, TRUE );
-        }
         else {
-
-          //mIRCError( string );
-
           TString itemtext( string );
           p_Item = new XPopupMenuItem( this, itemtext, -1, mii.hSubMenu!=NULL?TRUE:FALSE );
         }
@@ -1085,10 +994,6 @@ void XPopupMenu::convertMenu( HMENU hMenu, BOOL bForce ) {
 
     ++i;
   }
-
-  //char data[500];
-  //wsprintf( data, "Creating XPopupMenuItem : %d", k );
-  //mIRCError( data );
 }
 
 /*!
@@ -1098,14 +1003,6 @@ void XPopupMenu::convertMenu( HMENU hMenu, BOOL bForce ) {
  */
 
 void XPopupMenu::cleanMenu( HMENU hMenu ) {
-
-  //mIRCError( this->m_tsMenuName.to_chr( ) );
-
-  /*
-  char data[500];
-  wsprintf( data, "Cleaning of Menu (s) : %d", this->m_vpMenuItem.size( ) );
-  mIRCError( data );
-  */
   
   MENUITEMINFO mii;
   ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
@@ -1140,14 +1037,6 @@ void XPopupMenu::cleanMenu( HMENU hMenu ) {
  */
 
 void XPopupMenu::clearAllMenuItems( ) {
-
-  /*
-  mIRCError( this->m_tsMenuName.to_chr( ) );
-  
-  char data[500];
-  wsprintf( data, "Clearing XPopupMenuItem : %d", this->m_vpMenuItem.size( ) );
-  mIRCError( data );
-  */
   
   VectorOfXPopupMenuItem::iterator itStart = this->m_vpMenuItem.begin( );
   VectorOfXPopupMenuItem::iterator itEnd = this->m_vpMenuItem.end( );
@@ -1171,7 +1060,7 @@ void XPopupMenu::clearAllMenuItems( ) {
 
 HBITMAP XPopupMenu::getBackBitmap( ) {
 
-  return this->m_hBitmap;
+	return this->m_hBitmap;
 }
 
 /*!
@@ -1182,8 +1071,8 @@ HBITMAP XPopupMenu::getBackBitmap( ) {
 
 void XPopupMenu::setBackBitmap( HBITMAP hBitmap ) {
 
-  if ( this->m_hBitmap != NULL )
-    DeleteObject(this->m_hBitmap );
+	if ( this->m_hBitmap != NULL )
+		DeleteObject(this->m_hBitmap );
 
-  this->m_hBitmap = hBitmap;
+	this->m_hBitmap = hBitmap;
 }

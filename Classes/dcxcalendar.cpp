@@ -470,7 +470,7 @@ SYSTEMTIME DcxCalendar::MircTimeToSystemTime(long mircTime) {
 
 	mIRCeval(str.to_chr(), eval);
 
-	str = TString(eval);
+	str = eval;
 
 	st.wDay = str.gettok(1).to_int();
 	st.wMonth = str.gettok(2).to_int();
@@ -487,7 +487,7 @@ long DcxCalendar::SystemTimeToMircTime(LPSYSTEMTIME pst) {
 
 	char ret[100];
 
-	TString months[12] = {
+	static const TString months[12] = {
 		"January",
 		"Feburary",
 		"March",

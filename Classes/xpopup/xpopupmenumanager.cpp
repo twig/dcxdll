@@ -100,9 +100,6 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
   // xpopup -b - [MENU] [SWITCH] [FILENAME]
   if ( flags.switch_flags[1] && input.numtok( " " ) > 2 ) {
 
-    //mIRCError( input.to_chr( ) );
-    //mIRCError( "Loading BMP Image" );
-
     HBITMAP hBitmap = (HBITMAP) LoadImage( GetModuleHandle( NULL ), 
       input.gettok( 3, -1, " " ).to_chr( ), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
 
@@ -159,7 +156,7 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
     int index;
 
     index = input.gettok( 3, " " ).to_int( );
-    TString filename = input.gettok( 4, -1, " " );
+    TString filename(input.gettok( 4, -1, " " ));
     ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
     ImageList_AddIcon( himl, icon );
     DestroyIcon( icon );
@@ -180,7 +177,7 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
   // xpopup -p -> [MENU] [SWITCH] [COLORS]
   else if ( flags.switch_flags[15] && numtok > 2 ) {
 
-    TString colors = input.gettok( 3, -1, " " );
+    TString colors(input.gettok( 3, -1, " " ));
     int i = 1, len = colors.numtok( " " );
 
     while ( i <= len ) {
@@ -195,12 +192,6 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
     UINT flags = this->parseTrackFlags( input.gettok( 3, " " ) );
     int x = input.gettok( 4, " " ).to_int( );
     int y = input.gettok( 5, " " ).to_int( );
-
-    /*
-    char error[500];
-    wsprintf( error, "Is Window %d : %X", IsWindow( mhMenuOwner ), mhMenuOwner );
-    mIRCError( error );
-    */
     
     UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | flags, x, y, mhMenuOwner, NULL );
 
@@ -238,7 +229,7 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
   // xpopup -x -> [MENU] [SWITCH] [+FLAGS]
   else if ( flags.switch_flags[23] && numtok > 2 ) {
 
-    TString flags = input.gettok( 3, " " );
+    TString flags(input.gettok( 3, " " ));
 
     if ( flags[0] == '+' ) {
 
@@ -270,7 +261,7 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
 void XPopupMenuManager::parseXPopupIdentifier( TString & input, char * szReturnValue ) {
 
   int numtok = input.numtok( " " );
-  TString prop = input.gettok( 2, " " );
+  TString prop(input.gettok( 2, " " ));
 
   XPopupMenu * p_Menu;
   if ( ( p_Menu = this->getMenuByName( input.gettok( 1, " " ) ) ) == NULL && prop != "ismenu" ) {
@@ -311,7 +302,7 @@ void XPopupMenuManager::parseXPopupIdentifier( TString & input, char * szReturnV
   }
   else if ( prop == "exstyle" ) {
 
-    TString styles = "+";
+    TString styles("+");
     UINT iExStyles = p_Menu->getItemStyle( );
 
     if ( iExStyles & XPS_ICON3D )
