@@ -222,6 +222,20 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.tbitem"></a>$xdid().tbitem	</td></tr>
+	<tr><td colspan="2">This property lets you retreive top and bottom visible item indexes.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).tbitem</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).tbitem</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
 			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the Nth listbox item text.</td></tr>
 	<tr>
@@ -351,6 +365,20 @@
 	</tr>
 </table>
 <br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="events.scrollend"></a>scrollend	</td></tr>
+	<tr><td colspan="2">Event triggered when the list has finished scrolling.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME scrollend ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx scrollend 4</div></td>
+	</tr>
+</table>
+<br />
 </td><td class="menuright">
 	<br />
 <a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.extsel" style="color: #B52929;">extsel</a></li>
@@ -367,6 +395,7 @@
 <li><a href="#xdid.u" style="color: #0000FF;">-u</a></li>
 </ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.num" style="color: #6666FF;">num</a></li>
 <li><a href="#xdidprop.sel" style="color: #6666FF;">sel</a></li>
+<li><a href="#xdidprop.tbitem" style="color: #6666FF;">tbitem</a></li>
 <li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li>
 </ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.dclick" style="color: #009900;">dclick</a></li>
 <li><a href="#events.dragbegin" style="color: #009900;">dragbegin</a></li>
@@ -375,6 +404,7 @@
 <li><a href="#events.help" style="color: #009900;">help</a></li>
 <li><a href="#events.rclick" style="color: #009900;">rclick</a></li>
 <li><a href="#events.sclick" style="color: #009900;">sclick</a></li>
+<li><a href="#events.scrollend" style="color: #009900;">scrollend</a></li>
 </ul></td>
   </tr>
 </table>
@@ -383,7 +413,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 14th October, 06</td>
+		<td style="text-align: right;">Last Updated: 15th October, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

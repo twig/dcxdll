@@ -857,7 +857,7 @@
 <table class="xdialog">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
 			<a name="xdialog.E"></a>/xdialog -E	</td></tr>
-	<tr><td colspan="2">This command lets you enable/dishable callback events.</td></tr>
+	<tr><td colspan="2">This command lets you enable/disable callback events.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdialog -E [DNAME] [+FLAGS] [-FLAGS]</div></td>
@@ -1242,6 +1242,20 @@
 	</tr>
 </table>
 <br />
+<table class="xdialogprop">
+	<tr><td colspan="2" class="flag" style="color: #AC59AC; border-color: #AC59AC;">
+			<a name="xdialogprop.visible"></a>$xdialog().visible	</td></tr>
+	<tr><td colspan="2">This property returns $true if the dialog is visible, and $false if it is not visible.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdialog(dialog).visible</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdialog(dcx).visible</div></td>
+	</tr>
+</table>
+<br />
 <br /><table class="description">
 	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Marked Dialog Events</div></td></tr>
 	<tr><td>These events are fired when activity occurs in the dialog. Event ID of <a class="value">0</a> indicates the event was triggered by the dialog.</td></tr>
@@ -1341,6 +1355,34 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx deactivate 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="events.denter"></a>denter	</td></tr>
+	<tr><td colspan="2">Event triggered when the mouse enters the dialog client area.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME denter ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx denter 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="events.dleave"></a>dleave	</td></tr>
+	<tr><td colspan="2">Event triggered when the mouse leaves the dialog client area.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dleave ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dleave 4</div></td>
 	</tr>
 </table>
 <br />
@@ -1811,6 +1853,7 @@
 <li><a href="#xdialogprop.mouseid" style="color: #AC59AC;">mouseid</a></li>
 <li><a href="#xdialogprop.nextid" style="color: #AC59AC;">nextid</a></li>
 <li><a href="#xdialogprop.parent" style="color: #AC59AC;">parent</a></li>
+<li><a href="#xdialogprop.visible" style="color: #AC59AC;">visible</a></li>
 </ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.activate" style="color: #009900;">activate</a></li>
 <li><a href="#events.beginmove" style="color: #009900;">beginmove</a></li>
 <li><a href="#events.beginsize" style="color: #009900;">beginsize</a></li>
@@ -1818,6 +1861,8 @@
 <li><a href="#events.close" style="color: #009900;">close</a></li>
 <li><a href="#events.dclick" style="color: #009900;">dclick</a></li>
 <li><a href="#events.deactivate" style="color: #009900;">deactivate</a></li>
+<li><a href="#events.denter" style="color: #009900;">denter</a></li>
+<li><a href="#events.dleave" style="color: #009900;">dleave</a></li>
 <li><a href="#events.dragbegin" style="color: #009900;">dragbegin</a></li>
 <li><a href="#events.dragfile" style="color: #009900;">dragfile</a></li>
 <li><a href="#events.dragfinish" style="color: #009900;">dragfinish</a></li>
@@ -1854,7 +1899,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 14th October, 06</td>
+		<td style="text-align: right;">Last Updated: 15th October, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

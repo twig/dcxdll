@@ -1,6 +1,6 @@
 <?php
 function get_intro_calendar() {
-	echo "The Calendar control allows users to select a date, allowing the range to be customisable.";
+	echo 'The Calendar control allows users to select a date, allowing the range to be customisable.<br /><br />It is highly recommended that you understand how the mIRC functions $ctime and $asctime() functions work before using this control.';
 }
 
 

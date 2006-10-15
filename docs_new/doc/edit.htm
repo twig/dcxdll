@@ -278,6 +278,20 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.E"></a>/xdid -E	</td></tr>
+	<tr><td colspan="2">This command lets you set the cue text. It behaves like a ghostly value when the edit control is empty.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -E [DNAME] [ID] [TEXT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -E dcx 4 Username</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
 			<a name="xdid.S"></a>/xdid -S	</td></tr>
 	<tr><td colspan="2">This command lets you set the selection range in the edit.</td></tr>
 	<tr>
@@ -305,6 +319,20 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 14 3).caretpos</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.cue"></a>$xdid().cue	</td></tr>
+	<tr><td colspan="2">This returns the cue banner text in the control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).cue</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).cue</div></td>
 	</tr>
 </table>
 <br />
@@ -595,8 +623,10 @@
 <li><a href="#xdid.r" style="color: #0000FF;">-r</a></li>
 <li><a href="#xdid.t" style="color: #0000FF;">-t</a></li>
 <li><a href="#xdid.u" style="color: #0000FF;">-u</a></li>
+<li><a href="#xdid.E" style="color: #0000FF;">-E</a></li>
 <li><a href="#xdid.S" style="color: #0000FF;">-S</a></li>
 </ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.caretpos" style="color: #6666FF;">caretpos</a></li>
+<li><a href="#xdidprop.cue" style="color: #6666FF;">cue</a></li>
 <li><a href="#xdidprop.ispass" style="color: #6666FF;">ispass</a></li>
 <li><a href="#xdidprop.num" style="color: #6666FF;">num</a></li>
 <li><a href="#xdidprop.sel" style="color: #6666FF;">sel</a></li>
@@ -623,7 +653,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 14th October, 06</td>
+		<td style="text-align: right;">Last Updated: 15th October, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

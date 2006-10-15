@@ -63,7 +63,7 @@
 </td>
 <td><br /><table class="description">
 	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
-	<tr><td>Calendar control. This control is currently incomplete.<br /><br />
+	<tr><td>The Calendar control allows users to select a date, allowing the range to be customisable.<br /><br />It is highly recommended that you understand how the mIRC functions $ctime and $asctime() functions work before using this control.<br /><br />
 <div style="text-align: center;">
 	<img src="images/calendar.png" alt="" />
 </div>
@@ -102,15 +102,104 @@
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.t"></a>/xdid -t	</td></tr>
-	<tr><td colspan="2">This command lets you set the text.</td></tr>
+			<a name="xdid.k"></a>/xdid -k	</td></tr>
+	<tr><td colspan="2">This command lets you change the calendar style.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -t [DNAME] [ID] (Text)</div></td>
+		<td><div class="syntax">/xdid -k [DNAME] [ID] [+FLAGS] [COLOR]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -t dcx 4 Check Text</div></td>
+		<td><div class="example">/xdid -k dcx 4 +bi $rgb(255,0,255)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Calendar flags.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Calendar background.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Month background.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Day text.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Title background and selected day background color.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Title text and selected day text color.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Trailing text (days not included in this month).</td>
+	</tr>
+	<tr>
+		<td class="param">COLOR</td>
+		<td>The color to set.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.m"></a>/xdid -m	</td></tr>
+	<tr><td colspan="2">This command lets you set maximum number of days you can select at any one time.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -m [DNAME] [ID] [MAX]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -m dcx 4 5</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The default value for <a class="param">MAX</a> is <a class="value">7</a>.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
+	<tr><td colspan="2">This command lets you set the range of the first and last selectable dates.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -r [DNAME] [ID] [MIN_TIMESTAMP] [MAX_TIMESTAMP]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -r dcx 4 $ctime(3rd July 2006) $ctime<br />/xdid -r dcx 4 nolimit $ctime<br /></div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">nolimit</a> for <a class="param">MIN_TIMESTAMP</a> or <a class="param">MAX_TIMESTAMP</a> if you wish to specify no minimum or maximum date range.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.s"></a>/xdid -s	</td></tr>
+	<tr><td colspan="2">This command lets you select a date, or range of dates.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -s [DNAME] [ID] [MIN_TIMESTAMP] (MAX_TIMESTAMP)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -s dcx 4 $ctime(3rd July 2006) $ctime</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">MAX_TIMESTAMP</a> optional for the <a class="style">multi</a> style. If no <a class="param">MAX_TIMESTAMP</a> is specified, the selected date will only be <a class="param">MIN_TIMESTAMP</a>.</li><li><a class="param">MAX_TIMESTAMP</a> is ignored for a single select calendar.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
+	<tr><td colspan="2">This command lets you set the current day.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -t [DNAME] [ID] [TIMESTAMP]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -t dcx 4 $ctime(3rd July 3006)</div></td>
 	</tr>
 </table>
 <br />
@@ -120,15 +209,57 @@
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
-			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
-	<tr><td colspan="2">This property lets you retreive the text.</td></tr>
+			<a name="xdidprop.range"></a>$xdid().range	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the calendar date range.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdid(dialog, ID).text</div></td>
+		<td><div class="syntax">$xdid(dialog, ID).range</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4).text</div></td>
+		<td><div class="example">$xdid(dcx, 4).range</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="value">nolimit</a> is returned when the calendar range is not bounded.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.selcount"></a>$xdid().selcount	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the maximum number of selectable days.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).selcount</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).selcount</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.selected"></a>$xdid().selected	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the selected date range.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).selected</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).selected</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.today"></a>$xdid().today	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the calendar current day date.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).today</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).today</div></td>
 	</tr>
 </table>
 <br />
@@ -227,8 +358,15 @@
 <li><a href="#style.notoday" style="color: #B52929;">notoday</a></li>
 <li><a href="#style.notodaycircle" style="color: #B52929;">notodaycircle</a></li>
 <li><a href="#style.weeknum" style="color: #B52929;">weeknum</a></li>
-</ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.t" style="color: #0000FF;">-t</a></li>
-</ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li>
+</ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.k" style="color: #0000FF;">-k</a></li>
+<li><a href="#xdid.m" style="color: #0000FF;">-m</a></li>
+<li><a href="#xdid.r" style="color: #0000FF;">-r</a></li>
+<li><a href="#xdid.s" style="color: #0000FF;">-s</a></li>
+<li><a href="#xdid.t" style="color: #0000FF;">-t</a></li>
+</ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.range" style="color: #6666FF;">range</a></li>
+<li><a href="#xdidprop.selcount" style="color: #6666FF;">selcount</a></li>
+<li><a href="#xdidprop.selected" style="color: #6666FF;">selected</a></li>
+<li><a href="#xdidprop.today" style="color: #6666FF;">today</a></li>
 </ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.daystate" style="color: #009900;">daystate</a></li>
 <li><a href="#events.help" style="color: #009900;">help</a></li>
 <li><a href="#events.sclick" style="color: #009900;">sclick</a></li>
@@ -242,7 +380,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 14th October, 06</td>
+		<td style="text-align: right;">Last Updated: 15th October, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">
