@@ -27,6 +27,7 @@ $PAGES = array(
     'check' => 'Check',
     'radio' => "Radio",
     'calendar' => "Calendar",
+    'datetime' => "DateTime Picker",
     'webctrl' => "Web Control",
     'updown' => 'UpDown',
     'ipaddress' => "IP Address",

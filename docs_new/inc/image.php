@@ -64,7 +64,6 @@ function get_xdid_image(&$XDID) {
 			),
 	        '__notes' => array(
 				"Automatic resizing is enabled by default.",
-				"If you wish your image to be resized, call [f]/xdid -S[/f] <strong>BEFORE</strong> setting the image with [f]/xdid -i[/f]",
 			),
 		),
 	);

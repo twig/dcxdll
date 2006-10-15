@@ -2,7 +2,7 @@
 function get_intro_calendar() {
 	echo 'The Calendar control allows users to select a date, allowing the range to be customisable.<br />';
 	echo '<br />';
-	echo 'It is highly recommended that you understand how the mIRC functions $ctime and $asctime() functions work before using this control.<br />';
+	echo 'It is highly recommended that you familiarise yourself with how the mIRC functions $ctime and $asctime() functions work before using this control.<br />';
 	echo '<br />';
 	echo 'There is a known drawing bug with the [s]multi[/s] select. It is a winAPI bug. Let us know if you know of a fix for it!';
 }
