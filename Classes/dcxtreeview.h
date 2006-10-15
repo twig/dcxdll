@@ -94,7 +94,7 @@ class DcxTreeView : public DcxControl {
 public:
 
   //DcxTreeView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
-  DcxTreeView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+  DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxTreeView( );
 
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
@@ -139,7 +139,7 @@ protected:
   HTREEITEM cloneItem( HTREEITEM * hItem, HTREEITEM * hParentTo, HTREEITEM * hAfterTo );
   void copyAllItems( HTREEITEM *hItem, HTREEITEM * hParentTo );
 
-  std::string getPathFromVector( VectorOfInts * numPath );
+  static std::string getPathFromVector( VectorOfInts * numPath );
 
   static UINT parseIconFlagOptions( TString & flags );
   static UINT parseItemFlags( TString & flags );

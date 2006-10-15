@@ -103,9 +103,7 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd,
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
-
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
-
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
@@ -297,9 +295,8 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 		//this->setControlFont(hfNew, FALSE);
 		this->redrawWindow();
 	}
-	else {
+	else
 		this->parseGlobalCommandRequest(input, flags);
-	}
 }
 
 /*!

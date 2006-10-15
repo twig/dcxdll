@@ -149,59 +149,58 @@ extern BOOL XPPlus;
  */
 
 DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+: DcxControl( ID, p_Dialog )
 {
-
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
 	this->m_TitleButton = NULL;
 	this->_hTheme = NULL;
 
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles | WS_EX_CONTROLPARENT, 
-    DCX_BOXCLASS, //"BUTTON", 
-    NULL,
-    Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles | WS_EX_CONTROLPARENT, 
+		DCX_BOXCLASS, //"BUTTON", 
+		NULL,
+		Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
+	this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
 
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
 	if (this->m_iBoxStyles & BOXS_CHECK) {
-			this->m_TitleButton = CreateWindowEx(
-				ExStyles,
-				"BUTTON",
-				NULL,
-				WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTOCHECKBOX,
-				CW_USEDEFAULT,CW_USEDEFAULT,11,10,
-				this->m_Hwnd,
-				(HMENU) ID,
-				GetModuleHandle(NULL), 
-				NULL);
+		this->m_TitleButton = CreateWindowEx(
+			ExStyles,
+			"BUTTON",
+			NULL,
+			WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTOCHECKBOX,
+			CW_USEDEFAULT,CW_USEDEFAULT,11,10,
+			this->m_Hwnd,
+			(HMENU) ID,
+			GetModuleHandle(NULL), 
+			NULL);
 	}
 	else if (this->m_iBoxStyles & BOXS_RADIO) {
-			this->m_TitleButton = CreateWindowEx(
-				ExStyles,
-				"BUTTON",
-				NULL,
-				WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTORADIOBUTTON,
-				CW_USEDEFAULT,CW_USEDEFAULT,11,10,
-				this->m_Hwnd,
-				(HMENU) ID,
-				GetModuleHandle(NULL),
-				NULL);
+		this->m_TitleButton = CreateWindowEx(
+		ExStyles,
+		"BUTTON",
+		NULL,
+		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTORADIOBUTTON,
+		CW_USEDEFAULT,CW_USEDEFAULT,11,10,
+		this->m_Hwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL),
+		NULL);
 	}
 	if (IsWindow(this->m_TitleButton)) {
 		if ( bNoTheme )
@@ -430,11 +429,11 @@ void DcxBox::parseCommandRequest( TString & input ) {
 		}
     else if ( numtok > 8 ) {
 
-      TString com = input.gettok( 1, "\t" ).gettok( 4, " " );
+      TString com(input.gettok( 1, "\t" ).gettok( 4, " " ));
       com.trim( );
-      TString path = input.gettok( 1, "\t" ).gettok( 5, -1, " " );
+      TString path(input.gettok( 1, "\t" ).gettok( 5, -1, " " ));
       path.trim( );
-      TString p2 = input.gettok( 2, "\t" );
+      TString p2(input.gettok( 2, "\t" ));
       p2.trim( );
 
       UINT flags = this->parseLayoutFlags( p2.gettok( 1, " " ) );
@@ -580,7 +579,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
   //xdid -t [NAME] [ID] [SWITCH]
   else if ( flags.switch_flags[19] ) {
 
-    TString text = input.gettok( 4, -1, " " );
+    TString text(input.gettok( 4, -1, " " ));
     text.trim( );
     SetWindowText( this->m_Hwnd, text.to_chr( ) );
     this->redrawWindow( );

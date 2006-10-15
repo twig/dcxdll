@@ -15,72 +15,68 @@
 #include "dcxcomboex.h"
 #include "dcxdialog.h"
 
-void DcxComboEx::ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
-{
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles,
-    DCX_COMBOEXCLASS,
-    NULL,
-    WS_CHILD | WS_VISIBLE | CBS_AUTOHSCROLL | Styles,
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL),
-    NULL);
-
-  //if ( bNoTheme )
-  //  SendMessage( this->m_Hwnd , CBEM_SETWINDOWTHEME, 0, (LPARAM)L" " );
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  this->m_EditHwnd = (HWND) this->getEditControl( );
-
-  if ( IsWindow( this->m_EditHwnd ) ) {
-		if ( bNoTheme )
-			dcxSetWindowTheme( this->m_EditHwnd , L" ", L" " );
-
-    LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
-
-    lpce->cHwnd = this->m_Hwnd;
-    lpce->pHwnd = mParentHwnd;
-
-    SetWindowLong( this->m_EditHwnd, GWL_STYLE, GetWindowLong( this->m_EditHwnd, GWL_STYLE ) | ES_AUTOHSCROLL );
-
-    lpce->OldProc = (WNDPROC) SetWindowLong( this->m_EditHwnd, GWL_WNDPROC, (LONG) DcxComboEx::ComboExEditProc );
-    SetWindowLong( this->m_EditHwnd, GWL_USERDATA, (LONG) lpce );
-  }
-
-	HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);
-	if (IsWindow(combo) && bNoTheme)
-		dcxSetWindowTheme( combo , L" ", L" " );
-
-	//if (p_Dialog->getToolTip() != NULL) {
-	//	if (styles.istok("tooltips"," ")) {
-
-	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
-
-	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_EditHwnd);
-	//	}
-	//}
-
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-
-  DragAcceptFiles(this->m_Hwnd, TRUE);
-
-	// fix bug with disabled creation
-	// todo: fix this properly
-	if (Styles & WS_DISABLED) {
-		EnableWindow(this->m_Hwnd, TRUE);
-		EnableWindow(this->m_Hwnd, FALSE);
-	}
-}
+//void DcxComboEx::ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
+//{
+//	LONG Styles = 0, ExStyles = 0;
+//	BOOL bNoTheme = FALSE;
+//	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//	this->m_Hwnd = CreateWindowEx(	
+//		ExStyles,
+//		DCX_COMBOEXCLASS,
+//		NULL,
+//		WS_CHILD | WS_VISIBLE | CBS_AUTOHSCROLL | Styles,
+//		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//		mParentHwnd,
+//		(HMENU) ID,
+//		GetModuleHandle(NULL),
+//		NULL);
+//
+//	if ( bNoTheme )
+//		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//	this->m_EditHwnd = (HWND) this->getEditControl( );
+//
+//	if ( IsWindow( this->m_EditHwnd ) ) {
+//		if ( bNoTheme )
+//			dcxSetWindowTheme( this->m_EditHwnd , L" ", L" " );
+//
+//		LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
+//
+//		lpce->cHwnd = this->m_Hwnd;
+//		lpce->pHwnd = mParentHwnd;
+//
+//		SetWindowLong( this->m_EditHwnd, GWL_STYLE, GetWindowLong( this->m_EditHwnd, GWL_STYLE ) | ES_AUTOHSCROLL );
+//
+//		lpce->OldProc = (WNDPROC) SetWindowLong( this->m_EditHwnd, GWL_WNDPROC, (LONG) DcxComboEx::ComboExEditProc );
+//		SetWindowLong( this->m_EditHwnd, GWL_USERDATA, (LONG) lpce );
+//	}
+//
+//	HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);
+//	if (IsWindow(combo) && bNoTheme)
+//		dcxSetWindowTheme( combo , L" ", L" " );
+//
+//	//if (p_Dialog->getToolTip() != NULL) {
+//	//	if (styles.istok("tooltips"," ")) {
+//	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
+//	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+//	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_EditHwnd);
+//	//	}
+//	//}
+//
+//	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+//	this->registreDefaultWindowProc( );
+//	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//
+//	DragAcceptFiles(this->m_Hwnd, TRUE);
+//
+//	// fix bug with disabled creation
+//	// todo: fix this properly
+//	if (Styles & WS_DISABLED) {
+//		EnableWindow(this->m_Hwnd, TRUE);
+//		EnableWindow(this->m_Hwnd, FALSE);
+//	}
+//}
 /*!
  * \brief Constructor
  *
@@ -107,9 +103,67 @@ void DcxComboEx::ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHw
  */
 
 DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+: DcxControl( ID, p_Dialog )
 {
-	this->ConstructComboEx(ID,p_Dialog,mParentHwnd,rc,styles);
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles,
+		DCX_COMBOEXCLASS,
+		NULL,
+		WS_CHILD | WS_VISIBLE | CBS_AUTOHSCROLL | Styles,
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL),
+		NULL);
+
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+
+	this->m_EditHwnd = (HWND) this->getEditControl( );
+
+	if ( IsWindow( this->m_EditHwnd ) ) {
+		if ( bNoTheme )
+			dcxSetWindowTheme( this->m_EditHwnd , L" ", L" " );
+
+		LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
+
+		lpce->cHwnd = this->m_Hwnd;
+		lpce->pHwnd = mParentHwnd;
+
+		SetWindowLong( this->m_EditHwnd, GWL_STYLE, GetWindowLong( this->m_EditHwnd, GWL_STYLE ) | ES_AUTOHSCROLL );
+
+		lpce->OldProc = (WNDPROC) SetWindowLong( this->m_EditHwnd, GWL_WNDPROC, (LONG) DcxComboEx::ComboExEditProc );
+		SetWindowLong( this->m_EditHwnd, GWL_USERDATA, (LONG) lpce );
+	}
+
+	HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);
+	if (IsWindow(combo) && bNoTheme)
+		dcxSetWindowTheme( combo , L" ", L" " );
+
+	//if (p_Dialog->getToolTip() != NULL) {
+	//	if (styles.istok("tooltips"," ")) {
+	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
+	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_EditHwnd);
+	//	}
+	//}
+
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+
+	DragAcceptFiles(this->m_Hwnd, TRUE);
+
+	// fix bug with disabled creation
+	// todo: fix this properly
+	if (Styles & WS_DISABLED) {
+		EnableWindow(this->m_Hwnd, TRUE);
+		EnableWindow(this->m_Hwnd, FALSE);
+	}
 }
 
 /*!
@@ -225,9 +279,9 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
   else if ( input.gettok( 3, " " ) == "find" && numtok > 5 ) {
 
-    TString matchtext = input.gettok( 2, "\t" );
+    TString matchtext(input.gettok( 2, "\t" ));
     matchtext.trim( );
-    TString params = input.gettok( 3, "\t" );
+    TString params(input.gettok( 3, "\t" ));
     params.trim( );
 
     if ( matchtext.len( ) > 0 ) {
@@ -313,7 +367,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 		int icon   = input.gettok(6, " ").to_int() -1;
 		int state  = input.gettok(7, " ").to_int() -1;
 		//int overlay = input.gettok( 8, " " ).to_int() - 1;
-		TString itemtext = input.gettok(9, -1, " ");
+		TString itemtext(input.gettok(9, -1, " "));
 
 		if (nPos == -2) {
 			if (IsWindow(this->m_EditHwnd))
@@ -367,9 +421,9 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
-		TString flags = input.gettok(4, " ");
+		TString flags(input.gettok(4, " "));
 		int index = input.gettok(5, " ").to_int();;
-		TString filename = input.gettok(6, -1, " ");
+		TString filename(input.gettok(6, -1, " "));
 
 		if ((himl = this->getImageList()) == NULL) {
 			himl = this->createImageList();
@@ -391,9 +445,8 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 		ImageList_Destroy(this->getImageList());
 		this->setImageList(NULL);
 	}
-	else {
+	else
 		this->parseGlobalCommandRequest(input, flags);
-	}
 }
 
 /*!

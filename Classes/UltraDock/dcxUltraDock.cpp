@@ -94,7 +94,7 @@ LPDCXULTRADOCK GetUltraDock(const HWND hwnd)
 
 void UltraDock(HWND mWnd, HWND temp, TString flag)
 {
-	if (FindUltraDock(temp)) {
+	if ((FindUltraDock(temp)) || (GetProp(temp,"dcx_docked") != NULL)) {
 		DCXError("/xdock -m","Window already docked");
 		return;
 	}

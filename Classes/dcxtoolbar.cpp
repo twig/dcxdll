@@ -326,7 +326,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
     if ( nPos == -1 )
       nPos += this->getButtonCount( ) + 1;
 
-    TString flags = input.gettok( 5, " " );
+    TString flags(input.gettok( 5, " " ));
     int width = (int)input.gettok( 6, " " ).to_num( );
     int icon = (int)input.gettok( 7, " " ).to_num( ) - 1;
     COLORREF clrText = (COLORREF) input.gettok( 8, " " ).to_num( );
@@ -615,7 +615,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		HIMAGELIST himl;
 		HICON icon = NULL;
 		int index = input.gettok(5, " ").to_int();
-		TString filename = input.gettok(6, -1, " ");
+		TString filename(input.gettok(6, -1, " "));
 
 		himl = this->getImageList(TB_IML_NORMAL);
 
@@ -663,9 +663,8 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			DestroyIcon(icon);
 		}
 	}
-  else {
+  else
     this->parseGlobalCommandRequest( input, flags );
-  }
 }
 
 /*!

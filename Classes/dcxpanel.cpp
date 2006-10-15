@@ -241,7 +241,6 @@ void DcxPanel::parseCommandRequest( TString & input ) {
         DestroyWindow( cHwnd );
 			}
       else {
-
         TString error;
         error.sprintf("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", 
                   p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
@@ -249,7 +248,6 @@ void DcxPanel::parseCommandRequest( TString & input ) {
       }
     }
     else {
-
       TString error;
       error.sprintf("Unknown control with ID \"%d\" (dialog %s)", 
                 ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
@@ -284,12 +282,11 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
     else if ( numtok > 8 ) {
-
-      TString com = input.gettok( 1, "\t" ).gettok( 4, " " );
+      TString com(input.gettok( 1, "\t" ).gettok( 4, " " ));
       com.trim( );
-      TString path = input.gettok( 1, "\t" ).gettok( 5, -1, " " );
+      TString path(input.gettok( 1, "\t" ).gettok( 5, -1, " " ));
       path.trim( );
-      TString p2 = input.gettok( 2, "\t" );
+      TString p2(input.gettok( 2, "\t" ));
       p2.trim( );
 
       UINT flags = this->parseLayoutFlags( p2.gettok( 1, " " ) );
@@ -444,9 +441,8 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[19] && numtok > 3) {
 		SetWindowText(this->m_Hwnd, input.gettok(4, -1, " ").to_chr());
 	}
-  else {
+  else
     this->parseGlobalCommandRequest( input, flags );
-  }
 }
 
 /*!

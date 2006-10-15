@@ -70,38 +70,35 @@
  */
 
 DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+: DcxControl( ID, p_Dialog )
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles, 
+		"BUTTON", 
+		NULL,
+		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    "BUTTON", 
-    NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
-
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
-
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -112,7 +109,7 @@ DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 
 DcxRadio::~DcxRadio( ) {
 
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 }
 
 /*!
@@ -190,31 +187,28 @@ void DcxRadio::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 void DcxRadio::parseCommandRequest( TString & input ) {
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+	XSwitchFlags flags;
+	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
+	this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
 
-  int numtok = input.numtok( " " );
+	int numtok = input.numtok( " " );
 
-  //xdid -c [NAME] [ID] [SWITCH]
-  if ( flags.switch_flags[2] ) {
-
-    Button_SetCheck( this->m_Hwnd, BST_CHECKED );
-  }
-  //xdid -t [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[19] && numtok > 3 ) {
-
-    TString text = input.gettok( 4, -1, " " );
-    text.trim( );
-    SetWindowText( this->m_Hwnd, text.to_chr( ) );
-  }
-  //xdid -u [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[20] ) {
-
-    Button_SetCheck( this->m_Hwnd, BST_UNCHECKED );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+	//xdid -c [NAME] [ID] [SWITCH]
+	if ( flags.switch_flags[2] ) {
+		Button_SetCheck( this->m_Hwnd, BST_CHECKED );
+	}
+	//xdid -t [NAME] [ID] [SWITCH]
+	else if ( flags.switch_flags[19] && numtok > 3 ) {
+		TString text(input.gettok( 4, -1, " " ));
+		text.trim( );
+		SetWindowText( this->m_Hwnd, text.to_chr( ) );
+	}
+	//xdid -u [NAME] [ID] [SWITCH]
+	else if ( flags.switch_flags[20] ) {
+		Button_SetCheck( this->m_Hwnd, BST_UNCHECKED );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!

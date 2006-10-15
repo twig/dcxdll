@@ -72,40 +72,39 @@
  */
 
 DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+: DcxControl( ID, p_Dialog )
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles, 
+		"SCROLLBAR", 
+		NULL,
+		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    "SCROLLBAR", 
-    NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	SCROLLINFO si;
+	si.cbSize = sizeof( SCROLLINFO );
+	si.fMask = SIF_POS | SIF_RANGE;
+	si.nPos = 0;
+	si.nMin = 0;
+	si.nMax = 100;
+	SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
 
-  SCROLLINFO si;
-  si.cbSize = sizeof( SCROLLINFO );
-  si.fMask = SIF_POS | SIF_RANGE;
-  si.nPos = 0;
-  si.nMin = 0;
-  si.nMax = 100;
-  SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
+	this->m_nPage = 5;
+	this->m_nLine = 1;
 
-  this->m_nPage = 5;
-  this->m_nLine = 1;
-
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -116,7 +115,7 @@ DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
 
 DcxScroll::~DcxScroll( ) {
 
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 }
 
 /*!

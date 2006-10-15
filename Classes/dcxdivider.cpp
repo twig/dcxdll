@@ -83,30 +83,29 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxDivider::DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+DcxDivider::DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
+: DcxControl( ID, p_Dialog )
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles | WS_EX_CONTROLPARENT, 
+		DCX_DIVIDERCLASS, 
+		NULL,
+		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles | WS_EX_CONTROLPARENT, 
-    DCX_DIVIDERCLASS, 
-    NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -183,10 +182,10 @@ void DcxDivider::parseCommandRequest( TString & input ) {
     ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
     dvpi.cbSize = sizeof( DVPANEINFO );
 
-    TString data = input.gettok( 1, "\t" );
+    TString data(input.gettok( 1, "\t" ));
     data.trim( );
 
-    TString control_data = "";
+    TString control_data;
     if ( input.numtok( "\t" ) > 1 ) {
 
       control_data = input.gettok( 2, "\t" );
@@ -246,9 +245,8 @@ void DcxDivider::parseCommandRequest( TString & input ) {
     int iPos = input.gettok( 4, " " ).to_int( );
     this->setDivPos( iPos );
   }
-  else {
+  else
     this->parseGlobalCommandRequest( input, flags );
-  }
 }
 
 /*!

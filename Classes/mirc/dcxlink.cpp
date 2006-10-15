@@ -82,46 +82,43 @@
 DcxLink::DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog )
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles, 
+		"STATIC", 
+		NULL,
+		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    "STATIC", 
-    NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  this->m_hIcon = NULL;
-  this->m_aColors[0] = RGB( 0, 0, 255 );
-  this->m_aColors[1] = RGB( 255, 0, 0 );
-  this->m_aColors[2] = RGB( 0, 0, 255 );
-  this->m_aColors[3] = RGB( 128, 128, 128 );
-  this->m_bHover = FALSE;
-  this->m_bTracking = FALSE;
-  this->m_bVisited = FALSE;
+	this->m_hIcon = NULL;
+	this->m_aColors[0] = RGB( 0, 0, 255 );
+	this->m_aColors[1] = RGB( 255, 0, 0 );
+	this->m_aColors[2] = RGB( 0, 0, 255 );
+	this->m_aColors[3] = RGB( 128, 128, 128 );
+	this->m_bHover = FALSE;
+	this->m_bTracking = FALSE;
+	this->m_bVisited = FALSE;
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
-
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
-
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
 
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -132,10 +129,10 @@ DcxLink::DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, c
 
 DcxLink::~DcxLink( ) {
 
-  if ( this->m_hIcon != NULL )
-    DestroyIcon( this->m_hIcon );
+	if ( this->m_hIcon != NULL )
+		DestroyIcon( this->m_hIcon );
 
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 }
 
 /*!
@@ -228,16 +225,16 @@ void DcxLink::parseCommandRequest( TString & input ) {
   //xdid -t [NAME] [ID] [SWITCH] (TEXT)
   else if ( flags.switch_flags[19] ) {
 
-    TString text = input.gettok( 4, -1, " " );
+    TString text(input.gettok( 4, -1, " " ));
     //text.trim( );
     SetWindowText( this->m_Hwnd, text.to_chr( ) );
     this->redrawWindow( );
   }
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {
-		TString flags = input.gettok(4, " ");
+		TString flags(input.gettok(4, " "));
 		int index = input.gettok(5, " ").to_int();
-		TString filename = input.gettok(6, -1, " ");
+		TString filename(input.gettok(6, -1, " "));
 
 		if (this->m_hIcon != NULL)
 			DestroyIcon(this->m_hIcon);

@@ -318,7 +318,7 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
       int nSelItems = ListView_GetSelectedCount( this->m_Hwnd );
       if ( nSelItems > 0 ) {
 
-        TString list = "";
+        TString list;
         char line[5];
 
         int nItem = -1;
@@ -378,9 +378,9 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [COLUMN] [N]
   else if ( input.gettok( 3, " " ) == "find" && numtok > 6 ) {
 
-    TString matchtext = input.gettok( 2, "\t" );
+    TString matchtext(input.gettok( 2, "\t" ));
     matchtext.trim( );
-    TString params = input.gettok( 3, "\t" );
+    TString params(input.gettok( 3, "\t" ));
     params.trim( );
 
     if ( matchtext.len( ) > 0 ) {
@@ -677,7 +677,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
 
-		TString data = input.gettok(1, "\t").gettok(4, -1, " ");
+		TString data(input.gettok(1, "\t").gettok(4, -1, " "));
 		data.trim();
 
 		// LVS_REPORT view
@@ -696,7 +696,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			COLORREF clrText = (COLORREF)data.gettok(8, " ").to_num();
 			COLORREF clrBack = (COLORREF)data.gettok(9, " ").to_num();
 
-			TString itemtext = "";
+			TString itemtext;
 
 			if (data.numtok(" ") > 9)
 				itemtext = data.gettok(10, -1, " ");
@@ -857,7 +857,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 				ListView_SetItemState(this->m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
 		}
 		else {
-			TString Ns = input.gettok(4, " ");
+			TString Ns(input.gettok(4, " "));
 			int i = 1;
 			int n = Ns.numtok(",");
 			int nItems = ListView_GetItemCount(this->m_Hwnd);
@@ -1041,7 +1041,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		int gid = (int)input.gettok(6, " ").to_num();
 
 		if (isXP() && index > -1 && gid > 0) {
-			TString text = input.gettok(7, -1, " ");
+			TString text(input.gettok(7, -1, " "));
 
 			LVGROUP lvg;
 			ZeroMemory(&lvg, sizeof(LVGROUP));
@@ -1074,7 +1074,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		LVCOLUMN lvc;
 		ZeroMemory(&lvc, sizeof(LVCOLUMN));
 		int nColumn = 0;
-		TString data = input.gettok(1, "\t" ).gettok(4, -1, " ");
+		TString data(input.gettok(1, "\t" ).gettok(4, -1, " "));
 		data.trim();
 
 		int icon  = (int)data.gettok(2, " ").to_num() -1;
@@ -1164,7 +1164,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		int nSubItem = (int)input.gettok(5, " ").to_num();
 
 		if (nItem > -1) {
-			TString itemtext = input.gettok(6, -1 , " ");
+			TString itemtext(input.gettok(6, -1 , " "));
 			itemtext.trim();
 
 			LVITEM lvi;
@@ -1714,8 +1714,6 @@ int DcxListView::getBottomIndex( ) {
 int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort ) {
 
   LPDCXLVSORT plvsort = (LPDCXLVSORT) lParamSort;
-  TString com;
-  char res[20];
   char itemtext1[900];
   char itemtext2[900];
 
@@ -1724,6 +1722,8 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 
   // CUSTOM Sort
   if ( plvsort->iSortFlags & LVSS_CUSTOM ) {
+		TString com;
+		char res[20];
 
     com.sprintf("$%s(%s,%s)", plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 		mIRCeval( com.to_chr(), res );

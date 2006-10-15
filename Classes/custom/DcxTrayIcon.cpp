@@ -36,7 +36,7 @@ mIRC(TrayIcon) {
 		return 1;
 	}
 
-	TString flags = d.gettok(1, " ");
+	TString flags(d.gettok(1, " "));
 	int id = d.gettok(2, " ").to_int();
 
 	// create and edit can use the same function
@@ -73,7 +73,7 @@ mIRC(TrayIcon) {
 
 		// if theres a tooltip text
 		if (d.numtok("\t") > 1) {
-			tooltip = TString(d.gettok(2, -1, "\t"));
+			tooltip = d.gettok(2, -1, "\t");
 			tooltip.trim();
 		}
 
@@ -82,7 +82,7 @@ mIRC(TrayIcon) {
 
 		// load the icon
 		int index = d.gettok(3, " ").to_int();
-		TString filename = d.gettok(1, "\t").gettok(4, -1, " ");
+		TString filename(d.gettok(1, "\t").gettok(4, -1, " "));
 
 		icon = dcxLoadIcon(index, filename);
 
@@ -106,7 +106,7 @@ mIRC(TrayIcon) {
 		// set up info
 		HICON icon;
 		int index = d.gettok(3, " ").to_int();
-		TString filename = d.gettok(4, -1, " ");
+		TString filename(d.gettok(4, -1, " "));
 
 		//NIF_INFO
 		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
@@ -121,7 +121,7 @@ mIRC(TrayIcon) {
 	}
 	// change tooltip
 	else if (flags.find('T', 0)) {
-		TString tip = "";
+		TString tip;
 
 		if (numtok > 2)
 			tip = d.gettok(3, -1, " ");

@@ -56,9 +56,7 @@ public:
 	LRESULT getLineLength();
 	LRESULT getLineIndex();
 
-	inline TString getType() {
-		return TString("richedit");
-	};
+	inline TString getType() { return TString("richedit"); };
 
 protected:
 	TString m_tsText; //!< RichEdit Text contents

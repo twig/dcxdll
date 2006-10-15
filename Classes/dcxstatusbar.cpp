@@ -241,7 +241,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
   else if ( flags.switch_flags[19] && numtok > 5 ) {
 
     int nPos = input.gettok( 4, " " ).to_int( ) - 1;
-    TString flags = input.gettok( 5, " " );
+    TString flags(input.gettok( 5, " " ));
     int icon = input.gettok( 6, " " ).to_int( ) - 1;
 
     TString itemtext;
@@ -277,7 +277,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 
     if ( nPos > -1 && nPos < this->getParts( 256, 0 ) ) {
 
-      TString itemtext = "";
+      TString itemtext;
       if ( numtok > 4 )
         itemtext = input.gettok( 5, -1, " " );
 
@@ -289,9 +289,9 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
-		TString flags = input.gettok(4, " ");
+		TString flags(input.gettok(4, " "));
 		int index = input.gettok(5, " ").to_int();
-		TString filename = input.gettok(6, -1, " ");
+		TString filename(input.gettok(6, -1, " "));
 
 		if ((himl = this->getImageList()) == NULL) {
 			himl = this->createImageList();
@@ -314,9 +314,8 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
     ImageList_Destroy( this->getImageList( ) );
 		this->setImageList(NULL);
   }
-  else {
+  else
     this->parseGlobalCommandRequest( input, flags );
-  }
 }
 
 /*!

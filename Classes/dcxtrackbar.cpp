@@ -68,8 +68,8 @@ http://www.codeproject.com/miscctrl/transparentslider.asp
  */
 
 DcxTrackBar::DcxTrackBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
-: DcxControl( ID, p_Dialog ) {
-
+: DcxControl( ID, p_Dialog )
+{
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
@@ -230,7 +230,7 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
 	else if (flags.switch_flags[6] && numtok > 4) {
 		UINT flags = parseImageFlags(input.gettok(4, " "));
-		TString filename = input.gettok(5, -1, " ");
+		TString filename(input.gettok(5, -1, " "));
 		filename.trim();
 
 		// background
@@ -297,7 +297,7 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
   // xdid -t [NAME] [ID] [SWITCH] [VALUE]
   else if ( flags.switch_flags[19] && numtok > 3 ) {
 
-    TString value = input.gettok( 4, " " );
+    TString value(input.gettok( 4, " " ));
 
     if ( value == "left" )
       this->setTipSide( TBTS_LEFT );
@@ -322,9 +322,8 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
 
     this->setPos( lPosition );
   }
-  else {
+  else
     this->parseGlobalCommandRequest( input, flags );
-  }
 }
 
 /*!

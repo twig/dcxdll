@@ -95,9 +95,8 @@
  */
 
 DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+: DcxControl( ID, p_Dialog )
 {
-
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
@@ -291,9 +290,8 @@ void DcxPager::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[25] && numtok > 2) {
 		this->reCalcSize();
 	}
-  else {
+  else
     this->parseGlobalCommandRequest( input, flags );
-  }
 }
 void DcxPager::setChild(const HWND child)
 {

@@ -79,40 +79,37 @@
  */
 
 DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+: DcxControl( ID, p_Dialog )
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles, 
+		DCX_IPADDRESSCLASS, 
+		NULL,
+		WS_CHILD | WS_VISIBLE | Styles, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    DCX_IPADDRESSCLASS, 
-    NULL,
-    WS_CHILD | WS_VISIBLE | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
-
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
-
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
 
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-  
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+
 	// fix bug with disabled creation
 	// todo: fix this properly
 	if (Styles & WS_DISABLED) {
@@ -129,7 +126,7 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 
 DcxIpAddress::~DcxIpAddress( ) {
 
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 }
 
 /*!
@@ -210,7 +207,7 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
 	if (flags.switch_flags[0] && numtok > 3) {
-		TString IP = input.gettok( 4, " " );
+		TString IP(input.gettok( 4, " " ));
 		IP.trim();
 
 		if (IP.numtok(".") == 4) {
@@ -244,9 +241,8 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 	else if (flags.switch_flags[17]) {
 		this->clearAddress();
 	}
-	else {
+	else
 		this->parseGlobalCommandRequest(input, flags);
-	}
 }
 
 /*!

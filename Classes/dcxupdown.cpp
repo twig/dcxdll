@@ -93,9 +93,7 @@ DcxUpDown::DcxUpDown( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
-
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
-
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
@@ -239,9 +237,8 @@ void DcxUpDown::parseCommandRequest( TString & input ) {
 
     this->setPos32( nPos );
   }
-  else {
+  else
     this->parseGlobalCommandRequest( input, flags );
-  }
 }
 
 /*!

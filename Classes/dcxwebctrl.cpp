@@ -294,7 +294,7 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
 
           if ( SUCCEEDED( doc->get_parentWindow( &window ) ) ) { 
 
-            TString CMD = input.gettok( 4, -1, " " );
+            TString CMD(input.gettok( 4, -1, " " ));
             CMD.trim( );
 
             OLECHAR cmd[4096];
@@ -327,7 +327,7 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
   // xdid -n [NAME] [ID] [SWITCH] [URL]
   else if ( flags.switch_flags[13] && numtok > 3 ) {
     
-    TString URL = input.gettok( 4, -1, " " );
+    TString URL(input.gettok( 4, -1, " " ));
     URL.trim( );
 
     OLECHAR url[4096];
@@ -347,9 +347,8 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
 
     this->m_pWebBrowser2->Stop( );
   }
-  else {
+  else
     this->parseGlobalCommandRequest( input, flags );
-  }
 }
 
 /*!

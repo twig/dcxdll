@@ -60,7 +60,7 @@ public:
 
   HIMAGELIST getImageList( );
   void setImageList( HIMAGELIST himl );
-  HIMAGELIST createImageList( );
+  static HIMAGELIST createImageList( );
 
   BOOL matchItemText( int nItem, TString * search, UINT SearchType );
 
@@ -80,7 +80,7 @@ public:
   inline TString getType( ) { return TString( "comboex" ); };
 
 private:
-		void ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+		//void ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
 
 protected:
 

@@ -377,16 +377,16 @@ void DcxTab::parseCommandRequest( TString & input ) {
     ZeroMemory( &tci, sizeof( TCITEM ) );
     tci.mask = TCIF_IMAGE | TCIF_PARAM;
 
-    TString data = input.gettok( 1, "\t" );
+    TString data(input.gettok( 1, "\t" ));
     data.trim( );
 
-    TString control_data = "";
+    TString control_data;
     if ( input.numtok( "\t" ) > 1 ) {
       control_data = input.gettok( 2, "\t" );
       control_data.trim( );
     }
 
-    TString tooltip = "";
+    TString tooltip;
     if ( input.numtok( "\t" ) > 2 ) {
       tooltip = input.gettok( 3, -1, "\t" );
       tooltip.trim( );
@@ -544,9 +544,9 @@ void DcxTab::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
-		TString flags = input.gettok(4, " ");
+		TString flags(input.gettok(4, " "));
 		int index = input.gettok(5, " ").to_int();
-		TString filename = input.gettok(6, -1, " ");
+		TString filename(input.gettok(6, -1, " "));
 
 		if ((himl = this->getImageList()) == NULL) {
 			himl = this->createImageList();
@@ -568,9 +568,8 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
     ImageList_Destroy( this->getImageList( ) );
   }
-  else {
+  else
     this->parseGlobalCommandRequest( input, flags );
-  }
 }
 
 /*!

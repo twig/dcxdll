@@ -78,45 +78,42 @@
  */
 
 DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+: DcxControl( ID, p_Dialog )
 , m_bIsIcon(FALSE)
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles, 
+		"STATIC", 
+		NULL,
+		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    "STATIC", 
-    NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  this->m_pImage = NULL;
+	this->m_pImage = NULL;
 	this->m_bResizeImage = true;
-  this->m_hBitmap = NULL;
-  this->m_clrTransColor = -1;
-  this->m_hIcon = NULL;
+	this->m_hBitmap = NULL;
+	this->m_clrTransColor = -1;
+	this->m_hIcon = NULL;
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
-
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
-
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
 
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -204,10 +201,10 @@ void DcxImage::parseCommandRequest(TString & input) {
 
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
 	if (flags.switch_flags[22] && numtok > 6) {
-		TString flags = input.gettok(4, " ");
+		TString flags(input.gettok(4, " "));
 		int index = input.gettok(5, " ").to_int();
 		int size = input.gettok(6, " ").to_int();
-		TString filename = input.gettok(7, -1, " ");
+		TString filename(input.gettok(7, -1, " "));
 
 		filename.trim();
 		PreloadData();
@@ -239,7 +236,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [IMAGE]
 	else if (flags.switch_flags[8] && numtok > 3) {
-		TString filename = input.gettok(4, -1, " ");
+		TString filename(input.gettok(4, -1, " "));
 
 		filename.trim();
 		PreloadData();

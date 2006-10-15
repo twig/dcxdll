@@ -77,8 +77,8 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxTreeView::DcxTreeView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
-: DcxControl( ID, p_Dialog ) 
+DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles )
+: DcxControl( ID, p_Dialog )
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -206,25 +206,22 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
     }
   }
   // [NAME] [ID] [PROP] [PATH]
-  else if ( input.gettok( 3, " " ) == "icon" && numtok > 3 ) {
+	else if ( input.gettok( 3, " " ) == "icon" && numtok > 3 ) {
+		HTREEITEM hParent = TVI_ROOT;
+		HTREEITEM hAfter = TVI_ROOT;
 
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
+		if ( this->parsePath( &input.gettok( 4, -1, " " ), &hParent, &hAfter ) ) {
+			if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+				TVITEMEX tvi; 
+				tvi.hItem = hAfter;
+				tvi.mask = TVIF_IMAGE | TVIF_HANDLE;
 
-    if ( this->parsePath( &input.gettok( 4, -1, " " ), &hParent, &hAfter ) ) {
-
-      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
-
-        TVITEMEX tvi; 
-		  tvi.hItem = hAfter;
-        tvi.mask = TVIF_IMAGE | TVIF_HANDLE;
-
-        TreeView_GetItem( this->m_Hwnd, &tvi );
-		  wsprintf( szReturnValue, "%d", (tvi.iImage > 10000 ? -2 : tvi.iImage ) + 1 );
-        return;
-      }
-    }
-  }
+				TreeView_GetItem( this->m_Hwnd, &tvi );
+				wsprintf( szReturnValue, "%d", (tvi.iImage > 10000 ? -2 : tvi.iImage ) + 1 );
+				return;
+			}
+		}
+	}
   // [NAME] [ID] [PROP] [PATH]
   else if ( input.gettok( 3, " " ) == "tooltip" && numtok > 3 ) {
 
@@ -273,9 +270,9 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [SUBPATH]
   else if ( input.gettok( 3, " " ) == "find" && numtok > 5 ) {
 
-    TString matchtext = input.gettok( 2, "\t" );
+    TString matchtext(input.gettok( 2, "\t" ));
     matchtext.trim( );
-    TString params = input.gettok( 3, "\t" );
+    TString params(input.gettok( 3, "\t" ));
     params.trim( );
 
     if ( matchtext.len( ) > 0 ) {
@@ -356,7 +353,7 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] [PATH]
   else if ( input.gettok( 3, " " ) == "num" && numtok > 3 ) {
 
-    TString path = input.gettok( 4, -1, " " );
+    TString path(input.gettok( 4, -1, " " ));
 
     if ( path == "root" ) {
 
@@ -450,9 +447,9 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		int n = input.numtok("\t");
 
 		if (n > 1) {
-			TString path = input.gettok(1, "\t").gettok(4, -1, " ");
+			TString path(input.gettok(1, "\t").gettok(4, -1, " "));
 			path.trim();
-			TString data = input.gettok(2, "\t");
+			TString data(input.gettok(2, "\t"));
 			data.trim();
 			TString tooltip;
 
@@ -533,12 +530,12 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     HTREEITEM hParent = TVI_ROOT;
     HTREEITEM hAfter = TVI_ROOT;
 
-    TString path = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
+    TString path(input.gettok( 1, "\t" ).gettok( 4, -1, " " ));
     path.trim( );
 
     if ( input.numtok( "\t" ) > 1 ) {
 
-      TString icons = input.gettok( 2, "\t" );
+      TString icons(input.gettok( 2, "\t" ));
       icons.trim( );
 
       if ( this->parsePath( &path, &hParent, &hAfter ) ) {
@@ -596,9 +593,9 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
   // xdid -m [NAME] [ID] [SWITCH] N N N{TAB}N N N
   else if ( flags.switch_flags[12] && numtok > 3 && input.numtok( "\t" ) > 1 ) {
 
-    TString pathFrom = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
+    TString pathFrom(input.gettok( 1, "\t" ).gettok( 4, -1, " " ));
     pathFrom.trim( );
-    TString pathTo = input.gettok( 2, "\t" );
+    TString pathTo(input.gettok( 2, "\t" ));
     pathTo.trim( );
 
     HTREEITEM hParentFrom = TVI_ROOT;
@@ -625,9 +622,9 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
   // xdid -n [NAME] [ID] [SWITCH] N N N{TAB}N N N
   else if ( flags.switch_flags[13] && numtok > 3 && input.numtok( "\t" ) > 1 ) {
 
-    TString pathFrom = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
+    TString pathFrom(input.gettok( 1, "\t" ).gettok( 4, -1, " " ));
     pathFrom.trim( );
-    TString pathTo = input.gettok( 2, "\t" );
+    TString pathTo(input.gettok( 2, "\t" ));
     pathTo.trim( );
 
     HTREEITEM hParentFrom = TVI_ROOT;
@@ -655,7 +652,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     HTREEITEM hParent = TVI_ROOT;
     HTREEITEM hAfter = TVI_ROOT;
 
-    TString path = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
+    TString path(input.gettok( 1, "\t" ).gettok( 4, -1, " " ));
     path.trim( );
 
     TString tiptext;
@@ -696,7 +693,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
       if ( !this->correctTargetItem( &hParent, &hAfter ) )
         return;
 
-		TVITEMEX tvi; 
+			TVITEMEX tvi; 
 
       tvi.hItem = hAfter;
       tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
@@ -778,7 +775,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     HTREEITEM hParent = TVI_ROOT;
     HTREEITEM hAfter = TVI_ROOT;
 
-    TString path = input.gettok( 1, "\t" ).gettok( 4, -1, " " );
+    TString path(input.gettok( 1, "\t" ).gettok( 4, -1, " " ));
     path.trim( );
 
     TString itemtext;
@@ -809,7 +806,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		HICON icon;
 
 		int index = input.gettok(5, " ").to_int();
-		TString filename = input.gettok(6, -1, " ");
+		TString filename(input.gettok(6, -1, " "));
 		BOOL isGray = (input.gettok(4, " ").find('g', 0) ? TRUE : FALSE);
 
 			if (this->m_iIconSize > 16)
@@ -876,7 +873,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     dtvs.iSortFlags = this->parseSortFlags( input.gettok( 4, " " ) );
     dtvs.pthis = this;
 
-    TString path = input.gettok( 1, "\t" ).gettok( 5, -1, " " );
+    TString path(input.gettok( 1, "\t" ).gettok( 5, -1, " " ));
     path.trim( );
 
     if ( input.numtok( "\t" ) > 1 ) {
@@ -914,9 +911,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
       }
     }
   }
-  else {
+  else
     this->parseGlobalCommandRequest( input, flags );
-  }
 }
 
 /*!
@@ -960,7 +956,6 @@ HIMAGELIST DcxTreeView::createImageList( ) {
 
 //HTREEITEM DcxTreeView::insertItem( ) {
 HTREEITEM DcxTreeView::insertItem(TString * path, TString * data, TString * Tooltip) {
-	//mIRCSignal( "insert Item" );
 
 	HTREEITEM hParent = TVI_ROOT;
 	HTREEITEM hAfter = TVI_ROOT;
@@ -1011,7 +1006,7 @@ HTREEITEM DcxTreeView::insertItem(TString * path, TString * data, TString * Tool
 	this->parsePath(path, &hParent, &hAfter);
 
 	// text
-	TString itemtext = data->gettok(8, -1, " ").to_chr();
+	TString itemtext(data->gettok(8, -1, " "));
 
 	tvi.pszText = itemtext.to_chr(); 
 	tvi.cchTextMax = sizeof(tvi.pszText) / sizeof(tvi.pszText[0]);

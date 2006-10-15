@@ -66,32 +66,31 @@
  */
 
 DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+: DcxControl( ID, p_Dialog )
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles | WS_EX_CLIENTEDGE, 
+		"LISTBOX", 
+		NULL,
+		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles | WS_EX_CLIENTEDGE, 
-    "LISTBOX", 
-    NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-
-  DragAcceptFiles(this->m_Hwnd, TRUE);
+	DragAcceptFiles(this->m_Hwnd, TRUE);
 }
 
 /*!
@@ -102,7 +101,7 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 
 DcxList::~DcxList( ) {
 
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 }
 
 /*!
@@ -275,8 +274,8 @@ void DcxList::parseCommandRequest( TString & input ) {
 
     if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
 
-      TString Ns = input.gettok( 4, " " );
-      
+			TString Ns(input.gettok( 4, " " ));
+
       int i = 1, n = Ns.numtok( "," ), nItems = ListBox_GetCount( this->m_Hwnd );
 
       while ( i <= n ) {
@@ -317,7 +316,7 @@ void DcxList::parseCommandRequest( TString & input ) {
       ListBox_SetCurSel( this->m_Hwnd, -1 );
   }
   //xdid -o [NAME] [ID] [N] [TEXT]
-  else if ( flags.switch_flags[14] ) {
+	else if ( flags.switch_flags[14] ) {
 		int nPos = input.gettok(4, " ").to_int() - 1;
 
 		if (nPos > -1 && nPos < ListBox_GetCount(this->m_Hwnd)) {
@@ -325,9 +324,9 @@ void DcxList::parseCommandRequest( TString & input ) {
 			ListBox_DeleteString(this->m_Hwnd, nPos);
 			ListBox_InsertString(this->m_Hwnd, nPos, input.gettok( 5, -1, " " ).to_chr( ));
 		}
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!

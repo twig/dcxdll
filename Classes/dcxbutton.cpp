@@ -88,45 +88,42 @@
  */
 
 DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+: DcxControl( ID, p_Dialog )
 , m_bBitmapText(FALSE)
 , m_bHasIcons(FALSE)
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles, 
+		DCX_BUTTONCLASS, 
+		NULL,
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | Styles, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    DCX_BUTTONCLASS, 
-    NULL,
-    WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	ZeroMemory( &this->m_aBitmaps, 4*sizeof(HBITMAP) );
+	ZeroMemory( &this->m_aColors, 4*sizeof(COLORREF) );
+	ZeroMemory( &this->m_aTransp, 4*sizeof(COLORREF) );
 
-  ZeroMemory( &this->m_aBitmaps, 4*sizeof(HBITMAP) );
-  ZeroMemory( &this->m_aColors, 4*sizeof(COLORREF) );
-  ZeroMemory( &this->m_aTransp, 4*sizeof(COLORREF) );
+	this->m_bHover = FALSE;
+	this->m_bSelected = FALSE;
+	this->m_bTracking = FALSE;
 
-  this->m_bHover = FALSE;
-  this->m_bSelected = FALSE;
-  this->m_bTracking = FALSE;
-
-  this->m_iIconSize = 16;
-  this->m_ImageList = NULL;
+	this->m_iIconSize = 16;
+	this->m_ImageList = NULL;
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
-
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
-
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
@@ -136,9 +133,9 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	this->m_aColors[2] = GetSysColor(COLOR_BTNTEXT); // pushed
 	this->m_aColors[3] = GetSysColor(COLOR_GRAYTEXT); // disabled
 
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -243,7 +240,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 		UINT iColorStyles = this->parseColorFlags(input.gettok(4, " "));
 		COLORREF clrColor = (COLORREF)input.gettok(5, " ").to_num();
 
-		TString filename = input.gettok(6, -1, " ");
+		TString filename(input.gettok(6, -1, " "));
 		filename.trim();
 
 		if (iColorStyles & BTNCS_NORMAL) {
@@ -292,7 +289,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 		HICON icon;
 		int index = input.gettok(5, " ").to_int();
 		UINT flags = parseColorFlags(input.gettok(4, " "));
-		TString filename = input.gettok(6, -1, " ");
+		TString filename(input.gettok(6, -1, " "));
 
 		// load the icon
 		if (this->m_iIconSize > 16)
@@ -338,9 +335,8 @@ void DcxButton::parseCommandRequest( TString & input ) {
 		this->m_bBitmapText = (b ? TRUE : FALSE);
 		this->redrawWindow();
   }
-  else {
+  else
     this->parseGlobalCommandRequest( input, flags );
-  }
 }
 
 /*!

@@ -114,6 +114,11 @@ bool DockWindow(const HWND mWnd, const HWND temp, const char *find, TString & fl
 	RECT rc;
 	HWND sWnd;
 
+	if ((FindUltraDock(temp)) || (GetProp(temp,"dcx_docked") != NULL)) {
+		DCXError("/xdock","Window is Already docked.");
+		return false;
+	}
+
 	// get window HWND
 	if (find == NULL)
 		sWnd = GetDlgItem(mWnd,32918);
@@ -196,7 +201,7 @@ mIRC(xdock) {
 		return 0;
 	}
 
-	TString switches = input.gettok(1, " ");
+	TString switches(input.gettok(1, " "));
 
 	// update mirc
 	// /xdock -p
@@ -214,9 +219,9 @@ mIRC(xdock) {
 	// show/hide switchbar
 	// [-S] [1|0]
 	if ((switches[1] == 'S') && (numtok == 2)) {
-		if ((input.gettok(2," ").to_int() > 0) && (!IsWindowVisible(sb_hwnd)))
+		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(sb_hwnd)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
-		else if ((input.gettok(2," ").to_int() == 0) && (IsWindowVisible(sb_hwnd)))
+		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(sb_hwnd)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
 
 		return 1;
@@ -224,9 +229,9 @@ mIRC(xdock) {
 	// show/hide toolbar
 	// [-T] [1|0]
 	else if ((switches[1] == 'T') && (numtok == 2)) {
-		if ((input.gettok(2," ").to_int() > 0) && (!IsWindowVisible(tb_hwnd)))
+		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(tb_hwnd)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
-		else if ((input.gettok(2," ").to_int() == 0) && (IsWindowVisible(tb_hwnd)))
+		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(tb_hwnd)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
 
 		return 1;
@@ -234,9 +239,9 @@ mIRC(xdock) {
 	// show/hide treebar
 	// [-R [1|0]
 	else if ((switches[1] == 'R') && (numtok == 2)) {
-		if ((input.gettok(2," ").to_int() > 0) && (!IsWindowVisible(treeb_hwnd)))
+		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(treeb_hwnd)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
-		else if ((input.gettok(2," ").to_int() == 0) && (IsWindowVisible(treeb_hwnd)))
+		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(treeb_hwnd)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
 
 		return 1;
@@ -244,9 +249,9 @@ mIRC(xdock) {
 	// show/hide menubar
 	// [-M] [1|0]
 	else if ((switches[1] == 'M') && (numtok == 2)) {
-		if ((input.gettok(2," ").to_int() > 0) && (!GetMenu(mIRCLink.m_mIRCHWND)))
+		if ((input.gettok(2, " ").to_int() > 0) && (!GetMenu(mIRCLink.m_mIRCHWND)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
-		else if ((input.gettok(2," ").to_int() == 0) && (GetMenu(mIRCLink.m_mIRCHWND)))
+		else if ((input.gettok(2, " ").to_int() == 0) && (GetMenu(mIRCLink.m_mIRCHWND)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
 
 		return 1;
@@ -259,7 +264,7 @@ mIRC(xdock) {
 		return 0;
 	}
 
-	TString flags = input.gettok(3, " ");
+	TString flags(input.gettok(3, " "));
 	if (flags[0] != '+') {
 		DCXError("/xdock","No Flags Found");
 		return 0;
