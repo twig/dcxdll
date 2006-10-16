@@ -1633,7 +1633,7 @@ BOOL DcxListView::matchItemText( int nItem, int nSubItem, TString * search, UINT
 		mIRCcom(com.to_chr());
 		com.sprintf("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
 		mIRCcom(com.to_chr());
-		com.sprintf("$regex(%%dcx_text,%%dcx_regex)", itemtext, search->to_chr( ) );
+		com = "$regex(%dcx_text,%dcx_regex)";
 		mIRCeval( com.to_chr(), res );
 		if ( !lstrcmp( res, "1" ) )
 			return TRUE;
