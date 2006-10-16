@@ -229,7 +229,7 @@ void DcxDateTime::parseCommandRequest(TString &input) {
 	// xdid -f [NAME] [ID] [SWITCH] (FORMAT)
 	if (flags.switch_flags[5]) {
 		if (numtok > 3) {
-			TString format = input.gettok(4, -1);
+			TString format(input.gettok(4, -1));
 			DateTime_SetFormat(this->m_Hwnd, format.to_chr());
 		}
 		else {
@@ -260,7 +260,7 @@ void DcxDateTime::parseCommandRequest(TString &input) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
 	else if (flags.switch_flags[19] && numtok > 3) {
-		TString ts = input.gettok(4);
+		TString ts(input.gettok(4));
 
 		if (ts == "reset") {
 			if (isStyle(DTS_SHOWNONE)) {

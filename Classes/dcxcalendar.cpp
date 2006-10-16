@@ -229,7 +229,7 @@ void DcxCalendar::parseCommandRequest(TString &input) {
 
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
 	if (flags.switch_flags[10] && numtok > 4) {
-		TString flags = input.gettok(4);
+		TString flags(input.gettok(4));
 		COLORREF col = (COLORREF) input.gettok(5).to_int();
 
 		// Set the background color displayed between months.
