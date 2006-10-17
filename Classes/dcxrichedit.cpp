@@ -572,6 +572,8 @@ void DcxRichEdit::clearContents() {
 * blah
 */
 void DcxRichEdit::parseContents(BOOL fNewLine) { // old function
+	this->m_bIgnoreInput = TRUE;
+
 	this->setRedraw(FALSE);
 	this->clearContents();
 
@@ -683,6 +685,8 @@ void DcxRichEdit::parseContents(BOOL fNewLine) { // old function
 	this->setSel(0, 0);
 	this->setRedraw(TRUE);
 	this->redrawWindow();
+
+	this->m_bIgnoreInput = FALSE;
 }
 //void DcxRichEdit::parseContents(BOOL fNewLine) {
 //	this->setRedraw(FALSE);
@@ -989,6 +993,9 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/richedit/richeditcontrols/richeditcontrolreference/richeditmessages/em_gettextrange.asp
 				case EN_SELCHANGE:
 				{
+					if (this->m_bIgnoreInput)
+						break;
+
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 						SELCHANGE* sel = (SELCHANGE*) lParam;
 

@@ -146,7 +146,7 @@ void DcxCalendar::parseInfoRequest(TString &input, char *szReturnValue) {
 //  int numtok = input.numtok( " " );
 
 	// [NAME] [ID] [PROP]
-	if (input.gettok(3) == "selected") {
+	if (input.gettok(3) == "value") {
 		long start;
 		long end;
 

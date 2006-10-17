@@ -81,13 +81,11 @@ function get_xdid_datetime(&$XDID) {
 
 function get_xdidprops_datetime(&$XDIDPROPS) {
 	$XDIDPROPS = array(
-//		"selected" => "This property lets you retreive the selected date range.",
-//		"range" => array(
-//		    '__desc' => "This property lets you retreive the calendar date range.",
-//			'__notes' => '[v]nolimit[/v] is returned when the calendar range is not bounded.',
-//		),
-//		"today" => "This property lets you retreive the calendar current day date.",
-//		"selcount" => "This property lets you retreive the maximum number of selectable days.",
+		"range" => array(
+		    '__desc' => "This property lets you retreive the date/time range.",
+			'__notes' => '[v]nolimit[/v] is returned when the calendar range is not bounded.',
+		),
+		"value" => "This property lets you retreive the selected date/time.",
 	);
 }
 

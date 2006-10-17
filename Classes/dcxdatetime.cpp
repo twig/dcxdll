@@ -140,74 +140,42 @@ void DcxDateTime::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
  * \return > void
  */
 void DcxDateTime::parseInfoRequest(TString &input, char *szReturnValue) {
-//			DateTime_GetRange
-//			DateTime_GetSystemtime
-
 	//int numtok = input.numtok();
 
-	//// [NAME] [ID] [PROP]
-	//if (input.gettok(3) == "selected") {
-	//	long start;
-	//	long end;
+	// [NAME] [ID] [PROP]
+	if (input.gettok(3) == "range") {
+		SYSTEMTIME st[2];
+		TString min;
+		TString max;
+		DWORD val;
 
-	//	if (isStyle(MCS_MULTISELECT)) {
-	//		SYSTEMTIME st[2];
+		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
 
-	//		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
+		val = DateTime_GetRange(this->m_Hwnd, st);
+mIRCDebug("range val = %d", val);
+		if (val & GDTR_MIN)
+			min.sprintf("%ld", SystemTimeToMircTime(&(st[0])));
+		else
+			min = "nolimit";
 
-	//		MonthCal_GetSelRange(this->m_Hwnd, st);
-	//		start = SystemTimeToMircTime(&(st[0]));
-	//		end = SystemTimeToMircTime(&(st[1]));
-	//	}
-	//	else {
-	//		SYSTEMTIME st;
+		if (val & GDTR_MAX)
+			max.sprintf("%ld", SystemTimeToMircTime(&(st[1])));
+		else
+			max = "nolimit";
 
-	//		MonthCal_GetCurSel(this->m_Hwnd, &st);
-	//		start = SystemTimeToMircTime(&st);
-	//		end = start;
-	//	}
+		wsprintf(szReturnValue, "%s %s", min, max);
+		return;
+	}
+	else if (input.gettok(3) == "value") {
+		SYSTEMTIME st;
 
-	//	wsprintf(szReturnValue, "%ld %ld", start, end);
-	//	return;
-	//}
-	//else if (input.gettok(3) == "range") {
-	//	SYSTEMTIME st[2];
-	//	TString min;
-	//	TString max;
-	//	DWORD val;
+		ZeroMemory(&st, sizeof(SYSTEMTIME));
 
-	//	ZeroMemory(st, sizeof(SYSTEMTIME) *2);
-
-	//	val = MonthCal_GetRange(this->m_Hwnd, st);
-
-	//	if (val & GDTR_MIN)
-	//		min.sprintf("%ld", SystemTimeToMircTime(&(st[0])));
-	//	else
-	//		min = "nolimit";
-
-	//	if (val & GDTR_MAX)
-	//		max.sprintf("%ld", SystemTimeToMircTime(&(st[1])));
-	//	else
-	//		max = "nolimit";
-
-	//	wsprintf(szReturnValue, "%s %s", min, max);
-	//	return;
-	//}
-	//else if (input.gettok(3) == "today") {
-	//	SYSTEMTIME st;
-
-	//	ZeroMemory(&st, sizeof(SYSTEMTIME));
-
-	//	MonthCal_GetToday(this->m_Hwnd, &st);
-	//	wsprintf(szReturnValue, "%ld", SystemTimeToMircTime(&st));
-	//	return;
-	//}
-	//else if (input.gettok(3) == "selcount") {
-	//	wsprintf(szReturnValue, "%d", MonthCal_GetMaxSelCount(this->m_Hwnd));
-	//	return;
-	//}
-	//else
-	if (this->parseGlobalInfoRequest(input, szReturnValue)) {
+		DateTime_GetSystemtime(this->m_Hwnd, &st);
+		wsprintf(szReturnValue, "%ld", SystemTimeToMircTime(&st));
+		return;
+	}
+	else if (this->parseGlobalInfoRequest(input, szReturnValue)) {
 		return;
 	}
 
@@ -219,6 +187,7 @@ void DcxDateTime::parseInfoRequest(TString &input, char *szReturnValue) {
  *
  * blah
  */
+// TODO: /xdid -c change state of checkbox
 void DcxDateTime::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
