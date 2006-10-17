@@ -190,7 +190,7 @@ void DcxCalendar::parseInfoRequest(TString &input, char *szReturnValue) {
 		else
 			max = "nolimit";
 
-		wsprintf(szReturnValue, "%s %s", min, max);
+		wsprintf(szReturnValue, "%s %s", min.to_chr(), max.to_chr());
 		return;
 	}
 	else if (input.gettok(3) == "today") {

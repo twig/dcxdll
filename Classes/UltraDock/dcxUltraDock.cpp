@@ -167,17 +167,17 @@ void AdjustMDIRect(WINDOWPOS *wp)
 	VectorOfDocks::iterator itEnd = v_docks.end();
 	RECT rcDocked;
 	int xleftoffset = 0, xrightoffset = 0, ytopoffset = 0, ybottomoffset = 0;
-	int x,y,w,h,mdiw,mdih,nWin = 0;
+	int x,y,w,h,mdiw,mdih,nWin = v_docks.size();
 
-	while (itStart != itEnd) {
-		if ((*itStart != NULL) && (IsWindow(((LPDCXULTRADOCK)*itStart)->hwnd))) {
-			nWin++; // count docked windows.
-		}
-		itStart++;
-	}
+	// testing dont delete.
+	//while (itStart != itEnd) {
+	//	if ((*itStart != NULL) && (IsWindow(((LPDCXULTRADOCK)*itStart)->hwnd))) {
+	//		nWin++; // count docked windows.
+	//	}
+	//	itStart++;
+	//}
 	if (nWin == 0) return;
-	itStart = v_docks.begin();
-
+	//itStart = v_docks.begin();
 	mdih = wp->cy;
 	mdiw = wp->cx;
 

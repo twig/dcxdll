@@ -163,7 +163,7 @@ mIRCDebug("range val = %d", val);
 		else
 			max = "nolimit";
 
-		wsprintf(szReturnValue, "%s %s", min, max);
+		wsprintf(szReturnValue, "%s %s", min.to_chr(), max.to_chr());
 		return;
 	}
 	else if (input.gettok(3) == "value") {
