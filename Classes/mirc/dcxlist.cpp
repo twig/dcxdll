@@ -451,6 +451,10 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 			break;
 
+		case WM_MOUSEWHEEL:
+			SendMessage(this->m_pParentDialog->getHwnd(), uMsg, wParam, lParam);
+			break;
+
 		case WM_DESTROY:
 			{
 				delete this;
