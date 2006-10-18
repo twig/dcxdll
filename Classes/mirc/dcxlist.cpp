@@ -335,6 +335,41 @@ void DcxList::parseCommandRequest( TString & input ) {
  * blah
  */
 LRESULT DcxList::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+	switch( uMsg ) {
+		case WM_COMMAND:
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+				switch ( HIWORD( wParam ) ) {
+					case LBN_SELCHANGE:
+						{
+							int nItem = ListBox_GetCurSel( this->m_Hwnd );
+
+							if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
+								if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
+									this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
+							}
+							else if ( nItem != LB_ERR )
+								this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
+						}
+						break;
+
+					case LBN_DBLCLK:
+						{
+							int nItem = ListBox_GetCurSel( this->m_Hwnd );
+
+							if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
+								if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
+									this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
+							}
+							else if ( nItem != LB_ERR )
+								this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
+						}
+						break;
+				} // switch ( HIWORD( wParam ) )
+			}
+		}
+		break;
+	}
 	return 0L;
 }
 
@@ -345,46 +380,6 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
 					this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-			}
-			break;
-
-		case WM_COMMAND:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					switch ( HIWORD( wParam ) ) {
-						case LBN_SELCHANGE:
-						{
-							int nItem = ListBox_GetCurSel( this->m_Hwnd );
-
-							if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
-
-							if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-							this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
-							}
-							else {
-
-							if ( nItem != LB_ERR )
-							this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
-							}
-						}
-						break;
-
-						case LBN_DBLCLK:
-						{
-							int nItem = ListBox_GetCurSel( this->m_Hwnd );
-
-							if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
-								if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-									this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
-							}
-							else {
-								if ( nItem != LB_ERR )
-									this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
-							}
-						}
-						break;
-					} // switch ( HIWORD( wParam ) )
-				}
 			}
 			break;
 
