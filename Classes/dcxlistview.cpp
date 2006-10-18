@@ -1174,11 +1174,12 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 			lvi.mask = LVIF_PARAM;
 			lvi.iItem = nItem;
+			//lvi.iSubItem = nSubItem;
 
 			ListView_GetItem(this->m_Hwnd, &lvi);
 			lpdcxlvi = (LPDCXLVITEM) lvi.lParam;
 
-			if (lpdcxlvi && lpdcxlvi->pbar) {
+			if (lpdcxlvi && lpdcxlvi->pbar && lpdcxlvi->iPbarCol == nSubItem) {
 				itemtext = input.gettok(1, " ") + " " + input.gettok(2, " ") + " " + itemtext;
 				lpdcxlvi->pbar->parseCommandRequest(itemtext);
 			}
