@@ -68,6 +68,9 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 
 	this->m_bTracking = FALSE;
 
+	this->m_bDoGhostDrag = false;
+	this->m_bGhosted = false;
+
 	SetProp(this->m_Hwnd, "dcx_this", (HANDLE) this);
 
 	DragAcceptFiles(this->m_Hwnd, TRUE);
@@ -357,7 +360,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				this->m_bitmapBg = NULL;
 			}
 
-			TString filename = input.gettok(4, -1, " ");
+			TString filename(input.gettok(4, -1, " "));
 			filename.trim();
 
 			if (filename != "none")
@@ -414,9 +417,9 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
 		else if (numtok > 7) {
-			TString com = input.gettok(1, "\t").gettok(3, " ");
-			TString path = input.gettok(1, "\t").gettok(4, -1, " ");
-			TString p2 = input.gettok(2, "\t");
+			TString com(input.gettok(1, "\t").gettok(3, " "));
+			TString path(input.gettok(1, "\t").gettok(4, -1, " "));
+			TString p2(input.gettok(2, "\t"));
 
 			com.trim();
 			path.trim();
@@ -641,9 +644,9 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 4) {
-		TString flags = input.gettok(3, " ");
+		TString flags(input.gettok(3, " "));
 		int index = input.gettok(4, " ").to_int();
-		TString filename = input.gettok(5, -1, " ");
+		TString filename(input.gettok(5, -1, " "));
 		filename.trim();
 		ChangeHwndIcon(this->m_Hwnd,&flags,index,&filename);
 	}
@@ -690,7 +693,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
 	else if (flags.switch_cap_flags[17] && numtok > 2) {
-		TString flag = input.gettok(3," ");
+		TString flag(input.gettok(3," "));
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
 			DCXError("/xdialog -R","Invalid Flag");
@@ -769,7 +772,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 					return;
 				}
 
-				TString strPoints = input.gettok(4, -1, " ");
+				TString strPoints(input.gettok(4, -1, " "));
 				TString strPoint;
 				int tPoints = strPoints.numtok(" ");
 
@@ -811,6 +814,15 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			}
 			break;
 
+			case 'g': // ghost drag - <1|0>
+			{
+				if ((BOOL)input.gettok(4," ").to_int())
+					this->m_bDoGhostDrag = true;
+				else
+					this->m_bDoGhostDrag = false;
+			}
+			break;
+
 			default:
 			{
 				DCXError("xdialog -R", "Invalid Flag");
@@ -823,8 +835,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	else if (flags.switch_cap_flags[4] && numtok > 3) {
 		//this->m_dEventMask = (DWORD)input.gettok(3," ").to_num();
 		DWORD mask = this->m_dEventMask;
-		TString p_flags = input.gettok(3," ");
-		TString n_flags = input.gettok(4," ");
+		TString p_flags(input.gettok(3," "));
+		TString n_flags(input.gettok(4," "));
 
 		if ((p_flags[0] != '+') || (n_flags[0] != '-')) {
 			DCXError("xdialog -E", "Invalid Flag");
@@ -1534,8 +1546,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						char ret[256];
 						p_this->callAliasEx(ret, "%s,%d", "beginmove", 0);
 
-						bParsed = TRUE;
 						if (lstrcmp("nomove", ret) != 0) {
+							bParsed = TRUE;
 							p_this->m_bInMoving = true;
 							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 						}
@@ -1563,9 +1575,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 						p_this->callAliasEx(ret, "%s,%d", "min", 0);
 
-						bParsed = TRUE;
-						if (lstrcmp("stop", ret) != 0)
+						if (lstrcmp("stop", ret) != 0) {
+							bParsed = TRUE;
 							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+						}
 					}
 					break;
 				}
@@ -1577,9 +1590,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 						p_this->callAliasEx(ret, "%s,%d", "max", 0);
 
-						bParsed = TRUE;
-						if (lstrcmp("stop", ret) != 0)
+						if (lstrcmp("stop", ret) != 0) {
+							bParsed = TRUE;
 							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+						}
 					}
 
 					break;
@@ -1590,8 +1604,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
 						p_this->callAliasEx(NULL, "%s,%d", "restore", 0);
 
-						bParsed = TRUE;
-						lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+						//bParsed = TRUE;
+						//lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 					}
 
 					break;
@@ -1604,8 +1618,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 						p_this->callAliasEx(ret, "%s,%d", "beginsize", 0);
 
-						bParsed = TRUE;
 						if (lstrcmp("nosize", ret) != 0) {
+							bParsed = TRUE;
 							p_this->m_bInSizing = true;
 							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 						}
@@ -1618,6 +1632,23 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 		}
 
+		// ghost drag stuff
+		case WM_ENTERSIZEMOVE:
+			{
+				if (p_this->m_bDoGhostDrag) {
+					long style = GetWindowLong(p_this->m_Hwnd, GWL_EXSTYLE);
+					// Set WS_EX_LAYERED on this window
+					if (!(style & WS_EX_LAYERED))
+						SetWindowLong(p_this->m_Hwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
+
+					// Make this window 75% alpha
+					SetLayeredWindowAttributes(p_this->m_Hwnd, 0, 75, LWA_ALPHA);
+					p_this->m_bGhosted = true;
+					p_this->redrawWindow();
+				}
+			}
+			break;
+
 		case WM_EXITSIZEMOVE:
 		{
 			if ((p_this->m_bInSizing) && (p_this->m_dEventMask & DCX_EVENT_SIZE))
@@ -1627,6 +1658,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 			p_this->m_bInMoving = false;
 			p_this->m_bInSizing = false;
+			// turn off ghosting.
+			if (p_this->m_bGhosted) {
+				// Make this window solid
+				SetLayeredWindowAttributes(p_this->m_Hwnd, 0, 255, LWA_ALPHA);
+				p_this->m_bGhosted = false;
+			}
 			break;
 		}
 

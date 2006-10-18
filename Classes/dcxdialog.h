@@ -125,6 +125,8 @@ protected:
   UINT m_iRefCount;
 	bool m_bDoDrag;
 	bool m_bDrag;
+	bool m_bDoGhostDrag;
+	bool m_bGhosted;
 	DWORD m_dEventMask;
 	BOOL m_bTracking;
   /* **** */
