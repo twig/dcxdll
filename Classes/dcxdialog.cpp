@@ -1641,10 +1641,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					if (!(style & WS_EX_LAYERED))
 						SetWindowLong(p_this->m_Hwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
 
-					// Make this window 75% alpha
+					// Make this window 75 alpha
 					SetLayeredWindowAttributes(p_this->m_Hwnd, 0, 75, LWA_ALPHA);
 					p_this->m_bGhosted = true;
-					p_this->redrawWindow();
 				}
 			}
 			break;

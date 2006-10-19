@@ -256,6 +256,15 @@ mIRC(xdock) {
 
 		return 1;
 	}
+	// enable/disable ghost drag for main mIRC window.
+	// [-G] [1|0]
+	else if ((switches[1] == 'G') && (numtok == 2)) {
+		if ((BOOL)input.gettok(2," ").to_int())
+			mIRCLink.m_bDoGhostDrag = true;
+		else
+			mIRCLink.m_bDoGhostDrag = false;
+		return 1;
+	}
 
 	HWND dockHwnd = (HWND) input.gettok(2, " ").to_num();
 

@@ -139,6 +139,8 @@ void WINAPI LoadDll(LOADINFO * load) {
 
 	mIRCLink.m_pData = (LPSTR) MapViewOfFile(mIRCLink.m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 	mIRCLink.m_mIRCHWND = load->mHwnd;
+	mIRCLink.m_bGhosted = false;
+	mIRCLink.m_bDoGhostDrag = false;
 
 	// Initializing OLE Support
 	//CoInitialize( NULL );
@@ -1093,6 +1095,32 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			return 0L;
 			break;
 		}
+		// ghost drag stuff
+		case WM_ENTERSIZEMOVE:
+			{
+				if (mIRCLink.m_bDoGhostDrag) {
+					long style = GetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE);
+					// Set WS_EX_LAYERED on this window
+					if (!(style & WS_EX_LAYERED))
+						SetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE, style | WS_EX_LAYERED);
+
+					// Make this window 75 alpha
+					SetLayeredWindowAttributes(mIRCLink.m_mIRCHWND, 0, 75, LWA_ALPHA);
+					mIRCLink.m_bGhosted = true;
+				}
+			}
+			break;
+
+		case WM_EXITSIZEMOVE:
+		{
+			// turn off ghosting.
+			if (mIRCLink.m_bGhosted) {
+				// Make this window solid
+				SetLayeredWindowAttributes(mIRCLink.m_mIRCHWND, 0, 255, LWA_ALPHA);
+				mIRCLink.m_bGhosted = false;
+			}
+			break;
+		}
 
 		default:
 			break;
@@ -1421,7 +1449,7 @@ mIRC(WindowProps) {
 		return 1;
 	}
 
-	TString flags = input.gettok(2, " ");
+	TString flags(input.gettok(2, " "));
 
 	if ((flags[0] != '-') || (flags.len() < 2)) {
 		DCXError("/dcx WindowProps","No Flags Found");
@@ -1445,7 +1473,7 @@ mIRC(WindowProps) {
 	// -i [INDEX] [FILENAME]
 	if (flags.find('i', 0) && numtok > 3) {
 		int index = input.gettok(3," ").to_int();
-		TString filename = input.gettok(1,"\t").gettok(4, -1, " ");
+		TString filename(input.gettok(1,"\t").gettok(4, -1, " "));
 		filename.trim();
 
 		if (!ChangeHwndIcon(hwnd,&flags,index,&filename))
