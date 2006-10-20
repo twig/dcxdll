@@ -612,6 +612,11 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[22] && numtok > 5) {
 		UINT iFlags = this->parseImageListFlags(input.gettok(4, " "));
 
+		if (input.gettok(4, " ")[0] != '+') {
+			DCXError("xdid -w", "Invalid Flags");
+			return;
+		}
+
 		HIMAGELIST himl;
 		HICON icon = NULL;
 		int index = input.gettok(5, " ").to_int();
