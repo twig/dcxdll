@@ -160,7 +160,7 @@ typedef struct {
 	LPSTR  m_pData;    //!< Pointer to a character buffer of size 900 to send mIRC custom commands
 	HWND   m_mIRCHWND; //!< mIRC Window Handle
 	int    m_map_cnt;  //!< MapFile counter.
-	bool		m_bDoGhostDrag; //!< Ghost window while dragging.
+	int			m_bDoGhostDrag; //!< Ghost window while dragging.
 	bool		m_bGhosted;	//!< Is Window Currently ghosted (as a result of drag ghost).
 } mIRCDLL;
 

@@ -140,7 +140,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	mIRCLink.m_pData = (LPSTR) MapViewOfFile(mIRCLink.m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 	mIRCLink.m_mIRCHWND = load->mHwnd;
 	mIRCLink.m_bGhosted = false;
-	mIRCLink.m_bDoGhostDrag = false;
+	mIRCLink.m_bDoGhostDrag = 255;
 
 	// Initializing OLE Support
 	//CoInitialize( NULL );
@@ -519,7 +519,7 @@ mIRC(GetSystemColor) {
 	}
 
 	int col;
-	TString coltype = d.gettok(1);
+	TString coltype(d.gettok(1));
 
 	if      (coltype == "COLOR_3DDKSHADOW"		) { col = COLOR_3DDKSHADOW; }
 	else if (coltype == "COLOR_3DFACE"			) { col = COLOR_3DFACE; }
@@ -812,7 +812,7 @@ mIRC(xdid) {
 		return 3;
 	}
 
-	TString IDs = d.gettok(2, " "), d2;
+	TString IDs(d.gettok(2, " ")), d2;
 	DcxControl * p_Control;
 	int i = 1, n = IDs.numtok(",");
 
@@ -1098,14 +1098,13 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 			{
-				if (mIRCLink.m_bDoGhostDrag) {
+				if (mIRCLink.m_bDoGhostDrag < 255) {
 					long style = GetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE);
 					// Set WS_EX_LAYERED on this window
 					if (!(style & WS_EX_LAYERED))
 						SetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE, style | WS_EX_LAYERED);
-
 					// Make this window 75 alpha
-					SetLayeredWindowAttributes(mIRCLink.m_mIRCHWND, 0, 75, LWA_ALPHA);
+					SetLayeredWindowAttributes(mIRCLink.m_mIRCHWND, 0, mIRCLink.m_bDoGhostDrag, LWA_ALPHA);
 					mIRCLink.m_bGhosted = true;
 				}
 			}
@@ -1165,9 +1164,9 @@ mIRC(MsgBox) {
 	}
 
 	DWORD   style     = MB_DEFBUTTON1;
-	TString strStyles = d.gettok(1, "\t");
-	TString strTitle  = d.gettok(2, "\t");
-	TString strMsg    = d.gettok(3, -1, "\t");
+	TString strStyles(d.gettok(1, "\t"));
+	TString strTitle(d.gettok(2, "\t"));
+	TString strMsg(d.gettok(3, -1, "\t"));
 	int     n         = strStyles.numtok(" ");
 	HWND    owner     = aWnd;
 

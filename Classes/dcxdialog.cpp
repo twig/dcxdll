@@ -68,7 +68,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 
 	this->m_bTracking = FALSE;
 
-	this->m_bDoGhostDrag = false;
+	this->m_bDoGhostDrag = 255;
 	this->m_bGhosted = false;
 
 	SetProp(this->m_Hwnd, "dcx_this", (HANDLE) this);
@@ -814,12 +814,15 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			}
 			break;
 
-			case 'g': // ghost drag - <1|0>
+			case 'g': // ghost drag - <0-255>
 			{
-				if ((BOOL)input.gettok(4," ").to_int())
-					this->m_bDoGhostDrag = true;
-				else
-					this->m_bDoGhostDrag = false;
+				int alpha = input.gettok(4," ").to_int();
+				if ((alpha >= 0) && (alpha <= 255))
+					this->m_bDoGhostDrag = alpha;
+				else {
+					DCXError("xdialog -R +g","Alpha Out Of Range");
+					return;
+				}
 			}
 			break;
 
@@ -1635,14 +1638,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 			{
-				if (p_this->m_bDoGhostDrag) {
+				if (p_this->m_bDoGhostDrag < 255) {
 					long style = GetWindowLong(p_this->m_Hwnd, GWL_EXSTYLE);
 					// Set WS_EX_LAYERED on this window
 					if (!(style & WS_EX_LAYERED))
 						SetWindowLong(p_this->m_Hwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
-
 					// Make this window 75 alpha
-					SetLayeredWindowAttributes(p_this->m_Hwnd, 0, 75, LWA_ALPHA);
+					SetLayeredWindowAttributes(p_this->m_Hwnd, 0, p_this->m_bDoGhostDrag, LWA_ALPHA);
 					p_this->m_bGhosted = true;
 				}
 			}
