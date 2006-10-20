@@ -293,9 +293,9 @@ void DcxButton::parseCommandRequest( TString & input ) {
 
 		// load the icon
 		if (this->m_iIconSize > 16)
-			ExtractIconEx(filename.to_chr(), index, &icon, NULL, 1);
+			icon = dcxLoadIcon(index, filename, TRUE);
 		else
-			ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
+			icon = dcxLoadIcon(index, filename, FALSE);
 
 		// convert to greyscale
 		if (flags & BTNIS_GREY)

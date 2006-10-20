@@ -210,9 +210,9 @@ void DcxImage::parseCommandRequest(TString & input) {
 		PreloadData();
 
 		if (size > 16)
-			ExtractIconEx(filename.to_chr(), index, &(this->m_hIcon), NULL, 1);
+			this->m_hIcon = dcxLoadIcon(index, filename, TRUE);
 		else
-			ExtractIconEx(filename.to_chr(), index, NULL, &(this->m_hIcon), 1);
+			this->m_hIcon = dcxLoadIcon(index, filename, FALSE);
 
 		if (flags.find('g', 0))
 			this->m_hIcon = CreateGrayscaleIcon(this->m_hIcon);

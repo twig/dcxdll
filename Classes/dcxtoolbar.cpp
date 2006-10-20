@@ -625,9 +625,9 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			ImageList_GetIconSize(himl, &cx, &cy);
 
 			if (cx > 16)
-				ExtractIconEx(filename.to_chr(), index, &icon, NULL, 1);
+				icon = dcxLoadIcon(index, filename, TRUE);
 			else
-				ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
+				icon = dcxLoadIcon(index, filename, FALSE);
 
 			// Grayscale the icon
 			if ((iFlags & TB_ICO_GREY) && icon)

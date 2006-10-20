@@ -1207,7 +1207,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 			index = (int)input.gettok(5, " ").to_num();
 			filename = input.gettok(6, -1, " ");
-			ExtractIconEx(filename.to_chr(), index, &icon, 0, 1);
+			icon = dcxLoadIcon(index, filename, TRUE);
 
 			if (isGray)
 				icon = CreateGrayscaleIcon(icon);

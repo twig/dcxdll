@@ -555,7 +555,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
 				this->setImageList(himl);
 		}
 
-		ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
+		icon = dcxLoadIcon(index, filename, FALSE);
 
 		if (flags.find('g', 0))
 			icon = CreateGrayscaleIcon(icon);

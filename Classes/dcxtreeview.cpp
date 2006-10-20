@@ -809,10 +809,10 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		TString filename(input.gettok(6, -1, " "));
 		BOOL isGray = (input.gettok(4, " ").find('g', 0) ? TRUE : FALSE);
 
-			if (this->m_iIconSize > 16)
-				ExtractIconEx(filename.to_chr(), index, &icon, NULL, 1 );
-			else	
-				ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
+		if (this->m_iIconSize > 16)
+			icon = dcxLoadIcon(index, filename, TRUE);
+		else	
+			icon = dcxLoadIcon(index, filename, FALSE);
 
 		if (isGray)
 			icon = CreateGrayscaleIcon(icon);
