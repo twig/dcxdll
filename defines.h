@@ -56,6 +56,8 @@ using namespace Gdiplus;
 
 #include "classes/dcxdialogcollection.h"
 
+#include "AggressiveOptimize.h"
+
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 3
 #define DLL_BUILD      7
