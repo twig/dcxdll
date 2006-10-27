@@ -277,7 +277,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	// xdid -M [NAME] [ID] [SWITCH] [MARK INFO]
 	else if ( flags.switch_cap_flags[12] ) {
 
-		TString info = "";
+		TString info;
 		if ( numtok > 3 ) {
 
 			info = input.gettok( 4, -1 , " " );
@@ -363,7 +363,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
   }
 	// xdid -R [NAME] [ID] [SWITCH] [FLAG] [ARGS]
 	else if (flags.switch_cap_flags[17] && numtok > 3) {
-		TString flag = input.gettok(4," ");
+		TString flag(input.gettok(4," "));
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
 			DCXError("/xdid -R","Invalid Flag");
@@ -376,8 +376,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 		switch (flag[1])
 		{
-			// image file - [COLOR] [FILE]
-			case 'f': 
+			case 'f': // image file - [COLOR] [FILE]
 			{
 				if (numtok < 6) {
 					DCXError("/xdid -R","Invalid arguments for +f flag");
@@ -409,7 +408,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 				m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
 
-				if (m_Region)
+				if (m_Region != NULL)
 					SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
 
 				break;
@@ -427,7 +426,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 				else
 					m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
 
-				if (m_Region)
+				if (m_Region != NULL)
 					SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
 
 				break;
@@ -441,7 +440,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 					return;
 				}
 
-				TString strPoints = input.gettok(5, -1, " ");
+				TString strPoints(input.gettok(5, -1, " "));
 				TString strPoint;
 				int tPoints = strPoints.numtok(" ");
 
@@ -462,7 +461,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 				m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
 
-				if (m_Region)
+				if (m_Region != NULL)
 					SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
 
 				delete [] pnts;
@@ -792,6 +791,35 @@ void DcxControl::unregistreDefaultWindowProc( ) {
  *
  * blah
  */
+//void DcxControl::basicSetup( const UINT ID, const DWORD sExStyles, const DWORD sStyles, const char *wClass, const HWND mParentHwnd, const RECT * rc, TString & styles )
+//{
+//	LONG Styles = 0, ExStyles = 0;
+//	BOOL bNoTheme = FALSE;
+//	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+//
+//	this->m_Hwnd = CreateWindowEx(	
+//		ExStyles | sExStyles, 
+//		wClass,
+//		NULL,
+//		Styles | sStyles, 
+//		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+//		mParentHwnd,
+//		(HMENU) ID,
+//		GetModuleHandle(NULL), 
+//		NULL);
+//
+//	if ( bNoTheme )
+//		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+//
+//	this->registreDefaultWindowProc( );
+//	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+//}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
 
 LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	DcxControl *pthis = (DcxControl*) GetProp(mHwnd, "dcx_cthis");
@@ -1037,4 +1065,14 @@ COLORREF DcxControl::getBackColor( ) const {
 
 COLORREF DcxControl::getTextColor( ) const {
 	return this->m_clrText;
+}
+
+void DcxControl::updateParentCtrl(void)
+{
+	// find the host control, if any.
+	HWND parent = GetParent(this->m_Hwnd);
+	if (parent != this->m_pParentHWND) {
+		this->m_pParentCtrl = this->m_pParentDialog->getControlByHWND(parent);
+		this->m_pParentHWND = parent;
+	}
 }

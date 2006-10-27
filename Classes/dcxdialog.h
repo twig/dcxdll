@@ -94,6 +94,9 @@ public:
   inline void decRef( ) { --this->m_iRefCount; };
   inline UINT getRefCount( ) const { return this->m_iRefCount; };
 	inline DWORD getEventMask( ) const { return this->m_dEventMask; };
+	HBITMAP getBgBitmap() const { return this->m_bitmapBg; };
+	COLORREF getBgTransparentCol() const { return this->m_colTransparentBg; };
+	static void DrawDialogBackgroundBitmap(HDC hdc, DcxDialog *p_this, LPRECT rwnd);
 
 protected:
 

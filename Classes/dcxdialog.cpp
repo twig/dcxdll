@@ -49,7 +49,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 	this->m_hCursor = NULL;
 	this->m_bCursorFromFile = FALSE;
 
-	this->addStyle(WS_CLIPCHILDREN);
+	//this->addStyle(WS_CLIPCHILDREN);
 
 	this->m_hOldWindowProc = (WNDPROC) SetWindowLong(this->m_Hwnd, GWL_WNDPROC, (LONG) DcxDialog::WindowProc);
 
@@ -367,7 +367,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg, filename);
 		}
 
-		InvalidateRect(this->m_Hwnd, NULL, TRUE);
+		//InvalidateRect(this->m_Hwnd, NULL, TRUE);
+		this->redrawWindow();
 	}
 	// xdialog -j [NAME] [SWITCH] (ID)
 	else if (flags.switch_flags[9]) {
@@ -1741,52 +1742,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				FillRect(hdc, &rwnd, GetSysColorBrush(COLOR_3DFACE));
 
 			// draw bitmap
-			if (p_this->m_bitmapBg) {
-				HDC hdcbmp = CreateCompatibleDC(hdc);
-				BITMAP bmp;
-
-				GetObject(p_this->m_bitmapBg, sizeof(BITMAP), &bmp);
-				SelectObject(hdcbmp, p_this->m_bitmapBg);
-
-				int x = 0;
-				int y = 0;
-				int w = rwnd.right - rwnd.left;
-				int h = rwnd.bottom - rwnd.top;
-
-				// stretch
-				if (p_this->m_uStyleBg & DBS_BKGSTRETCH) {
-					//BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-					TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-				}
-				// tile
-				else if (p_this->m_uStyleBg & DBS_BKGTILE) {
-					for (y = 0; y < h; y += bmp.bmHeight) {
-						for (x = 0; x < w; x += bmp.bmWidth) {
-							//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-							TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-						}
-					}
-				}
-				// normal
-				//else if (p_this->m_uStyleBg & DBS_BKGNORMAL) {
-				else {
-					// align horizontally
-					if (p_this->m_uStyleBg & DBS_BKGCENTER)
-						x = (w - bmp.bmWidth) / 2;
-					else if (p_this->m_uStyleBg & DBS_BKGRIGHT)
-						x = w - bmp.bmWidth;
-
-					// align vertically
-					if (p_this->m_uStyleBg & DBS_BKGVCENTER)
-						y = (h - bmp.bmHeight) / 2;
-					else if (p_this->m_uStyleBg & DBS_BKGBOTTOM)
-						y = h - bmp.bmHeight;
-
-					TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
-				}
-
-				DeleteDC(hdcbmp);
-			}
+			if (p_this->m_bitmapBg)
+				DcxDialog::DrawDialogBackgroundBitmap(hdc,p_this,&rwnd);
 
 			bParsed = TRUE;
 			lRes = TRUE;
@@ -1801,31 +1758,31 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		}
 
 		case WM_CTLCOLORBTN:
-		{
-			DcxControl *p_Control = p_this->getControlByHWND((HWND) lParam);
+		//{
+		//	DcxControl *p_Control = p_this->getControlByHWND((HWND) lParam);
 
-			if (p_Control != NULL) {
-				COLORREF clrText = p_Control->getTextColor();
-				//COLORREF clrBackText = p_Control->getBackColor();
-				//HBRUSH hBackBrush = p_Control->getBackClrBrush();
+		//	if (p_Control != NULL) {
+		//		COLORREF clrText = p_Control->getTextColor();
+		//		//COLORREF clrBackText = p_Control->getBackColor();
+		//		//HBRUSH hBackBrush = p_Control->getBackClrBrush();
 
-				if (clrText != -1)
-					SetTextColor((HDC) wParam, clrText);
+		//		if (clrText != -1)
+		//			SetTextColor((HDC) wParam, clrText);
 
-				//if (clrBackText != -1)
-				//  SetBkColor((HDC) wParam, clrBackText);
+		//		//if (clrBackText != -1)
+		//		//  SetBkColor((HDC) wParam, clrBackText);
 
-				SetBkMode((HDC) wParam, TRANSPARENT);
+		//		SetBkMode((HDC) wParam, TRANSPARENT);
 
-				//if ( hBackBrush != NULL )
-				//return (LRESULT) hBackBrush;
+		//		//if ( hBackBrush != NULL )
+		//		//return (LRESULT) hBackBrush;
 
-				bParsed = TRUE;
-				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-			}
+		//		bParsed = TRUE;
+		//		lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+		//	}
 
-			break;
-		}
+		//	break;
+		//}
 
 		case WM_CTLCOLORLISTBOX:
 		case WM_CTLCOLORSCROLLBAR:
@@ -2113,4 +2070,52 @@ void DcxDialog::setParentName(TString &strParent) {
 
 TString DcxDialog::getParentName() {
 	return this->m_tsParentName;
+}
+
+void DcxDialog::DrawDialogBackgroundBitmap(HDC hdc, DcxDialog *p_this, LPRECT rwnd)
+{
+	HDC hdcbmp = CreateCompatibleDC(hdc);
+	BITMAP bmp;
+
+	GetObject(p_this->m_bitmapBg, sizeof(BITMAP), &bmp);
+	SelectObject(hdcbmp, p_this->m_bitmapBg);
+
+	int x = 0;
+	int y = 0;
+	int w = rwnd->right - rwnd->left;
+	int h = rwnd->bottom - rwnd->top;
+
+	// stretch
+	if (p_this->m_uStyleBg & DBS_BKGSTRETCH) {
+		//BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+		TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+	}
+	// tile
+	else if (p_this->m_uStyleBg & DBS_BKGTILE) {
+		for (y = 0; y < h; y += bmp.bmHeight) {
+			for (x = 0; x < w; x += bmp.bmWidth) {
+				//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+				TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+			}
+		}
+	}
+	// normal
+	//else if (p_this->m_uStyleBg & DBS_BKGNORMAL) {
+	else {
+		// align horizontally
+		if (p_this->m_uStyleBg & DBS_BKGCENTER)
+			x = (w - bmp.bmWidth) / 2;
+		else if (p_this->m_uStyleBg & DBS_BKGRIGHT)
+			x = w - bmp.bmWidth;
+
+		// align vertically
+		if (p_this->m_uStyleBg & DBS_BKGVCENTER)
+			y = (h - bmp.bmHeight) / 2;
+		else if (p_this->m_uStyleBg & DBS_BKGBOTTOM)
+			y = h - bmp.bmHeight;
+
+		TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+	}
+
+	DeleteDC(hdcbmp);
 }

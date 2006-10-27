@@ -105,6 +105,8 @@ public:
   inline void incRef( ) { ++this->m_iRefCount; };
   inline void decRef( ) { --this->m_iRefCount; };
   inline UINT getRefCount( ) const { return this->m_iRefCount; };
+	DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
+	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
 
 protected:
 
@@ -128,6 +130,9 @@ protected:
 	HWND m_ToolTipHWND; //!< Tooltip window (if any)
 	TString m_tsToolTip; //!< This controls tooltip text (if any).
 	DWORD m_dEventMask;
+	bool m_bAlphaBlend;	//!< Control is alpha blended.
+	DcxControl *m_pParentCtrl;
+	HWND m_pParentHWND;
   /* ***** */
 
   void parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags );
@@ -141,7 +146,7 @@ protected:
   void unregistreDefaultWindowProc( );
 
   static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
-
+	//void basicSetup( const UINT ID, const DWORD sExStyles, const DWORD sStyles, const char *wClass, const HWND mParentHwnd, const RECT * rc, TString & styles );
 };
 
 #endif // _DCXCONTROL_H_
