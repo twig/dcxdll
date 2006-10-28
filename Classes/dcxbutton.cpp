@@ -485,8 +485,8 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 		case WM_ERASEBKGND:
 			{
-				if (this->m_bAlphaBlend)
-					this->DrawParentsBackground((HDC)wParam);
+				//if (this->m_bAlphaBlend)
+				//	this->DrawParentsBackground((HDC) wParam);
 				bParsed = TRUE;
 				return TRUE;
 			}
@@ -522,8 +522,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 					HDC hdcbmp = CreateCompatibleDC( hdc );
 					BITMAP bmp;
 
-					// fill background.
-					DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 					// get bitmaps info.
 					GetObject( this->m_aBitmaps[nState], sizeof(BITMAP), &bmp );
 					// associate bitmap with HDC
@@ -532,8 +530,8 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 					int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
 					if (this->m_bAlphaBlend) {
 						/*
-							1: draw parents bg to hdc (wm erase)
-							2: draw parents bg to temp hdc
+							1: draw parents bg to hdc
+							2: copy bg to temp hdc
 							3: draw image to temp hdc, over parents bg
 							4: alpha blend temp hdc to hdc
 						*/
@@ -542,12 +540,16 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 						HDC hdcalpha = CreateCompatibleDC( hdc );
 						if (hdcalpha != NULL) {
 							// create a bitmap to render to
-							HBITMAP memBM = CreateCompatibleBitmap ( hdc, w, h );
+							HBITMAP memBM = CreateCompatibleBitmap ( hdc, w+rcClient.left, h+rcClient.top );
 							if (memBM != NULL) {
 								// associate bitmap with hdc
 								SelectObject ( hdcalpha, memBM );
 								// fill in parent bg
-								this->DrawParentsBackground(hdcalpha);
+								this->DrawParentsBackground(hdc);
+								// copy bg to temp hdc
+								BitBlt( hdcalpha, rcClient.left, rcClient.top, w, h, hdc, rcClient.left, rcClient.top, SRCCOPY);
+								// fill background.
+								DcxControl::DrawCtrlBackground(hdcalpha,this,&rcClient);
 								// draw button
 								TransparentBlt( hdcalpha, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
 								// alpha blend finished button with parents background
@@ -563,6 +565,8 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 						}
 					}
 					else {
+						// fill background.
+						DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 						TransparentBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
 					}
 					DeleteDC( hdcbmp );

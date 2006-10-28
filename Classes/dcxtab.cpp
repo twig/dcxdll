@@ -43,68 +43,6 @@
  *
  * \param ID Control ID
  * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-//DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-//: DcxControl( ID, p_Dialog ) 
-//{
-//
-//  LONG Styles = 0, ExStyles = 0;
-//  BOOL bNoTheme = FALSE;
-//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//  this->m_Hwnd = CreateWindowEx(	
-//    ExStyles | WS_EX_CONTROLPARENT, 
-//    DCX_TABCTRLCLASS, 
-//    NULL,
-//    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//    p_Dialog->getHwnd( ),
-//    (HMENU) ID,
-//    GetModuleHandle( NULL ), 
-//    NULL);
-//
-//  if ( bNoTheme )
-//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//  /*
-//  HWND hHwndTip = TabCtrl_GetToolTips( this->m_Hwnd );
-//  if ( IsWindow( hHwndTip ) ) {
-//
-//		TString data;
-//    data.sprintf("Activating Tooltips TT HWND %x", hHwndTip );
-//    mIRCError( data.to_chr() );
-//
-//    TOOLINFO ti;
-//    ZeroMemory( &ti, sizeof( TOOLINFO ) );
-//    ti.cbSize = sizeof( TOOLINFO );
-//    ti.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
-//    ti.hwnd = p_Dialog->getHwnd( );
-//    ti.uId = (UINT) this->m_Hwnd;
-//    ti.lpszText = LPSTR_TEXTCALLBACK;
-//    SendMessage( hHwndTip, TTM_ADDTOOL, (WPARAM) 0, (LPARAM) &ti );
-//  }
-//  */
-//
-//	//if (p_Dialog->getToolTip() != NULL) {
-//	//	if (styles.istok("tooltips", " ")) {
-//	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
-//	//		TabCtrl_SetToolTips(this->m_Hwnd,this->m_ToolTipHWND);
-//	//		//AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-//	//	}
-//	//}
-//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-//  this->registreDefaultWindowProc( );
-//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//}
-//
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
  * \param mParentHwnd Parent Window Handle
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
@@ -346,30 +284,30 @@ void DcxTab::parseCommandRequest( TString & input ) {
   int numtok = input.numtok( " " );
 
   // xdid -r [NAME] [ID] [SWITCH]
-  if (flags.switch_flags[17]) {
-    int n = 0;
-	 int nItems = TabCtrl_GetItemCount(this->m_Hwnd);
+	if (flags.switch_flags[17]) {
+		int n = 0;
+		TCITEM tci;
+		int nItems = TabCtrl_GetItemCount(this->m_Hwnd);
 
-    while (n < nItems) {
-      TCITEM tci;
-      ZeroMemory(&tci, sizeof(TCITEM));
+		while (n < nItems) {
+			ZeroMemory(&tci, sizeof(TCITEM));
 
-      tci.mask = TCIF_PARAM;
+			tci.mask = TCIF_PARAM;
 
-      if (TabCtrl_GetItem(this->m_Hwnd, n, &tci)) {
-        LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
+			if (TabCtrl_GetItem(this->m_Hwnd, n, &tci)) {
+				LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
 
-        if (lpdtci != NULL && lpdtci->mChildHwnd != NULL && IsWindow(lpdtci->mChildHwnd)) {
-          DestroyWindow(lpdtci->mChildHwnd);
-          delete lpdtci;
-        }
-      }
+				if (lpdtci != NULL && lpdtci->mChildHwnd != NULL && IsWindow(lpdtci->mChildHwnd)) {
+					DestroyWindow(lpdtci->mChildHwnd);
+					delete lpdtci;
+				}
+			}
 
-      ++n;
-    }
+			++n;
+		}
 
-    TabCtrl_DeleteAllItems(this->m_Hwnd);
-  }
+		TabCtrl_DeleteAllItems(this->m_Hwnd);
+	}
 
   // xdid -a [NAME] [ID] [SWITCH] [N] [ICON] [TEXT][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB](TOOLTIP)
   if ( flags.switch_flags[0] && numtok > 4 ) {

@@ -342,9 +342,15 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			HBITMAP memBM;
 
 			if (this->m_bAlphaBlend) {
+				/*
+					1: draw parents bg to hdc (wm erase)
+					2: draw parents bg to temp hdc
+					3: draw image to temp hdc, over parents bg
+					4: alpha blend temp hdc to hdc
+				*/
 				hdcalpha = hdc;
 				hdc = CreateCompatibleDC(hdcalpha);
-				memBM = CreateCompatibleBitmap ( hdcalpha, w, h );
+				memBM = CreateCompatibleBitmap ( hdcalpha, w+rect.left, h+rect.top );
 				if ((hdc == NULL) || (memBM == NULL)) {
 					DeleteObject(memBM);
 					DeleteDC(hdc);
@@ -352,7 +358,6 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					return 0L;
 				}
 				SelectObject(hdc,memBM);
-				x = y = 0;
 				this->DrawParentsBackground(hdc);
 			}
 			DcxControl::DrawCtrlBackground(hdc,this,&rect);
