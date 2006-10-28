@@ -495,7 +495,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				GetClientRect( this->m_Hwnd, &rcClient );
 				POINT pt;
 				int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
-				HBRUSH hBrush = NULL;
 				HBITMAP bm = NULL;
 				HDC hdcbkg = CreateCompatibleDC( hdc );
 				if (hdcbkg != NULL) {
@@ -506,18 +505,15 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 					ScreenToClient(this->m_pParentHWND,&pt);
 					HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
 					if (memBM != NULL) {
+						SelectObject ( hdcbkg, memBM );
 						if (this->m_pParentCtrl == NULL) { // host control is the dialog
-							hBrush = this->m_pParentDialog->getBackClrBrush();
-							bm = this->m_pParentDialog->getBgBitmap();
+							DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
 						}
 						else { // found host control, get its background if any.
-							hBrush = this->m_pParentCtrl->getBackClrBrush();
+							HBRUSH hBrush = this->m_pParentCtrl->getBackClrBrush();
+							if (hBrush != NULL)
+								FillRect(hdcbkg,&rcParent,hBrush);
 						}
-						SelectObject ( hdcbkg, memBM );
-						if (hBrush != NULL)
-							FillRect(hdcbkg,&rcParent,hBrush);
-						if (bm != NULL)
-							DcxDialog::DrawDialogBackgroundBitmap(hdcbkg,this->m_pParentDialog,&rcParent);
 						// draw background to main hdc
 						BitBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbkg, pt.x, pt.y, SRCCOPY);
 						DeleteObject(memBM);
@@ -569,7 +565,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 						POINT pt;
 						int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
 						HBRUSH hBrush = NULL;
-						HBITMAP bm = NULL;
 						HDC hdcalpha = CreateCompatibleDC( hdc );
 						if (hdcalpha != NULL) {
 							GetClientRect(this->m_pParentHWND,&rcParent);
@@ -579,18 +574,15 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 							ScreenToClient(this->m_pParentHWND,&pt);
 							HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
 							if (memBM != NULL) {
+								SelectObject ( hdcalpha, memBM );
 								if (this->m_pParentCtrl == NULL) { // host control is the dialog
-									hBrush = this->m_pParentDialog->getBackClrBrush();
-									bm = this->m_pParentDialog->getBgBitmap();
+									DcxDialog::DrawDialogBackground(hdcalpha,this->m_pParentDialog,&rcParent);
 								}
 								else { // found host control, get its background if any.
 									hBrush = this->m_pParentCtrl->getBackClrBrush();
+									if (hBrush != NULL)
+										FillRect(hdcalpha,&rcParent,hBrush);
 								}
-								SelectObject ( hdcalpha, memBM );
-								if (hBrush != NULL)
-									FillRect(hdcalpha,&rcParent,hBrush);
-								if (bm != NULL)
-									DcxDialog::DrawDialogBackgroundBitmap(hdcalpha,this->m_pParentDialog,&rcParent);
 								// draw button
 								TransparentBlt( hdcalpha, pt.x, pt.y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nBitmap] );
 								// alpha blend with background

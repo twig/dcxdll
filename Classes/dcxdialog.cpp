@@ -1730,20 +1730,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		{
 			if (mHwnd != p_this->getHwnd())
 				break;
-			HDC hdc = (HDC) wParam;
+			//HDC hdc = (HDC) wParam;
 			RECT rwnd;
 
 			GetClientRect(p_this->getHwnd(), &rwnd);
 
-			// background color
-			if (p_this->getBackClrBrush())
-				FillRect(hdc, &rwnd, p_this->getBackClrBrush());
-			else
-				FillRect(hdc, &rwnd, GetSysColorBrush(COLOR_3DFACE));
-
-			// draw bitmap
-			if (p_this->m_bitmapBg)
-				DcxDialog::DrawDialogBackgroundBitmap(hdc,p_this,&rwnd);
+			DcxDialog::DrawDialogBackground((HDC) wParam,p_this,&rwnd);
 
 			bParsed = TRUE;
 			lRes = TRUE;
@@ -2072,8 +2064,17 @@ TString DcxDialog::getParentName() {
 	return this->m_tsParentName;
 }
 
-void DcxDialog::DrawDialogBackgroundBitmap(HDC hdc, DcxDialog *p_this, LPRECT rwnd)
+void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPRECT rwnd)
 {
+	// background color
+	if (p_this->getBackClrBrush() != NULL)
+		FillRect(hdc, rwnd, p_this->getBackClrBrush());
+	else
+		FillRect(hdc, rwnd, GetSysColorBrush(COLOR_3DFACE));
+
+	if (p_this->m_bitmapBg == NULL)
+		return;
+
 	HDC hdcbmp = CreateCompatibleDC(hdc);
 	BITMAP bmp;
 
