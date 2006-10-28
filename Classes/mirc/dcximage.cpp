@@ -141,6 +141,8 @@ void DcxImage::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
 	while ( i <= numtok ) {
 		if ( styles.gettok( i , " " ) == "transparent" )
 			*ExStyles |= WS_EX_TRANSPARENT;
+    else if ( styles.gettok( i , " " ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
 		i++;
 	}
@@ -315,18 +317,8 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_ERASEBKGND:
 			{
-				if (!this->isExStyle(WS_EX_TRANSPARENT)) {
-					HDC hdc = (HDC) wParam;
-
-					RECT rect;
-					GetClientRect( this->m_Hwnd, &rect );
-
-					if ( this->m_hBackBrush != NULL )
-						FillRect( hdc, &rect, this->m_hBackBrush );
-					else
-						FillRect( hdc, &rect, GetSysColorBrush( COLOR_3DFACE ));
-				}
-
+				if (this->m_bAlphaBlend)
+					this->DrawParentsBackground((HDC)wParam);
 				bParsed = TRUE;
 				return TRUE;
       }
@@ -338,12 +330,32 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			if ((this->m_hBitmap == NULL) && (this->m_hIcon == NULL) && (this->m_pImage == NULL))
 				break;
 
+			bParsed = TRUE;
 			PAINTSTRUCT ps; 
-			HDC hdc; 
+			HDC hdc, hdcalpha;
 			RECT rect;
 
 			hdc = BeginPaint(this->m_Hwnd, &ps);
 			GetClientRect(this->m_Hwnd, &rect);
+
+			int w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
+			HBITMAP memBM;
+
+			if (this->m_bAlphaBlend) {
+				hdcalpha = hdc;
+				hdc = CreateCompatibleDC(hdcalpha);
+				memBM = CreateCompatibleBitmap ( hdcalpha, w, h );
+				if ((hdc == NULL) || (memBM == NULL)) {
+					DeleteObject(memBM);
+					DeleteDC(hdc);
+					EndPaint(this->m_Hwnd, &ps);
+					return 0L;
+				}
+				SelectObject(hdc,memBM);
+				x = y = 0;
+				this->DrawParentsBackground(hdc);
+			}
+			DcxControl::DrawCtrlBackground(hdc,this,&rect);
 
 			// draw bitmap
 			if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon) && (this->m_pImage == NULL)) {
@@ -353,14 +365,10 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				GetObject( this->m_hBitmap, sizeof(BITMAP), &bmp );
 				SelectObject( hdcbmp, this->m_hBitmap );
 
-				if (this->m_clrTransColor != -1) {
-					TransparentBlt(hdc, rect.left, rect.top, (rect.right - rect.left),
-						(rect.bottom - rect.top), hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_clrTransColor);
-				}
-				else {
-					StretchBlt( hdc, rect.left, rect.top, rect.right - rect.left, 
-						rect.bottom - rect.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
-				}
+				if (this->m_clrTransColor != -1)
+					TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_clrTransColor);
+				else
+					StretchBlt( hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
 
 				DeleteDC( hdcbmp );
 			}
@@ -371,14 +379,25 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			else if (this->m_pImage != NULL) {
 				Graphics grphx( hdc );
 
+				grphx.SetCompositingQuality(CompositingQualityHighQuality);
+
 				if (this->m_bResizeImage)
-					grphx.DrawImage( this->m_pImage, 0, 0, rect.right - rect.left, rect.bottom - rect.top );
+					grphx.DrawImage( this->m_pImage, 0, 0, w, h );
 				else
 					grphx.DrawImage( this->m_pImage, 0, 0);
 			}
+			if (this->m_bAlphaBlend) {
+				BLENDFUNCTION bf;
+				bf.BlendOp = AC_SRC_OVER;
+				bf.BlendFlags = 0;
+				bf.SourceConstantAlpha = 0x7f;  // 0x7f half of 0xff = 50% transparency
+				bf.AlphaFormat = 0; //AC_SRC_ALPHA;
+				AlphaBlend(hdcalpha,rect.left,rect.top,w,h,hdc, 0, 0, w, h,bf);
+				DeleteObject(memBM);
+				DeleteDC(hdc);
+			}
 			EndPaint(this->m_Hwnd, &ps);
 
-			bParsed = TRUE;
 			return 0L;
 		}
 		break;

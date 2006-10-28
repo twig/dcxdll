@@ -850,18 +850,21 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			//	if (IsThemeBackgroundPartiallyTransparentUx(this->_hTheme, BP_GROUPBOX, _iStateId))
 			//		DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rc);
 			//}
-			if (!this->isExStyle(WS_EX_TRANSPARENT)) {
-				HDC hdc = (HDC)wParam;
-				RECT rc;
-				GetClientRect(this->m_Hwnd, &rc);
-				// set up brush colors
-				HBRUSH hBrush;
-				if (this->m_hBackBrush != NULL)
-					hBrush = this->m_hBackBrush;
-				else
-					hBrush = GetSysColorBrush(COLOR_3DFACE);
-				FillRect(hdc, &rc, hBrush);
-			}
+			RECT rect;
+			GetClientRect( this->m_Hwnd, &rect );
+			DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+			//if (!this->isExStyle(WS_EX_TRANSPARENT)) {
+			//	HDC hdc = (HDC)wParam;
+			//	RECT rc;
+			//	GetClientRect(this->m_Hwnd, &rc);
+			//	// set up brush colors
+			//	HBRUSH hBrush;
+			//	if (this->m_hBackBrush != NULL)
+			//		hBrush = this->m_hBackBrush;
+			//	else
+			//		hBrush = GetSysColorBrush(COLOR_3DFACE);
+			//	FillRect(hdc, &rc, hBrush);
+			//}
 			bParsed = TRUE;
 			return TRUE;
 		}

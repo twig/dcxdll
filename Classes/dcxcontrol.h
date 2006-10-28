@@ -107,6 +107,8 @@ public:
   inline UINT getRefCount( ) const { return this->m_iRefCount; };
 	DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
+	static void DrawCtrlBackground(HDC hdc, DcxControl *p_this, LPRECT rwnd);
+	void DrawParentsBackground(HDC hdc);
 
 protected:
 
@@ -121,6 +123,8 @@ protected:
   COLORREF m_clrText;     //!< Font color
   COLORREF m_clrBackText; //!< Font Back Color (not supported)
   HBRUSH m_hBackBrush;    //!< Background control color
+	HBITMAP m_bitmapBg;			//!< Background bitmap
+	COLORREF m_colTransparentBg;
 
   UINT m_iRefCount;
 
@@ -146,7 +150,6 @@ protected:
   void unregistreDefaultWindowProc( );
 
   static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
-	//void basicSetup( const UINT ID, const DWORD sExStyles, const DWORD sStyles, const char *wClass, const HWND mParentHwnd, const RECT * rc, TString & styles );
 };
 
 #endif // _DCXCONTROL_H_

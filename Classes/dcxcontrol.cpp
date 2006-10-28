@@ -74,6 +74,10 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog ) : DcxWindow( mID 
   this->m_hCursor = NULL;
   this->m_bCursorFromFile = FALSE;
 	this->m_dEventMask = p_Dialog->getEventMask();
+	this->m_bAlphaBlend = false;
+	this->m_pParentCtrl = NULL;
+	this->m_pParentHWND = NULL;
+	this->m_bitmapBg = NULL;
 }
 
 /*!
@@ -129,6 +133,8 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
       *Styles |= WS_GROUP;
     else if ( styles.gettok( i , " " ) == "disabled" )
       *Styles |= WS_DISABLED;
+    else if ( styles.gettok( i , " " ) == "transparent" )
+      *ExStyles |= WS_EX_TRANSPARENT;
 
     i++;
   }
@@ -791,35 +797,6 @@ void DcxControl::unregistreDefaultWindowProc( ) {
  *
  * blah
  */
-//void DcxControl::basicSetup( const UINT ID, const DWORD sExStyles, const DWORD sStyles, const char *wClass, const HWND mParentHwnd, const RECT * rc, TString & styles )
-//{
-//	LONG Styles = 0, ExStyles = 0;
-//	BOOL bNoTheme = FALSE;
-//	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//	this->m_Hwnd = CreateWindowEx(	
-//		ExStyles | sExStyles, 
-//		wClass,
-//		NULL,
-//		Styles | sStyles, 
-//		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//		mParentHwnd,
-//		(HMENU) ID,
-//		GetModuleHandle(NULL), 
-//		NULL);
-//
-//	if ( bNoTheme )
-//		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//	this->registreDefaultWindowProc( );
-//	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//}
-
-/*!
- * \brief blah
- *
- * blah
- */
 
 LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	DcxControl *pthis = (DcxControl*) GetProp(mHwnd, "dcx_cthis");
@@ -1074,5 +1051,63 @@ void DcxControl::updateParentCtrl(void)
 	if (parent != this->m_pParentHWND) {
 		this->m_pParentCtrl = this->m_pParentDialog->getControlByHWND(parent);
 		this->m_pParentHWND = parent;
+	}
+}
+
+void DcxControl::DrawCtrlBackground(HDC hdc, DcxControl *p_this, LPRECT rwnd)
+{
+	// fill background.
+	if (!p_this->isExStyle(WS_EX_TRANSPARENT)) {
+		HBRUSH hBrush = p_this->getBackClrBrush();
+		if (hBrush == NULL)
+			hBrush = GetSysColorBrush(COLOR_3DFACE);
+		if ( hBrush != NULL )
+				FillRect( hdc, rwnd, hBrush ); // only fill if control has its own brush, else allows host to show through.
+	}
+	//else if (p_this->m_pParentCtrl != NULL) {
+	//	DcxControl::DrawCtrlBackground(hdc,p_this->m_pParentCtrl,rwnd);
+	//}
+	//else {
+	//	DcxDialog::DrawDialogBackground(hdcalpha,this->m_pParentDialog,rwnd);
+	//}
+}
+
+void DcxControl::DrawParentsBackground(HDC hdc)
+{
+	this->updateParentCtrl(); // find the host control, if any.
+	// fill in parent bg
+	RECT rcClient, rcParent, rcWin;
+	// get controls client area
+	GetClientRect( this->m_Hwnd, &rcClient );
+	POINT pt;
+	// get controls width & height.
+	int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
+	HBITMAP bm = NULL;
+	// make a new HDC for background rendering
+	HDC hdcbkg = CreateCompatibleDC( hdc );
+	if (hdcbkg != NULL) {
+		// get parent windows client area.
+		GetClientRect(this->m_pParentHWND,&rcParent);
+		// get this controls x & y pos within its parent.
+		GetWindowRect(this->m_Hwnd,&rcWin);
+		pt.x = rcWin.left;
+		pt.y = rcWin.top;
+		ScreenToClient(this->m_pParentHWND,&pt);
+		// make a bitmap for rendering to.
+		HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
+		if (memBM != NULL) {
+			// associate bitmap with HDC
+			SelectObject ( hdcbkg, memBM );
+			if (this->m_pParentCtrl == NULL) { // host control is the dialog, draw dialogs background.
+				DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
+			}
+			else { // found host control, draw its background if any.
+				DcxControl::DrawCtrlBackground(hdcbkg,this->m_pParentCtrl,&rcParent);
+			}
+			// draw background to main hdc
+			BitBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbkg, pt.x, pt.y, SRCCOPY);
+			DeleteObject(memBM);
+		}
+		DeleteDC( hdcbkg );
 	}
 }

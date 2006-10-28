@@ -59,8 +59,6 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	this->m_iIconSize = 16;
 	this->m_ImageList = NULL;
 
-	this->m_pParentCtrl = NULL;
-	this->m_pParentHWND = NULL;
 	this->updateParentCtrl(); // find the host control, if any.
 
 	if (p_Dialog->getToolTip() != NULL) {
@@ -108,7 +106,6 @@ void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 
   unsigned int i = 1, numtok = styles.numtok( " " );
 	*Styles |= BS_NOTIFY;
-	this->m_bAlphaBlend = false;
 
   while ( i <= numtok ) {
 
@@ -116,7 +113,7 @@ void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
       *Styles |= BS_BITMAP;
     else if ( styles.gettok( i , " " ) == "default" )
       *Styles |= BS_DEFPUSHBUTTON;
-    else if ( styles.gettok( i , " " ) == "alpha" ) // once tested will change to `transparent`
+    else if ( styles.gettok( i , " " ) == "alpha" )
 			this->m_bAlphaBlend = true;
 
     i++;
@@ -487,42 +484,12 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
       break;
 
 		case WM_ERASEBKGND:
-			if (this->m_bAlphaBlend) {
-				this->updateParentCtrl(); // find the host control, if any.
-				HDC hdc = (HDC)wParam;
-				// fill in parent bg
-				RECT rcClient, rcParent, rcWin;
-				GetClientRect( this->m_Hwnd, &rcClient );
-				POINT pt;
-				int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
-				HBITMAP bm = NULL;
-				HDC hdcbkg = CreateCompatibleDC( hdc );
-				if (hdcbkg != NULL) {
-					GetClientRect(this->m_pParentHWND,&rcParent);
-					GetWindowRect(this->m_Hwnd,&rcWin);
-					pt.x = rcWin.left;
-					pt.y = rcWin.top;
-					ScreenToClient(this->m_pParentHWND,&pt);
-					HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
-					if (memBM != NULL) {
-						SelectObject ( hdcbkg, memBM );
-						if (this->m_pParentCtrl == NULL) { // host control is the dialog
-							DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
-						}
-						else { // found host control, get its background if any.
-							HBRUSH hBrush = this->m_pParentCtrl->getBackClrBrush();
-							if (hBrush != NULL)
-								FillRect(hdcbkg,&rcParent,hBrush);
-						}
-						// draw background to main hdc
-						BitBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbkg, pt.x, pt.y, SRCCOPY);
-						DeleteObject(memBM);
-					}
-					DeleteDC( hdcbkg );
-				}
+			{
+				if (this->m_bAlphaBlend)
+					this->DrawParentsBackground((HDC)wParam);
+				bParsed = TRUE;
+				return TRUE;
 			}
-			bParsed = TRUE;
-			return TRUE;
 			break;
     case WM_PAINT:
       {
@@ -535,71 +502,68 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				bParsed = TRUE;
 				BOOL isBitmap = this->isStyle(BS_BITMAP);
 
+				int nState; // get buttons state.
+				if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
+					nState = 3;
+				else if ( this->m_bSelected )
+					nState = 2;
+				else if ( this->m_bHover )
+					nState = 1;
+				else
+					nState = 0;
+
 				// Bitmapped button
 				if (isBitmap) {
 					RECT rcClient;
+					// get controls client area
 					GetClientRect( this->m_Hwnd, &rcClient );
 
-					int nBitmap;
+					// create a new HDC for background rendering
 					HDC hdcbmp = CreateCompatibleDC( hdc );
 					BITMAP bmp;
 
-					if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
-						nBitmap = 3;
-					else if ( this->m_bSelected )
-						nBitmap = 2;
-					else if ( this->m_bHover )
-						nBitmap = 1;
-					else
-						nBitmap = 0;
-
 					// fill background.
-					if ((!this->isExStyle(WS_EX_TRANSPARENT)) && ( this->m_hBackBrush != NULL ))
-							FillRect( hdc, &rcClient, this->m_hBackBrush ); // only fill if control has its own brush, else allows host to show through.
-					GetObject( this->m_aBitmaps[nBitmap], sizeof(BITMAP), &bmp );
-					SelectObject( hdcbmp, this->m_aBitmaps[nBitmap] );
+					DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+					// get bitmaps info.
+					GetObject( this->m_aBitmaps[nState], sizeof(BITMAP), &bmp );
+					// associate bitmap with HDC
+					SelectObject( hdcbmp, this->m_aBitmaps[nState] );
+					// get controls width & height.
+					int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
 					if (this->m_bAlphaBlend) {
-						// fill in parent bg
-						this->updateParentCtrl(); // find the host control, if any.
-						RECT rcParent, rcWin;
-						POINT pt;
-						int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
+						/*
+							1: draw parents bg to hdc (wm erase)
+							2: draw parents bg to temp hdc
+							3: draw image to temp hdc, over parents bg
+							4: alpha blend temp hdc to hdc
+						*/
 						HBRUSH hBrush = NULL;
+						// create a new HDC for alpha blending.
 						HDC hdcalpha = CreateCompatibleDC( hdc );
 						if (hdcalpha != NULL) {
-							GetClientRect(this->m_pParentHWND,&rcParent);
-							GetWindowRect(this->m_Hwnd,&rcWin);
-							pt.x = rcWin.left;
-							pt.y = rcWin.top;
-							ScreenToClient(this->m_pParentHWND,&pt);
-							HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
+							// create a bitmap to render to
+							HBITMAP memBM = CreateCompatibleBitmap ( hdc, w, h );
 							if (memBM != NULL) {
+								// associate bitmap with hdc
 								SelectObject ( hdcalpha, memBM );
-								if (this->m_pParentCtrl == NULL) { // host control is the dialog
-									DcxDialog::DrawDialogBackground(hdcalpha,this->m_pParentDialog,&rcParent);
-								}
-								else { // found host control, get its background if any.
-									hBrush = this->m_pParentCtrl->getBackClrBrush();
-									if (hBrush != NULL)
-										FillRect(hdcalpha,&rcParent,hBrush);
-								}
+								// fill in parent bg
+								this->DrawParentsBackground(hdcalpha);
 								// draw button
-								TransparentBlt( hdcalpha, pt.x, pt.y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nBitmap] );
-								// alpha blend with background
+								TransparentBlt( hdcalpha, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
+								// alpha blend finished button with parents background
 								BLENDFUNCTION bf;
 								bf.BlendOp = AC_SRC_OVER;
 								bf.BlendFlags = 0;
 								bf.SourceConstantAlpha = 0x7f;  // 0x7f half of 0xff = 50% transparency
 								bf.AlphaFormat = 0; //AC_SRC_ALPHA;
-								AlphaBlend(hdc,rcClient.left,rcClient.top,w,h,hdcalpha, pt.x, pt.y, w, h,bf);
+								AlphaBlend(hdc,rcClient.left,rcClient.top,w,h,hdcalpha, rcClient.left, rcClient.top, w, h,bf);
 								DeleteObject(memBM);
 							}
 							DeleteDC( hdcalpha );
 						}
 					}
 					else {
-						TransparentBlt( hdc, rcClient.left, rcClient.top, rcClient.right - rcClient.left, 
-							rcClient.bottom - rcClient.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nBitmap] );
+						TransparentBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
 					}
 					DeleteDC( hdcbmp );
 				}
@@ -621,19 +585,8 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 					SetBkMode( hdc, TRANSPARENT );
 
 					HIMAGELIST himl = this->getImageList( );
-					int nIcon;
 
-					// Button colors and icon
-					if (IsWindowEnabled(this->m_Hwnd) == FALSE)
-						nIcon = 3;
-					else if (this->m_bSelected)
-						nIcon = 2;
-					else if (this->m_bHover)
-						nIcon = 1;
-					else
-						nIcon = 0;
-
-					SetTextColor(hdc, this->m_aColors[nIcon]);
+					SetTextColor(hdc, this->m_aColors[nState]);
 
 					if ( this->m_tsCaption.len( ) > 0 )
 						DrawText( hdc, this->m_tsCaption.to_chr( ), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE );
@@ -645,12 +598,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 					int iIconLeft = 0;
 					int iIconTop = 0;
-
-					/*
-					char data[500];
-					wsprintf( data, "Cen %d, VCen %d, TW %d, TH, %d", iCenter, iVCenter, iTextW, iTextH );
-					mIRCError( data );
-					*/
 
 					rcTxt.left = iCenter - iTextW / 2;
 					rcTxt.top = iVCenter - iTextH / 2;
@@ -678,15 +625,10 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 						rcTxt.left = iIconLeft + this->m_iIconSize + ICON_XPAD;
 
 						if (IsWindowEnabled(this->m_Hwnd) == FALSE)
-							ImageList_Draw(himl, nIcon, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT | ILD_BLEND50);
+							ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT | ILD_BLEND50);
 						else
-							ImageList_Draw(himl, nIcon, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT);
+							ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT);
 					}
-
-					/*
-					wsprintf( data, "Ileft %d, Itop %d, TL %d, TT, %d", iIconLeft, iIconTop, rcTxt.left, rcTxt.top );
-					mIRCError( data );
-					*/
 
 					if ( this->m_tsCaption.len( ) > 0 ) {
 
