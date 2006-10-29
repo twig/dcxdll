@@ -1843,10 +1843,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_LBUTTONDOWN:
 		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-				p_this->callAliasEx(NULL, "%s,%d", "sclick", 0);
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
 				p_this->callAliasEx(NULL, "%s,%d", "lbdown", 0);
-			}
 			if (p_this->m_bDoDrag)
 				p_this->m_bDrag = true;
 			break;
@@ -1854,8 +1852,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_LBUTTONUP:
 		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
 				p_this->callAliasEx(NULL, "%s,%d", "lbup", 0);
+				p_this->callAliasEx(NULL, "%s,%d", "sclick", 0);
+			}
 			break;
 		}
 
@@ -1870,17 +1870,17 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_RBUTTONDOWN:
 		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-				p_this->callAliasEx(NULL, "%s,%d", "rclick", 0);
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
 				p_this->callAliasEx(NULL, "%s,%d", "rbdown", 0);
-			}
 			break;
 		}
 
 		case WM_RBUTTONUP:
 		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+			if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
 				p_this->callAliasEx(NULL, "%s,%d", "rbup", 0);
+				p_this->callAliasEx(NULL, "%s,%d", "rclick", 0);
+			}
 			break;
 		}
 

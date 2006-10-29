@@ -544,17 +544,17 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_LBUTTONDOWN:
       {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
 					this->callAliasEx( NULL, "%s,%d", "lbdown", this->getUserID( ) );
-				}
       }
       break;
 
     case WM_LBUTTONUP:
       {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 	        this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
+					this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+				}
       }
       break;
 

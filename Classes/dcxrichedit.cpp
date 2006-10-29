@@ -21,69 +21,6 @@
 *
 * \param ID Control ID
 * \param p_Dialog Parent DcxDialog Object
-* \param rc Window Rectangle
-* \param styles Window Style Tokenized List
-*/
-
-//DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, RECT *rc, TString &styles)
-//: DcxControl(ID, p_Dialog)
-//{
-//	LONG Styles = 0, ExStyles = 0;
-//	BOOL bNoTheme = FALSE;
-//
-//	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
-//
-//	this->m_Hwnd = CreateWindowEx(
-//		ExStyles | WS_EX_CLIENTEDGE, 
-//		DCX_RICHEDITCLASS, 
-//		NULL,
-//		WS_CHILD | WS_VISIBLE | Styles, 
-//		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//		p_Dialog->getHwnd(),
-//		(HMENU) ID,
-//		GetModuleHandle(NULL), 
-//		NULL);
-//
-//	if (bNoTheme)
-//		dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
-//	else {
-//		CRichEditThemed::Attach(this->m_Hwnd);
-//	}
-//
-//	this->m_tsText = "";
-//	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
-//	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
-//	this->m_iFontSize = 10 * 20;
-//	this->m_bFontBold = FALSE;
-//	this->m_bFontItalic = FALSE;
-//	this->m_bFontUnderline = FALSE;
-//	this->m_bFontStrikeout = FALSE;
-//	this->m_tsFontFaceName = "";
-//	this->m_byteCharset = DEFAULT_CHARSET;
-//
-//	this->loadmIRCPalette();
-//	this->setContentsFont();
-//
-//	SendMessage(
-//		this->m_Hwnd, EM_SETEVENTMASK, NULL,
-//		(LPARAM) (ENM_SELCHANGE | ENM_CHANGE /*| ENM_LINK | ENM_UPDATE*/));
-//
-//	if (p_Dialog->getToolTip() != NULL) {
-//		if (styles.istok("tooltips", " ")) {
-//			this->m_ToolTipHWND = p_Dialog->getToolTip();
-//			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-//		}
-//	}
-//
-//	this->registreDefaultWindowProc();
-//	SetProp(this->m_Hwnd, "dcx_cthis", (HANDLE) this);
-//}
-//
-/*!
-* \brief Constructor
-*
-* \param ID Control ID
-* \param p_Dialog Parent DcxDialog Object
 * \param mParentHwnd Parent Window Handle
 * \param rc Window Rectangle
 * \param styles Window Style Tokenized List
@@ -177,6 +114,8 @@ void DcxRichEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
 			*Styles |= WS_HSCROLL;
 		else if (styles.gettok(i , " ") == "disablescroll")
 			*Styles |= ES_DISABLENOSCROLL;
+		else if ( styles.gettok( i , " " ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
 		i++;
 	}
@@ -1029,13 +968,15 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		case WM_LBUTTONDOWN:
 		{
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+				this->callAliasEx(NULL, "%s,%d", "lbdown", this->getUserID());
 			break;
 		}
 		case WM_LBUTTONUP:
 		{
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 				this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
+				this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+			}
 			break;
 		}
 		case WM_NOTIFY:
@@ -1120,6 +1061,37 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
 			break;
 		}
+		case WM_PAINT:
+			{
+				if (!this->m_bAlphaBlend)
+					break;
+        PAINTSTRUCT ps;
+        HDC hdc;
+
+        hdc = BeginPaint( this->m_Hwnd, &ps );
+
+				LRESULT res = 0L;
+				bParsed = TRUE;
+
+				//RECT rcClient;
+
+				// get controls client area
+				//GetClientRect( this->m_Hwnd, &rcClient );
+
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				// fill background.
+				//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+
+				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+				this->FinishAlphaBlend(ai);
+
+				EndPaint( this->m_Hwnd, &ps );
+				return res;
+			}
+			break;
 		case WM_DESTROY:
 		{
 			delete this;

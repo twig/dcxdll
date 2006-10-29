@@ -20,55 +20,6 @@
  *
  * \param ID Control ID
  * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-//DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-//: DcxControl( ID, p_Dialog ) 
-//{
-//
-//  LONG Styles = 0, ExStyles = 0;
-//  BOOL bNoTheme = FALSE;
-//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//  this->m_Hwnd = CreateWindowEx(	
-//    ExStyles | WS_EX_CLIENTEDGE,
-//    DCX_PROGRESSBARCLASS,
-//    NULL,
-//    WS_CHILD | WS_VISIBLE | Styles, 
-//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//    p_Dialog->getHwnd( ),
-//    (HMENU) ID,
-//    GetModuleHandle(NULL), 
-//    NULL);
-//
-//  if ( bNoTheme )
-//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//  this->m_clrText = RGB(0,0,0);
-//  this->m_tsText = "%d %%";
-//  this->m_bIsAbsoluteValue = FALSE;
-//  this->m_hfontVertical = NULL;
-//
-//	if (p_Dialog->getToolTip() != NULL) {
-//		if (styles.istok("tooltips"," ")) {
-//
-//			this->m_ToolTipHWND = p_Dialog->getToolTip();
-//
-//			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-//		}
-//	}
-//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-//  this->registreDefaultWindowProc( );
-//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//}
-//
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
  * \param mParentHwnd Parent Window Handle
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
@@ -146,6 +97,8 @@ void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG *
       *Styles |= PBS_SMOOTH;
 			this->m_bIsGrad = TRUE;
 		}
+    else if ( styles.gettok( i , " " ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
     i++;
   }
@@ -409,6 +362,16 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
       }
       break;
 
+		case WM_ERASEBKGND:
+			{
+				if (this->m_bAlphaBlend) {
+					this->DrawParentsBackground((HDC) wParam);
+					bParsed = TRUE;
+					return TRUE;
+				}
+			}
+			break;
+
 		case WM_PAINT:
 			{
 				PAINTSTRUCT ps;
@@ -425,17 +388,14 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 				bParsed = TRUE;
 				LRESULT res = 0L;
 
-				if (this->m_bIsGrad) {
-					//RECT rc;
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
+				if (this->m_bIsGrad) {
 					GetClientRect(this->m_Hwnd, &rc);
 
-          if ( this->m_hBackBrush != NULL )
-            FillRect( hdc, &rc, this->m_hBackBrush );
-          else {
-            HBRUSH hBrush = GetSysColorBrush( COLOR_3DFACE );
-            FillRect( hdc, &rc, hBrush );
-          }
+					DcxControl::DrawCtrlBackground(hdc, this, &rc);
+
 					if (this->isStyle(PBS_VERTICAL)) {
 						rc.top += (rc.bottom - rc.top) - (this->CalculatePosition() * (rc.bottom - rc.top)) / 100;
 						XPopupMenuItem::DrawGradient(hdc,&rc,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),this->m_clrGrad,TRUE);
@@ -498,12 +458,14 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 						SelectObject(hdc, oldfont);
 				}
 
+				this->FinishAlphaBlend(ai);
+
 				EndPaint(this->m_Hwnd, &ps); 
 				return res;
 			}
 			break;
 
-    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
       {
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 					int nXPos = LOWORD(lParam);
@@ -520,7 +482,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
       }
       break;
 
-    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
       {
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 					int nXPos = LOWORD(lParam);

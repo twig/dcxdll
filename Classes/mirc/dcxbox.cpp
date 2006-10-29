@@ -85,10 +85,11 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	this->m_Hwnd = CreateWindowEx(	
-		ExStyles | WS_EX_CONTROLPARENT, 
-		DCX_BOXCLASS, //"BUTTON", 
+		ExStyles | WS_EX_CONTROLPARENT,
+		DCX_BOXCLASS,
+		//"STATIC",
 		NULL,
-		Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN, 
+		Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -163,6 +164,7 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 
 	unsigned int i = 1, numtok = styles.numtok( " " );
 	this->m_iBoxStyles = 0;
+	//*Styles = SS_NOTIFY;
 
 	while ( i <= numtok ) {
 
@@ -568,19 +570,19 @@ BOOL CALLBACK EnumBoxChildren(HWND hwnd,LPDCXENUM de)
  * blah
  */
 LRESULT DcxBox::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-    case WM_COMMAND:
-      {
-        switch ( HIWORD( wParam ) ) {
-          case BN_CLICKED:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-            }
-            break;
-        }
-			}
-	}
+ // switch( uMsg ) {
+ //   case WM_COMMAND:
+ //     {
+ //       switch ( HIWORD( wParam ) ) {
+ //         case BN_CLICKED:
+ //           {
+	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+	//              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+ //           }
+ //           break;
+ //       }
+	//		}
+	//}
 	return 0L;
 }
 
@@ -780,9 +782,9 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			//}
 			if (this->m_bAlphaBlend)
 				this->DrawParentsBackground((HDC) wParam);
-			//RECT rect;
-			//GetClientRect( this->m_Hwnd, &rect );
-			//DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+			RECT rect;
+			GetClientRect( this->m_Hwnd, &rect );
+			DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
 			bParsed = TRUE;
 			return TRUE;
 		}
@@ -981,17 +983,17 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_LBUTTONDOWN:
 		{
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
 				this->callAliasEx(NULL, "%s,%d", "lbdown", this->getUserID());
-				this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
-			}
 			break;
 		}
 
 		case WM_LBUTTONUP:
 		{
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 				this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
+				this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+			}
 			break;
 		}
 

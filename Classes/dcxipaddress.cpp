@@ -390,12 +390,12 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 					switch (HIWORD(lParam))
 					{
-					case WM_LBUTTONDOWN:
+					case WM_LBUTTONUP:
 						{
 							this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
 						}
 						break;
-					case WM_RBUTTONDOWN:
+					case WM_RBUTTONUP:
 						{
 							this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
 						}

@@ -1015,7 +1015,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
      break;
 
-    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
       {
         RBHITTESTINFO rbhi;
         GetCursorPos( &rbhi.pt );
