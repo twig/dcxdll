@@ -20,58 +20,6 @@
  *
  * \param ID Control ID
  * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-//DcxImage::DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-//: DcxControl( ID, p_Dialog ) 
-//, m_bIsIcon(FALSE)
-//, m_iIconSize(0)
-//{
-//
-//  LONG Styles = 0, ExStyles = 0;
-//  BOOL bNoTheme = FALSE;
-//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//  this->m_Hwnd = CreateWindowEx(	
-//    ExStyles, 
-//    "STATIC", 
-//    NULL,
-//    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//    p_Dialog->getHwnd( ),
-//    (HMENU) ID,
-//    GetModuleHandle( NULL ), 
-//    NULL);
-//
-//  if ( bNoTheme )
-//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//  this->m_pImage = NULL;
-//	this->m_bResizeImage = false;
-//  this->m_hBitmap = NULL;
-//  this->m_clrTransColor = -1;
-//  this->m_hIcon = NULL;
-//
-//	if (p_Dialog->getToolTip() != NULL) {
-//		if (styles.istok("tooltips"," ")) {
-//
-//			this->m_ToolTipHWND = p_Dialog->getToolTip();
-//
-//			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-//		}
-//	}
-//
-//  this->registreDefaultWindowProc( );
-//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//}
-//
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
  * \param mParentHwnd Parent Window Handle
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
@@ -332,36 +280,17 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 			bParsed = TRUE;
 			PAINTSTRUCT ps; 
-			HDC hdc, hdcalpha;
+			HDC hdc;
 			RECT rect;
 
 			hdc = BeginPaint(this->m_Hwnd, &ps);
 			GetClientRect(this->m_Hwnd, &rect);
 
 			int w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
-			HBITMAP memBM;
 
-			if (this->m_bAlphaBlend) {
-				/*
-					1: draw parents bg to hdc (wm erase)
-					2: draw parents bg to temp hdc
-					3: draw image to temp hdc, over parents bg
-					4: alpha blend temp hdc to hdc
-				*/
-				RECT rwin = rect;
-				OffsetRect(&rwin,-rwin.left,-rwin.top);
-				hdcalpha = hdc;
-				hdc = CreateCompatibleDC(hdcalpha);
-				memBM = CreateCompatibleBitmap ( hdcalpha, rwin.right, rwin.bottom );
-				if ((hdc == NULL) || (memBM == NULL)) {
-					DeleteObject(memBM);
-					DeleteDC(hdc);
-					EndPaint(this->m_Hwnd, &ps);
-					return 0L;
-				}
-				SelectObject(hdc,memBM);
-				this->DrawParentsBackground(hdc);
-			}
+			// Setup alpha blend if any.
+			LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
 			DcxControl::DrawCtrlBackground(hdc,this,&rect);
 
 			// draw bitmap
@@ -393,16 +322,9 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				else
 					grphx.DrawImage( this->m_pImage, 0, 0);
 			}
-			if (this->m_bAlphaBlend) {
-				BLENDFUNCTION bf;
-				bf.BlendOp = AC_SRC_OVER;
-				bf.BlendFlags = 0;
-				bf.SourceConstantAlpha = 0x7f;  // 0x7f half of 0xff = 50% transparency
-				bf.AlphaFormat = 0; //AC_SRC_ALPHA;
-				AlphaBlend(hdcalpha,rect.left,rect.top,w,h,hdc, 0, 0, w, h,bf);
-				DeleteObject(memBM);
-				DeleteDC(hdc);
-			}
+
+			this->FinishAlphaBlend(ai);
+
 			EndPaint(this->m_Hwnd, &ps);
 
 			return 0L;

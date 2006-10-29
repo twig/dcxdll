@@ -503,8 +503,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				BOOL isBitmap = this->isStyle(BS_BITMAP);
 				int nState; // get buttons state.
 				RECT rcClient;
-				HDC hdcalpha = hdc;
-				HBITMAP memBM;
 
 				// get controls client area
 				GetClientRect( this->m_Hwnd, &rcClient );
@@ -520,30 +518,9 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				else
 					nState = 0;
 
-				if (this->m_bAlphaBlend) {
-					/*
-						1: draw parents bg to hdc
-						2: copy bg to temp hdc
-						3: draw button to temp hdc, over parents bg
-						4: alpha blend temp hdc to hdc
-					*/
-					// create a new HDC for alpha blending.
-					hdc = CreateCompatibleDC( hdcalpha );
-					if (hdc != NULL) {
-						RECT rwin = rcClient;
-						OffsetRect(&rwin,-rwin.left,-rwin.top);
-						// create a bitmap to render to
-						memBM = CreateCompatibleBitmap ( hdcalpha, rwin.right, rwin.bottom );
-						if (memBM != NULL) {
-							// associate bitmap with hdc
-							SelectObject ( hdc, memBM );
-							// fill in parent bg
-							this->DrawParentsBackground(hdcalpha);
-							// copy bg to temp hdc
-							BitBlt( hdc, rcClient.left, rcClient.top, w, h, hdcalpha, rcClient.left, rcClient.top, SRCCOPY);
-						}
-					}
-				}
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
 				// fill background.
 				DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
@@ -628,21 +605,9 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 					SelectObject( hdc, hFontOld );
 				}
-				if (this->m_bAlphaBlend) {
-					if (hdcalpha != NULL) {
-						if (memBM != NULL) {
-							// alpha blend finished button with parents background
-							BLENDFUNCTION bf;
-							bf.BlendOp = AC_SRC_OVER;
-							bf.BlendFlags = 0;
-							bf.SourceConstantAlpha = 0x7f;  // 0x7f half of 0xff = 50% transparency
-							bf.AlphaFormat = 0; //AC_SRC_ALPHA;
-							AlphaBlend(hdcalpha,rcClient.left,rcClient.top,w,h,hdc, rcClient.left, rcClient.top, w, h,bf);
-							DeleteObject(memBM);
-						}
-						DeleteDC( hdcalpha );
-					}
-				}
+
+				this->FinishAlphaBlend(ai);
+
 				EndPaint( this->m_Hwnd, &ps );
 				return res;
 			}

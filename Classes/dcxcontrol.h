@@ -59,6 +59,14 @@
 
 class DcxDialog;
 
+typedef struct {
+	HDC ai_hdc;
+	HDC ai_Oldhdc;
+	HBITMAP ai_bitmap;
+	RECT ai_rcClient;
+	RECT ai_rcWin;
+} ALPHAINFO, *LPALPHAINFO;
+
 /*!
  * \brief blah
  *
@@ -109,6 +117,8 @@ public:
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
 	static void DrawCtrlBackground(HDC hdc, DcxControl *p_this, LPRECT rwnd);
 	void DrawParentsBackground(HDC hdc);
+	LPALPHAINFO SetupAlphaBlend(HDC *hdc);
+	void FinishAlphaBlend(LPALPHAINFO ai);
 
 protected:
 

@@ -1111,3 +1111,59 @@ void DcxControl::DrawParentsBackground(HDC hdc)
 		DeleteDC( hdcbkg );
 	}
 }
+LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc)
+{
+	if ((hdc == NULL) || (*hdc == NULL))
+		return NULL;
+	LPALPHAINFO ai = NULL;
+	if (this->m_bAlphaBlend) {
+		/*
+			1: draw parents bg to hdc
+			2: copy bg to temp hdc
+			3: draw button to temp hdc, over parents bg
+			4: alpha blend temp hdc to hdc
+		*/
+		ai = new ALPHAINFO;
+		// create a new HDC for alpha blending.
+		ai->ai_hdc = CreateCompatibleDC( *hdc );
+		if (ai->ai_hdc != NULL) {
+			GetWindowRect(this->m_Hwnd,&ai->ai_rcWin);
+			GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
+			// create a bitmap to render to
+			ai->ai_bitmap = CreateCompatibleBitmap ( *hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top );
+			if (ai->ai_bitmap != NULL) {
+				// associate bitmap with hdc
+				SelectObject ( ai->ai_hdc, ai->ai_bitmap );
+				// fill in parent bg
+				this->DrawParentsBackground(ai->ai_hdc);
+				// copy bg to temp hdc
+				BitBlt( *hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+				ai->ai_Oldhdc = *hdc;
+				*hdc = ai->ai_hdc;
+			}
+		}
+	}
+	return ai;
+}
+void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
+{
+	if (ai == NULL)
+		return;
+	if (this->m_bAlphaBlend) {
+		if (ai->ai_hdc != NULL) {
+			if (ai->ai_bitmap != NULL) {
+				// alpha blend finished button with parents background
+				int w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);
+				BLENDFUNCTION bf;
+				bf.BlendOp = AC_SRC_OVER;
+				bf.BlendFlags = 0;
+				bf.SourceConstantAlpha = 0x7f;  // 0x7f half of 0xff = 50% transparency
+				bf.AlphaFormat = 0; //AC_SRC_ALPHA;
+				AlphaBlend(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h,bf);
+				DeleteObject(ai->ai_bitmap);
+			}
+			DeleteDC( ai->ai_hdc );
+		}
+	}
+	delete ai;
+}
