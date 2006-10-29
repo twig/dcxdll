@@ -501,8 +501,16 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				LRESULT res = 0L;
 				bParsed = TRUE;
 				BOOL isBitmap = this->isStyle(BS_BITMAP);
-
 				int nState; // get buttons state.
+				RECT rcClient;
+				HDC hdcalpha = hdc;
+				HBITMAP memBM;
+
+				// get controls client area
+				GetClientRect( this->m_Hwnd, &rcClient );
+				// get controls width & height.
+				int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
+
 				if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
 					nState = 3;
 				else if ( this->m_bSelected )
@@ -512,12 +520,35 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				else
 					nState = 0;
 
+				if (this->m_bAlphaBlend) {
+					/*
+						1: draw parents bg to hdc
+						2: copy bg to temp hdc
+						3: draw button to temp hdc, over parents bg
+						4: alpha blend temp hdc to hdc
+					*/
+					// create a new HDC for alpha blending.
+					hdc = CreateCompatibleDC( hdcalpha );
+					if (hdc != NULL) {
+						RECT rwin = rcClient;
+						OffsetRect(&rwin,-rwin.left,-rwin.top);
+						// create a bitmap to render to
+						memBM = CreateCompatibleBitmap ( hdcalpha, rwin.right, rwin.bottom );
+						if (memBM != NULL) {
+							// associate bitmap with hdc
+							SelectObject ( hdc, memBM );
+							// fill in parent bg
+							this->DrawParentsBackground(hdcalpha);
+							// copy bg to temp hdc
+							BitBlt( hdc, rcClient.left, rcClient.top, w, h, hdcalpha, rcClient.left, rcClient.top, SRCCOPY);
+						}
+					}
+				}
+				// fill background.
+				DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+
 				// Bitmapped button
 				if (isBitmap) {
-					RECT rcClient;
-					// get controls client area
-					GetClientRect( this->m_Hwnd, &rcClient );
-
 					// create a new HDC for background rendering
 					HDC hdcbmp = CreateCompatibleDC( hdc );
 					BITMAP bmp;
@@ -526,65 +557,20 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 					GetObject( this->m_aBitmaps[nState], sizeof(BITMAP), &bmp );
 					// associate bitmap with HDC
 					SelectObject( hdcbmp, this->m_aBitmaps[nState] );
-					// get controls width & height.
-					int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
-					if (this->m_bAlphaBlend) {
-						/*
-							1: draw parents bg to hdc
-							2: copy bg to temp hdc
-							3: draw image to temp hdc, over parents bg
-							4: alpha blend temp hdc to hdc
-						*/
-						HBRUSH hBrush = NULL;
-						// create a new HDC for alpha blending.
-						HDC hdcalpha = CreateCompatibleDC( hdc );
-						if (hdcalpha != NULL) {
-							// create a bitmap to render to
-							HBITMAP memBM = CreateCompatibleBitmap ( hdc, w+rcClient.left, h+rcClient.top );
-							if (memBM != NULL) {
-								// associate bitmap with hdc
-								SelectObject ( hdcalpha, memBM );
-								// fill in parent bg
-								this->DrawParentsBackground(hdc);
-								// copy bg to temp hdc
-								BitBlt( hdcalpha, rcClient.left, rcClient.top, w, h, hdc, rcClient.left, rcClient.top, SRCCOPY);
-								// fill background.
-								DcxControl::DrawCtrlBackground(hdcalpha,this,&rcClient);
-								// draw button
-								TransparentBlt( hdcalpha, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
-								// alpha blend finished button with parents background
-								BLENDFUNCTION bf;
-								bf.BlendOp = AC_SRC_OVER;
-								bf.BlendFlags = 0;
-								bf.SourceConstantAlpha = 0x7f;  // 0x7f half of 0xff = 50% transparency
-								bf.AlphaFormat = 0; //AC_SRC_ALPHA;
-								AlphaBlend(hdc,rcClient.left,rcClient.top,w,h,hdcalpha, rcClient.left, rcClient.top, w, h,bf);
-								DeleteObject(memBM);
-							}
-							DeleteDC( hdcalpha );
-						}
-					}
-					else {
-						// fill background.
-						DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
-						TransparentBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
-					}
+					TransparentBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
 					DeleteDC( hdcbmp );
 				}
 
 				// Regular button
-				if ((!isBitmap) || (this->m_bBitmapText)) {
-					//bParsed = TRUE;
-          
+				if ((!isBitmap) || (this->m_bBitmapText)) {          
 					// draw default window bg
 					if (!isBitmap)
 						res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 					HFONT hFontOld = (HFONT) SelectObject( hdc, this->m_hFont );
 
-					RECT rcTxt, rcClient;
+					RECT rcTxt;
 					SetRectEmpty( &rcTxt );
-					GetClientRect( this->m_Hwnd, &rcClient );
 
 					SetBkMode( hdc, TRANSPARENT );
 
@@ -595,8 +581,8 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 					if ( this->m_tsCaption.len( ) > 0 )
 						DrawText( hdc, this->m_tsCaption.to_chr( ), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE );
 
-					int iCenter = ( rcClient.right - rcClient.left ) / 2;
-					int iVCenter = ( rcClient.bottom - rcClient.top ) / 2;
+					int iCenter = w / 2;
+					int iVCenter = h / 2;
 					int iTextW = ( rcTxt.right - rcTxt.left );
 					int iTextH = ( rcTxt.bottom - rcTxt.top );
 
@@ -642,7 +628,21 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 					SelectObject( hdc, hFontOld );
 				}
-
+				if (this->m_bAlphaBlend) {
+					if (hdcalpha != NULL) {
+						if (memBM != NULL) {
+							// alpha blend finished button with parents background
+							BLENDFUNCTION bf;
+							bf.BlendOp = AC_SRC_OVER;
+							bf.BlendFlags = 0;
+							bf.SourceConstantAlpha = 0x7f;  // 0x7f half of 0xff = 50% transparency
+							bf.AlphaFormat = 0; //AC_SRC_ALPHA;
+							AlphaBlend(hdcalpha,rcClient.left,rcClient.top,w,h,hdc, rcClient.left, rcClient.top, w, h,bf);
+							DeleteObject(memBM);
+						}
+						DeleteDC( hdcalpha );
+					}
+				}
 				EndPaint( this->m_Hwnd, &ps );
 				return res;
 			}

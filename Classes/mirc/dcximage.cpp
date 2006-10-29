@@ -348,9 +348,11 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					3: draw image to temp hdc, over parents bg
 					4: alpha blend temp hdc to hdc
 				*/
+				RECT rwin = rect;
+				OffsetRect(&rwin,-rwin.left,-rwin.top);
 				hdcalpha = hdc;
 				hdc = CreateCompatibleDC(hdcalpha);
-				memBM = CreateCompatibleBitmap ( hdcalpha, w+rect.left, h+rect.top );
+				memBM = CreateCompatibleBitmap ( hdcalpha, rwin.right, rwin.bottom );
 				if ((hdc == NULL) || (memBM == NULL)) {
 					DeleteObject(memBM);
 					DeleteDC(hdc);

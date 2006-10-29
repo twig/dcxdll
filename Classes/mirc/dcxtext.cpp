@@ -20,50 +20,6 @@
  *
  * \param ID Control ID
  * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-//DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-//: DcxControl( ID, p_Dialog )
-//{
-//
-//  LONG Styles = 0, ExStyles = 0;
-//  BOOL bNoTheme = FALSE;
-//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//  this->m_Hwnd = CreateWindowEx(	
-//    ExStyles, 
-//    "STATIC", 
-//    NULL,
-//    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//    p_Dialog->getHwnd( ),
-//    (HMENU) ID,
-//    GetModuleHandle( NULL ), 
-//    NULL);
-//
-//  if ( bNoTheme )
-//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//	if (p_Dialog->getToolTip() != NULL) {
-//		if (styles.istok("tooltips"," ")) {
-//
-//			this->m_ToolTipHWND = p_Dialog->getToolTip();
-//
-//			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-//		}
-//	}
-//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-//  this->registreDefaultWindowProc( );
-//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//}
-//
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
  * \param mParentHwnd Parent Window Handle
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
@@ -344,8 +300,24 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			SetBkMode(hdc, TRANSPARENT);
 			//Rectangle(hdc, r.left, r.top, r.right, r.bottom);
 			//DrawTextEx(hdc, "hello world", 0, &r, 0, 0);
+			UINT style = DT_LEFT;
+			if (this->isStyle(SS_CENTER))
+				style |= DT_CENTER;
+			if (this->isStyle(SS_RIGHT)) {
+				style &= ~DT_LEFT;
+				style |= DT_RIGHT;
+			}
+			if (this->isStyle(SS_ENDELLIPSIS))
+				style |= DT_END_ELLIPSIS;
+			if (this->isStyle(SS_PATHELLIPSIS))
+				style |= DT_PATH_ELLIPSIS;
+			if (this->isStyle(SS_NOPREFIX))
+				style |= DT_NOPREFIX;
+			if (this->isStyle(SS_LEFTNOWORDWRAP))
+				style |= DT_SINGLELINE; // ?? same ??
+			DrawText(hdc, text, nText, &r, style);
 
-			DrawText(hdc, text, nText, &r, DT_VCENTER | DT_LEFT);
+			delete [] text;
 
 			EndPaint(this->m_Hwnd, &ps);
 			return TRUE;
