@@ -69,80 +69,6 @@ extern BOOL XPPlus;
  *
  * \param ID Control ID
  * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-//DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-//: DcxControl( ID, p_Dialog ) 
-//{
-//
-//  LONG Styles = 0, ExStyles = 0;
-//  BOOL bNoTheme = FALSE;
-//	this->m_TitleButton = NULL;
-//	this->_hTheme = NULL;
-//
-//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//  this->m_Hwnd = CreateWindowEx(	
-//	  ExStyles | WS_EX_CONTROLPARENT, 
-//    DCX_BOXCLASS, //"BUTTON", 
-//    NULL,
-//    Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN, 
-//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//    p_Dialog->getHwnd( ),
-//    (HMENU) ID,
-//    GetModuleHandle( NULL ), 
-//    NULL);
-//
-//  if ( bNoTheme )
-//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//  this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
-//
-//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-//  this->registreDefaultWindowProc( );
-//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//
-//	if (this->m_iBoxStyles & BOXS_CHECK) {
-//			this->m_TitleButton = CreateWindowEx(
-//				ExStyles,
-//				"BUTTON",
-//				NULL,
-//				WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTOCHECKBOX,
-//				CW_USEDEFAULT,CW_USEDEFAULT,11,10,
-//				this->m_Hwnd,
-//				(HMENU) ID,
-//				GetModuleHandle(NULL), 
-//				NULL);
-//	}
-//	else if (this->m_iBoxStyles & BOXS_RADIO) {
-//			this->m_TitleButton = CreateWindowEx(
-//				ExStyles,
-//				"BUTTON",
-//				NULL,
-//				WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTORADIOBUTTON,
-//				CW_USEDEFAULT,CW_USEDEFAULT,11,10,
-//				this->m_Hwnd,
-//				(HMENU) ID,
-//				GetModuleHandle(NULL), 
-//				NULL);
-//	}
-//	if (IsWindow(this->m_TitleButton)) {
-//		if ( bNoTheme )
-//			dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
-//		if (!(Styles & WS_DISABLED))
-//			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
-//	}
-//	if (XPPlus)
-//		this->_hTheme = OpenThemeDataUx(this->m_Hwnd,L"BUTTON");
-//}
-
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
  * \param mParentHwnd Parent Window Handle
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
@@ -260,6 +186,8 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 		}
 		else if (styles.gettok(i , " ") == "transparent")
 			*ExStyles |= WS_EX_TRANSPARENT;
+		else if ( styles.gettok( i , " " ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
 		i++;
 	}
@@ -850,9 +778,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			//	if (IsThemeBackgroundPartiallyTransparentUx(this->_hTheme, BP_GROUPBOX, _iStateId))
 			//		DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rc);
 			//}
-			RECT rect;
-			GetClientRect( this->m_Hwnd, &rect );
-			DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+			if (this->m_bAlphaBlend)
+				this->DrawParentsBackground((HDC) wParam);
+			//RECT rect;
+			//GetClientRect( this->m_Hwnd, &rect );
+			//DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
 			bParsed = TRUE;
 			return TRUE;
 		}
@@ -869,11 +799,14 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				GetClientRect(this->m_Hwnd, &rc);
 				CopyRect(&rc2, &rc);
 
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
 				// paint the background
 				if (this->_hTheme != NULL)
 					DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rc2);
-				else
-					this->FillBkg(hdc, &rc2, hBrush);
+				//else
+				//	this->FillBkg(hdc, &rc2, hBrush);
 				if (!this->isExStyle(WS_EX_TRANSPARENT)) {
 					// set up brush colors
 					if (this->m_hBackBrush != NULL)
@@ -1014,6 +947,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 					delete [] text;
 				}
+
+				this->FinishAlphaBlend(ai);
 
 				EndPaint(this->m_Hwnd, &ps);
 

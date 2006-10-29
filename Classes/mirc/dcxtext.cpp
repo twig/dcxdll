@@ -93,6 +93,8 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
 			*Styles |= SS_PATHELLIPSIS;
 		else if (styles.gettok(i, " ") == "transparent")
 			*ExStyles |= WS_EX_TRANSPARENT;
+		else if ( styles.gettok( i , " " ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
 		i++;
 	}
@@ -279,48 +281,59 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 		case WM_PAINT:
 		{
-			if (!this->isExStyle(WS_EX_TRANSPARENT))
+			if (!this->isExStyle(WS_EX_TRANSPARENT) && !this->m_bAlphaBlend)
 				break;
 
 			bParsed = TRUE;
+			LRESULT res = 0L;
 
 			PAINTSTRUCT ps;
 			RECT r;
 			HDC hdc = BeginPaint(this->m_Hwnd, &ps);
 
-			int nText = GetWindowTextLength(this->m_Hwnd);
-			char *text = new char[nText +1];
-			GetWindowText(this->m_Hwnd, text, nText +1);
+			// Setup alpha blend if any.
+			LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-			GetClientRect(this->m_Hwnd, &r);
+			if (this->isExStyle(WS_EX_TRANSPARENT)) {
+				int nText = GetWindowTextLength(this->m_Hwnd);
+				char *text = new char[nText +1];
+				GetWindowText(this->m_Hwnd, text, nText +1);
 
-			SelectObject(hdc, this->m_hFont);
-			SetTextColor(hdc, this->m_clrText);
-			//SelectObject(hdc, GetStockBrush(HOLLOW_BRUSH));
-			SetBkMode(hdc, TRANSPARENT);
-			//Rectangle(hdc, r.left, r.top, r.right, r.bottom);
-			//DrawTextEx(hdc, "hello world", 0, &r, 0, 0);
-			UINT style = DT_LEFT;
-			if (this->isStyle(SS_CENTER))
-				style |= DT_CENTER;
-			if (this->isStyle(SS_RIGHT)) {
-				style &= ~DT_LEFT;
-				style |= DT_RIGHT;
+				GetClientRect(this->m_Hwnd, &r);
+
+				SelectObject(hdc, this->m_hFont);
+				SetTextColor(hdc, this->m_clrText);
+				//SelectObject(hdc, GetStockBrush(HOLLOW_BRUSH));
+				SetBkMode(hdc, TRANSPARENT);
+				//Rectangle(hdc, r.left, r.top, r.right, r.bottom);
+				//DrawTextEx(hdc, "hello world", 0, &r, 0, 0);
+				UINT style = DT_LEFT;
+				if (this->isStyle(SS_CENTER))
+					style |= DT_CENTER;
+				if (this->isStyle(SS_RIGHT)) {
+					style &= ~DT_LEFT;
+					style |= DT_RIGHT;
+				}
+				if (this->isStyle(SS_ENDELLIPSIS))
+					style |= DT_END_ELLIPSIS;
+				if (this->isStyle(SS_PATHELLIPSIS))
+					style |= DT_PATH_ELLIPSIS;
+				if (this->isStyle(SS_NOPREFIX))
+					style |= DT_NOPREFIX;
+				if (this->isStyle(SS_LEFTNOWORDWRAP))
+					style |= DT_SINGLELINE; // ?? same ??
+				DrawText(hdc, text, nText, &r, style);
+
+				delete [] text;
+				res = TRUE;
 			}
-			if (this->isStyle(SS_ENDELLIPSIS))
-				style |= DT_END_ELLIPSIS;
-			if (this->isStyle(SS_PATHELLIPSIS))
-				style |= DT_PATH_ELLIPSIS;
-			if (this->isStyle(SS_NOPREFIX))
-				style |= DT_NOPREFIX;
-			if (this->isStyle(SS_LEFTNOWORDWRAP))
-				style |= DT_SINGLELINE; // ?? same ??
-			DrawText(hdc, text, nText, &r, style);
+			else
+				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
-			delete [] text;
+			this->FinishAlphaBlend(ai);
 
 			EndPaint(this->m_Hwnd, &ps);
-			return TRUE;
+			return res;
 		}
 
     case WM_DESTROY:

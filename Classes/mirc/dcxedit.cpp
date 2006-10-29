@@ -153,6 +153,8 @@ void DcxEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 			*Styles |= ES_WANTRETURN;
 		else if (styles.gettok(i , " ") == "readonly")
 			*Styles |= ES_READONLY;
+		else if ( styles.gettok( i , " " ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
 		i++;
 	}
@@ -609,6 +611,38 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 			DragFinish(files);
 			break;
 		}
+		case WM_PAINT:
+			{
+				if (!this->m_bAlphaBlend)
+					break;
+        PAINTSTRUCT ps;
+        HDC hdc;
+
+        hdc = BeginPaint( this->m_Hwnd, &ps );
+
+				LRESULT res = 0L;
+				bParsed = TRUE;
+
+				//RECT rcClient;
+
+				// get controls client area
+				//GetClientRect( this->m_Hwnd, &rcClient );
+
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				// fill background.
+				//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+
+				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+				this->FinishAlphaBlend(ai);
+
+				EndPaint( this->m_Hwnd, &ps );
+				return res;
+			}
+			break;
+
 		case WM_DESTROY:
 		{
 			delete this;
