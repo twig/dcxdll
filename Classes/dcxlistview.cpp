@@ -39,7 +39,7 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
     ExStyles, 
     DCX_LISTVIEWCLASS,
     NULL,
-    WS_CHILD | WS_VISIBLE | Styles | WS_CLIPCHILDREN, 
+    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles,
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
@@ -147,6 +147,8 @@ void DcxListView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
       *Styles |= LVS_SORTDESCENDING;
     else if ( styles.gettok( i , " " ) == "noscroll" ) 
       *Styles |= LVS_NOSCROLL;
+		//else if ( styles.gettok( i , " " ) == "alpha" )
+		//	this->m_bAlphaBlend = true;
 
     i++;
   }
@@ -2103,39 +2105,39 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 						//	{
 						//	}
 						//	break;
-						case TTN_GETDISPINFO:
-							{
-								LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-								LVHITTESTINFO hti;
-								GetCursorPos( &hti.pt );
-								ScreenToClient( this->m_Hwnd, &hti.pt );
-								ZeroMemory(&hti,sizeof(LVHITTESTINFO));
-								hti.flags = LVHT_ONITEM;
-								if (ListView_SubItemHitTest(this->m_Hwnd,&hti) != -1) {
-									if (hti.flags & LVHT_ONITEM) {
-										LVITEM lvi;
-										ZeroMemory(&lvi,sizeof(LVITEM));
-										lvi.mask = LVIF_PARAM;
-										lvi.iItem = hti.iItem;
-										lvi.iSubItem = hti.iSubItem;
-										if (ListView_GetItem(this->m_Hwnd,&lvi)) {
-											LPDCXLVITEM dci = (LPDCXLVITEM) lvi.lParam;
-											if (dci != NULL)
-												di->lpszText = dci->tsTipText.to_chr();
-										}
-									}
-								}
-								//di->lpszText = this->m_tsToolTip.to_chr();
-								di->hinst = NULL;
-								bParsed = TRUE;
-							}
-							break;
-						case TTN_LINKCLICK:
-							{
-								bParsed = TRUE;
-								this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
-							}
-							break;
+						//case TTN_GETDISPINFO:
+						//	{
+						//		LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+						//		LVHITTESTINFO hti;
+						//		GetCursorPos( &hti.pt );
+						//		ScreenToClient( this->m_Hwnd, &hti.pt );
+						//		ZeroMemory(&hti,sizeof(LVHITTESTINFO));
+						//		hti.flags = LVHT_ONITEM;
+						//		if (ListView_SubItemHitTest(this->m_Hwnd,&hti) != -1) {
+						//			if (hti.flags & LVHT_ONITEM) {
+						//				LVITEM lvi;
+						//				ZeroMemory(&lvi,sizeof(LVITEM));
+						//				lvi.mask = LVIF_PARAM;
+						//				lvi.iItem = hti.iItem;
+						//				lvi.iSubItem = hti.iSubItem;
+						//				if (ListView_GetItem(this->m_Hwnd,&lvi)) {
+						//					LPDCXLVITEM dci = (LPDCXLVITEM) lvi.lParam;
+						//					if (dci != NULL)
+						//						di->lpszText = dci->tsTipText.to_chr();
+						//				}
+						//			}
+						//		}
+						//		//di->lpszText = this->m_tsToolTip.to_chr();
+						//		di->hinst = NULL;
+						//		bParsed = TRUE;
+						//	}
+						//	break;
+						//case TTN_LINKCLICK:
+						//	{
+						//		bParsed = TRUE;
+						//		this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
+						//	}
+						//	break;
 					} // switch
 				//}
       }
@@ -2189,61 +2191,84 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
       }
       break;
 
+		case WM_DROPFILES:
+			{
+				HDROP files = (HDROP) wParam;
+				char filename[500];
+				int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
+
+				if (count) {
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
+						char ret[20];
+
+						this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
+
+						// cancel drag drop event
+						if (lstrcmpi(ret, "cancel") == 0) {
+							DragFinish(files);
+							return 0L;
+						}
+
+						// for each file, send callback message
+						for (int i = 0; i < count; i++) {
+							if (DragQueryFile(files, i, filename, 500))
+								this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
+						}
+
+						this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
+					}
+				}
+
+				DragFinish(files);
+				break;
+			}
+		case WM_SETCURSOR:
+			{
+				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
+					SetCursor( this->m_hCursor );
+					bParsed = TRUE;
+					return TRUE;
+				}
+			}
+			break;
+		//case WM_PAINT:
+		//	{
+		//		if (!this->m_bAlphaBlend)
+		//			break;
+		//		PAINTSTRUCT ps;
+		//		HDC hdc;
+
+		//		hdc = BeginPaint( this->m_Hwnd, &ps );
+
+		//		LRESULT res = 0L;
+		//		bParsed = TRUE;
+
+		//		//RECT rcClient;
+
+		//		// get controls client area
+		//		//GetClientRect( this->m_Hwnd, &rcClient );
+
+		//		// Setup alpha blend if any.
+		//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+		//		// fill background.
+		//		//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+
+		//		res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+		//		//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINT, (WPARAM) hdc, (LPARAM) (PRF_CLIENT|PRF_NONCLIENT|PRF_CHILDREN|PRF_OWNED) );
+
+		//		this->FinishAlphaBlend(ai);
+
+		//		EndPaint( this->m_Hwnd, &ps );
+		//		return res;
+		//	}
+		//	break;
     case WM_DESTROY:
       {
         delete this;
         bParsed = TRUE;
       }
       break;
-	case WM_DROPFILES:
-	{
-		HDROP files = (HDROP) wParam;
-		char filename[500];
-		int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
-
-		if (count) {
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
-				char ret[20];
-
-				this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
-
-				// cancel drag drop event
-				if (lstrcmpi(ret, "cancel") == 0) {
-					DragFinish(files);
-					return 0L;
-				}
-
-				// for each file, send callback message
-				for (int i = 0; i < count; i++) {
-					if (DragQueryFile(files, i, filename, 500))
-						this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
-				}
-
-				this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
-			}
-		}
-
-		DragFinish(files);
-		break;
-	}
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-
-          SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
-		//case WM_MEASUREITEM:
-		//	{
-		//		if (ctrl_MeasureItem(this->m_Hwnd, wParam, lParam)) {
-		//			bParsed = TRUE;
-		//			return TRUE;
-		//		}
-		//	}
-		//	break;
     default:
       break;
   }

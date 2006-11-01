@@ -20,50 +20,6 @@
  *
  * \param ID Control ID
  * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-//DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-//: DcxControl( ID, p_Dialog ) 
-//{
-//
-//  LONG Styles = 0, ExStyles = 0;
-//  BOOL bNoTheme = FALSE;
-//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//  this->m_Hwnd = CreateWindowEx(	
-//    ExStyles, 
-//    "BUTTON", 
-//    NULL,
-//    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//    p_Dialog->getHwnd( ),
-//    (HMENU) ID,
-//    GetModuleHandle( NULL ), 
-//    NULL);
-//
-//  if ( bNoTheme )
-//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//	if (p_Dialog->getToolTip() != NULL) {
-//		if (styles.istok("tooltips"," ")) {
-//
-//			this->m_ToolTipHWND = p_Dialog->getToolTip();
-//
-//			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-//		}
-//	}
-//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-//  this->registreDefaultWindowProc( );
-//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//}
-//
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
  * \param mParentHwnd Parent Window Handle
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
@@ -80,7 +36,7 @@ DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 		ExStyles, 
 		"BUTTON", 
 		NULL,
-		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+		WS_CHILD | WS_VISIBLE | Styles, 
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -135,6 +91,8 @@ void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
       *Styles |= BS_RIGHTBUTTON;
     else if ( styles.gettok( i , " " ) == "pushlike" )
       *Styles |= BS_PUSHLIKE;
+    else if ( styles.gettok( i , " " ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
     i++;
   }
@@ -246,25 +204,37 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
-      /*
-    case WM_PAINT:
-      {
-        PAINTSTRUCT ps; 
-        HDC hdc; 
+		case WM_PAINT:
+			{
+				if (!this->m_bAlphaBlend)
+					break;
+        PAINTSTRUCT ps;
+        HDC hdc;
 
         hdc = BeginPaint( this->m_Hwnd, &ps );
 
-        bParsed = TRUE;
+				LRESULT res = 0L;
+				bParsed = TRUE;
 
-        SetTextColor( hdc, this->m_clrText );
-        LRESULT res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				//RECT rcClient;
 
-        EndPaint( this->m_Hwnd, &ps ); 
+				// get controls client area
+				//GetClientRect( this->m_Hwnd, &rcClient );
 
-        return res;
-      }
-      break;
-      */
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				// fill background.
+				//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+
+				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+				this->FinishAlphaBlend(ai);
+
+				EndPaint( this->m_Hwnd, &ps );
+				return res;
+			}
+			break;
 
 		case WM_NOTIFY:
 			{

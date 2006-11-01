@@ -114,8 +114,8 @@ void DcxRichEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
 			*Styles |= WS_HSCROLL;
 		else if (styles.gettok(i , " ") == "disablescroll")
 			*Styles |= ES_DISABLENOSCROLL;
-		else if ( styles.gettok( i , " " ) == "alpha" )
-			this->m_bAlphaBlend = true;
+		//else if ( styles.gettok( i , " " ) == "alpha" )
+		//	this->m_bAlphaBlend = true;
 
 		i++;
 	}
@@ -1061,37 +1061,38 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
 			break;
 		}
-		case WM_PAINT:
-			{
-				if (!this->m_bAlphaBlend)
-					break;
-        PAINTSTRUCT ps;
-        HDC hdc;
+		//case WM_PAINT:
+		//	{
+		//		if (!this->m_bAlphaBlend)
+		//			break;
+		//		PAINTSTRUCT ps;
+		//		HDC hdc;
 
-        hdc = BeginPaint( this->m_Hwnd, &ps );
+		//		hdc = BeginPaint( this->m_Hwnd, &ps );
 
-				LRESULT res = 0L;
-				bParsed = TRUE;
+		//		LRESULT res = 0L;
+		//		bParsed = TRUE;
 
-				//RECT rcClient;
+		//		//RECT rcClient;
 
-				// get controls client area
-				//GetClientRect( this->m_Hwnd, &rcClient );
+		//		// get controls client area
+		//		//GetClientRect( this->m_Hwnd, &rcClient );
 
-				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+		//		// Setup alpha blend if any.
+		//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-				// fill background.
-				//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+		//		// fill background.
+		//		//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
-				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+		//		res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+		//		//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINT, (WPARAM) hdc, (LPARAM) (PRF_CLIENT|PRF_NONCLIENT|PRF_CHILDREN|PRF_OWNED) );
 
-				this->FinishAlphaBlend(ai);
+		//		this->FinishAlphaBlend(ai);
 
-				EndPaint( this->m_Hwnd, &ps );
-				return res;
-			}
-			break;
+		//		EndPaint( this->m_Hwnd, &ps );
+		//		return res;
+		//	}
+		//	break;
 		case WM_DESTROY:
 		{
 			delete this;
