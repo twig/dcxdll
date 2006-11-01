@@ -39,7 +39,7 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
     ExStyles, 
     DCX_LISTVIEWCLASS,
     NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles,
+    WS_CHILD | WS_VISIBLE | Styles,
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
@@ -60,11 +60,10 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
 	if (this->m_ToolTipHWND != NULL) {
 		if (styles.istok("balloon"," "))
 			SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
-		//SendMessage(this->m_ToolTipHWND,TTM_ACTIVATE,TRUE,0);
-		if (styles.istok("tooltips"," ")) {
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND,this->m_Hwnd);
-		}
+		//if (styles.istok("tooltips"," ")) {
+		//	this->m_ToolTipHWND = p_Dialog->getToolTip();
+		//	AddToolTipToolInfo(this->m_ToolTipHWND,this->m_Hwnd);
+		//}
 	}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
@@ -157,7 +156,7 @@ void DcxListView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 
 void DcxListView::parseListviewExStyles( TString & styles, LONG * ExStyles )
 {
-	*ExStyles = 0;
+	*ExStyles = LVS_EX_DOUBLEBUFFER;
 
   unsigned int i = 1, numtok = styles.numtok( " " );
 
@@ -1940,8 +1939,8 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 											DeleteObject(hFontNew);
 										}
+										return ( CDRF_NEWFONT );
 									}
-									return ( CDRF_NEWFONT );
 									break;
 
 								case CDDS_ITEMPOSTPAINT | CDDS_SUBITEM:
@@ -1964,6 +1963,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							bParsed = TRUE;
 							return FALSE; // make sure we get an LVN_DELETEITEM for each item.
 						}
+						break;
 
           case LVN_DELETEITEM:
             {
