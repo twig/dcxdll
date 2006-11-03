@@ -378,113 +378,103 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 		RECT rc;
 		HRGN m_Region = NULL;
+		int RegionMode = 0;
 		GetWindowRect(this->m_Hwnd,&rc);
 
-		switch (flag[1])
+		if (flag.find('o',0))
+			RegionMode = RGN_OR;
+		else if (flag.find('a',0))
+			RegionMode = RGN_AND;
+		else if (flag.find('i',0))
+			RegionMode = RGN_DIFF;
+		else if (flag.find('x',0))
+			RegionMode = RGN_XOR;
+
+		if (flag.find('f',0)) // image file - [COLOR] [FILE]
 		{
-			case 'f': // image file - [COLOR] [FILE]
-			{
-				if (numtok < 6) {
-					DCXError("/xdid -R","Invalid arguments for +f flag");
-					return;
-				}
-
-				COLORREF tCol = (COLORREF)input.gettok(5," ").to_num();
-				HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,input.gettok(6,-1," "));
-
-				if (m_bitmapBg != NULL) {
-					m_Region = BitmapRegion(m_bitmapBg,tCol,TRUE);
-
-					if (m_Region != NULL)
-						SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
-					DeleteObject(m_bitmapBg);
-				}
-
-				break;
-			}
-			
-			case 'r': // rounded rect - radius args (optional)
-			{
-				int radius;
-
-				if (numtok > 4)
-					radius = input.gettok(5, " ").to_int();
-				else
-					radius = 20;
-
-				m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
-
-				if (m_Region != NULL)
-					SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
-
-				break;
+			if (numtok < 6) {
+				DCXError("/xdid -R","Invalid arguments for +f flag");
+				return;
 			}
 
-			case 'c': // circle - radius arg (optional)
-			{
-				if (numtok > 4) {
-					int radius = input.gettok(5, " ").to_int();
-					if (radius < 1) radius = 100; // handle cases where arg isnt a number or is a negative.
-					int cx = ((rc.right - rc.left)/2);
-					int cy = ((rc.bottom - rc.top)/2);
-					m_Region = CreateEllipticRgn(cx-radius,cy-radius,cx+radius,cy+radius);
-				}
-				else
-					m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
+			COLORREF tCol = (COLORREF)input.gettok(5," ").to_num();
+			HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,input.gettok(6,-1," "));
 
-				if (m_Region != NULL)
-					SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
+			if (m_bitmapBg != NULL) {
+				m_Region = BitmapRegion(m_bitmapBg,tCol,TRUE);
 
-				break;
+				DeleteObject(m_bitmapBg);
 			}
-			
-			case 'p': // polygon
-			{
-				// u need at least 3 points for a shape
-				if (numtok < 7) {
-					DCXError("/xdid -R","Invalid arguments for +p flag");
-					return;
-				}
+		}
+		else if (flag.find('r',0)) // rounded rect - radius args (optional)
+		{
+			int radius;
 
-				TString strPoints(input.gettok(5, -1, " "));
-				TString strPoint;
-				int tPoints = strPoints.numtok(" ");
+			if (numtok > 4)
+				radius = input.gettok(5, " ").to_int();
+			else
+				radius = 20;
 
-				if (tPoints < 1) {
-					DCXError("/xdid -R","Invalid Points");
-					return;
-				}
-
-				int cnt = 1;
-				POINT *pnts = new POINT[tPoints];
-
-				while (cnt <= tPoints) {
-					strPoint = strPoints.gettok(cnt," ");
-					pnts[cnt-1].x = (LONG)strPoint.gettok(1, ",").to_num();
-					pnts[cnt-1].y = (LONG)strPoint.gettok(2, ",").to_num();
-					cnt++;
-				}
-
-				m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
-
-				if (m_Region != NULL)
-					SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
-
-				delete [] pnts;
-				break;
+			m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
+		}
+		else if (flag.find('c',0)) // circle - radius arg (optional)
+		{
+			if (numtok > 4) {
+				int radius = input.gettok(5, " ").to_int();
+				if (radius < 1) radius = 100; // handle cases where arg isnt a number or is a negative.
+				int cx = ((rc.right - rc.left)/2);
+				int cy = ((rc.bottom - rc.top)/2);
+				m_Region = CreateEllipticRgn(cx-radius,cy-radius,cx+radius,cy+radius);
+			}
+			else
+				m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
+		}
+		else if (flag.find('p',0)) // polygon
+		{
+			// u need at least 3 points for a shape
+			if (numtok < 7) {
+				DCXError("/xdid -R","Invalid arguments for +p flag");
+				return;
 			}
 
-			case 'n': // none, no args
-			{
-				SetWindowRgn(this->m_Hwnd,NULL,TRUE);
-				break;
+			TString strPoints(input.gettok(5, -1, " "));
+			TString strPoint;
+			int tPoints = strPoints.numtok(" ");
+
+			if (tPoints < 1) {
+				DCXError("/xdid -R","Invalid Points");
+				return;
 			}
 
-			default:
-			{
-				DCXError("/xdid -R","Invalid Flag");
-				break;
+			int cnt = 1;
+			POINT *pnts = new POINT[tPoints];
+
+			while (cnt <= tPoints) {
+				strPoint = strPoints.gettok(cnt," ");
+				pnts[cnt-1].x = (LONG)strPoint.gettok(1, ",").to_num();
+				pnts[cnt-1].y = (LONG)strPoint.gettok(2, ",").to_num();
+				cnt++;
 			}
+
+			m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
+
+			delete [] pnts;
+		}
+		else if (flag.find('n',0)) // none, no args
+			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
+		else
+			DCXError("/xdid -R","Invalid Flag");
+
+		if (m_Region != NULL) {
+			if (RegionMode != 0) {
+				HRGN wrgn = CreateRectRgn(0,0,0,0);
+				if (wrgn != NULL) {
+					if (GetWindowRgn(this->m_Hwnd,wrgn) != ERROR)
+						CombineRgn(m_Region,m_Region,wrgn,RegionMode);
+					DeleteObject(wrgn);
+				}
+			}
+			SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
 		}
 		this->redrawWindow();
 	}
@@ -1062,13 +1052,13 @@ void DcxControl::DrawCtrlBackground(HDC hdc, DcxControl *p_this, LPRECT rwnd)
 		if (hBrush == NULL)
 			hBrush = GetSysColorBrush(COLOR_3DFACE);
 		if ( hBrush != NULL )
-				FillRect( hdc, rwnd, hBrush ); // only fill if control has its own brush, else allows host to show through.
+				FillRect( hdc, rwnd, hBrush );
 	}
 	//else if (p_this->m_pParentCtrl != NULL) {
 	//	DcxControl::DrawCtrlBackground(hdc,p_this->m_pParentCtrl,rwnd);
 	//}
 	//else {
-	//	DcxDialog::DrawDialogBackground(hdcalpha,this->m_pParentDialog,rwnd);
+	//	DcxDialog::DrawDialogBackground(hdc,p_this->m_pParentDialog,rwnd);
 	//}
 }
 
@@ -1152,8 +1142,8 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 	if (this->m_bAlphaBlend) {
 		if (ai->ai_hdc != NULL) {
 			if (ai->ai_bitmap != NULL) {
-				// alpha blend finished button with parents background
 				int w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);
+				// alpha blend finished button with parents background
 				BLENDFUNCTION bf;
 				bf.BlendOp = AC_SRC_OVER;
 				bf.BlendFlags = 0;

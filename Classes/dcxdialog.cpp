@@ -49,7 +49,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 	this->m_hCursor = NULL;
 	this->m_bCursorFromFile = FALSE;
 
-	//this->addStyle(WS_CLIPCHILDREN);
+	this->addStyle(WS_CLIPCHILDREN);
 
 	this->m_hOldWindowProc = (WNDPROC) SetWindowLong(this->m_Hwnd, GWL_WNDPROC, (LONG) DcxDialog::WindowProc);
 
@@ -704,134 +704,121 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		RECT rc;
 		GetWindowRect(this->m_Hwnd,&rc);
 
-		switch (flag[1])
+		HRGN m_Region = NULL;
+		int RegionMode = 0;
+
+		if (flag.find('o',0))
+			RegionMode = RGN_OR;
+		else if (flag.find('a',0))
+			RegionMode = RGN_AND;
+		else if (flag.find('i',0))
+			RegionMode = RGN_DIFF;
+		else if (flag.find('x',0))
+			RegionMode = RGN_XOR;
+
+		// image file - [COLOR] [FILE]
+		if (flag.find('f',0))
 		{
-			// image file - [COLOR] [FILE]
-			case 'f': 
-			{
-				if (numtok < 5) {
-					DCXError("/xdialog -R","Invalid arguments for +f flag");
-					return;
-				}
-
-				//SetWindowRgn(this->m_Hwnd,NULL,TRUE);
-				this->m_colTransparentBg = (COLORREF)input.gettok(4," ").to_num();
-				//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
-				this->m_uStyleBg = DBS_BKGBITMAP;
-				this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg,input.gettok(5,-1," "));
-
-				if (this->m_bitmapBg != NULL) {
-					this->m_Region = BitmapRegion(this->m_bitmapBg,this->m_colTransparentBg,TRUE);
-
-					if (this->m_Region != NULL)
-						SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
-				}
-
-				break;
-			}
-			
-			case 'r': // rounded rect - radius args (optional)
-			{
-				int radius;
-
-				if (numtok > 3)
-					radius = input.gettok(4, " ").to_int();
-				else
-					radius = 20;
-
-				this->m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
-
-				if (this->m_Region)
-					SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
-
-				break;
+			if (numtok < 5) {
+				DCXError("/xdialog -R","Invalid arguments for +f flag");
+				return;
 			}
 
-			case 'c': // circle - radius arg (optional)
-			{
-				if (numtok > 3) {
-					int radius = input.gettok(4, " ").to_int();
-					if (radius < 1) radius = 100; // handle cases where arg isnt a number or is a negative.
-					int cx = ((rc.right - rc.left)/2);
-					int cy = ((rc.bottom - rc.top)/2);
-					this->m_Region = CreateEllipticRgn(cx-radius,cy-radius,cx+radius,cy+radius);
-				}
-				else
-					this->m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
+			//SetWindowRgn(this->m_Hwnd,NULL,TRUE);
+			this->m_colTransparentBg = (COLORREF)input.gettok(4," ").to_num();
+			//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
+			this->m_uStyleBg = DBS_BKGBITMAP;
+			this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg,input.gettok(5,-1," "));
 
-				if (this->m_Region)
-					SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
+			if (this->m_bitmapBg != NULL)
+				m_Region = BitmapRegion(this->m_bitmapBg,this->m_colTransparentBg,TRUE);
+		}
+		else if (flag.find('r',0)) // rounded rect - radius args (optional)
+		{
+			int radius;
 
-				break;
+			if (numtok > 3)
+				radius = input.gettok(4, " ").to_int();
+			else
+				radius = 20;
+
+			m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
+		}
+		else if (flag.find('c',0)) // circle - radius arg (optional)
+		{
+			if (numtok > 3) {
+				int radius = input.gettok(4, " ").to_int();
+				if (radius < 1) radius = 100; // handle cases where arg isnt a number or is a negative.
+				int cx = ((rc.right - rc.left)/2);
+				int cy = ((rc.bottom - rc.top)/2);
+				m_Region = CreateEllipticRgn(cx-radius,cy-radius,cx+radius,cy+radius);
 			}
-			
-			case 'p': // polygon
-			{
-				// u need at least 3 points for a shape
-				if (numtok < 6) {
-					DCXError("/xdialog -R","Invalid arguments for +p flag");
-					return;
-				}
-
-				TString strPoints(input.gettok(4, -1, " "));
-				TString strPoint;
-				int tPoints = strPoints.numtok(" ");
-
-				if (tPoints < 1) {
-					DCXError("/xdialog -R","Invalid Points");
-					return;
-				}
-
-				int cnt = 1;
-				POINT *pnts = new POINT[tPoints];
-
-				while (cnt <= tPoints) {
-					strPoint = strPoints.gettok(cnt," ");
-					pnts[cnt-1].x = (LONG)strPoint.gettok(1, ",").to_num();
-					pnts[cnt-1].y = (LONG)strPoint.gettok(2, ",").to_num();
-					cnt++;
-				}
-
-				this->m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
-
-				if (this->m_Region)
-					SetWindowRgn(this->m_Hwnd,this->m_Region,TRUE);
-
-				delete [] pnts;
-				break;
+			else
+				m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
+		}
+		else if (flag.find('p',0)) // polygon
+		{
+			// u need at least 3 points for a shape
+			if (numtok < 6) {
+				DCXError("/xdialog -R","Invalid arguments for +p flag");
+				return;
 			}
 
-			case 'n': // none, no args
-			{
-				SetWindowRgn(this->m_Hwnd,NULL,TRUE);
-				break;
-			}
-			case 'd': // drag - <1|0>
-			{
-				if ((BOOL)input.gettok(4," ").to_int())
-					this->m_bDoDrag = true;
-				else
-					this->m_bDoDrag = false;
-			}
-			break;
+			TString strPoints(input.gettok(4, -1, " "));
+			TString strPoint;
+			int tPoints = strPoints.numtok(" ");
 
-			case 'g': // ghost drag - <0-255>
-			{
-				int alpha = input.gettok(4," ").to_int();
-				if ((alpha >= 0) && (alpha <= 255))
-					this->m_bDoGhostDrag = alpha;
-				else {
-					DCXError("xdialog -R +g","Alpha Out Of Range");
-					return;
+			if (tPoints < 1) {
+				DCXError("/xdialog -R","Invalid Points");
+				return;
+			}
+
+			int cnt = 1;
+			POINT *pnts = new POINT[tPoints];
+
+			while (cnt <= tPoints) {
+				strPoint = strPoints.gettok(cnt," ");
+				pnts[cnt-1].x = (LONG)strPoint.gettok(1, ",").to_num();
+				pnts[cnt-1].y = (LONG)strPoint.gettok(2, ",").to_num();
+				cnt++;
+			}
+
+			m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
+
+			delete [] pnts;
+		}
+		else if (flag.find('d',0)) // drag - <1|0>
+		{
+			if ((BOOL)input.gettok(4," ").to_int())
+				this->m_bDoDrag = true;
+			else
+				this->m_bDoDrag = false;
+		}
+		else if (flag.find('g',0)) // ghost drag - <0-255>
+		{
+			int alpha = input.gettok(4," ").to_int();
+			if ((alpha >= 0) && (alpha <= 255))
+				this->m_bDoGhostDrag = alpha;
+			else {
+				DCXError("xdialog -R +g","Alpha Out Of Range");
+				return;
+			}
+		}
+		else if (flag.find('n',0)) // none, no args
+			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
+		else
+			DCXError("xdialog -R", "Invalid Flag");
+
+		if (m_Region != NULL) {
+			if (RegionMode != 0) {
+				HRGN wrgn = CreateRectRgn(0,0,0,0);
+				if (wrgn != NULL) {
+					if (GetWindowRgn(this->m_Hwnd,wrgn) != ERROR)
+						CombineRgn(m_Region,m_Region,wrgn,RegionMode);
+					DeleteObject(wrgn);
 				}
 			}
-			break;
-
-			default:
-			{
-				DCXError("xdialog -R", "Invalid Flag");
-				break;
-			}
+			SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
 		}
 		this->redrawWindow();
 	}
