@@ -147,6 +147,7 @@ protected:
 	bool m_bAlphaBlend;	//!< Control is alpha blended.
 	DcxControl *m_pParentCtrl;
 	HWND m_pParentHWND;
+	bool m_bShadowText; //!< Text is drawn with a shadow.
   /* ***** */
 
   void parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags );

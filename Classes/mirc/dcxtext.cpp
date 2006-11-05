@@ -95,6 +95,8 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
 			*ExStyles |= WS_EX_TRANSPARENT;
 		else if ( styles.gettok( i , " " ) == "alpha" )
 			this->m_bAlphaBlend = true;
+		else if (( styles.gettok( i , " " ) == "shadow" ) && isXP())
+			this->m_bShadowText = true;
 
 		i++;
 	}
@@ -322,7 +324,12 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 					style |= DT_NOPREFIX;
 				if (this->isStyle(SS_LEFTNOWORDWRAP))
 					style |= DT_SINGLELINE; // ?? same ??
-				DrawText(hdc, text, nText, &r, style);
+				if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
+					TString wtext(text);
+					DrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &r, style, this->m_clrText, 0, 5, 5);
+				}
+				else
+					DrawText(hdc, text, nText, &r, style);
 
 				delete [] text;
 				res = TRUE;

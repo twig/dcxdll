@@ -90,6 +90,7 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 		//"STATIC",
 		NULL,
 		Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN,
+		//Styles | WS_CHILD | WS_VISIBLE,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -190,6 +191,8 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 			*ExStyles |= WS_EX_TRANSPARENT;
 		else if ( styles.gettok( i , " " ) == "alpha" )
 			this->m_bAlphaBlend = true;
+		else if (( styles.gettok( i , " " ) == "shadow" ) && isXP())
+			this->m_bShadowText = true;
 
 		i++;
 	}
@@ -749,6 +752,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
           if ( clrBackText != -1 )
             SetBkColor( (HDC) wParam, clrBackText );
 
+					//if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
+					//	bParsed = TRUE;
+					//	return (LRESULT)GetStockObject(NULL_BRUSH);
+					//}
+
           if ( hBackBrush != NULL ) {
 
             bParsed = TRUE;
@@ -945,7 +953,13 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					//	IntersectClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
 
 					// draw the text
-					DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
+					if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
+						TString wtext(text);
+						DrawShadowText(hdc,wtext.to_wchr(), wtext.len(),&rcText,
+							DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
+					}
+					else
+						DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
 
 					delete [] text;
 				}

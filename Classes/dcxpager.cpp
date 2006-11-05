@@ -48,47 +48,6 @@
  *
  * \param ID Control ID
  * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-//DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-//: DcxControl( ID, p_Dialog ) 
-//{
-//
-//  LONG Styles = 0, ExStyles = 0;
-//  BOOL bNoTheme = FALSE;
-//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//  this->m_Hwnd = CreateWindowEx(	
-//    ExStyles | WS_EX_CONTROLPARENT,
-//    DCX_PAGERCLASS, 
-//    NULL,
-//    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-//    //WS_CHILD | WS_VISIBLE | Styles, 
-//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//    p_Dialog->getHwnd( ),
-//    (HMENU) ID,
-//    GetModuleHandle( NULL ), 
-//    NULL);
-//
-//  if ( bNoTheme )
-//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//	this->m_ChildHWND = NULL;
-//	//GetStockObject();
-//	//Pager_SetButtonSize(this->m_Hwnd,15);
-//	//Pager_SetBkColor(this->m_Hwnd,0);
-//
-//  this->registreDefaultWindowProc( );
-//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//}
-//
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
  * \param mParentHwnd Parent Window Handle
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
@@ -105,8 +64,8 @@ DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
     ExStyles | WS_EX_CONTROLPARENT, 
     DCX_PAGERCLASS, 
     NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
     //WS_CHILD | WS_VISIBLE | Styles, 
+    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
@@ -479,13 +438,6 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
-    case WM_CTLCOLORDLG:
-      {
-        bParsed = TRUE;
-        return (INT_PTR) this->getBackClrBrush( );
-      }
-      break;
-
     case WM_CTLCOLORBTN:
     case WM_CTLCOLORLISTBOX:
     case WM_CTLCOLORSCROLLBAR:
@@ -506,6 +458,11 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
  
           if ( clrBackText != -1 )
             SetBkColor( (HDC) wParam, clrBackText );
+
+					//if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
+					//	bParsed = TRUE;
+					//	return (LRESULT)GetStockObject(NULL_BRUSH);
+					//}
 
           if ( hBackBrush != NULL ) {
 

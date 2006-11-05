@@ -78,6 +78,7 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog ) : DcxWindow( mID 
 	this->m_pParentCtrl = NULL;
 	this->m_pParentHWND = NULL;
 	this->m_bitmapBg = NULL;
+	this->m_bShadowText = false;
 }
 
 /*!
