@@ -994,6 +994,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 			LPWSTR wstr = new WCHAR[text.len() + 1];
 			MultiByteToWideChar(CP_ACP, 0, text.to_chr(), text.len() +1, wstr, text.len() +1);
+			//LPWSTR wstr = text.to_wchr(); // can this buffer be deleted? or is it needed by the control? requires testing.
 
 			lvg.iGroupId = gid;
 			lvg.pszHeader = wstr;

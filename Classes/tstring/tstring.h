@@ -54,11 +54,13 @@ class TString {
 private:
 
 	void deleteString( );
+	void deleteWString( );
 	int _replace(const char *subString, const char *rString); // Ook
 
 public:
 
 	char * m_pString; //!< String buffer
+	WCHAR * m_pWString;
 
 	TString( );
 	TString( const char * cString );
@@ -157,6 +159,7 @@ public:
 	bool iswmcs(char *a) const;
 	int to_int() const { return atoi(this->m_pString); }
 	__int64 to_num( ) const { return _atoi64(this->m_pString); }
+	WCHAR *to_wchr(void);
 	//
 };
 

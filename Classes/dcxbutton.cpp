@@ -76,6 +76,9 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	// fix to allow pressing enter to work.
+	if (Styles & BS_DEFPUSHBUTTON)
+		SetFocus(this->m_Hwnd);
 }
 
 /*!
@@ -598,9 +601,12 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 					}
 
 					if ( this->m_tsCaption.len( ) > 0 ) {
-
-						DrawText( hdc, this->m_tsCaption.to_chr( ), this->m_tsCaption.len( ), 
-							&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+						if (this->m_bHover && !this->m_bSelected && isXP()) // could cause problems with pre-XP as this is commctrl v6+
+							DrawShadowText(hdc,this->m_tsCaption.to_wchr(), this->m_tsCaption.len(),&rcTxt,
+								DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
+						else
+							DrawText( hdc, this->m_tsCaption.to_chr( ), this->m_tsCaption.len( ), 
+								&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
 					}
 
 					SelectObject( hdc, hFontOld );

@@ -20,60 +20,6 @@
  *
  * \param ID Control ID
  * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-//DcxLink::DcxLink( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-//: DcxControl( ID, p_Dialog ) 
-//{
-//
-//  LONG Styles = 0, ExStyles = 0;
-//  BOOL bNoTheme = FALSE;
-//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//  this->m_Hwnd = CreateWindowEx(	
-//    ExStyles, 
-//    "STATIC", 
-//    NULL,
-//    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//    p_Dialog->getHwnd( ),
-//    (HMENU) ID,
-//    GetModuleHandle( NULL ), 
-//    NULL);
-//
-//  if ( bNoTheme )
-//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//  this->m_hIcon = NULL;
-//  this->m_aColors[0] = RGB( 0, 0, 255 );
-//  this->m_aColors[1] = RGB( 255, 0, 0 );
-//  this->m_aColors[2] = RGB( 0, 0, 255 );
-//  this->m_aColors[3] = RGB( 128, 128, 128 );
-//  this->m_bHover = FALSE;
-//  this->m_bTracking = FALSE;
-//  this->m_bVisited = FALSE;
-//
-//	if (p_Dialog->getToolTip() != NULL) {
-//		if (styles.istok("tooltips"," ")) {
-//
-//			this->m_ToolTipHWND = p_Dialog->getToolTip();
-//
-//			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-//		}
-//	}
-//
-//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-//  this->registreDefaultWindowProc( );
-//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//}
-//
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
  * \param mParentHwnd Parent Window Handle
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
@@ -90,7 +36,7 @@ DcxLink::DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, c
 		ExStyles, 
 		"STATIC", 
 		NULL,
-		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+		WS_CHILD | WS_VISIBLE | Styles, 
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,

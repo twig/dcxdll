@@ -193,11 +193,12 @@ void DcxImage::parseCommandRequest(TString & input) {
 
 		//this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
-		int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, NULL, 0);
-		WCHAR  *wfilename = new WCHAR[widelen+1];
-		MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, wfilename, widelen);
-		this->m_pImage = new Image(wfilename);
-		delete [] wfilename;
+		//int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, NULL, 0);
+		//WCHAR  *wfilename = new WCHAR[widelen+1];
+		//MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,filename.to_chr(),-1, wfilename, widelen);
+		//this->m_pImage = new Image(wfilename);
+		//delete [] wfilename;
+		this->m_pImage = new Image(filename.to_wchr());
 		this->m_bIsIcon = FALSE;
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}

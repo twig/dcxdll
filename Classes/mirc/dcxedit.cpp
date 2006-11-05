@@ -396,12 +396,13 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
 	else if (flags.switch_cap_flags[4] && numtok > 3) {
 		TString cue(input.gettok(4, -1, " "));
-		int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cue.to_chr(),-1, NULL, 0);
-		WCHAR *wcue = new WCHAR[widelen+1];
-		MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cue.to_chr(),-1, wcue, widelen);
-		Edit_SetCueBannerText(this->m_Hwnd,wcue);
+		//int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cue.to_chr(),-1, NULL, 0);
+		//WCHAR *wcue = new WCHAR[widelen+1];
+		//MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cue.to_chr(),-1, wcue, widelen);
+		//Edit_SetCueBannerText(this->m_Hwnd,wcue);
+		Edit_SetCueBannerText(this->m_Hwnd,cue.to_wchr());
 		this->m_tsCue = cue;
-		delete [] wcue;
+		//delete [] wcue;
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);

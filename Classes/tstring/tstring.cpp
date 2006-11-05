@@ -35,9 +35,13 @@
  * © ScriptsDB.org - 2005
  */
 
-#include "TString.h"
+// Required for VS 2005
+#define _CRT_SECURE_NO_DEPRECATE 1
+// end VS2005
 
 #include <windows.h>
+
+#include "TString.h"
 
 /*! 
  * \brief Default Constructor
@@ -48,6 +52,7 @@ TString::TString( ) {
 
 	this->m_pString = new char[1];
 	this->m_pString[0] = 0;
+	this->m_pWString = NULL;
 }
 
 /****************************/
@@ -61,6 +66,7 @@ TString::TString( ) {
 TString::TString( const char * cString ) {
 
 	this->m_pString = NULL;
+	this->m_pWString = NULL;
 
 	if ( cString != NULL ) {
 
@@ -85,6 +91,7 @@ TString::TString( const char * cString ) {
 TString::TString( const char chr ) {
 
 	this->m_pString = new char [2];
+	this->m_pWString = NULL;
 	this->m_pString[0] = chr;
 	this->m_pString[1] = 0;
 }
@@ -99,6 +106,7 @@ TString::TString( const char chr ) {
 
 TString::TString( const TString & tString ) {
 
+	this->m_pWString = NULL;
 	if ( tString.m_pString != NULL ) {
 
 		size_t size = lstrlen( tString.m_pString );
@@ -122,8 +130,16 @@ TString::~TString( ) {
 void TString::deleteString( ) {
 
 	if ( this->m_pString != NULL ) {
-		delete []this->m_pString; 
+		delete [] this->m_pString; 
 		this->m_pString = NULL;
+	}
+	this->deleteWString();
+}
+void TString::deleteWString( ) {
+
+	if ( this->m_pWString != NULL ) {
+		delete [] this->m_pWString; 
+		this->m_pWString = NULL;
 	}
 }
 
@@ -262,7 +278,7 @@ void TString::operator +=( const char * cString ) {
 		char * temp = new char [ lstrlen( this->m_pString ) + lstrlen( cString ) + 1 ];
 		lstrcpy( temp, this->m_pString );
 		lstrcat( temp, cString );
-		delete [] this->m_pString;
+		this->deleteString();
 		this->m_pString = temp;
 	}
 }
@@ -283,7 +299,7 @@ void TString::operator +=( const char chr ) {
 		lstrcpy( temp, this->m_pString );
 		temp[len] = chr;
 		temp[len+1] = 0;
-		delete [] this->m_pString;
+		this->deleteString();
 		this->m_pString = temp;
 	}
 	else {
@@ -307,7 +323,7 @@ void TString::operator +=( const TString & tString ) {
 		char * temp = new char [ lstrlen( this->m_pString ) + lstrlen( tString.m_pString ) + 1 ];
 		lstrcpy( temp, this->m_pString );
 		lstrcat( temp, tString.m_pString );
-		delete [] this->m_pString;
+		this->deleteString();
 		this->m_pString = temp;
 	}
 }
@@ -883,6 +899,7 @@ void TString::operator *=( const int N ) {
 		lstrcat( this->m_pString, temp );
 		i++;
 	}
+	this->deleteWString();
 	delete [] temp;
 }
 
@@ -1089,12 +1106,12 @@ int TString::_replace(const char *subString, const char *rString)
 		out = new char [ (cnt * repl) + (ol - (cnt * subl)) +1 ]; // allocate new string.
 		out[0] = 0;
 		while ((sub = strstr(p,subString)) != NULL) {
-			strncat(out,p,(sub - p)); // copy bit before substring. if any.
+			::strncat(out,p,(sub - p)); // copy bit before substring. if any.
 			lstrcat(out,rString); // append new replacement string.
 			p = sub + subl; // update pointer to skip substring.
 		}
 		lstrcat(out,p); // append the end text, if any.
-		delete [] this->m_pString; // delete old string
+		this->deleteString(); // delete old string
 		this->m_pString = out; // save new one.
 	}
   return cnt;
@@ -1358,8 +1375,7 @@ void TString::deltok( const int N, const char * sepChars ) {
 
   if ( N == 1 && this->numtok( sepChars ) == 1 ) {
 
-    delete [] this->m_pString;
-    this->m_pString = NULL;
+		this->deleteString();
     return;
   }
 
@@ -1384,7 +1400,7 @@ void TString::deltok( const int N, const char * sepChars ) {
 
     char * pNew = new char[ lstrlen( p_cEnd ) + 1 ];
     lstrcpy( pNew, p_cEnd );
-    delete [] this->m_pString;
+		this->deleteString();
     this->m_pString = pNew;
   }
   // last token
@@ -1395,7 +1411,7 @@ void TString::deltok( const int N, const char * sepChars ) {
 
     char * pNew = new char[ lstrlen( this->m_pString ) + 1 ];
     lstrcpy( pNew, this->m_pString );
-    delete [] this->m_pString;
+		this->deleteString();
     this->m_pString = pNew;
   }
   // inbound token
@@ -1408,7 +1424,7 @@ void TString::deltok( const int N, const char * sepChars ) {
     lstrcpy( pNew, this->m_pString );
     lstrcat( pNew, p_cEnd );
 
-    delete [] this->m_pString;
+		this->deleteString();
     this->m_pString = pNew;
   }
 }
@@ -1448,7 +1464,7 @@ void TString::instok( const char * cToken, const int N, const char * sepChars ) 
     lstrcpy( pNew, cToken );
     lstrcat( pNew, sepChars );
     lstrcat( pNew, this->m_pString );
-    delete [] this->m_pString;
+		this->deleteString();
     this->m_pString = pNew;
   }
   else if ( p_cEnd == NULL ) {
@@ -1464,7 +1480,7 @@ void TString::instok( const char * cToken, const int N, const char * sepChars ) 
       lstrcat( pNew, cToken );
       lstrcat( pNew, sepChars );
       lstrcat( pNew, p_cStart );
-      delete [] this->m_pString;
+			this->deleteString();
       this->m_pString = pNew;
 
     }
@@ -1473,7 +1489,7 @@ void TString::instok( const char * cToken, const int N, const char * sepChars ) 
       lstrcpy( pNew, this->m_pString );
       lstrcat( pNew, sepChars );
       lstrcat( pNew, cToken );
-      delete [] this->m_pString;
+			this->deleteString();
       this->m_pString = pNew;
     }
   }
@@ -1487,7 +1503,7 @@ void TString::instok( const char * cToken, const int N, const char * sepChars ) 
     lstrcat( pNew, cToken );
     lstrcat( pNew, sepChars );
     lstrcat( pNew, p_cStart );
-    delete [] this->m_pString;
+		this->deleteString();
     this->m_pString = pNew;
   }
 }
@@ -1513,7 +1529,7 @@ void TString::addtok( const char * cToken, const char * sepChars ) {
 	  pNew = new char[ lstrlen( cToken ) + 1 ];
 	  lstrcpy( pNew, cToken );
   }
-  delete [] this->m_pString;
+	this->deleteString();
   this->m_pString = pNew;
 }
 
@@ -1570,7 +1586,7 @@ void TString::puttok( const char * cToken, int N, const char * sepChars ) {
 
     lstrcpy( pNew, cToken );
     lstrcat( pNew, p_cEnd );
-    delete [] this->m_pString;
+		this->deleteString();
     this->m_pString = pNew;
   }
   // last token
@@ -1582,7 +1598,7 @@ void TString::puttok( const char * cToken, int N, const char * sepChars ) {
 
     lstrcpy( pNew, this->m_pString );
     lstrcat( pNew, cToken );
-    delete [] this->m_pString;
+		this->deleteString();
     this->m_pString = pNew;
   }
   // inbound token
@@ -1595,7 +1611,7 @@ void TString::puttok( const char * cToken, int N, const char * sepChars ) {
     lstrcpy( pNew, this->m_pString );
     lstrcat( pNew, cToken );
     lstrcat( pNew, p_cEnd );
-    delete [] this->m_pString;
+		this->deleteString();
     this->m_pString = pNew;    
   }
 }
@@ -1623,8 +1639,7 @@ void TString::trim( ) {
 
   lstrcpyn( temp, start, new_len + 1 );
 
-  if ( this->m_pString )
-    delete this->m_pString;
+	this->deleteString();
 
   this->m_pString = temp;
 
@@ -1878,7 +1893,7 @@ int TString::sprintf(const char *fmt, ...)
 	int cnt = _vscprintf(fmt, args);
 	char *txt = new char[cnt +1];
   vsprintf(txt, fmt, args );
-	delete [] this->m_pString;
+	this->deleteString();
 	this->m_pString = txt;
 	va_end( args );
 	return cnt;
@@ -1903,4 +1918,45 @@ bool TString::iswm(char *a) const
 bool TString::iswmcs(char *a) const
 {
 	return match(a, this->m_pString,true)?true:false;
+}
+//void TString::strncpy(const char *cString, const int n)
+//{
+//	this->deleteString();
+//	this->m_pString = new char[n+1];
+//	lstrcpyn(this->m_pString,cString,n);
+//}
+//void TString::strncpy(const TString &tString, const int n)
+//{
+//	this->deleteString();
+//	this->m_pString = new char[n+1];
+//	lstrcpyn(this->m_pString,tString.to_chr(),n);
+//}
+//void TString::strncat(const char *cString, const int n)
+//{
+//	char *tmp = new char[n + lstrlen(this->m_pString) + 1];
+//	lstrcpy(tmp,this->m_pString);
+//	::strncat(tmp,cString,n);
+//	this->deleteString();
+//	this->m_pString = tmp;
+//}
+//void TString::strncat(const TString &tString, const int n)
+//{
+//	char *tmp = new char[n + lstrlen(this->m_pString) + 1];
+//	lstrcpy(tmp,this->m_pString);
+//	::strncat(tmp,tString.to_chr(),n);
+//	this->deleteString();
+//	this->m_pString = tmp;
+//}
+WCHAR *TString::to_wchr(void)
+{
+	if (this->m_pString == NULL)
+		return NULL;
+
+	if (this->m_pWString != NULL)
+		return this->m_pWString;
+
+	int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
+	this->m_pWString = new WCHAR[widelen+1];
+	MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
+	return this->m_pWString;
 }
