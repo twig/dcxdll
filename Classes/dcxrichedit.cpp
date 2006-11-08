@@ -160,8 +160,11 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 	}
 	// [NAME] [ID] [PROP]
 	else if (input.gettok(3, " ") == "num") {
-		if (this->isStyle(ES_MULTILINE))
-			wsprintf(szReturnValue, "%d", this->m_tsText.numtok("\r\n"));
+		if (this->isStyle(ES_MULTILINE)){ 
+			int iRichLineCount = 0;
+			iRichLineCount = SendMessage(this->m_Hwnd, EM_GETLINECOUNT, 0, 0L);
+			wsprintf(szReturnValue, "%d", iRichLineCount);
+		}
 		else
 			lstrcpy(szReturnValue,"1");	// single line control so always 1 line.
 		return;
@@ -512,7 +515,6 @@ void DcxRichEdit::clearContents() {
 */
 void DcxRichEdit::parseContents(BOOL fNewLine) { // old function
 	this->m_bIgnoreInput = TRUE;
-
 	this->setRedraw(FALSE);
 	this->clearContents();
 
