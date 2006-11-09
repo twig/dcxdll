@@ -88,22 +88,20 @@ DcxLink::~DcxLink( ) {
  */
 
 void DcxLink::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	//unsigned int i = 1, numtok = styles.numtok( " " );
+	unsigned int i = 1, numtok = styles.numtok( " " );
 	*Styles |= SS_NOTIFY;
 
-  /*
+  
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "center" )
-      *Styles |= SS_CENTER;
-    else if ( styles.gettok( i , " " ) == "right" )
-      *Styles |= SS_RIGHT;
-    else if ( styles.gettok( i , " " ) == "endellipsis" )
-      *Styles |= SS_ENDELLIPSIS;
+		if ( styles.gettok( i , " " ) == "alpha" )
+			this->m_bAlphaBlend = true;
+		else if (( styles.gettok( i , " " ) == "shadow" ) && isXP())
+			this->m_bShadowText = true;
 
     i++;
   }
-  */
+  
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -171,7 +169,7 @@ void DcxLink::parseCommandRequest( TString & input ) {
   //xdid -t [NAME] [ID] [SWITCH] (TEXT)
   else if ( flags.switch_flags[19] ) {
 
-    TString text(input.gettok( 4, -1, " " ));
+		TString text(input.gettok( 4, -1, " " ));
     //text.trim( );
     SetWindowText( this->m_Hwnd, text.to_chr( ) );
     this->redrawWindow( );
@@ -304,6 +302,15 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 		 }
 		 break;
 
+		case WM_ERASEBKGND:
+		{
+			if (this->isExStyle(WS_EX_TRANSPARENT)) {
+				bParsed = TRUE;
+				return TRUE;
+			}
+			break;
+		}
+
     case WM_PAINT:
       {
 
@@ -312,17 +319,14 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
         hdc = BeginPaint( this->m_Hwnd, &ps );
 
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
         RECT rect;
         GetClientRect( this->m_Hwnd, &rect );
 
-        HBRUSH hBrush;
-
-        if ( this->m_hBackBrush != NULL )
-          hBrush = this->m_hBackBrush;
-        else
-          hBrush = GetSysColorBrush( COLOR_3DFACE );
-
-        FillRect( hdc, &rect, hBrush );
+				// fill background.
+				DcxControl::DrawCtrlBackground(hdc,this,&rect);
 
         HFONT hFont = (HFONT) GetStockObject( DEFAULT_GUI_FONT /*SYSTEM_FONT*/ );
 
@@ -345,24 +349,34 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
         }
 
         if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
-          SetTextColor( hdc, this->m_aColors[3] );
+          this->m_clrText = this->m_aColors[3];
         else if ( this->m_bHover )
-          SetTextColor( hdc, this->m_aColors[1] );
+          this->m_clrText = this->m_aColors[1];
         else if ( this->m_bVisited )
-          SetTextColor( hdc, this->m_aColors[2] );
+          this->m_clrText = this->m_aColors[2];
         else
-          SetTextColor( hdc, this->m_aColors[0] );
+          this->m_clrText = this->m_aColors[0];
 
         int nText = GetWindowTextLength( this->m_Hwnd );
         char * text = new char[nText+2];
         GetWindowText( this->m_Hwnd, text, nText+1 );
 
-        DrawText( hdc, text, nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
+				if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
+					TString wtext(text);
+					DrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &rect,
+						DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_clrText, 0, 5, 5);
+				}
+				else {
+          SetTextColor( hdc, this->m_clrText );
+	        DrawText( hdc, text, nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
+				}
 
-        delete []text;
+        delete [] text;
 
         SelectObject( hdc, hOldFont );
         DeleteObject( hNewFont );
+
+				this->FinishAlphaBlend(ai);
 
         EndPaint( this->m_Hwnd, &ps ); 
 
@@ -429,3 +443,118 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
   return 0L;
 }
+//static const char HEX2DEC[256] = 
+//{
+//    /*       0  1  2  3   4  5  6  7   8  9  A  B   C  D  E  F */
+//    /* 0 */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    /* 1 */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    /* 2 */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    /* 3 */  0, 1, 2, 3,  4, 5, 6, 7,  8, 9,-1,-1, -1,-1,-1,-1,
+//    
+//    /* 4 */ -1,10,11,12, 13,14,15,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    /* 5 */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    /* 6 */ -1,10,11,12, 13,14,15,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    /* 7 */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    
+//    /* 8 */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    /* 9 */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    /* A */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    /* B */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    
+//    /* C */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    /* D */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    /* E */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
+//    /* F */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1
+//};
+//    
+//TString DcxLink::UriDecode(const TString & sSrc)
+//{
+//	// Note from RFC1630:  "Sequences which start with a percent sign
+//	// but are not followed by two hexadecimal characters (0-9, A-F) are reserved
+//	// for future extension"
+//
+//	const unsigned char * pSrc = (const unsigned char *)sSrc.to_chr();
+//	const int SRC_LEN = sSrc.len();
+//	const unsigned char * const SRC_END = pSrc + SRC_LEN;
+//	const unsigned char * const SRC_LAST_DEC = SRC_END - 2;   // last decodable '%' 
+//
+//	char * const pStart = new char[SRC_LEN];
+//	char * pEnd = pStart;
+//
+//	while (pSrc < SRC_LAST_DEC)
+//	{
+//		if (*pSrc == '%')
+//		{
+//			char dec1, dec2;
+//			if (-1 != (dec1 = HEX2DEC[*(pSrc + 1)])
+//				&& -1 != (dec2 = HEX2DEC[*(pSrc + 2)]))
+//			{
+//				*pEnd++ = (dec1 << 4) + dec2;
+//				pSrc += 3;
+//				continue;
+//			}
+//		}
+//
+//		*pEnd++ = *pSrc++;
+//	}
+//
+//	// the last 2- chars
+//	while (pSrc < SRC_END)
+//		*pEnd++ = *pSrc++;
+//
+//	TString sResult(pStart, pEnd);
+//	delete [] pStart;
+//	return sResult;
+//}
+//
+//// Only alphanum is safe.
+//static const char SAFE[256] =
+//{
+//    /*      0 1 2 3  4 5 6 7  8 9 A B  C D E F */
+//    /* 0 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+//    /* 1 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+//    /* 2 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+//    /* 3 */ 1,1,1,1, 1,1,1,1, 1,1,0,0, 0,0,0,0,
+//    
+//    /* 4 */ 0,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1,
+//    /* 5 */ 1,1,1,1, 1,1,1,1, 1,1,1,0, 0,0,0,0,
+//    /* 6 */ 0,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1,
+//    /* 7 */ 1,1,1,1, 1,1,1,1, 1,1,1,0, 0,0,0,0,
+//    
+//    /* 8 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+//    /* 9 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+//    /* A */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+//    /* B */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+//    
+//    /* C */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+//    /* D */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+//    /* E */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+//    /* F */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0
+//};
+//
+//TString DcxLink::UriEncode(const TString & sSrc)
+//{
+//	const char DEC2HEX[16 + 1] = "0123456789ABCDEF";
+//	const unsigned char * pSrc = (const unsigned char *)sSrc.to_chr();
+//	const int SRC_LEN = sSrc.len();
+//	unsigned char * const pStart = new unsigned char[SRC_LEN * 3];
+//	unsigned char * pEnd = pStart;
+//	const unsigned char * const SRC_END = pSrc + SRC_LEN;
+//
+//	for (; pSrc < SRC_END; ++pSrc)
+//	{
+//		if (SAFE[*pSrc]) 
+//			*pEnd++ = *pSrc;
+//		else
+//		{
+//			// escape this char
+//			*pEnd++ = '%';
+//			*pEnd++ = DEC2HEX[*pSrc >> 4];
+//			*pEnd++ = DEC2HEX[*pSrc & 0x0F];
+//		}
+//	}
+//
+//	TString sResult((char *)pStart, (char *)pEnd);
+//	delete [] pStart;
+//	return sResult;
+//}

@@ -66,6 +66,7 @@ public:
 	TString( const char * cString );
 	TString( const char chr );
 	TString( const TString & tString );
+	TString( const char *pStart, const char *pEnd );
 
 	//! Destructor
 	~TString( );

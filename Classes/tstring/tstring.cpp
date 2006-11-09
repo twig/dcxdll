@@ -119,6 +119,21 @@ TString::TString( const TString & tString ) {
 	}
 }
 
+TString::TString( const char *pStart, const char *pEnd )
+{
+	this->m_pWString = NULL;
+	if ((pStart != NULL) && (pEnd != NULL) && (pEnd > pStart)) {
+		size_t size = (pEnd - pStart);
+		this->m_pString = new char[size+1];
+		memcpy(this->m_pString, pStart, size);
+		this->m_pString[size] = 0;
+	}
+	else {
+		this->m_pString = new char[1];
+		this->m_pString[0] = 0;
+	}
+}
+
 TString::~TString( ) {
 
 	this->deleteString( );

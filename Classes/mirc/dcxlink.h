@@ -53,6 +53,8 @@ protected:
   BOOL m_bVisited; //!< Visited State
   BOOL m_bTracking; //!< Mouse Tracking Var
 
+	//static TString UriEncode(const TString &sSrc);
+	//static TString UriDecode(const TString &sSrc);
 };
 
 #endif // _DCXLINK_H_

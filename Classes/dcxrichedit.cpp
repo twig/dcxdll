@@ -156,15 +156,14 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		// copy to result
 		lstrcpy(szReturnValue, p);
+		delete [] p;
 		return;
 	}
 	// [NAME] [ID] [PROP]
 	else if (input.gettok(3, " ") == "num") {
-		if (this->isStyle(ES_MULTILINE)){ 
-			int iRichLineCount = 0;
-			iRichLineCount = SendMessage(this->m_Hwnd, EM_GETLINECOUNT, 0, 0L);
-			wsprintf(szReturnValue, "%d", iRichLineCount);
-		}
+		if (this->isStyle(ES_MULTILINE))
+			wsprintf(szReturnValue, "%d", (int)SendMessage(this->m_Hwnd, EM_GETLINECOUNT, 0, 0L));
+			//wsprintf(szReturnValue, "%d", this->m_tsText.numtok("\r\n"));
 		else
 			lstrcpy(szReturnValue,"1");	// single line control so always 1 line.
 		return;

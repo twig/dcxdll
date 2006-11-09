@@ -1127,8 +1127,8 @@ int DcxToolBar::getIndexToCommand(int iIndex) {
  * blah
  */
 LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-    case WM_COMMAND:
+	switch( uMsg ) {
+		case WM_COMMAND:
       {
 
         //int iButton = (int) this->hitTest( &pt );
@@ -1322,6 +1322,16 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
               bParsed = TRUE;
             }
             break;
+						// NM_CHAR code all works, but do we want it?
+					//case NM_CHAR:
+					//	{
+					//		if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+					//			LPNMCHAR lpnmc = (LPNMCHAR) lParam;
+					//			this->callAliasEx(NULL, "%s,%d,%d,%d", "keyup", this->getUserID(), lpnmc->ch, lpnmc->dwItemPrev);
+					//		}
+					//		bParsed = TRUE;
+					//	}
+					//	break;
 
         } // switch
       }
