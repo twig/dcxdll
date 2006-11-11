@@ -70,6 +70,8 @@ BOOL bIsActiveMircMenubarPopup = FALSE;
 HWND mhMenuOwner; //!< Menu Owner Window Which Processes WM_ Menu Messages
 
 WNDPROC g_OldmIRCWindowProc;
+WNDPROC g_OldmIRCMenusWindowProc;
+extern LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 // UltraDock stuff
 // mIRC components HWND
@@ -342,7 +344,15 @@ void WINAPI LoadDll(LOADINFO * load) {
 
 
 	/***** XPopup Stuff *****/
+	//GetClassInfoEx(NULL,"#32768",&wc); // menu
+	//HWND tmp_hwnd = CreateWindowEx(0,"#32768",NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
+	//if (tmp_hwnd != NULL) {
+	//	g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd,GCLP_WNDPROC,(LONG_PTR)mIRCMenusWinProc);
+	//	DestroyWindow(tmp_hwnd);
+	//}
 	g_OldmIRCWindowProc = (WNDPROC) SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) mIRCSubClassWinProc);
+	XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
+	XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
 
 	WNDCLASS wcpop;
 	ZeroMemory(&wcpop, sizeof(WNDCLASS));
@@ -417,6 +427,11 @@ int WINAPI UnloadDll(int timeout) {
 
 		/***** XPopup Stuff *****/
 		SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) g_OldmIRCWindowProc);
+		//HWND tmp_hwnd = CreateWindowEx(0,"#32768",NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
+		//if (tmp_hwnd != NULL) {
+		//	SetClassLongPtr(tmp_hwnd,GCLP_WNDPROC,(LONG_PTR)g_OldmIRCMenusWindowProc);
+		//	DestroyWindow(tmp_hwnd);
+		//}
 
 		g_XPopupMenuManager.clearMenus();
 
@@ -1007,6 +1022,7 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 
 		//case WM_CONTEXTMENU:
+		//case WM_INITMENU:
 		case WM_INITMENUPOPUP:
 		{
 			if (HIWORD(lParam) == FALSE) {

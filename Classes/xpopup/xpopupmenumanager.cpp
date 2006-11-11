@@ -452,3 +452,154 @@ UINT XPopupMenuManager::parseTrackFlags( TString & flags ) {
 
   return iFlags;
 }
+/*
+	Following code taken from ODMenu class & modified for XPopup
+	CODMenu class
+	Code copyright: R.I.Allen for plug-in stuff
+	Most owner drawn menu code copyright Brent Corcum - modified by RIA
+*/
+BOOL WINAPI XPopupMenuManager::XTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect)
+{
+	uFlags &= ~TPM_NONOTIFY;
+	return XPopupMenuManager::TrampolineTrackPopupMenu(hMenu, uFlags, x, y, nReserved, hWnd, prcRect);
+	//bool hooked = false;
+	//if (uFlags & TPM_NONOTIFY)
+	//{
+	//	m_activeObject->m_menuBeingProcessed = hMenu;
+	//	CMenu menu;
+	//	menu.Attach(hMenu);
+	//	m_activeObject->OnInitMenuPopup(&menu, 0, FALSE);
+	//	menu.Detach();
+	//	// hook the window message queue
+	//	// so we can handle the WM_DRAWITEM/WM_MEASUREITEM messages
+	//	m_oldWndProc = (WNDPROC)SetWindowLong(hWnd, GWL_WNDPROC, (LONG)MenuWndProc);
+	//	hooked = true;
+	//}
+	//BOOL ret = TrampolineTrackPopupMenu(hMenu, uFlags, x, y, nReserved, hWnd, prcRect);
+	//if (hooked)
+	//{
+	//	// restore the old wndProc
+	//	m_oldWndProc = (WNDPROC)SetWindowLong(hWnd, 
+	//	GWL_WNDPROC, (LONG)m_oldWndProc);
+	//	m_oldWndProc = NULL;
+	//}
+	//return ret;
+}
+BOOL WINAPI XPopupMenuManager::XTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm)
+{
+	fuFlags &= ~TPM_NONOTIFY;
+	return XPopupMenuManager::TrampolineTrackPopupMenuEx(hMenu, fuFlags, x, y, hwnd, lptpm);
+	//bool hooked = false;
+	//if (fuFlags & TPM_NONOTIFY)
+	//{
+	//	m_activeObject->m_menuBeingProcessed = hMenu;
+	//	CMenu menu;
+	//	menu.Attach(hMenu);
+	//	m_activeObject->OnInitMenuPopup(&menu, 0, FALSE);
+	//	menu.Detach();
+	//	// hook the window message queue so we can handle
+	//	// the WM_DRAWITEM/WM_MEASUREITEM messages
+	//	m_oldWndProc = (WNDPROC)SetWindowLong(hwnd, GWL_WNDPROC, (LONG)MenuWndProc);
+	//	hooked = true;
+	//}
+	//BOOL ret = TrampolineTrackPopupMenuEx(hMenu, fuFlags, x, y, hwnd, lptpm);
+	//if (hooked)
+	//{
+	//	// restore the old wndProc
+	//	m_oldWndProc = (WNDPROC)SetWindowLong(hwnd, GWL_WNDPROC, (LONG)m_oldWndProc);
+	//	m_oldWndProc = NULL;
+	//}
+	//return ret;
+}
+BOOL XPopupMenuManager::InterceptAPI(HMODULE hLocalModule, const char* c_szDllName, const char* c_szApiName, DWORD dwReplaced, DWORD dwTrampoline, int offset)
+{
+	int i;
+	DWORD dwOldProtect;
+	DWORD dwAddressToIntercept = (DWORD)GetProcAddress(GetModuleHandle((char*)c_szDllName), (char*)c_szApiName);
+
+	BYTE *pbTargetCode = (BYTE *) dwAddressToIntercept;
+	BYTE *pbReplaced = (BYTE *) dwReplaced;
+	BYTE *pbTrampoline = (BYTE *) dwTrampoline;
+
+	// Change the protection of the trampoline region
+	// so that we can overwrite the first 5 + offset bytes.
+	if (*pbTrampoline == 0xe9)
+	{
+		// target function starts with an ansolute jump
+		// change tramoline to the target of the jump
+		pbTrampoline++;
+		int * pbOffset = (int*)pbTrampoline;
+		pbTrampoline += *pbOffset + 4;
+	}
+	VirtualProtect((void *) pbTrampoline, 5+offset, PAGE_WRITECOPY, &dwOldProtect);
+	for (i=0;i<offset;i++)
+		*pbTrampoline++ = *pbTargetCode++;
+	pbTargetCode = (BYTE *) dwAddressToIntercept;
+
+	// Insert unconditional jump in the trampoline.
+	*pbTrampoline++ = 0xE9;        // jump rel32
+	*((signed int *)(pbTrampoline)) = (pbTargetCode+offset) - (pbTrampoline + 4);
+	VirtualProtect((void *) dwTrampoline, 5+offset, PAGE_EXECUTE, &dwOldProtect);
+
+	// Overwrite the first 5 bytes of the target function
+	VirtualProtect((void *) dwAddressToIntercept, 5, PAGE_WRITECOPY, &dwOldProtect);
+
+	// check to see whether we need to translate the pbReplaced pointer
+	if (*pbReplaced == 0xe9)
+	{
+		pbReplaced++;
+		int * pbOffset = (int*)pbReplaced;
+		pbReplaced += *pbOffset + 4;
+	}
+	*pbTargetCode++ = 0xE9;        // jump rel32
+	*((signed int *)(pbTargetCode)) = pbReplaced - (pbTargetCode +4);
+	VirtualProtect((void *) dwAddressToIntercept, 5, PAGE_EXECUTE, &dwOldProtect);
+
+	// Flush the instruction cache to make sure 
+	// the modified code is executed.
+	FlushInstructionCache(GetCurrentProcess(), NULL, NULL);
+	return TRUE;
+}
+
+BOOL WINAPI XPopupMenuManager::TrampolineTrackPopupMenu(
+	HMENU hMenu,         // handle to shortcut menu
+	UINT uFlags,         // options
+	int x,               // horizontal position
+	int y,               // vertical position
+	int nReserved,       // reserved, must be zero
+	HWND hWnd,           // handle to owner window
+	CONST RECT *prcRect  // ignored
+)
+{
+	// this procedure needs to be at least 10 bytes in length
+	// it gets overwritten using self modifying code
+	// it does not matter what the code is here
+	double  a;
+	double  b;
+
+	a = 0.0;
+	b = 1.0;
+	a = a / b;
+	return (a > 0);
+}
+
+BOOL WINAPI XPopupMenuManager::TrampolineTrackPopupMenuEx(
+	HMENU hMenu,       // handle to shortcut menu
+	UINT fuFlags,      // options
+	int x,             // horizontal position
+	int y,             // vertical position
+	HWND hwnd,         // handle to window
+	LPTPMPARAMS lptpm  // area not to overlap
+)
+{
+	// this procedur eneeds to be at least 10 bytes in length
+	// it gets overwritten using self modifying code
+	// it does not matter what the code is here
+	double  a;
+	double  b;
+
+	a = 0.0;
+	b = 1.0;
+	a = a / b;
+	return (a > 0);
+}

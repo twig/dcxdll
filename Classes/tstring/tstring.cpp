@@ -125,7 +125,7 @@ TString::TString( const char *pStart, const char *pEnd )
 	if ((pStart != NULL) && (pEnd != NULL) && (pEnd > pStart)) {
 		size_t size = (pEnd - pStart);
 		this->m_pString = new char[size+1];
-		memcpy(this->m_pString, pStart, size);
+		CopyMemory(this->m_pString, pStart, size);
 		this->m_pString[size] = 0;
 	}
 	else {
