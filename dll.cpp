@@ -75,11 +75,12 @@ extern LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 // UltraDock stuff
 // mIRC components HWND
-extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, lb_hwnd;
+extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, lb_hwnd, hTreeView;
+extern HFONT pOrigTreeViewFont;
 // switchbar position
-extern int swb_pos;
+//extern int swb_pos;
 // indicate if MDI is maxed out
-extern BOOL MDIismax;
+//extern BOOL MDIismax;
 extern VectorOfDocks v_docks;
 bool dcxSignal;
 ULONG_PTR gdi_token = NULL;
@@ -424,6 +425,14 @@ int WINAPI UnloadDll(int timeout) {
 			trayIcons = NULL;
 		}
 		
+		// reset the treebars font if it's been changed.
+		if (pOrigTreeViewFont != NULL) {
+			HFONT hfont = (HFONT)SendMessage(hTreeView,WM_GETFONT,0,0);
+			if (hfont != pOrigTreeViewFont) {
+				SendMessage( hTreeView, WM_SETFONT, (WPARAM) pOrigTreeViewFont, (LPARAM) MAKELPARAM(TRUE,0));
+				DeleteObject(hfont);
+			}
+		}
 
 		/***** XPopup Stuff *****/
 		SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) g_OldmIRCWindowProc);
@@ -1465,6 +1474,7 @@ mIRC(WindowProps) {
 	}
 
 	TString flags(input.gettok(2, " "));
+	flags.trim();
 
 	if ((flags[0] != '-') || (flags.len() < 2)) {
 		DCXError("/dcx WindowProps","No Flags Found");

@@ -11,9 +11,10 @@ LRESULT CALLBACK mIRCMDIProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
 // UltraDock stuff
 // mIRC components HWND
-HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd;
+HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, hTreeView;
 VectorOfDocks v_docks; // list of all docked windows.
 WNDPROC oldMDIProc; // old MDI window proc
+HFONT pOrigTreeViewFont = NULL;
 
 // force a window update.
 void UpdatemIRC(void) {
@@ -29,6 +30,7 @@ void InitUltraDock(void)
   mdi_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"MDIClient",NULL);
   sb_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_SwitchBar",NULL);
   treeb_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_TreeList",NULL);
+	hTreeView = GetWindow(treeb_hwnd,GW_CHILD);
 
 	v_docks.clear();
 	oldMDIProc = (WNDPROC)SetWindowLong(mdi_hwnd,GWL_WNDPROC, (LONG)mIRCMDIProc);

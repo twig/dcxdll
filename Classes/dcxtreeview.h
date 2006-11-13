@@ -42,6 +42,7 @@ class DcxTreeView;
 #define TVIS_UNDERLINE 0x0100 //!< TreeView Caption Underline Style
 #define TVIS_COLOR     0x0200 //!< TreeView Caption Color Style
 #define TVIS_ITALIC    0x0400 //!< TreeView Caption Italic Style
+#define TVIS_BKG				0x800 //!< TreeView Item blackground colour style.
 
 #define TVIE_EXP     0x01     //!< TreeView Expand Branch Option
 #define TVIE_EXPALL  0x02     //!< TreeView Expandall Branch Option
@@ -77,6 +78,7 @@ typedef struct tagDCXTVSORT {
 typedef struct tagDCXTVITEM {
 	TString tsTipText;  //!< Tooltip text
 	COLORREF clrText;   //!< Item Caption Color
+	COLORREF clrBkg;		//!< Item background colour.
 	BOOL bBold;         //!< Is Item Caption Bold ?
 	BOOL bUline;        //!< Is Item Caption Underlined
 	BOOL bItalic;       //!< Is Item Caption Italicised

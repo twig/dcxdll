@@ -808,5 +808,5 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
       break;
   }
 
-  return 0L;
+  return lRes;
 }

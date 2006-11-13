@@ -22,56 +22,6 @@
  *
  * \param ID Control ID
  * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-//DcxTreeView::DcxTreeView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-//: DcxControl( ID, p_Dialog ) 
-//{
-//
-//  LONG Styles = 0, ExStyles = 0;
-//  BOOL bNoTheme = FALSE;
-//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//  this->m_Hwnd = CreateWindowEx(	
-//    ExStyles | WS_EX_CLIENTEDGE,
-//    DCX_TREEVIEWCLASS,
-//    NULL,
-//    WS_CHILD | WS_VISIBLE | Styles, 
-//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//    p_Dialog->getHwnd( ),
-//    (HMENU) ID,
-//    GetModuleHandle(NULL), 
-//    NULL);
-//
-//  if ( bNoTheme )
-//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//  SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
-//
-//  if ( ExStyles & TVS_CHECKBOXES )
-//    this->addStyle( TVS_CHECKBOXES );
-//
-//  this->m_iIconSize = 16;
-//
-//	this->m_ToolTipHWND = (HWND)TreeView_GetToolTips(this->m_Hwnd);
-//	if (styles.istok("balloon"," ") && this->m_ToolTipHWND != NULL) {
-//		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
-//	}
-//
-//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-//  this->registreDefaultWindowProc( );
-//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//
-//  DragAcceptFiles(this->m_Hwnd, TRUE);
-//}
-//
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
  * \param mParentHwnd Parent Window Handle
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
@@ -442,7 +392,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     TreeView_DeleteAllItems(this->m_Hwnd);
   }
 
-	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] Text[TAB]Tooltip Text
+	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] [BKGCOLOR] Text[TAB]Tooltip Text
 	if (flags.switch_flags[0]) {
 		int n = input.numtok("\t");
 
@@ -458,7 +408,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 				tooltip.trim();
 			}
 
-			if (data.numtok(" ") > 7)
+			if (data.numtok(" ") > 8)
 				this->insertItem(&path, &data, &tooltip);
 		}
 	}
@@ -976,6 +926,7 @@ HTREEITEM DcxTreeView::insertItem(TString * path, TString * data, TString * Tool
 	int state			= data->gettok(5, " ").to_int();
 	int integral		= data->gettok(6, " ").to_int() +1;
 	COLORREF clrText	= (COLORREF) data->gettok(7, " ").to_num();
+	COLORREF clrBkg = (COLORREF) data->gettok(8, " ").to_num();
 
 	// parse DCX parameters
 	LPDCXTVITEM lpmytvi = new DCXTVITEM;
@@ -1002,11 +953,16 @@ HTREEITEM DcxTreeView::insertItem(TString * path, TString * data, TString * Tool
 	else
 		lpmytvi->clrText = (COLORREF)-1;
 
+	if (iFlags & TVIS_BKG)
+		lpmytvi->clrBkg = clrBkg;
+	else
+		lpmytvi->clrBkg = (COLORREF)-1;
+
 	// path
 	this->parsePath(path, &hParent, &hAfter);
 
 	// text
-	TString itemtext(data->gettok(8, -1, " "));
+	TString itemtext(data->gettok(9, -1, " "));
 
 	tvi.pszText = itemtext.to_chr(); 
 	tvi.cchTextMax = sizeof(tvi.pszText) / sizeof(tvi.pszText[0]);
@@ -1098,6 +1054,8 @@ UINT DcxTreeView::parseItemFlags(TString &flags) {
 			iFlags |= TVIS_SELECTED;
 		else if (flags[i] == 'u')
 			iFlags |= TVIS_UNDERLINE;
+		else if (flags[i] == 'g')
+			iFlags |= TVIS_BKG;
 
 		++i;
 	}
@@ -1880,6 +1838,9 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
                     if ( lpdcxtvi->clrText != -1 )
                       lpntvcd->clrText = lpdcxtvi->clrText;
 
+										if ( (lpdcxtvi->clrBkg != -1 ) && (!(lpntvcd->nmcd.uItemState & CDIS_SELECTED)))
+												lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
+
                     //if ( lpdcxtvi->bUline || lpdcxtvi->bBold) {
                       HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
 
@@ -1900,8 +1861,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
                       DeleteObject( hFontNew );
                     //}
                   }
-                  return ( CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT );
-                  
+									return ( CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT );
 
                 case CDDS_ITEMPOSTPAINT:
                   return CDRF_DODEFAULT;
