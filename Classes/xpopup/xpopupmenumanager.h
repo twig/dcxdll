@@ -50,6 +50,7 @@ protected:
   static void parseSwitchFlags( TString * switchs, XSwitchFlags * flags );
   static UINT parseTrackFlags( TString & flags );
 
+	bool m_bPatched;
 };
 
 #endif // _XPOPUPMENUMANAGER_H_

@@ -27,6 +27,7 @@ extern mIRCDLL mIRCLink;
 
 XPopupMenuManager::XPopupMenuManager( ) {
 
+	this->m_bPatched = false;
 }
 
 /*!
@@ -173,6 +174,14 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
     COLORREF clrColor = (COLORREF)input.gettok( 4, " " ).to_num( );
 
     p_Menu->setColor( nColor, clrColor );
+  }
+  // xpopup -m -> mirc -m
+  else if ( flags.switch_flags[12] && numtok == 2 && input.gettok( 1, " " ) == "mirc") {
+		if (!this->m_bPatched) {
+			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
+			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
+			this->m_bPatched = true;
+		}
   }
   // xpopup -p -> [MENU] [SWITCH] [COLORS]
   else if ( flags.switch_flags[15] && numtok > 2 ) {

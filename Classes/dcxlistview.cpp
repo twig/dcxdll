@@ -1921,6 +1921,11 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
                     if ( lpdcxlvi->clrBack != -1 )
                       lplvcd->clrTextBk = lpdcxlvi->clrBack;
 
+										//if (( lpdcxlvi->pbar != NULL) && (lpdcxlvi->iPbarCol == lplvcd->iSubItem))
+										//	return CDRF_SKIPDEFAULT;
+										//if ( lplvcd->nmcd.uItemState & CDIS_HOT)
+										//	DrawFocusRect(lplvcd->nmcd.hdc,&lplvcd->rcText);
+
 										if (lpdcxlvi->bUline || lpdcxlvi->bBold || lpdcxlvi->bItalic) {
 											HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
 											LOGFONT lf;
@@ -2325,25 +2330,14 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, TString &styles) {
 	lpdcxlvi->iPbarCol = lvi->iSubItem;
 	// controls within a listview have a problem in that they cant set an item height,
 	// so they all appear very small, & dont look very good.
-	//UINT ID = mIRC_ID_OFFSET + styles.gettok(2," ").to_int();
+	//UINT ID = mIRC_ID_OFFSET + styles.gettok(1," ").to_int();
  // if ( ID > mIRC_ID_OFFSET - 1 && 
 	//	!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 	//	this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 	//{
-	//	if (styles.gettok(1," ") == "pbar")
-	//		lpdcxlvi->pbar = (DcxControl *)new DcxProgressBar(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
-	//	else if (styles.gettok(1," ") == "button")
-	//		lpdcxlvi->pbar = (DcxControl *)new DcxButton(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
-	//	else if (styles.gettok(1," ") == "colorcombo")
-	//		lpdcxlvi->pbar = (DcxControl *)new DcxColorCombo(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
-	//	else if (styles.gettok(1," ") == "ipaddress")
-	//		lpdcxlvi->pbar = (DcxControl *)new DcxIpAddress(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
-	//	else if (styles.gettok(1," ") == "updown")
-	//		lpdcxlvi->pbar = (DcxControl *)new DcxUpDown(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
-	//	else if (styles.gettok(1," ") == "edit")
-	//		lpdcxlvi->pbar = (DcxControl *)new DcxEdit(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
-	//	else if (styles.gettok(1," ") == "richedit")
-	//		lpdcxlvi->pbar = (DcxControl *)new DcxRichEdit(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.gettok(3,-1," "));
+	//	TString ctrl_args;
+	//	ctrl_args.sprintf("%s %d %d %d %d %s", styles.gettok(2).to_chr(), rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), styles.gettok(3,-1).to_chr());
+	//	lpdcxlvi->pbar = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl_args,1,-1,this->m_Hwnd);
 	//}
 	lpdcxlvi->pbar = (DcxControl *)new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
 	return lpdcxlvi->pbar;
