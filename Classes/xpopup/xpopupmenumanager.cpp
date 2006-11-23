@@ -18,6 +18,7 @@ extern HWND mhMenuOwner;
 extern XPopupMenu * g_mIRCPopupMenu;
 extern XPopupMenu * g_mIRCMenuBar;
 extern mIRCDLL mIRCLink;
+extern bool mIRCSixPointTwoZero;
 
 /*!
  * \brief Constructor
@@ -177,7 +178,7 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
   }
   // xpopup -m -> mirc -m
   else if ( flags.switch_flags[12] && numtok == 2 && input.gettok( 1, " " ) == "mirc") {
-		if (!this->m_bPatched) {
+		if (!this->m_bPatched && mIRCSixPointTwoZero) {
 			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
 			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
 			this->m_bPatched = true;

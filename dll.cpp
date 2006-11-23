@@ -84,6 +84,7 @@ extern HFONT pOrigTreeViewFont;
 extern VectorOfDocks v_docks;
 bool dcxSignal;
 ULONG_PTR gdi_token = NULL;
+bool mIRCSixPointTwoZero; //!< used by xpopup to tell if patching is to be done.
 
 /*!
 * \brief mIRC DLL Load Function
@@ -101,7 +102,11 @@ void WINAPI LoadDll(LOADINFO * load) {
 	// If mIRC V6.2+ then try & create our own unique mapfile.
 	// damn mIRC reports as 6.2 instead of 6.20!
 	// meaning mirc v6.17 appears to be a higher version.
-	if ((HIWORD(load->mVersion) == 2) && (LOWORD(load->mVersion) == 6)) {
+	if ((HIWORD(load->mVersion) == 2) && (LOWORD(load->mVersion) == 6))
+		mIRCSixPointTwoZero = true;
+	else
+		mIRCSixPointTwoZero = false;
+	if (mIRCSixPointTwoZero || ((HIWORD(load->mVersion) >= 21) && (LOWORD(load->mVersion) == 6))) {
 		TString map_name;
 		cnt = 1;
 		mIRCLink.m_hFileMap = NULL;
