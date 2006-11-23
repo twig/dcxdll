@@ -31,6 +31,14 @@
 #define BOXS_CHECK	0x20 //!< Box has check button in title to enable/disable contents.
 #define BOXS_RADIO	0x40 //!< Box has radio button in title to enable/disable contents.
 
+typedef struct tagDCXENUM {
+
+  HWND mChildHwnd;    //!< Hwnd to child window
+	HWND mBox;					//!< The Box control itself
+	BOOL mState;				//!< Enable/Disable state
+
+} DCXENUM, * LPDCXENUM;
+
 class DcxDialog;
 
 /*!
@@ -43,7 +51,6 @@ class DcxBox : public DcxControl {
 
 public:
 
-  //DcxBox( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxBox( );
 
@@ -68,12 +75,5 @@ protected:
 	HWND m_TitleButton; //!< enable/disable button.
 	HTHEME _hTheme;
 };
-
-typedef struct tagDCXENUM {
-
-  HWND mChildHwnd;    //!< Hwnd to child window
-	BOOL mState;
-
-} DCXENUM, * LPDCXENUM;
 
 #endif // _DCXBOX_H_

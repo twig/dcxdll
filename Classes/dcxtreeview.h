@@ -95,7 +95,6 @@ class DcxTreeView : public DcxControl {
 
 public:
 
-  //DcxTreeView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxTreeView( );
 

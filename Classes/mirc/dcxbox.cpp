@@ -84,9 +84,10 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-	this->m_Hwnd = CreateWindowEx(	
+	this->m_Hwnd = CreateWindowEx(
 		ExStyles | WS_EX_CONTROLPARENT,
 		DCX_BOXCLASS,
+		//"BUTTON",
 		//"STATIC",
 		NULL,
 		Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN,
@@ -94,7 +95,7 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
-		GetModuleHandle(NULL), 
+		GetModuleHandle(NULL),
 		NULL);
 
 	if ( bNoTheme )
@@ -165,7 +166,7 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 
 	unsigned int i = 1, numtok = styles.numtok( " " );
 	this->m_iBoxStyles = 0;
-	//*Styles = SS_NOTIFY;
+	//*Styles = BS_NOTIFY;
 
 	while ( i <= numtok ) {
 
@@ -561,7 +562,7 @@ UINT DcxBox::parseLayoutFlags( TString & flags ) {
 BOOL CALLBACK EnumBoxChildren(HWND hwnd,LPDCXENUM de)
 {
 	//LPDCXENUM de = (LPDCXENUM)lParam;
-	if (de->mChildHwnd != hwnd)
+	if ((de->mChildHwnd != hwnd) && (GetParent(hwnd) == de->mBox))
 		EnableWindow(hwnd,de->mState);
 
 	return TRUE;
@@ -644,6 +645,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 							DCXENUM de;
 							de.mChildHwnd = this->m_TitleButton;
+							de.mBox = this->m_Hwnd;
 							de.mState = state;
 
 							EnumChildWindows(this->m_Hwnd,(WNDENUMPROC)EnumBoxChildren,(LPARAM)&de);
@@ -664,6 +666,18 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				}
       }
       break;
+
+		case WM_COMPAREITEM:
+			{
+				LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
+				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
+				}
+			}
+			break;
 
     case WM_DELETEITEM:
       {

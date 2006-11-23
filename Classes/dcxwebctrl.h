@@ -34,7 +34,6 @@ class DcxWebControl : public DcxControl, public IOleClientSite, public IOleInPla
 
 public:
 
-  //DcxWebControl( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxWebControl( );
 
