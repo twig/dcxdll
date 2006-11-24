@@ -2031,6 +2031,43 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 		//		}
 		//	}
 		//	break;
+
+  //  case WM_DELETEITEM:
+  //    {
+		//		DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
+		//		if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+		//			DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+		//			if (c_this != NULL) {
+		//				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+		//			}
+		//		}
+  //    }
+  //    break;
+
+  //  case WM_MEASUREITEM:
+  //    {
+		//		HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
+		//		if (IsWindow(cHwnd)) {
+		//			DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
+		//			if (c_this != NULL) {
+		//				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+		//			}
+		//		}
+  //    }
+  //    break;
+
+  //  case WM_DRAWITEM:
+  //    {
+		//		DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
+		//		if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+		//			DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+		//			if (c_this != NULL) {
+		//				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+		//			}
+		//		}
+  //    }
+  //   break;
+
     case WM_NOTIFY: 
       {
 
@@ -2061,10 +2098,8 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 										HDHITTESTINFO hdti;
 										GetCursorPos( &hdti.pt );
 										ScreenToClient( hdr->hwndFrom, &hdti.pt );
-										if ( SendMessage( hdr->hwndFrom, HDM_HITTEST, (WPARAM) 0, (LPARAM) &hdti ) != -1 ) {
-
+										if ( SendMessage( hdr->hwndFrom, HDM_HITTEST, (WPARAM) 0, (LPARAM) &hdti ) != -1 )
 											this->callAliasEx( NULL, "%s,%d,%d", "hrclick", this->getUserID( ), hdti.iItem + 1 );
-										}
 									}
 								}
 								bParsed = TRUE;
@@ -2331,7 +2366,7 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, TString &styles) {
 	// controls within a listview have a problem in that they cant set an item height,
 	// so they all appear very small, & dont look very good.
 	//UINT ID = mIRC_ID_OFFSET + styles.gettok(1," ").to_int();
- // if ( ID > mIRC_ID_OFFSET - 1 && 
+	//if ( ID > mIRC_ID_OFFSET - 1 && 
 	//	!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 	//	this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 	//{

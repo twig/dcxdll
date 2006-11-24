@@ -53,6 +53,8 @@
 #include "dcxmwindow.h"
 #include "dcxmdialog.h"
 
+#include "dcxstacker.h"
+
 extern mIRCDLL mIRCLink;
 
 /*!
@@ -907,6 +909,8 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 		return new DcxImage( mID, p_Dialog, hParent, &rc, styles );
 	else if (( type == "pager" ) && (mask & CTLF_ALLOW_PAGER))
 		return new DcxPager( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "stacker" ) && (mask & CTLF_ALLOW_PAGER))
+		return new DcxStacker( mID, p_Dialog, hParent, &rc, styles );
 	else if (( type == "window" ) && (mask & CTLF_ALLOW_DOCK)) {
 		if ( tsInput.numtok( " " ) > offset ) {
 			char windowHwnd[30];
@@ -1063,7 +1067,7 @@ void DcxControl::DrawCtrlBackground(HDC hdc, DcxControl *p_this, LPRECT rwnd)
 	//}
 }
 
-void DcxControl::DrawParentsBackground(HDC hdc)
+void DcxControl::DrawParentsBackground(const HDC hdc)
 {
 	this->updateParentCtrl(); // find the host control, if any.
 	// fill in parent bg

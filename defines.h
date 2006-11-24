@@ -43,6 +43,7 @@
 #endif
 // end of VS 2005
 
+//#include <vld.h>
 #include <windows.h>
 #include <windowsx.h>
 #include <vector>

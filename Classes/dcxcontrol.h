@@ -116,7 +116,7 @@ public:
 	DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
 	static void DrawCtrlBackground(HDC hdc, DcxControl *p_this, LPRECT rwnd);
-	void DrawParentsBackground(HDC hdc);
+	void DrawParentsBackground(const HDC hdc);
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc);
 	void FinishAlphaBlend(LPALPHAINFO ai);
 
