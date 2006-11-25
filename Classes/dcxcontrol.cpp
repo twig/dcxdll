@@ -1079,13 +1079,6 @@ void DcxControl::DrawParentsBackground(const HDC hdc)
 		return;
 	}
 	this->updateParentCtrl(); // find the host control, if any.
-	// handle case where parent is transparent.
-	if (this->m_pParentCtrl != NULL) {
-		if (this->m_pParentCtrl->isExStyle(WS_EX_TRANSPARENT)) {
-			this->m_pParentCtrl->DrawParentsBackground(hdc);
-			return;
-		}
-	}
 	POINT pt;
 	// get controls width & height.
 	int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
@@ -1109,7 +1102,11 @@ void DcxControl::DrawParentsBackground(const HDC hdc)
 				DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
 			}
 			else { // found host control, draw its background if any.
-				DcxControl::DrawCtrlBackground(hdcbkg,this->m_pParentCtrl,&rcParent);
+				// handle case where parent is transparent.
+				if (this->m_pParentCtrl->isExStyle(WS_EX_TRANSPARENT))
+					this->m_pParentCtrl->DrawParentsBackground(hdcbkg);
+				else
+					DcxControl::DrawCtrlBackground(hdcbkg,this->m_pParentCtrl,&rcParent);
 			}
 			// draw background to main hdc
 			BitBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbkg, pt.x, pt.y, SRCCOPY);
