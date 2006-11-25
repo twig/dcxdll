@@ -34,14 +34,14 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	this->m_Hwnd = CreateWindowEx(	
-		ExStyles, 
-		"STATIC", 
+		ExStyles,
+		"STATIC",
 		NULL,
-		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+		WS_CHILD | WS_VISIBLE | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
-		GetModuleHandle(NULL), 
+		GetModuleHandle(NULL),
 		NULL);
 
 	if ( bNoTheme )

@@ -30,7 +30,6 @@ class DcxImage : public DcxControl {
 
 public:
 
-  //DcxImage( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxImage( );
 

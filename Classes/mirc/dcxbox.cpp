@@ -53,15 +53,6 @@
 #include "../layout/layoutcellfill.h"
 #include "../layout/layoutcellpane.h"
 
-extern PFNSETTHEME SetWindowThemeUx;  //!< blah
-extern PFNISTHEMEACTIVE IsThemeActiveUx;
-extern PFNOPENTHEMEDATA OpenThemeDataUx;
-extern PFNCLOSETHEMEDATA CloseThemeDataUx;
-extern PFNDRAWTHEMEBACKGROUND DrawThemeBackgroundUx;
-extern PFNGETTHEMEBACKGROUNDCONTENTRECT GetThemeBackgroundContentRectUx;
-extern PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT IsThemeBackgroundPartiallyTransparentUx;
-extern PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx;
-extern PFNDRAWTHEMETEXT DrawThemeTextUx;
 extern BOOL XPPlus;
 
 /*!
@@ -802,11 +793,12 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			//	if (IsThemeBackgroundPartiallyTransparentUx(this->_hTheme, BP_GROUPBOX, _iStateId))
 			//		DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rc);
 			//}
-			if (this->m_bAlphaBlend)
+			//if (this->m_bAlphaBlend)
+			//if (this->m_bAlphaBlend || this->isExStyle(WS_EX_TRANSPARENT))
 				this->DrawParentsBackground((HDC) wParam);
-			RECT rect;
-			GetClientRect( this->m_Hwnd, &rect );
-			DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+			//RECT rect;
+			//GetClientRect( this->m_Hwnd, &rect );
+			//DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
 			bParsed = TRUE;
 			return TRUE;
 		}
@@ -827,8 +819,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
 				// paint the background
-				if (this->_hTheme != NULL)
-					DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rc2);
+				//if (dcxIsThemeActive())
+				//	DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rc2);
 				//else
 				//	this->FillBkg(hdc, &rc2, hBrush);
 				if (!this->isExStyle(WS_EX_TRANSPARENT)) {
@@ -839,7 +831,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 				// if no border, dont bother
 				if (this->m_iBoxStyles & BOXS_NONE) {
-					//this->FillBkg(hdc, &rc2, hBrush);
+					this->FillBkg(hdc, &rc2, hBrush);
 					EndPaint(this->m_Hwnd, &ps);
 
 					bParsed = TRUE;

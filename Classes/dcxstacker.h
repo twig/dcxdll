@@ -17,10 +17,12 @@
 
 #include "../defines.h"
 #include "dcxcontrol.h"
+#include "xpopup/xpopupmenuitem.h"
 
 #define MIN_STACK_HEIGHT 20 //!< Min height for a stacker item.
 
-//class DcxDialog;
+#define STACKERS_GRAD		0x01
+#define STACKERS_IMAGE	0x02
 
 typedef struct tagDCXSITEM {
 	TString tsTipText;  //!< Tooltip text
@@ -55,7 +57,9 @@ public:
 
 protected:
 	HWND m_hActive;
+	DWORD m_dStyles;
 
+	int getItemID(void) const;
 };
 
 #endif //_DCXSTACKER_H_

@@ -284,4 +284,14 @@ int SwitchbarPos(void);
 void UltraUnDock(const HWND hwnd);
 void UpdatemIRC(void);
 
+extern PFNSETTHEME SetWindowThemeUx;  //!< blah
+extern PFNISTHEMEACTIVE IsThemeActiveUx;
+extern PFNOPENTHEMEDATA OpenThemeDataUx;
+extern PFNCLOSETHEMEDATA CloseThemeDataUx;
+extern PFNDRAWTHEMEBACKGROUND DrawThemeBackgroundUx;
+extern PFNGETTHEMEBACKGROUNDCONTENTRECT GetThemeBackgroundContentRectUx;
+extern PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT IsThemeBackgroundPartiallyTransparentUx;
+extern PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx;
+extern PFNDRAWTHEMETEXT DrawThemeTextUx;
+
 #endif // _DEFINES_H_

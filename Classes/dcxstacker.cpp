@@ -53,6 +53,13 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 	//this->m_hBackBrush = GetSysColorBrush(COLOR_3DFACE);
 	this->m_hActive = NULL;
 
+	if (p_Dialog->getToolTip() != NULL) {
+		if (styles.istok("tooltips"," ")) {
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+	}
+
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -73,6 +80,7 @@ void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
   *Styles |= LBS_OWNERDRAWVARIABLE|LBS_NOTIFY;
 	*ExStyles = WS_EX_CONTROLPARENT;
+	this->m_dStyles = 0;
 
   unsigned int i = 1, numtok = styles.numtok( " " );
 
@@ -84,6 +92,8 @@ void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 			this->m_bShadowText = true;
 		else if ( styles.gettok( i , " " ) == "vscroll" )
 			*Styles |= WS_VSCROLL;
+		else if ( styles.gettok( i , " " ) == "gradient" )
+			this->m_dStyles |= STACKERS_GRAD;
 
     i++;
   }
@@ -101,64 +111,63 @@ void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+	int numtok = input.numtok( " " );
 
-//  // [NAME] [ID] [PROP] [N] [NSUB]
-//  if ( input.gettok( 3, " " ) == "text" && numtok > 4 ) {
-//  }
-//  // [NAME] [ID] [PROP] [N] [NSUB]
-//  else if ( input.gettok( 3, " " ) == "icon" && numtok > 4 ) {
-//  }
-//  // [NAME] [ID] [PROP] [NSUB]
-//  else if ( input.gettok( 3, " " ) == "seltext" && numtok > 3 ) {
-//  }
-//  // [NAME] [ID] [PROP]
-//  else if ( input.gettok( 3, " " ) == "sel" ) {
-//  }
-//  // [NAME] [ID] [PROP]
-//  else if ( input.gettok( 3, " " ) == "selnum" ) {
-//  }
-//  // [NAME] [ID] [PROP] [N]
-//  else if ( input.gettok( 3, " " ) == "state" && numtok > 3 ) {
-//  }
-//  // [NAME] [ID] [PROP]
-//  else if ( input.gettok( 3, " " ) == "num" ) {
-//  }
-//  // [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [COLUMN] [N]
-//  else if ( input.gettok( 3, " " ) == "find" && numtok > 6 ) {
-//  }
-//  // [NAME] [ID] [PROP]
-//  else if ( input.gettok( 3, " " ) == "tbitem" ) {
-//  }
-//  else if ( input.gettok( 3, " " ) == "mouseitem" ) {
-//  }
-//  // [NAME] [ID] [PROP] [N]
-//  else if ( input.gettok( 3, " " ) == "hwidth" && numtok > 3 ) {
-//  }
-//  // [NAME] [ID] [PROP] [N]
-//  else if ( input.gettok( 3, " " ) == "htext" && numtok > 3 ) {
-//  }
-//  // [NAME] [ID] [PROP] [N]
-//  else if ( input.gettok( 3, " " ) == "hicon" && numtok > 3 ) {
-//  }
-//  // [NAME] [ID] [PROP] [GID]
-//  else if ( input.gettok( 3, " " ) == "gtext" && numtok > 3 ) {
-//  }
-//  // [NAME] [ID] [PROP] [N]
-//  else if ( input.gettok( 3, " " ) == "genabled" ) {
-//  }
-//	// [NAME] [ID] [PROP] [N] [NSUB] [PBARPROP] [PARAM]
-//	else if ((input.gettok(3, " ") == "pbar") && (numtok > 5)) {
-//	}
-//  // [NAME] [ID] [PROP] [N]
-//  else if ( input.gettok( 3, " " ) == "gnum" ) {
-//
-//
-//  }
-  if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
+	// [NAME] [ID] [PROP] [N]
+	if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
+		int nSel = input.gettok( 4, " " ).to_int( ) - 1;
 
-  szReturnValue[0] = 0;
+		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
+			LPDCXSITEM sitem = (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,nSel,NULL);
+			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR)
+				lstrcpy(szReturnValue,sitem->tsCaption.to_chr());
+			return;
+		}
+	}
+	// [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "num" ) {
+		wsprintf( szReturnValue, "%d", ListBox_GetCount( this->m_Hwnd ) );
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "sel" ) {
+		wsprintf( szReturnValue, "%d", ListBox_GetCurSel( this->m_Hwnd ) + 1 );
+		return;
+	}
+	// [NAME] [ID] [PROP] [N]
+	else if ( input.gettok( 3, " " ) == "haschild" && numtok > 3 ) {
+		int nSel = input.gettok( 4, " " ).to_int( ) - 1;
+
+		lstrcpy(szReturnValue,"$false");
+
+		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
+			LPDCXSITEM sitem = (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,nSel,NULL);
+			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
+				if (sitem->pChild != NULL)
+					lstrcpy(szReturnValue,"$true");
+			}
+			return;
+		}
+	}
+	// [NAME] [ID] [PROP] [N]
+	else if ( input.gettok( 3, " " ) == "childid" && numtok > 3 ) {
+		int nSel = input.gettok( 4, " " ).to_int( ) - 1;
+
+		lstrcpy(szReturnValue,"0");
+
+		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
+			LPDCXSITEM sitem = (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,nSel,NULL);
+			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
+				if (sitem->pChild != NULL)
+					wsprintf(szReturnValue,"%d",sitem->pChild->getUserID());
+			}
+			return;
+		}
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -235,6 +244,10 @@ void DcxStacker::parseCommandRequest(TString &input) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[2] && numtok > 3) {
+    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
+
+    if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
+			SendMessage(this->m_Hwnd,LB_SETCURSEL,nPos,NULL);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[3] && (numtok > 3)) {
@@ -295,6 +308,13 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		this->parseGlobalCommandRequest(input, flags);
 }
 
+int DcxStacker::getItemID(void) const {
+	POINT pt;
+	GetCursorPos( &pt );
+	ScreenToClient( this->m_Hwnd, &pt );
+	return (int)(LOWORD((DWORD)SendMessage(this->m_Hwnd,LB_ITEMFROMPOINT,NULL,MAKELPARAM(pt.x,pt.y))) +1);
+}
+
 /*!
  * \brief blah
  *
@@ -311,29 +331,28 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			{
 			case LBN_DBLCLK:
 				{
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-						POINT pt;
-						GetCursorPos( &pt );
-						ScreenToClient( this->m_Hwnd, &pt );
-						DWORD item_id = (DWORD)SendMessage(this->m_Hwnd,LB_ITEMFROMPOINT,NULL,MAKELPARAM(pt.x,pt.y));
-						this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), LOWORD(item_id) +1);
-					}
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+						this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), this->getItemID());
 				}
 				break;
 			case LBN_SELCHANGE:
 				{
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-						POINT pt;
-						GetCursorPos( &pt );
-						ScreenToClient( this->m_Hwnd, &pt );
-						DWORD item_id = (DWORD)SendMessage(this->m_Hwnd,LB_ITEMFROMPOINT,NULL,MAKELPARAM(pt.x,pt.y));
-						this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), LOWORD(item_id) +1);
-					}
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+						this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getItemID());
 				}
 				break;
 			}
 		}
 		break;
+	//case WM_HSCROLL:
+	//case WM_VSCROLL:
+	//case WM_MOUSEWHEEL:
+	//	{
+	//		//if (HIWORD(wParam) == SB_ENDSCROLL)
+	//			this->redrawWindow();
+	//			//InvalidateRect(this->m_Hwnd,NULL,TRUE);
+	//	}
+	//	break;
 	case WM_COMPAREITEM:
 		{
 			bParsed = TRUE;
@@ -434,6 +453,9 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			//rcText.right -= 20;
 			DrawFrameControl(idata->hDC,&rcText,DFC_BUTTON,style);
 
+			if (this->m_dStyles & STACKERS_GRAD)
+				XPopupMenuItem::DrawGradient( idata->hDC, &rcText, GetSysColor(COLOR_BTNFACE), GetSysColor(COLOR_GRADIENTACTIVECAPTION), FALSE);
+
 			if (sitem->tsCaption.len()) {
 				SetBkMode(idata->hDC,TRANSPARENT);
 				//InflateRect(&rcText,-2,-2);
@@ -471,15 +493,16 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					}
 					else
 						SetWindowPos(sWnd,NULL,0,0,0,0,SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_HIDEWINDOW);
-					if (h != (idata->rcItem.bottom - idata->rcItem.top)) {
-						SendMessage(this->m_Hwnd,LB_SETITEMHEIGHT,idata->itemID,h);
-						Redraw = true;
-						//this->redrawWindow();
-					}
 				}
 			}
-			else if (IsWindow(this->m_hActive) && idata->itemState & ODS_SELECTED)
-					Redraw = true;
+			else if (IsWindow(this->m_hActive) && idata->itemState & ODS_SELECTED) {
+				this->m_hActive = NULL;
+				Redraw = true;
+			}
+			if (h != (idata->rcItem.bottom - idata->rcItem.top)) {
+				SendMessage(this->m_Hwnd,LB_SETITEMHEIGHT,idata->itemID,h);
+				Redraw = true;
+			}
 			if (Redraw)
 				this->redrawWindow();
 		}
@@ -569,6 +592,27 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 							lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
 				}
+				else {
+					switch( hdr->code ) {
+					case TTN_GETDISPINFO:
+						{
+							LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+							LPDCXSITEM sitem = (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,this->getItemID()-1,NULL);
+							if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
+								di->lpszText = sitem->tsTipText.to_chr();
+								di->hinst = NULL;
+							}
+							bParsed = TRUE;
+						}
+						break;
+					case TTN_LINKCLICK:
+						{
+							bParsed = TRUE;
+							this->callAliasEx( NULL, "%s,%d,%d", "tooltiplink", this->getUserID( ), this->getItemID() );
+						}
+						break;
+					}
+				}
       }
       break;
 
@@ -621,37 +665,22 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 		case WM_LBUTTONDOWN:
 			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					POINT pt;
-					GetCursorPos( &pt );
-					ScreenToClient( this->m_Hwnd, &pt );
-					DWORD item_id = (DWORD)SendMessage(this->m_Hwnd,LB_ITEMFROMPOINT,NULL,MAKELPARAM(pt.x,pt.y));
-					this->callAliasEx( NULL, "%s,%d,%d", "lbdown", this->getUserID( ), LOWORD(item_id) +1);
-				}
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d,%d", "lbdown", this->getUserID( ), this->getItemID());
 			}
 			break;
 
 		case WM_LBUTTONUP:
 			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					POINT pt;
-					GetCursorPos( &pt );
-					ScreenToClient( this->m_Hwnd, &pt );
-					DWORD item_id = (DWORD)SendMessage(this->m_Hwnd,LB_ITEMFROMPOINT,NULL,MAKELPARAM(pt.x,pt.y));
-					this->callAliasEx( NULL, "%s,%d,%d", "lbup", this->getUserID( ), LOWORD(item_id) +1);
-				}
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d,%d", "lbup", this->getUserID( ), this->getItemID());
 			}
 			break;
 
 		case WM_CONTEXTMENU:
 			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					POINT pt;
-					GetCursorPos( &pt );
-					ScreenToClient( this->m_Hwnd, &pt );
-					DWORD item_id = (DWORD)SendMessage(this->m_Hwnd,LB_ITEMFROMPOINT,NULL,MAKELPARAM(pt.x,pt.y));
-					this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), LOWORD(item_id) +1);
-				}
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), this->getItemID());
 			}
 			break;
 
@@ -685,14 +714,14 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 		case WM_ERASEBKGND:
 		{
-			if (this->m_bAlphaBlend || this->isExStyle(WS_EX_TRANSPARENT))
+			//if (this->m_bAlphaBlend || this->isExStyle(WS_EX_TRANSPARENT))
 				this->DrawParentsBackground((HDC) wParam);
 			// fill background.
-			RECT rcClient;
+			//RECT rcClient;
 
-			// get controls client area
-			GetClientRect( this->m_Hwnd, &rcClient );
-			DcxControl::DrawCtrlBackground((HDC)wParam,this,&rcClient);
+			//// get controls client area
+			//GetClientRect( this->m_Hwnd, &rcClient );
+			//DcxControl::DrawCtrlBackground((HDC)wParam,this,&rcClient);
 			bParsed = TRUE;
 			return TRUE;
 		}

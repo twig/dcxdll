@@ -1069,11 +1069,23 @@ void DcxControl::DrawCtrlBackground(HDC hdc, DcxControl *p_this, LPRECT rwnd)
 
 void DcxControl::DrawParentsBackground(const HDC hdc)
 {
-	this->updateParentCtrl(); // find the host control, if any.
 	// fill in parent bg
 	RECT rcClient, rcParent, rcWin;
 	// get controls client area
 	GetClientRect( this->m_Hwnd, &rcClient );
+	// if themes are active use them.
+	if (dcxIsThemeActive()) {
+		DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rcClient);
+		return;
+	}
+	this->updateParentCtrl(); // find the host control, if any.
+	// handle case where parent is transparent.
+	if (this->m_pParentCtrl != NULL) {
+		if (this->m_pParentCtrl->isExStyle(WS_EX_TRANSPARENT)) {
+			this->m_pParentCtrl->DrawParentsBackground(hdc);
+			return;
+		}
+	}
 	POINT pt;
 	// get controls width & height.
 	int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
