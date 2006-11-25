@@ -196,6 +196,9 @@
 					RelativePath=".\Classes\dcxrichedit.cpp">
 				</File>
 				<File
+					RelativePath=".\Classes\dcxstacker.cpp">
+				</File>
+				<File
 					RelativePath=".\Classes\dcxstatusbar.cpp">
 				</File>
 				<File
@@ -390,6 +393,9 @@
 				</File>
 				<File
 					RelativePath=".\Classes\dcxrichedit.h">
+				</File>
+				<File
+					RelativePath=".\Classes\dcxstacker.h">
 				</File>
 				<File
 					RelativePath=".\Classes\dcxstatusbar.h">
