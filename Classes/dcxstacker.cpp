@@ -450,11 +450,20 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (idata->itemState & ODS_SELECTED)
 				style |= DFCS_PUSHED;
 
-			//rcText.right -= 20;
 			DrawFrameControl(idata->hDC,&rcText,DFC_BUTTON,style);
 
-			if (this->m_dStyles & STACKERS_GRAD)
-				XPopupMenuItem::DrawGradient( idata->hDC, &rcText, GetSysColor(COLOR_BTNFACE), GetSysColor(COLOR_GRADIENTACTIVECAPTION), FALSE);
+			if (this->m_dStyles & STACKERS_GRAD) {
+				COLORREF clrbkg = sitem->clrBack;
+
+				if (clrbkg == -1)
+					clrbkg = GetSysColor(COLOR_BTNFACE);
+
+				XPopupMenuItem::DrawGradient( idata->hDC, &rcText, clrbkg, GetSysColor(COLOR_GRADIENTACTIVECAPTION), FALSE);
+			}
+			else if (sitem->clrBack != -1) {
+				SetBkColor(idata->hDC,sitem->clrBack);
+				ExtTextOut(idata->hDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, "", NULL, NULL );
+			}
 
 			if (sitem->tsCaption.len()) {
 				SetBkMode(idata->hDC,TRANSPARENT);
@@ -463,13 +472,18 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				if (idata->itemState & ODS_DISABLED)
 					f |= DSS_DISABLED;
 				HFONT oldFont = (HFONT)SelectObject(idata->hDC,hFont);
+				// get text colour.
+				COLORREF clrText = sitem->clrText;
+				if (clrText == -1)
+					clrText = GetSysColor(COLOR_BTNTEXT);
 				// draw the text
 				if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
 					DrawShadowText(idata->hDC,sitem->tsCaption.to_wchr(), sitem->tsCaption.len(),&rcText,
-						DT_END_ELLIPSIS | DT_CENTER, sitem->clrText, 0, 5, 5);
+						DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
 				}
 				else {
-					SetTextColor(idata->hDC,sitem->clrText);
+					if (sitem->clrText != -1)
+						SetTextColor(idata->hDC,clrText);
 					DrawText(idata->hDC, sitem->tsCaption.to_chr(), sitem->tsCaption.len(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
 				}
 
