@@ -6,6 +6,7 @@ function get_intro_image() {
 function get_styles_image(&$STYLES) {
 	$STYLES = array(
 		'tooltips' => 'The image will have a tooltip.',
+		'alpha' => 'Control is alpha blended.',
 	);
 }
 

@@ -110,6 +110,9 @@ function get_styles_button(&$STYLES) {
 		"bitmap" => "Button is drawed using supplied bitmaps.",
 		"default" => "Button has default focus.",
 		'tooltips' => 'The button will have a tooltip.',
+		'alpha' => 'Bitmap buttons get alpha blending.',
+		'shadow' => 'Display text with a shadow.',
+		'__notes' => '[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_BTNTEXT) respectively). Change it by using [f]xdid -c[/f]',
 	);
 }
 

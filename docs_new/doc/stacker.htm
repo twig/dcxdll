@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title>DCX Panel - Dialog Control Xtension DLL v1.3.7 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX Stacker - Dialog Control Xtension DLL v1.3.7 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -27,7 +27,7 @@
 <table class="bar">
 	<tr>
 		<td>&nbsp;</td>
-		<td style="text-align: center;">Dialog Control Xtension - Panel</td>
+		<td style="text-align: center;">Dialog Control Xtension - Stacker</td>
 		<td style="text-align: right;">v1.3.7</td>
 	</tr>
 </table>
@@ -63,29 +63,52 @@
 </td>
 <td><br /><table class="description">
 	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;'><a name="intro"></a>Introduction</div></td></tr>
-	<tr><td>The panel control is like an empty borderless dialog which is used to host other controls.<br /><br />
+	<tr><td>STACKER CONTROL<br /><br />
 <div style="text-align: center;">
-	<img src="images/panel.png" alt="" />
+	<img src="images/stacker.png" alt="" />
 </div>
 </td></tr>
 </table>
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;'>Control Styles</div></td></tr>
+	<tr><td>These control styles are available when creating a Stacker control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
+</table>
+<table class="styles">
+	<tr>
+		<td class="style"><a name="style.shadow" class="style">shadow</a></td>
+		<td>Display text with a shadow. The shadow color depends on the color specified by the item, not the Stacker.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="style">shadow</a> will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using <a class="value">xdid -c</a></td></tr></table>
+<br />
 <br /><table class="description">
 	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.c"></a>/xdid -c	</td></tr>
-	<tr><td colspan="2">This command lets you add a child control to a panel control.</td></tr>
+			<a name="xdid.a"></a>/xdid -a	</td></tr>
+	<tr><td colspan="2">This command lets you add a new item to the stacker.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -c [DNAME] [ID] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)</div></td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [+FLAGS] [COLOR] [BGCOLOR] Item Text [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 12 richedit 10 10 400 25 multi</div></td>
+		<td><div class="example">/xdid -a dcx 4 0 + $rgb(255,0,0) $rgb(0,0,255) New Item $chr(9) 5 button 0 0 150 25 default</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Item flags (NONE ATM?).</td>
+	</tr>
+	<tr>
+		<td class="param">COLOR</td>
+		<td>COLOR</td>
+	</tr>
+	<tr>
+		<td class="param">BGCOLOR</td>
+		<td>BGCOLOR</td>
+	</tr>
 	<tr>
 		<td class="param">CID</td>
 		<td>Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b></td>
@@ -242,142 +265,56 @@
 		<td class="param">OPTIONS</td>
 		<td>Optional styles and options available on each individual controls.</td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">0</a> for <a class="param">N</a> to insert at the end of the stacker.</li><li>Most of the time parameters <a class="param">X</a>, <a class="param">Y</a>, <a class="param">W</a>, and <a class="param">H</a> are ignored.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
 			<a name="xdid.d"></a>/xdid -d	</td></tr>
-	<tr><td colspan="2">This command lets you delete a control added on the panel.</td></tr>
+	<tr><td colspan="2">This command lets you delete an item and any child control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -d [DNAME] [ID] [CID]</div></td>
+		<td><div class="syntax">/xdid -d [DNAME] [ID] [N]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 6</div></td>
+		<td><div class="example">/xdid -d dcx 4 1</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.l"></a>/xdid -l	</td></tr>
-	<tr><td colspan="2">This command lets you add Cell Layout Algorithm rules to your dialog controls for automatic resizing of the child controls.</td></tr>
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
+	<tr><td colspan="2">This command lets you delete all items and any child controls.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -l [DNAME] [ID] [COMMAND] [PATH] [TAB] [+FLAGS] [CID] [WEIGHT] [W] [H]</div></td>
+		<td><div class="syntax">/xdid -r [DNAME] [ID] </div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -l dcx 4 root $chr(9) +pv 0 1 0 0<br />/xdid -l dcx 4 root 1 2 $chr(9) +fi 7 1 200 300<br />/xdid -l dcx 4 space 1 $chr(9) + 5 5 5 5<br /></div></td>
+		<td><div class="example">/xdid -r dcx 4</div></td>
 	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">COMMAND</td>
-		<td>Layout command.</td>
-	</tr>
-	<tr>
-		<td class="value">clear</td>
-		<td>Clears all CLA rules.</td>
-	</tr>
-	<tr>
-		<td class="value">root</td>
-		<td>Sets the root cell element.</td>
-	</tr>
-	<tr>
-		<td class="value">cell</td>
-		<td>Adds a cell element as a child of another cell element.</td>
-	</tr>
-	<tr>
-		<td class="value">space</td>
-		<td>Sets the space padding around a cell element.</td>
-	</tr>
-	<tr>
-		<td class="value">update</td>
-		<td>Updates the cell layout (must be used after adding rules or changing padding settings to refresh display).</td>
-	</tr>
-	<tr>
-		<td class="param">PATH</td>
-		<td>Cell Path from <a class="value">root</a> element (can be root to point to root element).</td>
-	</tr>
-	<tr>
-		<td class="param">+FLAGS</td>
-		<td>Flags to manipulate Cell Layout Algorithm.</td>
-	</tr>
-	<tr>
-		<td class="value">f</td>
-		<td>Creates a fixed cell element.</td>
-	</tr>
-	<tr>
-		<td class="value">h</td>
-		<td>Creates a width fixed cell if used with <a class="value">+f</a> or a horizontal cell pane if used with <a class="value">+p.</a></td>
-	</tr>
-	<tr>
-		<td class="value">i</td>
-		<td>Indicates that the supplied control <a class="param">ID</a> is valid and is the child control when used with <a class="value">+f</a> or <a class="value">+l</a>.</td>
-	</tr>
-	<tr>
-		<td class="value">l</td>
-		<td>Creates a fill cell element.</td>
-	</tr>
-	<tr>
-		<td class="value">p</td>
-		<td>Creates a pane cell element.</td>
-	</tr>
-	<tr>
-		<td class="value">v</td>
-		<td>Creates a height fixed cell if used with <a class="value">+f</a> or a vertical cell pane if used with <a class="value">+p</a>.</td>
-	</tr>
-	<tr>
-		<td class="value">w</td>
-		<td>When used, it means that the supplied <a class="param">W</a> and <a class="param">H</a> represent the fixed cell width in the applicable direction (if the fixed cell is fixed in width, height or both).</td>
-	</tr>
-	<tr>
-		<td class="param">CID</td>
-		<td>ID of the control (used with fixed or fill cells - use 0 if no control is to be linked to the cell).</td>
-	</tr>
-	<tr>
-		<td class="param">WEIGHT</td>
-		<td>Cell child weight. (used when adding a child cell to a pane cell)</td>
-	</tr>
-	<tr>
-		<td class="param">W</td>
-		<td>Fixed width of control (used with <a class="value">fixed</a> cell).</td>
-	</tr>
-	<tr>
-		<td class="param">H</td>
-		<td>Fixed height of control. (used with <a class="value">fixed</a> cell)</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>See the <a href='layout.htm'>Cell Layout Algorithm</a> explanation for concrete examples.</li><li>If you use the <a class="value">update</a> command in the <a class="event">init</a> event of a dialog, you will have to use ".timer 1 0 xdialog -l dialog update" as a glitch with XP and themes disabled prevents windows from appearing. The timer corrects this problem.</li><li>When using the <a class="value">space</a> command, the <a class="param">ID</a> <a class="param">WEIGHT</a> <a class="param">W</a> <a class="param">H</a> are in fact the <a class="param">LEFT</a> <a class="param">TOP</a> <a class="param">RIGHT</a> <a class="param">BOTTOM</a> spacings</li><li>Use the value 0 for the fields not used as the command expects them to be filled even though they aren't used.</li></ul></td></tr></table>
-<br />
-<table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.t"></a>/xdid -t	</td></tr>
-	<tr><td colspan="2">This command lets you set the text for a panel control.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -t [DNAME] [ID] [TEXT]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdid -t dcx 4 New Window Text</div></td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The panel text (and border) is only visible when used with /xdid -x DIALOG ID +bd</td></tr></table>
+</table>
 <br />
 <br /><table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Panel Events</div></td></tr>
-	<tr><td>These events are fired when activity occurs in the Panel control.</td></tr>
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;'>Stacker Events</div></td></tr>
+	<tr><td>These events are fired when activity occurs in the Stacker control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
 			<a name="events.dclick"></a>dclick	</td></tr>
-	<tr><td colspan="2">When the left mouse button is double-clicked.</td></tr>
+	<tr><td colspan="2">When an item is double-clicked in the stacker.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME dclick ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME dclick ID ITEM</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx dclick 4</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ITEM</td>
+		<td>Item number where the event was triggered.</td>
 	</tr>
 </table>
 <br />
@@ -397,29 +334,20 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
-			<a name="events.lbdblclk"></a>lbdblclk	</td></tr>
-	<tr><td colspan="2">When the left mouse button is double-clicked.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME lbdblclk ID </div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbdblclk 4</div></td>
-	</tr>
-</table>
-<br />
-<table class="event">
-	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
 			<a name="events.lbdown"></a>lbdown	</td></tr>
-	<tr><td colspan="2">When the left mouse button is pressed.</td></tr>
+	<tr><td colspan="2">When the left mouse button is clicked down.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME lbdown ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME lbdown ID ITEM</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx lbdown 4</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ITEM</td>
+		<td>Item number where the event was triggered.</td>
 	</tr>
 </table>
 <br />
@@ -429,39 +357,68 @@
 	<tr><td colspan="2">When the left mouse button is released.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME lbup ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME lbup ID ITEM</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx lbup 4</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ITEM</td>
+		<td>Item number where the event was triggered.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="events.rclick"></a>rclick	</td></tr>
+	<tr><td colspan="2">When you right-click on the stacker.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME rclick ID ITEM</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx rclick 4</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ITEM</td>
+		<td>Item number where the event was triggered.</td>
 	</tr>
 </table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
 			<a name="events.sclick"></a>sclick	</td></tr>
-	<tr><td colspan="2">When the left mouse button is clicked.</td></tr>
+	<tr><td colspan="2">When an item is selected in the stacker.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME sclick ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME sclick ID ITEM</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx sclick 4</div></td>
 	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ITEM</td>
+		<td>Item number where the event was triggered.</td>
+	</tr>
 </table>
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.c" style="color: #0000FF;">-c</a></li>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.shadow" style="color: #B52929;">shadow</a></li>
+</ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li>
 <li><a href="#xdid.d" style="color: #0000FF;">-d</a></li>
-<li><a href="#xdid.l" style="color: #0000FF;">-l</a></li>
-<li><a href="#xdid.t" style="color: #0000FF;">-t</a></li>
+<li><a href="#xdid.r" style="color: #0000FF;">-r</a></li>
 </ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.dclick" style="color: #009900;">dclick</a></li>
 <li><a href="#events.help" style="color: #009900;">help</a></li>
-<li><a href="#events.lbdblclk" style="color: #009900;">lbdblclk</a></li>
 <li><a href="#events.lbdown" style="color: #009900;">lbdown</a></li>
 <li><a href="#events.lbup" style="color: #009900;">lbup</a></li>
+<li><a href="#events.rclick" style="color: #009900;">rclick</a></li>
 <li><a href="#events.sclick" style="color: #009900;">sclick</a></li>
 </ul></td>
   </tr>

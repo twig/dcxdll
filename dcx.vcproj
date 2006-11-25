@@ -69,6 +69,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/GL /opt:nowin98"
 				Optimization="1"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
@@ -86,6 +87,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/LTCG:NOSTATUS /GL /ignore:4078 /RELEASE"
 				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib"
 				OutputFile="$(OutDir)/dcx.dll"
 				LinkIncremental="1"
@@ -335,6 +337,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath=".\AggressiveOptimize.h">
+			</File>
 			<File
 				RelativePath=".\defines.h">
 			</File>

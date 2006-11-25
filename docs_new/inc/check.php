@@ -12,6 +12,7 @@ function get_styles_check(&$STYLES) {
 	    'pushlike' => 'Makes the check act and look like a push button.',
 	    '3state' => 'Creates a 3 state checkbox.',
 	    'tooltips' => 'The checkbox will have a tooltip.',
+	    'alpha' => 'Control is alpha blended.',
 	);
 }
 

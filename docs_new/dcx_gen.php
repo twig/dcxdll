@@ -50,6 +50,7 @@ $PAGES = array(
     'tab' => 'Tab',
     'rebar' => 'Rebar',
     'pager' => 'Pager',
+    'stacker' => 'Stacker',
 );
 
 array_walk_recursive($CHANGES, "wikiData");
