@@ -225,18 +225,24 @@ void DcxStacker::parseCommandRequest(TString &input) {
 					ShowWindow(p_Control->getHwnd(),SW_HIDE);
 					this->redrawWindow( );
 				}
-				else
+				else {
 					DCXError("/xdid -a","Error creating control");
+					delete sitem;
+					return;
+				}
 			}
 			else {
 				TString error;
 				error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
 				DCXError("/xdid -a",error.to_chr() );
+				delete sitem;
+				return;
 			}
 		}
 		if (SendMessage(this->m_Hwnd,LB_INSERTSTRING,nPos,(LPARAM)sitem) < 0) {
 			delete sitem;
 			DCXError("/xdid -a","Error adding item to control");
+			return;
 		}
 	}
 	// xdid -B [NAME] [ID] [SWITCH] [N]
