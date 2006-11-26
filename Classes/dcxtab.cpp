@@ -627,47 +627,56 @@ void DcxTab::activateSelectedTab( ) {
  *
  * blah
  */
-LRESULT DcxTab::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-    case WM_NOTIFY : 
+LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
+	switch (uMsg) {
+		case WM_NOTIFY : 
       {
-        LPNMHDR hdr = (LPNMHDR) lParam;
+			LPNMHDR hdr = (LPNMHDR) lParam;
 
-        if (!hdr)
-          break;
-        switch( hdr->code ) {
+			if (!hdr)
+				break;
+
+			switch (hdr->code) {
 				case NM_RCLICK:
-          {
-						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-							TCHITTESTINFO tchi;
-							tchi.flags = TCHT_ONITEM;
-							GetCursorPos( &tchi.pt );
-							ScreenToClient( this->m_Hwnd, &tchi.pt );
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+						TCHITTESTINFO tchi;
 
-							int tab = TabCtrl_HitTest( this->m_Hwnd, &tchi );
-							int stab = TabCtrl_GetCurSel( this->m_Hwnd );
+						tchi.flags = TCHT_ONITEM;
+						GetCursorPos(&tchi.pt);
+						ScreenToClient(this->m_Hwnd, &tchi.pt);
 
-							if ( tab != -1 && tab == stab )
-								this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), tab+1 );
-						}
-						bParsed = TRUE;
+						int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
+						int stab = TabCtrl_GetCurSel(this->m_Hwnd);
+
+						if (tab != -1)
+							this->callAliasEx(NULL, "%s,%d,%d", "rclick", this->getUserID(), tab +1);
 					}
+
+					bParsed = TRUE;
 					break;
-        case TCN_SELCHANGE:
-					{
-						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-							int tab = TabCtrl_GetCurSel( this->m_Hwnd );
-							if ( tab != -1 )
-								this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), tab+1 );
-						}
-						this->activateSelectedTab( );
-						bParsed = TRUE;
+				}
+
+				case NM_CLICK:
+				case TCN_SELCHANGE:
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+						int tab = TabCtrl_GetCurSel(this->m_Hwnd);
+
+						if (tab != -1)
+							this->callAliasEx(NULL, "%s,%d,%d", "sclick", this->getUserID(), tab +1);
 					}
+
+					this->activateSelectedTab();
+					bParsed = TRUE;
 					break;
 				}
 			}
+
 			break;
+		}
 	}
+
 	return 0L;
 }
 
