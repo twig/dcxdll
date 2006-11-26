@@ -451,9 +451,10 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
 		int size = input.gettok(4, " ").to_int();
 
-		ImageList_Destroy(this->getImageList(TB_IML_NORMAL));
-		ImageList_Destroy(this->getImageList(TB_IML_DISABLE));
-		ImageList_Destroy(this->getImageList(TB_IML_HOT));
+		// these are destroyed after being removed from toolbar by setImageList() function.
+		//ImageList_Destroy(this->getImageList(TB_IML_NORMAL));
+		//ImageList_Destroy(this->getImageList(TB_IML_DISABLE));
+		//ImageList_Destroy(this->getImageList(TB_IML_HOT));
 
 		if (size != 32 && size != 24)
 			size = 16;

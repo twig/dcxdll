@@ -245,9 +245,6 @@ void DcxStacker::parseCommandRequest(TString &input) {
 			return;
 		}
 	}
-	// xdid -B [NAME] [ID] [SWITCH] [N]
-	else if (flags.switch_cap_flags[1] && numtok > 3) {
-	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[2] && numtok > 3) {
     int nPos = input.gettok( 4, " " ).to_int( ) - 1;
@@ -262,53 +259,12 @@ void DcxStacker::parseCommandRequest(TString &input) {
     if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
         ListBox_DeleteString( this->m_Hwnd, nPos );
 	}
-	// xdid -g [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
-	else if (flags.switch_flags[6] && numtok > 5) {
-	}
-	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
-	else if (flags.switch_flags[8] && numtok > 4) {
-	}
-	// xdid -j [NAME] [ID] [SWITCH] [ROW] [COL] [FLAGS]
-	else if (flags.switch_flags[9] && numtok > 5) {
-	}
-	// xdid -k [NAME] [ID] [SWITCH] [STATE] [N]
-	else if (flags.switch_flags[10] && numtok > 4) {
-	}
-	// xdid -l [NAME] [ID] [SWITCH] [N] [M] [ICON]
-	else if (flags.switch_flags[11] && numtok > 5) {
-	}
-	// xdid -m [NAME] [ID] [SWITCH] [0|1]
-	else if (flags.switch_flags[12] && numtok > 3) {
-	}
-	// xdid -n [NAME] [ID] [SWITCH] [N] [+FLAGS] (WIDTH)
-	else if (flags.switch_flags[13] && numtok > 4) {
-	}
-	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text]
-	else if (flags.switch_flags[16] && numtok > 6) {
-	}
-	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[17]) {
-	}
-	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] [#ICON] [WIDTH] (Header text) [{TAB} [+FLAGS] [#ICON] [WIDTH] Header text {TAB} ... ]
-	else if (flags.switch_flags[19] && numtok > 5) {
-	}
-	// xdid -u [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[20]) {
-	}
-	// xdid -v [NAME] [ID] [SWITCH] [N] [M] (ItemText)
-	else if (flags.switch_flags[21] && numtok > 4) {
-	}
-	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 5) {
-	}
-	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-	else if (flags.switch_flags[24] && numtok > 3) {
-	}
-	// xdid -z [NAME] [ID] [SWITCH] [+FLAGS] [N] (ALIAS)
-	else if (flags.switch_flags[25] && numtok > 4) {
-	}
-	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
-	else if (flags.switch_cap_flags[19] && numtok > 4) {
+  //xdid -r [NAME] [ID] [SWITCH]
+  else if (flags.switch_flags[17]) {
+  }
+	//xdid -u [NAME] [ID] [SWITCH]
+	else if ( flags.switch_flags[20] ) {
+		ListBox_SetCurSel( this->m_Hwnd, -1 );
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
