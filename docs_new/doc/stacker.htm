@@ -75,8 +75,16 @@
 </table>
 <table class="styles">
 	<tr>
+		<td class="style"><a name="style.gradient" class="style">gradient</a></td>
+		<td>Show items with a gradient background.</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.shadow" class="style">shadow</a></td>
 		<td>Display text with a shadow. The shadow color depends on the color specified by the item, not the Stacker.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.tooltip" class="style">tooltip</a></td>
+		<td>The stacker will have a tooltip.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="style">shadow</a> will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using <a class="value">xdid -c</a></td></tr></table>
 <br />
@@ -269,6 +277,20 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
+	<tr><td colspan="2">This command lets you select an item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] [N]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -c dcx 4 1</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
 			<a name="xdid.d"></a>/xdid -d	</td></tr>
 	<tr><td colspan="2">This command lets you delete an item and any child control.</td></tr>
 	<tr>
@@ -292,6 +314,80 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -r dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<br /><table class="description">
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;'>$xdid() Properties</div></td></tr>
+	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
+</table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.childid"></a>$xdid().childid	</td></tr>
+	<tr><td colspan="2">This property retrieves the ID of the child control on the item at the specified index.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N).childid</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 2).childid</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.haschild"></a>$xdid().haschild	</td></tr>
+	<tr><td colspan="2">This property returns <a class="value">$true</a> if an item has a child control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N).haschild</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 2).haschild</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.num"></a>$xdid().num	</td></tr>
+	<tr><td colspan="2">This property retrieves the total number of items.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).num</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).num</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.sel"></a>$xdid().sel	</td></tr>
+	<tr><td colspan="2">This property retrieves the selected item ID.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).sel</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).sel</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
+	<tr><td colspan="2">This property retrieves the item text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N).text</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 2).text</div></td>
 	</tr>
 </table>
 <br />
@@ -410,10 +506,18 @@
 <br />
 </td><td class="menuright">
 	<br />
-<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.shadow" style="color: #B52929;">shadow</a></li>
+<a href="#style" style="color: #B52929;">Control Styles</a><br /><ul><li><a href="#style.gradient" style="color: #B52929;">gradient</a></li>
+<li><a href="#style.shadow" style="color: #B52929;">shadow</a></li>
+<li><a href="#style.tooltip" style="color: #B52929;">tooltip</a></li>
 </ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><br /><ul><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li>
+<li><a href="#xdid.c" style="color: #0000FF;">-c</a></li>
 <li><a href="#xdid.d" style="color: #0000FF;">-d</a></li>
 <li><a href="#xdid.r" style="color: #0000FF;">-r</a></li>
+</ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><br /><ul><li><a href="#xdidprop.childid" style="color: #6666FF;">childid</a></li>
+<li><a href="#xdidprop.haschild" style="color: #6666FF;">haschild</a></li>
+<li><a href="#xdidprop.num" style="color: #6666FF;">num</a></li>
+<li><a href="#xdidprop.sel" style="color: #6666FF;">sel</a></li>
+<li><a href="#xdidprop.text" style="color: #6666FF;">text</a></li>
 </ul><a href="#events" style="color: #009900;">Events</a><br /><ul><li><a href="#events.dclick" style="color: #009900;">dclick</a></li>
 <li><a href="#events.help" style="color: #009900;">help</a></li>
 <li><a href="#events.lbdown" style="color: #009900;">lbdown</a></li>
@@ -428,7 +532,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 25th November, 06</td>
+		<td style="text-align: right;">Last Updated: 26th November, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">
