@@ -16,7 +16,7 @@
 
 body,div,td,th {
 	font-size: 9pt;
-	font-family: tahoma;
+	font-family: Geneva, Arial, Helvetica, sans-serif;
 	color: #000000;
 	cursor: default;
 	text-align: left;
@@ -47,8 +47,7 @@ ul {
 }
 
 .bar {
-	border: 1px solid black;
-	background: #eeeeee;
+	border: 1px none #6B8FCB;
 	table-layout: fixed;
 	font-weight: bold;
 }
@@ -66,22 +65,22 @@ a {
 }
 a:link {
 	font-weight: bold;
-	color: #002980;
+	color: #38466D;
 	text-decoration: none;
 }
 a:visited {
 	font-weight: bold;
-	color: #002980;
+	color: #38466D;
 	text-decoration: none;
 }
 a:active {
 	font-weight: bold;
-	color: #002980;
+	color: #38466D;
 	text-decoration: none;
 }
 a:hover {
 	font-weight: bold;
-	color: #002980;
+	color: #38466D;
 	text-decoration: underline;
 }
 
@@ -92,6 +91,7 @@ a:hover {
 
 .menuleft a.section, .menuright a.section {
 	color: #D60000;
+	font-variant: small-caps;
 }
 
 a.note, a.os, a.param {
@@ -134,10 +134,16 @@ table.description {
 
 table.description .heading {
 	font-weight: bold;
-	border-bottom: 2px solid black;
+	font-size:14pt;
+	font:Geneva, Arial, Helvetica, sans-serif;
 	/*background: #eeeeee;*/
 }
-
+table.description .heading a {
+	font-weight: bold;
+	font-size:14pt;
+	font:Geneva, Arial, Helvetica, sans-serif;
+	/*background: #eeeeee;*/
+}
 
 /* table used for /xdid flags */
 .xdid, .xdialog, .xdidprop {
@@ -149,8 +155,11 @@ td.syntax, td.example {
 }
 
 div.syntax, div.example {
-	font-weight: bold;
-	color: #EE9900;
+	font-weight: normal;
+	color: #333333;
+	border: 1px solid #EE9900;
+	background-color: #FFE9BF;
+	padding: 2px;
 }
 
 
@@ -270,4 +279,25 @@ pre.code {
 	border: 1px solid black;
 	font-family: mono, monospace;
 	padding: 5px;
+}
+
+ul.nav { 
+list-style:none;
+margin:0px;
+font-size:8pt;
+padding:0px;
+}
+ul.nav li { 
+list-style:none;
+margin:0px;
+font-size:8pt;
+padding:0px;
+font-weight:bold;
+}
+ul.nav li ul { 
+margin:0px;
+padding:0px;
+padding-left:8px;
+font-weight:normal;
+color:#6CE34A;
 }

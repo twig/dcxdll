@@ -24,9 +24,30 @@
 #include "layout/layoutcellfill.h"
 #include "layout/layoutcellpane.h"
 
+#include "tinyxml/tinyxml.h"
+
 extern DcxDialogCollection Dialogs;
 
 extern mIRCDLL mIRCLink;
+/*!
+ * walkScript is a recursive function for dcXML triggered in /xdialog -X
+ * Feel free to put this elsewhere if more suited as long as it wont break it :)
+ * (Mpdreamz)
+ */
+
+void walkScript(TiXmlElement* element, char *dname, int depth=0) {  
+	TiXmlElement* child = 0;  
+	TString cmd;
+	for( child = element->FirstChildElement(); child; child = child->NextSiblingElement() ) {  
+		TiXmlElement* parent = child->Parent()->ToElement();
+		const char type = 
+		cmd.sprintf("/echo -a Element %s %s %i parent: %s",
+			child->Value(),child->Attribute("type"),depth,parent->Value());
+		mIRCcom(cmd.to_chr());
+		walkScript(child->ToElement(), dname, depth+1);  
+	}  
+} 
+
 
 /*!
  * \brief Constructor
@@ -35,6 +56,7 @@ extern mIRCDLL mIRCLink;
  * \param tsName Dialog Name
  * \param tsAliasName Dialog Callback alias Name
  */
+
 
 DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 : DcxWindow(mHwnd, 0)
@@ -877,6 +899,36 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 		this->m_dEventMask = mask;
 	}
+	// xdialog -X [NAME] [FILENAME]
+	else if (flags.switch_cap_flags[23] && numtok > 2) {
+		const char *dcxmlfile = input.gettok(3," ").to_chr();
+        TiXmlDocument doc(input.gettok(2,"\"").to_chr());
+        bool valid_XML = doc.LoadFile();
+		TString cmd;
+		if (valid_XML) { 
+			TiXmlElement *valid_DCXML = 0;
+			valid_DCXML = doc.FirstChildElement("dialog");
+			if (valid_DCXML) { 
+				cmd.sprintf("/echo -a yay DCXML! %s %s",input.gettok(2,"\""),valid_DCXML->Value());
+				mIRCcom(cmd.to_chr());
+
+				cmd.sprintf("/echo -a /xdialog -l %s root $chr(9) +%s %s",
+				this->getName().to_chr(),valid_DCXML->Attribute("direction"),valid_DCXML->Attribute("space"));
+				mIRCcom(cmd.to_chr());
+				walkScript(valid_DCXML,this->getName().to_chr());
+			}
+			else { 
+			  cmd.sprintf("/echo -a File isn't valid dcXML %s",input.gettok(2,"\""));
+			  mIRCcom(cmd.to_chr());
+			}
+
+		}
+		else { 
+			cmd.sprintf("/echo -a File isn't valid XML %s",input.gettok(2,"\""));
+			mIRCcom(cmd.to_chr());
+		}
+		doc.Clear();
+	}
 	// invalid command
 	else {
 		TString errmsg;
@@ -902,6 +954,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
  *
  * blah
  */
+
 
 void DcxDialog::parseBorderStyles(TString &flags, LONG *Styles, LONG *ExStyles) {
 	INT i = 1, len = flags.len();

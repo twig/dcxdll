@@ -133,7 +133,6 @@ void DcxRichEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
 */
 void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 	int numtok = input.numtok(" ");
-
 	// [NAME] [ID] [PROP] [N]
 	if (input.gettok(3, " ") == "text") {
 		// determine the line number
@@ -240,9 +239,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
 	this->parseSwitchFlags(input.gettok(3, " "), &flags);
-
 	int numtok = input.numtok(" ");
-
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags.switch_flags[17]) {
 		this->m_tsText = "";
@@ -778,13 +775,11 @@ void DcxRichEdit::insertText(char *text, bool bline, bool uline, bool bcolor, CO
 	int linelen = Edit_LineLength(this->m_Hwnd, line);
 	// total length of insert point
 	len = line + linelen;
-
 	this->hideSelection(TRUE);
 	this->setSel(len, -1);
 	this->replaceSel(FALSE, text);
 	this->setSel(-1, 0);
 	this->hideSelection(FALSE);
-
 	CHARFORMAT2 chrf;
 	ZeroMemory(&chrf, sizeof(CHARFORMAT2));
 	chrf.cbSize = sizeof(CHARFORMAT2);
@@ -1046,13 +1041,13 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		case WM_KEYDOWN:
 		{
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
-				if (wParam == VK_RETURN)
+				if (wParam == VK_RETURN) {
 					this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
+				}
 
 				if (lParam & 0x40000000) // ignore repeats
 					break;
-
-				this->callAliasEx(NULL, "%s,%d,%d", "keydown", this->getUserID(), wParam);
+				this->callAliasEx(NULL, "%s,%d,%d:", "keydown", this->getUserID(), wParam);
 			}
 			break;
 		}

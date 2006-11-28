@@ -303,25 +303,14 @@ function dcxdoc_header($page, $pagelabel) {
 	</tr>
 </table>
 
-<table class="bar" cellpadding="0" cellspacing="0" border="0">
+<table class="bar">
 	<tr>
-		<td>
-		</td>
-		<td style="text-align: center;"></td>
-		<td style="text-align: right;">v<?php echo $VERSION; ?></td>
-	</tr>
-</table>
-
-<table width="100%"  border="0" cellpadding="0" cellspacing="0">
-	<tr>
-	<td width="15%" align="left" valign="top">
-<?php
-}
-function dcxdoc_menu_left() {
-	global $PAGES;
+		<td width="90%">
+		<?php global $PAGES; 
+		/* <a class="section" href="#<?php echo SECTION_INTRO; ?>"> */
 		?>
 	<ul class="nav">
-		<li><a href="index.htm">Index</a></li>
+		<li>Introduction</li>
 		<li>General Usage
 			<ul>
 				<li><a href="dcx.htm">DCX Commands</a></li>
@@ -360,7 +349,26 @@ function dcxdoc_menu_left() {
 			</ul>
 		</li>
 	</ul>
-	</td>
+		</td>
+		<td style="text-align: center;"><?php
+	if ($page == 'xpopup')
+	    echo " - $pagelabel Menus";
+	else if (!in_array($page, array('index')))
+	    echo " - $pagelabel";
+?></td>
+		<td style="text-align: right;">v<?php echo $VERSION; ?></td>
+	</tr>
+</table>
+
+<table>
+	<tr>
+<?php
+}
+
+
+function dcxdoc_menu_left() {
+	global $PAGES;
+?>
 <?php
 }
 
@@ -369,7 +377,7 @@ function dcxdoc_menu_right($page) {
 	global $SECTION, $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL,
 	$STYLES, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS, $XDOCK, $XDOCKPROPS, $XTRAY;
 
-?><td width="85%" valign="top" class="menuright">
+?><td class="menuright">
 	<br />
 <?php
     print_menu_items($GENERAL, SECTION_GENERAL, "General Commands");
@@ -403,7 +411,7 @@ function print_menu_items(&$arr, $sec, $sectext) {
 		$color = get_section_color($sec);
 		$prefix = in_array($sec, array(SECTION_XDID, SECTION_XDIALOG, SECTION_XDOCK, SECTION_XPOP, SECTION_XPOPUP)) ? '-' : '';
 
-		echo "<a href=\"#$sec\" style=\"color: $color;\">$sectext</a><ul>";
+		echo "<a href=\"#$sec\" style=\"color: $color;\">$sectext</a><br /><ul>";
 
 		$keys = array_keys($arr);
 		usort($keys, "flag_sort_rightmenu");
@@ -1004,16 +1012,17 @@ function get_section_name($section = 0) {
 
 function dcxdoc_print_description($caption, $content = "") {
 	global $SECTION;
-	global $pagelabel;
+
 	$color = get_section_color();
 
     wikiData($caption);
     wikiData($content);
 
-	//if ($caption != "Introduction") echo "<br />";
+	if ($caption != "Introduction")
+	    echo "<br />";
 ?>
 <table class="description">
-	<tr><td class="heading" style="border-color: <?php echo $color; ?>"><a name="<?php echo $SECTION; ?>"></a><?php echo "<div style='color: $color;font-size:14pt;'>".($SECTION == "intro" ? $pagelabel : $caption)."</div>"; ?></td></tr>
+	<tr><td class="heading" style="border-color: <?php echo $color; ?>"><a name="<?php echo $SECTION; ?>"></a><?php echo "<div style='color: $color;'>$caption</div>"; ?></td></tr>
 <?php
 	if ($content) {
 ?>
