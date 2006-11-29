@@ -15,39 +15,39 @@
 #include "dcxpanel.h"
 #include "dcxdialog.h"
 
-#include "dcxprogressbar.h"
-#include "dcxtrackbar.h"
-#include "dcxcolorcombo.h"
-#include "dcxcomboex.h"
-#include "dcxstatusbar.h"
-#include "dcxtreeview.h"
-#include "dcxtoolbar.h"
-#include "dcxlistview.h"
-#include "dcxbutton.h"
-#include "dcxrichedit.h"
-#include "dcxrebar.h"
-#include "dcxipaddress.h"
-#include "dcxupdown.h"
-#include "dcxwebctrl.h"
-#include "dcxcalendar.h"
-#include "dcxpager.h"
-
-#include "dcxdivider.h"
-#include "dcxtab.h"
-
-#include "dcxmwindow.h"
-#include "dcxmdialog.h"
-
-#include "mirc/dcxline.h"
-#include "mirc/dcxbox.h"
-#include "mirc/dcxradio.h"
-#include "mirc/dcxcheck.h"
-#include "mirc/dcxtext.h"
-#include "mirc/dcxedit.h"
-#include "mirc/dcxscroll.h"
-#include "mirc/dcxlist.h"
-#include "mirc/dcxlink.h"
-#include "mirc/dcximage.h"
+//#include "dcxprogressbar.h"
+//#include "dcxtrackbar.h"
+//#include "dcxcolorcombo.h"
+//#include "dcxcomboex.h"
+//#include "dcxstatusbar.h"
+//#include "dcxtreeview.h"
+//#include "dcxtoolbar.h"
+//#include "dcxlistview.h"
+//#include "dcxbutton.h"
+//#include "dcxrichedit.h"
+//#include "dcxrebar.h"
+//#include "dcxipaddress.h"
+//#include "dcxupdown.h"
+//#include "dcxwebctrl.h"
+//#include "dcxcalendar.h"
+//#include "dcxpager.h"
+//
+//#include "dcxdivider.h"
+//#include "dcxtab.h"
+//
+//#include "dcxmwindow.h"
+//#include "dcxmdialog.h"
+//
+//#include "mirc/dcxline.h"
+//#include "mirc/dcxbox.h"
+//#include "mirc/dcxradio.h"
+//#include "mirc/dcxcheck.h"
+//#include "mirc/dcxtext.h"
+//#include "mirc/dcxedit.h"
+//#include "mirc/dcxscroll.h"
+//#include "mirc/dcxlist.h"
+//#include "mirc/dcxlink.h"
+//#include "mirc/dcximage.h"
 
 #include "layout/layoutcellfixed.h"
 #include "layout/layoutcellfill.h"
@@ -497,6 +497,17 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
+		case WM_COMPAREITEM:
+			{
+				LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
+				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					if (c_this != NULL)
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				}
+			}
+			break;
+
     case WM_DELETEITEM:
       {
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
@@ -631,24 +642,18 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
-
-          if ( this->m_hCursor != NULL ) {
-
-            SetCursor( this->m_hCursor );
-          }
-          else {
-
-            HCURSOR hCursor = LoadCursor( NULL, IDC_ARROW );
-            SetCursor( hCursor );
-          }
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
+		case WM_SETCURSOR:
+			{
+				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
+					if ( this->m_hCursor != NULL )
+						SetCursor( this->m_hCursor );
+					else
+						SetCursor( LoadCursor( NULL, IDC_ARROW ) );
+					bParsed = TRUE;
+					return TRUE;
+				}
+			}
+			break;
 
     case WM_MOUSEMOVE:
       {

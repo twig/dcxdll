@@ -461,7 +461,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
-      TString itemtext = "";
+      TString itemtext;
 
       TCITEM tci;
       ZeroMemory( &tci, sizeof( TCITEM ) );

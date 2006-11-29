@@ -22,6 +22,13 @@ must not be misrepresented as being the original software.
 distribution.
 */
 
+// Required for VS 2005
+#if _MSC_VER == 1400
+#define VS2005 1
+#define _CRT_SECURE_NO_DEPRECATE 1
+#endif
+// end of VS 2005
+
 #include <ctype.h>
 
 #ifdef TIXML_USE_STL

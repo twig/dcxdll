@@ -441,6 +441,8 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		} // WM_NOTIFY
 		case WM_KEYDOWN:
 		{
+			//if (wParam == VK_ESCAPE)
+			//	bParsed = TRUE; // prevents parent window closing.
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 				if (wParam == VK_RETURN)
 					this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());

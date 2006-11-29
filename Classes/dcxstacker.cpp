@@ -35,7 +35,7 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    ExStyles,
+    ExStyles | WS_EX_CONTROLPARENT,
     "ListBox",
     NULL,
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
@@ -79,7 +79,6 @@ DcxStacker::~DcxStacker( ) {
 void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
   *Styles |= LBS_OWNERDRAWVARIABLE|LBS_NOTIFY;
-	*ExStyles = WS_EX_CONTROLPARENT;
 	this->m_dStyles = 0;
 
   unsigned int i = 1, numtok = styles.numtok( " " );
@@ -94,6 +93,8 @@ void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 			*Styles |= WS_VSCROLL;
 		else if ( styles.gettok( i , " " ) == "gradient" )
 			this->m_dStyles |= STACKERS_GRAD;
+		else if ( styles.gettok( i , " " ) == "arrows" )
+			this->m_dStyles |= STACKERS_ARROW;
 
     i++;
   }
@@ -118,7 +119,7 @@ void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
 		int nSel = input.gettok( 4, " " ).to_int( ) - 1;
 
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
-			LPDCXSITEM sitem = (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,nSel,NULL);
+			LPDCXSITEM sitem = this->getItem(nSel);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR)
 				lstrcpy(szReturnValue,sitem->tsCaption.to_chr());
 			return;
@@ -141,7 +142,7 @@ void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
 		lstrcpy(szReturnValue,"$false");
 
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
-			LPDCXSITEM sitem = (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,nSel,NULL);
+			LPDCXSITEM sitem = this->getItem(nSel);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
 				if (sitem->pChild != NULL)
 					lstrcpy(szReturnValue,"$true");
@@ -156,7 +157,7 @@ void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
 		lstrcpy(szReturnValue,"0");
 
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
-			LPDCXSITEM sitem = (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,nSel,NULL);
+			LPDCXSITEM sitem = this->getItem(nSel);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
 				if (sitem->pChild != NULL)
 					wsprintf(szReturnValue,"%d",sitem->pChild->getUserID());
@@ -266,6 +267,18 @@ void DcxStacker::parseCommandRequest(TString &input) {
 	else if ( flags.switch_flags[20] ) {
 		ListBox_SetCurSel( this->m_Hwnd, -1 );
 	}
+	// xdid -T [NAME] [ID] [SWITCH] [N] (ToolTipText)
+  else if (flags.switch_cap_flags[19] && numtok > 3) {
+    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
+
+		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) ) {
+			LPDCXSITEM sitem = this->getItem(nPos);
+			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
+				sitem->tsTipText = (numtok > 4 ? input.gettok(5, -1, " ") : "");
+				sitem->tsTipText.trim();
+			}
+		}
+  }
 	else
 		this->parseGlobalCommandRequest(input, flags);
 }
@@ -275,6 +288,14 @@ int DcxStacker::getItemID(void) const {
 	GetCursorPos( &pt );
 	ScreenToClient( this->m_Hwnd, &pt );
 	return (int)(LOWORD((DWORD)SendMessage(this->m_Hwnd,LB_ITEMFROMPOINT,NULL,MAKELPARAM(pt.x,pt.y))) +1);
+}
+
+LPDCXSITEM DcxStacker::getItem(int nPos) const {
+	return (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,nPos,NULL);
+}
+
+LPDCXSITEM DcxStacker::getHotItem(void) const {
+	return (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,this->getItemID()-1,NULL);
 }
 
 /*!
@@ -318,7 +339,7 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	case WM_COMPAREITEM:
 		{
 			bParsed = TRUE;
-			LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
+			//LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
 		}
 		break;
 
@@ -405,6 +426,15 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				rcText.bottom = idata->rcItem.bottom;
 			button_base = rcText.bottom;
 
+			// draw background if we need to.
+			//if (this->isExStyle(WS_EX_TRANSPARENT) || this->m_bAlphaBlend) {
+			//	HRGN hrgn = CreateRectRgnIndirect(&idata->rcItem);
+			//	if (hrgn != NULL) {
+			//		SelectClipRgn(idata->hDC,hrgn);
+			//		DcxControl::DrawParentsBackground(idata->hDC);
+			//		DeleteObject(hrgn);
+			//	}
+			//}
 			// draw button for this item.
 			UINT style = DFCS_BUTTONPUSH|DFCS_ADJUSTRECT;
 			if (idata->itemState & ODS_DISABLED)
@@ -414,6 +444,7 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			DrawFrameControl(idata->hDC,&rcText,DFC_BUTTON,style);
 
+			// fill background colour if any.
 			if (this->m_dStyles & STACKERS_GRAD) {
 				COLORREF clrbkg = sitem->clrBack;
 
@@ -427,9 +458,9 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				ExtTextOut(idata->hDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, "", NULL, NULL );
 			}
 
+			// draw text if any
 			if (sitem->tsCaption.len()) {
 				SetBkMode(idata->hDC,TRANSPARENT);
-				//InflateRect(&rcText,-2,-2);
 				UINT f = DST_TEXT;
 				if (idata->itemState & ODS_DISABLED)
 					f |= DSS_DISABLED;
@@ -450,6 +481,22 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				}
 
 				SelectObject(idata->hDC,oldFont);
+			}
+			// draw arrows if wanted.
+			if (this->m_dStyles & STACKERS_ARROW) {
+				RECT rcArrow = rcText;
+				SelectObject(idata->hDC,GetStockObject(BLACK_BRUSH));
+				rcArrow.left = rcArrow.right - 10;
+				rcArrow.top += 5;
+				rcArrow.bottom -= 5;
+				POINT pts[3];
+				pts[0].x = rcArrow.left;
+				pts[0].y = rcArrow.top;
+				pts[1].x = rcArrow.right;
+				pts[1].y = rcArrow.top;
+				pts[2].x = rcArrow.left + (rcArrow.right - rcArrow.left)/2;
+				pts[2].y = rcArrow.bottom;
+				Polygon(idata->hDC,pts,3);
 			}
 			// position child control if any.
 			bool Redraw = false;
@@ -498,7 +545,15 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
 			}
 			break;
+		case WM_GETDLGCODE:
+			{
+				bParsed = TRUE;
+				return DLGC_WANTALLKEYS;
+			}
+			break;
 
+    case WM_HSCROLL:
+    case WM_VSCROLL:
 		case WM_COMMAND:
 			{
 				if (IsWindow((HWND) lParam)) {
@@ -555,25 +610,17 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
     case WM_NOTIFY: 
       {
-
         LPNMHDR hdr = (LPNMHDR) lParam;
 
         if (!hdr)
           break;
 
-				if (this->m_Hwnd != hdr->hwndFrom) {
-					if (IsWindow(hdr->hwndFrom)) {
-						DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
-						if (c_this != NULL)
-							lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
-				}
-				else {
+				if (hdr->hwndFrom == this->m_ToolTipHWND) {
 					switch( hdr->code ) {
 					case TTN_GETDISPINFO:
 						{
 							LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-							LPDCXSITEM sitem = (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,this->getItemID()-1,NULL);
+							LPDCXSITEM sitem = this->getHotItem();
 							if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
 								di->lpszText = sitem->tsTipText.to_chr();
 								di->hinst = NULL;
@@ -589,19 +636,22 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 						break;
 					}
 				}
-      }
-      break;
-
-    case WM_HSCROLL:
-    case WM_VSCROLL:
-      {
-				if (IsWindow((HWND) lParam)) {
-					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
-					if (c_this != NULL)
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				else if (this->m_Hwnd != hdr->hwndFrom) {
+					if (IsWindow(hdr->hwndFrom)) {
+						DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+						if (c_this != NULL)
+							lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
 				}
       }
       break;
+
+		case WM_CTLCOLORDLG:
+			{
+				bParsed = TRUE;
+				return (INT_PTR) this->getBackClrBrush( );
+			}
+			break;
 
     case WM_CTLCOLORBTN:
     case WM_CTLCOLORLISTBOX:
@@ -690,14 +740,16 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 		case WM_ERASEBKGND:
 		{
+			// fill background.
 			//if (this->m_bAlphaBlend || this->isExStyle(WS_EX_TRANSPARENT))
 				this->DrawParentsBackground((HDC) wParam);
-			// fill background.
-			//RECT rcClient;
+			//else {
+			//	RECT rcClient;
 
-			//// get controls client area
-			//GetClientRect( this->m_Hwnd, &rcClient );
-			//DcxControl::DrawCtrlBackground((HDC)wParam,this,&rcClient);
+			//	// get controls client area
+			//	GetClientRect( this->m_Hwnd, &rcClient );
+			//	DcxControl::DrawCtrlBackground((HDC)wParam,this,&rcClient);
+			//}
 			bParsed = TRUE;
 			return TRUE;
 		}

@@ -15,40 +15,6 @@
 #include "dcxbox.h"
 #include "../dcxdialog.h"
 
-#include "../dcxprogressbar.h"
-#include "../dcxtrackbar.h"
-#include "../dcxcolorcombo.h"
-#include "../dcxcomboex.h"
-#include "../dcxstatusbar.h"
-#include "../dcxtreeview.h"
-#include "../dcxtoolbar.h"
-#include "../dcxlistview.h"
-#include "../dcxbutton.h"
-#include "../dcxrichedit.h"
-#include "../dcxrebar.h"
-#include "../dcxipaddress.h"
-#include "../dcxupdown.h"
-#include "../dcxwebctrl.h"
-#include "../dcxcalendar.h"
-#include "../dcxpager.h"
-
-#include "../dcxpanel.h"
-#include "../dcxdivider.h"
-#include "../dcxtab.h"
-
-#include "../dcxmwindow.h"
-#include "../dcxmdialog.h"
-
-#include "dcxline.h"
-#include "dcxradio.h"
-#include "dcxcheck.h"
-#include "dcxtext.h"
-#include "dcxedit.h"
-#include "dcxscroll.h"
-#include "dcxlist.h"
-#include "dcxlink.h"
-#include "dcximage.h"
-
 #include "../layout/layoutcellfixed.h"
 #include "../layout/layoutcellfill.h"
 #include "../layout/layoutcellpane.h"
@@ -78,11 +44,8 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 	this->m_Hwnd = CreateWindowEx(
 		ExStyles | WS_EX_CONTROLPARENT,
 		DCX_BOXCLASS,
-		//"BUTTON",
-		//"STATIC",
 		NULL,
 		Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN,
-		//Styles | WS_CHILD | WS_VISIBLE,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -581,7 +544,7 @@ LRESULT DcxBox::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	return 0L;
 }
 
-void DcxBox::FillBkg(HDC hdc, LPRECT rc, HBRUSH hBrush)
+void DcxBox::FillBkg(const HDC hdc, const LPRECT rc, const HBRUSH hBrush)
 {
 	if (!this->isExStyle(WS_EX_TRANSPARENT)) {
 		// paint the background

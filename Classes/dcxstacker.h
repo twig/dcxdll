@@ -23,6 +23,7 @@
 
 #define STACKERS_GRAD		0x01
 #define STACKERS_IMAGE	0x02
+#define STACKERS_ARROW	0x04
 
 typedef struct tagDCXSITEM {
 	TString tsTipText;  //!< Tooltip text
@@ -60,6 +61,8 @@ protected:
 	DWORD m_dStyles;
 
 	int getItemID(void) const;
+	LPDCXSITEM getItem(int nPos) const;
+	LPDCXSITEM getHotItem(void) const;
 };
 
 #endif //_DCXSTACKER_H_

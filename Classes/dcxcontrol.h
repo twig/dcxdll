@@ -56,6 +56,7 @@
 #define CTLF_ALLOW_PAGER			0x10000000
 #define CTLF_ALLOW_DOCK				0x20000000
 #define CTLF_ALLOW_DATETIME		0x40000000
+#define CTLF_ALLOW_STACKER		0x80000000
 
 class DcxDialog;
 
@@ -106,7 +107,7 @@ public:
   COLORREF getBackColor( ) const;
   COLORREF getTextColor( ) const;
 
-  static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, int offset, DWORD mask = -1, HWND hParent = NULL);
+  static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, int offset, const DWORD mask = -1, HWND hParent = NULL);
 
   virtual TString getType( ) = 0;
 
