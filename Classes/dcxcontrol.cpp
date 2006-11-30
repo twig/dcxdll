@@ -382,6 +382,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		RECT rc;
 		HRGN m_Region = NULL;
 		int RegionMode = 0;
+		bool noRegion = false;
 		GetWindowRect(this->m_Hwnd,&rc);
 
 		if (flag.find('o',0))
@@ -463,21 +464,51 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 			delete [] pnts;
 		}
-		else if (flag.find('n',0)) // none, no args
+		// Doesn't work with child controls :/ (yet)
+		//else if (flag.find('s',0)) // shadow - <colour> <sharpness> <darkness> <size> <xoffset> <yoffset>
+		//{
+		//	if (numtok == 10) {
+		//		noRegion = true;
+		//		COLORREF s_clr = (COLORREF)input.gettok(5).to_num();
+		//		int s_sharp = input.gettok(6).to_int();
+		//		int s_dark = input.gettok(7).to_int();
+		//		int s_size = input.gettok(8).to_int();
+		//		int s_x = input.gettok(9).to_int();
+		//		int s_y = input.gettok(10).to_int();
+		//		if (!CWndShadow::isShadowed(this->m_Hwnd))
+		//			this->m_oShadow.Create(this->m_Hwnd);
+		//		this->m_oShadow.SetColor(s_clr);
+		//		this->m_oShadow.SetSharpness(s_sharp);
+		//		this->m_oShadow.SetDarkness(s_dark);
+		//		this->m_oShadow.SetSize(s_size);
+		//		this->m_oShadow.SetPosition(s_x,s_y);
+		//	}
+		//	else {
+		//		DCXError("xdid -R +s", "Invalid Args");
+		//		return;
+		//	}
+		//}
+		else if (flag.find('n',0)) { // none, no args
+			noRegion = true;
 			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
+		}
 		else
 			DCXError("/xdid -R","Invalid Flag");
 
-		if (m_Region != NULL) {
-			if (RegionMode != 0) {
-				HRGN wrgn = CreateRectRgn(0,0,0,0);
-				if (wrgn != NULL) {
-					if (GetWindowRgn(this->m_Hwnd,wrgn) != ERROR)
-						CombineRgn(m_Region,m_Region,wrgn,RegionMode);
-					DeleteObject(wrgn);
+		if (!noRegion) {
+			if (m_Region != NULL) {
+				if (RegionMode != 0) {
+					HRGN wrgn = CreateRectRgn(0,0,0,0);
+					if (wrgn != NULL) {
+						if (GetWindowRgn(this->m_Hwnd,wrgn) != ERROR)
+							CombineRgn(m_Region,m_Region,wrgn,RegionMode);
+						DeleteObject(wrgn);
+					}
 				}
+				SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
 			}
-			SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
+			else
+				DCXError("/xdid -R","Unable to create region.");
 		}
 		this->redrawWindow();
 	}

@@ -24,6 +24,7 @@
 
 #include "../defines.h"
 #include "dcxwindow.h"
+//#include "WndShadow\WndShadow.h"
 
 #define CTLF_ALLOW_PBAR				0x00000001
 #define CTLF_ALLOW_TRACKBAR		0x00000002
@@ -149,6 +150,7 @@ protected:
 	DcxControl *m_pParentCtrl;
 	HWND m_pParentHWND;
 	bool m_bShadowText; //!< Text is drawn with a shadow.
+	//CWndShadow m_oShadow;
   /* ***** */
 
   void parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags );

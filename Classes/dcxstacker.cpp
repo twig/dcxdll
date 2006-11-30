@@ -290,6 +290,10 @@ int DcxStacker::getItemID(void) const {
 	return (int)(LOWORD((DWORD)SendMessage(this->m_Hwnd,LB_ITEMFROMPOINT,NULL,MAKELPARAM(pt.x,pt.y))) +1);
 }
 
+int DcxStacker::getSelItemID(void) const {
+	return (int)(LOWORD((DWORD)SendMessage(this->m_Hwnd,LB_GETCURSEL,NULL,NULL)) +1);
+}
+
 LPDCXSITEM DcxStacker::getItem(int nPos) const {
 	return (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,nPos,NULL);
 }
@@ -315,13 +319,13 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			case LBN_DBLCLK:
 				{
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), this->getItemID());
+						this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), this->getSelItemID());
 				}
 				break;
 			case LBN_SELCHANGE:
 				{
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getItemID());
+						this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getSelItemID());
 				}
 				break;
 			}
@@ -421,7 +425,7 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			h = max(h,lf.lfHeight * 20);
 			rcText.bottom = rcText.top + h;
-
+			//rcText.right -= 1;
 			if (rcText.bottom > idata->rcItem.bottom)
 				rcText.bottom = idata->rcItem.bottom;
 			button_base = rcText.bottom;

@@ -61,6 +61,7 @@ protected:
 	DWORD m_dStyles;
 
 	int getItemID(void) const;
+	int getSelItemID(void) const;
 	LPDCXSITEM getItem(int nPos) const;
 	LPDCXSITEM getHotItem(void) const;
 };
