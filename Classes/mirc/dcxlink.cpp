@@ -96,7 +96,7 @@ void DcxLink::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 
 		if ( styles.gettok( i , " " ) == "alpha" )
 			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i , " " ) == "shadow" ) && isXP())
+		else if (( styles.gettok( i , " " ) == "shadow" ))
 			this->m_bShadowText = true;
 
     i++;
@@ -363,7 +363,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 				if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
 					TString wtext(text);
-					DrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &rect,
+					dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &rect,
 						DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_clrText, 0, 5, 5);
 				}
 				else {

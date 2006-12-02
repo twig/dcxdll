@@ -146,7 +146,7 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 			*ExStyles |= WS_EX_TRANSPARENT;
 		else if ( styles.gettok( i , " " ) == "alpha" )
 			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i , " " ) == "shadow" ) && isXP())
+		else if (( styles.gettok( i , " " ) == "shadow" ))
 			this->m_bShadowText = true;
 
 		i++;
@@ -924,7 +924,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					// draw the text
 					if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
 						TString wtext(text);
-						DrawShadowText(hdc,wtext.to_wchr(), wtext.len(),&rcText,
+						dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(),&rcText,
 							DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
 					}
 					else

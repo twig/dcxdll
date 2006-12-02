@@ -118,7 +118,7 @@ void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
       *Styles |= BS_DEFPUSHBUTTON;
     else if ( styles.gettok( i , " " ) == "alpha" )
 			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i , " " ) == "shadow" ) && isXP())
+		else if (( styles.gettok( i , " " ) == "shadow" ))
 			this->m_bShadowText = true;
 
     i++;
@@ -604,7 +604,7 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 					if ( this->m_tsCaption.len( ) > 0 ) {
 						if (!this->m_bSelected && this->m_bShadowText) // could cause problems with pre-XP as this is commctrl v6+
-							DrawShadowText(hdc,this->m_tsCaption.to_wchr(), this->m_tsCaption.len(),&rcTxt,
+							dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(), this->m_tsCaption.len(),&rcTxt,
 								DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
 						else
 							DrawText( hdc, this->m_tsCaption.to_chr( ), this->m_tsCaption.len( ), 

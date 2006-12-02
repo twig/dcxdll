@@ -87,7 +87,7 @@ void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 		if ( styles.gettok( i , " " ) == "alpha" )
 			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i , " " ) == "shadow" ) && isXP())
+		else if (( styles.gettok( i , " " ) == "shadow" ))
 			this->m_bShadowText = true;
 		else if ( styles.gettok( i , " " ) == "vscroll" )
 			*Styles |= WS_VSCROLL;
@@ -476,7 +476,7 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					clrText = GetSysColor(COLOR_BTNTEXT);
 				// draw the text
 				if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
-					DrawShadowText(idata->hDC,sitem->tsCaption.to_wchr(), sitem->tsCaption.len(),&rcText,
+					dcxDrawShadowText(idata->hDC,sitem->tsCaption.to_wchr(), sitem->tsCaption.len(),&rcText,
 						DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
 				}
 				else {

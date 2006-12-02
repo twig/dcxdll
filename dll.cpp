@@ -44,6 +44,7 @@ PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx = NULL;
 PFNDRAWTHEMETEXT DrawThemeTextUx = NULL;
 PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx = NULL;
 PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx = NULL;
+PFNDRAWSHADOWTEXT DrawShadowTextUx = NULL;
 
 HMODULE UXModule = NULL;             //!< UxTheme.dll Module Handle
 BOOL XPPlus = FALSE;                 //!< Is OS WinXP+ ?
@@ -176,12 +177,21 @@ void WINAPI LoadDll(LOADINFO * load) {
 	// RichEdit DLL Loading
 	LoadLibrary("RICHED20.DLL");
 
-	HMODULE hUser32 = GetModuleHandle("USER32.DLL");
+	HMODULE hModule = GetModuleHandle("USER32.DLL");
 
-	// get UpdateLayeredWindow() if we can.
-	UpdateLayeredWindowUx = (PFNUPDATELAYEREDWINDOW)GetProcAddress(hUser32, "UpdateLayeredWindow");
-	// get SetLayeredWindowAttributes() if we can.
-	SetLayeredWindowAttributesUx = (PFNSETLAYEREDWINDOWATTRIBUTES)GetProcAddress(hUser32, "SetLayeredWindowAttributes");
+	if (hModule != NULL) {
+		// get UpdateLayeredWindow() if we can.
+		UpdateLayeredWindowUx = (PFNUPDATELAYEREDWINDOW)GetProcAddress(hModule, "UpdateLayeredWindow");
+		// get SetLayeredWindowAttributes() if we can.
+		SetLayeredWindowAttributesUx = (PFNSETLAYEREDWINDOWATTRIBUTES)GetProcAddress(hModule, "SetLayeredWindowAttributes");
+	}
+
+	hModule = GetModuleHandle("COMCTL32.DLL");
+
+	if (hModule != NULL) {
+		// get DrawShadowText() if we can.
+		DrawShadowTextUx = (PFNDRAWSHADOWTEXT)GetProcAddress(hModule, "DrawShadowText");
+	}
 
 	// UXModule Loading
 	UXModule = LoadLibrary("UXTHEME.DLL");

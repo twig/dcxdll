@@ -11,6 +11,31 @@
  *
  * © ScriptsDB.org - 2006
  */
+// CWndShadow ...
+//
+// Copyright (c) 2006 Perry Zhu, All Rights Reserved.
+//
+// mailto:perry@live.com
+//
+//
+// This source file may be redistributed unmodified by any means PROVIDING 
+// it is NOT sold for profit without the authors expressed written 
+// consent, and providing that this notice and the author's name and all 
+// copyright notices remain intact. This software is by no means to be 
+// included as part of any third party components library, or as part any
+// development solution that offers MFC extensions that are sold for profit. 
+// 
+// If the source code is used in any commercial applications then a statement 
+// along the lines of:
+// 
+// "Portions Copyright (c) 2006 Perry Zhu" must be included in the "Startup 
+// Banner", "About Box" or "Printed Documentation". This software is provided 
+// "as is" without express or implied warranty. Use it at your own risk! The 
+// author accepts no liability for any damage/loss of business that this 
+// product may cause.
+//
+// This code has been modified for use with DCX, & is used for the DcxDialog Shadows.
+// .... CWndShadow
 
 #include "../defines.h"
 #include "dcxdialog.h"
@@ -2265,30 +2290,15 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPRECT rwnd)
 
 	DeleteDC(hdcbmp);
 }
-// Version 0.2
+
+// CWndShadow ...
 //
 // Copyright (c) 2006 Perry Zhu, All Rights Reserved.
 //
 // mailto:perry@live.com
 //
-//
-// This source file may be redistributed unmodified by any means PROVIDING 
-// it is NOT sold for profit without the authors expressed written 
-// consent, and providing that this notice and the author's name and all 
-// copyright notices remain intact. This software is by no means to be 
-// included as part of any third party components library, or as part any
-// development solution that offers MFC extensions that are sold for profit. 
-// 
-// If the source code is used in any commercial applications then a statement 
-// along the lines of:
-// 
-// "Portions Copyright (c) 2006 Perry Zhu" must be included in the "Startup 
-// Banner", "About Box" or "Printed Documentation". This software is provided 
-// "as is" without express or implied warranty. Use it at your own risk! The 
-// author accepts no liability for any damage/loss of business that this 
-// product may cause.
-//
-// This code has been modified for use with DCX.
+// This code has been modified for use with DCX, & is used for the DcxDialog Shadows.
+
 bool DcxDialog::AddShadow(void)
 {
 	if (UpdateLayeredWindowUx == NULL)
@@ -2363,10 +2373,10 @@ void DcxDialog::UpdateShadow(void)
 
 	MoveWindow(this->m_Shadow.hWin, ptDst.x, ptDst.y, nShadWndWid, nShadWndHei, FALSE);
 
-	BOOL bRet= UpdateLayeredWindowUx(this->m_Shadow.hWin, NULL, &ptDst, &WndSize, hMemDC,
+	/*BOOL bRet=*/ UpdateLayeredWindowUx(this->m_Shadow.hWin, NULL, &ptDst, &WndSize, hMemDC,
 		&ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
 
-	_ASSERT(bRet); // something was wrong....
+	//_ASSERT(bRet); // something was wrong....
 
 	// Delete used resources
 	SelectObject(hMemDC, hOriBmp);
@@ -2602,8 +2612,8 @@ bool DcxDialog::SetShadowSize(int NewSize)
 		return false;
 
 	this->m_Shadow.nSize = (signed char)NewSize;
-	if(DCX_SS_VISABLE & this->m_Shadow.Status)
-		this->UpdateShadow();
+	if(DCX_SS_VISABLE & m_Shadow.Status)
+		UpdateShadow();
 	return true;
 }
 
@@ -2614,7 +2624,7 @@ bool DcxDialog::SetShadowSharpness(unsigned int NewSharpness)
 
 	this->m_Shadow.nSharpness = (unsigned char)NewSharpness;
 	if(DCX_SS_VISABLE & this->m_Shadow.Status)
-		this->UpdateShadow();
+		UpdateShadow();
 	return true;
 }
 
@@ -2649,3 +2659,4 @@ bool DcxDialog::SetShadowColor(COLORREF NewColor)
 		UpdateShadow();
 	return true;
 }
+// .... CWndShadow
