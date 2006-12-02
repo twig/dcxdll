@@ -42,6 +42,8 @@ PFNGETTHEMEBACKGROUNDCONTENTRECT GetThemeBackgroundContentRectUx = NULL;
 PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT IsThemeBackgroundPartiallyTransparentUx = NULL;
 PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx = NULL;
 PFNDRAWTHEMETEXT DrawThemeTextUx = NULL;
+PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx = NULL;
+PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx = NULL;
 
 HMODULE UXModule = NULL;             //!< UxTheme.dll Module Handle
 BOOL XPPlus = FALSE;                 //!< Is OS WinXP+ ?
@@ -174,6 +176,13 @@ void WINAPI LoadDll(LOADINFO * load) {
 	// RichEdit DLL Loading
 	LoadLibrary("RICHED20.DLL");
 
+	HMODULE hUser32 = GetModuleHandle("USER32.DLL");
+
+	// get UpdateLayeredWindow() if we can.
+	UpdateLayeredWindowUx = (PFNUPDATELAYEREDWINDOW)GetProcAddress(hUser32, "UpdateLayeredWindow");
+	// get SetLayeredWindowAttributes() if we can.
+	SetLayeredWindowAttributesUx = (PFNSETLAYEREDWINDOWATTRIBUTES)GetProcAddress(hUser32, "SetLayeredWindowAttributes");
+
 	// UXModule Loading
 	UXModule = LoadLibrary("UXTHEME.DLL");
 
@@ -201,6 +210,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	}
 	else
 		XPPlus = FALSE;
+
 	// Load Control definitions
 	INITCOMMONCONTROLSEX icex;
 
@@ -348,6 +358,22 @@ void WINAPI LoadDll(LOADINFO * load) {
 	wc.lpszClassName = DCX_PAGERCLASS;
 	RegisterClassEx(&wc);
 
+	// Shadow Class
+	wc.cbSize = sizeof(WNDCLASSEX); 
+	wc.style			= CS_HREDRAW | CS_VREDRAW;
+	wc.lpfnWndProc	= DefWindowProc;
+	wc.cbClsExtra		= 0;
+	wc.cbWndExtra		= 0;
+	wc.hInstance		= GetModuleHandle( NULL );
+	wc.hIcon			= NULL;
+	wc.hCursor		= LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
+	wc.lpszMenuName	= NULL;
+	wc.lpszClassName	= DCX_SHADOWCLASS;
+	wc.hIconSm		= NULL;
+
+	RegisterClassEx(&wc);
+
 
 	/***** XPopup Stuff *****/
 	//GetClassInfoEx(NULL,"#32768",&wc); // menu
@@ -357,8 +383,6 @@ void WINAPI LoadDll(LOADINFO * load) {
 	//	DestroyWindow(tmp_hwnd);
 	//}
 	g_OldmIRCWindowProc = (WNDPROC) SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) mIRCSubClassWinProc);
-	//XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
-	//XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
 
 	WNDCLASS wcpop;
 	ZeroMemory(&wcpop, sizeof(WNDCLASS));
@@ -411,6 +435,7 @@ int WINAPI UnloadDll(int timeout) {
 		UnregisterClass(DCX_DATETIMECLASS, GetModuleHandle(NULL));
 		UnregisterClass(DCX_BOXCLASS, GetModuleHandle(NULL));
 		UnregisterClass(DCX_PAGERCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_SHADOWCLASS, GetModuleHandle(NULL));
 
 		// Class Factory of Web Control
 		if (g_pClassFactory != NULL)

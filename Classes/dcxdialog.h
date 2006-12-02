@@ -43,6 +43,14 @@
 #define DCX_EVENT_HELP				0x00000100
 #define DCX_EVENT_EDIT				0x00000200
 
+// Shadow Status Flags
+enum ShadowStatus
+{
+	DCX_SS_ENABLED = 1,	// Shadow is enabled, if not, the following one is always false
+	DCX_SS_VISABLE = 1 << 1,	// Shadow window is visible
+	DCX_SS_PARENTVISIBLE = 1<< 2	// Parent window is visible, if not, the above one is always false
+};
+
 // dummy runtime classe definition
 class DcxControl;
 
@@ -97,6 +105,15 @@ public:
 	HBITMAP getBgBitmap() const { return this->m_bitmapBg; };
 	COLORREF getBgTransparentCol() const { return this->m_colTransparentBg; };
 	static void DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPRECT rwnd);
+	bool AddShadow(void);
+	void RemoveShadow(void);
+	void UpdateShadow(void);
+	bool isShadowed(void);
+	bool SetShadowSize(int NewSize = 0);
+	bool SetShadowSharpness(unsigned int NewSharpness = 5);
+	bool SetShadowDarkness(unsigned int NewDarkness = 200);
+	bool SetShadowPosition(int NewXOffset = 5, int NewYOffset = 5);
+	bool SetShadowColor(COLORREF NewColor = 0);
 
 protected:
 
@@ -124,7 +141,6 @@ protected:
   UINT m_uStyleBg;
   COLORREF m_colTransparentBg;
 	HWND m_ToolTipHWND; //!< Dialogs general tooltip control for use with all controls that don't have their own tooltips.
-	//HRGN m_Region;
   UINT m_iRefCount;
 	bool m_bDoDrag;
 	bool m_bDrag;
@@ -132,7 +148,27 @@ protected:
 	bool m_bGhosted;
 	DWORD m_dEventMask;
 	BOOL m_bTracking;
-  /* **** */
+	struct {
+		HWND hWin; //!< The shadow window.
+		BYTE Status; //!< The shadow windows status.
+		unsigned char nDarkness;	// Darkness, transparency of blurred area
+		unsigned char nSharpness;	// Sharpness, width of blurred border of shadow window
+		signed char nSize;	// Shadow window size, relative to parent window size
+
+		// The X and Y offsets of shadow window,
+		// relative to the parent window, at center of both windows (not top-left corner), signed
+		signed char nxOffset;
+		signed char nyOffset;
+
+		// Restore last parent window size, used to determine the update strategy when parent window is resized
+		LPARAM WndSize;
+
+		// Set this to true if the shadow should not be update until next WM_PAINT is received
+		bool bUpdate;
+
+		COLORREF Color;	// Color of shadow
+	} m_Shadow;
+	/* **** */
 
   static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
   static DWORD getAnimateStyles( TString & flags );
@@ -143,6 +179,18 @@ protected:
   static UINT parseCursorFlags( TString & flags );
   static LPSTR parseCursorType( TString & cursor );
   static UINT parseTooltipFlags(TString &flags);
+
+	// Fill in the shadow window alpha blend bitmap with shadow image pixels
+	void MakeShadow(UINT32 *pShadBits, HWND hParent, RECT *rcParent);
+
+	// Helper to calculate the alpha-premultiled value for a pixel
+	inline DWORD PreMultiply(COLORREF cl, unsigned char nAlpha)
+	{
+		// It's strange that the byte order of RGB in 32b BMP is reverse to in COLORREF
+		return (GetRValue(cl) * (DWORD)nAlpha / 255) << 16 |
+			(GetGValue(cl) * (DWORD)nAlpha / 255) << 8 |
+			(GetBValue(cl) * (DWORD)nAlpha / 255);
+	}
 };
 
 #endif // _DCXDIALOG_H_

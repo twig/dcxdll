@@ -99,6 +99,7 @@ using namespace Gdiplus;
 //#define DCX_RADIOCLASS       "DCXRadioClass"        //!< DCX Radio Class Name
 //#define DCX_CHECKCLASS       "DCXCheckClass"        //!< DCX Check Class Name
 //#define DCX_SCROLLBARCLASS   "DCXScrollBarClass"    //!< DCX ScrollBar Class Name
+#define DCX_SHADOWCLASS				"DCXShadowClass"				//!< DCX Box Class Name
 
 // Layout Constants
 #define LAYOUTFIXED 0x01  //!< Layout Cell Fixed Type
@@ -257,6 +258,9 @@ typedef HRESULT (WINAPI *PFNGETTHEMEBACKGROUNDCONTENTRECT)(HTHEME, HDC, int, int
 typedef BOOL (WINAPI *PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT)(HTHEME, int, int);
 typedef HRESULT (WINAPI *PFNDRAWTHEMEPARENTBACKGROUND)(HWND, HDC, RECT*);
 typedef HRESULT (WINAPI *PFNDRAWTHEMETEXT)(HTHEME, HDC, int, int, LPCWSTR, int, DWORD, DWORD, const RECT *);
+typedef BOOL (WINAPI *PFNUPDATELAYEREDWINDOW)(HWND hWnd, HDC hdcDst, POINT *pptDst, SIZE *psize, HDC hdcSrc, POINT *pptSrc, COLORREF crKey, BLENDFUNCTION *pblend, DWORD dwFlags);
+typedef BOOL (WINAPI *PFNSETLAYEREDWINDOWATTRIBUTES)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
+
 HRESULT dcxSetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
 BOOL dcxIsThemeActive();
 BOOL isXP();
@@ -293,5 +297,7 @@ extern PFNGETTHEMEBACKGROUNDCONTENTRECT GetThemeBackgroundContentRectUx;
 extern PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT IsThemeBackgroundPartiallyTransparentUx;
 extern PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx;
 extern PFNDRAWTHEMETEXT DrawThemeTextUx;
+extern PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx;
+extern PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx;
 
 #endif // _DEFINES_H_

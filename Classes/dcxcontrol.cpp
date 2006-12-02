@@ -64,23 +64,24 @@ extern mIRCDLL mIRCLink;
  * \param p_Dialog Parent DcxDialog Object
  */
 
-DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog ) : DcxWindow( mID ), m_pParentDialog( p_Dialog ) {
-
-  this->m_hFont = NULL;
-  this->m_tsMark = "";
-  this->m_clrText = (COLORREF)-1;
-  this->m_clrBackText = (COLORREF)-1;
-  this->m_hBackBrush = NULL;
-  this->m_iRefCount = 0;
-
-  this->m_hCursor = NULL;
-  this->m_bCursorFromFile = FALSE;
+DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
+: DcxWindow( mID )
+, m_pParentDialog( p_Dialog )
+, m_hFont(NULL)
+, m_tsMark("")
+, m_clrText((COLORREF)-1)
+, m_clrBackText((COLORREF)-1)
+, m_hBackBrush(NULL)
+, m_iRefCount(0)
+, m_hCursor(NULL)
+, m_bCursorFromFile(FALSE)
+, m_bAlphaBlend(false)
+, m_pParentCtrl(NULL)
+, m_pParentHWND(NULL)
+, m_bitmapBg(NULL)
+, m_bShadowText(false)
+{
 	this->m_dEventMask = p_Dialog->getEventMask();
-	this->m_bAlphaBlend = false;
-	this->m_pParentCtrl = NULL;
-	this->m_pParentHWND = NULL;
-	this->m_bitmapBg = NULL;
-	this->m_bShadowText = false;
 }
 
 /*!
