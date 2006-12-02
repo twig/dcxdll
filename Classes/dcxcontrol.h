@@ -65,6 +65,7 @@ typedef struct {
 	HDC ai_hdc;
 	HDC ai_Oldhdc;
 	HBITMAP ai_bitmap;
+	HBITMAP ai_oldBM;
 	RECT ai_rcClient;
 	RECT ai_rcWin;
 } ALPHAINFO, *LPALPHAINFO;
@@ -117,9 +118,9 @@ public:
   inline UINT getRefCount( ) const { return this->m_iRefCount; };
 	DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
-	static void DrawCtrlBackground(HDC hdc, DcxControl *p_this, LPRECT rwnd);
+	static void DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd);
 	void DrawParentsBackground(const HDC hdc);
-	LPALPHAINFO SetupAlphaBlend(HDC *hdc);
+	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai);
 
 protected:

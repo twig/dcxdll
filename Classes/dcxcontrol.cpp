@@ -1080,7 +1080,7 @@ void DcxControl::updateParentCtrl(void)
 	}
 }
 
-void DcxControl::DrawCtrlBackground(HDC hdc, DcxControl *p_this, LPRECT rwnd)
+void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd)
 {
 	// fill background.
 	if (!p_this->isExStyle(WS_EX_TRANSPARENT)) {
@@ -1090,12 +1090,6 @@ void DcxControl::DrawCtrlBackground(HDC hdc, DcxControl *p_this, LPRECT rwnd)
 		if ( hBrush != NULL )
 				FillRect( hdc, rwnd, hBrush );
 	}
-	//else if (p_this->m_pParentCtrl != NULL) {
-	//	DcxControl::DrawCtrlBackground(hdc,p_this->m_pParentCtrl,rwnd);
-	//}
-	//else {
-	//	DcxDialog::DrawDialogBackground(hdc,p_this->m_pParentDialog,rwnd);
-	//}
 }
 
 void DcxControl::DrawParentsBackground(const HDC hdc)
@@ -1128,7 +1122,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc)
 		HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
 		if (memBM != NULL) {
 			// associate bitmap with HDC
-			SelectObject ( hdcbkg, memBM );
+			HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
 			if (this->m_pParentCtrl == NULL) { // host control is the dialog, draw dialogs background.
 				DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
 			}
@@ -1141,17 +1135,18 @@ void DcxControl::DrawParentsBackground(const HDC hdc)
 			}
 			// draw background to main hdc
 			BitBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbkg, pt.x, pt.y, SRCCOPY);
+			SelectObject ( hdcbkg, oldBM );
 			DeleteObject(memBM);
 		}
 		DeleteDC( hdcbkg );
 	}
 }
-LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc)
+LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 {
 	if ((hdc == NULL) || (*hdc == NULL))
 		return NULL;
 	LPALPHAINFO ai = NULL;
-	if (this->m_bAlphaBlend) {
+	if (this->m_bAlphaBlend || DoubleBuffer) {
 		/*
 			1: draw parents bg to hdc
 			2: copy bg to temp hdc
@@ -1168,7 +1163,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc)
 			ai->ai_bitmap = CreateCompatibleBitmap ( *hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top );
 			if (ai->ai_bitmap != NULL) {
 				// associate bitmap with hdc
-				SelectObject ( ai->ai_hdc, ai->ai_bitmap );
+				ai->ai_oldBM = (HBITMAP)SelectObject ( ai->ai_hdc, ai->ai_bitmap );
 				// fill in parent bg
 				this->DrawParentsBackground(ai->ai_hdc);
 				// copy bg to temp hdc
@@ -1184,10 +1179,10 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 {
 	if (ai == NULL)
 		return;
-	if (this->m_bAlphaBlend) {
-		if (ai->ai_hdc != NULL) {
-			if (ai->ai_bitmap != NULL) {
-				int w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);
+	if (ai->ai_hdc != NULL) {
+		if (ai->ai_bitmap != NULL) {
+			int w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);
+			if (this->m_bAlphaBlend) {
 				// alpha blend finished button with parents background
 				BLENDFUNCTION bf;
 				bf.BlendOp = AC_SRC_OVER;
@@ -1195,10 +1190,14 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 				bf.SourceConstantAlpha = 0x7f;  // 0x7f half of 0xff = 50% transparency
 				bf.AlphaFormat = 0; //AC_SRC_ALPHA;
 				AlphaBlend(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h,bf);
-				DeleteObject(ai->ai_bitmap);
 			}
-			DeleteDC( ai->ai_hdc );
+			else
+				BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+
+			SelectObject (ai->ai_hdc, ai->ai_oldBM );
+			DeleteObject(ai->ai_bitmap);
 		}
+		DeleteDC( ai->ai_hdc );
 	}
 	delete ai;
 }

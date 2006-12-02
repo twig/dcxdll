@@ -294,12 +294,20 @@ int DcxStacker::getSelItemID(void) const {
 	return (int)(LOWORD((DWORD)SendMessage(this->m_Hwnd,LB_GETCURSEL,NULL,NULL)) +1);
 }
 
+DWORD DcxStacker::getItemCount(void) const {
+	return (DWORD)SendMessage(this->m_Hwnd,LB_GETCOUNT,NULL,NULL);
+}
+
 LPDCXSITEM DcxStacker::getItem(int nPos) const {
 	return (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,nPos,NULL);
 }
 
 LPDCXSITEM DcxStacker::getHotItem(void) const {
 	return (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,this->getItemID()-1,NULL);
+}
+
+void DcxStacker::getItemRect(int nPos, LPRECT rc) const {
+	SendMessage(this->m_Hwnd,LB_GETITEMRECT,(WPARAM)nPos,(LPARAM)rc);
 }
 
 /*!
@@ -331,15 +339,6 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			}
 		}
 		break;
-	//case WM_HSCROLL:
-	//case WM_VSCROLL:
-	//case WM_MOUSEWHEEL:
-	//	{
-	//		//if (HIWORD(wParam) == SB_ENDSCROLL)
-	//			this->redrawWindow();
-	//			//InvalidateRect(this->m_Hwnd,NULL,TRUE);
-	//	}
-	//	break;
 	case WM_COMPAREITEM:
 		{
 			bParsed = TRUE;
@@ -417,6 +416,7 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			LOGFONT lf;
 			RECT rcText = idata->rcItem;
 			int h = MIN_STACK_HEIGHT, button_base = 0;
+			bool Redraw = false;
 
 			if (hFont == NULL)
 				hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
@@ -436,6 +436,7 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			//	if (hrgn != NULL) {
 			//		SelectClipRgn(idata->hDC,hrgn);
 			//		DcxControl::DrawParentsBackground(idata->hDC);
+			//		SelectClipRgn(idata->hDC,NULL);
 			//		DeleteObject(hrgn);
 			//	}
 			//}
@@ -503,7 +504,6 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				Polygon(idata->hDC,pts,3);
 			}
 			// position child control if any.
-			bool Redraw = false;
 			if (sitem->pChild != NULL) {
 				HWND sWnd = sitem->pChild->getHwnd();
 				if (IsWindow(sWnd)) {
@@ -558,6 +558,17 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
     case WM_HSCROLL:
     case WM_VSCROLL:
+			//{
+			//	bParsed = TRUE;
+			//	SendMessage(this->m_Hwnd,WM_SETREDRAW,FALSE,NULL);
+			//	LRESULT res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam );
+			//	SendMessage(this->m_Hwnd,WM_SETREDRAW,TRUE,NULL);
+			//	//this->redrawWindow();
+			//	RedrawWindow(this->m_Hwnd,0,0,RDW_INTERNALPAINT|RDW_FRAME|RDW_INVALIDATE|RDW_ALLCHILDREN);
+			//	return res;
+			//}
+			//break;
+
 		case WM_COMMAND:
 			{
 				if (IsWindow((HWND) lParam)) {
@@ -744,17 +755,28 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 		case WM_ERASEBKGND:
 		{
-			// fill background.
-			//if (this->m_bAlphaBlend || this->isExStyle(WS_EX_TRANSPARENT))
-				this->DrawParentsBackground((HDC) wParam);
-			//else {
-			//	RECT rcClient;
-
-			//	// get controls client area
-			//	GetClientRect( this->m_Hwnd, &rcClient );
-			//	DcxControl::DrawCtrlBackground((HDC)wParam,this,&rcClient);
-			//}
 			bParsed = TRUE;
+			// fill background.
+			DWORD lastID = this->getItemCount();
+			if (lastID == LB_ERR)
+				break;
+			lastID--;
+			if (lastID == 0)
+				this->DrawParentsBackground((HDC) wParam);
+			else {
+				RECT rcItem, rcClient;
+				GetClientRect(this->m_Hwnd,&rcClient);
+				this->getItemRect(lastID, &rcItem);
+				if (rcItem.bottom < rcClient.bottom) {
+					HRGN bkg_rgn = CreateRectRgn(rcClient.left,rcItem.bottom,rcClient.right,rcClient.bottom);
+					if (bkg_rgn != NULL) {
+						SelectClipRgn((HDC)wParam,bkg_rgn);
+						this->DrawParentsBackground((HDC) wParam);
+						SelectClipRgn((HDC)wParam,NULL);
+						DeleteObject(bkg_rgn);
+					}
+				}
+			}
 			return TRUE;
 		}
 		break;
@@ -771,18 +793,8 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				LRESULT res = 0L;
 				bParsed = TRUE;
 
-				//RECT rcClient;
-
-				// get controls client area
-				//GetClientRect( this->m_Hwnd, &rcClient );
-
 				// Setup alpha blend if any.
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-				// fill background.
-				//if (this->m_bAlphaBlend || this->isExStyle(WS_EX_TRANSPARENT))
-				//	this->DrawParentsBackground(hdc);
-				//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
 				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 

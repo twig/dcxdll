@@ -62,8 +62,10 @@ protected:
 
 	int getItemID(void) const;
 	int getSelItemID(void) const;
+	DWORD getItemCount(void) const;
 	LPDCXSITEM getItem(int nPos) const;
 	LPDCXSITEM getHotItem(void) const;
+	void getItemRect(int nPos, LPRECT rc) const;
 };
 
 #endif //_DCXSTACKER_H_
