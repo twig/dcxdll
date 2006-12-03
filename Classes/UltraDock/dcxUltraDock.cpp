@@ -257,12 +257,26 @@ void AdjustMDIRect(WINDOWPOS *wp)
 
 // #####################################################################################
 // 0 == no swb, 1 == Left, 2 == Right, 3 == Top, 4 == Bottom
-int SwitchbarPos(void)
+int SwitchbarPos(int type)
 {
 	RECT swb_rc, mdi_rc;
+	HWND hwnd;
 
-	if (IsWindowVisible(sb_hwnd)) {
-		GetWindowRect(sb_hwnd,&swb_rc);
+	switch (type)
+	{
+	case 1: // toolbar
+		hwnd = tb_hwnd;
+		break;
+	case 2: // treebar
+		hwnd = treeb_hwnd;
+		break;
+	default:
+	case 0: // switchbar
+		hwnd = sb_hwnd;
+		break;
+	}
+	if (IsWindowVisible(hwnd)) {
+		GetWindowRect(hwnd,&swb_rc);
 		GetWindowRect(mdi_hwnd,&mdi_rc);
 		if (swb_rc.left >= mdi_rc.right)
 			return SWB_RIGHT;

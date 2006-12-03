@@ -287,7 +287,7 @@ void RemStyles(HWND hwnd,int parm,long RemStyles);
 void AddStyles(HWND hwnd,int parm,long AddStyles);
 void InitUltraDock(void);
 void CloseUltraDock(void);
-int SwitchbarPos(void);
+int SwitchbarPos(int type);
 void UltraUnDock(const HWND hwnd);
 void UpdatemIRC(void);
 

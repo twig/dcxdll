@@ -78,7 +78,7 @@ extern LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 // UltraDock stuff
 // mIRC components HWND
-extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, lb_hwnd, hTreeView;
+extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, hTreeView;
 extern HFONT pOrigTreeViewFont;
 // switchbar position
 //extern int swb_pos;
@@ -1163,13 +1163,13 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 			{
-				if (mIRCLink.m_bDoGhostDrag < 255) {
+				if (mIRCLink.m_bDoGhostDrag < 255 && SetLayeredWindowAttributesUx != NULL) {
 					long style = GetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE);
 					// Set WS_EX_LAYERED on this window
 					if (!(style & WS_EX_LAYERED))
 						SetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE, style | WS_EX_LAYERED);
 					// Make this window 75 alpha
-					SetLayeredWindowAttributes(mIRCLink.m_mIRCHWND, 0, mIRCLink.m_bDoGhostDrag, LWA_ALPHA);
+					SetLayeredWindowAttributesUx(mIRCLink.m_mIRCHWND, 0, mIRCLink.m_bDoGhostDrag, LWA_ALPHA);
 					mIRCLink.m_bGhosted = true;
 				}
 			}
@@ -1178,9 +1178,9 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_EXITSIZEMOVE:
 		{
 			// turn off ghosting.
-			if (mIRCLink.m_bGhosted) {
+			if (mIRCLink.m_bGhosted && SetLayeredWindowAttributesUx != NULL) {
 				// Make this window solid
-				SetLayeredWindowAttributes(mIRCLink.m_mIRCHWND, 0, 255, LWA_ALPHA);
+				SetLayeredWindowAttributesUx(mIRCLink.m_mIRCHWND, 0, 255, LWA_ALPHA);
 				mIRCLink.m_bGhosted = false;
 			}
 			break;

@@ -176,6 +176,7 @@ bool DockWindow(const HWND mWnd, const HWND temp, const char *find, TString & fl
 		}
 
 		SetProp(temp,"dcx_docked",(HANDLE) flags);
+		//ShowScrollBar(sWnd,SB_BOTH,FALSE);
 		// set parent and move it to top-left corner
 		SetParent(temp,sWnd);
 		MoveWindow(temp,0,0,rc.right-rc.left,rc.bottom-rc.top,1);
@@ -469,79 +470,106 @@ mIRC(_xdock)
 	}
 
 	if (d.gettok(1," ") == "mIRC") {
-		if (d.gettok(2," ") == "switchBarPos") {
-			switch (SwitchbarPos())
+		static const TString poslist("switchBarPos toolBarPos treeBarPos switchBarSize toolBarSize treeBarSize isSwitchBar isToolBar isTreeBar isMenuBar text");
+		int nType = poslist.findtok(d.gettok(2).to_chr(),1);
+		switch (nType)
+		{
+		case 1: // switchBarPos
+		case 2: // toolBarPos
+		case 3: // treeBarPos
 			{
-				case SWB_RIGHT:
-					lstrcpy(data, "right");
-					break;
+				switch (SwitchbarPos(nType -1))
+				{
+					case SWB_RIGHT:
+						lstrcpy(data, "right");
+						break;
 
-				case SWB_BOTTOM:
-					lstrcpy(data, "bottom");
-					break;
+					case SWB_BOTTOM:
+						lstrcpy(data, "bottom");
+						break;
 
-				case SWB_TOP:
-					lstrcpy(data, "top");
-					break;
+					case SWB_TOP:
+						lstrcpy(data, "top");
+						break;
 
-				case SWB_LEFT:
-					lstrcpy(data, "left");
-					break;
+					case SWB_LEFT:
+						lstrcpy(data, "left");
+						break;
 
-				case SWB_NONE:
-				default:
-					lstrcpy(data, "none");
-					break;
+					case SWB_NONE:
+					default:
+						lstrcpy(data, "none");
+						break;
+				}
 			}
-		}
-		else if (d.gettok(2," ") == "switchBarSize") {
-			RECT rc;
-			GetWindowRect(sb_hwnd, &rc);
-			wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
-		}
-		else if (d.gettok(2," ") == "toolBarSize") {
-			RECT rc;
-			GetWindowRect(tb_hwnd, &rc);
-			wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
-		}
-		else if (d.gettok(2," ") == "treeBarSize") {
-			RECT rc;
-			GetWindowRect(treeb_hwnd, &rc);
-			wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
-		}
-		else if (d.gettok(2," ") == "isSwitchBar") {
-			if (IsWindowVisible(sb_hwnd))
-				lstrcpy(data,"$true");
-			else
-				lstrcpy(data,"$false");
-		}
-		else if (d.gettok(2," ") == "isToolBar") {
-			if (IsWindowVisible(tb_hwnd))
-				lstrcpy(data,"$true");
-			else
-				lstrcpy(data,"$false");
-		}
-		else if (d.gettok(2," ") == "isTreeBar") {
-			if (IsWindowVisible(treeb_hwnd))
-				lstrcpy(data,"$true");
-			else
-				lstrcpy(data,"$false");
-		}
-		else if (d.gettok(2," ") == "isMenuBar") {
-			if (GetMenu(mIRCLink.m_mIRCHWND))
-				lstrcpy(data,"$true");
-			else
-				lstrcpy(data,"$false");
-		}
-		else if (d.gettok(2," ") == "text") {
-			if (GetWindowTextLength(mIRCLink.m_mIRCHWND) > 0)
-				GetWindowText(mIRCLink.m_mIRCHWND,data,900);
-		}
-		else {
-			//dcxInfoError("$ $+ xdock",d.gettok(2," ").to_chr(),"mIRC",0,"Invalid prop");
-			TString error;
-			error.sprintf("Invalid prop (mIRC).%s", d.gettok(2, " ").to_chr());
-			DCXError("$ $+ xdock",error.to_chr());
+			break;
+		case 4: // switchBarSize
+			{
+				RECT rc;
+				GetWindowRect(sb_hwnd, &rc);
+				wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
+			}
+			break;
+		case 5: // toolBarSize
+			{
+				RECT rc;
+				GetWindowRect(tb_hwnd, &rc);
+				wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
+			}
+			break;
+		case 6: // treeBarSize
+			{
+				RECT rc;
+				GetWindowRect(treeb_hwnd, &rc);
+				wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
+			}
+			break;
+		case 7: // isSwitchBar
+			{
+				if (IsWindowVisible(sb_hwnd))
+					lstrcpy(data,"$true");
+				else
+					lstrcpy(data,"$false");
+			}
+			break;
+		case 8: // isToolBar
+			{
+				if (IsWindowVisible(tb_hwnd))
+					lstrcpy(data,"$true");
+				else
+					lstrcpy(data,"$false");
+			}
+			break;
+		case 9: // isTreeBar
+			{
+				if (IsWindowVisible(treeb_hwnd))
+					lstrcpy(data,"$true");
+				else
+					lstrcpy(data,"$false");
+			}
+			break;
+		case 10: // isMenuBar
+			{
+				if (GetMenu(mIRCLink.m_mIRCHWND))
+					lstrcpy(data,"$true");
+				else
+					lstrcpy(data,"$false");
+			}
+			break;
+		case 11: // text
+			{
+				if (GetWindowTextLength(mIRCLink.m_mIRCHWND) > 0)
+					GetWindowText(mIRCLink.m_mIRCHWND,data,900);
+			}
+			break;
+		case 0: // error
+		default:
+			{
+				TString error;
+				error.sprintf("Invalid prop (mIRC).%s", d.gettok(2, " ").to_chr());
+				DCXError("$ $+ xdock",error.to_chr());
+			}
+			break;
 		}
 	}
 	else {
