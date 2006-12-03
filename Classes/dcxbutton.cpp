@@ -29,6 +29,11 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 : DcxControl( ID, p_Dialog )
 , m_bBitmapText(FALSE)
 , m_bHasIcons(FALSE)
+, m_bHover(FALSE)
+, m_bSelected(FALSE)
+, m_bTracking(FALSE)
+, m_iIconSize(16)
+, m_ImageList(NULL)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -51,13 +56,6 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	ZeroMemory( &this->m_aBitmaps, 4*sizeof(HBITMAP) );
 	ZeroMemory( &this->m_aColors, 4*sizeof(COLORREF) );
 	ZeroMemory( &this->m_aTransp, 4*sizeof(COLORREF) );
-
-	this->m_bHover = FALSE;
-	this->m_bSelected = FALSE;
-	this->m_bTracking = FALSE;
-
-	this->m_iIconSize = 16;
-	this->m_ImageList = NULL;
 
 	this->updateParentCtrl(); // find the host control, if any.
 

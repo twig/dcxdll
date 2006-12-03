@@ -790,6 +790,13 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 		wsprintf(szReturnValue, "%ld", cref);
 		return TRUE;
 	}
+	// [NAME] [ID] [PROP]
+	else if (input.gettok(3, " ") == "alpha") {
+		if (this->m_bAlphaBlend)
+			lstrcpy(szReturnValue, "$true");
+		else
+			lstrcpy(szReturnValue, "$false");
+	}
   else
 		dcxInfoError("General", input.gettok( 3, " " ).to_chr( ), input.gettok(1, " ").to_chr(), this->getUserID(), "Invalid property or number of arguments");
 

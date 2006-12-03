@@ -576,75 +576,97 @@ mIRC(_xdock)
 		HWND hwnd = (HWND)d.gettok(1," ").to_num();
 
 		if (IsWindow(hwnd)) {
-			if (d.gettok(2," ") == "isDocked") {
-				if (GetProp(hwnd,"dcx_docked") || FindUltraDock(hwnd))
-					lstrcpy(data,"$true");
-				else
-					lstrcpy(data,"$false");
-			}
-			else if (d.gettok(2," ") == "hasDocked") {
-				if (GetProp(hwnd,"dcx_dock"))
-					lstrcpy(data,"$true");
-				else
-					lstrcpy(data,"$false");
-			}
-			else if (d.gettok(2," ") == "isAutoV") {
-				DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
-				if (flags == DOCKF_AUTOV)
-					lstrcpy(data,"$true");
-				else
-					lstrcpy(data,"$false");
-			}
-			else if (d.gettok(2," ") == "isAutoH") {
-				DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
-				if (flags == DOCKF_AUTOH)
-					lstrcpy(data,"$true");
-				else
-					lstrcpy(data,"$false");
-			}
-			else if (d.gettok(2," ") == "isAutoS") {
-				DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
-				if (flags == DOCKF_SIZE)
-					lstrcpy(data,"$true");
-				else
-					lstrcpy(data,"$false");
-			}
-			else if (d.gettok(2," ") == "dockSide") {
-				LPDCXULTRADOCK ud = GetUltraDock(hwnd);
-				if (ud != NULL) {
-					switch(ud->flags)
-					{
-					case DOCKF_LEFT:
-						lstrcpy(data,"left");
-						break;
-					case DOCKF_RIGHT:
-						lstrcpy(data,"right");
-						break;
-					case DOCKF_TOP:
-						lstrcpy(data,"top");
-						break;
-					case DOCKF_BOTTOM:
-						lstrcpy(data,"bottom");
-						break;
-					default:
-						lstrcpy(data,"unknown");
-						break;
+			static const TString poslist("isDocked hasDocked isAutoV isAutoH isAutoS dockSide text");
+			int nType = poslist.findtok(d.gettok(2).to_chr(),1);
+			switch (nType)
+			{
+			case 1: // isDocked
+				{
+					if (GetProp(hwnd,"dcx_docked") || FindUltraDock(hwnd))
+						lstrcpy(data,"$true");
+					else
+						lstrcpy(data,"$false");
+				}
+				break;
+			case 2: // hasDocked
+				{
+					if (GetProp(hwnd,"dcx_dock"))
+						lstrcpy(data,"$true");
+					else
+						lstrcpy(data,"$false");
+				}
+				break;
+			case 3: // isAutoV
+				{
+					DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
+					if (flags == DOCKF_AUTOV)
+						lstrcpy(data,"$true");
+					else
+						lstrcpy(data,"$false");
+				}
+				break;
+			case 4: // isAutoH
+				{
+					DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
+					if (flags == DOCKF_AUTOH)
+						lstrcpy(data,"$true");
+					else
+						lstrcpy(data,"$false");
+				}
+				break;
+			case 5: // isAutoS
+				{
+					DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
+					if (flags == DOCKF_SIZE)
+						lstrcpy(data,"$true");
+					else
+						lstrcpy(data,"$false");
+				}
+				break;
+			case 6: // dockSide
+				{
+					LPDCXULTRADOCK ud = GetUltraDock(hwnd);
+					if (ud != NULL) {
+						switch(ud->flags)
+						{
+						case DOCKF_LEFT:
+							lstrcpy(data,"left");
+							break;
+						case DOCKF_RIGHT:
+							lstrcpy(data,"right");
+							break;
+						case DOCKF_TOP:
+							lstrcpy(data,"top");
+							break;
+						case DOCKF_BOTTOM:
+							lstrcpy(data,"bottom");
+							break;
+						default:
+							lstrcpy(data,"unknown");
+							break;
+						}
+					}
+					else {
+						TString error;
+						error.sprintf("Window not docked to main mIRC window (%d).%s", hwnd, d.gettok(2, " ").to_chr());
+						DCXError("$ $+ xdock",error.to_chr());
 					}
 				}
-				else {
+				break;
+			case 7: // text
+				{
+					if (GetWindowTextLength(hwnd) > 0)
+						GetWindowText(hwnd,data,900);
+				}
+				break;
+			case 0: // error
+			default:
+				{
 					TString error;
-					error.sprintf("Window not docked to main mIRC window (%d).%s", hwnd, d.gettok(2, " ").to_chr());
+					error.sprintf("Invalid prop (%d).%s", hwnd, d.gettok(2, " ").to_chr());
 					DCXError("$ $+ xdock",error.to_chr());
 				}
-			}
-			else if (d.gettok(2," ") == "text") {
-				if (GetWindowTextLength(hwnd) > 0)
-					GetWindowText(hwnd,data,900);
-			}
-			else {
-				TString error;
-				error.sprintf("Invalid prop (%d).%s", hwnd, d.gettok(2, " ").to_chr());
-				DCXError("$ $+ xdock",error.to_chr());
+				break;
 			}
 		}
 		else {
