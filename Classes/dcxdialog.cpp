@@ -64,51 +64,47 @@ extern mIRCDLL mIRCLink;
 void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = "root") {  
 	TiXmlElement* child = 0;  
 	TString cmd;
-	int sibbling = 0;
 	int control = 0;
 	int goDeeper = 1;
 	int cCla = 0;
 	int resetClaPath = 0;
 	for( child = element->FirstChildElement(); child; child = child->NextSiblingElement() ) {  
-		sibbling++;
 		TiXmlElement* parent = child->Parent()->ToElement();
 		const char *elem = child->Value();
 		const char *parentelem = parent->Value();
-		//const char *elem = (t_cascade) ? t_cascade : "v";
+		//fill all required parameters with attributes or default values
+		const char *tType = child->Attribute("type");
+		const char *type = (tType) ? tType : "panel";
+		const char *tWeigth = child->Attribute("weigth");
+		const char *weigth = (tWeigth) ? tWeigth : "1";
+		const char *tId = child->Attribute("id");
+		const char *id = (tId) ? tId : "1";
+		const char *tHeight = child->Attribute("height");
+		const char *height = (tHeight) ? tHeight : "0";
+		const char *tWidth = child->Attribute("width");
+		const char *width = (tWidth) ? tWidth : "0";
+		const char *tMargin = child->Attribute("margin");
+		const char *margin = (tMargin) ? tMargin : "0 0 0 0";
+		const char *tStyles = child->Attribute("styles");
+		const char *styles = (tStyles) ? tStyles : "";
+		const char *tCaption = child->Attribute("caption");
+		const char *caption = (tCaption) ? tCaption : "caption";
+		const char *tTooltip = child->Attribute("tooltip");
+		const char *tooltip = (tTooltip) ? tTooltip : "";
+		const char *tCascade = child->Attribute("cascade");
+		const char *cascade = (tCascade) ? tCascade : "";
+		//rebar specific attributes
+		const char *tRebarFlags = child->Attribute("rebarFlags");
+		const char *rebarFlags = (tRebarFlags) ? tRebarFlags : "ceg";
+		const char *tRebarMinHeight = child->Attribute("rebarMinHeight");
+		const char *rebarMinHeight = (tRebarMinHeight) ? tRebarMinHeight : "0";
+		const char *tRebarMinWidth = child->Attribute("rebarMinWidth");
+		const char *rebarMinWidth = (tRebarMinWidth) ? tRebarMinWidth : "0";
+		const char *tRebarColour = child->Attribute("rebarColour");
+		const char *rebarColour = (tRebarColour) ? tRebarColour : "0";
+
 		if (0==strcmp(elem, "control")) { 
-			control++;
-			cCla++;
-			//fill all required parameters with attributes or default values
-			const char *tType = child->Attribute("type");
-			const char *type = (tType) ? tType : "panel";
-			const char *tWeigth = child->Attribute("weigth");
-			const char *weigth = (tWeigth) ? tWeigth : "1";
-			const char *tId = child->Attribute("id");
-			const char *id = (tId) ? tId : "1";
-			const char *tHeight = child->Attribute("height");
-			const char *height = (tHeight) ? tHeight : "0";
-			const char *tWidth = child->Attribute("width");
-			const char *width = (tWidth) ? tWidth : "0";
-			const char *tMargin = child->Attribute("margin");
-			const char *margin = (tMargin) ? tMargin : "0 0 0 0";
-			const char *tStyles = child->Attribute("styles");
-			const char *styles = (tStyles) ? tStyles : "";
-			const char *tCaption = child->Attribute("caption");
-			const char *caption = (tCaption) ? tCaption : "caption";
-			const char *tTooltip = child->Attribute("tooltip");
-			const char *tooltip = (tTooltip) ? tTooltip : "";
-			const char *tCascade = child->Attribute("cascade");
-			const char *cascade = (tCascade) ? tCascade : "";
-			//rebar specific attributes
-			const char *tRebarFlags = child->Attribute("rebarFlags");
-			const char *rebarFlags = (tRebarFlags) ? tRebarFlags : "ceg";
-			const char *tRebarMinHeight = child->Attribute("rebarMinHeight");
-			const char *rebarMinHeight = (tRebarMinHeight) ? tRebarMinHeight : "0";
-			const char *tRebarMinWidth = child->Attribute("rebarMinWidth");
-			const char *rebarMinWidth = (tRebarMinWidth) ? tRebarMinWidth : "0";
-			const char *tRebarColour = child->Attribute("rebarColour");
-			const char *rebarColour = (tRebarColour) ? tRebarColour : "0";
-			
+			control++; cCla++;
 			//check how to insert the control in the parent Control/Dialog
 			//If parentNode is pane loop untill parentNode is not a pane
 			while (parent) { 
@@ -162,8 +158,8 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 				cmd.sprintf("//xdid -l %s %s root $chr(9) +p%s 0 0 0 0",
 					dname,id,cascade);
 				mIRCcom(cmd.to_chr());
-					cmd.sprintf("//xdid -l %s %s space root $chr(9) %s",
-				dname,id,margin);
+				cmd.sprintf("//xdid -l %s %s space root $chr(9) %s",
+					dname,id,margin);
 				mIRCcom(cmd.to_chr());
 				resetClaPath = 1;
 
@@ -194,19 +190,6 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 		}
 		if (0==strcmp(elem, "pane")) { 
 			cCla++;
-			const char *t_weigth = child->Attribute("weigth");
-			const char *weigth = (t_weigth) ? t_weigth : "1";
-			const char *t_cascade = child->Attribute("cascade");
-			const char *cascade = (t_cascade) ? t_cascade : "v";
-			const char *t_height = child->Attribute("height");
-			const char *height = (t_height) ? t_height : "0";
-			const char *t_width = child->Attribute("width");
-			const char *width = (t_width) ? t_width : "0";
-			const char *t_margin = child->Attribute("margin");
-			const char *margin = (t_margin) ? t_margin : "0 0 0 0";
-			const char *t_styles = child->Attribute("styles");
-			const char *styles = (t_styles) ? t_styles : "";
-
 			while (parent) { 
 				if (0==strcmp(parentelem, "pane")) { 
 					TiXmlElement* parentFOR2 = parent;
@@ -1125,7 +1108,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -X [NAME] [FILENAME]
 	else if (flags.switch_cap_flags[23] && numtok > 2) {
-		const char *dcxmlfile = input.gettok(3," ").to_chr();
         TiXmlDocument doc(input.gettok(2,"\"").to_chr());
         bool valid_XML = doc.LoadFile();
 		TString cmd;
