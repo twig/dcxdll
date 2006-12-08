@@ -166,6 +166,9 @@
 					RelativePath=".\Classes\dcxdatetime.cpp">
 				</File>
 				<File
+					RelativePath=".\Classes\dcxdirectshow.cpp">
+				</File>
+				<File
 					RelativePath=".\Classes\dcxdivider.cpp">
 				</File>
 				<File
@@ -363,6 +366,9 @@
 				</File>
 				<File
 					RelativePath=".\Classes\dcxdatetime.h">
+				</File>
+				<File
+					RelativePath=".\Classes\dcxdirectshow.h">
 				</File>
 				<File
 					RelativePath=".\Classes\dcxdivider.h">

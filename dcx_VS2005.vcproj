@@ -25,8 +25,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Delete Old dcx.dll from mIRC dir"
-				CommandLine="del /F C:\mIRC_Basic\dcx\dcx.dll"
+				Description=""
+				CommandLine=""
 				ExcludedFromBuild="false"
 			/>
 			<Tool
@@ -98,8 +98,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying Dll to mIRC dir"
-				CommandLine="copy /B /-Y $(TargetPath) c:\mIRC_Basic\dcx\"
+				Description=""
+				CommandLine=""
 				ExcludedFromBuild="false"
 			/>
 		</Configuration>
