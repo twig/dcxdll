@@ -18,6 +18,8 @@
 #include "../defines.h"
 #include "dcxcontrol.h"
 #include <dshow.h>
+#include <d3d9.h>
+#include <vmr9.h>
 
 class DcxDialog;
 
@@ -44,7 +46,7 @@ public:
   inline TString getType( ) { return TString( "directshow" ); };
 
 protected:
-	static HRESULT InitWindowlessVMR(HWND hwndApp, IGraphBuilder* pGraph, IVMRWindowlessControl** ppWc);
+	static HRESULT InitWindowlessVMR(HWND hwndApp, IGraphBuilder* pGraph, IVMRWindowlessControl9** ppWc);
 	HRESULT SetVideoPos(void);
 	void ReleaseAll(void);
 #define WM_GRAPHNOTIFY  WM_APP + 1
@@ -52,7 +54,7 @@ protected:
 	IGraphBuilder					*m_pGraph;
 	IMediaControl					*m_pControl;
 	IMediaEventEx					*m_pEvent;
-	IVMRWindowlessControl *m_pWc;
+	IVMRWindowlessControl9 *m_pWc;
 };
 
 #endif // _DCXDIRECTSHOW_H_

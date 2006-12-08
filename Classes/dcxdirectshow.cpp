@@ -97,7 +97,21 @@ void DcxDirectshow::parseControlStyles( TString & styles, LONG * Styles, LONG * 
  */
 
 void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
-	if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+  //int numtok = input.numtok( " " );
+
+  // [NAME] [ID] [PROP]
+	if ( input.gettok( 3, " " ) == "size" && this->m_pWc != NULL) {
+		long lWidth, lHeight, lARWidth, lARHeight;
+		HRESULT hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
+		if (SUCCEEDED(hr)) {
+			// width height arwidth arheight
+			wsprintf(szReturnValue,"%d %d %d %d", lWidth, lHeight, lARWidth, lARHeight);
+			return;
+		}
+		else
+			dcxInfoError("directshow","size",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Native Video Size");
+  }
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
 
 	szReturnValue[0] = 0;
@@ -347,7 +361,7 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 HRESULT DcxDirectshow::InitWindowlessVMR( 
     HWND hwndApp,                  // Window to hold the video. 
     IGraphBuilder* pGraph,         // Pointer to the Filter Graph Manager. 
-    IVMRWindowlessControl** ppWc   // Receives a pointer to the VMR.
+    IVMRWindowlessControl9** ppWc   // Receives a pointer to the VMR.
     ) 
 { 
     if (!pGraph || !ppWc)
@@ -355,9 +369,9 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
         return E_POINTER;
     }
     IBaseFilter* pVmr = NULL; 
-    IVMRWindowlessControl* pWc = NULL; 
-    // Create the VMR. 
-    HRESULT hr = CoCreateInstance(CLSID_VideoMixingRenderer, NULL, 
+    IVMRWindowlessControl9* pWc = NULL; 
+    // Create the VMR.
+    HRESULT hr = CoCreateInstance(CLSID_VideoMixingRenderer9, NULL, 
         CLSCTX_INPROC, IID_IBaseFilter, (void**)&pVmr); 
     if (FAILED(hr))
     {
@@ -372,21 +386,21 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
         return hr;
     }
     // Set the rendering mode.  
-    IVMRFilterConfig* pConfig; 
-    hr = pVmr->QueryInterface(IID_IVMRFilterConfig, (void**)&pConfig); 
+    IVMRFilterConfig9* pConfig; 
+    hr = pVmr->QueryInterface(IID_IVMRFilterConfig9, (void**)&pConfig); 
     if (SUCCEEDED(hr)) 
     { 
-        hr = pConfig->SetRenderingMode(VMRMode_Windowless); 
+        hr = pConfig->SetRenderingMode(VMR9Mode_Windowless); 
         pConfig->Release(); 
     }
     if (SUCCEEDED(hr))
     {
         // Set the window. 
-        hr = pVmr->QueryInterface(IID_IVMRWindowlessControl, (void**)&pWc);
+        hr = pVmr->QueryInterface(IID_IVMRWindowlessControl9, (void**)&pWc);
         if( SUCCEEDED(hr)) 
         { 
             hr = pWc->SetVideoClippingWindow(hwndApp);
-						hr = pWc->SetAspectRatioMode(VMR_ARMODE_LETTER_BOX); // caused video to maintain aspect ration
+						hr = pWc->SetAspectRatioMode(VMR9ARMode_LetterBox); // caused video to maintain aspect ratio
             if (SUCCEEDED(hr))
             {
                 *ppWc = pWc; // Return this as an AddRef'd pointer. 
