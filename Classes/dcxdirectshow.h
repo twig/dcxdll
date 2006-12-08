@@ -51,10 +51,11 @@ protected:
 	void ReleaseAll(void);
 #define WM_GRAPHNOTIFY  WM_APP + 1
 
-	IGraphBuilder					*m_pGraph;
-	IMediaControl					*m_pControl;
-	IMediaEventEx					*m_pEvent;
+	IGraphBuilder					 *m_pGraph;
+	IMediaControl					 *m_pControl;
+	IMediaEventEx					 *m_pEvent;
 	IVMRWindowlessControl9 *m_pWc;
+	bool										m_bKeepRatio;
 };
 
 #endif // _DCXDIRECTSHOW_H_

@@ -32,6 +32,7 @@ DcxDirectshow::DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mP
 , m_pControl(NULL)
 , m_pEvent(NULL)
 , m_pWc(NULL)
+, m_bKeepRatio(false)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -81,6 +82,8 @@ void DcxDirectshow::parseControlStyles( TString & styles, LONG * Styles, LONG * 
 			this->m_bAlphaBlend = true;
 		else if (( styles.gettok( i , " " ) == "shadow" ))
 			this->m_bShadowText = true;
+		else if (( styles.gettok( i , " " ) == "fixratio" ))
+			this->m_bKeepRatio = true;
 
     i++;
   }
@@ -147,6 +150,12 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			//	this->m_pEvent->SetNotifyWindow((OAHWND)this->m_Hwnd,WM_GRAPHNOTIFY,0);
 			//}
 			hr = DcxDirectshow::InitWindowlessVMR(this->m_Hwnd,this->m_pGraph,&this->m_pWc);
+			if (SUCCEEDED(hr)) {
+				if (this->m_bKeepRatio)
+					hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_LetterBox); // caused video to maintain aspect ratio
+				else
+					hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_None);
+			}
 		}
 		if (this->m_pControl != NULL && this->m_pEvent != NULL && this->m_pGraph != NULL && this->m_pWc != NULL) {
 			hr = this->m_pGraph->RenderFile(filename.to_wchr(),NULL);
@@ -400,7 +409,6 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
         if( SUCCEEDED(hr)) 
         { 
             hr = pWc->SetVideoClippingWindow(hwndApp);
-						hr = pWc->SetAspectRatioMode(VMR9ARMode_LetterBox); // caused video to maintain aspect ratio
             if (SUCCEEDED(hr))
             {
                 *ppWc = pWc; // Return this as an AddRef'd pointer. 
