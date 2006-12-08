@@ -5,44 +5,6 @@
 #include "dcxpager.h"
 #include "dcxdialog.h"
 
-#include "dcxpanel.h"
-#include "dcxprogressbar.h"
-#include "dcxtrackbar.h"
-#include "dcxcolorcombo.h"
-#include "dcxcomboex.h"
-#include "dcxstatusbar.h"
-#include "dcxtreeview.h"
-#include "dcxtoolbar.h"
-#include "dcxlistview.h"
-#include "dcxbutton.h"
-#include "dcxrichedit.h"
-#include "dcxrebar.h"
-#include "dcxipaddress.h"
-#include "dcxupdown.h"
-#include "dcxwebctrl.h"
-#include "dcxcalendar.h"
-
-#include "dcxdivider.h"
-#include "dcxtab.h"
-
-#include "dcxmwindow.h"
-#include "dcxmdialog.h"
-
-#include "mirc/dcxline.h"
-#include "mirc/dcxbox.h"
-#include "mirc/dcxradio.h"
-#include "mirc/dcxcheck.h"
-#include "mirc/dcxtext.h"
-#include "mirc/dcxedit.h"
-#include "mirc/dcxscroll.h"
-#include "mirc/dcxlist.h"
-#include "mirc/dcxlink.h"
-#include "mirc/dcximage.h"
-
-#include "layout/layoutcellfixed.h"
-#include "layout/layoutcellfill.h"
-#include "layout/layoutcellpane.h"
-
 /*!
  * \brief Constructor
  *
@@ -55,27 +17,26 @@
 
 DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog )
+, m_ChildHWND(NULL)
 {
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    ExStyles | WS_EX_CONTROLPARENT, 
-    DCX_PAGERCLASS, 
+    ExStyles | WS_EX_CONTROLPARENT,
+    DCX_PAGERCLASS,
     NULL,
-    //WS_CHILD | WS_VISIBLE | Styles, 
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles,
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
-    GetModuleHandle(NULL), 
+    GetModuleHandle(NULL),
     NULL);
 
   if ( bNoTheme )
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-	this->m_ChildHWND = NULL;
 	//Pager_SetButtonSize(this->m_Hwnd,15);
 	//Pager_SetBkColor(this->m_Hwnd,0);
 
@@ -109,6 +70,8 @@ void DcxPager::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
 			*Styles |= PGS_HORZ;
 		else if (styles.gettok( i, " ") == "autoscroll")
 			*Styles |= PGS_AUTOSCROLL;
+		//else if ( styles.gettok( i , " " ) == "alpha" )
+		//	this->m_bAlphaBlend = true;
 
     i++;
   }
@@ -530,28 +493,31 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				this->reCalcSize();
       }
       break;
-   // case WM_PAINT:
-   //   {
-   //     PAINTSTRUCT ps; 
-   //     HDC hdc;
-			//	LRESULT res = 0L;
 
-   //     hdc = BeginPaint( this->m_Hwnd, &ps );
-			//	// Center icon in client rectangle
-			//	int cxIcon = GetSystemMetrics(SM_CXICON);
-			//	int cyIcon = GetSystemMetrics(SM_CYICON);
-			//	RECT rc;
-			//	GetClientRect(this->m_Hwnd,&rc);
-			//	int x = ((rc.right - rc.left) - cxIcon + 1) / 2;
-			//	int y = ((rc.bottom - rc.top) - cyIcon + 1) / 2;
+		//case WM_PAINT:
+		//	{
+		//		if (!this->m_bAlphaBlend)
+		//			break;
+		//		PAINTSTRUCT ps;
+		//		HDC hdc;
 
-			//	// Draw the icon
-			//	//DrawIcon(hdc, x, y, m_hIcon);
-   //     EndPaint( this->m_Hwnd, &ps ); 
+		//		hdc = BeginPaint( this->m_Hwnd, &ps );
 
-   //     return res;
-			//}
-			//break;
+		//		LRESULT res = 0L;
+		//		bParsed = TRUE;
+
+		//		// Setup alpha blend if any.
+		//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+		//		res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+		//		this->FinishAlphaBlend(ai);
+
+		//		EndPaint( this->m_Hwnd, &ps );
+		//		return res;
+		//	}
+		//	break;
+
     case WM_DESTROY:
       {
         delete this;

@@ -312,6 +312,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				Graphics grphx( hdc );
 
 				grphx.SetCompositingQuality(CompositingQualityHighQuality);
+				grphx.SetSmoothingMode(SmoothingModeAntiAlias);
 
 				if (this->m_bResizeImage)
 					grphx.DrawImage( this->m_pImage, 0, 0, w, h );

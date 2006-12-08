@@ -41,7 +41,6 @@ class DcxButton : public DcxControl {
 
 public:
 
-  //DcxButton( const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxButton( );
 

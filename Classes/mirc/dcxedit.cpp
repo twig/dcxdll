@@ -579,16 +579,8 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				LRESULT res = 0L;
 				bParsed = TRUE;
 
-				//RECT rcClient;
-
-				// get controls client area
-				//GetClientRect( this->m_Hwnd, &rcClient );
-
 				// Setup alpha blend if any.
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-				// fill background.
-				//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
 				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 

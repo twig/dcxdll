@@ -1105,7 +1105,6 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			if ((isMenuBar == FALSE) && (bIsActiveMircPopup == TRUE))
 				g_mIRCPopupMenu->clearAllMenuItems();
 
-			//return 0L;
 			break;
 		}
 
@@ -1114,7 +1113,6 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			if ((isMenuBar == TRUE) && (isSysMenu == FALSE) && (bIsActiveMircMenubarPopup == TRUE))
 				g_mIRCMenuBar->deleteAllItemData((HMENU) wParam);
 
-			//return 0L;
 			break;
 		}
 

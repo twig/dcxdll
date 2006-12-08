@@ -54,6 +54,8 @@
 #include "dcxmdialog.h"
 
 #include "dcxstacker.h"
+//#include "dcxmci.h"
+#include "dcxdirectshow.h"
 
 extern mIRCDLL mIRCLink;
 
@@ -871,7 +873,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
  * Input [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
  */
 
-DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & tsInput, int offset, const DWORD mask, HWND hParent ) {
+DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & tsInput, int offset, const UINT64 mask, HWND hParent ) {
 
 	TString type(tsInput.gettok( offset++, " " ));
 
@@ -948,8 +950,12 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 		return new DcxImage( mID, p_Dialog, hParent, &rc, styles );
 	else if (( type == "pager" ) && (mask & CTLF_ALLOW_PAGER))
 		return new DcxPager( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "stacker" ) && (mask & CTLF_ALLOW_PAGER))
+	else if (( type == "stacker" ) && (mask & CTLF_ALLOW_STACKER))
 		return new DcxStacker( mID, p_Dialog, hParent, &rc, styles );
+	//else if (( type == "mci" ) && (mask & CTLF_ALLOW_DIRECTSHOW))
+	//	return new DcxMci( mID, p_Dialog, hParent, &rc, styles );
+	else if (( type == "directshow" ) && (mask & CTLF_ALLOW_DIRECTSHOW))
+		return new DcxDirectshow( mID, p_Dialog, hParent, &rc, styles );
 	else if (( type == "window" ) && (mask & CTLF_ALLOW_DOCK)) {
 		if ( tsInput.numtok( " " ) > offset ) {
 			char windowHwnd[30];

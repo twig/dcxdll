@@ -21,6 +21,7 @@
 #else
 #pragma warning( disable : 4100 ) // unreferenced formal parameter
 #pragma warning( disable : 4530 )
+#pragma warning( disable : 4995 ) // name was marked as #pragma deprecated
 #endif
 
 #ifndef _DEFINES_H_

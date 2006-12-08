@@ -324,6 +324,8 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 					style |= DT_NOPREFIX;
 				if (this->isStyle(SS_LEFTNOWORDWRAP))
 					style |= DT_SINGLELINE; // ?? same ??
+ 				else
+					style |= DT_WORDBREAK; // changed for autowrap between words
 				if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
 					TString wtext(text);
 					dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &r, style, this->m_clrText, 0, 5, 5);

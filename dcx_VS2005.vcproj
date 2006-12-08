@@ -27,7 +27,7 @@
 				Name="VCPreBuildEventTool"
 				Description="Delete Old dcx.dll from mIRC dir"
 				CommandLine="del /F C:\mIRC_Basic\dcx\dcx.dll"
-				ExcludedFromBuild="true"
+				ExcludedFromBuild="false"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib Strmiids.lib"
 				OutputFile="$(OutDir)/dcx.dll"
 				LinkIncremental="2"
 				ModuleDefinitionFile="dll.def"
@@ -100,7 +100,7 @@
 				Name="VCPostBuildEventTool"
 				Description="Copying Dll to mIRC dir"
 				CommandLine="copy /B /-Y $(TargetPath) c:\mIRC_Basic\dcx\"
-				ExcludedFromBuild="true"
+				ExcludedFromBuild="false"
 			/>
 		</Configuration>
 		<Configuration
@@ -154,7 +154,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG:NOSTATUS /ignore:4254"
-				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib Strmiids.lib"
 				OutputFile="$(OutDir)/dcx.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -244,7 +244,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG:NOSTATUS /ignore:4254"
-				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib Strmiids.lib"
 				OutputFile="$(OutDir)/dcx.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -335,7 +335,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG:NOSTATUS /ignore:4254"
-				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib Strmiids.lib"
 				OutputFile="$(OutDir)/dcx.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -444,6 +444,10 @@
 				</File>
 				<File
 					RelativePath=".\Classes\dcxdatetime.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Classes\dcxdirectshow.cpp"
 					>
 				</File>
 				<File
@@ -718,6 +722,10 @@
 				</File>
 				<File
 					RelativePath=".\Classes\dcxdatetime.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Classes\dcxdirectshow.h"
 					>
 				</File>
 				<File
