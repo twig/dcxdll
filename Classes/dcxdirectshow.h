@@ -54,6 +54,7 @@ protected:
 	IGraphBuilder					 *m_pGraph;
 	IMediaControl					 *m_pControl;
 	IMediaEventEx					 *m_pEvent;
+	IMediaSeeking					 *m_pSeek;
 	IVMRWindowlessControl9 *m_pWc;
 	bool										m_bKeepRatio;
 };

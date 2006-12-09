@@ -32,6 +32,7 @@ DcxDirectshow::DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mP
 , m_pControl(NULL)
 , m_pEvent(NULL)
 , m_pWc(NULL)
+, m_pSeek(NULL)
 , m_bKeepRatio(false)
 {
 
@@ -143,46 +144,40 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		// Create the Filter Graph Manager and query for interfaces.
 		HRESULT hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (void **)&this->m_pGraph);
 
-		if (SUCCEEDED(hr)) {
+		if (SUCCEEDED(hr))
 			hr = this->m_pGraph->QueryInterface(IID_IMediaControl, (void **)&this->m_pControl);
+		if (SUCCEEDED(hr))
 			hr = this->m_pGraph->QueryInterface(IID_IMediaEventEx, (void **)&this->m_pEvent);
-			//if (SUCCEEDED(hr)) {
+		if (SUCCEEDED(hr))
+			hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking, (void **)&this->m_pSeek);
+			//if (SUCCEEDED(hr))
 			//	this->m_pEvent->SetNotifyWindow((OAHWND)this->m_Hwnd,WM_GRAPHNOTIFY,0);
-			//}
+		if (SUCCEEDED(hr))
 			hr = DcxDirectshow::InitWindowlessVMR(this->m_Hwnd,this->m_pGraph,&this->m_pWc);
-			if (SUCCEEDED(hr)) {
-				if (this->m_bKeepRatio)
-					hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_LetterBox); // caused video to maintain aspect ratio
-				else
-					hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_None);
-			}
+		if (SUCCEEDED(hr)) {
+			if (this->m_bKeepRatio)
+				hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_LetterBox); // caused video to maintain aspect ratio
+			else
+				hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_None);
 		}
-		if (this->m_pControl != NULL && this->m_pEvent != NULL && this->m_pGraph != NULL && this->m_pWc != NULL) {
+		if (SUCCEEDED(hr)) {
 			hr = this->m_pGraph->RenderFile(filename.to_wchr(),NULL);
 			if (SUCCEEDED(hr)) {
-				// Find the native video size.
-				long lWidth, lHeight; 
-				hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, NULL, NULL); 
-				if (SUCCEEDED(hr))
-				{
-					hr = this->SetVideoPos();
-					if (!SUCCEEDED(hr))
-						DCXError("/xdid -a","Unable to set Video Position");
-				}
-				else
-					DCXError("/xdid -a","Unable to get Native Video Size");
+				hr = this->SetVideoPos();
+				if (!SUCCEEDED(hr))
+					DCXError("/xdid -a","Unable to set Video Position");
 			}
 			else
 				DCXError("/xdid -a","Unable to render file");
 		}
-		else {
+		if (!SUCCEEDED(hr)) { // if anything failed, release all & show error.
 			this->ReleaseAll();
 			DCXError("/xdid -a","Unable to Setup Filter Graph");
 		}
 	}
   // xdid -c [NAME] [ID] [SWITCH] [COMMAND]
   else if ( flags.switch_flags[2] && numtok > 3 ) {
-		if (this->m_pControl != NULL && this->m_pEvent != NULL && this->m_pGraph != NULL && this->m_pWc != NULL) {
+		if (this->m_pControl != NULL) {
 			static const TString cmdlist("play pause stop close");
 			int nType = cmdlist.findtok(input.gettok(4).to_chr(),1);
 			switch (nType)
@@ -194,7 +189,12 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 				this->m_pControl->Pause();
 				break;
 			case 3: // stop
-				this->m_pControl->Stop();
+				{
+					this->m_pControl->Stop(); // stop play
+					LONGLONG rtNow = 0; // seek to start.
+					this->m_pSeek->SetPositions(&rtNow, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning);
+					this->m_pControl->StopWhenReady(); // causes new image to be rendered.
+				}
 				break;
 			case 4: //close
 				{
@@ -205,6 +205,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			case 0: // error
 			default:
 				DCXError("/xdid -c","Invalid Command");
+				break;
 			}
 		}
 		else
@@ -453,6 +454,8 @@ void DcxDirectshow::ReleaseAll(void)
 		this->m_pEvent->SetNotifyWindow(NULL,0,0);
 		this->m_pEvent->Release();
 	}
+	if (this->m_pSeek != NULL)
+		this->m_pSeek->Release();
 	if (this->m_pWc != NULL)
 		this->m_pWc->Release();
 	if (this->m_pGraph != NULL)
@@ -461,4 +464,5 @@ void DcxDirectshow::ReleaseAll(void)
 	this->m_pEvent = NULL;
 	this->m_pGraph = NULL;
 	this->m_pWc = NULL;
+	this->m_pSeek = NULL;
 }
