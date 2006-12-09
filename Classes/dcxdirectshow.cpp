@@ -266,7 +266,8 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 		case WM_SIZE:
 			{
-				this->SetVideoPos();
+				if (this->m_pWc != NULL)
+					this->SetVideoPos();
 			}
 			break;
 
@@ -427,7 +428,10 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
 
 HRESULT DcxDirectshow::SetVideoPos(void)
 {
-	long lWidth, lHeight; 
+	if (this->m_pWc == NULL)
+		return VFW_E_NOT_FOUND;
+
+	long lWidth, lHeight;
 	HRESULT hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, NULL, NULL);
 	if (SUCCEEDED(hr))
 	{
