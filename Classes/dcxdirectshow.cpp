@@ -34,13 +34,14 @@ DcxDirectshow::DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mP
 , m_pWc(NULL)
 , m_pSeek(NULL)
 , m_bKeepRatio(false)
+, m_bLoop(false)
 {
 
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  this->m_Hwnd = CreateWindowEx(	
+  this->m_Hwnd = CreateWindowEx(
     ExStyles | WS_EX_CLIENTEDGE,
     "STATIC",
     NULL,
@@ -150,8 +151,8 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			hr = this->m_pGraph->QueryInterface(IID_IMediaEventEx, (void **)&this->m_pEvent);
 		if (SUCCEEDED(hr))
 			hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking, (void **)&this->m_pSeek);
-			//if (SUCCEEDED(hr))
-			//	this->m_pEvent->SetNotifyWindow((OAHWND)this->m_Hwnd,WM_GRAPHNOTIFY,0);
+		if (SUCCEEDED(hr))
+			hr = this->m_pEvent->SetNotifyWindow((OAHWND)this->m_Hwnd,WM_GRAPHNOTIFY,0);
 		if (SUCCEEDED(hr))
 			hr = DcxDirectshow::InitWindowlessVMR(this->m_Hwnd,this->m_pGraph,&this->m_pWc);
 		if (SUCCEEDED(hr)) {
@@ -164,7 +165,15 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			hr = this->m_pGraph->RenderFile(filename.to_wchr(),NULL);
 			if (SUCCEEDED(hr)) {
 				hr = this->SetVideoPos();
-				if (!SUCCEEDED(hr))
+				if (SUCCEEDED(hr)) {
+					if (flag.find('l',0))
+						this->m_bLoop = true;
+					else
+						this->m_bLoop = false;
+					if (flag.find('p',0))
+						this->m_pControl->Run();
+				}
+				else
 					DCXError("/xdid -a","Unable to set Video Position");
 			}
 			else
@@ -254,7 +263,7 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					// Request the VMR to paint the video.
 					HRESULT hr = this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
 				}
-				else  // There is no video, so paint the whole client area.
+				else if (!this->isExStyle(WS_EX_TRANSPARENT))  // There is no video, so paint the whole client area.
 				{
 					RECT rcClient;
 					GetClientRect(this->m_Hwnd, &rcClient);
@@ -278,33 +287,40 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 			}
 			break;
 
-		//case WM_GRAPHNOTIFY:
-		//	{
-		//		bParsed = TRUE;
-		//		if (this->m_pEvent == NULL)
-		//			break;
-		//		// Get all the events
-		//		long evCode;
-		//		LONG_PTR param1, param2;
-		//		while (SUCCEEDED(this->m_pEvent->GetEvent(&evCode, &param1, &param2, 0)))
-		//		{
-		//			this->m_pEvent->FreeEventParams(evCode, param1, param2);
-		//			switch (evCode)
-		//			{
-		//			case EC_COMPLETE:
-		//				this->callAliasEx(NULL,"%s,%d,%s","dshow",this->getUserID(),"completed");
-		//				break;
-		//			case EC_PAUSED:
-		//				this->callAliasEx(NULL,"%s,%d,%s","dshow",this->getUserID(),"paused");
-		//				break;
-		//			case EC_USERABORT:
-		//			case EC_ERRORABORT:
-		//				this->callAliasEx(NULL,"%s,%d,%s","dshow",this->getUserID(),"aborted");
-		//				break;
-		//			}
-		//		} 
-		//	}
-		//	break;
+		case WM_GRAPHNOTIFY:
+			{
+				bParsed = TRUE;
+				if (this->m_pEvent == NULL)
+					break;
+				// Get all the events
+				long evCode;
+				LONG_PTR param1, param2;
+				while (SUCCEEDED(this->m_pEvent->GetEvent(&evCode, &param1, &param2, 0)))
+				{
+					this->m_pEvent->FreeEventParams(evCode, param1, param2);
+					switch (evCode)
+					{
+					case EC_COMPLETE:
+						{
+							LONGLONG rtNow = 0; // seek to start.
+							this->m_pSeek->SetPositions(&rtNow, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning);
+							if (!this->m_bLoop) {
+								this->m_pControl->StopWhenReady();
+								this->callAliasEx(NULL,"%s,%d,%s","dshow",this->getUserID(),"completed");
+							}
+						}
+						break;
+					//case EC_PAUSED: // oddly this is sent when we play the file too.
+					//	this->callAliasEx(NULL,"%s,%d,%s","dshow",this->getUserID(),"paused");
+					//	break;
+					//case EC_USERABORT:
+					//case EC_ERRORABORT:
+					//	this->callAliasEx(NULL,"%s,%d,%s","dshow",this->getUserID(),"aborted");
+					//	break;
+					}
+				} 
+			}
+			break;
 
 		case WM_SETCURSOR:
 			{
@@ -399,10 +415,12 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
     // Set the rendering mode.  
     IVMRFilterConfig9* pConfig; 
     hr = pVmr->QueryInterface(IID_IVMRFilterConfig9, (void**)&pConfig); 
-    if (SUCCEEDED(hr)) 
-    { 
-        hr = pConfig->SetRenderingMode(VMR9Mode_Windowless); 
-        pConfig->Release(); 
+    if (SUCCEEDED(hr))
+    {
+        hr = pConfig->SetRenderingMode(VMR9Mode_Windowless);
+				if (GetWindowLong(hwndApp,GWL_EXSTYLE) & WS_EX_TRANSPARENT)
+					hr = pConfig->SetRenderingPrefs(RenderPrefs9_DoNotRenderBorder);
+        pConfig->Release();
     }
     if (SUCCEEDED(hr))
     {

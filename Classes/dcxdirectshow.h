@@ -57,6 +57,7 @@ protected:
 	IMediaSeeking					 *m_pSeek;
 	IVMRWindowlessControl9 *m_pWc;
 	bool										m_bKeepRatio;
+	bool										m_bLoop;
 };
 
 #endif // _DCXDIRECTSHOW_H_
