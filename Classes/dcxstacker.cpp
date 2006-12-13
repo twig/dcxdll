@@ -28,6 +28,7 @@
 
 DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles )
 : DcxControl( ID, p_Dialog )
+, m_hActive(NULL)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -51,7 +52,6 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
   SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
 
 	//this->m_hBackBrush = GetSysColorBrush(COLOR_3DFACE);
-	this->m_hActive = NULL;
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
@@ -310,6 +310,21 @@ void DcxStacker::getItemRect(int nPos, LPRECT rc) const {
 	SendMessage(this->m_Hwnd,LB_GETITEMRECT,(WPARAM)nPos,(LPARAM)rc);
 }
 
+void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape)
+{
+	Graphics gfx( hdc );
+
+	gfx.SetSmoothingMode(SmoothingModeAntiAlias);
+	SolidBrush blackBrush(Color(128, GetRValue(clrShape), GetGValue(clrShape), GetBValue(clrShape)));
+	// Create an array of Point objects that define the polygon.
+	Point point1(rc->left, rc->top);
+	Point point2(rc->right, rc->top);
+	Point point3(rc->left + (rc->right - rc->left)/2, rc->bottom);
+	Point points[3] = {point1, point2, point3};
+	// Fill the polygon.
+	gfx.FillPolygon(&blackBrush, points, 5);
+}
+
 /*!
  * \brief blah
  *
@@ -492,16 +507,9 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				RECT rcArrow = rcText;
 				SelectObject(idata->hDC,GetStockObject(BLACK_BRUSH));
 				rcArrow.left = rcArrow.right - 10;
-				rcArrow.top += 5;
-				rcArrow.bottom -= 5;
-				POINT pts[3];
-				pts[0].x = rcArrow.left;
-				pts[0].y = rcArrow.top;
-				pts[1].x = rcArrow.right;
-				pts[1].y = rcArrow.top;
-				pts[2].x = rcArrow.left + (rcArrow.right - rcArrow.left)/2;
-				pts[2].y = rcArrow.bottom;
-				Polygon(idata->hDC,pts,3);
+				rcArrow.top += 3;
+				rcArrow.bottom -= 3;
+				DrawAliasedTriangle(idata->hDC,&rcArrow,0);
 			}
 			// position child control if any.
 			if (sitem->pChild != NULL) {

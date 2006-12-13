@@ -623,27 +623,54 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		TString data(input.gettok(1, "\t").gettok(4, -1, " "));
 		data.trim();
+		int nPos = (int)data.gettok(1, " ").to_num() -1;
+
+		if (nPos == -1)
+			nPos += ListView_GetItemCount(this->m_Hwnd) +1;
+
+		int indent = (int)data.gettok(2, " ").to_num();
+		UINT stateFlags = this->parseItemFlags(data.gettok(3, " "));
+		int icon = (int)data.gettok(4, " ").to_num() -1;
+		int state = (int)data.gettok(5, " ").to_num();
+		//int overlay = data.gettok( 6, " " ).to_int( );
+		int group = (int)data.gettok(7, " ").to_num();
+		COLORREF clrText = (COLORREF)data.gettok(8, " ").to_num();
+		COLORREF clrBack = (COLORREF)data.gettok(9, " ").to_num();
+
+		LPDCXLVITEM lpmylvi = new DCXLVITEM;
+		ZeroMemory(lpmylvi, sizeof(DCXLVITEM));
+
+		if (stateFlags & LVIS_UNDERLINE)
+			lpmylvi->bUline = TRUE;
+		else
+			lpmylvi->bUline = FALSE;
+
+		if (stateFlags & LVIS_BOLD)
+			lpmylvi->bBold = TRUE;
+		else
+			lpmylvi->bBold = FALSE;
+
+		if (stateFlags & LVIS_ITALIC)
+			lpmylvi->bItalic = TRUE;
+		else
+			lpmylvi->bItalic = FALSE;
+
+		if (stateFlags & LVIS_COLOR)
+			lpmylvi->clrText = clrText;
+		else
+			lpmylvi->clrText = -1;
+
+		if (stateFlags & LVIS_BGCOLOR)
+			lpmylvi->clrBack = clrBack;
+		else
+			lpmylvi->clrBack = -1;
+
+		TString itemtext;
+		if (data.numtok(" ") > 9)
+			itemtext = data.gettok(10, -1, " ");
 
 		// LVS_REPORT view
 		if (this->isListViewStyle(LVS_REPORT)) {
-			int nPos = (int)data.gettok(1, " ").to_num() -1;
-
-			if (nPos == -1)
-				nPos += ListView_GetItemCount(this->m_Hwnd) +1;
-
-			int indent = (int)data.gettok(2, " ").to_num();
-			UINT stateFlags = this->parseItemFlags(data.gettok(3, " "));
-			int icon = (int)data.gettok(4, " ").to_num() -1;
-			int state = (int)data.gettok(5, " ").to_num();
-			//int overlay = data.gettok( 6, " " ).to_int( );
-			int group = (int)data.gettok(7, " ").to_num();
-			COLORREF clrText = (COLORREF)data.gettok(8, " ").to_num();
-			COLORREF clrBack = (COLORREF)data.gettok(9, " ").to_num();
-
-			TString itemtext;
-
-			if (data.numtok(" ") > 9)
-				itemtext = data.gettok(10, -1, " ");
 
 			lvi.mask = LVIF_TEXT | LVIF_INDENT | LVIF_PARAM | LVIF_IMAGE | LVIF_STATE;
 			lvi.iItem = nPos;
@@ -660,34 +687,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 			if (icon > -1)
 				lvi.iImage = icon;
 
-			LPDCXLVITEM lpmylvi = new DCXLVITEM;
-			ZeroMemory(lpmylvi, sizeof(DCXLVITEM));
-
-			if (stateFlags & LVIS_UNDERLINE)
-				lpmylvi->bUline = TRUE;
-			else
-				lpmylvi->bUline = FALSE;
-
-			if (stateFlags & LVIS_BOLD)
-				lpmylvi->bBold = TRUE;
-			else
-				lpmylvi->bBold = FALSE;
-
-			if (stateFlags & LVIS_ITALIC)
-				lpmylvi->bItalic = TRUE;
-			else
-				lpmylvi->bItalic = FALSE;
-
-			if (stateFlags & LVIS_COLOR)
-				lpmylvi->clrText = clrText;
-			else
-				lpmylvi->clrText = -1;
-
-			if (stateFlags & LVIS_BGCOLOR)
-				lpmylvi->clrBack = clrBack;
-			else
-				lpmylvi->clrBack = -1;
-
 			// set text in case of pbar
 			if (stateFlags & LVIS_PBAR)
 				lvi.pszText = "";
@@ -696,6 +695,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 			lvi.lParam = (LPARAM) lpmylvi;
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
+			if (lvi.iItem == -1) {
+				DCXError("/xdid -a","Unable to add item");
+				return;
+			}
 
 			// create pbar for first column
 			if (stateFlags & LVIS_PBAR)
@@ -749,28 +752,12 @@ void DcxListView::parseCommandRequest(TString &input) {
 		}
 		// LVS_ICON | LVS_SMALLICON | LVS_LIST views
 		else {
-			int nPos = (int)data.gettok(1, " ").to_num() -1;
-
-			if (nPos == -1)
-				nPos += ListView_GetItemCount(this->m_Hwnd) +1;
-
-			//int indent = data.gettok( 2, " " ).to_int( );
-			UINT stateFlags = this->parseItemFlags(data.gettok(3, " "));
-			int icon = (int)data.gettok(4, " ").to_num() -1;
-			int state = (int)data.gettok(5, " ").to_num();
-			//int overlay = data.gettok( 6, " " ).to_int( );
-			//int group = data.gettok( 7, " " ).to_int( );
-
-			TString itemtext;
-
-			if (data.numtok(" ") > 9)
-				itemtext = data.gettok(10, -1, " ");
 
 			lvi.iItem = nPos;
 			lvi.iImage = -1;
 			lvi.state = stateFlags;
 			lvi.iSubItem = 0;
-			lvi.mask = LVIF_TEXT | LVIF_STATE;
+			lvi.mask = LVIF_TEXT | LVIF_STATE | LVIF_PARAM;
 
 			if (icon > -1) {
 				lvi.iImage = icon;
@@ -778,7 +765,13 @@ void DcxListView::parseCommandRequest(TString &input) {
 			}
 
 			lvi.pszText = itemtext.to_chr();
+			lvi.lParam = (LPARAM) lpmylvi;
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
+
+			if (lvi.iItem == -1) {
+				DCXError("/xdid -a","Unable to add item");
+				return;
+			}
 
 			if (state > -1)
 				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
@@ -916,11 +909,14 @@ void DcxListView::parseCommandRequest(TString &input) {
 		UINT flags = this->parseItemFlags(input.gettok(6, " "));
 		LPDCXLVITEM lviDcx = (LPDCXLVITEM) lvi.lParam;
 
-		lviDcx->bUline  = (flags & LVIS_UNDERLINE) ? TRUE : FALSE;
-		lviDcx->bBold   = (flags & LVIS_BOLD) ? TRUE : FALSE;
-		lviDcx->bItalic = (flags & LVIS_ITALIC) ? TRUE : FALSE;
-
-		ListView_SetItemState(this->m_Hwnd, nItem, flags, 0xFFFFFF);
+		if (lviDcx != NULL) {
+			lviDcx->bUline  = (flags & LVIS_UNDERLINE) ? TRUE : FALSE;
+			lviDcx->bBold   = (flags & LVIS_BOLD) ? TRUE : FALSE;
+			lviDcx->bItalic = (flags & LVIS_ITALIC) ? TRUE : FALSE;
+			ListView_SetItemState(this->m_Hwnd, nItem, flags, 0xFFFFFF);
+		}
+		else
+			DCXError("/xdid -j","No DCX Item Information, somethings very wrong");
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [STATE] [N]
 	else if (flags.switch_flags[10] && numtok > 4) {

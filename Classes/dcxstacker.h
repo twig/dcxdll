@@ -66,6 +66,7 @@ protected:
 	LPDCXSITEM getItem(int nPos) const;
 	LPDCXSITEM getHotItem(void) const;
 	void getItemRect(int nPos, LPRECT rc) const;
+	static void DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape);
 };
 
 #endif //_DCXSTACKER_H_

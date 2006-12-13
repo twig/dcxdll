@@ -1149,8 +1149,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc)
 			}
 			// draw background to main hdc
 			BitBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbkg, pt.x, pt.y, SRCCOPY);
-			SelectObject ( hdcbkg, oldBM );
-			DeleteObject(memBM);
+			DeleteObject(SelectObject( hdcbkg, oldBM ));
 		}
 		DeleteDC( hdcbkg );
 	}
