@@ -12,6 +12,8 @@
  * © ScriptsDB.org - 2006
  */
 
+#ifdef USE_DXSDK
+
 #ifndef _DCXDIRECTSHOW_H_
 #define _DCXDIRECTSHOW_H_
 
@@ -61,3 +63,5 @@ protected:
 };
 
 #endif // _DCXDIRECTSHOW_H_
+
+#endif // USE_DXSDK

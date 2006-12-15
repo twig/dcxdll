@@ -44,6 +44,13 @@
 #endif
 // end of VS 2005
 
+// Using DirectX SDK?
+//#define USE_DXSDK
+#ifdef USE_DXSDK
+	#pragma comment(lib, "Strmiids.lib")
+#endif
+// end of DirectX SDK
+
 //#include <vld.h>
 #include <windows.h>
 #include <windowsx.h>

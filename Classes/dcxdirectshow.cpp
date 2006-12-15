@@ -13,6 +13,8 @@
  * © ScriptsDB.org - 2006
  */
 
+#ifdef USE_DXSDK
+
 #include "dcxdirectshow.h"
 #include "dcxdialog.h"
 
@@ -488,3 +490,5 @@ void DcxDirectshow::ReleaseAll(void)
 	this->m_pWc = NULL;
 	this->m_pSeek = NULL;
 }
+
+#endif // USE_DXSDK
