@@ -162,8 +162,14 @@ void UltraUnDock(const HWND hwnd)
 }
 void AdjustMDIRect(WINDOWPOS *wp)
 {
-	if ((wp->flags & SWP_NOSIZE) && (wp->flags & SWP_NOMOVE)) // handle min/max case;
+	if ((wp->flags & SWP_NOSIZE) && (wp->flags & SWP_NOMOVE)) { // handle min/max case;
+		//HWND cwin = (HWND)SendMessage(mdi_hwnd,WM_MDIGETACTIVE,NULL,NULL);
+		//if (IsWindow(cwin)) {
+		//	SendMessage(mdi_hwnd,WM_MDIREFRESHMENU,0,0);
+		//	DrawMenuBar(cwin);
+		//}
 		return;
+	}
 
 	VectorOfDocks::iterator itStart = v_docks.begin();
 	VectorOfDocks::iterator itEnd = v_docks.end();

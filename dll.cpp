@@ -86,7 +86,11 @@ extern HFONT pOrigTreeViewFont;
 //extern BOOL MDIismax;
 extern VectorOfDocks v_docks;
 bool dcxSignal;
+
+#ifdef DCX_USE_GDIPLUS
 ULONG_PTR gdi_token = NULL;
+#endif
+
 bool mIRCSixPointTwoZero; //!< used by xpopup to tell if patching is to be done.
 
 /*!
@@ -159,6 +163,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	// Initializing OLE Support
 	OleInitialize(NULL);
 
+#ifdef DCX_USE_GDIPLUS
 	// Initialize GDI+
 	GdiplusStartupInput gsi;
 	gsi.GdiplusVersion = 1;
@@ -169,6 +174,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 		DCXError("LoadDLL","Unable to Startup GDI+");
 		return;
 	}
+#endif
 
 	//get IClassFactory* for WebBrowser
 	CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, 0, IID_IClassFactory, (void**) &g_pClassFactory);
@@ -422,7 +428,10 @@ void WINAPI LoadDll(LOADINFO * load) {
 int WINAPI UnloadDll(int timeout) {
 	// DLL unloaded because mIRC exits or /dll -u used
 	if (timeout == 0) {
-		Dialogs.closeDialogs();
+		if (Dialogs.closeDialogs()) { // if unable to close dialogs stop unload.
+			mIRCError("Unable to Unload DLL from within the DLL");
+			return 0; // NB: This DOESN'T stop the unload, & mIRC will still crash.
+		}
 
 		CloseUltraDock(); // UnDock All.
 
@@ -451,9 +460,11 @@ int WINAPI UnloadDll(int timeout) {
 		if (g_pClassFactory != NULL)
 			g_pClassFactory->Release();
 
+#ifdef DCX_USE_GDIPLUS
 		// Shutdown GDI+
 		if (gdi_token != NULL)
 			GdiplusShutdown(gdi_token);
+#endif
 
 		// Terminating OLE Support
 		OleUninitialize();

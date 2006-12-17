@@ -312,6 +312,7 @@ void DcxStacker::getItemRect(int nPos, LPRECT rc) const {
 
 void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape)
 {
+#ifdef DCX_USE_GDIPLUS
 	Graphics gfx( hdc );
 
 	gfx.SetSmoothingMode(SmoothingModeAntiAlias);
@@ -323,6 +324,7 @@ void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLOR
 	Point points[3] = {point1, point2, point3};
 	// Fill the polygon.
 	gfx.FillPolygon(&blackBrush, points, 5);
+#endif
 }
 
 /*!

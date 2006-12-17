@@ -44,7 +44,9 @@ public:
 
 protected:
 
+#ifdef DCX_USE_GDIPLUS
   Image * m_pImage; //!< GDI+ Image Object
+#endif
   HBITMAP m_hBitmap; //!< Bitmap
   HICON m_hIcon; // !< icon
 

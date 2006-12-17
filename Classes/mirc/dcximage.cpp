@@ -28,6 +28,13 @@
 DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog )
 , m_bIsIcon(FALSE)
+#ifdef DCX_USE_GDIPLUS
+, m_pImage(NULL)
+#endif
+, m_bResizeImage(true)
+, m_hBitmap(NULL)
+, m_clrTransColor(-1)
+, m_hIcon(NULL)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -46,12 +53,6 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-	this->m_pImage = NULL;
-	this->m_bResizeImage = true;
-	this->m_hBitmap = NULL;
-	this->m_clrTransColor = -1;
-	this->m_hIcon = NULL;
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
@@ -131,10 +132,12 @@ void DcxImage::PreloadData() {
 		this->m_hIcon = NULL;
 	}
 
+#ifdef DCX_USE_GDIPLUS
 	if (this->m_pImage != NULL) {
 		delete this->m_pImage;
 		this->m_pImage = NULL;
 	}
+#endif
 }
 
 /*!
@@ -191,9 +194,12 @@ void DcxImage::parseCommandRequest(TString & input) {
 		filename.trim();
 		PreloadData();
 
-		//this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
+#ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
 		this->m_pImage = new Image(filename.to_wchr());
+#else
+		this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
+#endif
 		this->m_bIsIcon = FALSE;
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
@@ -271,9 +277,13 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		case WM_PAINT:
 		{
 			// default paint method
+#ifdef DCX_USE_GDIPLUS
 			if ((this->m_hBitmap == NULL) && (this->m_hIcon == NULL) && (this->m_pImage == NULL))
 				break;
-
+#else
+			if ((this->m_hBitmap == NULL) && (this->m_hIcon == NULL))
+				break;
+#endif
 			bParsed = TRUE;
 			PAINTSTRUCT ps; 
 			HDC hdc;
@@ -290,7 +300,11 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			DcxControl::DrawCtrlBackground(hdc,this,&rect);
 
 			// draw bitmap
+#ifdef DCX_USE_GDIPLUS
 			if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon) && (this->m_pImage == NULL)) {
+#else
+			if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon)) {
+#endif
 				HDC hdcbmp = CreateCompatibleDC(hdc);
 				BITMAP bmp;
 
@@ -308,6 +322,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			else if ((this->m_hIcon != NULL) && (this->m_bIsIcon)) {
 				DrawIconEx(hdc, 0, 0, this->m_hIcon, this->m_iIconSize, this->m_iIconSize, 0, this->m_hBackBrush, DI_NORMAL | DI_COMPAT); 
 			}
+#ifdef DCX_USE_GDIPLUS
 			else if (this->m_pImage != NULL) {
 				Graphics grphx( hdc );
 
@@ -319,7 +334,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				else
 					grphx.DrawImage( this->m_pImage, 0, 0);
 			}
-
+#endif
 			this->FinishAlphaBlend(ai);
 
 			EndPaint(this->m_Hwnd, &ps);

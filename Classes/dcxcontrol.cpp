@@ -54,8 +54,10 @@
 #include "dcxmdialog.h"
 
 #include "dcxstacker.h"
-//#include "dcxmci.h"
+
+#ifdef USE_DXSDK
 #include "dcxdirectshow.h"
+#endif // USE_DXSDK
 
 extern mIRCDLL mIRCLink;
 

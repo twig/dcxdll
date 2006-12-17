@@ -250,6 +250,10 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	if (flags.switch_flags[0] && numtok > 3) {
 		this->m_tsText += input.gettok(4, -1, " ");
 		this->parseContents(TRUE);
+		//DCXSTREAM ds;
+		//EDITSTREAM es = {0};
+		//es.dwCookie = (DWORD_PTR)&ds;
+		//SendMessage(this->m_Hwnd,EM_STREAMIN
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
 	else if (flags.switch_flags[2] && numtok > 2) {
@@ -418,6 +422,20 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		c.cpMax = input.gettok(5, " ").to_int();
 
 		SendMessage(this->m_Hwnd, EM_EXSETSEL, NULL, (LPARAM) &c);
+
+		//DWORD dwAbsoluteStartSelPos = 0;
+		//// caret startsel position
+		//SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
+
+		//if (this->isStyle(ES_MULTILINE)) {
+		//	int iLinePos = 0;
+
+		//	// current line
+		//	iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, -1, NULL);
+		//	POINT pt = {0};
+		//	pt.y = this->m_iFontSize * iLinePos;
+		//	SendMessage(this->m_Hwnd, EM_SETSCROLLPOS,NULL,(LPARAM)&pt);
+		//}
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
 	else if (flags.switch_cap_flags[25] && numtok > 4) {
@@ -441,7 +459,7 @@ void DcxRichEdit::loadmIRCPalette() {
 	static const char com[] = "$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)";
 	mIRCeval(com, res);
 
-	TString colors = res;
+	TString colors(res);
 	int i = 0, len = colors.numtok(" ");
 
 	while (i < len) {

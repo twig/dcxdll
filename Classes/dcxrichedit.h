@@ -20,6 +20,18 @@
 #include <richedit.h>
 class DcxDialog;
 
+typedef struct {
+	TString ds_tsBuffer;
+	FILE *	ds_pFile;
+	bool		ds_bBold;
+	bool		ds_bUnderline;
+	bool		ds_bReverse;
+	bool		ds_bmcolor;
+	bool		ds_bbkgcolor;
+	COLORREF ds_mcolor;
+	COLORREF ds_bkgcolor;
+} DCXSTREAM, LPDCXSTREAM;
+
 /*!
 * \brief blah
 *

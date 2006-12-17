@@ -30,7 +30,6 @@ class DcxLine : public DcxControl {
 
 public:
 
-  //DcxLine( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxLine( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxLine( );
 
@@ -45,6 +44,7 @@ public:
 
 protected:
 
+	//TString m_sText;
 };
 
 #endif // _DCXLINE_H_

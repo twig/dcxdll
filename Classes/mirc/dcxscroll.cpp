@@ -20,52 +20,6 @@
  *
  * \param ID Control ID
  * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-//DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) 
-//: DcxControl( ID, p_Dialog ) 
-//{
-//
-//  LONG Styles = 0, ExStyles = 0;
-//  BOOL bNoTheme = FALSE;
-//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//  this->m_Hwnd = CreateWindowEx(	
-//    ExStyles, 
-//    "SCROLLBAR", 
-//    NULL,
-//    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//    p_Dialog->getHwnd( ),
-//    (HMENU) ID,
-//    GetModuleHandle( NULL ), 
-//    NULL);
-//
-//  if ( bNoTheme )
-//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//  SCROLLINFO si;
-//  si.cbSize = sizeof( SCROLLINFO );
-//  si.fMask = SIF_POS | SIF_RANGE;
-//  si.nPos = 0;
-//  si.nMin = 0;
-//  si.nMax = 100;
-//  SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
-//
-//  this->m_nPage = 5;
-//  this->m_nLine = 1;
-//
-//  this->registreDefaultWindowProc( );
-//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//}
-//
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
  * \param mParentHwnd Parent Window Handle
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
@@ -73,6 +27,8 @@
 
 DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog )
+, m_nPage(5)
+, m_nLine(1)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -99,9 +55,6 @@ DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
 	si.nMin = 0;
 	si.nMax = 100;
 	SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
-
-	this->m_nPage = 5;
-	this->m_nLine = 1;
 
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -132,6 +85,8 @@ void DcxScroll::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 
     if ( styles.gettok( i , " " ) == "vertical" )
       *Styles |= SBS_VERT;
+		else if ( styles.gettok( i , " " ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
     i++;
   }
@@ -477,6 +432,29 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
         }
       }
       break;
+		case WM_PAINT:
+			{
+				if (!this->m_bAlphaBlend)
+					break;
+        PAINTSTRUCT ps;
+        HDC hdc;
+
+        hdc = BeginPaint( this->m_Hwnd, &ps );
+
+				LRESULT res = 0L;
+				bParsed = TRUE;
+
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+				this->FinishAlphaBlend(ai);
+
+				EndPaint( this->m_Hwnd, &ps );
+				return res;
+			}
+			break;
 
     case WM_DESTROY:
       {

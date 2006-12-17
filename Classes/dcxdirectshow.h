@@ -12,14 +12,16 @@
  * © ScriptsDB.org - 2006
  */
 
-#ifdef USE_DXSDK
-
 #ifndef _DCXDIRECTSHOW_H_
 #define _DCXDIRECTSHOW_H_
 
 #include "../defines.h"
+
+#ifdef USE_DXSDK
 #include "dcxcontrol.h"
 #include <dshow.h>
+#include <initguid.h>
+#include <qnetwork.h>
 #include <d3d9.h>
 #include <vmr9.h>
 
@@ -51,6 +53,10 @@ protected:
 	static HRESULT InitWindowlessVMR(HWND hwndApp, IGraphBuilder* pGraph, IVMRWindowlessControl9** ppWc);
 	HRESULT SetVideoPos(void);
 	void ReleaseAll(void);
+	enum { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION } Properties;
+	HRESULT getProperty(char *prop, int type);
+	HRESULT setAlpha(float alpha);
+
 #define WM_GRAPHNOTIFY  WM_APP + 1
 
 	IGraphBuilder					 *m_pGraph;
@@ -62,6 +68,7 @@ protected:
 	bool										m_bLoop;
 };
 
-#endif // _DCXDIRECTSHOW_H_
-
+#pragma comment(lib, "Strmiids.lib")
 #endif // USE_DXSDK
+
+#endif // _DCXDIRECTSHOW_H_

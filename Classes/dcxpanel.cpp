@@ -15,40 +15,6 @@
 #include "dcxpanel.h"
 #include "dcxdialog.h"
 
-//#include "dcxprogressbar.h"
-//#include "dcxtrackbar.h"
-//#include "dcxcolorcombo.h"
-//#include "dcxcomboex.h"
-//#include "dcxstatusbar.h"
-//#include "dcxtreeview.h"
-//#include "dcxtoolbar.h"
-//#include "dcxlistview.h"
-//#include "dcxbutton.h"
-//#include "dcxrichedit.h"
-//#include "dcxrebar.h"
-//#include "dcxipaddress.h"
-//#include "dcxupdown.h"
-//#include "dcxwebctrl.h"
-//#include "dcxcalendar.h"
-//#include "dcxpager.h"
-//
-//#include "dcxdivider.h"
-//#include "dcxtab.h"
-//
-//#include "dcxmwindow.h"
-//#include "dcxmdialog.h"
-//
-//#include "mirc/dcxline.h"
-//#include "mirc/dcxbox.h"
-//#include "mirc/dcxradio.h"
-//#include "mirc/dcxcheck.h"
-//#include "mirc/dcxtext.h"
-//#include "mirc/dcxedit.h"
-//#include "mirc/dcxscroll.h"
-//#include "mirc/dcxlist.h"
-//#include "mirc/dcxlink.h"
-//#include "mirc/dcximage.h"
-
 #include "layout/layoutcellfixed.h"
 #include "layout/layoutcellfill.h"
 #include "layout/layoutcellpane.h"
@@ -112,19 +78,16 @@ DcxPanel::~DcxPanel( ) {
  */
 
 void DcxPanel::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	//unsigned int i = 1, numtok = styles.numtok(" ");
+	unsigned int i = 1, numtok = styles.numtok(" ");
 
-  //*ExStyles = WS_EX_CONTROLPARENT;
 
-  /*
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "notheme" )
-      *bNoTheme = TRUE;
+		if ( styles.gettok( i , " " ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
-    i++;
-  }
-  */
+		i++;
+	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -610,6 +573,29 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
       */
+		case WM_PAINT:
+			{
+				if (!this->m_bAlphaBlend)
+					break;
+        PAINTSTRUCT ps;
+        HDC hdc;
+
+        hdc = BeginPaint( this->m_Hwnd, &ps );
+
+				LRESULT res = 0L;
+				bParsed = TRUE;
+
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+				this->FinishAlphaBlend(ai);
+
+				EndPaint( this->m_Hwnd, &ps );
+				return res;
+			}
+			break;
 
     case WM_CTLCOLORBTN:
     case WM_CTLCOLORLISTBOX:

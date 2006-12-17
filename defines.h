@@ -30,12 +30,12 @@
 //#define WIN32_LEAN_AND_MEAN //!< blah
 
 // normal Windows XP + IE V5.01
-//#define _WIN32_WINNT 0x0501
-//#define _WIN32_IE 0x0501
+#define _WIN32_WINNT 0x0501
+#define _WIN32_IE 0x0501
 
 // Windows XP SP2 + IE V6
-#define _WIN32_WINNT 0x0503
-#define _WIN32_IE 0x0600
+//#define _WIN32_WINNT 0x0503
+//#define _WIN32_IE 0x0600
 
 // Required for VS 2005
 #if _MSC_VER == 1400
@@ -44,12 +44,13 @@
 #endif
 // end of VS 2005
 
-// Using DirectX SDK?
-//#define USE_DXSDK
-#ifdef USE_DXSDK
-	#pragma comment(lib, "Strmiids.lib")
-#endif
+// Using DirectX SDK? If not, get off your arse & install it!
+#define USE_DXSDK 1
 // end of DirectX SDK
+
+// Use GDI+
+#define DCX_USE_GDIPLUS 1
+//
 
 //#include <vld.h>
 #include <windows.h>
@@ -60,8 +61,12 @@
 #include "classes/tstring/tstring.h"
 #include <uxtheme.h>
 #include <tmschema.h>
+
+#ifdef DCX_USE_GDIPLUS
 #include <gdiplus.h>
 using namespace Gdiplus;
+#pragma comment(lib, "gdiplus.lib")
+#endif
 
 #include "classes/dcxdialogcollection.h"
 

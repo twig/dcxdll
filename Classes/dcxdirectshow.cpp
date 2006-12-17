@@ -13,9 +13,9 @@
  * © ScriptsDB.org - 2006
  */
 
-#ifdef USE_DXSDK
-
 #include "dcxdirectshow.h"
+
+#ifdef USE_DXSDK
 #include "dcxdialog.h"
 
 /*!
@@ -118,6 +118,16 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		else
 			dcxInfoError("directshow","size",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Native Video Size");
   }
+  // [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "author" && this->m_pGraph != NULL) {
+		this->getProperty(szReturnValue, PROP_AUTHOR);
+		return;
+  }
+  // [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "title" && this->m_pGraph != NULL) {
+		this->getProperty(szReturnValue, PROP_TITLE);
+		return;
+  }
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
 
@@ -167,6 +177,8 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			hr = this->m_pGraph->RenderFile(filename.to_wchr(),NULL);
 			if (SUCCEEDED(hr)) {
 				hr = this->SetVideoPos();
+				if (this->m_bAlphaBlend)
+					hr = this->setAlpha(0.5);
 				if (SUCCEEDED(hr)) {
 					if (flag.find('l',0))
 						this->m_bLoop = true;
@@ -387,16 +399,16 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
   return lRes;
 }
-HRESULT DcxDirectshow::InitWindowlessVMR( 
+
+HRESULT DcxDirectshow::InitWindowlessVMR(
     HWND hwndApp,                  // Window to hold the video. 
     IGraphBuilder* pGraph,         // Pointer to the Filter Graph Manager. 
     IVMRWindowlessControl9** ppWc   // Receives a pointer to the VMR.
     ) 
 { 
     if (!pGraph || !ppWc)
-    {
         return E_POINTER;
-    }
+
     IBaseFilter* pVmr = NULL; 
     IVMRWindowlessControl9* pWc = NULL; 
     // Create the VMR.
@@ -414,9 +426,9 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
         pVmr->Release();
         return hr;
     }
-    // Set the rendering mode.  
+    // Set the rendering mode.
     IVMRFilterConfig9* pConfig; 
-    hr = pVmr->QueryInterface(IID_IVMRFilterConfig9, (void**)&pConfig); 
+    hr = pVmr->QueryInterface(IID_IVMRFilterConfig9, (void**)&pConfig);
     if (SUCCEEDED(hr))
     {
         hr = pConfig->SetRenderingMode(VMR9Mode_Windowless);
@@ -431,6 +443,14 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
         if( SUCCEEDED(hr)) 
         { 
             hr = pWc->SetVideoClippingWindow(hwndApp);
+						//if (SUCCEEDED(hr)) {
+						//	IVMRMixerControl9 *pMixer;
+						//	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
+						//	if (SUCCEEDED(hr)) {
+						//		pMixer->SetAlpha(0,0.5);
+						//		pMixer->Release();
+						//	}
+						//}
             if (SUCCEEDED(hr))
             {
                 *ppWc = pWc; // Return this as an AddRef'd pointer. 
@@ -449,7 +469,7 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
 HRESULT DcxDirectshow::SetVideoPos(void)
 {
 	if (this->m_pWc == NULL)
-		return VFW_E_NOT_FOUND;
+		return E_POINTER;
 
 	long lWidth, lHeight;
 	HRESULT hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, NULL, NULL);
@@ -489,6 +509,139 @@ void DcxDirectshow::ReleaseAll(void)
 	this->m_pGraph = NULL;
 	this->m_pWc = NULL;
 	this->m_pSeek = NULL;
+}
+// getProperty() is non-functional atm. Where do i get this interface from? or a similar one.
+HRESULT DcxDirectshow::getProperty(char *prop, int type)
+{
+	IAMMediaContent *iam;
+	HRESULT hr = this->m_pGraph->QueryInterface(IID_IAMMediaContent,(void **)&iam);
+	if (SUCCEEDED(hr)) {
+		BSTR com_prop;
+		switch (type)
+		{
+		case PROP_AUTHOR:
+			hr = iam->get_AuthorName(&com_prop);
+			break;
+		case PROP_TITLE:
+			hr = iam->get_Title(&com_prop);
+			break;
+		case PROP_RATING:
+			hr = iam->get_Rating(&com_prop);
+			break;
+		case PROP_DESCRIPTION:
+			hr = iam->get_Description(&com_prop);
+			break;
+		}
+		if (SUCCEEDED(hr)) {
+			wsprintf(prop,"%lS", com_prop);
+			SysFreeString(com_prop);
+		}
+		else
+			lstrcpy(prop,"Not Supported");
+		iam->Release();
+	}
+	else
+		lstrcpy(prop,"failed");
+	return hr;
+}
+
+HRESULT DcxDirectshow::setAlpha(float alpha)
+{
+	if (alpha < 0)
+		alpha = 255;
+
+	IBaseFilter* pVmr = NULL; 
+
+	HRESULT hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer",&pVmr);
+
+	if (FAILED(hr))
+			return hr;
+
+	// this works BUT only gives u alpha over other streams in the mixer, not the dialog/controls bg.
+	IVMRMixerControl9 *pMixer = NULL;
+	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
+	if (SUCCEEDED(hr)) {
+	//	hr = pMixer->SetAlpha(0,alpha);
+		// Get the current mixing preferences.
+		DWORD dwPrefs;
+		pMixer->GetMixingPrefs(&dwPrefs);  
+
+		dwPrefs |= MixerPref9_NonSquareMixing;
+
+		// Set the new flags.
+		pMixer->SetMixingPrefs(dwPrefs);
+		pMixer->Release();
+	}
+	IVMRMixerBitmap9 *pBm = NULL;
+	hr = pVmr->QueryInterface(IID_IVMRMixerBitmap9, (void**)&pBm);
+	if (SUCCEEDED(hr)) {
+		HDC hdc = GetDC(this->m_Hwnd);
+		if (hdc != NULL) { // make duplicate hdc;
+			HDC hdcbkg = CreateCompatibleDC( hdc );
+			if (hdcbkg != NULL) {
+				RECT rcClient, rcWin;
+				GetClientRect(this->m_Hwnd, &rcClient);
+				GetWindowRect(this->m_Hwnd, &rcWin);
+				int w = (rcWin.right - rcWin.left), h = (rcWin.bottom - rcWin.top);
+				HBITMAP memBM = CreateCompatibleBitmap ( hdc, w, h );
+				if (memBM != NULL) {
+					// associate bitmap with HDC
+					HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
+
+					this->DrawParentsBackground(hdcbkg);
+
+					long cx, cy;
+					hr = this->m_pWc->GetNativeVideoSize(&cx, &cy, NULL, NULL);
+					if (SUCCEEDED(hr)) {
+						VMR9AlphaBitmap bmpInfo;
+						ZeroMemory(&bmpInfo, sizeof(bmpInfo) );
+						bmpInfo.dwFlags = VMR9AlphaBitmap_hDC;
+						//bmpInfo.dwFilterMode = MixerPref9_AnisotropicFiltering;
+						bmpInfo.hdc = hdcbkg;
+						// Set the transparency value (1.0 is opaque, 0.0 is transparent).
+						bmpInfo.fAlpha = 1.0;
+						// Show the entire bitmap in the top-left corner of the video image.
+						SetRect(&bmpInfo.rSrc, 0, 0, w, h);
+						//CopyRect(&bmpInfo.rSrc, &rcClient);
+						bmpInfo.rDest.left = 0.f;
+						bmpInfo.rDest.top = 0.f;
+						bmpInfo.rDest.right = 1.0; //(float)w / cx;
+						bmpInfo.rDest.bottom = 1.0; //(float)h / cy;
+						hr = pBm->SetAlphaBitmap(&bmpInfo);
+						ZeroMemory(&bmpInfo, sizeof(bmpInfo) );
+						bmpInfo.dwFlags = VMR9AlphaBitmap_SrcRect;
+						bmpInfo.hdc = NULL;
+						// Set the transparency value (1.0 is opaque, 0.0 is transparent).
+						bmpInfo.fAlpha = alpha;
+						//POINT pt;
+						//pt.x = rcWin.left;
+						//pt.y = rcWin.top;
+						//ScreenToClient(GetParent(this->m_Hwnd),&pt);
+						//CopyRect(&bmpInfo.rSrc, &rcWin);
+						//SetRect(&bmpInfo.rSrc, pt.x, pt.y, pt.x + w, pt.y + h);
+						CopyRect(&bmpInfo.rSrc, &rcClient);
+						bmpInfo.rDest.left = 0.f;
+						bmpInfo.rDest.top = 0.f;
+						bmpInfo.rDest.right = 1.0; //(float)(rcClient.right - rcClient.left) / cx;
+						bmpInfo.rDest.bottom = 1.0; //(float)(rcClient.bottom - rcClient.top) / cy;
+						hr = pBm->UpdateAlphaBitmapParameters(&bmpInfo);
+					}
+					DeleteObject(SelectObject(hdcbkg,oldBM));
+				}
+				else
+					hr = E_FAIL;
+				DeleteDC( hdcbkg );
+			}
+			else
+				hr = E_FAIL;
+			ReleaseDC(this->m_Hwnd, hdc);
+		}
+		else
+			hr = E_FAIL;
+		pBm->Release();
+	}
+	pVmr->Release(); 
+	return hr; 
 }
 
 #endif // USE_DXSDK
