@@ -26,10 +26,18 @@ void UpdatemIRC(void) {
 void InitUltraDock(void)
 {
 	/* UltraDock stuff */
-  tb_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_Toolbar",NULL);
-  mdi_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"MDIClient",NULL);
-  sb_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_SwitchBar",NULL);
-  treeb_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_TreeList",NULL);
+   if (mIRCLink.isDebug) DCXDebug("InitUltraDock", "Finding mIRC_Toolbar...");
+   tb_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_Toolbar",NULL);
+
+   if (mIRCLink.isDebug) DCXDebug("InitUltraDock", "Finding MDIClient...");
+	mdi_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"MDIClient",NULL);
+
+   if (mIRCLink.isDebug) DCXDebug("InitUltraDock", "Finding mIRC_SwitchBar...");
+	sb_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_SwitchBar",NULL);
+
+   if (mIRCLink.isDebug) DCXDebug("InitUltraDock", "Finding mIRC_TreeList...");
+	treeb_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_TreeList",NULL);
+
 	hTreeView = GetWindow(treeb_hwnd,GW_CHILD);
 
 	v_docks.clear();

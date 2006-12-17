@@ -157,7 +157,17 @@ void WINAPI LoadDll(LOADINFO * load) {
 	mIRCLink.m_bGhosted = false;
 	mIRCLink.m_bDoGhostDrag = 255;
 
+   // Check if we're in debug mode
+   char res[255];
+   mIRCeval("$debug", res);
+   TString isDebug(res);
+
+   isDebug.trim();
+   mIRCLink.isDebug = (isDebug.len() > 0);
+   if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Debug mode detected...");
+
 	// Initializing OLE Support
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Initializing OLE Support...");
 	//CoInitialize( NULL );
 
 	// Initializing OLE Support
@@ -165,24 +175,28 @@ void WINAPI LoadDll(LOADINFO * load) {
 
 #ifdef DCX_USE_GDIPLUS
 	// Initialize GDI+
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Initializing GDI+...");
 	GdiplusStartupInput gsi;
 	gsi.GdiplusVersion = 1;
 	gsi.DebugEventCallback = NULL;
 	gsi.SuppressBackgroundThread = FALSE;
 	gsi.SuppressExternalCodecs = FALSE;
 	if (GdiplusStartup(&gdi_token,&gsi,NULL) != Ok) {
-		DCXError("LoadDLL","Unable to Startup GDI+");
+		DCXError("LoadDLL", "Unable to Startup GDI+");
 		return;
 	}
 #endif
 
 	//get IClassFactory* for WebBrowser
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Generating class for WebBrowser...");
 	CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, 0, IID_IClassFactory, (void**) &g_pClassFactory);
 	//6BF52A52-394A-11D3-B153-00C04F79FAA6
 
 	// RichEdit DLL Loading
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Generating class for RichEdit...");
 	LoadLibrary("RICHED20.DLL");
 
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Loading USER32.DLL...");
 	HMODULE hModule = GetModuleHandle("USER32.DLL");
 
 	if (hModule != NULL) {
@@ -192,6 +206,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 		SetLayeredWindowAttributesUx = (PFNSETLAYEREDWINDOWATTRIBUTES)GetProcAddress(hModule, "SetLayeredWindowAttributes");
 	}
 
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Loading COMCTL32.DLL...");
 	hModule = GetModuleHandle("COMCTL32.DLL");
 
 	if (hModule != NULL) {
@@ -200,6 +215,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	}
 
 	// UXModule Loading
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Loading UXTHEME.DLL...");
 	UXModule = LoadLibrary("UXTHEME.DLL");
 
 	if (UXModule) {
@@ -228,6 +244,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 		XPPlus = FALSE;
 
 	// Load Control definitions
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Loading control classes");
 	INITCOMMONCONTROLSEX icex;
 
 	icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
@@ -241,66 +258,79 @@ void WINAPI LoadDll(LOADINFO * load) {
 	wc.cbSize = sizeof(WNDCLASSEX);
 
 	// Custom ProgressBar
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering ProgressBar...");
 	GetClassInfoEx(NULL, PROGRESS_CLASS, &wc);
 	wc.lpszClassName = DCX_PROGRESSBARCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom TreeView
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering TreeView...");
 	GetClassInfoEx(NULL, WC_TREEVIEW, &wc);
 	wc.lpszClassName = DCX_TREEVIEWCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom Toolbar
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering ToolBar...");
 	GetClassInfoEx(NULL, TOOLBARCLASSNAME, &wc);
 	wc.lpszClassName = DCX_TOOLBARCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom StatusBar
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering StatusBar...");
 	GetClassInfoEx(NULL, STATUSCLASSNAME, &wc);
 	wc.lpszClassName = DCX_STATUSBARCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom ListView
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering Listview...");
 	GetClassInfoEx(NULL, WC_LISTVIEW, &wc);
 	wc.lpszClassName = DCX_LISTVIEWCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom ComboEx
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering ComboEx...");
 	GetClassInfoEx(NULL, WC_COMBOBOXEX, &wc);
 	wc.lpszClassName = DCX_COMBOEXCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom TrackBar
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering TrackBar...");
 	GetClassInfoEx(NULL, TRACKBAR_CLASS, &wc);
 	wc.lpszClassName = DCX_TRACKBARCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom RichEdit
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering RichEdit...");
 	GetClassInfoEx(NULL, "RichEdit20A", &wc);
 	wc.lpszClassName = DCX_RICHEDITCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom RebarCtrl
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering ReBar...");
 	GetClassInfoEx(NULL, REBARCLASSNAME, &wc);
 	wc.lpszClassName = DCX_REBARCTRLCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom Color Combo
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering ComboBox...");
 	GetClassInfoEx(NULL, "COMBOBOX", &wc);
 	wc.lpszClassName = DCX_COLORCOMBOCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom TabCtrl
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering Tab...");
 	GetClassInfoEx(NULL, WC_TABCONTROL, &wc);
 	wc.lpszClassName = DCX_TABCTRLCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom UpDown
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering UpDown...");
 	GetClassInfoEx(NULL, UPDOWN_CLASS, &wc);
 	wc.lpszClassName = DCX_UPDOWNCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom IppAddress
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering IpAddress...");
 	GetClassInfoEx(NULL, WC_IPADDRESS, &wc);
 	wc.lpszClassName = DCX_IPADDRESSCLASS;
 	RegisterClassEx(&wc);
@@ -309,6 +339,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	//InitDivider( GetModuleHandle( NULL ) );
 
 	// Custom Divider
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering Divider...");
 	wc.cbSize         = sizeof(WNDCLASSEX);
 	wc.style          = 0;
 	wc.lpfnWndProc    = DividerWndProc;
@@ -345,49 +376,55 @@ void WINAPI LoadDll(LOADINFO * load) {
 	*/
 
 	// Custom Panel
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering Panel (#32770)...");
 	GetClassInfoEx(NULL, "#32770", &wc); // NB: using this class causes tooltips in toolbar children to not show
 	wc.lpszClassName = DCX_PANELCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom Box
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering Box (#32770)...");
 	GetClassInfoEx(NULL, "#32770", &wc); // NB: using this class causes tooltips in toolbar children to not show
 	wc.lpszClassName = DCX_BOXCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom Button
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering Button...");
 	GetClassInfoEx(NULL, "BUTTON", &wc);
 	wc.lpszClassName = DCX_BUTTONCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom Calendar
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering Calendar...");
 	GetClassInfoEx(NULL, MONTHCAL_CLASS, &wc);
 	wc.lpszClassName = DCX_CALENDARCLASS;
 	RegisterClassEx(&wc);
 
 	// Custom DateTime
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering DateTime...");
 	GetClassInfoEx(NULL, DATETIMEPICK_CLASS, &wc);
 	wc.lpszClassName = DCX_DATETIMECLASS;
 	RegisterClassEx(&wc);
 
 	// Custom Pager
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering Pager...");
 	GetClassInfoEx(NULL, WC_PAGESCROLLER, &wc);
 	wc.lpszClassName = DCX_PAGERCLASS;
 	RegisterClassEx(&wc);
 
 	// Shadow Class
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering Shadow...");
 	wc.cbSize = sizeof(WNDCLASSEX); 
-	wc.style			= CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc	= DefWindowProc;
-	wc.cbClsExtra		= 0;
-	wc.cbWndExtra		= 0;
-	wc.hInstance		= GetModuleHandle( NULL );
-	wc.hIcon			= NULL;
-	wc.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wc.lpszMenuName	= NULL;
-	wc.lpszClassName	= DCX_SHADOWCLASS;
-	wc.hIconSm		= NULL;
-
+	wc.style         = CS_HREDRAW | CS_VREDRAW;
+	wc.lpfnWndProc   = DefWindowProc;
+	wc.cbClsExtra    = 0;
+	wc.cbWndExtra    = 0;
+	wc.hInstance     = GetModuleHandle( NULL );
+	wc.hIcon         = NULL;
+	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+	wc.lpszMenuName  = NULL;
+	wc.lpszClassName = DCX_SHADOWCLASS;
+	wc.hIconSm       = NULL;
 	RegisterClassEx(&wc);
 
 
@@ -398,6 +435,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	//	g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd,GCLP_WNDPROC,(LONG_PTR)mIRCMenusWinProc);
 	//	DestroyWindow(tmp_hwnd);
 	//}
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Registering XPopup...");
 	g_OldmIRCWindowProc = (WNDPROC) SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) mIRCSubClassWinProc);
 
 	WNDCLASS wcpop;
@@ -407,11 +445,13 @@ void WINAPI LoadDll(LOADINFO * load) {
 	wcpop.lpfnWndProc = XPopupMenu::XPopupWinProc;
 	RegisterClass(&wcpop);
 
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Creating menu owner...");
 	mhMenuOwner = CreateWindow(XPOPUPMENUCLASS, NULL, 0, 0, 0, 0, 0, 0, 0, GetModuleHandle(NULL), 0);
 
 	g_mIRCPopupMenu = new XPopupMenu(NULL);
 	g_mIRCMenuBar = new XPopupMenu(GetMenu(mIRCLink.m_mIRCHWND));
 
+	if (mIRCLink.isDebug) DCXDebug("LoadDLL", "Initialising UltraDock...");
 	InitUltraDock();
 	dcxSignal = false;
 }

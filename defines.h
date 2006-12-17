@@ -177,8 +177,9 @@ typedef struct {
 	LPSTR  m_pData;    //!< Pointer to a character buffer of size 900 to send mIRC custom commands
 	HWND   m_mIRCHWND; //!< mIRC Window Handle
 	int    m_map_cnt;  //!< MapFile counter.
-	int			m_bDoGhostDrag; //!< Ghost window while dragging.
-	bool		m_bGhosted;	//!< Is Window Currently ghosted (as a result of drag ghost).
+	int    m_bDoGhostDrag; //!< Ghost window while dragging.
+	bool   m_bGhosted; //!< Is Window Currently ghosted (as a result of drag ghost).
+	bool   isDebug;    // is mIRC is using /debug upon DCX LoadDLL().
 } mIRCDLL;
 
 /*!
@@ -250,6 +251,7 @@ void mIRCcom(const char *data);
 
 void dcxInfoError(const char *ctrl, const char *functn, const char *dlg, const int ctrlid, const char *msg);
 void DCXError(const char *cmd,const char *msg);
+void DCXDebug(const char *cmd,const char *msg);
 
 int round(const float x);
 BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
