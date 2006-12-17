@@ -268,7 +268,17 @@ function dcxdoc_header($page, $pagelabel) {
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title><?php// Prevent DCX DCX vs MDXif (in_array($page, array("dcxvsmdx", 'dcx')))	echo $pagelabel;// eg. DCX Boxelse if ($page != 'index')	echo "DCX $pagelabel";// Prevent DCX DCXelse	echo "DCX";?> - Dialog Control Xtension DLL v<?php echo $VERSION; ?> by ClickHeRe, twig* &amp; Ook</title>
+<title><?php
+// Prevent DCX DCX vs MDX
+if (in_array($page, array("dcxvsmdx", 'dcx')))
+	echo $pagelabel;
+// eg. DCX Box
+else if ($page != 'index')
+	echo "DCX $pagelabel";
+// Prevent DCX DCX
+else
+	echo "DCX";
+?> - Dialog Control Xtension DLL v<?php echo $VERSION; ?> by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>

@@ -51,6 +51,7 @@ $PAGES = array(
     'rebar' => 'Rebar',
     'pager' => 'Pager',
     'stacker' => 'Stacker',
+    'directshow' => 'Directshow',
 );
 
 array_walk_recursive($CHANGES, "wikiData");

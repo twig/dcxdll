@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title> - Dialog Control Xtension DLL v1.3.7 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX Controls - Dialog Control Xtension DLL v1.3.7 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -44,7 +44,7 @@
 		</li>
 		<li>DCX Controls
 			<ul>
-<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="datetime.htm">DateTime Picker</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="stacker.htm">Stacker</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li>			</ul>
+<li><a href="box.htm">Box</a></li><li><a href="button.htm">Button</a></li><li><a href="calendar.htm">Calendar</a></li><li><a href="check.htm">Check</a></li><li><a href="colorcombo.htm">ColorCombo</a></li><li><a href="comboex.htm">ComboEx</a></li><li><a href="datetime.htm">DateTime Picker</a></li><li><a href="dialog.htm">Dialog (embedded)</a></li><li><a href="directshow.htm">Directshow</a></li><li><a href="divider.htm">Divider</a></li><li><a href="edit.htm">Edit</a></li><li><a href="ipaddress.htm">IP Address</a></li><li><a href="image.htm">Image</a></li><li><a href="line.htm">Line</a></li><li><a href="link.htm">Link</a></li><li><a href="list.htm">List</a></li><li><a href="listview.htm">Listview</a></li><li><a href="pager.htm">Pager</a></li><li><a href="panel.htm">Panel</a></li><li><a href="pbar.htm">Progress Bar</a></li><li><a href="radio.htm">Radio</a></li><li><a href="rebar.htm">Rebar</a></li><li><a href="richedit.htm">RichEdit</a></li><li><a href="scroll.htm">Scroll</a></li><li><a href="stacker.htm">Stacker</a></li><li><a href="statusbar.htm">StatusBar</a></li><li><a href="tab.htm">Tab</a></li><li><a href="text.htm">Text</a></li><li><a href="toolbar.htm">ToolBar</a></li><li><a href="trackbar.htm">TrackBar</a></li><li><a href="treeview.htm">Treeview</a></li><li><a href="updown.htm">UpDown</a></li><li><a href="webctrl.htm">Web Control</a></li><li><a href="window.htm">Window (embedded)</a></li>			</ul>
 		</li>
 		<li>DCX Features
 			<ul>
@@ -652,6 +652,20 @@
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
+			<a name="events.alpha"></a>alpha	</td></tr>
+	<tr><td colspan="2">Returns if a control has alpha style or not.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME alpha ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx alpha 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
 			<a name="events.focus"></a>focus	</td></tr>
 	<tr><td colspan="2">Triggered when a control gains the focus where $3 is the control ID.</td></tr>
 	<tr>
@@ -817,7 +831,8 @@
 <li><a href="#xdidprop.tooltiptextcolor" style="color: #6666FF;">tooltiptextcolor</a></li>
 <li><a href="#xdidprop.type" style="color: #6666FF;">type</a></li>
 <li><a href="#xdidprop.visible" style="color: #6666FF;">visible</a></li>
-</ul><a href="#events" style="color: #009900;">Events</a><ul><li><a href="#events.focus" style="color: #009900;">focus</a></li>
+</ul><a href="#events" style="color: #009900;">Events</a><ul><li><a href="#events.alpha" style="color: #009900;">alpha</a></li>
+<li><a href="#events.focus" style="color: #009900;">focus</a></li>
 <li><a href="#events.focusout" style="color: #009900;">focusout</a></li>
 <li><a href="#events.mouse" style="color: #009900;">mouse</a></li>
 <li><a href="#events.mouseenter" style="color: #009900;">mouseenter</a></li>
@@ -832,7 +847,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 28th November, 06</td>
+		<td style="text-align: right;">Last Updated: 18th December, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

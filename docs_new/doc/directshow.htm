@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title>DCX Divider - Dialog Control Xtension DLL v1.3.7 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX Directshow - Dialog Control Xtension DLL v1.3.7 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -64,21 +64,25 @@
 	</ul>
 	</td>
 <td><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>Divider</div></td></tr>
-	<tr><td>This control enables you to create a divider control. This control acts as a container for other controls. The divider control is consisted of two panes that host a child control. The panes are resized using the divider bar between them. The divider control resizes automaticaly it's child windows when the bar is moved. Multiple dividers can be nested for advanced UI interfaces.<br /><br />
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>Directshow</div></td></tr>
+	<tr><td>DIRECTSHOW CONTROL<br /><br />
 <div style="text-align: center;">
-	<img src="images/divider.png" alt="" />
+	<img src="images/directshow.png" alt="" />
 </div>
 </td></tr>
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;font-size:14pt;'>Control Styles</div></td></tr>
-	<tr><td>These control styles are available when creating a Divider control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
+	<tr><td>These control styles are available when creating a Directshow control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
-		<td class="style"><a name="style.vertical" class="style">vertical</a></td>
-		<td>The divider has vertical panes.</td>
+		<td class="style"><a name="style.fixratio" class="style">fixratio</a></td>
+		<td>Causes the content to maintain its aspect ratio, without this style the content fills the control.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.transparent" class="style">transparent</a></td>
+		<td>This allows the background of the directshow control to be transparent and the video border not rendered.</td>
 	</tr>
 </table>
 <br />
@@ -88,125 +92,112 @@
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.l|-r"></a>/xdid -l|-r	</td></tr>
-	<tr><td colspan="2">This command lets you add a child control to a divider pane. The -l switch is for the left/top pane, and -r for the right/bottom pane.</td></tr>
+			<a name="xdid.a"></a>/xdid -a	</td></tr>
+	<tr><td colspan="2">This command lets you load and unload any previous file.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -l|-r [DNAME] [ID] [MIN] [IDEAL] [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)</div></td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [+FLAGS] [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -l|-r dcx 4 100 0 $chr(9) 12 richedit 10 10 400 25 multi</div></td>
+		<td><div class="example">/xdid -a dcx 4 + File.mpeg</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
-		<td class="param">MIN</td>
-		<td>Minimum Pane Width/Height.</td>
+		<td class="param">+FLAGS</td>
+		<td>Previous flags.</td>
 	</tr>
 	<tr>
-		<td class="param">IDEAL</td>
-		<td>Not used yet. Use <a class="value">0</a>, required but ignored.</td>
+		<td class="value">p</td>
+		<td>Play right away.</td>
 	</tr>
 	<tr>
-		<td class="param">CID</td>
-		<td>Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b></td>
+		<td class="value">l</td>
+		<td>Play loop away.</td>
 	</tr>
 	<tr>
-		<td class="param">CONTROL</td>
-		<td>The type of DCX Control to be created.</td>
-	</tr>
-	<tr>
-		<td class="value">treeview</td>
-		<td>Creates a TreeView control.</td>
-	</tr>
-	<tr>
-		<td class="value">listview</td>
-		<td>Creates a Listview control.</td>
-	</tr>
-	<tr>
-		<td class="value">rebar</td>
-		<td>Creates a Rebar control.</td>
-	</tr>
-	<tr>
-		<td class="value">richedit</td>
-		<td>Creates a RichEdit control.</td>
-	</tr>
-	<tr>
-		<td class="value">webctrl</td>
-		<td>Creates a WebCtrl.</td>
-	</tr>
-	<tr>
-		<td class="value">&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td class="value">edit</td>
-		<td>Creates a Edit control.</td>
-	</tr>
-	<tr>
-		<td class="value">image</td>
-		<td>Creates a Image control.</td>
-	</tr>
-	<tr>
-		<td class="value">list</td>
-		<td>Creates a List control.</td>
-	</tr>
-	<tr>
-		<td class="value">&nbsp;&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td class="value">divider</td>
-		<td>Creates a Divider control.</td>
-	</tr>
-	<tr>
-		<td class="value">panel</td>
-		<td>Creates a Panel control.</td>
-	</tr>
-	<tr>
-		<td class="value">tab</td>
-		<td>Creates a Tab control.</td>
-	</tr>
-	<tr>
-		<td class="param">X</td>
-		<td>X position of control. Use <a class="value">0</a>, required but ignored.</td>
-	</tr>
-	<tr>
-		<td class="param">Y</td>
-		<td>Y position of control. Use <a class="value">0</a>, required but ignored.</td>
-	</tr>
-	<tr>
-		<td class="param">W</td>
-		<td>Width of control.</td>
-	</tr>
-	<tr>
-		<td class="param">H</td>
-		<td>Height of control.</td>
-	</tr>
-	<tr>
-		<td class="param">OPTIONS</td>
-		<td>Optional styles and options available on each individual controls.</td>
+		<td class="param">FILENAME</td>
+		<td>Previous filename.</td>
 	</tr>
 </table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.v"></a>/xdid -v	</td></tr>
-	<tr><td colspan="2">This command lets you set the divider bar position.</td></tr>
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
+	<tr><td colspan="2">This command lets you load and unload any previous file.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -v [DNAME] [ID] [POS]</div></td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] [COMMAND]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -v dcx 4 150</div></td>
+		<td><div class="example">/xdid -c dcx 4 play</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The value must be between the left pane minimum width/height and the width/height of the control minus the right pane minimum width/height.<br />
-			<a class="value">Left W/H</a> <= <a class="param">POS</a> <= <a class="value">Right W/H</a>.</td></tr></table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">COMMAND</td>
+		<td>Play commands.</td>
+	</tr>
+	<tr>
+		<td class="value">play</td>
+		<td>Plays the loaded file.</td>
+	</tr>
+	<tr>
+		<td class="value">pause</td>
+		<td>Pauses the playback.</td>
+	</tr>
+	<tr>
+		<td class="value">stop</td>
+		<td>Stops the playback.</td>
+	</tr>
+	<tr>
+		<td class="value">close</td>
+		<td>Close the playback and unload it.</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>Previous filename.</td>
+	</tr>
+</table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;font-size:14pt;'>Divider Events</div></td></tr>
-	<tr><td>These events are fired when activity occurs in the Divider control.</td></tr>
+	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;font-size:14pt;'>$xdid() Properties</div></td></tr>
+	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
+</table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.size"></a>$xdid().size	</td></tr>
+	<tr><td colspan="2">TODO: This property returns the media size width height ARwidth ARheight.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).size</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).size</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">width</td>
+		<td>width</td>
+	</tr>
+	<tr>
+		<td class="param">height</td>
+		<td>height</td>
+	</tr>
+	<tr>
+		<td class="param">ARwidth</td>
+		<td>arwidth</td>
+	</tr>
+	<tr>
+		<td class="param">ARheight</td>
+		<td>arheight</td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;font-size:14pt;'>Directshow Events</div></td></tr>
+	<tr><td>These events are fired when activity occurs in the Directshow control.</td></tr>
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
@@ -224,9 +215,11 @@
 <br />
 </td><td width="85%" valign="top" class="menuright">
 	<br />
-<a href="#style" style="color: #B52929;">Control Styles</a><ul><li><a href="#style.vertical" style="color: #B52929;">vertical</a></li>
-</ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><ul><li><a href="#xdid.l|-r" style="color: #0000FF;">-l|-r</a></li>
-<li><a href="#xdid.v" style="color: #0000FF;">-v</a></li>
+<a href="#style" style="color: #B52929;">Control Styles</a><ul><li><a href="#style.fixratio" style="color: #B52929;">fixratio</a></li>
+<li><a href="#style.transparent" style="color: #B52929;">transparent</a></li>
+</ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><ul><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li>
+<li><a href="#xdid.c" style="color: #0000FF;">-c</a></li>
+</ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><ul><li><a href="#xdidprop.size" style="color: #6666FF;">size</a></li>
 </ul><a href="#events" style="color: #009900;">Events</a><ul><li><a href="#events.help" style="color: #009900;">help</a></li>
 </ul></td>
   </tr>
