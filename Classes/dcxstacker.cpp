@@ -313,6 +313,9 @@ void DcxStacker::getItemRect(int nPos, LPRECT rc) const {
 void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape)
 {
 #ifdef DCX_USE_GDIPLUS
+	if (!mIRCLink.m_bUseGDIPlus)
+		return;
+
 	Graphics gfx( hdc );
 
 	gfx.SetSmoothingMode(SmoothingModeAntiAlias);

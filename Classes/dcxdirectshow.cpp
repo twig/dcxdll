@@ -178,7 +178,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			if (SUCCEEDED(hr)) {
 				hr = this->SetVideoPos();
 				if (this->m_bAlphaBlend)
-					hr = this->setAlpha(0.5);
+					this->setAlpha(0.5);
 				if (SUCCEEDED(hr)) {
 					if (flag.find('l',0))
 						this->m_bLoop = true;
@@ -233,6 +233,16 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		}
 		else
 			DCXError("/xdid -c", "No File Loaded");
+	}
+  // xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
+  else if ( flags.switch_flags[21] && numtok > 7 ) {
+		if (this->m_pControl != NULL) {
+			HRESULT hr = this->setVideo(input.gettok(4),(float)input.gettok(5).to_float(), (float)input.gettok(6).to_num(), (float)input.gettok(7).to_num(), (float)input.gettok(8).to_num());
+			if (FAILED(hr))
+				DCXError("/xdid -v", "Unable to set video");
+		}
+		else
+			DCXError("/xdid -v", "No File Loaded");
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -557,15 +567,20 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	if (FAILED(hr))
 			return hr;
 
-	// this works BUT only gives u alpha over other streams in the mixer, not the dialog/controls bg.
 	IVMRMixerControl9 *pMixer = NULL;
 	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
 	if (SUCCEEDED(hr)) {
-	//	hr = pMixer->SetAlpha(0,alpha);
+		// this works BUT only gives u alpha over other streams in the mixer, not the dialog/controls bg.
+		//hr = pMixer->SetAlpha(0,alpha);
 		// Get the current mixing preferences.
 		DWORD dwPrefs;
 		pMixer->GetMixingPrefs(&dwPrefs);  
 
+		// Remove the current render target flag.
+		dwPrefs &= ~MixerPref_RenderTargetMask; 
+
+		// Add the render target flag that we want.
+		dwPrefs |= MixerPref_RenderTargetYUV;
 		dwPrefs |= MixerPref9_NonSquareMixing;
 
 		// Set the new flags.
@@ -639,6 +654,43 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 		else
 			hr = E_FAIL;
 		pBm->Release();
+	}
+	pVmr->Release(); 
+	return hr; 
+}
+HRESULT DcxDirectshow::setVideo(TString flags, float brightness, float contrast, float hue, float saturation)
+{
+	IBaseFilter* pVmr = NULL; 
+
+	HRESULT hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer",&pVmr);
+
+	if (FAILED(hr))
+			return hr;
+
+	IVMRMixerControl9 *pMixer = NULL;
+	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
+	if (SUCCEEDED(hr)) {
+		DWORD dwflags = 0;
+		if (flags.find('b',0))
+			dwflags |= ProcAmpControl9_Brightness;
+		if (flags.find('c',0))
+			dwflags |= ProcAmpControl9_Contrast;
+		if (flags.find('h',0))
+			dwflags |= ProcAmpControl9_Hue;
+		if (flags.find('s',0))
+			dwflags |= ProcAmpControl9_Saturation;
+
+		if (dwflags != 0) {
+			VMR9ProcAmpControl amc;
+			amc.dwFlags = dwflags;
+			amc.dwSize = sizeof(VMR9ProcAmpControl);
+			amc.Brightness = brightness;
+			amc.Contrast = contrast;
+			amc.Hue = hue;
+			amc.Saturation = saturation;
+			hr = pMixer->SetProcAmpControl(0,&amc);
+		}
+		pMixer->Release();
 	}
 	pVmr->Release(); 
 	return hr; 

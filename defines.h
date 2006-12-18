@@ -14,7 +14,7 @@
  * © ScriptsDB.org - 2006
  */
 
-#ifdef __INTEL_COMPILER
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( disable : 1195 )
 #pragma warning( disable : 504 )
 #pragma warning( disable : 1563 )
@@ -51,6 +51,11 @@
 // Use GDI+
 #define DCX_USE_GDIPLUS 1
 //
+
+// Release Build, disable debug info.
+//#define DCX_DEBUG(x,y)
+// Dev Build, enable debug output.
+#define DCX_DEBUG(x,y) if (mIRCLink.isDebug) DCXDebug((x), (y));
 
 //#include <vld.h>
 #include <windows.h>
@@ -173,13 +178,14 @@ typedef struct {
  * \brief DCX DLL mIRC Information Structure
  */
 typedef struct {
-	HANDLE m_hFileMap; //!< Handle to the mIRC DLL File Map
-	LPSTR  m_pData;    //!< Pointer to a character buffer of size 900 to send mIRC custom commands
-	HWND   m_mIRCHWND; //!< mIRC Window Handle
-	int    m_map_cnt;  //!< MapFile counter.
-	int    m_bDoGhostDrag; //!< Ghost window while dragging.
-	bool   m_bGhosted; //!< Is Window Currently ghosted (as a result of drag ghost).
-	bool   isDebug;    // is mIRC is using /debug upon DCX LoadDLL().
+	HANDLE	m_hFileMap; //!< Handle to the mIRC DLL File Map
+	LPSTR		m_pData;    //!< Pointer to a character buffer of size 900 to send mIRC custom commands
+	HWND		m_mIRCHWND; //!< mIRC Window Handle
+	int			m_map_cnt;  //!< MapFile counter.
+	int			m_bDoGhostDrag; //!< Ghost window while dragging.
+	bool		m_bGhosted; //!< Is Window Currently ghosted (as a result of drag ghost).
+	bool		isDebug;    // is mIRC is using /debug upon DCX LoadDLL().
+	bool		m_bUseGDIPlus; // we can use GDI+ functions.
 } mIRCDLL;
 
 /*!
@@ -318,5 +324,6 @@ extern PFNDRAWTHEMETEXT DrawThemeTextUx;
 extern PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx;
 extern PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx;
 extern PFNDRAWSHADOWTEXT DrawShadowTextUx;
+extern mIRCDLL mIRCLink;
 
 #endif // _DEFINES_H_

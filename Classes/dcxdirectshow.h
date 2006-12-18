@@ -56,6 +56,7 @@ protected:
 	enum { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION } Properties;
 	HRESULT getProperty(char *prop, int type);
 	HRESULT setAlpha(float alpha);
+	HRESULT setVideo(TString flags, float brightness, float contrast, float hue, float saturation);
 
 #define WM_GRAPHNOTIFY  WM_APP + 1
 

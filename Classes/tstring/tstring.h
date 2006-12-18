@@ -160,6 +160,7 @@ public:
 	bool iswmcs(char *a) const;
 	int to_int() const { return atoi(this->m_pString); }
 	__int64 to_num( ) const { return _atoi64(this->m_pString); }
+	double to_float() const { return atof(this->m_pString); }
 	WCHAR *to_wchr(void);
 	//
 };

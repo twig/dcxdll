@@ -196,7 +196,10 @@ void DcxImage::parseCommandRequest(TString & input) {
 
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
-		this->m_pImage = new Image(filename.to_wchr());
+		if (mIRCLink.m_bUseGDIPlus)
+			this->m_pImage = new Image(filename.to_wchr());
+		else
+			this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
 #else
 		this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
 #endif
@@ -323,7 +326,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				DrawIconEx(hdc, 0, 0, this->m_hIcon, this->m_iIconSize, this->m_iIconSize, 0, this->m_hBackBrush, DI_NORMAL | DI_COMPAT); 
 			}
 #ifdef DCX_USE_GDIPLUS
-			else if (this->m_pImage != NULL) {
+			else if ((this->m_pImage != NULL) && (mIRCLink.m_bUseGDIPlus)) {
 				Graphics grphx( hdc );
 
 				grphx.SetCompositingQuality(CompositingQualityHighQuality);

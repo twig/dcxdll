@@ -25,8 +25,9 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine=""
-				ExcludedFromBuild="false"
+				Description="Delete Old dcx.dll from mIRC dir"
+				CommandLine="del /F C:\mIRC_Basic\dcx\dcx.dll"
+				ExcludedFromBuild="true"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -64,10 +65,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib  Msimg32.lib"
 				OutputFile="$(OutDir)/dcx.dll"
 				LinkIncremental="2"
 				ModuleDefinitionFile="dll.def"
+				DelayLoadDLLs="gdiplus.dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/dcx.pdb"
 				SubSystem="2"
@@ -97,8 +99,9 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine=""
-				ExcludedFromBuild="false"
+				Description="Copying Dll to mIRC dir"
+				CommandLine="copy /B /-Y $(TargetPath) c:\mIRC_Basic\dcx\"
+				ExcludedFromBuild="true"
 			/>
 		</Configuration>
 		<Configuration
@@ -152,11 +155,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG:NOSTATUS /ignore:4254"
-				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib Strmiids.lib"
+				AdditionalDependencies="comctl32.lib  Msimg32.lib"
 				OutputFile="$(OutDir)/dcx.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile="dll.def"
+				DelayLoadDLLs="gdiplus.dll"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -242,11 +246,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG:NOSTATUS /ignore:4254"
-				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib Strmiids.lib"
+				AdditionalDependencies="comctl32.lib  Msimg32.lib"
 				OutputFile="$(OutDir)/dcx.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile="dll.def"
+				DelayLoadDLLs="gdiplus.dll"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -333,11 +338,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/LTCG:NOSTATUS /ignore:4254"
-				AdditionalDependencies="comctl32.lib Msimg32.lib gdiplus.lib Strmiids.lib"
+				AdditionalDependencies="comctl32.lib  Msimg32.lib"
 				OutputFile="$(OutDir)/dcx.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile="dll.def"
+				DelayLoadDLLs="gdiplus.dll"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
