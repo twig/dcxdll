@@ -18,12 +18,6 @@
 #include "../defines.h"
 #include "dcxcontrol.h"
 #include "dcxprogressbar.h"
-//#include "dcxbutton.h"
-//#include "dcxcolorcombo.h"
-//#include "dcxipaddress.h"
-//#include "dcxupdown.h"
-//#include "mIRC/dcxedit.h"
-//#include "dcxrichedit.h"
 
 class DcxDialog;
 

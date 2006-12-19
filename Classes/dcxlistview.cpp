@@ -36,14 +36,14 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
+    ExStyles,
     DCX_LISTVIEWCLASS,
     NULL,
-    WS_CHILD | WS_VISIBLE | Styles,
+    WS_CHILD | WS_VISIBLE | (Styles & ~WS_CLIPCHILDREN), // can't be ws_clipchildren as this causes render bug when progressbar items are selected.
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
-    GetModuleHandle(NULL), 
+    GetModuleHandle(NULL),
     NULL);
 
   if ( bNoTheme )
