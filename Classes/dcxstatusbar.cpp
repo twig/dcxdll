@@ -20,42 +20,6 @@
  *
  * \param ID Control ID
  * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-//DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
-//
-//  LONG Styles = 0, ExStyles = 0;
-//  BOOL bNoTheme = FALSE;
-//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//  this->m_Hwnd = CreateWindowEx(	
-//    ExStyles, 
-//    DCX_STATUSBARCLASS, 
-//    NULL,
-//    WS_CHILD | WS_VISIBLE | Styles, 
-//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//    p_Dialog->getHwnd( ),
-//    (HMENU) ID,
-//    GetModuleHandle(NULL), 
-//    NULL);
-//
-//  if ( bNoTheme )
-//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//  this->m_hImageList = NULL;
-//
-//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-//  this->registreDefaultWindowProc( );
-//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//}
-//
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
  * \param mParentHwnd Parent Window Handle
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List

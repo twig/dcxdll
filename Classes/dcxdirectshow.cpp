@@ -422,22 +422,20 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
     IBaseFilter* pVmr = NULL; 
     IVMRWindowlessControl9* pWc = NULL; 
     // Create the VMR.
-    HRESULT hr = CoCreateInstance(CLSID_VideoMixingRenderer9, NULL, 
-        CLSCTX_INPROC, IID_IBaseFilter, (void**)&pVmr); 
+    HRESULT hr = CoCreateInstance(CLSID_VideoMixingRenderer9, NULL, CLSCTX_INPROC, IID_IBaseFilter, (void**)&pVmr);
+
     if (FAILED(hr))
-    {
         return hr;
-    }
     
     // Add the VMR to the filter graph.
-    hr = pGraph->AddFilter(pVmr, L"Video Mixing Renderer"); 
-    if (FAILED(hr)) 
+    hr = pGraph->AddFilter(pVmr, L"Video Mixing Renderer");
+    if (FAILED(hr))
     {
         pVmr->Release();
         return hr;
     }
     // Set the rendering mode.
-    IVMRFilterConfig9* pConfig; 
+    IVMRFilterConfig9* pConfig;
     hr = pVmr->QueryInterface(IID_IVMRFilterConfig9, (void**)&pConfig);
     if (SUCCEEDED(hr))
     {

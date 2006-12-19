@@ -177,6 +177,7 @@ bool DockWindow(const HWND mWnd, const HWND temp, const char *find, TString & fl
 
 		SetProp(temp,"dcx_docked",(HANDLE) flags);
 		//ShowScrollBar(sWnd,SB_BOTH,FALSE);
+		AddStyles(sWnd,GWL_STYLE,WS_CLIPSIBLINGS|WS_CLIPCHILDREN); // this helps with rendering glitches.
 		// set parent and move it to top-left corner
 		SetParent(temp,sWnd);
 		MoveWindow(temp,0,0,rc.right-rc.left,rc.bottom-rc.top,1);

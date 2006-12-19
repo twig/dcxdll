@@ -15,29 +15,6 @@
 #include "dcxtab.h"
 #include "dcxdialog.h"
 
-////#include "dcxprogressbar.h"
-////#include "dcxtrackbar.h"
-////#include "dcxcolorcombo.h"
-////#include "dcxcomboex.h"
-////#include "dcxstatusbar.h"
-////#include "dcxtoolbar.h"
-////#include "dcxbutton.h"
-//#include "dcxtreeview.h"
-//#include "dcxlistview.h"
-//#include "dcxrebar.h"
-//#include "dcxrichedit.h"
-//#include "dcxwebctrl.h"
-//
-//#include "dcxpanel.h"
-//#include "dcxdivider.h"
-//
-//#include "mirc/dcxedit.h"
-//#include "mirc/dcxlist.h"
-//#include "mirc/dcximage.h"
-//
-//#include "dcxmwindow.h"
-//#include "dcxmdialog.h"
-
 /*!
  * \brief Constructor
  *

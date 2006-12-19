@@ -39,7 +39,7 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
     ExStyles,
     "STATIC",
     NULL,
-    WS_CHILD | WS_VISIBLE | Styles,
+    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | Styles,
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
@@ -498,6 +498,12 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
         this->m_pParentDialog->setFocusControl( this->getUserID( ) );
       }
       break;
+		case WM_MOUSEWHEEL:
+			{
+				bParsed = TRUE;
+				// stop parsing of WM_MOUSEWHEEL
+			}
+			break;
 		case WM_MOUSEACTIVATE:
 			{
 				bParsed = TRUE;

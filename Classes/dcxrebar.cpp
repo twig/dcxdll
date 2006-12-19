@@ -38,45 +38,6 @@
  *
  * \param ID Control ID
  * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
-
-//DcxReBar::DcxReBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
-//
-//  LONG Styles = 0, ExStyles = 0;
-//  BOOL bNoTheme = FALSE;
-//  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-//
-//  this->m_Hwnd = CreateWindowEx(	
-//    ExStyles | WS_EX_CONTROLPARENT,
-//    DCX_REBARCTRLCLASS,
-//    NULL,
-//    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
-//    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-//    p_Dialog->getHwnd( ),
-//    (HMENU) ID,
-//    GetModuleHandle(NULL), 
-//    NULL);
-//
-//  if ( bNoTheme )
-//    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-//
-//  this->m_iClickedBand = -1;
-//  this->m_iRowLimit = 0;
-//  this->m_iWidth = 0;
-//  this->m_iHeight = 0;
-//
-//  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-//  this->registreDefaultWindowProc( );
-//  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
-//}
-//
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
  * \param mParentHwnd Parent Window Handle
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
@@ -84,6 +45,10 @@
 
 DcxReBar::DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
+, m_iClickedBand(-1)
+, m_iRowLimit(0)
+, m_iWidth(0)
+, m_iHeight(0)
 {
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
@@ -102,11 +67,6 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 
   if ( bNoTheme )
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  this->m_iClickedBand = -1;
-  this->m_iRowLimit = 0;
-  this->m_iWidth = 0;
-  this->m_iHeight = 0;
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );

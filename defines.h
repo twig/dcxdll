@@ -52,11 +52,6 @@
 #define DCX_USE_GDIPLUS 1
 //
 
-// Release Build, disable debug info.
-//#define DCX_DEBUG(x,y)
-// Dev Build, enable debug output.
-#define DCX_DEBUG(x,y) if (mIRCLink.isDebug) DCXDebug((x), (y));
-
 //#include <vld.h>
 #include <windows.h>
 #include <windowsx.h>
@@ -80,7 +75,21 @@ using namespace Gdiplus;
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 3
 #define DLL_BUILD      7
+#ifdef NDEBUG
+#ifdef DCX_DEV_BUILD
+// Dev Build, enable debug output.
+#define DCX_DEBUG(x,y) if (mIRCLink.isDebug) DCXDebug((x), (y));
 #define DLL_STATE      "Development Build"
+#else
+// Release Build, disable debug info.
+#define DCX_DEBUG(x,y)
+#define DLL_STATE      "Release Build"
+#endif
+#else
+// Debug Build, enable debug output.
+#define DCX_DEBUG(x,y) if (mIRCLink.isDebug) DCXDebug((x), (y));
+#define DLL_STATE      "Debug Build"
+#endif
 
 #define mIRC_ID_OFFSET 6000 //!< mIRC Dialog ID Offset
 

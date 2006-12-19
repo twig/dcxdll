@@ -95,6 +95,9 @@ void DcxList::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
       *Styles |= LBS_USETABSTOPS;
 	 else if (styles.gettok(i, " ") == "vsbar")
 		 *Styles |= WS_VSCROLL;
+		else if ( styles.gettok( i , " " ) == "alpha" )
+			this->m_bAlphaBlend = true;
+
     i++;
   }
   this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -415,6 +418,30 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 		case WM_MOUSEWHEEL:
 			SendMessage(this->m_pParentDialog->getHwnd(), uMsg, wParam, lParam);
+			break;
+
+		case WM_PAINT:
+			{
+				if (!this->m_bAlphaBlend)
+					break;
+        PAINTSTRUCT ps;
+        HDC hdc;
+
+        hdc = BeginPaint( this->m_Hwnd, &ps );
+
+				LRESULT res = 0L;
+				bParsed = TRUE;
+
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+				this->FinishAlphaBlend(ai);
+
+				EndPaint( this->m_Hwnd, &ps );
+				return res;
+			}
 			break;
 
 		case WM_DESTROY:

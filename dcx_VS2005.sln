@@ -5,6 +5,7 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
+		Development|Win32 = Development|Win32
 		Release Dll|Win32 = Release Dll|Win32
 		Release Optimal|Win32 = Release Optimal|Win32
 		Release|Win32 = Release|Win32
@@ -12,6 +13,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6A3D5662-4DA4-47EB-9DDF-98584E702805}.Debug|Win32.ActiveCfg = Debug|Win32
 		{6A3D5662-4DA4-47EB-9DDF-98584E702805}.Debug|Win32.Build.0 = Debug|Win32
+		{6A3D5662-4DA4-47EB-9DDF-98584E702805}.Development|Win32.ActiveCfg = Development|Win32
+		{6A3D5662-4DA4-47EB-9DDF-98584E702805}.Development|Win32.Build.0 = Development|Win32
 		{6A3D5662-4DA4-47EB-9DDF-98584E702805}.Release Dll|Win32.ActiveCfg = Release Dll|Win32
 		{6A3D5662-4DA4-47EB-9DDF-98584E702805}.Release Dll|Win32.Build.0 = Release Dll|Win32
 		{6A3D5662-4DA4-47EB-9DDF-98584E702805}.Release Optimal|Win32.ActiveCfg = Release Optimal|Win32
