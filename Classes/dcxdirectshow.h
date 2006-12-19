@@ -54,9 +54,11 @@ protected:
 	HRESULT SetVideoPos(void);
 	void ReleaseAll(void);
 	enum { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION } Properties;
-	HRESULT getProperty(char *prop, int type);
+	HRESULT getProperty(char *prop, int type) const;
 	HRESULT setAlpha(float alpha);
 	HRESULT setVideo(TString flags, float brightness, float contrast, float hue, float saturation);
+	HRESULT getVideo(VMR9ProcAmpControl *amc) const;
+	HRESULT getVideoRange(VMR9ProcAmpControlFlags prop, VMR9ProcAmpControlRange *acr) const;
 
 #define WM_GRAPHNOTIFY  WM_APP + 1
 

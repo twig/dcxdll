@@ -498,16 +498,10 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
         this->m_pParentDialog->setFocusControl( this->getUserID( ) );
       }
       break;
-		case WM_MOUSEWHEEL:
-			{
-				bParsed = TRUE;
-				// stop parsing of WM_MOUSEWHEEL
-			}
-			break;
 		case WM_MOUSEACTIVATE:
 			{
 				bParsed = TRUE;
-				//long web;
+				//HWND web = NULL;
 				//HRESULT r = this->m_pWebBrowser2->get_HWND((long *)&web);
 				//if (SUCCEEDED(r)) {
 				//	mIRCError("worked");
@@ -515,6 +509,7 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 				//}
 				//else
 				//	mIRCDebug("no activate r %d web %d", r, web);
+				//SetActiveWindow((HWND)wParam);
 				return MA_ACTIVATE;
 			}
 			break;

@@ -119,14 +119,111 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			dcxInfoError("directshow","size",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Native Video Size");
   }
   // [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "author" && this->m_pGraph != NULL) {
-		this->getProperty(szReturnValue, PROP_AUTHOR);
-		return;
+	else if ( input.gettok( 3, " " ) == "author") {
+		if (this->m_pGraph != NULL) {
+			this->getProperty(szReturnValue, PROP_AUTHOR);
+			return;
+		}
+		else
+			dcxInfoError("directshow","author",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
   }
   // [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "title" && this->m_pGraph != NULL) {
-		this->getProperty(szReturnValue, PROP_TITLE);
-		return;
+	else if ( input.gettok( 3, " " ) == "title") {
+		if (this->m_pGraph != NULL) {
+			this->getProperty(szReturnValue, PROP_TITLE);
+			return;
+		}
+		else
+			dcxInfoError("directshow","title",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+  }
+  // [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "video") {
+		if (this->m_pGraph != NULL) {
+			VMR9ProcAmpControl amc;
+			HRESULT hr = this->getVideo(&amc);
+			if (SUCCEEDED(hr)) {
+				TString vflags('+');
+				if (amc.dwFlags & ProcAmpControl9_Brightness)
+					vflags += 'b';
+				if (amc.dwFlags & ProcAmpControl9_Contrast)
+					vflags += 'c';
+				if (amc.dwFlags & ProcAmpControl9_Hue)
+					vflags += 'h';
+				if (amc.dwFlags & ProcAmpControl9_Saturation)
+					vflags += 's';
+				// NB: wsprintf() doesn't support %f
+				sprintf(szReturnValue,"%s %f %f %f %f", vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
+				return;
+			}
+			else
+				dcxInfoError("directshow","video",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		}
+		else
+			dcxInfoError("directshow","video",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+  }
+  // [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "brange") {
+		if (this->m_pGraph != NULL) {
+			VMR9ProcAmpControlRange acr;
+			HRESULT hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr);
+			if (SUCCEEDED(hr)) {
+				// NB: wsprintf() doesn't support %f
+				sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+				return;
+			}
+			else
+				dcxInfoError("directshow","brange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		}
+		else
+			dcxInfoError("directshow","brange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+  }
+  // [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "crange") {
+		if (this->m_pGraph != NULL) {
+			VMR9ProcAmpControlRange acr;
+			HRESULT hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr);
+			if (SUCCEEDED(hr)) {
+				// NB: wsprintf() doesn't support %f
+				sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+				return;
+			}
+			else
+				dcxInfoError("directshow","crange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		}
+		else
+			dcxInfoError("directshow","crange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+  }
+  // [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "hrange") {
+		if (this->m_pGraph != NULL) {
+			VMR9ProcAmpControlRange acr;
+			HRESULT hr = this->getVideoRange(ProcAmpControl9_Hue, &acr);
+			if (SUCCEEDED(hr)) {
+				// NB: wsprintf() doesn't support %f
+				sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+				return;
+			}
+			else
+				dcxInfoError("directshow","hrange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		}
+		else
+			dcxInfoError("directshow","hrange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+  }
+  // [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "srange") {
+		if (this->m_pGraph != NULL) {
+			VMR9ProcAmpControlRange acr;
+			HRESULT hr = this->getVideoRange(ProcAmpControl9_Saturation, &acr);
+			if (SUCCEEDED(hr)) {
+				// NB: wsprintf() doesn't support %f
+				sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+				return;
+			}
+			else
+				dcxInfoError("directshow","srange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		}
+		else
+			dcxInfoError("directshow","srange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
   }
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
@@ -519,7 +616,7 @@ void DcxDirectshow::ReleaseAll(void)
 	this->m_pSeek = NULL;
 }
 // getProperty() is non-functional atm. Where do i get this interface from? or a similar one.
-HRESULT DcxDirectshow::getProperty(char *prop, int type)
+HRESULT DcxDirectshow::getProperty(char *prop, int type) const
 {
 	IAMMediaContent *iam;
 	HRESULT hr = this->m_pGraph->QueryInterface(IID_IAMMediaContent,(void **)&iam);
@@ -692,6 +789,49 @@ HRESULT DcxDirectshow::setVideo(TString flags, float brightness, float contrast,
 	}
 	pVmr->Release(); 
 	return hr; 
+}
+
+HRESULT DcxDirectshow::getVideo(VMR9ProcAmpControl *amc) const
+{
+	IBaseFilter* pVmr = NULL; 
+
+	HRESULT hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer",&pVmr);
+
+	if (FAILED(hr))
+			return hr;
+
+	IVMRMixerControl9 *pMixer = NULL;
+	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
+	if (SUCCEEDED(hr)) {
+		ZeroMemory(amc,sizeof(VMR9ProcAmpControl));
+		amc->dwSize = sizeof(VMR9ProcAmpControl);
+		hr = pMixer->GetProcAmpControl(0,amc);
+		pMixer->Release();
+	}
+	pVmr->Release(); 
+	return hr;
+}
+
+HRESULT DcxDirectshow::getVideoRange(VMR9ProcAmpControlFlags prop, VMR9ProcAmpControlRange *acr) const
+{
+	IBaseFilter* pVmr = NULL; 
+
+	HRESULT hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer",&pVmr);
+
+	if (FAILED(hr))
+			return hr;
+
+	IVMRMixerControl9 *pMixer = NULL;
+	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
+	if (SUCCEEDED(hr)) {
+		ZeroMemory(acr,sizeof(VMR9ProcAmpControlRange));
+		acr->dwSize = sizeof(VMR9ProcAmpControlRange);
+		acr->dwProperty = prop;
+		hr = pMixer->GetProcAmpControlRange(0,acr);
+		pMixer->Release();
+	}
+	pVmr->Release(); 
+	return hr;
 }
 
 #endif // USE_DXSDK
