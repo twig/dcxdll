@@ -933,16 +933,32 @@
 		<td>Region flags.</td>
 	</tr>
 	<tr>
-		<td class="value">f</td>
-		<td>Region is defined in bitmap file.</td>
-	</tr>
-	<tr>
 		<td class="value">d</td>
 		<td>Allows dragging of the window by clicking anywhere on it.</td>
 	</tr>
 	<tr>
-		<td class="value">r</td>
-		<td>Sets a rounded rectangle region.</td>
+		<td class="value">f</td>
+		<td>Region is defined in bitmap file.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Allows the dialog to be ghosted while dragging.</td>
+	</tr>
+	<tr>
+		<td class="value">o</td>
+		<td>OR new region with existing one. (Can be used with <a class="value">c</a>, <a class="value">p</a> or <a class="value">r</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>AND new region with existing one. (Can be used with <a class="value">c</a>, <a class="value">p</a> or <a class="value">r</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>DIFF new region with existing one. (Can be used with <a class="value">c</a>, <a class="value">p</a> or <a class="value">r</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">x</td>
+		<td>XOR new region with existing one. (Can be used with <a class="value">c</a>, <a class="value">p</a> or <a class="value">r</a>)</td>
 	</tr>
 	<tr>
 		<td class="value">c</td>
@@ -951,6 +967,10 @@
 	<tr>
 		<td class="value">p</td>
 		<td>Sets a polygon region.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Sets a rounded rectangle region.</td>
 	</tr>
 	<tr>
 		<td class="value">n</td>
@@ -966,12 +986,12 @@
 		<td><div class="syntax">[TRANSPARENT_COLOR] [FILENAME]</div></td>
 	</tr>
 	<tr>
-		<td class="param">r</td>
-		<td><div class="syntax">(ROUNDNESS)</div></td>
+		<td class="param">g</td>
+		<td><div class="syntax">[VALUE]</div></td>
 	</tr>
 	<tr>
-		<td class="value">ROUNDNESS</td>
-		<td>An integer defining how round the rectangle should be.</td>
+		<td class="value">VALUE</td>
+		<td>The opacity of the dragged window. This can be a value between <a class="value">0</a>-<a class="value">255</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">p</td>
@@ -980,6 +1000,14 @@
 	<tr>
 		<td class="value">COORDINATES</td>
 		<td>A list of at least 3 coordinates, each coordinate in the format of <a class="value">X,Y</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">r</td>
+		<td><div class="syntax">(ROUNDNESS)</div></td>
+	</tr>
+	<tr>
+		<td class="value">ROUNDNESS</td>
+		<td>An integer defining how round the rectangle should be.</td>
 	</tr>
 </table>
 <br />
@@ -1901,7 +1929,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 18th December, 06</td>
+		<td style="text-align: right;">Last Updated: 19th December, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

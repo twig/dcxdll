@@ -77,6 +77,10 @@
 </table>
 <table class="styles">
 	<tr>
+		<td class="style"><a name="style.alpha" class="style">alpha</a></td>
+		<td>Control is alpha blended.</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.bottom" class="style">bottom</a></td>
 		<td>Control text is at the bottom of the box.</td>
 	</tr>
@@ -104,7 +108,7 @@
 		<td class="style"><a name="style.transparent" class="style">transparent</a></td>
 		<td>This allows the background of the box control to be transparent.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Applying the border <a class="style">regular</a>+<a class="style">dialog frame</a> border styles on the box will give it a titlebar. (/xdid -x DNAME BOX_ID +bd)</li><li><a class="style">shadow</a> will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using <a class="value">xdid -c</a></li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Applying the border <a class="style">regular</a>+<a class="style">dialog frame</a> border styles on the box will give it a titlebar. (/xdid -x DNAME BOX_ID +bd)</li><li><a class="style">shadow</a> will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using <a class="value">xdid -C</a></li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;font-size:14pt;'>/xdid flags</div></td></tr>
@@ -541,7 +545,8 @@
 <br />
 </td><td width="85%" valign="top" class="menuright">
 	<br />
-<a href="#style" style="color: #B52929;">Control Styles</a><ul><li><a href="#style.bottom" style="color: #B52929;">bottom</a></li>
+<a href="#style" style="color: #B52929;">Control Styles</a><ul><li><a href="#style.alpha" style="color: #B52929;">alpha</a></li>
+<li><a href="#style.bottom" style="color: #B52929;">bottom</a></li>
 <li><a href="#style.center" style="color: #B52929;">center</a></li>
 <li><a href="#style.none" style="color: #B52929;">none</a></li>
 <li><a href="#style.right" style="color: #B52929;">right</a></li>
@@ -569,7 +574,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 18th December, 06</td>
+		<td style="text-align: right;">Last Updated: 19th December, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

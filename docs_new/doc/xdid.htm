@@ -91,6 +91,10 @@
 		<td class="style"><a name="style.tabstop" class="style">tabstop</a></td>
 		<td>Specifies a control that can receive the keyboard focus when the user presses the TAB key. Pressing the TAB key changes the keyboard focus to the next control with the <a class="style">tabstop</a> style.</td>
 	</tr>
+	<tr>
+		<td class="style"><a name="style.transparent" class="style">transparent</a></td>
+		<td>Does not draw the control background so the parent background will show through. (Only applies to some controls)</td>
+	</tr>
 </table>
 <br />
 <table class="description">
@@ -429,6 +433,94 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -M dcx 4 Mark info here</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.R"></a>/xdid -R	</td></tr>
+	<tr><td colspan="2">This command lets you clip the control region.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -R [DNAME] [ID] [+FLAGS] (ARGS)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -R dcx 4 +f $rgb(255,0,255) control_shape.bmp</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Region flags.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Region is defined in bitmap file.</td>
+	</tr>
+	<tr>
+		<td class="value">o</td>
+		<td>OR new region with existing one. (Can be used with <a class="value">c</a>, <a class="value">p</a> or <a class="value">r</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>AND new region with existing one. (Can be used with <a class="value">c</a>, <a class="value">p</a> or <a class="value">r</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>DIFF new region with existing one. (Can be used with <a class="value">c</a>, <a class="value">p</a> or <a class="value">r</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">x</td>
+		<td>XOR new region with existing one. (Can be used with <a class="value">c</a>, <a class="value">p</a> or <a class="value">r</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Sets an ellipse region.</td>
+	</tr>
+	<tr>
+		<td class="value">p</td>
+		<td>Sets a polygon region.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Sets a rounded rectangle region.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Resets the region.</td>
+	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">d</td>
+		<td><div class="syntax">[0|1]</div></td>
+	</tr>
+	<tr>
+		<td class="param">f</td>
+		<td><div class="syntax">[TRANSPARENT_COLOR] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="param">g</td>
+		<td><div class="syntax">[VALUE]</div></td>
+	</tr>
+	<tr>
+		<td class="value">VALUE</td>
+		<td>The opacity of the dragged window. This can be a value between <a class="value">0</a>-<a class="value">255</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">p</td>
+		<td><div class="syntax">x1,y1 x2,y2 x3,y3 ... x12,y12</div></td>
+	</tr>
+	<tr>
+		<td class="value">COORDINATES</td>
+		<td>A list of at least 3 coordinates, each coordinate in the format of <a class="value">X,Y</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">r</td>
+		<td><div class="syntax">(ROUNDNESS)</div></td>
+	</tr>
+	<tr>
+		<td class="value">ROUNDNESS</td>
+		<td>An integer defining how round the rectangle should be.</td>
 	</tr>
 </table>
 <br />
@@ -805,6 +897,7 @@
 <li><a href="#style.group" style="color: #B52929;">group</a></li>
 <li><a href="#style.notheme" style="color: #B52929;">notheme</a></li>
 <li><a href="#style.tabstop" style="color: #B52929;">tabstop</a></li>
+<li><a href="#style.transparent" style="color: #B52929;">transparent</a></li>
 </ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><ul><li><a href="#xdid.b" style="color: #0000FF;">-b</a></li>
 <li><a href="#xdid.e" style="color: #0000FF;">-e</a></li>
 <li><a href="#xdid.f" style="color: #0000FF;">-f</a></li>
@@ -816,6 +909,7 @@
 <li><a href="#xdid.F" style="color: #0000FF;">-F</a></li>
 <li><a href="#xdid.J" style="color: #0000FF;">-J</a></li>
 <li><a href="#xdid.M" style="color: #0000FF;">-M</a></li>
+<li><a href="#xdid.R" style="color: #0000FF;">-R</a></li>
 <li><a href="#xdid.T" style="color: #0000FF;">-T</a></li>
 <li><a href="#xdid.U" style="color: #0000FF;">-U</a></li>
 <li><a href="#xdid.Z" style="color: #0000FF;">-Z</a></li>
@@ -847,7 +941,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 18th December, 06</td>
+		<td style="text-align: right;">Last Updated: 19th December, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

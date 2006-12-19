@@ -25,7 +25,35 @@ function get_xdid_datetime(&$XDID) {
 			'__desc' => 'This command lets you set format of the DateTime Picker text.',
 			'__cmd' => '[FORMAT]',
 			'__eg' => "'Right now it is: 'hh':'m':'s ddddMMMdd', 'yyy",
-			'__notes' => 'Any non-format characters must be enclosed within single quotes.',
+            '__params' => array(
+                'FORMAT' => array(
+                    '__desc' => "Date time format options.",
+                    '__values' => array(
+                        "d" => "The one- or two-digit day.",
+                        "dd" => "The two-digit day. Single-digit day values are preceded by a zero.",
+                        "ddd" => "The three-character weekday abbreviation.",
+                        "dddd" => "The full weekday name.",
+                        "h" => "The one- or two-digit hour in 12-hour format.",
+                        "hh" => "The two-digit hour in 12-hour format. Single-digit values are preceded by a zero.",
+                        "H" => "The one- or two-digit hour in 24-hour format.",
+                        "HH" => "The two-digit hour in 24-hour format. Single-digit values are preceded by a zero.",
+                        "m" => "The one- or two-digit minute.",
+                        "mm" => "The two-digit minute. Single-digit values are preceded by a zero.",
+                        "M" => "The one- or two-digit month number.",
+                        "MM" => "The two-digit month number. Single-digit values are preceded by a zero.",
+                        "MMM" => "The three-character month abbreviation.",
+                        "MMMM" => "The full month name.",
+                        "t" => 'The one-letter AM/PM abbreviation (that is, AM is displayed as "A").',
+                        "tt" => 'The two-letter AM/PM abbreviation (that is, AM is displayed as "AM").',
+                        "yy" => 'The last two digits of the year (that is, 1996 would be displayed as "96").',
+                        "yyyy" => 'The full year (that is, 1996 would be displayed as "1996").',
+                    ),
+                ),
+            ),
+			'__notes' => array(
+                'Any non-format characters must be enclosed within single quotes.',
+                'A DTP control tracks locale changes when it is using the default format string.',
+            ),
 		),
 //		'-' => array(
 //			'__desc' => 'This command lets you change the calendar style.',
@@ -59,7 +87,7 @@ function get_xdid_datetime(&$XDID) {
 				'$ctime(3rd July 2006) $ctime',
 				'nolimit $ctime',
 			),
-			'__notes' => 'You can use [v]nolimit[/v] for [p]MIN_TIMESTAMP[/p] or [p]MAX_TIMESTAMP[/p] if you wish to specify no minimum or maximum date range.',
+			'__notes' => 'You can use [v]nolimit[/v] for [p]MIN_TIMESTAMP[/p] or [p]MAX_TIMESTAMP[/p] if you wish to specify no minimum or maximum date range respectively.',
 		),
 //		'-' => array(
 //			'__desc' => 'This command lets you select a date, or range of dates.',
@@ -74,6 +102,7 @@ function get_xdid_datetime(&$XDID) {
 			'__desc' => 'This command lets you set the selected date/time.',
 			'__cmd' => '[TIMESTAMP]',
 			'__eg' => '$ctime(3rd July 3006)',
+            '__notes' => 'You can use [v]reset[/v] for [p]TIMESTEMP[/p] to set it back to the current date/time, but this only applies to the [s]shownone[/s] style.',
 		),
 	);
 }

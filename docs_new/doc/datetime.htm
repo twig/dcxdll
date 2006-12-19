@@ -122,7 +122,84 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -f dcx 4 'Right now it is: 'hh':'m':'s ddddMMMdd', 'yyy</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Any non-format characters must be enclosed within single quotes.</td></tr></table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">FORMAT</td>
+		<td>Date time format options.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>The one- or two-digit day.</td>
+	</tr>
+	<tr>
+		<td class="value">dd</td>
+		<td>The two-digit day. Single-digit day values are preceded by a zero.</td>
+	</tr>
+	<tr>
+		<td class="value">ddd</td>
+		<td>The three-character weekday abbreviation.</td>
+	</tr>
+	<tr>
+		<td class="value">dddd</td>
+		<td>The full weekday name.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>The one- or two-digit hour in 12-hour format.</td>
+	</tr>
+	<tr>
+		<td class="value">hh</td>
+		<td>The two-digit hour in 12-hour format. Single-digit values are preceded by a zero.</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>The one- or two-digit hour in 24-hour format.</td>
+	</tr>
+	<tr>
+		<td class="value">HH</td>
+		<td>The two-digit hour in 24-hour format. Single-digit values are preceded by a zero.</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>The one- or two-digit minute.</td>
+	</tr>
+	<tr>
+		<td class="value">mm</td>
+		<td>The two-digit minute. Single-digit values are preceded by a zero.</td>
+	</tr>
+	<tr>
+		<td class="value">M</td>
+		<td>The one- or two-digit month number.</td>
+	</tr>
+	<tr>
+		<td class="value">MM</td>
+		<td>The two-digit month number. Single-digit values are preceded by a zero.</td>
+	</tr>
+	<tr>
+		<td class="value">MMM</td>
+		<td>The three-character month abbreviation.</td>
+	</tr>
+	<tr>
+		<td class="value">MMMM</td>
+		<td>The full month name.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>The one-letter AM/PM abbreviation (that is, AM is displayed as "A").</td>
+	</tr>
+	<tr>
+		<td class="value">tt</td>
+		<td>The two-letter AM/PM abbreviation (that is, AM is displayed as "AM").</td>
+	</tr>
+	<tr>
+		<td class="value">yy</td>
+		<td>The last two digits of the year (that is, 1996 would be displayed as "96").</td>
+	</tr>
+	<tr>
+		<td class="value">yyyy</td>
+		<td>The full year (that is, 1996 would be displayed as "1996").</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Any non-format characters must be enclosed within single quotes.</li><li>A DTP control tracks locale changes when it is using the default format string.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -136,7 +213,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -r dcx 4 $ctime(3rd July 2006) $ctime<br />/xdid -r dcx 4 nolimit $ctime<br /></div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">nolimit</a> for <a class="param">MIN_TIMESTAMP</a> or <a class="param">MAX_TIMESTAMP</a> if you wish to specify no minimum or maximum date range.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">nolimit</a> for <a class="param">MIN_TIMESTAMP</a> or <a class="param">MAX_TIMESTAMP</a> if you wish to specify no minimum or maximum date range respectively.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -150,7 +227,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -t dcx 4 $ctime(3rd July 3006)</div></td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">reset</a> for <a class="param">TIMESTEMP</a> to set it back to the current date/time, but this only applies to the <a class="style">shownone</a> style.</td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;font-size:14pt;'>$xdid() Properties</div></td></tr>
@@ -206,7 +283,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 18th December, 06</td>
+		<td style="text-align: right;">Last Updated: 19th December, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

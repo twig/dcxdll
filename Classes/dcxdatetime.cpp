@@ -152,7 +152,7 @@ void DcxDateTime::parseInfoRequest(TString &input, char *szReturnValue) {
 		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
 
 		val = DateTime_GetRange(this->m_Hwnd, st);
-mIRCDebug("range val = %d", val);
+
 		if (val & GDTR_MIN)
 			min.sprintf("%ld", SystemTimeToMircTime(&(st[0])));
 		else

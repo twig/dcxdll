@@ -6,6 +6,7 @@ function get_intro_box() {
 
 function get_styles_box(&$STYLES) {
 	$STYLES = array(
+        'alpha' => 'Control is alpha blended.',
 		'center' => 'Control text is centered.',
 		'right' => 'Control text is right justified.',
 		'bottom' => 'Control text is at the bottom of the box.',
@@ -16,7 +17,7 @@ function get_styles_box(&$STYLES) {
 		'shadow' => 'Display text with a shadow.',
 		'__notes' => array(
 			'Applying the border [s]regular[/s]+[s]dialog frame[/s] border styles on the box will give it a titlebar. (/xdid -x DNAME BOX_ID +bd)',
-			'[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using [f]xdid -c[/f]',
+			'[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using [f]xdid -C[/f]',
 		),
 	);
 }
