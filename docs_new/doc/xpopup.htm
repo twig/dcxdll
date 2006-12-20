@@ -315,6 +315,20 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
+			<a name="xpopup.m"></a>/xpopup -m	</td></tr>
+	<tr><td colspan="2">This command patches mIRC v6.20, allowing XPopup to work.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -m [MENU] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -m mymenu</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>After patching, mIRC will crash if /dll -u is used.</li><li>This will only apply to mIRC menus, so use <a class="value">mirc</a> for <a class="param">MENU</a>.</li></ul></td></tr></table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
 			<a name="xpopup.p"></a>/xpopup -p	</td></tr>
 	<tr><td colspan="2">This command lets you set the whole menu color palette in one command where <a class="param">COLORS</a> is a space separated list of RGB colors.</td></tr>
 	<tr>
@@ -793,6 +807,7 @@ ON *:SIGNAL:Xpopup-*: {
 <li><a href="#xpopup.i" style="color: #800080;">-i</a></li>
 <li><a href="#xpopup.j" style="color: #800080;">-j</a></li>
 <li><a href="#xpopup.l" style="color: #800080;">-l</a></li>
+<li><a href="#xpopup.m" style="color: #800080;">-m</a></li>
 <li><a href="#xpopup.p" style="color: #800080;">-p</a></li>
 <li><a href="#xpopup.s" style="color: #800080;">-s</a></li>
 <li><a href="#xpopup.t" style="color: #800080;">-t</a></li>
@@ -822,7 +837,7 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 19th December, 06</td>
+		<td style="text-align: right;">Last Updated: 21st December, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">
