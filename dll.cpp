@@ -173,10 +173,12 @@ void WINAPI LoadDll(LOADINFO * load) {
 	// Initializing OLE Support
 	OleInitialize(NULL);
 
+	HMODULE hModule;
+
 #ifdef DCX_USE_GDIPLUS
 	// Initialize GDI+
 	DCX_DEBUG("LoadDLL", "Initializing GDI+...");
-	HMODULE hModule = LoadLibrary("GDIPLUS.DLL");
+	hModule = LoadLibrary("GDIPLUS.DLL");
 	if (hModule != NULL) {
 		mIRCLink.m_bUseGDIPlus = true;
 		GdiplusStartupInput gsi;
