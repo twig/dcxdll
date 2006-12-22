@@ -1117,6 +1117,8 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 
 void DcxControl::DrawParentsBackground(const HDC hdc)
 {
+	//if (isXP() && !this->m_bAlphaBlend)
+	//	return;
 	// fill in parent bg
 	RECT rcClient, rcParent, rcWin;
 	// get controls client area

@@ -103,7 +103,7 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 		const char *tRebarColour = child->Attribute("rebarColour");
 		const char *rebarColour = (tRebarColour) ? tRebarColour : "0";
 
-		if (0==strcmp(elem, "control")) { 
+		if (0==strcmp(elem, "control")) {
 			control++; cCla++;
 			//check how to insert the control in the parent Control/Dialog
 			//If parentNode is pane loop untill parentNode is not a pane
@@ -119,9 +119,8 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 			const char *parenttype = (tParentType) ? tParentType : "panel";
 			const char *tParentId = parent->Attribute("id");
 			const char *parentid = (tParentId) ? tParentId : "1";
-			if (0==strcmp(parentelem, "dialog")) { 
-					cmd.sprintf( 
-					"//xdialog -c %s %s %s 0 0 %s %s %s",dname,id,type,width,height,styles);
+			if (0==strcmp(parentelem, "dialog")) {
+					cmd.sprintf("//xdialog -c %s %s %s 0 0 %s %s %s",dname,id,type,width,height,styles);
 			}
 			if (0==strcmp(parentelem, "control")) { 
 				//check if parentControl is allowed to host controls and assign propper xdid
@@ -227,7 +226,7 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 
 		}
 		if (goDeeper) walkScript(child->ToElement(), dname, depth+1,claPathx);  
-	}  
+	}
 } 
 
 
@@ -261,6 +260,10 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 , m_bGhosted(false)
 {
 	this->addStyle(WS_CLIPCHILDREN);
+
+	//	WS_EX_COMPOSITED style causes problems for listview control & maybe others, but when it works it looks really cool :)
+	//if (isXP())
+	//	this->addExStyle(WS_EX_COMPOSITED); // this improves transparency etc.. on xp+ only, looking into how this affects us.
 
 	this->m_hOldWindowProc = (WNDPROC) SetWindowLong(this->m_Hwnd, GWL_WNDPROC, (LONG) DcxDialog::WindowProc);
 
@@ -1106,10 +1109,10 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 		this->m_dEventMask = mask;
 	}
-	// xdialog -X [NAME] [FILENAME]
+	// xdialog -X [NAME] [SWITCH] [FILENAME]
 	else if (flags.switch_cap_flags[23] && numtok > 2) {
-        TiXmlDocument doc(input.gettok(2,"\"").to_chr());
-        bool valid_XML = doc.LoadFile();
+		TiXmlDocument doc(input.gettok(2,"\"").to_chr());
+		bool valid_XML = doc.LoadFile();
 		TString cmd;
 		if (valid_XML) { 
 			TiXmlElement *valid_DCXML = 0;
@@ -1119,25 +1122,27 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				const char *cascade = (t_cascade) ? t_cascade : "v";
 				const char *t_space = valid_DCXML->Attribute("margin");
 				const char *space = (t_space) ? t_space : "0 0 0 0";
-				cmd.sprintf("//xdialog -l %s root $chr(9) +p%s 0 0 0 0",
+				cmd.sprintf("%s -l root \t +p%s 0 0 0 0",
 					this->getName().to_chr(),cascade);
-				mIRCcom(cmd.to_chr());
-				cmd.sprintf("//xdialog -l %s space root $chr(9) %s",
+				this->parseCommandRequest(cmd);
+				cmd.sprintf("%s -l space root \t %s",
 					this->getName().to_chr(),space);
-				mIRCcom(cmd.to_chr());
+				this->parseCommandRequest(cmd);
 				walkScript(valid_DCXML,this->getName().to_chr());
 				cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
 				mIRCcom(cmd.to_chr());
 			}
 			else { 
-			  cmd.sprintf("/echo -a File isn't valid dcXML %s",input.gettok(2,"\""));
-			  mIRCcom(cmd.to_chr());
+				TString error;
+				error.sprintf("File isn't valid dcXML %s",input.gettok(2,"\"").to_chr());
+				DCXError("xdialog -X",error.to_chr());
 			}
 
 		}
 		else { 
-			cmd.sprintf("/echo -a File isn't valid XML %s",input.gettok(2,"\""));
-			mIRCcom(cmd.to_chr());
+			TString error;
+			error.sprintf("File isn't valid XML %s",input.gettok(2,"\"").to_chr());
+			DCXError("xdialog -X",error.to_chr());
 		}
 		doc.Clear();
 	}

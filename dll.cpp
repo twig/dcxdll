@@ -188,7 +188,8 @@ void WINAPI LoadDll(LOADINFO * load) {
 		gsi.SuppressExternalCodecs = FALSE;
 		if (GdiplusStartup(&gdi_token,&gsi,NULL) != Ok) {
 			DCXError("LoadDLL", "Unable to Startup GDI+");
-			return;
+			mIRCLink.m_bUseGDIPlus = false;
+			DCXError("LoadDll", "Warning Unable to Initilize GDIPlus.dll, Operating in reduced function mode.");
 		}
 		FreeLibrary(hModule);
 	}

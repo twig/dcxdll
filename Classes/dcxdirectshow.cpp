@@ -106,8 +106,14 @@ void DcxDirectshow::parseControlStyles( TString & styles, LONG * Styles, LONG * 
 void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
   //int numtok = input.numtok( " " );
 
+	if (this->m_pGraph == NULL) {
+		if (this->parseGlobalInfoRequest( input, szReturnValue ))
+			return;
+		else
+			dcxInfoError("directshow",input.gettok( 3 ).to_chr(),this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+	}
   // [NAME] [ID] [PROP]
-	if ( input.gettok( 3, " " ) == "size" && this->m_pWc != NULL) {
+	else if ( input.gettok( 3, " " ) == "size") {
 		long lWidth, lHeight, lARWidth, lARHeight;
 		HRESULT hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
 		if (SUCCEEDED(hr)) {
@@ -120,110 +126,82 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
   }
   // [NAME] [ID] [PROP]
 	else if ( input.gettok( 3, " " ) == "author") {
-		if (this->m_pGraph != NULL) {
-			this->getProperty(szReturnValue, PROP_AUTHOR);
-			return;
-		}
-		else
-			dcxInfoError("directshow","author",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+		this->getProperty(szReturnValue, PROP_AUTHOR);
+		return;
   }
   // [NAME] [ID] [PROP]
 	else if ( input.gettok( 3, " " ) == "title") {
-		if (this->m_pGraph != NULL) {
-			this->getProperty(szReturnValue, PROP_TITLE);
-			return;
-		}
-		else
-			dcxInfoError("directshow","title",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+		this->getProperty(szReturnValue, PROP_TITLE);
+		return;
   }
   // [NAME] [ID] [PROP]
 	else if ( input.gettok( 3, " " ) == "video") {
-		if (this->m_pGraph != NULL) {
-			VMR9ProcAmpControl amc;
-			HRESULT hr = this->getVideo(&amc);
-			if (SUCCEEDED(hr)) {
-				TString vflags('+');
-				if (amc.dwFlags & ProcAmpControl9_Brightness)
-					vflags += 'b';
-				if (amc.dwFlags & ProcAmpControl9_Contrast)
-					vflags += 'c';
-				if (amc.dwFlags & ProcAmpControl9_Hue)
-					vflags += 'h';
-				if (amc.dwFlags & ProcAmpControl9_Saturation)
-					vflags += 's';
-				// NB: wsprintf() doesn't support %f
-				sprintf(szReturnValue,"%s %f %f %f %f", vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
-				return;
-			}
-			else
-				dcxInfoError("directshow","video",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		VMR9ProcAmpControl amc;
+		HRESULT hr = this->getVideo(&amc);
+		if (SUCCEEDED(hr)) {
+			TString vflags('+');
+			if (amc.dwFlags & ProcAmpControl9_Brightness)
+				vflags += 'b';
+			if (amc.dwFlags & ProcAmpControl9_Contrast)
+				vflags += 'c';
+			if (amc.dwFlags & ProcAmpControl9_Hue)
+				vflags += 'h';
+			if (amc.dwFlags & ProcAmpControl9_Saturation)
+				vflags += 's';
+			// NB: wsprintf() doesn't support %f
+			sprintf(szReturnValue,"%s %f %f %f %f", vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
+			return;
 		}
 		else
-			dcxInfoError("directshow","video",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+			dcxInfoError("directshow","video",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
 	else if ( input.gettok( 3, " " ) == "brange") {
-		if (this->m_pGraph != NULL) {
-			VMR9ProcAmpControlRange acr;
-			HRESULT hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr);
-			if (SUCCEEDED(hr)) {
-				// NB: wsprintf() doesn't support %f
-				sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-				return;
-			}
-			else
-				dcxInfoError("directshow","brange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		VMR9ProcAmpControlRange acr;
+		HRESULT hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr);
+		if (SUCCEEDED(hr)) {
+			// NB: wsprintf() doesn't support %f
+			sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			return;
 		}
 		else
-			dcxInfoError("directshow","brange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+			dcxInfoError("directshow","brange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
 	else if ( input.gettok( 3, " " ) == "crange") {
-		if (this->m_pGraph != NULL) {
-			VMR9ProcAmpControlRange acr;
-			HRESULT hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr);
-			if (SUCCEEDED(hr)) {
-				// NB: wsprintf() doesn't support %f
-				sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-				return;
-			}
-			else
-				dcxInfoError("directshow","crange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		VMR9ProcAmpControlRange acr;
+		HRESULT hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr);
+		if (SUCCEEDED(hr)) {
+			// NB: wsprintf() doesn't support %f
+			sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			return;
 		}
 		else
-			dcxInfoError("directshow","crange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+			dcxInfoError("directshow","crange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
 	else if ( input.gettok( 3, " " ) == "hrange") {
-		if (this->m_pGraph != NULL) {
-			VMR9ProcAmpControlRange acr;
-			HRESULT hr = this->getVideoRange(ProcAmpControl9_Hue, &acr);
-			if (SUCCEEDED(hr)) {
-				// NB: wsprintf() doesn't support %f
-				sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-				return;
-			}
-			else
-				dcxInfoError("directshow","hrange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		VMR9ProcAmpControlRange acr;
+		HRESULT hr = this->getVideoRange(ProcAmpControl9_Hue, &acr);
+		if (SUCCEEDED(hr)) {
+			// NB: wsprintf() doesn't support %f
+			sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			return;
 		}
 		else
-			dcxInfoError("directshow","hrange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+			dcxInfoError("directshow","hrange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
 	else if ( input.gettok( 3, " " ) == "srange") {
-		if (this->m_pGraph != NULL) {
-			VMR9ProcAmpControlRange acr;
-			HRESULT hr = this->getVideoRange(ProcAmpControl9_Saturation, &acr);
-			if (SUCCEEDED(hr)) {
-				// NB: wsprintf() doesn't support %f
-				sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-				return;
-			}
-			else
-				dcxInfoError("directshow","srange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		VMR9ProcAmpControlRange acr;
+		HRESULT hr = this->getVideoRange(ProcAmpControl9_Saturation, &acr);
+		if (SUCCEEDED(hr)) {
+			// NB: wsprintf() doesn't support %f
+			sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			return;
 		}
 		else
-			dcxInfoError("directshow","srange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+			dcxInfoError("directshow","srange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;

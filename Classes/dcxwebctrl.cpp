@@ -68,11 +68,10 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
-  OLECHAR url[4096];
-  MultiByteToWideChar( CP_ACP, 0, "about:blank", -1, url, 4095 );			
+	TString url("about:blank");
   VARIANT v;
   VariantInit( &v );			
-  this->m_pWebBrowser2->Navigate( url, &v, &v, &v, &v );
+  this->m_pWebBrowser2->Navigate( url.to_wchr(), &v, &v, &v, &v );  // dont use L""
   VariantClear( &v );
 
 }
@@ -220,14 +219,11 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
     {
 
       IDispatch  * htmlDisp = NULL;
-      HRESULT hret = this->m_pWebBrowser2->get_Document( &htmlDisp );
       IHTMLDocument2 * doc = NULL;
 
-      if ( htmlDisp != NULL ) {
+      if ( SUCCEEDED(this->m_pWebBrowser2->get_Document( &htmlDisp ))) {
 
-        hret = htmlDisp->QueryInterface( IID_IHTMLDocument2, (void**) &doc );
-
-        if ( doc != NULL ) {
+        if ( SUCCEEDED(htmlDisp->QueryInterface( IID_IHTMLDocument2, (void**) &doc ))) {
 
           IHTMLWindow2 * window;
 
@@ -236,25 +232,16 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
             TString CMD(input.gettok( 4, -1, " " ));
             CMD.trim( );
 
-            OLECHAR cmd[4096];
-            MultiByteToWideChar( CP_ACP, 0, CMD.to_chr( ), -1, cmd, 4095 );		
-            VARIANT v; 
+            VARIANT v;
             VariantInit( &v );
-            window->execScript( cmd, NULL, &v );
+						window->execScript( CMD.to_wchr(), NULL, &v );
             VariantClear( &v );
 
             window->Release( );
-            doc->Release( );
-            htmlDisp->Release( );
           }
-          else {
-            doc->Release( );
-            htmlDisp->Release( );
-          }
+					doc->Release( );
         }
-        else {
-          htmlDisp->Release( );
-        }
+				htmlDisp->Release( );
       }
     }
   }
@@ -269,11 +256,9 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
     TString URL(input.gettok( 4, -1, " " ));
     URL.trim( );
 
-    OLECHAR url[4096];
-    MultiByteToWideChar( CP_ACP, 0, URL.to_chr( ), -1, url, 4095 );			
     VARIANT v;
     VariantInit( &v );			
-    this->m_pWebBrowser2->Navigate( url, &v, &v, &v, &v );
+		this->m_pWebBrowser2->Navigate( URL.to_wchr(), &v, &v, &v, &v );
     VariantClear( &v );
   }
   // xdid -r [NAME] [ID] [SWITCH]
