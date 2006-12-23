@@ -945,6 +945,10 @@
 		<td>Allows the dialog to be ghosted while dragging.</td>
 	</tr>
 	<tr>
+		<td class="value">s</td>
+		<td>Adds a shadow effect to the dialog.</td>
+	</tr>
+	<tr>
 		<td class="value">o</td>
 		<td>OR new region with existing one. (Can be used with <a class="value">c</a>, <a class="value">p</a> or <a class="value">r</a>)</td>
 	</tr>
@@ -994,6 +998,34 @@
 		<td>The opacity of the dragged window. This can be a value between <a class="value">0</a>-<a class="value">255</a>.</td>
 	</tr>
 	<tr>
+		<td class="param">s</td>
+		<td><div class="syntax">[COLOUR] [SHARPNESS] [DARKNESS] [SIZE] [XOFFSET] [YOFFSET]</div></td>
+	</tr>
+	<tr>
+		<td class="value">COLOR</td>
+		<td>The color of the shadow in $rgb() format.</td>
+	</tr>
+	<tr>
+		<td class="value">SHARPNESS</td>
+		<td>The fuzziness of the shadow. Can range from <a class="value">0</a>-<a class="value">20</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">DARKNESS</td>
+		<td>The shadow intensity. Can range from <a class="value">0</a>-<a class="value">255</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">SIZE</td>
+		<td>The size of the shadow. Can range from <a class="value">-20</a>-<a class="value">20</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">XOFFSET</td>
+		<td>The horizontal distance the shadow will be placed away from the dialog. Can range from <a class="value">-20</a>-<a class="value">20</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">YOFFSET</td>
+		<td>The vertical distance the shadow will be placed away from the dialog. Can range from <a class="value">-20</a>-<a class="value">20</a>.</td>
+	</tr>
+	<tr>
 		<td class="param">p</td>
 		<td><div class="syntax">x1,y1 x2,y2 x3,y3 ... x12,y12</div></td>
 	</tr>
@@ -1009,7 +1041,7 @@
 		<td class="value">ROUNDNESS</td>
 		<td>An integer defining how round the rectangle should be.</td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="value">+s</a> is used without parameters, it will remove the shadow.</li><li>The flag <a class="value">+s</a> does not rely on Windows XP themes at all, so it can be used on older operating systems.</li></ul></td></tr></table>
 <br />
 <table class="xdialog">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
@@ -1929,7 +1961,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 21st December, 06</td>
+		<td style="text-align: right;">Last Updated: 23rd December, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">
