@@ -219,10 +219,10 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
     {
 
       IDispatch  * htmlDisp = NULL;
-      IHTMLDocument2 * doc = NULL;
 
       if ( SUCCEEDED(this->m_pWebBrowser2->get_Document( &htmlDisp ))) {
 
+	      IHTMLDocument2 * doc = NULL;
         if ( SUCCEEDED(htmlDisp->QueryInterface( IID_IHTMLDocument2, (void**) &doc ))) {
 
           IHTMLWindow2 * window;
@@ -244,6 +244,8 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
 				htmlDisp->Release( );
       }
     }
+		else
+			DCXError("/xdid -j","Browser NOT in Ready State");
   }
   // xdid -k [NAME] [ID] [SWITCH]
   else if ( flags.switch_flags[10] ) {

@@ -29,6 +29,7 @@
 DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles )
 : DcxControl( ID, p_Dialog )
 , m_hActive(NULL)
+, m_dStyles(0)
 {
 
   LONG Styles = 0, ExStyles = 0;

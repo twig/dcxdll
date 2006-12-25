@@ -30,6 +30,7 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 , m_bIsIcon(FALSE)
 #ifdef DCX_USE_GDIPLUS
 , m_pImage(NULL)
+, m_pGfx(NULL)
 #endif
 , m_bResizeImage(true)
 , m_hBitmap(NULL)
@@ -73,6 +74,11 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 
 DcxImage::~DcxImage() {
 	PreloadData();
+
+#ifdef DCX_USE_GDIPLUS
+	if (this->m_pGfx != NULL)
+		delete this->m_pGfx;
+#endif
 
 	this->unregistreDefaultWindowProc( );
 }
@@ -140,6 +146,41 @@ void DcxImage::PreloadData() {
 #endif
 }
 
+#ifdef DCX_USE_GDIPLUS
+bool DcxImage::LoadGDIPlusImage(TString &flags, TString &filename)
+{
+	this->m_pImage = new Image(filename.to_wchr(),TRUE);
+	if (this->m_pImage == NULL) return false; // couldnt allocate image object.
+	if (this->m_pImage->GetLastStatus() != Ok) { // Image failed to load correctly
+			PreloadData();
+			return false;
+	}
+	if (this->m_pGfx == NULL) // no gfx object, create one
+		this->m_pGfx = new Graphics(this->m_Hwnd,FALSE);
+	if (this->m_pGfx == NULL) { // still no gfx object, clear image.
+		PreloadData();
+		return false;
+	}
+	if (flags.find('h',0)) { // High Quality
+		this->m_pGfx->SetCompositingQuality(CompositingQualityHighQuality);
+		this->m_pGfx->SetInterpolationMode(InterpolationModeHighQualityBicubic);
+	}
+	else {
+		this->m_pGfx->SetCompositingQuality(CompositingQualityDefault);
+		this->m_pGfx->SetInterpolationMode(InterpolationModeDefault);
+	}
+	if (flags.find('b',0)) // Blend Image
+		this->m_pGfx->SetCompositingMode(CompositingModeSourceOver);
+	else
+		this->m_pGfx->SetCompositingMode(CompositingModeSourceCopy);
+	if (flags.find('a',0)) // Anti-Aliased
+		this->m_pGfx->SetSmoothingMode(SmoothingModeAntiAlias);
+	else
+		this->m_pGfx->SetSmoothingMode(SmoothingModeDefault);
+	return true;
+}
+#endif
+
 /*!
  * \brief blah
  *
@@ -154,7 +195,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
 	if (flags.switch_flags[22] && numtok > 6) {
-		TString flags(input.gettok(4, " "));
+		TString flag(input.gettok(4, " "));
 		int index = input.gettok(5, " ").to_int();
 		int size = input.gettok(6, " ").to_int();
 		TString filename(input.gettok(7, -1, " "));
@@ -167,7 +208,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 		else
 			this->m_hIcon = dcxLoadIcon(index, filename, FALSE);
 
-		if (flags.find('g', 0))
+		if (flag.find('g', 0))
 			this->m_hIcon = CreateGrayscaleIcon(this->m_hIcon);
 
 		this->m_iIconSize = size;
@@ -187,17 +228,21 @@ void DcxImage::parseCommandRequest(TString & input) {
 		//InvalidateRect(this->m_Hwnd, NULL, TRUE);
 		this->redrawWindow();
 	}
-	//xdid -i [NAME] [ID] [SWITCH] [IMAGE]
+	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
 	else if (flags.switch_flags[8] && numtok > 3) {
-		TString filename(input.gettok(4, -1, " "));
+		TString flag(input.gettok(4));
+		TString filename(input.gettok(5, -1, " "));
 
+		flag.trim();
 		filename.trim();
 		PreloadData();
 
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
-		if (mIRCLink.m_bUseGDIPlus)
-			this->m_pImage = new Image(filename.to_wchr());
+		if (mIRCLink.m_bUseGDIPlus) {
+			if (!LoadGDIPlusImage(flag,filename))
+				DCXError("/xdid -i", "Unable to load Image with GDI+");
+		}
 		else
 			this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
 #else
@@ -326,16 +371,21 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				DrawIconEx(hdc, 0, 0, this->m_hIcon, this->m_iIconSize, this->m_iIconSize, 0, this->m_hBackBrush, DI_NORMAL | DI_COMPAT); 
 			}
 #ifdef DCX_USE_GDIPLUS
-			else if ((this->m_pImage != NULL) && (mIRCLink.m_bUseGDIPlus)) {
-				Graphics grphx( hdc );
+			else if ((this->m_pGfx != NULL) && (this->m_pImage != NULL) && (mIRCLink.m_bUseGDIPlus)) {
+				//Graphics grphx( hdc );
 
-				grphx.SetCompositingQuality(CompositingQualityHighQuality);
-				grphx.SetSmoothingMode(SmoothingModeAntiAlias);
+				//grphx.SetCompositingQuality(CompositingQualityHighQuality);
+				//grphx.SetCompositingMode(CompositingModeSourceOver);
+				//grphx.SetSmoothingMode(SmoothingModeAntiAlias);
 
+				//if (this->m_bResizeImage)
+				//	grphx.DrawImage( this->m_pImage, 0, 0, w, h );
+				//else
+				//	grphx.DrawImage( this->m_pImage, 0, 0);
 				if (this->m_bResizeImage)
-					grphx.DrawImage( this->m_pImage, 0, 0, w, h );
+					this->m_pGfx->DrawImage( this->m_pImage, 0, 0, w, h );
 				else
-					grphx.DrawImage( this->m_pImage, 0, 0);
+					this->m_pGfx->DrawImage( this->m_pImage, 0, 0);
 			}
 #endif
 			this->FinishAlphaBlend(ai);

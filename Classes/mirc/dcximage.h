@@ -46,6 +46,8 @@ protected:
 
 #ifdef DCX_USE_GDIPLUS
   Image * m_pImage; //!< GDI+ Image Object
+	Graphics * m_pGfx; //!< GDI+ Graphics Object
+	bool LoadGDIPlusImage(TString &flags, TString &filename);
 #endif
   HBITMAP m_hBitmap; //!< Bitmap
   HICON m_hIcon; // !< icon
