@@ -229,7 +229,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 		this->redrawWindow();
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
-	else if (flags.switch_flags[8] && numtok > 3) {
+	else if (flags.switch_flags[8] && numtok > 4) {
 		TString flag(input.gettok(4));
 		TString filename(input.gettok(5, -1, " "));
 
