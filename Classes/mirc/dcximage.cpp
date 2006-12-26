@@ -147,20 +147,45 @@ void DcxImage::PreloadData() {
 }
 
 #ifdef DCX_USE_GDIPLUS
-bool DcxImage::LoadGDIPlusImage(TString &flags, TString &filename)
-{
+bool DcxImage::LoadGDIPlusImage(TString &flags, TString &filename) {
 	this->m_pImage = new Image(filename.to_wchr(),TRUE);
-	if (this->m_pImage == NULL) return false; // couldnt allocate image object.
-	if (this->m_pImage->GetLastStatus() != Ok) { // Image failed to load correctly
-			PreloadData();
-			return false;
+
+   // couldnt allocate image object.
+   if (this->m_pImage == NULL) {
+      dcxInfoError("Image",
+         "LoadGDIPlusImage",
+         this->m_pParentDialog->getName().to_chr(),
+         this->getUserID(),
+         "Couldn't allocate image object.");
+      return false;
+   }
+
+   // Image failed to load correctly
+	if (this->m_pImage->GetLastStatus() != Ok) {
+      dcxInfoError("Image",
+         "LoadGDIPlusImage",
+         this->m_pParentDialog->getName().to_chr(),
+         this->getUserID(),
+         "Image failed to load correctly");
+      PreloadData();
+      return false;
 	}
-	if (this->m_pGfx == NULL) // no gfx object, create one
+
+   // no gfx object, create one
+	if (this->m_pGfx == NULL)
 		this->m_pGfx = new Graphics(this->m_Hwnd,FALSE);
-	if (this->m_pGfx == NULL) { // still no gfx object, clear image.
-		PreloadData();
+
+   // still no gfx object, clear image.
+   if (this->m_pGfx == NULL) {
+      dcxInfoError("Image",
+         "LoadGDIPlusImage",
+         this->m_pParentDialog->getName().to_chr(),
+         this->getUserID(),
+         "no gfx object, clear image.");
+      PreloadData();
 		return false;
 	}
+
 	if (flags.find('h',0)) { // High Quality
 		this->m_pGfx->SetCompositingQuality(CompositingQualityHighQuality);
 		this->m_pGfx->SetInterpolationMode(InterpolationModeHighQualityBicubic);
@@ -169,14 +194,17 @@ bool DcxImage::LoadGDIPlusImage(TString &flags, TString &filename)
 		this->m_pGfx->SetCompositingQuality(CompositingQualityDefault);
 		this->m_pGfx->SetInterpolationMode(InterpolationModeDefault);
 	}
+
 	if (flags.find('b',0)) // Blend Image
 		this->m_pGfx->SetCompositingMode(CompositingModeSourceOver);
 	else
 		this->m_pGfx->SetCompositingMode(CompositingModeSourceCopy);
+
 	if (flags.find('a',0)) // Anti-Aliased
 		this->m_pGfx->SetSmoothingMode(SmoothingModeAntiAlias);
 	else
 		this->m_pGfx->SetSmoothingMode(SmoothingModeDefault);
+
 	return true;
 }
 #endif
@@ -236,6 +264,8 @@ void DcxImage::parseCommandRequest(TString & input) {
 		flag.trim();
 		filename.trim();
 		PreloadData();
+
+      // TODO: add check for filename exists
 
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
