@@ -147,42 +147,50 @@ void DcxImage::PreloadData() {
 }
 
 #ifdef DCX_USE_GDIPLUS
-bool DcxImage::LoadGDIPlusImage(TString &flags, TString &filename) {
+bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
+	if (!IsFile(filename)) {
+		dcxInfoError("Image",
+			"LoadGDIPlusImage",
+			this->m_pParentDialog->getName().to_chr(),
+			this->getUserID(),
+			"Unable to open file");
+		return false;
+	}
 	this->m_pImage = new Image(filename.to_wchr(),TRUE);
 
-   // couldnt allocate image object.
-   if (this->m_pImage == NULL) {
-      dcxInfoError("Image",
-         "LoadGDIPlusImage",
-         this->m_pParentDialog->getName().to_chr(),
-         this->getUserID(),
-         "Couldn't allocate image object.");
-      return false;
-   }
-
-   // Image failed to load correctly
-	if (this->m_pImage->GetLastStatus() != Ok) {
-      dcxInfoError("Image",
-         "LoadGDIPlusImage",
-         this->m_pParentDialog->getName().to_chr(),
-         this->getUserID(),
-         "Image failed to load correctly");
-      PreloadData();
-      return false;
+	// couldnt allocate image object.
+	if (this->m_pImage == NULL) {
+		dcxInfoError("Image",
+			"LoadGDIPlusImage",
+			this->m_pParentDialog->getName().to_chr(),
+			this->getUserID(),
+			"Couldn't allocate image object.");
+		return false;
+	}
+	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
+	Status status = this->m_pImage->GetLastStatus();
+	if (status != Ok) {
+		dcxInfoError("Image",
+			"LoadGDIPlusImage",
+			this->m_pParentDialog->getName().to_chr(),
+			this->getUserID(),
+			GetLastStatusStr(status));
+		PreloadData();
+		return false;
 	}
 
-   // no gfx object, create one
+	// no gfx object, create one
 	if (this->m_pGfx == NULL)
 		this->m_pGfx = new Graphics(this->m_Hwnd,FALSE);
 
-   // still no gfx object, clear image.
-   if (this->m_pGfx == NULL) {
-      dcxInfoError("Image",
-         "LoadGDIPlusImage",
-         this->m_pParentDialog->getName().to_chr(),
-         this->getUserID(),
-         "no gfx object, clear image.");
-      PreloadData();
+	// still no gfx object, clear image.
+	if (this->m_pGfx == NULL) {
+		dcxInfoError("Image",
+			"LoadGDIPlusImage",
+			this->m_pParentDialog->getName().to_chr(),
+			this->getUserID(),
+			"Couldn't allocate graphics object.");
+		PreloadData();
 		return false;
 	}
 

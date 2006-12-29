@@ -30,12 +30,12 @@
 //#define WIN32_LEAN_AND_MEAN //!< blah
 
 // normal Windows XP + IE V5.01
-#define _WIN32_WINNT 0x0501
-#define _WIN32_IE 0x0501
+//#define _WIN32_WINNT 0x0501
+//#define _WIN32_IE 0x0501
 
 // Windows XP SP2 + IE V6
-//#define _WIN32_WINNT 0x0503
-//#define _WIN32_IE 0x0600
+#define _WIN32_WINNT 0x0503
+#define _WIN32_IE 0x0600
 
 // Required for VS 2005
 #if _MSC_VER == 1400
@@ -311,6 +311,10 @@ long SystemTimeToMircTime(LPSYSTEMTIME pst);
 
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl);
 void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
+#ifdef DCX_USE_GDIPLUS
+const char *GetLastStatusStr(Status status);
+#endif
+bool IsFile(const TString &filename);
 
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);
