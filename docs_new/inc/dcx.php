@@ -270,9 +270,17 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			),
 		),
 		'IsThemedXP' => array(
-			'__desc' => 'Returns $true or $false depending on whether a visual style has been on the Windows system or not. [o]XP+[/o]',
+			'__desc' => 'Returns [v]$true[/v] or [v]$false[/v] depending on whether a visual style has been on the Windows system or not. [o]XP+[/o]',
 			'__isid' => true,
 		),
+        'IsUsingDirectX' => array(
+            '__desc' => 'Returns [v]$true[/v] if the DLL includes DcxDirectShow. [v]$false[/v] otherwise.',
+            '__isid' => true,
+        ),
+        'IsUsingGDI' => array(
+            '__desc' => 'Returns [v]$true[/v] or [v]$false[/v] depending on whether the GDI+ library is being used or not.',
+            '__isid' => true,
+        ),
 		'MsgBox' => array(
 			'__desc' => "Displays a messagebox which could be used to retrieve feedback from the user.",
 			'__cmd' => '[STYLES] $chr(9) [TITLE] $chr(9) [MESSAGE]',

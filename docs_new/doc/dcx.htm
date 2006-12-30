@@ -452,7 +452,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
 			<a name="general.IsThemedXP"></a>$dcx(IsThemedXP)	</td></tr>
-	<tr><td colspan="2">Returns $true or $false depending on whether a visual style has been on the Windows system or not. <a class="os">(XP+)</a></td></tr>
+	<tr><td colspan="2">Returns <a class="value">$true</a> or <a class="value">$false</a> depending on whether a visual style has been on the Windows system or not. <a class="os">(XP+)</a></td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$dcx(IsThemedXP)</div></td>
@@ -460,6 +460,34 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$dcx(IsThemedXP)</div></td>
+	</tr>
+</table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
+			<a name="general.IsUsingDirectX"></a>$dcx(IsUsingDirectX)	</td></tr>
+	<tr><td colspan="2">Returns <a class="value">$true</a> if the DLL includes DcxDirectShow. <a class="value">$false</a> otherwise.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(IsUsingDirectX)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(IsUsingDirectX)</div></td>
+	</tr>
+</table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #888888; border-color: #888888;">
+			<a name="general.IsUsingGDI"></a>$dcx(IsUsingGDI)	</td></tr>
+	<tr><td colspan="2">Returns <a class="value">$true</a> or <a class="value">$false</a> depending on whether the GDI+ library is being used or not.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(IsUsingGDI)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(IsUsingGDI)</div></td>
 	</tr>
 </table>
 <br />
@@ -790,6 +818,8 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <li><a href="#general.GetSystemColor" style="color: #888888;">GetSystemColor</a></li>
 <li><a href="#general.GetTaskbarPos" style="color: #888888;">GetTaskbarPos</a></li>
 <li><a href="#general.IsThemedXP" style="color: #888888;">IsThemedXP</a></li>
+<li><a href="#general.IsUsingDirectX" style="color: #888888;">IsUsingDirectX</a></li>
+<li><a href="#general.IsUsingGDI" style="color: #888888;">IsUsingGDI</a></li>
 <li><a href="#general.Mark" style="color: #888888;">Mark</a></li>
 <li><a href="#general.MsgBox" style="color: #888888;">MsgBox</a></li>
 <li><a href="#general.OpenDialog/SaveDialog" style="color: #888888;">OpenDialog/SaveDialog</a></li>
@@ -804,7 +834,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 23rd December, 06</td>
+		<td style="text-align: right;">Last Updated: 31st December, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

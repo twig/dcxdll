@@ -78,7 +78,7 @@
 <table class="styles">
 	<tr>
 		<td class="style"><a name="style.fixratio" class="style">fixratio</a></td>
-		<td>Causes the content to maintain its aspect ratio, without this style the content fills the control.</td>
+		<td>The content maintains its aspect ratio. By default, the content fills the control.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.transparent" class="style">transparent</a></td>
@@ -100,7 +100,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -a dcx 4 + File.mpeg</div></td>
+		<td><div class="example">/xdid -a dcx 4 + fileCopy.mpeg</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -124,7 +124,7 @@
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
 			<a name="xdid.c"></a>/xdid -c	</td></tr>
-	<tr><td colspan="2">This command lets you load and unload any previous file.</td></tr>
+	<tr><td colspan="2">This lets you control playback of the file.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -c [DNAME] [ID] [COMMAND]</div></td>
@@ -136,7 +136,7 @@
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">COMMAND</td>
-		<td>Play commands.</td>
+		<td>DirectShow commands.</td>
 	</tr>
 	<tr>
 		<td class="value">play</td>
@@ -166,8 +166,101 @@
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.brange"></a>$xdid().brange	</td></tr>
+	<tr><td colspan="2">This property returns the range of values that the video brightness can be set to.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).brange</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).brange</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">DEFAULT</td>
+		<td>The default value.</td>
+	</tr>
+	<tr>
+		<td class="param">MIN</td>
+		<td>The minimum value.</td>
+	</tr>
+	<tr>
+		<td class="param">MAX</td>
+		<td>The maximum value.</td>
+	</tr>
+	<tr>
+		<td class="param">STEP</td>
+		<td>The value to use when changing this property.</td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.crange"></a>$xdid().crange	</td></tr>
+	<tr><td colspan="2">This property returns the range of values that the video contrast can be set to.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).crange</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).crange</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">DEFAULT</td>
+		<td>The default value.</td>
+	</tr>
+	<tr>
+		<td class="param">MIN</td>
+		<td>The minimum value.</td>
+	</tr>
+	<tr>
+		<td class="param">MAX</td>
+		<td>The maximum value.</td>
+	</tr>
+	<tr>
+		<td class="param">STEP</td>
+		<td>The value to use when changing this property.</td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.hrange"></a>$xdid().hrange	</td></tr>
+	<tr><td colspan="2">This property returns the range of values that the video hue can be set to.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).hrange</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).hrange</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">DEFAULT</td>
+		<td>The default value.</td>
+	</tr>
+	<tr>
+		<td class="param">MIN</td>
+		<td>The minimum value.</td>
+	</tr>
+	<tr>
+		<td class="param">MAX</td>
+		<td>The maximum value.</td>
+	</tr>
+	<tr>
+		<td class="param">STEP</td>
+		<td>The value to use when changing this property.</td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
 			<a name="xdidprop.size"></a>$xdid().size	</td></tr>
-	<tr><td colspan="2">TODO: This property returns the media size width height ARwidth ARheight.</td></tr>
+	<tr><td colspan="2">This property returns the media size.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).size</div></td>
@@ -178,20 +271,86 @@
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
-		<td class="param">width</td>
-		<td>width</td>
+		<td class="param">WIDTH</td>
+		<td>Original width of the content.</td>
 	</tr>
 	<tr>
-		<td class="param">height</td>
-		<td>height</td>
+		<td class="param">HEIGHT</td>
+		<td>Original height of the content.</td>
 	</tr>
 	<tr>
-		<td class="param">ARwidth</td>
-		<td>arwidth</td>
+		<td class="param">ARWIDTH</td>
+		<td>Aspect ratio width of the content.</td>
 	</tr>
 	<tr>
-		<td class="param">ARheight</td>
-		<td>arheight</td>
+		<td class="param">ARHEIGHT</td>
+		<td>Aspect ratio height of the content.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This returns the media size, not the control size.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.srange"></a>$xdid().srange	</td></tr>
+	<tr><td colspan="2">This property returns the range of values that the video saturation can be set to.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).srange</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).srange</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">DEFAULT</td>
+		<td>The default value.</td>
+	</tr>
+	<tr>
+		<td class="param">MIN</td>
+		<td>The minimum value.</td>
+	</tr>
+	<tr>
+		<td class="param">MAX</td>
+		<td>The maximum value.</td>
+	</tr>
+	<tr>
+		<td class="param">STEP</td>
+		<td>The value to use when changing this property.</td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.video"></a>$xdid().video	</td></tr>
+	<tr><td colspan="2">This property returns properties on the video media which can be altered.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).video</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).video</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags can be any combination of the following.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>The brightness of the video.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>The contrast of the video.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>The hue of the video.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>The saturation of the video.</td>
 	</tr>
 </table>
 <br />
@@ -219,7 +378,12 @@
 <li><a href="#style.transparent" style="color: #B52929;">transparent</a></li>
 </ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><ul><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li>
 <li><a href="#xdid.c" style="color: #0000FF;">-c</a></li>
-</ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><ul><li><a href="#xdidprop.size" style="color: #6666FF;">size</a></li>
+</ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><ul><li><a href="#xdidprop.brange" style="color: #6666FF;">brange</a></li>
+<li><a href="#xdidprop.crange" style="color: #6666FF;">crange</a></li>
+<li><a href="#xdidprop.hrange" style="color: #6666FF;">hrange</a></li>
+<li><a href="#xdidprop.size" style="color: #6666FF;">size</a></li>
+<li><a href="#xdidprop.srange" style="color: #6666FF;">srange</a></li>
+<li><a href="#xdidprop.video" style="color: #6666FF;">video</a></li>
 </ul><a href="#events" style="color: #009900;">Events</a><ul><li><a href="#events.help" style="color: #009900;">help</a></li>
 </ul></td>
   </tr>
@@ -229,7 +393,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 23rd December, 06</td>
+		<td style="text-align: right;">Last Updated: 31st December, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

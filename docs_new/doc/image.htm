@@ -96,13 +96,34 @@
 	<tr><td colspan="2">This command lets you set the displayed image.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -i [DNAME] [ID] [FILENAME]</div></td>
+		<td><div class="syntax">/xdid -i [DNAME] [ID] [+FLAGS] [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -i dcx 4 $mircdir/image/test.bmp</div></td>
+		<td><div class="example">/xdid -i dcx 4 + $mircdir/image/test.bmp</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Only BMP files are supported.</li><li>The control stretches the image to fit its width/height.</li><li>Image transparency is supported by supplying the transparent color.</li></ul></td></tr></table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Load image flags.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Anti-aliased mode.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Enable support for PNG per-pixel-alpha channels.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>High quality mode (Slower).</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>Image filename.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>The control stretches the image to fit its width/height.</li><li>Image transparency is supported by supplying the transparent color.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -275,7 +296,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 23rd December, 06</td>
+		<td style="text-align: right;">Last Updated: 31st December, 06</td>
 	</tr>
 </table>
 <div style="text-align: center;">

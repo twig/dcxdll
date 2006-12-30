@@ -5,8 +5,8 @@ function get_intro_image() {
 
 function get_styles_image(&$STYLES) {
 	$STYLES = array(
+        'alpha' => 'Control is alpha blended.',
 		'tooltips' => 'The image will have a tooltip.',
-		'alpha' => 'Control is alpha blended.',
 	);
 }
 
@@ -14,10 +14,20 @@ function get_xdid_image(&$XDID) {
 	$XDID = array(
 	    'i' => array(
 	        '__desc' => 'This command lets you set the displayed image.',
-	        '__cmd' => '[FILENAME]',
-	        '__eg' => '$mircdir/image/test.bmp',
+	        '__cmd' => '[+FLAGS] [FILENAME]',
+	        '__eg' => '+ $mircdir/image/test.bmp',
+            '__params' => array(
+                '+FLAGS' => array(
+                    '__desc' => "Load image flags.",
+                    '__values' => array(
+                        'a' => "Anti-aliased mode.",
+                        'b' => "Enable support for PNG per-pixel-alpha channels.",
+                        'h' => "High quality mode (Slower).",
+                    ),
+                ),
+                'FILENAME' => 'Image filename.',
+            ),
 	        '__notes' => array(
-                "Only BMP files are supported.",
                 "The control stretches the image to fit its width/height.",
 				"Image transparency is supported by supplying the transparent color.",
  			)
