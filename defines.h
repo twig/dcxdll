@@ -45,11 +45,11 @@
 // end of VS 2005
 
 // Using DirectX SDK? If not, get off your arse & install it!
-#define USE_DXSDK 1
+#define DCX_USE_DXSDK
 // end of DirectX SDK
 
 // Use GDI+
-#define DCX_USE_GDIPLUS 1
+#define DCX_USE_GDIPLUS
 //
 
 //#include <vld.h>

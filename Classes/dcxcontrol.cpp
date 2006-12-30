@@ -55,9 +55,9 @@
 
 #include "dcxstacker.h"
 
-#ifdef USE_DXSDK
+#ifdef DCX_USE_DXSDK
 #include "dcxdirectshow.h"
-#endif // USE_DXSDK
+#endif // DCX_USE_DXSDK
 
 extern mIRCDLL mIRCLink;
 
@@ -958,12 +958,12 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 	//else if (( type == "mci" ) && (mask & CTLF_ALLOW_DIRECTSHOW))
 	//	return new DcxMci( mID, p_Dialog, hParent, &rc, styles );
 
-#ifdef USE_DXSDK
+#ifdef DCX_USE_DXSDK
 
 	else if (( type == "directshow" ) && (mask & CTLF_ALLOW_DIRECTSHOW))
 		return new DcxDirectshow( mID, p_Dialog, hParent, &rc, styles );
 
-#endif // USE_DXSDK
+#endif // DCX_USE_DXSDK
 
 	else if (( type == "window" ) && (mask & CTLF_ALLOW_DOCK)) {
 		if ( tsInput.numtok( " " ) > offset ) {

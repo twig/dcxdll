@@ -583,6 +583,25 @@ mIRC(Version) {
 }
 
 /*!
+* \brief DCX DLL is DcxDirectShow supported?
+*/
+mIRC(IsUsingDirectX) {
+#ifdef DCX_USE_DXSDK
+   ret("$true");
+#else
+   ret("$false");
+#endif // DCX_USE_DXSDK
+}
+
+/*!
+* \brief DCX DLL is GDI+ supported?
+*/
+mIRC(IsUsingGDI) {
+   wsprintf(data, "%s", (mIRCLink.m_bUseGDIPlus ? "$true" : "$false"));
+	return 3;
+}
+
+/*!
 * \brief Check if windows is themed
 */
 mIRC(IsThemedXP) {

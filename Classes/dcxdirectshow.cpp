@@ -15,7 +15,7 @@
 
 #include "dcxdirectshow.h"
 
-#ifdef USE_DXSDK
+#ifdef DCX_USE_DXSDK
 #include "dcxdialog.h"
 
 /*!
@@ -812,4 +812,4 @@ HRESULT DcxDirectshow::getVideoRange(VMR9ProcAmpControlFlags prop, VMR9ProcAmpCo
 	return hr;
 }
 
-#endif // USE_DXSDK
+#endif // DCX_USE_DXSDK

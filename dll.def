@@ -6,6 +6,8 @@ UnloadDll
 
 Mark
 IsThemedXP
+IsUsingDirectX
+IsUsingGDI
 GetSystemColor
 ColorDialog
 FontDialog

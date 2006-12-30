@@ -17,7 +17,7 @@
 
 #include "../defines.h"
 
-#ifdef USE_DXSDK
+#ifdef DCX_USE_DXSDK
 #include "dcxcontrol.h"
 #include <dshow.h>
 #include <initguid.h>
@@ -72,6 +72,6 @@ protected:
 };
 
 #pragma comment(lib, "Strmiids.lib")
-#endif // USE_DXSDK
+#endif // DCX_USE_DXSDK
 
 #endif // _DCXDIRECTSHOW_H_
