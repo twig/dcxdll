@@ -162,7 +162,7 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
           i++;
         }
         delete []p;
-        lstrcpy( szReturnValue, path.c_str( ) );
+        lstrcpyn( szReturnValue, path.c_str( ), 900 ); // limit to 900, may want to rework this to avoid incomplete results
         return;
       }
     }

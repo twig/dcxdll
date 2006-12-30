@@ -156,7 +156,9 @@ void DcxListView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 
 void DcxListView::parseListviewExStyles( TString & styles, LONG * ExStyles )
 {
-	*ExStyles = LVS_EX_DOUBLEBUFFER;
+	//*ExStyles = 0;
+	//if (!isXP())
+		*ExStyles = LVS_EX_DOUBLEBUFFER;
 
   unsigned int i = 1, numtok = styles.numtok( " " );
 
@@ -279,7 +281,7 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
             list += ',';
         }
 
-        lstrcpy( szReturnValue, list.to_chr( ) );
+        lstrcpyn( szReturnValue, list.to_chr( ), 900 ); // limit to 900, may want to rework this to avoid incomplete results
         return;
       }
     }
