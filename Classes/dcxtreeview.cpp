@@ -34,6 +34,7 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->m_colSelection = -1;
 
   this->m_Hwnd = CreateWindowEx(	
     ExStyles | WS_EX_CLIENTEDGE,
@@ -461,18 +462,23 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
   }
   // xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
   else if ( flags.switch_flags[8] && numtok > 4 ) {
-    UINT iFlags = this->parseColorFlags( input.gettok( 4, " " ) );
+    UINT iFlags = this->parseColorFlags(input.gettok(4, " "));
 
     COLORREF clr = (COLORREF) input.gettok( 5, " " ).to_num( );
 
-    if ( iFlags & TVCOLOR_B )
+    if (iFlags & TVCOLOR_B)
       TreeView_SetBkColor( this->m_Hwnd, clr );
 
-    if ( iFlags & TVCOLOR_L )
+    if (iFlags & TVCOLOR_L)
       TreeView_SetLineColor( this->m_Hwnd, clr );
 
-    if ( iFlags & TVCOLOR_T )
+    if (iFlags & TVCOLOR_T)
       TreeView_SetTextColor( this->m_Hwnd, clr );
+
+	 if (iFlags & TVCOLOR_S)
+		this->m_colSelection = clr;
+
+	 this->redrawWindow();
   }
   // xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON]
   else if ( flags.switch_flags[9] && numtok > 5 ) {
@@ -1117,11 +1123,13 @@ UINT DcxTreeView::parseColorFlags( TString & flags ) {
 
   while ( i < len ) {
 
-    if ( flags[i] == 'b' )
+    if (flags[i] == 'b')
       iFlags |= TVCOLOR_B;
-    else if ( flags[i] == 'l' )
+    else if (flags[i] == 'l')
       iFlags |= TVCOLOR_L;
-    else if ( flags[i] == 't' )
+	 else if (flags[i] == 's')
+      iFlags |= TVCOLOR_S;
+    else if (flags[i] == 't')
       iFlags |= TVCOLOR_T;
 
     ++i;
@@ -1828,23 +1836,28 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
                 case CDDS_PREPAINT:
                   return ( CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW );
 
-                case CDDS_ITEMPREPAINT:
-                  {
-                    LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) lpntvcd->nmcd.lItemlParam;
+					 case CDDS_ITEMPREPAINT:
+						 {
+							 LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) lpntvcd->nmcd.lItemlParam;
 
-                    if ( lpdcxtvi == NULL )
-                      return CDRF_DODEFAULT;
+							 if ( lpdcxtvi == NULL )
+								 return CDRF_DODEFAULT;
 
-                    if ( lpdcxtvi->clrText != -1 )
-                      lpntvcd->clrText = lpdcxtvi->clrText;
+							 if ( lpdcxtvi->clrText != -1 )
+								 lpntvcd->clrText = lpdcxtvi->clrText;
 
-										if ( (lpdcxtvi->clrBkg != -1 ) && (!(lpntvcd->nmcd.uItemState & CDIS_SELECTED)))
-												lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
+							 // draw unselected background color
+							 if ((lpdcxtvi->clrBkg != -1) && (!(lpntvcd->nmcd.uItemState & CDIS_SELECTED)))
+								 lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
+								else if ((this->m_colSelection != -1) && (lpntvcd->nmcd.uItemState & CDIS_SELECTED))
+								{
+									lpntvcd->clrTextBk = this->m_colSelection;
+								}
 
-                    //if ( lpdcxtvi->bUline || lpdcxtvi->bBold) {
-                      HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
+							 //if ( lpdcxtvi->bUline || lpdcxtvi->bBold) {
+							 HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
 
-                      LOGFONT lf;
+							 LOGFONT lf;
                       GetObject( hFont, sizeof(LOGFONT), &lf );
 
 											if (lpdcxtvi->bBold)

@@ -7,6 +7,7 @@ function get_styles_image(&$STYLES) {
 	$STYLES = array(
         'alpha' => 'Control is alpha blended.',
 		'tooltips' => 'The image will have a tooltip.',
+        'transparent' => 'This allows the background of the image control to be transparent.',
 	);
 }
 

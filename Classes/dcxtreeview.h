@@ -38,6 +38,7 @@ class DcxTreeView;
 #define TVCOLOR_B 0x01        //!< TreeView Background Color
 #define TVCOLOR_L 0x02        //!< TreeView Line Color
 #define TVCOLOR_T 0x04        //!< TreeView Text Color
+#define TVCOLOR_S 0x08        //!< TreeView Selection Color
 
 #define TVIS_UNDERLINE 0x0100 //!< TreeView Caption Underline Style
 #define TVIS_COLOR     0x0200 //!< TreeView Caption Color Style
@@ -126,6 +127,8 @@ protected:
   WNDPROC m_OrigEditProc; //!< Label Edit Control Orignal Procedure
 
   UINT m_iIconSize; //!< Icon size
+
+	COLORREF m_colSelection;
 
   /* *** */
 
