@@ -567,16 +567,11 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 		return;
 	}
-
-  // [NAME] [ID] [PROP] [N]
-  else if ( input.gettok( 3, " " ) == "gnum" ) {
-
-
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
-    return;
-  }
+	// [NAME] [ID] [PROP] [N]
+	else if ( input.gettok( 3, " " ) == "gnum" ) {
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
   szReturnValue[0] = 0;
 }

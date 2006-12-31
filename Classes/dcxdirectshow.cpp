@@ -616,7 +616,7 @@ HRESULT DcxDirectshow::getProperty(char *prop, int type) const
 			break;
 		}
 		if (SUCCEEDED(hr)) {
-			wsprintf(prop,"%lS", com_prop);
+			_snprintf(prop, 900, "%lS", com_prop);
 			SysFreeString(com_prop);
 		}
 		else

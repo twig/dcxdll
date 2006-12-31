@@ -116,17 +116,18 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 
   int numtok = input.numtok( " " );
 
-  // [NAME] [ID] [PROP] [N]
-  if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
-
-    int nSel = input.gettok( 4, " " ).to_int( ) - 1;
-
-    if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
-     
-      ListBox_GetText( this->m_Hwnd, nSel, szReturnValue );
-      return;
-    }
-  }
+	// [NAME] [ID] [PROP] [N]
+	if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
+		int nSel = input.gettok( 4, " " ).to_int( ) - 1;
+		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
+			int l = ListBox_GetTextLen(this->m_Hwnd, nSel);
+			if (l != LB_ERR && l < 900)
+				ListBox_GetText( this->m_Hwnd, nSel, szReturnValue );
+			else
+				dcxInfoError(this->getType().to_chr(), "text", this->m_pParentDialog->getName().to_chr(), this->getUserID(), "String Too Long (Greater than 900 chars)");
+			return;
+		}
+	}
   // [NAME] [ID] [PROP]
   else if ( input.gettok( 3, " " ) == "num" ) {
 

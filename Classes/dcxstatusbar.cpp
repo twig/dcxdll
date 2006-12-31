@@ -118,7 +118,7 @@ void DcxStatusBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 		if ( iPart > -1 && iPart < nParts ) {
 
-			this->getText( iPart, szReturnValue );
+			this->getText( iPart, szReturnValue ); // possible overflow, needs fixed at some point.
 			return;
 		}
 	}
@@ -138,13 +138,16 @@ void DcxStatusBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 			wsprintf( d, "%d", parts[i] );
 
-			if ( i == 0 ) {
-				lstrcat( szReturnValue, d );
-			}
-			else {
+			//if ( i == 0 ) {
+			//	lstrcat( szReturnValue, d );
+			//}
+			//else {
+			//	lstrcat( szReturnValue, " " );
+			//	lstrcat( szReturnValue, d );
+			//}
+			if ( i != 0 )
 				lstrcat( szReturnValue, " " );
-				lstrcat( szReturnValue, d );
-			}
+			lstrcat( szReturnValue, d );
 
 			i++;
 		}

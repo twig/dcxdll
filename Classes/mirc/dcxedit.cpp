@@ -212,16 +212,12 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
-		wsprintf(szReturnValue, "%s", this->m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr());
+		lstrcpyn(szReturnValue, this->m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr(), 900);
 		return;
 	}
 	else if (input.gettok(3, " ") == "cue") {
 		if (this->m_tsCue.len())
-			lstrcpy(szReturnValue,this->m_tsCue.to_chr());
-		//WCHAR *wcue = new WCHAR[901];
-		//Edit_GetCueBannerText(this->m_Hwnd,wcue,900); // <- this fails for some reason :/
-		//WideCharToMultiByte( CP_ACP, 0, wcue, lstrlenW( wcue ) + 1, szReturnValue, 900, NULL, NULL );
-		//delete [] wcue;
+			lstrcpyn(szReturnValue, this->m_tsCue.to_chr(), 900);
 		return;
 	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue)) {

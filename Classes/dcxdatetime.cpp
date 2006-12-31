@@ -127,7 +127,7 @@ void DcxDateTime::parseInfoRequest(TString &input, char *szReturnValue) {
 		else
 			max = "nolimit";
 
-		wsprintf(szReturnValue, "%s %s", min.to_chr(), max.to_chr());
+		wsprintf(szReturnValue, "%s %s", min.to_chr(), max.to_chr()); // going to be within 900 limit anyway.
 		return;
 	}
 	else if (input.gettok(3) == "value") {

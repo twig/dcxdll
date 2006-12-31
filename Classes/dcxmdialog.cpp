@@ -97,7 +97,7 @@ void DcxMDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3, " ") == "dname") {
-		wsprintf(szReturnValue, "%s", this->m_OrigName.to_chr());
+		lstrcpyn(szReturnValue, this->m_OrigName.to_chr(), 900);
 		return;
 	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue)) {

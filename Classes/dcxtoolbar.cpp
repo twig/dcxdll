@@ -167,7 +167,7 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
     if ( nButton > -1 && nButton < this->getButtonCount( ) ) {
 
-      this->getButtonText( this->getIndexToCommand( nButton ), szReturnValue );
+      this->getButtonText( this->getIndexToCommand( nButton ), szReturnValue ); // possible overflow, needs fixing at some point.
       return;
     }
   }
@@ -241,7 +241,7 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
       if ( lpdcxtbb != NULL ) {
 
-        lstrcpy( szReturnValue, lpdcxtbb->tsTipText.to_chr( ) );
+        lstrcpyn( szReturnValue, lpdcxtbb->tsTipText.to_chr( ), 900 );
       }
       return;
     }

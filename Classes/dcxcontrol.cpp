@@ -681,81 +681,73 @@ LPSTR DcxControl::parseCursorType( TString & cursor ) {
 
 BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnValue ) {
 
-  if ( input.gettok( 3, " " ) == "hwnd" ) {
+	if ( input.gettok( 3, " " ) == "hwnd" ) {
+		wsprintf( szReturnValue, "%d", this->m_Hwnd );
+		return TRUE;
+	}
+	else if ( input.gettok( 3, " " ) == "visible" ) {
+		if ( IsWindowVisible( this->m_Hwnd ) )
+			lstrcpy( szReturnValue, "$true" );
+		else
+			lstrcpy( szReturnValue, "$false" );
+		return TRUE;
+	}
+	else if ( input.gettok( 3, " " ) == "enabled" ) {
+		if ( IsWindowEnabled( this->m_Hwnd ) )
+			lstrcpy( szReturnValue, "$true" );
+		else
+			lstrcpy( szReturnValue, "$false" );
+		return TRUE;    
+	}
+	else if ( input.gettok( 3, " " ) == "pos" ) {
+		RECT rc;
+		GetWindowRect( this->m_Hwnd, &rc );
+		POINT pt;
+		pt.x = rc.left;
+		pt.y = rc.top;
+		ScreenToClient( GetParent( this->m_Hwnd ), &pt );
 
-    wsprintf( szReturnValue, "%d", this->m_Hwnd );
-    return TRUE;
-  }
-  else if ( input.gettok( 3, " " ) == "visible" ) {
+		wsprintf( szReturnValue, "%d %d %d %d", pt.x, pt.y, rc.right-rc.left, rc.bottom-rc.top );
+		return TRUE;
+	}
+	else if ( input.gettok( 3, " " ) == "dpos" ) {
+		RECT rc;
+		GetWindowRect( this->m_Hwnd, &rc );
+		POINT pt;
+		pt.x = rc.left;
+		pt.y = rc.top;
+		ScreenToClient( this->m_pParentDialog->getHwnd( ), &pt );
 
-    if ( IsWindowVisible( this->m_Hwnd ) )
-      lstrcpy( szReturnValue, "$true" );
-    else
-      lstrcpy( szReturnValue, "$false" );
-    return TRUE;       
-  }
-  else if ( input.gettok( 3, " " ) == "enabled" ) {
+		wsprintf( szReturnValue, "%d %d %d %d", pt.x, pt.y, rc.right-rc.left, rc.bottom-rc.top );
+		return TRUE;
+	}
+	else if ( input.gettok( 3, " " ) == "mark" ) {
+		lstrcpyn( szReturnValue, this->m_tsMark.to_chr( ), 900 );
+		return TRUE;
+	}
+	else if ( input.gettok( 3, " " ) == "mouse" ) {
+		POINT pt;
+		GetCursorPos( &pt );
+		ScreenToClient( this->m_Hwnd, &pt );
+		wsprintf( szReturnValue, "%d %d", pt.x, pt.y );
+		return TRUE;
+	}
+	else if ( input.gettok( 3, " " ) == "pid" ) {
+		char classname[257];
+		GetClassName( GetParent( this->m_Hwnd ), classname, 256 );
 
-    if ( IsWindowEnabled( this->m_Hwnd ) )
-      lstrcpy( szReturnValue, "$true" );
-    else
-      lstrcpy( szReturnValue, "$false" );
-    return TRUE;    
-  }
-  else if ( input.gettok( 3, " " ) == "pos" ) {
+		if ( lstrcmp( classname, "#32770" ) == 0 )
+		lstrcpy( szReturnValue, "0" );
+		else
+		wsprintf( szReturnValue, "%d",  this->m_pParentDialog->getControlByHWND( GetParent( this->m_Hwnd ) )->getUserID( ) );
 
-    RECT rc;
-    GetWindowRect( this->m_Hwnd, &rc );
-    POINT pt;
-    pt.x = rc.left;
-    pt.y = rc.top;
-    ScreenToClient( GetParent( this->m_Hwnd ), &pt );
+		return TRUE;
+	}
+	else if ( input.gettok( 3, " " ) == "type" ) {
 
-    wsprintf( szReturnValue, "%d %d %d %d", pt.x, pt.y, rc.right-rc.left, rc.bottom-rc.top );
-    return TRUE;
-  }
-  else if ( input.gettok( 3, " " ) == "dpos" ) {
-
-    RECT rc;
-    GetWindowRect( this->m_Hwnd, &rc );
-    POINT pt;
-    pt.x = rc.left;
-    pt.y = rc.top;
-    ScreenToClient( this->m_pParentDialog->getHwnd( ), &pt );
-
-    wsprintf( szReturnValue, "%d %d %d %d", pt.x, pt.y, rc.right-rc.left, rc.bottom-rc.top );
-    return TRUE;
-  }
-  else if ( input.gettok( 3, " " ) == "mark" ) {
-
-    lstrcpy( szReturnValue, this->m_tsMark.to_chr( ) );
-    return TRUE;
-  }
-  else if ( input.gettok( 3, " " ) == "mouse" ) {
-
-    POINT pt;
-    GetCursorPos( &pt );
-    ScreenToClient( this->m_Hwnd, &pt );
-    wsprintf( szReturnValue, "%d %d", pt.x, pt.y );
-    return TRUE;
-  }
-  else if ( input.gettok( 3, " " ) == "pid" ) {
-
-    char classname[257];
-    GetClassName( GetParent( this->m_Hwnd ), classname, 256 );
-
-    if ( lstrcmp( classname, "#32770" ) == 0 )
-      lstrcpy( szReturnValue, "0" );
-    else
-      wsprintf( szReturnValue, "%d",  this->m_pParentDialog->getControlByHWND( GetParent( this->m_Hwnd ) )->getUserID( ) );
-
-    return TRUE;
-  }
-  else if ( input.gettok( 3, " " ) == "type" ) {
-
-    lstrcpy( szReturnValue, this->getType( ).to_chr( ) );
-    return TRUE;
-  }
+		lstrcpyn( szReturnValue, this->getType( ).to_chr( ), 900 );
+		return TRUE;
+	}
 	else if (input.gettok(3, " ") == "font") {
 		HFONT hFontControl = this->m_hFont;
 
@@ -769,12 +761,13 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 
 			ZeroMemory(&lfCurrent, sizeof(LOGFONT));
 			GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent);
-			
-			TString str(ParseLogfontToCommand(&lfCurrent));
-			wsprintf(szReturnValue, "%s", str.to_chr());
+
+			//TString str(ParseLogfontToCommand(&lfCurrent));
+			//wsprintf(szReturnValue, "%s", str.to_chr());
+			lstrcpyn(szReturnValue, ParseLogfontToCommand(&lfCurrent).to_chr(), 900);
 			return TRUE;
 		}
-  }
+	}
 	// [NAME] [ID] [PROP]
 	else if (input.gettok(3, " ") == "tooltipbgcolor") {
 		DWORD cref = 0;
@@ -802,10 +795,10 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 		else
 			lstrcpy(szReturnValue, "$false");
 	}
-  else
+	else
 		dcxInfoError("General", input.gettok( 3, " " ).to_chr( ), input.gettok(1, " ").to_chr(), this->getUserID(), "Invalid property or number of arguments");
 
-  return FALSE;
+	return FALSE;
 }
 
 /*!

@@ -15,24 +15,6 @@
 #include "dcxrebar.h"
 #include "dcxdialog.h"
 
-#include "dcxprogressbar.h"
-#include "dcxtrackbar.h"
-#include "dcxcolorcombo.h"
-#include "dcxcomboex.h"
-#include "dcxstatusbar.h"
-#include "dcxtreeview.h"
-#include "dcxtoolbar.h"
-#include "dcxlistview.h"
-#include "dcxbutton.h"
-#include "dcxrichedit.h"
-
-#include "dcxdivider.h"
-#include "dcxpanel.h"
-#include "dcxtab.h"
-
-#include "dcxmwindow.h"
-#include "dcxmdialog.h"
-
 /*!
  * \brief Constructor
  *

@@ -27,6 +27,14 @@
 */
 DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, TString &styles)
 : DcxControl(ID, p_Dialog)
+, m_iFontSize(10 * 20)
+, m_bFontBold(FALSE)
+, m_bFontItalic(FALSE)
+, m_bFontUnderline(FALSE)
+, m_bFontStrikeout(FALSE)
+, m_byteCharset(DEFAULT_CHARSET)
+//, m_tsFontFaceName("")
+//, m_tsText("")
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -49,16 +57,8 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 		CRichEditThemed::Attach(this->m_Hwnd);
 	}
 
-	this->m_tsText = "";
 	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
-	this->m_iFontSize = 10 * 20;
-	this->m_bFontBold = FALSE;
-	this->m_bFontItalic = FALSE;
-	this->m_bFontUnderline = FALSE;
-	this->m_bFontStrikeout = FALSE;
-	this->m_tsFontFaceName = "";
-	this->m_byteCharset = DEFAULT_CHARSET;
 
 	this->loadmIRCPalette();
 	this->setContentsFont();
@@ -154,7 +154,7 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		p[res] = '\0';
 
 		// copy to result
-		lstrcpy(szReturnValue, p);
+		lstrcpyn(szReturnValue, p, 900);
 		delete [] p;
 		return;
 	}
@@ -220,12 +220,12 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		char *buffer = new char[c.cpMax - c.cpMin];
 
 		SendMessage(this->m_Hwnd, EM_GETSELTEXT, NULL, (LPARAM) buffer);
-		wsprintf(szReturnValue, "%s", buffer);
+		lstrcpyn(szReturnValue, buffer, 900);
+		delete [] buffer;
 		return;
 	}
-	else if (this->parseGlobalInfoRequest(input, szReturnValue)) {
+	else if (this->parseGlobalInfoRequest(input, szReturnValue))
 		return;
-	}
 
 	szReturnValue[0] = 0;
 }

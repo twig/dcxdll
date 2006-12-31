@@ -127,7 +127,7 @@ void DcxProgressBar::parseInfoRequest( TString & input, char * szReturnValue ) {
     return;
   }
   else if (input.gettok(3, " ") == "text") {
-	  wsprintf(szReturnValue, this->m_tsText.to_chr(), this->CalculatePosition());
+	  _snprintf(szReturnValue, 900, this->m_tsText.to_chr(), this->CalculatePosition());
 	  return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {

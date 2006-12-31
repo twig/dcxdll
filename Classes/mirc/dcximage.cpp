@@ -30,7 +30,10 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 , m_bIsIcon(FALSE)
 #ifdef DCX_USE_GDIPLUS
 , m_pImage(NULL)
-, m_pGfx(NULL)
+, m_CMode(CompositingModeSourceCopy)
+, m_CQuality(CompositingQualityDefault)
+, m_IMode(InterpolationModeDefault)
+, m_SMode(SmoothingModeDefault)
 #endif
 , m_bResizeImage(true)
 , m_hBitmap(NULL)
@@ -74,11 +77,6 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 
 DcxImage::~DcxImage() {
 	PreloadData();
-
-#ifdef DCX_USE_GDIPLUS
-	if (this->m_pGfx != NULL)
-		delete this->m_pGfx;
-#endif
 
 	this->unregistreDefaultWindowProc( );
 }
@@ -179,39 +177,24 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 		return false;
 	}
 
-	// no gfx object, create one
-	if (this->m_pGfx == NULL)
-		this->m_pGfx = new Graphics(this->m_Hwnd,FALSE);
-
-	// still no gfx object, clear image.
-	if (this->m_pGfx == NULL) {
-		dcxInfoError("Image",
-			"LoadGDIPlusImage",
-			this->m_pParentDialog->getName().to_chr(),
-			this->getUserID(),
-			"Couldn't allocate graphics object.");
-		PreloadData();
-		return false;
-	}
-
 	if (flags.find('h',0)) { // High Quality
-		this->m_pGfx->SetCompositingQuality(CompositingQualityHighQuality);
-		this->m_pGfx->SetInterpolationMode(InterpolationModeHighQualityBicubic);
+		this->m_CQuality = CompositingQualityHighQuality;
+		this->m_IMode = InterpolationModeHighQualityBicubic;
 	}
 	else {
-		this->m_pGfx->SetCompositingQuality(CompositingQualityDefault);
-		this->m_pGfx->SetInterpolationMode(InterpolationModeDefault);
+		this->m_CQuality = CompositingQualityDefault;
+		this->m_IMode = InterpolationModeDefault;
 	}
 
 	if (flags.find('b',0)) // Blend Image
-		this->m_pGfx->SetCompositingMode(CompositingModeSourceOver);
+		this->m_CMode = CompositingModeSourceOver;
 	else
-		this->m_pGfx->SetCompositingMode(CompositingModeSourceCopy);
+		this->m_CMode = CompositingModeSourceCopy;
 
 	if (flags.find('a',0)) // Anti-Aliased
-		this->m_pGfx->SetSmoothingMode(SmoothingModeAntiAlias);
+		this->m_SMode = SmoothingModeAntiAlias;
 	else
-		this->m_pGfx->SetSmoothingMode(SmoothingModeDefault);
+		this->m_SMode = SmoothingModeDefault;
 
 	return true;
 }
@@ -409,21 +392,18 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				DrawIconEx(hdc, 0, 0, this->m_hIcon, this->m_iIconSize, this->m_iIconSize, 0, this->m_hBackBrush, DI_NORMAL | DI_COMPAT); 
 			}
 #ifdef DCX_USE_GDIPLUS
-			else if ((this->m_pGfx != NULL) && (this->m_pImage != NULL) && (mIRCLink.m_bUseGDIPlus)) {
-				//Graphics grphx( hdc );
+			else if ((this->m_pImage != NULL) && (mIRCLink.m_bUseGDIPlus)) {
+				Graphics grphx( hdc );
 
-				//grphx.SetCompositingQuality(CompositingQualityHighQuality);
-				//grphx.SetCompositingMode(CompositingModeSourceOver);
-				//grphx.SetSmoothingMode(SmoothingModeAntiAlias);
+				grphx.SetCompositingQuality(this->m_CQuality);
+				grphx.SetCompositingMode(this->m_CMode);
+				grphx.SetSmoothingMode(this->m_SMode);
+				grphx.SetInterpolationMode(this->m_IMode);
 
-				//if (this->m_bResizeImage)
-				//	grphx.DrawImage( this->m_pImage, 0, 0, w, h );
-				//else
-				//	grphx.DrawImage( this->m_pImage, 0, 0);
 				if (this->m_bResizeImage)
-					this->m_pGfx->DrawImage( this->m_pImage, 0, 0, w, h );
+					grphx.DrawImage( this->m_pImage, 0, 0, w, h );
 				else
-					this->m_pGfx->DrawImage( this->m_pImage, 0, 0);
+					grphx.DrawImage( this->m_pImage, 0, 0);
 			}
 #endif
 			this->FinishAlphaBlend(ai);

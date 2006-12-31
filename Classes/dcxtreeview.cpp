@@ -191,7 +191,7 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
         LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) tvi.lParam;
 
         if ( lpdcxtvi != NULL )
-          lstrcpy( szReturnValue, lpdcxtvi->tsTipText.to_chr( ) );
+          lstrcpyn( szReturnValue, lpdcxtvi->tsTipText.to_chr( ), 900 );
 
         return;
       }
@@ -214,7 +214,7 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
     if ( this->getPath( &v, &hParent, &hItem ) ) {
 
       std::string path = this->getPathFromVector( &v );
-      lstrcpy( szReturnValue, path.c_str( ) );
+      lstrcpyn( szReturnValue, path.c_str( ), 900 );
       return;
     }
   }
@@ -261,7 +261,7 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
         if ( this->getPath( &v, &hParent, &hItem ) ) {
 
           std::string path = this->getPathFromVector( &v );
-          lstrcpy( szReturnValue, path.c_str( ) );
+          lstrcpyn( szReturnValue, path.c_str( ), 900 );
         }
       }
       else if ( N == 0 ) {
@@ -347,31 +347,29 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
   }
   else if ( input.gettok( 3, " " ) == "mouseitem" ) {
 
-    TVHITTESTINFO tvh;
-    GetCursorPos( &tvh.pt );
-    ScreenToClient( this->m_Hwnd, &tvh.pt );
-    TreeView_HitTest( this->m_Hwnd, &tvh );
+		TVHITTESTINFO tvh;
+		GetCursorPos( &tvh.pt );
+		ScreenToClient( this->m_Hwnd, &tvh.pt );
+		TreeView_HitTest( this->m_Hwnd, &tvh );
 
-	 if ( tvh.flags & TVHT_ONITEM ) {
+		if ( tvh.flags & TVHT_ONITEM ) {
 
-      VectorOfInts numPath;
-      HTREEITEM hStart = TVI_ROOT;
-      this->getPath( &numPath, &hStart, &tvh.hItem );
-      std::string path = this->getPathFromVector( &numPath );
+			VectorOfInts numPath;
+			HTREEITEM hStart = TVI_ROOT;
+			this->getPath( &numPath, &hStart, &tvh.hItem );
+			std::string path = this->getPathFromVector( &numPath );
 
-      lstrcpy( szReturnValue, path.c_str( ) );
-    }
-    else
-      lstrcpy( szReturnValue, "0" );
+			lstrcpyn( szReturnValue, path.c_str( ), 900 );
+		}
+		else
+			lstrcpy( szReturnValue, "0" );
 
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-    return;
-  }
-
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -460,26 +458,26 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
       TreeView_SetItemHeight( this->m_Hwnd, iHeight );
     }
   }
-  // xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
-  else if ( flags.switch_flags[8] && numtok > 4 ) {
-    UINT iFlags = this->parseColorFlags(input.gettok(4, " "));
+	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
+	else if ( flags.switch_flags[8] && numtok > 4 ) {
+		UINT iFlags = this->parseColorFlags(input.gettok(4, " "));
 
-    COLORREF clr = (COLORREF) input.gettok( 5, " " ).to_num( );
+		COLORREF clr = (COLORREF) input.gettok( 5, " " ).to_num( );
 
-    if (iFlags & TVCOLOR_B)
-      TreeView_SetBkColor( this->m_Hwnd, clr );
+		if (iFlags & TVCOLOR_B)
+			TreeView_SetBkColor( this->m_Hwnd, clr );
 
-    if (iFlags & TVCOLOR_L)
-      TreeView_SetLineColor( this->m_Hwnd, clr );
+		if (iFlags & TVCOLOR_L)
+			TreeView_SetLineColor( this->m_Hwnd, clr );
 
-    if (iFlags & TVCOLOR_T)
-      TreeView_SetTextColor( this->m_Hwnd, clr );
+		if (iFlags & TVCOLOR_T)
+			TreeView_SetTextColor( this->m_Hwnd, clr );
 
-	 if (iFlags & TVCOLOR_S)
-		this->m_colSelection = clr;
+		if (iFlags & TVCOLOR_S)
+			this->m_colSelection = clr;
 
-	 this->redrawWindow();
-  }
+		this->redrawWindow();
+	}
   // xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON]
   else if ( flags.switch_flags[9] && numtok > 5 ) {
 
@@ -1836,45 +1834,45 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
                 case CDDS_PREPAINT:
                   return ( CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW );
 
-					 case CDDS_ITEMPREPAINT:
-						 {
-							 LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) lpntvcd->nmcd.lItemlParam;
-
-							 if ( lpdcxtvi == NULL )
-								 return CDRF_DODEFAULT;
-
-							 if ( lpdcxtvi->clrText != -1 )
-								 lpntvcd->clrText = lpdcxtvi->clrText;
-
-							 // draw unselected background color
-							 if ((lpdcxtvi->clrBkg != -1) && (!(lpntvcd->nmcd.uItemState & CDIS_SELECTED)))
-								 lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
-								else if ((this->m_colSelection != -1) && (lpntvcd->nmcd.uItemState & CDIS_SELECTED))
+								case CDDS_ITEMPREPAINT:
 								{
-									lpntvcd->clrTextBk = this->m_colSelection;
+									LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) lpntvcd->nmcd.lItemlParam;
+
+									if ( lpdcxtvi == NULL )
+										return CDRF_DODEFAULT;
+
+									if ( lpdcxtvi->clrText != -1 )
+										lpntvcd->clrText = lpdcxtvi->clrText;
+
+									// draw unselected background color
+									if ((lpdcxtvi->clrBkg != -1) && (!(lpntvcd->nmcd.uItemState & CDIS_SELECTED)))
+										lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
+									else if ((this->m_colSelection != -1) && (lpntvcd->nmcd.uItemState & CDIS_SELECTED))
+									{
+										lpntvcd->clrTextBk = this->m_colSelection;
+									}
+
+									//if ( lpdcxtvi->bUline || lpdcxtvi->bBold) {
+									HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
+
+									LOGFONT lf;
+									GetObject( hFont, sizeof(LOGFONT), &lf );
+
+									if (lpdcxtvi->bBold)
+										lf.lfWeight |= FW_BOLD;
+									if (lpdcxtvi->bUline)
+										lf.lfUnderline = true;
+									if (lpdcxtvi->bItalic)
+										lf.lfItalic = true;
+
+									HFONT hFontNew = CreateFontIndirect( &lf );
+									//HFONT hOldFont = (HFONT) SelectObject( lpntvcd->nmcd.hdc, hFontNew );
+									SelectObject(lpntvcd->nmcd.hdc, hFontNew);
+
+									DeleteObject( hFontNew );
+									//}
 								}
-
-							 //if ( lpdcxtvi->bUline || lpdcxtvi->bBold) {
-							 HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
-
-							 LOGFONT lf;
-                      GetObject( hFont, sizeof(LOGFONT), &lf );
-
-											if (lpdcxtvi->bBold)
-												lf.lfWeight |= FW_BOLD;
-											if (lpdcxtvi->bUline)
-												lf.lfUnderline = true;
-											if (lpdcxtvi->bItalic)
-												lf.lfItalic = true;
-
-                      HFONT hFontNew = CreateFontIndirect( &lf );
-                      //HFONT hOldFont = (HFONT) SelectObject( lpntvcd->nmcd.hdc, hFontNew );
-											SelectObject(lpntvcd->nmcd.hdc, hFontNew);
-
-                      DeleteObject( hFontNew );
-                    //}
-                  }
-									return ( CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT );
+								return ( CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT );
 
                 case CDDS_ITEMPOSTPAINT:
                   return CDRF_DODEFAULT;

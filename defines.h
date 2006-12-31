@@ -29,16 +29,18 @@
 
 //#define WIN32_LEAN_AND_MEAN //!< blah
 
-// normal Windows XP + IE V5.01
+// normal Windows XP + IE V5.01 + GDI+ 1.0
 //#define _WIN32_WINNT 0x0501
 //#define _WIN32_IE 0x0501
+//#define GDIPVER 0x0100
 
-// Windows XP SP2 + IE V6
+// Windows XP SP2 + IE V6 + GDI+ 1.1
 #define _WIN32_WINNT 0x0503
 #define _WIN32_IE 0x0600
+#define GDIPVER 0x0110
 
 // Required for VS 2005
-#if _MSC_VER == 1400
+#if _MSC_VER >= 1400
 #define VS2005 1
 #define _CRT_SECURE_NO_DEPRECATE 1
 #endif

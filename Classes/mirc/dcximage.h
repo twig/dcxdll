@@ -46,7 +46,10 @@ protected:
 
 #ifdef DCX_USE_GDIPLUS
   Image * m_pImage; //!< GDI+ Image Object
-	Graphics * m_pGfx; //!< GDI+ Graphics Object
+	CompositingMode m_CMode; // Compositing Mode
+	CompositingQuality m_CQuality; // Compositing Quality
+	InterpolationMode m_IMode; // Interpolation Mode
+	SmoothingMode m_SMode; // Smoothing Mode
 	bool LoadGDIPlusImage(const TString &flags, TString &filename);
 #endif
   HBITMAP m_hBitmap; //!< Bitmap
