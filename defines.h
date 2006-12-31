@@ -172,8 +172,8 @@ typedef struct tagMYDCXWINDOW {
 /*! \brief mIRC Function Alias */
 #define mIRC(x) int WINAPI x(HWND mWnd, HWND aWnd, char * data, char * parms, BOOL, BOOL)
 
-/*! \brief Return String DLL Alias */
-#define ret(x) { lstrcpy(data, x); lstrcat(data, "\0"); return 3; }
+/*! \brief Return String DLL Alias (data is limited to 900) */
+#define ret(x) { lstrcpyn(data, (x), 900); return 3; }
 
 
 /*!
