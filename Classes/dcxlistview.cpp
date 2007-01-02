@@ -249,43 +249,72 @@ void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
-  // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "sel" ) {
+	// [NAME] [ID] [PROP] (N)
+	else if (input.gettok(3, " ") == "sel") {
+		if (this->isStyle(LVS_SINGLESEL)) {
+			int nItem = ListView_GetNextItem(this->m_Hwnd, -1, LVIS_SELECTED);
 
-    if ( this->isStyle( LVS_SINGLESEL ) ) {
-      int nItem = ListView_GetNextItem( this->m_Hwnd, -1, LVIS_SELECTED );
-      if ( nItem > -1 ) {
-        wsprintf( szReturnValue, "%d", nItem + 1 );
-        return;
-      }
-    }
-    else {
+			if (nItem > -1) {
+				wsprintf(szReturnValue, "%d", nItem + 1);
+				return;
+			}
+		}
+		// multi select
+		else {
+			int nSelItems = ListView_GetSelectedCount(this->m_Hwnd);
+			int nItem = -1;
 
-      int nSelItems = ListView_GetSelectedCount( this->m_Hwnd );
-      if ( nSelItems > 0 ) {
+			// if we want a specific index
+			if (numtok > 3) {
+				int n = input.gettok(4, " ").to_int();
 
-        TString list;
-        char line[5];
+				// sel index out of bounds
+				if (n > nSelItems)
+					return;
 
-        int nItem = -1;
-        int i = 1;
-        while ( ( nItem = ListView_GetNextItem( this->m_Hwnd, nItem, LVIS_SELECTED ) ) != -1 ) {
+				// return total count of selected files
+				if (n == 0) {
+					wsprintf(szReturnValue, "%d", nSelItems);
+					return;
+				}
 
+				while ((nItem = ListView_GetNextItem(this->m_Hwnd, nItem, LVIS_SELECTED)) != -1) {
+					n--;
+
+					// reached the index we want to return
+					if (n == 0) {
+						wsprintf(szReturnValue, "%d", nItem +1);
+						return;
+					}
+				}
+				
+				// should not be here, but return to force blank value
+				return;
+			}
+
+			// otherwise we want a list of indexes (comma seperated)
+			if (nSelItems > 0) {
+				TString list;
+				char line[5];
+				int i = 1;
+
+				while ((nItem = ListView_GetNextItem(this->m_Hwnd, nItem, LVIS_SELECTED)) != -1) {
 #ifdef VS2005
-          _itoa( nItem + 1, line, 10 );
+					_itoa(nItem + 1, line, 10);
 #else
-          itoa( nItem + 1, line, 10 );
+					itoa(nItem + 1, line, 10);
 #endif          
-          list += line;
-          if ( i != nSelItems )
-            list += ',';
-        }
+					list += line;
 
-        lstrcpyn( szReturnValue, list.to_chr( ), 900 ); // limit to 900, may want to rework this to avoid incomplete results
-        return;
-      }
-    }
-  }
+					if (i != nSelItems)
+						list += ',';
+				}
+
+				lstrcpyn(szReturnValue, list.to_chr(), 900);
+				return;
+			}
+		}
+	}
   // [NAME] [ID] [PROP]
   else if ( input.gettok( 3, " " ) == "selnum" ) {
 
@@ -1914,31 +1943,31 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
                     if ( lpdcxlvi->clrBack != -1 )
                       lplvcd->clrTextBk = lpdcxlvi->clrBack;
 
-										//if (( lpdcxlvi->pbar != NULL) && (lpdcxlvi->iPbarCol == lplvcd->iSubItem))
-										//	return CDRF_SKIPDEFAULT;
-										//if ( lplvcd->nmcd.uItemState & CDIS_HOT)
-										//	DrawFocusRect(lplvcd->nmcd.hdc,&lplvcd->rcText);
+						  //if (( lpdcxlvi->pbar != NULL) && (lpdcxlvi->iPbarCol == lplvcd->iSubItem))
+						  //	return CDRF_SKIPDEFAULT;
+						  //if ( lplvcd->nmcd.uItemState & CDIS_HOT)
+						  //	DrawFocusRect(lplvcd->nmcd.hdc,&lplvcd->rcText);
 
-										if (lpdcxlvi->bUline || lpdcxlvi->bBold || lpdcxlvi->bItalic) {
-											HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
-											LOGFONT lf;
+						  if (lpdcxlvi->bUline || lpdcxlvi->bBold || lpdcxlvi->bItalic) {
+							  HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
+							  LOGFONT lf;
 
-											GetObject(hFont, sizeof(LOGFONT), &lf);
+							  GetObject(hFont, sizeof(LOGFONT), &lf);
 
-											if (lpdcxlvi->bBold)
-												lf.lfWeight |= FW_BOLD;
-											if (lpdcxlvi->bUline)
-												lf.lfUnderline = true;
-											if (lpdcxlvi->bItalic)
-												lf.lfItalic = true;
+							  if (lpdcxlvi->bBold)
+								  lf.lfWeight |= FW_BOLD;
+							  if (lpdcxlvi->bUline)
+								  lf.lfUnderline = true;
+							  if (lpdcxlvi->bItalic)
+								  lf.lfItalic = true;
 
-											HFONT hFontNew = CreateFontIndirect( &lf );
-											//HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
-											SelectObject(lplvcd->nmcd.hdc, hFontNew);
+							  HFONT hFontNew = CreateFontIndirect( &lf );
+							  //HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
+							  SelectObject(lplvcd->nmcd.hdc, hFontNew);
 
-											DeleteObject(hFontNew);
-										}
-										return ( CDRF_NEWFONT );
+							  DeleteObject(hFontNew);
+						  }
+						  return ( CDRF_NEWFONT );
 									}
 									break;
 
