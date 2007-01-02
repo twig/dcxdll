@@ -1017,13 +1017,18 @@
 	<tr><td colspan="2">This property lets you retreive the item number of selected item in the listview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdid(dialog, ID).sel</div></td>
+		<td><div class="syntax">$xdid(dialog, ID, (N)).sel</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4).sel</div></td>
+		<td><div class="example">$xdid(dcx, 4, 2).sel</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the listview is <a class="style">multiline</a>, then a comma-separated list of the selected lines is returned.</td></tr></table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Optional parameter allowing you to obtain the Nth selected index.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the listview is <a class="style">multiline</a>, and <a class="param">N</a> is not supplied, then this command will return a comma-separated list of the selected indexes.</li><li>If <a class="param">N</a> is <a class="value">0</a>, then this will return the number of lines selected. (Same as <a class="value">$xdid().selnum</a>)</li></ul></td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
@@ -1443,7 +1448,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 31st December, 06</td>
+		<td style="text-align: right;">Last Updated: 3rd January, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
