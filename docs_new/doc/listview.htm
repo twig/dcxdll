@@ -862,6 +862,20 @@
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.columns"></a>$xdid().columns	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the number of columns for the listview.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).columns</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).columns</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If a listview is not a <a class="style">report</a> listview, this will return <a class="value">0</a>.</li><li>If a listview has <a class="style">noheader</a>, this will return <a class="value">0</a>.</li></ul></td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
 			<a name="xdidprop.find"></a>$xdid().find	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the listview item index and column index of the Nth found listview item matching the input search patern.</td></tr>
 	<tr>
@@ -1411,7 +1425,8 @@
 <li><a href="#xdid.y" style="color: #0000FF;">-y</a></li>
 <li><a href="#xdid.z" style="color: #0000FF;">-z</a></li>
 <li><a href="#xdid.B" style="color: #0000FF;">-B</a></li>
-</ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><ul><li><a href="#xdidprop.find" style="color: #6666FF;">find</a></li>
+</ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><ul><li><a href="#xdidprop.columns" style="color: #6666FF;">columns</a></li>
+<li><a href="#xdidprop.find" style="color: #6666FF;">find</a></li>
 <li><a href="#xdidprop.genabled" style="color: #6666FF;">genabled</a></li>
 <li><a href="#xdidprop.hicon" style="color: #6666FF;">hicon</a></li>
 <li><a href="#xdidprop.htext" style="color: #6666FF;">htext</a></li>

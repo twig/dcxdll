@@ -204,12 +204,31 @@ void DcxListView::parseListviewExStyles( TString & styles, LONG * ExStyles )
  * \return > void
  */
 
-void DcxListView::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
+	int numtok = input.numtok(" ");
 
-  int numtok = input.numtok( " " );
+	// [NAME] [ID] [PROP] [N] [NSUB]
+	if (input.gettok(3, " ") == "columns") {
+		// if its a report listview and it has headers
+		if (!this->isStyle(LVS_NOCOLUMNHEADER) &&
+			(this->isListViewStyle(LVS_REPORT))) {
+			HWND hHeader = (HWND) ListView_GetHeader(this->m_Hwnd);
+			
+			if (!hHeader) {
+				DCXError("$ $+ xdid(listview).columns", "could not find header");
+				return;
+			}
 
+			wsprintf(szReturnValue, "%d", (int) Header_GetItemCount(hHeader));
+		}
+		else {
+			wsprintf(szReturnValue, "%d", 0);
+		}
+
+		return;
+	}
   // [NAME] [ID] [PROP] [N] [NSUB]
-  if ( input.gettok( 3, " " ) == "text" && numtok > 4 ) {
+  else if ( input.gettok( 3, " " ) == "text" && numtok > 4 ) {
 
     int nItem = input.gettok( 4, " " ).to_int( ) - 1;
     int nSubItem = input.gettok( 5, " " ).to_int( );
