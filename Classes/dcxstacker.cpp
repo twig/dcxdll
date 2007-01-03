@@ -329,7 +329,7 @@ void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLOR
 	Point point3(rc->left + (rc->right - rc->left)/2, rc->bottom);
 	Point points[3] = {point1, point2, point3};
 	// Fill the polygon.
-	gfx.FillPolygon(&blackBrush, points, 5);
+	gfx.FillPolygon(&blackBrush, points, 3);
 #endif
 }
 
@@ -818,13 +818,16 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				GetClientRect(this->m_Hwnd,&rcClient);
 				this->getItemRect(lastID, &rcItem);
 				if (rcItem.bottom < rcClient.bottom) {
-					HRGN bkg_rgn = CreateRectRgn(rcClient.left,rcItem.bottom,rcClient.right,rcClient.bottom);
-					if (bkg_rgn != NULL) {
-						SelectClipRgn((HDC)wParam,bkg_rgn);
-						this->DrawParentsBackground((HDC) wParam);
-						SelectClipRgn((HDC)wParam,NULL);
-						DeleteObject(bkg_rgn);
-					}
+					rcClient.top = rcItem.bottom;
+					this->DrawParentsBackground((HDC) wParam, &rcClient, this->m_Hwnd);
+					
+					//HRGN bkg_rgn = CreateRectRgn(rcClient.left,rcItem.bottom,rcClient.right,rcClient.bottom);
+					//if (bkg_rgn != NULL) {
+					//	SelectClipRgn((HDC)wParam,bkg_rgn);
+					//	this->DrawParentsBackground((HDC) wParam);
+					//	SelectClipRgn((HDC)wParam,NULL);
+					//	DeleteObject(bkg_rgn);
+					//}
 				}
 			}
 			return TRUE;

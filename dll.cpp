@@ -106,6 +106,7 @@ bool mIRCSixPointTwoZero; //!< used by xpopup to tell if patching is to be done.
 void WINAPI LoadDll(LOADINFO * load) {
 	int cnt = 0;
 
+	load->mKeep = TRUE; // keep it loaded, this is TRUE by default with 6.21+, but FALSE by default with previous versions.
 	// If mIRC V6.2+ then try & create our own unique mapfile.
 	// damn mIRC reports as 6.2 instead of 6.20!
 	// meaning mirc v6.17 appears to be a higher version.

@@ -27,30 +27,32 @@
 
 DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
 : DcxControl( ID, p_Dialog ) 
+, m_clrText(0)
+, m_bIsAbsoluteValue(FALSE)
+, m_hfontVertical(NULL)
+, m_bIsGrad(FALSE)
+, m_clrGrad(0)
 {
 
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  this->m_Hwnd = CreateWindowEx(	
+  this->m_Hwnd = CreateWindowEx(
     ExStyles | WS_EX_CLIENTEDGE,
     DCX_PROGRESSBARCLASS,
     NULL,
-    WS_CHILD | WS_VISIBLE | Styles, 
+    WS_CHILD | WS_VISIBLE | Styles,
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
-    GetModuleHandle(NULL), 
+    GetModuleHandle(NULL),
     NULL);
 
   if ( bNoTheme )
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  this->m_clrText = RGB(0,0,0);
   this->m_tsText = "%d %%";
-  this->m_bIsAbsoluteValue = FALSE;
-  this->m_hfontVertical = NULL;
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
