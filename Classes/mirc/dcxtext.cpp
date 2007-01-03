@@ -153,20 +153,12 @@ void DcxText::parseCommandRequest(TString &input) {
 		// redraw if transparent
 		if (this->isExStyle(WS_EX_TRANSPARENT)) {
 			RECT r;
-			POINT pt;
-			int w, h;
+			HWND hParent = GetParent(this->m_Hwnd);
 
 			GetWindowRect(this->m_Hwnd, &r);
-			pt.x = r.left;
-			pt.y = r.top;
-			w = r.right - r.left;
-			h = r.bottom - r.top;
-			ScreenToClient(GetParent(this->m_Hwnd), &pt);
-			r.left = pt.x;
-			r.top = pt.y;
-			r.right = r.left + w;
-			r.bottom = r.top + h;
-			InvalidateRect(GetParent(this->m_Hwnd), &r, TRUE);
+
+			MapWindowPoints(NULL, hParent, (LPPOINT)&r, 2); // maps all 4 points & handles RTL
+			InvalidateRect(hParent, &r, TRUE);
 			this->redrawWindow();
 		}
 	}

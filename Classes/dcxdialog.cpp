@@ -472,8 +472,12 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		this->removeStyle(WS_BORDER | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX |
 			WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
 
-		this->removeExStyle(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP |
-			WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
+		if (isXP())
+			this->removeExStyle(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP |
+				WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED);
+		else
+			this->removeExStyle(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP |
+				WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
 
 		LONG Styles = 0, ExStyles = 0;
 
@@ -1243,7 +1247,10 @@ void DcxDialog::parseBorderStyles(TString &flags, LONG *Styles, LONG *ExStyles) 
 			*Styles |= WS_SYSMENU;
 		else if (flags[i] == 'z')
 			*Styles |= WS_SIZEBOX;
-
+		else if (flags[i] == 'x' && isXP())
+			*ExStyles |= WS_EX_COMPOSITED;
+		//	WS_EX_COMPOSITED style causes problems for listview control & maybe others, but when it works it looks really cool :)
+		//	this improves transparency etc.. on xp+ only, looking into how this affects us.
 		++i;
 	}
 }
@@ -1572,7 +1579,8 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		POINT pt;
 
 		GetCursorPos(&pt);
-		ScreenToClient(this->m_Hwnd, &pt);
+		//ScreenToClient(this->m_Hwnd, &pt);
+		MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
 		wsprintf(szReturnValue, "%d %d", pt.x, pt.y);
 
 		return;
@@ -2076,7 +2084,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		{
 			if (mHwnd != p_this->getHwnd())
 				break;
-			//HDC hdc = (HDC) wParam;
 			RECT rwnd;
 
 			GetClientRect(p_this->getHwnd(), &rwnd);
@@ -2479,8 +2486,8 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPRECT rwnd)
 	GetObject(p_this->m_bitmapBg, sizeof(BITMAP), &bmp);
 	SelectObject(hdcbmp, p_this->m_bitmapBg);
 
-	int x = 0;
-	int y = 0;
+	int x = rwnd->left;
+	int y = rwnd->top;
 	int w = rwnd->right - rwnd->left;
 	int h = rwnd->bottom - rwnd->top;
 
@@ -2725,13 +2732,14 @@ void DcxDialog::MakeShadow(UINT32 *pShadBits, HWND hParent, RECT *rcParent)
 	int nCenterSize = this->m_Shadow.nSize > this->m_Shadow.nSharpness ? (this->m_Shadow.nSize - this->m_Shadow.nSharpness) : 0;
 	UINT32 *pKernel = new UINT32[(2 * nKernelSize + 1) * (2 * nKernelSize + 1)];
 	UINT32 *pKernelIter = pKernel;
+	const DWORD preColDark = PreMultiply(this->m_Shadow.Color, this->m_Shadow.nDarkness);
 	for(int i = 0; i <= 2 * nKernelSize; i++)
 	{
 		for(int j = 0; j <= 2 * nKernelSize; j++)
 		{
 			double dLength = sqrt((i - nKernelSize) * (i - nKernelSize) + (j - nKernelSize) * (double)(j - nKernelSize));
 			if(dLength < nCenterSize)
-				*pKernelIter = this->m_Shadow.nDarkness << 24 | PreMultiply(this->m_Shadow.Color, this->m_Shadow.nDarkness);
+				*pKernelIter = this->m_Shadow.nDarkness << 24 | preColDark;
 			else if(dLength <= nKernelSize)
 			{
 				UINT32 nFactor = ((UINT32)((1 - (dLength - nCenterSize) / (this->m_Shadow.nSharpness + 1)) * this->m_Shadow.nDarkness));
@@ -2795,7 +2803,7 @@ void DcxDialog::MakeShadow(UINT32 *pShadBits, HWND hParent, RECT *rcParent)
 	}	// for() Generate blurred border
 
 	// Erase unwanted parts and complement missing
-	UINT32 clCenter = this->m_Shadow.nDarkness << 24 | PreMultiply(this->m_Shadow.Color, this->m_Shadow.nDarkness);
+	UINT32 clCenter = this->m_Shadow.nDarkness << 24 | preColDark;
 	for(int i = min(nKernelSize, max(this->m_Shadow.nSize - this->m_Shadow.nyOffset, 0));
 		i < max(szShadow.cy - nKernelSize, min(szParent.cy + this->m_Shadow.nSize - this->m_Shadow.nyOffset, szParent.cy + 2 * this->m_Shadow.nSize));
 		i++)

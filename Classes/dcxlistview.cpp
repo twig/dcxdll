@@ -221,9 +221,8 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 			wsprintf(szReturnValue, "%d", (int) Header_GetItemCount(hHeader));
 		}
-		else {
-			wsprintf(szReturnValue, "%d", 0);
-		}
+		else
+			lstrcpy(szReturnValue, "0");
 
 		return;
 	}
@@ -1962,31 +1961,31 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
                     if ( lpdcxlvi->clrBack != -1 )
                       lplvcd->clrTextBk = lpdcxlvi->clrBack;
 
-						  //if (( lpdcxlvi->pbar != NULL) && (lpdcxlvi->iPbarCol == lplvcd->iSubItem))
-						  //	return CDRF_SKIPDEFAULT;
-						  //if ( lplvcd->nmcd.uItemState & CDIS_HOT)
-						  //	DrawFocusRect(lplvcd->nmcd.hdc,&lplvcd->rcText);
+										//if (( lpdcxlvi->pbar != NULL) && (lpdcxlvi->iPbarCol == lplvcd->iSubItem))
+										//	return CDRF_SKIPDEFAULT;
+										//if ( lplvcd->nmcd.uItemState & CDIS_HOT)
+										//	DrawFocusRect(lplvcd->nmcd.hdc,&lplvcd->rcText);
 
-						  if (lpdcxlvi->bUline || lpdcxlvi->bBold || lpdcxlvi->bItalic) {
-							  HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
-							  LOGFONT lf;
+										if (lpdcxlvi->bUline || lpdcxlvi->bBold || lpdcxlvi->bItalic) {
+											HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
+											LOGFONT lf;
 
-							  GetObject(hFont, sizeof(LOGFONT), &lf);
+											GetObject(hFont, sizeof(LOGFONT), &lf);
 
-							  if (lpdcxlvi->bBold)
-								  lf.lfWeight |= FW_BOLD;
-							  if (lpdcxlvi->bUline)
-								  lf.lfUnderline = true;
-							  if (lpdcxlvi->bItalic)
-								  lf.lfItalic = true;
+											if (lpdcxlvi->bBold)
+											lf.lfWeight |= FW_BOLD;
+											if (lpdcxlvi->bUline)
+											lf.lfUnderline = true;
+											if (lpdcxlvi->bItalic)
+											lf.lfItalic = true;
 
-							  HFONT hFontNew = CreateFontIndirect( &lf );
-							  //HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
-							  SelectObject(lplvcd->nmcd.hdc, hFontNew);
+											HFONT hFontNew = CreateFontIndirect( &lf );
+											//HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
+											SelectObject(lplvcd->nmcd.hdc, hFontNew);
 
-							  DeleteObject(hFontNew);
-						  }
-						  return ( CDRF_NEWFONT );
+											DeleteObject(hFontNew);
+										}
+										return ( CDRF_NEWFONT );
 									}
 									break;
 

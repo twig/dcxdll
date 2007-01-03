@@ -175,7 +175,6 @@ typedef struct tagMYDCXWINDOW {
 /*! \brief Return String DLL Alias (data is limited to 900) */
 #define ret(x) { lstrcpyn(data, (x), 900); return 3; }
 
-
 /*!
  * \brief mIRC DLL Loading Structure
  */

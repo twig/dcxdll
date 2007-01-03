@@ -702,23 +702,28 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 	else if ( input.gettok( 3, " " ) == "pos" ) {
 		RECT rc;
 		GetWindowRect( this->m_Hwnd, &rc );
-		POINT pt;
-		pt.x = rc.left;
-		pt.y = rc.top;
-		ScreenToClient( GetParent( this->m_Hwnd ), &pt );
+		//POINT pt;
+		//pt.x = rc.left;
+		//pt.y = rc.top;
+		//ScreenToClient( GetParent( this->m_Hwnd ), &pt );
+		//wsprintf( szReturnValue, "%d %d %d %d", pt.x, pt.y, rc.right-rc.left, rc.bottom-rc.top );
+		MapWindowPoints(NULL, GetParent( this->m_Hwnd ), (LPPOINT)&rc, 2);
 
-		wsprintf( szReturnValue, "%d %d %d %d", pt.x, pt.y, rc.right-rc.left, rc.bottom-rc.top );
+		wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
 		return TRUE;
 	}
 	else if ( input.gettok( 3, " " ) == "dpos" ) {
 		RECT rc;
 		GetWindowRect( this->m_Hwnd, &rc );
-		POINT pt;
-		pt.x = rc.left;
-		pt.y = rc.top;
-		ScreenToClient( this->m_pParentDialog->getHwnd( ), &pt );
+		//POINT pt;
+		//pt.x = rc.left;
+		//pt.y = rc.top;
+		//ScreenToClient( this->m_pParentDialog->getHwnd( ), &pt );
 
-		wsprintf( szReturnValue, "%d %d %d %d", pt.x, pt.y, rc.right-rc.left, rc.bottom-rc.top );
+		//wsprintf( szReturnValue, "%d %d %d %d", pt.x, pt.y, rc.right-rc.left, rc.bottom-rc.top );
+		MapWindowPoints(NULL, this->m_pParentDialog->getHwnd( ), (LPPOINT)&rc, 2);
+
+		wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
 		return TRUE;
 	}
 	else if ( input.gettok( 3, " " ) == "mark" ) {
@@ -728,7 +733,8 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 	else if ( input.gettok( 3, " " ) == "mouse" ) {
 		POINT pt;
 		GetCursorPos( &pt );
-		ScreenToClient( this->m_Hwnd, &pt );
+		//ScreenToClient( this->m_Hwnd, &pt );
+		MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
 		wsprintf( szReturnValue, "%d %d", pt.x, pt.y );
 		return TRUE;
 	}
@@ -1108,55 +1114,88 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 	}
 }
 
-void DcxControl::DrawParentsBackground(const HDC hdc)
+void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, const HWND dHwnd)
 {
 	//if (isXP() && !this->m_bAlphaBlend)
 	//	return;
 	// fill in parent bg
 	RECT rcClient, rcParent, rcWin;
-	// get controls client area
-	GetClientRect( this->m_Hwnd, &rcClient );
+	HWND hwnd = this->m_Hwnd;
+	if (rcBounds == NULL)
+		GetClientRect( hwnd, &rcClient ); // get controls client area
+	else {
+		rcClient = *rcBounds;
+		hwnd = dHwnd;
+	}
 	// if themes are active use them.
 	if (dcxIsThemeActive()) {
-		DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rcClient);
+		DrawThemeParentBackgroundUx(hwnd, hdc, &rcClient);
 		return;
 	}
 	this->updateParentCtrl(); // find the host control, if any.
-	POINT pt;
-	// get controls width & height.
-	int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
-	HBITMAP bm = NULL;
-	// make a new HDC for background rendering
-	HDC hdcbkg = CreateCompatibleDC( hdc );
-	if (hdcbkg != NULL) {
-		// get parent windows client area.
-		GetClientRect(this->m_pParentHWND,&rcParent);
-		// get this controls x & y pos within its parent.
-		GetWindowRect(this->m_Hwnd,&rcWin);
-		pt.x = rcWin.left;
-		pt.y = rcWin.top;
-		ScreenToClient(this->m_pParentHWND,&pt);
-		// make a bitmap for rendering to.
-		HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
-		if (memBM != NULL) {
-			// associate bitmap with HDC
-			HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
-			if (this->m_pParentCtrl == NULL) { // host control is the dialog, draw dialogs background.
+	// get this controls x & y pos within its parent.
+	rcWin = rcClient;
+	MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2); // handles RTL
+	if (this->m_pParentCtrl == NULL) { // host control is the dialog, draw dialogs background.
+		// make a new HDC for background rendering
+		HDC hdcbkg = CreateCompatibleDC( hdc );
+		if (hdcbkg != NULL) {
+			// get parent windows client area.
+			GetClientRect(this->m_pParentHWND,&rcParent);
+			// make a bitmap for rendering to.
+			HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
+			if (memBM != NULL) {
+				// associate bitmap with HDC
+				HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
 				DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
+				// draw background to main hdc
+				BitBlt( hdc, rcClient.left, rcClient.top,
+					(rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
+					hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
+				DeleteObject(SelectObject( hdcbkg, oldBM ));
 			}
-			else { // found host control, draw its background if any.
-				// handle case where parent is transparent.
-				if (this->m_pParentCtrl->isExStyle(WS_EX_TRANSPARENT))
-					this->m_pParentCtrl->DrawParentsBackground(hdcbkg);
-				else
-					DcxControl::DrawCtrlBackground(hdcbkg,this->m_pParentCtrl,&rcParent);
-			}
-			// draw background to main hdc
-			BitBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbkg, pt.x, pt.y, SRCCOPY);
-			DeleteObject(SelectObject( hdcbkg, oldBM ));
+			DeleteDC( hdcbkg );
 		}
-		DeleteDC( hdcbkg );
 	}
+	else { // found host control, draw its background if any.
+		// handle case where parent is transparent.
+		if (this->m_pParentCtrl->isExStyle(WS_EX_TRANSPARENT))
+			this->m_pParentCtrl->DrawParentsBackground(hdc, &rcClient, hwnd); // pass on dest bounds & hwnd
+		else
+			DcxControl::DrawCtrlBackground(hdc,this->m_pParentCtrl,&rcClient); // ctrls only FillRect() atm
+	}
+	// Don't remove commented version below, keep for refrence.
+	//// make a new HDC for background rendering
+	//HDC hdcbkg = CreateCompatibleDC( hdc );
+	//if (hdcbkg != NULL) {
+	//	// get parent windows client area.
+	//	GetClientRect(this->m_pParentHWND,&rcParent);
+	//	// get this controls x & y pos within its parent.
+	//	GetWindowRect(this->m_Hwnd,&rcWin);
+	//	MapWindowPoints(NULL,this->m_pParentHWND, (LPPOINT)&rcWin, 2); // handles RTL
+	//	// make a bitmap for rendering to.
+	//	HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
+	//	if (memBM != NULL) {
+	//		// associate bitmap with HDC
+	//		HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
+	//		if (this->m_pParentCtrl == NULL) { // host control is the dialog, draw dialogs background.
+	//			DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
+	//		}
+	//		else { // found host control, draw its background if any.
+	//			// handle case where parent is transparent.
+	//			if (this->m_pParentCtrl->isExStyle(WS_EX_TRANSPARENT))
+	//				this->m_pParentCtrl->DrawParentsBackground(hdcbkg);
+	//			else
+	//				DcxControl::DrawCtrlBackground(hdcbkg,this->m_pParentCtrl,&rcParent);
+	//		}
+	//		// draw background to main hdc
+	//		BitBlt( hdc, rcClient.left, rcClient.top,
+	//			(rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
+	//			hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
+	//		DeleteObject(SelectObject( hdcbkg, oldBM ));
+	//	}
+	//	DeleteDC( hdcbkg );
+	//}
 }
 LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 {

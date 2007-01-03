@@ -320,6 +320,8 @@ void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLOR
 	Graphics gfx( hdc );
 
 	gfx.SetSmoothingMode(SmoothingModeAntiAlias);
+	gfx.SetCompositingMode(CompositingModeSourceOver);
+	//gfx.SetCompositingQuality
 	SolidBrush blackBrush(Color(128, GetRValue(clrShape), GetGValue(clrShape), GetBValue(clrShape)));
 	// Create an array of Point objects that define the polygon.
 	Point point1(rc->left, rc->top);
@@ -329,6 +331,150 @@ void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLOR
 	// Fill the polygon.
 	gfx.FillPolygon(&blackBrush, points, 5);
 #endif
+}
+
+void DcxStacker::DrawSItem(LPDRAWITEMSTRUCT idata)
+{
+	if (idata == NULL || idata->itemID == -1)
+		return;
+	LPDCXSITEM sitem = (LPDCXSITEM)idata->itemData;
+	if (sitem == NULL)
+		return;
+	RECT rcWin;
+	GetClientRect(idata->hwndItem, &rcWin);
+	// Create temp HDC as drawing buffer.
+	// if temp HDC or its bitmap fails to cretae, use supplied HDC without buffer.
+	HDC memDC = CreateCompatibleDC(idata->hDC);
+	HBITMAP memBM, oldBM;
+	if (memDC != NULL) { // HDC ok, make Bitmap
+		memBM = CreateCompatibleBitmap(idata->hDC, (rcWin.right - rcWin.left), (rcWin.bottom - rcWin.top));
+		if (memBM != NULL) // Bitmap Ok, select into HDC.
+			oldBM = (HBITMAP)SelectObject(memDC, memBM);
+		else { // Bitmap failed, delete temp HDC, use supplied HDC.
+			DeleteDC(memDC);
+			memDC = idata->hDC;
+		}
+	}
+	else // temp HDC failed, use supplied HDC.
+		memDC = idata->hDC;
+	HFONT hFont = sitem->hFont;
+	LOGFONT lf;
+	RECT rcText = idata->rcItem;
+	int h = MIN_STACK_HEIGHT, button_base = 0;
+	bool Redraw = false;
+
+	if (hFont == NULL)
+		hFont = (HFONT) SendMessage(idata->hwndItem, WM_GETFONT, 0, 0);
+
+	GetObject(hFont, sizeof(LOGFONT), &lf);
+
+	h = max(h,lf.lfHeight * 20);
+	rcText.bottom = rcText.top + h;
+	//rcText.right -= 1;
+	if (rcText.bottom > idata->rcItem.bottom)
+		rcText.bottom = idata->rcItem.bottom;
+	button_base = rcText.bottom;
+
+	// draw background if we need to.
+	//if (this->isExStyle(WS_EX_TRANSPARENT) || this->m_bAlphaBlend) {
+	//	HRGN hrgn = CreateRectRgnIndirect(&idata->rcItem);
+	//	if (hrgn != NULL) {
+	//		SelectClipRgn(idata->hDC,hrgn);
+	//		DcxControl::DrawParentsBackground(memDC, &idata->rcItem, idata->hwndItem);
+	//		SelectClipRgn(idata->hDC,NULL);
+	//		DeleteObject(hrgn);
+	//	}
+	//}
+	// draw button for this item.
+	UINT style = DFCS_BUTTONPUSH|DFCS_ADJUSTRECT;
+	if (idata->itemState & ODS_DISABLED)
+		style |= DFCS_INACTIVE;
+	if (idata->itemState & ODS_SELECTED)
+		style |= DFCS_PUSHED;
+
+	DrawFrameControl(memDC,&rcText,DFC_BUTTON,style);
+
+	// fill background colour if any.
+	if (this->m_dStyles & STACKERS_GRAD) {
+		COLORREF clrbkg = sitem->clrBack;
+
+		if (clrbkg == -1)
+			clrbkg = GetSysColor(COLOR_BTNFACE);
+
+		XPopupMenuItem::DrawGradient( memDC, &rcText, clrbkg, GetSysColor(COLOR_GRADIENTACTIVECAPTION), FALSE);
+	}
+	else if (sitem->clrBack != -1) {
+		SetBkColor(memDC,sitem->clrBack);
+		ExtTextOut(memDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, "", NULL, NULL );
+	}
+
+	// draw text if any
+	if (sitem->tsCaption.len()) {
+		SetBkMode(memDC,TRANSPARENT);
+		UINT f = DST_TEXT;
+		if (idata->itemState & ODS_DISABLED)
+			f |= DSS_DISABLED;
+		HFONT oldFont = (HFONT)SelectObject(memDC,hFont);
+		// get text colour.
+		COLORREF clrText = sitem->clrText;
+		if (clrText == -1)
+			clrText = GetSysColor(COLOR_BTNTEXT);
+		// draw the text
+		if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
+			dcxDrawShadowText(memDC,sitem->tsCaption.to_wchr(), sitem->tsCaption.len(),&rcText,
+				DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
+		}
+		else {
+			if (sitem->clrText != -1)
+				SetTextColor(memDC,clrText);
+			DrawText(memDC, sitem->tsCaption.to_chr(), sitem->tsCaption.len(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
+		}
+
+		SelectObject(memDC,oldFont);
+	}
+	// draw arrows if wanted.
+	if (this->m_dStyles & STACKERS_ARROW) {
+		RECT rcArrow = rcText;
+		rcArrow.left = rcArrow.right - 10;
+		rcArrow.top += 3;
+		rcArrow.bottom -= 3;
+		DrawAliasedTriangle(memDC,&rcArrow,0);
+	}
+	if (idata->hDC != memDC) { // if using temp buffer HDC, render completed item to main HDC & cleanup buffer.
+		BitBlt(idata->hDC,idata->rcItem.left, idata->rcItem.top, (idata->rcItem.right - idata->rcItem.left), h, memDC, idata->rcItem.left, idata->rcItem.top, SRCCOPY);
+		DeleteObject(SelectObject(memDC,oldBM));
+		DeleteDC(memDC);
+	}
+
+	// position child control if any.
+	if (sitem->pChild != NULL) {
+		HWND sWnd = sitem->pChild->getHwnd();
+		if (IsWindow(sWnd)) {
+			if (idata->itemState & ODS_SELECTED) {
+				RECT rc;
+				GetWindowRect(sWnd,&rc);
+				SetWindowPos(sWnd,NULL,idata->rcItem.left, button_base,(idata->rcItem.right - idata->rcItem.left),(rc.bottom - rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
+				h += (rc.bottom - rc.top);
+				if (sWnd != this->m_hActive) {
+					if (IsWindow(this->m_hActive))
+						Redraw = true;
+				}
+				this->m_hActive = sWnd;
+			}
+			else
+				SetWindowPos(sWnd,NULL,0,0,0,0,SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_HIDEWINDOW);
+		}
+	}
+	else if (IsWindow(this->m_hActive) && idata->itemState & ODS_SELECTED) {
+		this->m_hActive = NULL;
+		Redraw = true;
+	}
+	if (h != (idata->rcItem.bottom - idata->rcItem.top)) {
+		SendMessage(idata->hwndItem,LB_SETITEMHEIGHT,idata->itemID,h);
+		Redraw = true;
+	}
+	if (Redraw)
+		this->redrawWindow();
 }
 
 /*!
@@ -427,125 +573,7 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 			bParsed = TRUE;
 			lRes = TRUE;
-			DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
-			if (idata == NULL || idata->itemID == -1)
-				break;
-			LPDCXSITEM sitem = (LPDCXSITEM)idata->itemData;
-			if (sitem == NULL)
-				break;
-			HFONT hFont = sitem->hFont;
-			LOGFONT lf;
-			RECT rcText = idata->rcItem;
-			int h = MIN_STACK_HEIGHT, button_base = 0;
-			bool Redraw = false;
-
-			if (hFont == NULL)
-				hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
-
-			GetObject(hFont, sizeof(LOGFONT), &lf);
-
-			h = max(h,lf.lfHeight * 20);
-			rcText.bottom = rcText.top + h;
-			//rcText.right -= 1;
-			if (rcText.bottom > idata->rcItem.bottom)
-				rcText.bottom = idata->rcItem.bottom;
-			button_base = rcText.bottom;
-
-			// draw background if we need to.
-			//if (this->isExStyle(WS_EX_TRANSPARENT) || this->m_bAlphaBlend) {
-			//	HRGN hrgn = CreateRectRgnIndirect(&idata->rcItem);
-			//	if (hrgn != NULL) {
-			//		SelectClipRgn(idata->hDC,hrgn);
-			//		DcxControl::DrawParentsBackground(idata->hDC);
-			//		SelectClipRgn(idata->hDC,NULL);
-			//		DeleteObject(hrgn);
-			//	}
-			//}
-			// draw button for this item.
-			UINT style = DFCS_BUTTONPUSH|DFCS_ADJUSTRECT;
-			if (idata->itemState & ODS_DISABLED)
-				style |= DFCS_INACTIVE;
-			if (idata->itemState & ODS_SELECTED)
-				style |= DFCS_PUSHED;
-
-			DrawFrameControl(idata->hDC,&rcText,DFC_BUTTON,style);
-
-			// fill background colour if any.
-			if (this->m_dStyles & STACKERS_GRAD) {
-				COLORREF clrbkg = sitem->clrBack;
-
-				if (clrbkg == -1)
-					clrbkg = GetSysColor(COLOR_BTNFACE);
-
-				XPopupMenuItem::DrawGradient( idata->hDC, &rcText, clrbkg, GetSysColor(COLOR_GRADIENTACTIVECAPTION), FALSE);
-			}
-			else if (sitem->clrBack != -1) {
-				SetBkColor(idata->hDC,sitem->clrBack);
-				ExtTextOut(idata->hDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, "", NULL, NULL );
-			}
-
-			// draw text if any
-			if (sitem->tsCaption.len()) {
-				SetBkMode(idata->hDC,TRANSPARENT);
-				UINT f = DST_TEXT;
-				if (idata->itemState & ODS_DISABLED)
-					f |= DSS_DISABLED;
-				HFONT oldFont = (HFONT)SelectObject(idata->hDC,hFont);
-				// get text colour.
-				COLORREF clrText = sitem->clrText;
-				if (clrText == -1)
-					clrText = GetSysColor(COLOR_BTNTEXT);
-				// draw the text
-				if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
-					dcxDrawShadowText(idata->hDC,sitem->tsCaption.to_wchr(), sitem->tsCaption.len(),&rcText,
-						DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
-				}
-				else {
-					if (sitem->clrText != -1)
-						SetTextColor(idata->hDC,clrText);
-					DrawText(idata->hDC, sitem->tsCaption.to_chr(), sitem->tsCaption.len(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
-				}
-
-				SelectObject(idata->hDC,oldFont);
-			}
-			// draw arrows if wanted.
-			if (this->m_dStyles & STACKERS_ARROW) {
-				RECT rcArrow = rcText;
-				SelectObject(idata->hDC,GetStockObject(BLACK_BRUSH));
-				rcArrow.left = rcArrow.right - 10;
-				rcArrow.top += 3;
-				rcArrow.bottom -= 3;
-				DrawAliasedTriangle(idata->hDC,&rcArrow,0);
-			}
-			// position child control if any.
-			if (sitem->pChild != NULL) {
-				HWND sWnd = sitem->pChild->getHwnd();
-				if (IsWindow(sWnd)) {
-					if (idata->itemState & ODS_SELECTED) {
-						RECT rc;
-						GetWindowRect(sWnd,&rc);
-						SetWindowPos(sWnd,NULL,idata->rcItem.left, button_base,(idata->rcItem.right - idata->rcItem.left),(rc.bottom - rc.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
-						h += (rc.bottom - rc.top);
-						if (sWnd != this->m_hActive) {
-							if (IsWindow(this->m_hActive))
-								Redraw = true;
-						}
-						this->m_hActive = sWnd;
-					}
-					else
-						SetWindowPos(sWnd,NULL,0,0,0,0,SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_HIDEWINDOW);
-				}
-			}
-			else if (IsWindow(this->m_hActive) && idata->itemState & ODS_SELECTED) {
-				this->m_hActive = NULL;
-				Redraw = true;
-			}
-			if (h != (idata->rcItem.bottom - idata->rcItem.top)) {
-				SendMessage(this->m_Hwnd,LB_SETITEMHEIGHT,idata->itemID,h);
-				Redraw = true;
-			}
-			if (Redraw)
-				this->redrawWindow();
+			DrawSItem((LPDRAWITEMSTRUCT)lParam);
 		}
 		break;
 	}
@@ -573,15 +601,23 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
     case WM_HSCROLL:
     case WM_VSCROLL:
 			//{
-			//	bParsed = TRUE;
-			//	SendMessage(this->m_Hwnd,WM_SETREDRAW,FALSE,NULL);
-			//	LRESULT res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam );
-			//	SendMessage(this->m_Hwnd,WM_SETREDRAW,TRUE,NULL);
-			//	//this->redrawWindow();
-			//	RedrawWindow(this->m_Hwnd,0,0,RDW_INTERNALPAINT|RDW_FRAME|RDW_INVALIDATE|RDW_ALLCHILDREN);
-			//	return res;
+			//	if (((HWND) lParam == NULL) && this->m_bAlphaBlend) {
+			//		bParsed = TRUE;
+			//		//SendMessage(this->m_Hwnd,WM_SETREDRAW,FALSE,NULL);
+			//		LRESULT res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam );
+			//		//SendMessage(this->m_Hwnd,WM_SETREDRAW,TRUE,NULL);
+			//		//InvalidateRect(this->m_Hwnd, NULL, FALSE);
+			//		//this->redrawWindow();
+			//		//RECT rc;
+			//		//HWND hParent = GetParent(this->m_Hwnd);
+			//		//GetWindowRect(this->m_Hwnd, &rc);
+			//		//MapWindowPoints(NULL, hParent, (LPPOINT)&rc, 2);
+			//		//InvalidateRect(hParent, &rc, FALSE);
+			//		//RedrawWindow(this->m_Hwnd,0,0,RDW_INVALIDATE|RDW_ALLCHILDREN|RDW_NOERASE);
+			//		//RedrawWindow(this->m_Hwnd,0,0,RDW_INTERNALPAINT|RDW_FRAME|RDW_INVALIDATE|RDW_ALLCHILDREN);
+			//		return res;
+			//	}
 			//}
-			//break;
 
 		case WM_COMMAND:
 			{

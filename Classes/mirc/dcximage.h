@@ -60,7 +60,8 @@ protected:
   // clears existing image and icon data and sets pointers to null
   void PreloadData(void);
   int m_iIconSize;
-	bool m_bResizeImage;
+	bool m_bResizeImage; //!< Resize Image
+	bool m_bBuffer; //!< Double Buffer Rendering, needed for GDI+ when WS_EX_COMPOSITED
 };
 
 #endif // _DCXIMAGE_H_

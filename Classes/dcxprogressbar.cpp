@@ -364,7 +364,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 		case WM_ERASEBKGND:
 			{
-				if (this->m_bAlphaBlend) {
+				if (this->m_bAlphaBlend || this->isExStyle(WS_EX_TRANSPARENT)) {
 					this->DrawParentsBackground((HDC) wParam);
 					bParsed = TRUE;
 					return TRUE;

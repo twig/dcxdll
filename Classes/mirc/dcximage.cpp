@@ -39,6 +39,7 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 , m_hBitmap(NULL)
 , m_clrTransColor(-1)
 , m_hIcon(NULL)
+, m_bBuffer(false)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -64,6 +65,11 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
+
+#ifdef DCX_USE_GDIPLUS
+	if (p_Dialog->isExStyle(WS_EX_COMPOSITED))
+		this->m_bBuffer = true;
+#endif
 
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -235,16 +241,11 @@ void DcxImage::parseCommandRequest(TString & input) {
 
 		// resize window to size of icon
 		RECT wnd;
-		POINT pt;
 
 		GetWindowRect(this->m_Hwnd, &wnd);
-		pt.x = wnd.left;
-		pt.y = wnd.top;
 
-		ScreenToClient(GetParent(this->m_Hwnd), &pt);
-		MoveWindow(this->m_Hwnd, pt.x, pt.y, size, size, TRUE);
-
-		//InvalidateRect(this->m_Hwnd, NULL, TRUE);
+		MapWindowPoints(NULL, GetParent(this->m_Hwnd), (LPPOINT) &wnd, 2);
+		MoveWindow(this->m_Hwnd, wnd.left, wnd.top, size, size, TRUE);
 		this->redrawWindow();
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
@@ -364,7 +365,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			int w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
 
 			// Setup alpha blend if any.
-			LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+			LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, this->m_bBuffer);
 
 			DcxControl::DrawCtrlBackground(hdc,this,&rect);
 

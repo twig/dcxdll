@@ -119,7 +119,7 @@ public:
 	DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
 	static void DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd);
-	void DrawParentsBackground(const HDC hdc);
+	void DrawParentsBackground(const HDC hdc, const LPRECT rcBounds = NULL, const HWND dHwnd = NULL);
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai);
 
