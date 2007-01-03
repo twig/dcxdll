@@ -184,13 +184,18 @@ protected:
 	void MakeShadow(UINT32 *pShadBits, HWND hParent, RECT *rcParent);
 
 	// Helper to calculate the alpha-premultiled value for a pixel
-	inline DWORD PreMultiply(COLORREF cl, unsigned char nAlpha)
+	static inline DWORD PreMultiply(COLORREF cl, unsigned char nAlpha)
 	{
 		// It's strange that the byte order of RGB in 32b BMP is reverse to in COLORREF
 		return (GetRValue(cl) * (DWORD)nAlpha / 255) << 16 |
 			(GetGValue(cl) * (DWORD)nAlpha / 255) << 8 |
 			(GetBValue(cl) * (DWORD)nAlpha / 255);
 	}
+	void PreloadData(void);
+//#ifdef DCX_USE_GDIPLUS
+//	Image *m_pImage;
+//	bool LoadGDIPlusImage(TString &filename);
+//#endif
 };
 
 #endif // _DCXDIALOG_H_

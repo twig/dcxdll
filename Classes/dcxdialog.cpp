@@ -103,12 +103,12 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 		const char *tRebarColour = child->Attribute("rebarColour");
 		const char *rebarColour = (tRebarColour) ? tRebarColour : "0";
 
-		if (0==strcmp(elem, "control")) {
+		if (0==lstrcmp(elem, "control")) {
 			control++; cCla++;
 			//check how to insert the control in the parent Control/Dialog
 			//If parentNode is pane loop untill parentNode is not a pane
 			while (parent) { 
-				if (0==strcmp(parentelem, "pane")) { 
+				if (0==lstrcmp(parentelem, "pane")) { 
 					TiXmlElement* parentFOR2 = parent;
 					parent = parentFOR2->Parent()->ToElement();
 					parentelem = parent->Value();
@@ -119,49 +119,38 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 			const char *parenttype = (tParentType) ? tParentType : "panel";
 			const char *tParentId = parent->Attribute("id");
 			const char *parentid = (tParentId) ? tParentId : "1";
-			if (0==strcmp(parentelem, "dialog")) {
+			if (0==lstrcmp(parentelem, "dialog"))
 					cmd.sprintf("//xdialog -c %s %s %s 0 0 %s %s %s",dname,id,type,width,height,styles);
-			}
-			if (0==strcmp(parentelem, "control")) { 
+			else if (0==lstrcmp(parentelem, "control")) { 
 				//check if parentControl is allowed to host controls and assign propper xdid
-				if (0==strcmp(parenttype, "panel"))	{ 
-					cmd.sprintf("//xdid -c %s %s %s %s 0 0 %s %s %s",
-					dname,parentid,id,type,width,height,styles);
-				}
-				if (0==strcmp(parenttype, "tab")) { 
+				if (0==lstrcmp(parenttype, "panel"))
+					cmd.sprintf("//xdid -c %s %s %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
+				else if (0==lstrcmp(parenttype, "tab"))
 					cmd.sprintf("//xdid -a %s %s 0 0 %s $chr(9) %s %s 0 0 %s %s %s $chr(9) %s",
-					dname,parentid,caption,id,type,width,height,styles,tooltip);
-				}
-				if (((0==strcmp(parenttype, "pager")) || (0==strcmp(parenttype, "box"))) && (control == 1)) {
-					cmd.sprintf("/echo -a /xdid -c %s %s %s %s 0 0 %s %s %s",
-					dname,parentid,id,type,width,height,styles);
-				}
-				if (0==strcmp(parenttype, "divider") && (control <= 2)) {
-					if (control > 0) { 
-						if (control == 1) 	cmd.sprintf( 
-							"//xdid -l %s %s 10 0 $chr(9) %s %s 0 0 %s %s %s",
-							dname,parentid,id,type,width,height,styles);
-						if (control == 2) cmd.sprintf( 
-							"//xdid -r %s %s 10 0 $chr(9) %s %s 0 0 %s %s %s",
-							dname,parentid,id,type,width,height,styles);
+						dname,parentid,caption,id,type,width,height,styles,tooltip);
+				else if (((0==lstrcmp(parenttype, "pager")) || (0==lstrcmp(parenttype, "box"))) && (control == 1))
+					cmd.sprintf("/echo -a /xdid -c %s %s %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
+				else if (0==lstrcmp(parenttype, "divider") && (control <= 2)) {
+					if (control > 0) {
+						if (control == 1)
+							cmd.sprintf("//xdid -l %s %s 10 0 $chr(9) %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
+						else if (control == 2)
+							cmd.sprintf("//xdid -r %s %s 10 0 $chr(9) %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
 					}
 				}
-				if (0==strcmp(parenttype, "rebar"))	cmd.sprintf( 
-					"//xdid -a %s %s 0 +%s %s %s %s 0 %s %s $chr(9) %s %s 0 0 %s %s %s $chr(9) %s",
-					dname,parentid,rebarFlags,rebarMinHeight,
-					rebarMinWidth,width,rebarColour,caption,
-					id,type,width,height,styles,tooltip);
+				else if (0==lstrcmp(parenttype, "rebar"))
+					cmd.sprintf("//xdid -a %s %s 0 +%s %s %s %s 0 %s %s $chr(9) %s %s 0 0 %s %s %s $chr(9) %s",
+						dname,parentid,rebarFlags,rebarMinHeight,
+						rebarMinWidth,width,rebarColour,caption,
+						id,type,width,height,styles,tooltip);
 			}
-			mIRCcom(cmd.to_chr());		 	
-			if (0==strcmp(type, "panel")) {
-				cmd.sprintf("//xdid -l %s %s root $chr(9) +p%s 0 0 0 0",
-					dname,id,cascade);
+			mIRCcom(cmd.to_chr());
+			if (0==lstrcmp(type, "panel")) {
+				cmd.sprintf("//xdid -l %s %s root $chr(9) +p%s 0 0 0 0", dname,id,cascade);
 				mIRCcom(cmd.to_chr());
-				cmd.sprintf("//xdid -l %s %s space root $chr(9) %s",
-					dname,id,margin);
+				cmd.sprintf("//xdid -l %s %s space root $chr(9) %s", dname,id,margin);
 				mIRCcom(cmd.to_chr());
 				resetClaPath = 1;
-
 			}
 			//apply CLA for control
 			const char * fHeigth = "";
@@ -170,58 +159,54 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 			if (child->Attribute("height")) { fHeigth = "v"; fixed = "f"; }
 			if (child->Attribute("width")) { fWidth = "h"; fixed = "f"; }
 
-			if (0==strcmp(parentelem, "dialog")) cmd.sprintf(
-				"//xdialog -l %s cell %s \t +%s%s%si %s %s %s %s",
-				dname,claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
-			if (0==strcmp(parentelem, "control")) {
+			if (0==lstrcmp(parentelem, "dialog"))
+				cmd.sprintf("//xdialog -l %s cell %s \t +%s%s%si %s %s %s %s",
+					dname,claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
+			else if (0==lstrcmp(parentelem, "control")) {
 				if ((parent->Attribute("type")) && (parent->Attribute("id"))) { 
-					if (0==strcmp(parent->Attribute("type"), "panel")) cmd.sprintf(
-						"//xdid -l %s %s cell %s \t +%s%s%si %s %s %s %s",
-						dname,parentid,claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
+					if (0==lstrcmp(parent->Attribute("type"), "panel"))
+						cmd.sprintf("//xdid -l %s %s cell %s \t +%s%s%si %s %s %s %s",
+							dname,parentid,claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
 				}
 			}
 			mIRCcom(cmd.to_chr());
-
 		}
-		if (0==strcmp(elem, "style")) { 
+		if (0==lstrcmp(elem, "style")) {
 			goDeeper = 0; //No need to call walkScript again
 			//Placeholder for style elements that define colours and fonts etc of the parentNode
 		}
-		if (0==strcmp(elem, "pane")) { 
+		else if (0==lstrcmp(elem, "pane")) {
 			cCla++;
-			while (parent) { 
-				if (0==strcmp(parentelem, "pane")) { 
+			while (parent) {
+				if (0==lstrcmp(parentelem, "pane")) {
 					TiXmlElement* parentFOR2 = parent;
 					parent = parentFOR2->Parent()->ToElement();
 					parentelem = parent->Value();
 				}
-				else break;	
+				else break;
 			}
-			if (0==strcmp(parentelem, "dialog")) cmd.sprintf(
-				"//xdialog -l %s cell %s \t +p%s 0 %s 0 0",
-				dname,claPath,cascade,weigth); 
-			if (0==strcmp(parentelem, "control")) {
-				if ((parent->Attribute("type")) && (parent->Attribute("id"))) { 
-					if (0==strcmp(parent->Attribute("type"), "panel")) cmd.sprintf(
-						"//xdid -l %s %s cell %s \t +p%s 0 %s 0 0",
-						dname,parent->Attribute("id"),claPath,cascade,weigth); 
+			if (0==lstrcmp(parentelem, "dialog"))
+				cmd.sprintf("//xdialog -l %s cell %s \t +p%s 0 %s 0 0", dname,claPath,cascade,weigth);
+			if (0==lstrcmp(parentelem, "control")) {
+				if ((parent->Attribute("type")) && (parent->Attribute("id"))) {
+					if (0==lstrcmp(parent->Attribute("type"), "panel"))
+						cmd.sprintf("//xdid -l %s %s cell %s \t +p%s 0 %s 0 0", dname,parent->Attribute("id"),claPath,cascade,weigth);
 				}
 			}
 			mIRCcom(cmd.to_chr());
 		}
-		int n;
 		char buffer [100];
 		char * claPathx = 0;
-		if (0==strcmp(claPath, "root")) {
-			n = sprintf (buffer, "%i",cCla);
+		if (0==lstrcmp(claPath, "root")) {
+			wsprintf (buffer, "%i",cCla);
 			claPathx = buffer;
 		}
 		else if (resetClaPath) {
-			n = sprintf (buffer, "%s","root");
+			lstrcpy(buffer, "root");
 			claPathx = buffer;
 		}
 		else { 
-			n = sprintf (buffer, "%s %i",claPath,cCla);
+			wsprintf (buffer, "%s %i",claPath,cCla);
 			claPathx = buffer;
 
 		}
@@ -258,12 +243,24 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 , m_bTracking(FALSE)
 , m_bDoGhostDrag(255)
 , m_bGhosted(false)
+//#ifdef DCX_USE_GDIPLUS
+//, m_pImage(NULL)
+//#endif
 {
 	this->addStyle(WS_CLIPCHILDREN);
 
 	//	WS_EX_COMPOSITED style causes problems for listview control & maybe others, but when it works it looks really cool :)
 	//if (isXP())
 	//	this->addExStyle(WS_EX_COMPOSITED); // this improves transparency etc.. on xp+ only, looking into how this affects us.
+	//this->addExStyle(WS_EX_TRANSPARENT); // WS_EX_TRANSPARENT|WS_EX_LAYERED gives a window u can click through to the win behind.
+	//HDC hdc = GetDC(this->m_Hwnd);
+	//if (hdc != NULL) {
+	//	this->addExStyle(WS_EX_LAYERED);
+	//	BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+	//	POINT pt = { 0, 0 };
+	//	UpdateLayeredWindowUx(this->m_Hwnd, NULL, NULL, NULL, hdc, &pt, 0, &bf, ULW_ALPHA);
+	//	ReleaseDC(this->m_Hwnd, hdc);
+	//}
 
 	this->m_hOldWindowProc = (WNDPROC) SetWindowLong(this->m_Hwnd, GWL_WNDPROC, (LONG) DcxDialog::WindowProc);
 
@@ -287,8 +284,7 @@ DcxDialog::~DcxDialog() {
 	if (this->m_pLayoutManager != NULL)
 		delete this->m_pLayoutManager;
 
-	if (this->m_bitmapBg)
-		DeleteObject(m_bitmapBg);
+	PreloadData();
 	this->RemoveShadow();
 
 	RemoveProp(this->m_Hwnd, "dcx_this");
@@ -415,6 +411,39 @@ DcxControl *DcxDialog::getControlByHWND(const HWND mHwnd) {
 	return NULL;
 }
 
+// clears existing image and icon data and sets pointers to null
+void DcxDialog::PreloadData() {
+	if (this->m_bitmapBg != NULL) {
+		DeleteBitmap(this->m_bitmapBg);
+		this->m_bitmapBg = NULL;
+	}
+
+//#ifdef DCX_USE_GDIPLUS
+//	if (this->m_pImage != NULL) {
+//		delete this->m_pImage;
+//		this->m_pImage = NULL;
+//	}
+//#endif
+}
+
+//#ifdef DCX_USE_GDIPLUS
+//bool DcxDialog::LoadGDIPlusImage(TString &filename)
+//{
+//	if (!IsFile(filename)) {
+//		DCXError("LoadGDIPlusImage","Unable to Access File");
+//		return false;
+//	}
+//	this->m_pImage = new Image(filename.to_wchr(),TRUE);
+//	if (this->m_pImage == NULL) return false; // couldnt allocate image object.
+//	Status status = this->m_pImage->GetLastStatus();
+//	if (status != Ok) { // Image failed to load correctly
+//		DCXError("LoadGDIPlusImage", GetLastStatusStr(status));
+//		PreloadData();
+//		return false;
+//	}
+//	return true;
+//}
+//#endif
 /*!
  * \brief blah
  *
@@ -555,16 +584,25 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				this->m_hBackBrush = CreateSolidBrush(clrColor);
 		}
 		else if (this->m_uStyleBg & DBS_BKGBITMAP) {
-			if (this->m_bitmapBg) {
-				DeleteObject(this->m_bitmapBg);
-				this->m_bitmapBg = NULL;
-			}
+			PreloadData();
 
 			TString filename(input.gettok(4, -1, " "));
 			filename.trim();
 
-			if (filename != "none")
+
+			if (filename != "none") {
+//#ifdef DCX_USE_GDIPLUS
+//				// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
+//				if (mIRCLink.m_bUseGDIPlus) {
+//					if (!LoadGDIPlusImage(filename))
+//						DCXError("/xdialog -g", "Unable to load Image with GDI+");
+//				}
+//				else
+//					this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg, filename);
+//#else
 				this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg, filename);
+//#endif
+			}
 		}
 
 		//InvalidateRect(this->m_Hwnd, NULL, TRUE);
@@ -1114,19 +1152,17 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		TiXmlDocument doc(input.gettok(2,"\"").to_chr());
 		bool valid_XML = doc.LoadFile();
 		TString cmd;
-		if (valid_XML) { 
+		if (valid_XML) {
 			TiXmlElement *valid_DCXML = 0;
 			valid_DCXML = doc.FirstChildElement("dialog");
-			if (valid_DCXML) { 
+			if (valid_DCXML) {
 				const char *t_cascade = valid_DCXML->Attribute("cascade");
 				const char *cascade = (t_cascade) ? t_cascade : "v";
 				const char *t_space = valid_DCXML->Attribute("margin");
 				const char *space = (t_space) ? t_space : "0 0 0 0";
-				cmd.sprintf("%s -l root \t +p%s 0 0 0 0",
-					this->getName().to_chr(),cascade);
+				cmd.sprintf("%s -l root \t +p%s 0 0 0 0", this->getName().to_chr(),cascade);
 				this->parseCommandRequest(cmd);
-				cmd.sprintf("%s -l space root \t %s",
-					this->getName().to_chr(),space);
+				cmd.sprintf("%s -l space root \t %s", this->getName().to_chr(),space);
 				this->parseCommandRequest(cmd);
 				walkScript(valid_DCXML,this->getName().to_chr());
 				cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
@@ -2047,6 +2083,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 			DcxDialog::DrawDialogBackground((HDC) wParam,p_this,&rwnd);
 
+			//BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+			//POINT pt = { 0, 0 };
+			//UpdateLayeredWindowUx(p_this->getHwnd(), NULL, NULL, NULL, (HDC) wParam, &pt, 0, &bf, ULW_ALPHA);
+
 			bParsed = TRUE;
 			lRes = TRUE;
 			break;
@@ -2414,6 +2454,22 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPRECT rwnd)
 	else
 		FillRect(hdc, rwnd, GetSysColorBrush(COLOR_3DFACE));
 
+//#ifdef DCX_USE_GDIPLUS
+//	if (p_this->m_pImage != NULL) {
+//		Graphics Gfx(hdc);
+//		Gfx.SetCompositingQuality(CompositingQualityHighQuality);
+//		Gfx.SetCompositingMode(CompositingModeSourceOver);
+//		Gfx.SetInterpolationMode(InterpolationModeHighQualityBicubic);
+//		Gfx.SetSmoothingMode(SmoothingModeAntiAlias);
+//		Color bg(0,0,0);
+//		Gfx.Clear(bg);
+//		if (p_this->m_uStyleBg & DBS_BKGSTRETCH)
+//			Gfx.DrawImage(p_this->m_pImage, rwnd->left, rwnd->top, rwnd->right, rwnd->bottom);
+//		else
+//			Gfx.DrawImage(p_this->m_pImage, rwnd->left, rwnd->top);
+//		return;
+//	}
+//#endif
 	if (p_this->m_bitmapBg == NULL)
 		return;
 
@@ -2551,8 +2607,7 @@ void DcxDialog::UpdateShadow(void)
 	//_ASSERT(bRet); // something was wrong....
 
 	// Delete used resources
-	SelectObject(hMemDC, hOriBmp);
-	DeleteObject(hbitmap);
+	DeleteObject(SelectObject(hMemDC, hOriBmp));
 	DeleteDC(hMemDC);
 }
 

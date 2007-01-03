@@ -1201,11 +1201,9 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 			int w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);
 			if (this->m_bAlphaBlend) {
 				// alpha blend finished button with parents background
-				BLENDFUNCTION bf;
-				bf.BlendOp = AC_SRC_OVER;
-				bf.BlendFlags = 0;
-				bf.SourceConstantAlpha = 0x7f;  // 0x7f half of 0xff = 50% transparency
-				bf.AlphaFormat = 0; //AC_SRC_ALPHA;
+				BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0x7f, 0 };
+				// 0x7f half of 0xff = 50% transparency
+				//AC_SRC_ALPHA;
 				AlphaBlend(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h,bf);
 			}
 			else

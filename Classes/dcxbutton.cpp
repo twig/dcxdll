@@ -373,6 +373,24 @@ LRESULT DcxButton::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
         }
       }
       break;
+		//case WM_NOTIFY:
+		//	{
+		//		LPNMHDR pnmh = (LPNMHDR)lParam;
+		//		switch (pnmh->code) {
+		//			case BCN_HOTITEMCHANGE:
+		//				{
+		//					LPNMBCHOTITEM item = (LPNMBCHOTITEM)lParam;
+		//					if (item->dwFlags & HICF_ENTERING)
+		//						mIRCError("Entering Button");
+		//					else
+		//						mIRCError("Leaving Button");
+		//				}
+		//				break;
+		//			default:
+		//				break;
+		//		}
+		//	}
+		//	break;
 	}
 	return 0L;
 }
