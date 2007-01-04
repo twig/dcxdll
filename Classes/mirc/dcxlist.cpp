@@ -134,45 +134,60 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
     wsprintf( szReturnValue, "%d", ListBox_GetCount( this->m_Hwnd ) );
     return;
   }
-  // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "sel" ) {
+	// [NAME] [ID] [PROP] (N)
+	else if (input.gettok(3, " ") == "sel") {
+		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
+			int n = ListBox_GetSelCount(this->m_Hwnd);
+			int *p = new int[n];
 
-    if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
+			if (n > 0) {
+				ListBox_GetSelItems(this->m_Hwnd, n, p);
 
-      int n = ListBox_GetSelCount( this->m_Hwnd );
-      int * p = new int[n];
+				// get a unique value
+				if (numtok > 3) {
+					int i = input.gettok(4, " ").to_int();
+					TString value;
 
-      if ( n > 0 ) {
+					if (i == 0) {
+						value.sprintf("%d", n);
+						lstrcpyn(szReturnValue, value.to_chr(), 900);
+					}
+					else if ((i > 0) && (i <= n)) {
+						value.sprintf("%d", p[i -1] +1);
+						lstrcpyn(szReturnValue, value.to_chr(), 900);
+					}
+				}
+				else {
+					// get all items in a long comma seperated string
+					std::string path = "";
+					char num[11];
+					int i = 0;
 
-        ListBox_GetSelItems( this->m_Hwnd, n, p );
-
-        std::string path = "";
-
-        char num[11];
-        int i = 0;
-
-        while ( i < n ) {
+					while (i < n) {
 #ifdef VS2005
-          _itoa( p[i]+1, num, 10 );
+						_itoa(p[i] +1, num, 10);
 #else
-          itoa( p[i]+1, num, 10 );
+						itoa(p[i] +1, num, 10);
 #endif
-          path += num;
-          path += ',';
+						path += num;
+						path += ',';
 
-          i++;
-        }
-        delete []p;
-        lstrcpyn( szReturnValue, path.c_str( ), 900 ); // limit to 900, may want to rework this to avoid incomplete results
-        return;
-      }
-    }
-    else {
+						i++;
+					}
 
-      wsprintf( szReturnValue, "%d", ListBox_GetCurSel( this->m_Hwnd ) + 1 );
-      return;
-    }
-  }
+					lstrcpyn(szReturnValue, path.c_str(), 900);
+				}
+
+				delete [] p;
+				return;
+			}
+		}
+		// single select
+		else {
+			wsprintf(szReturnValue, "%d", ListBox_GetCurSel(this->m_Hwnd) +1);
+			return;
+		}
+	}
 	// [NAME] [ID] [PROP] [N]
 	else if (input.gettok(3, " ") == "tbitem") {
 		int top;
