@@ -138,9 +138,9 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 	else if (input.gettok(3, " ") == "sel") {
 		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
 			int n = ListBox_GetSelCount(this->m_Hwnd);
-			int *p = new int[n];
 
 			if (n > 0) {
+				int *p = new int[n];
 				ListBox_GetSelItems(this->m_Hwnd, n, p);
 
 				// get a unique value
@@ -177,7 +177,6 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 					lstrcpyn(szReturnValue, path.c_str(), 900);
 				}
-
 				delete [] p;
 				return;
 			}
