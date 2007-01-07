@@ -1011,7 +1011,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
  * blah
  */
 
-LRESULT DcxControl::setFont( HFONT hFont, BOOL fRedraw ) {
+LRESULT DcxControl::setFont( const HFONT hFont, const BOOL fRedraw ) {
   return SendMessage( this->m_Hwnd, WM_SETFONT, (WPARAM) hFont, (LPARAM) MAKELPARAM(fRedraw, 0) );
 }
 
@@ -1031,7 +1031,7 @@ LRESULT DcxControl::getFont( ) const {
  * blah
  */
 
-LRESULT DcxControl::setRedraw( BOOL fView ) {
+LRESULT DcxControl::setRedraw( const BOOL fView ) {
   return SendMessage( this->m_Hwnd, WM_SETREDRAW, (WPARAM) fView, (LPARAM) 0 );
 }
 
@@ -1041,7 +1041,7 @@ LRESULT DcxControl::setRedraw( BOOL fView ) {
  * blah
  */
 
-void DcxControl::setControlFont( HFONT hFont, BOOL fRedraw ) {
+void DcxControl::setControlFont( const HFONT hFont, const BOOL fRedraw ) {
 
   HFONT hControlFont = (HFONT) this->getFont( );
 

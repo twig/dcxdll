@@ -98,12 +98,12 @@ public:
   virtual LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
   virtual LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
 
-  LRESULT setFont( HFONT hFont, BOOL fRedraw );
+  LRESULT setFont( const HFONT hFont, const BOOL fRedraw );
   LRESULT getFont( ) const;
 
-  void setControlFont( HFONT hFont, BOOL fRedraw );
+  void setControlFont( const HFONT hFont, const BOOL fRedraw );
 
-  LRESULT setRedraw( BOOL fView );
+  LRESULT setRedraw( const BOOL fView );
 
   HBRUSH getBackClrBrush( ) const;
   COLORREF getBackColor( ) const;

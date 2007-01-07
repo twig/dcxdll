@@ -1059,10 +1059,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\dcx_tools.mrc"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
