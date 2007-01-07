@@ -588,9 +588,9 @@ mIRC(Version) {
 */
 mIRC(IsUsingDirectX) {
 #ifdef DCX_USE_DXSDK
-   ret("$true");
+	ret("$true");
 #else
-   ret("$false");
+	ret("$false");
 #endif // DCX_USE_DXSDK
 }
 
@@ -598,7 +598,15 @@ mIRC(IsUsingDirectX) {
 * \brief DCX DLL is GDI+ supported?
 */
 mIRC(IsUsingGDI) {
-   wsprintf(data, "%s", (mIRCLink.m_bUseGDIPlus ? "$true" : "$false"));
+	wsprintf(data, "%s", (mIRCLink.m_bUseGDIPlus ? "$true" : "$false"));
+	return 3;
+}
+
+/*!
+* \brief Check if it's safe to unload DLL
+*/
+mIRC(IsUnloadSafe) {
+	wsprintf(data, "%s", (Dialogs.safeToCloseAll() ? "$true" : "$false"));
 	return 3;
 }
 

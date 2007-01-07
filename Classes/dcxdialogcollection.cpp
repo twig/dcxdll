@@ -136,36 +136,47 @@ void DcxDialogCollection::deleteDialog( DcxDialog * p_Dialog ) {
  * blah
  */
 
+bool DcxDialogCollection::safeToCloseAll(void) const {
+
+  VectorOfDialogPtrs::iterator itStart = const_cast<DcxDialogCollection *>(this)->m_vpDialog.begin( );
+  VectorOfDialogPtrs::iterator itEnd = const_cast<DcxDialogCollection *>(this)->m_vpDialog.end( );
+
+  while ( itStart != itEnd ) {
+
+		if ( *itStart != NULL ) {
+			if ((*itStart)->getRefCount() != 0)
+				return false;
+		}
+    itStart++;
+  }
+	return true;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
 bool DcxDialogCollection::closeDialogs( ) {
+
+	if (!this->safeToCloseAll())
+		return true;
 
 	this->m_closeall = true;
   VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
   VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
 
-	bool inUse = false;
-  while ( itStart != itEnd ) {
+	itStart = this->m_vpDialog.begin( );
+	while ( itStart != itEnd ) {
 
 		if ( *itStart != NULL ) {
-			if ((*itStart)->getRefCount() != 0) {
-				inUse = true;
-				break;
-			}
+			DestroyWindow( (*itStart)->getHwnd( ) );
 		}
-    itStart++;
-  }
 
-	if (!inUse) {
-		itStart = this->m_vpDialog.begin( );
-		while ( itStart != itEnd ) {
-
-			if ( *itStart != NULL ) {
-				DestroyWindow( (*itStart)->getHwnd( ) );
-			}
-
-			itStart++;
-		}
-		this->m_vpDialog.clear(); // clear list.
+		itStart++;
 	}
+	this->m_vpDialog.clear(); // clear list.
 	this->m_closeall = false;
-	return inUse;
+	return false;
 }

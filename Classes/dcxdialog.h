@@ -181,10 +181,10 @@ protected:
   static UINT parseTooltipFlags(TString &flags);
 
 	// Fill in the shadow window alpha blend bitmap with shadow image pixels
-	void MakeShadow(UINT32 *pShadBits, HWND hParent, RECT *rcParent);
+	void MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rcParent);
 
 	// Helper to calculate the alpha-premultiled value for a pixel
-	static inline DWORD PreMultiply(COLORREF cl, unsigned char nAlpha)
+	static inline DWORD PreMultiply(const COLORREF cl, const unsigned char nAlpha)
 	{
 		// It's strange that the byte order of RGB in 32b BMP is reverse to in COLORREF
 		return (GetRValue(cl) * (DWORD)nAlpha / 255) << 16 |

@@ -63,10 +63,10 @@ protected:
 	int getItemID(void) const;
 	int getSelItemID(void) const;
 	DWORD getItemCount(void) const;
-	LPDCXSITEM getItem(int nPos) const;
+	LPDCXSITEM getItem(const int nPos) const;
 	LPDCXSITEM getHotItem(void) const;
-	void getItemRect(int nPos, LPRECT rc) const;
-	void DrawSItem(LPDRAWITEMSTRUCT idata);
+	void getItemRect(const int nPos, LPRECT rc) const;
+	void DrawSItem(const LPDRAWITEMSTRUCT idata);
 	static void DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape);
 };
 

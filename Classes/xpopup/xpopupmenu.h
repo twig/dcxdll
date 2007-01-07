@@ -86,19 +86,19 @@ public:
 
   MenuStyle getStyle( );
   void setStyle( MenuStyle style );
-  UINT getItemStyle( );
-  void setItemStyle( UINT iExStyles );
+  UINT getItemStyle( ) const;
+  void setItemStyle( const UINT iExStyles );
 
   void deleteMenuItemData( XPopupMenuItem * p_Item );
   void deleteAllItemData( HMENU hMenu );
 
-  TString getName( );
+  TString getName( ) const;
 
   HMENU getMenuHandle( ) const { return this->m_hMenu; };
 
-  LPXPMENUCOLORS getColors( );
-  void setColor( int nColor, COLORREF clrColor );
-  COLORREF getColor( int nColor );
+  LPXPMENUCOLORS getColors( ) const;
+  void setColor( const int nColor, const COLORREF clrColor );
+  COLORREF getColor( const int nColor ) const;
 
   static LRESULT CALLBACK XPopupMenuProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
   static LRESULT CALLBACK XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );

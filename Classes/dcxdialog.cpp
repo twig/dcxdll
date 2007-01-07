@@ -870,7 +870,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -T [NAME] [SWITCH] [FLAGS] [STYLES]
 	else if (flags.switch_cap_flags[19] && numtok > 2) {
-		if (this->m_ToolTipHWND != NULL) {
+		if (IsWindow(this->m_ToolTipHWND)) {
 			DCXError("/xdialog -T","Tooltip already exists. Cannot recreate");
 			return;
 		}
@@ -2626,7 +2626,7 @@ bool DcxDialog::isShadowed(void) const
 	return (IsWindow(this->m_Shadow.hWin) ? true : false);
 }
 
-void DcxDialog::MakeShadow(UINT32 *pShadBits, HWND hParent, RECT *rcParent)
+void DcxDialog::MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rcParent)
 {
 	// The shadow algorithm:
 	// Get the region of parent window,

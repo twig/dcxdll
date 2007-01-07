@@ -299,7 +299,7 @@ DWORD DcxStacker::getItemCount(void) const {
 	return (DWORD)SendMessage(this->m_Hwnd,LB_GETCOUNT,NULL,NULL);
 }
 
-LPDCXSITEM DcxStacker::getItem(int nPos) const {
+LPDCXSITEM DcxStacker::getItem(const int nPos) const {
 	return (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,nPos,NULL);
 }
 
@@ -307,7 +307,7 @@ LPDCXSITEM DcxStacker::getHotItem(void) const {
 	return (LPDCXSITEM)SendMessage(this->m_Hwnd,LB_GETITEMDATA,this->getItemID()-1,NULL);
 }
 
-void DcxStacker::getItemRect(int nPos, LPRECT rc) const {
+void DcxStacker::getItemRect(const int nPos, LPRECT rc) const {
 	SendMessage(this->m_Hwnd,LB_GETITEMRECT,(WPARAM)nPos,(LPARAM)rc);
 }
 
@@ -333,7 +333,7 @@ void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLOR
 #endif
 }
 
-void DcxStacker::DrawSItem(LPDRAWITEMSTRUCT idata)
+void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 {
 	if (idata == NULL || idata->itemID == -1)
 		return;

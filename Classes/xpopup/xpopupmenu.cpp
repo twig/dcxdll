@@ -619,7 +619,7 @@ void XPopupMenu::setStyle( MenuStyle style ) {
  * blah
  */
 
-UINT XPopupMenu::getItemStyle( ) {
+UINT XPopupMenu::getItemStyle( ) const {
 
   return this->m_MenuItemStyles;
 }
@@ -630,7 +630,7 @@ UINT XPopupMenu::getItemStyle( ) {
  * blah
  */
 
-void XPopupMenu::setItemStyle( UINT iExStyles ) {
+void XPopupMenu::setItemStyle( const UINT iExStyles ) {
 
   this->m_MenuItemStyles = iExStyles;
 }
@@ -641,7 +641,7 @@ void XPopupMenu::setItemStyle( UINT iExStyles ) {
  * blah
  */
 
-TString XPopupMenu::getName( ) {
+TString XPopupMenu::getName( ) const {
 
   return this->m_tsMenuName;
 }
@@ -677,7 +677,7 @@ void XPopupMenu::parseSwitchFlags( TString * switchs, XSwitchFlags * flags ) {
  * blah
  */
 
-LPXPMENUCOLORS XPopupMenu::getColors( ) {
+LPXPMENUCOLORS XPopupMenu::getColors( ) const {
 
   return (LPXPMENUCOLORS) &m_MenuColors;
 }
@@ -688,7 +688,7 @@ LPXPMENUCOLORS XPopupMenu::getColors( ) {
  * blah
  */
 
-void XPopupMenu::setColor( int nColor, COLORREF clrColor ) {
+void XPopupMenu::setColor( const int nColor, const COLORREF clrColor ) {
 
   switch ( nColor ) {
 
@@ -743,7 +743,7 @@ void XPopupMenu::setColor( int nColor, COLORREF clrColor ) {
  * blah
  */
 
-COLORREF XPopupMenu::getColor( int nColor ) {
+COLORREF XPopupMenu::getColor(const int nColor ) const {
 
   switch ( nColor ) {
 

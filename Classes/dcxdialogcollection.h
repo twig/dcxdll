@@ -39,6 +39,7 @@ public:
   DcxDialog * getDialogByName( const TString & tsName );
 
   bool closeDialogs( );
+	bool safeToCloseAll(void) const;
 
 protected:
 
