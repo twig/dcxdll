@@ -295,7 +295,7 @@ DcxDialog::~DcxDialog() {
  *
  * blah
  */
-TString DcxDialog::getName() const {
+const TString &DcxDialog::getName() const {
 	return this->m_tsName;
 }
 
@@ -305,7 +305,7 @@ TString DcxDialog::getName() const {
  * blah
  */
 
-TString DcxDialog::getAliasName() const {
+const TString &DcxDialog::getAliasName() const {
   return this->m_tsAliasName;
 }
 
@@ -884,6 +884,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 			this->m_Hwnd,
 			NULL, GetModuleHandle(NULL), NULL);
+		if (IsWindow(this->m_ToolTipHWND)) // MUST set a limit before $crlf will give multiline tips.
+			SendMessage(this->m_ToolTipHWND,TTM_SETMAXTIPWIDTH,0,400); // 400 seems a good limit for now, we could also add an option to set this.
 	}
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 4) {
@@ -1691,7 +1693,7 @@ void DcxDialog::updateLayout(RECT &rc) {
  * blah
  */
 
-HBRUSH DcxDialog::getBackClrBrush() {
+HBRUSH DcxDialog::getBackClrBrush() const {
 	return this->m_hBackBrush;
 }
 
@@ -1701,7 +1703,7 @@ HBRUSH DcxDialog::getBackClrBrush() {
  * blah
  */
 
-void DcxDialog::setMouseControl(UINT mUID) {
+void DcxDialog::setMouseControl(const UINT mUID) {
 	if (mUID != this->m_MouseID) {
 		if (this->m_dEventMask & DCX_EVENT_MOUSE) {
 			this->callAliasEx(NULL, "%s,%d", "mouseleave", this->m_MouseID);
@@ -1719,7 +1721,7 @@ void DcxDialog::setMouseControl(UINT mUID) {
  * blah
  */
 
-void DcxDialog::setFocusControl(UINT mUID) {
+void DcxDialog::setFocusControl(const UINT mUID) {
 	if (mUID != this->m_FocusID) {
 		if (this->m_dEventMask & DCX_EVENT_FOCUS) {
 			this->callAliasEx(NULL, "%s,%d", "focusout", this->m_FocusID);
@@ -2445,11 +2447,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 }
 
 
-void DcxDialog::setParentName(TString &strParent) {
-	this->m_tsParentName.sprintf("%s", strParent.to_chr());
+void DcxDialog::setParentName(const TString &strParent) {
+	//this->m_tsParentName.sprintf("%s", strParent.to_chr()); // why?
+	this->m_tsParentName = strParent;
 }
 
-TString DcxDialog::getParentName() {
+const TString &DcxDialog::getParentName() const {
 	return this->m_tsParentName;
 }
 
@@ -2618,7 +2621,7 @@ void DcxDialog::UpdateShadow(void)
 	DeleteDC(hMemDC);
 }
 
-bool DcxDialog::isShadowed(void)
+bool DcxDialog::isShadowed(void) const
 {
 	return (IsWindow(this->m_Shadow.hWin) ? true : false);
 }

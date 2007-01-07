@@ -69,8 +69,8 @@ public:
   DcxDialog( const HWND mHwnd, TString & tsName, TString & tsAliasName );
   virtual ~DcxDialog( );
 
-  TString getName( ) const;
-  TString getAliasName( ) const;
+  const TString &getName( ) const;
+  const TString &getAliasName( ) const;
 
   static LRESULT WINAPI WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -88,13 +88,13 @@ public:
 
   void updateLayout( RECT & rc );
 
-  HBRUSH getBackClrBrush( );
+  HBRUSH getBackClrBrush( ) const;
 
-  void setMouseControl( UINT mUID );
-  void setFocusControl( UINT mUID );
+  void setMouseControl( const UINT mUID );
+  void setFocusControl( const UINT mUID );
 
-  void setParentName(TString &strParent);
-  TString getParentName();
+  void setParentName(const TString &strParent);
+  const TString &getParentName() const;
 
   inline HCURSOR getCursor( ) const { return this->m_hCursor; };
 	inline HWND getToolTip(void) const { return this->m_ToolTipHWND; };
@@ -108,7 +108,7 @@ public:
 	bool AddShadow(void);
 	void RemoveShadow(void);
 	void UpdateShadow(void);
-	bool isShadowed(void);
+	bool isShadowed(void) const;
 	bool SetShadowSize(int NewSize = 0);
 	bool SetShadowSharpness(unsigned int NewSharpness = 5);
 	bool SetShadowDarkness(unsigned int NewDarkness = 200);

@@ -45,7 +45,7 @@ DcxDialogCollection::~DcxDialogCollection( ) {
  * blah
  */
 
-void DcxDialogCollection::markDialog( HWND mHwnd, TString & tsName, TString & tsAliasName ) {
+void DcxDialogCollection::markDialog( const HWND mHwnd, TString & tsName, TString & tsAliasName ) {
 
   this->m_vpDialog.push_back( new DcxDialog( mHwnd, tsName, tsAliasName ) );
 }
@@ -56,7 +56,7 @@ void DcxDialogCollection::markDialog( HWND mHwnd, TString & tsName, TString & ts
  * blah
  */
 
-DcxDialog * DcxDialogCollection::getDialogByHandle( HWND mHwnd ) {
+DcxDialog * DcxDialogCollection::getDialogByHandle( const HWND mHwnd ) {
 
   VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
   VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
@@ -78,7 +78,7 @@ DcxDialog * DcxDialogCollection::getDialogByHandle( HWND mHwnd ) {
  * blah
  */
 
-DcxDialog * DcxDialogCollection::getDialogByName( TString & tsName ) {
+DcxDialog * DcxDialogCollection::getDialogByName( const TString & tsName ) {
 
   VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
   VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
@@ -92,7 +92,7 @@ DcxDialog * DcxDialogCollection::getDialogByName( TString & tsName ) {
     mIRCError( "Not In GetDialog By Name" );
     */
 
-    if ( *itStart != NULL && (*itStart)->getName( ) == tsName )
+    if ( *itStart != NULL && const_cast< TString &>((*itStart)->getName( )) == tsName )
       return *itStart;
 
     itStart++;
