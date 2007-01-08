@@ -243,6 +243,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 , m_bTracking(FALSE)
 , m_bDoGhostDrag(255)
 , m_bGhosted(false)
+, m_zLayerCurrent(0)
 //#ifdef DCX_USE_GDIPLUS
 //, m_pImage(NULL)
 //#endif
@@ -374,9 +375,8 @@ void DcxDialog::deleteAllControls() {
 /*!
  * \brief blah
  *
- * blah
+ * The ID must include the mIRC_ID_OFFSET of 6000.
  */
-
 DcxControl *DcxDialog::getControlByID(const UINT ID) {
 	VectorOfControlPtrs::iterator itStart = this->m_vpControls.begin();
 	VectorOfControlPtrs::iterator itEnd = this->m_vpControls.end();
@@ -895,46 +895,75 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		filename.trim();
 		ChangeHwndIcon(this->m_Hwnd,&flags,index,&filename);
 	}
-	// xdialog -z [NAME] [SWITCH] [COLOR]
-	else if (flags.switch_flags[25] && numtok > 2) {
-		mIRCError("-z");
+	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]
+	else if (flags.switch_flags[25] && numtok > 3) {
+		TString flag(input.gettok(3, " "));
+		int n = input.gettok(4, " ").to_int();
+		DcxControl* ctrl = NULL;
 
-		/*
-		/xdialog -z [dname] [+flags] [groupname] (controlid)
+		// invalid input for [N]
+		if (n <= 0) {
+			dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Invalid parameter");
+			return;
+		}
 
-		group manager
-		- list of groups (vector)
-		- add group (by string)
-		- remove group (by string)
+		// adding control ID to list
+		if (flag[1] == 'a')
+		{
+			// check if the ID is already in the list
+			VectorOfInts::iterator itStart = this->m_vZLayers.begin();
+			VectorOfInts::iterator itEnd = this->m_vZLayers.end();
 
-		+c create new group
-		+c [group]
+			// add mIRC offset since getControlByID() needs it
+			n += mIRC_ID_OFFSET;
 
-		+a add new control to group
-		+a [group] [id]
+			while (itStart != itEnd) {
+				if (*itStart == n) {
+					mIRCDebug("control %d already in list", n);
+					return;
+				}
 
-		+s show control in group
-		+s [group] [id]
+				itStart++;
+			}			
 
-		+d remove control from group
-		+d [group] [id]
+			// if the specified control exists on the dialog, hide it
+			ctrl = getControlByID(n);
 
-		+k clear controls in group
-		+k [group]
+			if (ctrl)
+				ShowWindow(ctrl->getHwnd(), SW_HIDE);
 
-		+r remove group
-		+r [group]
+			// append the item to the end of the list
+			this->m_vZLayers.push_back(n);
+		}
+		// show index [N]
+		else if (flag[1] == 's') {
+			// minus since indexes are zero-based
+			n--;
 
+			// if the index is out of bounds
+			if (n >= (int) this->m_vZLayers.size()) {
+				dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Index array out of bounds");
+				return;
+			}
 
-		group requires (all by id)
-		- list of controls in group (vector)
-		- currently visible control (id)
-		- name of group (strign)
+			// hide the previous control
+			ctrl = getControlByID(this->m_vZLayers[this->m_zLayerCurrent]);
 
-		- show control in group (by id)
-		- add controls to groups (by id)
-		- remove controls from gorups (by id)
-		*/
+			if (ctrl)
+				ShowWindow(ctrl->getHwnd(), SW_HIDE);
+
+			// set the new index to the currently selected index
+			this->m_zLayerCurrent = n;
+			ctrl = getControlByID(this->m_vZLayers[n]);
+
+			// if the selected control exists, show control
+			if (ctrl)
+				ShowWindow(ctrl->getHwnd(), SW_SHOW);
+			else
+				dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Invalid control ID");
+		}
+
+		return;
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
 	else if (flags.switch_cap_flags[17] && numtok > 2) {
@@ -1554,6 +1583,7 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		return;
 	}
+	// [NAME] [PROP]
 	else if (input.gettok(2, " ") == "ismarked") {
 		if (Dialogs.getDialogByHandle(this->m_Hwnd) != NULL)
 			lstrcpy(szReturnValue, "$true");
@@ -1562,6 +1592,7 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		return;
 	}
+	// [NAME] [PROP]
 	else if (input.gettok(2, " ") == "parent") {
 		wsprintf(szReturnValue, "%s", this->getParentName().to_chr());
 		return;
@@ -1626,6 +1657,27 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 	// [NAME] [PROP]
 	else if (input.gettok(2, " ") == "alias") {
 		wsprintf(szReturnValue, "%s", this->getAliasName().to_chr());
+		return;
+	}
+	// [NAME] [PROP] [N]
+	else if ((input.gettok(2, " ") == "zlayer") && (numtok > 2)) {
+		int n = input.gettok(3, " ").to_int();
+		int size = (int) this->m_vZLayers.size();
+
+		// return total number of id's
+		if (n == 0)
+			wsprintf(szReturnValue, "%d", size);
+		// return the Nth id
+		else if ((n > 0) && (n <= size)) {
+			n--;
+			wsprintf(szReturnValue, "%d", this->m_vZLayers[n] - mIRC_ID_OFFSET);
+		}
+
+		return;
+	}
+	// [NAME] [PROP]
+	else if (input.gettok(2, " ") == "zlayercurrent") {
+		wsprintf(szReturnValue, "%d", this->m_zLayerCurrent +1);
 		return;
 	}
 	// [NAME] [PROP]

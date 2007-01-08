@@ -124,6 +124,8 @@ protected:
   WNDPROC m_hOldWindowProc; //!< Dialog Old Window Procedure
 
   VectorOfControlPtrs m_vpControls; //!< Vector of DCX Controls
+  VectorOfInts m_vZLayers;
+  int m_zLayerCurrent;
 
   bool m_bInSizing; //!< In Moving Motion
   bool m_bInMoving; //!< In Sizing Motion
