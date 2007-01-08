@@ -858,6 +858,33 @@
 <br />
 <table class="xdialog">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
+			<a name="xdialog.z"></a>/xdialog -z	</td></tr>
+	<tr><td colspan="2">This command lets you manage controls on the dialog in a tab-like manner. The internal list works in a very similar fashion to icon lists in controls such as the toolbar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdialog -z [DNAME] [+FLAG] [N]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdialog -z dcx +a 2</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAG</td>
+		<td>Command flags.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Adds a control to the internal list. This will also auto-hide the control which was added.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Shows the control found on the specified internal list index. This will also auto-hide the previous control displayed.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When used with <a class="value">+a</a>, <a class="param">N</a> is the control ID to add.</li><li>When used with <a class="value">+s</a>, <a class="param">N</a> is the <strong>internal list index</strong> to show, NOT the control ID!</li></ul></td></tr></table>
+<br />
+<table class="xdialog">
+	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
 			<a name="xdialog.E"></a>/xdialog -E	</td></tr>
 	<tr><td colspan="2">This command lets you enable/disable callback events.</td></tr>
 	<tr>
@@ -1315,6 +1342,34 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdialog(dcx).visible</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdialogprop">
+	<tr><td colspan="2" class="flag" style="color: #AC59AC; border-color: #AC59AC;">
+			<a name="xdialogprop.zlayer"></a>$xdialog().zlayer	</td></tr>
+	<tr><td colspan="2">This property retrieves the control ID found at the Nth internal list index.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdialog(dialog, N).zlayer</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdialog(dcx, 5).zlayer</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When <a class="param">N</a> is <a class="value">0</a>, this will return the number of controls found in the internal list.</td></tr></table>
+<br />
+<table class="xdialogprop">
+	<tr><td colspan="2" class="flag" style="color: #AC59AC; border-color: #AC59AC;">
+			<a name="xdialogprop.zlayercurrent"></a>$xdialog().zlayercurrent	</td></tr>
+	<tr><td colspan="2">This property retrieves the currently selected internal list index.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdialog(dialog).zlayercurrent</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdialog(dcx).zlayercurrent</div></td>
 	</tr>
 </table>
 <br />
@@ -1901,6 +1956,7 @@
 <li><a href="#xdialog.t" style="color: #800080;">-t</a></li>
 <li><a href="#xdialog.w" style="color: #800080;">-w</a></li>
 <li><a href="#xdialog.x" style="color: #800080;">-x</a></li>
+<li><a href="#xdialog.z" style="color: #800080;">-z</a></li>
 <li><a href="#xdialog.E" style="color: #800080;">-E</a></li>
 <li><a href="#xdialog.R" style="color: #800080;">-R</a></li>
 <li><a href="#xdialog.T" style="color: #800080;">-T</a></li>
@@ -1916,6 +1972,8 @@
 <li><a href="#xdialogprop.nextid" style="color: #AC59AC;">nextid</a></li>
 <li><a href="#xdialogprop.parent" style="color: #AC59AC;">parent</a></li>
 <li><a href="#xdialogprop.visible" style="color: #AC59AC;">visible</a></li>
+<li><a href="#xdialogprop.zlayer" style="color: #AC59AC;">zlayer</a></li>
+<li><a href="#xdialogprop.zlayercurrent" style="color: #AC59AC;">zlayercurrent</a></li>
 </ul><a href="#events" style="color: #009900;">Events</a><ul><li><a href="#events.activate" style="color: #009900;">activate</a></li>
 <li><a href="#events.beginmove" style="color: #009900;">beginmove</a></li>
 <li><a href="#events.beginsize" style="color: #009900;">beginsize</a></li>
@@ -1961,7 +2019,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 31st December, 06</td>
+		<td style="text-align: right;">Last Updated: 9th January, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
