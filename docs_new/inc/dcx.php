@@ -174,6 +174,10 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				"Returns 'D_ERROR: GetTaskbarPos' when unsuccessful.",
 			),
 		),
+        'IsUnloadSafe' => array(
+            '__desc' => 'This is used by /udcx to determine if /dll -u can be used or not.',
+            '__isid' => true,
+        ),
 		'FontDialog' => array(
 			'__desc' => "Opens up the Font dialog and returns the selected font options.",
 			'__cmd' => '[(PARAM) (VALUE) [$chr(9) (PARAM2) (VALUE2) [$chr(9) (PARAM3) (VALUE3)]]]',
