@@ -924,7 +924,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				}
 
 				itStart++;
-			}			
+			}
 
 			// if the specified control exists on the dialog, hide it
 			ctrl = getControlByID(n);
@@ -934,6 +934,44 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 			// append the item to the end of the list
 			this->m_vZLayers.push_back(n);
+		}
+		// position to match CID [CID]
+		else if (flag[1] == 'p') {
+			// add mIRC offset since getControlByID() needs it
+			n += mIRC_ID_OFFSET;
+
+			// get the control which will be used to retrieve the target position
+			ctrl = getControlByID(n);
+
+			// target control not found
+			if (!ctrl) {
+				dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "No such control");
+				return;
+			}
+
+			// variables used to move control
+			VectorOfInts::iterator itStart = this->m_vZLayers.begin();
+			VectorOfInts::iterator itEnd = this->m_vZLayers.end();
+			RECT r;
+
+			// figure out coordinates of control
+			GetWindowRect(ctrl->getHwnd(), &r);
+			MapWindowPoints(NULL, GetParent(ctrl->getHwnd()), (LPPOINT) &r, 2);
+
+			// for each control in the internal list
+			while (itStart != itEnd) {
+				// ignore target control
+				if (*itStart != n) {
+					// get control to be moved
+					ctrl = getControlByID(*itStart);
+
+					// if it exists, move it
+					if (ctrl)
+						MoveWindow(ctrl->getHwnd(), r.left, r.top, r.right - r.left, r.bottom - r.top, FALSE);
+				}
+
+				itStart++;
+			}
 		}
 		// show index [N]
 		else if (flag[1] == 's') {

@@ -291,7 +291,8 @@ mIRC(xdock) {
 		}
 		return 1;
 	}
-	// set treebar Colour. (NB: Non functional, mirc does owner draw?)
+	// TODO: undocumented. Non functional, mirc does owner draw?
+	// set treebar Colour.
 	// [-C] [+flags] [colour]
 	else if ((switches[1] == 'C') && (numtok == 3)) {
 		if (IsWindow(hTreeView)) {
