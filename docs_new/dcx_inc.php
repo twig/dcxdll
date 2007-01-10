@@ -1131,7 +1131,12 @@ function print_changes($version, $changes) {
 		}
 	}
 	
-	echo "<a name=\"$version\"></a><b>$version</b>\n";
+	echo "<a";
+    
+    if (!$nested)
+        echo " name=\"$version\"";
+        
+    echo "></a><b>$version</b>\n";
 	echo ($nested ? "<ul>" : "<ol>");
 
 	foreach ($changes as $key => $change) {
