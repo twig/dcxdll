@@ -32,7 +32,6 @@ class DcxDivider : public DcxControl {
 
 public:
 
-  //DcxDivider( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxDivider( );
 
@@ -43,8 +42,8 @@ public:
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  LRESULT setPane( UINT iPaneId, LPDVPANEINFO lpdvpi );
-  LRESULT setDivPos( UINT iDivPos );
+  LRESULT setPane( const UINT iPaneId, LPDVPANEINFO lpdvpi );
+  LRESULT setDivPos( const UINT iDivPos );
 
   inline TString getType( ) { return TString( "divider" ); };
 

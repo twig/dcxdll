@@ -757,7 +757,7 @@ HIMAGELIST DcxToolBar::getImageList( int iImageList ) {
  * blah
  */
 
-void DcxToolBar::setImageList(HIMAGELIST himl, int iImageList) {
+void DcxToolBar::setImageList(HIMAGELIST himl, const int iImageList) {
 	HIMAGELIST himlOld = NULL;
 
 	if (iImageList == TB_IML_NORMAL) {
@@ -781,7 +781,7 @@ void DcxToolBar::setImageList(HIMAGELIST himl, int iImageList) {
  * blah
  */
 
-HIMAGELIST DcxToolBar::createImageList( UINT iSize ) {
+HIMAGELIST DcxToolBar::createImageList( const UINT iSize ) {
 
 	return ImageList_Create(iSize, iSize, ILC_COLOR32 | ILC_MASK, 1, 0);
 }
@@ -931,7 +931,7 @@ LRESULT DcxToolBar::autoSize( ) {
  * blah
  */
 
-LRESULT DcxToolBar::insertButton( int nPos, LPTBBUTTON lpbb ) {
+LRESULT DcxToolBar::insertButton( const int nPos, const LPTBBUTTON lpbb ) {
   return SendMessage( this->m_Hwnd, TB_INSERTBUTTON, (WPARAM) nPos, (LPARAM) lpbb );
 }
 
@@ -941,7 +941,7 @@ LRESULT DcxToolBar::insertButton( int nPos, LPTBBUTTON lpbb ) {
  * blah
  */
 
-LRESULT DcxToolBar::hitTest( LPPOINT lpt ) {
+LRESULT DcxToolBar::hitTest( const LPPOINT lpt ) const {
   return SendMessage( this->m_Hwnd, TB_HITTEST, (WPARAM) 0, (LPARAM) lpt );
 }
 
@@ -951,7 +951,7 @@ LRESULT DcxToolBar::hitTest( LPPOINT lpt ) {
  * blah
  */
 
-LRESULT DcxToolBar::getItemRect( int iButton, LPRECT lprc ) {
+LRESULT DcxToolBar::getItemRect( const int iButton, LPRECT lprc ) const {
   return SendMessage( this->m_Hwnd, TB_GETITEMRECT, (WPARAM) iButton, (LPARAM) lprc );
 }
 
@@ -961,7 +961,7 @@ LRESULT DcxToolBar::getItemRect( int iButton, LPRECT lprc ) {
  * blah
  */
 
-LRESULT DcxToolBar::getButtonCount( ) {
+LRESULT DcxToolBar::getButtonCount( ) const {
   return SendMessage( this->m_Hwnd, TB_BUTTONCOUNT, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -971,7 +971,7 @@ LRESULT DcxToolBar::getButtonCount( ) {
  * blah
  */
 
-LRESULT DcxToolBar::setButtonWidth( int cxMin, int cxMax ) {
+LRESULT DcxToolBar::setButtonWidth( const int cxMin, const int cxMax ) {
   return SendMessage( this->m_Hwnd, TB_SETBUTTONWIDTH, (WPARAM) 0, (LPARAM) MAKELONG ( cxMin, cxMax ) );
 }
 
@@ -981,7 +981,7 @@ LRESULT DcxToolBar::setButtonWidth( int cxMin, int cxMax ) {
  * blah
  */
 
-LRESULT DcxToolBar::deleteButton(int iButton) {
+LRESULT DcxToolBar::deleteButton(const int iButton) {
   return (LRESULT) SendMessage( this->m_Hwnd, TB_DELETEBUTTON, (WPARAM) iButton, (LPARAM) 0 );
 }
 
@@ -991,7 +991,7 @@ LRESULT DcxToolBar::deleteButton(int iButton) {
  * blah
  */
 
-LRESULT DcxToolBar::setButtonInfo( int idButton, LPTBBUTTONINFO lpbi ) {
+LRESULT DcxToolBar::setButtonInfo( const int idButton, LPTBBUTTONINFO lpbi ) {
   return SendMessage( this->m_Hwnd, TB_SETBUTTONINFO, (WPARAM) idButton, (LPARAM) lpbi );
 }
 
@@ -1001,7 +1001,7 @@ LRESULT DcxToolBar::setButtonInfo( int idButton, LPTBBUTTONINFO lpbi ) {
  * blah
  */
 
-LRESULT DcxToolBar::getButtonInfo( int idButton, LPTBBUTTONINFO lpbi ) {
+LRESULT DcxToolBar::getButtonInfo( const int idButton, LPTBBUTTONINFO lpbi ) const {
 	return SendMessage(this->m_Hwnd, TB_GETBUTTONINFO, (WPARAM) idButton, (LPARAM) lpbi);
 }
 
@@ -1011,7 +1011,7 @@ LRESULT DcxToolBar::getButtonInfo( int idButton, LPTBBUTTONINFO lpbi ) {
  * blah
  */
 
-LRESULT DcxToolBar::getTooltips( ) {
+LRESULT DcxToolBar::getTooltips( ) const {
   return SendMessage( this->m_Hwnd, TB_GETTOOLTIPS, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -1021,7 +1021,7 @@ LRESULT DcxToolBar::getTooltips( ) {
  * blah
  */
 
-LRESULT DcxToolBar::getButtonText( int idButton, LPSTR lpszText ) {
+LRESULT DcxToolBar::getButtonText( const int idButton, LPSTR lpszText ) const {
   return (LRESULT) SendMessage( this->m_Hwnd, TB_GETBUTTONTEXT, (WPARAM) idButton, (LPARAM) lpszText );
 }
 
@@ -1031,7 +1031,7 @@ LRESULT DcxToolBar::getButtonText( int idButton, LPSTR lpszText ) {
  * blah
  */
 
-LRESULT DcxToolBar::getButton( int iButton, LPTBBUTTON lpb ) {
+LRESULT DcxToolBar::getButton( const int iButton, LPTBBUTTON lpb ) const {
   return SendMessage( this->m_Hwnd, TB_GETBUTTON, (WPARAM) iButton, (LPARAM) lpb );
 }
 
@@ -1041,7 +1041,7 @@ LRESULT DcxToolBar::getButton( int iButton, LPTBBUTTON lpb ) {
  * blah
  */
 
-LRESULT DcxToolBar::getCommandToIndex( int idButton ) {
+LRESULT DcxToolBar::getCommandToIndex( const int idButton ) const {
   return SendMessage( this->m_Hwnd, TB_COMMANDTOINDEX, (WPARAM) idButton, (LPARAM) 0 );
 }
 
@@ -1051,7 +1051,7 @@ LRESULT DcxToolBar::getCommandToIndex( int idButton ) {
  * blah
  */
 
-LRESULT DcxToolBar::moveButton( int iButtonFrom, int iButtonTo ) {
+LRESULT DcxToolBar::moveButton( const int iButtonFrom, const int iButtonTo ) {
   return SendMessage( this->m_Hwnd, TB_MOVEBUTTON, (WPARAM) iButtonFrom, (LPARAM) iButtonTo );
 }
 
@@ -1061,7 +1061,7 @@ LRESULT DcxToolBar::moveButton( int iButtonFrom, int iButtonTo ) {
  * blah
  */
 
-LRESULT DcxToolBar::markButton( int iButton, bool fHighlight ) {
+LRESULT DcxToolBar::markButton( const int iButton, const bool fHighlight ) {
   return SendMessage( this->m_Hwnd, TB_MARKBUTTON, (WPARAM) iButton, (LPARAM) MAKELONG ( fHighlight, 0 ) );
 }
 
@@ -1071,7 +1071,7 @@ LRESULT DcxToolBar::markButton( int iButton, bool fHighlight ) {
  * blah
  */
 
-LRESULT DcxToolBar::setButtonState( int idButton, UINT fState ) {
+LRESULT DcxToolBar::setButtonState( const int idButton, const UINT fState ) {
   return SendMessage( this->m_Hwnd, TB_SETSTATE, (WPARAM) idButton, (LPARAM) MAKELONG ( fState, 0 ) );
 }
 
@@ -1081,7 +1081,7 @@ LRESULT DcxToolBar::setButtonState( int idButton, UINT fState ) {
  * blah
  */
 
-LRESULT DcxToolBar::setButtonSize( int dxButton, int dyButton ) {
+LRESULT DcxToolBar::setButtonSize( const int dxButton, const int dyButton ) {
   return SendMessage( this->m_Hwnd, TB_SETBUTTONSIZE, (WPARAM) 0, (LPARAM) MAKELONG (dxButton, dyButton) );
 }
 
@@ -1092,7 +1092,7 @@ LRESULT DcxToolBar::setButtonSize( int dxButton, int dyButton ) {
  * blah
  */
 
-int DcxToolBar::getFreeButtonID( ) {
+int DcxToolBar::getFreeButtonID( ) const {
 
   int i = 1;
   int iID = this->getCommandToIndex( i );
@@ -1109,7 +1109,7 @@ int DcxToolBar::getFreeButtonID( ) {
  * blah
  */
 
-int DcxToolBar::getIndexToCommand(int iIndex) {
+int DcxToolBar::getIndexToCommand(const int iIndex) const {
 	int i = 1, nButtons = this->getButtonCount();
 
 	while (i <= nButtons) {

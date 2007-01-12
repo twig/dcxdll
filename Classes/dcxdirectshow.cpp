@@ -486,7 +486,7 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 }
 
 HRESULT DcxDirectshow::InitWindowlessVMR(
-    HWND hwndApp,                  // Window to hold the video. 
+    const HWND hwndApp,                  // Window to hold the video. 
     IGraphBuilder* pGraph,         // Pointer to the Filter Graph Manager. 
     IVMRWindowlessControl9** ppWc   // Receives a pointer to the VMR.
     ) 
@@ -594,7 +594,7 @@ void DcxDirectshow::ReleaseAll(void)
 	this->m_pSeek = NULL;
 }
 // getProperty() is non-functional atm. Where do i get this interface from? or a similar one.
-HRESULT DcxDirectshow::getProperty(char *prop, int type) const
+HRESULT DcxDirectshow::getProperty(char *prop, const int type) const
 {
 	IAMMediaContent *iam;
 	HRESULT hr = this->m_pGraph->QueryInterface(IID_IAMMediaContent,(void **)&iam);
@@ -731,7 +731,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	pVmr->Release(); 
 	return hr; 
 }
-HRESULT DcxDirectshow::setVideo(TString flags, float brightness, float contrast, float hue, float saturation)
+HRESULT DcxDirectshow::setVideo(const TString flags, const float brightness, const float contrast, const float hue, const float saturation)
 {
 	IBaseFilter* pVmr = NULL; 
 

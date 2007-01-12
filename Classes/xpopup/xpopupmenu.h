@@ -76,15 +76,15 @@ public:
   XPopupMenu( TString & tsMenuName, MenuStyle mStyle );
   virtual ~XPopupMenu( );
 
-  void parseXPopCommand( TString & input );
-  void parseXPopIdentifier( TString & input, char * szReturnValue );
+  void parseXPopCommand( const TString & input );
+  void parseXPopIdentifier( const TString & input, char * szReturnValue );
 
-  static HMENU parsePath( TString & path, HMENU hParent, int depth = 1 );
+  static HMENU parsePath( const TString & path, const HMENU hParent, const int depth = 1 );
 
   HIMAGELIST getImageList( );
   void destroyImageList( );
 
-  MenuStyle getStyle( );
+  MenuStyle getStyle( ) const;
   void setStyle( MenuStyle style );
   UINT getItemStyle( ) const;
   void setItemStyle( const UINT iExStyles );
@@ -103,14 +103,14 @@ public:
   static LRESULT CALLBACK XPopupMenuProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
   static LRESULT CALLBACK XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-  static LRESULT OnMeasureItem( HWND mHwnd, LPMEASUREITEMSTRUCT lpmis );
-  static LRESULT OnDrawItem( HWND mHwnd, LPDRAWITEMSTRUCT lpdis ); 
+  static LRESULT OnMeasureItem( const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis );
+  static LRESULT OnDrawItem( const HWND mHwnd, LPDRAWITEMSTRUCT lpdis ); 
 
-  void convertMenu( HMENU hMenu, BOOL bForce );
+  void convertMenu( HMENU hMenu, const BOOL bForce );
   void cleanMenu( HMENU hMenu );
   void clearAllMenuItems( );
 
-  HBITMAP getBackBitmap( );
+  HBITMAP getBackBitmap( ) const;
   void setBackBitmap( HBITMAP hBitmap );
 
 protected:

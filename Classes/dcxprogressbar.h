@@ -41,17 +41,17 @@ public:
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  LRESULT setPosition( int nNewPos );
-  LRESULT setRange( int iLowLim, int iHighLim );
+  LRESULT setPosition( const int nNewPos );
+  LRESULT setRange( const int iLowLim, const int iHighLim );
 
-  LRESULT setMarquee( BOOL fStart, int fTime );
+  LRESULT setMarquee( const BOOL fStart, const int fTime );
   LRESULT stepIt( );
-  LRESULT setStep( int nStepInc );
-  LRESULT setBarColor( COLORREF clrBar );
-  LRESULT setBKColor( COLORREF clrBk );
+  LRESULT setStep( const int nStepInc );
+  LRESULT setBarColor( const COLORREF clrBar );
+  LRESULT setBKColor( const COLORREF clrBk );
   
-  LRESULT getPosition( );
-  LRESULT getRange( BOOL fWhichLimit, PPBRANGE ppBRange );
+  LRESULT getPosition( ) const;
+  LRESULT getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) const;
 
   inline TString getType( ) { return TString( "pbar" ); };
 
@@ -65,7 +65,7 @@ protected:
 	COLORREF m_clrGrad;				//!< Gradients Color
 
 private:
-	int CalculatePosition(void);
+	int CalculatePosition(void) const;
 };
 
 #endif // _DCXPROGRESSBAR_H_

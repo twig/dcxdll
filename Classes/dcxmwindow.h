@@ -30,7 +30,6 @@ class DcxMWindow : public DcxControl {
 
 public:
 
-  //DcxMWindow( const HWND cHwnd, const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxMWindow( const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   virtual ~DcxMWindow( );
 

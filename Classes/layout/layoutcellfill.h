@@ -28,7 +28,7 @@ class LayoutCellFill : public LayoutCell {
 public:
 
   LayoutCellFill( );
-  LayoutCellFill( HWND mHwnd );
+  LayoutCellFill( const HWND mHwnd );
   virtual ~LayoutCellFill( );
 
   virtual void LayoutChild( );

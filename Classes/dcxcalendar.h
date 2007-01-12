@@ -32,7 +32,6 @@ class DcxCalendar : public DcxControl {
 
 public:
 
-  //DcxCalendar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxCalendar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxCalendar( );
 

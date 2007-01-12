@@ -49,7 +49,6 @@ class DcxReBar : public DcxControl {
 
 public:
 
-  //DcxReBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxReBar( );
 
@@ -66,23 +65,23 @@ public:
 
   void resetContents( );
 
-  LRESULT insertBand( int uIndex, LPREBARBANDINFO lprbbi );
-  LRESULT deleteBand( UINT uIndex );
-  LRESULT getBandInfo( UINT uBand, LPREBARBANDINFO lprbbi ) const;
-  LRESULT setBandInfo( UINT uBand, LPREBARBANDINFO lprbbi );
+  LRESULT insertBand( const int uIndex, LPREBARBANDINFO lprbbi );
+  LRESULT deleteBand( const UINT uIndex );
+  LRESULT getBandInfo( const UINT uBand, LPREBARBANDINFO lprbbi ) const;
+  LRESULT setBandInfo( const UINT uBand, LPREBARBANDINFO lprbbi );
   LRESULT setBarInfo( LPREBARINFO lprbi );
   LRESULT getBarInfo( LPREBARINFO lprbi ) const;
   LRESULT getRowCount( ) const;
   LRESULT hitTest( LPRBHITTESTINFO lprbht );
   LRESULT getToolTips( ) const;
-  LRESULT setToolTips( HWND hwndToolTip );
-  LRESULT getIDToIndex( UINT uBandID ) const;
+  LRESULT setToolTips( const HWND hwndToolTip );
+  LRESULT getIDToIndex( const UINT uBandID ) const;
   LRESULT getBandCount( ) const;
-  LRESULT setReDraw( BOOL uState );
-  LRESULT showBand( UINT uBand, BOOL fShow );
-  LRESULT moveBand( UINT iFrom, UINT iTo );
-  LRESULT maxBand( UINT uBand, BOOL fIdeal );
-  LRESULT minBand( UINT uBand, BOOL fIdeal );
+  LRESULT setReDraw( const BOOL uState );
+  LRESULT showBand( const UINT uBand, const BOOL fShow );
+  LRESULT moveBand( const UINT iFrom, const UINT iTo );
+  LRESULT maxBand( const UINT uBand, const BOOL fIdeal );
+  LRESULT minBand( const UINT uBand, const BOOL fIdeal );
 
   inline TString getType( ) { return TString( "rebar" ); };
 

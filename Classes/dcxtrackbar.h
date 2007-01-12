@@ -40,7 +40,6 @@ class DcxTrackBar : public DcxControl {
 
 public:
 
-  //DcxTrackBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxTrackBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxTrackBar( );
 
@@ -52,25 +51,25 @@ public:
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 	static UINT parseImageFlags(TString &flags);
 
-  LRESULT setRangeMin( LONG iLowLim );
-  LRESULT getRangeMin( );
-  LRESULT setRangeMax( LONG iHighLim );
-  LRESULT getRangeMax( );
-  LRESULT setRange( LONG iLowLim, LONG iHighLim );
-  LRESULT setPos( LONG lPosition );
-  LRESULT getPos( );
-  LRESULT setTic( LONG lPosition );
-  LRESULT setTicFreq( LONG wFreq );
+  LRESULT setRangeMin( const LONG iLowLim );
+  LRESULT getRangeMin( ) const;
+  LRESULT setRangeMax( const LONG iHighLim );
+  LRESULT getRangeMax( ) const;
+  LRESULT setRange( const LONG iLowLim, const LONG iHighLim );
+  LRESULT setPos( const LONG lPosition );
+  LRESULT getPos( ) const;
+  LRESULT setTic( const LONG lPosition );
+  LRESULT setTicFreq( const LONG wFreq );
   LRESULT clearTics( );
-  LRESULT setTipSide( int fLocation );
-  LRESULT setPageSize( LONG lPageSize );
-  LRESULT getPageSize( );
-  LRESULT setLineSize( LONG lLineSize );
-  LRESULT getLineSize( );
-  LRESULT setThumbLength( UINT iLength );
-  LRESULT setSel( LONG iLowLim, LONG iHighLim );
-  LRESULT getSelStart( );
-  LRESULT getSelEnd( );
+  LRESULT setTipSide( const int fLocation );
+  LRESULT setPageSize( const LONG lPageSize );
+  LRESULT getPageSize( ) const;
+  LRESULT setLineSize( const LONG lLineSize );
+  LRESULT getLineSize( ) const;
+  LRESULT setThumbLength( const UINT iLength );
+  LRESULT setSel( const LONG iLowLim, const LONG iHighLim );
+  LRESULT getSelStart( ) const;
+  LRESULT getSelEnd( ) const;
 
   inline TString getType( ) { return TString( "trackbar" ); };
 

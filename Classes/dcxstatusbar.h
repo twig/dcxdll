@@ -30,7 +30,6 @@ class DcxStatusBar : public DcxControl {
 
 public:
 
-  //DcxStatusBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxStatusBar( );
 
@@ -48,18 +47,18 @@ public:
   static UINT parseItemFlags( TString & flags );
   void cleanPartIcons( );
   
-  LRESULT setParts( int nParts, LPINT aWidths );
-  LRESULT getParts( int nParts, LPINT aWidths );
-  LRESULT setBkColor( COLORREF clrBk );
-  LRESULT setText( int iPart, int Style, LPSTR lpstr );
-  LRESULT getText( int iPart, LPSTR lpstr );
-  LRESULT setTipText( int iPart, LPSTR lpstr );
-  LRESULT getTipText( int iPart, int nSize, LPSTR lpstr );
-  LRESULT getRect( int iPart, LPRECT lprc );
-  LRESULT setIcon( int iPart, HICON hIcon );
-  LRESULT getIcon( int iPart );
+  LRESULT setParts( const int nParts, const LPINT aWidths );
+  LRESULT getParts( const int nParts, LPINT aWidths ) const;
+  LRESULT setBkColor( const COLORREF clrBk );
+  LRESULT setText( const int iPart, const int Style, const LPSTR lpstr );
+  LRESULT getText( const int iPart, LPSTR lpstr ) const;
+  LRESULT setTipText( const int iPart, const LPSTR lpstr );
+  LRESULT getTipText( const int iPart, const int nSize, LPSTR lpstr ) const;
+  LRESULT getRect( const int iPart, LPRECT lprc ) const;
+  LRESULT setIcon( const int iPart, const HICON hIcon );
+  LRESULT getIcon( const int iPart ) const;
 
-  int hitTest( POINT & pt );
+  int hitTest( const POINT & pt ) const;
 
   inline TString getType( ) { return TString( "statusbar" ); };
 

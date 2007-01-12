@@ -56,16 +56,16 @@ public:
   };
 
   LayoutCell( );
-  LayoutCell( HWND mHwnd );
-  LayoutCell( HWND mHwnd, RECT & rc );
+  LayoutCell( const HWND mHwnd );
+  LayoutCell( const HWND mHwnd, const RECT & rc );
   virtual ~LayoutCell( );
 
   void setRect( RECT & rc );
-  void getRect( RECT & rc );
-  void getClientRect( RECT & rc );
-  void setBorder( RECT & rc );
-  void setBorder( unsigned int nBorder );
-  void getBorder( RECT & rc );
+  void getRect( RECT & rc ) const;
+  void getClientRect( RECT & rc ) const;
+  void setBorder( const RECT & rc );
+  void setBorder( const unsigned int nBorder );
+  void getBorder( RECT & rc ) const;
 
   virtual void LayoutChild( ) = 0;
   virtual HDWP ExecuteLayout( HDWP hdwp ) = 0;
@@ -76,11 +76,11 @@ public:
 
   virtual CellType getType( ) = 0;
 
-  LayoutCell * getFirstChild( );
-  LayoutCell * getParent( );
-  LayoutCell * getNextSibling( );
+  LayoutCell * getFirstChild( ) const;
+  LayoutCell * getParent( ) const;
+  LayoutCell * getNextSibling( ) const;
 
-  BOOL isVisible( );
+  BOOL isVisible( ) const;
 
 protected:
 

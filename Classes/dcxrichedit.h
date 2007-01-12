@@ -40,7 +40,6 @@ typedef struct {
 
 class DcxRichEdit : public DcxControl {
 public:
-	//DcxRichEdit(UINT ID, DcxDialog *p_Dialog, RECT *rc, TString &styles);
 	DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, TString &styles);
 	virtual ~DcxRichEdit();
 
@@ -55,18 +54,18 @@ public:
 
 	void setContentsFont();
 	void clearContents();
-	void parseContents(BOOL fNewLine);
+	void parseContents(const BOOL fNewLine);
 	void insertText(char *text, bool bline, bool uline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse);
 
-	LRESULT setAutoUrlDetect(BOOL iEnable);
-	LRESULT hideSelection(BOOL iHide);
-	LRESULT setSel(int iStart, int iEnd);
-	LRESULT replaceSel(BOOL bUndo, LPCTSTR lpstr);
-	LRESULT getCharFormat(UINT iType, CHARFORMAT2 *cfm);
-	LRESULT setCharFormat(UINT iType, CHARFORMAT2 *cfm);
+	LRESULT setAutoUrlDetect(const BOOL iEnable);
+	LRESULT hideSelection(const BOOL iHide);
+	LRESULT setSel(const int iStart, const int iEnd);
+	LRESULT replaceSel(const BOOL bUndo, LPCTSTR lpstr);
+	LRESULT getCharFormat(const UINT iType, CHARFORMAT2 *cfm) const;
+	LRESULT setCharFormat(const UINT iType, CHARFORMAT2 *cfm);
 
-	LRESULT getLineLength();
-	LRESULT getLineIndex();
+	//LRESULT getLineLength();
+	//LRESULT getLineIndex();
 
 	inline TString getType() { return TString("richedit"); };
 

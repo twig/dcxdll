@@ -52,6 +52,7 @@
 
 // Use GDI+
 #define DCX_USE_GDIPLUS
+#define DCX_MAX_GDI_ERRORS 21
 //
 
 //#include <vld.h>
@@ -151,7 +152,7 @@ using namespace Gdiplus;
 #define XPOPUPMENUCLASS "XPopupMenu32" //!< XPopupMenu Window Class Name
 
 LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-BOOL isMenuBarMenu(HMENU hMenu, HMENU hMatch);
+BOOL isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
 
 // UltraDock Stuff
 #define SWB_NONE    0
@@ -271,7 +272,7 @@ void DCXDebug(const char *cmd,const char *msg);
 
 int round(const float x);
 BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
-TString ParseLogfontToCommand(LPLOGFONT lf);
+TString ParseLogfontToCommand(const LPLOGFONT lf);
 UINT parseFontFlags(TString &flags);
 UINT parseFontCharSet(TString &charset);
 DcxDialogCollection dcxDialogs();
@@ -293,7 +294,7 @@ typedef BOOL (WINAPI *PFNUPDATELAYEREDWINDOW)(HWND hWnd, HDC hdcDst, POINT *pptD
 typedef BOOL (WINAPI *PFNSETLAYEREDWINDOWATTRIBUTES)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
 typedef int (WINAPI *PFNDRAWSHADOWTEXT)(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
 
-HRESULT dcxSetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
+HRESULT dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList);
 BOOL dcxIsThemeActive();
 BOOL isXP();
 
@@ -307,8 +308,8 @@ HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
 bool ChangeHwndIcon(const HWND hwnd, const TString *flags, const int index, const TString *filename);
 
-SYSTEMTIME MircTimeToSystemTime(long mircTime);
-long SystemTimeToMircTime(LPSYSTEMTIME pst);
+SYSTEMTIME MircTimeToSystemTime(const long mircTime);
+long SystemTimeToMircTime(const LPSYSTEMTIME pst);
 
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl);
 void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
@@ -322,7 +323,7 @@ void RemStyles(HWND hwnd,int parm,long RemStyles);
 void AddStyles(HWND hwnd,int parm,long AddStyles);
 void InitUltraDock(void);
 void CloseUltraDock(void);
-int SwitchbarPos(int type);
+int SwitchbarPos(const int type);
 void UltraUnDock(const HWND hwnd);
 void UpdatemIRC(void);
 

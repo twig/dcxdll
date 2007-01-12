@@ -31,7 +31,7 @@ LayoutCellFill::LayoutCellFill( ) : LayoutCell( NULL ) {
  * blah
  */
 
-LayoutCellFill::LayoutCellFill( HWND mHwnd ) : LayoutCell( mHwnd ) {
+LayoutCellFill::LayoutCellFill( const HWND mHwnd ) : LayoutCell( mHwnd ) {
 
 }
 

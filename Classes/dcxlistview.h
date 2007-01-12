@@ -86,7 +86,6 @@ class DcxListView : public DcxControl {
 
 public:
 
-  //DcxListView( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxListView( );
 
@@ -98,13 +97,13 @@ public:
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
   void parseListviewExStyles( TString & styles, LONG * ExStyles );
 
-  HIMAGELIST getImageList( int iImageList );
-  void setImageList( HIMAGELIST himl, int iImageList );
-  HIMAGELIST createImageList( BOOL bIcons );
+  HIMAGELIST getImageList( const int iImageList );
+  void setImageList( HIMAGELIST himl, const int iImageList );
+  HIMAGELIST createImageList( const BOOL bIcons );
 
-  BOOL isListViewStyle( long dwView );
+  BOOL isListViewStyle( const long dwView ) const;
 
-  int getColumnCount( );
+  int getColumnCount( ) const;
 
   static LRESULT CALLBACK EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -112,8 +111,8 @@ public:
 
   inline TString getType( ) { return TString( "listview" ); };
 
-  int getTopIndex( );
-  int getBottomIndex( );
+  int getTopIndex( ) const;
+  int getBottomIndex( ) const;
 
 protected:
 
@@ -128,15 +127,15 @@ protected:
   static UINT parseImageFlags( TString & flags );
   static UINT parseGroupFlags( TString & flags );
 
-  BOOL matchItemText( int nItem, int nSubItem, TString * search, UINT SearchType );
+  BOOL matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType );
 
-	void autoSize(int nColumn, TString &flags);
+	void autoSize(const int nColumn, TString &flags);
 
   BOOL m_bDrag; //!< Dragging Items ?
 
 private:
 	DcxControl* CreatePbar(LPLVITEM lvi, TString &style);
-	void ScrollPbars(int row);
+	void ScrollPbars(const int row);
 	void UpdateScrollPbars();
 };
 

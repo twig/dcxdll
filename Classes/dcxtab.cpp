@@ -526,7 +526,7 @@ HIMAGELIST DcxTab::createImageList( ) {
  * blah
  */
 
-void DcxTab::deleteLParamInfo( int nItem ) {
+void DcxTab::deleteLParamInfo( const int nItem ) {
 
   TCITEM tci;
   ZeroMemory( &tci, sizeof( TCITEM ) );

@@ -198,7 +198,7 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
  * blah
  */
 
-LRESULT DcxIpAddress::setRange( int nField, BYTE iMin, BYTE iMax ) {
+LRESULT DcxIpAddress::setRange( const int nField, const BYTE iMin, const BYTE iMax ) {
   return SendMessage( this->m_Hwnd, IPM_SETRANGE, (WPARAM) nField, (LPARAM) MAKEIPRANGE( iMin, iMax ) );
 }
 
@@ -208,7 +208,7 @@ LRESULT DcxIpAddress::setRange( int nField, BYTE iMin, BYTE iMax ) {
  * blah
  */
 
-LRESULT DcxIpAddress::setFocus( int nField ) {
+LRESULT DcxIpAddress::setFocus( const int nField ) {
   return SendMessage( this->m_Hwnd, IPM_SETFOCUS, (WPARAM) nField, (LPARAM) 0 );
 }
 
@@ -218,7 +218,7 @@ LRESULT DcxIpAddress::setFocus( int nField ) {
  * blah
  */
 
-LRESULT DcxIpAddress::setAddress( DWORD dwIpAddress ) {
+LRESULT DcxIpAddress::setAddress( const DWORD dwIpAddress ) {
   return SendMessage( this->m_Hwnd, IPM_SETADDRESS, (WPARAM) 0, (LPARAM) dwIpAddress );
 }
 
@@ -228,7 +228,7 @@ LRESULT DcxIpAddress::setAddress( DWORD dwIpAddress ) {
  * blah
  */
 
-LRESULT DcxIpAddress::getAddress( LPDWORD lpdwIpAddress ) {
+LRESULT DcxIpAddress::getAddress( LPDWORD lpdwIpAddress ) const {
   return SendMessage( this->m_Hwnd, IPM_GETADDRESS, (WPARAM) 0, (LPARAM) lpdwIpAddress );
 }
 

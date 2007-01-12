@@ -190,7 +190,7 @@ XPopupMenu::~XPopupMenu( ) {
  * blah
  */
 
-void XPopupMenu::parseXPopCommand( TString & input ) {
+void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 	XSwitchFlags flags;
 	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
@@ -443,7 +443,7 @@ void XPopupMenu::parseXPopCommand( TString & input ) {
  * blah
  */
 
-void XPopupMenu::parseXPopIdentifier( TString & input, char * szReturnValue ) {
+void XPopupMenu::parseXPopIdentifier( const TString & input, char * szReturnValue ) {
 
   int numtok = input.numtok( " " );
   TString prop(input.gettok( 2, " " ));
@@ -597,7 +597,7 @@ void XPopupMenu::destroyImageList( ) {
  * blah
  */
 
-XPopupMenu::MenuStyle XPopupMenu::getStyle( ) {
+XPopupMenu::MenuStyle XPopupMenu::getStyle( ) const {
 
   return this->m_MenuStyle;
 }
@@ -788,7 +788,7 @@ COLORREF XPopupMenu::getColor(const int nColor ) const {
  * blah
  */
 
-HMENU XPopupMenu::parsePath( TString & path, HMENU hParent, int depth ) {
+HMENU XPopupMenu::parsePath( const TString & path, const HMENU hParent, const int depth ) {
 
   int iItem = (int)path.gettok( depth, " " ).to_num( ) - 1;
 
@@ -920,7 +920,7 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam
  * blah
  */
 
-LRESULT XPopupMenu::OnMeasureItem( HWND mHwnd, LPMEASUREITEMSTRUCT lpmis ) {
+LRESULT XPopupMenu::OnMeasureItem( const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis ) {
 
 	XPopupMenuItem * p_Item = (XPopupMenuItem *) lpmis->itemData;
 
@@ -939,7 +939,7 @@ LRESULT XPopupMenu::OnMeasureItem( HWND mHwnd, LPMEASUREITEMSTRUCT lpmis ) {
  * blah
  */
 
-LRESULT XPopupMenu::OnDrawItem( HWND mHwnd, LPDRAWITEMSTRUCT lpdis ) {
+LRESULT XPopupMenu::OnDrawItem( const HWND mHwnd, LPDRAWITEMSTRUCT lpdis ) {
 
 	XPopupMenuItem * p_Item = (XPopupMenuItem *) lpdis->itemData;
 
@@ -955,7 +955,7 @@ LRESULT XPopupMenu::OnDrawItem( HWND mHwnd, LPDRAWITEMSTRUCT lpdis ) {
  * blah
  */
 
-void XPopupMenu::convertMenu( HMENU hMenu, BOOL bForce ) {
+void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce ) {
 
   MENUITEMINFO mii;
   ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
@@ -1058,7 +1058,7 @@ void XPopupMenu::clearAllMenuItems( ) {
  * blah
  */
 
-HBITMAP XPopupMenu::getBackBitmap( ) {
+HBITMAP XPopupMenu::getBackBitmap( ) const {
 
 	return this->m_hBitmap;
 }

@@ -20,7 +20,7 @@
  * blah
  */
 
-LayoutCellFixed::LayoutCellFixed( HWND mHwnd, FixedType nType ) : LayoutCell( mHwnd ), m_nType( nType ) {
+LayoutCellFixed::LayoutCellFixed( const HWND mHwnd, const FixedType nType ) : LayoutCell( mHwnd ), m_nType( nType ) {
 
 }
 
@@ -30,7 +30,7 @@ LayoutCellFixed::LayoutCellFixed( HWND mHwnd, FixedType nType ) : LayoutCell( mH
  * blah
  */
 
-LayoutCellFixed::LayoutCellFixed( RECT & rc, FixedType nType ) : LayoutCell( NULL ), m_nType( nType ) {
+LayoutCellFixed::LayoutCellFixed( const RECT & rc, const FixedType nType ) : LayoutCell( NULL ), m_nType( nType ) {
 
   CopyRect( &this->m_rcWindow, &rc );
 }
@@ -41,7 +41,7 @@ LayoutCellFixed::LayoutCellFixed( RECT & rc, FixedType nType ) : LayoutCell( NUL
  * blah
  */
 
-LayoutCellFixed::LayoutCellFixed( HWND mHwnd, RECT & rc, FixedType nType ) : LayoutCell( NULL ), m_nType( nType ) {
+LayoutCellFixed::LayoutCellFixed( const HWND mHwnd, const RECT & rc, const FixedType nType ) : LayoutCell( NULL ), m_nType( nType ) {
 
   //MessageBox( NULL, "LayoutCellFixed( )", "LayoutCellFixed( )", MB_OK );
   this->m_Hwnd = mHwnd;

@@ -54,7 +54,7 @@ XPopupMenuItem::~XPopupMenuItem( ) {
  * blah
  */
 
-void XPopupMenuItem::setSubMenu( BOOL bSubMenu ) {
+void XPopupMenuItem::setSubMenu( const BOOL bSubMenu ) {
 
   this->m_bSubMenu = bSubMenu;
 }
@@ -65,7 +65,7 @@ void XPopupMenuItem::setSubMenu( BOOL bSubMenu ) {
  * blah
  */
 
-void XPopupMenuItem::setItemText( TString & tsItemText ) {
+void XPopupMenuItem::setItemText( const TString & tsItemText ) {
 
   if ( this->m_bSep == FALSE )
     this->m_tsItemText = tsItemText;
@@ -77,7 +77,7 @@ void XPopupMenuItem::setItemText( TString & tsItemText ) {
  * blah
  */
 
-void XPopupMenuItem::setItemIcon( int nIcon ) {
+void XPopupMenuItem::setItemIcon( const int nIcon ) {
 
   if ( this->m_bSep == FALSE )
     this->m_nIcon = nIcon;
@@ -89,7 +89,7 @@ void XPopupMenuItem::setItemIcon( int nIcon ) {
  * blah
  */
 
-TString * XPopupMenuItem::getItemText( ) {
+const TString * XPopupMenuItem::getItemText( ) const {
 
   return &this->m_tsItemText;
 }
@@ -100,7 +100,7 @@ TString * XPopupMenuItem::getItemText( ) {
  * blah
  */
 
-int XPopupMenuItem::getItemIcon(  ) {
+int XPopupMenuItem::getItemIcon(  ) const {
 
   return this->m_nIcon;
 }
@@ -111,7 +111,7 @@ int XPopupMenuItem::getItemIcon(  ) {
  * blah
  */
 
-SIZE XPopupMenuItem::getItemSize( HWND mHwnd ) {
+SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 
   SIZE size;
   size.cx = 0;
@@ -155,7 +155,7 @@ SIZE XPopupMenuItem::getItemSize( HWND mHwnd ) {
  * blah
  */
 
-void XPopupMenuItem::DrawItem( LPDRAWITEMSTRUCT lpdis ) {
+void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 
   LPXPMENUCOLORS lpcol = this->m_pXParentMenu->getColors( );
   UINT iItemStyle = this->m_pXParentMenu->getItemStyle( );
@@ -221,7 +221,7 @@ void XPopupMenuItem::DrawItem( LPDRAWITEMSTRUCT lpdis ) {
  * blah
  */
 
-void XPopupMenuItem::DrawItemBackground( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol ) {
+void XPopupMenuItem::DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol ) {
 
    switch ( this->m_pXParentMenu->getStyle( ) ) {
 
@@ -290,7 +290,7 @@ void XPopupMenuItem::DrawItemBackground( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS 
  * blah
  */
 
-void XPopupMenuItem::DrawItemBox(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol) {
+void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol) {
 
 	switch (this->m_pXParentMenu->getStyle()) {
 		case XPopupMenu::XPMS_OFFICE2003_REV:
@@ -349,7 +349,7 @@ void XPopupMenuItem::DrawItemBox(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol) {
  * blah
  */
 
-void XPopupMenuItem::DrawItemSelection( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOL bDis ) {
+void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
 
   HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSelectionBorder );
   HBRUSH hBrush = (HBRUSH) CreateSolidBrush( bDis?lpcol->m_clrDisabledSelection:lpcol->m_clrSelection );
@@ -372,7 +372,7 @@ void XPopupMenuItem::DrawItemSelection( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS l
  * blah
  */
 
-void XPopupMenuItem::DrawItemCheckBox( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOL bDis ) {
+void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
 
   HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSelectionBorder );
   HBRUSH hBrush = (HBRUSH) CreateSolidBrush( bDis?lpcol->m_clrDisabledCheckBox:lpcol->m_clrCheckBox );
@@ -421,7 +421,7 @@ void XPopupMenuItem::DrawItemCheckBox( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lp
  * blah
  */
 
-void XPopupMenuItem::DrawItemText( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOL bDis ) {
+void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
 
   SetTextColor( lpdis->hDC, bDis?lpcol->m_clrDisabledText:lpcol->m_clrText );
   SetBkMode( lpdis->hDC, TRANSPARENT );
@@ -459,7 +459,7 @@ void XPopupMenuItem::DrawItemText( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol,
  * blah
  */
 
-void XPopupMenuItem::DrawItemIcon( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, UINT iExStyles, BOOL bSel, BOOL bDis ) {
+void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const BOOL bSel, const BOOL bDis ) {
 
   HIMAGELIST himl = this->m_pXParentMenu->getImageList( );
 
@@ -505,7 +505,7 @@ void XPopupMenuItem::DrawItemIcon( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol,
  * blah
  */
 
-void XPopupMenuItem::DrawItemSubArrow( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOL bDis ) {
+void XPopupMenuItem::DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
 
   HPEN hPen = CreatePen( PS_SOLID, 1, bDis?lpcol->m_clrDisabledText:lpcol->m_clrText );
   HPEN hOldPen = (HPEN) SelectObject( lpdis->hDC, hPen );
@@ -544,7 +544,7 @@ void XPopupMenuItem::DrawItemSubArrow( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lp
  * blah
  */
 
-void XPopupMenuItem::DrawItemSeparator( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol ) {
+void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol ) {
 
    switch ( this->m_pXParentMenu->getStyle( ) ) {
 
@@ -594,7 +594,7 @@ void XPopupMenuItem::DrawItemSeparator( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS l
  * blah
  */
 
-void XPopupMenuItem::DrawGradient( HDC hdc, LPRECT lprc, COLORREF clrStart, COLORREF clrEnd, BOOL bHorz ) {
+void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const BOOL bHorz ) {
 
   BYTE StartRed   = GetRValue( clrStart );
   BYTE StartGreen = GetGValue( clrStart );
@@ -633,7 +633,7 @@ void XPopupMenuItem::DrawGradient( HDC hdc, LPRECT lprc, COLORREF clrStart, COLO
 }
 
 
-void XPopupMenuItem::DrawVerticalBar(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOLEAN bReversed) {
+void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOLEAN bReversed) {
 	RECT rcIntersect;
 	RECT rcClip;
 	RECT rcBar;
@@ -664,8 +664,7 @@ void XPopupMenuItem::DrawVerticalBar(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpco
 	BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
 
 	// clean up the memory object
-	SelectObject(hdcBuffer, hbmpOld);
-	DeleteObject(hbmp);
+	DeleteObject(	SelectObject(hdcBuffer, hbmpOld) );
 	DeleteDC(hdcBuffer);
 }
 
@@ -677,7 +676,7 @@ void XPopupMenuItem::DrawVerticalBar(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpco
  * blah
  */
 
-COLORREF XPopupMenuItem::LightenColor( unsigned int iScale, COLORREF clrColor ) { 
+COLORREF XPopupMenuItem::LightenColor( const unsigned int iScale, const COLORREF clrColor ) { 
 
   long R = MulDiv( 255 - GetRValue( clrColor ), iScale, 255 ) + GetRValue( clrColor );
   long G = MulDiv( 255 - GetGValue( clrColor ), iScale, 255 ) + GetGValue( clrColor );
@@ -692,7 +691,7 @@ COLORREF XPopupMenuItem::LightenColor( unsigned int iScale, COLORREF clrColor ) 
  * blah
  */
 
-COLORREF XPopupMenuItem::DarkenColor( unsigned int iScale, COLORREF clrColor )
+COLORREF XPopupMenuItem::DarkenColor( const unsigned int iScale, const COLORREF clrColor )
 { 
   long R = MulDiv( GetRValue( clrColor ), ( 255 - iScale ), 255 );
   long G = MulDiv( GetGValue( clrColor ), ( 255 - iScale ), 255 );

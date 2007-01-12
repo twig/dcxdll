@@ -623,7 +623,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
   szReturnValue[0] = 0;
 }
 
-void DcxListView::autoSize(int nColumn, TString &flags)
+void DcxListView::autoSize(const int nColumn, TString &flags)
 {
 	UINT iFlags = this->parseHeaderFlags2(flags);
 
@@ -1306,7 +1306,7 @@ void DcxListView::parseCommandRequest(TString &input) {
  * blah
  */
 
-HIMAGELIST DcxListView::getImageList( int iImageList ) {
+HIMAGELIST DcxListView::getImageList( const int iImageList ) {
 
   return ListView_GetImageList( this->m_Hwnd, iImageList );
 }
@@ -1317,7 +1317,7 @@ HIMAGELIST DcxListView::getImageList( int iImageList ) {
  * blah
  */
 
-void DcxListView::setImageList(HIMAGELIST himl, int iImageList) {
+void DcxListView::setImageList(HIMAGELIST himl, const int iImageList) {
 	ImageList_Destroy(ListView_SetImageList(this->m_Hwnd, himl, iImageList));
 }
 
@@ -1327,7 +1327,7 @@ void DcxListView::setImageList(HIMAGELIST himl, int iImageList) {
  * blah
  */
 
-HIMAGELIST DcxListView::createImageList( BOOL bIcons ) {
+HIMAGELIST DcxListView::createImageList( const BOOL bIcons ) {
 
   HIMAGELIST himl;
   // Big Image List
@@ -1590,7 +1590,7 @@ UINT DcxListView::parseImageFlags( TString & flags ) {
  * blah
  */
 
-BOOL DcxListView::isListViewStyle( long dwView ) {
+BOOL DcxListView::isListViewStyle( const long dwView ) const {
 
   long dwStyle = GetWindowLong( this->m_Hwnd, GWL_STYLE ); 
   if ( ( dwStyle & LVS_TYPEMASK ) == dwView )
@@ -1605,7 +1605,7 @@ BOOL DcxListView::isListViewStyle( long dwView ) {
  * blah
  */
 
-BOOL DcxListView::matchItemText( int nItem, int nSubItem, TString * search, UINT SearchType ) {
+BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType ) {
 
 	char itemtext[900];
 
@@ -1653,7 +1653,7 @@ BOOL DcxListView::matchItemText( int nItem, int nSubItem, TString * search, UINT
  * blah
  */
 
-int DcxListView::getColumnCount( ) {
+int DcxListView::getColumnCount( ) const {
 
   LVCOLUMN lvc;
   ZeroMemory( &lvc, sizeof(LVCOLUMN) );
@@ -1672,7 +1672,7 @@ int DcxListView::getColumnCount( ) {
  * blah
  */
 
-int DcxListView::getTopIndex( ) {
+int DcxListView::getTopIndex( ) const {
 
   if ( ListView_GetItemCount( this->m_Hwnd) > 0 )
     return ListView_GetTopIndex( this->m_Hwnd );
@@ -1686,7 +1686,7 @@ int DcxListView::getTopIndex( ) {
  * blah
  */
 
-int DcxListView::getBottomIndex( ) {
+int DcxListView::getBottomIndex( ) const {
 
   int nBottomIndex = ListView_GetTopIndex( this->m_Hwnd ) + ListView_GetCountPerPage( this->m_Hwnd ) - 1;
   if ( nBottomIndex > ( ListView_GetItemCount( this->m_Hwnd ) - 1 ) )
@@ -2425,7 +2425,7 @@ void DcxListView::UpdateScrollPbars() {
 	}
 }
 
-void DcxListView::ScrollPbars(int row) {
+void DcxListView::ScrollPbars(const int row) {
 	LPLVITEM lvi = new LVITEM;
 
 	ZeroMemory(lvi, sizeof(LVITEM));

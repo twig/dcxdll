@@ -43,7 +43,6 @@ class DcxTab : public DcxControl {
 
 public:
 
-  //DcxTab( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxTab( );
 
@@ -58,7 +57,7 @@ public:
   void setImageList( HIMAGELIST himl );
   static HIMAGELIST createImageList( );
 
-  void deleteLParamInfo( int nItem );
+  void deleteLParamInfo( const int nItem );
   void activateSelectedTab( );
 
   inline TString getType( ) { return TString( "tab" ); };

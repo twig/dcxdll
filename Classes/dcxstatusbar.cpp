@@ -375,7 +375,7 @@ void DcxStatusBar::cleanPartIcons( ) {
  * blah
  */
 
-LRESULT DcxStatusBar::setParts( int nParts, LPINT aWidths ) {
+LRESULT DcxStatusBar::setParts( const int nParts, const LPINT aWidths ) {
   return SendMessage( this->m_Hwnd, SB_SETPARTS, (WPARAM) nParts, (LPARAM) aWidths );
 }
 
@@ -385,7 +385,7 @@ LRESULT DcxStatusBar::setParts( int nParts, LPINT aWidths ) {
  * blah
  */
 
-LRESULT DcxStatusBar::getParts( int nParts, LPINT aWidths ) {
+LRESULT DcxStatusBar::getParts( const int nParts, LPINT aWidths ) const {
   return SendMessage( this->m_Hwnd, SB_GETPARTS, (WPARAM) nParts, (LPARAM) aWidths );
 }
 
@@ -395,7 +395,7 @@ LRESULT DcxStatusBar::getParts( int nParts, LPINT aWidths ) {
  * blah
  */
 
-LRESULT DcxStatusBar::setBkColor( COLORREF clrBk ) {
+LRESULT DcxStatusBar::setBkColor( const COLORREF clrBk ) {
   return SendMessage( this->m_Hwnd, SB_SETBKCOLOR, (WPARAM) 0, (LPARAM) clrBk );
 }
 
@@ -405,7 +405,7 @@ LRESULT DcxStatusBar::setBkColor( COLORREF clrBk ) {
  * blah
  */
 
-LRESULT DcxStatusBar::setText( int iPart, int Style, LPSTR lpstr ) {
+LRESULT DcxStatusBar::setText( const int iPart, const int Style, const LPSTR lpstr ) {
   return SendMessage( this->m_Hwnd, SB_SETTEXT, (WPARAM) iPart | Style, (LPARAM) lpstr );
 }
 
@@ -415,7 +415,7 @@ LRESULT DcxStatusBar::setText( int iPart, int Style, LPSTR lpstr ) {
  * blah
  */
 
-LRESULT DcxStatusBar::getText( int iPart, LPSTR lpstr ) {
+LRESULT DcxStatusBar::getText( const int iPart, LPSTR lpstr ) const {
   return SendMessage( this->m_Hwnd, SB_GETTEXT, (WPARAM) iPart, (LPARAM) lpstr );
 }
 
@@ -425,7 +425,7 @@ LRESULT DcxStatusBar::getText( int iPart, LPSTR lpstr ) {
  * blah
  */
 
-LRESULT DcxStatusBar::setTipText( int iPart, LPSTR lpstr ) {
+LRESULT DcxStatusBar::setTipText( const int iPart, const LPSTR lpstr ) {
   return SendMessage( this->m_Hwnd, SB_SETTIPTEXT, (WPARAM) iPart, (LPARAM) lpstr );
 }
 
@@ -435,7 +435,7 @@ LRESULT DcxStatusBar::setTipText( int iPart, LPSTR lpstr ) {
  * blah
  */
 
-LRESULT DcxStatusBar::getTipText( int iPart, int nSize, LPSTR lpstr ) {
+LRESULT DcxStatusBar::getTipText( const int iPart, const int nSize, LPSTR lpstr ) const {
   return SendMessage( this->m_Hwnd, SB_GETTIPTEXT, (WPARAM) MAKEWPARAM (iPart, nSize), (LPARAM) lpstr );
 }
 
@@ -445,7 +445,7 @@ LRESULT DcxStatusBar::getTipText( int iPart, int nSize, LPSTR lpstr ) {
  * blah
  */
 
-LRESULT DcxStatusBar::getRect( int iPart, LPRECT lprc ) {
+LRESULT DcxStatusBar::getRect( const int iPart, LPRECT lprc ) const {
   return SendMessage( this->m_Hwnd, SB_GETRECT, (WPARAM) iPart, (LPARAM) lprc );
 }
 
@@ -455,7 +455,7 @@ LRESULT DcxStatusBar::getRect( int iPart, LPRECT lprc ) {
  * blah
  */
 
-LRESULT DcxStatusBar::setIcon( int iPart, HICON hIcon ) {
+LRESULT DcxStatusBar::setIcon( const int iPart, const HICON hIcon ) {
   return SendMessage( this->m_Hwnd, SB_SETICON, (WPARAM) iPart, (LPARAM) hIcon );
 }
 
@@ -465,7 +465,7 @@ LRESULT DcxStatusBar::setIcon( int iPart, HICON hIcon ) {
  * blah
  */
 
-LRESULT DcxStatusBar::getIcon( int iPart ) {
+LRESULT DcxStatusBar::getIcon( const int iPart ) const {
   return SendMessage( this->m_Hwnd, SB_GETICON, (WPARAM) iPart, (LPARAM) 0 );
 }
 
@@ -475,7 +475,7 @@ LRESULT DcxStatusBar::getIcon( int iPart ) {
  * blah
  */
 
-int DcxStatusBar::hitTest( POINT & pt ) {
+int DcxStatusBar::hitTest( const POINT & pt ) const {
 
   RECT rc;
   int n = 0;

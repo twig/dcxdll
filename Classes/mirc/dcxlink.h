@@ -30,7 +30,6 @@ class DcxLink : public DcxControl {
 
 public:
 
-  //DcxLink( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxLink( );
 

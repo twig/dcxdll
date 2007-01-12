@@ -43,7 +43,6 @@ class DcxColorCombo : public DcxControl {
 
 public:
 
-  //DcxColorCombo( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxColorCombo( );
 
@@ -56,12 +55,12 @@ public:
 
   void setmIRCPalette( );
 
-  LRESULT insertItem( int nPos, LPARAM lParam );
-  LRESULT getCount( );
-  LRESULT setCurSel( int nPos );
-  LRESULT getItemData( int nItem );
-  LRESULT getCurSel( );
-  LRESULT deleteItem( int nItem );
+  LRESULT insertItem( const int nPos, const LPARAM lParam );
+  LRESULT getCount( ) const;
+  LRESULT setCurSel( const int nPos );
+  LRESULT getItemData( const int nItem ) const;
+  LRESULT getCurSel( ) const;
+  LRESULT deleteItem( const int nItem );
   LRESULT resetContent( );
 
   inline TString getType( ) { return TString( "colorcombo" ); };

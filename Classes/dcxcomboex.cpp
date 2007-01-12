@@ -473,7 +473,7 @@ BOOL DcxComboEx::matchItemText( int nItem, TString * search, UINT SearchType ) {
  * blah
  */
 
-LRESULT DcxComboEx::insertItem( PCOMBOBOXEXITEM lpcCBItem ) {
+LRESULT DcxComboEx::insertItem( const PCOMBOBOXEXITEM lpcCBItem ) {
   return SendMessage( this->m_Hwnd, CBEM_INSERTITEM, (WPARAM) 0, (LPARAM) lpcCBItem );
 }
 
@@ -483,7 +483,7 @@ LRESULT DcxComboEx::insertItem( PCOMBOBOXEXITEM lpcCBItem ) {
  * blah
  */
 
-LRESULT DcxComboEx::getItem( PCOMBOBOXEXITEM lpcCBItem ) {
+LRESULT DcxComboEx::getItem( PCOMBOBOXEXITEM lpcCBItem ) const {
   return SendMessage( this->m_Hwnd, CBEM_GETITEM, (WPARAM) 0, (LPARAM) lpcCBItem );
 }
 
@@ -493,7 +493,7 @@ LRESULT DcxComboEx::getItem( PCOMBOBOXEXITEM lpcCBItem ) {
  * blah
  */
 
-LRESULT DcxComboEx::getEditControl( ) {
+LRESULT DcxComboEx::getEditControl( ) const {
   return SendMessage( this->m_Hwnd, CBEM_GETEDITCONTROL, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -503,7 +503,7 @@ LRESULT DcxComboEx::getEditControl( ) {
  * blah
  */
 
-LRESULT DcxComboEx::deleteItem( int iIndex ) {
+LRESULT DcxComboEx::deleteItem( const int iIndex ) {
   return SendMessage( this->m_Hwnd, CBEM_DELETEITEM, (WPARAM) iIndex, (LPARAM) 0 );
 }
 
@@ -513,7 +513,7 @@ LRESULT DcxComboEx::deleteItem( int iIndex ) {
  * blah
  */
 
-LRESULT DcxComboEx::setCurSel( int iIndex ) {
+LRESULT DcxComboEx::setCurSel( const int iIndex ) {
   return SendMessage( this->m_Hwnd, CB_SETCURSEL, (WPARAM) iIndex, (LPARAM) 0 );
 }
 
@@ -523,7 +523,7 @@ LRESULT DcxComboEx::setCurSel( int iIndex ) {
  * blah
  */
 
-LRESULT DcxComboEx::getCurSel( ) {
+LRESULT DcxComboEx::getCurSel( ) const {
   return SendMessage( this->m_Hwnd, CB_GETCURSEL, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -533,7 +533,7 @@ LRESULT DcxComboEx::getCurSel( ) {
  * blah
  */
 
-LRESULT DcxComboEx::getLBText( int iIndex, LPSTR lps ) {
+LRESULT DcxComboEx::getLBText( const int iIndex, LPSTR lps ) {
   return SendMessage( this->m_Hwnd, CB_GETLBTEXT, (WPARAM) iIndex, (LPARAM) lps );
 }
 
@@ -553,7 +553,7 @@ LRESULT DcxComboEx::resetContent( ) {
  * blah
  */
 
-LRESULT DcxComboEx::getCount( ) {
+LRESULT DcxComboEx::getCount( ) const {
   return SendMessage( this->m_Hwnd, CB_GETCOUNT, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -563,7 +563,7 @@ LRESULT DcxComboEx::getCount( ) {
  * blah
  */
 
-LRESULT DcxComboEx::limitText( int iLimit ) {
+LRESULT DcxComboEx::limitText( const int iLimit ) {
   return SendMessage( this->m_Hwnd, CB_LIMITTEXT, (WPARAM) iLimit, (LPARAM) 0 );
 }
 

@@ -30,7 +30,6 @@ class DcxIpAddress : public DcxControl {
 
 public:
 
-  //DcxIpAddress( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxIpAddress( );
 
@@ -41,10 +40,10 @@ public:
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  LRESULT setRange( int nField, BYTE iMin, BYTE iMax );
-  LRESULT setFocus( int nField );
-  LRESULT setAddress( DWORD dwIpAddress );
-  LRESULT getAddress( LPDWORD lpdwIpAddress );
+  LRESULT setRange( const int nField, const BYTE iMin, const BYTE iMax );
+  LRESULT setFocus( const int nField );
+  LRESULT setAddress( const DWORD dwIpAddress );
+  LRESULT getAddress( LPDWORD lpdwIpAddress ) const;
   LRESULT clearAddress( );
 
   inline TString getType( ) { return TString( "ipaddress" ); };

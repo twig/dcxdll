@@ -197,7 +197,7 @@ void DcxDivider::parseCommandRequest( TString & input ) {
  * blah
  */
 
-LRESULT DcxDivider::setPane( UINT iPaneId, LPDVPANEINFO lpdvpi ) {
+LRESULT DcxDivider::setPane( const UINT iPaneId, LPDVPANEINFO lpdvpi ) {
   return SendMessage( this->m_Hwnd, DV_SETPANE, (WPARAM) iPaneId, (LPARAM) lpdvpi );
 }
 
@@ -207,7 +207,7 @@ LRESULT DcxDivider::setPane( UINT iPaneId, LPDVPANEINFO lpdvpi ) {
  * blah
  */
 
-LRESULT DcxDivider::setDivPos( UINT iDivPos ) {
+LRESULT DcxDivider::setDivPos( const UINT iDivPos ) {
   return SendMessage( this->m_Hwnd, DV_SETDIVPOS, (WPARAM) 0, (LPARAM) iDivPos );
 }
 
@@ -217,8 +217,6 @@ LRESULT DcxDivider::setDivPos( UINT iDivPos ) {
  * blah
  */
 LRESULT DcxDivider::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-//  switch( uMsg ) {
-//	}
 	return 0L;
 }
 

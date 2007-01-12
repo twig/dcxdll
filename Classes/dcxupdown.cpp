@@ -203,7 +203,7 @@ void DcxUpDown::parseCommandRequest( TString & input ) {
  * blah
  */
 
-LRESULT DcxUpDown::setBuddy( HWND mHwnd ) {
+LRESULT DcxUpDown::setBuddy( const HWND mHwnd ) {
   return SendMessage( this->m_Hwnd, UDM_SETBUDDY, (WPARAM) mHwnd , (LPARAM) 0 );
 }
 
@@ -213,7 +213,7 @@ LRESULT DcxUpDown::setBuddy( HWND mHwnd ) {
  * blah
  */
 
-LRESULT DcxUpDown::setRange32( int iLow, int iHigh ) {
+LRESULT DcxUpDown::setRange32( const int iLow, const int iHigh ) {
   return SendMessage( this->m_Hwnd, UDM_SETRANGE32, (WPARAM) iLow, (LPARAM) iHigh );
 }
 
@@ -223,7 +223,7 @@ LRESULT DcxUpDown::setRange32( int iLow, int iHigh ) {
  * blah
  */
 
-LRESULT DcxUpDown::getRange32( LPINT iLow, LPINT iHigh ) {
+LRESULT DcxUpDown::getRange32( LPINT iLow, LPINT iHigh ) const {
   return SendMessage( this->m_Hwnd, UDM_GETRANGE32, (WPARAM) iLow, (LPARAM) iHigh );
 }
 
@@ -233,7 +233,7 @@ LRESULT DcxUpDown::getRange32( LPINT iLow, LPINT iHigh ) {
  * blah
  */
 
-LRESULT DcxUpDown::setBase( int iBase ) {
+LRESULT DcxUpDown::setBase( const int iBase ) {
   return SendMessage( this->m_Hwnd, UDM_SETBASE, (WPARAM) iBase, (LPARAM) 0 );
 }
 
@@ -243,7 +243,7 @@ LRESULT DcxUpDown::setBase( int iBase ) {
  * blah
  */
 
-LRESULT DcxUpDown::getBase( ) {
+LRESULT DcxUpDown::getBase( ) const {
   return SendMessage( this->m_Hwnd, UDM_GETBASE, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -253,7 +253,7 @@ LRESULT DcxUpDown::getBase( ) {
  * blah
  */
 
-LRESULT DcxUpDown::setPos32( INT nPos ) {
+LRESULT DcxUpDown::setPos32( const INT nPos ) {
   return SendMessage( this->m_Hwnd, UDM_SETPOS32, (WPARAM) 0, (LPARAM) nPos );
 }
 
@@ -263,7 +263,7 @@ LRESULT DcxUpDown::setPos32( INT nPos ) {
  * blah
  */
 
-LRESULT DcxUpDown::getPos32( LPBOOL pfError ) {
+LRESULT DcxUpDown::getPos32( LPBOOL pfError ) const {
   return SendMessage( this->m_Hwnd, UDM_GETPOS32, (WPARAM) 0, (LPARAM) pfError );
 }
 

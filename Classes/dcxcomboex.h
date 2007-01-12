@@ -47,7 +47,6 @@ class DcxComboEx : public DcxControl {
 
 public:
 
-  //DcxComboEx( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxComboEx( );
 
@@ -64,23 +63,20 @@ public:
 
   BOOL matchItemText( int nItem, TString * search, UINT SearchType );
 
-  LRESULT insertItem( PCOMBOBOXEXITEM lpcCBItem );
-  LRESULT getItem( PCOMBOBOXEXITEM lpcCBItem );
-  LRESULT getEditControl( );
-  LRESULT deleteItem( int iIndex );
-  LRESULT setCurSel( int iIndex );
-  LRESULT getCurSel( );
-  LRESULT getLBText( int iIndex, LPSTR lps );
+  LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem );
+  LRESULT getItem( PCOMBOBOXEXITEM lpcCBItem ) const;
+  LRESULT getEditControl( ) const;
+  LRESULT deleteItem( const int iIndex );
+  LRESULT setCurSel( const int iIndex );
+  LRESULT getCurSel( ) const;
+  LRESULT getLBText( const int iIndex, LPSTR lps );
   LRESULT resetContent( );
-  LRESULT getCount( );
-  LRESULT limitText( int iLimit );
+  LRESULT getCount( ) const;
+  LRESULT limitText( const int iLimit );
 
   static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
   inline TString getType( ) { return TString( "comboex" ); };
-
-private:
-		//void ConstructComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
 
 protected:
 

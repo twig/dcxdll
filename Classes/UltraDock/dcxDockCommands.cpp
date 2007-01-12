@@ -11,7 +11,7 @@ extern mIRCDLL mIRCLink;
 extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, hTreeView;
 extern HFONT pOrigTreeViewFont;
 extern VectorOfDocks v_docks;
-extern void UltraDock(HWND mWnd,HWND temp,TString flag);
+extern void UltraDock(const HWND mWnd,HWND temp,TString flag);
 extern bool FindUltraDock(const HWND hwnd);
 extern LPDCXULTRADOCK GetUltraDock(const HWND hwnd);
 
@@ -271,58 +271,127 @@ mIRC(xdock) {
 		return 1;
 	}
 	// set treebar font.
-	// [-F] (+flags CHARSET SIZE FONTNAME)
-	else if ((switches[1] == 'F') && (numtok > 4)) {
+	// [-F] [+flag] [args]
+	else if ((switches[1] == 'F') && (numtok > 2)) {
 		//treeb_hwnd
 		if (IsWindow(hTreeView)) {
-			LOGFONT lf;
-
-			if (ParseCommandToLogfont(input.gettok(2, -1, " "), &lf)) {
-				HFONT hFont = CreateFontIndirect(&lf);
-				if (hFont != NULL) {
-					HFONT f = (HFONT)SendMessage(hTreeView,WM_GETFONT,0,0);
-					if (pOrigTreeViewFont == NULL)
-						pOrigTreeViewFont = f;
-					SendMessage( hTreeView, WM_SETFONT, (WPARAM) hFont, (LPARAM) MAKELPARAM(TRUE,0));
-					if (f != pOrigTreeViewFont)
-						DeleteObject(f);
-				}
-			}
-		}
-		return 1;
-	}
-	// TODO: undocumented. Non functional, mirc does owner draw?
-	// set treebar Colour.
-	// [-C] [+flags] [colour]
-	else if ((switches[1] == 'C') && (numtok == 3)) {
-		if (IsWindow(hTreeView)) {
-			TString flag(input.gettok(2," "));
-			COLORREF clr = (COLORREF)input.gettok(3," ").to_num();
+			TString flag(input.gettok(2));
 			switch(flag[1])
 			{
-			case 't': // text colour
+			case 'f': // set Treebars Font: (+flags CHARSET SIZE FONTNAME)
 				{
-					TreeView_SetTextColor(hTreeView,clr);
+					if (numtok < 6) {
+						DCXError("xdock -F","Invalid Font Args");
+						return 0;
+					}
+					LOGFONT lf;
+
+					if (ParseCommandToLogfont(input.gettok(3, -1, " "), &lf)) {
+						HFONT hFont = CreateFontIndirect(&lf);
+						if (hFont != NULL) {
+							HFONT f = (HFONT)SendMessage(hTreeView,WM_GETFONT,0,0);
+							if (pOrigTreeViewFont == NULL)
+								pOrigTreeViewFont = f;
+							SendMessage( hTreeView, WM_SETFONT, (WPARAM) hFont, (LPARAM) MAKELPARAM(TRUE,0));
+							if (f != pOrigTreeViewFont)
+								DeleteObject(f);
+						}
+					}
 				}
 				break;
-			case 'b': // bkg colour
+			case 'c': // set Treebars Colours: [+flags] [colour]
 				{
-					TreeView_SetBkColor(hTreeView,clr);
+					if (numtok < 4) {
+						DCXError("xdock -F","Invalid Colour Args");
+						return 0;
+					}
+					// TODO: undocumented. Non functional, mirc does owner draw, need to subclass
+					TString cflag(input.gettok(3));
+					COLORREF clr = (COLORREF)input.gettok(4).to_num();
+					switch(flag[1])
+					{
+					case 't': // text colour
+						{
+							TreeView_SetTextColor(hTreeView,clr);
+						}
+						break;
+					case 'b': // bkg colour
+						{
+							TreeView_SetBkColor(hTreeView,clr);
+						}
+						break;
+					case 'l': // line colour
+						{
+							TreeView_SetLineColor(hTreeView,clr);
+						}
+						break;
+					default:
+						{
+							DCXError("xdock -F","Invalid Colour flag");
+							return 0;
+						}
+						break;
+					}
 				}
 				break;
-			case 'l': // line colour
+			case 's': // set Treebars Styles: [styles]
 				{
-					TreeView_SetLineColor(hTreeView,clr);
+					if (numtok < 3) {
+						DCXError("xdock -F","Invalid Style Args");
+						return 0;
+					}
+					static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines");
+					int i = 1, numtok = input.numtok();
+					DWORD stylef = GetWindowLong(hTreeView,GWL_STYLE);
+					while (i <= numtok) {
+						switch (treebar_styles.findtok(input.gettok(i).to_chr(),1))
+						{
+						case 1: // trackselect (off by default)
+							stylef |= TVS_TRACKSELECT;
+							break;
+						case 2: // notrackselect
+							stylef &= ~TVS_TRACKSELECT;
+							break;
+						case 3: // tooltips (on by default)
+							stylef &= ~TVS_NOTOOLTIPS;
+							break;
+						case 4: // notooltips
+							stylef |= TVS_NOTOOLTIPS;
+							break;
+						case 5: // infotips (on by default)
+							stylef |= TVS_INFOTIP;
+							break;
+						case 6: // noinfotips
+							stylef &= ~TVS_INFOTIP;
+							break;
+						case 7: // hasbuttons (on by default)
+							stylef |= TVS_HASBUTTONS;
+							break;
+						case 8: // nohasbuttons
+							stylef &= ~TVS_HASBUTTONS;
+							break;
+						case 9: // rootlines (on by default)
+							stylef |= TVS_LINESATROOT;
+							break;
+						case 10: // norootlines (off by default)
+							stylef &= ~TVS_LINESATROOT;
+							break;
+						default: // unknown style ignore.
+							break;
+						}
+						i++;
+					}
+					SetWindowLong(hTreeView,GWL_STYLE, stylef);
+					RedrawWindow(hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 				}
 				break;
 			default:
-				{
-					DCXError("xdock -C","Invalid flag");
-					return 0;
-				}
-				break;
+				DCXError("xdock -F","Invalid flag");
+				return 0;
 			}
 		}
+		else
+			DCXError("xdock -F","Unable to Find Treebar");
 		return 1;
 	}
 

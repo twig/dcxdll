@@ -242,7 +242,7 @@ void DcxColorCombo::setmIRCPalette( ) {
  * blah
  */
 
-LRESULT DcxColorCombo::insertItem(  int nPos, LPARAM lParam ) {
+LRESULT DcxColorCombo::insertItem(  const int nPos, const LPARAM lParam ) {
   return SendMessage( this->m_Hwnd, CB_INSERTSTRING, (WPARAM) nPos, lParam );
 }
 
@@ -252,7 +252,7 @@ LRESULT DcxColorCombo::insertItem(  int nPos, LPARAM lParam ) {
  * blah
  */
 
-LRESULT DcxColorCombo::getCount( ) {
+LRESULT DcxColorCombo::getCount( ) const {
   return SendMessage( this->m_Hwnd, CB_GETCOUNT, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -262,7 +262,7 @@ LRESULT DcxColorCombo::getCount( ) {
  * blah
  */
 
-LRESULT DcxColorCombo::setCurSel( int nPos ) {
+LRESULT DcxColorCombo::setCurSel( const int nPos ) {
   return SendMessage( this->m_Hwnd, CB_SETCURSEL, (WPARAM) nPos, (LPARAM) 0 );
 }
 
@@ -272,7 +272,7 @@ LRESULT DcxColorCombo::setCurSel( int nPos ) {
  * blah
  */
 
-LRESULT DcxColorCombo::getItemData( int nItem ) {
+LRESULT DcxColorCombo::getItemData( const int nItem ) const {
   return SendMessage( this->m_Hwnd, CB_GETITEMDATA, (WPARAM) nItem, (LPARAM) 0 );
 }
 
@@ -282,7 +282,7 @@ LRESULT DcxColorCombo::getItemData( int nItem ) {
  * blah
  */
 
-LRESULT DcxColorCombo::getCurSel( ) {
+LRESULT DcxColorCombo::getCurSel( ) const {
   return SendMessage( this->m_Hwnd, CB_GETCURSEL, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -292,7 +292,7 @@ LRESULT DcxColorCombo::getCurSel( ) {
  * blah
  */
 
-LRESULT DcxColorCombo::deleteItem( int nItem ) {
+LRESULT DcxColorCombo::deleteItem( const int nItem ) {
   return SendMessage( this->m_Hwnd, CB_DELETESTRING, (WPARAM) nItem, (LPARAM) 0 );
 }
 

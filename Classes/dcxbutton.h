@@ -51,7 +51,7 @@ public:
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  HIMAGELIST getImageList( );
+  HIMAGELIST getImageList( ) const;
   void setImageList( const HIMAGELIST himl );
   HIMAGELIST createImageList( );
 

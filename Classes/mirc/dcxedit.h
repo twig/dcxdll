@@ -29,7 +29,6 @@ class DcxDialog;
 class DcxEdit : public DcxControl {
 
 public:
-	//DcxEdit(UINT ID, DcxDialog *p_Dialog, RECT *rc, TString &styles);
 	DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, const RECT *rc, TString &styles);
 	virtual ~DcxEdit();
 

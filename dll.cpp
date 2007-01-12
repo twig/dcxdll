@@ -598,24 +598,21 @@ mIRC(IsUsingDirectX) {
 * \brief DCX DLL is GDI+ supported?
 */
 mIRC(IsUsingGDI) {
-	wsprintf(data, "%s", (mIRCLink.m_bUseGDIPlus ? "$true" : "$false"));
-	return 3;
+	ret((mIRCLink.m_bUseGDIPlus ? "$true" : "$false"));
 }
 
 /*!
 * \brief Check if it's safe to unload DLL
 */
 mIRC(IsUnloadSafe) {
-	wsprintf(data, "%s", (Dialogs.safeToCloseAll() ? "$true" : "$false"));
-	return 3;
+	ret(((Dialogs.safeToCloseAll() && !g_XPopupMenuManager.isPatched()) ? "$true" : "$false"));
 }
 
 /*!
 * \brief Check if windows is themed
 */
 mIRC(IsThemedXP) {
-	wsprintf(data, "%s", (dcxIsThemeActive() ? "$true" : "$false"));
-	return 3;
+	ret((dcxIsThemeActive() ? "$true" : "$false"));
 }
 
 /*!
@@ -1292,7 +1289,7 @@ DcxDialogCollection dcxDialogs() {
 	return Dialogs;
 }
 
-BOOL isMenuBarMenu(HMENU hMenu, HMENU hMatch) {
+BOOL isMenuBarMenu(const HMENU hMenu, const HMENU hMatch) {
 	HMENU hTemp;
 	int i = 0, n = GetMenuItemCount(hMenu);
 

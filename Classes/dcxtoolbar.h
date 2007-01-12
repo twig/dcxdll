@@ -58,7 +58,6 @@ class DcxToolBar : public DcxControl {
 
 public:
 
-  //DcxToolBar( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxToolBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxToolBar( );
 
@@ -70,30 +69,30 @@ public:
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   HIMAGELIST getImageList( int iImageList );
-  void setImageList( HIMAGELIST himl, int iImageList );
-  static HIMAGELIST createImageList( UINT iSize );
+  void setImageList( HIMAGELIST himl, const int iImageList );
+  static HIMAGELIST createImageList( const UINT iSize );
 
   LRESULT autoSize( );
-  LRESULT insertButton( int nPos, LPTBBUTTON lpbb );
-  LRESULT hitTest( LPPOINT lpt );
-  LRESULT getItemRect( int iButton, LPRECT lprc );
-  LRESULT getButtonCount( );
-  LRESULT setButtonWidth( int cxMin, int cxMax );
-  LRESULT deleteButton( int iButton );
-  LRESULT setButtonInfo( int idButton, LPTBBUTTONINFO lpbi );
-  LRESULT getButtonInfo( int idButton, LPTBBUTTONINFO lpbi );
-  LRESULT getTooltips( );
-  LRESULT getButtonText( int idButton, LPSTR lpszText );
-  LRESULT getButton( int iButton, LPTBBUTTON lpb );
-  LRESULT setButtonState( int idButton, UINT fState );
-  LRESULT getCommandToIndex( int idButton );
-  LRESULT moveButton( int iButtonFrom, int iButtonTo );
-  LRESULT markButton( int iButton, bool fHighlight );
-  LRESULT setButtonSize( int dxButton, int dyButton );
+  LRESULT insertButton( const int nPos, const LPTBBUTTON lpbb );
+  LRESULT hitTest( const LPPOINT lpt ) const;
+  LRESULT getItemRect( const int iButton, LPRECT lprc ) const;
+  LRESULT getButtonCount( ) const;
+  LRESULT setButtonWidth( const int cxMin, const int cxMax );
+  LRESULT deleteButton( const int iButton );
+  LRESULT setButtonInfo( const int idButton, LPTBBUTTONINFO lpbi );
+  LRESULT getButtonInfo( const int idButton, LPTBBUTTONINFO lpbi ) const;
+  LRESULT getTooltips( ) const;
+  LRESULT getButtonText( const int idButton, LPSTR lpszText ) const;
+  LRESULT getButton( const int iButton, LPTBBUTTON lpb ) const;
+  LRESULT setButtonState( const int idButton, const UINT fState );
+  LRESULT getCommandToIndex( const int idButton ) const;
+  LRESULT moveButton( const int iButtonFrom, const int iButtonTo );
+  LRESULT markButton( const int iButton, const bool fHighlight );
+  LRESULT setButtonSize( const int dxButton, const int dyButton );
 
   void autoStretchButtons( );
 
-  void autoPosition( int width, int height );
+  void autoPosition( const int width, const int height );
 
   inline TString getType( ) { return TString( "toolbar" ); };
 
@@ -103,8 +102,8 @@ protected:
 
   static UINT parseImageListFlags( TString & flags );
 
-  int getFreeButtonID( );
-  int getIndexToCommand( int iIndex );
+  int getFreeButtonID( ) const;
+  int getIndexToCommand( const int iIndex ) const;
 
   static UINT parseButtonStateFlags( TString & flags );
   static UINT parseButtonStyleFlags( TString & flags );

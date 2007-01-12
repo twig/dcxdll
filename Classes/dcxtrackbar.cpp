@@ -291,7 +291,7 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
  * blah
  */
 
-LRESULT DcxTrackBar::setRangeMin( LONG iLowLim ) {
+LRESULT DcxTrackBar::setRangeMin( const LONG iLowLim ) {
   return SendMessage( this->m_Hwnd, TBM_SETRANGEMIN, (WPARAM) TRUE, (LPARAM) iLowLim );
 }
 
@@ -301,7 +301,7 @@ LRESULT DcxTrackBar::setRangeMin( LONG iLowLim ) {
  * blah
  */
 
-LRESULT DcxTrackBar::getRangeMin(  ) {
+LRESULT DcxTrackBar::getRangeMin(  ) const {
   return SendMessage( this->m_Hwnd, TBM_GETRANGEMIN, (WPARAM) 0, (LPARAM) 0 );
 } 
 
@@ -311,7 +311,7 @@ LRESULT DcxTrackBar::getRangeMin(  ) {
  * blah
  */
 
-LRESULT DcxTrackBar::setRangeMax( LONG iHighLim ) {
+LRESULT DcxTrackBar::setRangeMax( const LONG iHighLim ) {
   return SendMessage( this->m_Hwnd, TBM_SETRANGEMAX, (WPARAM) TRUE, (LPARAM) iHighLim );
 }
 
@@ -321,7 +321,7 @@ LRESULT DcxTrackBar::setRangeMax( LONG iHighLim ) {
  * blah
  */
 
-LRESULT DcxTrackBar::getRangeMax(  ) {
+LRESULT DcxTrackBar::getRangeMax(  ) const {
   return SendMessage( this->m_Hwnd, TBM_GETRANGEMAX, (WPARAM) 0, (LPARAM) 0 );
 } 
 
@@ -331,7 +331,7 @@ LRESULT DcxTrackBar::getRangeMax(  ) {
  * blah
  */
 
-LRESULT DcxTrackBar::setRange( LONG iLowLim, LONG iHighLim ) {
+LRESULT DcxTrackBar::setRange( const LONG iLowLim, const LONG iHighLim ) {
   return SendMessage( this->m_Hwnd, TBM_SETRANGE, (WPARAM) TRUE, (LPARAM) MAKELONG ( iLowLim, iHighLim ) );
 }
 
@@ -341,7 +341,7 @@ LRESULT DcxTrackBar::setRange( LONG iLowLim, LONG iHighLim ) {
  * blah
  */
 
-LRESULT DcxTrackBar::setPos( LONG lPosition ) {
+LRESULT DcxTrackBar::setPos( const LONG lPosition ) {
   return SendMessage( this->m_Hwnd, TBM_SETPOS, (WPARAM) TRUE, (LPARAM) lPosition );
 }
 
@@ -351,7 +351,7 @@ LRESULT DcxTrackBar::setPos( LONG lPosition ) {
  * blah
  */
 
-LRESULT DcxTrackBar::getPos(  ) {
+LRESULT DcxTrackBar::getPos(  ) const {
   return SendMessage( this->m_Hwnd, TBM_GETPOS, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -361,7 +361,7 @@ LRESULT DcxTrackBar::getPos(  ) {
  * blah
  */
 
-LRESULT DcxTrackBar::setTic( LONG lPosition ) {
+LRESULT DcxTrackBar::setTic( const LONG lPosition ) {
   return (BOOL) SendMessage( this->m_Hwnd, TBM_SETTIC, (WPARAM) 0, (LPARAM) lPosition );
 }
 
@@ -371,7 +371,7 @@ LRESULT DcxTrackBar::setTic( LONG lPosition ) {
  * blah
  */
 
-LRESULT DcxTrackBar::setTicFreq( LONG wFreq ) {
+LRESULT DcxTrackBar::setTicFreq( const LONG wFreq ) {
   return SendMessage( this->m_Hwnd, TBM_SETTICFREQ, (WPARAM) wFreq, (LPARAM) 0 );
 }
 
@@ -391,7 +391,7 @@ LRESULT DcxTrackBar::clearTics( ) {
  * blah
  */
 
-LRESULT DcxTrackBar::setTipSide( int fLocation ) {
+LRESULT DcxTrackBar::setTipSide( const int fLocation ) {
   return SendMessage( this->m_Hwnd, TBM_SETTIPSIDE, (WPARAM) fLocation, (LPARAM) 0 );
 }
 
@@ -401,7 +401,7 @@ LRESULT DcxTrackBar::setTipSide( int fLocation ) {
  * blah
  */
 
-LRESULT DcxTrackBar::setPageSize( LONG lPageSize ) {
+LRESULT DcxTrackBar::setPageSize( const LONG lPageSize ) {
   return SendMessage( this->m_Hwnd, TBM_SETPAGESIZE, (WPARAM) 0, (LPARAM) lPageSize );
 }
 
@@ -411,7 +411,7 @@ LRESULT DcxTrackBar::setPageSize( LONG lPageSize ) {
  * blah
  */
 
-LRESULT DcxTrackBar::getPageSize(  ) {
+LRESULT DcxTrackBar::getPageSize(  ) const {
   return SendMessage( this->m_Hwnd, TBM_GETPAGESIZE, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -421,7 +421,7 @@ LRESULT DcxTrackBar::getPageSize(  ) {
  * blah
  */
 
-LRESULT DcxTrackBar::setLineSize( LONG lLineSize ) {
+LRESULT DcxTrackBar::setLineSize( const LONG lLineSize ) {
   return SendMessage( this->m_Hwnd, TBM_SETLINESIZE, (WPARAM) 0, (LPARAM) lLineSize );
 }
 
@@ -431,7 +431,7 @@ LRESULT DcxTrackBar::setLineSize( LONG lLineSize ) {
  * blah
  */
 
-LRESULT DcxTrackBar::getLineSize(  ) {
+LRESULT DcxTrackBar::getLineSize(  ) const {
   return SendMessage( this->m_Hwnd, TBM_GETLINESIZE, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -441,7 +441,7 @@ LRESULT DcxTrackBar::getLineSize(  ) {
  * blah
  */
 
-LRESULT DcxTrackBar::setThumbLength( UINT iLength ) {
+LRESULT DcxTrackBar::setThumbLength( const UINT iLength ) {
   return SendMessage( this->m_Hwnd, TBM_SETTHUMBLENGTH, (WPARAM) iLength, (LPARAM) 0 );
 }
 
@@ -451,7 +451,7 @@ LRESULT DcxTrackBar::setThumbLength( UINT iLength ) {
  * blah
  */
 
-LRESULT DcxTrackBar::setSel( LONG iLowLim, LONG iHighLim ) {
+LRESULT DcxTrackBar::setSel( const LONG iLowLim, const LONG iHighLim ) {
   return SendMessage( this->m_Hwnd, TBM_SETSEL, (WPARAM) TRUE, (LPARAM) MAKELONG( iLowLim, iHighLim ) );
 }
 
@@ -461,7 +461,7 @@ LRESULT DcxTrackBar::setSel( LONG iLowLim, LONG iHighLim ) {
  * blah
  */
 
-LRESULT DcxTrackBar::getSelStart(  ) {
+LRESULT DcxTrackBar::getSelStart(  ) const {
   return SendMessage( this->m_Hwnd, TBM_GETSELSTART, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -471,7 +471,7 @@ LRESULT DcxTrackBar::getSelStart(  ) {
  * blah
  */
 
-LRESULT DcxTrackBar::getSelEnd(  ) {
+LRESULT DcxTrackBar::getSelEnd(  ) const {
   return SendMessage( this->m_Hwnd, TBM_GETSELEND, (WPARAM) 0, (LPARAM) 0 );
 }
 

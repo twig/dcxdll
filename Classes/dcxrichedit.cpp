@@ -527,7 +527,7 @@ void DcxRichEdit::clearContents() {
 *
 * blah
 */
-void DcxRichEdit::parseContents(BOOL fNewLine) { // old function
+void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 	this->m_bIgnoreInput = TRUE;
 	this->setRedraw(FALSE);
 	this->clearContents();
@@ -845,7 +845,7 @@ void DcxRichEdit::insertText(char *text, bool bline, bool uline, bool bcolor, CO
 *
 * blah
 */
-LRESULT DcxRichEdit::setAutoUrlDetect(BOOL iEnable) {
+LRESULT DcxRichEdit::setAutoUrlDetect(const BOOL iEnable) {
 	return SendMessage(this->m_Hwnd, EM_AUTOURLDETECT, (WPARAM) iEnable, (LPARAM) 0);
 }
 
@@ -854,7 +854,7 @@ LRESULT DcxRichEdit::setAutoUrlDetect(BOOL iEnable) {
 *
 * blah
 */
-LRESULT DcxRichEdit::hideSelection(BOOL iHide) {
+LRESULT DcxRichEdit::hideSelection(const BOOL iHide) {
 	return SendMessage(this->m_Hwnd, EM_HIDESELECTION, (WPARAM) iHide, (LPARAM) 0);
 }
 
@@ -863,7 +863,7 @@ LRESULT DcxRichEdit::hideSelection(BOOL iHide) {
 *
 * blah
 */
-LRESULT DcxRichEdit::setSel(int iStart, int iEnd) {
+LRESULT DcxRichEdit::setSel(const int iStart, const int iEnd) {
 	return SendMessage(this->m_Hwnd, EM_SETSEL, (WPARAM) iStart, (LPARAM) iEnd);
 }
 
@@ -872,7 +872,7 @@ LRESULT DcxRichEdit::setSel(int iStart, int iEnd) {
 *
 * blah
 */
-LRESULT DcxRichEdit::replaceSel(BOOL bUndo, LPCTSTR lpstr) {
+LRESULT DcxRichEdit::replaceSel(const BOOL bUndo, LPCTSTR lpstr) {
 	return SendMessage(this->m_Hwnd, EM_REPLACESEL, (WPARAM) bUndo, (LPARAM) lpstr);
 }
 
@@ -881,7 +881,7 @@ LRESULT DcxRichEdit::replaceSel(BOOL bUndo, LPCTSTR lpstr) {
 *
 * blah
 */
-LRESULT DcxRichEdit::getCharFormat(UINT iType, CHARFORMAT2 *cfm) {
+LRESULT DcxRichEdit::getCharFormat(const UINT iType, CHARFORMAT2 *cfm) const {
 	return SendMessage(this->m_Hwnd, EM_GETCHARFORMAT, (WPARAM) iType, (LPARAM) cfm);
 }
 
@@ -891,7 +891,7 @@ LRESULT DcxRichEdit::getCharFormat(UINT iType, CHARFORMAT2 *cfm) {
 * blah
 */
 
-LRESULT DcxRichEdit::setCharFormat(UINT iType, CHARFORMAT2 *cfm) {
+LRESULT DcxRichEdit::setCharFormat(const UINT iType, CHARFORMAT2 *cfm) {
 	return SendMessage(this->m_Hwnd, EM_SETCHARFORMAT, (WPARAM) iType, (LPARAM) cfm);
 }
 

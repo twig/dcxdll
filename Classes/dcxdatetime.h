@@ -28,7 +28,6 @@ class DcxDialog;
 
 class DcxDateTime : public DcxControl {
 public:
-  //DcxDateTime( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxDateTime(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, TString &styles);
   virtual ~DcxDateTime();
 

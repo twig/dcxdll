@@ -44,7 +44,7 @@ LayoutCell::LayoutCell( ) {
  * blah
  */
 
-LayoutCell::LayoutCell( HWND mHwnd ) : m_Hwnd( mHwnd ) {
+LayoutCell::LayoutCell( const HWND mHwnd ) : m_Hwnd( mHwnd ) {
 
   //MessageBox( NULL, "LayoutCell( HWND mHwnd )", "LayoutCell( HWND mHwnd )", MB_OK );
 
@@ -66,7 +66,7 @@ LayoutCell::LayoutCell( HWND mHwnd ) : m_Hwnd( mHwnd ) {
  * blah
  */
 
-LayoutCell::LayoutCell( HWND mHwnd, RECT & rc ) : m_Hwnd( mHwnd ), m_rcWindow( rc ) {
+LayoutCell::LayoutCell( const HWND mHwnd, const RECT & rc ) : m_Hwnd( mHwnd ), m_rcWindow( rc ) {
 
   SetRectEmpty( &this->m_rcBorders );
 
@@ -114,7 +114,7 @@ void LayoutCell::setSibling( LayoutCell * p_Cell ) {
  * blah
  */
 
-LayoutCell * LayoutCell::getFirstChild( ) {
+LayoutCell * LayoutCell::getFirstChild( ) const {
 
   return this->m_FirstChild;
 }
@@ -125,7 +125,7 @@ LayoutCell * LayoutCell::getFirstChild( ) {
  * blah
  */
 
-LayoutCell * LayoutCell::getParent( ) {
+LayoutCell * LayoutCell::getParent( ) const {
 
   return this->m_Parent;
 }
@@ -136,7 +136,7 @@ LayoutCell * LayoutCell::getParent( ) {
  * blah
  */
 
-LayoutCell * LayoutCell::getNextSibling( ) {
+LayoutCell * LayoutCell::getNextSibling( ) const {
 
   return this->m_NextSibling;
 }
@@ -149,8 +149,8 @@ LayoutCell * LayoutCell::getNextSibling( ) {
 
 void LayoutCell::setRect( RECT & rc ) {
 
-  RECT rect;
-  this->getClientRect( rect );
+  //RECT rect;
+  //this->getClientRect( rect );
 
   //MessageBox( hwndChild3, "blah", "blah", MB_OK );
 
@@ -199,7 +199,7 @@ void LayoutCell::setRect( RECT & rc ) {
  * blah
  */
 
-void LayoutCell::getRect( RECT & rc ) {
+void LayoutCell::getRect( RECT & rc ) const {
 
   rc = this->m_rcWindow;
 }
@@ -210,7 +210,7 @@ void LayoutCell::getRect( RECT & rc ) {
  * blah
  */
 
-void LayoutCell::getClientRect( RECT & rc ) {
+void LayoutCell::getClientRect( RECT & rc ) const {
 
   CopyRect( &rc, &this->m_rcWindow );
 
@@ -226,7 +226,7 @@ void LayoutCell::getClientRect( RECT & rc ) {
  * blah
  */
 
-void LayoutCell::setBorder( RECT & rc ) {
+void LayoutCell::setBorder( const RECT & rc ) {
 
   // remove old borders
   this->m_rcWindow.right -= this->m_rcBorders.left + this->m_rcBorders.right;
@@ -253,7 +253,7 @@ void LayoutCell::setBorder( RECT & rc ) {
  * blah
  */
 
-void LayoutCell::setBorder( unsigned int nBorder ) {
+void LayoutCell::setBorder( const unsigned int nBorder ) {
 
   // remove old borders
   this->m_rcWindow.right -= this->m_rcBorders.left + this->m_rcBorders.right;
@@ -280,7 +280,7 @@ void LayoutCell::setBorder( unsigned int nBorder ) {
  * blah
  */
 
-void LayoutCell::getBorder( RECT & rc ) {
+void LayoutCell::getBorder( RECT & rc ) const {
 
   rc = this->m_rcBorders;
 }
@@ -291,7 +291,7 @@ void LayoutCell::getBorder( RECT & rc ) {
  * blah
  */
 
-BOOL LayoutCell::isVisible( ) {
+BOOL LayoutCell::isVisible( ) const {
 
   if ( this->m_Hwnd != NULL && IsWindow( this->m_Hwnd ) && IsWindowVisible( this->m_Hwnd ) == FALSE )
     return FALSE;

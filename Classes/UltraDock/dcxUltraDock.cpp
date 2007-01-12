@@ -102,7 +102,7 @@ LPDCXULTRADOCK GetUltraDock(const HWND hwnd)
 	return NULL;
 }
 
-void UltraDock(HWND mWnd, HWND temp, TString flag)
+void UltraDock(const HWND mWnd, HWND temp, TString flag)
 {
 	if ((FindUltraDock(temp)) || (GetProp(temp,"dcx_docked") != NULL)) {
 		DCXError("/xdock -m","Window already docked");
@@ -271,7 +271,7 @@ void AdjustMDIRect(WINDOWPOS *wp)
 
 // #####################################################################################
 // 0 == no swb, 1 == Left, 2 == Right, 3 == Top, 4 == Bottom
-int SwitchbarPos(int type)
+int SwitchbarPos(const int type)
 {
 	RECT swb_rc, mdi_rc;
 	HWND hwnd;

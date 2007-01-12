@@ -38,14 +38,14 @@ public:
 		VERT=HORZ<<1,   //!< Vertical Stacked LayoutCells
 	};
 
-  LayoutCellPane( PaneType nType = HORZ );
+  LayoutCellPane( const PaneType nType = HORZ );
   virtual ~LayoutCellPane( );
 
   virtual void LayoutChild( );
   virtual HDWP ExecuteLayout( HDWP hdwp );
   virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI );
 
-  LayoutCell * addChild( LayoutCell * p_Cell, int nWeight );
+  LayoutCell * addChild( LayoutCell * p_Cell, const int nWeight );
 
   CellType getType( );
 

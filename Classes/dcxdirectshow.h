@@ -50,13 +50,13 @@ public:
   inline TString getType( ) { return TString( "directshow" ); };
 
 protected:
-	static HRESULT InitWindowlessVMR(HWND hwndApp, IGraphBuilder* pGraph, IVMRWindowlessControl9** ppWc);
+	static HRESULT InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph, IVMRWindowlessControl9** ppWc);
 	HRESULT SetVideoPos(void);
 	void ReleaseAll(void);
 	enum { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION } Properties;
-	HRESULT getProperty(char *prop, int type) const;
+	HRESULT getProperty(char *prop, const int type) const;
 	HRESULT setAlpha(float alpha);
-	HRESULT setVideo(TString flags, float brightness, float contrast, float hue, float saturation);
+	HRESULT setVideo(const TString flags, const float brightness, const float contrast, const float hue, const float saturation);
 	HRESULT getVideo(VMR9ProcAmpControl *amc) const;
 	HRESULT getVideoRange(VMR9ProcAmpControlFlags prop, VMR9ProcAmpControlRange *acr) const;
 

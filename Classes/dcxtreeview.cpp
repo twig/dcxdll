@@ -875,7 +875,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
  * blah
  */
 
-HIMAGELIST DcxTreeView::getImageList( int type ) {
+HIMAGELIST DcxTreeView::getImageList( const int type ) {
 
   return (HIMAGELIST) TreeView_GetImageList( this->m_Hwnd, type );
 }
@@ -886,7 +886,7 @@ HIMAGELIST DcxTreeView::getImageList( int type ) {
  * blah
  */
 
-void DcxTreeView::setImageList( HIMAGELIST himl, int type ) {
+void DcxTreeView::setImageList( HIMAGELIST himl, const int type ) {
 
   TreeView_SetImageList( this->m_Hwnd, himl, type );
 }
@@ -909,7 +909,7 @@ HIMAGELIST DcxTreeView::createImageList( ) {
  */
 
 //HTREEITEM DcxTreeView::insertItem( ) {
-HTREEITEM DcxTreeView::insertItem(TString * path, TString * data, TString * Tooltip) {
+HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, const TString * Tooltip) {
 
 	HTREEITEM hParent = TVI_ROOT;
 	HTREEITEM hAfter = TVI_ROOT;
@@ -1258,7 +1258,7 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
  *
  * blah
  */
-BOOL DcxTreeView::parsePath( TString * path, HTREEITEM * hParent, HTREEITEM * hInsertAfter, int depth ) {
+BOOL DcxTreeView::parsePath( const TString * path, HTREEITEM * hParent, HTREEITEM * hInsertAfter, const int depth ) {
 
   int n = path->numtok( " " ), i = 1;
   int k = path->gettok( depth, " " ).to_int( );
@@ -1418,7 +1418,7 @@ std::string DcxTreeView::getPathFromVector( VectorOfInts * numPath ) {
  * blah
  */
 
-void DcxTreeView::getItemText( HTREEITEM * hItem, char * szBuffer, int cchTextMax ) {
+void DcxTreeView::getItemText( HTREEITEM * hItem, char * szBuffer, const int cchTextMax ) const {
 
   TVITEMEX tvi; 
 
@@ -1437,7 +1437,7 @@ void DcxTreeView::getItemText( HTREEITEM * hItem, char * szBuffer, int cchTextMa
  * blah
  */
 
-int DcxTreeView::getItemCount( HTREEITEM * hParent ) {
+int DcxTreeView::getItemCount( HTREEITEM * hParent ) const {
 
   int i = 0;
   HTREEITEM hItem;
@@ -1459,7 +1459,7 @@ int DcxTreeView::getItemCount( HTREEITEM * hParent ) {
  * blah
  */
 
-BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, TString * search, UINT SearchType ) {
+BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, const TString * search, const UINT SearchType ) {
 
 	char itemtext[900];
 	this->getItemText(hItem, itemtext, 900);
@@ -1506,7 +1506,7 @@ BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, TString * search, UINT Searc
  * blah
  */
 
-BOOL DcxTreeView::findItemText( HTREEITEM * hStart, HTREEITEM * hItem, TString * search, int N, int * NC, UINT SearchType ) {
+BOOL DcxTreeView::findItemText( HTREEITEM * hStart, HTREEITEM * hItem, const TString * search, const int N, int * NC, const UINT SearchType ) {
 
   HTREEITEM hCurrentItem;
 
@@ -1537,7 +1537,7 @@ BOOL DcxTreeView::findItemText( HTREEITEM * hStart, HTREEITEM * hItem, TString *
  * blah
  */
 
-void DcxTreeView::expandAllItems( HTREEITEM * hStart, UINT expandOption ) {
+void DcxTreeView::expandAllItems( HTREEITEM * hStart, const UINT expandOption ) {
 
   HTREEITEM hCurrentItem;
 

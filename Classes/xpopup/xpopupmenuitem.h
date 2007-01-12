@@ -41,30 +41,30 @@ public:
   XPopupMenuItem( XPopupMenu * Parent, TString tsItemText, int nIcon, BOOL bSubMenu );
   virtual ~XPopupMenuItem( );
 
-  void DrawItem( LPDRAWITEMSTRUCT lpdis );
-  void DrawItemBackground( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol );
-  void DrawItemBox( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol );
-  void DrawItemSelection( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOL bDis = FALSE );
-  void DrawItemCheckBox( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOL bDis = FALSE );
-  void DrawItemText( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOL bDis = FALSE );
-  void DrawItemIcon( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, UINT iExStyles, BOOL bSel = FALSE, BOOL bDis = FALSE );
-  void DrawItemSubArrow( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOL bDis = FALSE );
-  void DrawItemSeparator( LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol );
+  void DrawItem( const LPDRAWITEMSTRUCT lpdis );
+  void DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
+  void DrawItemBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
+  void DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
+  void DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
+  void DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
+  void DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const BOOL bSel = FALSE, const BOOL bDis = FALSE );
+  void DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
+  void DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
 
-  SIZE getItemSize( HWND mHwnd );
+  SIZE getItemSize( const HWND mHwnd );
 
   void executeCommand( );
 
-  static void DrawGradient( HDC hdc, LPRECT lprc, COLORREF clrStart, COLORREF clrEnd, BOOL bHorz = FALSE );
-  static void DrawVerticalBar(LPDRAWITEMSTRUCT lpdis, LPXPMENUCOLORS lpcol, BOOLEAN bReversed);
-  static COLORREF LightenColor( unsigned int iScale, COLORREF clrColor );
-  static COLORREF DarkenColor( unsigned int iScale, COLORREF clrColor );
+  static void DrawGradient( const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const BOOL bHorz = FALSE );
+  static void DrawVerticalBar( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOLEAN bReversed);
+  static COLORREF LightenColor( const unsigned int iScale, const COLORREF clrColor );
+  static COLORREF DarkenColor( const unsigned int iScale, const COLORREF clrColor );
 
-  void setSubMenu( BOOL bSubMenu );
-  void setItemText( TString & tsItemText );
-  void setItemIcon( int nIcon );
-  TString * getItemText( );
-  int getItemIcon(  );
+  void setSubMenu( const BOOL bSubMenu );
+  void setItemText( const TString & tsItemText );
+  void setItemIcon( const int nIcon );
+  const TString * getItemText( ) const;
+  int getItemIcon(  ) const;
 
 protected:
 

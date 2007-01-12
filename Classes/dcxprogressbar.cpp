@@ -260,7 +260,7 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
  * blah
  */
 
-LRESULT DcxProgressBar::setPosition( int nNewPos ) {
+LRESULT DcxProgressBar::setPosition( const int nNewPos ) {
   return SendMessage( this->m_Hwnd, PBM_SETPOS, (WPARAM) nNewPos, (LPARAM) 0 );
 }
 
@@ -270,7 +270,7 @@ LRESULT DcxProgressBar::setPosition( int nNewPos ) {
  * blah
  */
 
-LRESULT DcxProgressBar::setRange( int iLowLim, int iHighLim ) {
+LRESULT DcxProgressBar::setRange( const int iLowLim, const int iHighLim ) {
   return SendMessage(this->m_Hwnd, PBM_SETRANGE32, (WPARAM) iLowLim, (LPARAM) iHighLim );
 }
 
@@ -280,7 +280,7 @@ LRESULT DcxProgressBar::setRange( int iLowLim, int iHighLim ) {
  * blah
  */
 
-LRESULT DcxProgressBar::getPosition( ) {
+LRESULT DcxProgressBar::getPosition( ) const {
   return SendMessage( this->m_Hwnd, PBM_GETPOS, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -290,7 +290,7 @@ LRESULT DcxProgressBar::getPosition( ) {
  * blah
  */
 
-LRESULT DcxProgressBar::getRange( BOOL fWhichLimit, PPBRANGE ppBRange ) {
+LRESULT DcxProgressBar::getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) const {
   return SendMessage( this->m_Hwnd, PBM_GETRANGE, (WPARAM) fWhichLimit, (LPARAM) ppBRange );
 }
 
@@ -300,7 +300,7 @@ LRESULT DcxProgressBar::getRange( BOOL fWhichLimit, PPBRANGE ppBRange ) {
  * blah
  */
 
-LRESULT DcxProgressBar::setMarquee( BOOL fStart, int fTime ) {
+LRESULT DcxProgressBar::setMarquee( const BOOL fStart, const int fTime ) {
   return SendMessage( this->m_Hwnd, PBM_SETMARQUEE, (WPARAM) fStart, (LPARAM) fTime );
 }
 
@@ -320,7 +320,7 @@ LRESULT DcxProgressBar::stepIt( ) {
  * blah
  */
 
-LRESULT DcxProgressBar::setStep( int nStepInc ) {
+LRESULT DcxProgressBar::setStep( const int nStepInc ) {
   return SendMessage( this->m_Hwnd, PBM_SETSTEP, (WPARAM) nStepInc, (LPARAM) 0 );
 }
 
@@ -330,7 +330,7 @@ LRESULT DcxProgressBar::setStep( int nStepInc ) {
  * blah
  */
 
-LRESULT DcxProgressBar::setBarColor( COLORREF clrBar ) {
+LRESULT DcxProgressBar::setBarColor( const COLORREF clrBar ) {
 	this->m_clrGrad = clrBar;
   return SendMessage( this->m_Hwnd, PBM_SETBARCOLOR, (WPARAM) 0, (LPARAM) clrBar );
 }
@@ -341,7 +341,7 @@ LRESULT DcxProgressBar::setBarColor( COLORREF clrBar ) {
  * blah
  */
 
-LRESULT DcxProgressBar::setBKColor( COLORREF clrBk ) {
+LRESULT DcxProgressBar::setBKColor( const COLORREF clrBk ) {
   return SendMessage( this->m_Hwnd, PBM_SETBKCOLOR, (WPARAM) 0, (LPARAM) clrBk ); 
 }
 
@@ -579,7 +579,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 }
 
 
-int DcxProgressBar::CalculatePosition() {
+int DcxProgressBar::CalculatePosition() const {
 	int iPos = this->getPosition();
 
 	if ( this->m_bIsAbsoluteValue )

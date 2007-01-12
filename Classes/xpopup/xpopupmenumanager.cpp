@@ -72,7 +72,7 @@ void XPopupMenuManager::parseSwitchFlags( TString * switchs, XSwitchFlags * flag
  * blah
  */
 
-void XPopupMenuManager::parseXPopupCommand( TString & input ) {
+void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
@@ -268,7 +268,7 @@ void XPopupMenuManager::parseXPopupCommand( TString & input ) {
  * blah [MENU] [PROP]
  */
 
-void XPopupMenuManager::parseXPopupIdentifier( TString & input, char * szReturnValue ) {
+void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szReturnValue ) {
 
   int numtok = input.numtok( " " );
   TString prop(input.gettok( 2, " " ));
@@ -407,7 +407,7 @@ void XPopupMenuManager::clearMenus( ) {
  * blah
  */
 
-XPopupMenu * XPopupMenuManager::getMenuByName( TString tsName ) { 
+XPopupMenu * XPopupMenuManager::getMenuByName( const TString &tsName ) { 
 
   VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin( );
   VectorOfXPopupMenu::iterator itEnd = this->m_vpXPMenu.end( );

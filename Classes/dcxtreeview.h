@@ -106,15 +106,15 @@ public:
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  HIMAGELIST getImageList( int type );
-  void setImageList( HIMAGELIST himl, int type );
+  HIMAGELIST getImageList( const int type );
+  void setImageList( HIMAGELIST himl, const int type );
   HIMAGELIST createImageList( );
 
   //HTREEITEM insertItem( );
-  HTREEITEM insertItem( TString * path, TString * data, TString * Tooltip );
+  HTREEITEM insertItem( const TString * path, const TString * data, const TString * Tooltip );
 
-  void getItemText( HTREEITEM * hItem, char * szBuffer, int cchTextMax );
-  int getItemCount( HTREEITEM * hParent );
+  void getItemText( HTREEITEM * hItem, char * szBuffer, const int cchTextMax ) const;
+  int getItemCount( HTREEITEM * hParent ) const;
 
   static LRESULT CALLBACK EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -132,13 +132,13 @@ protected:
 
   /* *** */
 
-  BOOL parsePath( TString * path, HTREEITEM * hParent, HTREEITEM * hInsertAfter, int depth = 1 );
+  BOOL parsePath( const TString * path, HTREEITEM * hParent, HTREEITEM * hInsertAfter, const int depth = 1 );
   BOOL getPath( VectorOfInts * numPath, HTREEITEM * hStart, HTREEITEM * hItemToFind, int depth = 1 );
   BOOL correctTargetItem( HTREEITEM * hParent, HTREEITEM * hInsertAfter );
 
-  BOOL matchItemText( HTREEITEM * hItem, TString * search, UINT SearchType );
-  BOOL findItemText( HTREEITEM * hStart, HTREEITEM * hItem, TString * search, int N, int * NC, UINT SearchType );
-  void expandAllItems( HTREEITEM * hStart, UINT expandOption );
+  BOOL matchItemText( HTREEITEM * hItem, const TString * search, const UINT SearchType );
+  BOOL findItemText( HTREEITEM * hStart, HTREEITEM * hItem, const TString * search, const int N, int * NC, const UINT SearchType );
+  void expandAllItems( HTREEITEM * hStart, const UINT expandOption );
 
   HTREEITEM cloneItem( HTREEITEM * hItem, HTREEITEM * hParentTo, HTREEITEM * hAfterTo );
   void copyAllItems( HTREEITEM *hItem, HTREEITEM * hParentTo );

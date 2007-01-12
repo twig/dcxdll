@@ -30,7 +30,6 @@ class DcxScroll : public DcxControl {
 
 public:
 
-  //DcxScroll( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
   virtual ~DcxScroll( );
 

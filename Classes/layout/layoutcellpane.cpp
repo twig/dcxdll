@@ -23,7 +23,7 @@ extern HWND hwndChild4;
  * blah
  */
 
-LayoutCellPane::LayoutCellPane( PaneType nType ) : LayoutCell( NULL ), m_nType( nType ) {
+LayoutCellPane::LayoutCellPane( const PaneType nType ) : LayoutCell( NULL ), m_nType( nType ) {
 
 }
 
@@ -53,7 +53,7 @@ LayoutCellPane::~LayoutCellPane( ) {
  * blah
  */
 
-LayoutCell * LayoutCellPane::addChild( LayoutCell * p_Cell, int nWeight ) {
+LayoutCell * LayoutCellPane::addChild( LayoutCell * p_Cell, const int nWeight ) {
 
   if ( this->m_vpCells.size( ) == 0 )
     this->m_FirstChild = p_Cell;

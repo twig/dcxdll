@@ -39,9 +39,9 @@ public:
 		BOTH=HEIGHT|WIDTH //!< Fixed Size in Both
 	};
 
-  LayoutCellFixed( HWND mHwnd, FixedType nType = BOTH );
-  LayoutCellFixed( HWND mHwnd, RECT & rc, FixedType nType = BOTH );
-  LayoutCellFixed( RECT & rc, FixedType nType = BOTH );
+  LayoutCellFixed( const HWND mHwnd, const FixedType nType = BOTH );
+  LayoutCellFixed( const HWND mHwnd, const RECT & rc, const FixedType nType = BOTH );
+  LayoutCellFixed( const RECT & rc, const FixedType nType = BOTH );
   virtual ~LayoutCellFixed( );
 
   virtual void LayoutChild( );

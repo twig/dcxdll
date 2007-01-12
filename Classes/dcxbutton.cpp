@@ -321,7 +321,7 @@ UINT DcxButton::parseColorFlags(TString & flags) {
  * blah
  */
 
-HIMAGELIST DcxButton::getImageList(  ) {
+HIMAGELIST DcxButton::getImageList(  ) const {
 
   return this->m_ImageList;
 }

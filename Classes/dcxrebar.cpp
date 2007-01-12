@@ -615,7 +615,7 @@ UINT DcxReBar::parseBandStyleFlags( TString & flags ) {
  * blah
  */
 
-LRESULT DcxReBar::insertBand(int uIndex, LPREBARBANDINFO lprbbi ) {
+LRESULT DcxReBar::insertBand(const int uIndex, LPREBARBANDINFO lprbbi ) {
   return SendMessage(this->m_Hwnd, RB_INSERTBAND, (WPARAM) uIndex, (LPARAM) lprbbi ); 
 }
 
@@ -625,7 +625,7 @@ LRESULT DcxReBar::insertBand(int uIndex, LPREBARBANDINFO lprbbi ) {
  * blah
  */
 
-LRESULT DcxReBar::deleteBand( UINT uIndex ) {
+LRESULT DcxReBar::deleteBand( const UINT uIndex ) {
   return SendMessage( this->m_Hwnd, RB_DELETEBAND, (WPARAM) uIndex, (LPARAM) 0 ); 
 }
 
@@ -635,7 +635,7 @@ LRESULT DcxReBar::deleteBand( UINT uIndex ) {
  * blah
  */
 
-LRESULT DcxReBar::getBandInfo( UINT uBand, LPREBARBANDINFO lprbbi ) const {
+LRESULT DcxReBar::getBandInfo( const UINT uBand, LPREBARBANDINFO lprbbi ) const {
   return SendMessage( this->m_Hwnd, RB_GETBANDINFO, (WPARAM) uBand, (LPARAM) lprbbi ); 
 }
 
@@ -645,7 +645,7 @@ LRESULT DcxReBar::getBandInfo( UINT uBand, LPREBARBANDINFO lprbbi ) const {
  * blah
  */
 
-LRESULT DcxReBar::setBandInfo( UINT uBand, LPREBARBANDINFO lprbbi ) {
+LRESULT DcxReBar::setBandInfo( const UINT uBand, LPREBARBANDINFO lprbbi ) {
   return SendMessage( this->m_Hwnd, RB_SETBANDINFO, (WPARAM) uBand, (LPARAM) lprbbi ); 
 }
 
@@ -705,7 +705,7 @@ LRESULT DcxReBar::getToolTips( ) const {
  * blah
  */
 
-LRESULT DcxReBar::setToolTips( HWND hwndToolTip ) {
+LRESULT DcxReBar::setToolTips( const HWND hwndToolTip ) {
   return SendMessage( this->m_Hwnd, RB_SETTOOLTIPS, (WPARAM) hwndToolTip, (LPARAM) 0 ); 
 }
 
@@ -715,7 +715,7 @@ LRESULT DcxReBar::setToolTips( HWND hwndToolTip ) {
  * blah
  */
 
-LRESULT DcxReBar::getIDToIndex( UINT uBandID ) const {
+LRESULT DcxReBar::getIDToIndex( const UINT uBandID ) const {
   return SendMessage( this->m_Hwnd, RB_IDTOINDEX, (WPARAM) uBandID, (LPARAM) 0 );
 }
 
@@ -735,7 +735,7 @@ LRESULT DcxReBar::getBandCount( ) const {
  * blah
  */
 
-LRESULT DcxReBar::setReDraw( BOOL uState ) {
+LRESULT DcxReBar::setReDraw( const BOOL uState ) {
   return SendMessage( this->m_Hwnd, WM_SETREDRAW, (WPARAM) uState, (LPARAM) uState );
 }
 
@@ -745,7 +745,7 @@ LRESULT DcxReBar::setReDraw( BOOL uState ) {
  * blah
  */
 
-LRESULT DcxReBar::showBand( UINT uBand, BOOL fShow ) {
+LRESULT DcxReBar::showBand( const UINT uBand, const BOOL fShow ) {
   return SendMessage( this->m_Hwnd, RB_SHOWBAND, (WPARAM) uBand, (LPARAM) fShow );
 }
 
@@ -755,7 +755,7 @@ LRESULT DcxReBar::showBand( UINT uBand, BOOL fShow ) {
  * blah
  */
 
-LRESULT DcxReBar::moveBand( UINT iFrom, UINT iTo ) {
+LRESULT DcxReBar::moveBand( const UINT iFrom, const UINT iTo ) {
   return SendMessage( this->m_Hwnd, RB_MOVEBAND, (WPARAM) iFrom, (LPARAM) iTo );
 }
 
@@ -765,7 +765,7 @@ LRESULT DcxReBar::moveBand( UINT iFrom, UINT iTo ) {
  * blah
  */
 
-LRESULT DcxReBar::maxBand( UINT uBand, BOOL fIdeal ) {
+LRESULT DcxReBar::maxBand( const UINT uBand, const BOOL fIdeal ) {
   return SendMessage( this->m_Hwnd, RB_MAXIMIZEBAND, (WPARAM) uBand, (LPARAM) fIdeal );
 }
 
@@ -775,7 +775,7 @@ LRESULT DcxReBar::maxBand( UINT uBand, BOOL fIdeal ) {
  * blah
  */
 
-LRESULT DcxReBar::minBand( UINT uBand, BOOL fIdeal ) {
+LRESULT DcxReBar::minBand( const UINT uBand, const BOOL fIdeal ) {
   return SendMessage( this->m_Hwnd, RB_MINIMIZEBAND, (WPARAM) uBand, (LPARAM) fIdeal );
 }
 
