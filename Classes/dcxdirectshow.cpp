@@ -203,6 +203,22 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		else
 			dcxInfoError("directshow","srange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
+  // [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "currentpos") {
+		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetCurrentPos) & AM_SEEKING_CanGetCurrentPos)
+			wsprintf(szReturnValue,"+OK %I64d", this->getPosition());
+		else
+			lstrcpy(szReturnValue,"-FAIL Method Not Supported");
+		return;
+  }
+  // [NAME] [ID] [PROP]
+	else if ( input.gettok( 3, " " ) == "duration") {
+		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
+			wsprintf(szReturnValue,"+OK %I64d", this->getDuration());
+		else
+			lstrcpy(szReturnValue,"-FAIL Method Not Supported");
+		return;
+  }
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
 
@@ -810,6 +826,61 @@ HRESULT DcxDirectshow::getVideoRange(VMR9ProcAmpControlFlags prop, VMR9ProcAmpCo
 	}
 	pVmr->Release(); 
 	return hr;
+}
+
+UINT64 DcxDirectshow::getPosition() const
+{
+	LONGLONG pos = 0;
+	IMediaSeeking *ims;
+	HRESULT hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking,(void **)&ims);
+	if (SUCCEEDED(hr)) {
+		DWORD dwCaps = AM_SEEKING_CanGetCurrentPos;
+		hr = ims->CheckCapabilities(&dwCaps);
+		if (SUCCEEDED(hr)) { // can get current pos
+			hr = ims->GetCurrentPosition(&pos);
+			//if (SUCCEEDED(hr)) {
+			//	GUID fmt;
+			//	hr = ims->GetTimeFormat(&fmt);
+			//	if (SUCCEEDED(hr)) {
+			//		if (fmt != TIME_FORMAT_FRAME) {
+			//			LONGLONG opos = 0;
+			//			fmt = TIME_FORMAT_FRAME;
+			//			hr = ims->ConvertTimeFormat(&opos,&fmt,pos,NULL);
+			//			pos = opos;
+			//		}
+			//	}
+			//}
+		}
+		ims->Release();
+	}
+	return (UINT64)pos;
+}
+UINT64 DcxDirectshow::getDuration() const
+{
+	LONGLONG pos = 0;
+	IMediaSeeking *ims;
+	HRESULT hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking,(void **)&ims);
+	if (SUCCEEDED(hr)) {
+		DWORD dwCaps = AM_SEEKING_CanGetDuration;
+		hr = ims->CheckCapabilities(&dwCaps);
+		if (SUCCEEDED(hr)) { // can get current pos
+			hr = ims->GetDuration(&pos);
+		}
+		ims->Release();
+	}
+	return (UINT64)pos;
+}
+DWORD DcxDirectshow::CheckSeekCapabilities(DWORD dwCaps) const
+{
+	IMediaSeeking *ims;
+	HRESULT hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking,(void **)&ims);
+	if (SUCCEEDED(hr)) {
+		hr = ims->CheckCapabilities(&dwCaps);
+		ims->Release();
+	}
+	else
+		dwCaps = 0;
+	return dwCaps;
 }
 
 #endif // DCX_USE_DXSDK

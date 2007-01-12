@@ -59,6 +59,10 @@ protected:
 	HRESULT setVideo(const TString flags, const float brightness, const float contrast, const float hue, const float saturation);
 	HRESULT getVideo(VMR9ProcAmpControl *amc) const;
 	HRESULT getVideoRange(VMR9ProcAmpControlFlags prop, VMR9ProcAmpControlRange *acr) const;
+	UINT64 getPosition(void) const; //!< gets video position within stream
+	HRESULT setPosition(const UINT64 pos); //!< sets the video position to x .
+	UINT64 getDuration(void) const; //!< gets video duration.
+	DWORD CheckSeekCapabilities(DWORD dwCaps) const;
 
 #define WM_GRAPHNOTIFY  WM_APP + 1
 
