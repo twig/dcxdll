@@ -847,17 +847,18 @@ UINT64 DcxDirectshow::getPosition() const
 	}
 
 	// Format result into milliseconds
-	return ((UINT64)pos) * 1000000;
+	return ((UINT64)pos / 10000);
 }
 HRESULT DcxDirectshow::setPosition(const UINT64 pos)
 {
 	if (this->m_pSeek == NULL)
 		return E_POINTER;
 
+	UINT64 mpos = pos * 10000; // convert to 100-nano secs units.
 	DWORD dwCaps = AM_SEEKING_CanSeekAbsolute;
 	HRESULT hr = E_FAIL;
 	if (this->CheckSeekCapabilities(dwCaps) & AM_SEEKING_CanSeekAbsolute) {
-		hr = this->m_pSeek->SetPositions((LONGLONG *)&pos,AM_SEEKING_AbsolutePositioning,NULL,AM_SEEKING_NoPositioning);
+		hr = this->m_pSeek->SetPositions((LONGLONG *)&mpos,AM_SEEKING_AbsolutePositioning,NULL,AM_SEEKING_NoPositioning);
 	}
 	return hr;
 }
@@ -875,7 +876,7 @@ UINT64 DcxDirectshow::getDuration() const
 	}
 
 	// Format result into milliseconds
-	return ((UINT64)pos * 1000000);
+	return ((UINT64)pos / 10000);
 }
 DWORD DcxDirectshow::CheckSeekCapabilities(DWORD dwCaps) const
 {
