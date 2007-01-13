@@ -206,17 +206,17 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP]
 	else if ( input.gettok( 3, " " ) == "currentpos") {
 		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetCurrentPos) & AM_SEEKING_CanGetCurrentPos)
-			wsprintf(szReturnValue,"+OK %I64d", this->getPosition());
+			wsprintf(szReturnValue,"D_OK %I64d", this->getPosition());
 		else
-			lstrcpy(szReturnValue,"-FAIL Method Not Supported");
+			lstrcpy(szReturnValue,"D_ERROR Method Not Supported");
 		return;
   }
   // [NAME] [ID] [PROP]
 	else if ( input.gettok( 3, " " ) == "duration") {
 		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
-			wsprintf(szReturnValue,"+OK %I64d", this->getDuration());
+			wsprintf(szReturnValue,"D_OK %I64d", this->getDuration());
 		else
-			lstrcpy(szReturnValue,"-FAIL Method Not Supported");
+			lstrcpy(szReturnValue,"D_ERROR Method Not Supported");
 		return;
   }
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
@@ -845,7 +845,9 @@ UINT64 DcxDirectshow::getPosition() const
 	if (SUCCEEDED(hr)) { // can get current pos
 		hr = this->m_pSeek->GetCurrentPosition(&pos);
 	}
-	return (UINT64)pos;
+
+	// Format result into milliseconds
+	return ((UINT64)pos) * 1000000;
 }
 HRESULT DcxDirectshow::setPosition(const UINT64 pos)
 {
@@ -871,7 +873,9 @@ UINT64 DcxDirectshow::getDuration() const
 	if (SUCCEEDED(hr)) { // can get current pos
 		hr = this->m_pSeek->GetDuration(&pos);
 	}
-	return (UINT64)pos;
+
+	// Format result into milliseconds
+	return ((UINT64)pos * 1000000);
 }
 DWORD DcxDirectshow::CheckSeekCapabilities(DWORD dwCaps) const
 {
