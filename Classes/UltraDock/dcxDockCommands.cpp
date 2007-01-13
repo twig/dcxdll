@@ -340,7 +340,7 @@ mIRC(xdock) {
 						DCXError("xdock -F","Invalid Style Args");
 						return 0;
 					}
-					static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines");
+					static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll");
 					int i = 1, numtok = input.numtok();
 					DWORD stylef = GetWindowLong(hTreeView,GWL_STYLE);
 					while (i <= numtok) {
@@ -373,8 +373,20 @@ mIRC(xdock) {
 						case 9: // rootlines (on by default)
 							stylef |= TVS_LINESATROOT;
 							break;
-						case 10: // norootlines (off by default)
+						case 10: // norootlines
 							stylef &= ~TVS_LINESATROOT;
+							break;
+						case 11: // singleexpand (off by default)
+							stylef |= TVS_SINGLEEXPAND;
+							break;
+						case 12: // nosingleexpand
+							stylef &= ~TVS_SINGLEEXPAND;
+							break;
+						case 13: // scroll (off by default)
+							stylef &= ~TVS_NOSCROLL;
+							break;
+						case 14: // noscroll (NB: this can lead to gfx glitches with scroll bars already shown)
+							stylef |= TVS_NOSCROLL;
 							break;
 						default: // unknown style ignore.
 							break;
