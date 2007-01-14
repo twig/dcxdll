@@ -2,6 +2,7 @@
 $CHANGES = array(
     'v1.3.7' => array(
         'New features' => array(
+            'added $xpopup().isPatched',
             'added /xdialog -z, $xdialog().zlayer and $xdialog().zlayercurrent. Useful for creating tab-like pages for configuration dialogs and wizard type screens',
             'added $dcx(IsUnloadSafe)',
             'added new +x flag to /xdialog -b to enable composite rendering on XP+',
@@ -21,11 +22,10 @@ $CHANGES = array(
             'added /xdialog -R dname +s which adds a shadow effect to the dialog',
             'added XTray',
             'added /xpopup -m mirc to patch mIRC allowing xpopup to work on mIRC 6.20',
-            'added /xdock -F to set the treebar font',
-            'added /xdock -C to set the treebars colours',
+            'added /xdock -F to set the treebar font, colors and styles',
             'added shadow style for many controls',
             'added support for combining regions via flags using /xdid -R and /xdialog -R',
-            'added transparent style for many controls',
+            'added transparent global style',
             'added ghost drag for main mirc window via /xdock -G',
             'added ghost drag /xdialog -R dname +g',
             'added $xdid().range and .value to calendar',
@@ -76,6 +76,7 @@ $CHANGES = array(
             'renamed $xdock() functins to start with lower case (it was inconsistant with other property functions)',
         ),
         'Dcx code' => array(
+            'changed dcxSetWindowTheme() to actually pass on the args to the theme dll',
             'set load->mKeep to TRUE',
             'changed some function args to be const',
             'dialog - changed tooltip hwnd check to use IsWindow() instead of != NULL',
@@ -149,6 +150,15 @@ $CHANGES = array(
             'fixed bug with List tbitem where it returns too many items',
         ),
         'Dcx Documentation' => array(
+            'fixed dcxdoc quirk with dialog events given the ID 4',
+            'removed a fixed string comparison for SECTION_INTRO',
+            'added note for gdi+ loading multiple formats for image',
+            'added note for gdi+ on index for where to download it',
+            'added example to /xdid -R',
+            'moved xpopup events upwards',
+            'reworded and fixed example for /mpopup',
+            'updated Dcx vs Mdx',
+            'removed anchor from subcategory for changes.htm',
             'removed note for /xdid -i for image about only loading BMP files',
             'added CShadowHwnd to credits',
             'new logo',

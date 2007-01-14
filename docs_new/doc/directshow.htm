@@ -65,7 +65,7 @@
 	</td>
 <td><table class="description">
 	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>Directshow</div></td></tr>
-	<tr><td>DIRECTSHOW CONTROL<br /><br />
+	<tr><td>The DirectShow control allows playback of media files. Formats which can be played will depend upon the codecs avaiable on the system.<br /><br />
 <div style="text-align: center;">
 	<img src="images/directshow.png" alt="" />
 </div>
@@ -73,16 +73,12 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B52929"><a name="style"></a><div style='color: #B52929;font-size:14pt;'>Control Styles</div></td></tr>
-	<tr><td>These control styles are available when creating a Directshow control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, and <a class="style">tabstop</a> apply to all DCX controls.</td></tr>
+	<tr><td>These control styles are available when creating a Directshow control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
 		<td class="style"><a name="style.fixratio" class="style">fixratio</a></td>
 		<td>The content maintains its aspect ratio. By default, the content fills the control.</td>
-	</tr>
-	<tr>
-		<td class="style"><a name="style.transparent" class="style">transparent</a></td>
-		<td>This allows the background of the directshow control to be transparent and the video border not rendered.</td>
 	</tr>
 </table>
 <br />
@@ -127,11 +123,11 @@
 	<tr><td colspan="2">This lets you control playback of the file.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -c [DNAME] [ID] [COMMAND]</div></td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] [ARGS]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 play</div></td>
+		<td><div class="example">/xdid -c dcx 4 play<br />/xdid -c dcx 4 seek 3500<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -155,8 +151,21 @@
 		<td>Close the playback and unload it.</td>
 	</tr>
 	<tr>
-		<td class="param">FILENAME</td>
-		<td>Previous filename.</td>
+		<td class="value">seek</td>
+		<td>Seeks to the millisecond of the clip specified.</td>
+	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">play</td>
+		<td><div class="syntax">[FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="param">seek</td>
+		<td><div class="syntax">[TIME]</div></td>
+	</tr>
+	<tr>
+		<td class="value">TIME</td>
+		<td>The time to seek to, specified in milliseconds.</td>
 	</tr>
 </table>
 <br />
@@ -223,6 +232,52 @@
 	<tr>
 		<td class="param">STEP</td>
 		<td>The value to use when changing this property.</td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.currentpos"></a>$xdid().currentpos	</td></tr>
+	<tr><td colspan="2">This property returns the current position of the content.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).currentpos</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).currentpos</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STATE</td>
+		<td>This is <a class="value">D_OK</a> if the command succeeded. Otherwise <a class="param">STATE</a> is <a class="value">D_ERROR</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">RESULT</td>
+		<td>The time in milliseconds. If <a class="param">STATE</a> was not <a class="value">D_OK</a>, then <a class="param">RESULT</a> will be the appropriate error message. (ie. <a class="value">Method Not Supported</a>)</td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdidprop.duration"></a>$xdid().duration	</td></tr>
+	<tr><td colspan="2">This property returns the length of the media clip.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).duration</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).duration</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STATE</td>
+		<td>This is <a class="value">D_OK</a> if the command succeeded. Otherwise <a class="param">STATE</a> is <a class="value">D_ERROR</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">RESULT</td>
+		<td>The time in milliseconds. If <a class="param">STATE</a> was not <a class="value">D_OK</a>, then <a class="param">RESULT</a> will be the appropriate error message. (ie. <a class="value">Method Not Supported</a>)</td>
 	</tr>
 </table>
 <br />
@@ -375,11 +430,12 @@
 </td><td width="85%" valign="top" class="menuright">
 	<br />
 <a href="#style" style="color: #B52929;">Control Styles</a><ul><li><a href="#style.fixratio" style="color: #B52929;">fixratio</a></li>
-<li><a href="#style.transparent" style="color: #B52929;">transparent</a></li>
 </ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><ul><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li>
 <li><a href="#xdid.c" style="color: #0000FF;">-c</a></li>
 </ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><ul><li><a href="#xdidprop.brange" style="color: #6666FF;">brange</a></li>
 <li><a href="#xdidprop.crange" style="color: #6666FF;">crange</a></li>
+<li><a href="#xdidprop.currentpos" style="color: #6666FF;">currentpos</a></li>
+<li><a href="#xdidprop.duration" style="color: #6666FF;">duration</a></li>
 <li><a href="#xdidprop.hrange" style="color: #6666FF;">hrange</a></li>
 <li><a href="#xdidprop.size" style="color: #6666FF;">size</a></li>
 <li><a href="#xdidprop.srange" style="color: #6666FF;">srange</a></li>
@@ -393,7 +449,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 10th January, 07</td>
+		<td style="text-align: right;">Last Updated: 14th January, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

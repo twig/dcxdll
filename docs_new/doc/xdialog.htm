@@ -170,11 +170,11 @@
 	</tr>
 	<tr>
 		<td class="value">m</td>
-		<td>Maximize button. (Needs <a class="value">+y</a> and can't be used with <a class="value">+m</a> or <a class="value">+n</a>)</td>
+		<td>Maximize button. (Requires <a class="value">+y</a> and can't be used with <a class="value">+m</a> or <a class="value">+n</a>)</td>
 	</tr>
 	<tr>
 		<td class="value">n</td>
-		<td>Minimize button. (Needs <a class="value">+y</a> and can't be used with <a class="value">+m</a> or <a class="value">+n</a>)</td>
+		<td>Minimize button. (Requires <a class="value">+y</a> and can't be used with <a class="value">+m</a> or <a class="value">+n</a>)</td>
 	</tr>
 	<tr>
 		<td class="value">o</td>
@@ -1395,7 +1395,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx activate 4</div></td>
+		<td><div class="example">/cb_alias dcx activate 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1409,7 +1409,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx beginmove 4</div></td>
+		<td><div class="example">/cb_alias dcx beginmove 0</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">nomove</a> Return this value to block the window moving.</td></tr></table>
 <br />
@@ -1423,7 +1423,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx beginsize 4</div></td>
+		<td><div class="example">/cb_alias dcx beginsize 0</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">nosize</a> Return this value to block the window resizing.</td></tr></table>
 <br />
@@ -1437,7 +1437,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx changing 4</div></td>
+		<td><div class="example">/cb_alias dcx changing 0</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">nosize</a> Return this value to block the window from resizing.<br /><a class="returnevent">nomove</a> Return this value to block the window from moving.<br /><a class="returnevent">nochange</a> Return this value to block the window from moving and resizing.</td></tr></table>
 <br />
@@ -1451,7 +1451,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx close 4</div></td>
+		<td><div class="example">/cb_alias dcx close 0</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">noclose</a> Return this value to block the window closing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You will have to use /xdialog -x to close the dialog instead of mIRC's /dialog -x if you return <a class="returnevent">noclose</a> on this event.</li><li>Calling the /xdialog -x command will still trigger the <a class="event">close</a> event.</li><li>There are two close messages sent. One from clicking the X in the top right corner of the dialog, and the other when the dialog is actually closed.</li></ul></td></tr></table>
 <br />
@@ -1465,7 +1465,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dclick 4</div></td>
+		<td><div class="example">/cb_alias dcx dclick 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1479,7 +1479,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx deactivate 4</div></td>
+		<td><div class="example">/cb_alias dcx deactivate 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1493,7 +1493,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx denter 4</div></td>
+		<td><div class="example">/cb_alias dcx denter 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1507,7 +1507,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dleave 4</div></td>
+		<td><div class="example">/cb_alias dcx dleave 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1521,7 +1521,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dragbegin 4 3</div></td>
+		<td><div class="example">/cb_alias dcx dragbegin 0 3</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1540,7 +1540,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dragfile 4 C:\mIRC\blah.txt</div></td>
+		<td><div class="example">/cb_alias dcx dragfile 0 C:\mIRC\blah.txt</div></td>
 	</tr>
 </table>
 <br />
@@ -1554,7 +1554,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dragfinish 4</div></td>
+		<td><div class="example">/cb_alias dcx dragfinish 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1568,7 +1568,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx endmove 4</div></td>
+		<td><div class="example">/cb_alias dcx endmove 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1582,7 +1582,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx endsize 4</div></td>
+		<td><div class="example">/cb_alias dcx endsize 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1596,7 +1596,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx focus 4</div></td>
+		<td><div class="example">/cb_alias dcx focus 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1610,7 +1610,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx focusout 4</div></td>
+		<td><div class="example">/cb_alias dcx focusout 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1624,7 +1624,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbdblclk 4</div></td>
+		<td><div class="example">/cb_alias dcx lbdblclk 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1638,7 +1638,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbdown 4</div></td>
+		<td><div class="example">/cb_alias dcx lbdown 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1652,7 +1652,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx lbup 4</div></td>
+		<td><div class="example">/cb_alias dcx lbup 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1666,7 +1666,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx max 4</div></td>
+		<td><div class="example">/cb_alias dcx max 0</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">stop</a> Return this value to block the window maximizing.</td></tr></table>
 <br />
@@ -1680,7 +1680,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mbdblclk 4</div></td>
+		<td><div class="example">/cb_alias dcx mbdblclk 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1694,7 +1694,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mbdown 4</div></td>
+		<td><div class="example">/cb_alias dcx mbdown 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1708,7 +1708,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mbup 4</div></td>
+		<td><div class="example">/cb_alias dcx mbup 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1722,7 +1722,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx min 4</div></td>
+		<td><div class="example">/cb_alias dcx min 0</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">stop</a> Return this value to block the window minimizing.</td></tr></table>
 <br />
@@ -1736,7 +1736,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mouse 4</div></td>
+		<td><div class="example">/cb_alias dcx mouse 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1750,21 +1750,21 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mouseenter 4</div></td>
+		<td><div class="example">/cb_alias dcx mouseenter 0</div></td>
 	</tr>
 </table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #009900; border-color: #009900;">
 			<a name="events.mouseleave"></a>mouseleave	</td></tr>
-	<tr><td colspan="2">When the mouse leaves a control.</td></tr>
+	<tr><td colspan="2">When the mouse leaves the dialog.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME mouseleave ID </div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mouseleave 4</div></td>
+		<td><div class="example">/cb_alias dcx mouseleave 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1778,7 +1778,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx moving 4</div></td>
+		<td><div class="example">/cb_alias dcx moving 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1792,7 +1792,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx mwheel 4 +cs up</div></td>
+		<td><div class="example">/cb_alias dcx mwheel 0 +cs up</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1843,7 +1843,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rbdblclk 4</div></td>
+		<td><div class="example">/cb_alias dcx rbdblclk 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1857,7 +1857,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rbdown 4</div></td>
+		<td><div class="example">/cb_alias dcx rbdown 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1871,7 +1871,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rbup 4</div></td>
+		<td><div class="example">/cb_alias dcx rbup 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1885,7 +1885,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx rclick 4</div></td>
+		<td><div class="example">/cb_alias dcx rclick 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1899,7 +1899,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx restore 4</div></td>
+		<td><div class="example">/cb_alias dcx restore 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1913,7 +1913,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sclick 4</div></td>
+		<td><div class="example">/cb_alias dcx sclick 0</div></td>
 	</tr>
 </table>
 <br />
@@ -1927,7 +1927,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx sizing 4 90 60</div></td>
+		<td><div class="example">/cb_alias dcx sizing 0 90 60</div></td>
 	</tr>
 </table>
 <br />
@@ -1941,7 +1941,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx themechanged 4</div></td>
+		<td><div class="example">/cb_alias dcx themechanged 0</div></td>
 	</tr>
 </table>
 <br />
@@ -2027,7 +2027,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 11th January, 07</td>
+		<td style="text-align: right;">Last Updated: 14th January, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

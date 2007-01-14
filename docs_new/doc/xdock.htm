@@ -387,7 +387,7 @@
 	<tr><td colspan="2">This command allows you to set the font for the mIRC TreeBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdock -F [+FLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
+		<td><div class="syntax">/xdock -F [+FLAGS] [ARGS]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -399,42 +399,87 @@
 		<td>Font style flags.</td>
 	</tr>
 	<tr>
-		<td class="value">a</td>
-		<td>Font is anti-aliased.</td>
-	</tr>
-	<tr>
-		<td class="value">b</td>
-		<td>Font is bold.</td>
-	</tr>
-	<tr>
-		<td class="value">d</td>
-		<td>Default font.</td>
-	</tr>
-	<tr>
-		<td class="value">i</td>
-		<td>Font is italic.</td>
+		<td class="value">f</td>
+		<td>Changes TreeBar font.</td>
 	</tr>
 	<tr>
 		<td class="value">s</td>
-		<td>Font is strikedout.</td>
+		<td>Changes TreeBar styles.</td>
+	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">f</td>
+		<td><div class="syntax">[+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
 	</tr>
 	<tr>
-		<td class="value">u</td>
-		<td>Font is underlined.</td>
+		<td class="value">+FONTFLAGS</td>
+		<td>Array</td>
 	</tr>
 	<tr>
-		<td class="param">CHARSET</td>
+		<td class="value">CHARSET</td>
 		<td>Can be any of the following: ansi, baltic, chinesebig, default, easteurope, gb2312, greek, hangul, mac, oem, russian, shiftjis, symbol, turkish, vietnamese.</td>
 	</tr>
 	<tr>
-		<td class="param">SIZE</td>
+		<td class="value">SIZE</td>
 		<td>Font size in points.</td>
 	</tr>
 	<tr>
-		<td class="param">FONTNAME</td>
+		<td class="value">FONTNAME</td>
 		<td>Font name. Ex: Tahoma, Courier New, Arial, ...</td>
 	</tr>
-</table>
+	<tr>
+		<td class="param">s</td>
+		<td><div class="syntax">[STYLES]</div></td>
+	</tr>
+	<tr>
+		<td class="value">trackselect</td>
+		<td>Enables hot-tracking.</td>
+	</tr>
+	<tr>
+		<td class="value">notrackselect</td>
+		<td>Disables hot-tracking.</td>
+	</tr>
+	<tr>
+		<td class="value">tooltips</td>
+		<td>Enables tooltips on items</td>
+	</tr>
+	<tr>
+		<td class="value">notooltips</td>
+		<td>Disables tooltip on items.</td>
+	</tr>
+	<tr>
+		<td class="value">hasbuttons</td>
+		<td>Enables &plusmn; buttons on the side of items containing child items for expand/collapse operations.</td>
+	</tr>
+	<tr>
+		<td class="value">nohasbuttons</td>
+		<td>Disables &plusmn; buttons on the side of items containing child items for expand/collapse operations.</td>
+	</tr>
+	<tr>
+		<td class="value">rootlines</td>
+		<td>Enables lines to be connected to the root item.</td>
+	</tr>
+	<tr>
+		<td class="value">norootlines</td>
+		<td>Disables lines to be connected to the root item.</td>
+	</tr>
+	<tr>
+		<td class="value">singleexpand</td>
+		<td>Causes the item being selected to expand and the item being unselected to collapse upon selection in the tree view.</td>
+	</tr>
+	<tr>
+		<td class="value">nosingleexpand</td>
+		<td>Disables <a class="style">singleexpand</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">scroll</td>
+		<td>Enables horizontal and vertical scrolling in the treeview.</td>
+	</tr>
+	<tr>
+		<td class="value">noscroll</td>
+		<td>Disables horizontal and vertical scrolling in the treeview.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using <a class="style">noscroll</a> and a scrollbar is currently visible, this can lead to graphical glitches.</td></tr></table>
 <br />
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -990,7 +1035,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 10th January, 07</td>
+		<td style="text-align: right;">Last Updated: 14th January, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

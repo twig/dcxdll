@@ -73,7 +73,7 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>XPopup</div></td></tr>
-	<tr><td>There are two XPopup special menus. They are mIRCs regular popup menus (channel, statusbar, query and nicklist) and mIRCs menubar popup menus which include (menubar). The use the reserved menu names <a class="style">mirc</a> and <a class="style">mircbar</a>. They can be activated with the following command:<br />
+	<tr><td>There are two special reserved menu names in XPopup. They are for mIRC's regular popup menus <a class="value">mirc</a> (channel, statusbar, query and nicklist) and mIRC's menubar popup menu <a class="value">mircbar</a> (the menubar). Their appearance can be changed by XPopup and activated with the following command:<br />
 <br />
 <table>
 	<tr>
@@ -82,7 +82,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup -g mymenu +n 50 50 $mircdir/images/blah.png</div></td>
+		<td><div class="example">/mpopup mirc 1</div></td>
 	</tr>
 </table>
 <br />
@@ -165,6 +165,36 @@ This position represents the 3rd menu item of the of the second menu item submen
 	<li>If you specify a path that does not exist, parsing halts and an error is displayed.</li>
 	<li>You can use <a class="value">0</a> for the last value when inserting a menu item to insert it at the end of the menu.</li>
 </ul>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;font-size:14pt;'>XPopup Events</div></td></tr>
+	<tr><td>Events are sent through mIRCs &quot;ON SIGNAL&quot; event with the signal name being xpopup-[MENU] where [MENU] is the menu name that sent the event. The $1 parameter is the supplied [ID] of the menu item. This is why it's important that this number be unique for all menu items. A returned value of 0 means no selection was made in the menu.<br />
+<br />
+An example of the XPopup signal handler code is shown below:<br />
+
+<pre class="code">
+ON *:SIGNAL:Xpopup-*: {
+	;// get the menu name from Xpopup-[MENUNAME]
+	var %m $gettok($signal, 2-, 45)
+
+	;// nothing clicked
+	if ($1 == 0) {
+		return
+	}
+
+	if (%m == menu_open) {
+		if ($1 == 1) { echo -a command 1 }
+		else if ($1 == 2) { echo -a command 2 }
+	}
+	else if (%m == menu_help) {
+		if ($1 == 1) { url http://dcx.scriptsdb.org }
+		else if ($1 == 2) { echo -a command aboutbox }
+	else {
+	    echo -a unknown menu
+	}
+}
+</pre>
 </td></tr>
 </table>
 <table class="description">
@@ -552,6 +582,20 @@ This position represents the 3rd menu item of the of the second menu item submen
 <br />
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #AC59AC; border-color: #AC59AC;">
+			<a name="xpopupprop.isPatched"></a>$xpopup().isPatched	</td></tr>
+	<tr><td colspan="2">This determines if mIRC 6.20 has been patched for special menus to work.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).isPatched</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).isPatched</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #AC59AC; border-color: #AC59AC;">
 			<a name="xpopupprop.style"></a>$xpopup().style	</td></tr>
 	<tr><td colspan="2">This property retrieves the menu style.</td></tr>
 	<tr>
@@ -769,36 +813,6 @@ This position represents the 3rd menu item of the of the second menu item submen
 	</tr>
 </table>
 <br />
-<table class="description">
-	<tr><td class="heading" style="border-color: #009900"><a name="events"></a><div style='color: #009900;font-size:14pt;'>XPopup Events</div></td></tr>
-	<tr><td>Events are sent through mIRCs &quot;ON SIGNAL&quot; event with the signal name being xpopup-[MENU] where [MENU] is the menu name that sent the event. The $1 parameter is the supplied [ID] of the menu item. This is why it's important that this number be unique for all menu items. A returned value of 0 means no selection was made in the menu.<br />
-<br />
-An example of the XPopup signal handler code is shown below:<br />
-
-<pre class="code">
-ON *:SIGNAL:Xpopup-*: {
-	;// get the menu name from Xpopup-[MENUNAME]
-	var %m $gettok($signal, 2-, 45)
-
-	;// nothing clicked
-	if ($1 == 0) {
-		return
-	}
-
-	if (%m == menu_open) {
-		if ($1 == 1) { echo -a command 1 }
-		else if ($1 == 2) { echo -a command 2 }
-	}
-	else if (%m == menu_help) {
-		if ($1 == 1) { url http://dcx.scriptsdb.org }
-		else if ($1 == 2) { echo -a command aboutbox }
-	else {
-	    echo -a unknown menu
-	}
-}
-</pre>
-</td></tr>
-</table>
 </td><td width="85%" valign="top" class="menuright">
 	<br />
 <a href="#xpopup" style="color: #800080;">/xpopup Flags</a><ul><li><a href="#xpopup.b" style="color: #800080;">-b</a></li>
@@ -816,6 +830,7 @@ ON *:SIGNAL:Xpopup-*: {
 <li><a href="#xpopupprop.colors" style="color: #AC59AC;">colors</a></li>
 <li><a href="#xpopupprop.exstyle" style="color: #AC59AC;">exstyle</a></li>
 <li><a href="#xpopupprop.ismenu" style="color: #AC59AC;">ismenu</a></li>
+<li><a href="#xpopupprop.isPatched" style="color: #AC59AC;">isPatched</a></li>
 <li><a href="#xpopupprop.style" style="color: #AC59AC;">style</a></li>
 </ul><a href="#xpop" style="color: #0000FF;">/xpop Flags</a><ul><li><a href="#xpop.a" style="color: #0000FF;">-a</a></li>
 <li><a href="#xpop.c" style="color: #0000FF;">-c</a></li>
@@ -837,7 +852,7 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2006</td>
-		<td style="text-align: right;">Last Updated: 10th January, 07</td>
+		<td style="text-align: right;">Last Updated: 14th January, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
