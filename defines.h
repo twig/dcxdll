@@ -77,7 +77,7 @@ using namespace Gdiplus;
 
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 3
-#define DLL_BUILD      7
+#define DLL_BUILD      8
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
 // Dev Build, enable debug output.
