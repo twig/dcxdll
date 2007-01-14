@@ -18,7 +18,7 @@ define('SECTION_XTRAY'       , 'xtray');
 
 
 // global variables
-$VERSION = "1.3.7";
+$VERSION = "1.3.8";
 
 $DOCPATH = "./doc/";
 $INCPATH = "./inc/";
@@ -521,7 +521,7 @@ function dcxdoc_footer() {
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2006</td>
+		<td style="text-align: center;">© 2005-<?php echo date("Y"); ?></td>
 		<td style="text-align: right;">Last Updated: <?php echo date("jS F, y"); ?></td>
 	</tr>
 </table>
