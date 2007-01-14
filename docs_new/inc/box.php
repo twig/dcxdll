@@ -11,7 +11,6 @@ function get_styles_box(&$STYLES) {
 		'right' => 'Control text is right justified.',
 		'bottom' => 'Control text is at the bottom of the box.',
 		'none' => 'Control will not display a border or label.',
-		'transparent' => 'This allows the background of the box control to be transparent.',
 		'rounded' => 'The border drawn for the box control will be a rounded rectangle.',
 //		'check' => 'The box frame will have a checkbox which can enable/disable all children controls (regardless of previous state).',
 		'shadow' => 'Display text with a shadow.',

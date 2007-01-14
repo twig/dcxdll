@@ -1,13 +1,12 @@
 <?php
 function get_intro_image() {
-	echo "Image control that lets you display BMP, GIF, JPEG, Exif, PNG, TIFF, ICON, WMF and EMF images.";
+	echo 'Image control that lets you display BMP, GIF, JPEG, Exif, PNG, TIFF, ICON, WMF and EMF images. However, if GDI+ is not loaded, DCX can only support native BMP format files. See [f]$dcx(IsUsingGDI)[/f].';
 }
 
 function get_styles_image(&$STYLES) {
 	$STYLES = array(
         'alpha' => 'Control is alpha blended.',
 		'tooltips' => 'The image will have a tooltip.',
-        'transparent' => 'This allows the background of the image control to be transparent.',
 	);
 }
 

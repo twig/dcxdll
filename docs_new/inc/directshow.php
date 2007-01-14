@@ -1,12 +1,11 @@
 <?php
 function get_intro_directshow() {
-	echo 'DIRECTSHOW CONTROL';
+	echo 'The DirectShow control allows playback of media files. Formats which can be played will depend upon the codecs avaiable on the system.';
 }
 
 
 function get_styles_directshow(&$STYLES) {
 	$STYLES = array(
-		'transparent' => 'This allows the background of the directshow control to be transparent and the video border not rendered.',
 		'fixratio' => 'The content maintains its aspect ratio. By default, the content fills the control.',
 	);
 }
@@ -31,8 +30,11 @@ function get_xdid_directshow(&$XDID) {
         ),
 		'c' => array(
 			'__desc' => "This lets you control playback of the file.",
-			'__cmd' => '[COMMAND]',
-			'__eg' => 'play',
+			'__cmd' => '[ARGS]',
+			'__eg' => array(
+                'play',
+                'seek 3500'
+            ),
 			'__params' => array(
 				'COMMAND' => array(
 					'__desc' => "DirectShow commands.",
@@ -41,9 +43,18 @@ function get_xdid_directshow(&$XDID) {
 						'pause' => "Pauses the playback.",
 						'stop' => "Stops the playback.",
 						'close' => "Close the playback and unload it.",
+                        'seek' => 'Seeks to the millisecond of the clip specified.',
 					),
 				),
-				'FILENAME' => 'Previous filename.',
+                '__args' => array(
+                    'play' => '[FILENAME]',
+                    'seek' => array(
+                        '__cmd' => '[TIME]',
+                        '__params' => array(
+                            'TIME' => 'The time to seek to, specified in milliseconds.',
+                        ),
+                    ),
+                ),
 			),
 		),
 	);
@@ -67,6 +78,20 @@ function get_xdidprops_directshow(&$XDIDPROPS) {
                 'MIN' => 'The minimum value.',
                 'MAX' => 'The maximum value.',
                 'STEP' => 'The value to use when changing this property.',
+            ),
+        ),
+        'currentpos' => array(
+            '__desc' => 'This property returns the current position of the content.',
+            '__params' => array(
+                'STATE' => 'This is [v]D_OK[/v] if the command succeeded. Otherwise [p]STATE[/p] is [v]D_ERROR[/v].',
+                'RESULT' => 'The time in milliseconds. If [p]STATE[/p] was not [v]D_OK[/v], then [p]RESULT[/p] will be the appropriate error message. (ie. [v]Method Not Supported[/v])',
+            ),
+        ),
+        'duration' => array(
+            '__desc' => 'This property returns the length of the media clip.',
+            '__params' => array(
+                'STATE' => 'This is [v]D_OK[/v] if the command succeeded. Otherwise [p]STATE[/p] is [v]D_ERROR[/v].',
+                'RESULT' => 'The time in milliseconds. If [p]STATE[/p] was not [v]D_OK[/v], then [p]RESULT[/p] will be the appropriate error message. (ie. [v]Method Not Supported[/v])',
             ),
         ),
         'hrange' => array(

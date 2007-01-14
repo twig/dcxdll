@@ -8,13 +8,13 @@ function get_intro_datetime() {
 
 function get_styles_datetime(&$STYLES) {
 	$STYLES = array(
-	    "longdateformat" => '***The month calendar will allow the user to select a range of dates within the control. By default, the maximum range is one week.',
-	    'shortdateformat' => '***The month calendar control will not display the "today" date at the bottom of the control.',
-	    'shortdatecenturyformat' => '***The month calendar control will not circle the "today" date.',
-	    'timeformat' => '***The month calendar control will display week numbers (1-52) to the left of each row of days. Week 1 is defined as the first week that contains at least four days.',
-	    'right' => '***You can specify whether specific dates are bold or not. Refer to [e]daystate[/e] event.',
-	    'shownone' => '***You can specify whether specific dates are bold or not. Refer to [e]daystate[/e] event.',
-	    'updown' => '***You can specify whether specific dates are bold or not. Refer to [e]daystate[/e] event.',
+	    "longdateformat" => 'The date will be displayed in a long format, which produces a result like [v]Friday, April 19, 1996[/v].',
+	    'shortdateformat' => 'The date will be displayed in a short format, which produces a result like [v]4/19/96[/v].',
+	    'shortdatecenturyformat' => 'The date will be similar to the [s]shortdateformat[/s], however the result will include the century like [v]4/19/1996[/v].',
+	    'timeformat' => 'Displays the time like [v]5:31:42 PM[/v].',
+	    'right' => 'The text value will be aligned to the right.',
+	    'shownone' => 'It is possible to have no date selected in the control. The user MUST select the checkbox, otherwise it will return no date.',
+	    'updown' => 'Places an up-down control to the right of the DTP control to modify date-time values.',
 	);
 }
 

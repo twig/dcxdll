@@ -180,7 +180,7 @@ function gen_styles($page, $pagelabel) {
 		if ($page == 'xdid')
 			$str = "These general control styles are available when creating any DCX control.";
 		else
-			$str = "These control styles are available when creating a $pagelabel control. Remember that the general styles [s]disabled[/s], [s]group[/s], [s]notheme[/s], and [s]tabstop[/s] apply to all DCX controls.";
+			$str = "These control styles are available when creating a $pagelabel control. Remember that the general styles [s]disabled[/s], [s]group[/s], [s]notheme[/s], [s]tabstop[/s] and [s]transparent[/s] apply to all DCX controls.";
 
 		dcxdoc_print_description("Control Styles", $str);
    		dcxdoc_format_styles($STYLES);
@@ -720,11 +720,11 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
             
         	$heading = "$flag";
 			$syntax = "/cb_alias DNAME $flag ID {$data['__cmd']}";
-			// TODO: fix this since index page has 0 for ID when its a dialog
+            $eventid = (isset($data['__isdialog']) ? 0 : 4);
 //			$example = "/cb_alias dcx $flag " . (!in_array($flag, $dialogspecific) ? ' 0 ' : ' 4 ') . $data['__eg'];
 //			$example = "/cb_alias dcx $flag 4 {$data['__eg']}";
-			$examplefmt[$ARGS]   = "/cb_alias dcx $flag 4 [-EXAMPLE]";
-			$examplefmt[$NOARGS] = "/cb_alias dcx $flag 4";
+			$examplefmt[$ARGS]   = "/cb_alias dcx $flag $eventid [-EXAMPLE]";
+			$examplefmt[$NOARGS] = "/cb_alias dcx $flag $eventid";
 			
             break;
             
@@ -1023,7 +1023,7 @@ function dcxdoc_print_description($caption, $content = "") {
 	//if ($caption != "Introduction") echo "<br />";
 ?>
 <table class="description">
-	<tr><td class="heading" style="border-color: <?php echo $color; ?>"><a name="<?php echo $SECTION; ?>"></a><?php echo "<div style='color: $color;font-size:14pt;'>".($SECTION == "intro" ? $pagelabel : $caption)."</div>"; ?></td></tr>
+	<tr><td class="heading" style="border-color: <?php echo $color; ?>"><a name="<?php echo $SECTION; ?>"></a><?php echo "<div style='color: $color;font-size:14pt;'>".($SECTION == SECTION_INTRO ? $pagelabel : $caption)."</div>"; ?></td></tr>
 <?php
 	if ($content) {
 ?>
