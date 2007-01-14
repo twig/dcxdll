@@ -308,7 +308,7 @@ mIRC(xdock) {
 					// TODO: undocumented. Non functional, mirc does owner draw, need to subclass
 					TString cflag(input.gettok(3));
 					COLORREF clr = (COLORREF)input.gettok(4).to_num();
-					switch(flag[1])
+					switch(cflag[1])
 					{
 					case 't': // text colour
 						{
