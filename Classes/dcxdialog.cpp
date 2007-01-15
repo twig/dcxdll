@@ -984,6 +984,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				return;
 			}
 
+			this->callAliasEx(NULL, "%s,%d,%d", "zlayershow", n +1, this->m_vZLayers[n] - mIRC_ID_OFFSET);
+
 			// hide the previous control
 			ctrl = getControlByID(this->m_vZLayers[this->m_zLayerCurrent]);
 
