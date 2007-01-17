@@ -597,36 +597,37 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 			break;
 
-    case WM_CTLCOLORBTN:
-    case WM_CTLCOLORLISTBOX:
-    case WM_CTLCOLORSCROLLBAR:
-    case WM_CTLCOLORSTATIC:
-    case WM_CTLCOLOREDIT:
-      {
+		case WM_CTLCOLORBTN:
+		case WM_CTLCOLORLISTBOX:
+		case WM_CTLCOLORSCROLLBAR:
+		case WM_CTLCOLORSTATIC:
+		case WM_CTLCOLOREDIT:
+			{
 
-        DcxControl * p_Control = this->m_pParentDialog->getControlByHWND( (HWND) lParam );
+				DcxControl * p_Control = this->m_pParentDialog->getControlByHWND( (HWND) lParam );
 
-        if ( p_Control != NULL ) {
+				if ( p_Control != NULL ) {
 
-          COLORREF clrText = p_Control->getTextColor( );
-          COLORREF clrBackText = p_Control->getBackColor( );
-          HBRUSH hBackBrush = p_Control->getBackClrBrush( );
+					COLORREF clrText = p_Control->getTextColor( );
+					COLORREF clrBackText = p_Control->getBackColor( );
+					HBRUSH hBackBrush = p_Control->getBackClrBrush( );
 
-          if ( clrText != -1 )
-            SetTextColor( (HDC) wParam, clrText );
- 
-          if ( clrBackText != -1 )
-            SetBkColor( (HDC) wParam, clrBackText );
+					bParsed = TRUE;
+					LRESULT lRes = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam);
 
-          if ( hBackBrush != NULL ) {
+					if ( clrText != -1 )
+						SetTextColor( (HDC) wParam, clrText );
 
-            bParsed = TRUE;
-            return (LRESULT) hBackBrush;
-          }
+					if ( clrBackText != -1 )
+						SetBkColor( (HDC) wParam, clrBackText );
 
-        }
-      }
-      break;
+					if ( hBackBrush != NULL )
+						lRes = (LRESULT)hBackBrush;
+
+					return lRes;
+				}
+			}
+			break;
 
 		case WM_SETCURSOR:
 			{

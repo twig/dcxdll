@@ -725,32 +725,33 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
     case WM_CTLCOLOREDIT:
       {
 
-        DcxControl * p_Control = this->m_pParentDialog->getControlByHWND( (HWND) lParam );
+				DcxControl * p_Control = this->m_pParentDialog->getControlByHWND( (HWND) lParam );
 
-        if ( p_Control != NULL ) {
+				if ( p_Control != NULL ) {
 
-          COLORREF clrText = p_Control->getTextColor( );
-          COLORREF clrBackText = p_Control->getBackColor( );
-          HBRUSH hBackBrush = p_Control->getBackClrBrush( );
+					COLORREF clrText = p_Control->getTextColor( );
+					COLORREF clrBackText = p_Control->getBackColor( );
+					HBRUSH hBackBrush = p_Control->getBackClrBrush( );
 
-          if ( clrText != -1 )
-            SetTextColor( (HDC) wParam, clrText );
- 
-          if ( clrBackText != -1 )
-            SetBkColor( (HDC) wParam, clrBackText );
+					bParsed = TRUE;
+					LRESULT lRes = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+					if ( clrText != -1 )
+						SetTextColor( (HDC) wParam, clrText );
+
+					if ( clrBackText != -1 )
+						SetBkColor( (HDC) wParam, clrBackText );
 
 					//if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
 					//	bParsed = TRUE;
 					//	return (LRESULT)GetStockObject(NULL_BRUSH);
 					//}
 
-          if ( hBackBrush != NULL ) {
+					if ( hBackBrush != NULL )
+						lRes = (LRESULT) hBackBrush;
 
-            bParsed = TRUE;
-            return (LRESULT) hBackBrush;
-          }
-
-        }
+					return lRes;
+				}
       }
       break;
 

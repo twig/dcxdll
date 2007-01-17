@@ -2245,6 +2245,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 				//http://www.ddj.com/dept/windows/184416395
 				//http://www.codeguru.com/Cpp/misc/samples/article.php/c1469#download
+				bParsed = TRUE;
+				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+
 				if (clrText != -1)
 					SetTextColor((HDC) wParam, clrText);
 
@@ -2256,10 +2259,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				//	return (LRESULT)GetStockObject(NULL_BRUSH);
 				//}
 
-				if (hBackBrush != NULL) {
-					bParsed = TRUE;
+				if (hBackBrush != NULL)
 					lRes = (LRESULT) hBackBrush;
-				}
+
 			}
 
 			break;

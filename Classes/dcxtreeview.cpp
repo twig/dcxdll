@@ -668,10 +668,10 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
           else
             lpdcxtvitem->bBold = FALSE;
 
-			if (iFlags & TVIS_ITALIC)
-				lpdcxtvitem->bItalic = TRUE;
-          else
-            lpdcxtvitem->bItalic = FALSE;
+					if (iFlags & TVIS_ITALIC)
+						lpdcxtvitem->bItalic = TRUE;
+					else
+						lpdcxtvitem->bItalic = FALSE;
 
           if ( iFlags & TVIS_COLOR )
             lpdcxtvitem->clrText = clrText;
@@ -887,8 +887,9 @@ HIMAGELIST DcxTreeView::getImageList( const int type ) {
  */
 
 void DcxTreeView::setImageList( HIMAGELIST himl, const int type ) {
-
-  TreeView_SetImageList( this->m_Hwnd, himl, type );
+	HIMAGELIST o = TreeView_SetImageList( this->m_Hwnd, himl, type );
+  if (o != NULL && o != himl) // don't destroy if NULL or the same list as just added.
+		ImageList_Destroy(o);
 }
 
 /*!
