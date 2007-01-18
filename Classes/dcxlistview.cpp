@@ -844,7 +844,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			int nItems = ListView_GetItemCount(this->m_Hwnd);
 
 			while (i <= n) {
-				int nItem = (int)Ns.gettok(i, ",").to_num() -1;
+				int nItem = Ns.gettok(i, ",").to_int() -1;
 
 				if (nItem > -1 && nItem < nItems)
 					ListView_SetItemState(this->m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
@@ -1296,6 +1296,19 @@ void DcxListView::parseCommandRequest(TString &input) {
 				lpmylvi->tsTipText = (numtok > 3 ? input.gettok(6, -1, " ") : "");
 		}
 	}
+	// xdid -Z [NAME] [ID] [SWITCH] [relative pixels]
+	else if (flags.switch_cap_flags[25] && numtok > 3) {
+		int pos = input.gettok( 4, " " ).to_int( );
+		// this is a temp fix untill we find out why WM_VSCROLL isn't working.
+		ListView_Scroll(this->m_Hwnd, 0, pos);
+	}
+	// xdid -V [NAME] [ID] [SWITCH] [nItem]
+	else if (flags.switch_cap_flags[21] && numtok > 3) {
+		int nItem = input.gettok(4).to_int() -1;
+
+		if (nItem > -1)
+			ListView_EnsureVisible(this->m_Hwnd, nItem, FALSE);
+	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
 }
@@ -1318,7 +1331,9 @@ HIMAGELIST DcxListView::getImageList( const int iImageList ) {
  */
 
 void DcxListView::setImageList(HIMAGELIST himl, const int iImageList) {
-	ImageList_Destroy(ListView_SetImageList(this->m_Hwnd, himl, iImageList));
+	HIMAGELIST o = ListView_SetImageList(this->m_Hwnd, himl, iImageList);
+	if (o != NULL && o != himl)
+		ImageList_Destroy(o);
 }
 
 /*!
@@ -2248,13 +2263,11 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 			//		lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			//	}
 			//	else {
-					if (LOWORD(wParam) == SB_ENDSCROLL) {
+					if (LOWORD(wParam) == SB_ENDSCROLL)
 						this->callAliasEx(NULL, "%s,%d", "scrollend", this->getUserID());
-					}
 
-					if (this->isExStyle(LVS_EX_GRIDLINES)) {
+					if (this->isExStyle(LVS_EX_GRIDLINES))
 						this->redrawWindow();
-					}
 			//	}
 			//}
 			break;

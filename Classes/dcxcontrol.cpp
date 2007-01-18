@@ -310,22 +310,10 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			int min, max;
 			GetScrollRange( this->m_Hwnd, SB_VERT, &min, &max );
 
-			/*
-			char data[500];
-			wsprintf( data, "%d %d", min, max );
-			mIRCError( data );
-			*/
-
-			//switchbar is defined and has visible range
+			//scrollbar is defined and has visible range
 			if ( min != 0 || max != 0 ) {
 
 				int pos = round( (float) ( max - min ) * (float) perc / (float) 100.0 );
-
-				/*
-				char data[500];
-				wsprintf( data, "%d", pos );
-				mIRCError( data );
-				*/
 
 				SCROLLINFO si;
 				ZeroMemory( &si, sizeof ( SCROLLINFO ) );
@@ -334,9 +322,6 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 				si.nPos = pos;
 				SetScrollInfo( this->m_Hwnd, SB_VERT, &si, TRUE );
 				SendMessage( this->m_Hwnd, WM_VSCROLL, MAKEWPARAM( SB_THUMBPOSITION, si.nPos ), NULL );
-
-				//SetScrollPos( this->m_Hwnd, SB_VERT, pos, TRUE );
-				//InvalidateRect( this->m_Hwnd, NULL, TRUE );
 			}
 		}
 	}
