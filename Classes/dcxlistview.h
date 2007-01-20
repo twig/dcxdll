@@ -95,11 +95,11 @@ public:
   void parseInfoRequest( TString & input, char * szReturnValue );
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
-  void parseListviewExStyles( TString & styles, LONG * ExStyles );
+  static void parseListviewExStyles( TString & styles, LONG * ExStyles );
 
   HIMAGELIST getImageList( const int iImageList );
   void setImageList( HIMAGELIST himl, const int iImageList );
-  HIMAGELIST createImageList( const BOOL bIcons );
+  static HIMAGELIST createImageList( const BOOL bIcons );
 
   BOOL isListViewStyle( const long dwView ) const;
 

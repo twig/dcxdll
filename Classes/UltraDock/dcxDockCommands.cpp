@@ -8,8 +8,8 @@
 
 extern mIRCDLL mIRCLink;
 // mIRC components HWND
-extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, hTreeView;
-extern HFONT pOrigTreeViewFont;
+//extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, hTreeView;
+//extern HFONT pOrigTreeViewFont;
 extern VectorOfDocks v_docks;
 extern void UltraDock(const HWND mWnd,HWND temp,TString flag);
 extern bool FindUltraDock(const HWND hwnd);
@@ -221,9 +221,9 @@ mIRC(xdock) {
 	// show/hide switchbar
 	// [-S] [1|0]
 	if ((switches[1] == 'S') && (numtok == 2)) {
-		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(sb_hwnd)))
+		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hSwitchbar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
-		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(sb_hwnd)))
+		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(mIRCLink.m_hSwitchbar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
 
 		return 1;
@@ -231,9 +231,9 @@ mIRC(xdock) {
 	// show/hide toolbar
 	// [-T] [1|0]
 	else if ((switches[1] == 'T') && (numtok == 2)) {
-		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(tb_hwnd)))
+		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hToolbar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
-		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(tb_hwnd)))
+		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(mIRCLink.m_hToolbar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
 
 		return 1;
@@ -241,9 +241,9 @@ mIRC(xdock) {
 	// show/hide treebar
 	// [-R [1|0]
 	else if ((switches[1] == 'R') && (numtok == 2)) {
-		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(treeb_hwnd)))
+		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hTreebar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
-		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(treeb_hwnd)))
+		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(mIRCLink.m_hTreebar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
 
 		return 1;
@@ -274,7 +274,7 @@ mIRC(xdock) {
 	// [-F] [+flag] [args]
 	else if ((switches[1] == 'F') && (numtok > 2)) {
 		//treeb_hwnd
-		if (IsWindow(hTreeView)) {
+		if (IsWindow(mIRCLink.m_hTreeView)) {
 			TString flag(input.gettok(2));
 			switch(flag[1])
 			{
@@ -289,11 +289,11 @@ mIRC(xdock) {
 					if (ParseCommandToLogfont(input.gettok(3, -1, " "), &lf)) {
 						HFONT hFont = CreateFontIndirect(&lf);
 						if (hFont != NULL) {
-							HFONT f = (HFONT)SendMessage(hTreeView,WM_GETFONT,0,0);
-							if (pOrigTreeViewFont == NULL)
-								pOrigTreeViewFont = f;
-							SendMessage( hTreeView, WM_SETFONT, (WPARAM) hFont, (LPARAM) MAKELPARAM(TRUE,0));
-							if (f != pOrigTreeViewFont)
+							HFONT f = (HFONT)SendMessage(mIRCLink.m_hTreeView,WM_GETFONT,0,0);
+							if (mIRCLink.m_hTreeFont == NULL)
+								mIRCLink.m_hTreeFont = f;
+							SendMessage( mIRCLink.m_hTreeView, WM_SETFONT, (WPARAM) hFont, (LPARAM) MAKELPARAM(TRUE,0));
+							if (f != mIRCLink.m_hTreeFont)
 								DeleteObject(f);
 						}
 					}
@@ -312,17 +312,17 @@ mIRC(xdock) {
 					{
 					case 't': // text colour
 						{
-							TreeView_SetTextColor(hTreeView,clr);
+							TreeView_SetTextColor(mIRCLink.m_hTreeView,clr);
 						}
 						break;
 					case 'b': // bkg colour
 						{
-							TreeView_SetBkColor(hTreeView,clr);
+							TreeView_SetBkColor(mIRCLink.m_hTreeView,clr);
 						}
 						break;
 					case 'l': // line colour
 						{
-							TreeView_SetLineColor(hTreeView,clr);
+							TreeView_SetLineColor(mIRCLink.m_hTreeView,clr);
 						}
 						break;
 					default:
@@ -341,8 +341,8 @@ mIRC(xdock) {
 						return 0;
 					}
 					static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll");
-					int i = 1, numtok = input.numtok();
-					DWORD stylef = GetWindowLong(hTreeView,GWL_STYLE);
+					int i = 3, numtok = input.numtok();
+					DWORD stylef = GetWindowLong(mIRCLink.m_hTreeView,GWL_STYLE);
 					while (i <= numtok) {
 						switch (treebar_styles.findtok(input.gettok(i).to_chr(),1))
 						{
@@ -393,8 +393,82 @@ mIRC(xdock) {
 						}
 						i++;
 					}
-					SetWindowLong(hTreeView,GWL_STYLE, stylef);
-					RedrawWindow(hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
+					SetWindowLong(mIRCLink.m_hTreeView,GWL_STYLE, stylef);
+					RedrawWindow(mIRCLink.m_hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
+				}
+				break;
+			case 'i': // set image list [+flags] [index] [file]
+				{
+					if (mIRCLink.m_hTreeImages == NULL) {
+						DCXError("xdock -F", "No Valid TreeView Image List");
+						return 0;
+					}
+					if (input.gettok(3) == "clear") {
+						HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView,NULL,TVSIL_NORMAL);
+						if (o != NULL && o != mIRCLink.m_hTreeImages)
+							ImageList_Destroy(o);
+					}
+					else if (input.gettok(3) == "default") {
+						HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView,mIRCLink.m_hTreeImages,TVSIL_NORMAL);
+						if (o != NULL && o != mIRCLink.m_hTreeImages)
+							ImageList_Destroy(o);
+					}
+					else {
+						HIMAGELIST himl = ImageList_Duplicate( TreeView_GetImageList( mIRCLink.m_hTreeView, TVSIL_NORMAL) );
+						if (himl != NULL) {
+							int type = 0, index = input.gettok(4).to_int();
+							TString cflag(input.gettok(3));
+							cflag.trim();
+							TString filename(input.gettok(5,-1));
+							filename.trim();
+							// add replacement images.
+							switch (cflag[1])
+							{
+							case 's': // status windows
+								type = 0;
+								break;
+							case 'c': // channel windows
+								type = 1;
+								break;
+							case 'C': // Custom windows
+								type = 2;
+								break;
+							case 'S': // DCC Send windows
+								type = 3;
+								break;
+							case 'G': // DCC Get windows
+								type = 4;
+								break;
+							default:
+								{
+									DCXError("xdock -F", "Invalid Image Flag");
+									ImageList_Destroy(himl);
+									return 0;
+								}
+								break;
+							}
+							HICON hIcon = dcxLoadIcon(index,filename);
+							if (hIcon != NULL) {
+								mIRCDebug("count: %d", ImageList_GetImageCount(himl));
+								mIRCDebug("replace: %d", ImageList_ReplaceIcon(himl,type,hIcon));
+								TVITEMEX item;
+								ZeroMemory(&item,sizeof(item));
+								item.hItem = TreeView_GetFirstVisible(mIRCLink.m_hTreeView);
+								item.hItem = TreeView_GetNextVisible(mIRCLink.m_hTreeView, item.hItem);
+								item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE; //I_IMAGECALLBACK == -1
+								mIRCDebug("getitem: %d", TreeView_GetItem(mIRCLink.m_hTreeView,&item));
+								mIRCDebug("image: %d selected: %d", item.iImage, item.iSelectedImage);
+								HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView, himl, TVSIL_NORMAL);
+								if (o != NULL && o != mIRCLink.m_hTreeImages)
+									ImageList_Destroy(o);
+								DestroyIcon(hIcon);
+							}
+							else {
+								ImageList_Destroy(himl);
+								return 0;
+							}
+						}
+					}
 				}
 				break;
 			default:
@@ -589,27 +663,27 @@ mIRC(_xdock)
 		case 4: // switchBarSize
 			{
 				RECT rc;
-				GetWindowRect(sb_hwnd, &rc);
+				GetWindowRect(mIRCLink.m_hSwitchbar, &rc);
 				wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 5: // toolBarSize
 			{
 				RECT rc;
-				GetWindowRect(tb_hwnd, &rc);
+				GetWindowRect(mIRCLink.m_hToolbar, &rc);
 				wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 6: // treeBarSize
 			{
 				RECT rc;
-				GetWindowRect(treeb_hwnd, &rc);
+				GetWindowRect(mIRCLink.m_hTreebar, &rc);
 				wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 7: // isSwitchBar
 			{
-				if (IsWindowVisible(sb_hwnd))
+				if (IsWindowVisible(mIRCLink.m_hSwitchbar))
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");
@@ -617,7 +691,7 @@ mIRC(_xdock)
 			break;
 		case 8: // isToolBar
 			{
-				if (IsWindowVisible(tb_hwnd))
+				if (IsWindowVisible(mIRCLink.m_hToolbar))
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");
@@ -625,7 +699,7 @@ mIRC(_xdock)
 			break;
 		case 9: // isTreeBar
 			{
-				if (IsWindowVisible(treeb_hwnd))
+				if (IsWindowVisible(mIRCLink.m_hTreebar))
 					lstrcpy(data,"$true");
 				else
 					lstrcpy(data,"$false");

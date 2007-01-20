@@ -11,10 +11,10 @@ LRESULT CALLBACK mIRCMDIProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
 // UltraDock stuff
 // mIRC components HWND
-HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, hTreeView;
+//HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, hTreeView;
 VectorOfDocks v_docks; // list of all docked windows.
 WNDPROC oldMDIProc; // old MDI window proc
-HFONT pOrigTreeViewFont = NULL;
+//HFONT pOrigTreeViewFont = NULL;
 
 // force a window update.
 void UpdatemIRC(void) {
@@ -27,21 +27,27 @@ void InitUltraDock(void)
 {
 	/* UltraDock stuff */
 	DCX_DEBUG("InitUltraDock", "Finding mIRC_Toolbar...");
-	tb_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_Toolbar",NULL);
+	mIRCLink.m_hToolbar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_Toolbar",NULL);
 
 	DCX_DEBUG("InitUltraDock", "Finding MDIClient...");
-	mdi_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"MDIClient",NULL);
+	mIRCLink.m_hMDI = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"MDIClient",NULL);
 
 	DCX_DEBUG("InitUltraDock", "Finding mIRC_SwitchBar...");
-	sb_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_SwitchBar",NULL);
+	mIRCLink.m_hSwitchbar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_SwitchBar",NULL);
 
 	DCX_DEBUG("InitUltraDock", "Finding mIRC_TreeList...");
-	treeb_hwnd = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_TreeList",NULL);
+	mIRCLink.m_hTreebar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_TreeList",NULL);
 
-	hTreeView = GetWindow(treeb_hwnd,GW_CHILD);
+	if (IsWindow(mIRCLink.m_hTreebar)) {
+		mIRCLink.m_hTreeView = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
+		if (IsWindow(mIRCLink.m_hTreeView))
+			mIRCLink.m_hTreeImages = TreeView_GetImageList(mIRCLink.m_hTreeView,TVSIL_NORMAL);
+	}
 
 	v_docks.clear();
-	oldMDIProc = (WNDPROC)SetWindowLong(mdi_hwnd,GWL_WNDPROC, (LONG)mIRCMDIProc);
+	if (IsWindow(mIRCLink.m_hMDI))
+		oldMDIProc = (WNDPROC)SetWindowLong(mIRCLink.m_hMDI,GWL_WNDPROC, (LONG)mIRCMDIProc);
+
 }
 /*
 	*	Eject ALL Docked dialogs.
@@ -65,7 +71,16 @@ void CloseUltraDock(void)
 		itStart++;
 	}
 	v_docks.clear();
-	SetWindowLong(mdi_hwnd, GWL_WNDPROC, (LONG)oldMDIProc);
+
+	if (oldMDIProc != NULL)
+		SetWindowLong(mIRCLink.m_hMDI, GWL_WNDPROC, (LONG)oldMDIProc);
+
+	if (IsWindow(mIRCLink.m_hTreeView) && mIRCLink.m_hTreeImages != NULL) {
+		HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView,mIRCLink.m_hTreeImages,TVSIL_NORMAL);
+		if (o != NULL && o != mIRCLink.m_hTreeImages)
+			ImageList_Destroy(o);
+	}
+
 	UpdatemIRC();
 }
 
@@ -185,7 +200,7 @@ void AdjustMDIRect(WINDOWPOS *wp)
 	int xleftoffset = 0, xrightoffset = 0, ytopoffset = 0, ybottomoffset = 0;
 	int x,y,w,h,mdiw,mdih,nWin = 0; //nWin = v_docks.size();
 
-	// testing dont delete.
+	// count visible docked windows.
 	while (itStart != itEnd) {
 		if ((*itStart != NULL) && (IsWindowVisible(((LPDCXULTRADOCK)*itStart)->hwnd))) {
 			nWin++; // count docked windows.
@@ -279,19 +294,19 @@ int SwitchbarPos(const int type)
 	switch (type)
 	{
 	case 1: // toolbar
-		hwnd = tb_hwnd;
+		hwnd = mIRCLink.m_hToolbar;
 		break;
 	case 2: // treebar
-		hwnd = treeb_hwnd;
+		hwnd = mIRCLink.m_hTreebar;
 		break;
 	default:
 	case 0: // switchbar
-		hwnd = sb_hwnd;
+		hwnd = mIRCLink.m_hSwitchbar;
 		break;
 	}
 	if (IsWindowVisible(hwnd)) {
 		GetWindowRect(hwnd,&swb_rc);
-		GetWindowRect(mdi_hwnd,&mdi_rc);
+		GetWindowRect(mIRCLink.m_hMDI,&mdi_rc);
 		if (swb_rc.left >= mdi_rc.right)
 			return SWB_RIGHT;
 		if (swb_rc.top >= mdi_rc.bottom)
@@ -322,3 +337,4 @@ LRESULT CALLBACK mIRCMDIProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	}
 	return CallWindowProc(oldMDIProc, mHwnd, uMsg, wParam, lParam);
 }
+

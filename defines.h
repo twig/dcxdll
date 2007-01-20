@@ -81,7 +81,7 @@ using namespace Gdiplus;
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
 // Dev Build, enable debug output.
-#define DCX_DEBUG(x,y) if (mIRCLink.isDebug) DCXDebug((x), (y));
+#define DCX_DEBUG(x,y) if (mIRCLink.m_bisDebug) DCXDebug((x), (y));
 #define DLL_STATE      "Development Build"
 #else
 // Release Build, disable debug info.
@@ -90,7 +90,7 @@ using namespace Gdiplus;
 #endif
 #else
 // Debug Build, enable debug output.
-#define DCX_DEBUG(x,y) if (mIRCLink.isDebug) DCXDebug((x), (y));
+#define DCX_DEBUG(x,y) if (mIRCLink.m_bisDebug) DCXDebug((x), (y));
 #define DLL_STATE      "Debug Build"
 #endif
 
@@ -195,8 +195,16 @@ typedef struct {
 	int			m_map_cnt;  //!< MapFile counter.
 	int			m_bDoGhostDrag; //!< Ghost window while dragging.
 	bool		m_bGhosted; //!< Is Window Currently ghosted (as a result of drag ghost).
-	bool		isDebug;    // is mIRC is using /debug upon DCX LoadDLL().
+	bool		m_bisDebug;    // is mIRC is using /debug upon DCX LoadDLL().
 	bool		m_bUseGDIPlus; // we can use GDI+ functions.
+	bool		m_bmIRCSixPointTwoZero; // Is this mIRC V6.20
+	HWND		m_hSwitchbar; // The Switchbars HWND
+	HWND		m_hToolbar; // The Toolbars HWND
+	HWND		m_hMDI; // The MDIClients HWND
+	HWND		m_hTreebar; // The Treebars HWND
+	HWND		m_hTreeView; // The TreeView control child of the Treebar.
+	HFONT		m_hTreeFont; // The Treebars original font.
+	HIMAGELIST m_hTreeImages; // The Treebars original image list.
 } mIRCDLL;
 
 /*!

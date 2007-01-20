@@ -78,12 +78,9 @@ extern LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 // UltraDock stuff
 // mIRC components HWND
-extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, hTreeView;
-extern HFONT pOrigTreeViewFont;
+//extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, hTreeView;
+//extern HFONT pOrigTreeViewFont;
 // switchbar position
-//extern int swb_pos;
-// indicate if MDI is maxed out
-//extern BOOL MDIismax;
 extern VectorOfDocks v_docks;
 bool dcxSignal;
 
@@ -91,7 +88,7 @@ bool dcxSignal;
 ULONG_PTR gdi_token = NULL;
 #endif
 
-bool mIRCSixPointTwoZero; //!< used by xpopup to tell if patching is to be done.
+//bool mIRCSixPointTwoZero; //!< used by xpopup to tell if patching is to be done.
 
 /*!
 * \brief mIRC DLL Load Function
@@ -107,14 +104,15 @@ void WINAPI LoadDll(LOADINFO * load) {
 	int cnt = 0;
 
 	load->mKeep = TRUE; // keep it loaded, this is TRUE by default with 6.21+, but FALSE by default with previous versions.
+	ZeroMemory(&mIRCLink,sizeof(mIRCLink));
 	// If mIRC V6.2+ then try & create our own unique mapfile.
 	// damn mIRC reports as 6.2 instead of 6.20!
 	// meaning mirc v6.17 appears to be a higher version.
 	if ((HIWORD(load->mVersion) == 2) && (LOWORD(load->mVersion) == 6))
-		mIRCSixPointTwoZero = true;
+		mIRCLink.m_bmIRCSixPointTwoZero = true;
 	else
-		mIRCSixPointTwoZero = false;
-	if (mIRCSixPointTwoZero || ((HIWORD(load->mVersion) >= 21) && (LOWORD(load->mVersion) == 6))) {
+		mIRCLink.m_bmIRCSixPointTwoZero = false;
+	if (mIRCLink.m_bmIRCSixPointTwoZero || ((HIWORD(load->mVersion) >= 21) && (LOWORD(load->mVersion) == 6))) {
 		TString map_name;
 		cnt = 1;
 		mIRCLink.m_hFileMap = NULL;
@@ -164,7 +162,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	TString isDebug(res);
 
 	isDebug.trim();
-	mIRCLink.isDebug = (isDebug.len() > 0);
+	mIRCLink.m_bisDebug = (isDebug.len() > 0);
 	DCX_DEBUG("LoadDLL", "Debug mode detected...");
 
 	// Initializing OLE Support
@@ -536,10 +534,10 @@ int WINAPI UnloadDll(int timeout) {
 		}
 		
 		// reset the treebars font if it's been changed.
-		if (pOrigTreeViewFont != NULL) {
-			HFONT hfont = (HFONT)SendMessage(hTreeView,WM_GETFONT,0,0);
-			if (hfont != pOrigTreeViewFont) {
-				SendMessage( hTreeView, WM_SETFONT, (WPARAM) pOrigTreeViewFont, (LPARAM) MAKELPARAM(TRUE,0));
+		if (mIRCLink.m_hTreeFont != NULL) {
+			HFONT hfont = (HFONT)SendMessage(mIRCLink.m_hTreeView,WM_GETFONT,0,0);
+			if (hfont != mIRCLink.m_hTreeFont) {
+				SendMessage( mIRCLink.m_hTreeView, WM_SETFONT, (WPARAM) mIRCLink.m_hTreeFont, (LPARAM) MAKELPARAM(TRUE,0));
 				DeleteObject(hfont);
 			}
 		}
@@ -718,9 +716,11 @@ mIRC(GetSystemColor) {
 		ret("D_ERROR GetSystemColor: Invalid parameter specified");
 
 	// max of 8 digits, 9 for null terminator
-	char val[9];
-	wsprintf(val, "%d", GetSysColor(col));
-	ret(val);
+	//char val[9];
+	//wsprintf(val, "%d", GetSysColor(col));
+	//ret(val);
+	wsprintf(data, "%d", GetSysColor(col));
+	return 3;
 }
 
 
@@ -765,7 +765,7 @@ mIRC(ColorDialog) {
 
 	if (ChooseColor(&cc)) {
 		wsprintf(data, "%d", cc.rgbResult);
-		ret(data);
+		return 3; //ret(data);
 	}
 	else
 		ret("-1");
@@ -930,12 +930,14 @@ mIRC(FontDialog) {
 
 	// show the dialog
 	if (ChooseFont(&cf)) {
-		char str[900];
+		//char str[900];
 		TString fntflags(ParseLogfontToCommand(&lf));
 
 		// color flags font info
-		wsprintf(str, "%d %s", cf.rgbColors, fntflags.to_chr());
-		ret(str);
+		//wsprintf(str, "%d %s", cf.rgbColors, fntflags.to_chr());
+		//ret(str);
+		wsprintf(data, "%d %s", cf.rgbColors, fntflags.to_chr());
+		return 3;
 	}
 	else
 		ret("");
@@ -1060,12 +1062,11 @@ mIRC(GetTaskbarPos) {
 	HWND hTaskbar = FindWindow("Shell_TrayWnd", NULL);
 	
 	if (hTaskbar) {
-		TString val;
 		RECT rc;
 
 		GetWindowRect(hTaskbar, &rc);
-		val.sprintf("%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-		ret(val.to_chr());
+		wsprintf(data, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		return 3;
 	}
 
 	ret("D_ERROR GetTaskbarPos: could not find taskbar");
@@ -1316,9 +1317,8 @@ mIRC(MsgBox) {
 	TString d(data);
 	d.trim();
 
-	if (d.numtok("\t") < 3) {
+	if (d.numtok("\t") < 3)
 		ret("D_ERROR MessageBox: invalid parameters");
-	}
 
 	DWORD   style     = MB_DEFBUTTON1;
 	TString strStyles(d.gettok(1, "\t"));
@@ -1388,9 +1388,8 @@ mIRC(MsgBox) {
 	}
 
 	// if task modal, send in null to block app
-	if (style & MB_TASKMODAL) {
+	if (style & MB_TASKMODAL)
 		owner = NULL;
-	}
 
 	switch (MessageBox(owner, strMsg.to_chr(), strTitle.to_chr(), style)) {
 		case IDABORT:

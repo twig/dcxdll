@@ -884,11 +884,12 @@ void DcxListView::parseCommandRequest(TString &input) {
 		ResizePbars();
 		*/
 	}
-	// xdid -g [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
+	// xdid -g [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME) ([tab] watermark filename)
 	else if (flags.switch_flags[6] && numtok > 5) {
 		LVBKIMAGE lvbki;
 		ZeroMemory(&lvbki, sizeof(LVBKIMAGE));
 		TString filename;
+		//TString watermarkfile;
 
 		lvbki.ulFlags = this->parseImageFlags(input.gettok(4, " "));
 		lvbki.xOffsetPercent = (int)input.gettok(5, " ").to_num();
@@ -896,7 +897,13 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		if (numtok > 6) {
 			filename = input.gettok(7, -1, " ");
+			//filename = input.gettok(7, -1, " ").gettok(1,"\t");
 			filename.trim();
+			//if (lvbki.ulFlags & LVBKIF_TYPE_WATERMARK) {
+			//	watermarkfile = input.gettok(7,-1, " ").gettok(2,-1,"\t");
+			//	watermarkfile.trim();
+			//	lvbki.hbm = dcxLoadBitmap(lvbki.hbm, watermarkfile);
+			//}
 			lvbki.pszImage = filename.to_chr();
 			lvbki.ulFlags |= LVBKIF_SOURCE_URL;
 		}
@@ -1285,15 +1292,23 @@ void DcxListView::parseCommandRequest(TString &input) {
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
 
-		lvi.iItem = (int)input.gettok(4," ").to_num();
-		lvi.iSubItem = (int)input.gettok(5," ").to_num();
+		lvi.iItem = input.gettok(4," ").to_int();
+		lvi.iSubItem = input.gettok(5," ").to_int();
 		lvi.mask = LVIF_PARAM;
 
 		if (ListView_GetItem(this->m_Hwnd,&lvi)) {
 			LPDCXLVITEM lpmylvi = (LPDCXLVITEM) lvi.lParam;
 
-			if (lpmylvi != NULL)
+			if (lpmylvi != NULL) {
 				lpmylvi->tsTipText = (numtok > 3 ? input.gettok(6, -1, " ") : "");
+				LVSETINFOTIP it;
+				ZeroMemory(&it, sizeof(it));
+				it.cbSize = sizeof(it);
+				it.iItem = lvi.iItem;
+				it.iSubItem = lvi.iSubItem;
+				it.pszText = lpmylvi->tsTipText.to_wchr();
+				ListView_SetInfoTip(this->m_Hwnd,&it);
+			}
 		}
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [relative pixels]
@@ -1593,6 +1608,10 @@ UINT DcxListView::parseImageFlags( TString & flags ) {
       iFlags |= LVBKIF_SOURCE_NONE;
     else if ( flags[i] == 't' )
       iFlags |= LVBKIF_STYLE_TILE;
+		//else if ( flags[i] == 'w' )
+		//	iFlags |= LVBKIF_TYPE_WATERMARK;
+		//else if ( flags[i] == 'a' )
+		//	iFlags |= LVBKIF_TYPE_WATERMARK|LVBKIF_FLAG_ALPHABLEND;
 
     ++i;
   }

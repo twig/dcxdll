@@ -815,7 +815,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdialog -x [NAME] [SWITCH]
 	else if (flags.switch_flags[23]) {
 		if (this->getRefCount() == 0)
-			DestroyWindow(this->m_Hwnd);
+			//DestroyWindow(this->m_Hwnd);
+			SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
 		else {
 			TString cmd;
 
