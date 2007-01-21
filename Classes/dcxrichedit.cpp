@@ -377,8 +377,8 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 
 		this->parseContents(TRUE);
 	}
-	// xdid -p [NAME] [ID]
-	else if (flags.switch_flags[15] && numtok > 1) {
+	// xdid -P [NAME] [ID]
+	else if (flags.switch_cap_flags[15] && numtok > 1) {
 		SendMessage(this->getHwnd(),WM_PASTE,NULL,NULL);
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR16]

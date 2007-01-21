@@ -218,7 +218,7 @@ typedef struct {
  * c = 2				XDID
  * d = 3
  * e = 4		xdid
- * f = 5				XDID
+ * f = 5		xdid	XDID
  * g = 6
  * h = 7		xdid
  * i = 8
