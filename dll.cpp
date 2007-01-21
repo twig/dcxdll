@@ -1158,12 +1158,12 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
       }
       break;
 
-		case WM_PARENTNOTIFY:
-			{
-				if (LOWORD(wParam) == WM_DESTROY)
-					UltraUnDock((HWND)lParam);
-			}
-			break;
+		//case WM_PARENTNOTIFY:
+		//	{
+		//		if (LOWORD(wParam) == WM_DESTROY)
+		//			UltraUnDock((HWND)lParam);
+		//	}
+		//	break;
 
 		//case WM_CONTEXTMENU:
 		//case WM_INITMENU:

@@ -332,7 +332,6 @@ void AddStyles(HWND hwnd,int parm,long AddStyles);
 void InitUltraDock(void);
 void CloseUltraDock(void);
 int SwitchbarPos(const int type);
-void UltraUnDock(const HWND hwnd);
 void UpdatemIRC(void);
 
 extern PFNSETTHEME SetWindowThemeUx;  //!< blah
