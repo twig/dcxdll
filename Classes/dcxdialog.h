@@ -16,6 +16,7 @@
 #define _DCXDIALOG_H_
 
 #include "dcxwindow.h"
+#include "xpopup/xpopupmenu.h"
 #include "layout/layoutmanager.h"
 
 #define DBS_BKGCOLOR		0x00000001 //!< Control Background Color
@@ -136,6 +137,8 @@ protected:
   UINT m_FocusID; //!< Mouse Hover ID
 
   LayoutManager * m_pLayoutManager; //!< Layout Manager Object
+
+	XPopupMenu * m_popup;
 
   HCURSOR m_hCursor;  //!< Cursor Handle
   BOOL m_bCursorFromFile; //!< Cursor comes from a file?

@@ -244,6 +244,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 , m_bDoGhostDrag(255)
 , m_bGhosted(false)
 , m_zLayerCurrent(0)
+, m_popup(NULL)
 //#ifdef DCX_USE_GDIPLUS
 //, m_pImage(NULL)
 //#endif
@@ -284,6 +285,9 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 DcxDialog::~DcxDialog() {
 	if (this->m_pLayoutManager != NULL)
 		delete this->m_pLayoutManager;
+
+	if (this->m_popup != NULL)
+		delete this->m_popup;
 
 	PreloadData();
 	this->RemoveShadow();
@@ -812,7 +816,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			this->m_bCursorFromFile = TRUE;
 		}
 	}
-	// xdialog -x [NAME] [SWITCH]
+	// xdialog -x [NAME]
 	else if (flags.switch_flags[23]) {
 		if (this->getRefCount() == 0)
 			//DestroyWindow(this->m_Hwnd);
@@ -824,23 +828,23 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			mIRCcom(cmd.to_chr());
 		}
 	}
-	// xdialog -h [NAME] [SWITCH]
+	// xdialog -h [NAME]
 	else if (flags.switch_flags[7]) {
 		ShowWindow(this->m_Hwnd, SW_HIDE);
 	}
-	// xdialog -m [NAME] [SWITCH]
+	// xdialog -m [NAME]
 	else if (flags.switch_flags[12]) {
 		ShowWindow(this->m_Hwnd, SW_MAXIMIZE);
 	}
-	// xdialog -n [NAME] [SWITCH]
+	// xdialog -n [NAME]
 	else if (flags.switch_flags[13]) {
 		ShowWindow(this->m_Hwnd, SW_MINIMIZE);
 	}
-	// xdialog -r [NAME] [SWITCH]
+	// xdialog -r [NAME]
 	else if (flags.switch_flags[17]) {
 		ShowWindow(this->m_Hwnd, SW_RESTORE);
 	}
-	// xdialog -s [NAME] [SWITCH]
+	// xdialog -s [NAME]
 	else if (flags.switch_flags[18]) {
 		ShowWindow(this->m_Hwnd, SW_SHOW);
 	}
@@ -1005,6 +1009,26 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		}
 
 		return;
+	}
+	// xdialog -P [NAME]
+	else if (flags.switch_cap_flags[15]) {
+/*
+		// TWIG: doesnt actually work?
+		HMENU menu = NULL;
+
+		// create the menu
+		if (this->m_popup == NULL) {
+			menu = GetMenu(this->m_Hwnd);
+
+			if (menu != NULL)
+			{
+				this->m_popup = new XPopupMenu(menu);
+			}
+			else {
+				dcxInfoError("xdialog -P", "", this->getName().to_chr(), 0, "Menu does not exist");
+			}
+		}
+*/
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
 	else if (flags.switch_cap_flags[17] && numtok > 2) {
