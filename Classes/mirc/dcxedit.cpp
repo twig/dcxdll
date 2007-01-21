@@ -304,6 +304,10 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		}
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 	}
+	// xdid -P [NAME] [ID]
+	else if (flags.switch_cap_flags[15] && numtok > 1) {
+		SendMessage(this->getHwnd(),WM_PASTE,NULL,NULL);
+	}
 	// xdid -q [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags.switch_flags[16] && numtok > 3) {
 		int N = input.gettok(4, " ").to_int();
@@ -336,9 +340,14 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
-	else if (flags.switch_cap_flags[18] && numtok > 4) {
+	else if (flags.switch_cap_flags[18] && numtok > 3) {
 		int istart = input.gettok(4, " ").to_int();
-		int iend = input.gettok(5, " ").to_int();
+		int iend;
+		
+		if (numtok > 4)
+			iend = input.gettok(5, " ").to_int();
+		else
+			iend = istart;
 
 		SendMessage(this->m_Hwnd, EM_SETSEL, istart, iend);
 	}

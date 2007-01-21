@@ -64,6 +64,10 @@ function get_xdid_edit(&$XDID) {
 	        '__eg' => '5 New Text',
 	        '__notes' => "If the [s]multi[/s] style is not used, will overwrite the whole text."
 		),
+        'P' => array(
+          '__desc' => 'This command lets you paste the contents of the clipboard into the edit control.',
+          '__notes' => 'The text will be pasted directly into the current caret position. See [f]/xdid -S[/f].',
+        ),
 		'q' => array(
 	        '__desc' => 'This command lets you set a char length limit on the edit.',
 	        '__cmd' => '[LIMIT]',
@@ -86,9 +90,13 @@ function get_xdid_edit(&$XDID) {
 	        '__eg' => 'Username',
 		),
 		'S' => array(
-	        '__desc' => 'This command lets you set the selection range in the edit.',
-	        '__cmd' => '[START] [END]',
-	        '__eg' => '1 3',
+	        '__desc' => 'This command lets you set the selection range (and/or caret position) in the edit control.',
+	        '__cmd' => '[START] (END)',
+	        '__eg' => array(
+                '1 3',
+                '5',
+            ),
+            '__notes' => 'When the [p]END[/p] parameter is not specified, then this command will set the caret position to [p]START[/p].',
 		),
 	);
 }

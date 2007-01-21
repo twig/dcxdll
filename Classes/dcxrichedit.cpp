@@ -419,11 +419,15 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
-	else if (flags.switch_cap_flags[18] && numtok > 4) {
+	else if (flags.switch_cap_flags[18] && numtok > 3) {
 		CHARRANGE c;
 
 		c.cpMin = input.gettok(4, " ").to_int();
-		c.cpMax = input.gettok(5, " ").to_int();
+
+		if (numtok > 4)
+			c.cpMax = input.gettok(5, " ").to_int();
+		else
+			c.cpMax = c.cpMin;
 
 		SendMessage(this->m_Hwnd, EM_EXSETSEL, NULL, (LPARAM) &c);
 

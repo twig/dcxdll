@@ -298,17 +298,31 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
-			<a name="xdid.S"></a>/xdid -S	</td></tr>
-	<tr><td colspan="2">This command lets you set the selection range in the edit.</td></tr>
+			<a name="xdid.P"></a>/xdid -P	</td></tr>
+	<tr><td colspan="2">This command lets you paste the contents of the clipboard into the edit control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -S [DNAME] [ID] [START] [END]</div></td>
+		<td><div class="syntax">/xdid -P [DNAME] [ID] </div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -S dcx 4 1 3</div></td>
+		<td><div class="example">/xdid -P dcx 4</div></td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The text will be pasted directly into the current caret position. See <a class="value">/xdid -S</a>.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.S"></a>/xdid -S	</td></tr>
+	<tr><td colspan="2">This command lets you set the selection range (and/or caret position) in the edit control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -S [DNAME] [ID] [START] (END)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -S dcx 4 1 3<br />/xdid -S dcx 4 5<br /></div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When the <a class="param">END</a> parameter is not specified, then this command will set the caret position to <a class="param">START</a>.</td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;font-size:14pt;'>$xdid() Properties</div></td></tr>
@@ -631,6 +645,7 @@
 <li><a href="#xdid.t" style="color: #0000FF;">-t</a></li>
 <li><a href="#xdid.u" style="color: #0000FF;">-u</a></li>
 <li><a href="#xdid.E" style="color: #0000FF;">-E</a></li>
+<li><a href="#xdid.P" style="color: #0000FF;">-P</a></li>
 <li><a href="#xdid.S" style="color: #0000FF;">-S</a></li>
 </ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><ul><li><a href="#xdidprop.caretpos" style="color: #6666FF;">caretpos</a></li>
 <li><a href="#xdidprop.cue" style="color: #6666FF;">cue</a></li>
@@ -660,7 +675,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 14th January, 07</td>
+		<td style="text-align: right;">Last Updated: 21st January, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
