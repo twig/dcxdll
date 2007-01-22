@@ -6,10 +6,13 @@
 
 #include "../../defines.h"
 
+#define DOCK_TYPE_MDI		0x01
+#define DOCK_TYPE_TREE	0x02
+
 class DcxDock
 {
 public:
-	DcxDock(HWND refHwnd, HWND dockHwnd);
+	DcxDock(HWND refHwnd, HWND dockHwnd, int dockType);
 	virtual ~DcxDock(void);
 
 	virtual bool DockWindow(HWND hwnd, TString &flag);
@@ -29,4 +32,5 @@ protected:
 	WNDPROC m_OldDockWndProc; //!< The Windows Old WndProc.
 	HWND m_RefHwnd; //!< The HWND that windows are docked around, usually the main child window. This window is subclassed.
 	HWND m_hParent; //!< The HWND that docked windows are docked too. This window is subclassed.
+	int m_iType;
 };

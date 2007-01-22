@@ -72,8 +72,8 @@ public:
 		XPMS_VERTICAL_REV,
 	};
 
-  XPopupMenu(TString tsName, HMENU hMenu );
-  XPopupMenu( TString & tsMenuName, MenuStyle mStyle );
+  XPopupMenu( const TString tsName, HMENU hMenu );
+  XPopupMenu( const TString & tsMenuName, MenuStyle mStyle );
   virtual ~XPopupMenu( );
 
   void parseXPopCommand( const TString & input );

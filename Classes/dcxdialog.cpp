@@ -55,6 +55,9 @@
 extern DcxDialogCollection Dialogs;
 
 extern mIRCDLL mIRCLink;
+extern BOOL isMenuBar;
+extern BOOL isSysMenu;
+
 /*!
  * walkScript is a recursive function for dcXML triggered in /xdialog -X
  * Feel free to put this elsewhere if more suited as long as it wont break it :)
@@ -1939,8 +1942,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 		}
 
-    case WM_MEASUREITEM:
-      {
+		case WM_MEASUREITEM:
+			{
 				HWND cHwnd = GetDlgItem(mHwnd, wParam);
 				if (IsWindow(cHwnd)) {
 					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
@@ -1951,19 +1954,19 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 				LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
 
-			if (lpmis->CtlType == ODT_MENU) {
-				XPopupMenuItem *p_Item = (XPopupMenuItem*) lpmis->itemData;
+				if (lpmis->CtlType == ODT_MENU) {
+					XPopupMenuItem *p_Item = (XPopupMenuItem*) lpmis->itemData;
 
-				if (p_Item != NULL) {
-					SIZE size = p_Item->getItemSize(mHwnd);
+					if (p_Item != NULL) {
+						SIZE size = p_Item->getItemSize(mHwnd);
 
-					lpmis->itemWidth = size.cx;
-					lpmis->itemHeight = size.cy;
-					return TRUE; 
+						lpmis->itemWidth = size.cx;
+						lpmis->itemHeight = size.cy;
+						return TRUE; 
+					}
 				}
 			}
-      }
-      break;
+			break;
 
 		case WM_DRAWITEM:
 		{
@@ -1985,14 +1988,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					return TRUE; 
 				}
 			}
-
-			break;
-		}
-
-		case WM_UNINITMENUPOPUP:
-		{
-			if (p_this->m_popup != NULL)
-				p_this->m_popup->deleteAllItemData((HMENU) wParam);
 
 			break;
 		}
@@ -2460,9 +2455,30 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_INITMENU:
 		case WM_INITMENUPOPUP:
 		{
-			if (p_this->m_popup != NULL) {
-				p_this->m_popup->convertMenu((HMENU) wParam, FALSE);
+			//if (p_this->m_popup != NULL) {
+			//	p_this->m_popup->convertMenu((HMENU) wParam, FALSE);
+			//}
+			if (HIWORD(lParam) == FALSE && p_this->m_popup != NULL) {
+				// let mIRC populate the menus dynamically
+				LRESULT lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+
+				if (isMenuBarMenu(GetMenu(mHwnd), (HMENU) wParam)) {
+					isMenuBar = TRUE;
+
+					p_this->m_popup->convertMenu((HMENU) wParam, TRUE);
+				}
+				isSysMenu = FALSE;
+				return lRes;
 			}
+			else
+				isSysMenu = TRUE;
+			break;
+		}
+
+		case WM_UNINITMENUPOPUP:
+		{
+			if (p_this->m_popup != NULL && (isMenuBar == TRUE) && (isSysMenu == FALSE))
+				p_this->m_popup->deleteAllItemData((HMENU) wParam);
 
 			break;
 		}
@@ -2595,10 +2611,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	if (bParsed)
 		return lRes;
 
-	if (p_this != NULL)
-		return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-
-	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+	return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 }
 
 

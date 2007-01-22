@@ -20,12 +20,15 @@
  * blah
  */
 
-XPopupMenu::XPopupMenu( TString & tsMenuName, MenuStyle mStyle ) : m_tsMenuName( tsMenuName ), m_MenuStyle( mStyle ) {
+XPopupMenu::XPopupMenu( const TString & tsMenuName, MenuStyle mStyle )
+: m_tsMenuName( tsMenuName )
+, m_MenuStyle( mStyle )
+, m_MenuItemStyles(0)
+, m_hImageList(NULL)
+, m_hBitmap(NULL)
+{
 
 	this->m_hMenu = CreatePopupMenu( );
-	this->m_MenuItemStyles = 0;
-	this->m_hImageList = NULL;
-	this->m_hBitmap = NULL;
 
 	this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
 	this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
@@ -45,16 +48,14 @@ XPopupMenu::XPopupMenu( TString & tsMenuName, MenuStyle mStyle ) : m_tsMenuName(
  * Default constructor for testing
  */
 
-XPopupMenu::XPopupMenu(TString tsName, HMENU hMenu ) {
-
-	this->m_hMenu = hMenu;
-	this->m_MenuItemStyles = 0;
-	this->m_MenuStyle = XPMS_OFFICE2003;
-	this->m_hImageList = NULL;
-	this->m_hBitmap = NULL;
-
-	this->m_tsMenuName = tsName;
-
+XPopupMenu::XPopupMenu(const TString tsName, HMENU hMenu )
+: m_hMenu(hMenu)
+, m_MenuItemStyles(0)
+, m_MenuStyle(XPMS_OFFICE2003)
+, m_hImageList(NULL)
+, m_hBitmap(NULL)
+, m_tsMenuName(tsName)
+{
 	this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
 	this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
 	this->m_MenuColors.m_clrCheckBox = RGB( 255, 128, 0 );
@@ -178,7 +179,7 @@ XPopupMenu::~XPopupMenu( ) {
 	if ( this->m_hBitmap != NULL )
 		DeleteObject( this->m_hBitmap );
 
-	if ( this->m_hMenu != NULL && this->m_tsMenuName != "mircbar" )
+	if ( this->m_hMenu != NULL && this->m_tsMenuName != "mircbar" && this->m_tsMenuName != "dialog")
 		DestroyMenu( this->m_hMenu );
 }
 

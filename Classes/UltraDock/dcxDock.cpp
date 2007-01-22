@@ -6,11 +6,12 @@
 
 #include "dcxDock.h"
 
-DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd)
+DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 : m_OldRefWndProc(NULL)
 , m_OldDockWndProc(NULL)
 , m_RefHwnd(refHwnd)
 , m_hParent(dockHwnd)
+, m_iType(dockType)
 {
 	this->m_VectorDocks.clear();
 	SetProp(this->m_RefHwnd,"DcxDock",this);

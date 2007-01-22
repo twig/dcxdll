@@ -81,7 +81,8 @@ extern LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 //extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, hTreeView;
 //extern HFONT pOrigTreeViewFont;
 // switchbar position
-extern VectorOfDocks v_docks;
+//extern VectorOfDocks v_docks;
+extern HWND g_mIRCStatusbar;
 bool dcxSignal;
 
 #ifdef DCX_USE_GDIPLUS
@@ -465,8 +466,8 @@ void WINAPI LoadDll(LOADINFO * load) {
 	DCX_DEBUG("LoadDLL", "Creating menu owner...");
 	mhMenuOwner = CreateWindow(XPOPUPMENUCLASS, NULL, 0, 0, 0, 0, 0, 0, 0, GetModuleHandle(NULL), 0);
 
-	g_mIRCPopupMenu = new XPopupMenu(NULL);
-	g_mIRCMenuBar = new XPopupMenu(GetMenu(mIRCLink.m_mIRCHWND));
+	g_mIRCPopupMenu = new XPopupMenu("mirc",(HMENU)NULL);
+	g_mIRCMenuBar = new XPopupMenu("mircbar",GetMenu(mIRCLink.m_mIRCHWND));
 
 	DCX_DEBUG("LoadDLL", "Initialising UltraDock...");
 	InitUltraDock();
@@ -1155,6 +1156,24 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
     case WM_SIZE:
       {
 				mIRCSignalDCX("size mIRC %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
+				//if (IsWindow(g_mIRCStatusbar)) {
+				//	RECT rc;
+				//	SendMessage(g_mIRCStatusbar, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
+				//	GetWindowRect(g_mIRCStatusbar, &rc);
+				//	int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
+				//	if (IsWindowVisible(mIRCLink.m_hSwitchbar)) {
+				//		GetWindowRect(mIRCLink.m_hSwitchbar, &rc);
+				//		SetWindowPos(mIRCLink.m_hSwitchbar,NULL, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top) - h, SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE|SWP_NOMOVE);
+				//	}
+				//	if (IsWindowVisible(mIRCLink.m_hTreebar)) {
+				//		GetWindowRect(mIRCLink.m_hSwitchbar, &rc);
+				//		SetWindowPos(mIRCLink.m_hTreebar,NULL, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top) - h, SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE|SWP_NOMOVE);
+				//	}
+				//	if (IsWindowVisible(mIRCLink.m_hMDI)) {
+				//		GetWindowRect(mIRCLink.m_hSwitchbar, &rc);
+				//		SetWindowPos(mIRCLink.m_hMDI,NULL, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top) - h, SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE|SWP_NOMOVE);
+				//	}
+				//}
       }
       break;
 
