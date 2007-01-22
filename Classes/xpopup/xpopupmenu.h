@@ -72,7 +72,7 @@ public:
 		XPMS_VERTICAL_REV,
 	};
 
-  XPopupMenu( HMENU hMenu );
+  XPopupMenu(TString tsName, HMENU hMenu );
   XPopupMenu( TString & tsMenuName, MenuStyle mStyle );
   virtual ~XPopupMenu( );
 

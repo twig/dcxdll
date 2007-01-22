@@ -45,17 +45,15 @@ XPopupMenu::XPopupMenu( TString & tsMenuName, MenuStyle mStyle ) : m_tsMenuName(
  * Default constructor for testing
  */
 
-XPopupMenu::XPopupMenu( HMENU hMenu ) {
+XPopupMenu::XPopupMenu(TString tsName, HMENU hMenu ) {
 
 	this->m_hMenu = hMenu;
 	this->m_MenuItemStyles = 0;
 	this->m_MenuStyle = XPMS_OFFICE2003;
 	this->m_hImageList = NULL;
 	this->m_hBitmap = NULL;
-	if ( hMenu != NULL )
-		this->m_tsMenuName = "mircbar";
-	else
-		this->m_tsMenuName = "mirc";
+
+	this->m_tsMenuName = tsName;
 
 	this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
 	this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );

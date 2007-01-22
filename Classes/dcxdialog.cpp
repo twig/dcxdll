@@ -1012,7 +1012,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -P [NAME]
 	else if (flags.switch_cap_flags[15]) {
-/*
 		// TWIG: doesnt actually work?
 		HMENU menu = NULL;
 
@@ -1022,13 +1021,12 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 			if (menu != NULL)
 			{
-				this->m_popup = new XPopupMenu(menu);
+				this->m_popup = new XPopupMenu("dialog", menu);
 			}
 			else {
 				dcxInfoError("xdialog -P", "", this->getName().to_chr(), 0, "Menu does not exist");
 			}
 		}
-*/
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
 	else if (flags.switch_cap_flags[17] && numtok > 2) {
@@ -1950,6 +1948,20 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
 				}
+
+				LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
+
+			if (lpmis->CtlType == ODT_MENU) {
+				XPopupMenuItem *p_Item = (XPopupMenuItem*) lpmis->itemData;
+
+				if (p_Item != NULL) {
+					SIZE size = p_Item->getItemSize(mHwnd);
+
+					lpmis->itemWidth = size.cx;
+					lpmis->itemHeight = size.cy;
+					return TRUE; 
+				}
+			}
       }
       break;
 
@@ -1962,6 +1974,26 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
+
+			LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT) lParam;
+
+			if (lpdis->CtlType == ODT_MENU) {
+				XPopupMenuItem *p_Item = (XPopupMenuItem*) lpdis->itemData;
+
+				if (p_Item != NULL) {
+					p_Item->DrawItem(lpdis);
+					return TRUE; 
+				}
+			}
+
+			break;
+		}
+
+		case WM_UNINITMENUPOPUP:
+		{
+			if (p_this->m_popup != NULL)
+				p_this->m_popup->deleteAllItemData((HMENU) wParam);
+
 			break;
 		}
 
@@ -2425,11 +2457,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 		}
 
-		//case WM_INITMENUPOPUP:
-		//{
-		//	mIRCError("WM_INITMENUPOPUP");
-		//	break;
-		//}
+		case WM_INITMENU:
+		case WM_INITMENUPOPUP:
+		{
+			if (p_this->m_popup != NULL) {
+				p_this->m_popup->convertMenu((HMENU) wParam, FALSE);
+			}
+
+			break;
+		}
 
 		case WM_SETCURSOR:
 		{
