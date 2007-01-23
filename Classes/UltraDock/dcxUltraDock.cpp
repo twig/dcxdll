@@ -2,7 +2,7 @@
 	* Handle docking of windows to mIRC's main window around the MDI Client window.
 */
 
-#include"dcxDock.h"
+#include "dcxDock.h"
 
 BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam);
 
@@ -10,7 +10,7 @@ DcxDock *g_dockMDI = NULL;
 DcxDock *g_dockTreebar = NULL;
 // Can't use this method to dock with Switchbar or Toolbar.
 
-HWND g_mIRCStatusbar = NULL;
+//HWND g_mIRCStatusbar = NULL;
 
 // force a window update.
 void UpdatemIRC(void) {
@@ -43,10 +43,6 @@ void InitUltraDock(void)
 
 	g_dockMDI = new DcxDock(mIRCLink.m_hMDI, mIRCLink.m_mIRCHWND, DOCK_TYPE_MDI);
 	g_dockTreebar = new DcxDock(mIRCLink.m_hTreeView, mIRCLink.m_hTreebar, DOCK_TYPE_TREE);
-
-	//g_mIRCStatusbar = CreateWindowEx(0,STATUSCLASSNAME,"DCXmIRCStatus",
-	//	WS_CHILD|WS_VISIBLE|SBARS_SIZEGRIP|SBARS_TOOLTIPS,
-	//	0,0,0,0,mIRCLink.m_mIRCHWND,(HMENU)(mIRC_ID_OFFSET-1),NULL,NULL);
 }
 /*
 	*	Eject ALL Docked dialogs.
@@ -55,8 +51,7 @@ void CloseUltraDock(void)
 {
 	EnumChildWindows(mIRCLink.m_mIRCHWND,(WNDENUMPROC)EnumDocked,NULL);
 
-	if (IsWindow(g_mIRCStatusbar))
-		DestroyWindow(g_mIRCStatusbar);
+	DcxDock::UnInitStatusbar();
 
 	delete g_dockTreebar;
 	delete g_dockMDI;

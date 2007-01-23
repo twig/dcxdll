@@ -218,9 +218,128 @@ mIRC(xdock) {
 		return 0;
 	}
 
+	// enable/disable the mIRC Statusbar
+	// [-A] [1|0]
+	if ((switches[1] == 'A') && (numtok == 2)) {
+		if (input.gettok(2).to_int() > 0) {
+			if (!DcxDock::InitStatusbar())
+				DCXError("xdock -A","Unable to Create Statusbar");
+		}
+		else
+			DcxDock::UnInitStatusbar();
+
+		UpdatemIRC();
+		return 1;
+	}
+	// enable/disable the mIRC Statusbar
+	// [-B] [+flag] [args]
+	else if ((switches[1] == 'B') && (numtok > 2)) {
+		TString flag(input.gettok(2));
+		switch (flag[1])
+		{
+		case 'k': // [clr] : background colour.
+			DcxDock::status_setBkColor((COLORREF)input.gettok(3).to_num());
+			break;
+		case 'l': // [POS [POS POS ...]] : parts
+			{
+				int nParts = numtok - 2;
+				INT parts[256];
+
+				int i = 0;
+				while ( i < nParts ) {
+
+					parts[i] = input.gettok( i+3, " " ).to_int( );
+					i++;
+				}
+				DcxDock::status_setParts( nParts, parts );
+			}
+			break;
+		case 't': // N [+FLAGS] [#ICON] [Cell Text][TAB]Tooltip Text : set part
+			{
+				int nPos = input.gettok( 3 ).to_int( ) - 1;
+				TString flags(input.gettok( 4 ));
+				int icon = input.gettok( 5 ).to_int( ) - 1;
+
+				TString itemtext;
+
+				if ( input.gettok( 1, "\t" ).numtok( ) > 5 ) {
+
+					itemtext = input.gettok( 1, "\t" ).gettok( 6, -1);
+					itemtext.trim( );
+				}
+
+				TString tooltip;
+
+				if ( input.numtok( "\t" ) > 1 ) {
+
+					tooltip = input.gettok( 2, "\t" );
+					tooltip.trim( );
+				}
+
+				DestroyIcon( (HICON) DcxDock::status_getIcon( nPos ) );
+				if ( icon != -1 )
+					DcxDock::status_setIcon( nPos, ImageList_GetIcon( DcxDock::status_getImageList( ), icon, ILD_TRANSPARENT ) );
+				else
+					DcxDock::status_setIcon( nPos, NULL );
+
+				DcxDock::status_setText( nPos, DcxDock::status_parseItemFlags( flags ), itemtext.to_chr( ) );
+				DcxDock::status_setTipText( nPos, tooltip.to_chr( ) );
+			}
+			break;
+		case 'v': // [N] (TEXT) : set parts text
+			{
+				int nPos = input.gettok( 3 ).to_int( ) - 1;
+
+				if ( nPos > -1 && nPos < DcxDock::status_getParts( 256, 0 ) ) {
+
+					TString itemtext;
+					if ( numtok > 4 )
+						itemtext = input.gettok( 4, -1 );
+
+					char text[900];
+					DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_chr( ) );
+				}
+			}
+			break;
+		case 'w': // [FLAGS] [INDEX] [FILENAME] : load an icon
+			{
+				HIMAGELIST himl;
+				HICON icon;
+				TString flags(input.gettok(3));
+				int index = input.gettok(4).to_int();
+				TString filename(input.gettok(5, -1));
+
+				if ((himl = DcxDock::status_getImageList()) == NULL) {
+					himl = DcxDock::status_createImageList();
+
+					if (himl)
+						DcxDock::status_setImageList(himl);
+				}
+
+				icon = dcxLoadIcon(index, filename, FALSE);
+
+				if (flags.find('g', 0))
+					icon = CreateGrayscaleIcon(icon);
+
+				ImageList_AddIcon(himl, icon);
+				DestroyIcon(icon);
+			}
+			break;
+		case 'y': // [+FLAGS] : destroy image list.
+			{
+				ImageList_Destroy( DcxDock::status_getImageList( ) );
+				DcxDock::status_setImageList(NULL);
+			}
+			break;
+		default:
+			DCXError("/xdock -B","Invalid Flag");
+			break;
+		}
+		return 1;
+	}
 	// show/hide switchbar
 	// [-S] [1|0]
-	if ((switches[1] == 'S') && (numtok == 2)) {
+	else if ((switches[1] == 'S') && (numtok == 2)) {
 		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hSwitchbar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
 		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(mIRCLink.m_hSwitchbar)))

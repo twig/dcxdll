@@ -73,16 +73,7 @@ BOOL bIsActiveMircMenubarPopup = FALSE;
 HWND mhMenuOwner; //!< Menu Owner Window Which Processes WM_ Menu Messages
 
 WNDPROC g_OldmIRCWindowProc;
-WNDPROC g_OldmIRCMenusWindowProc;
-extern LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-// UltraDock stuff
-// mIRC components HWND
-//extern HWND treeb_hwnd, sb_hwnd, tb_hwnd, mdi_hwnd, hTreeView;
-//extern HFONT pOrigTreeViewFont;
-// switchbar position
-//extern VectorOfDocks v_docks;
-extern HWND g_mIRCStatusbar;
 bool dcxSignal;
 
 #ifdef DCX_USE_GDIPLUS
@@ -1156,33 +1147,8 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
     case WM_SIZE:
       {
 				mIRCSignalDCX("size mIRC %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
-				//if (IsWindow(g_mIRCStatusbar)) {
-				//	RECT rc;
-				//	SendMessage(g_mIRCStatusbar, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
-				//	GetWindowRect(g_mIRCStatusbar, &rc);
-				//	int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
-				//	if (IsWindowVisible(mIRCLink.m_hSwitchbar)) {
-				//		GetWindowRect(mIRCLink.m_hSwitchbar, &rc);
-				//		SetWindowPos(mIRCLink.m_hSwitchbar,NULL, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top) - h, SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE|SWP_NOMOVE);
-				//	}
-				//	if (IsWindowVisible(mIRCLink.m_hTreebar)) {
-				//		GetWindowRect(mIRCLink.m_hSwitchbar, &rc);
-				//		SetWindowPos(mIRCLink.m_hTreebar,NULL, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top) - h, SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE|SWP_NOMOVE);
-				//	}
-				//	if (IsWindowVisible(mIRCLink.m_hMDI)) {
-				//		GetWindowRect(mIRCLink.m_hSwitchbar, &rc);
-				//		SetWindowPos(mIRCLink.m_hMDI,NULL, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top) - h, SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE|SWP_NOMOVE);
-				//	}
-				//}
       }
       break;
-
-		//case WM_PARENTNOTIFY:
-		//	{
-		//		if (LOWORD(wParam) == WM_DESTROY)
-		//			UltraUnDock((HWND)lParam);
-		//	}
-		//	break;
 
 		//case WM_CONTEXTMENU:
 		//case WM_INITMENU:

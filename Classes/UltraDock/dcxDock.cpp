@@ -6,6 +6,9 @@
 
 #include "dcxDock.h"
 
+HWND DcxDock::g_StatusBar = NULL;
+HIMAGELIST DcxDock::g_hImageList = NULL;
+
 DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 : m_OldRefWndProc(NULL)
 , m_OldDockWndProc(NULL)
@@ -269,8 +272,15 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 	switch (uMsg) {
 		case WM_WINDOWPOSCHANGING:
 			{
-				if (lParam != NULL)
+				if (lParam != NULL) {
 					pthis->AdjustRect((WINDOWPOS *) lParam);
+					if (pthis->m_iType == DOCK_TYPE_MDI && DcxDock::IsStatusbar()) {
+						WINDOWPOS * wp = (WINDOWPOS *) lParam;
+						RECT rc;
+						DcxDock::status_getRect(&rc);
+						wp->cy -= (rc.bottom - rc.top);
+					}
+				}
 			}
 			break;
 		//case WM_DESTROY:
@@ -290,6 +300,24 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
 	switch (uMsg) {
+		case WM_SIZE:
+			{
+				if (pthis->m_iType == DOCK_TYPE_MDI && DcxDock::IsStatusbar()) { // parent of MDI type == main mIRC win.
+					SendMessage(DcxDock::g_StatusBar,WM_SIZE, (WPARAM)0, (LPARAM)0);
+					InvalidateRect(DcxDock::g_StatusBar, NULL, TRUE);
+				}
+			}
+			break;
+		case WM_WINDOWPOSCHANGING:
+			{
+				if (lParam != NULL && pthis->m_iType == DOCK_TYPE_TREE && DcxDock::IsStatusbar()) {
+					WINDOWPOS * wp = (WINDOWPOS *) lParam;
+					RECT rc;
+					DcxDock::status_getRect(&rc);
+					wp->cy -= (rc.bottom - rc.top);
+				}
+			}
+			break;
 		case WM_PARENTNOTIFY:
 			{
 				if (LOWORD(wParam) == WM_DESTROY)
@@ -305,4 +333,127 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		}
 	}
 	return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
+}
+
+bool DcxDock::InitStatusbar(void)
+{
+	if (IsWindow(g_StatusBar))
+		return true;
+	g_StatusBar = CreateWindowEx(0,STATUSCLASSNAME,NULL,
+		WS_CHILD|WS_VISIBLE|SBARS_SIZEGRIP|SBARS_TOOLTIPS,
+		0,0,0,0,mIRCLink.m_mIRCHWND,(HMENU)(mIRC_ID_OFFSET-1),NULL,NULL);
+	if (IsWindow(g_StatusBar))
+		return true;
+	return false;
+}
+
+void DcxDock::UnInitStatusbar(void)
+{
+	if (IsWindow(g_StatusBar)) {
+		DcxDock::status_cleanPartIcons();
+		DestroyWindow(g_StatusBar);
+	}
+	g_StatusBar = NULL;
+
+	if (g_hImageList != NULL)
+		ImageList_Destroy( g_hImageList );
+	g_hImageList = NULL;
+}
+bool DcxDock::IsStatusbar(void)
+{
+	if (IsWindow(g_StatusBar))
+		return true;
+	return false;
+}
+
+void DcxDock::status_getRect(LPRECT rc) {
+	GetWindowRect(g_StatusBar,rc);
+}
+
+void DcxDock::status_setBkColor( const COLORREF clrBk ) {
+	SendMessage( g_StatusBar, SB_SETBKCOLOR, (WPARAM) 0, (LPARAM) clrBk );
+}
+
+void DcxDock::status_setParts( const int nParts, const LPINT aWidths ) {
+	SendMessage( g_StatusBar, SB_SETPARTS, (WPARAM) nParts, (LPARAM) aWidths );
+}
+
+LRESULT DcxDock::status_getParts( const int nParts, LPINT aWidths ) {
+	return SendMessage( g_StatusBar, SB_GETPARTS, (WPARAM) nParts, (LPARAM) aWidths );
+}
+
+void DcxDock::status_setText( const int iPart, const int Style, const LPSTR lpstr ) {
+	SendMessage( g_StatusBar, SB_SETTEXT, (WPARAM) iPart | Style, (LPARAM) lpstr );
+}
+
+LRESULT DcxDock::status_getText( const int iPart, LPSTR lpstr ) {
+	return SendMessage( g_StatusBar, SB_GETTEXT, (WPARAM) iPart, (LPARAM) lpstr );
+}
+
+void DcxDock::status_setTipText( const int iPart, const LPSTR lpstr ) {
+	SendMessage( g_StatusBar, SB_SETTIPTEXT, (WPARAM) iPart, (LPARAM) lpstr );
+}
+
+void DcxDock::status_getTipText( const int iPart, const int nSize, LPSTR lpstr ) {
+	SendMessage( g_StatusBar, SB_GETTIPTEXT, (WPARAM) MAKEWPARAM (iPart, nSize), (LPARAM) lpstr );
+}
+
+void DcxDock::status_getRect( const int iPart, LPRECT lprc ) {
+	SendMessage( g_StatusBar, SB_GETRECT, (WPARAM) iPart, (LPARAM) lprc );
+}
+
+void DcxDock::status_setIcon( const int iPart, const HICON hIcon ) {
+	SendMessage( g_StatusBar, SB_SETICON, (WPARAM) iPart, (LPARAM) hIcon );
+}
+
+HICON DcxDock::status_getIcon( const int iPart ) {
+	return (HICON)SendMessage( g_StatusBar, SB_GETICON, (WPARAM) iPart, (LPARAM) 0 );
+}
+
+HIMAGELIST DcxDock::status_getImageList( ) {
+
+	return g_hImageList;
+}
+
+void DcxDock::status_setImageList( HIMAGELIST himl ) {
+
+	g_hImageList = himl;
+}
+
+HIMAGELIST DcxDock::status_createImageList( ) {
+
+	return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
+}
+
+UINT DcxDock::status_parseItemFlags( TString & flags ) {
+
+	INT i = 1, len = flags.len( ), iFlags = 0;
+
+	// no +sign, missing params
+	if ( flags[0] != '+' ) 
+		return iFlags;
+
+	while ( i < len ) {
+		switch(flags[i])
+		{
+		case 'n':
+			iFlags |= SBT_NOBORDERS;
+			break;
+		case 'p':
+			iFlags |= SBT_POPOUT;
+			break;
+		}
+
+		++i;
+	}
+	return iFlags;
+}
+
+void DcxDock::status_cleanPartIcons( ) {
+
+	int n = 0;
+	while ( n < 256 ) {
+		DestroyIcon( (HICON) DcxDock::status_getIcon( n ) );
+		n++;
+	}
 }
