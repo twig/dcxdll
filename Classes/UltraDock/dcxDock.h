@@ -6,8 +6,10 @@
 
 #include "../../defines.h"
 
-#define DOCK_TYPE_MDI		0x01
-#define DOCK_TYPE_TREE	0x02
+#define DOCK_TYPE_SWITCH	0x00
+#define DOCK_TYPE_TOOL		0x01
+#define DOCK_TYPE_TREE		0x02
+#define DOCK_TYPE_MDI			0x03
 
 class DcxDock
 {
@@ -42,6 +44,8 @@ public:
 	static HIMAGELIST status_createImageList(void);
 	static UINT status_parseItemFlags( TString & flags );
 	static void status_cleanPartIcons( );
+	//
+	static int getPos(int x, int y, int w, int h);
 
 protected:
 	static LRESULT CALLBACK mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

@@ -8,9 +8,8 @@ BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam);
 
 DcxDock *g_dockMDI = NULL;
 DcxDock *g_dockTreebar = NULL;
-// Can't use this method to dock with Switchbar or Toolbar.
-
-//HWND g_mIRCStatusbar = NULL;
+DcxDock *g_dockSwitchbar = NULL; // needed to adjust size for statusbar.
+DcxDock *g_dockToolbar = NULL; // needed to adjust size for statusbar.
 
 // force a window update.
 void UpdatemIRC(void) {
@@ -43,6 +42,8 @@ void InitUltraDock(void)
 
 	g_dockMDI = new DcxDock(mIRCLink.m_hMDI, mIRCLink.m_mIRCHWND, DOCK_TYPE_MDI);
 	g_dockTreebar = new DcxDock(mIRCLink.m_hTreeView, mIRCLink.m_hTreebar, DOCK_TYPE_TREE);
+	g_dockSwitchbar = new DcxDock(NULL, mIRCLink.m_hSwitchbar, DOCK_TYPE_SWITCH);
+	g_dockToolbar = new DcxDock(NULL, mIRCLink.m_hToolbar, DOCK_TYPE_TOOL);
 }
 /*
 	*	Eject ALL Docked dialogs.
@@ -53,6 +54,8 @@ void CloseUltraDock(void)
 
 	DcxDock::UnInitStatusbar();
 
+	delete g_dockToolbar;
+	delete g_dockSwitchbar;
 	delete g_dockTreebar;
 	delete g_dockMDI;
 

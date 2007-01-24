@@ -17,10 +17,14 @@ DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 , m_iType(dockType)
 {
 	this->m_VectorDocks.clear();
-	SetProp(this->m_RefHwnd,"DcxDock",this);
-	this->m_OldRefWndProc = (WNDPROC)SetWindowLong(this->m_RefHwnd,GWL_WNDPROC,(LONG)DcxDock::mIRCRefWinProc);
-	SetProp(this->m_hParent,"DcxDock",this);
-	this->m_OldDockWndProc = (WNDPROC)SetWindowLong(this->m_hParent,GWL_WNDPROC,(LONG)DcxDock::mIRCDockWinProc);
+	if (IsWindow(this->m_RefHwnd)) {
+		SetProp(this->m_RefHwnd,"DcxDock",this);
+		this->m_OldRefWndProc = (WNDPROC)SetWindowLong(this->m_RefHwnd,GWL_WNDPROC,(LONG)DcxDock::mIRCRefWinProc);
+	}
+	if (IsWindow(this->m_hParent)) {
+		SetProp(this->m_hParent,"DcxDock",this);
+		this->m_OldDockWndProc = (WNDPROC)SetWindowLong(this->m_hParent,GWL_WNDPROC,(LONG)DcxDock::mIRCDockWinProc);
+	}
 }
 
 DcxDock::~DcxDock(void)
@@ -43,16 +47,17 @@ DcxDock::~DcxDock(void)
 	}
 	this->m_VectorDocks.clear();
 
-	RemoveProp(this->m_RefHwnd,"DcxDock");
-	RemoveProp(this->m_hParent,"DcxDock");
-
 	// reset to orig WndProc
-	if (this->m_OldRefWndProc != NULL)
-		SetWindowLong(this->m_RefHwnd, GWL_WNDPROC, (LONG)this->m_OldRefWndProc);
-
-	if (this->m_OldDockWndProc != NULL)
-		SetWindowLong(this->m_hParent, GWL_WNDPROC, (LONG)this->m_OldDockWndProc);
-
+	if (IsWindow(this->m_RefHwnd)) {
+		RemoveProp(this->m_RefHwnd,"DcxDock");
+		if (this->m_OldRefWndProc != NULL)
+			SetWindowLong(this->m_RefHwnd, GWL_WNDPROC, (LONG)this->m_OldRefWndProc);
+	}
+	if (IsWindow(this->m_hParent)) {
+		RemoveProp(this->m_hParent,"DcxDock");
+		if (this->m_OldDockWndProc != NULL)
+			SetWindowLong(this->m_hParent, GWL_WNDPROC, (LONG)this->m_OldDockWndProc);
+	}
 	this->UpdateLayout();
 }
 
@@ -60,6 +65,10 @@ bool DcxDock::DockWindow(HWND hwnd, TString &flag)
 {
 	if (isDocked(hwnd)) {
 		mIRCDebug("D_ERROR Window (%d) is already docked", hwnd);
+		return false;
+	}
+	if (!IsWindow(this->m_hParent)) {
+		mIRCError("D_ERROR Invalid Dock Host Window");
 		return false;
 	}
 	LPDCXULTRADOCK ud = new DCXULTRADOCK;
@@ -302,7 +311,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 	switch (uMsg) {
 		case WM_SIZE:
 			{
-				if (pthis->m_iType == DOCK_TYPE_MDI && DcxDock::IsStatusbar()) { // parent of MDI type == main mIRC win.
+				if ((pthis->m_iType == DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) { // parent of MDI type == main mIRC win.
 					SendMessage(DcxDock::g_StatusBar,WM_SIZE, (WPARAM)0, (LPARAM)0);
 					InvalidateRect(DcxDock::g_StatusBar, NULL, TRUE);
 				}
@@ -310,11 +319,23 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			break;
 		case WM_WINDOWPOSCHANGING:
 			{
-				if (lParam != NULL && pthis->m_iType == DOCK_TYPE_TREE && DcxDock::IsStatusbar()) {
+				if ((lParam != NULL) &&
+						((pthis->m_iType == DOCK_TYPE_TREE) ||
+						(pthis->m_iType == DOCK_TYPE_SWITCH) ||
+						(pthis->m_iType == DOCK_TYPE_TOOL)) &&
+						DcxDock::IsStatusbar()) {
 					WINDOWPOS * wp = (WINDOWPOS *) lParam;
+					if ((wp->flags & SWP_NOSIZE) && (wp->flags & SWP_NOMOVE))
+						break;
+					int pos = DcxDock::getPos(wp->x, wp->y, wp->cx, wp->cy);
+					if (pos == 3) // if at top then ignore it.
+						break;
 					RECT rc;
 					DcxDock::status_getRect(&rc);
-					wp->cy -= (rc.bottom - rc.top);
+					if (pos == 4) // if at bottom move it up.
+						wp->y -= (rc.bottom - rc.top);
+					else
+						wp->cy -= (rc.bottom - rc.top);
 				}
 			}
 			break;
@@ -340,7 +361,7 @@ bool DcxDock::InitStatusbar(void)
 	if (IsWindow(g_StatusBar))
 		return true;
 	g_StatusBar = CreateWindowEx(0,STATUSCLASSNAME,NULL,
-		WS_CHILD|WS_VISIBLE|SBARS_SIZEGRIP|SBARS_TOOLTIPS,
+		WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS|SBARS_SIZEGRIP|SBARS_TOOLTIPS,
 		0,0,0,0,mIRCLink.m_mIRCHWND,(HMENU)(mIRC_ID_OFFSET-1),NULL,NULL);
 	if (IsWindow(g_StatusBar))
 		return true;
@@ -456,4 +477,17 @@ void DcxDock::status_cleanPartIcons( ) {
 		DestroyIcon( (HICON) DcxDock::status_getIcon( n ) );
 		n++;
 	}
+}
+
+int DcxDock::getPos(int x, int y, int w, int h)
+{
+	RECT rc;
+	GetClientRect(mIRCLink.m_mIRCHWND,&rc);
+	if (x == rc.left && (y + h) == rc.bottom && (x + w) != rc.right)
+		return SWB_LEFT;
+	if (x == rc.left && (y + h) != rc.bottom && (x + w) == rc.right)
+		return SWB_TOP;
+	if (x == rc.left && (y + h) == rc.bottom && (x + w) == rc.right)
+		return SWB_BOTTOM;
+	return SWB_RIGHT;
 }
