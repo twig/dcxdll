@@ -292,13 +292,6 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				}
 			}
 			break;
-		//case WM_DESTROY:
-		//{
-		//	delete pthis;
-		//	PostMessage(mHwnd, uMsg, 0, 0);
-		//	return 0L;
-		//	break;
-		//}
 	}
 	return CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, wParam, lParam);
 }

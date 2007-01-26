@@ -51,7 +51,9 @@ protected:
 	InterpolationMode m_IMode; // Interpolation Mode
 	SmoothingMode m_SMode; // Smoothing Mode
 	bool LoadGDIPlusImage(const TString &flags, TString &filename);
+	void DrawGDIImage(HDC hdc, int x, int y, int w, int h);
 #endif
+	void DrawBMPImage(HDC hdc, int x, int y, int w, int h);
   HBITMAP m_hBitmap; //!< Bitmap
   HICON m_hIcon; // !< icon
 
@@ -61,6 +63,7 @@ protected:
   void PreloadData(void);
   int m_iIconSize;
 	bool m_bResizeImage; //!< Resize Image
+	bool m_bTileImage; //!< Tile Image
 	bool m_bBuffer; //!< Double Buffer Rendering, needed for GDI+ when WS_EX_COMPOSITED
 };
 

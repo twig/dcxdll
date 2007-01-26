@@ -36,6 +36,7 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 , m_SMode(SmoothingModeDefault)
 #endif
 , m_bResizeImage(true)
+, m_bTileImage(false)
 , m_hBitmap(NULL)
 , m_clrTransColor(-1)
 , m_hIcon(NULL)
@@ -202,6 +203,11 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 	else
 		this->m_SMode = SmoothingModeDefault;
 
+	if (flags.find('t',0)) // Tile
+		this->m_bTileImage = true;
+	else
+		this->m_bTileImage = false;
+
 	return true;
 }
 #endif
@@ -257,10 +263,14 @@ void DcxImage::parseCommandRequest(TString & input) {
 		filename.trim();
 		PreloadData();
 
-      // TODO: add check for filename exists
+		if (flag[0] != '+') {
+			DCXError("/xdid -i", "Invalid Flags");
+			return;
+		}
 
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
+		//if (mIRCLink.m_bUseGDIPlus && flag.find('g',0)) {
 		if (mIRCLink.m_bUseGDIPlus) {
 			if (!LoadGDIPlusImage(flag,filename))
 				DCXError("/xdid -i", "Unable to load Image with GDI+");
@@ -291,6 +301,60 @@ void DcxImage::parseCommandRequest(TString & input) {
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
+}
+
+#ifdef DCX_USE_GDIPLUS
+void DcxImage::DrawGDIImage(HDC hdc, int x, int y, int w, int h)
+{
+	Graphics grphx( hdc );
+
+	grphx.SetCompositingQuality(this->m_CQuality);
+	grphx.SetCompositingMode(this->m_CMode);
+	grphx.SetSmoothingMode(this->m_SMode);
+	grphx.SetInterpolationMode(this->m_IMode);
+
+	if (((this->m_pImage->GetWidth() == 1) || (this->m_pImage->GetHeight() == 1)) && this->m_bResizeImage) {
+		// This fixes a GDI+ bug when resizing 1 px images
+		// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
+		grphx.SetInterpolationMode(InterpolationModeNearestNeighbor);
+		grphx.SetPixelOffsetMode(PixelOffsetModeHalf);
+	}
+	if (this->m_bTileImage) {
+		ImageAttributes imAtt;
+		imAtt.SetWrapMode(WrapModeTile);
+
+		grphx.DrawImage(this->m_pImage,
+			Rect(x, y, w, h),  // dest rect
+			0, 0, w, h,       // source rect
+			UnitPixel,
+			&imAtt);
+	}
+	else if (this->m_bResizeImage)
+		grphx.DrawImage( this->m_pImage, 0, 0, w, h );
+	else
+		grphx.DrawImage( this->m_pImage, 0, 0);
+}
+#endif
+
+void DcxImage::DrawBMPImage(HDC hdc, int x, int y, int w, int h)
+{
+	HDC hdcbmp = CreateCompatibleDC(hdc);
+
+	if (hdcbmp == NULL)
+		return;
+
+	BITMAP bmp;
+
+	GetObject( this->m_hBitmap, sizeof(BITMAP), &bmp );
+	HBITMAP oldBitmap = (HBITMAP)SelectObject( hdcbmp, this->m_hBitmap );
+
+	if (this->m_clrTransColor != -1)
+		TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_clrTransColor);
+	else
+		StretchBlt( hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+
+	SelectObject(hdcbmp, oldBitmap);
+	DeleteDC( hdcbmp );
 }
 
 /*!
@@ -375,18 +439,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 #else
 			if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon)) {
 #endif
-				HDC hdcbmp = CreateCompatibleDC(hdc);
-				BITMAP bmp;
-
-				GetObject( this->m_hBitmap, sizeof(BITMAP), &bmp );
-				SelectObject( hdcbmp, this->m_hBitmap );
-
-				if (this->m_clrTransColor != -1)
-					TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_clrTransColor);
-				else
-					StretchBlt( hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
-
-				DeleteDC( hdcbmp );
+				this->DrawBMPImage(hdc, x, y, w, h);
 			}
 			// draw icon
 			else if ((this->m_hIcon != NULL) && (this->m_bIsIcon)) {
@@ -394,17 +447,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 #ifdef DCX_USE_GDIPLUS
 			else if ((this->m_pImage != NULL) && (mIRCLink.m_bUseGDIPlus)) {
-				Graphics grphx( hdc );
-
-				grphx.SetCompositingQuality(this->m_CQuality);
-				grphx.SetCompositingMode(this->m_CMode);
-				grphx.SetSmoothingMode(this->m_SMode);
-				grphx.SetInterpolationMode(this->m_IMode);
-
-				if (this->m_bResizeImage)
-					grphx.DrawImage( this->m_pImage, 0, 0, w, h );
-				else
-					grphx.DrawImage( this->m_pImage, 0, 0);
+				this->DrawGDIImage(hdc, x, y, w, h);
 			}
 #endif
 			this->FinishAlphaBlend(ai);

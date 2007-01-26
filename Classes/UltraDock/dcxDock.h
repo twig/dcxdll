@@ -11,6 +11,25 @@
 #define DOCK_TYPE_TREE		0x02
 #define DOCK_TYPE_MDI			0x03
 
+#define DOCKF_NORMAL	0x01	//!< No special flags.
+#define DOCKF_AUTOH		0x02	//!< Auto Horizontal size.
+#define DOCKF_AUTOV		0x04	//!< Auto Vertical size.
+#define DOCKF_SIZE		0x08	//!< Auto Horizontal & Vertical size.
+#define DOCKF_LEFT		0x10  //!< Dock to left. (UltraDock)
+#define DOCKF_RIGHT		0x20	//!< Dock to right. (UltraDock)
+#define DOCKF_TOP			0x40	//!< Dock to top. (UltraDock)
+#define DOCKF_BOTTOM	0x80	//!< Dock to bottom. (UltraDock)
+
+typedef struct tagDCXULTRADOCK {
+	HWND hwnd;
+	DWORD flags;
+	DWORD old_styles;
+	DWORD old_exstyles;
+	RECT rc;
+} DCXULTRADOCK, *LPDCXULTRADOCK;
+
+typedef std::vector<LPDCXULTRADOCK> VectorOfDocks;
+
 class DcxDock
 {
 public:
