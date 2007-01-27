@@ -205,10 +205,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
   }
   // [NAME] [ID] [PROP]
 	else if ( input.gettok( 3, " " ) == "currentpos") {
-		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetCurrentPos) & AM_SEEKING_CanGetCurrentPos)
-			wsprintf(szReturnValue,"D_OK %I64d", this->getPosition());
-		else
-			lstrcpy(szReturnValue,"D_ERROR Method Not Supported");
+		wsprintf(szReturnValue,"D_OK %I64d", this->getPosition());
 		return;
   }
   // [NAME] [ID] [PROP]
@@ -838,13 +835,14 @@ UINT64 DcxDirectshow::getPosition() const
 {
 	if (this->m_pSeek == NULL)
 		return 0;
-
+	/*
+		* ms-help://MS.MSSDK.1033/MS.WinSDK.1033/directshow/htm/am_seeking_seeking_capabilitiesenumeration.htm
+		* Most DirectShow filters do not report the AM_SEEKING_CanGetCurrentPos capability flag.
+		*	However, the Filter Graph Manager's implementation of IMediaSeeking::GetCurrentPosition is based on the reference clock,
+		*	so you can call this method even if the capabilities flags do not include AM_SEEKING_CanGetCurrentPos.
+	*/
 	LONGLONG pos = 0;
-	DWORD dwCaps = AM_SEEKING_CanGetCurrentPos;
-	HRESULT hr = this->m_pSeek->CheckCapabilities(&dwCaps);
-	if (SUCCEEDED(hr)) { // can get current pos
-		hr = this->m_pSeek->GetCurrentPosition(&pos);
-	}
+	this->m_pSeek->GetCurrentPosition(&pos);
 
 	// Format result into milliseconds
 	return ((UINT64)pos / 10000);
@@ -870,9 +868,8 @@ UINT64 DcxDirectshow::getDuration() const
 
 	LONGLONG pos = 0;
 	DWORD dwCaps = AM_SEEKING_CanGetDuration;
-	HRESULT hr = this->m_pSeek->CheckCapabilities(&dwCaps);
-	if (SUCCEEDED(hr)) { // can get current pos
-		hr = this->m_pSeek->GetDuration(&pos);
+	if (this->CheckSeekCapabilities(dwCaps) & AM_SEEKING_CanGetDuration) { // can get current pos
+		this->m_pSeek->GetDuration(&pos);
 	}
 
 	// Format result into milliseconds
