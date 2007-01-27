@@ -254,7 +254,7 @@ mIRC(xdock) {
 				DcxDock::status_setParts( nParts, parts );
 			}
 			break;
-		case 't': // N [+FLAGS] [#ICON] [Cell Text][TAB]Tooltip Text : set part
+		case 't': // N [+FLAGS] [#ICON] [Cell Text]([TAB]Tooltip Text) : set part
 			{
 				int nPos = input.gettok( 3 ).to_int( ) - 1;
 				TString flags(input.gettok( 4 ));
@@ -754,7 +754,7 @@ mIRC(_xdock)
 	}
 
 	if (d.gettok(1," ") == "mIRC") {
-		static const TString poslist("switchBarPos toolBarPos treeBarPos switchBarSize toolBarSize treeBarSize isSwitchBar isToolBar isTreeBar isMenuBar text");
+		static const TString poslist("switchBarPos toolBarPos treeBarPos switchBarSize toolBarSize treeBarSize isSwitchBar isToolBar isTreeBar isMenuBar text isStatusBar statusText statusParts statusTooltip");
 		int nType = poslist.findtok(d.gettok(2).to_chr(),1);
 		switch (nType)
 		{
@@ -844,6 +844,52 @@ mIRC(_xdock)
 			{
 				if (GetWindowTextLength(mIRCLink.m_mIRCHWND) > 0)
 					GetWindowText(mIRCLink.m_mIRCHWND,data,900);
+			}
+			break;
+		case 12: // isStatusBar
+			{
+				if (DcxDock::IsStatusbar())
+					lstrcpy(data,"$true");
+				else
+					lstrcpy(data,"$false");
+			}
+			break;
+		case 13: // statusText
+			{
+				int iPart = d.gettok( 3 ).to_int( ) -1, nParts = DcxDock::status_getParts( 256, 0 );
+
+				if ( iPart > -1 && iPart < nParts )
+					DcxDock::status_getText( iPart, data ); // possible overflow, needs fixed at some point.
+			}
+			break;
+		case 14: // statusParts
+			{
+				INT parts[256];
+				int nParts = DcxDock::status_getParts( 256, 0 );
+
+				DcxDock::status_getParts( 256, parts );
+
+				int i = 0;
+				char d[10];
+
+				while ( i < nParts ) {
+
+					wsprintf( d, "%d", parts[i] );
+
+					if ( i != 0 )
+						lstrcat( data, " " );
+					lstrcat( data, d );
+
+					i++;
+				}
+			}
+			break;
+		case 15: // statusTooltip
+			{
+				int iPart = d.gettok( 3 ).to_int( ), nParts = DcxDock::status_getParts( 256, 0 );
+
+				if ( iPart > -1 && iPart < nParts )
+					DcxDock::status_getTipText( iPart, 900, data );
 			}
 			break;
 		case 0: // error

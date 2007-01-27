@@ -114,7 +114,7 @@ void DcxStatusBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 	// [NAME] [ID] [PROP] [N]
 	if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
 
-		int iPart = input.gettok( 4, " " ).to_int( ), nParts = this->getParts( 256, 0 );
+		int iPart = input.gettok( 4, " " ).to_int( ) -1, nParts = this->getParts( 256, 0 );
 
 		if ( iPart > -1 && iPart < nParts ) {
 
@@ -138,13 +138,6 @@ void DcxStatusBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 			wsprintf( d, "%d", parts[i] );
 
-			//if ( i == 0 ) {
-			//	lstrcat( szReturnValue, d );
-			//}
-			//else {
-			//	lstrcat( szReturnValue, " " );
-			//	lstrcat( szReturnValue, d );
-			//}
 			if ( i != 0 )
 				lstrcat( szReturnValue, " " );
 			lstrcat( szReturnValue, d );

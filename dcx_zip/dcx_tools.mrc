@@ -34,7 +34,7 @@ alias mpopup {
 }
 
 alias xdock {
-  if ($isid) return $dcx( _xdock, $1 $prop )
+  if ($isid) return $dcx( _xdock, $1 $prop $2- )
   dcx xdock $1-
 }
 
