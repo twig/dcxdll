@@ -54,6 +54,8 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 
 	//this->m_hBackBrush = GetSysColorBrush(COLOR_3DFACE);
 
+	this->m_vImageList.clear();
+
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips"," ")) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
@@ -74,13 +76,27 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 
 DcxStacker::~DcxStacker( ) {
 
+	this->clearImageList();
   this->unregistreDefaultWindowProc( );
+}
+
+void DcxStacker::clearImageList(void)
+{
+	VectorOfImages::iterator itStart = this->m_vImageList.begin();
+	VectorOfImages::iterator itEnd = this->m_vImageList.end();
+
+	while (itStart != itEnd) {
+		if (*itStart != NULL)
+			delete (Image *)*itStart;
+		itStart++;
+	}
+	this->m_vImageList.clear();
 }
 
 void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
   *Styles |= LBS_OWNERDRAWVARIABLE|LBS_NOTIFY;
-	this->m_dStyles = 0;
+	this->m_dStyles = STACKERS_COLLAPSE;
 
   unsigned int i = 1, numtok = styles.numtok( " " );
 
@@ -96,6 +112,8 @@ void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 			this->m_dStyles |= STACKERS_GRAD;
 		else if ( styles.gettok( i , " " ) == "arrows" )
 			this->m_dStyles |= STACKERS_ARROW;
+		else if ( styles.gettok( i , " " ) == "nocollapse" )
+			this->m_dStyles &= ~STACKERS_COLLAPSE;
 
     i++;
   }
@@ -191,14 +209,14 @@ void DcxStacker::parseCommandRequest(TString &input) {
     SendMessage(this->m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0);
 	}
 
-	//xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
+	//xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [IMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if (flags.switch_flags[0] && numtok > 7) {
 		TString item(input.gettok(1,"\t"));
 		item.trim();
 		TString ctrl(input.gettok(2,"\t"));
 		ctrl.trim();
 
-    int nPos = item.gettok( 4, " " ).to_int( ) - 1;
+    int nPos = item.gettok( 4 ).to_int( ) - 1;
 
     if ( nPos < 0 )
       nPos = ListBox_GetCount( this->m_Hwnd );
@@ -206,11 +224,12 @@ void DcxStacker::parseCommandRequest(TString &input) {
 			nPos = 0;
 
 		LPDCXSITEM sitem = new DCXSITEM;
-		sitem->clrBack = (COLORREF)input.gettok(7).to_num();
-		sitem->clrText = (COLORREF)input.gettok(6).to_num();
+		sitem->clrBack = (COLORREF)input.gettok(8).to_num();
+		sitem->clrText = (COLORREF)input.gettok(7).to_num();
 		sitem->pChild = NULL;
 		sitem->hFont = NULL;
-		sitem->tsCaption = item.gettok(8,-1," ");
+		sitem->iItemImg = input.gettok(6).to_int() -1;
+		sitem->tsCaption = item.gettok(9,-1," ");
 
 		if (ctrl.len() > 0) {
 			UINT ID = mIRC_ID_OFFSET + (UINT)ctrl.gettok( 1 ).to_int( );
@@ -280,6 +299,23 @@ void DcxStacker::parseCommandRequest(TString &input) {
 			}
 		}
   }
+	//xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
+	else if ( flags.switch_flags[22] && (numtok > 4)) {
+		TString flag(input.gettok( 4 ));
+		TString filename(input.gettok( 5 ));
+		filename.trim();
+		
+		if (!IsFile(filename)) {
+			DCXError("xdid -w","Unable to Access File");
+			return;
+		}
+		this->m_vImageList.push_back(new Image(filename.to_wchr()));
+	}
+	//xdid -y [NAME] [ID] [SWITCH]
+	else if ( flags.switch_flags[24] ) {
+		this->clearImageList();
+		this->redrawWindow();
+	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
 }
@@ -314,7 +350,7 @@ void DcxStacker::getItemRect(const int nPos, LPRECT rc) const {
 void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape)
 {
 #ifdef DCX_USE_GDIPLUS
-	if (!mIRCLink.m_bUseGDIPlus)
+	if (!mIRCLink.m_bUseGDIPlus || hdc == NULL || rc == NULL)
 		return;
 
 	Graphics gfx( hdc );
@@ -330,6 +366,26 @@ void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLOR
 	Point points[3] = {point1, point2, point3};
 	// Fill the polygon.
 	gfx.FillPolygon(&blackBrush, points, 3);
+#endif
+}
+
+void DcxStacker::DrawItemImage(const HDC hdc, Image *img, const LPRECT rc)
+{
+#ifdef DCX_USE_GDIPLUS
+	if (!mIRCLink.m_bUseGDIPlus || img == NULL || rc == NULL || hdc == NULL)
+		return;
+
+	Graphics grphx( hdc );
+	grphx.SetSmoothingMode(SmoothingModeAntiAlias);
+	grphx.SetCompositingMode(CompositingModeSourceOver);
+	int w = (rc->right - rc->left), h = (rc->bottom - rc->top);
+	if ((img->GetWidth() == 1) || (img->GetHeight() == 1)) {
+		// This fixes a GDI+ bug when resizing 1 px images
+		// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
+		grphx.SetInterpolationMode(InterpolationModeNearestNeighbor);
+		grphx.SetPixelOffsetMode(PixelOffsetModeHalf);
+	}
+	grphx.DrawImage( img, rc->left, rc->top, w, h );
 #endif
 }
 
@@ -408,6 +464,11 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		ExtTextOut(memDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, "", NULL, NULL );
 	}
 
+	// draw GDI+ image if any
+	if (sitem->iItemImg > -1 && sitem->iItemImg < (int)this->m_vImageList.size()) {
+		this->DrawItemImage(memDC, this->m_vImageList[sitem->iItemImg], &rcText);
+	}
+
 	// draw text if any
 	if (sitem->tsCaption.len()) {
 		SetBkMode(memDC,TRANSPARENT);
@@ -420,12 +481,12 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		if (clrText == -1)
 			clrText = GetSysColor(COLOR_BTNTEXT);
 		// draw the text
-		if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
+		if (this->m_bShadowText) {
 			dcxDrawShadowText(memDC,sitem->tsCaption.to_wchr(), sitem->tsCaption.len(),&rcText,
 				DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
 		}
 		else {
-			if (sitem->clrText != -1)
+			if (clrText != -1)
 				SetTextColor(memDC,clrText);
 			DrawText(memDC, sitem->tsCaption.to_chr(), sitem->tsCaption.len(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
 		}

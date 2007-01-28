@@ -21,18 +21,22 @@
 
 #define MIN_STACK_HEIGHT 20 //!< Min height for a stacker item.
 
-#define STACKERS_GRAD		0x01
-#define STACKERS_IMAGE	0x02
-#define STACKERS_ARROW	0x04
+#define STACKERS_GRAD			0x01
+#define STACKERS_IMAGE		0x02
+#define STACKERS_ARROW		0x04
+#define STACKERS_COLLAPSE	0x08
 
 typedef struct tagDCXSITEM {
-	TString tsTipText;  //!< Tooltip text
-	TString tsCaption;	//!< Title Buttons text
-	COLORREF clrBack;   //!< Line Background Caption Color
-	COLORREF clrText;   //!< Line Caption Color
-	HFONT hFont;				//!< Items font.
-	DcxControl *pChild; //!< Items child control
+	TString			tsTipText;	//!< Tooltip text
+	TString			tsCaption;	//!< Title Buttons text
+	COLORREF		clrBack;		//!< Line Background Caption Color
+	COLORREF		clrText;		//!< Line Caption Color
+	HFONT				hFont;			//!< Items font.
+	DcxControl *pChild;			//!< Items child control
+	int					iItemImg;		//!< Items Image index.
 } DCXSITEM,*LPDCXSITEM;
+
+typedef std::vector<Image *> VectorOfImages;
 
 /*!
  * \brief blah
@@ -59,6 +63,7 @@ public:
 protected:
 	HWND m_hActive;
 	DWORD m_dStyles;
+	VectorOfImages m_vImageList;
 
 	int getItemID(void) const;
 	int getSelItemID(void) const;
@@ -68,6 +73,8 @@ protected:
 	void getItemRect(const int nPos, LPRECT rc) const;
 	void DrawSItem(const LPDRAWITEMSTRUCT idata);
 	static void DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape);
+	void DrawItemImage(const HDC hdc, Image *img, const LPRECT rc);
+	void clearImageList(void);
 };
 
 #endif //_DCXSTACKER_H_
