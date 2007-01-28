@@ -254,9 +254,6 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 {
 	this->addStyle(WS_CLIPCHILDREN);
 
-	//	WS_EX_COMPOSITED style causes problems for listview control & maybe others, but when it works it looks really cool :)
-	//if (isXP())
-	//	this->addExStyle(WS_EX_COMPOSITED); // this improves transparency etc.. on xp+ only, looking into how this affects us.
 	//this->addExStyle(WS_EX_TRANSPARENT); // WS_EX_TRANSPARENT|WS_EX_LAYERED gives a window u can click through to the win behind.
 	//HDC hdc = GetDC(this->m_Hwnd);
 	//if (hdc != NULL) {
@@ -1954,7 +1951,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 				LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
 
-				if (lpmis->CtlType == ODT_MENU) {
+				if (p_this->m_popup != NULL && lpmis->CtlType == ODT_MENU) {
 					XPopupMenuItem *p_Item = (XPopupMenuItem*) lpmis->itemData;
 
 					if (p_Item != NULL) {
@@ -1962,7 +1959,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 						lpmis->itemWidth = size.cx;
 						lpmis->itemHeight = size.cy;
-						return TRUE; 
+						lRes = TRUE; 
+						bParsed = TRUE;
 					}
 				}
 			}
@@ -1977,15 +1975,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
-
-			LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT) lParam;
-
-			if (lpdis->CtlType == ODT_MENU) {
-				XPopupMenuItem *p_Item = (XPopupMenuItem*) lpdis->itemData;
+			else if (p_this->m_popup != NULL && idata->CtlType == ODT_MENU) {
+				XPopupMenuItem *p_Item = (XPopupMenuItem*) idata->itemData;
 
 				if (p_Item != NULL) {
-					p_Item->DrawItem(lpdis);
-					return TRUE; 
+					p_Item->DrawItem(idata);
+					lRes = TRUE; 
+					bParsed = TRUE;
 				}
 			}
 
@@ -2460,7 +2456,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			//}
 			if (HIWORD(lParam) == FALSE && p_this->m_popup != NULL) {
 				// let mIRC populate the menus dynamically
-				LRESULT lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+				bParsed = TRUE;
 
 				if (isMenuBarMenu(GetMenu(mHwnd), (HMENU) wParam)) {
 					isMenuBar = TRUE;
@@ -2468,7 +2465,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					p_this->m_popup->convertMenu((HMENU) wParam, TRUE);
 				}
 				isSysMenu = FALSE;
-				return lRes;
 			}
 			else
 				isSysMenu = TRUE;

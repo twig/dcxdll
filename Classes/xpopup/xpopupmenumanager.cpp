@@ -18,7 +18,6 @@ extern HWND mhMenuOwner;
 extern XPopupMenu * g_mIRCPopupMenu;
 extern XPopupMenu * g_mIRCMenuBar;
 extern mIRCDLL mIRCLink;
-//extern bool mIRCSixPointTwoZero;
 
 /*!
  * \brief Constructor
