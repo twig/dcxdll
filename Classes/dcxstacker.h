@@ -33,7 +33,8 @@ typedef struct tagDCXSITEM {
 	COLORREF		clrText;		//!< Line Caption Color
 	HFONT				hFont;			//!< Items font.
 	DcxControl *pChild;			//!< Items child control
-	int					iItemImg;		//!< Items Image index.
+	int					iItemImg;		//!< Items Normal Image index.
+	int					iSelectedItemImg;		//!< Items Selected Image index.
 } DCXSITEM,*LPDCXSITEM;
 
 typedef std::vector<Image *> VectorOfImages;

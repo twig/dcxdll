@@ -82,6 +82,7 @@ DcxStacker::~DcxStacker( ) {
 
 void DcxStacker::clearImageList(void)
 {
+#ifdef DCX_USE_GDIPLUS
 	VectorOfImages::iterator itStart = this->m_vImageList.begin();
 	VectorOfImages::iterator itEnd = this->m_vImageList.end();
 
@@ -91,6 +92,7 @@ void DcxStacker::clearImageList(void)
 		itStart++;
 	}
 	this->m_vImageList.clear();
+#endif
 }
 
 void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
@@ -209,12 +211,14 @@ void DcxStacker::parseCommandRequest(TString &input) {
     SendMessage(this->m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0);
 	}
 
-	//xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [IMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
+	//xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if (flags.switch_flags[0] && numtok > 7) {
 		TString item(input.gettok(1,"\t"));
 		item.trim();
 		TString ctrl(input.gettok(2,"\t"));
 		ctrl.trim();
+		//TString flag(item.gettok( 5 ));
+		//flag.trim();
 
     int nPos = item.gettok( 4 ).to_int( ) - 1;
 
@@ -224,12 +228,13 @@ void DcxStacker::parseCommandRequest(TString &input) {
 			nPos = 0;
 
 		LPDCXSITEM sitem = new DCXSITEM;
-		sitem->clrBack = (COLORREF)input.gettok(8).to_num();
-		sitem->clrText = (COLORREF)input.gettok(7).to_num();
+		sitem->clrBack = (COLORREF)input.gettok(9).to_num();
+		sitem->clrText = (COLORREF)input.gettok(8).to_num();
 		sitem->pChild = NULL;
 		sitem->hFont = NULL;
 		sitem->iItemImg = input.gettok(6).to_int() -1;
-		sitem->tsCaption = item.gettok(9,-1," ");
+		sitem->iSelectedItemImg = input.gettok(7).to_int() -1;
+		sitem->tsCaption = item.gettok(10,-1," ");
 
 		if (ctrl.len() > 0) {
 			UINT ID = mIRC_ID_OFFSET + (UINT)ctrl.gettok( 1 ).to_int( );
@@ -465,7 +470,10 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	}
 
 	// draw GDI+ image if any
-	if (sitem->iItemImg > -1 && sitem->iItemImg < (int)this->m_vImageList.size()) {
+	if (idata->itemState & ODS_SELECTED && sitem->iSelectedItemImg > -1 && sitem->iSelectedItemImg < (int)this->m_vImageList.size()) {
+		this->DrawItemImage(memDC, this->m_vImageList[sitem->iSelectedItemImg], &rcText);
+	}
+	else if (sitem->iItemImg > -1 && sitem->iItemImg < (int)this->m_vImageList.size()) {
 		this->DrawItemImage(memDC, this->m_vImageList[sitem->iItemImg], &rcText);
 	}
 

@@ -285,6 +285,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			this->ReleaseAll();
 			DCXError("/xdid -a","Unable to Setup Filter Graph");
 		}
+		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
   // xdid -c [NAME] [ID] [SWITCH] [COMMAND]
   else if ( flags.switch_flags[2] && numtok > 3 ) {
