@@ -58,6 +58,14 @@ typedef struct tagDCXLVSORT {
 
 } DCXLVSORT,*LPDCXLVSORT;
 
+typedef struct tagDCXLVRENDERINFO {
+	DWORD			m_dFlags;	//!< Render flags (bold etc..)
+	COLORREF	m_cText;	//!< Text Colour
+	COLORREF	m_cBg;		//!< Background Colour.
+} DCXLVRENDERINFO, *LPDCXLVRENDERINFO;
+
+typedef std::vector<LPDCXLVRENDERINFO> VectorOfRenderInfo;
+
 /*!
  * \brief blah
  *
@@ -66,15 +74,15 @@ typedef struct tagDCXLVSORT {
 
 typedef struct tagDCXLVITEM {
 	TString tsTipText;  //!< Tooltip text
-	COLORREF clrBack;   //!< Line Background Caption Color
-	COLORREF clrText;   //!< Line Caption Color
-	BOOL bBold;         //!< Is Line Caption Bold ?
-	BOOL bUline;        //!< Is Line Caption Underlined
-	BOOL bItalic;       //!< Is Line Caption Italicised
+	//COLORREF clrBack;   //!< Line Background Caption Color
+	//COLORREF clrText;   //!< Line Caption Color
+	//BOOL bBold;         //!< Is Line Caption Bold ?
+	//BOOL bUline;        //!< Is Line Caption Underlined
+	//BOOL bItalic;       //!< Is Line Caption Italicised
 	DcxControl *pbar;
 	int iPbarCol;
+	VectorOfRenderInfo	vInfo;	//!< Render Info for each colum
 } DCXLVITEM,*LPDCXLVITEM;
-
 
 /*!
  * \brief blah

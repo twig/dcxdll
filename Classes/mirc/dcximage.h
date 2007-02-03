@@ -61,10 +61,11 @@ protected:
   BOOL m_bIsIcon;
   // clears existing image and icon data and sets pointers to null
   void PreloadData(void);
-  int m_iIconSize;
+	int m_iIconSize;
 	bool m_bResizeImage; //!< Resize Image
 	bool m_bTileImage; //!< Tile Image
 	bool m_bBuffer; //!< Double Buffer Rendering, needed for GDI+ when WS_EX_COMPOSITED
+	int m_iXOffset, m_iYOffset; //!< X & Y image offsets.
 };
 
 #endif // _DCXIMAGE_H_

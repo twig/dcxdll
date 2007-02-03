@@ -660,7 +660,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		ListView_DeleteAllItems(this->m_Hwnd);
 	}
 
-	//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] Item Text ...
+	//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [COLOR] [BGCOLOR] Item Text ...
 	if (flags.switch_flags[0] && numtok > 12) {
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
@@ -684,30 +684,45 @@ void DcxListView::parseCommandRequest(TString &input) {
 		LPDCXLVITEM lpmylvi = new DCXLVITEM;
 		ZeroMemory(lpmylvi, sizeof(DCXLVITEM));
 
-		if (stateFlags & LVIS_UNDERLINE)
-			lpmylvi->bUline = TRUE;
-		else
-			lpmylvi->bUline = FALSE;
+		LPDCXLVRENDERINFO ri = new DCXLVRENDERINFO;
 
-		if (stateFlags & LVIS_BOLD)
-			lpmylvi->bBold = TRUE;
-		else
-			lpmylvi->bBold = FALSE;
-
-		if (stateFlags & LVIS_ITALIC)
-			lpmylvi->bItalic = TRUE;
-		else
-			lpmylvi->bItalic = FALSE;
-
+		// setup colum zero
+		ri->m_dFlags = stateFlags;
 		if (stateFlags & LVIS_COLOR)
-			lpmylvi->clrText = clrText;
+			ri->m_cText = clrText;
 		else
-			lpmylvi->clrText = -1;
+			ri->m_cText = -1;
 
 		if (stateFlags & LVIS_BGCOLOR)
-			lpmylvi->clrBack = clrBack;
+			ri->m_cBg = clrBack;
 		else
-			lpmylvi->clrBack = -1;
+			ri->m_cBg = -1;
+		lpmylvi->vInfo.push_back(ri);
+
+		//if (stateFlags & LVIS_UNDERLINE)
+		//	lpmylvi->bUline = TRUE;
+		//else
+		//	lpmylvi->bUline = FALSE;
+
+		//if (stateFlags & LVIS_BOLD)
+		//	lpmylvi->bBold = TRUE;
+		//else
+		//	lpmylvi->bBold = FALSE;
+
+		//if (stateFlags & LVIS_ITALIC)
+		//	lpmylvi->bItalic = TRUE;
+		//else
+		//	lpmylvi->bItalic = FALSE;
+
+		//if (stateFlags & LVIS_COLOR)
+		//	lpmylvi->clrText = clrText;
+		//else
+		//	lpmylvi->clrText = -1;
+
+		//if (stateFlags & LVIS_BGCOLOR)
+		//	lpmylvi->clrBack = clrBack;
+		//else
+		//	lpmylvi->clrBack = -1;
 
 		TString itemtext;
 		if (data.numtok(" ") > 9)
@@ -760,6 +775,23 @@ void DcxListView::parseCommandRequest(TString &input) {
 					data.trim();
 
 					stateFlags = parseItemFlags(data.gettok(1, " "));
+					clrText = (COLORREF)data.gettok(3, " ").to_num();
+					clrBack = (COLORREF)data.gettok(4, " ").to_num();
+
+					// setup colum #
+					ri = new DCXLVRENDERINFO;
+					ri->m_dFlags = stateFlags;
+					if (stateFlags & LVIS_COLOR)
+						ri->m_cText = clrText;
+					else
+						ri->m_cText = -1;
+
+					if (stateFlags & LVIS_BGCOLOR)
+						ri->m_cBg = clrBack;
+					else
+						ri->m_cBg = -1;
+					lpmylvi->vInfo.push_back(ri);
+
 					lvi.iSubItem = i -1;
 					lvi.mask = LVIF_TEXT | LVIF_IMAGE;
 
@@ -772,8 +804,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 						lvi.iImage = -1;
 
 					itemtext = "";
-					if (data.numtok(" ") > 2)
-						itemtext = data.gettok(3, -1, " ");
+					if (data.numtok(" ") > 4)
+						itemtext = data.gettok(5, -1, " ");
 
 					// create pbar for subitem
 					if (stateFlags & LVIS_PBAR) {
@@ -961,9 +993,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 		LPDCXLVITEM lviDcx = (LPDCXLVITEM) lvi.lParam;
 
 		if (lviDcx != NULL) {
-			lviDcx->bUline  = (flags & LVIS_UNDERLINE) ? TRUE : FALSE;
-			lviDcx->bBold   = (flags & LVIS_BOLD) ? TRUE : FALSE;
-			lviDcx->bItalic = (flags & LVIS_ITALIC) ? TRUE : FALSE;
+			//lviDcx->bUline  = (flags & LVIS_UNDERLINE) ? TRUE : FALSE;
+			//lviDcx->bBold   = (flags & LVIS_BOLD) ? TRUE : FALSE;
+			//lviDcx->bItalic = (flags & LVIS_ITALIC) ? TRUE : FALSE;
+			lviDcx->vInfo[nItem]->m_dFlags = flags;
 			ListView_SetItemState(this->m_Hwnd, nItem, flags, 0xFFFFFF);
 		}
 		else
@@ -1988,17 +2021,12 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
                     if ( lpdcxlvi == NULL )
                       return CDRF_DODEFAULT;
-
+										/*
                     if ( lpdcxlvi->clrText != -1 )
                       lplvcd->clrText = lpdcxlvi->clrText;
 
                     if ( lpdcxlvi->clrBack != -1 )
                       lplvcd->clrTextBk = lpdcxlvi->clrBack;
-
-										//if (( lpdcxlvi->pbar != NULL) && (lpdcxlvi->iPbarCol == lplvcd->iSubItem))
-										//	return CDRF_SKIPDEFAULT;
-										//if ( lplvcd->nmcd.uItemState & CDIS_HOT)
-										//	DrawFocusRect(lplvcd->nmcd.hdc,&lplvcd->rcText);
 
 										if (lpdcxlvi->bUline || lpdcxlvi->bBold || lpdcxlvi->bItalic) {
 											HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
@@ -2007,11 +2035,38 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 											GetObject(hFont, sizeof(LOGFONT), &lf);
 
 											if (lpdcxlvi->bBold)
-											lf.lfWeight |= FW_BOLD;
+												lf.lfWeight |= FW_BOLD;
 											if (lpdcxlvi->bUline)
-											lf.lfUnderline = true;
+												lf.lfUnderline = true;
 											if (lpdcxlvi->bItalic)
-											lf.lfItalic = true;
+												lf.lfItalic = true;
+
+											HFONT hFontNew = CreateFontIndirect( &lf );
+											//HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
+											SelectObject(lplvcd->nmcd.hdc, hFontNew);
+
+											DeleteObject(hFontNew);
+										}
+										*/
+										LPDCXLVRENDERINFO ri = lpdcxlvi->vInfo[lplvcd->iSubItem];
+										if ( ri->m_cText != -1 )
+											lplvcd->clrText = ri->m_cText;
+
+										if ( ri->m_cBg != -1 )
+											lplvcd->clrTextBk = ri->m_cBg;
+
+										if (ri->m_dFlags & LVIS_UNDERLINE || ri->m_dFlags & LVIS_BOLD || ri->m_dFlags & LVIS_ITALIC) {
+											HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
+											LOGFONT lf;
+
+											GetObject(hFont, sizeof(LOGFONT), &lf);
+
+											if (ri->m_dFlags & LVIS_BOLD)
+												lf.lfWeight |= FW_BOLD;
+											if (ri->m_dFlags & LVIS_UNDERLINE)
+												lf.lfUnderline = true;
+											if (ri->m_dFlags & LVIS_ITALIC)
+												lf.lfItalic = true;
 
 											HFONT hFontNew = CreateFontIndirect( &lf );
 											//HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
@@ -2053,6 +2108,16 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							if (lpdcxlvi != NULL) {
 								if (lpdcxlvi->pbar != NULL)
 									DestroyWindow(lpdcxlvi->pbar->getHwnd());
+
+								VectorOfRenderInfo::iterator itStart = lpdcxlvi->vInfo.begin();
+								VectorOfRenderInfo::iterator itEnd = lpdcxlvi->vInfo.end();
+
+								while (itStart != itEnd) {
+									if (*itStart != NULL)
+										delete (LPDCXLVRENDERINFO)*itStart;
+									itStart++;
+								}
+								lpdcxlvi->vInfo.clear();
 
 								delete lpdcxlvi;
 							}

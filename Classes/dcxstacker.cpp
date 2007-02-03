@@ -212,7 +212,7 @@ void DcxStacker::parseCommandRequest(TString &input) {
 	}
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	if (flags.switch_flags[0] && numtok > 7) {
+	if (flags.switch_flags[0] && numtok > 9) {
 		TString item(input.gettok(1,"\t"));
 		item.trim();
 		TString ctrl(input.gettok(2,"\t"));

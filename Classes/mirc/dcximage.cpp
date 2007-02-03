@@ -41,6 +41,8 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 , m_clrTransColor(-1)
 , m_hIcon(NULL)
 , m_bBuffer(false)
+, m_iXOffset(0)
+, m_iYOffset(0)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -95,13 +97,11 @@ DcxImage::~DcxImage() {
  */
 
 void DcxImage::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-  unsigned int i = 1, numtok = styles.numtok( " " );
+	unsigned int i = 1, numtok = styles.numtok( " " );
 	*Styles |= SS_NOTIFY;
 
 	while ( i <= numtok ) {
-		if ( styles.gettok( i , " " ) == "transparent" )
-			*ExStyles |= WS_EX_TRANSPARENT;
-    else if ( styles.gettok( i , " " ) == "alpha" )
+		if ( styles.gettok( i , " " ) == "alpha" )
 			this->m_bAlphaBlend = true;
 
 		i++;
@@ -288,6 +288,12 @@ void DcxImage::parseCommandRequest(TString & input) {
 		this->m_clrTransColor = (COLORREF)input.gettok(4, " ").to_num();
 		this->redrawWindow();
 	}
+	// xdid -o [NAME] [ID] [SWITCH] [XOFFSET] [YOFFSET]
+	else if (flags.switch_flags[14] && numtok > 4) {
+		this->m_iXOffset = input.gettok( 4 ).to_int();
+		this->m_iYOffset = input.gettok( 5 ).to_int();
+		this->redrawWindow();
+	}
 	// xdid -S [NAME] [ID] [SWITCH] [1|0]
 	else if (flags.switch_cap_flags[18] && numtok > 3) {
 		if (input.gettok(4, " ").to_int() > 0)
@@ -311,7 +317,6 @@ void DcxImage::DrawGDIImage(HDC hdc, int x, int y, int w, int h)
 	grphx.SetCompositingQuality(this->m_CQuality);
 	grphx.SetCompositingMode(this->m_CMode);
 	grphx.SetSmoothingMode(this->m_SMode);
-	grphx.SetInterpolationMode(this->m_IMode);
 
 	if (((this->m_pImage->GetWidth() == 1) || (this->m_pImage->GetHeight() == 1)) && this->m_bResizeImage) {
 		// This fixes a GDI+ bug when resizing 1 px images
@@ -319,20 +324,23 @@ void DcxImage::DrawGDIImage(HDC hdc, int x, int y, int w, int h)
 		grphx.SetInterpolationMode(InterpolationModeNearestNeighbor);
 		grphx.SetPixelOffsetMode(PixelOffsetModeHalf);
 	}
+	else
+		grphx.SetInterpolationMode(this->m_IMode);
+
 	if (this->m_bTileImage) {
 		ImageAttributes imAtt;
 		imAtt.SetWrapMode(WrapModeTile);
 
 		grphx.DrawImage(this->m_pImage,
-			Rect(x, y, w, h),  // dest rect
+			Rect(x + this->m_iXOffset, y + this->m_iYOffset, w, h),  // dest rect
 			0, 0, w, h,       // source rect
 			UnitPixel,
 			&imAtt);
 	}
 	else if (this->m_bResizeImage)
-		grphx.DrawImage( this->m_pImage, 0, 0, w, h );
+		grphx.DrawImage( this->m_pImage, this->m_iXOffset, this->m_iYOffset, w, h );
 	else
-		grphx.DrawImage( this->m_pImage, 0, 0);
+		grphx.DrawImage( this->m_pImage, this->m_iXOffset, this->m_iYOffset);
 }
 #endif
 
@@ -401,7 +409,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_ERASEBKGND:
 			{
-				if (this->m_bAlphaBlend)
+				if (this->m_bAlphaBlend || this->isExStyle(WS_EX_TRANSPARENT))
 					this->DrawParentsBackground((HDC)wParam);
 				bParsed = TRUE;
 				return TRUE;
