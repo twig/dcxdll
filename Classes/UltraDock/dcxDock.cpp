@@ -312,11 +312,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			break;
 		case WM_WINDOWPOSCHANGING:
 			{
-				if ((lParam != NULL) &&
-						((pthis->m_iType == DOCK_TYPE_TREE) ||
-						(pthis->m_iType == DOCK_TYPE_SWITCH) ||
-						(pthis->m_iType == DOCK_TYPE_TOOL)) &&
-						DcxDock::IsStatusbar()) {
+				if ((lParam != NULL) && (pthis->m_iType != DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) {
 					WINDOWPOS * wp = (WINDOWPOS *) lParam;
 					if ((wp->flags & SWP_NOSIZE) && (wp->flags & SWP_NOMOVE))
 						break;
@@ -329,6 +325,46 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 						wp->y -= (rc.bottom - rc.top);
 					else
 						wp->cy -= (rc.bottom - rc.top);
+				}
+			}
+			break;
+		case WM_NOTIFY:
+			{
+				if ((pthis->m_iType == DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) {
+					LPNMHDR hdr = (LPNMHDR) lParam;
+
+					if (!hdr)
+						break;
+
+					if (hdr->hwndFrom != DcxDock::g_StatusBar)
+						break;
+
+					switch( hdr->code ) {
+						case NM_CLICK:
+							{
+								mIRCSignalDCX("sclick DCXStatusbar %d %d", hdr->hwndFrom, ((LPNMMOUSE)hdr)->dwItemSpec);
+								return TRUE;
+							}
+							break;
+						case NM_DBLCLK:
+							{
+								mIRCSignalDCX("dclick DCXStatusbar %d %d", hdr->hwndFrom, ((LPNMMOUSE)hdr)->dwItemSpec);
+								return TRUE;
+							}
+							break;
+						case NM_RCLICK:
+							{
+								mIRCSignalDCX("rclick DCXStatusbar %d %d", hdr->hwndFrom, ((LPNMMOUSE)hdr)->dwItemSpec);
+								return TRUE;
+							}
+							break;
+						case NM_RDBLCLK:
+							{
+								mIRCSignalDCX("rdclick DCXStatusbar %d %d", hdr->hwndFrom, ((LPNMMOUSE)hdr)->dwItemSpec);
+								return TRUE;
+							}
+							break;
+					}
 				}
 			}
 			break;
