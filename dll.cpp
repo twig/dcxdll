@@ -1592,7 +1592,7 @@ mIRC(WindowProps) {
 	TString flags(input.gettok(2, " "));
 	flags.trim();
 
-	if ((flags[0] != '-') || (flags.len() < 2)) {
+	if ((flags[0] != '+') || (flags.len() < 2)) {
 		DCXError("/dcx WindowProps","No Flags Found");
 		return 0;
 	}
