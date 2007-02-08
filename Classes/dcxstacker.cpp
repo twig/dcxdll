@@ -469,7 +469,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		ExtTextOut(memDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, "", NULL, NULL );
 	}
 
-	// draw GDI+ image if any
+	// draw GDI+ image if any, we draw the image after the  colour fill to allow for alpha in pics.
 	if (idata->itemState & ODS_SELECTED && sitem->iSelectedItemImg > -1 && sitem->iSelectedItemImg < (int)this->m_vImageList.size()) {
 		this->DrawItemImage(memDC, this->m_vImageList[sitem->iSelectedItemImg], &rcText);
 	}
@@ -485,19 +485,20 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 			f |= DSS_DISABLED;
 		HFONT oldFont = (HFONT)SelectObject(memDC,hFont);
 		// get text colour.
-		COLORREF clrText = sitem->clrText;
-		if (clrText == -1)
-			clrText = GetSysColor(COLOR_BTNTEXT);
+		//COLORREF clrText = sitem->clrText;
+		//if (clrText == -1)
+		//	clrText = GetSysColor(COLOR_BTNTEXT);
 		// draw the text
-		if (this->m_bShadowText) {
-			dcxDrawShadowText(memDC,sitem->tsCaption.to_wchr(), sitem->tsCaption.len(),&rcText,
-				DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
-		}
-		else {
-			if (clrText != -1)
-				SetTextColor(memDC,clrText);
-			DrawText(memDC, sitem->tsCaption.to_chr(), sitem->tsCaption.len(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
-		}
+		//if (this->m_bShadowText) {
+		//	dcxDrawShadowText(memDC,sitem->tsCaption.to_wchr(), sitem->tsCaption.len(),&rcText,
+		//		DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
+		//}
+		//else {
+		//	if (clrText != -1)
+		//		SetTextColor(memDC,clrText);
+		//	DrawText(memDC, sitem->tsCaption.to_chr(), sitem->tsCaption.len(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
+		//}
+		mIRC_DrawText(memDC, sitem->tsCaption, &rcText, DT_CENTER | DT_END_ELLIPSIS, this->m_bShadowText);
 
 		SelectObject(memDC,oldFont);
 	}

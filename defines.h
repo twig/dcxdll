@@ -29,15 +29,24 @@
 
 //#define WIN32_LEAN_AND_MEAN //!< blah
 
-// normal Windows XP + IE V5.01 + GDI+ 1.0
-//#define _WIN32_WINNT 0x0501
+// Windows 98 + IE V5.01 + GDI+ 1.0
+//#define _WIN32_WINDOWS 0x0410
+//#define WINVER 0x0410
+//#define _WIN32_WINNT 0x0410
 //#define _WIN32_IE 0x0501
 //#define GDIPVER 0x0100
 
+// Windows XP + IE V5.01 + GDI+ 1.0
+#define _WIN32_WINNT 0x0501
+#define _WIN32_IE 0x0501
+#define WINVER 0x0501
+#define GDIPVER 0x0100
+
 // Windows XP SP2 + IE V6 + GDI+ 1.1
-#define _WIN32_WINNT 0x0503
-#define _WIN32_IE 0x0600
-#define GDIPVER 0x0110
+//#define _WIN32_WINNT 0x0503
+//#define _WIN32_IE 0x0600
+//#define WINVER 0x0503
+//#define GDIPVER 0x0110
 
 // Required for VS 2005
 #if _MSC_VER >= 1400
@@ -176,6 +185,8 @@ typedef struct tagMYDCXWINDOW {
 /*! \brief Return String DLL Alias (data is limited to 900) */
 #define ret(x) { lstrcpyn(data, (x), 900); return 3; }
 
+#define PACKVERSION(major,minor) MAKELONG(minor,major)
+
 /*!
  * \brief mIRC DLL Loading Structure
  */
@@ -306,6 +317,7 @@ void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DW
 const char *GetLastStatusStr(Status status);
 #endif
 bool IsFile(const TString &filename);
+void mIRC_DrawText(HDC hdc, TString &txt, const LPRECT rc, const UINT style, const bool shadow);
 
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);

@@ -683,6 +683,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		LPDCXLVITEM lpmylvi = new DCXLVITEM;
 		ZeroMemory(lpmylvi, sizeof(DCXLVITEM));
+		lpmylvi->vInfo.clear();
 
 		LPDCXLVRENDERINFO ri = new DCXLVRENDERINFO;
 
@@ -697,6 +698,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			ri->m_cBg = clrBack;
 		else
 			ri->m_cBg = -1;
+
 		lpmylvi->vInfo.push_back(ri);
 
 		//if (stateFlags & LVIS_UNDERLINE)
@@ -2048,6 +2050,9 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 											DeleteObject(hFontNew);
 										}
 										*/
+										if ((UINT)lplvcd->iSubItem >= lpdcxlvi->vInfo.size())
+											return CDRF_DODEFAULT;
+
 										LPDCXLVRENDERINFO ri = lpdcxlvi->vInfo[lplvcd->iSubItem];
 										if ( ri->m_cText != -1 )
 											lplvcd->clrText = ri->m_cText;
