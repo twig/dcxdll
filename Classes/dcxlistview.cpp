@@ -971,14 +971,18 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		this->redrawWindow();
 	}
-	// xdid -j [NAME] [ID] [SWITCH] [ROW] [COL] [FLAGS]
+	// xdid -j [NAME] [ID] [SWITCH] [ROW] [COL] [FLAGS] ([COLOUR] (BGCOLOUR))
 	else if (flags.switch_flags[9] && numtok > 5) {
-		int nItem = (int)input.gettok(4, " ").to_num() -1;
-		int nCol = (int)input.gettok(5, " ").to_num() -1;
+		int nItem = input.gettok(4, " ").to_int() -1;
+		int nCol = input.gettok(5, " ").to_int() -1;
+		COLORREF clrText = (COLORREF)input.gettok(7, " ").to_num();
+		COLORREF clrBack = (COLORREF)input.gettok(8, " ").to_num();
 
 		// invalid info
-		if ((nItem == -1) || (nCol == -1))
+		if ((nItem < 0) || (nCol < 0)) {
+			DCXError("/xdid -j","Invalid Item");
 			return;
+		}
 
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
@@ -988,8 +992,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 		lvi.iSubItem = nCol;
 
 		// couldnt retrieve info
-		if (!ListView_GetItem(this->m_Hwnd, &lvi))
+		if (!ListView_GetItem(this->m_Hwnd, &lvi)) {
+			DCXError("/xdid -j","Unable to get Item.");
 			return;
+		}
 
 		UINT flags = this->parseItemFlags(input.gettok(6, " "));
 		LPDCXLVITEM lviDcx = (LPDCXLVITEM) lvi.lParam;
@@ -998,8 +1004,22 @@ void DcxListView::parseCommandRequest(TString &input) {
 			//lviDcx->bUline  = (flags & LVIS_UNDERLINE) ? TRUE : FALSE;
 			//lviDcx->bBold   = (flags & LVIS_BOLD) ? TRUE : FALSE;
 			//lviDcx->bItalic = (flags & LVIS_ITALIC) ? TRUE : FALSE;
-			lviDcx->vInfo[nItem]->m_dFlags = flags;
-			ListView_SetItemState(this->m_Hwnd, nItem, flags, 0xFFFFFF);
+			if ((UINT)nCol < lviDcx->vInfo.size()) {
+				lviDcx->vInfo[nCol]->m_dFlags = flags;
+				if (flags & LVIS_COLOR)
+					lviDcx->vInfo[nCol]->m_cText = clrText;
+				else
+					lviDcx->vInfo[nCol]->m_cText = -1;
+
+				if (flags & LVIS_BGCOLOR)
+					lviDcx->vInfo[nCol]->m_cBg = clrBack;
+				else
+					lviDcx->vInfo[nCol]->m_cBg = -1;
+
+				ListView_SetItemState(this->m_Hwnd, nItem, flags, 0xFFFFFF);
+			}
+			else
+				DCXError("/xdid -j","No Render Information for SubItem, More subitems than columns?");
 		}
 		else
 			DCXError("/xdid -j","No DCX Item Information, somethings very wrong");
