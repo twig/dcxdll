@@ -84,6 +84,7 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_pParentHWND(NULL)
 , m_bitmapBg(NULL)
 , m_bShadowText(false)
+, m_bCtrlCodeText(true)
 {
 	this->m_dEventMask = p_Dialog->getEventMask();
 }

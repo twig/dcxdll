@@ -97,6 +97,8 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
 			this->m_bAlphaBlend = true;
 		else if (( styles.gettok( i , " " ) == "shadow" ))
 			this->m_bShadowText = true;
+		else if (( styles.gettok( i , " " ) == "noformat" ))
+			this->m_bCtrlCodeText = false;
 
 		i++;
 	}
@@ -299,15 +301,12 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 				SetTextColor(hdc, this->m_clrText);
 				//SelectObject(hdc, GetStockBrush(HOLLOW_BRUSH));
 				SetBkMode(hdc, TRANSPARENT);
-				//Rectangle(hdc, r.left, r.top, r.right, r.bottom);
-				//DrawTextEx(hdc, "hello world", 0, &r, 0, 0);
+
 				UINT style = DT_LEFT;
 				if (this->isStyle(SS_CENTER))
-					style |= DT_CENTER;
-				if (this->isStyle(SS_RIGHT)) {
-					style &= ~DT_LEFT;
-					style |= DT_RIGHT;
-				}
+					style = DT_CENTER;
+				if (this->isStyle(SS_RIGHT))
+					style = DT_RIGHT;
 				if (this->isStyle(SS_ENDELLIPSIS))
 					style |= DT_END_ELLIPSIS;
 				if (this->isStyle(SS_PATHELLIPSIS))
@@ -318,12 +317,19 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 					style |= DT_SINGLELINE; // ?? same ??
  				else
 					style |= DT_WORDBREAK; // changed for autowrap between words
-				if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
-					TString wtext(text);
-					dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &r, style, this->m_clrText, 0, 5, 5);
+
+				if (!this->m_bCtrlCodeText) {
+					if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
+						TString wtext(text);
+						dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &r, style, this->m_clrText, 0, 5, 5);
+					}
+					else
+						DrawText(hdc, text, nText, &r, style);
 				}
-				else
-					DrawText(hdc, text, nText, &r, style);
+				else {
+					TString wtext(text);
+					mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText);
+				}
 
 				delete [] text;
 				res = TRUE;

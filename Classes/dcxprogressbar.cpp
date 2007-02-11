@@ -101,6 +101,10 @@ void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG *
 		}
     else if ( styles.gettok( i , " " ) == "alpha" )
 			this->m_bAlphaBlend = true;
+		else if (( styles.gettok( i , " " ) == "shadow" ))
+			this->m_bShadowText = true;
+		else if (( styles.gettok( i , " " ) == "noformat" ))
+			this->m_bCtrlCodeText = false;
 
     i++;
   }
@@ -453,8 +457,10 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 						rc.bottom = rc.top + h;
 					}
 
-					DrawText(hdc, text.to_chr(), text.len(), &rc,
-						DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
+					if (!this->m_bCtrlCodeText)
+						DrawText(hdc, text.to_chr(), text.len(), &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
+					else
+						mIRC_DrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP, this->m_bShadowText);
 
 					if (oldfont != NULL)
 						SelectObject(hdc, oldfont);

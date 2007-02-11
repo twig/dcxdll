@@ -118,6 +118,8 @@ void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 			this->m_bAlphaBlend = true;
 		else if (( styles.gettok( i , " " ) == "shadow" ))
 			this->m_bShadowText = true;
+		else if (( styles.gettok( i , " " ) == "noformat" ))
+			this->m_bCtrlCodeText = false;
 
     i++;
   }
@@ -619,12 +621,16 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 					}
 
 					if ( this->m_tsCaption.len( ) > 0 ) {
-						if (!this->m_bSelected && this->m_bShadowText) // could cause problems with pre-XP as this is commctrl v6+
-							dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(), this->m_tsCaption.len(),&rcTxt,
-								DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
+						if (!this->m_bCtrlCodeText) {
+							if (!this->m_bSelected && this->m_bShadowText) // could cause problems with pre-XP as this is commctrl v6+
+								dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(), this->m_tsCaption.len(),&rcTxt,
+									DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
+							else
+								DrawText( hdc, this->m_tsCaption.to_chr( ), this->m_tsCaption.len( ), 
+									&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+						}
 						else
-							DrawText( hdc, this->m_tsCaption.to_chr( ), this->m_tsCaption.len( ), 
-								&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+							mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false));
 					}
 
 					SelectObject( hdc, hFontOld );

@@ -98,6 +98,8 @@ void DcxLink::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 			this->m_bAlphaBlend = true;
 		else if (( styles.gettok( i , " " ) == "shadow" ))
 			this->m_bShadowText = true;
+		else if (( styles.gettok( i , " " ) == "noformat" ))
+			this->m_bCtrlCodeText = false;
 
     i++;
   }
@@ -361,14 +363,20 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
         char * text = new char[nText+2];
         GetWindowText( this->m_Hwnd, text, nText+1 );
 
-				if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
-					TString wtext(text);
-					dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &rect,
-						DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_clrText, 0, 5, 5);
+				if (!this->m_bCtrlCodeText) {
+					if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
+						TString wtext(text);
+						dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &rect,
+							DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_clrText, 0, 5, 5);
+					}
+					else {
+						SetTextColor( hdc, this->m_clrText );
+						DrawText( hdc, text, nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
+					}
 				}
 				else {
-          SetTextColor( hdc, this->m_clrText );
-	        DrawText( hdc, text, nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
+					TString wtext(text);
+					mIRC_DrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_bShadowText);
 				}
 
         delete [] text;

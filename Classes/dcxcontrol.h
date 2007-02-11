@@ -151,6 +151,7 @@ protected:
 	DcxControl *m_pParentCtrl;
 	HWND m_pParentHWND;
 	bool m_bShadowText; //!< Text is drawn with a shadow.
+	bool m_bCtrlCodeText; //!< mIRC's ctrl codes are used to change the text's appearance.
   /* ***** */
 
   void parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags );

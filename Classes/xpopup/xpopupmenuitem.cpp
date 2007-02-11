@@ -437,19 +437,22 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
     TString righttext(this->m_tsItemText.gettok( 2, "\t" ));
     righttext.trim( );
 
-    DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, 
-      DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
+    //DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, 
+    //  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
+		mIRC_DrawText( lpdis->hDC, lefttext, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false);
 
     if ( righttext.len( ) > 0 ) {
 
       rc.right -= 15;
-      DrawTextEx( lpdis->hDC, righttext.to_chr( ), righttext.len( ), &rc, 
-        DT_RIGHT | DT_SINGLELINE | DT_VCENTER, NULL );
+      //DrawTextEx( lpdis->hDC, righttext.to_chr( ), righttext.len( ), &rc, 
+      //  DT_RIGHT | DT_SINGLELINE | DT_VCENTER, NULL );
+			mIRC_DrawText( lpdis->hDC, righttext, &rc, DT_RIGHT | DT_SINGLELINE | DT_VCENTER, false);
     }
   }
   else {
-    DrawTextEx( lpdis->hDC, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &rc, 
-      DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
+    //DrawTextEx( lpdis->hDC, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &rc, 
+    //  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
+		mIRC_DrawText( lpdis->hDC, this->m_tsItemText, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false);
   }
 }
 

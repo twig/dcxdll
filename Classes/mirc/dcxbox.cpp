@@ -148,6 +148,8 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 			this->m_bAlphaBlend = true;
 		else if (( styles.gettok( i , " " ) == "shadow" ))
 			this->m_bShadowText = true;
+		else if (( styles.gettok( i , " " ) == "noformat" ))
+			this->m_bCtrlCodeText = false;
 
 		i++;
 	}
@@ -815,7 +817,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					}
 					else {
 						this->FillBkg(hdc, &rc2, hBrush);
-						DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
+						//DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
+						DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
 					}
 					if (IsWindow(this->m_TitleButton))
 						SetWindowPos(this->m_TitleButton,NULL,rc2.left,rc2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
@@ -923,13 +926,19 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					//	IntersectClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
 
 					// draw the text
-					if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
-						TString wtext(text);
-						dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(),&rcText,
-							DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
+					if (!this->m_bCtrlCodeText) {
+						if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
+							TString wtext(text);
+							dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(),&rcText,
+								DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
+						}
+						else
+							DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
 					}
-					else
-						DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
+					else {
+						TString wtext(text);
+						mIRC_DrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS, this->m_bShadowText);
+					}
 
 					delete [] text;
 				}

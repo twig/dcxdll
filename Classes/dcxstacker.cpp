@@ -116,6 +116,8 @@ void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 			this->m_dStyles |= STACKERS_ARROW;
 		else if ( styles.gettok( i , " " ) == "nocollapse" )
 			this->m_dStyles &= ~STACKERS_COLLAPSE;
+		else if (( styles.gettok( i , " " ) == "noformat" ))
+			this->m_bCtrlCodeText = false;
 
     i++;
   }
@@ -404,7 +406,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	RECT rcWin;
 	GetClientRect(idata->hwndItem, &rcWin);
 	// Create temp HDC as drawing buffer.
-	// if temp HDC or its bitmap fails to cretae, use supplied HDC without buffer.
+	// if temp HDC or its bitmap fails to create, use supplied HDC without buffer.
 	HDC memDC = CreateCompatibleDC(idata->hDC);
 	HBITMAP memBM, oldBM;
 	if (memDC != NULL) { // HDC ok, make Bitmap
@@ -485,20 +487,21 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		//	f |= DSS_DISABLED;
 		HFONT oldFont = (HFONT)SelectObject(memDC,hFont);
 		// get text colour.
-		//COLORREF clrText = sitem->clrText;
-		//if (clrText == -1)
-		//	clrText = GetSysColor(COLOR_BTNTEXT);
+		COLORREF clrText = sitem->clrText;
+		if (clrText == -1)
+			clrText = GetSysColor(COLOR_BTNTEXT);
 		// draw the text
-		//if (this->m_bShadowText) {
-		//	dcxDrawShadowText(memDC,sitem->tsCaption.to_wchr(), sitem->tsCaption.len(),&rcText,
-		//		DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
-		//}
-		//else {
-		//	if (clrText != -1)
-		//		SetTextColor(memDC,clrText);
-		//	DrawText(memDC, sitem->tsCaption.to_chr(), sitem->tsCaption.len(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
-		//}
-		mIRC_DrawText(memDC, sitem->tsCaption, &rcText, DT_CENTER | DT_END_ELLIPSIS, this->m_bShadowText);
+		if (!this->m_bCtrlCodeText) {
+			if (this->m_bShadowText)
+				dcxDrawShadowText(memDC,sitem->tsCaption.to_wchr(), sitem->tsCaption.len(),&rcText, DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
+			else {
+				if (clrText != -1)
+					SetTextColor(memDC,clrText);
+				DrawText(memDC, sitem->tsCaption.to_chr(), sitem->tsCaption.len(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
+			}
+		}
+		else
+			mIRC_DrawText(memDC, sitem->tsCaption, &rcText, DT_CENTER | DT_END_ELLIPSIS, this->m_bShadowText);
 
 		SelectObject(memDC,oldFont);
 	}
