@@ -480,9 +480,9 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	// draw text if any
 	if (sitem->tsCaption.len()) {
 		SetBkMode(memDC,TRANSPARENT);
-		UINT f = DST_TEXT;
-		if (idata->itemState & ODS_DISABLED)
-			f |= DSS_DISABLED;
+		//UINT f = DST_TEXT;
+		//if (idata->itemState & ODS_DISABLED)
+		//	f |= DSS_DISABLED;
 		HFONT oldFont = (HFONT)SelectObject(memDC,hFont);
 		// get text colour.
 		//COLORREF clrText = sitem->clrText;

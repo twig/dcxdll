@@ -145,7 +145,13 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\mircFunctions.cpp">
+			</File>
+			<File
 				RelativePath=".\misc.cpp">
+			</File>
+			<File
+				RelativePath=".\windowFunctions.cpp">
 			</File>
 			<Filter
 				Name="Controls"
