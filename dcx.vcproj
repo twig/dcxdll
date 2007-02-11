@@ -332,6 +332,9 @@
 				Name="Ultradock"
 				Filter="">
 				<File
+					RelativePath=".\Classes\UltraDock\dcxDock.cpp">
+				</File>
+				<File
 					RelativePath=".\Classes\UltraDock\dcxDockCommands.cpp">
 				</File>
 				<File
@@ -554,6 +557,13 @@
 				</File>
 				<File
 					RelativePath=".\Classes\tinyxml\tinyxml.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="UltraDock"
+				Filter="">
+				<File
+					RelativePath=".\Classes\UltraDock\dcxDock.h">
 				</File>
 			</Filter>
 		</Filter>
