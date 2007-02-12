@@ -238,8 +238,15 @@ mIRC(xdock) {
 		switch (flag[1])
 		{
 		case 'k': // [clr] : background colour.
-			DcxDock::status_setBkColor((COLORREF)input.gettok(3).to_num());
+			{
+			int col = input.gettok(3).to_int();
+
+			if (col < 0)
+				DcxDock::status_setBkColor((COLORREF) CLR_DEFAULT);
+			else
+				DcxDock::status_setBkColor((COLORREF) col);
 			break;
+			}
 		case 'l': // [POS [POS POS ...]] : parts
 			{
 				int nParts = numtok - 2;
