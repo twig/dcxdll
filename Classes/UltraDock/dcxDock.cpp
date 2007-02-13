@@ -310,6 +310,16 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 				}
 			}
 			break;
+		//case WM_DRAWITEM: // support for ownerdraw statusbar. NB: NO Delete Item msg.
+		//	{
+		//		LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT) lParam;
+		//		if (pthis->g_StatusBar == lpDrawItem->hwndItem) {
+		//			TString text((char *)lpDrawItem->itemData);
+		//			mIRC_DrawText(lpDrawItem->hDC, text, &lpDrawItem->rcItem, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
+		//			return TRUE;
+		//		}
+		//	}
+		//	break;
 		case WM_WINDOWPOSCHANGING:
 			{
 				if ((lParam != NULL) && (pthis->m_iType != DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) {

@@ -239,14 +239,14 @@ mIRC(xdock) {
 		{
 		case 'k': // [clr] : background colour.
 			{
-			int col = input.gettok(3).to_int();
+				int col = input.gettok(3).to_int();
 
-			if (col < 0)
-				DcxDock::status_setBkColor((COLORREF) CLR_DEFAULT);
-			else
-				DcxDock::status_setBkColor((COLORREF) col);
-			break;
+				if (col < 0)
+					DcxDock::status_setBkColor((COLORREF) CLR_DEFAULT);
+				else
+					DcxDock::status_setBkColor((COLORREF) col);
 			}
+			break;
 		case 'l': // [POS [POS POS ...]] : parts
 			{
 				int nParts = numtok - 2;
@@ -284,7 +284,7 @@ mIRC(xdock) {
 				}
 
 				DestroyIcon( (HICON) DcxDock::status_getIcon( nPos ) );
-				if ( icon != -1 )
+				if ( icon > -1 )
 					DcxDock::status_setIcon( nPos, ImageList_GetIcon( DcxDock::status_getImageList( ), icon, ILD_TRANSPARENT ) );
 				else
 					DcxDock::status_setIcon( nPos, NULL );

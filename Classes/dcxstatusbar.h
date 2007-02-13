@@ -20,6 +20,14 @@
 
 class DcxDialog;
 
+typedef struct tagSB_PARTINFO {
+	DcxControl	*m_Child;
+	TString			m_Text;
+	int					m_iIcon;
+} SB_PARTINFO, *LPSB_PARTINFO;
+
+typedef std::vector<LPSB_PARTINFO> VectorOfParts;
+
 /*!
  * \brief blah
  *
@@ -51,7 +59,9 @@ public:
   LRESULT getParts( const int nParts, LPINT aWidths ) const;
   LRESULT setBkColor( const COLORREF clrBk );
   LRESULT setText( const int iPart, const int Style, const LPSTR lpstr );
+  LRESULT setPartInfo( const int iPart, const int Style, const LPSB_PARTINFO pPart );
   LRESULT getText( const int iPart, LPSTR lpstr ) const;
+  LRESULT getTextLength( const int iPart ) const;
   LRESULT setTipText( const int iPart, const LPSTR lpstr );
   LRESULT getTipText( const int iPart, const int nSize, LPSTR lpstr ) const;
   LRESULT getRect( const int iPart, LPRECT lprc ) const;
@@ -60,12 +70,14 @@ public:
 
   int hitTest( const POINT & pt ) const;
 
+	void deletePartInfo(const int iPart);
+
   inline TString getType( ) { return TString( "statusbar" ); };
 
 protected:
 
   HIMAGELIST m_hImageList; //!< Internal Image List
-  
+  VectorOfParts	m_vParts;	//!< Parts info for ownerdraw parts.
 };
 
 #endif // _DCXSTATUSBAR_H_

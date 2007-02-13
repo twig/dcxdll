@@ -27,6 +27,7 @@
 
 DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
+, m_hImageList(NULL)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -47,7 +48,7 @@ DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
   if ( bNoTheme )
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  this->m_hImageList = NULL;
+	this->m_vParts.clear();
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
@@ -62,6 +63,15 @@ DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 
 DcxStatusBar::~DcxStatusBar( ) {
 
+	VectorOfParts::iterator itStart = this->m_vParts.begin();
+	VectorOfParts::iterator itEnd = this->m_vParts.end();
+
+	while (itStart != itEnd) {
+		if (*itStart != NULL) {
+			delete *itStart;
+		}
+		itStart++;
+	}
   this->cleanPartIcons( );
   ImageList_Destroy( this->getImageList( ) );
 
@@ -165,6 +175,26 @@ void DcxStatusBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 	szReturnValue[0] = 0;
 }
 
+void DcxStatusBar::deletePartInfo(const int iPart)
+{
+	if (HIWORD( this->getTextLength( iPart ) ) & SBT_OWNERDRAW) {
+		LPSB_PARTINFO pPart = (LPSB_PARTINFO)this->getText(iPart, NULL);
+		VectorOfParts::iterator itStart = this->m_vParts.begin();
+		VectorOfParts::iterator itEnd = this->m_vParts.end();
+
+		while (itStart != itEnd) {
+			if (*itStart != NULL && ((LPSB_PARTINFO)*itStart) == pPart) {
+				this->setText( iPart, SBT_OWNERDRAW, NULL);
+				delete pPart->m_Child;
+				delete pPart;
+				this->m_vParts.erase(itStart);
+				return;
+			}
+			itStart++;
+		}
+	}
+}
+
 /*!
  * \brief blah
  *
@@ -203,37 +233,84 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
     this->setParts( nParts, parts );
   }
   // xdid -t [NAME] [ID] [SWITCH] N [+FLAGS] [#ICON] [Cell Text][TAB]Tooltip Text
+	// xdid -t [NAME] [ID] [SWITCH] N [+c] [#ICON] [ID] [CTRL] [X] [Y] [W] [H] (OPTIONS)
   else if ( flags.switch_flags[19] && numtok > 5 ) {
 
     int nPos = input.gettok( 4, " " ).to_int( ) - 1;
-    TString flags(input.gettok( 5, " " ));
+    TString flag(input.gettok( 5, " " ));
     int icon = input.gettok( 6, " " ).to_int( ) - 1;
 
     TString itemtext;
+		TString tooltip;
 
-    if ( input.gettok( 1, "\t" ).numtok( " " ) > 6 ) {
-      
-      itemtext = input.gettok( 1, "\t" ).gettok( 7, -1, " " );
-      itemtext.trim( );
-    }
+		this->deletePartInfo(nPos); // delete custom info if any.
+		DestroyIcon( (HICON) this->getIcon( nPos ) ); // delete any icon for this part.
+		this->setIcon( nPos, NULL ); // set as no icon.
 
-    TString tooltip;
+		UINT iFlags = this->parseItemFlags( flag );
 
-    if ( input.numtok( "\t" ) > 1 ) {
-      
-      tooltip = input.gettok( 2, "\t" );
-      tooltip.trim( );
-    }
+		if ( input.gettok( 1, "\t" ).numtok( " " ) > 6 ) {
+		  
+			itemtext = input.gettok( 1, "\t" ).gettok( 7, -1, " " );
+			itemtext.trim( );
+		}
 
-    DestroyIcon( (HICON) this->getIcon( nPos ) );
-    if ( icon != -1 )
-      this->setIcon( nPos, ImageList_GetIcon( this->getImageList( ), icon, ILD_TRANSPARENT ) );
-    else
-      this->setIcon( nPos, NULL );
+		if ( input.numtok( "\t" ) > 1 ) {
+		  
+			tooltip = input.gettok( 2, "\t" );
+			tooltip.trim( );
+		}
 
-    this->setText( nPos, this->parseItemFlags( flags ), itemtext.to_chr( ) );
-    this->setTipText( nPos, tooltip.to_chr( ) );
+		if (iFlags & SBT_OWNERDRAW) {
+			LPSB_PARTINFO pPart = new SB_PARTINFO;
+			ZeroMemory(pPart,sizeof(SB_PARTINFO));
+			pPart->m_iIcon = icon;
+			if (flag.find('f',0)) { // mIRC formatted text
+				pPart->m_Text = itemtext;
+				this->setTipText( nPos, tooltip.to_chr( ) );
+			}
+			else { // child control
+				UINT ID = mIRC_ID_OFFSET + (UINT)itemtext.gettok( 1 ).to_int( );
 
+				if ( ID > mIRC_ID_OFFSET - 1 && 
+					!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
+					this->m_pParentDialog->getControlByID( ID ) == NULL )
+				{
+					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,itemtext,2,
+						CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COLORCOMBO|CTLF_ALLOW_BUTTON|
+						CTLF_ALLOW_RICHEDIT|CTLF_ALLOW_EDIT|CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_RADIO|
+						CTLF_ALLOW_CHECK|CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE,this->m_Hwnd);
+
+					if ( p_Control != NULL ) {
+						this->m_pParentDialog->addControl( p_Control );
+						pPart->m_Child = p_Control;
+						//ShowWindow(p_Control->getHwnd(),SW_HIDE);
+						this->redrawWindow( );
+					}
+					else {
+						DCXError("/xdid -t","Error creating control");
+						delete pPart;
+						return;
+					}
+				}
+				else {
+					TString error;
+					error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+					DCXError("/xdid -t",error.to_chr() );
+					delete pPart;
+					return;
+				}
+			}
+			this->setPartInfo( nPos, iFlags, pPart );
+		}
+		else {
+
+			if ( icon != -1 )
+				this->setIcon( nPos, ImageList_GetIcon( this->getImageList( ), icon, ILD_TRANSPARENT ) );
+
+			this->setText( nPos, iFlags, itemtext.to_chr( ) );
+			this->setTipText( nPos, tooltip.to_chr( ) );
+		}
   }
   // xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
   else if ( flags.switch_flags[21] && numtok > 3 ) {
@@ -339,12 +416,11 @@ UINT DcxStatusBar::parseItemFlags( TString & flags ) {
 		case 'p':
 			iFlags |= SBT_POPOUT;
 			break;
+		case 'c':
+			iFlags |= SBT_OWNERDRAW;
+		case 'f':
+			iFlags |= SBT_OWNERDRAW;
 		}
-
-		//if ( flags[i] == 'n' )
-		//	iFlags |= SBT_NOBORDERS;
-		//else if ( flags[i] == 'p' )
-		//	iFlags |= SBT_POPOUT;
 
 		++i;
 	}
@@ -413,8 +489,28 @@ LRESULT DcxStatusBar::setText( const int iPart, const int Style, const LPSTR lps
  * blah
  */
 
+LRESULT DcxStatusBar::setPartInfo( const int iPart, const int Style, const LPSB_PARTINFO pPart) {
+  return SendMessage( this->m_Hwnd, SB_SETTEXT, (WPARAM) iPart | (Style | SBT_OWNERDRAW), (LPARAM) pPart );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
 LRESULT DcxStatusBar::getText( const int iPart, LPSTR lpstr ) const {
   return SendMessage( this->m_Hwnd, SB_GETTEXT, (WPARAM) iPart, (LPARAM) lpstr );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxStatusBar::getTextLength( const int iPart ) const {
+  return SendMessage( this->m_Hwnd, SB_GETTEXTLENGTH, (WPARAM) iPart, (LPARAM) 0 );
 }
 
 /*!
@@ -555,12 +651,38 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
         } // switch
       }
       break;
+		case WM_DRAWITEM: // support for ownerdraw statusbar. NB: NO Delete Item msg.
+			{
+				LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT) lParam;
+				if (this->m_Hwnd == lpDrawItem->hwndItem) {
+					bParsed = TRUE;
+					LPSB_PARTINFO pPart = (LPSB_PARTINFO)lpDrawItem->itemData;
+					if (pPart != NULL) {
+						RECT rc = lpDrawItem->rcItem;
+						if (pPart->m_iIcon > -1) {
+							IMAGEINFO ii;
+							ImageList_Draw(this->m_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top, ILD_TRANSPARENT);
+							ImageList_GetImageInfo(this->m_hImageList, pPart->m_iIcon, &ii);
+							rc.left += (ii.rcImage.right - ii.rcImage.left);
+						}
+						if (pPart->m_Text.len() > 0)
+							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
+						else if (pPart->m_Child != NULL) {
+							SetWindowPos(pPart->m_Child->getHwnd(), NULL, rc.left, rc.top,
+								(rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER);
+						}
+						return TRUE;
+					}
+				}
+			}
+			break;
 	}
 	return 0L;
 }
 
 LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
+	LRESULT lRes = 0L;
   switch( uMsg ) {
 
     case WM_HELP:
@@ -593,6 +715,116 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
       }
       break;
 
+    case WM_HSCROLL:
+    case WM_VSCROLL:
+		case WM_COMMAND:
+			{
+				if (IsWindow((HWND) lParam)) {
+					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+					if (c_this != NULL)
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				}
+			}
+			break;
+
+		case WM_COMPAREITEM:
+			{
+				LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
+				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					if (c_this != NULL)
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				}
+			}
+			break;
+
+		case WM_DELETEITEM:
+			{
+				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
+				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					if (c_this != NULL)
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				}
+			}
+			break;
+
+		case WM_MEASUREITEM:
+			{
+				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
+				if (IsWindow(cHwnd)) {
+					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
+					if (c_this != NULL)
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				}
+			}
+			break;
+
+		case WM_DRAWITEM:
+			{
+				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
+				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					if (c_this != NULL)
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				}
+			}
+			break;
+    case WM_NOTIFY: 
+      {
+        LPNMHDR hdr = (LPNMHDR) lParam;
+
+        if (!hdr)
+          break;
+
+				if (this->m_Hwnd != hdr->hwndFrom) {
+					if (IsWindow(hdr->hwndFrom)) {
+						DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+						if (c_this != NULL)
+							lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
+				}
+      }
+      break;
+		case WM_CTLCOLORDLG:
+			{
+				bParsed = TRUE;
+				return (INT_PTR) this->getBackClrBrush( );
+			}
+			break;
+
+    case WM_CTLCOLORBTN:
+    case WM_CTLCOLORLISTBOX:
+    case WM_CTLCOLORSCROLLBAR:
+    case WM_CTLCOLORSTATIC:
+    case WM_CTLCOLOREDIT:
+      {
+
+				DcxControl * p_Control = this->m_pParentDialog->getControlByHWND( (HWND) lParam );
+
+				if ( p_Control != NULL ) {
+
+					COLORREF clrText = p_Control->getTextColor( );
+					COLORREF clrBackText = p_Control->getBackColor( );
+					HBRUSH hBackBrush = p_Control->getBackClrBrush( );
+
+					bParsed = TRUE;
+					LRESULT lRes = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+					if ( clrText != -1 )
+						SetTextColor( (HDC) wParam, clrText );
+
+					if ( clrBackText != -1 )
+						SetBkColor( (HDC) wParam, clrBackText );
+
+					if ( hBackBrush != NULL )
+						lRes = (LRESULT) hBackBrush;
+
+					return lRes;
+				}
+      }
+      break;
+
     case WM_DESTROY:
       {
         delete this;
@@ -604,5 +836,5 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
       break;
   }
 
-  return 0L;
+  return lRes;
 }
