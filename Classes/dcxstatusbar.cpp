@@ -29,30 +29,32 @@ DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 : DcxControl( ID, p_Dialog ) 
 , m_hImageList(NULL)
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles | WS_EX_CONTROLPARENT,
+		DCX_STATUSBARCLASS,
+		NULL,
+		WS_CHILD | WS_VISIBLE | Styles,
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL),
+		NULL);
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles,
-    DCX_STATUSBARCLASS,
-    NULL,
-    WS_CHILD | WS_VISIBLE | Styles,
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL),
-    NULL);
-
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_vParts.clear();
 
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	if ((rc->bottom - rc->top) > 0)
+		SendMessage(this->m_Hwnd,SB_SETMINHEIGHT,rc->bottom - rc->top,0);
+
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -203,44 +205,44 @@ void DcxStatusBar::deletePartInfo(const int iPart)
 
 void DcxStatusBar::parseCommandRequest( TString & input ) {
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+	XSwitchFlags flags;
+	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
+	this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
 
-  int numtok = input.numtok( " " );
+	int numtok = input.numtok( " " );
 
-  // xdid -k [NAME] [ID] [SWITCH] [COLOR]
-  if (flags.switch_flags[10] && numtok > 3) {
+	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
+	if (flags.switch_flags[10] && numtok > 3) {
 		int col = input.gettok(4, " ").to_int();
 
 		if (col < 0)
 			this->setBkColor((COLORREF) CLR_DEFAULT);
 		else
 			this->setBkColor((COLORREF) col);
-  }
-  // xdid -l [NAME] [ID] [SWITCH] [POS [POS POS ...]]
-  else if ( flags.switch_flags[11] && numtok > 3 ) {
+	}
+	// xdid -l [NAME] [ID] [SWITCH] [POS [POS POS ...]]
+	else if ( flags.switch_flags[11] && numtok > 3 ) {
 
-    int nParts = numtok - 3;
-    INT parts[256];
+		int nParts = numtok - 3;
+		INT parts[256];
 
-    int i = 0;
-    while ( i < nParts ) {
+		int i = 0;
+		while ( i < nParts ) {
 
-      parts[i] = input.gettok( i+4, " " ).to_int( );
-      i++;
-    }
-    this->setParts( nParts, parts );
-  }
-  // xdid -t [NAME] [ID] [SWITCH] N [+FLAGS] [#ICON] [Cell Text][TAB]Tooltip Text
-	// xdid -t [NAME] [ID] [SWITCH] N [+c] [#ICON] [ID] [CTRL] [X] [Y] [W] [H] (OPTIONS)
-  else if ( flags.switch_flags[19] && numtok > 5 ) {
+			parts[i] = input.gettok( i+4, " " ).to_int( );
+			i++;
+		}
+		this->setParts( nParts, parts );
+	}
+	// xdid -t [NAME] [ID] [SWITCH] N [+FLAGS] [#ICON] [Cell Text][TAB]Tooltip Text
+	// xdid -t [NAME] [ID] [SWITCH] N [+c] [#ICON] [CID] [CTRL] [X] [Y] [W] [H] (OPTIONS)
+	else if ( flags.switch_flags[19] && numtok > 5 ) {
 
-    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
-    TString flag(input.gettok( 5, " " ));
-    int icon = input.gettok( 6, " " ).to_int( ) - 1;
+		int nPos = input.gettok( 4, " " ).to_int( ) - 1;
+		TString flag(input.gettok( 5, " " ));
+		int icon = input.gettok( 6, " " ).to_int( ) - 1;
 
-    TString itemtext;
+		TString itemtext;
 		TString tooltip;
 
 		this->deletePartInfo(nPos); // delete custom info if any.
@@ -277,15 +279,27 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 					this->m_pParentDialog->getControlByID( ID ) == NULL )
 				{
 					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,itemtext,2,
-						CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COLORCOMBO|CTLF_ALLOW_BUTTON|
-						CTLF_ALLOW_RICHEDIT|CTLF_ALLOW_EDIT|CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_RADIO|
+						CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_BUTTON|
+						CTLF_ALLOW_EDIT|CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_RADIO|
 						CTLF_ALLOW_CHECK|CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE,this->m_Hwnd);
-
+// problems with colorcombo/richedit, causes odd gfx glitches & dialog slow down.
 					if ( p_Control != NULL ) {
 						this->m_pParentDialog->addControl( p_Control );
 						pPart->m_Child = p_Control;
-						//ShowWindow(p_Control->getHwnd(),SW_HIDE);
-						this->redrawWindow( );
+						//SendMessage(this->m_Hwnd,SB_SETMINHEIGHT,16+(2*GetSystemMetrics(SM_CYEDGE)),0);
+						//if (p_Control->getType() == "colorcombo") {
+						//	int h = (int)SendMessage(p_Control->getHwnd(), CB_GETITEMHEIGHT, -1, 0);
+						//	if (h != CB_ERR)
+						//		SendMessage(this->m_Hwnd,SB_SETMINHEIGHT,h+5,0);
+						//}
+						//else if (p_Control->getType() == "trackbar") {
+						//	RECT rc;
+						//	SendMessage(p_Control->getHwnd(), TBM_GETCHANNELRECT, 0, (LPARAM)&rc);
+						//	SendMessage(this->m_Hwnd,SB_SETMINHEIGHT,(5 + rc.bottom - rc.top),0);
+						//}
+						//this->redrawWindow( );
+						ShowWindow(p_Control->getHwnd(),SW_HIDE); // hide control untill a WM_DRAWITEM is recieved.
+						SendMessage(this->m_Hwnd,WM_SIZE,0,0);
 					}
 					else {
 						DCXError("/xdid -t","Error creating control");
@@ -311,22 +325,29 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 			this->setText( nPos, iFlags, itemtext.to_chr( ) );
 			this->setTipText( nPos, tooltip.to_chr( ) );
 		}
-  }
-  // xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
-  else if ( flags.switch_flags[21] && numtok > 3 ) {
+	}
+	// xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
+	else if ( flags.switch_flags[21] && numtok > 3 ) {
 
-    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
+		int nPos = input.gettok( 4, " " ).to_int( ) - 1;
 
-    if ( nPos > -1 && nPos < this->getParts( 256, 0 ) ) {
+		if ( nPos > -1 && nPos < this->getParts( 256, 0 ) ) {
 
-      TString itemtext;
-      if ( numtok > 4 )
-        itemtext = input.gettok( 5, -1, " " );
+			TString itemtext;
+			if ( numtok > 4 )
+				itemtext = input.gettok( 5, -1, " " );
 
-      char text[900];
-      this->setText( nPos, HIWORD( this->getText( nPos, text ) ), itemtext.to_chr( ) );
-    }
-  }
+			if (HIWORD( this->getTextLength( nPos ) ) & SBT_OWNERDRAW) {
+				LPSB_PARTINFO pPart = (LPSB_PARTINFO)this->getText(nPos, NULL);
+				pPart->m_Text = itemtext;
+				this->setPartInfo( nPos, SBT_OWNERDRAW, pPart );
+			}
+			else {
+				char text[900];
+				this->setText( nPos, HIWORD( this->getText( nPos, text ) ), itemtext.to_chr( ) );
+			}
+		}
+	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
@@ -350,14 +371,14 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 		ImageList_AddIcon(himl, icon);
 		DestroyIcon(icon);
 	}
-  // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-  else if ( flags.switch_flags[24] ) {
+	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
+	else if ( flags.switch_flags[24] ) {
 
-    ImageList_Destroy( this->getImageList( ) );
+		ImageList_Destroy( this->getImageList( ) );
 		this->setImageList(NULL);
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!
@@ -661,15 +682,15 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 						RECT rc = lpDrawItem->rcItem;
 						if (pPart->m_iIcon > -1) {
 							IMAGEINFO ii;
-							ImageList_Draw(this->m_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top, ILD_TRANSPARENT);
 							ImageList_GetImageInfo(this->m_hImageList, pPart->m_iIcon, &ii);
+							ImageList_Draw(this->m_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT);
 							rc.left += (ii.rcImage.right - ii.rcImage.left);
 						}
 						if (pPart->m_Text.len() > 0)
 							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
 						else if (pPart->m_Child != NULL) {
 							SetWindowPos(pPart->m_Child->getHwnd(), NULL, rc.left, rc.top,
-								(rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER);
+								(rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
 						}
 						return TRUE;
 					}
