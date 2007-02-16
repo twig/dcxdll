@@ -242,6 +242,11 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 		TString flag(input.gettok( 5, " " ));
 		int icon = input.gettok( 6, " " ).to_int( ) - 1;
 
+		if ( nPos < 0 || nPos >= this->getParts( 256, 0 ) ) {
+			DCXError("xdid -t", "Invalid Part");
+			return;
+		}
+
 		TString itemtext;
 		TString tooltip;
 
@@ -347,6 +352,8 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 				this->setText( nPos, HIWORD( this->getText( nPos, text ) ), itemtext.to_chr( ) );
 			}
 		}
+		else
+			DCXError("xdid -v", "Invalid Part");
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {
@@ -731,7 +738,7 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
           SetCursor( this->m_hCursor );
           bParsed = TRUE;
-          return TRUE;
+          lRes = TRUE;
         }
       }
       break;
@@ -810,7 +817,7 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		case WM_CTLCOLORDLG:
 			{
 				bParsed = TRUE;
-				return (INT_PTR) this->getBackClrBrush( );
+				lRes = (INT_PTR) this->getBackClrBrush( );
 			}
 			break;
 
@@ -840,8 +847,6 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 					if ( hBackBrush != NULL )
 						lRes = (LRESULT) hBackBrush;
-
-					return lRes;
 				}
       }
       break;

@@ -74,11 +74,6 @@ typedef std::vector<LPDCXLVRENDERINFO> VectorOfRenderInfo;
 
 typedef struct tagDCXLVITEM {
 	TString tsTipText;  //!< Tooltip text
-	//COLORREF clrBack;   //!< Line Background Caption Color
-	//COLORREF clrText;   //!< Line Caption Color
-	//BOOL bBold;         //!< Is Line Caption Bold ?
-	//BOOL bUline;        //!< Is Line Caption Underlined
-	//BOOL bItalic;       //!< Is Line Caption Italicised
 	DcxControl *pbar;
 	int iPbarCol;
 	VectorOfRenderInfo	vInfo;	//!< Render Info for each colum

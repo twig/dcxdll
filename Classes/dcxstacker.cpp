@@ -36,7 +36,7 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  this->m_Hwnd = CreateWindowEx(	
+  this->m_Hwnd = CreateWindowEx(
     ExStyles | WS_EX_CONTROLPARENT,
     "ListBox",
     NULL,
@@ -481,10 +481,6 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 
 	// draw text if any
 	if (sitem->tsCaption.len()) {
-		SetBkMode(memDC,TRANSPARENT);
-		//UINT f = DST_TEXT;
-		//if (idata->itemState & ODS_DISABLED)
-		//	f |= DSS_DISABLED;
 		HFONT oldFont = (HFONT)SelectObject(memDC,hFont);
 		// get text colour.
 		COLORREF clrText = sitem->clrText;
@@ -492,6 +488,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 			clrText = GetSysColor(COLOR_BTNTEXT);
 		// draw the text
 		if (!this->m_bCtrlCodeText) {
+			SetBkMode(memDC,TRANSPARENT);
 			if (this->m_bShadowText)
 				dcxDrawShadowText(memDC,sitem->tsCaption.to_wchr(), sitem->tsCaption.len(),&rcText, DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
 			else {

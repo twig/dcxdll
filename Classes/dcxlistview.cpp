@@ -669,8 +669,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 		data.trim();
 		int nPos = (int)data.gettok(1, " ").to_num() -1;
 
-		if (nPos == -1)
-			nPos += ListView_GetItemCount(this->m_Hwnd) +1;
+		if (nPos < 0)
+			nPos = ListView_GetItemCount(this->m_Hwnd);
 
 		int indent = (int)data.gettok(2, " ").to_num();
 		UINT stateFlags = this->parseItemFlags(data.gettok(3, " "));
@@ -700,31 +700,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 			ri->m_cBg = -1;
 
 		lpmylvi->vInfo.push_back(ri);
-
-		//if (stateFlags & LVIS_UNDERLINE)
-		//	lpmylvi->bUline = TRUE;
-		//else
-		//	lpmylvi->bUline = FALSE;
-
-		//if (stateFlags & LVIS_BOLD)
-		//	lpmylvi->bBold = TRUE;
-		//else
-		//	lpmylvi->bBold = FALSE;
-
-		//if (stateFlags & LVIS_ITALIC)
-		//	lpmylvi->bItalic = TRUE;
-		//else
-		//	lpmylvi->bItalic = FALSE;
-
-		//if (stateFlags & LVIS_COLOR)
-		//	lpmylvi->clrText = clrText;
-		//else
-		//	lpmylvi->clrText = -1;
-
-		//if (stateFlags & LVIS_BGCOLOR)
-		//	lpmylvi->clrBack = clrBack;
-		//else
-		//	lpmylvi->clrBack = -1;
 
 		TString itemtext;
 		if (data.numtok(" ") > 9)
@@ -1001,9 +976,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 		LPDCXLVITEM lviDcx = (LPDCXLVITEM) lvi.lParam;
 
 		if (lviDcx != NULL) {
-			//lviDcx->bUline  = (flags & LVIS_UNDERLINE) ? TRUE : FALSE;
-			//lviDcx->bBold   = (flags & LVIS_BOLD) ? TRUE : FALSE;
-			//lviDcx->bItalic = (flags & LVIS_ITALIC) ? TRUE : FALSE;
 			if ((UINT)nCol < lviDcx->vInfo.size()) {
 				lviDcx->vInfo[nCol]->m_dFlags = flags;
 				if (flags & LVIS_COLOR)
@@ -2043,33 +2015,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
                     if ( lpdcxlvi == NULL )
                       return CDRF_DODEFAULT;
-										/*
-                    if ( lpdcxlvi->clrText != -1 )
-                      lplvcd->clrText = lpdcxlvi->clrText;
 
-                    if ( lpdcxlvi->clrBack != -1 )
-                      lplvcd->clrTextBk = lpdcxlvi->clrBack;
-
-										if (lpdcxlvi->bUline || lpdcxlvi->bBold || lpdcxlvi->bItalic) {
-											HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
-											LOGFONT lf;
-
-											GetObject(hFont, sizeof(LOGFONT), &lf);
-
-											if (lpdcxlvi->bBold)
-												lf.lfWeight |= FW_BOLD;
-											if (lpdcxlvi->bUline)
-												lf.lfUnderline = true;
-											if (lpdcxlvi->bItalic)
-												lf.lfItalic = true;
-
-											HFONT hFontNew = CreateFontIndirect( &lf );
-											//HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
-											SelectObject(lplvcd->nmcd.hdc, hFontNew);
-
-											DeleteObject(hFontNew);
-										}
-										*/
 										if ((UINT)lplvcd->iSubItem >= lpdcxlvi->vInfo.size())
 											return CDRF_DODEFAULT;
 
