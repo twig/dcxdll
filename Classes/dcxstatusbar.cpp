@@ -837,7 +837,7 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					HBRUSH hBackBrush = p_Control->getBackClrBrush( );
 
 					bParsed = TRUE;
-					LRESULT lRes = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam);
+					lRes = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 					if ( clrText != -1 )
 						SetTextColor( (HDC) wParam, clrText );
