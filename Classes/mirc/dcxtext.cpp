@@ -47,7 +47,7 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
+		if (styles.istok("tooltips")) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -75,29 +75,29 @@ DcxText::~DcxText( ) {
  */
 
 void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok(" ");
+	unsigned int i = 1, numtok = styles.numtok( );
 	*Styles |= SS_NOTIFY;
 
 	while (i <= numtok) {
-		if (styles.gettok(i , " ") == "nowrap")
+		if (styles.gettok( i ) == "nowrap")
 			*Styles |= SS_LEFTNOWORDWRAP;
-		else if (styles.gettok(i, " ") == "center")
+		else if (styles.gettok( i ) == "center")
 			*Styles |= SS_CENTER;
-		else if (styles.gettok(i, " ") == "right")
+		else if (styles.gettok( i ) == "right")
 			*Styles |= SS_RIGHT;
-		else if (styles.gettok(i, " ") == "noprefix")
+		else if (styles.gettok( i ) == "noprefix")
 			*Styles |= SS_NOPREFIX;
-		else if (styles.gettok(i, " ") == "endellipsis")
+		else if (styles.gettok( i ) == "endellipsis")
 			*Styles |= SS_ENDELLIPSIS;
-		else if (styles.gettok(i, " ") == "pathellipsis")
+		else if (styles.gettok( i ) == "pathellipsis")
 			*Styles |= SS_PATHELLIPSIS;
-		else if (styles.gettok(i, " ") == "transparent")
+		else if (styles.gettok( i ) == "transparent")
 			*ExStyles |= WS_EX_TRANSPARENT;
-		else if ( styles.gettok( i , " " ) == "alpha" )
+		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i , " " ) == "shadow" ))
+		else if (( styles.gettok( i ) == "shadow" ))
 			this->m_bShadowText = true;
-		else if (( styles.gettok( i , " " ) == "noformat" ))
+		else if (( styles.gettok( i ) == "noformat" ))
 			this->m_bCtrlCodeText = false;
 
 		i++;
@@ -117,18 +117,16 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
 
 void DcxText::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
 
   // [NAME] [ID] [PROP]
-  if ( input.gettok( 3, " " ) == "text" ) {
+  if ( input.gettok( 3 ) == "text" ) {
 
     GetWindowText( this->m_Hwnd, szReturnValue, 900 );
     return;
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -142,13 +140,13 @@ void DcxText::parseInfoRequest( TString & input, char * szReturnValue ) {
 void DcxText::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(input.gettok(3, " "), &flags);
+	this->parseSwitchFlags(input.gettok( 3 ), &flags);
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
 
 	//xdid -t [NAME] [ID] [SWITCH]
 	if (flags.switch_flags[19]) {
-		TString text(input.gettok(4, -1, " "));
+		TString text(input.gettok(4, -1));
 		text.trim();
 		SetWindowText(this->m_Hwnd, text.to_chr());
 

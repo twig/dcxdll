@@ -43,6 +43,10 @@
 
 #include "TString.h"
 
+const char *TString::m_cSpace = " ";
+const char *TString::m_cComma = ",";
+const char *TString::m_cTab = "\t";
+
 /*! 
  * \brief Default Constructor
  */

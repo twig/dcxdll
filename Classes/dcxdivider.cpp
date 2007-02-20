@@ -69,12 +69,12 @@ DcxDivider::~DcxDivider( ) {
 
 void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
   *Styles |= DVS_HORZ;
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "vertical" )
+    if ( styles.gettok( i ) == "vertical" )
       *Styles |= DVS_VERT;
 
     i++;
@@ -93,12 +93,10 @@ void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 void DcxDivider::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
 
-  if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -113,9 +111,9 @@ void DcxDivider::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
 
   // xdid -l|r [NAME] [ID] [SWITCH] [MIN] [IDEAL][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
   if ( ( flags.switch_flags[11] || flags.switch_flags[17] )&& numtok > 9 ) {
@@ -124,23 +122,23 @@ void DcxDivider::parseCommandRequest( TString & input ) {
     ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
     dvpi.cbSize = sizeof( DVPANEINFO );
 
-    TString data(input.gettok( 1, "\t" ));
+    TString data(input.gettok( 1, TSTAB ));
     data.trim( );
 
     TString control_data;
-    if ( input.numtok( "\t" ) > 1 ) {
+    if ( input.numtok( TSTAB ) > 1 ) {
 
-      control_data = input.gettok( 2, "\t" );
+      control_data = input.gettok( 2, TSTAB );
       control_data.trim( );
     }
 
     dvpi.fMask = DVPIM_CHILD | DVPIM_MIN | DVPIM_IDEAL;
-    dvpi.cxMin = data.gettok( 4, " " ).to_int( );
-    dvpi.cxIdeal = data.gettok( 5, " " ).to_int( );
+    dvpi.cxMin = data.gettok( 4 ).to_int( );
+    dvpi.cxIdeal = data.gettok( 5 ).to_int( );
 
-    if ( control_data.numtok( " " ) > 5 ) {
+    if ( control_data.numtok( ) > 5 ) {
 
-      UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1, " " ).to_int( );
+      UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1 ).to_int( );
 
       if ( ID > mIRC_ID_OFFSET - 1 && 
         !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -184,7 +182,7 @@ void DcxDivider::parseCommandRequest( TString & input ) {
   // xdid -v [NAME] [ID] [SWITCH] [POS]
   else if ( flags.switch_flags[21] && numtok > 3 ) {
 
-    int iPos = input.gettok( 4, " " ).to_int( );
+    int iPos = input.gettok( 4 ).to_int( );
     this->setDivPos( iPos );
   }
   else

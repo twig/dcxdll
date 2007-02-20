@@ -115,8 +115,8 @@ LayoutCell * LayoutManager::parsePath( const TString & path, LayoutCell * hParen
   if ( hParent == NULL )
     return NULL;
 
-  int n = path.numtok( " " ), i = 1;
-  int k = path.gettok( depth, " " ).to_int( );
+  int n = path.numtok( ), i = 1;
+  int k = path.gettok( depth ).to_int( );
   LayoutCell * hCurrentCell;
 
   //char data[50];

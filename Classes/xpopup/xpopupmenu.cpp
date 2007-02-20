@@ -193,16 +193,16 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 	XSwitchFlags flags;
 	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-	this->parseSwitchFlags( &input.gettok( 2, " " ), &flags );
+	this->parseSwitchFlags( &input.gettok( 2 ), &flags );
 
-	TString path(input.gettok( 1, "\t" ).gettok( 3, -1, " " ));
+	TString path(input.gettok( 1, TSTAB ).gettok( 3, -1 ));
 	path.trim( );
 
 	HMENU hMenu;
-	if ( path.numtok( " " ) == 1 )
+	if ( path.numtok( ) == 1 )
 		hMenu = this->m_hMenu;
 	else {
-		hMenu = this->parsePath( path.gettok( 1, path.numtok( " " ) - 1, " " ), this->m_hMenu );
+		hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 
 		if ( hMenu == NULL ) {
 			DCXError("/xpop","Invalid Menu Item Path" );
@@ -210,32 +210,34 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		}
 	}
 
+	int numtok = input.numtok( );
+
 	// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText [TAB] Command
-	if ( flags.switch_flags[0] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 3 ) {
-		TString itemdata(input.gettok( 2, "\t" ));
+	if ( flags.switch_flags[0] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 3 ) {
+		TString itemdata(input.gettok( 2, TSTAB ));
 		itemdata.trim( );
 		TString itemcom;
-		if ( input.numtok( "\t" ) > 2 ) {
-			itemcom = input.gettok( 3, "\t" );
+		if ( input.numtok( TSTAB ) > 2 ) {
+			itemcom = input.gettok( 3, TSTAB );
 			itemcom.trim( );
 		}
 
 		HMENU hMenu;
-		if ( path.numtok( " " ) == 1 )
+		if ( path.numtok( ) == 1 )
 			hMenu = this->m_hMenu;
 		else {
-			hMenu = this->parsePath( path.gettok( 1, path.numtok( " " ) - 1, " " ), this->m_hMenu );
+			hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1), this->m_hMenu );
 
 			if ( hMenu == NULL )
 				return;
 		}
 
-		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
-		int mID = (int)itemdata.gettok( 2, " " ).to_num( );
-		int nIcon = (int)itemdata.gettok( 3, " " ).to_num( ) - 1;
+		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		int mID = itemdata.gettok( 2 ).to_int( );
+		int nIcon = itemdata.gettok( 3 ).to_int( ) - 1;
 
-		TString flags(itemdata.gettok( 1, " " ));
-		TString itemtext(itemdata.gettok( 4, -1 , " " ));
+		TString flags(itemdata.gettok( 1 ));
+		TString itemtext(itemdata.gettok( 4, -1 ));
 
 		if ( nPos == -1 )
 			nPos += GetMenuItemCount( hMenu ) + 1;
@@ -282,8 +284,8 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		InsertMenuItem( hMenu, nPos, TRUE, &mii );
 	}
 	// xpop -c - [MENU] [SWITCH] [PATH]
-	else if ( flags.switch_flags[2] && input.numtok( " " ) > 2 ) {
-		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+	else if ( flags.switch_flags[2] && numtok > 2 ) {
+		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		if ( nPos > -1 ) {
 			MENUITEMINFO mii;
 			ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
@@ -309,9 +311,9 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		}
 	}
 	// xpop -d - [MENU] [SWITCH] [PATH]
-	else if ( flags.switch_flags[3] && input.numtok( " " ) > 2 ) {
+	else if ( flags.switch_flags[3] && numtok > 2 ) {
 
-		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		if ( nPos > -1 ) {
 
 			MENUITEMINFO mii;
@@ -337,9 +339,9 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		}
 	}
 	// xpop -f - [MENU] [SWITCH] [PATH]
-	else if ( flags.switch_flags[5] && input.numtok( " " ) > 2 ) {
+	else if ( flags.switch_flags[5] && numtok > 2 ) {
 
-		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		if ( nPos > -1 ) {
 
 			MENUITEMINFO mii;
@@ -362,10 +364,10 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		}
 	}
 	// xpop -i - [MENU] [SWITCH] [PATH] [TAB] [ICON]
-	else if ( flags.switch_flags[8] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 0 ) {
+	else if ( flags.switch_flags[8] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
 
-		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
-		int nIcon = (int)input.gettok( 2, "\t" ).to_num( );
+		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		int nIcon = input.gettok( 2, TSTAB ).to_int( );
 
 		if ( nPos > -1 ) {
 
@@ -382,10 +384,10 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		}
 	}
 	// xpop -s - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS]
-	else if ( flags.switch_flags[18] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 0 ) {
+	else if ( flags.switch_flags[18] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
 
-		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
-		TString flags(input.gettok( 2, "\t" ));
+		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		TString flags(input.gettok( 2, TSTAB ));
 		flags.trim( );
 
 		if ( nPos > -1 ) {
@@ -410,11 +412,11 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		}
 	}
 	// xpop -t - [MENU] [SWITCH] [PATH] [TAB] Itemtext
-	else if ( flags.switch_flags[19] && input.numtok( "\t" ) > 1 && input.gettok( 2, "\t" ).numtok( " " ) > 0 ) {
+	else if ( flags.switch_flags[19] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
 
-		int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 
-		TString itemtext(input.gettok( 2, "\t" ));
+		TString itemtext(input.gettok( 2, TSTAB ));
 		itemtext.trim( );
 
 		if ( nPos > -1 ) {
@@ -444,13 +446,13 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 void XPopupMenu::parseXPopIdentifier( const TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
-  TString prop(input.gettok( 2, " " ));
+  int numtok = input.numtok( );
+  TString prop(input.gettok( 2 ));
 
   // [NAME] [ID] [PROP] [PATH]
   if ( prop == "num" && numtok > 2 ) {
 
-    TString path(input.gettok( 3, -1, " " ));
+    TString path(input.gettok( 3, -1 ));
 
     HMENU hMenu;
     if ( path == "root" )
@@ -465,16 +467,16 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, char * szReturnValu
   }
   else if ( ( prop == "text" || prop == "icon" ) && numtok > 2 ) {
 
-    TString path(input.gettok( 3, -1, " " ));
+    TString path(input.gettok( 3, -1 ));
 
     HMENU hMenu;
       
-    if ( path.numtok( " " ) == 1 )
+    if ( path.numtok( ) == 1 )
       hMenu = this->m_hMenu;
     else
-      hMenu = this->parsePath( path.gettok( 1, path.numtok( " " ) - 1, " " ), this->m_hMenu );
+      hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 
-    int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+    int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 
     if ( hMenu != NULL ) {
 
@@ -499,16 +501,16 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, char * szReturnValu
   }
   else if ( ( prop == "checked" || prop == "enabled" ) && numtok > 2 ) {
 
-    TString path(input.gettok( 3, -1, " " ));
+    TString path(input.gettok( 3, -1 ));
 
     HMENU hMenu;
       
-    if ( path.numtok( " " ) == 1 )
+    if ( path.numtok( ) == 1 )
       hMenu = this->m_hMenu;
     else
-      hMenu = this->parsePath( path.gettok( 1, path.numtok( " " ) - 1, " " ), this->m_hMenu );
+      hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 
-    int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+    int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 
     if ( hMenu != NULL ) {
 
@@ -529,16 +531,16 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, char * szReturnValu
   }
   else if ( prop == "submenu" && numtok > 2 ) {
 
-    TString path(input.gettok( 3, -1, " " ));
+    TString path(input.gettok( 3, -1 ));
 
     HMENU hMenu;
       
-    if ( path.numtok( " " ) == 1 )
+    if ( path.numtok( ) == 1 )
       hMenu = this->m_hMenu;
     else
-      hMenu = this->parsePath( path.gettok( 1, path.numtok( " " ) - 1, " " ), this->m_hMenu );
+      hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 
-    int nPos = (int)path.gettok( path.numtok( " " ), " " ).to_num( ) - 1;
+    int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 
     if ( hMenu != NULL ) {
 
@@ -789,9 +791,9 @@ COLORREF XPopupMenu::getColor(const int nColor ) const {
 
 HMENU XPopupMenu::parsePath( const TString & path, const HMENU hParent, const int depth ) {
 
-  int iItem = (int)path.gettok( depth, " " ).to_num( ) - 1;
+  int iItem = path.gettok( depth ).to_int( ) - 1;
 
-  if ( depth == path.numtok( " " ) )
+  if ( depth == path.numtok( ) )
     return GetSubMenu( hParent, iItem );
   else if ( GetSubMenu( hParent, iItem ) != NULL )
     return XPopupMenu::parsePath( path, GetSubMenu( hParent, iItem ), depth + 1 );

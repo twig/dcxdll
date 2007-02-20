@@ -430,11 +430,11 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
   CopyRect( &rc, &lpdis->rcItem );
   rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
 
-  if ( this->m_tsItemText.numtok( "\t" ) > 1 ) {
+  if ( this->m_tsItemText.numtok( TSTAB ) > 1 ) {
 
-    TString lefttext(this->m_tsItemText.gettok( 1, "\t" ));
+    TString lefttext(this->m_tsItemText.gettok( 1, TSTAB ));
     lefttext.trim( );
-    TString righttext(this->m_tsItemText.gettok( 2, "\t" ));
+    TString righttext(this->m_tsItemText.gettok( 2, TSTAB ));
     righttext.trim( );
 
     //DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, 

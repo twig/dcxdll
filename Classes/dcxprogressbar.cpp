@@ -55,7 +55,7 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd,
   this->m_tsText = "%d %%";
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
+		if (styles.istok("tooltips")) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -84,26 +84,26 @@ DcxProgressBar::~DcxProgressBar( ) {
 
 void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
 	this->m_bIsGrad = FALSE;
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "smooth" ) 
+    if ( styles.gettok( i ) == "smooth" ) 
       *Styles |= PBS_SMOOTH;
-    else if ( styles.gettok( i , " " ) == "vertical" ) 
+    else if ( styles.gettok( i ) == "vertical" ) 
       *Styles |= PBS_VERTICAL;
-    else if ( styles.gettok( i , " " ) == "marquee" ) 
+    else if ( styles.gettok( i ) == "marquee" ) 
       *Styles |= PBS_MARQUEE;
-		else if ( styles.gettok( i , " " ) == "gradient" ) {
+		else if ( styles.gettok( i ) == "gradient" ) {
       *Styles |= PBS_SMOOTH;
 			this->m_bIsGrad = TRUE;
 		}
-    else if ( styles.gettok( i , " " ) == "alpha" )
+    else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i , " " ) == "shadow" ))
+		else if (( styles.gettok( i ) == "shadow" ))
 			this->m_bShadowText = true;
-		else if (( styles.gettok( i , " " ) == "noformat" ))
+		else if (( styles.gettok( i ) == "noformat" ))
 			this->m_bCtrlCodeText = false;
 
     i++;
@@ -122,23 +122,24 @@ void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG *
 
 void DcxProgressBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  if ( input.gettok( 3, " " ) == "value" ) {
+	TString prop(input.gettok( 3 ));
+
+  if ( prop == "value" ) {
     wsprintf( szReturnValue, "%d", this->getPosition( ) );
     return;
   }
-  else if ( input.gettok( 3, " " ) == "range" ) {
+  else if ( prop == "range" ) {
     PBRANGE pbr;
     this->getRange( FALSE, &pbr );
     wsprintf( szReturnValue, "%d %d", pbr.iLow, pbr.iHigh );
     return;
   }
-  else if (input.gettok(3, " ") == "text") {
+  else if (prop == "text") {
 	  _snprintf(szReturnValue, 900, this->m_tsText.to_chr(), this->CalculatePosition());
 	  return;
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
 
   szReturnValue[0] = 0;
 }
@@ -151,22 +152,22 @@ void DcxProgressBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 void DcxProgressBar::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(input.gettok(3, " "), &flags);
+	this->parseSwitchFlags(input.gettok( 3 ), &flags);
 
-	int numtok = input.numtok(" ");
+	int numtok = input.numtok( );
 
 	// xdid -c name ID $rgb(color)
 	if (flags.switch_flags[2]) {
-		this->setBarColor((COLORREF) input.gettok(4, " ").to_num());
+		this->setBarColor((COLORREF) input.gettok( 4 ).to_num());
 	}
 	//// xdid -g name ID [1|0]
 	//else if ( flags.switch_flags[6] ) {
-	//this->m_bIsGrad = (BOOL) input.gettok( 4, " " ).to_num( );
+	//this->m_bIsGrad = (BOOL) input.gettok( 4 ).to_num( );
 	//}
 	// xdid -i name ID (TEXT)
 	else if (flags.switch_flags[8]) {
-		if (input.numtok(" ") > 3)
-			this->m_tsText = input.gettok(4, -1, " ");
+		if (input.numtok( ) > 3)
+			this->m_tsText = input.gettok(4, -1);
 		else
 			this->m_tsText = "";
 
@@ -174,7 +175,7 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 	}
 	// xdid -j name ID [a|p]
 	else if (flags.switch_flags[9]) {
-		if (input.gettok(4, " ") == "a")
+		if (input.gettok( 4 ) == "a")
 			this->m_bIsAbsoluteValue = TRUE;
 		else
 			this->m_bIsAbsoluteValue = FALSE;
@@ -183,28 +184,26 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 	}
 	// xdid -k name ID $rgb(color)
 	else if (flags.switch_flags[10]) {
-		this->setBKColor((COLORREF) input.gettok(4, " ").to_num());
+		this->setBKColor((COLORREF) input.gettok( 4 ).to_num());
 	}
 	// xdid -m(o|g) name ID N
 	else if (flags.switch_flags[12]) {
 		// -mo
-		if (flags.switch_flags[14]) {
-			this->setMarquee(TRUE, (int)input.gettok(4, " ").to_num());
-		}
+		if (flags.switch_flags[14])
+			this->setMarquee(TRUE, (int)input.gettok( 4 ).to_num());
 		// -mg
-		else if (flags.switch_flags[6]) {
+		else if (flags.switch_flags[6])
 			this->setMarquee(FALSE, 0);
-		}
 	}
 	// xdid -q name ID [COLOR]
 	else if ( flags.switch_flags[16] ) {
-		this->m_clrText = (COLORREF) input.gettok(4, " ").to_num();
+		this->m_clrText = (COLORREF) input.gettok( 4 ).to_num();
 		this->redrawWindow();
 	}
 	// xdid -r name ID RLow RHigh
 	else if (flags.switch_flags[17]) {
 		if (numtok > 4)
-			this->setRange(input.gettok(4, " ").to_int(), input.gettok(5, " ").to_int());
+			this->setRange(input.gettok( 4 ).to_int(), input.gettok( 5 ).to_int());
 	}
 	// xdid -t name ID
 	else if (flags.switch_flags[19]) {
@@ -212,12 +211,12 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 	}
 	// xdid -u name ID N
 	else if (flags.switch_flags[20]) {
-		this->setStep(input.gettok(4, " ").to_int());
+		this->setStep(input.gettok( 4 ).to_int());
 	}
 	// xdid -v name ID N
 	else if (flags.switch_flags[21]) {
 		if (numtok > 3)
-			this->setPosition(input.gettok(4, " ").to_int());
+			this->setPosition(input.gettok( 4 ).to_int());
 	}
 	// xdid [-o] [NAME] [ID] [ENABLED]
 	// vertical fonts [1|0]
@@ -229,7 +228,7 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 		ZeroMemory(&lfCurrent, sizeof(LOGFONT));
 
 		GetObject(this->m_hFont, sizeof(LOGFONT), &lfCurrent);
-		int angle = input.gettok(4, " ").to_int();
+		int angle = input.gettok( 4 ).to_int();
 
 		//TODO: let user specify angle of text?
 		if (angle) {
@@ -246,9 +245,8 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 			return;
 		}
 
-		if (this->m_hfontVertical) {
+		if (this->m_hfontVertical)
 			DeleteObject(this->m_hfontVertical);
-		}
 
 		this->m_hfontVertical = CreateFontIndirect(&lfCurrent);
 		//this->setControlFont(hfNew, FALSE);

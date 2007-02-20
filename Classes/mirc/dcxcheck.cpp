@@ -47,7 +47,7 @@ DcxCheck::DcxCheck( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
+		if (styles.istok("tooltips")) {
 
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 
@@ -78,26 +78,26 @@ DcxCheck::~DcxCheck( ) {
 
 void DcxCheck::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
   *Styles |= BS_AUTOCHECKBOX;
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "rjustify" )
+    if ( styles.gettok( i ) == "rjustify" )
       *Styles |= BS_RIGHT;
-    else if ( styles.gettok( i , " " ) == "center" )
+    else if ( styles.gettok( i ) == "center" )
       *Styles |= BS_CENTER;
-    else if ( styles.gettok( i , " " ) == "ljustify" )
+    else if ( styles.gettok( i ) == "ljustify" )
       *Styles |= BS_LEFT;
-    else if ( styles.gettok( i , " " ) == "right" )
+    else if ( styles.gettok( i ) == "right" )
       *Styles |= BS_RIGHTBUTTON;
-    else if ( styles.gettok( i , " " ) == "pushlike" )
+    else if ( styles.gettok( i ) == "pushlike" )
       *Styles |= BS_PUSHLIKE;
-    else if ( styles.gettok( i , " " ) == "3state" ) {
+    else if ( styles.gettok( i ) == "3state" ) {
       *Styles &= ~BS_AUTOCHECKBOX;
       *Styles |= BS_AUTO3STATE;
     }
-    else if ( styles.gettok( i , " " ) == "alpha" )
+    else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 
     i++;
@@ -117,16 +117,18 @@ void DcxCheck::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 
 void DcxCheck::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
+
+	TString prop(input.gettok( 3 ));
 
   // [NAME] [ID] [PROP]
-  if ( input.gettok( 3, " " ) == "text" ) {
+  if ( prop == "text" ) {
 
     GetWindowText( this->m_Hwnd, szReturnValue, 900 );
     return;
   }
   // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "state" ) {
+  else if ( prop == "state" ) {
 
     if ( Button_GetCheck( this->m_Hwnd ) & BST_INDETERMINATE )
       lstrcpy( szReturnValue, "2" );
@@ -137,10 +139,8 @@ void DcxCheck::parseInfoRequest( TString & input, char * szReturnValue ) {
 
     return;
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -155,9 +155,9 @@ void DcxCheck::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
 
   //xdid -c [NAME] [ID] [SWITCH]
   if ( flags.switch_flags[2] ) {
@@ -170,7 +170,7 @@ void DcxCheck::parseCommandRequest( TString & input ) {
   //xdid -t [NAME] [ID] [SWITCH] ItemText
   else if ( flags.switch_flags[19] ) {
 
-		TString text(input.gettok( 4, -1, " " ));
+		TString text(input.gettok( 4, -1 ));
     text.trim( );
     SetWindowText( this->m_Hwnd, text.to_chr( ) );
   }

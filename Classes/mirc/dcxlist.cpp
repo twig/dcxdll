@@ -74,28 +74,28 @@ DcxList::~DcxList( ) {
 
 void DcxList::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
   *Styles |= LBS_NOTIFY | LBS_HASSTRINGS;
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "noscroll" )
+    if ( styles.gettok( i ) == "noscroll" )
       *Styles |= LBS_DISABLENOSCROLL;
-    else if ( styles.gettok( i , " " ) == "multi" )
+    else if ( styles.gettok( i ) == "multi" )
       *Styles |= LBS_MULTIPLESEL;
-    else if ( styles.gettok( i , " " ) == "extsel" )
+    else if ( styles.gettok( i ) == "extsel" )
       *Styles |= LBS_EXTENDEDSEL;
-    else if ( styles.gettok( i , " " ) == "nointegral" )
+    else if ( styles.gettok( i ) == "nointegral" )
       *Styles |= LBS_NOINTEGRALHEIGHT;
-    else if ( styles.gettok( i , " " ) == "nosel" )
+    else if ( styles.gettok( i ) == "nosel" )
       *Styles |= LBS_NOSEL;
-    else if ( styles.gettok( i , " " ) == "sort" )
+    else if ( styles.gettok( i ) == "sort" )
       *Styles |= LBS_SORT;
-    else if ( styles.gettok( i , " " ) == "tabs" )
+    else if ( styles.gettok( i ) == "tabs" )
       *Styles |= LBS_USETABSTOPS;
-	 else if (styles.gettok(i, " ") == "vsbar")
+	 else if (styles.gettok( i ) == "vsbar")
 		 *Styles |= WS_VSCROLL;
-		else if ( styles.gettok( i , " " ) == "alpha" )
+		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 
     i++;
@@ -114,11 +114,13 @@ void DcxList::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
 
 void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
+
+	TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
-	if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
-		int nSel = input.gettok( 4, " " ).to_int( ) - 1;
+	if ( prop == "text" && numtok > 3 ) {
+		int nSel = input.gettok( 4 ).to_int( ) - 1;
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
 			int l = ListBox_GetTextLen(this->m_Hwnd, nSel);
 			if (l != LB_ERR && l < 900)
@@ -129,13 +131,13 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 		}
 	}
   // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "num" ) {
+  else if ( prop == "num" ) {
 
     wsprintf( szReturnValue, "%d", ListBox_GetCount( this->m_Hwnd ) );
     return;
   }
 	// [NAME] [ID] [PROP] (N)
-	else if (input.gettok(3, " ") == "sel") {
+	else if (prop == "sel") {
 		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
 			int n = ListBox_GetSelCount(this->m_Hwnd);
 
@@ -145,7 +147,7 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 				// get a unique value
 				if (numtok > 3) {
-					int i = input.gettok(4, " ").to_int();
+					int i = input.gettok( 4 ).to_int();
 					TString value;
 
 					if (i == 0) {
@@ -188,7 +190,7 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 		}
 	}
 	// [NAME] [ID] [PROP] [N]
-	else if (input.gettok(3, " ") == "tbitem") {
+	else if (prop == "tbitem") {
 		int top;
 		int bottom;
 		int height;
@@ -209,13 +211,11 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 		return;
 	}
   // [NAME] [ID] [PROP] [N]
-  else if ( input.gettok( 3, " " ) == "find" ) {
+  else if ( prop == "find" ) {
     return;
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -230,9 +230,9 @@ void DcxList::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
 
   //xdid -r [NAME] [ID] [SWITCH]
   if (flags.switch_flags[17]) {
@@ -242,25 +242,25 @@ void DcxList::parseCommandRequest( TString & input ) {
   //xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
   if ( flags.switch_flags[0] && numtok > 4 ) {
 
-    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
+    int nPos = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nPos == -1 )
       nPos += ListBox_GetCount( this->m_Hwnd ) + 1;
     
-    ListBox_InsertString( this->m_Hwnd, nPos, input.gettok( 5, -1, " " ).to_chr( ) );
+    ListBox_InsertString( this->m_Hwnd, nPos, input.gettok( 5, -1 ).to_chr( ) );
   }
   //xdid -c [NAME] [ID] [SWITCH] [N,[N,[...]]]
   else if ( flags.switch_flags[2] && numtok > 3 ) {
 
     if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
 
-			TString Ns(input.gettok( 4, " " ));
+			TString Ns(input.gettok( 4 ));
 
-      int i = 1, n = Ns.numtok( "," ), nItems = ListBox_GetCount( this->m_Hwnd );
+      int i = 1, n = Ns.numtok( TSCOMMA ), nItems = ListBox_GetCount( this->m_Hwnd );
 
       while ( i <= n ) {
 
-        int nSel = Ns.gettok( i, "," ).to_int( ) - 1;
+        int nSel = Ns.gettok( i, TSCOMMA ).to_int( ) - 1;
 
         if ( nSel > -1 && nSel < nItems )
           ListBox_SetSel( this->m_Hwnd, TRUE, nSel );
@@ -270,7 +270,7 @@ void DcxList::parseCommandRequest( TString & input ) {
     }
     else {
 
-      int nSel = input.gettok( 4, " " ).to_int( ) - 1;
+      int nSel = input.gettok( 4 ).to_int( ) - 1;
 
       if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) )
         ListBox_SetCurSel( this->m_Hwnd, nSel );
@@ -279,7 +279,7 @@ void DcxList::parseCommandRequest( TString & input ) {
   //xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
 
-    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
+    int nPos = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
         ListBox_DeleteString( this->m_Hwnd, nPos );
@@ -297,12 +297,12 @@ void DcxList::parseCommandRequest( TString & input ) {
   }
   //xdid -o [NAME] [ID] [N] [TEXT]
 	else if ( flags.switch_flags[14] ) {
-		int nPos = input.gettok(4, " ").to_int() - 1;
+		int nPos = input.gettok( 4 ).to_int() - 1;
 
 		if (nPos > -1 && nPos < ListBox_GetCount(this->m_Hwnd)) {
-			//ListBox_SetItemData(this->m_Hwnd, nPos, input.to_chr()); //.gettok(5, -1, " ").to_chr());
+			//ListBox_SetItemData(this->m_Hwnd, nPos, input.to_chr()); //.gettok(5, -1).to_chr());
 			ListBox_DeleteString(this->m_Hwnd, nPos);
-			ListBox_InsertString(this->m_Hwnd, nPos, input.gettok( 5, -1, " " ).to_chr( ));
+			ListBox_InsertString(this->m_Hwnd, nPos, input.gettok( 5, -1 ).to_chr( ));
 		}
 	}
 	else

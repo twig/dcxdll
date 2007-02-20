@@ -68,7 +68,7 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		dcxSetWindowTheme( combo , L" ", L" " );
 
 	//if (p_Dialog->getToolTip() != NULL) {
-	//	if (styles.istok("tooltips"," ")) {
+	//	if (styles.istok("tooltips")) {
 	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
 	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_EditHwnd);
@@ -110,15 +110,15 @@ DcxComboEx::~DcxComboEx( ) {
 void DcxComboEx::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
   //*ExStyles |= CBES_EX_NOSIZELIMIT;
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "simple" )
+    if ( styles.gettok( i ) == "simple" )
       *Styles |= CBS_SIMPLE;
-    else if ( styles.gettok( i , " " ) == "dropdown" )
+    else if ( styles.gettok( i ) == "dropdown" )
       *Styles |= CBS_DROPDOWNLIST;
-    else if ( styles.gettok( i , " " ) == "dropedit" )
+    else if ( styles.gettok( i ) == "dropedit" )
       *Styles |= CBS_DROPDOWN;
 
     i++;
@@ -137,12 +137,14 @@ void DcxComboEx::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
+
+	TString prop(input.gettok( 3 ));
 
   // [NAME] [ID] [PROP] [N]
-  if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
+  if ( prop == "text" && numtok > 3 ) {
 
-    int nItem = input.gettok( 4, " " ).to_int( ) - 1;
+    int nItem = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nItem > -1 ) {
       
@@ -164,7 +166,7 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
     }
   }
   // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "seltext" ) {
+  else if ( prop == "seltext" ) {
 
     int nItem = this->getCurSel( );
 
@@ -183,7 +185,7 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
     }
   }
   // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "sel" ) {
+  else if ( prop == "sel" ) {
 
     int nItem = this->getCurSel( );
     
@@ -194,29 +196,29 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
     }
   }
   // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "num" ) {
+  else if ( prop == "num" ) {
 
     wsprintf( szReturnValue, "%d", this->getCount( ) );
     return;
   }
   // [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
-  else if ( input.gettok( 3, " " ) == "find" && numtok > 5 ) {
+  else if ( prop == "find" && numtok > 5 ) {
 
-    TString matchtext(input.gettok( 2, "\t" ));
+    TString matchtext(input.gettok( 2, TSTAB ));
     matchtext.trim( );
-    TString params(input.gettok( 3, "\t" ));
+    TString params(input.gettok( 3, TSTAB ));
     params.trim( );
 
     if ( matchtext.len( ) > 0 ) {
 
       UINT SearchType;
 
-      if ( params.gettok( 1, " " ) == "R" )
+      if ( params.gettok( 1 ) == "R" )
         SearchType = CBEXSEARCH_R;
       else
         SearchType = CBEXSEARCH_W;
 
-      int N = params.gettok( 2, " " ).to_int( );
+      int N = params.gettok( 2 ).to_int( );
 
       // count total
       if ( N == 0 ) {
@@ -256,10 +258,8 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
     }
     return;
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -274,9 +274,9 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(input.gettok(3, " "), &flags);
+	this->parseSwitchFlags(input.gettok( 3 ), &flags);
 
-	int numtok = input.numtok(" ");
+	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags.switch_flags[17]) {
@@ -285,12 +285,12 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	if (flags.switch_flags[0] && numtok > 8) {
-		int nPos   = input.gettok(4, " ").to_int() -1;
-		int indent = input.gettok(5, " ").to_int();
-		int icon   = input.gettok(6, " ").to_int() -1;
-		int state  = input.gettok(7, " ").to_int() -1;
-		//int overlay = input.gettok( 8, " " ).to_int() - 1;
-		TString itemtext(input.gettok(9, -1, " "));
+		int nPos   = input.gettok( 4 ).to_int() -1;
+		int indent = input.gettok( 5 ).to_int();
+		int icon   = input.gettok( 6 ).to_int() -1;
+		int state  = input.gettok( 7 ).to_int() -1;
+		//int overlay = input.gettok( 8 ).to_int() - 1;
+		TString itemtext(input.gettok( 9, -1));
 
 		if (nPos == -2) {
 			if (IsWindow(this->m_EditHwnd))
@@ -316,7 +316,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[2] && numtok > 3) {
-		int nItem = input.gettok(4, " ").to_int() -1;
+		int nItem = input.gettok( 4 ).to_int() -1;
 
 		if (nItem > -1) {
 			this->setCurSel(nItem);
@@ -324,7 +324,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[3] && numtok > 3) {
-		int nItem = input.gettok(4, " ").to_int() -1;
+		int nItem = input.gettok( 4 ).to_int() -1;
 
 		if (nItem > -1 && nItem < this->getCount())
 			this->deleteItem(nItem);
@@ -344,9 +344,9 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
-		TString flags(input.gettok(4, " "));
-		int index = input.gettok(5, " ").to_int();;
-		TString filename(input.gettok(6, -1, " "));
+		TString flags(input.gettok( 4 ));
+		int index = input.gettok( 5 ).to_int();;
+		TString filename(input.gettok(6, -1));
 
 		if ((himl = this->getImageList()) == NULL) {
 			himl = this->createImageList();

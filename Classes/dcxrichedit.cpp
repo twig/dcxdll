@@ -66,7 +66,7 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 	SendMessage(this->m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE));
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
+		if (styles.istok("tooltips")) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -93,28 +93,28 @@ DcxRichEdit::~DcxRichEdit() {
 void DcxRichEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
 	//*Styles |= ES_READONLY;
 	//ES_NOHIDESEL
-	unsigned int i = 1, numtok = styles.numtok(" ");
+	unsigned int i = 1, numtok = styles.numtok( );
 
 	while (i <= numtok) {
-		if (styles.gettok(i , " ") == "multi")
+		if (styles.gettok( i ) == "multi")
 			*Styles |= ES_MULTILINE | ES_WANTRETURN;
-		else if (styles.gettok(i , " ") == "readonly")
+		else if (styles.gettok( i ) == "readonly")
 			*Styles |= ES_READONLY;
-		else if (styles.gettok(i , " ") == "center")
+		else if (styles.gettok( i ) == "center")
 			*Styles |= ES_CENTER;
-		else if (styles.gettok(i , " ") == "right")
+		else if (styles.gettok( i ) == "right")
 			*Styles |= ES_RIGHT;
-		else if (styles.gettok(i , " ") == "autohs")
+		else if (styles.gettok( i ) == "autohs")
 			*Styles |= ES_AUTOHSCROLL;
-		else if (styles.gettok(i , " ") == "autovs")
+		else if (styles.gettok( i ) == "autovs")
 			*Styles |= ES_AUTOVSCROLL;
-		else if (styles.gettok(i , " ") == "vsbar")
+		else if (styles.gettok( i ) == "vsbar")
 			*Styles |= WS_VSCROLL;
-		else if (styles.gettok(i , " ") == "hsbar")
+		else if (styles.gettok( i ) == "hsbar")
 			*Styles |= WS_HSCROLL;
-		else if (styles.gettok(i , " ") == "disablescroll")
+		else if (styles.gettok( i ) == "disablescroll")
 			*Styles |= ES_DISABLENOSCROLL;
-		//else if ( styles.gettok( i , " " ) == "alpha" )
+		//else if ( styles.gettok( i ) == "alpha" )
 		//	this->m_bAlphaBlend = true;
 
 		i++;
@@ -132,14 +132,16 @@ void DcxRichEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
 * \return > void
 */
 void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
-	int numtok = input.numtok(" ");
+	int numtok = input.numtok( );
+	TString prop(input.gettok( 3 ));
+
 	// [NAME] [ID] [PROP] [N]
-	if (input.gettok(3, " ") == "text") {
+	if (prop == "text") {
 		// determine the line number
 		int line = 0;
 
 		if (numtok > 3)
-			line = input.gettok(4, " ").to_int() -1;
+			line = input.gettok( 4 ).to_int() -1;
 
 		// get index of first character in line
 		int offset = SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM) line, NULL);
@@ -159,7 +161,7 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [ID] [PROP]
-	else if (input.gettok(3, " ") == "num") {
+	else if (prop == "num") {
 		if (this->isStyle(ES_MULTILINE))
 			wsprintf(szReturnValue, "%d", (int)SendMessage(this->m_Hwnd, EM_GETLINECOUNT, 0, 0L));
 			//wsprintf(szReturnValue, "%d", this->m_tsText.numtok("\r\n"));
@@ -168,7 +170,7 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [ID] [PROP]
-	else if (input.gettok(3, " ") == "caretpos") {
+	else if (prop == "caretpos") {
 		DWORD dwAbsoluteStartSelPos = 0;
 
 		// caret startsel position
@@ -192,28 +194,28 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		return;
 	}
-	else if (input.gettok(3, " ") == "selstart") {
+	else if (prop == "selstart") {
 		CHARRANGE c;
 
 		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
 		wsprintf(szReturnValue, "%d", c.cpMin);
 		return;
 	}
-	else if (input.gettok(3, " ") == "selend") {
+	else if (prop == "selend") {
 		CHARRANGE c;
 
 		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
 		wsprintf(szReturnValue, "%d", c.cpMax);
 		return;
 	}
-	else if (input.gettok(3, " ") == "sel") {
+	else if (prop == "sel") {
 		CHARRANGE c;
 
 		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
 		wsprintf(szReturnValue, "%d %d", c.cpMin, c.cpMax);
 		return;
 	}
-	else if (input.gettok(3, " ") == "seltext") {
+	else if (prop == "seltext") {
 		CHARRANGE c;
 
 		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
@@ -238,8 +240,10 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 void DcxRichEdit::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(input.gettok(3, " "), &flags);
-	int numtok = input.numtok(" ");
+	this->parseSwitchFlags(input.gettok( 3 ), &flags);
+
+	int numtok = input.numtok( );
+
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags.switch_flags[17]) {
 		this->m_tsText = "";
@@ -248,7 +252,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
 	if (flags.switch_flags[0] && numtok > 3) {
-		this->m_tsText += input.gettok(4, -1, " ");
+		this->m_tsText += input.gettok(4, -1);
 		this->parseContents(TRUE);
 		//DCXSTREAM ds;
 		//EDITSTREAM es = {0};
@@ -262,7 +266,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[3] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok(4, " ").to_int();
+			int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.deltok(nLine, "\r\n");
 		}
 
@@ -271,7 +275,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	// special richedit interception for font change
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	else if (flags.switch_flags[5] && numtok > 3) {
-		UINT iFontFlags = parseFontFlags(input.gettok(4, " "));
+		UINT iFontFlags = parseFontFlags(input.gettok( 4 ));
 
 		if (iFontFlags & DCF_DEFAULT) {
 			this->m_clrBackText = GetSysColor(COLOR_WINDOW);
@@ -287,9 +291,9 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		else if (numtok > 5) {
 			this->setRedraw(FALSE);
 
-			this->m_byteCharset = parseFontCharSet(input.gettok(5, " "));
-			this->m_iFontSize = 20 * input.gettok(6, " ").to_int();
-			this->m_tsFontFaceName = input.gettok(7, -1, " ");
+			this->m_byteCharset = parseFontCharSet(input.gettok( 5 ));
+			this->m_iFontSize = 20 * input.gettok( 6 ).to_int();
+			this->m_tsFontFaceName = input.gettok(7, -1);
 			this->m_tsFontFaceName.trim();
 
 			//HDC hdc = GetDC( NULL );
@@ -324,18 +328,18 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags.switch_flags[8] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok(4, " ").to_int();
-			this->m_tsText.instok(input.gettok(5, -1, " ").to_chr(), nLine, "\r\n");
+			int nLine = input.gettok( 4 ).to_int();
+			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, "\r\n");
 		}
 		else {
-			this->m_tsText = input.gettok(4, -1, " ");
+			this->m_tsText = input.gettok(4, -1);
 		}
 
 		this->parseContents(TRUE);
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags.switch_flags[10] && numtok > 3) {
-		COLORREF clrColor = (COLORREF)input.gettok(4, " ").to_num();
+		COLORREF clrColor = (COLORREF)input.gettok( 4 ).to_num();
 
 		if (clrColor == -1)
 			SendMessage(this->m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, (LPARAM) GetSysColor(COLOR_WINDOWTEXT));
@@ -347,10 +351,10 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
 	else if (flags.switch_flags[11] && numtok > 4) {
-		int nColor = (int)input.gettok(4, " ").to_num() -1;
+		int nColor = input.gettok( 4 ).to_int() -1;
 
 		if (nColor > -1 && nColor < 16) {
-			this->m_aColorPalette[nColor] = (COLORREF)input.gettok(5, " ").to_num();
+			this->m_aColorPalette[nColor] = (COLORREF)input.gettok( 5 ).to_num();
 			this->parseContents(TRUE);
 		}
 	}
@@ -361,19 +365,18 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [BOOL]
 	else if (flags.switch_flags[13] && numtok > 3) {
-		int b = input.gettok(4, " ").to_int();
+		int b = input.gettok( 4 ).to_int();
 
 		this->setAutoUrlDetect(b ? TRUE : FALSE);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags.switch_flags[14] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = (int)input.gettok(4, " ").to_num();
-			this->m_tsText.puttok(input.gettok(5, -1, " ").to_chr(), nLine, "\r\n");
+			int nLine = input.gettok( 4 ).to_int();
+			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, "\r\n");
 		}
-		else {
-			this->m_tsText = input.gettok(4, -1, " ");
-		}
+		else
+			this->m_tsText = input.gettok(4, -1);
 
 		this->parseContents(TRUE);
 	}
@@ -383,10 +386,10 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR16]
 	else if (flags.switch_flags[16] && numtok > 3) {
-		int i = 0, len = input.gettok(4, -1, " ").numtok(" ");
+		int i = 0, len = input.gettok(4, -1).numtok( );
 
 		while (i < len && i < 16) {
-			this->m_aColorPalette[i] = (COLORREF)input.gettok(4 + i, " ").to_num();
+			this->m_aColorPalette[i] = (COLORREF)input.gettok( 4 + i ).to_num();
 			i++;
 		}
 
@@ -397,7 +400,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags.switch_flags[19] && numtok > 3) { // TODO: replace all this with an EM_STREAMIN message & callback
-		char *contents = readFile(input.gettok(4, -1, " ").to_chr());
+		char *contents = readFile(input.gettok(4, -1).to_chr());
 
 		if (contents != NULL) {
 			this->m_tsText = contents;
@@ -410,7 +413,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags.switch_flags[20] && numtok > 3) {
-		FILE *file = fopen(input.gettok(4, -1, " ").to_chr(), "wb");
+		FILE *file = fopen(input.gettok(4, -1).to_chr(), "wb");
 
 		if (file != NULL) {
 			fwrite(this->m_tsText.to_chr(), sizeof(char), this->m_tsText.len(), file);
@@ -422,10 +425,10 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	else if (flags.switch_cap_flags[18] && numtok > 3) {
 		CHARRANGE c;
 
-		c.cpMin = input.gettok(4, " ").to_int();
+		c.cpMin = input.gettok( 4 ).to_int();
 
 		if (numtok > 4)
-			c.cpMax = input.gettok(5, " ").to_int();
+			c.cpMax = input.gettok( 5 ).to_int();
 		else
 			c.cpMax = c.cpMin;
 
@@ -447,8 +450,8 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
 	else if (flags.switch_cap_flags[25] && numtok > 4) {
-		int num = input.gettok(4, " ").to_int();
-		int den = input.gettok(5, " ").to_int();
+		int num = input.gettok( 4 ).to_int();
+		int den = input.gettok( 5 ).to_int();
 
 		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
 			DCXError("/xdid -Z","Richedit zooming error");
@@ -468,10 +471,10 @@ void DcxRichEdit::loadmIRCPalette() {
 	mIRCeval(com, res);
 
 	TString colors(res);
-	int i = 0, len = colors.numtok(" ");
+	int i = 0, len = colors.numtok( );
 
 	while (i < len) {
-		this->m_aColorPalette[i] = (COLORREF)colors.gettok(i +1, " ").to_num();
+		this->m_aColorPalette[i] = (COLORREF)colors.gettok( i +1 ).to_num();
 		i++;
 	}
 }

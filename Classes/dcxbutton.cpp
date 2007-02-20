@@ -60,7 +60,7 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	this->updateParentCtrl(); // find the host control, if any.
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
+		if (styles.istok("tooltips")) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -105,20 +105,20 @@ DcxButton::~DcxButton( ) {
 
 void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
 	*Styles |= BS_NOTIFY;
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "bitmap" )
+    if ( styles.gettok( i ) == "bitmap" )
       *Styles |= BS_BITMAP;
-    else if ( styles.gettok( i , " " ) == "default" )
+    else if ( styles.gettok( i ) == "default" )
       *Styles |= BS_DEFPUSHBUTTON;
-    else if ( styles.gettok( i , " " ) == "alpha" )
+    else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i , " " ) == "shadow" ))
+		else if (( styles.gettok( i ) == "shadow" ))
 			this->m_bShadowText = true;
-		else if (( styles.gettok( i , " " ) == "noformat" ))
+		else if (( styles.gettok( i ) == "noformat" ))
 			this->m_bCtrlCodeText = false;
 
     i++;
@@ -137,18 +137,16 @@ void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 
 void DcxButton::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
 
   // [NAME] [ID] [PROP]
-  if ( input.gettok( 3, " " ) == "text" ) {
+  if ( input.gettok( 3 ) == "text" ) {
 
     lstrcpyn( szReturnValue, this->m_tsCaption.to_chr( ), 900 );
     return;
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -163,13 +161,13 @@ void DcxButton::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
-  int numtok = input.numtok( " " );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
+  int numtok = input.numtok( );
 
 	// xdid -c [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	if (flags.switch_flags[2] && numtok > 4) {
-		UINT iColorStyles = this->parseColorFlags(input.gettok(4, " "));
-		COLORREF clrColor = (COLORREF)input.gettok(5, " ").to_num();
+		UINT iColorStyles = this->parseColorFlags(input.gettok( 4 ));
+		COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num();
 
 		if (iColorStyles & BTNCS_NORMAL)
 			this->m_aColors[0] = clrColor;
@@ -184,10 +182,10 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] [FILENAME]
 	else if (flags.switch_flags[10] && (numtok > 5) && (this->isStyle(BS_BITMAP) || this->isStyle(BS_OWNERDRAW))) {
-		UINT iColorStyles = this->parseColorFlags(input.gettok(4, " "));
-		COLORREF clrColor = (COLORREF)input.gettok(5, " ").to_num();
+		UINT iColorStyles = this->parseColorFlags(input.gettok( 4 ));
+		COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num();
 
-		TString filename(input.gettok(6, -1, " "));
+		TString filename(input.gettok(6, -1));
 		filename.trim();
 
 		if (iColorStyles & BTNCS_NORMAL) {
@@ -211,7 +209,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags.switch_flags[11] && numtok > 3) {
-		int size = input.gettok(4, " ").to_int();
+		int size = input.gettok( 4 ).to_int();
 
 		if (size == 32 || size == 24)
 			this->m_iIconSize = size;
@@ -226,7 +224,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	}
   // xdid -t [NAME] [ID] [SWITCH] ItemText
   else if ( flags.switch_flags[19] && numtok > 2 ) {
-		this->m_tsCaption = (numtok > 3 ? input.gettok( 4, -1, " " ) : "");
+		this->m_tsCaption = (numtok > 3 ? input.gettok( 4, -1 ) : "");
     this->m_tsCaption.trim( );
     this->redrawWindow( );
   }
@@ -234,9 +232,9 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
-		int index = input.gettok(5, " ").to_int();
-		UINT flags = parseColorFlags(input.gettok(4, " "));
-		TString filename(input.gettok(6, -1, " "));
+		int index = input.gettok( 5 ).to_int();
+		UINT flags = parseColorFlags(input.gettok( 4 ));
+		TString filename(input.gettok(6, -1));
 
 		// load the icon
 		if (this->m_iIconSize > 16)
@@ -277,7 +275,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [ENABLED]
   else if (flags.switch_flags[12] && numtok > 3) {
-		int b = input.gettok(4, " ").to_int();
+		int b = input.gettok( 4 ).to_int();
 
 		this->m_bBitmapText = (b ? TRUE : FALSE);
 		this->redrawWindow();

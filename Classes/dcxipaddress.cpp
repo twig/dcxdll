@@ -47,7 +47,7 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
+		if (styles.istok("tooltips")) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -83,13 +83,13 @@ DcxIpAddress::~DcxIpAddress( ) {
  */
 
 void DcxIpAddress::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	//unsigned int i = 1, numtok = styles.numtok( " " );
+	//unsigned int i = 1, numtok = styles.numtok( );
 /*
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "bitmap" )
+    if ( styles.gettok( i ) == "bitmap" )
       *Styles |= BS_BITMAP;
-    else if ( styles.gettok( i , " " ) == "default" )
+    else if ( styles.gettok( i ) == "default" )
       *Styles |= BS_DEFPUSHBUTTON;
 
     i++;
@@ -110,10 +110,10 @@ void DcxIpAddress::parseControlStyles(TString &styles, LONG *Styles, LONG *ExSty
 
 void DcxIpAddress::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
 
   // [NAME] [ID] [PROP]
-  if ( input.gettok( 3, " " ) == "ip" ) {
+  if ( input.gettok( 3 ) == "ip" ) {
 
     DWORD ip;
     this->getAddress( &ip );
@@ -126,10 +126,8 @@ void DcxIpAddress::parseInfoRequest( TString & input, char * szReturnValue ) {
 
     return;
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -143,9 +141,9 @@ void DcxIpAddress::parseInfoRequest( TString & input, char * szReturnValue ) {
 void DcxIpAddress::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(input.gettok(3, " "), &flags);
+	this->parseSwitchFlags(input.gettok( 3 ), &flags);
 
-	int numtok = input.numtok(" ");
+	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags.switch_flags[17]) {
@@ -154,7 +152,7 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
 	if (flags.switch_flags[0] && numtok > 3) {
-		TString IP(input.gettok( 4, " " ));
+		TString IP(input.gettok( 4 ));
 		IP.trim();
 
 		if (IP.numtok(".") == 4) {
@@ -170,16 +168,16 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [N] [MIN] [MAX]
 	else if (flags.switch_flags[6] && numtok > 5) {
-		int nField	= input.gettok(4, " ").to_int() -1;
-		BYTE min		= input.gettok(5, " ").to_int();
-		BYTE max		= input.gettok(6, " ").to_int();
+		int nField	= input.gettok( 4 ).to_int() -1;
+		BYTE min		= input.gettok( 5 ).to_int();
+		BYTE max		= input.gettok( 6 ).to_int();
 
 		if (nField > -1 && nField < 4)
 			this->setRange(nField, min, max);
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[9] && numtok > 3) {
-		int nField = input.gettok(4, " ").to_int() -1;
+		int nField = input.gettok( 4 ).to_int() -1;
 
 		if (nField > -1 && nField < 4)
 			this->setFocus(nField);

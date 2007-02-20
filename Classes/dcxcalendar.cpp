@@ -107,10 +107,12 @@ void DcxCalendar::parseControlStyles(TString & styles, LONG * Styles, LONG * ExS
  */
 
 void DcxCalendar::parseInfoRequest(TString &input, char *szReturnValue) {
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
+
+	TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
-	if (input.gettok(3) == "value") {
+	if (prop == "value") {
 		long start;
 		long end;
 
@@ -134,7 +136,7 @@ void DcxCalendar::parseInfoRequest(TString &input, char *szReturnValue) {
 		wsprintf(szReturnValue, "%ld %ld", start, end);
 		return;
 	}
-	else if (input.gettok(3) == "range") {
+	else if (prop == "range") {
 		SYSTEMTIME st[2];
 		TString min;
 		TString max;
@@ -157,7 +159,7 @@ void DcxCalendar::parseInfoRequest(TString &input, char *szReturnValue) {
 		wsprintf(szReturnValue, "%s %s", min.to_chr(), max.to_chr()); // going to be within 900 limit anyway.
 		return;
 	}
-	else if (input.gettok(3) == "today") {
+	else if (prop == "today") {
 		SYSTEMTIME st;
 
 		ZeroMemory(&st, sizeof(SYSTEMTIME));
@@ -166,13 +168,12 @@ void DcxCalendar::parseInfoRequest(TString &input, char *szReturnValue) {
 		wsprintf(szReturnValue, "%ld", SystemTimeToMircTime(&st));
 		return;
 	}
-	else if (input.gettok(3) == "selcount") {
+	else if (prop == "selcount") {
 		wsprintf(szReturnValue, "%d", MonthCal_GetMaxSelCount(this->m_Hwnd));
 		return;
 	}
-	else if (this->parseGlobalInfoRequest(input, szReturnValue)) {
+	else if (this->parseGlobalInfoRequest(input, szReturnValue))
 		return;
-	}
 
 	szReturnValue[0] = 0;
 }
@@ -313,7 +314,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						TString strDays(eval);
 						strDays.trim();
 
-						for (int x = 1; x <= strDays.numtok(","); x++) {
+						for (int x = 1; x <= strDays.numtok(TSCOMMA); x++) {
 							TString tok = strDays.gettok(x);
 							tok.trim();
 							BOLDDAY(mds[i], tok.to_int());

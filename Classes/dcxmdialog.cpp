@@ -93,16 +93,15 @@ DcxMDialog::~DcxMDialog( ) {
  */
 
 void DcxMDialog::parseInfoRequest(TString &input, char *szReturnValue) {
-//	int numtok = input.numtok(" ");
+//	int numtok = input.numtok( );
 
 	// [NAME] [ID] [PROP]
-	if (input.gettok(3, " ") == "dname") {
+	if (input.gettok( 3 ) == "dname") {
 		lstrcpyn(szReturnValue, this->m_OrigName.to_chr(), 900);
 		return;
 	}
-	else if (this->parseGlobalInfoRequest(input, szReturnValue)) {
+	else if (this->parseGlobalInfoRequest(input, szReturnValue))
 		return;
-	}
 
 	szReturnValue[0] = 0;
 }
@@ -117,9 +116,9 @@ void DcxMDialog::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-  //int numtok = input.numtok( " " );
+  //int numtok = input.numtok( );
 
   this->parseGlobalCommandRequest( input, flags );
 }

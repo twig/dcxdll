@@ -50,7 +50,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, con
 	this->m_tsText = "";
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
+		if (styles.istok("tooltips")) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -77,36 +77,36 @@ DcxEdit::~DcxEdit() {
 * blah
 */
 void DcxEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok(" ");
+	unsigned int i = 1, numtok = styles.numtok( );
 
 	while (i <= numtok) {
-		if (styles.gettok(i , " ") == "multi") 
+		if (styles.gettok( i ) == "multi") 
 			*Styles |= ES_MULTILINE;
-		else if (styles.gettok(i , " ") == "center")
+		else if (styles.gettok( i ) == "center")
 			*Styles |= ES_CENTER;
-		else if (styles.gettok(i , " ") == "right")
+		else if (styles.gettok( i ) == "right")
 			*Styles |= ES_RIGHT;
-		else if (styles.gettok(i , " ") == "autohs")
+		else if (styles.gettok( i ) == "autohs")
 			*Styles |= ES_AUTOHSCROLL;
-		else if (styles.gettok(i , " ") == "autovs")
+		else if (styles.gettok( i ) == "autovs")
 			*Styles |= ES_AUTOVSCROLL;
-		else if (styles.gettok(i , " ") == "vsbar")
+		else if (styles.gettok( i ) == "vsbar")
 			*Styles |= WS_VSCROLL;
-		else if (styles.gettok(i , " ") == "hsbar")
+		else if (styles.gettok( i ) == "hsbar")
 			*Styles |= WS_HSCROLL;
-		else if (styles.gettok(i , " ") == "lowercase")
+		else if (styles.gettok( i ) == "lowercase")
 			*Styles |= ES_LOWERCASE;
-		else if (styles.gettok(i , " ") == "number")
+		else if (styles.gettok( i ) == "number")
 			*Styles |= ES_NUMBER;
-		else if (styles.gettok(i , " ") == "password")
+		else if (styles.gettok( i ) == "password")
 			*Styles |= ES_PASSWORD;
-		else if (styles.gettok(i , " ") == "uppercase")
+		else if (styles.gettok( i ) == "uppercase")
 			*Styles |= ES_UPPERCASE;
-		else if (styles.gettok(i , " ") == "return")
+		else if (styles.gettok( i ) == "return")
 			*Styles |= ES_WANTRETURN;
-		else if (styles.gettok(i , " ") == "readonly")
+		else if (styles.gettok( i ) == "readonly")
 			*Styles |= ES_READONLY;
-		else if ( styles.gettok( i , " " ) == "alpha" )
+		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 
 		i++;
@@ -124,13 +124,15 @@ void DcxEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 * \return > void
 */
 void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
-	int numtok = input.numtok(" ");
+	int numtok = input.numtok( );
+
+	TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
-	if (input.gettok(3, " ") == "text") {
+	if (prop == "text") {
 		if (this->isStyle(ES_MULTILINE)) {
 			if (numtok > 3) {
-				int nLine = input.gettok(4, " ").to_int();
+				int nLine = input.gettok( 4 ).to_int();
 
 				if (nLine > 0 && nLine <= this->m_tsText.numtok("\r\n")) {
 					lstrcpyn(szReturnValue, this->m_tsText.gettok(nLine, "\r\n").to_chr(), 900);
@@ -144,7 +146,7 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		}
 	}
 	// [NAME] [ID] [PROP]
-	else if (input.gettok(3, " ") == "num") {
+	else if (prop == "num") {
 		if (this->isStyle(ES_MULTILINE))
 			wsprintf(szReturnValue, "%d", this->m_tsText.numtok("\r\n"));
 		else
@@ -152,7 +154,7 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [ID] [PROP]
-	else if (input.gettok(3, " ") == "ispass") {
+	else if (prop == "ispass") {
 		if (this->isStyle(ES_PASSWORD))
 			lstrcpy(szReturnValue, "$true");
 		else
@@ -161,7 +163,7 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [ID] [PROP]
-	else if (input.gettok(3, " ") == "caretpos") {
+	else if (prop == "caretpos") {
 		DWORD dwAbsoluteStartSelPos = 0;
 
 		// caret startsel position
@@ -185,21 +187,21 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		return;
 	}
-	else if (input.gettok(3, " ") == "selstart") {
+	else if (prop == "selstart") {
 		DWORD dwSelStart = 0; // selection range starting position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, NULL);
 		wsprintf(szReturnValue, "%d", dwSelStart);
 		return;
 	}
-	else if (input.gettok(3, " ") == "selend") {
+	else if (prop == "selend") {
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, NULL, (LPARAM) &dwSelEnd);
 		wsprintf(szReturnValue, "%d", dwSelEnd);
 		return;
 	}
-	else if (input.gettok(3, " ") == "sel") {
+	else if (prop == "sel") {
 		DWORD dwSelStart = 0; // selection range starting position
 		DWORD dwSelEnd = 0;   // selection range ending position
 
@@ -207,7 +209,7 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		wsprintf(szReturnValue, "%d %d", dwSelStart, dwSelEnd);
 		return;
 	}
-	else if (input.gettok(3, " ") == "seltext") {
+	else if (prop == "seltext") {
 		DWORD dwSelStart = 0; // selection range starting position
 		DWORD dwSelEnd = 0;   // selection range ending position
 
@@ -215,14 +217,13 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		lstrcpyn(szReturnValue, this->m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr(), 900);
 		return;
 	}
-	else if (input.gettok(3, " ") == "cue") {
+	else if (prop == "cue") {
 		if (this->m_tsCue.len())
 			lstrcpyn(szReturnValue, this->m_tsCue.to_chr(), 900);
 		return;
 	}
-	else if (this->parseGlobalInfoRequest(input, szReturnValue)) {
+	else if (this->parseGlobalInfoRequest(input, szReturnValue))
 		return;
-	}
 
 	szReturnValue[0] = 0;
 }
@@ -235,9 +236,9 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 void DcxEdit::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(input.gettok(3, " "), &flags);
+	this->parseSwitchFlags(input.gettok( 3 ), &flags);
 
-	int numtok = input.numtok(" ");
+	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags.switch_flags[17]) {
@@ -247,7 +248,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
 	if (flags.switch_flags[0] && numtok > 3) {
-		this->m_tsText += input.gettok(4, -1, " ");
+		this->m_tsText += input.gettok(4, -1);
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
@@ -257,7 +258,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[3] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok(4, " ").to_int();
+			int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.deltok(nLine, "\r\n");
 			SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 		}
@@ -265,17 +266,16 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags.switch_flags[8] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok(4, " ").to_int();
-			this->m_tsText.instok(input.gettok(5, -1, " ").to_chr(), nLine, "\r\n");
+			int nLine = input.gettok( 4 ).to_int();
+			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, "\r\n");
 		}
-		else {
-			this->m_tsText = input.gettok(5, -1, " ");
-		}
+		else
+			this->m_tsText = input.gettok(5, -1);
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
 	else if (flags.switch_flags[9] && numtok > 3) {
-		int i = input.gettok(4, " ").to_int();
+		int i = input.gettok( 4 ).to_int();
 
 		if (i) {
 			char c = Edit_GetPasswordChar(this->m_Hwnd);
@@ -296,12 +296,11 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags.switch_flags[14] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok(4, " ").to_int();
-			this->m_tsText.puttok(input.gettok(5, -1, " ").to_chr(), nLine, "\r\n");
+			int nLine = input.gettok( 4 ).to_int();
+			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, "\r\n");
 		}
-		else {
-			this->m_tsText = input.gettok(4, -1, " ");
-		}
+		else
+			this->m_tsText = input.gettok(4, -1);
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 	}
 	// xdid -P [NAME] [ID]
@@ -310,7 +309,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags.switch_flags[16] && numtok > 3) {
-		int N = input.gettok(4, " ").to_int();
+		int N = input.gettok( 4 ).to_int();
 
 		if (N > -1) {
 			Edit_LimitText(this->m_Hwnd, N);
@@ -321,7 +320,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags.switch_flags[19] && numtok > 3) {
-		char *contents = readFile(input.gettok(4, -1, " ").to_chr());
+		char *contents = readFile(input.gettok(4, -1).to_chr());
 
 		if (contents != NULL) {
 			this->m_tsText = contents;
@@ -331,7 +330,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags.switch_flags[20] && numtok > 3) {
-		FILE *file = fopen(input.gettok(4, -1, " ").to_chr(), "wb");
+		FILE *file = fopen(input.gettok(4, -1).to_chr(), "wb");
 
 		if (file != NULL) {
 			fwrite(this->m_tsText.to_chr(), sizeof(char), this->m_tsText.len(), file);
@@ -341,11 +340,11 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
 	else if (flags.switch_cap_flags[18] && numtok > 3) {
-		int istart = input.gettok(4, " ").to_int();
+		int istart = input.gettok( 4 ).to_int();
 		int iend;
 		
 		if (numtok > 4)
-			iend = input.gettok(5, " ").to_int();
+			iend = input.gettok( 5 ).to_int();
 		else
 			iend = istart;
 
@@ -353,7 +352,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
 	else if (flags.switch_cap_flags[4] && numtok > 3) {
-		TString cue(input.gettok(4, -1, " "));
+		TString cue(input.gettok(4, -1));
 		Edit_SetCueBannerText(this->m_Hwnd,cue.to_wchr());
 		this->m_tsCue = cue;
 	}

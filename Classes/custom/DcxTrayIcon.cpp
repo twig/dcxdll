@@ -29,15 +29,15 @@ mIRC(TrayIcon) {
 
 	TString d(data);
 	d.trim();
-	int numtok = d.numtok(" ");
+	int numtok = d.numtok( );
 
 	if (numtok < 2) {
 		DCXError("/xTray", "Insufficient parameters");
 		return 1;
 	}
 
-	TString flags(d.gettok(1, " "));
-	int id = d.gettok(2, " ").to_int();
+	TString flags(d.gettok( 1 ));
+	int id = d.gettok( 2 ).to_int();
 
 	// create and edit can use the same function
 	if ((flags.find('c', 0) || flags.find('e', 0)) && numtok > 3) {
@@ -72,8 +72,8 @@ mIRC(TrayIcon) {
 		TString tooltip;
 
 		// if theres a tooltip text
-		if (d.numtok("\t") > 1) {
-			tooltip = d.gettok(2, -1, "\t");
+		if (d.numtok(TSTAB) > 1) {
+			tooltip = d.gettok(2, -1, TSTAB);
 			tooltip.trim();
 		}
 
@@ -81,8 +81,8 @@ mIRC(TrayIcon) {
 		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
 
 		// load the icon
-		int index = d.gettok(3, " ").to_int();
-		TString filename(d.gettok(1, "\t").gettok(4, -1, " "));
+		int index = d.gettok( 3 ).to_int();
+		TString filename(d.gettok(1, TSTAB).gettok(4, -1));
 
 		icon = dcxLoadIcon(index, filename);
 
@@ -105,8 +105,8 @@ mIRC(TrayIcon) {
 	else if (flags.find('i', 0) && (numtok > 3)) {
 		// set up info
 		HICON icon;
-		int index = d.gettok(3, " ").to_int();
-		TString filename(d.gettok(4, -1, " "));
+		int index = d.gettok( 3 ).to_int();
+		TString filename(d.gettok(4, -1));
 
 		//NIF_INFO
 		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
@@ -124,7 +124,7 @@ mIRC(TrayIcon) {
 		TString tip;
 
 		if (numtok > 2)
-			tip = d.gettok(3, -1, " ");
+			tip = d.gettok(3, -1);
 
 		if (!trayIcons->modifyIcon(id, NIM_MODIFY, NULL, &tip)) {
 			DCXError("/xTray", "Error changing trayicon tooltip");
@@ -178,8 +178,8 @@ DcxTrayIcon::~DcxTrayIcon(void)
 			itStart++;
 		}
 
-		for (int i = 1; i <= ids.numtok(" "); i++) {
-			this->modifyIcon(ids.gettok(i, " ").to_int(), NIM_DELETE);
+		for (int i = 1; i <= ids.numtok( ); i++) {
+			this->modifyIcon(ids.gettok( i ).to_int(), NIM_DELETE);
 		}
 
 		SetWindowLong(this->m_hwnd, GWL_WNDPROC, (LONG) this->m_wndProc);

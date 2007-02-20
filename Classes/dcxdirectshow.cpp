@@ -78,15 +78,15 @@ void DcxDirectshow::parseControlStyles( TString & styles, LONG * Styles, LONG * 
 
   *Styles |= SS_NOTIFY;
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
 
   while ( i <= numtok ) {
 
-		if ( styles.gettok( i , " " ) == "alpha" )
+		if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i , " " ) == "shadow" ))
+		else if (( styles.gettok( i ) == "shadow" ))
 			this->m_bShadowText = true;
-		else if (( styles.gettok( i , " " ) == "fixratio" ))
+		else if (( styles.gettok( i ) == "fixratio" ))
 			this->m_bKeepRatio = true;
 
     i++;
@@ -104,16 +104,18 @@ void DcxDirectshow::parseControlStyles( TString & styles, LONG * Styles, LONG * 
  */
 
 void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
-  //int numtok = input.numtok( " " );
+  //int numtok = input.numtok( );
+
+	TString prop(input.gettok( 3 ));
 
 	if (this->m_pGraph == NULL) {
 		if (this->parseGlobalInfoRequest( input, szReturnValue ))
 			return;
 		else
-			dcxInfoError("directshow",input.gettok( 3 ).to_chr(),this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+			dcxInfoError("directshow", prop.to_chr(),this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
 	}
   // [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "size") {
+	else if ( prop == "size") {
 		long lWidth, lHeight, lARWidth, lARHeight;
 		HRESULT hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
 		if (SUCCEEDED(hr)) {
@@ -125,17 +127,17 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			dcxInfoError("directshow","size",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Native Video Size");
   }
   // [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "author") {
+	else if ( prop == "author") {
 		this->getProperty(szReturnValue, PROP_AUTHOR);
 		return;
   }
   // [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "title") {
+	else if ( prop == "title") {
 		this->getProperty(szReturnValue, PROP_TITLE);
 		return;
   }
   // [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "video") {
+	else if ( prop == "video") {
 		VMR9ProcAmpControl amc;
 		HRESULT hr = this->getVideo(&amc);
 		if (SUCCEEDED(hr)) {
@@ -156,7 +158,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			dcxInfoError("directshow","video",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "brange") {
+	else if ( prop == "brange") {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr);
 		if (SUCCEEDED(hr)) {
@@ -168,7 +170,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			dcxInfoError("directshow","brange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "crange") {
+	else if ( prop == "crange") {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr);
 		if (SUCCEEDED(hr)) {
@@ -180,7 +182,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			dcxInfoError("directshow","crange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "hrange") {
+	else if ( prop == "hrange") {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Hue, &acr);
 		if (SUCCEEDED(hr)) {
@@ -192,7 +194,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			dcxInfoError("directshow","hrange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "srange") {
+	else if ( prop == "srange") {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Saturation, &acr);
 		if (SUCCEEDED(hr)) {
@@ -204,12 +206,12 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			dcxInfoError("directshow","srange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "currentpos") {
+	else if ( prop == "currentpos") {
 		wsprintf(szReturnValue,"D_OK %I64d", this->getPosition());
 		return;
   }
   // [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "duration") {
+	else if ( prop == "duration") {
 		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
 			wsprintf(szReturnValue,"D_OK %I64d", this->getDuration());
 		else
@@ -232,8 +234,8 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(input.gettok(3, " "), &flags);
-  int numtok = input.numtok( " " );
+	this->parseSwitchFlags(input.gettok( 3 ), &flags);
+  int numtok = input.numtok( );
 
   // xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
   if ( flags.switch_flags[0] && numtok > 3 ) {

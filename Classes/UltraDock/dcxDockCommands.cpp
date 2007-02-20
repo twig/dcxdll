@@ -196,14 +196,14 @@ mIRC(xdock) {
 	input.trim();
 	data[0] = 0;
 
-	int numtok = input.numtok(" ");
+	int numtok = input.numtok( );
 
 	if (numtok < 1) {
 		DCXError("/xdock","Invalid Parameters");
 		return 0;
 	}
 
-	TString switches(input.gettok(1, " "));
+	TString switches(input.gettok( 1 ));
 
 	// update mirc
 	// /xdock -p
@@ -255,7 +255,7 @@ mIRC(xdock) {
 				int i = 0;
 				while ( i < nParts ) {
 
-					parts[i] = input.gettok( i+3, " " ).to_int( );
+					parts[i] = input.gettok( i+3 ).to_int( );
 					i++;
 				}
 				DcxDock::status_setParts( nParts, parts );
@@ -269,17 +269,17 @@ mIRC(xdock) {
 
 				TString itemtext;
 
-				if ( input.gettok( 1, "\t" ).numtok( ) > 5 ) {
+				if ( input.gettok( 1, TSTAB ).numtok( ) > 5 ) {
 
-					itemtext = input.gettok( 1, "\t" ).gettok( 6, -1);
+					itemtext = input.gettok( 1, TSTAB ).gettok( 6, -1);
 					itemtext.trim( );
 				}
 
 				TString tooltip;
 
-				if ( input.numtok( "\t" ) > 1 ) {
+				if ( input.numtok( TSTAB ) > 1 ) {
 
-					tooltip = input.gettok( 2, "\t" );
+					tooltip = input.gettok( 2, TSTAB );
 					tooltip.trim( );
 				}
 
@@ -347,9 +347,9 @@ mIRC(xdock) {
 	// show/hide switchbar
 	// [-S] [1|0]
 	else if ((switches[1] == 'S') && (numtok == 2)) {
-		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hSwitchbar)))
+		if ((input.gettok( 2 ).to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hSwitchbar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
-		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(mIRCLink.m_hSwitchbar)))
+		else if ((input.gettok( 2 ).to_int() == 0) && (IsWindowVisible(mIRCLink.m_hSwitchbar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
 
 		return 1;
@@ -357,9 +357,9 @@ mIRC(xdock) {
 	// show/hide toolbar
 	// [-T] [1|0]
 	else if ((switches[1] == 'T') && (numtok == 2)) {
-		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hToolbar)))
+		if ((input.gettok( 2 ).to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hToolbar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
-		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(mIRCLink.m_hToolbar)))
+		else if ((input.gettok( 2 ).to_int() == 0) && (IsWindowVisible(mIRCLink.m_hToolbar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
 
 		return 1;
@@ -367,9 +367,9 @@ mIRC(xdock) {
 	// show/hide treebar
 	// [-R [1|0]
 	else if ((switches[1] == 'R') && (numtok == 2)) {
-		if ((input.gettok(2, " ").to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hTreebar)))
+		if ((input.gettok( 2 ).to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hTreebar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
-		else if ((input.gettok(2, " ").to_int() == 0) && (IsWindowVisible(mIRCLink.m_hTreebar)))
+		else if ((input.gettok( 2 ).to_int() == 0) && (IsWindowVisible(mIRCLink.m_hTreebar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
 
 		return 1;
@@ -377,9 +377,9 @@ mIRC(xdock) {
 	// show/hide menubar
 	// [-M] [1|0]
 	else if ((switches[1] == 'M') && (numtok == 2)) {
-		if ((input.gettok(2, " ").to_int() > 0) && (!GetMenu(mIRCLink.m_mIRCHWND)))
+		if ((input.gettok( 2 ).to_int() > 0) && (!GetMenu(mIRCLink.m_mIRCHWND)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
-		else if ((input.gettok(2, " ").to_int() == 0) && (GetMenu(mIRCLink.m_mIRCHWND)))
+		else if ((input.gettok( 2 ).to_int() == 0) && (GetMenu(mIRCLink.m_mIRCHWND)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
 
 		return 1;
@@ -387,7 +387,7 @@ mIRC(xdock) {
 	// enable/disable ghost drag for main mIRC window.
 	// [-G] [0-255]
 	else if ((switches[1] == 'G') && (numtok == 2)) {
-		int alpha = input.gettok(2," ").to_int();
+		int alpha = input.gettok( 2 ).to_int();
 		if ((alpha >= 0) && (alpha <= 255))
 			mIRCLink.m_bDoGhostDrag = alpha;
 		else {
@@ -401,7 +401,7 @@ mIRC(xdock) {
 	else if ((switches[1] == 'F') && (numtok > 2)) {
 		//treeb_hwnd
 		if (IsWindow(mIRCLink.m_hTreeView)) {
-			TString flag(input.gettok(2));
+			TString flag(input.gettok( 2 ));
 			switch(flag[1])
 			{
 			case 'f': // set Treebars Font: (+flags CHARSET SIZE FONTNAME)
@@ -412,7 +412,7 @@ mIRC(xdock) {
 					}
 					LOGFONT lf;
 
-					if (ParseCommandToLogfont(input.gettok(3, -1, " "), &lf)) {
+					if (ParseCommandToLogfont(input.gettok(3, -1), &lf)) {
 						HFONT hFont = CreateFontIndirect(&lf);
 						if (hFont != NULL) {
 							HFONT f = (HFONT)SendMessage(mIRCLink.m_hTreeView,WM_GETFONT,0,0);
@@ -607,14 +607,14 @@ mIRC(xdock) {
 		return 1;
 	}
 
-	HWND dockHwnd = (HWND) input.gettok(2, " ").to_num();
+	HWND dockHwnd = (HWND) input.gettok( 2 ).to_num();
 
 	if (!IsWindow(dockHwnd)) {
 		DCXError("/xdock","Invalid Window to dock");
 		return 0;
 	}
 
-	TString flags(input.gettok(3, " "));
+	TString flags(input.gettok( 3 ));
 	if (flags[0] != '+') {
 		DCXError("/xdock","No Flags Found");
 		return 0;
@@ -633,7 +633,7 @@ mIRC(xdock) {
 	// dock to nicklist/sidelistbox
 	// [-n] [hwnd to dock] [+options] [hwnd to dock with]
 	else if ((switches[1] == 'n') && (numtok > 3)) {
-		mWnd = (HWND) input.gettok(4," ").to_num();
+		mWnd = (HWND) input.gettok( 4 ).to_num();
 
 		if (IsWindow(mWnd))
 			DockWindow(mWnd, dockHwnd, "ListBox", flags);
@@ -645,7 +645,7 @@ mIRC(xdock) {
 	//dock to custom/channel/query/status
 	// [-c] [hwnd to dock] [+options] [hwnd to dock with]
 	else if ((switches[1] == 'c') && (numtok > 3)) {
-		mWnd = (HWND) input.gettok(4, " ").to_num();
+		mWnd = (HWND) input.gettok( 4 ).to_num();
 
 		if (IsWindow(mWnd))
 			DockWindow(mWnd, dockHwnd, NULL, flags);
@@ -680,8 +680,8 @@ mIRC(xdock) {
 	// resize docked window
 	// [-r] [hwnd to dock] [+options] [W] [H]
 	else if ((switches[1] == 'r') && (numtok > 4)) {
-		int w = input.gettok(4, " ").to_int();
-		int h = input.gettok(5, " ").to_int();
+		int w = input.gettok( 4 ).to_int();
+		int h = input.gettok( 5 ).to_int();
 
 		LPDCXULTRADOCK ud = GetUltraDock(dockHwnd);
 		DWORD dflags = 0;
@@ -752,17 +752,17 @@ mIRC(_xdock)
 
 	data[0] = 0;
 
-	if (d.numtok(" ") < 2) {
+	if (d.numtok( ) < 2) {
 		TString error;
-		error.sprintf("Invalid arguments (%s)", d.gettok(1, " ").to_chr());
+		error.sprintf("Invalid arguments (%s)", d.gettok( 1 ).to_chr());
 		DCXError("$ $+ xdock",error.to_chr());
 
 		ret("D_ERR: Invalid xdock arguments");
 	}
 
-	if (d.gettok(1," ") == "mIRC") {
+	if (d.gettok( 1 ) == "mIRC") {
 		static const TString poslist("switchBarPos toolBarPos treeBarPos switchBarSize toolBarSize treeBarSize isSwitchBar isToolBar isTreeBar isMenuBar text isStatusBar statusText statusParts statusTooltip");
-		int nType = poslist.findtok(d.gettok(2).to_chr(),1);
+		int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
 		switch (nType)
 		{
 		case 1: // switchBarPos
@@ -903,18 +903,18 @@ mIRC(_xdock)
 		default:
 			{
 				TString error;
-				error.sprintf("Invalid prop (mIRC).%s", d.gettok(2, " ").to_chr());
+				error.sprintf("Invalid prop (mIRC).%s", d.gettok( 2 ).to_chr());
 				DCXError("$ $+ xdock",error.to_chr());
 			}
 			break;
 		}
 	}
 	else {
-		HWND hwnd = (HWND)d.gettok(1," ").to_num();
+		HWND hwnd = (HWND)d.gettok( 1 ).to_num();
 
 		if (IsWindow(hwnd)) {
 			static const TString poslist("isDocked hasDocked isAutoV isAutoH isAutoS dockSide text");
-			int nType = poslist.findtok(d.gettok(2).to_chr(),1);
+			int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
 			switch (nType)
 			{
 			case 1: // isDocked
@@ -986,7 +986,7 @@ mIRC(_xdock)
 					}
 					else {
 						TString error;
-						error.sprintf("Window not docked to main mIRC window (%d).%s", hwnd, d.gettok(2, " ").to_chr());
+						error.sprintf("Window not docked to main mIRC window (%d).%s", hwnd, d.gettok( 2 ).to_chr());
 						DCXError("$ $+ xdock",error.to_chr());
 					}
 				}
@@ -1001,7 +1001,7 @@ mIRC(_xdock)
 			default:
 				{
 					TString error;
-					error.sprintf("Invalid prop (%d).%s", hwnd, d.gettok(2, " ").to_chr());
+					error.sprintf("Invalid prop (%d).%s", hwnd, d.gettok( 2 ).to_chr());
 					DCXError("$ $+ xdock",error.to_chr());
 				}
 				break;
@@ -1009,7 +1009,7 @@ mIRC(_xdock)
 		}
 		else {
 			TString error;
-			error.sprintf("Invalid window (%s)", d.gettok(1, " ").to_chr());
+			error.sprintf("Invalid window (%s)", d.gettok( 1 ).to_chr());
 			DCXError("$ $+ xdock",error.to_chr());
 		}
 	}

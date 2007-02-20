@@ -79,13 +79,13 @@ DcxScroll::~DcxScroll( ) {
 
 void DcxScroll::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
   
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "vertical" )
+    if ( styles.gettok( i ) == "vertical" )
       *Styles |= SBS_VERT;
-		else if ( styles.gettok( i , " " ) == "alpha" )
+		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 
     i++;
@@ -105,10 +105,12 @@ void DcxScroll::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 
 void DcxScroll::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
+
+	TString prop(input.gettok( 3 ));
 
   // [NAME] [ID] [PROP]
-  if ( input.gettok( 3, " " ) == "value" ) {
+  if ( prop == "value" ) {
 
     SCROLLINFO si;
     si.cbSize = sizeof( SCROLLINFO );
@@ -119,7 +121,7 @@ void DcxScroll::parseInfoRequest( TString & input, char * szReturnValue ) {
     return;
   }
   // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "range" ) {
+  else if ( prop == "range" ) {
 
     SCROLLINFO si;
     si.cbSize = sizeof( SCROLLINFO );
@@ -129,22 +131,20 @@ void DcxScroll::parseInfoRequest( TString & input, char * szReturnValue ) {
     return;
   }
   // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "line" ) {
+  else if ( prop == "line" ) {
 
     wsprintf( szReturnValue, "%d %d", this->m_nLine );
     return;
   }
   // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "page" ) {
+  else if ( prop == "page" ) {
 
     wsprintf( szReturnValue, "%d", this->m_nPage );
     return;
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
-  
+
   szReturnValue[0] = 0;
 }
 
@@ -158,14 +158,14 @@ void DcxScroll::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
 
   //xdid -l [NAME] [ID] [SWITCH] [N]
   if ( flags.switch_flags[11] && numtok > 3 ) {
 
-    int nLine = input.gettok( 4, " " ).to_int( );
+    int nLine = input.gettok( 4 ).to_int( );
 
     if ( nLine > 0 )
       this->m_nLine = nLine;
@@ -173,7 +173,7 @@ void DcxScroll::parseCommandRequest( TString & input ) {
   //xdid -m [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[12] && numtok > 3 ) {
 
-    int nPage = input.gettok( 4, " " ).to_int( );
+    int nPage = input.gettok( 4 ).to_int( );
 
     if ( nPage > 0 )
       this->m_nPage = nPage;
@@ -181,8 +181,8 @@ void DcxScroll::parseCommandRequest( TString & input ) {
   //xdid -r [NAME] [ID] [SWITCH] [L] [R]
   else if ( flags.switch_flags[17] && numtok > 4 ) {
 
-    INT L = input.gettok( 4, " " ).to_int( );
-    INT R = input.gettok( 5, " " ).to_int( );
+    INT L = input.gettok( 4 ).to_int( );
+    INT R = input.gettok( 5 ).to_int( );
 
     SCROLLINFO si;
     si.cbSize = sizeof( SCROLLINFO );
@@ -194,7 +194,7 @@ void DcxScroll::parseCommandRequest( TString & input ) {
   //xdid -v [NAME] [ID] [SWITCH] [VALUE]
   else if ( flags.switch_flags[21] && numtok > 3 ) {
 
-    int pos = input.gettok( 4, " " ).to_int( );
+    int pos = input.gettok( 4 ).to_int( );
 
     SCROLLINFO si;
     si.cbSize = sizeof( SCROLLINFO );

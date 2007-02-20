@@ -128,21 +128,21 @@ DcxControl::~DcxControl( ) {
 
 void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
 
 	*Styles |= WS_CLIPCHILDREN;
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "notheme" )
+    if ( styles.gettok( i ) == "notheme" )
       *bNoTheme = TRUE;
-    else if ( styles.gettok( i , " " ) == "tabstop" )
+    else if ( styles.gettok( i ) == "tabstop" )
       *Styles |= WS_TABSTOP;
-    else if ( styles.gettok( i , " " ) == "group" )
+    else if ( styles.gettok( i ) == "group" )
       *Styles |= WS_GROUP;
-    else if ( styles.gettok( i , " " ) == "disabled" )
+    else if ( styles.gettok( i ) == "disabled" )
       *Styles |= WS_DISABLED;
-    else if ( styles.gettok( i , " " ) == "transparent" )
+    else if ( styles.gettok( i ) == "transparent" )
       *ExStyles |= WS_EX_TRANSPARENT;
 
     i++;
@@ -200,13 +200,13 @@ BOOL DcxControl::callAliasEx( char * szReturn, const char * szFormat, ... ) {
  */
 
 void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags ) {
-	int numtok = input.numtok( " " );
+	int numtok = input.numtok( );
 
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	if ( flags.switch_flags[5] && numtok > 3 ) {
 		LOGFONT lf;
 
-		if (ParseCommandToLogfont(input.gettok(4, -1, " "), &lf)) {
+		if (ParseCommandToLogfont(input.gettok(4, -1), &lf)) {
 			HFONT hFont = CreateFontIndirect(&lf);
 			this->setControlFont(hFont, FALSE);
 		}
@@ -216,10 +216,10 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	// xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
 	else if ( flags.switch_flags[15] && numtok > 6 ) {
 
-		int x = input.gettok( 4, " " ).to_int( );
-		int y = input.gettok( 5, " " ).to_int( );
-		int w = input.gettok( 6, " " ).to_int( );
-		int h = input.gettok( 7, " " ).to_int( );
+		int x = input.gettok( 4 ).to_int( );
+		int y = input.gettok( 5 ).to_int( );
+		int w = input.gettok( 6 ).to_int( );
+		int h = input.gettok( 7 ).to_int( );
 
 		MoveWindow( this->m_Hwnd, x, y, w, h, FALSE );
 		InvalidateRect( GetParent( this->m_Hwnd ), NULL, TRUE );
@@ -233,7 +233,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
 
 		LONG Styles = 0, ExStyles = 0;
-		this->parseBorderStyles( input.gettok( 4, " " ), &Styles, &ExStyles );
+		this->parseBorderStyles( input.gettok( 4 ), &Styles, &ExStyles );
 
 		this->addStyle( Styles );
 		this->addExStyle( ExStyles );
@@ -244,8 +244,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	}
 	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if ( flags.switch_cap_flags[2] && numtok > 4 ) {
-		UINT iFlags = this->parseColorFlags( input.gettok( 4, " " ) );
-		COLORREF clrColor = (COLORREF)input.gettok( 5, " " ).to_num( );
+		UINT iFlags = this->parseColorFlags( input.gettok( 4 ) );
+		COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num( );
 
 		if ( iFlags & DCC_BKGCOLOR ) {
 			if ( this->m_hBackBrush != NULL ) {
@@ -280,12 +280,12 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		else
 			this->m_hCursor = NULL;
 
-		UINT iFlags = this->parseCursorFlags( input.gettok( 4, " " ) );
+		UINT iFlags = this->parseCursorFlags( input.gettok( 4 ) );
 
 		if ( iFlags & DCCS_FROMRESSOURCE )
-			this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.gettok( 5, " " ) ) );
+			this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.gettok( 5 ) ) );
 		else if ( iFlags & DCCS_FROMFILE ) {
-			this->m_hCursor = LoadCursorFromFile( input.gettok( 5, -1, " " ).to_chr( ) );
+			this->m_hCursor = LoadCursorFromFile( input.gettok( 5, -1 ).to_chr( ) );
 			this->m_bCursorFromFile = TRUE;
 		}
 	}
@@ -295,7 +295,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		TString info;
 		if ( numtok > 3 ) {
 
-			info = input.gettok( 4, -1 , " " );
+			info = input.gettok( 4, -1 );
 			info.trim( );
 		}
 		this->m_tsMark = info;
@@ -303,7 +303,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
 	else if ( flags.switch_cap_flags[25] && numtok > 3 ) {
 
-		int perc = input.gettok( 4, " " ).to_int( );
+		int perc = input.gettok( 4 ).to_int( );
 
 		if ( perc >= 0 || perc <= 100 ) {
 
@@ -358,12 +358,12 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	}
 	// xdid -T [NAME] [ID] [SWITCH] (ToolTipText)
   else if (flags.switch_cap_flags[19] && numtok > 2) {
-		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1, " ") : "");
+		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1) : "");
 		this->m_tsToolTip.trim();
   }
 	// xdid -R [NAME] [ID] [SWITCH] [FLAG] [ARGS]
 	else if (flags.switch_cap_flags[17] && numtok > 3) {
-		TString flag(input.gettok(4," "));
+		TString flag(input.gettok( 4 ));
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
 			DCXError("/xdid -R","Invalid Flag");
@@ -392,8 +392,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 				return;
 			}
 
-			COLORREF tCol = (COLORREF)input.gettok(5," ").to_num();
-			HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,input.gettok(6,-1," "));
+			COLORREF tCol = (COLORREF)input.gettok( 5 ).to_num();
+			HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,input.gettok(6,-1));
 
 			if (m_bitmapBg != NULL) {
 				m_Region = BitmapRegion(m_bitmapBg,tCol,TRUE);
@@ -406,7 +406,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			int radius;
 
 			if (numtok > 4)
-				radius = input.gettok(5, " ").to_int();
+				radius = input.gettok( 5 ).to_int();
 			else
 				radius = 20;
 
@@ -415,7 +415,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		else if (flag.find('c',0)) // circle - radius arg (optional)
 		{
 			if (numtok > 4) {
-				int radius = input.gettok(5, " ").to_int();
+				int radius = input.gettok( 5 ).to_int();
 				if (radius < 1) radius = 100; // handle cases where arg isnt a number or is a negative.
 				int cx = ((rc.right - rc.left)/2);
 				int cy = ((rc.bottom - rc.top)/2);
@@ -432,9 +432,9 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 				return;
 			}
 
-			TString strPoints(input.gettok(5, -1, " "));
+			TString strPoints(input.gettok(5, -1));
 			TString strPoint;
-			int tPoints = strPoints.numtok(" ");
+			int tPoints = strPoints.numtok( );
 
 			if (tPoints < 1) {
 				DCXError("/xdid -R","Invalid Points");
@@ -445,9 +445,9 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			POINT *pnts = new POINT[tPoints];
 
 			while (cnt <= tPoints) {
-				strPoint = strPoints.gettok(cnt," ");
-				pnts[cnt-1].x = (LONG)strPoint.gettok(1, ",").to_num();
-				pnts[cnt-1].y = (LONG)strPoint.gettok(2, ",").to_num();
+				strPoint = strPoints.gettok( cnt );
+				pnts[cnt-1].x = (LONG)strPoint.gettok(1, TSCOMMA).to_num();
+				pnts[cnt-1].y = (LONG)strPoint.gettok(2, TSCOMMA).to_num();
 				cnt++;
 			}
 
@@ -510,18 +510,18 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		if (numtok > 3) {
 			error.sprintf("D_ERROR /xdid: Invalid %s command /xdid %s %s %s %s (or invalid arguments) on Control %d",
 				this->getType().to_chr(),
-				input.gettok(3, " ").to_chr(),
-				input.gettok(1, " ").to_chr(),
-				input.gettok(2, " ").to_chr(),
-				input.gettok(4, -1, " ").to_chr(),
+				input.gettok( 3 ).to_chr(),
+				input.gettok( 1 ).to_chr(),
+				input.gettok( 2 ).to_chr(),
+				input.gettok( 4, -1).to_chr(),
 				this->getUserID());
 		}
 		else {
 			error.sprintf("D_ERROR /xdid: Invalid %s command /xdid %s %s %s (or invalid arguments) on Control %d",
 				this->getType().to_chr(),
-				input.gettok(3, " ").to_chr(),
-				input.gettok(1, " ").to_chr(),
-				input.gettok(2, " ").to_chr(),
+				input.gettok( 3).to_chr(),
+				input.gettok( 1 ).to_chr(),
+				input.gettok( 2 ).to_chr(),
 				this->getUserID());
 		}
 
@@ -666,25 +666,27 @@ LPSTR DcxControl::parseCursorType( TString & cursor ) {
 
 BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnValue ) {
 
-	if ( input.gettok( 3, " " ) == "hwnd" ) {
+	TString prop(input.gettok( 3 ));
+
+	if ( prop == "hwnd" ) {
 		wsprintf( szReturnValue, "%d", this->m_Hwnd );
 		return TRUE;
 	}
-	else if ( input.gettok( 3, " " ) == "visible" ) {
+	else if ( prop == "visible" ) {
 		if ( IsWindowVisible( this->m_Hwnd ) )
 			lstrcpy( szReturnValue, "$true" );
 		else
 			lstrcpy( szReturnValue, "$false" );
 		return TRUE;
 	}
-	else if ( input.gettok( 3, " " ) == "enabled" ) {
+	else if ( prop == "enabled" ) {
 		if ( IsWindowEnabled( this->m_Hwnd ) )
 			lstrcpy( szReturnValue, "$true" );
 		else
 			lstrcpy( szReturnValue, "$false" );
 		return TRUE;    
 	}
-	else if ( input.gettok( 3, " " ) == "pos" ) {
+	else if ( prop == "pos" ) {
 		RECT rc;
 		GetWindowRect( this->m_Hwnd, &rc );
 		//POINT pt;
@@ -697,7 +699,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 		wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
 		return TRUE;
 	}
-	else if ( input.gettok( 3, " " ) == "dpos" ) {
+	else if ( prop == "dpos" ) {
 		RECT rc;
 		GetWindowRect( this->m_Hwnd, &rc );
 		//POINT pt;
@@ -711,11 +713,11 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 		wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
 		return TRUE;
 	}
-	else if ( input.gettok( 3, " " ) == "mark" ) {
+	else if ( prop == "mark" ) {
 		lstrcpyn( szReturnValue, this->m_tsMark.to_chr( ), 900 );
 		return TRUE;
 	}
-	else if ( input.gettok( 3, " " ) == "mouse" ) {
+	else if ( prop == "mouse" ) {
 		POINT pt;
 		GetCursorPos( &pt );
 		//ScreenToClient( this->m_Hwnd, &pt );
@@ -723,23 +725,23 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 		wsprintf( szReturnValue, "%d %d", pt.x, pt.y );
 		return TRUE;
 	}
-	else if ( input.gettok( 3, " " ) == "pid" ) {
+	else if ( prop == "pid" ) {
 		char classname[257];
 		GetClassName( GetParent( this->m_Hwnd ), classname, 256 );
 
 		if ( lstrcmp( classname, "#32770" ) == 0 )
-		lstrcpy( szReturnValue, "0" );
+			lstrcpy( szReturnValue, "0" );
 		else
-		wsprintf( szReturnValue, "%d",  this->m_pParentDialog->getControlByHWND( GetParent( this->m_Hwnd ) )->getUserID( ) );
+			wsprintf( szReturnValue, "%d",  this->m_pParentDialog->getControlByHWND( GetParent( this->m_Hwnd ) )->getUserID( ) );
 
 		return TRUE;
 	}
-	else if ( input.gettok( 3, " " ) == "type" ) {
+	else if ( prop == "type" ) {
 
 		lstrcpyn( szReturnValue, this->getType( ).to_chr( ), 900 );
 		return TRUE;
 	}
-	else if (input.gettok(3, " ") == "font") {
+	else if ( prop == "font") {
 		HFONT hFontControl = this->m_hFont;
 
 //		if (!hFontControl)
@@ -760,7 +762,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 		}
 	}
 	// [NAME] [ID] [PROP]
-	else if (input.gettok(3, " ") == "tooltipbgcolor") {
+	else if ( prop == "tooltipbgcolor") {
 		DWORD cref = 0;
 
 		if (this->m_ToolTipHWND != NULL)
@@ -770,7 +772,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
-	else if (input.gettok(3, " ") == "tooltiptextcolor") {
+	else if (prop == "tooltiptextcolor") {
 		DWORD cref = 0;
 
 		if (this->m_ToolTipHWND != NULL)
@@ -780,14 +782,14 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
-	else if (input.gettok(3, " ") == "alpha") {
+	else if (prop == "alpha") {
 		if (this->m_bAlphaBlend)
 			lstrcpy(szReturnValue, "$true");
 		else
 			lstrcpy(szReturnValue, "$false");
 	}
 	else
-		dcxInfoError("General", input.gettok( 3, " " ).to_chr( ), input.gettok(1, " ").to_chr(), this->getUserID(), "Invalid property or number of arguments");
+		dcxInfoError("General", prop.to_chr( ), input.gettok( 1 ).to_chr(), this->getUserID(), "Invalid property or number of arguments");
 
 	return FALSE;
 }
@@ -862,17 +864,17 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 
 DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & tsInput, int offset, const UINT64 mask, HWND hParent ) {
 
-	TString type(tsInput.gettok( offset++, " " ));
+	TString type(tsInput.gettok( offset++ ));
 
 	RECT rc;
-	rc.left = (LONG)tsInput.gettok( offset++, " " ).to_num( );
-	rc.top = (LONG)tsInput.gettok( offset++, " " ).to_num( );
-	rc.right = rc.left + (LONG)tsInput.gettok( offset++, " " ).to_num( );
-	rc.bottom = rc.top + (LONG)tsInput.gettok( offset, " " ).to_num( );
+	rc.left = (LONG)tsInput.gettok( offset++ ).to_num( );
+	rc.top = (LONG)tsInput.gettok( offset++ ).to_num( );
+	rc.right = rc.left + (LONG)tsInput.gettok( offset++ ).to_num( );
+	rc.bottom = rc.top + (LONG)tsInput.gettok( offset ).to_num( );
 
 	TString styles;
-	if ( tsInput.numtok( " " ) > offset )
-		styles = tsInput.gettok( offset +1, -1, " " );
+	if ( tsInput.numtok( ) > offset )
+		styles = tsInput.gettok( offset +1, -1);
 
 	if (hParent == NULL)
 		hParent = p_Dialog->getHwnd();
@@ -950,10 +952,10 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 #endif // DCX_USE_DXSDK
 
 	else if (( type == "window" ) && (mask & CTLF_ALLOW_DOCK)) {
-		if ( tsInput.numtok( " " ) > offset ) {
+		if ( tsInput.numtok( ) > offset ) {
 			char windowHwnd[30];
 			TString expression;
-			expression.sprintf("$window(%s).hwnd", tsInput.gettok( offset +1, " " ).to_chr( ) );
+			expression.sprintf("$window(%s).hwnd", tsInput.gettok( offset +1 ).to_chr( ) );
 			mIRCeval( expression.to_chr(), windowHwnd );
 
 			HWND winHwnd = (HWND) atoi( windowHwnd );
@@ -963,12 +965,12 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 					return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 			}
 			else
-				mIRCDebug("D_ERROR: Docking (No such window %s)", tsInput.gettok(offset +1, " ").to_chr());
+				mIRCDebug("D_ERROR: Docking (No such window %s)", tsInput.gettok( offset +1 ).to_chr());
 		}
 	}
 	else if ((type == "dialog") && (mask & CTLF_ALLOW_DOCK)) {
-		if (tsInput.numtok(" ") > offset) {
-			HWND winHwnd = GetHwndFromString(tsInput.gettok(offset +1, " "));
+		if (tsInput.numtok( ) > offset) {
+			HWND winHwnd = GetHwndFromString(tsInput.gettok( offset +1 ));
 
 			if (IsWindow(winHwnd)) {
 				if (p_Dialog->getControlByHWND(winHwnd) == NULL) {
@@ -983,7 +985,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 				}
 			}
 			else
-				mIRCDebug("D_ERROR: Docking (No such dialog %s)", tsInput.gettok(offset +1, " ").to_chr());
+				mIRCDebug("D_ERROR: Docking (No such dialog %s)", tsInput.gettok( offset +1 ).to_chr());
 		}
 	}
 

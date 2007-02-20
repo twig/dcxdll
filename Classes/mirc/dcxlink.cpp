@@ -56,7 +56,7 @@ DcxLink::DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, c
 	this->m_bVisited = FALSE;
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
+		if (styles.istok("tooltips")) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -88,17 +88,17 @@ DcxLink::~DcxLink( ) {
  */
 
 void DcxLink::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok( " " );
+	unsigned int i = 1, numtok = styles.numtok( );
 	*Styles |= SS_NOTIFY;
 
   
   while ( i <= numtok ) {
 
-		if ( styles.gettok( i , " " ) == "alpha" )
+		if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i , " " ) == "shadow" ))
+		else if (( styles.gettok( i ) == "shadow" ))
 			this->m_bShadowText = true;
-		else if (( styles.gettok( i , " " ) == "noformat" ))
+		else if (( styles.gettok( i ) == "noformat" ))
 			this->m_bCtrlCodeText = false;
 
     i++;
@@ -119,18 +119,16 @@ void DcxLink::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 
 void DcxLink::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
 
   // [NAME] [ID] [PROP]
-  if ( input.gettok( 3, " " ) == "text" ) {
+  if ( input.gettok( 3 ) == "text" ) {
 
     GetWindowText( this->m_Hwnd, szReturnValue, 900 );
     return;
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -145,25 +143,25 @@ void DcxLink::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
   
   // xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
   if ( flags.switch_flags[11] && numtok > 4 ) {
 
-    int nColor = input.gettok( 4, " " ).to_int( ) - 1;
+    int nColor = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nColor > -1 && nColor < 4 )
-      this->m_aColors[nColor] = (COLORREF)input.gettok( 5, " " ).to_num( );
+      this->m_aColors[nColor] = (COLORREF)input.gettok( 5 ).to_num( );
   }
   // xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR4]
   else if ( flags.switch_flags[16] && numtok > 3 ) {
 
-    int i = 0, len = input.gettok( 4, -1, " " ).numtok( " " );
+    int i = 0, len = input.gettok( 4, -1 ).numtok( );
     while ( i < len && i < 4 ) {
 
-      this->m_aColors[i] = (COLORREF)input.gettok( 4 + i, " " ).to_num( );
+      this->m_aColors[i] = (COLORREF)input.gettok( 4 + i ).to_num( );
 
       i++;
     }
@@ -171,16 +169,16 @@ void DcxLink::parseCommandRequest( TString & input ) {
   //xdid -t [NAME] [ID] [SWITCH] (TEXT)
   else if ( flags.switch_flags[19] ) {
 
-		TString text(input.gettok( 4, -1, " " ));
+		TString text(input.gettok( 4, -1 ));
     //text.trim( );
     SetWindowText( this->m_Hwnd, text.to_chr( ) );
     this->redrawWindow( );
   }
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {
-		TString flags(input.gettok(4, " "));
-		int index = input.gettok(5, " ").to_int();
-		TString filename(input.gettok(6, -1, " "));
+		TString flags(input.gettok( 4 ));
+		int index = input.gettok( 5 ).to_int();
+		TString filename(input.gettok(6, -1));
 
 		if (this->m_hIcon != NULL)
 			DestroyIcon(this->m_hIcon);

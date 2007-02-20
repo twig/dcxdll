@@ -62,7 +62,7 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
   }
   */
 	//if (p_Dialog->getToolTip() != NULL) {
-	//	if (styles.istok("tooltips", " ")) {
+	//	if (styles.istok("tooltips")) {
 	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
 	//		TabCtrl_SetToolTips(this->m_Hwnd,this->m_ToolTipHWND);
 	//		//AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
@@ -102,35 +102,35 @@ DcxTab::~DcxTab( ) {
 
 void DcxTab::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
 
 	//*ExStyles = WS_EX_CONTROLPARENT;
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "vertical" )
+    if ( styles.gettok( i ) == "vertical" )
       *Styles |= TCS_VERTICAL;
-    else if ( styles.gettok( i , " " ) == "bottom" )
+    else if ( styles.gettok( i ) == "bottom" )
       *Styles |= TCS_BOTTOM;
-    else if ( styles.gettok( i , " " ) == "right" )
+    else if ( styles.gettok( i ) == "right" )
       *Styles |= TCS_RIGHT;
-    else if ( styles.gettok( i , " " ) == "fixedwidth" )
+    else if ( styles.gettok( i ) == "fixedwidth" )
       *Styles |= TCS_FIXEDWIDTH;
-    else if ( styles.gettok( i , " " ) == "buttons" )
+    else if ( styles.gettok( i ) == "buttons" )
       *Styles |= TCS_BUTTONS;
-    else if ( styles.gettok( i , " " ) == "flat" )
+    else if ( styles.gettok( i ) == "flat" )
       *Styles |= TCS_FLATBUTTONS;
-    else if ( styles.gettok( i , " " ) == "hot" )
+    else if ( styles.gettok( i ) == "hot" )
       *Styles |= TCS_HOTTRACK;
-    else if ( styles.gettok( i , " " ) == "multiline" )
+    else if ( styles.gettok( i ) == "multiline" )
       *Styles |= TCS_MULTILINE;
-    else if ( styles.gettok( i , " " ) == "rightjustify" )
+    else if ( styles.gettok( i ) == "rightjustify" )
       *Styles |= TCS_RIGHTJUSTIFY;
-    else if ( styles.gettok( i , " " ) == "scrollopposite" )
+    else if ( styles.gettok( i ) == "scrollopposite" )
       *Styles |= TCS_SCROLLOPPOSITE;
-    //else if ( styles.gettok( i , " " ) == "tooltips" )
+    //else if ( styles.gettok( i ) == "tooltips" )
     //  *Styles |= TCS_TOOLTIPS;
-    else if ( styles.gettok( i , " " ) == "flatseps" )
+    else if ( styles.gettok( i ) == "flatseps" )
       *ExStyles |= TCS_EX_FLATSEPARATORS;
 
     i++;
@@ -149,11 +149,12 @@ void DcxTab::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 
 void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
+	TString prop(input.gettok( 3 ));
 
-  if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
+  if ( prop == "text" && numtok > 3 ) {
 
-    int nItem = (int)input.gettok( 4, " " ).to_num( ) - 1;
+    int nItem = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
       
@@ -168,15 +169,15 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
-  else if ( input.gettok( 3, " " ) == "num" ) {
+  else if ( prop == "num" ) {
 
     wsprintf( szReturnValue, "%d", TabCtrl_GetItemCount( this->m_Hwnd ) );
     return;
   }
   // [NAME] [ID] [PROP] [N]
-  else if ( input.gettok( 3, " " ) == "icon" && numtok > 3 ) {
+  else if ( prop == "icon" && numtok > 3 ) {
 
-    int iTab = (int)input.gettok( 4, " " ).to_num( ) - 1;
+    int iTab = input.gettok( 4 ).to_int( ) - 1;
 
     if ( iTab > -1 && iTab < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -191,7 +192,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
-  else if ( input.gettok( 3, " " ) == "sel" ) {
+  else if ( prop == "sel" ) {
 
     int nItem = TabCtrl_GetCurSel( this->m_Hwnd );
 
@@ -201,7 +202,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
-  else if ( input.gettok( 3, " " ) == "seltext" ) {
+  else if ( prop == "seltext" ) {
 
     int nItem = TabCtrl_GetCurSel( this->m_Hwnd );
 
@@ -218,9 +219,9 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
-  else if ( input.gettok( 3, " " ) == "childid" && numtok > 3 ) {
+  else if ( prop == "childid" && numtok > 3 ) {
 
-    int nItem = (int)input.gettok( 4, " " ).to_num( ) - 1;
+    int nItem = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
       
@@ -239,10 +240,8 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -256,9 +255,9 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
 void DcxTab::parseCommandRequest( TString & input ) {
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
 
   // xdid -r [NAME] [ID] [SWITCH]
 	if (flags.switch_flags[17]) {
@@ -292,27 +291,27 @@ void DcxTab::parseCommandRequest( TString & input ) {
     ZeroMemory( &tci, sizeof( TCITEM ) );
     tci.mask = TCIF_IMAGE | TCIF_PARAM;
 
-    TString data(input.gettok( 1, "\t" ));
+    TString data(input.gettok( 1, TSTAB ));
     data.trim( );
 
     TString control_data;
-    if ( input.numtok( "\t" ) > 1 ) {
-      control_data = input.gettok( 2, "\t" );
+    if ( input.numtok( TSTAB ) > 1 ) {
+      control_data = input.gettok( 2, TSTAB );
       control_data.trim( );
     }
 
     TString tooltip;
-    if ( input.numtok( "\t" ) > 2 ) {
-      tooltip = input.gettok( 3, -1, "\t" );
+    if ( input.numtok( TSTAB ) > 2 ) {
+      tooltip = input.gettok( 3, -1, TSTAB );
       tooltip.trim( );
     }
 
-    int nIndex = (int)data.gettok( 4, " " ).to_num( ) - 1;
+    int nIndex = data.gettok( 4 ).to_int( ) - 1;
 
     if ( nIndex == -1 )
       nIndex += TabCtrl_GetItemCount( this->m_Hwnd ) + 1;
 
-	 tci.iImage = (int)data.gettok( 5, " " ).to_num( ) - 1;
+	 tci.iImage = data.gettok( 5 ).to_int( ) - 1;
 
     // Extra params
     LPDCXTCITEM lpdtci = new DCXTCITEM;
@@ -321,14 +320,14 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
     // Itemtext
     TString itemtext;
-    if ( data.numtok( " " ) > 5 ) {
-      itemtext = data.gettok( 6, -1, " " );
+    if ( data.numtok( ) > 5 ) {
+      itemtext = data.gettok( 6, -1 );
       tci.mask |= TCIF_TEXT;
       tci.pszText = itemtext.to_chr( );
     }
 
-    if ( control_data.numtok( " " ) > 5 ) {
-      UINT ID = mIRC_ID_OFFSET + (UINT)control_data.gettok( 1, " " ).to_int( );
+    if ( control_data.numtok( ) > 5 ) {
+      UINT ID = mIRC_ID_OFFSET + (UINT)control_data.gettok( 1 ).to_int( );
 
       if ( ID > mIRC_ID_OFFSET - 1 && 
         !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -365,7 +364,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
   }
   // xdid -c [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[2] && numtok > 3 ) {
-    int nItem = input.gettok( 4, " " ).to_int( ) - 1;
+    int nItem = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
       TabCtrl_SetCurSel( this->m_Hwnd, nItem );
@@ -374,7 +373,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
   }
   // xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
-	  int nItem = input.gettok( 4, " " ).to_int( ) - 1;
+	  int nItem = input.gettok( 4 ).to_int( ) - 1;
 
 	  // if a valid item to delete
 	  if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
@@ -408,8 +407,8 @@ void DcxTab::parseCommandRequest( TString & input ) {
   }
   // xdid -l [NAME] [ID] [SWITCH] [N] [ICON]
   else if ( flags.switch_flags[11] && numtok > 4 ) {
-    int nItem = (int)input.gettok( 4, " " ).to_num( ) - 1;
-    int nIcon = (int)input.gettok( 5, " " ).to_num( ) - 1;
+    int nItem = input.gettok( 4 ).to_int( ) - 1;
+    int nIcon = input.gettok( 5 ).to_int( ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
      TCITEM tci;
@@ -423,8 +422,8 @@ void DcxTab::parseCommandRequest( TString & input ) {
   // xdid -m [NAME] [ID] [SWITCH] [X] [Y]
   else if ( flags.switch_flags[12] && numtok > 4 ) {
 
-    int X = (int)input.gettok( 4, " " ).to_num( );
-    int Y = (int)input.gettok( 5, " " ).to_num( );
+    int X = input.gettok( 4 ).to_int( );
+    int Y = input.gettok( 5 ).to_int( );
 
     TabCtrl_SetItemSize( this->m_Hwnd, X, Y );
   }
@@ -434,7 +433,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
   // xdid -t [NAME] [ID] [SWITCH] [N] (text)
   else if ( flags.switch_flags[19] && numtok > 3 ) {
 
-    int nItem = (int)input.gettok( 4, " " ).to_num( ) - 1;
+    int nItem = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -446,7 +445,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
 
       if ( numtok > 4 ) {
-        itemtext = input.gettok( 5, -1, " " );
+        itemtext = input.gettok( 5, -1 );
         itemtext.trim( );
       }
 
@@ -459,9 +458,9 @@ void DcxTab::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
-		TString flags(input.gettok(4, " "));
-		int index = input.gettok(5, " ").to_int();
-		TString filename(input.gettok(6, -1, " "));
+		TString flags(input.gettok( 4 ));
+		int index = input.gettok( 5 ).to_int();
+		TString filename(input.gettok(6, -1));
 
 		if ((himl = this->getImageList()) == NULL) {
 			himl = this->createImageList();

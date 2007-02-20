@@ -79,33 +79,33 @@ DcxReBar::~DcxReBar( ) {
 void DcxReBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
   *Styles |= RBS_AUTOSIZE;
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
 
 	//*ExStyles |= WS_EX_CONTROLPARENT;
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "borders" ) 
+    if ( styles.gettok( i ) == "borders" ) 
       *Styles |= RBS_BANDBORDERS;
-    else if ( styles.gettok( i , " " ) == "dblclktoggle" ) 
+    else if ( styles.gettok( i ) == "dblclktoggle" ) 
       *Styles |= RBS_DBLCLKTOGGLE;
-    else if ( styles.gettok( i , " " ) == "fixedorder" ) 
+    else if ( styles.gettok( i ) == "fixedorder" ) 
       *Styles |= RBS_FIXEDORDER;
-    else if ( styles.gettok( i , " " ) == "varheight" ) 
+    else if ( styles.gettok( i ) == "varheight" ) 
       *Styles |= RBS_VARHEIGHT;
-    else if ( styles.gettok( i , " " ) == "tooltips" ) 
+    else if ( styles.gettok( i ) == "tooltips" ) 
       *Styles |= RBS_TOOLTIPS;
-    else if ( styles.gettok( i , " " ) == "verticalgrip" ) 
+    else if ( styles.gettok( i ) == "verticalgrip" ) 
       *Styles |= RBS_VERTICALGRIPPER;
-    else if ( styles.gettok( i , " " ) == "vertical" ) 
+    else if ( styles.gettok( i ) == "vertical" ) 
       *Styles |= CCS_VERT;
-    else if ( styles.gettok( i , " " ) == "right" ) 
+    else if ( styles.gettok( i ) == "right" ) 
       *Styles |= CCS_RIGHT;
-    else if ( styles.gettok( i , " " ) == "bottom" ) 
+    else if ( styles.gettok( i ) == "bottom" ) 
       *Styles |= CCS_BOTTOM;
-    else if ( styles.gettok( i , " " ) == "noresize" ) 
+    else if ( styles.gettok( i ) == "noresize" ) 
       *Styles |= CCS_NORESIZE;
-    else if ( styles.gettok( i , " " ) == "noparentalign" ) 
+    else if ( styles.gettok( i ) == "noparentalign" ) 
       *Styles |= CCS_NOPARENTALIGN ;
 
     i++;
@@ -166,17 +166,19 @@ HIMAGELIST DcxReBar::createImageList( ) {
 
 void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
 
-  if ( input.gettok( 3, " " ) == "num" ) {
+	TString prop(input.gettok( 3 ));
+
+  if ( prop == "num" ) {
 
     wsprintf( szReturnValue, "%d", this->getBandCount( ) );
     return;
   }
   // [NAME] [ID] [PROP] [N]
-  else if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
+  else if ( prop == "text" && numtok > 3 ) {
 
-    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
+    int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
@@ -190,9 +192,9 @@ void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
         return;
     }
   }
-  if ( input.gettok( 3, " " ) == "childid" && numtok > 3 ) {
+  else if ( prop == "childid" && numtok > 3 ) {
 
-    int nItem = input.gettok( 4, " " ).to_int( ) - 1;
+    int nItem = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nItem > -1 && nItem < this->getBandCount( ) ) {
       
@@ -204,17 +206,15 @@ void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
       if ( this->getBandInfo( nItem, &rbBand ) != 0 ) {
 
         DcxControl * c = this->m_pParentDialog->getControlByHWND( rbBand.hwndChild );
-        if ( c != NULL ) 
+        if ( c != NULL )
           wsprintf( szReturnValue, "%d", c->getUserID( ) );
       }
 
       return;
     }
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
 
   szReturnValue[0] = 0;
 }
@@ -228,9 +228,9 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
 
   // xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] [Item Text][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB]Tooltip
   if ( flags.switch_flags[0] && numtok > 9 ) {
@@ -240,39 +240,39 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     rbBand.cbSize = sizeof( REBARBANDINFO );
     rbBand.fMask = RBBIM_STYLE | RBBIM_LPARAM;
 
-    TString data(input.gettok( 1, "\t" ));
+    TString data(input.gettok( 1, TSTAB ));
     data.trim( );
 
     TString control_data;
-    if ( input.numtok( "\t" ) > 1 ) {
+    if ( input.numtok( TSTAB ) > 1 ) {
 
-      control_data = input.gettok( 2, "\t" );
+      control_data = input.gettok( 2, TSTAB );
       control_data.trim( );
     }
 
     TString tooltip;
-    if ( input.numtok( "\t" ) > 2 ) {
+    if ( input.numtok( TSTAB ) > 2 ) {
 
-      tooltip = input.gettok( 3, "\t" );
+      tooltip = input.gettok( 3, TSTAB );
       tooltip.trim( );
     }
 
-    //int nIndex = data.gettok( 4, " " ).to_int( ) - 1;
-    int cx = data.gettok( 6, " " ).to_int( );
-    int cy = data.gettok( 7, " " ).to_int( );
-    int width = data.gettok( 8, " " ).to_int( );
-    int nIcon = data.gettok( 9, " " ).to_int( ) - 1;
-    COLORREF clrText = (COLORREF)data.gettok( 10, " " ).to_num( );
+    //int nIndex = data.gettok( 4 ).to_int( ) - 1;
+    int cx = data.gettok( 6 ).to_int( );
+    int cy = data.gettok( 7 ).to_int( );
+    int width = data.gettok( 8 ).to_int( );
+    int nIcon = data.gettok( 9 ).to_int( ) - 1;
+    COLORREF clrText = (COLORREF)data.gettok( 10 ).to_num( );
 
 		TString itemtext;
-		if ( data.numtok( " " ) > 10 ) {
-			itemtext = data.gettok( 11, -1, " " );
+		if ( data.numtok( ) > 10 ) {
+			itemtext = data.gettok( 11, -1 );
 			itemtext.trim();
 			rbBand.fMask |= RBBIM_TEXT;
 			rbBand.lpText = itemtext.to_chr( );
 		}
 
-    rbBand.fStyle = this->parseBandStyleFlags( data.gettok( 5, " " ) );
+    rbBand.fStyle = this->parseBandStyleFlags( data.gettok( 5 ) );
 
     // Tooltip Handling
     LPDCXRBBAND lpdcxrbb = new DCXRBBAND;
@@ -299,8 +299,8 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 
     rbBand.lParam = (LPARAM) lpdcxrbb;
 
-    if ( control_data.numtok( " " ) > 5 ) {
-      UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1, " " ).to_int( );
+    if ( control_data.numtok( ) > 5 ) {
+      UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1 ).to_int( );
 
       if ( ID > mIRC_ID_OFFSET - 1 && 
         !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -345,7 +345,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
 
-    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
+    int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
      
@@ -355,7 +355,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -i [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[8] && numtok > 3 ) {
 
-    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
+    int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
      
@@ -365,7 +365,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -j [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[9] && numtok > 3 ) {
 
-    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
+    int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
      
@@ -380,8 +380,8 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     rbBand.cbSize = sizeof( REBARBANDINFO );
     rbBand.fMask = RBBIM_IMAGE;
 
-    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
-    int nIcon = input.gettok( 5, " " ).to_int( ) - 1;
+    int nIndex = input.gettok( 4 ).to_int( ) - 1;
+    int nIcon = input.gettok( 5 ).to_int( ) - 1;
     if ( nIndex > -1 && nIndex < this->getBandCount( ) && nIcon > -2 ) {
 
       rbBand.iImage = nIcon;
@@ -398,7 +398,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 
     int nItems = this->getBandCount( );
 
-    if ( input.gettok( 4, " " ) == "all" ) {
+    if ( input.gettok( 4 ) == "all" ) {
 
       int i = 0;
 
@@ -414,7 +414,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
     else {
 
-      int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
+      int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
       if ( nIndex > -1 && nIndex < nItems && this->getBandInfo( nIndex, &rbBand ) != 0 ) {
 
@@ -426,7 +426,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -m [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[12] && numtok > 3 ) {
 
-    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
+    int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
      
@@ -436,7 +436,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -n [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[13] && numtok > 3 ) {
 
-    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
+    int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
      
@@ -446,7 +446,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -q [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[16] && numtok > 3 ) {
 
-    int nRows = input.gettok( 4, " " ).to_int( );
+    int nRows = input.gettok( 4 ).to_int( );
 
     if ( nRows > -1 ) {
      
@@ -461,13 +461,13 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     rbBand.cbSize = sizeof( REBARBANDINFO );
     rbBand.fMask = RBBIM_TEXT;
 
-    int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
+    int nIndex = input.gettok( 4 ).to_int( ) - 1;
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
       TString itemtext;
       if ( numtok > 4 ) {
 
-        itemtext = input.gettok( 5, -1, " " );
+        itemtext = input.gettok( 5, -1 );
         itemtext.trim( );
       }
       rbBand.lpText = itemtext.to_chr( );
@@ -484,7 +484,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 
     int nItems = this->getBandCount( );
 
-    if ( input.gettok( 4, " " ) == "all" ) {
+    if ( input.gettok( 4 ) == "all" ) {
 
       int i = 0;
 
@@ -500,7 +500,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
     else {
 
-      int nIndex = input.gettok( 4, " " ).to_int( ) - 1;
+      int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
       if ( nIndex > -1 && nIndex < nItems && this->getBandInfo( nIndex, &rbBand ) != 0 ) {
 
@@ -512,8 +512,8 @@ void DcxReBar::parseCommandRequest( TString & input ) {
   // xdid -v [NAME] [ID] [SWITCH] [NFrom] [NTo]
   else if ( flags.switch_flags[21] && numtok > 4 ) {
 
-    int nIndexFrom = input.gettok( 4, " " ).to_int( ) - 1;
-    int nIndexTo = input.gettok( 4, " " ).to_int( ) - 1;
+    int nIndexFrom = input.gettok( 4 ).to_int( ) - 1;
+    int nIndexTo = input.gettok( 4 ).to_int( ) - 1;
     int nItems = this->getBandCount( );
 
     if ( nIndexFrom > -1 && nIndexFrom < nItems && nIndexTo > -1 && nIndexTo < nItems ) {
@@ -525,9 +525,9 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
-		TString flags(input.gettok(4, " "));
-		int index = input.gettok(5, " ").to_int();
-		TString filename(input.gettok(6, -1, " "));
+		TString flags(input.gettok( 4 ));
+		int index = input.gettok( 5 ).to_int();
+		TString filename(input.gettok( 6, -1 ));
 
 		if ((himl = this->getImageList()) == NULL) {
 			himl = this->createImageList();

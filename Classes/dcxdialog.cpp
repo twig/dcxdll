@@ -458,15 +458,15 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(input.gettok(2, " "), &flags);
+	this->parseSwitchFlags(input.gettok( 2 ), &flags);
 
-	int numtok = input.numtok(" ");
+	int numtok = input.numtok( );
 
 	// xdialog -a [NAME] [SWITCH] [+FLAGS] [DURATION]
 	if (flags.switch_flags[0] && numtok > 3) {
 		AnimateWindow(this->m_Hwnd,
-			input.gettok(4, " ").to_int(), 
-			getAnimateStyles(input.gettok(3, " ")));
+			input.gettok( 4 ).to_int(), 
+			getAnimateStyles(input.gettok( 3 )));
 
 		if (IsWindowVisible(this->m_Hwnd))
 			this->redrawWindow();
@@ -485,7 +485,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 		LONG Styles = 0, ExStyles = 0;
 
-		this->parseBorderStyles(input.gettok(3, " "), &Styles, &ExStyles);
+		this->parseBorderStyles(input.gettok( 3 ), &Styles, &ExStyles);
 		this->addStyle(Styles);
 		this->addExStyle(ExStyles);
 
@@ -495,7 +495,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -c [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	else if (flags.switch_flags[2] && numtok > 7) {
-		UINT ID = mIRC_ID_OFFSET + input.gettok(3, " ").to_int();
+		UINT ID = mIRC_ID_OFFSET + input.gettok( 3 ).to_int();
 
 		if ((IsWindow(GetDlgItem(this->m_Hwnd, ID)) == FALSE) && 
 			(ID > mIRC_ID_OFFSET - 1) && (this->getControlByID(ID) == NULL))
@@ -514,14 +514,14 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdialog -d [NAME] [SWITCH] [ID]
 	else if (flags.switch_flags[3] && numtok > 2) {
 		/*
-		if ( input.gettok( 3, " " ) == "*" ) { 
+		if ( input.gettok( 3 ) == "*" ) { 
 
 		this->deleteAllControls( );
 		}
 		else {
 		*/
 
-		UINT ID = mIRC_ID_OFFSET + input.gettok(3, " ").to_int();
+		UINT ID = mIRC_ID_OFFSET + input.gettok( 3 ).to_int();
 		DcxControl * p_Control;
 
 		if (IsWindow(GetDlgItem(this->m_Hwnd, ID)) && 
@@ -562,9 +562,9 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
 	else if (flags.switch_flags[5] && numtok > 4) {
-		UINT iFlags = this->parseFlashFlags(input.gettok(3, " "));
-		INT iCount = input.gettok(4, " ").to_int();
-		DWORD dwTimeout = (DWORD)input.gettok(5, " ").to_num();
+		UINT iFlags = this->parseFlashFlags(input.gettok( 3 ));
+		INT iCount = input.gettok( 4 ).to_int();
+		DWORD dwTimeout = (DWORD)input.gettok( 5 ).to_num();
 		FLASHWINFO fli;
 
 		ZeroMemory(&fli, sizeof(FLASHWINFO));
@@ -578,10 +578,10 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -g [NAME] [SWITCH] [+FLAGS] [COLOR|FILENAME]
 	else if (flags.switch_flags[6] && numtok > 3) {
-		this->m_uStyleBg = this->parseBkgFlags(input.gettok(3, " "));
+		this->m_uStyleBg = this->parseBkgFlags(input.gettok( 3 ));
 
 		if (this->m_uStyleBg & DBS_BKGCOLOR) {
-			COLORREF clrColor = (COLORREF)input.gettok(4, " ").to_num();
+			COLORREF clrColor = (COLORREF)input.gettok( 4 ).to_num();
 
 			if (this->m_hBackBrush != NULL) {
 				DeleteObject(this->m_hBackBrush);
@@ -594,7 +594,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		else if (this->m_uStyleBg & DBS_BKGBITMAP) {
 			PreloadData();
 
-			TString filename(input.gettok(4, -1, " "));
+			TString filename(input.gettok(4, -1));
 			filename.trim();
 
 
@@ -619,7 +619,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdialog -j [NAME] [SWITCH] (ID)
 	else if (flags.switch_flags[9]) {
 		if (numtok > 2) {
-			UINT id = mIRC_ID_OFFSET + input.gettok(3, " ").to_int();
+			UINT id = mIRC_ID_OFFSET + input.gettok( 3 ).to_int();
 			DcxControl * p_Control;
 
 			if ((id > mIRC_ID_OFFSET - 1) &&
@@ -648,7 +648,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	space PATH[TAB]+ [L] [T] [R] [B]
 	*/
 	else if (flags.switch_flags[11] && numtok > 2) {
-		if (input.gettok(3, " ") == "update") {
+		if (input.gettok( 3 ) == "update") {
 			if (this->m_pLayoutManager != NULL) {
 				RECT rc;
 
@@ -657,26 +657,26 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			}
 			this->redrawWindow();
 		}
-		else if (input.gettok(3, " ") == "clear") {
+		else if (input.gettok( 3 ) == "clear") {
 			if (this->m_pLayoutManager != NULL)
 				delete this->m_pLayoutManager;
 			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
 		else if (numtok > 7) {
-			TString com(input.gettok(1, "\t").gettok(3, " "));
-			TString path(input.gettok(1, "\t").gettok(4, -1, " "));
-			TString p2(input.gettok(2, "\t"));
+			TString com(input.gettok(1, TSTAB).gettok( 3 ));
+			TString path(input.gettok(1, TSTAB).gettok(4, -1));
+			TString p2(input.gettok(2, TSTAB));
 
 			com.trim();
 			path.trim();
 			p2.trim();
 
-			UINT flags = this->parseLayoutFlags(p2.gettok(1, " "));
-			UINT ID = p2.gettok(2, " ").to_int();
-			UINT WGT = p2.gettok(3, " ").to_int();
-			UINT W = p2.gettok(4, " ").to_int();
-			UINT H = p2.gettok(5, " ").to_int();
+			UINT flags = this->parseLayoutFlags(p2.gettok( 1 ));
+			UINT ID = p2.gettok( 2 ).to_int();
+			UINT WGT = p2.gettok( 3 ).to_int();
+			UINT W = p2.gettok( 4 ).to_int();
+			UINT H = p2.gettok( 5 ).to_int();
 
 			if (com == "root" || com == "cell") {
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, mIRC_ID_OFFSET + ID);
@@ -807,12 +807,12 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		else
 			this->m_hCursor = NULL;
 
-		UINT iFlags = this->parseCursorFlags(input.gettok(3, " "));
+		UINT iFlags = this->parseCursorFlags(input.gettok( 3 ));
 
 		if (iFlags & DCCS_FROMRESSOURCE)
-			this->m_hCursor = LoadCursor(NULL, this->parseCursorType(input.gettok(4, " ")));
+			this->m_hCursor = LoadCursor(NULL, this->parseCursorType(input.gettok( 4 )));
 		else if (iFlags & DCCS_FROMFILE) {
-			this->m_hCursor = LoadCursorFromFile(input.gettok(4, -1, " ").to_chr());
+			this->m_hCursor = LoadCursorFromFile(input.gettok(4, -1).to_chr());
 			this->m_bCursorFromFile = TRUE;
 		}
 	}
@@ -850,22 +850,22 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -t [NAME] [SWITCH] [COLOR]
 	else if (flags.switch_flags[19] && numtok > 2) {
-		if (input.gettok(3, " ") == "alpha") {
+		if (input.gettok( 3 ) == "alpha") {
 			// Set WS_EX_LAYERED on this window
 			SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
 			// Make this window x% alpha
-			SetLayeredWindowAttributes(this->m_Hwnd, 0, (255 * input.gettok(4, " ").to_int()) / 100, LWA_ALPHA);
+			SetLayeredWindowAttributes(this->m_Hwnd, 0, (255 * input.gettok( 4 ).to_int()) / 100, LWA_ALPHA);
 		}
-		else if (input.gettok(3, " ") == "transparentcolor") {
+		else if (input.gettok( 3 ) == "transparentcolor") {
 			// Set WS_EX_LAYERED on this window
 			SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
 			// Make colour transparent
-			SetLayeredWindowAttributes(this->m_Hwnd, input.gettok(4, " ").to_int(), 0, LWA_COLORKEY);
+			SetLayeredWindowAttributes(this->m_Hwnd, input.gettok( 4 ).to_int(), 0, LWA_COLORKEY);
 		}
-		else if (input.gettok(3, " ") == "bgcolor") {
-			this->m_colTransparentBg = input.gettok(3, " ").to_int();
+		else if (input.gettok( 3 ) == "bgcolor") {
+			this->m_colTransparentBg = input.gettok( 3 ).to_int();
 		}
 		else {
 			DCXError("/xdialog -t","Unknown Switch");
@@ -880,7 +880,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			return;
 		}
 
-		UINT styles = parseTooltipFlags(input.gettok(3, " "));
+		UINT styles = parseTooltipFlags(input.gettok( 3 ));
 
 		// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/tooltip/styles.asp
 		this->m_ToolTipHWND = CreateWindowEx(WS_EX_TOPMOST,
@@ -894,16 +894,16 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 4) {
-		TString flags(input.gettok(3, " "));
-		int index = input.gettok(4, " ").to_int();
-		TString filename(input.gettok(5, -1, " "));
+		TString flags(input.gettok( 3 ));
+		int index = input.gettok( 4 ).to_int();
+		TString filename(input.gettok(5, -1));
 		filename.trim();
 		ChangeHwndIcon(this->m_Hwnd,&flags,index,&filename);
 	}
 	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]
 	else if (flags.switch_flags[25] && numtok > 3) {
-		TString flag(input.gettok(3, " "));
-		int n = input.gettok(4, " ").to_int();
+		TString flag(input.gettok( 3 ));
+		int n = input.gettok( 4 ).to_int();
 		DcxControl* ctrl = NULL;
 
 		// invalid input for [N]
@@ -1012,7 +1012,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -P [NAME]
 	else if (flags.switch_cap_flags[15]) {
-		// TWIG: doesnt actually work?
 		HMENU menu = NULL;
 
 		// create the menu
@@ -1020,17 +1019,14 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			menu = GetMenu(this->m_Hwnd);
 
 			if (menu != NULL)
-			{
 				this->m_popup = new XPopupMenu("dialog", menu);
-			}
-			else {
+			else
 				dcxInfoError("xdialog -P", "", this->getName().to_chr(), 0, "Menu does not exist");
-			}
 		}
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
 	else if (flags.switch_cap_flags[17] && numtok > 2) {
-		TString flag(input.gettok(3," "));
+		TString flag(input.gettok( 3 ));
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
 			DCXError("/xdialog -R","Invalid Flag");
@@ -1062,10 +1058,10 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			}
 
 			//SetWindowRgn(this->m_Hwnd,NULL,TRUE);
-			this->m_colTransparentBg = (COLORREF)input.gettok(4," ").to_num();
+			this->m_colTransparentBg = (COLORREF)input.gettok( 4 ).to_num();
 			//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
 			this->m_uStyleBg = DBS_BKGBITMAP;
-			this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg,input.gettok(5,-1," "));
+			this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg,input.gettok(5,-1));
 
 			if (this->m_bitmapBg != NULL)
 				m_Region = BitmapRegion(this->m_bitmapBg,this->m_colTransparentBg,TRUE);
@@ -1075,7 +1071,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			int radius;
 
 			if (numtok > 3)
-				radius = input.gettok(4, " ").to_int();
+				radius = input.gettok( 4 ).to_int();
 			else
 				radius = 20;
 
@@ -1084,7 +1080,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		else if (flag.find('c',0)) // circle - radius arg (optional)
 		{
 			if (numtok > 3) {
-				int radius = input.gettok(4, " ").to_int();
+				int radius = input.gettok( 4 ).to_int();
 				if (radius < 1) radius = 100; // handle cases where arg isnt a number or is a negative.
 				int cx = ((rc.right - rc.left)/2);
 				int cy = ((rc.bottom - rc.top)/2);
@@ -1101,9 +1097,9 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				return;
 			}
 
-			TString strPoints(input.gettok(4, -1, " "));
+			TString strPoints(input.gettok(4, -1));
 			TString strPoint;
-			int tPoints = strPoints.numtok(" ");
+			int tPoints = strPoints.numtok( );
 
 			if (tPoints < 1) {
 				DCXError("/xdialog -R","Invalid Points");
@@ -1114,9 +1110,9 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			POINT *pnts = new POINT[tPoints];
 
 			while (cnt <= tPoints) {
-				strPoint = strPoints.gettok(cnt," ");
-				pnts[cnt-1].x = (LONG)strPoint.gettok(1, ",").to_num();
-				pnts[cnt-1].y = (LONG)strPoint.gettok(2, ",").to_num();
+				strPoint = strPoints.gettok( cnt );
+				pnts[cnt-1].x = (LONG)strPoint.gettok(1, TSCOMMA).to_num();
+				pnts[cnt-1].y = (LONG)strPoint.gettok(2, TSCOMMA).to_num();
 				cnt++;
 			}
 
@@ -1127,14 +1123,14 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		else if (flag.find('d',0)) // drag - <1|0>
 		{
 			noRegion = true;
-			if ((BOOL)input.gettok(4," ").to_int())
+			if ((BOOL)input.gettok( 4 ).to_int())
 				this->m_bDoDrag = true;
 			else
 				this->m_bDoDrag = false;
 		}
 		else if (flag.find('g',0)) // ghost drag - <0-255>
 		{
-			int alpha = input.gettok(4," ").to_int();
+			int alpha = input.gettok( 4 ).to_int();
 			if ((alpha >= 0) && (alpha <= 255)) {
 				noRegion = true;
 				this->m_bDoGhostDrag = alpha;
@@ -1148,12 +1144,12 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		{
 			if (numtok == 9) {
 				noRegion = true;
-				COLORREF s_clr = (COLORREF)input.gettok(4).to_num();
-				int s_sharp = input.gettok(5).to_int();
-				int s_dark = input.gettok(6).to_int();
-				int s_size = input.gettok(7).to_int();
-				int s_x = input.gettok(8).to_int();
-				int s_y = input.gettok(9).to_int();
+				COLORREF s_clr = (COLORREF)input.gettok( 4 ).to_num();
+				int s_sharp = input.gettok( 5 ).to_int();
+				int s_dark = input.gettok( 6 ).to_int();
+				int s_size = input.gettok( 7 ).to_int();
+				int s_x = input.gettok( 8 ).to_int();
+				int s_y = input.gettok( 9 ).to_int();
 				this->AddShadow();
 				this->SetShadowColor(s_clr);
 				this->SetShadowSharpness(s_sharp);
@@ -1192,10 +1188,10 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -E [NAME] [SWITCH] [+flags] [-flags]
 	else if (flags.switch_cap_flags[4] && numtok > 3) {
-		//this->m_dEventMask = (DWORD)input.gettok(3," ").to_num();
+		//this->m_dEventMask = (DWORD)input.gettok( 3 ).to_num();
 		DWORD mask = this->m_dEventMask;
-		TString p_flags(input.gettok(3," "));
-		TString n_flags(input.gettok(4," "));
+		TString p_flags(input.gettok( 3 ));
+		TString n_flags(input.gettok( 4 ));
 
 		if ((p_flags[0] != '+') || (n_flags[0] != '-')) {
 			DCXError("xdialog -E", "Invalid Flag");
@@ -1286,14 +1282,14 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 		if (numtok > 2) {
 			errmsg.sprintf("D_ERROR xdialog: Invalid command /xdialog %s %s %s",
-				input.gettok(2, " ").to_chr(),
-				input.gettok(1, " ").to_chr(),
-				input.gettok(3, -1, " ").to_chr());
+				input.gettok( 2 ).to_chr(),
+				input.gettok( 1 ).to_chr(),
+				input.gettok( 3, -1).to_chr());
 		}
 		else {
 			errmsg.sprintf("D_ERROR xdialog: Invalid command /xdialog %s %s",
-				input.gettok(2, " ").to_chr(),
-				input.gettok(1, " ").to_chr());
+				input.gettok( 2 ).to_chr(),
+				input.gettok( 1 ).to_chr());
 		}
 
 		mIRCError(errmsg.to_chr());
@@ -1597,11 +1593,12 @@ LPSTR DcxDialog::parseCursorType(TString &cursor) {
  */
 
 void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
-	int numtok = input.numtok(" ");
+	int numtok = input.numtok( );
+	TString prop(input.gettok( 2 ));
 
 	// [NAME] [PROP] [ID]
-	if (input.gettok(2, " ") == "isid" && numtok > 2) {
-		int nID = input.gettok(3, " ").to_int();
+	if (prop == "isid" && numtok > 2) {
+		int nID = input.gettok( 3 ).to_int();
 
 		if (IsWindow(GetDlgItem(this->m_Hwnd, nID + mIRC_ID_OFFSET)) || 
 			(this->getControlByID(nID + mIRC_ID_OFFSET) != NULL))
@@ -1614,8 +1611,8 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [PROP]
-	else if (input.gettok(2, " ") == "nextid") {
-		int nID = 6001;
+	else if (prop == "nextid") {
+		int nID = mIRC_ID_OFFSET + 1;
 
 		while (IsWindow(GetDlgItem(this->m_Hwnd, nID)) || 
 			(this->getControlByID(nID) != NULL))
@@ -1627,8 +1624,8 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [PROP] [N]
-	if (input.gettok(2, " ") == "id" && numtok > 2) {
-		int N = input.gettok(3, " ").to_int() -1;
+	if (prop == "id" && numtok > 2) {
+		int N = input.gettok( 3 ).to_int() -1;
 
 		if (N == -1)
 			wsprintf(szReturnValue, "%d", this->m_vpControls.size());
@@ -1638,7 +1635,7 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [PROP]
-	else if (input.gettok(2, " ") == "ismenu") {
+	else if (prop == "ismenu") {
 		if (GetMenu(this->m_Hwnd) != NULL)
 			lstrcpy(szReturnValue, "$true");
 		else
@@ -1647,7 +1644,7 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [PROP]
-	else if (input.gettok(2, " ") == "ismarked") {
+	else if (prop == "ismarked") {
 		if (Dialogs.getDialogByHandle(this->m_Hwnd) != NULL)
 			lstrcpy(szReturnValue, "$true");
 		else
@@ -1656,22 +1653,22 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [PROP]
-	else if (input.gettok(2, " ") == "parent") {
+	else if (prop == "parent") {
 		wsprintf(szReturnValue, "%s", this->getParentName().to_chr());
 		return;
 	}
 	// [NAME] [PROP]
-	else if (input.gettok(2, " ") == "mouseid") {
+	else if (prop == "mouseid") {
 		wsprintf(szReturnValue, "%d", this->m_MouseID);
 		return;
 	}
 	// [NAME] [PROP]
-	else if (input.gettok(2, " ") == "focusid") {
+	else if (prop == "focusid") {
 		wsprintf(szReturnValue, "%d", this->m_FocusID);
 		return;
 	}
 	// [NAME] [PROP]
-	else if (input.gettok(2, " ") == "mouse") {
+	else if (prop == "mouse") {
 		POINT pt;
 
 		GetCursorPos(&pt);
@@ -1682,7 +1679,7 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [PROP]
-	else if (input.gettok(2, " ") == "key") {
+	else if (prop == "key") {
 		UINT iKeyState = 0;
 
 		if (GetAsyncKeyState(VK_LBUTTON) < 0)
@@ -1718,13 +1715,13 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [PROP]
-	else if (input.gettok(2, " ") == "alias") {
+	else if (prop == "alias") {
 		wsprintf(szReturnValue, "%s", this->getAliasName().to_chr());
 		return;
 	}
 	// [NAME] [PROP] [N]
-	else if ((input.gettok(2, " ") == "zlayer") && (numtok > 2)) {
-		int n = input.gettok(3, " ").to_int();
+	else if ((prop == "zlayer") && (numtok > 2)) {
+		int n = input.gettok( 3 ).to_int();
 		int size = (int) this->m_vZLayers.size();
 
 		// return total number of id's
@@ -1739,12 +1736,12 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [PROP]
-	else if (input.gettok(2, " ") == "zlayercurrent") {
+	else if (prop == "zlayercurrent") {
 		wsprintf(szReturnValue, "%d", this->m_zLayerCurrent +1);
 		return;
 	}
 	// [NAME] [PROP]
-	else if (input.gettok(2, " ") == "visible") {
+	else if (prop == "visible") {
 		if (IsWindowVisible(this->m_Hwnd))
 			lstrcpy(szReturnValue, "$true");
 		else
@@ -1752,9 +1749,8 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// invalid info request
-	else {
-		mIRCDebug("D_ERROR $xdialog: Invalid property '%s' or parameters", input.gettok(2, -1, " ").to_chr());
-	}
+	else
+		mIRCDebug("D_ERROR $xdialog: Invalid property '%s' or parameters", input.gettok(2, -1).to_chr());
 
 	szReturnValue[0] = 0;
 }
@@ -2565,6 +2561,20 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					p_this->UpdateShadow();
 					p_this->m_Shadow.bUpdate = false;
 				}
+				//PAINTSTRUCT ps;
+				//HDC hdc;
+				//RECT rc;
+				//bParsed = TRUE;
+
+				//hdc = BeginPaint(mHwnd, &ps);
+
+				//GetClientRect(p_this->getHwnd(), &rc);
+
+				//DcxDialog::DrawDialogBackground(hdc, p_this, &rc);
+
+				//lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, (WPARAM) hdc, lParam);
+
+				//EndPaint(mHwnd, &ps); 
 			}
 			break;
 		case WM_SHOWWINDOW:

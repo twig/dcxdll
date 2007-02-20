@@ -62,15 +62,15 @@ DcxPager::~DcxPager( ) {
  */
 
 void DcxPager::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok(" ");
+	unsigned int i = 1, numtok = styles.numtok( );
 
   while ( i <= numtok ) {
 
-		if (styles.gettok( i, " ") == "horizontal")
+		if (styles.gettok( i ) == "horizontal")
 			*Styles |= PGS_HORZ;
-		else if (styles.gettok( i, " ") == "autoscroll")
+		else if (styles.gettok( i ) == "autoscroll")
 			*Styles |= PGS_AUTOSCROLL;
-		//else if ( styles.gettok( i , " " ) == "alpha" )
+		//else if ( styles.gettok( i ) == "alpha" )
 		//	this->m_bAlphaBlend = true;
 
     i++;
@@ -90,23 +90,23 @@ void DcxPager::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
 
 void DcxPager::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
-  if ( input.gettok( 3, " " ) == "color") {
+//  int numtok = input.numtok( );
+	TString prop(input.gettok( 3 ));
+
+  if ( prop == "color") {
     wsprintf( szReturnValue, "%d", Pager_GetBkColor(this->m_Hwnd) );
     return;
 	}
-  else if ( input.gettok( 3, " " ) == "bsize") {
+  else if ( prop == "bsize") {
     wsprintf( szReturnValue, "%d", Pager_GetButtonSize(this->m_Hwnd) );
     return;
 	}
-  else if ( input.gettok( 3, " " ) == "border") {
+  else if ( prop == "border") {
     wsprintf( szReturnValue, "%d", Pager_GetBorder(this->m_Hwnd) );
     return;
 	}
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -121,12 +121,12 @@ void DcxPager::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
   // xdid -b [NAME] [ID] [SWITCH] [W]
   if ( flags.switch_flags[1] && numtok > 3 ) {
-		this->setBorderSize((int)input.gettok(4," ").to_num());
+		this->setBorderSize(input.gettok( 4 ).to_int());
 	}
   // xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
   else if ( flags.switch_flags[2] && numtok > 8 ) {
@@ -135,7 +135,7 @@ void DcxPager::parseCommandRequest( TString & input ) {
 			DCXError( "/xdid -c","Child Control already exists" );
 			return;
 		}
-    UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4, " " ).to_int( );
+    UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
 
     if ( ID > mIRC_ID_OFFSET - 1 && 
       !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -169,7 +169,7 @@ void DcxPager::parseCommandRequest( TString & input ) {
   // xdid -d [NAME] [ID] [SWITCH] [ID]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
 
-    UINT ID = mIRC_ID_OFFSET + input.gettok( 4, " " ).to_int( );
+    UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
     DcxControl * p_Control;
     
     if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
@@ -202,11 +202,11 @@ void DcxPager::parseCommandRequest( TString & input ) {
   }
 	// xdid -s [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags.switch_flags[18] && numtok > 3) {
-		this->setButtonSize((LONG)input.gettok(4, -1, " ").to_num());
+		this->setButtonSize((LONG)input.gettok(4, -1).to_num());
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags.switch_flags[19] && numtok > 3) {
-		this->setBkColor((COLORREF)input.gettok(4, -1, " ").to_num());
+		this->setBkColor((COLORREF)input.gettok(4, -1).to_num());
 	}
 	// xdid -z [NAME] [ID] [SWITCH]
 	else if (flags.switch_flags[25] && numtok > 2) {

@@ -1,6 +1,6 @@
 ; V1.4
 alias dcx {
-  if ($isid) return $dll($scriptdirdcx\dcx.dll,$1,$2-)
+  if ($isid) returnex $dll($scriptdirdcx\dcx.dll,$1,$2-)
   else dll " $+ $scriptdirdcx\dcx.dll" $1 $2-
 }
 
@@ -10,22 +10,22 @@ alias udcx {
 }
 
 alias xdid {
-  if ( $isid ) return $dcx( _xdid, $1 $2 $prop $3- )
+  if ( $isid ) returnex $dcx( _xdid, $1 $2 $prop $3- )
   dcx xdid $2 $3 $1 $4-
 }
 
 alias xdialog {
-  if ( $isid ) return $dcx( _xdialog, $1 $prop $2- )
+  if ( $isid ) returnex $dcx( _xdialog, $1 $prop $2- )
   dcx xdialog $2 $1 $3-
 }
 
 alias xpop {
-  if ( $isid ) return $dcx( _xpop, $1 $prop $2- )
+  if ( $isid ) returnex $dcx( _xpop, $1 $prop $2- )
   dcx xpop $2 $1 $3-
 }
 
 alias xpopup {
-  if ( $isid ) return $dcx( _xpopup, $1 $prop $2- )
+  if ( $isid ) returnex $dcx( _xpopup, $1 $prop $2- )
   dcx xpopup $2 $1 $3-
 }
 
@@ -34,12 +34,12 @@ alias mpopup {
 }
 
 alias xdock {
-  if ($isid) return $dcx( _xdock, $1 $prop $2- )
+  if ($isid) returnex $dcx( _xdock, $1 $prop $2- )
   dcx xdock $1-
 }
 
 alias xtray {
-  if ($isid) return $dcx(TrayIcon, $1 $prop $2-)
+  if ($isid) returnex $dcx(TrayIcon, $1 $prop $2-)
   dcx TrayIcon $1-
 }
 

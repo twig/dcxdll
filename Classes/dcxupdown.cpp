@@ -48,7 +48,7 @@ DcxUpDown::DcxUpDown( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
+		if (styles.istok("tooltips")) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -77,26 +77,26 @@ DcxUpDown::~DcxUpDown( ) {
 
 void DcxUpDown::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
   *Styles |= UDS_ALIGNRIGHT;
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "left" ) {
+    if ( styles.gettok( i ) == "left" ) {
       *Styles &= ~UDS_ALIGNRIGHT;
       *Styles |= UDS_ALIGNLEFT;
     }
-    else if ( styles.gettok( i , " " ) == "arrowkeys" )
+    else if ( styles.gettok( i ) == "arrowkeys" )
       *Styles |= UDS_ARROWKEYS;
-    else if ( styles.gettok( i , " " ) == "horz" )
+    else if ( styles.gettok( i ) == "horz" )
       *Styles |= UDS_HORZ;
-    else if ( styles.gettok( i , " " ) == "hottrack" )
+    else if ( styles.gettok( i ) == "hottrack" )
       *Styles |= UDS_HOTTRACK;
-    else if ( styles.gettok( i , " " ) == "nothousands" )
+    else if ( styles.gettok( i ) == "nothousands" )
       *Styles |= UDS_NOTHOUSANDS;
-    else if ( styles.gettok( i , " " ) == "buddyint" )
+    else if ( styles.gettok( i ) == "buddyint" )
       *Styles |= UDS_SETBUDDYINT;
-    else if ( styles.gettok( i , " " ) == "wrap" )
+    else if ( styles.gettok( i ) == "wrap" )
       *Styles |= UDS_WRAP;
 
     i++;
@@ -115,27 +115,26 @@ void DcxUpDown::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 
 void DcxUpDown::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
+	TString prop(input.gettok( 3 ));
 
   // [NAME] [ID] [PROP]
-  if ( input.gettok( 3, " " ) == "value" ) {
+  if ( prop == "value" ) {
 
     BOOL bError;
     wsprintf( szReturnValue, "%d", this->getPos32( &bError ) );
     return;
   }
   // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "range" ) {
+  else if ( prop == "range" ) {
 
     int iMin, iMax;
     this->getRange32( &iMin, &iMax );
     wsprintf( szReturnValue, "%d %d", iMin, iMax );
     return;
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -150,14 +149,14 @@ void DcxUpDown::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
 
   // xdid -c [NAME] [ID] [SWITCH] [BUDDYID]
   if ( flags.switch_flags[2] && numtok > 3 ) {
     
-    DcxControl * p_Control = this->m_pParentDialog->getControlByID( (UINT) input.gettok( 4, " " ).to_int( ) + mIRC_ID_OFFSET );
+    DcxControl * p_Control = this->m_pParentDialog->getControlByID( (UINT) input.gettok( 4 ).to_int( ) + mIRC_ID_OFFSET );
 
     if ( p_Control != NULL ) {
 
@@ -174,22 +173,22 @@ void DcxUpDown::parseCommandRequest( TString & input ) {
   // xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
   else if ( flags.switch_flags[17] && numtok > 4 ) {
     
-    int iMin = input.gettok( 4, " " ).to_int( );
-    int iMax = input.gettok( 5, " " ).to_int( );
+    int iMin = input.gettok( 4 ).to_int( );
+    int iMax = input.gettok( 5 ).to_int( );
 
     this->setRange32( iMin, iMax );
   }
   // xdid -t [NAME] [ID] [SWITCH] [BASE]
   else if ( flags.switch_flags[19] && numtok > 3 ) {
     
-    int nBase = input.gettok( 4, " " ).to_int( );
+    int nBase = input.gettok( 4 ).to_int( );
 
     this->setBase( nBase );
   }
   // xdid -v [NAME] [ID] [SWITCH] [POS]
   else if ( flags.switch_flags[21] && numtok > 3 ) {
     
-    int nPos = input.gettok( 4, " " ).to_int( );
+    int nPos = input.gettok( 4 ).to_int( );
 
     this->setPos32( nPos );
   }

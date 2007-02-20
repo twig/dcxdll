@@ -75,34 +75,34 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( &input.gettok( 2, " " ), &flags );
+  this->parseSwitchFlags( &input.gettok( 2 ), &flags );
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
 
   XPopupMenu * p_Menu;
 
   // Special mIRC Menu
-  if ( input.gettok( 1, " " ) == "mirc" ) {
+  if ( input.gettok( 1 ) == "mirc" ) {
 
     p_Menu = g_mIRCPopupMenu;
   }
-  else if ( input.gettok( 1, " " ) == "mircbar" ) {
+  else if ( input.gettok( 1 ) == "mircbar" ) {
 
     p_Menu = g_mIRCMenuBar;
   }
-  else if ( ( p_Menu = this->getMenuByName( input.gettok( 1, " " ) ) ) == NULL && flags.switch_flags[2] == 0 ) {
+  else if ( ( p_Menu = this->getMenuByName( input.gettok( 1 ) ) ) == NULL && flags.switch_flags[2] == 0 ) {
 
     TString error;
-		error.sprintf("\"%s\" doesn't exist : see /xpopup -c", input.gettok( 1, " " ).to_chr( ) );
+		error.sprintf("\"%s\" doesn't exist : see /xpopup -c", input.gettok( 1 ).to_chr( ) );
 		DCXError("/xpopup",error.to_chr());
     return;
   }
 
   // xpopup -b - [MENU] [SWITCH] [FILENAME]
-  if ( flags.switch_flags[1] && input.numtok( " " ) > 2 ) {
+  if ( flags.switch_flags[1] && numtok > 2 ) {
 
     HBITMAP hBitmap = (HBITMAP) LoadImage( GetModuleHandle( NULL ), 
-      input.gettok( 3, -1, " " ).to_chr( ), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
+      input.gettok( 3, -1 ).to_chr( ), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
 
     p_Menu->setBackBitmap( hBitmap );
 
@@ -110,42 +110,42 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
   // xpopup -c -> [MENU] [SWITCH] [STYLE]
 	else if ((flags.switch_flags[2]) &&
 		(numtok > 2) && 
-		(input.gettok(1, " ") != "mirc" || input.gettok(1, " ") != "mircbar")) {
+		(input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar")) {
 
 		if (p_Menu != NULL) {
 			TString error;
-			error.sprintf("\"%s\" already exists", input.gettok( 1, " " ).to_chr( ) );
+			error.sprintf("\"%s\" already exists", input.gettok( 1 ).to_chr( ) );
 			DCXError("/xpopup -c",error.to_chr());
 		}
 		else {
 			XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
 
-			if (input.gettok(3, " ") == "office2003rev")
+			if (input.gettok( 3 ) == "office2003rev")
 				style = XPopupMenu::XPMS_OFFICE2003_REV;
-			else if (input.gettok(3, " ") == "officexp")
+			else if (input.gettok( 3 ) == "officexp")
 				style = XPopupMenu::XPMS_OFFICEXP;
-			else if (input.gettok(3, " ") == "icy")
+			else if (input.gettok( 3 ) == "icy")
 				style = XPopupMenu::XPMS_ICY;
-			else if (input.gettok(3, " ") == "icyrev")
+			else if (input.gettok( 3 ) == "icyrev")
 				style = XPopupMenu::XPMS_ICY_REV;
-			else if (input.gettok(3, " ") == "grade")
+			else if (input.gettok( 3 ) == "grade")
 				style = XPopupMenu::XPMS_GRADE;
-			else if (input.gettok(3, " ") == "graderev")
+			else if (input.gettok( 3 ) == "graderev")
 				style = XPopupMenu::XPMS_GRADE_REV;
-			else if (input.gettok(3, " ") == "normal")
+			else if (input.gettok( 3 ) == "normal")
 				style = XPopupMenu::XPMS_NORMAL;
-			else if (input.gettok(3, " ") == "custom")
+			else if (input.gettok( 3 ) == "custom")
 				style = XPopupMenu::XPMS_CUSTOM;
-			else if (input.gettok(3, " ") == "vertical")
+			else if (input.gettok( 3 ) == "vertical")
 				style = XPopupMenu::XPMS_VERTICAL;
-			else if (input.gettok(3, " ") == "verticalrev")
+			else if (input.gettok( 3 ) == "verticalrev")
 				style = XPopupMenu::XPMS_VERTICAL_REV;
 
-			this->m_vpXPMenu.push_back(new XPopupMenu(input.gettok(1, " "), style));
+			this->m_vpXPMenu.push_back(new XPopupMenu(input.gettok( 1 ), style));
 		}
 	}
   // xpopup -d -> [MENU] [SWITCH]
-  else if ( flags.switch_flags[3] && ( input.gettok( 1, " " ) != "mirc" || input.gettok( 1, " " ) != "mircbar" ) ) {
+  else if ( flags.switch_flags[3] && ( input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar" ) ) {
 
     this->deleteMenu( p_Menu );
   }
@@ -156,8 +156,8 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
     HICON icon;
     int index;
 
-    index = input.gettok( 3, " " ).to_int( );
-    TString filename(input.gettok( 4, -1, " " ));
+    index = input.gettok( 3 ).to_int( );
+    TString filename(input.gettok( 4, -1 ));
     ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
     ImageList_AddIcon( himl, icon );
     DestroyIcon( icon );
@@ -170,13 +170,13 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
   // xpopup -l -> [MENU] [SWITCH] [N] [COLOR]
   else if ( flags.switch_flags[11] && numtok > 3 ) {
 
-    int nColor = input.gettok( 3, " " ).to_int( );
-    COLORREF clrColor = (COLORREF)input.gettok( 4, " " ).to_num( );
+    int nColor = input.gettok( 3 ).to_int( );
+    COLORREF clrColor = (COLORREF)input.gettok( 4 ).to_num( );
 
     p_Menu->setColor( nColor, clrColor );
   }
   // xpopup -m -> mirc -m
-  else if ( flags.switch_flags[12] && numtok == 2 && input.gettok( 1, " " ) == "mirc") {
+  else if ( flags.switch_flags[12] && numtok == 2 && input.gettok( 1 ) == "mirc") {
 		if (!this->m_bPatched && mIRCLink.m_bmIRCSixPointTwoZero) {
 			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
 			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
@@ -186,21 +186,21 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
   // xpopup -p -> [MENU] [SWITCH] [COLORS]
   else if ( flags.switch_flags[15] && numtok > 2 ) {
 
-    TString colors(input.gettok( 3, -1, " " ));
-    int i = 1, len = colors.numtok( " " );
+    TString colors(input.gettok( 3, -1 ));
+    int i = 1, len = colors.numtok( );
 
     while ( i <= len ) {
 
-      p_Menu->setColor( i, (COLORREF)colors.gettok( i, " " ).to_num( ) );
+      p_Menu->setColor( i, (COLORREF)colors.gettok( i ).to_num( ) );
       ++i;
     }
   }
   // xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y]
   else if ( flags.switch_flags[18] && numtok > 4 ) {
 
-    UINT flags = this->parseTrackFlags( input.gettok( 3, " " ) );
-    int x = input.gettok( 4, " " ).to_int( );
-    int y = input.gettok( 5, " " ).to_int( );
+    UINT flags = this->parseTrackFlags( input.gettok( 3 ) );
+    int x = input.gettok( 4 ).to_int( );
+    int y = input.gettok( 5 ).to_int( );
     
     UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | flags, x, y, mhMenuOwner, NULL );
 
@@ -212,25 +212,25 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
 	else if (flags.switch_flags[19] && numtok > 2) {
 		XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
 
-		if (input.gettok(3, " ") == "office2003rev")
+		if (input.gettok( 3 ) == "office2003rev")
 			style = XPopupMenu::XPMS_OFFICE2003_REV;
-		else if (input.gettok(3, " ") == "officexp")
+		else if (input.gettok( 3 ) == "officexp")
 			style = XPopupMenu::XPMS_OFFICEXP;
-		else if (input.gettok(3, " ") == "icy")
+		else if (input.gettok( 3 ) == "icy")
 			style = XPopupMenu::XPMS_ICY;
-		else if (input.gettok(3, " ") == "icyrev")
+		else if (input.gettok( 3 ) == "icyrev")
 			style = XPopupMenu::XPMS_ICY_REV;
-		else if (input.gettok(3, " ") == "grade")
+		else if (input.gettok( 3 ) == "grade")
 			style = XPopupMenu::XPMS_GRADE;
-		else if (input.gettok(3, " ") == "graderev")
+		else if (input.gettok( 3 ) == "graderev")
 			style = XPopupMenu::XPMS_GRADE_REV;
-		else if (input.gettok(3, " ") == "vertical")
+		else if (input.gettok( 3 ) == "vertical")
 			style = XPopupMenu::XPMS_VERTICAL;
-		else if (input.gettok(3, " ") == "verticalrev")
+		else if (input.gettok( 3 ) == "verticalrev")
 			style = XPopupMenu::XPMS_VERTICAL_REV;
-		else if (input.gettok(3, " ") == "normal")
+		else if (input.gettok( 3 ) == "normal")
 			style = XPopupMenu::XPMS_NORMAL;
-		else if (input.gettok(3, " ") == "custom")
+		else if (input.gettok( 3 ) == "custom")
 			style = XPopupMenu::XPMS_CUSTOM;
 
 		p_Menu->setStyle(style);
@@ -238,7 +238,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
   // xpopup -x -> [MENU] [SWITCH] [+FLAGS]
   else if ( flags.switch_flags[23] && numtok > 2 ) {
 
-    TString flags(input.gettok( 3, " " ));
+    TString flags(input.gettok( 3 ));
 
     if ( flags[0] == '+' ) {
 
@@ -269,14 +269,14 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
 
 void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( " " );
-  TString prop(input.gettok( 2, " " ));
+  int numtok = input.numtok( );
+  TString prop(input.gettok( 2 ));
 
   XPopupMenu * p_Menu;
-  if ( ( p_Menu = this->getMenuByName( input.gettok( 1, " " ) ) ) == NULL && prop != "ismenu" ) {
+  if ( ( p_Menu = this->getMenuByName( input.gettok( 1 ) ) ) == NULL && prop != "ismenu" ) {
 
     TString error;
-    error.sprintf("\"%s\" doesn't exist, see /xpopup -c", input.gettok( 1, " " ).to_chr( ) );
+    error.sprintf("\"%s\" doesn't exist, see /xpopup -c", input.gettok( 1 ).to_chr( ) );
 		DCXError("$ $+ xpopup", error.to_chr());
     return;
   }
@@ -288,24 +288,56 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
   }
   else if ( prop == "style" ) {
 
-    if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_OFFICE2003  )
-      lstrcpy( szReturnValue, "office2003" );
-    else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_OFFICE2003_REV  )
-      lstrcpy( szReturnValue, "office2003rev" );
-    else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_OFFICEXP  )
-      lstrcpy( szReturnValue, "officeXP" );
-    else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_ICY  )
-      lstrcpy( szReturnValue, "icy" );
-    else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_ICY_REV  )
-      lstrcpy( szReturnValue, "icyrev" );
-    else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_GRADE  )
-      lstrcpy( szReturnValue, "grade" );
-    else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_GRADE_REV  )
-      lstrcpy( szReturnValue, "graderev" );
-    else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_NORMAL  )
-      lstrcpy( szReturnValue, "normal" );
-    else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_CUSTOM  )
-      lstrcpy( szReturnValue, "custom" );
+		switch (p_Menu->getStyle( )) {
+			case XPopupMenu::XPMS_OFFICE2003:
+				lstrcpy( szReturnValue, "office2003" );
+				break;
+			case XPopupMenu::XPMS_OFFICE2003_REV:
+				lstrcpy( szReturnValue, "office2003rev" );
+				break;
+			case XPopupMenu::XPMS_OFFICEXP:
+				lstrcpy( szReturnValue, "officeXP" );
+				break;
+			case XPopupMenu::XPMS_ICY:
+				lstrcpy( szReturnValue, "icy" );
+				break;
+			case XPopupMenu::XPMS_ICY_REV:
+				lstrcpy( szReturnValue, "icyrev" );
+				break;
+			case XPopupMenu::XPMS_GRADE:
+				lstrcpy( szReturnValue, "grade" );
+				break;
+			case XPopupMenu::XPMS_GRADE_REV:
+				lstrcpy( szReturnValue, "graderev" );
+				break;
+			case XPopupMenu::XPMS_NORMAL:
+				lstrcpy( szReturnValue, "normal" );
+				break;
+			case XPopupMenu::XPMS_CUSTOM:
+				lstrcpy( szReturnValue, "custom" );
+				break;
+			default:
+				lstrcpy( szReturnValue, "unknown" );
+				break;
+		}
+    //if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_OFFICE2003  )
+    //  lstrcpy( szReturnValue, "office2003" );
+    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_OFFICE2003_REV  )
+    //  lstrcpy( szReturnValue, "office2003rev" );
+    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_OFFICEXP  )
+    //  lstrcpy( szReturnValue, "officeXP" );
+    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_ICY  )
+    //  lstrcpy( szReturnValue, "icy" );
+    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_ICY_REV  )
+    //  lstrcpy( szReturnValue, "icyrev" );
+    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_GRADE  )
+    //  lstrcpy( szReturnValue, "grade" );
+    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_GRADE_REV  )
+    //  lstrcpy( szReturnValue, "graderev" );
+    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_NORMAL  )
+    //  lstrcpy( szReturnValue, "normal" );
+    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_CUSTOM  )
+    //  lstrcpy( szReturnValue, "custom" );
 
     return;
   }
@@ -334,7 +366,7 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
   }
   else if ( prop == "color" && numtok > 2 ) {
 
-    int nColor = input.gettok( 3, " " ).to_int( );
+    int nColor = input.gettok( 3 ).to_int( );
     if ( nColor > 0 && nColor < 11 ) {
 
       wsprintf( szReturnValue, "%ld", p_Menu->getColor( nColor ) );

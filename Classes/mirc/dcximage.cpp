@@ -63,7 +63,7 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
+		if (styles.istok("tooltips")) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -97,11 +97,11 @@ DcxImage::~DcxImage() {
  */
 
 void DcxImage::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok( " " );
+	unsigned int i = 1, numtok = styles.numtok( );
 	*Styles |= SS_NOTIFY;
 
 	while ( i <= numtok ) {
-		if ( styles.gettok( i , " " ) == "alpha" )
+		if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 
 		i++;
@@ -121,12 +121,10 @@ void DcxImage::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
 
 void DcxImage::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
 
-  if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -221,15 +219,15 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 void DcxImage::parseCommandRequest(TString & input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*)&flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(input.gettok(3, " "), &flags);
-	int numtok = input.numtok(" ");
+	this->parseSwitchFlags(input.gettok( 3 ), &flags);
+	int numtok = input.numtok( );
 
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
 	if (flags.switch_flags[22] && numtok > 6) {
-		TString flag(input.gettok(4, " "));
-		int index = input.gettok(5, " ").to_int();
-		int size = input.gettok(6, " ").to_int();
-		TString filename(input.gettok(7, -1, " "));
+		TString flag(input.gettok( 4 ));
+		int index = input.gettok( 5 ).to_int();
+		int size = input.gettok( 6 ).to_int();
+		TString filename(input.gettok( 7, -1 ));
 
 		filename.trim();
 		PreloadData();
@@ -257,7 +255,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
 	else if (flags.switch_flags[8] && numtok > 4) {
 		TString flag(input.gettok(4));
-		TString filename(input.gettok(5, -1, " "));
+		TString filename(input.gettok(5, -1));
 
 		flag.trim();
 		filename.trim();
@@ -285,7 +283,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags.switch_flags[10] && numtok > 3) {
-		this->m_clrTransColor = (COLORREF)input.gettok(4, " ").to_num();
+		this->m_clrTransColor = (COLORREF)input.gettok( 4 ).to_num();
 		this->redrawWindow();
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [XOFFSET] [YOFFSET]
@@ -296,7 +294,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [1|0]
 	else if (flags.switch_cap_flags[18] && numtok > 3) {
-		if (input.gettok(4, " ").to_int() > 0)
+		if (input.gettok( 4 ).to_int() > 0)
 			this->m_bResizeImage = true;
 		else
 			this->m_bResizeImage = false;

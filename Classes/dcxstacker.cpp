@@ -57,7 +57,7 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 	this->m_vImageList.clear();
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips"," ")) {
+		if (styles.istok("tooltips")) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -100,23 +100,23 @@ void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
   *Styles |= LBS_OWNERDRAWVARIABLE|LBS_NOTIFY;
 	this->m_dStyles = STACKERS_COLLAPSE;
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
 
   while ( i <= numtok ) {
 
-		if ( styles.gettok( i , " " ) == "alpha" )
+		if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i , " " ) == "shadow" ))
+		else if (( styles.gettok( i ) == "shadow" ))
 			this->m_bShadowText = true;
-		else if ( styles.gettok( i , " " ) == "vscroll" )
+		else if ( styles.gettok( i ) == "vscroll" )
 			*Styles |= WS_VSCROLL;
-		else if ( styles.gettok( i , " " ) == "gradient" )
+		else if ( styles.gettok( i ) == "gradient" )
 			this->m_dStyles |= STACKERS_GRAD;
-		else if ( styles.gettok( i , " " ) == "arrows" )
+		else if ( styles.gettok( i ) == "arrows" )
 			this->m_dStyles |= STACKERS_ARROW;
-		else if ( styles.gettok( i , " " ) == "nocollapse" )
+		else if ( styles.gettok( i ) == "nocollapse" )
 			this->m_dStyles &= ~STACKERS_COLLAPSE;
-		else if (( styles.gettok( i , " " ) == "noformat" ))
+		else if (( styles.gettok( i ) == "noformat" ))
 			this->m_bCtrlCodeText = false;
 
     i++;
@@ -135,11 +135,12 @@ void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-	int numtok = input.numtok( " " );
+	int numtok = input.numtok( );
+	TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
-	if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
-		int nSel = input.gettok( 4, " " ).to_int( ) - 1;
+	if ( prop == "text" && numtok > 3 ) {
+		int nSel = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nSel);
@@ -149,18 +150,18 @@ void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
 		}
 	}
 	// [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "num" ) {
+	else if ( prop == "num" ) {
 		wsprintf( szReturnValue, "%d", ListBox_GetCount( this->m_Hwnd ) );
 		return;
 	}
 	// [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "sel" ) {
+	else if ( prop == "sel" ) {
 		wsprintf( szReturnValue, "%d", ListBox_GetCurSel( this->m_Hwnd ) + 1 );
 		return;
 	}
 	// [NAME] [ID] [PROP] [N]
-	else if ( input.gettok( 3, " " ) == "haschild" && numtok > 3 ) {
-		int nSel = input.gettok( 4, " " ).to_int( ) - 1;
+	else if ( prop == "haschild" && numtok > 3 ) {
+		int nSel = input.gettok( 4 ).to_int( ) - 1;
 
 		lstrcpy(szReturnValue,"$false");
 
@@ -174,8 +175,8 @@ void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
 		}
 	}
 	// [NAME] [ID] [PROP] [N]
-	else if ( input.gettok( 3, " " ) == "childid" && numtok > 3 ) {
-		int nSel = input.gettok( 4, " " ).to_int( ) - 1;
+	else if ( prop == "childid" && numtok > 3 ) {
+		int nSel = input.gettok( 4 ).to_int( ) - 1;
 
 		lstrcpy(szReturnValue,"0");
 
@@ -204,9 +205,9 @@ void DcxStacker::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(input.gettok(3, " "), &flags);
+	this->parseSwitchFlags(input.gettok( 3 ), &flags);
 
-	int numtok = input.numtok(" ");
+	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags.switch_flags[17]) {
@@ -215,9 +216,9 @@ void DcxStacker::parseCommandRequest(TString &input) {
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if (flags.switch_flags[0] && numtok > 9) {
-		TString item(input.gettok(1,"\t"));
+		TString item(input.gettok(1,TSTAB));
 		item.trim();
-		TString ctrl(input.gettok(2,"\t"));
+		TString ctrl(input.gettok(2,TSTAB));
 		ctrl.trim();
 		//TString flag(item.gettok( 5 ));
 		//flag.trim();
@@ -236,7 +237,7 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		sitem->hFont = NULL;
 		sitem->iItemImg = input.gettok(6).to_int() -1;
 		sitem->iSelectedItemImg = input.gettok(7).to_int() -1;
-		sitem->tsCaption = item.gettok(10,-1," ");
+		sitem->tsCaption = item.gettok(10,-1);
 
 		if (ctrl.len() > 0) {
 			UINT ID = mIRC_ID_OFFSET + (UINT)ctrl.gettok( 1 ).to_int( );
@@ -275,14 +276,14 @@ void DcxStacker::parseCommandRequest(TString &input) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[2] && numtok > 3) {
-    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
+    int nPos = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
 			SendMessage(this->m_Hwnd,LB_SETCURSEL,nPos,NULL);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[3] && (numtok > 3)) {
-    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
+    int nPos = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
         ListBox_DeleteString( this->m_Hwnd, nPos );
@@ -296,12 +297,12 @@ void DcxStacker::parseCommandRequest(TString &input) {
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [N] (ToolTipText)
   else if (flags.switch_cap_flags[19] && numtok > 3) {
-    int nPos = input.gettok( 4, " " ).to_int( ) - 1;
+    int nPos = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nPos);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
-				sitem->tsTipText = (numtok > 4 ? input.gettok(5, -1, " ") : "");
+				sitem->tsTipText = (numtok > 4 ? input.gettok(5, -1) : "");
 				sitem->tsTipText.trim();
 			}
 		}

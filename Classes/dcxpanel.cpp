@@ -78,12 +78,12 @@ DcxPanel::~DcxPanel( ) {
  */
 
 void DcxPanel::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok(" ");
+	unsigned int i = 1, numtok = styles.numtok( );
 
 
 	while ( i <= numtok ) {
 
-		if ( styles.gettok( i , " " ) == "alpha" )
+		if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 
 		i++;
@@ -103,12 +103,10 @@ void DcxPanel::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
 
 void DcxPanel::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
 
-  if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -123,14 +121,14 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
 
   // xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
   if ( flags.switch_flags[2] && numtok > 8 ) {
 
-    UINT ID = mIRC_ID_OFFSET + input.gettok( 4, " " ).to_int( );
+    UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
 
     if ( ID > mIRC_ID_OFFSET - 1 && 
       !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -152,7 +150,7 @@ void DcxPanel::parseCommandRequest( TString & input ) {
   // xdid -d [NAME] [ID] [SWITCH] [ID]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
 
-    UINT ID = mIRC_ID_OFFSET + input.gettok( 4, " " ).to_int( );
+    UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
     DcxControl * p_Control;
     
     if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
@@ -191,7 +189,7 @@ void DcxPanel::parseCommandRequest( TString & input ) {
   */
   else if ( flags.switch_flags[11] && numtok > 3 ) {
 
-    if ( input.gettok( 4, " " ) == "update" ) {
+    if ( input.gettok( 4 ) == "update" ) {
 
       if ( this->m_pLayoutManager != NULL ) {
 
@@ -201,25 +199,25 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 				this->redrawWindow();
       }
     }
-		else if (input.gettok(4, " ") == "clear") {
+		else if (input.gettok( 4 ) == "clear") {
 			if (this->m_pLayoutManager != NULL)
 				delete this->m_pLayoutManager;
 			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
     else if ( numtok > 8 ) {
-      TString com(input.gettok( 1, "\t" ).gettok( 4, " " ));
+      TString com(input.gettok( 1, TSTAB ).gettok( 4 ));
       com.trim( );
-      TString path(input.gettok( 1, "\t" ).gettok( 5, -1, " " ));
+      TString path(input.gettok( 1, TSTAB ).gettok( 5, -1 ));
       path.trim( );
-      TString p2(input.gettok( 2, "\t" ));
+      TString p2(input.gettok( 2, TSTAB ));
       p2.trim( );
 
-      UINT flags = this->parseLayoutFlags( p2.gettok( 1, " " ) );
-      UINT ID = p2.gettok( 2, " " ).to_int( );
-      UINT WGT = p2.gettok( 3, " " ).to_int( );
-      UINT W = p2.gettok( 4, " " ).to_int( );
-      UINT H = p2.gettok( 5, " " ).to_int( );
+      UINT flags = this->parseLayoutFlags( p2.gettok( 1 ) );
+      UINT ID = p2.gettok( 2 ).to_int( );
+      UINT WGT = p2.gettok( 3 ).to_int( );
+      UINT W = p2.gettok( 4 ).to_int( );
+      UINT H = p2.gettok( 5 ).to_int( );
 
       if ( com ==  "root" || com == "cell" ) {
 
@@ -365,7 +363,7 @@ void DcxPanel::parseCommandRequest( TString & input ) {
   }
 	// xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	else if (flags.switch_flags[19] && numtok > 3) {
-		SetWindowText(this->m_Hwnd, input.gettok(4, -1, " ").to_chr());
+		SetWindowText(this->m_Hwnd, input.gettok(4, -1).to_chr());
 	}
   else
     this->parseGlobalCommandRequest( input, flags );

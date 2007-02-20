@@ -80,7 +80,7 @@ bool dcxSignal;
 ULONG_PTR gdi_token = NULL;
 #endif
 
-//bool mIRCSixPointTwoZero; //!< used by xpopup to tell if patching is to be done.
+//extern DWORD GetDllVersion(LPCTSTR lpszDllName);
 
 /*!
 * \brief mIRC DLL Load Function
@@ -778,7 +778,7 @@ mIRC(OpenDialog) {
 	d.trim();
 
 	// count number of tab tokens
-	if (d.numtok("\t") != 3) {
+	if (d.numtok(TSTAB) != 3) {
 		DCXError("OpenDialog","Invalid parameters");
 		ret("");
 	}
@@ -792,7 +792,7 @@ mIRC(SaveDialog) {
 	d.trim();
 
 	// count number of tab tokens
-	if (d.numtok("\t") != 3) {
+	if (d.numtok(TSTAB) != 3) {
 		DCXError("SaveDialog","Invalid parameters");
 		ret("");
 	}
@@ -830,12 +830,12 @@ mIRC(FontDialog) {
 	cf.nSizeMin = 8;
 	cf.nSizeMax = 72;
 
-	for (int i = 1; i <= input.numtok("\t"); i++) {
-		TString option(input.gettok(i, "\t"));
+	for (int i = 1; i <= input.numtok(TSTAB); i++) {
+		TString option(input.gettok(i, TSTAB));
 		int numtok = 0;
 
 		option.trim();
-		numtok = option.numtok(" ");
+		numtok = option.numtok( );
 
 		/*
 		default +flags(ibsua) charset size fontname
@@ -853,8 +853,8 @@ mIRC(FontDialog) {
 		*/
 
 		// flags +
-		if (option.gettok(1, " ") == "flags" && numtok > 1) {
-			TString flag(option.gettok(2, " "));
+		if (option.gettok( 1 ) == "flags" && numtok > 1) {
+			TString flag(option.gettok( 2 ));
 			int c = flag.len();
 			int i = 0;
 
@@ -898,18 +898,18 @@ mIRC(FontDialog) {
 			}
 		}
 		// defaults +flags(ibsua) charset size fontname
-		else if (option.gettok(1, " ") == "default" && numtok > 4)
-			ParseCommandToLogfont(option.gettok(2, -1, " "), &lf);
+		else if (option.gettok( 1 ) == "default" && numtok > 4)
+			ParseCommandToLogfont(option.gettok(2, -1), &lf);
 		// color rgb
-		else if (option.gettok(1, " ") == "color" && numtok > 1)
-			cf.rgbColors = (COLORREF) option.gettok(2, " ").to_num();
+		else if (option.gettok( 1 ) == "color" && numtok > 1)
+			cf.rgbColors = (COLORREF) option.gettok( 2 ).to_num();
 		// minmaxsize min max
-		else if (option.gettok(1, " ") == "minmaxsize" && numtok > 2) {
-			cf.nSizeMin = option.gettok(2, " ").to_int();
-			cf.nSizeMax = option.gettok(3, " ").to_int();
+		else if (option.gettok( 1 ) == "minmaxsize" && numtok > 2) {
+			cf.nSizeMin = option.gettok( 2 ).to_int();
+			cf.nSizeMax = option.gettok( 3 ).to_int();
 		}
 		// owner
-		else if (option.gettok(1, " ") == "owner" && numtok > 1)
+		else if (option.gettok( 1 ) == "owner" && numtok > 1)
 			cf.hwndOwner = FindOwner(option, mWnd);
 	}
 
@@ -950,37 +950,37 @@ mIRC(xdid) {
 
 	data[0] = 0;
 
-	if (d.numtok(" ") < 3) {
+	if (d.numtok( ) < 3) {
 		DCXError("/xdid","Invalid arguments");
 		return 3;
 	}
 
-	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok(1, " "));
+	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok( 1 ));
 
 	if (p_Dialog == NULL) {
 		TString error;
-		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
+		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
 		DCXError("/xdid",error.to_chr());
 		return 3;
 	}
 
-	TString IDs(d.gettok(2, " ")), d2;
+	TString IDs(d.gettok( 2 )), d2;
 	DcxControl * p_Control;
-	int i = 1, n = IDs.numtok(",");
+	int i = 1, n = IDs.numtok(TSCOMMA);
 
 	// Multiple IDs
 	if (n > 1) {
 		while (i <= n) {
-			p_Control = p_Dialog->getControlByID((UINT) IDs.gettok(i, ",").to_int() + mIRC_ID_OFFSET);
+			p_Control = p_Dialog->getControlByID((UINT) IDs.gettok(i, TSCOMMA).to_int() + mIRC_ID_OFFSET);
 
 			if (p_Control == NULL) {
 				TString error;
-				error.sprintf("Invalid ID : %s (dialog : %s)", IDs.gettok(i, ",").to_chr(), d.gettok(1, " ").to_chr());
+				error.sprintf("Invalid ID : %s (dialog : %s)", IDs.gettok(i, TSCOMMA).to_chr(), d.gettok( 1 ).to_chr());
 				DCXError("/xdid",error.to_chr());
 				return 3;
 			}
 
-			d2 = d.gettok(1, " ") + " " + IDs.gettok(i, ",") + " " + d.gettok(3, -1, " ");
+			d2 = d.gettok( 1 ) + " " + IDs.gettok(i, TSCOMMA) + " " + d.gettok(3, -1);
 
 			p_Control->parseCommandRequest(d2);
 			i++;
@@ -988,11 +988,11 @@ mIRC(xdid) {
 	}
 	//Single ID
 	else {
-		p_Control = p_Dialog->getControlByID((UINT) d.gettok(2, " ").to_int() + mIRC_ID_OFFSET);
+		p_Control = p_Dialog->getControlByID((UINT) d.gettok( 2 ).to_int() + mIRC_ID_OFFSET);
 
 		if (p_Control == NULL) {
 			TString error;
-			error.sprintf("Invalid ID : %s (dialog : %s)", d.gettok(2, " ").to_chr(), d.gettok(1, " ").to_chr());
+			error.sprintf("Invalid ID : %s (dialog : %s)", d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
 			DCXError("/xdid",error.to_chr());
 			return 3;
 		}
@@ -1016,25 +1016,25 @@ mIRC(_xdid) {
 
 	data[0] = 0;
 
-	if (d.numtok(" ") < 3) {
+	if (d.numtok( ) < 3) {
 		DCXError("$ $+ xdid","Invalid arguments");
 		return 3;
 	}
 
-	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok(1, " "));
+	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok( 1 ));
 
 	if (p_Dialog == NULL) {
 		TString error;
-		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
+		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
 		DCXError("$ $+ xdid",error.to_chr());
 		return 3;
 	}
 
-	DcxControl * p_Control = p_Dialog->getControlByID((UINT) d.gettok(2, " ").to_int() + mIRC_ID_OFFSET);
+	DcxControl * p_Control = p_Dialog->getControlByID((UINT) d.gettok( 2 ).to_int() + mIRC_ID_OFFSET);
 
 	if (p_Control == NULL) {
 		TString error;
-		error.sprintf("Invalid ID : %s (dialog %s)", d.gettok(2, " ").to_chr(), d.gettok(1, " ").to_chr());
+		error.sprintf("Invalid ID : %s (dialog %s)", d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
 		DCXError("$ $+ xdid",error.to_chr());
 		return 3;
 	}
@@ -1078,18 +1078,18 @@ mIRC(xdialog) {
 
 	data[0] = 0;
 
-	if (d.numtok(" ") < 2) {
+	if (d.numtok( ) < 2) {
 		TString error;
-		error.sprintf("Invalid arguments ( dialog %s)", d.gettok(1, " ").to_chr());
+		error.sprintf("Invalid arguments ( dialog %s)", d.gettok( 1 ).to_chr());
 		DCXError("/xdialog",error.to_chr());
 		return 3;
 	}
 
-	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok(1, " "));
+	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok( 1 ));
 
 	if (p_Dialog == NULL) {
 		TString error;
-		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
+		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
 		DCXError("/xdialog",error.to_chr());
 		return 3;
 	}
@@ -1112,19 +1112,19 @@ mIRC(_xdialog) {
 	// reset mIRC data
 	data[0] = 0;
 
-	if (d.numtok(" ") < 2) {
+	if (d.numtok( ) < 2) {
 		TString error;
-		error.sprintf("Invalid arguments ( dialog %s)", d.gettok(1, " ").to_chr());
+		error.sprintf("Invalid arguments ( dialog %s)", d.gettok( 1 ).to_chr());
 		DCXError("$ $+ xdialog",error.to_chr());
 		return 3;
 	}
 
-	DcxDialog *p_Dialog = Dialogs.getDialogByName(d.gettok(1, " "));
+	DcxDialog *p_Dialog = Dialogs.getDialogByName(d.gettok( 1 ));
 
 	if (p_Dialog == NULL) {
-		if (d.gettok(2, " ") != "ismarked") {
+		if (d.gettok( 2 ) != "ismarked") {
 			TString error;
-			error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok(1, " ").to_chr());
+			error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
 			DCXError("$ $+ xdialog",error.to_chr());
 			return 3;
 		}
@@ -1149,6 +1149,15 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				mIRCSignalDCX("size mIRC %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
       }
       break;
+
+//		case WM_SYSCOMMAND:
+//			{
+//#define SC_SHOWSYSMENU 0xF093
+//				if ((wParam & 0xFFF0) == SC_SHOWSYSMENU) {
+//					GetSystemMenu(mHwnd,TRUE);
+//				}
+//			}
+//			break;
 
 		//case WM_CONTEXTMENU:
 		//case WM_INITMENU:
@@ -1176,7 +1185,6 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			}
 			else
 				isSysMenu = TRUE;
-
 			break;
 		}
 
@@ -1302,14 +1310,14 @@ mIRC(MsgBox) {
 	TString d(data);
 	d.trim();
 
-	if (d.numtok("\t") < 3)
+	if (d.numtok(TSTAB) < 3)
 		ret("D_ERROR MessageBox: invalid parameters");
 
 	DWORD   style     = MB_DEFBUTTON1;
-	TString strStyles(d.gettok(1, "\t"));
-	TString strTitle(d.gettok(2, "\t"));
-	TString strMsg(d.gettok(3, -1, "\t"));
-	int     n         = strStyles.numtok(" ");
+	TString strStyles(d.gettok(1, TSTAB));
+	TString strTitle(d.gettok(2, TSTAB));
+	TString strMsg(d.gettok(3, -1, TSTAB));
+	int     n         = strStyles.numtok( );
 	HWND    owner     = aWnd;
 
 	strTitle.trim();
@@ -1320,55 +1328,55 @@ mIRC(MsgBox) {
 //		MB_ABORTRETRYIGNORE
 //		MB_CANCELTRYCONTINUE && isXP()
 
-		if (strStyles.gettok(i, " ") == "ok")
+		if (strStyles.gettok( i ) == "ok")
 			style |= MB_OK;
-		else if (strStyles.gettok(i, " ") == "okcancel")
+		else if (strStyles.gettok( i ) == "okcancel")
 			style |= MB_OKCANCEL;
-		else if (strStyles.gettok(i, " ") == "retrycancel")
+		else if (strStyles.gettok( i ) == "retrycancel")
 			style |= MB_RETRYCANCEL;
-		else if (strStyles.gettok(i, " ") == "yesno")
+		else if (strStyles.gettok( i ) == "yesno")
 			style |= MB_YESNO;
-		else if (strStyles.gettok(i, " ") == "yesnocancel")
+		else if (strStyles.gettok( i ) == "yesnocancel")
 			style |= MB_YESNOCANCEL;
-		else if (strStyles.gettok(i, " ") == "exclamation")
+		else if (strStyles.gettok( i ) == "exclamation")
 			style |= MB_ICONEXCLAMATION;
-		else if (strStyles.gettok(i, " ") == "warning")
+		else if (strStyles.gettok( i ) == "warning")
 			style |= MB_ICONWARNING;
-		else if (strStyles.gettok(i, " ") == "information")
+		else if (strStyles.gettok( i ) == "information")
 			style |= MB_ICONINFORMATION;
-		else if (strStyles.gettok(i, " ") == "asterisk")
+		else if (strStyles.gettok( i ) == "asterisk")
 			style |= MB_ICONASTERISK;
-		else if (strStyles.gettok(i, " ") == "question")
+		else if (strStyles.gettok( i ) == "question")
 			style |= MB_ICONQUESTION;
-		else if (strStyles.gettok(i, " ") == "stop")
+		else if (strStyles.gettok( i ) == "stop")
 			style |= MB_ICONSTOP;
-		else if (strStyles.gettok(i, " ") == "error")
+		else if (strStyles.gettok( i ) == "error")
 			style |= MB_ICONERROR;
-		else if (strStyles.gettok(i, " ") == "hand")
+		else if (strStyles.gettok( i ) == "hand")
 			style |= MB_ICONHAND;
-		//else if (strStyles.gettok(i, " ") == "help")
+		//else if (strStyles.gettok( i ) == "help")
 		//	style |= MB_HELP;
-		else if (strStyles.gettok(i, " ") == "defbutton2")
+		else if (strStyles.gettok( i ) == "defbutton2")
 			style |= MB_DEFBUTTON2;
-		else if (strStyles.gettok(i, " ") == "defbutton3")
+		else if (strStyles.gettok( i ) == "defbutton3")
 			style |= MB_DEFBUTTON3;
-		else if (strStyles.gettok(i, " ") == "defbutton4")
+		else if (strStyles.gettok( i ) == "defbutton4")
 			style |= MB_DEFBUTTON4;
-		else if (strStyles.gettok(i, " ") == "modal")
+		else if (strStyles.gettok( i ) == "modal")
 			style |= MB_APPLMODAL;
-		else if (strStyles.gettok(i, " ") == "sysmodal")
+		else if (strStyles.gettok( i ) == "sysmodal")
 			style |= MB_SYSTEMMODAL;
-		else if (strStyles.gettok(i, " ") == "taskmodal")
+		else if (strStyles.gettok( i ) == "taskmodal")
 			style |= MB_TASKMODAL;
-		else if (strStyles.gettok(i, " ") == "right")
+		else if (strStyles.gettok( i ) == "right")
 			style |= MB_RIGHT;
-		else if (strStyles.gettok(i, " ") == "rtl")
+		else if (strStyles.gettok( i ) == "rtl")
 			style |= MB_RTLREADING;
-		else if (strStyles.gettok(i, " ") == "foreground")
+		else if (strStyles.gettok( i ) == "foreground")
 			style |= MB_SETFOREGROUND;
-		else if (strStyles.gettok(i, " ") == "topmost")
+		else if (strStyles.gettok( i ) == "topmost")
 			style |= MB_TOPMOST;
-		else if (strStyles.gettok(i, " ") == "owner")
+		else if (strStyles.gettok( i ) == "owner")
 			owner = FindOwner(strStyles, mWnd);
 	}
 
@@ -1423,21 +1431,21 @@ mIRC(xpop) {
 
 	data[0] = 0;
 
-	if (d.numtok(" ") < 3) {
+	if (d.numtok( ) < 3) {
 		DCXError("/xpop","Invalid arguments");
 		return 3;
 	}
 
-	if ((d.gettok(1, " ") == "mirc") || (d.gettok(1, " ") == "mircbar")) {
+	if ((d.gettok( 1 ) == "mirc") || (d.gettok( 1 ) == "mircbar")) {
 		DCXError("/xpop","Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 		return 3;
 	}
 
-	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok(1, " "));
+	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok( 1 ));
 
 	if (p_Menu == NULL) {
 		TString error;
-		error.sprintf("Unknown menu \"%s\": see /xpopup -c command", d.gettok(1, " ").to_chr());
+		error.sprintf("Unknown menu \"%s\": see /xpopup -c command", d.gettok( 1 ).to_chr());
 		DCXError("/xpop",error.to_chr());
 		return 3;
 	}
@@ -1459,21 +1467,21 @@ mIRC(_xpop) {
 
 	data[0] = 0;
 
-	if (d.numtok(" ") < 3) {
+	if (d.numtok( ) < 3) {
 		DCXError("$ $+ xpop","Invalid arguments");
 		return 3;
 	}
 
-	if ((d.gettok(1, " ") == "mirc") || (d.gettok(1, " ") == "mircbar")) {
+	if ((d.gettok( 1 ) == "mirc") || (d.gettok( 1 ) == "mircbar")) {
 		DCXError("$ $+ xpop","Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 		return 3;
 	}
 
-	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok(1, " "));
+	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok( 1 ));
 
 	if (p_Menu == NULL) {
 		TString error;
-		error.sprintf("Unknown menu \"%s\": see /xpopup -c command", d.gettok(1, " ").to_chr());
+		error.sprintf("Unknown menu \"%s\": see /xpopup -c command", d.gettok( 1 ).to_chr());
 		DCXError("$ $+ xpop",error.to_chr());
 		return 3;
 	}
@@ -1495,7 +1503,7 @@ mIRC(xpopup) {
 
 	data[0] = 0;
 
-	if (d.numtok(" ") < 2) {
+	if (d.numtok( ) < 2) {
 		DCXError("/xpopup","Invalid arguments");
 		return 3;
 	}
@@ -1517,7 +1525,7 @@ mIRC(_xpopup) {
 
 	data[0] = 0;
 
-	if (d.numtok(" ") < 2) {
+	if (d.numtok( ) < 2) {
 		DCXError("$ $+ xpopup","Invalid arguments");
 		return 3;
 	}
@@ -1539,19 +1547,19 @@ mIRC(mpopup) {
 
 	data[0] = 0;
 
-	if (d.numtok(" ") < 2) {
+	if (d.numtok( ) < 2) {
 		DCXError("/mpopup","Invalid arguments");
 		return 3;
 	}
 
-	if (d.gettok(1, " ") == "mirc") {
-		if (d.gettok(2, " ") == "1")
+	if (d.gettok( 1 ) == "mirc") {
+		if (d.gettok( 2 ) == "1")
 			bIsActiveMircPopup = TRUE;
 		else
 			bIsActiveMircPopup = FALSE;
 	}
-	else if (d.gettok(1, " ") == "mircbar") {
-		if (d.gettok(2, " ") == "1")
+	else if (d.gettok( 1 ) == "mircbar") {
+		if (d.gettok( 2 ) == "1")
 			bIsActiveMircMenubarPopup = TRUE;
 		else {
 			bIsActiveMircMenubarPopup = FALSE;
@@ -1575,21 +1583,21 @@ mIRC(xSignal) {
 // /dcx WindowProps [HWND] [-FLAGS] (ARGS)
 mIRC(WindowProps) {
 	TString input(data);
-	int numtok = input.numtok(" ");
+	int numtok = input.numtok( );
 
 	if (numtok < 2) {
 		DCXError("/dcx WindowProps", "Insuffient parameters");
 		return 1;
 	}
 
-	HWND hwnd = (HWND) input.gettok(1, " ").to_int();
+	HWND hwnd = (HWND) input.gettok( 1 ).to_int();
 
 	if (!IsWindow(hwnd)) {
 		DCXError("/dcx WindowProps", "Invalid window");
 		return 1;
 	}
 
-	TString flags(input.gettok(2, " "));
+	TString flags(input.gettok( 2 ));
 	flags.trim();
 
 	if ((flags[0] != '+') || (flags.len() < 2)) {
@@ -1613,8 +1621,8 @@ mIRC(WindowProps) {
 	// set hwnd's title icon
 	// -i [INDEX] [FILENAME]
 	if (flags.find('i', 0) && numtok > 3) {
-		int index = input.gettok(3," ").to_int();
-		TString filename(input.gettok(1,"\t").gettok(4, -1, " "));
+		int index = input.gettok( 3 ).to_int();
+		TString filename(input.gettok(1,TSTAB).gettok(4, -1));
 		filename.trim();
 
 		if (!ChangeHwndIcon(hwnd,&flags,index,&filename))
@@ -1626,11 +1634,11 @@ mIRC(WindowProps) {
 		TString txt;
 		
 		if (flags.find('i', 0)) {
-			if (input.numtok("\t") > 1)
-				txt = input.gettok(2,-1,"\t");
+			if (input.numtok(TSTAB) > 1)
+				txt = input.gettok(2,-1,TSTAB);
 		}
 		else if (numtok > 2) {
-				txt = input.gettok(3, -1, " ");
+				txt = input.gettok(3, -1);
 		}
 		txt.trim();
 

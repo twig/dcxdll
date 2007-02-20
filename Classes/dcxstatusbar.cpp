@@ -88,26 +88,35 @@ DcxStatusBar::~DcxStatusBar( ) {
 
 void DcxStatusBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+	unsigned int i = 1, numtok = styles.numtok( );
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "grip" ) 
-      *Styles |= SBARS_SIZEGRIP;
-    else if ( styles.gettok( i , " " ) == "tooltips" ) 
-      *Styles |= SBARS_TOOLTIPS;
-    else if ( styles.gettok( i , " " ) == "nodivider" ) 
-      *Styles |= CCS_NODIVIDER;
-    else if ( styles.gettok( i , " " ) == "top" ) 
-      *Styles |= CCS_TOP;
-    else if ( styles.gettok( i , " " ) == "noresize" ) 
-      *Styles |= CCS_NORESIZE;
-    else if ( styles.gettok( i , " " ) == "noparentalign" ) 
-      *Styles |= CCS_NOPARENTALIGN ;
+		if ( styles.gettok( i ) == "grip" )
+			*Styles |= SBARS_SIZEGRIP;
+		else if ( styles.gettok( i ) == "tooltips" )
+			*Styles |= SBARS_TOOLTIPS;
+		else if ( styles.gettok( i ) == "nodivider" )
+			*Styles |= CCS_NODIVIDER;
+		else if ( styles.gettok( i ) == "top" ) {
+			*Styles |= CCS_TOP;
+			*Styles &= ~SBARS_SIZEGRIP; // size grip doesn't work for left or top styles.
+		}
+		else if ( styles.gettok( i ) == "noresize" )
+			*Styles |= CCS_NORESIZE;
+		else if ( styles.gettok( i ) == "noparentalign" )
+			*Styles |= CCS_NOPARENTALIGN ;
+		//else if ( styles.gettok( i ) == "left" )
+		//{ // NB: left & right styles don't render the parts vertically.
+		//	*Styles |= CCS_LEFT;
+		//	*Styles &= ~SBARS_SIZEGRIP;
+		//}
+		//else if ( styles.gettok( i ) == "right" )
+		//	*Styles |= CCS_RIGHT;
 
-    i++;
-  }
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+		i++;
+	}
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -121,12 +130,13 @@ void DcxStatusBar::parseControlStyles( TString & styles, LONG * Styles, LONG * E
 
 void DcxStatusBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-	int numtok = input.numtok( " " );
+	int numtok = input.numtok( );
+	TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
-	if ( input.gettok( 3, " " ) == "text" && numtok > 3 ) {
+	if ( prop == "text" && numtok > 3 ) {
 
-		int iPart = input.gettok( 4, " " ).to_int( ) -1, nParts = this->getParts( 256, 0 );
+		int iPart = input.gettok( 4 ).to_int( ) -1, nParts = this->getParts( 256, 0 );
 
 		if ( iPart > -1 && iPart < nParts ) {
 
@@ -135,7 +145,7 @@ void DcxStatusBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 		}
 	}
 	// [NAME] [ID] [PROP]
-	else if ( input.gettok( 3, " " ) == "parts" ) {
+	else if ( prop == "parts" ) {
 
 		INT parts[256];
 		int nParts = this->getParts( 256, 0 );
@@ -159,9 +169,9 @@ void DcxStatusBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 		return;
 	}
 	// [NAME] [ID] [PROP] [N]
-	else if ( input.gettok( 3, " " ) == "tooltip" && numtok > 3 ) {
+	else if ( prop == "tooltip" && numtok > 3 ) {
 
-		int iPart = input.gettok( 3, " " ).to_int( ), nParts = this->getParts( 256, 0 );
+		int iPart = input.gettok( 4 ).to_int( ), nParts = this->getParts( 256, 0 );
 
 		if ( iPart > -1 && iPart < nParts ) {
 
@@ -207,13 +217,13 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 
 	XSwitchFlags flags;
 	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-	this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+	this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-	int numtok = input.numtok( " " );
+	int numtok = input.numtok( );
 
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	if (flags.switch_flags[10] && numtok > 3) {
-		int col = input.gettok(4, " ").to_int();
+		int col = input.gettok( 4 ).to_int();
 
 		if (col < 0)
 			this->setBkColor((COLORREF) CLR_DEFAULT);
@@ -229,7 +239,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 		int i = 0;
 		while ( i < nParts ) {
 
-			parts[i] = input.gettok( i+4, " " ).to_int( );
+			parts[i] = input.gettok( i+4 ).to_int( );
 			i++;
 		}
 		this->setParts( nParts, parts );
@@ -238,9 +248,9 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 	// xdid -t [NAME] [ID] [SWITCH] N [+c] [#ICON] [CID] [CTRL] [X] [Y] [W] [H] (OPTIONS)
 	else if ( flags.switch_flags[19] && numtok > 5 ) {
 
-		int nPos = input.gettok( 4, " " ).to_int( ) - 1;
-		TString flag(input.gettok( 5, " " ));
-		int icon = input.gettok( 6, " " ).to_int( ) - 1;
+		int nPos = input.gettok( 4 ).to_int( ) - 1;
+		TString flag(input.gettok( 5 ));
+		int icon = input.gettok( 6 ).to_int( ) - 1;
 
 		if ( nPos < 0 || nPos >= this->getParts( 256, 0 ) ) {
 			DCXError("xdid -t", "Invalid Part");
@@ -256,15 +266,15 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 
 		UINT iFlags = this->parseItemFlags( flag );
 
-		if ( input.gettok( 1, "\t" ).numtok( " " ) > 6 ) {
+		if ( input.gettok( 1, TSTAB ).numtok( ) > 6 ) {
 		  
-			itemtext = input.gettok( 1, "\t" ).gettok( 7, -1, " " );
+			itemtext = input.gettok( 1, TSTAB ).gettok( 7, -1 );
 			itemtext.trim( );
 		}
 
-		if ( input.numtok( "\t" ) > 1 ) {
+		if ( input.numtok( TSTAB ) > 1 ) {
 		  
-			tooltip = input.gettok( 2, "\t" );
+			tooltip = input.gettok( 2, TSTAB );
 			tooltip.trim( );
 		}
 
@@ -334,13 +344,13 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 	// xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
 	else if ( flags.switch_flags[21] && numtok > 3 ) {
 
-		int nPos = input.gettok( 4, " " ).to_int( ) - 1;
+		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nPos > -1 && nPos < this->getParts( 256, 0 ) ) {
 
 			TString itemtext;
 			if ( numtok > 4 )
-				itemtext = input.gettok( 5, -1, " " );
+				itemtext = input.gettok( 5, -1 );
 
 			if (HIWORD( this->getTextLength( nPos ) ) & SBT_OWNERDRAW) {
 				LPSB_PARTINFO pPart = (LPSB_PARTINFO)this->getText(nPos, NULL);
@@ -359,9 +369,9 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
-		TString flags(input.gettok(4, " "));
-		int index = input.gettok(5, " ").to_int();
-		TString filename(input.gettok(6, -1, " "));
+		TString flags(input.gettok( 4 ));
+		int index = input.gettok( 5 ).to_int();
+		TString filename(input.gettok(6, -1));
 
 		if ((himl = this->getImageList()) == NULL) {
 			himl = this->createImageList();

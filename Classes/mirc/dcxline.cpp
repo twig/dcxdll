@@ -69,28 +69,28 @@ DcxLine::~DcxLine( ) {
 
 void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( " " );
+  unsigned int i = 1, numtok = styles.numtok( );
   *Styles = SS_ETCHEDHORZ;
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "vertical" ) {
+    if ( styles.gettok( i ) == "vertical" ) {
       *Styles &= ~SS_ETCHEDHORZ;
       *Styles |= SS_ETCHEDVERT;
     }
-		//else if (styles.gettok(i , " ") == "nowrap")
+		//else if (styles.gettok(i ) == "nowrap")
 		//	*Styles |= SS_LEFTNOWORDWRAP;
-		//else if (styles.gettok(i, " ") == "center")
+		//else if (styles.gettok(i) == "center")
 		//	*Styles |= SS_CENTER;
-		//else if (styles.gettok(i, " ") == "right")
+		//else if (styles.gettok(i) == "right")
 		//	*Styles |= SS_RIGHT;
-		//else if (styles.gettok(i, " ") == "noprefix")
+		//else if (styles.gettok(i) == "noprefix")
 		//	*Styles |= SS_NOPREFIX;
-		//else if (styles.gettok(i, " ") == "endellipsis")
+		//else if (styles.gettok(i) == "endellipsis")
 		//	*Styles |= SS_ENDELLIPSIS;
-		//else if (styles.gettok(i, " ") == "pathellipsis")
+		//else if (styles.gettok(i) == "pathellipsis")
 		//	*Styles |= SS_PATHELLIPSIS;
-		//else if ( styles.gettok( i , " " ) == "alpha" )
+		//else if ( styles.gettok( i ) == "alpha" )
 		//	this->m_bAlphaBlend = true;
 
     i++;
@@ -109,8 +109,8 @@ void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
 
 void DcxLine::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
-  //if ( input.gettok( 3, " " ) == "text" ) {
+//  int numtok = input.numtok( );
+  //if ( input.gettok( 3 ) == "text" ) {
 
 		//lstrcpy(szReturnValue, this->m_sText.to_chr() );
   //  return;
@@ -131,13 +131,13 @@ void DcxLine::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
 
 	//xdid -t [NAME] [ID] [SWITCH]
 	//if (flags.switch_flags[19]) {
-	//	this->m_sText = input.gettok(4, -1, " ");
+	//	this->m_sText = input.gettok(4, -1);
 	//	this->m_sText.trim();
 
 	//	// redraw if transparent
@@ -208,12 +208,12 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
       break;
 		//case WM_PAINT:
 		//	{
-		//		//if (!this->m_bAlphaBlend)
-		//		//	break;
-  //      PAINTSTRUCT ps;
-  //      HDC hdc;
+		//		if (!this->m_bAlphaBlend)
+		//			break;
+		//		PAINTSTRUCT ps;
+		//		HDC hdc;
 
-  //      hdc = BeginPaint( this->m_Hwnd, &ps );
+		//		hdc = BeginPaint( this->m_Hwnd, &ps );
 
 		//		LRESULT res = 0L;
 		//		bParsed = TRUE;
@@ -259,12 +259,12 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 		//			DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rc, style);
 		//		}
 
-		//		this->FinishAlphaBlend(ai);
+			//	this->FinishAlphaBlend(ai);
 
-		//		EndPaint( this->m_Hwnd, &ps );
-		//		return res;
-		//	}
-		//	break;
+			//	EndPaint( this->m_Hwnd, &ps );
+			//	return res;
+			//}
+			//break;
 
     case WM_DESTROY:
       {

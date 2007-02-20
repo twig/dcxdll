@@ -108,26 +108,26 @@ DcxWebControl::~DcxWebControl( ) {
  */
 
 void DcxWebControl::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	//unsigned int i = 1, numtok = styles.numtok( " " );
+	//unsigned int i = 1, numtok = styles.numtok( );
 
   /*
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i , " " ) == "left" ) {
+    if ( styles.gettok( i ) == "left" ) {
       *Styles &= ~UDS_ALIGNRIGHT;
       *Styles |= UDS_ALIGNLEFT;
     }
-    else if ( styles.gettok( i , " " ) == "arrowkeys" )
+    else if ( styles.gettok( i ) == "arrowkeys" )
       *Styles |= UDS_ARROWKEYS;
-    else if ( styles.gettok( i , " " ) == "horz" )
+    else if ( styles.gettok( i ) == "horz" )
       *Styles |= UDS_HORZ;
-    else if ( styles.gettok( i , " " ) == "hottrack" )
+    else if ( styles.gettok( i ) == "hottrack" )
       *Styles |= UDS_HOTTRACK;
-    else if ( styles.gettok( i , " " ) == "nothousands" )
+    else if ( styles.gettok( i ) == "nothousands" )
       *Styles |= UDS_NOTHOUSANDS;
-    else if ( styles.gettok( i , " " ) == "buddyint" )
+    else if ( styles.gettok( i ) == "buddyint" )
       *Styles |= UDS_SETBUDDYINT;
-    else if ( styles.gettok( i , " " ) == "wrap" )
+    else if ( styles.gettok( i ) == "wrap" )
       *Styles |= UDS_WRAP;
 
     i++;
@@ -148,10 +148,11 @@ void DcxWebControl::parseControlStyles(TString &styles, LONG *Styles, LONG *ExSt
 
 void DcxWebControl::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( " " );
+//  int numtok = input.numtok( );
+	TString prop(input.gettok( 3 ));
 
   // [NAME] [ID] [PROP]
-  if ( input.gettok( 3, " " ) == "url" ) {
+  if ( prop == "url" ) {
 
     BSTR str;
 
@@ -163,7 +164,7 @@ void DcxWebControl::parseInfoRequest( TString & input, char * szReturnValue ) {
     }
   }
   // [NAME] [ID] [PROP]
-  else if ( input.gettok( 3, " " ) == "ready" ) {
+  else if ( prop == "ready" ) {
   
     READYSTATE ready_state;
     if ( SUCCEEDED( this->m_pWebBrowser2->get_ReadyState( &ready_state ) ) ) {
@@ -177,10 +178,8 @@ void DcxWebControl::parseInfoRequest( TString & input, char * szReturnValue ) {
     lstrcpy( szReturnValue, "$false" );
 		return;
   }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
-  }
   
   szReturnValue[0] = 0;
 }
@@ -195,9 +194,9 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3, " " ), &flags );
+  this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-  int numtok = input.numtok( " " );
+  int numtok = input.numtok( );
 
   // xdid -g [NAME] [ID] [SWITCH]
   if ( flags.switch_flags[6] ) {
@@ -229,7 +228,7 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
 
           if ( SUCCEEDED( doc->get_parentWindow( &window ) ) ) { 
 
-            TString CMD(input.gettok( 4, -1, " " ));
+            TString CMD(input.gettok( 4, -1 ));
             CMD.trim( );
 
             VARIANT v;
@@ -255,7 +254,7 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
   // xdid -n [NAME] [ID] [SWITCH] [URL]
   else if ( flags.switch_flags[13] && numtok > 3 ) {
     
-    TString URL(input.gettok( 4, -1, " " ));
+    TString URL(input.gettok( 4, -1 ));
     URL.trim( );
 
     VARIANT v;
