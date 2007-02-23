@@ -33,19 +33,20 @@ DcxLine::DcxLine( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, c
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	this->m_Hwnd = CreateWindowEx(	
-		ExStyles, 
-		"STATIC", 
+		ExStyles | WS_EX_TRANSPARENT,
+		"STATIC",
 		NULL,
-		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
-		GetModuleHandle(NULL), 
+		GetModuleHandle(NULL),
 		NULL);
 
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
@@ -70,28 +71,32 @@ DcxLine::~DcxLine( ) {
 void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
   unsigned int i = 1, numtok = styles.numtok( );
-  *Styles = SS_ETCHEDHORZ;
+  //*Styles = SS_ETCHEDHORZ;
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "vertical" ) {
-      *Styles &= ~SS_ETCHEDHORZ;
-      *Styles |= SS_ETCHEDVERT;
-    }
-		//else if (styles.gettok(i ) == "nowrap")
-		//	*Styles |= SS_LEFTNOWORDWRAP;
-		//else if (styles.gettok(i) == "center")
-		//	*Styles |= SS_CENTER;
-		//else if (styles.gettok(i) == "right")
-		//	*Styles |= SS_RIGHT;
-		//else if (styles.gettok(i) == "noprefix")
-		//	*Styles |= SS_NOPREFIX;
-		//else if (styles.gettok(i) == "endellipsis")
-		//	*Styles |= SS_ENDELLIPSIS;
-		//else if (styles.gettok(i) == "pathellipsis")
-		//	*Styles |= SS_PATHELLIPSIS;
-		//else if ( styles.gettok( i ) == "alpha" )
-		//	this->m_bAlphaBlend = true;
+    //if ( styles.gettok( i ) == "vertical" ) {
+    //  *Styles &= ~SS_ETCHEDHORZ;
+    //  *Styles |= SS_ETCHEDVERT;
+    //}
+		if (styles.gettok(i ) == "nowrap")
+			*Styles |= SS_LEFTNOWORDWRAP;
+		else if (styles.gettok(i) == "center")
+			*Styles |= SS_CENTER;
+		else if (styles.gettok(i) == "right")
+			*Styles |= SS_RIGHT;
+		else if (styles.gettok(i) == "noprefix")
+			*Styles |= SS_NOPREFIX;
+		else if (styles.gettok(i) == "endellipsis")
+			*Styles |= SS_ENDELLIPSIS;
+		else if (styles.gettok(i) == "pathellipsis")
+			*Styles |= SS_PATHELLIPSIS;
+		else if ( styles.gettok( i ) == "alpha" )
+			this->m_bAlphaBlend = true;
+		else if (( styles.gettok( i ) == "shadow" ))
+			this->m_bShadowText = true;
+		else if (( styles.gettok( i ) == "noformat" ))
+			this->m_bCtrlCodeText = false;
 
     i++;
   }
@@ -110,12 +115,11 @@ void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
 void DcxLine::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 //  int numtok = input.numtok( );
-  //if ( input.gettok( 3 ) == "text" ) {
-
-		//lstrcpy(szReturnValue, this->m_sText.to_chr() );
-  //  return;
-  //}
-	if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+	if ( input.gettok( 3 ) == "text" ) {
+		lstrcpyn(szReturnValue, this->m_sText.to_chr(), 900);
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
   
 	szReturnValue[0] = 0;
@@ -135,32 +139,32 @@ void DcxLine::parseCommandRequest( TString & input ) {
 
 //  int numtok = input.numtok( );
 
-	//xdid -t [NAME] [ID] [SWITCH]
-	//if (flags.switch_flags[19]) {
-	//	this->m_sText = input.gettok(4, -1);
-	//	this->m_sText.trim();
+	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
+	if (flags.switch_flags[19]) {
+		this->m_sText = input.gettok(4, -1);
+		this->m_sText.trim();
 
-	//	// redraw if transparent
-	//	if (this->isExStyle(WS_EX_TRANSPARENT)) {
-	//		RECT r;
-	//		POINT pt;
-	//		int w, h;
+		// redraw if transparent
+		if (this->isExStyle(WS_EX_TRANSPARENT)) {
+			RECT r;
+			POINT pt;
+			int w, h;
 
-	//		GetWindowRect(this->m_Hwnd, &r);
-	//		pt.x = r.left;
-	//		pt.y = r.top;
-	//		w = r.right - r.left;
-	//		h = r.bottom - r.top;
-	//		ScreenToClient(GetParent(this->m_Hwnd), &pt);
-	//		r.left = pt.x;
-	//		r.top = pt.y;
-	//		r.right = r.left + w;
-	//		r.bottom = r.top + h;
-	//		InvalidateRect(GetParent(this->m_Hwnd), &r, TRUE);
-	//		this->redrawWindow();
-	//	}
-	//}
- // else
+			GetWindowRect(this->m_Hwnd, &r);
+			pt.x = r.left;
+			pt.y = r.top;
+			w = r.right - r.left;
+			h = r.bottom - r.top;
+			ScreenToClient(GetParent(this->m_Hwnd), &pt);
+			r.left = pt.x;
+			r.top = pt.y;
+			r.right = r.left + w;
+			r.bottom = r.top + h;
+			InvalidateRect(GetParent(this->m_Hwnd), &r, TRUE);
+			this->redrawWindow();
+		}
+	}
+	else
 	  this->parseGlobalCommandRequest( input, flags );
 }
 
@@ -206,65 +210,90 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
         }
       }
       break;
-		//case WM_PAINT:
-		//	{
-		//		if (!this->m_bAlphaBlend)
-		//			break;
-		//		PAINTSTRUCT ps;
-		//		HDC hdc;
+		case WM_ERASEBKGND:
+			{
+				//this->DrawParentsBackground((HDC) wParam);
+				bParsed = TRUE;
+				return TRUE;
+			}
+			break;
+		case WM_PAINT:
+			{
+				//if (!this->m_bAlphaBlend)
+				//	break;
+				PAINTSTRUCT ps;
+				HDC hdc;
 
-		//		hdc = BeginPaint( this->m_Hwnd, &ps );
+				hdc = BeginPaint( this->m_Hwnd, &ps );
 
-		//		LRESULT res = 0L;
-		//		bParsed = TRUE;
+				LRESULT res = 0L;
+				bParsed = TRUE;
 
-		//		RECT rcClient, rc;
+				RECT rcClient, rcLine, rcText;
 
-		//		// get controls client area
-		//		GetClientRect( this->m_Hwnd, &rcClient );
+				// get controls client area
+				GetClientRect( this->m_Hwnd, &rcClient );
 
-		//		// Setup alpha blend if any.
-		//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-		//		// fill background.
-		//		//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+				// fill background.
+				//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
-		//		//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-		//		rc = rcClient;
-		//		int half = rc.bottom = rc.bottom / 2;
-		//		DrawEdge(hdc, &rc, EDGE_ETCHED, BF_BOTTOM);
+				//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				rcLine = rcClient;
+				rcText = rcClient;
+				int half = rcLine.bottom = rcLine.bottom / 2;
 
-		//		// draw text if any.
-		//		if (this->m_sText.len() > 0) {
-		//			SetBkMode(hdc, TRANSPARENT);
-		//			UINT style = DT_LEFT;
-		//			if (this->isStyle(SS_CENTER))
-		//				style |= DT_CENTER;
-		//			if (this->isStyle(SS_RIGHT)) {
-		//				style &= ~DT_LEFT;
-		//				style |= DT_RIGHT;
-		//			}
-		//			if (this->isStyle(SS_ENDELLIPSIS))
-		//				style |= DT_END_ELLIPSIS;
-		//			if (this->isStyle(SS_PATHELLIPSIS))
-		//				style |= DT_PATH_ELLIPSIS;
-		//			if (this->isStyle(SS_NOPREFIX))
-		//				style |= DT_NOPREFIX;
-		//			if (this->isStyle(SS_LEFTNOWORDWRAP))
-		//				style |= DT_SINGLELINE; // ?? same ??
-		//			DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rc, DT_CALCRECT);
-		//			int w = rc.right - rc.left;
-		//			int h = rc.bottom - rc.top;
-		//			rc.top = half - h/2;
-		//			DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rc, style);
-		//		}
+				// draw text if any.
+				if (this->m_sText.len() > 0) {
+					if (this->m_hFont != NULL)
+						SelectObject(hdc, this->m_hFont);
 
-			//	this->FinishAlphaBlend(ai);
+					if (this->m_clrText != -1)
+						SetTextColor(hdc, this->m_clrText);
+					else
+						SetTextColor(hdc, GetSysColor(
+							IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
+						);
+					UINT style = DT_LEFT|DT_VCENTER;
+					if (this->isStyle(SS_ENDELLIPSIS))
+						style |= DT_END_ELLIPSIS;
+					if (this->isStyle(SS_PATHELLIPSIS))
+						style |= DT_PATH_ELLIPSIS;
+					if (this->isStyle(SS_NOPREFIX))
+						style |= DT_NOPREFIX;
+					if (this->isStyle(SS_LEFTNOWORDWRAP))
+						style |= DT_SINGLELINE;
+					if (this->m_bCtrlCodeText)
+						calcStrippedRect(hdc, this->m_sText, style, &rcText, false);
+					else
+						DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, DT_CALCRECT | style);
+					if (this->isStyle(SS_CENTER))
+						OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),0);
+					else if (this->isStyle(SS_RIGHT))
+						OffsetRect(&rcText,rcClient.right - (rcText.right - rcText.left),0);
 
-			//	EndPaint( this->m_Hwnd, &ps );
-			//	return res;
-			//}
-			//break;
+					// draw the text
+					if (!this->m_bCtrlCodeText) {
+						SetBkMode(hdc, TRANSPARENT);
+						if (this->m_bShadowText)
+							dcxDrawShadowText(hdc,this->m_sText.to_wchr(), this->m_sText.len(),&rcText, style, this->m_clrText, 0, 5, 5);
+						else
+							DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, style);
+					}
+					else
+						mIRC_DrawText(hdc, this->m_sText, &rcText, style, this->m_bShadowText);
+					ExcludeClipRect(hdc,rcText.left, rcText.top, rcText.right, rcText.bottom);
+				}
+				DrawEdge(hdc, &rcLine, EDGE_ETCHED, BF_BOTTOM);
+
+				this->FinishAlphaBlend(ai);
+
+				EndPaint( this->m_Hwnd, &ps );
+				return res;
+			}
+			break;
 
     case WM_DESTROY:
       {

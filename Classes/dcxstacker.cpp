@@ -813,10 +813,11 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					if ( clrBackText != -1 )
 						SetBkColor( (HDC) wParam, clrBackText );
 
-					//if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
-					//	bParsed = TRUE;
-					//	return (LRESULT)GetStockObject(NULL_BRUSH);
-					//}
+					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
+						// when transparent set as no bkg brush & default transparent drawing.
+						SetBkMode((HDC) wParam, TRANSPARENT);
+						hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+					}
 
 					if ( hBackBrush != NULL )
 						lRes = (LRESULT) hBackBrush;
@@ -891,15 +892,7 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				this->getItemRect(lastID, &rcItem);
 				if (rcItem.bottom < rcClient.bottom) {
 					rcClient.top = rcItem.bottom;
-					this->DrawParentsBackground((HDC) wParam, &rcClient, this->m_Hwnd);
-					
-					//HRGN bkg_rgn = CreateRectRgn(rcClient.left,rcItem.bottom,rcClient.right,rcClient.bottom);
-					//if (bkg_rgn != NULL) {
-					//	SelectClipRgn((HDC)wParam,bkg_rgn);
-					//	this->DrawParentsBackground((HDC) wParam);
-					//	SelectClipRgn((HDC)wParam,NULL);
-					//	DeleteObject(bkg_rgn);
-					//}
+					this->DrawParentsBackground((HDC) wParam, &rcClient);
 				}
 			}
 			return TRUE;

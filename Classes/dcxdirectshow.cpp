@@ -698,7 +698,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 					// associate bitmap with HDC
 					HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
 
-					this->DrawParentsBackground(hdcbkg);
+					this->DrawParentsBackground(hdcbkg, &rcClient);
 
 					long cx, cy;
 					hr = this->m_pWc->GetNativeVideoSize(&cx, &cy, NULL, NULL);

@@ -855,6 +855,12 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					if ( clrBackText != -1 )
 						SetBkColor( (HDC) wParam, clrBackText );
 
+					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
+						// when transparent set as no bkg brush & default transparent drawing.
+						SetBkMode((HDC) wParam, TRANSPARENT);
+						hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+					}
+
 					if ( hBackBrush != NULL )
 						lRes = (LRESULT) hBackBrush;
 				}

@@ -542,35 +542,6 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
-      /*
-    case WM_ERASEBKGND: 
-      {
-
-        if ( this->m_hBackBrush != NULL ) {
-
-          bParsed = TRUE;
-
-          HDC hdc = GetDC( this->m_Hwnd );
-
-          HBRUSH hBrush;
-
-          if ( this->m_hBackBrush != NULL )
-            hBrush = this->m_hBackBrush;
-          else
-            hBrush = GetSysColorBrush( COLOR_3DFACE );
-
-          RECT rect;
-          GetWindowRect( this->m_Hwnd, &rect );
-          OffsetRect( &rect, -rect.left, -rect.top );
-          FillRect( hdc, &rect, hBrush );
-
-          ReleaseDC( this->m_Hwnd, hdc );
-
-          return TRUE;
-        }
-      }
-      break;
-      */
 		case WM_PAINT:
 			{
 				if (!this->m_bAlphaBlend)
@@ -618,6 +589,12 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 					if ( clrBackText != -1 )
 						SetBkColor( (HDC) wParam, clrBackText );
+
+					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
+						// when transparent set as no bkg brush & default transparent drawing.
+						SetBkMode((HDC) wParam, TRANSPARENT);
+						hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+					}
 
 					if ( hBackBrush != NULL )
 						lRes = (LRESULT)hBackBrush;

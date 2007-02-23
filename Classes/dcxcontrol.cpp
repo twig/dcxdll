@@ -1112,7 +1112,8 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 		GetClientRect( hwnd, &rcClient ); // get controls client area
 	else {
 		rcClient = *rcBounds;
-		hwnd = dHwnd;
+		if (dHwnd != NULL)
+			hwnd = dHwnd;
 	}
 	// if themes are active use them.
 	if (dcxIsThemeActive()) {

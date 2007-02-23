@@ -2298,16 +2298,16 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				if (clrBackText != -1)
 					SetBkColor((HDC) wParam, clrBackText);
 
-				//if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
-				//	bParsed = TRUE;
-				//	return (LRESULT)GetStockObject(NULL_BRUSH);
-				//}
+				if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
+					// when transparent set as no bkg brush & default transparent drawing.
+					SetBkMode((HDC) wParam, TRANSPARENT);
+					hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+				}
 
 				if (hBackBrush != NULL)
 					lRes = (LRESULT) hBackBrush;
 
 			}
-
 			break;
 		}
 

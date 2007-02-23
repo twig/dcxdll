@@ -275,8 +275,8 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 		case WM_PAINT:
 		{
-			if (!this->isExStyle(WS_EX_TRANSPARENT) && !this->m_bAlphaBlend)
-				break;
+			//if (!this->isExStyle(WS_EX_TRANSPARENT) && !this->m_bAlphaBlend)
+			//	break;
 
 			bParsed = TRUE;
 			LRESULT res = 0L;
@@ -288,17 +288,17 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			// Setup alpha blend if any.
 			LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-			if (this->isExStyle(WS_EX_TRANSPARENT)) {
+			//if (this->isExStyle(WS_EX_TRANSPARENT)) {
 				int nText = GetWindowTextLength(this->m_Hwnd);
 				char *text = new char[nText +1];
 				GetWindowText(this->m_Hwnd, text, nText +1);
+				TString wtext(text);
+				delete [] text;
 
 				GetClientRect(this->m_Hwnd, &r);
 
 				SelectObject(hdc, this->m_hFont);
 				SetTextColor(hdc, this->m_clrText);
-				//SelectObject(hdc, GetStockBrush(HOLLOW_BRUSH));
-				SetBkMode(hdc, TRANSPARENT);
 
 				UINT style = DT_LEFT;
 				if (this->isStyle(SS_CENTER))
@@ -312,28 +312,24 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 				if (this->isStyle(SS_NOPREFIX))
 					style |= DT_NOPREFIX;
 				if (this->isStyle(SS_LEFTNOWORDWRAP))
-					style |= DT_SINGLELINE; // ?? same ??
+					style |= DT_SINGLELINE;
  				else
 					style |= DT_WORDBREAK; // changed for autowrap between words
 
 				if (!this->m_bCtrlCodeText) {
-					if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
-						TString wtext(text);
-						dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &r, style, this->m_clrText, 0, 5, 5);
-					}
+					SetBkMode(hdc, TRANSPARENT);
+					if (this->m_bShadowText)
+						dcxDrawShadowText(hdc, wtext.to_wchr(), nText, &r, style, this->m_clrText, 0, 5, 5);
 					else
-						DrawText(hdc, text, nText, &r, style);
+						DrawText(hdc, wtext.to_chr(), nText, &r, style);
 				}
-				else {
-					TString wtext(text);
+				else
 					mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText);
-				}
 
-				delete [] text;
 				res = TRUE;
-			}
-			else
-				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+			//}
+			//else
+			//	res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 			this->FinishAlphaBlend(ai);
 

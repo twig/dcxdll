@@ -317,6 +317,7 @@ void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DW
 const char *GetLastStatusStr(Status status);
 #endif
 bool IsFile(TString &filename);
+void calcStrippedRect(HDC hdc, TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
 void mIRC_DrawText(HDC hdc, TString &txt, const LPRECT rc, const UINT style, const bool shadow);
 
 // UltraDock

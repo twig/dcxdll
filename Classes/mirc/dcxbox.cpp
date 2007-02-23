@@ -725,10 +725,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					if ( clrBackText != -1 )
 						SetBkColor( (HDC) wParam, clrBackText );
 
-					//if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
-					//	bParsed = TRUE;
-					//	return (LRESULT)GetStockObject(NULL_BRUSH);
-					//}
+					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
+						// when transparent set as no bkg brush & default transparent drawing.
+						SetBkMode((HDC) wParam, TRANSPARENT);
+						hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+					}
 
 					if ( hBackBrush != NULL )
 						lRes = (LRESULT) hBackBrush;
@@ -839,7 +840,14 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					char *text = new char[n +2];
 					GetWindowText(this->m_Hwnd, text, n +1);
 
-					DrawText(hdc, text, n, &rcText, DT_CALCRECT);
+					TString wtext(text);
+					delete [] text;
+
+					if (this->m_bCtrlCodeText)
+						calcStrippedRect(hdc, wtext, 0, &rcText, false);
+					else
+						DrawText(hdc, wtext.to_chr(), n, &rcText, DT_CALCRECT);
+
 					int w = rcText.right - rcText.left;
 					int h = rcText.bottom - rcText.top;
 
@@ -927,20 +935,13 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 					// draw the text
 					if (!this->m_bCtrlCodeText) {
-						if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
-							TString wtext(text);
-							dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(),&rcText,
-								DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
-						}
+						if (this->m_bShadowText)
+							dcxDrawShadowText(hdc,wtext.to_wchr(), n,&rcText, DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
 						else
-							DrawText(hdc, text, n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
+							DrawText(hdc, wtext.to_chr(), n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
 					}
-					else {
-						TString wtext(text);
+					else
 						mIRC_DrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS, this->m_bShadowText);
-					}
-
-					delete [] text;
 				}
 
 				this->FinishAlphaBlend(ai);

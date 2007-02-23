@@ -425,10 +425,11 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					if ( clrBackText != -1 )
 						SetBkColor( (HDC) wParam, clrBackText );
 
-					//if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
-					//	bParsed = TRUE;
-					//	return (LRESULT)GetStockObject(NULL_BRUSH);
-					//}
+					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
+						// when transparent set as no bkg brush & default transparent drawing.
+						SetBkMode((HDC) wParam, TRANSPARENT);
+						hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+					}
 
 					if ( hBackBrush != NULL )
 						lRes = (LRESULT) hBackBrush;
@@ -494,30 +495,6 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				this->reCalcSize();
       }
       break;
-
-		//case WM_PAINT:
-		//	{
-		//		if (!this->m_bAlphaBlend)
-		//			break;
-		//		PAINTSTRUCT ps;
-		//		HDC hdc;
-
-		//		hdc = BeginPaint( this->m_Hwnd, &ps );
-
-		//		LRESULT res = 0L;
-		//		bParsed = TRUE;
-
-		//		// Setup alpha blend if any.
-		//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-		//		res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-
-		//		this->FinishAlphaBlend(ai);
-
-		//		EndPaint( this->m_Hwnd, &ps );
-		//		return res;
-		//	}
-		//	break;
 
     case WM_DESTROY:
       {

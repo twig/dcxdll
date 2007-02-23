@@ -44,7 +44,7 @@ public:
 
 protected:
 
-	//TString m_sText;
+	TString m_sText;
 };
 
 #endif // _DCXLINE_H_
