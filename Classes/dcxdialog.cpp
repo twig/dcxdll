@@ -1248,32 +1248,47 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		TString cmd;
 		if (valid_XML) {
 			TiXmlElement *valid_DCXML = 0;
-			valid_DCXML = doc.FirstChildElement("dialog");
+			valid_DCXML = doc.FirstChildElement("dcxml");
 			if (valid_DCXML) {
-				const char *t_cascade = valid_DCXML->Attribute("cascade");
-				const char *cascade = (t_cascade) ? t_cascade : "v";
-				const char *t_space = valid_DCXML->Attribute("margin");
-				const char *space = (t_space) ? t_space : "0 0 0 0";
-				cmd.sprintf("%s -l root \t +p%s 0 0 0 0", this->getName().to_chr(),cascade);
-				this->parseCommandRequest(cmd);
-				cmd.sprintf("%s -l space root \t %s", this->getName().to_chr(),space);
-				this->parseCommandRequest(cmd);
-				walkScript(valid_DCXML,this->getName().to_chr());
-				cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
-				mIRCcom(cmd.to_chr());
+				TiXmlElement *dialogs = valid_DCXML->FirstChildElement("dialogs");
+				if (dialogs) { 
+					TiXmlElement* child = 0;
+					TiXmlElement* dialog = 0;
+					for( child = dialogs->FirstChildElement("dialog"); child; child = child->NextSiblingElement() ) {
+						const char *name = child->Attribute("name");
+						if (0==strcmp(name, input.gettok(4," ").to_chr())) { 
+							dialog = child;
+							break;
+						}
+					}
+					cmd.sprintf("//echo -a %s",
+						input.gettok(4," ").to_chr());
+					mIRCcom(cmd.to_chr());
+					if (dialog) { 
+						const char *tCascade = dialog->Attribute("cascade");
+						const char *cascade = (tCascade) ? tCascade : "v";
+						const char *tMargin = dialog->Attribute("margin");
+						const char *margin = (tMargin) ? tMargin : "0 0 0 0";
+						const char *tTitle = dialog->Attribute("title");
+						const char *title = (tTitle) ? tTitle : input.gettok(4," ").to_chr();
+						cmd.sprintf("//xdialog -l %s root $chr(9) +p%s 0 0 0 0",
+							this->getName().to_chr(),cascade);
+						mIRCcom(cmd.to_chr());
+						cmd.sprintf("//xdialog -l %s space root $chr(9) %s",
+							this->getName().to_chr(),margin);
+						mIRCcom(cmd.to_chr());
+						walkScript(dialog,this->getName().to_chr());
+						cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
+						mIRCcom(cmd.to_chr());
+					}
+					else mIRCError("D_ERROR xdialog: -X dialog not found");
+				}
+				else mIRCError("D_ERROR xdialog: -X no dialogs found in the DCXML file");
 			}
-			else { 
-				TString error;
-				error.sprintf("File isn't valid dcXML %s",input.gettok(2,"\"").to_chr());
-				DCXError("xdialog -X",error.to_chr());
-			}
+			else mIRCError("D_ERROR xdialog: -X Rootelement needs to be <dcxml>");
 
 		}
-		else { 
-			TString error;
-			error.sprintf("File isn't valid XML %s",input.gettok(2,"\"").to_chr());
-			DCXError("xdialog -X",error.to_chr());
-		}
+		else mIRCError("D_ERROR xdialog: -X File is not valid XML or doesn't exist");
 		doc.Clear();
 	}
 	// invalid command
