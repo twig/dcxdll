@@ -1271,24 +1271,28 @@ void DcxDialog::parseCommandRequest(TString &input) {
 						const char *margin = (tMargin) ? tMargin : "0 0 0 0";
 						const char *tTitle = dialog->Attribute("title");
 						const char *title = (tTitle) ? tTitle : input.gettok(4," ").to_chr();
-						cmd.sprintf("//xdialog -l %s root $chr(9) +p%s 0 0 0 0",
-							this->getName().to_chr(),cascade);
-						mIRCcom(cmd.to_chr());
-						cmd.sprintf("//xdialog -l %s space root $chr(9) %s",
-							this->getName().to_chr(),margin);
-						mIRCcom(cmd.to_chr());
+						//cmd.sprintf("//xdialog -l %s root $chr(9) +p%s 0 0 0 0",
+						//	this->getName().to_chr(),cascade);
+						//mIRCcom(cmd.to_chr());
+						//cmd.sprintf("//xdialog -l %s space root $chr(9) %s",
+						//	this->getName().to_chr(),margin);
+						//mIRCcom(cmd.to_chr());
+						cmd.sprintf("%s -l root \t +p%s 0 0 0 0", this->getName().to_chr(), cascade);
+						this->parseCommandRequest(cmd);
+						cmd.sprintf("%s -l space root \t %s", this->getName().to_chr(), margin);
+						this->parseCommandRequest(cmd);
 						walkScript(dialog,this->getName().to_chr());
 						cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
 						mIRCcom(cmd.to_chr());
 					}
-					else mIRCError("D_ERROR xdialog: -X dialog not found");
+					else DCXError("xdialog -X", "dialog not found");
 				}
-				else mIRCError("D_ERROR xdialog: -X no dialogs found in the DCXML file");
+				else DCXError("xdialog -X", "no dialogs found in the DCXML file");
 			}
-			else mIRCError("D_ERROR xdialog: -X Rootelement needs to be <dcxml>");
+			else DCXError("xdialog -X","Rootelement needs to be <dcxml>");
 
 		}
-		else mIRCError("D_ERROR xdialog: -X File is not valid XML or doesn't exist");
+		else DCXError("xdialog -X", "File is not valid XML or doesn't exist");
 		doc.Clear();
 	}
 	// invalid command

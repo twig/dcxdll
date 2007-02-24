@@ -27,6 +27,7 @@
 
 DcxLine::DcxLine( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog )
+, m_bVertical(false)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -70,16 +71,13 @@ DcxLine::~DcxLine( ) {
 
 void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( );
-  //*Styles = SS_ETCHEDHORZ;
+	unsigned int i = 1, numtok = styles.numtok( );
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    //if ( styles.gettok( i ) == "vertical" ) {
-    //  *Styles &= ~SS_ETCHEDHORZ;
-    //  *Styles |= SS_ETCHEDVERT;
-    //}
-		if (styles.gettok(i ) == "nowrap")
+		if ( styles.gettok( i ) == "vertical" )
+			this->m_bVertical = true;
+		else if (styles.gettok(i ) == "nowrap")
 			*Styles |= SS_LEFTNOWORDWRAP;
 		else if (styles.gettok(i) == "center")
 			*Styles |= SS_CENTER;
@@ -98,9 +96,9 @@ void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
 		else if (( styles.gettok( i ) == "noformat" ))
 			this->m_bCtrlCodeText = false;
 
-    i++;
-  }
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+		i++;
+	}
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -144,6 +142,19 @@ void DcxLine::parseCommandRequest( TString & input ) {
 		this->m_sText = input.gettok(4, -1);
 		this->m_sText.trim();
 
+		if (this->m_bVertical) {
+			HFONT hFont = (HFONT)this->getFont(), hVFont = NULL;
+			if (hFont == NULL)
+				hFont = GetStockFont(DEFAULT_GUI_FONT);
+			LOGFONT lf;
+			ZeroMemory(&lf, sizeof(LOGFONT));
+			GetObject(hFont, sizeof(LOGFONT), &lf);
+			lf.lfEscapement = 900;
+			lf.lfOrientation = 900;
+			hVFont = CreateFontIndirect(&lf);
+			if (hVFont != NULL)
+				this->setControlFont(hVFont, FALSE);
+		}
 		// redraw if transparent
 		if (this->isExStyle(WS_EX_TRANSPARENT)) {
 			RECT r;
@@ -165,7 +176,7 @@ void DcxLine::parseCommandRequest( TString & input ) {
 		}
 	}
 	else
-	  this->parseGlobalCommandRequest( input, flags );
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!
@@ -243,7 +254,6 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 				//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 				rcLine = rcClient;
 				rcText = rcClient;
-				int half = rcLine.bottom = rcLine.bottom / 2;
 
 				// draw text if any.
 				if (this->m_sText.len() > 0) {
@@ -256,7 +266,7 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 						SetTextColor(hdc, GetSysColor(
 							IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
 						);
-					UINT style = DT_LEFT|DT_VCENTER;
+					UINT style = 0;
 					if (this->isStyle(SS_ENDELLIPSIS))
 						style |= DT_END_ELLIPSIS;
 					if (this->isStyle(SS_PATHELLIPSIS))
@@ -265,29 +275,51 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 						style |= DT_NOPREFIX;
 					if (this->isStyle(SS_LEFTNOWORDWRAP))
 						style |= DT_SINGLELINE;
-					if (this->m_bCtrlCodeText)
-						calcStrippedRect(hdc, this->m_sText, style, &rcText, false);
-					else
-						DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, DT_CALCRECT | style);
-					if (this->isStyle(SS_CENTER))
-						OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),0);
-					else if (this->isStyle(SS_RIGHT))
-						OffsetRect(&rcText,rcClient.right - (rcText.right - rcText.left),0);
-
-					// draw the text
-					if (!this->m_bCtrlCodeText) {
+					if (this->m_bVertical) {
+						style |= DT_CENTER;
+						SIZE sz;
 						SetBkMode(hdc, TRANSPARENT);
-						if (this->m_bShadowText)
-							dcxDrawShadowText(hdc,this->m_sText.to_wchr(), this->m_sText.len(),&rcText, style, this->m_clrText, 0, 5, 5);
-						else
-							DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, style);
+						GetTextExtentPoint32(hdc,this->m_sText.to_chr(),this->m_sText.len(), &sz);
+						rcText.bottom = rcText.top + sz.cx;
+						rcText.right = rcText.left + sz.cy;
+						if (this->isStyle(SS_CENTER))
+							OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),((rcClient.bottom - rcClient.top)/2) - ((rcText.bottom - rcText.top)/2));
+						else if (this->isStyle(SS_RIGHT))
+							OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),rcClient.bottom - (rcText.bottom - rcText.top));
+						TextOut(hdc,rcText.left, rcText.bottom, this->m_sText.to_chr(), this->m_sText.len());
 					}
-					else
-						mIRC_DrawText(hdc, this->m_sText, &rcText, style, this->m_bShadowText);
+					else {
+						style |= DT_LEFT|DT_VCENTER;
+						if (this->m_bCtrlCodeText)
+							calcStrippedRect(hdc, this->m_sText, style, &rcText, false);
+						else
+							DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, DT_CALCRECT | style);
+						if (this->isStyle(SS_CENTER))
+							OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),0);
+						else if (this->isStyle(SS_RIGHT))
+							OffsetRect(&rcText,rcClient.right - (rcText.right - rcText.left),0);
+
+						// draw the text
+						if (!this->m_bCtrlCodeText) {
+							SetBkMode(hdc, TRANSPARENT);
+							if (this->m_bShadowText)
+								dcxDrawShadowText(hdc,this->m_sText.to_wchr(), this->m_sText.len(),&rcText, style, this->m_clrText, 0, 5, 5);
+							else
+								DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, style);
+						}
+						else
+							mIRC_DrawText(hdc, this->m_sText, &rcText, style, this->m_bShadowText);
+					}
 					ExcludeClipRect(hdc,rcText.left, rcText.top, rcText.right, rcText.bottom);
 				}
-				DrawEdge(hdc, &rcLine, EDGE_ETCHED, BF_BOTTOM);
-
+				if (this->m_bVertical) {
+					rcLine.left = rcLine.left + ((rcLine.right - rcLine.left) / 2);
+					DrawEdge(hdc, &rcLine, EDGE_ETCHED, BF_LEFT);
+				}
+				else {
+					rcLine.bottom = rcLine.bottom / 2;
+					DrawEdge(hdc, &rcLine, EDGE_ETCHED, BF_BOTTOM);
+				}
 				this->FinishAlphaBlend(ai);
 
 				EndPaint( this->m_Hwnd, &ps );

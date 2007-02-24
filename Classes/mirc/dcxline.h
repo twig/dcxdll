@@ -45,6 +45,7 @@ public:
 protected:
 
 	TString m_sText;
+	bool m_bVertical;
 };
 
 #endif // _DCXLINE_H_
