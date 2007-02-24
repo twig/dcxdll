@@ -66,12 +66,11 @@ extern BOOL isSysMenu;
 
 void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = "root") {  
 	TiXmlElement* child = 0;  
-	TString cmd;
 	int control = 0;
 	int goDeeper = 1;
 	int cCla = 0;
 	int resetClaPath = 0;
-	for( child = element->FirstChildElement(); child; child = child->NextSiblingElement() ) {  
+	for( child = element->FirstChildElement(); child; child = child->NextSiblingElement() ) {
 		TiXmlElement* parent = child->Parent()->ToElement();
 		const char *elem = child->Value();
 		const char *parentelem = parent->Value();
@@ -105,7 +104,8 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 		const char *rebarMinWidth = (tRebarMinWidth) ? tRebarMinWidth : "0";
 		const char *tRebarColour = child->Attribute("rebarColour");
 		const char *rebarColour = (tRebarColour) ? tRebarColour : "0";
-
+		//STEP 1: ADD CONTROL TO DIALOG
+		TString cmd = "";
 		if (0==lstrcmp(elem, "control")) {
 			control++; cCla++;
 			//check how to insert the control in the parent Control/Dialog
@@ -122,8 +122,9 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 			const char *parenttype = (tParentType) ? tParentType : "panel";
 			const char *tParentId = parent->Attribute("id");
 			const char *parentid = (tParentId) ? tParentId : "1";
-			if (0==lstrcmp(parentelem, "dialog"))
-					cmd.sprintf("//xdialog -c %s %s %s 0 0 %s %s %s",dname,id,type,width,height,styles);
+			if (0==lstrcmp(parentelem, "dialog")) { 
+				cmd.sprintf("//xdialog -c %s %s %s 0 0 %s %s %s",dname,id,type,width,height,styles);
+			}
 			else if (0==lstrcmp(parentelem, "control")) { 
 				//check if parentControl is allowed to host controls and assign propper xdid
 				if (0==lstrcmp(parenttype, "panel"))
@@ -135,10 +136,12 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 					cmd.sprintf("/echo -a /xdid -c %s %s %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
 				else if (0==lstrcmp(parenttype, "divider") && (control <= 2)) {
 					if (control > 0) {
-						if (control == 1)
+						if (control == 1) { 
 							cmd.sprintf("//xdid -l %s %s 10 0 $chr(9) %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
-						else if (control == 2)
+						}
+						else if (control == 2) { 
 							cmd.sprintf("//xdid -r %s %s 10 0 $chr(9) %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
+						}
 					}
 				}
 				else if (0==lstrcmp(parenttype, "rebar"))
@@ -148,6 +151,8 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 						id,type,width,height,styles,tooltip);
 			}
 			mIRCcom(cmd.to_chr());
+			//STEP 2: APPLY CLA FOR CONTROL
+			TString cmd = "";
 			if (0==lstrcmp(type, "panel")) {
 				cmd.sprintf("//xdid -l %s %s root $chr(9) +p%s 0 0 0 0", dname,id,cascade);
 				mIRCcom(cmd.to_chr());
@@ -155,13 +160,11 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 				mIRCcom(cmd.to_chr());
 				resetClaPath = 1;
 			}
-			//apply CLA for control
 			const char * fHeigth = "";
 			const char * fWidth = "";
 			const char * fixed = "l";
 			if (child->Attribute("height")) { fHeigth = "v"; fixed = "f"; }
 			if (child->Attribute("width")) { fWidth = "h"; fixed = "f"; }
-
 			if (0==lstrcmp(parentelem, "dialog"))
 				cmd.sprintf("//xdialog -l %s cell %s \t +%s%s%si %s %s %s %s",
 					dname,claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
@@ -170,6 +173,7 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 					if (0==lstrcmp(parent->Attribute("type"), "panel"))
 						cmd.sprintf("//xdid -l %s %s cell %s \t +%s%s%si %s %s %s %s",
 							dname,parentid,claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
+					else cmd.sprintf("");
 				}
 			}
 			mIRCcom(cmd.to_chr());
@@ -195,17 +199,18 @@ void walkScript(TiXmlElement* element, char *dname, int depth=0,char *claPath = 
 					if (0==lstrcmp(parent->Attribute("type"), "panel"))
 						cmd.sprintf("//xdid -l %s %s cell %s \t +p%s 0 %s 0 0", dname,parent->Attribute("id"),claPath,cascade,weigth);
 				}
+				else cmd.sprintf("");
 			}
 			mIRCcom(cmd.to_chr());
 		}
 		char buffer [100];
 		char * claPathx = 0;
-		if (0==lstrcmp(claPath, "root")) {
-			wsprintf (buffer, "%i",cCla);
+		if (resetClaPath) {
+			lstrcpy(buffer, "root");
 			claPathx = buffer;
 		}
-		else if (resetClaPath) {
-			lstrcpy(buffer, "root");
+		else if (0==lstrcmp(claPath, "root")) {
+			wsprintf (buffer, "%i",cCla);
 			claPathx = buffer;
 		}
 		else { 
