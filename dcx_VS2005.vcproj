@@ -802,6 +802,14 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="dcxml"
+				>
+				<File
+					RelativePath=".\Classes\dcxml\dcxml.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1065,6 +1073,14 @@
 				>
 				<File
 					RelativePath=".\Classes\UltraDock\dcxDock.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="dcxml"
+				>
+				<File
+					RelativePath=".\Classes\dcxml\dcxml.h"
 					>
 				</File>
 			</Filter>

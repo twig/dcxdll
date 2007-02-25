@@ -43,6 +43,8 @@ alias xtray {
   dcx TrayIcon $1-
 }
 
+alias dcxml dcx dcxml $1-
+
 alias tab {
   var %i = 1, %tab
   while (%i <= $0) {
