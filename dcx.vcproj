@@ -363,6 +363,13 @@
 					RelativePath=".\Classes\tinyxml\tinyxmlparser.cpp">
 				</File>
 			</Filter>
+			<Filter
+				Name="dcxml"
+				Filter="">
+				<File
+					RelativePath=".\Classes\dcxml\dcxml.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -570,6 +577,13 @@
 				Filter="">
 				<File
 					RelativePath=".\Classes\UltraDock\dcxDock.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="dcxml"
+				Filter="">
+				<File
+					RelativePath=".\Classes\dcxml\dcxml.h">
 				</File>
 			</Filter>
 		</Filter>
