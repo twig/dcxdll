@@ -407,8 +407,8 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_ERASEBKGND:
 			{
-				if (this->m_bAlphaBlend || this->isExStyle(WS_EX_TRANSPARENT))
-					this->DrawParentsBackground((HDC)wParam);
+				//if (this->m_bAlphaBlend || this->isExStyle(WS_EX_TRANSPARENT))
+				//	this->DrawParentsBackground((HDC)wParam);
 				bParsed = TRUE;
 				return TRUE;
       }

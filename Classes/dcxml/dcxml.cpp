@@ -45,7 +45,7 @@ void parseDialog(TiXmlElement* element, char *dname, int depth=0,char *claPath =
 		const char *tRebarColour = child->Attribute("rebarColour");
 		const char *rebarColour = (tRebarColour) ? tRebarColour : "0";
 		//STEP 1: ADD CONTROL TO DIALOG
-		TString cmd = "";
+		TString cmd;
 		if (0==lstrcmp(elem, "control")) {
 			control++; cCla++;
 			//check how to insert the control in the parent Control/Dialog
@@ -70,33 +70,33 @@ void parseDialog(TiXmlElement* element, char *dname, int depth=0,char *claPath =
 				if (0==lstrcmp(parenttype, "panel"))
 					cmd.sprintf("//xdid -c %s %s %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
 				else if (0==lstrcmp(parenttype, "tab"))
-					cmd.sprintf("//xdid -a %s %s 0 0 %s $chr(9) %s %s 0 0 %s %s %s $chr(9) %s",
+					cmd.sprintf("//xdid -a %s %s 0 0 %s \t %s %s 0 0 %s %s %s $chr(9) %s",
 						dname,parentid,caption,id,type,width,height,styles,tooltip);
 				else if (((0==lstrcmp(parenttype, "pager")) || (0==lstrcmp(parenttype, "box"))) && (control == 1))
 					cmd.sprintf("/echo -a /xdid -c %s %s %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
 				else if (0==lstrcmp(parenttype, "divider") && (control <= 2)) {
 					if (control > 0) {
 						if (control == 1) { 
-							cmd.sprintf("//xdid -l %s %s 10 0 $chr(9) %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
+							cmd.sprintf("//xdid -l %s %s 10 0 \t %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
 						}
 						else if (control == 2) { 
-							cmd.sprintf("//xdid -r %s %s 10 0 $chr(9) %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
+							cmd.sprintf("//xdid -r %s %s 10 0 \t %s %s 0 0 %s %s %s", dname,parentid,id,type,width,height,styles);
 						}
 					}
 				}
 				else if (0==lstrcmp(parenttype, "rebar"))
-					cmd.sprintf("//xdid -a %s %s 0 +%s %s %s %s 0 %s %s $chr(9) %s %s 0 0 %s %s %s $chr(9) %s",
+					cmd.sprintf("//xdid -a %s %s 0 +%s %s %s %s 0 %s %s \t %s %s 0 0 %s %s %s \t %s",
 						dname,parentid,rebarFlags,rebarMinHeight,
 						rebarMinWidth,width,rebarColour,caption,
 						id,type,width,height,styles,tooltip);
 			}
 			mIRCcom(cmd.to_chr());
 			//STEP 2: APPLY CLA FOR CONTROL
-			TString cmd = "";
+			//TString cmd; // <- redefinition
 			if (0==lstrcmp(type, "panel")) {
-				cmd.sprintf("//xdid -l %s %s root $chr(9) +p%s 0 0 0 0", dname,id,cascade);
+				cmd.sprintf("//xdid -l %s %s root \t +p%s 0 0 0 0", dname,id,cascade);
 				mIRCcom(cmd.to_chr());
-				cmd.sprintf("//xdid -l %s %s space root $chr(9) %s", dname,id,margin);
+				cmd.sprintf("//xdid -l %s %s space root \t %s", dname,id,margin);
 				mIRCcom(cmd.to_chr());
 				resetClaPath = 1;
 			}
@@ -113,7 +113,7 @@ void parseDialog(TiXmlElement* element, char *dname, int depth=0,char *claPath =
 					if (0==lstrcmp(parent->Attribute("type"), "panel"))
 						cmd.sprintf("//xdid -l %s %s cell %s \t +%s%s%si %s %s %s %s",
 							dname,parentid,claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
-					else cmd.sprintf("");
+					else cmd= "";
 				}
 			}
 			mIRCcom(cmd.to_chr());
@@ -139,7 +139,7 @@ void parseDialog(TiXmlElement* element, char *dname, int depth=0,char *claPath =
 					if (0==lstrcmp(parent->Attribute("type"), "panel"))
 						cmd.sprintf("//xdid -l %s %s cell %s \t +p%s 0 %s 0 0", dname,parent->Attribute("id"),claPath,cascade,weigth);
 				}
-				else cmd.sprintf("");
+				else cmd = "";
 			}
 			mIRCcom(cmd.to_chr());
 		}
@@ -204,7 +204,7 @@ mIRC(dcxml) {
 
 		TiXmlElement *dcxmlDialogs = dcxmlRoot->FirstChildElement("dialogs");
 		if (!dcxmlDialogs) { 
-			DCXError("/dcxml","No Dialogs Group");
+			DCXError("/dcxml -d","No Dialogs Group");
 			return 0;
 		}
 
@@ -218,7 +218,7 @@ mIRC(dcxml) {
 			}
 		}
 		if (!dcxmlDialog) { 
-			DCXError("/dcxml","Dialog name not found in <dialogs>");
+			DCXError("/dcxml -d","Dialog name not found in <dialogs>");
 			return 0;
 		}
 		TString cmd = "";

@@ -64,6 +64,26 @@
 #define DCX_MAX_GDI_ERRORS 21
 //
 
+#define DLL_VERSION    1
+#define DLL_SUBVERSION 3
+#define DLL_BUILD      8
+#ifdef NDEBUG
+#ifdef DCX_DEV_BUILD
+// Dev Build, enable debug output.
+#define DCX_DEBUG(x,y) if (mIRCLink.m_bisDebug) DCXDebug((x), (y));
+#define DLL_STATE      "Development Build"
+#else
+// Release Build, disable debug info.
+#define DCX_DEBUG(x,y)
+#define DLL_STATE      "Release Build"
+#define _SECURE_SCL 0 // disables checked iterators
+#endif
+#else
+// Debug Build, enable debug output.
+#define DCX_DEBUG(x,y) if (mIRCLink.m_bisDebug) DCXDebug((x), (y));
+#define DLL_STATE      "Debug Build"
+#endif
+
 //#include <vld.h>
 #include <windows.h>
 #include <windowsx.h>
@@ -83,25 +103,6 @@ using namespace Gdiplus;
 #include "classes/dcxdialogcollection.h"
 
 #include "AggressiveOptimize.h"
-
-#define DLL_VERSION    1
-#define DLL_SUBVERSION 3
-#define DLL_BUILD      8
-#ifdef NDEBUG
-#ifdef DCX_DEV_BUILD
-// Dev Build, enable debug output.
-#define DCX_DEBUG(x,y) if (mIRCLink.m_bisDebug) DCXDebug((x), (y));
-#define DLL_STATE      "Development Build"
-#else
-// Release Build, disable debug info.
-#define DCX_DEBUG(x,y)
-#define DLL_STATE      "Release Build"
-#endif
-#else
-// Debug Build, enable debug output.
-#define DCX_DEBUG(x,y) if (mIRCLink.m_bisDebug) DCXDebug((x), (y));
-#define DLL_STATE      "Debug Build"
-#endif
 
 #define mIRC_ID_OFFSET 6000 //!< mIRC Dialog ID Offset
 
