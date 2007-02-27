@@ -1,4 +1,3 @@
-; V1.4
 alias dcx {
   if ($isid) returnex $dll($scriptdirdcx\dcx.dll,$1,$2-)
   else dll " $+ $scriptdirdcx\dcx.dll" $1 $2-
