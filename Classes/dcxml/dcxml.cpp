@@ -261,16 +261,26 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 			else if (0==lstrcmp(type, "treeview")) parseItems(child,dname,0,"");
 			else if (0==lstrcmp(type, "comboex")) parseItems(child,dname,0,"");
 			else if (0==lstrcmp(type, "list")) parseItems(child,dname,0,"");
-			else if (((((0==lstrcmp(type, "box")) || (0==lstrcmp(type, "check")))
-				|| (0==lstrcmp(type, "link"))) || (0==lstrcmp(type, "text")))
-				|| (0==lstrcmp(type, "radio"))) { 
+			else if ((((0==lstrcmp(type, "box")) || (0==lstrcmp(type, "check")))
+				|| (0==lstrcmp(type, "link"))) || (0==lstrcmp(type, "radio")))
+				 { 
 				cmd.sprintf("//xdid -t %s %s %s",dname,id,caption);
 				mIRCcom(cmd.to_chr());
 			}
-			else if (0==lstrcmp(type, "edit")) { 
+			else if (0==lstrcmp(type, "text")) { 
 				const char *text = child->GetText();
-				cmd.sprintf("//xdid -a %s %s %s",dname,id,text);
-				mIRCcom(cmd.to_chr());
+				if (text) { 
+					TString mystring = TString(text);
+					mystring.replace("\t","");
+					cmd.sprintf("//xdid -a %s %s 0 %s",dname,id,mystring.gettok(1,"."));
+					mIRCcom(cmd.to_chr());
+					mystring.deltok(1,".");
+					while(mystring.gettok(1,".") != "") { 
+						cmd.sprintf("//xdid -a %s %s 1 %s",dname,id,mystring.gettok(1,"."));
+						mIRCcom(cmd.to_chr());
+						mystring.deltok(1,".");
+					}
+				}
 			}
 			else if (0==lstrcmp(type, "pbar")) { 
 				cmd.sprintf("//xdid -i %s %s %s",dname,id,caption);
