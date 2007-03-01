@@ -109,7 +109,7 @@ void parseItems(TiXmlElement* element,char *dname,int depth = 0,char *itemPath =
 			}
 			else if (0==lstrcmp(parenttype, "statusbar")) { 
 				const char *flags = (tFlags) ? tFlags : "f";
-				cmd.sprintf("//echo -a xdid -t %s %s %s +%s %s %s \t %s",
+				cmd.sprintf("//xdid -t %s %s %i +%s %s %s \t %s",
 					dname,parentid,cell,flags,icon,caption,tooltip);
 			}
 			else if (0==lstrcmp(parenttype, "treeview")) { 
@@ -137,7 +137,9 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 	int goDeeper = 1;
 	int cCla = 0;
 	int resetClaPath = 0;
+	int cell = 0;
 	for( child = element->FirstChildElement(); child; child = child->NextSiblingElement() ) {
+		cell++;
 		TiXmlElement* parent = child->Parent()->ToElement();
 		const char *elem = child->Value();
 		const char *parentelem = parent->Value();
@@ -242,6 +244,11 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 					cmd.sprintf("//xdid -a %s %s 0 + %s %s %s \t %s %s 0 0 %s %s %s",
 						dname,parentid,colour,bgcolour,caption,id,type,width,height,styles);
 				}
+				
+				else if (0==lstrcmp(parenttype, "statusbar"))
+					cmd.sprintf("//xdid -t %s %s %i +c %s %s %s 0 0 0 0 %s",
+						dname,parentid,cell,icon,id,type,styles);
+
 				//xdid -a dname parentid 0 + colour bgcolour caption \t id typ 0 0 width height styles
 				mIRCcom(cmd.to_chr());
 			}
@@ -255,9 +262,14 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 			else if (0==lstrcmp(type, "comboex")) parseItems(child,dname,0,"");
 			else if (0==lstrcmp(type, "list")) parseItems(child,dname,0,"");
 			else if (((((0==lstrcmp(type, "box")) || (0==lstrcmp(type, "check")))
-				|| (0==lstrcmp(type, "link"))) || (0==lstrcmp(type, "panel")))
+				|| (0==lstrcmp(type, "link"))) || (0==lstrcmp(type, "text")))
 				|| (0==lstrcmp(type, "radio"))) { 
 				cmd.sprintf("//xdid -t %s %s %s",dname,id,caption);
+				mIRCcom(cmd.to_chr());
+			}
+			else if (0==lstrcmp(type, "edit")) { 
+				const char *text = child->GetText();
+				cmd.sprintf("//xdid -a %s %s %s",dname,id,text);
 				mIRCcom(cmd.to_chr());
 			}
 			else if (0==lstrcmp(type, "pbar")) { 

@@ -41,6 +41,10 @@ public:
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   inline TString getType( ) { return TString( "text" ); };
+
+  protected:
+	TString m_tsText; // Edit Text
+
 };
 
 #endif // _DCXTEXT_H_

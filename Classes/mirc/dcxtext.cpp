@@ -52,6 +52,7 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
+	this->m_tsText = "";
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -141,14 +142,30 @@ void DcxText::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
 	this->parseSwitchFlags(input.gettok( 3 ), &flags);
+	int numtok = input.numtok( );
 
-//  int numtok = input.numtok( );
+	// xdid -a [NAME] [ID] [TEXT]
+	if (flags.switch_flags[0] && numtok > 2) {
+		this->m_tsText += " ";
+		this->m_tsText += input.gettok(4, -1);
+		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 
+		// redraw if transparent
+		if (this->isExStyle(WS_EX_TRANSPARENT)) {
+			RECT r;
+			HWND hParent = GetParent(this->m_Hwnd);
+
+			GetWindowRect(this->m_Hwnd, &r);
+
+			MapWindowPoints(NULL, hParent, (LPPOINT)&r, 2); // maps all 4 points & handles RTL
+			InvalidateRect(hParent, &r, TRUE);
+			this->redrawWindow();
+		}
+	}
 	//xdid -t [NAME] [ID] [SWITCH]
-	if (flags.switch_flags[19]) {
-		TString text(input.gettok(4, -1));
-		text.trim();
-		SetWindowText(this->m_Hwnd, text.to_chr());
+	else if (flags.switch_flags[19]) {
+		this->m_tsText = input.gettok(4, -1);
+		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 
 		// redraw if transparent
 		if (this->isExStyle(WS_EX_TRANSPARENT)) {
