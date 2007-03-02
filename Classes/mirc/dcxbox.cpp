@@ -776,7 +776,9 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				PAINTSTRUCT ps;
 				HDC hdc = BeginPaint(this->m_Hwnd, &ps);
 				RECT rc, rc2, rcText, rcText2;
-				int n = GetWindowTextLength(this->m_Hwnd);
+				//int n = GetWindowTextLength(this->m_Hwnd);
+				TString wtext;
+				int n = TGetWindowText(this->m_Hwnd, wtext);
 				HBRUSH hBrush = GetSysColorBrush(COLOR_3DFACE);
 
 				GetClientRect(this->m_Hwnd, &rc);
@@ -837,11 +839,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 							IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
 						);
 
-					char *text = new char[n +2];
-					GetWindowText(this->m_Hwnd, text, n +1);
+					//char *text = new char[n +2];
+					//GetWindowText(this->m_Hwnd, text, n +1);
 
-					TString wtext(text);
-					delete [] text;
+					//TString wtext(text);
+					//delete [] text;
 
 					if (this->m_bCtrlCodeText)
 						calcStrippedRect(hdc, wtext, 0, &rcText, false);
@@ -953,27 +955,27 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			}
 			break;
 
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
+		case WM_MOUSEMOVE:
+			{
+				this->m_pParentDialog->setMouseControl( this->getUserID( ) );
+			}
+			break;
 
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
+		case WM_SETFOCUS:
+			{
+				this->m_pParentDialog->setFocusControl( this->getUserID( ) );
+			}
+			break;
 
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-          SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
+		case WM_SETCURSOR:
+			{
+				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
+					SetCursor( this->m_hCursor );
+					bParsed = TRUE;
+					return TRUE;
+				}
+			}
+			break;
 
 		case WM_LBUTTONDOWN:
 		{
@@ -1012,16 +1014,16 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				}
 			}
 			break;
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
-      break;
-  }
+		default:
+			break;
+	}
 
-  return lRes;
+	return lRes;
 }

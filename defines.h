@@ -320,6 +320,7 @@ const char *GetLastStatusStr(Status status);
 bool IsFile(TString &filename);
 void calcStrippedRect(HDC hdc, TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
 void mIRC_DrawText(HDC hdc, TString &txt, const LPRECT rc, const UINT style, const bool shadow);
+int TGetWindowText(HWND hwnd, TString &txt);
 
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);

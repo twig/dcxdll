@@ -92,8 +92,6 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
 			*Styles |= SS_ENDELLIPSIS;
 		else if (styles.gettok( i ) == "pathellipsis")
 			*Styles |= SS_PATHELLIPSIS;
-		else if (styles.gettok( i ) == "transparent")
-			*ExStyles |= WS_EX_TRANSPARENT;
 		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 		else if (( styles.gettok( i ) == "shadow" ))
@@ -146,7 +144,8 @@ void DcxText::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SPACE 0|1] [TEXT]
 	if (flags.switch_flags[0] && numtok > 2) {
-		if (input.gettok(4) == "1") this->m_tsText += " ";
+		if (input.gettok(4) == "1")
+			this->m_tsText += " ";
 		this->m_tsText += input.gettok(5, -1);
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 
@@ -162,7 +161,7 @@ void DcxText::parseCommandRequest(TString &input) {
 			this->redrawWindow();
 		}
 	}
-	//xdid -t [NAME] [ID] [SWITCH]
+	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	else if (flags.switch_flags[19]) {
 		this->m_tsText = input.gettok(4, -1);
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
@@ -304,14 +303,18 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			// Setup alpha blend if any.
 			LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-			if (this->isExStyle(WS_EX_TRANSPARENT)) {
-				int nText = GetWindowTextLength(this->m_Hwnd);
-				char *text = new char[nText +1];
-				GetWindowText(this->m_Hwnd, text, nText +1);
-				TString wtext(text);
-				delete [] text;
+			//if (this->isExStyle(WS_EX_TRANSPARENT)) {
+				TString wtext;
+				int nText = TGetWindowText(this->m_Hwnd, wtext);
+				//int nText = GetWindowTextLength(this->m_Hwnd);
+				//char *text = new char[nText +1];
+				//GetWindowText(this->m_Hwnd, text, nText +1);
+				//TString wtext(text);
+				//delete [] text;
 
 				GetClientRect(this->m_Hwnd, &r);
+
+				DcxControl::DrawCtrlBackground(hdc,this,&r);
 
 				SelectObject(hdc, this->m_hFont);
 				SetTextColor(hdc, this->m_clrText);
@@ -343,9 +346,9 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 					mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText);
 
 				res = TRUE;
-			}
-			else
-			res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+			//}
+			//else
+			//	res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 			this->FinishAlphaBlend(ai);
 

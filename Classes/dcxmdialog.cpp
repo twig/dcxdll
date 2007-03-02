@@ -26,8 +26,9 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
-
+DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
+: DcxControl( ID, p_Dialog )
+{
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
@@ -68,7 +69,7 @@ DcxMDialog::~DcxMDialog( ) {
 		if ( !bHide )
 			ShowWindow( this->m_Hwnd, SW_HIDE );
 
-		SetWindowLong( this->m_Hwnd, GWL_ID, this->m_ID );
+		SetWindowLong( this->m_Hwnd, GWL_ID, this->m_OrigID );
 		SetParent( this->m_Hwnd, this->m_OrigParentHwnd );
 		this->setStyle( this->m_OrigStyles );
 		this->setExStyle( this->m_OrigExStyles );

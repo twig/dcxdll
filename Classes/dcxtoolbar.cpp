@@ -101,8 +101,8 @@ void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
       *Styles |= TBSTYLE_FLAT;
     else if ( styles.gettok( i ) == "tooltips" ) 
       *Styles |= TBSTYLE_TOOLTIPS;
-    else if ( styles.gettok( i ) == "transparent" ) 
-      *Styles |= TBSTYLE_TRANSPARENT;
+		else if ( styles.gettok( i ) == "transparent" )
+			*Styles |= TBSTYLE_TRANSPARENT;
     else if ( styles.gettok( i ) == "nodivider" ) 
       *Styles |= CCS_NODIVIDER;
     else if ( styles.gettok( i ) == "top" ) 
@@ -1128,26 +1128,9 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	switch( uMsg ) {
 		case WM_COMMAND:
       {
-
-        //int iButton = (int) this->hitTest( &pt );
-
         int iButton = (int) wParam;
         
         if ( iButton > -1 ) {
-          /*
-          RECT rc;
-          this->getItemRect( this->getCommandToIndex( iButton ), &rc );
-          POINT pt2 = pt;
-          pt.x = rc.left; 
-          pt.y = rc.bottom;
-          pt2.x = rc.left;
-          pt2.y = rc.top;
-          ClientToScreen( this->m_Hwnd, &pt );
-          ClientToScreen( this->m_Hwnd, &pt2 );
-          
-          this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "sclick", 
-            this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
-            */
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
 		        this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCommandToIndex( iButton ) + 1 );
         }
@@ -1163,31 +1146,6 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
           break;
 
         switch( hdr->code ) {
-
-          //case NM_CLICK:
-          //  {
-          //    LPNMMOUSE lpnm = (LPNMMOUSE) lParam;
-          //    POINT pt = lpnm->pt;
-          //    int iButton = (int) this->hitTest( &pt );
-
-          //    if ( iButton > -1 ) {
-          //      RECT rc;
-          //      this->getItemRect( iButton, &rc );
-          //      POINT pt2 = pt;
-          //      pt.x = rc.left; 
-          //      pt.y = rc.bottom;
-          //      pt2.x = rc.left;
-          //      pt2.y = rc.top;
-          //      ClientToScreen( this->m_Hwnd, &pt );
-          //      ClientToScreen( this->m_Hwnd, &pt2 );
-          //      this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "sclick", 
-          //        this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
-          //    }
-
-          //    bParsed = TRUE;
-          //  }
-          //  break;
-
           case NM_RCLICK:
             {
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
@@ -1198,15 +1156,17 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								if ( iButton > -1 ) {
 									RECT rc;
 									this->getItemRect( iButton, &rc );
-									POINT pt2 = pt;
-									pt.x = rc.left; 
-									pt.y = rc.bottom;
-									pt2.x = rc.left;
-									pt2.y = rc.top;
-									ClientToScreen( this->m_Hwnd, &pt );
-									ClientToScreen( this->m_Hwnd, &pt2 );
-									this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", 
-										this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
+									MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rc, 2);
+									this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", this->getUserID( ), iButton+1, rc.left, rc.top, rc.right, rc.bottom );
+									//POINT pt2 = pt;
+									//pt.x = rc.left; 
+									//pt.y = rc.bottom;
+									//pt2.x = rc.left;
+									//pt2.y = rc.top;
+									//ClientToScreen( this->m_Hwnd, &pt );
+									//ClientToScreen( this->m_Hwnd, &pt2 );
+									//this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", 
+									//	this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
 								}
 							}
               bParsed = TRUE;
@@ -1219,21 +1179,23 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								//LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
 								POINT pt;
 								GetCursorPos( &pt );
-								ScreenToClient( this->m_Hwnd, &pt );
+								MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
 								int iButton = (int) this->hitTest( &pt );
 
 								if ( iButton > -1 ) {
 									RECT rc;
 									this->getItemRect( iButton, &rc );
-									POINT pt2 = pt;
-									pt.x = rc.left; 
-									pt.y = rc.bottom;
-									pt2.x = rc.left;
-									pt2.y = rc.top;
-									ClientToScreen( this->m_Hwnd, &pt );
-									ClientToScreen( this->m_Hwnd, &pt2 );
-									this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown", 
-										this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
+									MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rc, 2);
+									this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown", this->getUserID( ), iButton+1, rc.left, rc.top, rc.right, rc.bottom );
+									//POINT pt2 = pt;
+									//pt.x = rc.left; 
+									//pt.y = rc.bottom;
+									//pt2.x = rc.left;
+									//pt2.y = rc.top;
+									//ClientToScreen( this->m_Hwnd, &pt );
+									//ClientToScreen( this->m_Hwnd, &pt2 );
+									//this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown", 
+									//	this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
 								}
 							}
               bParsed = TRUE;
@@ -1297,15 +1259,19 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
                 LPDCXTBBUTTON lpdtbb = (LPDCXTBBUTTON) tcgit->lParam;
 
-                if ( lpdtbb != NULL ) {
-									if (tcgit->pszText != NULL) {
-										lstrcpyn(tcgit->pszText,lpdtbb->tsTipText.to_chr(), tcgit->cchTextMax);
-									}
-                }
+                if (( lpdtbb != NULL ) && (tcgit->pszText != NULL))
+									lstrcpyn(tcgit->pszText,lpdtbb->tsTipText.to_chr(), tcgit->cchTextMax);
               }
               bParsed = TRUE;
             }
             break;
+					//case TTN_GETDISPINFO:
+					//	{
+					//		LPTOOLTIPTEXT lpttt = (LPTOOLTIPTEXT) lParam;
+
+					//		idButton = lpttt->hdr.idFrom;
+					//	}
+					//	break;
 
           case TBN_DELETINGBUTTON:
             {
