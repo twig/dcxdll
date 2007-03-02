@@ -219,9 +219,6 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 			if (!tParentId) tParentId = passedid.to_chr();
 			const char *parentid = tParentId;
 
-			cmd.sprintf("//echo -a parent id:%s current id:%s passedid:%s",parentid,id,passedid.to_chr());
-			mIRCcom(cmd.to_chr());
-
 			//STEP 1: Creating CONTROL and ITEM elements
 			if (0==lstrcmp(parentelem, "dialog")) { 
 				cmd.sprintf("//xdialog -c %s %s %s 0 0 %s %s %s",dname,id,type,width,height,styles);
@@ -289,22 +286,46 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 			else if (0==lstrcmp(type, "text")) { 
 				if (caption) { 
 					TString mystring = TString(caption);
+					if (mystring.left(2) == "\r\n") mystring = mystring.right(-2);
+					else if (mystring.left(1) == "\n") mystring = mystring.right(-1);
 					mystring.replace("\t","");
+					TString printstring = "";
+					int textspace = 0;
 					while(mystring.gettok(1," ") != "") { 
-						cmd.sprintf("//xdid -a %s %s 1 %s",dname,id,mystring.gettok(1," "));
-						mIRCcom(cmd.to_chr());
+						printstring.addtok(mystring.gettok(1," ").to_chr());
+						if (printstring.len() > 800) { 
+							cmd.sprintf("//xdid -a %s %s %i %s",dname,id,textspace,printstring.gettok(1,-1));
+							mIRCcom(cmd.to_chr());
+							printstring = "";
+							textspace = 1;
+						}
 						mystring.deltok(1," ");
+					}
+					if (printstring != "") { 
+						cmd.sprintf("//xdid -a %s %s 1 %s",dname,id,printstring.gettok(1,-1));
+						mIRCcom(cmd.to_chr());
 					}
 				}
 			}
 			else if (0==lstrcmp(type, "edit")) { 
 				if (caption) { 
 					TString mystring = TString(caption);
+					if (mystring.left(2) == "\r\n") mystring = mystring.right(-2);
+					else if (mystring.left(1) == "\n") mystring = mystring.right(-1);
 					mystring.replace("\t","");
+					TString printstring = "";
 					while(mystring.gettok(1," ") != "") { 
-						cmd.sprintf("//xdid -a %s %s %s",dname,id,mystring.gettok(1," "));
-						mIRCcom(cmd.to_chr());
+						printstring.addtok(mystring.gettok(1," ").to_chr());
+						if (printstring.len() > 800) { 
+							cmd.sprintf("//xdid -a %s %s %s",dname,id,printstring.gettok(1,-1));
+							mIRCcom(cmd.to_chr());
+							printstring = "";
+						}
 						mystring.deltok(1," ");
+					}
+					if (printstring != "") { 
+						cmd.sprintf("//xdid -a %s %s %s",dname,id,printstring.gettok(1,-1));
+						mIRCcom(cmd.to_chr());
 					}
 				}
 			}
