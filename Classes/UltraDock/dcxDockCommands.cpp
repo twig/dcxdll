@@ -219,10 +219,11 @@ mIRC(xdock) {
 	}
 
 	// enable/disable the mIRC Statusbar
-	// [-A] [1|0]
-	if ((switches[1] == 'A') && (numtok == 2)) {
+	// [-A] [1|0] (options)
+	// options = notheme grip tooltips nodivider
+	if ((switches[1] == 'A') && (numtok > 1)) {
 		if (input.gettok(2).to_int() > 0) {
-			if (!DcxDock::InitStatusbar())
+			if (!DcxDock::InitStatusbar(input.gettok(3,-1)))
 				DCXError("xdock -A","Unable to Create Statusbar");
 		}
 		else

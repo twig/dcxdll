@@ -395,13 +395,25 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 	return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
 }
 
-bool DcxDock::InitStatusbar(void)
+bool DcxDock::InitStatusbar(const TString &styles)
 {
 	if (IsWindow(g_StatusBar))
 		return true;
-	g_StatusBar = CreateWindowEx(0,STATUSCLASSNAME,NULL,
-		WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS|SBARS_SIZEGRIP|SBARS_TOOLTIPS,
+
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+
+	DcxDock::status_parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+
+	g_StatusBar = CreateWindowEx(
+		ExStyles,
+		STATUSCLASSNAME,NULL,
+		Styles,
 		0,0,0,0,mIRCLink.m_mIRCHWND,(HMENU)(mIRC_ID_OFFSET-1),NULL,NULL);
+
+	if ( bNoTheme )
+		dcxSetWindowTheme( g_StatusBar , L" ", L" " );
+
 	if (IsWindow(g_StatusBar))
 		return true;
 	return false;
@@ -424,6 +436,29 @@ bool DcxDock::IsStatusbar(void)
 	if (IsWindow(g_StatusBar))
 		return true;
 	return false;
+}
+
+void DcxDock::status_parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
+	unsigned int i = 1, numtok = styles.numtok( );
+	*Styles = WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS;
+
+	while ( i <= numtok ) {
+
+		if ( styles.gettok( i ) == "grip" )
+			*Styles |= SBARS_SIZEGRIP;
+		else if ( styles.gettok( i ) == "tooltips" )
+			*Styles |= SBARS_TOOLTIPS;
+		else if ( styles.gettok( i ) == "nodivider" )
+			*Styles |= CCS_NODIVIDER;
+		else if ( styles.gettok( i ) == "notheme" )
+			*bNoTheme = TRUE;
+		else if ( styles.gettok( i ) == "disabled" )
+			*Styles |= WS_DISABLED;
+		else if ( styles.gettok( i ) == "transparent" )
+			*ExStyles |= WS_EX_TRANSPARENT;
+		i++;
+	}
 }
 
 void DcxDock::status_getRect(LPRECT rc) {

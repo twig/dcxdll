@@ -44,9 +44,10 @@ public:
 	LPDCXULTRADOCK GetDock(const HWND hwnd);
 	virtual void AdjustRect(WINDOWPOS *wp);
 	// Statusbar Functions.
-	static bool InitStatusbar(void);
+	static bool InitStatusbar(const TString &styles);
 	static void UnInitStatusbar(void);
 	static bool IsStatusbar(void);
+	static void status_parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 	static void status_getRect(LPRECT rc);
 	static void status_setBkColor(const COLORREF clr);
 	static void status_setParts( const int nParts, const LPINT aWidths );
