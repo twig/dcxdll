@@ -6,13 +6,15 @@ dcxml [-FLAGS] [NAME] [DNAME] "[PATH]"
 */
 void parseIcons(TiXmlElement* root,char *dname, const char *type, const char *id) { 
 	TiXmlElement* icons = root->FirstChildElement("icons");
-	TiXmlElement* child = 0; 
-	TString cmd;
-	if (!icons) return;
+	TiXmlElement* child = 0;
+	TiXmlElement* icon = 0; 
+	TString cmd = "";
 	for( child = icons->FirstChildElement("icon"); child; child = child->NextSiblingElement()) {
 		const char *tempid = child->Attribute("id");
-		if (0==strcmp(tempid, id)) { 
-			TiXmlElement* icon = child;
+		tempid = (tempid) ? tempid : "0";
+		const char *temptype = child->Attribute("type");
+		if ((0==lstrcmp(tempid, id)) || ((0==lstrcmp(temptype, type)) && (!icon))) { 
+			icon = child;
 			const char *tFlags = child->Attribute("flags");
 			const char *flags = (tFlags) ? tFlags : "ndhs";
 			const char *tIndex = child->Attribute("index");
@@ -34,11 +36,11 @@ void parseIcons(TiXmlElement* root,char *dname, const char *type, const char *id
 	}
 }
 
-void parseItems(TiXmlElement* element,char *dname,int depth = 0,char *itemPath = "") { 
+void parseItems(TiXmlElement* element,char *dname,const char *parentid,int depth = 0,char *itemPath = "") { 
 	int item = 0;
 	int cell = 0;
 	TiXmlElement* child = 0;
-	TString cmd;
+	TString cmd = "";
 	for( child = element->FirstChildElement(); child; child = child->NextSiblingElement() ) {
 		cell++;
 		TiXmlElement* parent = child->Parent()->ToElement();
@@ -54,9 +56,7 @@ void parseItems(TiXmlElement* element,char *dname,int depth = 0,char *itemPath =
 		}
 		const char *tParentType = parent->Attribute("type");
 		const char *parenttype = (tParentType) ? tParentType : "panel";
-		const char *tParentId = parent->Attribute("id");
-		const char *parentid = (tParentId) ? tParentId : "1";
-
+	
 		//fill all required parameters with attributes or default values
 		const char *tType = child->Attribute("type");
 		const char *type = (tType) ? tType : "panel";
@@ -122,8 +122,8 @@ void parseItems(TiXmlElement* element,char *dname,int depth = 0,char *itemPath =
 				cmd.sprintf("//xdid -a %s %s %s \t +%s %s %s 0 %s %s %s %s %s \t %s",
 					dname,parentid,pathx,flags,icon,icon,state,integral,colour,bgcolour,caption,tooltip);
 				mIRCcom(cmd.to_chr());
-				parseItems(child,dname,depth,pathx);
-				cmd = "";
+				parseItems(child,dname,parentid,depth,pathx);
+				cmd.sprintf("");
 			}
 
 			mIRCcom(cmd.to_chr());
@@ -161,7 +161,7 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 		else if ((!tId) && (0==lstrcmp(elem, "pane"))) { 
 			tId = passedid.to_chr();
 		}
-		TString cmd;
+		TString cmd = "";
 		const char *id = tId;
 		TString idpass = TString(id);
 		const char *tHeight = child->Attribute("height");
@@ -191,9 +191,9 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 		const char *cells = (tCells) ? tCells : "-1";
 
 		//rebar specific attributes
-		const char *tRebarMinHeight = child->Attribute("rebarMinHeight");
+		const char *tRebarMinHeight = child->Attribute("minheight");
 		const char *rebarMinHeight = (tRebarMinHeight) ? tRebarMinHeight : "0";
-		const char *tRebarMinWidth = child->Attribute("rebarMinWidth");
+		const char *tRebarMinWidth = child->Attribute("minwidth");
 		const char *rebarMinWidth = (tRebarMinWidth) ? tRebarMinWidth : "0";
 
 		//toolbar specific
@@ -248,10 +248,9 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 				}
 
 				else if (0==lstrcmp(parenttype, "rebar")) { 
-					const char *rebarFlags = (tFlags) ? tFlags : "ceg";
+					const char *flags = (tFlags) ? tFlags : "ceg";
 					cmd.sprintf("//xdid -a %s %s 0 +%s %s %s %s %s %s %s $chr(9) %s %s 0 0 %s %s %s $chr(9) %s",
-						dname,parentid,rebarFlags,rebarMinHeight,
-						rebarMinWidth,width,icon,colour,caption,
+						dname,parentid,flags,rebarMinWidth,rebarMinHeight,width,icon,colour,caption,
 						id,type,width,height,styles,tooltip);
 				}
 				else if (0==lstrcmp(parenttype, "stacker")) { 
@@ -270,50 +269,51 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 			if ((0==lstrcmp(type, "toolbar")) || (0==lstrcmp(type, "button"))) { 
 				cmd.sprintf("//xdid -l %s %s %s",dname,id,iconsize);
 				mIRCcom(cmd.to_chr());
-				parseItems(child,dname,0,"");
+				parseItems(child,dname,id,0,"");
 			}
-			else if (0==lstrcmp(type, "treeview")) parseItems(child,dname,0,"");
-			else if (0==lstrcmp(type, "comboex")) parseItems(child,dname,0,"");
-			else if (0==lstrcmp(type, "list")) parseItems(child,dname,0,"");
+			else if (0==lstrcmp(type, "treeview")) parseItems(child,dname,id,0,"");
+			else if (0==lstrcmp(type, "comboex")) parseItems(child,dname,id,0,"");
+			else if (0==lstrcmp(type, "list")) parseItems(child,dname,id,0,"");
 			else if ((((0==lstrcmp(type, "box")) || (0==lstrcmp(type, "check")))
 				|| (0==lstrcmp(type, "link"))) || (0==lstrcmp(type, "radio")))
 				 { 
 					 if (caption) { 
-				cmd.sprintf("//xdid -t %s %s %s",dname,id,caption);
-				mIRCcom(cmd.to_chr());
-			}
+						 cmd.sprintf("//xdid -t %s %s %s",dname,id,caption);
+						 mIRCcom(cmd.to_chr());
+					 }
 			}
 			else if (0==lstrcmp(type, "text")) { 
 				if (caption) { 
-					TString mystring(caption);
+					TString mystring = TString(caption);
 					if (mystring.left(2) == "\r\n") mystring = mystring.right(-2);
 					else if (mystring.left(1) == "\n") mystring = mystring.right(-1);
 					mystring.replace("\t","");
-					TString printstring;
+					TString printstring = "";
 					int textspace = 0;
 					while(mystring.gettok(1," ") != "") { 
 						printstring.addtok(mystring.gettok(1," ").to_chr());
 						if (printstring.len() > 800) { 
 							cmd.sprintf("//xdid -a %s %s %i %s",dname,id,textspace,printstring.gettok(1,-1));
-					mIRCcom(cmd.to_chr());
+							mIRCcom(cmd.to_chr());
 							printstring = "";
 							textspace = 1;
 						}
 						mystring.deltok(1," ");
 					}
 					if (printstring != "") { 
-						cmd.sprintf("//xdid -a %s %s 1 %s",dname,id,printstring.gettok(1,-1));
+						cmd.sprintf("//xdid -a %s %s %i %s",dname,id,textspace,printstring.gettok(1,-1));
 						mIRCcom(cmd.to_chr());
 					}
 				}
 			}
 			else if (0==lstrcmp(type, "edit")) { 
 				if (caption) { 
-					TString mystring(caption);
+					TString mystring = TString(caption);
 					if (mystring.left(2) == "\r\n") mystring = mystring.right(-2);
 					else if (mystring.left(1) == "\n") mystring = mystring.right(-1);
 					mystring.replace("\t","");
-					TString printstring;
+					mystring.replace("\n","\r\n");
+					TString printstring = "";
 					while(mystring.gettok(1," ") != "") { 
 						printstring.addtok(mystring.gettok(1," ").to_chr());
 						if (printstring.len() > 800) { 
@@ -343,7 +343,7 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 			else if (0==lstrcmp(type, "statusbar")) { 
 				cmd.sprintf("//xdid -l %s %s %s",dname,id,cells);
 				mIRCcom(cmd.to_chr());
-				parseItems(child,dname,0,"");
+				parseItems(child,dname,id,0,"");
 			}
 
 			//STEP 2: LOOK FOR ICONS
@@ -351,7 +351,7 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 
 			//STEP 3: APPLY CLA FOR CONTROL
 			if (step3) { 
-				cmd = "";
+				TString cmd = "";
 				if ((0==lstrcmp(type, "panel")) || (0==lstrcmp(type, "box"))) {
 					cmd.sprintf("//xdid -l %s %s root $chr(9) +p%s 0 0 0 0", dname,id,cascade);
 					mIRCcom(cmd.to_chr());
@@ -375,7 +375,7 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 						else if (0==lstrcmp(parent->Attribute("type"), "box"))
 							cmd.sprintf("//xdid -l %s %s cell %s \t +%s%s%si %s %s %s %s",
 								dname,parentid,claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
-						else cmd = "";
+						else cmd.sprintf("");
 					}
 				}
 				mIRCcom(cmd.to_chr());
@@ -411,7 +411,7 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 					else if (0==lstrcmp(parenttype, "box"))
 						cmd.sprintf("//xdid -l %s %s cell %s \t +p%s 0 %s 0 0", dname,parentid,claPath,cascade,weigth);
 				}
-				else cmd = "";
+				else cmd.sprintf("");
 			}
 			mIRCcom(cmd.to_chr());
 		}

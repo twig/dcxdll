@@ -774,8 +774,13 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			// if the specified control exists on the dialog, hide it
 			ctrl = getControlByID(n);
 
-			if (ctrl)
+			if (ctrl) { 
 				ShowWindow(ctrl->getHwnd(), SW_HIDE);
+				RECT rc;
+				GetClientRect(this->getHwnd(), &rc);
+				this->updateLayout(rc);
+				this->redrawWindow();
+			}
 
 			// append the item to the end of the list
 			this->m_vZLayers.push_back(n);
@@ -842,8 +847,13 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			ctrl = getControlByID(this->m_vZLayers[n]);
 
 			// if the selected control exists, show control
-			if (ctrl)
+			if (ctrl) { 
 				ShowWindow(ctrl->getHwnd(), SW_SHOW);
+				RECT rc;
+				GetClientRect(this->getHwnd(), &rc);
+				this->updateLayout(rc);
+				this->redrawWindow();
+			}
 			else
 				dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Invalid control ID");
 		}

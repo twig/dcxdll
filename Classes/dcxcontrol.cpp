@@ -337,10 +337,18 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	// xdid -h [NAME] [ID]
 	else if ( flags.switch_flags[7] ) {
 		ShowWindow( this->m_Hwnd, SW_HIDE );
+		RECT rc;
+		GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
+		this->m_pParentDialog->m_pLayoutManager->updateLayout(rc);
+		this->m_pParentDialog->redrawWindow();
 	}
 	// xdid -s [NAME] [ID]
 	else if ( flags.switch_flags[18] ) {
 		ShowWindow( this->m_Hwnd, SW_SHOW );
+		RECT rc;
+		GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
+		this->m_pParentDialog->m_pLayoutManager->updateLayout(rc);
+		this->m_pParentDialog->redrawWindow();
 	}
 	// xdid -U [NAME] [ID]
 	else if (flags.switch_cap_flags[20]) {

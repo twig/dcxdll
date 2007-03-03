@@ -97,6 +97,8 @@ public:
   void setParentName(const TString &strParent);
   const TString &getParentName() const;
 
+  LayoutManager * m_pLayoutManager; //!< Layout Manager Object
+
   inline HCURSOR getCursor( ) const { return this->m_hCursor; };
 	inline HWND getToolTip(void) const { return this->m_ToolTipHWND; };
   inline void incRef( ) { ++this->m_iRefCount; };
@@ -115,6 +117,8 @@ public:
 	bool SetShadowDarkness(unsigned int NewDarkness = 200);
 	bool SetShadowPosition(int NewXOffset = 5, int NewYOffset = 5);
 	bool SetShadowColor(COLORREF NewColor = 0);
+    
+
 
 protected:
 
@@ -135,8 +139,6 @@ protected:
 
   UINT m_MouseID; //!< Mouse Hover ID
   UINT m_FocusID; //!< Mouse Hover ID
-
-  LayoutManager * m_pLayoutManager; //!< Layout Manager Object
 
 	XPopupMenu * m_popup;
 
