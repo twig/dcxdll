@@ -61,27 +61,35 @@ DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, R
  */
 
 DcxMDialog::~DcxMDialog( ) {
-	//mIRCError( "releasing dialog" );
-	if ( GetParent( this->m_Hwnd ) == this->m_OrigParentHwnd )  {
-	}
-	else {
-		BOOL bHide = IsWindowVisible( this->m_Hwnd );
-		if ( !bHide )
-			ShowWindow( this->m_Hwnd, SW_HIDE );
-
-		SetWindowLong( this->m_Hwnd, GWL_ID, this->m_OrigID );
-		SetParent( this->m_Hwnd, this->m_OrigParentHwnd );
-		this->setStyle( this->m_OrigStyles );
-		this->setExStyle( this->m_OrigExStyles );
-
-		SetWindowPos( this->m_Hwnd, NULL, 30, 30, 0, 0, SWP_NOSIZE );
-		this->redrawWindow( );
-
-		if ( !bHide )
-			ShowWindow( this->m_Hwnd, SW_SHOW );
-	}
+	HWND parent = GetParent( this->m_Hwnd );
+	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->m_pParentDialog->getHwnd())
+		return;
 
 	this->unregistreDefaultWindowProc( );
+
+	BOOL bHide = IsWindowVisible( this->m_Hwnd );
+	if ( !bHide )
+		ShowWindow( this->m_Hwnd, SW_HIDE );
+
+	SetWindowLong( this->m_Hwnd, GWL_ID, this->m_OrigID );
+	//this->removeStyle(WS_CHILD);
+	//this->addStyle(WS_POPUP);
+	//SetParent( this->m_Hwnd, NULL );
+	if (parent == this->m_OrigParentHwnd) // handles oddness where orig parent == current when it shouldnt, maybe due to init event docking.
+		parent = GetParent(parent);
+	else
+		parent = this->m_OrigParentHwnd;
+
+	SetParent( this->m_Hwnd, parent );
+	//SetParent( this->m_Hwnd, this->m_OrigParentHwnd);
+	this->setStyle( this->m_OrigStyles);
+	this->setExStyle( this->m_OrigExStyles );
+
+	SetWindowPos( this->m_Hwnd, NULL, 30, 30, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED);
+	this->redrawWindow( );
+
+	if ( !bHide )
+		ShowWindow( this->m_Hwnd, SW_SHOW );
 }
 
 /*!

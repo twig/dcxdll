@@ -61,25 +61,34 @@ DcxMWindow::DcxMWindow( const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDi
 
 DcxMWindow::~DcxMWindow( ) {
 
-  if ( GetParent( this->m_Hwnd ) == this->m_OrigParentHwnd ) 
-    return;
+	HWND parent = GetParent( this->m_Hwnd );
+	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->m_pParentDialog->getHwnd())
+		return;
 
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 
-  BOOL bHide = IsWindowVisible( this->m_Hwnd );
-  if ( !bHide )
-    ShowWindow( this->m_Hwnd, SW_HIDE );
-  
-  SetWindowLong( this->m_Hwnd, GWL_ID, this->m_ID );
-  SetParent( this->m_Hwnd, this->m_OrigParentHwnd );
-  this->setStyle( this->m_OrigStyles );
-  this->setExStyle( this->m_OrigExStyles );
+	BOOL bHide = IsWindowVisible( this->m_Hwnd );
+	if ( !bHide )
+		ShowWindow( this->m_Hwnd, SW_HIDE );
+	
+	SetWindowLong( this->m_Hwnd, GWL_ID, this->m_OrigID );
+	//SetParent( this->m_Hwnd, this->m_OrigParentHwnd );
+	//this->removeStyle(WS_CHILDWINDOW);
+	//SetParent( this->m_Hwnd, NULL );
+	if (parent == this->m_OrigParentHwnd) // handles oddness where orig parent == current when it shouldnt, maybe due to init event docking.
+		parent = GetParent(parent);
+	else
+		parent = this->m_OrigParentHwnd;
 
-  SetWindowPos( this->m_Hwnd, NULL, 30, 30, 0, 0, SWP_NOSIZE );
-  UpdateWindow( this->m_Hwnd );
+	SetParent( this->m_Hwnd, parent );
+	this->setStyle( this->m_OrigStyles );
+	this->setExStyle( this->m_OrigExStyles );
 
-  if ( !bHide )
-    ShowWindow( this->m_Hwnd, SW_SHOW );
+	SetWindowPos( this->m_Hwnd, NULL, 30, 30, 0, 0, SWP_NOSIZE|SWP_FRAMECHANGED );
+	UpdateWindow( this->m_Hwnd );
+
+	if ( !bHide )
+		ShowWindow( this->m_Hwnd, SW_SHOW );
 }
 
 /*!

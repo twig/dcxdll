@@ -381,8 +381,10 @@ void DcxDialog::parseCommandRequest(TString &input) {
 					this->setFocusControl(0);
 			}
 
-			if ((p_Control->getType() == "dialog") || (p_Control->getType() == "window"))
+			if ((p_Control->getType() == "dialog") || (p_Control->getType() == "window")) {
+				this->deleteControl(p_Control); // remove control from internal list!
 				delete p_Control;
+			}
 			else if (p_Control->getRefCount() == 0) {
 				this->deleteControl(p_Control); // remove control from internal list!
 				DestroyWindow(cHwnd);

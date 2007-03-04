@@ -819,7 +819,8 @@ void DcxControl::registreDefaultWindowProc( ) {
  */
 
 void DcxControl::unregistreDefaultWindowProc( ) {
-	SetWindowLong( this->m_Hwnd, GWL_WNDPROC, (LONG) this->m_DefaultWindowProc );
+	if (this->m_DefaultWindowProc != NULL) // implies this has alrdy been called.
+		SetWindowLong( this->m_Hwnd, GWL_WNDPROC, (LONG) this->m_DefaultWindowProc );
   this->m_DefaultWindowProc = NULL;
 }
 
