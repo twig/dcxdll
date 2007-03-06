@@ -1625,7 +1625,7 @@ mIRC(WindowProps) {
 		TString filename(input.gettok(1,TSTAB).gettok(4, -1));
 		filename.trim();
 
-		if (!ChangeHwndIcon(hwnd,&flags,index,&filename))
+		if (!ChangeHwndIcon(hwnd,flags,index,filename))
 			return 0;
 	}
 	// set hwnd title text

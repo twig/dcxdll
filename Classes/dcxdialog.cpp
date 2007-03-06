@@ -88,6 +88,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 , m_bGhosted(false)
 , m_zLayerCurrent(0)
 , m_popup(NULL)
+, m_hOldWindowProc(NULL)
 //#ifdef DCX_USE_GDIPLUS
 //, m_pImage(NULL)
 //#endif
@@ -690,7 +691,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	else if (flags.switch_flags[18]) {
 		ShowWindow(this->m_Hwnd, SW_SHOW);
 	}
-	// xdialog -t [NAME] [SWITCH] [COLOR]
+	// xdialog -t [NAME] [SWITCH] [TYPE] [TYPE ARGS]
 	else if (flags.switch_flags[19] && numtok > 2) {
 		if (input.gettok( 3 ) == "alpha") {
 			// Set WS_EX_LAYERED on this window
@@ -740,7 +741,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		int index = input.gettok( 4 ).to_int();
 		TString filename(input.gettok(5, -1));
 		filename.trim();
-		ChangeHwndIcon(this->m_Hwnd,&flags,index,&filename);
+		ChangeHwndIcon(this->m_Hwnd,flags,index,filename);
 	}
 	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]
 	else if (flags.switch_flags[25] && numtok > 3) {
@@ -905,10 +906,11 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		if (flag.find('f',0))
 		{
 			if (numtok < 5) {
-				DCXError("/xdialog -R","Invalid arguments for +f flag");
+				DCXError("/xdialog -R +f","Invalid arguments");
 				return;
 			}
 
+			PreloadData();
 			//SetWindowRgn(this->m_Hwnd,NULL,TRUE);
 			this->m_colTransparentBg = (COLORREF)input.gettok( 4 ).to_num();
 			//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
@@ -917,6 +919,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 			if (this->m_bitmapBg != NULL)
 				m_Region = BitmapRegion(this->m_bitmapBg,this->m_colTransparentBg,TRUE);
+			else
+				DCXError("/xdialog -R +f","Unable To Load Image file.");
 		}
 		else if (flag.find('r',0)) // rounded rect - radius args (optional)
 		{
@@ -945,7 +949,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		{
 			// u need at least 3 points for a shape
 			if (numtok < 6) {
-				DCXError("/xdialog -R","Invalid arguments for +p flag");
+				DCXError("/xdialog -R +p","Invalid arguments");
 				return;
 			}
 
@@ -954,7 +958,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			int tPoints = strPoints.numtok( );
 
 			if (tPoints < 1) {
-				DCXError("/xdialog -R","Invalid Points");
+				DCXError("/xdialog -R +p","Invalid Points");
 				return;
 			}
 
@@ -2413,18 +2417,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			}
 			break;
 
-		case WM_NCDESTROY: 
+		case WM_NCDESTROY:
 		{
-			if (p_this != NULL) {
+			lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 
-				LRESULT res = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-
-				Dialogs.deleteDialog(p_this);
-				delete p_this;
-				return res;
-			}
-
-			break;
+			Dialogs.deleteDialog(p_this);
+			delete p_this;
+			return lRes;
 		}
 
 		default:
@@ -2478,7 +2477,7 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPRECT rwnd)
 	BITMAP bmp;
 
 	GetObject(p_this->m_bitmapBg, sizeof(BITMAP), &bmp);
-	SelectObject(hdcbmp, p_this->m_bitmapBg);
+	HBITMAP hOldBitmap = (HBITMAP)SelectObject(hdcbmp, p_this->m_bitmapBg);
 
 	int x = rwnd->left;
 	int y = rwnd->top;
@@ -2516,7 +2515,7 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPRECT rwnd)
 
 		TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
 	}
-
+	SelectObject(hdcbmp, hOldBitmap);
 	DeleteDC(hdcbmp);
 }
 

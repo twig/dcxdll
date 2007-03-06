@@ -307,7 +307,7 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
 HICON dcxLoadIcon(const int index, TString &filename, const bool large = false);
 HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
-bool ChangeHwndIcon(const HWND hwnd, const TString *flags, const int index, const TString *filename);
+bool ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
