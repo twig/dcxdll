@@ -278,10 +278,10 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		int i = input.gettok( 4 ).to_int();
 
 		if (i) {
-			char c = Edit_GetPasswordChar(this->m_Hwnd);
 			this->addStyle(ES_PASSWORD);
+			char c = Edit_GetPasswordChar(this->m_Hwnd);
 
-			if (!c)
+			if (c == 0)
 				c = '*'; //(isXP() ? '•' : '*');
 
 			Edit_SetPasswordChar(this->m_Hwnd, c);
