@@ -178,6 +178,7 @@ void DcxPager::parseCommandRequest( TString & input ) {
 
       HWND cHwnd = p_Control->getHwnd( );
 			if ( p_Control->getType( ) == "dialog" || p_Control->getType( ) == "window" ) {
+				this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
         delete p_Control;
 				this->m_ChildHWND = NULL;
 			}
@@ -443,15 +444,12 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       {
         if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
 
-          if ( this->m_hCursor != NULL ) {
-
-            SetCursor( this->m_hCursor );
-          }
-          else {
-
-            HCURSOR hCursor = LoadCursor( NULL, IDC_ARROW );
-            SetCursor( hCursor );
-          }
+					if ( this->m_hCursor != NULL ) {
+						if (GetCursor() != this->m_hCursor)
+							SetCursor( this->m_hCursor );
+					}
+          else
+            SetCursor(LoadCursor( NULL, IDC_ARROW ));
           bParsed = TRUE;
           return TRUE;
         }

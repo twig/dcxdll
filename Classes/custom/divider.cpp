@@ -144,17 +144,14 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
       {
         if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == mHwnd ) {
 
-          HCURSOR hCursor;
+          HCURSOR hCursor = NULL;
 
-          if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT ) {
-
+          if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT )
             hCursor = LoadCursor( NULL, IDC_SIZEWE );
-          }
-          else {
-
+          else
             hCursor = LoadCursor( NULL, IDC_SIZENS );
-          }
-          SetCursor( hCursor );
+					if (GetCursor() != hCursor)
+	          SetCursor( hCursor );
           return TRUE;
         }
       }

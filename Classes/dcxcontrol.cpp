@@ -113,7 +113,8 @@ DcxControl::~DcxControl( ) {
 
   if ( this->m_bCursorFromFile && this->m_hCursor != NULL ) {
 
-    DeleteObject( this->m_hCursor );
+    //DeleteObject( this->m_hCursor );
+    DestroyCursor( this->m_hCursor );
     this->m_hCursor = NULL;
   }
 
@@ -272,21 +273,47 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	}
 	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	else if ( flags.switch_cap_flags[9] && numtok > 4 ) {
-		if ( this->m_bCursorFromFile ) {
-			DeleteObject( this->m_hCursor );
-			this->m_hCursor = NULL;
-			this->m_bCursorFromFile = FALSE;
-		}
-		else
-			this->m_hCursor = NULL;
+		//if ( this->m_bCursorFromFile ) {
+		//	DeleteObject( this->m_hCursor );
+		//	this->m_hCursor = NULL;
+		//	this->m_bCursorFromFile = FALSE;
+		//}
+		//else
+		//	this->m_hCursor = NULL;
 
+		//UINT iFlags = this->parseCursorFlags( input.gettok( 4 ) );
+
+		//if ( iFlags & DCCS_FROMRESSOURCE )
+		//	this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.gettok( 5 ) ) );
+		//else if ( iFlags & DCCS_FROMFILE ) {
+		//	this->m_hCursor = LoadCursorFromFile( input.gettok( 5, -1 ).to_chr( ) );
+		//	this->m_bCursorFromFile = TRUE;
+		//}
 		UINT iFlags = this->parseCursorFlags( input.gettok( 4 ) );
-
+		HCURSOR hCursor = NULL;
+		if ( this->m_bCursorFromFile )
+			hCursor = this->m_hCursor;
+		this->m_hCursor = NULL;
+		this->m_bCursorFromFile = FALSE;
 		if ( iFlags & DCCS_FROMRESSOURCE )
 			this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.gettok( 5 ) ) );
 		else if ( iFlags & DCCS_FROMFILE ) {
-			this->m_hCursor = LoadCursorFromFile( input.gettok( 5, -1 ).to_chr( ) );
-			this->m_bCursorFromFile = TRUE;
+			TString filename(input.gettok( 5, -1 ));
+			if (IsFile(filename)) {
+				this->m_hCursor = (HCURSOR)LoadImage(NULL, filename.to_chr(), IMAGE_CURSOR, 0,0, LR_DEFAULTSIZE|LR_LOADFROMFILE );
+				this->m_bCursorFromFile = TRUE;
+			}
+		}
+		if (this->m_hCursor == NULL)
+			DCXError("/xdid -J","Unable to Load Cursor");
+		if (hCursor != NULL) {
+			if (GetCursor() == hCursor) {
+				if (this->m_hCursor != NULL)
+					SetCursor(this->m_hCursor);
+				else
+					SetCursor(LoadCursor(NULL,IDC_ARROW));
+			}
+			DestroyCursor( hCursor );
 		}
 	}
 	// xdid -M [NAME] [ID] [SWITCH] [MARK INFO]

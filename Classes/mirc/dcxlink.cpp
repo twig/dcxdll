@@ -286,21 +286,23 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
       }
       break;
 
-	 case WM_SETCURSOR:
-		 {
-			 if (this->m_hCursor) {
-				 SetCursor(this->m_hCursor);
-				 bParsed = TRUE;
-				 return TRUE;
-			 }
-			 else if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
-				 HCURSOR hCursor = LoadCursor( NULL, IDC_HAND );
-				 SetCursor( hCursor );
-				 bParsed = TRUE;
-				 return TRUE;
-			 }
-		 }
-		 break;
+		case WM_SETCURSOR:
+			{
+				if (this->m_hCursor) {
+					if (GetCursor() != this->m_hCursor)
+						SetCursor( this->m_hCursor );
+					bParsed = TRUE;
+					return TRUE;
+				}
+				else if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
+					HCURSOR hCursor = LoadCursor( NULL, IDC_HAND );
+					if (GetCursor() != hCursor)
+						SetCursor( hCursor );
+					bParsed = TRUE;
+					return TRUE;
+				}
+			}
+			break;
 
 		case WM_ERASEBKGND:
 		{

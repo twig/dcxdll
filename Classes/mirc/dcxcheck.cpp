@@ -265,8 +265,8 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
     case WM_SETCURSOR:
       {
         if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-
-          SetCursor( this->m_hCursor );
+					if (GetCursor() != this->m_hCursor)
+						SetCursor( this->m_hCursor );
           bParsed = TRUE;
           return TRUE;
         }

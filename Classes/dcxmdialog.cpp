@@ -180,8 +180,8 @@ LRESULT DcxMDialog::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
     case WM_SETCURSOR:
       {
         if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-
-          SetCursor( this->m_hCursor );
+					if (GetCursor() != this->m_hCursor)
+						SetCursor( this->m_hCursor );
           bParsed = TRUE;
           return TRUE;
         }
@@ -190,7 +190,10 @@ LRESULT DcxMDialog::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
     case WM_DESTROY:
       {
+				//WNDPROC wnd = this->m_DefaultWindowProc;
+				//HWND mHwnd = this->m_Hwnd;
         delete this;
+				//CallWindowProc(wnd, mHwnd, uMsg, wParam, lParam);
         bParsed = TRUE;
       }
       break;

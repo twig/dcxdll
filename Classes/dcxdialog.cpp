@@ -133,6 +133,9 @@ DcxDialog::~DcxDialog() {
 	PreloadData();
 	this->RemoveShadow();
 
+	if (this->m_bCursorFromFile && this->m_hCursor != NULL)
+		DestroyCursor(this->m_hCursor);
+
 	RemoveProp(this->m_Hwnd, "dcx_this");
 }
 
@@ -642,21 +645,47 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -q [NAME] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	else if (flags.switch_flags[16] && numtok > 3) {
-		if (this->m_bCursorFromFile) {
-			DeleteObject(this->m_hCursor);
-			this->m_hCursor = NULL;
-			this->m_bCursorFromFile = FALSE;
+		//if (this->m_bCursorFromFile) {
+		//	DeleteObject(this->m_hCursor);
+		//	this->m_hCursor = NULL;
+		//	this->m_bCursorFromFile = FALSE;
+		//}
+		//else
+		//	this->m_hCursor = NULL;
+
+		//UINT iFlags = this->parseCursorFlags(input.gettok( 3 ));
+
+		//if (iFlags & DCCS_FROMRESSOURCE)
+		//	this->m_hCursor = LoadCursor(NULL, this->parseCursorType(input.gettok( 4 )));
+		//else if (iFlags & DCCS_FROMFILE) {
+		//	this->m_hCursor = LoadCursorFromFile(input.gettok(4, -1).to_chr());
+		//	this->m_bCursorFromFile = TRUE;
+		//}
+		UINT iFlags = this->parseCursorFlags( input.gettok( 3 ) );
+		HCURSOR hCursor = NULL;
+		if ( this->m_bCursorFromFile )
+			hCursor = this->m_hCursor;
+		this->m_hCursor = NULL;
+		this->m_bCursorFromFile = FALSE;
+		if ( iFlags & DCCS_FROMRESSOURCE )
+			this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.gettok( 4 ) ) );
+		else if ( iFlags & DCCS_FROMFILE ) {
+			TString filename(input.gettok( 4, -1 ));
+			if (IsFile(filename)) {
+				this->m_hCursor = (HCURSOR)LoadImage(NULL, filename.to_chr(), IMAGE_CURSOR, 0,0, LR_DEFAULTSIZE|LR_LOADFROMFILE );
+				this->m_bCursorFromFile = TRUE;
+			}
 		}
-		else
-			this->m_hCursor = NULL;
-
-		UINT iFlags = this->parseCursorFlags(input.gettok( 3 ));
-
-		if (iFlags & DCCS_FROMRESSOURCE)
-			this->m_hCursor = LoadCursor(NULL, this->parseCursorType(input.gettok( 4 )));
-		else if (iFlags & DCCS_FROMFILE) {
-			this->m_hCursor = LoadCursorFromFile(input.gettok(4, -1).to_chr());
-			this->m_bCursorFromFile = TRUE;
+		if (this->m_hCursor == NULL)
+			DCXError("/xdialog -q","Unable to Load Cursor");
+		if (hCursor != NULL) {
+			if (GetCursor() == hCursor) {
+				if (this->m_hCursor != NULL)
+					SetCursor(this->m_hCursor);
+				else
+					SetCursor(LoadCursor(NULL,IDC_ARROW));
+			}
+			DestroyCursor( hCursor );
 		}
 	}
 	// xdialog -x [NAME]
@@ -708,7 +737,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			SetLayeredWindowAttributes(this->m_Hwnd, input.gettok( 4 ).to_int(), 0, LWA_COLORKEY);
 		}
 		else if (input.gettok( 3 ) == "bgcolor") {
-			this->m_colTransparentBg = input.gettok( 3 ).to_int();
+			this->m_colTransparentBg = input.gettok( 4 ).to_int();
 		}
 		else {
 			DCXError("/xdialog -t","Unknown Switch");
@@ -2298,15 +2327,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_SETCURSOR:
 		{
-			if ((LOWORD(lParam) == HTCLIENT) &&
-				((HWND) wParam == p_this->getHwnd()) && 
-				(p_this->getCursor() != NULL)) 
+			if ((LOWORD(lParam) == HTCLIENT) && ((HWND) wParam == p_this->getHwnd()) && (p_this->getCursor() != NULL))
 			{
-				SetCursor(p_this->getCursor());
+				if (GetCursor() != p_this->getCursor())
+					SetCursor(p_this->getCursor());
 				bParsed = TRUE;
 				lRes = TRUE;
 			}
-
 			break;
 		}
 
