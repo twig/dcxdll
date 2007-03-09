@@ -279,12 +279,17 @@ void DcxEdit::parseCommandRequest(TString &input) {
 
 		if (i) {
 			this->addStyle(ES_PASSWORD);
-			char c = Edit_GetPasswordChar(this->m_Hwnd);
-
+			TCHAR c = Edit_GetPasswordChar(this->m_Hwnd);
+			// XP actually uses the unicode `Black Circle` char U+25CF (9679)
+			// The problem is getting the char set to a unicode (2-byte) one, so far it always sets to CF (207)
 			if (c == 0)
 				c = '*'; //(isXP() ? '•' : '*');
 
 			Edit_SetPasswordChar(this->m_Hwnd, c);
+			//WCHAR c = (WCHAR)SendMessageW(this->m_Hwnd, EM_GETPASSWORDCHAR, NULL, NULL);
+			//if (c == 0)
+			//	c = (isXP() ? 9679 : L'*');
+			//SendMessageW(this->m_Hwnd, EM_SETPASSWORDCHAR, (WPARAM)c, NULL);
 		}
 		else {
 			this->removeStyle(ES_PASSWORD);

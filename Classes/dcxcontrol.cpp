@@ -423,7 +423,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		if (flag.find('f',0)) // image file - [COLOR] [FILE]
 		{
 			if (numtok < 6) {
-				DCXError("/xdid -R","Invalid arguments for +f flag");
+				DCXError("/xdid -R +f","Invalid Arguments");
 				return;
 			}
 
@@ -435,6 +435,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 				DeleteObject(m_bitmapBg);
 			}
+			else
+				DCXError("/xdid -R +f","Unable To Load Image file.");
 		}
 		else if (flag.find('r',0)) // rounded rect - radius args (optional)
 		{
@@ -463,7 +465,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		{
 			// u need at least 3 points for a shape
 			if (numtok < 7) {
-				DCXError("/xdid -R","Invalid arguments for +p flag");
+				DCXError("/xdid -R +p","Invalid Arguments");
 				return;
 			}
 
@@ -472,7 +474,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			int tPoints = strPoints.numtok( );
 
 			if (tPoints < 1) {
-				DCXError("/xdid -R","Invalid Points");
+				DCXError("/xdid -R +p","Invalid Points");
 				return;
 			}
 
