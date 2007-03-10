@@ -22,7 +22,7 @@ function get_xdid_directshow(&$XDID) {
                     '__desc' => "Previous flags.",
                     '__values' => array(
                         'p' => "Play right away.",
-                        'l' => "Play loop away.",
+                        'l' => "Loop playback.",
                     ),
                 ),
                 'FILENAME' => 'Previous filename.',

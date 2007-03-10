@@ -21,7 +21,7 @@ function dcx_vs_mdx() {
 
 	<tr>
 		<td class="comparison">Amount of added controls:</td>
-		<td>30</td>
+		<td>34</td>
 		<td>17</td>
 	</tr>
 
@@ -89,7 +89,7 @@ function dcx_vs_mdx() {
 
 	<tr>
 		<td class="comparison">Change dialog icon:</td>
-    	<td><img src="images/no.gif" alt="Does not have feature" /></td>
+    	<td><img src="images/ok.gif" alt="Has feature" /></td>
     	<td><img src="images/ok.gif" alt="Has feature" /></td>
 	</tr>
 
@@ -118,7 +118,7 @@ function dcx_vs_mdx() {
 
 	<tr>
 		<td class="section_title section_bg">Calendar</td>
-		<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /> Incomplete</td>
+		<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
 
@@ -127,7 +127,7 @@ function dcx_vs_mdx() {
 
 	<tr>
 		<td class="section_title section_bg">Directshow</td>
-		<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /> Incomplete</td>
+		<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
 
@@ -135,7 +135,7 @@ function dcx_vs_mdx() {
 
 	<tr>
 		<td class="section_title section_bg">Stacker</td>
-		<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /> Incomplete</td>
+		<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
         <td class="section_bg"><img src="images/no.gif" alt="Does not have feature" /></td>
 	</tr>
 
@@ -191,10 +191,7 @@ function dcx_vs_mdx() {
 	<tr>
 		<td class="section_title section_bg">RichEdit</td>
     	<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /></td>
-    	<td class="section_bg">
-			<img src="images/ok.gif" alt="Has feature" /><br />
-   			Undocumented
-		</td>
+    	<td class="section_bg"><img src="images/ok.gif" alt="Has feature" /> Undocumented</td>
 	</tr>
 
     <tr><td colspan="3"></td></tr>
@@ -319,7 +316,7 @@ function dcx_vs_mdx() {
 
 	<tr>
 		<td class="comparison">Events:</td>
-        <td>Has 4 events sclick, rclick, mousebar and help.</td>
+        <td>Has several events (ie. sclick, rclick, mousebar)</td>
         <td>Has no events.</td>
 	</tr>
 

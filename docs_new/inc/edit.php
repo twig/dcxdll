@@ -118,8 +118,7 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		"cue" => 'This returns the cue banner text in the control.',
 		"caretpos" => array(
 		    '__desc' => "This property lets you retreive the position of the cursor.",
-		    '__cmd' => 'LINE COLUMN',
-		    '__eg' => '14 3',
+		    '__notes' => 'The return value is [p]LINE[/p] [p]COLUMN[/p]',
 		),
 	);
 }
