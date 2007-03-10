@@ -176,17 +176,17 @@ void DcxLink::parseCommandRequest( TString & input ) {
   }
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {
-		TString flags(input.gettok( 4 ));
+		TString flag(input.gettok( 4 ));
 		int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
 
 		if (this->m_hIcon != NULL)
 			DestroyIcon(this->m_hIcon);
 
-		this->m_hIcon = dcxLoadIcon(index, filename, FALSE);
+		this->m_hIcon = dcxLoadIcon(index, filename, FALSE, flag);
 
-		if (flags.find('g', 0))
-			this->m_hIcon = CreateGrayscaleIcon(this->m_hIcon);
+		//if (flag.find('g', 0))
+		//	this->m_hIcon = CreateGrayscaleIcon(this->m_hIcon);
 
 		this->redrawWindow();
 	}

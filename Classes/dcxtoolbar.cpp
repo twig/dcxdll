@@ -582,13 +582,13 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			ImageList_GetIconSize(himl, &cx, &cy);
 
 			if (cx > 16)
-				icon = dcxLoadIcon(index, filename, TRUE);
+				icon = dcxLoadIcon(index, filename, TRUE, input.gettok( 4 ));
 			else
-				icon = dcxLoadIcon(index, filename, FALSE);
+				icon = dcxLoadIcon(index, filename, FALSE, input.gettok( 4 ));
 
 			// Grayscale the icon
-			if ((iFlags & TB_ICO_GREY) && icon)
-				icon = CreateGrayscaleIcon(icon);
+			//if ((iFlags & TB_ICO_GREY) && icon)
+			//	icon = CreateGrayscaleIcon(icon);
 		}
 
 		// if there is an icon to process

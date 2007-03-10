@@ -343,8 +343,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
-		HICON icon;
-		TString flags(input.gettok( 4 ));
+		TString flag(input.gettok( 4 ));
 		int index = input.gettok( 5 ).to_int();;
 		TString filename(input.gettok(6, -1));
 
@@ -355,13 +354,15 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 				this->setImageList(himl);
 		}
 
-		icon = dcxLoadIcon(index, filename, FALSE);
+		if (himl != NULL) {
+			HICON icon = dcxLoadIcon(index, filename, FALSE, flag);
 
-		if (flags.find('g', 0))
-			icon = CreateGrayscaleIcon(icon);
+			//if (flag.find('g', 0))
+			//	icon = CreateGrayscaleIcon(icon);
 
-		ImageList_AddIcon(himl, icon);
-		DestroyIcon(icon);
+			ImageList_AddIcon(himl, icon);
+			DestroyIcon(icon);
+		}
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags.switch_flags[24]) {

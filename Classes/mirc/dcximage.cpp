@@ -233,12 +233,12 @@ void DcxImage::parseCommandRequest(TString & input) {
 		PreloadData();
 
 		if (size > 16)
-			this->m_hIcon = dcxLoadIcon(index, filename, TRUE);
+			this->m_hIcon = dcxLoadIcon(index, filename, TRUE, flag);
 		else
-			this->m_hIcon = dcxLoadIcon(index, filename, FALSE);
+			this->m_hIcon = dcxLoadIcon(index, filename, FALSE, flag);
 
-		if (flag.find('g', 0))
-			this->m_hIcon = CreateGrayscaleIcon(this->m_hIcon);
+		//if (flag.find('g', 0))
+		//	this->m_hIcon = CreateGrayscaleIcon(this->m_hIcon);
 
 		this->m_iIconSize = size;
 		this->m_bIsIcon = TRUE;

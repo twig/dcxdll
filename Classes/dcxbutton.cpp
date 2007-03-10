@@ -231,20 +231,21 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
-		HICON icon;
+		HICON icon = NULL;
 		int index = input.gettok( 5 ).to_int();
-		UINT flags = parseColorFlags(input.gettok( 4 ));
+		TString tflags(input.gettok( 4 ));
+		UINT flag = parseColorFlags(tflags);
 		TString filename(input.gettok(6, -1));
 
 		// load the icon
 		if (this->m_iIconSize > 16)
-			icon = dcxLoadIcon(index, filename, TRUE);
+			icon = dcxLoadIcon(index, filename, TRUE, tflags);
 		else
-			icon = dcxLoadIcon(index, filename, FALSE);
+			icon = dcxLoadIcon(index, filename, FALSE, tflags);
 
 		// convert to greyscale
-		if (flags & BTNIS_GREY)
-			icon = CreateGrayscaleIcon(icon);
+		//if (flag & BTNIS_GREY)
+		//	icon = CreateGrayscaleIcon(icon);
 
 		// prepare the image list
 		if ((himl = this->getImageList()) == NULL) {
@@ -261,16 +262,16 @@ void DcxButton::parseCommandRequest( TString & input ) {
 				this->m_bHasIcons = TRUE;
 			}
 		}
-
-		if (flags & BTNCS_DISABLED)
-			ImageList_ReplaceIcon(himl, 3, icon);
-		if (flags & BTNCS_SELECTED)
-			ImageList_ReplaceIcon(himl, 2, icon);
-		if (flags & BTNCS_HOVER)
-			ImageList_ReplaceIcon(himl, 1, icon);
-		if (flags & BTNCS_NORMAL)
-			ImageList_ReplaceIcon(himl, 0, icon);
-
+		else {
+			if (flag & BTNCS_DISABLED)
+				ImageList_ReplaceIcon(himl, 3, icon);
+			if (flag & BTNCS_SELECTED)
+				ImageList_ReplaceIcon(himl, 2, icon);
+			if (flag & BTNCS_HOVER)
+				ImageList_ReplaceIcon(himl, 1, icon);
+			if (flag & BTNCS_NORMAL)
+				ImageList_ReplaceIcon(himl, 0, icon);
+		}
 		DestroyIcon(icon);
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [ENABLED]
@@ -308,6 +309,8 @@ UINT DcxButton::parseColorFlags(TString & flags) {
 			iFlags |= BTNCS_SELECTED;
 		else if (flags[i] == 'g')
 			iFlags |= BTNIS_GREY;
+		else if (flags[i] == 'a')
+			iFlags |= BTNIS_ASSOC;
 
 		++i;
 	}

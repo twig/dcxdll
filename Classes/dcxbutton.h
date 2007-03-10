@@ -30,6 +30,7 @@ class DcxDialog;
 #define BTNCS_HOVER     0x04 //!< Button Hover Color Style
 #define BTNCS_DISABLED  0x08 //!< Button Disabled Color Style
 #define BTNIS_GREY      0x10 //!< Button Grey Icon
+#define BTNIS_ASSOC     0x20 //!< Button Icon is Associated with the file.
 
 /*!
  * \brief blah

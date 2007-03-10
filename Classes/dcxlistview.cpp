@@ -1211,12 +1211,13 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {
-		UINT iFlags = this->parseIconFlagOptions(input.gettok( 4 ));
+		TString tflags(input.gettok( 4 ));
+		UINT iFlags = this->parseIconFlagOptions(tflags);
 		HIMAGELIST himl;
 		HICON icon;
-		int index;
-		TString filename;
-		BOOL isGray = (input.gettok( 4 ).find('g', 0) ? TRUE : FALSE);
+		int index = input.gettok( 5 ).to_int();
+		TString filename(input.gettok(6, -1));
+		//BOOL isGray = (input.gettok( 4 ).find('g', 0) ? TRUE : FALSE);
 
 		if (iFlags & LVSIL_SMALL) {
 			if ((himl = this->getImageList(LVSIL_NORMAL)) == NULL) {
@@ -1226,12 +1227,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 					this->setImageList(himl, LVSIL_NORMAL);
 			}
 
-			index = input.gettok( 5 ).to_int();
-			filename = input.gettok(6, -1);
-			icon = dcxLoadIcon(index, filename, TRUE);
+			icon = dcxLoadIcon(index, filename, TRUE, tflags);
 
-			if (isGray)
-				icon = CreateGrayscaleIcon(icon);
+			//if (isGray)
+			//	icon = CreateGrayscaleIcon(icon);
 
 			ImageList_AddIcon(himl, icon);
 			DestroyIcon(icon);
@@ -1243,12 +1242,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 					this->setImageList(himl, LVSIL_SMALL);
 			}
 
-			index = input.gettok( 5 ).to_int();
-			filename = input.gettok(6, -1);
-			ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
+			//ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
 
-			if (isGray)
-				icon = CreateGrayscaleIcon(icon);
+			//if (isGray)
+			//	icon = CreateGrayscaleIcon(icon);
+			icon = dcxLoadIcon(index, filename, false, tflags);
 
 			ImageList_AddIcon(himl, icon);
 			DestroyIcon(icon);
@@ -1262,12 +1260,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 					this->setImageList(himl, LVSIL_STATE);
 			}
 
-			index = input.gettok( 5 ).to_int();
-			filename = input.gettok(6, -1);
-			ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
+			icon = dcxLoadIcon(index, filename, false, tflags);
+			//ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
 
-			if (isGray)
-				icon = CreateGrayscaleIcon(icon);
+			//if (isGray)
+			//	icon = CreateGrayscaleIcon(icon);
 
 			ImageList_AddIcon(himl, icon);
 			DestroyIcon(icon);

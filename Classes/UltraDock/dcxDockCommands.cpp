@@ -324,10 +324,10 @@ mIRC(xdock) {
 						DcxDock::status_setImageList(himl);
 				}
 
-				icon = dcxLoadIcon(index, filename, FALSE);
+				icon = dcxLoadIcon(index, filename, FALSE, flags);
 
-				if (flags.find('g', 0))
-					icon = CreateGrayscaleIcon(icon);
+				//if (flags.find('g', 0))
+				//	icon = CreateGrayscaleIcon(icon);
 
 				ImageList_AddIcon(himl, icon);
 				DestroyIcon(icon);
@@ -574,7 +574,7 @@ mIRC(xdock) {
 								}
 								break;
 							}
-							HICON hIcon = dcxLoadIcon(index,filename);
+							HICON hIcon = dcxLoadIcon(index,filename, false, cflag);
 							if (hIcon != NULL) {
 								mIRCDebug("count: %d", ImageList_GetImageCount(himl));
 								mIRCDebug("replace: %d", ImageList_ReplaceIcon(himl,type,hIcon));

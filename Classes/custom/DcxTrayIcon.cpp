@@ -84,7 +84,7 @@ mIRC(TrayIcon) {
 		int index = d.gettok( 3 ).to_int();
 		TString filename(d.gettok(1, TSTAB).gettok(4, -1));
 
-		icon = dcxLoadIcon(index, filename);
+		icon = dcxLoadIcon(index, filename, false, flags);
 
 
 		// add/edit the icon
@@ -113,7 +113,7 @@ mIRC(TrayIcon) {
 
 		// load the icon
 		filename.trim();
-		icon = dcxLoadIcon(index, filename);
+		icon = dcxLoadIcon(index, filename, false, flags);
 
 		if (!trayIcons->modifyIcon(id, NIM_MODIFY, icon, NULL)) {
 			DCXError("/xTray", "Error changing trayicon icon");

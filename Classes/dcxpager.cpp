@@ -178,7 +178,6 @@ void DcxPager::parseCommandRequest( TString & input ) {
 
       HWND cHwnd = p_Control->getHwnd( );
 			if ( p_Control->getType( ) == "dialog" || p_Control->getType( ) == "window" ) {
-				this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
         delete p_Control;
 				this->m_ChildHWND = NULL;
 			}

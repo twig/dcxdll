@@ -270,7 +270,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
     {
 
       HWND cHwnd = p_Control->getHwnd( );
-      if ( p_Control->getType( ) == "dialog" || p_Control->getType( ) == "window" )
+			if ( p_Control->getType( ) == "dialog" || p_Control->getType( ) == "window" )
         delete p_Control;
 			else if ( p_Control->getRefCount( ) == 0 ) {
 				this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
