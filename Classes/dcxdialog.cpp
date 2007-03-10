@@ -385,10 +385,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 					this->setFocusControl(0);
 			}
 
-			if ((p_Control->getType() == "dialog") || (p_Control->getType() == "window")) {
-				this->deleteControl(p_Control); // remove control from internal list!
+			if ((p_Control->getType() == "dialog") || (p_Control->getType() == "window"))
 				delete p_Control;
-			}
 			else if (p_Control->getRefCount() == 0) {
 				this->deleteControl(p_Control); // remove control from internal list!
 				DestroyWindow(cHwnd);
@@ -892,7 +890,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 		return;
 	}
-	// xdialog -P [NAME]
+	// xdialog -P [NAME] [SWITCH] (STYLE)
 	else if (flags.switch_cap_flags[15]) {
 		HMENU menu = NULL;
 
@@ -904,6 +902,32 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				this->m_popup = new XPopupMenu("dialog", menu);
 			else
 				dcxInfoError("xdialog -P", "", this->getName().to_chr(), 0, "Menu does not exist");
+		}
+		if (this->m_popup != NULL) {
+			XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
+			TString tsStyle(input.gettok( 3 ));
+
+			if (tsStyle == "office2003rev")
+				style = XPopupMenu::XPMS_OFFICE2003_REV;
+			else if (tsStyle == "officexp")
+				style = XPopupMenu::XPMS_OFFICEXP;
+			else if (tsStyle == "icy")
+				style = XPopupMenu::XPMS_ICY;
+			else if (tsStyle == "icyrev")
+				style = XPopupMenu::XPMS_ICY_REV;
+			else if (tsStyle == "grade")
+				style = XPopupMenu::XPMS_GRADE;
+			else if (tsStyle == "graderev")
+				style = XPopupMenu::XPMS_GRADE_REV;
+			else if (tsStyle == "vertical")
+				style = XPopupMenu::XPMS_VERTICAL;
+			else if (tsStyle == "verticalrev")
+				style = XPopupMenu::XPMS_VERTICAL_REV;
+			else if (tsStyle == "normal")
+				style = XPopupMenu::XPMS_NORMAL;
+			else if (tsStyle == "custom")
+				style = XPopupMenu::XPMS_CUSTOM;
+			this->m_popup->setStyle(style);
 		}
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]

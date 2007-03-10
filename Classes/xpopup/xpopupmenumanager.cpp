@@ -108,9 +108,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
 
   }
   // xpopup -c -> [MENU] [SWITCH] [STYLE]
-	else if ((flags.switch_flags[2]) &&
-		(numtok > 2) && 
-		(input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar")) {
+	else if ((flags.switch_flags[2]) && (numtok > 2) && (input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar")) {
 
 		if (p_Menu != NULL) {
 			TString error;
@@ -120,26 +118,28 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
 		else {
 			XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
 
-			if (input.gettok( 3 ) == "office2003rev")
+			TString tsStyle(input.gettok( 3 ));
+
+			if (tsStyle == "office2003rev")
 				style = XPopupMenu::XPMS_OFFICE2003_REV;
-			else if (input.gettok( 3 ) == "officexp")
+			else if (tsStyle == "officexp")
 				style = XPopupMenu::XPMS_OFFICEXP;
-			else if (input.gettok( 3 ) == "icy")
+			else if (tsStyle == "icy")
 				style = XPopupMenu::XPMS_ICY;
-			else if (input.gettok( 3 ) == "icyrev")
+			else if (tsStyle == "icyrev")
 				style = XPopupMenu::XPMS_ICY_REV;
-			else if (input.gettok( 3 ) == "grade")
+			else if (tsStyle == "grade")
 				style = XPopupMenu::XPMS_GRADE;
-			else if (input.gettok( 3 ) == "graderev")
+			else if (tsStyle == "graderev")
 				style = XPopupMenu::XPMS_GRADE_REV;
-			else if (input.gettok( 3 ) == "normal")
-				style = XPopupMenu::XPMS_NORMAL;
-			else if (input.gettok( 3 ) == "custom")
-				style = XPopupMenu::XPMS_CUSTOM;
-			else if (input.gettok( 3 ) == "vertical")
+			else if (tsStyle == "vertical")
 				style = XPopupMenu::XPMS_VERTICAL;
-			else if (input.gettok( 3 ) == "verticalrev")
+			else if (tsStyle == "verticalrev")
 				style = XPopupMenu::XPMS_VERTICAL_REV;
+			else if (tsStyle == "normal")
+				style = XPopupMenu::XPMS_NORMAL;
+			else if (tsStyle == "custom")
+				style = XPopupMenu::XPMS_CUSTOM;
 
 			this->m_vpXPMenu.push_back(new XPopupMenu(input.gettok( 1 ), style));
 		}
@@ -211,26 +211,27 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
 	// xpopup -t -> [MENU] [SWITCH] [STYLE]
 	else if (flags.switch_flags[19] && numtok > 2) {
 		XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
+		TString tsStyle(input.gettok( 3 ));
 
-		if (input.gettok( 3 ) == "office2003rev")
+		if (tsStyle == "office2003rev")
 			style = XPopupMenu::XPMS_OFFICE2003_REV;
-		else if (input.gettok( 3 ) == "officexp")
+		else if (tsStyle == "officexp")
 			style = XPopupMenu::XPMS_OFFICEXP;
-		else if (input.gettok( 3 ) == "icy")
+		else if (tsStyle == "icy")
 			style = XPopupMenu::XPMS_ICY;
-		else if (input.gettok( 3 ) == "icyrev")
+		else if (tsStyle == "icyrev")
 			style = XPopupMenu::XPMS_ICY_REV;
-		else if (input.gettok( 3 ) == "grade")
+		else if (tsStyle == "grade")
 			style = XPopupMenu::XPMS_GRADE;
-		else if (input.gettok( 3 ) == "graderev")
+		else if (tsStyle == "graderev")
 			style = XPopupMenu::XPMS_GRADE_REV;
-		else if (input.gettok( 3 ) == "vertical")
+		else if (tsStyle == "vertical")
 			style = XPopupMenu::XPMS_VERTICAL;
-		else if (input.gettok( 3 ) == "verticalrev")
+		else if (tsStyle == "verticalrev")
 			style = XPopupMenu::XPMS_VERTICAL_REV;
-		else if (input.gettok( 3 ) == "normal")
+		else if (tsStyle == "normal")
 			style = XPopupMenu::XPMS_NORMAL;
-		else if (input.gettok( 3 ) == "custom")
+		else if (tsStyle == "custom")
 			style = XPopupMenu::XPMS_CUSTOM;
 
 		p_Menu->setStyle(style);
