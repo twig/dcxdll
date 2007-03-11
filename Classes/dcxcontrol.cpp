@@ -366,16 +366,16 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		ShowWindow( this->m_Hwnd, SW_HIDE );
 		RECT rc;
 		GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
-		this->m_pParentDialog->updateLayout(rc);
-		this->m_pParentDialog->redrawWindow();
+		if (this->m_pParentDialog->updateLayout(rc))
+			this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
 	}
 	// xdid -s [NAME] [ID]
 	else if ( flags.switch_flags[18] ) {
 		ShowWindow( this->m_Hwnd, SW_SHOW );
 		RECT rc;
 		GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
-		this->m_pParentDialog->updateLayout(rc);
-		this->m_pParentDialog->redrawWindow();
+		if (this->m_pParentDialog->updateLayout(rc))
+			this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
 	}
 	// xdid -U [NAME] [ID]
 	else if (flags.switch_cap_flags[20]) {

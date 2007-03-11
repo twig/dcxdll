@@ -552,14 +552,17 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				if (isBitmap) {
 					// create a new HDC for background rendering
 					HDC hdcbmp = CreateCompatibleDC( hdc );
-					BITMAP bmp;
+					if (hdcbmp != NULL) {
+						BITMAP bmp;
 
-					// get bitmaps info.
-					GetObject( this->m_aBitmaps[nState], sizeof(BITMAP), &bmp );
-					// associate bitmap with HDC
-					SelectObject( hdcbmp, this->m_aBitmaps[nState] );
-					TransparentBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
-					DeleteDC( hdcbmp );
+						// get bitmaps info.
+						GetObject( this->m_aBitmaps[nState], sizeof(BITMAP), &bmp );
+						// associate bitmap with HDC
+						HBITMAP oldbm = (HBITMAP)SelectObject( hdcbmp, this->m_aBitmaps[nState] );
+						TransparentBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
+						SelectObject( hdcbmp, oldbm ); // got to put the old bm back.
+						DeleteDC( hdcbmp );
+					}
 				}
 
 				// Regular button

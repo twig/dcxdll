@@ -1682,9 +1682,13 @@ BOOL DcxDialog::callAliasEx(char *szReturn, const char *szFormat, ...) {
  * blah
  */
 
-void DcxDialog::updateLayout(RECT &rc) {
-	if (this->m_pLayoutManager != NULL)
-		this->m_pLayoutManager->updateLayout(rc);
+bool DcxDialog::updateLayout(RECT &rc) {
+	if (this->m_pLayoutManager == NULL)
+		return false;
+	if (this->m_pLayoutManager->getRoot() == NULL)
+		return false;
+	this->m_pLayoutManager->updateLayout(rc);
+	return true;
 }
 
 /*!

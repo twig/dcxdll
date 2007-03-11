@@ -87,7 +87,7 @@ public:
   void deleteControl( DcxControl * p_Control );
   void deleteAllControls( );
 
-  void updateLayout( RECT & rc );
+  bool updateLayout( RECT & rc );
 
   HBRUSH getBackClrBrush( ) const;
 
