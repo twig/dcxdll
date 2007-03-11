@@ -98,16 +98,24 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
     return;
   }
 
-  // xpopup -b - [MENU] [SWITCH] [FILENAME]
-  if ( flags.switch_flags[1] && numtok > 2 ) {
+	// xpopup -b - [MENU] [SWITCH] [FILENAME]
+	if ( flags.switch_flags[1] && numtok > 2 ) {
 
-    HBITMAP hBitmap = (HBITMAP) LoadImage( GetModuleHandle( NULL ), 
-      input.gettok( 3, -1 ).to_chr( ), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
+		TString filename(input.gettok( 3, -1 ));
+		HBITMAP hBitmap = NULL;
+		if (filename != "none") { // if name == `none` then remove previous image.
+			if (IsFile(filename)) {
+				hBitmap = (HBITMAP) LoadImage( GetModuleHandle( NULL ), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
+				if (hBitmap == NULL)
+					DCXError("/xpopup -b", "Unable to Load Image");
+			}
+			else
+				DCXError("/xpopup -b", "Unable to Access File");
+		}
+		p_Menu->setBackBitmap( hBitmap );
 
-    p_Menu->setBackBitmap( hBitmap );
-
-  }
-  // xpopup -c -> [MENU] [SWITCH] [STYLE]
+	}
+	// xpopup -c -> [MENU] [SWITCH] [STYLE]
 	else if ((flags.switch_flags[2]) && (numtok > 2) && (input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar")) {
 
 		if (p_Menu != NULL) {
@@ -144,25 +152,33 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
 			this->m_vpXPMenu.push_back(new XPopupMenu(input.gettok( 1 ), style));
 		}
 	}
-  // xpopup -d -> [MENU] [SWITCH]
-  else if ( flags.switch_flags[3] && ( input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar" ) ) {
+	// xpopup -d -> [MENU] [SWITCH]
+	else if ( flags.switch_flags[3] && ( input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar" ) ) {
 
-    this->deleteMenu( p_Menu );
-  }
-  // xpopup -i -> [MENU] [SWITCH] [INDEX] [FILENAME]
-  else if ( flags.switch_flags[8] && numtok > 3 ) {
+		this->deleteMenu( p_Menu );
+	}
+	// xpopup -i -> [MENU] [SWITCH] [FLAGS] [INDEX] [FILENAME]
+	else if ( flags.switch_flags[8] && numtok > 4 ) {
 
-    HIMAGELIST himl = p_Menu->getImageList( );
-    HICON icon;
-    int index;
+		HIMAGELIST himl = p_Menu->getImageList( );
+		HICON icon;
+		int index;
 
-    index = input.gettok( 3 ).to_int( );
-    TString filename(input.gettok( 4, -1 ));
-    ExtractIconEx( filename.to_chr( ), index, 0, &icon, 1 );
-    ImageList_AddIcon( himl, icon );
-    DestroyIcon( icon );
-  }
-  // xpopup -j -> [MENU] [SWITCH]
+		index = input.gettok( 4 ).to_int( );
+		TString filename(input.gettok( 5, -1 ));
+		if (IsFile(filename)) {
+			icon = dcxLoadIcon(index, filename, false, input.gettok( 3 ));
+			if (icon != NULL) {
+				ImageList_AddIcon( himl, icon );
+				DestroyIcon( icon );
+			}
+			else
+				DCXError("/xpopup -i","Unable to Load Icon");
+		}
+		else
+			DCXError("/xpopup -i","Unable to Access File");
+	}
+	// xpopup -j -> [MENU] [SWITCH]
   else if ( flags.switch_flags[9] ) {
 
     p_Menu->destroyImageList( );

@@ -188,7 +188,7 @@ void DcxListView::parseListviewExStyles( TString & styles, LONG * ExStyles )
       *ExStyles |= LVS_EX_UNDERLINECOLD;
     else if ( styles.gettok( i ) == "subitemimage" ) 
       *ExStyles |= LVS_EX_SUBITEMIMAGES;
-    else if ( styles.gettok( i ) == "tooltip" ) 
+    else if ( styles.gettok( i ) == "tooltip" )
       *ExStyles |= LVS_EX_LABELTIP | LVS_EX_INFOTIP;
 
     i++;
