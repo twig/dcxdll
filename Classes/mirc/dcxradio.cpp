@@ -227,6 +227,12 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				// fill background.
 				//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
+				if (this->m_clrBackText != -1)
+					SetBkColor(hdc, this->m_clrBackText);
+
+				if (this->m_clrText != -1)
+					SetTextColor(hdc, this->m_clrText);
+
 				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 				this->FinishAlphaBlend(ai);

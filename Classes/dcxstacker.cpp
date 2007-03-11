@@ -409,7 +409,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	// Create temp HDC as drawing buffer.
 	// if temp HDC or its bitmap fails to create, use supplied HDC without buffer.
 	HDC memDC = CreateCompatibleDC(idata->hDC);
-	HBITMAP memBM, oldBM;
+	HBITMAP memBM = NULL, oldBM = NULL;
 	if (memDC != NULL) { // HDC ok, make Bitmap
 		memBM = CreateCompatibleBitmap(idata->hDC, (rcWin.right - rcWin.left), (rcWin.bottom - rcWin.top));
 		if (memBM != NULL) // Bitmap Ok, select into HDC.

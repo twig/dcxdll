@@ -327,6 +327,12 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 			case XPopupMenu::XPMS_GRADE_REV:
 				lstrcpy( szReturnValue, "graderev" );
 				break;
+			case XPopupMenu::XPMS_VERTICAL:
+				lstrcpy( szReturnValue, "vertical" );
+				break;
+			case XPopupMenu::XPMS_VERTICAL_REV:
+				lstrcpy( szReturnValue, "verticalrev" );
+				break;
 			case XPopupMenu::XPMS_NORMAL:
 				lstrcpy( szReturnValue, "normal" );
 				break;
@@ -337,25 +343,6 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 				lstrcpy( szReturnValue, "unknown" );
 				break;
 		}
-    //if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_OFFICE2003  )
-    //  lstrcpy( szReturnValue, "office2003" );
-    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_OFFICE2003_REV  )
-    //  lstrcpy( szReturnValue, "office2003rev" );
-    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_OFFICEXP  )
-    //  lstrcpy( szReturnValue, "officeXP" );
-    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_ICY  )
-    //  lstrcpy( szReturnValue, "icy" );
-    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_ICY_REV  )
-    //  lstrcpy( szReturnValue, "icyrev" );
-    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_GRADE  )
-    //  lstrcpy( szReturnValue, "grade" );
-    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_GRADE_REV  )
-    //  lstrcpy( szReturnValue, "graderev" );
-    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_NORMAL  )
-    //  lstrcpy( szReturnValue, "normal" );
-    //else if ( p_Menu->getStyle( ) == XPopupMenu::XPMS_CUSTOM  )
-    //  lstrcpy( szReturnValue, "custom" );
-
     return;
   }
   else if ( prop == "exstyle" ) {
@@ -487,22 +474,49 @@ UINT XPopupMenuManager::parseTrackFlags( TString & flags ) {
 
     while ( i < len ) {
 
-      if ( flags[i] == 'b' )
-        iFlags |= TPM_BOTTOMALIGN;
-      else if ( flags[i] == 'c' )
-        iFlags |= TPM_CENTERALIGN;
-      else if ( flags[i] == 'l' )
-        iFlags |= TPM_LEFTALIGN;
-      else if ( flags[i] == 'm' )
-        iFlags |= TPM_LEFTBUTTON;
-      else if ( flags[i] == 'n' )
-        iFlags |= TPM_RIGHTBUTTON;
-      else if ( flags[i] == 'r' )
-        iFlags |= TPM_RIGHTALIGN;
-      else if ( flags[i] == 't' )
-        iFlags |= TPM_TOPALIGN;
-      else if ( flags[i] == 'v' )
-        iFlags |= TPM_VCENTERALIGN;
+			switch (flags[i])
+			{
+			case 'b':
+				iFlags |= TPM_BOTTOMALIGN;
+				break;
+			case 'c':
+				iFlags |= TPM_CENTERALIGN;
+				break;
+			case 'l':
+				iFlags |= TPM_LEFTALIGN;
+				break;
+			case 'm':
+				iFlags |= TPM_LEFTBUTTON;
+				break;
+			case 'n':
+				iFlags |= TPM_RIGHTBUTTON;
+				break;
+			case 'r':
+				iFlags |= TPM_RIGHTALIGN;
+				break;
+			case 't':
+				iFlags |= TPM_TOPALIGN;
+				break;
+			case 'v':
+				iFlags |= TPM_VCENTERALIGN;
+				break;
+			}
+      //if ( flags[i] == 'b' )
+      //  iFlags |= TPM_BOTTOMALIGN;
+      //else if ( flags[i] == 'c' )
+      //  iFlags |= TPM_CENTERALIGN;
+      //else if ( flags[i] == 'l' )
+      //  iFlags |= TPM_LEFTALIGN;
+      //else if ( flags[i] == 'm' )
+      //  iFlags |= TPM_LEFTBUTTON;
+      //else if ( flags[i] == 'n' )
+      //  iFlags |= TPM_RIGHTBUTTON;
+      //else if ( flags[i] == 'r' )
+      //  iFlags |= TPM_RIGHTALIGN;
+      //else if ( flags[i] == 't' )
+      //  iFlags |= TPM_TOPALIGN;
+      //else if ( flags[i] == 'v' )
+      //  iFlags |= TPM_VCENTERALIGN;
 
       ++i;
     }

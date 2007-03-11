@@ -1641,6 +1641,17 @@ BOOL DcxDialog::callAliasEx(char *szReturn, const char *szFormat, ...) {
 	char parms[2048];
 
 	vsprintf(parms, szFormat, args);
+
+	//// create a temp %var for the args
+	//// This solves the ,() in args bugs, but causes problems with the , that we want.
+	//int rCnt = this->getRefCount();
+	//wsprintf(mIRCLink.m_pData, "/set -n %%d%d %s", rCnt, parms);
+	//SendMessage(mIRCLink.m_mIRCHWND, WM_USER +200, 0, mIRCLink.m_map_cnt);
+
+	//wsprintf(mIRCLink.m_pData, "$%s(%s,%%d%d)",
+	//	this->getAliasName().to_chr(),
+	//	this->getName().to_chr(),
+	//	this->getRefCount());
 	wsprintf(mIRCLink.m_pData, "$%s(%s,%s)",
 		this->getAliasName().to_chr(), 
 		this->getName().to_chr(),
@@ -1654,6 +1665,10 @@ BOOL DcxDialog::callAliasEx(char *szReturn, const char *szFormat, ...) {
 
 	this->decRef();
 	va_end(args);
+
+	//// delete temp %var
+	//wsprintf(mIRCLink.m_pData, "/unset %%d%d", rCnt);
+	//SendMessage(mIRCLink.m_mIRCHWND, WM_USER +200, 0, mIRCLink.m_map_cnt);
 
 	if (!lstrcmp(mIRCLink.m_pData, "$false"))
 		return FALSE;
