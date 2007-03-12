@@ -122,6 +122,7 @@ public:
 	void DrawParentsBackground(const HDC hdc, const LPRECT rcBounds = NULL, const HWND dHwnd = NULL);
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai);
+	static HBITMAP resizeBitmap(HBITMAP srcBM, const LPRECT rc);
 
 protected:
 

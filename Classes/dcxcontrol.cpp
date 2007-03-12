@@ -444,9 +444,11 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,input.gettok(6,-1));
 
 			if (m_bitmapBg != NULL) {
+				if (flag.find('R',0)) // now resize image to match control.
+					m_bitmapBg = DcxControl::resizeBitmap(m_bitmapBg, &rc);
 				m_Region = BitmapRegion(m_bitmapBg,tCol,TRUE);
 
-				DeleteObject(m_bitmapBg);
+				DeleteBitmap(m_bitmapBg);
 			}
 			else
 				DCXError("/xdid -R +f","Unable To Load Image file.");
@@ -577,6 +579,51 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 		mIRCError(error.to_chr());
 	}
+}
+
+HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
+{
+	// set result to original bitmap incase resize fails at some point.
+	HBITMAP hRes = srcBM;
+	// create temp hdc to render from
+	HDC srcDC = CreateCompatibleDC(NULL);
+	if (srcDC != NULL) {
+		// select bitmap into new hdc
+		HBITMAP oldSrcBm = (HBITMAP)SelectObject(srcDC, srcBM);
+		// create temp dest hdc to render into.
+		HDC destDC = CreateCompatibleDC(srcDC);
+		if (destDC != NULL) {
+			int w = (rc->right - rc->left), h = (rc->bottom - rc->top);
+			// create dest bitmap.
+			HBITMAP newBM = CreateCompatibleBitmap(destDC,w,h);
+			if (newBM != NULL) {
+				// select dest bitmap into dest hdc
+				HBITMAP oldDestBm = (HBITMAP)SelectObject(destDC, newBM);
+				// get source bitmap info.
+				BITMAP bm;
+				GetObject(srcBM,sizeof(bm),&bm);
+				// resize bitmap, render into dest hdc/bitmap
+				if (StretchBlt(destDC, 0, 0, w, h, srcDC, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY)) {
+					// set the return bitmap if resize worked.
+					hRes = newBM;
+					// set dest hdc back to orig bitmap.
+					SelectObject(destDC, oldDestBm);
+				}
+				else
+					DeleteBitmap(SelectObject(destDC, oldDestBm)); // resize failed, delete dest bitmap.
+			}
+			// delete dest hdc
+			DeleteDC(destDC);
+		}
+		// set source hdc back to orig bitmap.
+		SelectObject(srcDC, oldSrcBm);
+		// delete source hdc
+		DeleteDC(srcDC);
+	}
+	// if result != original bitmap, delete original bitmap.
+	if (hRes != srcBM)
+		DeleteBitmap(srcBM);
+	return hRes;
 }
 
 /*!
