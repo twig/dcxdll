@@ -361,17 +361,30 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	else if ( flags.switch_flags[4] ) {
 		EnableWindow( this->m_Hwnd, TRUE );
 	}
-	// xdid -h [NAME] [ID]
-	else if ( flags.switch_flags[7] ) {
-		ShowWindow( this->m_Hwnd, SW_HIDE );
+	// xdid -h [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
+	else if (flags.switch_flags[7]) {
+		if (numtok > 4)
+			AnimateWindow(this->m_Hwnd,
+				input.gettok(5).to_int(),
+				AW_HIDE | DcxDialog::getAnimateStyles(input.gettok(4)));
+		else
+			ShowWindow(this->m_Hwnd, SW_HIDE);
+
 		RECT rc;
 		GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
 		if (this->m_pParentDialog->updateLayout(rc))
 			this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
 	}
-	// xdid -s [NAME] [ID]
+	// xdid -s [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
 	else if ( flags.switch_flags[18] ) {
-		ShowWindow( this->m_Hwnd, SW_SHOW );
+		if (numtok > 4) {
+			AnimateWindow(this->m_Hwnd,
+				input.gettok(5).to_int(),
+				AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok(4)));
+		}
+		else
+			ShowWindow(this->m_Hwnd, SW_SHOW);
+
 		RECT rc;
 		GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
 		if (this->m_pParentDialog->updateLayout(rc))

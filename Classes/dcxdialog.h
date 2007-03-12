@@ -118,7 +118,7 @@ public:
 	bool SetShadowPosition(int NewXOffset = 5, int NewYOffset = 5);
 	bool SetShadowColor(COLORREF NewColor = 0);
     
-
+	static DWORD getAnimateStyles( TString & flags );
 
 protected:
 
@@ -178,7 +178,6 @@ protected:
 	/* **** */
 
   static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
-  static DWORD getAnimateStyles( TString & flags );
 
   static UINT parseLayoutFlags( TString & flags );
   static UINT parseBkgFlags( TString & flags );
