@@ -366,7 +366,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		if (numtok > 4)
 			AnimateWindow(this->m_Hwnd,
 				input.gettok(5).to_int(),
-				AW_HIDE | DcxDialog::getAnimateStyles(input.gettok(4)));
+				(AW_HIDE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_ACTIVATE);
 		else
 			ShowWindow(this->m_Hwnd, SW_HIDE);
 
@@ -380,7 +380,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		if (numtok > 4) {
 			AnimateWindow(this->m_Hwnd,
 				input.gettok(5).to_int(),
-				AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok(4)));
+				(AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_HIDE);
 		}
 		else
 			ShowWindow(this->m_Hwnd, SW_SHOW);
@@ -739,11 +739,6 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 	else if ( prop == "pos" ) {
 		RECT rc;
 		GetWindowRect( this->m_Hwnd, &rc );
-		//POINT pt;
-		//pt.x = rc.left;
-		//pt.y = rc.top;
-		//ScreenToClient( GetParent( this->m_Hwnd ), &pt );
-		//wsprintf( szReturnValue, "%d %d %d %d", pt.x, pt.y, rc.right-rc.left, rc.bottom-rc.top );
 		MapWindowPoints(NULL, GetParent( this->m_Hwnd ), (LPPOINT)&rc, 2);
 
 		wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
@@ -752,12 +747,6 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 	else if ( prop == "dpos" ) {
 		RECT rc;
 		GetWindowRect( this->m_Hwnd, &rc );
-		//POINT pt;
-		//pt.x = rc.left;
-		//pt.y = rc.top;
-		//ScreenToClient( this->m_pParentDialog->getHwnd( ), &pt );
-
-		//wsprintf( szReturnValue, "%d %d %d %d", pt.x, pt.y, rc.right-rc.left, rc.bottom-rc.top );
 		MapWindowPoints(NULL, this->m_pParentDialog->getHwnd( ), (LPPOINT)&rc, 2);
 
 		wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
@@ -770,7 +759,6 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 	else if ( prop == "mouse" ) {
 		POINT pt;
 		GetCursorPos( &pt );
-		//ScreenToClient( this->m_Hwnd, &pt );
 		MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
 		wsprintf( szReturnValue, "%d %d", pt.x, pt.y );
 		return TRUE;
