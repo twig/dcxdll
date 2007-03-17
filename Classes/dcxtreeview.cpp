@@ -758,19 +758,15 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		UINT iFlags = this->parseIconFlagOptions( input.gettok( 4 ) );
 
 		HIMAGELIST himl;
-		HICON icon;
+		HICON icon = NULL;
 
 		int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
-		//BOOL isGray = (input.gettok( 4 ).find('g', 0) ? TRUE : FALSE);
 
 		if (this->m_iIconSize > 16)
 			icon = dcxLoadIcon(index, filename, TRUE, input.gettok( 4 ));
 		else	
 			icon = dcxLoadIcon(index, filename, FALSE, input.gettok( 4 ));
-
-		//if (isGray)
-		//	icon = CreateGrayscaleIcon(icon);
 
 		if (iFlags & TVIT_NORMAL) {
 			if ((himl = this->getImageList(TVSIL_NORMAL)) == NULL) {
@@ -781,7 +777,6 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			}
 
 			ImageList_AddIcon(himl, icon);
-			DestroyIcon(icon);
 		}
 
 		if (iFlags & TVIT_STATE) {
@@ -793,8 +788,9 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			}
 
 			ImageList_AddIcon(himl, icon);
-			DestroyIcon(icon);
 		}
+		if (icon != NULL)
+			DestroyIcon(icon);
 	}
   // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
   else if ( flags.switch_flags[24] && numtok > 3 ) {

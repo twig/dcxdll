@@ -1217,57 +1217,57 @@ void DcxListView::parseCommandRequest(TString &input) {
 		HICON icon;
 		int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
-		//BOOL isGray = (input.gettok( 4 ).find('g', 0) ? TRUE : FALSE);
 
 		if (iFlags & LVSIL_SMALL) {
-			if ((himl = this->getImageList(LVSIL_NORMAL)) == NULL) {
-				himl = this->createImageList(TRUE);
 
-				if (himl)
-					this->setImageList(himl, LVSIL_NORMAL);
+			icon = dcxLoadIcon(index, filename, true, tflags);
+
+			if (icon != NULL) {
+				if ((himl = this->getImageList(LVSIL_NORMAL)) == NULL) {
+					himl = this->createImageList(TRUE);
+
+					if (himl != NULL)
+						this->setImageList(himl, LVSIL_NORMAL);
+				}
+				if (himl != NULL)
+					ImageList_AddIcon(himl, icon);
+				DestroyIcon(icon);
+			}
+			else {
+				DCXError("/xdid -w", "Unable to Load Icon");
+				return;
 			}
 
-			icon = dcxLoadIcon(index, filename, TRUE, tflags);
-
-			//if (isGray)
-			//	icon = CreateGrayscaleIcon(icon);
-
-			ImageList_AddIcon(himl, icon);
-			DestroyIcon(icon);
-
-			if ((himl = this->getImageList(LVSIL_SMALL)) == NULL) {
-				himl = this->createImageList(FALSE);
-
-				if (himl)
-					this->setImageList(himl, LVSIL_SMALL);
-			}
-
-			//ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
-
-			//if (isGray)
-			//	icon = CreateGrayscaleIcon(icon);
 			icon = dcxLoadIcon(index, filename, false, tflags);
 
-			ImageList_AddIcon(himl, icon);
-			DestroyIcon(icon);
+			if (icon != NULL) {
+				if ((himl = this->getImageList(LVSIL_SMALL)) == NULL) {
+					himl = this->createImageList(FALSE);
+
+					if (himl)
+						this->setImageList(himl, LVSIL_SMALL);
+				}
+				if (himl != NULL)
+					ImageList_AddIcon(himl, icon);
+				DestroyIcon(icon);
+			}
 		}
 
 		if (iFlags & LVSIL_STATE) {
-			if ((himl = this->getImageList(LVSIL_STATE)) == NULL) {
-				himl = this->createImageList(FALSE);
-
-				if (himl)
-					this->setImageList(himl, LVSIL_STATE);
-			}
 
 			icon = dcxLoadIcon(index, filename, false, tflags);
-			//ExtractIconEx(filename.to_chr(), index, 0, &icon, 1);
 
-			//if (isGray)
-			//	icon = CreateGrayscaleIcon(icon);
+			if (icon != NULL) {
+				if ((himl = this->getImageList(LVSIL_STATE)) == NULL) {
+					himl = this->createImageList(FALSE);
 
-			ImageList_AddIcon(himl, icon);
-			DestroyIcon(icon);
+					if (himl)
+						this->setImageList(himl, LVSIL_STATE);
+				}
+				if (himl != NULL)
+					ImageList_AddIcon(himl, icon);
+				DestroyIcon(icon);
+			}
 		}
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
@@ -2024,6 +2024,9 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 										if ( ri->m_cBg != -1 )
 											lplvcd->clrTextBk = ri->m_cBg;
+
+										//DrawFrameControl(lplvcd->nmcd.hdc,&lplvcd->nmcd.rc,DFC_BUTTON,DFCS_BUTTONCHECK|DFCS_CHECKED);
+										//return CDRF_SKIPDEFAULT;
 
 										if (ri->m_dFlags & LVIS_UNDERLINE || ri->m_dFlags & LVIS_BOLD || ri->m_dFlags & LVIS_ITALIC) {
 											HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
