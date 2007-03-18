@@ -1157,7 +1157,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 									RECT rc;
 									this->getItemRect( iButton, &rc );
 									MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rc, 2);
-									this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", this->getUserID( ), iButton+1, rc.left, rc.top, rc.right, rc.bottom );
+									this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", this->getUserID( ), iButton+1, rc.left, rc.bottom, rc.right, rc.top );
 									//POINT pt2 = pt;
 									//pt.x = rc.left; 
 									//pt.y = rc.bottom;
