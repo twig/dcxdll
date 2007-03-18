@@ -102,6 +102,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
 	if ( flags.switch_flags[1] && numtok > 2 ) {
 
 		TString filename(input.gettok( 3, -1 ));
+		filename.trim();
 		HBITMAP hBitmap = NULL;
 		if (filename != "none") { // if name == `none` then remove previous image.
 			if (IsFile(filename)) {
