@@ -89,9 +89,6 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 , m_zLayerCurrent(0)
 , m_popup(NULL)
 , m_hOldWindowProc(NULL)
-//#ifdef DCX_USE_GDIPLUS
-//, m_pImage(NULL)
-//#endif
 {
 	this->addStyle(WS_CLIPCHILDREN);
 
@@ -266,32 +263,8 @@ void DcxDialog::PreloadData() {
 		this->m_bitmapBg = NULL;
 	}
 
-//#ifdef DCX_USE_GDIPLUS
-//	if (this->m_pImage != NULL) {
-//		delete this->m_pImage;
-//		this->m_pImage = NULL;
-//	}
-//#endif
 }
 
-//#ifdef DCX_USE_GDIPLUS
-//bool DcxDialog::LoadGDIPlusImage(TString &filename)
-//{
-//	if (!IsFile(filename)) {
-//		DCXError("LoadGDIPlusImage","Unable to Access File");
-//		return false;
-//	}
-//	this->m_pImage = new Image(filename.to_wchr(),TRUE);
-//	if (this->m_pImage == NULL) return false; // couldnt allocate image object.
-//	Status status = this->m_pImage->GetLastStatus();
-//	if (status != Ok) { // Image failed to load correctly
-//		DCXError("LoadGDIPlusImage", GetLastStatusStr(status));
-//		PreloadData();
-//		return false;
-//	}
-//	return true;
-//}
-//#endif
 /*!
  * \brief blah
  *
@@ -442,19 +415,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			filename.trim();
 
 
-			if (filename != "none") {
-//#ifdef DCX_USE_GDIPLUS
-//				// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
-//				if (mIRCLink.m_bUseGDIPlus) {
-//					if (!LoadGDIPlusImage(filename))
-//						DCXError("/xdialog -g", "Unable to load Image with GDI+");
-//				}
-//				else
-//					this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg, filename);
-//#else
+			if (filename != "none")
 				this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg, filename);
-//#endif
-			}
 		}
 
 		//InvalidateRect(this->m_Hwnd, NULL, TRUE);
@@ -2524,22 +2486,6 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPRECT rwnd)
 	else
 		FillRect(hdc, rwnd, GetSysColorBrush(COLOR_3DFACE));
 
-//#ifdef DCX_USE_GDIPLUS
-//	if (p_this->m_pImage != NULL) {
-//		Graphics Gfx(hdc);
-//		Gfx.SetCompositingQuality(CompositingQualityHighQuality);
-//		Gfx.SetCompositingMode(CompositingModeSourceOver);
-//		Gfx.SetInterpolationMode(InterpolationModeHighQualityBicubic);
-//		Gfx.SetSmoothingMode(SmoothingModeAntiAlias);
-//		Color bg(0,0,0);
-//		Gfx.Clear(bg);
-//		if (p_this->m_uStyleBg & DBS_BKGSTRETCH)
-//			Gfx.DrawImage(p_this->m_pImage, rwnd->left, rwnd->top, rwnd->right, rwnd->bottom);
-//		else
-//			Gfx.DrawImage(p_this->m_pImage, rwnd->left, rwnd->top);
-//		return;
-//	}
-//#endif
 	if (p_this->m_bitmapBg == NULL)
 		return;
 

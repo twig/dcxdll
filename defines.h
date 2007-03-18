@@ -304,7 +304,7 @@ HWND GetHwndFromString(const char *str);
 HWND FindOwner(const TString & data, const HWND defaultWnd);
 BOOL CopyToClipboard(const HWND owner, const TString & str);
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
-HICON dcxLoadIcon(const int index, TString &filename, const bool large = false, const TString &flags = "");
+HICON dcxLoadIcon(const int index, TString &filename, const bool large = false, const TString &flags = "+");
 HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
 bool ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
