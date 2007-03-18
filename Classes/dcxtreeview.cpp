@@ -122,6 +122,8 @@ void DcxTreeView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
       *Styles |= TVS_SINGLEEXPAND;
     else if ( styles.gettok( i ) == "checkbox" ) 
       *ExStyles |= TVS_CHECKBOXES;
+		else if ( styles.gettok( i ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
     i++;
   }
@@ -1961,6 +1963,29 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				DragFinish(files);
 				break;
 			}
+		case WM_PAINT:
+			{
+				if (!this->m_bAlphaBlend)
+					break;
+				PAINTSTRUCT ps;
+				HDC hdc;
+
+				hdc = BeginPaint( this->m_Hwnd, &ps );
+
+				LRESULT res = 0L;
+				bParsed = TRUE;
+
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+				this->FinishAlphaBlend(ai);
+
+				EndPaint( this->m_Hwnd, &ps );
+				return res;
+			}
+			break;
     case WM_DESTROY:
       {
         delete this;
