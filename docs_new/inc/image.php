@@ -23,6 +23,7 @@ function get_xdid_image(&$XDID) {
                         'a' => "Anti-aliased mode.",
                         'b' => "Enable support for PNG per-pixel-alpha channels.",
                         'h' => "High quality mode (Slower).",
+                        't' => "Tiled image.",
                     ),
                 ),
                 'FILENAME' => 'Image filename.',
