@@ -105,7 +105,8 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
 		HBITMAP hBitmap = NULL;
 		if (filename != "none") { // if name == `none` then remove previous image.
 			if (IsFile(filename)) {
-				hBitmap = (HBITMAP) LoadImage( GetModuleHandle( NULL ), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
+				//hBitmap = (HBITMAP) LoadImage( GetModuleHandle( NULL ), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
+				hBitmap = dcxLoadBitmap(hBitmap, filename);
 				if (hBitmap == NULL)
 					DCXError("/xpopup -b", "Unable to Load Image");
 			}
@@ -501,22 +502,6 @@ UINT XPopupMenuManager::parseTrackFlags( TString & flags ) {
 				iFlags |= TPM_VCENTERALIGN;
 				break;
 			}
-      //if ( flags[i] == 'b' )
-      //  iFlags |= TPM_BOTTOMALIGN;
-      //else if ( flags[i] == 'c' )
-      //  iFlags |= TPM_CENTERALIGN;
-      //else if ( flags[i] == 'l' )
-      //  iFlags |= TPM_LEFTALIGN;
-      //else if ( flags[i] == 'm' )
-      //  iFlags |= TPM_LEFTBUTTON;
-      //else if ( flags[i] == 'n' )
-      //  iFlags |= TPM_RIGHTBUTTON;
-      //else if ( flags[i] == 'r' )
-      //  iFlags |= TPM_RIGHTALIGN;
-      //else if ( flags[i] == 't' )
-      //  iFlags |= TPM_TOPALIGN;
-      //else if ( flags[i] == 'v' )
-      //  iFlags |= TPM_VCENTERALIGN;
 
       ++i;
     }
