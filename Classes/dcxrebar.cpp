@@ -786,7 +786,7 @@ LRESULT DcxReBar::minBand( const UINT uBand, const BOOL fIdeal ) {
  */
 LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
   switch( uMsg ) {
-    case WM_NOTIFY : 
+    case WM_NOTIFY:
       {
         LPNMHDR hdr = (LPNMHDR) lParam;
 
@@ -892,7 +892,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
-    case WM_NOTIFY : 
+    case WM_NOTIFY:
       {
         LPNMHDR hdr = (LPNMHDR) lParam;
 
@@ -908,8 +908,8 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
-    case WM_HSCROLL: 
-    case WM_VSCROLL: 
+    case WM_HSCROLL:
+    case WM_VSCROLL:
     case WM_COMMAND:
       {
 				if (IsWindow((HWND) lParam)) {
@@ -1028,5 +1028,5 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       break;
   }
 
-  return 0L;
+  return lRes;
 }

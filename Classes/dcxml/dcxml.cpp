@@ -8,7 +8,7 @@ void parseIcons(TiXmlElement* root,char *dname, const char *type, const char *id
 	TiXmlElement* icons = root->FirstChildElement("icons");
 	TiXmlElement* child = 0;
 	TiXmlElement* icon = 0; 
-	TString cmd = "";
+	TString cmd;
 	for( child = icons->FirstChildElement("icon"); child; child = child->NextSiblingElement()) {
 		const char *tempid = child->Attribute("id");
 		tempid = (tempid) ? tempid : "0";
@@ -40,7 +40,7 @@ void parseItems(TiXmlElement* element,char *dname,const char *parentid,int depth
 	int item = 0;
 	int cell = 0;
 	TiXmlElement* child = 0;
-	TString cmd = "";
+	TString cmd;
 	for( child = element->FirstChildElement(); child; child = child->NextSiblingElement() ) {
 		cell++;
 		TiXmlElement* parent = child->Parent()->ToElement();
@@ -123,7 +123,7 @@ void parseItems(TiXmlElement* element,char *dname,const char *parentid,int depth
 					dname,parentid,pathx,flags,icon,icon,state,integral,colour,bgcolour,caption,tooltip);
 				mIRCcom(cmd.to_chr());
 				parseItems(child,dname,parentid,depth,pathx);
-				cmd.sprintf("");
+				cmd = "";
 			}
 
 			mIRCcom(cmd.to_chr());
@@ -161,9 +161,9 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 		else if ((!tId) && (0==lstrcmp(elem, "pane"))) { 
 			tId = passedid.to_chr();
 		}
-		TString cmd = "";
+		TString cmd;
 		const char *id = tId;
-		TString idpass = TString(id);
+		TString idpass(id);
 		const char *tHeight = child->Attribute("height");
 		const char *height = (tHeight) ? tHeight : "0";
 		const char *tWidth = child->Attribute("width");
@@ -284,16 +284,16 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 			}
 			else if (0==lstrcmp(type, "text")) { 
 				if (caption) { 
-					TString mystring = TString(caption);
+					TString mystring(caption);
 					if (mystring.left(2) == "\r\n") mystring = mystring.right(-2);
 					else if (mystring.left(1) == "\n") mystring = mystring.right(-1);
 					mystring.replace("\t","");
-					TString printstring = "";
+					TString printstring;
 					int textspace = 0;
 					while(mystring.gettok(1," ") != "") { 
 						printstring.addtok(mystring.gettok(1," ").to_chr());
 						if (printstring.len() > 800) { 
-							cmd.sprintf("//xdid -a %s %s %i %s",dname,id,textspace,printstring.gettok(1,-1));
+							cmd.sprintf("//xdid -a %s %s %i %s",dname,id,textspace,printstring.gettok(1,-1).to_chr());
 							mIRCcom(cmd.to_chr());
 							printstring = "";
 							textspace = 1;
@@ -301,30 +301,30 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 						mystring.deltok(1," ");
 					}
 					if (printstring != "") { 
-						cmd.sprintf("//xdid -a %s %s %i %s",dname,id,textspace,printstring.gettok(1,-1));
+						cmd.sprintf("//xdid -a %s %s %i %s",dname,id,textspace,printstring.gettok(1,-1).to_chr());
 						mIRCcom(cmd.to_chr());
 					}
 				}
 			}
 			else if (0==lstrcmp(type, "edit")) { 
 				if (caption) { 
-					TString mystring = TString(caption);
+					TString mystring(caption);
 					if (mystring.left(2) == "\r\n") mystring = mystring.right(-2);
 					else if (mystring.left(1) == "\n") mystring = mystring.right(-1);
 					mystring.replace("\t","");
 					mystring.replace("\n","\r\n");
-					TString printstring = "";
+					TString printstring;
 					while(mystring.gettok(1," ") != "") { 
 						printstring.addtok(mystring.gettok(1," ").to_chr());
 						if (printstring.len() > 800) { 
-							cmd.sprintf("//xdid -a %s %s %s",dname,id,printstring.gettok(1,-1));
+							cmd.sprintf("//xdid -a %s %s %s",dname,id,printstring.gettok(1,-1).to_chr());
 							mIRCcom(cmd.to_chr());
 							printstring = "";
 						}
 						mystring.deltok(1," ");
 					}
 					if (printstring != "") { 
-						cmd.sprintf("//xdid -a %s %s %s",dname,id,printstring.gettok(1,-1));
+						cmd.sprintf("//xdid -a %s %s %s",dname,id,printstring.gettok(1,-1).to_chr());
 						mIRCcom(cmd.to_chr());
 					}
 				}
@@ -351,7 +351,7 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 
 			//STEP 3: APPLY CLA FOR CONTROL
 			if (step3) { 
-				TString cmd = "";
+				cmd = "";
 				if ((0==lstrcmp(type, "panel")) || (0==lstrcmp(type, "box"))) {
 					cmd.sprintf("//xdid -l %s %s root $chr(9) +p%s 0 0 0 0", dname,id,cascade);
 					mIRCcom(cmd.to_chr());
@@ -375,7 +375,7 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 						else if (0==lstrcmp(parent->Attribute("type"), "box"))
 							cmd.sprintf("//xdid -l %s %s cell %s \t +%s%s%si %s %s %s %s",
 								dname,parentid,claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
-						else cmd.sprintf("");
+						else cmd = "";
 					}
 				}
 				mIRCcom(cmd.to_chr());
@@ -411,7 +411,7 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 					else if (0==lstrcmp(parenttype, "box"))
 						cmd.sprintf("//xdid -l %s %s cell %s \t +p%s 0 %s 0 0", dname,parentid,claPath,cascade,weigth);
 				}
-				else cmd.sprintf("");
+				else cmd = "";
 			}
 			mIRCcom(cmd.to_chr());
 		}
@@ -492,7 +492,7 @@ mIRC(dcxml) {
 			DCXError("/dcxml","Dialog name not found in <dialogs>");
 			return 0;
 		}
-		TString cmd = "";
+		TString cmd;
 		const char *tCascade = dcxmlDialog->Attribute("cascade");
 		const char *cascade = (tCascade) ? tCascade : "v";
 		const char *tMargin = dcxmlDialog->Attribute("margin");
