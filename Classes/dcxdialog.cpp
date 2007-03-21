@@ -768,10 +768,14 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 			if (ctrl) { 
 				ShowWindow(ctrl->getHwnd(), SW_HIDE);
-				RECT rc;
-				GetClientRect(this->getHwnd(), &rc);
-				this->updateLayout(rc);
-				this->redrawWindow();
+				if (this->m_pLayoutManager->getRoot()) {
+					RECT rc;
+					GetClientRect(this->getHwnd(), &rc);
+					this->updateLayout(rc);
+					TString cmd = "";
+					cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
+					mIRCcom(cmd.to_chr());
+				}
 			}
 
 			// append the item to the end of the list
@@ -841,10 +845,15 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			// if the selected control exists, show control
 			if (ctrl) { 
 				ShowWindow(ctrl->getHwnd(), SW_SHOW);
-				RECT rc;
-				GetClientRect(this->getHwnd(), &rc);
-				this->updateLayout(rc);
-				this->redrawWindow();
+				if (this->m_pLayoutManager->getRoot()) {
+					RECT rc;
+					GetClientRect(this->getHwnd(), &rc);
+					this->updateLayout(rc);
+					this->redrawWindow();
+					TString cmd = "";
+					cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
+					mIRCcom(cmd.to_chr());
+				}
 			}
 			else
 				dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Invalid control ID");
@@ -2035,6 +2044,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			}
 
 			while ((bars = FindWindowEx(mHwnd, bars, DCX_STATUSBARCLASS, NULL)) != NULL) {
+				SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
+			}
+			while ((bars = FindWindowEx(mHwnd, bars, DCX_PANELCLASS, NULL)) != NULL) {
 				SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
 			}
 

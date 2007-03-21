@@ -125,6 +125,18 @@ void mIRCcom(const char *data) {
 	lstrcpy(mIRCLink.m_pData, data);
 	SendMessage(mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt);
 }
+/*!
+* \brief Requests mIRC to perform command using vsprintf.
+*/
+void mIRCcomEX(const char *szFormat, ...) {
+	va_list args;
+	va_start(args, szFormat);
+
+	char msg[2048];
+	vsprintf(msg, szFormat, args);
+	mIRCcom(msg);
+	va_end(args);
+}
 
 /*!
 * \brief Converts mIRC long time to C++ SYSTEMTIME object.

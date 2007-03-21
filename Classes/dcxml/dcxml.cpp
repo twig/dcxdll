@@ -4,6 +4,198 @@
 /*
 dcxml [-FLAGS] [NAME] [DNAME] "[PATH]"
 */
+class DCXML {
+public:
+	TiXmlElement* root; //!< dcxml root element
+	TiXmlElement* dialogs; //!< dcxml dialogs collection element
+	TiXmlElement* dialog; //!< dialog element
+	TiXmlElement* element; //!< current Element
+	TiXmlElement* parent; //!< current Element's parent
+	TString dname;
+	int controls; //!< Simple counter for controls
+
+	//Attribute vars
+		int id;
+		int parentid;
+		const char *elem;
+		const char *parentelem;
+		const char *parenttype;
+		const char *type;
+		const char *weigth;
+		const char *height;
+		const char *width;
+		const char *margin;
+		const char *styles;
+		const char *caption;
+		const char *tooltip;
+		const char *cascade;
+		const char *colour;
+		const char *icon;
+		const char *tFlags;
+		const char *integral;
+		const char *bgcolour;
+		const char *state;
+		const char *indent;
+		const char *src;
+		const char *cells;
+		const char *rebarMinHeight;
+		const char *rebarMinWidth;
+		const char *iconsize;
+	//tempvar to dump attribute values in;
+	const char *temp;
+	TString cmd;
+
+	DCXML() {
+		root = 0; 
+		dialogs = 0; 
+		dialog = 0; 
+		element = 0;
+		controls = 0;
+	}
+	void parseAttributes() {
+		elem = element->Value();
+		parentelem = parent->Value();
+		parenttype = (temp = parent->Attribute("type")) ? temp : "panel";
+		type = (temp = element->Attribute("type")) ? temp : "panel";
+		weigth = (temp = element->Attribute("weigth")) ? temp : "1";
+		height = (temp = element->Attribute("height")) ? temp : "0";
+		width = (temp = element->Attribute("width")) ? temp : "0";
+		margin = (temp = element->Attribute("margin")) ? temp : "0 0 0 0";
+		styles = (temp = element->Attribute("styles")) ? temp : "";
+		caption = (temp = element->Attribute("caption")) ? temp : element->GetText();
+		tooltip = (temp = element->Attribute("tooltip")) ? temp : "";
+		cascade = (temp = element->Attribute("cascade")) ? temp : "";
+		colour = (temp = element->Attribute("colour")) ? temp : "0";
+		icon = (temp = element->Attribute("icon")) ? temp : "0";
+		integral = (temp = element->Attribute("integral")) ? temp : "0";
+		bgcolour = (temp = element->Attribute("bgcolour")) ? temp : "0";
+		state = (temp = element->Attribute("state")) ? temp : "0";
+		indent = (temp = element->Attribute("indent")) ? temp : "0";
+		//flags attribute defaults different per type/item
+		tFlags = element->Attribute("flags");
+		src = (temp = element->Attribute("src")) ? temp : "";
+		cells = (temp = element->Attribute("cells")) ? temp : "-1";
+		rebarMinHeight = (temp = element->Attribute("minheight")) ? temp : "0";
+		rebarMinWidth = (temp = element->Attribute("minwidth")) ? temp : "0";
+		iconsize = (temp = element->Attribute("iconsize")) ? temp : "16";
+	}
+	void parseDialog(int depth=0,char *claPath = "root",int passedid = 2000) { 
+		TiXmlElement* child = 0;
+		int control = 0;
+		int cCla = 0;
+		int cell = 0;
+		for( child = element->FirstChildElement(); child; child = child->NextSiblingElement() ) {
+			cell++;
+			//STEP 1: SET ELEMENT AND PARENTELEMENT
+			parent = child->Parent()->ToElement();
+			element = child->ToElement();
+			
+			//STEP 2: PARSE ATTRIBUTES OF ELEMENTS
+			parseAttributes();
+			if (0==lstrcmp(elem, "control")) controls++;
+			if (0==lstrcmp(elem, "control")) id = (element->QueryIntAttribute("id",&id) == TIXML_SUCCESS) ? id : 2000 - controls;
+			else id = passedid;
+			passedid = id;
+			mIRCcomEX("//echo -a dname:%s type:%s id:%i",dname,type,id);
+			mIRCcomEX("//echo -a id:%i.",id);
+			
+			//STEP 3: IF CONTROL CREATE IT AND ITS ITEMS
+			if (0==lstrcmp(elem, "control")) {
+			control++; cCla++;
+				//check how to insert the control in the parent Control/Dialog
+				//If parentNode is pane loop untill parentNode is not a pane
+				while (parent) { 
+					if (0==lstrcmp(parentelem, "pane")) { 
+						TiXmlElement* parentFOR2 = parent;
+						parent = parentFOR2->Parent()->ToElement();
+						parentelem = parent->Value();
+					}
+					else break;	
+				}
+				parenttype = (temp = parent->Attribute("type")) ? temp : "panel";
+				parentid = (parent->QueryIntAttribute("id",&parentid) == TIXML_SUCCESS) ? parentid : passedid;
+				//if (0==lstrcmp(parentelem, "dialog"))
+					//mIRCcomEX("//echo -a xdialog -c %s %i",dname,id);
+			}
+			mIRCcomEX("//echo -a current depth:%i type:%s id:%i",depth,type,id);
+			parseDialog(depth+1);  
+		}
+	} 
+
+protected:
+
+};
+mIRC(dcxml) {
+	TString input(data);
+	int numtok = input.numtok( );
+	
+	if (numtok < 3) {
+		DCXError("/dcxml", "Insuffient parameters");
+		return 1;
+	}
+
+	TString flags(input.gettok( 1 ));
+	flags.trim();
+
+	if ((flags[0] != '-') || (flags.len() < 2)) {
+		DCXError("/dcxml","No Flags Found");
+		return 0;
+	}
+
+	if ((flags.find('p', 0) == 0) && (flags.find('d', 0) == 0)) { 
+		DCXError("/dcxml","Unknown Flags");
+		return 0;
+	}
+	DCXML oDcxml;
+	TiXmlBase::SetCondenseWhiteSpace( false ); 
+	TiXmlDocument doc(input.gettok(2,"\"").to_chr());
+	bool dcxmlFile = doc.LoadFile();
+	if (!dcxmlFile) { 
+		DCXError("/dcxml","Could Not Load File");
+		return 0;
+	}
+	oDcxml.root = doc.FirstChildElement("dcxml");
+	if (!oDcxml.root) {
+		DCXError("/dcxml","Root Element Is Not DCXML");
+		return 0;
+	}
+	
+	if (flags.find('d', 0)) { 
+
+		oDcxml.dialogs = oDcxml.root->FirstChildElement("dialogs");
+		if (!oDcxml.dialogs) { 
+			DCXError("/dcxml","No Dialogs Group");
+			return 0;
+		}
+		for( oDcxml.element = oDcxml.dialogs->FirstChildElement("dialog"); oDcxml.element; oDcxml.element = oDcxml.element->NextSiblingElement() ) {
+			const char *name = oDcxml.element->Attribute("name");
+			if (0==strcmp(name, input.gettok(2," ").to_chr())) { 
+				oDcxml.dialog = oDcxml.element;
+				break;
+			}
+		}
+		if (!oDcxml.dialog) { 
+			DCXError("/dcxml","Dialog name not found in <dialogs>");
+			return 0;
+		}
+		oDcxml.dname = input.gettok(3," ").to_chr();
+		oDcxml.temp = oDcxml.dialog->Attribute("cascade");
+		const char *cascade = (oDcxml.temp) ? oDcxml.temp : "v";
+		oDcxml.temp = oDcxml.dialog->Attribute("margin");
+		const char *margin = (oDcxml.temp) ? oDcxml.temp : "0 0 0 0";
+		oDcxml.temp = oDcxml.dialog->Attribute("title");
+		const char *border = oDcxml.dialog->Attribute("border");
+		
+		if (border) mIRCcomEX("/xdialog -b %s +%s", oDcxml.dname, border);
+		mIRCcomEX("/echo -a xdialog -l %s space root \t + %s", oDcxml.dname, margin);
+		mIRCcomEX("/xdialog -l %s root \t +p%s 0 0 0 0",oDcxml.dname, cascade);
+		mIRCcomEX("/xdialog -l %s space root \t + %s", oDcxml.dname, margin);
+		oDcxml.parseDialog();
+		mIRCcomEX("/.timer 1 0 xdialog -l %s update",oDcxml.dname);
+		return 1;
+	}
+	return 1;
+}
 void parseIcons(TiXmlElement* root,char *dname, const char *type, const char *id) { 
 	TiXmlElement* icons = root->FirstChildElement("icons");
 	TiXmlElement* child = 0;
@@ -432,88 +624,3 @@ void parseDialog(TiXmlElement* root,TiXmlElement* element, char *dname, int dept
 		if (goDeeper) parseDialog(root,child->ToElement(), dname, depth+1,claPathx,idpass);  
 	}
 } 
-
-
-
-mIRC(dcxml) {
-	TString input(data);
-	int numtok = input.numtok( );
-	
-	if (numtok < 3) {
-		DCXError("/dcxml", "Insuffient parameters");
-		return 1;
-	}
-
-	TString flags(input.gettok( 1 ));
-	flags.trim();
-
-	if ((flags[0] != '-') || (flags.len() < 2)) {
-		DCXError("/dcxml","No Flags Found");
-		return 0;
-	}
-
-	if ((flags.find('p', 0) == 0) && (flags.find('d', 0) == 0)) { 
-		DCXError("/dcxml","Unknown Flags");
-		return 0;
-	}
-	TiXmlBase::SetCondenseWhiteSpace( false ); 
-	TiXmlDocument doc(input.gettok(2,"\"").to_chr());
-	bool dcxmlFile = doc.LoadFile();
-	if (!dcxmlFile) { 
-		DCXError("/dcxml","Could Not Load File");
-		return 0;
-	}
-
-	TiXmlElement *dcxmlRoot = 0;
-	dcxmlRoot = doc.FirstChildElement("dcxml");
-	if (!dcxmlRoot) {
-		DCXError("/dcxml","Root Element Is Not DCXML");
-		return 0;
-	}
-	
-	if (flags.find('d', 0)) { 
-
-		TiXmlElement *dcxmlDialogs = dcxmlRoot->FirstChildElement("dialogs");
-		if (!dcxmlDialogs) { 
-			DCXError("/dcxml","No Dialogs Group");
-			return 0;
-		}
-
-		TiXmlElement* child = 0;
-		TiXmlElement* dcxmlDialog = 0;
-		for( child = dcxmlDialogs->FirstChildElement("dialog"); child; child = child->NextSiblingElement() ) {
-			const char *name = child->Attribute("name");
-			if (0==strcmp(name, input.gettok(2," ").to_chr())) { 
-				dcxmlDialog = child;
-				break;
-			}
-		}
-		if (!dcxmlDialog) { 
-			DCXError("/dcxml","Dialog name not found in <dialogs>");
-			return 0;
-		}
-		TString cmd;
-		const char *tCascade = dcxmlDialog->Attribute("cascade");
-		const char *cascade = (tCascade) ? tCascade : "v";
-		const char *tMargin = dcxmlDialog->Attribute("margin");
-		const char *margin = (tMargin) ? tMargin : "0 0 0 0";
-		const char *tTitle = dcxmlDialog->Attribute("title");
-		const char *border = dcxmlDialog->Attribute("border");
-		if (border) { 
-			cmd.sprintf("/xdialog -b %s +%s", input.gettok(3," ").to_chr(), border);
-			mIRCcom(cmd.to_chr());
-		}
-		cmd.sprintf("/xdialog -l %s root \t +p%s 0 0 0 0", input.gettok(3," ").to_chr(), cascade);
-		mIRCcom(cmd.to_chr());
-		cmd.sprintf("/xdialog -l %s space root \t + %s", input.gettok(3," ").to_chr(), margin);
-		mIRCcom(cmd.to_chr());
-		parseDialog(dcxmlDialog,dcxmlDialog,input.gettok(3," ").to_chr());
-		cmd.sprintf("/.timer 1 0 xdialog -l %s update",input.gettok(3," ").to_chr());
-		mIRCcom(cmd.to_chr());
-
-		return 1;
-
-	}
-	return 1;
-}
-
