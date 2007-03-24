@@ -459,9 +459,9 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				RECT rc;
 
 				GetClientRect(this->m_Hwnd, &rc);
-				this->m_pLayoutManager->updateLayout(rc);
+				if (this->updateLayout(rc))
+					this->redrawWindow();
 			}
-			this->redrawWindow();
 		}
 		else if (input.gettok( 3 ) == "clear") {
 			if (this->m_pLayoutManager != NULL)
@@ -766,16 +766,15 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			// if the specified control exists on the dialog, hide it
 			ctrl = getControlByID(n);
 
-			if (ctrl) { 
+			if (ctrl) {
 				ShowWindow(ctrl->getHwnd(), SW_HIDE);
-				if (this->m_pLayoutManager->getRoot()) {
-					RECT rc;
-					GetClientRect(this->getHwnd(), &rc);
-					this->updateLayout(rc);
-					TString cmd = "";
-					cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
-					mIRCcom(cmd.to_chr());
-				}
+				RECT rc;
+				GetClientRect(this->getHwnd(), &rc);
+				if (this->updateLayout(rc))
+					this->redrawWindow();
+				//TString cmd;
+				//cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
+				//mIRCcom(cmd.to_chr());
 			}
 
 			// append the item to the end of the list
@@ -845,15 +844,13 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			// if the selected control exists, show control
 			if (ctrl) { 
 				ShowWindow(ctrl->getHwnd(), SW_SHOW);
-				if (this->m_pLayoutManager->getRoot()) {
-					RECT rc;
-					GetClientRect(this->getHwnd(), &rc);
-					this->updateLayout(rc);
+				RECT rc;
+				GetClientRect(this->getHwnd(), &rc);
+				if (this->updateLayout(rc))
 					this->redrawWindow();
-					TString cmd = "";
-					cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
-					mIRCcom(cmd.to_chr());
-				}
+				//TString cmd;
+				//cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
+				//mIRCcom(cmd.to_chr());
 			}
 			else
 				dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Invalid control ID");
@@ -1758,7 +1755,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 			if (IsWindow(hdr->hwndFrom)) {
 				DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
-				if (c_this != NULL) lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				if (c_this != NULL)
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
 			break;
 		}
@@ -2006,6 +2004,11 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				p_this->callAliasEx(NULL, "%s,%d", "moving", 0);
 			break;
 		}
+
+		//case WM_NCCALCSIZE:
+		//	{
+		//	}
+		//	break;
 
 		case WM_SIZE:
 		{

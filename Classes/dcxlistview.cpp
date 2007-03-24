@@ -753,6 +753,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 					data = input.gettok(i, TSTAB);
 					data.trim();
 
+					if (data.numtok() < 4) {
+						DCXError("/xdid -a", "Invalid subitem syntax");
+						break;
+					}
 					stateFlags = parseItemFlags(data.gettok( 1 ));
 					clrText = (COLORREF)data.gettok( 3 ).to_num();
 					clrBack = (COLORREF)data.gettok( 4 ).to_num();
@@ -1117,8 +1121,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 			lvc.iImage = icon;
 		}
 
-		//UINT iFlags2 = this->parseHeaderFlags2(data.gettok( 1 ));
-
 		if (this->getColumnCount() > 0)
 			ListView_SetColumn(this->m_Hwnd, nColumn, &lvc);
 		else
@@ -1127,10 +1129,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			*	These flags do NOT make the columns auto size as text is added
 			* They auto size the columns to match the text already present (none).
 		*/
-		//if (iFlags2 & LVSCW_AUTOSIZE)
-		//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
-		//else if (iFlags2 & LVSCW_AUTOSIZE_USEHEADER)
-		//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
+		this->autoSize(nColumn,data.gettok( 1 ));
 
 		int tabs = input.numtok(TSTAB);
 
@@ -1157,8 +1156,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 				lvc.iSubItem = 0;
 				lvc.pszText = itemtext.to_chr();
 
-				//iFlags2 = this->parseHeaderFlags2(data.gettok( 1 ));
-
 				if (icon > -1) {
 					lvc.mask |= LVCF_IMAGE;
 					lvc.iImage = icon;
@@ -1166,10 +1163,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 				ListView_InsertColumn(this->m_Hwnd, nColumn, &lvc);
 
-				//if (iFlags2 & LVSCW_AUTOSIZE)
-				//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
-				//else if (iFlags2 & LVSCW_AUTOSIZE_USEHEADER)
-				//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
+				this->autoSize(nColumn,data.gettok( 1 ));
 
 				i++;
 			}
@@ -1473,7 +1467,7 @@ UINT DcxListView::parseHeaderFlags( TString & flags ) {
   INT i = 1, len = flags.len( ), iFlags = 0;
 
   // no +sign, missing params
-  if ( flags[0] != '+' ) 
+  if ( flags[0] != '+' )
     return iFlags;
 
   while ( i < len ) {

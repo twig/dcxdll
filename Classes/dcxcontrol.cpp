@@ -604,6 +604,7 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
 				GetObject(srcBM,sizeof(bm),&bm);
 				// resize bitmap, render into dest hdc/bitmap
 				if (StretchBlt(destDC, 0, 0, w, h, srcDC, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY)) {
+					GdiFlush();
 					// set the return bitmap if resize worked.
 					hRes = newBM;
 					// set dest hdc back to orig bitmap.
@@ -1039,12 +1040,15 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 
 	else if (( type == "window" ) && (mask & CTLF_ALLOW_DOCK)) {
 		if ( tsInput.numtok( ) > offset ) {
-			char windowHwnd[30];
-			TString expression;
-			expression.sprintf("$window(%s).hwnd", tsInput.gettok( offset +1 ).to_chr( ) );
-			mIRCeval( expression.to_chr(), windowHwnd );
+			HWND winHwnd = (HWND)tsInput.gettok( offset +1 ).to_num();
+			if (!IsWindow(winHwnd)) {
+				char windowHwnd[30];
+				TString expression;
+				expression.sprintf("$window(%s).hwnd", tsInput.gettok( offset +1 ).to_chr( ) );
+				mIRCeval( expression.to_chr(), windowHwnd );
 
-			HWND winHwnd = (HWND) atoi( windowHwnd );
+				winHwnd = (HWND) atoi( windowHwnd );
+			}
 
 			if (IsWindow(winHwnd)) {
 				if (p_Dialog->getControlByHWND(winHwnd) == NULL)

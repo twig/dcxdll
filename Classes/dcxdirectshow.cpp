@@ -238,30 +238,59 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
   int numtok = input.numtok( );
 
   // xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
-  if ( flags.switch_flags[0] && numtok > 3 ) {
+  if ( flags.switch_flags[0] && numtok > 4 ) {
 		TString flag(input.gettok(4));
 		TString filename(input.gettok(5,-1));
 		flag.trim();
 		filename.trim();
 		this->ReleaseAll();
+		if (!IsFile(filename)) {
+			DCXError("/xdid -a", "Unable to Access File");
+			return;
+		}
 		// Create the Filter Graph Manager and query for interfaces.
 		HRESULT hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (void **)&this->m_pGraph);
+		bool inErr = false;
 
 		if (SUCCEEDED(hr))
 			hr = this->m_pGraph->QueryInterface(IID_IMediaControl, (void **)&this->m_pControl);
+		else {
+			DCXError("/xdid -a","Unable to Create FilterGraph");
+			inErr = true;
+		}
 		if (SUCCEEDED(hr))
 			hr = this->m_pGraph->QueryInterface(IID_IMediaEventEx, (void **)&this->m_pEvent);
+		else if (!inErr) {
+			DCXError("/xdid -a","Unable to Get IMediaControl");
+			inErr = true;
+		}
 		if (SUCCEEDED(hr))
 			hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking, (void **)&this->m_pSeek);
+		else if (!inErr) {
+			DCXError("/xdid -a","Unable to Get IMediaEventEx");
+			inErr = true;
+		}
 		if (SUCCEEDED(hr))
 			hr = this->m_pEvent->SetNotifyWindow((OAHWND)this->m_Hwnd,WM_GRAPHNOTIFY,0);
+		else if (!inErr) {
+			DCXError("/xdid -a","Unable to Get IMediaSeeking");
+			inErr = true;
+		}
 		if (SUCCEEDED(hr))
 			hr = DcxDirectshow::InitWindowlessVMR(this->m_Hwnd,this->m_pGraph,&this->m_pWc);
+		else if (!inErr) {
+			DCXError("/xdid -a","Unable to Set Window Notify");
+			inErr = true;
+		}
 		if (SUCCEEDED(hr)) {
 			if (this->m_bKeepRatio)
 				hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_LetterBox); // caused video to maintain aspect ratio
 			else
 				hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_None);
+		}
+		else if (!inErr) {
+			DCXError("/xdid -a","Unable to Create VMR9 (No DirectX 9?)");
+			inErr = true;
 		}
 		if (SUCCEEDED(hr)) {
 			hr = this->m_pGraph->RenderFile(filename.to_wchr(),NULL);
@@ -281,7 +310,11 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 					DCXError("/xdid -a","Unable to set Video Position");
 			}
 			else
-				DCXError("/xdid -a","Unable to render file");
+				DCXError("/xdid -a","Unable to render file (No codec for file format?)");
+		}
+		else if (!inErr) {
+			DCXError("/xdid -a","Unable to Set Aspect");
+			inErr = true;
 		}
 		if (!SUCCEEDED(hr)) { // if anything failed, release all & show error.
 			this->ReleaseAll();
