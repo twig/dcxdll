@@ -244,6 +244,10 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		flag.trim();
 		filename.trim();
 		this->ReleaseAll();
+		if (!mIRCLink.m_bDX9Installed) {
+			DCXError("/xdid -a", "Needs DirectX 9+");
+			return;
+		}
 		if (!IsFile(filename)) {
 			DCXError("/xdid -a", "Unable to Access File");
 			return;

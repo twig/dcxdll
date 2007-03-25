@@ -252,6 +252,27 @@ void WINAPI LoadDll(LOADINFO * load) {
 	else
 		XPPlus = FALSE;
 
+#ifdef DCX_USE_DXSDK
+	DCX_DEBUG("LoadDLL", "Checking DirectX Version...");
+	DWORD dx_ver;
+	if (GetDXVersion(&dx_ver, NULL, 0) == S_OK) {
+		if (dx_ver < 0x00090000) {
+			DCX_DEBUG("LoadDLL", "Got DirectX Version: Need V9+");
+			mIRCLink.m_bDX9Installed = false;
+		}
+		else {
+			DCX_DEBUG("LoadDLL", "Got DirectX Version: V9+ Installed");
+			mIRCLink.m_bDX9Installed = true;
+		}
+	}
+	else {
+		DCX_DEBUG("LoadDLL", "Couldn't Get DirectX Version");
+		mIRCLink.m_bDX9Installed = false;
+	}
+#else
+	mIRCLink.m_bDX9Installed = false;
+#endif
+
 	// Load Control definitions
 	DCX_DEBUG("LoadDLL", "Loading control classes");
 	INITCOMMONCONTROLSEX icex;
@@ -578,7 +599,16 @@ mIRC(Version) {
 */
 mIRC(IsUsingDirectX) {
 #ifdef DCX_USE_DXSDK
-	ret("$true");
+	DWORD dx_ver;
+	if (GetDXVersion(&dx_ver, data, 900) == S_OK) {
+		if (dx_ver < 0x00090000)
+			mIRCLink.m_bDX9Installed = false;
+		else
+			mIRCLink.m_bDX9Installed = true;
+		if (dx_ver < 1)
+			ret("$false");
+	}
+	return 3;
 #else
 	ret("$false");
 #endif // DCX_USE_DXSDK

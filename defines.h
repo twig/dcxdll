@@ -207,16 +207,17 @@ typedef struct {
 	int			m_map_cnt;  //!< MapFile counter.
 	int			m_bDoGhostDrag; //!< Ghost window while dragging.
 	bool		m_bGhosted; //!< Is Window Currently ghosted (as a result of drag ghost).
-	bool		m_bisDebug;    // is mIRC is using /debug upon DCX LoadDLL().
-	bool		m_bUseGDIPlus; // we can use GDI+ functions.
-	bool		m_bmIRCSixPointTwoZero; // Is this mIRC V6.20
-	HWND		m_hSwitchbar; // The Switchbars HWND
-	HWND		m_hToolbar; // The Toolbars HWND
-	HWND		m_hMDI; // The MDIClients HWND
-	HWND		m_hTreebar; // The Treebars HWND
-	HWND		m_hTreeView; // The TreeView control child of the Treebar.
-	HFONT		m_hTreeFont; // The Treebars original font.
-	HIMAGELIST m_hTreeImages; // The Treebars original image list.
+	bool		m_bisDebug;    //!< is mIRC is using /debug upon DCX LoadDLL().
+	bool		m_bUseGDIPlus; //!< we can use GDI+ functions.
+	bool		m_bmIRCSixPointTwoZero; //!< Is this mIRC V6.20
+	HWND		m_hSwitchbar; //!< The Switchbars HWND
+	HWND		m_hToolbar; //!< The Toolbars HWND
+	HWND		m_hMDI; //!< The MDIClients HWND
+	HWND		m_hTreebar; //!< The Treebars HWND
+	HWND		m_hTreeView; //!< The TreeView control child of the Treebar.
+	HFONT		m_hTreeFont; //!< The Treebars original font.
+	HIMAGELIST m_hTreeImages; //!< The Treebars original image list.
+	bool		m_bDX9Installed; //!<
 } mIRCDLL;
 
 /*!
@@ -330,6 +331,9 @@ void InitUltraDock(void);
 void CloseUltraDock(void);
 int SwitchbarPos(const int type);
 void UpdatemIRC(void);
+
+// DirectX
+HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );
 
 extern PFNSETTHEME SetWindowThemeUx;  //!< blah
 extern PFNISTHEMEACTIVE IsThemeActiveUx;
