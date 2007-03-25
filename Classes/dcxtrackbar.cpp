@@ -116,6 +116,8 @@ void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
       *Styles |= TBS_DOWNISLEFT;
     else if ( styles.gettok( i ) == "tooltips" ) 
       *Styles |= TBS_TOOLTIPS;
+		else if ( styles.gettok( i ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
     i++;
   }
@@ -550,45 +552,47 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							if (nmcd.dwItemSpec == TBCD_TICS) {
 								return CDRF_DODEFAULT | CDRF_NOTIFYPOSTPAINT;
 							}
+							HBITMAP oldBM = NULL;
 							// channel that the trackbar control's thumb marker slides along
 							if (nmcd.dwItemSpec == TBCD_CHANNEL) {
 								// draw the background here
 								if (this->m_hbmp[TBBMP_BACK]) {
-									RECT rect;
-									BITMAP bmp;
 									HDC hdcbmp = CreateCompatibleDC(hdc);
 
-									GetClientRect(this->m_Hwnd, &rect);
-									GetObject(this->m_hbmp[TBBMP_BACK], sizeof(BITMAP), &bmp);
-									SelectObject(hdcbmp, this->m_hbmp[TBBMP_BACK]);
+									if (hdcbmp != NULL) {
+										RECT rect;
+										BITMAP bmp;
+										GetClientRect(this->m_Hwnd, &rect);
+										GetObject(this->m_hbmp[TBBMP_BACK], sizeof(BITMAP), &bmp);
+										oldBM = (HBITMAP)SelectObject(hdcbmp, this->m_hbmp[TBBMP_BACK]);
 
-									TransparentBlt( hdc,
-										rect.left, rect.top,
-										rect.right - rect.left, 
-										rect.bottom - rect.top, hdcbmp,
-										0, 0, bmp.bmWidth, bmp.bmHeight, this->m_colTransparent);
-									DeleteDC(hdcbmp);
-
-//									return CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT;
+										TransparentBlt( hdc,
+											rect.left, rect.top,
+											rect.right - rect.left, 
+											rect.bottom - rect.top, hdcbmp,
+											0, 0, bmp.bmWidth, bmp.bmHeight, this->m_colTransparent);
+										SelectObject(hdcbmp, oldBM);
+										DeleteDC(hdcbmp);
+									}
 								}
 
-								//return CDRF_DODEFAULT | CDRF_NOTIFYPOSTPAINT;
 								if (this->m_hbmp[TBBMP_CHANNEL]) {
-									//RECT rect;
-									BITMAP bmp;
 									HDC hdcbmp = CreateCompatibleDC(hdc);
 
-									GetObject(this->m_hbmp[TBBMP_CHANNEL], sizeof(BITMAP), &bmp);
-									SelectObject(hdcbmp, this->m_hbmp[TBBMP_CHANNEL]);
+									if (hdcbmp != NULL) {
+										BITMAP bmp;
+										GetObject(this->m_hbmp[TBBMP_CHANNEL], sizeof(BITMAP), &bmp);
+										oldBM = (HBITMAP)SelectObject(hdcbmp, this->m_hbmp[TBBMP_CHANNEL]);
 
-									TransparentBlt( hdc,
-										nmcd.rc.left, nmcd.rc.top,
-										nmcd.rc.right - nmcd.rc.left, 
-										nmcd.rc.bottom - nmcd.rc.top, hdcbmp,
-										0, 0, bmp.bmWidth, bmp.bmHeight, this->m_colTransparent);
-									DeleteDC(hdcbmp);
-
-									return /*CDRF_NOTIFYPOSTPAINT | */CDRF_SKIPDEFAULT;
+										TransparentBlt( hdc,
+											nmcd.rc.left, nmcd.rc.top,
+											nmcd.rc.right - nmcd.rc.left, 
+											nmcd.rc.bottom - nmcd.rc.top, hdcbmp,
+											0, 0, bmp.bmWidth, bmp.bmHeight, this->m_colTransparent);
+										SelectObject(hdcbmp, oldBM);
+										DeleteDC(hdcbmp);
+										return /*CDRF_NOTIFYPOSTPAINT | */CDRF_SKIPDEFAULT;
+									}
 								}
 
 //								return CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT;
@@ -603,7 +607,7 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								HBITMAP pBmp = NULL;
 
 								// if thumb is selected/focussed, switch brushes
-								if (nmcd.uItemState & CDIS_FOCUS)
+								if (nmcd.uItemState & CDIS_SELECTED)
 									pBmp = this->m_hbmp[TBBMP_THUMBDRAG];
 								else
 									pBmp = this->m_hbmp[TBBMP_THUMB];
@@ -613,22 +617,23 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									return CDRF_DODEFAULT;
 
 								HDC hdcbmp = CreateCompatibleDC(hdc);
-								int iSaveDC = SaveDC(hdc);
-								BITMAP bmp;
+								if (hdcbmp != NULL) {
+									BITMAP bmp;
 
-								GetObject(pBmp, sizeof(BITMAP), &bmp);
-								SelectObject(hdcbmp, pBmp);
+									GetObject(pBmp, sizeof(BITMAP), &bmp);
+									oldBM = (HBITMAP)SelectObject(hdcbmp, pBmp);
 
-								TransparentBlt( hdc,
-									nmcd.rc.left, nmcd.rc.top,
-									nmcd.rc.right - nmcd.rc.left, 
-									nmcd.rc.bottom - nmcd.rc.top, hdcbmp,
-									0, 0, bmp.bmWidth, bmp.bmHeight, this->m_colTransparent);
-								RestoreDC(hdc, iSaveDC);
-								DeleteDC(hdcbmp);
+									TransparentBlt( hdc,
+										nmcd.rc.left, nmcd.rc.top,
+										nmcd.rc.right - nmcd.rc.left, 
+										nmcd.rc.bottom - nmcd.rc.top, hdcbmp,
+										0, 0, bmp.bmWidth, bmp.bmHeight, this->m_colTransparent);
+									SelectObject(hdcbmp, oldBM);
+									DeleteDC(hdcbmp);
 
-								// don't let control draw itself, or it will un-do our work
-								return CDRF_SKIPDEFAULT;
+									// don't let control draw itself, or it will un-do our work
+									return CDRF_SKIPDEFAULT;
+								}
 							}
 
 							// default!
@@ -685,6 +690,37 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
         }
       }
       break;
+
+    //case WM_ERASEBKGND: 
+    //  {
+				//bParsed = TRUE;
+				//return TRUE;
+    //  }
+    //  break;
+
+		case WM_PAINT:
+			{
+				if (!this->m_bAlphaBlend)
+					break;
+				PAINTSTRUCT ps;
+				HDC hdc;
+
+				hdc = BeginPaint( this->m_Hwnd, &ps );
+
+				LRESULT res = 0L;
+				bParsed = TRUE;
+
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+				this->FinishAlphaBlend(ai);
+
+				EndPaint( this->m_Hwnd, &ps );
+				return res;
+			}
+			break;
 
     case WM_DESTROY:
       {

@@ -146,8 +146,8 @@ void DcxListView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
       *Styles |= LVS_SORTDESCENDING;
     else if ( styles.gettok( i ) == "noscroll" ) 
       *Styles |= LVS_NOSCROLL;
-		//else if ( styles.gettok( i ) == "alpha" )
-		//	this->m_bAlphaBlend = true;
+		else if ( styles.gettok( i ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
     i++;
   }
@@ -2377,38 +2377,27 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				}
 			}
 			break;
-		//case WM_PAINT:
-		//	{
-		//		if (!this->m_bAlphaBlend)
-		//			break;
-		//		PAINTSTRUCT ps;
-		//		HDC hdc;
+		case WM_PAINT:
+			{
+				if (!this->m_bAlphaBlend)
+					break;
+				PAINTSTRUCT ps;
+				HDC hdc;
 
-		//		hdc = BeginPaint( this->m_Hwnd, &ps );
+				hdc = BeginPaint( this->m_Hwnd, &ps );
 
-		//		LRESULT res = 0L;
-		//		bParsed = TRUE;
+				bParsed = TRUE;
 
-		//		//RECT rcClient;
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-		//		// get controls client area
-		//		//GetClientRect( this->m_Hwnd, &rcClient );
+				lRes = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
-		//		// Setup alpha blend if any.
-		//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+				this->FinishAlphaBlend(ai);
 
-		//		// fill background.
-		//		//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
-
-		//		res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-		//		//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINT, (WPARAM) hdc, (LPARAM) (PRF_CLIENT|PRF_NONCLIENT|PRF_CHILDREN|PRF_OWNED) );
-
-		//		this->FinishAlphaBlend(ai);
-
-		//		EndPaint( this->m_Hwnd, &ps );
-		//		return res;
-		//	}
-		//	break;
+				EndPaint( this->m_Hwnd, &ps );
+			}
+			break;
     case WM_DESTROY:
       {
         delete this;
