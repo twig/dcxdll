@@ -126,7 +126,8 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 			if (l != LB_ERR && l < 900)
 				ListBox_GetText( this->m_Hwnd, nSel, szReturnValue );
 			else
-				dcxInfoError(this->getType().to_chr(), "text", this->m_pParentDialog->getName().to_chr(), this->getUserID(), "String Too Long (Greater than 900 chars)");
+				this->showError(prop.to_chr(), NULL, "String Too Long (Greater than 900 chars)");
+				//dcxInfoError(this->getType().to_chr(), "text", this->m_pParentDialog->getName().to_chr(), this->getUserID(), "String Too Long (Greater than 900 chars)");
 			return;
 		}
 	}

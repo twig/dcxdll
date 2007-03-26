@@ -428,9 +428,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			UINT id = mIRC_ID_OFFSET + input.gettok( 3 ).to_int();
 			DcxControl * p_Control;
 
-			if ((id > mIRC_ID_OFFSET - 1) &&
-				IsWindow(GetDlgItem(this->m_Hwnd, id)) &&
-				((p_Control = this->getControlByID(id)) != NULL))
+			if ((id > mIRC_ID_OFFSET - 1) && IsWindow(GetDlgItem(this->m_Hwnd, id)) && ((p_Control = this->getControlByID(id)) != NULL))
 			{
 				p_Control->redrawWindow();
 			}
@@ -442,7 +440,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 			return;
 		}
-		this->redrawWindow();
+		else
+			this->redrawWindow();
 	}
 	/*
 	//xdialog -l [NAME] [SWITCH] [OPTIONS]
@@ -740,7 +739,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 		// invalid input for [N]
 		if (n <= 0) {
-			dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Invalid parameter");
+			this->showError(NULL,"-z", "Invalid Parameters");
+			//dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Invalid parameter");
 			return;
 		}
 
@@ -790,7 +790,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 			// target control not found
 			if (!ctrl) {
-				dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "No such control");
+				this->showError(NULL,"-z","No such control");
+				//dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "No such control");
 				return;
 			}
 
@@ -825,7 +826,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 			// if the index is out of bounds
 			if (n >= (int) this->m_vZLayers.size()) {
-				dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Index array out of bounds");
+				this->showError(NULL,"-z","Index array out of bounds");
+				//dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Index array out of bounds");
 				return;
 			}
 
@@ -853,7 +855,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				//mIRCcom(cmd.to_chr());
 			}
 			else
-				dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Invalid control ID");
+				this->showError(NULL,"-z","Invalid Control ID");
+				//dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Invalid control ID");
 		}
 
 		return;
@@ -869,7 +872,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			if (menu != NULL)
 				this->m_popup = new XPopupMenu("dialog", menu);
 			else
-				dcxInfoError("xdialog -P", "", this->getName().to_chr(), 0, "Menu does not exist");
+				this->showError(NULL,"-P","Menu Does Not Exist");
+				//dcxInfoError("xdialog -P", "", this->getName().to_chr(), 0, "Menu does not exist");
 		}
 		if (this->m_popup != NULL) {
 			XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
@@ -2919,3 +2923,16 @@ bool DcxDialog::SetShadowColor(COLORREF NewColor)
 	return true;
 }
 // .... CWndShadow
+extern bool dcxSignal;
+void DcxDialog::showError(const char *prop, const char *cmd, const char *err)
+{
+	TString res;
+	if (prop != NULL)
+		res.sprintf("D_IERROR xdialog(%s).%s: %s", this->getName().to_chr(), prop, err);
+	else
+		res.sprintf("D_CERROR xdialog %s %s: %s", cmd, this->getName().to_chr(), err);
+	if (!dcxSignal)
+		mIRCError(res.to_chr());
+	else
+		mIRCSignal(res.to_chr());
+}

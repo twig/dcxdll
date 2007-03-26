@@ -875,7 +875,8 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 			lstrcpy(szReturnValue, "$false");
 	}
 	else
-		dcxInfoError("General", prop.to_chr( ), input.gettok( 1 ).to_chr(), this->getUserID(), "Invalid property or number of arguments");
+		this->showError(prop.to_chr(),NULL,"Invalid property or number of arguments");
+		//dcxInfoError("General", prop.to_chr( ), input.gettok( 1 ).to_chr(), this->getUserID(), "Invalid property or number of arguments");
 
 	return FALSE;
 }
@@ -1225,6 +1226,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 			if (memBM != NULL) {
 				// associate bitmap with HDC
 				HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
+				//::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)hdcbkg,NULL);
 				DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
 				// draw background to main hdc
 				BitBlt( hdc, rcClient.left, rcClient.top,
@@ -1332,4 +1334,19 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 		DeleteDC( ai->ai_hdc );
 	}
 	delete ai;
+}
+//dcxInfoError("directshow","size",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Native Video Size");
+extern bool dcxSignal;
+void DcxControl::showError(const char *prop, const char *cmd, const char *err)
+{
+	TString res;
+	if (prop != NULL)
+		res.sprintf("D_IERROR %s(%s, %d).%s: %s", this->getType().to_chr(), this->m_pParentDialog->getName().to_chr(), this->getUserID(), prop, err);
+	else
+		res.sprintf("D_CERROR (%s) xdid %s %s %d: %s", this->getType().to_chr(), cmd, this->m_pParentDialog->getName().to_chr(), this->getUserID(), err);
+	// may change or add option to use the callback alias instead of signal.
+	if (!dcxSignal)
+		mIRCError(res.to_chr());
+	else
+		mIRCSignal(res.to_chr());
 }

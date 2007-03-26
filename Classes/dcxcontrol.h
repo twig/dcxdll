@@ -123,6 +123,7 @@ public:
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai);
 	static HBITMAP resizeBitmap(HBITMAP srcBM, const LPRECT rc);
+	void showError(const char *prop, const char *cmd, const char *err);
 
 protected:
 

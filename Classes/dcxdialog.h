@@ -119,6 +119,7 @@ public:
 	bool SetShadowColor(COLORREF NewColor = 0);
     
 	static DWORD getAnimateStyles( TString & flags );
+	void showError(const char *prop, const char *cmd, const char *err);
 
 protected:
 

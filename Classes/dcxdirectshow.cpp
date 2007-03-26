@@ -109,10 +109,21 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 	TString prop(input.gettok( 3 ));
 
 	if (this->m_pGraph == NULL) {
-		if (this->parseGlobalInfoRequest( input, szReturnValue ))
+		// [NAME] [ID] [PROP]
+		if ( prop == "isloaded") {
+			lstrcpy(szReturnValue,"$false");
+			return;
+		}
+		else if (this->parseGlobalInfoRequest( input, szReturnValue ))
 			return;
 		else
-			dcxInfoError("directshow", prop.to_chr(),this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+			this->showError(prop.to_chr(),NULL,"No File Loaded");
+			//dcxInfoError("directshow", prop.to_chr(),this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == "isloaded") {
+		lstrcpy(szReturnValue,"$true");
+		return;
 	}
   // [NAME] [ID] [PROP]
 	else if ( prop == "size") {
@@ -124,7 +135,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			return;
 		}
 		else
-			dcxInfoError("directshow","size",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Native Video Size");
+			this->showError(prop.to_chr(),NULL,"Unable to get Native Video Size");
+			//dcxInfoError("directshow","size",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Native Video Size");
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "author") {
@@ -155,7 +167,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			return;
 		}
 		else
-			dcxInfoError("directshow","video",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
+			//dcxInfoError("directshow","video",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "brange") {
@@ -167,7 +180,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			return;
 		}
 		else
-			dcxInfoError("directshow","brange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
+			//dcxInfoError("directshow","brange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "crange") {
@@ -179,7 +193,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			return;
 		}
 		else
-			dcxInfoError("directshow","crange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
+			//dcxInfoError("directshow","crange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "hrange") {
@@ -191,7 +206,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			return;
 		}
 		else
-			dcxInfoError("directshow","hrange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
+			//dcxInfoError("directshow","hrange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "srange") {
@@ -203,7 +219,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			return;
 		}
 		else
-			dcxInfoError("directshow","srange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
+			//dcxInfoError("directshow","srange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "currentpos") {
