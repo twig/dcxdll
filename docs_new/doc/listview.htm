@@ -188,11 +188,11 @@
 	<tr><td colspan="2">This command lets you add an item to the listview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [INDENT] [+FLAGS] [ICON] [STATE] [OVERLAY] [GROUPID] [COLOR] [BGCOLOR] (Item Text) [TAB] [+FLAGS] [ICON] (Item Text) [TAB] ...</div></td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [INDENT] [+FLAGS] [ICON] [STATE] [OVERLAY] [GROUPID] [COLOR] [BGCOLOR] (Item Text) [TAB] [+FLAGS] [ICON] [COLOR] [BGCOLOR] (Item Text) [TAB] ...</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -a dcx 4 1 0 +cbku 1 0 0 0 -1 $rgb(170,213,255) text $chr(9) + 0 text2 $chr(9) + 0 text3</div></td>
+		<td><div class="example">/xdid -a dcx 4 1 0 +cbku 1 0 0 0 -1 $rgb(170,213,255) text $chr(9) + 0 -1 $rgb(10,210,250) text2 $chr(9) + 0 -1 $rgb(120,255,210) text3</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -856,6 +856,44 @@
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You must give the listview focus before forcing the item editing mode.</td></tr></table>
 <br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.V"></a>/xdid -V	</td></tr>
+	<tr><td colspan="2">This command lets you scroll to the item specified.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -V [DNAME] [ID] [N]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -V dcx 4 5</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Item row to make visible.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.Z"></a>/xdid -Z	</td></tr>
+	<tr><td colspan="2">This command lets you scrolls the listview to make <a class="value">[POS]</a> visible.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -Z [DNAME] [ID] [POS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -Z dcx 4 100</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POS</td>
+		<td>The offset to scroll to, in pixels.</td>
+	</tr>
+</table>
+<br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;font-size:14pt;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
@@ -1425,6 +1463,8 @@
 <li><a href="#xdid.y" style="color: #0000FF;">-y</a></li>
 <li><a href="#xdid.z" style="color: #0000FF;">-z</a></li>
 <li><a href="#xdid.B" style="color: #0000FF;">-B</a></li>
+<li><a href="#xdid.V" style="color: #0000FF;">-V</a></li>
+<li><a href="#xdid.Z" style="color: #0000FF;">-Z</a></li>
 </ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><ul><li><a href="#xdidprop.columns" style="color: #6666FF;">columns</a></li>
 <li><a href="#xdidprop.find" style="color: #6666FF;">find</a></li>
 <li><a href="#xdidprop.genabled" style="color: #6666FF;">genabled</a></li>
@@ -1463,7 +1503,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 14th January, 07</td>
+		<td style="text-align: right;">Last Updated: 28th March, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

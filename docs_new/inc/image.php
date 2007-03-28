@@ -61,6 +61,15 @@ function get_xdid_image(&$XDID) {
 				"When the icon is loaded, the Image control is resized to [p]SIZE[/p] for width and height.",
 			),
 		),
+		'o' => array(
+			'__desc' => 'This command lets you offset an image in the control. Negative offsets are valid.',
+			'__cmd' => '[XOFFSET] [YOFFSET]',
+			'__eg' => '20 20',
+			'__params' => array(
+				'XOFFSET' => 'The horizontal offset for the image.',
+				'YOFFSET' => 'The vertical offset for the image.',
+			),
+		),
 		'S' => array(
 	        '__desc' => 'This command lets you enable or disable automatic resizing of the image.',
 	        '__cmd' => '[ENABLED]',

@@ -120,6 +120,10 @@
 		<td>High quality mode (Slower).</td>
 	</tr>
 	<tr>
+		<td class="value">t</td>
+		<td>Tiled image.</td>
+	</tr>
+	<tr>
 		<td class="param">FILENAME</td>
 		<td>Image filename.</td>
 	</tr>
@@ -138,6 +142,29 @@
 		<td><div class="example">/xdid -k dcx 4 $rgb(255,0,255)</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using a transparent color, you may need to set the background color of the control like $rgb(face) for the dialog background color.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.o"></a>/xdid -o	</td></tr>
+	<tr><td colspan="2">This command lets you offset an image in the control. Negative offsets are valid.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -o [DNAME] [ID] [XOFFSET] [YOFFSET]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -o dcx 4 20 20</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">XOFFSET</td>
+		<td>The horizontal offset for the image.</td>
+	</tr>
+	<tr>
+		<td class="param">YOFFSET</td>
+		<td>The vertical offset for the image.</td>
+	</tr>
+</table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -281,6 +308,7 @@
 <li><a href="#style.tooltips" style="color: #B52929;">tooltips</a></li>
 </ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><ul><li><a href="#xdid.i" style="color: #0000FF;">-i</a></li>
 <li><a href="#xdid.k" style="color: #0000FF;">-k</a></li>
+<li><a href="#xdid.o" style="color: #0000FF;">-o</a></li>
 <li><a href="#xdid.w" style="color: #0000FF;">-w</a></li>
 <li><a href="#xdid.S" style="color: #0000FF;">-S</a></li>
 </ul><a href="#events" style="color: #009900;">Events</a><ul><li><a href="#events.dclick" style="color: #009900;">dclick</a></li>
@@ -296,7 +324,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 14th January, 07</td>
+		<td style="text-align: right;">Last Updated: 28th March, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

@@ -112,6 +112,10 @@
 		<td class="value">n</td>
 		<td>Docked window will <strong>not</strong> be resized automatically.</td>
 	</tr>
+	<tr>
+		<td class="value">o</td>
+		<td>Uses the old style treebar docking.</td>
+	</tr>
 </table>
 <br />
 <table class="xdock">
@@ -383,6 +387,34 @@
 <br />
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdock.A"></a>/xdock -A	</td></tr>
+	<tr><td colspan="2">This command enables/disables a statusbar in the mIRC window.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -A [0|1]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -A 1</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdock.B"></a>/xdock -B	</td></tr>
+	<tr><td colspan="2">This lets you configure the mIRC statusbar. Refer to <a class="value">/xdock -A</a> and the <a href="statusbar.htm">StatusBar</a> control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -B [-FLAG] (ARGS)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -B +k $rgb(255, 0, 0)</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Setting the background only works when not using theme support.</li><li><a class="param">ARGS</a> is specified by the commands in the StatusBar commands list. (eg. <a class="value">/xdid -v</a> to set the cell text)</li></ul></td></tr></table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
 			<a name="xdock.F"></a>/xdock -F	</td></tr>
 	<tr><td colspan="2">This command allows you to set the font for the mIRC TreeBar.</td></tr>
 	<tr>
@@ -401,6 +433,10 @@
 	<tr>
 		<td class="value">f</td>
 		<td>Changes TreeBar font.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Manages TreeBar images.</td>
 	</tr>
 	<tr>
 		<td class="value">s</td>
@@ -426,6 +462,18 @@
 	<tr>
 		<td class="value">FONTNAME</td>
 		<td>Font name. Ex: Tahoma, Courier New, Arial, ...</td>
+	</tr>
+	<tr>
+		<td class="param">i</td>
+		<td><div class="syntax">[COMMAND]</div></td>
+	</tr>
+	<tr>
+		<td class="value">COMMAND</td>
+		<td>Array</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR</td>
+		<td>The color in $rgb() format.</td>
 	</tr>
 	<tr>
 		<td class="param">s</td>
@@ -681,6 +729,20 @@
 <br />
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdockprop.isStatusBar"></a>$xdock().isStatusBar	</td></tr>
+	<tr><td colspan="2">Returns whether or not the mIRC StatusBar is visible.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(mIRC).isStatusBar</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock(mIRC).isStatusBar</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
 			<a name="xdockprop.isSwitchBar"></a>$xdock().isSwitchBar	</td></tr>
 	<tr><td colspan="2">Returns whether or not the mIRC SwitchBar is visible.</td></tr>
 	<tr>
@@ -718,6 +780,48 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdock(mIRC).isTreeBar</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdockprop.statusParts"></a>$xdock().statusParts	</td></tr>
+	<tr><td colspan="2">Returns the number of parts in the mIRC statusbar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(mIRC).statusParts</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock(mIRC).statusParts</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdockprop.statusText"></a>$xdock().statusText	</td></tr>
+	<tr><td colspan="2">Returns the text on the mIRC TreeBar cell/part.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(mIRC, N).statusText</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock(mIRC).statusText</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #6666FF; border-color: #6666FF;">
+			<a name="xdockprop.statusToolTip"></a>$xdock().statusToolTip	</td></tr>
+	<tr><td colspan="2">Returns the tooltip for the mIRC TreeBar cell/part.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(mIRC, N).statusToolTip</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock(mIRC).statusToolTip</div></td>
 	</tr>
 </table>
 <br />
@@ -1004,6 +1108,8 @@
 <li><a href="#xdock.s" style="color: #0000FF;">-s</a></li>
 <li><a href="#xdock.t" style="color: #0000FF;">-t</a></li>
 <li><a href="#xdock.u" style="color: #0000FF;">-u</a></li>
+<li><a href="#xdock.A" style="color: #0000FF;">-A</a></li>
+<li><a href="#xdock.B" style="color: #0000FF;">-B</a></li>
 <li><a href="#xdock.F" style="color: #0000FF;">-F</a></li>
 <li><a href="#xdock.G" style="color: #0000FF;">-G</a></li>
 <li><a href="#xdock.M" style="color: #0000FF;">-M</a></li>
@@ -1017,9 +1123,13 @@
 <li><a href="#xdockprop.isAutoV" style="color: #6666FF;">isAutoV</a></li>
 <li><a href="#xdockprop.isDocked" style="color: #6666FF;">isDocked</a></li>
 <li><a href="#xdockprop.isMenuBar" style="color: #6666FF;">isMenuBar</a></li>
+<li><a href="#xdockprop.isStatusBar" style="color: #6666FF;">isStatusBar</a></li>
 <li><a href="#xdockprop.isSwitchBar" style="color: #6666FF;">isSwitchBar</a></li>
 <li><a href="#xdockprop.isToolBar" style="color: #6666FF;">isToolBar</a></li>
 <li><a href="#xdockprop.isTreeBar" style="color: #6666FF;">isTreeBar</a></li>
+<li><a href="#xdockprop.statusParts" style="color: #6666FF;">statusParts</a></li>
+<li><a href="#xdockprop.statusText" style="color: #6666FF;">statusText</a></li>
+<li><a href="#xdockprop.statusToolTip" style="color: #6666FF;">statusToolTip</a></li>
 <li><a href="#xdockprop.switchBarPos" style="color: #6666FF;">switchBarPos</a></li>
 <li><a href="#xdockprop.switchBarSize" style="color: #6666FF;">switchBarSize</a></li>
 <li><a href="#xdockprop.text" style="color: #6666FF;">text</a></li>
@@ -1035,7 +1145,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 14th January, 07</td>
+		<td style="text-align: right;">Last Updated: 28th March, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

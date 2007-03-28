@@ -100,7 +100,7 @@
 	<tr><td colspan="2">This command lets you add a new item to the stacker.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [+FLAGS] [COLOR] [BGCOLOR] Item Text [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)</div></td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -110,6 +110,14 @@
 	<tr>
 		<td class="param">+FLAGS</td>
 		<td>There are currently no flags.</td>
+	</tr>
+	<tr>
+		<td class="param">IMAGE</td>
+		<td>The image for the button.</td>
+	</tr>
+	<tr>
+		<td class="param">SIMAGE</td>
+		<td>The selected image for the button.</td>
 	</tr>
 	<tr>
 		<td class="param">COLOR</td>
@@ -335,6 +343,34 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.w"></a>/xdid -w	</td></tr>
+	<tr><td colspan="2">This command lets you add a image file to the internal list.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [FILE]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -w dcx 4 + Start.bmp</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
+			<a name="xdid.y"></a>/xdid -y	</td></tr>
+	<tr><td colspan="2">This command lets you clear the stacker image list and updates the display.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -y [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -y dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
 			<a name="xdid.T"></a>/xdid -T	</td></tr>
 	<tr><td colspan="2">This command lets you set the tooltip text for item N.</td></tr>
 	<tr>
@@ -544,6 +580,8 @@
 <li><a href="#xdid.d" style="color: #0000FF;">-d</a></li>
 <li><a href="#xdid.r" style="color: #0000FF;">-r</a></li>
 <li><a href="#xdid.u" style="color: #0000FF;">-u</a></li>
+<li><a href="#xdid.w" style="color: #0000FF;">-w</a></li>
+<li><a href="#xdid.y" style="color: #0000FF;">-y</a></li>
 <li><a href="#xdid.T" style="color: #0000FF;">-T</a></li>
 </ul><a href="#xdidprop" style="color: #6666FF;">$xdid() Properties</a><ul><li><a href="#xdidprop.childid" style="color: #6666FF;">childid</a></li>
 <li><a href="#xdidprop.haschild" style="color: #6666FF;">haschild</a></li>
@@ -564,7 +602,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 14th January, 07</td>
+		<td style="text-align: right;">Last Updated: 28th March, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
