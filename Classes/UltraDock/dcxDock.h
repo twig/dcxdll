@@ -19,6 +19,7 @@
 #define DOCKF_RIGHT		0x20	//!< Dock to right. (UltraDock)
 #define DOCKF_TOP			0x40	//!< Dock to top. (UltraDock)
 #define DOCKF_BOTTOM	0x80	//!< Dock to bottom. (UltraDock)
+#define DOCKF_NOSCROLLBARS	0x100	//!< Disable parenst scrollbars.
 
 typedef struct tagDCXULTRADOCK {
 	HWND hwnd;

@@ -53,6 +53,9 @@ BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 		else if (flags & DOCKF_AUTOV)
 			SetWindowPos(hwnd,NULL,0,0,(rcThis.right - rcThis.left),(rcParent.bottom - rcParent.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOSENDCHANGING|SWP_NOMOVE);
 	}
+	// disable scroll bars if requested, this needs to be done here as the listbox re-enables them.
+	if (flags & DOCKF_NOSCROLLBARS)
+		ShowScrollBar(GetParent(hwnd),SB_BOTH,FALSE);
 	return TRUE;
 }
 
@@ -175,6 +178,9 @@ bool DockWindow(const HWND mWnd, const HWND temp, const char *find, TString & fl
 			}
 		}
 
+		if (flag.find('b',0))
+			flags |= DOCKF_NOSCROLLBARS;
+
 		SetProp(temp,"dcx_docked",(HANDLE) flags);
 		//ShowScrollBar(sWnd,SB_BOTH,FALSE);
 		AddStyles(sWnd,GWL_STYLE,WS_CLIPSIBLINGS|WS_CLIPCHILDREN); // this helps with rendering glitches.
@@ -232,7 +238,7 @@ mIRC(xdock) {
 		UpdatemIRC();
 		return 1;
 	}
-	// enable/disable the mIRC Statusbar
+	// The mIRC Statusbar's setup
 	// [-B] [+flag] [args]
 	else if ((switches[1] == 'B') && (numtok > 2)) {
 		TString flag(input.gettok(2));
@@ -320,17 +326,18 @@ mIRC(xdock) {
 				if ((himl = DcxDock::status_getImageList()) == NULL) {
 					himl = DcxDock::status_createImageList();
 
-					if (himl)
+					if (himl != NULL)
 						DcxDock::status_setImageList(himl);
 				}
 
-				icon = dcxLoadIcon(index, filename, FALSE, flags);
+				if (himl != NULL) {
+					icon = dcxLoadIcon(index, filename, FALSE, flags);
 
-				//if (flags.find('g', 0))
-				//	icon = CreateGrayscaleIcon(icon);
-
-				ImageList_AddIcon(himl, icon);
-				DestroyIcon(icon);
+					ImageList_AddIcon(himl, icon);
+					DestroyIcon(icon);
+				}
+				else
+					DCXError("/xdock -B +w","Unable To Create ImageList");
 			}
 			break;
 		case 'y': // [+FLAGS] : destroy image list.
