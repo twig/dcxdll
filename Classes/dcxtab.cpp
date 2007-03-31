@@ -355,7 +355,8 @@ void DcxTab::parseCommandRequest( TString & input ) {
       else {
         TString error;
         error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-				DCXError("/xdid -a", error.to_chr() );
+				this->showError(NULL, "-a", error.to_chr());
+				//DCXError("/xdid -a", error.to_chr() );
       }
     }
 

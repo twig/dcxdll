@@ -18,13 +18,13 @@ mIRC(TrayIcon) {
 
 		if (trayIcons == NULL) {
 			DCXError("/xTray", "There was a problem creating the trayicon manager");
-			return 1;
+			return 0;
 		}
 	}
 
 	if (!trayIcons->GetHwnd()) {
 		DCXError("/xTray", "Could not start trayicon manager");
-		return 1;
+		return 0;
 	}
 
 	TString d(data);
@@ -33,7 +33,7 @@ mIRC(TrayIcon) {
 
 	if (numtok < 2) {
 		DCXError("/xTray", "Insufficient parameters");
-		return 1;
+		return 0;
 	}
 
 	TString flags(d.gettok( 1 ));
@@ -51,7 +51,7 @@ mIRC(TrayIcon) {
 
 			msg.sprintf("Cannot create trayicon: id %d already exists", id);
 			DCXError("/xTrayIcon", msg.to_chr());
-			return 1;
+			return 0;
 		}
 
 		// if edit and it doesnt exist
@@ -61,7 +61,7 @@ mIRC(TrayIcon) {
 
 				msg.sprintf("Cannot edit trayicon: id %d does not exists", id);
 				DCXError("/xTrayIcon", msg.to_chr());
-				return 1;
+				return 0;
 			}
 
 			msg = NIM_MODIFY;
@@ -126,13 +126,11 @@ mIRC(TrayIcon) {
 		if (numtok > 2)
 			tip = d.gettok(3, -1);
 
-		if (!trayIcons->modifyIcon(id, NIM_MODIFY, NULL, &tip)) {
+		if (!trayIcons->modifyIcon(id, NIM_MODIFY, NULL, &tip))
 			DCXError("/xTray", "Error changing trayicon tooltip");
-		}
 	}
-	else {
+	else
 		DCXError("/xTray", "Unknown flag or insufficient parameters");
-	}
 
 	return 1;
 }

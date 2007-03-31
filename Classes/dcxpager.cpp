@@ -132,7 +132,8 @@ void DcxPager::parseCommandRequest( TString & input ) {
   else if ( flags.switch_flags[2] && numtok > 8 ) {
 
 		if (IsWindow(this->m_ChildHWND)) {
-			DCXError( "/xdid -c","Child Control already exists" );
+			this->showError(NULL, "-c", "Child Control already exists");
+			//DCXError( "/xdid -c","Child Control already exists" );
 			return;
 		}
     UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
@@ -163,7 +164,8 @@ void DcxPager::parseCommandRequest( TString & input ) {
     else {
       TString error;
       error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-			DCXError("/xdid -c", error.to_chr() );
+			this->showError(NULL, "-c", error.to_chr());
+			//DCXError("/xdid -c", error.to_chr() );
     }
   }
   // xdid -d [NAME] [ID] [SWITCH] [ID]
@@ -190,14 +192,16 @@ void DcxPager::parseCommandRequest( TString & input ) {
         TString error;
         error.sprintf("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", 
                   p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
-				DCXError("/xdid -d", error.to_chr() );
+				this->showError(NULL, "-d", error.to_chr());
+				//DCXError("/xdid -d", error.to_chr() );
       }
     }
     else {
       TString error;
       error.sprintf("Unknown control with ID \"%d\" (dialog %s)", 
                 ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
-			DCXError("/xdid -d", error.to_chr() );
+			this->showError(NULL, "-d", error.to_chr());
+			//DCXError("/xdid -d", error.to_chr() );
     }
   }
 	// xdid -s [NAME] [ID] [SWITCH] [SIZE]

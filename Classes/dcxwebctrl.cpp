@@ -244,7 +244,8 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
       }
     }
 		else
-			DCXError("/xdid -j","Browser NOT in Ready State");
+			this->showError(NULL, "-j", "Browser NOT in Ready State");
+			//DCXError("/xdid -j","Browser NOT in Ready State");
   }
   // xdid -k [NAME] [ID] [SWITCH]
   else if ( flags.switch_flags[10] ) {

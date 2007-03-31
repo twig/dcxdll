@@ -305,7 +305,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			}
 		}
 		if (this->m_hCursor == NULL)
-			DCXError("/xdid -J","Unable to Load Cursor");
+			this->showError(NULL, "-J", "Unable to Load Cursor");
+			//DCXError("/xdid -J","Unable to Load Cursor");
 		if (hCursor != NULL) {
 			if (GetCursor() == hCursor) {
 				if (this->m_hCursor != NULL)
@@ -414,7 +415,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		TString flag(input.gettok( 4 ));
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
-			DCXError("/xdid -R","Invalid Flag");
+			this->showError(NULL, "-R", "Invalid Flag");
+			//DCXError("/xdid -R","Invalid Flag");
 			return;
 		}
 
@@ -436,7 +438,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		if (flag.find('f',0)) // image file - [COLOR] [FILE]
 		{
 			if (numtok < 6) {
-				DCXError("/xdid -R +f","Invalid Arguments");
+				this->showError(NULL, "-R +f", "Invalid Arguments");
+				//DCXError("/xdid -R +f","Invalid Arguments");
 				return;
 			}
 
@@ -451,7 +454,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 				DeleteBitmap(m_bitmapBg);
 			}
 			else
-				DCXError("/xdid -R +f","Unable To Load Image file.");
+				this->showError(NULL,"-R +f", "Unable To Load Image file.");
+				//DCXError("/xdid -R +f","Unable To Load Image file.");
 		}
 		else if (flag.find('r',0)) // rounded rect - radius args (optional)
 		{
@@ -480,7 +484,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		{
 			// u need at least 3 points for a shape
 			if (numtok < 7) {
-				DCXError("/xdid -R +p","Invalid Arguments");
+				this->showError(NULL, "-R +p", "Invalid Arguments");
+				//DCXError("/xdid -R +p","Invalid Arguments");
 				return;
 			}
 
@@ -489,7 +494,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			int tPoints = strPoints.numtok( );
 
 			if (tPoints < 1) {
-				DCXError("/xdid -R +p","Invalid Points");
+				this->showError(NULL, "-R +p", "Invalid Points");
+				//DCXError("/xdid -R +p","Invalid Points");
 				return;
 			}
 
@@ -536,7 +542,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
 		}
 		else
-			DCXError("/xdid -R","Invalid Flag");
+			this->showError(NULL, "-R", "Invalid Flag");
+			//DCXError("/xdid -R","Invalid Flag");
 
 		if (!noRegion) {
 			if (m_Region != NULL) {
@@ -551,33 +558,34 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 				SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
 			}
 			else
-				DCXError("/xdid -R","Unable to create region.");
+				this->showError(NULL, "-R", "Unable to create region.");
+				//DCXError("/xdid -R","Unable to create region.");
 		}
 		this->redrawWindow();
 	}
 	// invalid command
 	else {
-		TString error;
 
-		if (numtok > 3) {
-			error.sprintf("D_ERROR /xdid: Invalid %s command /xdid %s %s %s %s (or invalid arguments) on Control %d",
-				this->getType().to_chr(),
-				input.gettok( 3 ).to_chr(),
-				input.gettok( 1 ).to_chr(),
-				input.gettok( 2 ).to_chr(),
-				input.gettok( 4, -1).to_chr(),
-				this->getUserID());
-		}
-		else {
-			error.sprintf("D_ERROR /xdid: Invalid %s command /xdid %s %s %s (or invalid arguments) on Control %d",
-				this->getType().to_chr(),
-				input.gettok( 3).to_chr(),
-				input.gettok( 1 ).to_chr(),
-				input.gettok( 2 ).to_chr(),
-				this->getUserID());
-		}
-
-		mIRCError(error.to_chr());
+		this->showError(NULL, input.gettok( 3 ).to_chr(), "Invalid Command");
+		//TString error;
+		//if (numtok > 3) {
+		//	error.sprintf("D_ERROR /xdid: Invalid %s command /xdid %s %s %s %s (or invalid arguments) on Control %d",
+		//		this->getType().to_chr(),
+		//		input.gettok( 3 ).to_chr(),
+		//		input.gettok( 1 ).to_chr(),
+		//		input.gettok( 2 ).to_chr(),
+		//		input.gettok( 4, -1).to_chr(),
+		//		this->getUserID());
+		//}
+		//else {
+		//	error.sprintf("D_ERROR /xdid: Invalid %s command /xdid %s %s %s (or invalid arguments) on Control %d",
+		//		this->getType().to_chr(),
+		//		input.gettok( 3).to_chr(),
+		//		input.gettok( 1 ).to_chr(),
+		//		input.gettok( 2 ).to_chr(),
+		//		this->getUserID());
+		//}
+		//mIRCError(error.to_chr());
 	}
 }
 
@@ -1335,18 +1343,16 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 	}
 	delete ai;
 }
-//dcxInfoError("directshow","size",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Native Video Size");
-extern bool dcxSignal;
 void DcxControl::showError(const char *prop, const char *cmd, const char *err)
 {
-	TString res;
-	if (prop != NULL)
-		res.sprintf("D_IERROR %s(%s, %d).%s: %s", this->getType().to_chr(), this->m_pParentDialog->getName().to_chr(), this->getUserID(), prop, err);
-	else
-		res.sprintf("D_CERROR (%s) xdid %s %s %d: %s", this->getType().to_chr(), cmd, this->m_pParentDialog->getName().to_chr(), this->getUserID(), err);
-	// may change or add option to use the callback alias instead of signal.
-	if (!dcxSignal)
+	if (this->m_pParentDialog->getAliasName().len() > 0)
+		this->callAliasEx(NULL, "%s error %d %s %s %s", this->m_pParentDialog->getName().to_chr(), this->getUserID(), this->getType().to_chr(), (prop != NULL ? prop : "none"), err);
+	else {
+		TString res;
+		if (prop != NULL)
+			res.sprintf("D_IERROR %s(%s, %d).%s: %s", this->getType().to_chr(), this->m_pParentDialog->getName().to_chr(), this->getUserID(), prop, err);
+		else
+			res.sprintf("D_CERROR (%s) xdid %s %s %d: %s", this->getType().to_chr(), cmd, this->m_pParentDialog->getName().to_chr(), this->getUserID(), err);
 		mIRCError(res.to_chr());
-	else
-		mIRCSignal(res.to_chr());
+	}
 }

@@ -269,7 +269,7 @@ void mIRCeval(const char *text, char *res);
 void mIRCcom(const char *data);
 void mIRCcomEX(const char *data, ...);
 
-void dcxInfoError(const char *ctrl, const char *functn, const char *dlg, const int ctrlid, const char *msg);
+//void dcxInfoError(const char *ctrl, const char *functn, const char *dlg, const int ctrlid, const char *msg);
 void DCXError(const char *cmd,const char *msg);
 void DCXDebug(const char *cmd,const char *msg);
 

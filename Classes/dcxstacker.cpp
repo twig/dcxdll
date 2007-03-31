@@ -255,7 +255,8 @@ void DcxStacker::parseCommandRequest(TString &input) {
 					this->redrawWindow( );
 				}
 				else {
-					DCXError("/xdid -a","Error creating control");
+					this->showError(NULL, "-a", "Error creating control");
+					//DCXError("/xdid -a","Error creating control");
 					delete sitem;
 					return;
 				}
@@ -263,14 +264,16 @@ void DcxStacker::parseCommandRequest(TString &input) {
 			else {
 				TString error;
 				error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-				DCXError("/xdid -a",error.to_chr() );
+				this->showError(NULL, "-a", error.to_chr());
+				//DCXError("/xdid -a",error.to_chr() );
 				delete sitem;
 				return;
 			}
 		}
 		if (SendMessage(this->m_Hwnd,LB_INSERTSTRING,nPos,(LPARAM)sitem) < 0) {
 			delete sitem;
-			DCXError("/xdid -a","Error adding item to control");
+			this->showError(NULL, "-a", "Error adding item to control");
+			//DCXError("/xdid -a","Error adding item to control");
 			return;
 		}
 	}
@@ -314,7 +317,8 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		filename.trim();
 		
 		if (!IsFile(filename)) {
-			DCXError("xdid -w","Unable to Access File");
+			this->showError(NULL, "-w", "Unable to Access File");
+			//DCXError("xdid -w","Unable to Access File");
 			return;
 		}
 		this->m_vImageList.push_back(new Image(filename.to_wchr()));

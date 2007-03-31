@@ -217,7 +217,8 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 			HWND hHeader = (HWND) ListView_GetHeader(this->m_Hwnd);
 			
 			if (!hHeader) {
-				DCXError("$ $+ xdid(listview).columns", "could not find header");
+				this->showError("columns",NULL,"could not find header");
+				//DCXError("$ $+ xdid(listview).columns", "could not find header");
 				return;
 			}
 
@@ -734,7 +735,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 			lvi.lParam = (LPARAM) lpmylvi;
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
 			if (lvi.iItem == -1) {
-				DCXError("/xdid -a","Unable to add item");
+				this->showError(NULL,"-a", "Unable to add item");
+				//DCXError("/xdid -a","Unable to add item");
 				return;
 			}
 
@@ -754,7 +756,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 					data.trim();
 
 					if (data.numtok() < 4) {
-						DCXError("/xdid -a", "Invalid subitem syntax");
+						this->showError(NULL,"-a", "Invalid subitem syntax");
+						//DCXError("/xdid -a", "Invalid subitem syntax");
 						break;
 					}
 					stateFlags = parseItemFlags(data.gettok( 1 ));
@@ -828,7 +831,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
 
 			if (lvi.iItem == -1) {
-				DCXError("/xdid -a","Unable to add item");
+				this->showError(NULL,"-a", "Unable to add item");
+				//DCXError("/xdid -a","Unable to add item");
 				return;
 			}
 
@@ -961,7 +965,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		// invalid info
 		if ((nItem < 0) || (nCol < 0)) {
-			DCXError("/xdid -j","Invalid Item");
+			this->showError(NULL,"-j", "Invalid Item");
+			//DCXError("/xdid -j","Invalid Item");
 			return;
 		}
 
@@ -974,7 +979,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		// couldnt retrieve info
 		if (!ListView_GetItem(this->m_Hwnd, &lvi)) {
-			DCXError("/xdid -j","Unable to get Item.");
+			this->showError(NULL,"-j", "Unable to get Item.");
+			//DCXError("/xdid -j","Unable to get Item.");
 			return;
 		}
 
@@ -997,10 +1003,12 @@ void DcxListView::parseCommandRequest(TString &input) {
 				ListView_SetItemState(this->m_Hwnd, nItem, flags, 0xFFFFFF);
 			}
 			else
-				DCXError("/xdid -j","No Render Information for SubItem, More subitems than columns?");
+				this->showError(NULL, "-j", "No Render Information for SubItem, More subitems than columns?");
+				//DCXError("/xdid -j","No Render Information for SubItem, More subitems than columns?");
 		}
 		else
-			DCXError("/xdid -j","No DCX Item Information, somethings very wrong");
+			this->showError(NULL, "-j", "No DCX Item Information, somethings very wrong");
+			//DCXError("/xdid -j","No DCX Item Information, somethings very wrong");
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [STATE] [N]
 	else if (flags.switch_flags[10] && numtok > 4) {
@@ -1054,7 +1062,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 				if (numtok > 5)
 					ListView_SetColumnWidth(this->m_Hwnd, nColumn, input.gettok( 6 ).to_int());
 				else
-					DCXError("/xdid -n","No width specified");
+					this->showError(NULL, "-n", "No width specified");
+					//DCXError("/xdid -n","No width specified");
 			}
 		}
 	}
@@ -1228,7 +1237,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 				DestroyIcon(icon);
 			}
 			else {
-				DCXError("/xdid -w", "Unable to Load Icon");
+				this->showError(NULL, "-w", "Unable to Load Icon");
+				//DCXError("/xdid -w", "Unable to Load Icon");
 				return;
 			}
 

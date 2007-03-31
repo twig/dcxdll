@@ -66,6 +66,7 @@ protected:
 	bool m_bTileImage; //!< Tile Image
 	bool m_bBuffer; //!< Double Buffer Rendering, needed for GDI+ when WS_EX_COMPOSITED
 	int m_iXOffset, m_iYOffset; //!< X & Y image offsets.
+	TString m_tsFilename;	//!< The loaded images filename.
 };
 
 #endif // _DCXIMAGE_H_

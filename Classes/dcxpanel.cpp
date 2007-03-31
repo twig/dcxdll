@@ -144,7 +144,8 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 		else {
 			TString error;
 			error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-			DCXError("/xdid -c", error.to_chr() );
+			this->showError(NULL, "-c", error.to_chr());
+			//DCXError("/xdid -c", error.to_chr() );
 		}
 	}
   // xdid -d [NAME] [ID] [SWITCH] [ID]
@@ -168,14 +169,16 @@ void DcxPanel::parseCommandRequest( TString & input ) {
         TString error;
         error.sprintf("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", 
                   p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
-				DCXError("/xdid -d", error.to_chr() );
+				this->showError(NULL, "-d", error.to_chr());
+				//DCXError("/xdid -d", error.to_chr() );
       }
     }
     else {
       TString error;
       error.sprintf("Unknown control with ID \"%d\" (dialog %s)", 
                 ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
-			DCXError("/xdid -d", error.to_chr() );
+			this->showError(NULL, "-d", error.to_chr());
+			//DCXError("/xdid -d", error.to_chr() );
     }
   }
   /*
@@ -241,7 +244,8 @@ void DcxPanel::parseCommandRequest( TString & input ) {
             else {
               TString error;
               error.sprintf("Cell Fill -> Invalid ID : %d", ID );
-							DCXError("/xdid -l", error.to_chr() );
+							this->showError(NULL, "-l", error.to_chr());
+							//DCXError("/xdid -l", error.to_chr() );
               return;
             }
           }
@@ -274,7 +278,8 @@ void DcxPanel::parseCommandRequest( TString & input ) {
               else {
                 TString error;
                 error.sprintf("Cell Fixed -> Invalid ID : %d", ID );
-								DCXError("/xdid -l", error.to_chr() );
+								this->showError(NULL, "-l", error.to_chr());
+								//DCXError("/xdid -l", error.to_chr() );
                 return;
               }
             }
@@ -292,14 +297,16 @@ void DcxPanel::parseCommandRequest( TString & input ) {
               else {
                 TString error;
                 error.sprintf("Cell Fixed -> Invalid ID : %d", ID );
-								DCXError("/xdid -l", error.to_chr() );
+								this->showError(NULL, "-l", error.to_chr());
+								//DCXError("/xdid -l", error.to_chr() );
                 return;
               }
             }
           } //else
         } // else if ( flags & LAYOUTFIXED )
         else {
-          DCXError("/xdid -l", "Unknown Cell Type" );
+					this->showError(NULL, "-l", "Unknown Cell Type");
+          //DCXError("/xdid -l", "Unknown Cell Type" );
           return;
         }
 
@@ -324,7 +331,8 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 
               TString error;
               error.sprintf("Invalid item path: %s", path.to_chr( ) );
-							DCXError("/xdid -l", error.to_chr() );
+							this->showError(NULL, "-l", error.to_chr());
+							//DCXError("/xdid -l", error.to_chr() );
               return;
             }
 
@@ -349,7 +357,8 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 
           TString error;
           error.sprintf("Invalid item path: %s", path.to_chr( ) );
-					DCXError("/xdid -l", error.to_chr() );
+					this->showError(NULL, "-l", error.to_chr());
+					//DCXError("/xdid -l", error.to_chr() );
           return;
         }
         else {

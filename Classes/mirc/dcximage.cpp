@@ -121,9 +121,16 @@ void DcxImage::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
 
 void DcxImage::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	//int numtok = input.numtok( );
 
-  if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+	TString prop(input.gettok( 3 ));
+
+	// [NAME] [ID] [PROP]
+	if ( prop == "fname") {
+		lstrcpyn(szReturnValue,this->m_tsFilename.to_chr(), 900);
+		return;
+	}
+  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
   
   szReturnValue[0] = 0;
@@ -147,6 +154,7 @@ void DcxImage::PreloadData() {
 		this->m_pImage = NULL;
 	}
 #endif
+	this->m_tsFilename = "";
 }
 
 #ifdef DCX_USE_GDIPLUS
@@ -240,8 +248,8 @@ void DcxImage::parseCommandRequest(TString & input) {
 		else
 			this->m_hIcon = dcxLoadIcon(index, filename, FALSE, flag);
 
-		//if (flag.find('g', 0))
-		//	this->m_hIcon = CreateGrayscaleIcon(this->m_hIcon);
+		if (this->m_hIcon != NULL)
+			this->m_tsFilename = filename;
 
 		this->m_iIconSize = size;
 		this->m_bIsIcon = TRUE;
@@ -265,7 +273,8 @@ void DcxImage::parseCommandRequest(TString & input) {
 		PreloadData();
 
 		if (flag[0] != '+') {
-			DCXError("/xdid -i", "Invalid Flags");
+			this->showError(NULL,"-i", "Invalid Flags");
+			//DCXError("/xdid -i", "Invalid Flags");
 			return;
 		}
 
@@ -274,12 +283,17 @@ void DcxImage::parseCommandRequest(TString & input) {
 		//if (mIRCLink.m_bUseGDIPlus && flag.find('g',0)) {
 		if (mIRCLink.m_bUseGDIPlus) {
 			if (!LoadGDIPlusImage(flag,filename))
-				DCXError("/xdid -i", "Unable to load Image with GDI+");
+				this->showError(NULL,"-i", "Unable to load Image with GDI+");
+				//DCXError("/xdid -i", "Unable to load Image with GDI+");
 		}
 		else
 			this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
+		if ((this->m_hBitmap != NULL) || (this->m_pImage != NULL))
+			this->m_tsFilename = filename;
 #else
 		this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
+		if (this->m_hBitmap != NULL)
+			this->m_tsFilename = filename;
 #endif
 		this->m_bIsIcon = FALSE;
 		//{	// Invalidate controls area in parent.

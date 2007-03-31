@@ -51,7 +51,7 @@ BOOL XPPlus = FALSE;                 //!< Is OS WinXP+ ?
 
 //FILE * logFile;
 
-IClassFactory * g_pClassFactory; //!< Web Control Factory
+IClassFactory * g_pClassFactory = NULL; //!< Web Control Factory
 
 
 // Tray Icon stuff
@@ -61,20 +61,20 @@ DcxTrayIcon *trayIcons = NULL; // tray icon manager
 // XPopup Stuff
 XPopupMenuManager g_XPopupMenuManager; //!< Global XPopupMenu Manager
 
-XPopupMenu * g_mIRCPopupMenu;
-XPopupMenu * g_mIRCMenuBar;
+XPopupMenu * g_mIRCPopupMenu = NULL;
+XPopupMenu * g_mIRCMenuBar = NULL;
 
-BOOL isMenuBar;
-BOOL isSysMenu;
+BOOL isMenuBar = FALSE;
+BOOL isSysMenu = FALSE;
 
 BOOL bIsActiveMircPopup = FALSE;
 BOOL bIsActiveMircMenubarPopup = FALSE;
 
-HWND mhMenuOwner; //!< Menu Owner Window Which Processes WM_ Menu Messages
+HWND mhMenuOwner = NULL; //!< Menu Owner Window Which Processes WM_ Menu Messages
 
-WNDPROC g_OldmIRCWindowProc;
+WNDPROC g_OldmIRCWindowProc = NULL;
 
-bool dcxSignal;
+bool dcxSignal = false;
 
 #ifdef DCX_USE_GDIPLUS
 ULONG_PTR gdi_token = NULL;
@@ -164,7 +164,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	// Initializing OLE Support
 	OleInitialize(NULL);
 
-	HMODULE hModule;
+	HMODULE hModule = NULL;
 
 #ifdef DCX_USE_GDIPLUS
 	// Initialize GDI+
@@ -807,10 +807,12 @@ mIRC(OpenDialog) {
 	TString d(data);
 	d.trim();
 
+	data[0] = 0;
+
 	// count number of tab tokens
 	if (d.numtok(TSTAB) != 3) {
 		DCXError("OpenDialog","Invalid parameters");
-		ret("");
+		return 0;
 	}
 
 	ret(FileDialog(d, "OPEN", mWnd).to_chr());
@@ -821,10 +823,12 @@ mIRC(SaveDialog) {
 	TString d(data);
 	d.trim();
 
+	data[0] = 0;
+
 	// count number of tab tokens
 	if (d.numtok(TSTAB) != 3) {
 		DCXError("SaveDialog","Invalid parameters");
-		ret("");
+		return 0;
 	}
 
 	ret(FileDialog(d, "SAVE", mWnd).to_chr());
@@ -982,7 +986,7 @@ mIRC(xdid) {
 
 	if (d.numtok( ) < 3) {
 		DCXError("/xdid","Invalid arguments");
-		return 3;
+		return 0;
 	}
 
 	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok( 1 ));
@@ -991,7 +995,7 @@ mIRC(xdid) {
 		TString error;
 		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
 		DCXError("/xdid",error.to_chr());
-		return 3;
+		return 0;
 	}
 
 	TString IDs(d.gettok( 2 )), d2;
@@ -1006,8 +1010,9 @@ mIRC(xdid) {
 			if (p_Control == NULL) {
 				TString error;
 				error.sprintf("Invalid ID : %s (dialog : %s)", IDs.gettok(i, TSCOMMA).to_chr(), d.gettok( 1 ).to_chr());
-				DCXError("/xdid",error.to_chr());
-				return 3;
+				p_Dialog->showError(NULL,d.gettok( 3 ).to_chr(), error.to_chr());
+				//DCXError("/xdid",error.to_chr());
+				return 0;
 			}
 
 			d2 = d.gettok( 1 ) + " " + IDs.gettok(i, TSCOMMA) + " " + d.gettok(3, -1);
@@ -1023,8 +1028,9 @@ mIRC(xdid) {
 		if (p_Control == NULL) {
 			TString error;
 			error.sprintf("Invalid ID : %s (dialog : %s)", d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
-			DCXError("/xdid",error.to_chr());
-			return 3;
+			p_Dialog->showError(NULL,d.gettok( 3 ).to_chr(), error.to_chr());
+			//DCXError("/xdid",error.to_chr());
+			return 0;
 		}
 
 		p_Control->parseCommandRequest(d);
@@ -1048,7 +1054,7 @@ mIRC(_xdid) {
 
 	if (d.numtok( ) < 3) {
 		DCXError("$ $+ xdid","Invalid arguments");
-		return 3;
+		return 0;
 	}
 
 	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok( 1 ));
@@ -1057,7 +1063,7 @@ mIRC(_xdid) {
 		TString error;
 		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
 		DCXError("$ $+ xdid",error.to_chr());
-		return 3;
+		return 0;
 	}
 
 	DcxControl * p_Control = p_Dialog->getControlByID((UINT) d.gettok( 2 ).to_int() + mIRC_ID_OFFSET);
@@ -1065,8 +1071,9 @@ mIRC(_xdid) {
 	if (p_Control == NULL) {
 		TString error;
 		error.sprintf("Invalid ID : %s (dialog %s)", d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
-		DCXError("$ $+ xdid",error.to_chr());
-		return 3;
+		p_Dialog->showError(d.gettok( 3 ).to_chr(), NULL, error.to_chr());
+		//DCXError("$ $+ xdid",error.to_chr());
+		return 0;
 	}
 
 	p_Control->parseInfoRequest(d, data);
@@ -1112,7 +1119,7 @@ mIRC(xdialog) {
 		TString error;
 		error.sprintf("Invalid arguments ( dialog %s)", d.gettok( 1 ).to_chr());
 		DCXError("/xdialog",error.to_chr());
-		return 3;
+		return 0;
 	}
 
 	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok( 1 ));
@@ -1121,11 +1128,11 @@ mIRC(xdialog) {
 		TString error;
 		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
 		DCXError("/xdialog",error.to_chr());
-		return 3;
+		return 0;
 	}
 
 	p_Dialog->parseCommandRequest(d);
-	return 3;
+	return 1;
 }
 
 /*!
@@ -1146,7 +1153,7 @@ mIRC(_xdialog) {
 		TString error;
 		error.sprintf("Invalid arguments ( dialog %s)", d.gettok( 1 ).to_chr());
 		DCXError("$ $+ xdialog",error.to_chr());
-		return 3;
+		return 0;
 	}
 
 	DcxDialog *p_Dialog = Dialogs.getDialogByName(d.gettok( 1 ));
@@ -1156,7 +1163,7 @@ mIRC(_xdialog) {
 			TString error;
 			error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
 			DCXError("$ $+ xdialog",error.to_chr());
-			return 3;
+			return 0;
 		}
 		else
 			ret("$false");
@@ -1463,12 +1470,12 @@ mIRC(xpop) {
 
 	if (d.numtok( ) < 3) {
 		DCXError("/xpop","Invalid arguments");
-		return 3;
+		return 0;
 	}
 
 	if ((d.gettok( 1 ) == "mirc") || (d.gettok( 1 ) == "mircbar")) {
 		DCXError("/xpop","Invalid menu name : mirc or mircbar menus don't have access to this feature.");
-		return 3;
+		return 0;
 	}
 
 	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok( 1 ));
@@ -1477,11 +1484,11 @@ mIRC(xpop) {
 		TString error;
 		error.sprintf("Unknown menu \"%s\": see /xpopup -c command", d.gettok( 1 ).to_chr());
 		DCXError("/xpop",error.to_chr());
-		return 3;
+		return 0;
 	}
 
 	p_Menu->parseXPopCommand(d);
-	return 3;
+	return 1;
 }
 
 /*!
@@ -1499,12 +1506,12 @@ mIRC(_xpop) {
 
 	if (d.numtok( ) < 3) {
 		DCXError("$ $+ xpop","Invalid arguments");
-		return 3;
+		return 0;
 	}
 
 	if ((d.gettok( 1 ) == "mirc") || (d.gettok( 1 ) == "mircbar")) {
 		DCXError("$ $+ xpop","Invalid menu name : mirc or mircbar menus don't have access to this feature.");
-		return 3;
+		return 0;
 	}
 
 	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok( 1 ));
@@ -1513,7 +1520,7 @@ mIRC(_xpop) {
 		TString error;
 		error.sprintf("Unknown menu \"%s\": see /xpopup -c command", d.gettok( 1 ).to_chr());
 		DCXError("$ $+ xpop",error.to_chr());
-		return 3;
+		return 0;
 	}
 
 	p_Menu->parseXPopIdentifier(d, data);
@@ -1535,11 +1542,11 @@ mIRC(xpopup) {
 
 	if (d.numtok( ) < 2) {
 		DCXError("/xpopup","Invalid arguments");
-		return 3;
+		return 0;
 	}
 
 	g_XPopupMenuManager.parseXPopupCommand(d);
-	return 3;
+	return 1;
 }
 
 /*!
@@ -1557,7 +1564,7 @@ mIRC(_xpopup) {
 
 	if (d.numtok( ) < 2) {
 		DCXError("$ $+ xpopup","Invalid arguments");
-		return 3;
+		return 0;
 	}
 
 	g_XPopupMenuManager.parseXPopupIdentifier(d, data);
@@ -1579,7 +1586,7 @@ mIRC(mpopup) {
 
 	if (d.numtok( ) < 2) {
 		DCXError("/mpopup","Invalid arguments");
-		return 3;
+		return 0;
 	}
 
 	if (d.gettok( 1 ) == "mirc") {
@@ -1617,14 +1624,14 @@ mIRC(WindowProps) {
 
 	if (numtok < 2) {
 		DCXError("/dcx WindowProps", "Insuffient parameters");
-		return 1;
+		return 0;
 	}
 
 	HWND hwnd = (HWND) input.gettok( 1 ).to_int();
 
 	if (!IsWindow(hwnd)) {
 		DCXError("/dcx WindowProps", "Invalid window");
-		return 1;
+		return 0;
 	}
 
 	TString flags(input.gettok( 2 ));

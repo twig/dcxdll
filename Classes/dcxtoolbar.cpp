@@ -168,7 +168,18 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
     if ( nButton > -1 && nButton < this->getButtonCount( ) ) {
 
-      this->getButtonText( this->getIndexToCommand( nButton ), szReturnValue ); // possible overflow, needs fixing at some point.
+			// This way fails to give the correct result after buttons have been removed.
+      //this->getButtonText( this->getIndexToCommand( nButton ), szReturnValue ); // possible overflow, needs fixing at some point.
+      TBBUTTONINFO tbbi;
+      ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
+      tbbi.cbSize = sizeof( TBBUTTONINFO );
+      tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
+      this->getButtonInfo( nButton, &tbbi );
+
+      LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
+
+      if ( lpdcxtbb != NULL )
+				lstrcpyn( szReturnValue, lpdcxtbb->bText.to_chr( ), 900 );
       return;
     }
   }
@@ -240,10 +251,8 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
       LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
 
-      if ( lpdcxtbb != NULL ) {
-
+      if ( lpdcxtbb != NULL )
         lstrcpyn( szReturnValue, lpdcxtbb->tsTipText.to_chr( ), 900 );
-      }
       return;
     }
   }
@@ -565,7 +574,8 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		UINT iFlags = this->parseImageListFlags(input.gettok( 4 ));
 
 		if (input.gettok( 4 )[0] != '+') {
-			DCXError("xdid -w", "Invalid Flags");
+			this->showError(NULL, "-w", "Invalid Flags");
+			//DCXError("xdid -w", "Invalid Flags");
 			return;
 		}
 

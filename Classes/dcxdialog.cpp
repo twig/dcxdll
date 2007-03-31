@@ -325,7 +325,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		else {
 			TString error;
 			error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET);
-			DCXError("/xdialog -c",error.to_chr());
+			this->showError(NULL,"-c", error.to_chr());
+			//DCXError("/xdialog -c",error.to_chr());
 		}
 	}
 	// xdialog -d [NAME] [SWITCH] [ID]
@@ -367,14 +368,16 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			else {
 				TString error;
 				error.sprintf("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", p_Control->getUserID(), this->m_tsName.to_chr());
-				DCXError("/xdialog -d",error.to_chr());
+				this->showError(NULL, "-d", error.to_chr());
+				//DCXError("/xdialog -d",error.to_chr());
 			}
 		}
 		// unknown control
 		else {
 			TString error;
 			error.sprintf("Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_tsName.to_chr());
-			DCXError("/xdialog -d",error.to_chr());
+			this->showError(NULL, "-d", error.to_chr());
+			//DCXError("/xdialog -d",error.to_chr());
 		}
 	}
 	// xdialog -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
@@ -435,7 +438,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			else {
 				TString error;
 				error.sprintf("Could not find control %d", id - mIRC_ID_OFFSET);
-				DCXError("/xdialog -j",error.to_chr());
+				this->showError(NULL, "-j", error.to_chr());
+				//DCXError("/xdialog -j",error.to_chr());
 			}
 
 			return;
@@ -502,7 +506,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 						else {
 							TString error;
 							error.sprintf("Cell Fill -> Invalid ID : %d", ID);
-							DCXError("/xdialog -l",error.to_chr());
+							this->showError(NULL, "-l", error.to_chr());
+							//DCXError("/xdialog -l",error.to_chr());
 							return;
 						}
 					}
@@ -532,7 +537,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 							else {
 								TString error;
 								error.sprintf("Cell Fixed -> Invalid ID : %d", ID);
-								DCXError("/xdialog -l",error.to_chr());
+								this->showError(NULL, "-l", error.to_chr());
+								//DCXError("/xdialog -l",error.to_chr());
 								return;
 							}
 						}
@@ -547,14 +553,16 @@ void DcxDialog::parseCommandRequest(TString &input) {
 							else {
 								TString error;
 								error.sprintf("Cell Fixed -> Invalid ID : %d", ID);
-								DCXError("/xdialog -l",error.to_chr());
+								this->showError(NULL, "-l", error.to_chr());
+								//DCXError("/xdialog -l",error.to_chr());
 								return;
 							}
 						}
 					} //else
 				} // else if ( flags & LAYOUTFIXED )
 				else {
-					DCXError("/xdialog -l","Unknown Cell Type");
+					this->showError(NULL, "-l", "Unknown Cell Type");
+					//DCXError("/xdialog -l","Unknown Cell Type");
 					return;
 				}
 
@@ -574,7 +582,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 						if (p_GetCell == NULL) {
 							TString error;
 							error.sprintf("Invalid item path: %s", path.to_chr());
-							DCXError("/xdialog -l",error.to_chr());
+							this->showError(NULL, "-l", error.to_chr());
+							//DCXError("/xdialog -l",error.to_chr());
 							return;
 						}
 
@@ -636,7 +645,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			}
 		}
 		if (this->m_hCursor == NULL)
-			DCXError("/xdialog -q","Unable to Load Cursor");
+			this->showError(NULL, "-q", "Unable to Load Cursor");
+			//DCXError("/xdialog -q","Unable to Load Cursor");
 		if (hCursor != NULL) {
 			if (GetCursor() == hCursor) {
 				if (this->m_hCursor != NULL)
@@ -699,7 +709,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			this->m_colTransparentBg = input.gettok( 4 ).to_int();
 		}
 		else {
-			DCXError("/xdialog -t","Unknown Switch");
+			this->showError(NULL, "-t", "Unknown Switch");
+			//DCXError("/xdialog -t","Unknown Switch");
 			return;
 		}
 		this->redrawWindow();
@@ -707,7 +718,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdialog -T [NAME] [SWITCH] [FLAGS] [STYLES]
 	else if (flags.switch_cap_flags[19] && numtok > 2) {
 		if (IsWindow(this->m_ToolTipHWND)) {
-			DCXError("/xdialog -T","Tooltip already exists. Cannot recreate");
+			this->showError(NULL, "-T", "Tooltip already exists. Cannot recreate");
+			//DCXError("/xdialog -T","Tooltip already exists. Cannot recreate");
 			return;
 		}
 
@@ -907,7 +919,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		TString flag(input.gettok( 3 ));
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
-			DCXError("/xdialog -R","Invalid Flag");
+			this->showError(NULL, "-R", "Invalid Flag");
+			//DCXError("/xdialog -R","Invalid Flag");
 			return;
 		}
 
@@ -931,7 +944,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		if (flag.find('f',0))
 		{
 			if (numtok < 5) {
-				DCXError("/xdialog -R +f","Invalid arguments");
+				this->showError(NULL, "-R +f", "Invalid arguments");
+				//DCXError("/xdialog -R +f","Invalid arguments");
 				return;
 			}
 
@@ -945,7 +959,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			if (this->m_bitmapBg != NULL)
 				m_Region = BitmapRegion(this->m_bitmapBg,this->m_colTransparentBg,TRUE);
 			else
-				DCXError("/xdialog -R +f","Unable To Load Image file.");
+				this->showError(NULL, "-R +f", "Unable To Load Image file.");
+				//DCXError("/xdialog -R +f","Unable To Load Image file.");
 		}
 		else if (flag.find('r',0)) // rounded rect - radius args (optional)
 		{
@@ -974,7 +989,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		{
 			// u need at least 3 points for a shape
 			if (numtok < 6) {
-				DCXError("/xdialog -R +p","Invalid arguments");
+				this->showError(NULL, "-R +p", "Invalid arguments");
+				//DCXError("/xdialog -R +p","Invalid arguments");
 				return;
 			}
 
@@ -983,7 +999,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			int tPoints = strPoints.numtok( );
 
 			if (tPoints < 1) {
-				DCXError("/xdialog -R +p","Invalid Points");
+				this->showError(NULL, "-R +p", "Invalid Points");
+				//DCXError("/xdialog -R +p","Invalid Points");
 				return;
 			}
 
@@ -1017,7 +1034,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				this->m_bDoGhostDrag = alpha;
 			}
 			else {
-				DCXError("xdialog -R +g","Alpha Out Of Range");
+				this->showError(NULL,"-R +g", "Alpha Out Of Range");
+				//DCXError("xdialog -R +g","Alpha Out Of Range");
 				return;
 			}
 		}
@@ -1048,7 +1066,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
 		}
 		else
-			DCXError("xdialog -R", "Invalid Flag");
+			this->showError(NULL, "-R", "Invalid Flag");
+			//DCXError("xdialog -R", "Invalid Flag");
 
 		if (!noRegion) {
 			if (m_Region != NULL) {
@@ -1063,7 +1082,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
 			}
 			else
-				DCXError("/xdialog -R","Unable to create region.");
+				this->showError(NULL, "-R", "Unable to create region.");
+				//DCXError("/xdialog -R","Unable to create region.");
 		}
 		this->redrawWindow();
 	}
@@ -1075,7 +1095,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		TString n_flags(input.gettok( 4 ));
 
 		if ((p_flags[0] != '+') || (n_flags[0] != '-')) {
-			DCXError("xdialog -E", "Invalid Flag");
+			this->showError(NULL,"-E", "Invalid Flag");
+			//DCXError("xdialog -E", "Invalid Flag");
 			return;
 		}
 		if (p_flags.find('c',0))
@@ -1124,21 +1145,22 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// invalid command
 	else {
-		TString errmsg;
+		this->showError(NULL, input.gettok( 2 ).to_chr(), "Invalid Command");
+		//TString errmsg;
 
-		if (numtok > 2) {
-			errmsg.sprintf("D_ERROR xdialog: Invalid command /xdialog %s %s %s",
-				input.gettok( 2 ).to_chr(),
-				input.gettok( 1 ).to_chr(),
-				input.gettok( 3, -1).to_chr());
-		}
-		else {
-			errmsg.sprintf("D_ERROR xdialog: Invalid command /xdialog %s %s",
-				input.gettok( 2 ).to_chr(),
-				input.gettok( 1 ).to_chr());
-		}
+		//if (numtok > 2) {
+		//	errmsg.sprintf("D_ERROR xdialog: Invalid command /xdialog %s %s %s",
+		//		input.gettok( 2 ).to_chr(),
+		//		input.gettok( 1 ).to_chr(),
+		//		input.gettok( 3, -1).to_chr());
+		//}
+		//else {
+		//	errmsg.sprintf("D_ERROR xdialog: Invalid command /xdialog %s %s",
+		//		input.gettok( 2 ).to_chr(),
+		//		input.gettok( 1 ).to_chr());
+		//}
 
-		mIRCError(errmsg.to_chr());
+		//mIRCError(errmsg.to_chr());
 	}
 }
 
@@ -2923,16 +2945,21 @@ bool DcxDialog::SetShadowColor(COLORREF NewColor)
 	return true;
 }
 // .... CWndShadow
-extern bool dcxSignal;
+//extern bool dcxSignal;
 void DcxDialog::showError(const char *prop, const char *cmd, const char *err)
 {
-	TString res;
-	if (prop != NULL)
-		res.sprintf("D_IERROR xdialog(%s).%s: %s", this->getName().to_chr(), prop, err);
-	else
-		res.sprintf("D_CERROR xdialog %s %s: %s", cmd, this->getName().to_chr(), err);
-	if (!dcxSignal)
+	if (this->getAliasName().len() > 0)
+		this->callAliasEx(NULL, "%s error 0 dialog %s %s", this->getName().to_chr(), (prop != NULL ? prop : "none"), err);
+	else {
+		TString res;
+		if (prop != NULL)
+			res.sprintf("D_IERROR xdialog(%s).%s: %s", this->getName().to_chr(), prop, err);
+		else
+			res.sprintf("D_CERROR xdialog %s %s: %s", cmd, this->getName().to_chr(), err);
 		mIRCError(res.to_chr());
-	else
-		mIRCSignal(res.to_chr());
+	}
+	//if (!dcxSignal)
+	//	mIRCError(res.to_chr());
+	//else
+	//	mIRCSignal(res.to_chr());
 }

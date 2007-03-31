@@ -73,6 +73,7 @@ protected:
 	IVMRWindowlessControl9 *m_pWc;
 	bool										m_bKeepRatio;
 	bool										m_bLoop;
+	TString									m_tsFilename;
 };
 
 #pragma comment(lib, "Strmiids.lib")

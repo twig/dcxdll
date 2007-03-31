@@ -175,16 +175,14 @@ void DcxDivider::parseCommandRequest( TString & input ) {
       else {
         TString error;
         error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-				DCXError("/xdid -l|r", error.to_chr() );
+				this->showError(NULL, "-l|r", error.to_chr());
+				//DCXError("/xdid -l|r", error.to_chr() );
       }
     }
   }
   // xdid -v [NAME] [ID] [SWITCH] [POS]
-  else if ( flags.switch_flags[21] && numtok > 3 ) {
-
-    int iPos = input.gettok( 4 ).to_int( );
-    this->setDivPos( iPos );
-  }
+  else if ( flags.switch_flags[21] && numtok > 3 )
+    this->setDivPos( input.gettok( 4 ).to_int( ) );
   else
     this->parseGlobalCommandRequest( input, flags );
 }

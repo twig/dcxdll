@@ -253,7 +253,8 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 		int icon = input.gettok( 6 ).to_int( ) - 1;
 
 		if ( nPos < 0 || nPos >= this->getParts( 256, 0 ) ) {
-			DCXError("xdid -t", "Invalid Part");
+			this->showError(NULL, "-t", "Invalid Part");
+			//DCXError("xdid -t", "Invalid Part");
 			return;
 		}
 
@@ -317,7 +318,8 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 						SendMessage(this->m_Hwnd,WM_SIZE,0,0);
 					}
 					else {
-						DCXError("/xdid -t","Error creating control");
+						this->showError(NULL, "-t", "Error creating control");
+						//DCXError("/xdid -t","Error creating control");
 						delete pPart;
 						return;
 					}
@@ -325,7 +327,8 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 				else {
 					TString error;
 					error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-					DCXError("/xdid -t",error.to_chr() );
+					this->showError(NULL, "-t", error.to_chr());
+					//DCXError("/xdid -t",error.to_chr() );
 					delete pPart;
 					return;
 				}
@@ -363,7 +366,8 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 			}
 		}
 		else
-			DCXError("xdid -v", "Invalid Part");
+			this->showError(NULL, "-v", "Invalid Part");
+			//DCXError("xdid -v", "Invalid Part");
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {

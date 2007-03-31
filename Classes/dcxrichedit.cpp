@@ -454,7 +454,8 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		int den = input.gettok( 5 ).to_int();
 
 		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
-			DCXError("/xdid -Z","Richedit zooming error");
+			this->showError(NULL, "-Z", "Richedit zooming error");
+			//DCXError("/xdid -Z","Richedit zooming error");
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);

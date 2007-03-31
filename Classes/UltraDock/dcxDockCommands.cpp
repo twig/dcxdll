@@ -229,8 +229,10 @@ mIRC(xdock) {
 	// options = notheme grip tooltips nodivider
 	if ((switches[1] == 'A') && (numtok > 1)) {
 		if (input.gettok(2).to_int() > 0) {
-			if (!DcxDock::InitStatusbar(input.gettok(3,-1)))
+			if (!DcxDock::InitStatusbar(input.gettok(3,-1))) {
 				DCXError("xdock -A","Unable to Create Statusbar");
+				return 0;
+			}
 		}
 		else
 			DcxDock::UnInitStatusbar();

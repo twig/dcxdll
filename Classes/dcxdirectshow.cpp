@@ -125,6 +125,11 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		lstrcpy(szReturnValue,"$true");
 		return;
 	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == "fname") {
+		lstrcpyn(szReturnValue,this->m_tsFilename.to_chr(), 900);
+		return;
+	}
   // [NAME] [ID] [PROP]
 	else if ( prop == "size") {
 		long lWidth, lHeight, lARWidth, lARHeight;
@@ -262,11 +267,13 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		filename.trim();
 		this->ReleaseAll();
 		if (!mIRCLink.m_bDX9Installed) {
-			DCXError("/xdid -a", "Needs DirectX 9+");
+			this->showError(NULL, "-a", "Needs DirectX 9+");
+			//DCXError("/xdid -a", "Needs DirectX 9+");
 			return;
 		}
 		if (!IsFile(filename)) {
-			DCXError("/xdid -a", "Unable to Access File");
+			this->showError(NULL,"-a", "Unable to Access File");
+			//DCXError("/xdid -a", "Unable to Access File");
 			return;
 		}
 		// Create the Filter Graph Manager and query for interfaces.
@@ -276,31 +283,36 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		if (SUCCEEDED(hr))
 			hr = this->m_pGraph->QueryInterface(IID_IMediaControl, (void **)&this->m_pControl);
 		else {
-			DCXError("/xdid -a","Unable to Create FilterGraph");
+			this->showError(NULL,"-a", "Unable to Create FilterGraph");
+			//DCXError("/xdid -a","Unable to Create FilterGraph");
 			inErr = true;
 		}
 		if (SUCCEEDED(hr))
 			hr = this->m_pGraph->QueryInterface(IID_IMediaEventEx, (void **)&this->m_pEvent);
 		else if (!inErr) {
-			DCXError("/xdid -a","Unable to Get IMediaControl");
+			this->showError(NULL,"-a", "Unable to Get IMediaControl");
+			//DCXError("/xdid -a","Unable to Get IMediaControl");
 			inErr = true;
 		}
 		if (SUCCEEDED(hr))
 			hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking, (void **)&this->m_pSeek);
 		else if (!inErr) {
-			DCXError("/xdid -a","Unable to Get IMediaEventEx");
+			this->showError(NULL,"-a", "Unable to Get IMediaEventEx");
+			//DCXError("/xdid -a","Unable to Get IMediaEventEx");
 			inErr = true;
 		}
 		if (SUCCEEDED(hr))
 			hr = this->m_pEvent->SetNotifyWindow((OAHWND)this->m_Hwnd,WM_GRAPHNOTIFY,0);
 		else if (!inErr) {
-			DCXError("/xdid -a","Unable to Get IMediaSeeking");
+			this->showError(NULL,"-a", "Unable to Get IMediaSeeking");
+			//DCXError("/xdid -a","Unable to Get IMediaSeeking");
 			inErr = true;
 		}
 		if (SUCCEEDED(hr))
 			hr = DcxDirectshow::InitWindowlessVMR(this->m_Hwnd,this->m_pGraph,&this->m_pWc);
 		else if (!inErr) {
-			DCXError("/xdid -a","Unable to Set Window Notify");
+			this->showError(NULL,"-a", "Unable to Set Window Notify");
+			//DCXError("/xdid -a","Unable to Set Window Notify");
 			inErr = true;
 		}
 		if (SUCCEEDED(hr)) {
@@ -310,7 +322,8 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 				hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_None);
 		}
 		else if (!inErr) {
-			DCXError("/xdid -a","Unable to Create VMR9 (No DirectX 9?)");
+			this->showError(NULL,"-a", "Unable to Create VMR9");
+			//DCXError("/xdid -a","Unable to Create VMR9 (No DirectX 9?)");
 			inErr = true;
 		}
 		if (SUCCEEDED(hr)) {
@@ -328,19 +341,26 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 						this->m_pControl->Run();
 				}
 				else
-					DCXError("/xdid -a","Unable to set Video Position");
+					this->showError(NULL,"-a", "Unable to set Video Position");
+					//DCXError("/xdid -a","Unable to set Video Position");
 			}
 			else
-				DCXError("/xdid -a","Unable to render file (No codec for file format?)");
+				this->showError(NULL,"-a", "Unable to render file (No codec for file format?)");
+				//DCXError("/xdid -a","Unable to render file (No codec for file format?)");
 		}
 		else if (!inErr) {
-			DCXError("/xdid -a","Unable to Set Aspect");
+			this->showError(NULL,"-a", "Unable to Set Aspect");
+			//DCXError("/xdid -a","Unable to Set Aspect");
 			inErr = true;
 		}
 		if (!SUCCEEDED(hr)) { // if anything failed, release all & show error.
 			this->ReleaseAll();
-			DCXError("/xdid -a","Unable to Setup Filter Graph");
+			this->showError(NULL,"-a", "Unable to Setup Filter Graph");
+			//DCXError("/xdid -a","Unable to Setup Filter Graph");
 		}
+		else
+			this->m_tsFilename = filename;
+
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
   // xdid -c [NAME] [ID] [SWITCH] [COMMAND]
@@ -378,22 +398,26 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 				break;
 			case 0: // error
 			default:
-				DCXError("/xdid -c","Invalid Command");
+				this->showError(NULL,"-c", "Invalid Command");
+				//DCXError("/xdid -c","Invalid Command");
 				break;
 			}
 		}
 		else
-			DCXError("/xdid -c", "No File Loaded");
+			this->showError(NULL,"-c", "No File Loaded");
+			//DCXError("/xdid -c", "No File Loaded");
 	}
   // xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
   else if ( flags.switch_flags[21] && numtok > 7 ) {
 		if (this->m_pControl != NULL) {
 			HRESULT hr = this->setVideo(input.gettok(4),(float)input.gettok(5).to_float(), (float)input.gettok(6).to_num(), (float)input.gettok(7).to_num(), (float)input.gettok(8).to_num());
 			if (FAILED(hr))
-				DCXError("/xdid -v", "Unable to set video");
+				this->showError(NULL,"-v", "Unable to set video");
+				//DCXError("/xdid -v", "Unable to set video");
 		}
 		else
-			DCXError("/xdid -v", "No File Loaded");
+			this->showError(NULL,"-v", "No File Loaded");
+			//DCXError("/xdid -v", "No File Loaded");
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -670,6 +694,7 @@ void DcxDirectshow::ReleaseAll(void)
 	this->m_pGraph = NULL;
 	this->m_pWc = NULL;
 	this->m_pSeek = NULL;
+	this->m_tsFilename = "";
 }
 // getProperty() is non-functional atm. Where do i get this interface from? or a similar one.
 HRESULT DcxDirectshow::getProperty(char *prop, const int type) const
