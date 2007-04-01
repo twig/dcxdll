@@ -404,8 +404,10 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		{
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
 				this->callAliasEx(NULL, "%s,%d", "help", this->getUserID());
-			break;
+			bParsed = TRUE;
+			return TRUE;
 		}
+		break;
 
 			// disabled this to fix the tabbing problem
 			//case WM_GETDLGCODE:

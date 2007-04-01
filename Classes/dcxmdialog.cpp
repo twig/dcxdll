@@ -162,6 +162,8 @@ LRESULT DcxMDialog::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
       {
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
 	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				bParsed = TRUE;
+				return TRUE;
       }
       break;
 

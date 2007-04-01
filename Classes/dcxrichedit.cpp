@@ -920,9 +920,11 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		}
 		case WM_HELP:
       {
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-        this->callAliasEx(NULL, "%s,%d", "help", this->getUserID());
-		  break;
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+					this->callAliasEx(NULL, "%s,%d", "help", this->getUserID());
+				bParsed = TRUE;
+				return TRUE;
+			  break;
       }
 		case WM_MOUSEMOVE:
 		{

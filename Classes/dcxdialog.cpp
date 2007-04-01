@@ -1753,6 +1753,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 	p_this->incRef();
 	switch (uMsg) {
+		case WM_HELP:
+			{
+				if (p_this->getEventMask() & DCX_EVENT_HELP)
+					p_this->callAliasEx( NULL, "%s,%d", "help", 0);
+				bParsed = TRUE;
+				lRes = TRUE;
+			}
+			break;
+
 		case WM_MOVE:
 			{
 				if ((p_this->m_Shadow.Status & DCX_SS_VISABLE) && p_this->isShadowed())
