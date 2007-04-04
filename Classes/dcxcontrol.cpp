@@ -926,6 +926,10 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 
 	bool fBlocked = (InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
 
+   // redraw the control if the theme has changed
+   if (uMsg == WM_THEMECHANGED)
+      pthis->redrawWindow();
+
 	if (!fBlocked) {
 		// If Message is blocking just call old win proc
 		BOOL bParsed = FALSE;
