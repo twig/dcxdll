@@ -6,6 +6,10 @@
 //
 // (C) Copyright Microsoft Corp.  All rights reserved.
 //-----------------------------------------------------------------------------
+#include "defines.h"
+
+#ifdef DCX_USE_DXSDK
+
 #define INITGUID
 #include <windows.h>
 #include <stdio.h>
@@ -561,3 +565,4 @@ int CompareLargeInts( ULARGE_INTEGER ullParam1, ULARGE_INTEGER ullParam2 )
 
     return 0;
 }
+#endif // ifdef DCX_USE_DXSDK
