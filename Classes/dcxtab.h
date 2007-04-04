@@ -62,8 +62,11 @@ public:
 
   inline TString getType( ) { return TString( "tab" ); };
 
-protected:
 
+protected:
+   void GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton);
+
+	bool m_bClosable;
 };
 
 #endif // _DCXTAB_H_

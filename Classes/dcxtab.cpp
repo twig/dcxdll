@@ -26,7 +26,8 @@
  */
 
 DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+: DcxControl(ID, p_Dialog)
+, m_bClosable(false)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -132,6 +133,10 @@ void DcxTab::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
     //  *Styles |= TCS_TOOLTIPS;
     else if ( styles.gettok( i ) == "flatseps" )
       *ExStyles |= TCS_EX_FLATSEPARATORS;
+    else if (styles.gettok(i) == "closable") {
+       this->m_bClosable = true;
+       *Styles |= TCS_OWNERDRAWFIXED;
+    }
 
     i++;
   }
@@ -323,6 +328,10 @@ void DcxTab::parseCommandRequest( TString & input ) {
     if ( data.numtok( ) > 5 ) {
       itemtext = data.gettok( 6, -1 );
       tci.mask |= TCIF_TEXT;
+
+      if (this->m_bClosable)
+         itemtext += "   ";
+
       tci.pszText = itemtext.to_chr( );
     }
 
@@ -599,6 +608,21 @@ void DcxTab::activateSelectedTab( ) {
   }
 }
 
+void DcxTab::GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton)
+{
+   // ----------
+	//rcCloseButton.top = rcItem.top + 2;
+	//rcCloseButton.bottom = rcCloseButton.top + (m_iiCloseButton.rcImage.bottom - m_iiCloseButton.rcImage.top);
+	//rcCloseButton.right = rcItem.right - 2;
+	//rcCloseButton.left = rcCloseButton.right - (m_iiCloseButton.rcImage.right - m_iiCloseButton.rcImage.left);
+   // ----------
+	rcCloseButton.top = rcItem.top + 2;
+	rcCloseButton.bottom = rcCloseButton.top + (16);
+	rcCloseButton.right = rcItem.right - 2;
+	rcCloseButton.left = rcCloseButton.right - (16);
+   // ----------
+}
+
 /*!
  * \brief blah
  *
@@ -652,9 +676,96 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 
 			break;
 		}
-	}
 
-	return 0L;
+      case WM_DRAWITEM:
+         {
+            if (!m_bClosable)
+               break;
+
+            DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
+
+            if ((idata == NULL) || (!IsWindow(idata->hwndItem)))
+               break;
+
+            DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem, "dcx_cthis");
+
+            if (c_this == NULL)
+               break;
+
+            RECT rect;
+            int nTabIndex = idata->itemID;
+
+            if (nTabIndex < 0)
+               break;
+
+            CopyRect(&rect, &idata->rcItem);
+
+            // if themes are active use them.
+            // call default WndProc(), DrawThemeParentBackgroundUx() is only temporary
+            DrawThemeParentBackgroundUx(this->m_Hwnd, idata->hDC, &rect);
+            CopyRect(&rect, &idata->rcItem);
+
+            // TODO: (twig) Ook can u take a look at this plz? string stuff isnt my forte
+            TCHAR szLabel[900];
+            TC_ITEM tci;
+
+            tci.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_STATE;
+            tci.pszText = szLabel;
+            tci.cchTextMax = 900;
+            tci.dwStateMask = TCIS_HIGHLIGHTED;
+
+            if (!TabCtrl_GetItem(c_this->getHwnd(), nTabIndex, &tci)) {
+               mIRCDebug("DcxTab: invalid item");
+               break;
+            }
+
+            TString label(szLabel);
+
+            // fill the rect so it appears to "merge" with the tab page content
+            //if (!dcxIsThemeActive())
+            FillRect(idata->hDC, &rect, GetSysColorBrush(COLOR_BTNFACE));
+
+            // set transparent so text background isnt annoying
+            int iOldBkMode = SetBkMode(idata->hDC, TRANSPARENT);
+
+            // TODO: i havnt done the load icon stuff yet
+            // Draw icon on left side if the item has an icon
+            //CImageList* piml = GetImageList();
+            //if (tci.iImage >= 0 && piml && piml->m_hImageList)
+            //{
+            //   IMAGEINFO ii;
+            //   piml->GetImageInfo(0, &ii);
+            //   rect.left += bSelected ? 8 : 4;
+            //   piml->Draw(pDC, tci.iImage, CPoint(rect.left, rect.top + 2), ILD_TRANSPARENT);
+            //   rect.left += (ii.rcImage.right - ii.rcImage.left);
+            //   if (!bSelected)
+            //      rect.left += 4;
+            //}
+
+            // Draw 'Close button' at right side
+            RECT rcCloseButton;
+            GetCloseButtonRect(rect, rcCloseButton);
+            /*m_ImgLstCloseButton.Draw(pDC, 0, rcCloseButton.TopLeft(), ILD_TRANSPARENT);*/
+            FillRect(idata->hDC, &rcCloseButton, GetSysColorBrush(COLOR_HIGHLIGHT));
+            rect.right = rcCloseButton.left - 2;
+
+            COLORREF crOldColor;
+
+            if (tci.dwState & TCIS_HIGHLIGHTED)
+               crOldColor = SetTextColor(idata->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
+
+            rect.top += 4;
+            DrawText(idata->hDC, label.to_chr(), label.len(), &rect, DT_SINGLELINE | DT_TOP | DT_NOPREFIX);
+
+            if (tci.dwState & TCIS_HIGHLIGHTED)
+               SetTextColor(idata->hDC, crOldColor);
+
+            SetBkMode(idata->hDC, iOldBkMode);
+            break;
+         }
+   }
+
+   return 0L;
 }
 
 LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
@@ -734,6 +845,8 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_MEASUREITEM:
       {
+mIRCDebug("measure item");
+
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
 					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
@@ -743,18 +856,6 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				}
       }
       break;
-
-    case WM_DRAWITEM:
-      {
-				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-					if (c_this != NULL) {
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
-				}
-      }
-			break;
 
     case WM_SIZE:
       {
