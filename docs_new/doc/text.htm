@@ -89,6 +89,10 @@
 		<td>If the end of a string does not fit in the rectangle, it is truncated and ellipses (...) are added.</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.noformat" class="style">noformat</a></td>
+		<td>Disables support for mIRC codes in control (faster).</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.noprefix" class="style">noprefix</a></td>
 		<td>Prevents interpretation of any ampersand (&amp;) characters in the control's text as accelerator prefix characters. These are displayed with the ampersand removed and the next character in the string underlined.</td>
 	</tr>
@@ -112,7 +116,7 @@
 		<td class="style"><a name="style.tooltips" class="style">tooltips</a></td>
 		<td>The text control will have a tooltip.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="style">shadow</a> will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using <a class="value">xdid -C</a></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="style">shadow</a> will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using <a class="value">xdid -C</a></li><li>mIRC control codes are only supported when transparent style is set.</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #0000FF"><a name="xdid"></a><div style='color: #0000FF;font-size:14pt;'>/xdid flags</div></td></tr>
@@ -215,6 +219,7 @@
 <a href="#style" style="color: #B52929;">Control Styles</a><ul><li><a href="#style.alpha" style="color: #B52929;">alpha</a></li>
 <li><a href="#style.center" style="color: #B52929;">center</a></li>
 <li><a href="#style.endellipsis" style="color: #B52929;">endellipsis</a></li>
+<li><a href="#style.noformat" style="color: #B52929;">noformat</a></li>
 <li><a href="#style.noprefix" style="color: #B52929;">noprefix</a></li>
 <li><a href="#style.nowrap" style="color: #B52929;">nowrap</a></li>
 <li><a href="#style.pathellipsis" style="color: #B52929;">pathellipsis</a></li>
@@ -235,7 +240,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 14th January, 07</td>
+		<td style="text-align: right;">Last Updated: 5th April, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

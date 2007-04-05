@@ -114,7 +114,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -k dcx 4 $rgb(255,0,0)</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">-1</a> for <a class="param">RGB</a> to revert to default color.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">-1</a> for <a class="param">RGB</a> to revert to default color.</li><li>This command will only work if the computer has no visual styles applied (XP themes). To use this on machines with visual styles enabled, apply the <a class="style">notheme</a> style.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -152,6 +152,14 @@
 		<td>Status bar cell flags.</td>
 	</tr>
 	<tr>
+		<td class="value">c</td>
+		<td>Allows you to add controls to the statusbar. (requires different syntax)</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Supports mIRC formatted text.</td>
+	</tr>
+	<tr>
 		<td class="value">p</td>
 		<td>Popup style border around cell.</td>
 	</tr>
@@ -163,7 +171,7 @@
 		<td class="param">#ICON</td>
 		<td>Icon number for the statusbar cell (0 for no icon)</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Cell text is optional.</li><li>Tooltip is only displayed if cell text is absent or cell text is too long to fit in cell.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Cell text is optional.</li><li>Tooltip is only displayed if cell text is absent or cell text is too long to fit in cell.</li><li>If using +c, the following syntax must be used <a class="param">[NAME] [ID] [N] [+c] [ICON] [CID] [CTRL] [X] [Y] [W] [H] (OPTIONS)</a>, where <a class="param">CTRL</a> can only be one of the following; statusbar, pbar, trackbar, colorcombo, button, richedit, edit, ipaddress, radio, check, link, or image.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -388,7 +396,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 14th January, 07</td>
+		<td style="text-align: right;">Last Updated: 5th April, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

@@ -14,6 +14,7 @@ function get_styles_box(&$STYLES) {
 		'rounded' => 'The border drawn for the box control will be a rounded rectangle.',
 //		'check' => 'The box frame will have a checkbox which can enable/disable all children controls (regardless of previous state).',
 		'shadow' => 'Display text with a shadow.',
+		'noformat' => 'Disables support for mIRC codes in control (faster).',
 		'__notes' => array(
 			'Applying the border [s]regular[/s]+[s]dialog frame[/s] border styles on the box will give it a titlebar. (/xdid -x DNAME BOX_ID +bd)',
 			'[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using [f]xdid -C[/f]',

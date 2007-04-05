@@ -81,6 +81,10 @@
 		<td>Show items with a gradient background.</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.noformat" class="style">noformat</a></td>
+		<td>Disables support for mIRC codes in control (faster).</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.shadow" class="style">shadow</a></td>
 		<td>Display text with a shadow. The shadow color depends on the color specified by the item, not the Stacker.</td>
 	</tr>
@@ -113,11 +117,11 @@
 	</tr>
 	<tr>
 		<td class="param">IMAGE</td>
-		<td>The image for the button.</td>
+		<td>The image to use.</td>
 	</tr>
 	<tr>
 		<td class="param">SIMAGE</td>
-		<td>The selected image for the button.</td>
+		<td>The selected image to use.</td>
 	</tr>
 	<tr>
 		<td class="param">COLOR</td>
@@ -283,7 +287,7 @@
 		<td class="param">OPTIONS</td>
 		<td>Optional styles and options available on each individual controls.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">0</a> for <a class="param">N</a> to insert at the end of the stacker.</li><li>Most of the time parameters <a class="param">X</a>, <a class="param">Y</a>, <a class="param">W</a>, and <a class="param">H</a> are ignored.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">0</a> for <a class="param">N</a> to insert at the end of the stacker.</li><li>Most of the time parameters <a class="param">X</a>, <a class="param">Y</a>, <a class="param">W</a>, and <a class="param">H</a> are ignored.</li><li>You can use <a class="value">0</a> or <a class="value">-1</a> for <a class="param">IMAGE</a> and <a class="param">SIMAGE</a> to use no image.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -573,6 +577,7 @@
 </td><td width="85%" valign="top" class="menuright">
 	<br />
 <a href="#style" style="color: #B52929;">Control Styles</a><ul><li><a href="#style.gradient" style="color: #B52929;">gradient</a></li>
+<li><a href="#style.noformat" style="color: #B52929;">noformat</a></li>
 <li><a href="#style.shadow" style="color: #B52929;">shadow</a></li>
 <li><a href="#style.tooltips" style="color: #B52929;">tooltips</a></li>
 </ul><a href="#xdid" style="color: #0000FF;">/xdid Flags</a><ul><li><a href="#xdid.a" style="color: #0000FF;">-a</a></li>
@@ -602,7 +607,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 28th March, 07</td>
+		<td style="text-align: right;">Last Updated: 5th April, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

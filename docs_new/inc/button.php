@@ -112,6 +112,7 @@ function get_styles_button(&$STYLES) {
 		'tooltips' => 'The button will have a tooltip.',
 		'alpha' => 'Bitmap buttons get alpha blending.',
 		'shadow' => 'Display text with a shadow.',
+		'noformat' => 'Disables support for mIRC codes in control (faster).',
 		'__notes' => '[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_BTNTEXT) respectively). Change it by using [f]xdid -C[/f]',
 	);
 }
