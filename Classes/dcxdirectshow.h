@@ -50,7 +50,7 @@ public:
   inline TString getType( ) { return TString( "directshow" ); };
 
 protected:
-	static HRESULT InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph, IVMRWindowlessControl9** ppWc);
+	HRESULT InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph, IVMRWindowlessControl9** ppWc);
 	HRESULT SetVideoPos(void);
 	void ReleaseAll(void);
 	enum { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION } Properties;

@@ -139,9 +139,11 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			wsprintf(szReturnValue,"%d %d %d %d", lWidth, lHeight, lARWidth, lARHeight);
 			return;
 		}
-		else
+		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get Native Video Size");
+			DX_ERR(prop.to_chr(),NULL,hr);
 			//dcxInfoError("directshow","size",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Native Video Size");
+		}
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "author") {
@@ -171,9 +173,11 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			sprintf(szReturnValue,"%s %f %f %f %f", vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
 			return;
 		}
-		else
+		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
+			DX_ERR(prop.to_chr(),NULL, hr);
 			//dcxInfoError("directshow","video",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		}
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "brange") {
@@ -184,9 +188,11 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			return;
 		}
-		else
+		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
+			DX_ERR(prop.to_chr(),NULL, hr);
 			//dcxInfoError("directshow","brange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		}
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "crange") {
@@ -197,9 +203,11 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			return;
 		}
-		else
+		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
+			DX_ERR(prop.to_chr(),NULL, hr);
 			//dcxInfoError("directshow","crange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		}
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "hrange") {
@@ -210,9 +218,11 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			return;
 		}
-		else
+		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
+			DX_ERR(prop.to_chr(),NULL, hr);
 			//dcxInfoError("directshow","hrange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		}
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "srange") {
@@ -223,9 +233,11 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			return;
 		}
-		else
+		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
+			DX_ERR(prop.to_chr(),NULL, hr);
 			//dcxInfoError("directshow","srange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
+		}
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "currentpos") {
@@ -284,6 +296,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			hr = this->m_pGraph->QueryInterface(IID_IMediaControl, (void **)&this->m_pControl);
 		else {
 			this->showError(NULL,"-a", "Unable to Create FilterGraph");
+			DX_ERR(NULL,"-a", hr);
 			//DCXError("/xdid -a","Unable to Create FilterGraph");
 			inErr = true;
 		}
@@ -291,6 +304,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			hr = this->m_pGraph->QueryInterface(IID_IMediaEventEx, (void **)&this->m_pEvent);
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Get IMediaControl");
+			DX_ERR(NULL,"-a", hr);
 			//DCXError("/xdid -a","Unable to Get IMediaControl");
 			inErr = true;
 		}
@@ -298,6 +312,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking, (void **)&this->m_pSeek);
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Get IMediaEventEx");
+			DX_ERR(NULL,"-a", hr);
 			//DCXError("/xdid -a","Unable to Get IMediaEventEx");
 			inErr = true;
 		}
@@ -305,6 +320,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			hr = this->m_pEvent->SetNotifyWindow((OAHWND)this->m_Hwnd,WM_GRAPHNOTIFY,0);
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Get IMediaSeeking");
+			DX_ERR(NULL,"-a", hr);
 			//DCXError("/xdid -a","Unable to Get IMediaSeeking");
 			inErr = true;
 		}
@@ -312,6 +328,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			hr = DcxDirectshow::InitWindowlessVMR(this->m_Hwnd,this->m_pGraph,&this->m_pWc);
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Set Window Notify");
+			DX_ERR(NULL,"-a", hr);
 			//DCXError("/xdid -a","Unable to Set Window Notify");
 			inErr = true;
 		}
@@ -323,8 +340,10 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		}
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Create VMR9");
+			DX_ERR(NULL,"-a", hr);
 			//DCXError("/xdid -a","Unable to Create VMR9 (No DirectX 9?)");
-			inErr = true;
+			if (flag.find('a',0))
+				inErr = true;
 		}
 		if (SUCCEEDED(hr)) {
 			hr = this->m_pGraph->RenderFile(filename.to_wchr(),NULL);
@@ -340,22 +359,28 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 					if (flag.find('p',0))
 						this->m_pControl->Run();
 				}
-				else
+				else {
 					this->showError(NULL,"-a", "Unable to set Video Position");
+					DX_ERR(NULL,"-a", hr);
 					//DCXError("/xdid -a","Unable to set Video Position");
+				}
 			}
-			else
+			else {
 				this->showError(NULL,"-a", "Unable to render file (No codec for file format?)");
+				DX_ERR(NULL,"-a", hr);
 				//DCXError("/xdid -a","Unable to render file (No codec for file format?)");
+			}
 		}
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Set Aspect");
+			DX_ERR(NULL,"-a", hr);
 			//DCXError("/xdid -a","Unable to Set Aspect");
 			inErr = true;
 		}
 		if (!SUCCEEDED(hr)) { // if anything failed, release all & show error.
 			this->ReleaseAll();
 			this->showError(NULL,"-a", "Unable to Setup Filter Graph");
+			DX_ERR(NULL,"-a", hr);
 			//DCXError("/xdid -a","Unable to Setup Filter Graph");
 		}
 		else
@@ -411,13 +436,16 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
   else if ( flags.switch_flags[21] && numtok > 7 ) {
 		if (this->m_pControl != NULL) {
 			HRESULT hr = this->setVideo(input.gettok(4),(float)input.gettok(5).to_float(), (float)input.gettok(6).to_num(), (float)input.gettok(7).to_num(), (float)input.gettok(8).to_num());
-			if (FAILED(hr))
+			if (FAILED(hr)) {
 				this->showError(NULL,"-v", "Unable to set video");
+				DX_ERR(NULL,"-v", hr);
 				//DCXError("/xdid -v", "Unable to set video");
+			}
 		}
-		else
+		else {
 			this->showError(NULL,"-v", "No File Loaded");
 			//DCXError("/xdid -v", "No File Loaded");
+		}
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -590,67 +618,86 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 }
 
 HRESULT DcxDirectshow::InitWindowlessVMR(
-    const HWND hwndApp,                  // Window to hold the video. 
-    IGraphBuilder* pGraph,         // Pointer to the Filter Graph Manager. 
-    IVMRWindowlessControl9** ppWc   // Receives a pointer to the VMR.
-    ) 
-{ 
-    if (!pGraph || !ppWc)
-        return E_POINTER;
+		const HWND hwndApp,                  // Window to hold the video. 
+		IGraphBuilder* pGraph,         // Pointer to the Filter Graph Manager. 
+		IVMRWindowlessControl9** ppWc   // Receives a pointer to the VMR.
+		) 
+{
+	if (!pGraph || !ppWc)
+		return E_POINTER;
 
-    IBaseFilter* pVmr = NULL; 
-    IVMRWindowlessControl9* pWc = NULL; 
-    // Create the VMR.
-    HRESULT hr = CoCreateInstance(CLSID_VideoMixingRenderer9, NULL, CLSCTX_INPROC, IID_IBaseFilter, (void**)&pVmr);
+	IBaseFilter* pVmr = NULL; 
+	IVMRWindowlessControl9* pWc = NULL; 
+	// Create the VMR.
+	HRESULT hr = CoCreateInstance(CLSID_VideoMixingRenderer9, NULL, CLSCTX_INPROC, IID_IBaseFilter, (void**)&pVmr);
 
-    if (FAILED(hr))
-        return hr;
-    
-    // Add the VMR to the filter graph.
-    hr = pGraph->AddFilter(pVmr, L"Video Mixing Renderer");
-    if (FAILED(hr))
-    {
-        pVmr->Release();
-        return hr;
-    }
-    // Set the rendering mode.
-    IVMRFilterConfig9* pConfig;
-    hr = pVmr->QueryInterface(IID_IVMRFilterConfig9, (void**)&pConfig);
-    if (SUCCEEDED(hr))
-    {
-        hr = pConfig->SetRenderingMode(VMR9Mode_Windowless);
-				if (GetWindowLong(hwndApp,GWL_EXSTYLE) & WS_EX_TRANSPARENT)
-					hr = pConfig->SetRenderingPrefs(RenderPrefs9_DoNotRenderBorder);
-        pConfig->Release();
-    }
-    if (SUCCEEDED(hr))
-    {
-        // Set the window. 
-        hr = pVmr->QueryInterface(IID_IVMRWindowlessControl9, (void**)&pWc);
-        if( SUCCEEDED(hr)) 
-        { 
-            hr = pWc->SetVideoClippingWindow(hwndApp);
-						//if (SUCCEEDED(hr)) {
-						//	IVMRMixerControl9 *pMixer;
-						//	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
-						//	if (SUCCEEDED(hr)) {
-						//		pMixer->SetAlpha(0,0.5);
-						//		pMixer->Release();
-						//	}
-						//}
-            if (SUCCEEDED(hr))
-            {
-                *ppWc = pWc; // Return this as an AddRef'd pointer. 
-            }
-            else
-            {
-                // An error occurred, so release the interface.
-                pWc->Release();
-            }
-        } 
-    } 
-    pVmr->Release(); 
-    return hr; 
+	if (FAILED(hr)) {
+		this->showError(NULL,"InitWindowlessVMR", "Unable to Create Video Mixing Renderer9");
+		DX_ERR(NULL,"InitWindowlessVMR", hr);
+		return hr;
+	}
+
+	// Add the VMR to the filter graph.
+	hr = pGraph->AddFilter(pVmr, L"Video Mixing Renderer");
+	if (FAILED(hr))
+	{
+		pVmr->Release();
+		this->showError(NULL,"InitWindowlessVMR", "Unable to Add Filter: Video Mixing Renderer");
+		DX_ERR(NULL,"InitWindowlessVMR", hr);
+		return hr;
+	}
+	// Set the rendering mode.
+	IVMRFilterConfig9* pConfig;
+	hr = pVmr->QueryInterface(IID_IVMRFilterConfig9, (void**)&pConfig);
+	if (SUCCEEDED(hr))
+	{
+		hr = pConfig->SetRenderingMode(VMR9Mode_Windowless);
+		if (GetWindowLong(hwndApp,GWL_EXSTYLE) & WS_EX_TRANSPARENT)
+			hr = pConfig->SetRenderingPrefs(RenderPrefs9_DoNotRenderBorder);
+		pConfig->Release();
+	}
+	else {
+		this->showError(NULL,"InitWindowlessVMR", "Unable to Get Filter Config9");
+		DX_ERR(NULL,"InitWindowlessVMR", hr);
+	}
+	if (SUCCEEDED(hr))
+	{
+		// Set the window. 
+		hr = pVmr->QueryInterface(IID_IVMRWindowlessControl9, (void**)&pWc);
+		if( SUCCEEDED(hr)) 
+		{ 
+			hr = pWc->SetVideoClippingWindow(hwndApp);
+			//if (SUCCEEDED(hr)) {
+			//	IVMRMixerControl9 *pMixer;
+			//	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
+			//	if (SUCCEEDED(hr)) {
+			//		pMixer->SetAlpha(0,0.5);
+			//		pMixer->Release();
+			//	}
+			//}
+			if (SUCCEEDED(hr))
+			{
+				*ppWc = pWc; // Return this as an AddRef'd pointer. 
+			}
+			else
+			{
+				// An error occurred, so release the interface.
+				pWc->Release();
+				this->showError(NULL,"InitWindowlessVMR", "Unable to Set Clipping Window");
+				DX_ERR(NULL,"InitWindowlessVMR", hr);
+			}
+		}
+		else {
+			this->showError(NULL,"InitWindowlessVMR", "Unable to Get Windowless Control9");
+			DX_ERR(NULL,"InitWindowlessVMR", hr);
+		}
+	}
+	else {
+		this->showError(NULL,"InitWindowlessVMR", "Unable to Set Rendering Options");
+		DX_ERR(NULL,"InitWindowlessVMR", hr);
+	}
+	pVmr->Release();
+	return hr; 
 } 
 
 HRESULT DcxDirectshow::SetVideoPos(void)

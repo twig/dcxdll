@@ -72,6 +72,8 @@
 // Dev Build, enable debug output.
 #define DCX_DEBUG(x,y) if (mIRCLink.m_bisDebug) DCXDebug((x), (y));
 #define DLL_STATE      "Development Build"
+// Link with DirectX error lib, enables extra error reporting.
+#define DCX_DX_ERR
 #else
 // Release Build, disable debug info.
 #define DCX_DEBUG(x,y)
@@ -82,6 +84,8 @@
 // Debug Build, enable debug output.
 #define DCX_DEBUG(x,y) if (mIRCLink.m_bisDebug) DCXDebug((x), (y));
 #define DLL_STATE      "Debug Build"
+// Link with DirectX error lib, enables extra error reporting.
+#define DCX_DX_ERR
 #endif
 
 //#include <vld.h>
@@ -98,6 +102,16 @@
 #include <gdiplus.h>
 using namespace Gdiplus;
 #pragma comment(lib, "gdiplus.lib")
+#endif
+
+#ifdef DCX_USE_DXSDK
+#ifdef DCX_DX_ERR
+#include <Dxerr.h>
+#pragma comment(lib, "DxErr.lib")
+#define DX_ERR(prop,cmd,hr) this->showErrorEx((prop), (cmd), "%s: %s", DXGetErrorString((hr)), DXGetErrorDescription((hr)))
+#else
+#define DX_ERR(prop,cmd,hr)
+#endif
 #endif
 
 #include "classes/dcxdialogcollection.h"

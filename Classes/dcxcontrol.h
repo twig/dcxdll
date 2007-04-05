@@ -124,6 +124,7 @@ public:
 	void FinishAlphaBlend(LPALPHAINFO ai);
 	static HBITMAP resizeBitmap(HBITMAP srcBM, const LPRECT rc);
 	void showError(const char *prop, const char *cmd, const char *err);
+	void showErrorEx(const char *prop, const char *cmd, const char *fmt, ...);
 
 protected:
 

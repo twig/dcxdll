@@ -1360,3 +1360,16 @@ void DcxControl::showError(const char *prop, const char *cmd, const char *err)
 		mIRCError(res.to_chr());
 	}
 }
+void DcxControl::showErrorEx(const char *prop, const char *cmd, const char *fmt, ...)
+{
+	va_list args;
+	va_start( args, fmt );
+
+	int cnt = _vscprintf(fmt, args);
+	char *txt = new char[cnt +1];
+	vsprintf(txt, fmt, args );
+	this->showError(prop, cmd, txt);
+	delete [] txt;
+
+	va_end( args );
+}
