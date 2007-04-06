@@ -21,11 +21,8 @@
  * blah
  */
 
-XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, BOOL bSep ) : m_pXParentMenu( Parent ), m_bSep( bSep ) {
-
-  this->m_nIcon = -1;
-  this->m_bSubMenu = FALSE;
-  this->m_tsItemCommand = "";
+XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep )
+: m_pXParentMenu( Parent ), m_bSep( bSep ), m_nIcon(-1), m_bSubMenu(FALSE) {
 }
 
 /*!
@@ -34,7 +31,7 @@ XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, BOOL bSep ) : m_pXParentMen
  * blah
  */
 
-XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, TString tsItemText, int nIcon, BOOL bSubMenu ) 
+XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu ) 
 : m_pXParentMenu( Parent ), m_tsItemText( tsItemText), m_nIcon( nIcon ), m_bSubMenu( bSubMenu ), m_bSep( FALSE ) {
 }
 
@@ -159,15 +156,22 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 
   LPXPMENUCOLORS lpcol = this->m_pXParentMenu->getColors( );
   UINT iItemStyle = this->m_pXParentMenu->getItemStyle( );
-/*
+
 	// playing around with menu transparency
-	HWND hMenuWnd = WindowFromDC(lpdis->hDC);
-	if (IsWindow(hMenuWnd)) {
-		DWORD dwStyle = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
-		SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
-		SetLayeredWindowAttributes(hMenuWnd, 0, 75, LWA_ALPHA);
+	UINT alpha = this->m_pXParentMenu->IsAlpha();
+
+	// we use the zero value to indicate NO alpha, rather than fully transparent.
+	if (alpha <= 255) {
+		HWND hMenuWnd = WindowFromDC(lpdis->hDC);
+		if (IsWindow(hMenuWnd)) {
+			DWORD dwStyle = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
+			if (!(dwStyle & WS_EX_LAYERED)) {
+				SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
+				SetLayeredWindowAttributes(hMenuWnd, 0, alpha, LWA_ALPHA); // 0xCC = 80% Opaque
+			}
+		}
 	}
-*/
+
   // All Items
   this->DrawItemBackground( lpdis, lpcol );
   this->DrawItemBox( lpdis, lpcol );
@@ -188,10 +192,10 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
     if ( lpdis->itemState & ODS_GRAYED ) {
      
       if ( iItemStyle & XPS_DISABLEDSEL )
-        this->DrawItemSelection( lpdis, lpcol, TRUE );
+				this->DrawItemSelection( lpdis, lpcol, TRUE, this->m_pXParentMenu->IsRounded() );
     }
     else
-      this->DrawItemSelection( lpdis, lpcol );
+			this->DrawItemSelection( lpdis, lpcol, FALSE, this->m_pXParentMenu->IsRounded() );
   }
 
   if ( lpdis->itemState & ODS_CHECKED && this->m_bSep == FALSE )
@@ -258,14 +262,17 @@ void XPopupMenuItem::DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const LPX
         if ( hBitmap != NULL ) {
 
           HDC hdcbmp = CreateCompatibleDC( lpdis->hDC );
-          BITMAP bmp;
+					if (hdcbmp != NULL) {
+						BITMAP bmp;
 
-          GetObject( hBitmap, sizeof( BITMAP ), &bmp );
-          SelectObject( hdcbmp, hBitmap );
-          StretchBlt( lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right - lpdis->rcItem.left, 
-            lpdis->rcItem.bottom - lpdis->rcItem.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY );
+						GetObject( hBitmap, sizeof( BITMAP ), &bmp );
+						HBITMAP hOldBm = (HBITMAP)SelectObject( hdcbmp, hBitmap );
+						StretchBlt( lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right - lpdis->rcItem.left, 
+							lpdis->rcItem.bottom - lpdis->rcItem.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY );
 
-          DeleteDC( hdcbmp );
+						SelectObject( hdcbmp, hOldBm );
+						DeleteDC( hdcbmp );
+					}
           break;
         }
       }
@@ -297,7 +304,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOL
 		{
 			RECT rc;
 			SetRect(&rc, XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom);
-			this->DrawGradient(lpdis->hDC, &rc, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox));
+			XPopupMenuItem::DrawGradient(lpdis->hDC, &rc, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox));
 			break;
 		}
 
@@ -337,7 +344,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOL
 			RECT rc;
 			SetRect(&rc, XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom);
 
-			this->DrawGradient(lpdis->hDC, &rc, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox);
+			XPopupMenuItem::DrawGradient(lpdis->hDC, &rc, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox);
 			break;
 		}
 	}
@@ -349,21 +356,24 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOL
  * blah
  */
 
-void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
+void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis, const BOOL bRounded ) {
 
-  HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSelectionBorder );
-  HBRUSH hBrush = (HBRUSH) CreateSolidBrush( bDis?lpcol->m_clrDisabledSelection:lpcol->m_clrSelection );
-  HPEN hOldPen = (HPEN) SelectObject( lpdis->hDC, hPen );
-  HBRUSH hOldBrush = (HBRUSH) SelectObject( lpdis->hDC, hBrush );
+	HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSelectionBorder );
+	HBRUSH hBrush = (HBRUSH) CreateSolidBrush( bDis?lpcol->m_clrDisabledSelection:lpcol->m_clrSelection );
+	HPEN hOldPen = (HPEN) SelectObject( lpdis->hDC, hPen );
+	HBRUSH hOldBrush = (HBRUSH) SelectObject( lpdis->hDC, hBrush );
 
-  RECT rc;
-  CopyRect( &rc, &lpdis->rcItem );
-  Rectangle( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom );
+	RECT rc;
+	CopyRect( &rc, &lpdis->rcItem );
+	if (bRounded)
+		RoundRect( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom, 10, 10 );
+	else
+		Rectangle( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom );
 
-  SelectObject( lpdis->hDC, hOldPen );
-  SelectObject( lpdis->hDC, hOldBrush );
-  DeleteObject( hPen );
-  DeleteObject( hBrush );
+	SelectObject( lpdis->hDC, hOldPen );
+	SelectObject( lpdis->hDC, hOldBrush );
+	DeleteObject( hPen );
+	DeleteObject( hBrush );
 }
 
 /*!
@@ -654,21 +664,27 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 
 	// set up a buffer to draw the whole gradient bar
 	HDC hdcBuffer = CreateCompatibleDC(lpdis->hDC);
-	HBITMAP hbmp = CreateCompatibleBitmap(lpdis->hDC, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top);
-	HBITMAP hbmpOld = (HBITMAP) SelectObject(hdcBuffer, hbmp);
 
-	// draw the gradient into the buffer
-	if (bReversed)
-		DrawGradient(hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
-	else
-		DrawGradient(hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+	if (hdcBuffer != NULL) {
+		HBITMAP hbmp = CreateCompatibleBitmap(lpdis->hDC, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top);
 
-	// copy the box we want from the whole gradient bar
-	BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
+		if (hbmp != NULL) {
+			HBITMAP hbmpOld = (HBITMAP) SelectObject(hdcBuffer, hbmp);
 
-	// clean up the memory object
-	DeleteObject(	SelectObject(hdcBuffer, hbmpOld) );
-	DeleteDC(hdcBuffer);
+			// draw the gradient into the buffer
+			if (bReversed)
+				DrawGradient(hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+			else
+				DrawGradient(hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+
+			// copy the box we want from the whole gradient bar
+			BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
+
+			// clean up the memory object
+			DeleteObject(	SelectObject(hdcBuffer, hbmpOld) );
+		}
+		DeleteDC(hdcBuffer);
+	}
 }
 
 

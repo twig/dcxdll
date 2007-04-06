@@ -873,7 +873,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 		return;
 	}
-	// xdialog -P [NAME] [SWITCH] (STYLE)
+	// xdialog -P [NAME] [SWITCH] ([+FLAGS] (FLAG OPTIONS))
 	else if (flags.switch_cap_flags[15]) {
 		HMENU menu = NULL;
 
@@ -888,30 +888,57 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				//dcxInfoError("xdialog -P", "", this->getName().to_chr(), 0, "Menu does not exist");
 		}
 		if (this->m_popup != NULL) {
-			XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
-			TString tsStyle(input.gettok( 3 ));
+			TString flag(input.gettok( 3 ));
 
-			if (tsStyle == "office2003rev")
-				style = XPopupMenu::XPMS_OFFICE2003_REV;
-			else if (tsStyle == "officexp")
-				style = XPopupMenu::XPMS_OFFICEXP;
-			else if (tsStyle == "icy")
-				style = XPopupMenu::XPMS_ICY;
-			else if (tsStyle == "icyrev")
-				style = XPopupMenu::XPMS_ICY_REV;
-			else if (tsStyle == "grade")
-				style = XPopupMenu::XPMS_GRADE;
-			else if (tsStyle == "graderev")
-				style = XPopupMenu::XPMS_GRADE_REV;
-			else if (tsStyle == "vertical")
-				style = XPopupMenu::XPMS_VERTICAL;
-			else if (tsStyle == "verticalrev")
-				style = XPopupMenu::XPMS_VERTICAL_REV;
-			else if (tsStyle == "normal")
-				style = XPopupMenu::XPMS_NORMAL;
-			else if (tsStyle == "custom")
-				style = XPopupMenu::XPMS_CUSTOM;
-			this->m_popup->setStyle(style);
+			if ( flag[0] == '+' ) {
+				switch (flag[1]) {
+					case 'r': // Set Rounded Selector on/off
+						{
+							this->m_popup->SetRounded(((input.gettok( 4 ).to_int() > 0) ? true : false));
+						}
+						break;
+					case 'a': // Set Alpha value of menu. 0-255
+						{
+							UINT alpha = input.gettok( 4 ).to_int();
+
+							if (alpha > 255)
+								alpha = 255;
+
+							this->m_popup->SetAlpha(alpha);
+						}
+						break;
+					case 's':
+						{
+							XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
+							TString tsStyle(input.gettok( 4 ));
+
+							if (tsStyle == "office2003rev")
+								style = XPopupMenu::XPMS_OFFICE2003_REV;
+							else if (tsStyle == "officexp")
+								style = XPopupMenu::XPMS_OFFICEXP;
+							else if (tsStyle == "icy")
+								style = XPopupMenu::XPMS_ICY;
+							else if (tsStyle == "icyrev")
+								style = XPopupMenu::XPMS_ICY_REV;
+							else if (tsStyle == "grade")
+								style = XPopupMenu::XPMS_GRADE;
+							else if (tsStyle == "graderev")
+								style = XPopupMenu::XPMS_GRADE_REV;
+							else if (tsStyle == "vertical")
+								style = XPopupMenu::XPMS_VERTICAL;
+							else if (tsStyle == "verticalrev")
+								style = XPopupMenu::XPMS_VERTICAL_REV;
+							else if (tsStyle == "normal")
+								style = XPopupMenu::XPMS_NORMAL;
+							else if (tsStyle == "custom")
+								style = XPopupMenu::XPMS_CUSTOM;
+							this->m_popup->setStyle(style);
+						}
+						break;
+					default:
+						break;
+				}
+			}
 		}
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]

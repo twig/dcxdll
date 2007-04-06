@@ -37,18 +37,18 @@ class XPopupMenuItem {
 
 public:
 
-  XPopupMenuItem( XPopupMenu * Parent, BOOL bSep );
-  XPopupMenuItem( XPopupMenu * Parent, TString tsItemText, int nIcon, BOOL bSubMenu );
+  XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep );
+  XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu );
   virtual ~XPopupMenuItem( );
 
   void DrawItem( const LPDRAWITEMSTRUCT lpdis );
   void DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
   void DrawItemBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
-  void DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
-  void DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
+  static void DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE, const BOOL bRounded = FALSE );
+  static void DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
   void DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
   void DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const BOOL bSel = FALSE, const BOOL bDis = FALSE );
-  void DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
+  static void DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
   void DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
 
   SIZE getItemSize( const HWND mHwnd );

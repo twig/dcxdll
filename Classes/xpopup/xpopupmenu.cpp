@@ -21,11 +21,7 @@
  */
 
 XPopupMenu::XPopupMenu( const TString & tsMenuName, MenuStyle mStyle )
-: m_tsMenuName( tsMenuName )
-, m_MenuStyle( mStyle )
-, m_MenuItemStyles(0)
-, m_hImageList(NULL)
-, m_hBitmap(NULL)
+: m_tsMenuName( tsMenuName ), m_MenuStyle( mStyle ), m_MenuItemStyles(0), m_hImageList(NULL), m_hBitmap(NULL), m_bRoundedSel(false), m_uiAlpha(255)
 {
 
 	this->m_hMenu = CreatePopupMenu( );
@@ -49,12 +45,8 @@ XPopupMenu::XPopupMenu( const TString & tsMenuName, MenuStyle mStyle )
  */
 
 XPopupMenu::XPopupMenu(const TString tsName, HMENU hMenu )
-: m_hMenu(hMenu)
-, m_MenuItemStyles(0)
-, m_MenuStyle(XPMS_OFFICE2003)
-, m_hImageList(NULL)
-, m_hBitmap(NULL)
-, m_tsMenuName(tsName)
+: m_hMenu(hMenu), m_MenuItemStyles(0), m_MenuStyle(XPMS_OFFICE2003), m_hImageList(NULL), m_hBitmap(NULL)
+, m_tsMenuName(tsName), m_bRoundedSel(false), m_uiAlpha(255)
 {
 	this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
 	this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
@@ -236,7 +228,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		int mID = itemdata.gettok( 2 ).to_int( );
 		int nIcon = itemdata.gettok( 3 ).to_int( ) - 1;
 
-		TString flags(itemdata.gettok( 1 ));
+		TString flag(itemdata.gettok( 1 ));
 		TString itemtext(itemdata.gettok( 4, -1 ));
 
 		if ( nPos == -1 )
@@ -259,19 +251,19 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 			mii.fType = MFT_OWNERDRAW;
 			mii.wID = mID;
 
-			if ( flags[0] == '+' ) {
-				int i = 1, len = flags.len( );
+			if ( flag[0] == '+' ) {
+				int i = 1, len = flag.len( );
 				while ( i < len ) {
 					// submenu
-					if ( flags[i] == 's' ) {
+					if ( flag[i] == 's' ) {
 						mii.fMask |= MIIM_SUBMENU;
 						if ( mii.fMask != NULL )
 							DestroyMenu( mii.hSubMenu );
 						mii.hSubMenu = CreatePopupMenu( );
 					}
-					else if ( flags[i] == 'c' )
+					else if ( flag[i] == 'c' )
 						mii.fState |= MFS_CHECKED;
-					else if ( flags[i] == 'g' )
+					else if ( flag[i] == 'g' )
 						mii.fState |= MFS_GRAYED;
 					++i;
 				}

@@ -257,19 +257,19 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
   // xpopup -x -> [MENU] [SWITCH] [+FLAGS]
   else if ( flags.switch_flags[23] && numtok > 2 ) {
 
-    TString flags(input.gettok( 3 ));
+    TString flag(input.gettok( 3 ));
 
-    if ( flags[0] == '+' ) {
+    if ( flag[0] == '+' ) {
 
       UINT iStyles = 0;
-      int i = 1, len = flags.len( );
+      int i = 1, len = flag.len( );
       while ( i <= len ) {
 
-        if ( flags[i] == 'i' )
+        if ( flag[i] == 'i' )
           iStyles |= XPS_ICON3D;
-        else if ( flags[i] == 'd' )
+        else if ( flag[i] == 'd' )
           iStyles |= XPS_DISABLEDSEL;
-        else if ( flags[i] == 'p' )
+        else if ( flag[i] == 'p' )
           iStyles |= XPS_ICON3DSHADOW;
 
         ++i;
@@ -278,6 +278,33 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
       p_Menu->setItemStyle( iStyles );
     }
   }
+  // xpopup -R -> [MENU] [SWITCH] [+FLAGS] (FLAG OPTIONS)
+  else if ( flags.switch_cap_flags[17] && numtok > 2 ) {
+
+		TString flag(input.gettok( 3 ));
+
+		if ( flag[0] == '+' ) {
+			switch (flag[1]) {
+				case 'r': // Set Rounded Selector on/off
+					{
+						p_Menu->SetRounded(((input.gettok( 4 ).to_int() > 0) ? true : false));
+					}
+					break;
+				case 'a': // Set Alpha value of menu. 0-255
+					{
+						UINT alpha = input.gettok( 4 ).to_int();
+
+						if (alpha > 255)
+							alpha = 255;
+
+						p_Menu->SetAlpha(alpha);
+					}
+					break;
+				default:
+					break;
+			}
+		}
+	}
 }
 
 /*!
@@ -379,6 +406,17 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
       return;
     }
   }
+	else if ( prop == "isrounded") {
+		if (p_Menu->IsRounded())
+			lstrcpy( szReturnValue, "$true");
+		else
+			lstrcpy( szReturnValue, "$false");
+		return;
+	}
+	else if ( prop == "alpha") {
+		wsprintf( szReturnValue, "%ld", p_Menu->IsAlpha());
+		return;
+	}
   szReturnValue[0] = 0;
 }
 

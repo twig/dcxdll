@@ -113,6 +113,11 @@ public:
   HBITMAP getBackBitmap( ) const;
   void setBackBitmap( HBITMAP hBitmap );
 
+	bool IsRounded(void) const { return this->m_bRoundedSel; };
+	UINT IsAlpha(void) const { return this->m_uiAlpha; };
+	void SetRounded(bool rounded) { this->m_bRoundedSel = rounded; };
+	void SetAlpha(UINT alpha) { this->m_uiAlpha = alpha; };
+
 protected:
 
   HMENU m_hMenu; //!< Menu Handle
@@ -126,6 +131,8 @@ protected:
 
   XPMENUCOLORS m_MenuColors; //!< Menu Colors
 
+	bool m_bRoundedSel; //!< Menu has rounded selection box.
+	UINT m_uiAlpha;			//!< Menu is alpha blended. 0 -> 255
   static void parseSwitchFlags( TString * switchs, XSwitchFlags * flags );
 };
 
