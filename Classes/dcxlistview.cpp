@@ -146,6 +146,8 @@ void DcxListView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
       *Styles |= LVS_SORTDESCENDING;
     else if ( styles.gettok( i ) == "noscroll" ) 
       *Styles |= LVS_NOSCROLL;
+    else if ( styles.gettok( i ) == "noheadersort" ) 
+      *Styles |= LVS_NOSORTHEADER;
 		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 
