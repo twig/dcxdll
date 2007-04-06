@@ -1186,7 +1186,11 @@ void DcxControl::updateParentCtrl(void)
 {
 	// find the host control, if any.
 	HWND parent = GetParent(this->m_Hwnd);
-	if (parent != this->m_pParentHWND) {
+	if (parent == this->m_pParentDialog->getHwnd()) {
+		this->m_pParentCtrl = NULL;
+		this->m_pParentHWND = parent;
+	}
+	else if (parent != this->m_pParentHWND) {
 		this->m_pParentCtrl = this->m_pParentDialog->getControlByHWND(parent);
 		this->m_pParentHWND = parent;
 	}
@@ -1200,7 +1204,7 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 		if (hBrush == NULL)
 			hBrush = GetSysColorBrush(COLOR_3DFACE);
 		if ( hBrush != NULL )
-				FillRect( hdc, rwnd, hBrush );
+			FillRect( hdc, rwnd, hBrush );
 	}
 }
 

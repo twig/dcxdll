@@ -679,94 +679,97 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 
 		case WM_DRAWITEM:
 			{
-					if (!m_bClosable)
-						break;
-
-					DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
-
-					if ((idata == NULL) || (!IsWindow(idata->hwndItem)))
-						break;
-
-					//DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem, "dcx_cthis");
-
-					//if (c_this == NULL)
-					//	break;
-
-					RECT rect;
-					int nTabIndex = idata->itemID;
-
-					if (nTabIndex < 0)
-						break;
-
-					CopyRect(&rect, &idata->rcItem);
-
-					// if themes are active use them.
-					// call default WndProc(), DrawThemeParentBackgroundUx() is only temporary
-					DrawThemeParentBackgroundUx(this->m_Hwnd, idata->hDC, &rect);
-					CopyRect(&rect, &idata->rcItem);
-
-					// TODO: (twig) Ook can u take a look at this plz? string stuff isnt my forte
-					TCHAR szLabel[900];
-					TC_ITEM tci;
-
-					tci.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_STATE;
-					tci.pszText = szLabel;
-					tci.cchTextMax = 900;
-					tci.dwStateMask = TCIS_HIGHLIGHTED;
-
-					if (!TabCtrl_GetItem(this->getHwnd(), nTabIndex, &tci)) {
-						mIRCDebug("DcxTab: invalid item");
-						break;
-					}
-
-					TString label(szLabel);
-
-					// fill the rect so it appears to "merge" with the tab page content
-					//if (!dcxIsThemeActive())
-					FillRect(idata->hDC, &rect, GetSysColorBrush(COLOR_BTNFACE));
-
-					// set transparent so text background isnt annoying
-					int iOldBkMode = SetBkMode(idata->hDC, TRANSPARENT);
-
-					// TODO: i havnt done the load icon stuff yet
-					// Draw icon on left side if the item has an icon
-					//CImageList* piml = GetImageList();
-					//if (tci.iImage >= 0 && piml && piml->m_hImageList)
-					//{
-					//   IMAGEINFO ii;
-					//   piml->GetImageInfo(0, &ii);
-					//   rect.left += bSelected ? 8 : 4;
-					//   piml->Draw(pDC, tci.iImage, CPoint(rect.left, rect.top + 2), ILD_TRANSPARENT);
-					//   rect.left += (ii.rcImage.right - ii.rcImage.left);
-					//   if (!bSelected)
-					//      rect.left += 4;
-					//}
-
-					// Draw 'Close button' at right side
-					RECT rcCloseButton;
-					GetCloseButtonRect(rect, rcCloseButton);
-					/*m_ImgLstCloseButton.Draw(pDC, 0, rcCloseButton.TopLeft(), ILD_TRANSPARENT);*/
-					//FillRect(idata->hDC, &rcCloseButton, GetSysColorBrush(COLOR_HIGHLIGHT));
-					// Draw systems close button ? or do you want a custom close button?
-					DrawFrameControl(idata->hDC, &rcCloseButton, DFC_CAPTION, DFCS_CAPTIONCLOSE | DFCS_FLAT | DFCS_TRANSPARENT);
-					rect.right = rcCloseButton.left - 2;
-
-					COLORREF crOldColor;
-
-					if (tci.dwState & TCIS_HIGHLIGHTED)
-						crOldColor = SetTextColor(idata->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
-
-					rect.top += 4;
-					//DrawText(idata->hDC, label.to_chr(), label.len(), &rect, DT_SINGLELINE | DT_TOP | DT_NOPREFIX);
-					// allow mirc formatted text.
-					mIRC_DrawText(idata->hDC, label, &rect, DT_SINGLELINE | DT_TOP | DT_NOPREFIX, false);
-
-					if (tci.dwState & TCIS_HIGHLIGHTED)
-						SetTextColor(idata->hDC, crOldColor);
-
-					SetBkMode(idata->hDC, iOldBkMode);
+				if (!m_bClosable)
 					break;
-			 }
+
+				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
+
+				if ((idata == NULL) || (!IsWindow(idata->hwndItem)))
+					break;
+
+				//DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem, "dcx_cthis");
+
+				//if (c_this == NULL)
+				//	break;
+
+				RECT rect;
+				int nTabIndex = idata->itemID;
+
+				if (nTabIndex < 0)
+					break;
+
+				CopyRect(&rect, &idata->rcItem);
+
+				// if themes are active use them.
+				// call default WndProc(), DrawThemeParentBackgroundUx() is only temporary
+				DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
+				//DrawThemeParentBackgroundUx(this->m_Hwnd, idata->hDC, &rect);
+				//CopyRect(&rect, &idata->rcItem);
+
+				rect.left += 1+ GetSystemMetrics(SM_CXEDGE); // move in past border.
+
+				// TODO: (twig) Ook can u take a look at this plz? string stuff isnt my forte
+				TCHAR szLabel[900];
+				TC_ITEM tci;
+
+				tci.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_STATE;
+				tci.pszText = szLabel;
+				tci.cchTextMax = 900;
+				tci.dwStateMask = TCIS_HIGHLIGHTED;
+
+				if (!TabCtrl_GetItem(this->getHwnd(), nTabIndex, &tci)) {
+					mIRCDebug("DcxTab: invalid item");
+					break;
+				}
+
+				TString label(szLabel);
+
+				// fill the rect so it appears to "merge" with the tab page content
+				//if (!dcxIsThemeActive())
+				//FillRect(idata->hDC, &rect, GetSysColorBrush(COLOR_BTNFACE));
+
+				// set transparent so text background isnt annoying
+				int iOldBkMode = SetBkMode(idata->hDC, TRANSPARENT);
+
+				// TODO: i havnt done the load icon stuff yet
+				// Draw icon on left side if the item has an icon
+				//CImageList* piml = GetImageList();
+				//if (tci.iImage >= 0 && piml && piml->m_hImageList)
+				//{
+				//   IMAGEINFO ii;
+				//   piml->GetImageInfo(0, &ii);
+				//   rect.left += bSelected ? 8 : 4;
+				//   piml->Draw(pDC, tci.iImage, CPoint(rect.left, rect.top + 2), ILD_TRANSPARENT);
+				//   rect.left += (ii.rcImage.right - ii.rcImage.left);
+				//   if (!bSelected)
+				//      rect.left += 4;
+				//}
+
+				// Draw 'Close button' at right side
+				RECT rcCloseButton;
+				GetCloseButtonRect(rect, rcCloseButton);
+				/*m_ImgLstCloseButton.Draw(pDC, 0, rcCloseButton.TopLeft(), ILD_TRANSPARENT);*/
+				//FillRect(idata->hDC, &rcCloseButton, GetSysColorBrush(COLOR_HIGHLIGHT));
+				// Draw systems close button ? or do you want a custom close button?
+				DrawFrameControl(idata->hDC, &rcCloseButton, DFC_CAPTION, DFCS_CAPTIONCLOSE | DFCS_FLAT | DFCS_TRANSPARENT);
+				rect.right = rcCloseButton.left - 2;
+
+				COLORREF crOldColor;
+
+				if (tci.dwState & TCIS_HIGHLIGHTED)
+					crOldColor = SetTextColor(idata->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
+
+				rect.top += 1+ GetSystemMetrics(SM_CYEDGE); //4;
+				//DrawText(idata->hDC, label.to_chr(), label.len(), &rect, DT_SINGLELINE | DT_TOP | DT_NOPREFIX);
+				// allow mirc formatted text.
+				mIRC_DrawText(idata->hDC, label, &rect, DT_SINGLELINE | DT_TOP | DT_NOPREFIX, false);
+
+				if (tci.dwState & TCIS_HIGHLIGHTED)
+					SetTextColor(idata->hDC, crOldColor);
+
+				SetBkMode(idata->hDC, iOldBkMode);
+				break;
+		 }
 	 }
 
 	 return 0L;
