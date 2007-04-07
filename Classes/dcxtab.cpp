@@ -137,6 +137,8 @@ void DcxTab::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
        this->m_bClosable = true;
        *Styles |= TCS_OWNERDRAWFIXED;
     }
+		else if ( styles.gettok( i ) == "alpha" )
+			this->m_bAlphaBlend = true;
 
     i++;
   }
@@ -852,7 +854,7 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_MEASUREITEM:
       {
-mIRCDebug("measure item");
+				//mIRCDebug("measure item");
 
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
@@ -892,6 +894,28 @@ mIRCDebug("measure item");
         }
       }
       break;
+
+		case WM_PAINT:
+			{
+				if (!this->m_bAlphaBlend)
+					break;
+				PAINTSTRUCT ps;
+				HDC hdc;
+
+				hdc = BeginPaint( this->m_Hwnd, &ps );
+
+				bParsed = TRUE;
+
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				lRes = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+				this->FinishAlphaBlend(ai);
+
+				EndPaint( this->m_Hwnd, &ps );
+			}
+			break;
 
 		case WM_CLOSE:
 			{

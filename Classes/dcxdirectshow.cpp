@@ -324,8 +324,10 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			//DCXError("/xdid -a","Unable to Get IMediaSeeking");
 			inErr = true;
 		}
-		if (SUCCEEDED(hr))
-			hr = DcxDirectshow::InitWindowlessVMR(this->m_Hwnd,this->m_pGraph,&this->m_pWc);
+		if (SUCCEEDED(hr)) {
+			if (!flag.find('a',0))
+				hr = DcxDirectshow::InitWindowlessVMR(this->m_Hwnd,this->m_pGraph,&this->m_pWc);
+		}
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Set Window Notify");
 			DX_ERR(NULL,"-a", hr);
@@ -333,24 +335,37 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			inErr = true;
 		}
 		if (SUCCEEDED(hr)) {
-			if (this->m_bKeepRatio)
-				hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_LetterBox); // caused video to maintain aspect ratio
-			else
-				hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_None);
+			if (this->m_pWc != NULL) {
+				if (this->m_bKeepRatio)
+					hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_LetterBox); // caused video to maintain aspect ratio
+				else
+					hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_None);
+			}
 		}
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Create VMR9");
 			DX_ERR(NULL,"-a", hr);
 			//DCXError("/xdid -a","Unable to Create VMR9 (No DirectX 9?)");
-			if (flag.find('a',0))
-				inErr = true;
+			inErr = true;
 		}
 		if (SUCCEEDED(hr)) {
 			hr = this->m_pGraph->RenderFile(filename.to_wchr(),NULL);
 			if (SUCCEEDED(hr)) {
-				hr = this->SetVideoPos();
-				if (this->m_bAlphaBlend)
-					this->setAlpha(0.5);
+				if (this->m_pWc != NULL) {
+					hr = this->SetVideoPos();
+					if (this->m_bAlphaBlend)
+						this->setAlpha(0.5);
+				}
+				else { // if VMR == NULL then disable video.
+					IVideoWindow *p_Video;
+					HRESULT hr2 = this->m_pGraph->QueryInterface(IID_IVideoWindow, (void **)&p_Video);
+					if (SUCCEEDED(hr2)) {
+						p_Video->put_Owner((OAHWND)this->m_Hwnd);
+						p_Video->put_Visible(OAFALSE);
+						p_Video->put_AutoShow(OAFALSE);
+						p_Video->Release();
+					}
+				}
 				if (SUCCEEDED(hr)) {
 					if (flag.find('l',0))
 						this->m_bLoop = true;
