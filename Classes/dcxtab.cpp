@@ -682,10 +682,11 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 			break;
 		}
 
-		case WM_DRAWITEM:
-			{
-				if (!m_bClosable)
-					break;
+      // Original source based on code from eMule 0.47 source code available at http://www.emule-project.net
+      case WM_DRAWITEM:
+         {
+            if (!m_bClosable)
+               break;
 
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 
