@@ -66,7 +66,8 @@ public:
 protected:
    void GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton);
 
-	bool m_bClosable;
+	bool m_bClosable;	//!< Does tab have a close button.
+	bool m_bGradient;	//!< Does tab have a gradient fill. (only closeable)
 };
 
 #endif // _DCXTAB_H_

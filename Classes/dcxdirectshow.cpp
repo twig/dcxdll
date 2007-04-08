@@ -360,9 +360,17 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 					IVideoWindow *p_Video;
 					HRESULT hr2 = this->m_pGraph->QueryInterface(IID_IVideoWindow, (void **)&p_Video);
 					if (SUCCEEDED(hr2)) {
-						p_Video->put_Owner((OAHWND)this->m_Hwnd);
 						p_Video->put_Visible(OAFALSE);
 						p_Video->put_AutoShow(OAFALSE);
+						p_Video->put_Owner((OAHWND)this->m_Hwnd);
+						p_Video->put_MessageDrain((OAHWND)this->m_Hwnd);
+						DWORD styles = 0;
+						p_Video->get_WindowStyle((long *)&styles);
+						styles &= ~(WS_OVERLAPPEDWINDOW|WS_POPUPWINDOW|WS_DLGFRAME);
+						styles |= WS_CHILD;
+						p_Video->put_WindowStyle(styles);
+						p_Video->put_Left(0);
+						p_Video->put_Top(0);
 						p_Video->Release();
 					}
 				}

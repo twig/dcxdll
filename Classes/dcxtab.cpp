@@ -28,6 +28,7 @@
 DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
 : DcxControl(ID, p_Dialog)
 , m_bClosable(false)
+, m_bGradient(false)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -139,6 +140,8 @@ void DcxTab::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
     }
 		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
+		else if ( styles.gettok( i ) == "gradient" )
+			this->m_bGradient = true;
 
     i++;
   }
@@ -707,7 +710,13 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 				DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
 				//DrawThemeParentBackgroundUx(this->m_Hwnd, idata->hDC, &rect);
 				//CopyRect(&rect, &idata->rcItem);
-
+				if (this->m_bGradient) {
+					if (this->m_clrBackText == -1)
+						// Gives a nice silver/gray gradient
+						XPopupMenuItem::DrawGradient(idata->hDC, &rect, GetSysColor(COLOR_BTNHIGHLIGHT), GetSysColor(COLOR_BTNFACE), TRUE);
+					else
+						XPopupMenuItem::DrawGradient(idata->hDC, &rect, GetSysColor(COLOR_BTNHIGHLIGHT), this->m_clrBackText, TRUE);
+				}
 				rect.left += 1+ GetSystemMetrics(SM_CXEDGE); // move in past border.
 
 				// TODO: (twig) Ook can u take a look at this plz? string stuff isnt my forte
@@ -754,6 +763,11 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 				//FillRect(idata->hDC, &rcCloseButton, GetSysColorBrush(COLOR_HIGHLIGHT));
 				// Draw systems close button ? or do you want a custom close button?
 				DrawFrameControl(idata->hDC, &rcCloseButton, DFC_CAPTION, DFCS_CAPTIONCLOSE | DFCS_FLAT | DFCS_TRANSPARENT);
+				//MoveToEx( idata->hDC, rcCloseButton.left, rcCloseButton.top, NULL );
+				//LineTo( idata->hDC, rcCloseButton.right, rcCloseButton.bottom );
+				//MoveToEx( idata->hDC, rcCloseButton.right, rcCloseButton.top, NULL );
+				//LineTo( idata->hDC, rcCloseButton.left, rcCloseButton.bottom );
+
 				rect.right = rcCloseButton.left - 2;
 
 				COLORREF crOldColor;
