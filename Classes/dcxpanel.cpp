@@ -553,6 +553,20 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
+    //case WM_ERASEBKGND:
+    //  {
+				//if (this->isExStyle(WS_EX_TRANSPARENT))
+				//	this->DrawParentsBackground((HDC)wParam);
+				//else {
+				//	RECT rect;
+				//	GetClientRect( this->m_Hwnd, &rect );
+				//	DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+				//}
+				//bParsed = TRUE;
+				//return TRUE;
+    //  }
+    //  break;
+
 		case WM_PAINT:
 			{
 				if (!this->m_bAlphaBlend)

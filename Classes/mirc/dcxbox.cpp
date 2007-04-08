@@ -786,7 +786,6 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				PAINTSTRUCT ps;
 				HDC hdc = BeginPaint(this->m_Hwnd, &ps);
 				RECT rc, rc2, rcText, rcText2;
-				//int n = GetWindowTextLength(this->m_Hwnd);
 				TString wtext;
 				int n = TGetWindowText(this->m_Hwnd, wtext);
 				HBRUSH hBrush = GetSysColorBrush(COLOR_3DFACE);
@@ -848,12 +847,6 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 						SetTextColor(hdc, GetSysColor(
 							IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
 						);
-
-					//char *text = new char[n +2];
-					//GetWindowText(this->m_Hwnd, text, n +1);
-
-					//TString wtext(text);
-					//delete [] text;
 
 					if (this->m_bCtrlCodeText)
 						calcStrippedRect(hdc, wtext, 0, &rcText, false);

@@ -636,57 +636,56 @@ void DcxTab::GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton)
 LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
 	switch (uMsg) {
 		case WM_NOTIFY : 
-      {
-			LPNMHDR hdr = (LPNMHDR) lParam;
+			{
+				LPNMHDR hdr = (LPNMHDR) lParam;
 
-			if (!hdr)
+				if (!hdr)
+					break;
+
+				switch (hdr->code) {
+					case NM_RCLICK:
+					{
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+							TCHITTESTINFO tchi;
+
+							tchi.flags = TCHT_ONITEM;
+							GetCursorPos(&tchi.pt);
+							ScreenToClient(this->m_Hwnd, &tchi.pt);
+
+							int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
+							int stab = TabCtrl_GetCurSel(this->m_Hwnd);
+
+							if (tab != -1)
+								this->callAliasEx(NULL, "%s,%d,%d", "rclick", this->getUserID(), tab +1);
+						}
+
+						bParsed = TRUE;
+						break;
+					}
+
+					case NM_CLICK:
+					case TCN_SELCHANGE:
+					{
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+							int tab = TabCtrl_GetCurSel(this->m_Hwnd);
+
+							if (tab != -1)
+								this->callAliasEx(NULL, "%s,%d,%d", "sclick", this->getUserID(), tab +1);
+						}
+
+						this->activateSelectedTab();
+						bParsed = TRUE;
+						break;
+					}
+				}
 				break;
-
-			switch (hdr->code) {
-				case NM_RCLICK:
-				{
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-						TCHITTESTINFO tchi;
-
-						tchi.flags = TCHT_ONITEM;
-						GetCursorPos(&tchi.pt);
-						ScreenToClient(this->m_Hwnd, &tchi.pt);
-
-						int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
-						int stab = TabCtrl_GetCurSel(this->m_Hwnd);
-
-						if (tab != -1)
-							this->callAliasEx(NULL, "%s,%d,%d", "rclick", this->getUserID(), tab +1);
-					}
-
-					bParsed = TRUE;
-					break;
-				}
-
-				case NM_CLICK:
-				case TCN_SELCHANGE:
-				{
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-						int tab = TabCtrl_GetCurSel(this->m_Hwnd);
-
-						if (tab != -1)
-							this->callAliasEx(NULL, "%s,%d,%d", "sclick", this->getUserID(), tab +1);
-					}
-
-					this->activateSelectedTab();
-					bParsed = TRUE;
-					break;
-				}
 			}
 
-			break;
-		}
-
-      // Original source based on code from eMule 0.47 source code available at http://www.emule-project.net
-      case WM_DRAWITEM:
-         {
-            if (!m_bClosable)
-               break;
+		// Original source based on code from eMule 0.47 source code available at http://www.emule-project.net
+		case WM_DRAWITEM:
+			{
+				if (!m_bClosable)
+					break;
 
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 
@@ -758,19 +757,18 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 				//}
 
 				// Draw 'Close button' at right side
-				RECT rcCloseButton;
-				GetCloseButtonRect(rect, rcCloseButton);
-				/*m_ImgLstCloseButton.Draw(pDC, 0, rcCloseButton.TopLeft(), ILD_TRANSPARENT);*/
-				//FillRect(idata->hDC, &rcCloseButton, GetSysColorBrush(COLOR_HIGHLIGHT));
-				// Draw systems close button ? or do you want a custom close button?
-				DrawFrameControl(idata->hDC, &rcCloseButton, DFC_CAPTION, DFCS_CAPTIONCLOSE | DFCS_FLAT | DFCS_TRANSPARENT);
-				//MoveToEx( idata->hDC, rcCloseButton.left, rcCloseButton.top, NULL );
-				//LineTo( idata->hDC, rcCloseButton.right, rcCloseButton.bottom );
-				//MoveToEx( idata->hDC, rcCloseButton.right, rcCloseButton.top, NULL );
-				//LineTo( idata->hDC, rcCloseButton.left, rcCloseButton.bottom );
+				if (m_bClosable) {
+					RECT rcCloseButton;
+					GetCloseButtonRect(rect, rcCloseButton);
+					// Draw systems close button ? or do you want a custom close button?
+					DrawFrameControl(idata->hDC, &rcCloseButton, DFC_CAPTION, DFCS_CAPTIONCLOSE | DFCS_FLAT | DFCS_TRANSPARENT);
+					//MoveToEx( idata->hDC, rcCloseButton.left, rcCloseButton.top, NULL );
+					//LineTo( idata->hDC, rcCloseButton.right, rcCloseButton.bottom );
+					//MoveToEx( idata->hDC, rcCloseButton.right, rcCloseButton.top, NULL );
+					//LineTo( idata->hDC, rcCloseButton.left, rcCloseButton.bottom );
 
-				rect.right = rcCloseButton.left - 2;
-
+					rect.right = rcCloseButton.left - 2;
+				}
 				COLORREF crOldColor;
 
 				if (tci.dwState & TCIS_HIGHLIGHTED)
@@ -786,10 +784,10 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 
 				SetBkMode(idata->hDC, iOldBkMode);
 				break;
-		 }
-	 }
+			}
+	}
 
-	 return 0L;
+	return 0L;
 }
 
 LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
@@ -909,6 +907,20 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
         }
       }
       break;
+
+    //case WM_ERASEBKGND:
+    //  {
+				//if (this->isExStyle(WS_EX_TRANSPARENT))
+				//	this->DrawParentsBackground((HDC)wParam);
+				//else {
+				//	RECT rect;
+				//	GetClientRect( this->m_Hwnd, &rect );
+				//	DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+				//}
+				//bParsed = TRUE;
+				//return TRUE;
+    //  }
+    //  break;
 
 		case WM_PAINT:
 			{

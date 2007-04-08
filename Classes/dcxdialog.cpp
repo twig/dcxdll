@@ -2981,11 +2981,10 @@ bool DcxDialog::SetShadowColor(COLORREF NewColor)
 	return true;
 }
 // .... CWndShadow
-//extern bool dcxSignal;
 void DcxDialog::showError(const char *prop, const char *cmd, const char *err)
 {
 	if (this->getAliasName().len() > 0)
-		this->callAliasEx(NULL, "%s error 0 dialog %s %s", this->getName().to_chr(), (prop != NULL ? prop : "none"), err);
+		this->callAliasEx(NULL, "error,0,dialog,%s,%s,%s", (prop != NULL ? prop : "none"), (cmd != NULL ? cmd : "none"), err);
 	else {
 		TString res;
 		if (prop != NULL)
@@ -2994,8 +2993,4 @@ void DcxDialog::showError(const char *prop, const char *cmd, const char *err)
 			res.sprintf("D_CERROR xdialog %s %s: %s", cmd, this->getName().to_chr(), err);
 		mIRCError(res.to_chr());
 	}
-	//if (!dcxSignal)
-	//	mIRCError(res.to_chr());
-	//else
-	//	mIRCSignal(res.to_chr());
 }

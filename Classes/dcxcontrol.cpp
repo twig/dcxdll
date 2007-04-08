@@ -1354,7 +1354,7 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 void DcxControl::showError(const char *prop, const char *cmd, const char *err)
 {
 	if (this->m_pParentDialog->getAliasName().len() > 0)
-		this->callAliasEx(NULL, "%s error %d %s %s %s", this->m_pParentDialog->getName().to_chr(), this->getUserID(), this->getType().to_chr(), (prop != NULL ? prop : "none"), err);
+		this->callAliasEx(NULL, "error,%d,%s,%s,%s,%s", this->getUserID(), this->getType().to_chr(), (prop != NULL ? prop : "none"), (cmd != NULL ? cmd : "none"), err);
 	else {
 		TString res;
 		if (prop != NULL)
