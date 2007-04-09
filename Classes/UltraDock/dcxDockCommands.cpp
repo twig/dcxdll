@@ -625,8 +625,9 @@ mIRC(xdock) {
 	}
 
 	TString flags(input.gettok( 3 ));
-	if (flags[0] != '+') {
-		DCXError("/xdock","No Flags Found");
+
+   if ((numtok > 2) && (flags[0] != '+')) {
+		DCXError("/xdock","Invalid flag format");
 		return 0;
 	}
 
@@ -747,7 +748,7 @@ mIRC(xdock) {
 		RedrawWindow( mIRCLink.m_mIRCHWND, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 	}
 	else {
-		DCXError("/xdock","Invalid Flag");
+		DCXError("/xdock", "Unknown command or invalid syntax");
 		return 0;
 	}
 
