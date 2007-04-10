@@ -63,6 +63,8 @@ protected:
 	HRESULT setPosition(const UINT64 pos); //!< sets the video position to x .
 	UINT64 getDuration(void) const; //!< gets video duration.
 	DWORD CheckSeekCapabilities(DWORD dwCaps) const;
+	HRESULT setVolume(const float vol);
+	float getVolume(void) const;
 
 #define WM_GRAPHNOTIFY  WM_APP + 1
 

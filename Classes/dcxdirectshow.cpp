@@ -252,6 +252,11 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			lstrcpy(szReturnValue,"D_ERROR Method Not Supported");
 		return;
   }
+  // [NAME] [ID] [PROP]
+	else if ( prop == "volume") {
+		sprintf(szReturnValue,"D_OK %.2f", this->getVolume());
+		return;
+  }
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
 
@@ -470,6 +475,35 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			//DCXError("/xdid -v", "No File Loaded");
 		}
 	}
+  // xdid -V [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
+  else if ( flags.switch_cap_flags[21] && numtok > 4 ) {
+		TString flag(input.gettok( 4 ));
+
+		if (flag[0] != '+') {
+			this->showError(NULL, "-V", "Invalid Flags Identifier");
+			return;
+		}
+		if (this->m_pControl == NULL) {
+			this->showError(NULL,"-v", "No File Loaded");
+			return;
+		}
+		switch (flag[1]) {
+			case 'v': // Volume
+				{
+					HRESULT hr = this->setVolume((float)input.gettok(5).to_float());
+					if (FAILED(hr)) {
+						this->showError(NULL,"-V +v", "Unable to Set Volume");
+						DX_ERR(NULL,"-V +v", hr);
+					}
+				}
+				break;
+			case 'b': // Balance
+				break;
+			default:
+				this->showError(NULL, "-V", "Unknown Flag");
+				break;
+		}
+	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
 }
@@ -515,11 +549,10 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					// Request the VMR to paint the video.
 					HRESULT hr = this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
 				}
-				else if (!this->isExStyle(WS_EX_TRANSPARENT))  // There is no video, so paint the whole client area.
-				{
-					RECT rcClient;
-					GetClientRect(this->m_Hwnd, &rcClient);
-					FillRect(hdc, &rcClient, (HBRUSH)(COLOR_BTNFACE + 1));
+				else { // There is no video, so paint the whole client area.
+					RECT rect;
+					GetClientRect( this->m_Hwnd, &rect );
+					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
 				}
 				EndPaint(this->m_Hwnd, &ps); 
 			}
@@ -1038,6 +1071,33 @@ DWORD DcxDirectshow::CheckSeekCapabilities(DWORD dwCaps) const
 
 	this->m_pSeek->CheckCapabilities(&dwCaps);
 	return dwCaps;
+}
+
+HRESULT DcxDirectshow::setVolume(const float vol)
+{
+	IBasicAudio *pAudio = NULL;
+	HRESULT hr = this->m_pGraph->QueryInterface(IID_IBasicAudio, (void**)&pAudio);
+	if (SUCCEEDED(hr)) {
+		long t = -((10000.0 / 100.0) * (100 - vol));
+		hr = pAudio->put_Volume(t);
+		pAudio->Release();
+	}
+	return hr;
+}
+
+float DcxDirectshow::getVolume() const
+{
+	IBasicAudio *pAudio = NULL;
+	HRESULT hr = this->m_pGraph->QueryInterface(IID_IBasicAudio, (void**)&pAudio);
+	float vol = 0.0;
+	if (SUCCEEDED(hr)) {
+		long t = 0;
+		hr = pAudio->get_Volume(&t);
+		if (SUCCEEDED(hr))
+			vol = 100 - ((abs(t) / 10000.0) * 100.0);
+		pAudio->Release();
+	}
+	return vol;
 }
 
 #endif // DCX_USE_DXSDK

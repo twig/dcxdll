@@ -553,24 +553,24 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
-    //case WM_ERASEBKGND:
-    //  {
-				//if (this->isExStyle(WS_EX_TRANSPARENT))
-				//	this->DrawParentsBackground((HDC)wParam);
-				//else {
-				//	RECT rect;
-				//	GetClientRect( this->m_Hwnd, &rect );
-				//	DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-				//}
-				//bParsed = TRUE;
-				//return TRUE;
-    //  }
-    //  break;
+		case WM_ERASEBKGND:
+			{
+				if (this->isExStyle(WS_EX_TRANSPARENT))
+					this->DrawParentsBackground((HDC)wParam);
+				else {
+					RECT rect;
+					GetClientRect( this->m_Hwnd, &rect );
+					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+				}
+				bParsed = TRUE;
+				return TRUE;
+			}
+			break;
 
 		case WM_PAINT:
 			{
-				if (!this->m_bAlphaBlend)
-					break;
+				//if (!this->m_bAlphaBlend)
+				//	break;
         PAINTSTRUCT ps;
         HDC hdc;
 
@@ -582,7 +582,13 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				// Setup alpha blend if any.
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				{ // simply fill with bkg
+					RECT rect;
+					GetClientRect( this->m_Hwnd, &rect );
+					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+				}
+
+				//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 				this->FinishAlphaBlend(ai);
 

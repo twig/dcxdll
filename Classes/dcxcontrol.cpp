@@ -603,7 +603,7 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
 		if (destDC != NULL) {
 			int w = (rc->right - rc->left), h = (rc->bottom - rc->top);
 			// create dest bitmap.
-			HBITMAP newBM = CreateCompatibleBitmap(destDC,w,h);
+			HBITMAP newBM = CreateCompatibleBitmap(srcDC,w,h);
 			if (newBM != NULL) {
 				// select dest bitmap into dest hdc
 				HBITMAP oldDestBm = (HBITMAP)SelectObject(destDC, newBM);
