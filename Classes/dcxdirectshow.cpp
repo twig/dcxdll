@@ -533,6 +533,9 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
     case WM_ERASEBKGND: 
       {
+				RECT rect;
+				GetClientRect( this->m_Hwnd, &rect );
+				DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
 				bParsed = TRUE;
 				return TRUE;
       }
@@ -549,11 +552,8 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					// Request the VMR to paint the video.
 					HRESULT hr = this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
 				}
-				else { // There is no video, so paint the whole client area.
-					RECT rect;
-					GetClientRect( this->m_Hwnd, &rect );
-					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-				}
+				else // There is no video, so paint the whole client area.
+					DcxControl::DrawCtrlBackground((HDC) wParam,this,&ps.rcPaint);
 				EndPaint(this->m_Hwnd, &ps); 
 			}
 			break;
@@ -650,6 +650,29 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
 					this->callAliasEx( NULL, "%s,%d", "lbdblclk", this->getUserID( ) );
 				}
+      }
+      break;
+
+    case WM_RBUTTONDOWN:
+      {
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d", "rbdown", this->getUserID( ) );
+      }
+      break;
+
+    case WM_RBUTTONUP:
+      {
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+	        this->callAliasEx( NULL, "%s,%d", "rbup", this->getUserID( ) );
+					this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
+				}
+      }
+      break;
+
+    case WM_RBUTTONDBLCLK:
+      {
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d", "rdclick", this->getUserID( ) );
       }
       break;
 

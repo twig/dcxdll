@@ -583,9 +583,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
 				{ // simply fill with bkg
-					RECT rect;
-					GetClientRect( this->m_Hwnd, &rect );
-					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+					DcxControl::DrawCtrlBackground((HDC) wParam,this,&ps.rcPaint);
 				}
 
 				//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
