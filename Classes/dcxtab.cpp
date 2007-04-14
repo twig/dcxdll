@@ -738,20 +738,13 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 				// set transparent so text background isnt annoying
 				int iOldBkMode = SetBkMode(idata->hDC, TRANSPARENT);
 
-				// TODO: i havnt done the load icon stuff yet
 				// Draw icon on left side if the item has an icon
-				//CImageList* piml = GetImageList();
-				//if (tci.iImage >= 0 && piml && piml->m_hImageList)
-				//{
-				//   IMAGEINFO ii;
-				//   piml->GetImageInfo(0, &ii);
-				//   rect.left += bSelected ? 8 : 4;
-				//   piml->Draw(pDC, tci.iImage, CPoint(rect.left, rect.top + 2), ILD_TRANSPARENT);
-				//   rect.left += (ii.rcImage.right - ii.rcImage.left);
-				//   if (!bSelected)
-				//      rect.left += 4;
-				//}
-
+				if (tci.iImage != -1) {
+					ImageList_DrawEx( this->getImageList(), tci.iImage, idata->hDC, rect.left, rect.top, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT );
+					IMAGEINFO ii;
+					ImageList_GetImageInfo( this->getImageList(), tci.iImage, &ii);
+					rect.left += (ii.rcImage.right - ii.rcImage.left);
+				}
 				// Draw 'Close button' at right side
 				if (m_bClosable) {
 					RECT rcCloseButton;

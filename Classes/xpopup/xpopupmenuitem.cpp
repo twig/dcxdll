@@ -370,10 +370,8 @@ void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXP
 	else
 		Rectangle( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom );
 
-	SelectObject( lpdis->hDC, hOldPen );
-	SelectObject( lpdis->hDC, hOldBrush );
-	DeleteObject( hPen );
-	DeleteObject( hBrush );
+	DeleteObject( SelectObject( lpdis->hDC, hOldPen ) );
+	DeleteObject( SelectObject( lpdis->hDC, hOldBrush ) );
 }
 
 /*!
@@ -397,9 +395,10 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
 
   Rectangle( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom );
 
-  DeleteObject( hPen );
+  DeleteObject( SelectObject( lpdis->hDC, hOldPen ) );
+
   hPen = CreatePen( PS_SOLID, 1, bDis?lpcol->m_clrDisabledText:lpcol->m_clrText );
-  SelectObject( lpdis->hDC, hPen );
+  hOldPen = (HPEN)SelectObject( lpdis->hDC, hPen );
 
   int x = ( rc.right + rc.left ) / 2 - 3;
   int y = ( rc.bottom + rc.top ) / 2 - 3;
@@ -419,10 +418,8 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
   MoveToEx( lpdis->hDC, x+6, y, NULL );
   LineTo( lpdis->hDC, x+6, y+3 );
 	
-  SelectObject( lpdis->hDC, hOldPen );
-  SelectObject( lpdis->hDC, hOldBrush );
-  DeleteObject( hPen );
-  DeleteObject( hBrush );
+  DeleteObject( SelectObject( lpdis->hDC, hOldPen ) );
+  DeleteObject( SelectObject( lpdis->hDC, hOldBrush ) );
 }
 
 /*!
