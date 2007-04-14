@@ -1460,8 +1460,6 @@ mIRC(MsgBox) {
 	$dcx(PickIcon,index filename)
 */
 
-#include <shlobj.h>
-
 mIRC(PickIcon) {
 	TString d(data);
 	d.trim();
@@ -1470,10 +1468,13 @@ mIRC(PickIcon) {
 		ret("D_ERROR PickIcon: invalid parameters");
 
 	int index = d.gettok( 1 ).to_int();
-	TString filename(d.gettok( 2 ));
+	TString filename(d.gettok( 2, -1 ));
 
 	if (!IsFile(filename))
 		ret("D_ERROR PickIcon: Invalid Filename");
+
+	if (PickIconDlgUx == NULL)
+		ret("D_ERROR PickIcon: Function Not Available");
 
 	WCHAR iconPath[MAX_PATH+1];
 	lstrcpynW(iconPath, filename.to_wchr(), MAX_PATH);
