@@ -17,6 +17,7 @@ SaveDialog
 Version
 GetTaskbarPos
 MsgBox
+PickIcon
 TrayIcon
 WindowProps
 

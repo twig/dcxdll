@@ -45,6 +45,7 @@ PFNDRAWTHEMETEXT DrawThemeTextUx = NULL;
 PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx = NULL;
 PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx = NULL;
 PFNDRAWSHADOWTEXT DrawShadowTextUx = NULL;
+PFNPICKICONDLG PickIconDlgUx = NULL;
 
 HMODULE UXModule = NULL;             //!< UxTheme.dll Module Handle
 BOOL XPPlus = FALSE;                 //!< Is OS WinXP+ ?
@@ -210,6 +211,15 @@ void WINAPI LoadDll(LOADINFO * load) {
 		// get SetLayeredWindowAttributes() if we can.
 		SetLayeredWindowAttributesUx = (PFNSETLAYEREDWINDOWATTRIBUTES)GetProcAddress(hModule, "SetLayeredWindowAttributes");
 		DCX_DEBUG("LoadDLL", "Found Layer Window Functions");
+	}
+
+	DCX_DEBUG("LoadDLL", "Loading SHELL32.DLL...");
+	hModule = GetModuleHandle("SHELL32.DLL");
+
+	if (hModule != NULL) {
+		// get PickIconDlg() if we can.
+		PickIconDlgUx = (PFNPICKICONDLG)GetProcAddress(hModule, "PickIconDlg");
+		DCX_DEBUG("LoadDLL", "Found PickIconDlg Function");
 	}
 
 	DCX_DEBUG("LoadDLL", "Loading COMCTL32.DLL...");
@@ -1446,6 +1456,33 @@ mIRC(MsgBox) {
 	}
 }
 
+/*
+	$dcx(PickIcon,index filename)
+*/
+
+#include <shlobj.h>
+
+mIRC(PickIcon) {
+	TString d(data);
+	d.trim();
+
+	if (d.numtok( ) < 2)
+		ret("D_ERROR PickIcon: invalid parameters");
+
+	int index = d.gettok( 1 ).to_int();
+	TString filename(d.gettok( 2 ));
+
+	if (!IsFile(filename))
+		ret("D_ERROR PickIcon: Invalid Filename");
+
+	WCHAR iconPath[MAX_PATH+1];
+	lstrcpynW(iconPath, filename.to_wchr(), MAX_PATH);
+	if (dcxPickIconDlg(aWnd,iconPath,MAX_PATH,&index))
+		wsprintf(data,"D_OK %d %S", index, iconPath);
+	else
+		wsprintf(data,"D_ERROR %d %S", index, iconPath);
+	return 3;
+}
 /*!
 * \brief XPopup DLL /xpop Function
 *

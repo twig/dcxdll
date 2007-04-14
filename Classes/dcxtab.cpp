@@ -660,19 +660,32 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 					}
 
 					case NM_CLICK:
-					case TCN_SELCHANGE:
-					{
-						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-							int tab = TabCtrl_GetCurSel(this->m_Hwnd);
+						{
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								int tab = TabCtrl_GetCurSel(this->m_Hwnd);
 
-							if (tab != -1)
-								this->callAliasEx(NULL, "%s,%d,%d", "sclick", this->getUserID(), tab +1);
+								if (tab != -1) {
+									this->callAliasEx(NULL, "%s,%d,%d", "sclick", this->getUserID(), tab +1);
+									if (this->m_bClosable) {
+										RECT rcCloseButton, rc;
+										POINT pt;
+										GetCursorPos(&pt);
+										MapWindowPoints(NULL,this->m_Hwnd, &pt, 1);
+										TabCtrl_GetItemRect(this->m_Hwnd, tab, &rc);
+										GetCloseButtonRect(rc, rcCloseButton);
+										if (PtInRect(&rcCloseButton, pt))
+											this->callAliasEx(NULL, "%s,%d,%d", "closetab", this->getUserID(), tab +1);
+									}
+								}
+							}
 						}
-
-						this->activateSelectedTab();
-						bParsed = TRUE;
+					// fall through.
+					case TCN_SELCHANGE:
+						{
+							this->activateSelectedTab();
+							bParsed = TRUE;
+						}
 						break;
-					}
 				}
 				break;
 			}

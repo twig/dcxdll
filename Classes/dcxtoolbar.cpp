@@ -676,7 +676,7 @@ UINT DcxToolBar::parseButtonStateFlags( TString & flags ) {
 
 UINT DcxToolBar::parseButtonStyleFlags( TString & flags ) {
 
-  INT i = 1, len = flags.len( ), iFlags = BTNS_BUTTON;
+  INT i = 1, len = flags.len( ), iFlags = TBSTYLE_BUTTON; //BTNS_BUTTON;
 
   // no +sign, missing params
   if ( flags[0] != '+' ) 
@@ -685,13 +685,13 @@ UINT DcxToolBar::parseButtonStyleFlags( TString & flags ) {
   while ( i < len ) {
 
     if ( flags[i] == 'a' )
-      iFlags |= BTNS_AUTOSIZE;
+      iFlags |= TBSTYLE_AUTOSIZE; //BTNS_AUTOSIZE;
     else if ( flags[i] == 'k' )
-      iFlags |= BTNS_CHECK;
+      iFlags |= TBSTYLE_CHECK; //BTNS_CHECK;
     else if ( flags[i] == 'g' )
-      iFlags |= BTNS_GROUP;
+      iFlags |= TBSTYLE_GROUP; //BTNS_GROUP;
     else if ( flags[i] == 'v' )
-      iFlags |= BTNS_DROPDOWN;
+      iFlags |= TBSTYLE_DROPDOWN; //BTNS_DROPDOWN;
     else if ( flags[i] == 'l' )
       iFlags |= BTNS_WIDTH;
     else if ( flags[i] == 'b' )
@@ -1180,17 +1180,15 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								}
 							}
               bParsed = TRUE;
+							return TRUE;
             }
             break;
 
            case TBN_DROPDOWN:
             {
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-								//LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
-								POINT pt;
-								GetCursorPos( &pt );
-								MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
-								int iButton = (int) this->hitTest( &pt );
+								LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
+								int iButton = lpnmtb->iItem;
 
 								if ( iButton > -1 ) {
 									RECT rc;

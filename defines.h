@@ -298,8 +298,8 @@ DcxDialogCollection dcxDialogs();
 char * readFile(const char * filename);
 TString FileDialog(const TString & data, TString method, const HWND pWnd);
 
-typedef HRESULT (__stdcall *PFNSETTHEME)(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
-typedef HRESULT (__stdcall *PFNISTHEMEACTIVE)();
+typedef HRESULT (WINAPI *PFNSETTHEME)(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
+typedef HRESULT (WINAPI *PFNISTHEMEACTIVE)();
 typedef HTHEME (WINAPI *PFNOPENTHEMEDATA)(HWND, LPCWSTR);
 typedef HRESULT (WINAPI *PFNCLOSETHEMEDATA)(HTHEME);
 typedef HRESULT (WINAPI *PFNDRAWTHEMEBACKGROUND)(HTHEME, HDC, int, int, const RECT*, const RECT *);
@@ -310,10 +310,12 @@ typedef HRESULT (WINAPI *PFNDRAWTHEMETEXT)(HTHEME, HDC, int, int, LPCWSTR, int, 
 typedef BOOL (WINAPI *PFNUPDATELAYEREDWINDOW)(HWND hWnd, HDC hdcDst, POINT *pptDst, SIZE *psize, HDC hdcSrc, POINT *pptSrc, COLORREF crKey, BLENDFUNCTION *pblend, DWORD dwFlags);
 typedef BOOL (WINAPI *PFNSETLAYEREDWINDOWATTRIBUTES)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
 typedef int (WINAPI *PFNDRAWSHADOWTEXT)(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
+typedef int (WINAPI *PFNPICKICONDLG)(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
 
 HRESULT dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList);
 BOOL dcxIsThemeActive();
 BOOL isXP();
+int dcxPickIconDlg(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
 
 HWND GetHwndFromString(const TString &str);
 HWND GetHwndFromString(const char *str);
@@ -361,6 +363,7 @@ extern PFNDRAWTHEMETEXT DrawThemeTextUx;
 extern PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx;
 extern PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx;
 extern PFNDRAWSHADOWTEXT DrawShadowTextUx;
+extern PFNPICKICONDLG PickIconDlgUx;
 extern mIRCDLL mIRCLink;
 
 #endif // _DEFINES_H_
