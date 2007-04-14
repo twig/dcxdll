@@ -322,12 +322,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			if (p_Control != NULL)
 				this->addControl(p_Control);
 		}
-		else {
-			TString error;
-			error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET);
-			this->showError(NULL,"-c", error.to_chr());
-			//DCXError("/xdialog -c",error.to_chr());
-		}
+		else
+			this->showErrorEx(NULL,"-c", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET);
 	}
 	// xdialog -d [NAME] [SWITCH] [ID]
 	else if (flags.switch_flags[3] && numtok > 2) {
@@ -365,20 +361,12 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				this->deleteControl(p_Control); // remove control from internal list!
 				DestroyWindow(cHwnd);
 			}
-			else {
-				TString error;
-				error.sprintf("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", p_Control->getUserID(), this->m_tsName.to_chr());
-				this->showError(NULL, "-d", error.to_chr());
-				//DCXError("/xdialog -d",error.to_chr());
-			}
+			else
+				this->showErrorEx(NULL, "-d", "Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", p_Control->getUserID(), this->m_tsName.to_chr());
 		}
 		// unknown control
-		else {
-			TString error;
-			error.sprintf("Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_tsName.to_chr());
-			this->showError(NULL, "-d", error.to_chr());
-			//DCXError("/xdialog -d",error.to_chr());
-		}
+		else
+			this->showErrorEx(NULL, "-d", "Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_tsName.to_chr());
 	}
 	// xdialog -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
 	else if (flags.switch_flags[5] && numtok > 4) {
@@ -435,12 +423,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			{
 				p_Control->redrawWindow();
 			}
-			else {
-				TString error;
-				error.sprintf("Could not find control %d", id - mIRC_ID_OFFSET);
-				this->showError(NULL, "-j", error.to_chr());
-				//DCXError("/xdialog -j",error.to_chr());
-			}
+			else
+				this->showErrorEx(NULL, "-j", "Could not find control %d", id - mIRC_ID_OFFSET);
 
 			return;
 		}
@@ -504,10 +488,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 						if (cHwnd != NULL && IsWindow(cHwnd))
 							p_Cell = new LayoutCellFill(cHwnd);
 						else {
-							TString error;
-							error.sprintf("Cell Fill -> Invalid ID : %d", ID);
-							this->showError(NULL, "-l", error.to_chr());
-							//DCXError("/xdialog -l",error.to_chr());
+							this->showErrorEx(NULL, "-l", "Cell Fill -> Invalid ID : %d", ID);
 							return;
 						}
 					}
@@ -535,10 +516,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 							if (cHwnd != NULL && IsWindow(cHwnd))
 								p_Cell = new LayoutCellFixed(cHwnd, rc, type);
 							else {
-								TString error;
-								error.sprintf("Cell Fixed -> Invalid ID : %d", ID);
-								this->showError(NULL, "-l", error.to_chr());
-								//DCXError("/xdialog -l",error.to_chr());
+								this->showErrorEx(NULL, "-l", "Cell Fixed -> Invalid ID : %d", ID);
 								return;
 							}
 						}
@@ -551,10 +529,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 							if (cHwnd != NULL && IsWindow(cHwnd))
 								p_Cell = new LayoutCellFixed(cHwnd, type);
 							else {
-								TString error;
-								error.sprintf("Cell Fixed -> Invalid ID : %d", ID);
-								this->showError(NULL, "-l", error.to_chr());
-								//DCXError("/xdialog -l",error.to_chr());
+								this->showErrorEx(NULL, "-l", "Cell Fixed -> Invalid ID : %d", ID);
 								return;
 							}
 						}
@@ -580,10 +555,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 							p_GetCell = this->m_pLayoutManager->getCell(path);
 
 						if (p_GetCell == NULL) {
-							TString error;
-							error.sprintf("Invalid item path: %s", path.to_chr());
-							this->showError(NULL, "-l", error.to_chr());
-							//DCXError("/xdialog -l",error.to_chr());
+							this->showErrorEx(NULL, "-l", "Invalid item path: %s", path.to_chr());
 							return;
 						}
 
@@ -2993,4 +2965,18 @@ void DcxDialog::showError(const char *prop, const char *cmd, const char *err)
 			res.sprintf("D_CERROR xdialog %s %s: %s", cmd, this->getName().to_chr(), err);
 		mIRCError(res.to_chr());
 	}
+}
+
+void DcxDialog::showErrorEx(const char *prop, const char *cmd, const char *fmt, ...)
+{
+	va_list args;
+	va_start( args, fmt );
+
+	int cnt = _vscprintf(fmt, args);
+	char *txt = new char[cnt +1];
+	vsprintf(txt, fmt, args );
+	this->showError(prop, cmd, txt);
+	delete [] txt;
+
+	va_end( args );
 }

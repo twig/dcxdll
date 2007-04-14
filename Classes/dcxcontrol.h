@@ -168,6 +168,7 @@ protected:
   void unregistreDefaultWindowProc( );
 
   static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
+  LRESULT CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 };
 
 #endif // _DCXCONTROL_H_

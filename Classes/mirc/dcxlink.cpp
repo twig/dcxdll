@@ -200,43 +200,34 @@ void DcxLink::parseCommandRequest( TString & input ) {
  * blah
  */
 LRESULT DcxLink::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-	    case WM_COMMAND:
-      {
-        switch ( HIWORD( wParam ) ) {
+ // switch( uMsg ) {
+	//    case WM_COMMAND:
+ //     {
+ //       switch ( HIWORD( wParam ) ) {
 
-          case STN_CLICKED:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-            }
-            break;
+ //         case STN_CLICKED:
+ //           {
+	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+	//              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+ //           }
+ //           break;
 
-          case STN_DBLCLK:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-								this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
-            }
-            break;
-        }
-      }
-      break;
-	}
+ //         case STN_DBLCLK:
+ //           {
+	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+	//							this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+ //           }
+ //           break;
+ //       }
+ //     }
+ //     break;
+	//}
 	return 0L;
 }
 
 LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
   switch( uMsg ) {
-
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
 
     case WM_MOUSEMOVE:
       {
@@ -279,6 +270,8 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
           this->m_bVisited = TRUE;
           InvalidateRect( this->m_Hwnd, NULL, FALSE );
         }
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d", "lbdown", this->getUserID( ) );
       }
       break;
 
@@ -361,27 +354,21 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
         else
           this->m_clrText = this->m_aColors[0];
 
-        int nText = GetWindowTextLength( this->m_Hwnd );
-        char * text = new char[nText+2];
-        GetWindowText( this->m_Hwnd, text, nText+1 );
+				TString wtext;
+				int nText = TGetWindowText(this->m_Hwnd, wtext);
 
 				if (!this->m_bCtrlCodeText) {
 					if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
-						TString wtext(text);
 						dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &rect,
 							DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_clrText, 0, 5, 5);
 					}
 					else {
 						SetTextColor( hdc, this->m_clrText );
-						DrawText( hdc, text, nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
+						DrawText( hdc, wtext.to_chr(), nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
 					}
 				}
-				else {
-					TString wtext(text);
+				else
 					mIRC_DrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_bShadowText);
-				}
-
-        delete [] text;
 
         SelectObject( hdc, hOldFont );
         DeleteObject( hNewFont );
@@ -395,51 +382,6 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
       }
       break;
 
-		case WM_NOTIFY:
-			{
-        LPNMHDR hdr = (LPNMHDR) lParam;
-        if (!hdr)
-          break;
-
-        switch( hdr->code ) {
-				case TTN_GETDISPINFO:
-					{
-						LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-						di->lpszText = this->m_tsToolTip.to_chr();
-						di->hinst = NULL;
-						bParsed = TRUE;
-					}
-					break;
-				case TTN_LINKCLICK:
-					{
-						bParsed = TRUE;
-						this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
-					}
-					break;
-				}
-			}
-			break;
-
-    case WM_CONTEXTMENU:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	        this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
-    //case WM_CLOSE: 
-    //  {
-
-    //    mIRCError( "WM_CLOSE" );
-    //  }
-    //  break;
-
     case WM_DESTROY:
       {
         delete this;
@@ -448,6 +390,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
       break;
 
     default:
+			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 

@@ -419,21 +419,12 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
   switch( uMsg ) {
 
-    case WM_HELP:
+    case WM_LBUTTONUP:
       {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+	        this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
       }
       break;
-
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
     case WM_DESTROY:
       {
         delete this;
@@ -441,24 +432,8 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
       }
       break;
 
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-					if (GetCursor() != this->m_hCursor)
-						SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
     default:
+			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 

@@ -120,6 +120,7 @@ public:
     
 	static DWORD getAnimateStyles( TString & flags );
 	void showError(const char *prop, const char *cmd, const char *err);
+	void showErrorEx(const char *prop, const char *cmd, const char *fmt, ...);
 
 protected:
 

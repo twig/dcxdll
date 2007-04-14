@@ -333,12 +333,8 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 					rbBand.cx = width;
 				}
       }
-      else {
-        TString error;
-        error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-				this->showError(NULL, "-a", error.to_chr());
-				//DCXError("/xdid -a", error.to_chr() );
-      }
+      else
+				this->showErrorEx(NULL, "-a", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
     }
   
     this->insertBand( -1, &rbBand );
@@ -886,15 +882,6 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	LRESULT lRes = 0L;
   switch( uMsg ) {
 
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
-
     case WM_NOTIFY:
       {
         LPNMHDR hdr = (LPNMHDR) lParam;
@@ -991,32 +978,9 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
     case WM_SIZE:
       {
         InvalidateRect( this->m_Hwnd, NULL, TRUE );
-      }
-      break;
-
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-					if (GetCursor() != this->m_hCursor)
-						SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
       }
       break;
 
@@ -1028,6 +992,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       break;
 
     default:
+			lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 

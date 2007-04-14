@@ -175,36 +175,27 @@ void DcxRadio::parseCommandRequest( TString & input ) {
  * blah
  */
 LRESULT DcxRadio::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-    case WM_COMMAND:
-      {
-        switch ( HIWORD( wParam ) ) {
+ // switch( uMsg ) {
+ //   case WM_COMMAND:
+ //     {
+ //       switch ( HIWORD( wParam ) ) {
 
-          case BN_CLICKED:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-            }
-            break;
-        }
-      }
-      break;
-	}
+ //         case BN_CLICKED:
+ //           {
+	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+	//			        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+ //           }
+ //           break;
+ //       }
+ //     }
+ //     break;
+	//}
 	return 0L;
 }
 
 LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
   switch( uMsg ) {
-
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
 
 		case WM_PAINT:
 			{
@@ -218,16 +209,11 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				LRESULT res = 0L;
 				bParsed = TRUE;
 
-				//RECT rcClient;
-
-				// get controls client area
-				//GetClientRect( this->m_Hwnd, &rcClient );
-
 				// Setup alpha blend if any.
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
 				// fill background.
-				//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+				//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
 
 				if (this->m_clrBackText != -1)
 					SetBkColor(hdc, this->m_clrBackText);
@@ -244,61 +230,6 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 			break;
 
-		case WM_NOTIFY:
-			{
-        LPNMHDR hdr = (LPNMHDR) lParam;
-        if (!hdr)
-          break;
-
-        switch( hdr->code ) {
-				case TTN_GETDISPINFO:
-					{
-						LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-						di->lpszText = this->m_tsToolTip.to_chr();
-						di->hinst = NULL;
-						bParsed = TRUE;
-					}
-					break;
-				case TTN_LINKCLICK:
-					{
-						bParsed = TRUE;
-						this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
-					}
-					break;
-				}
-			}
-			break;
-
-    case WM_CONTEXTMENU:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	        this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
-      }
-      break;
-
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-					if (GetCursor() != this->m_hCursor)
-						SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
-
     case WM_DESTROY:
       {
         delete this;
@@ -307,6 +238,7 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       break;
 
     default:
+			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 

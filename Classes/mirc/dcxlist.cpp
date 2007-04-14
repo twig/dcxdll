@@ -357,77 +357,9 @@ LRESULT DcxList::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	switch( uMsg ) {
-		case WM_HELP:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-					this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-			}
+    case WM_LBUTTONUP: // Prevents CommonMessage() handling of this.
+    case WM_LBUTTONDBLCLK:
 			break;
-
-		case WM_MOUSEMOVE:
-			{
-				this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-			}
-			break;
-
-		case WM_CONTEXTMENU:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
-			}
-			break;
-
-		case WM_SETFOCUS:
-			{
-				this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-			}
-			break;
-
-		case WM_SETCURSOR:
-			{
-				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-					if (GetCursor() != this->m_hCursor)
-						SetCursor( this->m_hCursor );
-					bParsed = TRUE;
-					return TRUE;
-				}
-			}
-			break;
-
-		case WM_DROPFILES:
-			{
-				HDROP files = (HDROP) wParam;
-				char filename[500];
-				int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
-
-				if (count) {
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
-						char ret[20];
-
-						this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
-
-						// cancel drag drop event
-						if (lstrcmpi(ret, "cancel") == 0) {
-							DragFinish(files);
-							return 0L;
-						}
-
-						// for each file, send callback message
-						for (int i = 0; i < count; i++) {
-							if (DragQueryFile(files, i, filename, 500))
-								this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
-						}
-
-						this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
-					}
-				}
-
-				DragFinish(files);
-				bParsed = TRUE;
-				break;
-			}
 
 		case WM_VSCROLL:
 			if (LOWORD(wParam) == SB_ENDSCROLL)
@@ -471,6 +403,7 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			break;
 
 		default:
+			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
 			break;
 	}
 

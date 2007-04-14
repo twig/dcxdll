@@ -458,15 +458,6 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
   switch( uMsg ) {
 
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
-
     case WM_CHILDACTIVATE:
     case WM_SIZE:
       {
@@ -476,17 +467,6 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
       }
 			break;
 
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
 		case WM_MOUSEACTIVATE:
 			{
 				bParsed = TRUE;
@@ -515,8 +495,9 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
       }
       break;
 
-    default:
-      break;
+		default:
+			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+			break;
   }
 
   return 0L;

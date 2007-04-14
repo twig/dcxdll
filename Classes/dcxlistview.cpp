@@ -2132,14 +2132,14 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 	LRESULT lRes = 0L;
   switch( uMsg ) {
 
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_LBUTTONDBLCLK:
+    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
+    case WM_RBUTTONDBLCLK:
+		case WM_CONTEXTMENU:
+			break;
 
 		//case WM_COMMAND:
 		//	{
@@ -2338,59 +2338,6 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 			break;
 		}
 
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
-		case WM_DROPFILES:
-			{
-				HDROP files = (HDROP) wParam;
-				char filename[500];
-				int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
-
-				if (count) {
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
-						char ret[20];
-
-						this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
-
-						// cancel drag drop event
-						if (lstrcmpi(ret, "cancel") == 0) {
-							DragFinish(files);
-							return 0L;
-						}
-
-						// for each file, send callback message
-						for (int i = 0; i < count; i++) {
-							if (DragQueryFile(files, i, filename, 500))
-								this->callAliasEx(ret, "%s,%d,%s", "dragfile", this->getUserID(), filename);
-						}
-
-						this->callAliasEx(ret, "%s,%d", "dragfinish", this->getUserID());
-					}
-				}
-
-				DragFinish(files);
-				break;
-			}
-		case WM_SETCURSOR:
-			{
-				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-					if (GetCursor() != this->m_hCursor)
-						SetCursor( this->m_hCursor );
-					bParsed = TRUE;
-					return TRUE;
-				}
-			}
-			break;
 		case WM_PAINT:
 			{
 				if (!this->m_bAlphaBlend)
@@ -2412,13 +2359,16 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				EndPaint( this->m_Hwnd, &ps );
 			}
 			break;
+
     case WM_DESTROY:
       {
         delete this;
         bParsed = TRUE;
       }
       break;
+
     default:
+			lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 

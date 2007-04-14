@@ -172,12 +172,8 @@ void DcxDivider::parseCommandRequest( TString & input ) {
           this->redrawWindow( );
         }
       }
-      else {
-        TString error;
-        error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-				this->showError(NULL, "-l|r", error.to_chr());
-				//DCXError("/xdid -l|r", error.to_chr() );
-      }
+      else
+				this->showErrorEx(NULL, "-l|r", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
     }
   }
   // xdid -v [NAME] [ID] [SWITCH] [POS]
@@ -220,15 +216,6 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 	LRESULT lRes = 0L;
   switch( uMsg ) {
-
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				lRes = TRUE;
-      }
-      break;
 
     case WM_NOTIFY : 
       {
@@ -295,18 +282,6 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
       }
      break;
 
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
     case WM_DESTROY:
       {
         delete this;
@@ -315,6 +290,7 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
       break;
 
     default:
+			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 

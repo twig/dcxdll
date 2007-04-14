@@ -1318,14 +1318,9 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
   switch( uMsg ) {
 
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
+		case WM_CONTEXTMENU:
+		case WM_LBUTTONUP:
+			break;
 
     case WM_SIZE:
       {
@@ -1334,28 +1329,6 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
       }
       break;
 
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-					if (GetCursor() != this->m_hCursor)
-						SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
 		case WM_PAINT:
 			{
 				if (!this->m_bAlphaBlend)
@@ -1368,16 +1341,11 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				LRESULT res = 0L;
 				bParsed = TRUE;
 
-				//RECT rcClient;
-
-				// get controls client area
-				//GetClientRect( this->m_Hwnd, &rcClient );
-
 				// Setup alpha blend if any.
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
 				// fill background.
-				//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+				//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
 
 				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
@@ -1396,6 +1364,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
       break;
 
     default:
+			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 

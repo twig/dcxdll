@@ -1317,7 +1317,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 				// associate bitmap with hdc
 				ai->ai_oldBM = (HBITMAP)SelectObject ( ai->ai_hdc, ai->ai_bitmap );
 				// fill in parent bg
-				this->DrawParentsBackground(ai->ai_hdc);
+				this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
 				// copy bg to temp hdc
 				BitBlt( *hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
 				ai->ai_Oldhdc = *hdc;
@@ -1376,4 +1376,212 @@ void DcxControl::showErrorEx(const char *prop, const char *cmd, const char *fmt,
 	delete [] txt;
 
 	va_end( args );
+}
+
+LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
+	LRESULT lRes = 0L;
+	switch( uMsg ) {
+
+		case WM_HELP:
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
+					this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+				bParsed = TRUE;
+				lRes = TRUE;
+			}
+			break;
+
+		case WM_SETCURSOR:
+			{
+				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
+					if (GetCursor() != this->m_hCursor)
+						SetCursor( this->m_hCursor );
+					bParsed = TRUE;
+					return TRUE;
+				}
+			}
+			break;
+
+		//case WM_SETCURSOR:
+		//	{
+		//		if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
+		//			if (this->m_hCursor != NULL) {
+		//				if (GetCursor() != this->m_hCursor)
+		//					SetCursor( this->m_hCursor );
+		//			}
+		//			else
+		//				SetCursor( LoadCursor( NULL, IDC_ARROW ) );
+		//			bParsed = TRUE;
+		//			return TRUE;
+		//		}
+		//	}
+		//	break;
+
+		case WM_MOUSEMOVE:
+			{
+				this->m_pParentDialog->setMouseControl( this->getUserID( ) );
+			}
+			break;
+
+		case WM_SETFOCUS:
+			{
+				this->m_pParentDialog->setFocusControl( this->getUserID( ) );
+			}
+			break;
+
+		case WM_CTLCOLORDLG:
+			{
+				bParsed = TRUE;
+				return (INT_PTR) this->getBackClrBrush( );
+			}
+			break;
+
+		case WM_CTLCOLORBTN:
+		case WM_CTLCOLORLISTBOX:
+		case WM_CTLCOLORSCROLLBAR:
+		case WM_CTLCOLORSTATIC:
+		case WM_CTLCOLOREDIT:
+			{
+
+				DcxControl * p_Control = this->m_pParentDialog->getControlByHWND( (HWND) lParam );
+
+				if ( p_Control != NULL ) {
+
+					COLORREF clrText = p_Control->getTextColor( );
+					COLORREF clrBackText = p_Control->getBackColor( );
+					HBRUSH hBackBrush = p_Control->getBackClrBrush( );
+
+					bParsed = TRUE;
+					lRes = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+					if ( clrText != -1 )
+						SetTextColor( (HDC) wParam, clrText );
+
+					if ( clrBackText != -1 )
+						SetBkColor( (HDC) wParam, clrBackText );
+
+					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
+						// when transparent set as no bkg brush & default transparent drawing.
+						SetBkMode((HDC) wParam, TRANSPARENT);
+						hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+					}
+
+					if ( hBackBrush != NULL )
+						lRes = (LRESULT) hBackBrush;
+				}
+			}
+			break;
+		case WM_LBUTTONDOWN:
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d", "lbdown", this->getUserID( ) );
+			}
+			break;
+
+		case WM_LBUTTONUP:
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+					this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
+					this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+				}
+			}
+			break;
+
+		case WM_LBUTTONDBLCLK:
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+					this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+					this->callAliasEx( NULL, "%s,%d", "lbdblclk", this->getUserID( ) );
+				}
+			}
+			break;
+
+		case WM_RBUTTONDOWN:
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d", "rbdown", this->getUserID( ) );
+			}
+			break;
+
+		case WM_RBUTTONUP:
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d", "rbup", this->getUserID( ) );
+			}
+			break;
+
+		case WM_RBUTTONDBLCLK:
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d", "rdclick", this->getUserID( ) );
+			}
+			break;
+
+		case WM_CONTEXTMENU:
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
+			}
+			break;
+		case WM_DROPFILES:
+		{
+			HDROP files = (HDROP) wParam;
+			char filename[500];
+			int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
+
+			if (count) {
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
+					char ret[20];
+
+					this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
+
+					// cancel drag drop event
+					if (lstrcmpi(ret, "cancel") == 0) {
+						DragFinish(files);
+						return 0L;
+					}
+
+					// for each file, send callback message
+					for (int i = 0; i < count; i++) {
+						if (DragQueryFile(files, i, filename, 500))
+							this->callAliasEx(NULL, "%s,%d,%s", "dragfile", this->getUserID(), filename);
+					}
+
+					this->callAliasEx(NULL, "%s,%d", "dragfinish", this->getUserID());
+				}
+			}
+
+			DragFinish(files);
+			break;
+		}
+		case WM_NOTIFY:
+			{
+				LPNMHDR hdr = (LPNMHDR) lParam;
+
+				if (!hdr)
+					break;
+
+				switch( hdr->code ) {
+					case TTN_GETDISPINFO:
+						{
+							if (this->m_tsToolTip.len() > 0) {
+								LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+								di->lpszText = this->m_tsToolTip.to_chr();
+								di->hinst = NULL;
+								bParsed = TRUE;
+							}
+						}
+						break;
+					case TTN_LINKCLICK:
+						{
+							bParsed = TRUE;
+							this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
+						}
+						break;
+					}
+			}
+			break;
+	}
+	return lRes;
 }

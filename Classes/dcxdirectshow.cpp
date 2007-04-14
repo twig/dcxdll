@@ -522,15 +522,6 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	LRESULT lRes = 0L;
   switch( uMsg ) {
 
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				lRes = TRUE;
-      }
-      break;
-
     case WM_ERASEBKGND: 
       {
 				RECT rect;
@@ -607,81 +598,6 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 			}
 			break;
 
-		case WM_SETCURSOR:
-			{
-				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
-					if (this->m_hCursor != NULL) {
-						if (GetCursor() != this->m_hCursor)
-							SetCursor( this->m_hCursor );
-					}
-					else
-						SetCursor( LoadCursor( NULL, IDC_ARROW ) );
-					bParsed = TRUE;
-					return TRUE;
-				}
-			}
-			break;
-
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_LBUTTONDOWN:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "lbdown", this->getUserID( ) );
-      }
-      break;
-
-    case WM_LBUTTONUP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-	        this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
-					this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-				}
-      }
-      break;
-
-    case WM_LBUTTONDBLCLK:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
-					this->callAliasEx( NULL, "%s,%d", "lbdblclk", this->getUserID( ) );
-				}
-      }
-      break;
-
-    case WM_RBUTTONDOWN:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "rbdown", this->getUserID( ) );
-      }
-      break;
-
-    case WM_RBUTTONUP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-	        this->callAliasEx( NULL, "%s,%d", "rbup", this->getUserID( ) );
-					this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
-				}
-      }
-      break;
-
-    case WM_RBUTTONDBLCLK:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "rdclick", this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
     case WM_DESTROY:
       {
         delete this;
@@ -690,6 +606,7 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
       break;
 
     default:
+			lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 

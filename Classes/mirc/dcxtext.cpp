@@ -188,98 +188,34 @@ void DcxText::parseCommandRequest(TString &input) {
  * blah
  */
 LRESULT DcxText::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-    case WM_COMMAND:
-      {
-        switch ( HIWORD( wParam ) ) {
+ // switch( uMsg ) {
+ //   case WM_COMMAND:
+ //     {
+ //       switch ( HIWORD( wParam ) ) {
 
-          case STN_CLICKED:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-            }
-            break;
+ //         case STN_CLICKED:
+ //           {
+	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+	//			        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+ //           }
+ //           break;
 
-          case STN_DBLCLK:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				        this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
-            }
-            break;
-        }
-      }
-      break;
-	}
+ //         case STN_DBLCLK:
+ //           {
+	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+	//			        this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+ //           }
+ //           break;
+ //       }
+ //     }
+ //     break;
+	//}
 	return 0L;
 }
 
 LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
   switch( uMsg ) {
-
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
-
-		case WM_NOTIFY:
-			{
-        LPNMHDR hdr = (LPNMHDR) lParam;
-        if (!hdr)
-          break;
-
-        switch( hdr->code ) {
-				case TTN_GETDISPINFO:
-					{
-						LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-						di->lpszText = this->m_tsToolTip.to_chr();
-						di->hinst = NULL;
-						bParsed = TRUE;
-					}
-					break;
-				case TTN_LINKCLICK:
-					{
-						bParsed = TRUE;
-						this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
-					}
-					break;
-				}
-			}
-			break;
-
-    case WM_CONTEXTMENU:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	        this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
-      }
-      break;
-
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-					if (GetCursor() != this->m_hCursor)
-						SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
 
 		case WM_ERASEBKGND:
 		{
@@ -308,18 +244,13 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			//if (this->isExStyle(WS_EX_TRANSPARENT)) {
 				TString wtext;
 				int nText = TGetWindowText(this->m_Hwnd, wtext);
-				//int nText = GetWindowTextLength(this->m_Hwnd);
-				//char *text = new char[nText +1];
-				//GetWindowText(this->m_Hwnd, text, nText +1);
-				//TString wtext(text);
-				//delete [] text;
 
 				GetClientRect(this->m_Hwnd, &r);
 
 				DcxControl::DrawCtrlBackground(hdc,this,&r);
 
-				SelectObject(hdc, this->m_hFont);
-				SetTextColor(hdc, this->m_clrText);
+				HFONT oldFont = (HFONT)SelectObject(hdc, this->m_hFont);
+				COLORREF oldClr = SetTextColor(hdc, this->m_clrText);
 
 				UINT style = DT_LEFT;
 				if (this->isStyle(SS_CENTER))
@@ -338,15 +269,18 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 					style |= DT_WORDBREAK; // changed for autowrap between words
 
 				if (!this->m_bCtrlCodeText) {
-					SetBkMode(hdc, TRANSPARENT);
+					int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 					if (this->m_bShadowText)
 						dcxDrawShadowText(hdc, wtext.to_wchr(), nText, &r, style, this->m_clrText, 0, 5, 5);
 					else
 						DrawText(hdc, wtext.to_chr(), nText, &r, style);
+					SetBkMode(hdc, oldBkgMode);
 				}
 				else
 					mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText);
 
+				SetTextColor(hdc, oldClr);
+				SelectObject(hdc, oldFont);
 				res = TRUE;
 			//}
 			//else
@@ -366,6 +300,7 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
       break;
 
     default:
+			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 

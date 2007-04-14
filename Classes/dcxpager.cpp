@@ -161,12 +161,8 @@ void DcxPager::parseCommandRequest( TString & input ) {
         this->redrawWindow( );
       }
     }
-    else {
-      TString error;
-      error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-			this->showError(NULL, "-c", error.to_chr());
-			//DCXError("/xdid -c", error.to_chr() );
-    }
+    else
+			this->showErrorEx(NULL, "-c", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
   }
   // xdid -d [NAME] [ID] [SWITCH] [ID]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
@@ -188,21 +184,11 @@ void DcxPager::parseCommandRequest( TString & input ) {
         DestroyWindow( cHwnd );
 				this->m_ChildHWND = NULL;
 			}
-      else {
-        TString error;
-        error.sprintf("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", 
-                  p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
-				this->showError(NULL, "-d", error.to_chr());
-				//DCXError("/xdid -d", error.to_chr() );
-      }
+      else
+				this->showErrorEx(NULL, "-d", "Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
     }
-    else {
-      TString error;
-      error.sprintf("Unknown control with ID \"%d\" (dialog %s)", 
-                ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
-			this->showError(NULL, "-d", error.to_chr());
-			//DCXError("/xdid -d", error.to_chr() );
-    }
+    else
+			this->showErrorEx(NULL, "-d", "Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
   }
 	// xdid -s [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags.switch_flags[18] && numtok > 3) {
@@ -299,15 +285,6 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	LRESULT lRes = 0L;
   switch( uMsg ) {
-
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
 
     case WM_NOTIFY : 
       {
@@ -407,91 +384,6 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
-    case WM_CTLCOLORBTN:
-    case WM_CTLCOLORLISTBOX:
-    case WM_CTLCOLORSCROLLBAR:
-    case WM_CTLCOLORSTATIC:
-    case WM_CTLCOLOREDIT:
-      {
-
-				DcxControl * p_Control = this->m_pParentDialog->getControlByHWND( (HWND) lParam );
-
-				if ( p_Control != NULL ) {
-
-					COLORREF clrText = p_Control->getTextColor( );
-					COLORREF clrBackText = p_Control->getBackColor( );
-					HBRUSH hBackBrush = p_Control->getBackClrBrush( );
-
-					bParsed = TRUE;
-					LRESULT lRes = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam);
-
-					if ( clrText != -1 )
-						SetTextColor( (HDC) wParam, clrText );
-
-					if ( clrBackText != -1 )
-						SetBkColor( (HDC) wParam, clrBackText );
-
-					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
-						// when transparent set as no bkg brush & default transparent drawing.
-						SetBkMode((HDC) wParam, TRANSPARENT);
-						hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
-					}
-
-					if ( hBackBrush != NULL )
-						lRes = (LRESULT) hBackBrush;
-
-					return lRes;
-				}
-      }
-      break;
-
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
-
-					if ( this->m_hCursor != NULL ) {
-						if (GetCursor() != this->m_hCursor)
-							SetCursor( this->m_hCursor );
-					}
-          else
-            SetCursor(LoadCursor( NULL, IDC_ARROW ));
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
-
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_LBUTTONDOWN:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "lbdown", this->getUserID( ) );
-      }
-      break;
-
-    case WM_LBUTTONUP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-	        this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
-					this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-				}
-      }
-      break;
-
-    case WM_LBUTTONDBLCLK:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
-					this->callAliasEx( NULL, "%s,%d", "lbdblclk", this->getUserID( ) );
-				}
-      }
-      break;
-
     case WM_SETFOCUS:
       {
         this->m_pParentDialog->setFocusControl( this->getUserID( ) );
@@ -507,6 +399,7 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       break;
 
     default:
+			lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 

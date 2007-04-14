@@ -273,65 +273,12 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
   switch( uMsg ) {
 
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
+		case WM_LBUTTONUP:
+		case WM_RBUTTONUP:
+		case WM_CONTEXTMENU:
+		case WM_SETCURSOR:
+			break;
 
-    case WM_NOTIFY : 
-      {
-        LPNMHDR hdr = (LPNMHDR) lParam;
-
-        if (!hdr)
-          break;
-
-        switch( hdr->code ) {
-
-					case TTN_GETDISPINFO:
-						{
-							bParsed = TRUE;
-							LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-							di->lpszText = this->m_tsToolTip.to_chr();
-							di->hinst = NULL;
-						}
-						break;
-					case TTN_LINKCLICK:
-						{
-							bParsed = TRUE;
-							this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
-						}
-						break;
-        }
-      }
-      break;
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
-      /*
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-
-          SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
-      */
 		case WM_MOUSEACTIVATE:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
@@ -361,6 +308,7 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
       break;
 
     default:
+			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 

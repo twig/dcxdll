@@ -366,12 +366,8 @@ void DcxTab::parseCommandRequest( TString & input ) {
           this->m_pParentDialog->addControl( p_Control );
         }
       }
-      else {
-        TString error;
-        error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-				this->showError(NULL, "-a", error.to_chr());
-				//DCXError("/xdid -a", error.to_chr() );
-      }
+      else
+				this->showErrorEx(NULL, "-a", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
     }
 
     TabCtrl_InsertItem( this->m_Hwnd, nIndex, &tci );
@@ -795,14 +791,9 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 	LRESULT lRes = 0L;
   switch( uMsg ) {
 
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
+		case WM_CONTEXTMENU:
+		case WM_LBUTTONUP:
+			break;
 
     case WM_NOTIFY : 
       {
@@ -885,29 +876,6 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
       }
       break;
 
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-					if (GetCursor() != this->m_hCursor)
-						SetCursor( this->m_hCursor );
-          bParsed = TRUE;
-          return TRUE;
-        }
-      }
-      break;
-
     //case WM_ERASEBKGND:
     //  {
 				//if (this->isExStyle(WS_EX_TRANSPARENT))
@@ -958,6 +926,7 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
       break;
 
     default:
+			lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 

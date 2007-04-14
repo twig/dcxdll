@@ -1008,10 +1008,7 @@ mIRC(xdid) {
 			p_Control = p_Dialog->getControlByID((UINT) IDs.gettok(i, TSCOMMA).to_int() + mIRC_ID_OFFSET);
 
 			if (p_Control == NULL) {
-				TString error;
-				error.sprintf("Invalid ID : %s (dialog : %s)", IDs.gettok(i, TSCOMMA).to_chr(), d.gettok( 1 ).to_chr());
-				p_Dialog->showError(NULL,d.gettok( 3 ).to_chr(), error.to_chr());
-				//DCXError("/xdid",error.to_chr());
+				p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), "Invalid ID : %s (dialog : %s)", IDs.gettok(i, TSCOMMA).to_chr(), d.gettok( 1 ).to_chr());
 				return 0;
 			}
 
@@ -1026,10 +1023,7 @@ mIRC(xdid) {
 		p_Control = p_Dialog->getControlByID((UINT) d.gettok( 2 ).to_int() + mIRC_ID_OFFSET);
 
 		if (p_Control == NULL) {
-			TString error;
-			error.sprintf("Invalid ID : %s (dialog : %s)", d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
-			p_Dialog->showError(NULL,d.gettok( 3 ).to_chr(), error.to_chr());
-			//DCXError("/xdid",error.to_chr());
+			p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), "Invalid ID : %s (dialog : %s)", d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
 			return 0;
 		}
 
@@ -1069,10 +1063,7 @@ mIRC(_xdid) {
 	DcxControl * p_Control = p_Dialog->getControlByID((UINT) d.gettok( 2 ).to_int() + mIRC_ID_OFFSET);
 
 	if (p_Control == NULL) {
-		TString error;
-		error.sprintf("Invalid ID : %s (dialog %s)", d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
-		p_Dialog->showError(d.gettok( 3 ).to_chr(), NULL, error.to_chr());
-		//DCXError("$ $+ xdid",error.to_chr());
+		p_Dialog->showErrorEx(d.gettok( 3 ).to_chr(), NULL, "Invalid ID : %s (dialog %s)", d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
 		return 0;
 	}
 

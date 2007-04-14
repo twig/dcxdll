@@ -310,32 +310,6 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 LRESULT DcxDateTime::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
 	switch (uMsg) {
-		case WM_HELP:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-					this->callAliasEx(NULL, "%s,%d", "help", this->getUserID());
-				bParsed = TRUE;
-				return TRUE;
-			}
-			break;
-
-		case WM_MOUSEMOVE:
-			this->m_pParentDialog->setMouseControl(this->getUserID());
-			break;
-
-		case WM_SETFOCUS:
-			this->m_pParentDialog->setFocusControl(this->getUserID());
-			break;
-
-		case WM_SETCURSOR:
-			if (LOWORD(lParam) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL) {
-				if (GetCursor() != this->m_hCursor)
-					SetCursor( this->m_hCursor );
-				bParsed = TRUE;
-				return TRUE;
-			}
-
-			break;
 
 		case WM_DESTROY:
 			delete this;
@@ -343,6 +317,7 @@ LRESULT DcxDateTime::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			break;
 
 		default:
+			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
 			break;
 	}
 

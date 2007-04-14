@@ -402,40 +402,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
   switch( uMsg ) {
 
-    case WM_HELP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-	        this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
-
-		case WM_NOTIFY:
-			{
-        LPNMHDR hdr = (LPNMHDR) lParam;
-        if (!hdr)
-          break;
-
-        switch( hdr->code ) {
-				case TTN_GETDISPINFO:
-					{
-						LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-						di->lpszText = this->m_tsToolTip.to_chr();
-						di->hinst = NULL;
-						bParsed = TRUE;
-					}
-					break;
-				case TTN_LINKCLICK:
-					{
-						bParsed = TRUE;
-						this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
-					}
-					break;
-				}
-			}
-			break;
-
     case WM_MOUSEMOVE:
       {
         this->m_pParentDialog->setMouseControl( this->getUserID( ) );
@@ -488,13 +454,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
 					this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
 			}
-      break;
-
-    case WM_CONTEXTMENU:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
-      }
       break;
 
     case WM_ENABLE:
@@ -649,23 +608,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			}
 			break;
 
-		case WM_SETFOCUS:
-			{
-				this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-			}
-			break;
-
-		case WM_SETCURSOR:
-			{
-				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-					if (GetCursor() != this->m_hCursor)
-						SetCursor( this->m_hCursor );
-					bParsed = TRUE;
-					return TRUE;
-				}
-			}
-			break;
-
 		case WM_DESTROY:
 			{
 				delete this;
@@ -674,6 +616,7 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			break;
 
 		default:
+			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
 			break;
 		}
 

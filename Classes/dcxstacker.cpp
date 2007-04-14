@@ -262,10 +262,7 @@ void DcxStacker::parseCommandRequest(TString &input) {
 				}
 			}
 			else {
-				TString error;
-				error.sprintf("Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-				this->showError(NULL, "-a", error.to_chr());
-				//DCXError("/xdid -a",error.to_chr() );
+				this->showErrorEx(NULL, "-a", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
 				delete sitem;
 				return;
 			}
@@ -660,14 +657,6 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		LRESULT lRes = 0L;
 		switch( uMsg ) {
 
-		case WM_HELP:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-					this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
-				bParsed = TRUE;
-				return TRUE;
-			}
-			break;
 		case WM_GETDLGCODE:
 			{
 				bParsed = TRUE;
@@ -788,56 +777,7 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
       }
       break;
 
-		case WM_CTLCOLORDLG:
-			{
-				bParsed = TRUE;
-				return (INT_PTR) this->getBackClrBrush( );
-			}
-			break;
-
-    case WM_CTLCOLORBTN:
-    case WM_CTLCOLORLISTBOX:
-    case WM_CTLCOLORSCROLLBAR:
-    case WM_CTLCOLORSTATIC:
-    case WM_CTLCOLOREDIT:
-      {
-
-				DcxControl * p_Control = this->m_pParentDialog->getControlByHWND( (HWND) lParam );
-
-				if ( p_Control != NULL ) {
-
-					COLORREF clrText = p_Control->getTextColor( );
-					COLORREF clrBackText = p_Control->getBackColor( );
-					HBRUSH hBackBrush = p_Control->getBackClrBrush( );
-
-					bParsed = TRUE;
-					LRESULT lRes = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam);
-
-					if ( clrText != -1 )
-						SetTextColor( (HDC) wParam, clrText );
-
-					if ( clrBackText != -1 )
-						SetBkColor( (HDC) wParam, clrBackText );
-
-					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
-						// when transparent set as no bkg brush & default transparent drawing.
-						SetBkMode((HDC) wParam, TRANSPARENT);
-						hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
-					}
-
-					if ( hBackBrush != NULL )
-						lRes = (LRESULT) hBackBrush;
-
-					return lRes;
-				}
-      }
-      break;
-
-		case WM_LBUTTONDOWN:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d,%d", "lbdown", this->getUserID( ), this->getItemID());
-			}
+    case WM_LBUTTONDBLCLK:
 			break;
 
 		case WM_LBUTTONUP:
@@ -847,39 +787,9 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			}
 			break;
 
-		case WM_CONTEXTMENU:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), this->getItemID());
-			}
-			break;
-
 		case WM_ENABLE:
 			{
 				this->redrawWindow();
-			}
-			break;
-
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-      }
-      break;
-
-    case WM_SETFOCUS:
-      {
-        this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-      }
-      break;
-
-		case WM_SETCURSOR:
-			{
-				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != NULL ) {
-					if (GetCursor() != this->m_hCursor)
-						SetCursor( this->m_hCursor );
-					bParsed = TRUE;
-					return TRUE;
-				}
 			}
 			break;
 
@@ -937,6 +847,7 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
       }
       break;
     default:
+			lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
       break;
   }
 
