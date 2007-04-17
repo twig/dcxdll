@@ -101,11 +101,15 @@ DcxMWindow::~DcxMWindow( ) {
  */
 
 void DcxMWindow::parseInfoRequest( TString & input, char * szReturnValue ) {
-
 //  int numtok = input.numtok( );
 
-  if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
+   // [NAME] [ID] [PROP]
+	if (input.gettok( 3 ) == "wname") {
+		lstrcpyn(szReturnValue, this->m_OrigName.to_chr(), 900);
+		return;
+	}
+   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+      return;
   
   szReturnValue[0] = 0;
 }
@@ -126,6 +130,10 @@ void DcxMWindow::parseCommandRequest( TString & input ) {
 
   this->parseGlobalCommandRequest( input, flags );
 }
+
+void DcxMWindow::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
+   this->m_OrigName = styles;
+};
 
 /*!
  * \brief Subclassed Window Procedure
