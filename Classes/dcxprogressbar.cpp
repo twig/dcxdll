@@ -370,98 +370,23 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			}
 			break;
 
+		case WM_PRINTCLIENT:
+			{
+				this->DrawClientArea((HDC)wParam, uMsg, lParam);
+				bParsed = TRUE;
+			}
+			break;
 		case WM_PAINT:
 			{
+				bParsed = TRUE;
 				PAINTSTRUCT ps;
 				HDC hdc;
-				RECT rc;
-        // A window may receive internal paint messages as a result of calling RedrawWindow with the RDW_INTERNALPAINT flag set.
-				// In this case, the window may not have an update region.
-				// An application should call the GetUpdateRect function to determine whether the window has an update region.
-				// If GetUpdateRect returns zero, the application should not call the BeginPaint and EndPaint functions.
-				if (GetUpdateRect(this->m_Hwnd,&rc,FALSE) == 0) return 0L;
 
-				hdc = BeginPaint(this->m_Hwnd, &ps);
+				hdc = BeginPaint( this->m_Hwnd, &ps );
 
-				bParsed = TRUE;
-				LRESULT res = 0L;
+				this->DrawClientArea(hdc, uMsg, lParam);
 
-				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-				if (this->m_bIsGrad) {
-					GetClientRect(this->m_Hwnd, &rc);
-
-					DcxControl::DrawCtrlBackground(hdc, this, &rc);
-
-					if (this->isStyle(PBS_VERTICAL)) {
-						rc.top += (rc.bottom - rc.top) - (this->CalculatePosition() * (rc.bottom - rc.top)) / 100;
-						XPopupMenuItem::DrawGradient(hdc,&rc,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),this->m_clrGrad,TRUE);
-					}
-					else {
-						rc.right = (this->CalculatePosition() * rc.right) / 100;
-						XPopupMenuItem::DrawGradient(hdc,&rc,this->m_clrGrad,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),FALSE);
-					}
-				}
-				else
-					res = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam);
-
-				if (this->m_tsText.len() > 0) {
-					SetBkMode(hdc, TRANSPARENT);
-					SetTextColor(hdc, this->m_clrText);
-
-					// rect for control
-					//RECT rc;
-					GetClientRect(this->m_Hwnd, &rc);
-
-					// used to calc text value on pbar
-					TString text;
-					int iPos = this->CalculatePosition();
-
-					text.sprintf(this->m_tsText.to_chr(), iPos);
-
-					HFONT oldfont = NULL;
-
-					if (this->m_hFont != NULL)
-						oldfont = (HFONT) SelectObject(hdc, this->m_hFont);
-
-					// rect for text
-					RECT rcText = rc;
-					DrawText(hdc, text.to_chr(), text.len(), &rcText,
-						DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
-
-					int w = rcText.right - rcText.left;
-					int h = rcText.bottom - rcText.top;
-
-					// reposition the new text area to be at the center
-					if (this->m_hfontVertical) {
-						rc.left = ((rc.right - rc.left) - h) /2;
-						// added a +w +h as well to as text is drawn ABOVE the damn rect
-						rc.top = ((rc.bottom - rc.top) + w + h) /2;
-						rc.right = rc.left + h;
-						rc.bottom = rc.top + w;
-						SelectObject(hdc, this->m_hfontVertical);
-					}
-					else {
-						rc.left = ((rc.right - rc.left) - w) /2;
-						rc.top = ((rc.bottom - rc.top) - h) /2;
-						rc.right = rc.left + w;
-						rc.bottom = rc.top + h;
-					}
-
-					if (!this->m_bCtrlCodeText)
-						DrawText(hdc, text.to_chr(), text.len(), &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
-					else
-						mIRC_DrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP, this->m_bShadowText);
-
-					if (oldfont != NULL)
-						SelectObject(hdc, oldfont);
-				}
-
-				this->FinishAlphaBlend(ai);
-
-				EndPaint(this->m_Hwnd, &ps); 
-				return res;
+				EndPaint( this->m_Hwnd, &ps );
 			}
 			break;
 
@@ -548,4 +473,88 @@ int DcxProgressBar::CalculatePosition() const {
 
 		return (int) ((float) (iPos - iLower) * 100 / (iHigher - iLower ));
 	}
+}
+
+void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
+{
+	RECT rc;
+	// A window may receive internal paint messages as a result of calling RedrawWindow with the RDW_INTERNALPAINT flag set.
+	// In this case, the window may not have an update region.
+	// An application should call the GetUpdateRect function to determine whether the window has an update region.
+	// If GetUpdateRect returns zero, the application should not call the BeginPaint and EndPaint functions.
+	//if (GetUpdateRect(this->m_Hwnd,&rc,FALSE) == 0) return;
+
+	// Setup alpha blend if any.
+	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+	if (this->m_bIsGrad) {
+		GetClientRect(this->m_Hwnd, &rc);
+
+		DcxControl::DrawCtrlBackground(hdc, this, &rc);
+
+		if (this->isStyle(PBS_VERTICAL)) {
+			rc.top += (rc.bottom - rc.top) - (this->CalculatePosition() * (rc.bottom - rc.top)) / 100;
+			XPopupMenuItem::DrawGradient(hdc,&rc,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),this->m_clrGrad,TRUE);
+		}
+		else {
+			rc.right = (this->CalculatePosition() * rc.right) / 100;
+			XPopupMenuItem::DrawGradient(hdc,&rc,this->m_clrGrad,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),FALSE);
+		}
+	}
+	else
+		CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam);
+
+	if (this->m_tsText.len() > 0) {
+		SetBkMode(hdc, TRANSPARENT);
+		SetTextColor(hdc, this->m_clrText);
+
+		// rect for control
+		//RECT rc;
+		GetClientRect(this->m_Hwnd, &rc);
+
+		// used to calc text value on pbar
+		TString text;
+		int iPos = this->CalculatePosition();
+
+		text.sprintf(this->m_tsText.to_chr(), iPos);
+
+		HFONT oldfont = NULL;
+
+		if (this->m_hFont != NULL)
+			oldfont = (HFONT) SelectObject(hdc, this->m_hFont);
+
+		// rect for text
+		RECT rcText = rc;
+		DrawText(hdc, text.to_chr(), text.len(), &rcText,
+			DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
+
+		int w = rcText.right - rcText.left;
+		int h = rcText.bottom - rcText.top;
+
+		// reposition the new text area to be at the center
+		if (this->m_hfontVertical) {
+			rc.left = ((rc.right - rc.left) - h) /2;
+			// added a +w +h as well to as text is drawn ABOVE the damn rect
+			rc.top = ((rc.bottom - rc.top) + w + h) /2;
+			rc.right = rc.left + h;
+			rc.bottom = rc.top + w;
+			SelectObject(hdc, this->m_hfontVertical);
+		}
+		else {
+			rc.left = ((rc.right - rc.left) - w) /2;
+			rc.top = ((rc.bottom - rc.top) - h) /2;
+			rc.right = rc.left + w;
+			rc.bottom = rc.top + h;
+		}
+
+		if (!this->m_bCtrlCodeText)
+			DrawText(hdc, text.to_chr(), text.len(), &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
+		else
+			mIRC_DrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP, this->m_bShadowText);
+
+		if (oldfont != NULL)
+			SelectObject(hdc, oldfont);
+	}
+
+	this->FinishAlphaBlend(ai);
 }

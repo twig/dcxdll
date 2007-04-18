@@ -308,79 +308,25 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			break;
 		}
 
-    case WM_PAINT:
-      {
+		case WM_PRINTCLIENT:
+			{
+				this->DrawClientArea((HDC)wParam);
+				bParsed = TRUE;
+			}
+			break;
+		case WM_PAINT:
+			{
+				bParsed = TRUE;
+				PAINTSTRUCT ps;
+				HDC hdc;
 
-        PAINTSTRUCT ps; 
-        HDC hdc; 
+				hdc = BeginPaint( this->m_Hwnd, &ps );
 
-        hdc = BeginPaint( this->m_Hwnd, &ps );
+				this->DrawClientArea(hdc);
 
-				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-        RECT rect;
-        GetClientRect( this->m_Hwnd, &rect );
-
-				// fill background.
-				DcxControl::DrawCtrlBackground(hdc,this,&rect);
-
-        HFONT hFont = (HFONT) GetStockObject( DEFAULT_GUI_FONT /*SYSTEM_FONT*/ );
-
-        LOGFONT lf;
-        GetObject( hFont, sizeof( LOGFONT ), &lf );
-
-        lf.lfUnderline = TRUE;
-
-        HFONT hNewFont = CreateFontIndirect( &lf );
-        HFONT hOldFont = (HFONT) SelectObject( hdc, hNewFont );
-
-        SetBkMode( hdc, TRANSPARENT );
-
-        if ( this->m_hIcon != NULL ) {
-
-          int y = ( rect.top + rect.bottom - 16 ) / 2;
-          DrawIconEx( hdc, rect.left, y, this->m_hIcon, 0, 0, NULL, NULL, DI_NORMAL );
-
-          OffsetRect( &rect, 20, 0 );
-        }
-
-        if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
-          this->m_clrText = this->m_aColors[3];
-        else if ( this->m_bHover )
-          this->m_clrText = this->m_aColors[1];
-        else if ( this->m_bVisited )
-          this->m_clrText = this->m_aColors[2];
-        else
-          this->m_clrText = this->m_aColors[0];
-
-				TString wtext;
-				int nText = TGetWindowText(this->m_Hwnd, wtext);
-
-				if (!this->m_bCtrlCodeText) {
-					if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
-						dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &rect,
-							DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_clrText, 0, 5, 5);
-					}
-					else {
-						SetTextColor( hdc, this->m_clrText );
-						DrawText( hdc, wtext.to_chr(), nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
-					}
-				}
-				else
-					mIRC_DrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_bShadowText);
-
-        SelectObject( hdc, hOldFont );
-        DeleteObject( hNewFont );
-
-				this->FinishAlphaBlend(ai);
-
-        EndPaint( this->m_Hwnd, &ps ); 
-
-        bParsed = TRUE;
-        return 0L;
-      }
-      break;
+				EndPaint( this->m_Hwnd, &ps );
+			}
+			break;
 
     case WM_DESTROY:
       {
@@ -511,3 +457,65 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 //	delete [] pStart;
 //	return sResult;
 //}
+
+void DcxLink::DrawClientArea(HDC hdc)
+{
+	// Setup alpha blend if any.
+	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+	RECT rect;
+	GetClientRect( this->m_Hwnd, &rect );
+
+	// fill background.
+	DcxControl::DrawCtrlBackground(hdc,this,&rect);
+
+	HFONT hFont = (HFONT) GetStockObject( DEFAULT_GUI_FONT /*SYSTEM_FONT*/ );
+
+	LOGFONT lf;
+	GetObject( hFont, sizeof( LOGFONT ), &lf );
+
+	lf.lfUnderline = TRUE;
+
+	HFONT hNewFont = CreateFontIndirect( &lf );
+	HFONT hOldFont = (HFONT) SelectObject( hdc, hNewFont );
+
+	SetBkMode( hdc, TRANSPARENT );
+
+	if ( this->m_hIcon != NULL ) {
+
+		int y = ( rect.top + rect.bottom - 16 ) / 2;
+		DrawIconEx( hdc, rect.left, y, this->m_hIcon, 0, 0, NULL, NULL, DI_NORMAL );
+
+		OffsetRect( &rect, 20, 0 );
+	}
+
+	if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
+		this->m_clrText = this->m_aColors[3];
+	else if ( this->m_bHover )
+		this->m_clrText = this->m_aColors[1];
+	else if ( this->m_bVisited )
+		this->m_clrText = this->m_aColors[2];
+	else
+		this->m_clrText = this->m_aColors[0];
+
+	TString wtext;
+	int nText = TGetWindowText(this->m_Hwnd, wtext);
+
+	if (!this->m_bCtrlCodeText) {
+		if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
+			dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &rect,
+				DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_clrText, 0, 5, 5);
+		}
+		else {
+			SetTextColor( hdc, this->m_clrText );
+			DrawText( hdc, wtext.to_chr(), nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
+		}
+	}
+	else
+		mIRC_DrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_bShadowText);
+
+	SelectObject( hdc, hOldFont );
+	DeleteObject( hNewFont );
+
+	this->FinishAlphaBlend(ai);
+}

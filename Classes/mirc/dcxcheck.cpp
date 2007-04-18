@@ -211,10 +211,34 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
   switch( uMsg ) {
 
+		case WM_PRINTCLIENT:
+			{
+				//if (!this->m_bAlphaBlend)
+				//	break;
+				HDC hdc = (HDC)wParam;
+
+				LRESULT res = 0L;
+				bParsed = TRUE;
+
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				if (this->m_clrBackText != -1)
+					SetBkColor(hdc, this->m_clrBackText);
+
+				if (this->m_clrText != -1)
+					SetTextColor(hdc, this->m_clrText);
+
+				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+				this->FinishAlphaBlend(ai);
+				return res;
+			}
+			break;
 		case WM_PAINT:
 			{
-				if (!this->m_bAlphaBlend)
-					break;
+				//if (!this->m_bAlphaBlend)
+				//	break;
 				PAINTSTRUCT ps;
 				HDC hdc;
 

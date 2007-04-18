@@ -431,55 +431,26 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       }
       break;
 
+		case WM_PRINTCLIENT:
+			{
+				this->DrawClientArea((HDC)wParam);
+				bParsed = TRUE;
+			}
+			break;
+
 		case WM_PAINT:
-		{
-			// default paint method
-#ifdef DCX_USE_GDIPLUS
-			if ((this->m_hBitmap == NULL) && (this->m_hIcon == NULL) && (this->m_pImage == NULL))
-				break;
-#else
-			if ((this->m_hBitmap == NULL) && (this->m_hIcon == NULL))
-				break;
-#endif
-			bParsed = TRUE;
-			PAINTSTRUCT ps; 
-			HDC hdc;
-			RECT rect;
+			{
+				bParsed = TRUE;
+				PAINTSTRUCT ps; 
+				HDC hdc;
 
-			hdc = BeginPaint(this->m_Hwnd, &ps);
-			GetClientRect(this->m_Hwnd, &rect);
+				hdc = BeginPaint(this->m_Hwnd, &ps);
 
-			int w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
+				this->DrawClientArea(hdc);
 
-			// Setup alpha blend if any.
-			LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, this->m_bBuffer);
-
-			DcxControl::DrawCtrlBackground(hdc,this,&rect);
-
-			// draw bitmap
-#ifdef DCX_USE_GDIPLUS
-			if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon) && (this->m_pImage == NULL)) {
-#else
-			if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon)) {
-#endif
-				this->DrawBMPImage(hdc, x, y, w, h);
+				EndPaint(this->m_Hwnd, &ps);
 			}
-			// draw icon
-			else if ((this->m_hIcon != NULL) && (this->m_bIsIcon)) {
-				DrawIconEx(hdc, 0, 0, this->m_hIcon, this->m_iIconSize, this->m_iIconSize, 0, this->m_hBackBrush, DI_NORMAL | DI_COMPAT); 
-			}
-#ifdef DCX_USE_GDIPLUS
-			else if ((this->m_pImage != NULL) && (mIRCLink.m_bUseGDIPlus)) {
-				this->DrawGDIImage(hdc, x, y, w, h);
-			}
-#endif
-			this->FinishAlphaBlend(ai);
-
-			EndPaint(this->m_Hwnd, &ps);
-
-			return 0L;
-		}
-		break;
+			break;
 
     case WM_SIZE:
       {
@@ -500,4 +471,35 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
   }
 
   return 0L;
+}
+
+void DcxImage::DrawClientArea(HDC hdc)
+{
+	RECT rect;
+	// default paint method
+	GetClientRect(this->m_Hwnd, &rect);
+
+	int w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
+
+	// Setup alpha blend if any.
+	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, this->m_bBuffer);
+
+	DcxControl::DrawCtrlBackground(hdc,this,&rect);
+
+	// draw bitmap
+#ifdef DCX_USE_GDIPLUS
+	if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon) && (this->m_pImage == NULL)) {
+#else
+	if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon)) {
+#endif
+		this->DrawBMPImage(hdc, x, y, w, h);
+	}
+	// draw icon
+	else if ((this->m_hIcon != NULL) && (this->m_bIsIcon))
+		DrawIconEx(hdc, 0, 0, this->m_hIcon, this->m_iIconSize, this->m_iIconSize, 0, this->m_hBackBrush, DI_NORMAL | DI_COMPAT);
+#ifdef DCX_USE_GDIPLUS
+	else if ((this->m_pImage != NULL) && (mIRCLink.m_bUseGDIPlus))
+		this->DrawGDIImage(hdc, x, y, w, h);
+#endif
+	this->FinishAlphaBlend(ai);
 }

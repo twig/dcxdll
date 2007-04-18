@@ -476,135 +476,23 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				return TRUE;
 			}
 			break;
-    case WM_PAINT:
-      {
-        PAINTSTRUCT ps;
-        HDC hdc;
-
-        hdc = BeginPaint( this->m_Hwnd, &ps );
-
-				LRESULT res = 0L;
+		case WM_PRINTCLIENT:
+			{
+				this->DrawClientArea((HDC)wParam, uMsg, lParam);
 				bParsed = TRUE;
-				BOOL isBitmap = this->isStyle(BS_BITMAP);
-				int nState; // get buttons state.
-				RECT rcClient;
+			}
+			break;
+		case WM_PAINT:
+			{
+				bParsed = TRUE;
+				PAINTSTRUCT ps;
+				HDC hdc;
 
-				// get controls client area
-				GetClientRect( this->m_Hwnd, &rcClient );
-				// get controls width & height.
-				int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
+				hdc = BeginPaint( this->m_Hwnd, &ps );
 
-				if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
-					nState = 3;
-				else if ( this->m_bSelected )
-					nState = 2;
-				else if ( this->m_bHover )
-					nState = 1;
-				else
-					nState = 0;
-
-				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-				// fill background.
-				DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
-
-				// Bitmapped button
-				if (isBitmap) {
-					// create a new HDC for background rendering
-					HDC hdcbmp = CreateCompatibleDC( hdc );
-					if (hdcbmp != NULL) {
-						BITMAP bmp;
-
-						// get bitmaps info.
-						GetObject( this->m_aBitmaps[nState], sizeof(BITMAP), &bmp );
-						// associate bitmap with HDC
-						HBITMAP oldbm = (HBITMAP)SelectObject( hdcbmp, this->m_aBitmaps[nState] );
-						TransparentBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
-						SelectObject( hdcbmp, oldbm ); // got to put the old bm back.
-						DeleteDC( hdcbmp );
-					}
-				}
-
-				// Regular button
-				if ((!isBitmap) || (this->m_bBitmapText)) {          
-					// draw default window bg
-					if (!isBitmap)
-						res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-
-					HFONT hFontOld = (HFONT) SelectObject( hdc, this->m_hFont );
-
-					RECT rcTxt;
-					SetRectEmpty( &rcTxt );
-
-					SetBkMode( hdc, TRANSPARENT );
-
-					HIMAGELIST himl = this->getImageList( );
-
-					SetTextColor(hdc, this->m_aColors[nState]);
-
-					if ( this->m_tsCaption.len( ) > 0 )
-						DrawText( hdc, this->m_tsCaption.to_chr( ), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE );
-
-					int iCenter = w / 2;
-					int iVCenter = h / 2;
-					int iTextW = ( rcTxt.right - rcTxt.left );
-					int iTextH = ( rcTxt.bottom - rcTxt.top );
-
-					int iIconLeft = 0;
-					int iIconTop = 0;
-
-					rcTxt.left = iCenter - iTextW / 2;
-					rcTxt.top = iVCenter - iTextH / 2;
-
-					if ( rcTxt.left < BUTTON_XPAD )
-						rcTxt.left = BUTTON_XPAD;
-
-					if ( rcTxt.top < BUTTON_YPAD )
-						rcTxt.top = BUTTON_YPAD;
-
-					rcTxt.right = rcClient.right - BUTTON_XPAD;
-					rcTxt.bottom = rcClient.bottom - BUTTON_YPAD;
-
-					// If there is an icon
-					if (himl != NULL && this->m_bHasIcons) {
-						iIconLeft = iCenter - (this->m_iIconSize + ICON_XPAD + iTextW) / 2;
-						iIconTop = iVCenter - this->m_iIconSize / 2;
-
-						if (iIconLeft < BUTTON_XPAD)
-							iIconLeft = BUTTON_XPAD;
-
-						if (iIconTop < BUTTON_YPAD)
-							iIconTop = BUTTON_YPAD;
-
-						rcTxt.left = iIconLeft + this->m_iIconSize + ICON_XPAD;
-
-						if (IsWindowEnabled(this->m_Hwnd) == FALSE)
-							ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT | ILD_BLEND50);
-						else
-							ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT);
-					}
-
-					if ( this->m_tsCaption.len( ) > 0 ) {
-						if (!this->m_bCtrlCodeText) {
-							if (!this->m_bSelected && this->m_bShadowText) // could cause problems with pre-XP as this is commctrl v6+
-								dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(), this->m_tsCaption.len(),&rcTxt,
-									DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
-							else
-								DrawText( hdc, this->m_tsCaption.to_chr( ), this->m_tsCaption.len( ), 
-									&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
-						}
-						else
-							mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false));
-					}
-
-					SelectObject( hdc, hFontOld );
-				}
-
-				this->FinishAlphaBlend(ai);
+				this->DrawClientArea(hdc, uMsg, lParam);
 
 				EndPaint( this->m_Hwnd, &ps );
-				return res;
 			}
 			break;
 
@@ -621,4 +509,125 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 		}
 
 		return 0L;
+}
+
+void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
+{
+	BOOL isBitmap = this->isStyle(BS_BITMAP);
+	int nState; // get buttons state.
+	RECT rcClient;
+
+	// get controls client area
+	GetClientRect( this->m_Hwnd, &rcClient );
+	// get controls width & height.
+	int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
+
+	if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
+		nState = 3;
+	else if ( this->m_bSelected )
+		nState = 2;
+	else if ( this->m_bHover )
+		nState = 1;
+	else
+		nState = 0;
+
+	// Setup alpha blend if any.
+	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+	// fill background.
+	DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+
+	// Bitmapped button
+	if (isBitmap) {
+		// create a new HDC for background rendering
+		HDC hdcbmp = CreateCompatibleDC( hdc );
+		if (hdcbmp != NULL) {
+			BITMAP bmp;
+
+			// get bitmaps info.
+			GetObject( this->m_aBitmaps[nState], sizeof(BITMAP), &bmp );
+			// associate bitmap with HDC
+			HBITMAP oldbm = (HBITMAP)SelectObject( hdcbmp, this->m_aBitmaps[nState] );
+			TransparentBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
+			SelectObject( hdcbmp, oldbm ); // got to put the old bm back.
+			DeleteDC( hdcbmp );
+		}
+	}
+
+	// Regular button
+	if ((!isBitmap) || (this->m_bBitmapText)) {          
+		// draw default window bg
+		if (!isBitmap)
+			CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+		HFONT hFontOld = (HFONT) SelectObject( hdc, this->m_hFont );
+
+		RECT rcTxt;
+		SetRectEmpty( &rcTxt );
+
+		SetBkMode( hdc, TRANSPARENT );
+
+		HIMAGELIST himl = this->getImageList( );
+
+		SetTextColor(hdc, this->m_aColors[nState]);
+
+		if ( this->m_tsCaption.len( ) > 0 )
+			DrawText( hdc, this->m_tsCaption.to_chr( ), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE );
+
+		int iCenter = w / 2;
+		int iVCenter = h / 2;
+		int iTextW = ( rcTxt.right - rcTxt.left );
+		int iTextH = ( rcTxt.bottom - rcTxt.top );
+
+		int iIconLeft = 0;
+		int iIconTop = 0;
+
+		rcTxt.left = iCenter - iTextW / 2;
+		rcTxt.top = iVCenter - iTextH / 2;
+
+		if ( rcTxt.left < BUTTON_XPAD )
+			rcTxt.left = BUTTON_XPAD;
+
+		if ( rcTxt.top < BUTTON_YPAD )
+			rcTxt.top = BUTTON_YPAD;
+
+		rcTxt.right = rcClient.right - BUTTON_XPAD;
+		rcTxt.bottom = rcClient.bottom - BUTTON_YPAD;
+
+		// If there is an icon
+		if (himl != NULL && this->m_bHasIcons) {
+			iIconLeft = iCenter - (this->m_iIconSize + ICON_XPAD + iTextW) / 2;
+			iIconTop = iVCenter - this->m_iIconSize / 2;
+
+			if (iIconLeft < BUTTON_XPAD)
+				iIconLeft = BUTTON_XPAD;
+
+			if (iIconTop < BUTTON_YPAD)
+				iIconTop = BUTTON_YPAD;
+
+			rcTxt.left = iIconLeft + this->m_iIconSize + ICON_XPAD;
+
+			if (IsWindowEnabled(this->m_Hwnd) == FALSE)
+				ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT | ILD_BLEND50);
+			else
+				ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT);
+		}
+
+		if ( this->m_tsCaption.len( ) > 0 ) {
+			if (!this->m_bCtrlCodeText) {
+				if (!this->m_bSelected && this->m_bShadowText) // could cause problems with pre-XP as this is commctrl v6+
+					dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(), this->m_tsCaption.len(),&rcTxt,
+						DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
+				else
+					DrawText( hdc, this->m_tsCaption.to_chr( ), this->m_tsCaption.len( ), 
+						&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+			}
+			else
+				mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false));
+		}
+
+		SelectObject( hdc, hFontOld );
+	}
+
+	this->FinishAlphaBlend(ai);
 }

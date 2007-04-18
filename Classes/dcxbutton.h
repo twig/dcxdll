@@ -77,6 +77,7 @@ protected:
   static UINT parseColorFlags(TString & flags );
   BOOL m_bBitmapText;
   BOOL m_bHasIcons;
+	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 };
 
 #endif // _DCXBUTTON_H_

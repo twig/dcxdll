@@ -66,6 +66,7 @@ protected:
 
 private:
 	int CalculatePosition(void) const;
+	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 };
 
 #endif // _DCXPROGRESSBAR_H_

@@ -684,204 +684,23 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_ERASEBKGND:
 		{
-			//if (this->isExStyle(WS_EX_TRANSPARENT)) {
-			//	bParsed = TRUE;
-			//	return TRUE;
-			//}
-			//HDC hdc = (HDC)wParam;
-			//RECT rc;
-			//GetClientRect(this->m_Hwnd, &rc);
-			// paint the background
-			//if (this->_hTheme != NULL) {
-			//	int _iStateId = (IsWindowEnabled(this->m_Hwnd) ? GBS_NORMAL : GBS_DISABLED);
-			//	if (IsThemeBackgroundPartiallyTransparentUx(this->_hTheme, BP_GROUPBOX, _iStateId))
-			//		DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rc);
-			//}
-			//if (this->m_bAlphaBlend)
-			//if (this->m_bAlphaBlend || this->isExStyle(WS_EX_TRANSPARENT))
-				this->DrawParentsBackground((HDC) wParam);
-			//RECT rect;
-			//GetClientRect( this->m_Hwnd, &rect );
-			//DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-			if (this->m_pLayoutManager != NULL) {
-				RECT rc;
-				GetClientRect( this->m_Hwnd, &rc );
-				this->m_pLayoutManager->updateLayout( rc );
-			}
+			this->EraseBackground((HDC)wParam);
 			bParsed = TRUE;
 			return TRUE;
 		}
 		break;
 
+		case WM_PRINTCLIENT:
+			this->DrawClientArea((HDC)wParam);
+			bParsed = TRUE;
+			break;
+
 		case WM_PAINT:
 			{
 				PAINTSTRUCT ps;
 				HDC hdc = BeginPaint(this->m_Hwnd, &ps);
-				RECT rc, rc2, rcText, rcText2;
-				TString wtext;
-				int n = TGetWindowText(this->m_Hwnd, wtext);
-				HBRUSH hBrush = GetSysColorBrush(COLOR_3DFACE);
 
-				GetClientRect(this->m_Hwnd, &rc);
-				CopyRect(&rc2, &rc);
-
-				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-				// paint the background
-				//if (dcxIsThemeActive())
-				//	DrawThemeParentBackgroundUx(this->m_Hwnd, hdc, &rc2);
-				//else
-				//	this->FillBkg(hdc, &rc2, hBrush);
-				if (!this->isExStyle(WS_EX_TRANSPARENT)) {
-					// set up brush colors
-					if (this->m_hBackBrush != NULL)
-						hBrush = this->m_hBackBrush;
-				}
-
-				// if no border, dont bother
-				if (this->m_iBoxStyles & BOXS_NONE) {
-					this->FillBkg(hdc, &rc2, hBrush);
-					EndPaint(this->m_Hwnd, &ps);
-
-					bParsed = TRUE;
-					return 0L;
-				}
-
-				SetBkMode(hdc, TRANSPARENT);
-
-				// no text, no box!
-				if (!n) {
-					if (this->m_iBoxStyles & BOXS_ROUNDED) {
-						HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-						if (!this->isExStyle(WS_EX_TRANSPARENT))
-							FillRgn(hdc,m_Region,hBrush);
-						FrameRgn(hdc,m_Region,(HBRUSH)GetStockObject(DC_PEN),1,1);
-						DeleteObject(m_Region);
-					}
-					else {
-						this->FillBkg(hdc, &rc2, hBrush);
-						//DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
-						DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
-					}
-					if (IsWindow(this->m_TitleButton))
-						SetWindowPos(this->m_TitleButton,NULL,rc2.left,rc2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
-				}
-				// draw text
-				else {
-					// prepare for appearance
-					if (this->m_hFont != NULL)
-						SelectObject(hdc, this->m_hFont);
-
-					if (this->m_clrText != -1)
-						SetTextColor(hdc, this->m_clrText);
-					else
-						SetTextColor(hdc, GetSysColor(
-							IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
-						);
-
-					if (this->m_bCtrlCodeText)
-						calcStrippedRect(hdc, wtext, 0, &rcText, false);
-					else
-						DrawText(hdc, wtext.to_chr(), n, &rcText, DT_CALCRECT);
-
-					int w = rcText.right - rcText.left;
-					int h = rcText.bottom - rcText.top;
-
-					// shift border and text locations
-					// text at bottom?
-					if (this->m_iBoxStyles & BOXS_BOTTOM) {
-						rcText.top = rc2.bottom - h;
-						rc2.bottom -= h/2;
-					}
-					// text at top
-					else {
-						rcText.top = rc2.top;
-						rc2.top += h/2;
-					}
-
-					// text location
-					rcText.bottom = rcText.top + h;
-
-					// align text horizontally
-					int bw = rc.right - rc.left - (2 * DCX_BOXTEXTSPACING);
-
-					if (w > bw) {
-						rcText.left = rc.left + DCX_BOXTEXTSPACING;
-						rcText.right = rc.right - DCX_BOXTEXTSPACING;
-					}
-					else {
-						if (this->m_iBoxStyles & BOXS_RIGHT)
-							rcText.left = rc.right - DCX_BOXTEXTSPACING - w;
-						else if (this->m_iBoxStyles & BOXS_CENTER)
-							rcText.left = (rc.left + rc.right - w) /2;
-						else
-							rcText.left = rc.left + DCX_BOXTEXTSPACING;
-
-						rcText.right = rcText.left + w;
-					}
-
-
-					// clear some space for the text
-					CopyRect(&rcText2, &rcText);
-					InflateRect(&rcText2, 3, 0);
-
-					if (IsWindow(this->m_TitleButton))
-					{
-						RECT bSZ;
-						GetWindowRect(this->m_TitleButton,&bSZ);
-						bSZ.bottom = (bSZ.right - bSZ.left);
-						SetWindowPos(this->m_TitleButton,NULL,rcText2.left,rcText2.top,bSZ.bottom,(rcText2.bottom - rcText2.top),SWP_NOZORDER|SWP_NOACTIVATE);
-						rcText.left += bSZ.bottom;
-						rcText.right += bSZ.bottom;
-						rcText2.left += bSZ.bottom;
-						rcText2.right += bSZ.bottom;
-					}
-
-					if (this->isExStyle(WS_EX_TRANSPARENT))
-						ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
-
-					// draw the border
-					if (this->m_iBoxStyles & BOXS_ROUNDED) {
-						HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-						if (!this->isExStyle(WS_EX_TRANSPARENT))
-							FillRgn(hdc,m_Region,hBrush);
-						FrameRgn(hdc,m_Region,(HBRUSH)GetStockObject(BLACK_BRUSH),1,1);
-						DeleteObject(m_Region);
-					}
-					else {
-						this->FillBkg(hdc, &rc2, hBrush);
-						DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
-					}
-
-					if (!this->isExStyle(WS_EX_TRANSPARENT)) {
-						HRGN m_Region = CreateRectRgn(rc2.left,rc2.top,rc2.right,rc2.bottom);
-						if (m_Region)
-							SelectClipRgn(hdc,m_Region);
-						FillRect(hdc, &rcText2, hBrush);
-						//this->FillBkg(hdc, &rcText2, hBrush);
-						if (m_Region) {
-							SelectClipRgn(hdc,NULL);
-							DeleteObject(m_Region);
-						}
-					}
-					else
-						SelectClipRgn(hdc,NULL);
-					//else
-					//	IntersectClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
-
-					// draw the text
-					if (!this->m_bCtrlCodeText) {
-						if (this->m_bShadowText)
-							dcxDrawShadowText(hdc,wtext.to_wchr(), n,&rcText, DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
-						else
-							DrawText(hdc, wtext.to_chr(), n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
-					}
-					else
-						mIRC_DrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS, this->m_bShadowText);
-				}
-
-				this->FinishAlphaBlend(ai);
+				this->DrawClientArea(hdc);
 
 				EndPaint(this->m_Hwnd, &ps);
 
@@ -911,4 +730,175 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 	}
 
 	return lRes;
+}
+void DcxBox::EraseBackground(HDC hdc)
+{
+	this->DrawParentsBackground(hdc);
+	// Update CLA if any.
+	if (this->m_pLayoutManager != NULL) {
+		RECT rc;
+		GetClientRect( this->m_Hwnd, &rc );
+		this->m_pLayoutManager->updateLayout( rc );
+	}
+}
+
+void DcxBox::DrawClientArea(HDC hdc)
+{
+	RECT rc, rc2, rcText, rcText2;
+	TString wtext;
+	int n = TGetWindowText(this->m_Hwnd, wtext);
+	HBRUSH hBrush = GetSysColorBrush(COLOR_3DFACE);
+
+	GetClientRect(this->m_Hwnd, &rc);
+	CopyRect(&rc2, &rc);
+
+	// Setup alpha blend if any.
+	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+	if (!this->isExStyle(WS_EX_TRANSPARENT)) {
+		// set up brush colors
+		if (this->m_hBackBrush != NULL)
+			hBrush = this->m_hBackBrush;
+	}
+
+	// if no border, dont bother
+	if (this->m_iBoxStyles & BOXS_NONE) {
+		this->FillBkg(hdc, &rc2, hBrush);
+		return;
+	}
+
+	SetBkMode(hdc, TRANSPARENT);
+
+	// no text, no box!
+	if (!n) {
+		if (this->m_iBoxStyles & BOXS_ROUNDED) {
+			HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
+			if (!this->isExStyle(WS_EX_TRANSPARENT))
+				FillRgn(hdc,m_Region,hBrush);
+			FrameRgn(hdc,m_Region,(HBRUSH)GetStockObject(DC_PEN),1,1);
+			DeleteObject(m_Region);
+		}
+		else {
+			this->FillBkg(hdc, &rc2, hBrush);
+			//DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
+			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
+		}
+		if (IsWindow(this->m_TitleButton))
+			SetWindowPos(this->m_TitleButton,NULL,rc2.left,rc2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
+	}
+	// draw text
+	else {
+		// prepare for appearance
+		if (this->m_hFont != NULL)
+			SelectObject(hdc, this->m_hFont);
+
+		if (this->m_clrText != -1)
+			SetTextColor(hdc, this->m_clrText);
+		else
+			SetTextColor(hdc, GetSysColor(
+				IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
+			);
+
+		if (this->m_bCtrlCodeText)
+			calcStrippedRect(hdc, wtext, 0, &rcText, false);
+		else
+			DrawText(hdc, wtext.to_chr(), n, &rcText, DT_CALCRECT);
+
+		int w = rcText.right - rcText.left;
+		int h = rcText.bottom - rcText.top;
+
+		// shift border and text locations
+		// text at bottom?
+		if (this->m_iBoxStyles & BOXS_BOTTOM) {
+			rcText.top = rc2.bottom - h;
+			rc2.bottom -= h/2;
+		}
+		// text at top
+		else {
+			rcText.top = rc2.top;
+			rc2.top += h/2;
+		}
+
+		// text location
+		rcText.bottom = rcText.top + h;
+
+		// align text horizontally
+		int bw = rc.right - rc.left - (2 * DCX_BOXTEXTSPACING);
+
+		if (w > bw) {
+			rcText.left = rc.left + DCX_BOXTEXTSPACING;
+			rcText.right = rc.right - DCX_BOXTEXTSPACING;
+		}
+		else {
+			if (this->m_iBoxStyles & BOXS_RIGHT)
+				rcText.left = rc.right - DCX_BOXTEXTSPACING - w;
+			else if (this->m_iBoxStyles & BOXS_CENTER)
+				rcText.left = (rc.left + rc.right - w) /2;
+			else
+				rcText.left = rc.left + DCX_BOXTEXTSPACING;
+
+			rcText.right = rcText.left + w;
+		}
+
+
+		// clear some space for the text
+		CopyRect(&rcText2, &rcText);
+		InflateRect(&rcText2, 3, 0);
+
+		if (IsWindow(this->m_TitleButton))
+		{
+			RECT bSZ;
+			GetWindowRect(this->m_TitleButton,&bSZ);
+			bSZ.bottom = (bSZ.right - bSZ.left);
+			SetWindowPos(this->m_TitleButton,NULL,rcText2.left,rcText2.top,bSZ.bottom,(rcText2.bottom - rcText2.top),SWP_NOZORDER|SWP_NOACTIVATE);
+			rcText.left += bSZ.bottom;
+			rcText.right += bSZ.bottom;
+			rcText2.left += bSZ.bottom;
+			rcText2.right += bSZ.bottom;
+		}
+
+		if (this->isExStyle(WS_EX_TRANSPARENT))
+			ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
+
+		// draw the border
+		if (this->m_iBoxStyles & BOXS_ROUNDED) {
+			HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
+			if (!this->isExStyle(WS_EX_TRANSPARENT))
+				FillRgn(hdc,m_Region,hBrush);
+			FrameRgn(hdc,m_Region,(HBRUSH)GetStockObject(BLACK_BRUSH),1,1);
+			DeleteObject(m_Region);
+		}
+		else {
+			this->FillBkg(hdc, &rc2, hBrush);
+			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
+		}
+
+		if (!this->isExStyle(WS_EX_TRANSPARENT)) {
+			HRGN m_Region = CreateRectRgn(rc2.left,rc2.top,rc2.right,rc2.bottom);
+			if (m_Region)
+				SelectClipRgn(hdc,m_Region);
+			FillRect(hdc, &rcText2, hBrush);
+			//this->FillBkg(hdc, &rcText2, hBrush);
+			if (m_Region) {
+				SelectClipRgn(hdc,NULL);
+				DeleteObject(m_Region);
+			}
+		}
+		else
+			SelectClipRgn(hdc,NULL);
+		//else
+		//	IntersectClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
+
+		// draw the text
+		if (!this->m_bCtrlCodeText) {
+			if (this->m_bShadowText)
+				dcxDrawShadowText(hdc,wtext.to_wchr(), n,&rcText, DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
+			else
+				DrawText(hdc, wtext.to_chr(), n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
+		}
+		else
+			mIRC_DrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS, this->m_bShadowText);
+	}
+
+	this->FinishAlphaBlend(ai);
 }

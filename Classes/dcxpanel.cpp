@@ -522,31 +522,44 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 			break;
 
-		case WM_PAINT:
+		case WM_PRINTCLIENT:
 			{
-				//if (!this->m_bAlphaBlend)
-				//	break;
-        PAINTSTRUCT ps;
-        HDC hdc;
+				HDC hdc = (HDC)wParam;
 
-        hdc = BeginPaint( this->m_Hwnd, &ps );
-
-				LRESULT res = 0L;
 				bParsed = TRUE;
 
 				// Setup alpha blend if any.
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
 				{ // simply fill with bkg
-					DcxControl::DrawCtrlBackground((HDC) wParam,this,&ps.rcPaint);
+					RECT rcClient;
+					GetClientRect(this->m_Hwnd,&rcClient);
+					DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 				}
 
-				//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				this->FinishAlphaBlend(ai);
+			}
+			break;
+
+		case WM_PAINT:
+			{
+        PAINTSTRUCT ps;
+        HDC hdc;
+
+        hdc = BeginPaint( this->m_Hwnd, &ps );
+
+				bParsed = TRUE;
+
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				{ // simply fill with bkg
+					DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
+				}
 
 				this->FinishAlphaBlend(ai);
 
 				EndPaint( this->m_Hwnd, &ps );
-				return res;
 			}
 			break;
 

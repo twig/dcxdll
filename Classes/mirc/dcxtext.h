@@ -44,7 +44,7 @@ public:
 
   protected:
 	TString m_tsText; // Edit Text
-
+	void DrawClientArea(HDC hdc);
 };
 
 #endif // _DCXTEXT_H_

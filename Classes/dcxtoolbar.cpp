@@ -1342,9 +1342,6 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				// Setup alpha blend if any.
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-				// fill background.
-				//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
-
 				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 				this->FinishAlphaBlend(ai);

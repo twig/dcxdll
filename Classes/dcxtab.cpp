@@ -673,13 +673,12 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 										TabCtrl_GetItemRect(this->m_Hwnd, tab, &rc);
 										GetCloseButtonRect(rc, rcCloseButton);
 
-                              if (PtInRect(&rcCloseButton, pt)) {
+										if (PtInRect(&rcCloseButton, pt)) {
 											this->callAliasEx(NULL, "%s,%d,%d", "closetab", this->getUserID(), tab +1);
-                                 break;
-                              }
+											break;
+										}
 									}
-
-                           this->callAliasEx(NULL, "%s,%d,%d", "sclick", this->getUserID(), tab +1);
+									this->callAliasEx(NULL, "%s,%d,%d", "sclick", this->getUserID(), tab +1);
 								}
 							}
 						}
@@ -868,8 +867,6 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_MEASUREITEM:
       {
-				//mIRCDebug("measure item");
-
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
 					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
@@ -886,19 +883,19 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
       }
       break;
 
-    //case WM_ERASEBKGND:
-    //  {
-				//if (this->isExStyle(WS_EX_TRANSPARENT))
-				//	this->DrawParentsBackground((HDC)wParam);
-				//else {
-				//	RECT rect;
-				//	GetClientRect( this->m_Hwnd, &rect );
-				//	DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-				//}
-				//bParsed = TRUE;
-				//return TRUE;
-    //  }
-    //  break;
+		case WM_ERASEBKGND:
+			{
+				if (this->isExStyle(WS_EX_TRANSPARENT))
+					this->DrawParentsBackground((HDC)wParam);
+				else {
+					RECT rect;
+					GetClientRect( this->m_Hwnd, &rect );
+					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+				}
+				bParsed = TRUE;
+				return TRUE;
+			}
+			break;
 
 		case WM_PAINT:
 			{

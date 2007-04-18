@@ -54,6 +54,7 @@ protected:
 
 	//static TString UriEncode(const TString &sSrc);
 	//static TString UriDecode(const TString &sSrc);
+	void DrawClientArea(HDC hdc);
 };
 
 #endif // _DCXLINK_H_

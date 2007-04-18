@@ -65,6 +65,7 @@ typedef struct {
 	HDC ai_hdc;
 	HDC ai_Oldhdc;
 	HBITMAP ai_bitmap;
+	HBITMAP ai_bkg;
 	HBITMAP ai_oldBM;
 	RECT ai_rcClient;
 	RECT ai_rcWin;

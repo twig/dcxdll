@@ -2465,14 +2465,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				}
 				//PAINTSTRUCT ps;
 				//HDC hdc;
-				//RECT rc;
 				//bParsed = TRUE;
 
 				//hdc = BeginPaint(mHwnd, &ps);
 
-				//GetClientRect(p_this->getHwnd(), &rc);
 
-				//DcxDialog::DrawDialogBackground(hdc, p_this, &rc);
+				//DcxDialog::DrawDialogBackground(hdc, p_this, &ps.rcPaint);
 
 				//lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, (WPARAM) hdc, lParam);
 

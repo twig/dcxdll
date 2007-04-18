@@ -44,6 +44,8 @@ public:
 
 protected:
 
+	void DrawClientArea(HDC hdc);
+
 	TString m_sText;
 	bool m_bVertical;
 };

@@ -442,13 +442,13 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 
 	// draw background if we need to.
 	//if (this->isExStyle(WS_EX_TRANSPARENT) || this->m_bAlphaBlend) {
-	//	HRGN hrgn = CreateRectRgnIndirect(&idata->rcItem);
-	//	if (hrgn != NULL) {
-	//		SelectClipRgn(idata->hDC,hrgn);
-	//		DcxControl::DrawParentsBackground(memDC, &idata->rcItem, idata->hwndItem);
-	//		SelectClipRgn(idata->hDC,NULL);
-	//		DeleteObject(hrgn);
-	//	}
+		//HRGN hrgn = CreateRectRgnIndirect(&idata->rcItem);
+		//if (hrgn != NULL) {
+			//SelectClipRgn(idata->hDC,hrgn);
+			//DcxControl::DrawParentsBackground(memDC, &idata->rcItem, idata->hwndItem);
+			//SelectClipRgn(idata->hDC,NULL);
+			//DeleteObject(hrgn);
+		//}
 	//}
 	// draw button for this item.
 	UINT style = DFCS_BUTTONPUSH|DFCS_ADJUSTRECT;
@@ -801,8 +801,8 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			if (lastID == LB_ERR)
 				break;
 			lastID--;
-			if (lastID == 0)
-				this->DrawParentsBackground((HDC) wParam);
+			if ((lastID == 0) || (lParam != NULL))
+				this->DrawParentsBackground((HDC)wParam);
 			else {
 				RECT rcItem, rcClient;
 				GetClientRect(this->m_Hwnd,&rcClient);
@@ -811,6 +811,11 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					rcClient.top = rcItem.bottom;
 					this->DrawParentsBackground((HDC) wParam, &rcClient);
 				}
+				//lastID = this->getSelItemID();
+				//if (lastID != LB_ERR) {
+				//	this->getItemRect(lastID, &rcItem);
+				//	this->DrawParentsBackground((HDC) wParam, &rcItem);
+				//}
 			}
 			return TRUE;
 		}
@@ -825,18 +830,16 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 				hdc = BeginPaint( this->m_Hwnd, &ps );
 
-				LRESULT res = 0L;
 				bParsed = TRUE;
 
 				// Setup alpha blend if any.
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				lRes = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 				this->FinishAlphaBlend(ai);
 
 				EndPaint( this->m_Hwnd, &ps );
-				return res;
 			}
 			break;
 

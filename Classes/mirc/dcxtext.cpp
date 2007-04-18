@@ -226,71 +226,25 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			break;
 		}
 
+		case WM_PRINTCLIENT:
+			{
+				this->DrawClientArea((HDC)wParam);
+				bParsed = TRUE;
+			}
+			break;
 		case WM_PAINT:
-		{
-			//if (!this->isExStyle(WS_EX_TRANSPARENT) && !this->m_bAlphaBlend)
-			//	break;
+			{
+				bParsed = TRUE;
+				PAINTSTRUCT ps;
+				HDC hdc;
 
-			bParsed = TRUE;
-			LRESULT res = 0L;
+				hdc = BeginPaint( this->m_Hwnd, &ps );
 
-			PAINTSTRUCT ps;
-			RECT r;
-			HDC hdc = BeginPaint(this->m_Hwnd, &ps);
+				this->DrawClientArea(hdc);
 
-			// Setup alpha blend if any.
-			LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-			//if (this->isExStyle(WS_EX_TRANSPARENT)) {
-				TString wtext;
-				int nText = TGetWindowText(this->m_Hwnd, wtext);
-
-				GetClientRect(this->m_Hwnd, &r);
-
-				DcxControl::DrawCtrlBackground(hdc,this,&r);
-
-				HFONT oldFont = (HFONT)SelectObject(hdc, this->m_hFont);
-				COLORREF oldClr = SetTextColor(hdc, this->m_clrText);
-
-				UINT style = DT_LEFT;
-				if (this->isStyle(SS_CENTER))
-					style = DT_CENTER;
-				if (this->isStyle(SS_RIGHT))
-					style = DT_RIGHT;
-				if (this->isStyle(SS_ENDELLIPSIS))
-					style |= DT_END_ELLIPSIS;
-				if (this->isStyle(SS_PATHELLIPSIS))
-					style |= DT_PATH_ELLIPSIS;
-				if (this->isStyle(SS_NOPREFIX))
-					style |= DT_NOPREFIX;
-				if (this->isStyle(SS_LEFTNOWORDWRAP))
-					style |= DT_SINGLELINE;
- 				else
-					style |= DT_WORDBREAK; // changed for autowrap between words
-
-				if (!this->m_bCtrlCodeText) {
-					int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
-					if (this->m_bShadowText)
-						dcxDrawShadowText(hdc, wtext.to_wchr(), nText, &r, style, this->m_clrText, 0, 5, 5);
-					else
-						DrawText(hdc, wtext.to_chr(), nText, &r, style);
-					SetBkMode(hdc, oldBkgMode);
-				}
-				else
-					mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText);
-
-				SetTextColor(hdc, oldClr);
-				SelectObject(hdc, oldFont);
-				res = TRUE;
-			//}
-			//else
-			//	res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-
-			this->FinishAlphaBlend(ai);
-
-			EndPaint(this->m_Hwnd, &ps);
-			return res;
-		}
+				EndPaint( this->m_Hwnd, &ps );
+			}
+			break;
 
     case WM_DESTROY:
       {
@@ -305,4 +259,53 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
   }
 
   return 0L;
+}
+
+void DcxText::DrawClientArea(HDC hdc)
+{
+	RECT r;
+	// Setup alpha blend if any.
+	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+	TString wtext;
+	int nText = TGetWindowText(this->m_Hwnd, wtext);
+
+	GetClientRect(this->m_Hwnd, &r);
+
+	DcxControl::DrawCtrlBackground(hdc,this,&r);
+
+	HFONT oldFont = (HFONT)SelectObject(hdc, this->m_hFont);
+	COLORREF oldClr = SetTextColor(hdc, this->m_clrText);
+
+	UINT style = DT_LEFT;
+	if (this->isStyle(SS_CENTER))
+		style = DT_CENTER;
+	if (this->isStyle(SS_RIGHT))
+		style = DT_RIGHT;
+	if (this->isStyle(SS_ENDELLIPSIS))
+		style |= DT_END_ELLIPSIS;
+	if (this->isStyle(SS_PATHELLIPSIS))
+		style |= DT_PATH_ELLIPSIS;
+	if (this->isStyle(SS_NOPREFIX))
+		style |= DT_NOPREFIX;
+	if (this->isStyle(SS_LEFTNOWORDWRAP))
+		style |= DT_SINGLELINE;
+	else
+		style |= DT_WORDBREAK; // changed for autowrap between words
+
+	if (!this->m_bCtrlCodeText) {
+		int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
+		if (this->m_bShadowText)
+			dcxDrawShadowText(hdc, wtext.to_wchr(), nText, &r, style, this->m_clrText, 0, 5, 5);
+		else
+			DrawText(hdc, wtext.to_chr(), nText, &r, style);
+		SetBkMode(hdc, oldBkgMode);
+	}
+	else
+		mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText);
+
+	SetTextColor(hdc, oldClr);
+	SelectObject(hdc, oldFont);
+
+	this->FinishAlphaBlend(ai);
 }

@@ -532,6 +532,22 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
       }
       break;
 
+		case WM_PRINTCLIENT:
+			{
+				bParsed = TRUE;
+				HDC hdc = (HDC)wParam;
+				if (this->m_pWc != NULL)
+				{
+					// Request the VMR to paint the video.
+					HRESULT hr = this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
+				}
+				else { // There is no video, so paint the whole client area.
+					RECT rcClient;
+					GetClientRect(this->m_Hwnd, &rcClient);
+					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rcClient);
+				}
+			}
+			break;
 		case WM_PAINT:
 			{
 				bParsed = TRUE;

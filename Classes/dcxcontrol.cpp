@@ -273,22 +273,6 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	}
 	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	else if ( flags.switch_cap_flags[9] && numtok > 4 ) {
-		//if ( this->m_bCursorFromFile ) {
-		//	DeleteObject( this->m_hCursor );
-		//	this->m_hCursor = NULL;
-		//	this->m_bCursorFromFile = FALSE;
-		//}
-		//else
-		//	this->m_hCursor = NULL;
-
-		//UINT iFlags = this->parseCursorFlags( input.gettok( 4 ) );
-
-		//if ( iFlags & DCCS_FROMRESSOURCE )
-		//	this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.gettok( 5 ) ) );
-		//else if ( iFlags & DCCS_FROMFILE ) {
-		//	this->m_hCursor = LoadCursorFromFile( input.gettok( 5, -1 ).to_chr( ) );
-		//	this->m_bCursorFromFile = TRUE;
-		//}
 		UINT iFlags = this->parseCursorFlags( input.gettok( 4 ) );
 		HCURSOR hCursor = NULL;
 		if ( this->m_bCursorFromFile )
@@ -306,7 +290,6 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		}
 		if (this->m_hCursor == NULL)
 			this->showError(NULL, "-J", "Unable to Load Cursor");
-			//DCXError("/xdid -J","Unable to Load Cursor");
 		if (hCursor != NULL) {
 			if (GetCursor() == hCursor) {
 				if (this->m_hCursor != NULL)
@@ -1210,18 +1193,18 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 
 void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, const HWND dHwnd)
 {
-	//if (isXP() && !this->m_bAlphaBlend)
-	//	return;
 	// fill in parent bg
 	RECT rcClient, rcParent, rcWin;
 	HWND hwnd = this->m_Hwnd;
+
+	if (dHwnd != NULL)
+		hwnd = dHwnd;
+
 	if (rcBounds == NULL)
 		GetClientRect( hwnd, &rcClient ); // get controls client area
-	else {
+	else
 		rcClient = *rcBounds;
-		if (dHwnd != NULL)
-			hwnd = dHwnd;
-	}
+
 	// if themes are active use them.
 	if (dcxIsThemeActive()) {
 		DrawThemeParentBackgroundUx(hwnd, hdc, &rcClient);
@@ -1230,8 +1213,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 	this->updateParentCtrl(); // find the host control, if any.
 	// get this controls x & y pos within its parent.
 	rcWin = rcClient;
-	MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2); // handles RTL
-	if (this->m_pParentCtrl == NULL) { // host control is the dialog, draw dialogs background.
+	//if (this->m_pParentCtrl == NULL) { // host control is the dialog, draw dialogs background.
 		// make a new HDC for background rendering
 		HDC hdcbkg = CreateCompatibleDC( hdc );
 		if (hdcbkg != NULL) {
@@ -1240,10 +1222,13 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 			// make a bitmap for rendering to.
 			HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
 			if (memBM != NULL) {
+				MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2); // handles RTL
 				// associate bitmap with HDC
 				HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
-				//::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)hdcbkg,NULL);
-				DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
+				//DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
+				// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
+				::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)hdcbkg,1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+				::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)hdcbkg,PRF_CLIENT);
 				// draw background to main hdc
 				BitBlt( hdc, rcClient.left, rcClient.top,
 					(rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
@@ -1252,14 +1237,14 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 			}
 			DeleteDC( hdcbkg );
 		}
-	}
-	else { // found host control, draw its background if any.
-		// handle case where parent is transparent.
-		if (this->m_pParentCtrl->isExStyle(WS_EX_TRANSPARENT))
-			this->m_pParentCtrl->DrawParentsBackground(hdc, &rcClient, hwnd); // pass on dest bounds & hwnd
-		else
-			DcxControl::DrawCtrlBackground(hdc,this->m_pParentCtrl,&rcClient); // ctrls only FillRect() atm
-	}
+	//}
+	//else { // found host control, draw its background if any.
+	//	// handle case where parent is transparent.
+	//	if (this->m_pParentCtrl->isExStyle(WS_EX_TRANSPARENT))
+	//		this->m_pParentCtrl->DrawParentsBackground(hdc, &rcClient, hwnd); // pass on dest bounds & hwnd
+	//	else
+	//		DcxControl::DrawCtrlBackground(hdc,this->m_pParentCtrl,&rcClient); // ctrls only FillRect() atm
+	//}
 	// Don't remove commented version below, keep for refrence.
 	//// make a new HDC for background rendering
 	//HDC hdcbkg = CreateCompatibleDC( hdc );
@@ -1297,6 +1282,11 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 {
 	if ((hdc == NULL) || (*hdc == NULL))
 		return NULL;
+
+	// if dialog is composited, dont draw background
+	//if (this->m_pParentDialog->isExStyle(WS_EX_COMPOSITED))
+	//	return NULL;
+
 	LPALPHAINFO ai = NULL;
 	if (this->m_bAlphaBlend || DoubleBuffer) {
 		/*
@@ -1308,6 +1298,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 		ai = new ALPHAINFO;
 		// create a new HDC for alpha blending.
 		ai->ai_hdc = CreateCompatibleDC( *hdc );
+		ai->ai_bkg = NULL;
 		if (ai->ai_hdc != NULL) {
 			GetWindowRect(this->m_Hwnd,&ai->ai_rcWin);
 			GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
@@ -1318,8 +1309,21 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 				ai->ai_oldBM = (HBITMAP)SelectObject ( ai->ai_hdc, ai->ai_bitmap );
 				// fill in parent bg
 				this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
-				// copy bg to temp hdc
-				BitBlt( *hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+				// If alpha blending, make a background bitmap & fill it.
+				if (this->m_bAlphaBlend) {
+					HDC hdcbkg = CreateCompatibleDC( *hdc );
+					if (hdcbkg != NULL) {
+						ai->ai_bkg = CreateCompatibleBitmap ( *hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top );
+						if (ai->ai_bkg != NULL) {
+							HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, ai->ai_bkg );
+
+							BitBlt( hdcbkg, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+
+							SelectObject(hdcbkg, oldBM);
+						}
+						DeleteDC(hdcbkg);
+					}
+				}
 				ai->ai_Oldhdc = *hdc;
 				*hdc = ai->ai_hdc;
 			}
@@ -1335,11 +1339,22 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 		if (ai->ai_bitmap != NULL) {
 			int w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);
 			if (this->m_bAlphaBlend) {
-				// alpha blend finished button with parents background
-				BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0x7f, 0 };
-				// 0x7f half of 0xff = 50% transparency
-				//AC_SRC_ALPHA;
-				AlphaBlend(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h,bf);
+				if (ai->ai_bkg != NULL) {
+					// create a new HDC for alpha blending. (doing things this way avoids any flicker)
+					HDC hdcbkg = CreateCompatibleDC( ai->ai_Oldhdc);
+					if (hdcbkg != NULL) {
+						// associate bitmap with hdc
+						HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, ai->ai_bkg );
+						// alpha blend finished button with parents background
+						BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0x7f, 0 }; // 0x7f half of 0xff = 50% transparency
+						AlphaBlend(hdcbkg,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h,bf);
+						// draw final image to windows hdc.
+						BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,hdcbkg,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+						SelectObject( hdcbkg, oldBM);
+						DeleteDC(hdcbkg);
+					}
+					DeleteBitmap(ai->ai_bkg);
+				}
 			}
 			else
 				BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
@@ -1580,6 +1595,24 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 						}
 						break;
 					}
+			}
+			break;
+			// Default WM_PRINTCLIENT method that handles alpha for us.
+			// This Message is required for AnimateWindow() to work (also used by new transparency/alpha code)
+		case WM_PRINTCLIENT:
+			{
+				HDC hdc = (HDC)wParam;
+
+				LRESULT res = 0L;
+				bParsed = TRUE;
+
+				// Setup alpha blend if any.
+				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+				this->FinishAlphaBlend(ai);
+				return res;
 			}
 			break;
 	}

@@ -54,6 +54,7 @@ protected:
 	void DrawGDIImage(HDC hdc, int x, int y, int w, int h);
 #endif
 	void DrawBMPImage(HDC hdc, int x, int y, int w, int h);
+	void DrawClientArea(HDC hdc);
   HBITMAP m_hBitmap; //!< Bitmap
   HICON m_hIcon; // !< icon
 

@@ -199,102 +199,23 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 				return TRUE;
 			}
 			break;
+		case WM_PRINTCLIENT:
+			{
+				this->DrawClientArea((HDC)wParam);
+				bParsed = TRUE;
+			}
+			break;
 		case WM_PAINT:
 			{
-				//if (!this->m_bAlphaBlend)
-				//	break;
+				bParsed = TRUE;
 				PAINTSTRUCT ps;
 				HDC hdc;
 
 				hdc = BeginPaint( this->m_Hwnd, &ps );
 
-				LRESULT res = 0L;
-				bParsed = TRUE;
-
-				RECT rcClient, rcLine, rcText;
-
-				// get controls client area
-				GetClientRect( this->m_Hwnd, &rcClient );
-
-				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-				// fill background.
-				//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
-
-				//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-				rcLine = rcClient;
-				rcText = rcClient;
-
-				// draw text if any.
-				if (this->m_sText.len() > 0) {
-					if (this->m_hFont != NULL)
-						SelectObject(hdc, this->m_hFont);
-
-					if (this->m_clrText != -1)
-						SetTextColor(hdc, this->m_clrText);
-					else
-						SetTextColor(hdc, GetSysColor(
-							IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
-						);
-					UINT style = 0;
-					if (this->isStyle(SS_ENDELLIPSIS))
-						style |= DT_END_ELLIPSIS;
-					if (this->isStyle(SS_PATHELLIPSIS))
-						style |= DT_PATH_ELLIPSIS;
-					if (this->isStyle(SS_NOPREFIX))
-						style |= DT_NOPREFIX;
-					if (this->isStyle(SS_LEFTNOWORDWRAP))
-						style |= DT_SINGLELINE;
-					if (this->m_bVertical) {
-						style |= DT_CENTER;
-						SIZE sz;
-						SetBkMode(hdc, TRANSPARENT);
-						GetTextExtentPoint32(hdc,this->m_sText.to_chr(),this->m_sText.len(), &sz);
-						rcText.bottom = rcText.top + sz.cx;
-						rcText.right = rcText.left + sz.cy;
-						if (this->isStyle(SS_CENTER))
-							OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),((rcClient.bottom - rcClient.top)/2) - ((rcText.bottom - rcText.top)/2));
-						else if (this->isStyle(SS_RIGHT))
-							OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),rcClient.bottom - (rcText.bottom - rcText.top));
-						TextOut(hdc,rcText.left, rcText.bottom, this->m_sText.to_chr(), this->m_sText.len());
-					}
-					else {
-						style |= DT_LEFT|DT_VCENTER;
-						if (this->m_bCtrlCodeText)
-							calcStrippedRect(hdc, this->m_sText, style, &rcText, false);
-						else
-							DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, DT_CALCRECT | style);
-						if (this->isStyle(SS_CENTER))
-							OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),0);
-						else if (this->isStyle(SS_RIGHT))
-							OffsetRect(&rcText,rcClient.right - (rcText.right - rcText.left),0);
-
-						// draw the text
-						if (!this->m_bCtrlCodeText) {
-							SetBkMode(hdc, TRANSPARENT);
-							if (this->m_bShadowText)
-								dcxDrawShadowText(hdc,this->m_sText.to_wchr(), this->m_sText.len(),&rcText, style, this->m_clrText, 0, 5, 5);
-							else
-								DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, style);
-						}
-						else
-							mIRC_DrawText(hdc, this->m_sText, &rcText, style, this->m_bShadowText);
-					}
-					ExcludeClipRect(hdc,rcText.left, rcText.top, rcText.right, rcText.bottom);
-				}
-				if (this->m_bVertical) {
-					rcLine.left = rcLine.left + ((rcLine.right - rcLine.left) / 2);
-					DrawEdge(hdc, &rcLine, EDGE_ETCHED, BF_LEFT);
-				}
-				else {
-					rcLine.bottom = rcLine.bottom / 2;
-					DrawEdge(hdc, &rcLine, EDGE_ETCHED, BF_BOTTOM);
-				}
-				this->FinishAlphaBlend(ai);
+				this->DrawClientArea(hdc);
 
 				EndPaint( this->m_Hwnd, &ps );
-				return res;
 			}
 			break;
 
@@ -311,4 +232,89 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
   }
 
   return 0L;
+}
+
+void DcxLine::DrawClientArea(HDC hdc)
+{
+	RECT rcClient, rcLine, rcText;
+
+	// get controls client area
+	GetClientRect( this->m_Hwnd, &rcClient );
+
+	// Setup alpha blend if any.
+	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+	// fill background.
+	//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+
+	//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+	rcLine = rcClient;
+	rcText = rcClient;
+
+	// draw text if any.
+	if (this->m_sText.len() > 0) {
+		if (this->m_hFont != NULL)
+			SelectObject(hdc, this->m_hFont);
+
+		if (this->m_clrText != -1)
+			SetTextColor(hdc, this->m_clrText);
+		else
+			SetTextColor(hdc, GetSysColor(
+				IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
+			);
+		UINT style = 0;
+		if (this->isStyle(SS_ENDELLIPSIS))
+			style |= DT_END_ELLIPSIS;
+		if (this->isStyle(SS_PATHELLIPSIS))
+			style |= DT_PATH_ELLIPSIS;
+		if (this->isStyle(SS_NOPREFIX))
+			style |= DT_NOPREFIX;
+		if (this->isStyle(SS_LEFTNOWORDWRAP))
+			style |= DT_SINGLELINE;
+		if (this->m_bVertical) {
+			style |= DT_CENTER;
+			SIZE sz;
+			SetBkMode(hdc, TRANSPARENT);
+			GetTextExtentPoint32(hdc,this->m_sText.to_chr(),this->m_sText.len(), &sz);
+			rcText.bottom = rcText.top + sz.cx;
+			rcText.right = rcText.left + sz.cy;
+			if (this->isStyle(SS_CENTER))
+				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),((rcClient.bottom - rcClient.top)/2) - ((rcText.bottom - rcText.top)/2));
+			else if (this->isStyle(SS_RIGHT))
+				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),rcClient.bottom - (rcText.bottom - rcText.top));
+			TextOut(hdc,rcText.left, rcText.bottom, this->m_sText.to_chr(), this->m_sText.len());
+		}
+		else {
+			style |= DT_LEFT|DT_VCENTER;
+			if (this->m_bCtrlCodeText)
+				calcStrippedRect(hdc, this->m_sText, style, &rcText, false);
+			else
+				DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, DT_CALCRECT | style);
+			if (this->isStyle(SS_CENTER))
+				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),0);
+			else if (this->isStyle(SS_RIGHT))
+				OffsetRect(&rcText,rcClient.right - (rcText.right - rcText.left),0);
+
+			// draw the text
+			if (!this->m_bCtrlCodeText) {
+				SetBkMode(hdc, TRANSPARENT);
+				if (this->m_bShadowText)
+					dcxDrawShadowText(hdc,this->m_sText.to_wchr(), this->m_sText.len(),&rcText, style, this->m_clrText, 0, 5, 5);
+				else
+					DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, style);
+			}
+			else
+				mIRC_DrawText(hdc, this->m_sText, &rcText, style, this->m_bShadowText);
+		}
+		ExcludeClipRect(hdc,rcText.left, rcText.top, rcText.right, rcText.bottom);
+	}
+	if (this->m_bVertical) {
+		rcLine.left = rcLine.left + ((rcLine.right - rcLine.left) / 2);
+		DrawEdge(hdc, &rcLine, EDGE_ETCHED, BF_LEFT);
+	}
+	else {
+		rcLine.bottom = rcLine.bottom / 2;
+		DrawEdge(hdc, &rcLine, EDGE_ETCHED, BF_BOTTOM);
+	}
+	this->FinishAlphaBlend(ai);
 }
