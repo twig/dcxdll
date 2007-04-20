@@ -458,6 +458,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		style |= DFCS_PUSHED;
 
 	DrawFrameControl(memDC,&rcText,DFC_BUTTON,style);
+	rcText.right -= GetSystemMetrics(SM_CXEDGE); // move in right side past border
 
 	// fill background colour if any.
 	if (this->m_dStyles & STACKERS_GRAD) {

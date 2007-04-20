@@ -117,7 +117,7 @@ public:
   inline void incRef( ) { ++this->m_iRefCount; };
   inline void decRef( ) { --this->m_iRefCount; };
   inline UINT getRefCount( ) const { return this->m_iRefCount; };
-	DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
+	//DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
 	static void DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd);
 	void DrawParentsBackground(const HDC hdc, const LPRECT rcBounds = NULL, const HWND dHwnd = NULL);
@@ -152,7 +152,7 @@ protected:
 	TString m_tsToolTip; //!< This controls tooltip text (if any).
 	DWORD m_dEventMask;
 	bool m_bAlphaBlend;	//!< Control is alpha blended.
-	DcxControl *m_pParentCtrl;
+	//DcxControl *m_pParentCtrl;
 	HWND m_pParentHWND;
 	bool m_bShadowText; //!< Text is drawn with a shadow.
 	bool m_bCtrlCodeText; //!< mIRC's ctrl codes are used to change the text's appearance.

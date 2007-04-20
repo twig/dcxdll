@@ -57,8 +57,6 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	ZeroMemory( &this->m_aColors, 4*sizeof(COLORREF) );
 	ZeroMemory( &this->m_aTransp, 4*sizeof(COLORREF) );
 
-	this->updateParentCtrl(); // find the host control, if any.
-
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips")) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();

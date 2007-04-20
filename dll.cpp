@@ -41,6 +41,7 @@ PFNDRAWTHEMEBACKGROUND DrawThemeBackgroundUx = NULL;
 PFNGETTHEMEBACKGROUNDCONTENTRECT GetThemeBackgroundContentRectUx = NULL;
 PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT IsThemeBackgroundPartiallyTransparentUx = NULL;
 PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx = NULL;
+PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx = NULL;
 PFNDRAWTHEMETEXT DrawThemeTextUx = NULL;
 PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx = NULL;
 PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx = NULL;
@@ -80,8 +81,6 @@ bool dcxSignal = false;
 #ifdef DCX_USE_GDIPLUS
 ULONG_PTR gdi_token = NULL;
 #endif
-
-//extern DWORD GetDllVersion(LPCTSTR lpszDllName);
 
 /*!
 * \brief mIRC DLL Load Function
@@ -244,8 +243,10 @@ void WINAPI LoadDll(LOADINFO * load) {
 		GetThemeBackgroundContentRectUx = (PFNGETTHEMEBACKGROUNDCONTENTRECT) GetProcAddress(UXModule, "GetThemeBackgroundContentRect");
 		IsThemeBackgroundPartiallyTransparentUx = (PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT) GetProcAddress(UXModule, "IsThemeBackgroundPartiallyTransparent");
 		DrawThemeParentBackgroundUx = (PFNDRAWTHEMEPARENTBACKGROUND) GetProcAddress(UXModule, "DrawThemeParentBackground");
+		DrawThemeParentBackgroundExUx = (PFNDRAWTHEMEPARENTBACKGROUNDEX) GetProcAddress(UXModule, "DrawThemeParentBackgroundEx"); // Vista ONLY!
 		DrawThemeTextUx = (PFNDRAWTHEMETEXT) GetProcAddress(UXModule, "DrawThemeText");
 
+		// NB: DONT count vista function in XP+ check.
 		if (SetWindowThemeUx && IsThemeActiveUx && OpenThemeDataUx && CloseThemeDataUx &&
 			DrawThemeBackgroundUx && GetThemeBackgroundContentRectUx && IsThemeBackgroundPartiallyTransparentUx &&
 			DrawThemeParentBackgroundUx && DrawThemeTextUx) {

@@ -80,7 +80,7 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_hCursor(NULL)
 , m_bCursorFromFile(FALSE)
 , m_bAlphaBlend(false)
-, m_pParentCtrl(NULL)
+//, m_pParentCtrl(NULL)
 , m_pParentHWND(NULL)
 , m_bitmapBg(NULL)
 , m_bShadowText(false)
@@ -1168,15 +1168,16 @@ COLORREF DcxControl::getTextColor( ) const {
 void DcxControl::updateParentCtrl(void)
 {
 	// find the host control, if any.
-	HWND parent = GetParent(this->m_Hwnd);
-	if (parent == this->m_pParentDialog->getHwnd()) {
-		this->m_pParentCtrl = NULL;
-		this->m_pParentHWND = parent;
-	}
-	else if (parent != this->m_pParentHWND) {
-		this->m_pParentCtrl = this->m_pParentDialog->getControlByHWND(parent);
-		this->m_pParentHWND = parent;
-	}
+	this->m_pParentHWND = GetParent(this->m_Hwnd);
+	//HWND parent = GetParent(this->m_Hwnd);
+	//if (parent == this->m_pParentDialog->getHwnd()) {
+	//	this->m_pParentCtrl = NULL;
+	//	this->m_pParentHWND = parent;
+	//}
+	//else if (parent != this->m_pParentHWND) {
+	//	this->m_pParentCtrl = this->m_pParentDialog->getControlByHWND(parent);
+	//	this->m_pParentHWND = parent;
+	//}
 }
 
 void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd)
@@ -1207,12 +1208,13 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 
 	// if themes are active use them.
 	if (dcxIsThemeActive()) {
-		DrawThemeParentBackgroundUx(hwnd, hdc, &rcClient);
+		if (DrawThemeParentBackgroundExUx == NULL)
+			DrawThemeParentBackgroundUx(hwnd, hdc, &rcClient); // XP+
+		else
+			DrawThemeParentBackgroundExUx(hwnd, hdc, 0, &rcClient); // Vista only, does basicly the same as below.
 		return;
 	}
 	this->updateParentCtrl(); // find the host control, if any.
-	// get this controls x & y pos within its parent.
-	rcWin = rcClient;
 	//if (this->m_pParentCtrl == NULL) { // host control is the dialog, draw dialogs background.
 		// make a new HDC for background rendering
 		HDC hdcbkg = CreateCompatibleDC( hdc );
@@ -1222,6 +1224,8 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 			// make a bitmap for rendering to.
 			HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
 			if (memBM != NULL) {
+				// get this controls x & y pos within its parent.
+				rcWin = rcClient;
 				MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2); // handles RTL
 				// associate bitmap with HDC
 				HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
@@ -1290,8 +1294,8 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 	LPALPHAINFO ai = NULL;
 	if (this->m_bAlphaBlend || DoubleBuffer) {
 		/*
-			1: draw parents bg to hdc
-			2: copy bg to temp hdc
+			1: draw parents bg to temp hdc
+			2: copy bg to temp hdcbkg for later alpha
 			3: draw button to temp hdc, over parents bg
 			4: alpha blend temp hdc to hdc
 		*/
