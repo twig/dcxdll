@@ -857,18 +857,16 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				this->m_popup = new XPopupMenu("dialog", menu);
 			else
 				this->showError(NULL,"-P","Menu Does Not Exist");
-				//dcxInfoError("xdialog -P", "", this->getName().to_chr(), 0, "Menu does not exist");
 		}
 		if (this->m_popup != NULL) {
+//#include "xpopup\xpopupmenumanager.h"
+//#include "xpopup\xpopupmenu.h"
+//			extern XPopupMenuManager g_XPopupMenuManager; //!< Global XPopupMenu Manager
+//			g_XPopupMenuManager._parseXPopupCommand(input, this->m_popup);
 			TString flag(input.gettok( 3 ));
 
 			if ( flag[0] == '+' ) {
 				switch (flag[1]) {
-					case 'r': // Set Rounded Selector on/off
-						{
-							this->m_popup->SetRounded(((input.gettok( 4 ).to_int() > 0) ? true : false));
-						}
-						break;
 					case 'a': // Set Alpha value of menu. 0-255
 						{
 							UINT alpha = input.gettok( 4 ).to_int();
@@ -877,6 +875,19 @@ void DcxDialog::parseCommandRequest(TString &input) {
 								alpha = 255;
 
 							this->m_popup->SetAlpha(alpha);
+						}
+						break;
+					case 'c':
+						{
+							int i = input.gettok( 4 ).to_int();
+							COLORREF clr = (COLORREF)input.gettok( 5 ).to_num();
+
+							this->m_popup->setColor(i, clr);
+						}
+						break;
+					case 'r': // Set Rounded Selector on/off
+						{
+							this->m_popup->SetRounded(((input.gettok( 4 ).to_int() > 0) ? true : false));
 						}
 						break;
 					case 's':
@@ -908,6 +919,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 						}
 						break;
 					default:
+						this->showError(NULL,"-P","Unknown Flag");
 						break;
 				}
 			}

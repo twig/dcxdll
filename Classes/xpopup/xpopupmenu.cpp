@@ -36,6 +36,7 @@ XPopupMenu::XPopupMenu( const TString & tsMenuName, MenuStyle mStyle )
 	this->m_MenuColors.m_clrSelectionBorder = RGB( 0, 0, 0 );
 	this->m_MenuColors.m_clrSeparatorLine = RGB( 128, 128, 128 );
 	this->m_MenuColors.m_clrText = RGB( 0, 0, 0 );
+	this->m_MenuColors.m_clrSelectedText = RGB( 0, 0, 0 );
 }
 
 /*!
@@ -58,6 +59,7 @@ XPopupMenu::XPopupMenu(const TString tsName, HMENU hMenu )
 	this->m_MenuColors.m_clrSelectionBorder = RGB( 0, 0, 0 );
 	this->m_MenuColors.m_clrSeparatorLine = RGB( 128, 128, 128 );
 	this->m_MenuColors.m_clrText = RGB( 0, 0, 0 );
+	this->m_MenuColors.m_clrSelectedText = RGB( 0, 0, 0 );
 
 	/*
 
@@ -723,6 +725,10 @@ void XPopupMenu::setColor( const int nColor, const COLORREF clrColor ) {
 
     case 10:
       this->m_MenuColors.m_clrText = clrColor;
+      break;
+
+    case 11:
+      this->m_MenuColors.m_clrSelectedText = clrColor;
       break;
 
     default:

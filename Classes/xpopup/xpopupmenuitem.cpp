@@ -430,7 +430,8 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
 
 void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
 
-  SetTextColor( lpdis->hDC, bDis?lpcol->m_clrDisabledText:lpcol->m_clrText );
+	SetTextColor( lpdis->hDC, (bDis?lpcol->m_clrDisabledText:((lpdis->itemState & ODS_SELECTED)?lpcol->m_clrSelectedText:lpcol->m_clrText)) );
+
   SetBkMode( lpdis->hDC, TRANSPARENT );
 
   RECT rc;

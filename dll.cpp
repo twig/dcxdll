@@ -33,6 +33,7 @@ DcxDialogCollection Dialogs; //!< blah
 
 mIRCDLL mIRCLink; //!< blah
 
+// XP+ function pointers
 PFNSETTHEME SetWindowThemeUx = NULL; //!< blah
 PFNISTHEMEACTIVE IsThemeActiveUx = NULL; //!< blah
 PFNOPENTHEMEDATA OpenThemeDataUx = NULL;
@@ -41,12 +42,18 @@ PFNDRAWTHEMEBACKGROUND DrawThemeBackgroundUx = NULL;
 PFNGETTHEMEBACKGROUNDCONTENTRECT GetThemeBackgroundContentRectUx = NULL;
 PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT IsThemeBackgroundPartiallyTransparentUx = NULL;
 PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx = NULL;
-PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx = NULL;
 PFNDRAWTHEMETEXT DrawThemeTextUx = NULL;
 PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx = NULL;
 PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx = NULL;
 PFNDRAWSHADOWTEXT DrawShadowTextUx = NULL;
 PFNPICKICONDLG PickIconDlgUx = NULL;
+
+// Vista Function pointers.
+PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx = NULL;
+PFNBUFFEREDPAINTINIT BufferedPaintInitUx = NULL;
+PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx = NULL;
+PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx = NULL;
+PFNENDBUFFEREDPAINT EndBufferedPaintUx = NULL;
 
 HMODULE UXModule = NULL;             //!< UxTheme.dll Module Handle
 BOOL XPPlus = FALSE;                 //!< Is OS WinXP+ ?
@@ -235,6 +242,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	UXModule = LoadLibrary("UXTHEME.DLL");
 
 	if (UXModule) {
+		// Get XP+ function pointers.
 		SetWindowThemeUx = (PFNSETTHEME) GetProcAddress(UXModule, "SetWindowTheme");
 		IsThemeActiveUx = (PFNISTHEMEACTIVE) GetProcAddress(UXModule, "IsThemeActive");
 		OpenThemeDataUx = (PFNOPENTHEMEDATA) GetProcAddress(UXModule, "OpenThemeData");
@@ -243,15 +251,25 @@ void WINAPI LoadDll(LOADINFO * load) {
 		GetThemeBackgroundContentRectUx = (PFNGETTHEMEBACKGROUNDCONTENTRECT) GetProcAddress(UXModule, "GetThemeBackgroundContentRect");
 		IsThemeBackgroundPartiallyTransparentUx = (PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT) GetProcAddress(UXModule, "IsThemeBackgroundPartiallyTransparent");
 		DrawThemeParentBackgroundUx = (PFNDRAWTHEMEPARENTBACKGROUND) GetProcAddress(UXModule, "DrawThemeParentBackground");
-		DrawThemeParentBackgroundExUx = (PFNDRAWTHEMEPARENTBACKGROUNDEX) GetProcAddress(UXModule, "DrawThemeParentBackgroundEx"); // Vista ONLY!
 		DrawThemeTextUx = (PFNDRAWTHEMETEXT) GetProcAddress(UXModule, "DrawThemeText");
 
-		// NB: DONT count vista function in XP+ check.
+		// Get Vista function pointers.
+		DrawThemeParentBackgroundExUx = (PFNDRAWTHEMEPARENTBACKGROUNDEX) GetProcAddress(UXModule, "DrawThemeParentBackgroundEx"); // Vista ONLY!
+		BufferedPaintInitUx = (PFNBUFFEREDPAINTINIT) GetProcAddress(UXModule, "BufferedPaintInit");
+		BufferedPaintUnInitUx = (PFNBUFFEREDPAINTUNINIT) GetProcAddress(UXModule, "BufferedPaintUnInit");
+		BeginBufferedPaintUx = (PFNBEGINBUFFEREDPAINT) GetProcAddress(UXModule, "BeginBufferedPaint");
+		EndBufferedPaintUx = (PFNENDBUFFEREDPAINT) GetProcAddress(UXModule, "EndBufferedPaint");
+
+		// NB: DONT count vista functions in XP+ check.
 		if (SetWindowThemeUx && IsThemeActiveUx && OpenThemeDataUx && CloseThemeDataUx &&
 			DrawThemeBackgroundUx && GetThemeBackgroundContentRectUx && IsThemeBackgroundPartiallyTransparentUx &&
 			DrawThemeParentBackgroundUx && DrawThemeTextUx) {
 			XPPlus = TRUE;
-			DCX_DEBUG("LoadDLL", "Found Theme Functions");
+			DCX_DEBUG("LoadDLL", "Found XP+ Theme Functions");
+			if (DrawThemeParentBackgroundExUx && BufferedPaintInitUx && BufferedPaintUnInitUx &&
+				BeginBufferedPaintUx && EndBufferedPaintUx) {
+				DCX_DEBUG("LoadDLL", "Found Vista Theme Functions");
+			}
 		}
 		else {
 			FreeLibrary(UXModule);

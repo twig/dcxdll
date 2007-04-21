@@ -40,6 +40,7 @@ typedef struct tagXPMENUCOLORS {
   COLORREF m_clrDisabledCheckBox;   //!< Menu Item Disabled CheckBox Color
   COLORREF m_clrSeparatorLine;      //!< Menu Item Separator Line Color
   COLORREF m_clrSelectionBorder;    //!< Menu Item Selection Box Border Color
+	COLORREF m_clrSelectedText;				//!< Menu Item Selected Text Colour
 
 } XPMENUCOLORS, * LPXPMENUCOLORS;
 
