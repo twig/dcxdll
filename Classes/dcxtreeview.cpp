@@ -562,12 +562,18 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
     HTREEITEM hNewItem;
 
-    if ( !this->parsePath( &pathFrom, &hParentFrom, &hAfterFrom ) )
+		if ( !this->parsePath( &pathFrom, &hParentFrom, &hAfterFrom ) ) {
+			this->showErrorEx(NULL,"-m", "Unable to parse path: %s", pathFrom.to_chr());
       return;
-    if ( !this->correctTargetItem( &hParentFrom, &hAfterFrom ) )
+		}
+		if ( !this->correctTargetItem( &hParentFrom, &hAfterFrom ) ) {
+			this->showError(NULL,"-m", "Correction Failed.");
       return;
-    if ( !this->parsePath( &pathTo, &hParentTo, &hAfterTo ) )
+		}
+		if ( !this->parsePath( &pathTo, &hParentTo, &hAfterTo ) ) {
+			this->showErrorEx(NULL,"-m", "Unable to parse path: %s", pathTo.to_chr());
       return;
+		}
 
     hNewItem = this->cloneItem( &hAfterFrom, &hParentTo, &hAfterTo );
 
@@ -1264,12 +1270,16 @@ BOOL DcxTreeView::parsePath( const TString * path, HTREEITEM * hParent, HTREEITE
   int k = path->gettok( depth ).to_int( );
   HTREEITEM hPreviousItem = TVI_FIRST, hCurrentItem;
 
-  //char data[50];
-
   hCurrentItem = TreeView_GetChild( this->m_Hwnd, *hParent );
 
-	if ( hCurrentItem == NULL )
-		return FALSE;
+	if ( hCurrentItem == NULL ) {
+		if ( k == -1 ) {
+			*hInsertAfter = TVI_LAST;
+			return TRUE;
+		}
+		else
+			return FALSE;
+	}
 
 	do {
 		if ( i == k ) {
