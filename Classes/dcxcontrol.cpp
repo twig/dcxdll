@@ -1229,6 +1229,11 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 				MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2); // handles RTL
 				// associate bitmap with HDC
 				HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
+				//HRGN clipRgn = CreateRectRgnIndirect(&rcWin); // clip parents drawing to this controls rect.
+				//if (clipRgn != NULL) {
+				//	SelectClipRgn(hdcbkg, clipRgn);
+				//	DeleteObject(clipRgn);
+				//}
 				//DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
 				// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
 				::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)hdcbkg,1L); // HACK: using 1L instead of NULL as a workaround for stacker.
@@ -1284,31 +1289,42 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 }
 LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 {
-	if ((hdc == NULL) || (*hdc == NULL))
+	if ((hdc == NULL) || (*hdc == NULL) || (!this->m_bAlphaBlend && !DoubleBuffer))
 		return NULL;
 
-	// if dialog is composited, dont draw background
-	//if (this->m_pParentDialog->isExStyle(WS_EX_COMPOSITED))
-	//	return NULL;
+	LPALPHAINFO ai = new ALPHAINFO;
+	ZeroMemory(ai,sizeof(ALPHAINFO));
+	/*
+		1: draw parents bg to temp hdc
+		2: copy bg to temp hdcbkg for later alpha
+		3: draw button to temp hdc, over parents bg
+		4: alpha blend temp hdc to hdc
+	*/
+	if (BeginBufferedPaintUx && EndBufferedPaintUx) {
+		BP_PAINTPARAMS paintParams = {0};
+		paintParams.cbSize = sizeof(paintParams);
+		BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0x7f, 0 }; // 0x7f half of 0xff = 50% transparency
+		if (this->m_bAlphaBlend)
+			paintParams.pBlendFunction = &bf;
 
-	LPALPHAINFO ai = NULL;
-	if (this->m_bAlphaBlend || DoubleBuffer) {
-		/*
-			1: draw parents bg to temp hdc
-			2: copy bg to temp hdcbkg for later alpha
-			3: draw button to temp hdc, over parents bg
-			4: alpha blend temp hdc to hdc
-		*/
-		ai = new ALPHAINFO;
+		GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
+		ai->ai_Buffer = BeginBufferedPaintUx(*hdc, &ai->ai_rcClient, BPBF_COMPATIBLEBITMAP, &paintParams, &ai->ai_hdc);
+		if (ai->ai_Buffer != NULL) {
+			*hdc = ai->ai_hdc;
+			return ai;
+		}
+	}
+	// if vista method failed, fall through to our own method.
+	{
 		// create a new HDC for alpha blending.
 		ai->ai_hdc = CreateCompatibleDC( *hdc );
 		ai->ai_bkg = NULL;
 		if (ai->ai_hdc != NULL) {
 			GetWindowRect(this->m_Hwnd,&ai->ai_rcWin);
-			GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
 			// create a bitmap to render to
 			ai->ai_bitmap = CreateCompatibleBitmap ( *hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top );
 			if (ai->ai_bitmap != NULL) {
+				GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
 				// associate bitmap with hdc
 				ai->ai_oldBM = (HBITMAP)SelectObject ( ai->ai_hdc, ai->ai_bitmap );
 				// fill in parent bg
@@ -1339,6 +1355,12 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 {
 	if (ai == NULL)
 		return;
+
+	if (EndBufferedPaintUx && ai->ai_Buffer != NULL) {
+		EndBufferedPaintUx(ai->ai_Buffer, TRUE);
+		return;
+	}
+	// if we can't do Vista method, try do our own
 	if (ai->ai_hdc != NULL) {
 		if (ai->ai_bitmap != NULL) {
 			int w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);

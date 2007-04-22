@@ -69,6 +69,7 @@ typedef struct {
 	HBITMAP ai_oldBM;
 	RECT ai_rcClient;
 	RECT ai_rcWin;
+	HPAINTBUFFER ai_Buffer;
 } ALPHAINFO, *LPALPHAINFO;
 
 /*!
