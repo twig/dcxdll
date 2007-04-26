@@ -595,19 +595,20 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 		}
 */
 		int nItem = input.gettok( 4 ).to_int() -1;
-		//int nSubItem = input.gettok( 5 ).to_int();
+		int nSubItem = input.gettok( 5 ).to_int();
 
 		if (nItem > -1 && nItem < ListView_GetItemCount(this->m_Hwnd)) {
 			LVITEM lvi;
 
 			ZeroMemory(&lvi, sizeof(LVITEM));
 			lvi.mask = LVIF_PARAM;
+			lvi.iItem = nItem;
 
 			ListView_GetItem(this->m_Hwnd, &lvi);
 
 			LPDCXLVITEM lvdcx = (LPDCXLVITEM) lvi.lParam;
 
-			if (!lvdcx->pbar)
+			if (!lvdcx->pbar || lvdcx->iPbarCol != nSubItem)
 				return;
 
 			TString cmd = input.gettok( 1 ) + " " + input.gettok( 2 ) + " " + input.gettok(6, -1);
@@ -2031,7 +2032,9 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 										if ( ri->m_cBg != -1 )
 											lplvcd->clrTextBk = ri->m_cBg;
 
-										//DrawFrameControl(lplvcd->nmcd.hdc,&lplvcd->nmcd.rc,DFC_BUTTON,DFCS_BUTTONCHECK|DFCS_CHECKED);
+										//RECT rcCheck = lplvcd->nmcd.rc;
+										//rcCheck.right = rcCheck.left + 16;
+										//DrawFrameControl(lplvcd->nmcd.hdc,&rcCheck,DFC_BUTTON,DFCS_BUTTONCHECK|DFCS_CHECKED);
 										//return CDRF_SKIPDEFAULT;
 
 										if (ri->m_dFlags & LVIS_UNDERLINE || ri->m_dFlags & LVIS_BOLD || ri->m_dFlags & LVIS_ITALIC) {
