@@ -269,6 +269,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 			if (DrawThemeParentBackgroundExUx && BufferedPaintInitUx && BufferedPaintUnInitUx &&
 				BeginBufferedPaintUx && EndBufferedPaintUx) {
 				DCX_DEBUG("LoadDLL", "Found Vista Theme Functions");
+				BufferedPaintInitUx();
 			}
 		}
 		else {
@@ -603,6 +604,13 @@ int WINAPI UnloadDll(int timeout) {
 
 		UnregisterClass(XPOPUPMENUCLASS, GetModuleHandle(NULL));
 
+		if (UXModule != NULL) {
+			if (BufferedPaintUnInitUx)
+				BufferedPaintUnInitUx();
+
+			FreeLibrary(UXModule);
+			UXModule = NULL;
+		}
 		UnmapViewOfFile(mIRCLink.m_pData);
 		CloseHandle(mIRCLink.m_hFileMap);
 

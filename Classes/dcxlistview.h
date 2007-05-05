@@ -140,6 +140,9 @@ private:
 	DcxControl* CreatePbar(LPLVITEM lvi, TString &style);
 	void ScrollPbars(const int row);
 	void UpdateScrollPbars();
+
+	HFONT m_hItemFont; // Font used for specific item changes.
+	HFONT m_hOldItemFont; // Font used for specific item changes.
 };
 
 #endif // _DCXLISTVIEW_H_

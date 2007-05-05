@@ -28,7 +28,10 @@
  */
 
 DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
-: DcxControl( ID, p_Dialog ) 
+: DcxControl( ID, p_Dialog )
+, m_bDrag(false)
+, m_hItemFont(NULL)
+, m_hOldItemFont(NULL)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -2050,18 +2053,27 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 											if (ri->m_dFlags & LVIS_ITALIC)
 												lf.lfItalic = true;
 
-											HFONT hFontNew = CreateFontIndirect( &lf );
-											//HFONT hOldFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, hFontNew );
-											SelectObject(lplvcd->nmcd.hdc, hFontNew);
-
-											DeleteObject(hFontNew);
+											this->m_hItemFont = CreateFontIndirect( &lf );
+											if (this->m_hItemFont != NULL)
+												this->m_hOldItemFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, this->m_hItemFont );
 										}
-										return ( CDRF_NEWFONT );
+										// NB: CDRF_NOTIFYPOSTPAINT required to get the post paint message.
+										return ( CDRF_NEWFONT|CDRF_NOTIFYPOSTPAINT );
 									}
 									break;
 
 								case CDDS_ITEMPOSTPAINT | CDDS_SUBITEM:
-									return CDRF_DODEFAULT;
+									{
+										if (this->m_hOldItemFont != NULL) {
+											SelectObject( lplvcd->nmcd.hdc, this->m_hOldItemFont);
+											this->m_hOldItemFont = NULL;
+										}
+										if (this->m_hItemFont != NULL) {
+											DeleteObject(this->m_hItemFont);
+											this->m_hItemFont = NULL;
+										}
+										return CDRF_DODEFAULT;
+									}
 
 								case CDDS_POSTPAINT:
 									// update the pbar positions
