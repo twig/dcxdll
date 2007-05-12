@@ -18,6 +18,7 @@
 #define DCC_TEXTCOLOR     0x01 //!< Control Text Color
 #define DCC_TEXTBKGCOLOR  0x02 //!< Control Text Background Color
 #define DCC_BKGCOLOR      0x04 //!< Control Background Color
+#define DCC_BORDERCOLOR   0x08 //!< Control Border Color
 
 #define DCCS_FROMRESSOURCE 0x01 //!< Cursor from ressource
 #define DCCS_FROMFILE      0x02 //!< Cursor from File
@@ -141,6 +142,7 @@ protected:
   COLORREF m_clrText;     //!< Font color
   COLORREF m_clrBackText; //!< Font Back Color (not supported)
   HBRUSH m_hBackBrush;    //!< Background control color
+	HBRUSH m_hBorderBrush;	//!< Controls Border Colour.
 	HBITMAP m_bitmapBg;			//!< Background bitmap
 	COLORREF m_colTransparentBg;
 
@@ -153,8 +155,10 @@ protected:
 	TString m_tsToolTip; //!< This controls tooltip text (if any).
 	DWORD m_dEventMask;
 	bool m_bAlphaBlend;	//!< Control is alpha blended.
+	int m_iAlphaLevel; //!< The amount the control is alpha blended.
 	//DcxControl *m_pParentCtrl;
 	HWND m_pParentHWND;
+	bool m_bInPrint;
 	bool m_bShadowText; //!< Text is drawn with a shadow.
 	bool m_bCtrlCodeText; //!< mIRC's ctrl codes are used to change the text's appearance.
   /* ***** */
@@ -171,6 +175,8 @@ protected:
 
   static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
   LRESULT CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	static void InvalidateParentRect(HWND hwnd);
+	void DrawControl(HDC hDC, HWND hwnd);
 };
 
 #endif // _DCXCONTROL_H_

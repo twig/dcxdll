@@ -161,11 +161,6 @@ void DcxImage::PreloadData() {
 bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 	if (!IsFile(filename)) {
 		this->showError(NULL,"LoadGDIPlusImage", "Unable to open file");
-		//dcxInfoError("Image",
-		//	"LoadGDIPlusImage",
-		//	this->m_pParentDialog->getName().to_chr(),
-		//	this->getUserID(),
-		//	"Unable to open file");
 		return false;
 	}
 	this->m_pImage = new Image(filename.to_wchr(),TRUE);
@@ -173,22 +168,12 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 	// couldnt allocate image object.
 	if (this->m_pImage == NULL) {
 		this->showError(NULL,"LoadGDIPlusImage", "Couldn't allocate image object.");
-		//dcxInfoError("Image",
-		//	"LoadGDIPlusImage",
-		//	this->m_pParentDialog->getName().to_chr(),
-		//	this->getUserID(),
-		//	"Couldn't allocate image object.");
 		return false;
 	}
 	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
 	Status status = this->m_pImage->GetLastStatus();
 	if (status != Ok) {
 		this->showError(NULL,"LoadGDIPlusImage", GetLastStatusStr(status));
-		//dcxInfoError("Image",
-		//	"LoadGDIPlusImage",
-		//	this->m_pParentDialog->getName().to_chr(),
-		//	this->getUserID(),
-		//	GetLastStatusStr(status));
 		PreloadData();
 		return false;
 	}
@@ -274,7 +259,6 @@ void DcxImage::parseCommandRequest(TString & input) {
 
 		if (flag[0] != '+') {
 			this->showError(NULL,"-i", "Invalid Flags");
-			//DCXError("/xdid -i", "Invalid Flags");
 			return;
 		}
 
@@ -284,7 +268,6 @@ void DcxImage::parseCommandRequest(TString & input) {
 		if (mIRCLink.m_bUseGDIPlus) {
 			if (!LoadGDIPlusImage(flag,filename))
 				this->showError(NULL,"-i", "Unable to load Image with GDI+");
-				//DCXError("/xdid -i", "Unable to load Image with GDI+");
 		}
 		else
 			this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
@@ -296,13 +279,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 			this->m_tsFilename = filename;
 #endif
 		this->m_bIsIcon = FALSE;
-		//{	// Invalidate controls area in parent.
-		//	RECT rc;
-		//	HWND parent = GetParent(this->m_Hwnd);
-		//	GetWindowRect(this->m_Hwnd, &rc);
-		//	MapWindowPoints(NULL,parent, (LPPOINT) &rc, 2);
-		//	InvalidateRect(parent, &rc, TRUE);
-		//}
+		//InvalidateParentRect(this->m_Hwnd);
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
@@ -424,8 +401,17 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_ERASEBKGND:
 			{
-				if (this->m_bAlphaBlend || this->isExStyle(WS_EX_TRANSPARENT))
+				//<#IF USER == 'hkr' COMMENT OUT, UNLESS ITS THE TIME WHEN HE WANTS THIS>
+				if (this->isExStyle(WS_EX_TRANSPARENT))
 					this->DrawParentsBackground((HDC)wParam);
+				//if (this->isExStyle(WS_EX_TRANSPARENT))
+				//	this->DrawParentsBackground((HDC)wParam);
+				//else {
+				//	RECT rect;
+				//	GetClientRect( this->m_Hwnd, &rect );
+				//	DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+				//}
+				//<END>
 				bParsed = TRUE;
 				return TRUE;
       }
@@ -482,6 +468,7 @@ void DcxImage::DrawClientArea(HDC hdc)
 	int w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
 
 	// Setup alpha blend if any.
+	// Double Buffer required for GDI+ to look right in WS_EX_COMPOSITED
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, this->m_bBuffer);
 
 	DcxControl::DrawCtrlBackground(hdc,this,&rect);

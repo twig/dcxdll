@@ -85,6 +85,9 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_bitmapBg(NULL)
 , m_bShadowText(false)
 , m_bCtrlCodeText(true)
+, m_bInPrint(false)
+, m_hBorderBrush(NULL)
+, m_iAlphaLevel(0x7f)
 {
 	this->m_dEventMask = p_Dialog->getEventMask();
 }
@@ -109,6 +112,12 @@ DcxControl::~DcxControl( ) {
 
       DeleteObject( this->m_hBackBrush );
       this->m_hBackBrush = NULL;
+  }
+  // Delete border brush
+  if ( this->m_hBorderBrush != NULL ) {
+
+      DeleteObject( this->m_hBorderBrush );
+      this->m_hBorderBrush = NULL;
   }
 
   if ( this->m_bCursorFromFile && this->m_hCursor != NULL ) {
@@ -263,6 +272,16 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 		if ( iFlags & DCC_TEXTBKGCOLOR )
 			this->m_clrBackText = clrColor;
+
+		if ( iFlags & DCC_BORDERCOLOR ) {
+			if ( this->m_hBorderBrush != NULL ) {
+				DeleteObject( this->m_hBorderBrush );
+				this->m_hBorderBrush = NULL;
+			}
+
+			if ( clrColor != -1 )
+				this->m_hBorderBrush = CreateSolidBrush( clrColor );
+		}
 
 		// force a control redraw
 		this->redrawWindow( );
@@ -422,7 +441,6 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		{
 			if (numtok < 6) {
 				this->showError(NULL, "-R +f", "Invalid Arguments");
-				//DCXError("/xdid -R +f","Invalid Arguments");
 				return;
 			}
 
@@ -438,7 +456,6 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			}
 			else
 				this->showError(NULL,"-R +f", "Unable To Load Image file.");
-				//DCXError("/xdid -R +f","Unable To Load Image file.");
 		}
 		else if (flag.find('r',0)) // rounded rect - radius args (optional)
 		{
@@ -520,13 +537,32 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		//		return;
 		//	}
 		//}
+		else if (flag.find('a',0)) { // alpha [1|0] [level]
+			noRegion = true;
+			if (numtok != 6) {
+				this->showError(NULL, "-R +a", "Invalid Args");
+				return;
+			}
+			if (input.gettok( 5 ).to_int() > 0)
+				this->m_bAlphaBlend = true;
+			else
+				this->m_bAlphaBlend = false;
+
+			int alpha = input.gettok( 6 ).to_int();
+
+			if (alpha > 255 || alpha < 0)
+				alpha = 255;
+
+			if (alpha == 255)
+				this->m_bAlphaBlend = false;
+			this->m_iAlphaLevel = alpha;
+		}
 		else if (flag.find('n',0)) { // none, no args
 			noRegion = true;
 			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
 		}
 		else
 			this->showError(NULL, "-R", "Invalid Flag");
-			//DCXError("/xdid -R","Invalid Flag");
 
 		if (!noRegion) {
 			if (m_Region != NULL) {
@@ -626,24 +662,26 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
 
 UINT DcxControl::parseColorFlags( TString & flags ) {
 
-  INT i = 1, len = flags.len( ), iFlags = 0;
+	INT i = 1, len = flags.len( ), iFlags = 0;
 
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return iFlags;
+	// no +sign, missing params
+	if ( flags[0] != '+' ) 
+		return iFlags;
 
-  while ( i < len ) {
+	while ( i < len ) {
 
-    if ( flags[i] == 'b' )
-      iFlags |= DCC_BKGCOLOR;
-    else if ( flags[i] == 'k' )
-      iFlags |= DCC_TEXTBKGCOLOR;
-    else if ( flags[i] == 't' )
-      iFlags |= DCC_TEXTCOLOR;
-    
-    ++i;
-  }
-  return iFlags;
+		if ( flags[i] == 'b' )
+			iFlags |= DCC_BKGCOLOR;
+		else if ( flags[i] == 'k' )
+			iFlags |= DCC_TEXTBKGCOLOR;
+		else if ( flags[i] == 't' )
+			iFlags |= DCC_TEXTCOLOR;
+		else if ( flags[i] == 'r' )
+			iFlags |= DCC_BORDERCOLOR;
+
+		++i;
+	}
+	return iFlags;
 }
 
 /*!
@@ -1169,15 +1207,6 @@ void DcxControl::updateParentCtrl(void)
 {
 	// find the host control, if any.
 	this->m_pParentHWND = GetParent(this->m_Hwnd);
-	//HWND parent = GetParent(this->m_Hwnd);
-	//if (parent == this->m_pParentDialog->getHwnd()) {
-	//	this->m_pParentCtrl = NULL;
-	//	this->m_pParentHWND = parent;
-	//}
-	//else if (parent != this->m_pParentHWND) {
-	//	this->m_pParentCtrl = this->m_pParentDialog->getControlByHWND(parent);
-	//	this->m_pParentHWND = parent;
-	//}
 }
 
 void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd)
@@ -1192,10 +1221,52 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 	}
 }
 
+void DcxControl::DrawControl(HDC hDC, HWND hwnd)
+{
+	// if window matches this one, don't draw (loop condition)
+	if (hwnd == this->m_Hwnd)
+		return;
+
+	// if window isn't visible, don't draw.
+	if (!IsWindowVisible(hwnd))
+		return;
+
+	// if window is within a background paint of it's own, don't draw. (loop condition)
+	DcxControl *p_ctrl = this->m_pParentDialog->getControlByHWND(hwnd);
+	if (p_ctrl != NULL && p_ctrl->m_bInPrint)
+		return;
+
+	RECT rc;
+	GetWindowRect(hwnd, &rc);
+	MapWindowPoints(NULL,GetParent(hwnd),(LPPOINT)&rc, 2);
+
+	// if window isn't within the client area of the control who's background we are drawing, don't draw.
+	if (!RectVisible(hDC, &rc))
+		return;
+
+	HDC hdcMemory = ::CreateCompatibleDC(hDC);
+
+	if (hdcMemory != NULL) {
+		int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
+		HBITMAP hBitmap = ::CreateCompatibleBitmap( hDC, w, h);
+
+		if (hBitmap != NULL) {
+			HGDIOBJ hbmpOld = ::SelectObject( hdcMemory, hBitmap);
+
+			::SendMessage( hwnd, WM_ERASEBKGND, (WPARAM)hdcMemory,1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+			::SendMessage( hwnd, WM_PRINT, (WPARAM)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE /*| PRF_ERASEBKGND*/);
+
+			BitBlt( hDC, rc.left, rc.top, w, h, hdcMemory, 0, 0, SRCCOPY);
+
+			::DeleteObject(::SelectObject( hdcMemory, hbmpOld));
+		}
+		::DeleteDC(hdcMemory);
+	}
+}
 void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, const HWND dHwnd)
 {
 	// fill in parent bg
-	RECT rcClient, rcParent, rcWin;
+	RECT rcClient;
 	HWND hwnd = this->m_Hwnd;
 
 	if (dHwnd != NULL)
@@ -1214,78 +1285,51 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 			DrawThemeParentBackgroundExUx(hwnd, hdc, 0, &rcClient); // Vista only, does basicly the same as below.
 		return;
 	}
+	/*
+		The following code draws the parents background & client area,
+		followed by all child controls covered by this one.
+	*/
 	this->updateParentCtrl(); // find the host control, if any.
-	//if (this->m_pParentCtrl == NULL) { // host control is the dialog, draw dialogs background.
-		// make a new HDC for background rendering
-		HDC hdcbkg = CreateCompatibleDC( hdc );
-		if (hdcbkg != NULL) {
-			// get parent windows client area.
-			GetClientRect(this->m_pParentHWND,&rcParent);
-			// make a bitmap for rendering to.
-			HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
-			if (memBM != NULL) {
-				// get this controls x & y pos within its parent.
-				rcWin = rcClient;
-				MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2); // handles RTL
-				// associate bitmap with HDC
-				HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
-				//HRGN clipRgn = CreateRectRgnIndirect(&rcWin); // clip parents drawing to this controls rect.
-				//if (clipRgn != NULL) {
-				//	SelectClipRgn(hdcbkg, clipRgn);
-				//	DeleteObject(clipRgn);
-				//}
-				//DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
-				// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
-				::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)hdcbkg,1L); // HACK: using 1L instead of NULL as a workaround for stacker.
-				::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)hdcbkg,PRF_CLIENT);
-				// draw background to main hdc
-				BitBlt( hdc, rcClient.left, rcClient.top,
-					(rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
-					hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
-				DeleteObject(SelectObject( hdcbkg, oldBM ));
+	// make a new HDC for background rendering
+	HDC hdcbkg = CreateCompatibleDC( hdc );
+	if (hdcbkg != NULL) {
+		//RECT rcParentWin, rcParentClient, rcWin;
+		RECT rcParentWin, rcWin;
+		// get parent windows client area.
+		GetClientRect(this->m_pParentHWND,&rcParentWin);
+		// make a bitmap for rendering to.
+		HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParentWin.right - rcParentWin.left, rcParentWin.bottom - rcParentWin.top );
+		if (memBM != NULL) {
+			// get this controls x & y pos within its parent.
+			rcWin = rcClient;
+			MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2); // handles RTL
+			// associate bitmap with HDC
+			HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
+			HRGN clipRgn = CreateRectRgnIndirect(&rcWin); // clip parents drawing to this controls rect.
+			if (clipRgn != NULL) {
+				SelectClipRgn(hdcbkg, clipRgn);
+				DeleteObject(clipRgn);
 			}
-			DeleteDC( hdcbkg );
+			// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
+			this->m_bInPrint = true; // this helps prevent long drawing loops
+			// fill in the parents image
+			::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)hdcbkg,1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+			::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)hdcbkg,PRF_CLIENT);
+			// now draw all child controls within area of this control.
+			// NB: AVOID EnumChildWindows()
+			HWND child = GetWindow(this->m_Hwnd, GW_HWNDPREV);
+			while (child != NULL) {
+				this->DrawControl(hdcbkg, child);
+				child = GetWindow(child, GW_HWNDPREV);
+			}
+			this->m_bInPrint = false;
+			// draw background to main hdc
+			BitBlt( hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
+				hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
+			DeleteObject(SelectObject( hdcbkg, oldBM ));
 		}
-	//}
-	//else { // found host control, draw its background if any.
-	//	// handle case where parent is transparent.
-	//	if (this->m_pParentCtrl->isExStyle(WS_EX_TRANSPARENT))
-	//		this->m_pParentCtrl->DrawParentsBackground(hdc, &rcClient, hwnd); // pass on dest bounds & hwnd
-	//	else
-	//		DcxControl::DrawCtrlBackground(hdc,this->m_pParentCtrl,&rcClient); // ctrls only FillRect() atm
-	//}
-	// Don't remove commented version below, keep for refrence.
-	//// make a new HDC for background rendering
-	//HDC hdcbkg = CreateCompatibleDC( hdc );
-	//if (hdcbkg != NULL) {
-	//	// get parent windows client area.
-	//	GetClientRect(this->m_pParentHWND,&rcParent);
-	//	// get this controls x & y pos within its parent.
-	//	GetWindowRect(this->m_Hwnd,&rcWin);
-	//	MapWindowPoints(NULL,this->m_pParentHWND, (LPPOINT)&rcWin, 2); // handles RTL
-	//	// make a bitmap for rendering to.
-	//	HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParent.right - rcParent.left, rcParent.bottom - rcParent.top );
-	//	if (memBM != NULL) {
-	//		// associate bitmap with HDC
-	//		HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
-	//		if (this->m_pParentCtrl == NULL) { // host control is the dialog, draw dialogs background.
-	//			DcxDialog::DrawDialogBackground(hdcbkg,this->m_pParentDialog,&rcParent);
-	//		}
-	//		else { // found host control, draw its background if any.
-	//			// handle case where parent is transparent.
-	//			if (this->m_pParentCtrl->isExStyle(WS_EX_TRANSPARENT))
-	//				this->m_pParentCtrl->DrawParentsBackground(hdcbkg);
-	//			else
-	//				DcxControl::DrawCtrlBackground(hdcbkg,this->m_pParentCtrl,&rcParent);
-	//		}
-	//		// draw background to main hdc
-	//		BitBlt( hdc, rcClient.left, rcClient.top,
-	//			(rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
-	//			hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
-	//		DeleteObject(SelectObject( hdcbkg, oldBM ));
-	//	}
-	//	DeleteDC( hdcbkg );
-	//}
+		DeleteDC( hdcbkg );
+	}
 }
 LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 {
@@ -1320,6 +1364,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 		ai->ai_hdc = CreateCompatibleDC( *hdc );
 		ai->ai_bkg = NULL;
 		if (ai->ai_hdc != NULL) {
+			//GetClientRect(this->m_Hwnd,&ai->ai_rcWin);
 			GetWindowRect(this->m_Hwnd,&ai->ai_rcWin);
 			// create a bitmap to render to
 			ai->ai_bitmap = CreateCompatibleBitmap ( *hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top );
@@ -1331,6 +1376,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 				this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
 				// If alpha blending, make a background bitmap & fill it.
 				if (this->m_bAlphaBlend) {
+					// avoid doing the whole background rendering again by simply copying the one we just did.
 					HDC hdcbkg = CreateCompatibleDC( *hdc );
 					if (hdcbkg != NULL) {
 						ai->ai_bkg = CreateCompatibleBitmap ( *hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top );
@@ -1372,10 +1418,11 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 						// associate bitmap with hdc
 						HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, ai->ai_bkg );
 						// alpha blend finished button with parents background
-						BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0x7f, 0 }; // 0x7f half of 0xff = 50% transparency
+						BLENDFUNCTION bf = { AC_SRC_OVER, 0, this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
 						AlphaBlend(hdcbkg,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h,bf);
 						// draw final image to windows hdc.
 						BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,hdcbkg,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+
 						SelectObject( hdcbkg, oldBM);
 						DeleteDC(hdcbkg);
 					}
@@ -1629,18 +1676,31 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 			{
 				HDC hdc = (HDC)wParam;
 
-				LRESULT res = 0L;
 				bParsed = TRUE;
 
 				// Setup alpha blend if any.
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				lRes = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 				this->FinishAlphaBlend(ai);
-				return res;
+			}
+			break;
+		case WM_PRINT:
+			{
+				if (this->m_bInPrint) // avoid a drawing loop.
+					bParsed = TRUE;
 			}
 			break;
 	}
 	return lRes;
+}
+// Invalidate controls area in parent.
+void DcxControl::InvalidateParentRect(HWND hwnd)
+{
+	RECT rc;
+	HWND parent = GetParent(hwnd);
+	GetWindowRect(hwnd, &rc);
+	MapWindowPoints(NULL,parent, (LPPOINT) &rc, 2);
+	InvalidateRect(parent, &rc, TRUE);
 }

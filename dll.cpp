@@ -1673,7 +1673,7 @@ mIRC(xSignal) {
 	return 1;
 }
 
-// /dcx WindowProps [HWND] [-FLAGS] (ARGS)
+// /dcx WindowProps [HWND] [+FLAGS] (ARGS)
 mIRC(WindowProps) {
 	TString input(data);
 	int numtok = input.numtok( );

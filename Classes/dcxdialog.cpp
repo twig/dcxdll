@@ -2015,7 +2015,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					// Set WS_EX_LAYERED on this window
 					if (!(style & WS_EX_LAYERED))
 						SetWindowLong(p_this->m_Hwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
-					// Make this window 75 alpha
+					// Make this window alpha
 					SetLayeredWindowAttributesUx(p_this->m_Hwnd, 0, p_this->m_bDoGhostDrag, LWA_ALPHA);
 					p_this->m_bGhosted = true;
 				}
@@ -2037,7 +2037,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			// turn off ghosting.
 			if (p_this->m_bGhosted && SetLayeredWindowAttributesUx != NULL) {
 				// Make this window solid
-				SetLayeredWindowAttributesUx(p_this->m_Hwnd, 0, 255, LWA_ALPHA);
+				SetLayeredWindowAttributesUx(p_this->m_Hwnd, 0, p_this->m_iAlphaLevel, LWA_ALPHA);
 				p_this->m_bGhosted = false;
 			}
 			break;

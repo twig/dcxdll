@@ -468,8 +468,13 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 		case WM_ERASEBKGND:
 			{
-				//if (this->m_bAlphaBlend)
-				//	this->DrawParentsBackground((HDC) wParam);
+				if (this->isExStyle(WS_EX_TRANSPARENT))
+					this->DrawParentsBackground((HDC)wParam);
+				else {
+					RECT rect;
+					GetClientRect( this->m_Hwnd, &rect );
+					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+				}
 				bParsed = TRUE;
 				return TRUE;
 			}
