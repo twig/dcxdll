@@ -775,7 +775,12 @@ void DcxBox::DrawClientArea(HDC hdc)
 			HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
 			if (!this->isExStyle(WS_EX_TRANSPARENT))
 				FillRgn(hdc,m_Region,hBrush);
-			FrameRgn(hdc,m_Region,(HBRUSH)GetStockObject(DC_PEN),1,1);
+
+			HBRUSH hBorderBrush = this->m_hBorderBrush;
+			if (hBorderBrush == NULL)
+				hBorderBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+
+			FrameRgn(hdc,m_Region,hBorderBrush,1,1);
 			DeleteObject(m_Region);
 		}
 		else {
@@ -865,7 +870,12 @@ void DcxBox::DrawClientArea(HDC hdc)
 			HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
 			if (!this->isExStyle(WS_EX_TRANSPARENT))
 				FillRgn(hdc,m_Region,hBrush);
-			FrameRgn(hdc,m_Region,(HBRUSH)GetStockObject(BLACK_BRUSH),1,1);
+
+			HBRUSH hBorderBrush = this->m_hBorderBrush;
+			if (hBorderBrush == NULL)
+				hBorderBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+
+			FrameRgn(hdc,m_Region,hBorderBrush,1,1);
 			DeleteObject(m_Region);
 		}
 		else {

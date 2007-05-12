@@ -851,8 +851,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 	else if (flags.switch_cap_flags[1] && numtok > 3) {
 		int nItem = (int)input.gettok( 4 ).to_num() -1;
 
-		if (nItem > -1)
+		if (nItem > -1) {
+			if (GetFocus() != this->m_Hwnd)
+				SetFocus(this->m_Hwnd);
 			ListView_EditLabel(this->m_Hwnd, nItem);
+		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[2] && numtok > 3) {

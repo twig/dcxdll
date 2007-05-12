@@ -158,20 +158,21 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
   UINT iItemStyle = this->m_pXParentMenu->getItemStyle( );
 
 	// playing around with menu transparency
-	UINT alpha = this->m_pXParentMenu->IsAlpha();
+	if (SetLayeredWindowAttributesUx != NULL) {
+		UINT alpha = this->m_pXParentMenu->IsAlpha();
 
-	// we use the zero value to indicate NO alpha, rather than fully transparent.
-	if (alpha <= 255) {
-		HWND hMenuWnd = WindowFromDC(lpdis->hDC);
-		if (IsWindow(hMenuWnd)) {
-			DWORD dwStyle = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
-			if (!(dwStyle & WS_EX_LAYERED)) {
-				SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
-				SetLayeredWindowAttributes(hMenuWnd, 0, alpha, LWA_ALPHA); // 0xCC = 80% Opaque
+		// we use the zero value to indicate NO alpha, rather than fully transparent.
+		if (alpha <= 255) {
+			HWND hMenuWnd = WindowFromDC(lpdis->hDC);
+			if (IsWindow(hMenuWnd)) {
+				DWORD dwStyle = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
+				if (!(dwStyle & WS_EX_LAYERED)) {
+					SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
+					SetLayeredWindowAttributesUx(hMenuWnd, 0, alpha, LWA_ALPHA); // 0xCC = 80% Opaque
+				}
 			}
 		}
 	}
-
   // All Items
   this->DrawItemBackground( lpdis, lpcol );
   this->DrawItemBox( lpdis, lpcol );

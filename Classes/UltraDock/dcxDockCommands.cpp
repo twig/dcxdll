@@ -809,21 +809,21 @@ mIRC(_xdock)
 			{
 				RECT rc;
 				GetWindowRect(mIRCLink.m_hSwitchbar, &rc);
-				wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
+				wsprintf(data,"%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 5: // toolBarSize
 			{
 				RECT rc;
 				GetWindowRect(mIRCLink.m_hToolbar, &rc);
-				wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
+				wsprintf(data,"%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 6: // treeBarSize
 			{
 				RECT rc;
 				GetWindowRect(mIRCLink.m_hTreebar, &rc);
-				wsprintf(data,"%d %d", rc.right-rc.left, rc.bottom-rc.top);
+				wsprintf(data,"%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 7: // isSwitchBar

@@ -89,18 +89,12 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 , m_zLayerCurrent(0)
 , m_popup(NULL)
 , m_hOldWindowProc(NULL)
+, m_hFakeHwnd(NULL)
+, m_iAlphaLevel(255)
 {
 	this->addStyle(WS_CLIPCHILDREN);
 
 	//this->addExStyle(WS_EX_TRANSPARENT); // WS_EX_TRANSPARENT|WS_EX_LAYERED gives a window u can click through to the win behind.
-	//HDC hdc = GetDC(this->m_Hwnd);
-	//if (hdc != NULL) {
-	//	this->addExStyle(WS_EX_LAYERED);
-	//	BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
-	//	POINT pt = { 0, 0 };
-	//	UpdateLayeredWindowUx(this->m_Hwnd, NULL, NULL, NULL, hdc, &pt, 0, &bf, ULW_ALPHA);
-	//	ReleaseDC(this->m_Hwnd, hdc);
-	//}
 
 	this->m_hOldWindowProc = (WNDPROC) SetWindowLong(this->m_Hwnd, GWL_WNDPROC, (LONG) DcxDialog::WindowProc);
 
@@ -664,18 +658,23 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdialog -t [NAME] [SWITCH] [TYPE] [TYPE ARGS]
 	else if (flags.switch_flags[19] && numtok > 2) {
 		if (input.gettok( 3 ) == "alpha") {
-			// Set WS_EX_LAYERED on this window
-			SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+			if (SetLayeredWindowAttributesUx) {
+				// Set WS_EX_LAYERED on this window
+				SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
-			// Make this window x% alpha
-			SetLayeredWindowAttributes(this->m_Hwnd, 0, (255 * input.gettok( 4 ).to_int()) / 100, LWA_ALPHA);
+				// Make this window x% alpha
+				this->m_iAlphaLevel = (255 * input.gettok( 4 ).to_int()) / 100;
+				SetLayeredWindowAttributesUx(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+			}
 		}
 		else if (input.gettok( 3 ) == "transparentcolor") {
-			// Set WS_EX_LAYERED on this window
-			SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+			if (SetLayeredWindowAttributesUx) {
+				// Set WS_EX_LAYERED on this window
+				SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
-			// Make colour transparent
-			SetLayeredWindowAttributes(this->m_Hwnd, input.gettok( 4 ).to_int(), 0, LWA_COLORKEY);
+				// Make colour transparent
+				SetLayeredWindowAttributesUx(this->m_Hwnd, input.gettok( 4 ).to_int(), 0, LWA_COLORKEY);
+			}
 		}
 		else if (input.gettok( 3 ) == "bgcolor") {
 			this->m_colTransparentBg = input.gettok( 4 ).to_int();
@@ -2058,6 +2057,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_SIZE:
 		{
+			// After window region is set it needs updated whenever the dialog is resized.
+			// No way to scale a region tho :/
+			//HRGN hRGN = CreateRectRgn(0,0,0,0);
+			//if (GetWindowRgn(p_this->m_Hwnd, hRGN) != ERROR)
+			//{
+			//}
+			//DeleteObject(hRGN);
 			if ((p_this->m_Shadow.Status & DCX_SS_ENABLED) && p_this->isShadowed())
 			{
 				if(SIZE_MAXIMIZED == wParam || SIZE_MINIMIZED == wParam)

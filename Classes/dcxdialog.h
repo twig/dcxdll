@@ -204,6 +204,8 @@ protected:
 //	Image *m_pImage;
 //	bool LoadGDIPlusImage(TString &filename);
 //#endif
+	HWND m_hFakeHwnd;
+	int m_iAlphaLevel;
 };
 
 #endif // _DCXDIALOG_H_
