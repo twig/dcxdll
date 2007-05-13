@@ -49,11 +49,13 @@ PFNDRAWSHADOWTEXT DrawShadowTextUx = NULL;
 PFNPICKICONDLG PickIconDlgUx = NULL;
 
 // Vista Function pointers.
+#ifdef DCX_USE_WINSDK
 PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx = NULL;
 PFNBUFFEREDPAINTINIT BufferedPaintInitUx = NULL;
 PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx = NULL;
 PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx = NULL;
 PFNENDBUFFEREDPAINT EndBufferedPaintUx = NULL;
+#endif
 
 HMODULE UXModule = NULL;             //!< UxTheme.dll Module Handle
 BOOL XPPlus = FALSE;                 //!< Is OS WinXP+ ?
@@ -254,11 +256,13 @@ void WINAPI LoadDll(LOADINFO * load) {
 		DrawThemeTextUx = (PFNDRAWTHEMETEXT) GetProcAddress(UXModule, "DrawThemeText");
 
 		// Get Vista function pointers.
+#ifdef DCX_USE_WINSDK
 		DrawThemeParentBackgroundExUx = (PFNDRAWTHEMEPARENTBACKGROUNDEX) GetProcAddress(UXModule, "DrawThemeParentBackgroundEx"); // Vista ONLY!
 		BufferedPaintInitUx = (PFNBUFFEREDPAINTINIT) GetProcAddress(UXModule, "BufferedPaintInit");
 		BufferedPaintUnInitUx = (PFNBUFFEREDPAINTUNINIT) GetProcAddress(UXModule, "BufferedPaintUnInit");
 		BeginBufferedPaintUx = (PFNBEGINBUFFEREDPAINT) GetProcAddress(UXModule, "BeginBufferedPaint");
 		EndBufferedPaintUx = (PFNENDBUFFEREDPAINT) GetProcAddress(UXModule, "EndBufferedPaint");
+#endif
 
 		// NB: DONT count vista functions in XP+ check.
 		if (SetWindowThemeUx && IsThemeActiveUx && OpenThemeDataUx && CloseThemeDataUx &&
@@ -266,11 +270,13 @@ void WINAPI LoadDll(LOADINFO * load) {
 			DrawThemeParentBackgroundUx && DrawThemeTextUx) {
 			XPPlus = TRUE;
 			DCX_DEBUG("LoadDLL", "Found XP+ Theme Functions");
+#ifdef DCX_USE_WINSDK
 			if (DrawThemeParentBackgroundExUx && BufferedPaintInitUx && BufferedPaintUnInitUx &&
 				BeginBufferedPaintUx && EndBufferedPaintUx) {
 				DCX_DEBUG("LoadDLL", "Found Vista Theme Functions");
 				BufferedPaintInitUx();
 			}
+#endif
 		}
 		else {
 			FreeLibrary(UXModule);
@@ -487,6 +493,21 @@ void WINAPI LoadDll(LOADINFO * load) {
 	wc.hIconSm       = NULL;
 	RegisterClassEx(&wc);
 
+	// Vista Dialog Class
+	DCX_DEBUG("LoadDLL", "Registering Vista Dialog...");
+	wc.cbSize = sizeof(WNDCLASSEX); 
+	wc.style         = CS_HREDRAW | CS_VREDRAW;
+	wc.lpfnWndProc   = DefWindowProc;
+	wc.cbClsExtra    = 0;
+	wc.cbWndExtra    = 0;
+	wc.hInstance     = GetModuleHandle( NULL );
+	wc.hIcon         = NULL;
+	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+	wc.lpszMenuName  = NULL;
+	wc.lpszClassName = DCX_VISTACLASS;
+	wc.hIconSm       = NULL;
+	RegisterClassEx(&wc);
 
 	/***** XPopup Stuff *****/
 	//GetClassInfoEx(NULL,"#32768",&wc); // menu
@@ -555,6 +576,7 @@ int WINAPI UnloadDll(int timeout) {
 		UnregisterClass(DCX_BOXCLASS, GetModuleHandle(NULL));
 		UnregisterClass(DCX_PAGERCLASS, GetModuleHandle(NULL));
 		UnregisterClass(DCX_SHADOWCLASS, GetModuleHandle(NULL));
+		UnregisterClass(DCX_VISTACLASS, GetModuleHandle(NULL));
 
 		// Class Factory of Web Control
 		if (g_pClassFactory != NULL)
@@ -605,8 +627,10 @@ int WINAPI UnloadDll(int timeout) {
 		UnregisterClass(XPOPUPMENUCLASS, GetModuleHandle(NULL));
 
 		if (UXModule != NULL) {
+#ifdef DCX_USE_WINSDK
 			if (BufferedPaintUnInitUx)
 				BufferedPaintUnInitUx();
+#endif
 
 			FreeLibrary(UXModule);
 			UXModule = NULL;

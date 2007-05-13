@@ -1279,10 +1279,12 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 
 	// if themes are active use them.
 	if (dcxIsThemeActive()) {
-		if (DrawThemeParentBackgroundExUx == NULL)
-			DrawThemeParentBackgroundUx(hwnd, hdc, &rcClient); // XP+
-		else
+#ifdef DCX_USE_WINSDK
+		if (DrawThemeParentBackgroundExUx != NULL)
 			DrawThemeParentBackgroundExUx(hwnd, hdc, 0, &rcClient); // Vista only, does basicly the same as below.
+		else
+#endif
+			DrawThemeParentBackgroundUx(hwnd, hdc, &rcClient); // XP+
 		return;
 	}
 	/*
@@ -1344,6 +1346,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 		3: draw button to temp hdc, over parents bg
 		4: alpha blend temp hdc to hdc
 	*/
+#ifdef DCX_USE_WINSDK
 	if (BeginBufferedPaintUx && EndBufferedPaintUx) {
 		BP_PAINTPARAMS paintParams = {0};
 		paintParams.cbSize = sizeof(paintParams);
@@ -1359,6 +1362,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 		}
 	}
 	// if vista method failed, fall through to our own method.
+#endif
 	{
 		// create a new HDC for alpha blending.
 		ai->ai_hdc = CreateCompatibleDC( *hdc );
@@ -1402,10 +1406,12 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 	if (ai == NULL)
 		return;
 
+#ifdef DCX_USE_WINSDK
 	if (EndBufferedPaintUx && ai->ai_Buffer != NULL) {
 		EndBufferedPaintUx(ai->ai_Buffer, TRUE);
 		return;
 	}
+#endif
 	// if we can't do Vista method, try do our own
 	if (ai->ai_hdc != NULL) {
 		if (ai->ai_bitmap != NULL) {

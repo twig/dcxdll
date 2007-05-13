@@ -64,6 +64,10 @@
 #define DCX_MAX_GDI_ERRORS 21
 //
 
+// Using Windows SDK? If not, get off your arse & install it!
+#define DCX_USE_WINSDK
+// end of Windows SDK
+
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 3
 #define DLL_BUILD      8
@@ -153,7 +157,8 @@ using namespace Gdiplus;
 //#define DCX_RADIOCLASS       "DCXRadioClass"        //!< DCX Radio Class Name
 //#define DCX_CHECKCLASS       "DCXCheckClass"        //!< DCX Check Class Name
 //#define DCX_SCROLLBARCLASS   "DCXScrollBarClass"    //!< DCX ScrollBar Class Name
-#define DCX_SHADOWCLASS				"DCXShadowClass"				//!< DCX Box Class Name
+#define DCX_SHADOWCLASS				"DCXShadowClass"			//!< DCX Shadow Class Name
+#define DCX_VISTACLASS				"DCXVistaClass"				//!< DCX Vista Dialog Class Name
 
 // Layout Constants
 #define LAYOUTFIXED 0x01  //!< Layout Cell Fixed Type
@@ -314,11 +319,13 @@ typedef int (WINAPI *PFNDRAWSHADOWTEXT)(HDC hdc, LPCWSTR pszText, UINT cch, cons
 typedef int (WINAPI *PFNPICKICONDLG)(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
 
 // Vista Function pointers.
+#ifdef DCX_USE_WINSDK
 typedef HRESULT (WINAPI *PFNDRAWTHEMEPARENTBACKGROUNDEX)(HWND, HDC, DWORD, const RECT*);
 typedef HRESULT (WINAPI *PFNBUFFEREDPAINTINIT)(VOID);
 typedef HRESULT (WINAPI *PFNBUFFEREDPAINTUNINIT)(VOID);
 typedef HPAINTBUFFER (WINAPI *PFNBEGINBUFFEREDPAINT)(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
 typedef HRESULT (WINAPI *PFNENDBUFFEREDPAINT)(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
+#endif
 
 HRESULT dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList);
 BOOL dcxIsThemeActive();
@@ -375,11 +382,13 @@ extern PFNDRAWSHADOWTEXT DrawShadowTextUx;
 extern PFNPICKICONDLG PickIconDlgUx;
 
 // Vista Function pointers.
+#ifdef DCX_USE_WINSDK
 extern PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx;
 extern PFNBUFFEREDPAINTINIT BufferedPaintInitUx;
 extern PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx;
 extern PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx;
 extern PFNENDBUFFEREDPAINT EndBufferedPaintUx;
+#endif
 
 extern mIRCDLL mIRCLink;
 

@@ -117,10 +117,16 @@ public:
 	bool SetShadowDarkness(unsigned int NewDarkness = 200);
 	bool SetShadowPosition(int NewXOffset = 5, int NewYOffset = 5);
 	bool SetShadowColor(COLORREF NewColor = 0);
-    
+
 	static DWORD getAnimateStyles( TString & flags );
 	void showError(const char *prop, const char *cmd, const char *err);
 	void showErrorEx(const char *prop, const char *cmd, const char *fmt, ...);
+	void DrawCaret(Graphics & graph);
+	void DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets);
+	void CreateVistaStyle(void);
+	void UpdateVistaStyle(void);
+	void SetVistaStylePos(void);
+	void SetVistaStyleSize(void);
 
 protected:
 
@@ -179,14 +185,14 @@ protected:
 	} m_Shadow;
 	/* **** */
 
-  static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
+  static void parseBorderStyles( const TString & flags, LONG * Styles, LONG * ExStyles );
 
-  static UINT parseLayoutFlags( TString & flags );
-  static UINT parseBkgFlags( TString & flags );
-  static UINT parseFlashFlags( TString & flags );
-  static UINT parseCursorFlags( TString & flags );
-  static LPSTR parseCursorType( TString & cursor );
-  static UINT parseTooltipFlags(TString &flags);
+  static UINT parseLayoutFlags( const TString & flags );
+  static UINT parseBkgFlags( const TString & flags );
+  static UINT parseFlashFlags( const TString & flags );
+  static UINT parseCursorFlags( const TString & flags );
+  static LPSTR parseCursorType( const TString & cursor );
+  static UINT parseTooltipFlags( const TString &flags);
 
 	// Fill in the shadow window alpha blend bitmap with shadow image pixels
 	void MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rcParent);
@@ -206,6 +212,7 @@ protected:
 //#endif
 	HWND m_hFakeHwnd;
 	int m_iAlphaLevel;
+	bool m_bVistaStyle;
 };
 
 #endif // _DCXDIALOG_H_
