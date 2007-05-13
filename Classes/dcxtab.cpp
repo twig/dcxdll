@@ -662,7 +662,8 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 					case NM_CLICK:
 						{
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-								int tab = TabCtrl_GetCurSel(this->m_Hwnd);
+								int tab = TabCtrl_GetCurFocus(this->m_Hwnd);
+								//int tab = TabCtrl_GetCurSel(this->m_Hwnd);
 
 								if (tab != -1) {
 									if (this->m_bClosable) {

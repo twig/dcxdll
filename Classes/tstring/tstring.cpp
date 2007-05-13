@@ -356,7 +356,7 @@ void TString::operator +=( const TString & tString ) {
     \return Returns \b true or \b false based on the comparison
 */
 
-bool TString::operator ==( const int iNull ) {
+bool TString::operator ==( const int iNull ) const {
 
 	if ( !this->m_pString && !iNull )
 		return true;
@@ -377,7 +377,7 @@ bool TString::operator ==( const int iNull ) {
 */
 /****************************/
 
-bool TString::operator ==( const char * cString ) {
+bool TString::operator ==( const char * cString ) const {
 
 	if ( cString && this->m_pString ) {
 		if ( !lstrcmp( this->m_pString, cString ) )
@@ -401,7 +401,7 @@ bool TString::operator ==( const char * cString ) {
 */
 /****************************/
 
-bool TString::operator ==( const char chr ) {
+bool TString::operator ==( const char chr ) const {
 
 	if ( this->m_pString ) {
 
@@ -430,7 +430,7 @@ bool TString::operator ==( const char chr ) {
 */
 /****************************/
 
-bool TString::operator ==( const TString & tString ) {
+bool TString::operator ==( const TString & tString ) const {
 
 	if ( this->m_pString && tString.m_pString ) {
 		if ( !lstrcmp( this->m_pString, tString.m_pString ) )
@@ -450,7 +450,7 @@ bool TString::operator ==( const TString & tString ) {
     \return Returns \b true or \b false based on the comparison
 */
 
-bool TString::operator !=( const int iNull ) {
+bool TString::operator !=( const int iNull ) const {
 
 	if ( this->m_pString && !iNull )
 		return true;
@@ -471,7 +471,7 @@ bool TString::operator !=( const int iNull ) {
 */
 /****************************/
 
-bool TString::operator !=( const char * cString ) {
+bool TString::operator !=( const char * cString ) const {
 
 	if ( cString && this->m_pString ) {
 
@@ -496,7 +496,7 @@ bool TString::operator !=( const char * cString ) {
 */
 /****************************/
 
-bool TString::operator !=( const char chr ) {
+bool TString::operator !=( const char chr ) const {
 
 	if ( this->m_pString != NULL ) {
 
@@ -525,7 +525,7 @@ bool TString::operator !=( const char chr ) {
 */
 /****************************/
 
-bool TString::operator !=( const TString & tString ) {
+bool TString::operator !=( const TString & tString ) const {
 
 	if ( this->m_pString != NULL && tString.m_pString != NULL ) {
 
@@ -550,7 +550,7 @@ bool TString::operator !=( const TString & tString ) {
 */
 /****************************/
 
-bool TString::operator >( const char * cString ) {
+bool TString::operator >( const char * cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL ) {
 		if ( lstrcmp( this->m_pString, cString ) > 0 )
@@ -574,7 +574,7 @@ bool TString::operator >( const char * cString ) {
 */
 /****************************/
 
-bool TString::operator >( const char chr ) {
+bool TString::operator >( const char chr ) const {
 
 	if ( this->m_pString != NULL ) {
 
@@ -603,7 +603,7 @@ bool TString::operator >( const char chr ) {
 */
 /****************************/
 
-bool TString::operator >( const TString & tString ) {
+bool TString::operator >( const TString & tString ) const {
 
 	if ( this->m_pString != NULL && tString.m_pString != NULL ) {
 
@@ -628,7 +628,7 @@ bool TString::operator >( const TString & tString ) {
 */
 /****************************/
 
-bool TString::operator >=( const char * cString ) {
+bool TString::operator >=( const char * cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL ) {
 
@@ -653,7 +653,7 @@ bool TString::operator >=( const char * cString ) {
 */
 /****************************/
 
-bool TString::operator >=( const char chr ) {
+bool TString::operator >=( const char chr ) const {
 
 	if ( this->m_pString != NULL ) {
 
@@ -682,7 +682,7 @@ bool TString::operator >=( const char chr ) {
 */
 /****************************/
 
-bool TString::operator >=( const TString & tString ) {
+bool TString::operator >=( const TString & tString ) const {
 
 	if ( this->m_pString != NULL && tString.m_pString != NULL ) {
 
@@ -707,7 +707,7 @@ bool TString::operator >=( const TString & tString ) {
 */
 /****************************/
 
-bool TString::operator <( const char * cString ) {
+bool TString::operator <( const char * cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL ) {
 
@@ -732,7 +732,7 @@ bool TString::operator <( const char * cString ) {
 */
 /****************************/
 
-bool TString::operator <( const char chr ) {
+bool TString::operator <( const char chr ) const {
 
 	if ( this->m_pString != NULL ) {
 
@@ -761,7 +761,7 @@ bool TString::operator <( const char chr ) {
 */
 /****************************/
 
-bool TString::operator <( const TString & tString ) {
+bool TString::operator <( const TString & tString ) const {
 
 	if ( this->m_pString != NULL && tString.m_pString != NULL ) {
 
@@ -786,7 +786,7 @@ bool TString::operator <( const TString & tString ) {
 */
 /****************************/
 
-bool TString::operator <=( const char * cString ) {
+bool TString::operator <=( const char * cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL ) {
 
@@ -811,7 +811,7 @@ bool TString::operator <=( const char * cString ) {
 */
 /****************************/
 
-bool TString::operator <=( const char chr ) {
+bool TString::operator <=( const char chr ) const {
 
 	if ( this->m_pString != NULL ) {
 
@@ -840,7 +840,7 @@ bool TString::operator <=( const char chr ) {
 */
 /****************************/
 
-bool TString::operator <=( const TString & tString ) {
+bool TString::operator <=( const TString & tString ) const {
 
 	if ( this->m_pString != NULL && tString.m_pString != NULL ) {
 
@@ -935,7 +935,7 @@ void TString::operator *=( const int N ) {
 */
 /****************************/
 
-char & TString::operator []( long int N ) {
+char & TString::operator []( long int N ) const {
 
   static char chr = '\0';
 

@@ -95,36 +95,36 @@ public:
 	void operator +=( const char chr );
 	void operator +=( const TString & tString );
 
-	bool operator ==( const int iNull );
-	bool operator ==( const char * cString );
-	bool operator ==( const char chr );
-	bool operator ==( const TString & tString );
+	bool operator ==( const int iNull ) const;
+	bool operator ==( const char * cString ) const;
+	bool operator ==( const char chr ) const;
+	bool operator ==( const TString & tString ) const;
 
-	bool operator !=( const int iNull );
-	bool operator !=( const char * cString );
-	bool operator !=( const char chr );
-	bool operator !=( const TString & tString );
+	bool operator !=( const int iNull ) const;
+	bool operator !=( const char * cString ) const;
+	bool operator !=( const char chr ) const;
+	bool operator !=( const TString & tString ) const;
 
-	bool operator >( const char * cString );
-	bool operator >( const char chr );
-	bool operator >( const TString & tString );
+	bool operator >( const char * cString ) const;
+	bool operator >( const char chr ) const;
+	bool operator >( const TString & tString ) const;
 
-	bool operator >=( const char * cString );
-	bool operator >=( const char chr );
-	bool operator >=( const TString & tString );
+	bool operator >=( const char * cString ) const;
+	bool operator >=( const char chr ) const;
+	bool operator >=( const TString & tString ) const;
 
-	bool operator <( const char * cString );
-	bool operator <( const char chr );
-	bool operator <( const TString & tString );
+	bool operator <( const char * cString ) const;
+	bool operator <( const char chr ) const;
+	bool operator <( const TString & tString ) const;
 
-	bool operator <=( const char * cString );
-	bool operator <=( const char chr );
-	bool operator <=( const TString & tString );
+	bool operator <=( const char * cString ) const;
+	bool operator <=( const char chr ) const;
+	bool operator <=( const TString & tString ) const;
 
 	TString operator *( const int N );
 	void operator *=( const int N );
 
-	char & operator []( long int N );
+	char & operator []( long int N ) const;
 
 	// General String Lib
 	size_t len( ) const;
