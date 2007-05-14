@@ -650,7 +650,7 @@ int WINAPI UnloadDll(int timeout) {
 */
 mIRC(Version) {
 	wsprintf(data,
-		"DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe, twig*,Ook,andy & Mpdreamz  ©2006",
+		"DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe, twig*,Ook,andy & Mpdreamz  ©2006-2007",
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
 	return 3;
 }

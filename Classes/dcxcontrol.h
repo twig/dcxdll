@@ -70,7 +70,9 @@ typedef struct {
 	HBITMAP ai_oldBM;
 	RECT ai_rcClient;
 	RECT ai_rcWin;
+#ifdef DCX_USE_WINSDK
 	HPAINTBUFFER ai_Buffer;
+#endif
 } ALPHAINFO, *LPALPHAINFO;
 
 /*!

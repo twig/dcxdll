@@ -5,13 +5,46 @@
  * This file contains constant, alias and variable type defintions.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.1
- *
- * \b Revisions
- *	1.1
- *		Added Visual Studio 2005 specific defines. Ook
  *
  * © ScriptsDB.org - 2006
+ */
+
+/*
+ * Switch Parameters Container
+ *
+ * The XSwitchFlags structure is used to parse /xdid or /xdialog command -switches. It contains two arrays
+ * populated by 26 values from a/A-z/Z and of value 1 indicating the switch was in the command or 0 if not.
+ *
+ * Below is a list stating which switches have been used for global commands.
+ * Adding a control specific switch will override the global command.
+ * It is important to update this when adding new global commands.
+ *
+ * a = 0		
+ * b = 1		xdid
+ * c = 2				XDID
+ * d = 3
+ * e = 4		xdid
+ * f = 5		xdid	XDID
+ * g = 6
+ * h = 7		xdid
+ * i = 8
+ * j = 9				XDID
+ * k = 10
+ * l = 11
+ * m = 12			XDID
+ * n = 13
+ * o = 14
+ * p = 15	xdid
+ * q = 16
+ * r = 17			XDID
+ * s = 18	xdid
+ * t = 19			XDID
+ * u = 20			XDID
+ * v = 21
+ * w = 22
+ * x = 23	xdid
+ * y = 24
+ * z = 25			XDID
  */
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
@@ -27,6 +60,27 @@
 #ifndef _DEFINES_H_
 #define _DEFINES_H_
 
+// --------------------------------------------------
+// Optional build libraries for DCX
+// --------------------------------------------------
+// DCX using DirectX SDK? (Required for DirectShow)
+// If not, get off your arse & install it!
+//#define DCX_USE_DXSDK
+// end of DirectX SDK
+
+// DCX using GDI+? (Required for advanced graphics routines)
+#define DCX_USE_GDIPLUS
+#define DCX_MAX_GDI_ERRORS 21
+// end of GDI+
+
+// DCX using Windows SDK? (Required for Vista routines)
+// If not, get off your arse & install it!
+//#define DCX_USE_WINSDK
+// end of Windows SDK
+
+// --------------------------------------------------
+// Some compiler/library definitions
+// --------------------------------------------------
 //#define WIN32_LEAN_AND_MEAN //!< blah
 
 // Windows 98 + IE V5.01 + GDI+ 1.0
@@ -55,22 +109,13 @@
 #endif
 // end of VS 2005
 
-// Using DirectX SDK? If not, get off your arse & install it!
-#define DCX_USE_DXSDK
-// end of DirectX SDK
-
-// Use GDI+
-#define DCX_USE_GDIPLUS
-#define DCX_MAX_GDI_ERRORS 21
-//
-
-// Using Windows SDK? If not, get off your arse & install it!
-#define DCX_USE_WINSDK
-// end of Windows SDK
-
+// --------------------------------------------------
+// DCX build version
+// --------------------------------------------------
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 3
 #define DLL_BUILD      8
+
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
 // Dev Build, enable debug output.
@@ -91,6 +136,10 @@
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR
 #endif
+
+// --------------------------------------------------
+// Include files
+// --------------------------------------------------
 
 //#include <vld.h>
 #include <windows.h>
@@ -122,9 +171,11 @@ using namespace Gdiplus;
 
 #include "AggressiveOptimize.h"
 
-#define mIRC_ID_OFFSET 6000 //!< mIRC Dialog ID Offset
 
-// listview stuff
+
+// --------------------------------------------------
+// Listview stuff
+// --------------------------------------------------
 #ifndef LPNMLVDISPINFO
 #ifdef UNICODE
 #define LPNMLVDISPINFO LPNMLVDISPINFOW
@@ -133,7 +184,12 @@ using namespace Gdiplus;
 #endif
 #endif
 
-// DCX Stuff
+// --------------------------------------------------
+// DCX defines
+// --------------------------------------------------
+
+#define mIRC_ID_OFFSET 6000 //!< mIRC Dialog ID Offset
+
 #define DCX_LISTVIEWCLASS    "DCXListViewClass"     //!< DCX Listview Class Name
 #define DCX_PROGRESSBARCLASS "DCXProgressBarClass"  //!< DCX ProgressBar Class Name
 #define DCX_TREEVIEWCLASS    "DCXTreeViewClass"     //!< DCX TreeView Class Name
@@ -160,7 +216,9 @@ using namespace Gdiplus;
 #define DCX_SHADOWCLASS				"DCXShadowClass"			//!< DCX Shadow Class Name
 #define DCX_VISTACLASS				"DCXVistaClass"				//!< DCX Vista Dialog Class Name
 
-// Layout Constants
+// --------------------------------------------------
+// CLA constants
+// --------------------------------------------------
 #define LAYOUTFIXED 0x01  //!< Layout Cell Fixed Type
 #define LAYOUTFILL  0x02  //!< Layout Cell Fill Type
 #define LAYOUTPANE  0x04  //!< Layout Cell Pane Type
@@ -169,7 +227,9 @@ using namespace Gdiplus;
 #define LAYOUTVERT  0x20  //!< Layout Cell Vertical Style (LayoutCellPane and LayoutCellFixed)
 #define LAYOUTHORZ  0x40  //!< Layout Cell Horizontal Style (LayoutCellPane and LayoutCellFixed)
 
+// --------------------------------------------------
 // DCX Font stuff
+// --------------------------------------------------
 #define DCF_ANTIALIASE    0x01 //!< Control Font Anti-Aliase Style
 #define DCF_BOLD          0x02 //!< Control Font Bold Style
 #define DCF_ITALIC        0x04 //!< Control Font Italic Style
@@ -177,13 +237,17 @@ using namespace Gdiplus;
 #define DCF_UNDERLINE     0x10 //!< Control Font Underline Style
 #define DCF_DEFAULT       0x20 //!< Control Font Default Style
 
-// XPopup Stuff
+// --------------------------------------------------
+// XPopup stuff
+// --------------------------------------------------
 #define XPOPUPMENUCLASS "XPopupMenu32" //!< XPopupMenu Window Class Name
 
 LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 BOOL isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
 
-// UltraDock Stuff
+// --------------------------------------------------
+// Ultradock stuff
+// --------------------------------------------------
 #define SWB_NONE    0
 #define SWB_LEFT    1
 #define SWB_RIGHT   2
@@ -192,33 +256,30 @@ BOOL isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
 
 // Dialog info structure
 typedef struct tagMYDCXWINDOW {
-
-  RECT rc;
-	DWORD old_styles;
+   RECT rc;
+   DWORD old_styles;
 	DWORD old_exstyles;
 } MYDCXWINDOW,*LPMYDCXWINDOW;
 
-
-/*! \brief mIRC Function Alias */
+// --------------------------------------------------
+// DLL stuff
+// --------------------------------------------------
+// mIRC Function Alias
 #define mIRC(x) int WINAPI x(HWND mWnd, HWND aWnd, char * data, char * parms, BOOL, BOOL)
 
-/*! \brief Return String DLL Alias (data is limited to 900) */
+// Return String DLL Alias (data is limited to 900)
 #define ret(x) { lstrcpyn(data, (x), 900); return 3; }
 
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 
-/*!
- * \brief mIRC DLL Loading Structure
- */
+// mIRC DLL Loading Structure
 typedef struct {
 	DWORD  mVersion; //!< mIRC Version
 	HWND   mHwnd;    //!< mIRC Hwnd 
 	BOOL   mKeep;    //!< mIRC variable stating to keep DLL in memory
 } LOADINFO;
 
-/*!
- * \brief DCX DLL mIRC Information Structure
- */
+// DCX DLL mIRC Information Structure
 typedef struct {
 	HANDLE	m_hFileMap; //!< Handle to the mIRC DLL File Map
 	LPSTR		m_pData;    //!< Pointer to a character buffer of size 900 to send mIRC custom commands
@@ -239,40 +300,7 @@ typedef struct {
 	bool		m_bDX9Installed; //!<
 } mIRCDLL;
 
-/*!
- * \brief Switch Parameters Container
- *
- * This structure is used to parse /xdid or /xdialog command -switches. It contains two arrays
- * populated by 26 values from a/A-z/Z and of value 1 indicating the switch was in the command or 0 if not.
- *
- * a = 0		
- * b = 1		xdid
- * c = 2				XDID
- * d = 3
- * e = 4		xdid
- * f = 5		xdid	XDID
- * g = 6
- * h = 7		xdid
- * i = 8
- * j = 9				XDID
- * k = 10
- * l = 11
- * m = 12			XDID
- * n = 13
- * o = 14
- * p = 15	xdid
- * q = 16
- * r = 17			XDID
- * s = 18	xdid
- * t = 19			XDID
- * u = 20			XDID
- * v = 21
- * w = 22
- * x = 23	xdid
- * y = 24
- * z = 25			XDID
- */
-
+// Refer to "Switch Parameters Container" at top of file.
 typedef struct {
 	int switch_flags[26];     //!< Lowercase switches a-z
 	int switch_cap_flags[26]; //!< Uppercase switches A-Z
@@ -280,6 +308,9 @@ typedef struct {
 
 typedef std::vector<int> VectorOfInts; //<! Vector of int
 
+// --------------------------------------------------
+// DLL routines
+// --------------------------------------------------
 void mIRCDebug(const char *szFormat, ...);
 void mIRCSignalDCX(const char *szFormat, ...);
 void mIRCSignal(const char *data);
