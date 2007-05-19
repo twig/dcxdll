@@ -96,6 +96,12 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 , m_hOldWindowProc(NULL)
 , m_hFakeHwnd(NULL)
 , m_iAlphaLevel(255)
+, m_bHaveKeyColour(false)
+, m_bHaveGlassOffsets(false)
+, m_bVistaStyle(false)
+//#ifdef DCX_USE_GDIPLUS
+//, m_pImage(NULL)
+//#endif
 {
 	this->addStyle(WS_CLIPCHILDREN);
 
@@ -107,6 +113,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 
 	this->m_Shadow.hWin = NULL;
 	this->m_Shadow.Status = 0;
+	SetRectEmpty(&this->m_GlassOffsets);
 
 	SetProp(this->m_Hwnd, "dcx_this", (HANDLE) this);
 
@@ -264,7 +271,12 @@ void DcxDialog::PreloadData() {
 		DeleteBitmap(this->m_bitmapBg);
 		this->m_bitmapBg = NULL;
 	}
-
+//#ifdef DCX_USE_GDIPLUS
+//	if (this->m_pImage != NULL) {
+//		delete this->m_pImage;
+//		this->m_pImage = NULL;
+//	}
+//#endif
 }
 
 /*!
@@ -312,7 +324,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		this->addStyle(Styles);
 		this->addExStyle(ExStyles);
 
-		if (input.gettok( 3 ).find('v',0) && UpdateLayeredWindowUx && SetLayeredWindowAttributesUx) {
+		if (input.gettok( 3 ).find('v',0)) {
 			// Vista Style Dialog
 			this->CreateVistaStyle();
 		}
@@ -416,8 +428,13 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			filename.trim();
 
 
-			if (filename != "none")
+			if (filename != "none") {
 				this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg, filename);
+//#ifdef DCX_USE_GDIPLUS
+//				if (mIRCLink.m_bUseGDIPlus)
+//					this->LoadGDIPlusImage(filename);
+//#endif
+			}
 		}
 
 		//InvalidateRect(this->m_Hwnd, NULL, TRUE);
@@ -628,7 +645,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		}
 		if (this->m_hCursor == NULL)
 			this->showError(NULL, "-q", "Unable to Load Cursor");
-			//DCXError("/xdialog -q","Unable to Load Cursor");
 		if (hCursor != NULL) {
 			if (GetCursor() == hCursor) {
 				if (this->m_hCursor != NULL)
@@ -674,22 +690,24 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdialog -t [NAME] [SWITCH] [TYPE] [TYPE ARGS]
 	else if (flags.switch_flags[19] && numtok > 2) {
 		if (input.gettok( 3 ) == "alpha") {
-			if (SetLayeredWindowAttributesUx) {
+			this->m_iAlphaLevel = (255 * input.gettok( 4 ).to_int()) / 100;
+			if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
 				// Set WS_EX_LAYERED on this window
 				SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
 				// Make this window x% alpha
-				this->m_iAlphaLevel = (255 * input.gettok( 4 ).to_int()) / 100;
 				SetLayeredWindowAttributesUx(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
 			}
 		}
 		else if (input.gettok( 3 ) == "transparentcolor") {
-			if (SetLayeredWindowAttributesUx) {
+			this->m_cKeyColour = (COLORREF)input.gettok( 4 ).to_int();
+			this->m_bHaveKeyColour = true;
+			if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
 				// Set WS_EX_LAYERED on this window
 				SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 
 				// Make colour transparent
-				SetLayeredWindowAttributesUx(this->m_Hwnd, input.gettok( 4 ).to_int(), 0, LWA_COLORKEY);
+				SetLayeredWindowAttributesUx(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
 			}
 		}
 		else if (input.gettok( 3 ) == "bgcolor") {
@@ -971,7 +989,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		{
 			if (numtok < 5) {
 				this->showError(NULL, "-R +f", "Invalid arguments");
-				//DCXError("/xdialog -R +f","Invalid arguments");
 				return;
 			}
 
@@ -1168,6 +1185,15 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			mask &= ~DCX_EVENT_MOVE;
 
 		this->m_dEventMask = mask;
+	}
+	// xdialog -V [NAME] [SWITCH] [left] [right] [top] [bottom]
+	else if (flags.switch_cap_flags[21] && numtok > 3) {
+		this->m_GlassOffsets.left = input.gettok( 3 ).to_int();
+		this->m_GlassOffsets.right = input.gettok( 4 ).to_int();
+		this->m_GlassOffsets.top = input.gettok( 5 ).to_int();
+		this->m_GlassOffsets.bottom = input.gettok( 6 ).to_int();
+
+		this->redrawWindow();
 	}
 	// invalid command
 	else {
@@ -2030,14 +2056,17 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_ENTERSIZEMOVE:
 			{
 				if (p_this->m_bDoGhostDrag < 255 && SetLayeredWindowAttributesUx != NULL) {
-					long style = GetWindowLong(p_this->m_Hwnd, GWL_EXSTYLE);
-					// Set WS_EX_LAYERED on this window
-					if (!(style & WS_EX_LAYERED))
-						SetWindowLong(p_this->m_Hwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
-					// Make this window alpha
-					SetLayeredWindowAttributesUx(p_this->m_Hwnd, 0, p_this->m_bDoGhostDrag, LWA_ALPHA);
+					if (!p_this->m_bVistaStyle) {
+						long style = GetWindowLong(p_this->m_Hwnd, GWL_EXSTYLE);
+						// Set WS_EX_LAYERED on this window
+						if (!(style & WS_EX_LAYERED))
+							SetWindowLong(p_this->m_Hwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
+						// Make this window alpha
+						SetLayeredWindowAttributesUx(p_this->m_Hwnd, 0, p_this->m_bDoGhostDrag, LWA_ALPHA);
+					}
 					p_this->m_bGhosted = true;
 				}
+				p_this->UpdateVistaStyle();
 			}
 			break;
 
@@ -2055,10 +2084,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			p_this->m_bInSizing = false;
 			// turn off ghosting.
 			if (p_this->m_bGhosted && SetLayeredWindowAttributesUx != NULL) {
-				// Make this window solid
-				SetLayeredWindowAttributesUx(p_this->m_Hwnd, 0, p_this->m_iAlphaLevel, LWA_ALPHA);
+				if (!p_this->m_bVistaStyle) {
+					// Make this window solid
+					SetLayeredWindowAttributesUx(p_this->m_Hwnd, 0, p_this->m_iAlphaLevel, LWA_ALPHA);
+				}
 				p_this->m_bGhosted = false;
 			}
+			p_this->UpdateVistaStyle();
 			break;
 		}
 
@@ -2136,7 +2168,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
 			p_this->updateLayout(rc);
 			p_this->SetVistaStyleSize();
-			p_this->redrawWindow();
+			//p_this->redrawWindow(); not needed?
 			break;
 		}
 
@@ -2267,6 +2299,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				p_this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );
 				if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
 					p_this->callAliasEx(NULL, "%s,%d", "denter", 0); // this tells you when the mouse enters or
+				p_this->UpdateVistaStyle();
 			}
 			break;
 		}
@@ -2278,6 +2311,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
 					p_this->callAliasEx(NULL, "%s,%d", "dleave", 0); // leaves a dialogs client area.
 			}
+			p_this->UpdateVistaStyle();
 		}
 		break;
 
@@ -2459,8 +2493,11 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_ACTIVATE:
 		{
-			if (wParam == WA_ACTIVE)
-				p_this->UpdateVistaStyle();
+			if (wParam == WA_ACTIVE && p_this->m_bVistaStyle) {
+				bParsed = TRUE;
+				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+				InvalidateRect(p_this->m_Hwnd, NULL, TRUE);
+			}
 
 			if (p_this->m_dEventMask & DCX_EVENT_FOCUS) {
 				switch (wParam) {
@@ -2518,6 +2555,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						ShowWindow(p_this->m_Shadow.hWin, SW_SHOWNA);
 						p_this->m_Shadow.Status |= DCX_SS_VISABLE | DCX_SS_PARENTVISIBLE;
 					}
+				}
+				if (IsWindow(p_this->m_hFakeHwnd)) {
+					if(!wParam)	// the window is being hidden
+						ShowWindow(p_this->m_hFakeHwnd, SW_HIDE);
+					else
+						ShowWindow(p_this->m_hFakeHwnd, SW_SHOWNA);
 				}
 			}
 			break;
@@ -3007,17 +3050,26 @@ void DcxDialog::showErrorEx(const char *prop, const char *cmd, const char *fmt, 
 
 void DcxDialog::CreateVistaStyle(void)
 {
-	RECT rc;
-	GetWindowRect(this->m_Hwnd, &rc);
-	SetLayeredWindowAttributesUx(this->m_Hwnd,0,5,LWA_ALPHA);
-	DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;
-	DWORD Styles = WS_VISIBLE|WS_OVERLAPPED;
-	this->m_hFakeHwnd = CreateWindowEx(ExStyles,DCX_VISTACLASS,NULL,Styles,0,0,(rc.right - rc.left),(rc.bottom - rc.top),this->m_Hwnd,NULL,GetModuleHandle(NULL), NULL);
-	if (IsWindow(this->m_hFakeHwnd))
-		this->m_bVistaStyle = true;
+	if (SetLayeredWindowAttributesUx && UpdateLayeredWindowUx) {
+		RECT rc;
+		GetWindowRect(this->m_Hwnd, &rc);
+		DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;
+		DWORD Styles = WS_VISIBLE/*|WS_OVERLAPPED*/|WS_CLIPCHILDREN;
+		this->m_hFakeHwnd = CreateWindowEx(ExStyles,DCX_VISTACLASS,NULL,Styles,0,0,(rc.right - rc.left),(rc.bottom - rc.top),this->m_Hwnd,NULL,GetModuleHandle(NULL), NULL);
+		if (IsWindow(this->m_hFakeHwnd)) {
+			SetLayeredWindowAttributesUx(this->m_Hwnd,0,5,LWA_ALPHA);
+			HRGN hRgn = CreateRectRgn(0,0,0,0);
+			if (GetWindowRgn(this->m_Hwnd, hRgn))
+				SetWindowRgn(this->m_hFakeHwnd, hRgn, TRUE);
+			else
+				DeleteRgn(hRgn);
+			this->m_bVistaStyle = true;
+		}
+	}
 }
 
 void DcxDialog::DrawCaret(Graphics & graph)
+//void DcxDialog::DrawCaret(HDC hDC)
 {
 	HWND pWnd = GetFocus();
 	if( pWnd == NULL || !IsWindow(pWnd) )
@@ -3038,6 +3090,29 @@ void DcxDialog::DrawCaret(Graphics & graph)
 	graph.DrawLine( &pen, pt.x, pt.y, pt.x, pt.y + 13);
 }
 
+void DcxDialog::DrawDialog( Graphics & graphics, HDC hDC)
+{
+	RECT rc;
+	GetWindowRect(this->m_Hwnd, &rc);
+
+	HDC hdcMemory = ::CreateCompatibleDC(hDC);
+	if (hdcMemory != NULL) {
+		int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
+		HBITMAP hBitmap = ::CreateCompatibleBitmap( hDC, w, h);
+		if (hBitmap != NULL) {
+			HGDIOBJ hbmpOld = ::SelectObject( hdcMemory, hBitmap);
+
+			::SendMessage(this->m_Hwnd, WM_PRINT, (WPARAM)hdcMemory,PRF_CLIENT|PRF_NONCLIENT|PRF_ERASEBKGND);
+
+			Bitmap bitmap( hBitmap, NULL);
+			graphics.DrawImage( &bitmap, 0, 0);
+
+			::DeleteObject(::SelectObject( hdcMemory, hbmpOld));
+		}
+		::DeleteDC(hdcMemory);
+	}
+}
+
 void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets)
 {
 	if( !::IsWindow(hWnd) )
@@ -3049,7 +3124,8 @@ void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets)
 
 	HDC hdcMemory = ::CreateCompatibleDC(hDC);
 	if (hdcMemory != NULL) {
-		HBITMAP hBitmap = ::CreateCompatibleBitmap( hDC, rc.right - rc.left, rc.bottom - rc.top);
+		int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
+		HBITMAP hBitmap = ::CreateCompatibleBitmap( hDC, w, h);
 		if (hBitmap != NULL) {
 			HGDIOBJ hbmpOld = ::SelectObject( hdcMemory, hBitmap);
 
@@ -3078,7 +3154,6 @@ void DcxDialog::UpdateVistaStyle(void)
 	POINT ptWinPos = { rc.left, rc.top};
 	SIZE szWin = { (rc.right - rc.left), (rc.bottom - rc.top) };
 	BLENDFUNCTION stBlend = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
-
 
 	HDC hDC = ::GetDC(this->m_hFakeHwnd);
 	HDC hdcMemory = ::CreateCompatibleDC(hDC);
@@ -3109,57 +3184,84 @@ void DcxDialog::UpdateVistaStyle(void)
 		graph.SetPageUnit(UnitPixel);
 		graph.SetSmoothingMode(SmoothingModeNone);
 
-		// Draw the background
-		//graph.DrawImage( &m_Image, 0, 0, szWin.cx, szWin.cy);
+		DrawDialog( graph, hDC);
 
-		//::SendMessage(this->m_Hwnd, WM_ERASEBKGND, (WPARAM)hdcMemory,NULL);
-		::SendMessage(this->m_Hwnd, WM_PRINT, (WPARAM)hdcMemory,PRF_CLIENT|PRF_NONCLIENT);
-		//::SendMessage(this->m_Hwnd, WM_PRINT, (WPARAM)hdcMemory,PRF_CLIENT|PRF_NONCLIENT|PRF_ERASEBKGND);
-
-		RECT rcParentWin, rcParentClient;
+		RECT rcParentWin, rcParentClient, glassOffsets;
 		SIZE offsets;
 		GetWindowRect(this->m_Hwnd, &rcParentWin);
 		GetClientRect(this->m_Hwnd, &rcParentClient);
 		MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rcParentClient, 2);
 		offsets.cx = (rcParentClient.left - rcParentWin.left);
 		offsets.cy = (rcParentClient.top - rcParentWin.top);
+		// Glass area = window edge +/- offset
+		glassOffsets.left = offsets.cx + this->m_GlassOffsets.left;
+		glassOffsets.top = offsets.cy + this->m_GlassOffsets.top;
+		glassOffsets.right = szWin.cx - ((rcParentWin.right - rcParentClient.right) + this->m_GlassOffsets.right);
+		glassOffsets.bottom = szWin.cy - ((rcParentWin.bottom - rcParentClient.bottom) + this->m_GlassOffsets.bottom);
 
 		// Draw all the controls
 		HWND hwndChild = ::GetWindow( this->m_Hwnd, GW_CHILD);
 		while(hwndChild)
 		{
 			DrawCtrl( graph, hDC, hwndChild, offsets);
+			//DrawCtrl( hDC, hwndChild, offsets);
 			hwndChild = ::GetWindow( hwndChild, GW_HWNDNEXT);
 		}
 
 		// draw the caret
+		//DrawCaret(hDC);
 		DrawCaret(graph);
 
 		// Alpha
-		if( this->m_iAlphaLevel >= 0 &&
-			this->m_iAlphaLevel <= 255 )
+		int alpha = this->m_iAlphaLevel;
+		POINT pt;
+
+		if (this->m_bGhosted)
+			alpha = this->m_bDoGhostDrag;
+
+		if( alpha >= 0 &&
+			alpha <= 255 )
 		{
 			for( int y = 0; y < szWin.cy; y++)
 			{
 				PBYTE pPixel = ((PBYTE)pvBits) + szWin.cx * 4 * y;
 
+				pt.y = szWin.cy - y;
+
 				for( int x = 0; x < szWin.cx; x++)
 				{
-					if( this->m_iAlphaLevel < pPixel[3] )
-					{
-						pPixel[3] = this->m_iAlphaLevel;
+					pt.x = x;
+					if (!PtInRect(&glassOffsets,pt)) {
+						pPixel[3] = (alpha < 192 ? alpha : 192);
 
 						pPixel[0] = pPixel[0] * pPixel[3] / 255;
 						pPixel[1] = pPixel[1] * pPixel[3] / 255;
 						pPixel[2] = pPixel[2] * pPixel[3] / 255;
 					}
+					else if( alpha < pPixel[3] )
+					{
+						pPixel[3] = alpha;
+
+						pPixel[0] = pPixel[0] * pPixel[3] / 255;
+						pPixel[1] = pPixel[1] * pPixel[3] / 255;
+						pPixel[2] = pPixel[2] * pPixel[3] / 255;
+					}
+					//if( alpha < pPixel[3] )
+					//{
+					//	pPixel[3] = alpha;
+
+					//	pPixel[0] = pPixel[0] * pPixel[3] / 255;
+					//	pPixel[1] = pPixel[1] * pPixel[3] / 255;
+					//	pPixel[2] = pPixel[2] * pPixel[3] / 255;
+					//}
 
 					pPixel += 4;
 				}
 			}
 		}
 
-		::UpdateLayeredWindow( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc, 0, &stBlend, ULW_ALPHA);
+		::UpdateLayeredWindow( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc,
+			this->m_cKeyColour, &stBlend, (this->m_bHaveKeyColour ? ULW_COLORKEY|ULW_ALPHA : ULW_ALPHA));
 
 		graph.ReleaseHDC(hdcMemory);
 		::SelectObject( hdcMemory, hbmpOld);
@@ -3189,3 +3291,26 @@ void DcxDialog::SetVistaStyleSize(void)
 	GetWindowRect(this->m_Hwnd, &rc);
 	SetWindowPos(this->m_hFakeHwnd, NULL, 0,0, (rc.right - rc.left), (rc.bottom - rc.top), SWP_NOMOVE|SWP_NOZORDER);
 }
+//#ifdef DCX_USE_GDIPLUS
+//bool DcxDialog::LoadGDIPlusImage(TString &filename) {
+//	if (!IsFile(filename)) {
+//		this->showError(NULL,"LoadGDIPlusImage", "Unable to open file");
+//		return false;
+//	}
+//	this->m_pImage = new Image(filename.to_wchr(),TRUE);
+//
+//	// couldnt allocate image object.
+//	if (this->m_pImage == NULL) {
+//		this->showError(NULL,"LoadGDIPlusImage", "Couldn't allocate image object.");
+//		return false;
+//	}
+//	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
+//	Status status = this->m_pImage->GetLastStatus();
+//	if (status != Ok) {
+//		this->showError(NULL,"LoadGDIPlusImage", GetLastStatusStr(status));
+//		PreloadData();
+//		return false;
+//	}
+//	return true;
+//}
+//#endif

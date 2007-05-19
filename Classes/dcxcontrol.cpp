@@ -947,9 +947,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 
 	bool fBlocked = (InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
 
-   // redraw the control if the theme has changed
-   if (uMsg == WM_THEMECHANGED)
-      pthis->redrawWindow();
+	LRESULT lrRes = 0L;
 
 	if (!fBlocked) {
 		// If Message is blocking just call old win proc
@@ -959,20 +957,28 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 			pthis->incRef( );
 		}
 
-		LRESULT lrRes = pthis->PostMessage(uMsg, wParam, lParam, bParsed);
+		lrRes = pthis->PostMessage(uMsg, wParam, lParam, bParsed);
 
 		if ((uMsg != WM_DESTROY) && (uMsg != WM_NCDESTROY)) {
 			pthis->decRef();
 		}
 
-		if (bParsed)
+		if (bParsed) {
+			if (uMsg == WM_PAINT)
+				pthis->m_pParentDialog->UpdateVistaStyle();
 			return lrRes;
+		}
 	}
 
 	if (pthis->m_DefaultWindowProc != NULL)
-		return CallWindowProc(pthis->m_DefaultWindowProc, mHwnd, uMsg, wParam, lParam);
+		lrRes = CallWindowProc(pthis->m_DefaultWindowProc, mHwnd, uMsg, wParam, lParam);
+	else
+		lrRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
-	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+	if (uMsg == WM_PAINT)
+		pthis->m_pParentDialog->UpdateVistaStyle();
+
+	return lrRes;
 }
 
 /*!
@@ -1697,6 +1703,10 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 				if (this->m_bInPrint) // avoid a drawing loop.
 					bParsed = TRUE;
 			}
+			break;
+		// redraw the control if the theme has changed
+		case WM_THEMECHANGED:
+			this->redrawWindow();
 			break;
 	}
 	return lRes;

@@ -123,6 +123,9 @@ public:
 	void showErrorEx(const char *prop, const char *cmd, const char *fmt, ...);
 	void DrawCaret(Graphics & graph);
 	void DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets);
+	void DrawDialog( Graphics & graphics, HDC hDC);
+	//void DrawCaret(HDC hDC);
+	//void DrawCtrl( HDC hDC, HWND hWnd, SIZE offsets);
 	void CreateVistaStyle(void);
 	void UpdateVistaStyle(void);
 	void SetVistaStylePos(void);
@@ -212,7 +215,11 @@ protected:
 //#endif
 	HWND m_hFakeHwnd;
 	int m_iAlphaLevel;
+	COLORREF m_cKeyColour;
+	bool m_bHaveKeyColour;
 	bool m_bVistaStyle;
+	bool m_bHaveGlassOffsets;
+	RECT m_GlassOffsets;
 };
 
 #endif // _DCXDIALOG_H_

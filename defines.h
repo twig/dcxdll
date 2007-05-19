@@ -65,7 +65,7 @@
 // --------------------------------------------------
 // DCX using DirectX SDK? (Required for DirectShow)
 // If not, get off your arse & install it!
-//#define DCX_USE_DXSDK
+#define DCX_USE_DXSDK
 // end of DirectX SDK
 
 // DCX using GDI+? (Required for advanced graphics routines)
@@ -75,7 +75,7 @@
 
 // DCX using Windows SDK? (Required for Vista routines)
 // If not, get off your arse & install it!
-//#define DCX_USE_WINSDK
+#define DCX_USE_WINSDK
 // end of Windows SDK
 
 // --------------------------------------------------
