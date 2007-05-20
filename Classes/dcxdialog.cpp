@@ -1187,7 +1187,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		this->m_dEventMask = mask;
 	}
 	// xdialog -V [NAME] [SWITCH] [left] [right] [top] [bottom]
-	else if (flags.switch_cap_flags[21] && numtok > 3) {
+	else if (flags.switch_cap_flags[21] && numtok > 5) {
 		this->m_GlassOffsets.left = input.gettok( 3 ).to_int();
 		this->m_GlassOffsets.right = input.gettok( 4 ).to_int();
 		this->m_GlassOffsets.top = input.gettok( 5 ).to_int();
@@ -3050,7 +3050,8 @@ void DcxDialog::showErrorEx(const char *prop, const char *cmd, const char *fmt, 
 
 void DcxDialog::CreateVistaStyle(void)
 {
-	if (SetLayeredWindowAttributesUx && UpdateLayeredWindowUx) {
+#ifdef DCX_USE_GDIPLUS
+	if (SetLayeredWindowAttributesUx && UpdateLayeredWindowUx && mIRCLink.m_bUseGDIPlus) {
 		RECT rc;
 		GetWindowRect(this->m_Hwnd, &rc);
 		DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;
@@ -3066,10 +3067,11 @@ void DcxDialog::CreateVistaStyle(void)
 			this->m_bVistaStyle = true;
 		}
 	}
+#endif
 }
 
+#ifdef DCX_USE_GDIPLUS
 void DcxDialog::DrawCaret(Graphics & graph)
-//void DcxDialog::DrawCaret(HDC hDC)
 {
 	HWND pWnd = GetFocus();
 	if( pWnd == NULL || !IsWindow(pWnd) )
@@ -3139,14 +3141,13 @@ void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets)
 		::DeleteDC(hdcMemory);
 	}
 }
+#endif
 
 void DcxDialog::UpdateVistaStyle(void)
 {
+#ifdef DCX_USE_GDIPLUS
 	if (!IsWindow(this->m_hFakeHwnd))
 		return;
-
-	//this->SetVistaStylePos();
-	//this->SetVistaStyleSize();
 
 	RECT rc;
 	::GetWindowRect( this->m_hFakeHwnd, &rc);
@@ -3188,6 +3189,9 @@ void DcxDialog::UpdateVistaStyle(void)
 
 		RECT rcParentWin, rcParentClient, glassOffsets;
 		SIZE offsets;
+		int alpha = this->m_iAlphaLevel;
+		POINT pt;
+
 		GetWindowRect(this->m_Hwnd, &rcParentWin);
 		GetClientRect(this->m_Hwnd, &rcParentClient);
 		MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rcParentClient, 2);
@@ -3198,6 +3202,31 @@ void DcxDialog::UpdateVistaStyle(void)
 		glassOffsets.top = offsets.cy + this->m_GlassOffsets.top;
 		glassOffsets.right = szWin.cx - ((rcParentWin.right - rcParentClient.right) + this->m_GlassOffsets.right);
 		glassOffsets.bottom = szWin.cy - ((rcParentWin.bottom - rcParentClient.bottom) + this->m_GlassOffsets.bottom);
+
+		// Alpha Glass area when not ghost dragging & alpha isnt being set for whole dialog.
+		// This method allows the glass area to be translucent but the controls to still be solid.
+		if (!this->m_bGhosted && alpha == 255) {
+			for( int y = 0; y < szWin.cy; y++)
+			{
+				PBYTE pPixel = ((PBYTE)pvBits) + szWin.cx * 4 * y;
+
+				pt.y = szWin.cy - y;
+
+				for( int x = 0; x < szWin.cx; x++)
+				{
+					pt.x = x;
+					if (!PtInRect(&glassOffsets,pt)) {
+						pPixel[3] = 0x7f; // set glass area as 50% transparent
+
+						pPixel[0] = pPixel[0] * pPixel[3] / 255;
+						pPixel[1] = pPixel[1] * pPixel[3] / 255;
+						pPixel[2] = pPixel[2] * pPixel[3] / 255;
+					}
+
+					pPixel += 4;
+				}
+			}
+		}
 
 		// Draw all the controls
 		HWND hwndChild = ::GetWindow( this->m_Hwnd, GW_CHILD);
@@ -3212,33 +3241,19 @@ void DcxDialog::UpdateVistaStyle(void)
 		//DrawCaret(hDC);
 		DrawCaret(graph);
 
-		// Alpha
-		int alpha = this->m_iAlphaLevel;
-		POINT pt;
-
+		// Alpha when ghost dragging or alpha is set for whole dialog.
 		if (this->m_bGhosted)
 			alpha = this->m_bDoGhostDrag;
 
-		if( alpha >= 0 &&
-			alpha <= 255 )
+		if( alpha >= 0 && alpha < 255 )
 		{
 			for( int y = 0; y < szWin.cy; y++)
 			{
 				PBYTE pPixel = ((PBYTE)pvBits) + szWin.cx * 4 * y;
 
-				pt.y = szWin.cy - y;
-
 				for( int x = 0; x < szWin.cx; x++)
 				{
-					pt.x = x;
-					if (!PtInRect(&glassOffsets,pt)) {
-						pPixel[3] = (alpha < 192 ? alpha : 192);
-
-						pPixel[0] = pPixel[0] * pPixel[3] / 255;
-						pPixel[1] = pPixel[1] * pPixel[3] / 255;
-						pPixel[2] = pPixel[2] * pPixel[3] / 255;
-					}
-					else if( alpha < pPixel[3] )
+					if( alpha < pPixel[3] )
 					{
 						pPixel[3] = alpha;
 
@@ -3246,14 +3261,6 @@ void DcxDialog::UpdateVistaStyle(void)
 						pPixel[1] = pPixel[1] * pPixel[3] / 255;
 						pPixel[2] = pPixel[2] * pPixel[3] / 255;
 					}
-					//if( alpha < pPixel[3] )
-					//{
-					//	pPixel[3] = alpha;
-
-					//	pPixel[0] = pPixel[0] * pPixel[3] / 255;
-					//	pPixel[1] = pPixel[1] * pPixel[3] / 255;
-					//	pPixel[2] = pPixel[2] * pPixel[3] / 255;
-					//}
 
 					pPixel += 4;
 				}
@@ -3270,6 +3277,7 @@ void DcxDialog::UpdateVistaStyle(void)
 
 	::DeleteDC(hdcMemory);
 	::DeleteDC(hDC);
+#endif
 }
 
 void DcxDialog::SetVistaStylePos(void)

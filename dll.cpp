@@ -495,7 +495,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 
 	// Vista Dialog Class
 	DCX_DEBUG("LoadDLL", "Registering Vista Dialog...");
-	wc.cbSize = sizeof(WNDCLASSEX); 
+	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style         = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc   = DefWindowProc;
 	wc.cbClsExtra    = 0;
@@ -1259,8 +1259,11 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				if (isMenuBarMenu(GetMenu(mHwnd), (HMENU) wParam)) {
 					isMenuBar = TRUE;
 
-					if (bIsActiveMircMenubarPopup == TRUE)
-						g_mIRCMenuBar->convertMenu((HMENU) wParam, TRUE);
+					if (bIsActiveMircMenubarPopup == TRUE) {
+						HWND hActive = (HWND)SendMessage(mIRCLink.m_hMDI, WM_MDIGETACTIVE, NULL, NULL);
+						if (!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != (HMENU)wParam)
+							g_mIRCMenuBar->convertMenu((HMENU) wParam, TRUE);
+					}
 				}
 				else {
 					isMenuBar = FALSE;

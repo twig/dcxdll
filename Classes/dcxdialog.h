@@ -121,11 +121,11 @@ public:
 	static DWORD getAnimateStyles( TString & flags );
 	void showError(const char *prop, const char *cmd, const char *err);
 	void showErrorEx(const char *prop, const char *cmd, const char *fmt, ...);
+#ifdef DCX_USE_GDIPLUS
 	void DrawCaret(Graphics & graph);
 	void DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets);
 	void DrawDialog( Graphics & graphics, HDC hDC);
-	//void DrawCaret(HDC hDC);
-	//void DrawCtrl( HDC hDC, HWND hWnd, SIZE offsets);
+#endif
 	void CreateVistaStyle(void);
 	void UpdateVistaStyle(void);
 	void SetVistaStylePos(void);
