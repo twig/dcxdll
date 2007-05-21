@@ -1710,7 +1710,7 @@ mIRC(WindowProps) {
 		return 0;
 	}
 
-	HWND hwnd = (HWND) input.gettok( 1 ).to_int();
+	HWND hwnd = (HWND) input.gettok(1).to_int();
 
 	if (!IsWindow(hwnd)) {
 		DCXError("/dcx WindowProps", "Invalid window");
@@ -1766,4 +1766,40 @@ mIRC(WindowProps) {
 	}
 
 	return 1;
+}
+
+// $dcx(ActiveWindow, property)
+mIRC(ActiveWindow) {
+	TString input(data);
+	int numtok = input.numtok( );
+
+   HWND hwnd = GetForegroundWindow();
+
+   if (!IsWindow(hwnd)) {
+      DCXError("$dcx(ActiveWindow)", "Unable to determine active window");
+		return 0;
+   }
+
+   TString prop = input.gettok(1);
+   WINDOWINFO wi;
+
+   ZeroMemory(&wi, sizeof(WINDOWINFO));
+   GetWindowInfo(hwnd, &wi);
+
+   if (prop == "x")            // left
+      wsprintf(data, "%d", wi.rcWindow.left);
+   else if (prop == "y")       // top
+      wsprintf(data, "%d", wi.rcWindow.top);
+   else if (prop == "w")       // width
+      wsprintf(data, "%d", wi.rcWindow.right - wi.rcWindow.left);
+   else if (prop == "h")       // height
+      wsprintf(data, "%d", wi.rcWindow.bottom - wi.rcWindow.top);
+   else if (prop == "caption") // title text
+      GetWindowText(hwnd, data, 900);
+   else {                      // otherwise
+      DCXError("$dcx(ActiveWindow)", "Invalid parameters");
+      return 0;
+   }
+
+   return 3;
 }

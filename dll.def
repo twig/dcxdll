@@ -20,6 +20,7 @@ MsgBox
 PickIcon
 TrayIcon
 WindowProps
+ActiveWindow
 
 xdid
 _xdid
