@@ -465,6 +465,45 @@ void DcxTab::parseCommandRequest( TString & input ) {
       TabCtrl_SetItem( this->m_Hwnd, nItem, &tci );
     }
   }
+
+   // xdid -v [DNAME] [ID] [SWITCH] [N] [POS]
+   else if (flags.switch_flags[21] && numtok > 4) {
+      int nItem = input.gettok(4).to_int();
+      int pos = input.gettok(5).to_int();
+      BOOL adjustDelete = FALSE;
+
+      if (nItem == pos)
+         return;
+      else if ((nItem < 1) || (nItem > TabCtrl_GetItemCount(this->m_Hwnd)))
+         return;
+      else if ((pos < 1) || (pos > TabCtrl_GetItemCount(this->m_Hwnd)))
+         return;
+
+      // does the nItem index get shifted after we insert
+      if (nItem > pos)
+         adjustDelete = TRUE;
+
+      // decrement coz of 0-index
+      nItem--;
+
+      // get the item we're moving
+      char* text = new char[900];
+      TCITEM tci;
+      ZeroMemory(&tci, sizeof(TCITEM));
+  
+      tci.pszText = text;
+      tci.cchTextMax = 900;
+      tci.mask = TCIF_IMAGE | TCIF_PARAM | TCIF_TEXT | TCIF_STATE;
+
+      TabCtrl_GetItem(this->m_Hwnd, nItem, &tci);
+
+      // insert it into the new position
+      TabCtrl_InsertItem(this->m_Hwnd, pos, &tci);
+
+      // remove the old tab item
+      TabCtrl_DeleteItem(this->m_Hwnd, (adjustDelete ? nItem +1 : nItem));
+   }
+
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {
 		HIMAGELIST himl;
