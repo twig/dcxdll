@@ -189,22 +189,35 @@ void DcxCheck::parseCommandRequest( TString & input ) {
  * blah
  */
 LRESULT DcxCheck::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
- // switch( uMsg ) {
+   switch (uMsg)
+   {
+      case WM_COMMAND:
+      {
+         switch (HIWORD(wParam))
+         {
+            // catch this so we can use $xdid(checkbox).state in sclick callback
+            case BN_CLICKED:
+            {
+               if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+               {
+                  //this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
 
- //   case WM_COMMAND:
- //     {
- //       switch ( HIWORD( wParam ) ) {
+                  // /.timer repetitions delay alias dialog event id
+                  mIRCcomEX("/.timer 1 0 %s %s %s %d",
+                     this->m_pParentDialog->getAliasName().to_chr(),
+                     this->m_pParentDialog->getName().to_chr(),
+                     "sclick",
+                     this->getUserID());
+               }
 
- //         case BN_CLICKED:
- //           {
-	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
- //           }
- //           break;
- //       }
- //     }
- //     break;
-	//}
+               break;
+            }
+         }
+
+         break;
+      }
+   }
+
 	return 0L;
 }
 LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
