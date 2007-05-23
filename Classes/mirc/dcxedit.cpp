@@ -162,6 +162,15 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		return;
 	}
+   // [NAME] [ID] [PROP]
+	else if (prop == "isreadonly") {
+      if (this->isStyle(ES_READONLY))
+			lstrcpy(szReturnValue, "$true");
+		else
+			lstrcpy(szReturnValue, "$false");
+
+		return;
+	}
 	// [NAME] [ID] [PROP]
 	else if (prop == "caretpos") {
 		DWORD dwAbsoluteStartSelPos = 0;
@@ -298,6 +307,12 @@ void DcxEdit::parseCommandRequest(TString &input) {
 
 		this->redrawWindow();
 	}
+   // xdid -l [NAME] [ID] [SWITCH] [ON|OFF]
+   else if (flags.switch_flags[11] && numtok > 3) {
+      BOOL enabled = (input.gettok(4).to_int() > 0 ? TRUE : FALSE);
+
+      SendMessage(this->m_Hwnd, EM_SETREADONLY, enabled, NULL);
+   }
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags.switch_flags[14] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
