@@ -130,6 +130,7 @@ public:
 	void UpdateVistaStyle(void);
 	void SetVistaStylePos(void);
 	void SetVistaStyleSize(void);
+	bool IsVistaStyle(void) const { return this->m_bVistaStyle; };
 
 protected:
 

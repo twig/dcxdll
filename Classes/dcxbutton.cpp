@@ -468,13 +468,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 		case WM_ERASEBKGND:
 			{
-				if (this->isExStyle(WS_EX_TRANSPARENT))
-					this->DrawParentsBackground((HDC)wParam);
-				else {
-					RECT rect;
-					GetClientRect( this->m_Hwnd, &rect );
-					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-				}
 				bParsed = TRUE;
 				return TRUE;
 			}
@@ -538,7 +531,10 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
 	// fill background.
-	DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+	if (this->isExStyle(WS_EX_TRANSPARENT) && !this->m_bAlphaBlend)
+		this->DrawParentsBackground(hdc);
+	else
+		DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
 	// Bitmapped button
 	if (isBitmap) {
@@ -560,8 +556,37 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// Regular button
 	if ((!isBitmap) || (this->m_bBitmapText)) {          
 		// draw default window bg
-		if (!isBitmap)
-			CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+		if (!isBitmap) {
+			if (dcxIsThemeActive()) {
+				// this allows the theme buttons to have a transparent background like the normal ones
+				HRGN hRgn = NULL;
+				int iState;
+				switch (nState)
+				{
+				case 1:
+					iState = PBS_HOT;
+					break;
+				case 2:
+					iState = PBS_PRESSED;
+					break;
+				case 3:
+					iState = PBS_DISABLED;
+					break;
+				default:
+					iState = PBS_NORMAL;
+					break;
+				}
+				HTHEME hTheme = GetWindowThemeUx(this->m_Hwnd);
+				//HTHEME hTheme = OpenThemeDataUx(this->m_Hwnd, L"BUTTON");
+				if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_PUSHBUTTON,iState,&rcClient, &hRgn) == S_OK)
+					ExtSelectClipRgn(hdc, hRgn, RGN_COPY);
+				CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINTCLIENT, (WPARAM) hdc, PRF_CLIENT );
+				DeleteRgn(hRgn);
+				//CloseThemeDataUx(hTheme);
+			}
+			else
+				CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+		}
 
 		HFONT hFontOld = (HFONT) SelectObject( hdc, this->m_hFont );
 

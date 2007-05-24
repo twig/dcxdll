@@ -43,6 +43,8 @@ PFNGETTHEMEBACKGROUNDCONTENTRECT GetThemeBackgroundContentRectUx = NULL;
 PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT IsThemeBackgroundPartiallyTransparentUx = NULL;
 PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx = NULL;
 PFNDRAWTHEMETEXT DrawThemeTextUx = NULL;
+PFNGETTHEMEBACKGROUNDREGION GetThemeBackgroundRegionUx = NULL;
+PFNGETWINDOWTHEME GetWindowThemeUx = NULL;
 PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx = NULL;
 PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx = NULL;
 PFNDRAWSHADOWTEXT DrawShadowTextUx = NULL;
@@ -254,6 +256,8 @@ void WINAPI LoadDll(LOADINFO * load) {
 		IsThemeBackgroundPartiallyTransparentUx = (PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT) GetProcAddress(UXModule, "IsThemeBackgroundPartiallyTransparent");
 		DrawThemeParentBackgroundUx = (PFNDRAWTHEMEPARENTBACKGROUND) GetProcAddress(UXModule, "DrawThemeParentBackground");
 		DrawThemeTextUx = (PFNDRAWTHEMETEXT) GetProcAddress(UXModule, "DrawThemeText");
+		GetThemeBackgroundRegionUx = (PFNGETTHEMEBACKGROUNDREGION) GetProcAddress(UXModule, "GetThemeBackgroundRegion");
+		GetWindowThemeUx = (PFNGETWINDOWTHEME) GetProcAddress(UXModule, "GetWindowTheme");
 
 		// Get Vista function pointers.
 #ifdef DCX_USE_WINSDK
@@ -267,7 +271,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 		// NB: DONT count vista functions in XP+ check.
 		if (SetWindowThemeUx && IsThemeActiveUx && OpenThemeDataUx && CloseThemeDataUx &&
 			DrawThemeBackgroundUx && GetThemeBackgroundContentRectUx && IsThemeBackgroundPartiallyTransparentUx &&
-			DrawThemeParentBackgroundUx && DrawThemeTextUx) {
+			DrawThemeParentBackgroundUx && DrawThemeTextUx && GetThemeBackgroundRegionUx && GetWindowThemeUx) {
 			XPPlus = TRUE;
 			DCX_DEBUG("LoadDLL", "Found XP+ Theme Functions");
 #ifdef DCX_USE_WINSDK
@@ -1780,7 +1784,7 @@ mIRC(ActiveWindow) {
 		return 0;
    }
 
-   TString prop = input.gettok(1);
+   TString prop(input.gettok(1));
    WINDOWINFO wi;
 
    ZeroMemory(&wi, sizeof(WINDOWINFO));

@@ -757,7 +757,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		// invalid input for [N]
 		if (n <= 0) {
 			this->showError(NULL,"-z", "Invalid Parameters");
-			//dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Invalid parameter");
 			return;
 		}
 
@@ -789,9 +788,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				GetClientRect(this->getHwnd(), &rc);
 				if (this->updateLayout(rc))
 					this->redrawWindow();
-				//TString cmd;
-				//cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
-				//mIRCcom(cmd.to_chr());
 			}
 
 			// append the item to the end of the list
@@ -808,7 +804,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			// target control not found
 			if (!ctrl) {
 				this->showError(NULL,"-z","No such control");
-				//dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "No such control");
 				return;
 			}
 
@@ -844,7 +839,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			// if the index is out of bounds
 			if (n >= (int) this->m_vZLayers.size()) {
 				this->showError(NULL,"-z","Index array out of bounds");
-				//dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Index array out of bounds");
 				return;
 			}
 
@@ -867,13 +861,9 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				GetClientRect(this->getHwnd(), &rc);
 				if (this->updateLayout(rc))
 					this->redrawWindow();
-				//TString cmd;
-				//cmd.sprintf("/.timer 1 0 xdialog -l %s update",this->getName().to_chr());
-				//mIRCcom(cmd.to_chr());
 			}
 			else
 				this->showError(NULL,"-z","Invalid Control ID");
-				//dcxInfoError("XDialog", "-z", this->getName().to_chr(), 0, "Invalid control ID");
 		}
 
 		return;
@@ -1196,24 +1186,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		this->redrawWindow();
 	}
 	// invalid command
-	else {
+	else
 		this->showError(NULL, input.gettok( 2 ).to_chr(), "Invalid Command");
-		//TString errmsg;
-
-		//if (numtok > 2) {
-		//	errmsg.sprintf("D_ERROR xdialog: Invalid command /xdialog %s %s %s",
-		//		input.gettok( 2 ).to_chr(),
-		//		input.gettok( 1 ).to_chr(),
-		//		input.gettok( 3, -1).to_chr());
-		//}
-		//else {
-		//	errmsg.sprintf("D_ERROR xdialog: Invalid command /xdialog %s %s",
-		//		input.gettok( 2 ).to_chr(),
-		//		input.gettok( 1 ).to_chr());
-		//}
-
-		//mIRCError(errmsg.to_chr());
-	}
 }
 
 /*!
@@ -1594,7 +1568,6 @@ void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
 		POINT pt;
 
 		GetCursorPos(&pt);
-		//ScreenToClient(this->m_Hwnd, &pt);
 		MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
 		wsprintf(szReturnValue, "%d %d", pt.x, pt.y);
 
@@ -2175,11 +2148,16 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_WINDOWPOSCHANGING:
 		{
 			if (p_this->m_dEventMask & DCX_EVENT_MOVE) {
+				WINDOWPOS *wp = (WINDOWPOS *) lParam;
+
+				// break if nomove & nosize specified, since thats all we care about.
+				if ((wp->flags & SWP_NOMOVE) && (wp->flags & SWP_NOSIZE))
+					break;
+
 				char ret[256];
 
-				p_this->callAliasEx(ret, "%s,%d", "changing", 0);
+				p_this->callAliasEx(ret, "changing,0,%d,%d,%d,%d,%d", (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
 
-				WINDOWPOS *wp = (WINDOWPOS *) lParam;
 				if (wp != NULL) {
 					if (lstrcmp("nosize", ret) == 0)
 						wp->flags |= SWP_NOSIZE;
@@ -2537,9 +2515,20 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					p_this->UpdateShadow();
 					p_this->m_Shadow.bUpdate = false;
 				}
-				p_this->UpdateVistaStyle();
+				if (p_this->IsVistaStyle()) {
+					ValidateRect(p_this->m_Hwnd, NULL);
+					p_this->UpdateVistaStyle();
+					lRes = 0L;
+					bParsed = TRUE;
+				}
 			}
 			break;
+
+		//case WM_NCPAINT:
+		//	{
+		//	}
+		//	break;
+
 		case WM_SHOWWINDOW:
 			{
 				if ((p_this->m_Shadow.Status & DCX_SS_ENABLED) && p_this->isShadowed())
@@ -2733,10 +2722,7 @@ void DcxDialog::UpdateShadow(void)
 
 	MoveWindow(this->m_Shadow.hWin, ptDst.x, ptDst.y, nShadWndWid, nShadWndHei, FALSE);
 
-	/*BOOL bRet=*/ UpdateLayeredWindowUx(this->m_Shadow.hWin, NULL, &ptDst, &WndSize, hMemDC,
-		&ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
-
-	//_ASSERT(bRet); // something was wrong....
+	UpdateLayeredWindowUx(this->m_Shadow.hWin, NULL, &ptDst, &WndSize, hMemDC, &ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
 
 	// Delete used resources
 	DeleteObject(SelectObject(hMemDC, hOriBmp));
@@ -3056,7 +3042,7 @@ void DcxDialog::CreateVistaStyle(void)
 		GetWindowRect(this->m_Hwnd, &rc);
 		DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;
 		DWORD Styles = WS_VISIBLE/*|WS_OVERLAPPED*/|WS_CLIPCHILDREN;
-		this->m_hFakeHwnd = CreateWindowEx(ExStyles,DCX_VISTACLASS,NULL,Styles,0,0,(rc.right - rc.left),(rc.bottom - rc.top),this->m_Hwnd,NULL,GetModuleHandle(NULL), NULL);
+		this->m_hFakeHwnd = CreateWindowEx(ExStyles,DCX_VISTACLASS,NULL,Styles,rc.left,rc.top,(rc.right - rc.left),(rc.bottom - rc.top),this->m_Hwnd,NULL,GetModuleHandle(NULL), NULL);
 		if (IsWindow(this->m_hFakeHwnd)) {
 			SetLayeredWindowAttributesUx(this->m_Hwnd,0,5,LWA_ALPHA);
 			HRGN hRgn = CreateRectRgn(0,0,0,0);
@@ -3131,7 +3117,7 @@ void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets)
 		if (hBitmap != NULL) {
 			HGDIOBJ hbmpOld = ::SelectObject( hdcMemory, hBitmap);
 
-			::SendMessage( hWnd, WM_PRINT, (WPARAM)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE);
+			::SendMessage( hWnd, WM_PRINT, (WPARAM)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
 			Bitmap bitmap( hBitmap, NULL);
 			graphics.DrawImage( &bitmap, rc.left + offsets.cx, rc.top + offsets.cy);
@@ -3154,7 +3140,14 @@ void DcxDialog::UpdateVistaStyle(void)
 	POINT ptSrc = { 0, 0};
 	POINT ptWinPos = { rc.left, rc.top};
 	SIZE szWin = { (rc.right - rc.left), (rc.bottom - rc.top) };
-	BLENDFUNCTION stBlend = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+
+	int alpha = this->m_iAlphaLevel;
+	if (this->m_bGhosted)
+		alpha = this->m_bDoGhostDrag;
+
+	int half_alpha = alpha / 2;
+
+	BLENDFUNCTION stBlend = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
 
 	HDC hDC = ::GetDC(this->m_hFakeHwnd);
 	HDC hdcMemory = ::CreateCompatibleDC(hDC);
@@ -3189,7 +3182,6 @@ void DcxDialog::UpdateVistaStyle(void)
 
 		RECT rcParentWin, rcParentClient, glassOffsets;
 		SIZE offsets;
-		int alpha = this->m_iAlphaLevel;
 		POINT pt;
 
 		GetWindowRect(this->m_Hwnd, &rcParentWin);
@@ -3205,7 +3197,9 @@ void DcxDialog::UpdateVistaStyle(void)
 
 		// Alpha Glass area when not ghost dragging & alpha isnt being set for whole dialog.
 		// This method allows the glass area to be translucent but the controls to still be solid.
-		if (!this->m_bGhosted && alpha == 255) {
+		// Update: commented out ghost & alpha check to allow glass area to still be seen when dialog as a whole is translucent
+		//	make this behaviour optional?
+		//if (!this->m_bGhosted && alpha == 255) {
 			for( int y = 0; y < szWin.cy; y++)
 			{
 				PBYTE pPixel = ((PBYTE)pvBits) + szWin.cx * 4 * y;
@@ -3216,7 +3210,7 @@ void DcxDialog::UpdateVistaStyle(void)
 				{
 					pt.x = x;
 					if (!PtInRect(&glassOffsets,pt)) {
-						pPixel[3] = 0x7f; // set glass area as 50% transparent
+						pPixel[3] = half_alpha; // set glass area as 50% (0x7f) transparent
 
 						pPixel[0] = pPixel[0] * pPixel[3] / 255;
 						pPixel[1] = pPixel[1] * pPixel[3] / 255;
@@ -3226,46 +3220,42 @@ void DcxDialog::UpdateVistaStyle(void)
 					pPixel += 4;
 				}
 			}
-		}
+		//}
 
 		// Draw all the controls
 		HWND hwndChild = ::GetWindow( this->m_Hwnd, GW_CHILD);
 		while(hwndChild)
 		{
 			DrawCtrl( graph, hDC, hwndChild, offsets);
-			//DrawCtrl( hDC, hwndChild, offsets);
 			hwndChild = ::GetWindow( hwndChild, GW_HWNDNEXT);
 		}
 
 		// draw the caret
-		//DrawCaret(hDC);
 		DrawCaret(graph);
 
-		// Alpha when ghost dragging or alpha is set for whole dialog.
-		if (this->m_bGhosted)
-			alpha = this->m_bDoGhostDrag;
+		// The below loops are replaced by setting the constant alpha in the blend function. DONT REMOVE LOOPS.
+		//// Alpha when ghost dragging or alpha is set for whole dialog.
+		//if( alpha >= 0 && alpha < 255 )
+		//{
+		//	for( int y = 0; y < szWin.cy; y++)
+		//	{
+		//		PBYTE pPixel = ((PBYTE)pvBits) + szWin.cx * 4 * y;
 
-		if( alpha >= 0 && alpha < 255 )
-		{
-			for( int y = 0; y < szWin.cy; y++)
-			{
-				PBYTE pPixel = ((PBYTE)pvBits) + szWin.cx * 4 * y;
+		//		for( int x = 0; x < szWin.cx; x++)
+		//		{
+		//			if( alpha < pPixel[3] )
+		//			{
+		//				pPixel[3] = alpha;
 
-				for( int x = 0; x < szWin.cx; x++)
-				{
-					if( alpha < pPixel[3] )
-					{
-						pPixel[3] = alpha;
+		//				pPixel[0] = pPixel[0] * pPixel[3] / 255;
+		//				pPixel[1] = pPixel[1] * pPixel[3] / 255;
+		//				pPixel[2] = pPixel[2] * pPixel[3] / 255;
+		//			}
 
-						pPixel[0] = pPixel[0] * pPixel[3] / 255;
-						pPixel[1] = pPixel[1] * pPixel[3] / 255;
-						pPixel[2] = pPixel[2] * pPixel[3] / 255;
-					}
-
-					pPixel += 4;
-				}
-			}
-		}
+		//			pPixel += 4;
+		//		}
+		//	}
+		//}
 
 		::UpdateLayeredWindow( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc,
 			this->m_cKeyColour, &stBlend, (this->m_bHaveKeyColour ? ULW_COLORKEY|ULW_ALPHA : ULW_ALPHA));

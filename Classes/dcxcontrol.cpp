@@ -945,6 +945,12 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 	if (pthis == NULL)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
+	if (uMsg == WM_PAINT && pthis->m_pParentDialog->IsVistaStyle()) {
+		ValidateRect(mHwnd, NULL);
+		pthis->m_pParentDialog->UpdateVistaStyle();
+		return 0L;
+	}
+
 	bool fBlocked = (InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
 
 	LRESULT lrRes = 0L;
@@ -953,30 +959,22 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 		// If Message is blocking just call old win proc
 		BOOL bParsed = FALSE;
 
-		if ((uMsg != WM_DESTROY) && (uMsg != WM_NCDESTROY)) {
+		if ((uMsg != WM_DESTROY) && (uMsg != WM_NCDESTROY))
 			pthis->incRef( );
-		}
 
 		lrRes = pthis->PostMessage(uMsg, wParam, lParam, bParsed);
 
-		if ((uMsg != WM_DESTROY) && (uMsg != WM_NCDESTROY)) {
+		if ((uMsg != WM_DESTROY) && (uMsg != WM_NCDESTROY))
 			pthis->decRef();
-		}
 
-		if (bParsed) {
-			if (uMsg == WM_PAINT)
-				pthis->m_pParentDialog->UpdateVistaStyle();
+		if (bParsed)
 			return lrRes;
-		}
 	}
 
 	if (pthis->m_DefaultWindowProc != NULL)
 		lrRes = CallWindowProc(pthis->m_DefaultWindowProc, mHwnd, uMsg, wParam, lParam);
 	else
 		lrRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
-
-	if (uMsg == WM_PAINT)
-		pthis->m_pParentDialog->UpdateVistaStyle();
 
 	return lrRes;
 }
@@ -1284,15 +1282,15 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 		rcClient = *rcBounds;
 
 	// if themes are active use them.
-	if (dcxIsThemeActive()) {
-#ifdef DCX_USE_WINSDK
-		if (DrawThemeParentBackgroundExUx != NULL)
-			DrawThemeParentBackgroundExUx(hwnd, hdc, 0, &rcClient); // Vista only, does basicly the same as below.
-		else
-#endif
-			DrawThemeParentBackgroundUx(hwnd, hdc, &rcClient); // XP+
-		return;
-	}
+//	if (dcxIsThemeActive()) {
+//#ifdef DCX_USE_WINSDK
+//		if (DrawThemeParentBackgroundExUx != NULL)
+//			DrawThemeParentBackgroundExUx(hwnd, hdc, 0, &rcClient); // Vista only, does basicly the same as below.
+//		else
+//#endif
+//			DrawThemeParentBackgroundUx(hwnd, hdc, &rcClient); // XP+
+//		return;
+//	}
 	/*
 		The following code draws the parents background & client area,
 		followed by all child controls covered by this one.
@@ -1704,10 +1702,36 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 					bParsed = TRUE;
 			}
 			break;
+
 		// redraw the control if the theme has changed
 		case WM_THEMECHANGED:
 			this->redrawWindow();
 			break;
+
+		//case WM_WINDOWPOSCHANGING:
+		//{
+		//	if (this->m_pParentDialog->getEventMask() & DCX_EVENT_MOVE) {
+		//		WINDOWPOS *wp = (WINDOWPOS *) lParam;
+
+		//		// break if nomove & nosize specified, since thats all we care about.
+		//		if ((wp->flags & SWP_NOMOVE) && (wp->flags & SWP_NOSIZE))
+		//			break;
+
+		//		char ret[256];
+
+		//		this->callAliasEx(ret, "changing,%d,%d,%d,%d,%d,%d", this->getUserID(), (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
+
+		//		if (wp != NULL) {
+		//			if (lstrcmp("nosize", ret) == 0)
+		//				wp->flags |= SWP_NOSIZE;
+		//			else if (lstrcmp("nomove", ret) == 0)
+		//				wp->flags |= SWP_NOMOVE;
+		//			else if (lstrcmp("nochange", ret) == 0)
+		//				wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
+		//		}
+		//	}
+		//	break;
+		//}
 	}
 	return lRes;
 }
