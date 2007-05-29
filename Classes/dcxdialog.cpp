@@ -97,8 +97,9 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 , m_hFakeHwnd(NULL)
 , m_iAlphaLevel(255)
 , m_bHaveKeyColour(false)
-, m_bHaveGlassOffsets(false)
 , m_bVistaStyle(false)
+, m_pVistaBits(NULL)
+, m_hVistaBitmap(NULL)
 //#ifdef DCX_USE_GDIPLUS
 //, m_pImage(NULL)
 //#endif
@@ -136,8 +137,7 @@ DcxDialog::~DcxDialog() {
 	PreloadData();
 	this->RemoveShadow();
 
-	if (IsWindow(this->m_hFakeHwnd))
-		DestroyWindow(this->m_hFakeHwnd);
+	this->RemoveVistaStyle();
 
 	if (this->m_bCursorFromFile && this->m_hCursor != NULL)
 		DestroyCursor(this->m_hCursor);
@@ -314,10 +314,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			this->removeExStyle(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP |
 				WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_LAYERED);
 
-		if (IsWindow(this->m_hFakeHwnd)) {
-			DestroyWindow(this->m_hFakeHwnd);
-			this->m_hFakeHwnd = NULL;
-		}
+		this->RemoveVistaStyle();
+
 		LONG Styles = 0, ExStyles = 0;
 
 		this->parseBorderStyles(input.gettok( 3 ), &Styles, &ExStyles);
@@ -657,9 +655,16 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -x [NAME]
 	else if (flags.switch_flags[23]) {
-		if (this->getRefCount() == 0)
+		if (this->getRefCount() == 0) {
 			//DestroyWindow(this->m_Hwnd);
-			SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
+			//SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
+			char ret[32];
+			mIRCevalEX(ret, "$dialog(%s).modal", this->m_tsName.to_chr());
+			if (lstrcmp(ret, "$true") == 0) // Modal Dialog
+				SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
+			else // Modeless Dialog
+				DestroyWindow(this->m_Hwnd);
+		}
 		else {
 			TString cmd;
 
@@ -1953,7 +1958,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
 						char ret[256];
 
-						p_this->callAliasEx(ret, "%s,%d", "close", 0);
+						p_this->callAliasEx(ret, "%s,%d", "scclose", 0);
 
 						if (lstrcmp("noclose", ret) == 0)
 							bParsed = TRUE;
@@ -2030,12 +2035,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				if (p_this->m_bDoGhostDrag < 255 && SetLayeredWindowAttributesUx != NULL) {
 					if (!p_this->m_bVistaStyle) {
-						long style = GetWindowLong(p_this->m_Hwnd, GWL_EXSTYLE);
+						long style = GetWindowLong(mHwnd, GWL_EXSTYLE);
 						// Set WS_EX_LAYERED on this window
 						if (!(style & WS_EX_LAYERED))
-							SetWindowLong(p_this->m_Hwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
+							SetWindowLong(mHwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
 						// Make this window alpha
-						SetLayeredWindowAttributesUx(p_this->m_Hwnd, 0, p_this->m_bDoGhostDrag, LWA_ALPHA);
+						SetLayeredWindowAttributesUx(mHwnd, 0, p_this->m_bDoGhostDrag, LWA_ALPHA);
 					}
 					p_this->m_bGhosted = true;
 				}
@@ -2059,7 +2064,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			if (p_this->m_bGhosted && SetLayeredWindowAttributesUx != NULL) {
 				if (!p_this->m_bVistaStyle) {
 					// Make this window solid
-					SetLayeredWindowAttributesUx(p_this->m_Hwnd, 0, p_this->m_iAlphaLevel, LWA_ALPHA);
+					SetLayeredWindowAttributesUx(mHwnd, 0, p_this->m_iAlphaLevel, LWA_ALPHA);
 				}
 				p_this->m_bGhosted = false;
 			}
@@ -2139,8 +2144,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			RECT rc;
 
 			SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
-			p_this->updateLayout(rc);
 			p_this->SetVistaStyleSize();
+			p_this->updateLayout(rc);
 			//p_this->redrawWindow(); not needed?
 			break;
 		}
@@ -2176,7 +2181,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				break;
 			RECT rwnd;
 
-			GetClientRect(p_this->getHwnd(), &rwnd);
+			GetClientRect(mHwnd, &rwnd);
 
 			DcxDialog::DrawDialogBackground((HDC) wParam,p_this,&rwnd);
 
@@ -2474,7 +2479,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			if (wParam == WA_ACTIVE && p_this->m_bVistaStyle) {
 				bParsed = TRUE;
 				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-				InvalidateRect(p_this->m_Hwnd, NULL, TRUE);
+				InvalidateRect(mHwnd, NULL, TRUE);
 			}
 
 			if (p_this->m_dEventMask & DCX_EVENT_FOCUS) {
@@ -2516,7 +2521,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					p_this->m_Shadow.bUpdate = false;
 				}
 				if (p_this->IsVistaStyle()) {
-					ValidateRect(p_this->m_Hwnd, NULL);
+					ValidateRect(mHwnd, NULL);
 					p_this->UpdateVistaStyle();
 					lRes = 0L;
 					bParsed = TRUE;
@@ -3042,18 +3047,66 @@ void DcxDialog::CreateVistaStyle(void)
 		GetWindowRect(this->m_Hwnd, &rc);
 		DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;
 		DWORD Styles = WS_VISIBLE/*|WS_OVERLAPPED*/|WS_CLIPCHILDREN;
-		this->m_hFakeHwnd = CreateWindowEx(ExStyles,DCX_VISTACLASS,NULL,Styles,rc.left,rc.top,(rc.right - rc.left),(rc.bottom - rc.top),this->m_Hwnd,NULL,GetModuleHandle(NULL), NULL);
+		SIZE szWin;
+		szWin.cx = (rc.right - rc.left);
+		szWin.cy = (rc.bottom - rc.top);
+		this->m_hFakeHwnd = CreateWindowEx(ExStyles,DCX_VISTACLASS,NULL,Styles,rc.left,rc.top,szWin.cx,szWin.cy,this->m_Hwnd,NULL,GetModuleHandle(NULL), NULL);
 		if (IsWindow(this->m_hFakeHwnd)) {
-			SetLayeredWindowAttributesUx(this->m_Hwnd,0,5,LWA_ALPHA);
-			HRGN hRgn = CreateRectRgn(0,0,0,0);
-			if (GetWindowRgn(this->m_Hwnd, hRgn))
-				SetWindowRgn(this->m_hFakeHwnd, hRgn, TRUE);
+			if (this->CreateVistaStyleBitmap(szWin))
+			{
+				SetLayeredWindowAttributesUx(this->m_Hwnd,0,5,LWA_ALPHA);
+				HRGN hRgn = CreateRectRgn(0,0,0,0);
+				if (GetWindowRgn(this->m_Hwnd, hRgn))
+					SetWindowRgn(this->m_hFakeHwnd, hRgn, TRUE);
+				else
+					DeleteRgn(hRgn);
+				this->m_bVistaStyle = true;
+			}
 			else
-				DeleteRgn(hRgn);
-			this->m_bVistaStyle = true;
+				DestroyWindow(this->m_hFakeHwnd);
 		}
 	}
 #endif
+}
+
+bool DcxDialog::CreateVistaStyleBitmap(const SIZE &szWin)
+{
+#ifdef DCX_USE_GDIPLUS
+	if (this->m_hVistaBitmap != NULL)
+		DeleteObject(this->m_hVistaBitmap);
+
+	BITMAPINFOHEADER bmih = { 0 };
+	int nBytesPerLine = ((szWin.cx * 32 + 31) & (~31)) >> 3;
+	// Populate BITMAPINFO header
+	bmih.biSize=sizeof(BITMAPINFOHEADER);
+	bmih.biWidth=szWin.cx;
+	bmih.biHeight=-szWin.cy; // make this a top down bitmap
+	bmih.biPlanes=1;
+	bmih.biBitCount=32;
+	bmih.biCompression=BI_RGB;
+	bmih.biClrUsed=0;
+	bmih.biSizeImage=nBytesPerLine*szWin.cy;
+
+	this->m_hVistaBitmap = ::CreateDIBSection(NULL, (PBITMAPINFO)&bmih, DIB_RGB_COLORS, &this->m_pVistaBits, NULL, 0);
+	if (this->m_hVistaBitmap != NULL) {
+		memset( this->m_pVistaBits, 0, szWin.cx * 4 * szWin.cy);
+		return true;
+	}
+#endif
+	return false;
+}
+
+void DcxDialog::RemoveVistaStyle(void)
+{
+	this->m_bVistaStyle = false;
+	if (IsWindow(this->m_hFakeHwnd)) {
+		if (SetLayeredWindowAttributesUx && this->isExStyle(WS_EX_LAYERED))
+			SetLayeredWindowAttributesUx(this->m_Hwnd,0,this->m_iAlphaLevel,LWA_ALPHA);
+		DestroyWindow(this->m_hFakeHwnd);
+	}
+	if (this->m_hVistaBitmap != NULL)
+		DeleteBitmap(this->m_hVistaBitmap);
+	this->m_hFakeHwnd = NULL;
 }
 
 #ifdef DCX_USE_GDIPLUS
@@ -3103,16 +3156,22 @@ void DcxDialog::DrawDialog( Graphics & graphics, HDC hDC)
 
 void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets)
 {
-	if( !::IsWindow(hWnd) )
+	if( !::IsWindow(hWnd) || !::IsWindowVisible(hWnd) )
 		return;
 
 	RECT rc;
 	GetWindowRect(hWnd, &rc);
 	MapWindowPoints(NULL, this->m_Hwnd, (LPPOINT)&rc, 2);
+	OffsetRect(&rc, offsets.cx, offsets.cy);
+
+	int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
+
+	// Don't bother drawing if its not visible in clip rect.
+	if (!graphics.IsVisible(rc.left, rc.top, w, h))
+		return;
 
 	HDC hdcMemory = ::CreateCompatibleDC(hDC);
 	if (hdcMemory != NULL) {
-		int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
 		HBITMAP hBitmap = ::CreateCompatibleBitmap( hDC, w, h);
 		if (hBitmap != NULL) {
 			HGDIOBJ hbmpOld = ::SelectObject( hdcMemory, hBitmap);
@@ -3120,7 +3179,7 @@ void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets)
 			::SendMessage( hWnd, WM_PRINT, (WPARAM)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
 			Bitmap bitmap( hBitmap, NULL);
-			graphics.DrawImage( &bitmap, rc.left + offsets.cx, rc.top + offsets.cy);
+			graphics.DrawImage( &bitmap, rc.left, rc.top);
 
 			::DeleteObject(::SelectObject( hdcMemory, hbmpOld));
 		}
@@ -3129,12 +3188,33 @@ void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets)
 }
 #endif
 
-void DcxDialog::UpdateVistaStyle(void)
+void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 {
 #ifdef DCX_USE_GDIPLUS
 	if (!IsWindow(this->m_hFakeHwnd))
 		return;
+	if (this->m_hVistaBitmap == NULL)
+		return;
 
+	{ // maintain a matching region.
+		HRGN hRgn = CreateRectRgn(0,0,0,0);
+		if (GetWindowRgn(this->m_Hwnd, hRgn))
+		{
+			HRGN hFakeRgn = CreateRectRgn(0,0,0,0);
+			if (GetWindowRgn(this->m_hFakeHwnd, hFakeRgn))
+			{
+				if (!EqualRgn(hRgn, hFakeRgn))
+					SetWindowRgn(this->m_hFakeHwnd, hRgn, FALSE);
+				else
+					DeleteRgn(hRgn);
+			}
+			else
+				SetWindowRgn(this->m_hFakeHwnd, hRgn, FALSE);
+			DeleteRgn(hFakeRgn);
+		}
+		else
+			DeleteRgn(hRgn);
+	}
 	RECT rc;
 	::GetWindowRect( this->m_hFakeHwnd, &rc);
 	POINT ptSrc = { 0, 0};
@@ -3152,23 +3232,23 @@ void DcxDialog::UpdateVistaStyle(void)
 	HDC hDC = ::GetDC(this->m_hFakeHwnd);
 	HDC hdcMemory = ::CreateCompatibleDC(hDC);
 
+	//BITMAPINFOHEADER bmih = { 0 };
+	//int nBytesPerLine = ((szWin.cx * 32 + 31) & (~31)) >> 3;
+	//// Populate BITMAPINFO header
+	//bmih.biSize=sizeof(BITMAPINFOHEADER);
+	//bmih.biWidth=szWin.cx;
+	//bmih.biHeight=szWin.cy;
+	//bmih.biPlanes=1;
+	//bmih.biBitCount=32;
+	//bmih.biCompression=BI_RGB;
+	//bmih.biClrUsed=0;
+	//bmih.biSizeImage=nBytesPerLine*szWin.cy;
 
-	BITMAPINFOHEADER bmih = { 0 };   
-	int nBytesPerLine = ((szWin.cx * 32 + 31) & (~31)) >> 3;
-	// Populate BITMAPINFO header
-	bmih.biSize=sizeof(BITMAPINFOHEADER);
-	bmih.biWidth=szWin.cx;
-	bmih.biHeight=szWin.cy;
-	bmih.biPlanes=1;
-	bmih.biBitCount=32;
-	bmih.biCompression=BI_RGB;
-	bmih.biClrUsed=0;
-	bmih.biSizeImage=nBytesPerLine*szWin.cy;
-
-	PVOID pvBits = NULL;
-	HBITMAP hbmpMem = ::CreateDIBSection(NULL, (PBITMAPINFO)&bmih, DIB_RGB_COLORS, &pvBits, NULL, 0);
-	//ASSERT(hbmpMem != NULL);
-	memset( pvBits, 0, szWin.cx * 4 * szWin.cy);
+	//PVOID pvBits = NULL;
+	//HBITMAP hbmpMem = ::CreateDIBSection(NULL, (PBITMAPINFO)&bmih, DIB_RGB_COLORS, &pvBits, NULL, 0);
+	//memset( pvBits, 0, szWin.cx * 4 * szWin.cy);
+	PVOID pvBits = this->m_pVistaBits;
+	HBITMAP hbmpMem = this->m_hVistaBitmap;
 	if(hbmpMem)
 	{
 		HGDIOBJ hbmpOld = ::SelectObject( hdcMemory, hbmpMem);
@@ -3178,12 +3258,11 @@ void DcxDialog::UpdateVistaStyle(void)
 		graph.SetPageUnit(UnitPixel);
 		graph.SetSmoothingMode(SmoothingModeNone);
 
-		DrawDialog( graph, hDC);
-
-		RECT rcParentWin, rcParentClient, glassOffsets;
+		RECT rcParentWin, rcParentClient, rcClip, glassOffsets;
 		SIZE offsets;
 		POINT pt;
 
+		SetRectEmpty(&rcClip);
 		GetWindowRect(this->m_Hwnd, &rcParentWin);
 		GetClientRect(this->m_Hwnd, &rcParentClient);
 		MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rcParentClient, 2);
@@ -3195,18 +3274,43 @@ void DcxDialog::UpdateVistaStyle(void)
 		glassOffsets.right = szWin.cx - ((rcParentWin.right - rcParentClient.right) + this->m_GlassOffsets.right);
 		glassOffsets.bottom = szWin.cy - ((rcParentWin.bottom - rcParentClient.bottom) + this->m_GlassOffsets.bottom);
 
+		//DrawDialog( graph, hDC); // draw dialog after setting update controls clip rect.
+
+		// Check for update rect (area of child control in screen coordinates)
+		// If found set clipping area as child control's area.
+		if (rcUpdate != NULL) {
+			CopyRect(&rcClip, rcUpdate);
+			OffsetRect(&rcClip, -rcParentWin.left, -rcParentWin.top);
+			Rect clipRect(rcClip.left, rcClip.top , (rcClip.right - rcClip.left), (rcClip.bottom - rcClip.top));
+			graph.SetClip(clipRect);
+			DrawDialog( graph, hDC); // draw dialog after setting update controls clip rect.
+		}
+		else {
+			// otherwise set clipping area to client area.
+			rcClip.right = szWin.cx;
+			rcClip.bottom = szWin.cy;
+			DrawDialog( graph, hDC); // draw dialog before setting client area clip rect.
+			Rect clipRect(offsets.cx, offsets.cy, (rcParentClient.right - rcParentClient.left), (rcParentClient.bottom - rcParentClient.top));
+			graph.SetClip(clipRect);
+		}
+
 		// Alpha Glass area when not ghost dragging & alpha isnt being set for whole dialog.
 		// This method allows the glass area to be translucent but the controls to still be solid.
 		// Update: commented out ghost & alpha check to allow glass area to still be seen when dialog as a whole is translucent
 		//	make this behaviour optional?
 		//if (!this->m_bGhosted && alpha == 255) {
-			for( int y = 0; y < szWin.cy; y++)
+			GdiFlush(); // sync drawing
+			int Yend = min(rcClip.bottom, szWin.cy), Ybase = max(rcClip.top, 0);
+			int Xend = min(rcClip.right, szWin.cx), Xbase = max(rcClip.left, 0);
+			for( int y = Ybase; y < Yend; y++)
 			{
-				PBYTE pPixel = ((PBYTE)pvBits) + szWin.cx * 4 * y;
+				// (szWin.cx * 4 * y) == row
+				// (Xbase * 4) == offset within row.
+				PBYTE pPixel = ((PBYTE)pvBits) + (szWin.cx * 4 * y) + (Xbase * 4);
 
-				pt.y = szWin.cy - y;
+				pt.y = y; //szWin.cy - y;
 
-				for( int x = 0; x < szWin.cx; x++)
+				for( int x = Xbase; x < Xend; x++)
 				{
 					pt.x = x;
 					if (!PtInRect(&glassOffsets,pt)) {
@@ -3257,12 +3361,12 @@ void DcxDialog::UpdateVistaStyle(void)
 		//	}
 		//}
 
-		::UpdateLayeredWindow( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc,
+		UpdateLayeredWindowUx( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc,
 			this->m_cKeyColour, &stBlend, (this->m_bHaveKeyColour ? ULW_COLORKEY|ULW_ALPHA : ULW_ALPHA));
 
 		graph.ReleaseHDC(hdcMemory);
 		::SelectObject( hdcMemory, hbmpOld);
-		::DeleteObject(hbmpMem);
+		//::DeleteObject(hbmpMem);
 	}
 
 	::DeleteDC(hdcMemory);
@@ -3287,7 +3391,18 @@ void DcxDialog::SetVistaStyleSize(void)
 
 	RECT rc;
 	GetWindowRect(this->m_Hwnd, &rc);
-	SetWindowPos(this->m_hFakeHwnd, NULL, 0,0, (rc.right - rc.left), (rc.bottom - rc.top), SWP_NOMOVE|SWP_NOZORDER);
+	SIZE szWin;
+	szWin.cx = (rc.right - rc.left);
+	szWin.cy = (rc.bottom - rc.top);
+	this->CreateVistaStyleBitmap(szWin);
+	//{ // maintain a matching region.
+	//	HRGN hRgn = CreateRectRgn(0,0,0,0);
+	//	if (GetWindowRgn(this->m_Hwnd, hRgn))
+	//		SetWindowRgn(this->m_hFakeHwnd, hRgn, FALSE);
+	//	else
+	//		DeleteRgn(hRgn);
+	//}
+	SetWindowPos(this->m_hFakeHwnd, NULL, 0,0, szWin.cx, szWin.cy, SWP_NOMOVE|SWP_NOZORDER);
 }
 //#ifdef DCX_USE_GDIPLUS
 //bool DcxDialog::LoadGDIPlusImage(TString &filename) {

@@ -1198,10 +1198,8 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
   // CUSTOM Sort
   if ( ptvsort->iSortFlags & TVSS_CUSTOM ) {
 
-		TString com;
 		char res[20];
-    com.sprintf("$%s(%s,%s)", ptvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
-		mIRCeval( com.to_chr(), res );
+		mIRCevalEX( res, "$%s(%s,%s)", ptvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 
     if ( ptvsort->iSortFlags & TVSS_DESC ) {
 

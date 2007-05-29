@@ -119,6 +119,23 @@ void mIRCeval(const char *data, char *res) {
 }
 
 /*!
+/*!
+ * \brief Requests mIRC $identifiers to be evaluated.
+ *
+ * Allow sufficient characters to be returned.
+ * Requests mIRC to perform command using vsprintf.
+*/
+void mIRCevalEX(char *res, const char *szFormat, ...) {
+	va_list args;
+	va_start(args, szFormat);
+
+	char msg[2048];
+	vsprintf(msg, szFormat, args);
+	mIRCeval(msg, res);
+	va_end(args);
+}
+
+/*!
 * \brief Requests mIRC to perform command.
 */
 void mIRCcom(const char *data) {
@@ -143,16 +160,13 @@ void mIRCcomEX(const char *szFormat, ...) {
 */
 SYSTEMTIME MircTimeToSystemTime(const long mircTime) {
 	char eval[100];
-	TString str;
 	SYSTEMTIME st;
 
 	ZeroMemory(&st, sizeof(SYSTEMTIME));
 
-	str.sprintf("$asctime(%ld, d m yyyy)", mircTime);
+	mIRCevalEX( eval, "$asctime(%ld, d m yyyy)", mircTime);
 
-	mIRCeval(str.to_chr(), eval);
-
-	str = eval;
+	TString str(eval);
 
 	st.wDay = str.gettok(1).to_int();
 	st.wMonth = str.gettok(2).to_int();

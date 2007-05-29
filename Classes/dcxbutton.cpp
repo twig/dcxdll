@@ -531,8 +531,11 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
 	// fill background.
-	if (this->isExStyle(WS_EX_TRANSPARENT) && !this->m_bAlphaBlend)
-		this->DrawParentsBackground(hdc);
+	if (this->isExStyle(WS_EX_TRANSPARENT))
+	{
+		if (!this->m_bAlphaBlend)
+			this->DrawParentsBackground(hdc,&rcClient);
+	}
 	else
 		DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
@@ -576,13 +579,13 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 					iState = PBS_NORMAL;
 					break;
 				}
-				HTHEME hTheme = GetWindowThemeUx(this->m_Hwnd);
-				//HTHEME hTheme = OpenThemeDataUx(this->m_Hwnd, L"BUTTON");
+				//HTHEME hTheme = GetWindowThemeUx(this->m_Hwnd);
+				HTHEME hTheme = OpenThemeDataUx(this->m_Hwnd, L"BUTTON");
 				if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_PUSHBUTTON,iState,&rcClient, &hRgn) == S_OK)
-					ExtSelectClipRgn(hdc, hRgn, RGN_COPY);
+					SelectClipRgn(hdc, hRgn);
 				CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINTCLIENT, (WPARAM) hdc, PRF_CLIENT );
 				DeleteRgn(hRgn);
-				//CloseThemeDataUx(hTheme);
+				CloseThemeDataUx(hTheme);
 			}
 			else
 				CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );

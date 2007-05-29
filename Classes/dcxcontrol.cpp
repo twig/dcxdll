@@ -947,7 +947,9 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 
 	if (uMsg == WM_PAINT && pthis->m_pParentDialog->IsVistaStyle()) {
 		ValidateRect(mHwnd, NULL);
-		pthis->m_pParentDialog->UpdateVistaStyle();
+		RECT rcUpdate;
+		GetWindowRect(mHwnd, &rcUpdate);
+		pthis->m_pParentDialog->UpdateVistaStyle(&rcUpdate);
 		return 0L;
 	}
 
@@ -1081,9 +1083,8 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 			HWND winHwnd = (HWND)tsInput.gettok( offset +1 ).to_num();
 			if (!IsWindow(winHwnd)) {
 				char windowHwnd[30];
-				TString expression;
-				expression.sprintf("$window(%s).hwnd", tsInput.gettok( offset +1 ).to_chr( ) );
-				mIRCeval( expression.to_chr(), windowHwnd );
+
+				mIRCevalEX(windowHwnd, "$window(%s).hwnd", tsInput.gettok( offset +1 ).to_chr( ) );
 
 				winHwnd = (HWND) atoi( windowHwnd );
 			}
@@ -1296,6 +1297,18 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 		followed by all child controls covered by this one.
 	*/
 	this->updateParentCtrl(); // find the host control, if any.
+	if (this->m_pParentDialog->isExStyle(WS_EX_COMPOSITED))
+	{
+		// When in composited mode underling controls have already been drawn
+		// So just grab image from windows DC.
+		HDC hdcParent = GetDC(this->m_pParentHWND);
+		RECT rcWin = rcClient;
+		MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2);
+		BitBlt( hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
+			hdcParent, rcWin.left, rcWin.top, SRCCOPY);
+		ReleaseDC(this->m_pParentHWND, hdcParent);
+		return;
+	}
 	// make a new HDC for background rendering
 	HDC hdcbkg = CreateCompatibleDC( hdc );
 	if (hdcbkg != NULL) {
@@ -1308,7 +1321,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 		if (memBM != NULL) {
 			// get this controls x & y pos within its parent.
 			rcWin = rcClient;
-			MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2); // handles RTL
+			MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2);
 			// associate bitmap with HDC
 			HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
 			HRGN clipRgn = CreateRectRgnIndirect(&rcWin); // clip parents drawing to this controls rect.

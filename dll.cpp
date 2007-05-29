@@ -714,12 +714,10 @@ mIRC(Mark) {
 	if (d.numtok() < 2)
 		ret("D_ERROR Mark: [NAME] [ALIAS]");
 
-	TString com;
 	char res[40];
 
 	// check if the alias exists
-	com.sprintf("$isalias(%s)", d.gettok(2).to_chr());
-	mIRCeval(com.to_chr(), res);
+	mIRCevalEX(res, "$isalias(%s)", d.gettok(2).to_chr());
 
 	if (lstrcmp(res, "$false") == 0) {
 		wsprintf(data, "D_ERROR Mark : No such alias : %s", d.gettok(2).to_chr());

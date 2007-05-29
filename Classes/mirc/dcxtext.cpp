@@ -140,7 +140,14 @@ void DcxText::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
 	this->parseSwitchFlags(input.gettok( 3 ), &flags);
+
 	int numtok = input.numtok( );
+
+		// xdid -r [NAME] [ID] [SWITCH]
+	if (flags.switch_flags[17]) {
+		this->m_tsText = "";
+		SetWindowText(this->m_Hwnd, "");
+	}
 
 	// xdid -a [NAME] [ID] [SPACE 0|1] [TEXT]
 	if (flags.switch_flags[0] && numtok > 2) {
@@ -151,15 +158,12 @@ void DcxText::parseCommandRequest(TString &input) {
 
 		// redraw if transparent
 		if (this->isExStyle(WS_EX_TRANSPARENT)) {
-			RECT r;
-			HWND hParent = GetParent(this->m_Hwnd);
-
-			GetWindowRect(this->m_Hwnd, &r);
-
-			MapWindowPoints(NULL, hParent, (LPPOINT)&r, 2); // maps all 4 points & handles RTL
-			InvalidateRect(hParent, &r, TRUE);
+			this->InvalidateParentRect(this->m_Hwnd);
 			this->redrawWindow();
 		}
+	}
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (flags.switch_flags[17]) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	else if (flags.switch_flags[19]) {

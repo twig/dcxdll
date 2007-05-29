@@ -127,7 +127,9 @@ public:
 	void DrawDialog( Graphics & graphics, HDC hDC);
 #endif
 	void CreateVistaStyle(void);
-	void UpdateVistaStyle(void);
+	bool CreateVistaStyleBitmap(const SIZE &szWin);
+	void RemoveVistaStyle(void);
+	void UpdateVistaStyle(LPRECT rcUpdate = NULL);
 	void SetVistaStylePos(void);
 	void SetVistaStyleSize(void);
 	bool IsVistaStyle(void) const { return this->m_bVistaStyle; };
@@ -219,8 +221,9 @@ protected:
 	COLORREF m_cKeyColour;
 	bool m_bHaveKeyColour;
 	bool m_bVistaStyle;
-	bool m_bHaveGlassOffsets;
 	RECT m_GlassOffsets;
+	PVOID m_pVistaBits;
+	HBITMAP m_hVistaBitmap;
 };
 
 #endif // _DCXDIALOG_H_
