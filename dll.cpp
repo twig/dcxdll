@@ -819,10 +819,12 @@ mIRC(ColorDialog) {
 	TString d(data);
 	d.trim();
 
+   BOOL retDefault = FALSE;
 	CHOOSECOLOR	cc;
 	static COLORREF clr[16];
 	COLORREF		sel = (COLORREF) d.gettok(1).to_num();
 	DWORD			styles = CC_RGBINIT;
+
 	ZeroMemory(&cc, sizeof(CHOOSECOLOR));
 
 	// initial settings
@@ -841,6 +843,8 @@ mIRC(ColorDialog) {
 				styles |= CC_SOLIDCOLOR;
 			else if (d.gettok(i) == "owner")
 				cc.hwndOwner = FindOwner(d, mWnd);
+         else if (d.gettok(i) == "returndefault")
+				retDefault = TRUE;
 		}
 	}
 
@@ -848,12 +852,19 @@ mIRC(ColorDialog) {
 	cc.Flags = styles;
 	cc.lpCustColors = clr;
 
+   // User clicked OK
 	if (ChooseColor(&cc)) {
 		wsprintf(data, "%d", cc.rgbResult);
 		return 3; //ret(data);
 	}
-	else
-		ret("-1");
+   // User clicked cancel, return default color
+	else if (retDefault) {
+		wsprintf(data, "%d", sel);
+		return 3; //ret(data);
+	}
+   // User clicked cancel, dont bother with default color
+   else
+      ret("-1");
 }
 
 
