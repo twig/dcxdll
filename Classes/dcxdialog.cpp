@@ -2148,7 +2148,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
 			p_this->SetVistaStyleSize();
 			p_this->updateLayout(rc);
-			//p_this->redrawWindow(); not needed?
+			p_this->redrawWindow(); //not needed?
 			break;
 		}
 
@@ -2522,7 +2522,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					p_this->UpdateShadow();
 					p_this->m_Shadow.bUpdate = false;
 				}
-				if (p_this->IsVistaStyle()) {
+				if (p_this->IsVistaStyle() && !IsIconic(mHwnd)) {
 					ValidateRect(mHwnd, NULL);
 					p_this->UpdateVistaStyle();
 					lRes = 0L;
@@ -2531,8 +2531,19 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			}
 			break;
 
-		//case WM_NCPAINT:
+		//case WM_NCLBUTTONDOWN:
+		//case WM_NCLBUTTONUP:
+		////case WM_NCMOUSEHOVER:
+		////case WM_NCMOUSELEAVE:
+		////case WM_NCHITTEST:
+		////case WM_NCPAINT:
 		//	{
+		//		if (p_this->IsVistaStyle()) {
+		//			lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+		//			InvalidateRect(mHwnd, NULL, FALSE);
+		//			//p_this->UpdateVistaStyle();
+		//			bParsed = TRUE;
+		//		}
 		//	}
 		//	break;
 
@@ -3199,9 +3210,7 @@ void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets)
 void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 {
 #ifdef DCX_USE_GDIPLUS
-	if (!IsWindow(this->m_hFakeHwnd))
-		return;
-	if (this->m_hVistaBitmap == NULL)
+	if (!IsWindow(this->m_hFakeHwnd) || !IsWindowVisible(this->m_Hwnd) || IsIconic(this->m_Hwnd) || this->m_hVistaBitmap == NULL)
 		return;
 
 	{ // maintain a matching region.

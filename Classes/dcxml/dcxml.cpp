@@ -572,7 +572,7 @@ mIRC(dcxml) {
 		mIRCcomEX("/xdialog -l %s root \t +p%s 0 0 0 0",oDcxml.dname.to_chr(), cascade);
 		mIRCcomEX("/xdialog -l %s space root \t + %s", oDcxml.dname.to_chr(), margin);
 		oDcxml.parseDialog();
-		mIRCcomEX("/.timer 1 0 xdialog -l %s update",oDcxml.dname);
+		mIRCcomEX("/.timer 1 0 xdialog -l %s update",oDcxml.dname.to_chr());
 		mIRCcomEX("/xdialog -z %s +s 1",oDcxml.dname.to_chr());
 
 		return 1;
