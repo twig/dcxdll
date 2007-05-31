@@ -54,8 +54,10 @@ enum ShadowStatus
 
 // dummy runtime classe definition
 class DcxControl;
+class DcxList;
 
 typedef std::vector<DcxControl *> VectorOfControlPtrs; //!< blah
+typedef std::vector<DcxList *> VectorOfDragListPtrs; //!< Vector of draglists
 
 /*!
  * \brief blah
@@ -134,6 +136,9 @@ public:
 	void SetVistaStyleSize(void);
 	bool IsVistaStyle(void) const { return this->m_bVistaStyle; };
 
+   void RegisterDragList(DcxList* list);
+   void UnregisterDragList(DcxList* list);
+
 protected:
 
   TString m_tsName;       //!< Dialog Name
@@ -145,6 +150,8 @@ protected:
   VectorOfControlPtrs m_vpControls; //!< Vector of DCX Controls
   VectorOfInts m_vZLayers;
   int m_zLayerCurrent;
+
+  VectorOfDragListPtrs m_vDragLists; //!< Registered draglists
 
   bool m_bInSizing; //!< In Moving Motion
   bool m_bInMoving; //!< In Sizing Motion
@@ -224,6 +231,8 @@ protected:
 	RECT m_GlassOffsets;
 	PVOID m_pVistaBits;
 	HBITMAP m_hVistaBitmap;
+
+   static LRESULT ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 };
 
 #endif // _DCXDIALOG_H_

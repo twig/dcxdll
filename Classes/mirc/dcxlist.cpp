@@ -28,7 +28,8 @@
  */
 
 DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog )
+: DcxControl( ID, p_Dialog ),
+  m_iDragList(0)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -52,6 +53,24 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
+   // Check for "draglist" style
+   if (styles.find("draglist", 0))
+   {
+      // if its multiple select, cant use
+      if (!this->isStyle(LBS_MULTIPLESEL))
+      {
+         if (MakeDragList(this->m_Hwnd))
+         {
+            m_iDragList = RegisterWindowMessage(DRAGLISTMSGSTRING);
+            this->m_pParentDialog->RegisterDragList(this);
+         }
+         else
+            DCXError("DcxList", "Error applying draglist style");
+      }
+      else
+         DCXError("DcxList", "Cannot apply draglist style with multi style");
+   }
+
 	DragAcceptFiles(this->m_Hwnd, TRUE);
 }
 
@@ -62,7 +81,7 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
  */
 
 DcxList::~DcxList( ) {
-
+   this->m_pParentDialog->UnregisterDragList(this);
 	this->unregistreDefaultWindowProc( );
 }
 
@@ -100,6 +119,7 @@ void DcxList::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
 
     i++;
   }
+
   this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -315,8 +335,71 @@ void DcxList::parseCommandRequest( TString & input ) {
  *
  * blah
  */
-LRESULT DcxList::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-	switch( uMsg ) {
+LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+   if ((int) uMsg == this->m_iDragList)
+   {
+      bParsed = TRUE;
+
+      LPDRAGLISTINFO dli = (LPDRAGLISTINFO) lParam;
+      int item;
+      int sel = ListBox_GetCurSel(this->m_Hwnd) +1;
+      char ret[20];
+
+      switch (dli->uNotification)
+      {
+         // begin dragging item
+         case DL_BEGINDRAG:
+            // callback DIALOG itemdragbegin THIS_ID DRAGGEDITEM
+            callAliasEx(ret, "%s,%d,%d", "itemdragbegin", this->getUserID(), sel);
+
+            // cancel drag event
+            if (lstrcmpi(ret, "nodrag") == 0)
+               return FALSE;
+            
+            return TRUE;
+
+         // cancel drag
+         case DL_CANCELDRAG:
+            // callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
+            callAliasEx(ret, "%s,%d,%d", "itemdragcancel", this->getUserID(), sel);
+
+            break;
+
+         // current dragging, as mirc if it needs to change the cursor or not
+         case DL_DRAGGING:
+            item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
+
+            DrawInsert(this->m_pParentHWND, this->m_Hwnd, item);
+
+            // callback DIALOG itemdrag THIS_ID SEL_ITEM MOUSE_OVER_ITEM
+            callAliasEx(ret, "%s,%d,%d,%d", "itemdrag", this->getUserID(), sel, item +1);
+
+            if (lstrcmpi(ret, "stop") == 0)
+               return DL_STOPCURSOR;
+            else if (lstrcmpi(ret, "copy") == 0)
+               return DL_COPYCURSOR;
+            
+            return DL_MOVECURSOR;
+            break;
+
+         // finish dragging
+         case DL_DROPPED:
+            // callback DIALOG itemdragfinish THIS_ID SEL_ITEM MOUSE_OVER_ITEM
+            item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
+
+            callAliasEx(NULL, "%s,%d,%d,%d", "itemdragfinish", this->getUserID(), sel, item +1));
+
+            // refresh parent to remove drawing leftovers
+            this->m_pParentDialog->redrawWindow();
+            break;
+      }
+
+      return 0L;
+   }
+
+
+	switch( uMsg )
+   {
 		case WM_COMMAND:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
@@ -349,13 +432,11 @@ LRESULT DcxList::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				} // switch ( HIWORD( wParam ) )
 			}
 		}
-		break;
 	}
 	return 0L;
 }
 
 LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
 	switch( uMsg ) {
     case WM_LBUTTONUP: // Prevents CommonMessage() handling of this.
     case WM_LBUTTONDBLCLK:

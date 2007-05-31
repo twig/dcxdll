@@ -48,6 +48,7 @@
 
 #include "dcxtoolbar.h"
 #include "dcxrichedit.h"
+#include "mirc/dcxlist.h"
 
 #include "layout/layoutcellfixed.h"
 #include "layout/layoutcellfill.h"
@@ -1784,6 +1785,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	LRESULT lRes = 0L;
 
 	p_this->incRef();
+
 	switch (uMsg) {
 		case WM_HELP:
 			{
@@ -2569,9 +2571,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		}
 
 		default:
+         // Try to process DragList events
+         if (p_this->m_vDragLists.size() != 0)
+            lRes = ProcessDragListMessage(p_this, uMsg, wParam, lParam, bParsed);
+
 			break;
 	}
+
 	p_this->decRef();
+
 	if (bParsed)
 		return lRes;
 
@@ -3404,6 +3412,52 @@ void DcxDialog::SetVistaStyleSize(void)
 	//}
 	SetWindowPos(this->m_hFakeHwnd, NULL, 0,0, szWin.cx, szWin.cy, SWP_NOMOVE|SWP_NOZORDER);
 }
+
+// Adds the control to the list
+void DcxDialog::RegisterDragList(DcxList* list)
+{
+   this->m_vDragLists.push_back(list);
+}
+
+// Removes the control from the list
+void DcxDialog::UnregisterDragList(DcxList* list)
+{
+   VectorOfDragListPtrs::iterator itStart = this->m_vDragLists.begin();
+   VectorOfDragListPtrs::iterator itEnd = this->m_vDragLists.end();
+
+   while (itStart != itEnd) {
+      if (*itStart == list) {
+         m_vDragLists.erase(itStart);
+         return;
+      }
+
+      itStart++;
+   }
+}
+
+// Checks if the message should be parsed
+LRESULT DcxDialog::ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed)
+{
+   VectorOfDragListPtrs::iterator itStart = p_this->m_vDragLists.begin();
+   VectorOfDragListPtrs::iterator itEnd = p_this->m_vDragLists.end();
+   DcxList* list;
+
+   while (itStart != itEnd)
+   {
+      list = *itStart;
+
+      if (list->getDragListId() == uMsg) {
+         return list->ParentMessage(uMsg, wParam, lParam, bParsed);
+      }
+
+      itStart++;
+   }
+
+   return 0L;
+}
+
+
+
 //#ifdef DCX_USE_GDIPLUS
 //bool DcxDialog::LoadGDIPlusImage(TString &filename) {
 //	if (!IsFile(filename)) {
