@@ -29,7 +29,9 @@
 
 DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ),
-  m_iDragList(0)
+  m_iDragList(0),
+  m_iLastDrawnLine(0),
+  m_bUseDrawInsert(TRUE)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -91,36 +93,37 @@ DcxList::~DcxList( ) {
  * blah
  */
 
-void DcxList::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxList::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+{
+   unsigned int i = 1, numtok = styles.numtok();
+   *Styles |= LBS_NOTIFY | LBS_HASSTRINGS;
 
-  unsigned int i = 1, numtok = styles.numtok( );
-  *Styles |= LBS_NOTIFY | LBS_HASSTRINGS;
+   while (i <= numtok) {
+      if (styles.gettok(i) == "noscroll")
+         *Styles |= LBS_DISABLENOSCROLL;
+      else if (styles.gettok(i) == "multi")
+         *Styles |= LBS_MULTIPLESEL;
+      else if (styles.gettok(i) == "extsel")
+         *Styles |= LBS_EXTENDEDSEL;
+      else if (styles.gettok(i) == "nointegral")
+         *Styles |= LBS_NOINTEGRALHEIGHT;
+      else if (styles.gettok(i) == "nosel")
+         *Styles |= LBS_NOSEL;
+      else if (styles.gettok(i) == "sort")
+         *Styles |= LBS_SORT;
+      else if (styles.gettok(i) == "tabs")
+         *Styles |= LBS_USETABSTOPS;
+      else if (styles.gettok(i) == "vsbar")
+         *Styles |= WS_VSCROLL;
+      else if (styles.gettok(i) == "alpha")
+         this->m_bAlphaBlend = true;
+      else if (styles.gettok(i) == "dragline")
+         this->m_bUseDrawInsert = FALSE;
 
-  while ( i <= numtok ) {
+      i++;
+   }
 
-    if ( styles.gettok( i ) == "noscroll" )
-      *Styles |= LBS_DISABLENOSCROLL;
-    else if ( styles.gettok( i ) == "multi" )
-      *Styles |= LBS_MULTIPLESEL;
-    else if ( styles.gettok( i ) == "extsel" )
-      *Styles |= LBS_EXTENDEDSEL;
-    else if ( styles.gettok( i ) == "nointegral" )
-      *Styles |= LBS_NOINTEGRALHEIGHT;
-    else if ( styles.gettok( i ) == "nosel" )
-      *Styles |= LBS_NOSEL;
-    else if ( styles.gettok( i ) == "sort" )
-      *Styles |= LBS_SORT;
-    else if ( styles.gettok( i ) == "tabs" )
-      *Styles |= LBS_USETABSTOPS;
-	 else if (styles.gettok( i ) == "vsbar")
-		 *Styles |= WS_VSCROLL;
-		else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
-
-    i++;
-  }
-
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+   this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -369,7 +372,10 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
          case DL_DRAGGING:
             item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
 
-            DrawInsert(this->m_pParentHWND, this->m_Hwnd, item);
+            if (m_bUseDrawInsert)
+               DrawInsert(this->m_pParentHWND, this->m_Hwnd, item);
+            else
+               DrawDragLine(item);
 
             // callback DIALOG itemdrag THIS_ID SEL_ITEM MOUSE_OVER_ITEM
             callAliasEx(ret, "%s,%d,%d,%d", "itemdrag", this->getUserID(), sel, item +1);
@@ -387,7 +393,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
             // callback DIALOG itemdragfinish THIS_ID SEL_ITEM MOUSE_OVER_ITEM
             item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
 
-            callAliasEx(NULL, "%s,%d,%d,%d", "itemdragfinish", this->getUserID(), sel, item +1));
+            callAliasEx(NULL, "%s,%d,%d,%d", "itemdragfinish", this->getUserID(), sel, item +1);
 
             // refresh parent to remove drawing leftovers
             this->m_pParentDialog->redrawWindow();
@@ -489,4 +495,50 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	}
 
 	return 0L;
+}
+
+// Draws a horizontal line to insert rather than the arrow
+// Ported from http://www.vb-hellfire.de/knowlib/draglist.php
+void DcxList::DrawDragLine(int location)
+{
+   RECT rc;
+   HDC  hDC;
+   HPEN hPen;
+   int  lWidth;
+
+   ListBox_GetItemRect(this->m_Hwnd, location, &rc);
+
+   if (location != m_iLastDrawnLine)
+   {
+      this->redrawWindow();
+      m_iLastDrawnLine = location;
+   }
+
+   hDC = GetDC(this->m_Hwnd);
+   hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT));
+
+   SelectObject(hDC, hPen);
+
+   // get width
+   lWidth = rc.right - rc.left;
+
+   MoveToEx(hDC, 0, rc.top, 0);
+   LineTo(hDC, lWidth, rc.top);
+   MoveToEx(hDC, 0, rc.top -1, 0);
+   LineTo(hDC, lWidth, rc.top -1);
+
+   // Spitze links:
+   MoveToEx(hDC, 0, rc.top -3, 0);
+   LineTo(hDC, 0, rc.top +3);
+   MoveToEx(hDC, 1, rc.top -2, 0);
+   LineTo(hDC, 1, rc.top +2);
+
+   // Spitze rechts:
+   MoveToEx(hDC, lWidth -1, rc.top -3, 0);
+   LineTo(hDC, lWidth -1, rc.top +3);
+   MoveToEx(hDC, lWidth -2, rc.top -2, 0);
+   LineTo(hDC, lWidth -2, rc.top +2);
+
+   DeleteObject(hPen);
+   ReleaseDC(this->m_Hwnd, hDC);
 }

@@ -44,7 +44,11 @@ public:
   inline int getDragListId() { return m_iDragList; };
 
 protected:
+   void DrawDragLine(int location);
+
    int m_iDragList;
+   int m_iLastDrawnLine;
+   BOOL m_bUseDrawInsert;
 };
 
 #endif // _DCXLIST_H_
