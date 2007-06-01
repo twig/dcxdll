@@ -366,6 +366,11 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
             // callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
             callAliasEx(ret, "%s,%d,%d", "itemdragcancel", this->getUserID(), sel);
 
+            if (m_bUseDrawInsert)
+               this->m_pParentDialog->redrawWindow();
+            else
+               this->redrawWindow();
+
             break;
 
          // current dragging, as mirc if it needs to change the cursor or not
@@ -395,8 +400,12 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
             callAliasEx(NULL, "%s,%d,%d,%d", "itemdragfinish", this->getUserID(), sel, item +1);
 
-            // refresh parent to remove drawing leftovers
-            this->m_pParentDialog->redrawWindow();
+            if (m_bUseDrawInsert)
+               // refresh parent to remove drawing leftovers
+               this->m_pParentDialog->redrawWindow();
+            else
+               this->redrawWindow();
+
             break;
       }
 
