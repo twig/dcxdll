@@ -224,59 +224,37 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
   switch( uMsg ) {
 
+		//case WM_ERASEBKGND:
+		//	{
+		//		if (this->isExStyle(WS_EX_TRANSPARENT))
+		//			this->DrawParentsBackground((HDC)wParam);
+		//		else {
+		//			RECT rect;
+		//			GetClientRect( this->m_Hwnd, &rect );
+		//			DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+		//		}
+		//		bParsed = TRUE;
+		//		return TRUE;
+		//	}
+		//	break;
+
 		case WM_PRINTCLIENT:
 			{
-				//if (!this->m_bAlphaBlend)
-				//	break;
-				HDC hdc = (HDC)wParam;
-
-				LRESULT res = 0L;
+				this->DrawClientArea((HDC)wParam, uMsg, lParam);
 				bParsed = TRUE;
-
-				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-				if (this->m_clrBackText != -1)
-					SetBkColor(hdc, this->m_clrBackText);
-
-				if (this->m_clrText != -1)
-					SetTextColor(hdc, this->m_clrText);
-
-				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-
-				this->FinishAlphaBlend(ai);
-				return res;
 			}
 			break;
 		case WM_PAINT:
 			{
-				//if (!this->m_bAlphaBlend)
-				//	break;
-				PAINTSTRUCT ps;
-				HDC hdc;
-
-				hdc = BeginPaint( this->m_Hwnd, &ps );
-
-				LRESULT res = 0L;
 				bParsed = TRUE;
+        PAINTSTRUCT ps;
+        HDC hdc;
 
-				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+        hdc = BeginPaint( this->m_Hwnd, &ps );
 
-				// fill background.
-				//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
-				if (this->m_clrBackText != -1)
-					SetBkColor(hdc, this->m_clrBackText);
-
-				if (this->m_clrText != -1)
-					SetTextColor(hdc, this->m_clrText);
-
-				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-
-				this->FinishAlphaBlend(ai);
+				this->DrawClientArea( hdc, uMsg, lParam);
 
 				EndPaint( this->m_Hwnd, &ps );
-				return res;
 			}
 			break;
 
@@ -293,4 +271,37 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
   }
 
   return 0L;
+}
+
+void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
+{
+	// Setup alpha blend if any.
+	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+	// fill background.
+	//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
+
+	if (this->m_clrBackText != -1)
+		SetBkColor(hdc, this->m_clrBackText);
+
+	if (this->m_clrText != -1)
+		SetTextColor(hdc, this->m_clrText);
+
+	if (dcxIsThemeActive()) {
+		HRGN hRgn = NULL;
+		//HTHEME hTheme = GetWindowThemeUx(this->m_Hwnd);
+		HTHEME hTheme = OpenThemeDataUx(this->m_Hwnd, L"BUTTON");
+		RECT rcClient;
+		GetClientRect(this->m_Hwnd, &rcClient);
+		if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_CHECKBOX,CBS_UNCHECKEDNORMAL,&rcClient, &hRgn) == S_OK)
+			SelectClipRgn(hdc, hRgn);
+		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINTCLIENT, (WPARAM) hdc, PRF_CLIENT );
+		DeleteRgn(hRgn);
+		CloseThemeDataUx(hTheme);
+	}
+	else
+		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+	//CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+	this->FinishAlphaBlend(ai);
 }

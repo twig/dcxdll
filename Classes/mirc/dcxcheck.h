@@ -30,7 +30,6 @@ class DcxCheck : public DcxControl {
 
 public:
 
-  //DcxCheck( UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
   DcxCheck( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
   virtual ~DcxCheck( );
 
@@ -44,6 +43,7 @@ public:
   inline TString getType( ) { return TString( "check" ); };
 
 protected:
+	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 };
 
 #endif // _DCXCHECK_H_

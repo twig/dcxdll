@@ -550,7 +550,7 @@ mIRC(dcxml) {
 		}
 		for( oDcxml.element = oDcxml.dialogs->FirstChildElement("dialog"); oDcxml.element; oDcxml.element = oDcxml.element->NextSiblingElement() ) {
 			const char *name = oDcxml.element->Attribute("name");
-			if (0==strcmp(name, input.gettok(2," ").to_chr())) { 
+			if (0==lstrcmp(name, input.gettok(2," ").to_chr())) { 
 				oDcxml.dialog = oDcxml.element;
 				break;
 			}
@@ -573,7 +573,7 @@ mIRC(dcxml) {
 		mIRCcomEX("/xdialog -l %s space root \t + %s", oDcxml.dname.to_chr(), margin);
 		oDcxml.parseDialog();
 		mIRCcomEX("/.timer 1 0 xdialog -l %s update",oDcxml.dname.to_chr());
-		mIRCcomEX("/xdialog -z %s +s 1",oDcxml.dname.to_chr());
+		//mIRCcomEX("/xdialog -z %s +s 1",oDcxml.dname.to_chr()); // what shite is this?
 
 		return 1;
 	}

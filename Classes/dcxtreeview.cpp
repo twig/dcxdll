@@ -29,12 +29,19 @@
 
 DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles )
 : DcxControl( ID, p_Dialog )
+, m_iIconSize(16)
+, m_colSelection(-1)
+#ifdef DCX_USE_GDIPLUS
+, m_pImage(NULL)
+, m_bResizeImage(false)
+, m_bTileImage(false)
+, m_iXOffset(0)
+, m_iYOffset(0)
+#endif
 {
-
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-	this->m_colSelection = -1;
 
   this->m_Hwnd = CreateWindowEx(	
     ExStyles | WS_EX_CLIENTEDGE,
@@ -54,8 +61,6 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
 
   if ( ExStyles & TVS_CHECKBOXES )
     this->addStyle( TVS_CHECKBOXES );
-
-  this->m_iIconSize = 16;
 
 	this->m_ToolTipHWND = (HWND)TreeView_GetToolTips(this->m_Hwnd);
 	if (styles.istok("balloon") && this->m_ToolTipHWND != NULL) {
@@ -82,6 +87,8 @@ DcxTreeView::~DcxTreeView( ) {
 
   ImageList_Destroy( this->getImageList( TVSIL_NORMAL ) );
   ImageList_Destroy( this->getImageList( TVSIL_STATE ) );
+
+	PreloadData();
 
   this->unregistreDefaultWindowProc( );
 }
@@ -752,7 +759,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
       if ( this->correctTargetItem( &hParent, &hAfter ) ) {
 
-        TVITEMEX tvi; 
+        TVITEMEX tvi;
 
         tvi.mask = TVIF_TEXT | TVIF_HANDLE;
         tvi.hItem = hAfter;
@@ -870,6 +877,15 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
       }
     }
   }
+	// xdid -G [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
+	else if (flags.switch_cap_flags[6] && numtok > 6) {
+		TString flag(input.gettok( 4 ));
+		this->m_iXOffset = input.gettok( 5 ).to_int();
+		this->m_iYOffset = input.gettok( 6 ).to_int();
+		TString filename(input.gettok( 7, -1));
+		if (!LoadGDIPlusImage(flag, filename))
+			this->showErrorEx(NULL,"-G","Unable to load Image: %s", filename.to_chr());
+	}
   else
     this->parseGlobalCommandRequest( input, flags );
 }
@@ -1019,7 +1035,7 @@ HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, co
  * blah
  */
 
-UINT DcxTreeView::parseIconFlagOptions(TString &flags) {
+UINT DcxTreeView::parseIconFlagOptions(const TString &flags) {
 	UINT i = 1, len = flags.len(), iFlags = 0;
 
 	// no +sign, missing params
@@ -1044,7 +1060,7 @@ UINT DcxTreeView::parseIconFlagOptions(TString &flags) {
  * blah
  */
 
-UINT DcxTreeView::parseItemFlags(TString &flags) {
+UINT DcxTreeView::parseItemFlags(const TString &flags) {
 	INT i = 1, len = flags.len(), iFlags = 0;
 
 	// no +sign, missing params
@@ -1079,7 +1095,7 @@ UINT DcxTreeView::parseItemFlags(TString &flags) {
  * blah
  */
 
-UINT DcxTreeView::parseSortFlags( TString & flags ) {
+UINT DcxTreeView::parseSortFlags( const TString & flags ) {
 
   INT i = 1, len = flags.len( ), iFlags = 0;
 
@@ -1117,7 +1133,7 @@ UINT DcxTreeView::parseSortFlags( TString & flags ) {
  * blah
  */
 
-UINT DcxTreeView::parseColorFlags( TString & flags ) {
+UINT DcxTreeView::parseColorFlags( const TString & flags ) {
 
   INT i = 1, len = flags.len( ), iFlags = 0;
 
@@ -1147,7 +1163,7 @@ UINT DcxTreeView::parseColorFlags( TString & flags ) {
  * blah
  */
 
-UINT DcxTreeView::parseToggleFlags( TString & flags ) {
+UINT DcxTreeView::parseToggleFlags( const TString & flags ) {
 
   INT i = 1, len = flags.len( ), iFlags = 0;
 
@@ -1852,14 +1868,19 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									if ( lpdcxtvi->clrText != -1 )
 										lpntvcd->clrText = lpdcxtvi->clrText;
 
-									// draw unselected background color
-									if ((lpdcxtvi->clrBkg != -1) && (!(lpntvcd->nmcd.uItemState & CDIS_SELECTED)))
-										lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
-									else if ((this->m_colSelection != -1) && (lpntvcd->nmcd.uItemState & CDIS_SELECTED))
-									{
-										lpntvcd->clrTextBk = this->m_colSelection;
-									}
-
+									//if (this->m_pImage != NULL && this->isExStyle(WS_EX_TRANSPARENT)) {
+									//	lpntvcd->clrTextBk = CLR_NONE;
+									//	//SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
+									//}
+									//else {
+										// draw unselected background color
+										if ((lpdcxtvi->clrBkg != -1) && (!(lpntvcd->nmcd.uItemState & CDIS_SELECTED)))
+											lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
+										else if ((this->m_colSelection != -1) && (lpntvcd->nmcd.uItemState & CDIS_SELECTED))
+										{
+											lpntvcd->clrTextBk = this->m_colSelection;
+										}
+									//}
 									//if ( lpdcxtvi->bUline || lpdcxtvi->bBold) {
 									HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
 
@@ -1917,27 +1938,23 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 		case WM_LBUTTONUP:
 			break;
 
+		case WM_PRINTCLIENT:
+			{
+				this->DrawClientArea((HDC)wParam, uMsg, lParam);
+				bParsed = TRUE;
+			}
+			break;
 		case WM_PAINT:
 			{
-				if (!this->m_bAlphaBlend)
-					break;
+				bParsed = TRUE;
 				PAINTSTRUCT ps;
 				HDC hdc;
 
 				hdc = BeginPaint( this->m_Hwnd, &ps );
 
-				LRESULT res = 0L;
-				bParsed = TRUE;
-
-				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-
-				this->FinishAlphaBlend(ai);
+				this->DrawClientArea(hdc, uMsg, lParam);
 
 				EndPaint( this->m_Hwnd, &ps );
-				return res;
 			}
 			break;
     case WM_DESTROY:
@@ -1980,3 +1997,143 @@ LRESULT CALLBACK DcxTreeView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wPara
   }
   return CallWindowProc( pthis->m_OrigEditProc, mHwnd, uMsg, wParam, lParam );
 }
+
+void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
+{
+	// Setup alpha blend if any.
+	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, true);
+
+	if (this->m_pImage != NULL)
+		DrawGDIPlusImage(hdc);
+
+	CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+	this->FinishAlphaBlend(ai);
+}
+
+// clears existing image and icon data and sets pointers to null
+void DcxTreeView::PreloadData() {
+#ifdef DCX_USE_GDIPLUS
+	if (this->m_pImage != NULL) {
+		delete this->m_pImage;
+		this->m_pImage = NULL;
+	}
+#endif
+}
+
+#ifdef DCX_USE_GDIPLUS
+bool DcxTreeView::LoadGDIPlusImage(const TString &flags, TString &filename) {
+	if (!IsFile(filename)) {
+		this->showError(NULL,"LoadGDIPlusImage", "Unable to open file");
+		return false;
+	}
+	this->m_pImage = new Image(filename.to_wchr(),TRUE);
+
+	// couldnt allocate image object.
+	if (this->m_pImage == NULL) {
+		this->showError(NULL,"LoadGDIPlusImage", "Couldn't allocate image object.");
+		return false;
+	}
+	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
+	Status status = this->m_pImage->GetLastStatus();
+	if (status != Ok) {
+		this->showError(NULL,"LoadGDIPlusImage", GetLastStatusStr(status));
+		PreloadData();
+		return false;
+	}
+
+	if (flags.find('h',0)) { // High Quality
+		this->m_CQuality = CompositingQualityHighQuality;
+		this->m_IMode = InterpolationModeHighQualityBicubic;
+	}
+	else {
+		this->m_CQuality = CompositingQualityDefault;
+		this->m_IMode = InterpolationModeDefault;
+	}
+
+	if (flags.find('b',0)) // Blend Image
+		this->m_CMode = CompositingModeSourceOver;
+	else
+		this->m_CMode = CompositingModeSourceCopy;
+
+	if (flags.find('a',0)) // Anti-Aliased
+		this->m_SMode = SmoothingModeAntiAlias;
+	else
+		this->m_SMode = SmoothingModeDefault;
+
+	if (flags.find('t',0)) // Tile
+		this->m_bTileImage = true;
+	else
+		this->m_bTileImage = false;
+
+	if (flags.find('r',0)) // Tile
+		this->m_bResizeImage = true;
+	else
+		this->m_bResizeImage = false;
+
+	return true;
+}
+void DcxTreeView::DrawGDIPlusImage(HDC hdc)
+{
+	RECT rc;
+	GetClientRect(this->m_Hwnd, &rc);
+
+	int w = (rc.right - rc.left), h = (rc.bottom - rc.top), x = rc.left, y = rc.top;
+	if (!this->m_bResizeImage && !this->m_bTileImage)
+	{ // Fill bkg, Only fill the area NOT covered by the image to avoid flicker.
+		RECT rcBkg;
+		CopyRect(&rcBkg, &rc);
+		if ((this->m_pImage->GetWidth() < (UINT)rcBkg.right) || (this->m_pImage->GetHeight() < (UINT)rcBkg.bottom)) {
+			HRGN hRgn = CreateRectRgn(0,0,0,0);
+			if (this->m_pImage->GetWidth() < (UINT)rcBkg.right) {
+				HRGN hTmp = CreateRectRgn(this->m_pImage->GetWidth(),0,rcBkg.right,rcBkg.bottom);
+				CombineRgn(hRgn, hRgn, hTmp, RGN_OR);
+				DeleteRgn(hTmp);
+			}
+			if (this->m_pImage->GetHeight() < (UINT)rcBkg.bottom) {
+				HRGN hTmp = CreateRectRgn(0,this->m_pImage->GetHeight(),rcBkg.right,rcBkg.bottom);
+				CombineRgn(hRgn, hRgn, hTmp, RGN_OR);
+				DeleteRgn(hTmp);
+			}
+			HBRUSH hBrush = this->getBackClrBrush();
+			if (hBrush == NULL) {
+				hBrush = CreateSolidBrush(GetBkColor(hdc));
+				FillRgn( hdc, hRgn, hBrush );
+				DeleteBrush(hBrush);
+			}
+			else
+				FillRgn( hdc, hRgn, hBrush );
+			DeleteRgn(hRgn);
+		}
+	}
+	Graphics grphx( hdc );
+
+	grphx.SetCompositingQuality(this->m_CQuality);
+	grphx.SetCompositingMode(this->m_CMode);
+	grphx.SetSmoothingMode(this->m_SMode);
+
+	if (((this->m_pImage->GetWidth() == 1) || (this->m_pImage->GetHeight() == 1)) && this->m_bResizeImage) {
+		// This fixes a GDI+ bug when resizing 1 px images
+		// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
+		grphx.SetInterpolationMode(InterpolationModeNearestNeighbor);
+		grphx.SetPixelOffsetMode(PixelOffsetModeHalf);
+	}
+	else
+		grphx.SetInterpolationMode(this->m_IMode);
+
+	if (this->m_bTileImage) {
+		ImageAttributes imAtt;
+		imAtt.SetWrapMode(WrapModeTile);
+
+		grphx.DrawImage(this->m_pImage,
+			Rect(x + this->m_iXOffset, y + this->m_iYOffset, w, h),  // dest rect
+			0, 0, w, h,       // source rect
+			UnitPixel,
+			&imAtt);
+	}
+	else if (this->m_bResizeImage)
+		grphx.DrawImage( this->m_pImage, this->m_iXOffset, this->m_iYOffset, w, h );
+	else
+		grphx.DrawImage( this->m_pImage, this->m_iXOffset, this->m_iYOffset);
+}
+#endif

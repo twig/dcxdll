@@ -44,6 +44,8 @@ public:
 
 protected:
 
+	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
+
 };
 
 #endif // _DCXRADIO_H_

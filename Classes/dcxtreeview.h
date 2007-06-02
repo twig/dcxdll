@@ -145,12 +145,27 @@ protected:
 
   static std::string getPathFromVector( VectorOfInts * numPath );
 
-  static UINT parseIconFlagOptions( TString & flags );
-  static UINT parseItemFlags( TString & flags );
-  static UINT parseSortFlags( TString & flags );
-  static UINT parseColorFlags( TString & flags );
-  static UINT parseToggleFlags( TString & flags );
-  
+  static UINT parseIconFlagOptions( const TString & flags );
+  static UINT parseItemFlags( const TString & flags );
+  static UINT parseSortFlags( const TString & flags );
+  static UINT parseColorFlags( const TString & flags );
+  static UINT parseToggleFlags( const TString & flags );
+
+	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
+	void PreloadData();
+#ifdef DCX_USE_GDIPLUS
+	bool LoadGDIPlusImage(const TString &flags, TString &filename);
+	void DrawGDIPlusImage(HDC hdc);
+	Image *m_pImage;
+	CompositingQuality m_CQuality;
+	CompositingMode m_CMode;
+	InterpolationMode m_IMode;
+	SmoothingMode m_SMode;
+	bool m_bTileImage;
+	bool m_bResizeImage;
+	int m_iXOffset;
+	int m_iYOffset;
+#endif
 };
 
 #endif // _DCXTREEVIEW_H_
