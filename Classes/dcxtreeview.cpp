@@ -883,7 +883,9 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		this->m_iXOffset = input.gettok( 5 ).to_int();
 		this->m_iYOffset = input.gettok( 6 ).to_int();
 		TString filename(input.gettok( 7, -1));
-		if (!LoadGDIPlusImage(flag, filename))
+		if (!mIRCLink.m_bUseGDIPlus)
+			this->showError(NULL,"-G","GDI+ not Supported On This Machine");
+		else if (!LoadGDIPlusImage(flag, filename))
 			this->showErrorEx(NULL,"-G","Unable to load Image: %s", filename.to_chr());
 	}
   else
@@ -2003,7 +2005,7 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, true);
 
-	if (this->m_pImage != NULL)
+	if (mIRCLink.m_bUseGDIPlus && this->m_pImage != NULL)
 		DrawGDIPlusImage(hdc);
 
 	CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
