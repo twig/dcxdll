@@ -2128,6 +2128,13 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
             }
             break;
 
+       //   case LVN_BEGINRDRAG:
+       //     {
+							//if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG)
+	      //        this->callAliasEx( NULL, "%s,%d", "beginrdrag", this->getUserID( ) );
+       //     }
+       //     break;
+
 			 //case LVN_ENDSCROLL:
 				// {
 				//	 if (this->isExStyle(LVS_EX_GRIDLINES)) {
@@ -2136,6 +2143,28 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 				//	 }
 				//	 break;
 				// }
+					//		 4294967296-max
+					//case LVN_KEYDOWN: // 4294967141
+					//case LVN_CHANGING: // 4294967196
+					//case LVN_CHANGED: // 4294967195
+					//	NM_FIRST
+					//	LVN_FIRST
+					case LVN_ITEMCHANGED:
+						{
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LPNMLISTVIEW pnmv = (LPNMLISTVIEW)lParam;
+								if (pnmv->iItem == -1)
+									break;
+
+								if (pnmv->uChanged & LVIF_STATE) {
+									if ((pnmv->uNewState & LVIS_SELECTED) && !(pnmv->uOldState & LVIS_SELECTED))
+										this->callAliasEx( NULL, "%s,%d,%d,%d", "selected", this->getUserID( ), pnmv->iItem +1, pnmv->iSubItem );
+									else if (!(pnmv->uNewState & LVIS_SELECTED) && (pnmv->uOldState & LVIS_SELECTED))
+										this->callAliasEx( NULL, "%s,%d,%d,%d", "deselected", this->getUserID( ), pnmv->iItem +1, pnmv->iSubItem );
+								}
+							}
+						}
+						break;
         } // switch
       }
       break;
