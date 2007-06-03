@@ -156,15 +156,16 @@ protected:
 #ifdef DCX_USE_GDIPLUS
 	bool LoadGDIPlusImage(const TString &flags, TString &filename);
 	void DrawGDIPlusImage(HDC hdc);
-	Image *m_pImage;
-	CompositingQuality m_CQuality;
-	CompositingMode m_CMode;
-	InterpolationMode m_IMode;
-	SmoothingMode m_SMode;
-	bool m_bTileImage;
-	bool m_bResizeImage;
-	int m_iXOffset;
-	int m_iYOffset;
+	Image *m_pImage;							// Background Image
+	CompositingQuality m_CQuality;// Image Rendering Quality
+	CompositingMode m_CMode;			// Image Rendering Mode
+	InterpolationMode m_IMode;		//
+	SmoothingMode m_SMode;				// Image Smoothing Mode
+	bool m_bTileImage;						// Tile Image?
+	bool m_bResizeImage;					// Resize Image?
+	int m_iXOffset;								// Images X Offset
+	int m_iYOffset;								// Images Y Offset
+	bool m_bTransparent;					// Is Control Transparent?
 #endif
 };
 

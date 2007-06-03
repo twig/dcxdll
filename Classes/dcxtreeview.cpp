@@ -37,6 +37,7 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
 , m_bTileImage(false)
 , m_iXOffset(0)
 , m_iYOffset(0)
+, m_bTransparent(false)
 #endif
 {
   LONG Styles = 0, ExStyles = 0;
@@ -72,6 +73,8 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
   DragAcceptFiles(this->m_Hwnd, TRUE);
+	if (this->isExStyle(WS_EX_TRANSPARENT))
+		this->m_bTransparent = true;
 }
 
 /*!
@@ -883,10 +886,19 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		this->m_iXOffset = input.gettok( 5 ).to_int();
 		this->m_iYOffset = input.gettok( 6 ).to_int();
 		TString filename(input.gettok( 7, -1));
-		if (!mIRCLink.m_bUseGDIPlus)
-			this->showError(NULL,"-G","GDI+ not Supported On This Machine");
-		else if (!LoadGDIPlusImage(flag, filename))
-			this->showErrorEx(NULL,"-G","Unable to load Image: %s", filename.to_chr());
+		if (!this->m_bTransparent)
+			this->removeExStyle(WS_EX_TRANSPARENT);
+		if (filename != "none") {
+			if (!mIRCLink.m_bUseGDIPlus)
+				this->showError(NULL,"-G","GDI+ Not Supported On This Machine");
+			else if (!LoadGDIPlusImage(flag, filename))
+				this->showErrorEx(NULL,"-G","Unable to load Image: %s", filename.to_chr());
+			else {
+				if (!this->m_bTransparent)
+					this->setExStyle(WS_EX_TRANSPARENT);
+			}
+		}
+		this->redrawWindow();
 	}
   else
     this->parseGlobalCommandRequest( input, flags );
@@ -2081,32 +2093,19 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 	GetClientRect(this->m_Hwnd, &rc);
 
 	int w = (rc.right - rc.left), h = (rc.bottom - rc.top), x = rc.left, y = rc.top;
-	if (!this->m_bResizeImage && !this->m_bTileImage)
-	{ // Fill bkg, Only fill the area NOT covered by the image to avoid flicker.
-		RECT rcBkg;
-		CopyRect(&rcBkg, &rc);
-		if ((this->m_pImage->GetWidth() < (UINT)rcBkg.right) || (this->m_pImage->GetHeight() < (UINT)rcBkg.bottom)) {
-			HRGN hRgn = CreateRectRgn(0,0,0,0);
-			if (this->m_pImage->GetWidth() < (UINT)rcBkg.right) {
-				HRGN hTmp = CreateRectRgn(this->m_pImage->GetWidth(),0,rcBkg.right,rcBkg.bottom);
-				CombineRgn(hRgn, hRgn, hTmp, RGN_OR);
-				DeleteRgn(hTmp);
-			}
-			if (this->m_pImage->GetHeight() < (UINT)rcBkg.bottom) {
-				HRGN hTmp = CreateRectRgn(0,this->m_pImage->GetHeight(),rcBkg.right,rcBkg.bottom);
-				CombineRgn(hRgn, hRgn, hTmp, RGN_OR);
-				DeleteRgn(hTmp);
-			}
-			HBRUSH hBrush = this->getBackClrBrush();
-			if (hBrush == NULL) {
-				hBrush = CreateSolidBrush(GetBkColor(hdc));
-				FillRgn( hdc, hRgn, hBrush );
-				DeleteBrush(hBrush);
-			}
-			else
-				FillRgn( hdc, hRgn, hBrush );
-			DeleteRgn(hRgn);
+	if (this->m_bTransparent) {
+		if (!this->m_bAlphaBlend)
+			this->DrawParentsBackground( hdc, &rc);
+	}
+	else {
+		HBRUSH hBrush = this->getBackClrBrush();
+		if (hBrush == NULL) {
+			hBrush = CreateSolidBrush(GetBkColor(hdc));
+			FillRect( hdc, &rc, hBrush );
+			DeleteBrush(hBrush);
 		}
+		else
+			FillRect( hdc, &rc, hBrush );
 	}
 	Graphics grphx( hdc );
 
