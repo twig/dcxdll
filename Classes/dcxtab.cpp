@@ -959,12 +959,12 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			}
 			break;
 
-		case WM_CLOSE:
-			{
-				if (GetKeyState(VK_ESCAPE) != 0) // don't allow the window to close if escape is pressed. Needs looking into for a better method.
-					bParsed = TRUE;
-			}
-			break;
+		//case WM_CLOSE:
+		//	{
+		//		if (GetKeyState(VK_ESCAPE) != 0) // don't allow the window to close if escape is pressed. Needs looking into for a better method.
+		//			bParsed = TRUE;
+		//	}
+		//	break;
     case WM_DESTROY:
       {
         delete this;

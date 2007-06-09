@@ -584,29 +584,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		this->redrawWindow();
 	}
 	// invalid command
-	else {
-
+	else
 		this->showError(NULL, input.gettok( 3 ).to_chr(), "Invalid Command");
-		//TString error;
-		//if (numtok > 3) {
-		//	error.sprintf("D_ERROR /xdid: Invalid %s command /xdid %s %s %s %s (or invalid arguments) on Control %d",
-		//		this->getType().to_chr(),
-		//		input.gettok( 3 ).to_chr(),
-		//		input.gettok( 1 ).to_chr(),
-		//		input.gettok( 2 ).to_chr(),
-		//		input.gettok( 4, -1).to_chr(),
-		//		this->getUserID());
-		//}
-		//else {
-		//	error.sprintf("D_ERROR /xdid: Invalid %s command /xdid %s %s %s (or invalid arguments) on Control %d",
-		//		this->getType().to_chr(),
-		//		input.gettok( 3).to_chr(),
-		//		input.gettok( 1 ).to_chr(),
-		//		input.gettok( 2 ).to_chr(),
-		//		this->getUserID());
-		//}
-		//mIRCError(error.to_chr());
-	}
 }
 
 HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
@@ -1739,6 +1718,13 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		// redraw the control if the theme has changed
 		case WM_THEMECHANGED:
 			this->redrawWindow();
+			break;
+
+		case WM_CLOSE:
+			{
+				if (GetKeyState(VK_ESCAPE) != 0) // don't allow the window to close if escape is pressed. Needs looking into for a better method.
+					bParsed = TRUE;
+			}
 			break;
 
 		//case WM_WINDOWPOSCHANGING:

@@ -113,7 +113,6 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 		HBITMAP hBitmap = NULL;
 		if (filename != "none") { // if name == `none` then remove previous image.
 			if (IsFile(filename)) {
-				//hBitmap = (HBITMAP) LoadImage( GetModuleHandle( NULL ), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
 				hBitmap = dcxLoadBitmap(hBitmap, filename);
 				if (hBitmap == NULL)
 					DCXError("/xpopup -b", "Unable to Load Image");
@@ -229,9 +228,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
     
     UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | flags, x, y, mhMenuOwner, NULL );
 
-    TString com;
-    com.sprintf("//.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID );
-		mIRCcom(com.to_chr());
+		mIRCcomEX("//.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID );
   }
 	// xpopup -t -> [MENU] [SWITCH] [STYLE]
 	else if (flags.switch_flags[19] && numtok > 2) {

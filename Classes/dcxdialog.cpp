@@ -669,12 +669,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			else // Modeless Dialog
 				DestroyWindow(this->m_Hwnd);
 		}
-		else {
-			TString cmd;
-
-			cmd.sprintf("/.timer -m 1 0 xdialog -x %s", this->getName().to_chr());
-			mIRCcom(cmd.to_chr());
-		}
+		else
+			mIRCcomEX("/.timer -m 1 0 xdialog -x %s", this->getName().to_chr());
 	}
 	// xdialog -h [NAME]
 	else if (flags.switch_flags[7]) {
@@ -899,66 +895,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			TString menuargs;
 			menuargs.sprintf("dialog %s", input.gettok( 3, -1).to_chr());
 			g_XPopupMenuManager.parseXPopupCommand(menuargs, this->m_popup);
-			//TString flag(input.gettok( 3 ));
-
-			//if ( flag[0] == '+' ) {
-			//	switch (flag[1]) {
-			//		case 'a': // Set Alpha value of menu. 0-255
-			//			{
-			//				UINT alpha = input.gettok( 4 ).to_int();
-
-			//				if (alpha > 255)
-			//					alpha = 255;
-
-			//				this->m_popup->SetAlpha(alpha);
-			//			}
-			//			break;
-			//		case 'c':
-			//			{
-			//				int i = input.gettok( 4 ).to_int();
-			//				COLORREF clr = (COLORREF)input.gettok( 5 ).to_num();
-
-			//				this->m_popup->setColor(i, clr);
-			//			}
-			//			break;
-			//		case 'r': // Set Rounded Selector on/off
-			//			{
-			//				this->m_popup->SetRounded(((input.gettok( 4 ).to_int() > 0) ? true : false));
-			//			}
-			//			break;
-			//		case 's':
-			//			{
-			//				XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
-			//				TString tsStyle(input.gettok( 4 ));
-
-			//				if (tsStyle == "office2003rev")
-			//					style = XPopupMenu::XPMS_OFFICE2003_REV;
-			//				else if (tsStyle == "officexp")
-			//					style = XPopupMenu::XPMS_OFFICEXP;
-			//				else if (tsStyle == "icy")
-			//					style = XPopupMenu::XPMS_ICY;
-			//				else if (tsStyle == "icyrev")
-			//					style = XPopupMenu::XPMS_ICY_REV;
-			//				else if (tsStyle == "grade")
-			//					style = XPopupMenu::XPMS_GRADE;
-			//				else if (tsStyle == "graderev")
-			//					style = XPopupMenu::XPMS_GRADE_REV;
-			//				else if (tsStyle == "vertical")
-			//					style = XPopupMenu::XPMS_VERTICAL;
-			//				else if (tsStyle == "verticalrev")
-			//					style = XPopupMenu::XPMS_VERTICAL_REV;
-			//				else if (tsStyle == "normal")
-			//					style = XPopupMenu::XPMS_NORMAL;
-			//				else if (tsStyle == "custom")
-			//					style = XPopupMenu::XPMS_CUSTOM;
-			//				this->m_popup->setStyle(style);
-			//			}
-			//			break;
-			//		default:
-			//			this->showError(NULL,"-P","Unknown Flag");
-			//			break;
-			//	}
-			//}
 		}
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
@@ -967,7 +903,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
 			this->showError(NULL, "-R", "Invalid Flag");
-			//DCXError("/xdialog -R","Invalid Flag");
 			return;
 		}
 
@@ -2580,7 +2515,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 
 void DcxDialog::setParentName(const TString &strParent) {
-	//this->m_tsParentName.sprintf("%s", strParent.to_chr()); // why?
 	this->m_tsParentName = strParent;
 }
 
