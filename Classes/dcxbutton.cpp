@@ -53,6 +53,8 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
+	this->m_bNoTheme = (bNoTheme ? true : false);
+
 	ZeroMemory( &this->m_aBitmaps, 4*sizeof(HBITMAP) );
 	ZeroMemory( &this->m_aColors, 4*sizeof(COLORREF) );
 	ZeroMemory( &this->m_aTransp, 4*sizeof(COLORREF) );
@@ -560,7 +562,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	if ((!isBitmap) || (this->m_bBitmapText)) {          
 		// draw default window bg
 		if (!isBitmap) {
-			if (dcxIsThemeActive()) {
+			if (!this->m_bNoTheme && dcxIsThemeActive()) {
 				// this allows the theme buttons to have a transparent background like the normal ones
 				HRGN hRgn = NULL;
 				int iState;

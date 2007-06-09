@@ -46,6 +46,8 @@ DcxCheck::DcxCheck( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
+	this->m_bNoTheme = (bNoTheme ? true : false);
+
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips")) {
 
@@ -287,12 +289,26 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	if (this->m_clrText != -1)
 		SetTextColor(hdc, this->m_clrText);
 
-	if (dcxIsThemeActive()) {
+	RECT rcClient;
+
+	// get controls client area
+	GetClientRect( this->m_Hwnd, &rcClient );
+
+	// fill background.
+	if (this->isExStyle(WS_EX_TRANSPARENT))
+	{
+		if (!this->m_bAlphaBlend)
+			this->DrawParentsBackground(hdc,&rcClient);
+	}
+	else
+		DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+
+	if (!this->m_bNoTheme && dcxIsThemeActive()) {
 		HRGN hRgn = NULL;
 		//HTHEME hTheme = GetWindowThemeUx(this->m_Hwnd);
 		HTHEME hTheme = OpenThemeDataUx(this->m_Hwnd, L"BUTTON");
-		RECT rcClient;
-		GetClientRect(this->m_Hwnd, &rcClient);
+		//RECT rcClient;
+		//GetClientRect(this->m_Hwnd, &rcClient);
 		if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_CHECKBOX,CBS_UNCHECKEDNORMAL,&rcClient, &hRgn) == S_OK)
 			SelectClipRgn(hdc, hRgn);
 		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINTCLIENT, (WPARAM) hdc, PRF_CLIENT );
@@ -301,7 +317,6 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	}
 	else
 		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-	//CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 	this->FinishAlphaBlend(ai);
 }

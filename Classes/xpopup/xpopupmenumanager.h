@@ -31,6 +31,7 @@ public:
   virtual ~XPopupMenuManager( );
 
   void parseXPopupCommand( const TString & input );
+  void parseXPopupCommand( const TString & input, XPopupMenu *p_Menu );
   void parseXPopupIdentifier( const TString & input, char * szReturnValue );
 
   void addMenu( XPopupMenu * p_Menu );

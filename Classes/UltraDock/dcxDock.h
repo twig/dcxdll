@@ -37,13 +37,15 @@ public:
 	DcxDock(HWND refHwnd, HWND dockHwnd, int dockType);
 	virtual ~DcxDock(void);
 
-	virtual bool DockWindow(HWND hwnd, TString &flag);
+	virtual bool DockWindow(HWND hwnd, const TString &flag);
 	virtual void UnDockWindow(HWND hwnd);
 	void UpdateLayout(void) const { SendMessage(this->m_hParent,WM_SIZE,NULL,NULL); };
 	bool FindDock(const HWND hwnd);
 	bool isDocked(const HWND hwnd);
 	LPDCXULTRADOCK GetDock(const HWND hwnd);
 	virtual void AdjustRect(WINDOWPOS *wp);
+	void RedrawRef(void);
+
 	// Statusbar Functions.
 	static bool InitStatusbar(const TString &styles);
 	static void UnInitStatusbar(void);

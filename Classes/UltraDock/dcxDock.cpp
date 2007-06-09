@@ -25,6 +25,8 @@ DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 		SetProp(this->m_hParent,"DcxDock",this);
 		this->m_OldDockWndProc = (WNDPROC)SetWindowLong(this->m_hParent,GWL_WNDPROC,(LONG)DcxDock::mIRCDockWinProc);
 	}
+	//if (dockType == DOCK_TYPE_TREE)
+	//	AddStyles(this->m_RefHwnd,GWL_EXSTYLE,WS_EX_TRANSPARENT);
 }
 
 DcxDock::~DcxDock(void)
@@ -61,7 +63,7 @@ DcxDock::~DcxDock(void)
 	this->UpdateLayout();
 }
 
-bool DcxDock::DockWindow(HWND hwnd, TString &flag)
+bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 {
 	if (isDocked(hwnd)) {
 		mIRCDebug("D_ERROR Window (%d) is already docked", hwnd);
@@ -292,6 +294,12 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				}
 			}
 			break;
+		//case WM_ERASEBKGND:
+		//	{
+		//		if ( pthis->m_iType == DOCK_TYPE_TREE)
+		//			return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+		//	}
+		//	break;
 	}
 	return CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, wParam, lParam);
 }
@@ -310,16 +318,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 				}
 			}
 			break;
-		//case WM_DRAWITEM: // support for ownerdraw statusbar. NB: NO Delete Item msg.
-		//	{
-		//		LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT) lParam;
-		//		if (pthis->g_StatusBar == lpDrawItem->hwndItem) {
-		//			TString text((char *)lpDrawItem->itemData);
-		//			mIRC_DrawText(lpDrawItem->hDC, text, &lpDrawItem->rcItem, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
-		//			return TRUE;
-		//		}
-		//	}
-		//	break;
+
 		case WM_WINDOWPOSCHANGING:
 			{
 				if ((lParam != NULL) && (pthis->m_iType != DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) {
@@ -340,6 +339,21 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			break;
 		case WM_NOTIFY:
 			{
+				//if (pthis->m_iType == DOCK_TYPE_TREE) {
+				//	LPNMHDR hdr = (LPNMHDR) lParam;
+
+				//	if (!hdr)
+				//		break;
+				//	switch( hdr->code ) {
+				//		case NM_CUSTOMDRAW:
+				//			{
+	   //           //LPNMTVCUSTOMDRAW lpntvcd = (LPNMTVCUSTOMDRAW) lParam;
+				//				return CDRF_DODEFAULT;
+				//				//return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+				//			}
+				//			break;
+				//	}
+				//}
 				if ((pthis->m_iType == DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) {
 					LPNMHDR hdr = (LPNMHDR) lParam;
 

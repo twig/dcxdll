@@ -1684,15 +1684,10 @@ BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TStr
 
 	ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext, 900 );
 	if (SearchType == LVSEARCH_R) {
-		TString com;
 		char res[10];
-		//com.sprintf("$regex(%s,%s)", itemtext, search->to_chr( ) );
-		com.sprintf("/set -nu1 %%dcx_text %s", itemtext );
-		mIRCcom(com.to_chr());
-		com.sprintf("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
-		mIRCcom(com.to_chr());
-		com = "$regex(%dcx_text,%dcx_regex)";
-		mIRCeval( com.to_chr(), res );
+		mIRCcomEX("/set -nu1 %%dcx_text %s", itemtext );
+		mIRCcomEX("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
+		mIRCeval("$regex(%dcx_text,%dcx_regex)", res );
 		if ( !lstrcmp( res, "1" ) )
 			return TRUE;
 	}
@@ -1789,19 +1784,21 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 
 		mIRCevalEX( res, "$%s(%s,%s)", plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 
-    if ( plvsort->iSortFlags & LVSS_DESC ) {
+		int ires = atoi(res);
 
-      if ( lstrcmp( res, "-1" ) )
-        return -1;
-      else if ( lstrcmp( res, "1" ) )
-        return 1;
-    }
+		if (ires < -1)
+			ires = -1;
+		else if (ires > 1)
+			ires = 1;
+
+    if ( plvsort->iSortFlags & LVSS_DESC )
+			return ires;
     else {
 
-      if ( lstrcmp( res, "-1" ) )
-        return 1;
-      else if ( lstrcmp( res, "1" ) )
-        return -1;
+			if (ires == -1)
+				return 1;
+			else if (ires == 1)
+				return -1;
     }
   }
   // NUMERIC Sort
@@ -2014,7 +2011,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
               switch( lplvcd->nmcd.dwDrawStage ) {
                 case CDDS_PREPAINT:
-	                  return CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW | CDRF_NOTIFYPOSTPAINT;
+	                  return ( CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW | CDRF_NOTIFYPOSTPAINT );
 
                 case CDDS_ITEMPREPAINT:
 										return CDRF_NOTIFYSUBITEMDRAW;

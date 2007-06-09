@@ -163,6 +163,7 @@ protected:
 	bool m_bInPrint;
 	bool m_bShadowText; //!< Text is drawn with a shadow.
 	bool m_bCtrlCodeText; //!< mIRC's ctrl codes are used to change the text's appearance.
+	bool m_bNoTheme; //!< Control isn't themed.
   /* ***** */
 
   void parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags );

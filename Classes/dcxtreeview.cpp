@@ -31,6 +31,8 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
 : DcxControl( ID, p_Dialog )
 , m_iIconSize(16)
 , m_colSelection(-1)
+, m_hOldItemFont(NULL)
+, m_hItemFont(NULL)
 #ifdef DCX_USE_GDIPLUS
 , m_pImage(NULL)
 , m_bResizeImage(false)
@@ -134,6 +136,8 @@ void DcxTreeView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
       *ExStyles |= TVS_CHECKBOXES;
 		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
+		else if ( styles.gettok( i ) == "noformat" )
+			this->m_bCtrlCodeText = false;
 
     i++;
   }
@@ -1231,19 +1235,21 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 		char res[20];
 		mIRCevalEX( res, "$%s(%s,%s)", ptvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 
-    if ( ptvsort->iSortFlags & TVSS_DESC ) {
+		int ires = atoi(res);
 
-      if ( lstrcmp( res, "-1" ) )
-        return -1;
-      else if ( lstrcmp( res, "1" ) )
-        return 1;
-    }
+		if (ires < -1)
+			ires = -1;
+		else if (ires > 1)
+			ires = 1;
+
+    if ( ptvsort->iSortFlags & TVSS_DESC )
+			return ires;
     else {
 
-      if ( lstrcmp( res, "-1" ) )
-        return 1;
-      else if ( lstrcmp( res, "1" ) )
-        return -1;
+			if (ires == -1)
+				return 1;
+			else if (ires == 1)
+				return -1;
     }
   }
   // NUMERIC Sort
@@ -1502,15 +1508,10 @@ BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, const TString * search, cons
 	char itemtext[900];
 	this->getItemText(hItem, itemtext, 900);
 	if (SearchType == TVSEARCH_R) {
-		TString com;
 		char res[10];
-		//com.sprintf("$regex(%s,%s)", itemtext, search->to_chr( ) );
-		com.sprintf("/set -nu1 %%dcx_text %s", itemtext );
-		mIRCcom(com.to_chr());
-		com.sprintf("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
-		mIRCcom(com.to_chr());
-		com = "$regex(%dcx_text,%dcx_regex)";
-		mIRCeval( com.to_chr(), res );
+		mIRCcomEX("/set -nu1 %%dcx_text %s", itemtext );
+		mIRCcomEX("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
+		mIRCeval("$regex(%dcx_text,%dcx_regex)", res );
 		if ( !lstrcmp( res, "1" ) )
 			return TRUE;
 	}
@@ -1882,43 +1883,70 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									if ( lpdcxtvi->clrText != -1 )
 										lpntvcd->clrText = lpdcxtvi->clrText;
 
-									//if (this->m_pImage != NULL && this->isExStyle(WS_EX_TRANSPARENT)) {
+									bool bSelected = (lpntvcd->nmcd.uItemState & CDIS_SELECTED);
+
+									// draw unselected background color
+									//if (this->isExStyle(WS_EX_TRANSPARENT) && !bSelected){
 									//	lpntvcd->clrTextBk = CLR_NONE;
-									//	//SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
+									//	SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
 									//}
-									//else {
-										// draw unselected background color
-										if ((lpdcxtvi->clrBkg != -1) && (!(lpntvcd->nmcd.uItemState & CDIS_SELECTED)))
-											lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
-										else if ((this->m_colSelection != -1) && (lpntvcd->nmcd.uItemState & CDIS_SELECTED))
-										{
-											lpntvcd->clrTextBk = this->m_colSelection;
-										}
+									//else if ((lpdcxtvi->clrBkg != -1) && !bSelected)
+									if ((lpdcxtvi->clrBkg != -1) && !bSelected)
+										lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
+									else if ((this->m_colSelection != -1) && bSelected)
+										lpntvcd->clrTextBk = this->m_colSelection;
+
+									if ( lpdcxtvi->bUline || lpdcxtvi->bBold || lpdcxtvi->bItalic) {
+										HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
+
+										LOGFONT lf;
+										GetObject( hFont, sizeof(LOGFONT), &lf );
+
+										if (lpdcxtvi->bBold)
+											lf.lfWeight |= FW_BOLD;
+										if (lpdcxtvi->bUline)
+											lf.lfUnderline = true;
+										if (lpdcxtvi->bItalic)
+											lf.lfItalic = true;
+
+										this->m_hItemFont = CreateFontIndirect( &lf );
+										if (this->m_hItemFont != NULL)
+											this->m_hOldItemFont = (HFONT) SelectObject( lpntvcd->nmcd.hdc, this->m_hItemFont );
+									}
+									//TVITEMEX tvitem;
+									//char buf[900];
+									//ZeroMemory(&tvitem,sizeof(tvitem));
+									//tvitem.hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
+									//tvitem.mask = TVIF_TEXT;
+									//tvitem.pszText = buf;
+									//tvitem.cchTextMax = 900;
+									//TreeView_GetItem(this->m_Hwnd, &tvitem);
+									//TString tsItem(buf);
+									//RECT rcTxt = lpntvcd->nmcd.rc;
+									//if (!this->m_bCtrlCodeText) {
+									//	if (bSelected && this->m_bShadowText) // could cause problems with pre-XP as this is commctrl v6+
+									//		dcxDrawShadowText(lpntvcd->nmcd.hdc,tsItem.to_wchr(), tsItem.len(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, lpntvcd->clrText, 0, 5, 5);
+									//	else
+									//		DrawText( lpntvcd->nmcd.hdc, tsItem.to_chr( ), tsItem.len( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
 									//}
-									//if ( lpdcxtvi->bUline || lpdcxtvi->bBold) {
-									HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
-
-									LOGFONT lf;
-									GetObject( hFont, sizeof(LOGFONT), &lf );
-
-									if (lpdcxtvi->bBold)
-										lf.lfWeight |= FW_BOLD;
-									if (lpdcxtvi->bUline)
-										lf.lfUnderline = true;
-									if (lpdcxtvi->bItalic)
-										lf.lfItalic = true;
-
-									HFONT hFontNew = CreateFontIndirect( &lf );
-									//HFONT hOldFont = (HFONT) SelectObject( lpntvcd->nmcd.hdc, hFontNew );
-									SelectObject(lpntvcd->nmcd.hdc, hFontNew);
-
-									DeleteObject( hFontNew );
-									//}
+									//else
+									//	mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((bSelected && this->m_bShadowText) ? true : false));
 								}
+								//return ( CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT );
 								return ( CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT );
 
                 case CDDS_ITEMPOSTPAINT:
-                  return CDRF_DODEFAULT;
+									{
+										if (this->m_hOldItemFont != NULL) {
+											SelectObject( lpntvcd->nmcd.hdc, this->m_hOldItemFont);
+											this->m_hOldItemFont = NULL;
+										}
+										if (this->m_hItemFont != NULL) {
+											DeleteObject(this->m_hItemFont);
+											this->m_hItemFont = NULL;
+										}
+	                  return CDRF_DODEFAULT;
+									}
 
                 default:
                   return CDRF_DODEFAULT;
@@ -2017,8 +2045,10 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, true);
 
+#ifdef DCX_USE_GDIPLUS
 	if (mIRCLink.m_bUseGDIPlus && this->m_pImage != NULL)
 		DrawGDIPlusImage(hdc);
+#endif
 
 	CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 

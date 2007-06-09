@@ -72,14 +72,10 @@ void XPopupMenuManager::parseSwitchFlags( TString * switchs, XSwitchFlags * flag
  */
 
 void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
-
+  XPopupMenu * p_Menu;
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
   this->parseSwitchFlags( &input.gettok( 2 ), &flags );
-
-  int numtok = input.numtok( );
-
-  XPopupMenu * p_Menu;
 
   // Special mIRC Menu
   if ( input.gettok( 1 ) == "mirc" ) {
@@ -97,6 +93,17 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
 		DCXError("/xpopup",error.to_chr());
     return;
   }
+	parseXPopupCommand(input, p_Menu);
+}
+
+void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p_Menu ) {
+
+  XSwitchFlags flags;
+  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
+  this->parseSwitchFlags( &input.gettok( 2 ), &flags );
+
+  int numtok = input.numtok( );
+
 
 	// xpopup -b - [MENU] [SWITCH] [FILENAME]
 	if ( flags.switch_flags[1] && numtok > 2 ) {

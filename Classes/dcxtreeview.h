@@ -151,6 +151,9 @@ protected:
   static UINT parseColorFlags( const TString & flags );
   static UINT parseToggleFlags( const TString & flags );
 
+	HFONT m_hItemFont; // Font used for specific item changes.
+	HFONT m_hOldItemFont; // Font used for specific item changes.
+
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 	void PreloadData();
 #ifdef DCX_USE_GDIPLUS

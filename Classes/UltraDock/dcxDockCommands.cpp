@@ -461,6 +461,11 @@ mIRC(xdock) {
 							TreeView_SetLineColor(mIRCLink.m_hTreeView,clr);
 						}
 						break;
+					case 'm': // insert mark colour
+						{
+							TreeView_SetInsertMarkColor(mIRCLink.m_hTreeView,clr);
+						}
+						break;
 					default:
 						{
 							DCXError("xdock -F","Invalid Colour flag");
@@ -476,9 +481,9 @@ mIRC(xdock) {
 						DCXError("xdock -F","Invalid Style Args");
 						return 0;
 					}
-					static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll");
+					static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel");
 					int i = 3, numtok = input.numtok();
-					DWORD stylef = GetWindowLong(mIRCLink.m_hTreeView,GWL_STYLE);
+					DWORD stylef = GetWindowStyle(mIRCLink.m_hTreeView);
 					while (i <= numtok) {
 						switch (treebar_styles.findtok(input.gettok(i).to_chr(),1))
 						{
@@ -524,6 +529,12 @@ mIRC(xdock) {
 						case 14: // noscroll (NB: this can lead to gfx glitches with scroll bars already shown)
 							stylef |= TVS_NOSCROLL;
 							break;
+						case 15: // showsel (on by default)
+							stylef |= TVS_SHOWSELALWAYS;
+							break;
+						case 16: // noshowsel
+							stylef &= ~TVS_SHOWSELALWAYS;
+							break;
 						default: // unknown style ignore.
 							break;
 						}
@@ -550,7 +561,8 @@ mIRC(xdock) {
 							ImageList_Destroy(o);
 					}
 					else {
-						HIMAGELIST himl = ImageList_Duplicate( TreeView_GetImageList( mIRCLink.m_hTreeView, TVSIL_NORMAL) );
+						HIMAGELIST ohiml = TreeView_GetImageList( mIRCLink.m_hTreeView, TVSIL_NORMAL);
+						HIMAGELIST himl = ImageList_Duplicate( ohiml );
 						if (himl != NULL) {
 							int type = 0, index = input.gettok(4).to_int();
 							TString cflag(input.gettok(3));
@@ -585,22 +597,36 @@ mIRC(xdock) {
 							}
 							HICON hIcon = dcxLoadIcon(index,filename, false, cflag);
 							if (hIcon != NULL) {
+#ifndef NDEBUG
 								mIRCDebug("count: %d", ImageList_GetImageCount(himl));
 								mIRCDebug("replace: %d", ImageList_ReplaceIcon(himl,type,hIcon));
-								TVITEMEX item;
-								ZeroMemory(&item,sizeof(item));
-								item.hItem = TreeView_GetFirstVisible(mIRCLink.m_hTreeView);
-								item.hItem = TreeView_GetNextVisible(mIRCLink.m_hTreeView, item.hItem);
-								item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE; //I_IMAGECALLBACK == -1
-								mIRCDebug("getitem: %d", TreeView_GetItem(mIRCLink.m_hTreeView,&item));
-								mIRCDebug("image: %d selected: %d", item.iImage, item.iSelectedImage);
+#endif
 								HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView, himl, TVSIL_NORMAL);
 								if (o != NULL && o != mIRCLink.m_hTreeImages)
 									ImageList_Destroy(o);
 								DestroyIcon(hIcon);
+								RedrawWindow( mIRCLink.m_hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
+#ifndef NDEBUG
+								{
+									TVITEMEX item;
+									ZeroMemory(&item,sizeof(item));
+									item.hItem = TreeView_GetFirstVisible(mIRCLink.m_hTreeView);
+									//item.hItem = TreeView_GetNextVisible(mIRCLink.m_hTreeView, item.hItem);
+									item.mask = TVIF_IMAGE; //I_IMAGECALLBACK == -1
+									mIRCDebug("getitem: %d", TreeView_GetItem(mIRCLink.m_hTreeView,&item));
+									mIRCDebug("image: %d selected: %d state: %d", item.iImage, item.iSelectedImage, item.state);
+									item.hItem = TreeView_GetNextVisible(mIRCLink.m_hTreeView, item.hItem);
+									item.mask = TVIF_IMAGE;
+									mIRCDebug("getitem2: %d", TreeView_GetItem(mIRCLink.m_hTreeView,&item));
+									mIRCDebug("image: %d selected: %d state: %d", item.iImage, item.iSelectedImage, item.state);
+									//item.mask = TVIF_IMAGE;
+									//TreeView_SetItem(mIRCLink.m_hTreeView, &item);
+								}
+#endif
 							}
 							else {
 								ImageList_Destroy(himl);
+								DCXError("xdock -F +i", "Unable to load icon");
 								return 0;
 							}
 						}

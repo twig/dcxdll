@@ -125,7 +125,7 @@ public:
 	void showErrorEx(const char *prop, const char *cmd, const char *fmt, ...);
 #ifdef DCX_USE_GDIPLUS
 	void DrawCaret(Graphics & graph);
-	void DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets);
+	void DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd);
 	void DrawDialog( Graphics & graphics, HDC hDC);
 #endif
 	void CreateVistaStyle(void);
@@ -135,9 +135,13 @@ public:
 	void SetVistaStylePos(void);
 	void SetVistaStyleSize(void);
 	bool IsVistaStyle(void) const { return this->m_bVistaStyle; };
+	HDC GetVistaHDC(void) const { return this->m_hVistaHDC; };
+	HWND GetVistaHWND(void) const { return this->m_hFakeHwnd; };
+	SIZE GetVistaOffsets(void) const { return this->m_sVistaOffsets; };
+	void MapVistaRect(HWND hwnd, LPRECT rc);
 
-   void RegisterDragList(DcxList* list);
-   void UnregisterDragList(DcxList* list);
+	void RegisterDragList(DcxList* list);
+	void UnregisterDragList(DcxList* list);
 
 protected:
 
@@ -231,8 +235,10 @@ protected:
 	RECT m_GlassOffsets;
 	PVOID m_pVistaBits;
 	HBITMAP m_hVistaBitmap;
+	HDC m_hVistaHDC;
+	SIZE m_sVistaOffsets;
 
-   static LRESULT ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
+	static LRESULT ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 };
 
 #endif // _DCXDIALOG_H_

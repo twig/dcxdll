@@ -56,6 +56,8 @@
 
 #include <math.h>
 
+#include "xpopup\xpopupmenumanager.h"
+
 extern DcxDialogCollection Dialogs;
 
 extern mIRCDLL mIRCLink;
@@ -101,6 +103,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 , m_bVistaStyle(false)
 , m_pVistaBits(NULL)
 , m_hVistaBitmap(NULL)
+, m_hVistaHDC(NULL)
 //#ifdef DCX_USE_GDIPLUS
 //, m_pImage(NULL)
 //#endif
@@ -730,7 +733,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	else if (flags.switch_cap_flags[19] && numtok > 2) {
 		if (IsWindow(this->m_ToolTipHWND)) {
 			this->showError(NULL, "-T", "Tooltip already exists. Cannot recreate");
-			//DCXError("/xdialog -T","Tooltip already exists. Cannot recreate");
 			return;
 		}
 
@@ -743,8 +745,13 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 			this->m_Hwnd,
 			NULL, GetModuleHandle(NULL), NULL);
-		if (IsWindow(this->m_ToolTipHWND)) // MUST set a limit before $crlf will give multiline tips.
+		if (IsWindow(this->m_ToolTipHWND)) { // MUST set a limit before $crlf will give multiline tips.
 			SendMessage(this->m_ToolTipHWND,TTM_SETMAXTIPWIDTH,0,400); // 400 seems a good limit for now, we could also add an option to set this.
+			//if (input.gettok( 3 ).find('T',0)) {
+			//	AddStyles(this->m_ToolTipHWND,GWL_EXSTYLE,WS_EX_LAYERED);
+			//	SetLayeredWindowAttributesUx(this->m_ToolTipHWND, 0, 192, LWA_ALPHA);
+			//}
+		}
 	}
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 4) {
@@ -888,70 +895,70 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				this->showError(NULL,"-P","Menu Does Not Exist");
 		}
 		if (this->m_popup != NULL) {
-//#include "xpopup\xpopupmenumanager.h"
-//#include "xpopup\xpopupmenu.h"
-//			extern XPopupMenuManager g_XPopupMenuManager; //!< Global XPopupMenu Manager
-//			g_XPopupMenuManager._parseXPopupCommand(input, this->m_popup);
-			TString flag(input.gettok( 3 ));
+			extern XPopupMenuManager g_XPopupMenuManager; //!< Global XPopupMenu Manager
+			TString menuargs;
+			menuargs.sprintf("dialog %s", input.gettok( 3, -1).to_chr());
+			g_XPopupMenuManager.parseXPopupCommand(menuargs, this->m_popup);
+			//TString flag(input.gettok( 3 ));
 
-			if ( flag[0] == '+' ) {
-				switch (flag[1]) {
-					case 'a': // Set Alpha value of menu. 0-255
-						{
-							UINT alpha = input.gettok( 4 ).to_int();
+			//if ( flag[0] == '+' ) {
+			//	switch (flag[1]) {
+			//		case 'a': // Set Alpha value of menu. 0-255
+			//			{
+			//				UINT alpha = input.gettok( 4 ).to_int();
 
-							if (alpha > 255)
-								alpha = 255;
+			//				if (alpha > 255)
+			//					alpha = 255;
 
-							this->m_popup->SetAlpha(alpha);
-						}
-						break;
-					case 'c':
-						{
-							int i = input.gettok( 4 ).to_int();
-							COLORREF clr = (COLORREF)input.gettok( 5 ).to_num();
+			//				this->m_popup->SetAlpha(alpha);
+			//			}
+			//			break;
+			//		case 'c':
+			//			{
+			//				int i = input.gettok( 4 ).to_int();
+			//				COLORREF clr = (COLORREF)input.gettok( 5 ).to_num();
 
-							this->m_popup->setColor(i, clr);
-						}
-						break;
-					case 'r': // Set Rounded Selector on/off
-						{
-							this->m_popup->SetRounded(((input.gettok( 4 ).to_int() > 0) ? true : false));
-						}
-						break;
-					case 's':
-						{
-							XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
-							TString tsStyle(input.gettok( 4 ));
+			//				this->m_popup->setColor(i, clr);
+			//			}
+			//			break;
+			//		case 'r': // Set Rounded Selector on/off
+			//			{
+			//				this->m_popup->SetRounded(((input.gettok( 4 ).to_int() > 0) ? true : false));
+			//			}
+			//			break;
+			//		case 's':
+			//			{
+			//				XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
+			//				TString tsStyle(input.gettok( 4 ));
 
-							if (tsStyle == "office2003rev")
-								style = XPopupMenu::XPMS_OFFICE2003_REV;
-							else if (tsStyle == "officexp")
-								style = XPopupMenu::XPMS_OFFICEXP;
-							else if (tsStyle == "icy")
-								style = XPopupMenu::XPMS_ICY;
-							else if (tsStyle == "icyrev")
-								style = XPopupMenu::XPMS_ICY_REV;
-							else if (tsStyle == "grade")
-								style = XPopupMenu::XPMS_GRADE;
-							else if (tsStyle == "graderev")
-								style = XPopupMenu::XPMS_GRADE_REV;
-							else if (tsStyle == "vertical")
-								style = XPopupMenu::XPMS_VERTICAL;
-							else if (tsStyle == "verticalrev")
-								style = XPopupMenu::XPMS_VERTICAL_REV;
-							else if (tsStyle == "normal")
-								style = XPopupMenu::XPMS_NORMAL;
-							else if (tsStyle == "custom")
-								style = XPopupMenu::XPMS_CUSTOM;
-							this->m_popup->setStyle(style);
-						}
-						break;
-					default:
-						this->showError(NULL,"-P","Unknown Flag");
-						break;
-				}
-			}
+			//				if (tsStyle == "office2003rev")
+			//					style = XPopupMenu::XPMS_OFFICE2003_REV;
+			//				else if (tsStyle == "officexp")
+			//					style = XPopupMenu::XPMS_OFFICEXP;
+			//				else if (tsStyle == "icy")
+			//					style = XPopupMenu::XPMS_ICY;
+			//				else if (tsStyle == "icyrev")
+			//					style = XPopupMenu::XPMS_ICY_REV;
+			//				else if (tsStyle == "grade")
+			//					style = XPopupMenu::XPMS_GRADE;
+			//				else if (tsStyle == "graderev")
+			//					style = XPopupMenu::XPMS_GRADE_REV;
+			//				else if (tsStyle == "vertical")
+			//					style = XPopupMenu::XPMS_VERTICAL;
+			//				else if (tsStyle == "verticalrev")
+			//					style = XPopupMenu::XPMS_VERTICAL_REV;
+			//				else if (tsStyle == "normal")
+			//					style = XPopupMenu::XPMS_NORMAL;
+			//				else if (tsStyle == "custom")
+			//					style = XPopupMenu::XPMS_CUSTOM;
+			//				this->m_popup->setStyle(style);
+			//			}
+			//			break;
+			//		default:
+			//			this->showError(NULL,"-P","Unknown Flag");
+			//			break;
+			//	}
+			//}
 		}
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
@@ -1340,8 +1347,10 @@ UINT DcxDialog::parseTooltipFlags(const TString &flags) {
 			iFlags |= TTS_NOPREFIX;
 		else if (flags[i] == 's')
 			iFlags |= TTS_NOANIMATE;
-		//else if (flags[i] == 't')
-		//	iFlags |= TTS_USEVISUALSTYLE;
+#if _WIN32_WINNT >= 0x0600
+		else if (flags[i] == 't')
+			iFlags |= TTS_USEVISUALSTYLE;
+#endif
 
 		++i;
 	}
@@ -2200,32 +2209,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		}
 
 		case WM_CTLCOLORBTN:
-		//{
-		//	DcxControl *p_Control = p_this->getControlByHWND((HWND) lParam);
-
-		//	if (p_Control != NULL) {
-		//		COLORREF clrText = p_Control->getTextColor();
-		//		//COLORREF clrBackText = p_Control->getBackColor();
-		//		//HBRUSH hBackBrush = p_Control->getBackClrBrush();
-
-		//		if (clrText != -1)
-		//			SetTextColor((HDC) wParam, clrText);
-
-		//		//if (clrBackText != -1)
-		//		//  SetBkColor((HDC) wParam, clrBackText);
-
-		//		SetBkMode((HDC) wParam, TRANSPARENT);
-
-		//		//if ( hBackBrush != NULL )
-		//		//return (LRESULT) hBackBrush;
-
-		//		bParsed = TRUE;
-		//		lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-		//	}
-
-		//	break;
-		//}
-
 		case WM_CTLCOLORLISTBOX:
 		case WM_CTLCOLORSCROLLBAR:
 		case WM_CTLCOLORSTATIC:
@@ -2256,6 +2239,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
 					// when transparent set as no bkg brush & default transparent drawing.
 					SetBkMode((HDC) wParam, TRANSPARENT);
+					//SetBkColor((HDC) wParam, CLR_NONE);
 					hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
 				}
 
@@ -2404,9 +2388,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_INITMENU:
 		case WM_INITMENUPOPUP:
 		{
-			//if (p_this->m_popup != NULL) {
-			//	p_this->m_popup->convertMenu((HMENU) wParam, FALSE);
-			//}
 			if (HIWORD(lParam) == FALSE && p_this->m_popup != NULL) {
 				// let mIRC populate the menus dynamically
 				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
@@ -3173,15 +3154,14 @@ void DcxDialog::DrawDialog( Graphics & graphics, HDC hDC)
 	}
 }
 
-void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd, SIZE offsets)
+void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd)
 {
 	if( !::IsWindow(hWnd) || !::IsWindowVisible(hWnd) )
 		return;
 
 	RECT rc;
 	GetWindowRect(hWnd, &rc);
-	MapWindowPoints(NULL, this->m_Hwnd, (LPPOINT)&rc, 2);
-	OffsetRect(&rc, offsets.cx, offsets.cy);
+	this->MapVistaRect(NULL, &rc);
 
 	int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
 
@@ -3249,26 +3229,13 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 	HDC hDC = ::GetDC(this->m_hFakeHwnd);
 	HDC hdcMemory = ::CreateCompatibleDC(hDC);
 
-	//BITMAPINFOHEADER bmih = { 0 };
-	//int nBytesPerLine = ((szWin.cx * 32 + 31) & (~31)) >> 3;
-	//// Populate BITMAPINFO header
-	//bmih.biSize=sizeof(BITMAPINFOHEADER);
-	//bmih.biWidth=szWin.cx;
-	//bmih.biHeight=szWin.cy;
-	//bmih.biPlanes=1;
-	//bmih.biBitCount=32;
-	//bmih.biCompression=BI_RGB;
-	//bmih.biClrUsed=0;
-	//bmih.biSizeImage=nBytesPerLine*szWin.cy;
-
-	//PVOID pvBits = NULL;
-	//HBITMAP hbmpMem = ::CreateDIBSection(NULL, (PBITMAPINFO)&bmih, DIB_RGB_COLORS, &pvBits, NULL, 0);
-	//memset( pvBits, 0, szWin.cx * 4 * szWin.cy);
 	PVOID pvBits = this->m_pVistaBits;
 	HBITMAP hbmpMem = this->m_hVistaBitmap;
 	if(hbmpMem)
 	{
 		HGDIOBJ hbmpOld = ::SelectObject( hdcMemory, hbmpMem);
+
+		this->m_hVistaHDC = hdcMemory;
 
 		Graphics graph(hdcMemory);
 		graph.SetPageScale(1.0);
@@ -3285,13 +3252,12 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 		MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rcParentClient, 2);
 		offsets.cx = (rcParentClient.left - rcParentWin.left);
 		offsets.cy = (rcParentClient.top - rcParentWin.top);
+		this->m_sVistaOffsets = offsets;
 		// Glass area = window edge +/- offset
 		glassOffsets.left = offsets.cx + this->m_GlassOffsets.left;
 		glassOffsets.top = offsets.cy + this->m_GlassOffsets.top;
 		glassOffsets.right = szWin.cx - ((rcParentWin.right - rcParentClient.right) + this->m_GlassOffsets.right);
 		glassOffsets.bottom = szWin.cy - ((rcParentWin.bottom - rcParentClient.bottom) + this->m_GlassOffsets.bottom);
-
-		//DrawDialog( graph, hDC); // draw dialog after setting update controls clip rect.
 
 		// Check for update rect (area of child control in screen coordinates)
 		// If found set clipping area as child control's area.
@@ -3347,7 +3313,7 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 		HWND hwndChild = ::GetWindow( this->m_Hwnd, GW_CHILD);
 		while(hwndChild)
 		{
-			DrawCtrl( graph, hDC, hwndChild, offsets);
+			DrawCtrl( graph, hDC, hwndChild);
 			hwndChild = ::GetWindow( hwndChild, GW_HWNDNEXT);
 		}
 
@@ -3381,9 +3347,10 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 		UpdateLayeredWindowUx( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc,
 			this->m_cKeyColour, &stBlend, (this->m_bHaveKeyColour ? ULW_COLORKEY|ULW_ALPHA : ULW_ALPHA));
 
+		this->m_hVistaHDC = NULL;
+
 		graph.ReleaseHDC(hdcMemory);
 		::SelectObject( hdcMemory, hbmpOld);
-		//::DeleteObject(hbmpMem);
 	}
 
 	::DeleteDC(hdcMemory);
@@ -3412,14 +3379,13 @@ void DcxDialog::SetVistaStyleSize(void)
 	szWin.cx = (rc.right - rc.left);
 	szWin.cy = (rc.bottom - rc.top);
 	this->CreateVistaStyleBitmap(szWin);
-	//{ // maintain a matching region.
-	//	HRGN hRgn = CreateRectRgn(0,0,0,0);
-	//	if (GetWindowRgn(this->m_Hwnd, hRgn))
-	//		SetWindowRgn(this->m_hFakeHwnd, hRgn, FALSE);
-	//	else
-	//		DeleteRgn(hRgn);
-	//}
 	SetWindowPos(this->m_hFakeHwnd, NULL, 0,0, szWin.cx, szWin.cy, SWP_NOMOVE|SWP_NOZORDER);
+}
+
+void DcxDialog::MapVistaRect(HWND hwnd, LPRECT rc)
+{
+	MapWindowPoints(hwnd,this->m_Hwnd, (LPPOINT)rc, 2);
+	OffsetRect(rc, this->m_sVistaOffsets.cx, this->m_sVistaOffsets.cy);
 }
 
 // Adds the control to the list

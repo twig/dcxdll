@@ -88,6 +88,7 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_bInPrint(false)
 , m_hBorderBrush(NULL)
 , m_iAlphaLevel(0x7f)
+, m_bNoTheme(false)
 {
 	this->m_dEventMask = p_Dialog->getEventMask();
 }
@@ -1297,6 +1298,25 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 		followed by all child controls covered by this one.
 	*/
 	this->updateParentCtrl(); // find the host control, if any.
+	//If in Vista mode
+	if (this->m_pParentDialog->IsVistaStyle())
+	{
+		// Check if the hdc to render too is the main hdc, if so bkg is already drawn so just return
+		if (hdc == this->m_pParentDialog->GetVistaHDC())
+			return;
+		// Check if parent is dialog.
+		if (this->m_pParentHWND == this->m_pParentDialog->getHwnd())
+		{
+			// When in vista mode dialog has already been drawn
+			// So just grab image from windows DC.
+			HDC hdcParent = this->m_pParentDialog->GetVistaHDC();
+			RECT rcWin = rcClient;
+			this->m_pParentDialog->MapVistaRect(hwnd, &rcWin);
+			BitBlt( hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
+				hdcParent, rcWin.left, rcWin.top, SRCCOPY);
+			return;
+		}
+	}
 	if (this->m_pParentDialog->isExStyle(WS_EX_COMPOSITED))
 	{
 		// When in composited mode underling controls have already been drawn
@@ -1367,7 +1387,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 	if (BeginBufferedPaintUx && EndBufferedPaintUx) {
 		BP_PAINTPARAMS paintParams = {0};
 		paintParams.cbSize = sizeof(paintParams);
-		BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0x7f, 0 }; // 0x7f half of 0xff = 50% transparency
+		BLENDFUNCTION bf = { AC_SRC_OVER, 0, this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
 		if (this->m_bAlphaBlend)
 			paintParams.pBlendFunction = &bf;
 
