@@ -223,7 +223,6 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 			
 			if (!hHeader) {
 				this->showError("columns",NULL,"could not find header");
-				//DCXError("$ $+ xdid(listview).columns", "could not find header");
 				return;
 			}
 
@@ -2479,12 +2478,14 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, TString &styles) {
 }
 
 
-void DcxListView::UpdateScrollPbars() {
+void DcxListView::UpdateScrollPbars(void) {
 	for (int row = 0; row < ListView_GetItemCount(this->m_Hwnd); row++) {
 		this->ScrollPbars(row);
 	}
 }
 
+// BUG: when listview has horiz scrollbars pbar will be moved oddly when listview is scrolled horiz.
+//			pbars are positioned relative to visible area of control & as such arn't scrolled.
 void DcxListView::ScrollPbars(const int row) {
 	LPLVITEM lvi = new LVITEM;
 
@@ -2532,12 +2533,15 @@ void DcxListView::ScrollPbars(const int row) {
 		rItem.left++;
 		rItem.right--;
 
-		MoveWindow(lpdcxlvi->pbar->getHwnd(),
-			rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top),
-			TRUE);
-
-		//lpdcxlvi->pbar->redrawWindow();
-		//this->redrawWindow();
+		RECT rcWin;
+		GetWindowRect(lpdcxlvi->pbar->getHwnd(), &rcWin);
+		MapWindowRect(NULL, this->m_Hwnd, &rcWin);
+		if (!EqualRect(&rcWin, &rItem)) {
+			MoveWindow(lpdcxlvi->pbar->getHwnd(),
+				rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top),
+				FALSE);
+			InvalidateRect(lpdcxlvi->pbar->getHwnd(),NULL,TRUE);
+		}
 		break;
 	}
 
