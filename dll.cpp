@@ -33,6 +33,12 @@ DcxDialogCollection Dialogs; //!< blah
 
 mIRCDLL mIRCLink; //!< blah
 
+// Windows 2000+ Pointers
+PFNGETWINDOWINFO GetWindowInfoUx = NULL;
+PFNANIMATEWINDOW AnimateWindowUx = NULL;
+PFNINSENDMESSAGEEX InSendMessageExUx = NULL;
+PFNFLASHWINDOWEX FlashWindowExUx = NULL;
+
 // XP+ function pointers
 PFNSETTHEME SetWindowThemeUx = NULL; //!< blah
 PFNISTHEMEACTIVE IsThemeActiveUx = NULL; //!< blah
@@ -57,9 +63,9 @@ PFNBUFFEREDPAINTINIT BufferedPaintInitUx = NULL;
 PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx = NULL;
 PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx = NULL;
 PFNENDBUFFEREDPAINT EndBufferedPaintUx = NULL;
+PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx = NULL;
 #endif
 
-HMODULE UXModule = NULL;             //!< UxTheme.dll Module Handle
 BOOL XPPlus = FALSE;                 //!< Is OS WinXP+ ?
 
 //FILE * logFile;
@@ -88,10 +94,6 @@ HWND mhMenuOwner = NULL; //!< Menu Owner Window Which Processes WM_ Menu Message
 WNDPROC g_OldmIRCWindowProc = NULL;
 
 bool dcxSignal = false;
-
-#ifdef DCX_USE_GDIPLUS
-ULONG_PTR gdi_token = NULL;
-#endif
 
 /*!
 * \brief mIRC DLL Load Function
@@ -158,6 +160,8 @@ void WINAPI LoadDll(LOADINFO * load) {
 	mIRCLink.m_mIRCHWND = load->mHwnd;
 	mIRCLink.m_bGhosted = false;
 	mIRCLink.m_bDoGhostDrag = 255;
+	mIRCLink.m_bAero = FALSE;
+	mIRCLink.m_bVista = false;
 
 	// Check if we're in debug mode
 	char res[255];
@@ -175,33 +179,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	// Initializing OLE Support
 	OleInitialize(NULL);
 
-	HMODULE hModule = NULL;
-
-#ifdef DCX_USE_GDIPLUS
-	// Initialize GDI+
-	DCX_DEBUG("LoadDLL", "Initializing GDI+...");
-	hModule = LoadLibrary("GDIPLUS.DLL");
-	if (hModule != NULL) {
-		mIRCLink.m_bUseGDIPlus = true;
-		GdiplusStartupInput gsi;
-		gsi.GdiplusVersion = 1;
-		gsi.DebugEventCallback = NULL;
-		gsi.SuppressBackgroundThread = FALSE;
-		gsi.SuppressExternalCodecs = FALSE;
-		if (GdiplusStartup(&gdi_token,&gsi,NULL) != Ok) {
-			DCXError("LoadDLL", "Unable to Startup GDI+");
-			mIRCLink.m_bUseGDIPlus = false;
-			DCXError("LoadDll", "Warning Unable to Initilize GDIPlus.dll, Operating in reduced function mode.");
-		}
-		FreeLibrary(hModule);
-	}
-	else {
-		mIRCLink.m_bUseGDIPlus = false;
-		mIRCError("Warning Unable to Load GDIPlus.dll, Operating in reduced function mode.");
-	}
-#else
-	mIRCLink.m_bUseGDIPlus = false;
-#endif
+	SetupOSCompatibility();
 
 	//get IClassFactory* for WebBrowser
 	DCX_DEBUG("LoadDLL", "Generating class for WebBrowser...");
@@ -211,107 +189,6 @@ void WINAPI LoadDll(LOADINFO * load) {
 	// RichEdit DLL Loading
 	DCX_DEBUG("LoadDLL", "Generating class for RichEdit...");
 	LoadLibrary("RICHED20.DLL");
-
-	DCX_DEBUG("LoadDLL", "Loading USER32.DLL...");
-	hModule = GetModuleHandle("USER32.DLL");
-
-	if (hModule != NULL) {
-		// get UpdateLayeredWindow() if we can.
-		UpdateLayeredWindowUx = (PFNUPDATELAYEREDWINDOW)GetProcAddress(hModule, "UpdateLayeredWindow");
-		// get SetLayeredWindowAttributes() if we can.
-		SetLayeredWindowAttributesUx = (PFNSETLAYEREDWINDOWATTRIBUTES)GetProcAddress(hModule, "SetLayeredWindowAttributes");
-		DCX_DEBUG("LoadDLL", "Found Layer Window Functions");
-	}
-
-	DCX_DEBUG("LoadDLL", "Loading SHELL32.DLL...");
-	hModule = GetModuleHandle("SHELL32.DLL");
-
-	if (hModule != NULL) {
-		// get PickIconDlg() if we can.
-		PickIconDlgUx = (PFNPICKICONDLG)GetProcAddress(hModule, "PickIconDlg");
-		DCX_DEBUG("LoadDLL", "Found PickIconDlg Function");
-	}
-
-	DCX_DEBUG("LoadDLL", "Loading COMCTL32.DLL...");
-	hModule = GetModuleHandle("COMCTL32.DLL");
-
-	if (hModule != NULL) {
-		// get DrawShadowText() if we can.
-		DrawShadowTextUx = (PFNDRAWSHADOWTEXT)GetProcAddress(hModule, "DrawShadowText");
-		DCX_DEBUG("LoadDLL", "Found DrawShadowText");
-	}
-
-	// UXModule Loading
-	DCX_DEBUG("LoadDLL", "Loading UXTHEME.DLL...");
-	UXModule = LoadLibrary("UXTHEME.DLL");
-
-	if (UXModule) {
-		// Get XP+ function pointers.
-		SetWindowThemeUx = (PFNSETTHEME) GetProcAddress(UXModule, "SetWindowTheme");
-		IsThemeActiveUx = (PFNISTHEMEACTIVE) GetProcAddress(UXModule, "IsThemeActive");
-		OpenThemeDataUx = (PFNOPENTHEMEDATA) GetProcAddress(UXModule, "OpenThemeData");
-		CloseThemeDataUx = (PFNCLOSETHEMEDATA) GetProcAddress(UXModule, "CloseThemeData");
-		DrawThemeBackgroundUx = (PFNDRAWTHEMEBACKGROUND) GetProcAddress(UXModule, "DrawThemeBackground");
-		GetThemeBackgroundContentRectUx = (PFNGETTHEMEBACKGROUNDCONTENTRECT) GetProcAddress(UXModule, "GetThemeBackgroundContentRect");
-		IsThemeBackgroundPartiallyTransparentUx = (PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT) GetProcAddress(UXModule, "IsThemeBackgroundPartiallyTransparent");
-		DrawThemeParentBackgroundUx = (PFNDRAWTHEMEPARENTBACKGROUND) GetProcAddress(UXModule, "DrawThemeParentBackground");
-		DrawThemeTextUx = (PFNDRAWTHEMETEXT) GetProcAddress(UXModule, "DrawThemeText");
-		GetThemeBackgroundRegionUx = (PFNGETTHEMEBACKGROUNDREGION) GetProcAddress(UXModule, "GetThemeBackgroundRegion");
-		GetWindowThemeUx = (PFNGETWINDOWTHEME) GetProcAddress(UXModule, "GetWindowTheme");
-
-		// Get Vista function pointers.
-#ifdef DCX_USE_WINSDK
-		DrawThemeParentBackgroundExUx = (PFNDRAWTHEMEPARENTBACKGROUNDEX) GetProcAddress(UXModule, "DrawThemeParentBackgroundEx"); // Vista ONLY!
-		BufferedPaintInitUx = (PFNBUFFEREDPAINTINIT) GetProcAddress(UXModule, "BufferedPaintInit");
-		BufferedPaintUnInitUx = (PFNBUFFEREDPAINTUNINIT) GetProcAddress(UXModule, "BufferedPaintUnInit");
-		BeginBufferedPaintUx = (PFNBEGINBUFFEREDPAINT) GetProcAddress(UXModule, "BeginBufferedPaint");
-		EndBufferedPaintUx = (PFNENDBUFFEREDPAINT) GetProcAddress(UXModule, "EndBufferedPaint");
-#endif
-
-		// NB: DONT count vista functions in XP+ check.
-		if (SetWindowThemeUx && IsThemeActiveUx && OpenThemeDataUx && CloseThemeDataUx &&
-			DrawThemeBackgroundUx && GetThemeBackgroundContentRectUx && IsThemeBackgroundPartiallyTransparentUx &&
-			DrawThemeParentBackgroundUx && DrawThemeTextUx && GetThemeBackgroundRegionUx && GetWindowThemeUx) {
-			XPPlus = TRUE;
-			DCX_DEBUG("LoadDLL", "Found XP+ Theme Functions");
-#ifdef DCX_USE_WINSDK
-			if (DrawThemeParentBackgroundExUx && BufferedPaintInitUx && BufferedPaintUnInitUx &&
-				BeginBufferedPaintUx && EndBufferedPaintUx) {
-				DCX_DEBUG("LoadDLL", "Found Vista Theme Functions");
-				BufferedPaintInitUx();
-			}
-#endif
-		}
-		else {
-			FreeLibrary(UXModule);
-			UXModule = NULL;
-			XPPlus = FALSE;
-			DCXError("LoadDll","There was a problem loading IsThemedXP");
-		}
-	}
-	else
-		XPPlus = FALSE;
-
-#ifdef DCX_USE_DXSDK
-	DCX_DEBUG("LoadDLL", "Checking DirectX Version...");
-	DWORD dx_ver;
-	if (GetDXVersion(&dx_ver, NULL, 0) == S_OK) {
-		if (dx_ver < 0x00090000) {
-			DCX_DEBUG("LoadDLL", "Got DirectX Version: Need V9+");
-			mIRCLink.m_bDX9Installed = false;
-		}
-		else {
-			DCX_DEBUG("LoadDLL", "Got DirectX Version: V9+ Installed");
-			mIRCLink.m_bDX9Installed = true;
-		}
-	}
-	else {
-		DCX_DEBUG("LoadDLL", "Couldn't Get DirectX Version");
-		mIRCLink.m_bDX9Installed = false;
-	}
-#else
-	mIRCLink.m_bDX9Installed = false;
-#endif
 
 	// Load Control definitions
 	DCX_DEBUG("LoadDLL", "Loading control classes");
@@ -586,12 +463,6 @@ int WINAPI UnloadDll(int timeout) {
 		if (g_pClassFactory != NULL)
 			g_pClassFactory->Release();
 
-#ifdef DCX_USE_GDIPLUS
-		// Shutdown GDI+
-		if (gdi_token != NULL)
-			GdiplusShutdown(gdi_token);
-#endif
-
 		// Terminating OLE Support
 		OleUninitialize();
 
@@ -630,15 +501,8 @@ int WINAPI UnloadDll(int timeout) {
 
 		UnregisterClass(XPOPUPMENUCLASS, GetModuleHandle(NULL));
 
-		if (UXModule != NULL) {
-#ifdef DCX_USE_WINSDK
-			if (BufferedPaintUnInitUx)
-				BufferedPaintUnInitUx();
-#endif
+		FreeOSCompatibility();
 
-			FreeLibrary(UXModule);
-			UXModule = NULL;
-		}
 		UnmapViewOfFile(mIRCLink.m_pData);
 		CloseHandle(mIRCLink.m_hFileMap);
 
@@ -1783,36 +1647,41 @@ mIRC(WindowProps) {
 
 // $dcx(ActiveWindow, property)
 mIRC(ActiveWindow) {
+	if (GetWindowInfoUx == NULL) {
+		DCXError("$dcx(ActiveWindow)", "Function Unsupported By Current OS");
+		return 0;
+	}
+
 	TString input(data);
 	int numtok = input.numtok( );
 
-   HWND hwnd = GetForegroundWindow();
+	HWND hwnd = GetForegroundWindow();
 
-   if (!IsWindow(hwnd)) {
-      DCXError("$dcx(ActiveWindow)", "Unable to determine active window");
+	if (!IsWindow(hwnd)) {
+		DCXError("$dcx(ActiveWindow)", "Unable to determine active window");
 		return 0;
-   }
+	}
 
-   TString prop(input.gettok(1));
-   WINDOWINFO wi;
+	TString prop(input.gettok(1));
+	WINDOWINFO wi;
 
-   ZeroMemory(&wi, sizeof(WINDOWINFO));
-   GetWindowInfo(hwnd, &wi);
+	ZeroMemory(&wi, sizeof(WINDOWINFO));
+	GetWindowInfoUx(hwnd, &wi);
 
-   if (prop == "x")            // left
-      wsprintf(data, "%d", wi.rcWindow.left);
-   else if (prop == "y")       // top
-      wsprintf(data, "%d", wi.rcWindow.top);
-   else if (prop == "w")       // width
-      wsprintf(data, "%d", wi.rcWindow.right - wi.rcWindow.left);
-   else if (prop == "h")       // height
-      wsprintf(data, "%d", wi.rcWindow.bottom - wi.rcWindow.top);
-   else if (prop == "caption") // title text
-      GetWindowText(hwnd, data, 900);
-   else {                      // otherwise
-      DCXError("$dcx(ActiveWindow)", "Invalid parameters");
-      return 0;
-   }
+	if (prop == "x")            // left
+		wsprintf(data, "%d", wi.rcWindow.left);
+	else if (prop == "y")       // top
+		wsprintf(data, "%d", wi.rcWindow.top);
+	else if (prop == "w")       // width
+		wsprintf(data, "%d", wi.rcWindow.right - wi.rcWindow.left);
+	else if (prop == "h")       // height
+		wsprintf(data, "%d", wi.rcWindow.bottom - wi.rcWindow.top);
+	else if (prop == "caption") // title text
+		GetWindowText(hwnd, data, 900);
+	else {                      // otherwise
+		DCXError("$dcx(ActiveWindow)", "Invalid parameters");
+		return 0;
+	}
 
-   return 3;
+	return 3;
 }

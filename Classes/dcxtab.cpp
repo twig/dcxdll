@@ -920,6 +920,8 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
     case WM_SIZE:
       {
         this->activateSelectedTab( );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
+	        this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
       }
       break;
 

@@ -100,6 +100,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 , m_hFakeHwnd(NULL)
 , m_iAlphaLevel(255)
 , m_bHaveKeyColour(false)
+, m_cKeyColour(0)
 , m_bVistaStyle(false)
 , m_pVistaBits(NULL)
 , m_hVistaBitmap(NULL)
@@ -299,12 +300,16 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 	// xdialog -a [NAME] [SWITCH] [+FLAGS] [DURATION]
 	if (flags.switch_flags[0] && numtok > 3) {
-		AnimateWindow(this->m_Hwnd,
-			input.gettok( 4 ).to_int(), 
-			getAnimateStyles(input.gettok( 3 )));
+		if (AnimateWindowUx == NULL)
+			this->showError(NULL, "-a", "Unsupported By Current OS");
+		else {
+			AnimateWindowUx(this->m_Hwnd,
+				input.gettok( 4 ).to_int(), 
+				getAnimateStyles(input.gettok( 3 )));
 
-		if (IsWindowVisible(this->m_Hwnd))
-			this->redrawWindow();
+			if (IsWindowVisible(this->m_Hwnd))
+				this->redrawWindow();
+		}
 	}
 	// xdialog -b [NAME] [SWITCH] [+FLAGS]
 	else if (flags.switch_flags[1] && numtok > 2) {
@@ -394,19 +399,23 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
 	else if (flags.switch_flags[5] && numtok > 4) {
-		UINT iFlags = this->parseFlashFlags(input.gettok( 3 ));
-		INT iCount = input.gettok( 4 ).to_int();
-		DWORD dwTimeout = (DWORD)input.gettok( 5 ).to_num();
-		FLASHWINFO fli;
+		if (FlashWindowExUx == NULL)
+			this->showError(NULL, "-f", "Unsupported By Current OS");
+		else {
+			UINT iFlags = this->parseFlashFlags(input.gettok( 3 ));
+			INT iCount = input.gettok( 4 ).to_int();
+			DWORD dwTimeout = (DWORD)input.gettok( 5 ).to_num();
+			FLASHWINFO fli;
 
-		ZeroMemory(&fli, sizeof(FLASHWINFO));
-		fli.cbSize = sizeof(FLASHWINFO);
-		fli.dwFlags = iFlags;
-		fli.hwnd = this->m_Hwnd;
-		fli.uCount = iCount;
-		fli.dwTimeout = dwTimeout;
+			ZeroMemory(&fli, sizeof(FLASHWINFO));
+			fli.cbSize = sizeof(FLASHWINFO);
+			fli.dwFlags = iFlags;
+			fli.hwnd = this->m_Hwnd;
+			fli.uCount = iCount;
+			fli.dwTimeout = dwTimeout;
 
-		FlashWindowEx(& fli);
+			FlashWindowExUx(& fli);
+		}
 	}
 	// xdialog -g [NAME] [SWITCH] [+FLAGS] [COLOR|FILENAME]
 	else if (flags.switch_flags[6] && numtok > 3) {
@@ -695,24 +704,47 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdialog -t [NAME] [SWITCH] [TYPE] [TYPE ARGS]
 	else if (flags.switch_flags[19] && numtok > 2) {
 		if (input.gettok( 3 ) == "alpha") {
-			this->m_iAlphaLevel = (255 * input.gettok( 4 ).to_int()) / 100;
-			if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
-				// Set WS_EX_LAYERED on this window
-				SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+			if (input.gettok( 4 ) == "none") {
+				this->m_iAlphaLevel = 255;
+				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
+					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
+						RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+						AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+					}
+				}
+			}
+			else {
+				this->m_iAlphaLevel = (255 * input.gettok( 4 ).to_int()) / 100;
+				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
+					// Set WS_EX_LAYERED on this window
+					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
 
-				// Make this window x% alpha
-				SetLayeredWindowAttributesUx(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+					// Make this window x% alpha
+					SetLayeredWindowAttributesUx(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+				}
 			}
 		}
 		else if (input.gettok( 3 ) == "transparentcolor") {
-			this->m_cKeyColour = (COLORREF)input.gettok( 4 ).to_int();
-			this->m_bHaveKeyColour = true;
-			if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
-				// Set WS_EX_LAYERED on this window
-				SetWindowLong(this->m_Hwnd, GWL_EXSTYLE, GetWindowLong(this->m_Hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+			if (input.gettok( 4 ) == "none") {
+				this->m_cKeyColour = (COLORREF)-1;
+				this->m_bHaveKeyColour = false;
+				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
+					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
+						RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+						AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+					}
+				}
+			}
+			else {
+				this->m_cKeyColour = (COLORREF)input.gettok( 4 ).to_int();
+				this->m_bHaveKeyColour = true;
+				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
+					// Set WS_EX_LAYERED on this window
+					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
 
-				// Make colour transparent
-				SetLayeredWindowAttributesUx(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
+					// Make colour transparent
+					SetLayeredWindowAttributesUx(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
+				}
 			}
 		}
 		else if (input.gettok( 3 ) == "bgcolor") {
@@ -720,7 +752,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		}
 		else {
 			this->showError(NULL, "-t", "Unknown Switch");
-			//DCXError("/xdialog -t","Unknown Switch");
 			return;
 		}
 		this->redrawWindow();
@@ -781,7 +812,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 			while (itStart != itEnd) {
 				if (*itStart == n) {
-					mIRCDebug("control %d already in list", n);
+					this->showErrorEx(NULL,"-z","control %d already in list", n);
 					return;
 				}
 
@@ -941,7 +972,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				m_Region = BitmapRegion(this->m_bitmapBg,this->m_colTransparentBg,TRUE);
 			else
 				this->showError(NULL, "-R +f", "Unable To Load Image file.");
-				//DCXError("/xdialog -R +f","Unable To Load Image file.");
 		}
 		else if (flag.find('r',0)) // rounded rect - radius args (optional)
 		{
@@ -971,7 +1001,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			// u need at least 3 points for a shape
 			if (numtok < 6) {
 				this->showError(NULL, "-R +p", "Invalid arguments");
-				//DCXError("/xdialog -R +p","Invalid arguments");
 				return;
 			}
 
@@ -981,7 +1010,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 			if (tPoints < 1) {
 				this->showError(NULL, "-R +p", "Invalid Points");
-				//DCXError("/xdialog -R +p","Invalid Points");
 				return;
 			}
 
@@ -1016,7 +1044,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			}
 			else {
 				this->showError(NULL,"-R +g", "Alpha Out Of Range");
-				//DCXError("xdialog -R +g","Alpha Out Of Range");
 				return;
 			}
 		}
@@ -1048,7 +1075,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		}
 		else
 			this->showError(NULL, "-R", "Invalid Flag");
-			//DCXError("xdialog -R", "Invalid Flag");
 
 		if (!noRegion) {
 			if (m_Region != NULL) {
@@ -1064,7 +1090,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			}
 			else
 				this->showError(NULL, "-R", "Unable to create region.");
-				//DCXError("/xdialog -R","Unable to create region.");
 		}
 		this->redrawWindow();
 	}
@@ -1719,7 +1744,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	if (p_this == NULL)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
-	bool fBlocked = (InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
+	bool fBlocked = false;
+	if (InSendMessageExUx != NULL)
+		fBlocked = (InSendMessageExUx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
 
 	// If Message is blocking just call old win proc
 	if (fBlocked)
@@ -3230,6 +3257,11 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 				for( int x = Xbase; x < Xend; x++)
 				{
 					pt.x = x;
+					//if (this->m_bHaveKeyColour) {
+					//	if ((pPixel[0] == GetRValue(this->m_cKeyColour)) && (pPixel[1] == GetGValue(this->m_cKeyColour)) && (pPixel[2] == GetBValue(this->m_cKeyColour))) {
+					//		pPixel[3] = 0;
+					//	}
+					//}
 					if (!PtInRect(&glassOffsets,pt)) {
 						pPixel[3] = half_alpha; // set glass area as 50% (0x7f) transparent
 
@@ -3278,8 +3310,8 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 		//	}
 		//}
 
-		UpdateLayeredWindowUx( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc,
-			this->m_cKeyColour, &stBlend, (this->m_bHaveKeyColour ? ULW_COLORKEY|ULW_ALPHA : ULW_ALPHA));
+		// NB: Unable to combine ULW_COLORKEY & ULW_ALPHA for some reason...
+		UpdateLayeredWindowUx( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc, 0, &stBlend, ULW_ALPHA);
 
 		this->m_hVistaHDC = NULL;
 

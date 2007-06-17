@@ -367,32 +367,40 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	}
 	// xdid -h [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
 	else if (flags.switch_flags[7]) {
-		if (numtok > 4)
-			AnimateWindow(this->m_Hwnd,
-				input.gettok(5).to_int(),
-				(AW_HIDE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_ACTIVATE);
-		else
-			ShowWindow(this->m_Hwnd, SW_HIDE);
+		if (AnimateWindowUx == NULL)
+			this->showError(NULL, "-h", "Unsupported By Current OS");
+		else {
+			if (numtok > 4)
+				AnimateWindowUx(this->m_Hwnd,
+					input.gettok(5).to_int(),
+					(AW_HIDE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_ACTIVATE);
+			else
+				ShowWindow(this->m_Hwnd, SW_HIDE);
 
-		RECT rc;
-		GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
-		if (this->m_pParentDialog->updateLayout(rc))
-			this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
+			RECT rc;
+			GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
+			if (this->m_pParentDialog->updateLayout(rc))
+				this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
+		}
 	}
 	// xdid -s [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
 	else if ( flags.switch_flags[18] ) {
-		if (numtok > 4) {
-			AnimateWindow(this->m_Hwnd,
-				input.gettok(5).to_int(),
-				(AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_HIDE);
-		}
-		else
-			ShowWindow(this->m_Hwnd, SW_SHOW);
+		if (AnimateWindowUx == NULL)
+			this->showError(NULL, "-s", "Unsupported By Current OS");
+		else {
+			if (numtok > 4) {
+				AnimateWindowUx(this->m_Hwnd,
+					input.gettok(5).to_int(),
+					(AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_HIDE);
+			}
+			else
+				ShowWindow(this->m_Hwnd, SW_SHOW);
 
-		RECT rc;
-		GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
-		if (this->m_pParentDialog->updateLayout(rc))
-			this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
+			RECT rc;
+			GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
+			if (this->m_pParentDialog->updateLayout(rc))
+				this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
+		}
 	}
 	// xdid -U [NAME] [ID]
 	else if (flags.switch_cap_flags[20]) {
@@ -419,7 +427,6 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
 			this->showError(NULL, "-R", "Invalid Flag");
-			//DCXError("/xdid -R","Invalid Flag");
 			return;
 		}
 
@@ -486,7 +493,6 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			// u need at least 3 points for a shape
 			if (numtok < 7) {
 				this->showError(NULL, "-R +p", "Invalid Arguments");
-				//DCXError("/xdid -R +p","Invalid Arguments");
 				return;
 			}
 
@@ -496,7 +502,6 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 			if (tPoints < 1) {
 				this->showError(NULL, "-R +p", "Invalid Points");
-				//DCXError("/xdid -R +p","Invalid Points");
 				return;
 			}
 
@@ -579,7 +584,6 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			}
 			else
 				this->showError(NULL, "-R", "Unable to create region.");
-				//DCXError("/xdid -R","Unable to create region.");
 		}
 		this->redrawWindow();
 	}
@@ -933,7 +937,9 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 		return 0L;
 	}
 
-	bool fBlocked = (InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
+	bool fBlocked = false;
+	if (InSendMessageExUx != NULL)
+		fBlocked = (InSendMessageExUx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
 
 	LRESULT lrRes = 0L;
 

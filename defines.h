@@ -85,15 +85,21 @@
 
 // Windows 98 + IE V5.01 + GDI+ 1.0
 //#define _WIN32_WINDOWS 0x0410
-//#define WINVER 0x0410
 //#define _WIN32_WINNT 0x0410
 //#define _WIN32_IE 0x0501
+//#define WINVER 0x0410
 //#define GDIPVER 0x0100
 
 // Windows XP + IE V5.01 + GDI+ 1.0
-#define _WIN32_WINNT 0x0501
-#define _WIN32_IE 0x0501
-#define WINVER 0x0501
+//#define _WIN32_WINNT 0x0501
+//#define _WIN32_IE 0x0501
+//#define WINVER 0x0501
+//#define GDIPVER 0x0100
+
+// Windows XP SP1 + IE V6 + GDI+ 1.0
+#define _WIN32_WINNT 0x0502
+#define _WIN32_IE 0x0600
+#define WINVER 0x0502
 #define GDIPVER 0x0100
 
 // Windows XP SP2 + IE V6 + GDI+ 1.1
@@ -172,6 +178,28 @@ using namespace Gdiplus;
 #include "AggressiveOptimize.h"
 
 
+// Win2000+ stuff for Win98+ compat (only used during testing)
+//#ifndef ICC_STANDARD_CLASSES
+//#define ICC_STANDARD_CLASSES		0x00004000
+//#endif
+//#ifndef ICC_LINK_CLASS
+//#define ICC_LINK_CLASS					0x00008000
+//#endif
+//#ifndef WS_EX_COMPOSITED
+//#define WS_EX_COMPOSITED        0x02000000L
+//#endif
+//#ifndef WS_EX_NOACTIVATE
+//#define WS_EX_NOACTIVATE        0x08000000L
+//#endif
+//#ifndef WS_EX_LAYERED
+//#define WS_EX_LAYERED           0x00080000
+//#endif
+//#ifndef PWINDOWINFO
+//#define PWINDOWINFO LPVOID
+//#endif
+//#ifndef PFLASHWINFO
+//#define PFLASHWINFO LPVOID
+//#endif
 
 // --------------------------------------------------
 // Listview stuff
@@ -298,6 +326,8 @@ typedef struct {
 	HFONT		m_hTreeFont; //!< The Treebars original font.
 	HIMAGELIST m_hTreeImages; //!< The Treebars original image list.
 	bool		m_bDX9Installed; //!<
+	bool		m_bVista; //!< Running on Vista
+	BOOL		m_bAero;	//!< Aero Interface is enabled.
 } mIRCDLL;
 
 // Refer to "Switch Parameters Container" at top of file.
@@ -335,6 +365,12 @@ DcxDialogCollection dcxDialogs();
 char * readFile(const char * filename);
 TString FileDialog(const TString & data, TString method, const HWND pWnd);
 
+// Windows 2000+ pointers
+typedef BOOL (WINAPI *PFNGETWINDOWINFO)(HWND hwnd, PWINDOWINFO pwi);
+typedef BOOL (WINAPI *PFNANIMATEWINDOW)(HWND hwnd, DWORD dwTime, DWORD dwFlags);
+typedef DWORD (WINAPI *PFNINSENDMESSAGEEX)(LPVOID lpReserved);
+typedef BOOL (WINAPI *PFNFLASHWINDOWEX)(PFLASHWINFO pfwi);
+
 // XP+ Function pointers.
 typedef HRESULT (WINAPI *PFNSETTHEME)(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
 typedef HRESULT (WINAPI *PFNISTHEMEACTIVE)();
@@ -359,6 +395,7 @@ typedef HRESULT (WINAPI *PFNBUFFEREDPAINTINIT)(VOID);
 typedef HRESULT (WINAPI *PFNBUFFEREDPAINTUNINIT)(VOID);
 typedef HPAINTBUFFER (WINAPI *PFNBEGINBUFFEREDPAINT)(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
 typedef HRESULT (WINAPI *PFNENDBUFFEREDPAINT)(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
+typedef HRESULT (WINAPI *PFNDWMISCOMPOSITIONENABLED)(BOOL *pfEnabled);
 #endif
 
 HRESULT dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList);
@@ -388,6 +425,8 @@ bool IsFile(TString &filename);
 void calcStrippedRect(HDC hdc, TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
 void mIRC_DrawText(HDC hdc, TString &txt, const LPRECT rc, const UINT style, const bool shadow);
 int TGetWindowText(HWND hwnd, TString &txt);
+void SetupOSCompatibility(void);
+void FreeOSCompatibility(void);
 
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);
@@ -399,6 +438,12 @@ void UpdatemIRC(void);
 
 // DirectX
 HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );
+
+// Windows 2000+ pointers
+extern PFNGETWINDOWINFO GetWindowInfoUx;
+extern PFNANIMATEWINDOW AnimateWindowUx;
+extern PFNINSENDMESSAGEEX InSendMessageExUx;
+extern PFNFLASHWINDOWEX FlashWindowExUx;
 
 // XP+ function pointers
 extern PFNSETTHEME SetWindowThemeUx;  //!< blah
@@ -424,6 +469,7 @@ extern PFNBUFFEREDPAINTINIT BufferedPaintInitUx;
 extern PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx;
 extern PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx;
 extern PFNENDBUFFEREDPAINT EndBufferedPaintUx;
+extern PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
 #endif
 
 extern mIRCDLL mIRCLink;

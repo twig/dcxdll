@@ -32,6 +32,7 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
 , m_bDrag(false)
 , m_hItemFont(NULL)
 , m_hOldItemFont(NULL)
+, m_OrigEditProc(NULL)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -741,7 +742,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
 			if (lvi.iItem == -1) {
 				this->showError(NULL,"-a", "Unable to add item");
-				//DCXError("/xdid -a","Unable to add item");
 				return;
 			}
 
@@ -762,7 +762,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 					if (data.numtok() < 4) {
 						this->showError(NULL,"-a", "Invalid subitem syntax");
-						//DCXError("/xdid -a", "Invalid subitem syntax");
 						break;
 					}
 					stateFlags = parseItemFlags(data.gettok( 1 ));
@@ -974,7 +973,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 		// invalid info
 		if ((nItem < 0) || (nCol < 0)) {
 			this->showError(NULL,"-j", "Invalid Item");
-			//DCXError("/xdid -j","Invalid Item");
 			return;
 		}
 
@@ -988,7 +986,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 		// couldnt retrieve info
 		if (!ListView_GetItem(this->m_Hwnd, &lvi)) {
 			this->showError(NULL,"-j", "Unable to get Item.");
-			//DCXError("/xdid -j","Unable to get Item.");
 			return;
 		}
 
@@ -2038,7 +2035,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 										//return CDRF_SKIPDEFAULT;
 
 										if (ri->m_dFlags & LVIS_UNDERLINE || ri->m_dFlags & LVIS_BOLD || ri->m_dFlags & LVIS_ITALIC) {
-											HFONT hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
+											HFONT hFont = GetWindowFont(this->m_Hwnd);
 											LOGFONT lf;
 
 											GetObject(hFont, sizeof(LOGFONT), &lf);

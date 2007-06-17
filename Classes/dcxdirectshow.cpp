@@ -118,7 +118,6 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			return;
 		else
 			this->showError(prop.to_chr(),NULL,"No File Loaded");
-			//dcxInfoError("directshow", prop.to_chr(),this->m_pParentDialog->getName().to_chr(),this->getUserID(),"No File Loaded");
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == "isloaded") {
@@ -142,7 +141,6 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get Native Video Size");
 			DX_ERR(prop.to_chr(),NULL,hr);
-			//dcxInfoError("directshow","size",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Native Video Size");
 		}
   }
   // [NAME] [ID] [PROP]
@@ -176,7 +174,6 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
 			DX_ERR(prop.to_chr(),NULL, hr);
-			//dcxInfoError("directshow","video",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
 		}
   }
   // [NAME] [ID] [PROP]
@@ -191,7 +188,6 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
 			DX_ERR(prop.to_chr(),NULL, hr);
-			//dcxInfoError("directshow","brange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
 		}
   }
   // [NAME] [ID] [PROP]
@@ -206,7 +202,6 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
 			DX_ERR(prop.to_chr(),NULL, hr);
-			//dcxInfoError("directshow","crange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
 		}
   }
   // [NAME] [ID] [PROP]
@@ -221,7 +216,6 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
 			DX_ERR(prop.to_chr(),NULL, hr);
-			//dcxInfoError("directshow","hrange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
 		}
   }
   // [NAME] [ID] [PROP]
@@ -236,7 +230,6 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
 			DX_ERR(prop.to_chr(),NULL, hr);
-			//dcxInfoError("directshow","srange",this->m_pParentDialog->getName().to_chr(),this->getUserID(),"Unable to get Video Information");
 		}
   }
   // [NAME] [ID] [PROP]
@@ -285,12 +278,10 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		this->ReleaseAll();
 		if (!mIRCLink.m_bDX9Installed) {
 			this->showError(NULL, "-a", "Needs DirectX 9+");
-			//DCXError("/xdid -a", "Needs DirectX 9+");
 			return;
 		}
 		if (!IsFile(filename)) {
 			this->showError(NULL,"-a", "Unable to Access File");
-			//DCXError("/xdid -a", "Unable to Access File");
 			return;
 		}
 		// Create the Filter Graph Manager and query for interfaces.
@@ -302,7 +293,6 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		else {
 			this->showError(NULL,"-a", "Unable to Create FilterGraph");
 			DX_ERR(NULL,"-a", hr);
-			//DCXError("/xdid -a","Unable to Create FilterGraph");
 			inErr = true;
 		}
 		if (SUCCEEDED(hr))
@@ -310,7 +300,6 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Get IMediaControl");
 			DX_ERR(NULL,"-a", hr);
-			//DCXError("/xdid -a","Unable to Get IMediaControl");
 			inErr = true;
 		}
 		if (SUCCEEDED(hr))
@@ -318,7 +307,6 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Get IMediaEventEx");
 			DX_ERR(NULL,"-a", hr);
-			//DCXError("/xdid -a","Unable to Get IMediaEventEx");
 			inErr = true;
 		}
 		if (SUCCEEDED(hr))
@@ -326,7 +314,6 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Get IMediaSeeking");
 			DX_ERR(NULL,"-a", hr);
-			//DCXError("/xdid -a","Unable to Get IMediaSeeking");
 			inErr = true;
 		}
 		if (SUCCEEDED(hr)) {
@@ -336,7 +323,6 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Set Window Notify");
 			DX_ERR(NULL,"-a", hr);
-			//DCXError("/xdid -a","Unable to Set Window Notify");
 			inErr = true;
 		}
 		if (SUCCEEDED(hr)) {
@@ -350,7 +336,6 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		else if (!inErr) {
 			this->showError(NULL,"-a", "Unable to Create VMR9");
 			DX_ERR(NULL,"-a", hr);
-			//DCXError("/xdid -a","Unable to Create VMR9 (No DirectX 9?)");
 			inErr = true;
 		}
 		if (SUCCEEDED(hr)) {
@@ -390,13 +375,11 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 				else {
 					this->showError(NULL,"-a", "Unable to set Video Position");
 					DX_ERR(NULL,"-a", hr);
-					//DCXError("/xdid -a","Unable to set Video Position");
 				}
 			}
 			else {
 				this->showError(NULL,"-a", "Unable to render file (No codec for file format?)");
 				DX_ERR(NULL,"-a", hr);
-				//DCXError("/xdid -a","Unable to render file (No codec for file format?)");
 			}
 		}
 		else if (!inErr) {
