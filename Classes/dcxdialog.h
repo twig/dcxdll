@@ -49,7 +49,8 @@ enum ShadowStatus
 {
 	DCX_SS_ENABLED = 1,	// Shadow is enabled, if not, the following one is always false
 	DCX_SS_VISABLE = 1 << 1,	// Shadow window is visible
-	DCX_SS_PARENTVISIBLE = 1<< 2	// Parent window is visible, if not, the above one is always false
+	DCX_SS_PARENTVISIBLE = 1<< 2,	// Parent window is visible, if not, the above one is always false
+	DCX_SS_DISABLEDBYAERO = 1 << 3	// Shadow is enabled, but do not show because areo is enabled
 };
 
 // dummy runtime classe definition
@@ -119,6 +120,7 @@ public:
 	bool SetShadowDarkness(unsigned int NewDarkness = 200);
 	bool SetShadowPosition(int NewXOffset = 5, int NewYOffset = 5);
 	bool SetShadowColor(COLORREF NewColor = 0);
+	void ShowShadow(void);
 
 	static DWORD getAnimateStyles( TString & flags );
 	void showError(const char *prop, const char *cmd, const char *err);

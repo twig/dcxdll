@@ -2073,19 +2073,28 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					ShowWindow(p_this->m_Shadow.hWin, SW_HIDE);
 					p_this->m_Shadow.Status &= ~DCX_SS_VISABLE;
 				}
-				else if(p_this->m_Shadow.Status & DCX_SS_PARENTVISIBLE)	// Parent maybe resized even if invisible
+				else
 				{
-					// Awful! It seems that if the window size was not decreased
-					// the window region would never be updated until WM_PAINT was sent.
-					// So do not Update() until next WM_PAINT is received in this case
-					if(LOWORD(lParam) > LOWORD(p_this->m_Shadow.WndSize) || HIWORD(lParam) > HIWORD(p_this->m_Shadow.WndSize))
-						p_this->m_Shadow.bUpdate = true;
-					else
-						p_this->UpdateShadow();
-					if(!(p_this->m_Shadow.Status & DCX_SS_VISABLE))
+					if(p_this->isStyle(WS_VISIBLE))	// Parent may be resized even if invisible
 					{
-						ShowWindow(p_this->m_Shadow.hWin, SW_SHOWNA);
-						p_this->m_Shadow.Status |= DCX_SS_VISABLE;
+						p_this->m_Shadow.Status |= DCX_SS_PARENTVISIBLE;
+						if(!(p_this->m_Shadow.Status & DCX_SS_VISABLE))
+						{
+							p_this->m_Shadow.Status |= DCX_SS_VISABLE;
+							// Update before show, because if not, restore from maximized will
+							// see a glance misplaced shadow
+							p_this->UpdateShadow();
+							ShowWindow(p_this->m_Shadow.hWin, SW_SHOWNA);
+							// If restore from minimized, the window region will not be updated until WM_PAINT:(
+							p_this->m_Shadow.bUpdate = true;
+						}
+						// Awful! It seems that if the window size was not decreased
+						// the window region would never be updated until WM_PAINT was sent.
+						// So do not Update() until next WM_PAINT is received in this case
+						else if(LOWORD(lParam) > LOWORD(p_this->m_Shadow.WndSize) || HIWORD(lParam) > HIWORD(p_this->m_Shadow.WndSize))
+							p_this->m_Shadow.bUpdate = true;
+						else
+							p_this->UpdateShadow();
 					}
 				}
 				p_this->m_Shadow.WndSize = lParam;
@@ -2492,25 +2501,35 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_SHOWWINDOW:
 			{
-				if ((p_this->m_Shadow.Status & DCX_SS_ENABLED) && p_this->isShadowed())
+				if(p_this->m_Shadow.Status & DCX_SS_ENABLED && !(p_this->m_Shadow.Status & DCX_SS_DISABLEDBYAERO))
 				{
+					lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 					if(!wParam)	// the window is being hidden
 					{
 						ShowWindow(p_this->m_Shadow.hWin, SW_HIDE);
 						p_this->m_Shadow.Status &= ~(DCX_SS_VISABLE | DCX_SS_PARENTVISIBLE);
 					}
-					else if(!(p_this->m_Shadow.Status & DCX_SS_PARENTVISIBLE))
+					else
 					{
 						p_this->m_Shadow.bUpdate = true;
-						ShowWindow(p_this->m_Shadow.hWin, SW_SHOWNA);
-						p_this->m_Shadow.Status |= DCX_SS_VISABLE | DCX_SS_PARENTVISIBLE;
+						p_this->ShowShadow();
 					}
+					bParsed = TRUE;
 				}
-				if (IsWindow(p_this->m_hFakeHwnd)) {
-					if(!wParam)	// the window is being hidden
-						ShowWindow(p_this->m_hFakeHwnd, SW_HIDE);
+			}
+			break;
+
+		case WM_DWMCOMPOSITIONCHANGED:
+			{
+				if (p_this->isShadowed()) {
+					if (DwmIsCompositionEnabledUx != NULL)
+						DwmIsCompositionEnabledUx(&mIRCLink.m_bAero);
+					if (mIRCLink.m_bAero)
+						p_this->m_Shadow.Status |= DCX_SS_DISABLEDBYAERO;
 					else
-						ShowWindow(p_this->m_hFakeHwnd, SW_SHOWNA);
+						p_this->m_Shadow.Status &= ~DCX_SS_DISABLEDBYAERO;
+
+					p_this->ShowShadow();
 				}
 			}
 			break;
@@ -2627,21 +2646,44 @@ bool DcxDialog::AddShadow(void)
 		if (!IsWindow(this->m_Shadow.hWin))
 			return false;
 
-		// Determine the initial show state of shadow according to parent window's state
-		LONG lParentStyle = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-		if(!(WS_VISIBLE & lParentStyle))	// Parent invisible
-			this->m_Shadow.Status = DCX_SS_ENABLED;
-		else if((WS_MAXIMIZE | WS_MINIMIZE) & lParentStyle)	// Parent visible but does not need shadow
-			this->m_Shadow.Status = DCX_SS_ENABLED | DCX_SS_PARENTVISIBLE;
-		else	// Show the shadow
-		{
-			this->m_Shadow.Status = DCX_SS_ENABLED | DCX_SS_VISABLE | DCX_SS_PARENTVISIBLE;
-			ShowWindow(this->m_Shadow.hWin, SW_SHOWNA);
-			this->UpdateShadow();
-		}
+		this->m_Shadow.Status = DCX_SS_ENABLED;
+
+		if (mIRCLink.m_bAero)
+			this->m_Shadow.Status |= DCX_SS_DISABLEDBYAERO;
+
+		this->ShowShadow();
+
 		return true;
 	}
 	return false;
+}
+void DcxDialog::ShowShadow(void)
+{
+	// Clear all except the enabled status
+	this->m_Shadow.Status &= DCX_SS_ENABLED | DCX_SS_DISABLEDBYAERO;
+
+	if((this->m_Shadow.Status & DCX_SS_ENABLED) && !(this->m_Shadow.Status & DCX_SS_DISABLEDBYAERO))	// Enabled
+	{
+		// Determine the show state of shadow according to parent window's state
+		LONG lParentStyle = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+
+		if(WS_VISIBLE & lParentStyle)	// Parent visible
+		{
+			this->m_Shadow.Status |= DCX_SS_PARENTVISIBLE;
+
+			// Parent is normal, show the shadow
+			if(!((WS_MAXIMIZE | WS_MINIMIZE) & lParentStyle))	// Parent visible but does not need shadow
+				this->m_Shadow.Status |= DCX_SS_VISABLE;
+		}
+	}
+
+	if(this->m_Shadow.Status & DCX_SS_VISABLE)
+	{
+		ShowWindow(this->m_Shadow.hWin, SW_SHOWNA);
+		this->UpdateShadow();
+	}
+	else
+		ShowWindow(this->m_Shadow.hWin, SW_HIDE);
 }
 
 void DcxDialog::RemoveShadow(void)

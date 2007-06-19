@@ -1219,7 +1219,7 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_ENTERSIZEMOVE:
 			{
 				if (mIRCLink.m_bDoGhostDrag < 255 && SetLayeredWindowAttributesUx != NULL) {
-					long style = GetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE);
+					long style = GetWindowExStyle(mIRCLink.m_mIRCHWND);
 					// Set WS_EX_LAYERED on this window
 					if (!(style & WS_EX_LAYERED))
 						SetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE, style | WS_EX_LAYERED);
@@ -1240,6 +1240,13 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			}
 			break;
 		}
+
+		case WM_DWMCOMPOSITIONCHANGED:
+			{
+				if (DwmIsCompositionEnabledUx != NULL)
+					DwmIsCompositionEnabledUx(&mIRCLink.m_bAero);
+			}
+			break;
 
 		default:
 			break;

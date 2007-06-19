@@ -458,7 +458,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			if (m_bitmapBg != NULL) {
 				if (flag.find('R',0)) // now resize image to match control.
 					m_bitmapBg = DcxControl::resizeBitmap(m_bitmapBg, &rc);
-				m_Region = BitmapRegion(m_bitmapBg,tCol,TRUE);
+				m_Region = BitmapRegion(m_bitmapBg,tCol,((tCol != -1) ? TRUE : FALSE));
 
 				DeleteBitmap(m_bitmapBg);
 			}

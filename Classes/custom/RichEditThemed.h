@@ -27,7 +27,11 @@
 #include <tchar.h>		//Used for ANSI/Unicode compatibility
 #include <map>			//Used internally by the class
 #include <uxtheme.h>	//Used to access the UxTheme library
+#if WINVER >= 0x600
+#include <vssym32.h>
+#else
 #include <tmschema.h>	//Definitions used by some of the UxTheme library functions
+#endif
 
 class CRichEditThemed
 {

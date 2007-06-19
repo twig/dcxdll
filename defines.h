@@ -97,16 +97,22 @@
 //#define GDIPVER 0x0100
 
 // Windows XP SP1 + IE V6 + GDI+ 1.0
-#define _WIN32_WINNT 0x0502
-#define _WIN32_IE 0x0600
-#define WINVER 0x0502
-#define GDIPVER 0x0100
+//#define _WIN32_WINNT 0x0502
+//#define _WIN32_IE 0x0600
+//#define WINVER 0x0502
+//#define GDIPVER 0x0100
 
 // Windows XP SP2 + IE V6 + GDI+ 1.1
 //#define _WIN32_WINNT 0x0503
 //#define _WIN32_IE 0x0600
 //#define WINVER 0x0503
 //#define GDIPVER 0x0110
+
+// Windows Vista + IE V7 + GDI+ 1.1
+#define _WIN32_WINNT 0x0600
+#define _WIN32_IE 0x0700
+#define WINVER 0x0600
+#define GDIPVER 0x0110
 
 // Required for VS 2005
 #if _MSC_VER >= 1400
@@ -155,7 +161,12 @@
 
 #include "classes/tstring/tstring.h"
 #include <uxtheme.h>
+#if WINVER >= 0x600
+#include <vssym32.h>
+//#include <dwmapi.h>
+#else
 #include <tmschema.h>
+#endif
 
 #ifdef DCX_USE_GDIPLUS
 #include <gdiplus.h>
@@ -200,6 +211,9 @@ using namespace Gdiplus;
 //#ifndef PFLASHWINFO
 //#define PFLASHWINFO LPVOID
 //#endif
+#ifndef WM_DWMCOMPOSITIONCHANGED
+#define WM_DWMCOMPOSITIONCHANGED 0x031E
+#endif
 
 // --------------------------------------------------
 // Listview stuff
