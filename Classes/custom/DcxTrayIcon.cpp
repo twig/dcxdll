@@ -106,7 +106,7 @@ mIRC(TrayIcon) {
 	else if (flags.find('i', 0) && (numtok > 4)) {
 		// set up info
 		HICON icon;
-		int index = d.gettok(3).to_int();
+		int index = d.gettok(4).to_int();
       TString iconFlags = d.gettok(3);
 		TString filename(d.gettok(5, -1));
 

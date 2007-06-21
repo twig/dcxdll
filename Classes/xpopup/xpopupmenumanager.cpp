@@ -104,22 +104,24 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 
   int numtok = input.numtok( );
 
-
 	// xpopup -b - [MENU] [SWITCH] [FILENAME]
-	if ( flags.switch_flags[1] && numtok > 2 ) {
-
-		TString filename(input.gettok( 3, -1 ));
-		filename.trim();
+	if (flags.switch_flags[1]) {
 		HBITMAP hBitmap = NULL;
-		if (filename != "none") { // if name == `none` then remove previous image.
+
+		if (numtok > 2) {
+         TString filename(input.gettok(3, -1 ));
+         filename.trim();
+
 			if (IsFile(filename)) {
 				hBitmap = dcxLoadBitmap(hBitmap, filename);
+
 				if (hBitmap == NULL)
 					DCXError("/xpopup -b", "Unable to Load Image");
 			}
 			else
 				DCXError("/xpopup -b", "Unable to Access File");
 		}
+
 		p_Menu->setBackBitmap( hBitmap );
 
 	}
