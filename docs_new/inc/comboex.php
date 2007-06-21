@@ -51,12 +51,7 @@ function get_xdid_comboex(&$XDID) {
 	        '__cmd' => "[+FLAGS] [INDEX] [FILENAME]",
 	        '__eg' => "+ 113 C:/mIRC/shell.dll",
             '__params' => array(
-                '+FLAGS' => array(
-					'__desc' => "Icon flags",
-					'__values' => array(
-						'g' => "Convert to grayscale icon.",
-					),
-				),
+            	// +FLAGS
 				'INDEX' => "Icon index in icon archive",
 				'FILENAME' => "Icon archive filename",
 			),
@@ -65,6 +60,8 @@ function get_xdid_comboex(&$XDID) {
 		'y' => 'This command lets you clear the comboex image list.',
 		'r' => 'This command lets you clear all the comboex items.',
 	);
+	
+	writeDcxLoadIcon($XDID, 'w', '+FLAGS', 1);
 }
 
 function get_xdidprops_comboex(&$XDIDPROPS) {

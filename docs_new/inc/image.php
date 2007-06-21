@@ -46,12 +46,7 @@ function get_xdid_image(&$XDID) {
 	        '__cmd' => '[+FLAGS] [INDEX] [SIZE] [ICON]',
 	        '__eg' => '+g 2 48 C:/mIRC/shell.dll',
 	        '__params' => array(
-	        	'+FLAGS' => array(
-					'__desc' => "Icon flags.",
-					'__values' => array(
-						'g' => "Convert to grayscale icon.",
-					),
-				),
+	        	// +FLAGS
 	            'INDEX' => 'Icon index in icon archive.',
 	            'SIZE' => 'Size of the icon.',
 				'FILENAME' => 'Icon archive filename.',
@@ -88,6 +83,8 @@ function get_xdid_image(&$XDID) {
 			),
 		),
 	);
+	
+	writeDcxLoadIcon($XDID, 'w', '+FLAGS', 1);
 }
 
 

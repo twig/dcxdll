@@ -59,11 +59,11 @@ function get_xdid_button(&$XDID) {
 				'+FLAGS' => array(
 					'__desc' => "Icon flags",
 					'__values' => array(
+						// + dcxLoadIcon flags
 						'd' => "Disabled icon.",
 						'h' => "Hovering icon.",
 						'n' => "Normal icon.",
 						's' => "Selected icon.",
-						'g' => "Convert to grayscale icon.",
 					),
 				),
 				'INDEX' => "Icon index in icon archive",
@@ -89,6 +89,8 @@ function get_xdid_button(&$XDID) {
 			),
 		),
 	);
+	
+	writeDcxLoadIcon($XDID, 'w', '+FLAGS', 1);
 }
 
 

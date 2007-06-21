@@ -1159,4 +1159,36 @@ function print_changes($version, $changes) {
 	echo ($nested ? "</ul>" : "</ol>") . "\n";
 	return ob_get_clean();
 }
+
+/**
+ * Updates the data structure with flags from dcxLoadIcon().
+ * 
+ * param cmdPosition is a 1-based index for where to insert the command.
+ */
+function writeDcxLoadIcon(&$FLAGS, $switch, $param, $cmdPosition)
+{
+	// checks if the control already has a $param item
+	if (!isset($FLAGS[$switch]['__params'][$param]))
+		array_insert($FLAGS[$switch]['__params'], $cmdPosition, $param, array());
+	
+	// If the control already has the description, dont append the icon one.
+	if (!isset($FLAGS[$switch]['__params'][$param]['__desc']))
+		$FLAGS[$switch]['__params'][$param]['__desc'] = "Icon flags";
+
+	// Add dcxLoadIcon flags
+	$FLAGS[$switch]['__params'][$param]['__values']['a'] = 'Uses the icon associated with the filetype if nothing could be loaded from the file.';
+	$FLAGS[$switch]['__params'][$param]['__values']['g'] = 'Convert to grayscale icon.';
+	$FLAGS[$switch]['__params'][$param]['__values']['P'] = 'If GDI+ is enabled, this will use GDI+ to extract the icon.';
+}
+
+/**
+ * Method for inserting items into arrays.
+ */
+function array_insert(&$array, $position, $key, $item) {
+	$left = array_slice($array, 0, $position -1);
+	$right = array_slice($array, $position -1);
+	$newArray = array($key => $item);
+
+	$array = array_merge($left, $newArray, $right);
+}
 ?>
