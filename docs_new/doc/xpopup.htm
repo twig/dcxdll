@@ -190,6 +190,7 @@ ON *:SIGNAL:Xpopup-*: {
 	else if (%m == menu_help) {
 		if ($1 == 1) { url http://dcx.scriptsdb.org }
 		else if ($1 == 2) { echo -a command aboutbox }
+	}
 	else {
 	    echo -a unknown menu
 	}
@@ -207,13 +208,13 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr><td colspan="2">This command lets you set the menu item background image in <a class="style">custom</a> style.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xpopup -b [MENU] [IMAGEFILE]</div></td>
+		<td><div class="syntax">/xpopup -b [MENU] (IMAGEFILE)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/xpopup -b mymenu mc.bmp</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Please take note that the image is stretched to fit the menu item rectangle.</li><li>Only BMP images are supported through this command.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Please take note that the image is stretched to fit the menu item rectangle.</li><li>Only BMP images are supported through this command.</li><li>If <a class="param">IMAGEFILE</a> is not specified, then the current image will be removed.</li></ul></td></tr></table>
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #800080; border-color: #800080;">
@@ -298,13 +299,29 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr><td colspan="2">This command lets you add an icon to the menu image list.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xpopup -i [MENU] [INDEX] [FILENAME]</div></td>
+		<td><div class="syntax">/xpopup -i [MENU] [+FLAGS] [INDEX] [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup -i mymenu 113 C:/mIRC/shell.dll</div></td>
+		<td><div class="example">/xpopup -i mymenu +g 113 C:/mIRC/shell.dll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Uses the icon associated with the filetype if nothing could be loaded from the file.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
+	<tr>
+		<td class="value">P</td>
+		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
+	</tr>
 	<tr>
 		<td class="param">INDEX</td>
 		<td>Icon index in icon archive</td>
@@ -852,7 +869,7 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 1st June, 07</td>
+		<td style="text-align: right;">Last Updated: 21st June, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

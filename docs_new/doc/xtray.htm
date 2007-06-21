@@ -81,7 +81,7 @@
 	<tr><td colspan="2">This command creates a trayicon.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtray -c [ID] [INDEX] [FILENAME] (TAB) (TOOLTIP)</div></td>
+		<td><div class="syntax">/xtray -c [ID] [+FLAGS] [INDEX] [FILENAME] (TAB) (TOOLTIP)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -91,6 +91,22 @@
 	<tr>
 		<td class="param">ID</td>
 		<td>The unique ID that this trayicon will be recognised by.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Uses the icon associated with the filetype if nothing could be loaded from the file.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
+	<tr>
+		<td class="value">P</td>
+		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
 	</tr>
 	<tr>
 		<td class="param">INDEX</td>
@@ -123,14 +139,6 @@
 		<td class="param">ID</td>
 		<td>The unique ID that this trayicon will be recognised by.</td>
 	</tr>
-	<tr>
-		<td class="param">INDEX</td>
-		<td>Icon index in icon archive</td>
-	</tr>
-	<tr>
-		<td class="param">FILENAME</td>
-		<td>Icon archive filename</td>
-	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
 <br />
 <table class="xtray">
@@ -139,7 +147,7 @@
 	<tr><td colspan="2">This command edits a trayicon.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtray -e [ID] [INDEX] [FILENAME] ([TAB] TOOLTIP)</div></td>
+		<td><div class="syntax">/xtray -e [ID] [+FLAGS] [INDEX] [FILENAME] ([TAB] TOOLTIP)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -149,6 +157,22 @@
 	<tr>
 		<td class="param">ID</td>
 		<td>The unique ID that this trayicon will be recognised by.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Uses the icon associated with the filetype if nothing could be loaded from the file.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
+	<tr>
+		<td class="value">P</td>
+		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
 	</tr>
 	<tr>
 		<td class="param">INDEX</td>
@@ -170,7 +194,7 @@
 	<tr><td colspan="2">This command edits the trayicon icon.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtray -i [ID] [INDEX] [FILENAME]</div></td>
+		<td><div class="syntax">/xtray -i [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -180,6 +204,22 @@
 	<tr>
 		<td class="param">ID</td>
 		<td>The unique ID that this trayicon will be recognised by.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Uses the icon associated with the filetype if nothing could be loaded from the file.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
+	<tr>
+		<td class="value">P</td>
+		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
 	</tr>
 	<tr>
 		<td class="param">INDEX</td>
@@ -281,7 +321,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 1st June, 07</td>
+		<td style="text-align: right;">Last Updated: 21st June, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

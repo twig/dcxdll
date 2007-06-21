@@ -833,8 +833,16 @@
 		<td>Icon flags</td>
 	</tr>
 	<tr>
+		<td class="value">a</td>
+		<td>Uses the icon associated with the filetype if nothing could be loaded from the file.</td>
+	</tr>
+	<tr>
 		<td class="value">g</td>
 		<td>Convert to grayscale icon.</td>
+	</tr>
+	<tr>
+		<td class="value">P</td>
+		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
 	</tr>
 	<tr>
 		<td class="param">INDEX</td>
@@ -956,11 +964,11 @@
 	<tr><td colspan="2">This command lets you apply XPopup onto the dialog menus.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdialog -P [DNAME] </div></td>
+		<td><div class="syntax">/xdialog -P [DNAME] (STYLE)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -P dcx</div></td>
+		<td><div class="example">/xdialog -P dcx vertical</div></td>
 	</tr>
 </table>
 <br />
@@ -2066,7 +2074,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 1st June, 07</td>
+		<td style="text-align: right;">Last Updated: 21st June, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

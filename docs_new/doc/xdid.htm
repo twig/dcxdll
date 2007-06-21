@@ -190,13 +190,50 @@
 	<tr><td colspan="2">This command lets you hide the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -h [DNAME] [ID] </div></td>
+		<td><div class="syntax">/xdid -h [DNAME] [ID] (+FLAGS) (DELAY)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -h dcx 4</div></td>
+		<td><div class="example">/xdid -h dcx 4 +c 1000</div></td>
 	</tr>
-</table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Animation style flags.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Alpha-Blending fade effect.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Makes the control appear to collapse inward.</td>
+	</tr>
+	<tr>
+		<td class="value">o</td>
+		<td>Animates the control from left to right. This flag can be used with roll or slide animation. It is ignored when used with <a class="value">+c</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Animates the control from right to left. This flag can be used with roll or slide animation. It is ignored when used with <a class="value">+c</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Uses slide animation. It is ignored when used with <a class="value">+c</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Animates the control from top to bottom. This flag can be used with roll or slide animation. It is ignored when used with <a class="value">+c</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>Animates the control from bottom to top. This flag can be used with roll or slide animation. It is ignored when used with <a class="value">+c</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">DELAY</td>
+		<td>Delay in <b>millseconds</b> of the animation. (typical system value is 200)</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The default effect is a roll animation.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -235,13 +272,50 @@
 	<tr><td colspan="2">This command lets you show the control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -s [DNAME] [ID] </div></td>
+		<td><div class="syntax">/xdid -s [DNAME] [ID] (+FLAGS) (DELAY)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -s dcx 4</div></td>
+		<td><div class="example">/xdid -s dcx 4 +c 1000</div></td>
 	</tr>
-</table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Animation style flags.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Alpha-Blending fade effect.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Makes the control appear to expand outward.</td>
+	</tr>
+	<tr>
+		<td class="value">o</td>
+		<td>Animates the control from left to right. This flag can be used with roll or slide animation. It is ignored when used with <a class="value">+c</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Animates the control from right to left. This flag can be used with roll or slide animation. It is ignored when used with <a class="value">+c</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Uses slide animation. It is ignored when used with <a class="value">+c</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Animates the control from top to bottom. This flag can be used with roll or slide animation. It is ignored when used with <a class="value">+c</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>Animates the control from bottom to top. This flag can be used with roll or slide animation. It is ignored when used with <a class="value">+c</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">DELAY</td>
+		<td>Delay in <b>millseconds</b> of the animation. (typical system value is 200)</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The default effect is a roll animation.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #0000FF; border-color: #0000FF;">
@@ -455,7 +529,7 @@
 	</tr>
 	<tr>
 		<td class="value">f</td>
-		<td>Region is defined in bitmap file.</td>
+		<td>Region is defined in bitmap file. The bitmap is resized to match control size before the region is applied.</td>
 	</tr>
 	<tr>
 		<td class="value">o</td>
@@ -564,7 +638,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -Z dcx 4 50</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This behaviour is different for the listview as there is a problem with it. A workaround is in place, please refer to [f]/xdid -Z[/] for the listview for further details.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This behaviour is different for the listview as there is a problem with it. A workaround is in place, please refer to <a class="value">/xdid -Z</a> for the listview for further details.</td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #6666FF"><a name="xdidprop"></a><div style='color: #6666FF;font-size:14pt;'>$xdid() Properties</div></td></tr>
@@ -956,7 +1030,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 1st June, 07</td>
+		<td style="text-align: right;">Last Updated: 21st June, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
