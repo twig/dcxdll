@@ -6,10 +6,10 @@
 extern DcxTrayIcon *trayIcons;
 
 // xTray [+flags] [id] [icon index] [icon file] $tab [tooltip]
-// Create : xTray +c [id] [icon index] [icon file] $tab [tooltip]
-// ---------> xTray +h [id] [hwnd] $tab [tooltip]
-// Edit   : xTray +e [id] [icon index] [icon file] $tab [tooltip]
-// Icon   : xTray +i [id] [icon index] [icon file]
+// Create : xTray +c [id] [+flags] [icon index] [icon file] $tab [tooltip]
+// -------> xTray +h [id] [hwnd] $tab [tooltip]
+// Edit   : xTray +e [id] [+flags] [icon index] [icon file] $tab [tooltip]
+// Icon   : xTray +i [id] [+flags] [icon index] [icon file]
 // Tooltip: xTray +T [id] (text)
 // Delete : xTray +d [id]
 mIRC(TrayIcon) {
@@ -81,11 +81,11 @@ mIRC(TrayIcon) {
 		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
 
 		// load the icon
-		int index = d.gettok( 3 ).to_int();
-		TString filename(d.gettok(1, TSTAB).gettok(4, -1));
+      TString iconFlags = d.gettok(3);
+      int index = d.gettok(4).to_int();
+		TString filename(d.gettok(1, TSTAB).gettok(5, -1));
 
-		icon = dcxLoadIcon(index, filename, false, flags);
-
+      icon = dcxLoadIcon(index, filename, false, iconFlags);
 
 		// add/edit the icon
 		if (!trayIcons->modifyIcon(id, msg, icon, &tooltip)) {
@@ -102,18 +102,21 @@ mIRC(TrayIcon) {
 		}
 	}
 	// change icon
-	else if (flags.find('i', 0) && (numtok > 3)) {
+   // Icon   : xTray +i [id] [+flags] [icon index] [icon file]
+	else if (flags.find('i', 0) && (numtok > 4)) {
 		// set up info
 		HICON icon;
-		int index = d.gettok( 3 ).to_int();
-		TString filename(d.gettok(4, -1));
+		int index = d.gettok(3).to_int();
+      TString iconFlags = d.gettok(3);
+		TString filename(d.gettok(5, -1));
 
+      // TODO: twig
 		//NIF_INFO
 		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
 
 		// load the icon
 		filename.trim();
-		icon = dcxLoadIcon(index, filename, false, flags);
+		icon = dcxLoadIcon(index, filename, false, iconFlags);
 
 		if (!trayIcons->modifyIcon(id, NIM_MODIFY, icon, NULL)) {
 			DCXError("/xTray", "Error changing trayicon icon");

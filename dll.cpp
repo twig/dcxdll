@@ -1241,12 +1241,14 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 		}
 
+#ifdef DCX_USE_WINSDK
 		case WM_DWMCOMPOSITIONCHANGED:
 			{
 				if (DwmIsCompositionEnabledUx != NULL)
 					DwmIsCompositionEnabledUx(&mIRCLink.m_bAero);
 			}
 			break;
+#endif
 
 		default:
 			break;

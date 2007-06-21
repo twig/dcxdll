@@ -151,8 +151,9 @@ void DcxText::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SPACE 0|1] [TEXT]
 	if (flags.switch_flags[0] && numtok > 2) {
-		if (input.gettok(4) == "1")
+      if (input.gettok(4).to_int() == 1)
 			this->m_tsText += " ";
+
 		this->m_tsText += input.gettok(5, -1);
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 
