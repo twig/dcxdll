@@ -44,7 +44,7 @@ mIRC(TrayIcon) {
 		// find icon id in vector
 		bool exists = (trayIcons->idExists(id) ? true : false);
 		DWORD msg = NIM_ADD;
-		
+
 		// if create and it already exists
 		if (flags.find('c', 0) && (exists)) {
 			TString msg;
@@ -81,11 +81,11 @@ mIRC(TrayIcon) {
 		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
 
 		// load the icon
-      TString iconFlags = d.gettok(3);
-      int index = d.gettok(4).to_int();
+		TString iconFlags(d.gettok(3));
+		int index = d.gettok(4).to_int();
 		TString filename(d.gettok(1, TSTAB).gettok(5, -1));
 
-      icon = dcxLoadIcon(index, filename, false, iconFlags);
+		icon = dcxLoadIcon(index, filename, false, iconFlags);
 
 		// add/edit the icon
 		if (!trayIcons->modifyIcon(id, msg, icon, &tooltip)) {
@@ -102,15 +102,15 @@ mIRC(TrayIcon) {
 		}
 	}
 	// change icon
-   // Icon   : xTray +i [id] [+flags] [icon index] [icon file]
+	// Icon   : xTray +i [id] [+flags] [icon index] [icon file]
 	else if (flags.find('i', 0) && (numtok > 4)) {
 		// set up info
 		HICON icon;
 		int index = d.gettok(4).to_int();
-      TString iconFlags = d.gettok(3);
+		TString iconFlags = d.gettok(3);
 		TString filename(d.gettok(5, -1));
 
-      // TODO: twig
+		// TODO: twig
 		//NIF_INFO
 		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
 

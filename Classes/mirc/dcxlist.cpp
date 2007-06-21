@@ -55,23 +55,23 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
-   // Check for "draglist" style
-   if (styles.find("draglist", 0))
-   {
-      // if its multiple select, cant use
-      if (!this->isStyle(LBS_MULTIPLESEL))
-      {
-         if (MakeDragList(this->m_Hwnd))
-         {
-            m_iDragList = RegisterWindowMessage(DRAGLISTMSGSTRING);
-            this->m_pParentDialog->RegisterDragList(this);
-         }
-         else
-            DCXError("DcxList", "Error applying draglist style");
-      }
-      else
-         DCXError("DcxList", "Cannot apply draglist style with multi style");
-   }
+	// Check for "draglist" style
+	if (styles.find("draglist", 0))
+	{
+		// if its multiple select, cant use
+		if (!this->isStyle(LBS_MULTIPLESEL))
+		{
+			if (MakeDragList(this->m_Hwnd))
+			{
+				m_iDragList = RegisterWindowMessage(DRAGLISTMSGSTRING);
+				this->m_pParentDialog->RegisterDragList(this);
+			}
+			else
+				this->showError(NULL, "DcxList", "Error applying draglist style");
+		}
+		else
+			this->showError(NULL, "DcxList", "Cannot apply draglist style with multi style");
+	}
 
 	DragAcceptFiles(this->m_Hwnd, TRUE);
 }
@@ -83,7 +83,7 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
  */
 
 DcxList::~DcxList( ) {
-   this->m_pParentDialog->UnregisterDragList(this);
+	this->m_pParentDialog->UnregisterDragList(this);
 	this->unregistreDefaultWindowProc( );
 }
 
@@ -150,7 +150,6 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 				ListBox_GetText( this->m_Hwnd, nSel, szReturnValue );
 			else
 				this->showError(prop.to_chr(), NULL, "String Too Long (Greater than 900 chars)");
-				//dcxInfoError(this->getType().to_chr(), "text", this->m_pParentDialog->getName().to_chr(), this->getUserID(), "String Too Long (Greater than 900 chars)");
 			return;
 		}
 	}

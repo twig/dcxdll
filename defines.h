@@ -65,17 +65,17 @@
 // --------------------------------------------------
 // DCX using DirectX SDK? (Required for DirectShow)
 // If not, get off your arse & install it!
-//#define DCX_USE_DXSDK
+#define DCX_USE_DXSDK 1
 // end of DirectX SDK
 
 // DCX using GDI+? (Required for advanced graphics routines)
-#define DCX_USE_GDIPLUS
+#define DCX_USE_GDIPLUS 1
 #define DCX_MAX_GDI_ERRORS 21
 // end of GDI+
 
 // DCX using Windows SDK? (Required for Vista routines)
 // If not, get off your arse & install it!
-//#define DCX_USE_WINSDK
+#define DCX_USE_WINSDK 1
 // end of Windows SDK
 
 // --------------------------------------------------
@@ -161,7 +161,7 @@
 
 #include "classes/tstring/tstring.h"
 #include <uxtheme.h>
-#ifdef DCX_USE_WINSDK
+#if DCX_USE_WINSDK && WINVER >= 0x600
 #include <vssym32.h>
 //#include <dwmapi.h>
 #else
@@ -409,8 +409,8 @@ typedef HRESULT (WINAPI *PFNBUFFEREDPAINTINIT)(VOID);
 typedef HRESULT (WINAPI *PFNBUFFEREDPAINTUNINIT)(VOID);
 typedef HPAINTBUFFER (WINAPI *PFNBEGINBUFFEREDPAINT)(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
 typedef HRESULT (WINAPI *PFNENDBUFFEREDPAINT)(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
-typedef HRESULT (WINAPI *PFNDWMISCOMPOSITIONENABLED)(BOOL *pfEnabled);
 #endif
+typedef HRESULT (WINAPI *PFNDWMISCOMPOSITIONENABLED)(BOOL *pfEnabled);
 
 HRESULT dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList);
 BOOL dcxIsThemeActive();
@@ -483,8 +483,8 @@ extern PFNBUFFEREDPAINTINIT BufferedPaintInitUx;
 extern PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx;
 extern PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx;
 extern PFNENDBUFFEREDPAINT EndBufferedPaintUx;
-extern PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
 #endif
+extern PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
 
 extern mIRCDLL mIRCLink;
 

@@ -143,7 +143,7 @@ void DcxText::parseCommandRequest(TString &input) {
 
 	int numtok = input.numtok( );
 
-		// xdid -r [NAME] [ID] [SWITCH]
+	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags.switch_flags[17]) {
 		this->m_tsText = "";
 		SetWindowText(this->m_Hwnd, "");
@@ -151,7 +151,7 @@ void DcxText::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SPACE 0|1] [TEXT]
 	if (flags.switch_flags[0] && numtok > 2) {
-      if (input.gettok(4).to_int() == 1)
+		if (input.gettok(4).to_int() == 1)
 			this->m_tsText += " ";
 
 		this->m_tsText += input.gettok(5, -1);

@@ -1307,7 +1307,7 @@ UINT DcxDialog::parseTooltipFlags(const TString &flags) {
 			iFlags |= TTS_NOPREFIX;
 		else if (flags[i] == 's')
 			iFlags |= TTS_NOANIMATE;
-#if DCX_USE_WINSDK
+#if DCX_USE_WINSDK && WINVER >= 0x600
 		else if (flags[i] == 't')
 			iFlags |= TTS_USEVISUALSTYLE;
 #endif
@@ -2519,7 +2519,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			}
 			break;
 
-#ifdef DCX_USE_WINSDK
 		case WM_DWMCOMPOSITIONCHANGED:
 			{
 				if (p_this->isShadowed()) {
@@ -2534,7 +2533,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				}
 			}
 			break;
-#endif
 
 		case WM_NCDESTROY:
 		{
