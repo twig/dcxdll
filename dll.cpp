@@ -63,8 +63,8 @@ PFNBUFFEREDPAINTINIT BufferedPaintInitUx = NULL;
 PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx = NULL;
 PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx = NULL;
 PFNENDBUFFEREDPAINT EndBufferedPaintUx = NULL;
-PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx = NULL;
 #endif
+PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx = NULL;
 
 BOOL XPPlus = FALSE;                 //!< Is OS WinXP+ ?
 
@@ -1655,7 +1655,7 @@ mIRC(WindowProps) {
 // $dcx(ActiveWindow, property)
 mIRC(ActiveWindow) {
 	if (GetWindowInfoUx == NULL) {
-		DCXError("$dcx(ActiveWindow)", "Function Unsupported By Current OS");
+		DCXError("$!dcx(ActiveWindow)", "Function Unsupported By Current OS");
 		return 0;
 	}
 
@@ -1665,7 +1665,7 @@ mIRC(ActiveWindow) {
 	HWND hwnd = GetForegroundWindow();
 
 	if (!IsWindow(hwnd)) {
-		DCXError("$dcx(ActiveWindow)", "Unable to determine active window");
+		DCXError("$!dcx(ActiveWindow)", "Unable to determine active window");
 		return 0;
 	}
 
@@ -1686,7 +1686,7 @@ mIRC(ActiveWindow) {
 	else if (prop == "caption") // title text
 		GetWindowText(hwnd, data, 900);
 	else {                      // otherwise
-		DCXError("$dcx(ActiveWindow)", "Invalid parameters");
+		DCXError("$!dcx(ActiveWindow)", "Invalid parameters");
 		return 0;
 	}
 
