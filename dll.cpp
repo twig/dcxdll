@@ -1660,7 +1660,12 @@ mIRC(ActiveWindow) {
 	}
 
 	TString input(data);
-	int numtok = input.numtok( );
+	int numtok = input.numtok();
+
+   if (numtok < 1) {
+      DCXError("$!dcx(ActiveWindow)", "Insufficient parameters");
+      return 0;
+   }
 
 	HWND hwnd = GetForegroundWindow();
 
@@ -1675,7 +1680,9 @@ mIRC(ActiveWindow) {
 	ZeroMemory(&wi, sizeof(WINDOWINFO));
 	GetWindowInfoUx(hwnd, &wi);
 
-	if (prop == "x")            // left
+   if (prop == "hwnd")         // handle
+		wsprintf(data, "%d", hwnd);
+	else if (prop == "x")       // left
 		wsprintf(data, "%d", wi.rcWindow.left);
 	else if (prop == "y")       // top
 		wsprintf(data, "%d", wi.rcWindow.top);

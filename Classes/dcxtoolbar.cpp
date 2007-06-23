@@ -1188,7 +1188,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
             {
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 								LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
-								int iButton = lpnmtb->iItem;
+								int iButton = lpnmtb->iItem -1;
 
 								if ( iButton > -1 ) {
 									RECT rc;
