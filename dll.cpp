@@ -1609,13 +1609,13 @@ mIRC(WindowProps) {
 		return 0;
 	}
 
-	if ((flags.find('T', 0) == 0) && (flags.find('i', 0) == 0) && (flags.find('t', 0) == 0)) {
+	if ((flags.find('T', 0) == 0) && (flags.find('i', 0) == 0) && (flags.find('t', 0) == 0) && (flags.find('r', 0) == 0)) {
 		DCXError("/dcx WindowProps","Unknown Flags");
 		return 0;
 	}
 
 	// set hwnd NoTheme
-	// -T
+	// +T
 	if (flags.find('T', 0)) {
 		if (XPPlus) {
 			if (dcxSetWindowTheme(hwnd,L" ",L" ") != S_OK)
@@ -1623,7 +1623,7 @@ mIRC(WindowProps) {
 		}
 	}
 	// set hwnd's title icon
-	// -i [INDEX] [FILENAME]
+	// +i [INDEX] [FILENAME]
 	if (flags.find('i', 0) && numtok > 3) {
 		int index = input.gettok( 3 ).to_int();
 		TString filename(input.gettok(1,TSTAB).gettok(4, -1));
@@ -1633,7 +1633,7 @@ mIRC(WindowProps) {
 			return 0;
 	}
 	// set hwnd title text
-	// -t [TEXT]
+	// +t [TEXT]
 	if (flags.find('t', 0)) { 
 		TString txt;
 		
@@ -1648,6 +1648,15 @@ mIRC(WindowProps) {
 
 		SetWindowText(hwnd, txt.to_chr());
 	}
+	// RMB click hwnd at pos.
+	// +r [X] [Y]
+	if (flags.find('r', 0)) {
+		UINT x = (UINT)input.gettok( 3 ).to_num();
+		UINT y = (UINT)input.gettok( 4 ).to_num();
+		LPARAM parm = MAKELONG(x,y);
+		SendMessage(hwnd,WM_RBUTTONDOWN,MK_RBUTTON,parm);
+		PostMessage(hwnd,WM_RBUTTONUP,MK_RBUTTON,parm); // MUST be a PostMessage or the dll hangs untill the menu is closed.
+	}
 
 	return 1;
 }
@@ -1660,12 +1669,16 @@ mIRC(ActiveWindow) {
 	}
 
 	TString input(data);
+	input.trim();
+
+	data[0] = 0;
+
 	int numtok = input.numtok();
 
-   if (numtok < 1) {
-      DCXError("$!dcx(ActiveWindow)", "Insufficient parameters");
-      return 0;
-   }
+	if (numtok < 1) {
+		DCXError("$!dcx(ActiveWindow)", "Insufficient parameters");
+		return 0;
+	}
 
 	HWND hwnd = GetForegroundWindow();
 
@@ -1680,7 +1693,7 @@ mIRC(ActiveWindow) {
 	ZeroMemory(&wi, sizeof(WINDOWINFO));
 	GetWindowInfoUx(hwnd, &wi);
 
-   if (prop == "hwnd")         // handle
+	if (prop == "hwnd")         // handle
 		wsprintf(data, "%d", hwnd);
 	else if (prop == "x")       // left
 		wsprintf(data, "%d", wi.rcWindow.left);
