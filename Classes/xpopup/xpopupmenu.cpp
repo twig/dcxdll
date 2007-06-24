@@ -216,16 +216,6 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 			itemcom.trim( );
 		}
 
-		HMENU hMenu;
-		if ( path.numtok( ) == 1 )
-			hMenu = this->m_hMenu;
-		else {
-			hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1), this->m_hMenu );
-
-			if ( hMenu == NULL )
-				return;
-		}
-
 		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		int mID = itemdata.gettok( 2 ).to_int( );
 		int nIcon = itemdata.gettok( 3 ).to_int( ) - 1;
@@ -381,8 +371,8 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	else if ( flags.switch_flags[18] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
 
 		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
-		TString flags(input.gettok( 2, TSTAB ));
-		flags.trim( );
+		TString mflags(input.gettok( 2, TSTAB ));
+		mflags.trim( );
 
 		if ( nPos > -1 ) {
 			MENUITEMINFO mii;
@@ -390,13 +380,13 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 			mii.cbSize = sizeof( MENUITEMINFO );
 			mii.fMask = MIIM_STATE;
 
-			if ( flags[0] == '+' ) {
+			if ( mflags[0] == '+' ) {
 
-				int i = 1, len = flags.len( );
+				int i = 1, len = mflags.len( );
 				while ( i < len ) {
-					if ( flags[i] == 'c' )
+					if ( mflags[i] == 'c' )
 						mii.fState |= MFS_CHECKED;
-					else if ( flags[i] == 'g' )
+					else if ( mflags[i] == 'g' )
 						mii.fState |= MFS_GRAYED;
 				++i;
 				}

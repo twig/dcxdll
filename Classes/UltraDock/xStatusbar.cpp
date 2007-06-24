@@ -195,15 +195,15 @@ mIRC(_xstatusbar)
 			DcxDock::status_getParts( 256, parts );
 
 			int i = 0;
-			char d[10];
+			char dd[10];
 
 			while ( i < nParts ) {
 
-				wsprintf( d, "%d", parts[i] );
+				wsprintf( dd, "%d", parts[i] );
 
 				if ( i != 0 )
 					lstrcat( data, " " );
-				lstrcat( data, d );
+				lstrcat( data, dd );
 
 				i++;
 			}

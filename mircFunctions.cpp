@@ -119,7 +119,6 @@ void mIRCeval(const char *data, char *res) {
 }
 
 /*!
-/*!
  * \brief Requests mIRC $identifiers to be evaluated.
  *
  * Allow sufficient characters to be returned.
@@ -168,9 +167,9 @@ SYSTEMTIME MircTimeToSystemTime(const long mircTime) {
 
 	TString str(eval);
 
-	st.wDay = str.gettok(1).to_int();
-	st.wMonth = str.gettok(2).to_int();
-	st.wYear = str.gettok(3).to_int();
+	st.wDay = (WORD)str.gettok(1).to_int();
+	st.wMonth = (WORD)str.gettok(2).to_int();
+	st.wYear = (WORD)str.gettok(3).to_int();
 
 	return st;
 }

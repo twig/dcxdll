@@ -101,7 +101,7 @@ class TiXmlString
 	}
 
 	// TiXmlString destructor
-	~TiXmlString ()
+	virtual ~TiXmlString ()
 	{
 		quit();
 	}

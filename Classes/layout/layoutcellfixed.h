@@ -57,3 +57,4 @@ protected:
 };
 
 #endif // _LAYOUTCELLFIXED_H_
+

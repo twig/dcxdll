@@ -169,8 +169,8 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 	// xdid -g [NAME] [ID] [SWITCH] [N] [MIN] [MAX]
 	else if (flags.switch_flags[6] && numtok > 5) {
 		int nField	= input.gettok( 4 ).to_int() -1;
-		BYTE min		= input.gettok( 5 ).to_int();
-		BYTE max		= input.gettok( 6 ).to_int();
+		BYTE min		= (BYTE)input.gettok( 5 ).to_int();
+		BYTE max		= (BYTE)input.gettok( 6 ).to_int();
 
 		if (nField > -1 && nField < 4)
 			this->setRange(nField, min, max);

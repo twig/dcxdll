@@ -70,7 +70,7 @@ public:
 		XPMS_NORMAL,
 		XPMS_CUSTOM,
 		XPMS_VERTICAL,
-		XPMS_VERTICAL_REV,
+		XPMS_VERTICAL_REV
 	};
 
   XPopupMenu( const TString tsName, HMENU hMenu );

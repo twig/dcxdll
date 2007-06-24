@@ -315,7 +315,6 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		
 		if (!IsFile(filename)) {
 			this->showError(NULL, "-w", "Unable to Access File");
-			//DCXError("xdid -w","Unable to Access File");
 			return;
 		}
 		this->m_vImageList.push_back(new Image(filename.to_wchr()));
@@ -544,6 +543,34 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	}
 	if (h != (idata->rcItem.bottom - idata->rcItem.top)) {
 		SendMessage(idata->hwndItem,LB_SETITEMHEIGHT,idata->itemID,h);
+		//MEASUREITEMSTRUCT mi;
+		//SCROLLINFO sc;
+		//UINT scroll_height = 0, cnt, items = this->getItemCount(), minitemheight = -1;
+		//BOOL bParsed = FALSE;
+		//cnt = items;
+		//mi.CtlID = this->getID();
+		//mi.CtlType = ODT_LISTBOX;
+		//while (cnt > 0) {
+		//	mi.itemID = cnt-1;
+		//	mi.itemData = (ULONG_PTR)this->getItem(cnt-1);
+		//	this->ParentMessage(WM_MEASUREITEM, (WPARAM)mi.CtlID, (LPARAM)&mi, bParsed);
+		//	if (bParsed) {
+		//		if (mi.itemHeight < minitemheight)
+		//			minitemheight = mi.itemHeight;
+		//		scroll_height += mi.itemHeight;
+		//		bParsed = FALSE;
+		//	}
+		//	cnt--;
+		//}
+		//if (minitemheight == 0)
+		//	minitemheight = 1;
+
+		//ZeroMemory(&sc, sizeof(sc));
+		//sc.cbSize = sizeof(sc);
+		//sc.fMask = SIF_RANGE;
+		//sc.nMin = 0;
+		//sc.nMax = items + (h / minitemheight) -1;
+		//SetScrollInfo(this->m_Hwnd, SB_VERT, &sc, FALSE);
 		Redraw = true;
 	}
 	if (Redraw)

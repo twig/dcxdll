@@ -828,45 +828,45 @@ mIRC(FontDialog) {
 		if (option.gettok( 1 ) == "flags" && numtok > 1) {
 			TString flag(option.gettok( 2 ));
 			int c = flag.len();
-			int i = 0;
+			int j = 0;
 
-			while (i < c) {
-				if (flag[i] == 'a')
+			while (j < c) {
+				if (flag[j] == 'a')
 					style |= CF_NOFACESEL;
-				else if (flag[i] == 'b')
+				else if (flag[j] == 'b')
 					style |= CF_SCRIPTSONLY;
-				else if (flag[i] == 'c')
+				else if (flag[j] == 'c')
 					style |= CF_SCALABLEONLY;// (Scalable fonts include vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)
-				else if (flag[i] == 'e')
+				else if (flag[j] == 'e')
 					style |= CF_EFFECTS;
-				else if (flag[i] == 'f')
+				else if (flag[j] == 'f')
 					style |= CF_FORCEFONTEXIST;
-				else if (flag[i] == 'h')
+				else if (flag[j] == 'h')
 					style |= CF_NOSCRIPTSEL;
-				else if (flag[i] == 'i')
+				else if (flag[j] == 'i')
 					style |= CF_NOSIMULATIONS;
-				else if (flag[i] == 'm')
+				else if (flag[j] == 'm')
 					style |= CF_SELECTSCRIPT;
-				else if (flag[i] == 'n')
+				else if (flag[j] == 'n')
 					style |= CF_PRINTERFONTS;
-				else if (flag[i] == 'p')
+				else if (flag[j] == 'p')
 					style |= CF_FIXEDPITCHONLY;
-				else if (flag[i] == 'r')
+				else if (flag[j] == 'r')
 					style |= CF_NOVERTFONTS;
-				else if (flag[i] == 's')
+				else if (flag[j] == 's')
 					style |= CF_SCREENFONTS;
-				else if (flag[i] == 't')
+				else if (flag[j] == 't')
 					style |= CF_TTONLY;
-				else if (flag[i] == 'v')
+				else if (flag[j] == 'v')
 					style |= CF_NOVECTORFONTS;
-				else if (flag[i] == 'w')
+				else if (flag[j] == 'w')
 					style |= CF_WYSIWYG;
-				else if (flag[i] == 'y')
+				else if (flag[j] == 'y')
 					style |= CF_NOSTYLESEL;
-				else if (flag[i] == 'z')
+				else if (flag[j] == 'z')
 					style |= CF_NOSIZESEL;
 
-				i++;
+				j++;
 			}
 		}
 		// defaults +flags(ibsua) charset size fontname
@@ -1224,7 +1224,7 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					if (!(style & WS_EX_LAYERED))
 						SetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE, style | WS_EX_LAYERED);
 					// Make this window 75 alpha
-					SetLayeredWindowAttributesUx(mIRCLink.m_mIRCHWND, 0, mIRCLink.m_bDoGhostDrag, LWA_ALPHA);
+					SetLayeredWindowAttributesUx(mIRCLink.m_mIRCHWND, 0, (BYTE)mIRCLink.m_bDoGhostDrag, LWA_ALPHA);
 					mIRCLink.m_bGhosted = true;
 				}
 			}

@@ -224,11 +224,11 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
   // xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y]
   else if ( flags.switch_flags[18] && numtok > 4 ) {
 
-    UINT flags = this->parseTrackFlags( input.gettok( 3 ) );
+    UINT mflags = this->parseTrackFlags( input.gettok( 3 ) );
     int x = input.gettok( 4 ).to_int( );
     int y = input.gettok( 5 ).to_int( );
     
-    UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | flags, x, y, mhMenuOwner, NULL );
+    UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | mflags, x, y, mhMenuOwner, NULL );
 
 		mIRCcomEX("//.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID );
   }

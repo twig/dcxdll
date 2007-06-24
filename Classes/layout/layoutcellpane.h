@@ -35,7 +35,7 @@ public:
   enum PaneType
 	{
 		HORZ=1,         //!< Horizontal Stacked LayoutCells
-		VERT=HORZ<<1,   //!< Vertical Stacked LayoutCells
+		VERT=HORZ<<1   //!< Vertical Stacked LayoutCells
 	};
 
   LayoutCellPane( const PaneType nType = HORZ );

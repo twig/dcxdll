@@ -149,7 +149,7 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		int len = SendMessage(this->m_Hwnd, EM_LINELENGTH, (WPARAM) offset, NULL);
 		// create and fill the buffer
 		char *p = new char[len];
-		*(LPWORD) p = len;
+		*(LPWORD) p = (WORD)len;
 		int res = SendMessage(this->m_Hwnd, EM_GETLINE, (WPARAM) line, (LPARAM) p);
 
 		// terminate the string at the right position
@@ -291,7 +291,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		else if (numtok > 5) {
 			this->setRedraw(FALSE);
 
-			this->m_byteCharset = parseFontCharSet(input.gettok( 5 ));
+			this->m_byteCharset = (BYTE)parseFontCharSet(input.gettok( 5 ));
 			this->m_iFontSize = 20 * input.gettok( 6 ).to_int();
 			this->m_tsFontFaceName = input.gettok(7, -1);
 			this->m_tsFontFaceName.trim();

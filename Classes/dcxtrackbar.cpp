@@ -189,21 +189,21 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
   }
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
 	else if (flags.switch_flags[6] && numtok > 4) {
-		UINT flags = parseImageFlags(input.gettok( 4 ));
+		UINT tflags = parseImageFlags(input.gettok( 4 ));
 		TString filename(input.gettok(5, -1));
 		filename.trim();
 
 		// background
-		if (flags & TBCS_BACK)
+		if (tflags & TBCS_BACK)
 			this->m_hbmp[TBBMP_BACK] = dcxLoadBitmap(this->m_hbmp[TBBMP_BACK], filename);
 		// thumb
-		if (flags & TBCS_THUMB)
+		if (tflags & TBCS_THUMB)
 			this->m_hbmp[TBBMP_THUMB] = dcxLoadBitmap(this->m_hbmp[TBBMP_THUMB], filename);
 		// thumb hover
-		if (flags & TBCS_THUMBDRAG)
+		if (tflags & TBCS_THUMBDRAG)
 			this->m_hbmp[TBBMP_THUMBDRAG] = dcxLoadBitmap(this->m_hbmp[TBBMP_THUMBDRAG], filename);
 		// channel
-		if (flags & TBCS_CHANNEL)
+		if (tflags & TBCS_CHANNEL)
 			this->m_hbmp[TBBMP_CHANNEL] = dcxLoadBitmap(this->m_hbmp[TBBMP_CHANNEL], filename);
 
 		// these dont seem to work so dont bother calling it

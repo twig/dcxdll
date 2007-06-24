@@ -140,7 +140,7 @@ void DcxMDialog::parseCommandRequest( TString & input ) {
 
 void DcxMDialog::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) {
 	this->m_OrigName = styles;
-};
+}
 
 /*!
  * \brief Subclassed Window Procedure

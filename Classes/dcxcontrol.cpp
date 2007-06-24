@@ -1372,7 +1372,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 	if (BeginBufferedPaintUx && EndBufferedPaintUx) {
 		BP_PAINTPARAMS paintParams = {0};
 		paintParams.cbSize = sizeof(paintParams);
-		BLENDFUNCTION bf = { AC_SRC_OVER, 0, this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
+		BLENDFUNCTION bf = { AC_SRC_OVER, 0, (BYTE)this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
 		if (this->m_bAlphaBlend)
 			paintParams.pBlendFunction = &bf;
 
@@ -1446,7 +1446,7 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 						// associate bitmap with hdc
 						HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, ai->ai_bkg );
 						// alpha blend finished button with parents background
-						BLENDFUNCTION bf = { AC_SRC_OVER, 0, this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
+						BLENDFUNCTION bf = { AC_SRC_OVER, 0, (BYTE)this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
 						AlphaBlend(hdcbkg,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h,bf);
 						// draw final image to windows hdc.
 						BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,hdcbkg,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);

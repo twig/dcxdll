@@ -168,7 +168,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 				DWORD dwStyle = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
 				if (!(dwStyle & WS_EX_LAYERED)) {
 					SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
-					SetLayeredWindowAttributesUx(hMenuWnd, 0, alpha, LWA_ALPHA); // 0xCC = 80% Opaque
+					SetLayeredWindowAttributesUx(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
 				}
 			}
 		}

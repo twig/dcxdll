@@ -503,7 +503,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			path.trim();
 			p2.trim();
 
-			UINT flags = this->parseLayoutFlags(p2.gettok( 1 ));
+			UINT lflags = this->parseLayoutFlags(p2.gettok( 1 ));
 			UINT ID = p2.gettok( 2 ).to_int();
 			UINT WGT = p2.gettok( 3 ).to_int();
 			UINT W = p2.gettok( 4 ).to_int();
@@ -514,15 +514,15 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				LayoutCell * p_Cell = NULL;
 
 				// LayoutCellPane
-				if (flags & LAYOUTPANE) {
-					if (flags & LAYOUTHORZ)
+				if (lflags & LAYOUTPANE) {
+					if (lflags & LAYOUTHORZ)
 						p_Cell = new LayoutCellPane(LayoutCellPane::HORZ);
 					else
 						p_Cell = new LayoutCellPane(LayoutCellPane::VERT);
-				} // if ( flags & LAYOUTPANE )
+				} // if ( lflags & LAYOUTPANE )
 				// LayoutFill Cell
-				else if (flags & LAYOUTFILL) {
-					if (flags & LAYOUTID) {
+				else if (lflags & LAYOUTFILL) {
+					if (lflags & LAYOUTID) {
 						if (cHwnd != NULL && IsWindow(cHwnd))
 							p_Cell = new LayoutCellFill(cHwnd);
 						else {
@@ -533,24 +533,24 @@ void DcxDialog::parseCommandRequest(TString &input) {
 					else {
 						p_Cell = new LayoutCellFill();
 					}
-				} // else if ( flags & LAYOUTFILL )
+				} // else if ( lflags & LAYOUTFILL )
 				// LayoutCellFixed
-				else if (flags & LAYOUTFIXED) {
+				else if (lflags & LAYOUTFIXED) {
 					LayoutCellFixed::FixedType type;
 
-					if (flags & LAYOUTVERT && flags & LAYOUTHORZ)
+					if (lflags & LAYOUTVERT && lflags & LAYOUTHORZ)
 						type = LayoutCellFixed::BOTH;
-					else if (flags & LAYOUTVERT)
+					else if (lflags & LAYOUTVERT)
 						type = LayoutCellFixed::HEIGHT;
 					else
 						type = LayoutCellFixed::WIDTH;
 
 					// Defined Rectangle
-					if (flags & LAYOUTDIM) {
+					if (lflags & LAYOUTDIM) {
 						RECT rc;
 						SetRect(&rc, 0, 0, W, H);
 
-						if (flags & LAYOUTID) {
+						if (lflags & LAYOUTID) {
 							if (cHwnd != NULL && IsWindow(cHwnd))
 								p_Cell = new LayoutCellFixed(cHwnd, rc, type);
 							else {
@@ -563,7 +563,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 					}
 					// No defined Rectangle
 					else {
-						if (flags & LAYOUTID) {
+						if (lflags & LAYOUTID) {
 							if (cHwnd != NULL && IsWindow(cHwnd))
 								p_Cell = new LayoutCellFixed(cHwnd, type);
 							else {
@@ -572,10 +572,9 @@ void DcxDialog::parseCommandRequest(TString &input) {
 							}
 						}
 					} //else
-				} // else if ( flags & LAYOUTFIXED )
+				} // else if ( lflags & LAYOUTFIXED )
 				else {
 					this->showError(NULL, "-l", "Unknown Cell Type");
-					//DCXError("/xdialog -l","Unknown Cell Type");
 					return;
 				}
 

@@ -174,7 +174,7 @@ void DcxDateTime::parseCommandRequest(TString &input) {
 	}
 	//xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if (flags.switch_flags[17] && numtok > 4) {
-		DWORD flags = 0;
+		DWORD dflags = 0;
 		SYSTEMTIME range[2];
 
 		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
@@ -182,16 +182,16 @@ void DcxDateTime::parseCommandRequest(TString &input) {
 		if (input.gettok(4) != "nolimit") {
 			long min = (long) input.gettok(4).to_num();
 			range[0] = MircTimeToSystemTime(min);
-			flags |= GDTR_MIN;
+			dflags |= GDTR_MIN;
 		}
 
 		if (input.gettok(5) != "nolimit") {
 			long max = (long) input.gettok(5).to_num();
 			range[1] = MircTimeToSystemTime(max);
-			flags |= GDTR_MAX;
+			dflags |= GDTR_MAX;
 		}
 
-		DateTime_SetRange(this->m_Hwnd, flags, range);
+		DateTime_SetRange(this->m_Hwnd, dflags, range);
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
 	else if (flags.switch_flags[19] && numtok > 3) {

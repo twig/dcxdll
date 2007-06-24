@@ -4,6 +4,8 @@
 
 #include "dcxDock.h"
 
+extern mIRC(xtreeview);
+
 // [SWITCH] [OPTIONS]
 mIRC(xtreeview) {
 	TString input(data);
@@ -48,7 +50,7 @@ mIRC(xtreeview) {
 					return 0;
 				}
 				static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel");
-				int i = 2, numtok = input.numtok();
+				int i = 2;
 				DWORD stylef = GetWindowStyle(mIRCLink.m_hTreeView);
 				while (i <= numtok) {
 					switch (treebar_styles.findtok(input.gettok(i).to_chr(),1))
@@ -314,12 +316,10 @@ mIRC(_xtreeview)
 				item.mask = TVIF_TEXT;
 				item.pszText = szbuf;
 				item.cchTextMax = 900;
-				if (TreeView_GetItem(mIRCLink.m_hTreeView,&item)) {
+				if (TreeView_GetItem(mIRCLink.m_hTreeView,&item))
 					lstrcpyn(data, item.pszText, 900);
-				}
-				else {
+				else
 					lstrcpy(data, "D_ERROR Unable to get item");
-				}
 			}
 		}
 		break;

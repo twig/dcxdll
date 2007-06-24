@@ -989,31 +989,29 @@ void DcxListView::parseCommandRequest(TString &input) {
 			return;
 		}
 
-		UINT flags = this->parseItemFlags(input.gettok( 6 ));
+		UINT lviflags = this->parseItemFlags(input.gettok( 6 ));
 		LPDCXLVITEM lviDcx = (LPDCXLVITEM) lvi.lParam;
 
 		if (lviDcx != NULL) {
 			if ((UINT)nCol < lviDcx->vInfo.size()) {
-				lviDcx->vInfo[nCol]->m_dFlags = flags;
-				if (flags & LVIS_COLOR)
+				lviDcx->vInfo[nCol]->m_dFlags = lviflags;
+				if (lviflags & LVIS_COLOR)
 					lviDcx->vInfo[nCol]->m_cText = clrText;
 				else
 					lviDcx->vInfo[nCol]->m_cText = -1;
 
-				if (flags & LVIS_BGCOLOR)
+				if (lviflags & LVIS_BGCOLOR)
 					lviDcx->vInfo[nCol]->m_cBg = clrBack;
 				else
 					lviDcx->vInfo[nCol]->m_cBg = -1;
 
-				ListView_SetItemState(this->m_Hwnd, nItem, flags, 0xFFFFFF);
+				ListView_SetItemState(this->m_Hwnd, nItem, lviflags, 0xFFFFFF);
 			}
 			else
 				this->showError(NULL, "-j", "No Render Information for SubItem, More subitems than columns?");
-				//DCXError("/xdid -j","No Render Information for SubItem, More subitems than columns?");
 		}
 		else
 			this->showError(NULL, "-j", "No DCX Item Information, somethings very wrong");
-			//DCXError("/xdid -j","No DCX Item Information, somethings very wrong");
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [STATE] [N]
 	else if (flags.switch_flags[10] && numtok > 4) {
