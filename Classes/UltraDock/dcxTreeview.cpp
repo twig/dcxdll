@@ -253,5 +253,84 @@ mIRC(_xtreeview)
 	d.trim();
 
 	data[0] = 0;
+
+	static const TString poslist("treeBarPos treeBarSize isTreeBar item");
+	int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
+	switch (nType)
+	{
+	case 1: // treeBarPos
+		{
+			switch (SwitchbarPos(2))
+			{
+				case SWB_RIGHT:
+					lstrcpy(data, "right");
+					break;
+
+				case SWB_BOTTOM:
+					lstrcpy(data, "bottom");
+					break;
+
+				case SWB_TOP:
+					lstrcpy(data, "top");
+					break;
+
+				case SWB_LEFT:
+					lstrcpy(data, "left");
+					break;
+
+				case SWB_NONE:
+				default:
+					lstrcpy(data, "none");
+					break;
+			}
+		}
+		break;
+	case 2: // treeBarSize
+		{
+			RECT rc;
+			GetWindowRect(mIRCLink.m_hTreebar, &rc);
+			wsprintf(data,"%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
+		}
+		break;
+	case 3: // isTreeBar
+		{
+			if (IsWindowVisible(mIRCLink.m_hTreebar))
+				lstrcpy(data,"$true");
+			else
+				lstrcpy(data,"$false");
+		}
+		break;
+	case 4: // item
+		{
+			int index = d.gettok( 3 ).to_int();
+
+			if (index < 1)
+				wsprintf(data, "%d", TreeView_GetCount(mIRCLink.m_hTreeView));
+			else {
+				TVITEMEX item;
+				ZeroMemory(&item,sizeof(item));
+				char szbuf[900];
+				item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLink.m_hTreeView, index);
+				item.mask = TVIF_TEXT;
+				item.pszText = szbuf;
+				item.cchTextMax = 900;
+				if (TreeView_GetItem(mIRCLink.m_hTreeView,&item)) {
+					lstrcpyn(data, item.pszText, 900);
+				}
+				else {
+					lstrcpy(data, "D_ERROR Unable to get item");
+				}
+			}
+		}
+		break;
+	case 0: // error
+	default:
+		{
+			TString error;
+			error.sprintf("D_ERROR Invalid prop ().%s", d.gettok( 2 ).to_chr());
+			lstrcpy(data, error.to_chr());
+		}
+		break;
+	}
 	return 3;
 }

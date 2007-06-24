@@ -221,8 +221,8 @@ mIRC(_xstatusbar)
 	default:
 		{
 			TString error;
-			error.sprintf("Invalid prop ().%s", d.gettok( 2 ).to_chr());
-			DCXError("$ $+ xstatusbar",error.to_chr());
+			error.sprintf("D_ERROR Invalid prop ().%s", d.gettok( 2 ).to_chr());
+			lstrcpy(data, error.to_chr());
 		}
 		break;
 	}
