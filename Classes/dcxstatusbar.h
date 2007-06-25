@@ -57,6 +57,7 @@ public:
   
   LRESULT setParts( const int nParts, const LPINT aWidths );
   LRESULT getParts( const int nParts, LPINT aWidths ) const;
+	LRESULT getBorders( LPINT aWidths ) const;
   LRESULT setBkColor( const COLORREF clrBk );
   LRESULT setText( const int iPart, const int Style, const LPSTR lpstr );
   LRESULT setPartInfo( const int iPart, const int Style, const LPSB_PARTINFO pPart );
@@ -78,6 +79,8 @@ protected:
 
   HIMAGELIST m_hImageList; //!< Internal Image List
   VectorOfParts	m_vParts;	//!< Parts info for ownerdraw parts.
+	INT m_iDynamicParts[256]; // records parts with a percentage size.
+	INT m_iFixedParts[256]; // records parts with a fixed size.
 };
 
 #endif // _DCXSTATUSBAR_H_

@@ -48,6 +48,8 @@ DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_vParts.clear();
+	ZeroMemory(this->m_iDynamicParts, sizeof(this->m_iDynamicParts));
+	ZeroMemory(this->m_iFixedParts, sizeof(this->m_iFixedParts));
 
 	if ((rc->bottom - rc->top) > 0)
 		SendMessage(this->m_Hwnd,SB_SETMINHEIGHT,rc->bottom - rc->top,0);
@@ -236,10 +238,20 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 		int nParts = numtok - 3;
 		INT parts[256];
 
+		ZeroMemory(parts, sizeof(parts));
+
 		int i = 0;
+		TString p;
 		while ( i < nParts ) {
 
-			parts[i] = input.gettok( i+4 ).to_int( );
+			p = input.gettok( i+4 );
+
+			if (p.right(1) == "%")
+				this->m_iDynamicParts[i] = p.to_int();
+			else
+				this->m_iFixedParts[i] = p.to_int();
+
+			parts[i] = p.to_int( );
 			i++;
 		}
 		this->setParts( nParts, parts );
@@ -254,7 +266,6 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 
 		if ( nPos < 0 || nPos >= this->getParts( 256, 0 ) ) {
 			this->showError(NULL, "-t", "Invalid Part");
-			//DCXError("xdid -t", "Invalid Part");
 			return;
 		}
 
@@ -319,7 +330,6 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 					}
 					else {
 						this->showError(NULL, "-t", "Error creating control");
-						//DCXError("/xdid -t","Error creating control");
 						delete pPart;
 						return;
 					}
@@ -500,6 +510,16 @@ LRESULT DcxStatusBar::setParts( const int nParts, const LPINT aWidths ) {
 
 LRESULT DcxStatusBar::getParts( const int nParts, LPINT aWidths ) const {
   return SendMessage( this->m_Hwnd, SB_GETPARTS, (WPARAM) nParts, (LPARAM) aWidths );
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+LRESULT DcxStatusBar::getBorders( LPINT aWidths ) const {
+  return SendMessage( this->m_Hwnd, SB_GETBORDERS, (WPARAM) 0, (LPARAM) aWidths );
 }
 
 /*!
@@ -799,6 +819,53 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				}
       }
       break;
+
+		case WM_SIZE:
+			{
+				int nParts = getParts(0,NULL);
+				
+				if (nParts <= 0)
+					break;
+
+				RECT rcClient;
+				int *pParts = new int[nParts];
+				int borders[3];
+				int w; //, wPart;
+
+				GetClientRect(this->m_Hwnd, &rcClient);
+				this->getParts(nParts, pParts);
+
+				this->getBorders(borders);
+
+				w = (rcClient.right - rcClient.left) - (2 * borders[1]);
+				//wPart = (w / (nParts + 1));
+
+				//for (int i = 0; i < nParts; i++) {
+				//	pParts[i] = wPart;
+				//	wPart += wPart;
+				//}
+				//pParts[nParts-1] = -1; // make the last part take up all the left over space
+
+				int pw = 0;
+				for (int i = 0; i < nParts; i++) {
+					if (this->m_iDynamicParts[i] != 0)
+						pw = (w / 100) * this->m_iDynamicParts[i];
+					else
+						pw = this->m_iFixedParts[i];
+					if (i == 0)
+						pParts[i] = pw;
+					else {
+						if (pw == -1)
+							pParts[i] = -1;
+						else
+							pParts[i] = (pParts[i-1] + pw);
+					}
+				}
+
+				this->setParts(nParts, pParts);
+				delete [] pParts;
+			}
+			break;
 
     case WM_DESTROY:
       {
