@@ -8,6 +8,8 @@
 
 HWND DcxDock::g_StatusBar = NULL;
 HIMAGELIST DcxDock::g_hImageList = NULL;
+INT DcxDock::g_iDynamicParts[256] = { 0 };
+INT DcxDock::g_iFixedParts[256] = { 0 };
 
 DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 : m_OldRefWndProc(NULL)
@@ -315,6 +317,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 				if ((pthis->m_iType == DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) { // parent of MDI type == main mIRC win.
 					SendMessage(DcxDock::g_StatusBar,WM_SIZE, (WPARAM)0, (LPARAM)0);
 					InvalidateRect(DcxDock::g_StatusBar, NULL, TRUE);
+					DcxDock::status_updateParts();
 				}
 			}
 			break;
@@ -416,6 +419,9 @@ bool DcxDock::InitStatusbar(const TString &styles)
 
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
+
+	ZeroMemory(DcxDock::g_iDynamicParts, sizeof(DcxDock::g_iDynamicParts));
+	ZeroMemory(DcxDock::g_iFixedParts, sizeof(DcxDock::g_iFixedParts));
 
 	DcxDock::status_parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
@@ -565,6 +571,47 @@ void DcxDock::status_cleanPartIcons( ) {
 		DestroyIcon( (HICON) DcxDock::status_getIcon( n ) );
 		n++;
 	}
+}
+
+LRESULT DcxDock::status_getBorders( LPINT aWidths ) {
+  return SendMessage( g_StatusBar, SB_GETBORDERS, (WPARAM) 0, (LPARAM) aWidths );
+}
+
+void DcxDock::status_updateParts(void) {
+	int nParts = DcxDock::status_getParts(0,NULL);
+
+	if (nParts <= 0)
+		return;
+
+	RECT rcClient;
+	int *pParts = new int[nParts];
+	int borders[3];
+	int w, pw = 0;
+
+	GetClientRect(DcxDock::g_StatusBar, &rcClient);
+	DcxDock::status_getParts(nParts, pParts);
+
+	DcxDock::status_getBorders(borders);
+
+	w = (rcClient.right - rcClient.left) - (2 * borders[1]);
+
+	for (int i = 0; i < nParts; i++) {
+		if (DcxDock::g_iDynamicParts[i] != 0)
+			pw = (w / 100) * DcxDock::g_iDynamicParts[i];
+		else
+			pw = DcxDock::g_iFixedParts[i];
+		if (i == 0)
+			pParts[i] = pw;
+		else {
+			if (pw == -1)
+				pParts[i] = -1;
+			else
+				pParts[i] = (pParts[i-1] + pw);
+		}
+	}
+
+	DcxDock::status_setParts(nParts, pParts);
+	delete [] pParts;
 }
 
 int DcxDock::getPos(int x, int y, int w, int h)

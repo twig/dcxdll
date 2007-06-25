@@ -67,6 +67,8 @@ public:
 	static HIMAGELIST status_createImageList(void);
 	static UINT status_parseItemFlags( TString & flags );
 	static void status_cleanPartIcons( );
+	static LRESULT status_getBorders( LPINT aWidths );
+	static void status_updateParts(void);
 	//
 	static int getPos(int x, int y, int w, int h);
 
@@ -80,7 +82,10 @@ protected:
 	HWND m_RefHwnd; //!< The HWND that windows are docked around, usually the main child window. This window is subclassed.
 	HWND m_hParent; //!< The HWND that docked windows are docked too. This window is subclassed.
 	int m_iType; //!< The dock type.
+public:
 	static HWND g_StatusBar; //!< The Statusbar for the main mIRC window.
 	static HIMAGELIST g_hImageList; //!< The Statusbar's image list.
+	static INT g_iDynamicParts[256];
+	static INT g_iFixedParts[256];
 };
 

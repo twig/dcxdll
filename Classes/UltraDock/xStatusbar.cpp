@@ -60,12 +60,21 @@ mIRC(xstatusbar) {
 						INT parts[256];
 
 						int i = 0;
+						TString p;
 						while ( i < nParts ) {
 
-							parts[i] = input.gettok( i+3 ).to_int( );
+							p = input.gettok( i+3 );
+
+							if (p.right(1) == "%")
+								DcxDock::g_iDynamicParts[i] = p.to_int();
+							else
+								DcxDock::g_iFixedParts[i] = p.to_int();
+
+							parts[i] = p.to_int( );
 							i++;
 						}
 						DcxDock::status_setParts( nParts, parts );
+						DcxDock::status_updateParts();
 					}
 					break;
 				case 't': // N [+FLAGS] [#ICON] [Cell Text]([TAB]Tooltip Text) : set part
