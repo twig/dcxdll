@@ -4,8 +4,6 @@
 
 #include "dcxDock.h"
 
-extern mIRC(xtreeview);
-
 // [SWITCH] [OPTIONS]
 mIRC(xtreeview) {
 	TString input(data);

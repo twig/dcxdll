@@ -329,7 +329,7 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 
     TString error;
     error.sprintf("\"%s\" doesn't exist, see /xpopup -c", input.gettok( 1 ).to_chr( ) );
-		DCXError("$ $+ xpopup", error.to_chr());
+		DCXError("$!xpopup()", error.to_chr());
     return;
   }
 

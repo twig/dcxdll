@@ -17,13 +17,13 @@ mIRC(TrayIcon) {
 		trayIcons = new DcxTrayIcon();
 
 		if (trayIcons == NULL) {
-			DCXError("/xTray", "There was a problem creating the trayicon manager");
+			DCXError("/xtray", "There was a problem creating the trayicon manager");
 			return 0;
 		}
 	}
 
 	if (!trayIcons->GetHwnd()) {
-		DCXError("/xTray", "Could not start trayicon manager");
+		DCXError("/xtray", "Could not start trayicon manager");
 		return 0;
 	}
 
@@ -32,7 +32,7 @@ mIRC(TrayIcon) {
 	int numtok = d.numtok( );
 
 	if (numtok < 2) {
-		DCXError("/xTray", "Insufficient parameters");
+		DCXError("/xtray", "Insufficient parameters");
 		return 0;
 	}
 
@@ -50,7 +50,7 @@ mIRC(TrayIcon) {
 			TString error;
 
 			error.sprintf("Cannot create trayicon: id %d already exists", id);
-			DCXError("/xTrayIcon", error.to_chr());
+			DCXError("/xtray", error.to_chr());
 			return 0;
 		}
 
@@ -60,7 +60,7 @@ mIRC(TrayIcon) {
 				TString error;
 
 				error.sprintf("Cannot edit trayicon: id %d does not exists", id);
-				DCXError("/xTrayIcon", error.to_chr());
+				DCXError("/xtray", error.to_chr());
 				return 0;
 			}
 
@@ -90,15 +90,15 @@ mIRC(TrayIcon) {
 		// add/edit the icon
 		if (!trayIcons->modifyIcon(id, msg, icon, &tooltip)) {
 			if (msg == NIM_ADD)
-				DCXError("/xTrayIcon", "Add trayicon failed");
+				DCXError("/xtray", "Add trayicon failed");
 			else
-				DCXError("/xTrayIcon", "Edit trayicon failed");
+				DCXError("/xtray", "Edit trayicon failed");
 		}
 	}
 	// delete trayicon
 	else if (flags.find('d', 0)) {
 		if (!trayIcons->modifyIcon(id, NIM_DELETE)) {
-			DCXError("/xTrayIcon", "Error deleting trayicon");
+			DCXError("/xtray", "Error deleting trayicon");
 		}
 	}
 	// change icon
@@ -119,7 +119,7 @@ mIRC(TrayIcon) {
 		icon = dcxLoadIcon(index, filename, false, iconFlags);
 
 		if (!trayIcons->modifyIcon(id, NIM_MODIFY, icon, NULL)) {
-			DCXError("/xTray", "Error changing trayicon icon");
+			DCXError("/xtray", "Error changing trayicon icon");
 		}
 	}
 	// change tooltip
@@ -130,10 +130,10 @@ mIRC(TrayIcon) {
 			tip = d.gettok(3, -1);
 
 		if (!trayIcons->modifyIcon(id, NIM_MODIFY, NULL, &tip))
-			DCXError("/xTray", "Error changing trayicon tooltip");
+			DCXError("/xtray", "Error changing trayicon tooltip");
 	}
 	else
-		DCXError("/xTray", "Unknown flag or insufficient parameters");
+		DCXError("/xtray", "Unknown flag or insufficient parameters");
 
 	return 1;
 }
@@ -147,7 +147,7 @@ DcxTrayIcon::DcxTrayIcon(void)
 	if (this->m_hwnd)
 		this->m_wndProc = (WNDPROC) SetWindowLong(this->m_hwnd, GWL_WNDPROC, (LONG) DcxTrayIcon::TrayWndProc);
 	else
-		DCXError("/xTrayIcon", "Problem initialising trayicons");
+		DCXError("/xtray", "Problem initialising trayicons");
 
 	m_hwndTooltip = NULL;
 
@@ -175,6 +175,7 @@ DcxTrayIcon::~DcxTrayIcon(void)
 				ids.sprintf("%d", *itStart);
 			else
 				ids.sprintf("%s %d", ids.to_chr(), *itStart);
+
 			itStart++;
 		}
 

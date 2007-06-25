@@ -26,7 +26,7 @@ mIRC(xstatusbar) {
 				// [-A] [0|1] [options] = notheme grip tooltips nodivider
 				if (input.gettok(2).to_int() > 0) {
 					if (!DcxDock::InitStatusbar(input.gettok(3,-1))) {
-						DCXError("xstatusbar -A","Unable to Create Statusbar");
+						DCXError("/xstatusbar -A","Unable to Create Statusbar");
 						return 0;
 					}
 				}

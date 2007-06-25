@@ -619,7 +619,7 @@ mIRC(GetSystemColor) {
 	d.trim();
 
 	if (d.numtok() < 1) {
-		DCXError("GetSysColor","Invalid arguments");
+		DCXError("$!dcx(GetSysColor)","Invalid arguments");
 		return 0;
 	}
 
@@ -749,7 +749,7 @@ mIRC(OpenDialog) {
 
 	// count number of tab tokens
 	if (d.numtok(TSTAB) != 3) {
-		DCXError("OpenDialog","Invalid parameters");
+		DCXError("$!dcx(OpenDialog)","Invalid parameters");
 		return 0;
 	}
 
@@ -765,7 +765,7 @@ mIRC(SaveDialog) {
 
 	// count number of tab tokens
 	if (d.numtok(TSTAB) != 3) {
-		DCXError("SaveDialog","Invalid parameters");
+		DCXError("$!dcx(SaveDialog)","Invalid parameters");
 		return 0;
 	}
 
@@ -985,7 +985,7 @@ mIRC(_xdid) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 3) {
-		DCXError("$ $+ xdid","Invalid arguments");
+		DCXError("$!xdid()","Invalid arguments");
 		return 0;
 	}
 
@@ -994,7 +994,7 @@ mIRC(_xdid) {
 	if (p_Dialog == NULL) {
 		TString error;
 		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
-		DCXError("$ $+ xdid",error.to_chr());
+		DCXError("$!xdid()",error.to_chr());
 		return 0;
 	}
 
@@ -1081,7 +1081,7 @@ mIRC(_xdialog) {
 	if (d.numtok( ) < 2) {
 		TString error;
 		error.sprintf("Invalid arguments ( dialog %s)", d.gettok( 1 ).to_chr());
-		DCXError("$ $+ xdialog",error.to_chr());
+		DCXError("$!xdialog()",error.to_chr());
 		return 0;
 	}
 
@@ -1091,7 +1091,7 @@ mIRC(_xdialog) {
 		if (d.gettok( 2 ) != "ismarked") {
 			TString error;
 			error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
-			DCXError("$ $+ xdialog",error.to_chr());
+			DCXError("$!xdialog()",error.to_chr());
 			return 0;
 		}
 		else
@@ -1472,12 +1472,12 @@ mIRC(_xpop) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 3) {
-		DCXError("$ $+ xpop","Invalid arguments");
+		DCXError("$!xpop()","Invalid arguments");
 		return 0;
 	}
 
 	if ((d.gettok( 1 ) == "mirc") || (d.gettok( 1 ) == "mircbar")) {
-		DCXError("$ $+ xpop","Invalid menu name : mirc or mircbar menus don't have access to this feature.");
+		DCXError("$!xpop()","Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 		return 0;
 	}
 
@@ -1486,7 +1486,7 @@ mIRC(_xpop) {
 	if (p_Menu == NULL) {
 		TString error;
 		error.sprintf("Unknown menu \"%s\": see /xpopup -c command", d.gettok( 1 ).to_chr());
-		DCXError("$ $+ xpop",error.to_chr());
+		DCXError("$!xpop()",error.to_chr());
 		return 0;
 	}
 
@@ -1530,7 +1530,7 @@ mIRC(_xpopup) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 2) {
-		DCXError("$ $+ xpopup","Invalid arguments");
+		DCXError("$!xpopup()","Invalid arguments");
 		return 0;
 	}
 

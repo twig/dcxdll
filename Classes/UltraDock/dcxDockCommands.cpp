@@ -271,7 +271,7 @@ mIRC(xdock) {
 		if ((alpha >= 0) && (alpha <= 255))
 			mIRCLink.m_bDoGhostDrag = alpha;
 		else {
-			DCXError("xdock -G","Alpha Out Of Range");
+			DCXError("/xdock -G","Alpha Out Of Range");
 			return 0;
 		}
 		return 1;
@@ -426,7 +426,7 @@ mIRC(_xdock)
 	if (d.numtok( ) < 2) {
 		TString error;
 		error.sprintf("Invalid arguments (%s)", d.gettok( 1 ).to_chr());
-		DCXError("$ $+ xdock",error.to_chr());
+		DCXError("$!xdock",error.to_chr());
 
 		ret("D_ERR: Invalid xdock arguments");
 	}
@@ -529,7 +529,7 @@ mIRC(_xdock)
 			{
 				TString error;
 				error.sprintf("Invalid prop (mIRC).%s", d.gettok( 2 ).to_chr());
-				DCXError("$ $+ xdock",error.to_chr());
+				DCXError("$!xdock",error.to_chr());
 			}
 			break;
 		}
@@ -612,7 +612,7 @@ mIRC(_xdock)
 					else {
 						TString error;
 						error.sprintf("Window not docked to main mIRC window (%d).%s", hwnd, d.gettok( 2 ).to_chr());
-						DCXError("$ $+ xdock",error.to_chr());
+						DCXError("$!xdock",error.to_chr());
 					}
 				}
 				break;
@@ -627,7 +627,7 @@ mIRC(_xdock)
 				{
 					TString error;
 					error.sprintf("Invalid prop (%d).%s", hwnd, d.gettok( 2 ).to_chr());
-					DCXError("$ $+ xdock",error.to_chr());
+					DCXError("$!xdock",error.to_chr());
 				}
 				break;
 			}
@@ -635,7 +635,7 @@ mIRC(_xdock)
 		else {
 			TString error;
 			error.sprintf("Invalid window (%s)", d.gettok( 1 ).to_chr());
-			DCXError("$ $+ xdock",error.to_chr());
+			DCXError("$!xdock",error.to_chr());
 		}
 	}
 	return 3;
