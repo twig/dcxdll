@@ -585,15 +585,15 @@ void DcxDock::status_updateParts(void) {
 
 	RECT rcClient;
 	int *pParts = new int[nParts];
-	int borders[3];
+	//int borders[3];
 	int w, pw = 0;
 
 	GetClientRect(DcxDock::g_StatusBar, &rcClient);
 	DcxDock::status_getParts(nParts, pParts);
 
-	DcxDock::status_getBorders(borders);
+	//DcxDock::status_getBorders(borders);
 
-	w = (rcClient.right - rcClient.left) - (2 * borders[1]);
+	w = (rcClient.right - rcClient.left); // - (2 * borders[1]);
 
 	for (int i = 0; i < nParts; i++) {
 		if (DcxDock::g_iDynamicParts[i] != 0)

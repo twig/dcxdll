@@ -34,138 +34,124 @@ mIRC(xstatusbar) {
 					DcxDock::UnInitStatusbar();
 
 				UpdatemIRC();
-				return 1;
 			}
 			break;
-		case 'B':
+		case 'k': // [clr] : background colour.
 			{
-				// Setup the Statusbar.
-				// [-B] [+flag] [args]
-				TString flag(input.gettok(2));
-				switch (flag[1])
-				{
-				case 'k': // [clr] : background colour.
-					{
-						int col = input.gettok(3).to_int();
+				int col = input.gettok( 2 ).to_int();
 
-						if (col < 0)
-							DcxDock::status_setBkColor((COLORREF) CLR_DEFAULT);
-						else
-							DcxDock::status_setBkColor((COLORREF) col);
-					}
-					break;
-				case 'l': // [POS [POS POS ...]] : parts
-					{
-						int nParts = numtok - 2;
-						INT parts[256];
+				if (col < 0)
+					DcxDock::status_setBkColor((COLORREF) CLR_DEFAULT);
+				else
+					DcxDock::status_setBkColor((COLORREF) col);
+			}
+			break;
+		case 'l': // [POS [POS POS ...]] : parts
+			{
+				int nParts = numtok - 1;
+				INT parts[256];
 
-						int i = 0;
-						TString p;
-						while ( i < nParts ) {
+				int i = 0;
+				TString p;
+				while ( i < nParts ) {
 
-							p = input.gettok( i+3 );
+					p = input.gettok( i+2 );
 
-							if (p.right(1) == "%")
-								DcxDock::g_iDynamicParts[i] = p.to_int();
-							else
-								DcxDock::g_iFixedParts[i] = p.to_int();
+					if (p.right( 1 ) == "%")
+						DcxDock::g_iDynamicParts[i] = p.to_int();
+					else
+						DcxDock::g_iFixedParts[i] = p.to_int();
 
-							parts[i] = p.to_int( );
-							i++;
-						}
-						DcxDock::status_setParts( nParts, parts );
-						DcxDock::status_updateParts();
-					}
-					break;
-				case 't': // N [+FLAGS] [#ICON] [Cell Text]([TAB]Tooltip Text) : set part
-					{
-						int nPos = input.gettok( 3 ).to_int( ) - 1;
-						TString flags(input.gettok( 4 ));
-						int icon = input.gettok( 5 ).to_int( ) - 1;
-
-						TString itemtext;
-
-						if ( input.gettok( 1, TSTAB ).numtok( ) > 5 ) {
-
-							itemtext = input.gettok( 1, TSTAB ).gettok( 6, -1);
-							itemtext.trim( );
-						}
-
-						TString tooltip;
-
-						if ( input.numtok( TSTAB ) > 1 ) {
-
-							tooltip = input.gettok( 2, TSTAB );
-							tooltip.trim( );
-						}
-
-						DestroyIcon( (HICON) DcxDock::status_getIcon( nPos ) );
-						if ( icon > -1 )
-							DcxDock::status_setIcon( nPos, ImageList_GetIcon( DcxDock::status_getImageList( ), icon, ILD_TRANSPARENT ) );
-						else
-							DcxDock::status_setIcon( nPos, NULL );
-
-						DcxDock::status_setText( nPos, DcxDock::status_parseItemFlags( flags ), itemtext.to_chr( ) );
-						DcxDock::status_setTipText( nPos, tooltip.to_chr( ) );
-					}
-					break;
-				case 'v': // [N] (TEXT) : set parts text
-					{
-						int nPos = input.gettok( 3 ).to_int( ) - 1;
-
-						if ( nPos > -1 && nPos < DcxDock::status_getParts( 256, 0 ) ) {
-
-							TString itemtext;
-							if ( numtok > 4 )
-								itemtext = input.gettok( 4, -1 );
-
-							char text[900];
-							DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_chr( ) );
-						}
-					}
-					break;
-				case 'w': // [FLAGS] [INDEX] [FILENAME] : load an icon
-					{
-						HIMAGELIST himl;
-						HICON icon;
-						TString flags(input.gettok(3));
-						int index = input.gettok(4).to_int();
-						TString filename(input.gettok(5, -1));
-
-						if ((himl = DcxDock::status_getImageList()) == NULL) {
-							himl = DcxDock::status_createImageList();
-
-							if (himl != NULL)
-								DcxDock::status_setImageList(himl);
-						}
-
-						if (himl != NULL) {
-							icon = dcxLoadIcon(index, filename, FALSE, flags);
-
-							ImageList_AddIcon(himl, icon);
-							DestroyIcon(icon);
-						}
-						else
-							DCXError("/xstatusbar -B +w","Unable To Create ImageList");
-					}
-					break;
-				case 'y': // [+FLAGS] : destroy image list.
-					{
-						ImageList_Destroy( DcxDock::status_getImageList( ) );
-						DcxDock::status_setImageList(NULL);
-					}
-					break;
-				default:
-					DCXError("/xstatusbar -B","Invalid Flag");
-					return 0;
+					parts[i] = p.to_int( );
+					i++;
 				}
-				return 1;
+				DcxDock::status_setParts( nParts, parts );
+				DcxDock::status_updateParts();
+			}
+			break;
+		case 't': // N [+FLAGS] [#ICON] [Cell Text]([TAB]Tooltip Text) : set part
+			{
+				int nPos = input.gettok( 2 ).to_int( ) - 1;
+				TString flags(input.gettok( 3 ));
+				int icon = input.gettok( 4 ).to_int( ) - 1;
+
+				TString itemtext;
+
+				if ( input.gettok( 1, TSTAB ).numtok( ) > 4 ) {
+
+					itemtext = input.gettok( 1, TSTAB ).gettok( 5, -1);
+					itemtext.trim( );
+				}
+
+				TString tooltip;
+
+				if ( input.numtok( TSTAB ) > 1 ) {
+
+					tooltip = input.gettok( 2, TSTAB );
+					tooltip.trim( );
+				}
+
+				DestroyIcon( (HICON) DcxDock::status_getIcon( nPos ) );
+				if ( icon > -1 )
+					DcxDock::status_setIcon( nPos, ImageList_GetIcon( DcxDock::status_getImageList( ), icon, ILD_TRANSPARENT ) );
+				else
+					DcxDock::status_setIcon( nPos, NULL );
+
+				DcxDock::status_setText( nPos, DcxDock::status_parseItemFlags( flags ), itemtext.to_chr( ) );
+				DcxDock::status_setTipText( nPos, tooltip.to_chr( ) );
+			}
+			break;
+		case 'v': // [N] (TEXT) : set parts text
+			{
+				int nPos = input.gettok( 2 ).to_int( ) - 1;
+
+				if ( nPos > -1 && nPos < DcxDock::status_getParts( 256, 0 ) ) {
+
+					TString itemtext;
+					if ( numtok > 2 )
+						itemtext = input.gettok( 3, -1 );
+
+					char text[900];
+					DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_chr( ) );
+				}
+			}
+			break;
+		case 'w': // [FLAGS] [INDEX] [FILENAME] : load an icon
+			{
+				HIMAGELIST himl;
+				HICON icon;
+				TString flags(input.gettok( 2 ));
+				int index = input.gettok( 3 ).to_int();
+				TString filename(input.gettok( 4, -1));
+
+				if ((himl = DcxDock::status_getImageList()) == NULL) {
+					himl = DcxDock::status_createImageList();
+
+					if (himl != NULL)
+						DcxDock::status_setImageList(himl);
+				}
+
+				if (himl != NULL) {
+					icon = dcxLoadIcon(index, filename, FALSE, flags);
+
+					ImageList_AddIcon(himl, icon);
+					DestroyIcon(icon);
+				}
+				else
+					DCXError("/xstatusbar -w","Unable To Create ImageList");
+			}
+			break;
+		case 'y': // [+FLAGS] : destroy image list.
+			{
+				ImageList_Destroy( DcxDock::status_getImageList( ) );
+				DcxDock::status_setImageList(NULL);
 			}
 			break;
 		default:
 			DCXError("/xstatusbar","Invalid Switch");
 			return 0;
 	}
+	return 1;
 }
 
 // prop

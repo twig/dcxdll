@@ -317,6 +317,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 									 CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
 									 CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
 									 CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW,this->m_Hwnd);
+					//DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,itemtext,2,-1,this->m_Hwnd);
 // problems with colorcombo/richedit, causes odd gfx glitches & dialog slow down.
 					if ( p_Control != NULL ) {
 						this->m_pParentDialog->addControl( p_Control );
@@ -849,7 +850,7 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
   return lRes;
 }
 
-void DcxStatusBar::updateParts() {
+void DcxStatusBar::updateParts(void) {
 	int nParts = this->getParts(0,NULL);
 
 	if (nParts <= 0)
@@ -857,15 +858,15 @@ void DcxStatusBar::updateParts() {
 
 	RECT rcClient;
 	int *pParts = new int[nParts];
-	int borders[3];
+	//int borders[3];
 	int w, pw = 0;
 
 	GetClientRect(this->m_Hwnd, &rcClient);
 	this->getParts(nParts, pParts);
 
-	this->getBorders(borders);
+	//this->getBorders(borders);
 
-	w = (rcClient.right - rcClient.left) - (2 * borders[1]);
+	w = (rcClient.right - rcClient.left); // - (2 * borders[1]);
 
 	for (int i = 0; i < nParts; i++) {
 		if (this->m_iDynamicParts[i] != 0)
