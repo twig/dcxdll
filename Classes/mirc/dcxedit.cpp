@@ -106,6 +106,8 @@ void DcxEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 			*Styles |= ES_WANTRETURN;
 		else if (styles.gettok( i ) == "readonly")
 			*Styles |= ES_READONLY;
+		else if (styles.gettok( i ) == "showsel")
+			*Styles |= ES_NOHIDESEL;
 		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 

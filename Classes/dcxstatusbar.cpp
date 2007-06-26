@@ -108,6 +108,8 @@ void DcxStatusBar::parseControlStyles( TString & styles, LONG * Styles, LONG * E
 			*Styles |= CCS_NORESIZE;
 		else if ( styles.gettok( i ) == "noparentalign" )
 			*Styles |= CCS_NOPARENTALIGN ;
+		else if ( styles.gettok( i ) == "noauto" )
+			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
 		//else if ( styles.gettok( i ) == "left" )
 		//{ // NB: left & right styles don't render the parts vertically.
 		//	*Styles |= CCS_LEFT;
@@ -305,9 +307,16 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 					this->m_pParentDialog->getControlByID( ID ) == NULL )
 				{
 					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,itemtext,2,
-						CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_BUTTON|
-						CTLF_ALLOW_EDIT|CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_RADIO|
-						CTLF_ALLOW_CHECK|CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE,this->m_Hwnd);
+									CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|
+									 CTLF_ALLOW_STATUSBAR|CTLF_ALLOW_TOOLBAR|
+									 CTLF_ALLOW_TREEVIEW|CTLF_ALLOW_LISTVIEW|CTLF_ALLOW_REBAR|
+									 CTLF_ALLOW_BUTTON|CTLF_ALLOW_EDIT|
+									 CTLF_ALLOW_UPDOWN| CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
+									 CTLF_ALLOW_CALANDER|CTLF_ALLOW_DIVIDER|CTLF_ALLOW_PANEL|
+									 CTLF_ALLOW_TAB|CTLF_ALLOW_LINE|CTLF_ALLOW_BOX|CTLF_ALLOW_RADIO|
+									 CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
+									 CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
+									 CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW,this->m_Hwnd);
 // problems with colorcombo/richedit, causes odd gfx glitches & dialog slow down.
 					if ( p_Control != NULL ) {
 						this->m_pParentDialog->addControl( p_Control );

@@ -13,6 +13,7 @@ public:
 	TiXmlElement* parent; //!< current Element's parent
 	TString dname;
 	int controls; //!< Simple counter for controls
+	int zlayered; //!< Simple check if dialog has zlayers
 
 	//Attribute vars
 	int id;
@@ -118,7 +119,10 @@ public:
 	/* parseControl() : if current element is a control perform some extra commands*/
 	void parseControl() { 
 		//zlayer control 
-		if (element->Attribute("zlayer")) mIRCcomEX("/xdialog -z %s +a %i",dname.to_chr(),id);
+		if (element->Attribute("zlayer")) { 
+			mIRCcomEX("/xdialog -z %s +a %i",dname.to_chr(),id);
+			zlayered = 1;
+		}
 		if ((0==lstrcmp(parenttype, "divider")) && (element->Attribute("width"))) {
 			const char *width = (temp = element->Attribute("width")) ? temp : "100";
 			mIRCcomEX("/echo -a xdid -v %s %i %s",dname.to_chr(),parentid,width);
@@ -251,13 +255,15 @@ public:
 			wsprintf (buffer, "%s %i",g_claPath,cCla);
 			claPathx = buffer;
 		}
-		if (margin) {
+		/*
+		if (element->Attribute("margin")) {
 			if (0==lstrcmp(parentelem, "dialog"))
-				mIRCcomEX("//xdialog -l %s space %s $chr(9) + %s", dname.to_chr(),claPathx,margin);
+				mIRCcomEX("//xdialog -l %s space %s \t + %s", dname.to_chr(),claPathx,margin);
 			else 
-				mIRCcomEX("//xdid -l %s %i space %s $chr(9) + %s", dname.to_chr(),id,claPathx,margin);
+				mIRCcomEX("//xdid -l %s %i space %s \t + %s", dname.to_chr(),id,claPathx,margin);
 	
 		}
+		*/
 		g_resetcla = 0;
 		return TString(claPathx);
 	}
@@ -353,6 +359,7 @@ public:
 				int indexmax = (icon->QueryIntAttribute("indexmax",&indexmax) == TIXML_SUCCESS) ? indexmax : 0;
 				if (src) { 
 					if (indexmin <= indexmax) 
+						//method sucks but looping in C++ is WAYYY too fast for mIRC
 							mIRCcomEX("//var %%x = %i | while (%%x <= %i ) { xdid -w %s %i +%s %%x %s | inc %%x }",
 								indexmin,indexmax,dname.to_chr(),id,flags,src);
 					else 
@@ -560,20 +567,25 @@ mIRC(dcxml) {
 			return 0;
 		}
 		oDcxml.dname = input.gettok(3," ").to_chr();
-		oDcxml.temp = oDcxml.dialog->Attribute("cascade");
 		const char *cascade = (oDcxml.temp = oDcxml.dialog->Attribute("cascade")) ? oDcxml.temp : "v";
-		oDcxml.temp = oDcxml.dialog->Attribute("margin");
 		const char *margin = (oDcxml.temp = oDcxml.dialog->Attribute("margin")) ? oDcxml.temp : "0 0 0 0";
 		const char *caption = (oDcxml.temp = oDcxml.dialog->Attribute("caption")) ? oDcxml.temp : oDcxml.dname.to_chr();
 		const char *border = oDcxml.dialog->Attribute("border");
-		
 		if (border) mIRCcomEX("/xdialog -b %s +%s", oDcxml.dname.to_chr(), border);
 		if (caption) mIRCcomEX("/dialog -t %s %s",oDcxml.dname.to_chr(), caption);
 		mIRCcomEX("/xdialog -l %s root \t +p%s 0 0 0 0",oDcxml.dname.to_chr(), cascade);
 		mIRCcomEX("/xdialog -l %s space root \t + %s", oDcxml.dname.to_chr(), margin);
 		oDcxml.parseDialog();
 		mIRCcomEX("/.timer 1 0 xdialog -l %s update",oDcxml.dname.to_chr());
-		//mIRCcomEX("/xdialog -z %s +s 1",oDcxml.dname.to_chr()); // what shite is this?
+		int h = (oDcxml.dialog->QueryIntAttribute("h",&h) == TIXML_SUCCESS) ? h : -1;
+		int w = (oDcxml.dialog->QueryIntAttribute("w",&w) == TIXML_SUCCESS) ? w : -1;
+		int x = (oDcxml.dialog->QueryIntAttribute("x",&x) == TIXML_SUCCESS) ? x : -1;
+		int y = (oDcxml.dialog->QueryIntAttribute("y",&y) == TIXML_SUCCESS) ? y : -1;
+		mIRCcomEX("/dialog -s %s %i %i %i %i", oDcxml.dname.to_chr(),x,y,w,h);
+		if (oDcxml.dialog->Attribute("center"))
+			mIRCcomEX("/dialog -r %s", oDcxml.dname.to_chr());
+		//This "Shite" is to activate the first zlayer, added a check if this command starts returning an error
+		if (oDcxml.zlayered) mIRCcomEX("/xdialog -z %s +s 1",oDcxml.dname.to_chr());
 
 		return 1;
 	}

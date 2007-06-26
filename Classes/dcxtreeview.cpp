@@ -1669,7 +1669,6 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
           break;
 
         switch( hdr->code ) {
-
           case NM_CLICK:
             {
 //http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
@@ -1783,7 +1782,17 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
               bParsed = TRUE;
             }
             break;
-
+		case TVN_SELCHANGED:
+			  {
+				LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
+				VectorOfInts numPath;
+                HTREEITEM hStart = TVI_ROOT;
+                this->getPath( &numPath, &hStart, &lpnmtv->itemNew.hItem );
+                std::string path = this->getPathFromVector( &numPath );
+                this->callAliasEx( NULL, "%s,%d,%s", "selchange", this->getUserID( ), path.c_str( ) );
+				bParsed = TRUE;
+			  }
+			  break;
           case TVN_GETINFOTIP:
             {
               LPNMTVGETINFOTIP tcgit = (LPNMTVGETINFOTIP) lParam;
@@ -1841,7 +1850,6 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
               return FALSE;
             }
             break;
-
           case TVN_ENDLABELEDIT:
             {
               bParsed = TRUE;
