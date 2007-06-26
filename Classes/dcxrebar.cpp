@@ -107,6 +107,8 @@ void DcxReBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
       *Styles |= CCS_NORESIZE;
     else if ( styles.gettok( i ) == "noparentalign" ) 
       *Styles |= CCS_NOPARENTALIGN ;
+	else if ( styles.gettok( i ) == "noauto" )
+      *Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
 
     i++;
   }
