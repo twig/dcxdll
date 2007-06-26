@@ -261,9 +261,41 @@ public:
 		g_resetcla = 0;
 		return TString(claPathx);
 	}
+	void setStyle(TiXmlElement* style) {
+		//font
+		const char *fontstyle = (temp = style->Attribute("fontstyle")) ? temp : "d";
+		const char *charset = (temp = style->Attribute("charset")) ? temp : "ansi";
+		const char *fontsize = (temp = style->Attribute("fontsize")) ? temp : "";
+		const char *fontname = (temp = style->Attribute("fontname")) ? temp : "";
+		if ((style->Attribute("fontsize")) || (style->Attribute("fontname")))
+			mIRCcomEX("//xdid -f %s %i +%s %s %s %s",
+				dname.to_chr(),id,fontstyle,charset,fontsize,fontname);
+		//border
+		const char *border = (temp = style->Attribute("border")) ? temp : "";
+		if (style->Attribute("border")) mIRCcomEX("/xdid -x %s %i +%s",dname.to_chr(),id,border);
+		//colours
+		const char *bgcolour = (temp = style->Attribute("bgcolour")) ? temp : "";
+		const char *textbgcolour = (temp = style->Attribute("textbgcolour")) ? temp : "";
+		const char *textcolour = (temp = style->Attribute("textcolour")) ? temp : "";
+		if (style->Attribute("bgcolour")) { 
+			mIRCcomEX("//xdid -C %s %i +b %s",dname.to_chr(),id,bgcolour);
+			if (0==lstrcmp(type, "pbar")) mIRCcomEX("/xdid -U %s %i",dname.to_chr(),id);
+		}
+		if (style->Attribute("textbgcolour")) { 
+			mIRCcomEX("//xdid -C %s %i +k %s",dname.to_chr(),id,textbgcolour);
+		}
+		else if (style->Attribute("bgcolour")) 
+			mIRCcomEX("//xdid -C %s %i +k %s",dname.to_chr(),id,bgcolour); 
+		if (style->Attribute("textcolour")) 
+			mIRCcomEX("//xdid -C %s %i +t %s",dname.to_chr(),id,textcolour);
 
+		//cursor
+		if (style->Attribute("cursor")) {
+			const char *cursor = (temp = style->Attribute("cursor")) ? temp : "arrow";
+			mIRCcomEX("//xdid -J %s %i +r %s",dname.to_chr(),id,cursor);	
+		}
+	}
 
-	
 	void parseStyle(int depth = 0) { 
 		if (depth > 2) return;
 		depth++;
@@ -272,10 +304,12 @@ public:
 		TiXmlElement* ClassElement = 0;
 		TiXmlElement* TypeElement = 0;
 		TiXmlElement* IdElement = 0;
-		if (depth == 1) style = element;
-		if (depth == 2) styles = dialogs->FirstChildElement("styles");
-		if (depth == 3) styles = dialog->FirstChildElement("styles");
+		if (depth == 3) style = element;
+		if (depth == 1) styles = dialogs->FirstChildElement("styles");
+		if (depth == 2) styles = dialog->FirstChildElement("styles");
 		if (styles) {
+			if (style = styles->FirstChildElement("all")) setStyle(style);
+			style = 0;
 			for( style = styles->FirstChildElement("style"); style; style = style->NextSiblingElement()) {
 				if (0==lstrcmp(style->Attribute("class"), STclass)) ClassElement = style;
 				if (0==lstrcmp(style->Attribute("type"), type)) TypeElement = style;
@@ -285,42 +319,8 @@ public:
 			if (IdElement) style = IdElement;
 			else if (ClassElement) style = ClassElement;
 			else if (TypeElement) style = TypeElement;
-			else style = styles->FirstChildElement("all");
 		}
-		if (style) { 
-			//font
-			const char *fontstyle = (temp = style->Attribute("fontstyle")) ? temp : "d";
-			const char *charset = (temp = style->Attribute("charset")) ? temp : "ansi";
-			const char *fontsize = (temp = style->Attribute("fontsize")) ? temp : "";
-			const char *fontname = (temp = style->Attribute("fontname")) ? temp : "";
-			mIRCcomEX("//xdid -f %s %i +%s %s %s %s",
-				dname.to_chr(),id,fontstyle,charset,fontsize,fontname);
-			//border
-			const char *border = (temp = style->Attribute("border")) ? temp : "";
-			if (style->Attribute("border")) mIRCcomEX("/xdid -x %s %i +%s",dname.to_chr(),id,border);
-			//colours
-			const char *bgcolour = (temp = style->Attribute("bgcolour")) ? temp : "";
-			const char *textbgcolour = (temp = style->Attribute("textbgcolour")) ? temp : "";
-			const char *textcolour = (temp = style->Attribute("textcolour")) ? temp : "";
-			if (style->Attribute("bgcolour")) { 
-				mIRCcomEX("//xdid -C %s %i +b %s",dname.to_chr(),id,bgcolour);
-				if (0==lstrcmp(type, "pbar")) mIRCcomEX("/xdid -U %s %i",dname.to_chr(),id);
-			}
-			if (style->Attribute("textbgcolour")) { 
-				mIRCcomEX("//xdid -C %s %i +k %s",dname.to_chr(),id,textbgcolour);
-			}
-			else if (style->Attribute("bgcolour")) 
-				mIRCcomEX("//xdid -C %s %i +k %s",dname.to_chr(),id,bgcolour); 
-			if (style->Attribute("textcolour")) 
-				mIRCcomEX("//xdid -C %s %i +t %s",dname.to_chr(),id,textcolour);
-
-			//cursor
-			if (style->Attribute("cursor")) {
-				const char *cursor = (temp = style->Attribute("cursor")) ? temp : "arrow";
-				mIRCcomEX("//xdid -J %s %i +r %s",dname.to_chr(),id,cursor);	
-			}
-
-		}
+		if (style) setStyle(style);
 		parseStyle(depth);
 	}
 
