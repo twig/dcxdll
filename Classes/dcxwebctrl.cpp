@@ -39,7 +39,7 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
     ExStyles,
     "STATIC",
     NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | Styles,
+    WS_CHILD | WS_CLIPSIBLINGS | Styles,
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,

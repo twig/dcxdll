@@ -36,7 +36,7 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		ExStyles,
 		DCX_COMBOEXCLASS,
 		NULL,
-		WS_CHILD | WS_VISIBLE | CBS_AUTOHSCROLL | Styles,
+		WS_CHILD | CBS_AUTOHSCROLL | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,

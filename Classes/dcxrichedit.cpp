@@ -44,7 +44,7 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 		ExStyles | WS_EX_CLIENTEDGE,
 		DCX_RICHEDITCLASS,
 		NULL,
-		WS_CHILD | WS_VISIBLE | Styles,
+		WS_CHILD | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,

@@ -43,7 +43,7 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 		ExStyles,
 		DCX_BUTTONCLASS,
 		NULL,
-		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | BS_PUSHBUTTON | Styles,
+		WS_CHILD | BS_PUSHBUTTON | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,

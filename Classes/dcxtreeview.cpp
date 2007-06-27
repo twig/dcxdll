@@ -50,7 +50,7 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
     ExStyles | WS_EX_CLIENTEDGE,
     DCX_TREEVIEWCLASS,
     NULL,
-    WS_CHILD | WS_VISIBLE | Styles, 
+    WS_CHILD | Styles, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,

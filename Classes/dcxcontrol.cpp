@@ -141,7 +141,7 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
 
   unsigned int i = 1, numtok = styles.numtok( );
 
-	*Styles |= WS_CLIPCHILDREN;
+	*Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
 
   while ( i <= numtok ) {
 
@@ -155,6 +155,8 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
       *Styles |= WS_DISABLED;
     else if ( styles.gettok( i ) == "transparent" )
       *ExStyles |= WS_EX_TRANSPARENT;
+    else if ( styles.gettok( i ) == "hidden" )
+      *Styles &= ~WS_VISIBLE;
 
     i++;
   }

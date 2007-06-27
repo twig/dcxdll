@@ -39,7 +39,7 @@ DcxToolBar::DcxToolBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 		ExStyles,
 		DCX_TOOLBARCLASS,
 		NULL,
-		WS_CHILD | WS_VISIBLE | Styles, 
+		WS_CHILD | Styles, 
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,

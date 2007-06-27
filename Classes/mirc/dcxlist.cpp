@@ -41,7 +41,7 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 		ExStyles | WS_EX_CLIENTEDGE, 
 		"LISTBOX", 
 		NULL,
-		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+		WS_CHILD | Styles, 
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,

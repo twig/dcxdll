@@ -39,7 +39,7 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
     ExStyles | WS_EX_CONTROLPARENT, 
     DCX_TABCTRLCLASS, 
     NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles, 
+    WS_CHILD | Styles, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,

@@ -45,7 +45,7 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 		ExStyles | WS_EX_CONTROLPARENT,
 		DCX_BOXCLASS,
 		NULL,
-		Styles | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN,
+		Styles | WS_CHILD,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,

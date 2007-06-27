@@ -47,7 +47,7 @@ DcxDirectshow::DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mP
     ExStyles | WS_EX_CLIENTEDGE,
     "STATIC",
     NULL,
-    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | Styles, 
+    WS_CHILD | WS_CLIPSIBLINGS | Styles, 
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,

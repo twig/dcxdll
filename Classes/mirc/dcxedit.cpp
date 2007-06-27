@@ -36,7 +36,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, con
 		ExStyles | WS_EX_CLIENTEDGE, 
 		"EDIT",
 		NULL,
-		WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | Styles,
+		WS_CHILD | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
