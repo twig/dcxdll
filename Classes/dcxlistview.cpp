@@ -2135,7 +2135,13 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 				//	 break;
 				// }
 					//		 4294967296-max
-					//case LVN_KEYDOWN: // 4294967141
+					case LVN_KEYDOWN:
+						{
+							LPNMLVKEYDOWN pnkd = (LPNMLVKEYDOWN) lParam; 
+							WORD wVKey = pnkd->wVKey;
+							this->callAliasEx( NULL, "%s,%d,%d", "keydown", this->getUserID( ), wVKey);
+						}
+						break;
 					//case LVN_CHANGING: // 4294967196
 					//case LVN_CHANGED: // 4294967195
 					//	NM_FIRST
