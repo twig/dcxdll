@@ -1,6 +1,6 @@
 alias dcx {
-  if ($isid) returnex $dll(D:\Work\DCXLATEST\Debug\dcx.dll,$1,$2-)
-  else dll " $+ D:\Work\DCXLATEST\Debug\dcx.dll" $1 $2-
+  if ($isid) returnex $dll($scriptdirdcx\dcx.dll,$1,$2-)
+  else dll " $+ $scriptdirdcx\dcx.dll" $1 $2-
 }
 
 alias udcx {
