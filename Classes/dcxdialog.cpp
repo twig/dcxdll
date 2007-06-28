@@ -289,6 +289,26 @@ void DcxDialog::PreloadData() {
  *
  * blah
  */
+void DcxDialog::parseCommandRequestEX(const char *szFormat, ...) {
+	va_list args;
+	va_start(args, szFormat);
+	char msg[2048];
+	vsprintf(msg, szFormat, args);
+	this->parseCommandRequest(TString(msg));
+	va_end(args);
+}
+void DcxDialog::parseComControlRequestEX(int id, const char *szFormat, ...) {
+	DcxControl * p_Control;
+	p_Control = this->getControlByID((UINT) id + mIRC_ID_OFFSET);
+	va_list args;
+	va_start(args, szFormat);
+	char msg[2048];
+	vsprintf(msg, szFormat, args);
+	p_Control->parseCommandRequest(TString(msg));
+	va_end(args);
+}
+
+
 
 void DcxDialog::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;

@@ -603,7 +603,6 @@ mIRC(Mark) {
 		mIRCError(data);
 		return 3;
 	}
-
 	Dialogs.markDialog(mHwnd, d.gettok(1), d.gettok(2));
 	ret("D_OK Mark: Dialog Marked");
 }

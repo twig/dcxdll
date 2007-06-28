@@ -297,11 +297,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
         return 0L;
       }
       break;
-
-    default:
-      break;
   }
-
   return DefWindowProc( mHwnd, uMsg, wParam, lParam );
 }
 

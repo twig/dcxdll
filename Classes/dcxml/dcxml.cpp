@@ -1,11 +1,17 @@
 #include "../../defines.h"
 #include "../tinyxml/tinyxml.h"
 #include "dcxml.h"
+#include "../dcxdialog.h"
+#include "../dcxdialogcollection.h"
+#include "../dcxcontrol.h"
+
+extern DcxDialogCollection Dialogs;
 /*
 dcxml [-FLAGS] [NAME] [DNAME] "[PATH]"
 */
 class DCXML {
 public:
+	DcxDialog *d_Host;
 	TiXmlElement* root; //!< dcxml root element
 	TiXmlElement* dialogs; //!< dcxml dialogs collection element
 	TiXmlElement* dialog; //!< dialog element
@@ -14,7 +20,6 @@ public:
 	TString dname;
 	int controls; //!< Simple counter for controls
 	int zlayered; //!< Simple check if dialog has zlayers
-
 	//Attribute vars
 	int id;
 	int parentid;
@@ -43,16 +48,13 @@ public:
 	const char *rebarMinHeight;
 	const char *rebarMinWidth;
 	const char *iconsize;
+	int eval;
+	
+
 
 	//tempvar to dump attribute values in;
 	const char *temp;
 	TString cmd;
-
-	//CLA variables
-	const char *g_claPath;
-	const char *g_claPathx;
-	int g_resetcla;
-
 	DCXML() {
 		root = 0; 
 		dialogs = 0; 
@@ -60,6 +62,11 @@ public:
 		element = 0;
 		controls = 0;
 	}
+	//CLA variables
+	const char *g_claPath;
+	const char *g_claPathx;
+	int g_resetcla;
+
 	/* parseAttributes() : parses attributes of the current element */
 	void parseAttributes() {
 		elem = element->Value();
@@ -88,6 +95,7 @@ public:
 		rebarMinHeight = (temp = element->Attribute("minheight")) ? temp : "0";
 		rebarMinWidth = (temp = element->Attribute("minwidth")) ? temp : "0";
 		iconsize = (temp = element->Attribute("iconsize")) ? temp : "16";
+		eval = (element->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 0;
 	}
 	void parseAttributes(TiXmlElement* element) {
 		elem = element->Value();
@@ -114,21 +122,22 @@ public:
 		rebarMinHeight = (temp = element->Attribute("minheight")) ? temp : "0";
 		rebarMinWidth = (temp = element->Attribute("minwidth")) ? temp : "0";
 		iconsize = (temp = element->Attribute("iconsize")) ? temp : "16";
+		eval = (element->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 0;
 	}
 
 	/* parseControl() : if current element is a control perform some extra commands*/
 	void parseControl() { 
 		//zlayer control 
 		if (element->Attribute("zlayer")) { 
-			mIRCcomEX("/xdialog -z %s +a %i",dname.to_chr(),id);
+			this->d_Host->parseCommandRequestEX("%s -z +a %i",dname.to_chr(),id);
 			zlayered = 1;
 		}
 		if ((0==lstrcmp(parenttype, "divider")) && (element->Attribute("width"))) {
 			const char *width = (temp = element->Attribute("width")) ? temp : "100";
-			mIRCcomEX("/echo -a xdid -v %s %i %s",dname.to_chr(),parentid,width);
+			xdidEX(parentid,"-v","%s",width);
 		}
 		if ((0==lstrcmp(type, "toolbar")) || (0==lstrcmp(type, "button"))) { 
-			mIRCcomEX("//xdid -l %s %i %s",dname.to_chr(),id,iconsize);
+			xdidEX(id,"-l","%s",iconsize);
 			parseItems(element);
 		}
 		else if (0==lstrcmp(type, "treeview")) parseItems(element);
@@ -139,8 +148,12 @@ public:
 			|| (0==lstrcmp(type, "link"))) || (0==lstrcmp(type, "radio"))) || (0==lstrcmp(type, "button")))
 			 { 
 				 if (caption) 
-					 mIRCcomEX("//xdid -t %s %i %s",dname.to_chr(),id,caption);
+					 xdidEX(id,"-t","%s",caption);
 		}
+		if ((0==lstrcmp(type, "ipaddress")) && (caption))
+			xdidEX(id,"-a","%s",caption);
+		if ((0==lstrcmp(type, "webctrl")) && (src))
+			xdidEX(id,"-n","%s",src);
 		else if (0==lstrcmp(type, "text")) { 
 			if (caption) { 
 				TString mystring(caption);
@@ -152,14 +165,14 @@ public:
 				while(mystring.gettok(1," ") != "") { 
 					printstring.addtok(mystring.gettok(1," ").to_chr());
 					if (printstring.len() > 800) { 
-						mIRCcomEX("//xdid -a %s %i %i %s",dname.to_chr(),id,textspace,printstring.gettok(1,-1).to_chr());
+						xdidEX(id,"-a","%i %s",textspace,printstring.gettok(1,-1).to_chr());
 						printstring = "";
 						textspace = 1;
 					}
 					mystring.deltok(1," ");
 				}
 				if (printstring != "") { 
-					mIRCcomEX("//xdid -a %s %i %i %s",dname.to_chr(),id,textspace,printstring.gettok(1,-1).to_chr());
+					xdidEX(id,"-a","%i %s",textspace,printstring.gettok(1,-1).to_chr());
 				}
 			}
 		}
@@ -169,42 +182,77 @@ public:
 				if (mystring.left(2) == "\r\n") mystring = mystring.right(-2);
 				else if (mystring.left(1) == "\n") mystring = mystring.right(-1);
 				mystring.replace("\t","");
-				mystring.replace("\n","\r\n");
-				TString printstring;
-				while(mystring.gettok(1," ") != "") { 
-					printstring.addtok(mystring.gettok(1," ").to_chr());
-					if (printstring.len() > 800) { 
-						mIRCcomEX("//xdid -a %s %i %s",dname.to_chr(),id,printstring.gettok(1,-1).to_chr());
-						printstring = "";
-					}
-					mystring.deltok(1," ");
+				int line = 0;
+				while(mystring.gettok(1,"\r\n") != "") { 
+					line++;
+					xdidEX(id,"-i","%i %s",line,mystring.gettok(1,"\r\n").to_chr());
+					mystring.deltok(1,"\r\n");
 				}
-				if (printstring != "") { 
-					mIRCcomEX("//xdid -a %s %i %s",dname.to_chr(),id,printstring.gettok(1,-1).to_chr());
+			}
+		}
+		else if (0==lstrcmp(type, "richedit")) { 
+			if (caption) { 
+				TString mystring(caption);
+				if (mystring.left(2) == "\r\n") mystring = mystring.right(-2);
+				else if (mystring.left(1) == "\n") mystring = mystring.right(-1);
+				mystring.replace("\t","");
+				mystring.replace("\\c","");
+				mystring.replace("\\b","");
+				mystring.replace("\\r","");
+				int line = 0;
+				while(mystring.gettok(1,"\r\n") != "") { 
+					line++;
+					xdidEX(id,"-i","%i %s",line,mystring.gettok(1,"\r\n").to_chr());
+					mystring.deltok(1,"\r\n");
 				}
 			}
 		}
 		else if (0==lstrcmp(type, "pbar")) { 
 			if (caption) {
-				mIRCcomEX("//xdid -i %s %i %s",dname.to_chr(),id,caption);
+				xdidEX(id,"-i","%s",caption);
 			}
 		}
 		else if (0==lstrcmp(type, "image")) { 
 			const char *flags = (tFlags) ? tFlags : "";
-			mIRCcomEX("//xdid -i %s %i +%s %s",dname.to_chr(),id,flags,src);
+			xdidEX(id,"-i","+%s %s",flags,src);
 		}
 		else if (0==lstrcmp(type, "statusbar")) { 
-			mIRCcomEX("//xdid -l %s %i %s",dname.to_chr(),id,cells);
+			xdidEX(id,"-l","%s",cells);
 			parseItems(element);
 		}
 	}
-
+	/*
+	void xdidEX(int id,const char *sw,const char *d = "") { 
+		//Normal: $1 = switch $2 = dname $3 = id $4- = data
+		//Request: $1 = dname $2 = id $3 = switch $4- = data
+		if (eval) mIRCcomEX("//xdid %s %s %i %s",sw,dname.to_chr(),id,d);
+		else d_Host->parseComControlRequestEX(id,"%s %i %s %s",dname.to_chr(),id,sw,d);
+	}
+	*/
+	void xdialogEX(const char *sw,const char *dFormat, ...) { 
+			va_list args;
+			va_start(args, dFormat);
+			char d[2048];
+			vsprintf(d, dFormat, args);
+			va_end(args);
+			if (eval) mIRCcomEX("//xdialog %s %s %s",sw,dname.to_chr(),d);
+			else d_Host->parseCommandRequestEX("%s %s %s",dname.to_chr(),sw,d);
+	}
+	void xdidEX(int id,const char *sw,const char *dFormat, ...) { 
+			va_list args;
+			va_start(args, dFormat);
+			char d[2048];
+			vsprintf(d, dFormat, args);
+			va_end(args);
+			if (eval) mIRCcomEX("//xdid %s %s %i %s",sw,dname.to_chr(),id,d);
+			else d_Host->parseComControlRequestEX(id,"%s %i %s %s",dname.to_chr(),id,sw,d);
+	}
 	/* parseCLA(int cCla) parses control and pane elements and applies the right CLA commands */
 	TString parseCLA(int cCla) { 
 		if (0==lstrcmp(elem, "control")) { 
 			if ((0==lstrcmp(type, "panel")) || (0==lstrcmp(type, "box"))) {
-				mIRCcomEX("//xdid -l %s %i root $chr(9) +p%s 0 0 0 0", dname.to_chr(),id,cascade);
-				mIRCcomEX("//xdid -l %s %i space root $chr(9) + %s", dname.to_chr(),id,margin);
+				xdidEX(id,"-l","root \t +p%s 0 0 0 0",cascade);
+				xdidEX(id,"-l","space root \t + %s",margin);
 				g_resetcla = 1;
 			}
 			const char * fHeigth = "";
@@ -213,31 +261,31 @@ public:
 			if (element->Attribute("height")) { fHeigth = "v"; fixed = "f"; }
 			if (element->Attribute("width")) { fWidth = "h"; fixed = "f"; }
 			if (0==lstrcmp(parentelem, "dialog")) 
-				mIRCcomEX("//xdialog -l %s cell %s \t +%s%s%si %i %s %s %s",
-					dname.to_chr(),g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
+				xdialogEX("-l","cell %s \t +%s%s%si %i %s %s %s",
+					g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
 
 			else if (0==lstrcmp(parentelem, "control")) {
 				if ((parent->Attribute("type")) && (parentid)) {
 					if (0==lstrcmp(parent->Attribute("type"), "panel")) { 
-						mIRCcomEX("//xdid -l %s %i cell %s \t +%s%s%si %i %s %s %s",
-							dname.to_chr(),parentid,g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
+						xdidEX(parentid,"-l","cell %s \t +%s%s%si %i %s %s %s",
+							g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
 					}
 					else if (0==lstrcmp(parent->Attribute("type"), "box")) { 
-						mIRCcomEX("//xdid -l %s %i cell %s \t +%s%s%si %i %s %s %s",
-							dname.to_chr(),parentid,g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
+						xdidEX(parentid,"-l","cell %s \t +%s%s%si %i %s %s %s",
+							g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
 					}
 				}
 			}
 		}
 		else if (0==lstrcmp(elem, "pane")) {
 				if (0==lstrcmp(parentelem, "dialog"))
-					mIRCcomEX("//xdialog -l %s cell %s \t +p%s 0 %s 0 0", dname.to_chr(),g_claPath,cascade,weigth);
+					xdialogEX("-l","cell %s \t +p%s 0 %s 0 0",g_claPath,cascade,weigth);
 				if (0==lstrcmp(parentelem, "control")) {
 					if ((parenttype) && (parentid)) {
 						if (0==lstrcmp(parenttype, "panel"))
-							mIRCcomEX("//xdid -l %s %i cell %s \t +p%s 0 %s 0 0", dname.to_chr(),parentid,g_claPath,cascade,weigth);
+							xdidEX(parentid,"-l","cell %s \t +p%s 0 %s 0 0",g_claPath,cascade,weigth);
 						else if (0==lstrcmp(parenttype, "box"))
-							mIRCcomEX("//xdid -l %s %i cell %s \t +p%s 0 %s 0 0", dname.to_chr(),parentid,g_claPath,cascade,weigth);
+							xdidEX(parentid,"-l","cell %s \t +p%s 0 %s 0 0",g_claPath,cascade,weigth);
 					}
 				}
 		}
@@ -274,32 +322,26 @@ public:
 		const char *fontsize = (temp = style->Attribute("fontsize")) ? temp : "";
 		const char *fontname = (temp = style->Attribute("fontname")) ? temp : "";
 		if ((style->Attribute("fontsize")) || (style->Attribute("fontname")))
-			mIRCcomEX("//xdid -f %s %i +%s %s %s %s",
-				dname.to_chr(),id,fontstyle,charset,fontsize,fontname);
+			xdidEX(id,"-f","+%s %s %s %s",
+				fontstyle,charset,fontsize,fontname);
 		//border
 		const char *border = (temp = style->Attribute("border")) ? temp : "";
-		if (style->Attribute("border")) mIRCcomEX("/xdid -x %s %i +%s",dname.to_chr(),id,border);
+		if (style->Attribute("border")) xdidEX(id,"-x","+%s",border);
 		//colours
+		const char *cursor = (temp = style->Attribute("cursor")) ? temp : "arrow";
 		const char *bgcolour = (temp = style->Attribute("bgcolour")) ? temp : "";
 		const char *textbgcolour = (temp = style->Attribute("textbgcolour")) ? temp : "";
 		const char *textcolour = (temp = style->Attribute("textcolour")) ? temp : "";
 		if (style->Attribute("bgcolour")) { 
-			mIRCcomEX("//xdid -C %s %i +b %s",dname.to_chr(),id,bgcolour);
-			if (0==lstrcmp(type, "pbar")) mIRCcomEX("/xdid -U %s %i",dname.to_chr(),id);
+			xdidEX(id,"-C","+b %s",bgcolour);
+			if (0==lstrcmp(type, "pbar")) xdidEX(id,"-U","%s","");
 		}
-		if (style->Attribute("textbgcolour")) { 
-			mIRCcomEX("//xdid -C %s %i +k %s",dname.to_chr(),id,textbgcolour);
-		}
-		else if (style->Attribute("bgcolour")) 
-			mIRCcomEX("//xdid -C %s %i +k %s",dname.to_chr(),id,bgcolour); 
-		if (style->Attribute("textcolour")) 
-			mIRCcomEX("//xdid -C %s %i +t %s",dname.to_chr(),id,textcolour);
+		if (style->Attribute("textbgcolour")) xdidEX(id,"-C","+k %s",textbgcolour);
+		else if (style->Attribute("bgcolour")) xdidEX(id,"-C","+k %s",bgcolour); 
+		if (style->Attribute("textcolour")) xdidEX(id,"-C","+t %s",textcolour);
 
 		//cursor
-		if (style->Attribute("cursor")) {
-			const char *cursor = (temp = style->Attribute("cursor")) ? temp : "arrow";
-			mIRCcomEX("//xdid -J %s %i +r %s",dname.to_chr(),id,cursor);	
-		}
+		if (style->Attribute("cursor")) xdidEX(id,"-J","+r %s",cursor);	
 	}
 
 	void parseStyle(int depth = 0) { 
@@ -383,21 +425,21 @@ public:
 				item++;			
 				if (0==lstrcmp(type, "toolbar")) { 
 					const char *flags = (tFlags) ? tFlags : "a";
-					mIRCcomEX("//xdid -a %s %i 0 +%s %s %s %s %s \t %s",
-						dname.to_chr(),id,flags,width,icon,colour,caption,tooltip);
+					xdidEX(id,"-a","0 +%s %s %s %s %s \t %s",
+						flags,width,icon,colour,caption,tooltip);
 				}
 				else if (0==lstrcmp(type, "comboex")) { 
-					mIRCcomEX("//xdid -a %s %i 0 %s %s %s 0 %s",
-						dname.to_chr(),id,indent,icon,icon,caption);
+					xdidEX(id,"-a","0 %s %s %s 0 %s",
+						indent,icon,icon,caption);
 				}
 				else if (0==lstrcmp(type, "list")) { 
-					mIRCcomEX("//xdid -a %s %i 0 %s",
-						dname.to_chr(),id,caption);
+					xdidEX(id,"-a","0 %s",
+						caption);
 				}
 				else if (0==lstrcmp(type, "statusbar")) { 
 					const char *flags = (tFlags) ? tFlags : "f";
-					mIRCcomEX("//xdid -t %s %i %i +%s %s %s \t %s",
-						dname.to_chr(),id,cell,flags,icon,caption,tooltip);
+					xdidEX(id,"-t","%i +%s %s %s \t %s",
+						cell,flags,icon,caption,tooltip);
 				}
 				else if (0==lstrcmp(type, "treeview")) { 
 					const char *flags = (tFlags) ? tFlags : "a";
@@ -405,8 +447,8 @@ public:
 					char * pathx = 0;
 					wsprintf (buffer, "%s %i",itemPath,item);
 					pathx = buffer;
-					mIRCcomEX("//xdid -a %s %i %s \t +%s %s %s 0 %s %s %s %s %s \t %s",
-						dname.to_chr(),id,pathx,flags,icon,icon,state,integral,colour,bgcolour,caption,tooltip);
+					xdidEX(id,"-a","%s \t +%s %s %s 0 %s %s %s %s %s \t %s",
+						pathx,flags,icon,icon,state,integral,colour,bgcolour,caption,tooltip);
 					parseItems(child,depth,pathx);
 				}
 			}
@@ -456,39 +498,43 @@ public:
 				//check how to insert the control in the parent Control/Dialog
 				//If parentNode is pane loop untill parentNode is not a pane
 				if (0==lstrcmp(parentelem, "dialog")) { 
-					mIRCcomEX("//xdialog -c %s %i %s 0 0 %s %s %s",dname.to_chr(),id,type,width,height,styles);
+					xdialogEX("-c","%i %s 0 0 %s %s %s",id,type,width,height,styles);
 				}
 				else if (0==lstrcmp(parentelem, "control")) { 
 					if (0==lstrcmp(parenttype, "panel"))
-						mIRCcomEX("//xdid -c %s %i %i %s 0 0 %s %s %s", dname.to_chr(),parentid,id,type,width,height,styles);
+						xdidEX(parentid,"-c","%i %s 0 0 %s %s %s",
+							id,type,width,height,styles);
 
 					else if (0==lstrcmp(parenttype, "tab"))
-						mIRCcomEX("//xdid -a %s %i 0 0 %s $chr(9) %i %s 0 0 %s %s %s $chr(9) %s",
-							dname.to_chr(),parentid,caption,id,type,width,height,styles,tooltip);
+						xdidEX(parentid,"-a","0 %s %s \t %i %s 0 0 %s %s %s \t %s",
+							icon,caption,id,type,width,height,styles,tooltip);
 
 					else if (((0==lstrcmp(parenttype, "pager")) || (0==lstrcmp(parenttype, "box"))) && (control == 1))
-						mIRCcomEX("//xdid -c %s %i %i %s 0 0 %s %s %s", dname.to_chr(),parentid,id,type,width,height,styles);
+						xdidEX(parentid,"-c","%i %s 0 0 %s %s %s",
+							id,type,width,height,styles);
 
 					else if (0==lstrcmp(parenttype, "divider") && (control <= 2)) {
 							if (control == 1)
-								mIRCcomEX("//xdid -l %s %i %s 0 $chr(9) %i %s 0 0 %s %s %s", dname.to_chr(),parentid,width,id,type,width,height,styles);
+								xdidEX(parentid,"-l","%s 0 \t %i %s 0 0 %s %s %s",
+									width,id,type,width,height,styles);
 							else if (control == 2)
-								mIRCcomEX("//xdid -r %s %i %s 0 $chr(9) %i %s 0 0 %s %s %s", dname.to_chr(),parentid,width,id,type,width,height,styles);
+								xdidEX(parentid,"-r","%s 0 \t %i %s 0 0 %s %s %s",
+									width,id,type,width,height,styles);
 					}
 
 					else if (0==lstrcmp(parenttype, "rebar")) { 
 						const char *flags = (tFlags) ? tFlags : "ceg";
-						mIRCcomEX("//xdid -a %s %i 0 +%s %s %s %s %s %s %s \t %i %s 0 0 %s %s %s $chr(9) %s",
-							dname.to_chr(),parentid,flags,rebarMinWidth,rebarMinHeight,width,icon,colour,caption,
+						xdidEX(parentid,"-a","0 +%s %s %s %s %s %s %s \t %i %s 0 0 %s %s %s \t %s",
+							flags,rebarMinWidth,rebarMinHeight,width,icon,colour,caption,
 							id,type,width,height,styles,tooltip);
 					}
 					else if (0==lstrcmp(parenttype, "stacker")) 
-						mIRCcomEX("//xdid -a %s %i 0 + %s %s %s \t %i %s 0 0 %s %s %s",
-							dname.to_chr(),parentid,colour,bgcolour,caption,id,type,width,height,styles);
+						xdidEX(parentid,"-a","0 + %s %s %s \t %i %s 0 0 %s %s %s",
+							colour,bgcolour,caption,id,type,width,height,styles);
 					
 					else if (0==lstrcmp(parenttype, "statusbar"))
-						mIRCcomEX("//xdid -t %s %i %i +c %s %i %s 0 0 0 0 %s",
-							dname.to_chr(),parentid,cell,icon,id,type,styles);
+						xdidEX(parentid,"-t","%i +c %s %i %s 0 0 0 0 %s",
+							cell,icon,id,type,styles);
 				}
 				
 				
@@ -557,7 +603,7 @@ mIRC(dcxml) {
 		}
 		for( oDcxml.element = oDcxml.dialogs->FirstChildElement("dialog"); oDcxml.element; oDcxml.element = oDcxml.element->NextSiblingElement() ) {
 			const char *name = oDcxml.element->Attribute("name");
-			if (0==lstrcmp(name, input.gettok(2," ").to_chr())) { 
+			if (0==lstrcmp(name, input.gettok(3," ").to_chr())) { 
 				oDcxml.dialog = oDcxml.element;
 				break;
 			}
@@ -566,15 +612,16 @@ mIRC(dcxml) {
 			DCXError("/dcxml","Dialog name not found in <dialogs>");
 			return 0;
 		}
-		oDcxml.dname = input.gettok(3," ").to_chr();
+		oDcxml.dname = input.gettok(2," ").to_chr();
+		oDcxml.d_Host = Dialogs.getDialogByName(input.gettok(2," "));
 		const char *cascade = (oDcxml.temp = oDcxml.dialog->Attribute("cascade")) ? oDcxml.temp : "v";
 		const char *margin = (oDcxml.temp = oDcxml.dialog->Attribute("margin")) ? oDcxml.temp : "0 0 0 0";
 		const char *caption = (oDcxml.temp = oDcxml.dialog->Attribute("caption")) ? oDcxml.temp : oDcxml.dname.to_chr();
 		const char *border = oDcxml.dialog->Attribute("border");
-		if (border) mIRCcomEX("/xdialog -b %s +%s", oDcxml.dname.to_chr(), border);
-		if (caption) mIRCcomEX("/dialog -t %s %s",oDcxml.dname.to_chr(), caption);
-		mIRCcomEX("/xdialog -l %s root \t +p%s 0 0 0 0",oDcxml.dname.to_chr(), cascade);
-		mIRCcomEX("/xdialog -l %s space root \t + %s", oDcxml.dname.to_chr(), margin);
+		if (border) oDcxml.xdialogEX("-b","+%s",border);
+		if (caption) oDcxml.xdialogEX("-t","%s",caption);
+		oDcxml.xdialogEX("-l","root \t +p%s 0 0 0 0",cascade);
+		oDcxml.xdialogEX("-l","space root \t + %s",margin);
 		oDcxml.parseDialog();
 		mIRCcomEX("/.timer 1 0 xdialog -l %s update",oDcxml.dname.to_chr());
 		int h = (oDcxml.dialog->QueryIntAttribute("h",&h) == TIXML_SUCCESS) ? h : -1;
@@ -585,7 +632,7 @@ mIRC(dcxml) {
 		if (oDcxml.dialog->Attribute("center"))
 			mIRCcomEX("/dialog -r %s", oDcxml.dname.to_chr());
 		//This "Shite" is to activate the first zlayer, added a check if this command starts returning an error
-		if (oDcxml.zlayered) mIRCcomEX("/xdialog -z %s +s 1",oDcxml.dname.to_chr());
+		if (oDcxml.zlayered) oDcxml.xdialogEX("-z","+s 1");
 
 		return 1;
 	}

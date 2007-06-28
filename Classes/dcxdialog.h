@@ -79,6 +79,8 @@ public:
   static LRESULT WINAPI WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
   void parseCommandRequest( TString & input );
+  void parseCommandRequestEX(const char *szFormat, ...);
+  void parseComControlRequestEX(int id,const char *szFormat, ...);
   void parseInfoRequest( TString & input, char * szReturnValue );
 
   BOOL callAliasEx( char * szReturn, const char * szFormat, ... );

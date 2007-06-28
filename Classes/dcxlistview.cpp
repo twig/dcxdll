@@ -1980,7 +1980,6 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
               bParsed = TRUE;
 
               LPNMLVDISPINFO lplvdi = (LPNMLVDISPINFO) lParam;
-
               if ( lplvdi->item.pszText == NULL ) {
 
                 this->callAliasEx( NULL, "%s,%d", "labelcancel", this->getUserID( ) );

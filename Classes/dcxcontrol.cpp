@@ -1771,3 +1771,4 @@ void DcxControl::InvalidateParentRect(HWND hwnd)
 	MapWindowPoints(NULL,parent, (LPPOINT) &rc, 2);
 	InvalidateRect(parent, &rc, TRUE);
 }
+
