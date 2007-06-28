@@ -1,6 +1,6 @@
 alias dcx {
-  if ($isid) returnex $dll($scriptdirdcx\dcx.dll,$1,$2-)
-  else dll " $+ $scriptdirdcx\dcx.dll" $1 $2-
+  if ($isid) returnex $dll(D:\Work\DCXLATEST\Debug\dcx.dll,$1,$2-)
+  else dll " $+ D:\Work\DCXLATEST\Debug\dcx.dll" $1 $2-
 }
 
 alias udcx {
@@ -40,16 +40,6 @@ alias xdock {
 alias xtray {
   if ($isid) returnex $dcx(TrayIcon, $1 $prop $2-)
   dcx TrayIcon $1-
-}
-
-alias xstatusbar {
-  !if ($isid) returnex $dcx( _xstatusbar, mIRC $prop $1- )
-  dcx xstatusbar $1-
-}
-
-alias xtreeview {
-  !if ($isid) returnex $dcx( _xtreeview, mIRC $prop $1- )
-  dcx xtreeview $1-
 }
 
 alias dcxml dcx dcxml $1-

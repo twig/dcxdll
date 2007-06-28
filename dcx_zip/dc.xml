@@ -1,0 +1,244 @@
+<dcxml>
+	<dialogs>
+		<styles>
+			<all fontsize="8" fontstyle="a" fontname="Tahoma" />
+			<style class="white" bgcolour="$rgb(255,255,255)" />
+			<style class="header" fontsize="17" fontstyle="ab" fontname="Trebuchet ms" textcolour="$rgb(255,255,255)" bgcolour="$rgb(128,128,128)" />
+			<style class="headertext" textcolour="$rgb(255,255,255)" bgcolour="$rgb(166,166,166)" />
+		</styles>
+		<icons>
+			<icon type="treeview" indexmax="40" src="$_scriptdir $+ controls.icl" />
+			<icon type="toolbar" indexmax="40" src="$_scriptdir $+ controls.icl" />
+			<icon type="button" index="20" src="$_scriptdir $+ controls.icl" />
+			<icon type="listview" indexmax="40" src="$_scriptdir $+ controls.icl" />
+		</icons>
+	  	<dialog name="mydialog" w="500" h="400" center="" margin="5 0 5 0" caption="DCX Sample Dialog" border="btmnzy">
+			<styles>
+				<style id="40" fontsize="14" fontstyle="ab" fontname="Trebuchet ms" textcolour="0" />
+			</styles>
+			<control type="panel" cascade="h" height="70" weight="0">
+				<control width="253" height="70" type="image" eval="1" src="$+($_scriptdir,dcx.jpg)" />
+				<control width="547" type="image" eval="1" src="$+($_scriptdir,top_bg.jpg)" />
+				<control type="panel" bgcolour="16318463" />
+			
+			</control>
+			<control type="line" height="4" />
+			<pane cascade="h" margin="5 5 5 5">
+				<control type="treeview" id="1000" width="200" styles="fullrow showsel" border="">
+						<item caption="ProgressBar" icon="1" />
+						<item caption="TreeView" icon="2" />
+						<item caption="ToolBar" icon="3" />
+						<item caption="StatusBar" icon="4" />
+						<item caption="ListView" icon="5" />
+						<item caption="TrackBar" icon="6" />
+						<item caption="ReBar" icon="7" />
+						<item caption="ColorCombo" icon="8" />
+						<item caption="Button" icon="9" />
+						<item caption="RichEdit" icon="10" />
+						<item caption="IpAddress" icon="11" />
+						<item caption="UpDown" icon="12" />
+						<item caption="WebControl" icon="13" />
+						<item caption="Line" icon="14" />
+						<item caption="Box" icon="15" />
+						<item caption="Radio" icon="16" />
+						<item caption="Check" icon="17" />
+						<item caption="Edit" icon="18" />
+						<item caption="Scroll" icon="19" />
+						<item caption="Image" icon="20" />
+						<item caption="List " icon="21" />
+						<item caption="Link" icon="22" />
+						<item caption="Text" icon="23" />
+						<item caption="Divider" icon="24" />
+						<item caption="Panel" icon="25" />
+						<item caption="Tab" icon="26" />
+						<item caption="Window" icon="27" />
+				</control>
+				<control type="line" width="4" styles="vertical" />
+				<control type="panel" margin="5 0 0 0">
+					<control type="text" id="40" caption="The Progressbar Control" height="30" weight="0" />
+					<control type="divider" weight="1">
+						<control type="panel">
+							<control type="panel" caption="ProgressBar Preview">
+								<pane />
+									<control id="1" eval="1" height="25" type="pbar" styles="smooth" caption="$(%d%%,0) Completed" />
+								<pane />
+							</control>
+							<control type="panel" caption="TreeView Preview">
+								<control id="2" type="treeview" styles="hasbuttons haslines linesatroot">
+									<item caption="hello!">
+										<item caption="there are">
+											<item caption="items hidden here!" />
+										</item>
+									</item>
+									<item caption="but!">
+										<item caption="also">
+											<item caption="here!" />
+										</item>
+									</item>
+								</control>
+							</control>
+							<control type="panel" caption="ToolBar">
+								<pane />
+								<control id="3" type="toolbar" height="30" styles="noauto flat list arrows">
+									<item caption="hello" icon="3" />
+									<item caption="-" />
+									<item caption="these" icon="20" flags="v" />
+									<item caption="are" icon="25" />
+									<item caption="toolbar" icon="23" />
+									<item caption="buttons" icon="22" />
+								</control>
+								<pane />
+							</control>
+							<control type="panel" caption="StatusBar Preview">
+								<pane />
+								<control id="4" type="statusbar" height="20" styles="noauto" cells="100 200 300 400 -1">
+									<item caption="Hello $me" />
+									<control id="100" type="edit" width="100" />
+									<item caption="Whatsup!" />
+								</control>
+								<pane />
+							</control>
+							<control type="panel" caption="ListView Preview">
+								<control id="5" type="listview" styles="report grid subitemimage fullrow" />
+							</control>
+							<control type="panel" zlayer="1" caption="TrackBar Preview">
+								<pane />
+								<control id="6" type="trackbar" height="30" styles="select" />
+								<pane />
+							</control>
+							<control type="panel" caption="ReBar Preview">
+								<pane />
+								<control id="7" type="rebar" styles="noauto borders" height="30">
+									<control flags="ceg" minwidth="100" caption="toolbar" type="toolbar" height="30" styles="noauto flat list arrows">
+										<item caption="hello" icon="3" />
+									</control>	
+									<control flags="ceg" width="100" caption="toolbar" type="toolbar" height="30" styles="noauto flat list arrows">
+										<item caption="hello" icon="3" />
+										<item caption="-" />
+										<item caption="these" icon="20" flags="v" />
+										<item caption="are" icon="25" />
+										<item caption="toolbar" icon="23" />
+										<item caption="buttons" icon="22" />
+									</control>							
+								</control>
+								<pane />
+							</control>
+							<control type="panel" caption="ColorCombo Preview">
+								<pane />
+								<control id="8" type="colorcombo" height="400" />
+								<pane />
+							</control>
+							<control type="panel" caption="Button Preview">
+								<pane />
+								<control id="9" type="button" styles="shadow" caption="this is some text!" height="25" width="200" />
+								<pane />
+							</control>
+							<control type="panel" caption="RichEdit Preview">
+								<control id="10" type="richedit" styles="multi readonly hsbar">
+									\bHello!\b
+									\c12Whats happening pirate ?\c
+									\c12,2Arrr arrrr:D\c
+									Yeah OK!
+								</control>
+							</control>
+							<control type="panel" caption="IPAddress Preview">
+								<pane />
+									<control id="11" type="ipaddress" height="20" width="200" caption="$ip"/>
+								<pane />
+							</control>
+							<control type="panel" caption="UpDown Preview">
+								<pane />
+								<pane height="20" cascade="h">
+									<control width="50" id="12" type="updown" styles="buddyint arrowkeys" />
+									<control type="edit" id="122" />
+								</pane>
+								<pane />
+							</control>
+							<control type="panel" caption="Web Control Preview">
+								<control id="13" type="webctrl" styles="" src="http://dcx.scriptsdb.org/forum"/>
+							</control>
+							<control type="panel" caption="Line Preview">
+								<control id="14" type="line" styles="" />
+							</control>
+							<control type="panel" caption="Box Control">
+								<control id="15" type="box" caption="This is a box control" styles="rounded shadow" />
+							</control>
+							<control type="panel" caption="Radio Preview">
+								<control id="16" type="radio" styles="" caption="This is a radio control" />
+							</control>
+							<control type="panel" caption="Check Preview">
+								<control id="17" type="check" styles="" caption="This is a check control" />
+							</control>
+							<control type="panel" caption="Edit Prview">
+								<control id="18" type="edit" styles="multi vsbar return">
+									Post emensos insuperabilis expeditionis eventus languentibus partium animis, quas periculorum varietas fregerat
+									et laborum, nondum tubarum cessante clangore vel milite locato per stationes hibernas, fortunae saevientis 
+									procellae tempestates alias rebus infudere communibus per multa illa et dira facinora Caesaris Galli, 
+									qui ex squalore imo miseriarum in aetatis adultae primitiis ad principale culmen insperato saltu provectus 
+									ultra terminos potestatis delatae procurrens asperitate nimia cuncta foedabat. propinquitate enim regiae 
+									stirpis gentilitateque etiam tum Constantini nominis efferebatur in fastus, si plus valuisset, ausurus hostilia 
+									in auctorem suae felicitatis, ut videbatur.
+								</control>
+							</control>
+							<control type="panel" caption="Scroll Preview">
+								<pane />
+								<control id="19" type="scroll" styles="" />
+								<pane />
+							</control>
+							<control type="panel" caption="Image Preview">
+								<control id="20" type="image" eval="1" styles="" src="$+($_scriptdir,dcx.jpg)" />
+							</control>
+							<control type="panel" zlayer="1" caption="List Preview" margin="10 20 10 10">
+								<control id="21" type="list" styles="">
+									<item>This is line 1</item>
+									<item>This is line 2</item>
+									<item>This is line 3</item>
+									<item>This is line 4</item>
+								</control>
+							</control>
+							<control type="panel" caption="Link Preview">
+								<control id="22" type="link" styles="" caption="http://dcx.scriptsdb.org"/>
+							</control>
+							<control type="panel" caption="Text Preview">
+								<control  id="23" type="text" styles="" caption="This is a text control"/>
+							</control>
+							<control type="panel" caption="Divider Preview">
+								<control id="24" type="divider" styles="vertical">
+									<control type="panel" bgcolour="255" />
+									<control type="panel" bgcolour="0" />
+								</control>
+							</control>
+							<control type="panel" caption="Panel Preview">
+								<control id="25" type="panel" styles="" bgcolour="34234" />
+							</control>
+							<control type="panel" caption="Tab Preview">
+								<control id="26" type="tab" styles="">
+									<control type="panel" caption="this is tab1" />
+									<control type="panel" caption="this is tab2" />
+								</control>
+							</control>
+							<control type="panel" caption="Embedded Window">
+							 	<pane />
+								<pane cascade="h">
+									<pane />
+									<control width="240" height="100" id="27" type="window" styles="@japan" />
+									<pane />
+								</pane>
+								<pane />
+							</control>
+							<pane height="5" weight="0" />
+							<control type="line" height="4" />
+	
+						</control>						
+						<control type="panel" caption="ProgressBar Events" weight="1">
+							<control id="51" type="edit" styles="multi vsbar autovs return showsel" border="" caption="Mouse events are ignored"/>
+						</control>
+					</control>
+				</control>
+			</pane>
+			<control type="statusbar" cells="-1" height="20">
+				<item eval="1">$dcx(Version)</item>
+			</control>
+		</dialog>
+	</dialogs>
+</dcxml>

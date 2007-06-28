@@ -129,7 +129,7 @@ public:
 	void parseControl() { 
 		//zlayer control 
 		if (element->Attribute("zlayer")) { 
-			this->d_Host->parseCommandRequestEX("%s -z +a %i",dname.to_chr(),id);
+			xdialogEX("-z","+a %i",id);
 			zlayered = 1;
 		}
 		if ((0==lstrcmp(parenttype, "divider")) && (element->Attribute("width"))) {
@@ -147,8 +147,7 @@ public:
 		if (((((0==lstrcmp(type, "box")) || (0==lstrcmp(type, "check")))
 			|| (0==lstrcmp(type, "link"))) || (0==lstrcmp(type, "radio"))) || (0==lstrcmp(type, "button")))
 			 { 
-				 if (caption) 
-					 xdidEX(id,"-t","%s",caption);
+				 if (caption) xdidEX(id,"-t","%s",caption);
 		}
 		if ((0==lstrcmp(type, "ipaddress")) && (caption))
 			xdidEX(id,"-a","%s",caption);
@@ -619,7 +618,7 @@ mIRC(dcxml) {
 		const char *caption = (oDcxml.temp = oDcxml.dialog->Attribute("caption")) ? oDcxml.temp : oDcxml.dname.to_chr();
 		const char *border = oDcxml.dialog->Attribute("border");
 		if (border) oDcxml.xdialogEX("-b","+%s",border);
-		if (caption) oDcxml.xdialogEX("-t","%s",caption);
+		mIRCcomEX("//dialog -t %s %s",oDcxml.dname.to_chr(),caption);
 		oDcxml.xdialogEX("-l","root \t +p%s 0 0 0 0",cascade);
 		oDcxml.xdialogEX("-l","space root \t + %s",margin);
 		oDcxml.parseDialog();
