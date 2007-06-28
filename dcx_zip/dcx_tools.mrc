@@ -42,6 +42,16 @@ alias xtray {
   dcx TrayIcon $1-
 }
 
+alias xstatusbar {
+  !if ($isid) returnex $dcx( _xstatusbar, mIRC $prop $1- )
+  dcx xstatusbar $1-
+}
+
+alias xtreeview {
+  !if ($isid) returnex $dcx( _xtreeview, mIRC $prop $1- )
+  dcx xtreeview $1-
+}
+
 alias dcxml dcx dcxml $1-
 
 alias tab {
