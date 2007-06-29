@@ -15,7 +15,7 @@
 
 
 body,div,td,th {
-	font-size: 9pt;
+	font-size: 8pt;
 	font-family: Geneva, Arial, Helvetica, sans-serif;
 	color: #000000;
 	cursor: default;
@@ -157,8 +157,8 @@ td.syntax, td.example {
 div.syntax, div.example {
 	font-weight: normal;
 	color: #333333;
-	border: 1px solid #EE9900;
-	background-color: #FFE9BF;
+	border: 1px dotted #EE9900;
+	background-color: #FFF7E8;
 	padding: 2px;
 }
 
@@ -282,22 +282,92 @@ pre.code {
 }
 
 ul.nav { 
-list-style:none;
-margin:0px;
-font-size:8pt;
-padding:0px;
+	list-style:none;
+	margin:0px;
+	font-size:8pt;
+	padding:0px;
+	border-right:1px solid #BBD1FF;
+	border-left:1px solid #BBD1FF;
+	border-bottom:1px solid #BBD1FF;
 }
 ul.nav li { 
-list-style:none;
-margin:0px;
-font-size:8pt;
-padding:0px;
-font-weight:bold;
+	list-style:none;
+	margin:0px;
+	font-size:10pt;
+	font-family: "trebuchet MS", Arial, Helvetica, sans-serif;
+	background:url("images/nav_bg.png") top repeat-x;
+	padding-top:2px;
+	padding-bottom:2px;
+	padding-left:8px;
+	font-weight:bold;
 }
 ul.nav li ul { 
-margin:0px;
-padding:0px;
-padding-left:8px;
-font-weight:normal;
-color:#6CE34A;
+	margin:0px;
+	padding:0px;
+	font-weight:normal;
+	color:#6CE34A;
+	background:none;
+	font-size: 9pt;
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-weight:normal;
+}
+ul.nav li ul li { 
+	margin:0px;
+	padding:0px;
+	font-weight:normal;
+	color:#6CE34A;
+	background:none;
+	font-size: 9pt;
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-weight:normal;
+}
+ul.nav li ul li a { 
+	font-size: 8pt;
+	color:#000000;
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-weight:normal;
+	width:100%;
+}
+ul.nav li ul a div { 
+	font-weight:normal;
+	padding-bottom:2px;
+}
+ul.nav li ul a:hover div { 
+	font-weight:bold;
+	background:url("images/nav_bg.png") top repeat-x;
+	cursor:hand;
+	cursor:pointer;
+}
+
+td.menuright div.rightmenu { 
+	margin-bottom:5px;
+}
+td.menuright div { 
+	padding-bottom:5px;
+}
+
+td.menuright div a div.header { 
+ 	color:#000000;
+	font-size:10pt;
+	font-family: "trebuchet MS", Arial, Helvetica, sans-serif;
+	font-weight:bold;
+	padding-left:8px;
+	height:20px;
+	background:url("images/nav_bg.png") top repeat-x;
+	padding-top:2px;
+	padding-bottom:2px;
+}
+td.menuright div a div { 
+	font-size: 8pt;
+	color:#000000;
+	padding-left:8px;
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-weight:normal;
+	padding-bottom:2px;
+}
+td.menuright div a:hover div { 
+	font-weight:bold;
+	background:url("images/nav_bg.png") top repeat-x;
+	cursor:hand;
+	cursor:pointer;
 }
