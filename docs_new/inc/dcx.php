@@ -285,6 +285,22 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
             '__desc' => 'Returns [v]$true[/v] or [v]$false[/v] depending on whether the GDI+ library is being used or not.',
             '__isid' => true,
         ),
+		
+		'PickIcon' => array(
+			'__desc' => "Displays an icon select dialog [o]XP+[/o]",
+			'__cmd' => '[INDEX] [FILENAME]',
+			'__eg' => '0 c:\windows\shell32.dll',
+			'__isid' => true,
+			'__params' => array(
+					'INDEX' => "Index to select initially",
+					'FILENAME' => 'icon library to explore',
+				),
+			'__return' => "D_OK selindex selfilename<br />D_ERROR selindex selfilename<br /><br /> 
+			where index is the pre-selected icon index within the supplied filename
+   			and selindex is the index of the icon selected within selfilename",
+			'__notes' => "selfilename may not be the same as filename."
+		),
+		
 		'MsgBox' => array(
 			'__desc' => "Displays a messagebox which could be used to retrieve feedback from the user.",
 			'__cmd' => '[STYLES] $chr(9) [TITLE] $chr(9) [MESSAGE]',

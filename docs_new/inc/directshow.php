@@ -23,9 +23,25 @@ function get_xdid_directshow(&$XDID) {
                     '__values' => array(
                         'p' => "Play right away.",
                         'l' => "Loop playback.",
+						'a' => "Specifies audio only, no VMR is loaded, no video rendered.",
                     ),
                 ),
                 'FILENAME' => 'Previous filename.',
+            ),
+        ),
+	    'V' => array(
+            '__desc' => "This command sets the volume or speakerbalance",
+            '__cmd' => '[+FLAG] [ARG] ',
+            '__eg' => '+v 0.00',
+            '__params' => array(
+                '+FLAG' => array(
+                    '__desc' => "Previous flags.",
+                    '__values' => array(
+                        'v' => "Sets volume level as a percentage between 0.00 & 100.00 (NB: fractions are valid values).",
+                        'b' => "Sets speaker balance between -10000 & 10000 (non functional atm)",
+                    ),
+                ),
+                'ARG' => 'See flag.',
             ),
         ),
 		'c' => array(
@@ -62,7 +78,19 @@ function get_xdid_directshow(&$XDID) {
 
 function get_xdidprops_directshow(&$XDIDPROPS) {
 	$XDIDPROPS = array(
-        'brange' => array(
+	    'fname' => array(
+            '__desc' => 'This property returns the loaded file (if any).',
+            '__params' => array(
+                'PATH' => 'PATH from the loaded file.'
+            ),
+        ),
+		'volume' => array(
+            '__desc' => 'This property returns the volume percentage.',
+            '__params' => array(
+                'VOLUME' => 'Value between 0.00 and 100.00'
+            ),
+        ),
+	    'brange' => array(
             '__desc' => 'This property returns the range of values that the video brightness can be set to.',
             '__params' => array(
                 'DEFAULT' => 'The default value.',
@@ -141,6 +169,9 @@ function get_xdidprops_directshow(&$XDIDPROPS) {
 
 function get_events_directshow(&$EVENTS) {
 	$EVENTS = array(
+		'rbdown' => 'right mouse button is down',
+		'rbup' => 'right mouse button is up',
+		'rclick' => 'right mouse button was clicked',
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
 	);
 }

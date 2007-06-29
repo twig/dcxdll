@@ -537,10 +537,59 @@ ON *:SIGNAL:Xpopup-*: {
 	</tr>
 </table>
 <br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.R"></a>/xpopup -R	</td></tr>
+	<tr><td colspan="2">This command lets you add more visual styles to your XPopup</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -R [MENU] [MENU] [+FLAG] [FLAG ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -R mymenu mymenu +r 1</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">MENU</td>
+		<td>Name of the Xpopup you wish to style.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Menu display style flags.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>This gives the menu's selection indicator a rounded look.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>This sets the menu's alpha value between 0 (Fully Transparent) & 255 (Fully Opaque)</td>
+	</tr>
+	<tr>
+		<td class="param">FLAG ARGS</td>
+		<td>[0|1] When used with +r to switch on/off, [0-255] when used with +a</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use 0 if the file is a single icon file.</td></tr></table>
+<br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #CCACC7"><a name="xpopupprop"></a><div style='color: #CCACC7;font-size:14pt;'>$xpopup() Properties</div></td></tr>
 	<tr><td>The $xpopup identifier is a given mIRC alias that communicates with the XPopup DLL to extract information from XPopup menus.</td></tr>
 </table>
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.alpha"></a>$xpopup().alpha	</td></tr>
+	<tr><td colspan="2">Returns the current alpha level of the menu (see xpopup -R)</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).alpha</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).alpha</div></td>
+	</tr>
+</table>
+<br />
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
 			<a name="xpopupprop.color"></a>$xpopup().color	</td></tr>
@@ -608,6 +657,20 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xpopup(mymenu).isPatched</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.isrounded"></a>$xpopup().isrounded	</td></tr>
+	<tr><td colspan="2">Returns wheter the rounded style is enable (see xpopup -R)</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).isrounded</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).isrounded</div></td>
 	</tr>
 </table>
 <br />
@@ -845,14 +908,17 @@ ON *:SIGNAL:Xpopup-*: {
 		<a href="#xpopup.s"><div>-s</div></a>
 		<a href="#xpopup.t"><div>-t</div></a>
 		<a href="#xpopup.x"><div>-x</div></a>
+		<a href="#xpopup.R"><div>-R</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #CCACC7'>
 	<a href="#xpopupprop"><div class='header' style='background:#CCACC7;'>$xpopup() Properties</div></a>
+		<a href="#xpopupprop.alpha"><div>alpha</div></a>
 		<a href="#xpopupprop.color"><div>color</div></a>
 		<a href="#xpopupprop.colors"><div>colors</div></a>
 		<a href="#xpopupprop.exstyle"><div>exstyle</div></a>
 		<a href="#xpopupprop.ismenu"><div>ismenu</div></a>
 		<a href="#xpopupprop.isPatched"><div>isPatched</div></a>
+		<a href="#xpopupprop.isrounded"><div>isrounded</div></a>
 		<a href="#xpopupprop.style"><div>style</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #9FB7FF'>

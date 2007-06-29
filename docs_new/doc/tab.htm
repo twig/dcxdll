@@ -77,12 +77,20 @@
 </table>
 <table class="styles">
 	<tr>
+		<td class="style"><a name="style.alpha" class="style">alpha</a></td>
+		<td>Control is alpha blended</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.bottom" class="style">bottom</a></td>
 		<td>The tabs are aligned at the bottom. (See note below)</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.buttons" class="style">buttons</a></td>
 		<td>The tabs appear as buttons like a toolbar.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.closable" class="style">closable</a></td>
+		<td>The tabs have a close button on the right of the tab</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.fixedwidth" class="style">fixedwidth</a></td>
@@ -95,6 +103,10 @@
 	<tr>
 		<td class="style"><a name="style.flatseps" class="style">flatseps</a></td>
 		<td>The tab separators are drawn as flat (Only with buttons and flat).</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.gradient" class="style">gradient</a></td>
+		<td>Renders a gradient background.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.hot" class="style">hot</a></td>
@@ -120,7 +132,7 @@
 		<td class="style"><a name="style.vertical" class="style">vertical</a></td>
 		<td>The tabs are aligned verticaly left. (See note below).</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Vertical and bottom tabs are not supported coorectly in XP Themes. The control works, but the tabs are not drawn properly. There is no easy fix for this at the moment. It is a bug in the windows theme system, not in the API. </td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Vertical and bottom tabs are not supported coorectly in XP Themes. The control works, but the tabs are not drawn properly. There is no easy fix for this at the moment. It is a bug in the windows theme system, not in the API. </li><li>gradient style can only used with closable style enabled. If a text background colour is set by xdid -C then its used in gradient, otherwise COLOR_BTNFACE is used.</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #9FB7FF"><a name="xdid"></a><div style='color: #9FB7FF;font-size:14pt;'>/xdid flags</div></td></tr>
@@ -464,6 +476,25 @@
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.closetab"></a>closetab	</td></tr>
+	<tr><td colspan="2">When the close button on the tab is clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME closetab ID ITEM</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx closetab 4 2</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ITEM</td>
+		<td>Tab item index number over which the event was triggered.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.help"></a>help	</td></tr>
 	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
 	<tr>
@@ -518,11 +549,14 @@
 	<br />
 <div class='rightmenu' style='border:1px solid #B49696'>
 	<a href="#style"><div class='header' style='background:#B49696;'>Control Styles</div></a>
+		<a href="#style.alpha"><div>alpha</div></a>
 		<a href="#style.bottom"><div>bottom</div></a>
 		<a href="#style.buttons"><div>buttons</div></a>
+		<a href="#style.closable"><div>closable</div></a>
 		<a href="#style.fixedwidth"><div>fixedwidth</div></a>
 		<a href="#style.flat"><div>flat</div></a>
 		<a href="#style.flatseps"><div>flatseps</div></a>
+		<a href="#style.gradient"><div>gradient</div></a>
 		<a href="#style.hot"><div>hot</div></a>
 		<a href="#style.multiline"><div>multiline</div></a>
 		<a href="#style.right"><div>right</div></a>
@@ -553,6 +587,7 @@
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a href="#events"><div class='header' style='background:#74C043;'>Events</div></a>
+		<a href="#events.closetab"><div>closetab</div></a>
 		<a href="#events.help"><div>help</div></a>
 		<a href="#events.rclick"><div>rclick</div></a>
 		<a href="#events.sclick"><div>sclick</div></a>

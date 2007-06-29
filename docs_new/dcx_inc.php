@@ -334,9 +334,9 @@ function dcxdoc_menu_left() {
 		<li><a href="index.htm">Index</a></li>
 		<li>General Usage
 			<ul>
-				<li><a href="dcx.htm">DCX Commands</a></li>
-				<li><a href="xdialog.htm">Marked Dialog</a></li>
-				<li><a href="xdid.htm">Controls</a></li>
+				<a href="dcx.htm"><div>DCX Commands</div></a>
+				<a href="xdialog.htm"><div>Marked Dialog</div></a>
+				<a href="xdid.htm"><div>Controls</div></a>
 			</ul>
 		</li>
 		<li>DCX Controls
@@ -349,24 +349,24 @@ function dcxdoc_menu_left() {
 		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'dcx', 'xdialog', 'xdid', 'xtray')))
 			continue;
 
-	    echo "<li><a href=\"$page.htm\">$pagelabel</a></li>";
+	    echo "<a href=\"$page.htm\"><div>$pagelabel</div></a>";
 	}
 ?>
 			</ul>
 		</li>
 		<li>DCX Features
 			<ul>
-				<li><a href="layout.htm">Cell Layout Algorithm</a></li>
-				<li><a href="xdock.htm">XDock</a></li>
-				<li><a href="xtray.htm">XTray</a></li>
-				<li><a href="xpopup.htm">XPopup</a></li>
+				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+				<a href="xdock.htm"><div>XDock</div></a>
+				<a href="xtray.htm"><div>XTray</div></a>
+				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
 		<li>About DCX
 			<ul>
-				<li><a href="dcxvsmdx.htm">DCX vs MDX</a></li>
-				<li><a href="tutorials.htm">Tutorials</a></li>
-				<li><a href="changes.htm">Version History</a></li>
+				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
+				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="changes.htm"><div>Version History</div></a>
 			</ul>
 		</li>
 	</ul>
@@ -413,7 +413,7 @@ function print_menu_items(&$arr, $sec, $sectext) {
 		$color = get_section_color($sec);
 		$prefix = in_array($sec, array(SECTION_XDID, SECTION_XDIALOG, SECTION_XDOCK, SECTION_XPOP, SECTION_XPOPUP)) ? '-' : '';
 
-		echo "<a href=\"#$sec\" style=\"color: $color;\">$sectext</a><ul>";
+		echo "<div class='rightmenu' style='border:1px solid $color'>\n\t<a href=\"#$sec\"><div class='header' style='background:$color;'>$sectext</div></a>";
 
 		$keys = array_keys($arr);
 		usort($keys, "flag_sort_rightmenu");
@@ -425,10 +425,10 @@ function print_menu_items(&$arr, $sec, $sectext) {
 			if (preg_match("/__.+/i", $flag))
 			    continue;
 			
-			echo "<li><a href=\"#$sec.$flag\" style=\"color: $color;\">$prefix$flag</a></li>\n";
+			echo "\n\t\t<a href=\"#$sec.$flag\"><div>$prefix$flag</div></a>";
 		}
 
-		echo "</ul>";
+		echo "\n\t</div>\n";
 	}
 }
 
@@ -953,24 +953,24 @@ function get_section_color($section = 0) {
 	}
 
 	switch ($section) {
-        case SECTION_GENERAL		: return '#888888'; // grey
-        case SECTION_XDIALOG		: return '#800080'; // purple
-	    case SECTION_XDIALOGPROPS	: return '#AC59AC'; // light purple
+        case SECTION_GENERAL		: return '#979AB3'; // grey blue
+        case SECTION_XDIALOG		: return '#A9729F'; // purple
+	    case SECTION_XDIALOGPROPS	: return '#CCACC7'; // light purple
         
-		case SECTION_STYLES			: return '#B52929'; // brown
-		case SECTION_XDID			: return '#0000FF'; // blue
-		case SECTION_XDIDPROPS		: return '#6666FF'; // light blue
-		case SECTION_EVENTS			: return '#009900'; // green
+		case SECTION_STYLES			: return '#B49696'; // brown
+		case SECTION_XDID			: return '#9FB7FF'; // blue
+		case SECTION_XDIDPROPS		: return '#BBD1FF'; // light blue
+		case SECTION_EVENTS			: return '#74C043'; // green
 
-		case SECTION_XPOPUP			: return '#800080'; // purple
-		case SECTION_XPOPUPPROPS	: return '#AC59AC'; // light purple
-        case SECTION_XPOP			: return '#0000FF'; // blue
-		case SECTION_XPOPPROPS		: return '#6666FF'; // light blue
+		case SECTION_XPOPUP			: return '#A9729F'; // purple
+		case SECTION_XPOPUPPROPS	: return '#CCACC7'; // light purple
+        case SECTION_XPOP			: return '#9FB7FF'; // blue
+		case SECTION_XPOPPROPS		: return '#BBD1FF'; // light blue
 
-		case SECTION_XDOCK			: return '#0000FF'; // blue
-		case SECTION_XDOCKPROPS		: return '#6666FF'; // light blue
+		case SECTION_XDOCK			: return '#9FB7FF'; // blue
+		case SECTION_XDOCKPROPS		: return '#BBD1FF'; // light blue
 		
-		case SECTION_XTRAY			: return '#0000FF'; // blue
+		case SECTION_XTRAY			: return '#9FB7FF'; // blue
 		
 		case SECTION_INTRO:
 		default:

@@ -86,7 +86,16 @@ function get_xdid_image(&$XDID) {
 	
 	writeDcxLoadIcon($XDID, 'w', '+FLAGS', 1);
 }
-
+function get_xdidprops_image(&$XDIDPROPS) {
+	$XDIDPROPS = array(
+	    'fname' => array(
+            '__desc' => 'This property returns the loaded file (if any).',
+            '__params' => array(
+                'PATH' => 'PATH from the loaded file.'
+            ),
+        )
+	);
+}
 
 function get_events_image(&$EVENTS) {
 	$EVENTS = array(

@@ -734,6 +734,31 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.PickIcon"></a>$dcx(PickIcon)	</td></tr>
+	<tr><td colspan="2">Displays an icon select dialog <a class="os">(XP+)</a></td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(PickIcon, [INDEX] [FILENAME])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(PickIcon, 0 c:\windows\shell32.dll)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">INDEX</td>
+		<td>Index to select initially</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>icon library to explore</td>
+	</tr>
+<tr><td class="syntax">Return</td><td>D_OK selindex selfilename<br />D_ERROR selindex selfilename<br /><br /> 
+			where index is the pre-selected icon index within the supplied filename
+   			and selindex is the index of the icon selected within selfilename</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> selfilename may not be the same as filename.</td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
 			<a name="general.Version"></a>$dcx(Version)	</td></tr>
 	<tr><td colspan="2">Returns information on the DLL Version.</td></tr>
 	<tr>
@@ -840,6 +865,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<a href="#general.Mark"><div>Mark</div></a>
 		<a href="#general.MsgBox"><div>MsgBox</div></a>
 		<a href="#general.OpenDialog/SaveDialog"><div>OpenDialog/SaveDialog</div></a>
+		<a href="#general.PickIcon"><div>PickIcon</div></a>
 		<a href="#general.Version"><div>Version</div></a>
 		<a href="#general.WindowProps"><div>WindowProps</div></a>
 		<a href="#general.xSignal"><div>xSignal</div></a>

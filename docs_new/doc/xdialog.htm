@@ -964,11 +964,44 @@
 	<tr><td colspan="2">This command lets you apply XPopup onto the dialog menus.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdialog -P [DNAME] (STYLE)</div></td>
+		<td><div class="syntax">/xdialog -P [DNAME] ([+FLAG] [ARGS])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -P dcx vertical</div></td>
+		<td><div class="example">/xdialog -P dcx +s vertical</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAG</td>
+		<td>Xpopup flags.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>This gives the menu's selection indicator a rounded look.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>This sets the menu's alpha value between 0 (Fully Transparent) & 255 (Fully Opaque)</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>This sets the dialog menus style.</td>
+	</tr>
+	<tr>
+		<td class="param">ARGS</td>
+		<td>Values</td>
+	</tr>
+	<tr>
+		<td class="value">[1|0]</td>
+		<td>When used with +r this will enable/disable the rounded look</td>
+	</tr>
+	<tr>
+		<td class="value">[0-255]</td>
+		<td>When used with +a sets the alpha value: 0 (Fully Transparent) & 255 (Fully Opaque)</td>
+	</tr>
+	<tr>
+		<td class="value">[style]</td>
+		<td>This sets the dialog menus style when used with +s</td>
 	</tr>
 </table>
 <br />
