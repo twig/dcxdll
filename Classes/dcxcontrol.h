@@ -64,6 +64,7 @@ class DcxDialog;
 
 typedef struct {
 	HDC ai_hdc;
+	HDC *ai_hdcBuffer;
 	HDC ai_Oldhdc;
 	HBITMAP ai_bitmap;
 	HBITMAP ai_bkg;

@@ -353,14 +353,14 @@ void DcxImage::DrawBMPImage(HDC hdc, int x, int y, int w, int h)
 	BITMAP bmp;
 
 	GetObject( this->m_hBitmap, sizeof(BITMAP), &bmp );
-	HBITMAP oldBitmap = (HBITMAP)SelectObject( hdcbmp, this->m_hBitmap );
+	HBITMAP oldBitmap = SelectBitmap( hdcbmp, this->m_hBitmap );
 
 	if (this->m_clrTransColor != -1)
 		TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_clrTransColor);
 	else
 		StretchBlt( hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
 
-	SelectObject(hdcbmp, oldBitmap);
+	SelectBitmap(hdcbmp, oldBitmap);
 	DeleteDC( hdcbmp );
 }
 

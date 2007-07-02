@@ -417,6 +417,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		if (hNextCtrl && (hNextCtrl != this->m_Hwnd))
 			SendMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, (WPARAM) hNextCtrl, TRUE);
 		//::PostMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, NULL, FALSE);
+		else
+			SetFocus(NULL);
 	}
 	// xdid -T [NAME] [ID] [SWITCH] (ToolTipText)
   else if (flags.switch_cap_flags[19] && numtok > 2) {
@@ -1310,51 +1312,84 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 		// So just grab image from windows DC.
 		HDC hdcParent = GetDC(this->m_pParentHWND);
 		RECT rcWin = rcClient;
-		MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2);
+		MapWindowRect(hwnd,this->m_pParentHWND, &rcWin);
 		BitBlt( hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
 			hdcParent, rcWin.left, rcWin.top, SRCCOPY);
 		ReleaseDC(this->m_pParentHWND, hdcParent);
 		return;
 	}
+	//// make a new HDC for background rendering
+	//HDC hdcbkg = CreateCompatibleDC( hdc );
+	//if (hdcbkg != NULL) {
+	//	//RECT rcParentWin, rcParentClient, rcWin;
+	//	RECT rcParentWin, rcWin;
+	//	// get parent windows client area.
+	//	GetClientRect(this->m_pParentHWND,&rcParentWin);
+	//	// make a bitmap for rendering to.
+	//	HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParentWin.right - rcParentWin.left, rcParentWin.bottom - rcParentWin.top );
+	//	if (memBM != NULL) {
+	//		// get this controls x & y pos within its parent.
+	//		rcWin = rcClient;
+	//		MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2);
+	//		// associate bitmap with HDC
+	//		HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
+	//		HRGN clipRgn = CreateRectRgnIndirect(&rcWin); // clip parents drawing to this controls rect.
+	//		if (clipRgn != NULL) {
+	//			SelectClipRgn(hdcbkg, clipRgn);
+	//			DeleteObject(clipRgn);
+	//		}
+	//		// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
+	//		this->m_bInPrint = true; // this helps prevent long drawing loops
+	//		// fill in the parents image
+	//		::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)hdcbkg,1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+	//		::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)hdcbkg,PRF_CLIENT);
+	//		// now draw all child controls within area of this control.
+	//		// NB: AVOID EnumChildWindows()
+	//		HWND child = GetWindow(this->m_Hwnd, GW_HWNDPREV);
+	//		while (child != NULL) {
+	//			this->DrawControl(hdcbkg, child);
+	//			child = GetWindow(child, GW_HWNDPREV);
+	//		}
+	//		this->m_bInPrint = false;
+	//		// draw background to main hdc
+	//		BitBlt( hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
+	//			hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
+	//		DeleteObject(SelectObject( hdcbkg, oldBM ));
+	//	}
+	//	DeleteDC( hdcbkg );
+	//}
 	// make a new HDC for background rendering
-	HDC hdcbkg = CreateCompatibleDC( hdc );
+	RECT rcParentWin, rcWin;
+	GetClientRect(this->m_pParentHWND,&rcParentWin);
+
+	HDC *hdcbkg = CreateHDCBuffer(hdc, &rcParentWin);
 	if (hdcbkg != NULL) {
-		//RECT rcParentWin, rcParentClient, rcWin;
-		RECT rcParentWin, rcWin;
-		// get parent windows client area.
-		GetClientRect(this->m_pParentHWND,&rcParentWin);
-		// make a bitmap for rendering to.
-		HBITMAP memBM = CreateCompatibleBitmap ( hdc, rcParentWin.right - rcParentWin.left, rcParentWin.bottom - rcParentWin.top );
-		if (memBM != NULL) {
-			// get this controls x & y pos within its parent.
-			rcWin = rcClient;
-			MapWindowPoints(hwnd,this->m_pParentHWND, (LPPOINT)&rcWin, 2);
-			// associate bitmap with HDC
-			HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
-			HRGN clipRgn = CreateRectRgnIndirect(&rcWin); // clip parents drawing to this controls rect.
-			if (clipRgn != NULL) {
-				SelectClipRgn(hdcbkg, clipRgn);
-				DeleteObject(clipRgn);
-			}
-			// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
-			this->m_bInPrint = true; // this helps prevent long drawing loops
-			// fill in the parents image
-			::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)hdcbkg,1L); // HACK: using 1L instead of NULL as a workaround for stacker.
-			::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)hdcbkg,PRF_CLIENT);
-			// now draw all child controls within area of this control.
-			// NB: AVOID EnumChildWindows()
-			HWND child = GetWindow(this->m_Hwnd, GW_HWNDPREV);
-			while (child != NULL) {
-				this->DrawControl(hdcbkg, child);
-				child = GetWindow(child, GW_HWNDPREV);
-			}
-			this->m_bInPrint = false;
-			// draw background to main hdc
-			BitBlt( hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
-				hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
-			DeleteObject(SelectObject( hdcbkg, oldBM ));
+		// get this controls x & y pos within its parent.
+		rcWin = rcClient;
+		MapWindowRect(hwnd,this->m_pParentHWND, &rcWin);
+		HRGN clipRgn = CreateRectRgnIndirect(&rcWin); // clip parents drawing to this controls rect.
+		if (clipRgn != NULL) {
+			SelectClipRgn(*hdcbkg, clipRgn);
+			DeleteObject(clipRgn);
 		}
-		DeleteDC( hdcbkg );
+		// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
+		this->m_bInPrint = true; // this helps prevent long drawing loops
+		// fill in the parents image
+		::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)*hdcbkg,1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+		::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)*hdcbkg,PRF_CLIENT);
+		// now draw all child controls within area of this control.
+		// NB: AVOID EnumChildWindows()
+		HWND child = GetWindow(this->m_Hwnd, GW_HWNDPREV);
+		while (child != NULL) {
+			this->DrawControl(*hdcbkg, child);
+			child = GetWindow(child, GW_HWNDPREV);
+		}
+		this->m_bInPrint = false;
+		// draw background to main hdc
+		BitBlt( hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
+			*hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
+
+		DeleteHDCBuffer(hdcbkg);
 	}
 }
 LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
@@ -1387,40 +1422,73 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 	}
 	// if vista method failed, fall through to our own method.
 #endif
+	//{
+	//	// create a new HDC for alpha blending.
+	//	ai->ai_hdc = CreateCompatibleDC( *hdc );
+	//	ai->ai_bkg = NULL;
+	//	if (ai->ai_hdc != NULL) {
+	//		//GetClientRect(this->m_Hwnd,&ai->ai_rcWin);
+	//		GetWindowRect(this->m_Hwnd,&ai->ai_rcWin);
+	//		// create a bitmap to render to
+	//		ai->ai_bitmap = CreateCompatibleBitmap ( *hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top );
+	//		if (ai->ai_bitmap != NULL) {
+	//			GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
+	//			// associate bitmap with hdc
+	//			ai->ai_oldBM = (HBITMAP)SelectObject ( ai->ai_hdc, ai->ai_bitmap );
+	//			// fill in parent bg
+	//			this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
+	//			// If alpha blending, make a background bitmap & fill it.
+	//			if (this->m_bAlphaBlend) {
+	//				// avoid doing the whole background rendering again by simply copying the one we just did.
+	//				HDC hdcbkg = CreateCompatibleDC( *hdc );
+	//				if (hdcbkg != NULL) {
+	//					ai->ai_bkg = CreateCompatibleBitmap ( *hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top );
+	//					if (ai->ai_bkg != NULL) {
+	//						HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, ai->ai_bkg );
+
+	//						BitBlt( hdcbkg, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+
+	//						SelectObject(hdcbkg, oldBM);
+	//					}
+	//					DeleteDC(hdcbkg);
+	//				}
+	//			}
+	//			ai->ai_Oldhdc = *hdc;
+	//			*hdc = ai->ai_hdc;
+	//		}
+	//	}
+	//}
 	{
-		// create a new HDC for alpha blending.
-		ai->ai_hdc = CreateCompatibleDC( *hdc );
+		// get window rect
+		GetWindowRect(this->m_Hwnd,&ai->ai_rcWin);
+		// create a new HDC Buffer for alpha blending.
+		ai->ai_hdcBuffer = CreateHDCBuffer( *hdc, &ai->ai_rcWin );
 		ai->ai_bkg = NULL;
-		if (ai->ai_hdc != NULL) {
-			//GetClientRect(this->m_Hwnd,&ai->ai_rcWin);
-			GetWindowRect(this->m_Hwnd,&ai->ai_rcWin);
-			// create a bitmap to render to
-			ai->ai_bitmap = CreateCompatibleBitmap ( *hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top );
-			if (ai->ai_bitmap != NULL) {
-				GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
-				// associate bitmap with hdc
-				ai->ai_oldBM = (HBITMAP)SelectObject ( ai->ai_hdc, ai->ai_bitmap );
-				// fill in parent bg
-				this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
-				// If alpha blending, make a background bitmap & fill it.
-				if (this->m_bAlphaBlend) {
-					// avoid doing the whole background rendering again by simply copying the one we just did.
-					HDC hdcbkg = CreateCompatibleDC( *hdc );
-					if (hdcbkg != NULL) {
-						ai->ai_bkg = CreateCompatibleBitmap ( *hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top );
-						if (ai->ai_bkg != NULL) {
-							HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, ai->ai_bkg );
+		if (ai->ai_hdcBuffer != NULL) {
+			// assign hdc for easy refrence & compat with previous code.
+			ai->ai_hdc = *ai->ai_hdcBuffer;
+			// get windows client rect
+			GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
+			// fill in parent bg
+			this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
+			// If alpha blending, make a background bitmap & fill it.
+			if (this->m_bAlphaBlend) {
+				// avoid doing the whole background rendering again by simply copying the one we just did.
+				HDC hdcbkg = CreateCompatibleDC( *hdc );
+				if (hdcbkg != NULL) {
+					ai->ai_bkg = CreateCompatibleBitmap ( *hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top );
+					if (ai->ai_bkg != NULL) {
+						HBITMAP oldBM = SelectBitmap( hdcbkg, ai->ai_bkg );
 
-							BitBlt( hdcbkg, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+						BitBlt( hdcbkg, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
 
-							SelectObject(hdcbkg, oldBM);
-						}
-						DeleteDC(hdcbkg);
+						SelectBitmap(hdcbkg, oldBM);
 					}
+					DeleteDC(hdcbkg);
 				}
-				ai->ai_Oldhdc = *hdc;
-				*hdc = ai->ai_hdc;
 			}
+			ai->ai_Oldhdc = *hdc;
+			*hdc = ai->ai_hdc;
 		}
 	}
 	return ai;
@@ -1436,36 +1504,64 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 		return;
 	}
 #endif
+	//// if we can't do Vista method, try do our own
+	//if (ai->ai_hdc != NULL) {
+	//	if (ai->ai_bitmap != NULL) {
+	//		int w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);
+	//		if (this->m_bAlphaBlend) {
+	//			if (ai->ai_bkg != NULL) {
+	//				// create a new HDC for alpha blending. (doing things this way avoids any flicker)
+	//				HDC hdcbkg = CreateCompatibleDC( ai->ai_Oldhdc);
+	//				if (hdcbkg != NULL) {
+	//					// associate bitmap with hdc
+	//					HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, ai->ai_bkg );
+	//					// alpha blend finished button with parents background
+	//					BLENDFUNCTION bf = { AC_SRC_OVER, 0, (BYTE)this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
+	//					AlphaBlend(hdcbkg,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h,bf);
+	//					// draw final image to windows hdc.
+	//					BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,hdcbkg,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+
+	//					SelectObject( hdcbkg, oldBM);
+	//					DeleteDC(hdcbkg);
+	//				}
+	//				DeleteBitmap(ai->ai_bkg);
+	//			}
+	//		}
+	//		else
+	//			BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+
+	//		SelectObject (ai->ai_hdc, ai->ai_oldBM );
+	//		DeleteObject(ai->ai_bitmap);
+	//	}
+	//	DeleteDC( ai->ai_hdc );
+	//}
+	//delete ai;
 	// if we can't do Vista method, try do our own
-	if (ai->ai_hdc != NULL) {
-		if (ai->ai_bitmap != NULL) {
-			int w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);
-			if (this->m_bAlphaBlend) {
-				if (ai->ai_bkg != NULL) {
-					// create a new HDC for alpha blending. (doing things this way avoids any flicker)
-					HDC hdcbkg = CreateCompatibleDC( ai->ai_Oldhdc);
-					if (hdcbkg != NULL) {
-						// associate bitmap with hdc
-						HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, ai->ai_bkg );
-						// alpha blend finished button with parents background
-						BLENDFUNCTION bf = { AC_SRC_OVER, 0, (BYTE)this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
-						AlphaBlend(hdcbkg,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h,bf);
-						// draw final image to windows hdc.
-						BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,hdcbkg,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+	if (ai->ai_hdcBuffer != NULL) {
+		int w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);
+		if (this->m_bAlphaBlend) {
+			if (ai->ai_bkg != NULL) {
+				// create a new HDC for alpha blending. (doing things this way avoids any flicker)
+				HDC hdcbkg = CreateCompatibleDC( ai->ai_Oldhdc);
+				if (hdcbkg != NULL) {
+					// associate bitmap with hdc
+					HBITMAP oldBM = SelectBitmap( hdcbkg, ai->ai_bkg );
+					// alpha blend finished button with parents background
+					BLENDFUNCTION bf = { AC_SRC_OVER, 0, (BYTE)this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
+					AlphaBlend(hdcbkg,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h,bf);
+					// draw final image to windows hdc.
+					BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,hdcbkg,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
 
-						SelectObject( hdcbkg, oldBM);
-						DeleteDC(hdcbkg);
-					}
-					DeleteBitmap(ai->ai_bkg);
+					SelectBitmap( hdcbkg, oldBM);
+					DeleteDC(hdcbkg);
 				}
+				DeleteBitmap(ai->ai_bkg);
 			}
-			else
-				BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
-
-			SelectObject (ai->ai_hdc, ai->ai_oldBM );
-			DeleteObject(ai->ai_bitmap);
 		}
-		DeleteDC( ai->ai_hdc );
+		else
+			BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+
+		DeleteHDCBuffer(ai->ai_hdcBuffer);
 	}
 	delete ai;
 }
@@ -1768,7 +1864,7 @@ void DcxControl::InvalidateParentRect(HWND hwnd)
 	RECT rc;
 	HWND parent = GetParent(hwnd);
 	GetWindowRect(hwnd, &rc);
-	MapWindowPoints(NULL,parent, (LPPOINT) &rc, 2);
+	MapWindowRect(NULL,parent, &rc);
 	InvalidateRect(parent, &rc, TRUE);
 }
 

@@ -408,19 +408,25 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	GetClientRect(idata->hwndItem, &rcWin);
 	// Create temp HDC as drawing buffer.
 	// if temp HDC or its bitmap fails to create, use supplied HDC without buffer.
-	HDC memDC = CreateCompatibleDC(idata->hDC);
-	HBITMAP memBM = NULL, oldBM = NULL;
-	if (memDC != NULL) { // HDC ok, make Bitmap
-		memBM = CreateCompatibleBitmap(idata->hDC, (rcWin.right - rcWin.left), (rcWin.bottom - rcWin.top));
-		if (memBM != NULL) // Bitmap Ok, select into HDC.
-			oldBM = (HBITMAP)SelectObject(memDC, memBM);
-		else { // Bitmap failed, delete temp HDC, use supplied HDC.
-			DeleteDC(memDC);
-			memDC = idata->hDC;
-		}
-	}
-	else // temp HDC failed, use supplied HDC.
+	HDC *hBuffer = CreateHDCBuffer(idata->hDC, &rcWin);
+	HDC memDC;
+	if (hBuffer != NULL)
+		memDC = *hBuffer;
+	else
 		memDC = idata->hDC;
+	//HDC memDC = CreateCompatibleDC(idata->hDC);
+	//HBITMAP memBM = NULL, oldBM = NULL;
+	//if (memDC != NULL) { // HDC ok, make Bitmap
+	//	memBM = CreateCompatibleBitmap(idata->hDC, (rcWin.right - rcWin.left), (rcWin.bottom - rcWin.top));
+	//	if (memBM != NULL) // Bitmap Ok, select into HDC.
+	//		oldBM = SelectBitmap(memDC, memBM);
+	//	else { // Bitmap failed, delete temp HDC, use supplied HDC.
+	//		DeleteDC(memDC);
+	//		memDC = idata->hDC;
+	//	}
+	//}
+	//else // temp HDC failed, use supplied HDC.
+	//	memDC = idata->hDC;
 	HFONT hFont = sitem->hFont;
 	LOGFONT lf;
 	RECT rcText = idata->rcItem;
@@ -428,7 +434,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	bool Redraw = false;
 
 	if (hFont == NULL)
-		hFont = (HFONT) SendMessage(idata->hwndItem, WM_GETFONT, 0, 0);
+		hFont = GetWindowFont(idata->hwndItem);
 
 	GetObject(hFont, sizeof(LOGFONT), &lf);
 
@@ -514,8 +520,9 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	}
 	if (idata->hDC != memDC) { // if using temp buffer HDC, render completed item to main HDC & cleanup buffer.
 		BitBlt(idata->hDC,idata->rcItem.left, idata->rcItem.top, (idata->rcItem.right - idata->rcItem.left), h, memDC, idata->rcItem.left, idata->rcItem.top, SRCCOPY);
-		DeleteObject(SelectObject(memDC,oldBM));
-		DeleteDC(memDC);
+		//DeleteObject(SelectObject(memDC,oldBM));
+		//DeleteDC(memDC);
+		DeleteHDCBuffer(hBuffer);
 	}
 
 	// position child control if any.
