@@ -179,28 +179,20 @@
 	<tr><td colspan="2">This command sets the volume or speakerbalance</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -V [DNAME] [ID] [+FLAG] [ARG] </div></td>
+		<td><div class="syntax">/xdid -V [DNAME] [ID] [+FLAG] [VALUE] </div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -V dcx 4 +v 0.00</div></td>
+		<td><div class="example">/xdid -V dcx 4 +v 80.00</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">+FLAG</td>
-		<td>Previous flags.</td>
+		<td>Command switches.</td>
 	</tr>
 	<tr>
 		<td class="value">v</td>
-		<td>Sets volume level as a percentage between 0.00 & 100.00 (NB: fractions are valid values).</td>
-	</tr>
-	<tr>
-		<td class="value">b</td>
-		<td>Sets speaker balance between -10000 & 10000 (non functional atm)</td>
-	</tr>
-	<tr>
-		<td class="param">ARG</td>
-		<td>See flag.</td>
+		<td>Sets the volume level as a percentage between <a class="value">0.00</a> & <a class="value">100.00</a> (fractions are valid values).</td>
 	</tr>
 </table>
 <br />
@@ -319,7 +311,7 @@
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdidprop.fname"></a>$xdid().fname	</td></tr>
-	<tr><td colspan="2">This property returns the loaded file (if any).</td></tr>
+	<tr><td colspan="2">This property returns the filename of the loaded media (if any).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).fname</div></td>
@@ -327,11 +319,6 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).fname</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">PATH</td>
-		<td>PATH from the loaded file.</td>
 	</tr>
 </table>
 <br />
@@ -363,6 +350,20 @@
 	<tr>
 		<td class="param">STEP</td>
 		<td>The value to use when changing this property.</td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
+			<a name="xdidprop.isloaded"></a>$xdid().isloaded	</td></tr>
+	<tr><td colspan="2">This property returns if a file is loaded or not.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).isloaded</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).isloaded</div></td>
 	</tr>
 </table>
 <br />
@@ -466,7 +467,7 @@
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdidprop.volume"></a>$xdid().volume	</td></tr>
-	<tr><td colspan="2">This property returns the volume percentage.</td></tr>
+	<tr><td colspan="2">This property returns volume percentage as a value between <a class="value">0.00</a> and <a class="value">100.00</a>.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).volume</div></td>
@@ -474,11 +475,6 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).volume</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">VOLUME</td>
-		<td>Value between 0.00 and 100.00</td>
 	</tr>
 </table>
 <br />
@@ -503,7 +499,7 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.rbdown"></a>rbdown	</td></tr>
-	<tr><td colspan="2">right mouse button is down</td></tr>
+	<tr><td colspan="2">When the right mouse button is pressed.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME rbdown ID </div></td>
@@ -517,7 +513,7 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.rbup"></a>rbup	</td></tr>
-	<tr><td colspan="2">right mouse button is up</td></tr>
+	<tr><td colspan="2">When the right mouse button is released.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME rbup ID </div></td>
@@ -531,7 +527,7 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.rclick"></a>rclick	</td></tr>
-	<tr><td colspan="2">right mouse button was clicked</td></tr>
+	<tr><td colspan="2">When the right mouse button is clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME rclick ID </div></td>
@@ -562,6 +558,7 @@
 		<a href="#xdidprop.duration"><div>duration</div></a>
 		<a href="#xdidprop.fname"><div>fname</div></a>
 		<a href="#xdidprop.hrange"><div>hrange</div></a>
+		<a href="#xdidprop.isloaded"><div>isloaded</div></a>
 		<a href="#xdidprop.size"><div>size</div></a>
 		<a href="#xdidprop.srange"><div>srange</div></a>
 		<a href="#xdidprop.video"><div>video</div></a>
@@ -582,7 +579,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 29th June, 07</td>
+		<td style="text-align: right;">Last Updated: 3rd July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

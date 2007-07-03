@@ -214,6 +214,20 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
+			<a name="xdid.l"></a>/xdid -l	</td></tr>
+	<tr><td colspan="2">This command lets you change the [s]readonly[s] style.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -l [DNAME] [ID] [1|0]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -l dcx 4 1</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
 			<a name="xdid.o"></a>/xdid -o	</td></tr>
 	<tr><td colspan="2">This command lets you overwrite the Nth line in the edit.</td></tr>
 	<tr>
@@ -367,6 +381,20 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).ispass</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
+			<a name="xdidprop.isreadonly"></a>$xdid().isreadonly	</td></tr>
+	<tr><td colspan="2">Is the edit control using the <a class="style">readonly</a> style?</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).isreadonly</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).isreadonly</div></td>
 	</tr>
 </table>
 <br />
@@ -644,6 +672,7 @@
 		<a href="#xdid.d"><div>-d</div></a>
 		<a href="#xdid.i"><div>-i</div></a>
 		<a href="#xdid.j"><div>-j</div></a>
+		<a href="#xdid.l"><div>-l</div></a>
 		<a href="#xdid.o"><div>-o</div></a>
 		<a href="#xdid.q"><div>-q</div></a>
 		<a href="#xdid.r"><div>-r</div></a>
@@ -658,6 +687,7 @@
 		<a href="#xdidprop.caretpos"><div>caretpos</div></a>
 		<a href="#xdidprop.cue"><div>cue</div></a>
 		<a href="#xdidprop.ispass"><div>ispass</div></a>
+		<a href="#xdidprop.isreadonly"><div>isreadonly</div></a>
 		<a href="#xdidprop.num"><div>num</div></a>
 		<a href="#xdidprop.sel"><div>sel</div></a>
 		<a href="#xdidprop.selend"><div>selend</div></a>
@@ -687,7 +717,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 29th June, 07</td>
+		<td style="text-align: right;">Last Updated: 3rd July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

@@ -69,6 +69,45 @@
 </table>
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.ActiveWindow"></a>$dcx(ActiveWindow)	</td></tr>
+	<tr><td colspan="2">Returns the size and title of the active window.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(ActiveWindow, [PROP])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(ActiveWindow, caption)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">caption</td>
+		<td>Returns the caption of the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">hwnd</td>
+		<td>Returns the handle for the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">x</td>
+		<td>The left position of the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">y</td>
+		<td>The bottom position of the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">w</td>
+		<td>The width of the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">h</td>
+		<td>The height of the active window.</td>
+	</tr>
+</table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
 			<a name="general.ColorDialog"></a>$dcx(ColorDialog)	</td></tr>
 	<tr><td colspan="2">Opens up the color picker dialog and returns the selected color.</td></tr>
 	<tr>
@@ -87,6 +126,10 @@
 	<tr>
 		<td class="param">STYLES</td>
 		<td>Various options for the color dialog.</td>
+	</tr>
+	<tr>
+		<td class="value">returndefault</td>
+		<td>Returns the default color if cancel is clicked.</td>
 	</tr>
 	<tr>
 		<td class="value">anycolor</td>
@@ -854,6 +897,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<br />
 <div class='rightmenu' style='border:1px solid #979AB3'>
 	<a href="#general"><div class='header' style='background:#979AB3;'>General Commands</div></a>
+		<a href="#general.ActiveWindow"><div>ActiveWindow</div></a>
 		<a href="#general.ColorDialog"><div>ColorDialog</div></a>
 		<a href="#general.FontDialog"><div>FontDialog</div></a>
 		<a href="#general.GetSystemColor"><div>GetSystemColor</div></a>
@@ -878,7 +922,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 29th June, 07</td>
+		<td style="text-align: right;">Last Updated: 3rd July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

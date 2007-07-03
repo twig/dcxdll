@@ -189,6 +189,10 @@
 		<td>Has a titlebar.</td>
 	</tr>
 	<tr>
+		<td class="value">v</td>
+		<td>Vista style.</td>
+	</tr>
+	<tr>
 		<td class="value">w</td>
 		<td>Windowedge border.</td>
 	</tr>
@@ -286,6 +290,10 @@
 	<tr>
 		<td class="value">pager</td>
 		<td>Creates a Pager control.</td>
+	</tr>
+	<tr>
+		<td class="value">directshow</td>
+		<td>Creates a Directshow control.</td>
 	</tr>
 	<tr>
 		<td class="value">&nbsp;</td>
@@ -811,7 +819,7 @@
 	</tr>
 	<tr>
 		<td class="param">VALUE</td>
-		<td>The color assigned as the transparent color. If <a class="param">SWITCH</a> is <a class="value">alpha</a>, then <a class="param">VALUE</a> can be a percentage from <a class="value">0</a> to <a class="value">100</a>.</td>
+		<td>The color assigned as the transparent color. If <a class="param">SWITCH</a> is <a class="value">alpha</a>, then <a class="param">VALUE</a> can be a percentage from <a class="value">0</a> to <a class="value">100</a> (use <a class="value">none</a> remove the alpha or color).</td>
 	</tr>
 </table>
 <br />
@@ -834,7 +842,7 @@
 	</tr>
 	<tr>
 		<td class="value">a</td>
-		<td>Uses the icon associated with the filetype if nothing could be loaded from the file.</td>
+		<td>Uses the icon associated with the given filetype.</td>
 	</tr>
 	<tr>
 		<td class="value">g</td>
@@ -964,7 +972,7 @@
 	<tr><td colspan="2">This command lets you apply XPopup onto the dialog menus.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdialog -P [DNAME] ([+FLAG] [ARGS])</div></td>
+		<td><div class="syntax">/xdialog -P [DNAME] [+FLAG] [ARGS]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -972,36 +980,41 @@
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
-		<td class="param">+FLAG</td>
-		<td>Xpopup flags.</td>
+		<td class="param">+FLAGS</td>
+		<td>Dialog menu switches.</td>
 	</tr>
 	<tr>
 		<td class="value">r</td>
-		<td>This gives the menu's selection indicator a rounded look.</td>
+		<td>The menu items are rounded.</td>
 	</tr>
 	<tr>
 		<td class="value">a</td>
-		<td>This sets the menu's alpha value between 0 (Fully Transparent) & 255 (Fully Opaque)</td>
+		<td>The menu is transparent.</td>
 	</tr>
 	<tr>
 		<td class="value">s</td>
-		<td>This sets the dialog menus style.</td>
+		<td>Applies the menu style to the dialog menu.</td>
+	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">r</td>
+		<td><div class="syntax">[1|0]</div></td>
 	</tr>
 	<tr>
-		<td class="param">ARGS</td>
-		<td>Values</td>
+		<td class="param">a</td>
+		<td><div class="syntax">[VALUE]</div></td>
 	</tr>
 	<tr>
-		<td class="value">[1|0]</td>
-		<td>When used with +r this will enable/disable the rounded look</td>
+		<td class="value">VALUE</td>
+		<td>The opacity to apply. Values range from <a class="value">0</a> (transparent) to <a class="value">255</a> (opaque).</td>
 	</tr>
 	<tr>
-		<td class="value">[0-255]</td>
-		<td>When used with +a sets the alpha value: 0 (Fully Transparent) & 255 (Fully Opaque)</td>
+		<td class="param">s</td>
+		<td><div class="syntax">[MENUSTYLE]</div></td>
 	</tr>
 	<tr>
-		<td class="value">[style]</td>
-		<td>This sets the dialog menus style when used with +s</td>
+		<td class="value">MENUSTYLE</td>
+		<td>The menu style to apply.</td>
 	</tr>
 </table>
 <br />
@@ -2116,7 +2129,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 29th June, 07</td>
+		<td style="text-align: right;">Last Updated: 3rd July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

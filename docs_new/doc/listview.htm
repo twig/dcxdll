@@ -102,7 +102,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.alpha" class="style">alpha</a></td>
-		<td>Control is alpha blended.</td>
+		<td>The control is alpha blended.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.autoarrange" class="style">autoarrange</a></td>
@@ -757,7 +757,7 @@
 	</tr>
 	<tr>
 		<td class="value">a</td>
-		<td>Uses the icon associated with the filetype if nothing could be loaded from the file.</td>
+		<td>Uses the icon associated with the given filetype.</td>
 	</tr>
 	<tr>
 		<td class="value">g</td>
@@ -1197,6 +1197,20 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.deselected"></a>deselected	</td></tr>
+	<tr><td colspan="2">Triggered when you deselect an item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME deselected ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx deselected 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.hdclick"></a>hdclick	</td></tr>
 	<tr><td colspan="2">When the user double clicks on a header item in the listview.</td></tr>
 	<tr>
@@ -1402,6 +1416,20 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.selected"></a>selected	</td></tr>
+	<tr><td colspan="2">Triggered when you select an item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME selected ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx selected 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.stateclick"></a>stateclick	</td></tr>
 	<tr><td colspan="2">When a checkbox is clicked.</td></tr>
 	<tr>
@@ -1511,6 +1539,7 @@
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a href="#events"><div class='header' style='background:#74C043;'>Events</div></a>
 		<a href="#events.dclick"><div>dclick</div></a>
+		<a href="#events.deselected"><div>deselected</div></a>
 		<a href="#events.hdclick"><div>hdclick</div></a>
 		<a href="#events.help"><div>help</div></a>
 		<a href="#events.hover"><div>hover</div></a>
@@ -1522,6 +1551,7 @@
 		<a href="#events.rdclick"><div>rdclick</div></a>
 		<a href="#events.sclick"><div>sclick</div></a>
 		<a href="#events.scrollend"><div>scrollend</div></a>
+		<a href="#events.selected"><div>selected</div></a>
 		<a href="#events.stateclick"><div>stateclick</div></a>
 		<a href="#events.trackbegin"><div>trackbegin</div></a>
 	</div>
@@ -1533,7 +1563,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 29th June, 07</td>
+		<td style="text-align: right;">Last Updated: 3rd July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

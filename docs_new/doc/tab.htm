@@ -78,7 +78,7 @@
 <table class="styles">
 	<tr>
 		<td class="style"><a name="style.alpha" class="style">alpha</a></td>
-		<td>Control is alpha blended</td>
+		<td>The control is alpha blended.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.bottom" class="style">bottom</a></td>
@@ -106,7 +106,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.gradient" class="style">gradient</a></td>
-		<td>Renders a gradient background.</td>
+		<td>A gradient background is applied. (Only works with <a class="style">closable</a>)</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.hot" class="style">hot</a></td>
@@ -132,7 +132,7 @@
 		<td class="style"><a name="style.vertical" class="style">vertical</a></td>
 		<td>The tabs are aligned verticaly left. (See note below).</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Vertical and bottom tabs are not supported coorectly in XP Themes. The control works, but the tabs are not drawn properly. There is no easy fix for this at the moment. It is a bug in the windows theme system, not in the API. </li><li>gradient style can only used with closable style enabled. If a text background colour is set by xdid -C then its used in gradient, otherwise COLOR_BTNFACE is used.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Vertical and bottom tabs are not supported correctly in XP Themes. The control works, but the tabs are not drawn properly. There is no easy fix for this at the moment. It is a bug in the windows theme system, not in the API.</li><li>When using the <a class="style">gradient</a> style, the gradient color can be changed by applying the text background color with <a class="value">xdid -C</a></li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #9FB7FF"><a name="xdid"></a><div style='color: #9FB7FF;font-size:14pt;'>/xdid flags</div></td></tr>
@@ -331,6 +331,29 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
+			<a name="xdid.v"></a>/xdid -v	</td></tr>
+	<tr><td colspan="2">This command allows you to move the tab item to a new position.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -v [DNAME] [ID] [N] [POS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -v dcx 4 1 3</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>The tab to move.</td>
+	</tr>
+	<tr>
+		<td class="param">POS</td>
+		<td>The new position for the item.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
 			<a name="xdid.w"></a>/xdid -w	</td></tr>
 	<tr><td colspan="2">This command lets you add an icon to the tab image list.</td></tr>
 	<tr>
@@ -348,7 +371,7 @@
 	</tr>
 	<tr>
 		<td class="value">a</td>
-		<td>Uses the icon associated with the filetype if nothing could be loaded from the file.</td>
+		<td>Uses the icon associated with the given filetype.</td>
 	</tr>
 	<tr>
 		<td class="value">g</td>
@@ -573,6 +596,7 @@
 		<a href="#xdid.m"><div>-m</div></a>
 		<a href="#xdid.r"><div>-r</div></a>
 		<a href="#xdid.t"><div>-t</div></a>
+		<a href="#xdid.v"><div>-v</div></a>
 		<a href="#xdid.w"><div>-w</div></a>
 		<a href="#xdid.y"><div>-y</div></a>
 	</div>
@@ -600,7 +624,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 29th June, 07</td>
+		<td style="text-align: right;">Last Updated: 3rd July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
