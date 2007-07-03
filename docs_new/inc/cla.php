@@ -48,7 +48,7 @@ The types of cells are enumerated below with their characteristics.<br />
 </table>
 <br />
 The root control is always set to the maximum client area of the dialog minus its padding values.
-<?
+<?php
 	return ob_get_clean();
 }
 
@@ -108,7 +108,7 @@ The image is again represented by the following layout pattern with their paths 
 </ul>
 <br />
 This layout has the control always centered in the window. It also is always exactly 80% in width and height (8 / 10).
-<?
+<?php
 	return ob_get_clean();
 }
 
@@ -125,7 +125,7 @@ function cla_examples() {
 </ul>
 <br />
 Feel free to post any messages after reading those threads if you still need any help.
-<?
+<?php
 	//'
 	return ob_get_clean();
 }

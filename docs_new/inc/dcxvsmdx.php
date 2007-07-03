@@ -433,7 +433,7 @@ function dcx_vs_mdx() {
         <td>In MDX the divider is a sizing bar that you can move around and in combination with MoveControl and $calc you can adjust controls sizes.</td>
 	</tr>
 </table>
-<?
+<?php
 	return ob_get_clean();
 }
 ?>
