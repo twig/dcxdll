@@ -31,17 +31,16 @@ function get_xdid_directshow(&$XDID) {
         ),
 	    'V' => array(
             '__desc' => "This command sets the volume or speakerbalance",
-            '__cmd' => '[+FLAG] [ARG] ',
-            '__eg' => '+v 0.00',
+            '__cmd' => '[+FLAG] [VALUE] ',
+            '__eg' => '+v 80.00',
             '__params' => array(
                 '+FLAG' => array(
-                    '__desc' => "Previous flags.",
+                    '__desc' => "Command switches.",
                     '__values' => array(
-                        'v' => "Sets volume level as a percentage between 0.00 & 100.00 (NB: fractions are valid values).",
-                        'b' => "Sets speaker balance between -10000 & 10000 (non functional atm)",
+                        'v' => "Sets the volume level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",
+// TODO: not functional                        'b' => "Sets speaker balance between [v]-10000[/v] & [v]10000[/v] (non functional atm)",
                     ),
                 ),
-                'ARG' => 'See flag.',
             ),
         ),
 		'c' => array(
@@ -78,18 +77,9 @@ function get_xdid_directshow(&$XDID) {
 
 function get_xdidprops_directshow(&$XDIDPROPS) {
 	$XDIDPROPS = array(
-	    'fname' => array(
-            '__desc' => 'This property returns the loaded file (if any).',
-            '__params' => array(
-                'PATH' => 'PATH from the loaded file.'
-            ),
-        ),
-		'volume' => array(
-            '__desc' => 'This property returns the volume percentage.',
-            '__params' => array(
-                'VOLUME' => 'Value between 0.00 and 100.00'
-            ),
-        ),
+        'volume' => 'This property returns volume percentage as a value between [v]0.00[/v] and [v]100.00[/v].',
+        'fname' => 'This property returns the filename of the loaded media (if any).',
+        'isloaded' => 'This property returns if a file is loaded or not.',
 	    'brange' => array(
             '__desc' => 'This property returns the range of values that the video brightness can be set to.',
             '__params' => array(
@@ -173,6 +163,9 @@ function get_events_directshow(&$EVENTS) {
 		'rbup' => 'right mouse button is up',
 		'rclick' => 'right mouse button was clicked',
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		'rclick' => 'When the right mouse button is clicked.',
+		'rbdown' => 'When the right mouse button is pressed.',
+		'rbup' => 'When the right mouse button is released.',
 	);
 }
 ?>

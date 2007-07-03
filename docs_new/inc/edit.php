@@ -43,6 +43,11 @@ function get_xdid_edit(&$XDID) {
 	        '__eg' => '2',
 	        '__notes' => "Only works with [s]multi[/s]."
 		),
+		'l' => array(
+	        '__desc' => 'This command lets you change the [s]readonly[s] style.',
+	        '__cmd' => '[1|0]',
+	        '__eg' => '1',
+		),
 		'i' => array(
 	        '__desc' => 'This command lets you insert a line at the Nth position in the edit.',
 	        '__cmd' => '[N] (TEXT)',
@@ -110,6 +115,7 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		    '__notes' => 'If the [s]multi[/s] is not used, you can ignore [p]N[/p] when retrieving the edit text.'
 		),
 		"num" => 'This property lets you retreive the number of lines in the edit.',
+		"isreadonly" => 'Is the edit control using the [s]readonly[/s] style?',
 		"ispass" => 'This property lets you retreive if the password style is set on the edit control.',
 		"sel" => 'This returns the index of the first and last selected character position in the control.',
 		"selstart" => 'This returns the index of the first selected character position in the control.',

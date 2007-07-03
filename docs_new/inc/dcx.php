@@ -36,6 +36,20 @@ function dcx_layout($page, $pagelabel) {
 
 function get_general_dcx(&$GENERAL) {
 	$GENERAL = array(
+		"ActiveWindow" => array(
+			'__desc' => "Returns the size and title of the active window.",
+			'__isid' => true,
+			'__cmd' => "[PROP]",
+			'__eg' => "caption",
+			'__params' => array(
+				'caption' => 'Returns the caption of the active window.',
+				'hwnd' => 'Returns the handle for the active window.',
+				'x' => "The left position of the active window.",
+				'y' => "The bottom position of the active window.",
+				'w' => "The width of the active window.",
+				'h' => "The height of the active window.",
+			),
+		),
 		"Mark" => array(
 			'__desc' => "This command prepares the dialog for DCX-based commands.",
 			'__cmd' => "[NAME] [CALLBACK_ALIAS]",
@@ -114,6 +128,7 @@ function get_general_dcx(&$GENERAL) {
 				'STYLES' => array(
 					'__desc' => "Various options for the color dialog.",
 					'__values' => array(
+						'returndefault' => "Returns the default color if cancel is clicked.",
 						'anycolor' => "Displays all available colors in the set of basic colors.",
 						'fullopen' => "Displays the additional controls that allow the user to create custom colors.",
 						'nofullopen' => "Disables the <b>Define Custom Color</b> button.",
