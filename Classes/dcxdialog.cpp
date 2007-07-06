@@ -1177,6 +1177,10 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 		this->redrawWindow();
 	}
+	// xdialog -U [NAME] [SWITCH]
+	else if (flags.switch_cap_flags[20]) {
+		SetFocus(NULL);
+	}
 	// invalid command
 	else
 		this->showError(NULL, input.gettok( 2 ).to_chr(), "Invalid Command");

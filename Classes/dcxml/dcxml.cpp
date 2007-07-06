@@ -229,22 +229,40 @@ public:
 	}
 	*/
 	void xdialogEX(const char *sw,const char *dFormat, ...) { 
+			//va_list args;
+			//va_start(args, dFormat);
+			//char d[2048];
+			//vsprintf(d, dFormat, args);
+			//va_end(args);
+			//if (eval) mIRCcomEX("//xdialog %s %s %s",sw,dname.to_chr(),d);
+			//else d_Host->parseCommandRequestEX("%s %s %s",dname.to_chr(),sw,d);
 			va_list args;
 			va_start(args, dFormat);
-			char d[2048];
-			vsprintf(d, dFormat, args);
+			int cnt = _vscprintf(dFormat, args);
+			char *txt = new char[cnt +1];
+			vsprintf(txt, dFormat, args );
 			va_end(args);
-			if (eval) mIRCcomEX("//xdialog %s %s %s",sw,dname.to_chr(),d);
-			else d_Host->parseCommandRequestEX("%s %s %s",dname.to_chr(),sw,d);
+			if (eval) mIRCcomEX("//xdialog %s %s %s",sw,dname.to_chr(),txt);
+			else d_Host->parseCommandRequestEX("%s %s %s",dname.to_chr(),sw,txt);
+			delete [] txt;
 	}
 	void xdidEX(int id,const char *sw,const char *dFormat, ...) { 
+			//va_list args;
+			//va_start(args, dFormat);
+			//char d[2048];
+			//vsprintf(d, dFormat, args);
+			//va_end(args);
+			//if (eval) mIRCcomEX("//xdid %s %s %i %s",sw,dname.to_chr(),id,d);
+			//else d_Host->parseComControlRequestEX(id,"%s %i %s %s",dname.to_chr(),id,sw,d);
 			va_list args;
 			va_start(args, dFormat);
-			char d[2048];
-			vsprintf(d, dFormat, args);
+			int cnt = _vscprintf(dFormat, args);
+			char *txt = new char[cnt +1];
+			vsprintf(txt, dFormat, args );
 			va_end(args);
-			if (eval) mIRCcomEX("//xdid %s %s %i %s",sw,dname.to_chr(),id,d);
-			else d_Host->parseComControlRequestEX(id,"%s %i %s %s",dname.to_chr(),id,sw,d);
+			if (eval) mIRCcomEX("//xdid %s %s %i %s",sw,dname.to_chr(),id,txt);
+			else d_Host->parseComControlRequestEX(id,"%s %i %s %s",dname.to_chr(),id,sw,txt);
+			delete [] txt;
 	}
 	/* parseCLA(int cCla) parses control and pane elements and applies the right CLA commands */
 	TString parseCLA(int cCla) { 
