@@ -324,14 +324,40 @@ void WINAPI LoadDll(LOADINFO * load) {
 
 	// Custom Panel
 	DCX_DEBUG("LoadDLL", "Registering Panel (#32770)...");
-	GetClassInfoEx(NULL, "#32770", &wc); // NB: using this class causes tooltips in toolbar children to not show
-	wc.lpszClassName = DCX_PANELCLASS;
+	//GetClassInfoEx(NULL, "#32770", &wc); // NB: using this class causes tooltips in toolbar children to not show
+	//wc.lpszClassName = DCX_PANELCLASS;		// Also causes listview/treeview label edit events to fail.
+	//RegisterClassEx(&wc);
+	wc.cbSize         = sizeof(WNDCLASSEX);
+	wc.style          = 0;
+	wc.lpfnWndProc    = DefWindowProc;
+	wc.cbClsExtra     = 0;
+	wc.cbWndExtra     = 0;
+	wc.hInstance      = GetModuleHandle(NULL);
+	wc.hIcon          = NULL;
+	wc.hCursor        = NULL;
+	wc.hbrBackground  = (HBRUSH) (COLOR_3DFACE +1);
+	wc.lpszMenuName   = 0;
+	wc.lpszClassName  = DCX_PANELCLASS;
+	wc.hIconSm        = NULL;
 	RegisterClassEx(&wc);
 
 	// Custom Box
 	DCX_DEBUG("LoadDLL", "Registering Box (#32770)...");
-	GetClassInfoEx(NULL, "#32770", &wc); // NB: using this class causes tooltips in toolbar children to not show
-	wc.lpszClassName = DCX_BOXCLASS;
+	//GetClassInfoEx(NULL, "#32770", &wc); // NB: using this class causes tooltips in toolbar children to not show
+	//wc.lpszClassName = DCX_BOXCLASS;			// Also causes listview/treeview label edit events to fail.
+	//RegisterClassEx(&wc);
+	wc.cbSize         = sizeof(WNDCLASSEX);
+	wc.style          = 0;
+	wc.lpfnWndProc    = DefWindowProc;
+	wc.cbClsExtra     = 0;
+	wc.cbWndExtra     = 0;
+	wc.hInstance      = GetModuleHandle(NULL);
+	wc.hIcon          = NULL;
+	wc.hCursor        = NULL;
+	wc.hbrBackground  = (HBRUSH) (COLOR_3DFACE +1);
+	wc.lpszMenuName   = 0;
+	wc.lpszClassName  = DCX_BOXCLASS;
+	wc.hIconSm        = NULL;
 	RegisterClassEx(&wc);
 
 	// Custom Button
