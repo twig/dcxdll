@@ -302,18 +302,20 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
         ),
 		
 		'PickIcon' => array(
-			'__desc' => "Displays an icon select dialog [o]XP+[/o]",
+			'__desc' => "Displays an icon select dialog. [o]XP+[/o]",
 			'__cmd' => '[INDEX] [FILENAME]',
-			'__eg' => '0 c:\windows\shell32.dll',
+			'__eg' => '2 mirc.exe',
 			'__isid' => true,
 			'__params' => array(
-					'INDEX' => "Index to select initially",
-					'FILENAME' => 'icon library to explore',
+					'INDEX' => "Default index to select.",
+					'FILENAME' => 'File to display icons for.',
 				),
-			'__return' => "D_OK selindex selfilename<br />D_ERROR selindex selfilename<br /><br /> 
-			where index is the pre-selected icon index within the supplied filename
-   			and selindex is the index of the icon selected within selfilename",
-			'__notes' => "selfilename may not be the same as filename."
+			'__return' => "[v]D_OK SELECTED_INDEX SELECTED_FILENAME[/v] if user clicked OK.<br />
+[v]D_ERROR DEFAULT_INDEX DEFAULT_FILENAME[/v] if user cancelled.",
+			'__notes' => array(
+				'[p]DEFAULT_INDEX[/p] is the pre-selected icon index and [p]SELECTED_INDEX[/p] is the index selected by the user.',
+				'[p]FILENAME[/p] and [p]SELECTED_FILENAME[/p] may be different as the user is able to browse.',
+			),
 		),
 		
 		'MsgBox' => array(

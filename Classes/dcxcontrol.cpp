@@ -547,10 +547,10 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		//		return;
 		//	}
 		//}
-		else if (flag.find('a',0)) { // alpha [1|0] [level]
+		else if (flag.find('b',0)) { // alpha [1|0] [level]
 			noRegion = true;
 			if (numtok != 6) {
-				this->showError(NULL, "-R +a", "Invalid Args");
+				this->showError(NULL, "-R +b", "Invalid Args");
 				return;
 			}
 			if (input.gettok( 5 ).to_int() > 0)
