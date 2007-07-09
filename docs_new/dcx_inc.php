@@ -180,7 +180,7 @@ function gen_styles($page, $pagelabel) {
 		if ($page == 'xdid')
 			$str = "These general control styles are available when creating any DCX control.";
 		else
-			$str = "These control styles are available when creating a $pagelabel control. Remember that the general styles [s]disabled[/s], [s]group[/s], [s]notheme[/s], [s]tabstop[/s] and [s]transparent[/s] apply to all DCX controls.";
+			$str = "These control styles are available when creating a $pagelabel control. Remember that the general styles [s]disabled[/s], [s]group[/s], [s]notheme[/s], [s]tabstop[/s] and [s]transparent[/s] apply to all DCX controls except the embedded Dialog and Window controls.";
 
 		dcxdoc_print_description("Control Styles", $str);
    		dcxdoc_format_styles($STYLES);
