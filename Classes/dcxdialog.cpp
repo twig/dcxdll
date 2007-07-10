@@ -729,6 +729,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
 						RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
 						AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+						if (this->m_bHaveKeyColour) // reapply keycolour if any.
+							SetLayeredWindowAttributesUx(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
 					}
 				}
 			}
@@ -758,6 +760,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
 						RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
 						AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+						if (this->m_iAlphaLevel != 255) // reapply alpha if any.
+							SetLayeredWindowAttributesUx(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
 					}
 				}
 			}
@@ -1837,9 +1841,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		{
 			if (IsWindow((HWND) lParam)) {
 				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
-				if (c_this != NULL) {
+				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
 			}
 			break;
 		}
@@ -1849,9 +1852,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
 			}
 			break;
@@ -1861,9 +1863,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-				if (c_this != NULL) {
+				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
 			}
 			break;
 		}
@@ -1873,9 +1874,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				HWND cHwnd = GetDlgItem(mHwnd, wParam);
 				if (IsWindow(cHwnd)) {
 					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
 
 				LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
@@ -2168,21 +2168,32 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				WINDOWPOS *wp = (WINDOWPOS *) lParam;
 
 				// break if nomove & nosize specified, since thats all we care about.
-				if ((wp->flags & SWP_NOMOVE) && (wp->flags & SWP_NOSIZE))
+				if ((wp == NULL) || ((wp->flags & SWP_NOMOVE) && (wp->flags & SWP_NOSIZE)))
 					break;
 
-				char ret[256];
+				char ret[256], *p = NULL;
 
-				p_this->callAliasEx(ret, "changing,0,%d,%d,%d,%d,%d", (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
-
-				if (wp != NULL) {
-					if (lstrcmp("nosize", ret) == 0)
-						wp->flags |= SWP_NOSIZE;
-					else if (lstrcmp("nomove", ret) == 0)
-						wp->flags |= SWP_NOMOVE;
-					else if (lstrcmp("nochange", ret) == 0)
-						wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
+				switch ((wp->flags & SWP_NOSIZE|SWP_NOMOVE)) {
+					case SWP_NOSIZE:
+						p = "moving";
+						break;
+					case SWP_NOMOVE:
+						p = "sizing";
+						break;
+					default:
+						p = "both";
+						break;
 				}
+
+				//p_this->callAliasEx(ret, "changing,0,%d,%d,%d,%d,%d", (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
+				p_this->callAliasEx(ret, "changing,0,%s,%d,%d,%d,%d", p,wp->x, wp->y, wp->cx, wp->cy);
+
+				if (lstrcmp("nosize", ret) == 0)
+					wp->flags |= SWP_NOSIZE;
+				else if (lstrcmp("nomove", ret) == 0)
+					wp->flags |= SWP_NOMOVE;
+				else if (lstrcmp("nochange", ret) == 0)
+					wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
 			}
 			break;
 		}
