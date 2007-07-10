@@ -162,11 +162,11 @@ mIRC(_xstatusbar)
 
 	data[0] = 0;
 
-	static const TString poslist("isStatusBar statusText statusParts statusTooltip");
+	static const TString poslist("visible text parts tooltip");
 	int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
 	switch (nType)
 	{
-	case 1: // isStatusBar
+	case 1: // visible
 		{
 			if (DcxDock::IsStatusbar())
 				lstrcpy(data,"$true");
@@ -174,7 +174,7 @@ mIRC(_xstatusbar)
 				lstrcpy(data,"$false");
 		}
 		break;
-	case 2: // statusText
+	case 2: // text
 		{
 			int iPart = d.gettok( 3 ).to_int( ) -1, nParts = DcxDock::status_getParts( 256, 0 );
 
@@ -182,7 +182,7 @@ mIRC(_xstatusbar)
 				DcxDock::status_getText( iPart, data ); // possible overflow, needs fixed at some point.
 		}
 		break;
-	case 3: // statusParts
+	case 3: // parts
 		{
 			INT parts[256];
 			int nParts = DcxDock::status_getParts( 256, 0 );
@@ -204,7 +204,7 @@ mIRC(_xstatusbar)
 			}
 		}
 		break;
-	case 4: // statusTooltip
+	case 4: // tooltip
 		{
 			int iPart = d.gettok( 3 ).to_int( ), nParts = DcxDock::status_getParts( 256, 0 );
 

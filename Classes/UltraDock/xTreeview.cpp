@@ -254,53 +254,11 @@ mIRC(_xtreeview)
 
 	data[0] = 0;
 
-	static const TString poslist("treeBarPos treeBarSize isTreeBar item");
+	static const TString poslist("item");
 	int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
 	switch (nType)
 	{
-	case 1: // treeBarPos
-		{
-			switch (SwitchbarPos(2))
-			{
-				case SWB_RIGHT:
-					lstrcpy(data, "right");
-					break;
-
-				case SWB_BOTTOM:
-					lstrcpy(data, "bottom");
-					break;
-
-				case SWB_TOP:
-					lstrcpy(data, "top");
-					break;
-
-				case SWB_LEFT:
-					lstrcpy(data, "left");
-					break;
-
-				case SWB_NONE:
-				default:
-					lstrcpy(data, "none");
-					break;
-			}
-		}
-		break;
-	case 2: // treeBarSize
-		{
-			RECT rc;
-			GetWindowRect(mIRCLink.m_hTreebar, &rc);
-			wsprintf(data,"%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
-		}
-		break;
-	case 3: // isTreeBar
-		{
-			if (IsWindowVisible(mIRCLink.m_hTreebar))
-				lstrcpy(data,"$true");
-			else
-				lstrcpy(data,"$false");
-		}
-		break;
-	case 4: // item
+	case 1: // item
 		{
 			int index = d.gettok( 3 ).to_int();
 

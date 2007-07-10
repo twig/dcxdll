@@ -188,6 +188,15 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				"Returns 'D_ERROR: GetTaskbarPos' when unsuccessful.",
 			),
 		),
+                
+                'GhostDrag' => array(
+                        '__desc' => 'This command allows for ghosted dragging for the main mIRC window.',
+                        '__cmd' => '[VALUE]',
+                        '__eg' => '150',
+                        '__params' => array(
+                            'VALUE' => 'The opacity of the main mIRC window when dragged. [p]VALUE[/p] has a range of [v]0[/v]-[v]255[/v].',
+                        ),
+                ),
         'IsUnloadSafe' => array(
             '__desc' => 'This is used by /udcx to determine if /dll -u can be used or not.',
             '__isid' => true,

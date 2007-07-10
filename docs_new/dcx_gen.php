@@ -7,7 +7,9 @@ $PAGES = array(
     'changes' => 'Version History',
     'xpopup' => 'XPopup',
     'xdock' => 'XDock',
+    'xstatusbar' => 'XStatusBar',
     'xtray' => 'XTray',
+    'xtreeview' => 'XTreeview',
     
     'cla' => 'Cell Layout Algorithm',
     'dcxvsmdx' => 'DCX vs MDX',

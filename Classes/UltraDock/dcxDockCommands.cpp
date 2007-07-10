@@ -264,18 +264,6 @@ mIRC(xdock) {
 
 		return 1;
 	}
-	// enable/disable ghost drag for main mIRC window.
-	// [-G] [0-255]
-	else if ((switches[1] == 'G') && (numtok == 2)) {
-		int alpha = input.gettok( 2 ).to_int();
-		if ((alpha >= 0) && (alpha <= 255))
-			mIRCLink.m_bDoGhostDrag = alpha;
-		else {
-			DCXError("/xdock -G","Alpha Out Of Range");
-			return 0;
-		}
-		return 1;
-	}
 
 	HWND dockHwnd = (HWND) input.gettok( 2 ).to_num();
 

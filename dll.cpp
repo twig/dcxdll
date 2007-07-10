@@ -1737,3 +1737,26 @@ mIRC(ActiveWindow) {
 
 	return 3;
 }
+
+mIRC(GhostDrag) {
+	TString input(data);
+	input.trim();
+
+	if (input == "")
+	{
+		DCXError("/dcx GhostDrag", "Invalid parameters");
+		return 0;
+	}
+
+	// [0-255] enable or (255 == disable) ghost drag for main mIRC window.
+	int alpha = input.gettok(1).to_int();
+
+	if ((alpha > -1) && (alpha < 256))
+		mIRCLink.m_bDoGhostDrag = alpha;
+	else {
+		DCXError("/dcx GhostDrag", "Invalid alpha value");
+		return 0;
+	}
+
+	return 1;
+}

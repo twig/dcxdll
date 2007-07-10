@@ -21,6 +21,7 @@ PickIcon
 TrayIcon
 WindowProps
 ActiveWindow
+GhostDrag
 
 xdid
 _xdid
