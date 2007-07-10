@@ -75,7 +75,7 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696"><a name="style"></a><div style='color: #B49696;font-size:14pt;'>Control Styles</div></td></tr>
-	<tr><td>These control styles are available when creating a Treeview control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+	<tr><td>These control styles are available when creating a Treeview control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
@@ -1115,6 +1115,25 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.selchange"></a>selchange	</td></tr>
+	<tr><td colspan="2">When the selected item changes.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME selchange ID PATH</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx selchange 4 4 2</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">PATH</td>
+		<td>Path leading to the item which triggered the event.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.stateclick"></a>stateclick	</td></tr>
 	<tr><td colspan="2">When a checkbox is clicked.</td></tr>
 	<tr>
@@ -1203,6 +1222,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<a href="#events.labelend"><div>labelend</div></a>
 		<a href="#events.rclick"><div>rclick</div></a>
 		<a href="#events.sclick"><div>sclick</div></a>
+		<a href="#events.selchange"><div>selchange</div></a>
 		<a href="#events.stateclick"><div>stateclick</div></a>
 	</div>
 </td>

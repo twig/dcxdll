@@ -75,12 +75,16 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696"><a name="style"></a><div style='color: #B49696;font-size:14pt;'>Control Styles</div></td></tr>
-	<tr><td>These control styles are available when creating a StatusBar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+	<tr><td>These control styles are available when creating a StatusBar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
 		<td class="style"><a name="style.grip" class="style">grip</a></td>
 		<td>Status bar displays a sizing grip.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.noauto" class="style">noauto</a></td>
+		<td>Prevents the statusbar from being auto-positioned and resized by the parent window. The user will be responsible for the positioning and resizing of the statusbar.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.noparentalign" class="style">noparentalign</a></td>
@@ -121,21 +125,21 @@
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
 			<a name="xdid.l"></a>/xdid -l	</td></tr>
-	<tr><td colspan="2">This command lets you set the status bar cell divisions. Every value givin is the position of the cell's right border. For example, if you have a 600 pixel width statusbar, you could use the values 200 400 -1 to get 3 200 pixel wide cells. If a cell has the value -1 for right border position, the cell will extend to the right edge of the statusbar control.</td></tr>
+	<tr><td colspan="2">This command lets you set the width of status bar cells. A value of <a class="value">-1</a> will cause the cell to automatically stretch, filling the remainding space. Values can also be a percentage, such as <a class="value">20%</a>.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -l [DNAME] [ID] [POS] (POS POS ...)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -l dcx 4 200 400 -1</div></td>
+		<td><div class="example">/xdid -l dcx 4 10% 200 400 -1</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
 			<a name="xdid.t"></a>/xdid -t	</td></tr>
-	<tr><td colspan="2">This command lets you set the icon, text and tooltip of a statusbar cell.</td></tr>
+	<tr><td colspan="2">This command lets you set the icon, text and tooltip of a statusbar cell. Child controls could also be created in place of a statusbar cell.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -t [DNAME] [ID] [N] [+FLAGS] [#ICON] (Cell Text) $chr(9) (Tooltip)</div></td>
@@ -173,7 +177,28 @@
 		<td class="param">#ICON</td>
 		<td>Icon number for the statusbar cell (0 for no icon)</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Cell text is optional.</li><li>Tooltip is only displayed if cell text is absent or cell text is too long to fit in cell.</li><li>If using +c, the following syntax must be used <a class="param">[NAME] [ID] [N] [+c] [ICON] [CID] [CTRL] [X] [Y] [W] [H] (OPTIONS)</a>, where <a class="param">CTRL</a> can only be one of the following; statusbar, pbar, trackbar, colorcombo, button, richedit, edit, ipaddress, radio, check, link, or image.</li><li>Only the following controls can be added onto the statusbar: pbar, trackbar, colorcombo, button, richedit, edit, ipaddress, radio, check, link, and image.</li></ul></td></tr></table>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">c</td>
+		<td><div class="syntax">[N] [+c] [#ICON] [CID] [CTRL_TYPE] [X] [Y] [W] [H] (STYLES)</div></td>
+	</tr>
+	<tr>
+		<td class="value">X</td>
+		<td>The X-offset of the control is ignored but required.</td>
+	</tr>
+	<tr>
+		<td class="value">Y</td>
+		<td>The Y-offset of the control is ignored but required.</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>The width of the control is ignored but required.</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>The height of the control is ignored but required.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Cell text is optional.</li><li>Tooltip is only displayed if cell text is absent or cell text is too long to fit in cell.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
@@ -368,6 +393,7 @@
 <div class='rightmenu' style='border:1px solid #B49696'>
 	<a href="#style"><div class='header' style='background:#B49696;'>Control Styles</div></a>
 		<a href="#style.grip"><div>grip</div></a>
+		<a href="#style.noauto"><div>noauto</div></a>
 		<a href="#style.noparentalign"><div>noparentalign</div></a>
 		<a href="#style.noresize"><div>noresize</div></a>
 		<a href="#style.tooltips"><div>tooltips</div></a>

@@ -75,7 +75,7 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696"><a name="style"></a><div style='color: #B49696;font-size:14pt;'>Control Styles</div></td></tr>
-	<tr><td>These control styles are available when creating a Rebar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+	<tr><td>These control styles are available when creating a Rebar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
@@ -93,6 +93,10 @@
 	<tr>
 		<td class="style"><a name="style.fixedorder" class="style">fixedorder</a></td>
 		<td>Bands are always in the same order but can be dragged on different lines/columns.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.noauto" class="style">noauto</a></td>
+		<td>Prevents the rebar from being auto-positioned and resized by the parent window. The user will be responsible for the positioning and resizing of the rebar.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.noparentalign" class="style">noparentalign</a></td>
@@ -612,6 +616,7 @@
 		<a href="#style.bottom"><div>bottom</div></a>
 		<a href="#style.dblclktoggle"><div>dblclktoggle</div></a>
 		<a href="#style.fixedorder"><div>fixedorder</div></a>
+		<a href="#style.noauto"><div>noauto</div></a>
 		<a href="#style.noparentalign"><div>noparentalign</div></a>
 		<a href="#style.noresize"><div>noresize</div></a>
 		<a href="#style.right"><div>right</div></a>

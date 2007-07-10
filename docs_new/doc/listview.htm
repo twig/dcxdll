@@ -75,7 +75,7 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696"><a name="style"></a><div style='color: #B49696;font-size:14pt;'>Control Styles</div></td></tr>
-	<tr><td>These control styles are available when creating a Listview control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+	<tr><td>These control styles are available when creating a Listview control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
@@ -1297,6 +1297,25 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.keydown"></a>keydown	</td></tr>
+	<tr><td colspan="2">When the user presses a key and the listview has focus.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME keydown ID KEYCODE</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx keydown 4</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">KEYCODE</td>
+		<td>The ASCII equivelant of the key pressed. This is not case-sensitive.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.labelbegin"></a>labelbegin	</td></tr>
 	<tr><td colspan="2">When item text label editing begins.</td></tr>
 	<tr>
@@ -1564,6 +1583,7 @@
 		<a href="#events.help"><div>help</div></a>
 		<a href="#events.hover"><div>hover</div></a>
 		<a href="#events.hsclick"><div>hsclick</div></a>
+		<a href="#events.keydown"><div>keydown</div></a>
 		<a href="#events.labelbegin"><div>labelbegin</div></a>
 		<a href="#events.labelcancel"><div>labelcancel</div></a>
 		<a href="#events.labelend"><div>labelend</div></a>
