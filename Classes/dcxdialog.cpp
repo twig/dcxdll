@@ -733,7 +733,14 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				}
 			}
 			else {
-				this->m_iAlphaLevel = (255 * input.gettok( 4 ).to_int()) / 100;
+				int alpha = input.gettok( 4 ).to_int();
+
+				if (alpha > 255)
+					alpha = 255;
+				else if (alpha < 0)
+					alpha = 0;
+
+				this->m_iAlphaLevel = alpha;
 				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
 					// Set WS_EX_LAYERED on this window
 					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);

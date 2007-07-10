@@ -112,6 +112,9 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
          TString filename(input.gettok(3, -1 ));
          filename.trim();
 
+			if (filename == "none") {
+				// ignore 'none' to maintain compatibility
+			}
 			if (IsFile(filename)) {
 				hBitmap = dcxLoadBitmap(hBitmap, filename);
 

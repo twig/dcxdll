@@ -117,21 +117,20 @@ function get_general_dcx(&$GENERAL) {
 		"ColorDialog" => array(
 			'__desc' => "Opens up the color picker dialog and returns the selected color.",
 			'__cmd' => "(DEFAULT) (STYLES)",
-			'__eg' => //array(
-// EXAMPLE
-				"\$rgb(255,0,0) fullopen owner dcx anycolor",
-//				"\$rgb(0,0,255) owner \$window(@test).hwnd solidonly",
-//			),
-            '__isid' => true,
+			'__eg' => array(
+				'$rgb(255,0,0) fullopen owner dcx anycolor',
+				'$rgb(0,0,255) owner $window(@test).hwnd solidonly',
+			),
+			'__isid' => true,
 			'__params' => array(
 				'DEFAULT' => "The color selected when the dialog opens.",
 				'STYLES' => array(
 					'__desc' => "Various options for the color dialog.",
 					'__values' => array(
-						'returndefault' => "Returns the default color if cancel is clicked.",
 						'anycolor' => "Displays all available colors in the set of basic colors.",
 						'fullopen' => "Displays the additional controls that allow the user to create custom colors.",
 						'nofullopen' => "Disables the <b>Define Custom Color</b> button.",
+						'returndefault' => "Returns the default color if cancel is clicked.",
 						'solidonly' => "Display only solid colors in the set of basic colors.",
 						'owner' => "Allows you to specific the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
 					),
@@ -394,10 +393,14 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 						't' => 'Set the title text.',
 						'i' => 'Set the window icon.',
 						'g' => 'Set the window icon in grayscale.',
-						'T' => 'Remove any themes on the window.',
+                                                'r' => 'Simulates a right click on the specified window',
+						'T' => 'Remove any themes on the specified window.',
 					),
 				),
 				'__args' => array(
+                                        'r' => array(
+						'__cmd' => '[X] [Y]',
+					),
 					't' => array(
 						'__cmd' => '(TEXT)',
 						'__params' => array(
