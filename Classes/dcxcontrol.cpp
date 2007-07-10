@@ -412,13 +412,16 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		//	style encounters a window with the WS_EX_CONTROLPARENT style,
 		//	the system recursively searches the window's children.
 		//
-		HWND hNextCtrl = GetNextDlgTabItem(this->m_pParentDialog->getHwnd(), this->m_Hwnd, FALSE);
+		//HWND hNextCtrl = GetNextDlgTabItem(this->m_pParentDialog->getHwnd(), this->m_Hwnd, FALSE);
+        //
+		//if (hNextCtrl && (hNextCtrl != this->m_Hwnd))
+		//	SendMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, (WPARAM) hNextCtrl, TRUE);
+		////::PostMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, NULL, FALSE);
+		//else
+		//	SetFocus(NULL);
 
-		if (hNextCtrl && (hNextCtrl != this->m_Hwnd))
-			SendMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, (WPARAM) hNextCtrl, TRUE);
-		//::PostMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, NULL, FALSE);
-		else
-			SetFocus(NULL);
+		// Just remove focus from all controls
+		SetFocus(NULL);
 	}
 	// xdid -T [NAME] [ID] [SWITCH] (ToolTipText)
   else if (flags.switch_cap_flags[19] && numtok > 2) {

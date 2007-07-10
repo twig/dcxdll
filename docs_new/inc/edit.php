@@ -20,6 +20,7 @@ function get_styles_edit(&$STYLES) {
 		'return' => "Specifies that a carriage return be inserted when the user presses the ENTER key while entering text into a multiline edit control in a dialog box.",
 		'readonly' => "Prevents the user from typing or editing text in the edit control.",
 		'tooltips' => 'The edit will have a tooltip.',
+		'showsel' => 'When the control loses focus, the selection is still displayed.',
 		'alpha' => 'Control is alpha blended.',
 		'__notes' => array(
 			'Even with [s]number[/s] style, it is still possible to paste non-digits into the edit control.',

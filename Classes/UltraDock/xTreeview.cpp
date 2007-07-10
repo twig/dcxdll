@@ -275,7 +275,7 @@ mIRC(_xtreeview)
 				if (TreeView_GetItem(mIRCLink.m_hTreeView,&item))
 					lstrcpyn(data, item.pszText, 900);
 				else
-					lstrcpy(data, "D_ERROR Unable to get item");
+					lstrcpy(data, "");
 			}
 		}
 		break;
