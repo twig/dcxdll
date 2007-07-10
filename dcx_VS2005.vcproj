@@ -790,7 +790,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Classes\UltraDock\xTreeview.cpp"
+					RelativePath=".\Classes\UltraDock\xTreebar.cpp"
 					>
 				</File>
 			</Filter>

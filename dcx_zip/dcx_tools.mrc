@@ -47,9 +47,9 @@ alias xstatusbar {
   dcx xstatusbar $1-
 }
 
-alias xtreeview {
-  !if ($isid) returnex $dcx( _xtreeview, mIRC $prop $1- )
-  dcx xtreeview $1-
+alias xtreebar {
+  !if ($isid) returnex $dcx( _xtreebar, mIRC $prop $1- )
+  dcx xtreebar $1-
 }
 
 alias dcxml dcx dcxml $1-

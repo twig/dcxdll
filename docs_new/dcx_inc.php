@@ -17,8 +17,8 @@ define('SECTION_XDOCKPROPS'  , 'xdockprop');
 define('SECTION_XTRAY'       , 'xtray');
 define('SECTION_XSTATUSBAR'  , 'xstatusbar');
 define('SECTION_XSTATUSBARPROPS', 'xstatusbarprop');
-define('SECTION_XTREEVIEW'   , 'xtreeview');
-define('SECTION_XTREEVIEWPROPS', 'xtreeviewprop');
+define('SECTION_XTREEBAR'    , 'xtreebar');
+define('SECTION_XTREEBARPROPS', 'xtreebarprop');
 
 // global variables
 $VERSION = "1.3.8";
@@ -43,8 +43,8 @@ $XPOPPROPS = array();
 $XTRAY = array();
 $XSTATUSBAR = array();
 $XSTATUSBARPROPS = array();
-$XTREEVIEW = array();
-$XTREEVIEWPROPS = array();
+$XTREEBAR = array();
+$XTREEBARPROPS = array();
 
 $SECTION = 0;
 
@@ -353,7 +353,7 @@ function dcxdoc_menu_left() {
 	asort($pages);
 
 	foreach ($pages as $page => $pagelabel) {
-		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'dcx', 'xdialog', 'xdid', 'xtray', 'xstatusbar', 'xtreeview')))
+		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'dcx', 'xdialog', 'xdid', 'xtray', 'xstatusbar', 'xtreebar')))
 			continue;
 
 	    echo "<a href=\"$page.htm\"><div>$pagelabel</div></a>";
@@ -367,7 +367,7 @@ function dcxdoc_menu_left() {
 				<a href="xdock.htm"><div>XDock</div></a>
                                 <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
-                                <a href="xtreeview.htm"><div>XTreeview</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
 				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
@@ -387,7 +387,7 @@ function dcxdoc_menu_left() {
 function dcxdoc_menu_right($page) {
 	global $SECTION, $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL,
 	$STYLES, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS, $XDOCK, $XDOCKPROPS, $XTRAY,
-        $XSTATUSBAR, $XSTATUSBARPROPS, $XTREEVIEW, $XTREEVIEWPROPS;
+        $XSTATUSBAR, $XSTATUSBARPROPS, $XTREEBAR, $XTREEBARPROPS;
 
 ?><td width="85%" valign="top" class="menuright">
 	<br />
@@ -412,8 +412,8 @@ function dcxdoc_menu_right($page) {
     print_menu_items($XSTATUSBAR, SECTION_XSTATUSBAR, "/xstatusbar");
     print_menu_items($XSTATUSBARPROPS, SECTION_XSTATUSBARPROPS, "\$xstatusbar()");
     
-    print_menu_items($XTREEVIEW, SECTION_XTREEVIEW, "/xtreeview");
-    print_menu_items($XTREEVIEWPROPS, SECTION_XTREEVIEWPROPS, "\$xtreeview()");
+    print_menu_items($XTREEBAR, SECTION_XTREEBAR, "/xtreebar");
+    print_menu_items($XTREEBARPROPS, SECTION_XTREEBARPROPS, "\$xtreebar()");
     
     print_menu_items($EVENTS, SECTION_EVENTS, "Events");
 	//echo "<a href=\"#\">$page Notes</a><br />";
@@ -427,7 +427,7 @@ function print_menu_items(&$arr, $sec, $sectext) {
 
 	if (count($arr)) {
 		$color = get_section_color($sec);
-		$prefix = in_array($sec, array(SECTION_XDID, SECTION_XDIALOG, SECTION_XDOCK, SECTION_XSTATUSBAR, SECTION_XTREEVIEW, SECTION_XPOP, SECTION_XPOPUP)) ? '-' : '';
+		$prefix = in_array($sec, array(SECTION_XDID, SECTION_XDIALOG, SECTION_XDOCK, SECTION_XSTATUSBAR, SECTION_XTREEBAR, SECTION_XPOP, SECTION_XPOPUP)) ? '-' : '';
 
 		echo "<div class='rightmenu' style='border:1px solid $color'>\n\t<a href=\"#$sec\"><div class='header' style='background:$color;'>$sectext</div></a>";
 
@@ -607,11 +607,11 @@ function dcxdoc_format_xstatusbarprops($event, $data) {
 	format_xcmd(SECTION_XSTATUSBARPROPS, $event, $data);
 }
 
-function dcxdoc_format_xtreeview($event, $data) {
-	format_xcmd(SECTION_XTREEVIEW, $event, $data);
+function dcxdoc_format_xtreebar($event, $data) {
+	format_xcmd(SECTION_XTREEBAR, $event, $data);
 }
-function dcxdoc_format_xtreeviewprops($event, $data) {
-	format_xcmd(SECTION_XTREEVIEWPROPS, $event, $data);
+function dcxdoc_format_xtreebarprops($event, $data) {
+	format_xcmd(SECTION_XTREEBARPROPS, $event, $data);
 }
 
 function dcxdoc_format_xtray($event, $data) {
@@ -822,18 +822,18 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$NOARGS] = "\$xstatusbar().$flag";
                         break;
 
-                case SECTION_XTREEVIEW:
-			$heading = "/xtreeview -$flag";
-			$syntax = "/xtreeview -$flag {$data['__cmd']}";
-			$examplefmt[$ARGS]   = "/xtreeview -$flag [-EXAMPLE]";
-			$examplefmt[$NOARGS] = "/xtreeview -$flag";
+                case SECTION_XTREEBAR:
+			$heading = "/xtreebar -$flag";
+			$syntax = "/xtreebar -$flag {$data['__cmd']}";
+			$examplefmt[$ARGS]   = "/xtreebar -$flag [-EXAMPLE]";
+			$examplefmt[$NOARGS] = "/xtreebar -$flag";
 			break;
 			
-                case SECTION_XTREEVIEWPROPS:
-			$heading = "\$xtreeview().$flag";
-			$syntax = "\$xtreeview({$data['__cmd']}).$flag";
-			$examplefmt[$ARGS]   = "\$xtreeview([-EXAMPLE]).$flag";
-			$examplefmt[$NOARGS] = "\$xtreeview().$flag";
+                case SECTION_XTREEBARPROPS:
+			$heading = "\$xtreebar().$flag";
+			$syntax = "\$xtreebar({$data['__cmd']}).$flag";
+			$examplefmt[$ARGS]   = "\$xtreebar([-EXAMPLE]).$flag";
+			$examplefmt[$NOARGS] = "\$xtreebar().$flag";
                         break;
 
 	    case SECTION_XTRAY:
@@ -1031,8 +1031,8 @@ function get_section_color($section = 0) {
                 case SECTION_XSTATUSBAR			: return '#9FB7FF'; // blue
 		case SECTION_XSTATUSBARPROPS		: return '#BBD1FF'; // light blue
                 
-                case SECTION_XTREEVIEW			: return '#9FB7FF'; // blue
-		case SECTION_XTREEVIEWPROPS		: return '#BBD1FF'; // light blue
+                case SECTION_XTREEBAR			: return '#9FB7FF'; // blue
+		case SECTION_XTREEBARPROPS		: return '#BBD1FF'; // light blue
                 
 		case SECTION_XTRAY			: return '#9FB7FF'; // blue
 		
@@ -1070,8 +1070,8 @@ function get_section_name($section = 0) {
                 case SECTION_XSTATUSBAR			: return 'xstatusbar'; // blue
 		case SECTION_XSTATUSBARPROPS		: return 'xstatusbarprops'; // light blue
                 
-                case SECTION_XTREEVIEW			: return 'xtreeview'; // blue
-		case SECTION_XTREEVIEWPROPS		: return 'xtreeviewprops'; // light blue
+                case SECTION_XTREEBAR			: return 'xtreebar'; // blue
+		case SECTION_XTREEBARPROPS		: return 'xtreebarprops'; // light blue
                 
 		case SECTION_XTRAY			: return 'xtray'; // blue
 		

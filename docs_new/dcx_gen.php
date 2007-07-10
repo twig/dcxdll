@@ -9,7 +9,7 @@ $PAGES = array(
     'xdock' => 'XDock',
     'xstatusbar' => 'XStatusBar',
     'xtray' => 'XTray',
-    'xtreeview' => 'XTreeview',
+    'xtreebar' => 'XTreebar',
     
     'cla' => 'Cell Layout Algorithm',
     'dcxvsmdx' => 'DCX vs MDX',

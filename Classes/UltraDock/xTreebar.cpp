@@ -5,7 +5,7 @@
 #include "dcxDock.h"
 
 // [SWITCH] [OPTIONS]
-mIRC(xtreeview) {
+mIRC(xtreebar) {
 	TString input(data);
 	input.trim();
 	data[0] = 0;
@@ -13,7 +13,7 @@ mIRC(xtreeview) {
 	int numtok = input.numtok( );
 
 	if (!IsWindow(mIRCLink.m_hTreeView)) {
-		DCXError("/xtreeview", "No Treebar");
+		DCXError("/xtreebar", "No Treebar");
 		return 0;
 	}
 
@@ -23,7 +23,7 @@ mIRC(xtreeview) {
 		case 'f': // [+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]
 			{
 				if (numtok < 5) {
-					DCXError("/xtreeview -f", "Invalid Font Args");
+					DCXError("/xtreebar -f", "Invalid Font Args");
 					return 0;
 				}
 				LOGFONT lf;
@@ -44,7 +44,7 @@ mIRC(xtreeview) {
 		case 's': // [STYLES]
 			{
 				if (numtok < 2) {
-					DCXError("/xtreeview -s","Invalid Style Args");
+					DCXError("/xtreebar -s","Invalid Style Args");
 					return 0;
 				}
 				static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel");
@@ -115,7 +115,7 @@ mIRC(xtreeview) {
 		case 'c': // [COLOUR FLAGS] [COLOUR]
 			{
 				if (numtok < 3) {
-					DCXError("/xtreeview -c", "Invalid Colour Args");
+					DCXError("/xtreebar -c", "Invalid Colour Args");
 					return 0;
 				}
 				// TODO: undocumented. Non functional, mirc does owner draw, need to subclass
@@ -146,7 +146,7 @@ mIRC(xtreeview) {
 					break;
 				default:
 					{
-						DCXError("/xtreeview -c","Invalid Colour flag");
+						DCXError("/xtreebar -c","Invalid Colour flag");
 						return 0;
 					}
 					break;
@@ -156,7 +156,7 @@ mIRC(xtreeview) {
 		case 'i': // [clear|default] | [flags] [index] [filename]
 			{
 				if (mIRCLink.m_hTreeImages == NULL) {
-					DCXError("/xtreeview -i", "No Valid TreeView Image List");
+					DCXError("/xtreebar -i", "No Valid TreeView Image List");
 					return 0;
 				}
 				if (input.gettok(2) == "clear") {
@@ -198,7 +198,7 @@ mIRC(xtreeview) {
 							break;
 						default:
 							{
-								DCXError("/xtreeview -i", "Invalid Image Flag");
+								DCXError("/xtreebar -i", "Invalid Image Flag");
 								ImageList_Destroy(himl);
 								return 0;
 							}
@@ -231,7 +231,7 @@ mIRC(xtreeview) {
 						}
 						else {
 							ImageList_Destroy(himl);
-							DCXError("/xtreeview -i", "Unable to load icon");
+							DCXError("/xtreebar -i", "Unable to load icon");
 							return 0;
 						}
 					}
@@ -240,14 +240,14 @@ mIRC(xtreeview) {
 			break;
 #endif
 		default:
-			DCXError("/xtreeview", "Invalid Flag");
+			DCXError("/xtreebar", "Invalid Flag");
 			return 0;
 	}
 	return 1;
 }
 
 // prop
-mIRC(_xtreeview)
+mIRC(_xtreebar)
 {
 	TString d(data);
 	d.trim();
