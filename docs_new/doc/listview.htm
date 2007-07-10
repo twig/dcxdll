@@ -50,7 +50,9 @@
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreeview.htm"><div>XTreeview</div></a>
 				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
@@ -73,7 +75,7 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696"><a name="style"></a><div style='color: #B49696;font-size:14pt;'>Control Styles</div></td></tr>
-	<tr><td>These control styles are available when creating a Listview control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls.</td></tr>
+	<tr><td>These control styles are available when creating a Listview control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
@@ -150,7 +152,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.noheadersort" class="style">noheadersort</a></td>
-		<td>This will change the headers look & stop them being clickable.</td>
+		<td>This will prevent the headers from being clickable.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.nolabelwrap" class="style">nolabelwrap</a></td>
@@ -870,7 +872,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -B dcx 4 3</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You must give the listview focus before forcing the item editing mode.</td></tr></table>
+</table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
@@ -1198,16 +1200,25 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.deselected"></a>deselected	</td></tr>
-	<tr><td colspan="2">Triggered when you deselect an item.</td></tr>
+	<tr><td colspan="2">Triggered when an item is deselected.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME deselected ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME deselected ID LINE COLUMN</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx deselected 4</div></td>
 	</tr>
-</table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">LINE</td>
+		<td>The line selected.</td>
+	</tr>
+	<tr>
+		<td class="param">COLUMN</td>
+		<td>The column selected.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">COLUMN</a> will always return <a class="value">0</a> until a workaround is found.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -1420,13 +1431,22 @@
 	<tr><td colspan="2">Triggered when you select an item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME selected ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME selected ID LINE COLUMN</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx selected 4</div></td>
 	</tr>
-</table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">LINE</td>
+		<td>The line selected.</td>
+	</tr>
+	<tr>
+		<td class="param">COLUMN</td>
+		<td>The column selected.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">COLUMN</a> will always return <a class="value">0</a> until a workaround is found.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -1563,7 +1583,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 4th July, 07</td>
+		<td style="text-align: right;">Last Updated: 10th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

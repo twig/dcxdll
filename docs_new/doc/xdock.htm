@@ -50,7 +50,9 @@
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreeview.htm"><div>XTreeview</div></a>
 				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
@@ -72,7 +74,7 @@
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #9FB7FF"><a name="xdock"></a><div style='color: #9FB7FF;font-size:14pt;'>/xdock Command</div></td></tr>
+	<tr><td class="heading" style="border-color: #9FB7FF"><a name="xdock"></a><div style='color: #9FB7FF;font-size:14pt;'>/xdock Commands</div></td></tr>
 	<tr><td>The /xdock command is used to force the positioning of a window within another window, with specific behaviour.</td></tr>
 </table>
 <table class="xdock">
@@ -391,158 +393,6 @@
 <br />
 <table class="xdock">
 	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
-			<a name="xdock.A"></a>/xdock -A	</td></tr>
-	<tr><td colspan="2">This command enables/disables a statusbar in the mIRC window.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdock -A [0|1] (STYLE)</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdock -A 1</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">STYLE</td>
-		<td>Styles supported by the statusbar control.</td>
-	</tr>
-</table>
-<br />
-<table class="xdock">
-	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
-			<a name="xdock.B"></a>/xdock -B	</td></tr>
-	<tr><td colspan="2">This lets you configure the mIRC statusbar. Refer to <a class="value">/xdock -A</a> and the <a href="statusbar.htm">StatusBar</a> control.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdock -B [-FLAG] (ARGS)</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdock -B +k $rgb(255, 0, 0)</div></td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Setting the background only works when not using theme support.</li><li><a class="param">ARGS</a> is specified by the commands in the StatusBar commands list. (eg. <a class="value">/xdid -v</a> to set the cell text)</li></ul></td></tr></table>
-<br />
-<table class="xdock">
-	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
-			<a name="xdock.F"></a>/xdock -F	</td></tr>
-	<tr><td colspan="2">This command allows you to set the font for the mIRC TreeBar.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdock -F [+FLAGS] [ARGS]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdock -F $dialog(dcx).hwnd +h $query(ClickHeRe).hwnd</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">+FLAGS</td>
-		<td>Font style flags.</td>
-	</tr>
-	<tr>
-		<td class="value">f</td>
-		<td>Changes TreeBar font.</td>
-	</tr>
-	<tr>
-		<td class="value">s</td>
-		<td>Changes TreeBar styles.</td>
-	</tr>
-	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
-	<tr>
-		<td class="param">f</td>
-		<td><div class="syntax">[+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
-	</tr>
-	<tr>
-		<td class="value">+FONTFLAGS</td>
-		<td>Array</td>
-	</tr>
-	<tr>
-		<td class="value">CHARSET</td>
-		<td>Can be any of the following: ansi, baltic, chinesebig, default, easteurope, gb2312, greek, hangul, mac, oem, russian, shiftjis, symbol, turkish, vietnamese.</td>
-	</tr>
-	<tr>
-		<td class="value">SIZE</td>
-		<td>Font size in points.</td>
-	</tr>
-	<tr>
-		<td class="value">FONTNAME</td>
-		<td>Font name. Ex: Tahoma, Courier New, Arial, ...</td>
-	</tr>
-	<tr>
-		<td class="param">s</td>
-		<td><div class="syntax">[STYLES]</div></td>
-	</tr>
-	<tr>
-		<td class="value">trackselect</td>
-		<td>Enables hot-tracking.</td>
-	</tr>
-	<tr>
-		<td class="value">notrackselect</td>
-		<td>Disables hot-tracking.</td>
-	</tr>
-	<tr>
-		<td class="value">tooltips</td>
-		<td>Enables tooltips on items</td>
-	</tr>
-	<tr>
-		<td class="value">notooltips</td>
-		<td>Disables tooltip on items.</td>
-	</tr>
-	<tr>
-		<td class="value">hasbuttons</td>
-		<td>Enables &plusmn; buttons on the side of items containing child items for expand/collapse operations.</td>
-	</tr>
-	<tr>
-		<td class="value">nohasbuttons</td>
-		<td>Disables &plusmn; buttons on the side of items containing child items for expand/collapse operations.</td>
-	</tr>
-	<tr>
-		<td class="value">rootlines</td>
-		<td>Enables lines to be connected to the root item.</td>
-	</tr>
-	<tr>
-		<td class="value">norootlines</td>
-		<td>Disables lines to be connected to the root item.</td>
-	</tr>
-	<tr>
-		<td class="value">singleexpand</td>
-		<td>Causes the item being selected to expand and the item being unselected to collapse upon selection in the tree view.</td>
-	</tr>
-	<tr>
-		<td class="value">nosingleexpand</td>
-		<td>Disables <a class="style">singleexpand</a>.</td>
-	</tr>
-	<tr>
-		<td class="value">scroll</td>
-		<td>Enables horizontal and vertical scrolling in the treeview.</td>
-	</tr>
-	<tr>
-		<td class="value">noscroll</td>
-		<td>Disables horizontal and vertical scrolling in the treeview.</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using <a class="style">noscroll</a> and a scrollbar is currently visible, this can lead to graphical glitches.</td></tr></table>
-<br />
-<table class="xdock">
-	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
-			<a name="xdock.G"></a>/xdock -G	</td></tr>
-	<tr><td colspan="2">This command sets ghosted drag for the main mIRC window.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdock -G [VALUE]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xdock -G 1</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">VALUE</td>
-		<td>The opacity of the dragged window. This can be a value between <a class="value">0</a>-<a class="value">255</a>.</td>
-	</tr>
-</table>
-<br />
-<table class="xdock">
-	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
 			<a name="xdock.M"></a>/xdock -M	</td></tr>
 	<tr><td colspan="2">This command shows/hides the Menubar.</td></tr>
 	<tr>
@@ -598,8 +448,8 @@
 </table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #BBD1FF"><a name="xdockprop"></a><div style='color: #BBD1FF;font-size:14pt;'>$xdock Command</div></td></tr>
-	<tr><td>The $xdock command is used to retrieve docking information about windows and various mIRC components.</td></tr>
+	<tr><td class="heading" style="border-color: #BBD1FF"><a name="xdockprop"></a><div style='color: #BBD1FF;font-size:14pt;'>$xdock Properties</div></td></tr>
+	<tr><td>The $xdock identifier is used to retrieve docking information about windows and various mIRC components.</td></tr>
 </table>
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
@@ -639,7 +489,7 @@
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdockprop.hasDocked"></a>$xdock().hasDocked	</td></tr>
-	<tr><td colspan="2">Return whether this window/dialog has another window docked in it.</td></tr>
+	<tr><td colspan="2">Determines if the specified window/dialog has a docked window/dialog within it.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdock(HWND).hasDocked</div></td>
@@ -653,7 +503,7 @@
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdockprop.isAutoH"></a>$xdock().isAutoH	</td></tr>
-	<tr><td colspan="2">Returns whether the docked window automatically resize horizontally or not.</td></tr>
+	<tr><td colspan="2">Returns <a class="value">$true</a> if the docked window automatically resizes horizontally.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdock(HWND).isAutoH</div></td>
@@ -667,7 +517,7 @@
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdockprop.isAutoS"></a>$xdock().isAutoS	</td></tr>
-	<tr><td colspan="2">Returns whether the docked window automatically resize both horizontally and vertically or not.</td></tr>
+	<tr><td colspan="2">Returns <a class="value">$true</a> if the docked window automatically resizes both horizontally and vertically.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdock(HWND).isAutoS</div></td>
@@ -681,7 +531,7 @@
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdockprop.isAutoV"></a>$xdock().isAutoV	</td></tr>
-	<tr><td colspan="2">Returns whether the docked window automatically resize vertically or not.</td></tr>
+	<tr><td colspan="2">Returns <a class="value">$true</a> if the docked window automatically resizes vertically.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdock(HWND).isAutoV</div></td>
@@ -695,7 +545,7 @@
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdockprop.isDocked"></a>$xdock().isDocked	</td></tr>
-	<tr><td colspan="2">Return whether this window/dialog is docked or not.</td></tr>
+	<tr><td colspan="2">Determines if a window/dialog is docked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdock(HWND).isDocked</div></td>
@@ -709,112 +559,56 @@
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdockprop.isMenuBar"></a>$xdock().isMenuBar	</td></tr>
-	<tr><td colspan="2">Returns whether or not the mIRC MenuBar is visible.</td></tr>
+	<tr><td colspan="2">Determines if the mIRC MenuBar is visible.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC).isMenuBar</div></td>
+		<td><div class="syntax">$xdock(HWND).isMenuBar</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).isMenuBar</div></td>
-	</tr>
-</table>
-<br />
-<table class="xdockprops">
-	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
-			<a name="xdockprop.isStatusBar"></a>$xdock().isStatusBar	</td></tr>
-	<tr><td colspan="2">Returns whether or not the mIRC StatusBar is visible.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC).isStatusBar</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).isStatusBar</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).isMenuBar</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdockprop.isSwitchBar"></a>$xdock().isSwitchBar	</td></tr>
-	<tr><td colspan="2">Returns whether or not the mIRC SwitchBar is visible.</td></tr>
+	<tr><td colspan="2">Determines if the mIRC SwitchBar is visible.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC).isSwitchBar</div></td>
+		<td><div class="syntax">$xdock(HWND).isSwitchBar</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).isSwitchBar</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).isSwitchBar</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdockprop.isToolBar"></a>$xdock().isToolBar	</td></tr>
-	<tr><td colspan="2">Returns whether or not the mIRC ToolBar is visible.</td></tr>
+	<tr><td colspan="2">Determines if the mIRC ToolBar is visible.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC).isToolBar</div></td>
+		<td><div class="syntax">$xdock(HWND).isToolBar</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).isToolBar</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).isToolBar</div></td>
 	</tr>
 </table>
 <br />
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdockprop.isTreeBar"></a>$xdock().isTreeBar	</td></tr>
-	<tr><td colspan="2">Returns whether or not the mIRC TreeBar is visible.</td></tr>
+	<tr><td colspan="2">Determines if the mIRC TreeBar is visible.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC).isTreeBar</div></td>
+		<td><div class="syntax">$xdock(HWND).isTreeBar</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).isTreeBar</div></td>
-	</tr>
-</table>
-<br />
-<table class="xdockprops">
-	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
-			<a name="xdockprop.statusParts"></a>$xdock().statusParts	</td></tr>
-	<tr><td colspan="2">Returns the number of parts in the mIRC statusbar.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC).statusParts</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).statusParts</div></td>
-	</tr>
-</table>
-<br />
-<table class="xdockprops">
-	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
-			<a name="xdockprop.statusText"></a>$xdock().statusText	</td></tr>
-	<tr><td colspan="2">Returns the text on the mIRC TreeBar cell/part.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC, N).statusText</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).statusText</div></td>
-	</tr>
-</table>
-<br />
-<table class="xdockprops">
-	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
-			<a name="xdockprop.statusToolTip"></a>$xdock().statusToolTip	</td></tr>
-	<tr><td colspan="2">Returns the tooltip for the mIRC TreeBar cell/part.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC, N).statusToolTip</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).statusToolTip</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).isTreeBar</div></td>
 	</tr>
 </table>
 <br />
@@ -824,11 +618,11 @@
 	<tr><td colspan="2">Returns the mIRC SwitchBar dock position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC).switchBarPos</div></td>
+		<td><div class="syntax">$xdock(HWND).switchBarPos</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).switchBarPos</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).switchBarPos</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -863,16 +657,24 @@
 	<tr><td colspan="2">Returns the mIRC SwitchBar size.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC).switchBarSize</div></td>
+		<td><div class="syntax">$xdock(HWND).switchBarSize</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).switchBarSize</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).switchBarSize</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">DIMENSIONS</td>
 		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">X</td>
+		<td>The X-offset of the mIRC SwitchBar</td>
+	</tr>
+	<tr>
+		<td class="value">Y</td>
+		<td>The Y-offset of the mIRC SwitchBar</td>
 	</tr>
 	<tr>
 		<td class="value">W</td>
@@ -887,7 +689,7 @@
 <table class="xdockprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdockprop.text"></a>$xdock().text	</td></tr>
-	<tr><td colspan="2">Returns an hwnd title text.</td></tr>
+	<tr><td colspan="2">Returns the title text for the given HWND.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdock(HWND).text</div></td>
@@ -904,11 +706,11 @@
 	<tr><td colspan="2">Returns the mIRC ToolBar position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC).toolBarPos</div></td>
+		<td><div class="syntax">$xdock(HWND).toolBarPos</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).toolBarPos</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).toolBarPos</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -943,16 +745,24 @@
 	<tr><td colspan="2">Returns the mIRC ToolBar size.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC).toolBarSize</div></td>
+		<td><div class="syntax">$xdock(HWND).toolBarSize</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).toolBarSize</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).toolBarSize</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">DIMENSIONS</td>
 		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">X</td>
+		<td>The X-offset of the mIRC ToolBar</td>
+	</tr>
+	<tr>
+		<td class="value">Y</td>
+		<td>The Y-offset of the mIRC ToolBar</td>
 	</tr>
 	<tr>
 		<td class="value">W</td>
@@ -970,11 +780,11 @@
 	<tr><td colspan="2">Returns the mIRC TreeBar position.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC).treeBarPos</div></td>
+		<td><div class="syntax">$xdock(HWND).treeBarPos</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).treeBarPos</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).treeBarPos</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1009,16 +819,24 @@
 	<tr><td colspan="2">Returns the mIRC TreeBar size.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdock(mIRC).treeBarSize</div></td>
+		<td><div class="syntax">$xdock(HWND).treeBarSize</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdock(mIRC).treeBarSize</div></td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).treeBarSize</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">DIMENSIONS</td>
 		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">X</td>
+		<td>The X-offset of the mIRC TreeBar</td>
+	</tr>
+	<tr>
+		<td class="value">Y</td>
+		<td>The Y-offset of the mIRC TreeBar</td>
 	</tr>
 	<tr>
 		<td class="value">W</td>
@@ -1103,10 +921,6 @@
 		<a href="#xdock.s"><div>-s</div></a>
 		<a href="#xdock.t"><div>-t</div></a>
 		<a href="#xdock.u"><div>-u</div></a>
-		<a href="#xdock.A"><div>-A</div></a>
-		<a href="#xdock.B"><div>-B</div></a>
-		<a href="#xdock.F"><div>-F</div></a>
-		<a href="#xdock.G"><div>-G</div></a>
 		<a href="#xdock.M"><div>-M</div></a>
 		<a href="#xdock.R"><div>-R</div></a>
 		<a href="#xdock.S"><div>-S</div></a>
@@ -1121,13 +935,9 @@
 		<a href="#xdockprop.isAutoV"><div>isAutoV</div></a>
 		<a href="#xdockprop.isDocked"><div>isDocked</div></a>
 		<a href="#xdockprop.isMenuBar"><div>isMenuBar</div></a>
-		<a href="#xdockprop.isStatusBar"><div>isStatusBar</div></a>
 		<a href="#xdockprop.isSwitchBar"><div>isSwitchBar</div></a>
 		<a href="#xdockprop.isToolBar"><div>isToolBar</div></a>
 		<a href="#xdockprop.isTreeBar"><div>isTreeBar</div></a>
-		<a href="#xdockprop.statusParts"><div>statusParts</div></a>
-		<a href="#xdockprop.statusText"><div>statusText</div></a>
-		<a href="#xdockprop.statusToolTip"><div>statusToolTip</div></a>
 		<a href="#xdockprop.switchBarPos"><div>switchBarPos</div></a>
 		<a href="#xdockprop.switchBarSize"><div>switchBarSize</div></a>
 		<a href="#xdockprop.text"><div>text</div></a>
@@ -1144,7 +954,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 4th July, 07</td>
+		<td style="text-align: right;">Last Updated: 10th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

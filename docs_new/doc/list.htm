@@ -50,7 +50,9 @@
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreeview.htm"><div>XTreeview</div></a>
 				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
@@ -73,12 +75,20 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696"><a name="style"></a><div style='color: #B49696;font-size:14pt;'>Control Styles</div></td></tr>
-	<tr><td>These control styles are available when creating a List control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls.</td></tr>
+	<tr><td>These control styles are available when creating a List control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
 		<td class="style"><a name="style.alpha" class="style">alpha</a></td>
 		<td>Control is alpha blended.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.dragline" class="style">dragline</a></td>
+		<td>Used with <a class="style">draglist</a>, this replaces the standard arrow and draws a line in the list to indicate the drop position.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.draglist" class="style">draglist</a></td>
+		<td>Allows items in the list to be dragged using the mouse. Cannot be used with <a class="style">multi</a>.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.extsel" class="style">extsel</a></td>
@@ -311,7 +321,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dragfile 4 C:\mIRC\blah.txt</div></td>
+		<td><div class="example">/cb_alias dcx dragfile 4 C:mIRCblah.txt</div></td>
 	</tr>
 </table>
 <br />
@@ -342,6 +352,90 @@
 		<td><div class="example">/cb_alias dcx help 4</div></td>
 	</tr>
 </table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.itemdrag"></a>itemdrag	</td></tr>
+	<tr><td colspan="2">Triggers when an item is dragged.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME itemdrag ID ITEM_ID ITEM_MOUSEOVER</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx itemdrag 4 5 3</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ITEM_ID</td>
+		<td>The ID of the item dragged.</td>
+	</tr>
+	<tr>
+		<td class="param">ITEM_MOUSEOVER</td>
+		<td>The ID of the item the mouse is currently over.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">stop</a> to display a stop cursor.<br /><a class="returnevent">copy</a> to display a copy cursor.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the mouse is not currently over the control, <a class="param">ITEM_MOUSEOVER</a> will be <a class="value">0</a>.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.itemdragbegin"></a>itemdragbegin	</td></tr>
+	<tr><td colspan="2">Triggers when an item is about to be dragged.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME itemdragbegin ID ITEM_ID</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx itemdragbegin 4 5</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ITEM_ID</td>
+		<td>The ID of the item about to be dragged.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nodrag</a> to prevent the item from being dragged.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.itemdragcancel"></a>itemdragcancel	</td></tr>
+	<tr><td colspan="2">Triggers when user cancels drag by either pressing ESC or right clicking the mouse button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME itemdragcancel ID ITEM_ID</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx itemdragcancel 4 5</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ITEM_ID</td>
+		<td>The ID of the item selected for dragging.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.itemdragfinish"></a>itemdragfinish	</td></tr>
+	<tr><td colspan="2">Triggers when an item has finished dragging.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME itemdragfinish ID ITEM_ID ITEM_MOUSEOVER</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx itemdragfinish 4 5 3</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ITEM_ID</td>
+		<td>The ID of the item dragged.</td>
+	</tr>
+	<tr>
+		<td class="param">ITEM_MOUSEOVER</td>
+		<td>The ID of the item the mouse is currently over.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the mouse is not currently over the control, <a class="param">ITEM_MOUSEOVER</a> will be <a class="value">0</a>.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -395,6 +489,8 @@
 <div class='rightmenu' style='border:1px solid #B49696'>
 	<a href="#style"><div class='header' style='background:#B49696;'>Control Styles</div></a>
 		<a href="#style.alpha"><div>alpha</div></a>
+		<a href="#style.dragline"><div>dragline</div></a>
+		<a href="#style.draglist"><div>draglist</div></a>
 		<a href="#style.extsel"><div>extsel</div></a>
 		<a href="#style.multi"><div>multi</div></a>
 		<a href="#style.nointegral"><div>nointegral</div></a>
@@ -425,6 +521,10 @@
 		<a href="#events.dragfile"><div>dragfile</div></a>
 		<a href="#events.dragfinish"><div>dragfinish</div></a>
 		<a href="#events.help"><div>help</div></a>
+		<a href="#events.itemdrag"><div>itemdrag</div></a>
+		<a href="#events.itemdragbegin"><div>itemdragbegin</div></a>
+		<a href="#events.itemdragcancel"><div>itemdragcancel</div></a>
+		<a href="#events.itemdragfinish"><div>itemdragfinish</div></a>
 		<a href="#events.rclick"><div>rclick</div></a>
 		<a href="#events.sclick"><div>sclick</div></a>
 		<a href="#events.scrollend"><div>scrollend</div></a>
@@ -437,7 +537,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 4th July, 07</td>
+		<td style="text-align: right;">Last Updated: 10th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

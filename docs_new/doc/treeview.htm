@@ -50,7 +50,9 @@
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreeview.htm"><div>XTreeview</div></a>
 				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
@@ -73,7 +75,7 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696"><a name="style"></a><div style='color: #B49696;font-size:14pt;'>Control Styles</div></td></tr>
-	<tr><td>These control styles are available when creating a Treeview control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls.</td></tr>
+	<tr><td>These control styles are available when creating a Treeview control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
@@ -679,6 +681,53 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
+			<a name="xdid.G"></a>/xdid -G	</td></tr>
+	<tr><td colspan="2">This command lets you set the treeview background image.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -G [DNAME] [ID] [+FLAGS] [X] [Y] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -G dcx 4 +r 0 0 treeview_bg.bmp</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Background flags.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Anti-alias image.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Image alpha blending.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>High quality rendering.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Tile image.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Resize image to match control area.</td>
+	</tr>
+	<tr>
+		<td class="param">X</td>
+		<td>X position image offset.</td>
+	</tr>
+	<tr>
+		<td class="param">Y</td>
+		<td>Y position image offset.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
 			<a name="xdid.Q"></a>/xdid -Q	</td></tr>
 	<tr><td colspan="2">This command lets you change the font styles and color on a treeview item.</td></tr>
 	<tr>
@@ -1126,6 +1175,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<a href="#xdid.y"><div>-y</div></a>
 		<a href="#xdid.z"><div>-z</div></a>
 		<a href="#xdid.B"><div>-B</div></a>
+		<a href="#xdid.G"><div>-G</div></a>
 		<a href="#xdid.Q"><div>-Q</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #BBD1FF'>
@@ -1163,7 +1213,7 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 4th July, 07</td>
+		<td style="text-align: right;">Last Updated: 10th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

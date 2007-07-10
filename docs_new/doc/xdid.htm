@@ -50,7 +50,9 @@
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreeview.htm"><div>XTreeview</div></a>
 				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
@@ -379,15 +381,19 @@
 	</tr>
 	<tr>
 		<td class="value">b</td>
-		<td>Background Color.<br />Affects: Edit, Radio, Check, Box, Scroll, Text, List, Panel, Image, Trackbar</td>
+		<td>Background color.<br />Affects: Edit, Radio, Check, Box, Scroll, Text, List, Panel, Image, Trackbar</td>
 	</tr>
 	<tr>
 		<td class="value">k</td>
-		<td>Text Background Color.<br />Affects: Text, Edit, List</td>
+		<td>Text background Color.<br />Affects: Text, Edit, List</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Border color.<br />Affects: Box (only with <a class="style">rounded</a> style)</td>
 	</tr>
 	<tr>
 		<td class="value">t</td>
-		<td>Text Color.<br />Affects: Text, Edit, List, Box</td>
+		<td>Text color.<br />Affects: Text, Edit, List, Box</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When using <a class="value">+b</a> on the trackbar, call /xdid -U on the control to force a redraw. /xdialog -j will not work. This is an API bug.</td></tr></table>
 <br />
@@ -563,22 +569,22 @@
 		<td class="value">n</td>
 		<td>Resets the region.</td>
 	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Sets the alpha blending state of the control.</td>
+	</tr>
 	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
 	<tr>
-		<td class="param">d</td>
-		<td><div class="syntax">[0|1]</div></td>
+		<td class="param">b</td>
+		<td><div class="syntax">[0|1] [VALUE]</div></td>
+	</tr>
+	<tr>
+		<td class="value">VALUE</td>
+		<td>The opacity of the control. This can be a value between <a class="value">0</a>-<a class="value">255</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">f</td>
 		<td><div class="syntax">[TRANSPARENT_COLOR] [FILENAME]</div></td>
-	</tr>
-	<tr>
-		<td class="param">g</td>
-		<td><div class="syntax">[VALUE]</div></td>
-	</tr>
-	<tr>
-		<td class="value">VALUE</td>
-		<td>The opacity of the dragged window. This can be a value between <a class="value">0</a>-<a class="value">255</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">p</td>
@@ -1027,7 +1033,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 4th July, 07</td>
+		<td style="text-align: right;">Last Updated: 10th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

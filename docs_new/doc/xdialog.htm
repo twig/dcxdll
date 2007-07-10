@@ -50,7 +50,9 @@
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreeview.htm"><div>XTreeview</div></a>
 				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
@@ -190,7 +192,7 @@
 	</tr>
 	<tr>
 		<td class="value">v</td>
-		<td>Vista style.</td>
+		<td>Vista Aero styled dialog.</td>
 	</tr>
 	<tr>
 		<td class="value">w</td>
@@ -819,7 +821,7 @@
 	</tr>
 	<tr>
 		<td class="param">VALUE</td>
-		<td>The color assigned as the transparent color. If <a class="param">SWITCH</a> is <a class="value">alpha</a>, then <a class="param">VALUE</a> can be a percentage from <a class="value">0</a> to <a class="value">100</a> (use <a class="value">none</a> remove the alpha or color).</td>
+		<td>The transparent color or alpha value (values range from <a class="value">0</a> to <a class="value">255</a> if <a class="value">alpha</a> is used). <a class="value">none</a> can be used to remove the alpha or color effects.</td>
 	</tr>
 </table>
 <br />
@@ -839,6 +841,14 @@
 	<tr>
 		<td class="param">+FLAGS</td>
 		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Uses the big icon.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Uses the small icon.</td>
 	</tr>
 	<tr>
 		<td class="value">a</td>
@@ -969,52 +979,23 @@
 <table class="xdialog">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
 			<a name="xdialog.P"></a>/xdialog -P	</td></tr>
-	<tr><td colspan="2">This command lets you apply XPopup onto the dialog menus.</td></tr>
+	<tr><td colspan="2">This command lets you use XPopup commands on dialog menus.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdialog -P [DNAME] [+FLAG] [ARGS]</div></td>
+		<td><div class="syntax">/xdialog -P [DNAME] -[XPOPUP_FLAG] [ARGS]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -P dcx +s vertical</div></td>
+		<td><div class="example">/xdialog -P dcx -t officexp</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
-		<td class="param">+FLAGS</td>
-		<td>Dialog menu switches.</td>
+		<td class="param">XPOPUP_FLAG</td>
+		<td>Valid flags are listed on the <a class="value">XPopup</a> page.</td>
 	</tr>
 	<tr>
-		<td class="value">r</td>
-		<td>The menu items are rounded.</td>
-	</tr>
-	<tr>
-		<td class="value">a</td>
-		<td>The menu is transparent.</td>
-	</tr>
-	<tr>
-		<td class="value">s</td>
-		<td>Applies the menu style to the dialog menu.</td>
-	</tr>
-	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
-	<tr>
-		<td class="param">r</td>
-		<td><div class="syntax">[1|0]</div></td>
-	</tr>
-	<tr>
-		<td class="param">a</td>
-		<td><div class="syntax">[VALUE]</div></td>
-	</tr>
-	<tr>
-		<td class="value">VALUE</td>
-		<td>The opacity to apply. Values range from <a class="value">0</a> (transparent) to <a class="value">255</a> (opaque).</td>
-	</tr>
-	<tr>
-		<td class="param">s</td>
-		<td><div class="syntax">[MENUSTYLE]</div></td>
-	</tr>
-	<tr>
-		<td class="value">MENUSTYLE</td>
-		<td>The menu style to apply.</td>
+		<td class="param">ARGS</td>
+		<td>Parameters for this command will depend on the <a class="param">XPOPUP_FLAG</a> specified.</td>
 	</tr>
 </table>
 <br />
@@ -1184,6 +1165,20 @@
 		<td>No slide-in effect.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You must call this function if you wish to use tooltips on any control with this dialog. (Except controls which naturally have their own tooltips, such as treeview, listview, toolbar, etc)</td></tr></table>
+<br />
+<table class="xdialog">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xdialog.V"></a>/xdialog -V	</td></tr>
+	<tr><td colspan="2">This command allows you to set the Vista Aero glass area.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdialog -V [DNAME] [LEFT] [RIGHT] [TOP] [BOTTOM]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdialog -V dcx 10 10 20 10</div></td>
+	</tr>
+</table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #CCACC7"><a name="xdialogprop"></a><div style='color: #CCACC7;font-size:14pt;'>$xdialog() Properties</div></td></tr>
@@ -1498,14 +1493,27 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.changing"></a>changing	</td></tr>
-	<tr><td colspan="2">When the dialog is about to be resized or moved.</td></tr>
+	<tr><td colspan="2">When the dialog is about to be resized or moved. The parameters passed are the dimensions which the dialog is about to become.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME changing ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME changing ID TYPE X Y W H</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx changing 0</div></td>
+		<td><div class="example">/cb_alias dcx changing 0 1 50 30 300 150</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">TYPE</td>
+		<td>Type of changing event.</td>
+	</tr>
+	<tr>
+		<td class="value">1</td>
+		<td>Position is changing. <a class="param">W</a> and <a class="param">H</a> can be ignored as they are not changing.</td>
+	</tr>
+	<tr>
+		<td class="value">2</td>
+		<td>Size is changing. <a class="param">X</a> and <a class="param">Y</a> can be ignored as they are not changing.</td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">nosize</a> Return this value to block the window from resizing.<br /><a class="returnevent">nomove</a> Return this value to block the window from moving.<br /><a class="returnevent">nochange</a> Return this value to block the window from moving and resizing.</td></tr></table>
 <br />
@@ -1608,7 +1616,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dragfile 0 C:\mIRC\blah.txt</div></td>
+		<td><div class="example">/cb_alias dcx dragfile 0 C:mIRCblah.txt</div></td>
 	</tr>
 </table>
 <br />
@@ -2062,6 +2070,7 @@
 		<a href="#xdialog.P"><div>-P</div></a>
 		<a href="#xdialog.R"><div>-R</div></a>
 		<a href="#xdialog.T"><div>-T</div></a>
+		<a href="#xdialog.V"><div>-V</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #CCACC7'>
 	<a href="#xdialogprop"><div class='header' style='background:#CCACC7;'>$xdialog() Properties</div></a>
@@ -2129,7 +2138,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 4th July, 07</td>
+		<td style="text-align: right;">Last Updated: 10th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

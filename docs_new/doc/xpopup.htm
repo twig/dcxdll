@@ -50,7 +50,9 @@
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreeview.htm"><div>XTreeview</div></a>
 				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
@@ -349,7 +351,7 @@ ON *:SIGNAL:Xpopup-*: {
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
 			<a name="xpopup.l"></a>/xpopup -l	</td></tr>
-	<tr><td colspan="2">This command lets you set the Nth color in the menu as given by the order listed in /xpopup -p.</td></tr>
+	<tr><td colspan="2">This command lets you set the Nth color in the menu as given by the order listed in <a class="value">/xpopup -p</a>.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xpopup -l [MENU] [N] [COLOR]</div></td>
@@ -430,6 +432,10 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 		<td class="value">10</td>
 		<td>Text color</td>
+	</tr>
+	<tr>
+		<td class="value">11</td>
+		<td>Selected text color</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using the <a class="style">checkbox</a> style, this function can also change the state icon of an item. Be sure to insert the state icons before you use them.</td></tr></table>
 <br />
@@ -543,7 +549,7 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr><td colspan="2">This command lets you add more visual styles to your XPopup</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xpopup -R [MENU] [MENU] [+FLAG] [FLAG ARGS]</div></td>
+		<td><div class="syntax">/xpopup -R [MENU] [MENU] [+FLAG] [ARGS]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -560,15 +566,24 @@ ON *:SIGNAL:Xpopup-*: {
 	</tr>
 	<tr>
 		<td class="value">r</td>
-		<td>This gives the menu's selection indicator a rounded look.</td>
+		<td>This gives the menu selection indicator a rounded look.</td>
 	</tr>
 	<tr>
 		<td class="value">a</td>
-		<td>This sets the menu's alpha value between 0 (Fully Transparent) & 255 (Fully Opaque)</td>
+		<td>This sets the menu alpha value.</td>
+	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">r</td>
+		<td><div class="syntax">[1|0]</div></td>
 	</tr>
 	<tr>
-		<td class="param">FLAG ARGS</td>
-		<td>[0|1] When used with +r to switch on/off, [0-255] when used with +a</td>
+		<td class="param">a</td>
+		<td><div class="syntax">[VALUE]</div></td>
+	</tr>
+	<tr>
+		<td class="value">VALUE</td>
+		<td>The opacity to apply. Values range from <a class="value">0</a> (transparent) to <a class="value">255</a> (opaque).</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use 0 if the file is a single icon file.</td></tr></table>
 <br />
@@ -947,7 +962,7 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 4th July, 07</td>
+		<td style="text-align: right;">Last Updated: 10th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

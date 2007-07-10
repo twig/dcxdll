@@ -50,7 +50,9 @@
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreeview.htm"><div>XTreeview</div></a>
 				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
@@ -116,7 +118,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(ColorDialog, $rgb(255,0,0) fullopen owner dcx anycolor)</div></td>
+		<td><div class="example">$dcx(ColorDialog, $rgb(255,0,0) fullopen owner dcx anycolor)<br />$dcx(ColorDialog, $rgb(0,0,255) owner $window(@test).hwnd solidonly)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -126,10 +128,6 @@
 	<tr>
 		<td class="param">STYLES</td>
 		<td>Various options for the color dialog.</td>
-	</tr>
-	<tr>
-		<td class="value">returndefault</td>
-		<td>Returns the default color if cancel is clicked.</td>
 	</tr>
 	<tr>
 		<td class="value">anycolor</td>
@@ -142,6 +140,10 @@
 	<tr>
 		<td class="value">nofullopen</td>
 		<td>Disables the <b>Define Custom Color</b> button.</td>
+	</tr>
+	<tr>
+		<td class="value">returndefault</td>
+		<td>Returns the default color if cancel is clicked.</td>
 	</tr>
 	<tr>
 		<td class="value">solidonly</td>
@@ -494,6 +496,25 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.GhostDrag"></a>/dcx GhostDrag	</td></tr>
+	<tr><td colspan="2">This command allows for ghosted dragging for the main mIRC window.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/dcx GhostDrag [VALUE]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/dcx GhostDrag 150</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">VALUE</td>
+		<td>The opacity of the main mIRC window when dragged. <a class="param">VALUE</a> has a range of <a class="value">0</a>-<a class="value">255</a>.</td>
+	</tr>
+</table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
 			<a name="general.IsThemedXP"></a>$dcx(IsThemedXP)	</td></tr>
 	<tr><td colspan="2">Returns <a class="value">$true</a> or <a class="value">$false</a> depending on whether a visual style has been on the Windows system or not. <a class="os">(XP+)</a></td></tr>
 	<tr>
@@ -701,7 +722,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(OpenDialog/SaveDialog, showhidden filemustexist hidereadonly $chr(9) c:\boot.ini $chr(9) All Files (*.*)|*.*)<br />$dcx(OpenDialog/SaveDialog, createprompt overwriteprompt owner dcx $chr(9) c:\blah.txt $chr(9) All Files (*.*)|*.*|Music Files|*.mp3;*.wav;*.ogg)<br /></div></td>
+		<td><div class="example">$dcx(OpenDialog/SaveDialog, showhidden filemustexist hidereadonly $chr(9) c:boot.ini $chr(9) All Files (*.*)|*.*)<br />$dcx(OpenDialog/SaveDialog, createprompt overwriteprompt owner dcx $chr(9) c:blah.txt $chr(9) All Files (*.*)|*.*|Music Files|*.mp3;*.wav;*.ogg)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -778,27 +799,26 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
 			<a name="general.PickIcon"></a>$dcx(PickIcon)	</td></tr>
-	<tr><td colspan="2">Displays an icon select dialog <a class="os">(XP+)</a></td></tr>
+	<tr><td colspan="2">Displays an icon select dialog. <a class="os">(XP+)</a></td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$dcx(PickIcon, [INDEX] [FILENAME])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$dcx(PickIcon, 0 c:\windows\shell32.dll)</div></td>
+		<td><div class="example">$dcx(PickIcon, 2 mirc.exe)</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">INDEX</td>
-		<td>Index to select initially</td>
+		<td>Default index to select.</td>
 	</tr>
 	<tr>
 		<td class="param">FILENAME</td>
-		<td>icon library to explore</td>
+		<td>File to display icons for.</td>
 	</tr>
-<tr><td class="syntax">Return</td><td>D_OK selindex selfilename<br />D_ERROR selindex selfilename<br /><br /> 
-			where index is the pre-selected icon index within the supplied filename
-   			and selindex is the index of the icon selected within selfilename</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> selfilename may not be the same as filename.</td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="value">D_OK SELECTED_INDEX SELECTED_FILENAME</a> if user clicked OK.<br />
+<a class="value">D_ERROR DEFAULT_INDEX DEFAULT_FILENAME</a> if user cancelled.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">DEFAULT_INDEX</a> is the pre-selected icon index and <a class="param">SELECTED_INDEX</a> is the index selected by the user.</li><li><a class="param">FILENAME</a> and <a class="param">SELECTED_FILENAME</a> may be different as the user is able to browse.</li></ul></td></tr></table>
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
@@ -848,10 +868,18 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td>Set the window icon in grayscale.</td>
 	</tr>
 	<tr>
+		<td class="value">r</td>
+		<td>Simulates a right click on the specified window</td>
+	</tr>
+	<tr>
 		<td class="value">T</td>
-		<td>Remove any themes on the window.</td>
+		<td>Remove any themes on the specified window.</td>
 	</tr>
 	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">r</td>
+		<td><div class="syntax">[X] [Y]</div></td>
+	</tr>
 	<tr>
 		<td class="param">t</td>
 		<td><div class="syntax">(TEXT)</div></td>
@@ -902,6 +930,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<a href="#general.FontDialog"><div>FontDialog</div></a>
 		<a href="#general.GetSystemColor"><div>GetSystemColor</div></a>
 		<a href="#general.GetTaskbarPos"><div>GetTaskbarPos</div></a>
+		<a href="#general.GhostDrag"><div>GhostDrag</div></a>
 		<a href="#general.IsThemedXP"><div>IsThemedXP</div></a>
 		<a href="#general.IsUnloadSafe"><div>IsUnloadSafe</div></a>
 		<a href="#general.IsUsingDirectX"><div>IsUsingDirectX</div></a>
@@ -922,7 +951,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 4th July, 07</td>
+		<td style="text-align: right;">Last Updated: 10th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

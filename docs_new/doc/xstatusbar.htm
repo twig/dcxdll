@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title>DCX Window (embedded) - Dialog Control Xtension DLL v1.3.8 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX XStatusBar - Dialog Control Xtension DLL v1.3.8 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -66,78 +66,108 @@
 	</ul>
 	</td>
 <td><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>Window (embedded)</div></td></tr>
-	<tr><td>This control enables you to dock a @window as a control on a dialog. The @window must be opened before any attempt to add it to the dialog.<br />
-<br />
-You can dock any number of windows as long as each is a separate control.<br />
-<br />
-Please take note that the windows are <b>ejected</b> when the dialog is closed.
-<br /><br />
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>XStatusBar</div></td></tr>
+	<tr><td>The /xstatusbar command is used to create and control a statusbar docked directly within the main mIRC window, without the need of creating a dialog to host it.<br /><br />
 <div style="text-align: center;">
-	<img src="images/window.png" alt="" />
+	<img src="images/xstatusbar.png" alt="" />
 </div>
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #B49696"><a name="style"></a><div style='color: #B49696;font-size:14pt;'>Control Styles</div></td></tr>
-	<tr><td>These control styles are available when creating a Window (embedded) control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+	<tr><td class="heading" style="border-color: #9FB7FF"><a name="xstatusbar"></a><div style='color: #9FB7FF;font-size:14pt;'>/xstatusbar Commands</div></td></tr>
+	<tr><td>The /xstatusbar command is used to control the docked StatusBar.</td></tr>
 </table>
-<table class="styles">
+<table class="xstatusbar">
+	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
+			<a name="xstatusbar.A"></a>/xstatusbar -A	</td></tr>
+	<tr><td colspan="2">This command enables/disables a statusbar in the mIRC window and applies the styles specified.</td></tr>
 	<tr>
-		<td class="style"><a name="style.@windowName" class="style">@windowName</a></td>
-		<td>There are no specific styles for this control. The style is used to determine which window is embedded. You may also specify a HWND to embed instead of a @windowName</td>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xstatusbar -A [0|1] (STYLE)</div></td>
 	</tr>
-</table>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xstatusbar -A 1 notheme</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STYLE</td>
+		<td>Styles supported by the <a href="statusbar.htm">StatusBar</a> control.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Syntax for controlling the mIRC StatusBar using /xstatusbar is identical to the syntax for the DCX <a href="statusbar.htm">StatusBar</a> control.<br /></li><li>eg. /xstatusbar -l 200 200 100 -1</li></ul></td></tr></table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #BBD1FF"><a name="xdidprop"></a><div style='color: #BBD1FF;font-size:14pt;'>$xdid() Properties</div></td></tr>
-	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
+	<tr><td class="heading" style="border-color: #BBD1FF"><a name="xstatusbarprop"></a><div style='color: #BBD1FF;font-size:14pt;'>$xstatusbar Properties</div></td></tr>
+	<tr><td>The $xstatusbar identifier is used to retrieve the information from the docked statusbar.</td></tr>
 </table>
-<table class="xdidprop">
+<table class="xstatusbarprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
-			<a name="xdidprop.wname"></a>$xdid().wname	</td></tr>
-	<tr><td colspan="2">Returns the name of the embedded window.</td></tr>
+			<a name="xstatusbarprop.parts"></a>$xstatusbar().parts	</td></tr>
+	<tr><td colspan="2">Returns the number of parts in the mIRC StatusBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdid(dialog, ID).wname</div></td>
+		<td><div class="syntax">$xstatusbar().parts</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4).wname</div></td>
+		<td><div class="example">$xstatusbar().parts</div></td>
 	</tr>
 </table>
 <br />
-<table class="description">
-	<tr><td class="heading" style="border-color: #74C043"><a name="events"></a><div style='color: #74C043;font-size:14pt;'>Window (embedded) Events</div></td></tr>
-	<tr><td>These events are fired when activity occurs in the Window (embedded) control.</td></tr>
-</table>
-<table class="event">
-	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
-			<a name="events.help"></a>help	</td></tr>
-	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
+<table class="xstatusbarprops">
+	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
+			<a name="xstatusbarprop.text"></a>$xstatusbar().text	</td></tr>
+	<tr><td colspan="2">Returns the text on the mIRC Statusbar part.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+		<td><div class="syntax">$xstatusbar(N).text</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx help 4</div></td>
+		<td><div class="example">$xstatusbar(5).text</div></td>
+	</tr>
+</table>
+<br />
+<table class="xstatusbarprops">
+	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
+			<a name="xstatusbarprop.tooltip"></a>$xstatusbar().tooltip	</td></tr>
+	<tr><td colspan="2">Returns the tooltip for the mIRC Statusbar part.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xstatusbar(N).tooltip</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xstatusbar(2).tooltip</div></td>
+	</tr>
+</table>
+<br />
+<table class="xstatusbarprops">
+	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
+			<a name="xstatusbarprop.visible"></a>$xstatusbar().visible	</td></tr>
+	<tr><td colspan="2">Returns whether or not the mIRC StatusBar is visible.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xstatusbar().visible</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xstatusbar().visible</div></td>
 	</tr>
 </table>
 <br />
 </td><td width="85%" valign="top" class="menuright">
 	<br />
-<div class='rightmenu' style='border:1px solid #B49696'>
-	<a href="#style"><div class='header' style='background:#B49696;'>Control Styles</div></a>
-		<a href="#style.@windowName"><div>@windowName</div></a>
+<div class='rightmenu' style='border:1px solid #9FB7FF'>
+	<a href="#xstatusbar"><div class='header' style='background:#9FB7FF;'>/xstatusbar</div></a>
+		<a href="#xstatusbar.A"><div>-A</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #BBD1FF'>
-	<a href="#xdidprop"><div class='header' style='background:#BBD1FF;'>$xdid() Properties</div></a>
-		<a href="#xdidprop.wname"><div>wname</div></a>
-	</div>
-<div class='rightmenu' style='border:1px solid #74C043'>
-	<a href="#events"><div class='header' style='background:#74C043;'>Events</div></a>
-		<a href="#events.help"><div>help</div></a>
+	<a href="#xstatusbarprop"><div class='header' style='background:#BBD1FF;'>$xstatusbar()</div></a>
+		<a href="#xstatusbarprop.parts"><div>parts</div></a>
+		<a href="#xstatusbarprop.text"><div>text</div></a>
+		<a href="#xstatusbarprop.tooltip"><div>tooltip</div></a>
+		<a href="#xstatusbarprop.visible"><div>visible</div></a>
 	</div>
 </td>
   </tr>

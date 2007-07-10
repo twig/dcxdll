@@ -50,7 +50,9 @@
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreeview.htm"><div>XTreeview</div></a>
 				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
@@ -73,7 +75,7 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696"><a name="style"></a><div style='color: #B49696;font-size:14pt;'>Control Styles</div></td></tr>
-	<tr><td>These control styles are available when creating a Tab control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls.</td></tr>
+	<tr><td>These control styles are available when creating a Tab control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
@@ -90,7 +92,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.closable" class="style">closable</a></td>
-		<td>The tabs have a close button on the right of the tab</td>
+		<td>The tabs have a close button on the right of the tab.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.fixedwidth" class="style">fixedwidth</a></td>
@@ -568,6 +570,25 @@
 	</tr>
 </table>
 <br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.sizing"></a>sizing	</td></tr>
+	<tr><td colspan="2">This is triggered when the tab and/or any children controls are resized.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME sizing ID CID</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx sizing 4 8</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">CID</td>
+		<td>The ID of the control being resized.</td>
+	</tr>
+</table>
+<br />
 </td><td width="85%" valign="top" class="menuright">
 	<br />
 <div class='rightmenu' style='border:1px solid #B49696'>
@@ -615,6 +636,7 @@
 		<a href="#events.help"><div>help</div></a>
 		<a href="#events.rclick"><div>rclick</div></a>
 		<a href="#events.sclick"><div>sclick</div></a>
+		<a href="#events.sizing"><div>sizing</div></a>
 	</div>
 </td>
   </tr>
@@ -624,7 +646,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 4th July, 07</td>
+		<td style="text-align: right;">Last Updated: 10th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

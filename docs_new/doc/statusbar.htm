@@ -50,7 +50,9 @@
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreeview.htm"><div>XTreeview</div></a>
 				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
@@ -73,7 +75,7 @@
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #B49696"><a name="style"></a><div style='color: #B49696;font-size:14pt;'>Control Styles</div></td></tr>
-	<tr><td>These control styles are available when creating a StatusBar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls.</td></tr>
+	<tr><td>These control styles are available when creating a StatusBar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
 	<tr>
@@ -260,20 +262,6 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
-			<a name="xdidprop.selstart"></a>$xdid().selstart	</td></tr>
-	<tr><td colspan="2">This returns the index of the first selected character position in the control.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdid(dialog, ID).selstart</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4).selstart</div></td>
-	</tr>
-</table>
-<br />
-<table class="xdidprop">
-	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
 			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the Nth status bar cell text.</td></tr>
 	<tr>
@@ -397,7 +385,6 @@
 <div class='rightmenu' style='border:1px solid #BBD1FF'>
 	<a href="#xdidprop"><div class='header' style='background:#BBD1FF;'>$xdid() Properties</div></a>
 		<a href="#xdidprop.parts"><div>parts</div></a>
-		<a href="#xdidprop.selstart"><div>selstart</div></a>
 		<a href="#xdidprop.text"><div>text</div></a>
 		<a href="#xdidprop.tooltip"><div>tooltip</div></a>
 	</div>
@@ -416,7 +403,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 4th July, 07</td>
+		<td style="text-align: right;">Last Updated: 10th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
