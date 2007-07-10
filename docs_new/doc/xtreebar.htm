@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title>DCX XTreeview - Dialog Control Xtension DLL v1.3.8 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX XTreebar - Dialog Control Xtension DLL v1.3.8 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -52,7 +52,7 @@
 				<a href="xdock.htm"><div>XDock</div></a>
                                 <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
-                                <a href="xtreeview.htm"><div>XTreeview</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
 				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
@@ -66,28 +66,28 @@
 	</ul>
 	</td>
 <td><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>XTreeview</div></td></tr>
-	<tr><td>XTreeview is a command implemented to control the mIRC Treebar.<br /><br />
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>XTreebar</div></td></tr>
+	<tr><td>XTreebar is a command implemented to control the mIRC Treebar.<br /><br />
 <div style="text-align: center;">
-	<img src="images/xtreeview.png" alt="" />
+	<img src="images/xtreebar.png" alt="" />
 </div>
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #9FB7FF"><a name="xtreeview"></a><div style='color: #9FB7FF;font-size:14pt;'>/xtreeview Commands</div></td></tr>
-	<tr><td>The /xtreeview command is used to control the mIRC Treebar and change various properties.</td></tr>
+	<tr><td class="heading" style="border-color: #9FB7FF"><a name="xtreebar"></a><div style='color: #9FB7FF;font-size:14pt;'>/xtreebar Commands</div></td></tr>
+	<tr><td>The /xtreebar command is used to control the mIRC Treebar and change various properties.</td></tr>
 </table>
-<table class="xtreeview">
+<table class="xtreebar">
 	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
-			<a name="xtreeview.f"></a>/xtreeview -f	</td></tr>
+			<a name="xtreebar.f"></a>/xtreebar -f	</td></tr>
 	<tr><td colspan="2">This command allows you to change the mIRC Treebar font.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtreeview -f [+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
+		<td><div class="syntax">/xtreebar -f [+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xtreeview -f +i default 20 Verdana</div></td>
+		<td><div class="example">/xtreebar -f +i default 20 Verdana</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -132,17 +132,17 @@
 	</tr>
 </table>
 <br />
-<table class="xtreeview">
+<table class="xtreebar">
 	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
-			<a name="xtreeview.s"></a>/xtreeview -s	</td></tr>
+			<a name="xtreebar.s"></a>/xtreebar -s	</td></tr>
 	<tr><td colspan="2">This command allows you to change the mIRC Treebar styles.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtreeview -s [STYLES]</div></td>
+		<td><div class="syntax">/xtreebar -s [STYLES]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xtreeview -s tooltips scroll singleexpand</div></td>
+		<td><div class="example">/xtreebar -s tooltips scroll singleexpand</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -187,37 +187,37 @@
 	</tr>
 	<tr>
 		<td class="param">scroll</td>
-		<td>Enables horizontal and vertical scrolling in the treeview.</td>
+		<td>Enables horizontal and vertical scrolling in the mIRC Treebar.</td>
 	</tr>
 	<tr>
 		<td class="param">noscroll</td>
-		<td>Disables horizontal and vertical scrolling in the treeview.</td>
+		<td>Disables horizontal and vertical scrolling in the mIRC Treebar.</td>
 	</tr>
 	<tr>
 		<td class="param">showsel</td>
-		<td>Selections will be shown when treeview loses focus.</td>
+		<td>Selections will be shown when mIRC Treebar loses focus.</td>
 	</tr>
 	<tr>
 		<td class="param">noshowsel</td>
-		<td>Selections will not be shown when treeview loses focus.</td>
+		<td>Selections will not be shown when mIRC Treebar loses focus.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Using <a class="style">noscroll</a> while the scrollbar is visible may lead to graphical glitches.</td></tr></table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #BBD1FF"><a name="xtreeviewprop"></a><div style='color: #BBD1FF;font-size:14pt;'>$xtreeview Properties</div></td></tr>
-	<tr><td>The $xtreeview identifier is used to retrieve information about the mIRC TreeBar.</td></tr>
+	<tr><td class="heading" style="border-color: #BBD1FF"><a name="xtreebarprop"></a><div style='color: #BBD1FF;font-size:14pt;'>$xtreebar Properties</div></td></tr>
+	<tr><td>The $xtreebar identifier is used to retrieve information about the mIRC TreeBar.</td></tr>
 </table>
-<table class="xtreeviewprops">
+<table class="xtreebarprops">
 	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
-			<a name="xtreeviewprop.item"></a>$xtreeview().item	</td></tr>
+			<a name="xtreebarprop.item"></a>$xtreebar().item	</td></tr>
 	<tr><td colspan="2">Returns the text of the mIRC TreeBar item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xtreeview(N).item</div></td>
+		<td><div class="syntax">$xtreebar(N).item</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xtreeview().item</div></td>
+		<td><div class="example">$xtreebar().item</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -229,13 +229,13 @@
 </td><td width="85%" valign="top" class="menuright">
 	<br />
 <div class='rightmenu' style='border:1px solid #9FB7FF'>
-	<a href="#xtreeview"><div class='header' style='background:#9FB7FF;'>/xtreeview</div></a>
-		<a href="#xtreeview.f"><div>-f</div></a>
-		<a href="#xtreeview.s"><div>-s</div></a>
+	<a href="#xtreebar"><div class='header' style='background:#9FB7FF;'>/xtreebar</div></a>
+		<a href="#xtreebar.f"><div>-f</div></a>
+		<a href="#xtreebar.s"><div>-s</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #BBD1FF'>
-	<a href="#xtreeviewprop"><div class='header' style='background:#BBD1FF;'>$xtreeview()</div></a>
-		<a href="#xtreeviewprop.item"><div>item</div></a>
+	<a href="#xtreebarprop"><div class='header' style='background:#BBD1FF;'>$xtreebar()</div></a>
+		<a href="#xtreebarprop.item"><div>item</div></a>
 	</div>
 </td>
   </tr>
