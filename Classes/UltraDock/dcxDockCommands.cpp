@@ -68,9 +68,9 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case WM_SIZE:
       {
 				if (dd->type.len())
-					mIRCSignalDCX("size %s %d %d %d", dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
+					mIRCSignalDCX(dcxSignal.xdock, "size %s %d %d %d", dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
 				else
-					mIRCSignalDCX("size Custom %d %d %d", dd->win, LOWORD(lParam), HIWORD(lParam));
+					mIRCSignalDCX(dcxSignal.xdock, "size Custom %d %d %d", dd->win, LOWORD(lParam), HIWORD(lParam));
 
 				EnumChildWindows(mHwnd,(WNDENUMPROC)SizeDocked,NULL);
       }

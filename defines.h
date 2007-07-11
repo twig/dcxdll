@@ -350,13 +350,20 @@ typedef struct {
 	int switch_cap_flags[26]; //!< Uppercase switches A-Z
 } XSwitchFlags;
 
+// mIRC Signal structure
+typedef struct SIGNALSWITCH {
+	bool xdock;
+	bool xstatusbar;
+	bool xtray;
+} *LPSIGNALSWITCH;
+
 typedef std::vector<int> VectorOfInts; //<! Vector of int
 
 // --------------------------------------------------
 // DLL routines
 // --------------------------------------------------
 void mIRCDebug(const char *szFormat, ...);
-void mIRCSignalDCX(const char *szFormat, ...);
+void mIRCSignalDCX(BOOL allow, const char *szFormat, ...);
 void mIRCSignal(const char *data);
 void mIRCError(const char *data);
 void mIRCeval(const char *text, char *res);
@@ -489,5 +496,6 @@ extern PFNENDBUFFEREDPAINT EndBufferedPaintUx;
 extern PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
 
 extern mIRCDLL mIRCLink;
+extern SIGNALSWITCH dcxSignal;
 
 #endif // _DEFINES_H_

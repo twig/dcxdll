@@ -1011,34 +1011,33 @@ function get_section_color($section = 0) {
 	}
 
 	switch ($section) {
-        case SECTION_GENERAL		: return '#979AB3'; // grey blue
-        case SECTION_XDIALOG		: return '#A9729F'; // purple
-	    case SECTION_XDIALOGPROPS	: return '#CCACC7'; // light purple
+                case SECTION_GENERAL		        : return '#979AB3'; // grey purple
+                case SECTION_XDIALOG		        : return '#A9729F'; // purple
+                case SECTION_XDIALOGPROPS	        : return '#CCACC7'; // light purple
         
 		case SECTION_STYLES			: return '#B49696'; // brown
-		case SECTION_XDID			: return '#9FB7FF'; // blue
-		case SECTION_XDIDPROPS		: return '#BBD1FF'; // light blue
+		case SECTION_XDID			: return '#6A7CB0'; // light navy-blue
+		case SECTION_XDIDPROPS		        : return '#A8B2D1'; // grey blue
 		case SECTION_EVENTS			: return '#74C043'; // green
 
 		case SECTION_XPOPUP			: return '#A9729F'; // purple
-		case SECTION_XPOPUPPROPS	: return '#CCACC7'; // light purple
-        case SECTION_XPOP			: return '#9FB7FF'; // blue
-		case SECTION_XPOPPROPS		: return '#BBD1FF'; // light blue
+		case SECTION_XPOPUPPROPS	        : return '#CCACC7'; // light purple
+                case SECTION_XPOP			: return '#6A7CB0'; // blue
+		case SECTION_XPOPPROPS		        : return '#A8B2D1'; // light blue
 
-		case SECTION_XDOCK			: return '#9FB7FF'; // blue
-		case SECTION_XDOCKPROPS		: return '#BBD1FF'; // light blue
+		case SECTION_XDOCK			: return '#6A7CB0'; // blue
+		case SECTION_XDOCKPROPS		        : return '#A8B2D1'; // light blue
 		
-                case SECTION_XSTATUSBAR			: return '#9FB7FF'; // blue
-		case SECTION_XSTATUSBARPROPS		: return '#BBD1FF'; // light blue
+                case SECTION_XSTATUSBAR			: return '#6A7CB0'; // blue
+		case SECTION_XSTATUSBARPROPS		: return '#A8B2D1'; // light blue
                 
-                case SECTION_XTREEBAR			: return '#9FB7FF'; // blue
-		case SECTION_XTREEBARPROPS		: return '#BBD1FF'; // light blue
+                case SECTION_XTREEBAR			: return '#6A7CB0'; // blue
+		case SECTION_XTREEBARPROPS		: return '#A8B2D1'; // light blue
                 
-		case SECTION_XTRAY			: return '#9FB7FF'; // blue
+		case SECTION_XTRAY			: return '#6A7CB0'; // blue
 		
 		case SECTION_INTRO:
-		default:
-			return '#000000';
+		default                                 : return '#000000';
 	}
 }
 

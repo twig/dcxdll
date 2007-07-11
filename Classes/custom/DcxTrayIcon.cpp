@@ -202,28 +202,28 @@ LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		switch (uMouseMsg)
 		{
 			case WM_LBUTTONDBLCLK:
-				mIRCSignalDCX("trayicon %s %d", "dclick", id);
+				mIRCSignalDCX(dcxSignal.xtray, "trayicon %s %d", "dclick", id);
 				break;
 
 			case WM_LBUTTONUP:
-				mIRCSignalDCX("trayicon %s %d", "sclick", id);
+				mIRCSignalDCX(dcxSignal.xtray, "trayicon %s %d", "sclick", id);
 				break;
 
 			case WM_RBUTTONUP:
 			case WM_CONTEXTMENU:
-				mIRCSignalDCX("trayicon %s %d", "rclick", id);
+				mIRCSignalDCX(dcxSignal.xtray, "trayicon %s %d", "rclick", id);
 				break;
 
 			case WM_RBUTTONDBLCLK:
-				mIRCSignalDCX("trayicon %s %d", "rdclick", id);
+				mIRCSignalDCX(dcxSignal.xtray, "trayicon %s %d", "rdclick", id);
 				break;
 
 			case WM_MBUTTONUP:
-				mIRCSignalDCX("trayicon %s %d", "mclick", id);
+				mIRCSignalDCX(dcxSignal.xtray, "trayicon %s %d", "mclick", id);
 				break;
 
 			case WM_MBUTTONDBLCLK:
-				mIRCSignalDCX("trayicon %s %d", "mdclick", id);
+				mIRCSignalDCX(dcxSignal.xtray, "trayicon %s %d", "mdclick", id);
 				break;
 
 			default:

@@ -93,7 +93,7 @@ HWND mhMenuOwner = NULL; //!< Menu Owner Window Which Processes WM_ Menu Message
 
 WNDPROC g_OldmIRCWindowProc = NULL;
 
-bool dcxSignal = false;
+SIGNALSWITCH dcxSignal;
 
 /*!
 * \brief mIRC DLL Load Function
@@ -441,7 +441,11 @@ void WINAPI LoadDll(LOADINFO * load) {
 
 	DCX_DEBUG("LoadDLL", "Initialising UltraDock...");
 	InitUltraDock();
-	dcxSignal = false;
+
+	// Initialise signals of diff types
+	dcxSignal.xdock = false;
+	dcxSignal.xstatusbar = true;
+	dcxSignal.xtray = true;
 }
 
 /*!
@@ -1137,7 +1141,7 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	switch (uMsg) {
     case WM_SIZE:
       {
-				mIRCSignalDCX("size mIRC %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
+		  mIRCSignalDCX(dcxSignal.xdock, "size mIRC %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
       }
       break;
 
@@ -1597,14 +1601,50 @@ mIRC(mpopup) {
 	}
 	return 3;
 }
-// <1|0>
+// /dcx xSignal [1|0] (+FLAGS)
 mIRC(xSignal) {
 	TString d(data);
+	TString flags;
+	bool state;
+
 	d.trim();
-	if ((BOOL)d.to_num())
-		dcxSignal = true;
+
+	// flags specified
+	if (d.numtok() > 1)
+		flags = d.gettok(2);
+	// if no flags specified, set all states
 	else
-		dcxSignal = false;
+		flags = "+dst";
+
+	// determine state
+	if (d.to_num() > 0)
+		state = true;
+	else
+		state = false;
+
+	// start from 1 because we expect it to be the '+' symbol
+	for (int i = 1; i < (int) flags.len(); i++) {
+		switch (flags[i]){
+			case 'd':
+				dcxSignal.xdock = state;
+				break;
+
+			case 's':
+				dcxSignal.xstatusbar = state;
+				break;
+
+			case 't':
+				dcxSignal.xtray = state;
+				break;
+
+			default:
+				TString flag;
+				flag.sprintf("Unknown flag '%c' specified.", flags[i]);
+
+				DCXError("/dcx xSignal", flag.to_chr());
+		}
+	}
+
 	data[0] = 0;
 	return 1;
 }
