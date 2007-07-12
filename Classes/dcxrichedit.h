@@ -83,6 +83,7 @@ protected:
 	TString m_tsFontFaceName; //!< Font Face Name
 
 	BOOL m_bIgnoreInput;
+	BOOL m_bIgnoreRepeat;
 
 	static int unfoldColor(const char *color);
 };

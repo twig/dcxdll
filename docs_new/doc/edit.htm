@@ -304,6 +304,20 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.y"></a>/xdid -y	</td></tr>
+	<tr><td colspan="2">This command lets you ignore callbacks for repeated keydown events when the user holds a button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -y [DNAME] [ID] [0|1]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -y dcx 4 1</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Repeated keys are ignored by default.</li><li>A value of <a class="value">1</a> will prevent callbacks from being generated for repeated keydown events.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.E"></a>/xdid -E	</td></tr>
 	<tr><td colspan="2">This command lets you set the cue text. It behaves like a ghostly value when the edit control is empty.</td></tr>
 	<tr>
@@ -605,7 +619,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx keydown 4</div></td>
+		<td><div class="example">/cb_alias dcx keydown 4 65</div></td>
 	</tr>
 </table>
 <br />
@@ -615,11 +629,11 @@
 	<tr><td colspan="2">When a key is unpressed in the edit control.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME keyup ID KEYCODe</div></td>
+		<td><div class="syntax">/cb_alias DNAME keyup ID KEYCODE</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx keyup 4</div></td>
+		<td><div class="example">/cb_alias dcx keyup 4 65</div></td>
 	</tr>
 </table>
 <br />
@@ -685,6 +699,7 @@
 		<a href="#xdid.r"><div>-r</div></a>
 		<a href="#xdid.t"><div>-t</div></a>
 		<a href="#xdid.u"><div>-u</div></a>
+		<a href="#xdid.y"><div>-y</div></a>
 		<a href="#xdid.E"><div>-E</div></a>
 		<a href="#xdid.P"><div>-P</div></a>
 		<a href="#xdid.S"><div>-S</div></a>

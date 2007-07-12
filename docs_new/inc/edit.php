@@ -104,6 +104,15 @@ function get_xdid_edit(&$XDID) {
 			),
 		        '__notes' => 'When the [p]END[/p] parameter is not specified, then this command will set the caret position to [p]START[/p].',
 		),
+		'y' => array(
+			'__desc' => 'This command lets you ignore callbacks for repeated keydown events when the user holds a button.',
+			'__cmd' => '[0|1]',
+			'__eg' => '1',
+			'__notes' => array(
+				'Repeated keys are ignored by default.',
+				'A value of [v]1[/v] will prevent callbacks from being generated for repeated keydown events.',
+			),
+		),
 	);
 }
 
@@ -137,10 +146,12 @@ function get_events_edit(&$EVENTS) {
 		"keydown" => array(
 			'__desc' => "When a key is pressed in the edit control.",
 			'__cmd' => 'KEYCODE',
+			'__eg' => '65',
 		),
 		"keyup" => array(
 			'__desc' => "When a key is unpressed in the edit control.",
-			'__cmd' => 'KEYCODe',
+			'__cmd' => 'KEYCODE',
+			'__eg' => '65',
 		),
 		"copy" => array(
 			'__desc' => "When the user copies text from the edit control.",

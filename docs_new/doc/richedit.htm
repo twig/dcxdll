@@ -311,6 +311,20 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.y"></a>/xdid -y	</td></tr>
+	<tr><td colspan="2">This command lets you ignore callbacks for repeated keydown events when the user holds a button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -y [DNAME] [ID] [0|1]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -y dcx 4 1</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Repeated keys are ignored by default.</li><li>A value of <a class="value">1</a> will prevent callbacks from being generated for repeated keydown events.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.P"></a>/xdid -P	</td></tr>
 	<tr><td colspan="2">This command lets you paste the contents of the clipboard into the richedit control.</td></tr>
 	<tr>
@@ -646,6 +660,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<a href="#xdid.r"><div>-r</div></a>
 		<a href="#xdid.t"><div>-t</div></a>
 		<a href="#xdid.u"><div>-u</div></a>
+		<a href="#xdid.y"><div>-y</div></a>
 		<a href="#xdid.P"><div>-P</div></a>
 		<a href="#xdid.S"><div>-S</div></a>
 		<a href="#xdid.Z"><div>-Z</div></a>

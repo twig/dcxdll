@@ -56,6 +56,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, con
 		}
 	}
 
+	this->m_bIgnoreRepeat = TRUE;
 	this->setControlFont((HFONT) GetStockObject(DEFAULT_GUI_FONT), FALSE);
 	this->registreDefaultWindowProc();
 	SetProp(this->m_Hwnd, "dcx_cthis", (HANDLE) this);
@@ -378,6 +379,12 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		Edit_SetCueBannerText(this->m_Hwnd,cue.to_wchr());
 		this->m_tsCue = cue;
 	}
+	// xdid -y [NAME] [ID] [SWITCH] [0|1]
+	else if (flags.switch_flags[24] && numtok > 3) {
+		int state = input.gettok(4).to_int();
+
+		this->m_bIgnoreRepeat = (state > 0 ? TRUE : FALSE);
+	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
 }
@@ -436,8 +443,8 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				if (wParam == VK_RETURN)
 					this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
 
-				if (lParam & 0x40000000)
-					break; // ignore repeats.
+				if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
+					break;
 
 				this->callAliasEx(NULL, "%s,%d,%d", "keydown", this->getUserID(), wParam);
 			}

@@ -72,6 +72,8 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 		}
 	}
 
+	this->m_bIgnoreRepeat = TRUE;
+
 	this->registreDefaultWindowProc();
 	SetProp(this->m_Hwnd, "dcx_cthis", (HANDLE) this);
 }
@@ -447,6 +449,12 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		//	pt.y = this->m_iFontSize * iLinePos;
 		//	SendMessage(this->m_Hwnd, EM_SETSCROLLPOS,NULL,(LPARAM)&pt);
 		//}
+	}
+	// xdid -y [NAME] [ID] [SWITCH] [0|1]
+	else if (flags.switch_flags[24] && numtok > 3) {
+		int state = input.gettok(4).to_int();
+
+		this->m_bIgnoreRepeat = (state > 0 ? TRUE : FALSE);
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
 	else if (flags.switch_cap_flags[25] && numtok > 4) {
@@ -879,8 +887,9 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
 				}
 
-				if (lParam & 0x40000000) // ignore repeats
+				if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
 					break;
+
 				this->callAliasEx(NULL, "%s,%d,%d:", "keydown", this->getUserID(), wParam);
 			}
 			break;
