@@ -3,6 +3,9 @@ alias test {
   dialog -m dcx dcx
 }
 
+alias shell { return shell32.dll }
+
+
 ON *:DIALOG:dcx:*:*: {
 
   if ( $devent == init ) {
