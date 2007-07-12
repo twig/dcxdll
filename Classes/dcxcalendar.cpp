@@ -128,7 +128,14 @@ void DcxCalendar::parseInfoRequest(TString &input, char *szReturnValue) {
 		else {
 			SYSTEMTIME st;
 
+			ZeroMemory(&st, sizeof(SYSTEMTIME));
 			MonthCal_GetCurSel(this->m_Hwnd, &st);
+
+			st.wHour = 0;
+			st.wMinute = 0;
+			st.wSecond = 0;
+			st.wMilliseconds = 0;
+
 			start = SystemTimeToMircTime(&st);
 			end = start;
 		}
@@ -355,7 +362,14 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					// code to handle single selected dates
 					else {
 						SYSTEMTIME st;
+
+						ZeroMemory(&st, sizeof(SYSTEMTIME));
 						MonthCal_GetCurSel(this->m_Hwnd, &st);
+
+						st.wHour = 0;
+						st.wMinute = 0;
+						st.wSecond = 0;
+						st.wMilliseconds = 0;
 
 						// send event to callback
 						this->callAliasEx(NULL, "%s,%d,%d", "select", this->getUserID(), SystemTimeToMircTime(&st));

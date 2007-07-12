@@ -57,13 +57,14 @@ function get_xdid_image(&$XDID) {
 			),
 		),
 		'o' => array(
-			'__desc' => 'This command lets you offset an image in the control. Negative offsets are valid.',
+			'__desc' => 'This command lets you offset an image in the control.',
 			'__cmd' => '[XOFFSET] [YOFFSET]',
 			'__eg' => '20 20',
 			'__params' => array(
 				'XOFFSET' => 'The horizontal offset for the image.',
 				'YOFFSET' => 'The vertical offset for the image.',
 			),
+                        '__notes' => 'Negative offsets are valid.',
 		),
 		'S' => array(
 	        '__desc' => 'This command lets you enable or disable automatic resizing of the image.',
