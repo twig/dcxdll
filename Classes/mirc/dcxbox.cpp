@@ -120,7 +120,6 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 
 	unsigned int i = 1, numtok = styles.numtok( );
 	this->m_iBoxStyles = 0;
-	//*Styles = BS_NOTIFY;
 
 	while ( i <= numtok ) {
 
@@ -547,9 +546,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 				if (IsWindow(hdr->hwndFrom)) {
 					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
       }
       break;
@@ -588,9 +586,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
       {
 				if (IsWindow((HWND) lParam)) {
 					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
       }
       break;
@@ -600,9 +597,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
 			}
 			break;
@@ -612,9 +608,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
       }
       break;
@@ -624,9 +619,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
 					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
       }
       break;
@@ -636,9 +630,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
       }
      break;

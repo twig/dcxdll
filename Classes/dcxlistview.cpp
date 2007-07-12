@@ -685,7 +685,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		UINT stateFlags = this->parseItemFlags(data.gettok( 3 ));
 		int icon = (int)data.gettok( 4 ).to_num() -1;
 		int state = (int)data.gettok( 5 ).to_num();
-		//int overlay = data.gettok( 6 ).to_int( );
+		int overlay = data.gettok( 6 ).to_int( );
 		int group = (int)data.gettok( 7 ).to_num();
 		COLORREF clrText = (COLORREF)data.gettok( 8 ).to_num();
 		COLORREF clrBack = (COLORREF)data.gettok( 9 ).to_num();
@@ -812,8 +812,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 			if (state > -1)
 				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
-			// if ( overlay > -1 )
-			//ListView_SetItemState(hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(overlay), LVIS_OVERLAYMASK);
+			if ( overlay > -1 )
+				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlay), LVIS_OVERLAYMASK);
 			this->autoSize(0,input.gettok( 6 ));
 		}
 		// LVS_ICON | LVS_SMALLICON | LVS_LIST views
@@ -1066,7 +1066,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 					ListView_SetColumnWidth(this->m_Hwnd, nColumn, input.gettok( 6 ).to_int());
 				else
 					this->showError(NULL, "-n", "No width specified");
-				//DCXError("/xdid -n","No width specified");
 			}
 		}
 	}
@@ -1223,7 +1222,13 @@ void DcxListView::parseCommandRequest(TString &input) {
 		HICON icon;
 		int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
+		int overlayindex = 0;
 
+		if (tflags.find('o',0)) {
+			// overlay image
+			int io = tflags.find('o',1) +1;
+			overlayindex = tflags.mid(io, (tflags.len() - io)).to_int();
+		}
 		if (iFlags & LVSIL_SMALL) {
 
 			icon = dcxLoadIcon(index, filename, true, tflags);
@@ -1235,13 +1240,15 @@ void DcxListView::parseCommandRequest(TString &input) {
 					if (himl != NULL)
 						this->setImageList(himl, LVSIL_NORMAL);
 				}
-				if (himl != NULL)
-					ImageList_AddIcon(himl, icon);
+				if (himl != NULL) {
+					int i = ImageList_AddIcon(himl, icon);
+					if (overlayindex > 0)
+						ImageList_SetOverlayImage(himl, i, overlayindex);
+				}
 				DestroyIcon(icon);
 			}
 			else {
 				this->showError(NULL, "-w", "Unable to Load Icon");
-				//DCXError("/xdid -w", "Unable to Load Icon");
 				return;
 			}
 
@@ -1254,8 +1261,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 					if (himl)
 						this->setImageList(himl, LVSIL_SMALL);
 				}
-				if (himl != NULL)
-					ImageList_AddIcon(himl, icon);
+				if (himl != NULL) {
+					int i = ImageList_AddIcon(himl, icon);
+					if (overlayindex > 0)
+						ImageList_SetOverlayImage(himl, i, overlayindex);
+				}
 				DestroyIcon(icon);
 			}
 		}
@@ -1302,7 +1312,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 				return;
 		}
 
-		DWORD dwOldStyle = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+		DWORD dwOldStyle = GetWindowStyle(this->m_Hwnd);
 		dwOldStyle &= ~LVS_TYPEMASK; // Remove any of the flags indicating current styles
 		dwOldStyle |= mode; // Specify the style we want to switch to
 		SetWindowLong(this->m_Hwnd, GWL_STYLE, dwOldStyle);
@@ -1873,7 +1883,7 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 */
 LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 	switch( uMsg ) {
-		case WM_NOTIFY : 
+		case WM_NOTIFY:
 			{
 				LPNMHDR hdr = (LPNMHDR) lParam;
 
@@ -1882,308 +1892,309 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 				switch( hdr->code ) {
 
-		case NM_CLICK:
-			{
-				bParsed = TRUE;
+					case NM_CLICK:
+						{
+							bParsed = TRUE;
 
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					LVHITTESTINFO lvh;
-					LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
-					lvh.pt = nmia->ptAction;
-					//GetCursorPos( &lvh.pt );
-					//ScreenToClient( this->m_Hwnd, &lvh.pt );
-					ListView_SubItemHitTest( this->m_Hwnd, &lvh );
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LVHITTESTINFO lvh;
+								LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
+								lvh.pt = nmia->ptAction;
+								//GetCursorPos( &lvh.pt );
+								//ScreenToClient( this->m_Hwnd, &lvh.pt );
+								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
-					if ( ( lvh.flags & LVHT_ONITEMSTATEICON ) &&
-						( ListView_GetExtendedListViewStyle( this->m_Hwnd ) & LVS_EX_CHECKBOXES ) &&
-						!( lvh.flags & LVHT_ONITEMICON ) &&
-						!( lvh.flags & LVHT_ONITEMLABEL ) ) 
-					{
-						//TODO: int state = ListView_GetCheckState(this->m_Hwnd, lvh.iItem);
-						this->callAliasEx( NULL, "%s,%d,%d,%d", "stateclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
-					}
-					else if ( lvh.flags & LVHT_ONITEM )
-						this->callAliasEx( NULL, "%s,%d,%d,%d", "sclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
-					else if (lvh.flags & LVHT_NOWHERE)
-						this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
-				}
-			}
-			break;
-
-		case NM_DBLCLK:
-			{
-				bParsed = TRUE;
-
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					LVHITTESTINFO lvh;
-					LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
-					lvh.pt = nmia->ptAction;
-					//GetCursorPos( &lvh.pt );
-					//ScreenToClient( this->m_Hwnd, &lvh.pt );
-					ListView_SubItemHitTest( this->m_Hwnd, &lvh );
-
-					if ( lvh.flags & LVHT_ONITEM )
-						this->callAliasEx( NULL, "%s,%d,%d,%d", "dclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
-					else
-						this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID());
-				}
-			}
-			break;
-
-		case NM_RCLICK:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					LVHITTESTINFO lvh;
-					LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
-					lvh.pt = nmia->ptAction;
-					//GetCursorPos( &lvh.pt );
-					//ScreenToClient( this->m_Hwnd, &lvh.pt );
-					ListView_SubItemHitTest( this->m_Hwnd, &lvh );
-
-					if ( lvh.flags & LVHT_ONITEM )
-						this->callAliasEx( NULL, "%s,%d,%d,%d", "rclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
-					else
-						this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
-				}
-				bParsed = TRUE;
-			}
-			break;
-
-		case NM_RDBLCLK:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					LVHITTESTINFO lvh;
-					LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
-					lvh.pt = nmia->ptAction;
-					ListView_SubItemHitTest( this->m_Hwnd, &lvh );
-
-					if ( lvh.flags & LVHT_ONITEM )
-						this->callAliasEx( NULL, "%s,%d,%d,%d", "rdclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
-					else
-						this->callAliasEx( NULL, "%s,%d", "rdclick", this->getUserID());
-				}
-				bParsed = TRUE;
-			}
-			break;
-
-		case NM_HOVER:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					LVHITTESTINFO lvh;
-					GetCursorPos( &lvh.pt );
-					ScreenToClient( this->m_Hwnd, &lvh.pt );
-					ListView_SubItemHitTest( this->m_Hwnd, &lvh );
-
-					if ( lvh.flags & LVHT_ONITEM )
-						this->callAliasEx( NULL, "%s,%d,%d,%d", "hover", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
-					else
-						this->callAliasEx( NULL, "%s,%d", "hover", this->getUserID());
-				}
-				bParsed = TRUE;
-			}
-			break;
-
-		case LVN_BEGINLABELEDIT:
-			{
-
-				bParsed = TRUE;
-				LPNMLVDISPINFO lplvdi = (LPNMLVDISPINFO) lParam;
-
-				ListView_SetItemState( this->m_Hwnd, lplvdi->item.iItem, LVIS_SELECTED, LVIS_SELECTED );
-
-				HWND edit_hwnd = ListView_GetEditControl( this->m_Hwnd );
-
-				this->m_OrigEditProc = (WNDPROC) SetWindowLong( edit_hwnd, GWL_WNDPROC, (LONG) DcxListView::EditLabelProc );
-				SetProp( edit_hwnd, "dcx_pthis", (HANDLE) this );
-
-				char ret[256];
-				this->callAliasEx( ret, "%s,%d", "labelbegin", this->getUserID( ) );
-
-				if ( !lstrcmp( "noedit", ret ) )
-					return TRUE;
-			}
-			break;
-
-		case LVN_ENDLABELEDIT:
-			{
-
-				bParsed = TRUE;
-
-				LPNMLVDISPINFO lplvdi = (LPNMLVDISPINFO) lParam;
-				if ( lplvdi->item.pszText == NULL ) {
-
-					this->callAliasEx( NULL, "%s,%d", "labelcancel", this->getUserID( ) );
-				}
-				else {
-					char ret[256];
-					this->callAliasEx( ret, "%s,%d,%s", "labelend", this->getUserID( ), lplvdi->item.pszText );
-
-					if ( !lstrcmp( "noedit", ret ) )
-						return FALSE;
-
-					return TRUE;
-				}
-				return TRUE;
-			}
-			break;
-
-		case NM_CUSTOMDRAW:
-			{
-				LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW) lParam;
-				bParsed = TRUE;
-
-				switch( lplvcd->nmcd.dwDrawStage ) {
-		case CDDS_PREPAINT:
-			return ( CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW | CDRF_NOTIFYPOSTPAINT );
-
-		case CDDS_ITEMPREPAINT:
-			return CDRF_NOTIFYSUBITEMDRAW;
-
-		case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
-			{
-				LPDCXLVITEM lpdcxlvi = (LPDCXLVITEM) lplvcd->nmcd.lItemlParam;
-
-				if ( lpdcxlvi == NULL )
-					return CDRF_DODEFAULT;
-
-				if ((UINT)lplvcd->iSubItem >= lpdcxlvi->vInfo.size())
-					return CDRF_DODEFAULT;
-
-				LPDCXLVRENDERINFO ri = lpdcxlvi->vInfo[lplvcd->iSubItem];
-				if ( ri->m_cText != -1 )
-					lplvcd->clrText = ri->m_cText;
-
-				if ( ri->m_cBg != -1 )
-					lplvcd->clrTextBk = ri->m_cBg;
-
-				//RECT rcCheck = lplvcd->nmcd.rc;
-				//rcCheck.right = rcCheck.left + 16;
-				//DrawFrameControl(lplvcd->nmcd.hdc,&rcCheck,DFC_BUTTON,DFCS_BUTTONCHECK|DFCS_CHECKED);
-				//return CDRF_SKIPDEFAULT;
-
-				if (ri->m_dFlags & LVIS_UNDERLINE || ri->m_dFlags & LVIS_BOLD || ri->m_dFlags & LVIS_ITALIC) {
-					HFONT hFont = GetWindowFont(this->m_Hwnd);
-					LOGFONT lf;
-
-					GetObject(hFont, sizeof(LOGFONT), &lf);
-
-					if (ri->m_dFlags & LVIS_BOLD)
-						lf.lfWeight |= FW_BOLD;
-					if (ri->m_dFlags & LVIS_UNDERLINE)
-						lf.lfUnderline = true;
-					if (ri->m_dFlags & LVIS_ITALIC)
-						lf.lfItalic = true;
-
-					this->m_hItemFont = CreateFontIndirect( &lf );
-					if (this->m_hItemFont != NULL)
-						this->m_hOldItemFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, this->m_hItemFont );
-				}
-				// NB: CDRF_NOTIFYPOSTPAINT required to get the post paint message.
-				return ( CDRF_NEWFONT|CDRF_NOTIFYPOSTPAINT );
-			}
-			break;
-
-		case CDDS_ITEMPOSTPAINT | CDDS_SUBITEM:
-			{
-				if (this->m_hOldItemFont != NULL) {
-					SelectObject( lplvcd->nmcd.hdc, this->m_hOldItemFont);
-					this->m_hOldItemFont = NULL;
-				}
-				if (this->m_hItemFont != NULL) {
-					DeleteObject(this->m_hItemFont);
-					this->m_hItemFont = NULL;
-				}
-				return CDRF_DODEFAULT;
-			}
-
-		case CDDS_POSTPAINT:
-			// update the pbar positions
-			//this->ScrollPbars((int) lplvcd->nmcd.dwItemSpec);
-			this->UpdateScrollPbars();
-			return CDRF_DODEFAULT;
-
-		default:
-			return CDRF_DODEFAULT;
-				}
-			}
-			break;
-
-		case LVN_DELETEALLITEMS:
-			{
-				bParsed = TRUE;
-				return FALSE; // make sure we get an LVN_DELETEITEM for each item.
-			}
-			break;
-
-		case LVN_DELETEITEM:
-			{
-				LPNMLISTVIEW lpnmlv = (LPNMLISTVIEW) lParam;
-				LPDCXLVITEM lpdcxlvi = (LPDCXLVITEM) lpnmlv->lParam;
-
-				if (lpdcxlvi != NULL) {
-					if (lpdcxlvi->pbar != NULL)
-						DestroyWindow(lpdcxlvi->pbar->getHwnd());
-
-					VectorOfRenderInfo::iterator itStart = lpdcxlvi->vInfo.begin();
-					VectorOfRenderInfo::iterator itEnd = lpdcxlvi->vInfo.end();
-
-					while (itStart != itEnd) {
-						if (*itStart != NULL)
-							delete (LPDCXLVRENDERINFO)*itStart;
-						itStart++;
-					}
-					lpdcxlvi->vInfo.clear();
-
-					delete lpdcxlvi;
-				}
-				bParsed = TRUE; // message has been handled.
-			}
-			break;
-
-
-		case LVN_BEGINDRAG:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG)
-					this->callAliasEx( NULL, "%s,%d", "begindrag", this->getUserID( ) );
-			}
-			break;
-
-			//case LVN_ENDSCROLL:
-			// {
-			//	 if (this->isExStyle(LVS_EX_GRIDLINES)) {
-			//		 mIRCError("scroll");
-			//		 //this->redrawWindow();
-			//	 }
-			//	 break;
-			// }
-			//		 4294967296-max
-		case LVN_KEYDOWN:
-			{
-				LPNMLVKEYDOWN pnkd = (LPNMLVKEYDOWN) lParam; 
-				WORD wVKey = pnkd->wVKey;
-				this->callAliasEx( NULL, "%s,%d,%d", "keydown", this->getUserID( ), wVKey);
-			}
-			break;
-			//case LVN_CHANGING: // 4294967196
-			//case LVN_CHANGED: // 4294967195
-			//	NM_FIRST
-			//	LVN_FIRST
-		case LVN_ITEMCHANGED:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					LPNMLISTVIEW pnmv = (LPNMLISTVIEW)lParam;
-					if (pnmv->iItem == -1)
+								if ( ( lvh.flags & LVHT_ONITEMSTATEICON ) &&
+									( ListView_GetExtendedListViewStyle( this->m_Hwnd ) & LVS_EX_CHECKBOXES ) &&
+									!( lvh.flags & LVHT_ONITEMICON ) &&
+									!( lvh.flags & LVHT_ONITEMLABEL ) ) 
+								{
+									//TODO: int state = ListView_GetCheckState(this->m_Hwnd, lvh.iItem);
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "stateclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								}
+								else if ( lvh.flags & LVHT_ONITEM )
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "sclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								else if (lvh.flags & LVHT_NOWHERE)
+									this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+								//ListView_SetSelectedColumn(this->m_Hwnd, lvh.iSubItem);
+							}
+						}
 						break;
 
-					if (pnmv->uChanged & LVIF_STATE) {
-						if ((pnmv->uNewState & LVIS_SELECTED) && !(pnmv->uOldState & LVIS_SELECTED))
-							this->callAliasEx( NULL, "%s,%d,%d,%d", "selected", this->getUserID( ), pnmv->iItem +1, pnmv->iSubItem );
-						else if (!(pnmv->uNewState & LVIS_SELECTED) && (pnmv->uOldState & LVIS_SELECTED))
-							this->callAliasEx( NULL, "%s,%d,%d,%d", "deselected", this->getUserID( ), pnmv->iItem +1, pnmv->iSubItem );
-					}
-				}
-			}
-			break;
+					case NM_DBLCLK:
+						{
+							bParsed = TRUE;
+
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LVHITTESTINFO lvh;
+								LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
+								lvh.pt = nmia->ptAction;
+								//GetCursorPos( &lvh.pt );
+								//ScreenToClient( this->m_Hwnd, &lvh.pt );
+								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
+
+								if ( lvh.flags & LVHT_ONITEM )
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "dclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								else
+									this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID());
+							}
+						}
+						break;
+
+					case NM_RCLICK:
+						{
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LVHITTESTINFO lvh;
+								LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
+								lvh.pt = nmia->ptAction;
+								//GetCursorPos( &lvh.pt );
+								//ScreenToClient( this->m_Hwnd, &lvh.pt );
+								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
+
+								if ( lvh.flags & LVHT_ONITEM )
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "rclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								else
+									this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
+							}
+							bParsed = TRUE;
+						}
+						break;
+
+					case NM_RDBLCLK:
+						{
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LVHITTESTINFO lvh;
+								LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
+								lvh.pt = nmia->ptAction;
+								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
+
+								if ( lvh.flags & LVHT_ONITEM )
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "rdclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								else
+									this->callAliasEx( NULL, "%s,%d", "rdclick", this->getUserID());
+							}
+							bParsed = TRUE;
+						}
+						break;
+
+					case NM_HOVER:
+						{
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LVHITTESTINFO lvh;
+								GetCursorPos( &lvh.pt );
+								ScreenToClient( this->m_Hwnd, &lvh.pt );
+								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
+
+								if ( lvh.flags & LVHT_ONITEM )
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "hover", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+								else
+									this->callAliasEx( NULL, "%s,%d", "hover", this->getUserID());
+							}
+							bParsed = TRUE;
+						}
+						break;
+
+					case LVN_BEGINLABELEDIT:
+						{
+
+							bParsed = TRUE;
+							LPNMLVDISPINFO lplvdi = (LPNMLVDISPINFO) lParam;
+
+							ListView_SetItemState( this->m_Hwnd, lplvdi->item.iItem, LVIS_SELECTED, LVIS_SELECTED );
+
+							HWND edit_hwnd = ListView_GetEditControl( this->m_Hwnd );
+
+							this->m_OrigEditProc = (WNDPROC) SetWindowLong( edit_hwnd, GWL_WNDPROC, (LONG) DcxListView::EditLabelProc );
+							SetProp( edit_hwnd, "dcx_pthis", (HANDLE) this );
+
+							char ret[256];
+							this->callAliasEx( ret, "%s,%d", "labelbegin", this->getUserID( ) );
+
+							if ( !lstrcmp( "noedit", ret ) )
+								return TRUE;
+						}
+						break;
+
+					case LVN_ENDLABELEDIT:
+						{
+
+							bParsed = TRUE;
+
+							LPNMLVDISPINFO lplvdi = (LPNMLVDISPINFO) lParam;
+							if ( lplvdi->item.pszText == NULL ) {
+
+								this->callAliasEx( NULL, "%s,%d", "labelcancel", this->getUserID( ) );
+							}
+							else {
+								char ret[256];
+								this->callAliasEx( ret, "%s,%d,%s", "labelend", this->getUserID( ), lplvdi->item.pszText );
+
+								if ( !lstrcmp( "noedit", ret ) )
+									return FALSE;
+
+								return TRUE;
+							}
+							return TRUE;
+						}
+						break;
+
+					case NM_CUSTOMDRAW:
+						{
+							LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW) lParam;
+							bParsed = TRUE;
+
+							switch( lplvcd->nmcd.dwDrawStage ) {
+								case CDDS_PREPAINT:
+									return ( CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW | CDRF_NOTIFYPOSTPAINT );
+
+								case CDDS_ITEMPREPAINT:
+									return CDRF_NOTIFYSUBITEMDRAW;
+
+								case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
+									{
+										LPDCXLVITEM lpdcxlvi = (LPDCXLVITEM) lplvcd->nmcd.lItemlParam;
+
+										if ( lpdcxlvi == NULL )
+											return CDRF_DODEFAULT;
+
+										if ((UINT)lplvcd->iSubItem >= lpdcxlvi->vInfo.size())
+											return CDRF_DODEFAULT;
+
+										LPDCXLVRENDERINFO ri = lpdcxlvi->vInfo[lplvcd->iSubItem];
+										if ( ri->m_cText != -1 )
+											lplvcd->clrText = ri->m_cText;
+
+										if ( ri->m_cBg != -1 )
+											lplvcd->clrTextBk = ri->m_cBg;
+
+										//RECT rcCheck = lplvcd->nmcd.rc;
+										//rcCheck.right = rcCheck.left + 16;
+										//DrawFrameControl(lplvcd->nmcd.hdc,&rcCheck,DFC_BUTTON,DFCS_BUTTONCHECK|DFCS_CHECKED);
+										//return CDRF_SKIPDEFAULT;
+
+										if (ri->m_dFlags & LVIS_UNDERLINE || ri->m_dFlags & LVIS_BOLD || ri->m_dFlags & LVIS_ITALIC) {
+											HFONT hFont = GetWindowFont(this->m_Hwnd);
+											LOGFONT lf;
+
+											GetObject(hFont, sizeof(LOGFONT), &lf);
+
+											if (ri->m_dFlags & LVIS_BOLD)
+												lf.lfWeight |= FW_BOLD;
+											if (ri->m_dFlags & LVIS_UNDERLINE)
+												lf.lfUnderline = true;
+											if (ri->m_dFlags & LVIS_ITALIC)
+												lf.lfItalic = true;
+
+											this->m_hItemFont = CreateFontIndirect( &lf );
+											if (this->m_hItemFont != NULL)
+												this->m_hOldItemFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, this->m_hItemFont );
+										}
+										// NB: CDRF_NOTIFYPOSTPAINT required to get the post paint message.
+										return ( CDRF_NEWFONT|CDRF_NOTIFYPOSTPAINT );
+									}
+									break;
+
+								case CDDS_ITEMPOSTPAINT | CDDS_SUBITEM:
+									{
+										if (this->m_hOldItemFont != NULL) {
+											SelectObject( lplvcd->nmcd.hdc, this->m_hOldItemFont);
+											this->m_hOldItemFont = NULL;
+										}
+										if (this->m_hItemFont != NULL) {
+											DeleteObject(this->m_hItemFont);
+											this->m_hItemFont = NULL;
+										}
+										return CDRF_DODEFAULT;
+									}
+
+								case CDDS_POSTPAINT:
+									// update the pbar positions
+									//this->ScrollPbars((int) lplvcd->nmcd.dwItemSpec);
+									this->UpdateScrollPbars();
+									return CDRF_DODEFAULT;
+
+								default:
+									return CDRF_DODEFAULT;
+							}
+						}
+						break;
+
+					case LVN_DELETEALLITEMS:
+						{
+							bParsed = TRUE;
+							return FALSE; // make sure we get an LVN_DELETEITEM for each item.
+						}
+						break;
+
+					case LVN_DELETEITEM:
+						{
+							LPNMLISTVIEW lpnmlv = (LPNMLISTVIEW) lParam;
+							LPDCXLVITEM lpdcxlvi = (LPDCXLVITEM) lpnmlv->lParam;
+
+							if (lpdcxlvi != NULL) {
+								if (lpdcxlvi->pbar != NULL)
+									DestroyWindow(lpdcxlvi->pbar->getHwnd());
+
+								VectorOfRenderInfo::iterator itStart = lpdcxlvi->vInfo.begin();
+								VectorOfRenderInfo::iterator itEnd = lpdcxlvi->vInfo.end();
+
+								while (itStart != itEnd) {
+									if (*itStart != NULL)
+										delete (LPDCXLVRENDERINFO)*itStart;
+									itStart++;
+								}
+								lpdcxlvi->vInfo.clear();
+
+								delete lpdcxlvi;
+							}
+							bParsed = TRUE; // message has been handled.
+						}
+						break;
+
+
+					case LVN_BEGINDRAG:
+						{
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG)
+								this->callAliasEx( NULL, "%s,%d", "begindrag", this->getUserID( ) );
+						}
+						break;
+
+						//case LVN_ENDSCROLL:
+						// {
+						//	 if (this->isExStyle(LVS_EX_GRIDLINES)) {
+						//		 mIRCError("scroll");
+						//		 //this->redrawWindow();
+						//	 }
+						//	 break;
+						// }
+						//		 4294967296-max
+					case LVN_KEYDOWN:
+						{
+							LPNMLVKEYDOWN pnkd = (LPNMLVKEYDOWN) lParam; 
+							WORD wVKey = pnkd->wVKey;
+							this->callAliasEx( NULL, "%s,%d,%d", "keydown", this->getUserID( ), wVKey);
+						}
+						break;
+						//case LVN_CHANGING: // 4294967196
+						//case LVN_CHANGED: // 4294967195
+						//	NM_FIRST
+						//	LVN_FIRST
+					case LVN_ITEMCHANGED:
+						{
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								LPNMLISTVIEW pnmv = (LPNMLISTVIEW)lParam;
+								if (pnmv->iItem == -1)
+									break;
+
+								if (pnmv->uChanged & LVIF_STATE) {
+									if ((pnmv->uNewState & LVIS_SELECTED) && !(pnmv->uOldState & LVIS_SELECTED))
+										this->callAliasEx( NULL, "%s,%d,%d,%d", "selected", this->getUserID( ), pnmv->iItem +1, pnmv->iSubItem );
+									else if (!(pnmv->uNewState & LVIS_SELECTED) && (pnmv->uOldState & LVIS_SELECTED))
+										this->callAliasEx( NULL, "%s,%d,%d,%d", "deselected", this->getUserID( ), pnmv->iItem +1, pnmv->iSubItem );
+								}
+							}
+						}
+						break;
 				} // switch
 			}
 			break;

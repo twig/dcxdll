@@ -249,10 +249,8 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		case WM_PAINT:
 			{
 				bParsed = TRUE;
-        PAINTSTRUCT ps;
-        HDC hdc;
-
-        hdc = BeginPaint( this->m_Hwnd, &ps );
+				PAINTSTRUCT ps;
+				HDC hdc = BeginPaint( this->m_Hwnd, &ps );
 
 				this->DrawClientArea( hdc, uMsg, lParam);
 
@@ -260,28 +258,25 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 			break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }
 
 void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 {
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-	// fill background.
-	//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
 
 	if (this->m_clrBackText != -1)
 		SetBkColor(hdc, this->m_clrBackText);
@@ -307,8 +302,6 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		HRGN hRgn = NULL;
 		//HTHEME hTheme = GetWindowThemeUx(this->m_Hwnd);
 		HTHEME hTheme = OpenThemeDataUx(this->m_Hwnd, L"BUTTON");
-		//RECT rcClient;
-		//GetClientRect(this->m_Hwnd, &rcClient);
 		if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_CHECKBOX,CBS_UNCHECKEDNORMAL,&rcClient, &hRgn) == S_OK)
 			SelectClipRgn(hdc, hRgn);
 		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINTCLIENT, (WPARAM) hdc, PRF_CLIENT );

@@ -798,7 +798,16 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 					this->setImageList(himl, TVSIL_NORMAL);
 			}
 
-			ImageList_AddIcon(himl, icon);
+			int i = ImageList_AddIcon(himl, icon);
+
+			TString f(input.gettok( 4 ));
+			if (f.find('o',0)) {
+				// overlay image
+				int io = f.find('o',1) +1;
+				int o = f.mid(io, (f.len() - io)).to_int();
+				if (o > 0)
+					ImageList_SetOverlayImage(himl, i, o);
+			}
 		}
 
 		if (iFlags & TVIT_STATE) {
@@ -1042,7 +1051,7 @@ HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, co
 	if (state > -1)
 		TreeView_SetItemState(this->m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
 	if (overlay > -1)
-		TreeView_SetItemState(this->m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(overlay), TVIS_OVERLAYMASK);
+		TreeView_SetItemState(this->m_Hwnd, hItem, INDEXTOOVERLAYMASK(overlay), TVIS_OVERLAYMASK);
 
 	return hItem;
 }

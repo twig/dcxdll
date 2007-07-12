@@ -2173,7 +2173,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 				char ret[256], *p = NULL;
 
-				switch ((wp->flags & SWP_NOSIZE|SWP_NOMOVE)) {
+				switch ((wp->flags & (SWP_NOSIZE|SWP_NOMOVE))) {
 					case SWP_NOSIZE:
 						p = "moving";
 						break;
