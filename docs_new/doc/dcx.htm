@@ -153,7 +153,7 @@
 		<td class="value">owner</td>
 		<td>Allows you to specific the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <br />By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style. Enter 0 for the hWnd to make it modeless.<br />
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <br />By default, the main mIRC window is the parent. Dialog name OR a hwnd MUST follow after the <a class="style">owner</a> style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</td></tr></table>
 <br />
 <table class="general">
@@ -312,13 +312,9 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="param">owner</td>
-		<td>Allows you to specific the parent dialog/window. (Must also specify DNAME or HWND)</td>
+		<td>Allows you to specific the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
 	</tr>
-	<tr>
-		<td class="value">DNAME|HWND</td>
-		<td>A dialog name or HWND for a window.</td>
-	</tr>
-<tr><td class="syntax">Return</td><td>The information returned is in the following format: <a class="value">RGB</a> <a class="value">+FLAGS</a> <a class="value">CHARSET</a> <a class="value">SIZE</a> <a class="value">FONTNAME</a></td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns "" when cancelled.</li><li>You do not have to specify all parameters, only the ones you wish to change.</li><li>The parameter <a class="param">minmaxsize</a> is limited to a range of 8-72. Any sizes other than that will be ignored.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style. Enter 0 for the hWnd to make it modeless.<br />
+<tr><td class="syntax">Return</td><td>The information returned is in the following format: <a class="value">RGB</a> <a class="value">+FLAGS</a> <a class="value">CHARSET</a> <a class="value">SIZE</a> <a class="value">FONTNAME</a></td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns $null when cancelled.</li><li>You do not have to specify all parameters, only the ones you wish to change.</li><li>The parameter <a class="param">minmaxsize</a> is limited to a range of 8-72. Any sizes other than that will be ignored.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
 <br />
 <table class="general">
@@ -702,6 +698,10 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td>The message box is on top.</td>
 	</tr>
 	<tr>
+		<td class="value">owner</td>
+		<td>Allows you to specific the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
+	</tr>
+	<tr>
 		<td class="param">TITLE</td>
 		<td>The title of the messagebox.</td>
 	</tr>
@@ -709,7 +709,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td class="param">MESSAGE</td>
 		<td>The message displayed in the messagebox.</td>
 	</tr>
-<tr><td class="syntax">Return</td><td>The return value can be one of the following: <a class="value">abort</a> <a class="value">cancel</a> <a class="value">continue</a> <a class="value">ignore</a> <a class="value">no</a> <a class="value">ok</a> <a class="value">retry</a> <a class="value">tryagain</a> <a class="value">yes</a></td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>While it is possible to use this command during events, avoid using MsgBox in events as it will block some scripts from executing.</li><li>MsgBox can be used as an identifier or as a direct call. (eg. as $dcx(MsgBox) or /dcx MsgBox)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style. Enter <a class="value">0</a> for the hWnd to make it modeless.<br />
+<tr><td class="syntax">Return</td><td>The return value can be one of the following: <a class="value">abort</a> <a class="value">cancel</a> <a class="value">continue</a> <a class="value">ignore</a> <a class="value">no</a> <a class="value">ok</a> <a class="value">retry</a> <a class="value">tryagain</a> <a class="value">yes</a></td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>While it is possible to use this command during events, avoid using MsgBox in events as it will block some scripts from executing.</li><li>MsgBox can be used as an identifier or as a direct call. (eg. as $dcx(MsgBox) or /dcx MsgBox)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
 <br />
 <table class="general">
@@ -793,7 +793,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td class="param">FILTER</td>
 		<td>The FILTER parameter is the type of files the user can select, it should be formatted like "Description|Type|Description|Type"</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns "" when cancelled.</li><li><a class="value">filemustexist</a> automatically applies <a class="value">pathmustexist</a> when style used.</li><li><a class="value">multisel</a> returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style. Enter 0 for the hWnd to make it modeless.<br />
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns $null when cancelled.</li><li><a class="value">filemustexist</a> automatically applies <a class="value">pathmustexist</a> when style used.</li><li><a class="value">multisel</a> returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
 <br />
 <table class="general">

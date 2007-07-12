@@ -137,7 +137,7 @@ function get_general_dcx(&$GENERAL) {
 				),
 			),
 			'__notes' => array(
-			    '<br />By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style. Enter 0 for the hWnd to make it modeless.<br />
+			    '<br />By default, the main mIRC window is the parent. Dialog name OR a hwnd MUST follow after the [s]owner[/s] style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 			),
 		),
@@ -173,10 +173,10 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				'FILTER' => 'The FILTER parameter is the type of files the user can select, it should be formatted like "Description|Type|Description|Type"',
 			),
 			'__notes' => array(
-				'Returns "" when cancelled.',
+				'Returns $null when cancelled.',
 				"[v]filemustexist[/v] automatically applies [v]pathmustexist[/v] when style used.",
 				"[v]multisel[/v] returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.",
-			    'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style. Enter 0 for the hWnd to make it modeless.<br />
+                                'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 			),
 		),
@@ -280,19 +280,14 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 						'max' => 'Maximum font value.',
 					),
 				),
-				'owner' => array(
-					'__desc' => "Allows you to specific the parent dialog/window. (Must also specify DNAME or HWND)",
-					'__values' => array(
-						'DNAME|HWND' => 'A dialog name or HWND for a window.',
-					),
-				),
+				'owner' => "Allows you to specific the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
 			),
 			'__return' => 'The information returned is in the following format: [v]RGB[/v] [v]+FLAGS[/v] [v]CHARSET[/v] [v]SIZE[/v] [v]FONTNAME[/v]',
 			'__notes' => array(
-				'Returns "" when cancelled.',
+				'Returns $null when cancelled.',
 				"You do not have to specify all parameters, only the ones you wish to change.",
 				'The parameter [p]minmaxsize[/p] is limited to a range of 8-72. Any sizes other than that will be ignored.',
-			    'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style. Enter 0 for the hWnd to make it modeless.<br />
+                                'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 			),
 		),
@@ -358,6 +353,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 						'rtl' => 'Displays message and caption text using right-to-left reading order on Hebrew and Arabic systems.',
 						'foreground' => 'The message box becomes the foreground window.',
 						'topmost' => 'The message box is on top.',
+                                                'owner' => "Allows you to specific the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
 					),
 				),
 				'TITLE' => "The title of the messagebox.",
@@ -365,10 +361,9 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			),
 			'__return' => 'The return value can be one of the following: [v]abort[/v] [v]cancel[/v] [v]continue[/v] [v]ignore[/v] [v]no[/v] [v]ok[/v] [v]retry[/v] [v]tryagain[/v] [v]yes[/v]',
 			'__notes' => array(
-				//'Returns "" when cancelled.',
 				'While it is possible to use this command during events, avoid using MsgBox in events as it will block some scripts from executing.',
 				'MsgBox can be used as an identifier or as a direct call. (eg. as $dcx(MsgBox) or /dcx MsgBox)',
-			    'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style. Enter [v]0[/v] for the hWnd to make it modeless.<br />
+                                'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 			),
 		),

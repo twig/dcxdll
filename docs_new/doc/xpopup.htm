@@ -74,7 +74,7 @@
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>XPopup</div></td></tr>
+	<tr><td class="heading" style="border-color: #979AB3"><a name="general"></a><div style='color: #979AB3;font-size:14pt;'>Special Menus</div></td></tr>
 	<tr><td>There are two special reserved menu names in XPopup. They are for mIRC's regular popup menus <a class="value">mirc</a> (channel, statusbar, query and nicklist) and mIRC's menubar popup menu <a class="value">mircbar</a> (the menubar). Their appearance can be changed by XPopup and activated with the following command:<br />
 <br />
 <table>
@@ -143,7 +143,7 @@ The image below is an example of a mIRC menubar popup menu skinned with XPopup w
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>XPopup</div></td></tr>
+	<tr><td class="heading" style="border-color: #979AB3"><a name="general"></a><div style='color: #979AB3;font-size:14pt;'>XPopup Item Path</div></td></tr>
 	<tr><td>The XPopup menus have an engine that parses the given item "path" data to know where to insert/delete/modify a given item in the menu structure. The parameters you supply are a space separated numerical token list of the menu submenus that lead to the menu item position:<br />
 <br/>
 
@@ -216,7 +216,7 @@ ON *:SIGNAL:Xpopup-*: {
 		<td class="example">Example:</td>
 		<td><div class="example">/xpopup -b mymenu mc.bmp</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Please take note that the image is stretched to fit the menu item rectangle.</li><li>Only BMP images are supported through this command.</li><li>If <a class="param">IMAGEFILE</a> is not specified, then the current image will be removed.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Please take note that the image is stretched to fit the menu item rectangle.</li><li>Only BMP images are supported through this command if GDI+ is not available.</li><li>If <a class="param">IMAGEFILE</a> is not specified, then the current image will be removed.</li></ul></td></tr></table>
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
@@ -284,7 +284,7 @@ ON *:SIGNAL:Xpopup-*: {
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
 			<a name="xpopup.d"></a>/xpopup -d	</td></tr>
-	<tr><td colspan="2">This command lets you destroy an XPopup empty menu.</td></tr>
+	<tr><td colspan="2">This command lets you destroy a XPopup menu.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xpopup -d [MENU] </div></td>

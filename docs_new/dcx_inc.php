@@ -857,7 +857,7 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 		$tmp = "";
 		
 		// if example has a value
-		if ($eg)
+		if (strlen($eg) > 0)
 			$tmp = str_replace("[-EXAMPLE]", $eg, $examplefmt[$ARGS]);
 		// otherwise just use a fixed example
 		else
