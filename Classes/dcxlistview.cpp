@@ -625,7 +625,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == "gnum" ) {
-	}
+   }
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
 
@@ -1276,6 +1276,36 @@ void DcxListView::parseCommandRequest(TString &input) {
 				DestroyIcon(icon);
 			}
 		}
+	}
+	// xdid -W [NAME] [ID] [SWITCH] [STYLE]
+	else if (flags.switch_cap_flags[22] && numtok > 3) {
+		static const TString poslist("report icon smallicon list");
+		TString style(input.gettok(4));
+		int index = poslist.findtok(style.to_chr(), 1);
+		UINT mode;
+
+		switch (index) {
+			case 1: // report
+				mode = LVS_REPORT; break;
+
+			case 2: // icon
+				mode = LVS_ICON; break;
+
+			case 3: // smallicon
+				mode = LVS_SMALLICON; break;
+
+			case 4: // list
+				mode = LVS_LIST; break;
+
+			default:
+				DCXError("/xdid -W", "Unknown style");
+				return;
+		}
+
+		DWORD dwOldStyle = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+		dwOldStyle &= ~LVS_TYPEMASK; // Remove any of the flags indicating current styles
+		dwOldStyle |= mode; // Specify the style we want to switch to
+		SetWindowLong(this->m_Hwnd, GWL_STYLE, dwOldStyle);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags.switch_flags[24] && numtok > 3) {
