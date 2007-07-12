@@ -105,11 +105,11 @@
 </table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #9FB7FF"><a name="xdid"></a><div style='color: #9FB7FF;font-size:14pt;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #6A7CB0"><a name="xdid"></a><div style='color: #6A7CB0;font-size:14pt;'>/xdid flags</div></td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.k"></a>/xdid -k	</td></tr>
 	<tr><td colspan="2">This command lets you set the status bar background color.</td></tr>
 	<tr>
@@ -123,7 +123,7 @@
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">-1</a> for <a class="param">RGB</a> to revert to default color.</li><li>This command will only work if the computer has no visual styles applied (XP themes). To use this on machines with visual styles enabled, apply the <a class="style">notheme</a> style.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.l"></a>/xdid -l	</td></tr>
 	<tr><td colspan="2">This command lets you set the width of status bar cells. A value of <a class="value">-1</a> will cause the cell to automatically stretch, filling the remainding space. Values can also be a percentage, such as <a class="value">20%</a>.</td></tr>
 	<tr>
@@ -137,7 +137,7 @@
 </table>
 <br />
 <table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.t"></a>/xdid -t	</td></tr>
 	<tr><td colspan="2">This command lets you set the icon, text and tooltip of a statusbar cell. Child controls could also be created in place of a statusbar cell.</td></tr>
 	<tr>
@@ -196,12 +196,12 @@
 	</tr>
 	<tr>
 		<td class="value">H</td>
-		<td>The height of the control is ignored but required.</td>
+		<td>The height of the control. The cell height is used if a value of <a class="value">0</a> is supplied.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Cell text is optional.</li><li>Tooltip is only displayed if cell text is absent or cell text is too long to fit in cell.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.v"></a>/xdid -v	</td></tr>
 	<tr><td colspan="2">This command lets you change the text of a statusbar cell.</td></tr>
 	<tr>
@@ -215,7 +215,7 @@
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Text is optional.</td></tr></table>
 <br />
 <table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.w"></a>/xdid -w	</td></tr>
 	<tr><td colspan="2">This command lets you add an icon to the statusbar image list.</td></tr>
 	<tr>
@@ -254,7 +254,7 @@
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
 <br />
 <table class="xdid">
-	<tr><td colspan="2" class="flag" style="color: #9FB7FF; border-color: #9FB7FF;">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.y"></a>/xdid -y	</td></tr>
 	<tr><td colspan="2">This command lets you clear the statusbar image list.</td></tr>
 	<tr>
@@ -268,11 +268,11 @@
 </table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #BBD1FF"><a name="xdidprop"></a><div style='color: #BBD1FF;font-size:14pt;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #A8B2D1"><a name="xdidprop"></a><div style='color: #A8B2D1;font-size:14pt;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
-	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.parts"></a>$xdid().parts	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the status bar cell division parts.</td></tr>
 	<tr>
@@ -286,7 +286,7 @@
 </table>
 <br />
 <table class="xdidprop">
-	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the Nth status bar cell text.</td></tr>
 	<tr>
@@ -300,7 +300,7 @@
 </table>
 <br />
 <table class="xdidprop">
-	<tr><td colspan="2" class="flag" style="color: #BBD1FF; border-color: #BBD1FF;">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.tooltip"></a>$xdid().tooltip	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the status bar tooltip of the Nth cell.</td></tr>
 	<tr>
@@ -399,8 +399,8 @@
 		<a href="#style.tooltips"><div>tooltips</div></a>
 		<a href="#style.top"><div>top</div></a>
 	</div>
-<div class='rightmenu' style='border:1px solid #9FB7FF'>
-	<a href="#xdid"><div class='header' style='background:#9FB7FF;'>/xdid Flags</div></a>
+<div class='rightmenu' style='border:1px solid #6A7CB0'>
+	<a href="#xdid"><div class='header' style='background:#6A7CB0;'>/xdid Flags</div></a>
 		<a href="#xdid.k"><div>-k</div></a>
 		<a href="#xdid.l"><div>-l</div></a>
 		<a href="#xdid.t"><div>-t</div></a>
@@ -408,8 +408,8 @@
 		<a href="#xdid.w"><div>-w</div></a>
 		<a href="#xdid.y"><div>-y</div></a>
 	</div>
-<div class='rightmenu' style='border:1px solid #BBD1FF'>
-	<a href="#xdidprop"><div class='header' style='background:#BBD1FF;'>$xdid() Properties</div></a>
+<div class='rightmenu' style='border:1px solid #A8B2D1'>
+	<a href="#xdidprop"><div class='header' style='background:#A8B2D1;'>$xdid() Properties</div></a>
 		<a href="#xdidprop.parts"><div>parts</div></a>
 		<a href="#xdidprop.text"><div>text</div></a>
 		<a href="#xdidprop.tooltip"><div>tooltip</div></a>
@@ -429,7 +429,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 10th July, 07</td>
+		<td style="text-align: right;">Last Updated: 12th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
