@@ -740,6 +740,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 			lvi.lParam = (LPARAM) lpmylvi;
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
+
 			if (lvi.iItem == -1) {
 				this->showError(NULL,"-a", "Unable to add item");
 				return;
@@ -760,17 +761,19 @@ void DcxListView::parseCommandRequest(TString &input) {
 					data = input.gettok(i, TSTAB);
 					data.trim();
 
-					if (data.numtok() < 4) {
+					if (data.numtok() < 5) {
 						this->showError(NULL,"-a", "Invalid subitem syntax");
 						break;
 					}
+
 					stateFlags = parseItemFlags(data.gettok( 1 ));
-					clrText = (COLORREF)data.gettok( 3 ).to_num();
-					clrBack = (COLORREF)data.gettok( 4 ).to_num();
+					clrText = (COLORREF)data.gettok(4).to_num();
+					clrBack = (COLORREF)data.gettok(5).to_num();
 
 					// setup colum #
 					ri = new DCXLVRENDERINFO;
 					ri->m_dFlags = stateFlags;
+
 					if (stateFlags & LVIS_COLOR)
 						ri->m_cText = clrText;
 					else
@@ -780,22 +783,33 @@ void DcxListView::parseCommandRequest(TString &input) {
 						ri->m_cBg = clrBack;
 					else
 						ri->m_cBg = -1;
+
 					lpmylvi->vInfo.push_back(ri);
 
 					lvi.iSubItem = i -1;
 					lvi.mask = LVIF_TEXT | LVIF_IMAGE;
 
 					// icon
-					icon = (int)data.gettok( 2 ).to_num() -1;
+					icon = data.gettok( 2 ).to_int() -1;
 
 					if (icon > -1)
 						lvi.iImage = icon;
 					else
 						lvi.iImage = -1;
 
+					// overlay
+					if ((overlay = data.gettok(3).to_int()) > 0) {
+						lvi.mask |= LVIF_STATE;
+						lvi.state |= INDEXTOOVERLAYMASK(overlay);
+						lvi.stateMask |= LVIS_OVERLAYMASK;
+					}
+					else {
+						lvi.state |= INDEXTOOVERLAYMASK(0);
+					}
+
 					itemtext = "";
-					if (data.numtok( ) > 4)
-						itemtext = data.gettok(5, -1);
+					if (data.numtok() > 5)
+						itemtext = data.gettok(6, -1);
 
 					// create pbar for subitem
 					if (stateFlags & LVIS_PBAR) {
@@ -805,6 +819,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 					lvi.pszText = itemtext.to_chr();
 					ListView_SetItem(this->m_Hwnd, &lvi);
+
 					this->autoSize(i -1,data.gettok( 1 ));
 					i++;
 				}
@@ -812,8 +827,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 			if (state > -1)
 				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
-			if ( overlay > -1 )
+
+			// overlay is 1-based index
+			if (overlay > 0)
 				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlay), LVIS_OVERLAYMASK);
+
 			this->autoSize(0,input.gettok( 6 ));
 		}
 		// LVS_ICON | LVS_SMALLICON | LVS_LIST views
@@ -842,7 +860,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 			if (state > -1)
 				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
-			//ListView_SetItemState(hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(overlay), LVIS_OVERLAYMASK);
+
+			// overlay is 1-based index
+			if (overlay > 0)
+				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlay), LVIS_OVERLAYMASK);
 		}
 	}
 	// xdid -B [NAME] [ID] [SWITCH] [N]
@@ -1020,21 +1041,46 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		ListView_SetItemState(this->m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
 	}
-	// xdid -l [NAME] [ID] [SWITCH] [N] [M] [ICON]
+	// xdid -l [NAME] [ID] [SWITCH] [N] [M] [ICON] (OVERLAY)
 	else if (flags.switch_flags[11] && numtok > 5) {
-		int nItem    = (int)input.gettok( 4 ).to_num() -1;
-		int nSubItem = (int)input.gettok( 5 ).to_num();
-		int nIcon    = (int)input.gettok( 6 ).to_num() -1;
+		int nItem    = input.gettok(4).to_int() -1;
+		int nSubItem = input.gettok(5).to_int() -1;
+		int nIcon    = input.gettok(6).to_int() -1;
+		int nOverlay = (numtok > 6 ? input.gettok(7).to_int() : -1);
 
-		if (nItem > -1 && nSubItem > -1 && nSubItem <= this->getColumnCount() && nIcon > -2) {
-			LVITEM lvi;
+		// invalid item
+		if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount()))
+			return;
 
-			lvi.mask = LVIF_IMAGE;
-			lvi.iItem = nItem;
-			lvi.iSubItem = nSubItem;
+		/*
+			nIcon = 0 (use no icon)
+			nIcon = -1 (ignore value, just change overlay)
+
+			overlay = 0 (no icon)
+		*/
+		// no icon to change
+		if ((nIcon < -1) && (nOverlay < 0))
+			return;
+
+		LVITEM lvi;
+		ZeroMemory(&lvi, sizeof(LVITEM));
+
+		lvi.iItem = nItem;
+		lvi.iSubItem = nSubItem;
+
+		// theres an icon to change
+		if (nIcon > -2) {
+			lvi.mask |= LVIF_IMAGE;
 			lvi.iImage = nIcon;
-			ListView_SetItem(this->m_Hwnd, &lvi);
 		}
+
+		if (nOverlay > -1) {
+			lvi.mask |= LVIF_STATE;
+			lvi.stateMask |= LVIS_OVERLAYMASK;
+			lvi.state |= INDEXTOOVERLAYMASK(nOverlay);
+		}
+
+		ListView_SetItem(this->m_Hwnd, &lvi);
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [0|1]
 	else if (flags.switch_flags[12] && numtok > 3) {
@@ -1224,67 +1270,82 @@ void DcxListView::parseCommandRequest(TString &input) {
 		TString filename(input.gettok(6, -1));
 		int overlayindex = 0;
 
+		// determine overlay index
 		if (tflags.find('o',0)) {
-			// overlay image
+			// overlay id offset
 			int io = tflags.find('o',1) +1;
 			overlayindex = tflags.mid(io, (tflags.len() - io)).to_int();
 		}
-		if (iFlags & LVSIL_SMALL) {
 
+		// load both normal and small icons
+		if (iFlags & LVSIL_SMALL) {
+			// load normal icon
 			icon = dcxLoadIcon(index, filename, true, tflags);
 
-			if (icon != NULL) {
-				if ((himl = this->getImageList(LVSIL_NORMAL)) == NULL) {
-					himl = this->createImageList(TRUE);
-
-					if (himl != NULL)
-						this->setImageList(himl, LVSIL_NORMAL);
-				}
-				if (himl != NULL) {
-					int i = ImageList_AddIcon(himl, icon);
-					if (overlayindex > 0)
-						ImageList_SetOverlayImage(himl, i, overlayindex);
-				}
-				DestroyIcon(icon);
-			}
-			else {
-				this->showError(NULL, "-w", "Unable to Load Icon");
+			if (icon == NULL) {
+				DCXError("/xdid -w", "Unable to load normal icon");
+				this->showError(NULL, "-w", "Unable to load normal icon");
 				return;
 			}
 
+			if ((himl = this->initImageList(LVSIL_NORMAL)) == NULL) {
+				DCXError("/xdid -w", "Unable to create normal image list");
+				this->showError(NULL, "-w", "Unable to create normal image list");
+				DestroyIcon(icon);
+				return;
+			}
+
+			int i = ImageList_AddIcon(himl, icon);
+			if (overlayindex > 0)
+				ImageList_SetOverlayImage(himl, i, overlayindex);
+
+			DestroyIcon(icon);
+
+			// load small icon
 			icon = dcxLoadIcon(index, filename, false, tflags);
 
-			if (icon != NULL) {
-				if ((himl = this->getImageList(LVSIL_SMALL)) == NULL) {
-					himl = this->createImageList(FALSE);
-
-					if (himl)
-						this->setImageList(himl, LVSIL_SMALL);
-				}
-				if (himl != NULL) {
-					int i = ImageList_AddIcon(himl, icon);
-					if (overlayindex > 0)
-						ImageList_SetOverlayImage(himl, i, overlayindex);
-				}
-				DestroyIcon(icon);
+			if (icon == NULL) {
+				DCXError("/xdid -w", "Unable to load small icon");
+				this->showError(NULL, "-w", "Unable to load small icon");
+				return;
 			}
+
+			if ((himl = this->initImageList(LVSIL_SMALL)) == NULL) {
+				DCXError("/xdid -w", "Unable to create small image list");
+				this->showError(NULL, "-w", "Unable to create small image list");
+				DestroyIcon(icon);
+				return;
+			}
+
+			i = ImageList_AddIcon(himl, icon);
+
+			if (overlayindex > 0)
+				ImageList_SetOverlayImage(himl, i, overlayindex);
+
+			DestroyIcon(icon);
 		}
 
+		// state icon
 		if (iFlags & LVSIL_STATE) {
-
 			icon = dcxLoadIcon(index, filename, false, tflags);
 
-			if (icon != NULL) {
-				if ((himl = this->getImageList(LVSIL_STATE)) == NULL) {
-					himl = this->createImageList(FALSE);
-
-					if (himl)
-						this->setImageList(himl, LVSIL_STATE);
-				}
-				if (himl != NULL)
-					ImageList_AddIcon(himl, icon);
-				DestroyIcon(icon);
+			if (icon == NULL) {
+				DCXError("/xdid -w", "Unable to load state icon");
+				this->showError(NULL, "-w", "Unable to load state icon");
+				return;
 			}
+
+			if ((himl = this->initImageList(LVSIL_STATE)) == NULL) {
+				DCXError("/xdid -w", "Unable to create state image list");
+				this->showError(NULL, "-w", "Unable to create state image list");
+				DestroyIcon(icon);
+				return;
+			}
+
+			if (himl != NULL)
+				ImageList_AddIcon(himl, icon);
+
+			DestroyIcon(icon);
 		}
 	}
 	// xdid -W [NAME] [ID] [SWITCH] [STYLE]
@@ -1399,6 +1460,23 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
+}
+
+/*
+Initialises an image list.
+*/
+HIMAGELIST DcxListView::initImageList(const int iImageList) {
+	HIMAGELIST himl = this->getImageList(iImageList);
+
+	if (himl != NULL)
+		return himl;
+
+	himl = this->createImageList(iImageList == LVSIL_NORMAL ? TRUE : FALSE);
+
+	if (himl != NULL)
+		this->setImageList(himl, iImageList);
+
+	return himl;
 }
 
 /*!

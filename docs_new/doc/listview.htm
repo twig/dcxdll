@@ -198,7 +198,7 @@
 	<tr><td colspan="2">This command lets you add an item to the listview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [INDENT] [+FLAGS] [ICON] [STATE] [OVERLAY] [GROUPID] [COLOR] [BGCOLOR] (Item Text) [TAB] [+FLAGS] [ICON] [COLOR] [BGCOLOR] (Item Text) [TAB] ...</div></td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [INDENT] [+FLAGS] [ICON] [STATE] [OVERLAY] [GROUPID] [COLOR] [BGCOLOR] (TEXT) [TAB] [+FLAGS] [ICON] [OVERLAY] [COLOR] [BGCOLOR] (TEXT) [TAB] ...</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -291,7 +291,7 @@
 	</tr>
 	<tr>
 		<td class="param">OVERLAY</td>
-		<td>Icon index number from the normal icon list that was marked as an overlay icon. (<a class="note">Note:</a> Not functional yet)</td>
+		<td>Icon index number from the overlay icon list.</td>
 	</tr>
 	<tr>
 		<td class="param">GROUPID</td>
@@ -306,10 +306,10 @@
 		<td>Item background color.</td>
 	</tr>
 	<tr>
-		<td class="param">Item Text</td>
+		<td class="param">TEXT</td>
 		<td>The text to display in the cell. If used with <a class="value">+p</a> <a class="param">+FLAGS</a>, then this is the DCX ProgressBar <a class="style">style</a>.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Icons must be added prior to be used in the listview.</li><li>The <a class="param">INDENT</a> parameter only works if you are using normal icons in the listview.</li><li>If you add icons to the icon lists and use 0 for no icon, there will be the an icon indent space in front of the item text. (normal and state lists)</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class="style">checkbox</a> style in order to use checkboxes in the listview.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Icons must be added prior to be used in the listview using <a class="value">/xdid -w</a></li><li>The <a class="param">INDENT</a> parameter only works if you are using normal icons in the listview.</li><li>Even if there are icons in the icon lists and <a class="value">0</a> is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class="style">checkbox</a> style in order to use checkboxes in the listview.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -517,11 +517,11 @@
 	<tr><td colspan="2">This command lets you change the listview item icon.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -l [DNAME] [ID] [N] [NSUB] [ICON]</div></td>
+		<td><div class="syntax">/xdid -l [DNAME] [ID] [N] [NSUB] [ICON] (OVERLAY)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -l dcx 4 1 2 5</div></td>
+		<td><div class="example">/xdid -l dcx 4 1 2 5 3</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -536,7 +536,11 @@
 		<td class="param">ICON</td>
 		<td>Icon index</td>
 	</tr>
-</table>
+	<tr>
+		<td class="param">OVERLAY</td>
+		<td>Overlay icon index</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">ICON</a> and <a class="param">OVERLAY</a> to display no icon.</li><li>If you only want to change the overlay, use <a class="value">-1</a> for <a class="param">ICON</a>.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -742,7 +746,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 +n 113 C:/mIRC/shell.dll</div></td>
+		<td><div class="example">/xdid -w dcx 4 +n 113 shell32.dll<br />/xdid -w dcx 4 +no2 29 shell32.dll<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -756,6 +760,10 @@
 	<tr>
 		<td class="value">s</td>
 		<td>State icon list.</td>
+	</tr>
+	<tr>
+		<td class="value">o</td>
+		<td>Overlay icon list. The overlay index is declared immediately after the <a class="value">+o</a> flag. Must be used with <a class="value">+n</a>.</td>
 	</tr>
 	<tr>
 		<td class="value">a</td>
@@ -777,7 +785,7 @@
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>For readability and ease of indexing, it is suggested you declare your overlay icons AFTER the normal icons.</li><li>There is a limit of 4 overlay icons you may use, indexes from <a class="value">1</a> to <a class="value">4</a>.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
