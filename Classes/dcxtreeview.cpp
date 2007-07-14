@@ -495,46 +495,81 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
 		this->redrawWindow();
 	}
-  // xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON]
-  else if ( flags.switch_flags[9] && numtok > 5 ) {
+	// xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON] (OVERLAY)
+	else if (flags.switch_flags[9] && numtok > 5) {
+		HTREEITEM hParent = TVI_ROOT;
+		HTREEITEM hAfter = TVI_ROOT;
 
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
+		TString path(input.gettok(1, TSTAB).gettok(4, -1));
+		path.trim();
 
-    TString path(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
-    path.trim( );
+		if (input.numtok(TSTAB) > 1) {
+			TString icons(input.gettok(2, TSTAB));
+			icons.trim();
 
-    if ( input.numtok( TSTAB ) > 1 ) {
+			if (icons.numtok() < 2) {
+				return;
+			}
 
-      TString icons(input.gettok( 2, TSTAB ));
-      icons.trim( );
+			if (this->parsePath(&path, &hParent, &hAfter)) {
+				if (this->correctTargetItem(&hParent, &hAfter)) {
+					int nIcon = icons.gettok(1).to_int() -1;
+					int sIcon = icons.gettok(2).to_int() -1;
+					TVITEMEX tvi;
 
-      if ( this->parsePath( &path, &hParent, &hAfter ) ) {
+					tvi.mask = TVIF_HANDLE;
+					tvi.hItem = hAfter;
 
-        if ( this->correctTargetItem( &hParent, &hAfter ) ) {
 
-          int nIcon = icons.gettok( 1 ).to_int( ) - 1;
-          int sIcon = icons.gettok( 2 ).to_int( ) - 1;
+					/*
+					nIcon/sIcon values (actual values)
+					-2 = ignore icon
+					-1 = no icon
+					0+ = valid icon
+					*/
 
-			 // quickfix so it doesnt display an image
-			 if (nIcon == -1)
-					nIcon = 10000;
-			 if (sIcon == -1)
-				 sIcon = 10000;
+					// overlay
+					if (icons.numtok() > 2) {
+						int oIcon = icons.gettok(3).to_int();
 
-          if ( nIcon > -1 && sIcon > -1 ) {
-            TVITEMEX tvi; 
+						// overlay is 1-based index
+						if (oIcon > -1)
+							TreeView_SetItemState(this->m_Hwnd, tvi.hItem, INDEXTOOVERLAYMASK(oIcon), TVIS_OVERLAYMASK);
 
-            tvi.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_HANDLE;
-            tvi.hItem = hAfter;
-            tvi.iImage = nIcon;
-            tvi.iSelectedImage = sIcon;
-            TreeView_SetItem( this->m_Hwnd, &tvi );
-          }
-        }
-      }
-    }
-  }
+						// if ignoring both nIcon and sIcon
+						if ((nIcon == -2) && (sIcon == -2))
+							return;
+					}
+
+					// normal icon
+					if (nIcon > -2) {
+						tvi.mask |= TVIF_IMAGE;
+
+						// quickfix so it doesnt display an image
+						// http://dcx.scriptsdb.org/bug/?do=details&id=350
+						if (nIcon == -1)
+							nIcon = 10000;
+
+						tvi.iImage = nIcon;
+					}
+
+					// selected icon
+					if (sIcon > -2) {
+						tvi.mask |= TVIF_SELECTEDIMAGE;
+
+						// quickfix so it doesnt display an image
+						// http://dcx.scriptsdb.org/bug/?do=details&id=350
+						if (sIcon == -1)
+							sIcon = 10000;
+
+						tvi.iSelectedImage = sIcon;
+					}
+
+					TreeView_SetItem(this->m_Hwnd, &tvi);
+				}
+			}
+		}
+	}
   // xdid -k [NAME] [ID] [SWITCH] [STATE] N N N
   else if ( flags.switch_flags[10] && numtok > 4 ) {
 
@@ -777,8 +812,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
   }
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {
-		TString f(input.gettok( 4 ));
-		UINT iFlags = this->parseIconFlagOptions( f );
+		TString flags(input.gettok(4));
+		UINT iFlags = this->parseIconFlagOptions(flags);
 
 		HIMAGELIST himl;
 		HICON icon = NULL;
@@ -787,9 +822,9 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		TString filename(input.gettok(6, -1));
 
 		if (this->m_iIconSize > 16)
-			icon = dcxLoadIcon(index, filename, TRUE, f);
-		else	
-			icon = dcxLoadIcon(index, filename, FALSE, f);
+			icon = dcxLoadIcon(index, filename, TRUE, flags);
+		else
+			icon = dcxLoadIcon(index, filename, FALSE, flags);
 
 		if (iFlags & TVIT_NORMAL) {
 			if ((himl = this->getImageList(TVSIL_NORMAL)) == NULL) {
@@ -801,10 +836,10 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
 			int i = ImageList_AddIcon(himl, icon);
 
-			if (f.find('o',0)) {
+			if (flags.find('o',0)) {
 				// overlay image
-				int io = f.find('o',1) +1;
-				int o = f.mid(io, (f.len() - io)).to_int();
+				int io = flags.find('o',1) +1;
+				int o = flags.mid(io, (flags.len() - io)).to_int();
 				if (o > 0)
 					ImageList_SetOverlayImage(himl, i, o);
 			}
@@ -1050,6 +1085,8 @@ HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, co
 
 	if (state > -1)
 		TreeView_SetItemState(this->m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
+
+	// overlay is 1-based index
 	if (overlay > 0 && overlay < 16)
 		TreeView_SetItemState(this->m_Hwnd, hItem, INDEXTOOVERLAYMASK(overlay), TVIS_OVERLAYMASK);
 

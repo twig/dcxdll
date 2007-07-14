@@ -342,14 +342,14 @@ This would add the item at the end of the last branch in the first column of bra
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.j"></a>/xdid -j	</td></tr>
-	<tr><td colspan="2">This command lets you change the icon and selected icon of a treeview item.</td></tr>
+	<tr><td colspan="2">This command lets you change the icon, selected icon and overlay icon for a treeview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -j [DNAME] [ID] [PATH] [TAB] [ICON] [SICON]</div></td>
+		<td><div class="syntax">/xdid -j [DNAME] [ID] [PATH] [TAB] [ICON] [SICON] (OVERLAY)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -j dcx 4 1 2 $chr(9) 3 3</div></td>
+		<td><div class="example">/xdid -j dcx 4 1 2 $chr(9) 3 3<br />/xdid -j dcx 4 2 $chr(9) -1 -1 2<br /></div></td>
 	</tr>
 </table>
 <br />
@@ -543,7 +543,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 +n 113 C:/mIRC/shell.dll</div></td>
+		<td><div class="example">/xdid -w dcx 4 +n 113 shell32.dll<br />/xdid -w dcx 4 +no2 29 shell32.dll<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -557,6 +557,10 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr>
 		<td class="value">s</td>
 		<td>State icon list.</td>
+	</tr>
+	<tr>
+		<td class="value">o</td>
+		<td>Overlay icon list. The overlay index is declared immediately after the <a class="value">+o</a> flag. Must be used with <a class="value">+n</a>.</td>
 	</tr>
 	<tr>
 		<td class="value">a</td>
@@ -578,7 +582,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>For readability and ease of indexing, it is suggested you declare your overlay icons AFTER the normal icons.</li><li>There is a limit of 4 overlay icons you may use, indexes from <a class="value">1</a> to <a class="value">4</a>.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -1233,7 +1237,7 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 12th July, 07</td>
+		<td style="text-align: right;">Last Updated: 14th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

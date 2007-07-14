@@ -1221,6 +1221,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -r [NAME] [ID] [SWITCH]
+	// Note: This is here to prevent an message
 	else if (flags.switch_flags[17]) {
 		//ListView_DeleteAllItems(this->m_Hwnd);
 	}
@@ -1501,20 +1502,24 @@ void DcxListView::parseCommandRequest(TString &input) {
 		ListView_SortItemsEx(this->m_Hwnd, DcxListView::sortItemsEx, &lvsort);
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
+	// TODO: twig: Does this work? its currently undocumnented
 	else if (flags.switch_cap_flags[19] && numtok > 4) {
 		input.trim();
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
 
-		int nPos = input.gettok( 4 ).to_int() - 1;
-		if (nPos < 0)
-			nPos = ListView_GetItemCount(this->m_Hwnd);
+		lvi.iItem = input.gettok(4).to_int() -1;
 
-		lvi.iItem = nPos;
-		lvi.iSubItem = input.gettok( 5 ).to_int();
+		if (lvi.iItem < 0)
+			return;
+
+		lvi.iSubItem = input.gettok(5).to_int();
 		lvi.mask = LVIF_PARAM;
 
-		if (ListView_GetItem(this->m_Hwnd,&lvi)) {
+		if ((lvi.iItem > -1) && (lvi.iSubItem > -1))
+			return;
+
+		if (ListView_GetItem(this->m_Hwnd, &lvi)) {
 			LPDCXLVITEM lpmylvi = (LPDCXLVITEM) lvi.lParam;
 
 			if (lpmylvi != NULL) {
