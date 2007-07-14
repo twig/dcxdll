@@ -2539,10 +2539,12 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 			{
 				bParsed = TRUE;
 
-				char ret[256];
-				this->callAliasEx( ret, "%s,%d", "trackbegin", this->getUserID( ) );
+				LPNMHEADER pHeader = (LPNMHEADER) lParam;
 
-				if ( !lstrcmp( "notrack", ret ) )
+				char ret[256];
+				this->callAliasEx( ret, "%s,%d,%d", "trackbegin", this->getUserID(), pHeader->iItem +1);
+
+				if (!lstrcmp("notrack", ret))
 					return TRUE;
 			}
 			break;
