@@ -530,7 +530,7 @@
 	</tr>
 	<tr>
 		<td class="param">NSUB</td>
-		<td>Column index (<a class="value">0</a> for first column)</td>
+		<td>Column index.</td>
 	</tr>
 	<tr>
 		<td class="param">ICON</td>
@@ -562,16 +562,16 @@
 	<tr><td colspan="2">This command lets you change the Nth listview column width (<a class="style">report</a> view only).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -n [DNAME] [ID] [N] [+FLAGS] (WIDTH)</div></td>
+		<td><div class="syntax">/xdid -n [DNAME] [ID] [COL] [+FLAGS] (WIDTH ...)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -n dcx 4 2 + 100</div></td>
+		<td><div class="example">/xdid -n dcx 4 2 + 100<br />/xdid -n dcx 4 0 +m 150 100 200<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
-		<td class="param">N</td>
-		<td>Column index (<a class="value">0</a> for first column)</td>
+		<td class="param">COL</td>
+		<td>Column index.</td>
 	</tr>
 	<tr>
 		<td class="param">+FLAGS</td>
@@ -590,10 +590,14 @@
 		<td>Autosize the column to fit header or content. Cannot be used with <a class="value">+a</a>.</td>
 	</tr>
 	<tr>
+		<td class="value">m</td>
+		<td>Allows you to set the widths manually. <a class="param">COL</a> is ignored.</td>
+	</tr>
+	<tr>
 		<td class="param">WIDTH</td>
 		<td>Header width (Ignored if you use flags <a class="value">+a</a>, <a class="value">+h</a> or <a class="value">+s</a>).</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the flag <a class="value">+h</a> is used for the last column, the column will be resized to the width of the control.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the flag <a class="value">+h</a> is used for the last column, the column will be resized to the width of the control.</li><li><a class="value">+m</a> flag cannot be used with the <a class="value">+a</a>, <a class="value">+h</a> or <a class="value">+s</a> flags.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -728,7 +732,7 @@
 	</tr>
 	<tr>
 		<td class="param">NSUB</td>
-		<td>Column index. (<a class="value">0</a> for first column)</td>
+		<td>Column index.</td>
 	</tr>
 	<tr>
 		<td class="param">TEXT</td>
@@ -1094,7 +1098,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 1, 2).icon</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="param">NSUB</a> value of <a class="value">0</a> for the first column item icon.</td></tr></table>
+</table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -1183,7 +1187,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 0).seltext</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use NSUB value of <a class="value">0</a> for the first column item text.</td></tr></table>
+</table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -1225,7 +1229,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 1, 2).text</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use NSUB value of <a class="value">0</a> for the first column item text.</td></tr></table>
+</table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #74C043"><a name="events"></a><div style='color: #74C043;font-size:14pt;'>Listview Events</div></td></tr>

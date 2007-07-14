@@ -277,11 +277,10 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 	}
 	// [NAME] [ID] [PROP] [N] [NSUB]
 	else if ( prop == "text" && numtok > 4 ) {
-
 		int nItem = input.gettok( 4 ).to_int( ) - 1;
-		int nSubItem = input.gettok( 5 ).to_int( );
+		int nSubItem = input.gettok(5).to_int() -1;
 
-		if ( nItem > -1 && nItem < ListView_GetItemCount( this->m_Hwnd ) ) {
+		if ((nItem > -1) && (nSubItem > -1) && (nItem < ListView_GetItemCount(this->m_Hwnd))) {
 			ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, szReturnValue, 900 );
 			return;
 		}
@@ -290,9 +289,11 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 	else if ( prop == "icon" && numtok > 4 ) {
 
 		int nItem = input.gettok( 4 ).to_int( ) - 1;
-		int nSubItem = input.gettok( 5 ).to_int( );
+		int nSubItem = input.gettok(5).to_int() -1;
 
-		if ( nItem > -1 && nItem < ListView_GetItemCount( this->m_Hwnd ) ) {
+		if ((nItem > -1) && (nSubItem > -1) &&
+			(nItem < ListView_GetItemCount(this->m_Hwnd)) &&
+			(nSubItem < this->getColumnCount())) {
 
 			LVITEM lvi;
 			lvi.mask = LVIF_IMAGE;
@@ -304,14 +305,15 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 			return;
 		}
 	}
-	// [NAME] [ID] [PROP] [NSUB]
-	else if ( prop == "seltext" && numtok > 3 ) {
-
+	// [NAME] [ID] [PROP] (NSUB)
+	else if ( prop == "seltext") {
 		int nItem = ListView_GetNextItem( this->m_Hwnd, -1, LVIS_SELECTED );
-		int nSubItem = input.gettok( 4 ).to_int( );
+		int nSubItem = 0;
+		
+		if (numtok > 3)
+			nSubItem = input.gettok(4).to_int() -1;
 
-		if ( nItem > -1 ) {
-
+		if ((nItem > -1) && (nSubItem > -1)) {
 			ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, szReturnValue, 900 );
 			return;
 		}
@@ -786,6 +788,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 			if (icon > -1)
 				lvi.iImage = icon;
+			else
+				icon = 0;
 
 			// set text in case of pbar
 			if (stateFlags & LVIS_PBAR)
@@ -1146,8 +1150,27 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [N] [+FLAGS] (WIDTH)
 	else if (flags.switch_flags[13] && numtok > 4) {
-		int nColumn = (int)input.gettok( 4 ).to_num();
-		UINT iFlags = this->parseHeaderFlags2(input.gettok( 5 ));
+		TString flags(input.gettok(5));
+
+		// manually set width
+		if (flags.find('m', 0)) {
+			TString widths(input.gettok(6, -1));
+			int count = this->getColumnCount();
+
+			if (widths.numtok() < count) {
+				DCXError("/xdid -n", "Insufficient number of widths specified for +m flag");
+				this->showError(NULL, "-n", "Insufficient number of widths specified for +m flag");
+				return;
+			}
+
+			for (int i = 1; i <= count; i++)
+				ListView_SetColumnWidth(this->m_Hwnd, i -1, widths.gettok(i).to_int());
+
+			return;
+		}
+
+		int nColumn = input.gettok(4).to_int() -1;
+		UINT iFlags = this->parseHeaderFlags2(flags);
 
 		if (nColumn > -1 && nColumn < this->getColumnCount()) {
 			if (iFlags == -3) { // +s
@@ -1287,8 +1310,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [N] [M] (ItemText)
 	else if (flags.switch_flags[21] && numtok > 4) {
-		int nItem = input.gettok( 4 ).to_int() - 1;
-		int nSubItem = input.gettok( 5 ).to_int();
+		int nItem = input.gettok(4).to_int() - 1;
+		int nSubItem = input.gettok(5).to_int() -1;
 
 		if (nItem > -1) {
 			TString itemtext(input.gettok(6, -1));
