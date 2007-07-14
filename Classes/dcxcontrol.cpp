@@ -1577,9 +1577,7 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 }
 void DcxControl::showError(const char *prop, const char *cmd, const char *err)
 {
-	if (this->m_pParentDialog->getAliasName().len() > 0)
-		this->callAliasEx(NULL, "error,%d,%s,%s,%s,%s", this->getUserID(), this->getType().to_chr(), (prop != NULL ? prop : "none"), (cmd != NULL ? cmd : "none"), err);
-	else {
+	if (this->m_pParentDialog->IsVerbose()) {
 		TString res;
 		if (prop != NULL)
 			res.sprintf("D_IERROR %s(%s, %d).%s: %s", this->getType().to_chr(), this->m_pParentDialog->getName().to_chr(), this->getUserID(), prop, err);
@@ -1587,6 +1585,9 @@ void DcxControl::showError(const char *prop, const char *cmd, const char *err)
 			res.sprintf("D_CERROR (%s) xdid %s %s %d: %s", this->getType().to_chr(), cmd, this->m_pParentDialog->getName().to_chr(), this->getUserID(), err);
 		mIRCError(res.to_chr());
 	}
+
+	if (this->m_pParentDialog->getAliasName().len() > 0)
+		this->callAliasEx(NULL, "error,%d,%s,%s,%s,%s", this->getUserID(), this->getType().to_chr(), (prop != NULL ? prop : "none"), (cmd != NULL ? cmd : "none"), err);
 }
 void DcxControl::showErrorEx(const char *prop, const char *cmd, const char *fmt, ...)
 {

@@ -1159,7 +1159,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 			int count = this->getColumnCount();
 
 			if (widths.numtok() < count) {
-				DCXError("/xdid -n", "Insufficient number of widths specified for +m flag");
 				this->showError(NULL, "-n", "Insufficient number of widths specified for +m flag");
 				return;
 			}
@@ -1363,13 +1362,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 			icon = dcxLoadIcon(index, filename, true, tflags);
 
 			if (icon == NULL) {
-				DCXError("/xdid -w", "Unable to load normal icon");
 				this->showError(NULL, "-w", "Unable to load normal icon");
 				return;
 			}
 
 			if ((himl = this->initImageList(LVSIL_NORMAL)) == NULL) {
-				DCXError("/xdid -w", "Unable to create normal image list");
 				this->showError(NULL, "-w", "Unable to create normal image list");
 				DestroyIcon(icon);
 				return;
@@ -1385,13 +1382,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 			icon = dcxLoadIcon(index, filename, false, tflags);
 
 			if (icon == NULL) {
-				DCXError("/xdid -w", "Unable to load small icon");
 				this->showError(NULL, "-w", "Unable to load small icon");
 				return;
 			}
 
 			if ((himl = this->initImageList(LVSIL_SMALL)) == NULL) {
-				DCXError("/xdid -w", "Unable to create small image list");
 				this->showError(NULL, "-w", "Unable to create small image list");
 				DestroyIcon(icon);
 				return;
@@ -1410,13 +1405,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 			icon = dcxLoadIcon(index, filename, false, tflags);
 
 			if (icon == NULL) {
-				DCXError("/xdid -w", "Unable to load state icon");
 				this->showError(NULL, "-w", "Unable to load state icon");
 				return;
 			}
 
 			if ((himl = this->initImageList(LVSIL_STATE)) == NULL) {
-				DCXError("/xdid -w", "Unable to create state image list");
 				this->showError(NULL, "-w", "Unable to create state image list");
 				DestroyIcon(icon);
 				return;
@@ -1449,7 +1442,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 				mode = LVS_LIST; break;
 
 			default:
-				DCXError("/xdid -W", "Unknown style");
+				this->showError(NULL, "-W", "Unknown style");
 				return;
 		}
 
@@ -1511,8 +1504,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 		lvi.iSubItem = input.gettok(5).to_int();
 		lvi.mask = LVIF_PARAM;
 
-		if ((lvi.iItem < 0) || (lvi.iSubItem < 0))
+		if ((lvi.iItem < 0) || (lvi.iSubItem < 0)) {
+			this->showErrorEx(NULL, "-T", "Invalid Item: %d Subitem: %d", lvi.iItem +1, lvi.iSubItem);
 			return;
+		}
 
 		if (ListView_GetItem(this->m_Hwnd, &lvi)) {
 			LPDCXLVITEM lpmylvi = (LPDCXLVITEM) lvi.lParam;
@@ -1528,6 +1523,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 				ListView_SetInfoTip(this->m_Hwnd,&it);
 			}
 		}
+		else
+			this->showErrorEx(NULL, "-T", "Unable To Get Item: %d Subitem: %d", lvi.iItem +1, lvi.iSubItem);
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [relative pixels]
 	else if (flags.switch_cap_flags[25] && numtok > 3) {
@@ -2065,9 +2062,10 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								//GetCursorPos( &lvh.pt );
 								//ScreenToClient( this->m_Hwnd, &lvh.pt );
 								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
+								DWORD lvexstyles = ListView_GetExtendedListViewStyle( this->m_Hwnd );
 
 								if ( ( lvh.flags & LVHT_ONITEMSTATEICON ) &&
-									( ListView_GetExtendedListViewStyle( this->m_Hwnd ) & LVS_EX_CHECKBOXES ) &&
+									( lvexstyles & LVS_EX_CHECKBOXES ) &&
 									!( lvh.flags & LVHT_ONITEMICON ) &&
 									!( lvh.flags & LVHT_ONITEMLABEL ) ) 
 								{
@@ -2078,6 +2076,8 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									this->callAliasEx( NULL, "%s,%d,%d,%d", "sclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
 								else if (lvh.flags & LVHT_NOWHERE)
 									this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+
+								if (!(lvexstyles & LVS_EX_FULLROWSELECT))
 								{ // make subitem show as selected. TEST CODE!!!!
 									LVITEM lvi = { 0 };
 									// deselect previous

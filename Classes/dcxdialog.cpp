@@ -105,6 +105,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 , m_pVistaBits(NULL)
 , m_hVistaBitmap(NULL)
 , m_hVistaHDC(NULL)
+, m_bVerboseErrors(true)
 //#ifdef DCX_USE_GDIPLUS
 //, m_pImage(NULL)
 //#endif
@@ -3057,9 +3058,8 @@ bool DcxDialog::SetShadowColor(COLORREF NewColor)
 // .... CWndShadow
 void DcxDialog::showError(const char *prop, const char *cmd, const char *err)
 {
-	if (this->getAliasName().len() > 0)
-		this->callAliasEx(NULL, "error,0,dialog,%s,%s,%s", (prop != NULL ? prop : "none"), (cmd != NULL ? cmd : "none"), err);
-	else {
+	if (this->IsVerbose())
+	{
 		TString res;
 		if (prop != NULL)
 			res.sprintf("D_IERROR xdialog(%s).%s: %s", this->getName().to_chr(), prop, err);
@@ -3067,6 +3067,9 @@ void DcxDialog::showError(const char *prop, const char *cmd, const char *err)
 			res.sprintf("D_CERROR xdialog %s %s: %s", cmd, this->getName().to_chr(), err);
 		mIRCError(res.to_chr());
 	}
+
+	if (this->getAliasName().len() > 0)
+		this->callAliasEx(NULL, "error,0,dialog,%s,%s,%s", (prop != NULL ? prop : "none"), (cmd != NULL ? cmd : "none"), err);
 }
 
 void DcxDialog::showErrorEx(const char *prop, const char *cmd, const char *fmt, ...)

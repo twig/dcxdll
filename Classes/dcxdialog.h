@@ -147,6 +147,9 @@ public:
 	void RegisterDragList(DcxList* list);
 	void UnregisterDragList(DcxList* list);
 
+	void SetVerbose(bool state) { this->m_bVerboseErrors = state; };
+	bool IsVerbose(void) const { return this->m_bVerboseErrors; };
+
 protected:
 
   TString m_tsName;       //!< Dialog Name
@@ -184,6 +187,7 @@ protected:
 	bool m_bGhosted;
 	DWORD m_dEventMask;
 	BOOL m_bTracking;
+	bool m_bVerboseErrors; //!< Should all errors be echo'd to status?
 	struct {
 		HWND hWin; //!< The shadow window.
 		BYTE Status; //!< The shadow windows status.

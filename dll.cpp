@@ -636,6 +636,14 @@ mIRC(Mark) {
 		return 3;
 	}
 	Dialogs.markDialog(mHwnd, d.gettok(1), d.gettok(2));
+	{
+		DcxDialog *pTmp = Dialogs.getDialogByHandle(mHwnd);
+		if (pTmp != NULL) {
+			pTmp->callAliasEx(res, "isverbose");
+			if (lstrcmp(res, "$false") == 0)
+				pTmp->SetVerbose(false);
+		}
+	}
 	ret("D_OK Mark: Dialog Marked");
 }
 
