@@ -728,7 +728,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		ListView_DeleteAllItems(this->m_Hwnd);
 	}
 
-	//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [COLOR] [BGCOLOR] [#OVERLAY] Item Text ...
+	//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 	if (flags.switch_flags[0] && numtok > 12) {
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
@@ -915,7 +915,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 			if (lvi.iItem == -1) {
 				this->showError(NULL,"-a", "Unable to add item");
-				//DCXError("/xdid -a","Unable to add item");
 				return;
 			}
 
@@ -923,7 +922,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
 
 			// overlay is 1-based index
-			if (overlay > 0)
+			if (overlay > 0 && overlay < 16)
 				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlay), LVIS_OVERLAYMASK);
 		}
 	}
@@ -1502,21 +1501,17 @@ void DcxListView::parseCommandRequest(TString &input) {
 		ListView_SortItemsEx(this->m_Hwnd, DcxListView::sortItemsEx, &lvsort);
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
-	// TODO: twig: Does this work? its currently undocumnented
+	// atm this only seems works for subitem 0. Mainly due to the callback LVN_GETINFOTIP only being sent for sub 0.
 	else if (flags.switch_cap_flags[19] && numtok > 4) {
 		input.trim();
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
 
 		lvi.iItem = input.gettok(4).to_int() -1;
-
-		if (lvi.iItem < 0)
-			return;
-
 		lvi.iSubItem = input.gettok(5).to_int();
 		lvi.mask = LVIF_PARAM;
 
-		if ((lvi.iItem > -1) && (lvi.iSubItem > -1))
+		if ((lvi.iItem < 0) || (lvi.iSubItem < 0))
 			return;
 
 		if (ListView_GetItem(this->m_Hwnd, &lvi)) {
