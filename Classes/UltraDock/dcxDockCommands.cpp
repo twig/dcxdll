@@ -32,7 +32,7 @@ BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam)
 	LPDCXDOCK dd = (LPDCXDOCK)GetProp(hwnd,"dcx_dock");
 	if (dd != NULL) {
 		RemoveProp(hwnd,"dcx_dock");
-		SetWindowLong(hwnd, GWL_WNDPROC, (LONG)dd->oldProc);
+		SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)dd->oldProc);
 		delete dd;
 	}
 	if (GetProp(hwnd,"dcx_docked"))
@@ -84,7 +84,7 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		case WM_DESTROY:
 			{
 				RemoveProp(mHwnd,"dcx_dock");
-				SetWindowLong(mHwnd, GWL_WNDPROC, (LONG)dd->oldProc);
+				SetWindowLongPtr(mHwnd, GWLP_WNDPROC, (LONG_PTR)dd->oldProc);
 				delete dd;
 				PostMessage(mHwnd, uMsg, 0, 0);
 				return 0L;
@@ -144,7 +144,7 @@ bool DockWindow(const HWND mWnd, const HWND temp, const char *find, TString & fl
 			LPDCXDOCK dd = new DCXDOCK;
 
 			if (SetProp(sWnd, "dcx_dock", dd)) {
-				dd->oldProc = (WNDPROC)SetWindowLong(sWnd, GWL_WNDPROC, (LONG) mIRCDockWinProc);
+				dd->oldProc = (WNDPROC)SetWindowLongPtr(sWnd, GWLP_WNDPROC, (LONG_PTR) mIRCDockWinProc);
 				dd->win = mWnd;
 				dd->type = find;
 			}
@@ -655,7 +655,7 @@ mIRC(_xdock)
 //	LPDCXDOCK dd = (LPDCXDOCK)GetProp(hwnd,"dcx_dock");
 //	if (dd != NULL) {
 //		RemoveProp(hwnd,"dcx_dock");
-//		SetWindowLong(hwnd, GWL_WNDPROC, (LONG)dd->oldProc);
+//		SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)dd->oldProc);
 //		delete dd;
 //	}
 //	if (GetProp(hwnd,"dcx_docked"))
@@ -704,7 +704,7 @@ mIRC(_xdock)
 //		case WM_DESTROY:
 //			{
 //				RemoveProp(mHwnd,"dcx_dock");
-//				SetWindowLong(mHwnd, GWL_WNDPROC, (LONG)dd->oldProc);
+//				SetWindowLongPtr(mHwnd, GWLP_WNDPROC, (LONG_PTR)dd->oldProc);
 //				delete dd;
 //				PostMessage(mHwnd, uMsg, 0, 0);
 //				return 0L;
@@ -764,7 +764,7 @@ mIRC(_xdock)
 //			LPDCXDOCK dd = new DCXDOCK;
 //
 //			if (SetProp(sWnd, "dcx_dock", dd)) {
-//				dd->oldProc = (WNDPROC)SetWindowLong(sWnd, GWL_WNDPROC, (LONG) mIRCDockWinProc);
+//				dd->oldProc = (WNDPROC)SetWindowLongPtr(sWnd, GWLP_WNDPROC, (LONG_PTR) mIRCDockWinProc);
 //				dd->win = mWnd;
 //				dd->type = find;
 //			}

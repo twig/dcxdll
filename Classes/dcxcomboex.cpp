@@ -59,7 +59,7 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 
 		SetWindowLong( this->m_EditHwnd, GWL_STYLE, GetWindowLong( this->m_EditHwnd, GWL_STYLE ) | ES_AUTOHSCROLL );
 
-		lpce->OldProc = (WNDPROC) SetWindowLong( this->m_EditHwnd, GWL_WNDPROC, (LONG) DcxComboEx::ComboExEditProc );
+		lpce->OldProc = (WNDPROC) SetWindowLongPtr( this->m_EditHwnd, GWLP_WNDPROC, (LONG_PTR) DcxComboEx::ComboExEditProc );
 		SetWindowLong( this->m_EditHwnd, GWL_USERDATA, (LONG) lpce );
 	}
 

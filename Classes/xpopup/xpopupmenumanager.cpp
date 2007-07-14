@@ -577,15 +577,15 @@ BOOL WINAPI XPopupMenuManager::XTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, 
 	//	menu.Detach();
 	//	// hook the window message queue
 	//	// so we can handle the WM_DRAWITEM/WM_MEASUREITEM messages
-	//	m_oldWndProc = (WNDPROC)SetWindowLong(hWnd, GWL_WNDPROC, (LONG)MenuWndProc);
+	//	m_oldWndProc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)MenuWndProc);
 	//	hooked = true;
 	//}
 	//BOOL ret = TrampolineTrackPopupMenu(hMenu, uFlags, x, y, nReserved, hWnd, prcRect);
 	//if (hooked)
 	//{
 	//	// restore the old wndProc
-	//	m_oldWndProc = (WNDPROC)SetWindowLong(hWnd, 
-	//	GWL_WNDPROC, (LONG)m_oldWndProc);
+	//	m_oldWndProc = (WNDPROC)SetWindowLongPtr(hWnd, 
+	//	GWLP_WNDPROC, (LONG_PTR)m_oldWndProc);
 	//	m_oldWndProc = NULL;
 	//}
 	//return ret;
@@ -604,14 +604,14 @@ BOOL WINAPI XPopupMenuManager::XTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int 
 	//	menu.Detach();
 	//	// hook the window message queue so we can handle
 	//	// the WM_DRAWITEM/WM_MEASUREITEM messages
-	//	m_oldWndProc = (WNDPROC)SetWindowLong(hwnd, GWL_WNDPROC, (LONG)MenuWndProc);
+	//	m_oldWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)MenuWndProc);
 	//	hooked = true;
 	//}
 	//BOOL ret = TrampolineTrackPopupMenuEx(hMenu, fuFlags, x, y, hwnd, lptpm);
 	//if (hooked)
 	//{
 	//	// restore the old wndProc
-	//	m_oldWndProc = (WNDPROC)SetWindowLong(hwnd, GWL_WNDPROC, (LONG)m_oldWndProc);
+	//	m_oldWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)m_oldWndProc);
 	//	m_oldWndProc = NULL;
 	//}
 	//return ret;

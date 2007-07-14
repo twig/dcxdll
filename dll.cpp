@@ -323,10 +323,11 @@ void WINAPI LoadDll(LOADINFO * load) {
 	*/
 
 	// Custom Panel
-	DCX_DEBUG("LoadDLL", "Registering Panel (#32770)...");
+	//DCX_DEBUG("LoadDLL", "Registering Panel (#32770)...");
 	//GetClassInfoEx(NULL, "#32770", &wc); // NB: using this class causes tooltips in toolbar children to not show
 	//wc.lpszClassName = DCX_PANELCLASS;		// Also causes listview/treeview label edit events to fail.
 	//RegisterClassEx(&wc);
+	DCX_DEBUG("LoadDLL", "Registering Panel...");
 	wc.cbSize         = sizeof(WNDCLASSEX);
 	wc.style          = 0;
 	wc.lpfnWndProc    = DefWindowProc;
@@ -342,10 +343,11 @@ void WINAPI LoadDll(LOADINFO * load) {
 	RegisterClassEx(&wc);
 
 	// Custom Box
-	DCX_DEBUG("LoadDLL", "Registering Box (#32770)...");
+	//DCX_DEBUG("LoadDLL", "Registering Box (#32770)...");
 	//GetClassInfoEx(NULL, "#32770", &wc); // NB: using this class causes tooltips in toolbar children to not show
 	//wc.lpszClassName = DCX_BOXCLASS;			// Also causes listview/treeview label edit events to fail.
 	//RegisterClassEx(&wc);
+	DCX_DEBUG("LoadDLL", "Registering Box...");
 	wc.cbSize         = sizeof(WNDCLASSEX);
 	wc.style          = 0;
 	wc.lpfnWndProc    = DefWindowProc;
@@ -424,7 +426,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	//	DestroyWindow(tmp_hwnd);
 	//}
 	DCX_DEBUG("LoadDLL", "Registering XPopup...");
-	g_OldmIRCWindowProc = (WNDPROC) SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) mIRCSubClassWinProc);
+	g_OldmIRCWindowProc = (WNDPROC) SetWindowLongPtr(mIRCLink.m_mIRCHWND, GWLP_WNDPROC, (LONG_PTR) mIRCSubClassWinProc);
 
 	WNDCLASS wcpop;
 	ZeroMemory(&wcpop, sizeof(WNDCLASS));
@@ -441,7 +443,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 
 	DCX_DEBUG("LoadDLL", "Initialising UltraDock...");
 	InitUltraDock();
-
+	//InitCustomDock();
 	// Initialise signals of diff types
 	dcxSignal.xdock = false;
 	dcxSignal.xstatusbar = true;
@@ -513,7 +515,7 @@ int WINAPI UnloadDll(int timeout) {
 		}
 
 		/***** XPopup Stuff *****/
-		SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) g_OldmIRCWindowProc);
+		SetWindowLongPtr(mIRCLink.m_mIRCHWND, GWLP_WNDPROC, (LONG_PTR) g_OldmIRCWindowProc);
 		//HWND tmp_hwnd = CreateWindowEx(0,"#32768",NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
 		//if (tmp_hwnd != NULL) {
 		//	SetClassLongPtr(tmp_hwnd,GCLP_WNDPROC,(LONG_PTR)g_OldmIRCMenusWindowProc);
@@ -1239,7 +1241,7 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_CLOSE:
 		{
-			SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG) g_OldmIRCWindowProc);
+			SetWindowLongPtr(mIRCLink.m_mIRCHWND, GWLP_WNDPROC, (LONG_PTR) g_OldmIRCWindowProc);
 			PostMessage(mHwnd, uMsg, 0, 0);
 			return 0L;
 			break;

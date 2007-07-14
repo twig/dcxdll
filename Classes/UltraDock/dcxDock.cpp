@@ -21,11 +21,11 @@ DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 	this->m_VectorDocks.clear();
 	if (IsWindow(this->m_RefHwnd)) {
 		SetProp(this->m_RefHwnd,"DcxDock",this);
-		this->m_OldRefWndProc = (WNDPROC)SetWindowLong(this->m_RefHwnd,GWL_WNDPROC,(LONG)DcxDock::mIRCRefWinProc);
+		this->m_OldRefWndProc = (WNDPROC)SetWindowLongPtr(this->m_RefHwnd,GWLP_WNDPROC,(LONG_PTR)DcxDock::mIRCRefWinProc);
 	}
 	if (IsWindow(this->m_hParent)) {
 		SetProp(this->m_hParent,"DcxDock",this);
-		this->m_OldDockWndProc = (WNDPROC)SetWindowLong(this->m_hParent,GWL_WNDPROC,(LONG)DcxDock::mIRCDockWinProc);
+		this->m_OldDockWndProc = (WNDPROC)SetWindowLongPtr(this->m_hParent,GWLP_WNDPROC,(LONG_PTR)DcxDock::mIRCDockWinProc);
 	}
 	//if (dockType == DOCK_TYPE_TREE)
 	//	AddStyles(this->m_RefHwnd,GWL_EXSTYLE,WS_EX_TRANSPARENT);
@@ -55,12 +55,12 @@ DcxDock::~DcxDock(void)
 	if (IsWindow(this->m_RefHwnd)) {
 		RemoveProp(this->m_RefHwnd,"DcxDock");
 		if (this->m_OldRefWndProc != NULL)
-			SetWindowLong(this->m_RefHwnd, GWL_WNDPROC, (LONG)this->m_OldRefWndProc);
+			SetWindowLongPtr(this->m_RefHwnd, GWLP_WNDPROC, (LONG_PTR)this->m_OldRefWndProc);
 	}
 	if (IsWindow(this->m_hParent)) {
 		RemoveProp(this->m_hParent,"DcxDock");
 		if (this->m_OldDockWndProc != NULL)
-			SetWindowLong(this->m_hParent, GWL_WNDPROC, (LONG)this->m_OldDockWndProc);
+			SetWindowLongPtr(this->m_hParent, GWLP_WNDPROC, (LONG_PTR)this->m_OldDockWndProc);
 	}
 	this->UpdateLayout();
 }

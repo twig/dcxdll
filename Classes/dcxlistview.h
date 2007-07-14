@@ -144,6 +144,8 @@ private:
 
 	HFONT m_hItemFont; // Font used for specific item changes.
 	HFONT m_hOldItemFont; // Font used for specific item changes.
+	int m_iSelectedItem;
+	int m_iSelectedSubItem;
 };
 
 #endif // _DCXLISTVIEW_H_

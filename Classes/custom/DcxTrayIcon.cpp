@@ -145,7 +145,7 @@ DcxTrayIcon::DcxTrayIcon(void)
 	this->m_hwnd = CreateWindow("#32770", "", NULL, 0, 0, 48, 48, NULL, NULL, GetModuleHandle(NULL), NULL);
 
 	if (this->m_hwnd)
-		this->m_wndProc = (WNDPROC) SetWindowLong(this->m_hwnd, GWL_WNDPROC, (LONG) DcxTrayIcon::TrayWndProc);
+		this->m_wndProc = (WNDPROC) SetWindowLongPtr(this->m_hwnd, GWLP_WNDPROC, (LONG_PTR) DcxTrayIcon::TrayWndProc);
 	else
 		DCXError("/xtray", "Problem initialising trayicons");
 
@@ -183,7 +183,7 @@ DcxTrayIcon::~DcxTrayIcon(void)
 			this->modifyIcon(ids.gettok( i ).to_int(), NIM_DELETE);
 		}
 
-		SetWindowLong(this->m_hwnd, GWL_WNDPROC, (LONG) this->m_wndProc);
+		SetWindowLongPtr(this->m_hwnd, GWLP_WNDPROC, (LONG_PTR) this->m_wndProc);
 		this->m_hwndTooltip = NULL;
 		this->m_wndProc = NULL;
 		DestroyWindow(this->m_hwnd);

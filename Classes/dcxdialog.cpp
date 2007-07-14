@@ -113,7 +113,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 
 	//this->addExStyle(WS_EX_TRANSPARENT); // WS_EX_TRANSPARENT|WS_EX_LAYERED gives a window u can click through to the win behind.
 
-	this->m_hOldWindowProc = (WNDPROC) SetWindowLong(this->m_Hwnd, GWL_WNDPROC, (LONG) DcxDialog::WindowProc);
+	this->m_hOldWindowProc = (WNDPROC) SetWindowLongPtr(this->m_Hwnd, GWLP_WNDPROC, (LONG_PTR) DcxDialog::WindowProc);
 
 	this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
 

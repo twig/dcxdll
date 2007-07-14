@@ -33,6 +33,8 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
 , m_hItemFont(NULL)
 , m_hOldItemFont(NULL)
 , m_OrigEditProc(NULL)
+, m_iSelectedItem(0)
+, m_iSelectedSubItem(0)
 {
 
 	LONG Styles = 0, ExStyles = 0;
@@ -726,7 +728,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		ListView_DeleteAllItems(this->m_Hwnd);
 	}
 
-	//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [COLOR] [BGCOLOR] Item Text ...
+	//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [COLOR] [BGCOLOR] [#OVERLAY] Item Text ...
 	if (flags.switch_flags[0] && numtok > 12) {
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
@@ -887,8 +889,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 			if (state > -1)
 				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
 
-			// overlay is 1-based index
-			if (overlay > 0)
+			// overlay is 1-based index, max 15 overlay icons
+			if (overlay > 0 && overlay < 16)
 				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlay), LVIS_OVERLAYMASK);
 
 			this->autoSize(0,input.gettok( 6 ));
@@ -1504,7 +1506,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
 
-		lvi.iItem = input.gettok( 4 ).to_int();
+		int nPos = input.gettok( 4 ).to_int() - 1;
+		if (nPos < 0)
+			nPos = ListView_GetItemCount(this->m_Hwnd);
+
+		lvi.iItem = nPos;
 		lvi.iSubItem = input.gettok( 5 ).to_int();
 		lvi.mask = LVIF_PARAM;
 
@@ -1512,7 +1518,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			LPDCXLVITEM lpmylvi = (LPDCXLVITEM) lvi.lParam;
 
 			if (lpmylvi != NULL) {
-				lpmylvi->tsTipText = (numtok > 3 ? input.gettok(6, -1) : "");
+				lpmylvi->tsTipText = (numtok > 5 ? input.gettok(6, -1) : "");
 				LVSETINFOTIP it;
 				ZeroMemory(&it, sizeof(it));
 				it.cbSize = sizeof(it);
@@ -2072,7 +2078,25 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									this->callAliasEx( NULL, "%s,%d,%d,%d", "sclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
 								else if (lvh.flags & LVHT_NOWHERE)
 									this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
-								//ListView_SetSelectedColumn(this->m_Hwnd, lvh.iSubItem);
+								{ // make subitem show as selected. TEST CODE!!!!
+									LVITEM lvi = { 0 };
+									// deselect previous
+									lvi.iItem = this->m_iSelectedItem;
+									lvi.iSubItem = this->m_iSelectedSubItem;
+									lvi.mask = LVIF_STATE;
+									lvi.state = 0;
+									lvi.stateMask = LVIS_SELECTED;
+									ListView_SetItem(this->m_Hwnd, &lvi);
+									// select new
+									this->m_iSelectedItem = lvh.iItem;
+									this->m_iSelectedSubItem = lvh.iSubItem;
+									lvi.iItem = lvh.iItem;
+									lvi.iSubItem = lvh.iSubItem;
+									lvi.mask = LVIF_STATE;
+									lvi.state = LVIS_SELECTED;
+									lvi.stateMask = LVIS_SELECTED;
+									ListView_SetItem(this->m_Hwnd, &lvi);
+								}
 							}
 						}
 						break;
@@ -2160,7 +2184,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 							HWND edit_hwnd = ListView_GetEditControl( this->m_Hwnd );
 
-							this->m_OrigEditProc = (WNDPROC) SetWindowLong( edit_hwnd, GWL_WNDPROC, (LONG) DcxListView::EditLabelProc );
+							this->m_OrigEditProc = (WNDPROC) SetWindowLongPtr( edit_hwnd, GWLP_WNDPROC, (LONG_PTR) DcxListView::EditLabelProc );
 							SetProp( edit_hwnd, "dcx_pthis", (HANDLE) this );
 
 							char ret[256];
@@ -2348,6 +2372,23 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									else if (!(pnmv->uNewState & LVIS_SELECTED) && (pnmv->uOldState & LVIS_SELECTED))
 										this->callAliasEx( NULL, "%s,%d,%d,%d", "deselected", this->getUserID( ), pnmv->iItem +1, pnmv->iSubItem );
 								}
+							}
+						}
+						break;
+					case LVN_GETINFOTIP:
+						{
+							LPNMLVGETINFOTIP pGetInfoTip = (LPNMLVGETINFOTIP)lParam;
+							LVITEM lvi = { 0 };
+							lvi.iItem = pGetInfoTip->iItem;
+							lvi.iSubItem = pGetInfoTip->iSubItem;
+							lvi.mask = LVIF_PARAM;
+							// Get item information.
+							if (ListView_GetItem(this->m_Hwnd, &lvi)) {
+								LPDCXLVITEM lpdcxlvi = (LPDCXLVITEM)lvi.lParam;
+								// return tooltip text, if any.
+								if (lpdcxlvi->tsTipText.len() > 0)
+									pGetInfoTip->pszText = lpdcxlvi->tsTipText.to_chr();
+								bParsed = TRUE;
 							}
 						}
 						break;
@@ -2609,7 +2650,7 @@ LRESULT CALLBACK DcxListView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wPara
 		case WM_DESTROY:
 			{
 				RemoveProp( mHwnd, "dcx_pthis" );
-				SetWindowLong( mHwnd, GWL_WNDPROC, (LONG) pthis->m_OrigEditProc );
+				SetWindowLongPtr( mHwnd, GWLP_WNDPROC, (LONG_PTR) pthis->m_OrigEditProc );
 			}
 			break;
 

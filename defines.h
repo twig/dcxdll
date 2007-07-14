@@ -459,6 +459,9 @@ void CloseUltraDock(void);
 int SwitchbarPos(const int type);
 void UpdatemIRC(void);
 
+// CustomDock
+//bool InitCustomDock(void);
+
 // DirectX
 HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );
 

@@ -777,7 +777,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
   }
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {
-		UINT iFlags = this->parseIconFlagOptions( input.gettok( 4 ) );
+		TString f(input.gettok( 4 ));
+		UINT iFlags = this->parseIconFlagOptions( f );
 
 		HIMAGELIST himl;
 		HICON icon = NULL;
@@ -786,9 +787,9 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		TString filename(input.gettok(6, -1));
 
 		if (this->m_iIconSize > 16)
-			icon = dcxLoadIcon(index, filename, TRUE, input.gettok( 4 ));
+			icon = dcxLoadIcon(index, filename, TRUE, f);
 		else	
-			icon = dcxLoadIcon(index, filename, FALSE, input.gettok( 4 ));
+			icon = dcxLoadIcon(index, filename, FALSE, f);
 
 		if (iFlags & TVIT_NORMAL) {
 			if ((himl = this->getImageList(TVSIL_NORMAL)) == NULL) {
@@ -800,7 +801,6 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
 			int i = ImageList_AddIcon(himl, icon);
 
-			TString f(input.gettok( 4 ));
 			if (f.find('o',0)) {
 				// overlay image
 				int io = f.find('o',1) +1;
@@ -1050,7 +1050,7 @@ HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, co
 
 	if (state > -1)
 		TreeView_SetItemState(this->m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
-	if (overlay > -1)
+	if (overlay > 0 && overlay < 16)
 		TreeView_SetItemState(this->m_Hwnd, hItem, INDEXTOOVERLAYMASK(overlay), TVIS_OVERLAYMASK);
 
 	return hItem;
@@ -1847,7 +1847,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
               HWND edit_hwnd = TreeView_GetEditControl( this->m_Hwnd );
 
-              this->m_OrigEditProc = (WNDPROC) SetWindowLong( edit_hwnd, GWL_WNDPROC, (LONG) DcxTreeView::EditLabelProc );
+              this->m_OrigEditProc = (WNDPROC) SetWindowLongPtr( edit_hwnd, GWLP_WNDPROC, (LONG_PTR) DcxTreeView::EditLabelProc );
               SetProp( edit_hwnd, "dcx_pthis", (HANDLE) this );
 
               char ret[256];
@@ -2049,7 +2049,7 @@ LRESULT CALLBACK DcxTreeView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wPara
     case WM_DESTROY:
       {
         RemoveProp( mHwnd, "dcx_pthis" );
-        SetWindowLong( mHwnd, GWL_WNDPROC, (LONG) pthis->m_OrigEditProc );
+        SetWindowLongPtr( mHwnd, GWLP_WNDPROC, (LONG_PTR) pthis->m_OrigEditProc );
       }
       break;
 

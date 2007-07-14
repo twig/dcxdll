@@ -207,7 +207,7 @@ int SwitchbarPos(const int type)
 //
 //	v_docks.clear();
 //	if (IsWindow(mIRCLink.m_hMDI))
-//		oldMDIProc = (WNDPROC)SetWindowLong(mIRCLink.m_hMDI,GWL_WNDPROC, (LONG)mIRCMDIProc);
+//		oldMDIProc = (WNDPROC)SetWindowLongPtr(mIRCLink.m_hMDI,GWLP_WNDPROC, (LONG_PTR)mIRCMDIProc);
 //
 //}
 ///*
@@ -234,7 +234,7 @@ int SwitchbarPos(const int type)
 //	v_docks.clear();
 //
 //	if (oldMDIProc != NULL)
-//		SetWindowLong(mIRCLink.m_hMDI, GWL_WNDPROC, (LONG)oldMDIProc);
+//		SetWindowLongPtr(mIRCLink.m_hMDI, GWLP_WNDPROC, (LONG_PTR)oldMDIProc);
 //
 //	if (IsWindow(mIRCLink.m_hTreeView) && mIRCLink.m_hTreeImages != NULL) {
 //		HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView,mIRCLink.m_hTreeImages,TVSIL_NORMAL);
@@ -490,7 +490,7 @@ int SwitchbarPos(const int type)
 //			break;
 //		case WM_DESTROY:
 //		{
-//			SetWindowLong(mIRCLink.m_mIRCHWND, GWL_WNDPROC, (LONG)oldMDIProc);
+//			SetWindowLongPtr(mIRCLink.m_mIRCHWND, GWLP_WNDPROC, (LONG_PTR)oldMDIProc);
 //			PostMessage(mHwnd, uMsg, 0, 0);
 //			return 0L;
 //			break;

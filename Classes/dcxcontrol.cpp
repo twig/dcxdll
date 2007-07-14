@@ -908,7 +908,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
  */
 
 void DcxControl::registreDefaultWindowProc( ) {
-  this->m_DefaultWindowProc = (WNDPROC) SetWindowLong( this->m_Hwnd, GWL_WNDPROC, (LONG) DcxControl::WindowProc );
+  this->m_DefaultWindowProc = (WNDPROC) SetWindowLongPtr( this->m_Hwnd, GWLP_WNDPROC, (LONG_PTR) DcxControl::WindowProc );
 }
 
 /*!
@@ -919,7 +919,7 @@ void DcxControl::registreDefaultWindowProc( ) {
 
 void DcxControl::unregistreDefaultWindowProc( ) {
 	if (this->m_DefaultWindowProc != NULL) // implies this has alrdy been called.
-		SetWindowLong( this->m_Hwnd, GWL_WNDPROC, (LONG) this->m_DefaultWindowProc );
+		SetWindowLongPtr( this->m_Hwnd, GWLP_WNDPROC, (LONG_PTR) this->m_DefaultWindowProc );
   this->m_DefaultWindowProc = NULL;
 }
 
@@ -940,6 +940,13 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 		ValidateRect(mHwnd, NULL);
 		RECT rcUpdate;
 		GetWindowRect(mHwnd, &rcUpdate);
+		//RECT rcParent;
+		//GetClientRect(GetParent(mHwnd), &rcParent);
+		//MapWindowRect(GetParent(mHwnd), NULL, &rcParent);
+		//rcUpdate.left = max(rcUpdate.left, rcParent.left);
+		//rcUpdate.top = max(rcUpdate.top, rcParent.top);
+		//rcUpdate.right = min(rcUpdate.right, rcParent.right);
+		//rcUpdate.bottom = min(rcUpdate.bottom, rcParent.bottom);
 		pthis->m_pParentDialog->UpdateVistaStyle(&rcUpdate);
 		return 0L;
 	}
