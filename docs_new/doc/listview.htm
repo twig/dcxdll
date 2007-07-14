@@ -789,7 +789,7 @@
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>For readability and ease of indexing, it is suggested you declare your overlay icons AFTER the normal icons.</li><li>There is a limit of 4 overlay icons you may use, indexes from <a class="value">1</a> to <a class="value">4</a>.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>For readability and ease of indexing, it is suggested you declare your overlay icons AFTER the normal icons.</li><li>There is a limit of 15 overlay icons you may use, indexes from <a class="value">1</a> to <a class="value">15</a>.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -885,6 +885,20 @@
 		<td><div class="example">/xdid -B dcx 4 3</div></td>
 	</tr>
 </table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.T"></a>/xdid -T	</td></tr>
+	<tr><td colspan="2">This command lets you set a tooltip for a specific item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -T [DNAME] [ID] [N] [NSUB] (TOOLTIP)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -T dcx 4 2 1 This tooltip applies to Item 2</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This currently only works for the first column.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -1614,6 +1628,7 @@
 		<a href="#xdid.y"><div>-y</div></a>
 		<a href="#xdid.z"><div>-z</div></a>
 		<a href="#xdid.B"><div>-B</div></a>
+		<a href="#xdid.T"><div>-T</div></a>
 		<a href="#xdid.V"><div>-V</div></a>
 		<a href="#xdid.W"><div>-W</div></a>
 		<a href="#xdid.Z"><div>-Z</div></a>
@@ -1666,7 +1681,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 14th July, 07</td>
+		<td style="text-align: right;">Last Updated: 15th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
