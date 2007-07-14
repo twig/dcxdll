@@ -1193,6 +1193,43 @@ void DcxListView::parseCommandRequest(TString &input) {
 			}
 		}
 	}
+	// xdid -o [NAME] [ID] [SWITCH] [ORDER ...]
+	else if (flags.switch_flags[14] && numtok > 3) {
+		TString ids(input.gettok(4, -1));
+		int count = this->getColumnCount();
+		int *indexes;
+
+		ids.trim();
+
+		// Basic check first
+		if (ids.numtok() != count)
+		{
+			this->showError(NULL, "-o", "Incorrect number of indexes.");
+			return;
+		}
+
+		indexes = new int[count];
+
+		for (int i = 0; i < count; i++)
+		{
+
+			int tmp = ids.gettok(i +1).to_int();
+
+			if ((tmp == 0) || // invalid character
+				(tmp < 0) ||  // negative
+				(tmp > count)) // out of array bounds
+			{
+				this->showErrorEx(NULL, "-o", "Invalid index %d.", tmp);
+				delete indexes;
+				return;
+			}
+
+			indexes[i] = tmp -1;
+		}
+
+		ListView_SetColumnOrderArray(this->m_Hwnd, count, indexes);
+		delete indexes;
+	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text]
 	else if (flags.switch_flags[16] && numtok > 6) {
 		int index = (int)input.gettok( 4 ).to_num() -1;
