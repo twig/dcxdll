@@ -234,6 +234,47 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		return;
 	}
+	// [NAME] [ID] [PROP] (N)
+	else if (prop == "columnorder") {
+		if ((!this->isListViewStyle(LVS_REPORT)) || (this->isStyle(LVS_NOCOLUMNHEADER))) {
+			return;
+		}
+
+		// if its a report listview and it has headers
+		int count = this->getColumnCount();
+		int *val = new int[count];
+		int col = (numtok > 3 ? input.gettok(3).to_int() -1 : -1);
+
+		// invalid column
+		if ((col < -1) || (col >= count)) {
+			delete val;
+			return;
+		}
+
+		ListView_GetColumnOrderArray(this->m_Hwnd, count, val);
+
+		// increase each value by 1 for easy user indexing
+		for (int i = 0; i < count; i++)
+			val[i]++;
+
+		// get specific column
+		if (col > -1) {
+			wsprintf(szReturnValue, "%s", val[col]);
+			delete val;
+			return;
+		}
+
+		// collect all values
+		TString buff;
+
+		for (int i = 0; i < count; i++)
+			buff.sprintf("%s %d", buff.to_chr(), val[i]);
+
+		buff.trim();
+		wsprintf(szReturnValue, "%s", buff.to_chr());
+		delete val;
+		return;
+	}
 	// [NAME] [ID] [PROP] [N] [NSUB]
 	else if ( prop == "text" && numtok > 4 ) {
 
@@ -501,14 +542,28 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		return;
 	}
-	// [NAME] [ID] [PROP] [N]
-	else if ( prop == "hwidth" && numtok > 3 ) {
+	// [NAME] [ID] [PROP] (N)
+	else if (prop == "hwidth") {
+		int nColumn = -1;
 
-		int nColumn = input.gettok( 4 ).to_int( ) - 1;
+		if (numtok > 3)
+			nColumn = input.gettok(4).to_int() - 1;
 
-		if ( nColumn > -1 && nColumn < this->getColumnCount( ) ) {
+		// return all columns
+		if (nColumn == -1) {
+			TString buff;
+			int count = this->getColumnCount();
 
-			wsprintf( szReturnValue, "%d", ListView_GetColumnWidth( this->m_Hwnd, nColumn ) );
+			for (int i = 0; i < count; i++) {
+				buff.sprintf("%s %d", buff.to_chr(), ListView_GetColumnWidth(this->m_Hwnd, i));
+			}
+
+			buff.trim();
+			wsprintf(szReturnValue, "%s", buff.to_chr());
+			return;
+		}
+		else if (nColumn > -1 && nColumn < this->getColumnCount()) {
+			wsprintf(szReturnValue, "%d", ListView_GetColumnWidth(this->m_Hwnd, nColumn));
 			return;
 		}
 	}

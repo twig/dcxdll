@@ -961,6 +961,20 @@
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.columnorder"></a>$xdid().columnorder	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the order of the Nth listview column.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, (N)).columnorder</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 2).columnorder</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When <a class="param">N</a> is not specified, the order of all columns are returned.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.columns"></a>$xdid().columns	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the number of columns for the listview.</td></tr>
 	<tr>
@@ -1046,7 +1060,7 @@
 	<tr><td colspan="2">This property lets you retreive the Nth listview header text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdid(dialog, ID, N).htext</div></td>
+		<td><div class="syntax">$xdid(dialog, ID, [N]).htext</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -1060,13 +1074,13 @@
 	<tr><td colspan="2">This property lets you retreive the Nth listview header width.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdid(dialog, ID, N).hwidth</div></td>
+		<td><div class="syntax">$xdid(dialog, ID, (N)).hwidth</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 2).hwidth</div></td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> When <a class="param">N</a> is not specified, all column widths are returned in their viewing order.</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -1602,6 +1616,7 @@
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a href="#xdidprop"><div class='header' style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a href="#xdidprop.columnorder"><div>columnorder</div></a>
 		<a href="#xdidprop.columns"><div>columns</div></a>
 		<a href="#xdidprop.find"><div>find</div></a>
 		<a href="#xdidprop.genabled"><div>genabled</div></a>
@@ -1647,7 +1662,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 13th July, 07</td>
+		<td style="text-align: right;">Last Updated: 14th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
