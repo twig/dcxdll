@@ -2114,26 +2114,28 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								else if (lvh.flags & LVHT_NOWHERE)
 									this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
 
-								if (!(lvexstyles & LVS_EX_FULLROWSELECT))
-								{ // make subitem show as selected. TEST CODE!!!!
-									LVITEM lvi = { 0 };
-									// deselect previous
-									lvi.iItem = this->m_iSelectedItem;
-									lvi.iSubItem = this->m_iSelectedSubItem;
-									lvi.mask = LVIF_STATE;
-									lvi.state = 0;
-									lvi.stateMask = LVIS_SELECTED;
-									ListView_SetItem(this->m_Hwnd, &lvi);
-									// select new
-									this->m_iSelectedItem = lvh.iItem;
-									this->m_iSelectedSubItem = lvh.iSubItem;
-									lvi.iItem = lvh.iItem;
-									lvi.iSubItem = lvh.iSubItem;
-									lvi.mask = LVIF_STATE;
-									lvi.state = LVIS_SELECTED;
-									lvi.stateMask = LVIS_SELECTED;
-									ListView_SetItem(this->m_Hwnd, &lvi);
-								}
+#ifdef NDEBUG
+								//if (!(lvexstyles & LVS_EX_FULLROWSELECT))
+								//{ // make subitem show as selected. TEST CODE!!!!
+								//	LVITEM lvi = { 0 };
+								//	// deselect previous
+								//	lvi.iItem = this->m_iSelectedItem;
+								//	lvi.iSubItem = this->m_iSelectedSubItem;
+								//	lvi.mask = LVIF_STATE;
+								//	lvi.state = 0;
+								//	lvi.stateMask = LVIS_SELECTED;
+								//	ListView_SetItem(this->m_Hwnd, &lvi);
+								//	// select new
+								//	this->m_iSelectedItem = lvh.iItem;
+								//	this->m_iSelectedSubItem = lvh.iSubItem;
+								//	lvi.iItem = lvh.iItem;
+								//	lvi.iSubItem = lvh.iSubItem;
+								//	lvi.mask = LVIF_STATE;
+								//	lvi.state = LVIS_SELECTED;
+								//	lvi.stateMask = LVIS_SELECTED;
+								//	ListView_SetItem(this->m_Hwnd, &lvi);
+								//}
+#endif
 							}
 						}
 						break;

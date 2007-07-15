@@ -366,28 +366,30 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					if (hdr->hwndFrom != DcxDock::g_StatusBar)
 						break;
 
+					int idPart = ((LPNMMOUSE)hdr)->dwItemSpec +1;
+
 					switch( hdr->code ) {
 						case NM_CLICK:
 							{
-								mIRCSignalDCX(dcxSignal.xstatusbar, "sclick DCXStatusbar %d %d", hdr->hwndFrom, ((LPNMMOUSE)hdr)->dwItemSpec);
+								mIRCSignalDCX(dcxSignal.xstatusbar, "DCXStatusbar sclick %d %d", hdr->hwndFrom, idPart);
 								return TRUE;
 							}
 							break;
 						case NM_DBLCLK:
 							{
-								mIRCSignalDCX(dcxSignal.xstatusbar, "dclick DCXStatusbar %d %d", hdr->hwndFrom, ((LPNMMOUSE)hdr)->dwItemSpec);
+								mIRCSignalDCX(dcxSignal.xstatusbar, "DCXStatusbar dclick %d %d", hdr->hwndFrom, idPart);
 								return TRUE;
 							}
 							break;
 						case NM_RCLICK:
 							{
-								mIRCSignalDCX(dcxSignal.xstatusbar, "rclick DCXStatusbar %d %d", hdr->hwndFrom, ((LPNMMOUSE)hdr)->dwItemSpec);
+								mIRCSignalDCX(dcxSignal.xstatusbar, "DCXStatusbar rclick %d %d", hdr->hwndFrom, idPart);
 								return TRUE;
 							}
 							break;
 						case NM_RDBLCLK:
 							{
-								mIRCSignalDCX(dcxSignal.xstatusbar, "rdclick DCXStatusbar %d %d", hdr->hwndFrom, ((LPNMMOUSE)hdr)->dwItemSpec);
+								mIRCSignalDCX(dcxSignal.xstatusbar, "DCXStatusbar rdclick %d %d", hdr->hwndFrom, idPart);
 								return TRUE;
 							}
 							break;

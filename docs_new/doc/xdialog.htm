@@ -1516,7 +1516,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx changing 0 1 50 30 300 150</div></td>
+		<td><div class="example">/cb_alias dcx changing 0 size 50 30 300 150</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1524,19 +1524,23 @@
 		<td>Type of changing event.</td>
 	</tr>
 	<tr>
-		<td class="value">1</td>
+		<td class="value">moving</td>
 		<td>Position is changing. <a class="param">W</a> and <a class="param">H</a> can be ignored as they are not changing.</td>
 	</tr>
 	<tr>
-		<td class="value">2</td>
+		<td class="value">sizing</td>
 		<td>Size is changing. <a class="param">X</a> and <a class="param">Y</a> can be ignored as they are not changing.</td>
+	</tr>
+	<tr>
+		<td class="value">both</td>
+		<td>Both position and size is changing.</td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">nosize</a> Return this value to block the window from resizing.<br /><a class="returnevent">nomove</a> Return this value to block the window from moving.<br /><a class="returnevent">nochange</a> Return this value to block the window from moving and resizing.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.close"></a>close	</td></tr>
-	<tr><td colspan="2">When the X button is clicked on a dialog.</td></tr>
+	<tr><td colspan="2">When the dialog is closed or by pressing escape.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME close ID </div></td>
@@ -1545,7 +1549,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx close 0</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">noclose</a> Return this value to block the window closing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You will have to use /xdialog -x to close the dialog instead of mIRC's /dialog -x if you return <a class="returnevent">noclose</a> on this event.</li><li>Calling the /xdialog -x command will still trigger the <a class="event">close</a> event.</li><li>There are two close messages sent. One from clicking the X in the top right corner of the dialog, and the other when the dialog is actually closed.</li></ul></td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">noclose</a> Return this value to block the window closing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You will have to use /xdialog -x to close the dialog instead of mIRC's /dialog -x if you return <a class="returnevent">noclose</a> on this event.</li><li>Should only be used with non-modal dialogs (modal dialogs are created using $dialog). If you are using a modal dialog, refer to <a class="event">scclose</a>. Returning <a class="returnevent">noclose</a> here will cause the modal dialog to be unclosable.</li></ul></td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -1705,6 +1709,20 @@
 		<td><div class="example">/cb_alias dcx focusout 0</div></td>
 	</tr>
 </table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.isverbose"></a>isverbose	</td></tr>
+	<tr><td colspan="2">Sent when the dialog is marked. This allows the user to enable or disable verbose error messages within their script. By default, the return value is <a class="value">$true</a>.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME isverbose ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx isverbose 0</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">$false</a> to disable error messages in the status window.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -1997,6 +2015,20 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.scclose"></a>scclose	</td></tr>
+	<tr><td colspan="2">Only triggered when the dialog is closed using the X button or the system menu.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME scclose ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx scclose 0</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">noclose</a> Return this value to block the window closing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>This is provided as a way to stop the user from closing a modal dialog. Pressing escape will still close the dialog.</li><li>The normal mIRC command /dialog -x will still work.</li></ul></td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.sclick"></a>sclick	</td></tr>
 	<tr><td colspan="2">When the left mouse button is clicked.</td></tr>
 	<tr>
@@ -2123,6 +2155,7 @@
 		<a href="#events.endsize"><div>endsize</div></a>
 		<a href="#events.focus"><div>focus</div></a>
 		<a href="#events.focusout"><div>focusout</div></a>
+		<a href="#events.isverbose"><div>isverbose</div></a>
 		<a href="#events.lbdblclk"><div>lbdblclk</div></a>
 		<a href="#events.lbdown"><div>lbdown</div></a>
 		<a href="#events.lbup"><div>lbup</div></a>
@@ -2141,6 +2174,7 @@
 		<a href="#events.rbup"><div>rbup</div></a>
 		<a href="#events.rclick"><div>rclick</div></a>
 		<a href="#events.restore"><div>restore</div></a>
+		<a href="#events.scclose"><div>scclose</div></a>
 		<a href="#events.sclick"><div>sclick</div></a>
 		<a href="#events.sizing"><div>sizing</div></a>
 		<a href="#events.themechanged"><div>themechanged</div></a>
@@ -2154,7 +2188,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 12th July, 07</td>
+		<td style="text-align: right;">Last Updated: 15th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

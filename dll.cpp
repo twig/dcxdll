@@ -639,7 +639,8 @@ mIRC(Mark) {
 	{
 		DcxDialog *pTmp = Dialogs.getDialogByHandle(mHwnd);
 		if (pTmp != NULL) {
-			pTmp->callAliasEx(res, "isverbose");
+			pTmp->callAliasEx(res, "isverbose 0");
+
 			if (lstrcmp(res, "$false") == 0)
 				pTmp->SetVerbose(false);
 		}

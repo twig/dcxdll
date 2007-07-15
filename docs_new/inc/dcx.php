@@ -368,17 +368,30 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			),
 		),
 		"xSignal" => array(
-			'__desc' => 'This command enables or disables signals whenever a window (or docked window) is resized.',
-			'__cmd' => '[BOOL]',
-			'__eg' => "1",
+			'__desc' => 'This command enables or disables signals from DCX whenever docked windows/dialogs/mIRC windows are resized, or when XStatusBar/XTray icons are clicked.',
+			'__cmd' => '[BOOL] (+FLAGS)',
+			'__eg' => array(
+                                '1',
+                                '0 +st',
+                        ),
 			'__params' => array(
-				'BOOL' => 'Either [v]0[/v] or [v]1[/v], stating on or off.',
+				'BOOL' => 'Either [v]0[/v] or [v]1[/v], stating on or off respectively.',
+				'+FLAGS' => array(
+					'__desc' => 'Flags to finegrain the xSignal settings.',
+					'__values' => array(
+						'd' => 'Enable or disable XDock signals.',
+						's' => 'Enable or disable XStatusBar signals.',
+						't' => 'Enable or disable XTray signals.',
+					),
+				),
+                                
 			),
 			'__notes' => array(
+                                'If [p]+FLAGS[/p] is not specified, the setting specified in [p]BOOL[/p] is set on all signal types.',
 				'This must be enabled in order to receive sizing events upon non-DCX windows resizing (used with [f]/xdock[/f], where you cannot [f]/dcx Mark[/f] @windows or #channels).',
 				"Regular [f]/dcx Mark[/f]'d dialogs will still receive events in the callback aliases.",
 				'A signal will only be sent for a window being resized if it is the main mIRC window, docked, or contains a docked window.',
-				'Refer to XDock Signals documentation for more information.',
+				'Refer to the section [f]XDock/XStatusBar/XTray Signals[/f] documentation for more information on feature specific messages.',
 			),
 		),
 		'WindowProps' => array(

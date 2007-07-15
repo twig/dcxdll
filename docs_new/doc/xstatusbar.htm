@@ -156,6 +156,58 @@
 	</tr>
 </table>
 <br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #74C043"><a name="events"></a><div style='color: #74C043;font-size:14pt;'>XStatusbar Signals</div></td></tr>
+	<tr><td><table class="event">
+	<tr><td colspan="2">XStatusBar signals are enabled by default and sent to mIRC containing information about mouse activity over the XStatusBar. To enable or disable signal messages for XStatusBar, refer to <a class="value"><a href="dcx.htm#general.xSignal">/dcx xSignal</a></a></td></tr>
+	<tr>
+		<td class="syntax">Signal:</td>
+		<td><div class="syntax">DCXStatusbar EVENT HWND PART</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">DCXStatusbar sclick 133826 3</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">xstatusbar</td>
+		<td>The event signal identifier.</td>
+	</tr>
+	<tr>
+		<td class="param">DCXStatusbar</td>
+		<td>This is to let the user know which event was triggered.</td>
+	</tr>
+	<tr>
+		<td class="param">EVENT</td>
+		<td>Information about event occurred.</td>
+	</tr>
+	<tr>
+		<td class="value">dclick</td>
+		<td>A part of the statusbar was double clicked.</td>
+	</tr>
+	<tr>
+		<td class="value">rdclick</td>
+		<td>A part of the statusbar was double right-clicked.</td>
+	</tr>
+	<tr>
+		<td class="value">sclick</td>
+		<td>A part of the statusbar was single left-clicked.</td>
+	</tr>
+	<tr>
+		<td class="value">rclick</td>
+		<td>A part of the statusbar was single right-clicked.</td>
+	</tr>
+	<tr>
+		<td class="param">HWND</td>
+		<td>The hwnd of the XStatusBar.</td>
+	</tr>
+	<tr>
+		<td class="param">PART</td>
+		<td>The ID of the part which the event occurred on.</td>
+	</tr>
+</table>
+</td></tr>
+</table>
 </td><td width="85%" valign="top" class="menuright">
 	<br />
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
@@ -177,7 +229,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 12th July, 07</td>
+		<td style="text-align: right;">Last Updated: 15th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

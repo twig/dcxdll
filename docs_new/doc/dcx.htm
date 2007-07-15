@@ -905,21 +905,37 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
 			<a name="general.xSignal"></a>/dcx xSignal	</td></tr>
-	<tr><td colspan="2">This command enables or disables signals whenever a window (or docked window) is resized.</td></tr>
+	<tr><td colspan="2">This command enables or disables signals from DCX whenever docked windows/dialogs/mIRC windows are resized, or when XStatusBar/XTray icons are clicked.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/dcx xSignal [BOOL]</div></td>
+		<td><div class="syntax">/dcx xSignal [BOOL] (+FLAGS)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/dcx xSignal 1</div></td>
+		<td><div class="example">/dcx xSignal 1<br />/dcx xSignal 0 +st<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">BOOL</td>
-		<td>Either <a class="value">0</a> or <a class="value">1</a>, stating on or off.</td>
+		<td>Either <a class="value">0</a> or <a class="value">1</a>, stating on or off respectively.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>This must be enabled in order to receive sizing events upon non-DCX windows resizing (used with <a class="value">/xdock</a>, where you cannot <a class="value">/dcx Mark</a> @windows or #channels).</li><li>Regular <a class="value">/dcx Mark</a>'d dialogs will still receive events in the callback aliases.</li><li>A signal will only be sent for a window being resized if it is the main mIRC window, docked, or contains a docked window.</li><li>Refer to XDock Signals documentation for more information.</li></ul></td></tr></table>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags to finegrain the xSignal settings.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Enable or disable XDock signals.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Enable or disable XStatusBar signals.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Enable or disable XTray signals.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">+FLAGS</a> is not specified, the setting specified in <a class="param">BOOL</a> is set on all signal types.</li><li>This must be enabled in order to receive sizing events upon non-DCX windows resizing (used with <a class="value">/xdock</a>, where you cannot <a class="value">/dcx Mark</a> @windows or #channels).</li><li>Regular <a class="value">/dcx Mark</a>'d dialogs will still receive events in the callback aliases.</li><li>A signal will only be sent for a window being resized if it is the main mIRC window, docked, or contains a docked window.</li><li>Refer to the section <a class="value">XDock/XStatusBar/XTray Signals</a> documentation for more information on feature specific messages.</li></ul></td></tr></table>
 <br />
 </td><td width="85%" valign="top" class="menuright">
 	<br />
@@ -951,7 +967,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 12th July, 07</td>
+		<td style="text-align: right;">Last Updated: 15th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
