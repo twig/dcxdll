@@ -277,10 +277,13 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 		delete val;
 		return;
 	}
-	// [NAME] [ID] [PROP] [N] [NSUB]
-	else if ( prop == "text" && numtok > 4 ) {
-		int nItem = input.gettok( 4 ).to_int( ) - 1;
-		int nSubItem = input.gettok(5).to_int() -1;
+	// [NAME] [ID] [PROP] [N] (NSUB)
+	else if (prop == "text" && numtok > 3) {
+		int nItem = input.gettok(4).to_int() - 1;
+		int nSubItem = 0;
+		
+		if (numtok > 4)
+			nSubItem = input.gettok(5).to_int() -1;
 
 		if ((nItem > -1) && (nSubItem > -1) && (nItem < ListView_GetItemCount(this->m_Hwnd))) {
 			ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, szReturnValue, 900 );
@@ -2107,10 +2110,10 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									!( lvh.flags & LVHT_ONITEMLABEL ) ) 
 								{
 									//TODO: int state = ListView_GetCheckState(this->m_Hwnd, lvh.iItem);
-									this->callAliasEx( NULL, "%s,%d,%d,%d", "stateclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "stateclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem +1);
 								}
 								else if ( lvh.flags & LVHT_ONITEM )
-									this->callAliasEx( NULL, "%s,%d,%d,%d", "sclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "sclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem +1);
 								else if (lvh.flags & LVHT_NOWHERE)
 									this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
 
@@ -2153,7 +2156,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
 								if ( lvh.flags & LVHT_ONITEM )
-									this->callAliasEx( NULL, "%s,%d,%d,%d", "dclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "dclick", this->getUserID( ), lvh.iItem +1, lvh.iSubItem +1);
 								else
 									this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID());
 							}
@@ -2171,7 +2174,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
 								if ( lvh.flags & LVHT_ONITEM )
-									this->callAliasEx( NULL, "%s,%d,%d,%d", "rclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "rclick", this->getUserID( ), lvh.iItem +1, lvh.iSubItem +1);
 								else
 									this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
 							}
@@ -2188,7 +2191,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
 								if ( lvh.flags & LVHT_ONITEM )
-									this->callAliasEx( NULL, "%s,%d,%d,%d", "rdclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "rdclick", this->getUserID( ), lvh.iItem +1, lvh.iSubItem +1);
 								else
 									this->callAliasEx( NULL, "%s,%d", "rdclick", this->getUserID());
 							}
@@ -2205,7 +2208,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
 								if ( lvh.flags & LVHT_ONITEM )
-									this->callAliasEx( NULL, "%s,%d,%d,%d", "hover", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem );
+									this->callAliasEx( NULL, "%s,%d,%d,%d", "hover", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem +1);
 								else
 									this->callAliasEx( NULL, "%s,%d", "hover", this->getUserID());
 							}
@@ -2227,7 +2230,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							SetProp( edit_hwnd, "dcx_pthis", (HANDLE) this );
 
 							char ret[256];
-							this->callAliasEx( ret, "%s,%d", "labelbegin", this->getUserID( ) );
+							this->callAliasEx(ret, "%s,%d,%d,%d", "labelbegin", this->getUserID(), lplvdi->item.iItem +1, lplvdi->item.iSubItem +1);
 
 							if ( !lstrcmp( "noedit", ret ) )
 								return TRUE;
@@ -2370,7 +2373,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						}
 						break;
 
-
+					// TODO: twig: erm? unfinished? its undocumented
 					case LVN_BEGINDRAG:
 						{
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG)
@@ -2407,9 +2410,9 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 								if (pnmv->uChanged & LVIF_STATE) {
 									if ((pnmv->uNewState & LVIS_SELECTED) && !(pnmv->uOldState & LVIS_SELECTED))
-										this->callAliasEx( NULL, "%s,%d,%d,%d", "selected", this->getUserID( ), pnmv->iItem +1, pnmv->iSubItem );
+										this->callAliasEx( NULL, "%s,%d,%d,%d", "selected", this->getUserID( ), pnmv->iItem +1, pnmv->iSubItem +1);
 									else if (!(pnmv->uNewState & LVIS_SELECTED) && (pnmv->uOldState & LVIS_SELECTED))
-										this->callAliasEx( NULL, "%s,%d,%d,%d", "deselected", this->getUserID( ), pnmv->iItem +1, pnmv->iSubItem );
+										this->callAliasEx( NULL, "%s,%d,%d,%d", "deselected", this->getUserID( ), pnmv->iItem +1, pnmv->iSubItem +1);
 								}
 							}
 						}

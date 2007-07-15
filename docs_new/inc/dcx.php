@@ -307,7 +307,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		'PickIcon' => array(
 			'__desc' => "Displays an icon select dialog. [o]XP+[/o]",
 			'__cmd' => '[INDEX] [FILENAME]',
-			'__eg' => '2 mirc.exe',
+			'__eg' => '2 $mircdir $+ mirc.exe',
 			'__isid' => true,
 			'__params' => array(
 					'INDEX' => "Default index to select.",

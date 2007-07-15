@@ -170,11 +170,10 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[2] && numtok > 3) {
-		int nItem = (int)input.gettok( 4 ).to_num() -1;
+		int nItem = input.gettok(4).to_int() -1;
 
-		if (nItem > -1 && nItem < this->getCount()) {
+		if ((nItem > -2) && (nItem < this->getCount()))
 			this->setCurSel(nItem);
-		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[3] && numtok > 3) {

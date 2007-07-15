@@ -202,7 +202,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -a dcx 4 1 0 +cbku 1 0 0 0 -1 $rgb(170,213,255) text $chr(9) + 0 -1 $rgb(10,210,250) text2 $chr(9) + 0 -1 $rgb(120,255,210) text3</div></td>
+		<td><div class="example">/xdid -a dcx 4 1 0 +cbku 1 0 0 0 -1 $rgb(170,213,255) text $chr(9) + 0 -1 -1 $rgb(10,210,250) text2 $chr(9) + 0 -1 -1 $rgb(120,255,210) text3</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -431,7 +431,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -j dcx 4 2 5 +bt</div></td>
+		<td><div class="example">/xdid -j dcx 4 2 5 +bt<br />/xdid -j dcx 4 7 1 +u $rgb(255, 0, 0) $rgb(0, 255, 0)<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1166,7 +1166,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 3, 0, value).pbar</div></td>
+		<td><div class="example">$xdid(dcx, 4, 3, 1, value).pbar</div></td>
 	</tr>
 </table>
 <br />
@@ -1213,7 +1213,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 0).seltext</div></td>
+		<td><div class="example">$xdid(dcx, 4, 3).seltext</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">NSUB</a> is not specified, it will return the first column.</td></tr></table>
 <br />
@@ -1307,7 +1307,7 @@
 		<td class="param">COLUMN</td>
 		<td>The column selected.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">COLUMN</a> will always return <a class="value">0</a> or <a class="style">fullrow</a> until a workaround is found.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">COLUMN</a> will always return <a class="value">1</a> until a workaround is found.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -1394,7 +1394,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx keydown 4</div></td>
+		<td><div class="example">/cb_alias dcx keydown 4 65</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1409,7 +1409,7 @@
 	<tr><td colspan="2">When item text label editing begins.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME labelbegin ID </div></td>
+		<td><div class="syntax">/cb_alias DNAME labelbegin ID ITEM SUBITEM</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -1554,7 +1554,7 @@
 		<td class="param">COLUMN</td>
 		<td>The column selected.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">COLUMN</a> will always return <a class="value">0</a> for <a class="style">fullrow</a> until a workaround is found.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">COLUMN</a> will always return <a class="value">1</a> until a workaround is found.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -1696,7 +1696,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 15th July, 07</td>
+		<td style="text-align: right;">Last Updated: 16th July, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
