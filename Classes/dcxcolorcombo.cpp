@@ -157,10 +157,13 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [RGB]
 	if (flags.switch_flags[0] && numtok > 4) {
-		int nItem = (int)input.gettok( 4 ).to_num() -1;
+		int nItem = input.gettok(4).to_int() -1;
 		COLORREF clrItem = (COLORREF)input.gettok( 5 ).to_num();
 
-		if (nItem > -2 && nItem < this->getCount()) {
+		if (nItem >= this->getCount())
+			nItem = -1;
+
+		if (nItem > -2) {
 			LPDCXCCOMBOITEM lpdcxcci = new DCXCCOMBOITEM;
 
 			lpdcxcci->clrItem = clrItem;

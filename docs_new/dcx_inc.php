@@ -631,6 +631,14 @@ function format_xcmd($section, $flag, $data) {
 	// error_log("ERROR: __cmd not set for $flag");
 	if (!isset($data['__cmd']))
 		$data['__cmd'] = '';
+        // if command is set but no example provided...
+        else if (!isset($data['__eg'])) {
+                $dbg = debug_backtrace();
+                
+                error_log("*** No example for {$dbg[2]['args'][0]} $section $flag"
+                          //. print_r($dbg[0], true)
+                          );
+        }
 
 	// error_log("ERROR: __eg not set for $flag");
 	if (!isset($data['__eg']))
