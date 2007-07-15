@@ -162,7 +162,7 @@ void DcxListView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
-void DcxListView::parseListviewExStyles( TString & styles, LONG * ExStyles )
+void DcxListView::parseListviewExStyles( const TString & styles, LONG * ExStyles )
 {
 	//*ExStyles = 0;
 	//if (!isXP())
@@ -1396,6 +1396,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 			overlayindex = tflags.mid(io, (tflags.len() - io)).to_int();
 		}
 
+		if (overlayindex < 1 || overlayindex > 15) {
+			this->showError(NULL, "-w", "Overlay Index Out Of Range (1 -> 15)");
+			return;
+		}
 		// load both normal and small icons
 		if (iFlags & LVSIL_SMALL) {
 			// load normal icon
@@ -2117,27 +2121,27 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								else if (lvh.flags & LVHT_NOWHERE)
 									this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
 
-#ifdef NDEBUG
-								//if (!(lvexstyles & LVS_EX_FULLROWSELECT))
-								//{ // make subitem show as selected. TEST CODE!!!!
-								//	LVITEM lvi = { 0 };
-								//	// deselect previous
-								//	lvi.iItem = this->m_iSelectedItem;
-								//	lvi.iSubItem = this->m_iSelectedSubItem;
-								//	lvi.mask = LVIF_STATE;
-								//	lvi.state = 0;
-								//	lvi.stateMask = LVIS_SELECTED;
-								//	ListView_SetItem(this->m_Hwnd, &lvi);
-								//	// select new
-								//	this->m_iSelectedItem = lvh.iItem;
-								//	this->m_iSelectedSubItem = lvh.iSubItem;
-								//	lvi.iItem = lvh.iItem;
-								//	lvi.iSubItem = lvh.iSubItem;
-								//	lvi.mask = LVIF_STATE;
-								//	lvi.state = LVIS_SELECTED;
-								//	lvi.stateMask = LVIS_SELECTED;
-								//	ListView_SetItem(this->m_Hwnd, &lvi);
-								//}
+#ifndef NDEBUG
+								if (!(lvexstyles & LVS_EX_FULLROWSELECT))
+								{ // make subitem show as selected. TEST CODE!!!!
+									LVITEM lvi = { 0 };
+									// deselect previous
+									lvi.iItem = this->m_iSelectedItem;
+									lvi.iSubItem = this->m_iSelectedSubItem;
+									lvi.mask = LVIF_STATE;
+									lvi.state = 0;
+									lvi.stateMask = LVIS_SELECTED;
+									ListView_SetItem(this->m_Hwnd, &lvi);
+									// select new
+									this->m_iSelectedItem = lvh.iItem;
+									this->m_iSelectedSubItem = lvh.iSubItem;
+									lvi.iItem = lvh.iItem;
+									lvi.iSubItem = lvh.iSubItem;
+									lvi.mask = LVIF_STATE;
+									lvi.state = LVIS_SELECTED;
+									lvi.stateMask = LVIS_SELECTED;
+									ListView_SetItem(this->m_Hwnd, &lvi);
+								}
 #endif
 							}
 						}

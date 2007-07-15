@@ -105,6 +105,9 @@ public:
   void parseInfoRequest( TString & input, char * szReturnValue );
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+#ifdef DCX_USE_WINSDK
+  static void parseTreeViewExStyles( const TString & styles, LONG * ExStyles );
+#endif
 
   HIMAGELIST getImageList( const int type );
   void setImageList( HIMAGELIST himl, const int type );

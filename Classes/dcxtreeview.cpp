@@ -70,6 +70,14 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
 		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
 	}
 
+#ifdef DCX_USE_WINSDK
+	if (mIRCLink.m_bVista) {
+		ExStyles = TreeView_GetExtendedStyle(this->m_Hwnd);
+		parseTreeViewExStyles( styles, &ExStyles);
+		TreeView_SetExtendedStyle(this->m_Hwnd, ExStyles, ExStyles);
+	}
+#endif
+
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -143,6 +151,32 @@ void DcxTreeView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
   }
   this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
+
+#ifdef DCX_USE_WINSDK
+void DcxTreeView::parseTreeViewExStyles( const TString &styles, LONG * ExStyles ) {
+
+	// Vista+ ONLY!
+  unsigned int i = 1, numtok = styles.numtok( );
+
+  while ( i <= numtok ) {
+
+    if ( styles.gettok( i ) == "fadebuttons" )
+      *ExStyles |= TVS_EX_FADEINOUTEXPANDOS;
+    else if ( styles.gettok( i ) == "doublebuffer" )
+      *ExStyles |= TVS_EX_DOUBLEBUFFER;
+    //else if ( styles.gettok( i ) == "multi" )
+    //  *ExStyles |= TVS_EX_MULTISELECT; // Style NOT to be used (unsupported by commctrl)
+    else if ( styles.gettok( i ) == "noident" )
+      *ExStyles |= TVS_EX_NOINDENTSTATE;
+    else if ( styles.gettok( i ) == "richtooltip" )
+      *ExStyles |= TVS_EX_RICHTOOLTIP;
+    else if ( styles.gettok( i ) == "autohscroll" )
+      *ExStyles |= TVS_EX_AUTOHSCROLL;
+
+    i++;
+  }
+}
+#endif
 
 /*!
  * \brief $xdid Parsing Function
@@ -1828,24 +1862,30 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
               bParsed = TRUE;
             }
             break;
-		case TVN_SELCHANGED:
-			  {
-				LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
-				VectorOfInts numPath;
-                HTREEITEM hStart = TVI_ROOT;
-                this->getPath( &numPath, &hStart, &lpnmtv->itemNew.hItem );
-                std::string path = this->getPathFromVector( &numPath );
-                this->callAliasEx( NULL, "%s,%d,%s", "selchange", this->getUserID( ), path.c_str( ) );
-				bParsed = TRUE;
-			  }
-			  break;
+					case TVN_SELCHANGED:
+						{
+							LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
+							if (lpnmtv != NULL) {
+								VectorOfInts numPath;
+								HTREEITEM hStart = TVI_ROOT;
+								this->getPath( &numPath, &hStart, &lpnmtv->itemNew.hItem );
+								std::string path = this->getPathFromVector( &numPath );
+								this->callAliasEx( NULL, "%s,%d,%s", "selchange", this->getUserID( ), path.c_str( ) );
+							}
+							bParsed = TRUE;
+						}
+						break;
           case TVN_GETINFOTIP:
             {
               LPNMTVGETINFOTIP tcgit = (LPNMTVGETINFOTIP) lParam;
-              LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) tcgit->lParam;
-              tcgit->pszText = lpdcxtvi->tsTipText.to_chr( );
-              tcgit->cchTextMax = lpdcxtvi->tsTipText.len( );
-              bParsed = TRUE;
+							if (tcgit != NULL) {
+								LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) tcgit->lParam;
+								if (lpdcxtvi != NULL) {
+									tcgit->pszText = lpdcxtvi->tsTipText.to_chr( );
+									tcgit->cchTextMax = lpdcxtvi->tsTipText.len( );
+								}
+							}
+							bParsed = TRUE;
             }
             break;
 

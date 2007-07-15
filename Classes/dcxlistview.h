@@ -98,7 +98,7 @@ public:
   void parseInfoRequest( TString & input, char * szReturnValue );
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
-  static void parseListviewExStyles( TString & styles, LONG * ExStyles );
+  static void parseListviewExStyles( const TString & styles, LONG * ExStyles );
 
   HIMAGELIST getImageList( const int iImageList );
   void setImageList( HIMAGELIST himl, const int iImageList );

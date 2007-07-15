@@ -47,9 +47,15 @@ mIRC(xtreebar) {
 					DCXError("/xtreebar -s","Invalid Style Args");
 					return 0;
 				}
-				static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel");
+				static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel transparent notransparent fadebuttons nofadebuttons ident noident buffer nobuffer autohscroll noautohscroll richtooltip norichtooltip");
 				int i = 2;
 				DWORD stylef = GetWindowStyle(mIRCLink.m_hTreeView);
+				DWORD exstylef = GetWindowExStyle(mIRCLink.m_hTreeView);
+#ifdef DCX_USE_WINSDK
+				DWORD tvexstylef = TreeView_GetExtendedStyle(mIRCLink.m_hTreeView);
+				DWORD tvexstylemask = 0;
+#endif
+
 				while (i <= numtok) {
 					switch (treebar_styles.findtok(input.gettok(i).to_chr(),1))
 					{
@@ -101,12 +107,67 @@ mIRC(xtreebar) {
 					case 16: // noshowsel
 						stylef &= ~TVS_SHOWSELALWAYS;
 						break;
+					case 17: // transparent
+						exstylef |= WS_EX_TRANSPARENT;
+						break;
+					case 18: // notransparent
+						exstylef &= ~WS_EX_TRANSPARENT;
+						break;
+#ifdef DCX_USE_WINSDK
+					case 19: // fadebuttons
+						tvexstylef |= TVS_EX_FADEINOUTEXPANDOS;
+						tvexstylemask |= TVS_EX_FADEINOUTEXPANDOS;
+						break;
+					case 20: // nofadebuttons
+						tvexstylef &= ~TVS_EX_FADEINOUTEXPANDOS;
+						tvexstylemask |= TVS_EX_FADEINOUTEXPANDOS;
+						break;
+					case 21: // ident
+						tvexstylef &= ~TVS_EX_NOINDENTSTATE;
+						tvexstylemask |= TVS_EX_NOINDENTSTATE;
+						break;
+					case 22: // noident
+						tvexstylef |= TVS_EX_NOINDENTSTATE;
+						tvexstylemask |= TVS_EX_NOINDENTSTATE;
+						break;
+					case 23: // buffer
+						tvexstylef |= TVS_EX_DOUBLEBUFFER;
+						tvexstylemask |= TVS_EX_DOUBLEBUFFER;
+						break;
+					case 24: // nobuffer
+						tvexstylef &= ~TVS_EX_DOUBLEBUFFER;
+						tvexstylemask |= TVS_EX_DOUBLEBUFFER;
+						break;
+					case 25: // autoscroll
+						tvexstylef |= TVS_EX_AUTOHSCROLL;
+						tvexstylemask |= TVS_EX_AUTOHSCROLL;
+						break;
+					case 26: // noautoscroll
+						tvexstylef &= ~TVS_EX_AUTOHSCROLL;
+						tvexstylemask |= TVS_EX_AUTOHSCROLL;
+						break;
+					case 27: // richtooltip
+						tvexstylef |= TVS_EX_RICHTOOLTIP;
+						tvexstylemask |= TVS_EX_RICHTOOLTIP;
+						break;
+					case 28: // norichtooltip
+						tvexstylef &= ~TVS_EX_RICHTOOLTIP;
+						tvexstylemask |= TVS_EX_RICHTOOLTIP;
+						break;
+#endif
 					default: // unknown style ignore.
+						DCXError("/xtreebar +s", "Unknown Style");
 						break;
 					}
 					i++;
 				}
 				SetWindowLong(mIRCLink.m_hTreeView,GWL_STYLE, stylef);
+				SetWindowLong(mIRCLink.m_hTreeView,GWL_EXSTYLE, exstylef);
+#ifdef DCX_USE_WINSDK
+				if (mIRCLink.m_bVista)
+					TreeView_SetExtendedStyle(mIRCLink.m_hTreeView, tvexstylef, tvexstylemask);
+#endif
+				SetWindowPos(mIRCLink.m_hTreeView, NULL, 0,0,0,0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
 				RedrawWindow(mIRCLink.m_hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 			}
 			break;
