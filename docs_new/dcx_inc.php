@@ -888,7 +888,7 @@ function format_parameters(&$data) {
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 <?php
 	foreach ($data as $param => $val) {
-		if ($param == '__args') {
+		if ($param === '__args') {
 			format_args($val);
 			continue;
 		}

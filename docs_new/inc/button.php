@@ -54,7 +54,7 @@ function get_xdid_button(&$XDID) {
 		"w" => array(
 			'__desc' => "This command lets you add an icon to the button image list.",
 			'__cmd' => "[+FLAGS] [INDEX] [FILENAME]",
-			'__eg' => "+ng 113 C:/mIRC/shell.dll",
+			'__eg' => "+ng 113 shell32.dll",
 			'__params' => array(
 				'+FLAGS' => array(
 					'__desc' => "Icon flags",

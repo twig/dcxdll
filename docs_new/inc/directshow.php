@@ -29,27 +29,13 @@ function get_xdid_directshow(&$XDID) {
                 'FILENAME' => 'Previous filename.',
             ),
         ),
-	    'V' => array(
-            '__desc' => "This command sets the volume or speakerbalance",
-            '__cmd' => '[+FLAG] [VALUE] ',
-            '__eg' => '+v 80.00',
-            '__params' => array(
-                '+FLAG' => array(
-                    '__desc' => "Command switches.",
-                    '__values' => array(
-                        'v' => "Sets the volume level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",
-// TODO: not functional                        'b' => "Sets speaker balance between [v]-10000[/v] & [v]10000[/v] (non functional atm)",
-                    ),
-                ),
-            ),
-        ),
 		'c' => array(
 			'__desc' => "This lets you control playback of the file.",
-			'__cmd' => '[ARGS]',
+			'__cmd' => '[COMMAND] [ARGS]',
 			'__eg' => array(
-                'play',
-                'seek 3500'
-            ),
+                                'play',
+                                'seek 3500'
+                        ),
 			'__params' => array(
 				'COMMAND' => array(
 					'__desc' => "DirectShow commands.",
@@ -58,20 +44,34 @@ function get_xdid_directshow(&$XDID) {
 						'pause' => "Pauses the playback.",
 						'stop' => "Stops the playback.",
 						'close' => "Close the playback and unload it.",
-                        'seek' => 'Seeks to the millisecond of the clip specified.',
+                                                'seek' => 'Seeks to the millisecond of the clip specified.',
 					),
 				),
-                '__args' => array(
-                    'play' => '[FILENAME]',
-                    'seek' => array(
-                        '__cmd' => '[TIME]',
-                        '__params' => array(
-                            'TIME' => 'The time to seek to, specified in milliseconds.',
-                        ),
-                    ),
-                ),
+                                '__args' => array(
+                                        'play' => '[FILENAME]',
+                                        'seek' => array(
+                                                '__cmd' => '[TIME]',
+                                                '__params' => array(
+                                                        'TIME' => 'The time to seek to, specified in milliseconds.',
+                                                ),
+                                        ),
+                                ),
 			),
 		),
+                'V' => array(
+                        '__desc' => "This command sets the volume or speakerbalance",
+                        '__cmd' => '[+FLAG] [VALUE] ',
+                        '__eg' => '+v 80.00',
+                        '__params' => array(
+                                '+FLAG' => array(
+                                        '__desc' => "Command switches.",
+                                        '__values' => array(
+                                                'v' => "Sets the volume level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",
+            // TODO: not functional                        'b' => "Sets speaker balance between [v]-10000[/v] & [v]10000[/v] (non functional atm)",
+                                        ),
+                                ),
+                        ),
+                ),
 	);
 }
 

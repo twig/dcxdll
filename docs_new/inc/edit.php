@@ -57,7 +57,7 @@ function get_xdid_edit(&$XDID) {
 		),
 		'j' => array(
 		        '__desc' => 'This command lets you trigger the password style of the edit control on the fly.',
-		        '__cmd' => '[ENABLED]',
+		        '__cmd' => '[1|0]',
 		        '__eg' => "1",
 		        '__notes' => array(
 				"Use either [v]1[/v] or [v]0[/v] for [p]ENABLED[/p].",
@@ -83,12 +83,12 @@ function get_xdid_edit(&$XDID) {
 		't' => array(
 		        '__desc' => 'This command lets you load the contents of a file directly in the edit.',
 		        '__cmd' => '[FILENAME]',
-		        '__eg' => 'C:\mIRC\blah.txt',
+		        '__eg' => 'C:/mIRC/blah.txt',
 		),
 		'u' => array(
 		        '__desc' => 'This command lets you save the contents of the edit directly in a file.',
 		        '__cmd' => '[FILENAME]',
-		        '__eg' => 'C:\mIRC\blah.txt',
+		        '__eg' => 'C:/mIRC/blah.txt',
 		),
 		'E' => array(
 		        '__desc' => 'This command lets you set the cue text. It behaves like a ghostly value when the edit control is empty.',
@@ -106,7 +106,7 @@ function get_xdid_edit(&$XDID) {
 		),
 		'y' => array(
 			'__desc' => 'This command lets you ignore callbacks for repeated keydown events when the user holds a button.',
-			'__cmd' => '[0|1]',
+			'__cmd' => '[1|0]',
 			'__eg' => '1',
 			'__notes' => array(
 				'Repeated keys are ignored by default.',
@@ -178,7 +178,7 @@ function get_events_edit(&$EVENTS) {
 		'dragfile' => array(
 			'__desc' => "The filename of the file which was dropped onto the edit control.",
 			'__cmd' => 'FILENAME',
-			'__eg' => 'C:\mIRC\blah.txt',
+			'__eg' => 'C:/mIRC/blah.txt',
 		),
 		'dragfinish' => "Event triggered when processing of drag drop is complete.",
 	);

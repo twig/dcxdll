@@ -51,7 +51,7 @@ function get_xdid_comboex(&$XDID) {
 		'w' => array(
 	        '__desc' => 'This command lets you add an icon to the comboex image list.',
 	        '__cmd' => "[+FLAGS] [INDEX] [FILENAME]",
-	        '__eg' => "+ 113 C:/mIRC/shell.dll",
+	        '__eg' => "+ 113 shell32.dll",
             '__params' => array(
             	// +FLAGS
 				'INDEX' => "Icon index in icon archive",

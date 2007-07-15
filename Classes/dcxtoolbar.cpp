@@ -281,7 +281,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		this->resetContent();
 	}
 
-	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] [Button Text][TAB]Tooltip Text
+	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] [Button Text] [TAB] Tooltip Text
 	if ( flags.switch_flags[0] && numtok > 4 ) {
 
 		int nPos = input.gettok( 4 ).to_int( ) - 1;

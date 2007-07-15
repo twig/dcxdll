@@ -138,7 +138,7 @@
 	<tr><td colspan="2">This command lets you add an item to the toolbar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [+FLAGS] [WIDTH] [ICON] [COLOR] (Button Text)[TAB](Tooltip Text)</div></td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [N] [+FLAGS] [WIDTH] [ICON] [COLOR] (Button Text) [TAB] (Tooltip Text)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -349,13 +349,13 @@
 	<tr><td colspan="2">This command lets you toggle the toolbar autostretch feature. This feature resizes automatically the toolbar buttons to stretch the full width of the toolbar when the control width changes. Does not work on vertical toolbars.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -m [DNAME] [ID] [ON]</div></td>
+		<td><div class="syntax">/xdid -m [DNAME] [ID] [1|0]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -m dcx 4 1</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">ON</a> can either be <a class="value">1</a> or <a class="value">0</a></td></tr></table>
+</table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -470,7 +470,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -w dcx 4 +n 113 C:/mIRC/shell.dll</div></td>
+		<td><div class="example">/xdid -w dcx 4 +n 113 shell32.dll</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -539,7 +539,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xdid(dcx, 4, 1).mouseitem</div></td>
+		<td><div class="example">$xdid(dcx, 4).mouseitem</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Returns <a class="value">-1</a> when mouse is not over an item, or is currently over a disabled item.</td></tr></table>
 <br />

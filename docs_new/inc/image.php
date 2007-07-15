@@ -44,7 +44,7 @@ function get_xdid_image(&$XDID) {
 		'w' => array(
 	        '__desc' => 'This command lets you set an icon for the image.',
 	        '__cmd' => '[+FLAGS] [INDEX] [SIZE] [ICON]',
-	        '__eg' => '+g 2 48 C:/mIRC/shell.dll',
+	        '__eg' => '+g 2 48 shell32.dll',
 	        '__params' => array(
 	        	// +FLAGS
 	            'INDEX' => 'Icon index in icon archive.',
@@ -67,21 +67,14 @@ function get_xdid_image(&$XDID) {
                         '__notes' => 'Negative offsets are valid.',
 		),
 		'S' => array(
-	        '__desc' => 'This command lets you enable or disable automatic resizing of the image.',
-	        '__cmd' => '[ENABLED]',
-	        '__eg' => '1',
-	        '__params' => array(
-	    	    'ENABLED' => array(
-					'__desc' => "Value to enable or disable resizing of image",
-					'__values' => array(
-	            		'0' => 'Disable resizing of image.',
-	            		'1' => 'Enable resizing of image.',
-					),
-				),
+                        '__desc' => 'This command lets you enable or disable automatic resizing of the image.',
+                        '__cmd' => '[1|0]',
+                        '__eg' => '1',
+                        '__params' => array(
+                                '0' => 'Disable resizing of image.',
+                                '1' => 'Enable resizing of image.',
 			),
-	        '__notes' => array(
-				"Automatic resizing is enabled by default.",
-			),
+                        '__notes' => 'Automatic resizing is enabled by default.',
 		),
 	);
 	
