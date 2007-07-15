@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title>DCX Marked Dialog - Dialog Control Xtension DLL v1.3.8 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX Marked Dialog - Dialog Control Xtension DLL v1.4.0 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -26,7 +26,7 @@
 		<td>
 		</td>
 		<td style="text-align: center;"></td>
-		<td style="text-align: right;">v1.3.8</td>
+		<td style="text-align: right;">v1.4.0</td>
 	</tr>
 </table>
 
@@ -1516,7 +1516,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx changing 0 size 50 30 300 150</div></td>
+		<td><div class="example">/cb_alias dcx changing 0 sizing 50 30 300 150</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -1540,7 +1540,7 @@
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.close"></a>close	</td></tr>
-	<tr><td colspan="2">When the dialog is closed or by pressing escape.</td></tr>
+	<tr><td colspan="2">When the dialog is closed (including by pressing escape).</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME close ID </div></td>
@@ -1549,7 +1549,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/cb_alias dcx close 0</div></td>
 	</tr>
-<tr><td class="syntax">Return</td><td><a class="returnevent">noclose</a> Return this value to block the window closing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You will have to use /xdialog -x to close the dialog instead of mIRC's /dialog -x if you return <a class="returnevent">noclose</a> on this event.</li><li>Should only be used with non-modal dialogs (modal dialogs are created using $dialog). If you are using a modal dialog, refer to <a class="event">scclose</a>. Returning <a class="returnevent">noclose</a> here will cause the modal dialog to be unclosable.</li></ul></td></tr></table>
+<tr><td class="syntax">Return</td><td><a class="returnevent">noclose</a> Return this value to block the window closing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You will have to use <a class="value">/xdialog -x</a> to close the dialog instead of mIRC's /dialog -x if you return <a class="returnevent">noclose</a> on this event.</li><li>Should only be used with non-modal dialogs (modal dialogs are created using $dialog). If you are using a modal dialog, refer to <a class="event">scclose</a>. Returning <a class="returnevent">noclose</a> here will cause the modal dialog to be unclosable.</li><li>If you wish to close docked dialogs within this event, you must use a timer with /xdialog -x to close the docked dialog.</li></ul></td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">

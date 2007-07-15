@@ -21,7 +21,7 @@ define('SECTION_XTREEBAR'    , 'xtreebar');
 define('SECTION_XTREEBARPROPS', 'xtreebarprop');
 
 // global variables
-$VERSION = "1.3.8";
+$VERSION = "1.4.0";
 
 $DOCPATH = "./doc/";
 $INCPATH = "./inc/";

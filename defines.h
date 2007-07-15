@@ -125,8 +125,8 @@
 // DCX build version
 // --------------------------------------------------
 #define DLL_VERSION    1
-#define DLL_SUBVERSION 3
-#define DLL_BUILD      8
+#define DLL_SUBVERSION 4
+#define DLL_BUILD      0
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
