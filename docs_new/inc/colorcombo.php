@@ -60,11 +60,12 @@ function get_xdidprops_colorcombo(&$XDIDPROPS) {
 
 function get_events_colorcombo(&$EVENTS) {
 	$EVENTS = array(
-	    "sclick" => array(
+		"sclick" => array(
 			'__desc' => "When a sclick event is fired on an item.",
 			'__cmd' => 'ITEM',
+			'__eg' => '6',
 			'__params' => array(
-			    'ITEM' => "The item number that was selected",
+				'ITEM' => "The item number that was selected",
 			),
 		),
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",

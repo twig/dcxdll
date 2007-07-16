@@ -874,6 +874,12 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 				// overlay image
 				int io = flags.find('o',1) +1;
 				int o = flags.mid(io, (flags.len() - io)).to_int();
+
+				if (o < 1 || o > 15) {
+					this->showError(NULL, "-w", "Overlay index out of range (1 -> 15)");
+					o = 0;
+				}
+
 				if (o > 0)
 					ImageList_SetOverlayImage(himl, i, o);
 			}

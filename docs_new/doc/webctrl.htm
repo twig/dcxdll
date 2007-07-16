@@ -217,13 +217,13 @@
 	<tr><td colspan="2">When the state of the back button changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME back ID IS_ENABLED</div></td>
+		<td><div class="syntax">/cb_alias DNAME back ID ENABLED</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx back 4</div></td>
+		<td><div class="example">/cb_alias dcx back 4 $true</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">IS_ENABLED</a> can be either <a class="value">$true</a> or <a class="value">$false</a> indicating the enabled state of the button.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">ENABLED</a> can be either <a class="value">$true</a> or <a class="value">$false</a> to indicate the enabled state of the back button.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -263,7 +263,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx dl_progress 4</div></td>
+		<td><div class="example">/cb_alias dcx dl_progress 4 259700 1000000</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -274,7 +274,7 @@
 		<td class="param">TOTAL</td>
 		<td>Maximum download position.</td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">CURRENT</a> can be <a class="value">-1</a>. If anyone knows why this occurs, please let us know <a href="http://dcx.scriptsdb.org/bug/?do=details&id=447">here</a>.</li><li><a class="param">TOTAL</a> can be <a class="value">0</a>, so make sure to check this before performing any calculation with it.</li><li>It is advised you use the values provided by <a class="param">CURRENT</a> and <a class="param">TOTAL</a> to display progress as these values may change with later revisions of Internet Explorer.</li></ul></td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -286,7 +286,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx doc_complete 4</div></td>
+		<td><div class="example">/cb_alias dcx doc_complete 4 http://dcx.scriptsdb.org/</div></td>
 	</tr>
 </table>
 <br />
@@ -296,13 +296,13 @@
 	<tr><td colspan="2">When the state of the forward button changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/cb_alias DNAME forward ID IS_ENABLED</div></td>
+		<td><div class="syntax">/cb_alias DNAME forward ID ENABLED</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx forward 4</div></td>
+		<td><div class="example">/cb_alias dcx forward 4 $false</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">IS_ENABLED</a> can be either <a class="value">$true</a> or <a class="value">$false</a> indicating the enabled state of the button.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">ENABLED</a> can be either <a class="value">$true</a> or <a class="value">$false</a> to indiciate the enabled state of the forward button.</td></tr></table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
@@ -328,7 +328,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx nav_begin 4</div></td>
+		<td><div class="example">/cb_alias dcx nav_begin 4 http://dcx.scriptsdb.org/</div></td>
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="returnevent">cancel</a> return this value to block the navigation.</td></tr></table>
 <br />
@@ -342,21 +342,21 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx nav_complete 4</div></td>
+		<td><div class="example">/cb_alias dcx nav_complete 4 http://dcx.scriptsdb.org/</div></td>
 	</tr>
 </table>
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.status"></a>status	</td></tr>
-	<tr><td colspan="2">When the statusbar changes.</td></tr>
+	<tr><td colspan="2">When the statusbar text changes.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/cb_alias DNAME status ID NEW_TEXT</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx status 4</div></td>
+		<td><div class="example">/cb_alias dcx status 4 New statusbar text</div></td>
 	</tr>
 </table>
 <br />
@@ -370,7 +370,7 @@
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/cb_alias dcx title 4</div></td>
+		<td><div class="example">/cb_alias dcx title 4 The other page title</div></td>
 	</tr>
 </table>
 <br />

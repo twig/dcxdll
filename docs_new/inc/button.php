@@ -25,7 +25,7 @@ function get_xdid_button(&$XDID) {
 		"k" => array(
 			'__desc' => "This command lets you change the transparency color for the bitmap image for the button.",
 			'__cmd' => "[+FLAGS] [COLOR] [FILENAME]",
-			'__eg' => '+nd $rgb(255,0,255) C:\mIRC\start.bmp',
+			'__eg' => '+nd $rgb(255,0,255) C:/mIRC/start.bmp',
 			'__params' => array(
 				'+FLAGS' => array(
 					'__desc' => "State flags",

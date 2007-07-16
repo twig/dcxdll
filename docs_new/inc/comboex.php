@@ -110,9 +110,10 @@ function get_xdidprops_comboex(&$XDIDPROPS) {
 
 function get_events_comboex(&$EVENTS) {
 	$EVENTS = array(
-	    "sclick" => array(
+                "sclick" => array(
 			'__desc' => "When an item is selected in the comboex.",
 			'__cmd' => 'ITEM',
+                        '__eg' => '6',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.',
 			),
@@ -120,6 +121,7 @@ function get_events_comboex(&$EVENTS) {
 		"dclick" => array(
 			'__desc' => "When an item is double-clicked in a simple comboex.",
 			'__cmd' => 'ITEM',
+                        '__eg' => '6',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.',
 			),
@@ -139,7 +141,7 @@ function get_events_comboex(&$EVENTS) {
 		'dragfile' => array(
 			'__desc' => "The filename of the file that has",
 			'__cmd' => 'FILENAME',
-			'__eg' => 'C:\mIRC\blah.txt',
+			'__eg' => 'C:/mIRC/blah.txt',
 		),
 		'dragfinish' => "Event triggered when processing of drag drop is complete.",
 	);

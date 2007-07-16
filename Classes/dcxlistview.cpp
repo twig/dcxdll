@@ -1394,12 +1394,15 @@ void DcxListView::parseCommandRequest(TString &input) {
 			// overlay id offset
 			int io = tflags.find('o',1) +1;
 			overlayindex = tflags.mid(io, (tflags.len() - io)).to_int();
+
+			if (overlayindex < 1 || overlayindex > 15) {
+				this->showError(NULL, "-w", "Overlay index out of range (1 -> 15)");
+				overlayindex = 0;
+			}
 		}
 
-		if (overlayindex < 1 || overlayindex > 15) {
-			this->showError(NULL, "-w", "Overlay Index Out Of Range (1 -> 15)");
-			return;
-		}
+		
+
 		// load both normal and small icons
 		if (iFlags & LVSIL_SMALL) {
 			// load normal icon

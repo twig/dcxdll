@@ -402,7 +402,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 					int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-					this->callAliasEx( NULL, "%s,%d,%d,%d,%d", "sclick", this->getUserID( ), nPos, iLower, iHigher );
+					this->callAliasEx(NULL, "%s,%d,%d,%d,%d,%d", "sclick", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 				}
       }
       break;
@@ -419,7 +419,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 					int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-					this->callAliasEx( NULL, "%s,%d,%d,%d,%d", "rclick", this->getUserID( ), nPos, iLower, iHigher );
+					this->callAliasEx(NULL, "%s,%d,%d,%d,%d,%d", "rclick", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 				}
       }
       break;
@@ -440,7 +440,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 						int nPos = iLower + (int)( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-						this->callAliasEx( NULL, "%s,%d,%d,%d,%d", "mousebar", this->getUserID( ), nPos, iLower, iHigher );
+						this->callAliasEx(NULL, "%s,%d,%d,%d,%d, %d", "mousebar", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 					}
 				}
       }
