@@ -55,12 +55,14 @@ public:
 	//tempvar to dump attribute values in;
 	const char *temp;
 	TString cmd;
-	DCXML() {
-		root = 0; 
-		dialogs = 0; 
-		dialog = 0; 
-		element = 0;
-		controls = 0;
+	DCXML()
+		: zlayered(0)
+		, root(0)
+		, dialogs(NULL)
+		, dialog(NULL)
+		, element(0)
+		, controls(0)
+	{
 	}
 	//CLA variables
 	const char *g_claPath;
