@@ -59,10 +59,7 @@ function get_xdid_edit(&$XDID) {
 		        '__desc' => 'This command lets you trigger the password style of the edit control on the fly.',
 		        '__cmd' => '[1|0]',
 		        '__eg' => "1",
-		        '__notes' => array(
-				"Use either [v]1[/v] or [v]0[/v] for [p]ENABLED[/p].",
-				'If anyone could find me the ascii value of the big DOT used for the default password character on XP, please leave a message.'
-			),
+		        '__notes' => 'If anyone could find me the ascii value of the big DOT used for the default password character on XP, please leave a message.'
 		),
 		'o' => array(
 			'__desc' => 'This command lets you overwrite the Nth line in the edit.',

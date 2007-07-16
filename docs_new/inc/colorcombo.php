@@ -21,6 +21,7 @@ function get_xdid_colorcombo(&$XDID) {
 	        '__desc' => 'This command lets you select the Nth item in the colorcombo.',
 	        '__cmd' => '[N]',
 	        '__eg' => '2',
+	        '__notes' => 'If [p]N[/p] is [v]0[/v], it unselects the current color.',
 		),
 		'd' => array(
 	        '__desc' => 'This command lets you delete the Nth item in the colorcombo.',

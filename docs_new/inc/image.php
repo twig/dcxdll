@@ -70,11 +70,7 @@ function get_xdid_image(&$XDID) {
                         '__desc' => 'This command lets you enable or disable automatic resizing of the image.',
                         '__cmd' => '[1|0]',
                         '__eg' => '1',
-                        '__params' => array(
-                                '0' => 'Disable resizing of image.',
-                                '1' => 'Enable resizing of image.',
-			),
-                        '__notes' => 'Automatic resizing is enabled by default.',
+                        '__notes' => "Automatic resizing is enabled by default.",
 		),
 	);
 	
