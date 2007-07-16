@@ -11,6 +11,11 @@
 *	1.1
 *		Added Visual Studio 2005 specific code. Ook
 *
+*
+* Note:
+* Do not use this->getExStyle(), it will not return the correct value.
+* For the listview, use ListView_GetExtendedListViewStyle() instead.
+*
 * © ScriptsDB.org - 2006
 */
 
@@ -216,7 +221,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 	int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
-
+	
 	// [NAME] [ID] [PROP] [N] [NSUB]
 	if (prop == "columns") {
 		// if its a report listview and it has headers
@@ -369,19 +374,15 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 			// otherwise we want a list of indexes (comma seperated)
 			if (nSelItems > 0) {
 				TString list;
-				char line[5];
 				int i = 1;
 
 				while ((nItem = ListView_GetNextItem(this->m_Hwnd, nItem, LVIS_SELECTED)) != -1) {
-#ifdef VS2005
-					_itoa(nItem + 1, line, 10);
-#else
-					itoa(nItem + 1, line, 10);
-#endif          
-					list += line;
+					if (i == 1)
+						list.sprintf("%d", nItem +1);
+					else
+						list.sprintf("%s,%d", list.to_chr(), nItem +1);
 
-					if (i != nSelItems)
-						list += ',';
+					i++;
 				}
 
 				lstrcpyn(szReturnValue, list.to_chr(), 900);
@@ -1573,10 +1574,35 @@ void DcxListView::parseCommandRequest(TString &input) {
 		else
 			this->showErrorEx(NULL, "-T", "Unable To Get Item: %d Subitem: %d", lvi.iItem +1, lvi.iSubItem);
 	}
-	// xdid -Z [NAME] [ID] [SWITCH] [relative pixels]
+	// xdid -Z [NAME] [ID] [SWITCH] [%]
 	else if (flags.switch_cap_flags[25] && numtok > 3) {
-		int pos = input.gettok( 4 ).to_int( );
-		// this is a temp fix untill we find out why WM_VSCROLL isn't working.
+		// only works for this one so far
+		if (!this->isStyle(LVS_REPORT))
+			return;
+
+		int pos = input.gettok(4).to_int();
+		int count = ListView_GetItemCount(this->m_Hwnd);
+		int height;
+		RECT rc;
+
+		// no items - no need to view
+		if (count == 0)
+			return;
+
+		// check boundaries
+		if ((pos < 0) || (pos > 100))
+			return;
+
+		// subtract the number of visible items
+		count -= ListView_GetCountPerPage(this->m_Hwnd);
+
+		// get height of a single item
+		ListView_GetItemRect(this->m_Hwnd, 0, &rc, LVIR_BOUNDS);
+		height = count * (rc.bottom - rc.top);
+
+		pos = round((float) height * (float) pos / (float) 100.0);
+
+		ListView_EnsureVisible(this->m_Hwnd, 0, FALSE);
 		ListView_Scroll(this->m_Hwnd, 0, pos);
 	}
 	// xdid -V [NAME] [ID] [SWITCH] [nItem]
@@ -2401,7 +2427,25 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						{
 							LPNMLVKEYDOWN pnkd = (LPNMLVKEYDOWN) lParam; 
 							WORD wVKey = pnkd->wVKey;
-							this->callAliasEx( NULL, "%s,%d,%d", "keydown", this->getUserID( ), wVKey);
+							char cb[15];
+
+							this->callAliasEx(cb, "%s,%d,%d", "keydown", this->getUserID( ), wVKey);
+
+							// space to change checkbox state
+							if ((wVKey == 32) &&
+								(ListView_GetExtendedListViewStyle(this->m_Hwnd) & LVS_EX_CHECKBOXES)) {
+
+								// stop it from allowing user to change checkstate by pressing spacebar
+								if (!lstrcmp("nospace", cb)) {
+									bParsed = TRUE;
+									return TRUE;
+								}
+
+								int index = ListView_GetNextItem(this->m_Hwnd, -1, LVNI_FOCUSED);
+
+								// TODO: twig: change this if we get multiple checkbox columns working
+								this->callAliasEx(cb, "%s,%d,%d,%d", "stateclick", this->getUserID(), index +1, 1);
+							}
 						}
 						break;
 						//case LVN_CHANGING: // 4294967196
@@ -2639,7 +2683,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				if (LOWORD(wParam) == SB_ENDSCROLL)
 					this->callAliasEx(NULL, "%s,%d", "scrollend", this->getUserID());
 
-				if (this->isExStyle(LVS_EX_GRIDLINES))
+				if (ListView_GetExtendedListViewStyle(this->m_Hwnd) & LVS_EX_GRIDLINES)
 					this->redrawWindow();
 				//	}
 				//}
