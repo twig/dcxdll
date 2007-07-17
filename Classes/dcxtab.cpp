@@ -250,6 +250,21 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
+	// [NAME] [ID] [PROP]
+	else if (prop == "mouseitem") {
+		TCHITTESTINFO tchi;
+
+		tchi.flags = TCHT_ONITEM;
+		GetCursorPos(&tchi.pt);
+		ScreenToClient(this->m_Hwnd, &tchi.pt);
+
+		int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
+
+		wsprintf(szReturnValue, "%d", tab +1);
+		return;
+	}
+
+
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
   

@@ -256,6 +256,27 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 			return;
 		}
 	}
+	// [NAME] [ID] [PROP] [N]
+	else if (prop == "dropdownpoint" && numtok > 3) {
+		RECT rc;
+		TString coordinates;
+
+		ZeroMemory(&rc, sizeof(RECT));
+		int iButton = input.gettok(4).to_int() -1;
+
+		// out of range;
+		if ((iButton < 0) || (iButton >= this->getButtonCount())) {
+			this->showError("dropdownpoint", NULL, "Index out of range.");
+			return;
+		}
+
+		this->getItemRect(iButton, &rc);
+		MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rc, 2);
+		coordinates.sprintf("%d %d %d %d", rc.left, rc.bottom, rc.right, rc.top);
+
+		lstrcpy(szReturnValue, coordinates.to_chr());
+		return;
+	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue))
 		return;
 
