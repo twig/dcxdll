@@ -161,11 +161,13 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 	if (SetLayeredWindowAttributesUx != NULL) {
 		UINT alpha = this->m_pXParentMenu->IsAlpha();
 
-		// we use the zero value to indicate NO alpha, rather than fully transparent.
-		if (alpha <= 255) {
+		// 255 is opaque and 0 is fully transparent.
+		if (alpha < 255) {
 			HWND hMenuWnd = WindowFromDC(lpdis->hDC);
+
 			if (IsWindow(hMenuWnd)) {
 				DWORD dwStyle = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
+
 				if (!(dwStyle & WS_EX_LAYERED)) {
 					SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
 					SetLayeredWindowAttributesUx(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
