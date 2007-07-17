@@ -148,6 +148,7 @@ protected:
 	HBRUSH m_hBorderBrush;	//!< Controls Border Colour.
 	HBITMAP m_bitmapBg;			//!< Background bitmap
 	COLORREF m_colTransparentBg;
+	COLORREF m_clrBackground;	//!< Background Colour. (used to make m_hBackBrush)
 
   UINT m_iRefCount;
 

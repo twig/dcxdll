@@ -281,7 +281,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			return;
 		}
 		if (!IsFile(filename)) {
-			this->showError(NULL,"-a", "Unable to Access File");
+			this->showErrorEx(NULL,"-a", "Unable to Access File: %s", filename.to_chr());
 			return;
 		}
 		// Create the Filter Graph Manager and query for interfaces.

@@ -314,7 +314,7 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		filename.trim();
 		
 		if (!IsFile(filename)) {
-			this->showError(NULL, "-w", "Unable to Access File");
+			this->showErrorEx(NULL, "-w", "Unable to Access File: %s", filename.to_chr());
 			return;
 		}
 		this->m_vImageList.push_back(new Image(filename.to_wchr()));

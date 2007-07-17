@@ -2168,7 +2168,7 @@ void DcxTreeView::PreloadData() {
 #ifdef DCX_USE_GDIPLUS
 bool DcxTreeView::LoadGDIPlusImage(const TString &flags, TString &filename) {
 	if (!IsFile(filename)) {
-		this->showError(NULL,"LoadGDIPlusImage", "Unable to open file");
+		this->showErrorEx(NULL,"LoadGDIPlusImage", "Unable to Access File: %s", filename.to_chr());
 		return false;
 	}
 	this->m_pImage = new Image(filename.to_wchr(),TRUE);

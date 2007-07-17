@@ -673,6 +673,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				this->m_hCursor = (HCURSOR)LoadImage(NULL, filename.to_chr(), IMAGE_CURSOR, 0,0, LR_DEFAULTSIZE|LR_LOADFROMFILE );
 				this->m_bCursorFromFile = TRUE;
 			}
+			else
+				this->showErrorEx(NULL,"-q", "Unable to Access File: %s", filename.to_chr());
 		}
 		if (this->m_hCursor == NULL)
 			this->showError(NULL, "-q", "Unable to Load Cursor");
@@ -2524,18 +2526,27 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				}
 			}
 			break;
+		//case WM_NCPAINT:
+		//	{
+		//		HDC hdc;
+		//		hdc = GetDCEx(hwnd, (HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
+		//		// Paint into this DC
+		//		ReleaseDC(hwnd, hdc);
+		//		bParsed = TRUE;
+		//	}
+		//	break;
 
 		//case WM_NCLBUTTONDOWN:
 		//case WM_NCLBUTTONUP:
-		////case WM_NCMOUSEHOVER:
-		////case WM_NCMOUSELEAVE:
+		//case WM_NCMOUSEHOVER:
+		//case WM_NCMOUSELEAVE:
 		////case WM_NCHITTEST:
-		////case WM_NCPAINT:
+		//case WM_NCPAINT:
 		//	{
 		//		if (p_this->IsVistaStyle()) {
 		//			lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-		//			InvalidateRect(mHwnd, NULL, FALSE);
-		//			//p_this->UpdateVistaStyle();
+		//			//InvalidateRect(mHwnd, NULL, FALSE);
+		//			p_this->UpdateVistaStyle();
 		//			bParsed = TRUE;
 		//		}
 		//	}

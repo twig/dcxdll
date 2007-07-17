@@ -73,9 +73,10 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_pParentDialog( p_Dialog )
 , m_hFont(NULL)
 , m_tsMark("")
-, m_clrText((COLORREF)-1)
-, m_clrBackText((COLORREF)-1)
+, m_clrText(CLR_NONE)
+, m_clrBackText(CLR_NONE)
 , m_hBackBrush(NULL)
+, m_clrBackground(CLR_NONE)
 , m_iRefCount(0)
 , m_hCursor(NULL)
 , m_bCursorFromFile(FALSE)
@@ -266,8 +267,12 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 				this->m_hBackBrush = NULL;
 			}
 
-			if ( clrColor != -1 )
+			if ( clrColor != -1 ) {
 				this->m_hBackBrush = CreateSolidBrush( clrColor );
+				this->m_clrBackground = clrColor;
+			}
+			else
+				this->m_clrBackground = CLR_NONE;
 		}
 
 		if ( iFlags & DCC_TEXTCOLOR )
@@ -309,6 +314,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 				this->m_hCursor = (HCURSOR)LoadImage(NULL, filename.to_chr(), IMAGE_CURSOR, 0,0, LR_DEFAULTSIZE|LR_LOADFROMFILE );
 				this->m_bCursorFromFile = TRUE;
 			}
+			else
+				this->showErrorEx(NULL,"-J", "Unable to Access File: %s", filename.to_chr());
 		}
 		if (this->m_hCursor == NULL)
 			this->showError(NULL, "-J", "Unable to Load Cursor");
@@ -894,9 +901,20 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 		else
 			lstrcpy(szReturnValue, "$false");
 	}
+	// [NAME] [ID] [PROP]
+	else if (prop == "textcolor") {
+		wsprintf(szReturnValue, "%d", this->m_clrText);
+	}
+	// [NAME] [ID] [PROP]
+	else if (prop == "textbgcolor") {
+		wsprintf(szReturnValue, "%d", this->m_clrBackText);
+	}
+	// [NAME] [ID] [PROP]
+	else if (prop == "bgcolor") {
+		wsprintf(szReturnValue, "%d", this->m_clrBackground);
+	}
 	else
 		this->showError(prop.to_chr(),NULL,"Invalid property or number of arguments");
-		//dcxInfoError("General", prop.to_chr( ), input.gettok( 1 ).to_chr(), this->getUserID(), "Invalid property or number of arguments");
 
 	return FALSE;
 }
@@ -1243,7 +1261,7 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 
 	RECT rc;
 	GetWindowRect(hwnd, &rc);
-	MapWindowPoints(NULL,GetParent(hwnd),(LPPOINT)&rc, 2);
+	MapWindowRect(NULL,GetParent(hwnd),&rc);
 
 	// if window isn't within the client area of the control who's background we are drawing, don't draw.
 	if (!RectVisible(hDC, &rc))
@@ -1283,7 +1301,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 		rcClient = *rcBounds;
 
 	// if themes are active use them.
-//	if (dcxIsThemeActive()) {
+//	if (dcxIsThemeActive() && !this->m_bNoTheme) {
 //#ifdef DCX_USE_WINSDK
 //		if (DrawThemeParentBackgroundExUx != NULL)
 //			DrawThemeParentBackgroundExUx(hwnd, hdc, 0, &rcClient); // Vista only, does basicly the same as below.
