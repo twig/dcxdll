@@ -934,16 +934,36 @@ void DcxListView::parseCommandRequest(TString &input) {
 	else if (flags.switch_cap_flags[1] && numtok > 3) {
 		int nItem = (int)input.gettok( 4 ).to_num() -1;
 
-		if (nItem > -1) {
-			if (GetFocus() != this->m_Hwnd)
-				SetFocus(this->m_Hwnd);
-			ListView_EditLabel(this->m_Hwnd, nItem);
+		// check if item supplied was 0 (now -1), last item in list
+		if (nItem == -1) {
+			nItem = ListView_GetItemCount(this->m_Hwnd) -1;
+
+			if (nItem < 0) {
+				this->showError(NULL,"-B", "Invalid Item: No Items in list");
+				return;
+			}
 		}
+		if (nItem < 0) {
+			this->showError(NULL,"-B", "Invalid Item");
+			return;
+		}
+
+		if (GetFocus() != this->m_Hwnd)
+			SetFocus(this->m_Hwnd);
+		ListView_EditLabel(this->m_Hwnd, nItem);
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags.switch_flags[2] && numtok > 3) {
+		int nItemCnt = ListView_GetItemCount(this->m_Hwnd);
+		if (nItemCnt < 1) {
+			this->showError(NULL, "-c", "Invalid Item: No Items in list");
+			return;
+		}
 		if (this->isStyle(LVS_SINGLESEL)) {
 			int nItem = (int)input.gettok( 4 ).to_num() -1;
+
+			if (nItem == -1)
+				nItem = nItemCnt -1;
 
 			if (nItem > -1)
 				ListView_SetItemState(this->m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
@@ -952,10 +972,13 @@ void DcxListView::parseCommandRequest(TString &input) {
 			TString Ns(input.gettok( 4 ));
 			int i = 1;
 			int n = Ns.numtok(TSCOMMA);
-			int nItems = ListView_GetItemCount(this->m_Hwnd);
+			int nItems = nItemCnt--;
 
 			while (i <= n) {
 				int nItem = Ns.gettok(i, TSCOMMA).to_int() -1;
+
+				if (nItem == -1)
+					nItem = nItemCnt;
 
 				if (nItem > -1 && nItem < nItems)
 					ListView_SetItemState(this->m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
@@ -968,32 +991,21 @@ void DcxListView::parseCommandRequest(TString &input) {
 	else if (flags.switch_flags[3] && (numtok > 3)) {
 		int nItem = (int)input.gettok( 4 ).to_num() -1;
 
-		if (nItem > -1)
-			ListView_DeleteItem(this->m_Hwnd, nItem);
-		/*
-		// delete pbars if in row
-		for (int i = (int) m_lvpbars.size() -1; i >= 0 ; i--) {
-		DCXLVPBAR* pbarCell = &(m_lvpbars[i]);
+		// check if item supplied was 0 (now -1), last item in list.
+		if (nItem == -1) {
+			nItem = ListView_GetItemCount(this->m_Hwnd) -1;
 
-		if (pbarCell->row == nItem) {
-		DestroyWindow(pbarCell->pbar->getHwnd());
-		//delete pbarCell->pbar;
-
-		m_lvpbars.erase(m_lvpbars.begin() + i, m_lvpbars.begin() + i +1);
+			if (nItem < 0) {
+				this->showError(NULL,"-d", "Invalid Item: No Items in list");
+				return;
+			}
 		}
-		}
-
-		// shift the pbars below it to keep alignment correct
-		for (int i = 0; i < (int) m_lvpbars.size(); i++) {
-		DCXLVPBAR* pbarCell = &(m_lvpbars[i]);
-
-		if (pbarCell->row > nItem) {
-		pbarCell->row--;
-		}
+		if (nItem < 0) {
+			this->showError(NULL,"-d", "Invalid Item");
+			return;
 		}
 
-		ResizePbars();
-		*/
+		ListView_DeleteItem(this->m_Hwnd, nItem);
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME) ([tab] watermark filename)
 	else if (flags.switch_flags[6] && numtok > 5) {
@@ -1055,8 +1067,17 @@ void DcxListView::parseCommandRequest(TString &input) {
 		COLORREF clrText = (COLORREF)input.gettok( 7 ).to_num();
 		COLORREF clrBack = (COLORREF)input.gettok( 8 ).to_num();
 
+		if (nItem == -1) {
+			nItem = ListView_GetItemCount(this->m_Hwnd) -1;
+
+			if (nItem < 0) {
+				this->showError(NULL,"-j", "Invalid Item: No Items in list");
+				return;
+			}
+		}
+
 		// invalid info
-		if ((nItem < 0) || (nCol < 0)) {
+		if ((nItem < 0) || (nCol < 0) || (nCol >= this->getColumnCount())) {
 			this->showError(NULL,"-j", "Invalid Item");
 			return;
 		}
@@ -1103,6 +1124,20 @@ void DcxListView::parseCommandRequest(TString &input) {
 		int state = (int)input.gettok( 4 ).to_num();
 		int nItem = (int)input.gettok( 5 ).to_num() -1;
 
+		// check if item supplied was 0 (now -1), last item in list.
+		if (nItem == -1) {
+			nItem = ListView_GetItemCount(this->m_Hwnd) -1;
+
+			if (nItem < 0) {
+				this->showError(NULL,"-k", "Invalid Item: No Items in list");
+				return;
+			}
+		}
+		if (nItem < 0) {
+			this->showError(NULL,"-k", "Invalid Item");
+			return;
+		}
+
 		ListView_SetItemState(this->m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [M] [ICON] (OVERLAY)
@@ -1112,9 +1147,21 @@ void DcxListView::parseCommandRequest(TString &input) {
 		int nIcon    = input.gettok(6).to_int() -1;
 		int nOverlay = (numtok > 6 ? input.gettok(7).to_int() : -1);
 
+		// check if item supplied was 0 (now -1), last item in list.
+		if (nItem == -1) {
+			nItem = ListView_GetItemCount(this->m_Hwnd) -1;
+
+			if (nItem < 0) {
+				this->showError(NULL,"-l", "Invalid Item: No Items in list");
+				return;
+			}
+		}
+
 		// invalid item
-		if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount()))
+		if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount())) {
+			this->showError(NULL,"-l", "Invalid Item");
 			return;
+		}
 
 		/*
 			nIcon = 0 (use no icon)
@@ -1224,7 +1271,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 				(tmp > count)) // out of array bounds
 			{
 				this->showErrorEx(NULL, "-o", "Invalid index %d.", tmp);
-				delete indexes;
+				delete [] indexes;
 				return;
 			}
 
@@ -1232,7 +1279,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		}
 
 		ListView_SetColumnOrderArray(this->m_Hwnd, count, indexes);
-		delete indexes;
+		delete [] indexes;
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text]
 	else if (flags.switch_flags[16] && numtok > 6) {
@@ -1355,29 +1402,41 @@ void DcxListView::parseCommandRequest(TString &input) {
 		int nItem = input.gettok(4).to_int() - 1;
 		int nSubItem = input.gettok(5).to_int() -1;
 
-		if (nItem > -1) {
-			TString itemtext(input.gettok(6, -1));
-			itemtext.trim();
+		// check if item supplied was 0 (now -1), last item in list.
+		if (nItem == -1) {
+			nItem = ListView_GetItemCount(this->m_Hwnd) -1;
 
-			LVITEM lvi;
-			LPDCXLVITEM lpdcxlvi;
-
-			ZeroMemory(&lvi, sizeof(LVITEM));
-
-			lvi.mask = LVIF_PARAM;
-			lvi.iItem = nItem;
-			//lvi.iSubItem = nSubItem;
-
-			ListView_GetItem(this->m_Hwnd, &lvi);
-			lpdcxlvi = (LPDCXLVITEM) lvi.lParam;
-
-			if (lpdcxlvi && lpdcxlvi->pbar && lpdcxlvi->iPbarCol == nSubItem) {
-				itemtext = input.gettok( 1 ) + " " + input.gettok( 2 ) + " " + itemtext;
-				lpdcxlvi->pbar->parseCommandRequest(itemtext);
+			if (nItem < 0) {
+				this->showError(NULL,"-v", "Invalid Item: No Items in list");
+				return;
 			}
-			else if (nItem > -1 && nSubItem > -1 && nSubItem <= this->getColumnCount()) {
-				ListView_SetItemText(this->m_Hwnd, nItem, nSubItem, itemtext.to_chr());
-			}
+		}
+		if (nItem < 0) {
+			this->showError(NULL,"-v", "Invalid Item");
+			return;
+		}
+
+		TString itemtext(input.gettok(6, -1));
+		itemtext.trim();
+
+		LVITEM lvi;
+		LPDCXLVITEM lpdcxlvi;
+
+		ZeroMemory(&lvi, sizeof(LVITEM));
+
+		lvi.mask = LVIF_PARAM;
+		lvi.iItem = nItem;
+		//lvi.iSubItem = nSubItem;
+
+		ListView_GetItem(this->m_Hwnd, &lvi);
+		lpdcxlvi = (LPDCXLVITEM) lvi.lParam;
+
+		if (lpdcxlvi && lpdcxlvi->pbar && lpdcxlvi->iPbarCol == nSubItem) {
+			itemtext = input.gettok( 1 ) + " " + input.gettok( 2 ) + " " + itemtext;
+			lpdcxlvi->pbar->parseCommandRequest(itemtext);
+		}
+		else if (nItem > -1 && nSubItem > -1 && nSubItem <= this->getColumnCount()) {
+			ListView_SetItemText(this->m_Hwnd, nItem, nSubItem, itemtext.to_chr());
 		}
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
@@ -1551,6 +1610,16 @@ void DcxListView::parseCommandRequest(TString &input) {
 		lvi.iItem = input.gettok(4).to_int() -1;
 		lvi.iSubItem = input.gettok(5).to_int();
 		lvi.mask = LVIF_PARAM;
+
+		// check if item supplied was 0 (now -1), last item in list.
+		if (lvi.iItem == -1) {
+			lvi.iItem = ListView_GetItemCount(this->m_Hwnd) -1;
+
+			if (lvi.iItem < 0) {
+				this->showError(NULL,"-T", "Invalid Item: No Items in list");
+				return;
+			}
+		}
 
 		if ((lvi.iItem < 0) || (lvi.iSubItem < 0)) {
 			this->showErrorEx(NULL, "-T", "Invalid Item: %d Subitem: %d", lvi.iItem +1, lvi.iSubItem);
