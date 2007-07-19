@@ -200,5 +200,31 @@ HWND DcxWindow::getHwnd( ) const {
 
 void DcxWindow::redrawWindow( ) {
 
-  RedrawWindow( this->m_Hwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
+	RedrawWindow( this->m_Hwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
+}
+
+/*
+ * Redraw Window using a buffered method to avoid flicker of children etc..
+*/
+
+void DcxWindow::redrawBufferedWindow( ) {
+
+	HDC hdc = GetWindowDC(this->m_Hwnd);
+
+	if (hdc != NULL) {
+		RECT rc;
+		GetWindowRect(this->m_Hwnd, &rc);
+
+		HDC *hBuffer = CreateHDCBuffer(hdc, &rc);
+
+		if (hBuffer != NULL) {
+			SendMessage(this->m_Hwnd, WM_PRINT, (WPARAM)*hBuffer, PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
+
+			BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), *hBuffer, 0,0, SRCCOPY);
+
+			DeleteHDCBuffer(hBuffer);
+		}
+		ReleaseDC(this->m_Hwnd, hdc);
+		ValidateRect(this->m_Hwnd, NULL);
+	}
 }

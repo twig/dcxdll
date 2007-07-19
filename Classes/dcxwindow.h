@@ -42,6 +42,7 @@ public:
   UINT getID( ) const;
 
   void redrawWindow( );
+	void redrawBufferedWindow( );
 
 protected:
 

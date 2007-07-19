@@ -2161,9 +2161,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
 			p_this->SetVistaStyleSize();
 			p_this->updateLayout(rc);
-			p_this->redrawWindow(); //not needed?
+			//This is needed (or some other solution) to update the bkg image & transp controls on it
+			//p_this->redrawWindow(); // Causes alot of flicker.
+			p_this->redrawBufferedWindow(); // Avoids flicker.
 			break;
 		}
+		//case WM_NCCALCSIZE:
+		//	{
+		//	}
+		//	break;
 
 		case WM_WINDOWPOSCHANGING:
 		{

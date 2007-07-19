@@ -251,76 +251,90 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 void DcxList::parseCommandRequest( TString & input ) {
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3 ), &flags );
+	XSwitchFlags flags;
+	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
+	this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-  int numtok = input.numtok( );
+	int numtok = input.numtok( );
 
-  //xdid -r [NAME] [ID] [SWITCH]
-  if (flags.switch_flags[17]) {
-    SendMessage(this->m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0);
-  }
+	//xdid -r [NAME] [ID] [SWITCH]
+	if (flags.switch_flags[17]) {
+		SendMessage(this->m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0);
+	}
 
-  //xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
-  if ( flags.switch_flags[0] && numtok > 4 ) {
+	//xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
+	if ( flags.switch_flags[0] && numtok > 4 ) {
 
-    int nPos = input.gettok( 4 ).to_int( ) - 1;
+		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
-    if ( nPos == -1 )
-      nPos += ListBox_GetCount( this->m_Hwnd ) + 1;
-    
-    ListBox_InsertString( this->m_Hwnd, nPos, input.gettok( 5, -1 ).to_chr( ) );
-  }
-  //xdid -c [NAME] [ID] [SWITCH] [N,[N,[...]]]
-  else if ( flags.switch_flags[2] && numtok > 3 ) {
+		if ( nPos == -1 )
+			nPos += ListBox_GetCount( this->m_Hwnd ) + 1;
 
-    if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
+		ListBox_InsertString( this->m_Hwnd, nPos, input.gettok( 5, -1 ).to_chr( ) );
+	}
+	//xdid -c [NAME] [ID] [SWITCH] [N,[N,[...]]]
+	else if ( flags.switch_flags[2] && numtok > 3 ) {
+
+		int nItems = ListBox_GetCount( this->m_Hwnd );
+
+		if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
 
 			TString Ns(input.gettok( 4 ));
 
-      int i = 1, n = Ns.numtok( TSCOMMA ), nItems = ListBox_GetCount( this->m_Hwnd );
+			int i = 1, n = Ns.numtok( TSCOMMA );
 
-      while ( i <= n ) {
+			while ( i <= n ) {
 
-        int nSel = Ns.gettok( i, TSCOMMA ).to_int( ) - 1;
+				int nSel = Ns.gettok( i, TSCOMMA ).to_int( ) - 1;
 
-        if ( nSel > -1 && nSel < nItems )
-          ListBox_SetSel( this->m_Hwnd, TRUE, nSel );
+				if (nSel == -1)
+					nSel = nItems -1;
 
-        i++;
-      }
-    }
-    else {
+				if ( nSel > -1 && nSel < nItems )
+					ListBox_SetSel( this->m_Hwnd, TRUE, nSel );
 
-      int nSel = input.gettok( 4 ).to_int( ) - 1;
+				i++;
+			}
+		}
+		else {
 
-      if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) )
-        ListBox_SetCurSel( this->m_Hwnd, nSel );
-    }
-  }
-  //xdid -d [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[3] && numtok > 3 ) {
+			int nSel = input.gettok( 4 ).to_int( ) - 1;
 
-    int nPos = input.gettok( 4 ).to_int( ) - 1;
+			if (nSel == -1)
+				nSel = nItems -1;
 
-    if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
-        ListBox_DeleteString( this->m_Hwnd, nPos );
-  }
-  //xdid -r [NAME] [ID] [SWITCH]
-  else if (flags.switch_flags[17]) {
-  }
-  //xdid -u [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[20] ) {
+			if ( nSel > -1 && nSel < nItems )
+				ListBox_SetCurSel( this->m_Hwnd, nSel );
+		}
+	}
+	//xdid -d [NAME] [ID] [SWITCH] [N]
+	else if ( flags.switch_flags[3] && numtok > 3 ) {
 
-    if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) )
-      ListBox_SetSel( this->m_Hwnd, FALSE, -1 );
-    else 
-      ListBox_SetCurSel( this->m_Hwnd, -1 );
-  }
-  //xdid -o [NAME] [ID] [N] [TEXT]
+		int nPos = input.gettok( 4 ).to_int( ) - 1;
+
+		if (nPos == -1)
+			nPos = ListBox_GetCount( this->m_Hwnd ) -1;
+
+		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
+			ListBox_DeleteString( this->m_Hwnd, nPos );
+	}
+	//xdid -r [NAME] [ID] [SWITCH]
+	else if (flags.switch_flags[17]) {
+	}
+	//xdid -u [NAME] [ID] [SWITCH]
+	else if ( flags.switch_flags[20] ) {
+
+		if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) )
+			ListBox_SetSel( this->m_Hwnd, FALSE, -1 );
+		else 
+			ListBox_SetCurSel( this->m_Hwnd, -1 );
+	}
+	//xdid -o [NAME] [ID] [N] [TEXT]
 	else if ( flags.switch_flags[14] ) {
 		int nPos = input.gettok( 4 ).to_int() - 1;
+
+		if (nPos == -1)
+			nPos = ListBox_GetCount( this->m_Hwnd ) -1;
 
 		if (nPos > -1 && nPos < ListBox_GetCount(this->m_Hwnd)) {
 			//ListBox_SetItemData(this->m_Hwnd, nPos, input.to_chr()); //.gettok(5, -1).to_chr());
