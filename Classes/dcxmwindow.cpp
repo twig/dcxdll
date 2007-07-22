@@ -28,29 +28,29 @@
 
 DcxMWindow::DcxMWindow( const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  this->m_Hwnd = cHwnd;
-  this->m_OrigParentHwnd = GetParent( this->m_Hwnd );
+	this->m_Hwnd = cHwnd;
+	this->m_OrigParentHwnd = GetParent( this->m_Hwnd );
 
-  this->m_OrigStyles = this->removeStyle( WS_CAPTION|DS_FIXEDSYS|DS_SETFONT|DS_MODALFRAME|WS_POPUP|
-    WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_THICKFRAME );
+	this->m_OrigStyles = this->removeStyle( WS_CAPTION|DS_FIXEDSYS|DS_SETFONT|DS_MODALFRAME|WS_POPUP|
+		WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_THICKFRAME );
 
-  this->m_OrigExStyles = this->removeExStyle( WS_EX_CONTROLPARENT|WS_EX_MDICHILD );
+	this->m_OrigExStyles = this->removeExStyle( WS_EX_CONTROLPARENT|WS_EX_MDICHILD );
 
-  this->addStyle( WS_CHILD );
+	this->addStyle( WS_CHILD );
 
-  SetParent( this->m_Hwnd, pHwnd );
-  SetWindowPos( this->m_Hwnd, NULL, rc->left, rc->top, rc->right-rc->left, rc->bottom-rc->top, NULL );
-  ShowWindow( this->m_Hwnd, SW_SHOWNOACTIVATE );
-  UpdateWindow( this->m_Hwnd);
+	SetParent( this->m_Hwnd, pHwnd );
+	SetWindowPos( this->m_Hwnd, NULL, rc->left, rc->top, rc->right-rc->left, rc->bottom-rc->top, NULL );
+	ShowWindow( this->m_Hwnd, SW_SHOWNOACTIVATE );
+	UpdateWindow( this->m_Hwnd);
 
-  this->m_OrigID = SetWindowLong( this->m_Hwnd, GWL_ID, ID );
+	this->m_OrigID = SetWindowLong( this->m_Hwnd, GWL_ID, ID );
 
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -70,7 +70,7 @@ DcxMWindow::~DcxMWindow( ) {
 	BOOL bHide = IsWindowVisible( this->m_Hwnd );
 	if ( !bHide )
 		ShowWindow( this->m_Hwnd, SW_HIDE );
-	
+
 	SetWindowLong( this->m_Hwnd, GWL_ID, this->m_OrigID );
 	//SetParent( this->m_Hwnd, this->m_OrigParentHwnd );
 	//this->removeStyle(WS_CHILDWINDOW);
@@ -101,17 +101,17 @@ DcxMWindow::~DcxMWindow( ) {
  */
 
 void DcxMWindow::parseInfoRequest( TString & input, char * szReturnValue ) {
-//  int numtok = input.numtok( );
+	//  int numtok = input.numtok( );
 
-   // [NAME] [ID] [PROP]
+	// [NAME] [ID] [PROP]
 	if (input.gettok( 3 ) == "wname") {
 		lstrcpyn(szReturnValue, this->m_OrigName.to_chr(), 900);
 		return;
 	}
-   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-      return;
-  
-  szReturnValue[0] = 0;
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -122,17 +122,17 @@ void DcxMWindow::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 void DcxMWindow::parseCommandRequest( TString & input ) {
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3 ), &flags );
+	XSwitchFlags flags;
+	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
+	this->parseSwitchFlags( input.gettok( 3 ), &flags );
 
-//  int numtok = input.numtok( );
+	//  int numtok = input.numtok( );
 
-  this->parseGlobalCommandRequest( input, flags );
+	this->parseGlobalCommandRequest( input, flags );
 }
 
 void DcxMWindow::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-   this->m_OrigName = styles;
+	this->m_OrigName = styles;
 }
 
 /*!
@@ -149,19 +149,26 @@ LRESULT DcxMWindow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 LRESULT DcxMWindow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		//case WM_GETDLGCODE:
+		//	{
+		//		bParsed = TRUE;
+		//		return DLGC_WANTALLKEYS;
+		//	}
+		//	break;
 
-    default:
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
+
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }

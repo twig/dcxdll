@@ -55,10 +55,10 @@ DcxWindow::~DcxWindow( ) {
 
 BOOL DcxWindow::isStyle( const LONG Styles ) const {
 
-  if ( GetWindowLong( this->m_Hwnd, GWL_STYLE ) & Styles )
-    return TRUE;
+	if ( GetWindowLong( this->m_Hwnd, GWL_STYLE ) & Styles )
+		return TRUE;
 
-  return FALSE;
+	return FALSE;
 }
 
 /*!
@@ -69,8 +69,8 @@ BOOL DcxWindow::isStyle( const LONG Styles ) const {
 
 LONG DcxWindow::removeStyle( const LONG Styles ) {
 
-  LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_STYLE );
-  return SetWindowLong( this->m_Hwnd, GWL_STYLE, winStyles &= ~Styles );
+	LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_STYLE );
+	return SetWindowLong( this->m_Hwnd, GWL_STYLE, winStyles &= ~Styles );
 }
 
 /*!
@@ -81,8 +81,8 @@ LONG DcxWindow::removeStyle( const LONG Styles ) {
 
 LONG DcxWindow::addStyle( const LONG Styles ) {
 
-  LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_STYLE );
-  return SetWindowLong( this->m_Hwnd, GWL_STYLE, winStyles |= Styles );
+	LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_STYLE );
+	return SetWindowLong( this->m_Hwnd, GWL_STYLE, winStyles |= Styles );
 }
 
 /*!
@@ -93,7 +93,7 @@ LONG DcxWindow::addStyle( const LONG Styles ) {
 
 LONG DcxWindow::setStyle( const LONG Styles ) {
 
-  return SetWindowLong( this->m_Hwnd, GWL_STYLE, Styles );
+	return SetWindowLong( this->m_Hwnd, GWL_STYLE, Styles );
 }
 
 /*!
@@ -104,10 +104,10 @@ LONG DcxWindow::setStyle( const LONG Styles ) {
 
 BOOL DcxWindow::isExStyle( const LONG Styles ) const {
 
-  if ( GetWindowLong( this->m_Hwnd, GWL_EXSTYLE ) & Styles )
-    return TRUE;
+	if ( GetWindowLong( this->m_Hwnd, GWL_EXSTYLE ) & Styles )
+		return TRUE;
 
-  return FALSE;
+	return FALSE;
 }
 
 /*!
@@ -118,8 +118,8 @@ BOOL DcxWindow::isExStyle( const LONG Styles ) const {
 
 LONG DcxWindow::removeExStyle( const LONG Styles ) {
 
-  LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_EXSTYLE );
-  return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, winStyles &= ~Styles );
+	LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_EXSTYLE );
+	return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, winStyles &= ~Styles );
 }
 
 /*!
@@ -130,8 +130,8 @@ LONG DcxWindow::removeExStyle( const LONG Styles ) {
 
 LONG DcxWindow::addExStyle( const LONG Styles ) {
 
-  LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_EXSTYLE );
-  return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, winStyles |= Styles );
+	LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_EXSTYLE );
+	return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, winStyles |= Styles );
 }
 
 /*!
@@ -142,7 +142,7 @@ LONG DcxWindow::addExStyle( const LONG Styles ) {
 
 LONG DcxWindow::setExStyle( const LONG Styles ) {
 
-  return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, Styles );
+	return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, Styles );
 }
 
 /*!
@@ -153,21 +153,21 @@ LONG DcxWindow::setExStyle( const LONG Styles ) {
 
 void DcxWindow::parseSwitchFlags( TString & switchs, XSwitchFlags * flags ) {
 
-  // no -sign, missing params
-  if ( switchs[0] != '-' ) 
-    return;
+	// no -sign, missing params
+	if ( switchs[0] != '-' ) 
+		return;
 
-  unsigned int i = 1, len = switchs.len( );
+	unsigned int i = 1, len = switchs.len( );
 
-  while ( i < len ) {
+	while ( i < len ) {
 
-    if ( switchs[i] >= 'a' && switchs[i] <= 'z' )
-      flags->switch_flags[ (int) ( switchs[i] - 'a' ) ] = 1;
-    else if ( switchs[i] >= 'A' && switchs[i] <= 'Z' )
-      flags->switch_cap_flags[ (int) ( switchs[i] - 'A' ) ] = 1;
+		if ( switchs[i] >= 'a' && switchs[i] <= 'z' )
+			flags->switch_flags[ (int) ( switchs[i] - 'a' ) ] = 1;
+		else if ( switchs[i] >= 'A' && switchs[i] <= 'Z' )
+			flags->switch_cap_flags[ (int) ( switchs[i] - 'A' ) ] = 1;
 
-    i++;
-  }
+		i++;
+	}
 }
 
 /*!
@@ -178,7 +178,7 @@ void DcxWindow::parseSwitchFlags( TString & switchs, XSwitchFlags * flags ) {
 
 UINT DcxWindow::getID( ) const {
 
-  return this->m_ID;
+	return this->m_ID;
 }
 
 /*!
@@ -189,7 +189,7 @@ UINT DcxWindow::getID( ) const {
 
 HWND DcxWindow::getHwnd( ) const {
 
-  return this->m_Hwnd;
+	return this->m_Hwnd;
 }
 
 /*!
@@ -205,9 +205,16 @@ void DcxWindow::redrawWindow( ) {
 
 /*
  * Redraw Window using a buffered method to avoid flicker of children etc..
+ * Vista Style has issues with this, as it relies on the WM_PAINT, anyway, its not needed for Vista style.
+ * Composited windows already have buffered draw.
 */
 
 void DcxWindow::redrawBufferedWindow( ) {
+
+	if (this->isExStyle(WS_EX_COMPOSITED)) {
+		this->redrawWindow();
+		return;
+	}
 
 	HDC hdc = GetWindowDC(this->m_Hwnd);
 

@@ -87,31 +87,17 @@ void LayoutCellFixed::LayoutChild( ) {
 
 HDWP LayoutCellFixed::ExecuteLayout( HDWP hdwp ) {
 
-  HDWP hdwpdef = hdwp; 
+	HDWP hdwpdef = hdwp; 
 
-  if ( this->m_Hwnd != NULL && IsWindow( this->m_Hwnd ) ) {
+	if ( this->m_Hwnd != NULL && IsWindow( this->m_Hwnd ) ) {
 
-    RECT rc;
-    this->getClientRect( rc );
-    //GetWindowRect( this->m_Hwnd, &rc );
-    
-    /*
-    rc.left += this->m_rcBorders.left;
-    rc.top += this->m_rcBorders.top;
-    rc.right -= (this->m_rcBorders.right + this->m_rcBorders.left);
-    rc.bottom -=  (this->m_rcBorders.bottom + this->m_rcBorders.top);
-    */
+		RECT rc;
+		this->getClientRect( rc );
 
-    //char data[500];
-    //wsprintf( data, "RECT %d %d %d %d", rc.left, rc.top, rc.right, rc.bottom );
-
-    //Edit_SetText( this->m_Hwnd, data );
-    hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER );
-    //SetWindowPos( this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER ); 
-    //SetWindowPos( 
-
-  }
-  return hdwpdef; 
+		//hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER );
+		hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
+	}
+	return hdwpdef; 
 }
 
 /*!

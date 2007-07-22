@@ -614,68 +614,68 @@ void DcxTab::deleteLParamInfo( const int nItem ) {
 
 void DcxTab::activateSelectedTab( ) {
 
-  int nTab = TabCtrl_GetItemCount( this->m_Hwnd );
-  int nSel = TabCtrl_GetCurSel( this->m_Hwnd );
+	int nTab = TabCtrl_GetItemCount( this->m_Hwnd );
+	int nSel = TabCtrl_GetCurSel( this->m_Hwnd );
 
-  if ( nTab > 0 ) {
+	if ( nTab > 0 ) {
 
-    RECT tabrect, rc;
-    GetWindowRect( this->m_Hwnd, &tabrect );
-    TabCtrl_AdjustRect( this->m_Hwnd, FALSE, &tabrect );
-    GetWindowRect( this->m_Hwnd, &rc );
+		RECT tabrect, rc;
+		GetWindowRect( this->m_Hwnd, &tabrect );
+		TabCtrl_AdjustRect( this->m_Hwnd, FALSE, &tabrect );
+		GetWindowRect( this->m_Hwnd, &rc );
 
-    OffsetRect( &tabrect, -rc.left, -rc.top );
+		OffsetRect( &tabrect, -rc.left, -rc.top );
 
-    /*
-    char data[500];
-    wsprintf( data, "WRECT %d %d %d %d - ARECT %d %d %d %d", 
-      rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top,
-      tabrect.left, tabrect.top, tabrect.right-tabrect.left, tabrect.bottom-tabrect.top );
+		/*
+		char data[500];
+		wsprintf( data, "WRECT %d %d %d %d - ARECT %d %d %d %d", 
+		rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top,
+		tabrect.left, tabrect.top, tabrect.right-tabrect.left, tabrect.bottom-tabrect.top );
 
-    mIRCError( data );
-    */
+		mIRCError( data );
+		*/
 
-    TCITEM tci;
-    ZeroMemory( &tci, sizeof( TCITEM ) );
-    tci.mask = TCIF_PARAM;
+		TCITEM tci;
+		ZeroMemory( &tci, sizeof( TCITEM ) );
+		tci.mask = TCIF_PARAM;
 
-    HDWP hdwp = BeginDeferWindowPos( 0 );
-    while ( nTab-- ) {
+		HDWP hdwp = BeginDeferWindowPos( 0 );
+		while ( nTab-- ) {
 
-      TabCtrl_GetItem( this->m_Hwnd, nTab, &tci );
-      LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
+			TabCtrl_GetItem( this->m_Hwnd, nTab, &tci );
+			LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
 
-      if ( lpdtci->mChildHwnd != NULL && IsWindow( lpdtci->mChildHwnd ) ) {
+			if ( lpdtci->mChildHwnd != NULL && IsWindow( lpdtci->mChildHwnd ) ) {
 
-        if ( nTab == nSel ) {
+				if ( nTab == nSel ) {
 
-          hdwp = DeferWindowPos( hdwp, lpdtci->mChildHwnd, NULL, 
-            tabrect.left, tabrect.top, tabrect.right-tabrect.left, tabrect.bottom-tabrect.top, 
-            SWP_SHOWWINDOW | SWP_NOZORDER );
-        }
-        else {
-          hdwp = DeferWindowPos( hdwp, lpdtci->mChildHwnd, NULL, 0, 0, 0, 0, 
-            SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER );
-        }
-      }
-    }
-    EndDeferWindowPos( hdwp );
-  }
+					hdwp = DeferWindowPos( hdwp, lpdtci->mChildHwnd, NULL, 
+						tabrect.left, tabrect.top, tabrect.right-tabrect.left, tabrect.bottom-tabrect.top, 
+						SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOOWNERZORDER );
+				}
+				else {
+					hdwp = DeferWindowPos( hdwp, lpdtci->mChildHwnd, NULL, 0, 0, 0, 0, 
+						SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
+				}
+			}
+		}
+		EndDeferWindowPos( hdwp );
+	}
 }
 
 void DcxTab::GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton)
 {
-   // ----------
+	// ----------
 	//rcCloseButton.top = rcItem.top + 2;
 	//rcCloseButton.bottom = rcCloseButton.top + (m_iiCloseButton.rcImage.bottom - m_iiCloseButton.rcImage.top);
 	//rcCloseButton.right = rcItem.right - 2;
 	//rcCloseButton.left = rcCloseButton.right - (m_iiCloseButton.rcImage.right - m_iiCloseButton.rcImage.left);
-   // ----------
+	// ----------
 	rcCloseButton.top = rcItem.top + 2;
 	rcCloseButton.bottom = rcCloseButton.top + (16);
 	rcCloseButton.right = rcItem.right - 2;
 	rcCloseButton.left = rcCloseButton.right - (16);
-   // ----------
+	// ----------
 }
 
 /*!

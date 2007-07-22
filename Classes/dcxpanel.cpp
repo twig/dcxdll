@@ -397,15 +397,15 @@ LRESULT DcxPanel::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	LRESULT lRes = 0L;
-  switch( uMsg ) {
+	switch( uMsg ) {
 
-    case WM_NOTIFY : 
-      {
+		case WM_NOTIFY : 
+			{
 
-        LPNMHDR hdr = (LPNMHDR) lParam;
+				LPNMHDR hdr = (LPNMHDR) lParam;
 
-        if (!hdr)
-          break;
+				if (!hdr)
+					break;
 
 				if (IsWindow(hdr->hwndFrom)) {
 					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
@@ -413,21 +413,21 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
 				}
-      }
-      break;
+			}
+			break;
 
-    case WM_HSCROLL:
-    case WM_VSCROLL:
-    case WM_COMMAND:
-      {
+		case WM_HSCROLL:
+		case WM_VSCROLL:
+		case WM_COMMAND:
+			{
 				if (IsWindow((HWND) lParam)) {
 					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
 					if (c_this != NULL) {
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
 				}
-      }
-      break;
+			}
+			break;
 
 		case WM_COMPAREITEM:
 			{
@@ -440,8 +440,8 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 			break;
 
-    case WM_DELETEITEM:
-      {
+		case WM_DELETEITEM:
+			{
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
@@ -449,11 +449,11 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
 				}
-      }
-      break;
+			}
+			break;
 
-    case WM_MEASUREITEM:
-      {
+		case WM_MEASUREITEM:
+			{
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
 					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
@@ -461,11 +461,11 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
 				}
-      }
-      break;
+			}
+			break;
 
-    case WM_DRAWITEM:
-      {
+		case WM_DRAWITEM:
+			{
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
@@ -473,40 +473,44 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
 				}
-      }
+			}
 			break;
 
-    case WM_SIZE:
-      {
+		case WM_SIZE:
+			{
 
-        HWND bars = NULL;
+				HWND bars = NULL;
 
-        while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_REBARCTRLCLASS, NULL ) ) != NULL ) {
+				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_REBARCTRLCLASS, NULL ) ) != NULL ) {
 
-          SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-        }
+					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
+				}
 
-        while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_STATUSBARCLASS, NULL ) ) != NULL ) {
+				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_STATUSBARCLASS, NULL ) ) != NULL ) {
 
-          SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-        }
+					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
+				}
 
-        while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_TOOLBARCLASS, NULL ) ) != NULL ) {
+				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_TOOLBARCLASS, NULL ) ) != NULL ) {
 
-          SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-        }
+					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
+				}
 
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
-	        this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
+					this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
 
 				if (this->m_pLayoutManager != NULL) {
 					RECT rc;
 					SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
 					this->m_pLayoutManager->updateLayout( rc );
 					this->redrawWindow( );
+					//if (this->m_pParentDialog->IsVistaStyle())
+					//	this->redrawWindow();
+					//else
+					//	this->redrawBufferedWindow(); // Avoids flicker.
 				}
-      }
-      break;
+			}
+			break;
 
 		case WM_ERASEBKGND:
 			{
@@ -543,10 +547,10 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		case WM_PAINT:
 			{
-        PAINTSTRUCT ps;
-        HDC hdc;
+				PAINTSTRUCT ps;
+				HDC hdc;
 
-        hdc = BeginPaint( this->m_Hwnd, &ps );
+				hdc = BeginPaint( this->m_Hwnd, &ps );
 
 				bParsed = TRUE;
 
@@ -563,17 +567,17 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 			break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return lRes;
+	return lRes;
 }

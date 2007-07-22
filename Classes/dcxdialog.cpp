@@ -2138,12 +2138,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 			HWND bars = NULL;
 
+			//SendMessage(mHwnd, WM_SETREDRAW, FALSE, 0);
 			while ((bars = FindWindowEx(mHwnd, bars, DCX_REBARCTRLCLASS, NULL)) != NULL) {
 				SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
 			}
 
 			while ((bars = FindWindowEx(mHwnd, bars, DCX_STATUSBARCLASS, NULL)) != NULL) {
+				//SendMessage(bars, WM_SETREDRAW, FALSE, 0);
 				SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
+				//SendMessage(bars, WM_SETREDRAW, TRUE, 0);
 			}
 			while ((bars = FindWindowEx(mHwnd, bars, DCX_PANELCLASS, NULL)) != NULL) {
 				SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
@@ -2161,9 +2164,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
 			p_this->SetVistaStyleSize();
 			p_this->updateLayout(rc);
+			//SendMessage(mHwnd, WM_SETREDRAW, TRUE, 0);
 			//This is needed (or some other solution) to update the bkg image & transp controls on it
 			//p_this->redrawWindow(); // Causes alot of flicker.
-			p_this->redrawBufferedWindow(); // Avoids flicker.
+			if (p_this->IsVistaStyle())
+				p_this->redrawWindow();
+			else
+				p_this->redrawBufferedWindow(); // Avoids flicker.
 			break;
 		}
 		//case WM_NCCALCSIZE:
@@ -2603,9 +2610,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		}
 
 		default:
-         // Try to process DragList events
-         if (p_this->m_vDragLists.size() != 0)
-            lRes = ProcessDragListMessage(p_this, uMsg, wParam, lParam, bParsed);
+			// Try to process DragList events
+			if (p_this->m_vDragLists.size() != 0)
+				lRes = ProcessDragListMessage(p_this, uMsg, wParam, lParam, bParsed);
 
 			break;
 	}
