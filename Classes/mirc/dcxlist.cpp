@@ -291,19 +291,22 @@ void DcxList::parseCommandRequest( TString & input ) {
 			ListBox_InsertString( this->m_Hwnd, nPos, res );
 		}
 		else if (opts.find('n',0) && itemtext.numtok() == 2) { // load single item from hash table by index
-			mIRCevalEX(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			mIRCevalEX(res, 1024, "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 			ListBox_InsertString( this->m_Hwnd, nPos, res );
 		}
 		else if (opts.find('t',0)) { // add contents of a hash table to list
 			int max_items = 0;
 			//nPos = ListBox_GetCount( this->m_Hwnd );
-			mIRCevalEX(res, 1024,  "$hget(%s,0).item", itemtext.to_chr());
+			mIRCevalEX(res, 1024, "$hget(%s,0).item", itemtext.to_chr());
 			max_items = atoi(res);
 
+			this->setRedraw(FALSE);
 			for (int i = 0; i <= max_items; i++) {
-				mIRCevalEX(res, 1024,  "$hget(%s,%d).data", itemtext.to_chr(), i);
+				mIRCevalEX(res, 1024, "$hget(%s,%d).data", itemtext.to_chr(), i);
 				ListBox_InsertString( this->m_Hwnd, nPos++, res );
 			}
+			this->setRedraw(TRUE);
+			this->redrawWindow();
 		}
 		else if (opts.find('f',0)) { // add contents of a file to list
 			if (IsFile(itemtext)) {
@@ -315,10 +318,13 @@ void DcxList::parseCommandRequest( TString & input ) {
 
 					max_lines = contents.numtok("\n");
 					//nPos = ListBox_GetCount( this->m_Hwnd );
+					this->setRedraw(FALSE);
 
 					for (int i = 0; i < max_lines; i++) {
 						ListBox_InsertString( this->m_Hwnd, nPos++, contents.gettok( i, "\n").to_chr() );
 					}
+					this->setRedraw(TRUE);
+					this->redrawWindow();
 				}
 			}
 		}
