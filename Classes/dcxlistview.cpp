@@ -774,8 +774,19 @@ void DcxListView::parseCommandRequest(TString &input) {
 		lpmylvi->vInfo.push_back(ri);
 
 		TString itemtext;
-		if (data.numtok( ) > 9)
+		if (data.numtok( ) > 9) {
 			itemtext = data.gettok(10, -1);
+
+			char res[1024];
+			if (stateFlags & LVIS_HASHITEM) {
+				mIRCevalEX(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+				itemtext = res;
+			}
+			else if (stateFlags & LVIS_HASHNUMBER) {
+				mIRCevalEX(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+				itemtext = res;
+			}
+		}
 
 		// LVS_REPORT view
 		if (this->isListViewStyle(LVS_REPORT)) {
@@ -873,9 +884,19 @@ void DcxListView::parseCommandRequest(TString &input) {
 					}
 
 					itemtext = "";
-					if (data.numtok() > 5)
+					if (data.numtok() > 5) {
 						itemtext = data.gettok(6, -1);
 
+						char res[1024];
+						if (stateFlags & LVIS_HASHITEM) {
+							mIRCevalEX(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+							itemtext = res;
+						}
+						else if (stateFlags & LVIS_HASHNUMBER) {
+							mIRCevalEX(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+							itemtext = res;
+						}
+					}
 					// create pbar for subitem
 					if (stateFlags & LVIS_PBAR) {
 						CreatePbar(&lvi, itemtext);
@@ -1803,6 +1824,10 @@ UINT DcxListView::parseItemFlags(TString & flags) {
 			iFlags |= LVIS_UNDERLINE;
 		else if (flags[i] == 'p')
 			iFlags |= LVIS_PBAR;
+		else if (flags[i] == 'h')
+			iFlags |= LVIS_HASHITEM;
+		else if (flags[i] == 'n')
+			iFlags |= LVIS_HASHNUMBER;
 
 		++i;
 	}
@@ -2022,7 +2047,7 @@ BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TStr
 		char res[10];
 		mIRCcomEX("/set -nu1 %%dcx_text %s", itemtext );
 		mIRCcomEX("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
-		mIRCeval("$regex(%dcx_text,%dcx_regex)", res );
+		mIRCeval("$regex(%dcx_text,%dcx_regex)", res, 10 );
 		if ( !lstrcmp( res, "1" ) )
 			return TRUE;
 	}
@@ -2117,7 +2142,7 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 	if ( plvsort->iSortFlags & LVSS_CUSTOM ) {
 		char res[20];
 
-		mIRCevalEX( res, "$%s(%s,%s)", plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
+		mIRCevalEX( res, 20, "$%s(%s,%s)", plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 
 		int ires = atoi(res);
 

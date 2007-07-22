@@ -428,7 +428,7 @@ BOOL DcxComboEx::matchItemText( int nItem, TString * search, UINT SearchType ) {
 
 	if ( SearchType == CBEXSEARCH_R ) {
 		char res[10];
-		mIRCevalEX(res, "$regex(%s,%s)", itemtext, search->to_chr( ) );
+		mIRCevalEX(res, 10, "$regex(%s,%s)", itemtext, search->to_chr( ) );
 		if ( !lstrcmp( res, "1" ) )
 			return TRUE;
 	}

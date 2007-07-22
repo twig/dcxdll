@@ -129,7 +129,7 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
     }
     else {
       char res[900];
-      mIRCeval( this->m_tsItemText.to_chr( ), res );
+      mIRCeval( this->m_tsItemText.to_chr( ), res, 900 );
       this->m_tsItemText = res;
       GetTextExtentPoint32( hdc, res, lstrlen( res ), &size );
     }
@@ -161,7 +161,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 	if (SetLayeredWindowAttributesUx != NULL) {
 		UINT alpha = this->m_pXParentMenu->IsAlpha();
 
-		// 255 is opaque and 0 is fully transparent.
+		// If alpha == 255 then menu is fully opaque so no need to change to layered.
 		if (alpha < 255) {
 			HWND hMenuWnd = WindowFromDC(lpdis->hDC);
 

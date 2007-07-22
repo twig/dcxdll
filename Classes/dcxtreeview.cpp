@@ -1319,7 +1319,7 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
   if ( ptvsort->iSortFlags & TVSS_CUSTOM ) {
 
 		char res[20];
-		mIRCevalEX( res, "$%s(%s,%s)", ptvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
+		mIRCevalEX( res, 20, "$%s(%s,%s)", ptvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 
 		int ires = atoi(res);
 
@@ -1597,7 +1597,7 @@ BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, const TString * search, cons
 		char res[10];
 		mIRCcomEX("/set -nu1 %%dcx_text %s", itemtext );
 		mIRCcomEX("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
-		mIRCeval("$regex(%dcx_text,%dcx_regex)", res );
+		mIRCeval("$regex(%dcx_text,%dcx_regex)", res, 10 );
 		if ( !lstrcmp( res, "1" ) )
 			return TRUE;
 	}

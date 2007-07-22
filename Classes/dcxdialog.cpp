@@ -694,7 +694,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			//DestroyWindow(this->m_Hwnd);
 			//SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
 			char ret[32];
-			mIRCevalEX(ret, "$dialog(%s).modal", this->m_tsName.to_chr());
+			mIRCevalEX(ret, 32, "$dialog(%s).modal", this->m_tsName.to_chr());
 			if (lstrcmp(ret, "$true") == 0) // Modal Dialog
 				SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
 			else // Modeless Dialog

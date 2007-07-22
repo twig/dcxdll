@@ -1102,7 +1102,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 			if (!IsWindow(winHwnd)) {
 				char windowHwnd[30];
 
-				mIRCevalEX(windowHwnd, "$window(%s).hwnd", tsInput.gettok( offset +1 ).to_chr( ) );
+				mIRCevalEX(windowHwnd, 30, "$window(%s).hwnd", tsInput.gettok( offset +1 ).to_chr( ) );
 
 				winHwnd = (HWND) atoi( windowHwnd );
 			}

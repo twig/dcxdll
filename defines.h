@@ -366,8 +366,8 @@ void mIRCDebug(const char *szFormat, ...);
 void mIRCSignalDCX(BOOL allow, const char *szFormat, ...);
 void mIRCSignal(const char *data);
 void mIRCError(const char *data);
-void mIRCeval(const char *text, char *res);
-void mIRCevalEX(char *res, const char *szFormat, ...);
+void mIRCeval(const char *text, char *res, const int maxlen);
+void mIRCevalEX(char *res, const int maxlen, const char *szFormat, ...);
 void mIRCcom(const char *data);
 void mIRCcomEX(const char *data, ...);
 
@@ -460,7 +460,9 @@ int SwitchbarPos(const int type);
 void UpdatemIRC(void);
 
 // CustomDock
-//bool InitCustomDock(void);
+#ifndef NDEBUG
+bool InitCustomDock(void);
+#endif
 
 // DirectX
 HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );

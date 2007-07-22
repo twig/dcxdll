@@ -27,6 +27,8 @@ class DcxDialog;
 #define LVIS_BGCOLOR    0x0800 //!< ListView Caption Background Color Style
 #define LVIS_PBAR       0x1000 //!< ListView ProgressBar Style
 #define LVIS_ITALIC     0x2000 //!< ListView Caption Italic Style
+#define LVIS_HASHITEM		0x4000 //!< ListView Item takes it's text from a hashtable. (text is `table item`)
+#define LVIS_HASHNUMBER	0x8000 //!< ListView Item takes it's text from a hashtable. (text is `table N`)
 
 #define LVSS_ASC        0x01   //!< ListView Sort Ascending Style
 #define LVSS_DESC       0x02   //!< ListView Sort Descending Style

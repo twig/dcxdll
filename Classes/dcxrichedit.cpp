@@ -477,7 +477,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 void DcxRichEdit::loadmIRCPalette() {
 	char res[512];
 	static const char com[] = "$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)";
-	mIRCeval(com, res);
+	mIRCeval(com, res, 512);
 
 	TString colors(res);
 	int i = 0, len = colors.numtok( );

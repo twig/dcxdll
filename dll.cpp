@@ -165,7 +165,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 
 	// Check if we're in debug mode
 	char res[255];
-	mIRCeval("$debug", res);
+	mIRCeval("$debug", res, 255);
 	TString isDebug(res);
 
 	isDebug.trim();
@@ -443,7 +443,9 @@ void WINAPI LoadDll(LOADINFO * load) {
 
 	DCX_DEBUG("LoadDLL", "Initialising UltraDock...");
 	InitUltraDock();
-	//InitCustomDock();
+//#ifndef NDEBUG
+//	InitCustomDock();
+//#endif
 	// Initialise signals of diff types
 	dcxSignal.xdock = false;
 	dcxSignal.xstatusbar = true;
@@ -613,7 +615,7 @@ mIRC(Mark) {
 	char res[40];
 
 	// check if the alias exists
-	mIRCevalEX(res, "$isalias(%s)", d.gettok(2).to_chr());
+	mIRCevalEX(res, 40, "$isalias(%s)", d.gettok(2).to_chr());
 
 	if (lstrcmp(res, "$false") == 0) {
 		wsprintf(data, "D_ERROR Mark : No such alias : %s", d.gettok(2).to_chr());
