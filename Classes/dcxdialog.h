@@ -124,7 +124,7 @@ public:
 	bool SetShadowColor(COLORREF NewColor = 0);
 	void ShowShadow(void);
 
-	static DWORD getAnimateStyles( TString & flags );
+	static DWORD getAnimateStyles( const TString & flags );
 	void showError(const char *prop, const char *cmd, const char *err);
 	void showErrorEx(const char *prop, const char *cmd, const char *fmt, ...);
 #ifdef DCX_USE_GDIPLUS
@@ -142,7 +142,7 @@ public:
 	HDC GetVistaHDC(void) const { return this->m_hVistaHDC; };
 	HWND GetVistaHWND(void) const { return this->m_hFakeHwnd; };
 	SIZE GetVistaOffsets(void) const { return this->m_sVistaOffsets; };
-	void MapVistaRect(HWND hwnd, LPRECT rc);
+	void MapVistaRect(HWND hwnd, LPRECT rc) const;
 
 	void RegisterDragList(DcxList* list);
 	void UnregisterDragList(DcxList* list);

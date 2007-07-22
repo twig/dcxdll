@@ -254,7 +254,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		// invalid column
 		if ((col < -1) || (col >= count)) {
-			delete val;
+			delete [] val;
 			return;
 		}
 
@@ -267,7 +267,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 		// get specific column
 		if (col > -1) {
 			wsprintf(szReturnValue, "%s", val[col]);
-			delete val;
+			delete [] val;
 			return;
 		}
 
@@ -279,7 +279,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		buff.trim();
 		wsprintf(szReturnValue, "%s", buff.to_chr());
-		delete val;
+		delete [] val;
 		return;
 	}
 	// [NAME] [ID] [PROP] [N] (NSUB)
@@ -888,11 +888,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 						itemtext = data.gettok(6, -1);
 
 						char res[1024];
-						if (stateFlags & LVIS_HASHITEM) {
+						if ((stateFlags & LVIS_HASHITEM) && (itemtext.numtok() == 2)) {
 							mIRCevalEX(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 							itemtext = res;
 						}
-						else if (stateFlags & LVIS_HASHNUMBER) {
+						else if ((stateFlags & LVIS_HASHNUMBER) && (itemtext.numtok() == 2)) {
 							mIRCevalEX(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 							itemtext = res;
 						}

@@ -303,9 +303,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 					{
 						UINT alpha = input.gettok( 4 ).to_int();
 
-						if (alpha < 0)
-							alpha = 0;
-						else if (alpha > 255)
+						if (alpha > 255)
 							alpha = 255;
 
 						p_Menu->SetAlpha(alpha);

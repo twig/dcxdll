@@ -268,9 +268,62 @@ void DcxList::parseCommandRequest( TString & input ) {
 		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nPos == -1 )
-			nPos += ListBox_GetCount( this->m_Hwnd ) + 1;
+			nPos = ListBox_GetCount( this->m_Hwnd );
 
 		ListBox_InsertString( this->m_Hwnd, nPos, input.gettok( 5, -1 ).to_chr( ) );
+	}
+	//xdid -A [NAME] [ID] [SWITCH] [N] [+FLAGS] [TEXT]
+	else if ( flags.switch_cap_flags[0] && numtok > 5 ) {
+
+		int nPos = input.gettok( 4 ).to_int( ) - 1;
+
+		if ( nPos == -1 )
+			nPos = ListBox_GetCount( this->m_Hwnd );
+
+		TString opts(input.gettok( 5 ));
+		TString itemtext(input.gettok( 6, -1 ));
+		char res[1024];
+
+		itemtext.trim();
+
+		if (opts.find('h',0) && itemtext.numtok() == 2) { // load single item from hash table by item name
+			mIRCevalEX(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			ListBox_InsertString( this->m_Hwnd, nPos, res );
+		}
+		else if (opts.find('n',0) && itemtext.numtok() == 2) { // load single item from hash table by index
+			mIRCevalEX(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			ListBox_InsertString( this->m_Hwnd, nPos, res );
+		}
+		else if (opts.find('t',0)) { // add contents of a hash table to list
+			int max_items = 0;
+			//nPos = ListBox_GetCount( this->m_Hwnd );
+			mIRCevalEX(res, 1024,  "$hget(%s,0).item", itemtext.to_chr());
+			max_items = atoi(res);
+
+			for (int i = 0; i <= max_items; i++) {
+				mIRCevalEX(res, 1024,  "$hget(%s,%d).data", itemtext.to_chr(), i);
+				ListBox_InsertString( this->m_Hwnd, nPos++, res );
+			}
+		}
+		else if (opts.find('f',0)) { // add contents of a file to list
+			if (IsFile(itemtext)) {
+				char *buf = readFile(itemtext.to_chr());
+				if (buf != NULL) {
+					int max_lines = 0;
+					TString contents(buf);
+					delete [] buf;
+
+					max_lines = contents.numtok("\n");
+					//nPos = ListBox_GetCount( this->m_Hwnd );
+
+					for (int i = 0; i < max_lines; i++) {
+						ListBox_InsertString( this->m_Hwnd, nPos++, contents.gettok( i, "\n").to_chr() );
+					}
+				}
+			}
+		}
+		else // do standard add text
+			ListBox_InsertString( this->m_Hwnd, nPos, itemtext.to_chr( ) );
 	}
 	//xdid -c [NAME] [ID] [SWITCH] [N,[N,[...]]]
 	else if ( flags.switch_flags[2] && numtok > 3 ) {

@@ -40,10 +40,12 @@ class DcxTreeView;
 #define TVCOLOR_T 0x04        //!< TreeView Text Color
 #define TVCOLOR_S 0x08        //!< TreeView Selection Color
 
-#define TVIS_UNDERLINE 0x0100 //!< TreeView Caption Underline Style
-#define TVIS_COLOR     0x0200 //!< TreeView Caption Color Style
-#define TVIS_ITALIC    0x0400 //!< TreeView Caption Italic Style
-#define TVIS_BKG				0x800 //!< TreeView Item blackground colour style.
+#define TVIS_UNDERLINE	0x0100 //!< TreeView Caption Underline Style
+#define TVIS_COLOR			0x0200 //!< TreeView Caption Color Style
+#define TVIS_ITALIC			0x0400 //!< TreeView Caption Italic Style
+#define TVIS_BKG				0x0800 //!< TreeView Item blackground colour style.
+#define TVIS_HASHITEM		0x1000 //!< TreeView item text is taken from a hash table item
+#define TVIS_HASHNUMBER	0x2000 //!< TreeView item text is taken from a hash tabel item number
 
 #define TVIE_EXP     0x01     //!< TreeView Expand Branch Option
 #define TVIE_EXPALL  0x02     //!< TreeView Expandall Branch Option

@@ -1092,7 +1092,19 @@ HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, co
 	// text
 	TString itemtext(data->gettok(9, -1));
 
-	tvi.pszText = itemtext.to_chr(); 
+	{
+		char res[1024];
+		if ((iFlags & TVIS_HASHITEM) && (itemtext.numtok() == 2)) {
+			mIRCevalEX(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			itemtext = res;
+		}
+		else if ((iFlags & TVIS_HASHNUMBER) && (itemtext.numtok() == 2)) {
+			mIRCevalEX(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			itemtext = res;
+		}
+	}
+
+	tvi.pszText = itemtext.to_chr();
 	tvi.cchTextMax = sizeof(tvi.pszText) / sizeof(tvi.pszText[0]);
 
 	// icons
@@ -1186,6 +1198,10 @@ UINT DcxTreeView::parseItemFlags(const TString &flags) {
 			iFlags |= TVIS_UNDERLINE;
 		else if (flags[i] == 'g')
 			iFlags |= TVIS_BKG;
+		else if (flags[i] == 'h')
+			iFlags |= TVIS_HASHITEM;
+		else if (flags[i] == 'n')
+			iFlags |= TVIS_HASHNUMBER;
 
 		++i;
 	}

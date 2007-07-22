@@ -1257,7 +1257,7 @@ void DcxDialog::parseBorderStyles(const TString &flags, LONG *Styles, LONG *ExSt
  * blah
  */
 
-DWORD DcxDialog::getAnimateStyles(TString &flags) {
+DWORD DcxDialog::getAnimateStyles( const TString &flags) {
 	DWORD Styles = 0;
 	int i = 1, len = flags.len();
 
@@ -3458,7 +3458,7 @@ void DcxDialog::SetVistaStyleSize(void)
 	SetWindowPos(this->m_hFakeHwnd, NULL, 0,0, szWin.cx, szWin.cy, SWP_NOMOVE|SWP_NOZORDER);
 }
 
-void DcxDialog::MapVistaRect(HWND hwnd, LPRECT rc)
+void DcxDialog::MapVistaRect(HWND hwnd, LPRECT rc) const
 {
 	MapWindowPoints(hwnd,this->m_Hwnd, (LPPOINT)rc, 2);
 	OffsetRect(rc, this->m_sVistaOffsets.cx, this->m_sVistaOffsets.cy);
