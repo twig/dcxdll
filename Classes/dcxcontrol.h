@@ -105,7 +105,7 @@ public:
   virtual LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
 
   LRESULT setFont( const HFONT hFont, const BOOL fRedraw );
-  LRESULT getFont( ) const;
+  HFONT getFont( ) const;
 
   void setControlFont( const HFONT hFont, const BOOL fRedraw );
 

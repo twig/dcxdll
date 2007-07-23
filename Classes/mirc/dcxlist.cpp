@@ -113,8 +113,12 @@ void DcxList::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
          *Styles |= LBS_SORT;
       else if (styles.gettok(i) == "tabs")
          *Styles |= LBS_USETABSTOPS;
+      else if (styles.gettok(i) == "multicol")
+         *Styles |= LBS_MULTICOLUMN;
       else if (styles.gettok(i) == "vsbar")
          *Styles |= WS_VSCROLL;
+      else if (styles.gettok(i) == "hsbar") // doesn't work for some reason...
+         *Styles |= WS_HSCROLL;
       else if (styles.gettok(i) == "alpha")
          this->m_bAlphaBlend = true;
       else if (styles.gettok(i) == "dragline")
@@ -259,7 +263,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 
 	//xdid -r [NAME] [ID] [SWITCH]
 	if (flags.switch_flags[17]) {
-		SendMessage(this->m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0);
+		ListBox_ResetContent( this->m_Hwnd );
 	}
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
@@ -282,6 +286,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 
 		TString opts(input.gettok( 5 ));
 		TString itemtext(input.gettok( 6, -1 ));
+		int nMaxStrlen = 0;
 		char res[1024];
 
 		itemtext.trim();
@@ -289,21 +294,26 @@ void DcxList::parseCommandRequest( TString & input ) {
 		if (opts.find('h',0) && itemtext.numtok() == 2) { // load single item from hash table by item name
 			mIRCevalEX(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 			ListBox_InsertString( this->m_Hwnd, nPos, res );
+			nMaxStrlen = lstrlen(res);
 		}
 		else if (opts.find('n',0) && itemtext.numtok() == 2) { // load single item from hash table by index
 			mIRCevalEX(res, 1024, "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 			ListBox_InsertString( this->m_Hwnd, nPos, res );
+			nMaxStrlen = lstrlen(res);
 		}
 		else if (opts.find('t',0)) { // add contents of a hash table to list
-			int max_items = 0;
-			//nPos = ListBox_GetCount( this->m_Hwnd );
+			int max_items = 0, len = 0;
+
 			mIRCevalEX(res, 1024, "$hget(%s,0).item", itemtext.to_chr());
 			max_items = atoi(res);
 
 			this->setRedraw(FALSE);
-			for (int i = 0; i <= max_items; i++) {
+			for (int i = 1; i <= max_items; i++) {
 				mIRCevalEX(res, 1024, "$hget(%s,%d).data", itemtext.to_chr(), i);
 				ListBox_InsertString( this->m_Hwnd, nPos++, res );
+				len = lstrlen( res );
+				if (len > nMaxStrlen)
+					nMaxStrlen = len;
 			}
 			this->setRedraw(TRUE);
 			this->redrawWindow();
@@ -312,24 +322,58 @@ void DcxList::parseCommandRequest( TString & input ) {
 			if (IsFile(itemtext)) {
 				char *buf = readFile(itemtext.to_chr());
 				if (buf != NULL) {
-					int max_lines = 0;
+					int max_lines = 0, len = 0;
 					TString contents(buf);
 					delete [] buf;
+					char *tok = "\r\n";
 
-					max_lines = contents.numtok("\n");
-					//nPos = ListBox_GetCount( this->m_Hwnd );
+					max_lines = contents.numtok(tok);
+					if (max_lines == 0) {
+						tok = "\n";
+						max_lines = contents.numtok(tok);
+					}
 					this->setRedraw(FALSE);
 
 					for (int i = 0; i < max_lines; i++) {
-						ListBox_InsertString( this->m_Hwnd, nPos++, contents.gettok( i, "\n").to_chr() );
+						itemtext = contents.gettok( i, tok);
+						ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
+						len = itemtext.len();
+						if (len > nMaxStrlen)
+							nMaxStrlen = len;
 					}
 					this->setRedraw(TRUE);
 					this->redrawWindow();
 				}
 			}
 		}
-		else // do standard add text
+		else { // do standard add text
 			ListBox_InsertString( this->m_Hwnd, nPos, itemtext.to_chr( ) );
+			nMaxStrlen = itemtext.len();
+		}
+		// Now update the horizontal scroller
+		int nHorizExtent = ListBox_GetHorizontalExtent( this->m_Hwnd );
+
+		{ // Get Font sizes (best way i can find atm, if you know something better then please let me know)
+			HDC hdc = GetDC( this->m_Hwnd);
+			TEXTMETRIC tm;
+			HFONT hFont = this->getFont();
+
+			HFONT hOldFont = SelectFont(hdc, hFont);
+
+			GetTextMetrics(hdc, &tm);
+
+			SelectFont(hdc, hOldFont);
+
+			ReleaseDC( this->m_Hwnd, hdc);
+
+			// Multiply max str len by font average width + 1
+			nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
+			// Add 2 * chars as spacer.
+			nMaxStrlen += (tm.tmAveCharWidth * 2);
+		}
+
+		if (nMaxStrlen > nHorizExtent)
+			ListBox_SetHorizontalExtent( this->m_Hwnd, nMaxStrlen);
 	}
 	//xdid -c [NAME] [ID] [SWITCH] [N,[N,[...]]]
 	else if ( flags.switch_flags[2] && numtok > 3 ) {
@@ -387,6 +431,18 @@ void DcxList::parseCommandRequest( TString & input ) {
 			ListBox_SetSel( this->m_Hwnd, FALSE, -1 );
 		else 
 			ListBox_SetCurSel( this->m_Hwnd, -1 );
+	}
+	//xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N]...)
+	else if ( flags.switch_cap_flags[12] && numtok > 3 ) {
+		TString opts(input.gettok( 4 ));
+		int nWidth = input.gettok( 5 ).to_int( );
+
+		if (opts.find('w',0))
+			ListBox_SetColumnWidth( this->m_Hwnd, nWidth);
+		else if (opts.find('t',0))
+			ListBox_SetTabStops( this->m_Hwnd, 1, nWidth); // needs updated for multiple tab stops
+		else
+			this->showError(NULL, "-m", "Invalid Flags");
 	}
 	//xdid -o [NAME] [ID] [N] [TEXT]
 	else if ( flags.switch_flags[14] ) {

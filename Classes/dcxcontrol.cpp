@@ -1155,8 +1155,8 @@ LRESULT DcxControl::setFont( const HFONT hFont, const BOOL fRedraw ) {
  * blah
  */
 
-LRESULT DcxControl::getFont( ) const {
-  return SendMessage( this->m_Hwnd, WM_GETFONT, (WPARAM) 0, (LPARAM) 0 );
+HFONT DcxControl::getFont( ) const {
+  return GetWindowFont( this->m_Hwnd );
 }
 
 /*!
