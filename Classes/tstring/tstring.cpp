@@ -1363,19 +1363,22 @@ TString TString::gettok( int N, int M, const char * sepChars ) const {
 
 int TString::numtok( const char * sepChars ) const {
 
-  if ( sepChars == NULL || this->m_pString == NULL )
-    return 0;
+	if ( sepChars == NULL || this->m_pString == NULL)
+		return 0;
 
-  char * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
-  int iCount = 0;
+	if (lstrlen(this->m_pString) == 0)
+		return 0;
+
+	char * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
+	int iCount = 0;
 	int sepl = lstrlen( sepChars ); // Ook
 
-  while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
+	while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
 
-    iCount++;
-    p_cStart = p_cEnd + sepl; // Ook
-  }
-  return iCount + 1;
+		iCount++;
+		p_cStart = p_cEnd + sepl; // Ook
+	}
+	return iCount + 1;
 }
 
 /*!

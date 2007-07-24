@@ -289,66 +289,168 @@ void DcxList::parseCommandRequest( TString & input ) {
 		int nMaxStrlen = 0;
 		char res[1024];
 
+		if (opts[0] != '+') {
+			this->showError(NULL, "-A", "Invalid Flags");
+			return;
+		}
+
 		itemtext.trim();
 
-		if (opts.find('h',0) && itemtext.numtok() == 2) { // load single item from hash table by item name
-			mIRCevalEX(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-			ListBox_InsertString( this->m_Hwnd, nPos, res );
-			nMaxStrlen = lstrlen(res);
-		}
-		else if (opts.find('n',0) && itemtext.numtok() == 2) { // load single item from hash table by index
-			mIRCevalEX(res, 1024, "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-			ListBox_InsertString( this->m_Hwnd, nPos, res );
-			nMaxStrlen = lstrlen(res);
-		}
-		else if (opts.find('t',0)) { // add contents of a hash table to list
-			int max_items = 0, len = 0;
-
-			mIRCevalEX(res, 1024, "$hget(%s,0).item", itemtext.to_chr());
-			max_items = atoi(res);
-
-			this->setRedraw(FALSE);
-			for (int i = 1; i <= max_items; i++) {
-				mIRCevalEX(res, 1024, "$hget(%s,%d).data", itemtext.to_chr(), i);
-				ListBox_InsertString( this->m_Hwnd, nPos++, res );
-				len = lstrlen( res );
-				if (len > nMaxStrlen)
-					nMaxStrlen = len;
+		switch (opts[1])
+		{
+		case 'h': // [TEXT] == [table] [item]
+			{
+				if (itemtext.numtok() == 2) { // load single item from hash table by item name
+					mIRCevalEX(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					ListBox_InsertString( this->m_Hwnd, nPos, res );
+					nMaxStrlen = lstrlen(res);
+				}
+				else
+					this->showError(NULL, "-A +h", "Invalid Syntax");
 			}
-			this->setRedraw(TRUE);
-			this->redrawWindow();
-		}
-		else if (opts.find('f',0)) { // add contents of a file to list
-			if (IsFile(itemtext)) {
-				char *buf = readFile(itemtext.to_chr());
-				if (buf != NULL) {
-					int max_lines = 0, len = 0;
-					TString contents(buf);
-					delete [] buf;
-					char *tok = "\r\n";
+			break;
+		case 'n': // [TEXT] == [table] [N]
+			{
+				if (itemtext.numtok() == 2) { // load single item from hash table by index
+					mIRCevalEX(res, 1024, "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					ListBox_InsertString( this->m_Hwnd, nPos, res );
+					nMaxStrlen = lstrlen(res);
+				}
+				else
+					this->showError(NULL, "-A +n", "Invalid Syntax");
+			}
+			break;
+		case 't': // [TEXT] == [table] [startN] [endN]
+			{
+				if (itemtext.numtok() == 3) { // add contents of a hash table to list
+					int max_items = 0, len = 0;
+					TString htable(itemtext.gettok( 1 ));
+					int startN = itemtext.gettok( 2 ).to_int();
+					int endN = itemtext.gettok( 3 ).to_int();
 
-					max_lines = contents.numtok(tok);
-					if (max_lines == 0) {
-						tok = "\n";
-						max_lines = contents.numtok(tok);
+					// get total items in table.
+					mIRCevalEX(res, 1024, "$hget(%s,0).item", htable.to_chr());
+					max_items = atoi(res);
+
+					// no items in table.
+					if (max_items == 0)
+						return;
+
+					// If neg number is given start from (last item) - startN
+					if (startN < 0)
+						startN = (max_items + startN);
+
+					// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than items avail.
+					if (startN < 1)
+						startN = 1;
+
+					// If neg number is given set end to (last item) - endN
+					if (endN < 0)
+						endN = (max_items + endN);
+					// if endN > max or == 0, set to max, allows 0 item for end meaning all
+					else if ((endN > max_items) || (endN == 0))
+						endN = max_items;
+
+					// if endN < 1 set it to 1
+					if (endN < 1)
+						endN = 1;
+
+					// check endN comes after startN
+					if (endN < startN) {
+						this->showError(NULL, "-A +t", "Invalid Range");
+						return;
 					}
-					this->setRedraw(FALSE);
 
-					for (int i = 0; i < max_lines; i++) {
-						itemtext = contents.gettok( i, tok);
-						ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
-						len = itemtext.len();
+					this->setRedraw(FALSE);
+					for (int i = startN; i <= endN; i++) {
+						mIRCevalEX(res, 1024, "$hget(%s,%d).data", htable.to_chr(), i);
+						ListBox_InsertString( this->m_Hwnd, nPos++, res );
+						len = lstrlen( res );
 						if (len > nMaxStrlen)
 							nMaxStrlen = len;
 					}
 					this->setRedraw(TRUE);
 					this->redrawWindow();
 				}
+				else
+					this->showError(NULL, "-A +t", "Invalid Syntax");
 			}
-		}
-		else { // do standard add text
-			ListBox_InsertString( this->m_Hwnd, nPos, itemtext.to_chr( ) );
-			nMaxStrlen = itemtext.len();
+			break;
+		case 'f': // [TEXT] == [startN] [endN] [filename]
+			{
+				if (itemtext.numtok() > 2) { // add contents of a file to list
+					int startN = itemtext.gettok( 1 ).to_int();
+					int endN = itemtext.gettok( 2 ).to_int();
+					TString filename(itemtext.gettok( 3, -1));
+
+					if (IsFile(filename)) {
+						char *buf = readFile(filename.to_chr());
+						if (buf != NULL) {
+							int max_lines = 0, len = 0;
+							TString contents(buf);
+							delete [] buf;
+							char *tok = "\r\n";
+
+							max_lines = contents.numtok(tok);
+							if (max_lines == 1) {
+								tok = "\n";
+								max_lines = contents.numtok(tok);
+							}
+
+							// no data in file.
+							if (max_lines == 0)
+								return;
+
+							// If neg number is given start from (last line) - startN
+							if (startN < 0)
+								startN = (max_lines + startN);
+
+							// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than lines avail.
+							if (startN < 1)
+								startN = 1;
+
+							// If neg number is given set end to (last line) - endN
+							if (endN < 0)
+								endN = (max_lines + endN);
+							// if endN > max or == 0, set to max, allows 0 for end meaning all
+							else if ((endN > max_lines) || (endN == 0))
+								endN = max_lines;
+
+							// if endN < 1 set it to 1
+							if (endN < 1)
+								endN = 1;
+
+							// check endN comes after startN
+							if (endN < startN) {
+								this->showError(NULL, "-A +f", "Invalid Range");
+								return;
+							}
+							this->setRedraw(FALSE);
+
+							for (int i = startN; i <= endN; i++) {
+								itemtext = contents.gettok( i, tok);
+								ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
+								len = itemtext.len();
+								if (len > nMaxStrlen)
+									nMaxStrlen = len;
+							}
+							this->setRedraw(TRUE);
+							this->redrawWindow();
+						}
+					}
+					else
+						this->showErrorEx(NULL, "-A", "Unable To Access File: %s", itemtext.to_chr());
+				}
+				else
+					this->showError(NULL, "-A +f", "Invalid Syntax");
+			}
+			break;
+		default:
+			{
+				ListBox_InsertString( this->m_Hwnd, nPos, itemtext.to_chr( ) );
+				nMaxStrlen = itemtext.len();
+			}
+			break;
 		}
 		// Now update the horizontal scroller
 		int nHorizExtent = ListBox_GetHorizontalExtent( this->m_Hwnd );
