@@ -535,14 +535,35 @@ void DcxList::parseCommandRequest( TString & input ) {
 			ListBox_SetCurSel( this->m_Hwnd, -1 );
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N]...)
-	else if ( flags.switch_cap_flags[12] && numtok > 3 ) {
+	else if ( flags.switch_cap_flags[12] && numtok > 4 ) {
 		TString opts(input.gettok( 4 ));
-		int nWidth = input.gettok( 5 ).to_int( );
 
 		if (opts.find('w',0))
-			ListBox_SetColumnWidth( this->m_Hwnd, nWidth);
-		else if (opts.find('t',0))
-			ListBox_SetTabStops( this->m_Hwnd, 1, nWidth); // needs updated for multiple tab stops
+			ListBox_SetColumnWidth( this->m_Hwnd, input.gettok( 5 ).to_int( ));
+		else if (opts.find('t',0)) {
+			//ListBox_SetTabStops( this->m_Hwnd, 1, nWidth); // needs updated for multiple tab stops
+			TString Ns(input.gettok( 5 ));
+
+			int i = 1, n = Ns.numtok( TSCOMMA );
+
+			if (n == 1) {
+				int nTab = Ns.to_int();
+				if (nTab < 0)
+					ListBox_SetTabStops( this->m_Hwnd, NULL, NULL);
+				else
+					ListBox_SetTabStops( this->m_Hwnd, 1, nTab);
+			}
+			else {
+				int *tabs = new int[n];
+
+				while ( i <= n ) {
+					tabs[i-1] = Ns.gettok( i, TSCOMMA).to_int();
+					i++;
+				}
+				ListBox_SetTabStops( this->m_Hwnd, n, tabs);
+				delete [] tabs;
+			}
+		}
 		else
 			this->showError(NULL, "-m", "Invalid Flags");
 	}
