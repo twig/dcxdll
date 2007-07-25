@@ -1135,7 +1135,6 @@ void DcxDialog::parseCommandRequest(TString &input) {
 
 		if ((p_flags[0] != '+') || (n_flags[0] != '-')) {
 			this->showError(NULL,"-E", "Invalid Flag");
-			//DCXError("xdialog -E", "Invalid Flag");
 			return;
 		}
 		if (p_flags.find('c',0))
@@ -1194,6 +1193,39 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	// xdialog -U [NAME] [SWITCH]
 	else if (flags.switch_cap_flags[20]) {
 		SetFocus(NULL);
+	}
+	// xdialog -S [NAME] [SWITCH] [X] [Y] [W] [H]
+	else if (flags.switch_cap_flags[18]) {
+		int x = input.gettok( 3 ).to_int( );
+		int y = input.gettok( 4 ).to_int( );
+		int w = input.gettok( 5 ).to_int( );
+		int h = input.gettok( 6 ).to_int( );
+
+		RECT rc;
+		UINT iFlags = SWP_NOACTIVATE|SWP_NOZORDER|SWP_NOOWNERZORDER;
+
+		GetWindowRect(this->m_Hwnd, &rc);
+
+		if (this->isStyle(WS_CHILD))
+			MapWindowRect(this->m_Hwnd, GetParent(this->m_Hwnd), &rc);
+
+		if ((x == -1) && (y == -1))
+			iFlags |= SWP_NOMOVE;
+
+		if ((w == -1) && (h == -1))
+			iFlags |= SWP_NOSIZE;
+
+		if (x == -1)
+			x = rc.left;
+		if (y == -1)
+			y = rc.top;
+
+		if (w == -1)
+			w = (rc.right - rc.left);
+		if (h == -1)
+			h = (rc.bottom - rc.top);
+
+		SetWindowPos( this->m_Hwnd, NULL, x, y, w, h, iFlags );
 	}
 	// invalid command
 	else
