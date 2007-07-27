@@ -117,7 +117,7 @@ void DcxList::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
          *Styles |= LBS_MULTICOLUMN;
       else if (styles.gettok(i) == "vsbar")
          *Styles |= WS_VSCROLL;
-      else if (styles.gettok(i) == "hsbar") // doesn't work for some reason...
+      else if (styles.gettok(i) == "hsbar")
          *Styles |= WS_HSCROLL;
       else if (styles.gettok(i) == "alpha")
          this->m_bAlphaBlend = true;
@@ -722,10 +722,10 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			{
 				if (!this->m_bAlphaBlend)
 					break;
-        PAINTSTRUCT ps;
-        HDC hdc;
+				PAINTSTRUCT ps;
+				HDC hdc;
 
-        hdc = BeginPaint( this->m_Hwnd, &ps );
+				hdc = BeginPaint( this->m_Hwnd, &ps );
 
 				LRESULT res = 0L;
 				bParsed = TRUE;

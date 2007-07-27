@@ -1293,25 +1293,41 @@ DWORD DcxDialog::getAnimateStyles( const TString &flags) {
 	DWORD Styles = 0;
 	int i = 1, len = flags.len();
 
+	if (flags[0] != '+')
+		return 0;
+
 	while (i < len) {
-		if (flags[i] == 's')
+		switch (flags[i])
+		{
+		case 's':
 			Styles |= AW_SLIDE;
-		else if (flags[i] == 'h')
+			break;
+		case 'h':
 			Styles |= AW_HIDE;
-		else if (flags[i] == 'a')
+			break;
+		case 'a':
 			Styles |= AW_ACTIVATE;
-		else if (flags[i] == 'b')
+			break;
+		case 'b':
 			Styles |= AW_BLEND;
-		else if (flags[i] == 'v')
+			break;
+		case 'v':
 			Styles |= AW_VER_POSITIVE;
-		else if (flags[i] == 'u')
+			break;
+		case 'u':
 			Styles |= AW_VER_NEGATIVE;
-		else if (flags[i] == 'c')
+			break;
+		case 'c':
 			Styles |= AW_CENTER;
-		else if (flags[i] == 'o')
+			break;
+		case 'o':
 			Styles |= AW_HOR_POSITIVE;
-		else if (flags[i] == 'n')
+			break;
+		case 'n':
 			Styles |= AW_HOR_NEGATIVE;
+		default:
+			break;
+		}
 
 		i++;
 	}
