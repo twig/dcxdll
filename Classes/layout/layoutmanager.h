@@ -17,7 +17,6 @@
 
 #include "layoutcell.h"
 #include "../tstring/tstring.h"
-//#include "tstring.h"
 
 /*!
  * \brief blah
@@ -33,7 +32,7 @@ public:
   LayoutManager( HWND mHwnd );
   virtual ~LayoutManager( );
 
-  void updateLayout( RECT & rc );
+  BOOL updateLayout( RECT & rc );
 
   void setRoot( LayoutCell * p_Root );
   LayoutCell * getRoot( ) const;

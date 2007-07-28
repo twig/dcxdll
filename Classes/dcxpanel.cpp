@@ -502,25 +502,21 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				if (this->m_pLayoutManager != NULL) {
 					RECT rc;
 					SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
-					this->m_pLayoutManager->updateLayout( rc );
-					this->redrawWindow( );
-					//if (this->m_pParentDialog->IsVistaStyle())
-					//	this->redrawWindow();
-					//else
-					//	this->redrawBufferedWindow(); // Avoids flicker.
+					if (this->m_pLayoutManager->updateLayout( rc ))
+						this->redrawWindow( );
 				}
 			}
 			break;
 
 		case WM_ERASEBKGND:
 			{
-				if (this->isExStyle(WS_EX_TRANSPARENT))
-					this->DrawParentsBackground((HDC)wParam);
-				else {
-					RECT rect;
-					GetClientRect( this->m_Hwnd, &rect );
-					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-				}
+				//if (this->isExStyle(WS_EX_TRANSPARENT))
+				//	this->DrawParentsBackground((HDC)wParam);
+				//else {
+				//	RECT rect;
+				//	GetClientRect( this->m_Hwnd, &rect );
+				//	DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+				//}
 				bParsed = TRUE;
 				return TRUE;
 			}
@@ -538,7 +534,13 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				{ // simply fill with bkg
 					RECT rcClient;
 					GetClientRect(this->m_Hwnd,&rcClient);
-					DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+					//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+					if (this->isExStyle(WS_EX_TRANSPARENT)) {
+						if (!this->m_bAlphaBlend)
+							this->DrawParentsBackground(hdc, &rcClient);
+					}
+					else
+						DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 				}
 
 				this->FinishAlphaBlend(ai);
@@ -558,7 +560,16 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
 				{ // simply fill with bkg
-					DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
+					//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
+					if (this->isExStyle(WS_EX_TRANSPARENT)) {
+						if (!this->m_bAlphaBlend)
+							this->DrawParentsBackground(hdc);
+					}
+					else {
+						RECT rect;
+						GetClientRect( this->m_Hwnd, &rect );
+						DcxControl::DrawCtrlBackground(hdc,this,&rect);
+					}
 				}
 
 				this->FinishAlphaBlend(ai);

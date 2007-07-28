@@ -662,8 +662,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				if (this->m_pLayoutManager != NULL) {
 					RECT rc;
 					SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
-					this->m_pLayoutManager->updateLayout( rc );
-					this->redrawWindow( );
+					if (this->m_pLayoutManager->updateLayout( rc ))
+						this->redrawWindow( );
 				}
       }
       break;

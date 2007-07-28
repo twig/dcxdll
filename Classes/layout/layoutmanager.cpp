@@ -53,7 +53,7 @@ LayoutManager::~LayoutManager( ) {
  * blah
  */
 
-void LayoutManager::updateLayout( RECT & rc ) {
+BOOL LayoutManager::updateLayout( RECT & rc ) {
 
   if ( this->m_pRoot != NULL ) {
 
@@ -63,8 +63,9 @@ void LayoutManager::updateLayout( RECT & rc ) {
     this->m_pRoot->LayoutChild( );
     hdwp = this->m_pRoot->ExecuteLayout( hdwp );
 
-    EndDeferWindowPos( hdwp );
+    return EndDeferWindowPos( hdwp );
   }
+	return FALSE;
 }
 
 /*!

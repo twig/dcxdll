@@ -95,39 +95,45 @@ DcxList::~DcxList( ) {
 
 void DcxList::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-   unsigned int i = 1, numtok = styles.numtok();
-   *Styles |= LBS_NOTIFY | LBS_HASSTRINGS;
+	unsigned int i = 1, numtok = styles.numtok();
+	*Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
 
-   while (i <= numtok) {
-      if (styles.gettok(i) == "noscroll")
-         *Styles |= LBS_DISABLENOSCROLL;
-      else if (styles.gettok(i) == "multi")
-         *Styles |= LBS_MULTIPLESEL;
-      else if (styles.gettok(i) == "extsel")
-         *Styles |= LBS_EXTENDEDSEL;
-      else if (styles.gettok(i) == "nointegral")
-         *Styles |= LBS_NOINTEGRALHEIGHT;
-      else if (styles.gettok(i) == "nosel")
-         *Styles |= LBS_NOSEL;
-      else if (styles.gettok(i) == "sort")
-         *Styles |= LBS_SORT;
-      else if (styles.gettok(i) == "tabs")
-         *Styles |= LBS_USETABSTOPS;
-      else if (styles.gettok(i) == "multicol")
-         *Styles |= LBS_MULTICOLUMN;
-      else if (styles.gettok(i) == "vsbar")
-         *Styles |= WS_VSCROLL;
-      else if (styles.gettok(i) == "hsbar")
-         *Styles |= WS_HSCROLL;
-      else if (styles.gettok(i) == "alpha")
-         this->m_bAlphaBlend = true;
-      else if (styles.gettok(i) == "dragline")
-         this->m_bUseDrawInsert = FALSE;
+	while (i <= numtok) {
+		if (styles.gettok(i) == "noscroll")
+			*Styles |= LBS_DISABLENOSCROLL;
+		else if (styles.gettok(i) == "multi")
+			*Styles |= LBS_MULTIPLESEL;
+		else if (styles.gettok(i) == "extsel")
+			*Styles |= LBS_EXTENDEDSEL;
+		else if (styles.gettok(i) == "nointegral")
+			*Styles |= LBS_NOINTEGRALHEIGHT;
+		else if (styles.gettok(i) == "nosel")
+			*Styles |= LBS_NOSEL;
+		else if (styles.gettok(i) == "sort")
+			*Styles |= LBS_SORT;
+		else if (styles.gettok(i) == "tabs")
+			*Styles |= LBS_USETABSTOPS;
+		else if (styles.gettok(i) == "multicol")
+			*Styles |= LBS_MULTICOLUMN;
+		else if (styles.gettok(i) == "vsbar")
+			*Styles |= WS_VSCROLL;
+		else if (styles.gettok(i) == "hsbar")
+			*Styles |= WS_HSCROLL;
+		else if (styles.gettok(i) == "alpha")
+			this->m_bAlphaBlend = true;
+		else if (styles.gettok(i) == "dragline")
+			this->m_bUseDrawInsert = FALSE;
+		else if (styles.gettok(i) == "noformat") {
+			this->m_bCtrlCodeText = false;
+			*Styles &= ~LBS_OWNERDRAWFIXED;
+		}
+		//else if (styles.gettok(i) == "shadow") // looks crap
+		//	this->m_bShadowText = true;
 
-      i++;
-   }
+		i++;
+	}
 
-   this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -665,39 +671,92 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 
 	switch( uMsg )
-   {
+	{
 		case WM_COMMAND:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-				switch ( HIWORD( wParam ) ) {
-					case LBN_SELCHANGE:
-						{
-							int nItem = ListBox_GetCurSel( this->m_Hwnd );
+					switch ( HIWORD( wParam ) ) {
+						case LBN_SELCHANGE:
+						 {
+							 int nItem = ListBox_GetCurSel( this->m_Hwnd );
 
-							if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
-								if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-									this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
-							}
-							else if ( nItem != LB_ERR )
-								this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
-						}
-						break;
+							 if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
+								 if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
+									 this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
+							 }
+							 else if ( nItem != LB_ERR )
+								 this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
+						 }
+						 break;
 
-					case LBN_DBLCLK:
-						{
-							int nItem = ListBox_GetCurSel( this->m_Hwnd );
+						case LBN_DBLCLK:
+						 {
+							 int nItem = ListBox_GetCurSel( this->m_Hwnd );
 
-							if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
-								if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-									this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
-							}
-							else if ( nItem != LB_ERR )
-								this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
-						}
-						break;
-				} // switch ( HIWORD( wParam ) )
+							 if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
+								 if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
+									 this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
+							 }
+							 else if ( nItem != LB_ERR )
+								 this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
+						 }
+						 break;
+					} // switch ( HIWORD( wParam ) )
+				}
 			}
-		}
+			break;
+		case WM_DRAWITEM:
+			{
+				LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT) lParam;
+				int len = ListBox_GetTextLen(lpDrawItem->hwndItem, lpDrawItem->itemID);
+				if (len == LB_ERR)
+					break;
+
+				TCHAR * szBuf = new TCHAR[len +1];
+
+				ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, szBuf);
+
+				TString txt(szBuf);
+				RECT rc;
+				int clrText = -1;
+
+				CopyRect(&rc, &lpDrawItem->rcItem);
+
+				if (this->m_hBackBrush == NULL)
+					FillRect(lpDrawItem->hDC, &rc, GetStockBrush(WHITE_BRUSH));
+				else
+					DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
+
+				if (lpDrawItem->itemState & ODS_SELECTED) {
+					FillRect(lpDrawItem->hDC, &rc, GetSysColorBrush(COLOR_HIGHLIGHT));
+					clrText = SetTextColor(lpDrawItem->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
+				}
+
+				rc.left += 2;
+
+				UINT style = DT_LEFT|DT_VCENTER;
+
+				if (this->isStyle(LBS_USETABSTOPS))
+					style |= DT_EXPANDTABS;
+
+				calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false);
+
+				mIRC_DrawText(lpDrawItem->hDC, txt, &rc, style, this->m_bShadowText);
+
+				if (clrText != -1)
+					SetTextColor(lpDrawItem->hDC, clrText);
+
+				delete [] szBuf;
+				return TRUE;
+			}
+			break;
+		//case WM_MEASUREITEM:
+		//	{
+		//		LPMEASUREITEMSTRUCT lpMeasureItem = (LPMEASUREITEMSTRUCT) lParam;
+		//		//lpMeasureItem->itemHeight = 16;
+		//		//return TRUE;
+		//	}
+		//	break;
 	}
 	return 0L;
 }
