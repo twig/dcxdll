@@ -535,7 +535,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 			ListBox_SetCurSel( this->m_Hwnd, -1 );
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N]...)
-	else if ( flags.switch_cap_flags[12] && numtok > 4 ) {
+	else if ( flags.switch_flags[12] && numtok > 4 ) {
 		TString opts(input.gettok( 4 ));
 
 		if (opts.find('w',0))
