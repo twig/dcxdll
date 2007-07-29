@@ -1614,30 +1614,13 @@ BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, const TString * search, cons
 		mIRCcomEX("/set -nu1 %%dcx_text %s", itemtext );
 		mIRCcomEX("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
 		mIRCeval("$regex(%dcx_text,%dcx_regex)", res, 10 );
-		if ( !lstrcmp( res, "1" ) )
+		if ( atoi(res) > 0 )
 			return TRUE;
 	}
 	else {
 		TString text(itemtext);
 		return text.iswm(search->to_chr());
 	}
-  //char res[10];
-  //char itemtext[900];
-  //char com[1000];
-
-  //this->getItemText( hItem, itemtext, 900 );
-  //// Regex Search
-  //if ( SearchType == TVSEARCH_R )
-  //  wsprintf( com, "$regex(%s,%s)", itemtext, search->to_chr( ) );
-  //// Wildcard Search
-  //else
-  //  wsprintf( com, "$iif(%s iswm %s,1,0)", search->to_chr( ), itemtext );
-
-  //mIRCeval(com, res);
-
-  //if ( !lstrcmp( res, "1" ) )
-  //  return TRUE;
-
   return FALSE;
 }
 

@@ -243,14 +243,65 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 		wsprintf(szReturnValue, "%d %d", top, bottom);
 		return;
 	}
-  // [NAME] [ID] [PROP] [N]
-  else if ( prop == "find" ) {
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
+	else if ( prop == "find" && numtok > 5 ) {
+		TString matchtext(input.gettok( 2, TSTAB ));
+		matchtext.trim( );
+		TString params(input.gettok( 3, TSTAB ));
+		params.trim( );
+
+		if ( matchtext.len( ) > 0 ) {
+
+			UINT SearchType;
+
+			if ( params.gettok( 1 ) == "R" )
+				SearchType = LBSEARCH_R;
+			else
+				SearchType = LBSEARCH_W;
+
+			int N = params.gettok( 2 ).to_int( );
+
+			// count total
+			if ( N == 0 ) {
+
+				int nItems = ListBox_GetCount( this->m_Hwnd );
+				int count = 0;
+
+				for ( int i = 0; i < nItems; i++ ) {
+
+					if ( this->matchItemText( i, &matchtext, SearchType ) )
+						count++;
+				}
+
+				wsprintf( szReturnValue, "%d", count );
+				return;
+			}
+			// find Nth matching
+			else {
+
+				int nItems = ListBox_GetCount( this->m_Hwnd );
+				int count = 0;
+
+				for ( int i = 0; i < nItems; i++ ) {
+
+					if ( this->matchItemText( i, &matchtext, SearchType ) )
+						count++;
+
+					// found Nth matching
+					if ( count == N ) {
+
+						wsprintf( szReturnValue, "%d", i + 1 );
+						return;
+					}
+				}
+			} // else
+		}
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -860,4 +911,31 @@ void DcxList::DrawDragLine(int location)
 
    DeleteObject(hPen);
    ReleaseDC(this->m_Hwnd, hDC);
+}
+
+BOOL DcxList::matchItemText( const int nItem, const TString * search, const UINT SearchType ) {
+
+	char *itemtext;
+	BOOL bRes = FALSE;
+
+	int len = ListBox_GetTextLen( this->m_Hwnd, nItem );
+
+	itemtext = new TCHAR[len + 1];
+
+	ListBox_GetText( this->m_Hwnd, nItem, itemtext );
+
+	if (SearchType == LBSEARCH_R) {
+		char res[10];
+		mIRCcomEX("/set -nu1 %%dcx_text %s", itemtext );
+		mIRCcomEX("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
+		mIRCeval("$regex(%dcx_text,%dcx_regex)", res, 10 );
+		if ( atoi(res) > 0 )
+			bRes = TRUE;
+	}
+	else {
+		TString text(itemtext);
+		bRes = text.iswm(search->to_chr());
+	}
+	delete [] itemtext;
+	return bRes;
 }

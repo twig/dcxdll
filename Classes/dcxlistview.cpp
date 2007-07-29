@@ -2048,30 +2048,13 @@ BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TStr
 		mIRCcomEX("/set -nu1 %%dcx_text %s", itemtext );
 		mIRCcomEX("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
 		mIRCeval("$regex(%dcx_text,%dcx_regex)", res, 10 );
-		if ( !lstrcmp( res, "1" ) )
+		if ( atoi(res) > 0 )
 			return TRUE;
 	}
 	else {
 		TString text(itemtext);
 		return text.iswm(search->to_chr());
 	}
-	// char res[10];
-	// char itemtext[900];
-	// TString com;
-
-	// ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext, 900 );
-	// // Regex Search
-	// if ( SearchType == LVSEARCH_R )
-	//   com.sprintf("$regex(%s,%s)", itemtext, search->to_chr( ) );
-	// // Wildcard Search
-	// else
-	//   com.sprintf("$iif(%s iswm %s,1,0)", search->to_chr( ), itemtext );
-
-	//mIRCeval( com.to_chr(), res );
-
-	// if ( !lstrcmp( res, "1" ) )
-	//     return TRUE;
-
 	return FALSE;
 }
 
