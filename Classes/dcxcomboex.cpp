@@ -43,8 +43,10 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		GetModuleHandle(NULL),
 		NULL);
 
-	if ( bNoTheme )
+	if ( bNoTheme ) {
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		//SendMessage( this->m_Hwnd, CBEM_SETWINDOWTHEME, NULL, (LPARAM)(LPCWSTR)L" "); // do this instead?
+	}
 
 	this->m_EditHwnd = (HWND) this->getEditControl( );
 
@@ -59,14 +61,31 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 
 		SetWindowLong( this->m_EditHwnd, GWL_STYLE, GetWindowLong( this->m_EditHwnd, GWL_STYLE ) | ES_AUTOHSCROLL );
 
-		lpce->OldProc = (WNDPROC) SetWindowLongPtr( this->m_EditHwnd, GWLP_WNDPROC, (LONG_PTR) DcxComboEx::ComboExEditProc );
+		lpce->OldProc = SubclassWindow( this->m_EditHwnd, DcxComboEx::ComboExEditProc );
 		SetWindowLong( this->m_EditHwnd, GWL_USERDATA, (LONG) lpce );
 	}
 
 	HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);
-	if (IsWindow(combo) && bNoTheme)
-		dcxSetWindowTheme( combo , L" ", L" " );
+	if (IsWindow(combo)) {
+		if (bNoTheme)
+			dcxSetWindowTheme( combo , L" ", L" " );
 
+		COMBOBOXINFO cbi = { 0 };
+		cbi.cbSize = sizeof(cbi);
+		GetComboBoxInfo(combo, &cbi);
+
+		if (styles.istok("sort")) { // doesnt work atm.
+			if (IsWindow(cbi.hwndList)) {
+				AddStyles(cbi.hwndList, GWL_STYLE, LBS_SORT);
+			}
+		}
+		if (styles.istok("hscroll")) {
+			//if (IsWindow(cbi.hwndCombo))
+				//AddStyles(cbi.hwndCombo, GWL_STYLE, WS_HSCROLL);
+			if (IsWindow(cbi.hwndList))
+				AddStyles(cbi.hwndList, GWL_STYLE, WS_HSCROLL);
+		}
+	}
 	//if (p_Dialog->getToolTip() != NULL) {
 	//	if (styles.istok("tooltips")) {
 	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
@@ -312,6 +331,34 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 			cbi.iItem = nPos;
 
 			this->insertItem(&cbi);
+
+			// Now update the horizontal scroller
+			HWND combo = (HWND)SendMessage(this->m_Hwnd, CBEM_GETCOMBOCONTROL, NULL, NULL);
+
+			if (IsWindow(combo)) {
+				// Get Font sizes (best way i can find atm, if you know something better then please let me know)
+				int nMaxStrlen = itemtext.len();
+				int nHorizExtent = (int)SendMessage( combo, CB_GETHORIZONTALEXTENT, NULL, NULL );
+				HDC hdc = GetDC( this->m_Hwnd );
+				TEXTMETRIC tm;
+				HFONT hFont = this->getFont();
+
+				HFONT hOldFont = SelectFont(hdc, hFont);
+
+				GetTextMetrics(hdc, &tm);
+
+				SelectFont(hdc, hOldFont);
+
+				ReleaseDC( this->m_Hwnd, hdc);
+
+				// Multiply max str len by font average width + 1
+				nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
+				// Add 2 * chars as spacer.
+				nMaxStrlen += (tm.tmAveCharWidth * 2);
+
+				if (nMaxStrlen > nHorizExtent)
+					SendMessage( combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, NULL);
+			}
 		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]

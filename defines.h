@@ -257,6 +257,7 @@ using namespace Gdiplus;
 //#define DCX_SCROLLBARCLASS   "DCXScrollBarClass"    //!< DCX ScrollBar Class Name
 #define DCX_SHADOWCLASS				"DCXShadowClass"			//!< DCX Shadow Class Name
 #define DCX_VISTACLASS				"DCXVistaClass"				//!< DCX Vista Dialog Class Name
+#define DCX_STACKERCLASS			"DCXStackerClass"			//!< DCX Stacker Class Name
 
 // --------------------------------------------------
 // CLA constants
@@ -445,7 +446,7 @@ const char *GetLastStatusStr(Status status);
 bool IsFile(TString &filename);
 void calcStrippedRect(HDC hdc, TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
 void mIRC_DrawText(HDC hdc, TString &txt, const LPRECT rc, const UINT style, const bool shadow);
-HDC *CreateHDCBuffer(HDC hdc, LPRECT rc);
+HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc);
 void DeleteHDCBuffer(HDC *hBuffer);
 int TGetWindowText(HWND hwnd, TString &txt);
 void SetupOSCompatibility(void);
