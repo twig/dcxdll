@@ -785,7 +785,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 				rc.left += 2;
 
-				UINT style = DT_LEFT|DT_VCENTER;
+				UINT style = DT_LEFT|DT_VCENTER|DT_SINGLELINE;
 
 				if (this->isStyle(LBS_USETABSTOPS))
 					style |= DT_EXPANDTABS;
