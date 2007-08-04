@@ -53,7 +53,7 @@ protected:
 	HRESULT InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph, IVMRWindowlessControl9** ppWc);
 	HRESULT SetVideoPos(void);
 	void ReleaseAll(void);
-	enum { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION } Properties;
+	enum Properties { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION };
 	HRESULT getProperty(char *prop, const int type) const;
 	HRESULT setAlpha(float alpha);
 	HRESULT setVideo(const TString flags, const float brightness, const float contrast, const float hue, const float saturation);

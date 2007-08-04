@@ -2694,10 +2694,14 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPRECT rwnd)
 		return;
 
 	HDC hdcbmp = CreateCompatibleDC(hdc);
+
+	if (hdcbmp == NULL)
+		return;
+
 	BITMAP bmp;
 
 	GetObject(p_this->m_bitmapBg, sizeof(BITMAP), &bmp);
-	HBITMAP hOldBitmap = (HBITMAP)SelectObject(hdcbmp, p_this->m_bitmapBg);
+	HBITMAP hOldBitmap = SelectBitmap(hdcbmp, p_this->m_bitmapBg);
 
 	int x = rwnd->left;
 	int y = rwnd->top;
@@ -2735,7 +2739,7 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPRECT rwnd)
 
 		TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
 	}
-	SelectObject(hdcbmp, hOldBitmap);
+	SelectBitmap(hdcbmp, hOldBitmap);
 	DeleteDC(hdcbmp);
 }
 

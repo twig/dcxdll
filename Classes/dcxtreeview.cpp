@@ -1894,6 +1894,13 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
             }
             break;
 
+					case TVN_ITEMEXPANDING:
+						{
+							// disables redraw to stop flicker with bkg image.
+							this->setRedraw(FALSE);
+						}
+						break;
+
           case TVN_ITEMEXPANDED:
             {
               bParsed = TRUE;
@@ -1917,6 +1924,10 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
                 this->callAliasEx( NULL, "%s,%d,%s", "expand", this->getUserID( ), path.c_str( ) );
               }
+							// re-enables redraw & updates.
+							this->setRedraw(TRUE);
+							//this->redrawWindow();
+							this->redrawBufferedWindow();
             }
             break;
 
@@ -1929,7 +1940,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
               HWND edit_hwnd = TreeView_GetEditControl( this->m_Hwnd );
 
-              this->m_OrigEditProc = (WNDPROC) SetWindowLongPtr( edit_hwnd, GWLP_WNDPROC, (LONG_PTR) DcxTreeView::EditLabelProc );
+              this->m_OrigEditProc = SubclassWindow( edit_hwnd, DcxTreeView::EditLabelProc );
               SetProp( edit_hwnd, "dcx_pthis", (HANDLE) this );
 
               char ret[256];
@@ -1996,7 +2007,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 										lpntvcd->clrTextBk = this->m_colSelection;
 
 									if ( lpdcxtvi->bUline || lpdcxtvi->bBold || lpdcxtvi->bItalic) {
-										HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
+										HFONT hFont = GetWindowFont( this->m_Hwnd );
 
 										LOGFONT lf;
 										GetObject( hFont, sizeof(LOGFONT), &lf );
@@ -2010,7 +2021,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 										this->m_hItemFont = CreateFontIndirect( &lf );
 										if (this->m_hItemFont != NULL)
-											this->m_hOldItemFont = (HFONT) SelectObject( lpntvcd->nmcd.hdc, this->m_hItemFont );
+											this->m_hOldItemFont = SelectFont( lpntvcd->nmcd.hdc, this->m_hItemFont );
 									}
 									//TVITEMEX tvitem;
 									//char buf[900];
@@ -2037,11 +2048,11 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
                 case CDDS_ITEMPOSTPAINT:
 									{
 										if (this->m_hOldItemFont != NULL) {
-											SelectObject( lpntvcd->nmcd.hdc, this->m_hOldItemFont);
+											SelectFont( lpntvcd->nmcd.hdc, this->m_hOldItemFont);
 											this->m_hOldItemFont = NULL;
 										}
 										if (this->m_hItemFont != NULL) {
-											DeleteObject(this->m_hItemFont);
+											DeleteFont(this->m_hItemFont);
 											this->m_hItemFont = NULL;
 										}
 	                  return CDRF_DODEFAULT;
