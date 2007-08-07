@@ -224,13 +224,37 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
       ++i;
     }
   }
-  // xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y]
+  // xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y] (OVER HWND)
   else if ( flags.switch_flags[18] && numtok > 4 ) {
 
     UINT mflags = this->parseTrackFlags( input.gettok( 3 ) );
     int x = input.gettok( 4 ).to_int( );
     int y = input.gettok( 5 ).to_int( );
     
+		/*
+			TODO: Add offsetting for multiple monitor based on supplied hwnd this menu is to be associated with
+		*/
+		HWND hTrack = (HWND)input.gettok( 6 ).to_num();
+
+		if (hTrack != NULL && IsWindow(hTrack)) {
+			RECT rc;
+			GetWindowRect(hTrack, &rc);
+
+			// make pos relative to supplied window.
+			x += rc.left;
+			y += rc.top;
+
+			//HMONITOR hMon;
+			//MONITORINFO mi;
+			//hMon = MonitorFromRect(&rc, MONITOR_DEFAULTTONEAREST);
+
+			//mi.cbSize = sizeof(mi);
+			//GetMonitorInfo(hMon, &mi);
+
+			//x += mi.rcMonitor.left;
+			//y += mi.rcMonitor.top;
+		}
+
     UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | mflags, x, y, mhMenuOwner, NULL );
 
 		mIRCcomEX("//.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID );
