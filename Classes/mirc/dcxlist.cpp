@@ -598,7 +598,6 @@ void DcxList::parseCommandRequest( TString & input ) {
 		if (opts.find('w',0))
 			ListBox_SetColumnWidth( this->m_Hwnd, input.gettok( 5 ).to_int( ));
 		else if (opts.find('t',0)) {
-			//ListBox_SetTabStops( this->m_Hwnd, 1, nWidth); // needs updated for multiple tab stops
 			TString Ns(input.gettok( 5 ));
 
 			int i = 1, n = Ns.numtok( TSCOMMA );
@@ -924,18 +923,10 @@ BOOL DcxList::matchItemText( const int nItem, const TString * search, const UINT
 
 	ListBox_GetText( this->m_Hwnd, nItem, itemtext );
 
-	if (SearchType == LBSEARCH_R) {
-		char res[10];
-		mIRCcomEX("/set -nu1 %%dcx_text %s", itemtext );
-		mIRCcomEX("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
-		mIRCeval("$regex(%dcx_text,%dcx_regex)", res, 10 );
-		if ( atoi(res) > 0 )
-			bRes = TRUE;
-	}
-	else {
-		TString text(itemtext);
-		bRes = text.iswm(search->to_chr());
-	}
+	if (SearchType == LBSEARCH_R)
+		bRes = isRegexMatch(itemtext, search->to_chr());
+	else
+		bRes = TString(itemtext).iswm(search->to_chr());
 	delete [] itemtext;
 	return bRes;
 }

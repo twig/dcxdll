@@ -426,7 +426,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 	//	DestroyWindow(tmp_hwnd);
 	//}
 	DCX_DEBUG("LoadDLL", "Registering XPopup...");
-	g_OldmIRCWindowProc = (WNDPROC) SetWindowLongPtr(mIRCLink.m_mIRCHWND, GWLP_WNDPROC, (LONG_PTR) mIRCSubClassWinProc);
+	g_OldmIRCWindowProc = SubclassWindow(mIRCLink.m_mIRCHWND, mIRCSubClassWinProc);
 
 	WNDCLASS wcpop;
 	ZeroMemory(&wcpop, sizeof(WNDCLASS));
@@ -988,7 +988,7 @@ mIRC(xdid) {
 			p_Control = p_Dialog->getControlByID((UINT) IDs.gettok(i, TSCOMMA).to_int() + mIRC_ID_OFFSET);
 
 			if (p_Control == NULL) {
-				p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), "Invalid ID : %s (dialog : %s)", IDs.gettok(i, TSCOMMA).to_chr(), d.gettok( 1 ).to_chr());
+				p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), "(xdid) Invalid ID : %s (dialog : %s)", IDs.gettok(i, TSCOMMA).to_chr(), d.gettok( 1 ).to_chr());
 				return 0;
 			}
 
@@ -1003,7 +1003,7 @@ mIRC(xdid) {
 		p_Control = p_Dialog->getControlByID((UINT) d.gettok( 2 ).to_int() + mIRC_ID_OFFSET);
 
 		if (p_Control == NULL) {
-			p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), "Invalid ID : %s (dialog : %s)", d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
+			p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), "(xdid) Invalid ID : %s (dialog : %s)", d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
 			return 0;
 		}
 

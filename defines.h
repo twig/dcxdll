@@ -78,6 +78,11 @@
 #define DCX_USE_WINSDK 1
 // end of Windows SDK
 
+// DCX Using the Boost C++ libs
+// Boost is used for the regex matches when enabled.
+#define DCX_USE_BOOST 1
+// end of Boost
+
 // --------------------------------------------------
 // Some compiler/library definitions
 // --------------------------------------------------
@@ -451,6 +456,7 @@ void DeleteHDCBuffer(HDC *hBuffer);
 int TGetWindowText(HWND hwnd, TString &txt);
 void SetupOSCompatibility(void);
 void FreeOSCompatibility(void);
+BOOL isRegexMatch(const char *matchtext, const char *pattern);
 
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);

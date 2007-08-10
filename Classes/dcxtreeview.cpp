@@ -1609,18 +1609,10 @@ BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, const TString * search, cons
 
 	char itemtext[900];
 	this->getItemText(hItem, itemtext, 900);
-	if (SearchType == TVSEARCH_R) {
-		char res[10];
-		mIRCcomEX("/set -nu1 %%dcx_text %s", itemtext );
-		mIRCcomEX("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
-		mIRCeval("$regex(%dcx_text,%dcx_regex)", res, 10 );
-		if ( atoi(res) > 0 )
-			return TRUE;
-	}
-	else {
-		TString text(itemtext);
-		return text.iswm(search->to_chr());
-	}
+	if (SearchType == TVSEARCH_R)
+		return isRegexMatch(itemtext, search->to_chr());
+	else
+		return TString(itemtext).iswm(search->to_chr());
   return FALSE;
 }
 
@@ -1897,7 +1889,8 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					case TVN_ITEMEXPANDING:
 						{
 							// disables redraw to stop flicker with bkg image.
-							this->setRedraw(FALSE);
+							if (this->isExStyle(WS_EX_TRANSPARENT))
+								this->setRedraw(FALSE);
 						}
 						break;
 
@@ -1925,9 +1918,15 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
                 this->callAliasEx( NULL, "%s,%d,%s", "expand", this->getUserID( ), path.c_str( ) );
               }
 							// re-enables redraw & updates.
-							this->setRedraw(TRUE);
-							//this->redrawWindow();
-							this->redrawBufferedWindow();
+							if (this->isExStyle(WS_EX_TRANSPARENT)) {
+								this->setRedraw(TRUE);
+								InvalidateRect(this->m_Hwnd, NULL, FALSE);
+								UpdateWindow(this->m_Hwnd);
+								//if (this->m_pParentDialog->IsVistaStyle())
+								//	this->redrawWindow();
+								//else
+								//	this->redrawBufferedWindow();
+							}
             }
             break;
 
@@ -2278,3 +2277,74 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 		grphx.DrawImage( this->m_pImage, this->m_iXOffset, this->m_iYOffset);
 }
 #endif
+
+bool DcxTreeView::xmlLoadTree(HTREEITEM hInsertAfter, TString &name, TString &filename)
+{
+	if (!IsFile(filename)) {
+		this->showErrorEx(NULL, NULL, "Unable To Access File: %s", filename.to_chr());
+		return false;
+	}
+
+	TiXmlBase::SetCondenseWhiteSpace( false ); 
+	TiXmlDocument doc(filename.to_chr());
+
+	bool xmlFile = doc.LoadFile();
+	if (!xmlFile) {
+		this->showErrorEx(NULL, NULL, "Not an XML File: %s", filename.to_chr());
+		return false;
+	}
+
+	TiXmlElement *xRoot = doc.FirstChildElement("dcxml");
+	if (xRoot == NULL) {
+		this->showError(NULL, NULL, "Unable Find 'dcxml' root");
+		return false;
+	}
+
+	TiXmlElement *xElm = xRoot->FirstChildElement("treeview_data");
+	if (xElm == NULL) {
+		this->showError(NULL, NULL, "Unable To Find 'treeview_data' element");
+		return false;
+	}
+
+	xElm = xElm->FirstChildElement(name.to_chr());
+	if (xElm == NULL) {
+		this->showErrorEx(NULL, NULL, "Unable To Find Dataset: %s", name.to_chr());
+		return false;
+	}
+
+	HTREEITEM hPrev = hInsertAfter;
+	HTREEITEM hParent = TreeView_GetParent(this->m_Hwnd, hPrev);
+	TVINSERTSTRUCT tvins;
+	int i = 0;
+	const char *attr = NULL;
+
+	for (TiXmlElement *xNode = xElm->FirstChildElement(); xNode != NULL; xNode = xNode->NextSiblingElement()) {
+		ZeroMemory(&tvins, sizeof(tvins));
+		tvins.hInsertAfter = hPrev;
+		tvins.hParent = hParent;
+
+		attr = xNode->Attribute("image",&i);
+		if (i > 0) {
+			tvins.itemex.iImage = i;
+			tvins.itemex.mask |= TVIF_IMAGE;
+		}
+		attr = xNode->Attribute("selectedimage",&i);
+		if (i > 0) {
+			tvins.itemex.iImage = i;
+			tvins.itemex.mask |= TVIF_SELECTEDIMAGE;
+		}
+		attr = xNode->Attribute("text",&i);
+		if (i > 0) {
+			tvins.itemex.cchTextMax = lstrlen(attr);
+			tvins.itemex.pszText = (LPSTR)attr;
+			tvins.itemex.mask |= TVIF_TEXT;
+		}
+		hPrev = TreeView_InsertItem(this->m_Hwnd, &tvins);
+	}
+	return true;
+}
+
+bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, TString &name, TString &filename)
+{
+	return false;
+}

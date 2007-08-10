@@ -20,6 +20,8 @@
 
 #include <string>
 
+#include "tinyxml/tinyxml.h"
+
 class DcxDialog;
 class DcxTreeView;
 
@@ -161,6 +163,7 @@ protected:
 
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 	void PreloadData();
+
 #ifdef DCX_USE_GDIPLUS
 	bool LoadGDIPlusImage(const TString &flags, TString &filename);
 	void DrawGDIPlusImage(HDC hdc);
@@ -175,6 +178,9 @@ protected:
 	int m_iYOffset;								// Images Y Offset
 	bool m_bTransparent;					// Is Control Transparent?
 #endif
+
+	bool xmlSaveTree(HTREEITEM hFromItem, TString &name, TString &filename);
+	bool xmlLoadTree(HTREEITEM hInsertAfter, TString &name, TString &filename);
 };
 
 #endif // _DCXTREEVIEW_H_

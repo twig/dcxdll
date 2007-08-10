@@ -3372,7 +3372,7 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 		SetRectEmpty(&rcClip);
 		GetWindowRect(this->m_Hwnd, &rcParentWin);
 		GetClientRect(this->m_Hwnd, &rcParentClient);
-		MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rcParentClient, 2);
+		MapWindowRect(this->m_Hwnd, NULL, &rcParentClient);
 		offsets.cx = (rcParentClient.left - rcParentWin.left);
 		offsets.cy = (rcParentClient.top - rcParentWin.top);
 		this->m_sVistaOffsets = offsets;

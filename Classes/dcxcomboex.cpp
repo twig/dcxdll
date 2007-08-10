@@ -473,42 +473,10 @@ BOOL DcxComboEx::matchItemText( int nItem, TString * search, UINT SearchType ) {
 
 	this->getItem( &cbi );
 
-	if ( SearchType == CBEXSEARCH_R ) {
-		char res[10];
-		mIRCevalEX(res, 10, "$regex(%s,%s)", itemtext, search->to_chr( ) );
-		if ( !lstrcmp( res, "1" ) )
-			return TRUE;
-	}
-	else {
-		TString text(itemtext);
-		return text.iswm(search->to_chr());
-	}
-
-  //char res[10];
-  //char itemtext[900];
-  //TString com;
-
-  //COMBOBOXEXITEM cbi;
-  //ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
-
-  //cbi.mask = CBEIF_TEXT;
-  //cbi.iItem = nItem;
-  //cbi.pszText = itemtext;
-  //cbi.cchTextMax = 900;
-
-  //this->getItem( &cbi );
-
-  //// Regex Search
-  //if ( SearchType == CBEXSEARCH_R )
-  //  com.sprintf("$regex(%s,%s)", itemtext, search->to_chr( ) );
-  //// Wildcard Search
-  //else
-  //  com.sprintf("$iif(%s iswm %s,1,0)", search->to_chr( ), itemtext );
-
-  //mIRCeval( com.to_chr(), res );
-
-  //if ( !lstrcmp( res, "1" ) )
-  //    return TRUE;
+	if ( SearchType == CBEXSEARCH_R )
+		return isRegexMatch(itemtext, search->to_chr());
+	else
+		return TString(itemtext).iswm(search->to_chr());
 
   return FALSE;
 }

@@ -2043,18 +2043,10 @@ BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TStr
 	char itemtext[900];
 
 	ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext, 900 );
-	if (SearchType == LVSEARCH_R) {
-		char res[10];
-		mIRCcomEX("/set -nu1 %%dcx_text %s", itemtext );
-		mIRCcomEX("/set -nu1 %%dcx_regex %s", search->to_chr( ) );
-		mIRCeval("$regex(%dcx_text,%dcx_regex)", res, 10 );
-		if ( atoi(res) > 0 )
-			return TRUE;
-	}
-	else {
-		TString text(itemtext);
-		return text.iswm(search->to_chr());
-	}
+	if (SearchType == LVSEARCH_R)
+		return isRegexMatch(itemtext, search->to_chr());
+	else
+		return TString(itemtext).iswm(search->to_chr());
 	return FALSE;
 }
 

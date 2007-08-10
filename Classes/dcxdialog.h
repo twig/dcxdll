@@ -142,6 +142,7 @@ public:
 	HDC GetVistaHDC(void) const { return this->m_hVistaHDC; };
 	HWND GetVistaHWND(void) const { return this->m_hFakeHwnd; };
 	SIZE GetVistaOffsets(void) const { return this->m_sVistaOffsets; };
+	HBITMAP GetVistaBitmap(void) const { return this->m_hVistaBitmap; };
 	void MapVistaRect(HWND hwnd, LPRECT rc) const;
 
 	void RegisterDragList(DcxList* list);
