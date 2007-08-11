@@ -1017,7 +1017,10 @@ HRESULT DcxDirectshow::setVolume(const float vol)
 	IBasicAudio *pAudio = NULL;
 	HRESULT hr = this->m_pGraph->QueryInterface(IID_IBasicAudio, (void**)&pAudio);
 	if (SUCCEEDED(hr)) {
+#pragma warning(push,3)
+#pragma warning(disable:4244)
 		long t = -((10000.0 / 100.0) * (100 - vol));
+#pragma warning(pop)
 		hr = pAudio->put_Volume(t);
 		pAudio->Release();
 	}
@@ -1032,8 +1035,11 @@ float DcxDirectshow::getVolume() const
 	if (SUCCEEDED(hr)) {
 		long t = 0;
 		hr = pAudio->get_Volume(&t);
+#pragma warning(push,3)
+#pragma warning(disable:4244)
 		if (SUCCEEDED(hr))
 			vol = 100 - ((abs(t) / 10000.0) * 100.0);
+#pragma warning(pop)
 		pAudio->Release();
 	}
 	return vol;

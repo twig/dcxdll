@@ -48,6 +48,7 @@ class DcxTreeView;
 #define TVIS_BKG				0x0800 //!< TreeView Item blackground colour style.
 #define TVIS_HASHITEM		0x1000 //!< TreeView item text is taken from a hash table item
 #define TVIS_HASHNUMBER	0x2000 //!< TreeView item text is taken from a hash tabel item number
+#define TVIS_XML				0x4000 //!< TreeView item text is taken from an xml file.
 
 #define TVIE_EXP     0x01     //!< TreeView Expand Branch Option
 #define TVIE_EXPALL  0x02     //!< TreeView Expandall Branch Option
@@ -180,7 +181,8 @@ protected:
 #endif
 
 	bool xmlSaveTree(HTREEITEM hFromItem, TString &name, TString &filename);
-	bool xmlLoadTree(HTREEITEM hInsertAfter, TString &name, TString &filename);
+	HTREEITEM xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, TString &name, TString &filename);
+	TiXmlElement *xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertAfter, TiXmlElement *xElm);
 };
 
 #endif // _DCXTREEVIEW_H_

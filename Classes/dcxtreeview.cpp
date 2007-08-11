@@ -1045,7 +1045,7 @@ HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, co
 	ZeroMemory(&tvins, sizeof(TVINSERTSTRUCT));
 	ZeroMemory(&tvi, sizeof(TVITEMEX));
 
-	tvi.mask = TVIF_TEXT | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM | TVIF_HANDLE | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+	tvi.mask = TVIF_TEXT | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM /*| TVIF_HANDLE*/ | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
 
 	int iFlags			= this->parseItemFlags(data->gettok( 1 ));
 	int icon				= data->gettok( 2 ).to_int() -1;
@@ -1055,6 +1055,16 @@ HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, co
 	int integral		= data->gettok( 6 ).to_int() +1;
 	COLORREF clrText	= (COLORREF) data->gettok( 7 ).to_num();
 	COLORREF clrBkg = (COLORREF) data->gettok( 8 ).to_num();
+
+	// text
+	TString itemtext(data->gettok(9, -1));
+
+	// path
+	this->parsePath(path, &hParent, &hAfter);
+
+	if (iFlags & TVIS_XML) {
+		return this->xmlLoadTree(hAfter, hParent, itemtext.gettok( 1 ), itemtext.gettok( 2, -1));
+	}
 
 	// parse DCX parameters
 	LPDCXTVITEM lpmytvi = new DCXTVITEM;
@@ -1085,12 +1095,6 @@ HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, co
 		lpmytvi->clrBkg = clrBkg;
 	else
 		lpmytvi->clrBkg = (COLORREF)-1;
-
-	// path
-	this->parsePath(path, &hParent, &hAfter);
-
-	// text
-	TString itemtext(data->gettok(9, -1));
 
 	{
 		char res[1024];
@@ -1202,6 +1206,8 @@ UINT DcxTreeView::parseItemFlags(const TString &flags) {
 			iFlags |= TVIS_HASHITEM;
 		else if (flags[i] == 'n')
 			iFlags |= TVIS_HASHNUMBER;
+		else if (flags[i] == 'x')
+			iFlags |= TVIS_XML;
 
 		++i;
 	}
@@ -1920,10 +1926,10 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							// re-enables redraw & updates.
 							if (this->isExStyle(WS_EX_TRANSPARENT)) {
 								this->setRedraw(TRUE);
-								InvalidateRect(this->m_Hwnd, NULL, FALSE);
-								UpdateWindow(this->m_Hwnd);
+								//InvalidateRect(this->m_Hwnd, NULL, FALSE);
+								//UpdateWindow(this->m_Hwnd);
 								//if (this->m_pParentDialog->IsVistaStyle())
-								//	this->redrawWindow();
+									this->redrawWindow();
 								//else
 								//	this->redrawBufferedWindow();
 							}
@@ -2278,73 +2284,164 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 }
 #endif
 
-bool DcxTreeView::xmlLoadTree(HTREEITEM hInsertAfter, TString &name, TString &filename)
+HTREEITEM DcxTreeView::xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, TString &name, TString &filename)
 {
 	if (!IsFile(filename)) {
 		this->showErrorEx(NULL, NULL, "Unable To Access File: %s", filename.to_chr());
 		return false;
 	}
 
-	TiXmlBase::SetCondenseWhiteSpace( false ); 
 	TiXmlDocument doc(filename.to_chr());
+	doc.SetCondenseWhiteSpace(false);
 
 	bool xmlFile = doc.LoadFile();
 	if (!xmlFile) {
-		this->showErrorEx(NULL, NULL, "Not an XML File: %s", filename.to_chr());
+		this->showErrorEx(NULL, "-a", "Not an XML File: %s", filename.to_chr());
 		return false;
 	}
 
 	TiXmlElement *xRoot = doc.FirstChildElement("dcxml");
 	if (xRoot == NULL) {
-		this->showError(NULL, NULL, "Unable Find 'dcxml' root");
+		this->showError(NULL, "-a", "Unable Find 'dcxml' root");
 		return false;
 	}
 
 	TiXmlElement *xElm = xRoot->FirstChildElement("treeview_data");
 	if (xElm == NULL) {
-		this->showError(NULL, NULL, "Unable To Find 'treeview_data' element");
+		this->showError(NULL, "-a", "Unable To Find 'treeview_data' element");
 		return false;
 	}
 
 	xElm = xElm->FirstChildElement(name.to_chr());
 	if (xElm == NULL) {
-		this->showErrorEx(NULL, NULL, "Unable To Find Dataset: %s", name.to_chr());
+		this->showErrorEx(NULL, "-a", "Unable To Find Dataset: %s", name.to_chr());
 		return false;
 	}
 
-	HTREEITEM hPrev = hInsertAfter;
-	HTREEITEM hParent = TreeView_GetParent(this->m_Hwnd, hPrev);
-	TVINSERTSTRUCT tvins;
-	int i = 0;
-	const char *attr = NULL;
-
-	for (TiXmlElement *xNode = xElm->FirstChildElement(); xNode != NULL; xNode = xNode->NextSiblingElement()) {
-		ZeroMemory(&tvins, sizeof(tvins));
-		tvins.hInsertAfter = hPrev;
-		tvins.hParent = hParent;
-
-		attr = xNode->Attribute("image",&i);
-		if (i > 0) {
-			tvins.itemex.iImage = i;
-			tvins.itemex.mask |= TVIF_IMAGE;
-		}
-		attr = xNode->Attribute("selectedimage",&i);
-		if (i > 0) {
-			tvins.itemex.iImage = i;
-			tvins.itemex.mask |= TVIF_SELECTEDIMAGE;
-		}
-		attr = xNode->Attribute("text",&i);
-		if (i > 0) {
-			tvins.itemex.cchTextMax = lstrlen(attr);
-			tvins.itemex.pszText = (LPSTR)attr;
-			tvins.itemex.mask |= TVIF_TEXT;
-		}
-		hPrev = TreeView_InsertItem(this->m_Hwnd, &tvins);
-	}
-	return true;
+	this->setRedraw(FALSE);
+	this->xmlInsertItems(hParent, hInsertAfter, xElm);
+	this->setRedraw(TRUE);
+	//InvalidateRect(this->m_Hwnd, NULL, FALSE);
+	//UpdateWindow(this->m_Hwnd);
+	this->redrawWindow();
+	return hInsertAfter;
 }
 
 bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, TString &name, TString &filename)
 {
 	return false;
+}
+TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertAfter, TiXmlElement *xElm)
+{
+	TVINSERTSTRUCT tvins;
+	int i = 0;
+	const char *attr = NULL;
+	TiXmlElement *xRes = NULL;
+
+	for (TiXmlElement *xNode = xElm->FirstChildElement(); xNode != NULL; xNode = xNode->NextSiblingElement()) {
+		ZeroMemory(&tvins, sizeof(tvins));
+		tvins.hInsertAfter = hInsertAfter;
+		tvins.hParent = hParent;
+		LPDCXTVITEM lpmytvi = new DCXTVITEM;
+
+		lpmytvi->hHandle = NULL;
+
+		tvins.itemex.mask = TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
+		tvins.itemex.lParam = (LPARAM)lpmytvi;
+
+		// Items Icon.
+		attr = xNode->Attribute("image",&i);
+		if (attr != NULL && i > 0)
+			tvins.itemex.iImage = i -1;
+		else
+			tvins.itemex.iImage = 10000;
+		// Items Selected state icon.
+		attr = xNode->Attribute("selectedimage",&i);
+		if (attr != NULL && i > 0)
+			tvins.itemex.iSelectedImage = i -1;
+		else
+			tvins.itemex.iSelectedImage = tvins.itemex.iImage;
+		// Items expanded state icon.
+		attr = xNode->Attribute("expandedimage",&i);
+		if (attr != NULL && i > 0)
+			tvins.itemex.iExpandedImage = i -1;
+		else
+			tvins.itemex.iExpandedImage = 10000;
+		// Items height integral.
+		attr = xNode->Attribute("integral",&i);
+		if (attr != NULL && i > 0) {
+			tvins.itemex.iIntegral = i;
+			tvins.itemex.mask |= TVIF_INTEGRAL;
+		}
+		// Items selected
+		attr = xNode->Attribute("selected",&i);
+		if (attr != NULL && i > 0) {
+			tvins.itemex.state |= TVIS_SELECTED;
+			tvins.itemex.stateMask |= TVIS_SELECTED;
+		}
+		// Items tooltip
+		attr = xNode->Attribute("tooltip");
+		if (attr != NULL) {
+			lpmytvi->tsTipText = attr;
+		}
+		// Items text colour.
+		attr = xNode->Attribute("textcolor",&i);
+		if (attr != NULL && i > -1) {
+			lpmytvi->clrText = (COLORREF)i;
+		}
+		else
+			lpmytvi->clrText = CLR_NONE;
+		// Items background colour.
+		attr = xNode->Attribute("backgroundcolor",&i);
+		if (attr != NULL && i > -1) {
+			lpmytvi->clrBkg = (COLORREF)i;
+		}
+		else
+			lpmytvi->clrBkg = CLR_NONE;
+		// Is Item text in Bold?
+		attr = xNode->Attribute("textbold",&i);
+		if (i > 0) {
+			lpmytvi->bBold = TRUE;
+			tvins.itemex.state |= TVIS_BOLD;
+			tvins.itemex.stateMask |= TVIS_BOLD;
+		}
+		else
+			lpmytvi->bBold = FALSE;
+		// Is item text in italics?
+		attr = xNode->Attribute("textitalic",&i);
+		lpmytvi->bItalic = (i > 0);
+		// Is item text underlined?
+		attr = xNode->Attribute("textunderline",&i);
+		lpmytvi->bUline = (i > 0);
+		// Items Text.
+		attr = xNode->Attribute("text");
+		if (attr != NULL) {
+			tvins.itemex.cchTextMax = lstrlen(attr);
+			tvins.itemex.pszText = (LPSTR)attr;
+			tvins.itemex.mask |= TVIF_TEXT;
+		}
+		hInsertAfter = TreeView_InsertItem(this->m_Hwnd, &tvins);
+		if (hInsertAfter == NULL) {
+			delete lpmytvi;
+			this->showError(NULL, "-a", "Unable To Add XML Item To TreeView");
+			return NULL;
+		}
+		lpmytvi->hHandle = hInsertAfter;
+		// Items state icon.
+		attr = xNode->Attribute("state",&i);
+		if (attr != NULL && i > 0)
+			TreeView_SetItemState(this->m_Hwnd, hInsertAfter, INDEXTOSTATEIMAGEMASK(i), TVIS_STATEIMAGEMASK);
+		// Items overlay icon.
+		// overlay is 1-based index
+		attr = xNode->Attribute("overlay",&i);
+		if (attr != NULL && i > 0 && i < 16)
+			TreeView_SetItemState(this->m_Hwnd, hInsertAfter, INDEXTOOVERLAYMASK(i), TVIS_OVERLAYMASK);
+
+		if (xNode->FirstChild() != NULL) {
+			// item has children.
+			xNode = this->xmlInsertItems(hInsertAfter, hInsertAfter, xNode);
+		}
+		xRes = xNode;
+	}
+	return xRes;
 }
