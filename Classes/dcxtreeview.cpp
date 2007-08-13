@@ -988,6 +988,29 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		}
 		this->redrawWindow();
 	}
+	// xdid -S [NAME] [ID] [SWITCH] [N (N...)][TAB][+FLAGS] [NAME] [FILENAME]
+	else if (flags.switch_cap_flags[18] && numtok > 5) {
+
+		if (input.numtok(TSTAB) != 2) {
+			this->showError(NULL,"-S","Invalid Command Syntax.");
+			return;
+		}
+		HTREEITEM hParent = TVI_ROOT;
+		HTREEITEM hFrom = TVI_ROOT;
+		TString path(input.gettok(1, TSTAB).gettok( 4, -1));
+		TString fileData(input.gettok(2, TSTAB));
+		TString name(fileData.gettok( 2 ));
+		TString filename(fileData.gettok( 3, -1));
+
+		path.trim();
+		name.trim();
+		filename.trim();
+
+		this->parsePath(&path, &hParent, &hFrom);
+
+		if (!this->xmlSaveTree(hFrom, name, filename))
+			this->showErrorEx(NULL,"-S","Unable To Save Data To: <%s> %s", name.to_chr(), filename.to_chr());
+	}
   else
     this->parseGlobalCommandRequest( input, flags );
 }
@@ -1126,6 +1149,8 @@ HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, co
 		//tvi.mask |= TVIF_SELECTEDIMAGE;
 	}
 
+	iFlags &= ~TVIS_DCXMASK; // exclude DCX flags, they were messing up state & overlay icon settings, found when saved data didnt match what was set.
+
 	//tvi.hItem = hAfter;
 	tvi.state = iFlags;
 	tvi.stateMask = iFlags;
@@ -1139,7 +1164,7 @@ HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, co
 	hItem = TreeView_InsertItem(this->m_Hwnd, &tvins);
 	lpmytvi->hHandle = hItem;
 
-	if (state > -1)
+	if (state > 0 && state < 5) // zero is no state image.
 		TreeView_SetItemState(this->m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
 
 	// overlay is 1-based index
@@ -1408,15 +1433,17 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
  */
 BOOL DcxTreeView::parsePath( const TString * path, HTREEITEM * hParent, HTREEITEM * hInsertAfter, const int depth ) {
 
-  int n = path->numtok( ), i = 1;
-  int k = path->gettok( depth ).to_int( );
-  HTREEITEM hPreviousItem = TVI_FIRST, hCurrentItem;
+	int n = path->numtok( ), i = 1;
+	int k = path->gettok( depth ).to_int( );
+	//HTREEITEM hPreviousItem = TVI_FIRST, hCurrentItem;
+	HTREEITEM hPreviousItem = *hParent, hCurrentItem;
 
-  hCurrentItem = TreeView_GetChild( this->m_Hwnd, *hParent );
+	hCurrentItem = TreeView_GetChild( this->m_Hwnd, *hParent );
 
 	if ( hCurrentItem == NULL ) {
 		if ( k == -1 ) {
-			*hInsertAfter = TVI_LAST;
+			// shouldn't this just return TRUE & not change hInsertAfter?
+			//*hInsertAfter = TVI_LAST;
 			return TRUE;
 		}
 		else
@@ -1434,8 +1461,9 @@ BOOL DcxTreeView::parsePath( const TString * path, HTREEITEM * hParent, HTREEITE
 			else {
 
 				*hParent = hCurrentItem;
-				*hInsertAfter = TVI_FIRST;
-	      return this->parsePath( path, hParent, hInsertAfter, depth +1);
+				//*hInsertAfter = TVI_FIRST;
+				*hInsertAfter = hCurrentItem;
+				return this->parsePath( path, hParent, hInsertAfter, depth +1);
 			}
 		}
 		i++;
@@ -1443,23 +1471,25 @@ BOOL DcxTreeView::parsePath( const TString * path, HTREEITEM * hParent, HTREEITE
 
 	} while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
 
-  if ( k == -1 ) {
+	if ( k == -1 ) {
 
-    if ( depth == n ) {
+		if ( depth == n ) {
 
-      *hInsertAfter = TVI_LAST;
-      return TRUE;
-    }
-    else {
+			//*hInsertAfter = TVI_LAST;
+			*hInsertAfter = hCurrentItem;
+			return TRUE;
+		}
+		else {
 
 			*hParent = hPreviousItem;
-      *hInsertAfter = TVI_FIRST;
-      return this->parsePath( path, hParent, hInsertAfter, depth +1);
-    }
-  }
+			//*hInsertAfter = TVI_FIRST;
+			*hInsertAfter = hPreviousItem;
+			return this->parsePath( path, hParent, hInsertAfter, depth +1);
+		}
+	}
 	else if ((depth == n) && (i == k))
 		*hInsertAfter = hPreviousItem;
-  return FALSE;
+	return FALSE;
 }
 
 /*!
@@ -2283,7 +2313,10 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 		grphx.DrawImage( this->m_pImage, this->m_iXOffset, this->m_iYOffset);
 }
 #endif
-
+/*
+	xmlLoadTree()
+	Loads items into a treeview control from a dcxml file.
+*/
 HTREEITEM DcxTreeView::xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, TString &name, TString &filename)
 {
 	if (!IsFile(filename)) {
@@ -2318,6 +2351,9 @@ HTREEITEM DcxTreeView::xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, TS
 		return false;
 	}
 
+	if ( hInsertAfter == TVI_ROOT)
+		hInsertAfter = TreeView_GetRoot(this->m_Hwnd);
+
 	this->setRedraw(FALSE);
 	this->xmlInsertItems(hParent, hInsertAfter, xElm);
 	this->setRedraw(TRUE);
@@ -2327,10 +2363,135 @@ HTREEITEM DcxTreeView::xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, TS
 	return hInsertAfter;
 }
 
+/*
+	xmlSaveTree()
+	Saves Items from a treeview control to a dcxml file.
+	NB: Removes any existing items from the named dataset.
+*/
 bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, TString &name, TString &filename)
 {
-	return false;
+	TiXmlDocument doc(filename.to_chr());
+	doc.SetCondenseWhiteSpace(false);
+
+	if (IsFile(filename)) {
+		bool xmlFile = doc.LoadFile();
+		if (!xmlFile) {
+			this->showErrorEx(NULL, "-S", "Not an XML File: %s", filename.to_chr());
+			return false;
+		}
+	}
+	TiXmlElement *xRoot = doc.FirstChildElement("dcxml");
+	if (xRoot == NULL) {
+		xRoot = (TiXmlElement *)doc.InsertEndChild(TiXmlElement("dcxml"));
+
+		if (xRoot == NULL) {
+			this->showErrorEx(NULL, "-S", "Unable To Add Root <dcxml>");
+			return false;
+		}
+	}
+	TiXmlElement *xElm = xRoot->FirstChildElement("treeview_data");
+	if (xElm == NULL) {
+		xElm = (TiXmlElement *)xRoot->InsertEndChild(TiXmlElement("treeview_data"));
+		if (xElm == NULL)
+			return false;
+		xElm = (TiXmlElement *)xElm->InsertEndChild(TiXmlElement(name.to_chr()));
+		if (xElm == NULL)
+			return false;
+	}
+	xElm->Clear();
+
+	if ( hFromItem == TVI_ROOT)
+		hFromItem = TreeView_GetRoot(this->m_Hwnd);
+
+	TCHAR *buf = new TCHAR[1024];
+	if (buf != NULL) {
+		if (!this->xmlGetItems(hFromItem, xElm, buf)) {
+			this->showErrorEx(NULL, "-S", "Unable To Add Items to XML");
+			return false;
+		}
+		else
+			doc.SaveFile();
+		delete [] buf;
+	}
+	return true;
 }
+
+/*
+	xmlGetItems()
+	Recursive function that loops through all treeview items & adds them to the xml data.
+*/
+bool DcxTreeView::xmlGetItems(HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR *buf)
+{
+	if (hFirstSibling == NULL)
+		return false;
+
+	TVITEMEX tvi;
+	TiXmlElement *xTmp = NULL;
+	bool bRes = true;
+	//hFirstSibling = TreeView_GetRoot(this->m_Hwnd);
+	for (HTREEITEM hSib = hFirstSibling; hSib != NULL; hSib = TreeView_GetNextSibling(this->m_Hwnd, hSib)) {
+		ZeroMemory(&tvi,sizeof(tvi));
+		tvi.hItem = hSib;
+		tvi.mask = TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_INTEGRAL | TVIF_STATE | TVIF_TEXT | TVIF_CHILDREN;
+		tvi.cchTextMax = 1024;
+		tvi.pszText = buf;
+
+		if (!TreeView_GetItem(this->m_Hwnd, &tvi))
+			break;
+
+		LPDCXTVITEM lpmytvi = (LPDCXTVITEM)tvi.lParam;
+		if (lpmytvi == NULL) {
+			bRes = false;
+			break;
+		}
+		
+		{
+			TiXmlElement xChild("tvitem");
+			xChild.SetAttribute("text", tvi.pszText);
+			if (tvi.iImage > -1 && tvi.iImage != 10000)
+				xChild.SetAttribute("image", tvi.iImage +1);
+			if (tvi.iExpandedImage > 0 && tvi.iExpandedImage != 10000)
+				xChild.SetAttribute("expandedimage", tvi.iExpandedImage);
+			if (tvi.iSelectedImage > -1 && tvi.iSelectedImage != 10000)
+				xChild.SetAttribute("selectedimage", tvi.iSelectedImage +1);
+			if (tvi.iIntegral > 0)
+				xChild.SetAttribute("itegral", tvi.iIntegral);
+			if (tvi.stateMask & TVIS_SELECTED && tvi.state & TVIS_SELECTED)
+				xChild.SetAttribute("selected", 1);
+			if (lpmytvi->tsTipText.len())
+				xChild.SetAttribute("tooltip", lpmytvi->tsTipText.to_chr());
+			if (lpmytvi->bBold)
+				xChild.SetAttribute("textbold", 1);
+			if (lpmytvi->bItalic)
+				xChild.SetAttribute("textitalic", 1);
+			if (lpmytvi->bUline)
+				xChild.SetAttribute("textunderline", 1);
+			if (lpmytvi->clrBkg != CLR_NONE)
+				xChild.SetAttribute("backgroundcolor", lpmytvi->clrBkg);
+			if (lpmytvi->clrText != CLR_NONE)
+				xChild.SetAttribute("textcolor", lpmytvi->clrText);
+			UINT i = (tvi.state & TVIS_OVERLAYMASK) >> 8;
+			if (i > 0 && i < 16) // zero means no overlay, so don't save
+				xChild.SetAttribute("overlay", i);
+			i = (tvi.state & TVIS_STATEIMAGEMASK) >> 12;
+			if (i > 0 && i < 5)
+				xChild.SetAttribute("state", i); // zero means no state image so don't save
+			xTmp = xElm->InsertEndChild(xChild)->ToElement();
+			if (xTmp == NULL) {
+				bRes = false;
+				break;
+			}
+		}
+		if (tvi.cChildren > 0 && xTmp != NULL)
+			bRes = this->xmlGetItems(TreeView_GetChild(this->m_Hwnd, hSib), xTmp, buf);
+	}
+	return bRes;
+}
+
+/*
+	xmlInsertItems()
+	Recursive function that inserts items into a treeview control from the xml data.
+*/
 TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertAfter, TiXmlElement *xElm)
 {
 	TVINSERTSTRUCT tvins;
@@ -2338,7 +2499,7 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 	const char *attr = NULL;
 	TiXmlElement *xRes = NULL;
 
-	for (TiXmlElement *xNode = xElm->FirstChildElement(); xNode != NULL; xNode = xNode->NextSiblingElement()) {
+	for (TiXmlElement *xNode = xElm->FirstChildElement("tvitem"); xNode != NULL; xNode = xNode->NextSiblingElement("tvitem")) {
 		ZeroMemory(&tvins, sizeof(tvins));
 		tvins.hInsertAfter = hInsertAfter;
 		tvins.hParent = hParent;
@@ -2429,7 +2590,7 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 		lpmytvi->hHandle = hInsertAfter;
 		// Items state icon.
 		attr = xNode->Attribute("state",&i);
-		if (attr != NULL && i > 0)
+		if (attr != NULL && i > 0 && i < 5) // zero means no state icon anyway.
 			TreeView_SetItemState(this->m_Hwnd, hInsertAfter, INDEXTOSTATEIMAGEMASK(i), TVIS_STATEIMAGEMASK);
 		// Items overlay icon.
 		// overlay is 1-based index
@@ -2437,7 +2598,7 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 		if (attr != NULL && i > 0 && i < 16)
 			TreeView_SetItemState(this->m_Hwnd, hInsertAfter, INDEXTOOVERLAYMASK(i), TVIS_OVERLAYMASK);
 
-		if (xNode->FirstChild() != NULL) {
+		if (xNode->FirstChild("tvitem") != NULL) {
 			// item has children.
 			xNode = this->xmlInsertItems(hInsertAfter, hInsertAfter, xNode);
 		}
