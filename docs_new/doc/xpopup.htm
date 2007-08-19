@@ -445,7 +445,7 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr><td colspan="2">This command lets you display a menu.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xpopup -s [MENU] [+FLAGS] [X] [Y]</div></td>
+		<td><div class="syntax">/xpopup -s [MENU] [+FLAGS] [X] [Y] (HWND)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -495,6 +495,10 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 		<td class="param">Y</td>
 		<td>Y coordinate where menu will popup in screen coordinates.</td>
+	</tr>
+	<tr>
+		<td class="param">HWND</td>
+		<td>The popup coordinates will be displayed relative to this window.</td>
 	</tr>
 </table>
 <br />
@@ -962,7 +966,7 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 17th July, 07</td>
+		<td style="text-align: right;">Last Updated: 19th August, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

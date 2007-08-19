@@ -194,7 +194,7 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr><td colspan="2">This command lets you add an item to the treeview.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -a [DNAME] [ID] [PATH] [TAB] [+FLAGS] [ICON] [SICON] [OVERLAY] [STATE] [INTEGRAL] [COLOR] [BGCOLOR] (Item Text) [TAB] (Tooltip Text)</div></td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [PATH] [TAB] [+FLAGS] [ICON] [SICON] [OVERLAY] [STATE] [INTEGRAL] [COLOR] [BGCOLOR] (TEXT) [TAB] (Tooltip Text)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -218,12 +218,20 @@ This would add the item at the end of the last branch in the first column of bra
 		<td>Background is colored (<a class="param">BGCOLOR</a> is the background color).</td>
 	</tr>
 	<tr>
+		<td class="value">h</td>
+		<td>Allows you to load an item from a hash table by name. Cannot be used with <a class="value">+n</a></td>
+	</tr>
+	<tr>
 		<td class="value">e</td>
 		<td>Item is expanded.</td>
 	</tr>
 	<tr>
 		<td class="value">i</td>
 		<td>The item is italic.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Allows you to load an item from a hash table by index. Cannot be used with <a class="value">+h</a></td>
 	</tr>
 	<tr>
 		<td class="value">s</td>
@@ -243,7 +251,7 @@ This would add the item at the end of the last branch in the first column of bra
 	</tr>
 	<tr>
 		<td class="param">OVERLAY</td>
-		<td>Icon index number from the normal icon list that was marked as an overlay icon. (<a class="note">Note:</a> Not functional yet)</td>
+		<td>Icon index number from the normal icon list that was marked as an overlay icon.</td>
 	</tr>
 	<tr>
 		<td class="param">STATE</td>
@@ -272,6 +280,11 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr>
 		<td class="param">BGCOLOR</td>
 		<td>Background color of the treeview item in $rgb() format. (Needs to add flag <a class="value">+g</a> to work)</td>
+	</tr>
+	<tr>
+		<td class="param">TEXT</td>
+		<td>The text to display on the item.<br />
+					If used with <a class="value">+h</a> or <a class="value">+n</a> <a class="param">+FLAGS</a>, then this is either <a class="value">HASHTABLE</a> <a class="value">ITEM</a> or <a class="value">HASHTABLE</a> <a class="value">INDEX</a> respectively.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, <a class="param">#SICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class="style">checkbox</a> style in order to use checkboxes in the treeview.</li><li><a class="param">INTEGRAL</a> is calculated in this manner.<br />
 				<a class="value">0</a> = normal height,<br />
@@ -1262,7 +1275,7 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 17th July, 07</td>
+		<td style="text-align: right;">Last Updated: 19th August, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

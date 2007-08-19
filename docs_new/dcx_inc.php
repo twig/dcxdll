@@ -151,6 +151,7 @@ function wikiData(&$value, $userdata = "") {
 		'/\[p\](.*?)\[\/p\]/is', // param
 //		'/\[i\](.*?)\[\/i\]/is', // property - unused
 		'/\[o\](.*?)\[\/o\]/is', // operating system
+                '/\[os\](.*?)\[\/os\]/is', // operating system
 		'/\[n\](.*?)\[\/n\]/is', // note
 		'/\[f\](.*?)\[\/f\]/is', // flag
 		'/\[code\](.*?)\[\/code\]/is', // code
@@ -164,6 +165,7 @@ function wikiData(&$value, $userdata = "") {
 		'<a class="param">$1</a>',
 //		'<a class="property">$1</a>',
 		'<a class="os">($1)</a>',
+                '<a class="os">($1)</a>',
 		'<a class="note">Note:</a> $1',
 		'<a class="value">$1</a>', // flag
 		'<pre class="code">$1</pre>', // code

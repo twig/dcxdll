@@ -254,6 +254,10 @@
 		<td>Autosize the column to fit header or content.</td>
 	</tr>
 	<tr>
+		<td class="value">n</td>
+		<td>Allows you to load an item from a hash table by index. Cannot be used with <a class="value">+</a></td>
+	</tr>
+	<tr>
 		<td class="value">s</td>
 		<td>The item is selected.</td>
 	</tr>
@@ -307,7 +311,9 @@
 	</tr>
 	<tr>
 		<td class="param">TEXT</td>
-		<td>The text to display in the cell. If used with <a class="value">+p</a> <a class="param">+FLAGS</a>, then this is the DCX ProgressBar <a class="style">style</a>.</td>
+		<td>The text to display in the cell.<br />
+				        If used with <a class="value">+p</a> <a class="param">+FLAGS</a>, then this is the DCX ProgressBar <a class="style">style</a>.<br />
+					If used with <a class="value">+HHHHHHHHHHHH?</a> or <a class="value">+n</a> <a class="param">+FLAGS</a>, then this is either <a class="value">HASHTABLE</a> <a class="value">ITEM</a> or <a class="value">HASHTABLE</a> <a class="value">INDEX</a> respectively.</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Icons must be added prior to be used in the listview using <a class="value">/xdid -w</a></li><li>The <a class="param">INDENT</a> parameter only works if you are using normal icons in the listview.</li><li>Even if there are icons in the icon lists and <a class="value">0</a> is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class="style">checkbox</a> style in order to use checkboxes in the listview.</li></ul></td></tr></table>
 <br />
@@ -1676,7 +1682,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 17th July, 07</td>
+		<td style="text-align: right;">Last Updated: 19th August, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

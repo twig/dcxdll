@@ -95,8 +95,20 @@
 		<td>Allows multiple items to be selected.</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.hsbar" class="style">hsbar</a></td>
+		<td>Enables the horizontal scrollbar</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.multi" class="style">multi</a></td>
 		<td>Turns string selection on or off each time the user clicks or double-clicks a string in the list box. The user can select any number of strings.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.multicol" class="style">multicol</a></td>
+		<td>Allows a multi column list.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.noformat" class="style">noformat</a></td>
+		<td>Disables support for mIRC codes in control (faster).</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.nointegral" class="style">nointegral</a></td>
@@ -146,7 +158,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -c dcx 4 1,2,3</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> In a single line listbox, you only provide the line number to select.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>In a single line listbox, you only provide the line number to select.</li><li>You can use <a class="value">0</a> for <a class="param">N</a> to select the last item.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -159,6 +171,41 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -d dcx 4 1</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">0</a> for <a class="param">N</a> to delete the last item.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.m"></a>/xdid -m	</td></tr>
+	<tr><td colspan="2">This command lets you to modify the <a class="style">multicol</a> properties.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -m [DNAME] [ID] [+FLAG] [N](,N,N,...)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -m dcx 4 +w 150</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">w</td>
+		<td>Sets the width of the colums. <a class="param">N</a> is the width of the column.</td>
+	</tr>
+	<tr>
+		<td class="param">t</td>
+		<td>Sets the tabstops within the list. <a class="note">Note:</a> Currently only one tabstop can be set.</td>
+	</tr>
+	<tr>
+		<td class="value">-1</td>
+		<td>Resets the tabs to the control default of <a class="value">2</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">N</td>
+		<td>Sets the tabs to a fixed value for each tab.</td>
+	</tr>
+	<tr>
+		<td class="value">N1,N2,...</td>
+		<td>Sets the tabs to specific values for each tab.</td>
 	</tr>
 </table>
 <br />
@@ -174,7 +221,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -o dcx 4 1 New Text</div></td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">0</a> for <a class="param">N</a> to overwrite the last item.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -204,10 +251,121 @@
 	</tr>
 </table>
 <br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.A"></a>/xdid -A	</td></tr>
+	<tr><td colspan="2">This command lets you add new items to the listbox.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -A [DNAME] [ID] [N] [+FLAG] [ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -A dcx 4 0 +t settings</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>The position to insert the new item(s)</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>New item flags.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Loads the entire contents of a file into the list.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Allows you to load an item from a hash table by name.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Allows you to load an item from a hash table by index.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Loads entire hashtable into list.</td>
+	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">f</td>
+		<td><div class="syntax">[START] [END] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="value">START</td>
+		<td>The starting index for items to add. Use <a class="value">0</a> to ignore. Negative values are treated as an offset from the end of the file.</td>
+	</tr>
+	<tr>
+		<td class="value">END</td>
+		<td>The ending index for items to add. Use <a class="value">0</a> to ignore. Negative values are treated as an offset from the end of the file.</td>
+	</tr>
+	<tr>
+		<td class="param">h</td>
+		<td><div class="syntax">[HASHTABLE] [ITEM]</div></td>
+	</tr>
+	<tr>
+		<td class="param">n</td>
+		<td><div class="syntax">[HASHTABLE] [INDEX]</div></td>
+	</tr>
+	<tr>
+		<td class="param">t</td>
+		<td><div class="syntax">[HASHTABLE] [START] [END]</div></td>
+	</tr>
+	<tr>
+		<td class="value">START</td>
+		<td>The starting index for items to add. Use <a class="value">0</a> to ignore. Negative values are treated as an offset from the end of the table.</td>
+	</tr>
+	<tr>
+		<td class="value">END</td>
+		<td>The ending index for items to add. Use <a class="value">0</a> to ignore. Negative values are treated as an offset from the end of the table.</td>
+	</tr>
+	<tr>
+		<td class="param">No flags</td>
+		<td><div class="syntax">[TEXT]</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">0</a> for <a class="param">N</a> to insert at the end of the listbox.</li><li>If no <a class="param">FLAG</a> is specified, this behaves exactly like <a class="value">/xdid -a</a>.</li></ul></td></tr></table>
+<br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1"><a name="xdidprop"></a><div style='color: #A8B2D1;font-size:14pt;'>$xdid() Properties</div></td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.find"></a>$xdid().find	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the listview item index and column index of the Nth found listview item matching the input search patern.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [TAB]Matchtext[TAB], T, N).find</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, $chr(9) *Item* $chr(9), W, 3).find</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">MATCHTEXT</td>
+		<td>String composed of wildcards or regex paterns used for the search.</td>
+	</tr>
+	<tr>
+		<td class="param">T</td>
+		<td>Value indicating if the search is using a regex patern or wildcard string.</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>Matchtext is a wildcard string.</td>
+	</tr>
+	<tr>
+		<td class="value">R</td>
+		<td>Matchtext is a regex patern.</td>
+	</tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Parameter indicating to return the Nth match.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">N</a> is <a class="value">0</a>, returns the total number of matching items.</li><li>The [TAB] characters surrounding the matchtext are mandatory or else it wont work.</li><li>The global search iterates line by line, starting at the top.</li></ul></td></tr></table>
+<br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.num"></a>$xdid().num	</td></tr>
@@ -492,7 +650,10 @@
 		<a href="#style.dragline"><div>dragline</div></a>
 		<a href="#style.draglist"><div>draglist</div></a>
 		<a href="#style.extsel"><div>extsel</div></a>
+		<a href="#style.hsbar"><div>hsbar</div></a>
 		<a href="#style.multi"><div>multi</div></a>
+		<a href="#style.multicol"><div>multicol</div></a>
+		<a href="#style.noformat"><div>noformat</div></a>
 		<a href="#style.nointegral"><div>nointegral</div></a>
 		<a href="#style.noscroll"><div>noscroll</div></a>
 		<a href="#style.nosel"><div>nosel</div></a>
@@ -503,12 +664,15 @@
 		<a href="#xdid.a"><div>-a</div></a>
 		<a href="#xdid.c"><div>-c</div></a>
 		<a href="#xdid.d"><div>-d</div></a>
+		<a href="#xdid.m"><div>-m</div></a>
 		<a href="#xdid.o"><div>-o</div></a>
 		<a href="#xdid.r"><div>-r</div></a>
 		<a href="#xdid.u"><div>-u</div></a>
+		<a href="#xdid.A"><div>-A</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a href="#xdidprop"><div class='header' style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a href="#xdidprop.find"><div>find</div></a>
 		<a href="#xdidprop.num"><div>num</div></a>
 		<a href="#xdidprop.sel"><div>sel</div></a>
 		<a href="#xdidprop.tbitem"><div>tbitem</div></a>
@@ -537,7 +701,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 17th July, 07</td>
+		<td style="text-align: right;">Last Updated: 19th August, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
