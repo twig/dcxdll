@@ -250,6 +250,21 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		sprintf(szReturnValue,"D_OK %.2f", this->getVolume());
 		return;
   }
+	// [NAME] [ID] [PROP]
+	else if (prop == "state") {
+		/*
+		sprintf(szReturnValue, "D_OK %s", "nofile");
+		sprintf(szReturnValue, "D_OK %s", "stopped");
+		sprintf(szReturnValue, "D_OK %s", "paused");
+		sprintf(szReturnValue, "D_OK %s", "playing");
+		sprintf(szReturnValue, "D_OK %s", "rewind");
+		sprintf(szReturnValue, "D_OK %s", "fastforward");
+		and anything else you can think of i guess
+		*/
+
+		sprintf(szReturnValue, "D_OK %s", "unknown");
+		return;
+	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
 
