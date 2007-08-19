@@ -1,3 +1,18 @@
+/*!
+ * \file dcxml.cpp
+ * \brief blah
+ *
+ * TODO: rename all variables to use the same convention (camelCase)
+ *
+ * \author Martijn Laarman ( Mpdreamz at mirc dot net )
+ * \version 2.0
+ *
+ * \b Revisions
+ *		-Completely rewrote DCXML to be more OOP
+ *
+ * © ScriptsDB.org - 2006
+ */
+
 #include "../../defines.h"
 #include "../tinyxml/tinyxml.h"
 #include "dcxml.h"
@@ -36,11 +51,9 @@ public:
 	const char *caption;
 	const char *tooltip;
 	const char *cascade;
-	const char *colour;
 	const char *icon;
 	const char *tFlags;
 	const char *integral;
-	const char *bgcolour;
 	const char *state;
 	const char *indent;
 	const char *src;
@@ -48,6 +61,20 @@ public:
 	const char *rebarMinHeight;
 	const char *rebarMinWidth;
 	const char *iconsize;
+	const char *fontstyle;
+	const char *charset;
+	const char *fontsize;
+	const char *fontname;
+	const char *border;
+	const char *cursor;
+	const char *bgcolour;
+	const char *textbgcolour;
+	const char *textcolour;
+
+	TiXmlElement* templateRef;
+	int templateRefcCla;
+	const char *templateRefclaPath;
+
 	int eval;
 	
 
@@ -84,10 +111,8 @@ public:
 		caption = (temp = element->Attribute("caption")) ? temp : element->GetText();
 		tooltip = (temp = element->Attribute("tooltip")) ? temp : "";
 		cascade = (temp = element->Attribute("cascade")) ? temp : "";
-		colour = (temp = element->Attribute("colour")) ? temp : "0";
 		icon = (temp = element->Attribute("icon")) ? temp : "0";
 		integral = (temp = element->Attribute("integral")) ? temp : "0";
-		bgcolour = (temp = element->Attribute("bgcolour")) ? temp : "0";
 		state = (temp = element->Attribute("state")) ? temp : "0";
 		indent = (temp = element->Attribute("indent")) ? temp : "0";
 		//flags attribute defaults different per type/item
@@ -98,6 +123,16 @@ public:
 		rebarMinWidth = (temp = element->Attribute("minwidth")) ? temp : "0";
 		iconsize = (temp = element->Attribute("iconsize")) ? temp : "16";
 		eval = (element->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 0;
+
+		fontstyle = (temp = element->Attribute("fontstyle")) ? temp : "d";
+		charset = (temp = element->Attribute("charset")) ? temp : "ansi";
+		fontsize = (temp = element->Attribute("fontsize")) ? temp : "";
+		fontname = (temp = element->Attribute("fontname")) ? temp : "";
+		border = (temp = element->Attribute("border")) ? temp : "";
+		cursor = (temp = element->Attribute("cursor")) ? temp : "arrow";
+		bgcolour = (temp = element->Attribute("bgcolour")) ? temp : "0";
+		textbgcolour = (temp = element->Attribute("textbgcolour")) ? temp : "";
+		textcolour = (temp = element->Attribute("textcolour")) ? temp : "0";
 	}
 	void parseAttributes(TiXmlElement* element) {
 		elem = element->Value();
@@ -111,10 +146,8 @@ public:
 		caption = (temp = element->Attribute("caption")) ? temp : element->GetText();
 		tooltip = (temp = element->Attribute("tooltip")) ? temp : "";
 		cascade = (temp = element->Attribute("cascade")) ? temp : "";
-		colour = (temp = element->Attribute("colour")) ? temp : "0";
 		icon = (temp = element->Attribute("icon")) ? temp : "0";
 		integral = (temp = element->Attribute("integral")) ? temp : "0";
-		bgcolour = (temp = element->Attribute("bgcolour")) ? temp : "0";
 		state = (temp = element->Attribute("state")) ? temp : "0";
 		indent = (temp = element->Attribute("indent")) ? temp : "0";
 		//flags attribute defaults different per type/item
@@ -125,8 +158,20 @@ public:
 		rebarMinWidth = (temp = element->Attribute("minwidth")) ? temp : "0";
 		iconsize = (temp = element->Attribute("iconsize")) ? temp : "16";
 		eval = (element->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 0;
-	}
 
+		fontstyle = (temp = element->Attribute("fontstyle")) ? temp : "d";
+		charset = (temp = element->Attribute("charset")) ? temp : "ansi";
+		fontsize = (temp = element->Attribute("fontsize")) ? temp : "";
+		fontname = (temp = element->Attribute("fontname")) ? temp : "";
+		border = (temp = element->Attribute("border")) ? temp : "";
+		cursor = (temp = element->Attribute("cursor")) ? temp : "arrow";
+		bgcolour = (temp = element->Attribute("bgcolour")) ? temp : "0";
+		textbgcolour = (temp = element->Attribute("textbgcolour")) ? temp : "";
+		textcolour = (temp = element->Attribute("textcolour")) ? temp : "0";
+	}
+	void setIconSize() {
+
+	}
 	/* parseControl() : if current element is a control perform some extra commands*/
 	void parseControl() { 
 		//zlayer control 
@@ -138,10 +183,11 @@ public:
 			const char *width = (temp = element->Attribute("width")) ? temp : "100";
 			xdidEX(parentid,"-v","%s",width);
 		}
-		if ((0==lstrcmp(type, "toolbar")) || (0==lstrcmp(type, "button"))) { 
+		if (((0==lstrcmp(type, "toolbar")) || (0==lstrcmp(type, "button")))
+			|| (0==lstrcmp(type, "treeview"))) { 
 			xdidEX(id,"-l","%s",iconsize);
-			parseItems(element);
 		}
+		if (0==lstrcmp(type, "toolbar")) parseItems(element);
 		else if (0==lstrcmp(type, "treeview")) parseItems(element);
 		else if (0==lstrcmp(type, "comboex")) parseItems(element);
 		else if (0==lstrcmp(type, "list")) parseItems(element);
@@ -222,22 +268,7 @@ public:
 			parseItems(element);
 		}
 	}
-	/*
-	void xdidEX(int id,const char *sw,const char *d = "") { 
-		//Normal: $1 = switch $2 = dname $3 = id $4- = data
-		//Request: $1 = dname $2 = id $3 = switch $4- = data
-		if (eval) mIRCcomEX("//xdid %s %s %i %s",sw,dname.to_chr(),id,d);
-		else d_Host->parseComControlRequestEX(id,"%s %i %s %s",dname.to_chr(),id,sw,d);
-	}
-	*/
 	void xdialogEX(const char *sw,const char *dFormat, ...) { 
-			//va_list args;
-			//va_start(args, dFormat);
-			//char d[2048];
-			//vsprintf(d, dFormat, args);
-			//va_end(args);
-			//if (eval) mIRCcomEX("//xdialog %s %s %s",sw,dname.to_chr(),d);
-			//else d_Host->parseCommandRequestEX("%s %s %s",dname.to_chr(),sw,d);
 			va_list args;
 			va_start(args, dFormat);
 			int cnt = _vscprintf(dFormat, args);
@@ -249,13 +280,6 @@ public:
 			delete [] txt;
 	}
 	void xdidEX(int id,const char *sw,const char *dFormat, ...) { 
-			//va_list args;
-			//va_start(args, dFormat);
-			//char d[2048];
-			//vsprintf(d, dFormat, args);
-			//va_end(args);
-			//if (eval) mIRCcomEX("//xdid %s %s %i %s",sw,dname.to_chr(),id,d);
-			//else d_Host->parseComControlRequestEX(id,"%s %i %s %s",dname.to_chr(),id,sw,d);
 			va_list args;
 			va_start(args, dFormat);
 			int cnt = _vscprintf(dFormat, args);
@@ -277,8 +301,8 @@ public:
 			const char * fHeigth = "";
 			const char * fWidth = "";
 			const char * fixed = "l";
-			if (element->Attribute("height")) { fHeigth = "v"; fixed = "f"; }
-			if (element->Attribute("width")) { fWidth = "h"; fixed = "f"; }
+			if (element->Attribute("height")) { fHeigth = "v"; fixed = "f"; weigth = "0"; }
+			if (element->Attribute("width")) { fWidth = "h"; fixed = "f"; weigth = "0"; }
 			if (0==lstrcmp(parentelem, "dialog")) 
 				xdialogEX("-l","cell %s \t +%s%s%si %i %s %s %s",
 					g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
@@ -361,6 +385,16 @@ public:
 
 		//cursor
 		if (style->Attribute("cursor")) xdidEX(id,"-J","+r %s",cursor);	
+
+		//iconsize
+		if (style->Attribute("iconsize")) 
+		{ 
+			if (((0==lstrcmp(type, "toolbar")) || (0==lstrcmp(type, "button")))
+				|| (0==lstrcmp(type, "treeview"))) 
+			{ 
+				xdidEX(id,"-l","%s",iconsize);
+			}
+		}
 	}
 
 	void parseStyle(int depth = 0) { 
@@ -445,7 +479,7 @@ public:
 				if (0==lstrcmp(type, "toolbar")) { 
 					const char *flags = (tFlags) ? tFlags : "a";
 					xdidEX(id,"-a","0 +%s %s %s %s %s \t %s",
-						flags,width,icon,colour,caption,tooltip);
+						flags,width,icon,textcolour,caption,tooltip);
 				}
 				else if (0==lstrcmp(type, "comboex")) { 
 					xdidEX(id,"-a","0 %s %s %s 0 %s",
@@ -467,13 +501,33 @@ public:
 					wsprintf (buffer, "%s %i",itemPath,item);
 					pathx = buffer;
 					xdidEX(id,"-a","%s \t +%s %s %s 0 %s %s %s %s %s \t %s",
-						pathx,flags,icon,icon,state,integral,colour,bgcolour,caption,tooltip);
+						pathx,flags,icon,icon,state,integral,textcolour,bgcolour,caption,tooltip);
 					parseItems(child,depth,pathx);
 				}
 			}
 		}
 	}
-	void parseDialog(int depth=0,const char *claPath = "root",int passedid = 2000) { 
+	void parseTemplate(int dialogDepth=0,const char *claPath = "root",int passedid = 2000)
+	{
+		TiXmlElement* Template = 0;
+		TiXmlElement* lookIn = 0;
+		TiXmlElement* found = 0;
+		lookIn = dialogs->FirstChildElement("templates");
+		for (Template = lookIn->FirstChildElement("template");Template;Template = Template->NextSiblingElement()) 
+		{
+			if (0==lstrcmp(Template->Attribute("name"), element->Attribute("name")))
+			{ 
+				found = Template;
+				break;
+			}
+		}
+		if (found) 
+		{
+			element = found;
+			parseDialog(dialogDepth,claPath,passedid,1);
+		}
+	}
+	void parseDialog(int depth=0,const char *claPath = "root",int passedid = 2000,int ignoreParent = 0) { 
 		TiXmlElement* child = 0;
 		int control = 0;
 		g_claPath = 0;
@@ -484,25 +538,49 @@ public:
 		for( child = element->FirstChildElement(); child; child = child->NextSiblingElement() ) {
 			cell++;
 			//STEP 1: SET ELEMENT AND PARENTELEMENT
-			parent = child->Parent()->ToElement();
+			if (!ignoreParent) parent = child->Parent()->ToElement();
 			element = child->ToElement();
 			
 			//STEP 2: PARSE ATTRIBUTES OF ELEMENTS
 			parseAttributes();
 			
 			//dont itterate over unneccessary items
+			if (0==lstrcmp(elem, "calltemplate")) 
+			{
+				cCla++;
+				templateRef = element;
+				templateRefcCla = cCla;
+				char t_buffer [100];
+				const char * t_claPathx = 0;
+				wsprintf (t_buffer, "%i",cCla);
+				t_claPathx = t_buffer;
+				templateRefclaPath = t_claPathx;
+				parseTemplate(depth,claPath,passedid);
+				templateRef = 0;
+				continue;
+			}
 			if ((0==lstrcmp(elem, "control")) || (0==lstrcmp(elem, "pane"))) cCla++;
 			else continue;
+
 			//asign ID 
 			if (0==lstrcmp(elem, "control")) { 
 				controls++;
-				 id = (element->QueryIntAttribute("id",&id) == TIXML_SUCCESS) ? id : 2000 - controls;
+				 id = (element->QueryIntAttribute("id",&id) == TIXML_SUCCESS) ? id : 2000 + controls;
 			}
 			else id = passedid;
 
 			//assign parent CONTROL of element
-			while (parent) { 
-				if (0==lstrcmp(parentelem, "pane")) { 
+			while (parent) {
+				if (0==lstrcmp(parentelem, "template")) 
+				{
+					parent = templateRef->Parent()->ToElement();
+					parentelem = templateRef->Parent()->Value();
+					cCla = templateRefcCla;
+					claPath = templateRefclaPath;
+					mIRCcomEX("//echo -a sakasjd a %s %i %s", parentelem,cCla,claPath);
+				}
+				if (0==lstrcmp(parentelem, "pane")) 
+				{ 
 					parent = parent->Parent()->ToElement();
 					parentelem = parent->Value();
 				}
@@ -511,6 +589,9 @@ public:
 			parenttype = (temp = parent->Attribute("type")) ? temp : "panel";
 			parentid = (parent->QueryIntAttribute("id",&parentid) == TIXML_SUCCESS) ? parentid : passedid;
 			
+			//IF TEMPLATE ELEMENT REROUTE TO TEMPLATE DEFINITION
+
+
 			//STEP 3: IF CONTROL CREATE IT AND ITS ITEMS
 			if (0==lstrcmp(elem, "control")) {
 				control++;
@@ -544,12 +625,12 @@ public:
 					else if (0==lstrcmp(parenttype, "rebar")) { 
 						const char *flags = (tFlags) ? tFlags : "ceg";
 						xdidEX(parentid,"-a","0 +%s %s %s %s %s %s %s \t %i %s 0 0 %s %s %s \t %s",
-							flags,rebarMinWidth,rebarMinHeight,width,icon,colour,caption,
+							flags,rebarMinWidth,rebarMinHeight,width,icon,textcolour,caption,
 							id,type,width,height,styles,tooltip);
 					}
 					else if (0==lstrcmp(parenttype, "stacker")) 
 						xdidEX(parentid,"-a","0 + %s %s %s \t %i %s 0 0 %s %s %s",
-							colour,bgcolour,caption,id,type,width,height,styles);
+							textcolour,bgcolour,caption,id,type,width,height,styles);
 					
 					else if (0==lstrcmp(parenttype, "statusbar"))
 						xdidEX(parentid,"-t","%i +c %s %i %s 0 0 0 0 %s",
@@ -570,7 +651,7 @@ public:
 			}
 			//char *claPathx = "root";
 			//mIRCcomEX("//echo -a clapath:%s",claPathx);
-			parseDialog(depth+1,claPathx.to_chr(),id);  
+			parseDialog(depth+1,claPathx.to_chr(),id,0);  
 		}
 	} 
 
