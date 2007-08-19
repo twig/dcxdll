@@ -25,6 +25,10 @@
 class DcxDialog;
 class DcxTreeView;
 
+#ifndef TVIF_EXPANDEDIMAGE
+#define TVIF_EXPANDEDIMAGE 0x0200
+#endif
+
 #define TVSEARCH_W 0x01       //!< TreeView WildCard Search
 #define TVSEARCH_R 0x02       //!< TreeView Regex Search
 

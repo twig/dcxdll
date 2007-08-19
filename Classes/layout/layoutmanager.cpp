@@ -120,8 +120,6 @@ LayoutCell * LayoutManager::parsePath( const TString & path, LayoutCell * hParen
   int k = path.gettok( depth ).to_int( );
   LayoutCell * hCurrentCell;
 
-  //char data[50];
-
   hCurrentCell = hParent->getFirstChild( );
 
   if ( hCurrentCell == NULL )
@@ -131,7 +129,6 @@ LayoutCell * LayoutManager::parsePath( const TString & path, LayoutCell * hParen
 
     if ( i == k ) {
 
-      //MessageBox( hwnd, "i == k", "i == k", MB_OK );
       // finished tree search and found
       if ( depth == n )
        return hCurrentCell;

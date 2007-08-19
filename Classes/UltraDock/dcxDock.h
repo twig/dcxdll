@@ -57,6 +57,7 @@ public:
 	static LRESULT status_getParts( const int nParts, LPINT aWidths );
 	static void status_setText( const int iPart, const int Style, const LPSTR lpstr );
 	static LRESULT status_getText( const int iPart, LPSTR lpstr );
+	static UINT status_getTextLength( const int iPart );
 	static void status_setTipText( const int iPart, const LPSTR lpstr );
 	static void status_getTipText( const int iPart, const int nSize, LPSTR lpstr );
 	static void status_getRect( const int iPart, LPRECT lprc );

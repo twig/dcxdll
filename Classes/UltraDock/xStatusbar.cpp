@@ -111,8 +111,9 @@ mIRC(xstatusbar) {
 					if ( numtok > 2 )
 						itemtext = input.gettok( 3, -1 );
 
-					char text[900];
+					char *text = new char[DcxDock::status_getTextLength(nPos) + 1];
 					DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_chr( ) );
+					delete [] text;
 				}
 			}
 			break;
@@ -178,8 +179,12 @@ mIRC(_xstatusbar)
 		{
 			int iPart = d.gettok( 3 ).to_int( ) -1, nParts = DcxDock::status_getParts( 256, 0 );
 
-			if ( iPart > -1 && iPart < nParts )
-				DcxDock::status_getText( iPart, data ); // possible overflow, needs fixed at some point.
+			if ( iPart > -1 && iPart < nParts ) {
+				char *text = new char[DcxDock::status_getTextLength( iPart ) +1];
+				DcxDock::status_getText( iPart, text );
+				lstrcpyn(data, text, 900); // cut off text at mIRC limits
+				delete [] text;
+			}
 		}
 		break;
 	case 3: // parts

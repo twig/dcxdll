@@ -263,16 +263,6 @@ void LayoutCellPane::AdjustMinSize( int & nSizeLeft, int & nTotalWeight ) {
     nTotalWeight += nWeight;
 		pChild->setRect( rect );
 
-    /*
-    char data[500];
-    wsprintf( data, "RECT %d %d %d %d\r\nWRECT %d %d %d %d\r\nNSIZE %d\r\nNSIZELEFT %d\r\n", 
-      rc.left, rc.top, rc.right, rc.bottom,
-      this->m_rcWindow.left, this->m_rcWindow.top, this->m_rcWindow.right, this->m_rcWindow.bottom,
-      nSize, nSizeLeft );
-
-    Edit_SetText( hwndChild4, data );
-    */
-
     itStart++;
   }
 }
@@ -298,10 +288,6 @@ void LayoutCellPane::AdjustSize( int & nSizeLeft, int & nTotalWeight ) {
 
     LayoutCell * pChild = (*itStart).first;
     int nWeight = (*itStart).second;
-
-    //char blah[40];
-    //wsprintf( blah, "Weight %d", nWeight );
-    //MessageBox( hwndChild4, blah, blah, MB_OK );
 
     // don't put extra width/height on items of zero weight
     if ( nWeight == 0 || pChild->isVisible( ) == FALSE ) {

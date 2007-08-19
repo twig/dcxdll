@@ -26,8 +26,6 @@ extern HWND hwndChild4;
 
 LayoutCell::LayoutCell( ) {
 
-  //MessageBox( NULL, "LayoutCell( )", "LayoutCell( )", MB_OK );
-
   SetRectEmpty( &this->m_rcBorders );
   SetRectEmpty( &this->m_rcWindow );
 
@@ -45,8 +43,6 @@ LayoutCell::LayoutCell( ) {
  */
 
 LayoutCell::LayoutCell( const HWND mHwnd ) : m_Hwnd( mHwnd ) {
-
-  //MessageBox( NULL, "LayoutCell( HWND mHwnd )", "LayoutCell( HWND mHwnd )", MB_OK );
 
   if ( mHwnd != NULL )
     GetWindowRect( mHwnd, &this->m_rcWindow );
@@ -162,22 +158,6 @@ void LayoutCell::setRect( RECT & rc ) {
 
   this->getMinMaxInfo( &cmmi );
 
-  /*
-  char data[500];
-  wsprintf( data, "RECT %d %d %d %d\r\nWRECT %d %d %d %d\r\nMAX %d %d %d %d\r\nMETRICS %d %d %d %d", 
-    rect.left, rect.top, rect.right, rect.bottom,
-    rc.left, rc.top, rc.right, rc.bottom,
-    cmmi.m_MinSize.x, cmmi.m_MinSize.y, cmmi.m_MaxSize.x, cmmi.m_MaxSize.y, 
-    GetSystemMetrics( SM_CXMINTRACK ), GetSystemMetrics( SM_CYMINTRACK ), GetSystemMetrics( SM_CXMAXTRACK ),
-    GetSystemMetrics( SM_CYMAXTRACK ));
-
-  
-  if ( this->m_Hwnd != NULL )
-    Edit_SetText( this->m_Hwnd, data );
-  else
-    Edit_SetText( hwndChild4, data );
-    */
-
   if ( rc.right - rc.left < cmmi.m_MinSize.x )
 		rc.right = rc.left + cmmi.m_MinSize.x;
 	if ( rc.right - rc.left > cmmi.m_MaxSize.x )
@@ -238,13 +218,6 @@ void LayoutCell::setBorder( const RECT & rc ) {
   // re-add new border settings
 	this->m_rcWindow.right += this->m_rcBorders.left + this->m_rcBorders.right;
 	this->m_rcWindow.bottom += this->m_rcBorders.top + this->m_rcBorders.bottom;
-
-  /*
-  this->m_rcWindow.left -= this->m_rcBorders.left;
-	this->m_rcWindow.right += this->m_rcBorders.right;
-	this->m_rcWindow.top -= this->m_rcBorders.top;
-	this->m_rcWindow.bottom += this->m_rcBorders.bottom;
-  */
 }
 
 /*!
@@ -265,13 +238,6 @@ void LayoutCell::setBorder( const unsigned int nBorder ) {
   // re-add new border settings
 	this->m_rcWindow.right += this->m_rcBorders.left + this->m_rcBorders.right;
 	this->m_rcWindow.bottom += this->m_rcBorders.top + this->m_rcBorders.bottom;
-
-  /*
-  this->m_rcWindow.left -= this->m_rcBorders.left;
-	this->m_rcWindow.right += this->m_rcBorders.right;
-	this->m_rcWindow.top -= this->m_rcBorders.top;
-	this->m_rcWindow.bottom += this->m_rcBorders.bottom;
-  */
 }
 
 /*!

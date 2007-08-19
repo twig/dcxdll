@@ -43,7 +43,6 @@ LayoutCellFixed::LayoutCellFixed( const RECT & rc, const FixedType nType ) : Lay
 
 LayoutCellFixed::LayoutCellFixed( const HWND mHwnd, const RECT & rc, const FixedType nType ) : LayoutCell( NULL ), m_nType( nType ) {
 
-  //MessageBox( NULL, "LayoutCellFixed( )", "LayoutCellFixed( )", MB_OK );
   this->m_Hwnd = mHwnd;
   CopyRect( &this->m_rcWindow, &rc );
 }

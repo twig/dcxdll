@@ -86,7 +86,7 @@ LPDCXULTRADOCK GetUltraDock(const HWND hwnd)
 	return g_dockMDI->GetDock(hwnd);
 }
 
-void UltraDock(const HWND mWnd, HWND temp, TString &flag)
+void UltraDock(const HWND mWnd, HWND temp, const TString &flag)
 {
 	// mWnd is unused.
 	if (g_dockMDI == NULL)
@@ -111,7 +111,7 @@ LPDCXULTRADOCK GetTreebarDock(const HWND hwnd)
 	return g_dockTreebar->GetDock(hwnd);
 }
 
-void TreebarDock(HWND temp, TString &flag)
+void TreebarDock(HWND temp, const TString &flag)
 {
 	// mWnd is unused.
 	if (g_dockTreebar == NULL)

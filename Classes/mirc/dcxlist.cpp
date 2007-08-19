@@ -355,7 +355,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 
 		switch (opts[1])
 		{
-		case 'h': // [TEXT] == [table] [item]
+		case 'H': // [TEXT] == [table] [item]
 			{
 				if (itemtext.numtok() == 2) { // load single item from hash table by item name
 					mIRCevalEX(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());

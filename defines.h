@@ -80,7 +80,7 @@
 
 // DCX Using the Boost C++ libs
 // Boost is used for the regex matches when enabled.
-#define DCX_USE_BOOST 1
+//#define DCX_USE_BOOST 1
 // end of Boost
 
 // --------------------------------------------------

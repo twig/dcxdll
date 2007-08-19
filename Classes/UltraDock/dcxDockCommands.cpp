@@ -6,11 +6,11 @@
 
 #include "dcxDock.h"
 
-extern void UltraDock(const HWND mWnd,HWND temp,TString &flag);
+extern void UltraDock(const HWND mWnd,HWND temp, const TString &flag);
 extern void UltraUnDock(const HWND hwnd);
 extern bool FindUltraDock(const HWND hwnd);
 extern LPDCXULTRADOCK GetUltraDock(const HWND hwnd);
-extern void TreebarDock(HWND temp,TString &flag);
+extern void TreebarDock(HWND temp, const TString &flag);
 extern void TreebarUnDock(const HWND hwnd);
 extern bool FindTreebarDock(const HWND hwnd);
 extern LPDCXULTRADOCK GetTreebarDock(const HWND hwnd);

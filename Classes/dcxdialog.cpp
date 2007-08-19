@@ -2217,8 +2217,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			//p_this->redrawWindow(); // Causes alot of flicker.
 			if (p_this->IsVistaStyle())
 				p_this->redrawWindow();
-			else
+			else {
 				p_this->redrawBufferedWindow(); // Avoids flicker.
+				while ((bars = FindWindowEx(mHwnd, bars, DCX_RICHEDITCLASS, NULL)) != NULL) { // workaround added for RichText controls which seem to not redraw correctly via WM_PRINT
+					RedrawWindow( bars, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE );
+				}
+			}
 			break;
 		}
 		//case WM_NCCALCSIZE:

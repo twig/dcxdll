@@ -1824,7 +1824,7 @@ UINT DcxListView::parseItemFlags(TString & flags) {
 			iFlags |= LVIS_UNDERLINE;
 		else if (flags[i] == 'p')
 			iFlags |= LVIS_PBAR;
-		else if (flags[i] == 'h')
+		else if (flags[i] == 'H')
 			iFlags |= LVIS_HASHITEM;
 		else if (flags[i] == 'n')
 			iFlags |= LVIS_HASHNUMBER;

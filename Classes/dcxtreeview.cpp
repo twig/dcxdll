@@ -1227,7 +1227,7 @@ UINT DcxTreeView::parseItemFlags(const TString &flags) {
 			iFlags |= TVIS_UNDERLINE;
 		else if (flags[i] == 'g')
 			iFlags |= TVIS_BKG;
-		else if (flags[i] == 'h')
+		else if (flags[i] == 'H')
 			iFlags |= TVIS_HASHITEM;
 		else if (flags[i] == 'n')
 			iFlags |= TVIS_HASHNUMBER;
@@ -2403,7 +2403,7 @@ bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, TString &name, TString &filen
 	if ( hFromItem == TVI_ROOT)
 		hFromItem = TreeView_GetRoot(this->m_Hwnd);
 
-	TCHAR *buf = new TCHAR[1024];
+	PTCHAR buf = new TCHAR[1024];
 	if (buf != NULL) {
 		if (!this->xmlGetItems(hFromItem, xElm, buf)) {
 			this->showErrorEx(NULL, "-S", "Unable To Add Items to XML");
@@ -2428,11 +2428,14 @@ bool DcxTreeView::xmlGetItems(HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR
 	TVITEMEX tvi;
 	TiXmlElement *xTmp = NULL;
 	bool bRes = true;
-	//hFirstSibling = TreeView_GetRoot(this->m_Hwnd);
 	for (HTREEITEM hSib = hFirstSibling; hSib != NULL; hSib = TreeView_GetNextSibling(this->m_Hwnd, hSib)) {
 		ZeroMemory(&tvi,sizeof(tvi));
 		tvi.hItem = hSib;
+#ifdef DCX_USE_WINSDK
 		tvi.mask = TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_INTEGRAL | TVIF_STATE | TVIF_TEXT | TVIF_CHILDREN;
+#else
+		tvi.mask = TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_INTEGRAL | TVIF_STATE | TVIF_TEXT | TVIF_CHILDREN;
+#endif
 		tvi.cchTextMax = 1024;
 		tvi.pszText = buf;
 
@@ -2450,10 +2453,12 @@ bool DcxTreeView::xmlGetItems(HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR
 			xChild.SetAttribute("text", tvi.pszText);
 			if (tvi.iImage > -1 && tvi.iImage != 10000)
 				xChild.SetAttribute("image", tvi.iImage +1);
-			if (tvi.iExpandedImage > 0 && tvi.iExpandedImage != 10000)
-				xChild.SetAttribute("expandedimage", tvi.iExpandedImage);
 			if (tvi.iSelectedImage > -1 && tvi.iSelectedImage != 10000)
 				xChild.SetAttribute("selectedimage", tvi.iSelectedImage +1);
+#ifdef DCX_USE_WINSDK
+			if (tvi.iExpandedImage > 0 && tvi.iExpandedImage != 10000)
+				xChild.SetAttribute("expandedimage", tvi.iExpandedImage);
+#endif
 			if (tvi.iIntegral > 0)
 				xChild.SetAttribute("itegral", tvi.iIntegral);
 			if (tvi.stateMask & TVIS_SELECTED && tvi.state & TVIS_SELECTED)
@@ -2507,7 +2512,11 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 
 		lpmytvi->hHandle = NULL;
 
+#ifdef DCX_USE_WINSDK
 		tvins.itemex.mask = TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
+#else
+		tvins.itemex.mask = TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+#endif
 		tvins.itemex.lParam = (LPARAM)lpmytvi;
 
 		// Items Icon.
@@ -2523,11 +2532,13 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 		else
 			tvins.itemex.iSelectedImage = tvins.itemex.iImage;
 		// Items expanded state icon.
+#ifdef DCX_USE_WINSDK
 		attr = xNode->Attribute("expandedimage",&i);
 		if (attr != NULL && i > 0)
 			tvins.itemex.iExpandedImage = i -1;
 		else
 			tvins.itemex.iExpandedImage = 10000;
+#endif
 		// Items height integral.
 		attr = xNode->Attribute("integral",&i);
 		if (attr != NULL && i > 0) {

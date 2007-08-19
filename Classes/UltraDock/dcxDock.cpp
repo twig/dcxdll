@@ -21,11 +21,11 @@ DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 	this->m_VectorDocks.clear();
 	if (IsWindow(this->m_RefHwnd)) {
 		SetProp(this->m_RefHwnd,"DcxDock",this);
-		this->m_OldRefWndProc = (WNDPROC)SetWindowLongPtr(this->m_RefHwnd,GWLP_WNDPROC,(LONG_PTR)DcxDock::mIRCRefWinProc);
+		this->m_OldRefWndProc = SubclassWindow(this->m_RefHwnd, DcxDock::mIRCRefWinProc);
 	}
 	if (IsWindow(this->m_hParent)) {
 		SetProp(this->m_hParent,"DcxDock",this);
-		this->m_OldDockWndProc = (WNDPROC)SetWindowLongPtr(this->m_hParent,GWLP_WNDPROC,(LONG_PTR)DcxDock::mIRCDockWinProc);
+		this->m_OldDockWndProc = SubclassWindow(this->m_hParent, DcxDock::mIRCDockWinProc);
 	}
 	//if (dockType == DOCK_TYPE_TREE)
 	//	AddStyles(this->m_RefHwnd,GWL_EXSTYLE,WS_EX_TRANSPARENT);
@@ -296,10 +296,42 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				}
 			}
 			break;
+		//case WM_PAINT:
+		//	{
+		//		if (pthis->m_iType == DOCK_TYPE_TREE) {
+		//			PAINTSTRUCT ps;
+		//			RECT rcClient, rcParent;
+		//			HDC hdc, hParentDC, *hBuffer;
+
+		//			GetClientRect(mHwnd,&rcClient);
+		//			CopyRect(&rcParent, &rcClient);
+		//			MapWindowRect(mHwnd, mIRCLink.m_hTreebar, &rcParent);
+
+		//			hdc = BeginPaint(mHwnd, &ps);
+
+		//			hBuffer = CreateHDCBuffer(hdc, &rcClient);
+
+		//			SendMessage(GetParent(mHwnd), WM_PRINTCLIENT, (WPARAM)*hBuffer, PRF_CLIENT);
+
+		//			WNDPROC ClassProc = (WNDPROC)GetClassLongPtr(mIRCLink.m_hTreeView, GCLP_WNDPROC);
+
+		//			LRESULT lRes = 0L;
+		//			if (ClassProc != NULL)
+		//				lRes = CallWindowProc(ClassProc, mHwnd, uMsg, (WPARAM)*hBuffer, lParam);
+
+		//			BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top), *hBuffer, 0, 0, SRCCOPY);
+
+		//			DeleteHDCBuffer(hBuffer);
+
+		//			EndPaint(mHwnd, &ps);
+		//			return lRes;
+		//		}
+		//	}
+		//	break;
 		//case WM_ERASEBKGND:
 		//	{
 		//		if ( pthis->m_iType == DOCK_TYPE_TREE)
-		//			return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+		//			return TRUE; //DefWindowProc(mHwnd, uMsg, wParam, lParam);
 		//	}
 		//	break;
 	}
@@ -315,8 +347,8 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		case WM_SIZE:
 			{
 				if ((pthis->m_iType == DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) { // parent of MDI type == main mIRC win.
+					InvalidateRect(DcxDock::g_StatusBar, NULL, FALSE); // needed to stop display corruption
 					SendMessage(DcxDock::g_StatusBar,WM_SIZE, (WPARAM)0, (LPARAM)0);
-					InvalidateRect(DcxDock::g_StatusBar, NULL, TRUE);
 					DcxDock::status_updateParts();
 				}
 			}
@@ -350,7 +382,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 				//	switch( hdr->code ) {
 				//		case NM_CUSTOMDRAW:
 				//			{
-	   //           //LPNMTVCUSTOMDRAW lpntvcd = (LPNMTVCUSTOMDRAW) lParam;
+				//				//LPNMTVCUSTOMDRAW lpntvcd = (LPNMTVCUSTOMDRAW) lParam;
 				//				return CDRF_DODEFAULT;
 				//				//return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 				//			}
@@ -501,6 +533,10 @@ LRESULT DcxDock::status_getParts( const int nParts, LPINT aWidths ) {
 
 void DcxDock::status_setText( const int iPart, const int Style, const LPSTR lpstr ) {
 	SendMessage( g_StatusBar, SB_SETTEXT, (WPARAM) iPart | Style, (LPARAM) lpstr );
+}
+
+UINT DcxDock::status_getTextLength( const int iPart ) {
+	return (UINT)LOWORD(SendMessage( g_StatusBar, SB_GETTEXTLENGTH, (WPARAM) iPart, NULL ));
 }
 
 LRESULT DcxDock::status_getText( const int iPart, LPSTR lpstr ) {
