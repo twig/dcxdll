@@ -55,12 +55,12 @@ DcxDock::~DcxDock(void)
 	if (IsWindow(this->m_RefHwnd)) {
 		RemoveProp(this->m_RefHwnd,"DcxDock");
 		if (this->m_OldRefWndProc != NULL)
-			SetWindowLongPtr(this->m_RefHwnd, GWLP_WNDPROC, (LONG_PTR)this->m_OldRefWndProc);
+			SubclassWindow(this->m_RefHwnd, this->m_OldRefWndProc);
 	}
 	if (IsWindow(this->m_hParent)) {
 		RemoveProp(this->m_hParent,"DcxDock");
 		if (this->m_OldDockWndProc != NULL)
-			SetWindowLongPtr(this->m_hParent, GWLP_WNDPROC, (LONG_PTR)this->m_OldDockWndProc);
+			SubclassWindow(this->m_hParent, this->m_OldDockWndProc);
 	}
 	this->UpdateLayout();
 }
@@ -82,8 +82,8 @@ bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 		return false;
 	}
 	ud->hwnd = hwnd;
-	ud->old_exstyles = GetWindowLong(hwnd,GWL_EXSTYLE);
-	ud->old_styles = GetWindowLong(hwnd,GWL_STYLE);
+	ud->old_exstyles = GetWindowExStyle(hwnd);
+	ud->old_styles = GetWindowStyle(hwnd);
 	ud->flags = DOCKF_LEFT;
 
 	if (flag.len() > 1) {

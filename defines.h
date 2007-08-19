@@ -338,6 +338,7 @@ typedef struct {
 	bool		m_bisDebug;    //!< is mIRC is using /debug upon DCX LoadDLL().
 	bool		m_bUseGDIPlus; //!< we can use GDI+ functions.
 	bool		m_bmIRCSixPointTwoZero; //!< Is this mIRC V6.20
+	bool		m_bmIRCSixPointThree;		//!< Is This mIRC V6.30
 	HWND		m_hSwitchbar; //!< The Switchbars HWND
 	HWND		m_hToolbar; //!< The Toolbars HWND
 	HWND		m_hMDI; //!< The MDIClients HWND

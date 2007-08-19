@@ -31,11 +31,18 @@ void InitUltraDock(void)
 	DCX_DEBUG("InitUltraDock", "Finding mIRC_SwitchBar...");
 	mIRCLink.m_hSwitchbar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_SwitchBar",NULL);
 
-	DCX_DEBUG("InitUltraDock", "Finding mIRC_TreeList...");
-	mIRCLink.m_hTreebar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_TreeList",NULL);
+	if (mIRCLink.m_bmIRCSixPointThree) { // class renamed for 6.30+
+		DCX_DEBUG("InitUltraDock", "Finding mIRC_TreeBar...");
+		mIRCLink.m_hTreebar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_TreeBar",NULL);
+	}
+	else {
+		DCX_DEBUG("InitUltraDock", "Finding mIRC_TreeList...");
+		mIRCLink.m_hTreebar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_TreeList",NULL);
+	}
 
 	if (IsWindow(mIRCLink.m_hTreebar)) {
-		mIRCLink.m_hTreeView = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
+		//mIRCLink.m_hTreeView = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
+		mIRCLink.m_hTreeView = FindWindowEx(mIRCLink.m_hTreebar,NULL,WC_TREEVIEW,NULL);
 		if (IsWindow(mIRCLink.m_hTreeView))
 			mIRCLink.m_hTreeImages = TreeView_GetImageList(mIRCLink.m_hTreeView,TVSIL_NORMAL);
 	}

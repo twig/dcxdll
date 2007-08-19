@@ -117,6 +117,13 @@ void WINAPI LoadDll(LOADINFO * load) {
 		mIRCLink.m_bmIRCSixPointTwoZero = true;
 	else
 		mIRCLink.m_bmIRCSixPointTwoZero = false;
+
+	// Check if this is mIRC V6.30+
+	if ((HIWORD(load->mVersion) >= 30) && (LOWORD(load->mVersion) == 6))
+		mIRCLink.m_bmIRCSixPointThree = true;
+	else
+		mIRCLink.m_bmIRCSixPointThree = false;
+
 	if (mIRCLink.m_bmIRCSixPointTwoZero || ((HIWORD(load->mVersion) >= 21) && (LOWORD(load->mVersion) == 6))) {
 		TString map_name;
 		cnt = 1;

@@ -114,6 +114,11 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			lstrcpy(szReturnValue,"$false");
 			return;
 		}
+		// [NAME] [ID] [PROP]
+		else if ( prop == "state") {
+			lstrcpy(szReturnValue,"D_OK nofile");
+			return;
+		}
 		else if (this->parseGlobalInfoRequest( input, szReturnValue ))
 			return;
 		else
@@ -253,16 +258,41 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 	// [NAME] [ID] [PROP]
 	else if (prop == "state") {
 		/*
-		sprintf(szReturnValue, "D_OK %s", "nofile");
-		sprintf(szReturnValue, "D_OK %s", "stopped");
-		sprintf(szReturnValue, "D_OK %s", "paused");
-		sprintf(szReturnValue, "D_OK %s", "playing");
+		sprintf(szReturnValue, "D_OK %s", "nofile");  // done
+		sprintf(szReturnValue, "D_OK %s", "stopped"); // done
+		sprintf(szReturnValue, "D_OK %s", "paused");  // done
+		sprintf(szReturnValue, "D_OK %s", "playing"); // done
 		sprintf(szReturnValue, "D_OK %s", "rewind");
 		sprintf(szReturnValue, "D_OK %s", "fastforward");
 		and anything else you can think of i guess
 		*/
 
-		sprintf(szReturnValue, "D_OK %s", "unknown");
+		OAFilterState pfs = 0;
+		PTCHAR szState = NULL;
+		HRESULT hr = this->m_pControl->GetState(1000, &pfs);
+
+		if (SUCCEEDED(hr)) {
+			switch (pfs) {
+				case State_Stopped:
+					szState = "stopped";
+					break;
+				case State_Paused:
+					szState = "paused";
+					break;
+				case State_Running:
+					szState = "playing";
+					break;
+				default:
+					szState = "unknown";
+					break;
+			}
+			sprintf(szReturnValue, "D_OK %s", szState);
+		}
+		else {
+			this->showError(prop.to_chr(),NULL,"Unable to get State Information");
+			DX_ERR(prop.to_chr(),NULL, hr);
+			lstrcpy(szReturnValue,"D_ERROR Unable To Get State");
+		}
 		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
