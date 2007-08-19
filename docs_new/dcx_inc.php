@@ -366,6 +366,7 @@ function dcxdoc_menu_left() {
 		<li>DCX Features
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+                                <a href="DCXML.doc"><div>DCXML</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
                                 <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
