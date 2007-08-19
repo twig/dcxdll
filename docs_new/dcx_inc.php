@@ -1222,17 +1222,17 @@ function print_changes($version, $changes) {
 		// organised/detailed list
 		// * Dcx Doc Changes
 		if ($nested) {
-			echo "<li><strong>$key</strong><ol>";
+			echo "<li><strong>$key</strong><ol>\n";
 			
 			// #23. fixed blah blah
 			foreach ($change as $item)
-			    echo "<li>" . htmlentities($item) . "</li>";
+			    echo "<li>" . htmlentities($item) . "</li>\n";
 
-			echo "</ol></li>";
+			echo "</ol></li>\n";
 		}
 		// normal big list
 		else
-		    echo "<li>" . htmlentities($change) . "</li>";
+		    echo "<li>" . htmlentities($change) . "</li>\n";
 	}
 
 	echo ($nested ? "</ul>" : "</ol>") . "\n";
