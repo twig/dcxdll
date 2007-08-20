@@ -95,6 +95,12 @@ void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
       *Styles |= BS_PUSHLIKE;
     else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
+		else if ( styles.gettok( i ) == "hgradient" )
+			this->m_bGradientFill = true;
+		else if ( styles.gettok( i ) == "vgradient" ) {
+			this->m_bGradientFill = true;
+			this->m_bGradientVertical = TRUE;
+		}
 
     i++;
   }

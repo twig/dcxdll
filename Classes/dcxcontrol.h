@@ -19,6 +19,8 @@
 #define DCC_TEXTBKGCOLOR  0x02 //!< Control Text Background Color
 #define DCC_BKGCOLOR      0x04 //!< Control Background Color
 #define DCC_BORDERCOLOR   0x08 //!< Control Border Color
+#define DCC_GRADSTARTCOLOR 0x10	//!< Colour At the start of the gradient
+#define DCC_GRADENDCOLOR   0x20 //!< Colour At the end of the gradient
 
 #define DCCS_FROMRESSOURCE 0x01 //!< Cursor from ressource
 #define DCCS_FROMFILE      0x02 //!< Cursor from File
@@ -114,6 +116,8 @@ public:
   HBRUSH getBackClrBrush( ) const;
   COLORREF getBackColor( ) const;
   COLORREF getTextColor( ) const;
+	COLORREF getStartGradientColor(void) const { return this->m_clrStartGradient; };
+	COLORREF getEndGradientColor(void) const { return this->m_clrEndGradient; };
 
   static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, int offset, const UINT64 mask = -1, HWND hParent = NULL);
 
@@ -124,7 +128,7 @@ public:
   inline UINT getRefCount( ) const { return this->m_iRefCount; };
 	//DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
-	static void DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd);
+	static void DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd = NULL);
 	void DrawParentsBackground(const HDC hdc, const LPRECT rcBounds = NULL, const HWND dHwnd = NULL);
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai);
@@ -149,6 +153,8 @@ protected:
 	HBITMAP m_bitmapBg;			//!< Background bitmap
 	COLORREF m_colTransparentBg;
 	COLORREF m_clrBackground;	//!< Background Colour. (used to make m_hBackBrush)
+	COLORREF m_clrStartGradient;
+	COLORREF m_clrEndGradient;
 
   UINT m_iRefCount;
 
@@ -160,6 +166,8 @@ protected:
 	DWORD m_dEventMask;
 	bool m_bAlphaBlend;	//!< Control is alpha blended.
 	int m_iAlphaLevel; //!< The amount the control is alpha blended.
+	bool m_bGradientFill;
+	BOOL m_bGradientVertical;
 	//DcxControl *m_pParentCtrl;
 	HWND m_pParentHWND;
 	bool m_bInPrint;

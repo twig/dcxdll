@@ -90,6 +90,10 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_hBorderBrush(NULL)
 , m_iAlphaLevel(0x7f)
 , m_bNoTheme(false)
+, m_bGradientFill(false)
+, m_clrStartGradient(CLR_NONE)
+, m_clrEndGradient(CLR_NONE)
+, m_bGradientVertical(FALSE)
 {
 	this->m_dEventMask = p_Dialog->getEventMask();
 }
@@ -158,6 +162,10 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
       *ExStyles |= WS_EX_TRANSPARENT;
     else if ( styles.gettok( i ) == "hidden" )
       *Styles &= ~WS_VISIBLE;
+    //else if ( styles.gettok( i ) == "vscroll" )
+    //  *Styles |= WS_VSCROLL;
+    //else if ( styles.gettok( i ) == "hscroll" )
+    //  *Styles |= WS_HSCROLL;
 
     i++;
   }
@@ -236,6 +244,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		int h = input.gettok( 7 ).to_int( );
 
 		MoveWindow( this->m_Hwnd, x, y, w, h, FALSE );
+		//this->InvalidateParentRect( this->m_Hwnd);
 		InvalidateRect( GetParent( this->m_Hwnd ), NULL, TRUE );
 		this->redrawWindow( );
 		SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
@@ -290,6 +299,12 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			if ( clrColor != -1 )
 				this->m_hBorderBrush = CreateSolidBrush( clrColor );
 		}
+
+		if ( iFlags & DCC_GRADSTARTCOLOR )
+			this->m_clrStartGradient = clrColor;
+
+		if ( iFlags & DCC_GRADENDCOLOR )
+			this->m_clrEndGradient = clrColor;
 
 		// force a control redraw
 		this->redrawWindow( );
@@ -676,6 +691,10 @@ UINT DcxControl::parseColorFlags( TString & flags ) {
 			iFlags |= DCC_TEXTCOLOR;
 		else if ( flags[i] == 'r' )
 			iFlags |= DCC_BORDERCOLOR;
+		else if ( flags[i] == 'g' )
+			iFlags |= DCC_GRADSTARTCOLOR;
+		else if ( flags[i] == 'G' )
+			iFlags |= DCC_GRADENDCOLOR;
 
 		++i;
 	}
@@ -926,7 +945,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
  */
 
 void DcxControl::registreDefaultWindowProc( ) {
-  this->m_DefaultWindowProc = (WNDPROC) SetWindowLongPtr( this->m_Hwnd, GWLP_WNDPROC, (LONG_PTR) DcxControl::WindowProc );
+  this->m_DefaultWindowProc = SubclassWindow( this->m_Hwnd, DcxControl::WindowProc );
 }
 
 /*!
@@ -937,7 +956,7 @@ void DcxControl::registreDefaultWindowProc( ) {
 
 void DcxControl::unregistreDefaultWindowProc( ) {
 	if (this->m_DefaultWindowProc != NULL) // implies this has alrdy been called.
-		SetWindowLongPtr( this->m_Hwnd, GWLP_WNDPROC, (LONG_PTR) this->m_DefaultWindowProc );
+		SubclassWindow( this->m_Hwnd, this->m_DefaultWindowProc );
   this->m_DefaultWindowProc = NULL;
 }
 
@@ -1236,11 +1255,29 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 {
 	// fill background.
 	if (!p_this->isExStyle(WS_EX_TRANSPARENT)) {
-		HBRUSH hBrush = p_this->getBackClrBrush();
-		if (hBrush == NULL)
-			hBrush = GetSysColorBrush(COLOR_3DFACE);
-		if ( hBrush != NULL )
-			FillRect( hdc, rwnd, hBrush );
+		RECT rc;
+		if (rwnd == NULL)
+			GetClientRect(p_this->getHwnd(), &rc);
+		else
+			CopyRect(&rc, rwnd);
+		if (p_this->m_bGradientFill) {
+			COLORREF clrStart = p_this->m_clrStartGradient;
+			COLORREF clrEnd = p_this->m_clrEndGradient;
+
+			if (clrStart == CLR_NONE)
+				clrStart = GetSysColor(COLOR_3DFACE);
+			if (clrEnd == CLR_NONE)
+				clrEnd = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
+
+			XPopupMenuItem::DrawGradient( hdc, &rc, clrStart, clrEnd, p_this->m_bGradientVertical);
+		}
+		else {
+			HBRUSH hBrush = p_this->getBackClrBrush();
+			if (hBrush == NULL)
+				hBrush = GetSysColorBrush(COLOR_3DFACE);
+			if ( hBrush != NULL )
+				FillRect( hdc, &rc, hBrush );
+		}
 	}
 }
 

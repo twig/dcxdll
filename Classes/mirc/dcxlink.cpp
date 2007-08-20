@@ -100,6 +100,12 @@ void DcxLink::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 			this->m_bShadowText = true;
 		else if (( styles.gettok( i ) == "noformat" ))
 			this->m_bCtrlCodeText = false;
+		else if ( styles.gettok( i ) == "hgradient" )
+			this->m_bGradientFill = true;
+		else if ( styles.gettok( i ) == "vgradient" ) {
+			this->m_bGradientFill = true;
+			this->m_bGradientVertical = TRUE;
+		}
 
     i++;
   }

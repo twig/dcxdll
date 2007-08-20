@@ -88,6 +88,12 @@ void DcxDirectshow::parseControlStyles( TString & styles, LONG * Styles, LONG * 
 			this->m_bShadowText = true;
 		else if (( styles.gettok( i ) == "fixratio" ))
 			this->m_bKeepRatio = true;
+		else if ( styles.gettok( i ) == "hgradient" )
+			this->m_bGradientFill = true;
+		else if ( styles.gettok( i ) == "vgradient" ) {
+			this->m_bGradientFill = true;
+			this->m_bGradientVertical = TRUE;
+		}
 
     i++;
   }

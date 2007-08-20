@@ -98,6 +98,12 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
 			this->m_bShadowText = true;
 		else if (( styles.gettok( i ) == "noformat" ))
 			this->m_bCtrlCodeText = false;
+		else if ( styles.gettok( i ) == "hgradient" )
+			this->m_bGradientFill = true;
+		else if ( styles.gettok( i ) == "vgradient" ) {
+			this->m_bGradientFill = true;
+			this->m_bGradientVertical = TRUE;
+		}
 
 		i++;
 	}
@@ -279,7 +285,7 @@ void DcxText::DrawClientArea(HDC hdc)
 
 	DcxControl::DrawCtrlBackground(hdc,this,&r);
 
-	HFONT oldFont = (HFONT)SelectObject(hdc, this->m_hFont);
+	HFONT oldFont = SelectFont(hdc, this->m_hFont);
 	COLORREF oldClr = SetTextColor(hdc, this->m_clrText);
 
 	UINT style = DT_LEFT;
@@ -310,7 +316,7 @@ void DcxText::DrawClientArea(HDC hdc)
 		mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText);
 
 	SetTextColor(hdc, oldClr);
-	SelectObject(hdc, oldFont);
+	SelectFont(hdc, oldFont);
 
 	this->FinishAlphaBlend(ai);
 }

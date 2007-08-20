@@ -149,6 +149,12 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 			this->m_bShadowText = true;
 		else if (( styles.gettok( i ) == "noformat" ))
 			this->m_bCtrlCodeText = false;
+		else if ( styles.gettok( i ) == "hgradient" )
+			this->m_bGradientFill = true;
+		else if ( styles.gettok( i ) == "vgradient" ) {
+			this->m_bGradientFill = true;
+			this->m_bGradientVertical = TRUE;
+		}
 
 		i++;
 	}
@@ -755,7 +761,8 @@ void DcxBox::DrawClientArea(HDC hdc)
 
 	// if no border, dont bother
 	if (this->m_iBoxStyles & BOXS_NONE) {
-		this->FillBkg(hdc, &rc2, hBrush);
+		DcxControl::DrawCtrlBackground(hdc, this, &rc2);
+		//this->FillBkg(hdc, &rc2, hBrush);
 		return;
 	}
 
@@ -776,8 +783,8 @@ void DcxBox::DrawClientArea(HDC hdc)
 			DeleteObject(m_Region);
 		}
 		else {
-			this->FillBkg(hdc, &rc2, hBrush);
-			//DrawEdge(hdc, &rc2, EDGE_RAISED, BF_TOPLEFT | BF_BOTTOMRIGHT);
+			//this->FillBkg(hdc, &rc2, hBrush);
+			DcxControl::DrawCtrlBackground(hdc, this, &rc2);
 			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
 		}
 		if (IsWindow(this->m_TitleButton))
@@ -871,7 +878,8 @@ void DcxBox::DrawClientArea(HDC hdc)
 			DeleteObject(m_Region);
 		}
 		else {
-			this->FillBkg(hdc, &rc2, hBrush);
+			//this->FillBkg(hdc, &rc2, hBrush);
+			DcxControl::DrawCtrlBackground(hdc, this, &rc2);
 			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
 		}
 
@@ -879,7 +887,8 @@ void DcxBox::DrawClientArea(HDC hdc)
 			HRGN m_Region = CreateRectRgn(rc2.left,rc2.top,rc2.right,rc2.bottom);
 			if (m_Region)
 				SelectClipRgn(hdc,m_Region);
-			FillRect(hdc, &rcText2, hBrush);
+			DcxControl::DrawCtrlBackground(hdc, this, &rc2);
+			//FillRect(hdc, &rcText2, hBrush);
 			//this->FillBkg(hdc, &rcText2, hBrush);
 			if (m_Region) {
 				SelectClipRgn(hdc,NULL);

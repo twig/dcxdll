@@ -31,7 +31,7 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd,
 , m_bIsAbsoluteValue(FALSE)
 , m_hfontVertical(NULL)
 , m_bIsGrad(FALSE)
-, m_clrGrad(0)
+//, m_clrGrad(0)
 {
 
   LONG Styles = 0, ExStyles = 0;
@@ -333,7 +333,7 @@ LRESULT DcxProgressBar::setStep( const int nStepInc ) {
  */
 
 LRESULT DcxProgressBar::setBarColor( const COLORREF clrBar ) {
-	this->m_clrGrad = clrBar;
+	//this->m_clrGrad = clrBar;
   return SendMessage( this->m_Hwnd, PBM_SETBARCOLOR, (WPARAM) 0, (LPARAM) clrBar );
 }
 
@@ -492,13 +492,23 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		DcxControl::DrawCtrlBackground(hdc, this, &rc);
 
+		COLORREF clrStart = this->m_clrStartGradient;
+		COLORREF clrEnd = this->m_clrEndGradient;
+
+		if (clrEnd == CLR_NONE)
+			clrEnd = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
+		if (clrStart == CLR_NONE)
+			clrStart = XPopupMenuItem::DarkenColor(100,clrEnd);
+
 		if (this->isStyle(PBS_VERTICAL)) {
 			rc.top += (rc.bottom - rc.top) - (this->CalculatePosition() * (rc.bottom - rc.top)) / 100;
-			XPopupMenuItem::DrawGradient(hdc,&rc,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),this->m_clrGrad,TRUE);
+			//XPopupMenuItem::DrawGradient(hdc,&rc,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),this->m_clrGrad,TRUE);
+			XPopupMenuItem::DrawGradient( hdc, &rc, clrStart, clrEnd, TRUE);
 		}
 		else {
 			rc.right = (this->CalculatePosition() * rc.right) / 100;
-			XPopupMenuItem::DrawGradient(hdc,&rc,this->m_clrGrad,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),FALSE);
+			//XPopupMenuItem::DrawGradient(hdc,&rc,this->m_clrGrad,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),FALSE);
+			XPopupMenuItem::DrawGradient( hdc, &rc, clrEnd, clrStart, FALSE);
 		}
 	}
 	else

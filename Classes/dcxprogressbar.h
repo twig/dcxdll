@@ -62,7 +62,7 @@ protected:
   BOOL m_bIsAbsoluteValue;  //!< Caption Numerical Placeholder Format
   HFONT m_hfontVertical;
 	BOOL m_bIsGrad;						//!< Draw Gradient?
-	COLORREF m_clrGrad;				//!< Gradients Color
+	//COLORREF m_clrGrad;				//!< Gradients Color
 
 private:
 	int CalculatePosition(void) const;
