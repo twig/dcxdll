@@ -530,14 +530,6 @@ LRESULT DcxBox::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	return 0L;
 }
 
-void DcxBox::FillBkg(const HDC hdc, const LPRECT rc, const HBRUSH hBrush)
-{
-	if (!this->isExStyle(WS_EX_TRANSPARENT)) {
-		// paint the background
-		FillRect(hdc, rc, hBrush);
-	}
-}
-
 LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	LRESULT lRes = 0L;
@@ -745,7 +737,6 @@ void DcxBox::DrawClientArea(HDC hdc)
 	RECT rc, rc2, rcText, rcText2;
 	TString wtext;
 	int n = TGetWindowText(this->m_Hwnd, wtext);
-	HBRUSH hBrush = GetSysColorBrush(COLOR_3DFACE);
 
 	GetClientRect(this->m_Hwnd, &rc);
 	CopyRect(&rc2, &rc);
@@ -753,16 +744,9 @@ void DcxBox::DrawClientArea(HDC hdc)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-	if (!this->isExStyle(WS_EX_TRANSPARENT)) {
-		// set up brush colors
-		if (this->m_hBackBrush != NULL)
-			hBrush = this->m_hBackBrush;
-	}
-
 	// if no border, dont bother
 	if (this->m_iBoxStyles & BOXS_NONE) {
 		DcxControl::DrawCtrlBackground(hdc, this, &rc2);
-		//this->FillBkg(hdc, &rc2, hBrush);
 		return;
 	}
 
@@ -772,18 +756,20 @@ void DcxBox::DrawClientArea(HDC hdc)
 	if (!n) {
 		if (this->m_iBoxStyles & BOXS_ROUNDED) {
 			HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-			if (!this->isExStyle(WS_EX_TRANSPARENT))
-				FillRgn(hdc,m_Region,hBrush);
+			if (m_Region) {
+				SelectClipRgn(hdc,m_Region);
+				DcxControl::DrawCtrlBackground(hdc, this, &rc2);
+				SelectClipRgn(hdc,NULL);
 
-			HBRUSH hBorderBrush = this->m_hBorderBrush;
-			if (hBorderBrush == NULL)
-				hBorderBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+				HBRUSH hBorderBrush = this->m_hBorderBrush;
+				if (hBorderBrush == NULL)
+					hBorderBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
 
-			FrameRgn(hdc,m_Region,hBorderBrush,1,1);
-			DeleteObject(m_Region);
+				FrameRgn(hdc,m_Region,hBorderBrush,1,1);
+				DeleteRgn(m_Region);
+			}
 		}
 		else {
-			//this->FillBkg(hdc, &rc2, hBrush);
 			DcxControl::DrawCtrlBackground(hdc, this, &rc2);
 			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
 		}
@@ -794,7 +780,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 	else {
 		// prepare for appearance
 		if (this->m_hFont != NULL)
-			SelectObject(hdc, this->m_hFont);
+			SelectFont(hdc, this->m_hFont);
 
 		if (this->m_clrText != -1)
 			SetTextColor(hdc, this->m_clrText);
@@ -844,7 +830,6 @@ void DcxBox::DrawClientArea(HDC hdc)
 			rcText.right = rcText.left + w;
 		}
 
-
 		// clear some space for the text
 		CopyRect(&rcText2, &rcText);
 		InflateRect(&rcText2, 3, 0);
@@ -861,44 +846,29 @@ void DcxBox::DrawClientArea(HDC hdc)
 			rcText2.right += bSZ.bottom;
 		}
 
-		if (this->isExStyle(WS_EX_TRANSPARENT))
-			ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
-
 		// draw the border
 		if (this->m_iBoxStyles & BOXS_ROUNDED) {
 			HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-			if (!this->isExStyle(WS_EX_TRANSPARENT))
-				FillRgn(hdc,m_Region,hBrush);
-
-			HBRUSH hBorderBrush = this->m_hBorderBrush;
-			if (hBorderBrush == NULL)
-				hBorderBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
-
-			FrameRgn(hdc,m_Region,hBorderBrush,1,1);
-			DeleteObject(m_Region);
-		}
-		else {
-			//this->FillBkg(hdc, &rc2, hBrush);
-			DcxControl::DrawCtrlBackground(hdc, this, &rc2);
-			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
-		}
-
-		if (!this->isExStyle(WS_EX_TRANSPARENT)) {
-			HRGN m_Region = CreateRectRgn(rc2.left,rc2.top,rc2.right,rc2.bottom);
-			if (m_Region)
-				SelectClipRgn(hdc,m_Region);
-			DcxControl::DrawCtrlBackground(hdc, this, &rc2);
-			//FillRect(hdc, &rcText2, hBrush);
-			//this->FillBkg(hdc, &rcText2, hBrush);
 			if (m_Region) {
+				SelectClipRgn(hdc,m_Region);
+				DcxControl::DrawCtrlBackground(hdc, this, &rc2);
 				SelectClipRgn(hdc,NULL);
-				DeleteObject(m_Region);
+				ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
+
+				HBRUSH hBorderBrush = this->m_hBorderBrush;
+				if (hBorderBrush == NULL)
+					hBorderBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+
+				FrameRgn(hdc,m_Region,hBorderBrush,1,1);
+				DeleteRgn(m_Region);
 			}
 		}
-		else
-			SelectClipRgn(hdc,NULL);
-		//else
-		//	IntersectClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
+		else {
+			DcxControl::DrawCtrlBackground(hdc, this, &rc2);
+			ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
+			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
+		}
+		SelectClipRgn(hdc,NULL);
 
 		// draw the text
 		if (!this->m_bCtrlCodeText) {

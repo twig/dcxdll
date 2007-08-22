@@ -83,6 +83,17 @@
 //#define DCX_USE_BOOST 1
 // end of Boost
 
+// DCX Using the pcre lib
+// PCRE is used for the regex pattern matching
+// NB: CANT BE USED WITH BOOST ENABLED
+//#define DCX_USE_PCRE 1
+#define PCRE_STATIC 1
+// end of PCRE
+
+#ifdef DCX_USE_BOOST
+#undef DCX_USE_PCRE
+#endif
+
 // --------------------------------------------------
 // Some compiler/library definitions
 // --------------------------------------------------

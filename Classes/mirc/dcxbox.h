@@ -66,7 +66,6 @@ public:
 protected:
 
   static UINT parseLayoutFlags( TString & flags );
-	void FillBkg(const HDC hdc, const LPRECT rc, const HBRUSH hBrush);
 	void EraseBackground(HDC hdc);
 	void DrawClientArea(HDC hdc);
 

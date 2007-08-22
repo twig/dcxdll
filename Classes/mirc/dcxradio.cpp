@@ -245,9 +245,6 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-	// fill background.
-	//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
-
 	if (this->m_clrBackText != -1)
 		SetBkColor(hdc, this->m_clrBackText);
 
@@ -259,8 +256,12 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// get controls client area
 	GetClientRect( this->m_Hwnd, &rcClient );
 
-	// fill background.
+	bool bWasTransp = false;
 	if (this->isExStyle(WS_EX_TRANSPARENT))
+		bWasTransp = true;
+
+	// fill background.
+	if (bWasTransp)
 	{
 		if (!this->m_bAlphaBlend)
 			this->DrawParentsBackground(hdc,&rcClient);
@@ -268,13 +269,15 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	else
 		DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
+	if (!bWasTransp)
+		AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
+
+	// Is this theme code no longer needed, cos we fake a transp control?
 	if (!this->m_bNoTheme && dcxIsThemeActive()) {
 		HRGN hRgn = NULL;
 		//HTHEME hTheme = GetWindowThemeUx(this->m_Hwnd);
 		HTHEME hTheme = OpenThemeDataUx(this->m_Hwnd, L"BUTTON");
-		//RECT rcClient;
-		//GetClientRect(this->m_Hwnd, &rcClient);
-		if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_CHECKBOX,CBS_UNCHECKEDNORMAL,&rcClient, &hRgn) == S_OK)
+		if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_RADIOBUTTON,RBS_UNCHECKEDNORMAL,&rcClient, &hRgn) == S_OK)
 			SelectClipRgn(hdc, hRgn);
 		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINTCLIENT, (WPARAM) hdc, PRF_CLIENT );
 		DeleteRgn(hRgn);
@@ -282,6 +285,9 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	}
 	else
 		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+	if (!bWasTransp)
+		RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 
 	this->FinishAlphaBlend(ai);
 }

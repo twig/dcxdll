@@ -36,11 +36,11 @@ DcxCheck::DcxCheck( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 		ExStyles, 
 		"BUTTON", 
 		NULL,
-		WS_CHILD | Styles, 
+		WS_CHILD | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
-		GetModuleHandle(NULL), 
+		GetModuleHandle(NULL),
 		NULL);
 
 	if ( bNoTheme )
@@ -232,19 +232,19 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
   switch( uMsg ) {
 
-		//case WM_ERASEBKGND:
-		//	{
-		//		if (this->isExStyle(WS_EX_TRANSPARENT))
-		//			this->DrawParentsBackground((HDC)wParam);
-		//		else {
-		//			RECT rect;
-		//			GetClientRect( this->m_Hwnd, &rect );
-		//			DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-		//		}
-		//		bParsed = TRUE;
-		//		return TRUE;
-		//	}
-		//	break;
+		case WM_ERASEBKGND:
+			{
+				//if (this->isExStyle(WS_EX_TRANSPARENT))
+				//	this->DrawParentsBackground((HDC)wParam);
+				//else {
+				//	RECT rect;
+				//	GetClientRect( this->m_Hwnd, &rect );
+				//	DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+				//}
+				bParsed = TRUE;
+				return TRUE;
+			}
+			break;
 
 		case WM_PRINTCLIENT:
 			{
@@ -295,8 +295,12 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// get controls client area
 	GetClientRect( this->m_Hwnd, &rcClient );
 
-	// fill background.
+	bool bWasTransp = false;
 	if (this->isExStyle(WS_EX_TRANSPARENT))
+		bWasTransp = true;
+
+	// fill background.
+	if (bWasTransp)
 	{
 		if (!this->m_bAlphaBlend)
 			this->DrawParentsBackground(hdc,&rcClient);
@@ -304,6 +308,11 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	else
 		DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
+	// This is a workaround to allow our background to be seen under the control.
+	if (!bWasTransp)
+		AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
+
+	// Is this theme code no longer needed, cos we fake a transp control?
 	if (!this->m_bNoTheme && dcxIsThemeActive()) {
 		HRGN hRgn = NULL;
 		//HTHEME hTheme = GetWindowThemeUx(this->m_Hwnd);
@@ -316,6 +325,9 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	}
 	else
 		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+	if (!bWasTransp)
+		RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 
 	this->FinishAlphaBlend(ai);
 }
