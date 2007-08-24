@@ -32,15 +32,15 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-	this->m_Hwnd = CreateWindowEx(	
-		ExStyles, 
-		"STATIC", 
+	this->m_Hwnd = CreateWindowEx(
+		ExStyles,
+		"STATIC",
 		NULL,
-		WS_CHILD | Styles, 
+		WS_CHILD | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
-		GetModuleHandle(NULL), 
+		GetModuleHandle(NULL),
 		NULL);
 
 	if ( bNoTheme )
@@ -53,6 +53,8 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 		}
 	}
 	this->m_tsText = "";
+	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
+
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -257,6 +259,13 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			}
 			break;
 
+		case WM_ENABLE:
+			{ // fixes bug with redraw when text control is enabled/disabled & formatted text is being used.
+				bParsed = TRUE;
+				InvalidateRect(this->m_Hwnd, NULL, FALSE);
+			}
+			break;
+
     case WM_DESTROY:
       {
         delete this;
@@ -285,8 +294,24 @@ void DcxText::DrawClientArea(HDC hdc)
 
 	DcxControl::DrawCtrlBackground(hdc,this,&r);
 
-	HFONT oldFont = SelectFont(hdc, this->m_hFont);
-	COLORREF oldClr = SetTextColor(hdc, this->m_clrText);
+	HFONT oldFont = NULL;
+	COLORREF oldClr = CLR_INVALID;
+	COLORREF oldBkgClr = CLR_INVALID;
+
+	// check if font is valid & set it.
+	if (this->m_hFont != NULL)
+		oldFont = SelectFont(hdc, this->m_hFont);
+	// check if control is enabled.
+	if (IsWindowEnabled(this->m_Hwnd)) {
+		if (this->m_clrText != CLR_INVALID)
+			oldClr = SetTextColor(hdc, this->m_clrText);
+		if (this->m_clrBackText != CLR_INVALID)
+			oldBkgClr = SetBkColor(hdc, this->m_clrBackText);
+	}
+	else { // disabled controls colouring
+		oldClr = SetTextColor(hdc, GetSysColor(COLOR_GRAYTEXT));
+		oldBkgClr = SetBkColor(hdc, GetSysColor(COLOR_3DFACE));
+	}
 
 	UINT style = DT_LEFT;
 	if (this->isStyle(SS_CENTER))
@@ -315,8 +340,12 @@ void DcxText::DrawClientArea(HDC hdc)
 	else
 		mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText);
 
-	SetTextColor(hdc, oldClr);
-	SelectFont(hdc, oldFont);
+	if (oldBkgClr != CLR_INVALID)
+		SetBkColor(hdc, oldBkgClr);
+	if (oldClr != CLR_INVALID)
+		SetTextColor(hdc, oldClr);
+	if (oldFont != NULL)
+		SelectFont(hdc, oldFont);
 
 	this->FinishAlphaBlend(ai);
 }

@@ -73,10 +73,10 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_pParentDialog( p_Dialog )
 , m_hFont(NULL)
 , m_tsMark("")
-, m_clrText(CLR_NONE)
-, m_clrBackText(CLR_NONE)
+, m_clrText(CLR_INVALID)
+, m_clrBackText(CLR_INVALID)
 , m_hBackBrush(NULL)
-, m_clrBackground(CLR_NONE)
+, m_clrBackground(CLR_INVALID)
 , m_iRefCount(0)
 , m_hCursor(NULL)
 , m_bCursorFromFile(FALSE)
@@ -91,8 +91,8 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_iAlphaLevel(0x7f)
 , m_bNoTheme(false)
 , m_bGradientFill(false)
-, m_clrStartGradient(CLR_NONE)
-, m_clrEndGradient(CLR_NONE)
+, m_clrStartGradient(CLR_INVALID)
+, m_clrEndGradient(CLR_INVALID)
 , m_bGradientVertical(FALSE)
 {
 	this->m_dEventMask = p_Dialog->getEventMask();
@@ -272,16 +272,15 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 		if ( iFlags & DCC_BKGCOLOR ) {
 			if ( this->m_hBackBrush != NULL ) {
-				DeleteObject( this->m_hBackBrush );
+				DeleteBrush( this->m_hBackBrush );
 				this->m_hBackBrush = NULL;
+				this->m_clrBackground = CLR_INVALID;
 			}
 
-			if ( clrColor != -1 ) {
+			if ( clrColor != CLR_INVALID ) {
 				this->m_hBackBrush = CreateSolidBrush( clrColor );
 				this->m_clrBackground = clrColor;
 			}
-			else
-				this->m_clrBackground = CLR_NONE;
 		}
 
 		if ( iFlags & DCC_TEXTCOLOR )
@@ -296,7 +295,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 				this->m_hBorderBrush = NULL;
 			}
 
-			if ( clrColor != -1 )
+			if ( clrColor != CLR_INVALID )
 				this->m_hBorderBrush = CreateSolidBrush( clrColor );
 		}
 
@@ -1260,13 +1259,15 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 			GetClientRect(p_this->getHwnd(), &rc);
 		else
 			CopyRect(&rc, rwnd);
-		if (p_this->m_bGradientFill) {
+		if (!IsWindowEnabled(p_this->m_Hwnd)) // use disabled colouring when windows disabled.
+			FillRect( hdc, &rc, GetSysColorBrush(COLOR_3DFACE) );
+		else if (p_this->m_bGradientFill) {
 			COLORREF clrStart = p_this->m_clrStartGradient;
 			COLORREF clrEnd = p_this->m_clrEndGradient;
 
-			if (clrStart == CLR_NONE)
+			if (clrStart == CLR_INVALID)
 				clrStart = GetSysColor(COLOR_3DFACE);
-			if (clrEnd == CLR_NONE)
+			if (clrEnd == CLR_INVALID)
 				clrEnd = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
 
 			XPopupMenuItem::DrawGradient( hdc, &rc, clrStart, clrEnd, p_this->m_bGradientVertical);

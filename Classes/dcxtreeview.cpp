@@ -2471,9 +2471,9 @@ bool DcxTreeView::xmlGetItems(HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR
 				xChild.SetAttribute("textitalic", 1);
 			if (lpmytvi->bUline)
 				xChild.SetAttribute("textunderline", 1);
-			if (lpmytvi->clrBkg != CLR_NONE)
+			if (lpmytvi->clrBkg != CLR_INVALID)
 				xChild.SetAttribute("backgroundcolor", lpmytvi->clrBkg);
-			if (lpmytvi->clrText != CLR_NONE)
+			if (lpmytvi->clrText != CLR_INVALID)
 				xChild.SetAttribute("textcolor", lpmytvi->clrText);
 			UINT i = (tvi.state & TVIS_OVERLAYMASK) >> 8;
 			if (i > 0 && i < 16) // zero means no overlay, so don't save
@@ -2562,14 +2562,14 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 			lpmytvi->clrText = (COLORREF)i;
 		}
 		else
-			lpmytvi->clrText = CLR_NONE;
+			lpmytvi->clrText = CLR_INVALID;
 		// Items background colour.
 		attr = xNode->Attribute("backgroundcolor",&i);
 		if (attr != NULL && i > -1) {
 			lpmytvi->clrBkg = (COLORREF)i;
 		}
 		else
-			lpmytvi->clrBkg = CLR_NONE;
+			lpmytvi->clrBkg = CLR_INVALID;
 		// Is Item text in Bold?
 		attr = xNode->Attribute("textbold",&i);
 		if (i > 0) {

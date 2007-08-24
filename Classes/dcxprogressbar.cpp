@@ -495,9 +495,9 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		COLORREF clrStart = this->m_clrStartGradient;
 		COLORREF clrEnd = this->m_clrEndGradient;
 
-		if (clrEnd == CLR_NONE)
+		if (clrEnd == CLR_INVALID)
 			clrEnd = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
-		if (clrStart == CLR_NONE)
+		if (clrStart == CLR_INVALID)
 			clrStart = XPopupMenuItem::DarkenColor(100,clrEnd);
 
 		if (this->isStyle(PBS_VERTICAL)) {
