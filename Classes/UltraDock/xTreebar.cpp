@@ -47,7 +47,7 @@ mIRC(xtreebar) {
 					DCXError("/xtreebar -s","Invalid Style Args");
 					return 0;
 				}
-				static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel transparent notransparent fadebuttons nofadebuttons ident noident buffer nobuffer autohscroll noautohscroll richtooltip norichtooltip");
+				static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel transparent notransparent fadebuttons nofadebuttons indent noident buffer nobuffer autohscroll noautohscroll richtooltip norichtooltip");
 				int i = 2;
 				DWORD stylef = GetWindowStyle(mIRCLink.m_hTreeView);
 				DWORD exstylef = GetWindowExStyle(mIRCLink.m_hTreeView);
@@ -122,7 +122,7 @@ mIRC(xtreebar) {
 						tvexstylef &= ~TVS_EX_FADEINOUTEXPANDOS;
 						tvexstylemask |= TVS_EX_FADEINOUTEXPANDOS;
 						break;
-					case 21: // ident
+					case 21: // indent
 						tvexstylef &= ~TVS_EX_NOINDENTSTATE;
 						tvexstylemask |= TVS_EX_NOINDENTSTATE;
 						break;
@@ -138,11 +138,11 @@ mIRC(xtreebar) {
 						tvexstylef &= ~TVS_EX_DOUBLEBUFFER;
 						tvexstylemask |= TVS_EX_DOUBLEBUFFER;
 						break;
-					case 25: // autoscroll
+					case 25: // autohscroll
 						tvexstylef |= TVS_EX_AUTOHSCROLL;
 						tvexstylemask |= TVS_EX_AUTOHSCROLL;
 						break;
-					case 26: // noautoscroll
+					case 26: // noautohscroll
 						tvexstylef &= ~TVS_EX_AUTOHSCROLL;
 						tvexstylemask |= TVS_EX_AUTOHSCROLL;
 						break;
@@ -156,7 +156,7 @@ mIRC(xtreebar) {
 						break;
 #endif
 					default: // unknown style ignore.
-						DCXError("/xtreebar +s", "Unknown Style");
+						DCXError("/xtreebar -s", "Unknown Style");
 						break;
 					}
 					i++;
