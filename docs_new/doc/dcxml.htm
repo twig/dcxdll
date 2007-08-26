@@ -8,12 +8,21 @@
 	font-family:Trebuchet,Verdana, Arial, Helvetica, sans-serif;
 	font-size:8pt;
 }
+a
+{
+	color:#000000;
+	text-decoration:none;
+}
+a:hover
+{
+	text-decoration:underline;
+}
 .pageTitle
 {
 	font-size:20pt;
 	color:#339900;
 }
-.sectionTitle
+.sectionTitle, .sectionTitle a
 {
 	font-size:14pt;
 	color:#3333CC;
@@ -30,26 +39,27 @@ pre
 	font-family:Courier New;
 	width:80%;
 }
+.style1 {color: #000000}
 </style>
 </head>
 
 <body>
-<p><span class="pageTitle">DCXML Documentation BETA  </span>
+<p><span class="pageTitle">DCXML Documentation BETA <a name="top" id="top"></a> </span>
 <ol>
-  <li class="sectionTitle">    Introduction </li>
-  <li class="sectionTitle">    Some things you should know about XML</li>
-  <li class="sectionTitle"> DCXML markup rules</li>
-  <li class="sectionTitle">Insert and layout dcx controls.</li>
-  <li class="sectionTitle">The power of pane </li>
-  <li class="sectionTitle">Cascading Control Styles </li>
-  <li class="sectionTitle"> Cascading Icon Definitions </li>
-  <li class="sectionTitle"> Elements </li>
-  <li class="sectionTitle"> Attributes </li>
-  <li class="sectionTitle"> Benefits </li>
-  <li class="sectionTitle"> Conclusion </li>
+  <li class="sectionTitle"><a href="#Introduction">Introduction</a></li>
+  <li class="sectionTitle"><a href="#GettingStarted">Getting started</a></li>
+  <li class="sectionTitle"><a href="#XML">Some things you should know about XML</a></li>
+  <li class="sectionTitle"><a href="#Rules">DCXML markup rules</a></li>
+  <li class="sectionTitle"><a href="#Layout">Insert and layout dcx controls.</a></li>
+  <li class="sectionTitle"><a href="#Pane">The power of pane </a></li>
+  <li class="sectionTitle"><a href="#Styles">Cascading Control Styles</a> </li>
+  <li class="sectionTitle"><a href="#Icons">Cascading Icon Definitions</a> </li>
+  <li class="sectionTitle"><a href="#Templating">Templating</a></li>
+  <li class="sectionTitle"><a href="#ElementRefference">Elements Refference</a> </li>
+  <li class="sectionTitle"><a href="#AttributeRefference">Attributes Refference</a></li>
 </ol>
 <p> <span class="sectionTitle">Introduction 
-  </span><br />
+  </span><a name="Introduction" id="Introduction"></a><a href="#top">go to top</a><br />
   <br />
 DCXML is a way to make the creation and managing of dialogs more easy. Everything in DCX has to do with hierarchy: </p>
 <ul>
@@ -62,10 +72,55 @@ DCXML is a way to make the creation and managing of dialogs more easy. Everythin
         This is where DCXML steps in. DCXML is a term for a way to describe how dialogs should look and act in XML. For those of you familiar with HTML it's almost the same principle. DCXML can be best viewed as a wrapper for all those /xdialog and /xdid calls you otherwise had to do in the on dialog init event. DCXML handles creation of controls and where/how they are positioned by automatically applying CLA.<br />
         <br />
         <strong>In short:</strong> DCXML seperates design from code. Code in mIRC, design in DCXML.</p>
-		<p><span class="sectionTitle">Some things you should know about XML </span><br />
+
+        <p><span class="sectionTitle">Getting Started
+        </span><a name="GettingStarted" id="GettingStarted"></a><a href="#top">go to top</a><br />
+        <br />
+DCXML should only be used with DCX 1.4 and higher, DCXML is defined in a seperate file and not within your script. You load DCXML by calling the dcxml file in the on init event of the dialog.
+        <p>example:
+        <pre>
+dialog mydialog {
+  size 200 200 200 200
+}
+on *:dialog:mydialog:init:*:{
+  dcx Mark $dname events
+  ;dcxml -d [DNAME] [Name of dialog element you wish to load] [path to dcxml file]
+  dcxml -d $dname mydialog $qt($scriptdirdc.xml)
+}
+alias events {
+     ;mydialog event handling goes here
+}
+alias dcxt dialog -m mydialog mydialog
+</pre>
+
+
+Although it might be easier to use the following if your familiar with dialog tables:
+<pre>
+alias dcxml.spawn dialog -m dcx. $+ $1 dcx
+dialog dcx {
+  size 0 0 0 0
+}
+on *:dialog:dcx.*:init:*:{
+  tokenize 46 $dname
+  dcx Mark $dname $2 $+ .events
+  dcxml -d $dname $2 $qt($scriptdirdc.xml)
+}
+alias mydialog.events {
+  ;mydialog event handling goes here
+}
+alias myotherdialog.events {
+  ;mydialog event handling goes here
+}
+</pre>
+/dcxml.spawn [dialog name as defined in the dcxml file]<br />
+You can specify width height and caption of the dialog instance in DCXML so you only really need 1 dialog declaration in your mIRC script.
+</p><br /><br />
+
+
+<span class="sectionTitle">Some things you should know about XML </span><a name="XML" id="XML"></a><a href="#top">go to top</a><br />
 	      <br />
-        XML is built up using what is call Nodes, there are several Nodes but these are the ones you should know about because I will address them in this documentation. </p>
-		<ul>
+        XML is built up using what is call Nodes, there are several Nodes but these are the ones you should know about because I will address them in this documentation. 
+        <ul>
 		  <li>	        <strong>Document Node </strong>: 
           In XML there is one single element that has all the other elements in it. The highest in the hierarchy as it were. Much like in HTML where &lt;html&gt; contains the entire page including &lt;head&gt; and &lt;body&gt; </li>
           <li>            <strong>Element Node </strong><br />
@@ -94,7 +149,7 @@ This text is considered a Text Node <br />
 &lt;/documentNode&gt; &nbsp; 
 </pre>
 
-        <span class="sectionTitle">DCXML markup rules</span><br />
+        <span class="sectionTitle">DCXML markup rules</span> <a name="Rules" id="Rules"></a><a href="#top">go to top</a><br />
         <br />
         The beauty of XML lies in the fact that you can freely name all your elements and attributes to suit your situation. However as the name DCXML implies it differs from XML a bit. The only difference is that we've already defined all the Elements and Attributes that the parser understands. Much like XHTML has defined &lt;h1&gt; to be a header and &lt;hr&gt; to be a horizontal ruler DCXML has defined &lt;control&gt; to be a control for instance. 
             <br />
@@ -129,9 +184,8 @@ As you can see we are defining 1 dialog in this DCXML file now, you'll HAVE to g
 		
         <br />
         <span class="sectionTitle"><br />
-        Insert and layout dcx controls.<br />
+        Insert and layout dcx controls <a name="Layout" id="Layout"></a></span><a href="#top">go to top</a><br />
         <br />
-        </span>
 Forget what you know about creating dialogs! No more painstaikingly aligning controls to just the right x or h, no more calculating 
 control sizes for resizeable dialogs, no more keeping track of ID's, never again trace your xdialog and xdid's to what they're exactly doing! DCXML handles all of this.
 <br />
@@ -143,7 +197,7 @@ Thats right, only id those controls you are going to work with the rest will be 
 <pre>
 &lt;control type=&quot;panel&quot;&gt;
 	&lt;control type=&quot;text&quot;&gt;
-&lt;control /&gt;
+&lt;/control&gt;
 </pre>
 This will create a text control on a panel without having to remember the id of the pane to insert the text inside it. There is no limitation
 to how deep you can nest controls. This makes creating complex control structures a breeze. 
@@ -157,18 +211,114 @@ ID only those controls you are planning to script with in mIRC.<br />
 <strong>No more XYWH!</strong><br />
 DCXML will place and size controls for you, you just tell DCXML that something should be smaller or bigger.
 <pre>
-&lt;control type=&quot;panel&quot;&gt;
-	&lt;control type=&quot;check&quot; id=&quot;2&quot;&gt;
-	&lt;control type=&quot;text&quot;&gt;
-&lt;control /&gt;
+&lt;dialog name=&quot;somedialog&quot;&gt;
+	&lt;control type=&quot;panel&quot; cascade=&quot;h&quot;&gt;
+		&lt;control type=&quot;check&quot; id=&quot;2&quot; /&gt;
+		&lt;control type=&quot;text&quot;/&gt;
+	&lt;/control&gt;
+&lt;/dialog&gt;
 </pre>
+In this example the panel will take all the available space on the dialog because its the only child of the dialog. Inside 
+the panel the check and text will take 50% of the space inside the panel because  100% space devided by 2 controls that want to take
+it is 50%. The controls will appear next to eachother due to the cascade attribute on the panel ( see cascade attribute ).<br />
+
+All very handy but what if you want the text to take only 25% of the available space ? Is that possible ? Yes it is !
+<pre>
+&lt;dialog name=&quot;somedialog&quot;&gt;
+	&lt;control type=&quot;panel&quot; cascade=&quot;h&quot;&gt;
+		&lt;control type=&quot;check&quot; id=&quot;2&quot; weight=&quot;3&quot;/&gt;
+		&lt;control type=&quot;text&quot; weight=&quot;1&quot;/&gt;
+	&lt;/control&gt;
+&lt;/dialog&gt;
+</pre>
+
+<p>As you noticed we've added an attribute called weight this hints the parser how to size the controls inside the pane.</p>
+<p>The space inside the panel is 100% we already know this, of this space the check wants to take 3 parts and the text
+ wants to take 1 part. So to give them both what they
+ want  3+1 has to equal 100%. So 4 equals 100% and the check takes 3/4th so 75% and the text takes 1/4th or 25%.<br />
+ 
+ 
+To check if you understood weights have a look at this DCXML and think for yourself how much space the check and text take inside 
+the panel
+<pre>
+&lt;dialog name=&quot;somedialog&quot;&gt;
+	&lt;control type=&quot;panel&quot; weight=&quot;3&quot;&gt;
+		&lt;control type=&quot;check&quot; id=&quot;2&quot; cascade=&quot;h&quot; weight=&quot;10&quot;/&gt;
+		&lt;control type=&quot;text&quot; weight=&quot;5&quot;/&gt;
+	&lt;/control&gt;
+&lt;/dialog&gt;
+</pre>
+
+If you thought that the check takes 2/3rd (10/15th) and the text 1/3rd (5/15th) you know your stuff! Finally lets take a look another 
+case:
+<pre>
+&lt;dialog name=&quot;somedialog&quot;&gt;
+	&lt;control type=&quot;panel&quot; cascade=&quot;h&quot; weigth=&quot;9&quot;&gt;
+		&lt;control type=&quot;check&quot; id=&quot;2&quot; weight=&quot;10&quot;/&gt;
+		&lt;control type=&quot;text&quot; weight=&quot;5&quot;/&gt;
+	&lt;/control&gt;
+	&lt;control type=&quot;panel&quot; cascade=&quot;h&quot; weigth=&quot;10&quot;&gt;
+		&lt;control type=&quot;check&quot; id=&quot;2&quot; weight=&quot;10&quot;/&gt;
+		&lt;control type=&quot;text&quot; weight=&quot;5&quot;/&gt;
+	&lt;/control&gt;
+&lt;/dialog&gt;
+</pre>
+Here there's 2 panels on the dialog, they will not be placed next to eachother but they will be stacked vertically. This because there
+is no cascade attribute set on the dialog element and stacking vertically is the default behaviour. The top panel 
+will take 9/19th of the space on the dialog and the bottom one 10/19th.<br />
 <br />
-<span class="sectionTitle">Cascading Control Styles </span>
+Ok so hopefully by now you grasp how you can manipulate the layout by modifying the weight and cascade attributes. But what if you dont want a control to size
+vertically, horizontally or both ? and what if you want to specify a width/height in pixels ?<br />
+
+
+All  you have to do is either specify the height and/or width:
+<pre>
+&lt;dialog name=&quot;somedialog&quot;&gt;
+	&lt;control type=&quot;panel&quot; cascade=&quot;h&quot; height=&quot;120&quot;&gt;
+		&lt;control type=&quot;check&quot; id=&quot;2&quot; width=&quot;20&quot;/&gt;
+		&lt;control type=&quot;text&quot; /&gt;
+	&lt;/control&gt;
+	&lt;control type=&quot;panel&quot; cascade=&quot;h&quot; weigth=&quot;1&quot;&gt;
+		&lt;control type=&quot;check&quot; id=&quot;2&quot; heigth=&quot;20&quot; width=&quot;20&quot;/&gt;
+		&lt;control type=&quot;text&quot; weight=&quot;5&quot;/&gt;
+	&lt;/control&gt;
+&lt;/dialog&gt;
+</pre>
+
+<p>In this example the top panel is 120px in height, this control will not size vertically when resized but WILL resize horizontally. The 2nd panel will take the remaining space.
+  The check inside the first panel is 20px wide and will not resize in width but will in height. The check inside the 2nd panel is 20px wide and 20px high and will never resize.
+    <br />
+    <span class="sectionTitle"><br />
+The power of pane </span><a name="Pane" id="Pane"></a><a href="#top">go to top</a><br />
 <br />
-<br />
-One of the major benefits of using DCXML is that you can define a multiple controls styles in one easy definition. You can style per ID, Class &amp; Type. On top of that you can set global and local style definitions. 
-            <br />
-Style definitions are grouped in the &lt;styles&gt; element. This &lt;styles&gt; element can be a child of &lt;dialogs&gt; which will effect ALL dialogs or &lt;dialog&gt; to only style a certain dialog. You can also style directly on the &lt;control&gt;.
+A very powerful element to help you layout your dialog the way you want is the &lt;pane&gt; <br />
+A pane can be best viewed as a panel control without actually creating a control on the dialog.
+<pre>
+&lt;dialog name=&quot;somedialog&quot;&gt;
+	&lt;pane cascade=&quot;h&quot; weight=&quot;3&quot;&gt;
+		&lt;control type=&quot;check&quot; id=&quot;2&quot; width=&quot;20&quot;/&gt;
+		&lt;control type=&quot;text&quot; /&gt;
+	&lt;/pane&gt;
+	&lt;pane cascade=&quot;h&quot; weight=&quot;1&quot;&gt;
+		&lt;control type=&quot;check&quot; id=&quot;2&quot; heigth=&quot;20&quot; width=&quot;20&quot;/&gt;
+		&lt;control type=&quot;text&quot; weight=&quot;5&quot;/&gt;
+	&lt;/pane&gt;
+&lt;/dialog&gt;
+</pre>
+<p>This is the same as using a panel control in the above section but no control is actually created a &lt;pane&gt; virtually groups controls so is performence wise best to use. Of course &lt;pane&gt; doesn't replace a panel control as you can't style a pane.<br />
+<strong>Note:</strong> a &lt;pane&gt; cannot have a fixed width or heigth!</p>
+<p> <br />
+
+
+  <span class="sectionTitle">Cascading Control Styles </span>
+    <a name="Styles" id="Styles"></a><a href="#top">go to top</a><br />
+    <br />
+    One of the major benefits of using DCXML is that you can define a multiple controls styles in one easy definition. You can style per ID, Class &amp; Type. On top of that you can set global and local style definitions. <br />
+    Style definitions are grouped in the &lt;styles&gt; element. This &lt;styles&gt; element can be a child of &lt;dialogs&gt; which will effect ALL dialogs or &lt;dialog&gt; to only style a certain dialog. You can also style directly on the &lt;control&gt;.
+</p>
+  </p>
+  </p>
+</p>
 <pre>
 &lt;dialogs&gt; 
 	&lt;styles&gt; 
@@ -202,7 +352,7 @@ If we remove the fontname attribute on the control the text will be in Tahoma be
 &nbsp; 
         In addition to &lt;style&gt; there's also an &lt;all&gt; element which is the exact same but will apply to <strong>every </strong> control on the dialog(s). <strong>Note: </strong> This element has the lowest precedence and will only be applied if DCXML cant match on id, class or text.<br />
         <br />
-        <span class="sectionTitle"> Cascading Icon Definitions </span><br />
+        <span class="sectionTitle"> Cascading Icon Definitions </span><a name="Icons" id="Icons"></a><a href="#top">go to top</a><br />
         <br />
 Icon libraries for controls are applied in a similar way as style definitions. 
 <pre>
@@ -215,24 +365,45 @@ Icon libraries for controls are applied in a similar way as style definitions.
 	&lt;/icons&gt; 
     .. 
 </pre>
-        Like styles icons can appear as child of &lt;dialogs&gt; and &lt;dialog&gt;.<br />
- DCXML will first try to match in the &lt;dialog&gt; icons definition. When unsuccessful it will parse the &lt;dialogs&gt; icons definition. 
+        <p>Like styles icons can appear as child of &lt;dialogs&gt; and &lt;dialog&gt;.<br />
+          DCXML will first try to match in the &lt;dialog&gt; icons definition. When unsuccessful it will parse the &lt;dialogs&gt; icons definition. 
             Use the index attribute if you want to load up a single icon, for multiple icons you can use indexmin and indexmax. DCXML will loop from indexmin and indexmax and load up those icons. Indexmin and indexmax default to zero and min <strong>has </strong> to be smaller then max. <br />
             <br />
-            <span class="sectionTitle">Element </span><span class="sectionTitle">Refference</span><br />
+            <span class="sectionTitle">Templating
+            </span><a name="Templating" id="Templating"></a><a href="#top">go to top</a><br />
             <br />
-There are only a few different Elements in DCXML, this is to hopefully keep the markup simple.<br />
-Another big reason a treeview for instance is created like this:<br />
+		  DCXML allows you to template dialog elements you use really often like alot of your dialogs will have a header of some sort, to prevent you from defining the header 
+		  everytime you create a new dialog you can template it.
+<pre>&lt;dcxml&gt;<br />	&lt;dialogs&gt;<br />		&lt;templates&gt;<br />			&lt;template name=&quot;header&quot;&gt;<br />				&lt;control type=&quot;panel&quot; cascade=&quot;h&quot; height=&quot;70&quot;&gt;<br />					&lt;control width=&quot;253&quot; height=&quot;70&quot; type=&quot;image&quot; eval=&quot;1&quot; src=&quot;$+($_scriptdir,dcx.jpg)&quot; /&gt;<br />					&lt;control width=&quot;547&quot; height=&quot;70&quot; type=&quot;image&quot; eval=&quot;1&quot; src=&quot;$+($_scriptdir,top_bg.jpg)&quot; /&gt;<br />					&lt;control type=&quot;panel&quot; bgcolour=&quot;16318463&quot; /&gt;<br />				&lt;/control&gt;<br />			&lt;/template&gt;<br />		&lt;/templates&gt;
+		&lt;dialog name=&quot;somedialog&quot;&gt;<br />			&lt;calltemplate name=&quot;header&quot; /&gt;<br />			&lt;control type=&quot;panel&quot;&gt;
+			...<br />	</pre>
+			&lt;template&gt; can only be defined in the &lt;templates&gt; section of &lt;dialogs&gt;. You call a template using the &lt;calltemplate&gt; element.
+			calltemplate can not have any children but can be called as many times as you like.<br />
+			<br />
+	Here's another use for templates
+<pre>&lt;template name=&quot;OkCancel&quot;&gt;<br />		&lt;control type=&quot;panel&quot; styles=&quot;vgradient&quot; cascade=&quot;h&quot; margin=&quot;0 5 0 5&quot; height=&quot;35&quot;&gt;<br />			&lt;pane cascade=&quot;v&quot; weight=&quot;1&quot; /&gt;<br />			&lt;control type=&quot;button&quot; styles=&quot;vgradient&quot; eval=&quot;1&quot; id=&quot;1&quot; bgcolour=&quot;$rgb(255,255,255)&quot; 
+				caption=&quot;Cancel&quot; width=&quot;100&quot; height=&quot;25&quot; /&gt;
+			&lt;control type=&quot;button&quot; caption=&quot;Ok&quot; id=&quot;2&quot; width=&quot;100&quot; height=&quot;25&quot; /&gt;
+		&lt;/control&gt;<br />	&lt;/template&gt;
+</pre>
+	<p>This will define Ok and Cancel button's that are always right alligned on the dialog and will resize properly. The Cancel button has id  1 and OK button 2. Now 
+	all you need to do to add this to a dialog is 
+&lt;calltemplate name=&quot;OkCancel&quot; /&gt; </p>
+	<p>            <span class="sectionTitle">Element </span><span class="sectionTitle">Refference</span><a name="ElementRefference" id="ElementRefference"></a>
+	<a href="#top">go to top</a>	  <br />
+            <br />
+      There are only a few different Elements in DCXML, this is to hopefully keep the markup simple.<br />
+      Another big reason a treeview for instance is created like this:<br />
 &lt;control type=&quot;treeview&quot; /&gt;<br />
 instead of <br />
 &lt;treeview /&gt; <br />
 is because this way dcx can grow without having to add new dcxml elements each time a new control is made.<br />
-
 An element can not just exist anywhere you like, here's a complete list of elements and where they may be placed:
 if they have dialog listed as parent node but not icons that means that you can't specify the element inside an icons element. <br />
 If you do so it will be ignored<br />
 </ul>
-<table cellspacing="0" cellpadding="0">
+</p>
+        <table cellspacing="0" cellpadding="0">
   <tr>
     <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;dialogs&gt; </span><br />
         dialogs is the document node this means it has to be at the top of the hierarchy see “DCXML markup rules” for more information. </td>
@@ -385,30 +556,52 @@ If you do so it will be ignored<br />
   </tr>
 </table>
   
-Small Example:
-<pre>
-&lt;dialogs&gt; 
-	&lt;styles&gt; &lt;!--- These styles apply to all &lt;dialog&gt;'s --&gt; 
-		&lt;all fontsize=&quot;8&quot; fontstyle=&quot;a&quot; fontname=&quot;Tahoma&quot; border=&quot;&quot; /&gt; 
-		&lt;!--- Sets Tahoma 8 anti-aliased as font and no border for everything --&gt; 
-		&lt; style type=”listview” fontsize=&quot;10&quot; fontstyle=&quot;a&quot; 
-  			fontname=&quot;Tahoma&quot; border=”b&quot; /&gt; &lt;!--- Sets Tahoma 10 anti-aliased as font and regular border for all listviews --&gt;
-		&lt;style class=”header” fontsize=&quot;16&quot; fontstyle=&quot;a&quot;
-			fontname=&quot;Tahoma&quot; border=&quot;&quot; /&gt; &lt;!--- Sets Tahoma 16 anti-aliased as font and no border for elements with class: header--&gt; 
-	&lt;/styles&gt;
-	&lt;dialog name=”mydialog”&gt; 
-		&lt;control type=”text” class=”header”&gt;This stupid Example!&lt;/control&gt;
-		&lt;control type=”treeview”&gt;
-			&lt;item caption=”This is group 1”&gt; 
-				&lt;item caption=”This item is part of group1” /&gt;
-			&lt;/item&gt; 
-		&lt;/control&gt; 
-	&lt;/dialog&gt; 
-&lt;/dialogs &gt; 
-</pre>
-    <span class="sectionTitle">  Attribute Refference<br />
-    <br />
-</span>
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;templates&gt; </span><br />
+    Container for templates </td>
+  </tr>
+  <tr>
+    <td width="109" valign="top"><strong>Child nodes: </strong></td>
+    <td width="529" valign="top">&lt;template&gt;</td>
+  </tr>
+  <tr>
+    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
+    <td width="529" valign="top">&lt;dialogs&gt;</td>
+  </tr>
+</table>
+<br />
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;template&gt; </span><br />
+    icon allows you to specify a control/class or id's image list </td>
+  </tr>
+  <tr>
+    <td width="109" valign="top"><strong>Child nodes: </strong></td>
+    <td width="529" valign="top">Any valid child of &lt;dialog&gt; except for &lt;calltemplate&gt; </td>
+  </tr>
+  <tr>
+    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
+    <td width="529" valign="top">&lt;templates&gt;</td>
+  </tr>
+</table>
+<br />
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;calltemplate&gt; </span><br />
+    Applies a certain template </td>
+  </tr>
+  <tr>
+    <td width="109" valign="top"><strong>Child nodes: </strong></td>
+    <td width="529" valign="top">None</td>
+  </tr>
+  <tr>
+    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
+    <td width="529" valign="top">Any valid &lt;dialog&gt; child element except for &lt;calltemplate&gt;</td>
+  </tr>
+</table>
+<p><span class="sectionTitle">Attribute Refference<a name="AttributeRefference" id="AttributeRefference"></a></span>
+<a href="#top">go to top</a></p>
 <table cellspacing="0" cellpadding="0">
   <tr>
     <td width="115" valign="top" class="subSectionTitle">eval</td>
@@ -436,7 +629,60 @@ Small Example:
   </tr>
 </table>
 <br />
-
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="115" valign="top" class="subSectionTitle">w <span class="style1">&amp;</span> h </td>
+    <td width="523" valign="top">&nbsp; </td>
+  </tr>
+  <tr>
+    <td width="115" valign="top"><strong>Applies to: </strong></td>
+    <td width="523" valign="top">&lt;dialog&gt;</td>
+  </tr>
+  <tr>
+    <td width="115" valign="top"><strong>Description: </strong></td>
+    <td width="523" valign="top">Sets the width or height of the dialog </td>
+  </tr>
+  <tr>
+    <td width="115" valign="top"><strong>Default value: </strong></td>
+    <td width="523" valign="top">not applicable.</td>
+  </tr>
+  <tr>
+    <td width="115" valign="top"><strong>Valid values: </strong></td>
+    <td width="523" valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="115" valign="top"><strong>Example: </strong></td>
+    <td width="523" valign="top">&lt;dialog w=”200” h=&quot;400&quot; &gt; </td>
+  </tr>
+</table>
+<br />
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="115" valign="top" class="subSectionTitle">center</td>
+    <td width="523" valign="top">&nbsp; </td>
+  </tr>
+  <tr>
+    <td width="115" valign="top"><strong>Applies to: </strong></td>
+    <td width="523" valign="top">&lt;dialog&gt;</td>
+  </tr>
+  <tr>
+    <td width="115" valign="top"><strong>Description: </strong></td>
+    <td width="523" valign="top">Centers the dialog when created.</td>
+  </tr>
+  <tr>
+    <td width="115" valign="top"><strong>Default value: </strong></td>
+    <td width="523" valign="top">not applicable.</td>
+  </tr>
+  <tr>
+    <td width="115" valign="top"><strong>Valid values: </strong></td>
+    <td width="523" valign="top">any</td>
+  </tr>
+  <tr>
+    <td width="115" valign="top"><strong>Example: </strong></td>
+    <td width="523" valign="top">&lt;dialog w=”200” h=&quot;400&quot; center=&quot;&quot;&gt; </td>
+  </tr>
+</table>
+<br />
 <table cellspacing="0" cellpadding="0">
   <tr>
     <td width="115" valign="top" class="subSectionTitle">type </td>
@@ -1181,9 +1427,6 @@ Small Example:
   </tr>
 </table>
   
-Conclusion 
-In conclusion it's important to remember DCXML is merely an extra layer on top xdid and xdialog and is by no means a replacement for those commands, there are always going to be situations that can't be abstracted into XML. It is however an excellent way to prevent you from typing out hundreds commands and develops your dialogs rapidly! It was designed to make making dialogs as easy and fun as possible and we hope that it succeeds in that mission. 
-&nbsp; 
-&nbsp; 
+  
 </body>
 </html>
