@@ -4,6 +4,62 @@
 
 #include "dcxDock.h"
 
+void TraverseSiblings(const HTREEITEM hParent, TString &buf, TString &res, LPTVITEMEX pitem)
+{
+	ZeroMemory(pitem, sizeof(TVITEMEX));
+	for (HTREEITEM ptvitem = TreeView_GetChild(mIRCLink.m_hTreeView, hParent); ptvitem != NULL; ptvitem = TreeView_GetNextSibling(mIRCLink.m_hTreeView, ptvitem)) {
+		pitem->hItem = ptvitem;
+		pitem->pszText = buf.to_chr();
+		pitem->cchTextMax = 255;
+		pitem->mask = TVIF_TEXT;
+		if (TreeView_GetItem(mIRCLink.m_hTreeView, pitem)) {
+			int i = 0;
+			mIRCevalEX(res.to_chr(), 16, "$xtreebar_callback(init,%s)", pitem->pszText);
+			pitem->mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
+			i = res.gettok( 1 ).to_int() -1;
+			if (i < 0)
+				i = 0;
+			pitem->iImage = i;
+			i = res.gettok( 2 ).to_int() -1;
+			if (i < 0)
+				i = 0;
+			pitem->iSelectedImage = i;
+			TreeView_SetItem(mIRCLink.m_hTreeView, pitem);
+		}
+		TraverseSiblings(ptvitem, buf, res, pitem);
+	}
+}
+
+void TraverseTreebarItems(void)
+{
+	SetWindowRedraw(mIRCLink.m_hTreeView, FALSE);
+	TString buf((UINT)255);
+	TString res((UINT)16);
+	HTREEITEM hRoot = TreeView_GetRoot(mIRCLink.m_hTreeView);
+	TVITEMEX item;
+	ZeroMemory(&item, sizeof(item));
+	item.hItem = hRoot;
+	item.pszText = buf.to_chr();
+	item.cchTextMax = 255;
+	item.mask = TVIF_TEXT;
+	if (TreeView_GetItem(mIRCLink.m_hTreeView, &item)) {
+		int i = 0;
+		mIRCevalEX(res.to_chr(), 16, "$xtreebar_callback(init,%s)", item.pszText);
+		item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
+		i = res.gettok( 1 ).to_int() -1;
+		if (i < 0)
+			i = 0;
+		item.iImage = i;
+		i = res.gettok( 2 ).to_int() -1;
+		if (i < 0)
+			i = 0;
+		item.iSelectedImage = i;
+		TreeView_SetItem(mIRCLink.m_hTreeView, &item);
+	}
+	TraverseSiblings(hRoot, buf, res, &item);
+	SetWindowRedraw(mIRCLink.m_hTreeView, TRUE);
+}
+
 // [SWITCH] [OPTIONS]
 mIRC(xtreebar) {
 	TString input(data);
@@ -171,7 +227,6 @@ mIRC(xtreebar) {
 				RedrawWindow(mIRCLink.m_hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 			}
 			break;
-#ifndef NDEBUG
 			// -c & -i commands are experimental & required stopping mIRC doing the item drawing.
 		case 'c': // [COLOUR FLAGS] [COLOUR]
 			{
@@ -214,7 +269,7 @@ mIRC(xtreebar) {
 				}
 			}
 			break;
-		case 'i': // [clear|default] | [flags] [index] [filename]
+		case 'i': // [clear|default] | [index] [+flags] [icon index] [filename]
 			{
 				if (mIRCLink.m_hTreeImages == NULL) {
 					DCXError("/xtreebar -i", "No Valid TreeView Image List");
@@ -231,67 +286,42 @@ mIRC(xtreebar) {
 						ImageList_Destroy(o);
 				}
 				else {
-					HIMAGELIST ohiml = TreeView_GetImageList( mIRCLink.m_hTreeView, TVSIL_NORMAL);
-					HIMAGELIST himl = ImageList_Duplicate( ohiml );
-					if (himl != NULL) {
-						int type = 0, index = input.gettok(3).to_int();
-						TString cflag(input.gettok(2));
-						cflag.trim();
-						TString filename(input.gettok(4,-1));
-						filename.trim();
-						// add replacement images.
-						switch (cflag[1])
-						{
-						case 's': // status windows
-							type = 0;
-							break;
-						case 'c': // channel windows
-							type = 1;
-							break;
-						case 'C': // Custom windows
-							type = 2;
-							break;
-						case 'S': // DCC Send windows
-							type = 3;
-							break;
-						case 'G': // DCC Get windows
-							type = 4;
-							break;
-						default:
-							{
-								DCXError("/xtreebar -i", "Invalid Image Flag");
-								ImageList_Destroy(himl);
-								return 0;
-							}
-							break;
+					HIMAGELIST himl = NULL, ohiml = TreeView_GetImageList( mIRCLink.m_hTreeView, TVSIL_NORMAL);
+					if (ohiml != mIRCLink.m_hTreeImages)
+						himl = ohiml;
+					else {
+						/*
+						Duplicate existing list, but remove all images.
+						*/
+						//himl = ImageList_Duplicate( ohiml );
+						himl = ImageList_Create(16,16,ILC_COLOR32|ILC_MASK,1,0);
+						if (himl != NULL) {
+							//ImageList_RemoveAll(himl);
+							TreeView_SetImageList(mIRCLink.m_hTreeView, himl, TVSIL_NORMAL);
 						}
-						HICON hIcon = dcxLoadIcon(index,filename, false, cflag);
+					}
+					if (himl != NULL) {
+						int iIndex = input.gettok(2).to_int() -1, fIndex = input.gettok(4).to_int(), iCnt = ImageList_GetImageCount(himl) -1;
+						TString cflag(input.gettok(3));
+						cflag.trim();
+						TString filename(input.gettok(5,-1));
+						filename.trim();
+
+						// check index is within range.
+						if (iCnt < iIndex) {
+							DCXError("/xtreebar -i", "Image Index Out Of Range");
+							return 0;
+						}
+						if (iIndex < 0)
+							iIndex = -1; // append to end of list. make sure its only -1
+
+						HICON hIcon = dcxLoadIcon(fIndex,filename, false, cflag);
 						if (hIcon != NULL) {
-							mIRCDebug("count: %d", ImageList_GetImageCount(himl));
-							mIRCDebug("replace: %d", ImageList_ReplaceIcon(himl,type,hIcon));
-							HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView, himl, TVSIL_NORMAL);
-							if (o != NULL && o != mIRCLink.m_hTreeImages)
-								ImageList_Destroy(o);
+							ImageList_ReplaceIcon(himl, iIndex, hIcon);
 							DestroyIcon(hIcon);
 							RedrawWindow( mIRCLink.m_hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
-							{
-								TVITEMEX item;
-								ZeroMemory(&item,sizeof(item));
-								item.hItem = TreeView_GetFirstVisible(mIRCLink.m_hTreeView);
-								//item.hItem = TreeView_GetNextVisible(mIRCLink.m_hTreeView, item.hItem);
-								item.mask = TVIF_IMAGE; //I_IMAGECALLBACK == -1
-								mIRCDebug("getitem: %d", TreeView_GetItem(mIRCLink.m_hTreeView,&item));
-								mIRCDebug("image: %d selected: %d state: %d", item.iImage, item.iSelectedImage, item.state);
-								item.hItem = TreeView_GetNextVisible(mIRCLink.m_hTreeView, item.hItem);
-								item.mask = TVIF_IMAGE;
-								mIRCDebug("getitem2: %d", TreeView_GetItem(mIRCLink.m_hTreeView,&item));
-								mIRCDebug("image: %d selected: %d state: %d", item.iImage, item.iSelectedImage, item.state);
-								//item.mask = TVIF_IMAGE;
-								//TreeView_SetItem(mIRCLink.m_hTreeView, &item);
-							}
 						}
 						else {
-							ImageList_Destroy(himl);
 							DCXError("/xtreebar -i", "Unable to load icon");
 							return 0;
 						}
@@ -299,7 +329,14 @@ mIRC(xtreebar) {
 				}
 			}
 			break;
-#endif
+		case 'T': // [1|0]
+			{ // Take over Treebar drawing
+				DcxDock::g_bTakeOverTreebar = (input.gettok( 2 ).to_int() ? true : false);
+				if (DcxDock::g_bTakeOverTreebar)
+					TraverseTreebarItems();
+				RedrawWindow( mIRCLink.m_hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
+			}
+			break;
 		default:
 			DCXError("/xtreebar", "Invalid Flag");
 			return 0;

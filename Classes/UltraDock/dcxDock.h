@@ -72,6 +72,8 @@ public:
 	static void status_updateParts(void);
 	//
 	static int getPos(int x, int y, int w, int h);
+	//
+	//static BOOL CALLBACK EnumTreebarWindows(HWND hwnd, LPARAM lParam);
 
 protected:
 	static LRESULT CALLBACK mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -88,5 +90,6 @@ public:
 	static HIMAGELIST g_hImageList; //!< The Statusbar's image list.
 	static INT g_iDynamicParts[256];
 	static INT g_iFixedParts[256];
+	static bool g_bTakeOverTreebar; //!< take over the drawing of the treebar from mIRC.
 };
 

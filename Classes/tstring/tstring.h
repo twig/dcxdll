@@ -73,6 +73,7 @@ public:
 	TString( const char chr );
 	TString( const TString & tString );
 	TString( const char *pStart, const char *pEnd );
+	TString( const unsigned int tsSize);
 
 	//! Destructor
 	~TString( );

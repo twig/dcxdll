@@ -10,6 +10,7 @@ HWND DcxDock::g_StatusBar = NULL;
 HIMAGELIST DcxDock::g_hImageList = NULL;
 INT DcxDock::g_iDynamicParts[256] = { 0 };
 INT DcxDock::g_iFixedParts[256] = { 0 };
+bool DcxDock::g_bTakeOverTreebar = false;
 
 DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 : m_OldRefWndProc(NULL)
@@ -327,15 +328,55 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		//		}
 		//	}
 		//	break;
-		//case WM_ERASEBKGND:
+		case WM_ERASEBKGND:
+			{
+				if ( pthis->m_iType == DOCK_TYPE_TREE && DcxDock::g_bTakeOverTreebar)
+					return FALSE; //DefWindowProc(mHwnd, uMsg, wParam, lParam);
+			}
+			break;
+		//case TVM_SETITEM:
 		//	{
-		//		if ( pthis->m_iType == DOCK_TYPE_TREE)
-		//			return FALSE; //DefWindowProc(mHwnd, uMsg, wParam, lParam);
+		//		if ( pthis->m_iType != DOCK_TYPE_TREE || !DcxDock::g_bTakeOverTreebar)
+		//			break;
+		//		//LPTVITEMEX pitem = (LPTVITEMEX)lParam;
+		//		mIRCeval("$treebar_callback(setitem)", buf, 16);
 		//	}
 		//	break;
+		case TVM_INSERTITEM:
+			{
+				LPTVINSERTSTRUCT pTvis = (LPTVINSERTSTRUCT)lParam;
+				if (pTvis->itemex.mask & TVIF_TEXT) {
+					TString buf((unsigned int)16);
+					int i = 0;
+					mIRCevalEX(buf.to_chr(), 16, "$xtreebar_callback(insertitem, %s)", pTvis->itemex.pszText);
+					i = buf.gettok( 1 ).to_int() -1;
+					if (i < 0)
+						i = 0;
+					pTvis->itemex.iImage = i;
+					i = buf.gettok( 2 ).to_int() -1;
+					if (i < 0)
+						i = 0;
+					pTvis->itemex.iSelectedImage = i;
+					pTvis->itemex.mask |= TVIF_IMAGE|TVIF_SELECTEDIMAGE;
+				}
+			}
+			break;
 	}
 	return CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, wParam, lParam);
 }
+//BOOL CALLBACK DcxDock::EnumTreebarWindows(HWND hwnd, LPARAM lParam)
+//{
+//	TCHAR title[256];
+//	char *buf = (char *)lParam;
+//	title[0] = 0;
+//	GetWindowText(hwnd, title, 255);
+//	if (lstrcmp(buf, title) == 0) {
+//		mIRCDebug("match: %ld : %s", hwnd, title);
+//		return FALSE;
+//	}
+//	return TRUE;
+//}
+
 LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	DcxDock *pthis = (DcxDock *)GetProp(mHwnd,"DcxDock");
@@ -373,22 +414,51 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			break;
 		case WM_NOTIFY:
 			{
-				//if (pthis->m_iType == DOCK_TYPE_TREE) {
-				//	LPNMHDR hdr = (LPNMHDR) lParam;
+				if (pthis->m_iType == DOCK_TYPE_TREE) {
+					LPNMHDR hdr = (LPNMHDR) lParam;
 
-				//	if (!hdr)
-				//		break;
-				//	switch( hdr->code ) {
-				//		case NM_CUSTOMDRAW:
-				//			{
-				//				//LPNMTVCUSTOMDRAW lpntvcd = (LPNMTVCUSTOMDRAW) lParam;
-				//				return CDRF_DODEFAULT;
-				//				//return DefWindowProc(mHwnd, uMsg, wParam, lParam);
-				//			}
-				//			break;
-				//	}
-				//}
-				if ((pthis->m_iType == DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) {
+					if (!hdr || !DcxDock::g_bTakeOverTreebar)
+						break;
+
+					switch( hdr->code ) {
+						case NM_CUSTOMDRAW:
+							{
+								LPNMTVCUSTOMDRAW lpntvcd = (LPNMTVCUSTOMDRAW) lParam;
+								switch (lpntvcd->nmcd.dwDrawStage) {
+									case CDDS_PREPAINT:
+										return CDRF_NOTIFYITEMDRAW;
+									case CDDS_ITEMPREPAINT:
+										{
+											if (lpntvcd->nmcd.uItemState & CDIS_SELECTED) { // This makes sure the selected colour doesnt show as grayed.
+												lpntvcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
+												lpntvcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
+											}
+											return CDRF_NEWFONT;
+										}
+									default:
+										return CDRF_DODEFAULT;
+								}
+								//HWND win = (HWND)lpntvcd->nmcd.hdr.hwndFrom;
+								//if (IsWindow(win)) {
+								//	TVITEMEX item;
+								//	TCHAR buf[256];
+								//	ZeroMemory(&item,sizeof(item));
+								//	//item.hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
+								//	item.hItem = TreeView_GetFirstVisible(win);
+								//	item.mask = TVIF_TEXT;
+								//	item.cchTextMax = 255;
+								//	item.pszText = buf;
+								//	if (TreeView_GetItem(win, &item)) {
+								//		EnumChildWindows(mIRCLink.m_mIRCHWND, DcxDock::EnumTreebarWindows, (LPARAM)item.pszText);
+								//	}
+								//}
+								//return CDRF_DODEFAULT;
+								//return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+							}
+							break;
+					}
+				}
+				else if ((pthis->m_iType == DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) {
 					LPNMHDR hdr = (LPNMHDR) lParam;
 
 					if (!hdr)

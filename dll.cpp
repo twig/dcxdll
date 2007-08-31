@@ -466,11 +466,11 @@ void WINAPI LoadDll(LOADINFO * load) {
 *
 * It uninitializes all the stuff DCX set up and frees up memory fragments.
 *
-* \param timeout Unload trigger indicator (0 = timeout unload after 10 min - 1 = exit or /dll -u)
+* \param timeout Unload trigger indicator (0 = /dll -u (or on pre mIRC 6.30, exit) - 1 = timeout unload after 10 min - 2 = exit on mIRC 6.30+)
 */
 int WINAPI UnloadDll(int timeout) {
 	// DLL unloaded because mIRC exits or /dll -u used
-	if (timeout == 0) {
+	if (timeout != 1) {
 		if (Dialogs.closeDialogs()) { // if unable to close dialogs stop unload.
 			mIRCError("Unable to Unload DLL from within the DLL");
 			return 0; // NB: This DOESN'T stop the unload, & mIRC will still crash.

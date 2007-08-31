@@ -628,7 +628,7 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
 	HDC srcDC = CreateCompatibleDC(NULL);
 	if (srcDC != NULL) {
 		// select bitmap into new hdc
-		HBITMAP oldSrcBm = (HBITMAP)SelectObject(srcDC, srcBM);
+		HBITMAP oldSrcBm = SelectBitmap(srcDC, srcBM);
 		// create temp dest hdc to render into.
 		HDC destDC = CreateCompatibleDC(srcDC);
 		if (destDC != NULL) {
@@ -637,7 +637,7 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
 			HBITMAP newBM = CreateCompatibleBitmap(srcDC,w,h);
 			if (newBM != NULL) {
 				// select dest bitmap into dest hdc
-				HBITMAP oldDestBm = (HBITMAP)SelectObject(destDC, newBM);
+				HBITMAP oldDestBm = SelectBitmap(destDC, newBM);
 				// get source bitmap info.
 				BITMAP bm;
 				GetObject(srcBM,sizeof(bm),&bm);
@@ -647,7 +647,7 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
 					// set the return bitmap if resize worked.
 					hRes = newBM;
 					// set dest hdc back to orig bitmap.
-					SelectObject(destDC, oldDestBm);
+					SelectBitmap(destDC, oldDestBm);
 				}
 				else
 					DeleteBitmap(SelectObject(destDC, oldDestBm)); // resize failed, delete dest bitmap.
@@ -656,7 +656,7 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
 			DeleteDC(destDC);
 		}
 		// set source hdc back to orig bitmap.
-		SelectObject(srcDC, oldSrcBm);
+		SelectBitmap(srcDC, oldSrcBm);
 		// delete source hdc
 		DeleteDC(srcDC);
 	}

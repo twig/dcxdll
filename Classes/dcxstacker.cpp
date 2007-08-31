@@ -31,26 +31,25 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 , m_hActive(NULL)
 , m_dStyles(0)
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->m_Hwnd = CreateWindowEx(
+		ExStyles | WS_EX_CONTROLPARENT,
+		"ListBox",
+		NULL,
+		WS_CHILD | Styles, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
-  this->m_Hwnd = CreateWindowEx(
-    ExStyles | WS_EX_CONTROLPARENT,
-    "ListBox",
-    NULL,
-    WS_CHILD | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-
-  SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
+	SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
 
 	//this->m_hBackBrush = GetSysColorBrush(COLOR_3DFACE);
 
@@ -63,9 +62,9 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 		}
 	}
 
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -331,7 +330,8 @@ void DcxStacker::parseCommandRequest(TString &input) {
 int DcxStacker::getItemID(void) const {
 	POINT pt;
 	GetCursorPos( &pt );
-	ScreenToClient( this->m_Hwnd, &pt );
+	MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
+	//ScreenToClient( this->m_Hwnd, &pt );
 	return (int)(LOWORD((DWORD)SendMessage(this->m_Hwnd,LB_ITEMFROMPOINT,NULL,MAKELPARAM(pt.x,pt.y))) +1);
 }
 
@@ -340,7 +340,7 @@ int DcxStacker::getSelItemID(void) const {
 }
 
 DWORD DcxStacker::getItemCount(void) const {
-	return (DWORD)SendMessage(this->m_Hwnd,LB_GETCOUNT,NULL,NULL);
+	return (DWORD)ListBox_GetCount(this->m_Hwnd);
 }
 
 LPDCXSITEM DcxStacker::getItem(const int nPos) const {
@@ -414,19 +414,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		memDC = *hBuffer;
 	else
 		memDC = idata->hDC;
-	//HDC memDC = CreateCompatibleDC(idata->hDC);
-	//HBITMAP memBM = NULL, oldBM = NULL;
-	//if (memDC != NULL) { // HDC ok, make Bitmap
-	//	memBM = CreateCompatibleBitmap(idata->hDC, (rcWin.right - rcWin.left), (rcWin.bottom - rcWin.top));
-	//	if (memBM != NULL) // Bitmap Ok, select into HDC.
-	//		oldBM = SelectBitmap(memDC, memBM);
-	//	else { // Bitmap failed, delete temp HDC, use supplied HDC.
-	//		DeleteDC(memDC);
-	//		memDC = idata->hDC;
-	//	}
-	//}
-	//else // temp HDC failed, use supplied HDC.
-	//	memDC = idata->hDC;
+
 	HFONT hFont = sitem->hFont;
 	LOGFONT lf;
 	RECT rcText = idata->rcItem;
@@ -445,16 +433,6 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		rcText.bottom = idata->rcItem.bottom;
 	button_base = rcText.bottom;
 
-	// draw background if we need to.
-	//if (this->isExStyle(WS_EX_TRANSPARENT) || this->m_bAlphaBlend) {
-		//HRGN hrgn = CreateRectRgnIndirect(&idata->rcItem);
-		//if (hrgn != NULL) {
-			//SelectClipRgn(idata->hDC,hrgn);
-			//DcxControl::DrawParentsBackground(memDC, &idata->rcItem, idata->hwndItem);
-			//SelectClipRgn(idata->hDC,NULL);
-			//DeleteObject(hrgn);
-		//}
-	//}
 	// draw button for this item.
 	UINT style = DFCS_BUTTONPUSH|DFCS_ADJUSTRECT;
 	if (idata->itemState & ODS_DISABLED)
@@ -467,12 +445,18 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 
 	// fill background colour if any.
 	if (this->m_dStyles & STACKERS_GRAD) {
-		COLORREF clrbkg = sitem->clrBack;
+		COLORREF clrStart = this->m_clrStartGradient;
+		COLORREF clrEnd = this->m_clrEndGradient;
 
-		if (clrbkg == -1)
-			clrbkg = GetSysColor(COLOR_BTNFACE);
+		if (clrEnd == CLR_INVALID)
+			clrEnd = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
+		if (clrStart == CLR_INVALID)
+			clrStart = sitem->clrBack;
 
-		XPopupMenuItem::DrawGradient( memDC, &rcText, clrbkg, GetSysColor(COLOR_GRADIENTACTIVECAPTION), FALSE);
+		if (clrStart == CLR_INVALID)
+			clrStart = GetSysColor(COLOR_BTNFACE);
+
+		XPopupMenuItem::DrawGradient( memDC, &rcText, clrStart, clrEnd, FALSE);
 	}
 	else if (sitem->clrBack != -1) {
 		SetBkColor(memDC,sitem->clrBack);
@@ -489,7 +473,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 
 	// draw text if any
 	if (sitem->tsCaption.len()) {
-		HFONT oldFont = (HFONT)SelectObject(memDC,hFont);
+		HFONT oldFont = SelectFont(memDC,hFont);
 		// get text colour.
 		COLORREF clrText = sitem->clrText;
 		if (clrText == -1)
@@ -508,7 +492,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		else
 			mIRC_DrawText(memDC, sitem->tsCaption, &rcText, DT_CENTER | DT_END_ELLIPSIS, this->m_bShadowText);
 
-		SelectObject(memDC,oldFont);
+		SelectFont(memDC,oldFont);
 	}
 	// draw arrows if wanted.
 	if (this->m_dStyles & STACKERS_ARROW) {
@@ -520,8 +504,6 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	}
 	if (idata->hDC != memDC) { // if using temp buffer HDC, render completed item to main HDC & cleanup buffer.
 		BitBlt(idata->hDC,idata->rcItem.left, idata->rcItem.top, (idata->rcItem.right - idata->rcItem.left), h, memDC, idata->rcItem.left, idata->rcItem.top, SRCCOPY);
-		//DeleteObject(SelectObject(memDC,oldBM));
-		//DeleteDC(memDC);
 		DeleteHDCBuffer(hBuffer);
 	}
 
@@ -656,7 +638,7 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			int h = MIN_STACK_HEIGHT, w = (rcText.right - rcText.left);
 
 			if (hFont == NULL)
-				hFont = (HFONT) SendMessage(this->m_Hwnd, WM_GETFONT, 0, 0);
+				hFont = GetWindowFont(this->m_Hwnd);
 
 			GetObject(hFont, sizeof(LOGFONT), &lf);
 

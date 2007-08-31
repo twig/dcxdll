@@ -138,6 +138,13 @@ TString::TString( const char *pStart, const char *pEnd )
 	}
 }
 
+TString::TString( const unsigned int tsSize )
+{
+	this->m_pWString = NULL;
+	this->m_pString = new char[tsSize+1];
+	ZeroMemory(this->m_pString,tsSize+1);
+}
+
 TString::~TString( ) {
 
 	this->deleteString( );

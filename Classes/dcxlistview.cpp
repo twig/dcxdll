@@ -2411,7 +2411,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 											this->m_hItemFont = CreateFontIndirect( &lf );
 											if (this->m_hItemFont != NULL)
-												this->m_hOldItemFont = (HFONT) SelectObject( lplvcd->nmcd.hdc, this->m_hItemFont );
+												this->m_hOldItemFont = SelectFont( lplvcd->nmcd.hdc, this->m_hItemFont );
 										}
 										// NB: CDRF_NOTIFYPOSTPAINT required to get the post paint message.
 										return ( CDRF_NEWFONT|CDRF_NOTIFYPOSTPAINT );
@@ -2421,11 +2421,11 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								case CDDS_ITEMPOSTPAINT | CDDS_SUBITEM:
 									{
 										if (this->m_hOldItemFont != NULL) {
-											SelectObject( lplvcd->nmcd.hdc, this->m_hOldItemFont);
+											SelectFont( lplvcd->nmcd.hdc, this->m_hOldItemFont);
 											this->m_hOldItemFont = NULL;
 										}
 										if (this->m_hItemFont != NULL) {
-											DeleteObject(this->m_hItemFont);
+											DeleteFont(this->m_hItemFont);
 											this->m_hItemFont = NULL;
 										}
 										return CDRF_DODEFAULT;

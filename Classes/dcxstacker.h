@@ -26,6 +26,10 @@
 #define STACKERS_ARROW		0x04
 #define STACKERS_COLLAPSE	0x08
 
+#define ST_ERR	-1
+
+#define STACKERF_SELECTED	0x01
+
 typedef struct tagDCXSITEM {
 	TString			tsTipText;	//!< Tooltip text
 	TString			tsCaption;	//!< Title Buttons text
@@ -35,9 +39,12 @@ typedef struct tagDCXSITEM {
 	DcxControl *pChild;			//!< Items child control
 	int					iItemImg;		//!< Items Normal Image index.
 	int					iSelectedItemImg;		//!< Items Selected Image index.
+	RECT				itemrc;			//!< Items Rect.
+	DWORD				dFlags;			//!< Items flags.
 } DCXSITEM,*LPDCXSITEM;
 
 typedef std::vector<Image *> VectorOfImages;
+typedef std::vector<LPDCXSITEM> VectorOfStackerItems;
 
 /*!
  * \brief blah
@@ -65,17 +72,29 @@ protected:
 	HWND m_hActive;
 	DWORD m_dStyles;
 	VectorOfImages m_vImageList;
+	VectorOfStackerItems m_vItems;
 
+	//
 	int getItemID(void) const;
 	int getSelItemID(void) const;
 	DWORD getItemCount(void) const;
 	LPDCXSITEM getItem(const int nPos) const;
 	LPDCXSITEM getHotItem(void) const;
 	void getItemRect(const int nPos, LPRECT rc) const;
+	//
+	int setItem(int nPos, LPDCXSITEM item);
+	int setSelectedItem(int nPos);
+	//
+	void deleteItem(int nPos);
+	//
 	void DrawSItem(const LPDRAWITEMSTRUCT idata);
 	static void DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape);
 	void DrawItemImage(const HDC hdc, Image *img, const LPRECT rc);
+	//
 	void clearImageList(void);
+	void clearItemList(void);
+	//
+	void calcItemRect(LPRECT rc);
 };
 
 #endif //_DCXSTACKER_H_
