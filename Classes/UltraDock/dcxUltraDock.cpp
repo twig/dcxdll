@@ -46,6 +46,9 @@ void InitUltraDock(void)
 		if (IsWindow(mIRCLink.m_hTreeView))
 			mIRCLink.m_hTreeImages = TreeView_GetImageList(mIRCLink.m_hTreeView,TVSIL_NORMAL);
 	}
+  // set all colours as invalid
+	for (int i = 0; i <= TREEBAR_COLOUR_MAX; i++)
+		DcxDock::g_clrTreebarColours[i] = CLR_INVALID;
 
 	g_dockMDI = new DcxDock(mIRCLink.m_hMDI, mIRCLink.m_mIRCHWND, DOCK_TYPE_MDI);
 	g_dockTreebar = new DcxDock(mIRCLink.m_hTreeView, mIRCLink.m_hTreebar, DOCK_TYPE_TREE);

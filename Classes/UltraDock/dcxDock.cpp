@@ -11,6 +11,7 @@ HIMAGELIST DcxDock::g_hImageList = NULL;
 INT DcxDock::g_iDynamicParts[256] = { 0 };
 INT DcxDock::g_iFixedParts[256] = { 0 };
 bool DcxDock::g_bTakeOverTreebar = false;
+COLORREF DcxDock::g_clrTreebarColours[8] = { 0 };
 
 DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 : m_OldRefWndProc(NULL)
@@ -334,14 +335,16 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 					return FALSE; //DefWindowProc(mHwnd, uMsg, wParam, lParam);
 			}
 			break;
-		//case TVM_SETITEM:
-		//	{
-		//		if ( pthis->m_iType != DOCK_TYPE_TREE || !DcxDock::g_bTakeOverTreebar)
-		//			break;
-		//		//LPTVITEMEX pitem = (LPTVITEMEX)lParam;
-		//		mIRCeval("$treebar_callback(setitem)", buf, 16);
-		//	}
-		//	break;
+#ifndef NDEBUG
+		case TVM_SETITEM:
+			{
+				if ( pthis->m_iType != DOCK_TYPE_TREE || !DcxDock::g_bTakeOverTreebar)
+					break;
+				LPTVITEMEX pitem = (LPTVITEMEX)lParam;
+				mIRCevalEX(NULL,0,"$xtreebar_callback(setitem,%ld,%ld)", pitem->hItem, pitem->lParam);
+			}
+			break;
+#endif
 		case TVM_INSERTITEM:
 			{
 				if (!DcxDock::g_bTakeOverTreebar)
@@ -349,9 +352,12 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 				LPTVINSERTSTRUCT pTvis = (LPTVINSERTSTRUCT)lParam;
 				if (pTvis->itemex.mask & TVIF_TEXT) {
-					TString buf((UINT)16);
-					int i = 0;
-					mIRCevalEX(buf.to_chr(), 16, "$xtreebar_callback(geticons, %s)", pTvis->itemex.pszText);
+					TString buf((UINT)64);
+					int i = 0, wid = HIWORD(pTvis->itemex.lParam);
+					mIRCevalEX(buf.to_chr(), 64, "$window(@%d).type", wid);
+					if (buf.len() < 1)
+						buf = "notify";
+					mIRCevalEX(buf.to_chr(), 16, "$xtreebar_callback(geticons,%s,%800s)", buf.to_chr(), pTvis->itemex.pszText);
 					i = buf.gettok( 1 ).to_int() -1;
 					if (i < 0)
 						i = 0;
@@ -433,10 +439,32 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 									case CDDS_ITEMPREPAINT:
 										{
 											if (lpntvcd->nmcd.uItemState & CDIS_SELECTED) { // This makes sure the selected colour doesnt show as grayed.
-												lpntvcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
-												lpntvcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
-												return CDRF_NEWFONT;
+												if (DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED] != CLR_INVALID)
+													lpntvcd->clrText = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED];
+												else
+													lpntvcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
+
+												if (DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED_BKG] != CLR_INVALID)
+													lpntvcd->clrTextBk = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED_BKG];
+												else
+													lpntvcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
 											}
+											else {
+												int wid = HIWORD(lpntvcd->nmcd.lItemlParam);
+												TString buf((UINT)64);
+												mIRCevalEX(buf.to_chr(), 64, "$window(@%d).sbcolor", wid);
+												if (buf.len() > 0) {
+													static const TString sbcolor("s s message s event s highlight"); // 's' is used as a spacer.
+													int clr = sbcolor.findtok(buf.to_chr(), 1);
+													if (clr == 0) // no match, do normal colours
+														break;
+													if (DcxDock::g_clrTreebarColours[clr-1] != CLR_INVALID) // text colour
+														lpntvcd->clrText = DcxDock::g_clrTreebarColours[clr-1];
+													if (DcxDock::g_clrTreebarColours[clr] != CLR_INVALID) // bkg colour
+														lpntvcd->clrTextBk = DcxDock::g_clrTreebarColours[clr];
+												}
+											}
+											return CDRF_NEWFONT;
 										}
 									default:
 										return CDRF_DODEFAULT;

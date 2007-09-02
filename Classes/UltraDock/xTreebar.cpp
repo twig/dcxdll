@@ -11,10 +11,17 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 		pitem->hItem = ptvitem;
 		pitem->pszText = buf.to_chr();
 		pitem->cchTextMax = 255;
-		pitem->mask = TVIF_TEXT;
+		pitem->mask = TVIF_TEXT|TVIF_PARAM;
 		if (TreeView_GetItem(mIRCLink.m_hTreeView, pitem)) {
 			int i = 0;
-			mIRCevalEX(res.to_chr(), 16, "$xtreebar_callback(geticons,%s)", pitem->pszText);
+			{
+				int wid = HIWORD(pitem->lParam);
+				TString tsType((UINT)64);
+				mIRCevalEX(tsType.to_chr(), 64, "$window(@%d).type", wid);
+				if (tsType.len() < 1)
+					tsType = "notify";
+				mIRCevalEX(res.to_chr(), 16, "$xtreebar_callback(geticons,%s,%800s)", tsType.to_chr(), pitem->pszText);
+			}
 			pitem->mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 			i = res.gettok( 1 ).to_int() -1;
 			if (i < 0)
@@ -41,10 +48,17 @@ void TraverseTreebarItems(void)
 		item.hItem = ptvitem;
 		item.pszText = buf.to_chr();
 		item.cchTextMax = 255;
-		item.mask = TVIF_TEXT;
+		item.mask = TVIF_TEXT|TVIF_PARAM;
 		if (TreeView_GetItem(mIRCLink.m_hTreeView, &item)) {
 			int i = 0;
-			mIRCevalEX(res.to_chr(), 16, "$xtreebar_callback(geticons,%s)", item.pszText);
+			{
+				int wid = HIWORD(item.lParam);
+				TString tsType((UINT)64);
+				mIRCevalEX(tsType.to_chr(), 64, "$window(@%d).type", wid);
+				if (tsType.len() < 1)
+					tsType = "notify";
+				mIRCevalEX(res.to_chr(), 16, "$xtreebar_callback(geticons,%s,%800s)", tsType.to_chr(), item.pszText);
+			}
 			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 			i = res.gettok( 1 ).to_int() -1;
 			if (i < 0)
@@ -256,9 +270,39 @@ mIRC(xtreebar) {
 						TreeView_SetLineColor(mIRCLink.m_hTreeView,clr);
 					}
 					break;
-				case 'm': // insert mark colour
+				case 'i': // insert mark colour
 					{
 						TreeView_SetInsertMarkColor(mIRCLink.m_hTreeView,clr);
+					}
+					break;
+				case 's': // selected text colour
+					{
+						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED] = clr;
+					}
+					break;
+				case 'S': // selected bkg colour
+					{
+						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED_BKG] = clr;
+					}
+					break;
+				case 'm': // message colour
+					{
+						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MESSAGE] = clr;
+					}
+					break;
+				case 'M': // message bkg colour
+					{
+						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MESSAGE_BKG] = clr;
+					}
+					break;
+				case 'e': // event colour
+					{
+						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_EVENT] = clr;
+					}
+					break;
+				case 'E': // event bkg colour
+					{
+						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_EVENT_BKG] = clr;
 					}
 					break;
 				default:
