@@ -171,7 +171,7 @@ XPopupMenu::~XPopupMenu( ) {
 	this->clearAllMenuItems( );
 
 	if ( this->m_hBitmap != NULL )
-		DeleteObject( this->m_hBitmap );
+		DeleteBitmap( this->m_hBitmap );
 
 	if ( this->m_hMenu != NULL && this->m_tsMenuName != "mircbar" && this->m_tsMenuName != "dialog")
 		DestroyMenu( this->m_hMenu );

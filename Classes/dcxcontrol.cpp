@@ -185,7 +185,7 @@ UINT DcxControl::getUserID( ) const {
 /*!
  * \brief blah
  *
- * blah
+ * NB: Possible buffer overwrite condition when returned data is longer than allocated szReturn
  */
 
 BOOL DcxControl::callAliasEx( char * szReturn, const char * szFormat, ... ) {

@@ -197,14 +197,14 @@ void DcxBox::parseInfoRequest( TString & input, char * szReturnValue ) {
       HFONT oldFont = NULL;
 
       if (this->m_hFont != NULL)
-        oldFont = (HFONT) SelectObject(hdc, this->m_hFont);
+        oldFont = SelectFont(hdc, this->m_hFont);
 
-      char * text = new char[n+2];
-      GetWindowText( this->m_Hwnd, text, n+1 );
-      DrawText( hdc, text, n, &rcText, DT_CALCRECT );
+      TString text((UINT)n+1);
+      GetWindowText( this->m_Hwnd, text.to_chr(), n+1 );
+      DrawText( hdc, text.to_chr(), n, &rcText, DT_CALCRECT );
 
 			if (this->m_hFont != NULL)
-				SelectObject(hdc, oldFont);
+				SelectFont(hdc, oldFont);
 
       ReleaseDC( this->m_Hwnd, hdc );
 
@@ -514,19 +514,6 @@ BOOL CALLBACK EnumBoxChildren(HWND hwnd,LPDCXENUM de)
  * blah
  */
 LRESULT DcxBox::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
- // switch( uMsg ) {
- //   case WM_COMMAND:
- //     {
- //       switch ( HIWORD( wParam ) ) {
- //         case BN_CLICKED:
- //           {
-	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
- //           }
- //           break;
- //       }
-	//		}
-	//}
 	return 0L;
 }
 

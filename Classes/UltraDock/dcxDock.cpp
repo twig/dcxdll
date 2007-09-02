@@ -344,11 +344,14 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		//	break;
 		case TVM_INSERTITEM:
 			{
+				if (!DcxDock::g_bTakeOverTreebar)
+					break;
+
 				LPTVINSERTSTRUCT pTvis = (LPTVINSERTSTRUCT)lParam;
 				if (pTvis->itemex.mask & TVIF_TEXT) {
-					TString buf((unsigned int)16);
+					TString buf((UINT)16);
 					int i = 0;
-					mIRCevalEX(buf.to_chr(), 16, "$xtreebar_callback(insertitem, %s)", pTvis->itemex.pszText);
+					mIRCevalEX(buf.to_chr(), 16, "$xtreebar_callback(geticons, %s)", pTvis->itemex.pszText);
 					i = buf.gettok( 1 ).to_int() -1;
 					if (i < 0)
 						i = 0;
@@ -432,28 +435,12 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 											if (lpntvcd->nmcd.uItemState & CDIS_SELECTED) { // This makes sure the selected colour doesnt show as grayed.
 												lpntvcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
 												lpntvcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
+												return CDRF_NEWFONT;
 											}
-											return CDRF_NEWFONT;
 										}
 									default:
 										return CDRF_DODEFAULT;
 								}
-								//HWND win = (HWND)lpntvcd->nmcd.hdr.hwndFrom;
-								//if (IsWindow(win)) {
-								//	TVITEMEX item;
-								//	TCHAR buf[256];
-								//	ZeroMemory(&item,sizeof(item));
-								//	//item.hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
-								//	item.hItem = TreeView_GetFirstVisible(win);
-								//	item.mask = TVIF_TEXT;
-								//	item.cchTextMax = 255;
-								//	item.pszText = buf;
-								//	if (TreeView_GetItem(win, &item)) {
-								//		EnumChildWindows(mIRCLink.m_mIRCHWND, DcxDock::EnumTreebarWindows, (LPARAM)item.pszText);
-								//	}
-								//}
-								//return CDRF_DODEFAULT;
-								//return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 							}
 							break;
 					}

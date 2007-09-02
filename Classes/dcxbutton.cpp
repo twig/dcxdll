@@ -91,7 +91,7 @@ DcxButton::~DcxButton( ) {
 
   for ( int i = 0; i < 4; i++ ) {
     if ( this->m_aBitmaps[i] != NULL )
-      DeleteObject( this->m_aBitmaps[i] );
+      DeleteBitmap( this->m_aBitmaps[i] );
   }
 
   this->unregistreDefaultWindowProc( );
@@ -297,7 +297,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
  * blah
  */
 
-UINT DcxButton::parseColorFlags(TString & flags) {
+UINT DcxButton::parseColorFlags(const TString & flags) {
 	INT i = 1, len = flags.len(), iFlags = 0;
 
 	// no +sign, missing params
@@ -557,9 +557,9 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			// get bitmaps info.
 			GetObject( this->m_aBitmaps[nState], sizeof(BITMAP), &bmp );
 			// associate bitmap with HDC
-			HBITMAP oldbm = (HBITMAP)SelectObject( hdcbmp, this->m_aBitmaps[nState] );
+			HBITMAP oldbm = SelectBitmap( hdcbmp, this->m_aBitmaps[nState] );
 			TransparentBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
-			SelectObject( hdcbmp, oldbm ); // got to put the old bm back.
+			SelectBitmap( hdcbmp, oldbm ); // got to put the old bm back.
 			DeleteDC( hdcbmp );
 		}
 	}
@@ -599,7 +599,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 		}
 
-		HFONT hFontOld = (HFONT) SelectObject( hdc, this->m_hFont );
+		HFONT hFontOld = SelectFont( hdc, this->m_hFont );
 
 		RECT rcTxt;
 		SetRectEmpty( &rcTxt );
@@ -665,7 +665,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false));
 		}
 
-		SelectObject( hdc, hFontOld );
+		SelectFont( hdc, hFontOld );
 	}
 
 	this->FinishAlphaBlend(ai);

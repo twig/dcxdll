@@ -74,7 +74,7 @@ protected:
 
   UINT m_iIconSize; //!< Button Icon Size 16,24,32
 
-  static UINT parseColorFlags(TString & flags );
+  static UINT parseColorFlags(const TString & flags );
   BOOL m_bBitmapText;
   BOOL m_bHasIcons;
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
