@@ -327,6 +327,10 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		flag.trim();
 		filename.trim();
 		this->ReleaseAll();
+
+		if (!mIRCLink.m_bDX9Installed)
+			DXSetup(NULL, 0);
+
 		if (!mIRCLink.m_bDX9Installed) {
 			this->showError(NULL, "-a", "Needs DirectX 9+");
 			return;

@@ -567,21 +567,31 @@ mIRC(Version) {
 /*!
 * \brief DCX DLL is DcxDirectShow supported?
 */
+static TString dxData;
 mIRC(IsUsingDirectX) {
-#ifdef DCX_USE_DXSDK
-	DWORD dx_ver;
-	if (GetDXVersion(&dx_ver, data, 900) == S_OK) {
-		if (dx_ver < 0x00090000)
-			mIRCLink.m_bDX9Installed = false;
-		else
-			mIRCLink.m_bDX9Installed = true;
-		if (dx_ver < 1)
-			ret("$false");
+	if (mIRCLink.m_bDX9Installed) {
+		lstrcpy(data, dxData.to_chr());
+		return 3;
 	}
-	return 3;
-#else
+	else if (DXSetup(data, 900)) {
+		dxData = data;
+		return 3;
+	}
 	ret("$false");
-#endif // DCX_USE_DXSDK
+//#ifdef DCX_USE_DXSDK
+//	DWORD dx_ver;
+//	if (GetDXVersion(&dx_ver, data, 900) == S_OK) {
+//		if (dx_ver < 0x00090000)
+//			mIRCLink.m_bDX9Installed = false;
+//		else
+//			mIRCLink.m_bDX9Installed = true;
+//		if (dx_ver < 1)
+//			ret("$false");
+//	}
+//	return 3;
+//#else
+//	ret("$false");
+//#endif // DCX_USE_DXSDK
 }
 
 /*!

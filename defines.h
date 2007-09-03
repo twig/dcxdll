@@ -469,6 +469,7 @@ int TGetWindowText(HWND hwnd, TString &txt);
 void SetupOSCompatibility(void);
 void FreeOSCompatibility(void);
 BOOL isRegexMatch(const char *matchtext, const char *pattern);
+bool DXSetup(char *dxResult, int dxSize);
 
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);
