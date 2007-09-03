@@ -249,7 +249,6 @@ mIRC(xtreebar) {
 					DCXError("/xtreebar -c", "Invalid Colour Args");
 					return 0;
 				}
-				// TODO: undocumented. Non functional, mirc does owner draw, need to subclass
 				TString cflag(input.gettok(2));
 				COLORREF clr = (COLORREF)input.gettok(3).to_num();
 
@@ -332,7 +331,7 @@ mIRC(xtreebar) {
 				}
 				else {
 					HIMAGELIST himl = NULL, ohiml = TreeView_GetImageList( mIRCLink.m_hTreeView, TVSIL_NORMAL);
-					if (ohiml != mIRCLink.m_hTreeImages)
+					if (ohiml != NULL && ohiml != mIRCLink.m_hTreeImages)
 						himl = ohiml;
 					else {
 						/*
@@ -370,6 +369,10 @@ mIRC(xtreebar) {
 							DCXError("/xtreebar -i", "Unable to load icon");
 							return 0;
 						}
+					}
+					else {
+						DCXError("/xtreebar -i", "Unable to Create ImageList");
+						return 0;
 					}
 				}
 			}
