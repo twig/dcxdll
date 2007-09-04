@@ -51,18 +51,27 @@ mIRC(xstatusbar) {
 				int nParts = numtok - 1;
 				INT parts[256];
 
-				int i = 0;
+				int i = 0, c = 0, t = 0;
 				TString p;
 				while ( i < nParts ) {
 
+					if (c >= 100) {
+						DCXError("/xstatusbar -l","Can't Allocate Over 100% of Statusbar!");
+						return 0;
+					}
+
 					p = input.gettok( i+2 );
 
-					if (p.right( 1 ) == "%")
-						DcxDock::g_iDynamicParts[i] = p.to_int();
-					else
-						DcxDock::g_iFixedParts[i] = p.to_int();
+					t = p.to_int();
 
-					parts[i] = p.to_int( );
+					if (p.right( 1 ) == "%") {
+						DcxDock::g_iDynamicParts[i] = t;
+						c += t;
+					}
+					else
+						DcxDock::g_iFixedParts[i] = t;
+
+					parts[i] = t;
 					i++;
 				}
 				DcxDock::status_setParts( nParts, parts );

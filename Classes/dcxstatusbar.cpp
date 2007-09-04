@@ -240,18 +240,26 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 		int nParts = numtok - 3;
 		INT parts[256];
 
-		int i = 0;
+		int i = 0, c = 0, t = 0;
 		TString p;
 		while ( i < nParts ) {
 
+			if (c >= 100) {
+				this->showError(NULL, "-l", "Can't Allocate Over 100% of Statusbar!");
+				return;
+			}
+
 			p = input.gettok( i+4 );
+			t = p.to_int();
 
-			if (p.right(1) == "%")
-				this->m_iDynamicParts[i] = p.to_int();
+			if (p.right(1) == "%") {
+				this->m_iDynamicParts[i] = t;
+				c += t;
+			}
 			else
-				this->m_iFixedParts[i] = p.to_int();
+				this->m_iFixedParts[i] = t;
 
-			parts[i] = p.to_int( );
+			parts[i] = t;
 			i++;
 		}
 		this->setParts( nParts, parts );
@@ -383,7 +391,6 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 		}
 		else
 			this->showError(NULL, "-v", "Invalid Part");
-			//DCXError("xdid -v", "Invalid Part");
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags.switch_flags[22] && numtok > 5) {
@@ -812,6 +819,7 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				}
 			}
 			break;
+
     case WM_NOTIFY: 
       {
         LPNMHDR hdr = (LPNMHDR) lParam;
@@ -834,6 +842,28 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				this->updateParts();
 			}
 			break;
+
+		//case WM_PAINT:
+		//	{
+		//		PAINTSTRUCT ps;
+		//		HDC hdc;
+
+		//		hdc = BeginPaint( this->m_Hwnd, &ps );
+
+		//		bParsed = TRUE;
+
+		//		// Setup alpha blend if any.
+		//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, true);
+
+		//		DcxControl::DrawCtrlBackground( hdc, this);
+
+		//		lRes = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+		//		this->FinishAlphaBlend(ai);
+
+		//		EndPaint( this->m_Hwnd, &ps );
+		//	}
+		//	break;
 
     case WM_DESTROY:
       {

@@ -142,10 +142,10 @@ mIRC(xtreebar) {
 					case 4: // notooltips
 						stylef |= TVS_NOTOOLTIPS;
 						break;
-					case 5: // infotips (on by default)
+					case 5: // infotip (on by default)
 						stylef |= TVS_INFOTIP;
 						break;
-					case 6: // noinfotips
+					case 6: // noinfotip
 						stylef &= ~TVS_INFOTIP;
 						break;
 					case 7: // hasbuttons (on by default)

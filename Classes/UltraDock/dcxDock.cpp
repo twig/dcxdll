@@ -471,6 +471,36 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 								}
 							}
 							break;
+					case TVN_GETINFOTIP:
+						{
+							LPNMTVGETINFOTIP tcgit = (LPNMTVGETINFOTIP) lParam;
+							if (tcgit != NULL) {
+								if (tcgit->cchTextMax < 1)
+									break;
+
+								int wid = HIWORD(tcgit->lParam);
+								TString tsType((UINT)64);
+								TString buf((UINT)255);
+								TVITEMEX item;
+								ZeroMemory(&item, sizeof(item));
+
+								item.hItem = tcgit->hItem;
+								item.pszText = buf.to_chr();
+								item.cchTextMax = 255;
+								item.mask = TVIF_TEXT;
+								if (TreeView_GetItem(mIRCLink.m_hTreeView, &item)) {
+									mIRCevalEX(tsType.to_chr(), 64, "$window(@%d).type", wid);
+									if (tsType.len() < 1)
+										tsType = "notify";
+									mIRCevalEX(buf.to_chr(), 255, "$xtreebar_callback(gettooltip,%s,%800s)", tsType.to_chr(), item.pszText);
+
+									if (buf.len() > 0)
+										lstrcpyn(tcgit->pszText, buf.to_chr(), tcgit->cchTextMax);
+								}
+							}
+							return 0L;
+						}
+						break;
 					}
 				}
 				else if ((pthis->m_iType == DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) {
@@ -715,11 +745,11 @@ void DcxDock::status_updateParts(void) {
 
 	//DcxDock::status_getBorders(borders);
 
-	w = (rcClient.right - rcClient.left); // - (2 * borders[1]);
+	w = (rcClient.right - rcClient.left) / 100; // - (2 * borders[1]);
 
 	for (int i = 0; i < nParts; i++) {
 		if (DcxDock::g_iDynamicParts[i] != 0)
-			pw = (w / 100) * DcxDock::g_iDynamicParts[i];
+			pw = w * DcxDock::g_iDynamicParts[i];
 		else
 			pw = DcxDock::g_iFixedParts[i];
 		if (i == 0)
