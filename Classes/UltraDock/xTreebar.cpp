@@ -313,10 +313,10 @@ mIRC(xtreebar) {
 				}
 			}
 			break;
-		case 'i': // [clear|default] | [index] [+flags] [icon index] [filename]
+		case 'w': // [clear|default] | [index] [+flags] [icon index] [filename]
 			{
 				if (mIRCLink.m_hTreeImages == NULL) {
-					DCXError("/xtreebar -i", "No Valid TreeView Image List");
+					DCXError("/xtreebar -w", "No Valid TreeView Image List");
 					return 0;
 				}
 				if (input.gettok(2) == "clear") {
@@ -353,7 +353,7 @@ mIRC(xtreebar) {
 
 						// check index is within range.
 						if (iCnt < iIndex) {
-							DCXError("/xtreebar -i", "Image Index Out Of Range");
+							DCXError("/xtreebar -w", "Image Index Out Of Range");
 							return 0;
 						}
 						if (iIndex < 0)
@@ -366,12 +366,12 @@ mIRC(xtreebar) {
 							RedrawWindow( mIRCLink.m_hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 						}
 						else {
-							DCXError("/xtreebar -i", "Unable to load icon");
+							DCXError("/xtreebar -w", "Unable to load icon");
 							return 0;
 						}
 					}
 					else {
-						DCXError("/xtreebar -i", "Unable to Create ImageList");
+						DCXError("/xtreebar -w", "Unable to Create ImageList");
 						return 0;
 					}
 				}
