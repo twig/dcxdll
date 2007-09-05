@@ -15,11 +15,8 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 		if (TreeView_GetItem(mIRCLink.m_hTreeView, pitem)) {
 			int i = 0;
 			{
-				int wid = HIWORD(pitem->lParam);
 				TString tsType((UINT)64);
-				mIRCevalEX(tsType.to_chr(), 64, "$window(@%d).type", wid);
-				if (tsType.len() < 1)
-					tsType = "notify";
+				DcxDock::getTreebarItemType(tsType, pitem->lParam);
 				mIRCevalEX(res.to_chr(), 16, "$xtreebar_callback(geticons,%s,%800s)", tsType.to_chr(), pitem->pszText);
 			}
 			pitem->mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
@@ -52,11 +49,8 @@ void TraverseTreebarItems(void)
 		if (TreeView_GetItem(mIRCLink.m_hTreeView, &item)) {
 			int i = 0;
 			{
-				int wid = HIWORD(item.lParam);
 				TString tsType((UINT)64);
-				mIRCevalEX(tsType.to_chr(), 64, "$window(@%d).type", wid);
-				if (tsType.len() < 1)
-					tsType = "notify";
+				DcxDock::getTreebarItemType(tsType, item.lParam);
 				mIRCevalEX(res.to_chr(), 16, "$xtreebar_callback(geticons,%s,%800s)", tsType.to_chr(), item.pszText);
 			}
 			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
@@ -239,7 +233,6 @@ mIRC(xtreebar) {
 					TreeView_SetExtendedStyle(mIRCLink.m_hTreeView, tvexstylef, tvexstylemask);
 #endif
 				SetWindowPos(mIRCLink.m_hTreeView, NULL, 0,0,0,0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
-				RedrawWindow(mIRCLink.m_hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 			}
 			break;
 			// -c & -i commands are experimental & required stopping mIRC doing the item drawing.
@@ -363,7 +356,6 @@ mIRC(xtreebar) {
 						if (hIcon != NULL) {
 							ImageList_ReplaceIcon(himl, iIndex, hIcon);
 							DestroyIcon(hIcon);
-							RedrawWindow( mIRCLink.m_hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 						}
 						else {
 							DCXError("/xtreebar -w", "Unable to load icon");
@@ -391,13 +383,13 @@ mIRC(xtreebar) {
 						return 0;
 					}
 				}
-				RedrawWindow( mIRCLink.m_hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 			}
 			break;
 		default:
 			DCXError("/xtreebar", "Invalid Flag");
 			return 0;
 	}
+	RedrawWindow(mIRCLink.m_hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 	return 1;
 }
 

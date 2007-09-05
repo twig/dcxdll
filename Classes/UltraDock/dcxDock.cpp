@@ -341,7 +341,9 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				if ( pthis->m_iType != DOCK_TYPE_TREE || !DcxDock::g_bTakeOverTreebar)
 					break;
 				LPTVITEMEX pitem = (LPTVITEMEX)lParam;
-				mIRCevalEX(NULL,0,"$xtreebar_callback(setitem,%ld,%ld)", pitem->hItem, pitem->lParam);
+				TString buf((UINT)64);
+				DcxDock::getTreebarItemType(buf, pitem->lParam);
+				mIRCevalEX(NULL,0,"$xtreebar_callback(setitem,%s,%ld,%ld)", buf.to_chr(), pitem->hItem, pitem->lParam);
 			}
 			break;
 #endif
@@ -353,10 +355,8 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				LPTVINSERTSTRUCT pTvis = (LPTVINSERTSTRUCT)lParam;
 				if (pTvis->itemex.mask & TVIF_TEXT) {
 					TString buf((UINT)64);
-					int i = 0, wid = HIWORD(pTvis->itemex.lParam);
-					mIRCevalEX(buf.to_chr(), 64, "$window(@%d).type", wid);
-					if (buf.len() < 1)
-						buf = "notify";
+					int i = 0;
+					DcxDock::getTreebarItemType(buf, pTvis->itemex.lParam);
 					mIRCevalEX(buf.to_chr(), 16, "$xtreebar_callback(geticons,%s,%800s)", buf.to_chr(), pTvis->itemex.pszText);
 					i = buf.gettok( 1 ).to_int() -1;
 					if (i < 0)
@@ -478,7 +478,6 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 								if (tcgit->cchTextMax < 1)
 									break;
 
-								int wid = HIWORD(tcgit->lParam);
 								TString tsType((UINT)64);
 								TString buf((UINT)255);
 								TVITEMEX item;
@@ -489,9 +488,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 								item.cchTextMax = 255;
 								item.mask = TVIF_TEXT;
 								if (TreeView_GetItem(mIRCLink.m_hTreeView, &item)) {
-									mIRCevalEX(tsType.to_chr(), 64, "$window(@%d).type", wid);
-									if (tsType.len() < 1)
-										tsType = "notify";
+									DcxDock::getTreebarItemType(tsType, item.lParam);
 									mIRCevalEX(buf.to_chr(), 255, "$xtreebar_callback(gettooltip,%s,%800s)", tsType.to_chr(), item.pszText);
 
 									if (buf.len() > 0)
@@ -777,4 +774,34 @@ int DcxDock::getPos(int x, int y, int w, int h)
 	if (x == rc.left && (y + h) == rc.bottom && (x + w) == rc.right)
 		return SWB_BOTTOM;
 	return SWB_RIGHT;
+}
+
+void DcxDock::getTreebarItemType(TString &tsType, LPARAM lParam)
+{
+	int wid = HIWORD(lParam);
+	switch (wid)
+	{
+	case 15000: // channel folder
+		tsType = "channelfolder";
+		break;
+	case 15004:
+		tsType = "transferfolder";
+		break;
+	case 15006: // window folder
+		tsType = "windowfolder";
+		break;
+	case 15007: // notify folder
+		tsType = "notifyfolder";
+		break;
+	case 0:
+		tsType = "Unknown";
+		break;
+	default:
+		{
+			mIRCevalEX(tsType.to_chr(), 64, "$window(@%d).type", wid);
+			if (tsType.len() < 1)
+				tsType = "notify";
+		}
+		break;
+	}
 }

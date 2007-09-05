@@ -83,7 +83,7 @@ public:
 	//
 	static int getPos(int x, int y, int w, int h);
 	//
-	//static BOOL CALLBACK EnumTreebarWindows(HWND hwnd, LPARAM lParam);
+	static void getTreebarItemType(TString &tsType, LPARAM lParam);
 
 protected:
 	static LRESULT CALLBACK mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
