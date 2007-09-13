@@ -84,6 +84,11 @@ mIRC(xtreebar) {
 
 	TString switches(input.gettok(1));
 
+	if (switches[0] != '-') {
+		DCXError("/xtreebar", "Invalid Switch");
+		return 0;
+	}
+
 	switch (switches[1]) {
 		case 'f': // [+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]
 			{
@@ -112,116 +117,146 @@ mIRC(xtreebar) {
 					DCXError("/xtreebar -s","Invalid Style Args");
 					return 0;
 				}
-				static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel transparent notransparent fadebuttons nofadebuttons indent noident buffer nobuffer autohscroll noautohscroll richtooltip norichtooltip");
+#ifdef DCX_USE_WINSDK
+				static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel transparent notransparent fadebuttons nofadebuttons indent noident buffer nobuffer autohscroll noautohscroll richtooltip norichtooltip balloon noballoon");
+#else
+				static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel transparent notransparent balloon noballoon");
+#endif
 				int i = 2;
 				DWORD stylef = GetWindowStyle(mIRCLink.m_hTreeView);
 				DWORD exstylef = GetWindowExStyle(mIRCLink.m_hTreeView);
 #ifdef DCX_USE_WINSDK
-				DWORD tvexstylef = TreeView_GetExtendedStyle(mIRCLink.m_hTreeView);
+				DWORD tvexstylef = 0;
+				if (mIRCLink.m_bVista)
+					tvexstylef = TreeView_GetExtendedStyle(mIRCLink.m_hTreeView);
 				DWORD tvexstylemask = 0;
 #endif
-
+				enum TreebarStyles {
+					TS_TRACK = 1, TS_NOTRACK, TS_TOOLTIPS, TS_NOTOOLTIPS, TS_INFOTIP, TS_NOINFOTIP, TS_HASBUTTONS, TS_NOHASBUTTONS, TS_ROOTLINES, TS_NOROOTLINES, TS_SINGLEEXPAND, TS_NOSINGLEEXPAND, TS_SCROLL, TS_NOSCROLL, TS_SHOWSEL, TS_NOSHOWSEL, TS_TRANSPARENT, TS_NOTRANSPARENT,
+#ifdef DCX_USE_WINSDK
+					TS_FADEBUTTONS, TS_NOFADEBUTTONS, TS_INDENT, TS_NOINDENT, TS_BUFFER, TS_NOBUFFER, TS_AUTOHSCROLL, TS_NOAUTOHSCROLL, TS_RICHTOOLTIP, TS_NORICHTOOLTIP,
+#endif
+					TS_BALLOON, TS_NOBALLOON
+				};
 				while (i <= numtok) {
 					switch (treebar_styles.findtok(input.gettok(i).to_chr(),1))
 					{
-					case 1: // trackselect (off by default)
+					case TS_TRACK: // trackselect (off by default)
 						stylef |= TVS_TRACKSELECT;
 						break;
-					case 2: // notrackselect
+					case TS_NOTRACK: // notrackselect
 						stylef &= ~TVS_TRACKSELECT;
 						break;
-					case 3: // tooltips (on by default)
+					case TS_TOOLTIPS: // tooltips (on by default)
 						stylef &= ~TVS_NOTOOLTIPS;
 						break;
-					case 4: // notooltips
+					case TS_NOTOOLTIPS: // notooltips
 						stylef |= TVS_NOTOOLTIPS;
 						break;
-					case 5: // infotip (on by default)
+					case TS_INFOTIP: // infotip (on by default)
 						stylef |= TVS_INFOTIP;
 						break;
-					case 6: // noinfotip
+					case TS_NOINFOTIP: // noinfotip
 						stylef &= ~TVS_INFOTIP;
 						break;
-					case 7: // hasbuttons (on by default)
+					case TS_HASBUTTONS: // hasbuttons (on by default)
 						stylef |= TVS_HASBUTTONS;
 						break;
-					case 8: // nohasbuttons
+					case TS_NOHASBUTTONS: // nohasbuttons
 						stylef &= ~TVS_HASBUTTONS;
 						break;
-					case 9: // rootlines (on by default)
+					case TS_ROOTLINES: // rootlines (on by default)
 						stylef |= TVS_LINESATROOT;
 						break;
-					case 10: // norootlines
+					case TS_NOROOTLINES: // norootlines
 						stylef &= ~TVS_LINESATROOT;
 						break;
-					case 11: // singleexpand (off by default)
+					case TS_SINGLEEXPAND: // singleexpand (off by default)
 						stylef |= TVS_SINGLEEXPAND;
 						break;
-					case 12: // nosingleexpand
+					case TS_NOSINGLEEXPAND: // nosingleexpand
 						stylef &= ~TVS_SINGLEEXPAND;
 						break;
-					case 13: // scroll (off by default)
+					case TS_SCROLL: // scroll (off by default)
 						stylef &= ~TVS_NOSCROLL;
 						break;
-					case 14: // noscroll (NB: this can lead to gfx glitches with scroll bars already shown)
+					case TS_NOSCROLL: // noscroll (NB: this can lead to gfx glitches with scroll bars already shown)
 						stylef |= TVS_NOSCROLL;
 						break;
-					case 15: // showsel (on by default)
+					case TS_SHOWSEL: // showsel (on by default)
 						stylef |= TVS_SHOWSELALWAYS;
 						break;
-					case 16: // noshowsel
+					case TS_NOSHOWSEL: // noshowsel
 						stylef &= ~TVS_SHOWSELALWAYS;
 						break;
-					case 17: // transparent
+					case TS_TRANSPARENT: // transparent
 						exstylef |= WS_EX_TRANSPARENT;
 						break;
-					case 18: // notransparent
+					case TS_NOTRANSPARENT: // notransparent
 						exstylef &= ~WS_EX_TRANSPARENT;
 						break;
 #ifdef DCX_USE_WINSDK
-					case 19: // fadebuttons
+					case TS_FADEBUTTONS: // fadebuttons
 						tvexstylef |= TVS_EX_FADEINOUTEXPANDOS;
 						tvexstylemask |= TVS_EX_FADEINOUTEXPANDOS;
 						break;
-					case 20: // nofadebuttons
+					case TS_NOFADEBUTTONS: // nofadebuttons
 						tvexstylef &= ~TVS_EX_FADEINOUTEXPANDOS;
 						tvexstylemask |= TVS_EX_FADEINOUTEXPANDOS;
 						break;
-					case 21: // indent
+					case TS_INDENT: // indent
 						tvexstylef &= ~TVS_EX_NOINDENTSTATE;
 						tvexstylemask |= TVS_EX_NOINDENTSTATE;
 						break;
-					case 22: // noident
+					case TS_NOINDENT: // noident
 						tvexstylef |= TVS_EX_NOINDENTSTATE;
 						tvexstylemask |= TVS_EX_NOINDENTSTATE;
 						break;
-					case 23: // buffer
+					case TS_BUFFER: // buffer
 						tvexstylef |= TVS_EX_DOUBLEBUFFER;
 						tvexstylemask |= TVS_EX_DOUBLEBUFFER;
 						break;
-					case 24: // nobuffer
+					case TS_NOBUFFER: // nobuffer
 						tvexstylef &= ~TVS_EX_DOUBLEBUFFER;
 						tvexstylemask |= TVS_EX_DOUBLEBUFFER;
 						break;
-					case 25: // autohscroll
+					case TS_AUTOHSCROLL: // autohscroll
 						tvexstylef |= TVS_EX_AUTOHSCROLL;
 						tvexstylemask |= TVS_EX_AUTOHSCROLL;
 						break;
-					case 26: // noautohscroll
+					case TS_NOAUTOHSCROLL: // noautohscroll
 						tvexstylef &= ~TVS_EX_AUTOHSCROLL;
 						tvexstylemask |= TVS_EX_AUTOHSCROLL;
 						break;
-					case 27: // richtooltip
+					case TS_RICHTOOLTIP: // richtooltip
 						tvexstylef |= TVS_EX_RICHTOOLTIP;
 						tvexstylemask |= TVS_EX_RICHTOOLTIP;
 						break;
-					case 28: // norichtooltip
+					case TS_NORICHTOOLTIP: // norichtooltip
 						tvexstylef &= ~TVS_EX_RICHTOOLTIP;
 						tvexstylemask |= TVS_EX_RICHTOOLTIP;
 						break;
 #endif
+					case TS_BALLOON: // balloon (off by default)
+						{
+							HWND tips = TreeView_GetToolTips(mIRCLink.m_hTreeView);
+							if (tips != NULL)
+								AddStyles(tips, GWL_STYLE, TTS_BALLOON);
+						}
+						break;
+					case TS_NOBALLOON: // noballoon
+						{
+							HWND tips = TreeView_GetToolTips(mIRCLink.m_hTreeView);
+							if (tips != NULL)
+								RemStyles(tips, GWL_STYLE, TTS_BALLOON);
+						}
+						break;
 					default: // unknown style ignore.
-						DCXError("/xtreebar -s", "Unknown Style");
+						{
+							TString err;
+							err.sprintf("Unknown Style: %s", input.gettok(i).to_chr());
+							DCXError("/xtreebar -s", err.to_chr());
+						}
 						break;
 					}
 					i++;
@@ -244,6 +279,11 @@ mIRC(xtreebar) {
 				}
 				TString cflag(input.gettok(2));
 				COLORREF clr = (COLORREF)input.gettok(3).to_num();
+
+				if (cflag[0] != '+') {
+					DCXError("/xtreebar -c","Invalid Colour flag");
+					return 0;
+				}
 
 				switch(cflag[1])
 				{
@@ -331,7 +371,11 @@ mIRC(xtreebar) {
 						Duplicate existing list, but remove all images.
 						*/
 						//himl = ImageList_Duplicate( ohiml );
-						himl = ImageList_Create(16,16,ILC_COLOR32|ILC_MASK,1,0);
+						int w, h;
+						if (!ImageList_GetIconSize(mIRCLink.m_hTreeImages, &w, &h)) // try to get image size.
+							w = h = 16; // default to 16x16
+
+						himl = ImageList_Create(w,h,ILC_COLOR32|ILC_MASK,1,0);
 						if (himl != NULL) {
 							//ImageList_RemoveAll(himl);
 							TreeView_SetImageList(mIRCLink.m_hTreeView, himl, TVSIL_NORMAL);

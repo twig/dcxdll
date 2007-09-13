@@ -171,9 +171,8 @@ void WINAPI LoadDll(LOADINFO * load) {
 	mIRCLink.m_bVista = false;
 
 	// Check if we're in debug mode
-	char res[255];
-	mIRCeval("$debug", res, 255);
-	TString isDebug(res);
+	TString isDebug((UINT)255);
+	mIRCeval("$debug", isDebug.to_chr(), 255);
 
 	isDebug.trim();
 	mIRCLink.m_bisDebug = (isDebug.len() > 0);
@@ -435,15 +434,28 @@ void WINAPI LoadDll(LOADINFO * load) {
 	DCX_DEBUG("LoadDLL", "Registering XPopup...");
 	g_OldmIRCWindowProc = SubclassWindow(mIRCLink.m_mIRCHWND, mIRCSubClassWinProc);
 
-	WNDCLASS wcpop;
-	ZeroMemory(&wcpop, sizeof(WNDCLASS));
-	wcpop.hInstance = GetModuleHandle(NULL);
-	wcpop.lpszClassName = XPOPUPMENUCLASS;
-	wcpop.lpfnWndProc = XPopupMenu::XPopupWinProc;
-	RegisterClass(&wcpop);
+	wc.cbSize = sizeof(WNDCLASSEX);
+	wc.style         = 0;
+	wc.lpfnWndProc   = XPopupMenu::XPopupWinProc;
+	wc.cbClsExtra    = 0;
+	wc.cbWndExtra    = 0;
+	wc.hInstance     = GetModuleHandle( NULL );
+	wc.hIcon         = NULL;
+	wc.hCursor       = NULL;
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+	wc.lpszMenuName  = NULL;
+	wc.lpszClassName = XPOPUPMENUCLASS;
+	wc.hIconSm       = NULL;
+	RegisterClassEx(&wc);
+	//WNDCLASS wcpop;
+	//ZeroMemory(&wcpop, sizeof(WNDCLASS));
+	//wcpop.hInstance = GetModuleHandle(NULL);
+	//wcpop.lpszClassName = XPOPUPMENUCLASS;
+	//wcpop.lpfnWndProc = XPopupMenu::XPopupWinProc;
+	//RegisterClass(&wcpop);
 
 	DCX_DEBUG("LoadDLL", "Creating menu owner...");
-	mhMenuOwner = CreateWindow(XPOPUPMENUCLASS, NULL, 0, 0, 0, 0, 0, 0, 0, GetModuleHandle(NULL), 0);
+	mhMenuOwner = CreateWindow(XPOPUPMENUCLASS, NULL, 0, 0, 0, 0, 0, (isXP() ? HWND_MESSAGE : 0), 0, GetModuleHandle(NULL), 0);
 
 	g_mIRCPopupMenu = new XPopupMenu("mirc",(HMENU)NULL);
 	g_mIRCMenuBar = new XPopupMenu("mircbar",GetMenu(mIRCLink.m_mIRCHWND));

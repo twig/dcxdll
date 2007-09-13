@@ -416,9 +416,9 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			TBBUTTONINFO tbbi;
 			ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
 			tbbi.cbSize = sizeof( TBBUTTONINFO );
-			tbbi.dwMask = TBIF_LPARAM;
+			tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
 
-			if ( this->getButtonInfo( this->getIndexToCommand( nButton ), &tbbi ) ) {
+			if ( this->getButtonInfo( nButton /*this->getIndexToCommand( nButton )*/, &tbbi ) ) {
 
 				LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
 
@@ -462,10 +462,10 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		TBBUTTONINFO tbbi;
 		ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
 		tbbi.cbSize = sizeof( TBBUTTONINFO );
-		tbbi.dwMask = TBIF_IMAGE;
+		tbbi.dwMask = TBIF_IMAGE | TBIF_BYINDEX;
 		tbbi.iImage = iImage;
 
-		this->setButtonInfo( this->getIndexToCommand( nButton ), &tbbi );
+		this->setButtonInfo( nButton /*this->getIndexToCommand( nButton )*/, &tbbi );
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if ( flags.switch_flags[9] && numtok > 4 ) {
@@ -516,14 +516,14 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		int nButton = input.gettok( 4 ).to_int() -1;
 
 		if (nButton > -1 && nButton < this->getButtonCount()) {
-			int nIndex = this->getIndexToCommand(nButton) -1;
+			//int idButton = this->getIndexToCommand(nButton);
 			TBBUTTONINFO tbbi;
 
 			ZeroMemory(&tbbi, sizeof(TBBUTTONINFO));
 			tbbi.cbSize = sizeof(TBBUTTONINFO);
 			tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
 
-			if (this->getButtonInfo(nIndex, &tbbi) > -1) {
+			if (this->getButtonInfo(nButton, &tbbi) > -1) {
 				LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
 
 				if (numtok > 4)	// has a new tooltip
@@ -578,16 +578,6 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 				tbbi.pszText = lpdcxtbb->bText.to_chr();
 				this->setButtonInfo(nIndex, &tbbi);
 			}
-			//TString itemtext = "";
-			//if ( numtok > 4 )
-			//  itemtext = input.gettok( 5, -1 );
-
-			//TBBUTTONINFO tbbi;
-			//ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
-			//tbbi.cbSize = sizeof( TBBUTTONINFO );
-			//tbbi.dwMask = TBIF_TEXT;
-			//tbbi.pszText = itemtext.to_chr( );
-			//this->setButtonInfo( this->getIndexToCommand( nButton ), &tbbi );
 		}
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
@@ -596,7 +586,6 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
 		if (input.gettok( 4 )[0] != '+') {
 			this->showError(NULL, "-w", "Invalid Flags");
-			//DCXError("xdid -w", "Invalid Flags");
 			return;
 		}
 
