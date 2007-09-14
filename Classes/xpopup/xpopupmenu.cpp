@@ -771,6 +771,59 @@ COLORREF XPopupMenu::getColor(const int nColor ) const {
   }
 }
 
+void XPopupMenu::setDefaultColor(const int nColor ) {
+
+	switch ( nColor ) {
+
+		case 1:
+			this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
+			break;
+
+		case 2:
+			this->m_MenuColors.m_clrBox = RGB( 184, 199, 146 );
+			break;
+
+		case 3:
+			this->m_MenuColors.m_clrCheckBox = RGB( 255, 128, 0 );
+			break;
+
+		case 4:
+			this->m_MenuColors.m_clrDisabledCheckBox = RGB( 200, 200, 200 );
+			break;
+
+		case 5:
+			this->m_MenuColors.m_clrDisabledSelection = RGB( 255, 255, 255 );
+			break;
+
+		case 6:
+			this->m_MenuColors.m_clrDisabledText = RGB( 128, 128, 128 );
+			break;
+
+		case 7:
+			this->m_MenuColors.m_clrSelection = RGB( 255, 229, 179 );
+			break;
+
+		case 8:
+			this->m_MenuColors.m_clrSelectionBorder = RGB( 0, 0, 0 );
+			break;
+
+		case 9:
+			this->m_MenuColors.m_clrSeparatorLine = RGB( 128, 128, 128 );
+			break;
+
+		case 10:
+			this->m_MenuColors.m_clrText = RGB( 0, 0, 0 );
+			break;
+
+		case 11:
+			this->m_MenuColors.m_clrSelectedText = RGB( 0, 0, 0 );
+			break;
+
+		default:
+			break;
+	}
+}
+
 /*!
  * \brief blah
  *

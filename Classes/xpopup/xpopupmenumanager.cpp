@@ -192,19 +192,22 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 			DCXError("/xpopup -i","Unable to Access File");
 	}
 	// xpopup -j -> [MENU] [SWITCH]
-  else if ( flags.switch_flags[9] ) {
+	else if ( flags.switch_flags[9] ) {
 
-    p_Menu->destroyImageList( );
-  }
-  // xpopup -l -> [MENU] [SWITCH] [N] [COLOR]
-  else if ( flags.switch_flags[11] && numtok > 3 ) {
+		p_Menu->destroyImageList( );
+	}
+	// xpopup -l -> [MENU] [SWITCH] [N] [COLOR | default]
+	else if ( flags.switch_flags[11] && numtok > 3 ) {
 
-    int nColor = input.gettok( 3 ).to_int( );
-    COLORREF clrColor = (COLORREF)input.gettok( 4 ).to_num( );
+		int nColor = input.gettok( 3 ).to_int( );
+		TString clr(input.gettok( 4 ));
 
-    p_Menu->setColor( nColor, clrColor );
-  }
-  // xpopup -m -> mirc -m
+		if (clr == "default")
+			p_Menu->setDefaultColor( nColor );
+		else
+			p_Menu->setColor( nColor, (COLORREF)clr.to_num( ) );
+	}
+	// xpopup -m -> mirc -m
   else if ( flags.switch_flags[12] && numtok == 2 && input.gettok( 1 ) == "mirc") {
 		if (!this->m_bPatched && mIRCLink.m_bmIRCSixPointTwoZero) {
 			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
@@ -351,14 +354,25 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
   int numtok = input.numtok( );
   TString prop(input.gettok( 2 ));
 
-  XPopupMenu * p_Menu;
-  if ( ( p_Menu = this->getMenuByName( input.gettok( 1 ) ) ) == NULL && prop != "ismenu" ) {
+  XPopupMenu * p_Menu = NULL;
+	if ( prop != "ismenu") {
+		// Special mIRC Menu
+		if ( input.gettok( 1 ) == "mirc" ) {
 
-    TString error;
-    error.sprintf("\"%s\" doesn't exist, see /xpopup -c", input.gettok( 1 ).to_chr( ) );
-		DCXError("$!xpopup()", error.to_chr());
-    return;
-  }
+			p_Menu = g_mIRCPopupMenu;
+		}
+		else if ( input.gettok( 1 ) == "mircbar" ) {
+
+			p_Menu = g_mIRCMenuBar;
+		}
+		else if ( ( p_Menu = this->getMenuByName( input.gettok( 1 ) ) ) == NULL ) {
+
+			TString error;
+			error.sprintf("\"%s\" doesn't exist, see /xpopup -c", input.gettok( 1 ).to_chr( ) );
+			DCXError("$!xpopup()", error.to_chr());
+			return;
+		}
+	}
 
   if ( prop == "ismenu" ) {
 

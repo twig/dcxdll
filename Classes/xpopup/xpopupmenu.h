@@ -100,6 +100,7 @@ public:
   LPXPMENUCOLORS getColors( ) const;
   void setColor( const int nColor, const COLORREF clrColor );
   COLORREF getColor( const int nColor ) const;
+	void setDefaultColor(const int nColor);
 
   static LRESULT CALLBACK XPopupMenuProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
   static LRESULT CALLBACK XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
