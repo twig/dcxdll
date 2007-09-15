@@ -223,7 +223,10 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 
     while ( i <= len ) {
 
-      p_Menu->setColor( i, (COLORREF)colors.gettok( i ).to_num( ) );
+			if (colors.gettok( i ) == "default")
+				p_Menu->setDefaultColor( i );
+			else
+	      p_Menu->setColor( i, (COLORREF)colors.gettok( i ).to_num( ) );
       ++i;
     }
   }
@@ -235,7 +238,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
     int y = input.gettok( 5 ).to_int( );
     
 		/*
-			TODO: Add offsetting for multiple monitor based on supplied hwnd this menu is to be associated with
+			Add offsetting for multiple monitor based on supplied hwnd this menu is to be associated with
 		*/
 		HWND hTrack = (HWND)input.gettok( 6 ).to_num();
 
