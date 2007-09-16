@@ -354,35 +354,31 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 
 void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( );
-  TString prop(input.gettok( 2 ));
+	int numtok = input.numtok( );
+	TString prop(input.gettok( 2 ));
 
-  XPopupMenu * p_Menu = NULL;
-	if ( prop != "ismenu") {
-		// Special mIRC Menu
-		if ( input.gettok( 1 ) == "mirc" ) {
+	XPopupMenu * p_Menu = NULL;
+	// Special mIRC Menu
+	if ( input.gettok( 1 ) == "mirc" )
+		p_Menu = g_mIRCPopupMenu;
+	else if ( input.gettok( 1 ) == "mircbar" )
+		p_Menu = g_mIRCMenuBar;
+	else
+		p_Menu = this->getMenuByName( input.gettok( 1 ) );
 
-			p_Menu = g_mIRCPopupMenu;
-		}
-		else if ( input.gettok( 1 ) == "mircbar" ) {
-
-			p_Menu = g_mIRCMenuBar;
-		}
-		else if ( ( p_Menu = this->getMenuByName( input.gettok( 1 ) ) ) == NULL ) {
-
-			TString error;
-			error.sprintf("\"%s\" doesn't exist, see /xpopup -c", input.gettok( 1 ).to_chr( ) );
-			DCXError("$!xpopup()", error.to_chr());
-			return;
-		}
+	if ((p_Menu == NULL) && (prop != "ismenu")) {
+		TString error;
+		error.sprintf("\"%s\" doesn't exist, see /xpopup -c", input.gettok( 1 ).to_chr( ) );
+		DCXError("$!xpopup()", error.to_chr());
+		return;
 	}
 
-  if ( prop == "ismenu" ) {
+	if ( prop == "ismenu" ) {
 
-    lstrcpy( szReturnValue, (p_Menu != NULL)?"$true":"$false" );
-    return;
-  }
-  else if ( prop == "style" ) {
+		lstrcpy( szReturnValue, (p_Menu != NULL)?"$true":"$false" );
+		return;
+	}
+	else if ( prop == "style" ) {
 
 		switch (p_Menu->getStyle( )) {
 			case XPopupMenu::XPMS_OFFICE2003:
@@ -422,40 +418,40 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 				lstrcpy( szReturnValue, "unknown" );
 				break;
 		}
-    return;
-  }
-  else if ( prop == "exstyle" ) {
+		return;
+	}
+	else if ( prop == "exstyle" ) {
 
-    TString styles("+");
-    UINT iExStyles = p_Menu->getItemStyle( );
+		TString styles("+");
+		UINT iExStyles = p_Menu->getItemStyle( );
 
-    if ( iExStyles & XPS_ICON3D )
-      styles += 'i';
-    else if ( iExStyles & XPS_DISABLEDSEL )
-      styles += 'd';
-    else if ( iExStyles & XPS_ICON3DSHADOW )
-      styles += 'p';
+		if ( iExStyles & XPS_ICON3D )
+			styles += 'i';
+		else if ( iExStyles & XPS_DISABLEDSEL )
+			styles += 'd';
+		else if ( iExStyles & XPS_ICON3DSHADOW )
+			styles += 'p';
 
-    lstrcpy( szReturnValue, styles.to_chr( ) );
-    return;
-  }
-  else if ( prop == "colors" ) {
+		lstrcpy( szReturnValue, styles.to_chr( ) );
+		return;
+	}
+	else if ( prop == "colors" ) {
 
-    wsprintf( szReturnValue, "%ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", p_Menu->getColor( 1 ), p_Menu->getColor( 2 ),
-      p_Menu->getColor( 3 ), p_Menu->getColor( 3 ), p_Menu->getColor( 5 ), p_Menu->getColor( 6 ),
-      p_Menu->getColor( 7 ), p_Menu->getColor( 8 ), p_Menu->getColor( 9 ), p_Menu->getColor( 10 ) );
-    return;
+		wsprintf( szReturnValue, "%ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", p_Menu->getColor( 1 ), p_Menu->getColor( 2 ),
+			p_Menu->getColor( 3 ), p_Menu->getColor( 3 ), p_Menu->getColor( 5 ), p_Menu->getColor( 6 ),
+			p_Menu->getColor( 7 ), p_Menu->getColor( 8 ), p_Menu->getColor( 9 ), p_Menu->getColor( 10 ) );
+		return;
 
-  }
-  else if ( prop == "color" && numtok > 2 ) {
+	}
+	else if ( prop == "color" && numtok > 2 ) {
 
-    int nColor = input.gettok( 3 ).to_int( );
-    if ( nColor > 0 && nColor < 11 ) {
+		int nColor = input.gettok( 3 ).to_int( );
+		if ( nColor > 0 && nColor < 11 ) {
 
-      wsprintf( szReturnValue, "%ld", p_Menu->getColor( nColor ) );
-      return;
-    }
-  }
+			wsprintf( szReturnValue, "%ld", p_Menu->getColor( nColor ) );
+			return;
+		}
+	}
 	else if ( prop == "isrounded") {
 		if (p_Menu->IsRounded())
 			lstrcpy( szReturnValue, "$true");
@@ -467,7 +463,7 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 		wsprintf( szReturnValue, "%ld", p_Menu->IsAlpha());
 		return;
 	}
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
