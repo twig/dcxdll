@@ -1009,34 +1009,54 @@ mIRC(xdid) {
 
 	TString IDs(d.gettok( 2 )), d2;
 	DcxControl * p_Control;
-	int i = 1, n = IDs.numtok(TSCOMMA);
+	int n = IDs.numtok(TSCOMMA);
 
-	// Multiple IDs
+	// Multiple IDs id,id,id,id-id,id-id
 	if (n > 1) {
-		while (i <= n) {
-			p_Control = p_Dialog->getControlByID((UINT) IDs.gettok(i, TSCOMMA).to_int() + mIRC_ID_OFFSET);
+		for (int i = 1; i <= n; i++) {
+			TString tsID(IDs.gettok(i, TSCOMMA));
+			UINT id_start = 0, id_end = 0;
+			if (tsID.numtok("-") == 2) {
+				id_start = tsID.gettok(1, "-").to_int();
+				id_end = tsID.gettok(2, "-").to_int();
+			}
+			else
+				id_start = id_end = tsID.to_int();
+
+			for (UINT id = id_start; id <= id_end; id++) {
+				p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
+
+				if (p_Control == NULL) {
+					p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), "(xdid) Invalid ID : %ld (dialog : %s)", id, d.gettok( 1 ).to_chr());
+					return 0;
+				}
+
+				d2.sprintf("%s %ld %s",d.gettok( 1 ).to_chr(), id, d.gettok(3, -1).to_chr());
+
+				p_Control->parseCommandRequest(d2);
+			}
+		}
+	}
+	//Single ID or single id-id
+	else {
+		UINT id_start = 0, id_end = 0;
+		if (IDs.numtok("-") == 2) {
+			id_start = IDs.gettok(1, "-").to_int();
+			id_end = IDs.gettok(2, "-").to_int();
+		}
+		else
+			id_start = id_end = IDs.to_int();
+
+		for (UINT id = id_start; id <= id_end; id++) {
+			p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 			if (p_Control == NULL) {
-				p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), "(xdid) Invalid ID : %s (dialog : %s)", IDs.gettok(i, TSCOMMA).to_chr(), d.gettok( 1 ).to_chr());
+				p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), "(xdid) Invalid ID : %ld (dialog : %s)", id, d.gettok( 1 ).to_chr());
 				return 0;
 			}
 
-			d2 = d.gettok( 1 ) + " " + IDs.gettok(i, TSCOMMA) + " " + d.gettok(3, -1);
-
-			p_Control->parseCommandRequest(d2);
-			i++;
+			p_Control->parseCommandRequest(d);
 		}
-	}
-	//Single ID
-	else {
-		p_Control = p_Dialog->getControlByID((UINT) d.gettok( 2 ).to_int() + mIRC_ID_OFFSET);
-
-		if (p_Control == NULL) {
-			p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), "(xdid) Invalid ID : %s (dialog : %s)", d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
-			return 0;
-		}
-
-		p_Control->parseCommandRequest(d);
 	}
 
 	return 3;

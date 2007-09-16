@@ -624,7 +624,7 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
   if ( bHorz == TRUE )
     n = lprc->bottom - lprc->top - dy;
   else
-    n = lprc->right - lprc->left;
+    n = lprc->right - lprc->left - dy;
 
   RECT rc;
   HBRUSH hBrush;

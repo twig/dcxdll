@@ -595,8 +595,37 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				DeleteRgn(hRgn);
 				CloseThemeDataUx(hTheme);
 			}
-			else
-				CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+			else {
+				//CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				UINT iState = DFCS_BUTTONPUSH|DFCS_ADJUSTRECT;
+				RECT rc = rcClient;
+				switch (nState)
+				{
+				case 1:
+					iState |= DFCS_HOT;
+					break;
+				case 2:
+					iState |= DFCS_PUSHED;
+					break;
+				case 3:
+					iState |= DFCS_INACTIVE;
+					break;
+				default:
+					break;
+				}
+				DrawFrameControl(hdc, &rc, DFC_BUTTON, iState);
+				if (this->m_bGradientFill) {
+					COLORREF clrStart = this->m_clrStartGradient;
+					COLORREF clrEnd = this->m_clrEndGradient;
+
+					if (clrStart == CLR_INVALID)
+						clrStart = GetSysColor(COLOR_3DFACE);
+					if (clrEnd == CLR_INVALID)
+						clrEnd = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
+
+					XPopupMenuItem::DrawGradient( hdc, &rc, clrStart, clrEnd, this->m_bGradientVertical);
+				}
+			}
 		}
 
 		HFONT hFontOld = SelectFont( hdc, this->m_hFont );
@@ -618,25 +647,10 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		int iTextW = ( rcTxt.right - rcTxt.left );
 		int iTextH = ( rcTxt.bottom - rcTxt.top );
 
-		int iIconLeft = 0;
-		int iIconTop = 0;
-
-		rcTxt.left = iCenter - iTextW / 2;
-		rcTxt.top = iVCenter - iTextH / 2;
-
-		if ( rcTxt.left < BUTTON_XPAD )
-			rcTxt.left = BUTTON_XPAD;
-
-		if ( rcTxt.top < BUTTON_YPAD )
-			rcTxt.top = BUTTON_YPAD;
-
-		rcTxt.right = rcClient.right - BUTTON_XPAD;
-		rcTxt.bottom = rcClient.bottom - BUTTON_YPAD;
-
 		// If there is an icon
 		if (himl != NULL && this->m_bHasIcons) {
-			iIconLeft = iCenter - (this->m_iIconSize + ICON_XPAD + iTextW) / 2;
-			iIconTop = iVCenter - this->m_iIconSize / 2;
+			int iIconLeft = iCenter - (this->m_iIconSize + ICON_XPAD + iTextW) / 2;
+			int iIconTop = iVCenter - this->m_iIconSize / 2;
 
 			if (iIconLeft < BUTTON_XPAD)
 				iIconLeft = BUTTON_XPAD;
@@ -646,15 +660,28 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 			rcTxt.left = iIconLeft + this->m_iIconSize + ICON_XPAD;
 
-			if (IsWindowEnabled(this->m_Hwnd) == FALSE)
+			if (nState == 3) // disabled
 				ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT | ILD_BLEND50);
 			else
 				ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT);
 		}
+		else {
+			rcTxt.left = iCenter - iTextW / 2;
+			if ( rcTxt.left < BUTTON_XPAD )
+				rcTxt.left = BUTTON_XPAD;
+		}
 
-		if ( this->m_tsCaption.len( ) > 0 ) {
+		if ( iTextW > 0 ) {
+			rcTxt.top = iVCenter - iTextH / 2;
+
+			if ( rcTxt.top < BUTTON_YPAD )
+				rcTxt.top = BUTTON_YPAD;
+
+			rcTxt.right = rcClient.right - BUTTON_XPAD;
+			rcTxt.bottom = rcClient.bottom - BUTTON_YPAD;
+
 			if (!this->m_bCtrlCodeText) {
-				if (!this->m_bSelected && this->m_bShadowText) // could cause problems with pre-XP as this is commctrl v6+
+				if (!this->m_bSelected && this->m_bShadowText)
 					dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(), this->m_tsCaption.len(),&rcTxt,
 						DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
 				else
