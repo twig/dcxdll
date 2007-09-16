@@ -70,6 +70,9 @@ public:
 	const char *bgcolour;
 	const char *textbgcolour;
 	const char *textcolour;
+	const char *disabledsrc;
+	const char *hoversrc;
+	const char *selectedsrc;
 
 	TiXmlElement* templateRef;
 	int templateRefcCla;
@@ -133,6 +136,9 @@ public:
 		bgcolour = (temp = element->Attribute("bgcolour")) ? temp : "0";
 		textbgcolour = (temp = element->Attribute("textbgcolour")) ? temp : "";
 		textcolour = (temp = element->Attribute("textcolour")) ? temp : "0";
+		disabledsrc = (temp = element->Attribute("disabledsrc")) ? temp : "";
+		hoversrc = (temp = element->Attribute("hoversrc")) ? temp : "";
+		selectedsrc = (temp = element->Attribute("selectedsrc")) ? temp : "";
 	}
 	void parseAttributes(TiXmlElement* element) {
 		elem = element->Value();
@@ -168,9 +174,9 @@ public:
 		bgcolour = (temp = element->Attribute("bgcolour")) ? temp : "0";
 		textbgcolour = (temp = element->Attribute("textbgcolour")) ? temp : "";
 		textcolour = (temp = element->Attribute("textcolour")) ? temp : "0";
-	}
-	void setIconSize() {
-
+		disabledsrc = (temp = element->Attribute("disabledsrc")) ? temp : "";
+		hoversrc = (temp = element->Attribute("hoversrc")) ? temp : "";
+		selectedsrc = (temp = element->Attribute("selectedsrc")) ? temp : "";
 	}
 	/* parseControl() : if current element is a control perform some extra commands*/
 	void parseControl() { 
@@ -267,6 +273,8 @@ public:
 			xdidEX(id,"-l","%s",cells);
 			parseItems(element);
 		}
+		disabledsrc = (temp = element->Attribute("disabledsrc")) ? temp : "";
+		hoversrc = (temp = element->Attribute("hoversrc")) ? temp : "";
 	}
 	void xdialogEX(const char *sw,const char *dFormat, ...) { 
 			va_list args;
@@ -303,10 +311,11 @@ public:
 			const char * fixed = "l";
 			if (element->Attribute("height")) { fHeigth = "v"; fixed = "f"; weigth = "0"; }
 			if (element->Attribute("width")) { fWidth = "h"; fixed = "f"; weigth = "0"; }
-			if (0==lstrcmp(parentelem, "dialog")) 
+			if (0==lstrcmp(parentelem, "dialog"))
+			{
 				xdialogEX("-l","cell %s \t +%s%s%si %i %s %s %s",
-					g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
-
+					g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height);
+			}
 			else if (0==lstrcmp(parentelem, "control")) {
 				if ((parent->Attribute("type")) && (parentid)) {
 					if (0==lstrcmp(parent->Attribute("type"), "panel")) { 
@@ -321,16 +330,17 @@ public:
 			}
 		}
 		else if (0==lstrcmp(elem, "pane")) {
-				if (0==lstrcmp(parentelem, "dialog"))
-					xdialogEX("-l","cell %s \t +p%s 0 %s 0 0",g_claPath,cascade,weigth);
-				if (0==lstrcmp(parentelem, "control")) {
-					if ((parenttype) && (parentid)) {
-						if (0==lstrcmp(parenttype, "panel"))
-							xdidEX(parentid,"-l","cell %s \t +p%s 0 %s 0 0",g_claPath,cascade,weigth);
-						else if (0==lstrcmp(parenttype, "box"))
-							xdidEX(parentid,"-l","cell %s \t +p%s 0 %s 0 0",g_claPath,cascade,weigth);
-					}
+			if (0==lstrcmp(parentelem, "dialog")) { 
+				xdialogEX("-l","cell %s \t +p%s 0 %s 0 0",g_claPath,cascade,weigth);
+			}
+			if (0==lstrcmp(parentelem, "control")) {
+				if ((parenttype) && (parentid)) {
+					if (0==lstrcmp(parenttype, "panel"))
+						xdidEX(parentid,"-l","cell %s \t +p%s 0 %s 0 0",g_claPath,cascade,weigth);
+					else if (0==lstrcmp(parenttype, "box"))
+						xdidEX(parentid,"-l","cell %s \t +p%s 0 %s 0 0",g_claPath,cascade,weigth);
 				}
+			}
 		}
 		char buffer [100];
 		const char * claPathx = 0;
@@ -346,35 +356,31 @@ public:
 			wsprintf (buffer, "%s %i",g_claPath,cCla);
 			claPathx = buffer;
 		}
-		/*
 		if (element->Attribute("margin")) {
 			if (0==lstrcmp(parentelem, "dialog"))
-				mIRCcomEX("//xdialog -l %s space %s \t + %s", dname.to_chr(),claPathx,margin);
-			else 
-				mIRCcomEX("//xdid -l %s %i space %s \t + %s", dname.to_chr(),id,claPathx,margin);
-	
+				xdialogEX("-l","space %s \t + %s",claPathx,margin);
+			else xdidEX(parentid,"-l","space %s \t + %s",g_claPath,margin);
 		}
-		*/
 		g_resetcla = 0;
 		return TString(claPathx);
 	}
 	void setStyle(TiXmlElement* style) {
 		//font
-		const char *fontstyle = (temp = style->Attribute("fontstyle")) ? temp : "d";
-		const char *charset = (temp = style->Attribute("charset")) ? temp : "ansi";
-		const char *fontsize = (temp = style->Attribute("fontsize")) ? temp : "";
-		const char *fontname = (temp = style->Attribute("fontname")) ? temp : "";
+		fontstyle = (temp = style->Attribute("fontstyle")) ? temp : "d";
+		charset = (temp = style->Attribute("charset")) ? temp : "ansi";
+		fontsize = (temp = style->Attribute("fontsize")) ? temp : "";
+		fontname = (temp = style->Attribute("fontname")) ? temp : "";
 		if ((style->Attribute("fontsize")) || (style->Attribute("fontname")))
 			xdidEX(id,"-f","+%s %s %s %s",
 				fontstyle,charset,fontsize,fontname);
 		//border
-		const char *border = (temp = style->Attribute("border")) ? temp : "";
+		border = (temp = style->Attribute("border")) ? temp : "";
 		if (style->Attribute("border")) xdidEX(id,"-x","+%s",border);
 		//colours
-		const char *cursor = (temp = style->Attribute("cursor")) ? temp : "arrow";
-		const char *bgcolour = (temp = style->Attribute("bgcolour")) ? temp : "";
-		const char *textbgcolour = (temp = style->Attribute("textbgcolour")) ? temp : "";
-		const char *textcolour = (temp = style->Attribute("textcolour")) ? temp : "";
+		cursor = (temp = style->Attribute("cursor")) ? temp : "arrow";
+		bgcolour = (temp = style->Attribute("bgcolour")) ? temp : "";
+		textbgcolour = (temp = style->Attribute("textbgcolour")) ? temp : "";
+		textcolour = (temp = style->Attribute("textcolour")) ? temp : "";
 		if (style->Attribute("bgcolour")) { 
 			xdidEX(id,"-C","+b %s",bgcolour);
 			if (0==lstrcmp(type, "pbar")) xdidEX(id,"-U","%s","");
@@ -393,6 +399,26 @@ public:
 				|| (0==lstrcmp(type, "treeview"))) 
 			{ 
 				xdidEX(id,"-l","%s",iconsize);
+			}
+		}
+		if (0==lstrcmp(type, "button"))
+		{
+			if (!element->Attribute("bgcolour")) bgcolour = "65280";
+			if (src)
+			{
+				xdidEX(id,"-k","+n %s %s",bgcolour,src);
+			}
+			if (disabledsrc)
+			{
+				xdidEX(id,"-k","+n %s %s",bgcolour,disabledsrc);
+			}
+			if (hoversrc)
+			{
+				xdidEX(id,"-k","+n %s %s",bgcolour,hoversrc);
+			}
+			if (selectedsrc)
+			{
+				xdidEX(id,"-k","+n %s %s",bgcolour,hoversrc);
 			}
 		}
 	}
@@ -547,16 +573,19 @@ public:
 			//dont itterate over unneccessary items
 			if (0==lstrcmp(elem, "calltemplate")) 
 			{
-				cCla++;
-				templateRef = element;
-				templateRefcCla = cCla;
-				char t_buffer [100];
-				const char * t_claPathx = 0;
-				wsprintf (t_buffer, "%i",cCla);
-				t_claPathx = t_buffer;
-				templateRefclaPath = t_claPathx;
-				parseTemplate(depth,claPath,passedid);
-				templateRef = 0;
+				if (0!=lstrcmp("template",element->Parent()->ToElement()->Value()))
+				{
+					cCla++;
+					templateRef = element;
+					templateRefcCla = cCla;
+					char t_buffer [100];
+					const char * t_claPathx = 0;
+					wsprintf (t_buffer, "%i",cCla);
+					t_claPathx = t_buffer;
+					templateRefclaPath = t_claPathx;
+					parseTemplate(depth,claPath,passedid);
+					templateRef = 0;
+				}
 				continue;
 			}
 			if ((0==lstrcmp(elem, "control")) || (0==lstrcmp(elem, "pane"))) cCla++;
@@ -577,7 +606,6 @@ public:
 					parentelem = templateRef->Parent()->Value();
 					cCla = templateRefcCla;
 					claPath = templateRefclaPath;
-					mIRCcomEX("//echo -a sakasjd a %s %i %s", parentelem,cCla,claPath);
 				}
 				if (0==lstrcmp(parentelem, "pane")) 
 				{ 
