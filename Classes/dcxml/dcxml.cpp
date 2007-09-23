@@ -404,19 +404,19 @@ public:
 		if (0==lstrcmp(type, "button"))
 		{
 			if (!element->Attribute("bgcolour")) bgcolour = "65280";
-			if (src)
+			if (element->Attribute("src"))
 			{
 				xdidEX(id,"-k","+n %s %s",bgcolour,src);
 			}
-			if (disabledsrc)
+			if (element->Attribute("disabledsrc"))
 			{
 				xdidEX(id,"-k","+n %s %s",bgcolour,disabledsrc);
 			}
-			if (hoversrc)
+			if (element->Attribute("hoversrc"))
 			{
 				xdidEX(id,"-k","+n %s %s",bgcolour,hoversrc);
 			}
-			if (selectedsrc)
+			if (element->Attribute("selectedsrc"))
 			{
 				xdidEX(id,"-k","+n %s %s",bgcolour,hoversrc);
 			}
