@@ -251,7 +251,14 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 
 		REBARBANDINFO rbBand;
 		ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
+#ifdef DCX_USE_WINSDK
+		if (mIRCLink.m_bVista) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
+			rbBand.cbSize = sizeof( REBARBANDINFO );
+		else
+			rbBand.cbSize = REBARBANDINFO_V6_SIZE;
+#else
 		rbBand.cbSize = sizeof( REBARBANDINFO );
+#endif
 		rbBand.fMask = RBBIM_STYLE | RBBIM_LPARAM;
 
 		TString data(input.gettok( 1, TSTAB ));
