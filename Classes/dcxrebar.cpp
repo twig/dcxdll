@@ -36,20 +36,32 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles | WS_EX_CONTROLPARENT, 
-    DCX_REBARCTRLCLASS, 
+  this->m_Hwnd = CreateWindowEx(
+    ExStyles | WS_EX_CONTROLPARENT,
+    DCX_REBARCTRLCLASS,
     NULL,
-    WS_CHILD | Styles, 
+    WS_CHILD | Styles,
     rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
     mParentHwnd,
     (HMENU) ID,
-    GetModuleHandle(NULL), 
+    GetModuleHandle(NULL),
     NULL);
 
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	//if (!IsWindow(this->m_Hwnd))
+	//	throw "Unable To Create Window";
 
+	if ( bNoTheme ) {
+		//SendMessage( this->m_Hwnd, RB_SETWINDOWTHEME, NULL, L" ");
+    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	}
+	{
+		this->setImageList( this->createImageList() );
+		//REBARINFO rbi;
+		//rbi.cbSize = sizeof(REBARINFO);
+		//rbi.fMask = 0;
+		//rbi.himl = NULL;
+		//this->setBarInfo( &rbi );
+	}
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -234,37 +246,46 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 
   int numtok = input.numtok( );
 
-  // xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] [Item Text][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB]Tooltip
-  if ( flags.switch_flags[0] && numtok > 9 ) {
+	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] [Item Text][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB]Tooltip
+	if ( flags.switch_flags[0] && numtok > 9 ) {
 
-    REBARBANDINFO rbBand;
-    ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
-    rbBand.cbSize = sizeof( REBARBANDINFO );
-    rbBand.fMask = RBBIM_STYLE | RBBIM_LPARAM;
+		REBARBANDINFO rbBand;
+		ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
+		rbBand.cbSize = sizeof( REBARBANDINFO );
+		rbBand.fMask = RBBIM_STYLE | RBBIM_LPARAM;
 
-    TString data(input.gettok( 1, TSTAB ));
-    data.trim( );
+		TString data(input.gettok( 1, TSTAB ));
+		data.trim( );
 
-    TString control_data;
-    if ( input.numtok( TSTAB ) > 1 ) {
+		TString control_data;
+		if ( input.numtok( TSTAB ) > 1 ) {
 
-      control_data = input.gettok( 2, TSTAB );
-      control_data.trim( );
-    }
+			control_data = input.gettok( 2, TSTAB );
+			control_data.trim( );
+		}
 
-    TString tooltip;
-    if ( input.numtok( TSTAB ) > 2 ) {
+		TString tooltip;
+		if ( input.numtok( TSTAB ) > 2 ) {
 
-      tooltip = input.gettok( 3, TSTAB );
-      tooltip.trim( );
-    }
+			tooltip = input.gettok( 3, TSTAB );
+			tooltip.trim( );
+		}
 
-    //int nIndex = data.gettok( 4 ).to_int( ) - 1;
-    int cx = data.gettok( 6 ).to_int( );
-    int cy = data.gettok( 7 ).to_int( );
-    int width = data.gettok( 8 ).to_int( );
-    int nIcon = data.gettok( 9 ).to_int( ) - 1;
-    COLORREF clrText = (COLORREF)data.gettok( 10 ).to_num( );
+		int nIndex = data.gettok( 4 ).to_int( ) - 1;
+		int cx = data.gettok( 6 ).to_int( );
+		int cy = data.gettok( 7 ).to_int( );
+		int width = data.gettok( 8 ).to_int( );
+		int nIcon = data.gettok( 9 ).to_int( ) - 1;
+		COLORREF clrText = (COLORREF)data.gettok( 10 ).to_num( );
+
+		if (nIndex < -1)
+			nIndex = -1;
+
+		rbBand.cxMinChild = cx;
+		rbBand.cyMinChild = cy;
+		rbBand.cx = width;
+		rbBand.cyIntegral = 1;
+		rbBand.cyChild = cy;
 
 		TString itemtext;
 		if ( data.numtok( ) > 10 ) {
@@ -272,43 +293,45 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 			itemtext.trim();
 			rbBand.fMask |= RBBIM_TEXT;
 			rbBand.lpText = itemtext.to_chr( );
+			//rbBand.cch = itemtext.len();
 		}
 
-    rbBand.fStyle = this->parseBandStyleFlags( data.gettok( 5 ) );
+		rbBand.fStyle = this->parseBandStyleFlags( data.gettok( 5 ) );
 
-    // Tooltip Handling
-    LPDCXRBBAND lpdcxrbb = new DCXRBBAND;
+		// Tooltip Handling
+		LPDCXRBBAND lpdcxrbb = new DCXRBBAND;
 
-    if ( rbBand.fStyle & RBBS_UNDERLINE )
-      lpdcxrbb->bUline = TRUE;
-    else
-      lpdcxrbb->bUline = FALSE;
+		if ( rbBand.fStyle & RBBS_UNDERLINE )
+			lpdcxrbb->bUline = TRUE;
+		else
+			lpdcxrbb->bUline = FALSE;
 
-    if ( rbBand.fStyle & RBBS_BOLD )
-      lpdcxrbb->bBold = TRUE;
-    else
-      lpdcxrbb->bBold = FALSE;
+		if ( rbBand.fStyle & RBBS_BOLD )
+			lpdcxrbb->bBold = TRUE;
+		else
+			lpdcxrbb->bBold = FALSE;
 
-    if ( rbBand.fStyle & RBBS_COLOR )
-      lpdcxrbb->clrText = clrText;
-    else
-      lpdcxrbb->clrText = -1;
+		if ( rbBand.fStyle & RBBS_COLOR )
+			lpdcxrbb->clrText = clrText;
+		else
+			lpdcxrbb->clrText = -1;
 
-    if ( nIcon > -1 ) {
-      rbBand.iImage = nIcon;
-      rbBand.fMask |= RBBIM_IMAGE;
-    }
+		if ( nIcon > -1 ) {
+			rbBand.iImage = nIcon;
+			rbBand.fMask |= RBBIM_IMAGE;
+		}
 
-    rbBand.lParam = (LPARAM) lpdcxrbb;
+		rbBand.lParam = (LPARAM) lpdcxrbb;
 
-    if ( control_data.numtok( ) > 5 ) {
-      UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1 ).to_int( );
+		DcxControl * p_Control = NULL;
+		if ( control_data.numtok( ) > 5 ) {
+			UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1 ).to_int( );
 
-      if ( ID > mIRC_ID_OFFSET - 1 && 
-        !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
-        this->m_pParentDialog->getControlByID( ID ) == NULL ) 
-      {
-				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
+			if ( ID > mIRC_ID_OFFSET - 1 && 
+				!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
+				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
+			{
+				p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
 					CTLF_ALLOW_TRACKBAR |
 					CTLF_ALLOW_PBAR |
 					CTLF_ALLOW_COMBOEX |
@@ -328,20 +351,41 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 					if ((p_Control->getType() == "statusbar") || (p_Control->getType() == "toolbar"))
 						p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
 					this->m_pParentDialog->addControl( p_Control );
-					rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE;
+					rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE | RBBIM_ID;
 					rbBand.hwndChild = p_Control->getHwnd( );
-					rbBand.cxMinChild = cx;
-					rbBand.cyMinChild = cy;
-					rbBand.cx = width;
+					//rbBand.cxMinChild = cx;
+					//rbBand.cyMinChild = cy;
+					//rbBand.cx = width;
+					//rbBand.cyIntegral = 1;
+					//rbBand.cyChild = cy;
+					rbBand.wID = ID;
 				}
-      }
-      else
+			}
+			else {
 				this->showErrorEx(NULL, "-a", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-    }
-  
-    this->insertBand( -1, &rbBand );
-  }
-  // xdid -d [NAME] [ID] [SWITCH] [N]
+				delete lpdcxrbb;
+				return;
+			}
+		}
+
+		//LRESULT lRes;
+		//rbBand.cbSize = sizeof(REBARBANDINFO);
+		//rbBand.fMask = RBBIM_LPARAM|RBBIM_TEXT;
+		//rbBand.cch = itemtext.len();
+		//rbBand.lpText = itemtext.to_chr();
+		////this->insertBand( nIndex, &rbBand );
+		//lRes = SendMessage(this->m_Hwnd, RB_INSERTBAND, (WPARAM)-1, (LPARAM)&rbBand);
+		//mIRCDebug("res: %ld", lRes);
+		if (this->insertBand( nIndex, &rbBand ) == 0L) { // 0L means failed.
+			this->showError(NULL, "-a", "Unable To Add Band");
+			if (p_Control != NULL) {
+				this->m_pParentDialog->deleteControl(p_Control);
+				DestroyWindow(rbBand.hwndChild);
+			}
+			delete lpdcxrbb;
+		}
+	}
+	// xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags.switch_flags[3] && numtok > 3 ) {
 
     int nIndex = input.gettok( 4 ).to_int( ) - 1;
@@ -572,7 +616,7 @@ void DcxReBar::resetContents( ) {
  * blah
  */
 
-UINT DcxReBar::parseBandStyleFlags( TString & flags ) {
+UINT DcxReBar::parseBandStyleFlags( const TString & flags ) {
 
   INT i = 1, len = flags.len( ), iFlags = 0;
 
@@ -600,6 +644,8 @@ UINT DcxReBar::parseBandStyleFlags( TString & flags ) {
       iFlags |= RBBS_USECHEVRON;
     else if ( flags[i] == 'u' )
       iFlags |= RBBS_UNDERLINE;
+    else if ( flags[i] == 'v' )
+      iFlags |= RBBS_VARIABLEHEIGHT;
     else if ( flags[i] == 'w' )
       iFlags |= RBBS_BREAK;
 

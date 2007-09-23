@@ -291,22 +291,23 @@ void DcxDialog::PreloadData() {
  * blah
  */
 void DcxDialog::parseCommandRequestEX(const char *szFormat, ...) {
+	TString msg((UINT)2048);
 	va_list args;
 	va_start(args, szFormat);
-	char msg[2048];
-	vsprintf(msg, szFormat, args);
-	this->parseCommandRequest(TString(msg));
+	vsprintf(msg.to_chr(), szFormat, args);
+	this->parseCommandRequest(msg);
 	va_end(args);
 }
 void DcxDialog::parseComControlRequestEX(int id, const char *szFormat, ...) {
-	DcxControl * p_Control;
-	p_Control = this->getControlByID((UINT) id + mIRC_ID_OFFSET);
-	va_list args;
-	va_start(args, szFormat);
-	char msg[2048];
-	vsprintf(msg, szFormat, args);
-	p_Control->parseCommandRequest(TString(msg));
-	va_end(args);
+	DcxControl * p_Control = this->getControlByID((UINT) id + mIRC_ID_OFFSET);
+	if (p_Control != NULL) {
+		TString msg((UINT)2048);
+		va_list args;
+		va_start(args, szFormat);
+		vsprintf(msg.to_chr(), szFormat, args);
+		p_Control->parseCommandRequest(msg);
+		va_end(args);
+	}
 }
 
 

@@ -87,7 +87,7 @@ public:
 
 protected:
 
-  static UINT parseBandStyleFlags( TString & flags );
+  static UINT parseBandStyleFlags( const TString & flags );
 
   int m_iClickedBand;  //!< Last LClicked Band Number
   int m_iRowLimit;       //!< Rebar Band Row/Column Limit
