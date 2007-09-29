@@ -11,15 +11,16 @@
 #define DOCK_TYPE_TREE		0x02
 #define DOCK_TYPE_MDI			0x03
 
-#define DOCKF_NORMAL	0x01	//!< No special flags.
-#define DOCKF_AUTOH		0x02	//!< Auto Horizontal size.
-#define DOCKF_AUTOV		0x04	//!< Auto Vertical size.
-#define DOCKF_SIZE		0x08	//!< Auto Horizontal & Vertical size.
-#define DOCKF_LEFT		0x10  //!< Dock to left. (UltraDock)
-#define DOCKF_RIGHT		0x20	//!< Dock to right. (UltraDock)
-#define DOCKF_TOP			0x40	//!< Dock to top. (UltraDock)
-#define DOCKF_BOTTOM	0x80	//!< Dock to bottom. (UltraDock)
-#define DOCKF_NOSCROLLBARS	0x100	//!< Disable parenst scrollbars.
+#define DOCKF_NORMAL					0x001	//!< No special flags.
+#define DOCKF_AUTOH						0x002	//!< Auto Horizontal size.
+#define DOCKF_AUTOV						0x004	//!< Auto Vertical size.
+#define DOCKF_SIZE						0x008	//!< Auto Horizontal & Vertical size.
+#define DOCKF_LEFT						0x010 //!< Dock to left. (UltraDock)
+#define DOCKF_RIGHT						0x020	//!< Dock to right. (UltraDock)
+#define DOCKF_TOP							0x040	//!< Dock to top. (UltraDock)
+#define DOCKF_BOTTOM					0x080	//!< Dock to bottom. (UltraDock)
+#define DOCKF_NOSCROLLBARS		0x100	//!< Disable parenst scrollbars.
+#define DOCKF_SHOWSCROLLBARS	0x200 //!< Stop the auto-sized window from covering the scrollbars of its parent.
 
 #define TREEBAR_COLOUR_SELECTED				0
 #define TREEBAR_COLOUR_SELECTED_BKG		1
@@ -65,21 +66,22 @@ public:
 	static void status_setBkColor(const COLORREF clr);
 	static void status_setParts( const int nParts, const LPINT aWidths );
 	static LRESULT status_getParts( const int nParts, LPINT aWidths );
-	static void status_setText( const int iPart, const int Style, const LPSTR lpstr );
-	static LRESULT status_getText( const int iPart, LPSTR lpstr );
+	static void status_setText( const int iPart, const int Style, const LPWSTR lpstr );
+	static LRESULT status_getText( const int iPart, LPWSTR lpstr );
 	static UINT status_getTextLength( const int iPart );
-	static void status_setTipText( const int iPart, const LPSTR lpstr );
-	static void status_getTipText( const int iPart, const int nSize, LPSTR lpstr );
+	static void status_setTipText( const int iPart, const LPWSTR lpstr );
+	static void status_getTipText( const int iPart, const int nSize, LPWSTR lpstr );
 	static void status_getRect( const int iPart, LPRECT lprc );
 	static void status_setIcon( const int iPart, const HICON hIcon );
 	static HICON status_getIcon( const int iPart );
 	static HIMAGELIST status_getImageList(void);
 	static void status_setImageList( HIMAGELIST himl );
 	static HIMAGELIST status_createImageList(void);
-	static UINT status_parseItemFlags( TString & flags );
+	static UINT status_parseItemFlags( const TString & flags );
 	static void status_cleanPartIcons( );
 	static LRESULT status_getBorders( LPINT aWidths );
 	static void status_updateParts(void);
+	static void status_setFont(HFONT f);
 	//
 	static int getPos(int x, int y, int w, int h);
 	//
@@ -101,6 +103,7 @@ public:
 	static INT g_iDynamicParts[256];
 	static INT g_iFixedParts[256];
 	static bool g_bTakeOverTreebar; //!< take over the drawing of the treebar from mIRC.
+	static HFONT g_StatusFont; //!< Statusbar font.
 	// 0 = selected, 1 = selected bkg, 2 = message, 3 = message bkg
 	// 4 = event, 5 = event bkg, 6 = highlight, 7 = highlight bkg
 	static COLORREF g_clrTreebarColours[8];

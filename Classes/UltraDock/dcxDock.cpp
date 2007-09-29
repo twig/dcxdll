@@ -12,6 +12,7 @@ INT DcxDock::g_iDynamicParts[256] = { 0 };
 INT DcxDock::g_iFixedParts[256] = { 0 };
 bool DcxDock::g_bTakeOverTreebar = false;
 COLORREF DcxDock::g_clrTreebarColours[8] = { 0 };
+HFONT DcxDock::g_StatusFont = NULL;
 
 DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 : m_OldRefWndProc(NULL)
@@ -300,7 +301,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 			break;
 		//case WM_PAINT:
 		//	{
-		//		if (pthis->m_iType == DOCK_TYPE_TREE) {
+		//		if ( pthis->m_iType == DOCK_TYPE_TREE && DcxDock::g_bTakeOverTreebar) {
 		//			PAINTSTRUCT ps;
 		//			RECT rcClient, rcParent;
 		//			HDC hdc, *hBuffer;
@@ -311,28 +312,32 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 		//			hdc = BeginPaint(mHwnd, &ps);
 
-		//			hBuffer = CreateHDCBuffer(hdc, &rcParent);
+		//			//hBuffer = CreateHDCBuffer(hdc, &rcParent);
 
-		//			SendMessage(mIRCLink.m_hTreebar, WM_PRINT, (WPARAM)*hBuffer, PRF_CLIENT);
+		//			////SendMessage(mIRCLink.m_hTreebar, WM_ERASEBKGND, (WPARAM)*hBuffer, NULL);
+		//			//SendMessage(mIRCLink.m_hTreebar, WM_PRINT, (WPARAM)*hBuffer, PRF_CLIENT|PRF_ERASEBKGND);
+		//			////SendMessage(mIRCLink.m_hTreebar, WM_PRINTCLIENT, (WPARAM)*hBuffer, PRF_CLIENT);
 
-		//			CopyRect(&rcParent, &rcClient);
-		//			MapWindowRect(mHwnd, mIRCLink.m_hTreebar, &rcParent);
+		//			//CopyRect(&rcParent, &rcClient);
+		//			//MapWindowRect(mHwnd, mIRCLink.m_hTreebar, &rcParent);
 
-		//			BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top), *hBuffer, rcParent.left, rcParent.top, SRCCOPY);
+		//			//BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top), *hBuffer, rcParent.left, rcParent.top, SRCCOPY);
 
-		//			DeleteHDCBuffer(hBuffer);
+		//			//DeleteHDCBuffer(hBuffer);
 
-		//			LRESULT lRes = CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, (WPARAM)hdc, lParam);
+		//			//LRESULT lRes = CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, (WPARAM)hdc, lParam);
 
 		//			EndPaint(mHwnd, &ps);
-		//			return lRes;
+		//			//return lRes;
+		//			return 0L;
 		//		}
 		//	}
 		//	break;
 		case WM_ERASEBKGND:
 			{
 				if ( pthis->m_iType == DOCK_TYPE_TREE && DcxDock::g_bTakeOverTreebar)
-					return FALSE; //DefWindowProc(mHwnd, uMsg, wParam, lParam);
+					return FALSE;
+					//return ((GetWindowLong(mHwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) ? TRUE : FALSE);
 			}
 			break;
 #ifndef NDEBUG
@@ -570,17 +575,19 @@ bool DcxDock::InitStatusbar(const TString &styles)
 
 	DcxDock::status_parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	g_StatusBar = CreateWindowEx(
+	g_StatusBar = CreateWindowExW(
 		ExStyles,
-		STATUSCLASSNAME,NULL,
+		STATUSCLASSNAMEW,NULL,
 		Styles,
 		0,0,0,0,mIRCLink.m_mIRCHWND,(HMENU)(mIRC_ID_OFFSET-1),NULL,NULL);
 
-	if ( bNoTheme )
-		dcxSetWindowTheme( g_StatusBar , L" ", L" " );
+	if (IsWindow(g_StatusBar)) {
+		if ( bNoTheme )
+			dcxSetWindowTheme( g_StatusBar , L" ", L" " );
 
-	if (IsWindow(g_StatusBar))
+		//SendMessage(g_StatusBar, SB_SETUNICODEFORMAT, TRUE, NULL);
 		return true;
+	}
 	return false;
 }
 
@@ -595,6 +602,10 @@ void DcxDock::UnInitStatusbar(void)
 	if (g_hImageList != NULL)
 		ImageList_Destroy( g_hImageList );
 	g_hImageList = NULL;
+
+	if (g_StatusFont != NULL)
+		DeleteFont(g_StatusFont);
+	g_StatusFont = NULL;
 }
 bool DcxDock::IsStatusbar(void)
 {
@@ -642,24 +653,24 @@ LRESULT DcxDock::status_getParts( const int nParts, LPINT aWidths ) {
 	return SendMessage( g_StatusBar, SB_GETPARTS, (WPARAM) nParts, (LPARAM) aWidths );
 }
 
-void DcxDock::status_setText( const int iPart, const int Style, const LPSTR lpstr ) {
-	SendMessage( g_StatusBar, SB_SETTEXT, (WPARAM) iPart | Style, (LPARAM) lpstr );
+void DcxDock::status_setText( const int iPart, const int Style, const LPWSTR lpstr ) {
+	SendMessage( g_StatusBar, SB_SETTEXTW, (WPARAM) iPart | Style, (LPARAM) lpstr );
 }
 
 UINT DcxDock::status_getTextLength( const int iPart ) {
-	return (UINT)LOWORD(SendMessage( g_StatusBar, SB_GETTEXTLENGTH, (WPARAM) iPart, NULL ));
+	return (UINT)LOWORD(SendMessage( g_StatusBar, SB_GETTEXTLENGTHW, (WPARAM) iPart, NULL ));
 }
 
-LRESULT DcxDock::status_getText( const int iPart, LPSTR lpstr ) {
-	return SendMessage( g_StatusBar, SB_GETTEXT, (WPARAM) iPart, (LPARAM) lpstr );
+LRESULT DcxDock::status_getText( const int iPart, LPWSTR lpstr ) {
+	return SendMessage( g_StatusBar, SB_GETTEXTW, (WPARAM) iPart, (LPARAM) lpstr );
 }
 
-void DcxDock::status_setTipText( const int iPart, const LPSTR lpstr ) {
-	SendMessage( g_StatusBar, SB_SETTIPTEXT, (WPARAM) iPart, (LPARAM) lpstr );
+void DcxDock::status_setTipText( const int iPart, const LPWSTR lpstr ) {
+	SendMessage( g_StatusBar, SB_SETTIPTEXTW, (WPARAM) iPart, (LPARAM) lpstr );
 }
 
-void DcxDock::status_getTipText( const int iPart, const int nSize, LPSTR lpstr ) {
-	SendMessage( g_StatusBar, SB_GETTIPTEXT, (WPARAM) MAKEWPARAM (iPart, nSize), (LPARAM) lpstr );
+void DcxDock::status_getTipText( const int iPart, const int nSize, LPWSTR lpstr ) {
+	SendMessage( g_StatusBar, SB_GETTIPTEXTW, (WPARAM) MAKEWPARAM (iPart, nSize), (LPARAM) lpstr );
 }
 
 void DcxDock::status_getRect( const int iPart, LPRECT lprc ) {
@@ -689,7 +700,7 @@ HIMAGELIST DcxDock::status_createImageList( ) {
 	return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
 }
 
-UINT DcxDock::status_parseItemFlags( TString & flags ) {
+UINT DcxDock::status_parseItemFlags( const TString & flags ) {
 
 	INT i = 1, len = flags.len( ), iFlags = 0;
 
@@ -761,6 +772,17 @@ void DcxDock::status_updateParts(void) {
 
 	DcxDock::status_setParts(nParts, pParts);
 	delete [] pParts;
+}
+
+void DcxDock::status_setFont(HFONT f)
+{
+	if (f != NULL) {
+		SetWindowFont(g_StatusBar, f, TRUE);
+
+		if (g_StatusFont != NULL)
+			DeleteFont(g_StatusFont);
+		g_StatusFont = f;
+	}
 }
 
 int DcxDock::getPos(int x, int y, int w, int h)

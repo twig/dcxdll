@@ -36,6 +36,15 @@ mIRC(xstatusbar) {
 				UpdatemIRC();
 			}
 			break;
+		case 'f': // [-f] [+FLAGS] [CHARSET] [SIZE] [FONTNAME] : set font
+			{
+				LOGFONT lf;
+
+				if (ParseCommandToLogfont(input.gettok(2, -1), &lf)) {
+					DcxDock::status_setFont(CreateFontIndirect(&lf));
+				}
+			}
+			break;
 		case 'k': // [clr] : background colour.
 			{
 				int col = input.gettok( 2 ).to_int();
@@ -106,8 +115,8 @@ mIRC(xstatusbar) {
 				else
 					DcxDock::status_setIcon( nPos, NULL );
 
-				DcxDock::status_setText( nPos, DcxDock::status_parseItemFlags( flags ), itemtext.to_chr( ) );
-				DcxDock::status_setTipText( nPos, tooltip.to_chr( ) );
+				DcxDock::status_setText( nPos, DcxDock::status_parseItemFlags( flags ), itemtext.to_wchr( ) );
+				DcxDock::status_setTipText( nPos, tooltip.to_wchr( ) );
 			}
 			break;
 		case 'v': // [N] (TEXT) : set parts text
@@ -120,8 +129,8 @@ mIRC(xstatusbar) {
 					if ( numtok > 2 )
 						itemtext = input.gettok( 3, -1 );
 
-					char *text = new char[DcxDock::status_getTextLength(nPos) + 1];
-					DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_chr( ) );
+					WCHAR *text = new WCHAR[DcxDock::status_getTextLength(nPos) + 1];
+					DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_wchr( ) );
 					delete [] text;
 				}
 			}
@@ -189,9 +198,9 @@ mIRC(_xstatusbar)
 			int iPart = d.gettok( 3 ).to_int( ) -1, nParts = DcxDock::status_getParts( 256, 0 );
 
 			if ( iPart > -1 && iPart < nParts ) {
-				char *text = new char[DcxDock::status_getTextLength( iPart ) +1];
+				WCHAR *text = new WCHAR[DcxDock::status_getTextLength( iPart ) + 1];
 				DcxDock::status_getText( iPart, text );
-				lstrcpyn(data, text, 900); // cut off text at mIRC limits
+				WideCharToMultiByte(CP_UTF8, 0, text, -1, data, 900, NULL, NULL);
 				delete [] text;
 			}
 		}
@@ -222,8 +231,12 @@ mIRC(_xstatusbar)
 		{
 			int iPart = d.gettok( 3 ).to_int( ), nParts = DcxDock::status_getParts( 256, 0 );
 
-			if ( iPart > -1 && iPart < nParts )
-				DcxDock::status_getTipText( iPart, 900, data );
+			if ( iPart > -1 && iPart < nParts ) {
+				WCHAR *text = new WCHAR[900];
+				DcxDock::status_getTipText( iPart, 900, text );
+				WideCharToMultiByte(CP_UTF8, 0, text, -1, data, 900, NULL, NULL);
+				delete [] text;
+			}
 		}
 		break;
 	case 0: // error

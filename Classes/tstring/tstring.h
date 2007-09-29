@@ -70,7 +70,9 @@ public:
 
 	TString( );
 	TString( const char * cString );
+	TString( const WCHAR * cString );
 	TString( const char chr );
+	TString( const WCHAR chr );
 	TString( const TString & tString );
 	TString( const char *pStart, const char *pEnd );
 	TString( const unsigned int tsSize);
@@ -86,7 +88,9 @@ public:
 	// Operator Overloads
 	void operator =( const TString & tString );
 	void operator =( const char * cString );
+	void operator =( const WCHAR * cString );
 	void operator =( const char chr );
+	void operator =( const WCHAR chr );
 
 	TString operator +( const char * cString );
 	TString operator +( const char chr );
@@ -95,6 +99,7 @@ public:
 	void operator +=( const char * cString );
 	void operator +=( const char chr );
 	void operator +=( const TString & tString );
+	void operator +=( const WCHAR chr );
 
 	bool operator ==( const int iNull ) const;
 	bool operator ==( const char * cString ) const;
@@ -129,11 +134,13 @@ public:
 
 	// General String Lib
 	size_t len( ) const;
+	size_t wlen( ) const;
 
 	int find( const char * substring, const int N ) const;
 	int find( const char chr, const int N ) const;
 
 	TString sub( int N, int M ) const;
+	TString wsub( int N, int M ) const;
 
 	void trim( );
 

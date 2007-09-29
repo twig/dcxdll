@@ -402,7 +402,7 @@ DcxDialogCollection dcxDialogs();
 
 
 char * readFile(const char * filename);
-TString FileDialog(const TString & data, TString method, const HWND pWnd);
+TString FileDialog(const TString & data, const TString &method, const HWND pWnd);
 
 // Windows 2000+ pointers
 typedef BOOL (WINAPI *PFNGETWINDOWINFO)(HWND hwnd, PWINDOWINFO pwi);

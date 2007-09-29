@@ -210,83 +210,70 @@ void WINAPI LoadDll(LOADINFO * load) {
 	ZeroMemory((void*)&wc , sizeof(WNDCLASSEX));
 	wc.cbSize = sizeof(WNDCLASSEX);
 
+//#define dcxRegisterClassM(szClass, szDcxClass, CClass) { \
+//	GetClassInfoEx(NULL, (TCHAR *)(szClass), &wc); \
+//	wc.lpszClassName = (TCHAR *)(szDcxClass); \
+//	(CClass)::m_DefaultWindowProc = wc.wc.lpfnWndProc; \
+//	wc.lpfnWndProc = (CClass)::WindowProc; \
+//	RegisterClassEx(&wc); \
+//};
+#define dcxRegisterClass(szClass, szDcxClass) { \
+	GetClassInfoEx(NULL, (TCHAR *)(szClass), &wc); \
+	wc.lpszClassName = (TCHAR *)(szDcxClass); \
+	RegisterClassEx(&wc); \
+};
+
 	// Custom ProgressBar
 	DCX_DEBUG("LoadDLL", "Registering ProgressBar...");
-	GetClassInfoEx(NULL, PROGRESS_CLASS, &wc);
-	wc.lpszClassName = DCX_PROGRESSBARCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(PROGRESS_CLASS, DCX_PROGRESSBARCLASS);
 
 	// Custom TreeView
 	DCX_DEBUG("LoadDLL", "Registering TreeView...");
-	GetClassInfoEx(NULL, WC_TREEVIEW, &wc);
-	wc.lpszClassName = DCX_TREEVIEWCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(WC_TREEVIEW, DCX_TREEVIEWCLASS);
 
 	// Custom Toolbar
 	DCX_DEBUG("LoadDLL", "Registering ToolBar...");
-	GetClassInfoEx(NULL, TOOLBARCLASSNAME, &wc);
-	wc.lpszClassName = DCX_TOOLBARCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(TOOLBARCLASSNAME, DCX_TOOLBARCLASS);
 
 	// Custom StatusBar
 	DCX_DEBUG("LoadDLL", "Registering StatusBar...");
-	GetClassInfoEx(NULL, STATUSCLASSNAME, &wc);
-	wc.lpszClassName = DCX_STATUSBARCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(STATUSCLASSNAME, DCX_STATUSBARCLASS);
 
 	// Custom ListView
 	DCX_DEBUG("LoadDLL", "Registering Listview...");
-	GetClassInfoEx(NULL, WC_LISTVIEW, &wc);
-	wc.lpszClassName = DCX_LISTVIEWCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(WC_LISTVIEW, DCX_LISTVIEWCLASS);
 
 	// Custom ComboEx
 	DCX_DEBUG("LoadDLL", "Registering ComboEx...");
-	GetClassInfoEx(NULL, WC_COMBOBOXEX, &wc);
-	wc.lpszClassName = DCX_COMBOEXCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(WC_COMBOBOXEX, DCX_COMBOEXCLASS);
 
 	// Custom TrackBar
 	DCX_DEBUG("LoadDLL", "Registering TrackBar...");
-	GetClassInfoEx(NULL, TRACKBAR_CLASS, &wc);
-	wc.lpszClassName = DCX_TRACKBARCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(TRACKBAR_CLASS, DCX_TRACKBARCLASS);
 
 	// Custom RichEdit
 	DCX_DEBUG("LoadDLL", "Registering RichEdit...");
-	GetClassInfoEx(NULL, "RichEdit20A", &wc);
-	wc.lpszClassName = DCX_RICHEDITCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass("RichEdit20A", DCX_RICHEDITCLASS);
 
 	// Custom RebarCtrl
 	DCX_DEBUG("LoadDLL", "Registering ReBar...");
-	GetClassInfoEx(NULL, REBARCLASSNAME, &wc);
-	wc.lpszClassName = DCX_REBARCTRLCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(REBARCLASSNAME, DCX_REBARCTRLCLASS);
 
 	// Custom Color Combo
 	DCX_DEBUG("LoadDLL", "Registering ComboBox...");
-	GetClassInfoEx(NULL, "COMBOBOX", &wc);
-	wc.lpszClassName = DCX_COLORCOMBOCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass("COMBOBOX", DCX_COLORCOMBOCLASS);
 
 	// Custom TabCtrl
 	DCX_DEBUG("LoadDLL", "Registering Tab...");
-	GetClassInfoEx(NULL, WC_TABCONTROL, &wc);
-	wc.lpszClassName = DCX_TABCTRLCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(WC_TABCONTROL, DCX_TABCTRLCLASS);
 
 	// Custom UpDown
 	DCX_DEBUG("LoadDLL", "Registering UpDown...");
-	GetClassInfoEx(NULL, UPDOWN_CLASS, &wc);
-	wc.lpszClassName = DCX_UPDOWNCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(UPDOWN_CLASS, DCX_UPDOWNCLASS);
 
-	// Custom IppAddress
+	// Custom IpAddress
 	DCX_DEBUG("LoadDLL", "Registering IpAddress...");
-	GetClassInfoEx(NULL, WC_IPADDRESS, &wc);
-	wc.lpszClassName = DCX_IPADDRESSCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(WC_IPADDRESS, DCX_IPADDRESSCLASS);
 
 	// Init Divider Control
 	//InitDivider( GetModuleHandle( NULL ) );
@@ -370,27 +357,19 @@ void WINAPI LoadDll(LOADINFO * load) {
 
 	// Custom Button
 	DCX_DEBUG("LoadDLL", "Registering Button...");
-	GetClassInfoEx(NULL, "BUTTON", &wc);
-	wc.lpszClassName = DCX_BUTTONCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass("BUTTON", DCX_BUTTONCLASS);
 
 	// Custom Calendar
 	DCX_DEBUG("LoadDLL", "Registering Calendar...");
-	GetClassInfoEx(NULL, MONTHCAL_CLASS, &wc);
-	wc.lpszClassName = DCX_CALENDARCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(MONTHCAL_CLASS, DCX_CALENDARCLASS);
 
 	// Custom DateTime
 	DCX_DEBUG("LoadDLL", "Registering DateTime...");
-	GetClassInfoEx(NULL, DATETIMEPICK_CLASS, &wc);
-	wc.lpszClassName = DCX_DATETIMECLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(DATETIMEPICK_CLASS, DCX_DATETIMECLASS);
 
 	// Custom Pager
 	DCX_DEBUG("LoadDLL", "Registering Pager...");
-	GetClassInfoEx(NULL, WC_PAGESCROLLER, &wc);
-	wc.lpszClassName = DCX_PAGERCLASS;
-	RegisterClassEx(&wc);
+	dcxRegisterClass(WC_PAGESCROLLER, DCX_PAGERCLASS);
 
 	// Shadow Class
 	DCX_DEBUG("LoadDLL", "Registering Shadow...");
@@ -736,9 +715,6 @@ mIRC(GetSystemColor) {
 		ret("D_ERROR GetSystemColor: Invalid parameter specified");
 
 	// max of 8 digits, 9 for null terminator
-	//char val[9];
-	//wsprintf(val, "%d", GetSysColor(col));
-	//ret(val);
 	wsprintf(data, "%d", GetSysColor(col));
 	return 3;
 }
@@ -754,7 +730,7 @@ mIRC(ColorDialog) {
 	TString d(data);
 	d.trim();
 
-   BOOL retDefault = FALSE;
+	BOOL retDefault = FALSE;
 	CHOOSECOLOR	cc;
 	static COLORREF clr[16];
 	COLORREF		sel = (COLORREF) d.gettok(1).to_num();
@@ -778,7 +754,7 @@ mIRC(ColorDialog) {
 				styles |= CC_SOLIDCOLOR;
 			else if (d.gettok(i) == "owner")
 				cc.hwndOwner = FindOwner(d, mWnd);
-         else if (d.gettok(i) == "returndefault")
+			else if (d.gettok(i) == "returndefault")
 				retDefault = TRUE;
 		}
 	}
@@ -787,19 +763,19 @@ mIRC(ColorDialog) {
 	cc.Flags = styles;
 	cc.lpCustColors = clr;
 
-   // User clicked OK
+	// User clicked OK
 	if (ChooseColor(&cc)) {
 		wsprintf(data, "%d", cc.rgbResult);
 		return 3; //ret(data);
 	}
-   // User clicked cancel, return default color
+	// User clicked cancel, return default color
 	else if (retDefault) {
 		wsprintf(data, "%d", sel);
 		return 3; //ret(data);
 	}
-   // User clicked cancel, dont bother with default color
-   else
-      ret("-1");
+	// User clicked cancel, dont bother with default color
+	else
+		ret("-1");
 }
 
 
@@ -1109,7 +1085,7 @@ mIRC(_xdid) {
 */
 mIRC(GetTaskbarPos) {
 	HWND hTaskbar = FindWindow("Shell_TrayWnd", NULL);
-	
+
 	if (hTaskbar) {
 		RECT rc;
 
@@ -1201,11 +1177,11 @@ mIRC(_xdialog) {
 */
 LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
-    case WM_SIZE:
-      {
-		  mIRCSignalDCX(dcxSignal.xdock, "size mIRC %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
-      }
-      break;
+		case WM_SIZE:
+			{
+				mIRCSignalDCX(dcxSignal.xdock, "size mIRC %d %d %d", mHwnd, LOWORD(lParam), HIWORD(lParam));
+			}
+			break;
 
 //		case WM_SYSCOMMAND:
 //			{

@@ -84,6 +84,19 @@ TString::TString( const char * cString ) {
 	}
 }
 
+TString::TString( const WCHAR * cString ) {
+
+	this->m_pString = NULL;
+	this->m_pWString = NULL;
+
+	if ( cString != NULL ) {
+
+		int size = lstrlenW( cString );
+		this->m_pWString = new WCHAR [ size + 1 ];
+		lstrcpyW( this->m_pWString, cString );
+	}
+}
+
 /****************************/
 /*! \fn TString::TString( const char chr )
     \brief Constructor input from C char
@@ -98,6 +111,14 @@ TString::TString( const char chr ) {
 	this->m_pWString = NULL;
 	this->m_pString[0] = chr;
 	this->m_pString[1] = 0;
+}
+
+TString::TString( const WCHAR chr ) {
+
+	this->m_pWString = new WCHAR [2];
+	this->m_pString = NULL;
+	this->m_pWString[0] = chr;
+	this->m_pWString[1] = 0;
 }
 
 /****************************/
@@ -212,6 +233,24 @@ void TString::operator =( const char chr ) {
 	this->m_pString = new char[2];
 	this->m_pString[0] = chr;
 	this->m_pString[1] = 0;
+}
+
+void TString::operator =( const WCHAR chr ) {
+
+	this->deleteString( );
+	this->m_pWString = new WCHAR[2];
+	this->m_pWString[0] = chr;
+	this->m_pWString[1] = 0;
+}
+void TString::operator =( const WCHAR * cString ) {
+
+	this->deleteString( );
+
+	if ( cString != NULL ) {
+		size_t size = lstrlenW( cString );
+		this->m_pWString = new WCHAR [ size + 1 ];
+		lstrcpyW( this->m_pWString, cString );
+	}
 }
 
 /****************************/
@@ -351,6 +390,24 @@ void TString::operator +=( const TString & tString ) {
 		lstrcat( temp, tString.m_pString );
 		this->deleteString();
 		this->m_pString = temp;
+	}
+}
+
+void TString::operator +=( const WCHAR chr ) {
+
+	if ( this->m_pWString != NULL ) {
+		int len = lstrlenW( this->m_pWString );
+		WCHAR * temp = new WCHAR [ len + 2 ];
+		lstrcpyW( temp, this->m_pWString );
+		temp[len] = chr;
+		temp[len+1] = 0;
+		this->deleteString();
+		this->m_pWString = temp;
+	}
+	else {
+		this->m_pWString = new WCHAR[2];
+		this->m_pWString[0] = chr;
+		this->m_pWString[1] = 0;
 	}
 }
 
@@ -973,6 +1030,17 @@ size_t TString::len( ) const {
 	return 0;
 }
 
+size_t TString::wlen( ) const {
+
+	if ( this->m_pWString == NULL ) // force conversion.
+		const_cast<TString *>(this)->to_wchr();
+
+	if ( this->m_pWString )
+		return lstrlenW( this->m_pWString );
+
+	return 0;
+}
+
 /****************************/
 /*! \fn int TString::find( const char * substring, int N )
     \brief Function to find position or number of occurences of a substring in the string
@@ -1104,6 +1172,35 @@ TString TString::sub( int N, int M ) const {
 
 		lstrcpyn( newTString.m_pString, temp, M + 1 );
 		newTString.m_pString[M] = 0;
+	}
+	return newTString;
+}
+
+TString TString::wsub( int N, int M ) const {
+
+	TString newTString;
+
+	if ( this->m_pWString ) {
+
+		int size = (int) lstrlenW( this->m_pWString );
+
+		if ( N < 0 ) N += (long int) size;
+
+		if ( N > size - 1 || N < 0 )
+			return newTString;
+
+		if ( N + M > size )
+			M = size - N;
+
+		delete [] newTString.m_pWString; // change by Ook
+		newTString.m_pWString = new WCHAR[M+1];
+		newTString.m_pWString[0] = 0;
+
+		WCHAR * temp = this->m_pWString;
+		temp += N;
+
+		lstrcpynW( newTString.m_pWString, temp, M + 1 );
+		newTString.m_pWString[M] = 0;
 	}
 	return newTString;
 }
@@ -1978,14 +2075,18 @@ bool TString::iswmcs(char *a) const
 //}
 WCHAR *TString::to_wchr(void)
 {
-	if (this->m_pString == NULL)
-		return NULL;
-
 	if (this->m_pWString != NULL)
 		return this->m_pWString;
 
-	int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
+	if (this->m_pString == NULL)
+		return NULL;
+
+	//int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
+	//this->m_pWString = new WCHAR[widelen+1];
+	//MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
+	// this method also allows UTF8 decoding.
+	int widelen = MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, NULL, 0);
 	this->m_pWString = new WCHAR[widelen+1];
-	MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
+	MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, this->m_pWString, widelen);
 	return this->m_pWString;
 }
