@@ -43,6 +43,9 @@ DcxColorCombo::DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 		GetModuleHandle(NULL), 
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 

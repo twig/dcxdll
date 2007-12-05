@@ -32,9 +32,9 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, con
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(
+	this->m_Hwnd = CreateWindowExW(
 		ExStyles | WS_EX_CLIENTEDGE, 
-		"EDIT",
+		L"EDIT",
 		NULL,
 		WS_CHILD | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
@@ -43,11 +43,16 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, con
 		GetModuleHandle(NULL), 
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if (bNoTheme)
 		dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 
 	Edit_LimitText(this->m_Hwnd, 0);
-	this->m_tsText = "";
+	//this->m_tsText = "";
+
+	//SendMessage(this->m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips")) {
@@ -111,6 +116,16 @@ void DcxEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 			*Styles |= ES_NOHIDESEL;
 		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
+		else if (( styles.gettok( i ) == "shadow" ))
+			this->m_bShadowText = true;
+		else if (( styles.gettok( i ) == "noformat" ))
+			this->m_bCtrlCodeText = false;
+		else if ( styles.gettok( i ) == "hgradient" )
+			this->m_bGradientFill = true;
+		else if ( styles.gettok( i ) == "vgradient" ) {
+			this->m_bGradientFill = true;
+			this->m_bGradientVertical = TRUE;
+		}
 
 		i++;
 	}
@@ -255,13 +270,13 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags.switch_flags[17]) {
 		this->m_tsText = "";
-		SetWindowText(this->m_Hwnd, "");
+		SetWindowTextW(this->m_Hwnd, L"");
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
 	if (flags.switch_flags[0] && numtok > 3) {
 		this->m_tsText += input.gettok(4, -1);
-		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
+		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
 	else if (flags.switch_flags[2] && numtok > 2) {
@@ -272,7 +287,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		if (this->isStyle(ES_MULTILINE)) {
 			int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.deltok(nLine, "\r\n");
-			SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
+			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
@@ -283,7 +298,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		}
 		else
 			this->m_tsText = input.gettok(5, -1);
-		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
+		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
 	else if (flags.switch_flags[9] && numtok > 3) {
@@ -298,6 +313,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 				c = '*'; //(isXP() ? '•' : '*');
 
 			Edit_SetPasswordChar(this->m_Hwnd, c);
+			//SendMessage(this->m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 			//WCHAR c = (WCHAR)SendMessageW(this->m_Hwnd, EM_GETPASSWORDCHAR, NULL, NULL);
 			//if (c == 0)
 			//	c = (isXP() ? 9679 : L'*');
@@ -324,7 +340,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		}
 		else
 			this->m_tsText = input.gettok(4, -1);
-		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
+		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -P [NAME] [ID]
 	else if (flags.switch_cap_flags[15] && numtok > 1) {
@@ -347,7 +363,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 
 		if (contents != NULL) {
 			this->m_tsText = contents;
-			SetWindowText(this->m_Hwnd, contents);
+			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 			delete [] contents;
 		}
 	}
@@ -375,9 +391,8 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
 	else if (flags.switch_cap_flags[4] && numtok > 3) {
-		TString cue(input.gettok(4, -1));
-		Edit_SetCueBannerText(this->m_Hwnd,cue.to_wchr());
-		this->m_tsCue = cue;
+		this->m_tsCue = input.gettok(4, -1);
+		Edit_SetCueBannerText(this->m_Hwnd,this->m_tsCue.to_wchr());
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
 	else if (flags.switch_flags[24] && numtok > 3) {
@@ -523,6 +538,63 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 
 				// Setup alpha blend if any.
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				//RECT rcTxt;
+				//GetClientRect(this->m_Hwnd, &rcTxt);
+
+				//// fill background.
+				//if (this->isExStyle(WS_EX_TRANSPARENT))
+				//{
+				//	if (!this->m_bAlphaBlend)
+				//		this->DrawParentsBackground(hdc,&rcTxt);
+				//}
+				//else
+				//	DcxControl::DrawCtrlBackground(hdc,this,&rcTxt);
+
+				//HFONT oldFont = NULL;
+				//COLORREF oldClr = CLR_INVALID;
+				//COLORREF oldBkgClr = CLR_INVALID;
+
+				//// check if font is valid & set it.
+				//if (this->m_hFont != NULL)
+				//	oldFont = SelectFont(hdc, this->m_hFont);
+				//// check if control is enabled.
+				//if (IsWindowEnabled(this->m_Hwnd)) {
+				//	if (this->m_clrText != CLR_INVALID)
+				//		oldClr = SetTextColor(hdc, this->m_clrText);
+				//	if (this->m_clrBackText != CLR_INVALID)
+				//		oldBkgClr = SetBkColor(hdc, this->m_clrBackText);
+				//}
+				//else { // disabled controls colouring
+				//	oldClr = SetTextColor(hdc, GetSysColor(COLOR_GRAYTEXT));
+				//	oldBkgClr = SetBkColor(hdc, GetSysColor(COLOR_3DFACE));
+				//}
+
+				//UINT style = DT_LEFT|DT_NOPREFIX|DT_VCENTER;
+				//if (this->isStyle(ES_CENTER))
+				//	style = DT_CENTER|DT_NOPREFIX|DT_VCENTER;
+				//else if (this->isStyle(ES_RIGHT))
+				//	style = DT_RIGHT|DT_NOPREFIX|DT_VCENTER;
+				//if (!this->isStyle(ES_MULTILINE))
+				//	style |= DT_SINGLELINE;
+
+				//if (!this->m_bCtrlCodeText) {
+				//	int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
+				//	if (this->m_bShadowText)
+				//		dcxDrawShadowText(hdc, this->m_tsText.to_wchr(), this->m_tsText.wlen(), &rcTxt, style, this->m_clrText, 0, 5, 5);
+				//	else
+				//		DrawTextW(hdc, this->m_tsText.to_wchr(), this->m_tsText.wlen(), &rcTxt, style);
+				//	SetBkMode(hdc, oldBkgMode);
+				//}
+				//else
+				//	mIRC_DrawText(hdc, this->m_tsText, &rcTxt, style, this->m_bShadowText);
+
+				//if (oldBkgClr != CLR_INVALID)
+				//	SetBkColor(hdc, oldBkgClr);
+				//if (oldClr != CLR_INVALID)
+				//	SetTextColor(hdc, oldClr);
+				//if (oldFont != NULL)
+				//	SelectFont( hdc, oldFont );
 
 				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 

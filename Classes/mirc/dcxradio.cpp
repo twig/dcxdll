@@ -43,6 +43,9 @@ DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 		GetModuleHandle(NULL), 
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -78,22 +81,22 @@ DcxRadio::~DcxRadio( ) {
 
 void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( );
-  *Styles |= BS_AUTORADIOBUTTON;
+	unsigned int i = 1, numtok = styles.numtok( );
+	*Styles |= BS_AUTORADIOBUTTON;
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "rjustify" )
-      *Styles |= BS_RIGHT;
-    else if ( styles.gettok( i ) == "center" )
-      *Styles |= BS_CENTER;
-    else if ( styles.gettok( i ) == "ljustify" )
-      *Styles |= BS_LEFT;
-    else if ( styles.gettok( i ) == "right" )
-      *Styles |= BS_RIGHTBUTTON;
-    else if ( styles.gettok( i ) == "pushlike" )
-      *Styles |= BS_PUSHLIKE;
-    else if ( styles.gettok( i ) == "alpha" )
+		if ( styles.gettok( i ) == "rjustify" )
+			*Styles |= BS_RIGHT;
+		else if ( styles.gettok( i ) == "center" )
+			*Styles |= BS_CENTER;
+		else if ( styles.gettok( i ) == "ljustify" )
+			*Styles |= BS_LEFT;
+		else if ( styles.gettok( i ) == "right" )
+			*Styles |= BS_RIGHTBUTTON;
+		else if ( styles.gettok( i ) == "pushlike" )
+			*Styles |= BS_PUSHLIKE;
+		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 		else if ( styles.gettok( i ) == "hgradient" )
 			this->m_bGradientFill = true;
@@ -102,10 +105,10 @@ void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 			this->m_bGradientVertical = TRUE;
 		}
 
-    i++;
-  }
+		i++;
+	}
 
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -203,8 +206,14 @@ LRESULT DcxRadio::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
+		case WM_ERASEBKGND:
+			{
+				bParsed = TRUE;
+				return TRUE;
+			}
+			break;
 		case WM_PRINTCLIENT:
 			{
 				this->DrawClientArea((HDC)wParam, uMsg, lParam);
@@ -214,10 +223,10 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		case WM_PAINT:
 			{
 				bParsed = TRUE;
-        PAINTSTRUCT ps;
-        HDC hdc;
+				PAINTSTRUCT ps;
+				HDC hdc;
 
-        hdc = BeginPaint( this->m_Hwnd, &ps );
+				hdc = BeginPaint( this->m_Hwnd, &ps );
 
 				this->DrawClientArea( hdc, uMsg, lParam);
 
@@ -225,19 +234,19 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 			break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }
 
 void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
@@ -245,49 +254,41 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-	if (this->m_clrBackText != -1)
-		SetBkColor(hdc, this->m_clrBackText);
+	if (this->m_bNoTheme || !dcxIsThemeActive()) {
+		if (this->m_clrBackText != -1)
+			SetBkColor(hdc, this->m_clrBackText);
 
-	if (this->m_clrText != -1)
-		SetTextColor(hdc, this->m_clrText);
+		if (this->m_clrText != -1)
+			SetTextColor(hdc, this->m_clrText);
 
-	RECT rcClient;
+		RECT rcClient;
 
-	// get controls client area
-	GetClientRect( this->m_Hwnd, &rcClient );
+		// get controls client area
+		GetClientRect( this->m_Hwnd, &rcClient );
 
-	bool bWasTransp = false;
-	if (this->isExStyle(WS_EX_TRANSPARENT))
-		bWasTransp = true;
+		bool bWasTransp = false;
+		if (this->isExStyle(WS_EX_TRANSPARENT))
+			bWasTransp = true;
 
-	// fill background.
-	if (bWasTransp)
-	{
-		if (!this->m_bAlphaBlend)
-			this->DrawParentsBackground(hdc,&rcClient);
-	}
-	else
-		DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+		// fill background.
+		if (bWasTransp)
+		{
+			if (!this->m_bAlphaBlend)
+				this->DrawParentsBackground(hdc,&rcClient);
+		}
+		else
+			DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
-	if (!bWasTransp)
-		AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
+		if (!bWasTransp)
+			AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 
-	// Is this theme code no longer needed, cos we fake a transp control?
-	if (!this->m_bNoTheme && dcxIsThemeActive()) {
-		HRGN hRgn = NULL;
-		//HTHEME hTheme = GetWindowThemeUx(this->m_Hwnd);
-		HTHEME hTheme = OpenThemeDataUx(this->m_Hwnd, L"BUTTON");
-		if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_RADIOBUTTON,RBS_UNCHECKEDNORMAL,&rcClient, &hRgn) == S_OK)
-			SelectClipRgn(hdc, hRgn);
-		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINTCLIENT, (WPARAM) hdc, PRF_CLIENT );
-		DeleteRgn(hRgn);
-		CloseThemeDataUx(hTheme);
+		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+		if (!bWasTransp)
+			RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 	}
 	else
 		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-
-	if (!bWasTransp)
-		RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 
 	this->FinishAlphaBlend(ai);
 }

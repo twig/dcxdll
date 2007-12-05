@@ -48,6 +48,9 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
     GetModuleHandle(NULL), 
     NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
   if ( bNoTheme )
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -140,11 +143,16 @@ void DcxPanel::parseCommandRequest( TString & input ) {
       !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
       this->m_pParentDialog->getControlByID( ID ) == NULL ) 
     {
-			DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,-1,this->m_Hwnd);
+			try {
+				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,-1,this->m_Hwnd);
 
-			if ( p_Control != NULL ) {
-				this->m_pParentDialog->addControl( p_Control );
-				this->redrawWindow( );
+				if ( p_Control != NULL ) {
+					this->m_pParentDialog->addControl( p_Control );
+					this->redrawWindow( );
+				}
+			}
+			catch ( char *err ) {
+				this->showErrorEx(NULL, "-c", "Unable To Create Control %d (%s)", ID - mIRC_ID_OFFSET, err);
 			}
 		}
 		else

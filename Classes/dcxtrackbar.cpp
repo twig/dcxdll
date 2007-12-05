@@ -44,6 +44,9 @@ DcxTrackBar::DcxTrackBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
     GetModuleHandle(NULL), 
     NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
   if ( bNoTheme )
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -116,6 +119,8 @@ void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
       *Styles |= TBS_DOWNISLEFT;
     else if ( styles.gettok( i ) == "tooltips" ) 
       *Styles |= TBS_TOOLTIPS;
+    else if ( styles.gettok( i ) == "transparentbkg" )
+      *Styles |= TBS_TRANSPARENTBKGND;
 		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 
@@ -689,6 +694,11 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 				// Setup alpha blend if any.
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+
+				//if (this->isExStyle(WS_EX_TRANSPARENT))
+				//	this->DrawParentsBackground(hdc);
+				//else
+				//	DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
 
 				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 

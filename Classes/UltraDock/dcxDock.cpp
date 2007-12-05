@@ -36,23 +36,8 @@ DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 
 DcxDock::~DcxDock(void)
 {
-	// UnDock all windows.
-	VectorOfDocks::iterator itStart = this->m_VectorDocks.begin();
-	VectorOfDocks::iterator itEnd = this->m_VectorDocks.end();
 
-	while (itStart != itEnd) {
-		if (*itStart != NULL) {
-			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
-			SetWindowLong(ud->hwnd,GWL_STYLE, ud->old_styles);
-			SetWindowLong(ud->hwnd,GWL_EXSTYLE, ud->old_exstyles);
-		  RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
-			SetParent(ud->hwnd, NULL);
-			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED|SWP_NOACTIVATE);
-			delete ud;
-		}
-		itStart++;
-	}
-	this->m_VectorDocks.clear();
+	this->UnDockAll();
 
 	// reset to orig WndProc
 	if (IsWindow(this->m_RefHwnd)) {
@@ -141,6 +126,27 @@ void DcxDock::UnDockWindow(HWND hwnd)
 		}
 		itStart++;
 	}
+}
+
+void DcxDock::UnDockAll(void)
+{
+	// UnDock all windows.
+	VectorOfDocks::iterator itStart = this->m_VectorDocks.begin();
+	VectorOfDocks::iterator itEnd = this->m_VectorDocks.end();
+
+	while (itStart != itEnd) {
+		if (*itStart != NULL) {
+			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
+			SetWindowLong(ud->hwnd,GWL_STYLE, ud->old_styles);
+			SetWindowLong(ud->hwnd,GWL_EXSTYLE, ud->old_exstyles);
+		  RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
+			SetParent(ud->hwnd, NULL);
+			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED|SWP_NOACTIVATE);
+			delete ud;
+		}
+		itStart++;
+	}
+	this->m_VectorDocks.clear();
 }
 
 bool DcxDock::FindDock(const HWND hwnd)

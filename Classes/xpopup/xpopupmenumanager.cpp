@@ -72,45 +72,45 @@ void XPopupMenuManager::parseSwitchFlags( TString * switchs, XSwitchFlags * flag
  */
 
 void XPopupMenuManager::parseXPopupCommand( const TString & input ) {
-  XPopupMenu * p_Menu;
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( &input.gettok( 2 ), &flags );
+	XPopupMenu * p_Menu;
+	XSwitchFlags flags;
+	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
+	this->parseSwitchFlags( &input.gettok( 2 ), &flags );
 
-  // Special mIRC Menu
-  if ( input.gettok( 1 ) == "mirc" ) {
+	// Special mIRC Menu
+	if ( input.gettok( 1 ) == "mirc" ) {
 
-    p_Menu = g_mIRCPopupMenu;
-  }
-  else if ( input.gettok( 1 ) == "mircbar" ) {
+		p_Menu = g_mIRCPopupMenu;
+	}
+	else if ( input.gettok( 1 ) == "mircbar" ) {
 
-    p_Menu = g_mIRCMenuBar;
-  }
-  else if ( ( p_Menu = this->getMenuByName( input.gettok( 1 ) ) ) == NULL && flags.switch_flags[2] == 0 ) {
+		p_Menu = g_mIRCMenuBar;
+	}
+	else if ( ( p_Menu = this->getMenuByName( input.gettok( 1 ) ) ) == NULL && flags.switch_flags[2] == 0 ) {
 
-    TString error;
+		TString error;
 		error.sprintf("\"%s\" doesn't exist : see /xpopup -c", input.gettok( 1 ).to_chr( ) );
 		DCXError("/xpopup",error.to_chr());
-    return;
-  }
+		return;
+	}
 	parseXPopupCommand(input, p_Menu);
 }
 
 void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p_Menu ) {
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( &input.gettok( 2 ), &flags );
+	XSwitchFlags flags;
+	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
+	this->parseSwitchFlags( &input.gettok( 2 ), &flags );
 
-  int numtok = input.numtok( );
+	int numtok = input.numtok( );
 
 	// xpopup -b - [MENU] [SWITCH] [FILENAME]
 	if (flags.switch_flags[1]) {
 		HBITMAP hBitmap = NULL;
 
 		if (numtok > 2) {
-         TString filename(input.gettok(3, -1 ));
-         filename.trim();
+			TString filename(input.gettok(3, -1 ));
+			filename.trim();
 
 			if (filename == "none") {
 				// ignore 'none' to maintain compatibility
@@ -208,37 +208,37 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 			p_Menu->setColor( nColor, (COLORREF)clr.to_num( ) );
 	}
 	// xpopup -m -> mirc -m
-  else if ( flags.switch_flags[12] && numtok == 2 && input.gettok( 1 ) == "mirc") {
+	else if ( flags.switch_flags[12] && numtok == 2 && input.gettok( 1 ) == "mirc") {
 		if (!this->m_bPatched && mIRCLink.m_bmIRCSixPointTwoZero) {
 			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
 			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
 			this->m_bPatched = true;
 		}
-  }
-  // xpopup -p -> [MENU] [SWITCH] [COLORS]
-  else if ( flags.switch_flags[15] && numtok > 2 ) {
+	}
+	// xpopup -p -> [MENU] [SWITCH] [COLORS]
+	else if ( flags.switch_flags[15] && numtok > 2 ) {
 
-    TString colors(input.gettok( 3, -1 ));
-    int i = 1, len = colors.numtok( );
+		TString colors(input.gettok( 3, -1 ));
+		int i = 1, len = colors.numtok( );
 
-    while ( i <= len ) {
+		while ( i <= len ) {
 
 			if (colors.gettok( i ) == "default")
 				p_Menu->setDefaultColor( i );
 			else
-	      p_Menu->setColor( i, (COLORREF)colors.gettok( i ).to_num( ) );
-      ++i;
-    }
-  }
-  // xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y] (OVER HWND)
-  else if ( flags.switch_flags[18] && numtok > 4 ) {
+				p_Menu->setColor( i, (COLORREF)colors.gettok( i ).to_num( ) );
+			++i;
+		}
+	}
+	// xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y] (OVER HWND)
+	else if ( flags.switch_flags[18] && numtok > 4 ) {
 
-    UINT mflags = this->parseTrackFlags( input.gettok( 3 ) );
-    int x = input.gettok( 4 ).to_int( );
-    int y = input.gettok( 5 ).to_int( );
-    
+		UINT mflags = this->parseTrackFlags( input.gettok( 3 ) );
+		int x = input.gettok( 4 ).to_int( );
+		int y = input.gettok( 5 ).to_int( );
+
 		/*
-			Add offsetting for multiple monitor based on supplied hwnd this menu is to be associated with
+		Add offsetting for multiple monitor based on supplied hwnd this menu is to be associated with
 		*/
 		HWND hTrack = (HWND)input.gettok( 6 ).to_num();
 
@@ -249,22 +249,24 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 			// make pos relative to supplied window.
 			x += rc.left;
 			y += rc.top;
+		}
+		else {
+			// Adjust relative location to take multi-monitor into account
+			HMONITOR hMon;
+			MONITORINFO mi;
+			hMon = MonitorFromWindow(mIRCLink.m_mIRCHWND, MONITOR_DEFAULTTONEAREST);
 
-			//HMONITOR hMon;
-			//MONITORINFO mi;
-			//hMon = MonitorFromRect(&rc, MONITOR_DEFAULTTONEAREST);
+			mi.cbSize = sizeof(mi);
+			GetMonitorInfo(hMon, &mi);
 
-			//mi.cbSize = sizeof(mi);
-			//GetMonitorInfo(hMon, &mi);
-
-			//x += mi.rcMonitor.left;
-			//y += mi.rcMonitor.top;
+			x += mi.rcMonitor.left;
+			y += mi.rcMonitor.top;
 		}
 
-    UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | mflags, x, y, mhMenuOwner, NULL );
+		UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | mflags, x, y, mhMenuOwner, NULL );
 
 		mIRCcomEX("//.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID );
-  }
+	}
 	// xpopup -t -> [MENU] [SWITCH] [STYLE]
 	else if (flags.switch_flags[19] && numtok > 2) {
 		XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
@@ -293,32 +295,32 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 
 		p_Menu->setStyle(style);
 	}
-  // xpopup -x -> [MENU] [SWITCH] [+FLAGS]
-  else if ( flags.switch_flags[23] && numtok > 2 ) {
+	// xpopup -x -> [MENU] [SWITCH] [+FLAGS]
+	else if ( flags.switch_flags[23] && numtok > 2 ) {
 
-    TString flag(input.gettok( 3 ));
+		TString flag(input.gettok( 3 ));
 
-    if ( flag[0] == '+' ) {
+		if ( flag[0] == '+' ) {
 
-      UINT iStyles = 0;
-      int i = 1, len = flag.len( );
-      while ( i <= len ) {
+			UINT iStyles = 0;
+			int i = 1, len = flag.len( );
+			while ( i <= len ) {
 
-        if ( flag[i] == 'i' )
-          iStyles |= XPS_ICON3D;
-        else if ( flag[i] == 'd' )
-          iStyles |= XPS_DISABLEDSEL;
-        else if ( flag[i] == 'p' )
-          iStyles |= XPS_ICON3DSHADOW;
+				if ( flag[i] == 'i' )
+					iStyles |= XPS_ICON3D;
+				else if ( flag[i] == 'd' )
+					iStyles |= XPS_DISABLEDSEL;
+				else if ( flag[i] == 'p' )
+					iStyles |= XPS_ICON3DSHADOW;
 
-        ++i;
-      }
+				++i;
+			}
 
-      p_Menu->setItemStyle( iStyles );
-    }
-  }
-  // xpopup -R -> [MENU] [SWITCH] [+FLAGS] (FLAG OPTIONS)
-  else if ( flags.switch_cap_flags[17] && numtok > 2 ) {
+			p_Menu->setItemStyle( iStyles );
+		}
+	}
+	// xpopup -R -> [MENU] [SWITCH] [+FLAGS] (FLAG OPTIONS)
+	else if ( flags.switch_cap_flags[17] && numtok > 2 ) {
 
 		TString flag(input.gettok( 3 ));
 

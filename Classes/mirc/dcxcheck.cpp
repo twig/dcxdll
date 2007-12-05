@@ -43,6 +43,9 @@ DcxCheck::DcxCheck( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 		GetModuleHandle(NULL),
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -234,13 +237,6 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		case WM_ERASEBKGND:
 			{
-				//if (this->isExStyle(WS_EX_TRANSPARENT))
-				//	this->DrawParentsBackground((HDC)wParam);
-				//else {
-				//	RECT rect;
-				//	GetClientRect( this->m_Hwnd, &rect );
-				//	DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-				//}
 				bParsed = TRUE;
 				return TRUE;
 			}
@@ -284,50 +280,40 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-	if (this->m_clrBackText != -1)
-		SetBkColor(hdc, this->m_clrBackText);
+	if (this->m_bNoTheme || !dcxIsThemeActive()) {
+		if (this->m_clrBackText != -1)
+			SetBkColor(hdc, this->m_clrBackText);
 
-	if (this->m_clrText != -1)
-		SetTextColor(hdc, this->m_clrText);
+		if (this->m_clrText != -1)
+			SetTextColor(hdc, this->m_clrText);
 
-	RECT rcClient;
+		RECT rcClient;
 
-	// get controls client area
-	GetClientRect( this->m_Hwnd, &rcClient );
+		// get controls client area
+		GetClientRect( this->m_Hwnd, &rcClient );
 
-	bool bWasTransp = false;
-	if (this->isExStyle(WS_EX_TRANSPARENT))
-		bWasTransp = true;
+		BOOL bWasTransp = this->isExStyle(WS_EX_TRANSPARENT);
 
-	// fill background.
-	if (bWasTransp)
-	{
-		if (!this->m_bAlphaBlend)
-			this->DrawParentsBackground(hdc,&rcClient);
-	}
-	else
-		DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+		// fill background.
+		if (bWasTransp)
+		{
+			if (!this->m_bAlphaBlend)
+				this->DrawParentsBackground(hdc,&rcClient);
+		}
+		else
+			DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
-	// This is a workaround to allow our background to be seen under the control.
-	if (!bWasTransp)
-		AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
+		// This is a workaround to allow our background to be seen under the control.
+		if (!bWasTransp)
+			AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 
-	// Is this theme code no longer needed, cos we fake a transp control?
-	if (!this->m_bNoTheme && dcxIsThemeActive()) {
-		HRGN hRgn = NULL;
-		//HTHEME hTheme = GetWindowThemeUx(this->m_Hwnd);
-		HTHEME hTheme = OpenThemeDataUx(this->m_Hwnd, L"BUTTON");
-		if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_CHECKBOX,CBS_UNCHECKEDNORMAL,&rcClient, &hRgn) == S_OK)
-			SelectClipRgn(hdc, hRgn);
-		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINTCLIENT, (WPARAM) hdc, PRF_CLIENT );
-		DeleteRgn(hRgn);
-		CloseThemeDataUx(hTheme);
+		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+
+		if (!bWasTransp)
+			RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 	}
 	else
 		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-
-	if (!bWasTransp)
-		RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 
 	this->FinishAlphaBlend(ai);
 }

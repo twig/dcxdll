@@ -368,10 +368,15 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		if ((IsWindow(GetDlgItem(this->m_Hwnd, ID)) == FALSE) && 
 			(ID > mIRC_ID_OFFSET - 1) && (this->getControlByID(ID) == NULL))
 		{
-			DcxControl *p_Control = DcxControl::controlFactory(this, ID, input,4);
+			try {
+				DcxControl *p_Control = DcxControl::controlFactory(this, ID, input,4);
 
-			if (p_Control != NULL)
-				this->addControl(p_Control);
+				if (p_Control != NULL)
+					this->addControl(p_Control);
+			}
+			catch ( char *err ) {
+				this->showErrorEx(NULL, "-c", "Unable To Create Control %d (%s)", ID - mIRC_ID_OFFSET, err);
+			}
 		}
 		else
 			this->showErrorEx(NULL,"-c", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET);

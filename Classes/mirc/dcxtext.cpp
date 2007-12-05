@@ -43,6 +43,9 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 		GetModuleHandle(NULL),
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -334,7 +337,7 @@ void DcxText::DrawClientArea(HDC hdc)
 		if (this->m_bShadowText)
 			dcxDrawShadowText(hdc, wtext.to_wchr(), nText, &r, style, this->m_clrText, 0, 5, 5);
 		else
-			DrawText(hdc, wtext.to_chr(), nText, &r, style);
+			DrawTextW(hdc, wtext.to_wchr(), nText, &r, style);
 		SetBkMode(hdc, oldBkgMode);
 	}
 	else

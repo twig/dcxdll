@@ -46,6 +46,9 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 		GetModuleHandle(NULL), 
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -245,17 +248,18 @@ void DcxStacker::parseCommandRequest(TString &input) {
 				!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 			{
-				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl,2,-1,this->m_Hwnd);
+				try {
+					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl,2,-1,this->m_Hwnd);
 
-				if ( p_Control != NULL ) {
-					this->m_pParentDialog->addControl( p_Control );
-					sitem->pChild = p_Control;
-					ShowWindow(p_Control->getHwnd(),SW_HIDE);
-					this->redrawWindow( );
+					if ( p_Control != NULL ) {
+						this->m_pParentDialog->addControl( p_Control );
+						sitem->pChild = p_Control;
+						ShowWindow(p_Control->getHwnd(),SW_HIDE);
+						this->redrawWindow( );
+					}
 				}
-				else {
-					this->showError(NULL, "-a", "Error creating control");
-					//DCXError("/xdid -a","Error creating control");
+				catch ( char *err ) {
+					this->showErrorEx(NULL, "-a", "Unable To Create Control %d (%s)", ID - mIRC_ID_OFFSET, err);
 					delete sitem;
 					return;
 				}
@@ -269,7 +273,6 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		if (SendMessage(this->m_Hwnd,LB_INSERTSTRING,nPos,(LPARAM)sitem) < 0) {
 			delete sitem;
 			this->showError(NULL, "-a", "Error adding item to control");
-			//DCXError("/xdid -a","Error adding item to control");
 			return;
 		}
 	}

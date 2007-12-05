@@ -43,6 +43,9 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		GetModuleHandle(NULL),
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if ( bNoTheme ) {
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 		//SendMessage( this->m_Hwnd, CBEM_SETWINDOWTHEME, NULL, (LPARAM)(LPCWSTR)L" "); // do this instead?
@@ -62,7 +65,7 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		SetWindowLong( this->m_EditHwnd, GWL_STYLE, GetWindowLong( this->m_EditHwnd, GWL_STYLE ) | ES_AUTOHSCROLL );
 
 		lpce->OldProc = SubclassWindow( this->m_EditHwnd, DcxComboEx::ComboExEditProc );
-		SetWindowLong( this->m_EditHwnd, GWL_USERDATA, (LONG) lpce );
+		SetWindowLongPtr( this->m_EditHwnd, GWLP_USERDATA, (LONG) lpce );
 	}
 
 	HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);
@@ -689,7 +692,7 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 
-  LPDCXCOMBOEXEDIT lpce = (LPDCXCOMBOEXEDIT) GetWindowLong( mHwnd, GWL_USERDATA );
+  LPDCXCOMBOEXEDIT lpce = (LPDCXCOMBOEXEDIT) GetWindowLongPtr( mHwnd, GWLP_USERDATA );
 	if (lpce == NULL)	return DefWindowProc( mHwnd, uMsg, wParam, lParam );
   //mIRCError( "DcxComboEx::ComboExEditProc" );
   switch( uMsg ) {

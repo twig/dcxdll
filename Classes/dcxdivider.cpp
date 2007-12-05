@@ -43,6 +43,9 @@ DcxDivider::DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		GetModuleHandle(NULL), 
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -144,32 +147,37 @@ void DcxDivider::parseCommandRequest( TString & input ) {
         !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
         this->m_pParentDialog->getControlByID( ID ) == NULL ) 
       {
-				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
-									 CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|
-									 CTLF_ALLOW_COLORCOMBO|CTLF_ALLOW_STATUSBAR|CTLF_ALLOW_TOOLBAR|
-									 CTLF_ALLOW_TREEVIEW|CTLF_ALLOW_LISTVIEW|CTLF_ALLOW_REBAR|
-									 CTLF_ALLOW_BUTTON|CTLF_ALLOW_RICHEDIT|CTLF_ALLOW_EDIT|
-									 CTLF_ALLOW_UPDOWN| CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
-									 CTLF_ALLOW_CALANDER|CTLF_ALLOW_DIVIDER|CTLF_ALLOW_PANEL|
-									 CTLF_ALLOW_TAB|CTLF_ALLOW_LINE|CTLF_ALLOW_BOX|CTLF_ALLOW_RADIO|
-									 CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
-									 CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
-									 CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW
-					,this->m_Hwnd);
+				try {
+					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
+										 CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|
+										 CTLF_ALLOW_COLORCOMBO|CTLF_ALLOW_STATUSBAR|CTLF_ALLOW_TOOLBAR|
+										 CTLF_ALLOW_TREEVIEW|CTLF_ALLOW_LISTVIEW|CTLF_ALLOW_REBAR|
+										 CTLF_ALLOW_BUTTON|CTLF_ALLOW_RICHEDIT|CTLF_ALLOW_EDIT|
+										 CTLF_ALLOW_UPDOWN| CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
+										 CTLF_ALLOW_CALANDER|CTLF_ALLOW_DIVIDER|CTLF_ALLOW_PANEL|
+										 CTLF_ALLOW_TAB|CTLF_ALLOW_LINE|CTLF_ALLOW_BOX|CTLF_ALLOW_RADIO|
+										 CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
+										 CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
+										 CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW
+						,this->m_Hwnd);
 
-        if ( p_Control != NULL ) {
+					if ( p_Control != NULL ) {
 
-          this->m_pParentDialog->addControl( p_Control );
+						this->m_pParentDialog->addControl( p_Control );
 
-          dvpi.hChild = p_Control->getHwnd( );
+						dvpi.hChild = p_Control->getHwnd( );
 
-          if ( flags.switch_flags[11] )
-            this->setPane( DVF_PANELEFT, &dvpi );
-          else if ( flags.switch_flags[17] )
-            this->setPane( DVF_PANERIGHT, &dvpi );
+						if ( flags.switch_flags[11] )
+							this->setPane( DVF_PANELEFT, &dvpi );
+						else if ( flags.switch_flags[17] )
+							this->setPane( DVF_PANERIGHT, &dvpi );
 
-          this->redrawWindow( );
-        }
+						this->redrawWindow( );
+					}
+				}
+				catch ( char *err ) {
+					this->showErrorEx(NULL, "-l|r", "Unable To Create Control %d (%s)", ID - mIRC_ID_OFFSET, err);
+				}
       }
       else
 				this->showErrorEx(NULL, "-l|r", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );

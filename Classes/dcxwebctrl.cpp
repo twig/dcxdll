@@ -46,6 +46,9 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
     GetModuleHandle(NULL),
     NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
   if ( bNoTheme )
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -245,7 +248,6 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
     }
 		else
 			this->showError(NULL, "-j", "Browser NOT in Ready State");
-			//DCXError("/xdid -j","Browser NOT in Ready State");
   }
   // xdid -k [NAME] [ID] [SWITCH]
   else if ( flags.switch_flags[10] ) {
@@ -479,7 +481,8 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 				//else
 				//	mIRCDebug("no activate r %d web %d", r, web);
 				//SetActiveWindow((HWND)wParam);
-				return MA_ACTIVATE;
+				//SetFocus((HWND)wParam);
+				return MA_NOACTIVATE;
 			}
 			break;
 		//case WM_GETDLGCODE:
@@ -488,6 +491,26 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 		//			return DLGC_WANTALLKEYS;
 		//		}
 		//		break;
+		//case WM_HSCROLL:
+		//case WM_VSCROLL:
+		//	{
+		//		mIRCDebug("scroll");
+		//	}
+		//	break;
+		//case WM_MOUSEWHEEL:
+		//	{
+		//		mIRCDebug("wheel");
+		//	}
+		//	break;
+
+		//case WM_NCHITTEST:
+		//	{
+		//		bParsed = TRUE;
+		//		return HTCLIENT;
+		//		//return DefWindowProc( this->m_Hwnd, uMsg, wParam, lParam);
+		//	}
+		//	break;
+
     case WM_DESTROY:
       {
         delete this;

@@ -51,6 +51,9 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 		GetModuleHandle(NULL),
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if (bNoTheme)
 		dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 	else {
@@ -64,6 +67,7 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 	this->setContentsFont();
 
 	SendMessage(this->m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE));
+	//SendMessage(this->m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips")) {
@@ -450,6 +454,10 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		//	SendMessage(this->m_Hwnd, EM_SETSCROLLPOS,NULL,(LPARAM)&pt);
 		//}
 	}
+	// xdid -V [NAME] [ID]
+	else if (flags.switch_cap_flags[21]) {
+		SendMessage(this->m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
 	else if (flags.switch_flags[24] && numtok > 3) {
 		int state = input.gettok(4).to_int();
@@ -463,7 +471,6 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 
 		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
 			this->showError(NULL, "-Z", "Richedit zooming error");
-			//DCXError("/xdid -Z","Richedit zooming error");
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -820,7 +827,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							(enl->msg == WM_RBUTTONDOWN))
 						{
 							TEXTRANGE tr;
-							TString event;
+							TString tsEvent;
 
 							// get information about link text
 							ZeroMemory(&tr, sizeof(TEXTRANGE));
@@ -831,13 +838,13 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
 
 							if (enl->msg == WM_LBUTTONDOWN)
-								event = "sclick";
+								tsEvent = "sclick";
 							else if (enl->msg == WM_LBUTTONDBLCLK)
-								event = "dclick";
+								tsEvent = "dclick";
 							else if (enl->msg == WM_RBUTTONDOWN)
-								event = "rclick";
+								tsEvent = "rclick";
 
-							this->callAliasEx(NULL, "%s,%d,%s,%s", "link", this->getUserID(), event.to_chr(), tr.lpstrText);
+							this->callAliasEx(NULL, "%s,%d,%s,%s", "link", this->getUserID(), tsEvent.to_chr(), tr.lpstrText);
 							delete [] str;
 						}
 					}

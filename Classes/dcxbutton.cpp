@@ -50,6 +50,9 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 		GetModuleHandle(NULL),
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -408,111 +411,111 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
   switch( uMsg ) {
 
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
+	case WM_MOUSEMOVE:
+		{
+			this->m_pParentDialog->setMouseControl( this->getUserID( ) );
 
-        if ( this->m_bTracking == FALSE ) {
-          TRACKMOUSEEVENT tme;
-          tme.cbSize = sizeof(TRACKMOUSEEVENT);
-          tme.hwndTrack = this->m_Hwnd;
-          tme.dwFlags = TME_LEAVE | TME_HOVER;
-          tme.dwHoverTime = 1;
-          this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );		
-        }
-      }
-      break;
-
-    case WM_MOUSEHOVER:
-      {
-        if ( this->m_bHover == FALSE && this->m_bTracking ) {
-          this->m_bHover = TRUE;
-          InvalidateRect( this->m_Hwnd, NULL, FALSE );
-        }
-      }
-      break;
-
-    case WM_MOUSELEAVE:
-      {
-        if ( this->m_bTracking ) {
-          this->m_bHover = FALSE;
-          this->m_bTracking = FALSE;
-          this->m_bSelected = FALSE;
-          InvalidateRect( this->m_Hwnd, NULL, FALSE );
-        }
-      }
-      break;
-
-		case WM_LBUTTONDOWN:
-			{
-				if ( this->m_bSelected == FALSE ) {
-					this->m_bSelected = TRUE;
-					InvalidateRect( this->m_Hwnd, NULL, FALSE );
-				}
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx(NULL, "%s,%d", "lbdown", this->getUserID());
+			if ( this->m_bTracking == FALSE ) {
+				TRACKMOUSEEVENT tme;
+				tme.cbSize = sizeof(TRACKMOUSEEVENT);
+				tme.hwndTrack = this->m_Hwnd;
+				tme.dwFlags = TME_LEAVE | TME_HOVER;
+				tme.dwHoverTime = 1;
+				this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );		
 			}
-			break;
-
-    case WM_LBUTTONUP:
-      {
-				this->m_bSelected = FALSE;
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
-			}
-      break;
-
-    case WM_ENABLE:
-      {
-        InvalidateRect( this->m_Hwnd, NULL, TRUE );
-      }
-      break;
-
-    case WM_UPDATEUISTATE:
-      {
-        InvalidateRect( this->m_Hwnd, NULL, TRUE );
-      }
-      break;
-
-		case WM_ERASEBKGND:
-			{
-				bParsed = TRUE;
-				return TRUE;
-			}
-			break;
-		case WM_PRINTCLIENT:
-			{
-				this->DrawClientArea((HDC)wParam, uMsg, lParam);
-				bParsed = TRUE;
-			}
-			break;
-		case WM_PAINT:
-			{
-				bParsed = TRUE;
-				PAINTSTRUCT ps;
-				HDC hdc;
-
-				hdc = BeginPaint( this->m_Hwnd, &ps );
-
-				this->DrawClientArea(hdc, uMsg, lParam);
-
-				EndPaint( this->m_Hwnd, &ps );
-			}
-			break;
-
-		case WM_DESTROY:
-			{
-				delete this;
-				bParsed = TRUE;
-			}
-			break;
-
-		default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-			break;
 		}
+		break;
 
-		return 0L;
+	case WM_MOUSEHOVER:
+		{
+			if ( this->m_bHover == FALSE && this->m_bTracking ) {
+				this->m_bHover = TRUE;
+				InvalidateRect( this->m_Hwnd, NULL, FALSE );
+			}
+		}
+		break;
+
+	case WM_MOUSELEAVE:
+		{
+			if ( this->m_bTracking ) {
+				this->m_bHover = FALSE;
+				this->m_bTracking = FALSE;
+				this->m_bSelected = FALSE;
+				InvalidateRect( this->m_Hwnd, NULL, FALSE );
+			}
+		}
+		break;
+
+	case WM_LBUTTONDOWN:
+		{
+			if ( this->m_bSelected == FALSE ) {
+				this->m_bSelected = TRUE;
+				InvalidateRect( this->m_Hwnd, NULL, FALSE );
+			}
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				this->callAliasEx(NULL, "%s,%d", "lbdown", this->getUserID());
+		}
+		break;
+
+	case WM_LBUTTONUP:
+		{
+			this->m_bSelected = FALSE;
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
+		}
+		break;
+
+	case WM_ENABLE:
+		{
+			InvalidateRect( this->m_Hwnd, NULL, TRUE );
+		}
+		break;
+
+	case WM_UPDATEUISTATE:
+		{
+			InvalidateRect( this->m_Hwnd, NULL, TRUE );
+		}
+		break;
+
+	case WM_ERASEBKGND:
+		{
+			bParsed = TRUE;
+			return TRUE;
+		}
+		break;
+	case WM_PRINTCLIENT:
+		{
+			this->DrawClientArea((HDC)wParam, uMsg, lParam);
+			bParsed = TRUE;
+		}
+		break;
+	case WM_PAINT:
+		{
+			bParsed = TRUE;
+			PAINTSTRUCT ps;
+			HDC hdc;
+
+			hdc = BeginPaint( this->m_Hwnd, &ps );
+
+			this->DrawClientArea(hdc, uMsg, lParam);
+
+			EndPaint( this->m_Hwnd, &ps );
+		}
+		break;
+
+	case WM_DESTROY:
+		{
+			delete this;
+			bParsed = TRUE;
+		}
+		break;
+
+	default:
+		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		break;
+  }
+
+  return 0L;
 }
 
 void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
@@ -538,14 +541,37 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
+	HTHEME hTheme = NULL;
+	int iStateId = 0;
+	if (!this->m_bNoTheme && dcxIsThemeActive()) {
+		hTheme = OpenThemeDataUx(this->m_Hwnd, L"BUTTON");
+
+		// this allows the theme buttons to have a transparent background like the normal ones
+		switch (nState)
+		{
+		case 1:
+			iStateId = PBS_HOT;
+			break;
+		case 2:
+			iStateId = PBS_PRESSED;
+			break;
+		case 3:
+			iStateId = PBS_DISABLED;
+			break;
+		default:
+			iStateId = PBS_NORMAL;
+			break;
+		}
+	}
+
 	// fill background.
 	if (this->isExStyle(WS_EX_TRANSPARENT))
-	{
+	{ // fill with parent image
 		if (!this->m_bAlphaBlend)
 			this->DrawParentsBackground(hdc,&rcClient);
 	}
-	else
-		DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+	else // normal bkg
+		DcxControl::DrawCtrlBackground(hdc,this,&rcClient, hTheme, BP_PUSHBUTTON, iStateId);
 
 	// Bitmapped button
 	if (isBitmap) {
@@ -568,37 +594,17 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	if ((!isBitmap) || (this->m_bBitmapText)) {          
 		// draw default window bg
 		if (!isBitmap) {
-			if (!this->m_bNoTheme && dcxIsThemeActive()) {
-				// this allows the theme buttons to have a transparent background like the normal ones
+			if (hTheme != NULL) {
 				HRGN hRgn = NULL;
-				int iState;
-				switch (nState)
-				{
-				case 1:
-					iState = PBS_HOT;
-					break;
-				case 2:
-					iState = PBS_PRESSED;
-					break;
-				case 3:
-					iState = PBS_DISABLED;
-					break;
-				default:
-					iState = PBS_NORMAL;
-					break;
-				}
-				//HTHEME hTheme = GetWindowThemeUx(this->m_Hwnd);
-				HTHEME hTheme = OpenThemeDataUx(this->m_Hwnd, L"BUTTON");
-				if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_PUSHBUTTON,iState,&rcClient, &hRgn) == S_OK)
+				if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
 					SelectClipRgn(hdc, hRgn);
-				CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINTCLIENT, (WPARAM) hdc, PRF_CLIENT );
+
+				CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINTCLIENT, (WPARAM)hdc, PRF_CLIENT);
 				DeleteRgn(hRgn);
-				CloseThemeDataUx(hTheme);
 			}
 			else {
-				//CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-				UINT iState = DFCS_BUTTONPUSH|DFCS_ADJUSTRECT;
 				RECT rc = rcClient;
+				UINT iState = DFCS_BUTTONPUSH|DFCS_ADJUSTRECT;
 				switch (nState)
 				{
 				case 1:
@@ -682,11 +688,9 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 			if (!this->m_bCtrlCodeText) {
 				if (!this->m_bSelected && this->m_bShadowText)
-					dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(), this->m_tsCaption.len(),&rcTxt,
-						DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
+					dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(), this->m_tsCaption.len(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
 				else
-					DrawText( hdc, this->m_tsCaption.to_chr( ), this->m_tsCaption.len( ), 
-						&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+					DrawText( hdc, this->m_tsCaption.to_chr( ), this->m_tsCaption.len( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
 			}
 			else
 				mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false));
@@ -694,6 +698,9 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		SelectFont( hdc, hFontOld );
 	}
+
+	if (hTheme != NULL)
+		CloseThemeDataUx(hTheme);
 
 	this->FinishAlphaBlend(ai);
 }

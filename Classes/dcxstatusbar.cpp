@@ -44,6 +44,9 @@ DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 		GetModuleHandle(NULL),
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -314,39 +317,29 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 					!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 					this->m_pParentDialog->getControlByID( ID ) == NULL )
 				{
-					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,itemtext,2,
-									CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|
-									 CTLF_ALLOW_STATUSBAR|CTLF_ALLOW_TOOLBAR|
-									 CTLF_ALLOW_TREEVIEW|CTLF_ALLOW_LISTVIEW|CTLF_ALLOW_REBAR|
-									 CTLF_ALLOW_BUTTON|CTLF_ALLOW_EDIT|
-									 CTLF_ALLOW_UPDOWN| CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
-									 CTLF_ALLOW_CALANDER|CTLF_ALLOW_DIVIDER|CTLF_ALLOW_PANEL|
-									 CTLF_ALLOW_TAB|CTLF_ALLOW_LINE|CTLF_ALLOW_BOX|CTLF_ALLOW_RADIO|
-									 CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
-									 CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
-									 CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW,this->m_Hwnd);
-					//DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,itemtext,2,-1,this->m_Hwnd);
-// problems with colorcombo/richedit, causes odd gfx glitches & dialog slow down.
-					if ( p_Control != NULL ) {
-						this->m_pParentDialog->addControl( p_Control );
-						pPart->m_Child = p_Control;
-						//SendMessage(this->m_Hwnd,SB_SETMINHEIGHT,16+(2*GetSystemMetrics(SM_CYEDGE)),0);
-						//if (p_Control->getType() == "colorcombo") {
-						//	int h = (int)SendMessage(p_Control->getHwnd(), CB_GETITEMHEIGHT, -1, 0);
-						//	if (h != CB_ERR)
-						//		SendMessage(this->m_Hwnd,SB_SETMINHEIGHT,h+5,0);
-						//}
-						//else if (p_Control->getType() == "trackbar") {
-						//	RECT rc;
-						//	SendMessage(p_Control->getHwnd(), TBM_GETCHANNELRECT, 0, (LPARAM)&rc);
-						//	SendMessage(this->m_Hwnd,SB_SETMINHEIGHT,(5 + rc.bottom - rc.top),0);
-						//}
-						//this->redrawWindow( );
-						ShowWindow(p_Control->getHwnd(),SW_HIDE); // hide control untill a WM_DRAWITEM is recieved.
-						SendMessage(this->m_Hwnd,WM_SIZE,0,0);
+					try {
+						DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,itemtext,2,
+										CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|
+										 CTLF_ALLOW_STATUSBAR|CTLF_ALLOW_TOOLBAR|
+										 CTLF_ALLOW_TREEVIEW|CTLF_ALLOW_LISTVIEW|CTLF_ALLOW_REBAR|
+										 CTLF_ALLOW_BUTTON|CTLF_ALLOW_EDIT|
+										 CTLF_ALLOW_UPDOWN| CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
+										 CTLF_ALLOW_CALANDER|CTLF_ALLOW_DIVIDER|CTLF_ALLOW_PANEL|
+										 CTLF_ALLOW_TAB|CTLF_ALLOW_LINE|CTLF_ALLOW_BOX|CTLF_ALLOW_RADIO|
+										 CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
+										 CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
+										 CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW,this->m_Hwnd);
+						//DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,itemtext,2,-1,this->m_Hwnd);
+						// problems with colorcombo/richedit, causes odd gfx glitches & dialog slow down.
+						if ( p_Control != NULL ) {
+							this->m_pParentDialog->addControl( p_Control );
+							pPart->m_Child = p_Control;
+							ShowWindow(p_Control->getHwnd(),SW_HIDE); // hide control untill a WM_DRAWITEM is recieved.
+							SendMessage(this->m_Hwnd,WM_SIZE,0,0);
+						}
 					}
-					else {
-						this->showError(NULL, "-t", "Error creating control");
+					catch ( char *err ) {
+						this->showErrorEx(NULL, "-t", "Unable To Create Control %d (%s)", ID - mIRC_ID_OFFSET, err);
 						delete pPart;
 						return;
 					}

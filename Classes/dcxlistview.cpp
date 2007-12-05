@@ -57,6 +57,9 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
 		GetModuleHandle(NULL),
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -540,13 +543,13 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		LVHITTESTINFO lvh;
 		GetCursorPos( &lvh.pt );
-		ScreenToClient( this->m_Hwnd, &lvh.pt );
-		ListView_HitTest( this->m_Hwnd, &lvh );
+		MapWindowPoints(NULL, this->m_Hwnd, &lvh.pt, 1 );
+		ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
 		if ( lvh.flags & LVHT_ONITEM )
-			wsprintf( szReturnValue, "%d", lvh.iItem + 1 );
+			wsprintf( szReturnValue, "%d %d", lvh.iItem + 1, lvh.iSubItem +1 );
 		else
-			wsprintf( szReturnValue, "%d", -1 );
+			lstrcpy( szReturnValue, "-1 -1");
 
 		return;
 	}
@@ -2271,8 +2274,6 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								LVHITTESTINFO lvh;
 								LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
 								lvh.pt = nmia->ptAction;
-								//GetCursorPos( &lvh.pt );
-								//ScreenToClient( this->m_Hwnd, &lvh.pt );
 								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
 								if ( lvh.flags & LVHT_ONITEM )
@@ -2306,7 +2307,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 								LVHITTESTINFO lvh;
 								GetCursorPos( &lvh.pt );
-								ScreenToClient( this->m_Hwnd, &lvh.pt );
+								MapWindowPoints(NULL, this->m_Hwnd, &lvh.pt, 1 );
 								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
 								if ( lvh.flags & LVHT_ONITEM )
@@ -2853,7 +2854,12 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, TString &styles) {
 	//	ctrl_args.sprintf("%s %d %d %d %d %s", styles.gettok(2).to_chr(), rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), styles.gettok(3,-1).to_chr());
 	//	lpdcxlvi->pbar = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl_args,1,-1,this->m_Hwnd);
 	//}
-	lpdcxlvi->pbar = (DcxControl *)new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
+	try {
+		lpdcxlvi->pbar = (DcxControl *)new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
+	}
+	catch ( char *err ) {
+		this->showErrorEx(NULL, "-a", "Unable To Create ProgressBar: %s", err);
+	}
 	return lpdcxlvi->pbar;
 }
 

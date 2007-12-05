@@ -34,6 +34,9 @@ DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
     GetModuleHandle(NULL),
     NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
   if ( bNoTheme )
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -142,6 +145,7 @@ void DcxPager::parseCommandRequest( TString & input ) {
       !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
       this->m_pParentDialog->getControlByID( ID ) == NULL ) 
     {
+			try {
 				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,
 					CTLF_ALLOW_TOOLBAR |
 					CTLF_ALLOW_REBAR |
@@ -153,13 +157,17 @@ void DcxPager::parseCommandRequest( TString & input ) {
 					CTLF_ALLOW_DOCK
 					,this->m_Hwnd);
 
-      if ( p_Control != NULL ) {
-        this->m_pParentDialog->addControl( p_Control );
-				p_Control->addStyle(CCS_NORESIZE);
-				this->setChild(p_Control->getHwnd());
+				if ( p_Control != NULL ) {
+					this->m_pParentDialog->addControl( p_Control );
+					p_Control->addStyle(CCS_NORESIZE);
+					this->setChild(p_Control->getHwnd());
 
-        this->redrawWindow( );
-      }
+					this->redrawWindow( );
+				}
+			}
+			catch ( char *err ) {
+				this->showErrorEx(NULL, "-c", "Unable To Create Control %d (%s)", ID - mIRC_ID_OFFSET, err);
+			}
     }
     else
 			this->showErrorEx(NULL, "-c", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );

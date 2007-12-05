@@ -1021,10 +1021,8 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce ) {
 
         if ( mii.fType & MFT_SEPARATOR )
           p_Item = new XPopupMenuItem( this, TRUE );
-        else {
-          TString itemtext( string );
-          p_Item = new XPopupMenuItem( this, itemtext, -1, mii.hSubMenu!=NULL?TRUE:FALSE );
-        }
+        else
+          p_Item = new XPopupMenuItem( this, TString( string ), -1, mii.hSubMenu!=NULL?TRUE:FALSE );
 
         this->m_vpMenuItem.push_back( p_Item );
         mii.dwItemData = (ULONG_PTR) p_Item;

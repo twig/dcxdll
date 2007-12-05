@@ -154,8 +154,8 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 
 void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 
-  LPXPMENUCOLORS lpcol = this->m_pXParentMenu->getColors( );
-  UINT iItemStyle = this->m_pXParentMenu->getItemStyle( );
+	LPXPMENUCOLORS lpcol = this->m_pXParentMenu->getColors( );
+	UINT iItemStyle = this->m_pXParentMenu->getItemStyle( );
 
 	// playing around with menu transparency
 	if (SetLayeredWindowAttributesUx != NULL) {
@@ -171,55 +171,58 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 				if (!(dwStyle & WS_EX_LAYERED)) {
 					SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
 					SetLayeredWindowAttributesUx(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
+					//RedrawWindow(hMenuWnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE);
+					// NB: Menus on XP will not show as transparent straight away when a transition effect is used when displaying the menu.
+					// This can't be fixed at this time, live with it.
 				}
 			}
 		}
 	}
-  // All Items
-  this->DrawItemBackground( lpdis, lpcol );
-  this->DrawItemBox( lpdis, lpcol );
+	// All Items
+	this->DrawItemBackground( lpdis, lpcol );
+	this->DrawItemBox( lpdis, lpcol );
 
-  if ( this->m_pXParentMenu->getName( ) == "mircbar" ) {
+	if ( this->m_pXParentMenu->getName( ) == "mircbar" ) {
 
-    if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
+		if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
 
-      this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
-      this->m_tsItemText = this->m_tsItemText.gettok( 2, "\v" );
-      this->m_tsItemText.trim( );
-    }
-  }
+			this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
+			this->m_tsItemText = this->m_tsItemText.gettok( 2, "\v" );
+			this->m_tsItemText.trim( );
+		}
+	}
 
-  // Item is selected
-  if ( lpdis->itemState & ODS_SELECTED ) {
+	// Item is selected
+	if ( lpdis->itemState & ODS_SELECTED ) {
 
-    if ( lpdis->itemState & ODS_GRAYED ) {
-     
-      if ( iItemStyle & XPS_DISABLEDSEL )
+		if ( lpdis->itemState & ODS_GRAYED ) {
+
+			if ( iItemStyle & XPS_DISABLEDSEL )
 				this->DrawItemSelection( lpdis, lpcol, TRUE, this->m_pXParentMenu->IsRounded() );
-    }
-    else
+		}
+		else
 			this->DrawItemSelection( lpdis, lpcol, FALSE, this->m_pXParentMenu->IsRounded() );
-  }
+	}
 
-  if ( lpdis->itemState & ODS_CHECKED && this->m_bSep == FALSE )
-    this->DrawItemCheckBox( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
+	if ( lpdis->itemState & ODS_CHECKED && this->m_bSep == FALSE )
+		this->DrawItemCheckBox( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
 
-  // Separator
-  if ( this->m_bSep == TRUE )
-   this->DrawItemSeparator( lpdis, lpcol );
-  // Regular Item
-  else {
+	// Separator
+	if ( this->m_bSep == TRUE )
+		this->DrawItemSeparator( lpdis, lpcol );
+	// Regular Item
+	else {
 
-    this->DrawItemText( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
+		this->DrawItemText( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
 
-    if ( !( lpdis->itemState & ODS_CHECKED ) || this->m_nIcon > -1 ) {
-      this->DrawItemIcon( lpdis, lpcol, iItemStyle, lpdis->itemState & ODS_SELECTED?TRUE:FALSE, 
-      lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
-    }
+		if ( !( lpdis->itemState & ODS_CHECKED ) || this->m_nIcon > -1 ) {
+			this->DrawItemIcon( lpdis, lpcol, iItemStyle, lpdis->itemState & ODS_SELECTED?TRUE:FALSE, 
+				lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
+		}
 
-    if ( this->m_bSubMenu == TRUE )
-      this->DrawItemSubArrow( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
-  }
+		if ( this->m_bSubMenu == TRUE )
+			this->DrawItemSubArrow( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
+	}
 }
 
 /*!

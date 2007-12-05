@@ -88,47 +88,47 @@ class DcxControl : public DcxWindow {
 
 public:
 
-  DcxControl( const UINT mID, DcxDialog * p_Dialog );
-  virtual ~DcxControl( );
+	DcxControl( const UINT mID, DcxDialog * p_Dialog );
+	virtual ~DcxControl( );
 
-  virtual void parseInfoRequest( TString & input, char * szReturnValue ) = 0;
-  virtual void parseCommandRequest( TString & input ) = 0;
-  virtual void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
+	virtual void parseInfoRequest( TString & input, char * szReturnValue ) = 0;
+	virtual void parseCommandRequest( TString & input ) = 0;
+	virtual void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
 
-  static void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	static void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  BOOL callAliasEx( char * szReturn, const char * szFormat, ... );
+	BOOL callAliasEx( char * szReturn, const char * szFormat, ... );
 
-  UINT getUserID( ) const;
+	UINT getUserID( ) const;
 
-  static LRESULT CALLBACK WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static LRESULT CALLBACK WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-  virtual LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
-  virtual LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
+	virtual LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
+	virtual LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
 
-  LRESULT setFont( const HFONT hFont, const BOOL fRedraw );
-  HFONT getFont( ) const;
+	LRESULT setFont( const HFONT hFont, const BOOL fRedraw );
+	HFONT getFont( ) const;
 
-  void setControlFont( const HFONT hFont, const BOOL fRedraw );
+	void setControlFont( const HFONT hFont, const BOOL fRedraw );
 
-  LRESULT setRedraw( const BOOL fView );
+	LRESULT setRedraw( const BOOL fView );
 
-  HBRUSH getBackClrBrush( ) const;
-  COLORREF getBackColor( ) const;
-  COLORREF getTextColor( ) const;
+	HBRUSH getBackClrBrush( ) const;
+	COLORREF getBackColor( ) const;
+	COLORREF getTextColor( ) const;
 	COLORREF getStartGradientColor(void) const { return this->m_clrStartGradient; };
 	COLORREF getEndGradientColor(void) const { return this->m_clrEndGradient; };
 
-  static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, int offset, const UINT64 mask = -1, HWND hParent = NULL);
+	static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, int offset, const UINT64 mask = -1, HWND hParent = NULL);
 
-  virtual TString getType( ) = 0;
+	virtual TString getType( ) = 0;
 
-  inline void incRef( ) { ++this->m_iRefCount; };
-  inline void decRef( ) { --this->m_iRefCount; };
-  inline UINT getRefCount( ) const { return this->m_iRefCount; };
+	inline void incRef( ) { ++this->m_iRefCount; };
+	inline void decRef( ) { --this->m_iRefCount; };
+	inline UINT getRefCount( ) const { return this->m_iRefCount; };
 	//DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
-	static void DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd = NULL);
+	static void DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd = NULL, HTHEME hTheme = NULL, const int iPartId = 0, const int iStateId = 0);
 	void DrawParentsBackground(const HDC hdc, const LPRECT rcBounds = NULL, const HWND dHwnd = NULL);
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai);
@@ -138,17 +138,17 @@ public:
 
 protected:
 
-  DcxDialog * m_pParentDialog; //!< Parent DcxDialog object
+	DcxDialog * m_pParentDialog; //!< Parent DcxDialog object
 
-  WNDPROC m_DefaultWindowProc;  //!< Default window procedure
+	WNDPROC m_DefaultWindowProc;  //!< Default window procedure
 
-  HFONT m_hFont; //!< Control Font
+	HFONT m_hFont; //!< Control Font
 
-  TString m_tsMark; //!< Mark Information (see /xdid -M)
+	TString m_tsMark; //!< Mark Information (see /xdid -M)
 
-  COLORREF m_clrText;     //!< Font color
-  COLORREF m_clrBackText; //!< Font Back Color (not supported)
-  HBRUSH m_hBackBrush;    //!< Background control color
+	COLORREF m_clrText;     //!< Font color
+	COLORREF m_clrBackText; //!< Font Back Color (not supported)
+	HBRUSH m_hBackBrush;    //!< Background control color
 	HBRUSH m_hBorderBrush;	//!< Controls Border Colour.
 	HBITMAP m_bitmapBg;			//!< Background bitmap
 	COLORREF m_colTransparentBg;
@@ -156,10 +156,10 @@ protected:
 	COLORREF m_clrStartGradient;
 	COLORREF m_clrEndGradient;
 
-  UINT m_iRefCount;
+	UINT m_iRefCount;
 
-  HCURSOR m_hCursor;  //!< Cursor Handle
-  BOOL m_bCursorFromFile; //!< Cursor comes from a file?
+	HCURSOR m_hCursor;  //!< Cursor Handle
+	BOOL m_bCursorFromFile; //!< Cursor comes from a file?
 
 	HWND m_ToolTipHWND; //!< Tooltip window (if any)
 	TString m_tsToolTip; //!< This controls tooltip text (if any).
@@ -174,20 +174,21 @@ protected:
 	bool m_bShadowText; //!< Text is drawn with a shadow.
 	bool m_bCtrlCodeText; //!< mIRC's ctrl codes are used to change the text's appearance.
 	bool m_bNoTheme; //!< Control isn't themed.
-  /* ***** */
+	//int m_iThemePartId;
+	/* ***** */
 
-  void parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags );
-  BOOL parseGlobalInfoRequest( const TString & input, char * szReturnValue );
+	void parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags );
+	BOOL parseGlobalInfoRequest( const TString & input, char * szReturnValue );
 
-  static UINT parseColorFlags( TString & flags );
-  static UINT parseCursorFlags( TString & flags );
-  static LPSTR parseCursorType( TString & cursor );
+	static UINT parseColorFlags( TString & flags );
+	static UINT parseCursorFlags( TString & flags );
+	static LPSTR parseCursorType( TString & cursor );
 
-  void registreDefaultWindowProc( );
-  void unregistreDefaultWindowProc( );
+	void registreDefaultWindowProc( );
+	void unregistreDefaultWindowProc( );
 
-  static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
-  LRESULT CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
+	LRESULT CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	static void InvalidateParentRect(HWND hwnd);
 	void DrawControl(HDC hDC, HWND hwnd);
 };

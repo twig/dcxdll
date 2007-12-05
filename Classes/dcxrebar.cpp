@@ -47,8 +47,8 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
     GetModuleHandle(NULL),
     NULL);
 
-	//if (!IsWindow(this->m_Hwnd))
-	//	throw "Unable To Create Window";
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
 
 	if ( bNoTheme ) {
 		//SendMessage( this->m_Hwnd, RB_SETWINDOWTHEME, NULL, L" ");
@@ -338,34 +338,40 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 				!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 			{
-				p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
-					CTLF_ALLOW_TRACKBAR |
-					CTLF_ALLOW_PBAR |
-					CTLF_ALLOW_COMBOEX |
-					CTLF_ALLOW_TOOLBAR |
-					CTLF_ALLOW_STATUSBAR |
-					CTLF_ALLOW_TREEVIEW |
-					CTLF_ALLOW_LISTVIEW |
-					CTLF_ALLOW_COLORCOMBO |
-					CTLF_ALLOW_BUTTON |
-					CTLF_ALLOW_RICHEDIT |
-					CTLF_ALLOW_DIVIDER |
-					CTLF_ALLOW_PANEL |
-					CTLF_ALLOW_TAB
-					,this->m_Hwnd);
-
-				if ( p_Control != NULL ) {
-					if ((p_Control->getType() == "statusbar") || (p_Control->getType() == "toolbar"))
-						p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
-					this->m_pParentDialog->addControl( p_Control );
-					rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE | RBBIM_ID;
-					rbBand.hwndChild = p_Control->getHwnd( );
-					//rbBand.cxMinChild = cx;
-					//rbBand.cyMinChild = cy;
-					//rbBand.cx = width;
-					//rbBand.cyIntegral = 1;
-					//rbBand.cyChild = cy;
-					rbBand.wID = ID;
+				try {
+					p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
+						CTLF_ALLOW_TRACKBAR |
+						CTLF_ALLOW_PBAR |
+						CTLF_ALLOW_COMBOEX |
+						CTLF_ALLOW_TOOLBAR |
+						CTLF_ALLOW_STATUSBAR |
+						CTLF_ALLOW_TREEVIEW |
+						CTLF_ALLOW_LISTVIEW |
+						CTLF_ALLOW_COLORCOMBO |
+						CTLF_ALLOW_BUTTON |
+						CTLF_ALLOW_RICHEDIT |
+						CTLF_ALLOW_DIVIDER |
+						CTLF_ALLOW_PANEL |
+						CTLF_ALLOW_TAB
+						,this->m_Hwnd);
+					if ( p_Control != NULL ) {
+						if ((p_Control->getType() == "statusbar") || (p_Control->getType() == "toolbar"))
+							p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
+						this->m_pParentDialog->addControl( p_Control );
+						rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE | RBBIM_ID;
+						rbBand.hwndChild = p_Control->getHwnd( );
+						//rbBand.cxMinChild = cx;
+						//rbBand.cyMinChild = cy;
+						//rbBand.cx = width;
+						//rbBand.cyIntegral = 1;
+						//rbBand.cyChild = cy;
+						rbBand.wID = ID;
+					}
+				}
+				catch ( char *err ) {
+					this->showErrorEx(NULL, "-a", "Unable To Create Control: %d (%s)", ID - mIRC_ID_OFFSET, err );
+					delete lpdcxrbb;
+					return;
 				}
 			}
 			else {

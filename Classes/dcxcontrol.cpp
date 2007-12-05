@@ -116,13 +116,13 @@ DcxControl::~DcxControl( ) {
   // Delete background brush
   if ( this->m_hBackBrush != NULL ) {
 
-      DeleteObject( this->m_hBackBrush );
+      DeleteBrush( this->m_hBackBrush );
       this->m_hBackBrush = NULL;
   }
   // Delete border brush
   if ( this->m_hBorderBrush != NULL ) {
 
-      DeleteObject( this->m_hBorderBrush );
+      DeleteBrush( this->m_hBorderBrush );
       this->m_hBorderBrush = NULL;
   }
 
@@ -1129,8 +1129,10 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 				if (p_Dialog->getControlByHWND(winHwnd) == NULL)
 					return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 			}
-			else
+			else {
 				mIRCDebug("D_ERROR: Docking (No such window %s)", tsInput.gettok( offset +1 ).to_chr());
+				throw "No such window";
+			}
 		}
 	}
 	else if ((type == "dialog") && (mask & CTLF_ALLOW_DOCK)) {
@@ -1149,11 +1151,12 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 					return newDialog;
 				}
 			}
-			else
+			else {
 				mIRCDebug("D_ERROR: Docking (No such dialog %s)", tsInput.gettok( offset +1 ).to_chr());
+				throw "No such dialog";
+			}
 		}
 	}
-
 	return NULL;
 }
 
@@ -1200,11 +1203,11 @@ void DcxControl::setControlFont( const HFONT hFont, const BOOL fRedraw ) {
   if ( hControlFont != GetStockObject( DEFAULT_GUI_FONT ) ) {
 
     if ( hControlFont != NULL ) {
-      DeleteObject( hControlFont );
+      DeleteFont( hControlFont );
       this->m_hFont = NULL;
     }
     else if ( this->m_hFont != NULL ) {
-      DeleteObject( this->m_hFont );
+      DeleteFont( this->m_hFont );
       this->m_hFont = NULL;
     }
   }
@@ -1250,7 +1253,7 @@ void DcxControl::updateParentCtrl(void)
 	this->m_pParentHWND = GetParent(this->m_Hwnd);
 }
 
-void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd)
+void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd, HTHEME hTheme, const int iPartId, const int iStateId)
 {
 	// fill background.
 	if (!p_this->isExStyle(WS_EX_TRANSPARENT)) {
@@ -1259,8 +1262,15 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 			GetClientRect(p_this->getHwnd(), &rc);
 		else
 			CopyRect(&rc, rwnd);
-		if (!IsWindowEnabled(p_this->m_Hwnd)) // use disabled colouring when windows disabled.
-			FillRect( hdc, &rc, GetSysColorBrush(COLOR_3DFACE) );
+		if (!IsWindowEnabled(p_this->m_Hwnd)) {// use disabled colouring when windows disabled.
+			if (hTheme && !p_this->m_bNoTheme && dcxIsThemeActive()) {
+				if (IsThemeBackgroundPartiallyTransparentUx(hTheme, iPartId, iStateId))
+					DrawThemeParentBackgroundUx(p_this->m_Hwnd, hdc, &rc);
+				DrawThemeBackgroundUx(hTheme, hdc, iPartId, iStateId, &rc, NULL);
+			}
+			else
+				FillRect( hdc, &rc, GetSysColorBrush(COLOR_3DFACE) );
+		}
 		else if (p_this->m_bGradientFill) {
 			COLORREF clrStart = p_this->m_clrStartGradient;
 			COLORREF clrEnd = p_this->m_clrEndGradient;
@@ -1274,8 +1284,16 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 		}
 		else {
 			HBRUSH hBrush = p_this->getBackClrBrush();
-			if (hBrush == NULL)
-				hBrush = GetSysColorBrush(COLOR_3DFACE);
+			if (hBrush == NULL) {
+				if (hTheme && !p_this->m_bNoTheme && dcxIsThemeActive()) {
+					if (IsThemeBackgroundPartiallyTransparentUx(hTheme, iPartId, iStateId))
+						DrawThemeParentBackgroundUx(p_this->m_Hwnd, hdc, &rc);
+					DrawThemeBackgroundUx(hTheme, hdc, iPartId, iStateId, &rc, NULL);
+					return;
+				}
+				else
+					hBrush = GetSysColorBrush(COLOR_3DFACE);
+			}
 			if ( hBrush != NULL )
 				FillRect( hdc, &rc, hBrush );
 		}

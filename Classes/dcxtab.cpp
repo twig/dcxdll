@@ -46,6 +46,9 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
     GetModuleHandle(NULL), 
     NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
   if ( bNoTheme )
     dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -362,24 +365,29 @@ void DcxTab::parseCommandRequest( TString & input ) {
         !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
         this->m_pParentDialog->getControlByID( ID ) == NULL ) 
       {
-				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
-					CTLF_ALLOW_TREEVIEW |
-					CTLF_ALLOW_LISTVIEW |
-					CTLF_ALLOW_RICHEDIT |
-					CTLF_ALLOW_DIVIDER |
-					CTLF_ALLOW_PANEL |
-					CTLF_ALLOW_TAB |
-					CTLF_ALLOW_REBAR |
-					CTLF_ALLOW_WEBCTRL |
-					CTLF_ALLOW_EDIT |
-					CTLF_ALLOW_IMAGE |
-					CTLF_ALLOW_LIST
-					,this->m_Hwnd);
+				try {
+					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
+						CTLF_ALLOW_TREEVIEW |
+						CTLF_ALLOW_LISTVIEW |
+						CTLF_ALLOW_RICHEDIT |
+						CTLF_ALLOW_DIVIDER |
+						CTLF_ALLOW_PANEL |
+						CTLF_ALLOW_TAB |
+						CTLF_ALLOW_REBAR |
+						CTLF_ALLOW_WEBCTRL |
+						CTLF_ALLOW_EDIT |
+						CTLF_ALLOW_IMAGE |
+						CTLF_ALLOW_LIST
+						,this->m_Hwnd);
 
-        if ( p_Control != NULL ) {
-          lpdtci->mChildHwnd = p_Control->getHwnd( );
-          this->m_pParentDialog->addControl( p_Control );
-        }
+					if ( p_Control != NULL ) {
+						lpdtci->mChildHwnd = p_Control->getHwnd( );
+						this->m_pParentDialog->addControl( p_Control );
+					}
+				}
+				catch ( char *err ) {
+					this->showErrorEx(NULL, "-a", "Unable To Create Control %d (%s)", ID - mIRC_ID_OFFSET, err);
+				}
       }
       else
 				this->showErrorEx(NULL, "-a", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );

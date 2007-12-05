@@ -43,6 +43,9 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 		GetModuleHandle(NULL), 
 		NULL);
 
+	if (!IsWindow(this->m_Hwnd))
+		throw "Unable To Create Window";
+
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
@@ -300,6 +303,11 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				return MA_NOACTIVATE;
 			}
 			break;
+		//case WM_SIZE:
+		//	{
+		//		this->redrawWindow();
+		//	}
+		//	break;
     case WM_DESTROY:
       {
         delete this;
