@@ -421,7 +421,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			tbbi.cbSize = sizeof( TBBUTTONINFO );
 			tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
 
-			if ( this->getButtonInfo( nButton /*this->getIndexToCommand( nButton )*/, &tbbi ) ) {
+			if ( this->getButtonInfo( nButton /*this->getIndexToCommand( nButton )*/, &tbbi ) != -1 ) {
 
 				LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
 
@@ -1169,158 +1169,158 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					break;
 
 				switch( hdr->code ) {
-		case NM_RCLICK:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					LPNMMOUSE lpnm = (LPNMMOUSE) lParam;
-					POINT pt = lpnm->pt;
-					int iButton = (int) this->hitTest( &pt );
+				case NM_RCLICK:
+					{
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+							LPNMMOUSE lpnm = (LPNMMOUSE) lParam;
+							POINT pt = lpnm->pt;
+							int iButton = (int) this->hitTest( &pt );
 
-					if ( iButton > -1 ) {
-						RECT rc;
-						this->getItemRect( iButton, &rc );
-						MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rc, 2);
-						this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", this->getUserID( ), iButton+1, rc.left, rc.bottom, rc.right, rc.top );
-						//POINT pt2 = pt;
-						//pt.x = rc.left; 
-						//pt.y = rc.bottom;
-						//pt2.x = rc.left;
-						//pt2.y = rc.top;
-						//ClientToScreen( this->m_Hwnd, &pt );
-						//ClientToScreen( this->m_Hwnd, &pt2 );
-						//this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", 
-						//	this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
+							if ( iButton > -1 ) {
+								RECT rc;
+								this->getItemRect( iButton, &rc );
+								MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rc, 2);
+								this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", this->getUserID( ), iButton+1, rc.left, rc.bottom, rc.right, rc.top );
+								//POINT pt2 = pt;
+								//pt.x = rc.left; 
+								//pt.y = rc.bottom;
+								//pt2.x = rc.left;
+								//pt2.y = rc.top;
+								//ClientToScreen( this->m_Hwnd, &pt );
+								//ClientToScreen( this->m_Hwnd, &pt2 );
+								//this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", 
+								//	this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
+							}
+						}
+						bParsed = TRUE;
+						return TRUE;
 					}
-				}
-				bParsed = TRUE;
-				return TRUE;
-			}
-			break;
+					break;
 
-		case TBN_DROPDOWN:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
-					int iButton = lpnmtb->iItem -1;
+				case TBN_DROPDOWN:
+					{
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+							LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
+							int iButton = lpnmtb->iItem -1;
 
-					if ( iButton > -1 ) {
-						RECT rc;
-						this->getItemRect( iButton, &rc );
-						MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rc, 2);
-						this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown", this->getUserID( ), iButton+1, rc.left, rc.bottom, rc.right, rc.top );
-						//POINT pt2 = pt;
-						//pt.x = rc.left;
-						//pt.y = rc.bottom;
-						//pt2.x = rc.left;
-						//pt2.y = rc.top;
-						//ClientToScreen( this->m_Hwnd, &pt );
-						//ClientToScreen( this->m_Hwnd, &pt2 );
-						//this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown",
-						//	this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
+							if ( iButton > -1 ) {
+								RECT rc;
+								this->getItemRect( iButton, &rc );
+								MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rc, 2);
+								this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown", this->getUserID( ), iButton+1, rc.left, rc.bottom, rc.right, rc.top );
+								//POINT pt2 = pt;
+								//pt.x = rc.left;
+								//pt.y = rc.bottom;
+								//pt2.x = rc.left;
+								//pt2.y = rc.top;
+								//ClientToScreen( this->m_Hwnd, &pt );
+								//ClientToScreen( this->m_Hwnd, &pt2 );
+								//this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown",
+								//	this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
+							}
+						}
+						bParsed = TRUE;
+						return TBDDRET_DEFAULT;
 					}
-				}
-				bParsed = TRUE;
-				return TBDDRET_DEFAULT;
-			}
-			break;
+					break;
 
-		case NM_CUSTOMDRAW:
-			{
-				LPNMTBCUSTOMDRAW lpntbcd = (LPNMTBCUSTOMDRAW) lParam;
+				case NM_CUSTOMDRAW:
+					{
+						LPNMTBCUSTOMDRAW lpntbcd = (LPNMTBCUSTOMDRAW) lParam;
 
-				bParsed = TRUE;
-				switch( lpntbcd->nmcd.dwDrawStage ) {
+						bParsed = TRUE;
+						switch( lpntbcd->nmcd.dwDrawStage ) {
 
-		case CDDS_PREPAINT:
-			return (CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW);
+						case CDDS_PREPAINT:
+							return (CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW);
 
-		case CDDS_ITEMPREPAINT:
-			{
+						case CDDS_ITEMPREPAINT:
+							{
 
-				LPDCXTBBUTTON lpdtbb = (LPDCXTBBUTTON) lpntbcd->nmcd.lItemlParam;
+								LPDCXTBBUTTON lpdtbb = (LPDCXTBBUTTON) lpntbcd->nmcd.lItemlParam;
 
-				if ( lpdtbb == NULL )
-					return CDRF_DODEFAULT;
+								if ( lpdtbb == NULL )
+									return CDRF_DODEFAULT;
 
-				if ( lpdtbb->clrText != -1 )
-					lpntbcd->clrText = lpdtbb->clrText;
+								if ( lpdtbb->clrText != -1 )
+									lpntbcd->clrText = lpdtbb->clrText;
 
-				HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
+								HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
 
-				LOGFONT lf;
-				GetObject( hFont, sizeof(LOGFONT), &lf );
-				if ( lpdtbb->bBold )
-					lf.lfWeight |= FW_BOLD;
-				else
-					lf.lfWeight &= ~FW_BOLD;
-				if ( lpdtbb->bUline )
-					lf.lfUnderline = TRUE;
-				else
-					lf.lfUnderline = FALSE;
-				HFONT hFontNew = CreateFontIndirect( &lf );
-				//HFONT hOldFont = (HFONT) SelectObject( lpntbcd->nmcd.hdc, hFontNew );
-				SelectObject(lpntbcd->nmcd.hdc, hFontNew);
-				DeleteObject(hFontNew);
-			}
-			return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
+								LOGFONT lf;
+								GetObject( hFont, sizeof(LOGFONT), &lf );
+								if ( lpdtbb->bBold )
+									lf.lfWeight |= FW_BOLD;
+								else
+									lf.lfWeight &= ~FW_BOLD;
+								if ( lpdtbb->bUline )
+									lf.lfUnderline = TRUE;
+								else
+									lf.lfUnderline = FALSE;
+								HFONT hFontNew = CreateFontIndirect( &lf );
+								//HFONT hOldFont = (HFONT) SelectObject( lpntbcd->nmcd.hdc, hFontNew );
+								SelectObject(lpntbcd->nmcd.hdc, hFontNew);
+								DeleteObject(hFontNew);
+							}
+							return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
 
-		case CDDS_ITEMPOSTPAINT:
-			return CDRF_DODEFAULT;
+						case CDDS_ITEMPOSTPAINT:
+							return CDRF_DODEFAULT;
 
-		default:
-			return CDRF_DODEFAULT;
-				}
-			}
-			break;
+						default:
+							return CDRF_DODEFAULT;
+						}
+					}
+					break;
 
-		case TBN_GETINFOTIP:
-			{
-				LPNMTBGETINFOTIP tcgit = (LPNMTBGETINFOTIP) lParam;
-				if ( tcgit != NULL ) {
+				case TBN_GETINFOTIP:
+					{
+						LPNMTBGETINFOTIP tcgit = (LPNMTBGETINFOTIP) lParam;
+						if ( tcgit != NULL ) {
 
-					LPDCXTBBUTTON lpdtbb = (LPDCXTBBUTTON) tcgit->lParam;
+							LPDCXTBBUTTON lpdtbb = (LPDCXTBBUTTON) tcgit->lParam;
 
-					if (( lpdtbb != NULL ) && (tcgit->pszText != NULL))
-						lstrcpyn(tcgit->pszText,lpdtbb->tsTipText.to_chr(), tcgit->cchTextMax);
-				}
-				bParsed = TRUE;
-			}
-			break;
-			//case TTN_GETDISPINFO:
-			//	{
-			//		LPTOOLTIPTEXT lpttt = (LPTOOLTIPTEXT) lParam;
+							if (( lpdtbb != NULL ) && (tcgit->pszText != NULL))
+								lstrcpyn(tcgit->pszText,lpdtbb->tsTipText.to_chr(), tcgit->cchTextMax);
+						}
+						bParsed = TRUE;
+					}
+					break;
+					//case TTN_GETDISPINFO:
+					//	{
+					//		LPTOOLTIPTEXT lpttt = (LPTOOLTIPTEXT) lParam;
 
-			//		idButton = lpttt->hdr.idFrom;
-			//	}
-			//	break;
+					//		idButton = lpttt->hdr.idFrom;
+					//	}
+					//	break;
 
-		case TBN_DELETINGBUTTON:
-			{
-				LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
-				TBBUTTON tbb;
-				ZeroMemory( &tbb, sizeof(TBBUTTON) );
+				case TBN_DELETINGBUTTON:
+					{
+						LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
+						TBBUTTON tbb;
+						ZeroMemory( &tbb, sizeof(TBBUTTON) );
 
-				this->getButton( this->getCommandToIndex(lpnmtb->iItem), &tbb );
-				if ( tbb.dwData != NULL ) {
-					delete (LPDCXTBBUTTON) tbb.dwData;
-				}
-				bParsed = TRUE;
-			}
-			break;
-			// NM_CHAR code all works, but do we want it?
-			//case NM_CHAR:
-			//	{
-			//		if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
-			//			LPNMCHAR lpnmc = (LPNMCHAR) lParam;
-			//			this->callAliasEx(NULL, "%s,%d,%d,%d", "keyup", this->getUserID(), lpnmc->ch, lpnmc->dwItemPrev);
-			//		}
-			//		bParsed = TRUE;
-			//	}
-			//	break;
+						this->getButton( this->getCommandToIndex(lpnmtb->iItem), &tbb );
+						if ( tbb.dwData != NULL ) {
+							delete (LPDCXTBBUTTON) tbb.dwData;
+						}
+						bParsed = TRUE;
+					}
+					break;
+					// NM_CHAR code all works, but do we want it?
+					//case NM_CHAR:
+					//	{
+					//		if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+					//			LPNMCHAR lpnmc = (LPNMCHAR) lParam;
+					//			this->callAliasEx(NULL, "%s,%d,%d,%d", "keyup", this->getUserID(), lpnmc->ch, lpnmc->dwItemPrev);
+					//		}
+					//		bParsed = TRUE;
+					//	}
+					//	break;
 
-				} // switch
-			}
-			break;
+			} // switch
+		}
+		break;
 	}
 	return 0L;
 }
