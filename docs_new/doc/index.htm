@@ -226,6 +226,17 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>added $xdid(list).find support</li>
 <li>added comboex 'hscroll' style which enables the horizontal scroll bar</li>
 <li>changed /xpopup -s to support an optional hwnd argument that allows the popup to be opened relative to a specific window</li>
+<li>treeview - added /xdid -S to save contents to file</li>
+<li>directshow - added $xdid().state</li>
+<li>general - added /xdid -C +g/G flags to set gradients</li>
+<li>added hgradient and vgradient styles to various controls</li>
+<li>added /xtreebar -T to enable DCX controlled drawing of the mIRC TreeBar</li>
+<li>added /xtreebar -c to change TreeBar colors</li>
+<li>added /xtreebar -w to change TreeBar icons</li>
+<li>added infotips style to xtreebar</li>
+<li>added xtreebar styles balloon and noballoon (see note)</li>
+<li>changed /xdid to support `/xdid [cmd] id-id [options]` and `/xdid [cmd] id,id-id [options]` just like mIRC does with /did</li>
+<li>added /xstatusbar -f</li>
 </ol></li>
 <li><strong>Syntax changes</strong><ol>
 <li>updated dcx_tools.mrc to include /xstatusbar and /xtreebar aliases</li>
@@ -367,6 +378,33 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>changed treeview item select code to stop bkg image being skewed when an item is expanded</li>
 <li>changed /xdid Invalid ID error to reflect that it is an xdid error</li>
 <li>changed treeview drawing a little when transparent. Now only sets noredraw when WS_EX_TRANSPARENT</li>
+<li>treeview - changed /xdid -a to mask out the dcx flags as these were messing up the overlay and state icons.</li>
+<li>treeview - changed parsePath() to return the item handle instead of TVI_xxx values (needed for xml saving).</li>
+<li>dialog - added workaround for richedit not redrawing correctly in buffered redraw (WM_SIZE)</li>
+<li>xdock - now supports treebar class in mIRC v6.30</li>
+<li>text - fixed redraw bug when control is enabled/disabled and formatted text is being used.</li>
+<li>xdock - changed AdjustRect() to correctly position treeview within treebar when statusbar is on.</li>
+<li>xtreebar - fixed style `ident` to be `indent`</li>
+<li>box - fixed mem leak in $xdid().inbox</li>
+<li>statusbar/xstatusbar - added check to -l command to stop the % parts adding up to &gt; 100%</li>
+<li>toolbar - fixed /xdid -q bug where the command id was used but the TBIF_BYINDEX flag was specified.</li>
+<li>toolbar - changed /xdid -c and -i to use the TBIF_BYINDEX flag.</li>
+<li>xtreebar - added check for valid - char in switch.</li>
+<li>xtreebar - improved the handling of a non-winsdk compile.</li>
+<li>xtreebar - added an enum for all the /xtreebar -s styles.</li>
+<li>xtreebar - changed invalid style error to return the style in question.</li>
+<li>xtreebar - changed /xtreebar -c to check for a valid + char in flags.</li>
+<li>xtreebar - changed the image list we create in /xtreebar -w to use the icon sizes in the default list instead of 16x16 (this is still the default if the sizes cant be found)</li>
+<li>xpopup - changed /xpopup -l to accept `default` in place of an RGB value</li>
+<li>xpopup - changed $xpopup() to support the mirc and mircbar menus.</li>
+<li>xpopup - changed /xpopup -p to accept `default` as a colour value.</li>
+<li>xpopup - changed XPopupMenu::DrawGradient() to reduce the width by `dy` just like it reduces the height.  This stops the right hand border being drawn over.</li>
+<li>xpopup - fixed bug where $xpopup().ismenu would always return $false</li>
+<li>dialog - fixed a bug in parseComControlRequestEX() where p_Control wasnt checked for NULL.</li>
+<li>listview - changed $xdid().mouseitem to return the subitem as well.</li>
+<li>edit - changed text handling code to support wide chars.</li>
+<li>xpopup - added monitor offset to menus opened by xpopup -s (requires testing)</li>
+<li>toolbar - fixed /xdid -c for first button.</li>
 </ol></li>
 <li><strong>DCX Project</strong><ol>
 <li>removed commented code</li>
@@ -496,6 +534,32 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>changed dshow properties enum</li>
 <li>added DCX_USE_BOOST define to defines.h to enable using the Boost libraries for regex features</li>
 <li>direct show - disabled the long-double conversion warnings</li>
+<li>treeview - changed the values of all the dcx TVIS_xxx defines to take them out of the range of the state and overlay icons.</li>
+<li>divider - included AggressiveOptimize.h</li>
+<li>xdock - added DcxDock::status_getTextLength() to return an items text length.</li>
+<li>xdock - changed some cmd args into constants</li>
+<li>xstatusbar - changed the part set/get text cmds to use an allocated buffer of the right size, instead of a static size.</li>
+<li>general - changed DrawCtrlBackground() to draw a gradient using the colours set by /xdid -C when the control has either the hgradient or vgradient style.</li>
+<li>box - changed to use DrawCtrlBackground() instead of FillBkg()</li>
+<li>general - changed some CLR_NONE refrences to CLR_INVALID</li>
+<li>general - changed DrawCtrlBackground() to FillRect() with COLOR_3DFACE when controls disabled.</li>
+<li>text - improved drawing a little, now uses COLOR_GRAYTEXT when control is disabled.</li>
+<li>tstring - added a new constructor which takes a buffer size to allocate.</li>
+<li>general - changed timeout check to check for != 1 instead of == 0</li>
+<li>general - misc macro usage changes.</li>
+<li>general - made some TString function args consts.</li>
+<li>general - moved DirectX checking out of the LoadDLL() function to speed up loading. check is now moved into a DXSetup() function which is called by $dcx(IsUsingDirectX) or when a file is loaded into a directshow control and DX9 hasnt already been found.</li>
+<li>xtreebar - changed /xtreebar command to always do a RedrawWindow() at the end.</li>
+<li>general - changed the xpopup class setup to use the already defined WNDCLASSEX</li>
+<li>general - changed the xpopup owner window to be of type HWND_MESSAGE on XP+</li>
+<li>xpopup - added XPopupMenu::setDefaultColor() to allow resetting a specified colour to its default.</li>
+<li>general - added macro dcxRegisterClass() to register most of the dcx classes</li>
+<li>TString - changed TString.to_wchr() to support utf8 encoding.</li>
+<li>general - changed mIRC_DrawText() to support utf8 encoded text.</li>
+<li>general - added getting DrawThemeEdge() function pointer from uxtheme.dll</li>
+<li>general - changed DcxControl::controlFactory() and all controls to throw an exception when unable to create the window.</li>
+<li>general - changed DrawCtrlBackground() to draw themed background (trying to fix some drawing bugs whem themed, may reverse this if its not helping)</li>
+<li>xdock - added function UnDockAll(). Its only called during cleanup atm.</li>
 </ol></li>
 <li><strong>Documentation</strong><ol>
 <li>fixed errors in dcxdoc</li>
@@ -579,6 +643,10 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>removed unnecessary MENU declaration from /xpopup -R and useless note</li>
 <li>added operating system requirement to /xpopup -R +a</li>
 <li>fixed typo with trackbar tooltips style</li>
+<li>added a wiki tag [os]</li>
+<li>changed output html for changes.htm a bit so its not all in 1 line</li>
+<li>changed `&amp;amp;` to `and` in changes.htm</li>
+<li>added dcxml documentation</li>
 </ol></li>
 </ul>
 </td></tr>
