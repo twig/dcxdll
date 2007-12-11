@@ -12,7 +12,7 @@ function get_styles_box(&$STYLES) {
 		'bottom' => 'Control text is at the bottom of the box.',
 		'none' => 'Control will not display a border or label.',
 		'rounded' => 'The border drawn for the box control will be a rounded rectangle.',
-//		'check' => 'The box frame will have a checkbox which can enable/disable all children controls (regardless of previous state).',
+		'check' => 'The box frame will have a checkbox which can enable/disable all children controls (regardless of previous state).',
 		'shadow' => 'Display text with a shadow.',
 		'noformat' => 'Disables support for mIRC codes in control (faster).',
                 'hgradient' => 'Draws a horizontal gradient with the colors specified.',
@@ -75,21 +75,21 @@ function get_xdidprops_box(&$XDIDPROPS) {
 
 function get_events_box(&$EVENTS) {
 	$EVENTS = array(
-	    "help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
-	    'lbdown' => 'When the left mouse button is clicked down.',
-	    'sclick' => 'When the left mouse button is clicked and released.',
-	    'lbup' => 'When the left mouse button is released.',
-	    'dclick' => 'When the left mouse button is double clicked.',
-	    'rclick' => 'When the right mouse button is clicked.',
-//                'checkchange' => array(
-//			'__desc' => "When the checkbox has been clicked.",
-//			'__cmd' => 'STATE',
-//			'__eg' => '1',
-//			'__params' => array(
-//				'STATE' => 'The state of the checkbox. [v]1[/v] for checked or [v]0[/v] for unchecked.',
-//			),
-//                        '__return' => '[r]nochange[/r] to cancel automatic enabling/disabling of the child controls in the box.'
-//		),
+                "help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+                'lbdown' => 'When the left mouse button is clicked down.',
+                'sclick' => 'When the left mouse button is clicked and released.',
+                'lbup' => 'When the left mouse button is released.',
+                'dclick' => 'When the left mouse button is double clicked.',
+                'rclick' => 'When the right mouse button is clicked.',
+                'checkchange' => array(
+                        '__desc' => "When the checkbox has been clicked.",
+                        '__cmd' => 'STATE',
+                        '__eg' => '1',
+                        '__params' => array(
+                                'STATE' => 'The state which the checkbox will change to. [v]1[/v] for checked or [v]0[/v] for unchecked.',
+                        ),
+                        '__return' => '[r]nochange[/r] to cancel automatic enabling/disabling of the child controls in the box.'
+                ),
 	);
 }
 ?>

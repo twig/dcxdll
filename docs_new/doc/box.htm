@@ -92,6 +92,10 @@
 		<td>Control text is centered.</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.check" class="style">check</a></td>
+		<td>The box frame will have a checkbox which can enable/disable all children controls (regardless of previous state).</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.hgradient" class="style">hgradient</a></td>
 		<td>Draws a horizontal gradient with the colors specified.</td>
 	</tr>
@@ -329,6 +333,25 @@
 </table>
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.checkchange"></a>checkchange	</td></tr>
+	<tr><td colspan="2">When the checkbox has been clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME checkchange ID STATE</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx checkchange 4 1</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STATE</td>
+		<td>The state which the checkbox will change to. <a class="value">1</a> for checked or <a class="value">0</a> for unchecked.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nochange</a> to cancel automatic enabling/disabling of the child controls in the box.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.dclick"></a>dclick	</td></tr>
 	<tr><td colspan="2">When the left mouse button is double clicked.</td></tr>
 	<tr>
@@ -418,6 +441,7 @@
 		<a href="#style.alpha"><div>alpha</div></a>
 		<a href="#style.bottom"><div>bottom</div></a>
 		<a href="#style.center"><div>center</div></a>
+		<a href="#style.check"><div>check</div></a>
 		<a href="#style.hgradient"><div>hgradient</div></a>
 		<a href="#style.noformat"><div>noformat</div></a>
 		<a href="#style.none"><div>none</div></a>
@@ -440,6 +464,7 @@
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a href="#events"><div class='header' style='background:#74C043;'>Events</div></a>
+		<a href="#events.checkchange"><div>checkchange</div></a>
 		<a href="#events.dclick"><div>dclick</div></a>
 		<a href="#events.help"><div>help</div></a>
 		<a href="#events.lbdown"><div>lbdown</div></a>

@@ -108,6 +108,7 @@ $CHANGES = array(
             'added xtreebar styles balloon and noballoon (see note)',
             'changed /xdid to support `/xdid [cmd] id-id [options]` and `/xdid [cmd] id,id-id [options]` just like mIRC does with /did',
             'added /xstatusbar -f',
+            'added `check` style and `checkchange` event to box',
         ),
         'Syntax changes' => array(
             'updated dcx_tools.mrc to include /xstatusbar and /xtreebar aliases',
@@ -518,6 +519,10 @@ $CHANGES = array(
             'changed output html for changes.htm a bit so its not all in 1 line',
             'changed `&amp;` to `and` in changes.htm',
             'added dcxml documentation',
+            'documented `check` and `checkchange` features in box',
+            'fixed /xdid -m tabstop stuff for list',
+            'fixed /xdid -R descriptions for +f',
+            'updated dcx_inc.php comment for array_insert()',
         ),
     ),
     'v1.3.7' => array(
