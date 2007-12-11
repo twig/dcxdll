@@ -6,13 +6,15 @@ function get_intro_check() {
 
 function get_styles_check(&$STYLES) {
 	$STYLES = array(
-	    "right" => 'Check control box is at the right of text.',
-	    'center' => 'Control text is centered.',
-	    'rjustify' => 'Control text is right justified.',
-	    'pushlike' => 'Makes the check act and look like a push button.',
-	    '3state' => 'Creates a 3 state checkbox.',
-	    'tooltips' => 'The checkbox will have a tooltip.',
-	    'alpha' => 'Control is alpha blended.',
+                "right" => 'Check control box is at the right of text.',
+                'center' => 'Control text is centered.',
+                'rjustify' => 'Control text is right justified.',
+                'pushlike' => 'Makes the check act and look like a push button.',
+                '3state' => 'Creates a 3 state checkbox.',
+                'tooltips' => 'The checkbox will have a tooltip.',
+                'alpha' => 'Control is alpha blended.',
+                'hgradient' => 'Draws a horizontal gradient with the colors specified.',
+                'vgradient' => 'Draws a vertical gradient with the colors specified.',
 	);
 }
 

@@ -7,6 +7,8 @@ function get_intro_directshow() {
 function get_styles_directshow(&$STYLES) {
 	$STYLES = array(
 		'fixratio' => 'The content maintains its aspect ratio. By default, the content fills the control.',
+                'hgradient' => 'Draws a horizontal gradient with the colors specified.',
+		'vgradient' => 'Draws a vertical gradient with the colors specified.',
 	);
 }
 
@@ -140,6 +142,17 @@ function get_xdidprops_directshow(&$XDIDPROPS) {
 			),
             '__notes' => 'This returns the media size, not the control size.',
 		),
+        'state' => array(
+                '__desc' => 'This property returns the state of the media file, if any.',
+                '__return' => array(
+                        'nofile' => 'No file has been specified.',
+                        'stopped' => 'Stopped state.',
+                        'paused' => 'Paused state.',
+                        'playing' => 'Currently playing state.',
+                        'unknown' => 'Unknown media state.',
+                        'D_ERROR Message' => 'Error in determining state of control.',
+                ),
+        ),
         'video' => array(
             '__desc' => 'This property returns properties on the video media which can be altered.',
             '__params' => array(

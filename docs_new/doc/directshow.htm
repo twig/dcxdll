@@ -83,6 +83,14 @@
 		<td class="style"><a name="style.fixratio" class="style">fixratio</a></td>
 		<td>The content maintains its aspect ratio. By default, the content fills the control.</td>
 	</tr>
+	<tr>
+		<td class="style"><a name="style.hgradient" class="style">hgradient</a></td>
+		<td>Draws a horizontal gradient with the colors specified.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.vgradient" class="style">vgradient</a></td>
+		<td>Draws a vertical gradient with the colors specified.</td>
+	</tr>
 </table>
 <br />
 <table class="description">
@@ -434,6 +442,20 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.state"></a>$xdid().state	</td></tr>
+	<tr><td colspan="2">This property returns the state of the media file, if any.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).state</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).state</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nofile</a> No file has been specified.<br /><a class="returnevent">stopped</a> Stopped state.<br /><a class="returnevent">paused</a> Paused state.<br /><a class="returnevent">playing</a> Currently playing state.<br /><a class="returnevent">unknown</a> Unknown media state.<br /><a class="returnevent">D_ERROR Message</a> Error in determining state of control.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.video"></a>$xdid().video	</td></tr>
 	<tr><td colspan="2">This property returns properties on the video media which can be altered.</td></tr>
 	<tr>
@@ -546,6 +568,8 @@
 <div class='rightmenu' style='border:1px solid #B49696'>
 	<a href="#style"><div class='header' style='background:#B49696;'>Control Styles</div></a>
 		<a href="#style.fixratio"><div>fixratio</div></a>
+		<a href="#style.hgradient"><div>hgradient</div></a>
+		<a href="#style.vgradient"><div>vgradient</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a href="#xdid"><div class='header' style='background:#6A7CB0;'>/xdid Flags</div></a>
@@ -564,6 +588,7 @@
 		<a href="#xdidprop.isloaded"><div>isloaded</div></a>
 		<a href="#xdidprop.size"><div>size</div></a>
 		<a href="#xdidprop.srange"><div>srange</div></a>
+		<a href="#xdidprop.state"><div>state</div></a>
 		<a href="#xdidprop.video"><div>video</div></a>
 		<a href="#xdidprop.volume"><div>volume</div></a>
 	</div>
@@ -582,7 +607,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 19th August, 07</td>
+		<td style="text-align: right;">Last Updated: 11th December, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

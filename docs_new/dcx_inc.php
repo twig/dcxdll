@@ -1243,7 +1243,7 @@ function print_changes($version, $changes) {
 /**
  * Updates the data structure with flags from dcxLoadIcon().
  * 
- * param cmdPosition is a 1-based index for where to insert the command.
+ * @param cmdPosition is a 1-based index for where to insert the command within the __params list.
  */
 function writeDcxLoadIcon(&$FLAGS, $switch, $param, $cmdPosition)
 {

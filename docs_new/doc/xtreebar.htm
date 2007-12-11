@@ -80,6 +80,69 @@
 </table>
 <table class="xtreebar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xtreebar.c"></a>/xtreebar -c	</td></tr>
+	<tr><td colspan="2">This command changes the mIRC Treebar colors.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xtreebar -c [+COLORFLAGS] [COLOUR]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xtreebar -c +b 255</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+COLORFLAGS</td>
+		<td>Color flags.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Background color.</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>Event color.</td>
+	</tr>
+	<tr>
+		<td class="value">E</td>
+		<td>Event background color.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Insert mark color.</td>
+	</tr>
+	<tr>
+		<td class="value">l</td>
+		<td>Line color.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Selected text color.</td>
+	</tr>
+	<tr>
+		<td class="value">S</td>
+		<td>Selected background color.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Text color.</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>Message color.</td>
+	</tr>
+	<tr>
+		<td class="value">M</td>
+		<td>Message background color.</td>
+	</tr>
+	<tr>
+		<td class="param">COLOR</td>
+		<td>The color in $rgb() format.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This requires <a class="value">/xtreebar -T</a> to be activated.</td></tr></table>
+<br />
+<table class="xtreebar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xtreebar.f"></a>/xtreebar -f	</td></tr>
 	<tr><td colspan="2">This command allows you to change the mIRC Treebar font.</td></tr>
 	<tr>
@@ -227,11 +290,11 @@
 		<td>Does not fade expand buttons in or out when the mouse moves away or into a state of hovering over the control. <a class="os">(Vista)</a></td>
 	</tr>
 	<tr>
-		<td class="param">ident</td>
+		<td class="param">indent</td>
 		<td>Indents the tree view for the expand buttons. <a class="os">(Vista)</a></td>
 	</tr>
 	<tr>
-		<td class="param">noident</td>
+		<td class="param">noindent</td>
 		<td>Does not indent the tree view for the expand buttons. <a class="os">(Vista)</a></td>
 	</tr>
 	<tr>
@@ -243,6 +306,63 @@
 		<td>Disables rich tooltips in the tree view (custom drawn with icon and text). <a class="os">(Vista)</a></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Using <a class="style">noscroll</a> while the scrollbar is visible may lead to graphical glitches.</td></tr></table>
+<br />
+<table class="xtreebar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xtreebar.w"></a>/xtreebar -w	</td></tr>
+	<tr><td colspan="2">This command allows you to change the mIRC Treebar images.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xtreebar -w [clear|default | [POS] [+FLAGS] [INDEX] [FILE]]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xtreebar -w 0 + 1 icons.icl</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">clear</td>
+		<td>Clears the icon list.</td>
+	</tr>
+	<tr>
+		<td class="param">default</td>
+		<td>Reverts the icon list to the default icons.</td>
+	</tr>
+	<tr>
+		<td class="param">POS</td>
+		<td>The position to add the new icon. Use <a class="value">0</a> to add to the end.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Uses the icon associated with the given filetype.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
+	<tr>
+		<td class="value">P</td>
+		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This requires <a class="value">/xtreebar -T</a> to be activated.</td></tr></table>
+<br />
+<table class="xtreebar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xtreebar.T"></a>/xtreebar -T	</td></tr>
+	<tr><td colspan="2">This command allows you to enable or disable DCX controlled drawing of the mIRC TreeBar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xtreebar -T [0|1]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xtreebar -T 1</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When first enabled, the script function <a class="value">$xtreebar_callback</a>(init, [TEXT]) will be called for each item. This will allow you to configure the appearance of each individual item in the TreeBar.</li><li>When an item is added to the TreeBar, the script function <a class="value">$xtreebar_callback</a>(insertitem, [TEXT]) will be called for the new item. This will allow you to configure the appearance of the new item inserted into the TreeBar.</li><li>The <a class="value">$xtreebar_callback</a> alias should return <a class="value">2</a> image indexes, <a class="param">IMAGE</a> <a class="param">SELECTEDIMAGE</a>. (eg. <a class="value">return 2 5</a>)</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1"><a name="xtreebarprop"></a><div style='color: #A8B2D1;font-size:14pt;'>$xtreebar Properties</div></td></tr>
@@ -271,8 +391,11 @@
 	<br />
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a href="#xtreebar"><div class='header' style='background:#6A7CB0;'>/xtreebar</div></a>
+		<a href="#xtreebar.c"><div>-c</div></a>
 		<a href="#xtreebar.f"><div>-f</div></a>
 		<a href="#xtreebar.s"><div>-s</div></a>
+		<a href="#xtreebar.w"><div>-w</div></a>
+		<a href="#xtreebar.T"><div>-T</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a href="#xtreebarprop"><div class='header' style='background:#A8B2D1;'>$xtreebar()</div></a>
@@ -286,7 +409,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 19th August, 07</td>
+		<td style="text-align: right;">Last Updated: 11th December, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
