@@ -226,6 +226,22 @@
 		<td>Disables tooltip on items.</td>
 	</tr>
 	<tr>
+		<td class="param">balloon</td>
+		<td>Enables balloon styled tooltips. See note for further information.</td>
+	</tr>
+	<tr>
+		<td class="param">noballoon</td>
+		<td>Disables balloon styled tooltips.</td>
+	</tr>
+	<tr>
+		<td class="param">infotip</td>
+		<td>Enables modification of the tooltip text within the $xtreebar_callback. See note for further information.</td>
+	</tr>
+	<tr>
+		<td class="param">noinfotip</td>
+		<td>Disables modification of the tooltip text.</td>
+	</tr>
+	<tr>
 		<td class="param">hasbuttons</td>
 		<td>Enables &plusmn; buttons on the side of items containing child items for expand/collapse operations.</td>
 	</tr>
@@ -305,7 +321,7 @@
 		<td class="param">norichtooltip</td>
 		<td>Disables rich tooltips in the tree view (custom drawn with icon and text). <a class="os">(Vista)</a></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Using <a class="style">noscroll</a> while the scrollbar is visible may lead to graphical glitches.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Using <a class="style">noscroll</a> while the scrollbar is visible may lead to graphical glitches.</li><li>When using <a class="style">infotip</a>, the alias <a class="value">$xtreeview_callback(gettooltip, [TYPE], [TEXT])</a> is called. Use <a class="value">return [NEW_TIP_TEXT]</a> to change the tooltip text, and return nothing to prevent the tip from being displayed.</li><li><a class="style">balloon</a> can only be used AFTER <a class="style">tooltips</a> has been enabled, in a seperate <a class="value">/xtreebar</a> command.</li></ul></td></tr></table>
 <br />
 <table class="xtreebar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -362,12 +378,31 @@
 		<td class="example">Example:</td>
 		<td><div class="example">/xtreebar -T 1</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When first enabled, the script function <a class="value">$xtreebar_callback</a>(init, [TEXT]) will be called for each item. This will allow you to configure the appearance of each individual item in the TreeBar.</li><li>When an item is added to the TreeBar, the script function <a class="value">$xtreebar_callback</a>(insertitem, [TEXT]) will be called for the new item. This will allow you to configure the appearance of the new item inserted into the TreeBar.</li><li>The <a class="value">$xtreebar_callback</a> alias should return <a class="value">2</a> image indexes, <a class="param">IMAGE</a> <a class="param">SELECTEDIMAGE</a>. (eg. <a class="value">return 2 5</a>)</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When enabled, the script function <a class="value">$xtreebar_callback(geticons, [TYPE], [TEXT])</a> will be called for each item. This will allow you to configure the appearance of each item in the TreeBar.</li><li>The same alias is called when an item is added to the TreeBar. This will allow you to configure the appearance of the new item.</li><li>The <a class="value">$xtreebar_callback</a> alias should return <a class="value">2</a> image indexes, <a class="param">IMAGE</a> <a class="param">SELECTEDIMAGE</a>. (eg. <a class="value">return 2 5</a>)</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1"><a name="xtreebarprop"></a><div style='color: #A8B2D1;font-size:14pt;'>$xtreebar Properties</div></td></tr>
 	<tr><td>The $xtreebar identifier is used to retrieve information about the mIRC TreeBar.</td></tr>
 </table>
+<table class="xtreebarprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xtreebarprop.icon"></a>$xtreebar().icon	</td></tr>
+	<tr><td colspan="2">Returns the current icons being used by the mIRC TreeBar item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xtreebar(N).icon</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xtreebar(3).icon</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>The index of the item.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the last item in the mIRC Treebar.</td></tr></table>
+<br />
 <table class="xtreebarprops">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xtreebarprop.item"></a>$xtreebar().item	</td></tr>
@@ -399,6 +434,7 @@
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a href="#xtreebarprop"><div class='header' style='background:#A8B2D1;'>$xtreebar()</div></a>
+		<a href="#xtreebarprop.icon"><div>icon</div></a>
 		<a href="#xtreebarprop.item"><div>item</div></a>
 	</div>
 </td>

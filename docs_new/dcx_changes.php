@@ -366,7 +366,7 @@ $CHANGES = array(
             'changed CreateHDCBuffer() to take a const rect arg',
             'changed dshow properties enum',
             'added DCX_USE_BOOST define to defines.h to enable using the Boost libraries for regex features',
-            'disabled the long <> double warnings for dshow',
+            'direct show - disabled the long-double conversion warnings',
         ),
         'Documentation' => array(
             'fixed errors in dcxdoc',
