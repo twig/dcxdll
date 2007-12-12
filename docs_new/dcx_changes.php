@@ -109,6 +109,7 @@ $CHANGES = array(
             'changed /xdid to support `/xdid [cmd] id-id [options]` and `/xdid [cmd] id,id-id [options]` just like mIRC does with /did',
             'added /xstatusbar -f',
             'added `check` style and `checkchange` event to box',
+            'added /xdialog -S to resize client area',
         ),
         'Syntax changes' => array(
             'updated dcx_tools.mrc to include /xstatusbar and /xtreebar aliases',

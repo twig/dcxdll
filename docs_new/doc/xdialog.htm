@@ -1146,6 +1146,41 @@
 <br />
 <table class="xdialog">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xdialog.S"></a>/xdialog -S	</td></tr>
+	<tr><td colspan="2">This command allows you to set the size and position of the window. This differs from mIRC's resizing functionality as the height and width does not include the window border.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdialog -S [DNAME] [+FLAGS] [X Y] [W H]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdialog -S dcx +s 300 100<br />/xdialog -S dcx +m 50 100<br />/xdialog -S dcx +ms 100 200 300 400<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Whether you are sizing, moving, or both.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Resizes the client area of the window.</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>Moves the window.</td>
+	</tr>
+	<tr>
+		<td class="param">X Y</td>
+		<td>The X and Y coordinates of the window. Only required if used with the <a class="value">m</a> flag.</td>
+	</tr>
+	<tr>
+		<td class="param">W H</td>
+		<td>The width and height of the window. Only required if used with the <a class="value">s</a> flag.</td>
+	</tr>
+</table>
+<br />
+<table class="xdialog">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
 			<a name="xdialog.T"></a>/xdialog -T	</td></tr>
 	<tr><td colspan="2">This command lets you create a tooltip.</td></tr>
 	<tr>
@@ -2118,6 +2153,7 @@
 		<a href="#xdialog.E"><div>-E</div></a>
 		<a href="#xdialog.P"><div>-P</div></a>
 		<a href="#xdialog.R"><div>-R</div></a>
+		<a href="#xdialog.S"><div>-S</div></a>
 		<a href="#xdialog.T"><div>-T</div></a>
 		<a href="#xdialog.V"><div>-V</div></a>
 	</div>
@@ -2189,7 +2225,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 11th December, 07</td>
+		<td style="text-align: right;">Last Updated: 12th December, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

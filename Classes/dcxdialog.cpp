@@ -1200,42 +1200,68 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	else if (flags.switch_cap_flags[20]) {
 		SetFocus(NULL);
 	}
-	// xdialog -S [NAME] [SWITCH] [X] [Y] [W] [H]
+	// xdialog -S [NAME] [SWITCH] [+FLAGS] [X Y] [W H]
 	else if (flags.switch_cap_flags[18]) {
-		int x = input.gettok( 3 ).to_int( );
-		int y = input.gettok( 4 ).to_int( );
-		int w = input.gettok( 5 ).to_int( );
-		int h = input.gettok( 6 ).to_int( );
+		TString flags = input.gettok(3);
+		RECT rcClient, rcWindow;
+		bool bResize, bMove;
+		int x, y, w, h;
 
-		RECT rc;
-		UINT iFlags = SWP_NOACTIVATE|SWP_NOZORDER|SWP_NOOWNERZORDER;
+		GetClientRect(this->m_Hwnd, &rcClient);
+		GetWindowRect(this->m_Hwnd, &rcWindow);
 
-		GetWindowRect(this->m_Hwnd, &rc);
-
+		// Not sure what this does, part of Ook's old code
+		/*
 		if (this->isStyle(WS_CHILD))
 			MapWindowRect(this->m_Hwnd, GetParent(this->m_Hwnd), &rc);
+		*/
 
-		if ((x == -1) && (y == -1))
-			iFlags |= SWP_NOMOVE;
+		bResize = (flags.find('s', 1) > 0);
+		bMove   = (flags.find('m', 1) > 0);
 
-		if ((w == -1) && (h == -1))
-			iFlags |= SWP_NOSIZE;
+		// Move and resize
+		if ((bResize && bMove) && (numtok > 6)) {
+			x = input.gettok(4).to_int();
+			y = input.gettok(5).to_int();
 
-		if (x == -1)
-			x = rc.left;
-		if (y == -1)
-			y = rc.top;
+			w = input.gettok(6).to_int();
+			h = input.gettok(7).to_int();
+		}
+		// Resize only
+		else if (bResize && (numtok > 4)) {
+			x = rcWindow.left;
+			y = rcWindow.top;
 
-		if (w == -1)
-			w = (rc.right - rc.left);
-		if (h == -1)
-			h = (rc.bottom - rc.top);
+			w = input.gettok(4).to_int();
+			h = input.gettok(5).to_int();
+		}
+		// Move only
+		else if (bMove && (numtok > 4)) {
+			UINT iFlags = SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOSIZE;
 
-		SetWindowPos( this->m_Hwnd, NULL, x, y, w, h, iFlags );
+			x = input.gettok(4).to_int();
+			y = input.gettok(5).to_int();
+
+			SetWindowPos(this->m_Hwnd, NULL, x, y, 0, 0, iFlags);
+			return;
+		}
+		// Unknown flags
+		else {
+			this->showError(NULL, "-S", "Invalid flags");
+			return;
+		}
+
+		// Calculate the actual sizes without the window border
+		// http://windows-programming.suite101.com/article.cfm/client_area_size_with_movewindow
+		POINT ptDiff;
+		ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
+		ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+
+		MoveWindow(this->m_Hwnd, x, y, w + ptDiff.x, h + ptDiff.y, TRUE);
 	}
 	// invalid command
 	else
-		this->showError(NULL, input.gettok( 2 ).to_chr(), "Invalid Command");
+		this->showError(NULL, input.gettok(2).to_chr(), "Invalid Command");
 }
 
 /*!
