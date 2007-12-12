@@ -215,6 +215,32 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 			this->m_bPatched = true;
 		}
 	}
+	// xpopup -M -> [MENU] [SWITCH] [+FLAGS] [LABEL]
+	else if (flags.switch_cap_flags[12] && (numtok > 3)) {
+		// Prevent users from adding special menus.
+		if ((p_Menu == g_mIRCMenuBar) ||
+			(p_Menu == g_mIRCPopupMenu))
+		{
+			DCXError("-M", "Cannot add special menu.");
+			return;
+		}
+
+		// TODO: (twig) Need to keep track of menus that have been added
+		// 1. If its already been added, just change the label
+		// 2. If it hasnt been added, add.
+		// 3. For the sake of removing them upon DLL unload.
+
+		HMENU menuBar = GetMenu(mIRCLink.m_mIRCHWND);
+		TString flags = input.gettok(3);
+		TString label = input.gettok(4, -1);
+
+		mIRCDebug("menu = %d, args = %d, flags = %s, label = %s", p_Menu, numtok, flags.to_chr(), label.to_chr());
+
+		// Add the menu to the mIRC window menubar
+		AppendMenu(menuBar, MF_POPUP, (UINT_PTR) p_Menu->getMenuHandle(), label.to_chr());
+		// Force redraw so the label is displayed
+		DrawMenuBar(mIRCLink.m_mIRCHWND);
+	}
 	// xpopup -p -> [MENU] [SWITCH] [COLORS]
 	else if ( flags.switch_flags[15] && numtok > 2 ) {
 
