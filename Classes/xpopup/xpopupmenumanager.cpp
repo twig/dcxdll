@@ -236,8 +236,8 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 
 		mIRCDebug("menu = %d, args = %d, flags = %s, label = %s", p_Menu, numtok, flags.to_chr(), label.to_chr());
 
-		// Add the menu to the mIRC window menubar
-		AppendMenu(menuBar, MF_POPUP, (UINT_PTR) p_Menu->getMenuHandle(), label.to_chr());
+			// Add the menu to the mIRC window menubar
+			AppendMenu(menuBar, MF_POPUP, (UINT_PTR) p_Menu->getMenuHandle(), label.to_chr());
 		// Force redraw so the label is displayed
 		DrawMenuBar(mIRCLink.m_mIRCHWND);
 	}
@@ -394,16 +394,35 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 	else
 		p_Menu = this->getMenuByName( input.gettok( 1 ) );
 
-	if ((p_Menu == NULL) && (prop != "ismenu")) {
+	if ((p_Menu == NULL) && (prop != "ismenu") && (prop != "menuname")) {
 		TString error;
 		error.sprintf("\"%s\" doesn't exist, see /xpopup -c", input.gettok( 1 ).to_chr( ) );
 		DCXError("$!xpopup()", error.to_chr());
 		return;
 	}
 
-	if ( prop == "ismenu" ) {
-
+	if (prop == "ismenu") {
 		lstrcpy( szReturnValue, (p_Menu != NULL)?"$true":"$false" );
+		return;
+	}
+	else if (prop == "menuname") {
+		int i = input.gettok(1).to_int();
+
+		if ((i < 0) || (i > (int) this->m_vpXPMenu.size()))
+		{
+			TString error;
+			error.sprintf("Invalid index: (%d).", i);
+			DCXError("$!xpopup().menuname", error.to_chr());
+			return;
+		}
+
+		// Return number of menus.
+		if (i == 0)
+			wsprintf(szReturnValue, "%d", (int) this->m_vpXPMenu.size());
+		// Return name of specified menu.
+		else
+			wsprintf(szReturnValue, "%s", this->m_vpXPMenu[i -1]->getName());
+
 		return;
 	}
 	else if ( prop == "style" ) {
