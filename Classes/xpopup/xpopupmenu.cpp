@@ -13,6 +13,7 @@
  */
 
 #include "xpopupmenu.h"
+#include "xpopupmenumanager.h"
 
 /*!
  * \brief Constructor
@@ -20,8 +21,11 @@
  * blah
  */
 
+extern XPopupMenuManager g_XPopupMenuManager;
+
 XPopupMenu::XPopupMenu( const TString & tsMenuName, MenuStyle mStyle )
-: m_tsMenuName( tsMenuName ), m_MenuStyle( mStyle ), m_MenuItemStyles(0), m_hImageList(NULL), m_hBitmap(NULL), m_bRoundedSel(false), m_uiAlpha(255)
+: m_tsMenuName( tsMenuName ), m_MenuStyle( mStyle ), m_MenuItemStyles(0), m_hImageList(NULL),
+m_hBitmap(NULL), m_bRoundedSel(false), m_uiAlpha(255), m_bAttachedToMenuBar(false)
 {
 
 	this->m_hMenu = CreatePopupMenu( );
@@ -47,7 +51,7 @@ XPopupMenu::XPopupMenu( const TString & tsMenuName, MenuStyle mStyle )
 
 XPopupMenu::XPopupMenu(const TString tsName, HMENU hMenu )
 : m_hMenu(hMenu), m_MenuItemStyles(0), m_MenuStyle(XPMS_OFFICE2003), m_hImageList(NULL), m_hBitmap(NULL)
-, m_tsMenuName(tsName), m_bRoundedSel(false), m_uiAlpha(255)
+, m_tsMenuName(tsName), m_bRoundedSel(false), m_uiAlpha(255), m_bAttachedToMenuBar(false)
 {
 	this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
 	this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
@@ -167,6 +171,8 @@ XPopupMenu::XPopupMenu(const TString tsName, HMENU hMenu )
  */
 
 XPopupMenu::~XPopupMenu( ) {
+	if (this->m_bAttachedToMenuBar)
+		this->detachFromMenuBar(NULL);
 
 	this->clearAllMenuItems( );
 
@@ -1115,4 +1121,29 @@ void XPopupMenu::setBackBitmap( HBITMAP hBitmap ) {
 		DeleteObject(this->m_hBitmap );
 
 	this->m_hBitmap = hBitmap;
+}
+
+/**
+ * Attaches the XPopupMenu to the mIRC MenuBar.
+ */
+bool XPopupMenu::attachToMenuBar(HMENU menubar, TString label) {
+	// Already attached
+	if (this->m_bAttachedToMenuBar)
+		return false;
+
+	// Add the menu to the mIRC window menubar
+	this->m_bAttachedToMenuBar = g_XPopupMenuManager.addToMenuBar(menubar, this, label);
+	return this->m_bAttachedToMenuBar;
+}
+
+/**
+ * Detaches the XPopupMenu from the mIRC MenuBar.
+ */
+void XPopupMenu::detachFromMenuBar(HMENU menubar) {
+	// Not attached, dont bother
+	if (!this->m_bAttachedToMenuBar)
+		return;
+
+	g_XPopupMenuManager.removeFromMenuBar(menubar, this);
+	this->m_bAttachedToMenuBar = false;
 }

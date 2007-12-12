@@ -44,6 +44,8 @@ typedef struct tagXPMENUCOLORS {
 
 } XPMENUCOLORS, * LPXPMENUCOLORS;
 
+typedef std::vector<XPopupMenu *> VectorOfXPopupMenu; //!< Vector of XPopupMenu Objects
+
 /*!
  * \brief blah
  *
@@ -120,6 +122,10 @@ public:
 	void SetRounded(bool rounded) { this->m_bRoundedSel = rounded; };
 	void SetAlpha(UINT alpha) { this->m_uiAlpha = alpha; };
 
+	// Methods to attach and detach from mIRC menu.
+	bool attachToMenuBar(HMENU menubar, TString label);
+	void detachFromMenuBar(HMENU menubar);
+
 protected:
 
   HMENU m_hMenu; //!< Menu Handle
@@ -136,8 +142,8 @@ protected:
 	bool m_bRoundedSel; //!< Menu has rounded selection box.
 	UINT m_uiAlpha;			//!< Menu is alpha blended. 0 -> 255
   static void parseSwitchFlags( TString * switchs, XSwitchFlags * flags );
-};
 
-typedef std::vector<XPopupMenu *> VectorOfXPopupMenu; //!< Vector of XPopupMenu Objects
+  bool m_bAttachedToMenuBar; //!< Is the menu attached to the mIRC window menubar?
+};
 
 #endif // _XPOPUPMENU_H_

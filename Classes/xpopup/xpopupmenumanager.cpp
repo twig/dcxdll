@@ -25,8 +25,7 @@ extern mIRCDLL mIRCLink;
  * blah
  */
 
-XPopupMenuManager::XPopupMenuManager( ) {
-
+XPopupMenuManager::XPopupMenuManager() {
 	this->m_bPatched = false;
 }
 
@@ -36,8 +35,7 @@ XPopupMenuManager::XPopupMenuManager( ) {
  * blah
  */
 
-XPopupMenuManager::~XPopupMenuManager( ) {
-
+XPopupMenuManager::~XPopupMenuManager() {
 }
 
 /*!
@@ -216,7 +214,8 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 		}
 	}
 	// xpopup -M -> [MENU] [SWITCH] [+FLAGS] [LABEL]
-	else if (flags.switch_cap_flags[12] && (numtok > 3)) {
+	else if (flags.switch_cap_flags[12] && (numtok > 2)) {
+mIRCDebug("/xpopup -M command");
 		// Prevent users from adding special menus.
 		if ((p_Menu == g_mIRCMenuBar) ||
 			(p_Menu == g_mIRCPopupMenu))
@@ -232,13 +231,52 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 
 		HMENU menuBar = GetMenu(mIRCLink.m_mIRCHWND);
 		TString flags = input.gettok(3);
-		TString label = input.gettok(4, -1);
 
-		mIRCDebug("menu = %d, args = %d, flags = %s, label = %s", p_Menu, numtok, flags.to_chr(), label.to_chr());
+		// Remove menu
+		if (flags.find('r', 0) > 0) {
+			p_Menu->detachFromMenuBar(menuBar);
+		}
+		// Add a menu
+		else if (flags.find('a', 0) > 0) {
+			if (numtok < 4) {
+				DCXError("-M", "Insufficient parameters for +a");
+				return;
+			}
 
-			// Add the menu to the mIRC window menubar
-			AppendMenu(menuBar, MF_POPUP, (UINT_PTR) p_Menu->getMenuHandle(), label.to_chr());
-		// Force redraw so the label is displayed
+			// Test if menu is already added.
+			for (int i = 0; i < (int) m_vpXMenuBar.size(); i++) {
+				if (m_vpXMenuBar[i] == p_Menu) {
+					DCXError("-M", "Menu has already been added to menubar.");
+					return;
+				}
+			}
+
+			p_Menu->attachToMenuBar(menuBar, input.gettok(4, -1));
+		}
+		// Change menu label
+		else if (flags.find('t', 0) > 0) {
+			if (numtok < 4) {
+				DCXError("-M", "Insufficient parameters for +t");
+				return;
+			}
+
+			int offset = this->findMenuOffset(menuBar, p_Menu);
+
+			if (offset < 0) {
+				TString error;
+				error.sprintf("%s menu not found in menubar.", p_Menu->getName().to_chr());
+				DCXError("-M", error.to_chr());
+				return;
+			}
+
+			ModifyMenu(menuBar, offset, MF_BYPOSITION, MF_STRING, input.gettok(4, -1).to_chr());
+		}
+		else {
+			DCXError("-M", "Unknown flags.");
+			return;
+		}
+		
+		// Force redraw so the updates are shown.
 		DrawMenuBar(mIRCLink.m_mIRCHWND);
 	}
 	// xpopup -p -> [MENU] [SWITCH] [COLORS]
@@ -394,7 +432,7 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 	else
 		p_Menu = this->getMenuByName( input.gettok( 1 ) );
 
-	if ((p_Menu == NULL) && (prop != "ismenu") && (prop != "menuname")) {
+	if ((p_Menu == NULL) && (prop != "ismenu") && (prop != "menuname") && (prop != "menubar")) {
 		TString error;
 		error.sprintf("\"%s\" doesn't exist, see /xpopup -c", input.gettok( 1 ).to_chr( ) );
 		DCXError("$!xpopup()", error.to_chr());
@@ -411,7 +449,7 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 		if ((i < 0) || (i > (int) this->m_vpXPMenu.size()))
 		{
 			TString error;
-			error.sprintf("Invalid index: (%d).", i);
+			error.sprintf("Invalid index: %d", i);
 			DCXError("$!xpopup().menuname", error.to_chr());
 			return;
 		}
@@ -422,6 +460,26 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 		// Return name of specified menu.
 		else
 			wsprintf(szReturnValue, "%s", this->m_vpXPMenu[i -1]->getName());
+
+		return;
+	}
+	else if (prop == "menubar") {
+		int i = input.gettok(1).to_int();
+
+		if ((i < 0) || (i > (int) this->m_vpXPMenu.size()))
+		{
+			TString error;
+			error.sprintf("Invalid index: %d", i);
+			DCXError("$!xpopup().menubar", error.to_chr());
+			return;
+		}
+
+		// Return number of menus in menubar.
+		if (i == 0)
+			wsprintf(szReturnValue, "%d", (int) this->m_vpXMenuBar.size());
+		// Return name of specified menu.
+		else
+			wsprintf(szReturnValue, "%s", this->m_vpXMenuBar[i -1]->getName());
 
 		return;
 	}
@@ -791,4 +849,63 @@ BOOL WINAPI XPopupMenuManager::TrampolineTrackPopupMenuEx(
 	b = 1.0;
 	a = a / b;
 	return (a > 0);
+}
+
+
+bool XPopupMenuManager::addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, TString label) {
+	m_vpXMenuBar.push_back(p_Menu);
+	return (AppendMenu(menubar, MF_POPUP, (UINT_PTR) p_Menu->getMenuHandle(), label.to_chr()) != 0);
+}
+
+void XPopupMenuManager::removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu) {
+	if ((int) m_vpXMenuBar.size() == 0)
+		return;
+
+	if (menubar == NULL) {
+		menubar = GetMenu(mIRCLink.m_mIRCHWND);
+
+		if (!IsMenu(menubar))
+			return;
+	}
+
+	// Remove the menu from the vector list.
+	VectorOfXPopupMenu::iterator itStart = this->m_vpXMenuBar.begin();
+	VectorOfXPopupMenu::iterator itEnd = this->m_vpXMenuBar.end();
+
+	while (itStart != itEnd) {
+		if (*itStart == p_Menu) {
+			this->m_vpXMenuBar.erase(itStart);
+			break;
+		}
+
+		++itStart;
+	}
+
+	int offset = findMenuOffset(menubar, p_Menu);
+
+	if (offset > 0)
+		RemoveMenu(menubar, offset, MF_BYPOSITION);
+
+	DrawMenuBar(mIRCLink.m_mIRCHWND);
+}
+
+int XPopupMenuManager::findMenuOffset(HMENU menubar, XPopupMenu *p_Menu) {
+	MENUITEMINFO mii;
+	int offset = 1;                    // Use 1 because 0 = the menubar itself when using GetMenuBarInfo()
+	
+	ZeroMemory(&mii, sizeof(MENUITEMINFO));
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_SUBMENU;
+
+	// Whilst we can retrieve more menu items ...
+	while (GetMenuItemInfo(menubar, offset, TRUE, &mii)) {
+		// Continue if this isnt the menu we're after
+		if (p_Menu->getMenuHandle() != mii.hSubMenu)
+			offset++;
+		else
+			return offset;
+	}
+
+	// Nothing found
+	return -1;
 }
