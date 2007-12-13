@@ -1,6 +1,6 @@
 /*!
 Documentation
-http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/datetime/reflist.asp
+http://msdn2.microsoft.com/en-us/library/bb761727.aspx
 
  * \file dcxDateTime.cpp
  * \brief blah
@@ -156,7 +156,7 @@ void DcxDateTime::parseInfoRequest(TString &input, char *szReturnValue) {
  *
  * blah
  */
-// TODO: /xdid -c change state of checkbox
+// TODO: find a way to change state of checkbox /xdid -c
 void DcxDateTime::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
@@ -223,91 +223,90 @@ void DcxDateTime::parseCommandRequest(TString &input) {
  * blah
  */
 LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
-	//switch (uMsg) {
-	//	case WM_NOTIFY: {
-	//		LPNMHDR hdr = (LPNMHDR) lParam;
+	switch (uMsg) {
+		case WM_NOTIFY: {
+			LPNMHDR hdr = (LPNMHDR) lParam;
 
-	//		if (!hdr)
-	//			break;
+			if (!hdr)
+				break;
 
-	//		switch(hdr->code) {
-	//			case MCN_GETDAYSTATE: {
-	//				LPNMDAYSTATE lpNMDayState = (LPNMDAYSTATE) lParam;
-	//				MONTHDAYSTATE mds[12];
+			switch(hdr->code) {
+				case DTN_CLOSEUP: {
+					this->callAliasEx(NULL, "%s,%d", "closed", this->getUserID());
+					break;
+				}
 
-	//				int iMax = lpNMDayState->cDayState;
-	//				char eval[100];
+				case DTN_DROPDOWN:
+				{
+					/*
+					char cBuff[256];
+					TString buff(cBuff);
 
-	//				for (int i = 0; i < iMax; i++) {
-	//					// daystate ctrlid startdate
-	//					this->callAliasEx(eval, "%s,%d,%d", "daystate", this->getUserID(),
-	//						SystemTimeToMircTime(&(lpNMDayState->stStart)));
-	//					mds[i] = (MONTHDAYSTATE) 0;
+					this->callAliasEx(buff.to_chr(), "%s,%d", "open", this->getUserID());
 
-	//					TString strDays(eval);
-	//					strDays.trim();
+					if (buff.len() > 0) {
+						int i = 1;
+						int numtok = buff.numtok();
+						TString style;
+						UINT styles;
+						bool foundValid = false;
 
-	//					for (int x = 1; x <= strDays.numtok(TSCOMMA); x++) {
-	//						TString tok = strDays.gettok(x);
-	//						tok.trim();
-	//						BOLDDAY(mds[i], tok.to_int());
-	//					}
+						while (i <= numtok) {
+							style = buff.gettok(i);
 
-	//					// increment the month so we get a proper offset
-	//					lpNMDayState->stStart.wMonth++;
+							if (style == "multi") {
+								styles |= MCS_MULTISELECT;
+								foundValid = true;
+							}
+							else if (style == "notoday") {
+								styles |= MCS_NOTODAY;
+								foundValid = true;
+							}
+							else if (style == "notodaycircle") {
+								styles |= MCS_NOTODAYCIRCLE;
+								foundValid = true;
+							}
+							else if (style == "weeknum") {
+								styles |= MCS_WEEKNUMBERS;
+								foundValid = true;
+							}
+							else if (style == "daystate") {
+								styles |= MCS_DAYSTATE;
+								foundValid = true;
+							}
 
-	//					if (lpNMDayState->stStart.wMonth > 12) {
-	//						lpNMDayState->stStart.wMonth = 1;
-	//						lpNMDayState->stStart.wYear++;
-	//					}
-	//				}
+							i++;
+						}
 
-	//				lpNMDayState->prgDayState = mds;
-	//				bParsed = TRUE;
-	//				return FALSE;
-	//				break;
-	//			}
+						if (foundValid) {
+							HWND cal = DateTime_GetMonthCal(this->m_Hwnd);
+							SetWindowLong(cal, GWL_STYLE, styles);
+						}
+					}
 
-	//			case MCN_SELCHANGE: {
-	//				this->callAliasEx(NULL, "%s,%d", "selchange", this->getUserID());
-	//				break;
-	//			}
-	//			case MCN_SELECT: {
-	//				// specific code to handle multiselect dates
-	//				if (this->isStyle(MCS_MULTISELECT)) {
-	//					// get the selected range
-	//					SYSTEMTIME selrange[2];
+					mIRCDebug("returned calendar styles: %s", buff.to_chr());
+					*/
 
-	//					MonthCal_GetSelRange(this->m_Hwnd, selrange);
+					// TODO: allow for calendar customisation. see DTN_DROPDOWN http://msdn2.microsoft.com/en-us/library/bb761739.aspx
+					this->callAliasEx(NULL, "%s,%d", "open", this->getUserID());
+					break;
+				}
 
-	//					// send event to callback
-	//					this->callAliasEx(NULL, "%s,%d,%d,%d", "select", this->getUserID(),
-	//						SystemTimeToMircTime(&(selrange[0])),
-	//						SystemTimeToMircTime(&(selrange[1])));
-	//				}
-	//				// code to handle single selected dates
-	//				else {
-	//					SYSTEMTIME st;
-	//					MonthCal_GetCurSel(this->m_Hwnd, &st);
+				case DTN_DATETIMECHANGE: {
+					LPNMDATETIMECHANGE dtc = (LPNMDATETIMECHANGE) lParam;
 
-	//					// send event to callback
-	//					this->callAliasEx(NULL, "%s,%d,%d", "select", this->getUserID(), SystemTimeToMircTime(&st));
-	//				}
+					if (dtc->dwFlags == GDT_NONE)
+						this->callAliasEx(NULL, "%s,%d,%s", "change", this->getUserID(), "none");
+					else {
+						this->callAliasEx(NULL, "%s,%d,%d", "change", this->getUserID(), SystemTimeToMircTime(&(dtc->st)));
+					}
 
-	//				break;
-	//			}
-	//			case NM_RELEASEDCAPTURE: {
-	//				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//					this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
-	//				break;
-	//			}
-	//			default: {
-	//				//mIRCError("ELSE");
-	//				break;
-	//			}
-	//		} // end switch
-	//	}
-	//}
+					return 0L;
+				}
+			} // end switch
+		}
+	}
+
 	return 0L;
 }
 

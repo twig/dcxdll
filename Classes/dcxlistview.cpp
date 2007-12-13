@@ -318,6 +318,17 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 			return;
 		}
 	}
+	// [NAME] [ID] [PROP] [N]
+	else if (prop == "selected" && (numtok > 3)) {
+		int nItem = input.gettok(4).to_int();
+
+		// In range
+		if ((nItem > 0) && (nItem < ListView_GetItemCount(this->m_Hwnd))) {
+			BOOL selected = ListView_GetItemState(this->m_Hwnd, nItem -1, LVIS_SELECTED) & LVIS_SELECTED;
+			wsprintf(szReturnValue, "%s", (selected ? "$true" : "$false"));
+			return;
+		}
+	}
 	// [NAME] [ID] [PROP] (NSUB)
 	else if ( prop == "seltext") {
 		int nItem = ListView_GetNextItem( this->m_Hwnd, -1, LVIS_SELECTED );
