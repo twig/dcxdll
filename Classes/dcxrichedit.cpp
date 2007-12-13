@@ -144,12 +144,15 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 	// [NAME] [ID] [PROP] [N]
 	if (prop == "text") {
 		// determine the line number
-		int line = 1;
-
-// TODO: add error checking for line #
+		int line = 0;
 
 		if (numtok > 3)
 			line = input.gettok( 4 ).to_int() -1;
+
+		if ((line < 0) || (line >= Edit_GetLineCount(this->m_Hwnd))) {
+			DCXError("text", "Invalid line number.");
+			return;
+		}
 
 		// get index of first character in line
 		int offset = SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM) line, NULL);
