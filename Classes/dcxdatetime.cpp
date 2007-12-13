@@ -297,9 +297,8 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 					if (dtc->dwFlags == GDT_NONE)
 						this->callAliasEx(NULL, "%s,%d,%s", "change", this->getUserID(), "none");
-					else {
+					else
 						this->callAliasEx(NULL, "%s,%d,%d", "change", this->getUserID(), SystemTimeToMircTime(&(dtc->st)));
-					}
 
 					return 0L;
 				}

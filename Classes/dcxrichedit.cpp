@@ -66,7 +66,7 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 	this->loadmIRCPalette();
 	this->setContentsFont();
 
-	SendMessage(this->m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE));
+	SendMessage(this->m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
 	//SendMessage(this->m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 
 	if (p_Dialog->getToolTip() != NULL) {
@@ -144,7 +144,9 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 	// [NAME] [ID] [PROP] [N]
 	if (prop == "text") {
 		// determine the line number
-		int line = 0;
+		int line = 1;
+
+// TODO: add error checking for line #
 
 		if (numtok > 3)
 			line = input.gettok( 4 ).to_int() -1;
@@ -152,18 +154,18 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		// get index of first character in line
 		int offset = SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM) line, NULL);
 		// get length of the line we want to copy
-		int len = SendMessage(this->m_Hwnd, EM_LINELENGTH, (WPARAM) offset, NULL);
+		int len = SendMessage(this->m_Hwnd, EM_LINELENGTH, (WPARAM) offset, NULL) +1;
 		// create and fill the buffer
 		char *p = new char[len];
 		*(LPWORD) p = (WORD)len;
 		int res = SendMessage(this->m_Hwnd, EM_GETLINE, (WPARAM) line, (LPARAM) p);
 
 		// terminate the string at the right position
-		p[res] = '\0';
+		p[len -1] = '\0';
 
 		// copy to result
 		lstrcpyn(szReturnValue, p, 900);
-		delete [] p;
+		delete p;
 		return;
 	}
 	// [NAME] [ID] [PROP]
@@ -832,7 +834,8 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							// get information about link text
 							ZeroMemory(&tr, sizeof(TEXTRANGE));
 							tr.chrg = enl->chrg;
-							char *str = new char[enl->chrg.cpMax - enl->chrg.cpMin];
+							int strlen = enl->chrg.cpMax - enl->chrg.cpMin +1;
+							char *str = new char[strlen];
 
 							tr.lpstrText = str;
 							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
@@ -845,7 +848,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								tsEvent = "rclick";
 
 							this->callAliasEx(NULL, "%s,%d,%s,%s", "link", this->getUserID(), tsEvent.to_chr(), tr.lpstrText);
-							delete [] str;
+							delete str;
 						}
 					}
 					break;
