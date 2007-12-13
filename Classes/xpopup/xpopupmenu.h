@@ -126,12 +126,17 @@ public:
 	bool attachToMenuBar(HMENU menubar, TString label);
 	void detachFromMenuBar(HMENU menubar);
 
+	// Methods to access marked text.
+	void setMarkedText(TString text);
+	TString getMarkedText();
+
 protected:
 
   HMENU m_hMenu; //!< Menu Handle
   HIMAGELIST m_hImageList; //!< Menu ImageList
   MenuStyle m_MenuStyle; //!< Menu Style
   TString m_tsMenuName; //!< Menu Name
+  TString m_tsMarkedText; //!< Extra field to store custom information
   VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
   UINT m_MenuItemStyles; //!< Menu Item Styles
 

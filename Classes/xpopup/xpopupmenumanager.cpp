@@ -190,9 +190,12 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 			DCXError("/xpopup -i","Unable to Access File");
 	}
 	// xpopup -j -> [MENU] [SWITCH]
-	else if ( flags.switch_flags[9] ) {
-
-		p_Menu->destroyImageList( );
+	else if (flags.switch_flags[9]) {
+		p_Menu->destroyImageList();
+	}
+	// xpopup -K -> [MENU] [SWITCH] (TEXT)
+	else if (flags.switch_cap_flags[10]) {
+		p_Menu->setMarkedText(input.gettok(3, -1));
 	}
 	// xpopup -l -> [MENU] [SWITCH] [N] [COLOR | default]
 	else if ( flags.switch_flags[11] && numtok > 3 ) {
@@ -215,7 +218,6 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 	}
 	// xpopup -M -> [MENU] [SWITCH] [+FLAGS] [LABEL]
 	else if (flags.switch_cap_flags[12] && (numtok > 2)) {
-mIRCDebug("/xpopup -M command");
 		// Prevent users from adding special menus.
 		if ((p_Menu == g_mIRCMenuBar) ||
 			(p_Menu == g_mIRCPopupMenu))
@@ -566,6 +568,10 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 	}
 	else if ( prop == "alpha") {
 		wsprintf( szReturnValue, "%ld", p_Menu->IsAlpha());
+		return;
+	}
+	else if (prop == "marked") {
+		wsprintf(szReturnValue, "%s", p_Menu->getMarkedText().to_chr());
 		return;
 	}
 	szReturnValue[0] = 0;

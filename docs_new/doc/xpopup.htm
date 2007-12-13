@@ -550,6 +550,20 @@ ON *:SIGNAL:Xpopup-*: {
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.K"></a>/xpopup -K	</td></tr>
+	<tr><td colspan="2">This command lets you set the marked text, which can contain any information.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -K [MENU] (TEXT)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -K mymenu additional information</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
 			<a name="xpopup.R"></a>/xpopup -R	</td></tr>
 	<tr><td colspan="2">This command lets you add more visual styles to your XPopup</td></tr>
 	<tr>
@@ -691,6 +705,20 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xpopup(mymenu).isrounded</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.marked"></a>$xpopup().marked	</td></tr>
+	<tr><td colspan="2">This property lets you set the marked text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).marked</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).marked</div></td>
 	</tr>
 </table>
 <br />
@@ -928,6 +956,7 @@ ON *:SIGNAL:Xpopup-*: {
 		<a href="#xpopup.s"><div>-s</div></a>
 		<a href="#xpopup.t"><div>-t</div></a>
 		<a href="#xpopup.x"><div>-x</div></a>
+		<a href="#xpopup.K"><div>-K</div></a>
 		<a href="#xpopup.R"><div>-R</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #CCACC7'>
@@ -939,6 +968,7 @@ ON *:SIGNAL:Xpopup-*: {
 		<a href="#xpopupprop.ismenu"><div>ismenu</div></a>
 		<a href="#xpopupprop.isPatched"><div>isPatched</div></a>
 		<a href="#xpopupprop.isrounded"><div>isrounded</div></a>
+		<a href="#xpopupprop.marked"><div>marked</div></a>
 		<a href="#xpopupprop.style"><div>style</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
@@ -967,7 +997,7 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 12th December, 07</td>
+		<td style="text-align: right;">Last Updated: 13th December, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

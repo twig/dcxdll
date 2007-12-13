@@ -1147,3 +1147,14 @@ void XPopupMenu::detachFromMenuBar(HMENU menubar) {
 	g_XPopupMenuManager.removeFromMenuBar(menubar, this);
 	this->m_bAttachedToMenuBar = false;
 }
+
+/**
+ * Methods to access marked text.
+ */
+void XPopupMenu::setMarkedText(TString text) {
+	this->m_tsMarkedText = text;
+}
+
+TString XPopupMenu::getMarkedText() {
+	return this->m_tsMarkedText;
+}
