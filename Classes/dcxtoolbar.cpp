@@ -449,12 +449,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		int nButton = input.gettok( 4 ).to_int( ) - 1;
 
 		if (nButton > -1)
-			if (this->deleteButton(nButton)) {
-				//			mIRCError("success");
-		 }
-			else {
-				//mIRCError("huh?");
-		 }
+			this->deleteButton(nButton);
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [IMAGE]
 	else if ( flags.switch_flags[8] && numtok > 4 ) {

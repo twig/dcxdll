@@ -1503,31 +1503,32 @@ BOOL DcxTreeView::parsePath( const TString * path, HTREEITEM * hParent, HTREEITE
 
 BOOL DcxTreeView::correctTargetItem( HTREEITEM * hParent, HTREEITEM * hInsertAfter ) {
 
-  if ( *hInsertAfter == TVI_FIRST ) {
-    *hInsertAfter = TreeView_GetChild( this->m_Hwnd, *hParent );
-  }
-  else if ( *hInsertAfter == TVI_LAST ) {
+	if ( *hInsertAfter == TVI_FIRST ) {
+		*hInsertAfter = TreeView_GetChild( this->m_Hwnd, *hParent );
+	}
+	else if ( *hInsertAfter == TVI_LAST ) {
 
-    HTREEITEM hItem = TreeView_GetChild( this->m_Hwnd, *hParent );
+		HTREEITEM hItem = TreeView_GetChild( this->m_Hwnd, *hParent );
 
-    if ( hItem == NULL )
-      return FALSE;
+		if ( hItem == NULL )
+			return FALSE;
 
-    do {
-      *hInsertAfter = hItem;
-    } while ( ( hItem = TreeView_GetNextSibling( this->m_Hwnd, *hInsertAfter ) ) != NULL );
+		do {
+			*hInsertAfter = hItem;
+		} while ( ( hItem = TreeView_GetNextSibling( this->m_Hwnd, *hInsertAfter ) ) != NULL );
 
-  }
-  else if ( *hInsertAfter == TVI_ROOT ) {
-    return FALSE;
-  }
-  else {
+	}
+	else if ( *hInsertAfter == TVI_ROOT ) {
+		*hInsertAfter = TreeView_GetRoot( this->m_Hwnd );
+		return TRUE;
+	}
+	else {
 
-    if ( ( *hInsertAfter = TreeView_GetNextSibling( this->m_Hwnd, *hInsertAfter ) ) == NULL )
-      return FALSE;
-  }
+		if ( ( *hInsertAfter = TreeView_GetNextSibling( this->m_Hwnd, *hInsertAfter ) ) == NULL )
+			return FALSE;
+	}
 
-  return TRUE;
+	return TRUE;
 }
 
 /*!
