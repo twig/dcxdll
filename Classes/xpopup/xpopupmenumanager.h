@@ -39,6 +39,7 @@ public:
 
   bool addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, TString label);
   void removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu);
+	void setMenuBar(HMENU oldMenuBar, HMENU newMenuBar);
 
   void clearMenus( );
 

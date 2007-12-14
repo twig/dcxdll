@@ -438,7 +438,7 @@
 	<tr><td colspan="2">This command lets you change the appearance of a listview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -j [DNAME] [ID] [N] [NSUB] [+FLAGS] (COLOR BGCOLOR)</div></td>
+		<td><div class="syntax">/xdid -j [DNAME] [ID] [N] [NSUB] [STATE] (COLOR BGCOLOR)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -1183,6 +1183,20 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.selected"></a>$xdid().selected	</td></tr>
+	<tr><td colspan="2">This property lets you determine if the specified item is selected or not.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [N]).selected</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 2).selected</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.selnum"></a>$xdid().selnum	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the number of selected items in the listview.</td></tr>
 	<tr>
@@ -1653,6 +1667,7 @@
 		<a href="#xdidprop.num"><div>num</div></a>
 		<a href="#xdidprop.pbar"><div>pbar</div></a>
 		<a href="#xdidprop.sel"><div>sel</div></a>
+		<a href="#xdidprop.selected"><div>selected</div></a>
 		<a href="#xdidprop.selnum"><div>selnum</div></a>
 		<a href="#xdidprop.seltext"><div>seltext</div></a>
 		<a href="#xdidprop.state"><div>state</div></a>
@@ -1687,7 +1702,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 12th December, 07</td>
+		<td style="text-align: right;">Last Updated: 13th December, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

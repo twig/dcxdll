@@ -84,6 +84,9 @@ XPopupMenuManager g_XPopupMenuManager; //!< Global XPopupMenu Manager
 XPopupMenu * g_mIRCPopupMenu = NULL;
 XPopupMenu * g_mIRCMenuBar = NULL;
 
+HMENU g_OriginalMenuBar = NULL;
+XPopupMenu *g_mIRCScriptMenu = NULL;
+
 BOOL isMenuBar = FALSE;
 BOOL isSysMenu = FALSE;
 
@@ -449,6 +452,42 @@ void WINAPI LoadDll(LOADINFO * load) {
 	dcxSignal.xdock = false;
 	dcxSignal.xstatusbar = true;
 	dcxSignal.xtray = true;
+
+
+
+
+
+
+
+	HMENU menu = GetMenu(mIRCLink.m_mIRCHWND);
+	char buff[30];
+	int i = 0;
+	TString label;
+
+	while (i < 15) {
+		GetMenuString(menu, i, buff, 30, MF_BYPOSITION);
+		label.sprintf("%s", buff);
+
+		mIRCDebug("%d = %s", i, label.to_chr());
+
+		if (label == "&Tools") {
+			MENUITEMINFO mii;
+
+			ZeroMemory(&mii, sizeof(MENUITEMINFO));
+			mii.cbSize = sizeof(MENUITEMINFO);
+			mii.fMask = MIIM_SUBMENU;
+
+			GetMenuItemInfo(menu, i +1, TRUE, &mii);
+			g_mIRCScriptMenu = new XPopupMenu("scriptpopup", mii.hSubMenu);
+			mIRCDebug("-> submenu hwnd %d", mii.hSubMenu);
+		}
+
+		i++;
+	}
+
+	if (g_mIRCScriptMenu != NULL) {
+		mIRCDebug("Custom found: number of items = %d", GetMenuItemCount(g_mIRCScriptMenu->getMenuHandle()));
+	}
 }
 
 /*!
@@ -522,6 +561,13 @@ int WINAPI UnloadDll(int timeout) {
 		//	SetClassLongPtr(tmp_hwnd,GCLP_WNDPROC,(LONG_PTR)g_OldmIRCMenusWindowProc);
 		//	DestroyWindow(tmp_hwnd);
 		//}
+
+		if (g_OriginalMenuBar != NULL) {
+			HMENU menubar = GetMenu(mIRCLink.m_mIRCHWND);
+
+			g_XPopupMenuManager.setMenuBar(menubar, g_OriginalMenuBar);
+			g_OriginalMenuBar = NULL;
+		}
 
 		g_XPopupMenuManager.clearMenus();
 
@@ -1197,24 +1243,37 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		//case WM_INITMENU:
 		case WM_INITMENUPOPUP:
 		{
+			HMENU menu = (HMENU) wParam;
+			HMENU currentMenubar = GetMenu(mIRCLink.m_mIRCHWND);
+			bool switchMenu = (g_mIRCScriptMenu != NULL) &&
+				              (menu == g_mIRCScriptMenu->getMenuHandle()) &&
+							  (currentMenubar != g_OriginalMenuBar) &&
+							  (g_OriginalMenuBar != NULL);
+
 			if (HIWORD(lParam) == FALSE) {
+				if (switchMenu)
+					SetMenu(mIRCLink.m_mIRCHWND, g_OriginalMenuBar);
+
 				// let mIRC populate the menus dynamically
 				LRESULT lRes = CallWindowProc(g_OldmIRCWindowProc, mHwnd, uMsg, wParam, lParam);
 
-				if (isMenuBarMenu(GetMenu(mHwnd), (HMENU) wParam)) {
+				if (switchMenu)
+					SetMenu(mIRCLink.m_mIRCHWND, currentMenubar);
+
+				if (isMenuBarMenu(GetMenu(mHwnd), menu)) {
 					isMenuBar = TRUE;
 
 					if (bIsActiveMircMenubarPopup == TRUE) {
 						HWND hActive = (HWND)SendMessage(mIRCLink.m_hMDI, WM_MDIGETACTIVE, NULL, NULL);
-						if (!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != (HMENU)wParam)
-							g_mIRCMenuBar->convertMenu((HMENU) wParam, TRUE);
+						if (!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)
+							g_mIRCMenuBar->convertMenu(menu, TRUE);
 					}
 				}
 				else {
 					isMenuBar = FALSE;
 
 					if (bIsActiveMircPopup == TRUE)
-						g_mIRCPopupMenu->convertMenu((HMENU) wParam, FALSE);
+						g_mIRCPopupMenu->convertMenu(menu, FALSE);
 				}
 
 				isSysMenu = FALSE;
