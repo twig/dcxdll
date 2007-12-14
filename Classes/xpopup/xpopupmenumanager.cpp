@@ -236,12 +236,18 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 		HWND hTrack = (HWND)input.gettok( 6 ).to_num();
 
 		if (hTrack != NULL && IsWindow(hTrack)) {
-			RECT rc;
-			GetWindowRect(hTrack, &rc);
+			RECT rcWindow, rcClient;
+			GetWindowRect(hTrack, &rcWindow);
+			GetClientRect(hTrack, &rcClient);
+
+			// assume x & y are relative to the windows client rect & adjust for border ($mouse.x & $mouse.y)
+			POINT ptDiff;
+			ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
+			ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
 
 			// make pos relative to supplied window.
-			x += rc.left;
-			y += rc.top;
+			x += rcWindow.left + ptDiff.x;
+			y += rcWindow.top + ptDiff.y;
 		}
 		else {
 			// Adjust relative location to take multi-monitor into account
@@ -622,54 +628,11 @@ BOOL WINAPI XPopupMenuManager::XTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, 
 {
 	uFlags &= ~TPM_NONOTIFY;
 	return XPopupMenuManager::TrampolineTrackPopupMenu(hMenu, uFlags, x, y, nReserved, hWnd, prcRect);
-	//bool hooked = false;
-	//if (uFlags & TPM_NONOTIFY)
-	//{
-	//	m_activeObject->m_menuBeingProcessed = hMenu;
-	//	CMenu menu;
-	//	menu.Attach(hMenu);
-	//	m_activeObject->OnInitMenuPopup(&menu, 0, FALSE);
-	//	menu.Detach();
-	//	// hook the window message queue
-	//	// so we can handle the WM_DRAWITEM/WM_MEASUREITEM messages
-	//	m_oldWndProc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)MenuWndProc);
-	//	hooked = true;
-	//}
-	//BOOL ret = TrampolineTrackPopupMenu(hMenu, uFlags, x, y, nReserved, hWnd, prcRect);
-	//if (hooked)
-	//{
-	//	// restore the old wndProc
-	//	m_oldWndProc = (WNDPROC)SetWindowLongPtr(hWnd, 
-	//	GWLP_WNDPROC, (LONG_PTR)m_oldWndProc);
-	//	m_oldWndProc = NULL;
-	//}
-	//return ret;
 }
 BOOL WINAPI XPopupMenuManager::XTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm)
 {
 	fuFlags &= ~TPM_NONOTIFY;
 	return XPopupMenuManager::TrampolineTrackPopupMenuEx(hMenu, fuFlags, x, y, hwnd, lptpm);
-	//bool hooked = false;
-	//if (fuFlags & TPM_NONOTIFY)
-	//{
-	//	m_activeObject->m_menuBeingProcessed = hMenu;
-	//	CMenu menu;
-	//	menu.Attach(hMenu);
-	//	m_activeObject->OnInitMenuPopup(&menu, 0, FALSE);
-	//	menu.Detach();
-	//	// hook the window message queue so we can handle
-	//	// the WM_DRAWITEM/WM_MEASUREITEM messages
-	//	m_oldWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)MenuWndProc);
-	//	hooked = true;
-	//}
-	//BOOL ret = TrampolineTrackPopupMenuEx(hMenu, fuFlags, x, y, hwnd, lptpm);
-	//if (hooked)
-	//{
-	//	// restore the old wndProc
-	//	m_oldWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)m_oldWndProc);
-	//	m_oldWndProc = NULL;
-	//}
-	//return ret;
 }
 BOOL XPopupMenuManager::InterceptAPI(HMODULE hLocalModule, const char* c_szDllName, const char* c_szApiName, DWORD dwReplaced, DWORD dwTrampoline, int offset)
 {

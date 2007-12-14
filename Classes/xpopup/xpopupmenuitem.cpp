@@ -263,24 +263,24 @@ void XPopupMenuItem::DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const LPX
 
      case XPopupMenu::XPMS_CUSTOM:
       {
-        HBITMAP hBitmap = this->m_pXParentMenu->getBackBitmap( );
+		  HBITMAP hBitmap = this->m_pXParentMenu->getBackBitmap( );
 
-        if ( hBitmap != NULL ) {
+		  if ( hBitmap != NULL ) {
 
-          HDC hdcbmp = CreateCompatibleDC( lpdis->hDC );
-					if (hdcbmp != NULL) {
-						BITMAP bmp;
+			HDC hdcbmp = CreateCompatibleDC( lpdis->hDC );
+			if (hdcbmp != NULL) {
+				BITMAP bmp;
 
-						GetObject( hBitmap, sizeof( BITMAP ), &bmp );
-						HBITMAP hOldBm = (HBITMAP)SelectObject( hdcbmp, hBitmap );
-						StretchBlt( lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right - lpdis->rcItem.left, 
-							lpdis->rcItem.bottom - lpdis->rcItem.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY );
+				GetObject( hBitmap, sizeof( BITMAP ), &bmp );
+				HBITMAP hOldBm = (HBITMAP)SelectObject( hdcbmp, hBitmap );
+				StretchBlt( lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right - lpdis->rcItem.left, 
+					lpdis->rcItem.bottom - lpdis->rcItem.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY );
 
-						SelectObject( hdcbmp, hOldBm );
-						DeleteDC( hdcbmp );
-					}
-          break;
-        }
+				SelectObject( hdcbmp, hOldBm );
+				DeleteDC( hdcbmp );
+			}
+			break;
+		  }
       }
 
     case XPopupMenu::XPMS_OFFICEXP:
@@ -438,36 +438,36 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 
 	SetTextColor( lpdis->hDC, (bDis?lpcol->m_clrDisabledText:((lpdis->itemState & ODS_SELECTED)?lpcol->m_clrSelectedText:lpcol->m_clrText)) );
 
-  SetBkMode( lpdis->hDC, TRANSPARENT );
+	SetBkMode( lpdis->hDC, TRANSPARENT );
 
-  RECT rc;
-  CopyRect( &rc, &lpdis->rcItem );
-  rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
+	RECT rc;
+	CopyRect( &rc, &lpdis->rcItem );
+	rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
 
-  if ( this->m_tsItemText.numtok( TSTAB ) > 1 ) {
+	if ( this->m_tsItemText.numtok( TSTAB ) > 1 ) {
 
-    TString lefttext(this->m_tsItemText.gettok( 1, TSTAB ));
-    lefttext.trim( );
-    TString righttext(this->m_tsItemText.gettok( 2, TSTAB ));
-    righttext.trim( );
+		TString lefttext(this->m_tsItemText.gettok( 1, TSTAB ));
+		lefttext.trim( );
+		TString righttext(this->m_tsItemText.gettok( 2, TSTAB ));
+		righttext.trim( );
 
-    //DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, 
-    //  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
+		//DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, 
+		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
 		mIRC_DrawText( lpdis->hDC, lefttext, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false);
 
-    if ( righttext.len( ) > 0 ) {
+		if ( righttext.len( ) > 0 ) {
 
-      rc.right -= 15;
-      //DrawTextEx( lpdis->hDC, righttext.to_chr( ), righttext.len( ), &rc, 
-      //  DT_RIGHT | DT_SINGLELINE | DT_VCENTER, NULL );
+			rc.right -= 15;
+			//DrawTextEx( lpdis->hDC, righttext.to_chr( ), righttext.len( ), &rc, 
+			//  DT_RIGHT | DT_SINGLELINE | DT_VCENTER, NULL );
 			mIRC_DrawText( lpdis->hDC, righttext, &rc, DT_RIGHT | DT_SINGLELINE | DT_VCENTER, false);
-    }
-  }
-  else {
-    //DrawTextEx( lpdis->hDC, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &rc, 
-    //  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
+		}
+	}
+	else {
+		//DrawTextEx( lpdis->hDC, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &rc, 
+		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
 		mIRC_DrawText( lpdis->hDC, this->m_tsItemText, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false);
-  }
+	}
 }
 
 /*!

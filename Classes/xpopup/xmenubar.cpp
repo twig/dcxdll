@@ -39,7 +39,7 @@ XMenuBar::~XMenuBar() {
 /*
  *
  */
-void XMenuBar::parseSwitchFlags(TString *switches, XSwitchFlags *flags) {
+void XMenuBar::parseSwitchFlags(const TString *switches, XSwitchFlags *flags) {
 	// no -sign, missing params
 	if ((*switches)[0] != '-')
 		return;
@@ -292,20 +292,18 @@ void XMenuBar::removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu) {
 /*
  * Searches for the given menu in the menubar, and returns the zero-based index position.
  */
-int XMenuBar::findMenuOffset(HMENU menubar, XPopupMenu *p_Menu) {
+int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu *p_Menu) const {
 	MENUITEMINFO mii;
-	int offset = 1;                    // Use 1 because 0 = the menubar itself when using GetMenuBarInfo()
-	
+	int offset = 0;					// Use 1 because 0 = the menubar itself when using GetMenuBarInfo()
+									// Changed to 0 to allow pre-increment within while()
 	ZeroMemory(&mii, sizeof(MENUITEMINFO));
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_SUBMENU;
 
 	// Whilst we can retrieve more menu items ...
-	while (GetMenuItemInfo(menubar, offset, TRUE, &mii)) {
+	while (GetMenuItemInfo(menubar, ++offset, TRUE, &mii)) {
 		// Continue if this isnt the menu we're after
-		if (p_Menu->getMenuHandle() != mii.hSubMenu)
-			offset++;
-		else
+		if (p_Menu->getMenuHandle() == mii.hSubMenu)
 			return offset;
 	}
 
@@ -363,7 +361,7 @@ void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar) {
 /*
  *
  */
-bool XMenuBar::validateMenu(XPopupMenu *menu, TString flag, TString &name) {
+bool XMenuBar::validateMenu(const XPopupMenu *menu, const TString &flag, const TString &name) const {
 	if (menu == NULL) {
 		TString error;
 		error.sprintf("Cannot find menu \"%s\".", name.to_chr());
@@ -394,7 +392,7 @@ void XMenuBar::resetMenuBar() {
 /*
  *
  */
-bool XMenuBar::hasCallback() {
+bool XMenuBar::hasCallback() const {
 	if (this->m_callback.len() == 0)
 		return false;
 
@@ -407,14 +405,11 @@ bool XMenuBar::hasCallback() {
  *
  * User should return '$true' from the callback to prevent default processing.
  */
-bool XMenuBar::parseCallback(UINT menuID) {
-	TString alias;
-	TString result;
-	char res[10];
+bool XMenuBar::parseCallback(const UINT menuID) {
+	TString result((UINT)10);
 
-	mIRCevalEX(res, 10, "$%s(%d)", this->m_callback.to_chr(), menuID);
+	mIRCevalEX(result.to_chr(), 10, "$%s(%d)", this->m_callback.to_chr(), menuID);
 
-	result.sprintf("%s", mIRCLink.m_pData);
 mIRCDebug("callback result = %s", result.to_chr());
 
 	if (result == "$true")

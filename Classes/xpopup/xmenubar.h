@@ -37,17 +37,17 @@ class XMenuBar {
 
 		void resetMenuBar();
 
-		bool hasCallback();
-		bool parseCallback(UINT menuID);
+		bool hasCallback() const;
+		bool parseCallback(const UINT menuID);
 
 	protected:
 		VectorOfXPopupMenu m_vpXMenuBar; //!< Vector of XPopupMenu objects added to the menubar.
 
-		static void parseSwitchFlags(TString *switches, XSwitchFlags *flags);
+		static void parseSwitchFlags(const TString *switches, XSwitchFlags *flags);
 		static UINT parseTrackFlags(TString &flags);
 
-		int findMenuOffset(HMENU menubar, XPopupMenu *p_menu);
-		bool validateMenu(XPopupMenu *menu, TString flag, TString &name);
+		int findMenuOffset(HMENU menubar, const XPopupMenu *p_menu) const;
+		bool validateMenu(const XPopupMenu *menu, const TString &flag, const TString &name) const;
 
 		TString m_callback;
 };
