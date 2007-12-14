@@ -28,6 +28,11 @@ alias xpopup {
   dcx xpopup $2 $1 $3-
 }
 
+alias xmenubar {
+  if ($isid) returnex $dcx(_xmenubar, $1 $prop $2-)
+  dcx xmenubar $1-
+}
+
 alias mpopup {
   dcx mpopup $1 $2
 }

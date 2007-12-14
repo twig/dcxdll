@@ -13,7 +13,7 @@
  */
 
 #include "xpopupmenu.h"
-#include "xpopupmenumanager.h"
+#include "xmenubar.h"
 
 /*!
  * \brief Constructor
@@ -21,7 +21,7 @@
  * blah
  */
 
-extern XPopupMenuManager g_XPopupMenuManager;
+extern XMenuBar g_XMenuBar;
 
 XPopupMenu::XPopupMenu( const TString & tsMenuName, MenuStyle mStyle )
 : m_tsMenuName( tsMenuName ), m_MenuStyle( mStyle ), m_MenuItemStyles(0), m_hImageList(NULL),
@@ -1132,7 +1132,7 @@ bool XPopupMenu::attachToMenuBar(HMENU menubar, TString label) {
 		return false;
 
 	// Add the menu to the mIRC window menubar
-	this->m_bAttachedToMenuBar = g_XPopupMenuManager.addToMenuBar(menubar, this, label);
+	this->m_bAttachedToMenuBar = g_XMenuBar.addToMenuBar(menubar, this, label);
 	return this->m_bAttachedToMenuBar;
 }
 
@@ -1144,7 +1144,7 @@ void XPopupMenu::detachFromMenuBar(HMENU menubar) {
 	if (!this->m_bAttachedToMenuBar)
 		return;
 
-	g_XPopupMenuManager.removeFromMenuBar(menubar, this);
+	g_XMenuBar.removeFromMenuBar(menubar, this);
 	this->m_bAttachedToMenuBar = false;
 }
 

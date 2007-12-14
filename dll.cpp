@@ -21,6 +21,8 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
 #include "classes/custom/divider.h"
 #include "classes/custom/dcxtrayicon.h"
 
+#include "classes/xpopup/xmenubar.h"
+
 #include "classes/xpopup/xpopupmenumanager.h"
 #include "classes/xpopup/xpopupmenu.h"
 
@@ -78,14 +80,17 @@ IClassFactory * g_pClassFactory = NULL; //!< Web Control Factory
 DcxTrayIcon *trayIcons = NULL; // tray icon manager
 
 
+// XMenuBar stuff
+XMenuBar g_XMenuBar; // Global XMenuBar object
+HMENU g_OriginalMenuBar = NULL;
+XPopupMenu *g_mIRCScriptMenu = NULL; // Wrapper for the mIRC scriptable menu.
+
+
 // XPopup Stuff
 XPopupMenuManager g_XPopupMenuManager; //!< Global XPopupMenu Manager
 
 XPopupMenu * g_mIRCPopupMenu = NULL;
 XPopupMenu * g_mIRCMenuBar = NULL;
-
-HMENU g_OriginalMenuBar = NULL;
-XPopupMenu *g_mIRCScriptMenu = NULL;
 
 BOOL isMenuBar = FALSE;
 BOOL isSysMenu = FALSE;
@@ -454,39 +459,34 @@ void WINAPI LoadDll(LOADINFO * load) {
 	dcxSignal.xtray = true;
 
 
-
-
-
-
-
+	// XMenuBar stuff
 	HMENU menu = GetMenu(mIRCLink.m_mIRCHWND);
-	char buff[30];
 	int i = 0;
-	TString label;
+	const unsigned int buffSize = 30;
+	TString label(buffSize);
+	MENUITEMINFO mii;
 
-	while (i < 15) {
-		GetMenuString(menu, i, buff, 30, MF_BYPOSITION);
-		label.sprintf("%s", buff);
+	ZeroMemory(&mii, sizeof(MENUITEMINFO));
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_STRING;
+	mii.cch = buffSize;
+	mii.dwTypeData = label.to_chr();
 
-		mIRCDebug("%d = %s", i, label.to_chr());
+	while (GetMenuItemInfo(menu, i, TRUE, &mii)) {
+		mIRCDebug("iteration %d, type = %d, data %d, cch = %d, %s", i, mii.fType, mii.dwTypeData, mii.cch, label.to_chr());
 
+		// We've found the tools menu, next one is the scriptable popup.
 		if (label == "&Tools") {
-			MENUITEMINFO mii;
+			HMENU scriptable = GetSubMenu(menu, i +1);;
 
-			ZeroMemory(&mii, sizeof(MENUITEMINFO));
-			mii.cbSize = sizeof(MENUITEMINFO);
-			mii.fMask = MIIM_SUBMENU;
-
-			GetMenuItemInfo(menu, i +1, TRUE, &mii);
-			g_mIRCScriptMenu = new XPopupMenu("scriptpopup", mii.hSubMenu);
-			mIRCDebug("-> submenu hwnd %d", mii.hSubMenu);
+			g_mIRCScriptMenu = new XPopupMenu("scriptpopup", scriptable);
+			mIRCDebug("Scriptable popup menu hwnd = %d", scriptable);
+			break;
 		}
 
+		// Reset buffer size
+		mii.cch = buffSize;
 		i++;
-	}
-
-	if (g_mIRCScriptMenu != NULL) {
-		mIRCDebug("Custom found: number of items = %d", GetMenuItemCount(g_mIRCScriptMenu->getMenuHandle()));
 	}
 }
 
@@ -554,6 +554,9 @@ int WINAPI UnloadDll(int timeout) {
 			}
 		}
 
+		/***** XMenuBar Stuff *****/
+		g_XMenuBar.resetMenuBar();
+
 		/***** XPopup Stuff *****/
 		SetWindowLongPtr(mIRCLink.m_mIRCHWND, GWLP_WNDPROC, (LONG_PTR) g_OldmIRCWindowProc);
 		//HWND tmp_hwnd = CreateWindowEx(0,"#32768",NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
@@ -561,13 +564,6 @@ int WINAPI UnloadDll(int timeout) {
 		//	SetClassLongPtr(tmp_hwnd,GCLP_WNDPROC,(LONG_PTR)g_OldmIRCMenusWindowProc);
 		//	DestroyWindow(tmp_hwnd);
 		//}
-
-		if (g_OriginalMenuBar != NULL) {
-			HMENU menubar = GetMenu(mIRCLink.m_mIRCHWND);
-
-			g_XPopupMenuManager.setMenuBar(menubar, g_OriginalMenuBar);
-			g_OriginalMenuBar = NULL;
-		}
 
 		g_XPopupMenuManager.clearMenus();
 
@@ -1284,6 +1280,20 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 		}
 
+		case WM_COMMAND:
+		{
+			// TODO: allow for customisation in callback.
+			// Check if the message came from the menubar
+
+			if ((HIWORD(wParam) == 0) && (isMenuBar) && g_XMenuBar.hasCallback()) {
+				if (g_XMenuBar.parseCallback(LOWORD(wParam))) {
+					return 0L;
+				}
+			}
+
+			break;
+		}
+
 		case WM_EXITMENULOOP:
 		{
 			if ((isMenuBar == FALSE) && (bIsActiveMircPopup == TRUE))
@@ -1567,12 +1577,12 @@ mIRC(xpop) {
 		return 0;
 	}
 
-	if ((d.gettok( 1 ) == "mirc") || (d.gettok( 1 ) == "mircbar")) {
+	if ((d.gettok(1) == "mirc") || (d.gettok(1) == "mircbar")) {
 		DCXError("/xpop","Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 		return 0;
 	}
 
-	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok( 1 ));
+	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok(1), FALSE);
 
 	if (p_Menu == NULL) {
 		TString error;
@@ -1608,7 +1618,7 @@ mIRC(_xpop) {
 		return 0;
 	}
 
-	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok( 1 ));
+	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok(1), FALSE);
 
 	if (p_Menu == NULL) {
 		TString error;
@@ -1662,6 +1672,36 @@ mIRC(_xpopup) {
 	}
 
 	g_XPopupMenuManager.parseXPopupIdentifier(d, data);
+	return 3;
+}
+
+/*!
+* \brief XMenuBar DLL /xmenubar Function
+*
+* mIRC /xmenubar -switch (options)
+*/
+mIRC(xmenubar) {
+	TString d(data);
+	d.trim();
+
+	data[0] = 0;
+	g_XMenuBar.parseXMenuBarCommand(d);
+
+	return 1;
+}
+
+/*!
+* \brief XMenuBar DLL $xmenubar Function
+*
+* mIRC $xmenubar(options).prop interface
+*/
+mIRC(_xmenubar) {
+	TString d(data);
+	d.trim();
+
+	data[0] = 0;
+	g_XMenuBar.parseXMenuBarIdentifier(d, data);
+
 	return 3;
 }
 

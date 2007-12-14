@@ -36,14 +36,9 @@ public:
 
   void addMenu( XPopupMenu * p_Menu );
   void deleteMenu( XPopupMenu * p_Menu );
-
-  bool addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, TString label);
-  void removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu);
-	void setMenuBar(HMENU oldMenuBar, HMENU newMenuBar);
-
   void clearMenus( );
 
-  XPopupMenu * getMenuByName( const TString &tsName );
+  XPopupMenu* getMenuByName(const TString &tsName, BOOL checkSpecial);
 	bool isPatched(void) const { return this->m_bPatched; };
 	static BOOL InterceptAPI(HMODULE hLocalModule, const char* c_szDllName, const char* c_szApiName, DWORD dwReplaced, DWORD dwTrampoline, int offset);
 	static BOOL WINAPI XTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect);
@@ -54,14 +49,11 @@ public:
 protected:
 
   VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
-  VectorOfXPopupMenu m_vpXMenuBar; //!< Vector of XPopupMenu objects added to the menubar.
 
   static void parseSwitchFlags( TString * switchs, XSwitchFlags * flags );
   static UINT parseTrackFlags( TString & flags );
 
 	bool m_bPatched;
-
-	int findMenuOffset(HMENU menubar, XPopupMenu *p_menu);
 };
 
 #endif // _XPOPUPMENUMANAGER_H_

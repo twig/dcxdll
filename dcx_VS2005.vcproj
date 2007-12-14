@@ -754,6 +754,10 @@
 				Name="XPopup"
 				>
 				<File
+					RelativePath=".\Classes\xpopup\xmenubar.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Classes\xpopup\xpopupmenu.cpp"
 					>
 				</File>
@@ -1051,6 +1055,10 @@
 			<Filter
 				Name="XPopup"
 				>
+				<File
+					RelativePath=".\Classes\xpopup\xmenubar.h"
+					>
+				</File>
 				<File
 					RelativePath=".\Classes\xpopup\xpopupmenu.h"
 					>
