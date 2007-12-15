@@ -49,8 +49,6 @@ protected:
   HWND m_Hwnd;
   UINT m_ID;
 
-  static void parseSwitchFlags( TString & switchs, XSwitchFlags * flags );
-
   virtual void parseCommandRequest( TString & input ) = 0;
   virtual void parseInfoRequest( TString & input, char * szReturnValue ) = 0;
   

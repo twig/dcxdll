@@ -44,24 +44,6 @@ XPopupMenuManager::~XPopupMenuManager() {
  * blah
  */
 
-void XPopupMenuManager::parseSwitchFlags( TString * switchs, XSwitchFlags * flags ) {
-
-  // no -sign, missing params
-  if ( (*switchs)[0] != '-' ) 
-    return;
-
-  unsigned int i = 1, len = switchs->len( );
-
-  while ( i < len ) {
-
-    if ( (*switchs)[i] >= 'a' && (*switchs)[i] <= 'z' )
-      flags->switch_flags[ (int) ( (*switchs)[i] - 'a' ) ] = 1;
-    else if ( (*switchs)[i] >= 'A' && (*switchs)[i] <= 'Z' )
-      flags->switch_cap_flags[ (int) ( (*switchs)[i] - 'A' ) ] = 1;
-
-    i++;
-  }
-}
 
 /*!
  * \brief blah
@@ -72,8 +54,9 @@ void XPopupMenuManager::parseSwitchFlags( TString * switchs, XSwitchFlags * flag
 void XPopupMenuManager::parseXPopupCommand(const TString & input) {
 	XPopupMenu *p_Menu;
 	XSwitchFlags flags;
+
 	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-	this->parseSwitchFlags( &input.gettok( 2 ), &flags );
+	parseSwitchFlags(input.gettok(2), &flags);
 
 	// Special mIRC Menu
 	if ((p_Menu = this->getMenuByName(input.gettok(1), TRUE)) == NULL && flags.switch_flags[2] == 0) {
@@ -90,7 +73,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 
 	XSwitchFlags flags;
 	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-	this->parseSwitchFlags( &input.gettok( 2 ), &flags );
+	parseSwitchFlags(input.gettok(2), &flags);
 
 	int numtok = input.numtok( );
 
@@ -185,10 +168,6 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 	else if (flags.switch_flags[9]) {
 		p_Menu->destroyImageList();
 	}
-	// xpopup -K -> [MENU] [SWITCH] (TEXT)
-	else if (flags.switch_cap_flags[10]) {
-		p_Menu->setMarkedText(input.gettok(3, -1));
-	}
 	// xpopup -l -> [MENU] [SWITCH] [N] [COLOR | default]
 	else if ( flags.switch_flags[11] && numtok > 3 ) {
 
@@ -207,6 +186,10 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
 			this->m_bPatched = true;
 		}
+	}
+	// xpopup -M -> [MENU] [SWITCH] (TEXT)
+	else if (flags.switch_cap_flags[12]) {
+		p_Menu->setMarkedText(input.gettok(3, -1));
 	}
 	// xpopup -p -> [MENU] [SWITCH] [COLORS]
 	else if ( flags.switch_flags[15] && numtok > 2 ) {

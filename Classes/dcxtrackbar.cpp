@@ -87,12 +87,10 @@ DcxTrackBar::~DcxTrackBar( ) {
  */
 
 void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
 	*Styles |= TBS_FIXEDLENGTH;
 	unsigned int i = 1, numtok = styles.numtok( );
 
 	while ( i <= numtok ) {
-
 		if ( styles.gettok( i ) == "autoticks" ) 
 			*Styles |= TBS_AUTOTICKS;
 		else if ( styles.gettok( i ) == "both" ) 
@@ -184,7 +182,7 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
 
   XSwitchFlags flags;
   ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  this->parseSwitchFlags( input.gettok( 3 ), &flags );
+  parseSwitchFlags(input.gettok(3), &flags);
 
   int numtok = input.numtok( );
 

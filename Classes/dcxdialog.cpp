@@ -316,7 +316,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(input.gettok( 2 ), &flags);
+	parseSwitchFlags(input.gettok(2), &flags);
 
 	int numtok = input.numtok( );
 

@@ -146,7 +146,6 @@ protected:
 
 	bool m_bRoundedSel; //!< Menu has rounded selection box.
 	UINT m_uiAlpha;			//!< Menu is alpha blended. 0 -> 255
-  static void parseSwitchFlags( TString * switchs, XSwitchFlags * flags );
 
   bool m_bAttachedToMenuBar; //!< Is the menu attached to the mIRC window menubar?
 };

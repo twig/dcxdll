@@ -39,26 +39,6 @@ XMenuBar::~XMenuBar() {
 /*
  *
  */
-void XMenuBar::parseSwitchFlags(const TString *switches, XSwitchFlags *flags) {
-	// no -sign, missing params
-	if ((*switches)[0] != '-')
-		return;
-
-	unsigned int i = 1, len = switches->len();
-
-	while (i < len) {
-		if ((*switches)[i] >= 'a' && (*switches)[i] <= 'z')
-			flags->switch_flags[(int) ((*switches)[i] - 'a')] = 1;
-		else if ((*switches)[i] >= 'A' && (*switches)[i] <= 'Z')
-			flags->switch_cap_flags[(int) ((*switches)[i] - 'A')] = 1;
-
-		i++;
-	}
-}
-
-/*
- *
- */
 void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	XSwitchFlags flags;
 	int numtok = input.numtok();
@@ -67,7 +47,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	TString menuName;
 
 	ZeroMemory(&flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(&input.gettok(1), &flags);
+	parseSwitchFlags(input.gettok(1), &flags);
 
 	// Check if a callback alias has been marked
 	if (!this->hasCallback() && !flags.switch_cap_flags[12])
@@ -81,21 +61,18 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	if (flags.switch_cap_flags[12]) {
 		// Set alias.
 		if (numtok > 1) {
-			TString alias;
-			char res[10];
-			TString result;
+			TString result((UINT) 100);
+			TString alias = input.gettok(2);
 
 			// Check if alias is valid.
-			alias.sprintf("$isalias(%s)", input.gettok(2));
-			mIRCeval(alias.to_chr(), res, 10);
-			result.sprintf("%s", res);
+			mIRCevalEX(result.to_chr(), 100, "$isalias(%s)", alias.to_chr());
 			
 			if (result == "$false") {
 				DCXError("-M", "Invalid callback alias specified");
 				return;
 			}
 
-			this->m_callback = input.gettok(2);
+			this->m_callback = alias;
 
 			mIRCDebug("set alias = %s", m_callback.to_chr());
 		}

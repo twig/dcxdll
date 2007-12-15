@@ -395,6 +395,7 @@ void DCXDebug(const char *cmd,const char *msg);
 
 int round(const float x);
 BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
+void parseSwitchFlags(const TString &switches, XSwitchFlags *flags);
 TString ParseLogfontToCommand(const LPLOGFONT lf);
 UINT parseFontFlags(const TString &flags);
 UINT parseFontCharSet(const TString &charset);

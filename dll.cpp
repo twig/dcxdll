@@ -1282,11 +1282,11 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_COMMAND:
 		{
-			// TODO: allow for customisation in callback.
 			// Check if the message came from the menubar
-
 			if ((HIWORD(wParam) == 0) && (isMenuBar) && g_XMenuBar.hasCallback()) {
+				// If the user requested the message to be halted ...
 				if (g_XMenuBar.parseCallback(LOWORD(wParam))) {
+					// Stop parsing and prevent default action.
 					return 0L;
 				}
 			}

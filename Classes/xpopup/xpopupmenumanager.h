@@ -50,7 +50,6 @@ protected:
 
   VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
-  static void parseSwitchFlags( TString * switchs, XSwitchFlags * flags );
   static UINT parseTrackFlags( TString & flags );
 
 	bool m_bPatched;

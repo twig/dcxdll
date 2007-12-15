@@ -151,31 +151,6 @@ LONG DcxWindow::setExStyle( const LONG Styles ) {
  * blah
  */
 
-void DcxWindow::parseSwitchFlags( TString & switchs, XSwitchFlags * flags ) {
-
-	// no -sign, missing params
-	if ( switchs[0] != '-' ) 
-		return;
-
-	unsigned int i = 1, len = switchs.len( );
-
-	while ( i < len ) {
-
-		if ( switchs[i] >= 'a' && switchs[i] <= 'z' )
-			flags->switch_flags[ (int) ( switchs[i] - 'a' ) ] = 1;
-		else if ( switchs[i] >= 'A' && switchs[i] <= 'Z' )
-			flags->switch_cap_flags[ (int) ( switchs[i] - 'A' ) ] = 1;
-
-		i++;
-	}
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
 UINT DcxWindow::getID( ) const {
 
 	return this->m_ID;

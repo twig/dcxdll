@@ -1023,9 +1023,8 @@ char & TString::operator []( long int N ) const {
 */
 
 size_t TString::len( ) const {
-
-	if ( this->m_pString )
-		return lstrlen( this->m_pString );
+	if (this->m_pString)
+		return lstrlen(this->m_pString);
 
 	return 0;
 }
@@ -2018,6 +2017,8 @@ int TString::sprintf(const char *fmt, ...)
   va_start( args, fmt );
 	int cnt = _vscprintf(fmt, args);
 	char *txt = new char[cnt +1];
+	// warning C4996: 'vsprintf' was declared deprecated
+	// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
   vsprintf(txt, fmt, args );
 	this->deleteString();
 	this->m_pString = txt;

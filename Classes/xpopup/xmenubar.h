@@ -43,7 +43,6 @@ class XMenuBar {
 	protected:
 		VectorOfXPopupMenu m_vpXMenuBar; //!< Vector of XPopupMenu objects added to the menubar.
 
-		static void parseSwitchFlags(const TString *switches, XSwitchFlags *flags);
 		static UINT parseTrackFlags(TString &flags);
 
 		int findMenuOffset(HMENU menubar, const XPopupMenu *p_menu) const;

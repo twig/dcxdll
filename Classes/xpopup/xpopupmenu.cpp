@@ -193,7 +193,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 	XSwitchFlags flags;
 	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-	this->parseSwitchFlags( &input.gettok( 2 ), &flags );
+	parseSwitchFlags(input.gettok(2), &flags);
 
 	TString path(input.gettok( 1, TSTAB ).gettok( 3, -1 ));
 	path.trim( );
@@ -635,31 +635,6 @@ void XPopupMenu::setItemStyle( const UINT iExStyles ) {
 TString XPopupMenu::getName( ) const {
 
   return this->m_tsMenuName;
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-void XPopupMenu::parseSwitchFlags( TString * switchs, XSwitchFlags * flags ) {
-
-  // no -sign, missing params
-  if ( (*switchs)[0] != '-' ) 
-    return;
-
-  unsigned int i = 1, len = switchs->len( );
-
-  while ( i < len ) {
-
-    if ( (*switchs)[i] >= 'a' && (*switchs)[i] <= 'z' )
-      flags->switch_flags[ (int) ( (*switchs)[i] - 'a' ) ] = 1;
-    else if ( (*switchs)[i] >= 'A' && (*switchs)[i] <= 'Z' )
-      flags->switch_cap_flags[ (int) ( (*switchs)[i] - 'A' ) ] = 1;
-
-    i++;
-  }
 }
 
 /*!

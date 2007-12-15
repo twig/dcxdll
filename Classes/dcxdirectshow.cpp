@@ -320,7 +320,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 	XSwitchFlags flags;
 
 	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	this->parseSwitchFlags(input.gettok( 3 ), &flags);
+	parseSwitchFlags(input.gettok( 3 ), &flags);
   int numtok = input.numtok( );
 
   // xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
