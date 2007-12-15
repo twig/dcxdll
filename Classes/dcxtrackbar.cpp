@@ -88,45 +88,47 @@ DcxTrackBar::~DcxTrackBar( ) {
 
 void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  *Styles |= TBS_FIXEDLENGTH;
-  unsigned int i = 1, numtok = styles.numtok( );
+	*Styles |= TBS_FIXEDLENGTH;
+	unsigned int i = 1, numtok = styles.numtok( );
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "autoticks" ) 
-      *Styles |= TBS_AUTOTICKS;
-    else if ( styles.gettok( i ) == "both" ) 
-      *Styles |= TBS_BOTH;
-    else if ( styles.gettok( i ) == "top" ) 
-      *Styles |= TBS_TOP;
-    else if ( styles.gettok( i ) == "bottom" ) 
-      *Styles |= TBS_BOTTOM;
-    else if ( styles.gettok( i ) == "left" ) 
-      *Styles |= TBS_LEFT;
-    else if ( styles.gettok( i ) == "right" ) 
-      *Styles |= TBS_RIGHT;
-    else if ( styles.gettok( i ) == "select" ) 
-      *Styles |= TBS_ENABLESELRANGE;
-    else if ( styles.gettok( i ) == "vertical" ) 
-      *Styles |= TBS_VERT;
-    else if ( styles.gettok( i ) == "nothumb" ) 
-      *Styles |= TBS_NOTHUMB;
-    else if ( styles.gettok( i ) == "noticks" ) 
-      *Styles |= TBS_NOTICKS;
-    else if ( styles.gettok( i ) == "reversed" ) 
-      *Styles |= TBS_REVERSED;
-    else if ( styles.gettok( i ) == "downisleft" ) 
-      *Styles |= TBS_DOWNISLEFT;
-    else if ( styles.gettok( i ) == "tooltips" ) 
-      *Styles |= TBS_TOOLTIPS;
-    else if ( styles.gettok( i ) == "transparentbkg" )
-      *Styles |= TBS_TRANSPARENTBKGND;
+		if ( styles.gettok( i ) == "autoticks" ) 
+			*Styles |= TBS_AUTOTICKS;
+		else if ( styles.gettok( i ) == "both" ) 
+			*Styles |= TBS_BOTH;
+		else if ( styles.gettok( i ) == "top" ) 
+			*Styles |= TBS_TOP;
+		else if ( styles.gettok( i ) == "bottom" ) 
+			*Styles |= TBS_BOTTOM;
+		else if ( styles.gettok( i ) == "left" ) 
+			*Styles |= TBS_LEFT;
+		else if ( styles.gettok( i ) == "right" ) 
+			*Styles |= TBS_RIGHT;
+		else if ( styles.gettok( i ) == "select" ) 
+			*Styles |= TBS_ENABLESELRANGE;
+		else if ( styles.gettok( i ) == "vertical" ) 
+			*Styles |= TBS_VERT;
+		else if ( styles.gettok( i ) == "nothumb" ) 
+			*Styles |= TBS_NOTHUMB;
+		else if ( styles.gettok( i ) == "noticks" ) 
+			*Styles |= TBS_NOTICKS;
+		else if ( styles.gettok( i ) == "reversed" ) 
+			*Styles |= TBS_REVERSED;
+		else if ( styles.gettok( i ) == "downisleft" ) 
+			*Styles |= TBS_DOWNISLEFT;
+		else if ( styles.gettok( i ) == "tooltips" ) 
+			*Styles |= TBS_TOOLTIPS;
+#ifdef DCX_USE_WINSDK
+		else if ( styles.gettok( i ) == "transparentbkg" )
+			*Styles |= TBS_TRANSPARENTBKGND;
+#endif
 		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 
-    i++;
-  }
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+		i++;
+	}
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
