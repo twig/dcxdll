@@ -285,15 +285,22 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 		if ( flag[0] == '+' ) {
 
 			UINT iStyles = 0;
-			int i = 1, len = flag.len( );
+			int i = 1, len = (int)flag.len( );
 			while ( i <= len ) {
 
-				if ( flag[i] == 'i' )
-					iStyles |= XPS_ICON3D;
-				else if ( flag[i] == 'd' )
-					iStyles |= XPS_DISABLEDSEL;
-				else if ( flag[i] == 'p' )
-					iStyles |= XPS_ICON3DSHADOW;
+				switch (flag[i]) {
+					case 'i':
+						iStyles |= XPS_ICON3D;
+						break;
+					case 'd':
+						iStyles |= XPS_DISABLEDSEL;
+						break;
+					case 'p':
+						iStyles |= XPS_ICON3DSHADOW;
+						break;
+					default:
+						break;
+				}
 
 				++i;
 			}
@@ -423,9 +430,9 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 
 		if ( iExStyles & XPS_ICON3D )
 			styles += 'i';
-		else if ( iExStyles & XPS_DISABLEDSEL )
+		if ( iExStyles & XPS_DISABLEDSEL )
 			styles += 'd';
-		else if ( iExStyles & XPS_ICON3DSHADOW )
+		if ( iExStyles & XPS_ICON3DSHADOW )
 			styles += 'p';
 
 		lstrcpy( szReturnValue, styles.to_chr( ) );
@@ -449,10 +456,7 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 		}
 	}
 	else if ( prop == "isrounded") {
-		if (p_Menu->IsRounded())
-			lstrcpy( szReturnValue, "$true");
-		else
-			lstrcpy( szReturnValue, "$false");
+		lstrcpy( szReturnValue, (p_Menu->IsRounded() ? "$true" : "$false"));
 		return;
 	}
 	else if ( prop == "alpha") {
@@ -557,15 +561,15 @@ XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, BOOL checkS
  * blah
  */
 
-UINT XPopupMenuManager::parseTrackFlags( TString & flags ) {
+UINT XPopupMenuManager::parseTrackFlags( const TString & flags ) {
 
-  UINT iFlags = 0;
+	UINT iFlags = 0;
 
-  if ( flags[0] == '+' ) {
+	if ( flags[0] == '+' ) {
 
-    int i = 1, len = flags.len( );
+		int i = 1, len = (int)flags.len( );
 
-    while ( i < len ) {
+		while ( i < len ) {
 
 			switch (flags[i])
 			{
@@ -595,11 +599,11 @@ UINT XPopupMenuManager::parseTrackFlags( TString & flags ) {
 				break;
 			}
 
-      ++i;
-    }
-  }
+			++i;
+		}
+	}
 
-  return iFlags;
+	return iFlags;
 }
 /*
 	Following code taken from ODMenu class & modified for XPopup
@@ -609,11 +613,13 @@ UINT XPopupMenuManager::parseTrackFlags( TString & flags ) {
 */
 BOOL WINAPI XPopupMenuManager::XTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect)
 {
+	// Remove the No Notify flag. This fixes the popupmenus on mIRC 6.20
 	uFlags &= ~TPM_NONOTIFY;
 	return XPopupMenuManager::TrampolineTrackPopupMenu(hMenu, uFlags, x, y, nReserved, hWnd, prcRect);
 }
 BOOL WINAPI XPopupMenuManager::XTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm)
 {
+	// Remove the No Notify flag. This fixes the popupmenus on mIRC 6.20
 	fuFlags &= ~TPM_NONOTIFY;
 	return XPopupMenuManager::TrampolineTrackPopupMenuEx(hMenu, fuFlags, x, y, hwnd, lptpm);
 }

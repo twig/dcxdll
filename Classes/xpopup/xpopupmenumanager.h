@@ -50,7 +50,7 @@ protected:
 
   VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
-  static UINT parseTrackFlags( TString & flags );
+  static UINT parseTrackFlags( const TString & flags );
 
 	bool m_bPatched;
 };

@@ -62,7 +62,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		// Set alias.
 		if (numtok > 1) {
 			TString result((UINT) 100);
-			TString alias = input.gettok(2);
+			TString alias(input.gettok(2));
 
 			// Check if alias is valid.
 			mIRCevalEX(result.to_chr(), 100, "$isalias(%s)", alias.to_chr());
