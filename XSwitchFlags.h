@@ -43,7 +43,7 @@
 
 class XSwitchFlags {
 	public:
-		XSwitchFlags(TString switches);
+		XSwitchFlags(const TString &switches);
 		~XSwitchFlags();
 
 		// Function checks if flag is set

@@ -317,14 +317,11 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxDirectshow::parseCommandRequest(TString &input) {
-	XSwitchFlags flags;
+	XSwitchFlags flags(input.gettok(3));
+	int numtok = input.numtok( );
 
-	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok( 3 ), &flags);
-  int numtok = input.numtok( );
-
-  // xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
-  if ( flags['a'] && numtok > 4 ) {
+	// xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
+	if ( flags['a'] && numtok > 4 ) {
 		TString flag(input.gettok(4));
 		TString filename(input.gettok(5,-1));
 		flag.trim();
@@ -457,8 +454,8 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
-  // xdid -c [NAME] [ID] [SWITCH] [COMMAND]
-  else if ( flags['c'] && numtok > 3 ) {
+	// xdid -c [NAME] [ID] [SWITCH] [COMMAND]
+	else if ( flags['c'] && numtok > 3 ) {
 		if (this->m_pControl != NULL) {
 			static const TString cmdlist("play pause stop close seek");
 			int nType = cmdlist.findtok(input.gettok(4).to_chr(),1);
@@ -501,8 +498,8 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			this->showError(NULL,"-c", "No File Loaded");
 			//DCXError("/xdid -c", "No File Loaded");
 	}
-  // xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
-  else if ( flags['v'] && numtok > 7 ) {
+	// xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
+	else if ( flags['v'] && numtok > 7 ) {
 		if (this->m_pControl != NULL) {
 			HRESULT hr = this->setVideo(input.gettok(4),(float)input.gettok(5).to_float(), (float)input.gettok(6).to_num(), (float)input.gettok(7).to_num(), (float)input.gettok(8).to_num());
 			if (FAILED(hr)) {
@@ -516,8 +513,8 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			//DCXError("/xdid -v", "No File Loaded");
 		}
 	}
-  // xdid -V [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
-  else if ( flags['V'] && numtok > 4 ) {
+	// xdid -V [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
+	else if ( flags['V'] && numtok > 4 ) {
 		TString flag(input.gettok( 4 ));
 
 		if (flag[0] != '+') {

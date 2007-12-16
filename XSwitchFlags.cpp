@@ -1,7 +1,7 @@
 #include ".\defines.h"
 
 // Constructor
-XSwitchFlags::XSwitchFlags(TString switches) {
+XSwitchFlags::XSwitchFlags(const TString &switches) {
 	// no - sign, invalid syntax
 	if ((switches)[0] != '-')
 		return;
