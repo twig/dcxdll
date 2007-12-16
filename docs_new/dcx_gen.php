@@ -10,6 +10,7 @@ $PAGES = array(
     'xstatusbar' => 'XStatusBar',
     'xtray' => 'XTray',
     'xtreebar' => 'XTreebar',
+    'xmenubar' => 'XMenuBar',
     
     'cla' => 'Cell Layout Algorithm',
     'dcxvsmdx' => 'DCX vs MDX',

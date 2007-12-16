@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title>DCX XTreebar - Dialog Control Xtension DLL v1.4.0 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX XMenuBar - Dialog Control Xtension DLL v1.4.0 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -68,28 +68,28 @@
 	</ul>
 	</td>
 <td><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>XTreebar</div></td></tr>
-	<tr><td>XTreebar is a command implemented to control the mIRC Treebar.<br /><br />
+	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>XMenuBar</div></td></tr>
+	<tr><td>XMenuBar is a command implemented to replace the mIRC menubar.<br /><br />
 <div style="text-align: center;">
-	<img src="images/xtreebar.png" alt="" />
+	<img src="images/xmenubar.png" alt="" />
 </div>
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #6A7CB0"><a name="xtreebar"></a><div style='color: #6A7CB0;font-size:14pt;'>/xtreebar Commands</div></td></tr>
-	<tr><td>The /xtreebar command is used to control the mIRC Treebar and change various properties.</td></tr>
+	<tr><td class="heading" style="border-color: #6A7CB0"><a name="xmenubar"></a><div style='color: #6A7CB0;font-size:14pt;'>/xmenubar Commands</div></td></tr>
+	<tr><td>The /xmenubar command is used to replace the mIRC menubar.</td></tr>
 </table>
-<table class="xtreebar">
+<table class="xmenubar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xtreebar.c"></a>/xtreebar -c	</td></tr>
-	<tr><td colspan="2">This command changes the mIRC Treebar colors.</td></tr>
+			<a name="xmenubar.c"></a>/xmenubar -c	</td></tr>
+	<tr><td colspan="2">This command changes the mIRC menubar colors.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtreebar -c [+COLORFLAGS] [COLOUR]</div></td>
+		<td><div class="syntax">/xmenubar -c [+COLORFLAGS] [COLOUR]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xtreebar -c +b 255</div></td>
+		<td><div class="example">/xmenubar -c +b 255</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -142,17 +142,17 @@
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This requires <a class="value">/xtreebar -T</a> to be activated.</td></tr></table>
 <br />
-<table class="xtreebar">
+<table class="xmenubar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xtreebar.f"></a>/xtreebar -f	</td></tr>
+			<a name="xmenubar.f"></a>/xmenubar -f	</td></tr>
 	<tr><td colspan="2">This command allows you to change the mIRC Treebar font.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtreebar -f [+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
+		<td><div class="syntax">/xmenubar -f [+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xtreebar -f +i default 20 Verdana</div></td>
+		<td><div class="example">/xmenubar -f +i default 20 Verdana</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -197,144 +197,17 @@
 	</tr>
 </table>
 <br />
-<table class="xtreebar">
+<table class="xmenubar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xtreebar.s"></a>/xtreebar -s	</td></tr>
-	<tr><td colspan="2">This command allows you to change the mIRC Treebar styles.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtreebar -s [STYLES]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xtreebar -s tooltips scroll singleexpand</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">trackselect</td>
-		<td>Enables hot-tracking.</td>
-	</tr>
-	<tr>
-		<td class="param">notrackselect</td>
-		<td>Disables hot-tracking.</td>
-	</tr>
-	<tr>
-		<td class="param">tooltips</td>
-		<td>Enables tooltips on items</td>
-	</tr>
-	<tr>
-		<td class="param">notooltips</td>
-		<td>Disables tooltip on items.</td>
-	</tr>
-	<tr>
-		<td class="param">balloon</td>
-		<td>Enables balloon styled tooltips. See note for further information.</td>
-	</tr>
-	<tr>
-		<td class="param">noballoon</td>
-		<td>Disables balloon styled tooltips.</td>
-	</tr>
-	<tr>
-		<td class="param">infotip</td>
-		<td>Enables modification of the tooltip text within the $xtreebar_callback. See note for further information.</td>
-	</tr>
-	<tr>
-		<td class="param">noinfotip</td>
-		<td>Disables modification of the tooltip text.</td>
-	</tr>
-	<tr>
-		<td class="param">hasbuttons</td>
-		<td>Enables &plusmn; buttons on the side of items containing child items for expand/collapse operations.</td>
-	</tr>
-	<tr>
-		<td class="param">nohasbuttons</td>
-		<td>Disables &plusmn; buttons on the side of items containing child items for expand/collapse operations.</td>
-	</tr>
-	<tr>
-		<td class="param">rootlines</td>
-		<td>Enables lines to be connected to the root item.</td>
-	</tr>
-	<tr>
-		<td class="param">norootlines</td>
-		<td>Disables lines to be connected to the root item.</td>
-	</tr>
-	<tr>
-		<td class="param">singleexpand</td>
-		<td>Causes the item being selected to expand and the item being unselected to collapse upon selection in the tree view.</td>
-	</tr>
-	<tr>
-		<td class="param">nosingleexpand</td>
-		<td>Disables <a class="style">singleexpand</a>.</td>
-	</tr>
-	<tr>
-		<td class="param">scroll</td>
-		<td>Enables horizontal and vertical scrolling in the mIRC Treebar.</td>
-	</tr>
-	<tr>
-		<td class="param">noscroll</td>
-		<td>Disables horizontal and vertical scrolling in the mIRC Treebar.</td>
-	</tr>
-	<tr>
-		<td class="param">showsel</td>
-		<td>Selections will be shown when mIRC Treebar loses focus.</td>
-	</tr>
-	<tr>
-		<td class="param">noshowsel</td>
-		<td>Selections will not be shown when mIRC Treebar loses focus.</td>
-	</tr>
-	<tr>
-		<td class="param">autohscroll</td>
-		<td>Remove the horizontal scrollbar and auto-scroll depending on mouse position. <a class="os">(Vista)</a></td>
-	</tr>
-	<tr>
-		<td class="param">noautohscroll</td>
-		<td>Enables the horizontal scrollbar and auto-scroll depending on mouse position. <a class="os">(Vista)</a></td>
-	</tr>
-	<tr>
-		<td class="param">doublebuffer</td>
-		<td>Specifies how the background is erased or filled. <a class="os">(Vista)</a></td>
-	</tr>
-	<tr>
-		<td class="param">nodoublebuffer</td>
-		<td>Specifies how the background is erased or filled. <a class="os">(Vista)</a></td>
-	</tr>
-	<tr>
-		<td class="param">fadebuttons</td>
-		<td>Fade expand buttons in or out when the mouse moves away or into a state of hovering over the control. <a class="os">(Vista)</a></td>
-	</tr>
-	<tr>
-		<td class="param">nofadebuttons</td>
-		<td>Does not fade expand buttons in or out when the mouse moves away or into a state of hovering over the control. <a class="os">(Vista)</a></td>
-	</tr>
-	<tr>
-		<td class="param">indent</td>
-		<td>Indents the tree view for the expand buttons. <a class="os">(Vista)</a></td>
-	</tr>
-	<tr>
-		<td class="param">noindent</td>
-		<td>Does not indent the tree view for the expand buttons. <a class="os">(Vista)</a></td>
-	</tr>
-	<tr>
-		<td class="param">richtooltip</td>
-		<td>Allow rich tooltips in the tree view (custom drawn with icon and text). <a class="os">(Vista)</a></td>
-	</tr>
-	<tr>
-		<td class="param">norichtooltip</td>
-		<td>Disables rich tooltips in the tree view (custom drawn with icon and text). <a class="os">(Vista)</a></td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Using <a class="style">noscroll</a> while the scrollbar is visible may lead to graphical glitches.</li><li>When using <a class="style">infotip</a>, the alias <a class="value">$xtreeview_callback(gettooltip, [TYPE], [TEXT])</a> is called. Use <a class="value">return [NEW_TIP_TEXT]</a> to change the tooltip text, and return nothing to prevent the tip from being displayed.</li><li><a class="style">balloon</a> can only be used AFTER <a class="style">tooltips</a> has been enabled, in a seperate <a class="value">/xtreebar</a> command.</li></ul></td></tr></table>
-<br />
-<table class="xtreebar">
-	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xtreebar.w"></a>/xtreebar -w	</td></tr>
+			<a name="xmenubar.w"></a>/xmenubar -w	</td></tr>
 	<tr><td colspan="2">This command allows you to change the mIRC Treebar images.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtreebar -w [clear|default | [POS] [+FLAGS] [INDEX] [FILE]]</div></td>
+		<td><div class="syntax">/xmenubar -w [clear|default | [POS] [+FLAGS] [INDEX] [FILE]]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xtreebar -w 0 + 1 icons.icl</div></td>
+		<td><div class="example">/xmenubar -w 0 + 1 icons.icl</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -367,35 +240,35 @@
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This requires <a class="value">/xtreebar -T</a> to be activated.</td></tr></table>
 <br />
-<table class="xtreebar">
+<table class="xmenubar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xtreebar.T"></a>/xtreebar -T	</td></tr>
+			<a name="xmenubar.T"></a>/xmenubar -T	</td></tr>
 	<tr><td colspan="2">This command allows you to enable or disable DCX controlled drawing of the mIRC TreeBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xtreebar -T [0|1]</div></td>
+		<td><div class="syntax">/xmenubar -T [0|1]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xtreebar -T 1</div></td>
+		<td><div class="example">/xmenubar -T 1</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When enabled, the script function <a class="value">$xtreebar_callback(geticons, [TYPE], [TEXT])</a> will be called for each item. This will allow you to configure the appearance of each item in the TreeBar.</li><li>The same alias is called when an item is added to the TreeBar. This will allow you to configure the appearance of the new item.</li><li>The <a class="value">$xtreebar_callback</a> alias should return <a class="value">2</a> image indexes, <a class="param">IMAGE</a> <a class="param">SELECTEDIMAGE</a>. (eg. <a class="value">return 2 5</a>)</li></ul></td></tr></table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #A8B2D1"><a name="xtreebarprop"></a><div style='color: #A8B2D1;font-size:14pt;'>$xtreebar Properties</div></td></tr>
-	<tr><td>The $xtreebar identifier is used to retrieve information about the mIRC TreeBar.</td></tr>
+	<tr><td class="heading" style="border-color: #A8B2D1"><a name="xmenubarprop"></a><div style='color: #A8B2D1;font-size:14pt;'>$xmenubar Properties</div></td></tr>
+	<tr><td>The $xmenubar identifier is used to retrieve information about the DCX XMenuBar implementation.</td></tr>
 </table>
-<table class="xtreebarprops">
+<table class="xmenubarprops">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
-			<a name="xtreebarprop.icon"></a>$xtreebar().icon	</td></tr>
+			<a name="xmenubarprop.icon"></a>$xmenubar().icon	</td></tr>
 	<tr><td colspan="2">Returns the current icons being used by the mIRC TreeBar item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xtreebar(N).icon</div></td>
+		<td><div class="syntax">$xmenubar(N).icon</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xtreebar(3).icon</div></td>
+		<td><div class="example">$xmenubar(3).icon</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -404,17 +277,17 @@
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the last item in the mIRC Treebar.</td></tr></table>
 <br />
-<table class="xtreebarprops">
+<table class="xmenubarprops">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
-			<a name="xtreebarprop.item"></a>$xtreebar().item	</td></tr>
+			<a name="xmenubarprop.item"></a>$xmenubar().item	</td></tr>
 	<tr><td colspan="2">Returns the text of the mIRC TreeBar item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xtreebar(N).item</div></td>
+		<td><div class="syntax">$xmenubar(N).item</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xtreebar(3).item</div></td>
+		<td><div class="example">$xmenubar(3).item</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -426,17 +299,16 @@
 </td><td width="85%" valign="top" class="menuright">
 	<br />
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
-	<a href="#xtreebar"><div class='header' style='background:#6A7CB0;'>/xtreebar</div></a>
-		<a href="#xtreebar.c"><div>-c</div></a>
-		<a href="#xtreebar.f"><div>-f</div></a>
-		<a href="#xtreebar.s"><div>-s</div></a>
-		<a href="#xtreebar.w"><div>-w</div></a>
-		<a href="#xtreebar.T"><div>-T</div></a>
+	<a href="#xmenubar"><div class='header' style='background:#6A7CB0;'>/xmenubar</div></a>
+		<a href="#xmenubar.c"><div>-c</div></a>
+		<a href="#xmenubar.f"><div>-f</div></a>
+		<a href="#xmenubar.w"><div>-w</div></a>
+		<a href="#xmenubar.T"><div>-T</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
-	<a href="#xtreebarprop"><div class='header' style='background:#A8B2D1;'>$xtreebar()</div></a>
-		<a href="#xtreebarprop.icon"><div>icon</div></a>
-		<a href="#xtreebarprop.item"><div>item</div></a>
+	<a href="#xmenubarprop"><div class='header' style='background:#A8B2D1;'>$xmenubar()</div></a>
+		<a href="#xmenubarprop.icon"><div>icon</div></a>
+		<a href="#xmenubarprop.item"><div>item</div></a>
 	</div>
 </td>
   </tr>

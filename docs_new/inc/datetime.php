@@ -121,31 +121,20 @@ function get_xdidprops_datetime(&$XDIDPROPS) {
 
 function get_events_datetime(&$EVENTS) {
 	$EVENTS = array(
-//	    "sclick" => "When a date is clicked.",
-//		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
-//		'selchange' => 'When the date selection is changed.',
-//		'select' => array(
-//			'__desc' => 'When a new date is selected.',
-//			'__cmd' => 'START (END)',
-//			'__eg' => '1152622371 1152722371',
-//			'__params' => array(
-//				'START' => 'The first date selected.',
-//				'END' => 'The last date selected. This is not sent unless [s]multi[/s] style is specified.',
-//			),
-//		),
-//		'daystate' => array(
-//			'__desc' => "When the month is JUST about to be shown. Return dates which you wish to be bolded.",
-//			'__cmd' => 'OFFSET_DATE',
-//			'__eg' => '1152622371',
-//			'__params' => array(
-//				'OFFSET_DATE' => 'The date which is being presented to you. Each time a month is shown (eg. July), the [e]daystate[/e] event will trigger for June, July, and August.',
-//			),
-//			'__return' => "[r]N,N,N...N[/r] Return a comma seperated string indicating the days to bold.",
-//			'__notes' => array(
-//		 		'This may seem difficult to figure out at first. Use $asctime() to determine which month is being requested by the Calendar control.',
-//		 		'The values returned are bolded. Returning [v]1,3,10[/v] will bold the 1st, 3rd and 10th.',
-//			),
-//		),
+                'closed' => 'The dropdown calendar was closed.',
+                'open' => 'The dropdown calendar was opened.',
+		'change' => array(
+			'__desc' => 'When the date/time selection has changed.',
+			'__cmd' => 'SELECTION',
+			'__eg' => array(
+                                '1152622371',
+                                'none'
+                        ),
+			'__params' => array(
+				'SELECTION' => 'The date selected. If this value is [v]none[/v], then the date has been cleared.',
+			),
+			'__notes' => '[p]SELECTION[/p] can only be [v]none[/v] when the [s]shownone[/s] style is used.',
+		),
 	);
 }
 ?>

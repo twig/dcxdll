@@ -49,12 +49,13 @@
 		<li>DCX Features
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
-                                <a href="DCXML.doc"><div>DCXML</div></a>
+                                <a href="dcxml.htm" target="_new"><div>DCXML</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                                <a href="xpopup.htm"><div>XPopup</div></a>
                                 <a href="xstatusbar.htm"><div>XStatusbar</div></a>
 				<a href="xtray.htm"><div>XTray</div></a>
                                 <a href="xtreebar.htm"><div>XTreebar</div></a>
-				<a href="xpopup.htm"><div>XPopup</div></a>
 			</ul>
 		</li>
 		<li>About DCX
@@ -536,6 +537,25 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.showtip"></a>showtip	</td></tr>
+	<tr><td colspan="2">When a tooltip is about to be displayed for the trackbar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME showtip ID POS</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx showtip 4 83</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POS</td>
+		<td>Track bar position.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">TEXT</a> to change the tooltip text.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.top"></a>top	</td></tr>
 	<tr><td colspan="2">When the user presses the home key.</td></tr>
 	<tr>
@@ -621,6 +641,7 @@
 		<a href="#events.lineup"><div>lineup</div></a>
 		<a href="#events.pagedown"><div>pagedown</div></a>
 		<a href="#events.pageup"><div>pageup</div></a>
+		<a href="#events.showtip"><div>showtip</div></a>
 		<a href="#events.top"><div>top</div></a>
 		<a href="#events.trackend"><div>trackend</div></a>
 	</div>
@@ -632,7 +653,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 12th December, 07</td>
+		<td style="text-align: right;">Last Updated: 17th December, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
