@@ -29,7 +29,7 @@ alias xpopup {
 }
 
 alias xmenubar {
-  if ($isid) returnex $dcx(_xmenubar, $1 $prop $2-)
+  if ($isid) returnex $dcx(_xmenubar, $prop $1-)
   dcx xmenubar $1-
 }
 

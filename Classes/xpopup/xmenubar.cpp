@@ -176,33 +176,17 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 /*
  *
  */
-void XMenuBar::parseXMenuBarIdentifier(const TString &input, char *szReturnValue) {
+void XMenuBar::parseXMenuBarInfo(const TString &input, char *szReturnValue) {
 	int numtok = input.numtok();
-	TString prop(input.gettok(2));
+	TString prop(input.gettok(1));
 
-	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(input, TRUE);
+	// Iterate through the names of menus added to XMenuBar.
+	// N = 0 returns total number of menus
+	// $xmenubar() [menu] [N]
+	if (prop == "menu") {
+		int i = input.gettok(2).to_int();
 
-	if (p_Menu == NULL) {
-		TString error;
-		error.sprintf("\"%s\" doesn't exist, see /xpopup -c", input.gettok(1).to_chr());
-		DCXError("$!xmenubar()", error.to_chr());
-		return;
-	}
-	else if ((p_Menu == g_mIRCPopupMenu) || (p_Menu == g_mIRCMenuBar))
-	{
-		DCXError("$!xmenubar()", "Invalid menu name : \"mirc\" or \"mircbar\" menus don't have access to this feature.");
-		return;
-	}
-
-	//if (prop == "ismenu") {
-	//	lstrcpy( szReturnValue, (p_Menu != NULL)?"$true":"$false" );
-	//	return;
-	//}
-	if (prop == "menubar") {
-		int i = input.gettok(1).to_int();
-
-		if ((i < 0) || (i > (int) this->m_vpXMenuBar.size()))
-		{
+		if ((i < 0) || (i > (int) this->m_vpXMenuBar.size())) {
 			TString error;
 			error.sprintf("Invalid index: %d", i);
 			DCXError("$!xpopup().menubar", error.to_chr());

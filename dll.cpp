@@ -1700,7 +1700,7 @@ mIRC(_xmenubar) {
 	d.trim();
 
 	data[0] = 0;
-	g_XMenuBar.parseXMenuBarIdentifier(d, data);
+	g_XMenuBar.parseXMenuBarInfo(d, data);
 
 	return 3;
 }
