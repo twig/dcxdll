@@ -76,6 +76,7 @@ public:
 protected:
 	HBITMAP m_hbmp[4]; // refer to TBBMP_*
 	COLORREF m_colTransparent;
+	bool m_bUpdatingTooltip;
 };
 
 #endif // _DCXTRACKBAR_H_

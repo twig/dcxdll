@@ -27,7 +27,8 @@ http://www.codeproject.com/miscctrl/transparentslider.asp
  */
 
 DcxTrackBar::DcxTrackBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
-: DcxControl( ID, p_Dialog )
+: DcxControl( ID, p_Dialog ),
+m_bUpdatingTooltip(false)
 {
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
@@ -55,6 +56,14 @@ DcxTrackBar::DcxTrackBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
 	this->m_hbmp[TBBMP_THUMBDRAG] = NULL;
 	this->m_hbmp[TBBMP_CHANNEL] = NULL;
 	this->m_colTransparent = -1;
+
+	// Keep track of the tooltip
+	if (Styles & TBS_TOOLTIPS) {
+		HWND tooltip = (HWND) SendMessage(this->m_Hwnd, TBM_GETTOOLTIPS, NULL, NULL);
+
+		if (tooltip != NULL)
+			this->m_ToolTipHWND = tooltip;
+	}
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
@@ -679,6 +688,43 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 		//		return TRUE;
 		//	}
 		//	break;
+
+		case WM_NOTIFY: {
+			LPNMHDR hdr = (LPNMHDR) lParam;
+
+			if (!hdr)
+				break;
+
+			switch (hdr->code) {
+				// Show tooltip
+				case TTN_SHOW:
+					// Check if its currently being updated.
+					if (this->m_bUpdatingTooltip)
+						break;
+
+					TString buff((UINT) 80);
+
+					this->callAliasEx(buff.to_chr(), "%s,%d", "showtip", this->getPos());
+					
+					if (buff.len() > 0) {
+						TOOLINFO ti;
+
+						ZeroMemory(&ti, sizeof(TOOLINFO));
+
+						ti.cbSize = sizeof(TOOLINFO);
+						ti.hinst = GetModuleHandle(NULL);
+						ti.hwnd = this->m_Hwnd;
+						ti.uId = (UINT_PTR) this->m_Hwnd;
+						ti.lpszText = buff.to_chr();
+
+						this->m_bUpdatingTooltip = true;
+						SendMessage(this->m_ToolTipHWND, TTM_UPDATETIPTEXT, NULL, (LPARAM) &ti);
+						this->m_bUpdatingTooltip = false;
+					}
+
+					break;
+			}
+		}
 
 		case WM_PAINT:
 			{
