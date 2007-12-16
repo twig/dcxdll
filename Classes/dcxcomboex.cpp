@@ -293,20 +293,17 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxComboEx::parseCommandRequest(TString &input) {
-	XSwitchFlags flags;
-
-	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(3), &flags);
+	XSwitchFlags flags(input.gettok(3));
 
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags.switch_flags[17]) {
+	if (flags['r']) {
 		this->resetContent();
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
-	if (flags.switch_flags[0] && numtok > 8) {
+	if (flags['a'] && numtok > 8) {
 		int nPos   = input.gettok( 4 ).to_int() -1;
 		int indent = input.gettok( 5 ).to_int();
 		int icon   = input.gettok( 6 ).to_int() -1;
@@ -365,7 +362,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
-	else if (flags.switch_flags[2] && numtok > 3) {
+	else if (flags['c'] && numtok > 3) {
 		int nItem = input.gettok( 4 ).to_int() -1;
 
 		if (nItem > -1) {
@@ -373,7 +370,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags.switch_flags[3] && numtok > 3) {
+	else if (flags['d'] && numtok > 3) {
 		int nItem = input.gettok( 4 ).to_int() -1;
 
 		if (nItem > -1 && nItem < this->getCount())
@@ -382,16 +379,17 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 		if (!this->getCount())
 			this->redrawWindow();
 	}
+	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[17]) {
+	else if (flags['r']) {
 		//this->resetContent();
 	}
 	// xdid -u [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[20]) {
+	else if (flags['u']) {
 		this->setCurSel(-1);
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 5) {
+	else if (flags['w'] && numtok > 5) {
 		HIMAGELIST himl;
 		TString flag(input.gettok( 4 ));
 		int index = input.gettok( 5 ).to_int();;
@@ -415,7 +413,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-	else if (flags.switch_flags[24]) {
+	else if (flags['y']) {
 		ImageList_Destroy(this->getImageList());
 		this->setImageList(NULL);
 	}

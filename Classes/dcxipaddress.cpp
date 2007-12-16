@@ -142,19 +142,17 @@ void DcxIpAddress::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxIpAddress::parseCommandRequest(TString &input) {
-	XSwitchFlags flags;
-	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(3), &flags);
+	XSwitchFlags flags(input.gettok(3));
 
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags.switch_flags[17]) {
+	if (flags['r']) {
 		this->clearAddress();
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
-	if (flags.switch_flags[0] && numtok > 3) {
+	if (flags['a'] && numtok > 3) {
 		TString IP(input.gettok( 4 ));
 		IP.trim();
 
@@ -170,7 +168,7 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [N] [MIN] [MAX]
-	else if (flags.switch_flags[6] && numtok > 5) {
+	else if (flags['g'] && numtok > 5) {
 		int nField	= input.gettok( 4 ).to_int() -1;
 		BYTE min		= (BYTE)input.gettok( 5 ).to_int();
 		BYTE max		= (BYTE)input.gettok( 6 ).to_int();
@@ -179,15 +177,16 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 			this->setRange(nField, min, max);
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [N]
-	else if (flags.switch_flags[9] && numtok > 3) {
+	else if (flags['j'] && numtok > 3) {
 		int nField = input.gettok( 4 ).to_int() -1;
 
 		if (nField > -1 && nField < 4)
 			this->setFocus(nField);
 	}
+	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[17]) {
-		this->clearAddress();
+	else if (flags['r']) {
+		//this->clearAddress();
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);

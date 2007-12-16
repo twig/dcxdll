@@ -149,15 +149,12 @@ void DcxLink::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxLink::parseCommandRequest( TString & input ) {
-
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
+	XSwitchFlags flags(input.gettok(3));
 
   int numtok = input.numtok( );
   
   // xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
-  if ( flags.switch_flags[11] && numtok > 4 ) {
+  if ( flags['l'] && numtok > 4 ) {
 
     int nColor = input.gettok( 4 ).to_int( ) - 1;
 
@@ -165,7 +162,7 @@ void DcxLink::parseCommandRequest( TString & input ) {
       this->m_aColors[nColor] = (COLORREF)input.gettok( 5 ).to_num( );
   }
   // xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR4]
-  else if ( flags.switch_flags[16] && numtok > 3 ) {
+  else if ( flags['q'] && numtok > 3 ) {
 
     int i = 0, len = input.gettok( 4, -1 ).numtok( );
     while ( i < len && i < 4 ) {
@@ -176,7 +173,7 @@ void DcxLink::parseCommandRequest( TString & input ) {
     }
   }
   //xdid -t [NAME] [ID] [SWITCH] (TEXT)
-  else if ( flags.switch_flags[19] ) {
+  else if ( flags['t'] ) {
 
 		TString text(input.gettok( 4, -1 ));
     //text.trim( );
@@ -184,7 +181,7 @@ void DcxLink::parseCommandRequest( TString & input ) {
     this->redrawWindow( );
   }
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 5) {
+	else if (flags['w'] && numtok > 5) {
 		TString flag(input.gettok( 4 ));
 		int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));

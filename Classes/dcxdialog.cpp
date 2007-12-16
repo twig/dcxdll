@@ -313,15 +313,11 @@ void DcxDialog::parseComControlRequestEX(int id, const char *szFormat, ...) {
 
 
 void DcxDialog::parseCommandRequest(TString &input) {
-	XSwitchFlags flags;
-
-	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(2), &flags);
-
+	XSwitchFlags flags(input.gettok(2));
 	int numtok = input.numtok( );
 
 	// xdialog -a [NAME] [SWITCH] [+FLAGS] [DURATION]
-	if (flags.switch_flags[0] && numtok > 3) {
+	if (flags['a'] && numtok > 3) {
 		if (AnimateWindowUx == NULL)
 			this->showError(NULL, "-a", "Unsupported By Current OS");
 		else {
@@ -334,7 +330,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdialog -b [NAME] [SWITCH] [+FLAGS]
-	else if (flags.switch_flags[1] && numtok > 2) {
+	else if (flags['b'] && numtok > 2) {
 		this->removeStyle(WS_BORDER | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX |
 			WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
 
@@ -362,7 +358,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		SendMessage(this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0);
 	}
 	// xdialog -c [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	else if (flags.switch_flags[2] && numtok > 7) {
+	else if (flags['c'] && numtok > 7) {
 		UINT ID = mIRC_ID_OFFSET + input.gettok( 3 ).to_int();
 
 		if ((IsWindow(GetDlgItem(this->m_Hwnd, ID)) == FALSE) && 
@@ -382,7 +378,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			this->showErrorEx(NULL,"-c", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET);
 	}
 	// xdialog -d [NAME] [SWITCH] [ID]
-	else if (flags.switch_flags[3] && numtok > 2) {
+	else if (flags['d'] && numtok > 2) {
 		/*
 		if ( input.gettok( 3 ) == "*" ) { 
 
@@ -425,7 +421,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			this->showErrorEx(NULL, "-d", "Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_tsName.to_chr());
 	}
 	// xdialog -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
-	else if (flags.switch_flags[5] && numtok > 4) {
+	else if (flags['f'] && numtok > 4) {
 		if (FlashWindowExUx == NULL)
 			this->showError(NULL, "-f", "Unsupported By Current OS");
 		else {
@@ -445,7 +441,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdialog -g [NAME] [SWITCH] [+FLAGS] [COLOR|FILENAME]
-	else if (flags.switch_flags[6] && numtok > 3) {
+	else if (flags['g'] && numtok > 3) {
 		this->m_uStyleBg = this->parseBkgFlags(input.gettok( 3 ));
 
 		if (this->m_uStyleBg & DBS_BKGCOLOR) {
@@ -479,7 +475,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		this->redrawWindow();
 	}
 	// xdialog -j [NAME] [SWITCH] (ID)
-	else if (flags.switch_flags[9]) {
+	else if (flags['j']) {
 		if (numtok > 2) {
 			UINT id = mIRC_ID_OFFSET + input.gettok( 3 ).to_int();
 			DcxControl * p_Control;
@@ -505,7 +501,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	add PATH[TAB]+flpiw [ID] [WEIGHT] [W] [H]
 	space PATH[TAB]+ [L] [T] [R] [B]
 	*/
-	else if (flags.switch_flags[11] && numtok > 2) {
+	else if (flags['l'] && numtok > 2) {
 		if (input.gettok( 3 ) == "update") {
 			if (this->m_pLayoutManager != NULL) {
 				RECT rc;
@@ -648,7 +644,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		} // if ( numtok > 7 )
 	}
 	// xdialog -q [NAME] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
-	else if (flags.switch_flags[16] && numtok > 3) {
+	else if (flags['q'] && numtok > 3) {
 		//if (this->m_bCursorFromFile) {
 		//	DeleteObject(this->m_hCursor);
 		//	this->m_hCursor = NULL;
@@ -695,7 +691,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdialog -x [NAME]
-	else if (flags.switch_flags[23]) {
+	else if (flags['x']) {
 		if (this->getRefCount() == 0) {
 			//DestroyWindow(this->m_Hwnd);
 			//SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
@@ -710,27 +706,27 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			mIRCcomEX("/.timer -m 1 0 xdialog -x %s", this->getName().to_chr());
 	}
 	// xdialog -h [NAME]
-	else if (flags.switch_flags[7]) {
+	else if (flags['h']) {
 		ShowWindow(this->m_Hwnd, SW_HIDE);
 	}
 	// xdialog -m [NAME]
-	else if (flags.switch_flags[12]) {
+	else if (flags['m']) {
 		ShowWindow(this->m_Hwnd, SW_MAXIMIZE);
 	}
 	// xdialog -n [NAME]
-	else if (flags.switch_flags[13]) {
+	else if (flags['n']) {
 		ShowWindow(this->m_Hwnd, SW_MINIMIZE);
 	}
 	// xdialog -r [NAME]
-	else if (flags.switch_flags[17]) {
+	else if (flags['r']) {
 		ShowWindow(this->m_Hwnd, SW_RESTORE);
 	}
 	// xdialog -s [NAME]
-	else if (flags.switch_flags[18]) {
+	else if (flags['s']) {
 		ShowWindow(this->m_Hwnd, SW_SHOW);
 	}
 	// xdialog -t [NAME] [SWITCH] [TYPE] [TYPE ARGS]
-	else if (flags.switch_flags[19] && numtok > 2) {
+	else if (flags['t'] && numtok > 2) {
 		if (input.gettok( 3 ) == "alpha") {
 			if (input.gettok( 4 ) == "none") {
 				this->m_iAlphaLevel = 255;
@@ -796,7 +792,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		this->redrawWindow();
 	}
 	// xdialog -T [NAME] [SWITCH] [FLAGS] [STYLES]
-	else if (flags.switch_cap_flags[19] && numtok > 2) {
+	else if (flags['T'] && numtok > 2) {
 		if (IsWindow(this->m_ToolTipHWND)) {
 			this->showError(NULL, "-T", "Tooltip already exists. Cannot recreate");
 			return;
@@ -820,7 +816,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 4) {
+	else if (flags['w'] && numtok > 4) {
 		TString flags(input.gettok( 3 ));
 		int index = input.gettok( 4 ).to_int();
 		TString filename(input.gettok(5, -1));
@@ -828,7 +824,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		ChangeHwndIcon(this->m_Hwnd,flags,index,filename);
 	}
 	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]
-	else if (flags.switch_flags[25] && numtok > 3) {
+	else if (flags['z'] && numtok > 3) {
 		TString flag(input.gettok( 3 ));
 		int n = input.gettok( 4 ).to_int();
 		DcxControl* ctrl = NULL;
@@ -948,7 +944,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		return;
 	}
 	// xdialog -P [NAME] [SWITCH] ([+FLAGS] (FLAG OPTIONS))
-	else if (flags.switch_cap_flags[15]) {
+	else if (flags['P']) {
 		HMENU menu = NULL;
 
 		// create the menu
@@ -968,7 +964,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
-	else if (flags.switch_cap_flags[17] && numtok > 2) {
+	else if (flags['R'] && numtok > 2) {
 		TString flag(input.gettok( 3 ));
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
@@ -1133,7 +1129,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		this->redrawWindow();
 	}
 	// xdialog -E [NAME] [SWITCH] [+flags] [-flags]
-	else if (flags.switch_cap_flags[4] && numtok > 3) {
+	else if (flags['E'] && numtok > 3) {
 		//this->m_dEventMask = (DWORD)input.gettok( 3 ).to_num();
 		DWORD mask = this->m_dEventMask;
 		TString p_flags(input.gettok( 3 ));
@@ -1188,7 +1184,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		this->m_dEventMask = mask;
 	}
 	// xdialog -V [NAME] [SWITCH] [left] [right] [top] [bottom]
-	else if (flags.switch_cap_flags[21] && numtok > 5) {
+	else if (flags['V'] && numtok > 5) {
 		this->m_GlassOffsets.left = input.gettok( 3 ).to_int();
 		this->m_GlassOffsets.right = input.gettok( 4 ).to_int();
 		this->m_GlassOffsets.top = input.gettok( 5 ).to_int();
@@ -1197,11 +1193,11 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		this->redrawWindow();
 	}
 	// xdialog -U [NAME] [SWITCH]
-	else if (flags.switch_cap_flags[20]) {
+	else if (flags['U']) {
 		SetFocus(NULL);
 	}
 	// xdialog -S [NAME] [SWITCH] [+FLAGS] [X Y] [W H]
-	else if (flags.switch_cap_flags[18]) {
+	else if (flags['S']) {
 		TString flags = input.gettok(3);
 		RECT rcClient, rcWindow;
 		bool bResize, bMove;

@@ -734,20 +734,17 @@ void DcxListView::autoSize(const int nColumn, TString &flags)
 */
 
 void DcxListView::parseCommandRequest(TString &input) {
-	XSwitchFlags flags;
-
-	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(3), &flags);
+	XSwitchFlags flags(input.gettok(3));
 
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags.switch_flags[17]) {
+	if (flags['r']) {
 		ListView_DeleteAllItems(this->m_Hwnd);
 	}
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
-	if (flags.switch_flags[0] && numtok > 12) {
+	if (flags['a'] && numtok > 12) {
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
 
@@ -966,7 +963,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -B [NAME] [ID] [SWITCH] [N]
-	else if (flags.switch_cap_flags[1] && numtok > 3) {
+	else if (flags['B'] && numtok > 3) {
 		int nItem = (int)input.gettok( 4 ).to_num() -1;
 
 		// check if item supplied was 0 (now -1), last item in list
@@ -988,7 +985,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		ListView_EditLabel(this->m_Hwnd, nItem);
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
-	else if (flags.switch_flags[2] && numtok > 3) {
+	else if (flags['c'] && numtok > 3) {
 		int nItemCnt = ListView_GetItemCount(this->m_Hwnd);
 		if (nItemCnt < 1) {
 			this->showError(NULL, "-c", "Invalid Item: No Items in list");
@@ -1023,7 +1020,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags.switch_flags[3] && (numtok > 3)) {
+	else if (flags['d'] && (numtok > 3)) {
 		int nItem = (int)input.gettok( 4 ).to_num() -1;
 
 		// check if item supplied was 0 (now -1), last item in list.
@@ -1043,7 +1040,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		ListView_DeleteItem(this->m_Hwnd, nItem);
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME) ([tab] watermark filename)
-	else if (flags.switch_flags[6] && numtok > 5) {
+	else if (flags['g'] && numtok > 5) {
 		LVBKIMAGE lvbki;
 		ZeroMemory(&lvbki, sizeof(LVBKIMAGE));
 		TString filename;
@@ -1069,7 +1066,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		ListView_SetBkImage(this->m_Hwnd, &lvbki);
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
-	else if (flags.switch_flags[8] && numtok > 4) {
+	else if (flags['i'] && numtok > 4) {
 		UINT iColorFlags = this->parseColorFlags(input.gettok( 4 ));
 		COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num();
 
@@ -1096,7 +1093,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		this->redrawWindow();
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [ROW] [COL] [FLAGS] ([COLOUR] (BGCOLOUR))
-	else if (flags.switch_flags[9] && numtok > 5) {
+	else if (flags['j'] && numtok > 5) {
 		int nItem = input.gettok( 4 ).to_int() -1;
 		int nCol = input.gettok( 5 ).to_int() -1;
 		COLORREF clrText = (COLORREF)input.gettok( 7 ).to_num();
@@ -1155,7 +1152,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			this->showError(NULL, "-j", "No DCX Item Information, somethings very wrong");
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [STATE] [N]
-	else if (flags.switch_flags[10] && numtok > 4) {
+	else if (flags['k'] && numtok > 4) {
 		int state = (int)input.gettok( 4 ).to_num();
 		int nItem = (int)input.gettok( 5 ).to_num() -1;
 
@@ -1176,7 +1173,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		ListView_SetItemState(this->m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [M] [ICON] (OVERLAY)
-	else if (flags.switch_flags[11] && numtok > 5) {
+	else if (flags['l'] && numtok > 5) {
 		int nItem    = input.gettok(4).to_int() -1;
 		int nSubItem = input.gettok(5).to_int() -1;
 		int nIcon    = input.gettok(6).to_int() -1;
@@ -1229,14 +1226,14 @@ void DcxListView::parseCommandRequest(TString &input) {
 		ListView_SetItem(this->m_Hwnd, &lvi);
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [0|1]
-	else if (flags.switch_flags[12] && numtok > 3) {
+	else if (flags['m'] && numtok > 3) {
 		if (input.gettok( 4 ) == "1")
 			ListView_EnableGroupView(this->m_Hwnd, TRUE);
 		else
 			ListView_EnableGroupView(this->m_Hwnd, FALSE);
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [N] [+FLAGS] (WIDTH)
-	else if (flags.switch_flags[13] && numtok > 4) {
+	else if (flags['n'] && numtok > 4) {
 		TString flags(input.gettok(5));
 
 		// manually set width
@@ -1280,7 +1277,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [ORDER ...]
-	else if (flags.switch_flags[14] && numtok > 3) {
+	else if (flags['o'] && numtok > 3) {
 		TString ids(input.gettok(4, -1));
 		int count = this->getColumnCount();
 		int *indexes;
@@ -1317,7 +1314,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		delete [] indexes;
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text]
-	else if (flags.switch_flags[16] && numtok > 6) {
+	else if (flags['q'] && numtok > 6) {
 		int index = (int)input.gettok( 4 ).to_num() -1;
 		UINT iFlags = this->parseGroupFlags(input.gettok( 5 ));
 		int gid = (int)input.gettok( 6 ).to_num();
@@ -1343,11 +1340,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	// xdid -r [NAME] [ID] [SWITCH]
 	// Note: This is here to prevent an message
-	else if (flags.switch_flags[17]) {
+	else if (flags['r']) {
 		//ListView_DeleteAllItems(this->m_Hwnd);
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] [#ICON] [WIDTH] (Header text) [{TAB} [+FLAGS] [#ICON] [WIDTH] Header text {TAB} ... ]
-	else if (flags.switch_flags[19] && numtok > 5) {
+	else if (flags['t'] && numtok > 5) {
 		int nCol = this->getColumnCount();
 
 		if (nCol > 0) {
@@ -1429,11 +1426,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -u [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[20]) {
+	else if (flags['u']) {
 		ListView_SetItemState(this->m_Hwnd, -1, 0, LVIS_SELECTED);
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [N] [M] (ItemText)
-	else if (flags.switch_flags[21] && numtok > 4) {
+	else if (flags['v'] && numtok > 4) {
 		int nItem = input.gettok(4).to_int() - 1;
 		int nSubItem = input.gettok(5).to_int() -1;
 
@@ -1475,7 +1472,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 5) {
+	else if (flags['w'] && numtok > 5) {
 		TString tflags(input.gettok( 4 ));
 		UINT iFlags = this->parseIconFlagOptions(tflags);
 		HIMAGELIST himl;
@@ -1564,7 +1561,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -W [NAME] [ID] [SWITCH] [STYLE]
-	else if (flags.switch_cap_flags[22] && numtok > 3) {
+	else if (flags['W'] && numtok > 3) {
 		static const TString poslist("report icon smallicon list");
 		TString style(input.gettok(4));
 		int index = poslist.findtok(style.to_chr(), 1);
@@ -1594,7 +1591,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		SetWindowLong(this->m_Hwnd, GWL_STYLE, dwOldStyle);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-	else if (flags.switch_flags[24] && numtok > 3) {
+	else if (flags['y'] && numtok > 3) {
 		UINT iFlags = this->parseIconFlagOptions(input.gettok( 4 ));
 		HIMAGELIST himl;
 
@@ -1617,7 +1614,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -z [NAME] [ID] [SWITCH] [+FLAGS] [N] (ALIAS)
-	else if (flags.switch_flags[25] && numtok > 4) {
+	else if (flags['z'] && numtok > 4) {
 		DCXLVSORT lvsort;
 		int nColumn = input.gettok( 5 ).to_int() -1;
 
@@ -1637,7 +1634,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
 	// atm this only seems works for subitem 0. Mainly due to the callback LVN_GETINFOTIP only being sent for sub 0.
-	else if (flags.switch_cap_flags[19] && numtok > 4) {
+	else if (flags['T'] && numtok > 4) {
 		input.trim();
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
@@ -1679,7 +1676,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			this->showErrorEx(NULL, "-T", "Unable To Get Item: %d Subitem: %d", lvi.iItem +1, lvi.iSubItem);
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
-	else if (flags.switch_cap_flags[25] && numtok > 3) {
+	else if (flags['Z'] && numtok > 3) {
 		// only works for this one so far
 		if (!this->isStyle(LVS_REPORT))
 			return;
@@ -1710,7 +1707,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		ListView_Scroll(this->m_Hwnd, 0, pos);
 	}
 	// xdid -V [NAME] [ID] [SWITCH] [nItem]
-	else if (flags.switch_cap_flags[21] && numtok > 3) {
+	else if (flags['V'] && numtok > 3) {
 		int nItem = input.gettok( 4 ).to_int() -1;
 
 		if (nItem > -1)

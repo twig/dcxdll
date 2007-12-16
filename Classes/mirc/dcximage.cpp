@@ -222,13 +222,11 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
  */
 
 void DcxImage::parseCommandRequest(TString & input) {
-	XSwitchFlags flags;
-	ZeroMemory((void*)&flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(3), &flags);
+	XSwitchFlags flags(input.gettok(3));
 	int numtok = input.numtok( );
 
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
-	if (flags.switch_flags[22] && numtok > 6) {
+	if (flags['w'] && numtok > 6) {
 		TString flag(input.gettok( 4 ));
 		int index = input.gettok( 5 ).to_int();
 		int size = input.gettok( 6 ).to_int();
@@ -258,7 +256,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 		this->redrawWindow();
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
-	else if (flags.switch_flags[8] && numtok > 4) {
+	else if (flags['i'] && numtok > 4) {
 		TString flag(input.gettok(4));
 		TString filename(input.gettok(5, -1));
 
@@ -292,18 +290,18 @@ void DcxImage::parseCommandRequest(TString & input) {
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
-	else if (flags.switch_flags[10] && numtok > 3) {
+	else if (flags['k'] && numtok > 3) {
 		this->m_clrTransColor = (COLORREF)input.gettok( 4 ).to_num();
 		this->redrawWindow();
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [XOFFSET] [YOFFSET]
-	else if (flags.switch_flags[14] && numtok > 4) {
+	else if (flags['o'] && numtok > 4) {
 		this->m_iXOffset = input.gettok( 4 ).to_int();
 		this->m_iYOffset = input.gettok( 5 ).to_int();
 		this->redrawWindow();
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [1|0]
-	else if (flags.switch_cap_flags[18] && numtok > 3) {
+	else if (flags['S'] && numtok > 3) {
 		if (input.gettok( 4 ).to_int() > 0)
 			this->m_bResizeImage = true;
 		else

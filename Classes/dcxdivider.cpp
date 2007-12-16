@@ -111,15 +111,12 @@ void DcxDivider::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxDivider::parseCommandRequest( TString & input ) {
-
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
+  XSwitchFlags flags(input.gettok(3));
 
   int numtok = input.numtok( );
 
   // xdid -l|r [NAME] [ID] [SWITCH] [MIN] [IDEAL][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-  if ( ( flags.switch_flags[11] || flags.switch_flags[17] )&& numtok > 9 ) {
+  if ( ( flags['l'] || flags['r'] )&& numtok > 9 ) {
 
     DVPANEINFO dvpi;
     ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
@@ -167,9 +164,9 @@ void DcxDivider::parseCommandRequest( TString & input ) {
 
 						dvpi.hChild = p_Control->getHwnd( );
 
-						if ( flags.switch_flags[11] )
+						if ( flags['l'] )
 							this->setPane( DVF_PANELEFT, &dvpi );
-						else if ( flags.switch_flags[17] )
+						else if ( flags['r'] )
 							this->setPane( DVF_PANERIGHT, &dvpi );
 
 						this->redrawWindow( );
@@ -184,7 +181,7 @@ void DcxDivider::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -v [NAME] [ID] [SWITCH] [POS]
-  else if ( flags.switch_flags[21] && numtok > 3 )
+  else if ( flags['v'] && numtok > 3 )
     this->setDivPos( input.gettok( 4 ).to_int( ) );
   else
     this->parseGlobalCommandRequest( input, flags );

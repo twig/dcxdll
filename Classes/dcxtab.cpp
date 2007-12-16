@@ -281,14 +281,11 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxTab::parseCommandRequest( TString & input ) {
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
-
-  int numtok = input.numtok( );
+	XSwitchFlags flags(input.gettok(3));
+	int numtok = input.numtok( );
 
   // xdid -r [NAME] [ID] [SWITCH]
-	if (flags.switch_flags[17]) {
+	if (flags['r']) {
 		int n = 0;
 		TCITEM tci;
 		int nItems = TabCtrl_GetItemCount(this->m_Hwnd);
@@ -314,7 +311,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
 	}
 
   // xdid -a [NAME] [ID] [SWITCH] [N] [ICON] [TEXT][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB](TOOLTIP)
-  if ( flags.switch_flags[0] && numtok > 4 ) {
+  if ( flags['a'] && numtok > 4 ) {
     TCITEM tci;
     ZeroMemory( &tci, sizeof( TCITEM ) );
     tci.mask = TCIF_IMAGE | TCIF_PARAM;
@@ -397,7 +394,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
     this->activateSelectedTab( );
   }
   // xdid -c [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[2] && numtok > 3 ) {
+  else if ( flags['c'] && numtok > 3 ) {
     int nItem = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
@@ -406,7 +403,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -d [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[3] && numtok > 3 ) {
+  else if ( flags['d'] && numtok > 3 ) {
 	  int nItem = input.gettok( 4 ).to_int( ) - 1;
 
 	  // if a valid item to delete
@@ -440,7 +437,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
 	  }
   }
   // xdid -l [NAME] [ID] [SWITCH] [N] [ICON]
-  else if ( flags.switch_flags[11] && numtok > 4 ) {
+  else if ( flags['l'] && numtok > 4 ) {
     int nItem = input.gettok( 4 ).to_int( ) - 1;
     int nIcon = input.gettok( 5 ).to_int( ) - 1;
 
@@ -454,18 +451,19 @@ void DcxTab::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -m [NAME] [ID] [SWITCH] [X] [Y]
-  else if ( flags.switch_flags[12] && numtok > 4 ) {
+  else if ( flags['m'] && numtok > 4 ) {
 
     int X = input.gettok( 4 ).to_int( );
     int Y = input.gettok( 5 ).to_int( );
 
     TabCtrl_SetItemSize( this->m_Hwnd, X, Y );
   }
+  // This it to avoid an invalid flag message.
   // xdid -r [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[17] ) {
+  else if ( flags['r'] ) {
   }
   // xdid -t [NAME] [ID] [SWITCH] [N] (text)
-  else if ( flags.switch_flags[19] && numtok > 3 ) {
+  else if ( flags['t'] && numtok > 3 ) {
 
     int nItem = input.gettok( 4 ).to_int( ) - 1;
 
@@ -490,7 +488,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
   }
 
    // xdid -v [DNAME] [ID] [SWITCH] [N] [POS]
-   else if (flags.switch_flags[21] && numtok > 4) {
+   else if (flags['v'] && numtok > 4) {
       int nItem = input.gettok(4).to_int();
       int pos = input.gettok(5).to_int();
       BOOL adjustDelete = FALSE;
@@ -528,7 +526,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
    }
 
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 5) {
+	else if (flags['w'] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
 		TString flag(input.gettok( 4 ));
@@ -551,7 +549,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
 		DestroyIcon(icon);
 	}
   // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-  else if ( flags.switch_flags[24] ) {
+  else if ( flags['y'] ) {
 
     ImageList_Destroy( this->getImageList( ) );
   }

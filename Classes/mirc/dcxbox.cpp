@@ -239,14 +239,11 @@ void DcxBox::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 void DcxBox::parseCommandRequest( TString & input ) {
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
-
-  int numtok = input.numtok( );
+	XSwitchFlags flags(input.gettok(3));
+	int numtok = input.numtok( );
 
   // xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-  if ( flags.switch_flags[2] && numtok > 8 ) {
+  if ( flags['c'] && numtok > 8 ) {
 
     UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
 
@@ -270,7 +267,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
 			this->showErrorEx(NULL,"-c", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
 	}
   // xdid -d [NAME] [ID] [SWITCH] [ID]
-  else if ( flags.switch_flags[3] && numtok > 3 ) {
+  else if ( flags['d'] && numtok > 3 ) {
 
     UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
     DcxControl * p_Control;
@@ -301,7 +298,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
   add PATH[TAB]+flpiw [ID] [WEIGHT] [W] [H]
   space PATH[TAB]+ [L] [T] [R] [B]
   */
-  else if ( flags.switch_flags[11] && numtok > 3 ) {
+  else if ( flags['l'] && numtok > 3 ) {
 
 		if ( input.gettok( 4 ) == "update" ) {
 			if ( this->m_pLayoutManager != NULL ) {
@@ -459,7 +456,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
     } // if ( numtok > 7 )
   }
   //xdid -t [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[19] ) {
+  else if ( flags['t'] ) {
 
     TString text(input.gettok( 4, -1 ));
     text.trim( );

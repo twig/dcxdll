@@ -121,18 +121,15 @@ void DcxPager::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxPager::parseCommandRequest( TString & input ) {
+	XSwitchFlags flags(input.gettok(3));
+	int numtok = input.numtok();
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
-
-  int numtok = input.numtok( );
   // xdid -b [NAME] [ID] [SWITCH] [W]
-  if ( flags.switch_flags[1] && numtok > 3 ) {
+  if ( flags['b'] && numtok > 3 ) {
 		this->setBorderSize(input.gettok( 4 ).to_int());
 	}
   // xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-  else if ( flags.switch_flags[2] && numtok > 8 ) {
+  else if ( flags['c'] && numtok > 8 ) {
 
 		if (IsWindow(this->m_ChildHWND)) {
 			this->showError(NULL, "-c", "Child Control already exists");
@@ -173,7 +170,7 @@ void DcxPager::parseCommandRequest( TString & input ) {
 			this->showErrorEx(NULL, "-c", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
   }
   // xdid -d [NAME] [ID] [SWITCH] [ID]
-  else if ( flags.switch_flags[3] && numtok > 3 ) {
+  else if ( flags['d'] && numtok > 3 ) {
 
     UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
     DcxControl * p_Control;
@@ -199,15 +196,15 @@ void DcxPager::parseCommandRequest( TString & input ) {
 			this->showErrorEx(NULL, "-d", "Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
   }
 	// xdid -s [NAME] [ID] [SWITCH] [SIZE]
-	else if (flags.switch_flags[18] && numtok > 3) {
+	else if (flags['s'] && numtok > 3) {
 		this->setButtonSize((LONG)input.gettok(4, -1).to_num());
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [COLOR]
-	else if (flags.switch_flags[19] && numtok > 3) {
+	else if (flags['t'] && numtok > 3) {
 		this->setBkColor((COLORREF)input.gettok(4, -1).to_num());
 	}
 	// xdid -z [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[25] && numtok > 2) {
+	else if (flags['z'] && numtok > 2) {
 		this->reCalcSize();
 	}
   else

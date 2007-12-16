@@ -158,15 +158,11 @@ void DcxScroll::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxScroll::parseCommandRequest( TString & input ) {
-
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
-
-  int numtok = input.numtok( );
+	XSwitchFlags flags(input.gettok(3));
+	int numtok = input.numtok( );
 
   //xdid -l [NAME] [ID] [SWITCH] [N]
-  if ( flags.switch_flags[11] && numtok > 3 ) {
+  if ( flags['l'] && numtok > 3 ) {
 
     int nLine = input.gettok( 4 ).to_int( );
 
@@ -174,7 +170,7 @@ void DcxScroll::parseCommandRequest( TString & input ) {
       this->m_nLine = nLine;
   }
   //xdid -m [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[12] && numtok > 3 ) {
+  else if ( flags['m'] && numtok > 3 ) {
 
     int nPage = input.gettok( 4 ).to_int( );
 
@@ -182,7 +178,7 @@ void DcxScroll::parseCommandRequest( TString & input ) {
       this->m_nPage = nPage;
   }
   //xdid -r [NAME] [ID] [SWITCH] [L] [R]
-  else if ( flags.switch_flags[17] && numtok > 4 ) {
+  else if ( flags['r'] && numtok > 4 ) {
 
     INT L = input.gettok( 4 ).to_int( );
     INT R = input.gettok( 5 ).to_int( );
@@ -195,7 +191,7 @@ void DcxScroll::parseCommandRequest( TString & input ) {
     SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
   }
   //xdid -v [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags.switch_flags[21] && numtok > 3 ) {
+  else if ( flags['v'] && numtok > 3 ) {
 
     int pos = input.gettok( 4 ).to_int( );
 

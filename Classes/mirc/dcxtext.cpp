@@ -148,20 +148,17 @@ void DcxText::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxText::parseCommandRequest(TString &input) {
-	XSwitchFlags flags;
-	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(3), &flags);
-
+	XSwitchFlags flags(input.gettok(3));
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags.switch_flags[17]) {
+	if (flags['r']) {
 		this->m_tsText = "";
 		SetWindowText(this->m_Hwnd, "");
 	}
 
 	// xdid -a [NAME] [ID] [SPACE 0|1] [TEXT]
-	if (flags.switch_flags[0] && numtok > 2) {
+	if (flags['a'] && numtok > 2) {
 		if (input.gettok(4).to_int() == 1)
 			this->m_tsText += " ";
 
@@ -174,11 +171,12 @@ void DcxText::parseCommandRequest(TString &input) {
 			this->redrawWindow();
 		}
 	}
+	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[17]) {
+	else if (flags['r']) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
-	else if (flags.switch_flags[19]) {
+	else if (flags['t']) {
 		this->m_tsText = input.gettok(4, -1);
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 

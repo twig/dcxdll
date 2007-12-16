@@ -167,14 +167,11 @@ void DcxButton::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxButton::parseCommandRequest( TString & input ) {
-
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
-  int numtok = input.numtok( );
+	XSwitchFlags flags(input.gettok(3));
+	int numtok = input.numtok();
 
 	// xdid -c [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
-	if (flags.switch_flags[2] && numtok > 4) {
+	if (flags['c'] && numtok > 4) {
 		UINT iColorStyles = this->parseColorFlags(input.gettok( 4 ));
 		COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num();
 
@@ -190,7 +187,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 		this->redrawWindow();
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] [FILENAME]
-	else if (flags.switch_flags[10] && (numtok > 5) && (this->isStyle(BS_BITMAP) || this->isStyle(BS_OWNERDRAW))) {
+	else if (flags['k'] && (numtok > 5) && (this->isStyle(BS_BITMAP) || this->isStyle(BS_OWNERDRAW))) {
 		UINT iColorStyles = this->parseColorFlags(input.gettok( 4 ));
 		COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num();
 
@@ -217,7 +214,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 		this->redrawWindow( );
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
-	else if (flags.switch_flags[11] && numtok > 3) {
+	else if (flags['l'] && numtok > 3) {
 		int size = input.gettok( 4 ).to_int();
 
 		if (size == 32 || size == 24)
@@ -232,13 +229,13 @@ void DcxButton::parseCommandRequest( TString & input ) {
 		}
 	}
   // xdid -t [NAME] [ID] [SWITCH] ItemText
-  else if ( flags.switch_flags[19] && numtok > 2 ) {
+  else if ( flags['t'] && numtok > 2 ) {
 		this->m_tsCaption = (numtok > 3 ? input.gettok( 4, -1 ) : "");
     this->m_tsCaption.trim( );
     this->redrawWindow( );
   }
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 5) {
+	else if (flags['w'] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon = NULL;
 		int index = input.gettok( 5 ).to_int();
@@ -284,7 +281,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 		DestroyIcon(icon);
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [ENABLED]
-  else if (flags.switch_flags[12] && numtok > 3) {
+  else if (flags['m'] && numtok > 3) {
 		int b = input.gettok( 4 ).to_int();
 
 		this->m_bBitmapText = (b ? TRUE : FALSE);

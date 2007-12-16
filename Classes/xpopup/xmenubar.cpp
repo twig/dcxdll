@@ -40,17 +40,14 @@ XMenuBar::~XMenuBar() {
  *
  */
 void XMenuBar::parseXMenuBarCommand(const TString &input) {
-	XSwitchFlags flags;
+	XSwitchFlags flags(input.gettok(1));
 	int numtok = input.numtok();
 	XPopupMenu *p_Menu;
 	HMENU menuBar;
 	TString menuName;
 
-	ZeroMemory(&flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(1), &flags);
-
 	// Check if a callback alias has been marked
-	if (!this->hasCallback() && !flags.switch_cap_flags[12])
+	if (!this->hasCallback() && !flags['M'])
 	{
 		DCXError("/xmenubar", "No callback alias initialised. See /xmenubar -M");
 		return;
@@ -58,7 +55,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 
 	// Initialise callback.
 	// xmenubar [-M] (ALIAS)
-	if (flags.switch_cap_flags[12]) {
+	if (flags['M']) {
 		// Set alias.
 		if (numtok > 1) {
 			TString result((UINT) 100);
@@ -89,7 +86,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 
 	// Add menu
 	// xmenubar [-a] [MENU] [LABEL]
-	if (flags.switch_flags[0]) {
+	if (flags['a']) {
 		if (numtok < 3) {
 			DCXError("-a", "Insufficient parameters");
 			return;
@@ -113,7 +110,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	}
 	// Removes menu
 	// xmenubar [-d] [MENU]
-	else if (flags.switch_flags[3]) {
+	else if (flags['d']) {
 		if (numtok < 2) {
 			DCXError("-d", "Insufficient parameters");
 			return;
@@ -130,7 +127,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	// Replace mIRC's menubar and generate our own
 	// xmenubar [-g]
 	// TODO: add support for styles if I can think of how.
-	else if (flags.switch_flags[6]) {
+	else if (flags['g']) {
 		HMENU newMenu = CreateMenu();
 
 		this->setMenuBar(menuBar, newMenu);
@@ -140,7 +137,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	}
 	// Change the label on the menu
 	// xmenubar [-l] [MENU] [LABEL]
-	else if (flags.switch_flags[11]) {
+	else if (flags['l']) {
 		if (numtok < 3) {
 			DCXError("-l", "Insufficient parameters");
 			return;
@@ -165,7 +162,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	}
 	// Resets to original mIRC menubar
 	// xmenubar [-r]
-	else if (flags.switch_flags[17]) {
+	else if (flags['r']) {
 		this->resetMenuBar();
 	}
 

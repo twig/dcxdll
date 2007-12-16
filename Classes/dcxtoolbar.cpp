@@ -293,20 +293,16 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 */
 
 void DcxToolBar::parseCommandRequest( TString & input ) {
-
-	XSwitchFlags flags;
-	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-	parseSwitchFlags(input.gettok(3), &flags);
-
+	XSwitchFlags flags(input.gettok(3));
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags.switch_flags[17]) {
+	if (flags['r']) {
 		this->resetContent();
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] [Button Text] [TAB] Tooltip Text
-	if ( flags.switch_flags[0] && numtok > 4 ) {
+	if ( flags['a'] && numtok > 4 ) {
 
 		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
@@ -403,7 +399,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			this->autoStretchButtons( );
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N] [+FLAGS] [RGB]
-	else if ( flags.switch_flags[2] && numtok > 5 ) {
+	else if ( flags['c'] && numtok > 5 ) {
 
 		int nButton = input.gettok( 4 ).to_int( ) - 1;
 		UINT buttonStyles = parseButtonStyleFlags( input.gettok( 5 ) );
@@ -445,14 +441,14 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if ( flags.switch_flags[3] && numtok > 3 ) {
+	else if ( flags['d'] && numtok > 3 ) {
 		int nButton = input.gettok( 4 ).to_int( ) - 1;
 
 		if (nButton > -1)
 			this->deleteButton(nButton);
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [IMAGE]
-	else if ( flags.switch_flags[8] && numtok > 4 ) {
+	else if ( flags['i'] && numtok > 4 ) {
 
 		int nButton = input.gettok( 4 ).to_int( ) - 1;
 		int iImage = input.gettok( 5 ).to_int( ) - 1;
@@ -466,7 +462,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		this->setButtonInfo( nButton /*this->getIndexToCommand( nButton )*/, &tbbi );
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
-	else if ( flags.switch_flags[9] && numtok > 4 ) {
+	else if ( flags['j'] && numtok > 4 ) {
 
 		int nMin = input.gettok( 4 ).to_int( );
 		int nMax = input.gettok( 4 ).to_int( );
@@ -474,7 +470,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		this->setButtonWidth( nMin, nMax );
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
-	else if (flags.switch_flags[11] && numtok > 3) {
+	else if (flags['l'] && numtok > 3) {
 		HIMAGELIST himl;
 
 		int size = input.gettok( 4 ).to_int();
@@ -499,7 +495,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		this->redrawWindow();
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [1|0]
-	else if ( flags.switch_flags[12] && numtok > 3 ) {
+	else if ( flags['m'] && numtok > 3 ) {
 
 		if ( input.gettok( 4 ) == "1" ) {
 
@@ -510,7 +506,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			this->m_bAutoStretch = FALSE;
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] (TIPTEXT)
-	else if (flags.switch_flags[16] && numtok > 3) {
+	else if (flags['q'] && numtok > 3) {
 		int nButton = input.gettok( 4 ).to_int() -1;
 
 		if (nButton > -1 && nButton < this->getButtonCount()) {
@@ -531,11 +527,12 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			}
 		}
 	}
+	// This is to avoid an invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[17]) {
+	else if (flags['r']) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [N] [+FLAGS]
-	else if ( flags.switch_flags[19] && numtok > 4 ) {
+	else if ( flags['t'] && numtok > 4 ) {
 
 		int nButton = input.gettok( 4 ).to_int( ) - 1;
 		UINT fStates = parseButtonStateFlags( input.gettok( 5 ) );
@@ -546,7 +543,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			this->setButtonState( idButton, fStates );
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [DX] [DY]
-	else if ( flags.switch_flags[20] && numtok > 4 ) {
+	else if ( flags['u'] && numtok > 4 ) {
 
 		int dxButton = input.gettok( 4 ).to_int( );
 		int dyButton = input.gettok( 5 ).to_int( );
@@ -554,7 +551,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		this->setButtonSize( dxButton, dyButton );
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
-	else if ( flags.switch_flags[21] && numtok > 3 ) {
+	else if ( flags['v'] && numtok > 3 ) {
 
 		int nButton = input.gettok( 4 ).to_int( ) - 1;
 		if ( nButton > -1 && nButton < this->getButtonCount( ) ) {
@@ -579,7 +576,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		}
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 5) {
+	else if (flags['w'] && numtok > 5) {
 		UINT iFlags = this->parseImageListFlags(input.gettok( 4 ));
 
 		if (input.gettok( 4 )[0] != '+') {

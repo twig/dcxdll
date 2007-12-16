@@ -433,20 +433,16 @@ void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxTreeView::parseCommandRequest( TString & input ) {
-
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
-
-  int numtok = input.numtok( );
+	XSwitchFlags flags(input.gettok(3));
+	int numtok = input.numtok( );
 
   // xdid -r [NAME] [ID] [SWITCH]
-  if (flags.switch_flags[17]) {
+  if (flags['r']) {
     TreeView_DeleteAllItems(this->m_Hwnd);
   }
 
 	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] [BKGCOLOR] Text[TAB]Tooltip Text
-	if (flags.switch_flags[0]) {
+	if (flags['a']) {
 		int n = input.numtok(TSTAB);
 
 		if (n > 1) {
@@ -466,7 +462,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		}
 	}
 	// xdid -B [NAME] [ID] [SWITCH] N N N
-	else if (flags.switch_cap_flags[1] && numtok > 3) {
+	else if (flags['B'] && numtok > 3) {
 		HTREEITEM hParent = TVI_ROOT;
 		HTREEITEM hAfter = TVI_ROOT;
 
@@ -477,7 +473,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		}
 	}
   // xdid -c [NAME] [ID] [SWITCH] N N N
-  else if ( flags.switch_flags[2] && numtok > 3 ) {
+  else if ( flags['c'] && numtok > 3 ) {
 
     HTREEITEM hParent = TVI_ROOT;
     HTREEITEM hAfter = TVI_ROOT;
@@ -491,7 +487,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -d [NAME] [ID] [SWITCH] N N N
-  else if ( flags.switch_flags[3] && numtok > 3 ) {
+  else if ( flags['d'] && numtok > 3 ) {
 
     HTREEITEM hParent = TVI_ROOT;
     HTREEITEM hAfter = TVI_ROOT;
@@ -503,7 +499,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -g [NAME] [ID] [SWITCH] [HEIGHT]
-  else if ( flags.switch_flags[6] && numtok > 3 ) {
+  else if ( flags['g'] && numtok > 3 ) {
 
     int iHeight = input.gettok( 4 ).to_int( );
 
@@ -513,7 +509,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     }
   }
 	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
-	else if ( flags.switch_flags[8] && numtok > 4 ) {
+	else if ( flags['i'] && numtok > 4 ) {
 		UINT iFlags = this->parseColorFlags(input.gettok( 4 ));
 
 		COLORREF clr = (COLORREF) input.gettok( 5 ).to_num( );
@@ -533,7 +529,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		this->redrawWindow();
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON] (OVERLAY)
-	else if (flags.switch_flags[9] && numtok > 5) {
+	else if (flags['j'] && numtok > 5) {
 		HTREEITEM hParent = TVI_ROOT;
 		HTREEITEM hAfter = TVI_ROOT;
 
@@ -608,7 +604,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		}
 	}
   // xdid -k [NAME] [ID] [SWITCH] [STATE] N N N
-  else if ( flags.switch_flags[10] && numtok > 4 ) {
+  else if ( flags['k'] && numtok > 4 ) {
 
     HTREEITEM hParent = TVI_ROOT;
     HTREEITEM hAfter = TVI_ROOT;
@@ -624,7 +620,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -l [NAME] [ID] [SWITCH] [SIZE]
-  else if ( flags.switch_flags[11] && numtok > 3 ) {
+  else if ( flags['l'] && numtok > 3 ) {
 
     int size = input.gettok( 4 ).to_int( );
 
@@ -634,7 +630,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     this->m_iIconSize = size;
   }
   // xdid -m [NAME] [ID] [SWITCH] N N N{TAB}N N N
-  else if ( flags.switch_flags[12] && numtok > 3 && input.numtok( TSTAB ) > 1 ) {
+  else if ( flags['m'] && numtok > 3 && input.numtok( TSTAB ) > 1 ) {
 
     TString pathFrom(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
     pathFrom.trim( );
@@ -669,7 +665,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     TreeView_DeleteItem( this->m_Hwnd, hAfterFrom );
   }
   // xdid -n [NAME] [ID] [SWITCH] N N N{TAB}N N N
-  else if ( flags.switch_flags[13] && numtok > 3 && input.numtok( TSTAB ) > 1 ) {
+  else if ( flags['n'] && numtok > 3 && input.numtok( TSTAB ) > 1 ) {
 
     TString pathFrom(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
     pathFrom.trim( );
@@ -696,7 +692,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
       this->copyAllItems( &hAfterFrom, &hNewItem );
   }
   // xdid -o [NAME] [ID] [SWITCH] N N N [TAB] (Tooltip Text)
-  else if ( flags.switch_flags[14] && numtok > 3 ) {
+  else if ( flags['o'] && numtok > 3 ) {
 
     HTREEITEM hParent = TVI_ROOT;
     HTREEITEM hAfter = TVI_ROOT;
@@ -732,7 +728,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -Q [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] N N N
-  else if ( flags.switch_cap_flags[16] && numtok > 5 ) {
+  else if ( flags['Q'] && numtok > 5 ) {
     HTREEITEM hParent = TVI_ROOT;
     HTREEITEM hAfter = TVI_ROOT;
 
@@ -778,11 +774,12 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
       }
     }
   }
+  // This is to avoid an invalid error message.
   // xdid -r [NAME] [ID] [SWITCH]
-  else if (flags.switch_flags[17]) {
+  else if (flags['r']) {
   }
   // xdid -t [NAME] [ID] [SWITCH] [+FLAGS] N N N
-  else if ( flags.switch_flags[19] && numtok > 4 ) {
+  else if ( flags['t'] && numtok > 4 ) {
 
     UINT iFlags = this->parseToggleFlags( input.gettok( 4 ) );
 
@@ -814,12 +811,12 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -u [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[20] ) {
+  else if ( flags['u'] ) {
     
     TreeView_SelectItem( this->m_Hwnd, NULL );
   }
   // xdid -v [NAME] [ID] [SWITCH] N N N [TAB] (Item Text)
-  else if ( flags.switch_flags[21] && numtok > 3 ) {
+  else if ( flags['v'] && numtok > 3 ) {
 
     HTREEITEM hParent = TVI_ROOT;
     HTREEITEM hAfter = TVI_ROOT;
@@ -848,7 +845,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     }
   }
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 5) {
+	else if (flags['w'] && numtok > 5) {
 		TString flags(input.gettok(4));
 		UINT iFlags = this->parseIconFlagOptions(flags);
 
@@ -902,7 +899,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			DestroyIcon(icon);
 	}
   // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-  else if ( flags.switch_flags[24] && numtok > 3 ) {
+  else if ( flags['y'] && numtok > 3 ) {
 
     UINT iFlags = this->parseIconFlagOptions( input.gettok( 4 ) );
 
@@ -926,7 +923,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -z [NAME] [ID] [SWITCH] [+FLAGS] N N N [TAB] [ALIAS]
-  else if ( flags.switch_flags[25] && numtok > 4 ) {
+  else if ( flags['z'] && numtok > 4 ) {
 
     DCXTVSORT dtvs;
     ZeroMemory( &dtvs, sizeof(DCXTVSORT) );
@@ -972,7 +969,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
     }
   }
 	// xdid -G [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
-	else if (flags.switch_cap_flags[6] && numtok > 6) {
+	else if (flags['G'] && numtok > 6) {
 		TString flag(input.gettok( 4 ));
 		this->m_iXOffset = input.gettok( 5 ).to_int();
 		this->m_iYOffset = input.gettok( 6 ).to_int();
@@ -992,7 +989,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		this->redrawWindow();
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [N (N...)][TAB][+FLAGS] [NAME] [FILENAME]
-	else if (flags.switch_cap_flags[18] && numtok > 5) {
+	else if (flags['S'] && numtok > 5) {
 
 		if (input.numtok(TSTAB) != 2) {
 			this->showError(NULL,"-S","Invalid Command Syntax.");

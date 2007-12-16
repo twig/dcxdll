@@ -158,14 +158,12 @@ void DcxDateTime::parseInfoRequest(TString &input, char *szReturnValue) {
  */
 // TODO: find a way to change state of checkbox /xdid -c
 void DcxDateTime::parseCommandRequest(TString &input) {
-	XSwitchFlags flags;
-	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(3), &flags);
+	XSwitchFlags flags(input.gettok(3));
 
 	int numtok = input.numtok();
 
 	// xdid -f [NAME] [ID] [SWITCH] (FORMAT)
-	if (flags.switch_flags[5]) {
+	if (flags['f']) {
 		if (numtok > 3) {
 			TString format(input.gettok(4, -1));
 			DateTime_SetFormat(this->m_Hwnd, format.to_chr());
@@ -176,7 +174,7 @@ void DcxDateTime::parseCommandRequest(TString &input) {
 		}
 	}
 	//xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-	else if (flags.switch_flags[17] && numtok > 4) {
+	else if (flags['r'] && numtok > 4) {
 		DWORD dflags = 0;
 		SYSTEMTIME range[2];
 
@@ -197,7 +195,7 @@ void DcxDateTime::parseCommandRequest(TString &input) {
 		DateTime_SetRange(this->m_Hwnd, dflags, range);
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
-	else if (flags.switch_flags[19] && numtok > 3) {
+	else if (flags['t'] && numtok > 3) {
 		TString ts(input.gettok(4));
 
 		if (ts == "reset") {

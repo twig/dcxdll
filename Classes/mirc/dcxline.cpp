@@ -133,15 +133,12 @@ void DcxLine::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxLine::parseCommandRequest( TString & input ) {
-
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
+	XSwitchFlags flags(input.gettok(3));
 
 //  int numtok = input.numtok( );
 
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
-	if (flags.switch_flags[19]) {
+	if (flags['t']) {
 		this->m_sText = input.gettok(4, -1);
 		this->m_sText.trim();
 

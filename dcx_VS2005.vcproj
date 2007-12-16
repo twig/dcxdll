@@ -538,6 +538,10 @@
 				RelativePath=".\windowFunctions.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\XSwitchFlags.cpp"
+				>
+			</File>
 			<Filter
 				Name="Controls"
 				>
@@ -838,6 +842,10 @@
 			</File>
 			<File
 				RelativePath=".\defines.h"
+				>
+			</File>
+			<File
+				RelativePath=".\XSwitchFlags.h"
 				>
 			</File>
 			<Filter

@@ -153,22 +153,19 @@ void DcxProgressBar::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxProgressBar::parseCommandRequest(TString &input) {
-	XSwitchFlags flags;
-	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(3), &flags);
-
-	int numtok = input.numtok( );
+	XSwitchFlags flags(input.gettok(3));
+	int numtok = input.numtok();
 
 	// xdid -c name ID $rgb(color)
-	if (flags.switch_flags[2]) {
+	if (flags['c']) {
 		this->setBarColor((COLORREF) input.gettok( 4 ).to_num());
 	}
 	//// xdid -g name ID [1|0]
-	//else if ( flags.switch_flags[6] ) {
+	//else if ( flags['g'] ) {
 	//this->m_bIsGrad = (BOOL) input.gettok( 4 ).to_num( );
 	//}
 	// xdid -i name ID (TEXT)
-	else if (flags.switch_flags[8]) {
+	else if (flags['i']) {
 		if (input.numtok( ) > 3)
 			this->m_tsText = input.gettok(4, -1);
 		else
@@ -177,7 +174,7 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 		this->redrawWindow();
 	}
 	// xdid -j name ID [a|p]
-	else if (flags.switch_flags[9]) {
+	else if (flags['j']) {
 		if (input.gettok( 4 ) == "a")
 			this->m_bIsAbsoluteValue = TRUE;
 		else
@@ -186,44 +183,44 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 		this->redrawWindow();
 	}
 	// xdid -k name ID $rgb(color)
-	else if (flags.switch_flags[10]) {
+	else if (flags['k']) {
 		this->setBKColor((COLORREF) input.gettok( 4 ).to_num());
 	}
 	// xdid -m(o|g) name ID N
-	else if (flags.switch_flags[12]) {
+	else if (flags['m']) {
 		// -mo
-		if (flags.switch_flags[14])
+		if (flags['o'])
 			this->setMarquee(TRUE, (int)input.gettok( 4 ).to_num());
 		// -mg
-		else if (flags.switch_flags[6])
+		else if (flags['g'])
 			this->setMarquee(FALSE, 0);
 	}
 	// xdid -q name ID [COLOR]
-	else if ( flags.switch_flags[16] ) {
+	else if ( flags['q'] ) {
 		this->m_clrText = (COLORREF) input.gettok( 4 ).to_num();
 		this->redrawWindow();
 	}
 	// xdid -r name ID RLow RHigh
-	else if (flags.switch_flags[17]) {
+	else if (flags['r']) {
 		if (numtok > 4)
 			this->setRange(input.gettok( 4 ).to_int(), input.gettok( 5 ).to_int());
 	}
 	// xdid -t name ID
-	else if (flags.switch_flags[19]) {
+	else if (flags['t']) {
 		this->stepIt();
 	}
 	// xdid -u name ID N
-	else if (flags.switch_flags[20]) {
+	else if (flags['u']) {
 		this->setStep(input.gettok( 4 ).to_int());
 	}
 	// xdid -v name ID N
-	else if (flags.switch_flags[21]) {
+	else if (flags['v']) {
 		if (numtok > 3)
 			this->setPosition(input.gettok( 4 ).to_int());
 	}
 	// xdid [-o] [NAME] [ID] [ENABLED]
 	// vertical fonts [1|0]
-	else if (flags.switch_flags[14]) {
+	else if (flags['o']) {
 		if (numtok < 4)
 			return;
 

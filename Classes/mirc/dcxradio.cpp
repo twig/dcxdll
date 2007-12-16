@@ -155,25 +155,21 @@ void DcxRadio::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxRadio::parseCommandRequest( TString & input ) {
-
-	XSwitchFlags flags;
-	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-	parseSwitchFlags(input.gettok(3), &flags);
-
+	XSwitchFlags flags(input.gettok(3));
 	int numtok = input.numtok( );
 
 	//xdid -c [NAME] [ID] [SWITCH]
-	if ( flags.switch_flags[2] ) {
+	if ( flags['c'] ) {
 		Button_SetCheck( this->m_Hwnd, BST_CHECKED );
 	}
 	//xdid -t [NAME] [ID] [SWITCH]
-	else if ( flags.switch_flags[19] && numtok > 3 ) {
+	else if ( flags['t'] && numtok > 3 ) {
 		TString text(input.gettok( 4, -1 ));
 		text.trim( );
 		SetWindowText( this->m_Hwnd, text.to_chr( ) );
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
-	else if ( flags.switch_flags[20] ) {
+	else if ( flags['u'] ) {
 		Button_SetCheck( this->m_Hwnd, BST_UNCHECKED );
 	}
 	else

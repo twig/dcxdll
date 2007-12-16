@@ -146,20 +146,16 @@ void DcxColorCombo::parseInfoRequest( TString & input, char * szReturnValue ) {
  * blah
  */
 void DcxColorCombo::parseCommandRequest(TString &input) {
-	XSwitchFlags flags;
-
-	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(3), &flags);
-
+	XSwitchFlags flags(input.gettok(3));
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags.switch_flags[17]) {
+	if (flags['r']) {
 		this->resetContent();
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [RGB]
-	if (flags.switch_flags[0] && numtok > 4) {
+	if (flags['a'] && numtok > 4) {
 		int nItem = input.gettok(4).to_int() -1;
 		COLORREF clrItem = (COLORREF)input.gettok( 5 ).to_num();
 
@@ -175,14 +171,14 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
-	else if (flags.switch_flags[2] && numtok > 3) {
+	else if (flags['c'] && numtok > 3) {
 		int nItem = input.gettok(4).to_int() -1;
 
 		if ((nItem > -2) && (nItem < this->getCount()))
 			this->setCurSel(nItem);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags.switch_flags[3] && numtok > 3) {
+	else if (flags['d'] && numtok > 3) {
 		int nItem = (int)input.gettok( 4 ).to_num() -1;
 
 		if (nItem > -1 && nItem < this->getCount()) {
@@ -190,11 +186,11 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -m [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[12]) {
+	else if (flags['m']) {
 		this->setmIRCPalette();
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [RGB]
-	else if (flags.switch_flags[14] && numtok > 4) {
+	else if (flags['o'] && numtok > 4) {
 		int nItem = input.gettok( 4 ).to_int() -1;
 		COLORREF clrItem = (COLORREF)input.gettok( 5 ).to_num();
 
@@ -205,8 +201,9 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 				lpdcxcci->clrItem = clrItem;
 		}
 	}
+	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[17]) {
+	else if (flags['r']) {
 		//this->resetContent();
 	}
 	else

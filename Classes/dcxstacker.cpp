@@ -204,20 +204,17 @@ void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxStacker::parseCommandRequest(TString &input) {
-	XSwitchFlags flags;
-
-	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(3), &flags);
+	XSwitchFlags flags(input.gettok(3));
 
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags.switch_flags[17]) {
-    SendMessage(this->m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0);
+	if (flags['r']) {
+		SendMessage(this->m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0);
 	}
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	if (flags.switch_flags[0] && numtok > 9) {
+	if (flags['a'] && numtok > 9) {
 		TString item(input.gettok(1,TSTAB));
 		item.trim();
 		TString ctrl(input.gettok(2,TSTAB));
@@ -277,28 +274,29 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
-	else if (flags.switch_flags[2] && numtok > 3) {
+	else if (flags['c'] && numtok > 3) {
     int nPos = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
 			SendMessage(this->m_Hwnd,LB_SETCURSEL,nPos,NULL);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags.switch_flags[3] && (numtok > 3)) {
+	else if (flags['d'] && (numtok > 3)) {
     int nPos = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
         ListBox_DeleteString( this->m_Hwnd, nPos );
 	}
-  //xdid -r [NAME] [ID] [SWITCH]
-  else if (flags.switch_flags[17]) {
-  }
+	// This is to avoid an invalid flag message.
+	//xdid -r [NAME] [ID] [SWITCH]
+	else if (flags['r']) {
+	}
 	//xdid -u [NAME] [ID] [SWITCH]
-	else if ( flags.switch_flags[20] ) {
+	else if ( flags['u'] ) {
 		ListBox_SetCurSel( this->m_Hwnd, -1 );
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [N] (ToolTipText)
-  else if (flags.switch_cap_flags[19] && numtok > 3) {
+  else if (flags['T'] && numtok > 3) {
     int nPos = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) ) {
@@ -310,7 +308,7 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		}
   }
 	//xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
-	else if ( flags.switch_flags[22] && (numtok > 4)) {
+	else if ( flags['w'] && (numtok > 4)) {
 		TString flag(input.gettok( 4 ));
 		TString filename(input.gettok( 5 ));
 		filename.trim();
@@ -322,7 +320,7 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		this->m_vImageList.push_back(new Image(filename.to_wchr()));
 	}
 	//xdid -y [NAME] [ID] [SWITCH]
-	else if ( flags.switch_flags[24] ) {
+	else if ( flags['y'] ) {
 		this->clearImageList();
 		this->redrawWindow();
 	}

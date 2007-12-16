@@ -190,13 +190,9 @@ XPopupMenu::~XPopupMenu( ) {
  */
 
 void XPopupMenu::parseXPopCommand( const TString & input ) {
-
-	XSwitchFlags flags;
-	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-	parseSwitchFlags(input.gettok(2), &flags);
-
-	TString path(input.gettok( 1, TSTAB ).gettok( 3, -1 ));
-	path.trim( );
+	XSwitchFlags flags(input.gettok(2));
+	TString path(input.gettok(1, TSTAB).gettok(3, -1));
+	path.trim();
 
 	HMENU hMenu;
 	if ( path.numtok( ) == 1 )
@@ -213,7 +209,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	int numtok = input.numtok( );
 
 	// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText [TAB] Command
-	if ( flags.switch_flags[0] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 3 ) {
+	if ( flags['a'] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 3 ) {
 		TString itemdata(input.gettok( 2, TSTAB ));
 		itemdata.trim( );
 		TString itemcom;
@@ -274,7 +270,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		InsertMenuItem( hMenu, nPos, TRUE, &mii );
 	}
 	// xpop -c - [MENU] [SWITCH] [PATH]
-	else if ( flags.switch_flags[2] && numtok > 2 ) {
+	else if ( flags['c'] && numtok > 2 ) {
 		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		if ( nPos > -1 ) {
 			MENUITEMINFO mii;
@@ -301,7 +297,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		}
 	}
 	// xpop -d - [MENU] [SWITCH] [PATH]
-	else if ( flags.switch_flags[3] && numtok > 2 ) {
+	else if ( flags['d'] && numtok > 2 ) {
 
 		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		if ( nPos > -1 ) {
@@ -329,7 +325,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		}
 	}
 	// xpop -f - [MENU] [SWITCH] [PATH]
-	else if ( flags.switch_flags[5] && numtok > 2 ) {
+	else if ( flags['f'] && numtok > 2 ) {
 
 		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		if ( nPos > -1 ) {
@@ -354,7 +350,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		}
 	}
 	// xpop -i - [MENU] [SWITCH] [PATH] [TAB] [ICON]
-	else if ( flags.switch_flags[8] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
+	else if ( flags['i'] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
 
 		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		int nIcon = input.gettok( 2, TSTAB ).to_int( );
@@ -374,7 +370,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		}
 	}
 	// xpop -s - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS]
-	else if ( flags.switch_flags[18] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
+	else if ( flags['s'] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
 
 		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		TString mflags(input.gettok( 2, TSTAB ));
@@ -402,7 +398,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		}
 	}
 	// xpop -t - [MENU] [SWITCH] [PATH] [TAB] Itemtext
-	else if ( flags.switch_flags[19] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
+	else if ( flags['t'] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
 
 		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 

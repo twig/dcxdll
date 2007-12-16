@@ -194,16 +194,14 @@ void DcxCalendar::parseInfoRequest(TString &input, char *szReturnValue) {
  * blah
  */
 void DcxCalendar::parseCommandRequest(TString &input) {
-	XSwitchFlags flags;
-	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(3), &flags);
+	XSwitchFlags flags(input.gettok(3));
 
 //SetDayState
 
 	int numtok = input.numtok();
 
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
-	if (flags.switch_flags[10] && numtok > 4) {
+	if (flags['k'] && numtok > 4) {
 		TString flags(input.gettok(4));
 		COLORREF col = (COLORREF) input.gettok(5).to_int();
 
@@ -232,13 +230,13 @@ void DcxCalendar::parseCommandRequest(TString &input) {
 			MonthCal_SetColor(this->m_Hwnd, MCSC_TRAILINGTEXT, col);
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [MAX]
-	else if (flags.switch_flags[12] && numtok > 3) {
+	else if (flags['m'] && numtok > 3) {
 		int max = input.gettok(4).to_int();
 
 		MonthCal_SetMaxSelCount(this->m_Hwnd, max);
 	}
 	//xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-	else if (flags.switch_flags[17] && numtok > 4) {
+	else if (flags['r'] && numtok > 4) {
 		DWORD flags = 0;
 		SYSTEMTIME range[2];
 
@@ -259,7 +257,7 @@ void DcxCalendar::parseCommandRequest(TString &input) {
 		MonthCal_SetRange(this->m_Hwnd, flags, range);
 	}
 	//xdid -s [NAME] [ID] [SWITCH] [MIN] (MAX)
-	else if (flags.switch_flags[18] && numtok > 3) {
+	else if (flags['s'] && numtok > 3) {
 		long min = (long) input.gettok(4).to_num();
 		long max = 0;
 		SYSTEMTIME range[2];
@@ -283,7 +281,7 @@ void DcxCalendar::parseCommandRequest(TString &input) {
 		}
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
-	else if (flags.switch_flags[19] && numtok > 3) {
+	else if (flags['t'] && numtok > 3) {
 		SYSTEMTIME sysTime;
 		long mircTime = (long) input.gettok(4).to_num();
 

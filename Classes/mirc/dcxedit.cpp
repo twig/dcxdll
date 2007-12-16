@@ -261,29 +261,26 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 * blah
 */
 void DcxEdit::parseCommandRequest(TString &input) {
-	XSwitchFlags flags;
-	ZeroMemory((void*) &flags, sizeof(XSwitchFlags));
-	parseSwitchFlags(input.gettok(3), &flags);
-
+	XSwitchFlags flags(input.gettok(3));
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags.switch_flags[17]) {
+	if (flags['r']) {
 		this->m_tsText = "";
 		SetWindowTextW(this->m_Hwnd, L"");
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
-	if (flags.switch_flags[0] && numtok > 3) {
+	if (flags['a'] && numtok > 3) {
 		this->m_tsText += input.gettok(4, -1);
 		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[2] && numtok > 2) {
+	else if (flags['c'] && numtok > 2) {
 		CopyToClipboard(this->m_Hwnd, this->m_tsText);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags.switch_flags[3] && numtok > 3) {
+	else if (flags['d'] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
 			int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.deltok(nLine, "\r\n");
@@ -291,7 +288,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
-	else if (flags.switch_flags[8] && numtok > 4) {
+	else if (flags['i'] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
 			int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, "\r\n");
@@ -301,7 +298,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
-	else if (flags.switch_flags[9] && numtok > 3) {
+	else if (flags['j'] && numtok > 3) {
 		int i = input.gettok( 4 ).to_int();
 
 		if (i) {
@@ -327,13 +324,13 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		this->redrawWindow();
 	}
    // xdid -l [NAME] [ID] [SWITCH] [ON|OFF]
-   else if (flags.switch_flags[11] && numtok > 3) {
+   else if (flags['l'] && numtok > 3) {
       BOOL enabled = (input.gettok(4).to_int() > 0 ? TRUE : FALSE);
 
       SendMessage(this->m_Hwnd, EM_SETREADONLY, enabled, NULL);
    }
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
-	else if (flags.switch_flags[14] && numtok > 3) {
+	else if (flags['o'] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
 			int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, "\r\n");
@@ -343,22 +340,23 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -P [NAME] [ID]
-	else if (flags.switch_cap_flags[15] && numtok > 1) {
+	else if (flags['P'] && numtok > 1) {
 		SendMessage(this->getHwnd(),WM_PASTE,NULL,NULL);
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [SIZE]
-	else if (flags.switch_flags[16] && numtok > 3) {
+	else if (flags['q'] && numtok > 3) {
 		int N = input.gettok( 4 ).to_int();
 
 		if (N > -1) {
 			Edit_LimitText(this->m_Hwnd, N);
 		}
 	}
+	// Used to prevent invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[17]) {
+	else if (flags['r']) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
-	else if (flags.switch_flags[19] && numtok > 3) {
+	else if (flags['t'] && numtok > 3) {
 		char *contents = readFile(input.gettok(4, -1).to_chr());
 
 		if (contents != NULL) {
@@ -368,7 +366,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
-	else if (flags.switch_flags[20] && numtok > 3) {
+	else if (flags['u'] && numtok > 3) {
 		FILE *file = fopen(input.gettok(4, -1).to_chr(), "wb");
 
 		if (file != NULL) {
@@ -378,7 +376,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
-	else if (flags.switch_cap_flags[18] && numtok > 3) {
+	else if (flags['S'] && numtok > 3) {
 		int istart = input.gettok( 4 ).to_int();
 		int iend;
 		
@@ -390,12 +388,12 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		SendMessage(this->m_Hwnd, EM_SETSEL, istart, iend);
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
-	else if (flags.switch_cap_flags[4] && numtok > 3) {
+	else if (flags['E'] && numtok > 3) {
 		this->m_tsCue = input.gettok(4, -1);
 		Edit_SetCueBannerText(this->m_Hwnd,this->m_tsCue.to_wchr());
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
-	else if (flags.switch_flags[24] && numtok > 3) {
+	else if (flags['y'] && numtok > 3) {
 		int state = input.gettok(4).to_int();
 
 		this->m_bIgnoreRepeat = (state > 0 ? TRUE : FALSE);

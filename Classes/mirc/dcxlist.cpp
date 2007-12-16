@@ -314,20 +314,16 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxList::parseCommandRequest( TString & input ) {
-
-	XSwitchFlags flags;
-	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-	parseSwitchFlags(input.gettok(3), &flags);
-
+	XSwitchFlags flags(input.gettok(3));
 	int numtok = input.numtok( );
 
 	//xdid -r [NAME] [ID] [SWITCH]
-	if (flags.switch_flags[17]) {
+	if (flags['r']) {
 		ListBox_ResetContent( this->m_Hwnd );
 	}
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
-	if ( flags.switch_flags[0] && numtok > 4 ) {
+	if ( flags['a'] && numtok > 4 ) {
 
 		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
@@ -337,7 +333,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 		ListBox_InsertString( this->m_Hwnd, nPos, input.gettok( 5, -1 ).to_chr( ) );
 	}
 	//xdid -A [NAME] [ID] [SWITCH] [N] [+FLAGS] [TEXT]
-	else if ( flags.switch_cap_flags[0] && numtok > 5 ) {
+	else if ( flags['A'] && numtok > 5 ) {
 
 		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
@@ -538,7 +534,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 			ListBox_SetHorizontalExtent( this->m_Hwnd, nMaxStrlen);
 	}
 	//xdid -c [NAME] [ID] [SWITCH] [N,[N,[...]]]
-	else if ( flags.switch_flags[2] && numtok > 3 ) {
+	else if ( flags['c'] && numtok > 3 ) {
 
 		int nItems = ListBox_GetCount( this->m_Hwnd );
 
@@ -573,7 +569,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 		}
 	}
 	//xdid -d [NAME] [ID] [SWITCH] [N]
-	else if ( flags.switch_flags[3] && numtok > 3 ) {
+	else if ( flags['d'] && numtok > 3 ) {
 
 		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
@@ -583,11 +579,12 @@ void DcxList::parseCommandRequest( TString & input ) {
 		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
 			ListBox_DeleteString( this->m_Hwnd, nPos );
 	}
+	// Used to prevent invalid flag message.
 	//xdid -r [NAME] [ID] [SWITCH]
-	else if (flags.switch_flags[17]) {
+	else if (flags['r']) {
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
-	else if ( flags.switch_flags[20] ) {
+	else if ( flags['u'] ) {
 
 		if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) )
 			ListBox_SetSel( this->m_Hwnd, FALSE, -1 );
@@ -595,7 +592,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 			ListBox_SetCurSel( this->m_Hwnd, -1 );
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N]...)
-	else if ( flags.switch_flags[12] && numtok > 4 ) {
+	else if ( flags['m'] && numtok > 4 ) {
 		TString opts(input.gettok( 4 ));
 
 		if (opts.find('w',0))
@@ -627,7 +624,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 			this->showError(NULL, "-m", "Invalid Flags");
 	}
 	//xdid -o [NAME] [ID] [N] [TEXT]
-	else if ( flags.switch_flags[14] ) {
+	else if ( flags['o'] ) {
 		int nPos = input.gettok( 4 ).to_int() - 1;
 
 		if (nPos == -1)

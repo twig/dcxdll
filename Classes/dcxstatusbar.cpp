@@ -221,15 +221,12 @@ void DcxStatusBar::deletePartInfo(const int iPart)
  */
 
 void DcxStatusBar::parseCommandRequest( TString & input ) {
-
-	XSwitchFlags flags;
-	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-	parseSwitchFlags(input.gettok(3), &flags);
+	XSwitchFlags flags(input.gettok(3));
 
 	int numtok = input.numtok( );
 
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
-	if (flags.switch_flags[10] && numtok > 3) {
+	if (flags['k'] && numtok > 3) {
 		int col = input.gettok( 4 ).to_int();
 
 		if (col < 0)
@@ -238,7 +235,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 			this->setBkColor((COLORREF) col);
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [POS [POS POS ...]]
-	else if ( flags.switch_flags[11] && numtok > 3 ) {
+	else if ( flags['l'] && numtok > 3 ) {
 
 		int nParts = numtok - 3;
 		INT parts[256];
@@ -270,7 +267,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] N [+FLAGS] [#ICON] [Cell Text][TAB]Tooltip Text
 	// xdid -t [NAME] [ID] [SWITCH] N [+c] [#ICON] [CID] [CTRL] [X] [Y] [W] [H] (OPTIONS)
-	else if ( flags.switch_flags[19] && numtok > 5 ) {
+	else if ( flags['t'] && numtok > 5 ) {
 
 		int nPos = input.gettok( 4 ).to_int( ) - 1;
 		TString flag(input.gettok( 5 ));
@@ -362,7 +359,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 		}
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
-	else if ( flags.switch_flags[21] && numtok > 3 ) {
+	else if ( flags['v'] && numtok > 3 ) {
 
 		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
@@ -386,7 +383,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 			this->showError(NULL, "-v", "Invalid Part");
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 5) {
+	else if (flags['w'] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
 		TString flag(input.gettok( 4 ));
@@ -409,7 +406,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 		DestroyIcon(icon);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-	else if ( flags.switch_flags[24] ) {
+	else if ( flags['y'] ) {
 
 		ImageList_Destroy( this->getImageList( ) );
 		this->setImageList(NULL);

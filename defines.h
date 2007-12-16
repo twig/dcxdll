@@ -9,44 +9,6 @@
  * © ScriptsDB.org - 2006
  */
 
-/*
- * Switch Parameters Container
- *
- * The XSwitchFlags structure is used to parse /xdid or /xdialog command -switches. It contains two arrays
- * populated by 26 values from a/A-z/Z and of value 1 indicating the switch was in the command or 0 if not.
- *
- * Below is a list stating which switches have been used for global commands.
- * Adding a control specific switch will override the global command.
- * It is important to update this when adding new global commands.
- *
- * a = 0		
- * b = 1		xdid
- * c = 2				XDID
- * d = 3
- * e = 4		xdid
- * f = 5		xdid	XDID
- * g = 6
- * h = 7		xdid
- * i = 8
- * j = 9				XDID
- * k = 10
- * l = 11
- * m = 12			XDID
- * n = 13
- * o = 14
- * p = 15	xdid
- * q = 16
- * r = 17			XDID
- * s = 18	xdid
- * t = 19			XDID
- * u = 20			XDID
- * v = 21
- * w = 22
- * x = 23	xdid
- * y = 24
- * z = 25			XDID
- */
-
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( disable : 1195 )
 #pragma warning( disable : 504 )
@@ -175,7 +137,9 @@
 #include <vector>
 #include <commctrl.h>
 
-#include "classes/tstring/tstring.h"
+#include "Classes/TString/tstring.h"
+#include "XSwitchFlags.h"
+
 #include <uxtheme.h>
 #if DCX_USE_WINSDK && WINVER >= 0x600
 #include <vssym32.h>
@@ -362,12 +326,6 @@ typedef struct {
 	BOOL		m_bAero;	//!< Aero Interface is enabled.
 } mIRCDLL;
 
-// Refer to "Switch Parameters Container" at top of file.
-typedef struct {
-	int switch_flags[26];     //!< Lowercase switches a-z
-	int switch_cap_flags[26]; //!< Uppercase switches A-Z
-} XSwitchFlags;
-
 // mIRC Signal structure
 typedef struct SIGNALSWITCH {
 	bool xdock;
@@ -395,7 +353,6 @@ void DCXDebug(const char *cmd,const char *msg);
 
 int round(const float x);
 BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
-void parseSwitchFlags(const TString &switches, XSwitchFlags *flags);
 TString ParseLogfontToCommand(const LPLOGFONT lf);
 UINT parseFontFlags(const TString &flags);
 UINT parseFontCharSet(const TString &charset);

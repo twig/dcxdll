@@ -177,7 +177,7 @@ protected:
 	//int m_iThemePartId;
 	/* ***** */
 
-	void parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags );
+	void parseGlobalCommandRequest(const TString & input, XSwitchFlags & flags );
 	BOOL parseGlobalInfoRequest( const TString & input, char * szReturnValue );
 
 	static UINT parseColorFlags( TString & flags );

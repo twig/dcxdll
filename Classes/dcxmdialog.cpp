@@ -122,14 +122,11 @@ void DcxMDialog::parseInfoRequest(TString &input, char *szReturnValue) {
  */
 
 void DcxMDialog::parseCommandRequest( TString & input ) {
-
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
+	XSwitchFlags flags(input.gettok(3));
 
   //int numtok = input.numtok( );
 
-  this->parseGlobalCommandRequest( input, flags );
+	this->parseGlobalCommandRequest(input, flags);
 }
 
 /*!

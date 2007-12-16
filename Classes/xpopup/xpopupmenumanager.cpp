@@ -53,13 +53,10 @@ XPopupMenuManager::~XPopupMenuManager() {
 
 void XPopupMenuManager::parseXPopupCommand(const TString & input) {
 	XPopupMenu *p_Menu;
-	XSwitchFlags flags;
-
-	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-	parseSwitchFlags(input.gettok(2), &flags);
+	XSwitchFlags flags(input.gettok(2));
 
 	// Special mIRC Menu
-	if ((p_Menu = this->getMenuByName(input.gettok(1), TRUE)) == NULL && flags.switch_flags[2] == 0) {
+	if ((p_Menu = this->getMenuByName(input.gettok(1), TRUE)) == NULL && !flags['c']) {
 		TString error;
 		error.sprintf("\"%s\" doesn't exist : see /xpopup -c", input.gettok(1).to_chr());
 		DCXError("/xpopup",error.to_chr());
@@ -70,15 +67,11 @@ void XPopupMenuManager::parseXPopupCommand(const TString & input) {
 }
 
 void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p_Menu ) {
-
-	XSwitchFlags flags;
-	ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-	parseSwitchFlags(input.gettok(2), &flags);
-
+	XSwitchFlags flags(input.gettok(2));
 	int numtok = input.numtok( );
 
 	// xpopup -b - [MENU] [SWITCH] [FILENAME]
-	if (flags.switch_flags[1]) {
+	if (flags['b']) {
 		HBITMAP hBitmap = NULL;
 
 		if (numtok > 2) {
@@ -102,7 +95,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 
 	}
 	// xpopup -c -> [MENU] [SWITCH] [STYLE]
-	else if ((flags.switch_flags[2]) && (numtok > 2) && (input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar")) {
+	else if ((flags['c']) && (numtok > 2) && (input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar")) {
 
 		if (p_Menu != NULL) {
 			TString error;
@@ -139,12 +132,12 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 		}
 	}
 	// xpopup -d -> [MENU] [SWITCH]
-	else if ( flags.switch_flags[3] && ( input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar" ) ) {
+	else if ( flags['d'] && ( input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar" ) ) {
 
 		this->deleteMenu( p_Menu );
 	}
 	// xpopup -i -> [MENU] [SWITCH] [FLAGS] [INDEX] [FILENAME]
-	else if ( flags.switch_flags[8] && numtok > 4 ) {
+	else if ( flags['i'] && numtok > 4 ) {
 
 		HIMAGELIST himl = p_Menu->getImageList( );
 		HICON icon;
@@ -165,11 +158,11 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 			DCXError("/xpopup -i","Unable to Access File");
 	}
 	// xpopup -j -> [MENU] [SWITCH]
-	else if (flags.switch_flags[9]) {
+	else if (flags['j']) {
 		p_Menu->destroyImageList();
 	}
 	// xpopup -l -> [MENU] [SWITCH] [N] [COLOR | default]
-	else if ( flags.switch_flags[11] && numtok > 3 ) {
+	else if ( flags['l'] && numtok > 3 ) {
 
 		int nColor = input.gettok( 3 ).to_int( );
 		TString clr(input.gettok( 4 ));
@@ -180,7 +173,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 			p_Menu->setColor( nColor, (COLORREF)clr.to_num( ) );
 	}
 	// xpopup -m -> mirc -m
-	else if ( flags.switch_flags[12] && numtok == 2 && input.gettok( 1 ) == "mirc") {
+	else if ( flags['m'] && numtok == 2 && input.gettok( 1 ) == "mirc") {
 		if (!this->m_bPatched && mIRCLink.m_bmIRCSixPointTwoZero) {
 			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
 			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
@@ -188,11 +181,11 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 		}
 	}
 	// xpopup -M -> [MENU] [SWITCH] (TEXT)
-	else if (flags.switch_cap_flags[12]) {
+	else if (flags['M']) {
 		p_Menu->setMarkedText(input.gettok(3, -1));
 	}
 	// xpopup -p -> [MENU] [SWITCH] [COLORS]
-	else if ( flags.switch_flags[15] && numtok > 2 ) {
+	else if ( flags['p'] && numtok > 2 ) {
 
 		TString colors(input.gettok( 3, -1 ));
 		int i = 1, len = colors.numtok( );
@@ -207,7 +200,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 		}
 	}
 	// xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y] (OVER HWND)
-	else if ( flags.switch_flags[18] && numtok > 4 ) {
+	else if ( flags['s'] && numtok > 4 ) {
 
 		UINT mflags = this->parseTrackFlags( input.gettok( 3 ) );
 		int x = input.gettok( 4 ).to_int( );
@@ -250,7 +243,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 		mIRCcomEX("//.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID );
 	}
 	// xpopup -t -> [MENU] [SWITCH] [STYLE]
-	else if (flags.switch_flags[19] && numtok > 2) {
+	else if (flags['t'] && numtok > 2) {
 		XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
 		TString tsStyle(input.gettok( 3 ));
 
@@ -278,7 +271,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 		p_Menu->setStyle(style);
 	}
 	// xpopup -x -> [MENU] [SWITCH] [+FLAGS]
-	else if ( flags.switch_flags[23] && numtok > 2 ) {
+	else if ( flags['x'] && numtok > 2 ) {
 
 		TString flag(input.gettok( 3 ));
 
@@ -309,7 +302,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 		}
 	}
 	// xpopup -R -> [MENU] [SWITCH] [+FLAGS] (FLAG OPTIONS)
-	else if ( flags.switch_cap_flags[17] && numtok > 2 ) {
+	else if ( flags['R'] && numtok > 2 ) {
 
 		TString flag(input.gettok( 3 ));
 

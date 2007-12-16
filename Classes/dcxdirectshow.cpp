@@ -324,7 +324,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
   int numtok = input.numtok( );
 
   // xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
-  if ( flags.switch_flags[0] && numtok > 4 ) {
+  if ( flags['a'] && numtok > 4 ) {
 		TString flag(input.gettok(4));
 		TString filename(input.gettok(5,-1));
 		flag.trim();
@@ -458,7 +458,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
   // xdid -c [NAME] [ID] [SWITCH] [COMMAND]
-  else if ( flags.switch_flags[2] && numtok > 3 ) {
+  else if ( flags['c'] && numtok > 3 ) {
 		if (this->m_pControl != NULL) {
 			static const TString cmdlist("play pause stop close seek");
 			int nType = cmdlist.findtok(input.gettok(4).to_chr(),1);
@@ -502,7 +502,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			//DCXError("/xdid -c", "No File Loaded");
 	}
   // xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
-  else if ( flags.switch_flags[21] && numtok > 7 ) {
+  else if ( flags['v'] && numtok > 7 ) {
 		if (this->m_pControl != NULL) {
 			HRESULT hr = this->setVideo(input.gettok(4),(float)input.gettok(5).to_float(), (float)input.gettok(6).to_num(), (float)input.gettok(7).to_num(), (float)input.gettok(8).to_num());
 			if (FAILED(hr)) {
@@ -517,7 +517,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 		}
 	}
   // xdid -V [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
-  else if ( flags.switch_cap_flags[21] && numtok > 4 ) {
+  else if ( flags['V'] && numtok > 4 ) {
 		TString flag(input.gettok( 4 ));
 
 		if (flag[0] != '+') {

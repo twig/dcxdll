@@ -188,21 +188,17 @@ void DcxTrackBar::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxTrackBar::parseCommandRequest( TString & input ) {
-
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
-
-  int numtok = input.numtok( );
+	XSwitchFlags flags(input.gettok(3));
+	int numtok = input.numtok( );
 
   // xdid -c [NAME] [ID] [SWITCH] [VALUE]
-  if ( flags.switch_flags[2] && numtok > 3 ) {
+  if ( flags['c'] && numtok > 3 ) {
 
     LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
     this->setTic( lPosition );
   }
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
-	else if (flags.switch_flags[6] && numtok > 4) {
+	else if (flags['g'] && numtok > 4) {
 		UINT tflags = parseImageFlags(input.gettok( 4 ));
 		TString filename(input.gettok(5, -1));
 		filename.trim();
@@ -225,37 +221,37 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
 		//InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
   // xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
-  else if ( flags.switch_flags[9] && numtok > 4 ) {
+  else if ( flags['j'] && numtok > 4 ) {
 
     LONG iMin = (LONG)input.gettok( 4 ).to_num( );
     LONG iMax = (LONG)input.gettok( 5 ).to_num( );
     this->setSel( iMin, iMax );
   }
   // xdid -l [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags.switch_flags[11] && numtok > 3 ) {
+  else if ( flags['l'] && numtok > 3 ) {
 
     LONG lLineSize = (LONG)input.gettok( 4 ).to_num( );
     this->setLineSize( lLineSize );
   }
   // xdid -m [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags.switch_flags[12] && numtok > 3 ) {
+  else if ( flags['m'] && numtok > 3 ) {
 
     LONG lPageSize = (LONG)input.gettok( 4 ).to_num( );
     this->setPageSize( lPageSize );
   }
   // xdid -n [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags.switch_flags[13] && numtok > 3 ) {
+  else if ( flags['n'] && numtok > 3 ) {
 
     int iTicFreq = input.gettok( 4 ).to_int( );
     this->setTicFreq( iTicFreq );
   }
   // xdid -q [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags.switch_flags[16] ) {
+  else if ( flags['q'] ) {
 
     this->clearTics( );
   }
   // xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-  else if ( flags.switch_flags[17] && numtok > 4 ) {
+  else if ( flags['r'] && numtok > 4 ) {
 
     LONG lMinRange = (LONG)input.gettok( 4 ).to_num( );
     LONG lMaxRange = (LONG)input.gettok( 5 ).to_num( );
@@ -264,12 +260,12 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
     this->setRangeMax( lMaxRange );
   }
 	// xdid -o [NAME] [ID] [SWITCH] [VALUE]
-	else if (flags.switch_flags[14] && numtok > 3) {
+	else if (flags['o'] && numtok > 3) {
 		m_colTransparent = (COLORREF)input.gettok( 4 ).to_num();
 		this->redrawWindow();
 	}
   // xdid -t [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags.switch_flags[19] && numtok > 3 ) {
+  else if ( flags['t'] && numtok > 3 ) {
 
     TString value(input.gettok( 4 ));
 
@@ -283,14 +279,14 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
       this->setTipSide( TBTS_TOP );
   }
   // xdid -u [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags.switch_flags[20] && numtok > 3 ) {
+  else if ( flags['u'] && numtok > 3 ) {
 
     LONG lLength = (LONG)input.gettok( 4 ).to_num( );
 
     this->setThumbLength( lLength );
   }
   // xdid -v [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags.switch_flags[21] && numtok > 3 ) {
+  else if ( flags['v'] && numtok > 3 ) {
 
     LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
 

@@ -239,15 +239,11 @@ void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxReBar::parseCommandRequest( TString & input ) {
-
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
-
-  int numtok = input.numtok( );
+	XSwitchFlags flags(input.gettok(3));
+	int numtok = input.numtok();
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] [Item Text][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB]Tooltip
-	if ( flags.switch_flags[0] && numtok > 9 ) {
+	if ( flags['a'] && numtok > 9 ) {
 
 		REBARBANDINFO rbBand;
 		ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
@@ -399,7 +395,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[3] && numtok > 3 ) {
+  else if ( flags['d'] && numtok > 3 ) {
 
     int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
@@ -409,7 +405,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -i [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[8] && numtok > 3 ) {
+  else if ( flags['i'] && numtok > 3 ) {
 
     int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
@@ -419,7 +415,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -j [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[9] && numtok > 3 ) {
+  else if ( flags['j'] && numtok > 3 ) {
 
     int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
@@ -429,7 +425,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -k [NAME] [ID] [SWITCH] [N] [ICON]
-  else if ( flags.switch_flags[10] && numtok > 4 ) {
+  else if ( flags['k'] && numtok > 4 ) {
 
     REBARBANDINFO rbBand;
     ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
@@ -445,7 +441,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -l [NAME] [ID] [SWITCH] [N|ALL]
-  else if ( flags.switch_flags[11] && numtok > 3 ) {
+  else if ( flags['l'] && numtok > 3 ) {
 
     REBARBANDINFO rbBand;
     ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
@@ -480,7 +476,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -m [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[12] && numtok > 3 ) {
+  else if ( flags['m'] && numtok > 3 ) {
 
     int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
@@ -490,7 +486,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -n [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[13] && numtok > 3 ) {
+  else if ( flags['n'] && numtok > 3 ) {
 
     int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
@@ -500,7 +496,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -q [NAME] [ID] [SWITCH] [N]
-  else if ( flags.switch_flags[16] && numtok > 3 ) {
+  else if ( flags['q'] && numtok > 3 ) {
 
     int nRows = input.gettok( 4 ).to_int( );
 
@@ -510,7 +506,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -t [NAME] [ID] [SWITCH] [N] [TEXT]
-  else if ( flags.switch_flags[19] && numtok > 3 ) {
+  else if ( flags['t'] && numtok > 3 ) {
 
     REBARBANDINFO rbBand;
     ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
@@ -531,7 +527,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -u [NAME] [ID] [SWITCH] [N|ALL]
-  else if ( flags.switch_flags[20] && numtok > 3 ) {
+  else if ( flags['u'] && numtok > 3 ) {
 
     REBARBANDINFO rbBand;
     ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
@@ -566,7 +562,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -v [NAME] [ID] [SWITCH] [NFrom] [NTo]
-  else if ( flags.switch_flags[21] && numtok > 4 ) {
+  else if ( flags['v'] && numtok > 4 ) {
 
     int nIndexFrom = input.gettok( 4 ).to_int( ) - 1;
     int nIndexTo = input.gettok( 4 ).to_int( ) - 1;
@@ -578,7 +574,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags.switch_flags[22] && numtok > 5) {
+	else if (flags['w'] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
 		TString flag(input.gettok( 4 ));
@@ -601,7 +597,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 		DestroyIcon(icon);
 	}
   // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-  else if ( flags.switch_flags[24] ) {
+  else if ( flags['y'] ) {
 
     ImageList_Destroy( this->getImageList( ) );
   }

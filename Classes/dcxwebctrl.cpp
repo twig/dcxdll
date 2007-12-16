@@ -193,26 +193,22 @@ void DcxWebControl::parseInfoRequest( TString & input, char * szReturnValue ) {
  * blah
  */
 
-void DcxWebControl::parseCommandRequest( TString & input ) {
-
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
-
-  int numtok = input.numtok( );
+void DcxWebControl::parseCommandRequest(TString & input) {
+	XSwitchFlags flags(input.gettok(3));
+	int numtok = input.numtok( );
 
   // xdid -g [NAME] [ID] [SWITCH]
-  if ( flags.switch_flags[6] ) {
+  if ( flags['g'] ) {
 
     this->m_pWebBrowser2->GoHome( );
   }
   // xdid -i [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[8] ) {
+  else if ( flags['i'] ) {
 
     this->m_pWebBrowser2->GoForward( );
   }
   // xdid -j [NAME] [ID] [SWITCH] [JAVASCRIPT]
-  else if ( flags.switch_flags[9] && numtok > 3 ) {
+  else if ( flags['j'] && numtok > 3 ) {
 
     READYSTATE ready_state;
 
@@ -250,12 +246,12 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
 			this->showError(NULL, "-j", "Browser NOT in Ready State");
   }
   // xdid -k [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[10] ) {
+  else if ( flags['k'] ) {
 
     this->m_pWebBrowser2->GoBack( );
   }
   // xdid -n [NAME] [ID] [SWITCH] [URL]
-  else if ( flags.switch_flags[13] && numtok > 3 ) {
+  else if ( flags['n'] && numtok > 3 ) {
     
     TString URL(input.gettok( 4, -1 ));
     URL.trim( );
@@ -266,12 +262,12 @@ void DcxWebControl::parseCommandRequest( TString & input ) {
     VariantClear( &v );
   }
   // xdid -r [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[17] ) {
+  else if ( flags['r'] ) {
 
     this->m_pWebBrowser2->Refresh( );
   }
   // xdid -t [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[19] ) {
+  else if ( flags['t'] ) {
 
     this->m_pWebBrowser2->Stop( );
   }

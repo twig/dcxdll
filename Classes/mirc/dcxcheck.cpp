@@ -163,30 +163,27 @@ void DcxCheck::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxCheck::parseCommandRequest( TString & input ) {
+	XSwitchFlags flags(input.gettok(3));
 
-  XSwitchFlags flags;
-  ZeroMemory( (void*)&flags, sizeof( XSwitchFlags ) );
-  parseSwitchFlags(input.gettok(3), &flags);
+	//  int numtok = input.numtok( );
 
-//  int numtok = input.numtok( );
-
-  //xdid -c [NAME] [ID] [SWITCH]
-  if ( flags.switch_flags[2] ) {
-
-    if ( flags.switch_flags[20] )
-      Button_SetCheck( this->m_Hwnd, BST_INDETERMINATE );
-    else
-      Button_SetCheck( this->m_Hwnd, BST_CHECKED );
-  }
-  //xdid -t [NAME] [ID] [SWITCH] ItemText
-  else if ( flags.switch_flags[19] ) {
+	//xdid -c [NAME] [ID] [SWITCH]
+	if (flags['c']) {
+		// xdid -cu
+		if (flags['u'])
+			Button_SetCheck(this->m_Hwnd, BST_INDETERMINATE);
+		else
+			Button_SetCheck(this->m_Hwnd, BST_CHECKED);
+	}
+	//xdid -t [NAME] [ID] [SWITCH] ItemText
+  else if (flags['t'] ) {
 
 		TString text(input.gettok( 4, -1 ));
     text.trim( );
     SetWindowText( this->m_Hwnd, text.to_chr( ) );
   }
   //xdid -u [NAME] [ID] [SWITCH]
-  else if ( flags.switch_flags[20] ) {
+  else if ( flags['u'] ) {
 
     Button_SetCheck( this->m_Hwnd, BST_UNCHECKED );
   }

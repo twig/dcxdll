@@ -225,7 +225,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	int numtok = input.numtok( );
 
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-	if ( flags.switch_flags[5] && numtok > 3 ) {
+	if ( flags['f'] && numtok > 3 ) {
 		LOGFONT lf;
 
 		if (ParseCommandToLogfont(input.gettok(4, -1), &lf)) {
@@ -236,7 +236,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		this->redrawWindow( );
 	}
 	// xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
-	else if ( flags.switch_flags[15] && numtok > 6 ) {
+	else if ( flags['p'] && numtok > 6 ) {
 
 		int x = input.gettok( 4 ).to_int( );
 		int y = input.gettok( 5 ).to_int( );
@@ -250,7 +250,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
 	}
 	// xdid -x [NAME] [ID] [SWITCH] [+FLAGS]
-	else if ( flags.switch_flags[23] && numtok > 3 ) {
+	else if ( flags['x'] && numtok > 3 ) {
 
 		this->removeStyle( WS_BORDER|WS_DLGFRAME );
 		this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
@@ -266,7 +266,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
 	}
 	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
-	else if ( flags.switch_cap_flags[2] && numtok > 4 ) {
+	else if ( flags['C'] && numtok > 4 ) {
 		UINT iFlags = this->parseColorFlags( input.gettok( 4 ) );
 		COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num( );
 
@@ -309,11 +309,11 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		this->redrawWindow( );
 	}
 	// xdid -F [NAME] [ID] [SWITCH]
-	else if (flags.switch_cap_flags[5]) {
+	else if (flags['F']) {
 		SetFocus(this->m_Hwnd);
 	}
 	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
-	else if ( flags.switch_cap_flags[9] && numtok > 4 ) {
+	else if ( flags['J'] && numtok > 4 ) {
 		UINT iFlags = this->parseCursorFlags( input.gettok( 4 ) );
 		HCURSOR hCursor = NULL;
 		if ( this->m_bCursorFromFile )
@@ -344,7 +344,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		}
 	}
 	// xdid -M [NAME] [ID] [SWITCH] [MARK INFO]
-	else if ( flags.switch_cap_flags[12] ) {
+	else if ( flags['M'] ) {
 
 		TString info;
 		if ( numtok > 3 ) {
@@ -355,7 +355,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		this->m_tsMark = info;
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
-	else if ( flags.switch_cap_flags[25] && numtok > 3 ) {
+	else if ( flags['Z'] && numtok > 3 ) {
 
 		int perc = input.gettok( 4 ).to_int( );
 
@@ -381,15 +381,15 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	}
 
 	// xdid -b [NAME] [ID]
-	else if ( flags.switch_flags[1] ) {
+	else if ( flags['b'] ) {
 		EnableWindow( this->m_Hwnd, FALSE );
 	}
 	// xdid -e [NAME] [ID]
-	else if ( flags.switch_flags[4] ) {
+	else if ( flags['e'] ) {
 		EnableWindow( this->m_Hwnd, TRUE );
 	}
 	// xdid -h [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
-	else if (flags.switch_flags[7]) {
+	else if (flags['h']) {
 		if (AnimateWindowUx == NULL)
 			this->showError(NULL, "-h", "Unsupported By Current OS");
 		else {
@@ -407,7 +407,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		}
 	}
 	// xdid -s [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
-	else if ( flags.switch_flags[18] ) {
+	else if ( flags['s'] ) {
 		if (AnimateWindowUx == NULL)
 			this->showError(NULL, "-s", "Unsupported By Current OS");
 		else {
@@ -426,7 +426,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		}
 	}
 	// xdid -U [NAME] [ID]
-	else if (flags.switch_cap_flags[20]) {
+	else if (flags['U']) {
 		// Box Double click Bug: the GetNextDlgtabItem() function never returns & seems to just loop forever.
 		// from functions doc:
 		//	If the search for the next control with the WS_TABSTOP
@@ -445,12 +445,12 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		SetFocus(NULL);
 	}
 	// xdid -T [NAME] [ID] [SWITCH] (ToolTipText)
-  else if (flags.switch_cap_flags[19] && numtok > 2) {
+  else if (flags['T'] && numtok > 2) {
 		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1) : "");
 		this->m_tsToolTip.trim();
   }
 	// xdid -R [NAME] [ID] [SWITCH] [FLAG] [ARGS]
-	else if (flags.switch_cap_flags[17] && numtok > 3) {
+	else if (flags['R'] && numtok > 3) {
 		TString flag(input.gettok( 4 ));
 
 		if ((flag.len() < 2) || (flag[0] != '+')) {
