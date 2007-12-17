@@ -473,14 +473,11 @@ void WINAPI LoadDll(LOADINFO * load) {
 	mii.dwTypeData = label.to_chr();
 
 	while (GetMenuItemInfo(menu, i, TRUE, &mii)) {
-		mIRCDebug("iteration %d, type = %d, data %d, cch = %d, %s", i, mii.fType, mii.dwTypeData, mii.cch, label.to_chr());
-
 		// We've found the tools menu, next one is the scriptable popup.
 		if (label == "&Tools") {
 			HMENU scriptable = GetSubMenu(menu, i +1);;
 
 			g_mIRCScriptMenu = new XPopupMenu("scriptpopup", scriptable);
-			mIRCDebug("Scriptable popup menu hwnd = %d", scriptable);
 			break;
 		}
 

@@ -155,7 +155,7 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 			this->showErrorEx(NULL, "-c", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
 	}
   // xdid -d [NAME] [ID] [SWITCH] [ID]
-  else if ( flags['c'] && numtok > 3 ) {
+  else if ( flags['d'] && numtok > 3 ) {
 
     UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
     DcxControl * p_Control;
