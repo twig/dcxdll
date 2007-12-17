@@ -69,10 +69,91 @@
 	</td>
 <td><table class="description">
 	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>XMenuBar</div></td></tr>
-	<tr><td>XMenuBar is a command implemented to replace the mIRC menubar.<br /><br />
+	<tr><td>XMenuBar is a command implemented to replace the mIRC menubar using XPopup menus.<br /><br />
 <div style="text-align: center;">
 	<img src="images/xmenubar.png" alt="" />
 </div>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3"><a name="general"></a><div style='color: #979AB3;font-size:14pt;'>XMenuBar Marking and Callback</div></td></tr>
+	<tr><td>Just like with XDialog, you must "mark" the mIRC menubar prior to using XMenuBar.<br />
+To mark the mIRC menubar, use <a class="value">/xmenubar -M</a> and specify a callback function of your choice.<br />
+<br />
+The callback function will only be passed 1 parameter, and that is the <a class="param">MENU_ID</a>. The menu ID is sent to the callback function to allow customisation of event flow. To stop mIRC from processing the menu command, return <a class="value">$true</a> from the callback alias.<br/>
+<br />
+An example of a simple callback function would be:<br />
+<pre class="code">
+alias xmenubar_cb {
+    ;// Prevent user from accessing Help -> Contents
+    if ($1 == 190) return $true
+}
+</pre>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3"><a name="general"></a><div style='color: #979AB3;font-size:14pt;'>Special Menus and Menu IDs</div></td></tr>
+	<tr><td>The callback parses menu clicks before mIRC gets a chance to process them. If the custom XPopupMenu has an ID which matches the ID of an existing mIRC menu item, it can be used to call the mIRC functionality.<br />
+For example, the menu ID for the mIRC Options dialog is <a class="value">159</a>. If you used <a class="value">/xpop -a</a> and specified the <a class="param">ID</a> <a class="value">159</a> and added the XPopup menu to the XMenuBar, the item will open up the mIRC Options dialog when clicked.<br />
+<br />
+Additionally, there is a special menu called the <a class="value">scriptpopup</a> menu. This allows you to add the original mIRC scriptable popup menu on your XMenuBar. The usage of the other special menus (<a class="value">mirc</a> and <a class="value">mircbar</a>) has been disabled for the XMenuBar.<br />
+<br />
+<b>Please do not create confusing or misleading menus!</b><br />
+<br />
+<a class="note">Note:</a> For custom menu commands which are specific to only your script, it is advised you use an ID starting from <a class="value">15000</a>. This is to prevent any clashes in existing IDs and XPopup menu items.<br />
+<br />
+Below is a list of special menu IDs for those wishing to redesign mIRC's menubar.<br />
+<br />
+<table class="xmenubarSpecialIDs">
+<tr><th colspan='2'>File</th></tr>
+<tr class='heading'><td>Special ID</td><td>Description</td></tr>
+<tr><td>101</td><td>Connect</td></tr>
+<tr><td>102</td><td>Disconnect</td></tr>
+<tr><td>104</td><td>Select Server (Alt+E)</td></tr>
+<tr><td>105</td><td>Exit</td></tr>
+<tr><th colspan='2'>View</th></tr>
+<tr class='heading'><td>Special ID</td><td>Description</td></tr>
+<tr><td>110</td><td>Menubar</td></tr>
+<tr><td>111</td><td>Toolbar</td></tr>
+<tr><td>112</td><td>Switchbar</td></tr>
+<tr><td>210</td><td>Treebar</td></tr>
+<tr><td>131</td><td>Notify List (Alt+N)</td></tr>
+<tr><td>132</td><td>Urls List (Alt+U)</td></tr>
+<tr><td>133</td><td>Colors (Alt+K)</td></tr>
+<tr><td>134</td><td>Font</td></tr>
+<tr><th colspan='2'>Favorites</th></tr>
+<tr class='heading'><td>Special ID</td><td>Description</td></tr>
+<tr><td>141</td><td>Add to Favorites</td></tr>
+<tr><td>142</td><td>Organize Favorites (Alt+J)</td></tr>
+<tr><th colspan='2'>Tools</th></tr>
+<tr class='heading'><td>Special ID</td><td>Description</td></tr>
+<tr><td>150</td><td>Channels List (Alt+L)</td></tr>
+<tr><td>203</td><td>Scripts Editor (Alt+R)</td></tr>
+<tr><td>151</td><td>Send File (Alt+S)</td></tr>
+<tr><td>152</td><td>Chat (Alt+C)</td></tr>
+<tr><td>154</td><td>Received Files</td></tr>
+<tr><td>155</td><td>Log Files</td></tr>
+<tr><td>156</td><td>Address Book (Alt+B)</td></tr>
+<tr><td>157</td><td>Online Timer (Alt+I)</td></tr>
+<tr><td>159</td><td>Options (Alt+O)</td></tr>
+<tr><th colspan='2'>Window</th></tr>
+<tr class='heading'><td>Special ID</td><td>Description</td></tr>
+<tr><td>170</td><td>Tile Horizontal</td></tr>
+<tr><td>171</td><td>Tile Vertical</td></tr>
+<tr><td>172</td><td>Cascade</td></tr>
+<tr><td>173</td><td>Arrange Icons</td></tr>
+<tr><td>174</td><td>Group</td></tr>
+<tr><td>175</td><td>Order</td></tr>
+<tr><td>176</td><td>Close (Alt+Z)</td></tr>
+<tr><th colspan='2'>Help</th></tr>
+<tr class='heading'><td>Special ID</td><td>Description</td></tr>
+<tr><td>190</td><td>Contents (F1)</td></tr>
+<tr><td>191</td><td>Search (Shift+F1)</td></tr>
+<tr><td>192</td><td>Latest News</td></tr>
+<tr><td>193</td><td>Message Board</td></tr>
+<tr><td>194</td><td>About mIRC</td></tr>
+<tr><td>195</td><td>Register</td></tr>
+</table>
 </td></tr>
 </table>
 <table class="description">
@@ -81,178 +162,96 @@
 </table>
 <table class="xmenubar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xmenubar.c"></a>/xmenubar -c	</td></tr>
-	<tr><td colspan="2">This command changes the mIRC menubar colors.</td></tr>
+			<a name="xmenubar.a"></a>/xmenubar -a	</td></tr>
+	<tr><td colspan="2">This command adds a menu to the XMenuBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xmenubar -c [+COLORFLAGS] [COLOUR]</div></td>
+		<td><div class="syntax">/xmenubar -a [MENU] [LABEL]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xmenubar -c +b 255</div></td>
+		<td><div class="example">/xmenubar -a xpMenuName DCX Menu<br />/xmenubar -a scriptpopup Custom<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
-		<td class="param">+COLORFLAGS</td>
-		<td>Color flags.</td>
+		<td class="param">MENU</td>
+		<td>This is be either the name of the XPopup menu or <a class="value">scriptpopup</a>.</td>
 	</tr>
 	<tr>
-		<td class="value">b</td>
-		<td>Background color.</td>
-	</tr>
-	<tr>
-		<td class="value">e</td>
-		<td>Event color.</td>
-	</tr>
-	<tr>
-		<td class="value">E</td>
-		<td>Event background color.</td>
-	</tr>
-	<tr>
-		<td class="value">i</td>
-		<td>Insert mark color.</td>
-	</tr>
-	<tr>
-		<td class="value">l</td>
-		<td>Line color.</td>
-	</tr>
-	<tr>
-		<td class="value">s</td>
-		<td>Selected text color.</td>
-	</tr>
-	<tr>
-		<td class="value">S</td>
-		<td>Selected background color.</td>
-	</tr>
-	<tr>
-		<td class="value">t</td>
-		<td>Text color.</td>
-	</tr>
-	<tr>
-		<td class="value">m</td>
-		<td>Message color.</td>
-	</tr>
-	<tr>
-		<td class="value">M</td>
-		<td>Message background color.</td>
-	</tr>
-	<tr>
-		<td class="param">COLOR</td>
-		<td>The color in $rgb() format.</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This requires <a class="value">/xtreebar -T</a> to be activated.</td></tr></table>
-<br />
-<table class="xmenubar">
-	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xmenubar.f"></a>/xmenubar -f	</td></tr>
-	<tr><td colspan="2">This command allows you to change the mIRC Treebar font.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xmenubar -f [+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">/xmenubar -f +i default 20 Verdana</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">+FONTFLAGS</td>
-		<td>Font style flags.</td>
-	</tr>
-	<tr>
-		<td class="value">a</td>
-		<td>Font is anti-aliased.</td>
-	</tr>
-	<tr>
-		<td class="value">b</td>
-		<td>Font is bold.</td>
-	</tr>
-	<tr>
-		<td class="value">d</td>
-		<td>Default font.</td>
-	</tr>
-	<tr>
-		<td class="value">i</td>
-		<td>Font is italic.</td>
-	</tr>
-	<tr>
-		<td class="value">s</td>
-		<td>Font is strikedout.</td>
-	</tr>
-	<tr>
-		<td class="value">u</td>
-		<td>Font is underlined.</td>
-	</tr>
-	<tr>
-		<td class="param">CHARSET</td>
-		<td>Can be any of the following: ansi, baltic, chinesebig, default, easteurope, gb2312, greek, hangul, mac, oem, russian, shiftjis, symbol, turkish, vietnamese.</td>
-	</tr>
-	<tr>
-		<td class="param">SIZE</td>
-		<td>Font size in points.</td>
-	</tr>
-	<tr>
-		<td class="param">FONTNAME</td>
-		<td>Font name. Ex: Tahoma, Courier New, Arial, ...</td>
+		<td class="param">LABEL</td>
+		<td>The label to display for this menu on the XMenuBar.</td>
 	</tr>
 </table>
 <br />
 <table class="xmenubar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xmenubar.w"></a>/xmenubar -w	</td></tr>
-	<tr><td colspan="2">This command allows you to change the mIRC Treebar images.</td></tr>
+			<a name="xmenubar.d"></a>/xmenubar -d	</td></tr>
+	<tr><td colspan="2">This command removes a menu from the XMenuBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xmenubar -w [clear|default | [POS] [+FLAGS] [INDEX] [FILE]]</div></td>
+		<td><div class="syntax">/xmenubar -d [MENU]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xmenubar -w 0 + 1 icons.icl</div></td>
+		<td><div class="example">/xmenubar -d xpMenuName</div></td>
 	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">clear</td>
-		<td>Clears the icon list.</td>
-	</tr>
-	<tr>
-		<td class="param">default</td>
-		<td>Reverts the icon list to the default icons.</td>
-	</tr>
-	<tr>
-		<td class="param">POS</td>
-		<td>The position to add the new icon. Use <a class="value">0</a> to add to the end.</td>
-	</tr>
-	<tr>
-		<td class="param">+FLAGS</td>
-		<td>Icon flags</td>
-	</tr>
-	<tr>
-		<td class="value">a</td>
-		<td>Uses the icon associated with the given filetype.</td>
-	</tr>
-	<tr>
-		<td class="value">g</td>
-		<td>Convert to grayscale icon.</td>
-	</tr>
-	<tr>
-		<td class="value">P</td>
-		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This requires <a class="value">/xtreebar -T</a> to be activated.</td></tr></table>
+</table>
 <br />
 <table class="xmenubar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xmenubar.T"></a>/xmenubar -T	</td></tr>
-	<tr><td colspan="2">This command allows you to enable or disable DCX controlled drawing of the mIRC TreeBar.</td></tr>
+			<a name="xmenubar.g"></a>/xmenubar -g	</td></tr>
+	<tr><td colspan="2">This command replaces the mIRC menubar with an empty XMenuBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xmenubar -T [0|1]</div></td>
+		<td><div class="syntax">/xmenubar -g </div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xmenubar -T 1</div></td>
+		<td><div class="example">/xmenubar -g</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When enabled, the script function <a class="value">$xtreebar_callback(geticons, [TYPE], [TEXT])</a> will be called for each item. This will allow you to configure the appearance of each item in the TreeBar.</li><li>The same alias is called when an item is added to the TreeBar. This will allow you to configure the appearance of the new item.</li><li>The <a class="value">$xtreebar_callback</a> alias should return <a class="value">2</a> image indexes, <a class="param">IMAGE</a> <a class="param">SELECTEDIMAGE</a>. (eg. <a class="value">return 2 5</a>)</li></ul></td></tr></table>
+</table>
+<br />
+<table class="xmenubar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xmenubar.l"></a>/xmenubar -l	</td></tr>
+	<tr><td colspan="2">This command allows you to change the XMenuBar label for a specific menu.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xmenubar -l [MENU] [NEW_LABEL]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xmenubar -l xpMenuName Something Else</div></td>
+	</tr>
+</table>
+<br />
+<table class="xmenubar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xmenubar.r"></a>/xmenubar -r	</td></tr>
+	<tr><td colspan="2">This command resets the original mIRC menubar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xmenubar -r </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xmenubar -r</div></td>
+	</tr>
+</table>
+<br />
+<table class="xmenubar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xmenubar.M"></a>/xmenubar -M	</td></tr>
+	<tr><td colspan="2">This command marks the menubar and defines a callback function.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xmenubar -M (CALLBACK)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xmenubar -M xmenubar_cb</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">CALLBACK</a> is not specified, this will reset the mIRC menubar.</td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1"><a name="xmenubarprop"></a><div style='color: #A8B2D1;font-size:14pt;'>$xmenubar Properties</div></td></tr>
@@ -260,55 +259,37 @@
 </table>
 <table class="xmenubarprops">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
-			<a name="xmenubarprop.icon"></a>$xmenubar().icon	</td></tr>
-	<tr><td colspan="2">Returns the current icons being used by the mIRC TreeBar item.</td></tr>
+			<a name="xmenubarprop.menu"></a>$xmenubar().menu	</td></tr>
+	<tr><td colspan="2">Returns the name of the menu added to the XMenuBar.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xmenubar(N).icon</div></td>
+		<td><div class="syntax">$xmenubar(N).menu</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">$xmenubar(3).icon</div></td>
+		<td><div class="example">$xmenubar(3).menu</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">N</td>
-		<td>The index of the item.</td>
+		<td>The index of the menu.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the last item in the mIRC Treebar.</td></tr></table>
-<br />
-<table class="xmenubarprops">
-	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
-			<a name="xmenubarprop.item"></a>$xmenubar().item	</td></tr>
-	<tr><td colspan="2">Returns the text of the mIRC TreeBar item.</td></tr>
-	<tr>
-		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xmenubar(N).item</div></td>
-	</tr>
-	<tr>
-		<td class="example">Example:</td>
-		<td><div class="example">$xmenubar(3).item</div></td>
-	</tr>
-	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">N</td>
-		<td>The index of the item.</td>
-	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the total number of items in the mIRC Treebar.</li><li>Returns <a class="value">$null</a> if unsuccessful.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the total number of menus in the XMenuBar.</td></tr></table>
 <br />
 </td><td width="85%" valign="top" class="menuright">
 	<br />
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a href="#xmenubar"><div class='header' style='background:#6A7CB0;'>/xmenubar</div></a>
-		<a href="#xmenubar.c"><div>-c</div></a>
-		<a href="#xmenubar.f"><div>-f</div></a>
-		<a href="#xmenubar.w"><div>-w</div></a>
-		<a href="#xmenubar.T"><div>-T</div></a>
+		<a href="#xmenubar.a"><div>-a</div></a>
+		<a href="#xmenubar.d"><div>-d</div></a>
+		<a href="#xmenubar.g"><div>-g</div></a>
+		<a href="#xmenubar.l"><div>-l</div></a>
+		<a href="#xmenubar.r"><div>-r</div></a>
+		<a href="#xmenubar.M"><div>-M</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a href="#xmenubarprop"><div class='header' style='background:#A8B2D1;'>$xmenubar()</div></a>
-		<a href="#xmenubarprop.icon"><div>icon</div></a>
-		<a href="#xmenubarprop.item"><div>item</div></a>
+		<a href="#xmenubarprop.menu"><div>menu</div></a>
 	</div>
 </td>
   </tr>

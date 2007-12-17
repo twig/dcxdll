@@ -371,3 +371,20 @@ td.menuright div a:hover div {
 	cursor:hand;
 	cursor:pointer;
 }
+
+
+table.xmenubarSpecialIDs {
+	width: 300px;
+	border: 1px solid #ccc;
+}
+
+table.xmenubarSpecialIDs th {
+	background-color: #eee;
+}
+
+table.xmenubarSpecialIDs .heading {
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	background-color: #eee;
+	
+}

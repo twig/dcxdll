@@ -70,8 +70,6 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			}
 
 			this->m_callback = alias;
-
-			mIRCDebug("set alias = %s", m_callback.to_chr());
 		}
 		// Reset alias and xmenubar.
 		else {
@@ -367,8 +365,6 @@ bool XMenuBar::parseCallback(const UINT menuID) {
 	TString result((UINT)10);
 
 	mIRCevalEX(result.to_chr(), 10, "$%s(%d)", this->m_callback.to_chr(), menuID);
-
-mIRCDebug("callback result = %s", result.to_chr());
 
 	if (result == "$true")
 		return true;

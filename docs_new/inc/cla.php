@@ -1,8 +1,11 @@
 <?php
 
 function cla_layout($page, $pagelabel) {
+	global $SECTION;
+	
 	dcxdoc_print_intro($page);
 	
+	$SECTION = SECTION_GENERAL;
 	dcxdoc_print_description("CLA Details", cla_details());
 	dcxdoc_print_description("CLA Visual Example", cla_visual());
 	dcxdoc_print_description("Tutorials", cla_examples());
