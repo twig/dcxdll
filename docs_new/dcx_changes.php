@@ -560,6 +560,10 @@ $CHANGES = array(
             'fixed section labelling for dcx vs mdx and CLA pages',
             "changed 'Index' to 'Home' in left menu",
             'added hkr to helpers in Credits',
+            'removed useless "cell text is optional" notes from statusbar -v and -t commands',
+            'cleaned up /xdid -y for statusbar',
+            'added some margin space between left menu and main content',
+            'put some padding for links in left menu so it has more of a ladder hierarchy',
         ),
     ),
     'v1.3.7' => array(

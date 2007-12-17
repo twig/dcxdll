@@ -289,6 +289,8 @@ ul.nav {
 	border-right:1px solid #BBD1FF;
 	border-left:1px solid #BBD1FF;
 	border-bottom:1px solid #BBD1FF;
+	margin-right: 10px;
+	margin-left: 5px;
 }
 ul.nav li { 
 	list-style:none;
@@ -298,7 +300,7 @@ ul.nav li {
 	background:url("images/nav_bg.png") top repeat-x;
 	padding-top:2px;
 	padding-bottom:2px;
-	padding-left:8px;
+	padding-left:10px;
 	font-weight:bold;
 }
 ul.nav li ul { 
@@ -310,6 +312,7 @@ ul.nav li ul {
 	font-size: 9pt;
 	font-family: Geneva, Arial, Helvetica, sans-serif;
 	font-weight:normal;
+	padding-left: 10px;
 }
 ul.nav li ul li { 
 	margin:0px;
