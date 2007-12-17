@@ -344,7 +344,7 @@ function dcxdoc_menu_left() {
 	global $PAGES;
 		?>
 	<ul class="nav">
-		<li><a href="index.htm">Index</a></li>
+		<li><a href="index.htm">Home</a></li>
 		<li>General Usage
 			<ul>
 				<a href="dcx.htm"><div>DCX Commands</div></a>

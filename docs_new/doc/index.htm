@@ -34,7 +34,7 @@
 	<tr>
 	<td width="15%" align="left" valign="top">
 	<ul class="nav">
-		<li><a href="index.htm">Index</a></li>
+		<li><a href="index.htm">Home</a></li>
 		<li>General Usage
 			<ul>
 				<a href="dcx.htm"><div>DCX Commands</div></a>
@@ -133,13 +133,14 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <a></a><b>v1.4.0</b>
 <ul><li><strong>New features</strong><ol>
 <li>added DCXML</li>
+<li>added /xtreebar to modify mIRCs treebar</li>
+<li>added /xstatusbar to dock a statusbar into mIRC's main window</li>
+<li>added XMenuBar to modify mIRCs menubar</li>
 <li>added a dialog callback called 'zlayershow'</li>
 <li>added /xdid -V for listview which scrolls list to make an item visible</li>
 <li>added /xdid -P for (rich)edit to paste clipboard content</li>
 <li>added +o flag for /xdock -b to use the old style treebar docking</li>
 <li>added /xdialog -P to use xpopup commands on dialog menus</li>
-<li>added /xstatusbar to dock a statusbar into mIRC's main window</li>
-<li>added /xtreebar to modify mIRC's treebar</li>
 <li>added +t flag to /xdid -i for image control to tile the image</li>
 <li>added /xdid -w for stacker to add images to internal imagelist</li>
 <li>added /xdid -y for stacker which clears the internal image list</li>
@@ -240,9 +241,16 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>added /xstatusbar -f</li>
 <li>added `check` style and `checkchange` event to box</li>
 <li>added /xdialog -S to resize client area</li>
+<li>added 'check' style and 'checkchange' event to box</li>
+<li>added /xdialog -S</li>
+<li>added /xpopup -M</li>
+<li>added $xpopup().marked</li>
+<li>added $xdid().selected to listview</li>
+<li>added events: close (calendar hidden), open (calendar shown), change (date/time changed) to datetimepicker</li>
+<li>added event 'showtip' to trackbar</li>
 </ol></li>
 <li><strong>Syntax changes</strong><ol>
-<li>updated dcx_tools.mrc to include /xstatusbar and /xtreebar aliases</li>
+<li>updated dcx_tools.mrc to include /xstatusbar, /xtreebar and /xmenubar aliases. please update your scripts!</li>
 <li>moved statusbar and treeview commands from /xdock to /xstatusbar and /xtreebar</li>
 <li>changed stacker /xdid -a to support image indexes</li>
 <li>changed listview /xdid -a to include OVERLAY, COLOR and BGCOLOR (for subitems)</li>
@@ -408,6 +416,12 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>edit - changed text handling code to support wide chars.</li>
 <li>xpopup - added monitor offset to menus opened by xpopup -s (requires testing)</li>
 <li>toolbar - fixed /xdid -c for first button.</li>
+<li>richedit - fixed link event not triggering</li>
+<li>richedit - fixed crash on link event</li>
+<li>richedit - fixed crash for $xdid().text on single line (need to add multi line number range check)</li>
+<li>richedit - added line number checks to $xdid(N).text to ensure it is within a valid range (0 &lt; N &lt; line count)</li>
+<li>xpopup - changed /xpopup -s to adjust menu position on the assumption that the x &amp; y are relative to the client rect when an hwnd is supplied.</li>
+<li>ipaddress - commented out unecessary /xdid -r code</li>
 </ol></li>
 <li><strong>DCX Project</strong><ol>
 <li>removed commented code</li>
@@ -563,6 +577,19 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>general - changed DcxControl::controlFactory() and all controls to throw an exception when unable to create the window.</li>
 <li>general - changed DrawCtrlBackground() to draw themed background (trying to fix some drawing bugs whem themed, may reverse this if its not helping)</li>
 <li>xdock - added function UnDockAll(). Its only called during cleanup atm.</li>
+<li>moved declaration of VectorOfXPopupMenu to top of file</li>
+<li>datetimepicker - updated link for msdn docs</li>
+<li>toolbar - removed some commented debug code.</li>
+<li>treeview - $xdid().text (&amp; others i expect) were unable to get the first item. This was caused by correctTargetItem() returning FALSE when TVI_ROOT was passed.</li>
+<li>xpopup - getMenuByName() can now search special menus (can be turned off by boolean parameter)</li>
+<li>trackbar - option was undefined when not using winsdk.</li>
+<li>tstring - added comment about deprecated function in TString.sprintf()</li>
+<li>xpopup - changed parseTrackFlags() to take a const arg.</li>
+<li>changed /xpopup -x to use a switch() instead of a series of ifs</li>
+<li>changed $xpopup().exstyle to return all the styles instead of just one.</li>
+<li>shortened $xpopup().isrounded</li>
+<li>changed XSwitchFlags to be a class, and cleaned up the flag switches in code</li>
+<li>added comments to code when /xdid -r has no code (to say it was to prevent invalid flag message)</li>
 </ol></li>
 <li><strong>Documentation</strong><ol>
 <li>fixed errors in dcxdoc</li>
@@ -654,6 +681,14 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>fixed /xdid -m tabstop stuff for list</li>
 <li>fixed /xdid -R descriptions for +f</li>
 <li>updated dcx_inc.php comment for array_insert()</li>
+<li>updated dcx_inc.php comment for array_insert()</li>
+<li>fixed list /xdid -m tabstop stuff</li>
+<li>fixed /xdid -R descriptions for +f</li>
+<li>listview /xdid -j, fixed STATE/+FLAGS inconsistancy</li>
+<li>toolbar /xdid -a fixed incomplete wiki tag</li>
+<li>fixed section labelling for dcx vs mdx and CLA pages</li>
+<li>changed 'Index' to 'Home' in left menu</li>
+<li>added hkr to helpers in Credits</li>
 </ol></li>
 </ul>
 </td></tr>
@@ -722,6 +757,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 			The_Mega_ZZTer<br />
 			Duplex<br />
 			evasion<br />
+                        hkr<br />
 		</td>
 	</tr>
 	<tr><td colspan="2">&nbsp;</td></tr>
