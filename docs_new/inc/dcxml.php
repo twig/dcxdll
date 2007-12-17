@@ -1,74 +1,7 @@
-<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-
-<title>DCX DCXML - Dialog Control Xtension DLL v1.4.0 by ClickHeRe, twig* &amp; Ook</title>
-
-<link href="dcx.css" rel="stylesheet" type="text/css" />
-</head>
-
-<body>
-
-<table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
-	<tr>
-		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
-		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
-			<a style="color:#000000;" href='index.htm'>Home</a> |
-			<a style="color:#000000;" href="archive.htm">Download</a> |
-			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
-			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a>		</td>
-	</tr>
-</table>
-
-<table class="bar" cellpadding="0" cellspacing="0" border="0">
-	<tr>
-		<td>
-		</td>
-		<td style="text-align: center;"></td>
-		<td style="text-align: right;">v1.4.0</td>
-	</tr>
-</table>
-
-<table width="100%"  border="0" cellpadding="0" cellspacing="0">
-	<tr>
-	<td width="150" align="left" valign="top">
-	<ul class="nav">
-		<li><a href="index.htm">Home</a></li>
-		<li>General Usage
-			<ul>
-				<a href="dcx.htm"><div>DCX Commands</div></a>
-				<a href="xdialog.htm"><div>Marked Dialog</div></a>
-				<a href="xdid.htm"><div>Controls</div></a>
-			</ul>
-		</li>
-		<li>DCX Controls
-			<ul>
-<a href="box.htm"><div>Box</div></a><a href="button.htm"><div>Button</div></a><a href="calendar.htm"><div>Calendar</div></a><a href="check.htm"><div>Check</div></a><a href="colorcombo.htm"><div>ColorCombo</div></a><a href="comboex.htm"><div>ComboEx</div></a><a href="datetime.htm"><div>DateTime Picker</div></a><a href="dialog.htm"><div>Dialog (embedded)</div></a><a href="directshow.htm"><div>Directshow</div></a><a href="divider.htm"><div>Divider</div></a><a href="edit.htm"><div>Edit</div></a><a href="ipaddress.htm"><div>IP Address</div></a><a href="image.htm"><div>Image</div></a><a href="line.htm"><div>Line</div></a><a href="link.htm"><div>Link</div></a><a href="list.htm"><div>List</div></a><a href="listview.htm"><div>Listview</div></a><a href="pager.htm"><div>Pager</div></a><a href="panel.htm"><div>Panel</div></a><a href="pbar.htm"><div>Progress Bar</div></a><a href="radio.htm"><div>Radio</div></a><a href="rebar.htm"><div>Rebar</div></a><a href="richedit.htm"><div>RichEdit</div></a><a href="scroll.htm"><div>Scroll</div></a><a href="stacker.htm"><div>Stacker</div></a><a href="statusbar.htm"><div>StatusBar</div></a><a href="tab.htm"><div>Tab</div></a><a href="text.htm"><div>Text</div></a><a href="toolbar.htm"><div>ToolBar</div></a><a href="trackbar.htm"><div>TrackBar</div></a><a href="treeview.htm"><div>Treeview</div></a><a href="updown.htm"><div>UpDown</div></a><a href="webctrl.htm"><div>Web Control</div></a><a href="window.htm"><div>Window (embedded)</div></a>			</ul>
-		</li>
-		<li>DCX Features
-			<ul>
-				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
-                                <a href="dcxml.htm" target="_new"><div>DCXML</div></a>
-				<a href="xdock.htm"><div>XDock</div></a>
-                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
-                                <a href="xpopup.htm"><div>XPopup</div></a>
-                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
-				<a href="xtray.htm"><div>XTray</div></a>
-                                <a href="xtreebar.htm"><div>XTreebar</div></a>
-			</ul>
-		</li>
-		<li>About DCX
-			<ul>
-				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
-				<a href="tutorials.htm"><div>Tutorials</div></a>
-				<a href="changes.htm"><div>Version History</div></a>
-			</ul>
-		</li>
-	</ul>
-	</td>
-<td><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>DCXML</div></td></tr>
-	<tr><td><a name="top" id="top"></a>
+<?php
+function get_intro_dcxml() {
+?>
+<a name="top" id="top"></a>
 <ol>
   <li class="sectionTitle"><a href="#Introduction">Introduction</a></li>
   <li class="sectionTitle"><a href="#GettingStarted">Getting started</a></li>
@@ -1450,30 +1383,5 @@ If you do so it will be ignored<br />
     <td width="523" valign="top">&lt;control type=”panel” minwidth=&quot;100&quot;&gt; </td>
   </tr>
 </table>
-<br /><br />
-<div style="text-align: center;">
-	<img src="images/dcxml.png" alt="" />
-</div>
-</td></tr>
-</table>
-</td>  </tr>
-</table>
-
-<table class="bar">
-	<tr>
-	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 17th December, 07</td>
-	</tr>
-</table>
-<div style="text-align: center;">
-	<br />
-	<a href="http://validator.w3.org/check?uri=referer">
-		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
-	</a>
-	<a href="http://jigsaw.w3.org/css-validator/check/referer">
-		<img src="images/valid_css.png" alt="Valid CSS!" />
-	</a>
-</div>
-</body>
-</html>
+<?php
+} ?>

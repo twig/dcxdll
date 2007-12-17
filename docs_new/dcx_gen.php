@@ -11,6 +11,7 @@ $PAGES = array(
     'xtray' => 'XTray',
     'xtreebar' => 'XTreebar',
     'xmenubar' => 'XMenuBar',
+	'dcxml' => 'DCXML',
     
     'cla' => 'Cell Layout Algorithm',
     'dcxvsmdx' => 'DCX vs MDX',
@@ -113,6 +114,9 @@ foreach ($PAGES as $page => $pagelabel) {
 		$SECTION = SECTION_INTRO;
 		echo dcxdoc_print_description("Version History", format_changes());
 	}
+	else if ($page == "dcxml") {
+		echo dcxdoc_print_intro($page);
+	}
 	// specialised page layout - page must also handle intro, /xdid, $xdid, events, etc
 	else if (function_exists($layoutfn)) {
 		$layoutfn($page, $pagelabel);
@@ -136,7 +140,7 @@ foreach ($PAGES as $page => $pagelabel) {
 	
 	
 	// right menu - dont bother for these pages listed below
-    if (!in_array($page, array('changes', 'cla', 'dcxvsmdx', 'index', 'tutorials', 'archive')))
+    if (!in_array($page, array('changes', 'cla', 'dcxvsmdx', 'index', 'tutorials', 'archive','dcxml')))
 		dcxdoc_menu_right($pagelabel);
 
 	// unload data if it is a specialised page

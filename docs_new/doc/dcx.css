@@ -15,8 +15,9 @@
 
 
 body,div,td,th {
-	font-size: 9pt;
-	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	font-family:Arial, Helvetica, sans-serif;
+	line-height:10pt;
 	color: #000000;
 	cursor: default;
 	text-align: left;
@@ -54,6 +55,7 @@ ul {
 
 .divpink {
 	font-size: 18px;
+	line-height:19px;
 	font-weight: bold;
 	color: #D600D6;
 	padding: 15px;
@@ -133,15 +135,15 @@ table.description {
 }
 
 table.description .heading {
-	font-weight: bold;
-	font-size:14pt;
-	font:Geneva, Arial, Helvetica, sans-serif;
+	font-family:"Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
+	font-size:20pt;
+	color:#339900;
 	/*background: #eeeeee;*/
 }
 table.description .heading a {
 	font-weight: bold;
 	font-size:14pt;
-	font:Geneva, Arial, Helvetica, sans-serif;
+	font:tahoma;
 	/*background: #eeeeee;*/
 }
 
@@ -157,7 +159,7 @@ td.syntax, td.example {
 div.syntax, div.example {
 	font-weight: normal;
 	color: #333333;
-	border: 1px dotted #EE9900;
+	border: 1px solid #EE9900;
 	background-color: #FFF7E8;
 	padding: 2px;
 }
@@ -165,7 +167,7 @@ div.syntax, div.example {
 
 /* xdid flag heading */
 td.flag {
-	border-bottom: 1px dotted black;
+	border-bottom: 1px solid black;
 	font-weight: bold;
 	
 }
@@ -284,8 +286,10 @@ pre.code {
 ul.nav { 
 	list-style:none;
 	margin:0px;
-	font-size:8pt;
+	font-size:12pt;
+	font-weight:bold;
 	padding:0px;
+	font-family:"Trebuchet MS",inherit;
 	border-right:1px solid #BBD1FF;
 	border-left:1px solid #BBD1FF;
 	border-bottom:1px solid #BBD1FF;
@@ -295,24 +299,21 @@ ul.nav {
 ul.nav li { 
 	list-style:none;
 	margin:0px;
-	font-size:10pt;
-	font-family: "trebuchet MS", Arial, Helvetica, sans-serif;
 	background:url("images/nav_bg.png") top repeat-x;
-	padding-top:2px;
-	padding-bottom:2px;
-	padding-left:10px;
-	font-weight:bold;
+	text-align:center;
+	font-size:9pt;
+	line-height:14pt;
 }
 ul.nav li ul { 
+	text-aling:left;
 	margin:0px;
 	padding:0px;
 	font-weight:normal;
 	color:#6CE34A;
 	background:none;
 	font-size: 9pt;
-	font-family: Geneva, Arial, Helvetica, sans-serif;
 	font-weight:normal;
-	padding-left: 10px;
+	font-family:Arial;
 }
 ul.nav li ul li { 
 	margin:0px;
@@ -321,60 +322,73 @@ ul.nav li ul li {
 	color:#6CE34A;
 	background:none;
 	font-size: 9pt;
-	font-family: Geneva, Arial, Helvetica, sans-serif;
 	font-weight:normal;
 }
 ul.nav li ul li a { 
 	font-size: 8pt;
 	color:#000000;
-	font-family: Geneva, Arial, Helvetica, sans-serif;
 	font-weight:normal;
 	width:100%;
 }
 ul.nav li ul a div { 
 	font-weight:normal;
-	padding-bottom:2px;
+	border: 1px solid transparent;
+	padding:1px;
 }
 ul.nav li ul a:hover div { 
-	font-weight:bold;
-	background:url("images/nav_bg.png") top repeat-x;
+	background:url("images/buttonhover.jpg") top repeat-x;
 	cursor:hand;
 	cursor:pointer;
+	border: 1px solid #DDCF9B;
+}
+
+td.sitenav a { 
+	font-size: 9pt;
+	font-family:"Trebuchet MS",inherit;
+	padding:3px;
+	color:black;
+	border:1px solid transparent;
+}
+td.sitenav a:hover  { 
+	background:url("images/buttonhover.jpg") top repeat-x;
+	cursor:hand;
+	cursor:pointer;
+	border: 1px solid #DDCF9B;
+	text-decoration:none;
 }
 
 td.menuright div.rightmenu { 
 	margin-bottom:5px;
+	margin-left:10px;
 }
 td.menuright div { 
-	padding-bottom:5px;
 }
 
 td.menuright div a div.header { 
+	font-size:9pt;
+	font-family:"Trebuchet MS",inherit;
  	color:#000000;
-	font-size:10pt;
-	font-family: "trebuchet MS", Arial, Helvetica, sans-serif;
 	font-weight:bold;
-	padding-left:8px;
-	height:20px;
-	background:url("images/nav_bg.png") top repeat-x;
-	padding-top:2px;
-	padding-bottom:2px;
+	line-height:12pt;
+	text-align:center;
 }
 td.menuright div a div { 
 	font-size: 8pt;
 	color:#000000;
 	padding-left:8px;
-	font-family: Geneva, Arial, Helvetica, sans-serif;
 	font-weight:normal;
-	padding-bottom:2px;
+	padding:1px;
+	border: 1px solid transparent;
 }
 td.menuright div a:hover div { 
-	font-weight:bold;
-	background:url("images/nav_bg.png") top repeat-x;
+	background:url("images/buttonhover.jpg") top repeat-x;
+	border: 1px solid #DDCF9B;
 	cursor:hand;
 	cursor:pointer;
 }
-
+td.menuright div a:hover div.header { 
+	background:white;
+}
 
 table.xmenubarSpecialIDs {
 	width: 300px;
@@ -389,5 +403,39 @@ table.xmenubarSpecialIDs .heading {
 	border-top: 1px solid #ccc;
 	border-bottom: 1px solid #ccc;
 	background-color: #eee;
-	
 }
+
+
+/* DCXML PAGE */
+a
+{
+	color:#000000;
+	text-decoration:none;
+}
+a:hover
+{
+	text-decoration:underline;
+}
+.sectionTitle, .sectionTitle a
+{
+	font-family:"Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
+	font-size:8pt;
+	font-size:14pt;
+	font-weight:normal;
+	color:#339900;
+}
+.subSectionTitle
+{
+	font-family:"Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
+	font-size:8pt;
+	font-size:11pt;
+	color:#FF6600;
+}
+pre
+{
+	padding-left:10px;
+	border-left:#CCCCCC 2px solid;
+	font-family:Courier New;
+	width:80%;
+}
+.style1 {color: #000000}

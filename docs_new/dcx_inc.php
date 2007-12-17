@@ -301,25 +301,8 @@ else
 <table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
 	<tr>
 		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
-		<td width="99%" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
-<?php
-/*
-			<a href="translations/nl/index.htm">Dutch</a> |
-			<a href="index.htm">English</a> |
-			<a href="translations/fi/index.htm">Finnish</a> |
-			<a href="translations/fr/index.htm">French</a> |
-			<a href="translations/ge/index.htm">German</a> |
-			<a href="translations/he/index.htm">Hebrew</a> |
-			<a href="translations/it/index.htm">Italian</a> |
-			<a href="translations/my/index.htm">Malaysian</a> |
-			<a href="translations/br/index.htm">Portuguese (Brazil)</a> |
-			<a href="translations/pt/index.htm">Portuguese</a> |
-			<a href="translations/sp/index.htm">Spanish</a> |
-			<a href="translations/sw/index.htm">Swedish</a>
-*/
-?>
+		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
 			<a style="color:#000000;" href='index.htm'>Home</a> |
-			<a style="color:#000000;" href='http://dcx.scriptsdb.org/translations'>Translations</a> |
 			<a style="color:#000000;" href="archive.htm">Download</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a>		</td>
@@ -337,7 +320,7 @@ else
 
 <table width="100%"  border="0" cellpadding="0" cellspacing="0">
 	<tr>
-	<td width="15%" align="left" valign="top">
+	<td width="150" align="left" valign="top">
 <?php
 }
 function dcxdoc_menu_left() {
@@ -359,7 +342,7 @@ function dcxdoc_menu_left() {
 	asort($pages);
 
 	foreach ($pages as $page => $pagelabel) {
-		if (in_array($page, array('index', 'changes', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'dcx', 'xdialog', 'xdid', 'xtray', 'xstatusbar', 'xtreebar', 'xmenubar')))
+		if (in_array($page, array('index', 'changes','dcxml', 'xpopup', 'cla', 'dcxvsmdx', 'archive', 'xdock', 'tutorials', 'dcx', 'xdialog', 'xdid', 'xtray', 'xstatusbar', 'xtreebar', 'xmenubar')))
 			continue;
 
 	    echo "<a href=\"$page.htm\"><div>$pagelabel</div></a>";
@@ -397,7 +380,7 @@ function dcxdoc_menu_right($page) {
 	$STYLES, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS, $XDOCK, $XDOCKPROPS, $XTRAY,
         $XSTATUSBAR, $XSTATUSBARPROPS, $XTREEBAR, $XTREEBARPROPS, $XMENUBAR, $XMENUBARPROPS;
 
-?><td width="85%" valign="top" class="menuright">
+?><td width="80%" valign="top" class="menuright">
 	<br />
 <?php
     print_menu_items($GENERAL, SECTION_GENERAL, "General Commands");
