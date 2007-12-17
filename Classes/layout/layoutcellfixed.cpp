@@ -32,7 +32,7 @@ LayoutCellFixed::LayoutCellFixed( const HWND mHwnd, const FixedType nType ) : La
 
 LayoutCellFixed::LayoutCellFixed( const RECT & rc, const FixedType nType ) : LayoutCell( NULL ), m_nType( nType ) {
 
-  CopyRect( &this->m_rcWindow, &rc );
+	CopyRect( &this->m_rcWindow, &rc );
 }
 
 /*!
@@ -43,8 +43,8 @@ LayoutCellFixed::LayoutCellFixed( const RECT & rc, const FixedType nType ) : Lay
 
 LayoutCellFixed::LayoutCellFixed( const HWND mHwnd, const RECT & rc, const FixedType nType ) : LayoutCell( NULL ), m_nType( nType ) {
 
-  this->m_Hwnd = mHwnd;
-  CopyRect( &this->m_rcWindow, &rc );
+	this->m_Hwnd = mHwnd;
+	CopyRect( &this->m_rcWindow, &rc );
 }
 
 /*!
@@ -65,7 +65,7 @@ LayoutCellFixed::~LayoutCellFixed( ) {
 
 LayoutCell::CellType LayoutCellFixed::getType( ) {
 
-  return FIXED;
+	return FIXED;
 }
 
 /*!
@@ -107,35 +107,37 @@ HDWP LayoutCellFixed::ExecuteLayout( HDWP hdwp ) {
 
 void LayoutCellFixed::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
 
-  if ( this->isVisible( ) ) {
-    RECT rc;
-    CopyRect( &rc, &this->m_rcWindow );
+	if ( this->isVisible( ) ) {
+		RECT rc;
+		CopyRect( &rc, &this->m_rcWindow );
 
-    if ( m_nType & WIDTH ) {
+		//pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
+		//pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
 
-      if ( m_nType != BOTH )
-        pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
+		if ( m_nType & WIDTH ) {
 
-      pCMMI->m_MinSize.x = rc.right - rc.left;
-      pCMMI->m_MaxSize.x = rc.right - rc.left;
+			if ( m_nType != BOTH )
+				pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
 
-    }
+			pCMMI->m_MinSize.x = rc.right - rc.left;
+			pCMMI->m_MaxSize.x = pCMMI->m_MinSize.x;
 
-    if ( m_nType & HEIGHT ) {
+		}
 
-      if ( m_nType != BOTH )
-        pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
+		if ( m_nType & HEIGHT ) {
 
-      pCMMI->m_MinSize.y = rc.bottom - rc.top;
-      pCMMI->m_MaxSize.y = rc.bottom - rc.top;
-    }
+			if ( m_nType != BOTH )
+				pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
 
-    pCMMI->m_MinSize.x = max( pCMMI->m_MinSize.x, 0 );
-    pCMMI->m_MinSize.y = max( pCMMI->m_MinSize.y, 0 );
-    pCMMI->m_MaxSize.x = min( pCMMI->m_MaxSize.x, GetSystemMetrics( SM_CXMAXTRACK ) );
-    pCMMI->m_MaxSize.y = min( pCMMI->m_MaxSize.y, GetSystemMetrics( SM_CYMAXTRACK ) );
-  }
-  else {
-    ZeroMemory( pCMMI, sizeof( CellMinMaxInfo ) );
-  }
+			pCMMI->m_MinSize.y = rc.bottom - rc.top;
+			pCMMI->m_MaxSize.y = pCMMI->m_MinSize.y;
+		}
+
+		pCMMI->m_MinSize.x = max( pCMMI->m_MinSize.x, 0 );
+		pCMMI->m_MinSize.y = max( pCMMI->m_MinSize.y, 0 );
+		pCMMI->m_MaxSize.x = min( pCMMI->m_MaxSize.x, GetSystemMetrics( SM_CXMAXTRACK ) );
+		pCMMI->m_MaxSize.y = min( pCMMI->m_MaxSize.y, GetSystemMetrics( SM_CYMAXTRACK ) );
+	}
+	else
+		ZeroMemory( pCMMI, sizeof( CellMinMaxInfo ) );
 }

@@ -166,7 +166,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 			HWND hMenuWnd = WindowFromDC(lpdis->hDC);
 
 			if (IsWindow(hMenuWnd)) {
-				DWORD dwStyle = GetWindowLong(hMenuWnd, GWL_EXSTYLE);
+				DWORD dwStyle = GetWindowExStyle(hMenuWnd);
 
 				if (!(dwStyle & WS_EX_LAYERED)) {
 					SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);

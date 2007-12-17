@@ -195,7 +195,7 @@ mIRC(_xstatusbar)
 		break;
 	case 2: // text
 		{
-			int iPart = d.gettok( 3 ).to_int( ) -1, nParts = DcxDock::status_getParts( 256, 0 );
+			int iPart = d.gettok( 3 ).to_int( ) -1, nParts = (int)DcxDock::status_getParts( 256, 0 );
 
 			if ( iPart > -1 && iPart < nParts ) {
 				WCHAR *text = new WCHAR[DcxDock::status_getTextLength( iPart ) + 1];
@@ -208,7 +208,7 @@ mIRC(_xstatusbar)
 	case 3: // parts
 		{
 			INT parts[256];
-			int nParts = DcxDock::status_getParts( 256, 0 );
+			int nParts = (int)DcxDock::status_getParts( 256, 0 );
 
 			DcxDock::status_getParts( 256, parts );
 
@@ -229,7 +229,7 @@ mIRC(_xstatusbar)
 		break;
 	case 4: // tooltip
 		{
-			int iPart = d.gettok( 3 ).to_int( ), nParts = DcxDock::status_getParts( 256, 0 );
+			int iPart = d.gettok( 3 ).to_int( ), nParts = (int)DcxDock::status_getParts( 256, 0 );
 
 			if ( iPart > -1 && iPart < nParts ) {
 				WCHAR *text = new WCHAR[900];

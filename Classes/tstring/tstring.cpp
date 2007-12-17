@@ -2013,13 +2013,13 @@ int TString::nwildtok( char * wildString, const char * sepChars ) const
 }
 int TString::sprintf(const char *fmt, ...)
 {
-  va_list args;
-  va_start( args, fmt );
+	va_list args;
+	va_start( args, fmt );
 	int cnt = _vscprintf(fmt, args);
 	char *txt = new char[cnt +1];
 	// warning C4996: 'vsprintf' was declared deprecated
 	// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
-  vsprintf(txt, fmt, args );
+	vsprintf(txt, fmt, args );
 	this->deleteString();
 	this->m_pString = txt;
 	va_end( args );

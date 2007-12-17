@@ -14,6 +14,7 @@ extern void TreebarDock(HWND temp, const TString &flag);
 extern void TreebarUnDock(const HWND hwnd);
 extern bool FindTreebarDock(const HWND hwnd);
 extern LPDCXULTRADOCK GetTreebarDock(const HWND hwnd);
+void UnDock(const HWND hwnd);
 
 typedef struct tagDCXDOCK {
 	WNDPROC oldProc;
@@ -32,20 +33,43 @@ BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam)
 	LPDCXDOCK dd = (LPDCXDOCK)GetProp(hwnd,"dcx_dock");
 	if (dd != NULL) {
 		RemoveProp(hwnd,"dcx_dock");
-		SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)dd->oldProc);
+		SubclassWindow(hwnd, dd->oldProc);
 		delete dd;
 	}
 	if (GetProp(hwnd,"dcx_docked"))
-		RemoveProp(hwnd,"dcx_docked");
+		UnDock(hwnd);
 	return TRUE;
 }
 BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 {
 	DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
+	HWND hParent = GetParent(hwnd);
 	if (flags && flags != DOCKF_NORMAL) {
 		RECT rcParent, rcThis;
-		GetClientRect(GetParent(hwnd),&rcParent);
+		HWND hScroll = GetWindow(hParent, GW_CHILD);
+		GetClientRect(hParent,&rcParent);
 		GetWindowRect(hwnd,&rcThis);
+		if (flags & DOCKF_SHOWSCROLLBARS) {
+			//SCROLLBARINFO sbi;
+			//// vertical scroller
+			//ZeroMemory(&sbi,sizeof(SCROLLBARINFO));
+			//sbi.cbSize = sizeof(SCROLLBARINFO);
+			//GetScrollBarInfo(hParent, OBJID_VSCROLL, &sbi);
+			//if (!(sbi.rgstate[0] & (STATE_SYSTEM_INVISIBLE|STATE_SYSTEM_OFFSCREEN|STATE_SYSTEM_UNAVAILABLE)))
+			//	rcParent.right -= (sbi.rcScrollBar.right - sbi.rcScrollBar.left);
+
+			//// Horizontal scroller
+			//ZeroMemory(&sbi,sizeof(SCROLLBARINFO));
+			//sbi.cbSize = sizeof(SCROLLBARINFO);
+			//GetScrollBarInfo(hParent, OBJID_HSCROLL, &sbi);
+			//if (!(sbi.rgstate[0] & (STATE_SYSTEM_INVISIBLE|STATE_SYSTEM_OFFSCREEN|STATE_SYSTEM_UNAVAILABLE)))
+			//	rcParent.bottom -= (sbi.rcScrollBar.bottom - sbi.rcScrollBar.top);
+			if (IsWindow(hScroll)) {
+				RECT rcScroll;
+				GetWindowRect(hScroll, &rcScroll);
+				rcParent.right -= (rcScroll.right - rcScroll.left);				
+			}
+		}
 		if (flags & DOCKF_SIZE)
 			SetWindowPos(hwnd,NULL,0,0,(rcParent.right - rcParent.left),(rcParent.bottom - rcParent.top),SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOSENDCHANGING|SWP_NOMOVE);
 		else if (flags & DOCKF_AUTOH)
@@ -55,41 +79,56 @@ BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 	}
 	// disable scroll bars if requested, this needs to be done here as the listbox re-enables them.
 	if (flags & DOCKF_NOSCROLLBARS)
-		ShowScrollBar(GetParent(hwnd),SB_BOTH,FALSE);
+		ShowScrollBar(hParent,SB_BOTH,FALSE);
 	return TRUE;
 }
 
 LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	LPDCXDOCK dd = (LPDCXDOCK)GetProp(mHwnd,"dcx_dock");
+#ifndef NDEBUG
+	mIRCSignalDCX(dcxSignal.xdock, "debug %d", uMsg);
+#endif
 	if (dd == NULL)
 		return DefWindowProc(mHwnd,uMsg, wParam, lParam);
-	switch (uMsg) {
-    case WM_SIZE:
-      {
-				if (dd->type.len())
-					mIRCSignalDCX(dcxSignal.xdock, "size %s %d %d %d", dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
-				else
-					mIRCSignalDCX(dcxSignal.xdock, "size Custom %d %d %d", dd->win, LOWORD(lParam), HIWORD(lParam));
 
-				EnumChildWindows(mHwnd,(WNDENUMPROC)SizeDocked,NULL);
-      }
-      break;
-		case WM_PARENTNOTIFY:
-			{
-				if (LOWORD(wParam) == WM_DESTROY)
-					RemoveProp((HWND)lParam,"dcx_docked");
-			}
-			break;
-		case WM_DESTROY:
-			{
-				RemoveProp(mHwnd,"dcx_dock");
-				SetWindowLongPtr(mHwnd, GWLP_WNDPROC, (LONG_PTR)dd->oldProc);
-				delete dd;
-				PostMessage(mHwnd, uMsg, 0, 0);
-				return 0L;
-			}
-			break;
+	switch (uMsg) {
+	case WM_SIZE:
+		{
+			if (dd->type.len())
+				mIRCSignalDCX(dcxSignal.xdock, "size %s %d %d %d", dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
+			else
+				mIRCSignalDCX(dcxSignal.xdock, "size Custom %d %d %d", dd->win, LOWORD(lParam), HIWORD(lParam));
+
+			EnumChildWindows(mHwnd,(WNDENUMPROC)SizeDocked,NULL);
+		}
+		break;
+	case WM_PARENTNOTIFY:
+		{
+			if (LOWORD(wParam) == WM_DESTROY)
+				RemoveProp((HWND)lParam,"dcx_docked");
+		}
+		break;
+#ifndef NDEBUG
+	case WM_CLOSE:
+		{
+			if (dd->type.len())
+				mIRCSignalDCX(dcxSignal.xdock, "close %s %d", dd->type.to_chr(), dd->win);
+			else
+				mIRCSignalDCX(dcxSignal.xdock, "close Custom %d", dd->win);
+		}
+		break;
+#endif
+	case WM_DESTROY:
+		{
+			EnumChildWindows(mHwnd,(WNDENUMPROC)EnumDocked,NULL);
+			RemoveProp(mHwnd,"dcx_dock");
+			SubclassWindow(mHwnd, dd->oldProc);
+			delete dd;
+			PostMessage(mHwnd, uMsg, 0, 0);
+			return 0L;
+		}
+		break;
 	}
 	return CallWindowProc(dd->oldProc,mHwnd,uMsg,wParam,lParam);
 }
@@ -110,9 +149,10 @@ void UnDock(const HWND hwnd)
   RemStyles(hwnd,GWL_STYLE,WS_CHILDWINDOW);
   SetParent(hwnd, NULL);
 	SetWindowPos(hwnd,NULL,0,0,0,0,SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_FRAMECHANGED);
+	RemoveProp(hwnd,"dcx_docked");
 }
 
-bool DockWindow(const HWND mWnd, const HWND temp, const char *find, TString & flag)
+bool DockWindow(const HWND mWnd, const HWND temp, const char *find, const TString & flag)
 {
 	RECT rc;
 	HWND sWnd;
@@ -128,31 +168,34 @@ bool DockWindow(const HWND mWnd, const HWND temp, const char *find, TString & fl
 	else
 		sWnd = FindWindowEx(mWnd, NULL, find, NULL);
 
-	if (IsWindow(sWnd)) {
-		// change win style to child
-		//RemStyles(temp,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);
-		RemStyles(temp,GWL_STYLE,WS_POPUP);
-		AddStyles(temp,GWL_STYLE,WS_CHILDWINDOW);
+	if (!IsWindow(sWnd)) {
+		DCXError("/xdock","Unable to Find Host Window.");
+		return false;
+	}
 
-		// get window pos
-		GetWindowRect(temp,&rc);
+	// change win style to child
+	//RemStyles(temp,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);
+	RemStyles(temp,GWL_STYLE,WS_POPUP);
+	AddStyles(temp,GWL_STYLE,WS_CHILDWINDOW);
 
-		// if prop not alrdy set then set it & subclass.
-		if (GetProp(sWnd,"dcx_dock") == NULL)
-		{
-			// subclass window.
-			LPDCXDOCK dd = new DCXDOCK;
+	// get window pos
+	GetWindowRect(temp,&rc);
 
-			if (SetProp(sWnd, "dcx_dock", dd)) {
-				dd->oldProc = (WNDPROC)SetWindowLongPtr(sWnd, GWLP_WNDPROC, (LONG_PTR) mIRCDockWinProc);
-				dd->win = mWnd;
-				dd->type = find;
-			}
-			else {
-				delete dd;
-				DCXError("/xdock","Unable to SetProp");
-				return false;
-			}
+	// if prop not alrdy set then set it & subclass.
+	if (GetProp(sWnd,"dcx_dock") == NULL)
+	{
+		// subclass window.
+		LPDCXDOCK dd = new DCXDOCK;
+
+		if (SetProp(sWnd, "dcx_dock", dd)) {
+			dd->oldProc = SubclassWindow(sWnd, mIRCDockWinProc);
+			dd->win = mWnd;
+			dd->type = find;
+		}
+		else {
+			delete dd;
+			DCXError("/xdock","Unable to SetProp");
+			return false;
 		}
 
 		DWORD flags = DOCKF_NORMAL;
@@ -180,6 +223,8 @@ bool DockWindow(const HWND mWnd, const HWND temp, const char *find, TString & fl
 
 		if (flag.find('b',0))
 			flags |= DOCKF_NOSCROLLBARS;
+		else if (flag.find('B',0))
+			flags |= DOCKF_SHOWSCROLLBARS;
 
 		SetProp(temp,"dcx_docked",(HANDLE) flags);
 		//ShowScrollBar(sWnd,SB_BOTH,FALSE);
@@ -245,7 +290,7 @@ mIRC(xdock) {
 		return 1;
 	}
 	// show/hide treebar
-	// [-R [1|0]
+	// [-R] [1|0]
 	else if ((switches[1] == 'R') && (numtok == 2)) {
 		if ((input.gettok( 2 ).to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hTreebar)))
 			SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);

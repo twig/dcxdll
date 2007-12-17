@@ -914,7 +914,7 @@ mIRC(FontDialog) {
 		// flags +
 		if (option.gettok( 1 ) == "flags" && numtok > 1) {
 			TString flag(option.gettok( 2 ));
-			int c = flag.len();
+			int c = (int)flag.len();
 			int j = 0;
 
 			while (j < c) {

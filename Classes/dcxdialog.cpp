@@ -1196,56 +1196,93 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	else if (flags['U']) {
 		SetFocus(NULL);
 	}
-	// xdialog -S [NAME] [SWITCH] [+FLAGS] [X Y] [W H]
+	// xdialog -S [NAME] [SWITCH] [+FLAGS] [X Y W H]
 	else if (flags['S']) {
-		TString flags = input.gettok(3);
-		RECT rcClient, rcWindow;
-		bool bResize, bMove;
-		int x, y, w, h;
+		//TString tflags(input.gettok(3));
+		//RECT rcClient, rcWindow;
+		//bool bResize, bMove;
+
+		//int x = input.gettok(4).to_int();
+		//int y = input.gettok(5).to_int();
+		//int w = input.gettok(6).to_int();
+		//int h = input.gettok(7).to_int();
+
+		//UINT iFlags = SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOOWNERZORDER;
+
+		//if  (numtok < 7) {
+		//	this->showError(NULL,"-S", "Invalid Args");
+		//	return;
+		//}
+
+		//bResize = (tflags.find('s', 1) > 0);
+		//bMove   = (tflags.find('m', 1) > 0);
+
+		//// Unknown flags
+		//if ((!bResize && !bMove) || (tflags[0] != '+')) {
+		//	this->showError(NULL, "-S", "Invalid Flags");
+		//	return;
+		//}
+
+		//GetClientRect(this->m_Hwnd, &rcClient);
+		//GetWindowRect(this->m_Hwnd, &rcWindow);
+
+		//// map the screen pos to the windows parents pos for child windows.
+		//if (this->isStyle(WS_CHILD))
+		//	MapWindowRect(NULL, GetParent(this->m_Hwnd), &rcWindow);
+
+		//// Resize Only
+		//if (!bMove)
+		//	iFlags |= SWP_NOMOVE;
+
+		//// Move only
+		//else if (!bResize)
+		//	iFlags |= SWP_NOSIZE;
+
+		//// Calculate the actual sizes without the window border
+		//// http://windows-programming.suite101.com/article.cfm/client_area_size_with_movewindow
+		//POINT ptDiff;
+		//ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
+		//ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+
+		//SetWindowPos( this->m_Hwnd, NULL, x, y, w + ptDiff.x, h + ptDiff.y, iFlags );
+		if  (numtok < 6) {
+			this->showError(NULL,"-S", "Invalid Args");
+			return;
+		}
+		int x = input.gettok( 3 ).to_int( );
+		int y = input.gettok( 4 ).to_int( );
+		int w = input.gettok( 5 ).to_int( );
+		int h = input.gettok( 6 ).to_int( );
+
+		RECT rcWindow, rcClient;
+		UINT iFlags = SWP_NOACTIVATE|SWP_NOZORDER|SWP_NOOWNERZORDER;
 
 		GetClientRect(this->m_Hwnd, &rcClient);
 		GetWindowRect(this->m_Hwnd, &rcWindow);
 
-		// Not sure what this does, part of Ook's old code
-		/*
+		// Convert windows screen position to its position within it's parent.
 		if (this->isStyle(WS_CHILD))
-			MapWindowRect(this->m_Hwnd, GetParent(this->m_Hwnd), &rc);
-		*/
+			MapWindowRect(NULL, GetParent(this->m_Hwnd), &rcWindow);
 
-		bResize = (flags.find('s', 1) > 0);
-		bMove   = (flags.find('m', 1) > 0);
+		// if x & y are -1, not moving. NB: This still allows -2 etc.. positioning. (window positioned offscreen)
+		if ((x == -1) && (y == -1))
+			iFlags |= SWP_NOMOVE;
 
-		// Move and resize
-		if ((bResize && bMove) && (numtok > 6)) {
-			x = input.gettok(4).to_int();
-			y = input.gettok(5).to_int();
+		// if w or h are < 0, no sizing. NB: no negative sizes allowed.
+		if ((w < 0) && (h < 0))
+			iFlags |= SWP_NOSIZE;
 
-			w = input.gettok(6).to_int();
-			h = input.gettok(7).to_int();
-		}
-		// Resize only
-		else if (bResize && (numtok > 4)) {
+		// this handles the case where either x or y is -1 but the other isn't.
+		if (x == -1)
 			x = rcWindow.left;
+		if (y == -1)
 			y = rcWindow.top;
 
-			w = input.gettok(4).to_int();
-			h = input.gettok(5).to_int();
-		}
-		// Move only
-		else if (bMove && (numtok > 4)) {
-			UINT iFlags = SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOSIZE;
-
-			x = input.gettok(4).to_int();
-			y = input.gettok(5).to_int();
-
-			SetWindowPos(this->m_Hwnd, NULL, x, y, 0, 0, iFlags);
-			return;
-		}
-		// Unknown flags
-		else {
-			this->showError(NULL, "-S", "Invalid flags");
-			return;
-		}
+		// This handles the case where either w or h are < 0 but the other isn't.
+		if (w < 0)
+			w = (rcWindow.right - rcWindow.left);
+		if (h < 0)
+			h = (rcWindow.bottom - rcWindow.top);
 
 		// Calculate the actual sizes without the window border
 		// http://windows-programming.suite101.com/article.cfm/client_area_size_with_movewindow
@@ -1253,7 +1290,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
 		ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
 
-		MoveWindow(this->m_Hwnd, x, y, w + ptDiff.x, h + ptDiff.y, TRUE);
+		SetWindowPos( this->m_Hwnd, NULL, x, y, w + ptDiff.x, h + ptDiff.y, iFlags );
 	}
 	// invalid command
 	else
