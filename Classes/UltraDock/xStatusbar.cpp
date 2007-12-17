@@ -160,7 +160,7 @@ mIRC(xstatusbar) {
 					DCXError("/xstatusbar -w","Unable To Create ImageList");
 			}
 			break;
-		case 'y': // [+FLAGS] : destroy image list.
+		case 'y': // destroy image list.
 			{
 				ImageList_Destroy( DcxDock::status_getImageList( ) );
 				DcxDock::status_setImageList(NULL);

@@ -287,62 +287,39 @@ mIRC(xtreebar) {
 
 				switch(cflag[1])
 				{
-				case 't': // text colour
-					{
+					case 't': // text colour
 						TreeView_SetTextColor(mIRCLink.m_hTreeView,clr);
-					}
-					break;
-				case 'b': // bkg colour
-					{
+						break;
+					case 'b': // bkg colour
 						TreeView_SetBkColor(mIRCLink.m_hTreeView,clr);
-					}
-					break;
-				case 'l': // line colour
-					{
+						break;
+					case 'l': // line colour
 						TreeView_SetLineColor(mIRCLink.m_hTreeView,clr);
-					}
-					break;
-				case 'i': // insert mark colour
-					{
+						break;
+					case 'i': // insert mark colour
 						TreeView_SetInsertMarkColor(mIRCLink.m_hTreeView,clr);
-					}
-					break;
-				case 's': // selected text colour
-					{
+						break;
+					case 's': // selected text colour
 						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED] = clr;
-					}
-					break;
-				case 'S': // selected bkg colour
-					{
+						break;
+					case 'S': // selected bkg colour
 						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED_BKG] = clr;
-					}
-					break;
-				case 'm': // message colour
-					{
+						break;
+					case 'm': // message colour
 						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MESSAGE] = clr;
-					}
-					break;
-				case 'M': // message bkg colour
-					{
+						break;
+					case 'M': // message bkg colour
 						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MESSAGE_BKG] = clr;
-					}
-					break;
-				case 'e': // event colour
-					{
+						break;
+					case 'e': // event colour
 						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_EVENT] = clr;
-					}
-					break;
-				case 'E': // event bkg colour
-					{
+						break;
+					case 'E': // event bkg colour
 						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_EVENT_BKG] = clr;
-					}
-					break;
-				default:
-					{
+						break;
+					default:
 						DCXError("/xtreebar -c","Invalid Colour flag");
 						return 0;
-					}
-					break;
 				}
 			}
 			break;

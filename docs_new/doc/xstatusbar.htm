@@ -136,6 +136,120 @@
 <br />
 <table class="xstatusbar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xstatusbar.k"></a>/xstatusbar -k	</td></tr>
+	<tr><td colspan="2">This command lets you set the status bar background color.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xstatusbar -k [RGB]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xstatusbar -k $rgb(255,0,0)</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">-1</a> for <a class="param">RGB</a> to revert to default color.</li><li>This command will only work if the computer has no visual styles applied (XP themes). To use this on machines with visual styles enabled, apply the <a class="style">notheme</a> style.</li></ul></td></tr></table>
+<br />
+<table class="xstatusbar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xstatusbar.l"></a>/xstatusbar -l	</td></tr>
+	<tr><td colspan="2">This command lets you set the width of status bar cells. A value of <a class="value">-1</a> will cause the cell to automatically stretch, filling the remainding space. Values can also be a percentage, such as <a class="value">20%</a>.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xstatusbar -l [POS] (POS POS ...)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xstatusbar -l 10% 200 400 -1</div></td>
+	</tr>
+</table>
+<br />
+<table class="xstatusbar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xstatusbar.t"></a>/xstatusbar -t	</td></tr>
+	<tr><td colspan="2">This command lets you set the icon, text and tooltip of a statusbar cell.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xstatusbar -t [N] [+FLAGS] [#ICON] (Cell Text) $chr(9) (Tooltip)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xstatusbar -t 2 +p 0 Cell Text $chr(9) Tooltip Text</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Status bar cell number to modify.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Status bar cell flags.</td>
+	</tr>
+	<tr>
+		<td class="value">p</td>
+		<td>Popup style border around cell.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>No borders around cell.</td>
+	</tr>
+	<tr>
+		<td class="param">#ICON</td>
+		<td>Icon number for the statusbar cell (0 for no icon)</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Tooltip is only displayed if cell text is absent or cell text is too long to fit in cell.</td></tr></table>
+<br />
+<table class="xstatusbar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xstatusbar.v"></a>/xstatusbar -v	</td></tr>
+	<tr><td colspan="2">This command lets you change the text of a statusbar cell.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xstatusbar -v [N] (TEXT)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xstatusbar -v 2 New Text</div></td>
+	</tr>
+</table>
+<br />
+<table class="xstatusbar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xstatusbar.w"></a>/xstatusbar -w	</td></tr>
+	<tr><td colspan="2">This command lets you add an icon to the statusbar image list.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xstatusbar -w [+FLAGS] [INDEX] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xstatusbar -w + 113 shell32.dll</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">INDEX</td>
+		<td>Icon index in icon archive</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>Icon archive filename</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<br />
+<table class="xstatusbar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xstatusbar.y"></a>/xstatusbar -y	</td></tr>
+	<tr><td colspan="2">This command lets you clear the statusbar image list.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xstatusbar -y </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xstatusbar -y</div></td>
+	</tr>
+</table>
+<br />
+<table class="xstatusbar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xstatusbar.A"></a>/xstatusbar -A	</td></tr>
 	<tr><td colspan="2">This command enables/disables a statusbar in the mIRC window and applies the styles specified.</td></tr>
 	<tr>
@@ -270,6 +384,12 @@
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a href="#xstatusbar"><div class='header' style='background:#6A7CB0;'>/xstatusbar</div></a>
 		<a href="#xstatusbar.f"><div>-f</div></a>
+		<a href="#xstatusbar.k"><div>-k</div></a>
+		<a href="#xstatusbar.l"><div>-l</div></a>
+		<a href="#xstatusbar.t"><div>-t</div></a>
+		<a href="#xstatusbar.v"><div>-v</div></a>
+		<a href="#xstatusbar.w"><div>-w</div></a>
+		<a href="#xstatusbar.y"><div>-y</div></a>
 		<a href="#xstatusbar.A"><div>-A</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
