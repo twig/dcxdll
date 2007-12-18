@@ -492,6 +492,16 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		else
 			this->redrawWindow();
 	}
+	// TODO: doesnt work. xdialog -k [NAME] [SWITCH] [STATE]
+	else if (flags['k'] && numtok > 2) {
+		bool state = (input.gettok(3).to_int() > 0);
+		LONG styles = GetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE);
+
+		if (state)
+			SetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE, styles | WS_EX_APPWINDOW);
+		else
+			SetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE, styles & ~WS_EX_APPWINDOW);
+	}
 	/*
 	//xdialog -l [NAME] [SWITCH] [OPTIONS]
 
@@ -1196,59 +1206,8 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	else if (flags['U']) {
 		SetFocus(NULL);
 	}
-	// xdialog -S [NAME] [SWITCH] [+FLAGS] [X Y W H]
-	else if (flags['S']) {
-		//TString tflags(input.gettok(3));
-		//RECT rcClient, rcWindow;
-		//bool bResize, bMove;
-
-		//int x = input.gettok(4).to_int();
-		//int y = input.gettok(5).to_int();
-		//int w = input.gettok(6).to_int();
-		//int h = input.gettok(7).to_int();
-
-		//UINT iFlags = SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOOWNERZORDER;
-
-		//if  (numtok < 7) {
-		//	this->showError(NULL,"-S", "Invalid Args");
-		//	return;
-		//}
-
-		//bResize = (tflags.find('s', 1) > 0);
-		//bMove   = (tflags.find('m', 1) > 0);
-
-		//// Unknown flags
-		//if ((!bResize && !bMove) || (tflags[0] != '+')) {
-		//	this->showError(NULL, "-S", "Invalid Flags");
-		//	return;
-		//}
-
-		//GetClientRect(this->m_Hwnd, &rcClient);
-		//GetWindowRect(this->m_Hwnd, &rcWindow);
-
-		//// map the screen pos to the windows parents pos for child windows.
-		//if (this->isStyle(WS_CHILD))
-		//	MapWindowRect(NULL, GetParent(this->m_Hwnd), &rcWindow);
-
-		//// Resize Only
-		//if (!bMove)
-		//	iFlags |= SWP_NOMOVE;
-
-		//// Move only
-		//else if (!bResize)
-		//	iFlags |= SWP_NOSIZE;
-
-		//// Calculate the actual sizes without the window border
-		//// http://windows-programming.suite101.com/article.cfm/client_area_size_with_movewindow
-		//POINT ptDiff;
-		//ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
-		//ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
-
-		//SetWindowPos( this->m_Hwnd, NULL, x, y, w + ptDiff.x, h + ptDiff.y, iFlags );
-		if  (numtok < 6) {
-			this->showError(NULL,"-S", "Invalid Args");
-			return;
-		}
+	// xdialog -S [NAME] [SWITCH] [X Y W H]
+	else if (flags['S'] && (numtok > 5)) {
 		int x = input.gettok( 3 ).to_int( );
 		int y = input.gettok( 4 ).to_int( );
 		int w = input.gettok( 5 ).to_int( );
@@ -1265,7 +1224,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			MapWindowRect(NULL, GetParent(this->m_Hwnd), &rcWindow);
 
 		// if x & y are -1, not moving. NB: This still allows -2 etc.. positioning. (window positioned offscreen)
-		if ((x == -1) && (y == -1))
+		if ((x < 0) && (y < 0))
 			iFlags |= SWP_NOMOVE;
 
 		// if w or h are < 0, no sizing. NB: no negative sizes allowed.
@@ -1273,9 +1232,9 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			iFlags |= SWP_NOSIZE;
 
 		// this handles the case where either x or y is -1 but the other isn't.
-		if (x == -1)
+		if (x < 0)
 			x = rcWindow.left;
-		if (y == -1)
+		if (y < 0)
 			y = rcWindow.top;
 
 		// This handles the case where either w or h are < 0 but the other isn't.

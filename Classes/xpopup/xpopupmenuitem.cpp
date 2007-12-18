@@ -212,14 +212,12 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 		this->DrawItemSeparator( lpdis, lpcol );
 	// Regular Item
 	else {
-
 		this->DrawItemText( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
 
 		if ( !( lpdis->itemState & ODS_CHECKED ) || this->m_nIcon > -1 ) {
 			this->DrawItemIcon( lpdis, lpcol, iItemStyle, lpdis->itemState & ODS_SELECTED?TRUE:FALSE, 
 				lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
 		}
-
 		if ( this->m_bSubMenu == TRUE )
 			this->DrawItemSubArrow( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
 	}
@@ -231,70 +229,62 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
  * blah
  */
 
-void XPopupMenuItem::DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol ) {
+void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol) {
+	switch (this->m_pXParentMenu->getStyle()) {
+		case XPopupMenu::XPMS_ICY:
+			this->DrawGradient(lpdis->hDC, &lpdis->rcItem, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+			break;
 
-   switch ( this->m_pXParentMenu->getStyle( ) ) {
+		case XPopupMenu::XPMS_ICY_REV:
+			this->DrawGradient(lpdis->hDC, &lpdis->rcItem, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+			break;
 
-    case XPopupMenu::XPMS_ICY:
-      {
-        this->DrawGradient( lpdis->hDC, &lpdis->rcItem, LightenColor( 200, lpcol->m_clrBox ), lpcol->m_clrBox, TRUE );
-      }
-      break;
+		case XPopupMenu::XPMS_GRADE:
+			// For some reason this call to DrawGradient will not fill up the last pixel on the right without this fix.
+			lpdis->rcItem.right++;
+			this->DrawGradient(lpdis->hDC, &lpdis->rcItem, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), FALSE);
+			lpdis->rcItem.right--;
+			break;
 
-    case XPopupMenu::XPMS_ICY_REV:
-      {
-        this->DrawGradient( lpdis->hDC, &lpdis->rcItem, lpcol->m_clrBox, LightenColor( 200, lpcol->m_clrBox ), TRUE );
-      }
-      break;
+		case XPopupMenu::XPMS_GRADE_REV:
+			// For some reason this call to DrawGradient will not fill up the last pixel on the right without this fix.
+			lpdis->rcItem.right++;
+			this->DrawGradient(lpdis->hDC, &lpdis->rcItem, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, FALSE);
+			lpdis->rcItem.right--;
+			break;
 
-    case XPopupMenu::XPMS_GRADE:
-      {
-        //lpdis->rcItem.right+=1;
-        this->DrawGradient( lpdis->hDC, &lpdis->rcItem, lpcol->m_clrBox, LightenColor( 200, lpcol->m_clrBox ), FALSE );
-      }
-      break;
+		case XPopupMenu::XPMS_CUSTOM:
+		{
+			HBITMAP hBitmap = this->m_pXParentMenu->getBackBitmap();
 
-    case XPopupMenu::XPMS_GRADE_REV:
-      {
-        //lpdis->rcItem.right+=1;
-        this->DrawGradient( lpdis->hDC, &lpdis->rcItem, LightenColor( 200, lpcol->m_clrBox ), lpcol->m_clrBox, FALSE );
-      }
-      break;
+			if (hBitmap != NULL) {
+				HDC hdcbmp = CreateCompatibleDC(lpdis->hDC);
+				if (hdcbmp != NULL) {
+					BITMAP bmp;
 
-     case XPopupMenu::XPMS_CUSTOM:
-      {
-		  HBITMAP hBitmap = this->m_pXParentMenu->getBackBitmap( );
+					GetObject(hBitmap, sizeof(BITMAP), &bmp);
+					HBITMAP hOldBm = (HBITMAP)SelectObject(hdcbmp, hBitmap);
+					StretchBlt(lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right - lpdis->rcItem.left, 
+						lpdis->rcItem.bottom - lpdis->rcItem.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
 
-		  if ( hBitmap != NULL ) {
-
-			HDC hdcbmp = CreateCompatibleDC( lpdis->hDC );
-			if (hdcbmp != NULL) {
-				BITMAP bmp;
-
-				GetObject( hBitmap, sizeof( BITMAP ), &bmp );
-				HBITMAP hOldBm = (HBITMAP)SelectObject( hdcbmp, hBitmap );
-				StretchBlt( lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right - lpdis->rcItem.left, 
-					lpdis->rcItem.bottom - lpdis->rcItem.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY );
-
-				SelectObject( hdcbmp, hOldBm );
-				DeleteDC( hdcbmp );
+					SelectObject(hdcbmp, hOldBm);
+					DeleteDC(hdcbmp);
+				}
 			}
 			break;
-		  }
-      }
+		}
 
-    case XPopupMenu::XPMS_OFFICEXP:
-    case XPopupMenu::XPMS_NORMAL:
-    case XPopupMenu::XPMS_OFFICE2003_REV:
-    case XPopupMenu::XPMS_OFFICE2003:
-    default:
-      {
-        HBRUSH hBrush = CreateSolidBrush( lpcol->m_clrBack );
-        FillRect( lpdis->hDC, &lpdis->rcItem, hBrush );
-        DeleteObject( hBrush );
-      }
-      break;
-   }
+		case XPopupMenu::XPMS_OFFICEXP:
+		case XPopupMenu::XPMS_NORMAL:
+		case XPopupMenu::XPMS_OFFICE2003_REV:
+		case XPopupMenu::XPMS_OFFICE2003:
+		default:
+			HBRUSH hBrush = CreateSolidBrush(lpcol->m_clrBack);
+
+			FillRect(lpdis->hDC, &lpdis->rcItem, hBrush);
+			DeleteObject(hBrush);
+			break;
+	}
 }
 
 /*!
@@ -371,6 +361,7 @@ void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXP
 
 	RECT rc;
 	CopyRect( &rc, &lpdis->rcItem );
+
 	if (bRounded)
 		RoundRect( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom, 10, 10 );
 	else

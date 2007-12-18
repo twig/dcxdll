@@ -353,7 +353,7 @@ function dcxdoc_menu_left() {
 		<li>DCX Features
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
-                                <a href="dcxml.htm" target="_new"><div>DCXML</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
                                 <a href="xmenubar.htm"><div>XMenuBar</div></a>
                                 <a href="xpopup.htm"><div>XPopup</div></a>
@@ -1122,7 +1122,7 @@ function dcxdoc_print_description($caption, $content = "") {
 	//if ($caption != "Introduction") echo "<br />";
 ?>
 <table class="description">
-	<tr><td class="heading" style="border-color: <?php echo $color; ?>"><a name="<?php echo $SECTION; ?>"></a><?php echo "<div style='color: $color;font-size:14pt;'>".($SECTION == SECTION_INTRO ? $pagelabel : $caption)."</div>"; ?></td></tr>
+	<tr><td class="heading" style="<?php echo "border-color: $color; color: $color;"?>"><a name="<?php echo $SECTION; ?>"></a><?php echo ($SECTION == SECTION_INTRO ? $pagelabel : $caption); ?></td></tr>
 <?php
 	if ($content) {
 ?>
