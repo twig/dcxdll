@@ -423,7 +423,7 @@ function print_menu_items(&$arr, $sec, $sectext) {
 		$color = get_section_color($sec);
 		$prefix = in_array($sec, array(SECTION_XDID, SECTION_XDIALOG, SECTION_XDOCK, SECTION_XSTATUSBAR, SECTION_XTREEBAR, SECTION_XPOP, SECTION_XPOPUP, SECTION_XMENUBAR)) ? '-' : '';
 
-		echo "<div class='rightmenu' style='border:1px solid $color'>\n\t<a href=\"#$sec\"><div class='header' style='background:$color;'>$sectext</div></a>";
+		echo "<div class='rightmenu' style='border:1px solid $color'>\n\t<a class='header' href=\"#$sec\"><div style='background:$color;'>$sectext</div></a>";
 
 		$keys = array_keys($arr);
 		usort($keys, "flag_sort_rightmenu");
@@ -435,7 +435,7 @@ function print_menu_items(&$arr, $sec, $sectext) {
 			if (preg_match("/__.+/i", $flag))
 			    continue;
 			
-			echo "\n\t\t<a href=\"#$sec.$flag\"><div>$prefix$flag</div></a>";
+			echo "\n\t\t<a class='flag' href=\"#$sec.$flag\"><div>$prefix$flag</div></a>";
 		}
 
 		echo "\n\t</div>\n";

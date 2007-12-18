@@ -48,7 +48,7 @@
 		<li>DCX Features
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
-                                <a href="dcxml.htm" target="_new"><div>DCXML</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
                                 <a href="xmenubar.htm"><div>XMenuBar</div></a>
                                 <a href="xpopup.htm"><div>XPopup</div></a>
@@ -67,7 +67,7 @@
 	</ul>
 	</td>
 <td><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>XPopup</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>XPopup</td></tr>
 	<tr><td>This extension lets you build nice stylish popup menus to be used everywhere in your script including coloring mIRC's own popup menus.<br /><br />
 <div style="text-align: center;">
 	<img src="images/xpopup.png" alt="" />
@@ -75,7 +75,7 @@
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #979AB3"><a name="general"></a><div style='color: #979AB3;font-size:14pt;'>Special Menus</div></td></tr>
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>Special Menus</td></tr>
 	<tr><td>There are two special reserved menu names in XPopup. They are for mIRC's regular popup menus <a class="value">mirc</a> (channel, statusbar, query and nicklist) and mIRC's menubar popup menu <a class="value">mircbar</a> (the menubar). Their appearance can be changed by XPopup and activated with the following command:<br />
 <br />
 <table>
@@ -144,7 +144,7 @@ The image below is an example of a mIRC menubar popup menu skinned with XPopup w
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #979AB3"><a name="general"></a><div style='color: #979AB3;font-size:14pt;'>XPopup Item Path</div></td></tr>
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>XPopup Item Path</td></tr>
 	<tr><td>The XPopup menus have an engine that parses the given item "path" data to know where to insert/delete/modify a given item in the menu structure. The parameters you supply are a space separated numerical token list of the menu submenus that lead to the menu item position:<br />
 <br/>
 
@@ -171,7 +171,7 @@ This position represents the 3rd menu item of the of the second menu item submen
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #74C043"><a name="events"></a><div style='color: #74C043;font-size:14pt;'>XPopup Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>XPopup Events</td></tr>
 	<tr><td>Events are sent through mIRCs &quot;ON SIGNAL&quot; event with the signal name being xpopup-[MENU] where [MENU] is the menu name that sent the event. The $1 parameter is the supplied [ID] of the menu item. This is why it's important that this number be unique for all menu items. A returned value of 0 means no selection was made in the menu.<br />
 <br />
 An example of the XPopup signal handler code is shown below:<br />
@@ -202,7 +202,7 @@ ON *:SIGNAL:Xpopup-*: {
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #A9729F"><a name="xpopup"></a><div style='color: #A9729F;font-size:14pt;'>/xpopup Command</div></td></tr>
+	<tr><td class="heading" style="border-color: #A9729F; color: #A9729F;"><a name="xpopup"></a>/xpopup Command</td></tr>
 	<tr><td>The /xpopup command is used to create/modify/destroy an XPopup menu.</td></tr>
 </table>
 <table class="xpopup">
@@ -607,7 +607,7 @@ ON *:SIGNAL:Xpopup-*: {
 </table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #CCACC7"><a name="xpopupprop"></a><div style='color: #CCACC7;font-size:14pt;'>$xpopup() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #CCACC7; color: #CCACC7;"><a name="xpopupprop"></a>$xpopup() Properties</td></tr>
 	<tr><td>The $xpopup identifier is a given mIRC alias that communicates with the XPopup DLL to extract information from XPopup menus.</td></tr>
 </table>
 <table class="xpopupprop">
@@ -737,7 +737,7 @@ ON *:SIGNAL:Xpopup-*: {
 </table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #6A7CB0"><a name="xpop"></a><div style='color: #6A7CB0;font-size:14pt;'>/xpop Command</div></td></tr>
+	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xpop"></a>/xpop Command</td></tr>
 	<tr><td>The /xpop command is used to add/modify/remove menu items in XPopup menus.</td></tr>
 </table>
 <table class="xpop">
@@ -868,7 +868,7 @@ ON *:SIGNAL:Xpopup-*: {
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Remember to use mIRCs $eval(expression,0) to prevent the mIRC evaluation of the $idents that your text contains.</td></tr></table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #A8B2D1"><a name="xpopprop"></a><div style='color: #A8B2D1;font-size:14pt;'>$xpop Identifier</div></td></tr>
+	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xpopprop"></a>$xpop Identifier</td></tr>
 	<tr><td>The $xpop identifier is a given mIRC alias that communicates with the XPopup DLL to extract information in XPopup menu items.</td></tr>
 </table>
 <table class="xpopprops">
@@ -944,50 +944,50 @@ ON *:SIGNAL:Xpopup-*: {
 </td><td width="80%" valign="top" class="menuright">
 	<br />
 <div class='rightmenu' style='border:1px solid #A9729F'>
-	<a href="#xpopup"><div class='header' style='background:#A9729F;'>/xpopup Flags</div></a>
-		<a href="#xpopup.b"><div>-b</div></a>
-		<a href="#xpopup.c"><div>-c</div></a>
-		<a href="#xpopup.d"><div>-d</div></a>
-		<a href="#xpopup.i"><div>-i</div></a>
-		<a href="#xpopup.j"><div>-j</div></a>
-		<a href="#xpopup.l"><div>-l</div></a>
-		<a href="#xpopup.m"><div>-m</div></a>
-		<a href="#xpopup.p"><div>-p</div></a>
-		<a href="#xpopup.s"><div>-s</div></a>
-		<a href="#xpopup.t"><div>-t</div></a>
-		<a href="#xpopup.x"><div>-x</div></a>
-		<a href="#xpopup.M"><div>-M</div></a>
-		<a href="#xpopup.R"><div>-R</div></a>
+	<a class='header' href="#xpopup"><div style='background:#A9729F;'>/xpopup Flags</div></a>
+		<a class='flag' href="#xpopup.b"><div>-b</div></a>
+		<a class='flag' href="#xpopup.c"><div>-c</div></a>
+		<a class='flag' href="#xpopup.d"><div>-d</div></a>
+		<a class='flag' href="#xpopup.i"><div>-i</div></a>
+		<a class='flag' href="#xpopup.j"><div>-j</div></a>
+		<a class='flag' href="#xpopup.l"><div>-l</div></a>
+		<a class='flag' href="#xpopup.m"><div>-m</div></a>
+		<a class='flag' href="#xpopup.p"><div>-p</div></a>
+		<a class='flag' href="#xpopup.s"><div>-s</div></a>
+		<a class='flag' href="#xpopup.t"><div>-t</div></a>
+		<a class='flag' href="#xpopup.x"><div>-x</div></a>
+		<a class='flag' href="#xpopup.M"><div>-M</div></a>
+		<a class='flag' href="#xpopup.R"><div>-R</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #CCACC7'>
-	<a href="#xpopupprop"><div class='header' style='background:#CCACC7;'>$xpopup() Properties</div></a>
-		<a href="#xpopupprop.alpha"><div>alpha</div></a>
-		<a href="#xpopupprop.color"><div>color</div></a>
-		<a href="#xpopupprop.colors"><div>colors</div></a>
-		<a href="#xpopupprop.exstyle"><div>exstyle</div></a>
-		<a href="#xpopupprop.ismenu"><div>ismenu</div></a>
-		<a href="#xpopupprop.isPatched"><div>isPatched</div></a>
-		<a href="#xpopupprop.isrounded"><div>isrounded</div></a>
-		<a href="#xpopupprop.marked"><div>marked</div></a>
-		<a href="#xpopupprop.style"><div>style</div></a>
+	<a class='header' href="#xpopupprop"><div style='background:#CCACC7;'>$xpopup() Properties</div></a>
+		<a class='flag' href="#xpopupprop.alpha"><div>alpha</div></a>
+		<a class='flag' href="#xpopupprop.color"><div>color</div></a>
+		<a class='flag' href="#xpopupprop.colors"><div>colors</div></a>
+		<a class='flag' href="#xpopupprop.exstyle"><div>exstyle</div></a>
+		<a class='flag' href="#xpopupprop.ismenu"><div>ismenu</div></a>
+		<a class='flag' href="#xpopupprop.isPatched"><div>isPatched</div></a>
+		<a class='flag' href="#xpopupprop.isrounded"><div>isrounded</div></a>
+		<a class='flag' href="#xpopupprop.marked"><div>marked</div></a>
+		<a class='flag' href="#xpopupprop.style"><div>style</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
-	<a href="#xpop"><div class='header' style='background:#6A7CB0;'>/xpop Flags</div></a>
-		<a href="#xpop.a"><div>-a</div></a>
-		<a href="#xpop.c"><div>-c</div></a>
-		<a href="#xpop.d"><div>-d</div></a>
-		<a href="#xpop.f"><div>-f</div></a>
-		<a href="#xpop.i"><div>-i</div></a>
-		<a href="#xpop.s"><div>-s</div></a>
-		<a href="#xpop.t"><div>-t</div></a>
+	<a class='header' href="#xpop"><div style='background:#6A7CB0;'>/xpop Flags</div></a>
+		<a class='flag' href="#xpop.a"><div>-a</div></a>
+		<a class='flag' href="#xpop.c"><div>-c</div></a>
+		<a class='flag' href="#xpop.d"><div>-d</div></a>
+		<a class='flag' href="#xpop.f"><div>-f</div></a>
+		<a class='flag' href="#xpop.i"><div>-i</div></a>
+		<a class='flag' href="#xpop.s"><div>-s</div></a>
+		<a class='flag' href="#xpop.t"><div>-t</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
-	<a href="#xpopprop"><div class='header' style='background:#A8B2D1;'>$xpop() Properties</div></a>
-		<a href="#xpopprop.enabled"><div>enabled</div></a>
-		<a href="#xpopprop.icon"><div>icon</div></a>
-		<a href="#xpopprop.num"><div>num</div></a>
-		<a href="#xpopprop.submenu"><div>submenu</div></a>
-		<a href="#xpopprop.text"><div>text</div></a>
+	<a class='header' href="#xpopprop"><div style='background:#A8B2D1;'>$xpop() Properties</div></a>
+		<a class='flag' href="#xpopprop.enabled"><div>enabled</div></a>
+		<a class='flag' href="#xpopprop.icon"><div>icon</div></a>
+		<a class='flag' href="#xpopprop.num"><div>num</div></a>
+		<a class='flag' href="#xpopprop.submenu"><div>submenu</div></a>
+		<a class='flag' href="#xpopprop.text"><div>text</div></a>
 	</div>
 </td>
   </tr>
@@ -997,7 +997,7 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 17th December, 07</td>
+		<td style="text-align: right;">Last Updated: 18th December, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

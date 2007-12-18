@@ -48,7 +48,7 @@
 		<li>DCX Features
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
-                                <a href="dcxml.htm" target="_new"><div>DCXML</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
                                 <a href="xmenubar.htm"><div>XMenuBar</div></a>
                                 <a href="xpopup.htm"><div>XPopup</div></a>
@@ -67,7 +67,7 @@
 	</ul>
 	</td>
 <td><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>XMenuBar</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>XMenuBar</td></tr>
 	<tr><td>XMenuBar is a command implemented to replace the mIRC menubar using XPopup menus.<br /><br />
 <div style="text-align: center;">
 	<img src="images/xmenubar.png" alt="" />
@@ -75,7 +75,7 @@
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #979AB3"><a name="general"></a><div style='color: #979AB3;font-size:14pt;'>XMenuBar Marking and Callback</div></td></tr>
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>XMenuBar Marking and Callback</td></tr>
 	<tr><td>Just like with XDialog, you must "mark" the mIRC menubar prior to using XMenuBar.<br />
 To mark the mIRC menubar, use <a class="value">/xmenubar -M</a> and specify a callback function of your choice.<br />
 <br />
@@ -91,7 +91,7 @@ alias xmenubar_cb {
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #979AB3"><a name="general"></a><div style='color: #979AB3;font-size:14pt;'>Special Menus and Menu IDs</div></td></tr>
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>Special Menus and Menu IDs</td></tr>
 	<tr><td>The callback parses menu clicks before mIRC gets a chance to process them. If the custom XPopupMenu has an ID which matches the ID of an existing mIRC menu item, it can be used to call the mIRC functionality.<br />
 For example, the menu ID for the mIRC Options dialog is <a class="value">159</a>. If you used <a class="value">/xpop -a</a> and specified the <a class="param">ID</a> <a class="value">159</a> and added the XPopup menu to the XMenuBar, the item will open up the mIRC Options dialog when clicked.<br />
 <br />
@@ -157,7 +157,7 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #6A7CB0"><a name="xmenubar"></a><div style='color: #6A7CB0;font-size:14pt;'>/xmenubar Commands</div></td></tr>
+	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xmenubar"></a>/xmenubar Commands</td></tr>
 	<tr><td>The /xmenubar command is used to replace the mIRC menubar.</td></tr>
 </table>
 <table class="xmenubar">
@@ -254,7 +254,7 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">CALLBACK</a> is not specified, this will reset the mIRC menubar.</td></tr></table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #A8B2D1"><a name="xmenubarprop"></a><div style='color: #A8B2D1;font-size:14pt;'>$xmenubar Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xmenubarprop"></a>$xmenubar Properties</td></tr>
 	<tr><td>The $xmenubar identifier is used to retrieve information about the DCX XMenuBar implementation.</td></tr>
 </table>
 <table class="xmenubarprops">
@@ -279,17 +279,17 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 </td><td width="80%" valign="top" class="menuright">
 	<br />
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
-	<a href="#xmenubar"><div class='header' style='background:#6A7CB0;'>/xmenubar</div></a>
-		<a href="#xmenubar.a"><div>-a</div></a>
-		<a href="#xmenubar.d"><div>-d</div></a>
-		<a href="#xmenubar.g"><div>-g</div></a>
-		<a href="#xmenubar.l"><div>-l</div></a>
-		<a href="#xmenubar.r"><div>-r</div></a>
-		<a href="#xmenubar.M"><div>-M</div></a>
+	<a class='header' href="#xmenubar"><div style='background:#6A7CB0;'>/xmenubar</div></a>
+		<a class='flag' href="#xmenubar.a"><div>-a</div></a>
+		<a class='flag' href="#xmenubar.d"><div>-d</div></a>
+		<a class='flag' href="#xmenubar.g"><div>-g</div></a>
+		<a class='flag' href="#xmenubar.l"><div>-l</div></a>
+		<a class='flag' href="#xmenubar.r"><div>-r</div></a>
+		<a class='flag' href="#xmenubar.M"><div>-M</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
-	<a href="#xmenubarprop"><div class='header' style='background:#A8B2D1;'>$xmenubar()</div></a>
-		<a href="#xmenubarprop.menu"><div>menu</div></a>
+	<a class='header' href="#xmenubarprop"><div style='background:#A8B2D1;'>$xmenubar()</div></a>
+		<a class='flag' href="#xmenubarprop.menu"><div>menu</div></a>
 	</div>
 </td>
   </tr>
@@ -299,7 +299,7 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 17th December, 07</td>
+		<td style="text-align: right;">Last Updated: 18th December, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

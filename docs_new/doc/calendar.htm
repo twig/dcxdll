@@ -48,7 +48,7 @@
 		<li>DCX Features
 			<ul>
 				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
-                                <a href="dcxml.htm" target="_new"><div>DCXML</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
 				<a href="xdock.htm"><div>XDock</div></a>
                                 <a href="xmenubar.htm"><div>XMenuBar</div></a>
                                 <a href="xpopup.htm"><div>XPopup</div></a>
@@ -67,7 +67,7 @@
 	</ul>
 	</td>
 <td><table class="description">
-	<tr><td class="heading" style="border-color: #000000"><a name="intro"></a><div style='color: #000000;font-size:14pt;'>Calendar</div></td></tr>
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>Calendar</td></tr>
 	<tr><td>The Calendar control allows users to select a date, allowing the range to be customisable.<br /><br />It is highly recommended that you familiarise yourself with how the mIRC functions $ctime and $asctime() functions work before using this control.<br /><br />There is a known drawing bug with the <a class="style">multi</a> select. It is a winAPI bug. Let us know if you know of a fix for it!<br /><br />
 <div style="text-align: center;">
 	<img src="images/calendar.png" alt="" />
@@ -75,7 +75,7 @@
 </td></tr>
 </table>
 <table class="description">
-	<tr><td class="heading" style="border-color: #B49696"><a name="style"></a><div style='color: #B49696;font-size:14pt;'>Control Styles</div></td></tr>
+	<tr><td class="heading" style="border-color: #B49696; color: #B49696;"><a name="style"></a>Control Styles</td></tr>
 	<tr><td>These control styles are available when creating a Calendar control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
 </table>
 <table class="styles">
@@ -102,7 +102,7 @@
 </table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #6A7CB0"><a name="xdid"></a><div style='color: #6A7CB0;font-size:14pt;'>/xdid flags</div></td></tr>
+	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdid"></a>/xdid flags</td></tr>
 	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
 </table>
 <table class="xdid">
@@ -209,7 +209,7 @@
 </table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #A8B2D1"><a name="xdidprop"></a><div style='color: #A8B2D1;font-size:14pt;'>$xdid() Properties</div></td></tr>
+	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
@@ -269,7 +269,7 @@
 </table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #74C043"><a name="events"></a><div style='color: #74C043;font-size:14pt;'>Calendar Events</div></td></tr>
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>Calendar Events</td></tr>
 	<tr><td>These events are fired when activity occurs in the Calendar control.</td></tr>
 </table>
 <table class="event">
@@ -359,35 +359,35 @@
 </td><td width="80%" valign="top" class="menuright">
 	<br />
 <div class='rightmenu' style='border:1px solid #B49696'>
-	<a href="#style"><div class='header' style='background:#B49696;'>Control Styles</div></a>
-		<a href="#style.daystate"><div>daystate</div></a>
-		<a href="#style.multi"><div>multi</div></a>
-		<a href="#style.notoday"><div>notoday</div></a>
-		<a href="#style.notodaycircle"><div>notodaycircle</div></a>
-		<a href="#style.weeknum"><div>weeknum</div></a>
+	<a class='header' href="#style"><div style='background:#B49696;'>Control Styles</div></a>
+		<a class='flag' href="#style.daystate"><div>daystate</div></a>
+		<a class='flag' href="#style.multi"><div>multi</div></a>
+		<a class='flag' href="#style.notoday"><div>notoday</div></a>
+		<a class='flag' href="#style.notodaycircle"><div>notodaycircle</div></a>
+		<a class='flag' href="#style.weeknum"><div>weeknum</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
-	<a href="#xdid"><div class='header' style='background:#6A7CB0;'>/xdid Flags</div></a>
-		<a href="#xdid.k"><div>-k</div></a>
-		<a href="#xdid.m"><div>-m</div></a>
-		<a href="#xdid.r"><div>-r</div></a>
-		<a href="#xdid.s"><div>-s</div></a>
-		<a href="#xdid.t"><div>-t</div></a>
+	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
+		<a class='flag' href="#xdid.k"><div>-k</div></a>
+		<a class='flag' href="#xdid.m"><div>-m</div></a>
+		<a class='flag' href="#xdid.r"><div>-r</div></a>
+		<a class='flag' href="#xdid.s"><div>-s</div></a>
+		<a class='flag' href="#xdid.t"><div>-t</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
-	<a href="#xdidprop"><div class='header' style='background:#A8B2D1;'>$xdid() Properties</div></a>
-		<a href="#xdidprop.range"><div>range</div></a>
-		<a href="#xdidprop.selcount"><div>selcount</div></a>
-		<a href="#xdidprop.today"><div>today</div></a>
-		<a href="#xdidprop.value"><div>value</div></a>
+	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.range"><div>range</div></a>
+		<a class='flag' href="#xdidprop.selcount"><div>selcount</div></a>
+		<a class='flag' href="#xdidprop.today"><div>today</div></a>
+		<a class='flag' href="#xdidprop.value"><div>value</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
-	<a href="#events"><div class='header' style='background:#74C043;'>Events</div></a>
-		<a href="#events.daystate"><div>daystate</div></a>
-		<a href="#events.help"><div>help</div></a>
-		<a href="#events.sclick"><div>sclick</div></a>
-		<a href="#events.selchange"><div>selchange</div></a>
-		<a href="#events.select"><div>select</div></a>
+	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
+		<a class='flag' href="#events.daystate"><div>daystate</div></a>
+		<a class='flag' href="#events.help"><div>help</div></a>
+		<a class='flag' href="#events.sclick"><div>sclick</div></a>
+		<a class='flag' href="#events.selchange"><div>selchange</div></a>
+		<a class='flag' href="#events.select"><div>select</div></a>
 	</div>
 </td>
   </tr>
@@ -397,7 +397,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 17th December, 07</td>
+		<td style="text-align: right;">Last Updated: 18th December, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">
