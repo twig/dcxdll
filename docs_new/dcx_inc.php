@@ -1122,6 +1122,9 @@ function dcxdoc_print_description($caption, $content = "") {
 	//if ($caption != "Introduction") echo "<br />";
 ?>
 <table class="description">
+<?php
+        if ($caption != null)
+?>
 	<tr><td class="heading" style="<?php echo "border-color: $color; color: $color;"?>"><a name="<?php echo $SECTION; ?>"></a><?php echo ($SECTION == SECTION_INTRO ? $pagelabel : $caption); ?></td></tr>
 <?php
 	if ($content) {

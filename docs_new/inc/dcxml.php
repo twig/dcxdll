@@ -1,20 +1,37 @@
 <?php
+function dcxml_layout($page, $pagelabel) {
+    global $SECTION;
+    
+    // intro
+    $SECTION = SECTION_INTRO;
+    dcxdoc_print_intro($page);
+
+    $SECTION = SECTION_GENERAL;
+    dcxdoc_print_description(null, dcxml_stuff());
+}
+
 function get_intro_dcxml() {
 ?>
 <a name="top" id="top"></a>
-<ol>
-  <li class="sectionTitle"><a href="#Introduction">Introduction</a></li>
-  <li class="sectionTitle"><a href="#GettingStarted">Getting started</a></li>
-  <li class="sectionTitle"><a href="#XML">Some things you should know about XML</a></li>
-  <li class="sectionTitle"><a href="#Rules">DCXML markup rules</a></li>
-  <li class="sectionTitle"><a href="#Layout">Insert and layout dcx controls.</a></li>
-  <li class="sectionTitle"><a href="#Pane">The power of pane </a></li>
-  <li class="sectionTitle"><a href="#Styles">Cascading Control Styles</a> </li>
-  <li class="sectionTitle"><a href="#Icons">Cascading Icon Definitions</a> </li>
-  <li class="sectionTitle"><a href="#Templating">Templating</a></li>
-  <li class="sectionTitle"><a href="#ElementRefference">Elements Refference</a> </li>
-  <li class="sectionTitle"><a href="#AttributeRefference">Attributes Refference</a></li>
+<ol class="sectionList">
+  <li><a class="sectionTitle" href="#Introduction">Introduction</a></li>
+  <li><a class="sectionTitle" href="#GettingStarted">Getting started</a></li>
+  <li><a class="sectionTitle" href="#XML">Some things you should know about XML</a></li>
+  <li><a class="sectionTitle" href="#Rules">DCXML markup rules</a></li>
+  <li><a class="sectionTitle" href="#Layout">Insert and layout dcx controls.</a></li>
+  <li><a class="sectionTitle" href="#Pane">The power of pane </a></li>
+  <li><a class="sectionTitle" href="#Styles">Cascading Control Styles</a> </li>
+  <li><a class="sectionTitle" href="#Icons">Cascading Icon Definitions</a> </li>
+  <li><a class="sectionTitle" href="#Templating">Templating</a></li>
+  <li><a class="sectionTitle" href="#ElementRefference">Elements Refference</a> </li>
+  <li><a class="sectionTitle" href="#AttributeRefference">Attributes Refference</a></li>
 </ol>
+<?php
+}
+
+function dcxml_stuff() {
+    ob_start();
+?>
 <p> <span class="sectionTitle">Introduction 
   </span><a name="Introduction" id="Introduction"></a><a href="#top">go to top</a><br />
   <br />
@@ -30,12 +47,11 @@ DCXML is a way to make the creation and managing of dialogs more easy. Everythin
         <br />
         <strong>In short:</strong> DCXML seperates design from code. Code in mIRC, design in DCXML.</p>
 
-        <p><span class="sectionTitle">Getting Started
-        </span><a name="GettingStarted" id="GettingStarted"></a><a href="#top">go to top</a><br />
+        <p><span class="sectionTitle">Getting Started</span> <a name="GettingStarted" id="GettingStarted"></a><a href="#top">go to top</a><br />
         <br />
 DCXML should only be used with DCX 1.4 and higher, DCXML is defined in a seperate file and not within your script. You load DCXML by calling the dcxml file in the on init event of the dialog.
         <p>example:
-        <pre>
+        <pre class='dcxml'>
 dialog mydialog {
   size 200 200 200 200
 }
@@ -52,7 +68,7 @@ alias dcxt dialog -m mydialog mydialog
 
 
 Although it might be easier to use the following if your familiar with dialog tables:
-<pre>
+<pre class='dcxml'>
 alias dcxml.spawn dialog -m dcx. $+ $1 dcx
 dialog dcx {
   size 0 0 0 0
@@ -95,7 +111,7 @@ This text is considered a Text Node <br />
 &lt;/element&gt; </li>
           <li>    <strong>Comment Node </strong> A Comment Node is an element that is not part of the hierarchy and is only there to place a comment of some sort. &lt;!--- This is a comment --&gt; 
         </ul>So an XML file always looks like this or any variation thereof: <br />
-	<pre>
+	<pre class='dcxml'>
 &lt;documentNode&gt;
 	&lt;element1 attribute=”value1”&gt; 
 		&lt;element2 /&gt;
@@ -113,13 +129,13 @@ This text is considered a Text Node <br />
             <br />
             <strong>A DCXML file always starts with this: 
             </strong><br />
-<pre>
+<pre class='dcxml'>
 &lt;dialogs&gt; 
 	…
 &lt;/dialogs&gt; 
 </pre>
 Which will make more sense later, a DCXML file describes one or more dialogs. It (hopefully) won't be a surprise the next step is as followed:
-<pre>
+<pre class='dcxml'>
 &lt;dialogs&gt; 
 	&lt;dialog&gt; 
 		…… 
@@ -127,7 +143,7 @@ Which will make more sense later, a DCXML file describes one or more dialogs. It
 &lt;/dialogs&gt; 
 </pre>
 As you can see we are defining 1 dialog in this DCXML file now, you'll HAVE to give dialog elements a name attribute to distinguish between them the reason why becomes apparent when you define multiple dialogs. <strong>note:</strong> this value of name doesn't have to equal $dname. 
-<pre>
+<pre class='dcxml'>
 &lt;dialogs&gt; 
 	&lt;dialog name=”mydialog”&gt; 
 		…… 
@@ -151,14 +167,14 @@ ok so lets take it a step at a time shall we?
 <br />
 <strong>No more ID's?</strong><br />
 Thats right, only id those controls you are going to work with the rest will be assigned an id (2000+number of parsed controls so avoid control id's >= 2000)
-<pre>
+<pre class='dcxml'>
 &lt;control type=&quot;panel&quot;&gt;
 	&lt;control type=&quot;text&quot;&gt;
 &lt;/control&gt;
 </pre>
 This will create a text control on a panel without having to remember the id of the pane to insert the text inside it. There is no limitation
 to how deep you can nest controls. This makes creating complex control structures a breeze. 
-<pre>
+<pre class='dcxml'>
 &lt;control type=&quot;panel&quot;&gt;
 	&lt;control type=&quot;check&quot; id=&quot;2&quot;&gt;
 	&lt;control type=&quot;text&quot;&gt;
@@ -167,7 +183,7 @@ to how deep you can nest controls. This makes creating complex control structure
 ID only those controls you are planning to script with in mIRC.<br />
 <strong>No more XYWH!</strong><br />
 DCXML will place and size controls for you, you just tell DCXML that something should be smaller or bigger.
-<pre>
+<pre class='dcxml'>
 &lt;dialog name=&quot;somedialog&quot;&gt;
 	&lt;control type=&quot;panel&quot; cascade=&quot;h&quot;&gt;
 		&lt;control type=&quot;check&quot; id=&quot;2&quot; /&gt;
@@ -180,7 +196,7 @@ the panel the check and text will take 50% of the space inside the panel because
 it is 50%. The controls will appear next to eachother due to the cascade attribute on the panel ( see cascade attribute ).<br />
 
 All very handy but what if you want the text to take only 25% of the available space ? Is that possible ? Yes it is !
-<pre>
+<pre class='dcxml'>
 &lt;dialog name=&quot;somedialog&quot;&gt;
 	&lt;control type=&quot;panel&quot; cascade=&quot;h&quot;&gt;
 		&lt;control type=&quot;check&quot; id=&quot;2&quot; weight=&quot;3&quot;/&gt;
@@ -197,7 +213,7 @@ All very handy but what if you want the text to take only 25% of the available s
  
 To check if you understood weights have a look at this DCXML and think for yourself how much space the check and text take inside 
 the panel
-<pre>
+<pre class='dcxml'>
 &lt;dialog name=&quot;somedialog&quot;&gt;
 	&lt;control type=&quot;panel&quot; weight=&quot;3&quot;&gt;
 		&lt;control type=&quot;check&quot; id=&quot;2&quot; cascade=&quot;h&quot; weight=&quot;10&quot;/&gt;
@@ -208,7 +224,7 @@ the panel
 
 If you thought that the check takes 2/3rd (10/15th) and the text 1/3rd (5/15th) you know your stuff! Finally lets take a look another 
 case:
-<pre>
+<pre class='dcxml'>
 &lt;dialog name=&quot;somedialog&quot;&gt;
 	&lt;control type=&quot;panel&quot; cascade=&quot;h&quot; weigth=&quot;9&quot;&gt;
 		&lt;control type=&quot;check&quot; id=&quot;2&quot; weight=&quot;10&quot;/&gt;
@@ -229,7 +245,7 @@ vertically, horizontally or both ? and what if you want to specify a width/heigh
 
 
 All  you have to do is either specify the height and/or width:
-<pre>
+<pre class='dcxml'>
 &lt;dialog name=&quot;somedialog&quot;&gt;
 	&lt;control type=&quot;panel&quot; cascade=&quot;h&quot; height=&quot;120&quot;&gt;
 		&lt;control type=&quot;check&quot; id=&quot;2&quot; width=&quot;20&quot;/&gt;
@@ -250,7 +266,7 @@ The power of pane </span><a name="Pane" id="Pane"></a><a href="#top">go to top</
 <br />
 A very powerful element to help you layout your dialog the way you want is the &lt;pane&gt; <br />
 A pane can be best viewed as a panel control without actually creating a control on the dialog.
-<pre>
+<pre class='dcxml'>
 &lt;dialog name=&quot;somedialog&quot;&gt;
 	&lt;pane cascade=&quot;h&quot; weight=&quot;3&quot;&gt;
 		&lt;control type=&quot;check&quot; id=&quot;2&quot; width=&quot;20&quot;/&gt;
@@ -276,7 +292,7 @@ A pane can be best viewed as a panel control without actually creating a control
   </p>
   </p>
 </p>
-<pre>
+<pre class='dcxml'>
 &lt;dialogs&gt; 
 	&lt;styles&gt; 
 		&lt;style type=”text” fontname=”Trebuchet MS”/&gt;
@@ -291,7 +307,7 @@ A pane can be best viewed as a panel control without actually creating a control
 		 … </pre>
         In the above example the text control will appear in Verdana because the most explicit style will always be applied. <br />
 If we remove the fontname attribute on the control the text will be in Tahoma because that's more explicit then the definition in the global styles definition. 
-<pre>
+<pre class='dcxml'>
 &lt;dialogs&gt;
 	&lt;styles&gt;
 		&lt;style type=”text” fontname=”Trebuchet MS” /&gt;
@@ -312,7 +328,7 @@ If we remove the fontname attribute on the control the text will be in Tahoma be
         <span class="sectionTitle"> Cascading Icon Definitions </span><a name="Icons" id="Icons"></a><a href="#top">go to top</a><br />
         <br />
 Icon libraries for controls are applied in a similar way as style definitions. 
-<pre>
+<pre class='dcxml'>
 &lt;dialogs&gt;
 	&lt;icons&gt;
 		&lt;icon type=&quot;treeview&quot; indexmax=&quot;40&quot; src=&quot;$_scriptdir $+ controls.icl&quot; /&gt; 
@@ -331,14 +347,14 @@ Icon libraries for controls are applied in a similar way as style definitions.
             <br />
 		  DCXML allows you to template dialog elements you use really often like alot of your dialogs will have a header of some sort, to prevent you from defining the header 
 		  everytime you create a new dialog you can template it.
-<pre>&lt;dcxml&gt;<br />	&lt;dialogs&gt;<br />		&lt;templates&gt;<br />			&lt;template name=&quot;header&quot;&gt;<br />				&lt;control type=&quot;panel&quot; cascade=&quot;h&quot; height=&quot;70&quot;&gt;<br />					&lt;control width=&quot;253&quot; height=&quot;70&quot; type=&quot;image&quot; eval=&quot;1&quot; src=&quot;$+($_scriptdir,dcx.jpg)&quot; /&gt;<br />					&lt;control width=&quot;547&quot; height=&quot;70&quot; type=&quot;image&quot; eval=&quot;1&quot; src=&quot;$+($_scriptdir,top_bg.jpg)&quot; /&gt;<br />					&lt;control type=&quot;panel&quot; bgcolour=&quot;16318463&quot; /&gt;<br />				&lt;/control&gt;<br />			&lt;/template&gt;<br />		&lt;/templates&gt;
+<pre class='dcxml'>&lt;dcxml&gt;<br />	&lt;dialogs&gt;<br />		&lt;templates&gt;<br />			&lt;template name=&quot;header&quot;&gt;<br />				&lt;control type=&quot;panel&quot; cascade=&quot;h&quot; height=&quot;70&quot;&gt;<br />					&lt;control width=&quot;253&quot; height=&quot;70&quot; type=&quot;image&quot; eval=&quot;1&quot; src=&quot;$+($_scriptdir,dcx.jpg)&quot; /&gt;<br />					&lt;control width=&quot;547&quot; height=&quot;70&quot; type=&quot;image&quot; eval=&quot;1&quot; src=&quot;$+($_scriptdir,top_bg.jpg)&quot; /&gt;<br />					&lt;control type=&quot;panel&quot; bgcolour=&quot;16318463&quot; /&gt;<br />				&lt;/control&gt;<br />			&lt;/template&gt;<br />		&lt;/templates&gt;
 		&lt;dialog name=&quot;somedialog&quot;&gt;<br />			&lt;calltemplate name=&quot;header&quot; /&gt;<br />			&lt;control type=&quot;panel&quot;&gt;
 			...<br />	</pre>
 			&lt;template&gt; can only be defined in the &lt;templates&gt; section of &lt;dialogs&gt;. You call a template using the &lt;calltemplate&gt; element.
 			calltemplate can not have any children but can be called as many times as you like.<br />
 			<br />
 	Here's another use for templates
-<pre>&lt;template name=&quot;OkCancel&quot;&gt;<br />		&lt;control type=&quot;panel&quot; styles=&quot;vgradient&quot; cascade=&quot;h&quot; margin=&quot;0 5 0 5&quot; height=&quot;35&quot;&gt;<br />			&lt;pane cascade=&quot;v&quot; weight=&quot;1&quot; /&gt;<br />			&lt;control type=&quot;button&quot; styles=&quot;vgradient&quot; eval=&quot;1&quot; id=&quot;1&quot; bgcolour=&quot;$rgb(255,255,255)&quot; 
+<pre class='dcxml'>&lt;template name=&quot;OkCancel&quot;&gt;<br />		&lt;control type=&quot;panel&quot; styles=&quot;vgradient&quot; cascade=&quot;h&quot; margin=&quot;0 5 0 5&quot; height=&quot;35&quot;&gt;<br />			&lt;pane cascade=&quot;v&quot; weight=&quot;1&quot; /&gt;<br />			&lt;control type=&quot;button&quot; styles=&quot;vgradient&quot; eval=&quot;1&quot; id=&quot;1&quot; bgcolour=&quot;$rgb(255,255,255)&quot; 
 				caption=&quot;Cancel&quot; width=&quot;100&quot; height=&quot;25&quot; /&gt;
 			&lt;control type=&quot;button&quot; caption=&quot;Ok&quot; id=&quot;2&quot; width=&quot;100&quot; height=&quot;25&quot; /&gt;
 		&lt;/control&gt;<br />	&lt;/template&gt;
@@ -588,7 +604,7 @@ If you do so it will be ignored<br />
 <br />
 <table cellspacing="0" cellpadding="0">
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">w <span class="style1">&amp;</span> h </td>
+    <td width="115" valign="top" class="subSectionTitle">w <span style="color: black;">&amp;</span> h </td>
     <td width="523" valign="top">&nbsp; </td>
   </tr>
   <tr>
@@ -1384,4 +1400,5 @@ If you do so it will be ignored<br />
   </tr>
 </table>
 <?php
+    return ob_get_clean();
 } ?>

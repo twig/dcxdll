@@ -63,17 +63,7 @@ a {
 	font-weight: bold;
 	text-decoration: none;
 }
-a:link {
-	font-weight: bold;
-	color: #38466D;
-	text-decoration: none;
-}
-a:visited {
-	font-weight: bold;
-	color: #38466D;
-	text-decoration: none;
-}
-a:active {
+a:link, a:active, a:visited {
 	font-weight: bold;
 	color: #38466D;
 	text-decoration: none;
@@ -376,4 +366,41 @@ table.xmenubarSpecialIDs .heading {
 	border-bottom: 1px solid #ccc;
 	background-color: #eee;
 	
+}
+
+
+/* DCXML PAGE */
+/* Contents */
+ol.sectionList {
+	margin: 0px;
+	padding: 0px;
+	margin-left: 30px;
+	color:#339900;
+}
+ol.sectionList li {
+	font-family:"Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
+	font-size:10pt;
+}
+
+/* Title text */
+a.sectionTitle, a:visited.sectionTitle, span.sectionTitle {
+	font-size:14pt;
+	color:#339900;
+	font-weight: normal;
+}
+
+/* Subtitle - Tags/Attributes */
+.subSectionTitle {
+	font-family:"Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
+	font-size:11pt;
+	color:#f60;
+}
+
+/* Sample XML */
+pre.dcxml {
+	padding-left:10px;
+	border-left:#ccc 2px solid;
+	font-family:Courier New;
+	width:80%;
+	color: #888;
 }
