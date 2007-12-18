@@ -389,18 +389,30 @@ a.sectionTitle, a:visited.sectionTitle, span.sectionTitle {
 	font-weight: normal;
 }
 
-/* Subtitle - Tags/Attributes */
-.subSectionTitle {
-	font-family:"Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
-	font-size:11pt;
-	color:#f60;
-}
 
 /* Sample XML */
 pre.dcxml {
 	padding-left:10px;
 	border-left:#ccc 2px solid;
 	font-family:Courier New;
-	width:80%;
 	color: #888;
+}
+
+/* Tags and attributes table */
+table.tags, table.attrs {
+	width: 80%;
+}
+
+/* Subtitle - Tags/Attributes */
+table.tags th, table.attrs th {
+	vertical-align: top;
+	font-family:"Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
+	font-size:11pt;
+	color:#f60;
+	border-bottom: 1px solid #f60;
+}
+
+table.tags td.left, table.attrs td.left {
+	width: 110px;
+	font-weight: bold;
 }

@@ -102,21 +102,21 @@ You can specify width height and caption of the dialog instance in DCXML so you 
 &lt;element /&gt;</li>
           <li>            <strong>Attribute Node </strong><br />
             An attribute is a property you can set on an element like so: <br />
-&lt;element attribute=”value”&gt;&lt;/element&gt; or <br />
-&lt;element attribute=”value” /&gt; </li>
+&lt;element attribute=&quot;value&quot;&gt;&lt;/element&gt; or <br />
+&lt;element attribute=&quot;value&quot; /&gt; </li>
           <li>    <strong>Text Node </strong><br />
     Text Node is text inside an element: <br />
-&lt;element attribute=”value”&gt; <br />
+&lt;element attribute=&quot;value&quot;&gt; <br />
 This text is considered a Text Node <br />
 &lt;/element&gt; </li>
           <li>    <strong>Comment Node </strong> A Comment Node is an element that is not part of the hierarchy and is only there to place a comment of some sort. &lt;!--- This is a comment --&gt; 
         </ul>So an XML file always looks like this or any variation thereof: <br />
 	<pre class='dcxml'>
 &lt;documentNode&gt;
-	&lt;element1 attribute=”value1”&gt; 
+	&lt;element1 attribute=&quot;value1&quot;&gt; 
 		&lt;element2 /&gt;
 	&lt;/element1&gt; 
-	&lt;element1 attribute=”value2”&gt;
+	&lt;element1 attribute=&quot;value2&quot;&gt;
 		&lt;element2 /&gt; 
 	&lt;/element1&gt; 
 &lt;/documentNode&gt; &nbsp; 
@@ -145,10 +145,10 @@ Which will make more sense later, a DCXML file describes one or more dialogs. It
 As you can see we are defining 1 dialog in this DCXML file now, you'll HAVE to give dialog elements a name attribute to distinguish between them the reason why becomes apparent when you define multiple dialogs. <strong>note:</strong> this value of name doesn't have to equal $dname. 
 <pre class='dcxml'>
 &lt;dialogs&gt; 
-	&lt;dialog name=”mydialog”&gt; 
+	&lt;dialog name=&quot;mydialog&quot;&gt; 
 		…… 
 	&lt;/dialog&gt; 
-	&lt;dialog name=”myotherdialog”&gt;
+	&lt;dialog name=&quot;myotherdialog&quot;&gt;
 		…… 
 	&lt;/dialog&gt; 
 &lt;/dialogs&gt; 
@@ -295,13 +295,13 @@ A pane can be best viewed as a panel control without actually creating a control
 <pre class='dcxml'>
 &lt;dialogs&gt; 
 	&lt;styles&gt; 
-		&lt;style type=”text” fontname=”Trebuchet MS”/&gt;
+		&lt;style type=&quot;text&quot; fontname=&quot;Trebuchet MS&quot;/&gt;
 	&lt;/styles&gt; 
 	&lt;dialog&gt;
 		&lt;styles&gt; 
-			&lt;style type=”text” fontname=”Tahoma” /&gt; 
+			&lt;style type=&quot;text&quot; fontname=&quot;Tahoma&quot; /&gt; 
 		&lt;/styles&gt;
-		&lt;control type=”text” fontname=”Verdana”&gt; 
+		&lt;control type=&quot;text&quot; fontname=&quot;Verdana&quot;&gt; 
         	This text is in Verdana 
 		&lt;/control&gt;
 		 … </pre>
@@ -310,12 +310,12 @@ If we remove the fontname attribute on the control the text will be in Tahoma be
 <pre class='dcxml'>
 &lt;dialogs&gt;
 	&lt;styles&gt;
-		&lt;style type=”text” fontname=”Trebuchet MS” /&gt;
-		&lt;style class=”TahomaText” fontname=”Tahoma” /&gt; 
-		&lt;style id=”10” fontname=”Verdana” /&gt; 
+		&lt;style type=&quot;text&quot; fontname=&quot;Trebuchet MS&quot; /&gt;
+		&lt;style class=&quot;TahomaText&quot; fontname=&quot;Tahoma&quot; /&gt; 
+		&lt;style id=&quot;10&quot; fontname=&quot;Verdana&quot; /&gt; 
 	&lt;/styles&gt;
 	&lt;dialog&gt;
-		&lt;control class=”TahomaText” type=”text” id=”10”&gt; 
+		&lt;control class=&quot;TahomaText&quot; type=&quot;text&quot; id=&quot;10&quot;&gt; 
         	This text is in Verdana 
 	&lt;/control&gt; 
     ...
@@ -376,1027 +376,909 @@ if they have dialog listed as parent node but not icons that means that you can'
 If you do so it will be ignored<br />
 </ul>
 </p>
-        <table cellspacing="0" cellpadding="0">
+
+<table class="tags">
+  <tr><th colspan="2">&lt;dialogs&gt;</th></tr>
+  <tr><td colspan="2">dialogs is the document node this means it has to be at the top of the hierarchy see &quot;DCXML markup rules&quot; for more information.</td></tr>
   <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;dialogs&gt; </span><br />
-        dialogs is the document node this means it has to be at the top of the hierarchy see “DCXML markup rules” for more information. </td>
+    <td class="left">Child nodes:</td>
+    <td>&lt;dialog&gt;, &lt;icons&gt; and &lt;styles&gt;</td>
   </tr>
   <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top">&lt;dialog&gt;, &lt;icons&gt; and &lt;styles&gt; </td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top"><em>none </em></td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;dialog&gt; </span><br />
-        The dialog element is where you can define your dialog in. </td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top">&lt;control&gt;, &lt;pane&gt;, &lt;icons&gt; and &lt;styles&gt; </td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top"><em>none </em></td>
+    <td class="left">Parent Nodes:</td>
+    <td><em>none</em></td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="tags">
+  <tr><th colspan="2">&lt;dialog&gt;</th></tr>
+  <tr><td colspan="2">The dialog element is where you can define your dialog in.</td></tr>
   <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;control&gt; </span><br />
-        The control element creates as you might expect a control on your dialog, you can specify which by setting the type attribute: &lt;control type=”listview” /&gt; creates a listview etc. </td>
+    <td class="left">Child nodes:</td>
+    <td>&lt;control&gt;, &lt;pane&gt;, &lt;icons&gt; and &lt;styles&gt;</td>
   </tr>
   <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top">&lt;control&gt; (If the parent control element is a Container type) <br />
-&lt;pane&gt; (if control is of type Panel or Box) 
-        &lt;item&gt; (Control specific allows you to add items to toolbars, lists, treeview's etc) </td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top">&lt;control&gt;, &lt;pane&gt; </td>
+    <td class="left">Parent Nodes:</td>
+    <td><em>none</em></td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="tags">
+  <tr><th colspan="2">&lt;control&gt;</th></tr>
+  <tr><td colspan="2">The control element creates as you might expect a control on your dialog, you can specify which by setting the type attribute: &lt;control type=&quot;listview&quot; /&gt; creates a listview etc.</td></tr>
   <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;item&gt; </span><br />
-        Control specific allows you to add items to toolbars, lists, treeview's etc </td>
+    <td class="left">Child nodes:</td>
+    <td>&lt;control&gt; (If the parent control element is a Container type)<br />
+&lt;pane&gt; (if control is of type Panel or Box)<br />
+&lt;item&gt; (Control specific allows you to add items to toolbars, lists, treeview's etc)</td>
   </tr>
   <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top">&lt;item&gt; </td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top">&lt;control&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;pane&gt; </span><br />
-        Pane is a way to group controls and manage their display in a grouped manner. </td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top">&lt;control&gt;, &lt;pane&gt;, </td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top">&lt;control&gt; (if control has CLA such as PANE and BOX controls), &lt;pane&gt; </td>
+    <td class="left">Parent Nodes:</td>
+    <td>&lt;control&gt;, &lt;pane&gt;</td>
   </tr>
 </table>
-  
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="tags">
+  <tr><th colspan="2">&lt;item&gt;</th></tr>
+  <tr><td colspan="2">Control specific allows you to add items to toolbars, lists, treeview's etc</td></tr>
   <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;styles&gt; </span><br />
-        styles is an element that groups style elements. </td>
+    <td class="left">Child nodes:</td>
+    <td>&lt;item&gt;</td>
   </tr>
   <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top">&lt;style&gt; </td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top">&lt;dialogs&gt;(global), &lt;dialog&gt;(local) </td>
+    <td class="left">Parent Nodes:</td>
+    <td>&lt;control&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="tags">
+  <tr><th colspan="2">&lt;pane&gt;</th></tr>
+  <tr><td colspan="2">Pane is a way to group controls and manage their display in a grouped manner.</td></tr>
   <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;style&gt; </span><br />
-        style allows you to style a control/class or id. </td>
+    <td class="left">Child nodes:</td>
+    <td>&lt;control&gt;, &lt;pane&gt;</td>
   </tr>
   <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top"><em>none </em></td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top">&lt;styles&gt; </td>
+    <td class="left">Parent Nodes:</td>
+    <td>&lt;control&gt; (if control has CLA such as PANE and BOX controls), &lt;pane&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="tags">
+  <tr><th colspan="2">&lt;styles&gt;</th></tr>
+  <tr><td colspan="2">styles is an element that groups style elements.</td></tr>
   <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;all&gt; </span><br />
-        Handy element to style EVERYTHING on your dialog. </td>
+    <td class="left">Child nodes:</td>
+    <td>&lt;style&gt;</td>
   </tr>
   <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top"><em>none </em></td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top">&lt;styles&gt; </td>
+    <td class="left">Parent Nodes:</td>
+    <td>&lt;dialogs&gt;(global), &lt;dialog&gt;(local)</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="tags">
+  <tr><th colspan="2">&lt;style&gt;</th></tr>
+  <tr><td colspan="2">style allows you to style a control/class or id.</td></tr>
   <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;icons&gt; </span><br />
-        icons groups icon elements </td>
+    <td class="left">Child nodes:</td>
+    <td><em>none</em></td>
   </tr>
   <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top">&lt;icon&gt; </td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top">&lt;dialogs&gt;(global), &lt;dialog&gt;(local) </td>
+    <td class="left">Parent Nodes:</td>
+    <td>&lt;styles&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="tags">
+  <tr><th colspan="2">&lt;all&gt;</th></tr>
+  <tr><td colspan="2">Handy element to style EVERYTHING on your dialog.</td></tr>
   <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;icon&gt; </span><br />
-        icon allows you to specify a control/class or id's image list </td>
+    <td class="left">Child nodes:</td>
+    <td><em>none</em></td>
   </tr>
   <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top"><em>none </em></td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top">&lt;icons&gt; </td>
+    <td class="left">Parent Nodes:</td>
+    <td>&lt;styles&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="tags">
+  <tr><th colspan="2">&lt;icons&gt;</th></tr>
+  <tr><td colspan="2">icons groups icon elements</td></tr>
   <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;templates&gt; </span><br />
-    Container for templates </td>
+    <td class="left">Child nodes:</td>
+    <td>&lt;icon&gt;</td>
   </tr>
   <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top">&lt;template&gt;</td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top">&lt;dialogs&gt;</td>
+    <td class="left">Parent Nodes:</td>
+    <td>&lt;dialogs&gt;(global), &lt;dialog&gt;(local)</td>
   </tr>
 </table>
-<br />
-<table cellspacing="0" cellpadding="0">
+
+<table class="tags">
+  <tr><th colspan="2">&lt;icon&gt;</th></tr>
+  <tr><td colspan="2">icon allows you to specify a control/class or id's image list</td></tr>
   <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;template&gt; </span><br />
-    icon allows you to specify a control/class or id's image list </td>
+    <td class="left">Child nodes:</td>
+    <td><em>none</em></td>
   </tr>
   <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top">Any valid child of &lt;dialog&gt; except for &lt;calltemplate&gt; </td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top">&lt;templates&gt;</td>
+    <td class="left">Parent Nodes:</td>
+    <td>&lt;icons&gt;</td>
   </tr>
 </table>
-<br />
-<table cellspacing="0" cellpadding="0">
+
+<table class="tags">
+  <tr><th colspan="2">&lt;templates&gt;</th></tr>
+  <tr><td colspan="2">Container for templates</td></tr>
   <tr>
-    <td width="638" colspan="2" valign="top"><span class="subSectionTitle">&lt;calltemplate&gt; </span><br />
-    Applies a certain template </td>
+    <td class="left">Child nodes:</td>
+    <td>&lt;template&gt;</td>
   </tr>
   <tr>
-    <td width="109" valign="top"><strong>Child nodes: </strong></td>
-    <td width="529" valign="top">None</td>
-  </tr>
-  <tr>
-    <td width="109" valign="top"><strong>Parent Nodes: </strong></td>
-    <td width="529" valign="top">Any valid &lt;dialog&gt; child element except for &lt;calltemplate&gt;</td>
+    <td class="left">Parent Nodes:</td>
+    <td>&lt;dialogs&gt;</td>
   </tr>
 </table>
+
+<table class="tags">
+  <tr><th colspan="2">&lt;template&gt;</th></tr>
+  <tr><td colspan="2">icon allows you to specify a control/class or id's image list</td></tr>
+  <tr>
+    <td class="left">Child nodes:</td>
+    <td>Any valid child of &lt;dialog&gt; except for &lt;calltemplate&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Parent Nodes:</td>
+    <td>&lt;templates&gt;</td>
+  </tr>
+</table>
+
+<table class="tags">
+  <tr><th colspan="2">&lt;calltemplate&gt;</th></tr>
+  <tr><td colspan="2">Applies a certain template</td></tr>
+  <tr>
+    <td class="left">Child nodes:</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td class="left">Parent Nodes:</td>
+    <td>Any valid &lt;dialog&gt; child element except for &lt;calltemplate&gt;</td>
+  </tr>
+</table>
+
 <p><span class="sectionTitle">Attribute Refference<a name="AttributeRefference" id="AttributeRefference"></a></span>
 <a href="#top">go to top</a></p>
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">eval</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">eval</td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>every element</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top"><strong>every element</strong></td>
+    <td class="left">Description:</td>
+    <td>Specifies wheter to evaluate identifiers in the attributes and textNode of the element. Please note when set the DCXML parser will send the command to mIRC and then recieve it back in DCX this is slightly slower then normal because when this attribute is not set the DCXML parser calls the appropiate function internally.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Specifies wheter to evaluate identifiers in the attributes and textNode of the element. Please note when set the DCXML parser will send the command to mIRC and then recieve it back in DCX this is slightly slower then normal because when this attribute is not set the DCXML parser calls the appropiate function internally. </td>
+    <td class="left">Default value:</td>
+    <td>not applicable.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">not applicable.</td>
+    <td class="left">Valid values:</td>
+    <td>as soon as this attribute is set it will evaluate identifiers. so [v]eval=&quot;&quot;[/v] is enough to make it evaluate.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">as soon as this attribute is set it will evaluate identifiers. so <span class="subSectionTitle">eval=&quot;&quot;</span> is enough to make it evaluate. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”text” eval=&quot;1&quot; caption=”$me” /&gt; </td>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;text&quot; eval=&quot;1&quot; caption=&quot;$me&quot; /&gt;</td>
   </tr>
 </table>
-<br />
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">w <span style="color: black;">&amp;</span> h</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">w <span style="color: black;">&amp;</span> h </td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;dialog&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;dialog&gt;</td>
+    <td class="left">Description:</td>
+    <td>Sets the width or height of the dialog</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the width or height of the dialog </td>
+    <td class="left">Default value:</td>
+    <td>not applicable.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">not applicable.</td>
+    <td class="left">Valid values:</td>
+    <td>&nbsp;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">&nbsp;</td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;dialog w=”200” h=&quot;400&quot; &gt; </td>
+    <td class="left">Example:</td>
+    <td>&lt;dialog w=&quot;200&quot; h=&quot;400&quot; &gt;</td>
   </tr>
 </table>
-<br />
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">center</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">center</td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;dialog&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;dialog&gt;</td>
+    <td class="left">Description:</td>
+    <td>Centers the dialog when created.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Centers the dialog when created.</td>
+    <td class="left">Default value:</td>
+    <td>not applicable.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">not applicable.</td>
+    <td class="left">Valid values:</td>
+    <td>any</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">any</td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;dialog w=”200” h=&quot;400&quot; center=&quot;&quot;&gt; </td>
+    <td class="left">Example:</td>
+    <td>&lt;dialog w=&quot;200&quot; h=&quot;400&quot; center=&quot;&quot;&gt;</td>
   </tr>
 </table>
-<br />
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">type</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">type </td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt; </td>
+    <td class="left">Description:</td>
+    <td>Tells the DCXML parser what kind of control you want to create. Name as supplied to /xdialog –c or /xdid –c</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Tells the DCXML parser what kind of control you want to create. Name as supplied to /xdialog –c or /xdid –c </td>
+    <td class="left">Default value:</td>
+    <td>Panel</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">Panel </td>
+    <td class="left">Valid values:</td>
+    <td>pbar, treeview, toolbar, statusbar, listview, trackbar, rebar, colorcombo, button, richedit, ipaddress, updown, webctrl, line, box, radio, check, edit, scroll, image, list, link, text, divider, panel, tab, window, dialog</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">pbar , treeview, toolbar, statusbar , listview, trackbar, rebar, colorcombo ,button, richedit, ipaddress, updown ,webctrl, line, box, radio, check, edit ,scroll, image, list link, text, divider, panel ,tab, window, dialog </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”listview” /&gt; </td>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;listview&quot; /&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">weight</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">weight </td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt; &lt;pane&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt; &lt;pane&gt; </td>
+    <td class="left">Description:</td>
+    <td>Give's a control or pane a weight value so that the CLA can determine it's size against it's siblings.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Give's a control or pane a weight value so that the CLA can determine it's size against it's siblings. </td>
+    <td class="left">Default value:</td>
+    <td>0</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">0 </td>
+    <td class="left">Valid values:</td>
+    <td>Any numerical value greater then zero.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any numerical value greater then zero. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”listview” weight=”4” /&gt; </td>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;listview&quot; weight=&quot;4&quot; /&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">height</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">height </td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt; &lt;pane&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt; &lt;pane&gt; </td>
+    <td class="left">Description:</td>
+    <td>Give's a control or pane a fixed height in pixels. The control will not size vertically when this attribute is set on an element</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Give's a control or pane a fixed height in pixels. The control will not size vertically when this attribute is set on an element </td>
+    <td class="left">Default value:</td>
+    <td>0</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">0 </td>
+    <td class="left">Valid values:</td>
+    <td>Any numerical value greater then zero to indicate height in pixels</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any numerical value greater then zero to indicate height in pixels </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”listview” /&gt; </td>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;listview&quot; /&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">width</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">width </td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt; &lt;pane&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt; &lt;pane&gt; </td>
+    <td class="left">Description:</td>
+    <td>Give's a control or pane a fixed width in pixels. The control will not size horizontally when this attribute is set on an element</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Give's a control or pane a fixed width in pixels. The control will not size horizontally when this attribute is set on an element </td>
+    <td class="left">Default value:</td>
+    <td>0</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">0 </td>
+    <td class="left">Valid values:</td>
+    <td>Any numerical value greater then zero to indicate width in pixels</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any numerical value greater then zero to indicate width in pixels </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”listview” /&gt; </td>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;listview&quot; /&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">margin</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">margin </td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;pane&gt;&lt;dialog&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;pane&gt;&lt;dialog&gt; </td>
+    <td class="left">Description:</td>
+    <td>Give's a dialog or pane a margin. All the childs will be placed at the offset specifed</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Give's a dialog or pane a margin. All the childs will be placed at the offset specifed </td>
+    <td class="left">Default value:</td>
+    <td>0 0 0 0</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">0 0 0 0 </td>
+    <td class="left">Valid values:</td>
+    <td>LEFT TOP RIGHT BOTTOM as integers.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">LEFT TOP RIGHT BOTTOM as integers. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;pane margin=”20 20 20 20” /&gt; </td>
+    <td class="left">Example:</td>
+    <td>&lt;pane margin=&quot;20 20 20 20&quot; /&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">styles</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">styles </td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt; </td>
+    <td class="left">Description:</td>
+    <td>Sets the control styles</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the control styles </td>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Valid values:</td>
+    <td>Any valid style on the control</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any valid style on the control </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”listview” styles=”report grid subitemimage fullrow” /&gt; </td>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;listview&quot; styles=&quot;report grid subitemimage fullrow&quot; /&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">caption</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">caption </td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt; &lt;dialog&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt; &lt;dialog&gt; </td>
+    <td class="left">Description:</td>
+    <td>If control allows text to be added this will set the text. For &lt;dialog&gt; this sets the dialog title.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">If control allows text to be added this will set the text. For &lt;dialog&gt; this sets the dialog title. </td>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Valid values:</td>
+    <td>Any valid XML character for instance using &quot;&amp;&quot; can result in text to be cut off.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any valid XML character for instance using “&amp;” can result in text to be cut off. </td>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;text&quot; caption=&quot;This is a text control!&quot; /&gt;<br />
+&lt;control type=&quot;text&quot;&gt;This is a text control!&lt;/control&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”text” caption=”This is a text control!” /&gt; <br />
-        or <br />
-&lt;control type=”text”&gt;This is a text control!&lt;/control&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Notes: </strong></td>
-    <td width="523" valign="top"><ul>
+    <td class="left">Notes:</td>
+    <td><ul>
       <li>You don't have to use the caption attribute if you set the Text Node on the element (see above) it will do the exact same.</li>
       <li>When you use the Text Node method there's no limit on how much text you want to input.</li>
-      <li>For some controls \c and \b are shortcuts to mIRC's colour and bold code respectively. </li>
-      <li>mIRC identifiers <strong>WILL </strong> be evaluated if the eval attribute is set on the element. </li>
+      <li>For some controls \c and \b are shortcuts to mIRC's colour and bold code respectively.</li>
+      <li>mIRC identifiers <strong>WILL</strong> be evaluated if the eval attribute is set on the element.</li>
     </ul></td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">tooltip </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the control's tooltip </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any valid tooltip control </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”text” tooltip=”some description” /&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">cascade </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;pane&gt;&lt;dialog&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the direction in which the child &lt;panes&gt;&lt;controls&gt; are placed. Specify “h” and all the children will appear next to each other. “v” makes them appear underneath each other. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">v </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">h v </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”text” tooltip=”some description” /&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">textcolour </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;style&gt;&lt;item&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets text colour </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Numeric greater then zero. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;item caption=”redtext” textcolour=”255” /&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">textbgcolour </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;style&gt;&lt;item&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets text background colour </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Numeric greater then zero. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;item caption=”redbgtext” textcolour=”255” /&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">bgcolour </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;style&gt;&lt;item&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets background colour </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Numeric greater then zero. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;item caption=”redbgt” bgcolour=”255” /&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">icon </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;item&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the icon index to be used by the control or item. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Numeric greater then or equal to zero. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;item icon=”0” /&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>&nbsp; </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">iconsize </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;style&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the icon size. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Numeric greater then or equal to zero. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;item icon=”0” /&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>&nbsp; </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">integral </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control type=”treeview”&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets icon spacing in the treeview </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Numeric greater then zero. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”treeview” integral=”1”&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">fontstyle </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;style&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the fontstyle </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any valid fontstyle switch </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”text” fontstyle=”b”&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">charset </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;style&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the character set of the font </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any valid character set </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”text” charset=”ansii”&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">fontsize</td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;style&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the font size </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any font size </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”text” fontsize=”16”&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">fontname </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;style&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the font </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any font </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”text” font=”Trebuchet MS”&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">border </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;dialog&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the border on a control dialog </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any valid border switch </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;dialog name=&quot;mydialog&quot; border=&quot;btmnzy&quot;&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">cursor </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;style&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the default cursor for a control </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any valid cursor name </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”text” cursor=”wait”&gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">indent </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;item&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Sets the indentation of comboex items. In future this will support more controls and integral will be synonymous with this attribute. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">0 or greater </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;item indent=”5” &gt; </td>
-  </tr>
-</table>
-  
-<table cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="115" valign="top" class="subSectionTitle">flags </td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;item&gt;&lt;icon&gt; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Allows you to pass flags when creating controls, items, icons. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any valid flag </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;item caption=&quot;these&quot; icon=&quot;20&quot; flags=&quot;v&quot; /&gt; <br />
-        creates a toolbar button with a dropdown arrow if this item is child of a toolbar. </td>
-  </tr>
-</table>
-<br />
 
-<table cellspacing="0" cellpadding="0">
+<table class="attrs">
+  <tr><th colspan="2">tooltip</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">src </td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt;&lt;item&gt;&lt;icon&gt; </td>
+    <td class="left">Description:</td>
+    <td>Sets the control's tooltip</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Pointer to files, for instance icon resources,a bitmap, or an URL for link controls. </td>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Valid values:</td>
+    <td>Any valid tooltip control</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">Any valid pathname </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;icon type=&quot;treeview&quot; indexmax=&quot;40&quot; src=&quot;$_scriptdir $+ controls.icl&quot; /&gt; </td>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;text&quot; tooltip=&quot;some description&quot; /&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">cascade</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">cells </td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;pane&gt;&lt;dialog&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control type=”statusbar”&gt; </td>
+    <td class="left">Description:</td>
+    <td>Sets the direction in which the child &lt;panes&gt;&lt;controls&gt; are placed. Specify &quot;h&quot; and all the children will appear next to each other. &quot;v&quot; makes them appear underneath each other.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Special attribute to tell DCX how many cells there are and how big they're going to be </td>
+    <td class="left">Default value:</td>
+    <td>v</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Valid values:</td>
+    <td>h v</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">N [N N N ….] </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”statusbar” cells=&quot;100 200 300 400 -1&quot;&gt; </td>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;text&quot; tooltip=&quot;some description&quot; /&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">textcolour</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">minheight </td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;style&gt;&lt;item&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt; </td>
+    <td class="left">Description:</td>
+    <td>Sets text colour</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Special attribute to tell direct child controls of the rebar the minimal height the bar of the rebar band. </td>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Valid values:</td>
+    <td>Numeric greater then zero.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">0 or greater. </td>
-  </tr>
-  <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”panel” minheight=&quot;100&quot;&gt; </td>
+    <td class="left">Example:</td>
+    <td>&lt;item caption=&quot;redtext&quot; textcolour=&quot;255&quot; /&gt;</td>
   </tr>
 </table>
-  
-<table cellspacing="0" cellpadding="0">
+
+<table class="attrs">
+  <tr><th colspan="2">textbgcolour</th></tr>
   <tr>
-    <td width="115" valign="top" class="subSectionTitle">minwidth </td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;style&gt;&lt;item&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Applies to: </strong></td>
-    <td width="523" valign="top">&lt;control&gt; </td>
+    <td class="left">Description:</td>
+    <td>Sets text background colour</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Description: </strong></td>
-    <td width="523" valign="top">Special attribute to tell direct child controls of the rebar the minimal width the bar of the rebar band. </td>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Default value: </strong></td>
-    <td width="523" valign="top">&nbsp; </td>
+    <td class="left">Valid values:</td>
+    <td>Numeric greater then zero.</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Valid values: </strong></td>
-    <td width="523" valign="top">0 or greater. </td>
+    <td class="left">Example:</td>
+    <td>&lt;item caption=&quot;redbgtext&quot; textcolour=&quot;255&quot; /&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">bgcolour</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;style&gt;&lt;item&gt;</td>
   </tr>
   <tr>
-    <td width="115" valign="top"><strong>Example: </strong></td>
-    <td width="523" valign="top">&lt;control type=”panel” minwidth=&quot;100&quot;&gt; </td>
+    <td class="left">Description:</td>
+    <td>Sets background colour</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Numeric greater then zero.</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;item caption=&quot;redbgt&quot; bgcolour=&quot;255&quot; /&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">icon</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;item&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets the icon index to be used by the control or item.</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Numeric greater then or equal to zero.</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;item icon=&quot;0&quot; /&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">iconsize</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;style&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets the icon size.</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Numeric greater then or equal to zero.</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;item icon=&quot;0&quot; /&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">integral</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control type=&quot;treeview&quot;&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets icon spacing in the treeview</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Numeric greater then zero.</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;treeview&quot; integral=&quot;1&quot;&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">fontstyle</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;style&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets the fontstyle</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Any valid fontstyle switch</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;text&quot; fontstyle=&quot;b&quot;&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">charset</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;style&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets the character set of the font</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Any valid character set</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;text&quot; charset=&quot;ansii&quot;&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">fontsize</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;style&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets the font size</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Any font size</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;text&quot; fontsize=&quot;16&quot;&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">fontname</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;style&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets the font</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Any font</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;text&quot; font=&quot;Trebuchet MS&quot;&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">border</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;dialog&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets the border on a control dialog</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Any valid border switch</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;dialog name=&quot;mydialog&quot; border=&quot;btmnzy&quot;&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">cursor</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;style&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets the default cursor for a control</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Any valid cursor name</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;text&quot; cursor=&quot;wait&quot;&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">indent</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;item&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Sets the indentation of comboex items. In future this will support more controls and integral will be synonymous with this attribute.</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>0 or greater</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;item indent=&quot;5&quot; &gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">flags</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;item&gt;&lt;icon&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Allows you to pass flags when creating controls, items, icons.</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Any valid flag</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;item caption=&quot;these&quot; icon=&quot;20&quot; flags=&quot;v&quot; /&gt; <br />
+        creates a toolbar button with a dropdown arrow if this item is child of a toolbar.</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">src</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;&lt;item&gt;&lt;icon&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Pointer to files, for instance icon resources,a bitmap, or an URL for link controls.</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>Any valid pathname</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;icon type=&quot;treeview&quot; indexmax=&quot;40&quot; src=&quot;$_scriptdir $+ controls.icl&quot; /&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">cells</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control type=&quot;statusbar&quot;&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Special attribute to tell DCX how many cells there are and how big they're going to be</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>N [N N N ….]</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;statusbar&quot; cells=&quot;100 200 300 400 -1&quot;&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">minheight</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Special attribute to tell direct child controls of the rebar the minimal height the bar of the rebar band.</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>0 or greater.</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;panel&quot; minheight=&quot;100&quot;&gt;</td>
+  </tr>
+</table>
+
+<table class="attrs">
+  <tr><th colspan="2">minwidth</th></tr>
+  <tr>
+    <td class="left">Applies to:</td>
+    <td>&lt;control&gt;</td>
+  </tr>
+  <tr>
+    <td class="left">Description:</td>
+    <td>Special attribute to tell direct child controls of the rebar the minimal width the bar of the rebar band.</td>
+  </tr>
+  <tr>
+    <td class="left">Default value:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="left">Valid values:</td>
+    <td>0 or greater.</td>
+  </tr>
+  <tr>
+    <td class="left">Example:</td>
+    <td>&lt;control type=&quot;panel&quot; minwidth=&quot;100&quot;&gt;</td>
   </tr>
 </table>
 <?php
