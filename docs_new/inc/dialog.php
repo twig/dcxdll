@@ -4,7 +4,7 @@ function get_intro_dialog() {
 <br />
 You can dock any number of dialogs as long as each is a separate entity.<br />
 <br />
-[n]The docked dialogs are ejected when the main dialog is closed, or the control is deleted.[/n]
+[n]The docked dialogs are ejected when the main dialog is closed, or the control is deleted.[/n]<br />
 [n]Within the [e]close[/e] event of the main dialog, you must use a timer with /xdialog -x to close the docked dialog.[/n]
 <?php
 }

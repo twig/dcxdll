@@ -564,6 +564,12 @@ $CHANGES = array(
             'cleaned up /xdid -y for statusbar',
             'added some margin space between left menu and main content',
             'put some padding for links in left menu so it has more of a ladder hierarchy',
+            'removed translated docs',
+            'removed additional div in SECTION label so css can have more effect on text',
+            'fixed SECTION_INTRO on treeview page',
+            'dcxdoc_print_description() now accepts null as $caption',
+            'fixed SECTION_GENERAL problem with tutorials page',
+            'added new line break to dialog notes',
         ),
     ),
     'v1.3.7' => array(
