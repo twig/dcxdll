@@ -386,6 +386,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 			iend = istart;
 
 		SendMessage(this->m_Hwnd, EM_SETSEL, istart, iend);
+		SendMessage(this->m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
 	else if (flags['E'] && numtok > 3) {

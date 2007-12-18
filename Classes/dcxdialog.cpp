@@ -1224,7 +1224,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			MapWindowRect(NULL, GetParent(this->m_Hwnd), &rcWindow);
 
 		// if x & y are -1, not moving. NB: This still allows -2 etc.. positioning. (window positioned offscreen)
-		if ((x < 0) && (y < 0))
+		if ((x == -1) && (y == -1))
 			iFlags |= SWP_NOMOVE;
 
 		// if w or h are < 0, no sizing. NB: no negative sizes allowed.
@@ -1232,9 +1232,9 @@ void DcxDialog::parseCommandRequest(TString &input) {
 			iFlags |= SWP_NOSIZE;
 
 		// this handles the case where either x or y is -1 but the other isn't.
-		if (x < 0)
+		if (x == -1)
 			x = rcWindow.left;
-		if (y < 0)
+		if (y == -1)
 			y = rcWindow.top;
 
 		// This handles the case where either w or h are < 0 but the other isn't.

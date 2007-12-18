@@ -442,6 +442,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 			c.cpMax = c.cpMin;
 
 		SendMessage(this->m_Hwnd, EM_EXSETSEL, NULL, (LPARAM) &c);
+		SendMessage(this->m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 
 		//DWORD dwAbsoluteStartSelPos = 0;
 		//// caret startsel position
