@@ -6,7 +6,7 @@ function tutorials_layout($page, $pagelabel) {
 	// intro
 	dcxdoc_print_intro($page);
 	
-//	$SECTION = SECTION_INTRO;
+	$SECTION = SECTION_GENERAL;
 	$EXAMPLES = array();
 	get_examples($EXAMPLES);
 
