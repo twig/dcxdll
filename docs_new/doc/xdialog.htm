@@ -1150,34 +1150,22 @@
 	<tr><td colspan="2">This command allows you to set the size and position of the window. This differs from mIRC's resizing functionality as the height and width does not include the window border.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdialog -S [DNAME] [+FLAGS] [X Y] [W H]</div></td>
+		<td><div class="syntax">/xdialog -S [DNAME] [X Y] [W H]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdialog -S dcx +s 300 100<br />/xdialog -S dcx +m 50 100<br />/xdialog -S dcx +ms 100 200 300 400<br /></div></td>
+		<td><div class="example">/xdialog -S dcx 300 100 -1 -1<br />/xdialog -S dcx -1 75 50 100<br />/xdialog -S dcx 100 200 300 -1<br />/xdialog -S dcx 15 30 45 60<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
-		<td class="param">+FLAGS</td>
-		<td>Whether you are sizing, moving, or both.</td>
-	</tr>
-	<tr>
-		<td class="value">s</td>
-		<td>Resizes the client area of the window.</td>
-	</tr>
-	<tr>
-		<td class="value">m</td>
-		<td>Moves the window.</td>
-	</tr>
-	<tr>
 		<td class="param">X Y</td>
-		<td>The X and Y coordinates of the window. Only required if used with the <a class="value">m</a> flag.</td>
+		<td>The X and Y coordinates of the window.</td>
 	</tr>
 	<tr>
 		<td class="param">W H</td>
-		<td>The width and height of the window. Only required if used with the <a class="value">s</a> flag.</td>
+		<td>The width and height of the window.</td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can specify <a class="value">-1</a> for any value that you do not wish to modify.</td></tr></table>
 <br />
 <table class="xdialog">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
