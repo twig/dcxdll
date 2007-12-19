@@ -434,8 +434,13 @@ function print_menu_items(&$arr, $sec, $sectext) {
 			// ignore __notes, etc
 			if (preg_match("/__.+/i", $flag))
 			    continue;
+                        
+                        // if an uppercase flag
+                        $case = '';
+                        if (ctype_upper($flag))
+                            $case = 'big';
 			
-			echo "\n\t\t<a class='flag' href=\"#$sec.$flag\"><div>$prefix$flag</div></a>";
+			echo "\n\t\t<a class='flag' href=\"#" . ($case == '' ? "$sec.$flag" : "$sec.$case.$flag") . "\"><div>$prefix$flag</div></a>";
 		}
 
 		echo "\n\t</div>\n";
@@ -664,10 +669,16 @@ function format_xcmd($section, $flag, $data) {
 		error_log("format_xcmd: Unknown type $section");
 	    exit();
 	}
+        
+        // if an uppercase flag
+        $case = '';
+        
+        if (ctype_upper($flag))
+            $case = 'big';
 ?>
 <table class="<?php echo get_section_name($section); ?>">
 	<tr><td colspan="2" class="flag" style="<?php echo "color: $color; border-color: $color;";?>">
-			<a name="<?php echo "$section.$flag"; ?>"></a><?php echo $heading; ?>
+			<a name="<?php echo ($case == '' ? "$section.$flag" : "$section.$case.$flag"); ?>"></a><?php echo $heading; ?>
 	</td></tr>
 	<tr><td colspan="2"><?php echo $data['__desc']; ?></td></tr>
 	<tr>
