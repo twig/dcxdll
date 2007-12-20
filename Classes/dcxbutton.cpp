@@ -279,6 +279,8 @@ void DcxButton::parseCommandRequest( TString & input ) {
 				ImageList_ReplaceIcon(himl, 0, icon);
 		}
 		DestroyIcon(icon);
+
+		this->redrawWindow();
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [ENABLED]
   else if (flags['m'] && numtok > 3) {
