@@ -116,7 +116,7 @@ void DcxDock::UnDockWindow(HWND hwnd)
 				this->m_VectorDocks.erase(itStart);
 				SetWindowLong(ud->hwnd,GWL_STYLE, ud->old_styles);
 				SetWindowLong(ud->hwnd,GWL_EXSTYLE, ud->old_exstyles);
-			  RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
+				RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
 				SetParent(ud->hwnd, NULL);
 				SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED);
 				delete ud;

@@ -803,18 +803,14 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		// Click-through
 		else if (input.gettok(3) == "clickthrough") {
 			if (input.gettok(4) == "none") {
-				if (isExStyle(WS_EX_TRANSPARENT)) {
+				if (this->isExStyle(WS_EX_LAYERED|WS_EX_TRANSPARENT)) {
 					mIRCError("removing clickthru");
-					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
+					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED|WS_EX_TRANSPARENT);
 				}
 			}
 			else {
-				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
-					mIRCError("setting clickthrough");
-					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
-				}
+				mIRCError("setting clickthrough");
+				AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
 			}
 		}
 		else {
