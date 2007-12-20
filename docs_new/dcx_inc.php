@@ -1289,7 +1289,8 @@ function writeDcxLoadIcon(&$FLAGS, $switch, $param, $cmdPosition)
 		$FLAGS[$switch]['__params'][$param]['__desc'] = "Icon flags";
 
 	// Add dcxLoadIcon flags
-	$FLAGS[$switch]['__params'][$param]['__values']['a'] = 'Uses the icon associated with the given filetype.';
+	$FLAGS[$switch]['__params'][$param]['__values']['a'] = 'Uses the icon associated with the given file (as shown in Windows Explorer).<br />[n]File must exist.[/n]';
+        $FLAGS[$switch]['__params'][$param]['__values']['f'] = 'Uses the icon associated with the given filetype.<br />[n]Filename is the extension (eg. BMP, PNG, AVI, etc).[/n]';
 	$FLAGS[$switch]['__params'][$param]['__values']['g'] = 'Convert to grayscale icon.';
 	$FLAGS[$switch]['__params'][$param]['__values']['P'] = 'If GDI+ is enabled, this will use GDI+ to extract the icon.';
 }

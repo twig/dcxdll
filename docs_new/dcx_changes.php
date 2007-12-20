@@ -119,6 +119,7 @@ $CHANGES = array(
             'added $xdid().selected to listview',
             'added events: close (calendar hidden), open (calendar shown), change (date/time changed) to datetimepicker',
             "added event 'showtip' to trackbar",
+            'added +f flag for dcxLoadIcon() functions (which affects many controls) to allow loading of filetype icon',
         ),
         'Syntax changes' => array(
             'updated dcx_tools.mrc to include /xstatusbar, /xtreebar and /xmenubar aliases. please update your scripts!',
@@ -293,8 +294,10 @@ $CHANGES = array(
             'richedit - added line number checks to $xdid(N).text to ensure it is within a valid range (0 < N < line count)',
             'xpopup - changed /xpopup -s to adjust menu position on the assumption that the x & y are relative to the client rect when an hwnd is supplied.',
             'ipaddress - commented out unecessary /xdid -r code',
+            '(rich)edit - added code to /xdid -S to move caret to selected text',
         ),
         'DCX Project' => array(
+            'added VS2008 project files',
             'removed commented code',
             'added TGetWindowText() function which gets the window text as a TString',
             'fix possible memleak with treeview setImageList()',
@@ -570,6 +573,9 @@ $CHANGES = array(
             'dcxdoc_print_description() now accepts null as $caption',
             'fixed SECTION_GENERAL problem with tutorials page',
             'added new line break to dialog notes',
+            'fixed extremely stupid ie7 case insensitive anchor bug (eg. /xdid -T would link to /xdid -t)',
+            'updated comment for dcxLoadIcon() flag +a',
+            'added dcxLoadIcon() flags to stacker /xdid -w',
         ),
     ),
     'v1.3.7' => array(
