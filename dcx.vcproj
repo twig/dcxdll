@@ -153,6 +153,9 @@
 			<File
 				RelativePath=".\windowFunctions.cpp">
 			</File>
+			<File
+				RelativePath=".\XSwitchFlags.cpp">
+			</File>
 			<Filter
 				Name="Controls"
 				Filter="">
@@ -322,6 +325,9 @@
 				Name="XPopup"
 				Filter="">
 				<File
+					RelativePath=".\Classes\xpopup\xmenubar.cpp">
+				</File>
+				<File
 					RelativePath=".\Classes\xpopup\xpopupmenu.cpp">
 				</File>
 				<File
@@ -386,6 +392,9 @@
 			</File>
 			<File
 				RelativePath=".\defines.h">
+			</File>
+			<File
+				RelativePath=".\XSwitchFlags.h">
 			</File>
 			<Filter
 				Name="Controls"
@@ -555,6 +564,9 @@
 			<Filter
 				Name="XPopup"
 				Filter="">
+				<File
+					RelativePath=".\Classes\xpopup\xmenubar.h">
+				</File>
 				<File
 					RelativePath=".\Classes\xpopup\xpopupmenu.h">
 				</File>
