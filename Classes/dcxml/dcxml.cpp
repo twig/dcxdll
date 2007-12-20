@@ -5,7 +5,7 @@
  * TODO: rename all variables to use the same convention (camelCase)
  *
  * \author Martijn Laarman ( Mpdreamz at mirc dot net )
- * \version 2.0
+ * \version 2.2
  *
  * \b Revisions
  *        -Completely rewrote DCXML to be more OOP
@@ -19,6 +19,7 @@
 #include "../dcxdialog.h"
 #include "../dcxdialogcollection.h"
 #include "../dcxcontrol.h"
+#include <map>
 
 extern DcxDialogCollection Dialogs;
 /*
@@ -73,11 +74,10 @@ public:
     const char *disabledsrc;
     const char *hoversrc;
     const char *selectedsrc;
-
     TiXmlElement* templateRef;
     int templateRefcCla;
     const char *templateRefclaPath;
-
+	std::map<const char*, const char*> template_vars;
     int eval;
     
 
@@ -180,7 +180,7 @@ public:
     }
     /* parseControl() : if current element is a control perform some extra commands*/
     void parseControl() { 
-        //zlayer control 
+        //control wants to be a zlayer
         if (element->Attribute("zlayer")) { 
             xdialogEX("-z","+a %i",id);
             zlayered = 1;
@@ -276,6 +276,7 @@ public:
         disabledsrc = (temp = element->Attribute("disabledsrc")) ? temp : "";
         hoversrc = (temp = element->Attribute("hoversrc")) ? temp : "";
     }
+	/* xdialogEX(switch,format[,args[]]) : performs an xdialog command internally or trough mIRC */
     void xdialogEX(const char *sw,const char *dFormat, ...) { 
             va_list args;
             va_start(args, dFormat);
@@ -287,6 +288,7 @@ public:
             else d_Host->parseCommandRequestEX("%s %s %s",dname.to_chr(),sw,txt);
             delete [] txt;
     }
+	/* xdidEX(controlId,switch,format[,args[]]) : performs an xdid command internally or trough mIRC on the specified id */
     void xdidEX(int id,const char *sw,const char *dFormat, ...) { 
             va_list args;
             va_start(args, dFormat);
@@ -298,7 +300,7 @@ public:
             else d_Host->parseComControlRequestEX(id,"%s %i %s %s",dname.to_chr(),id,sw,txt);
             delete [] txt;
     }
-    /* parseCLA(int cCla) parses control and pane elements and applies the right CLA commands */
+    /* parseCLA(int numberOfClaControlsInCurrentBranch) : parses control and pane elements and applies the right CLA commands */
     TString parseCLA(int cCla) { 
         if (0==lstrcmp(elem, "control")) { 
             if ((0==lstrcmp(type, "panel")) || (0==lstrcmp(type, "box"))) {
@@ -364,8 +366,11 @@ public:
         g_resetcla = 0;
         return TString(claPathx);
     }
+    /* setStyle(TiXmlElement*) : Applies the styles described on the element found by parseStyle() */
     void setStyle(TiXmlElement* style) {
-        //font
+        //style attributes evaluate by default unless eval="0" is set on the element explicitly
+		eval = (style->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 1;
+		//font
         fontstyle = (temp = style->Attribute("fontstyle")) ? temp : "d";
         charset = (temp = style->Attribute("charset")) ? temp : "ansi";
         fontsize = (temp = style->Attribute("fontsize")) ? temp : "";
@@ -423,6 +428,7 @@ public:
         }
     }
 
+	/* parseStyle(recursionDepth) : Simple recursive method to cascade find the right style to apply to an element */
     void parseStyle(int depth = 0) { 
         if (depth > 2) return;
         depth++;
@@ -451,6 +457,7 @@ public:
         parseStyle(depth);
     }
 
+	/* parseIcons(recursionDepth) : Simple recursive method to cascade find the right icons to apply to an element */
     void parseIcons(int depth = 0) { 
         if (depth > 1) return;
         depth++;
@@ -490,6 +497,7 @@ public:
         }
         else parseIcons(depth);
     }
+	/* parseItems(XmlElement,recursionDepth,itemPath) : recursively applies items for a control */
     void parseItems(TiXmlElement* element,int depth = 0,char *itemPath = "") { 
         int item = 0;
         int cell = 0;
@@ -533,6 +541,8 @@ public:
             }
         }
     }
+
+	/* parseTemplate(recursionDepth,claPath,firstFreeControlId) : finds a template and parses it into the current dialog */
     void parseTemplate(int dialogDepth=0,const char *claPath = "root",int passedid = 2000)
     {
         TiXmlElement* Template = 0;
@@ -553,6 +563,7 @@ public:
             parseDialog(dialogDepth,claPath,passedid,1);
         }
     }
+	/* parseDialog(recursionDepth,claPath,firstFreeControlId,ignoreParentFlag) : finds a template and parses it into the current dialog */
     void parseDialog(int depth=0,const char *claPath = "root",int passedid = 2000,int ignoreParent = 0) { 
         TiXmlElement* child = 0;
         int control = 0;
@@ -582,17 +593,36 @@ public:
                     const char * t_claPathx = 0;
                     wsprintf (t_buffer, "%i",cCla);
                     t_claPathx = t_buffer;
+					TiXmlAttribute* attribute;
+					const char* name;
+					const char* value;
+					for (attribute = element->FirstAttribute() ; attribute ; attribute = attribute->Next()) 
+					{ 
+						name = attribute->Name(); 
+						value = attribute->Value();
+						if (0==lstrcmp(name, "name")) continue;
+						template_vars[name] = value;
+					} 
+					std::map<const char*,const char*>::iterator iter;   
+					for( iter = template_vars.begin(); iter != template_vars.end(); iter++ ) {
+						mIRCcomEX("//set %%%s %s",iter->first,iter->second);
+					}
                     templateRefclaPath = t_claPathx;
                     parseTemplate(depth,claPath,passedid);
                     templateRef = 0;
+					for( iter = template_vars.begin(); iter != template_vars.end(); iter++ ) {
+						mIRCcomEX("//unset %%%s",iter->first);
+					}
+					template_vars.clear();
                 }
                 continue;
             }
-            if ((0==lstrcmp(elem, "control")) || (0==lstrcmp(elem, "pane"))) cCla++;
+			if ((0==lstrcmp(elem, "control")) || (0==lstrcmp(elem, "pane"))) cCla++;
             else continue;
 
             //asign ID 
-            if (0==lstrcmp(elem, "control")) { 
+            if (0==lstrcmp(elem, "control")) 
+			{ 
                 controls++;
                  id = (element->QueryIntAttribute("id",&id) == TIXML_SUCCESS) ? id : 2000 + controls;
             }
