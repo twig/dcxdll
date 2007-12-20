@@ -737,6 +737,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 	}
 	// xdialog -t [NAME] [SWITCH] [TYPE] [TYPE ARGS]
 	else if (flags['t'] && numtok > 2) {
+		// Alpha transparency
 		if (input.gettok( 3 ) == "alpha") {
 			if (input.gettok( 4 ) == "none") {
 				this->m_iAlphaLevel = 255;
@@ -767,6 +768,7 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				}
 			}
 		}
+		// Transparent color
 		else if (input.gettok( 3 ) == "transparentcolor") {
 			if (input.gettok( 4 ) == "none") {
 				this->m_cKeyColour = (COLORREF)-1;
@@ -792,8 +794,28 @@ void DcxDialog::parseCommandRequest(TString &input) {
 				}
 			}
 		}
+		// Background color
 		else if (input.gettok( 3 ) == "bgcolor") {
 			this->m_colTransparentBg = input.gettok( 4 ).to_int();
+		}
+		// TODO: cant seem to unset it properly. (twig)
+		// http://www.codeproject.com/KB/vb/ClickThroughWindows.aspx
+		// Click-through
+		else if (input.gettok(3) == "clickthrough") {
+			if (input.gettok(4) == "none") {
+				if (isExStyle(WS_EX_TRANSPARENT)) {
+					mIRCError("removing clickthru");
+					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
+				}
+			}
+			else {
+				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
+					mIRCError("setting clickthrough");
+					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+				}
+			}
 		}
 		else {
 			this->showError(NULL, "-t", "Unknown Switch");
