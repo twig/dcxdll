@@ -62,13 +62,6 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	ZeroMemory( &this->m_aColors, 4*sizeof(COLORREF) );
 	ZeroMemory( &this->m_aTransp, 4*sizeof(COLORREF) );
 
-	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips")) {
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
-	}
-
 	this->m_aColors[0] = GetSysColor(COLOR_BTNTEXT); // normal
 	this->m_aColors[1] = GetSysColor(COLOR_BTNTEXT); // hover
 	this->m_aColors[2] = GetSysColor(COLOR_BTNTEXT); // pushed
@@ -77,6 +70,16 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+
+	if (styles.istok("tooltips")) {
+		if (IsWindow(p_Dialog->getToolTip())) {
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+		else
+			this->showError(NULL,"-c","Unable to Initilize Tooltips");
+	}
+
 	// fix to allow pressing enter to work.
 	if (Styles & BS_DEFPUSHBUTTON)
 		SetFocus(this->m_Hwnd);
@@ -90,14 +93,14 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 
 DcxButton::~DcxButton( ) {
 
-  ImageList_Destroy( this->getImageList( ) );
+	ImageList_Destroy( this->getImageList( ) );
 
-  for ( int i = 0; i < 4; i++ ) {
-    if ( this->m_aBitmaps[i] != NULL )
-      DeleteBitmap( this->m_aBitmaps[i] );
-  }
+	for ( int i = 0; i < 4; i++ ) {
+		if ( this->m_aBitmaps[i] != NULL )
+			DeleteBitmap( this->m_aBitmaps[i] );
+	}
 
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 }
 
 /*!
@@ -108,16 +111,16 @@ DcxButton::~DcxButton( ) {
 
 void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( );
+	unsigned int i = 1, numtok = styles.numtok( );
 	*Styles |= BS_NOTIFY;
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "bitmap" )
-      *Styles |= BS_BITMAP;
-    else if ( styles.gettok( i ) == "default" )
-      *Styles |= BS_DEFPUSHBUTTON;
-    else if ( styles.gettok( i ) == "alpha" )
+		if ( styles.gettok( i ) == "bitmap" )
+			*Styles |= BS_BITMAP;
+		else if ( styles.gettok( i ) == "default" )
+			*Styles |= BS_DEFPUSHBUTTON;
+		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
 		else if (( styles.gettok( i ) == "shadow" ))
 			this->m_bShadowText = true;
@@ -130,9 +133,9 @@ void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 			this->m_bGradientVertical = TRUE;
 		}
 
-    i++;
-  }
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+		i++;
+	}
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -146,18 +149,16 @@ void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 
 void DcxButton::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	// [NAME] [ID] [PROP]
+	if ( input.gettok( 3 ) == "text" ) {
 
-  // [NAME] [ID] [PROP]
-  if ( input.gettok( 3 ) == "text" ) {
+		lstrcpyn( szReturnValue, this->m_tsCaption.to_chr( ), 900 );
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-    lstrcpyn( szReturnValue, this->m_tsCaption.to_chr( ), 900 );
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -228,12 +229,12 @@ void DcxButton::parseCommandRequest( TString & input ) {
 			this->m_bHasIcons = FALSE;
 		}
 	}
-  // xdid -t [NAME] [ID] [SWITCH] ItemText
-  else if ( flags['t'] && numtok > 2 ) {
+	// xdid -t [NAME] [ID] [SWITCH] ItemText
+	else if ( flags['t'] && numtok > 2 ) {
 		this->m_tsCaption = (numtok > 3 ? input.gettok( 4, -1 ) : "");
-    this->m_tsCaption.trim( );
-    this->redrawWindow( );
-  }
+		this->m_tsCaption.trim( );
+		this->redrawWindow( );
+	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags['w'] && numtok > 5) {
 		HIMAGELIST himl;
@@ -283,14 +284,14 @@ void DcxButton::parseCommandRequest( TString & input ) {
 		this->redrawWindow();
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [ENABLED]
-  else if (flags['m'] && numtok > 3) {
+	else if (flags['m'] && numtok > 3) {
 		int b = input.gettok( 4 ).to_int();
 
 		this->m_bBitmapText = (b ? TRUE : FALSE);
 		this->redrawWindow();
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!
@@ -300,7 +301,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
  */
 
 UINT DcxButton::parseColorFlags(const TString & flags) {
-	INT i = 1, len = flags.len(), iFlags = 0;
+	INT i = 1, len = (INT)flags.len(), iFlags = 0;
 
 	// no +sign, missing params
 	if (flags[0] != '+') 
@@ -334,7 +335,7 @@ UINT DcxButton::parseColorFlags(const TString & flags) {
 
 HIMAGELIST DcxButton::getImageList(  ) const {
 
-  return this->m_ImageList;
+	return this->m_ImageList;
 }
 
 /*!
@@ -345,7 +346,7 @@ HIMAGELIST DcxButton::getImageList(  ) const {
 
 void DcxButton::setImageList( const HIMAGELIST himl ) {
 
-  this->m_ImageList = himl;
+	this->m_ImageList = himl;
 }
 
 /*!
@@ -355,7 +356,7 @@ void DcxButton::setImageList( const HIMAGELIST himl ) {
  */
 
 HIMAGELIST DcxButton::createImageList() {
-  return ImageList_Create(this->m_iIconSize, this->m_iIconSize, ILC_COLOR32 | ILC_MASK, 1, 0);
+	return ImageList_Create(this->m_iIconSize, this->m_iIconSize, ILC_COLOR32 | ILC_MASK, 1, 0);
 }
 
 /*!
@@ -364,26 +365,27 @@ HIMAGELIST DcxButton::createImageList() {
  * blah
  */
 LRESULT DcxButton::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-    case WM_COMMAND:
-      {
-        switch ( HIWORD( wParam ) ) {
-
-          case BN_CLICKED:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-            }
-            break;
-          case BN_DBLCLK:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				        this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
-            }
-            break;
-        }
-      }
-      break;
+	switch( uMsg )
+	{
+		case WM_COMMAND:
+		{
+			switch ( HIWORD( wParam ) )
+			{
+			case BN_CLICKED:
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+						this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+				}
+				break;
+			case BN_DBLCLK:
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+						this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+				}
+				break;
+			}
+		}
+		break;
 		//case WM_NOTIFY:
 		//	{
 		//		LPNMHDR pnmh = (LPNMHDR)lParam;
@@ -492,9 +494,7 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 		{
 			bParsed = TRUE;
 			PAINTSTRUCT ps;
-			HDC hdc;
-
-			hdc = BeginPaint( this->m_Hwnd, &ps );
+			HDC hdc = BeginPaint( this->m_Hwnd, &ps );
 
 			this->DrawClientArea(hdc, uMsg, lParam);
 
@@ -594,12 +594,39 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		// draw default window bg
 		if (!isBitmap) {
 			if (hTheme != NULL) {
-				HRGN hRgn = NULL;
-				if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
-					SelectClipRgn(hdc, hRgn);
+				// This method causes the button to valis when the dialog is resized using the redrawBuffered() function.
+				//HRGN hRgn = NULL;
+				//if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
+				//	SelectClipRgn(hdc, hRgn);
 
-				CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINTCLIENT, (WPARAM)hdc, PRF_CLIENT);
-				DeleteRgn(hRgn);
+				//CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+				//if (hRgn != NULL)
+				//	DeleteRgn(hRgn);
+				// This method causes the theme bkg to re-appear during resize, but button is otherwise drawn correctly.
+				if (uMsg != WM_PRINTCLIENT) {
+					HRGN hRgn = NULL;
+					if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
+					{
+						HRGN hZeroRgn = CreateRectRgn(0,0,0,0);
+						if ((hRgn != NULL) && (!EqualRgn(hRgn, hZeroRgn)))
+							SelectClipRgn(hdc, hRgn);
+						DeleteRgn(hZeroRgn);
+						DeleteRgn(hRgn);
+					}
+				}
+				CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+				// This method causes the button to valis when the dialog is resized using the redrawBuffered() function.
+				//HDC *buf = CreateHDCBuffer(hdc, &rcClient);
+				//if (buf != NULL) {
+				//	COLORREF bkgClr = RGB(0,0,0);
+				//	GetThemeColorUx(hTheme, BP_PUSHBUTTON, iStateId, TMT_FILLCOLOR, &bkgClr);
+				//	//bkgClr = GetPixel(*buf, 0,0);
+				//	CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM)*buf, lParam);
+				//	TransparentBlt( hdc, rcClient.left, rcClient.top, w, h, *buf, 0, 0, w, h, bkgClr );
+				//	DeleteHDCBuffer(buf);
+				//}
+				//else
+				//	CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 			}
 			else {
 				RECT rc = rcClient;

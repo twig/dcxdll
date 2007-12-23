@@ -42,41 +42,41 @@ class DcxButton : public DcxControl {
 
 public:
 
-  DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
-  virtual ~DcxButton( );
+	DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+	virtual ~DcxButton( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( TString & input, char * szReturnValue );
+	void parseCommandRequest( TString & input );
+	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  HIMAGELIST getImageList( ) const;
-  void setImageList( const HIMAGELIST himl );
-  HIMAGELIST createImageList( );
+	HIMAGELIST getImageList( ) const;
+	void setImageList( const HIMAGELIST himl );
+	HIMAGELIST createImageList( );
 
-  inline TString getType( ) { return TString( "button" ); };
+	inline TString getType( ) { return TString( "button" ); };
 
 protected:
 
-  HIMAGELIST m_ImageList; //!< Button Image List (normal, hover, pushed, disabled)
-  COLORREF m_aColors[4];  //!< Button Colors (normal, hover, pushed, disabled)
-  COLORREF m_aTransp[4];  //!< Transparent Colors (normal, hover, pushed, disabled)
+	HIMAGELIST m_ImageList; //!< Button Image List (normal, hover, pushed, disabled)
+	COLORREF m_aColors[4];  //!< Button Colors (normal, hover, pushed, disabled)
+	COLORREF m_aTransp[4];  //!< Transparent Colors (normal, hover, pushed, disabled)
 
-  HBITMAP m_aBitmaps[4];  //!< Button Bitmaps (normal, hover, pushed, disabled)
+	HBITMAP m_aBitmaps[4];  //!< Button Bitmaps (normal, hover, pushed, disabled)
 
-  TString m_tsCaption; //!< Button Caption Text
+	TString m_tsCaption; //!< Button Caption Text
 
-  BOOL m_bTracking; //!< Button Tracking Mouse Event State
-  BOOL m_bHover;    //!< Button Hovering State
-  BOOL m_bSelected; //!< Button Selected State
+	BOOL m_bTracking; //!< Button Tracking Mouse Event State
+	BOOL m_bHover;    //!< Button Hovering State
+	BOOL m_bSelected; //!< Button Selected State
 
-  UINT m_iIconSize; //!< Button Icon Size 16,24,32
+	UINT m_iIconSize; //!< Button Icon Size 16,24,32
 
-  static UINT parseColorFlags(const TString & flags );
-  BOOL m_bBitmapText;
-  BOOL m_bHasIcons;
+	static UINT parseColorFlags(const TString & flags );
+	BOOL m_bBitmapText;
+	BOOL m_bHasIcons;
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 };
 

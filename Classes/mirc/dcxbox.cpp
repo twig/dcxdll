@@ -525,22 +525,22 @@ LRESULT DcxBox::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	LRESULT lRes = 0L;
-  switch( uMsg ) {
+	switch( uMsg ) {
 
-    case WM_NOTIFY:
-      {
-        LPNMHDR hdr = (LPNMHDR) lParam;
+	case WM_NOTIFY:
+		{
+			LPNMHDR hdr = (LPNMHDR) lParam;
 
-        if (!hdr)
-          break;
+			if (!hdr)
+				break;
 
-				if (IsWindow(hdr->hwndFrom)) {
-					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
-					if (c_this != NULL)
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
-      }
-      break;
+			if (IsWindow(hdr->hwndFrom)) {
+				DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+				if (c_this != NULL)
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			}
+		}
+		break;
 
     case WM_COMMAND:
 			{
@@ -626,37 +626,37 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
       }
      break;
 
-    case WM_SIZE:
-      {
+	case WM_SIZE:
+		{
 
-        HWND bars = NULL;
+			HWND bars = NULL;
 
-        while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_REBARCTRLCLASS, NULL ) ) != NULL ) {
+			while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_REBARCTRLCLASS, NULL ) ) != NULL ) {
 
-          SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-        }
+				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
+			}
 
-        while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_STATUSBARCLASS, NULL ) ) != NULL ) {
+			while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_STATUSBARCLASS, NULL ) ) != NULL ) {
 
-          SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-        }
+				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
+			}
 
-        while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_TOOLBARCLASS, NULL ) ) != NULL ) {
+			while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_TOOLBARCLASS, NULL ) ) != NULL ) {
 
-          SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-        }
+				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
+			}
 
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
-	        this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
+				this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
 
-				if (this->m_pLayoutManager != NULL) {
-					RECT rc;
-					SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
-					if (this->m_pLayoutManager->updateLayout( rc ))
-						this->redrawWindow( );
-				}
-      }
-      break;
+			if (this->m_pLayoutManager != NULL) {
+				RECT rc;
+				SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
+				if (this->m_pLayoutManager->updateLayout( rc ))
+					this->redrawWindow( );
+			}
+		}
+		break;
 
 		case WM_ENABLE: {
 			this->redrawWindow();

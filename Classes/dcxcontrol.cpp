@@ -94,6 +94,7 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_clrStartGradient(CLR_INVALID)
 , m_clrEndGradient(CLR_INVALID)
 , m_bGradientVertical(FALSE)
+, m_ToolTipHWND(NULL)
 {
 	this->m_dEventMask = p_Dialog->getEventMask();
 }
@@ -445,10 +446,10 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		SetFocus(NULL);
 	}
 	// xdid -T [NAME] [ID] [SWITCH] (ToolTipText)
-  else if (flags['T'] && numtok > 2) {
+	else if (flags['T'] && numtok > 2) {
 		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1) : "");
 		this->m_tsToolTip.trim();
-  }
+	}
 	// xdid -R [NAME] [ID] [SWITCH] [FLAG] [ARGS]
 	else if (flags['R'] && numtok > 3) {
 		TString flag(input.gettok( 4 ));
@@ -672,9 +673,9 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
  * blah
  */
 
-UINT DcxControl::parseColorFlags( TString & flags ) {
+UINT DcxControl::parseColorFlags( const TString & flags ) {
 
-	INT i = 1, len = flags.len( ), iFlags = 0;
+	INT i = 1, len = (INT)flags.len( ), iFlags = 0;
 
 	// no +sign, missing params
 	if ( flags[0] != '+' ) 
@@ -739,9 +740,9 @@ void DcxControl::parseBorderStyles( TString & flags, LONG * Styles, LONG * ExSty
  * blah
  */
 
-UINT DcxControl::parseCursorFlags( TString & flags ) {
+UINT DcxControl::parseCursorFlags( const TString & flags ) {
 
-  INT i = 1, len = flags.len( );
+  INT i = 1, len = (INT)flags.len( );
   UINT iFlags = 0;
 
   // no +sign, missing params
@@ -767,7 +768,7 @@ UINT DcxControl::parseCursorFlags( TString & flags ) {
  * blah
  */
 
-LPSTR DcxControl::parseCursorType( TString & cursor ) {
+LPSTR DcxControl::parseCursorType( const TString & cursor ) {
 
   if ( cursor == "appstarting" )
     return IDC_APPSTARTING;

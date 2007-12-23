@@ -49,18 +49,21 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips")) {
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
-	}
 	this->m_tsText = "";
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+
+	if (styles.istok("tooltips")) {
+		if (IsWindow(p_Dialog->getToolTip())) {
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+		else
+			this->showError(NULL,"-c","Unable to Initilize Tooltips");
+	}
 }
 
 /*!
@@ -182,18 +185,12 @@ void DcxText::parseCommandRequest(TString &input) {
 
 		// redraw if transparent
 		if (this->isExStyle(WS_EX_TRANSPARENT)) {
-			RECT r;
-			HWND hParent = GetParent(this->m_Hwnd);
-
-			GetWindowRect(this->m_Hwnd, &r);
-
-			MapWindowPoints(NULL, hParent, (LPPOINT)&r, 2); // maps all 4 points & handles RTL
-			InvalidateRect(hParent, &r, TRUE);
+			this->InvalidateParentRect(this->m_Hwnd);
 			this->redrawWindow();
 		}
 	}
-  else
-    this->parseGlobalCommandRequest( input, flags );
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!

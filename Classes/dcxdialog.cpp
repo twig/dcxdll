@@ -114,7 +114,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
 
 	//this->addExStyle(WS_EX_TRANSPARENT); // WS_EX_TRANSPARENT|WS_EX_LAYERED gives a window u can click through to the win behind.
 
-	this->m_hOldWindowProc = (WNDPROC) SetWindowLongPtr(this->m_Hwnd, GWLP_WNDPROC, (LONG_PTR) DcxDialog::WindowProc);
+	this->m_hOldWindowProc = SubclassWindow(this->m_Hwnd, DcxDialog::WindowProc);
 
 	this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
 
@@ -298,7 +298,7 @@ void DcxDialog::parseCommandRequestEX(const char *szFormat, ...) {
 	this->parseCommandRequest(msg);
 	va_end(args);
 }
-void DcxDialog::parseComControlRequestEX(int id, const char *szFormat, ...) {
+void DcxDialog::parseComControlRequestEX(const int id, const char *szFormat, ...) {
 	DcxControl * p_Control = this->getControlByID((UINT) id + mIRC_ID_OFFSET);
 	if (p_Control != NULL) {
 		TString msg((UINT)2048);
@@ -312,7 +312,7 @@ void DcxDialog::parseComControlRequestEX(int id, const char *szFormat, ...) {
 
 
 
-void DcxDialog::parseCommandRequest(TString &input) {
+void DcxDialog::parseCommandRequest( TString &input) {
 	XSwitchFlags flags(input.gettok(2));
 	int numtok = input.numtok( );
 
@@ -803,15 +803,11 @@ void DcxDialog::parseCommandRequest(TString &input) {
 		// Click-through
 		else if (input.gettok(3) == "clickthrough") {
 			if (input.gettok(4) == "none") {
-				if (this->isExStyle(WS_EX_LAYERED|WS_EX_TRANSPARENT)) {
-					mIRCError("removing clickthru");
+				if (this->isExStyle(WS_EX_LAYERED|WS_EX_TRANSPARENT))
 					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED|WS_EX_TRANSPARENT);
-				}
 			}
-			else {
-				mIRCError("setting clickthrough");
+			else
 				AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
-			}
 		}
 		else {
 			this->showError(NULL, "-t", "Unknown Switch");
@@ -1590,7 +1586,7 @@ LPSTR DcxDialog::parseCursorType(const TString &cursor) {
  * blah
  */
 
-void DcxDialog::parseInfoRequest(TString &input, char *szReturnValue) {
+void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 	int numtok = input.numtok( );
 	TString prop(input.gettok( 2 ));
 
@@ -2261,8 +2257,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				p_this->redrawWindow();
 			else {
 				p_this->redrawBufferedWindow(); // Avoids flicker.
+				//p_this->redrawWindow();
+				// NB: This only fixed richedit controls that are direct children of the dialog NOT grandchildren.
 				while ((bars = FindWindowEx(mHwnd, bars, DCX_RICHEDITCLASS, NULL)) != NULL) { // workaround added for RichText controls which seem to not redraw correctly via WM_PRINT
-					RedrawWindow( bars, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE );
+					RedrawWindow( bars, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME );
 				}
 			}
 			break;

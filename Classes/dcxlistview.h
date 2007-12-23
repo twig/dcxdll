@@ -91,52 +91,52 @@ class DcxListView : public DcxControl {
 
 public:
 
-  DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
-  virtual ~DcxListView( );
+	DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+	virtual ~DcxListView( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
-  static void parseListviewExStyles( const TString & styles, LONG * ExStyles );
+	void parseInfoRequest( TString & input, char * szReturnValue );
+	void parseCommandRequest( TString & input );
+	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	static void parseListviewExStyles( const TString & styles, LONG * ExStyles );
 
-  HIMAGELIST getImageList( const int iImageList );
-  void setImageList( HIMAGELIST himl, const int iImageList );
-  static HIMAGELIST createImageList( const BOOL bIcons );
+	HIMAGELIST getImageList( const int iImageList );
+	void setImageList( HIMAGELIST himl, const int iImageList );
+	static HIMAGELIST createImageList( const BOOL bIcons );
 
-  BOOL isListViewStyle( const long dwView ) const;
+	BOOL isListViewStyle( const long dwView ) const;
 
-  int getColumnCount( ) const;
+	int getColumnCount( ) const;
 
-  static LRESULT CALLBACK EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static LRESULT CALLBACK EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-  static int CALLBACK sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
+	static int CALLBACK sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
-  inline TString getType( ) { return TString( "listview" ); };
+	inline TString getType( ) { return TString( "listview" ); };
 
-  int getTopIndex( ) const;
-  int getBottomIndex( ) const;
+	int getTopIndex( ) const;
+	int getBottomIndex( ) const;
 
 protected:
 
-  WNDPROC m_OrigEditProc; //!< Label Edit Control Orignal Procedure
+	WNDPROC m_OrigEditProc; //!< Label Edit Control Orignal Procedure
 
-  static UINT parseIconFlagOptions( TString & flags );
-  static UINT parseItemFlags( TString & flags );
-  static UINT parseHeaderFlags( TString & flags );
-  static UINT parseHeaderFlags2( TString & flags );
-  static UINT parseSortFlags( TString & flags );
-  static UINT parseColorFlags( TString & flags );
-  static UINT parseImageFlags( TString & flags );
-  static UINT parseGroupFlags( TString & flags );
+	static UINT parseIconFlagOptions( const TString & flags );
+	static UINT parseItemFlags( const TString & flags );
+	static UINT parseHeaderFlags( const TString & flags );
+	static UINT parseHeaderFlags2( const TString & flags );
+	static UINT parseSortFlags( const TString & flags );
+	static UINT parseColorFlags( const TString & flags );
+	static UINT parseImageFlags( const TString & flags );
+	static UINT parseGroupFlags( const TString & flags );
 
-  BOOL matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType );
+	BOOL matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType );
 
-	void autoSize(const int nColumn, TString &flags);
+	void autoSize(const int nColumn, const TString &flags);
 
-  BOOL m_bDrag; //!< Dragging Items ?
+	BOOL m_bDrag; //!< Dragging Items ?
 
 private:
 	DcxControl* CreatePbar(LPLVITEM lvi, TString &style);

@@ -180,9 +180,9 @@ protected:
 	void parseGlobalCommandRequest(const TString & input, XSwitchFlags & flags );
 	BOOL parseGlobalInfoRequest( const TString & input, char * szReturnValue );
 
-	static UINT parseColorFlags( TString & flags );
-	static UINT parseCursorFlags( TString & flags );
-	static LPSTR parseCursorType( TString & cursor );
+	static UINT parseColorFlags( const TString & flags );
+	static UINT parseCursorFlags( const TString & flags );
+	static LPSTR parseCursorType( const TString & cursor );
 
 	void registreDefaultWindowProc( );
 	void unregistreDefaultWindowProc( );

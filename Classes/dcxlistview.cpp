@@ -709,7 +709,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 	szReturnValue[0] = 0;
 }
 
-void DcxListView::autoSize(const int nColumn, TString &flags)
+void DcxListView::autoSize(const int nColumn, const TString &flags)
 {
 	UINT iFlags = this->parseHeaderFlags2(flags);
 
@@ -1782,9 +1782,9 @@ HIMAGELIST DcxListView::createImageList( const BOOL bIcons ) {
 * blah
 */
 
-UINT DcxListView::parseIconFlagOptions( TString & flags ) {
+UINT DcxListView::parseIconFlagOptions( const TString & flags ) {
 
-	UINT i = 1, len = flags.len( ), iFlags = 0;
+	UINT i = 1, len = (INT)flags.len( ), iFlags = 0;
 
 	// no +sign, missing params
 	if ( flags[0] != '+' ) 
@@ -1807,8 +1807,8 @@ UINT DcxListView::parseIconFlagOptions( TString & flags ) {
 * blah
 */
 
-UINT DcxListView::parseItemFlags(TString & flags) {
-	INT i = 1, len = flags.len(), iFlags = 0;
+UINT DcxListView::parseItemFlags(const TString & flags) {
+	INT i = 1, len = (INT)flags.len(), iFlags = 0;
 
 	// no +sign, missing params
 	if (flags[0] != '+')
@@ -1852,9 +1852,9 @@ UINT DcxListView::parseItemFlags(TString & flags) {
 * blah
 */
 
-UINT DcxListView::parseHeaderFlags( TString & flags ) {
+UINT DcxListView::parseHeaderFlags( const TString & flags ) {
 
-	INT i = 1, len = flags.len( ), iFlags = 0;
+	INT i = 1, len = (INT)flags.len( ), iFlags = 0;
 
 	// no +sign, missing params
 	if ( flags[0] != '+' )
@@ -1882,9 +1882,9 @@ UINT DcxListView::parseHeaderFlags( TString & flags ) {
 * blah
 */
 
-UINT DcxListView::parseHeaderFlags2( TString & flags ) {
+UINT DcxListView::parseHeaderFlags2( const TString & flags ) {
 
-	INT i = 1, len = flags.len( ), iFlags = 0;
+	INT i = 1, len = (INT)flags.len( ), iFlags = 0;
 
 	// no +sign, missing params
 	if ( flags[0] != '+' ) 
@@ -1910,9 +1910,9 @@ UINT DcxListView::parseHeaderFlags2( TString & flags ) {
 * blah
 */
 
-UINT DcxListView::parseSortFlags( TString & flags ) {
+UINT DcxListView::parseSortFlags( const TString & flags ) {
 
-	INT i = 1, len = flags.len( ), iFlags = 0;
+	INT i = 1, len = (INT)flags.len( ), iFlags = 0;
 
 	// no +sign, missing params
 	if ( flags[0] != '+' ) 
@@ -1944,9 +1944,9 @@ UINT DcxListView::parseSortFlags( TString & flags ) {
 * blah
 */
 
-UINT DcxListView::parseGroupFlags( TString & flags ) {
+UINT DcxListView::parseGroupFlags( const TString & flags ) {
 
-	INT i = 1, len = flags.len( ), iFlags = 0;
+	INT i = 1, len = (INT)flags.len( ), iFlags = 0;
 
 	// no +sign, missing params
 	if ( flags[0] != '+' ) 
@@ -1972,9 +1972,9 @@ UINT DcxListView::parseGroupFlags( TString & flags ) {
 * blah
 */
 
-UINT DcxListView::parseColorFlags( TString & flags ) {
+UINT DcxListView::parseColorFlags( const TString & flags ) {
 
-	INT i = 1, len = flags.len( ), iFlags = 0;
+	INT i = 1, len = (INT)flags.len( ), iFlags = 0;
 
 	// no +sign, missing params
 	if ( flags[0] != '+' ) 
@@ -2002,9 +2002,9 @@ UINT DcxListView::parseColorFlags( TString & flags ) {
 * blah
 */
 
-UINT DcxListView::parseImageFlags( TString & flags ) {
+UINT DcxListView::parseImageFlags( const TString & flags ) {
 
-	INT i = 1, len = flags.len( ), iFlags = 0;
+	INT i = 1, len = (INT)flags.len( ), iFlags = 0;
 
 	// no +sign, missing params
 	if ( flags[0] != '+' ) 

@@ -70,45 +70,45 @@ class DcxDialog : public DcxWindow {
 
 public:
 
-  DcxDialog( const HWND mHwnd, TString & tsName, TString & tsAliasName );
-  virtual ~DcxDialog( );
+	DcxDialog( const HWND mHwnd, TString & tsName, TString & tsAliasName );
+	virtual ~DcxDialog( );
 
-  const TString &getName( ) const;
-  const TString &getAliasName( ) const;
+	const TString &getName( ) const;
+	const TString &getAliasName( ) const;
 
-  static LRESULT WINAPI WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static LRESULT WINAPI WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-  void parseCommandRequest( TString & input );
-  void parseCommandRequestEX(const char *szFormat, ...);
-  void parseComControlRequestEX(int id,const char *szFormat, ...);
-  void parseInfoRequest( TString & input, char * szReturnValue );
+	void parseCommandRequest( TString & input );
+	void parseCommandRequestEX(const char *szFormat, ...);
+	void parseComControlRequestEX(const int id,const char *szFormat, ...);
+	void parseInfoRequest( TString & input, char * szReturnValue );
 
-  BOOL callAliasEx( char * szReturn, const char * szFormat, ... );
+	BOOL callAliasEx( char * szReturn, const char * szFormat, ... );
 
-  DcxControl * getControlByID( const UINT ID );
-  DcxControl * getControlByHWND( const HWND mHwnd );
+	DcxControl * getControlByID( const UINT ID );
+	DcxControl * getControlByHWND( const HWND mHwnd );
 
-  void addControl( DcxControl * p_Control );
-  void deleteControl( DcxControl * p_Control );
-  void deleteAllControls( );
+	void addControl( DcxControl * p_Control );
+	void deleteControl( DcxControl * p_Control );
+	void deleteAllControls( );
 
-  bool updateLayout( RECT & rc );
+	bool updateLayout( RECT & rc );
 
-  HBRUSH getBackClrBrush( ) const;
+	HBRUSH getBackClrBrush( ) const;
 
-  void setMouseControl( const UINT mUID );
-  void setFocusControl( const UINT mUID );
+	void setMouseControl( const UINT mUID );
+	void setFocusControl( const UINT mUID );
 
-  void setParentName(const TString &strParent);
-  const TString &getParentName() const;
+	void setParentName(const TString &strParent);
+	const TString &getParentName() const;
 
-  LayoutManager * m_pLayoutManager; //!< Layout Manager Object
+	LayoutManager * m_pLayoutManager; //!< Layout Manager Object
 
-  inline HCURSOR getCursor( ) const { return this->m_hCursor; };
+	inline HCURSOR getCursor( ) const { return this->m_hCursor; };
 	inline HWND getToolTip(void) const { return this->m_ToolTipHWND; };
-  inline void incRef( ) { ++this->m_iRefCount; };
-  inline void decRef( ) { --this->m_iRefCount; };
-  inline UINT getRefCount( ) const { return this->m_iRefCount; };
+	inline void incRef( ) { ++this->m_iRefCount; };
+	inline void decRef( ) { --this->m_iRefCount; };
+	inline UINT getRefCount( ) const { return this->m_iRefCount; };
 	inline DWORD getEventMask( ) const { return this->m_dEventMask; };
 	HBITMAP getBgBitmap() const { return this->m_bitmapBg; };
 	COLORREF getBgTransparentCol() const { return this->m_colTransparentBg; };
@@ -153,35 +153,35 @@ public:
 
 protected:
 
-  TString m_tsName;       //!< Dialog Name
-  TString m_tsAliasName;  //!< Callback Alias Name
+	TString m_tsName;       //!< Dialog Name
+	TString m_tsAliasName;  //!< Callback Alias Name
 	TString m_tsParentName; //!< Parent name (only if docked)
 
-  WNDPROC m_hOldWindowProc; //!< Dialog Old Window Procedure
+	WNDPROC m_hOldWindowProc; //!< Dialog Old Window Procedure
 
-  VectorOfControlPtrs m_vpControls; //!< Vector of DCX Controls
-  VectorOfInts m_vZLayers;
-  int m_zLayerCurrent;
+	VectorOfControlPtrs m_vpControls; //!< Vector of DCX Controls
+	VectorOfInts m_vZLayers;
+	int m_zLayerCurrent;
 
-  VectorOfDragListPtrs m_vDragLists; //!< Registered draglists
+	VectorOfDragListPtrs m_vDragLists; //!< Registered draglists
 
-  bool m_bInSizing; //!< In Moving Motion
-  bool m_bInMoving; //!< In Sizing Motion
+	bool m_bInSizing; //!< In Moving Motion
+	bool m_bInMoving; //!< In Sizing Motion
 
-  HBRUSH m_hBackBrush;    //!< Background control color
+	HBRUSH m_hBackBrush;    //!< Background control color
 
-  UINT m_MouseID; //!< Mouse Hover ID
-  UINT m_FocusID; //!< Mouse Hover ID
+	UINT m_MouseID; //!< Mouse Hover ID
+	UINT m_FocusID; //!< Mouse Hover ID
 
 	XPopupMenu * m_popup;
 
-  HCURSOR m_hCursor;  //!< Cursor Handle
-  BOOL m_bCursorFromFile; //!< Cursor comes from a file?
-  HBITMAP m_bitmapBg;
-  UINT m_uStyleBg;
-  COLORREF m_colTransparentBg;
+	HCURSOR m_hCursor;  //!< Cursor Handle
+	BOOL m_bCursorFromFile; //!< Cursor comes from a file?
+	HBITMAP m_bitmapBg;
+	UINT m_uStyleBg;
+	COLORREF m_colTransparentBg;
 	HWND m_ToolTipHWND; //!< Dialogs general tooltip control for use with all controls that don't have their own tooltips.
-  UINT m_iRefCount;
+	UINT m_iRefCount;
 	bool m_bDoDrag;
 	bool m_bDrag;
 	int m_bDoGhostDrag;
@@ -211,14 +211,14 @@ protected:
 	} m_Shadow;
 	/* **** */
 
-  static void parseBorderStyles( const TString & flags, LONG * Styles, LONG * ExStyles );
+	static void parseBorderStyles( const TString & flags, LONG * Styles, LONG * ExStyles );
 
-  static UINT parseLayoutFlags( const TString & flags );
-  static UINT parseBkgFlags( const TString & flags );
-  static UINT parseFlashFlags( const TString & flags );
-  static UINT parseCursorFlags( const TString & flags );
-  static LPSTR parseCursorType( const TString & cursor );
-  static UINT parseTooltipFlags( const TString &flags);
+	static UINT parseLayoutFlags( const TString & flags );
+	static UINT parseBkgFlags( const TString & flags );
+	static UINT parseFlashFlags( const TString & flags );
+	static UINT parseCursorFlags( const TString & flags );
+	static LPSTR parseCursorType( const TString & cursor );
+	static UINT parseTooltipFlags( const TString &flags);
 
 	// Fill in the shadow window alpha blend bitmap with shadow image pixels
 	void MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rcParent);
@@ -232,10 +232,10 @@ protected:
 			(GetBValue(cl) * (DWORD)nAlpha / 255);
 	}
 	void PreloadData(void);
-//#ifdef DCX_USE_GDIPLUS
-//	Image *m_pImage;
-//	bool LoadGDIPlusImage(TString &filename);
-//#endif
+	//#ifdef DCX_USE_GDIPLUS
+	//	Image *m_pImage;
+	//	bool LoadGDIPlusImage(TString &filename);
+	//#endif
 	HWND m_hFakeHwnd;
 	int m_iAlphaLevel;
 	COLORREF m_cKeyColour;

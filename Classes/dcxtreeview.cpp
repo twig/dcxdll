@@ -2122,7 +2122,7 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
   switch( uMsg ) {
 
 		case WM_CONTEXTMENU:
-    case WM_LBUTTONDBLCLK:
+		case WM_LBUTTONDBLCLK:
 		case WM_LBUTTONUP:
 			break;
 

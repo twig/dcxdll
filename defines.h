@@ -385,10 +385,12 @@ typedef BOOL (WINAPI *PFNUPDATELAYEREDWINDOW)(HWND hWnd, HDC hdcDst, POINT *pptD
 typedef BOOL (WINAPI *PFNSETLAYEREDWINDOWATTRIBUTES)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
 typedef int (WINAPI *PFNDRAWSHADOWTEXT)(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
 typedef int (WINAPI *PFNPICKICONDLG)(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
+typedef HRESULT (WINAPI *PFNGETTHEMECOLOR)(HTHEME hTheme,int iPartId,int iStateId,int iPropId,COLORREF *pColor);
 
 // Vista Function pointers.
 #ifdef DCX_USE_WINSDK
 typedef HRESULT (WINAPI *PFNDRAWTHEMEPARENTBACKGROUNDEX)(HWND, HDC, DWORD, const RECT*);
+//typedef HRESULT (WINAPI *PFNGETTHEMEBITMAP)(HTHEME hTheme,int iPartId,int iStateId,int iPropId,ULONG dwFlags,HBITMAP *phBitmap);
 typedef HRESULT (WINAPI *PFNBUFFEREDPAINTINIT)(VOID);
 typedef HRESULT (WINAPI *PFNBUFFEREDPAINTUNINIT)(VOID);
 typedef HPAINTBUFFER (WINAPI *PFNBEGINBUFFEREDPAINT)(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
@@ -453,6 +455,7 @@ extern PFNINSENDMESSAGEEX InSendMessageExUx;
 extern PFNFLASHWINDOWEX FlashWindowExUx;
 
 // XP+ function pointers
+// Themes
 extern PFNSETTHEME SetWindowThemeUx;  //!< blah
 extern PFNISTHEMEACTIVE IsThemeActiveUx;
 extern PFNOPENTHEMEDATA OpenThemeDataUx;
@@ -465,6 +468,8 @@ extern PFNDRAWTHEMETEXT DrawThemeTextUx;
 extern PFNGETTHEMEBACKGROUNDREGION GetThemeBackgroundRegionUx;
 extern PFNGETWINDOWTHEME GetWindowThemeUx;
 extern PFNDRAWTHEMEEDGE DrawThemeEdgeUx;
+extern PFNGETTHEMECOLOR GetThemeColorUx;
+// Others
 extern PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx;
 extern PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx;
 extern PFNDRAWSHADOWTEXT DrawShadowTextUx;
@@ -473,6 +478,7 @@ extern PFNPICKICONDLG PickIconDlgUx;
 // Vista Function pointers.
 #ifdef DCX_USE_WINSDK
 extern PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx;
+//extern PFNGETTHEMEBITMAP GetThemeBitmapUx;
 extern PFNBUFFEREDPAINTINIT BufferedPaintInitUx;
 extern PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx;
 extern PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx;
