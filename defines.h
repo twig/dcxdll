@@ -140,6 +140,9 @@
 #include "Classes/TString/tstring.h"
 #include "XSwitchFlags.h"
 
+// BrowseFolder
+#include <shlobj.h>
+
 #include <uxtheme.h>
 #if DCX_USE_WINSDK && WINVER >= 0x600
 #include <vssym32.h>
@@ -358,9 +361,11 @@ UINT parseFontFlags(const TString &flags);
 UINT parseFontCharSet(const TString &charset);
 DcxDialogCollection dcxDialogs();
 
-
 char * readFile(const char * filename);
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd);
+
+int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
+LPITEMIDLIST GetFolderFromCSIDL(const int nCsidl);
 
 // Windows 2000+ pointers
 typedef BOOL (WINAPI *PFNGETWINDOWINFO)(HWND hwnd, PWINDOWINFO pwi);

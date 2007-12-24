@@ -183,7 +183,7 @@ void DcxWindow::redrawWindow( ) {
  * Vista Style has issues with this, as it relies on the WM_PAINT, anyway, its not needed for Vista style.
  * Composited windows already have buffered draw.
 */
-
+// TODO: this changes the border style of children upon resize of dialog.
 void DcxWindow::redrawBufferedWindow( ) {
 
 	if (this->isExStyle(WS_EX_COMPOSITED)) {

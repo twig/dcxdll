@@ -866,6 +866,213 @@ mIRC(SaveDialog) {
 
 
 /*!
+* \brief Shows CommonDialog for Selecting Folders/Directories
+*
+* Shows and returns the folder selected
+*
+* \return > TString "" if cancelled
+*         > TString [SELECTED_ITEM]
+*/
+typedef struct {
+	LPSTR initialFolder;
+	UINT flags;
+} XBROWSEDIALOGSETTINGS, *LPXBROWSEDIALOGSETTINGS;
+
+/*
+// Some useful stuff for resolving CSIDL information.
+// http://www.codeguru.com/cpp/w-p/files/browserfunctionsdialogs/article.php/c4443/
+
+// List of CSIDL ids
+// http://msdn2.microsoft.com/en-us/library/bb762494(VS.85).aspx
+
+// TODO: make this accept CSIDL stuff as initial folder.
+*/
+mIRC(BrowseDialog) {
+	BROWSEINFO bi;
+
+	// seperate the tokens (by tabs)
+	TString input(data);
+	TString param;
+	int numtok;
+	int count;
+	int currentParam = 1;
+	bool bInitialFolder = false;
+	bool bDialogText = false;
+
+	TString initPath((UINT) MAX_PATH);
+	TString displayPath((UINT) MAX_PATH);
+	LPITEMIDLIST pidlRoot = NULL;
+	LPITEMIDLIST pidl;
+	XBROWSEDIALOGSETTINGS extra;
+
+	input.trim();
+	numtok = input.numtok(TSTAB);
+
+	// set up the BI structure
+	ZeroMemory(&bi, sizeof(BROWSEINFO));
+	ZeroMemory(&extra, sizeof(XBROWSEDIALOGSETTINGS));
+	bi.hwndOwner = mWnd;                                             // Default owner: mIRC main window
+	bi.lpfn = BrowseFolderCallback;
+	bi.pszDisplayName = displayPath.to_chr();
+	bi.ulFlags = BIF_VALIDATE;
+	bi.lParam = (LPARAM) &extra;
+
+	// Parse styles
+	param = input.gettok(currentParam, TSTAB);
+	count = param.numtok();
+
+	for (int i = 1; i <= count; i++) {
+		/*
+		style1 style2 style3 $chr(9) initial folder
+
+		//clear | echo -a Selected: $dcx(BrowseDialog, hello asd $chr(9) C:\Windows $chr(9) mr t says select something fool! ) | /udcx
+
+		http://msdn2.microsoft.com/en-us/library/bb773205.aspx
+		*/
+
+		TString flag(param.gettok(i));
+
+		if (flag == "advanced")
+			bi.ulFlags |= BIF_USENEWUI;
+		else if (flag == "edit")
+			bi.ulFlags |= BIF_EDITBOX;
+		else if (flag == "newstyle")
+			bi.ulFlags |= BIF_NEWDIALOGSTYLE;
+
+		else if (flag == "nonew")
+			bi.ulFlags |= BIF_NONEWFOLDERBUTTON;
+		else if (flag == "files")
+			bi.ulFlags |= BIF_BROWSEINCLUDEFILES;
+		else if (flag == "title")
+			bDialogText = true;
+		else if (flag == "initfolder")
+			bInitialFolder = true;
+
+		else if (flag == "computers") {
+			// NOTE: do not use with "advanced"
+			bi.ulFlags |= BIF_BROWSEFORCOMPUTER;
+			pidlRoot = GetFolderFromCSIDL(CSIDL_NETWORK);
+		}
+		else if (flag == "printers") {
+			// NOTE: do not use with "advanced"
+			bi.ulFlags |= BIF_BROWSEFORPRINTER;
+			pidlRoot = GetFolderFromCSIDL(CSIDL_PRINTERS);
+		}
+		else if (flag == "nonetwork")
+			bi.ulFlags |= BIF_DONTGOBELOWDOMAIN;
+		else if (flag == "shortcut")
+			bi.ulFlags |= BIF_NOTRANSLATETARGETS;
+
+		// owner
+		else if (flag == "owner")
+			bi.hwndOwner = FindOwner(param, mWnd);
+	}
+
+	// Set initial folder
+	if (bInitialFolder && (pidlRoot == NULL)) {
+		currentParam++;
+		initPath = input.gettok(currentParam, TSTAB);
+		initPath.trim();
+
+		extra.initialFolder = initPath.to_chr();
+	}
+
+	// Set title text.
+	if (bDialogText) {
+		currentParam++;
+		param = input.gettok(currentParam, TSTAB);
+		param.trim();
+
+		bi.lpszTitle = param.to_chr();
+	}
+
+	// Set root folder
+	if (pidlRoot != NULL)
+		bi.pidlRoot = pidlRoot;
+
+	extra.flags = bi.ulFlags;
+	pidl = SHBrowseForFolder(&bi);
+
+	// User cancelled
+	if (pidl == NULL)
+		ret("");
+
+	// If we were searching for a computer ...
+	if (bi.ulFlags & BIF_BROWSEFORCOMPUTER) {
+		wsprintf(data, "//%s", displayPath.to_chr());
+	}
+	else {
+		SHGetPathFromIDList(pidl, initPath.to_chr());
+		wsprintf(data, "%s", initPath.to_chr());
+	}
+
+	CoTaskMemFree(pidl);
+	CoTaskMemFree(pidlRoot);
+
+	return 3;
+}
+
+LPITEMIDLIST GetFolderFromCSIDL(const int nCsidl) {
+	LPITEMIDLIST pidlRoot;
+
+	if (S_OK == SHGetFolderLocation(NULL, nCsidl, NULL, 0, &pidlRoot))
+		return pidlRoot;
+
+	return NULL;                // Caller assumes responsibility
+}
+
+
+int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData) {
+	LPXBROWSEDIALOGSETTINGS extra = (LPXBROWSEDIALOGSETTINGS) lpData;
+
+	switch (uMsg) {
+		// User typed invalid name (non-existant folder) into editbox.
+		// This must return non-zero, otherwise it will close the dialog.
+		case BFFM_VALIDATEFAILED:
+			return TRUE;
+
+		case BFFM_INITIALIZED:
+			// Sets initial folder if it is specified.
+			if (lpData != NULL)
+				SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM) extra->initialFolder);
+
+			// Disable OK button.
+			SendMessage(hwnd, BFFM_ENABLEOK, TRUE, FALSE);
+
+			break;
+
+		case BFFM_SELCHANGED:
+		{
+			// Dont check for COMPUTER or PRINTER browsing
+			if ((extra->flags & BIF_BROWSEFORCOMPUTER) ||
+				(extra->flags & BIF_BROWSEFORPRINTER))
+				break;
+
+			TString path((UINT) MAX_PATH);
+
+			if (SHGetPathFromIDList((LPITEMIDLIST) lParam, path.to_chr())) {
+				SendMessage(hwnd, BFFM_ENABLEOK, TRUE, TRUE);
+				SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, (LPARAM) path.to_chr());
+			}
+			else {
+				SendMessage(hwnd, BFFM_ENABLEOK, TRUE, FALSE);
+				SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, NULL);
+			}
+
+			break;
+		}
+
+		default:
+			break;
+	}
+
+	// Return 0 by default.
+	return 0L;
+}
+
+
+
+/*!
 * \brief Shows CommonDialog for Selecting Fonts
 *
 * Shows and returns the file selected
@@ -1243,10 +1450,10 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		{
 			HMENU menu = (HMENU) wParam;
 			HMENU currentMenubar = GetMenu(mIRCLink.m_mIRCHWND);
-			bool switchMenu = (g_mIRCScriptMenu != NULL) &&
-				              (menu == g_mIRCScriptMenu->getMenuHandle()) &&
-							  (currentMenubar != g_OriginalMenuBar) &&
-							  (g_OriginalMenuBar != NULL);
+			bool switchMenu = (g_mIRCScriptMenu != NULL) &&                  // The mIRC scriptpopup menu has been wrapped,
+				              (menu == g_mIRCScriptMenu->getMenuHandle()) && // The menu the same as the one just shown,
+							  (currentMenubar != g_OriginalMenuBar) &&       // The menubar is our generated menubar,
+							  (g_OriginalMenuBar != NULL);                   // And ensure it has been generated.
 
 			if (HIWORD(lParam) == FALSE) {
 				if (switchMenu)

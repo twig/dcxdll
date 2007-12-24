@@ -798,13 +798,14 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		else if (input.gettok( 3 ) == "bgcolor") {
 			this->m_colTransparentBg = input.gettok( 4 ).to_int();
 		}
-		// TODO: cant seem to unset it properly. (twig)
+		// TODO: not going to document this, have no way to redrawing the window.
 		// http://www.codeproject.com/KB/vb/ClickThroughWindows.aspx
 		// Click-through
 		else if (input.gettok(3) == "clickthrough") {
 			if (input.gettok(4) == "none") {
-				if (this->isExStyle(WS_EX_LAYERED|WS_EX_TRANSPARENT))
-					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED|WS_EX_TRANSPARENT);
+				if (this->isExStyle(WS_EX_LAYERED|WS_EX_TRANSPARENT)) {
+					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+				}
 			}
 			else
 				AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
@@ -2253,6 +2254,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			//SendMessage(mHwnd, WM_SETREDRAW, TRUE, 0);
 			//This is needed (or some other solution) to update the bkg image & transp controls on it
 			//p_this->redrawWindow(); // Causes alot of flicker.
+
+			/*
 			if (p_this->IsVistaStyle())
 				p_this->redrawWindow();
 			else {
@@ -2263,6 +2266,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					RedrawWindow( bars, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME );
 				}
 			}
+			*/
+
 			break;
 		}
 		//case WM_NCCALCSIZE:
