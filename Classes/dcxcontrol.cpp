@@ -1331,14 +1331,14 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 		HBITMAP hBitmap = ::CreateCompatibleBitmap( hDC, w, h);
 
 		if (hBitmap != NULL) {
-			HGDIOBJ hbmpOld = ::SelectObject( hdcMemory, hBitmap);
+			HBITMAP hbmpOld = SelectBitmap( hdcMemory, hBitmap);
 
 			::SendMessage( hwnd, WM_ERASEBKGND, (WPARAM)hdcMemory,1L); // HACK: using 1L instead of NULL as a workaround for stacker.
 			::SendMessage( hwnd, WM_PRINT, (WPARAM)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE /*| PRF_ERASEBKGND*/);
 
 			BitBlt( hDC, rc.left, rc.top, w, h, hdcMemory, 0, 0, SRCCOPY);
 
-			::DeleteObject(::SelectObject( hdcMemory, hbmpOld));
+			DeleteBitmap(SelectBitmap( hdcMemory, hbmpOld));
 		}
 		::DeleteDC(hdcMemory);
 	}

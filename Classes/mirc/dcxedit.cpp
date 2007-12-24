@@ -439,98 +439,98 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bP
 LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
 	switch (uMsg) {
 
-			// disabled this to fix the tabbing problem
-			//case WM_GETDLGCODE:
-			//    {
-			//		if (!this->isStyle(WS_TABSTOP)) {
-			//			bParsed = TRUE;
-			//			return DLGC_WANTALLKEYS;
-			//		}
-			//    }
-			//    break;
+		// disabled this to fix the tabbing problem
+		//case WM_GETDLGCODE:
+		//    {
+		//		if (!this->isStyle(WS_TABSTOP)) {
+		//			bParsed = TRUE;
+		//			return DLGC_WANTALLKEYS;
+		//		}
+		//    }
+		//    break;
 
 		case WM_KEYDOWN:
-		{
-			//if (wParam == VK_ESCAPE)
-			//	bParsed = TRUE; // prevents parent window closing.
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
-				if (wParam == VK_RETURN)
-					this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
-
-				if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
-					break;
-
-				this->callAliasEx(NULL, "%s,%d,%d", "keydown", this->getUserID(), wParam);
-			}
-			/*
-			// CTRL+A, select text and return so control doesnt beep
-			if ((wParam == 65) &&
-			(GetKeyState(VK_CONTROL) & 0x8000))
 			{
-			this->callAliasEx(ret, "%s,%d", "select", this->getUserID());
-			//			bParsed = TRUE;
-			//			return TRUE;
-			}
-			*/
+				//if (wParam == VK_ESCAPE)
+				//	bParsed = TRUE; // prevents parent window closing.
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+					if (wParam == VK_RETURN)
+						this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
 
-			break;
-		}
+					if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
+						break;
+
+					this->callAliasEx(NULL, "%s,%d,%d", "keydown", this->getUserID(), wParam);
+				}
+				/*
+				// CTRL+A, select text and return so control doesnt beep
+				if ((wParam == 65) &&
+				(GetKeyState(VK_CONTROL) & 0x8000))
+				{
+				this->callAliasEx(ret, "%s,%d", "select", this->getUserID());
+				//			bParsed = TRUE;
+				//			return TRUE;
+				}
+				*/
+
+				break;
+			}
 		case WM_COPY:
-		{
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
-				char ret[256];
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+					char ret[256];
 
-				this->callAliasEx(ret, "%s,%d", "copy", this->getUserID());
+					this->callAliasEx(ret, "%s,%d", "copy", this->getUserID());
 
-				if (lstrcmp("nocopy", ret) == 0) {
-					bParsed = TRUE;
-					return 0L;
+					if (lstrcmp("nocopy", ret) == 0) {
+						bParsed = TRUE;
+						return 0L;
+					}
 				}
+				break;
 			}
-			break;
-		}
 		case WM_CUT:
-		{
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
-				char ret[256];
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+					char ret[256];
 
-				this->callAliasEx(ret, "%s,%d", "cut", this->getUserID());
+					this->callAliasEx(ret, "%s,%d", "cut", this->getUserID());
 
-				if (lstrcmp("nocut", ret) == 0) {
-					bParsed = TRUE;
-					return 0L;
+					if (lstrcmp("nocut", ret) == 0) {
+						bParsed = TRUE;
+						return 0L;
+					}
 				}
+				break;
 			}
-			break;
-		}
 		case WM_PASTE:
-		{
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
-				char ret[256];
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+					char ret[256];
 
-				this->callAliasEx(ret, "%s,%d", "paste", this->getUserID());
+					this->callAliasEx(ret, "%s,%d", "paste", this->getUserID());
 
-				if (lstrcmp("nopaste", ret) == 0) {
-					bParsed = TRUE;
-					return 0L;
+					if (lstrcmp("nopaste", ret) == 0) {
+						bParsed = TRUE;
+						return 0L;
+					}
 				}
+				break;
 			}
-			break;
-		}
 		case WM_KEYUP:
-		{
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-				this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
-			break;
-		}
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
+					this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
+				break;
+			}
 		case WM_PAINT:
 			{
 				if (!this->m_bAlphaBlend)
 					break;
-        PAINTSTRUCT ps;
-        HDC hdc;
+				PAINTSTRUCT ps;
+				HDC hdc;
 
-        hdc = BeginPaint( this->m_Hwnd, &ps );
+				hdc = BeginPaint( this->m_Hwnd, &ps );
 
 				LRESULT res = 0L;
 				bParsed = TRUE;
@@ -605,11 +605,11 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 			break;
 
 		case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-			break;
-		}
+			{
+				delete this;
+				bParsed = TRUE;
+				break;
+			}
 		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
 			break;

@@ -49,16 +49,18 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips")) {
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
-	}
-
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+
+	if (styles.istok("tooltips")) {
+		if (IsWindow(p_Dialog->getToolTip())) {
+			this->m_ToolTipHWND = p_Dialog->getToolTip();
+			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		}
+		else
+			this->showError(NULL,"-c","Unable to Initilize Tooltips");
+	}
 
 	// fix bug with disabled creation
 	// todo: fix this properly
@@ -113,26 +115,24 @@ void DcxIpAddress::parseControlStyles(TString &styles, LONG *Styles, LONG *ExSty
 
 void DcxIpAddress::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	// [NAME] [ID] [PROP]
+	if ( input.gettok( 3 ) == "ip" ) {
 
-  // [NAME] [ID] [PROP]
-  if ( input.gettok( 3 ) == "ip" ) {
+		DWORD ip;
+		this->getAddress( &ip );
 
-    DWORD ip;
-    this->getAddress( &ip );
-
-    wsprintf( szReturnValue, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
-                                            SECOND_IPADDRESS( ip ),
-                                            THIRD_IPADDRESS( ip ),
-                                            FOURTH_IPADDRESS( ip ) );
+		wsprintf( szReturnValue, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
+			SECOND_IPADDRESS( ip ),
+			THIRD_IPADDRESS( ip ),
+			FOURTH_IPADDRESS( ip ) );
 
 
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 /*!

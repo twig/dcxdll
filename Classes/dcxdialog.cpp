@@ -800,12 +800,12 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		}
 		// TODO: not going to document this, have no way to redrawing the window.
 		// http://www.codeproject.com/KB/vb/ClickThroughWindows.aspx
+		// This code works fine, whats the problem?
 		// Click-through
 		else if (input.gettok(3) == "clickthrough") {
 			if (input.gettok(4) == "none") {
-				if (this->isExStyle(WS_EX_LAYERED|WS_EX_TRANSPARENT)) {
+				if (this->isExStyle(WS_EX_LAYERED|WS_EX_TRANSPARENT))
 					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
-				}
 			}
 			else
 				AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
@@ -1906,36 +1906,36 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			}
 			break;
 		case WM_THEMECHANGED:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_THEME)
-				p_this->callAliasEx(NULL, "%s,%d", "themechanged", 0);
-			break;
-		}
-		case WM_NOTIFY:
-		{
-			LPNMHDR hdr = (LPNMHDR) lParam;
-
-			if (!hdr)
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_THEME)
+					p_this->callAliasEx(NULL, "%s,%d", "themechanged", 0);
 				break;
-
-			if (IsWindow(hdr->hwndFrom)) {
-				DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
-				if (c_this != NULL)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
-			break;
-		}
+		case WM_NOTIFY:
+			{
+				LPNMHDR hdr = (LPNMHDR) lParam;
+
+				if (!hdr)
+					break;
+
+				if (IsWindow(hdr->hwndFrom)) {
+					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+					if (c_this != NULL)
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				}
+				break;
+			}
 
 		case WM_HSCROLL:
 		case WM_VSCROLL:
-		{
-			if (IsWindow((HWND) lParam)) {
-				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
-				if (c_this != NULL)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			{
+				if (IsWindow((HWND) lParam)) {
+					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+					if (c_this != NULL)
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				}
+				break;
 			}
-			break;
-		}
 
 		case WM_COMPAREITEM:
 			{
@@ -1949,15 +1949,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 
 		case WM_DELETEITEM:
-		{
-			DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
-			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-				if (c_this != NULL)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			{
+				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
+				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					if (c_this != NULL)
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+				}
+				break;
 			}
-			break;
-		}
 
 		case WM_MEASUREITEM:
 			{
@@ -1986,144 +1986,144 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 
 		case WM_DRAWITEM:
-		{
-			DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
-			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-				if (c_this != NULL) {
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			{
+				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
+				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
 				}
-			}
-			else if (p_this->m_popup != NULL && idata->CtlType == ODT_MENU) {
-				XPopupMenuItem *p_Item = (XPopupMenuItem*) idata->itemData;
+				else if (p_this->m_popup != NULL && idata->CtlType == ODT_MENU) {
+					XPopupMenuItem *p_Item = (XPopupMenuItem*) idata->itemData;
 
-				if (p_Item != NULL) {
-					p_Item->DrawItem(idata);
-					lRes = TRUE; 
-					bParsed = TRUE;
+					if (p_Item != NULL) {
+						p_Item->DrawItem(idata);
+						lRes = TRUE; 
+						bParsed = TRUE;
+					}
 				}
-			}
 
-			break;
-		}
+				break;
+			}
 
 		case WM_COMMAND:
-		{
-			if ((HIWORD(wParam) == 0) && (LOWORD(wParam) == 2) && (lParam == NULL)) {
-				if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
-					char ret[256];
-
-					p_this->callAliasEx(ret, "%s,%d", "close", 0);
-
-					if (lstrcmp("noclose", ret) == 0)
-						bParsed = TRUE;
-				}
-			}
-			else if (IsWindow((HWND) lParam)) {
-				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
-				if (c_this != NULL) {
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
-			}
-			break;
-		}
-
-		case WM_SYSCOMMAND:
-		{
-			switch (wParam & 0xFFF0) {
-				case SC_MOVE:
-				{
-					if (p_this->m_dEventMask & DCX_EVENT_MOVE) {
-						char ret[256];
-						p_this->callAliasEx(ret, "%s,%d", "beginmove", 0);
-
-						if (lstrcmp("nomove", ret) != 0) {
-							bParsed = TRUE;
-							p_this->m_bInMoving = true;
-							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
-						}
-					}
-					break;
-				}
-
-				case SC_CLOSE:
-				{
+			{
+				if ((HIWORD(wParam) == 0) && (LOWORD(wParam) == 2) && (lParam == NULL)) {
 					if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
 						char ret[256];
 
-						p_this->callAliasEx(ret, "%s,%d", "scclose", 0);
+						p_this->callAliasEx(ret, "%s,%d", "close", 0);
 
 						if (lstrcmp("noclose", ret) == 0)
 							bParsed = TRUE;
 					}
-					break;
 				}
+				else if (IsWindow((HWND) lParam)) {
+					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+					if (c_this != NULL) {
+						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+					}
+				}
+				break;
+			}
+
+		case WM_SYSCOMMAND:
+			{
+				switch (wParam & 0xFFF0) {
+				case SC_MOVE:
+					{
+						if (p_this->m_dEventMask & DCX_EVENT_MOVE) {
+							char ret[256];
+							p_this->callAliasEx(ret, "%s,%d", "beginmove", 0);
+
+							if (lstrcmp("nomove", ret) != 0) {
+								bParsed = TRUE;
+								p_this->m_bInMoving = true;
+								lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+							}
+						}
+						break;
+					}
+
+				case SC_CLOSE:
+					{
+						if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
+							char ret[256];
+
+							p_this->callAliasEx(ret, "%s,%d", "scclose", 0);
+
+							if (lstrcmp("noclose", ret) == 0)
+								bParsed = TRUE;
+						}
+						break;
+					}
 
 				case SC_MINIMIZE:
-				{
-					if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
-						char ret[256];
+					{
+						if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
+							char ret[256];
 
-						p_this->callAliasEx(ret, "%s,%d", "min", 0);
+							p_this->callAliasEx(ret, "%s,%d", "min", 0);
 
-						if (lstrcmp("stop", ret) != 0) {
-							bParsed = TRUE;
-							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+							if (lstrcmp("stop", ret) != 0) {
+								bParsed = TRUE;
+								lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+							}
 						}
+						break;
 					}
-					break;
-				}
 
 				case SC_MAXIMIZE:
-				{
-					if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
-						char ret[256];
+					{
+						if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
+							char ret[256];
 
-						p_this->callAliasEx(ret, "%s,%d", "max", 0);
+							p_this->callAliasEx(ret, "%s,%d", "max", 0);
 
-						if (lstrcmp("stop", ret) != 0) {
-							bParsed = TRUE;
-							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+							if (lstrcmp("stop", ret) != 0) {
+								bParsed = TRUE;
+								lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+							}
 						}
-					}
 
-					break;
-				}
+						break;
+					}
 
 				case SC_RESTORE:
-				{
-					if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
-						p_this->callAliasEx(NULL, "%s,%d", "restore", 0);
+					{
+						if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
+							p_this->callAliasEx(NULL, "%s,%d", "restore", 0);
 
-						//bParsed = TRUE;
-						//lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+							//bParsed = TRUE;
+							//lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+						}
+
+						break;
 					}
-
-					break;
-				}
 
 				case SC_SIZE:
-				{
-					if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
-						char ret[256];
+					{
+						if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
+							char ret[256];
 
-						p_this->callAliasEx(ret, "%s,%d", "beginsize", 0);
+							p_this->callAliasEx(ret, "%s,%d", "beginsize", 0);
 
-						if (lstrcmp("nosize", ret) != 0) {
-							bParsed = TRUE;
-							p_this->m_bInSizing = true;
-							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+							if (lstrcmp("nosize", ret) != 0) {
+								bParsed = TRUE;
+								p_this->m_bInSizing = true;
+								lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+							}
 						}
+
+						break;
 					}
+				} // WM_SYSCOMMAND switch
 
-					break;
-				}
-			} // WM_SYSCOMMAND switch
+				break;
+			}
 
-			break;
-		}
-
-		// ghost drag stuff
+			// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 			{
 				if (p_this->m_bDoGhostDrag < 255 && SetLayeredWindowAttributesUx != NULL) {
@@ -2142,479 +2142,474 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 
 		case WM_EXITSIZEMOVE:
-		{
-			if ((p_this->m_Shadow.Status & DCX_SS_VISABLE) && p_this->isShadowed())
-				p_this->UpdateShadow();
+			{
+				if ((p_this->m_Shadow.Status & DCX_SS_VISABLE) && p_this->isShadowed())
+					p_this->UpdateShadow();
 
-			if ((p_this->m_bInSizing) && (p_this->m_dEventMask & DCX_EVENT_SIZE))
-				p_this->callAliasEx(NULL, "%s,%d", "endsize", 0);
-			else if ((p_this->m_bInMoving)  && (p_this->m_dEventMask & DCX_EVENT_MOVE))
-				p_this->callAliasEx(NULL, "%s,%d", "endmove", 0);
+				if ((p_this->m_bInSizing) && (p_this->m_dEventMask & DCX_EVENT_SIZE))
+					p_this->callAliasEx(NULL, "%s,%d", "endsize", 0);
+				else if ((p_this->m_bInMoving)  && (p_this->m_dEventMask & DCX_EVENT_MOVE))
+					p_this->callAliasEx(NULL, "%s,%d", "endmove", 0);
 
-			p_this->m_bInMoving = false;
-			p_this->m_bInSizing = false;
-			// turn off ghosting.
-			if (p_this->m_bGhosted && SetLayeredWindowAttributesUx != NULL) {
-				if (!p_this->m_bVistaStyle) {
-					// Make this window solid
-					SetLayeredWindowAttributesUx(mHwnd, 0, p_this->m_iAlphaLevel, LWA_ALPHA);
+				p_this->m_bInMoving = false;
+				p_this->m_bInSizing = false;
+				// turn off ghosting.
+				if (p_this->m_bGhosted && SetLayeredWindowAttributesUx != NULL) {
+					if (!p_this->m_bVistaStyle) {
+						// Make this window solid
+						SetLayeredWindowAttributesUx(mHwnd, 0, p_this->m_iAlphaLevel, LWA_ALPHA);
+					}
+					p_this->m_bGhosted = false;
 				}
-				p_this->m_bGhosted = false;
+				p_this->UpdateVistaStyle();
+				break;
 			}
-			p_this->UpdateVistaStyle();
-			break;
-		}
 
 		case WM_MOVING:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_MOVE)
-				p_this->callAliasEx(NULL, "%s,%d", "moving", 0);
-			break;
-		}
-
-		//case WM_NCCALCSIZE:
-		//	{
-		//	}
-		//	break;
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_MOVE)
+					p_this->callAliasEx(NULL, "%s,%d", "moving", 0);
+				break;
+			}
 
 		case WM_SIZE:
-		{
-			// After window region is set it needs updated whenever the dialog is resized.
-			// No way to scale a region tho :/
-			//HRGN hRGN = CreateRectRgn(0,0,0,0);
-			//if (GetWindowRgn(p_this->m_Hwnd, hRGN) != ERROR)
-			//{
-			//}
-			//DeleteObject(hRGN);
-			if ((p_this->m_Shadow.Status & DCX_SS_ENABLED) && p_this->isShadowed())
 			{
-				if(SIZE_MAXIMIZED == wParam || SIZE_MINIMIZED == wParam)
+				// After window region is set it needs updated whenever the dialog is resized.
+				// No way to scale a region tho :/
+				//HRGN hRGN = CreateRectRgn(0,0,0,0);
+				//if (GetWindowRgn(p_this->m_Hwnd, hRGN) != ERROR)
+				//{
+				//}
+				//DeleteObject(hRGN);
+				if ((p_this->m_Shadow.Status & DCX_SS_ENABLED) && p_this->isShadowed())
 				{
-					ShowWindow(p_this->m_Shadow.hWin, SW_HIDE);
-					p_this->m_Shadow.Status &= ~DCX_SS_VISABLE;
-				}
-				else
-				{
-					if(p_this->isStyle(WS_VISIBLE))	// Parent may be resized even if invisible
+					if(SIZE_MAXIMIZED == wParam || SIZE_MINIMIZED == wParam)
 					{
-						p_this->m_Shadow.Status |= DCX_SS_PARENTVISIBLE;
-						if(!(p_this->m_Shadow.Status & DCX_SS_VISABLE))
+						ShowWindow(p_this->m_Shadow.hWin, SW_HIDE);
+						p_this->m_Shadow.Status &= ~DCX_SS_VISABLE;
+					}
+					else
+					{
+						if(p_this->isStyle(WS_VISIBLE))	// Parent may be resized even if invisible
 						{
-							p_this->m_Shadow.Status |= DCX_SS_VISABLE;
-							// Update before show, because if not, restore from maximized will
-							// see a glance misplaced shadow
-							p_this->UpdateShadow();
-							ShowWindow(p_this->m_Shadow.hWin, SW_SHOWNA);
-							// If restore from minimized, the window region will not be updated until WM_PAINT:(
-							p_this->m_Shadow.bUpdate = true;
+							p_this->m_Shadow.Status |= DCX_SS_PARENTVISIBLE;
+							if(!(p_this->m_Shadow.Status & DCX_SS_VISABLE))
+							{
+								p_this->m_Shadow.Status |= DCX_SS_VISABLE;
+								// Update before show, because if not, restore from maximized will
+								// see a glance misplaced shadow
+								p_this->UpdateShadow();
+								ShowWindow(p_this->m_Shadow.hWin, SW_SHOWNA);
+								// If restore from minimized, the window region will not be updated until WM_PAINT:(
+								p_this->m_Shadow.bUpdate = true;
+							}
+							// Awful! It seems that if the window size was not decreased
+							// the window region would never be updated until WM_PAINT was sent.
+							// So do not Update() until next WM_PAINT is received in this case
+							else if(LOWORD(lParam) > LOWORD(p_this->m_Shadow.WndSize) || HIWORD(lParam) > HIWORD(p_this->m_Shadow.WndSize))
+								p_this->m_Shadow.bUpdate = true;
+							else
+								p_this->UpdateShadow();
 						}
-						// Awful! It seems that if the window size was not decreased
-						// the window region would never be updated until WM_PAINT was sent.
-						// So do not Update() until next WM_PAINT is received in this case
-						else if(LOWORD(lParam) > LOWORD(p_this->m_Shadow.WndSize) || HIWORD(lParam) > HIWORD(p_this->m_Shadow.WndSize))
-							p_this->m_Shadow.bUpdate = true;
-						else
-							p_this->UpdateShadow();
+					}
+					p_this->m_Shadow.WndSize = lParam;
+				}
+
+				if (p_this->m_dEventMask & DCX_EVENT_SIZE)
+					p_this->callAliasEx(NULL, "%s,%d,%d,%d", "sizing", 0, LOWORD(lParam), HIWORD(lParam));
+
+				HWND bars = NULL;
+
+				//SendMessage(mHwnd, WM_SETREDRAW, FALSE, 0);
+				while ((bars = FindWindowEx(mHwnd, bars, DCX_REBARCTRLCLASS, NULL)) != NULL) {
+					SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
+				}
+
+				while ((bars = FindWindowEx(mHwnd, bars, DCX_STATUSBARCLASS, NULL)) != NULL) {
+					//SendMessage(bars, WM_SETREDRAW, FALSE, 0);
+					SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
+					//SendMessage(bars, WM_SETREDRAW, TRUE, 0);
+				}
+				while ((bars = FindWindowEx(mHwnd, bars, DCX_PANELCLASS, NULL)) != NULL) {
+					SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
+				}
+
+				while ((bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, NULL)) != NULL) {
+					DcxToolBar *t = (DcxToolBar*) p_this->getControlByHWND(bars);
+
+					t->autoPosition(LOWORD(lParam), HIWORD(lParam));
+					//SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) lParam );
+				}
+
+				RECT rc;
+
+				SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
+				p_this->SetVistaStyleSize();
+				p_this->updateLayout(rc);
+				//SendMessage(mHwnd, WM_SETREDRAW, TRUE, 0);
+				//This is needed (or some other solution) to update the bkg image & transp controls on it
+#if defined(NDEBUG) && !defined(DCX_DEV_BUILD)
+				p_this->redrawWindow(); // Causes alot of flicker.
+#else
+				// Only included in debug & dev builds atm.
+				if (p_this->IsVistaStyle())
+					p_this->redrawWindow();
+				else {
+					p_this->redrawBufferedWindow(); // Avoids flicker.
+					//p_this->redrawWindow();
+					// NB: This only fixed richedit controls that are direct children of the dialog NOT grandchildren.
+					while ((bars = FindWindowEx(mHwnd, bars, DCX_RICHEDITCLASS, NULL)) != NULL) { // workaround added for RichText controls which seem to not redraw correctly via WM_PRINT
+						RedrawWindow( bars, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME );
 					}
 				}
-				p_this->m_Shadow.WndSize = lParam;
+#endif
+				break;
 			}
-
-			if (p_this->m_dEventMask & DCX_EVENT_SIZE)
-				p_this->callAliasEx(NULL, "%s,%d,%d,%d", "sizing", 0, LOWORD(lParam), HIWORD(lParam));
-
-			HWND bars = NULL;
-
-			//SendMessage(mHwnd, WM_SETREDRAW, FALSE, 0);
-			while ((bars = FindWindowEx(mHwnd, bars, DCX_REBARCTRLCLASS, NULL)) != NULL) {
-				SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
-			}
-
-			while ((bars = FindWindowEx(mHwnd, bars, DCX_STATUSBARCLASS, NULL)) != NULL) {
-				//SendMessage(bars, WM_SETREDRAW, FALSE, 0);
-				SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
-				//SendMessage(bars, WM_SETREDRAW, TRUE, 0);
-			}
-			while ((bars = FindWindowEx(mHwnd, bars, DCX_PANELCLASS, NULL)) != NULL) {
-				SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
-			}
-
-			while ((bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, NULL)) != NULL) {
-				DcxToolBar *t = (DcxToolBar*) p_this->getControlByHWND(bars);
-
-				t->autoPosition(LOWORD(lParam), HIWORD(lParam));
-				//SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) lParam );
-			}
-
-			RECT rc;
-
-			SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
-			p_this->SetVistaStyleSize();
-			p_this->updateLayout(rc);
-			//SendMessage(mHwnd, WM_SETREDRAW, TRUE, 0);
-			//This is needed (or some other solution) to update the bkg image & transp controls on it
-			//p_this->redrawWindow(); // Causes alot of flicker.
-
-			/*
-			if (p_this->IsVistaStyle())
-				p_this->redrawWindow();
-			else {
-				p_this->redrawBufferedWindow(); // Avoids flicker.
-				//p_this->redrawWindow();
-				// NB: This only fixed richedit controls that are direct children of the dialog NOT grandchildren.
-				while ((bars = FindWindowEx(mHwnd, bars, DCX_RICHEDITCLASS, NULL)) != NULL) { // workaround added for RichText controls which seem to not redraw correctly via WM_PRINT
-					RedrawWindow( bars, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME );
-				}
-			}
-			*/
-
-			break;
-		}
-		//case WM_NCCALCSIZE:
-		//	{
-		//	}
-		//	break;
+			//case WM_NCCALCSIZE:
+			//	{
+			//	}
+			//	break;
 
 		case WM_WINDOWPOSCHANGING:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_MOVE) {
-				WINDOWPOS *wp = (WINDOWPOS *) lParam;
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_MOVE) {
+					WINDOWPOS *wp = (WINDOWPOS *) lParam;
 
-				// break if nomove & nosize specified, since thats all we care about.
-				if ((wp == NULL) || ((wp->flags & SWP_NOMOVE) && (wp->flags & SWP_NOSIZE)))
-					break;
-
-				char ret[256], *p = NULL;
-
-				switch ((wp->flags & (SWP_NOSIZE|SWP_NOMOVE))) {
-					case SWP_NOSIZE:
-						p = "moving";
+					// break if nomove & nosize specified, since thats all we care about.
+					if ((wp == NULL) || ((wp->flags & SWP_NOMOVE) && (wp->flags & SWP_NOSIZE)))
 						break;
-					case SWP_NOMOVE:
-						p = "sizing";
-						break;
-					default:
-						p = "both";
-						break;
-				}
 
-				//p_this->callAliasEx(ret, "changing,0,%d,%d,%d,%d,%d", (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
-				p_this->callAliasEx(ret, "changing,0,%s,%d,%d,%d,%d", p,wp->x, wp->y, wp->cx, wp->cy);
+					char ret[256], *p = NULL;
 
-				if (lstrcmp("nosize", ret) == 0)
-					wp->flags |= SWP_NOSIZE;
-				else if (lstrcmp("nomove", ret) == 0)
-					wp->flags |= SWP_NOMOVE;
-				else if (lstrcmp("nochange", ret) == 0)
-					wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
-			}
+					switch ((wp->flags & (SWP_NOSIZE|SWP_NOMOVE))) {
+		case SWP_NOSIZE:
+			p = "moving";
 			break;
-		}
+		case SWP_NOMOVE:
+			p = "sizing";
+			break;
+		default:
+			p = "both";
+			break;
+					}
+
+					//p_this->callAliasEx(ret, "changing,0,%d,%d,%d,%d,%d", (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
+					p_this->callAliasEx(ret, "changing,0,%s,%d,%d,%d,%d", p,wp->x, wp->y, wp->cx, wp->cy);
+
+					if (lstrcmp("nosize", ret) == 0)
+						wp->flags |= SWP_NOSIZE;
+					else if (lstrcmp("nomove", ret) == 0)
+						wp->flags |= SWP_NOMOVE;
+					else if (lstrcmp("nochange", ret) == 0)
+						wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
+				}
+				break;
+			}
 
 		case WM_ERASEBKGND:
-		{
-			if (mHwnd != p_this->getHwnd())
+			{
+				if (mHwnd != p_this->getHwnd())
+					break;
+				RECT rwnd;
+
+				GetClientRect(mHwnd, &rwnd);
+
+				DcxDialog::DrawDialogBackground((HDC) wParam,p_this,&rwnd);
+
+				bParsed = TRUE;
+				lRes = TRUE;
 				break;
-			RECT rwnd;
-
-			GetClientRect(mHwnd, &rwnd);
-
-			DcxDialog::DrawDialogBackground((HDC) wParam,p_this,&rwnd);
-
-			bParsed = TRUE;
-			lRes = TRUE;
-			break;
-		}
+			}
 
 		case WM_CTLCOLORDLG:
-		{
-			bParsed = TRUE;
-			lRes = (INT_PTR) p_this->getBackClrBrush();
-			break;
-		}
+			{
+				bParsed = TRUE;
+				lRes = (INT_PTR) p_this->getBackClrBrush();
+				break;
+			}
 
 		case WM_CTLCOLORBTN:
 		case WM_CTLCOLORLISTBOX:
 		case WM_CTLCOLORSCROLLBAR:
 		case WM_CTLCOLORSTATIC:
 		case WM_CTLCOLOREDIT:
-		{
-			DcxControl *p_Control = p_this->getControlByHWND((HWND) lParam);
+			{
+				DcxControl *p_Control = p_this->getControlByHWND((HWND) lParam);
 
-			if (p_Control != NULL) {
-				COLORREF clrText = p_Control->getTextColor();
-				COLORREF clrBackText = p_Control->getBackColor();
-				HBRUSH hBackBrush = p_Control->getBackClrBrush();
+				if (p_Control != NULL) {
+					COLORREF clrText = p_Control->getTextColor();
+					COLORREF clrBackText = p_Control->getBackColor();
+					HBRUSH hBackBrush = p_Control->getBackClrBrush();
 
-				// let static controls shine through
-				//				SetBkMode((HDC) wParam, TRANSPARENT);
-				//				return (LRESULT) GetStockBrush(HOLLOW_BRUSH);
+					// let static controls shine through
+					//				SetBkMode((HDC) wParam, TRANSPARENT);
+					//				return (LRESULT) GetStockBrush(HOLLOW_BRUSH);
 
-				//http://www.ddj.com/dept/windows/184416395
-				//http://www.codeguru.com/Cpp/misc/samples/article.php/c1469#download
-				bParsed = TRUE;
-				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+					//http://www.ddj.com/dept/windows/184416395
+					//http://www.codeguru.com/Cpp/misc/samples/article.php/c1469#download
+					bParsed = TRUE;
+					lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 
-				if (clrText != -1)
-					SetTextColor((HDC) wParam, clrText);
+					if (clrText != -1)
+						SetTextColor((HDC) wParam, clrText);
 
-				if (clrBackText != -1)
-					SetBkColor((HDC) wParam, clrBackText);
+					if (clrBackText != -1)
+						SetBkColor((HDC) wParam, clrBackText);
 
-				if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
-					// when transparent set as no bkg brush & default transparent drawing.
-					SetBkMode((HDC) wParam, TRANSPARENT);
-					//SetBkColor((HDC) wParam, CLR_NONE);
-					hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
+						// when transparent set as no bkg brush & default transparent drawing.
+						SetBkMode((HDC) wParam, TRANSPARENT);
+						//SetBkColor((HDC) wParam, CLR_NONE);
+						hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+					}
+
+					if (hBackBrush != NULL)
+						lRes = (LRESULT) hBackBrush;
+
 				}
-
-				if (hBackBrush != NULL)
-					lRes = (LRESULT) hBackBrush;
-
+				break;
 			}
-			break;
-		}
 
 		case WM_MOUSEMOVE:
-		{
-			p_this->setMouseControl(0);
-			if (p_this->m_bDrag) {
-				POINT pt;
-				GetCursorPos(&pt);
-				PostMessage(p_this->m_Hwnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM( pt.x, pt.y));
-				p_this->m_bDrag = false;
+			{
+				p_this->setMouseControl(0);
+				if (p_this->m_bDrag) {
+					POINT pt;
+					GetCursorPos(&pt);
+					PostMessage(p_this->m_Hwnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM( pt.x, pt.y));
+					p_this->m_bDrag = false;
+				}
+				if ( p_this->m_bTracking == FALSE ) {
+					TRACKMOUSEEVENT tme;
+					tme.cbSize = sizeof(TRACKMOUSEEVENT);
+					tme.hwndTrack = p_this->m_Hwnd;
+					tme.dwFlags = TME_LEAVE;
+					tme.dwHoverTime = 1;
+					p_this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );
+					if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
+						p_this->callAliasEx(NULL, "%s,%d", "denter", 0); // this tells you when the mouse enters or
+					p_this->UpdateVistaStyle();
+				}
+				break;
 			}
-			if ( p_this->m_bTracking == FALSE ) {
-				TRACKMOUSEEVENT tme;
-				tme.cbSize = sizeof(TRACKMOUSEEVENT);
-				tme.hwndTrack = p_this->m_Hwnd;
-				tme.dwFlags = TME_LEAVE;
-				tme.dwHoverTime = 1;
-				p_this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );
-				if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
-					p_this->callAliasEx(NULL, "%s,%d", "denter", 0); // this tells you when the mouse enters or
+
+		case WM_MOUSELEAVE:
+			{
+				if ( p_this->m_bTracking ) {
+					p_this->m_bTracking = FALSE;
+					if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
+						p_this->callAliasEx(NULL, "%s,%d", "dleave", 0); // leaves a dialogs client area.
+				}
 				p_this->UpdateVistaStyle();
 			}
 			break;
-		}
-
-		case WM_MOUSELEAVE:
-		{
-			if ( p_this->m_bTracking ) {
-				p_this->m_bTracking = FALSE;
-				if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
-					p_this->callAliasEx(NULL, "%s,%d", "dleave", 0); // leaves a dialogs client area.
-			}
-			p_this->UpdateVistaStyle();
-		}
-		break;
 
 		case WM_LBUTTONDOWN:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-				p_this->callAliasEx(NULL, "%s,%d", "lbdown", 0);
-			if (p_this->m_bDoDrag)
-				p_this->m_bDrag = true;
-			break;
-		}
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+					p_this->callAliasEx(NULL, "%s,%d", "lbdown", 0);
+				if (p_this->m_bDoDrag)
+					p_this->m_bDrag = true;
+				break;
+			}
 
 		case WM_LBUTTONUP:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-				p_this->callAliasEx(NULL, "%s,%d", "lbup", 0);
-				p_this->callAliasEx(NULL, "%s,%d", "sclick", 0);
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
+					p_this->callAliasEx(NULL, "%s,%d", "lbup", 0);
+					p_this->callAliasEx(NULL, "%s,%d", "sclick", 0);
+				}
+				break;
 			}
-			break;
-		}
 
 		case WM_LBUTTONDBLCLK:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-				p_this->callAliasEx(NULL, "%s,%d", "dclick", 0);
-				p_this->callAliasEx(NULL, "%s,%d", "lbdblclk", 0);
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
+					p_this->callAliasEx(NULL, "%s,%d", "dclick", 0);
+					p_this->callAliasEx(NULL, "%s,%d", "lbdblclk", 0);
+				}
+				break;
 			}
-			break;
-		}
 
 		case WM_RBUTTONDOWN:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-				p_this->callAliasEx(NULL, "%s,%d", "rbdown", 0);
-			break;
-		}
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+					p_this->callAliasEx(NULL, "%s,%d", "rbdown", 0);
+				break;
+			}
 
 		case WM_RBUTTONUP:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-				p_this->callAliasEx(NULL, "%s,%d", "rbup", 0);
-				p_this->callAliasEx(NULL, "%s,%d", "rclick", 0);
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
+					p_this->callAliasEx(NULL, "%s,%d", "rbup", 0);
+					p_this->callAliasEx(NULL, "%s,%d", "rclick", 0);
+				}
+				break;
 			}
-			break;
-		}
 
 		case WM_RBUTTONDBLCLK:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-				p_this->callAliasEx(NULL, "%s,%d", "rbdblclk", 0);
-			break;
-		}
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+					p_this->callAliasEx(NULL, "%s,%d", "rbdblclk", 0);
+				break;
+			}
 
 		case WM_MBUTTONDOWN:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-				p_this->callAliasEx(NULL, "%s,%d", "mbdown", 0);
-			break;
-		}
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+					p_this->callAliasEx(NULL, "%s,%d", "mbdown", 0);
+				break;
+			}
 
 		case WM_MBUTTONUP:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-				p_this->callAliasEx(NULL, "%s,%d", "mbup", 0);
-			break;
-		}
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+					p_this->callAliasEx(NULL, "%s,%d", "mbup", 0);
+				break;
+			}
 
 		case WM_MBUTTONDBLCLK:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-				p_this->callAliasEx(NULL, "%s,%d", "mbdblclk", 0);
-			break;
-		}
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
+					p_this->callAliasEx(NULL, "%s,%d", "mbdblclk", 0);
+				break;
+			}
 
 		case WM_MOUSEWHEEL:
-		{
-			if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-				DWORD fwKeys = GET_KEYSTATE_WPARAM(wParam);
-				DWORD zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-				TString flags("+");
-				
-				if (fwKeys & MK_CONTROL) // control button
-					flags = flags + "c";
-				if (fwKeys & MK_LBUTTON) // left mouse button
-					flags = flags + "l";
-				if (fwKeys & MK_MBUTTON) // middle mouse button button
-					flags = flags + "m";
-				if (fwKeys & MK_RBUTTON) // right mouse button
-					flags = flags + "r";
-				if (fwKeys & MK_SHIFT) // shift button
-					flags = flags + "s";
+			{
+				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
+					DWORD fwKeys = GET_KEYSTATE_WPARAM(wParam);
+					DWORD zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+					TString flags("+");
 
-				p_this->callAliasEx(NULL, "%s,%d,%s,%s",
-					"mwheel",
-					p_this->m_MouseID,
-					((int) zDelta > 0 ? "up" : "down"),
-					flags.to_chr());
+					if (fwKeys & MK_CONTROL) // control button
+						flags = flags + "c";
+					if (fwKeys & MK_LBUTTON) // left mouse button
+						flags = flags + "l";
+					if (fwKeys & MK_MBUTTON) // middle mouse button button
+						flags = flags + "m";
+					if (fwKeys & MK_RBUTTON) // right mouse button
+						flags = flags + "r";
+					if (fwKeys & MK_SHIFT) // shift button
+						flags = flags + "s";
 
-				bParsed = TRUE;
-				lRes = FALSE; // stop parsing of WM_MOUSEWHEEL
+					p_this->callAliasEx(NULL, "%s,%d,%s,%s",
+						"mwheel",
+						p_this->m_MouseID,
+						((int) zDelta > 0 ? "up" : "down"),
+						flags.to_chr());
+
+					bParsed = TRUE;
+					lRes = FALSE; // stop parsing of WM_MOUSEWHEEL
+				}
+				break;
 			}
-			break;
-		}
 
 		case WM_INITMENU:
 		case WM_INITMENUPOPUP:
-		{
-			if (HIWORD(lParam) == FALSE && p_this->m_popup != NULL) {
-				// let mIRC populate the menus dynamically
-				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-				bParsed = TRUE;
+			{
+				if (HIWORD(lParam) == FALSE && p_this->m_popup != NULL) {
+					// let mIRC populate the menus dynamically
+					lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+					bParsed = TRUE;
 
-				if (isMenuBarMenu(GetMenu(mHwnd), (HMENU) wParam)) {
-					isMenuBar = TRUE;
+					if (isMenuBarMenu(GetMenu(mHwnd), (HMENU) wParam)) {
+						isMenuBar = TRUE;
 
-					p_this->m_popup->convertMenu((HMENU) wParam, TRUE);
+						p_this->m_popup->convertMenu((HMENU) wParam, TRUE);
+					}
+					isSysMenu = FALSE;
 				}
-				isSysMenu = FALSE;
+				else
+					isSysMenu = TRUE;
+				break;
 			}
-			else
-				isSysMenu = TRUE;
-			break;
-		}
 
 		case WM_UNINITMENUPOPUP:
-		{
-			if (p_this->m_popup != NULL && (isMenuBar == TRUE) && (isSysMenu == FALSE))
-				p_this->m_popup->deleteAllItemData((HMENU) wParam);
+			{
+				if (p_this->m_popup != NULL && (isMenuBar == TRUE) && (isSysMenu == FALSE))
+					p_this->m_popup->deleteAllItemData((HMENU) wParam);
 
-			break;
-		}
+				break;
+			}
 
 		case WM_SETCURSOR:
-		{
-			if ((LOWORD(lParam) == HTCLIENT) && ((HWND) wParam == p_this->getHwnd()) && (p_this->getCursor() != NULL))
 			{
-				if (GetCursor() != p_this->getCursor())
-					SetCursor(p_this->getCursor());
-				bParsed = TRUE;
-				lRes = TRUE;
+				if ((LOWORD(lParam) == HTCLIENT) && ((HWND) wParam == p_this->getHwnd()) && (p_this->getCursor() != NULL))
+				{
+					if (GetCursor() != p_this->getCursor())
+						SetCursor(p_this->getCursor());
+					bParsed = TRUE;
+					lRes = TRUE;
+				}
+				break;
 			}
-			break;
-		}
 
 		case WM_DROPFILES:
-		{
-			HDROP files = (HDROP) wParam;
-			char filename[500];
-			int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
+			{
+				HDROP files = (HDROP) wParam;
+				char filename[500];
+				int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
-			if (count) {
-				if (p_this->m_dEventMask & DCX_EVENT_DRAG) {
-					char ret[20];
+				if (count) {
+					if (p_this->m_dEventMask & DCX_EVENT_DRAG) {
+						char ret[20];
 
-					p_this->callAliasEx(ret, "%s,%d,%d", "dragbegin", 0, count);
+						p_this->callAliasEx(ret, "%s,%d,%d", "dragbegin", 0, count);
 
-					// cancel drag drop event
-					if (lstrcmpi(ret, "cancel") == 0) {
-						DragFinish(files);
-						bParsed = TRUE;
-						break;
+						// cancel drag drop event
+						if (lstrcmpi(ret, "cancel") == 0) {
+							DragFinish(files);
+							bParsed = TRUE;
+							break;
+						}
+						// for each file, send callback message
+						for (int i = 0; i < count; i++) {
+							if (DragQueryFile(files, i, filename, 500))
+								p_this->callAliasEx(NULL, "%s,%d,%s", "dragfile", 0, filename);
+						}
+
+						p_this->callAliasEx(NULL, "%s,%d", "dragfinish", 0);
 					}
-					// for each file, send callback message
-					for (int i = 0; i < count; i++) {
-						if (DragQueryFile(files, i, filename, 500))
-							p_this->callAliasEx(NULL, "%s,%d,%s", "dragfile", 0, filename);
-					}
-
-					p_this->callAliasEx(NULL, "%s,%d", "dragfinish", 0);
 				}
-			}
 
-			DragFinish(files);
-			break;
-		}
+				DragFinish(files);
+				break;
+			}
 
 		case WM_ACTIVATE:
-		{
-			if (wParam == WA_ACTIVE && p_this->m_bVistaStyle) {
-				bParsed = TRUE;
-				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-				InvalidateRect(mHwnd, NULL, TRUE);
+			{
+				if (wParam == WA_ACTIVE && p_this->m_bVistaStyle) {
+					bParsed = TRUE;
+					lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+					InvalidateRect(mHwnd, NULL, TRUE);
+				}
+
+				if (p_this->m_dEventMask & DCX_EVENT_FOCUS) {
+					switch (wParam) {
+		case WA_ACTIVE:
+		case WA_CLICKACTIVE:
+			{
+				p_this->callAliasEx(NULL, "%s,%d", "activate", 0);
+				break;
 			}
 
-			if (p_this->m_dEventMask & DCX_EVENT_FOCUS) {
-				switch (wParam) {
-					case WA_ACTIVE:
-					case WA_CLICKACTIVE:
-					{
-						p_this->callAliasEx(NULL, "%s,%d", "activate", 0);
-						break;
-					}
-
-					case WA_INACTIVE:
-					{
-						p_this->callAliasEx(NULL, "%s,%d", "deactivate", 0);
-						break;
-					}
-				} // switch
+		case WA_INACTIVE:
+			{
+				p_this->callAliasEx(NULL, "%s,%d", "deactivate", 0);
+				break;
 			}
-			break;
-		}
+					} // switch
+				}
+				break;
+			}
 		case LB_GETITEMRECT:
 			{
 				/*
-					*	NB: This message is sent by mIRC V6.20 when you click on a docked dialog,
-					*			causing an infinite loop, returning LB_ERR stops the loop.
-					*	This affects ALL dialogs not just dcx ones.
-					* This is not a real fix but a workaround.
+				*	NB: This message is sent by mIRC V6.20 when you click on a docked dialog,
+				*			causing an infinite loop, returning LB_ERR stops the loop.
+				*	This affects ALL dialogs not just dcx ones.
+				* This is not a real fix but a workaround.
 				*/
 				lRes = LB_ERR;
 				bParsed = TRUE;
@@ -2636,31 +2631,31 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				}
 			}
 			break;
-		//case WM_NCPAINT:
-		//	{
-		//		HDC hdc;
-		//		hdc = GetDCEx(hwnd, (HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
-		//		// Paint into this DC
-		//		ReleaseDC(hwnd, hdc);
-		//		bParsed = TRUE;
-		//	}
-		//	break;
+			//case WM_NCPAINT:
+			//	{
+			//		HDC hdc;
+			//		hdc = GetDCEx(hwnd, (HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
+			//		// Paint into this DC
+			//		ReleaseDC(hwnd, hdc);
+			//		bParsed = TRUE;
+			//	}
+			//	break;
 
-		//case WM_NCLBUTTONDOWN:
-		//case WM_NCLBUTTONUP:
-		//case WM_NCMOUSEHOVER:
-		//case WM_NCMOUSELEAVE:
-		////case WM_NCHITTEST:
-		//case WM_NCPAINT:
-		//	{
-		//		if (p_this->IsVistaStyle()) {
-		//			lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-		//			//InvalidateRect(mHwnd, NULL, FALSE);
-		//			p_this->UpdateVistaStyle();
-		//			bParsed = TRUE;
-		//		}
-		//	}
-		//	break;
+			//case WM_NCLBUTTONDOWN:
+			//case WM_NCLBUTTONUP:
+			//case WM_NCMOUSEHOVER:
+			//case WM_NCMOUSELEAVE:
+			////case WM_NCHITTEST:
+			//case WM_NCPAINT:
+			//	{
+			//		if (p_this->IsVistaStyle()) {
+			//			lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+			//			//InvalidateRect(mHwnd, NULL, FALSE);
+			//			p_this->UpdateVistaStyle();
+			//			bParsed = TRUE;
+			//		}
+			//	}
+			//	break;
 
 		case WM_SHOWWINDOW:
 			{
@@ -2698,19 +2693,20 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 
 		case WM_NCDESTROY:
-		{
-			lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+			{
+				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 
-			Dialogs.deleteDialog(p_this);
-			delete p_this;
-			return lRes;
-		}
+				Dialogs.deleteDialog(p_this);
+				delete p_this;
+				return lRes;
+			}
 
 		default:
-			// Try to process DragList events
-			if (p_this->m_vDragLists.size() != 0)
-				lRes = ProcessDragListMessage(p_this, uMsg, wParam, lParam, bParsed);
-
+			{
+				// Try to process DragList events
+				if (p_this->m_vDragLists.size() != 0)
+					lRes = ProcessDragListMessage(p_this, uMsg, wParam, lParam, bParsed);
+			}
 			break;
 	}
 
@@ -2888,7 +2884,7 @@ void DcxDialog::UpdateShadow(void)
 	MakeShadow((UINT32 *)pvBits, this->m_Hwnd, &WndRect);
 
 	HDC hMemDC = CreateCompatibleDC(NULL);
-	HBITMAP hOriBmp = (HBITMAP)SelectObject(hMemDC, hbitmap);
+	HBITMAP hOriBmp = SelectBitmap(hMemDC, hbitmap);
 
 	POINT ptDst = {WndRect.left + this->m_Shadow.nxOffset - this->m_Shadow.nSize, WndRect.top + this->m_Shadow.nyOffset - this->m_Shadow.nSize};
 	POINT ptSrc = {0, 0};
@@ -2900,7 +2896,7 @@ void DcxDialog::UpdateShadow(void)
 	UpdateLayeredWindowUx(this->m_Shadow.hWin, NULL, &ptDst, &WndSize, hMemDC, &ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
 
 	// Delete used resources
-	DeleteObject(SelectObject(hMemDC, hOriBmp));
+	DeleteBitmap(SelectBitmap(hMemDC, hOriBmp));
 	DeleteDC(hMemDC);
 }
 
@@ -3345,14 +3341,14 @@ void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd)
 	if (hdcMemory != NULL) {
 		HBITMAP hBitmap = ::CreateCompatibleBitmap( hDC, w, h);
 		if (hBitmap != NULL) {
-			HGDIOBJ hbmpOld = ::SelectObject( hdcMemory, hBitmap);
+			HBITMAP hbmpOld = SelectBitmap( hdcMemory, hBitmap);
 
 			::SendMessage( hWnd, WM_PRINT, (WPARAM)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
 			Bitmap bitmap( hBitmap, NULL);
 			graphics.DrawImage( &bitmap, rc.left, rc.top);
 
-			::DeleteObject(::SelectObject( hdcMemory, hbmpOld));
+			DeleteBitmap(SelectBitmap( hdcMemory, hbmpOld));
 		}
 		::DeleteDC(hdcMemory);
 	}

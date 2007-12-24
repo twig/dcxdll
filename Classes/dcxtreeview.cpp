@@ -2119,7 +2119,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		case WM_CONTEXTMENU:
 		case WM_LBUTTONDBLCLK:
@@ -2145,19 +2145,19 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				EndPaint( this->m_Hwnd, &ps );
 			}
 			break;
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }
 
 /*!
@@ -2167,28 +2167,28 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
  */
 
 LRESULT CALLBACK DcxTreeView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
-  
-  DcxTreeView * pthis = (DcxTreeView *) GetProp( mHwnd, "dcx_pthis" );
 
-  switch( uMsg ) {
+	DcxTreeView * pthis = (DcxTreeView *) GetProp( mHwnd, "dcx_pthis" );
 
-    case WM_GETDLGCODE:
-      return DLGC_WANTALLKEYS;
+	switch( uMsg ) {
 
-    case WM_DESTROY:
-      {
-        RemoveProp( mHwnd, "dcx_pthis" );
-        SetWindowLongPtr( mHwnd, GWLP_WNDPROC, (LONG_PTR) pthis->m_OrigEditProc );
-      }
-      break;
+	case WM_GETDLGCODE:
+		return DLGC_WANTALLKEYS;
 
-  }
-  return CallWindowProc( pthis->m_OrigEditProc, mHwnd, uMsg, wParam, lParam );
+	case WM_DESTROY:
+		{
+			RemoveProp( mHwnd, "dcx_pthis" );
+			SubclassWindow( mHwnd, pthis->m_OrigEditProc );
+		}
+		break;
+
+	}
+	return CallWindowProc( pthis->m_OrigEditProc, mHwnd, uMsg, wParam, lParam );
 }
 
 void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 {
-	// Setup alpha blend if any.
+	// Setup alpha blend if any. Double Buffer is needed to stop flicker when a bkg image is used.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, true);
 
 #ifdef DCX_USE_GDIPLUS
