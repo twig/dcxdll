@@ -436,10 +436,10 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 	XSwitchFlags flags(input.gettok(3));
 	int numtok = input.numtok( );
 
-  // xdid -r [NAME] [ID] [SWITCH]
-  if (flags['r']) {
-    TreeView_DeleteAllItems(this->m_Hwnd);
-  }
+	// xdid -r [NAME] [ID] [SWITCH]
+	if (flags['r']) {
+		TreeView_DeleteAllItems(this->m_Hwnd);
+	}
 
 	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] [BKGCOLOR] Text[TAB]Tooltip Text
 	if (flags['a']) {
@@ -469,45 +469,45 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		if (this->parsePath(&input.gettok(4, -1), &hParent, &hAfter)) {
 			if (this->correctTargetItem(&hParent, &hAfter))
 				TreeView_EnsureVisible(this->m_Hwnd, hAfter); // make sure selected item is visible.
-				TreeView_EditLabel(this->m_Hwnd, hAfter);
+			TreeView_EditLabel(this->m_Hwnd, hAfter);
 		}
 	}
-  // xdid -c [NAME] [ID] [SWITCH] N N N
-  else if ( flags['c'] && numtok > 3 ) {
+	// xdid -c [NAME] [ID] [SWITCH] N N N
+	else if ( flags['c'] && numtok > 3 ) {
 
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
+		HTREEITEM hParent = TVI_ROOT;
+		HTREEITEM hAfter = TVI_ROOT;
 
-    if ( this->parsePath( &input.gettok( 4, -1 ), &hParent, &hAfter ) ) {
+		if ( this->parsePath( &input.gettok( 4, -1 ), &hParent, &hAfter ) ) {
 
 			if ( this->correctTargetItem( &hParent, &hAfter ) ) {
 				TreeView_EnsureVisible(this->m_Hwnd, hAfter); // make sure selected item is visible.
-        TreeView_SelectItem( this->m_Hwnd, hAfter );
+				TreeView_SelectItem( this->m_Hwnd, hAfter );
 			}
-    }
-  }
-  // xdid -d [NAME] [ID] [SWITCH] N N N
-  else if ( flags['d'] && numtok > 3 ) {
+		}
+	}
+	// xdid -d [NAME] [ID] [SWITCH] N N N
+	else if ( flags['d'] && numtok > 3 ) {
 
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
+		HTREEITEM hParent = TVI_ROOT;
+		HTREEITEM hAfter = TVI_ROOT;
 
-    if ( this->parsePath( &input.gettok( 4, -1 ), &hParent, &hAfter ) ) {
+		if ( this->parsePath( &input.gettok( 4, -1 ), &hParent, &hAfter ) ) {
 
-      if ( this->correctTargetItem( &hParent, &hAfter ) )
-        TreeView_DeleteItem( this->m_Hwnd, hAfter );
-    }
-  }
-  // xdid -g [NAME] [ID] [SWITCH] [HEIGHT]
-  else if ( flags['g'] && numtok > 3 ) {
+			if ( this->correctTargetItem( &hParent, &hAfter ) )
+				TreeView_DeleteItem( this->m_Hwnd, hAfter );
+		}
+	}
+	// xdid -g [NAME] [ID] [SWITCH] [HEIGHT]
+	else if ( flags['g'] && numtok > 3 ) {
 
-    int iHeight = input.gettok( 4 ).to_int( );
+		int iHeight = input.gettok( 4 ).to_int( );
 
-    if ( iHeight > -2 ) {
+		if ( iHeight > -2 ) {
 
-      TreeView_SetItemHeight( this->m_Hwnd, iHeight );
-    }
-  }
+			TreeView_SetItemHeight( this->m_Hwnd, iHeight );
+		}
+	}
 	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if ( flags['i'] && numtok > 4 ) {
 		UINT iFlags = this->parseColorFlags(input.gettok( 4 ));
@@ -603,247 +603,247 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			}
 		}
 	}
-  // xdid -k [NAME] [ID] [SWITCH] [STATE] N N N
-  else if ( flags['k'] && numtok > 4 ) {
+	// xdid -k [NAME] [ID] [SWITCH] [STATE] N N N
+	else if ( flags['k'] && numtok > 4 ) {
 
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
+		HTREEITEM hParent = TVI_ROOT;
+		HTREEITEM hAfter = TVI_ROOT;
 
-    if ( this->parsePath( &input.gettok( 5, -1 ), &hParent, &hAfter ) ) {
+		if ( this->parsePath( &input.gettok( 5, -1 ), &hParent, &hAfter ) ) {
 
-      UINT state = input.gettok( 4 ).to_int( );
+			UINT state = input.gettok( 4 ).to_int( );
 
-      if ( !this->correctTargetItem( &hParent, &hAfter ) )
-        return;
+			if ( !this->correctTargetItem( &hParent, &hAfter ) )
+				return;
 
-      TreeView_SetItemState( this->m_Hwnd, hAfter, INDEXTOSTATEIMAGEMASK( state ), TVIS_STATEIMAGEMASK );
-    }
-  }
-  // xdid -l [NAME] [ID] [SWITCH] [SIZE]
-  else if ( flags['l'] && numtok > 3 ) {
+			TreeView_SetItemState( this->m_Hwnd, hAfter, INDEXTOSTATEIMAGEMASK( state ), TVIS_STATEIMAGEMASK );
+		}
+	}
+	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
+	else if ( flags['l'] && numtok > 3 ) {
 
-    int size = input.gettok( 4 ).to_int( );
+		int size = input.gettok( 4 ).to_int( );
 
-    if ( size != 32 && size != 24 )
-      size = 16;
+		if ( size != 32 && size != 24 )
+			size = 16;
 
-    this->m_iIconSize = size;
-  }
-  // xdid -m [NAME] [ID] [SWITCH] N N N{TAB}N N N
-  else if ( flags['m'] && numtok > 3 && input.numtok( TSTAB ) > 1 ) {
+		this->m_iIconSize = size;
+	}
+	// xdid -m [NAME] [ID] [SWITCH] N N N{TAB}N N N
+	else if ( flags['m'] && numtok > 3 && input.numtok( TSTAB ) > 1 ) {
 
-    TString pathFrom(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
-    pathFrom.trim( );
-    TString pathTo(input.gettok( 2, TSTAB ));
-    pathTo.trim( );
+		TString pathFrom(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
+		pathFrom.trim( );
+		TString pathTo(input.gettok( 2, TSTAB ));
+		pathTo.trim( );
 
-    HTREEITEM hParentFrom = TVI_ROOT;
-    HTREEITEM hAfterFrom = TVI_ROOT;
-    HTREEITEM hParentTo = TVI_ROOT;
-    HTREEITEM hAfterTo = TVI_ROOT;
+		HTREEITEM hParentFrom = TVI_ROOT;
+		HTREEITEM hAfterFrom = TVI_ROOT;
+		HTREEITEM hParentTo = TVI_ROOT;
+		HTREEITEM hAfterTo = TVI_ROOT;
 
-    HTREEITEM hNewItem;
+		HTREEITEM hNewItem;
 
 		if ( !this->parsePath( &pathFrom, &hParentFrom, &hAfterFrom ) ) {
 			this->showErrorEx(NULL,"-m", "Unable to parse path: %s", pathFrom.to_chr());
-      return;
+			return;
 		}
 		if ( !this->correctTargetItem( &hParentFrom, &hAfterFrom ) ) {
 			this->showError(NULL,"-m", "Correction Failed.");
-      return;
+			return;
 		}
 		if ( !this->parsePath( &pathTo, &hParentTo, &hAfterTo ) ) {
 			this->showErrorEx(NULL,"-m", "Unable to parse path: %s", pathTo.to_chr());
-      return;
+			return;
 		}
 
-    hNewItem = this->cloneItem( &hAfterFrom, &hParentTo, &hAfterTo );
+		hNewItem = this->cloneItem( &hAfterFrom, &hParentTo, &hAfterTo );
 
-    if ( hNewItem != NULL )
-      this->copyAllItems( &hAfterFrom, &hNewItem );
+		if ( hNewItem != NULL )
+			this->copyAllItems( &hAfterFrom, &hNewItem );
 
-    TreeView_DeleteItem( this->m_Hwnd, hAfterFrom );
-  }
-  // xdid -n [NAME] [ID] [SWITCH] N N N{TAB}N N N
-  else if ( flags['n'] && numtok > 3 && input.numtok( TSTAB ) > 1 ) {
+		TreeView_DeleteItem( this->m_Hwnd, hAfterFrom );
+	}
+	// xdid -n [NAME] [ID] [SWITCH] N N N{TAB}N N N
+	else if ( flags['n'] && numtok > 3 && input.numtok( TSTAB ) > 1 ) {
 
-    TString pathFrom(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
-    pathFrom.trim( );
-    TString pathTo(input.gettok( 2, TSTAB ));
-    pathTo.trim( );
+		TString pathFrom(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
+		pathFrom.trim( );
+		TString pathTo(input.gettok( 2, TSTAB ));
+		pathTo.trim( );
 
-    HTREEITEM hParentFrom = TVI_ROOT;
-    HTREEITEM hAfterFrom = TVI_ROOT;
-    HTREEITEM hParentTo = TVI_ROOT;
-    HTREEITEM hAfterTo = TVI_ROOT;
+		HTREEITEM hParentFrom = TVI_ROOT;
+		HTREEITEM hAfterFrom = TVI_ROOT;
+		HTREEITEM hParentTo = TVI_ROOT;
+		HTREEITEM hAfterTo = TVI_ROOT;
 
-    HTREEITEM hNewItem;
+		HTREEITEM hNewItem;
 
-    if ( !this->parsePath( &pathFrom, &hParentFrom, &hAfterFrom ) )
-      return;
-    if ( !this->correctTargetItem( &hParentFrom, &hAfterFrom ) )
-      return;
-    if ( !this->parsePath( &pathTo, &hParentTo, &hAfterTo ) )
-      return;
+		if ( !this->parsePath( &pathFrom, &hParentFrom, &hAfterFrom ) )
+			return;
+		if ( !this->correctTargetItem( &hParentFrom, &hAfterFrom ) )
+			return;
+		if ( !this->parsePath( &pathTo, &hParentTo, &hAfterTo ) )
+			return;
 
-    hNewItem = this->cloneItem( &hAfterFrom, &hParentTo, &hAfterTo );
+		hNewItem = this->cloneItem( &hAfterFrom, &hParentTo, &hAfterTo );
 
-    if ( hNewItem != NULL )
-      this->copyAllItems( &hAfterFrom, &hNewItem );
-  }
-  // xdid -o [NAME] [ID] [SWITCH] N N N [TAB] (Tooltip Text)
-  else if ( flags['o'] && numtok > 3 ) {
+		if ( hNewItem != NULL )
+			this->copyAllItems( &hAfterFrom, &hNewItem );
+	}
+	// xdid -o [NAME] [ID] [SWITCH] N N N [TAB] (Tooltip Text)
+	else if ( flags['o'] && numtok > 3 ) {
 
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
+		HTREEITEM hParent = TVI_ROOT;
+		HTREEITEM hAfter = TVI_ROOT;
 
-    TString path(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
-    path.trim( );
+		TString path(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
+		path.trim( );
 
-    TString tiptext;
-    if ( input.numtok( TSTAB ) > 1 ) {
+		TString tiptext;
+		if ( input.numtok( TSTAB ) > 1 ) {
 
-      tiptext = input.gettok( 2, TSTAB );
-      tiptext.trim( );
-    }
+			tiptext = input.gettok( 2, TSTAB );
+			tiptext.trim( );
+		}
 
-    if ( this->parsePath( &path, &hParent, &hAfter ) ) {
+		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
 
-      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+			if ( this->correctTargetItem( &hParent, &hAfter ) ) {
 
-        TVITEMEX tvi; 
+				TVITEMEX tvi; 
 
-        tvi.hItem = hAfter;
-        tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
+				tvi.hItem = hAfter;
+				tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
 
-        if ( TreeView_GetItem( this->m_Hwnd, &tvi ) ) {
+				if ( TreeView_GetItem( this->m_Hwnd, &tvi ) ) {
 
-          LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
+					LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
 
-          if ( lpdcxtvitem != NULL )
-            lpdcxtvitem->tsTipText = tiptext;
- 
-        }
-      }
-    }
-  }
-  // xdid -Q [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] N N N
-  else if ( flags['Q'] && numtok > 5 ) {
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
+					if ( lpdcxtvitem != NULL )
+						lpdcxtvitem->tsTipText = tiptext;
 
-    if ( this->parsePath( &input.gettok( 6, -1 ), &hParent, &hAfter ) ) {
-      COLORREF clrText = (COLORREF) input.gettok( 5 ).to_num( );
+				}
+			}
+		}
+	}
+	// xdid -Q [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] N N N
+	else if ( flags['Q'] && numtok > 5 ) {
+		HTREEITEM hParent = TVI_ROOT;
+		HTREEITEM hAfter = TVI_ROOT;
 
-      if ( !this->correctTargetItem( &hParent, &hAfter ) )
-        return;
+		if ( this->parsePath( &input.gettok( 6, -1 ), &hParent, &hAfter ) ) {
+			COLORREF clrText = (COLORREF) input.gettok( 5 ).to_num( );
+
+			if ( !this->correctTargetItem( &hParent, &hAfter ) )
+				return;
 
 			TVITEMEX tvi; 
 
-      tvi.hItem = hAfter;
-      tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
+			tvi.hItem = hAfter;
+			tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
 
-      if ( TreeView_GetItem( this->m_Hwnd, &tvi ) ) {
-        LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
+			if ( TreeView_GetItem( this->m_Hwnd, &tvi ) ) {
+				LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
 
-        if ( lpdcxtvitem != NULL ) {
-          int iFlags = this->parseItemFlags( input.gettok( 4 ) );
+				if ( lpdcxtvitem != NULL ) {
+					int iFlags = this->parseItemFlags( input.gettok( 4 ) );
 
-          if ( iFlags & TVIS_UNDERLINE )
-            lpdcxtvitem->bUline = TRUE;
-          else
-            lpdcxtvitem->bUline = FALSE;
+					if ( iFlags & TVIS_UNDERLINE )
+						lpdcxtvitem->bUline = TRUE;
+					else
+						lpdcxtvitem->bUline = FALSE;
 
-          if ( iFlags & TVIS_BOLD )
-            lpdcxtvitem->bBold = TRUE;
-          else
-            lpdcxtvitem->bBold = FALSE;
+					if ( iFlags & TVIS_BOLD )
+						lpdcxtvitem->bBold = TRUE;
+					else
+						lpdcxtvitem->bBold = FALSE;
 
 					if (iFlags & TVIS_ITALIC)
 						lpdcxtvitem->bItalic = TRUE;
 					else
 						lpdcxtvitem->bItalic = FALSE;
 
-          if ( iFlags & TVIS_COLOR )
-            lpdcxtvitem->clrText = clrText;
-          else
-            lpdcxtvitem->clrText = (COLORREF)-1;
+					if ( iFlags & TVIS_COLOR )
+						lpdcxtvitem->clrText = clrText;
+					else
+						lpdcxtvitem->clrText = (COLORREF)-1;
 
-          this->redrawWindow( );
-        }
-      }
-    }
-  }
-  // This is to avoid an invalid error message.
-  // xdid -r [NAME] [ID] [SWITCH]
-  else if (flags['r']) {
-  }
-  // xdid -t [NAME] [ID] [SWITCH] [+FLAGS] N N N
-  else if ( flags['t'] && numtok > 4 ) {
+					this->redrawWindow( );
+				}
+			}
+		}
+	}
+	// This is to avoid an invalid error message.
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if (flags['r']) {
+	}
+	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] N N N
+	else if ( flags['t'] && numtok > 4 ) {
 
-    UINT iFlags = this->parseToggleFlags( input.gettok( 4 ) );
+		UINT iFlags = this->parseToggleFlags( input.gettok( 4 ) );
 
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
+		HTREEITEM hParent = TVI_ROOT;
+		HTREEITEM hAfter = TVI_ROOT;
 
-    if ( input.gettok( 5, -1 ) == "root" ) {
+		if ( input.gettok( 5, -1 ) == "root" ) {
 
-      if ( iFlags & TVIE_EXPALL )
-        this->expandAllItems( &hAfter, TVE_EXPAND );
-      else if ( iFlags & TVIE_COLALL )
-        this->expandAllItems( &hAfter, TVE_COLLAPSE );
-    }
-    else if ( this->parsePath( &input.gettok( 5, -1 ), &hParent, &hAfter ) ) {
+			if ( iFlags & TVIE_EXPALL )
+				this->expandAllItems( &hAfter, TVE_EXPAND );
+			else if ( iFlags & TVIE_COLALL )
+				this->expandAllItems( &hAfter, TVE_COLLAPSE );
+		}
+		else if ( this->parsePath( &input.gettok( 5, -1 ), &hParent, &hAfter ) ) {
 
-      if ( !this->correctTargetItem( &hParent, &hAfter ) )
-        return;
+			if ( !this->correctTargetItem( &hParent, &hAfter ) )
+				return;
 
-      if ( iFlags & TVIE_EXP )
-        TreeView_Expand( this->m_Hwnd, hAfter, TVE_EXPAND );
-      else if ( iFlags & TVIE_EXPPART )
-        TreeView_Expand( this->m_Hwnd, hAfter, TVE_EXPAND | TVE_EXPANDPARTIAL );
-      else if ( iFlags & TVIE_COL )
-        TreeView_Expand( this->m_Hwnd, hAfter, TVE_COLLAPSE );
-      else if ( iFlags & TVIE_COLRES )
-        TreeView_Expand( this->m_Hwnd, hAfter, TVE_COLLAPSE | TVE_COLLAPSERESET );
-      else if ( iFlags & TVIE_TOGGLE )
-        TreeView_Expand( this->m_Hwnd, hAfter, TVE_TOGGLE );
-    }
-  }
-  // xdid -u [NAME] [ID] [SWITCH]
-  else if ( flags['u'] ) {
-    
-    TreeView_SelectItem( this->m_Hwnd, NULL );
-  }
-  // xdid -v [NAME] [ID] [SWITCH] N N N [TAB] (Item Text)
-  else if ( flags['v'] && numtok > 3 ) {
+			if ( iFlags & TVIE_EXP )
+				TreeView_Expand( this->m_Hwnd, hAfter, TVE_EXPAND );
+			else if ( iFlags & TVIE_EXPPART )
+				TreeView_Expand( this->m_Hwnd, hAfter, TVE_EXPAND | TVE_EXPANDPARTIAL );
+			else if ( iFlags & TVIE_COL )
+				TreeView_Expand( this->m_Hwnd, hAfter, TVE_COLLAPSE );
+			else if ( iFlags & TVIE_COLRES )
+				TreeView_Expand( this->m_Hwnd, hAfter, TVE_COLLAPSE | TVE_COLLAPSERESET );
+			else if ( iFlags & TVIE_TOGGLE )
+				TreeView_Expand( this->m_Hwnd, hAfter, TVE_TOGGLE );
+		}
+	}
+	// xdid -u [NAME] [ID] [SWITCH]
+	else if ( flags['u'] ) {
 
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
+		TreeView_SelectItem( this->m_Hwnd, NULL );
+	}
+	// xdid -v [NAME] [ID] [SWITCH] N N N [TAB] (Item Text)
+	else if ( flags['v'] && numtok > 3 ) {
 
-    TString path(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
-    path.trim( );
+		HTREEITEM hParent = TVI_ROOT;
+		HTREEITEM hAfter = TVI_ROOT;
 
-    TString itemtext;
-    if ( input.numtok( TSTAB ) > 1 ) {
-      
-      itemtext = input.gettok( 2, TSTAB );
-      itemtext.trim( );
-    }
+		TString path(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
+		path.trim( );
 
-    if ( this->parsePath( &path, &hParent, &hAfter ) ) {
+		TString itemtext;
+		if ( input.numtok( TSTAB ) > 1 ) {
 
-      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+			itemtext = input.gettok( 2, TSTAB );
+			itemtext.trim( );
+		}
 
-        TVITEMEX tvi;
+		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
 
-        tvi.mask = TVIF_TEXT | TVIF_HANDLE;
-        tvi.hItem = hAfter;
-        tvi.pszText = itemtext.to_chr( );
-        TreeView_SetItem( this->m_Hwnd, &tvi );
-      }
-    }
-  }
+			if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+
+				TVITEMEX tvi;
+
+				tvi.mask = TVIF_TEXT | TVIF_HANDLE;
+				tvi.hItem = hAfter;
+				tvi.pszText = itemtext.to_chr( );
+				TreeView_SetItem( this->m_Hwnd, &tvi );
+			}
+		}
+	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags['w'] && numtok > 5) {
 		TString flags(input.gettok(4));
@@ -898,76 +898,76 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		if (icon != NULL)
 			DestroyIcon(icon);
 	}
-  // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-  else if ( flags['y'] && numtok > 3 ) {
+	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
+	else if ( flags['y'] && numtok > 3 ) {
 
-    UINT iFlags = this->parseIconFlagOptions( input.gettok( 4 ) );
+		UINT iFlags = this->parseIconFlagOptions( input.gettok( 4 ) );
 
-    HIMAGELIST himl;
+		HIMAGELIST himl;
 
-    if ( iFlags & TVIT_NORMAL ) {
+		if ( iFlags & TVIT_NORMAL ) {
 
-      if ( ( himl = this->getImageList( TVSIL_NORMAL ) ) != NULL ) {
-        ImageList_Destroy( himl );
-        this->setImageList( NULL, TVSIL_NORMAL );
-      }
-    }
+			if ( ( himl = this->getImageList( TVSIL_NORMAL ) ) != NULL ) {
+				ImageList_Destroy( himl );
+				this->setImageList( NULL, TVSIL_NORMAL );
+			}
+		}
 
-    if ( iFlags & TVIT_STATE ) {
+		if ( iFlags & TVIT_STATE ) {
 
-      if ( ( himl = this->getImageList( TVSIL_STATE ) ) != NULL ) {
+			if ( ( himl = this->getImageList( TVSIL_STATE ) ) != NULL ) {
 
-        ImageList_Destroy( himl );
-        this->setImageList( NULL, TVSIL_STATE );
-      }
-    }
-  }
-  // xdid -z [NAME] [ID] [SWITCH] [+FLAGS] N N N [TAB] [ALIAS]
-  else if ( flags['z'] && numtok > 4 ) {
+				ImageList_Destroy( himl );
+				this->setImageList( NULL, TVSIL_STATE );
+			}
+		}
+	}
+	// xdid -z [NAME] [ID] [SWITCH] [+FLAGS] N N N [TAB] [ALIAS]
+	else if ( flags['z'] && numtok > 4 ) {
 
-    DCXTVSORT dtvs;
-    ZeroMemory( &dtvs, sizeof(DCXTVSORT) );
-    dtvs.iSortFlags = this->parseSortFlags( input.gettok( 4 ) );
-    dtvs.pthis = this;
+		DCXTVSORT dtvs;
+		ZeroMemory( &dtvs, sizeof(DCXTVSORT) );
+		dtvs.iSortFlags = this->parseSortFlags( input.gettok( 4 ) );
+		dtvs.pthis = this;
 
-    TString path(input.gettok( 1, TSTAB ).gettok( 5, -1 ));
-    path.trim( );
+		TString path(input.gettok( 1, TSTAB ).gettok( 5, -1 ));
+		path.trim( );
 
-    if ( input.numtok( TSTAB ) > 1 ) {
-      dtvs.tsCustomAlias = input.gettok( 2, TSTAB );
-      dtvs.tsCustomAlias.trim( );
-    }
+		if ( input.numtok( TSTAB ) > 1 ) {
+			dtvs.tsCustomAlias = input.gettok( 2, TSTAB );
+			dtvs.tsCustomAlias.trim( );
+		}
 
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
+		HTREEITEM hParent = TVI_ROOT;
+		HTREEITEM hAfter = TVI_ROOT;
 
-    TVSORTCB tvs;
-    ZeroMemory( &tvs, sizeof(TVSORTCB) );
-    tvs.lpfnCompare = DcxTreeView::sortItemsEx;
-    tvs.lParam = (LPARAM) &dtvs;
+		TVSORTCB tvs;
+		ZeroMemory( &tvs, sizeof(TVSORTCB) );
+		tvs.lpfnCompare = DcxTreeView::sortItemsEx;
+		tvs.lParam = (LPARAM) &dtvs;
 
-    if ( path == "root" ) {
+		if ( path == "root" ) {
 
-      tvs.hParent = TVI_ROOT;
+			tvs.hParent = TVI_ROOT;
 
-      if ( dtvs.iSortFlags & TVSS_ALL )
-        TreeView_SortChildrenCB( this->m_Hwnd, &tvs, TRUE );
-      else if ( dtvs.iSortFlags & TVSS_SINGLE )
-        TreeView_SortChildrenCB( this->m_Hwnd, &tvs, FALSE );
-    }
-    else if ( this->parsePath( &path, &hParent, &hAfter ) ) {
+			if ( dtvs.iSortFlags & TVSS_ALL )
+				TreeView_SortChildrenCB( this->m_Hwnd, &tvs, TRUE );
+			else if ( dtvs.iSortFlags & TVSS_SINGLE )
+				TreeView_SortChildrenCB( this->m_Hwnd, &tvs, FALSE );
+		}
+		else if ( this->parsePath( &path, &hParent, &hAfter ) ) {
 
-      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+			if ( this->correctTargetItem( &hParent, &hAfter ) ) {
 
-        tvs.hParent = hAfter;
+				tvs.hParent = hAfter;
 
-        if ( dtvs.iSortFlags & TVSS_ALL )
-          TreeView_SortChildrenCB( this->m_Hwnd, &tvs, TRUE );
-        else if ( dtvs.iSortFlags & TVSS_SINGLE )
-          TreeView_SortChildrenCB( this->m_Hwnd, &tvs, FALSE );
-      }
-    }
-  }
+				if ( dtvs.iSortFlags & TVSS_ALL )
+					TreeView_SortChildrenCB( this->m_Hwnd, &tvs, TRUE );
+				else if ( dtvs.iSortFlags & TVSS_SINGLE )
+					TreeView_SortChildrenCB( this->m_Hwnd, &tvs, FALSE );
+			}
+		}
+	}
 	// xdid -G [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
 	else if (flags['G'] && numtok > 6) {
 		TString flag(input.gettok( 4 ));
@@ -1011,8 +1011,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		if (!this->xmlSaveTree(hFrom, name, filename))
 			this->showErrorEx(NULL,"-S","Unable To Save Data To: <%s> %s", name.to_chr(), filename.to_chr());
 	}
-  else
-    this->parseGlobalCommandRequest( input, flags );
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!

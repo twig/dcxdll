@@ -800,12 +800,20 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		}
 		// TODO: not going to document this, have no way to redrawing the window.
 		// http://www.codeproject.com/KB/vb/ClickThroughWindows.aspx
-		// This code works fine, whats the problem?
+		// NB: may not be compatible with vista style.
 		// Click-through
 		else if (input.gettok(3) == "clickthrough") {
 			if (input.gettok(4) == "none") {
 				if (this->isExStyle(WS_EX_LAYERED|WS_EX_TRANSPARENT))
 					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+				// re-apply any alpha or keycolour.
+				if (((this->m_iAlphaLevel != 255) || (this->m_bHaveKeyColour)) && ((SetLayeredWindowAttributesUx != NULL) && !this->m_bVistaStyle)) {
+					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+					if (this->m_iAlphaLevel != 255) // reapply alpha if any.
+						SetLayeredWindowAttributesUx(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+					if (this->m_bHaveKeyColour) // reapply keycolour if any.
+						SetLayeredWindowAttributesUx(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
+				}
 			}
 			else
 				AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
