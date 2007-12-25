@@ -1035,9 +1035,9 @@ int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lp
 			// Sets initial folder if it is specified.
 			if (lpData != NULL)
 				SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM) extra->initialFolder);
-
-			// Disable OK button.
-			SendMessage(hwnd, BFFM_ENABLEOK, TRUE, FALSE);
+			else
+				// Disable OK button.
+				SendMessage(hwnd, BFFM_ENABLEOK, TRUE, FALSE);
 
 			break;
 

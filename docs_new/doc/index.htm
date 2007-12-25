@@ -248,6 +248,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>added events: close (calendar hidden), open (calendar shown), change (date/time changed) to datetimepicker</li>
 <li>added event 'showtip' to trackbar</li>
 <li>added +f flag for dcxLoadIcon() functions (which affects many controls) to allow loading of filetype icon</li>
+<li>added BrowseDialog</li>
 </ol></li>
 <li><strong>Syntax changes</strong><ol>
 <li>updated dcx_tools.mrc to include /xstatusbar, /xtreebar and /xmenubar aliases. please update your scripts!</li>
@@ -284,6 +285,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>listview event labelbegin now provides N and NSUB</li>
 <li>colorcombo /xdid -c now accepts 0 to clear selection (thanks andy for idea)</li>
 <li>moved VALUE param to the end of events (no syntax changes required)</li>
+<li>OpenDialog and SaveDialog now also return the full pathname</li>
 </ol></li>
 <li><strong>Fixes and changes</strong><ol>
 <li>added check for correct flags prefix '+' in image control xdid -i</li>
@@ -423,6 +425,12 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>xpopup - changed /xpopup -s to adjust menu position on the assumption that the x &amp; y are relative to the client rect when an hwnd is supplied.</li>
 <li>ipaddress - commented out unecessary /xdid -r code</li>
 <li>(rich)edit - added code to /xdid -S to move caret to selected text</li>
+<li>button redraws after icon is set</li>
+<li>fixed tooltip hwnd wasnt correctly initialized to NULL</li>
+<li>changed CreateHDCBuffer() to copy the Pen, Brush, Layout &amp; Font too</li>
+<li>added getting of the GetThemeColor() function from uxtheme</li>
+<li>button/text/ipaddress - changed the handling of `tooltips` style to report an error if tooltips havent been enabled for the dialog</li>
+<li>text - changed /xdid -t to use InvalidateParentRect()</li>
 </ol></li>
 <li><strong>DCX Project</strong><ol>
 <li>added VS2008 project files</li>
@@ -865,7 +873,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 20th December, 07</td>
+		<td style="text-align: right;">Last Updated: 25th December, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

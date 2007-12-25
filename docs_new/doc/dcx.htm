@@ -111,6 +111,78 @@
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.BrowseDialog"></a>$dcx(BrowseDialog)	</td></tr>
+	<tr><td colspan="2">Opens up the Browse dialog and returns the selected file or computer.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(BrowseDialog, [STYLES] $chr(9) (INITIAL_FOLDER) $chr(9) (TITLE_TEXT))</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(BrowseDialog, advanced title $chr(9) Select a folder:)<br />$dcx(BrowseDialog, files initfolder $chr(9) $mircdir)<br />$dcx(BrowseDialog, advanced nonew initfolder title $chr(9) C:\Music $chr(9) Select your music folder:)<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STYLES</td>
+		<td>Various options for the Browse dialog.</td>
+	</tr>
+	<tr>
+		<td class="value">advanced</td>
+		<td>A combination of <a class="style">newstyle</a> and <a class="style">edit</a>. Do not use with <a class="style">computers</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">edit</td>
+		<td>Includes an edit field that allows the user to type the name of an item.</td>
+	</tr>
+	<tr>
+		<td class="value">newstyle</td>
+		<td>The dialog has a larger user interface that can be resized, has drag-and-drop capability, reordering, shortcut menus, new folders, delete, and other shortcut menu commands.</td>
+	</tr>
+	<tr>
+		<td class="value">nonew</td>
+		<td>Removes the New Folder button. Only used with <a class="style">newstyle</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">files</td>
+		<td>The dialog also displays files.</td>
+	</tr>
+	<tr>
+		<td class="value">title</td>
+		<td>Specifies that the <a class="param">TITLE_TEXT</a> parameter is filled.</td>
+	</tr>
+	<tr>
+		<td class="value">initfolder</td>
+		<td>Specifies that the <a class="param">INITIAL_FOLDER</a> folder is filled.</td>
+	</tr>
+	<tr>
+		<td class="value">computers</td>
+		<td>Browses for a computer within the network rather than files or folders. Do not use with <a class="style">advanced</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">nonetwork</td>
+		<td>Do not include network folders below the domain level in the treeview.</td>
+	</tr>
+	<tr>
+		<td class="value">shortcut</td>
+		<td>When the selected item is a shortcut, return the location of the shortcut itself rather than the shortcut desitination.</td>
+	</tr>
+	<tr>
+		<td class="value">owner</td>
+		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
+	</tr>
+	<tr>
+		<td class="param">INITIAL_FOLDER</td>
+		<td>If you specify this parameter and <a class="style">initfolder</a>, this will be the initial selected folder when the dialog opens.</td>
+	</tr>
+	<tr>
+		<td class="param">TITLE_TEXT</td>
+		<td>If you specify this parameter and <a class="style">title</a>, this will set the title text for the dialog.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li>When using <a class="style">computers</a>, this will return a computer name. (eg. <a class="value">//localhost</a>)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
+To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
 			<a name="general.ColorDialog"></a>$dcx(ColorDialog)	</td></tr>
 	<tr><td colspan="2">Opens up the color picker dialog and returns the selected color.</td></tr>
 	<tr>
@@ -152,7 +224,7 @@
 	</tr>
 	<tr>
 		<td class="value">owner</td>
-		<td>Allows you to specific the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
+		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <br />By default, the main mIRC window is the parent. Dialog name OR a hwnd MUST follow after the <a class="style">owner</a> style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</td></tr></table>
@@ -313,7 +385,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="param">owner</td>
-		<td>Allows you to specific the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
+		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
 	</tr>
 <tr><td class="syntax">Return</td><td>The information returned is in the following format: <a class="value">RGB</a> <a class="value">+FLAGS</a> <a class="value">CHARSET</a> <a class="value">SIZE</a> <a class="value">FONTNAME</a></td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns $null when cancelled.</li><li>You do not have to specify all parameters, only the ones you wish to change.</li><li>The parameter <a class="param">minmaxsize</a> is limited to a range of 8-72. Any sizes other than that will be ignored.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
@@ -700,7 +772,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="value">owner</td>
-		<td>Allows you to specific the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
+		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
 	</tr>
 	<tr>
 		<td class="param">TITLE</td>
@@ -784,7 +856,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 	<tr>
 		<td class="value">owner</td>
-		<td>Allows you to specific the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
+		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
 	</tr>
 	<tr>
 		<td class="param">FILENAME</td>
@@ -943,6 +1015,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <div class='rightmenu' style='border:1px solid #979AB3'>
 	<a class='header' href="#general"><div style='background:#979AB3;'>General Commands</div></a>
 		<a class='flag' href="#general.ActiveWindow"><div>ActiveWindow</div></a>
+		<a class='flag' href="#general.BrowseDialog"><div>BrowseDialog</div></a>
 		<a class='flag' href="#general.ColorDialog"><div>ColorDialog</div></a>
 		<a class='flag' href="#general.FontDialog"><div>FontDialog</div></a>
 		<a class='flag' href="#general.GetSystemColor"><div>GetSystemColor</div></a>
@@ -968,7 +1041,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 20th December, 07</td>
+		<td style="text-align: right;">Last Updated: 25th December, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

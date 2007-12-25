@@ -120,6 +120,7 @@ $CHANGES = array(
             'added events: close (calendar hidden), open (calendar shown), change (date/time changed) to datetimepicker',
             "added event 'showtip' to trackbar",
             'added +f flag for dcxLoadIcon() functions (which affects many controls) to allow loading of filetype icon',
+            'added BrowseDialog',
         ),
         'Syntax changes' => array(
             'updated dcx_tools.mrc to include /xstatusbar, /xtreebar and /xmenubar aliases. please update your scripts!',
@@ -156,6 +157,7 @@ $CHANGES = array(
             'listview event labelbegin now provides N and NSUB',
             'colorcombo /xdid -c now accepts 0 to clear selection (thanks andy for idea)',
             'moved VALUE param to the end of events (no syntax changes required)',
+            'OpenDialog and SaveDialog now also return the full pathname',
         ),
         'Fixes and changes' => array(
             "added check for correct flags prefix '+' in image control xdid -i",
@@ -295,6 +297,12 @@ $CHANGES = array(
             'xpopup - changed /xpopup -s to adjust menu position on the assumption that the x & y are relative to the client rect when an hwnd is supplied.',
             'ipaddress - commented out unecessary /xdid -r code',
             '(rich)edit - added code to /xdid -S to move caret to selected text',
+            'button redraws after icon is set',
+            'fixed tooltip hwnd wasnt correctly initialized to NULL',
+            'changed CreateHDCBuffer() to copy the Pen, Brush, Layout & Font too',
+            'added getting of the GetThemeColor() function from uxtheme',
+            'button/text/ipaddress - changed the handling of `tooltips` style to report an error if tooltips havent been enabled for the dialog',
+            'text - changed /xdid -t to use InvalidateParentRect()',
         ),
         'DCX Project' => array(
             'added VS2008 project files',
@@ -576,6 +584,7 @@ $CHANGES = array(
             'fixed extremely stupid ie7 case insensitive anchor bug (eg. /xdid -T would link to /xdid -t)',
             'updated comment for dcxLoadIcon() flag +a',
             'added dcxLoadIcon() flags to stacker /xdid -w',
+            'fixed grammar mistakes on Open/Save/Color/Font/Msg dialogs',
         ),
     ),
     'v1.3.7' => array(

@@ -50,6 +50,46 @@ function get_general_dcx(&$GENERAL) {
 				'h' => "The height of the active window.",
 			),
 		),
+		'BrowseDialog' => array(
+			'__desc' => 'Opens up the Browse dialog and returns the selected file or computer.',
+			'__cmd' => '[STYLES] $chr(9) (INITIAL_FOLDER) $chr(9) (TITLE_TEXT)',
+			'__eg' => array(
+				'advanced title $chr(9) Select a folder:',
+				'files initfolder $chr(9) $mircdir',
+				'advanced nonew initfolder title $chr(9) C:\Music $chr(9) Select your music folder:',
+			),
+			'__isid' => true,
+			'__params' => array(
+				'STYLES' => array(
+					'__desc' => 'Various options for the Browse dialog.',
+					'__values' => array(
+						'advanced' => 'A combination of [s]newstyle[/s] and [s]edit[/s]. Do not use with [s]computers[/s].',
+						'edit' => 'Includes an edit field that allows the user to type the name of an item.',
+						'newstyle' => 'The dialog has a larger user interface that can be resized, has drag-and-drop capability, reordering, shortcut menus, new folders, delete, and other shortcut menu commands.',
+
+						'nonew' => 'Removes the New Folder button. Only used with [s]newstyle[/s].',
+						'files' => 'The dialog also displays files.',
+						'title' => 'Specifies that the [p]TITLE_TEXT[/p] parameter is filled.',
+						'initfolder' => 'Specifies that the [p]INITIAL_FOLDER[/p] folder is filled.',
+						
+						'computers' => 'Browses for a computer within the network rather than files or folders. Do not use with [s]advanced[/s].',
+						//TODO: 'printers' => 'Browses for a printer rather than files or folders. Do not use with [s]advanced[/s].',
+						'nonetwork' => 'Do not include network folders below the domain level in the treeview.',
+						'shortcut' => 'When the selected item is a shortcut, return the location of the shortcut itself rather than the shortcut desitination.',
+						
+						'owner' => 'Allows you to specify the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])',
+					),
+				),
+				'INITIAL_FOLDER' => 'If you specify this parameter and [s]initfolder[/s], this will be the initial selected folder when the dialog opens.',
+				'TITLE_TEXT' => 'If you specify this parameter and [s]title[/s], this will set the title text for the dialog.',
+			),
+			'__notes' => array(
+				'Returns [v]$null[/v] when cancelled.',
+				'When using [s]computers[/s], this will return a computer name. (eg. [v]//localhost[/v])',
+                                'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />
+To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
+			),
+		),
 		"Mark" => array(
 			'__desc' => "This command prepares the dialog for DCX-based commands.",
 			'__cmd' => "[NAME] [CALLBACK_ALIAS]",
@@ -132,7 +172,7 @@ function get_general_dcx(&$GENERAL) {
 						'nofullopen' => "Disables the <b>Define Custom Color</b> button.",
 						'returndefault' => "Returns the default color if cancel is clicked.",
 						'solidonly' => "Display only solid colors in the set of basic colors.",
-						'owner' => "Allows you to specific the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
+						'owner' => "Allows you to specify the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
 					),
 				),
 			),
@@ -166,7 +206,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 						'novalidate' => "The dialog does not validate filenames to check if they're legal.",
 						'overwriteprompt' => 'If the user selects a file that already exists, the dialog asks the user if they want to overwrite it. Returns the filename (without clearing) if they click yes. (SaveDialog only)',
 						'pathmustexist' => "The dialog does not validate filenames to check if they're legal.",
-						'owner' => "Allows you to specific the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
+						'owner' => "Allows you to specify the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
 					),
 				),
 				'FILENAME' => "If you specify this parameter, it will be the filename in the box when the dialog opens.",
@@ -280,7 +320,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 						'max' => 'Maximum font value.',
 					),
 				),
-				'owner' => "Allows you to specific the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
+				'owner' => "Allows you to specify the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
 			),
 			'__return' => 'The information returned is in the following format: [v]RGB[/v] [v]+FLAGS[/v] [v]CHARSET[/v] [v]SIZE[/v] [v]FONTNAME[/v]',
 			'__notes' => array(
@@ -353,7 +393,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 						'rtl' => 'Displays message and caption text using right-to-left reading order on Hebrew and Arabic systems.',
 						'foreground' => 'The message box becomes the foreground window.',
 						'topmost' => 'The message box is on top.',
-                                                'owner' => "Allows you to specific the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
+                                                'owner' => "Allows you to specify the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
 					),
 				),
 				'TITLE' => "The title of the messagebox.",
