@@ -1352,18 +1352,18 @@ UINT DcxTreeView::parseToggleFlags( const TString & flags ) {
 
 int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort ) {
 
-  LPDCXTVSORT ptvsort = (LPDCXTVSORT) lParamSort;
-  char itemtext1[900];
-  char itemtext2[900];
+	LPDCXTVSORT ptvsort = (LPDCXTVSORT) lParamSort;
+	char itemtext1[900];
+	char itemtext2[900];
 
-  LPDCXTVITEM lptvi1 = (LPDCXTVITEM) lParam1;
-  LPDCXTVITEM lptvi2 = (LPDCXTVITEM) lParam2;
+	LPDCXTVITEM lptvi1 = (LPDCXTVITEM) lParam1;
+	LPDCXTVITEM lptvi2 = (LPDCXTVITEM) lParam2;
 
-  ptvsort->pthis->getItemText( &lptvi1->hHandle, itemtext1, 900 );
-  ptvsort->pthis->getItemText( &lptvi2->hHandle, itemtext2, 900 );
+	ptvsort->pthis->getItemText( &lptvi1->hHandle, itemtext1, 900 );
+	ptvsort->pthis->getItemText( &lptvi2->hHandle, itemtext2, 900 );
 
-  // CUSTOM Sort
-  if ( ptvsort->iSortFlags & TVSS_CUSTOM ) {
+	// CUSTOM Sort
+	if ( ptvsort->iSortFlags & TVSS_CUSTOM ) {
 
 		char res[20];
 		mIRCevalEX( res, 20, "$%s(%s,%s)", ptvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
@@ -1375,55 +1375,55 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 		else if (ires > 1)
 			ires = 1;
 
-    if ( ptvsort->iSortFlags & TVSS_DESC )
+		if ( ptvsort->iSortFlags & TVSS_DESC )
 			return ires;
-    else {
+		else {
 
 			if (ires == -1)
 				return 1;
 			else if (ires == 1)
 				return -1;
-    }
-  }
-  // NUMERIC Sort
-  else if ( ptvsort->iSortFlags & TVSS_NUMERIC ) {
+		}
+	}
+	// NUMERIC Sort
+	else if ( ptvsort->iSortFlags & TVSS_NUMERIC ) {
 
-    int i1 = atoi( itemtext1 );
-    int i2 = atoi( itemtext2 );
+		int i1 = atoi( itemtext1 );
+		int i2 = atoi( itemtext2 );
 
-    if ( ptvsort->iSortFlags & TVSS_DESC ) {
+		if ( ptvsort->iSortFlags & TVSS_DESC ) {
 
-      if ( i1 < i2 )
-        return 1;
-      else if ( i1 > i2 )
-        return -1;
-    }
-    else {
+			if ( i1 < i2 )
+				return 1;
+			else if ( i1 > i2 )
+				return -1;
+		}
+		else {
 
-      if ( i1 < i2 )
-        return -1;
-      else if ( i1 > i2 )
-        return 1;
-    }
-  }
-  // Default ALPHA Sort
-  else {
+			if ( i1 < i2 )
+				return -1;
+			else if ( i1 > i2 )
+				return 1;
+		}
+	}
+	// Default ALPHA Sort
+	else {
 
-    if ( ptvsort->iSortFlags & TVSS_DESC ) {
-      if ( ptvsort->iSortFlags & TVSS_CASE )
-        return -lstrcmp( itemtext1, itemtext2 );
-      else
-        return -lstrcmpi( itemtext1, itemtext2 );
-    }
-    else {
-      if ( ptvsort->iSortFlags & TVSS_CASE )
-        return lstrcmp( itemtext1, itemtext2 );
-      else
-        return lstrcmpi( itemtext1, itemtext2 );
-    }
-  }
+		if ( ptvsort->iSortFlags & TVSS_DESC ) {
+			if ( ptvsort->iSortFlags & TVSS_CASE )
+				return -lstrcmp( itemtext1, itemtext2 );
+			else
+				return -lstrcmpi( itemtext1, itemtext2 );
+		}
+		else {
+			if ( ptvsort->iSortFlags & TVSS_CASE )
+				return lstrcmp( itemtext1, itemtext2 );
+			else
+				return lstrcmpi( itemtext1, itemtext2 );
+		}
+	}
 
-  return 0;
+	return 0;
 }
 
 /*!
@@ -1455,7 +1455,9 @@ BOOL DcxTreeView::parsePath( const TString * path, HTREEITEM * hParent, HTREEITE
 
 			if ( depth == n ) {
 
-				*hInsertAfter = hPreviousItem;
+				// Give Current item to avoid the need to advance the item in correctTargetItem()
+				//*hInsertAfter = hPreviousItem;
+				*hInsertAfter = hCurrentItem;
 				return TRUE;
 			}
 			else {
@@ -1488,7 +1490,7 @@ BOOL DcxTreeView::parsePath( const TString * path, HTREEITEM * hParent, HTREEITE
 		}
 	}
 	else if ((depth == n) && (i == k))
-		*hInsertAfter = hPreviousItem;
+		*hInsertAfter = hPreviousItem; // whats the point of this bit again?
 	return FALSE;
 }
 
@@ -1500,9 +1502,8 @@ BOOL DcxTreeView::parsePath( const TString * path, HTREEITEM * hParent, HTREEITE
 
 BOOL DcxTreeView::correctTargetItem( HTREEITEM * hParent, HTREEITEM * hInsertAfter ) {
 
-	if ( *hInsertAfter == TVI_FIRST ) {
+	if ( *hInsertAfter == TVI_FIRST )
 		*hInsertAfter = TreeView_GetChild( this->m_Hwnd, *hParent );
-	}
 	else if ( *hInsertAfter == TVI_LAST ) {
 
 		HTREEITEM hItem = TreeView_GetChild( this->m_Hwnd, *hParent );
@@ -1515,15 +1516,14 @@ BOOL DcxTreeView::correctTargetItem( HTREEITEM * hParent, HTREEITEM * hInsertAft
 		} while ( ( hItem = TreeView_GetNextSibling( this->m_Hwnd, *hInsertAfter ) ) != NULL );
 
 	}
-	else if ( *hInsertAfter == TVI_ROOT ) {
+	else if ( *hInsertAfter == TVI_ROOT )
 		*hInsertAfter = TreeView_GetRoot( this->m_Hwnd );
-		return TRUE;
-	}
-	else {
+	// Avoid advancing the item, as this makes the first item really hard to select.
+	//else {
 
-		if ( ( *hInsertAfter = TreeView_GetNextSibling( this->m_Hwnd, *hInsertAfter ) ) == NULL )
-			return FALSE;
-	}
+	//	if ( ( *hInsertAfter = TreeView_GetNextSibling( this->m_Hwnd, *hInsertAfter ) ) == NULL )
+	//		return FALSE;
+	//}
 
 	return TRUE;
 }
