@@ -466,11 +466,16 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		HTREEITEM hParent = TVI_ROOT;
 		HTREEITEM hAfter = TVI_ROOT;
 
-		if (this->parsePath(&input.gettok(4, -1), &hParent, &hAfter)) {
+		TString path(input.gettok(4, -1));
+		path.trim();
+
+		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
 			if (this->correctTargetItem(&hParent, &hAfter))
 				TreeView_EnsureVisible(this->m_Hwnd, hAfter); // make sure selected item is visible.
 			TreeView_EditLabel(this->m_Hwnd, hAfter);
 		}
+		else
+			this->showErrorEx(NULL,"-B","Invalid Path: %s", path.to_chr());
 	}
 	// xdid -c [NAME] [ID] [SWITCH] N N N
 	else if ( flags['c'] && numtok > 3 ) {
@@ -478,13 +483,18 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		HTREEITEM hParent = TVI_ROOT;
 		HTREEITEM hAfter = TVI_ROOT;
 
-		if ( this->parsePath( &input.gettok( 4, -1 ), &hParent, &hAfter ) ) {
+		TString path(input.gettok(4, -1));
+		path.trim();
+
+		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
 
 			if ( this->correctTargetItem( &hParent, &hAfter ) ) {
 				TreeView_EnsureVisible(this->m_Hwnd, hAfter); // make sure selected item is visible.
 				TreeView_SelectItem( this->m_Hwnd, hAfter );
 			}
 		}
+		else
+			this->showErrorEx(NULL,"-c","Invalid Path: %s", path.to_chr());
 	}
 	// xdid -d [NAME] [ID] [SWITCH] N N N
 	else if ( flags['d'] && numtok > 3 ) {
@@ -492,11 +502,16 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		HTREEITEM hParent = TVI_ROOT;
 		HTREEITEM hAfter = TVI_ROOT;
 
-		if ( this->parsePath( &input.gettok( 4, -1 ), &hParent, &hAfter ) ) {
+		TString path(input.gettok(4, -1));
+		path.trim();
+
+		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
 
 			if ( this->correctTargetItem( &hParent, &hAfter ) )
 				TreeView_DeleteItem( this->m_Hwnd, hAfter );
 		}
+		else
+			this->showErrorEx(NULL,"-d","Invalid Path: %s", path.to_chr());
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [HEIGHT]
 	else if ( flags['g'] && numtok > 3 ) {
@@ -536,72 +551,75 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		TString path(input.gettok(1, TSTAB).gettok(4, -1));
 		path.trim();
 
-		if (input.numtok(TSTAB) > 1) {
-			TString icons(input.gettok(2, TSTAB));
-			icons.trim();
+		if (input.numtok(TSTAB) < 2) {
+			this->showError(NULL,"-k","Invalid Syntax");
+			return;
+		}
+		TString icons(input.gettok(2, TSTAB));
+		icons.trim();
 
-			if (icons.numtok() < 2) {
-				return;
-			}
+		if (icons.numtok() < 2)
+			return;
 
-			if (this->parsePath(&path, &hParent, &hAfter)) {
-				if (this->correctTargetItem(&hParent, &hAfter)) {
-					int nIcon = icons.gettok(1).to_int() -1;
-					int sIcon = icons.gettok(2).to_int() -1;
-					TVITEMEX tvi;
+		if (this->parsePath(&path, &hParent, &hAfter)) {
+			if (this->correctTargetItem(&hParent, &hAfter)) {
+				int nIcon = icons.gettok(1).to_int() -1;
+				int sIcon = icons.gettok(2).to_int() -1;
+				TVITEMEX tvi;
 
-					tvi.mask = TVIF_HANDLE;
-					tvi.hItem = hAfter;
+				tvi.mask = TVIF_HANDLE;
+				tvi.hItem = hAfter;
 
 
-					/*
-					nIcon/sIcon values (actual values)
-					-2 = ignore icon
-					-1 = no icon
-					0+ = valid icon
-					*/
+				/*
+				nIcon/sIcon values (actual values)
+				-2 = ignore icon
+				-1 = no icon
+				0+ = valid icon
+				*/
 
-					// overlay
-					if (icons.numtok() > 2) {
-						int oIcon = icons.gettok(3).to_int();
+				// overlay
+				if (icons.numtok() > 2) {
+					int oIcon = icons.gettok(3).to_int();
 
-						// overlay is 1-based index
-						if (oIcon > -1)
-							TreeView_SetItemState(this->m_Hwnd, tvi.hItem, INDEXTOOVERLAYMASK(oIcon), TVIS_OVERLAYMASK);
+					// overlay is 1-based index
+					if (oIcon > -1)
+						TreeView_SetItemState(this->m_Hwnd, tvi.hItem, INDEXTOOVERLAYMASK(oIcon), TVIS_OVERLAYMASK);
 
-						// if ignoring both nIcon and sIcon
-						if ((nIcon == -2) && (sIcon == -2))
-							return;
-					}
-
-					// normal icon
-					if (nIcon > -2) {
-						tvi.mask |= TVIF_IMAGE;
-
-						// quickfix so it doesnt display an image
-						// http://dcx.scriptsdb.org/bug/?do=details&id=350
-						if (nIcon == -1)
-							nIcon = 10000;
-
-						tvi.iImage = nIcon;
-					}
-
-					// selected icon
-					if (sIcon > -2) {
-						tvi.mask |= TVIF_SELECTEDIMAGE;
-
-						// quickfix so it doesnt display an image
-						// http://dcx.scriptsdb.org/bug/?do=details&id=350
-						if (sIcon == -1)
-							sIcon = 10000;
-
-						tvi.iSelectedImage = sIcon;
-					}
-
-					TreeView_SetItem(this->m_Hwnd, &tvi);
+					// if ignoring both nIcon and sIcon
+					if ((nIcon == -2) && (sIcon == -2))
+						return;
 				}
+
+				// normal icon
+				if (nIcon > -2) {
+					tvi.mask |= TVIF_IMAGE;
+
+					// quickfix so it doesnt display an image
+					// http://dcx.scriptsdb.org/bug/?do=details&id=350
+					if (nIcon == -1)
+						nIcon = 10000;
+
+					tvi.iImage = nIcon;
+				}
+
+				// selected icon
+				if (sIcon > -2) {
+					tvi.mask |= TVIF_SELECTEDIMAGE;
+
+					// quickfix so it doesnt display an image
+					// http://dcx.scriptsdb.org/bug/?do=details&id=350
+					if (sIcon == -1)
+						sIcon = 10000;
+
+					tvi.iSelectedImage = sIcon;
+				}
+
+				TreeView_SetItem(this->m_Hwnd, &tvi);
 			}
 		}
+		else
+			this->showErrorEx(NULL,"-j","Invalid Path: %s", path.to_chr());
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [STATE] N N N
 	else if ( flags['k'] && numtok > 4 ) {
@@ -609,7 +627,10 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		HTREEITEM hParent = TVI_ROOT;
 		HTREEITEM hAfter = TVI_ROOT;
 
-		if ( this->parsePath( &input.gettok( 5, -1 ), &hParent, &hAfter ) ) {
+		TString path(input.gettok( 5, -1 ));
+		path.trim();
+
+		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
 
 			UINT state = input.gettok( 4 ).to_int( );
 
@@ -618,6 +639,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
 			TreeView_SetItemState( this->m_Hwnd, hAfter, INDEXTOSTATEIMAGEMASK( state ), TVIS_STATEIMAGEMASK );
 		}
+		else
+			this->showErrorEx(NULL,"-k","Invalid Path: %s", path.to_chr());
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
 	else if ( flags['l'] && numtok > 3 ) {
@@ -679,12 +702,16 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
 		HTREEITEM hNewItem;
 
-		if ( !this->parsePath( &pathFrom, &hParentFrom, &hAfterFrom ) )
+		if ( !this->parsePath( &pathFrom, &hParentFrom, &hAfterFrom ) ) {
+			this->showErrorEx(NULL,"-n","Invalid Path From: %s", pathFrom.to_chr());
 			return;
+		}
 		if ( !this->correctTargetItem( &hParentFrom, &hAfterFrom ) )
 			return;
-		if ( !this->parsePath( &pathTo, &hParentTo, &hAfterTo ) )
+		if ( !this->parsePath( &pathTo, &hParentTo, &hAfterTo ) ) {
+			this->showErrorEx(NULL,"-n","Invalid Path To: %s", pathTo.to_chr());
 			return;
+		}
 
 		hNewItem = this->cloneItem( &hAfterFrom, &hParentTo, &hAfterTo );
 
@@ -726,13 +753,18 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 				}
 			}
 		}
+		else
+			this->showErrorEx(NULL,"-o","Invalid Path: %s", path.to_chr());
 	}
 	// xdid -Q [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] N N N
 	else if ( flags['Q'] && numtok > 5 ) {
 		HTREEITEM hParent = TVI_ROOT;
 		HTREEITEM hAfter = TVI_ROOT;
 
-		if ( this->parsePath( &input.gettok( 6, -1 ), &hParent, &hAfter ) ) {
+		TString path(input.gettok( 6, -1 ));
+		path.trim();
+
+		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
 			COLORREF clrText = (COLORREF) input.gettok( 5 ).to_num( );
 
 			if ( !this->correctTargetItem( &hParent, &hAfter ) )
@@ -773,6 +805,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 				}
 			}
 		}
+		else
+			this->showErrorEx(NULL,"-Q","Invalid Path: %s", path.to_chr());
 	}
 	// This is to avoid an invalid error message.
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -786,6 +820,9 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		HTREEITEM hParent = TVI_ROOT;
 		HTREEITEM hAfter = TVI_ROOT;
 
+		TString path(input.gettok( 5, -1 ));
+		path.trim();
+
 		if ( input.gettok( 5, -1 ) == "root" ) {
 
 			if ( iFlags & TVIE_EXPALL )
@@ -793,7 +830,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			else if ( iFlags & TVIE_COLALL )
 				this->expandAllItems( &hAfter, TVE_COLLAPSE );
 		}
-		else if ( this->parsePath( &input.gettok( 5, -1 ), &hParent, &hAfter ) ) {
+		else if ( this->parsePath( &path, &hParent, &hAfter ) ) {
 
 			if ( !this->correctTargetItem( &hParent, &hAfter ) )
 				return;
@@ -809,6 +846,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			else if ( iFlags & TVIE_TOGGLE )
 				TreeView_Expand( this->m_Hwnd, hAfter, TVE_TOGGLE );
 		}
+		else
+			this->showErrorEx(NULL,"-t","Invalid Path: %s", path.to_chr());
 	}
 	// xdid -u [NAME] [ID] [SWITCH]
 	else if ( flags['u'] ) {
@@ -843,6 +882,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 				TreeView_SetItem( this->m_Hwnd, &tvi );
 			}
 		}
+		else
+			this->showErrorEx(NULL,"-v","Invalid Path: %s", path.to_chr());
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags['w'] && numtok > 5) {
@@ -967,6 +1008,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 					TreeView_SortChildrenCB( this->m_Hwnd, &tvs, FALSE );
 			}
 		}
+		else
+			this->showErrorEx(NULL,"-z","Invalid Path: %s", path.to_chr());
 	}
 	// xdid -G [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
 	else if (flags['G'] && numtok > 6) {
@@ -981,10 +1024,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 				this->showError(NULL,"-G","GDI+ Not Supported On This Machine");
 			else if (!LoadGDIPlusImage(flag, filename))
 				this->showErrorEx(NULL,"-G","Unable to load Image: %s", filename.to_chr());
-			else {
-				if (!this->m_bTransparent)
-					this->setExStyle(WS_EX_TRANSPARENT);
-			}
+			else if (!this->m_bTransparent)
+				this->setExStyle(WS_EX_TRANSPARENT);
 		}
 		this->redrawWindow();
 	}
@@ -1006,10 +1047,12 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		name.trim();
 		filename.trim();
 
-		this->parsePath(&path, &hParent, &hFrom);
-
-		if (!this->xmlSaveTree(hFrom, name, filename))
-			this->showErrorEx(NULL,"-S","Unable To Save Data To: <%s> %s", name.to_chr(), filename.to_chr());
+		if (this->parsePath(&path, &hParent, &hFrom)) {
+			if (!this->xmlSaveTree(hFrom, name, filename))
+				this->showErrorEx(NULL,"-S","Unable To Save Data To: <%s> %s", name.to_chr(), filename.to_chr());
+		}
+		else
+			this->showErrorEx(NULL,"-S","Invalid Path: %s", path.to_chr());
 	}
 	else
 		this->parseGlobalCommandRequest( input, flags );
