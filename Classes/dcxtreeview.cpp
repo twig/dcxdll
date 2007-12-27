@@ -190,237 +190,208 @@ void DcxTreeView::parseTreeViewExStyles( const TString &styles, LONG * ExStyles 
  * \return > void
  */
 
-void DcxTreeView::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
+	int numtok = input.numtok();
+	TString prop(input.gettok(3));
 
-  int numtok = input.numtok( );
-	TString prop(input.gettok( 3 ));
+	// [NAME] [ID] [PROP] [PATH]
+	if (prop == "text" && numtok > 3) {
+		TString path(input.gettok(4, -1));
+		HTREEITEM item = this->parsePath(&path);
 
-  // [NAME] [ID] [PROP] [PATH]
-  if ( prop == "text" && numtok > 3 ) {
+		if (item == NULL) {
+			this->showErrorEx("text", NULL, "Unable to parse path: %s", path.to_chr());
+			return;
+		}
 
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
+		this->getItemText(&item, szReturnValue, 900);
+		return;
+	}
+	// [NAME] [ID] [PROP] [PATH]
+	else if (prop == "icon" && numtok > 3) {
+		TString path(input.gettok(4, -1));
+		HTREEITEM item = this->parsePath(&path);
 
-    if ( this->parsePath( &input.gettok( 4, -1 ), &hParent, &hAfter ) ) {
+		if (item == NULL) {
+			this->showErrorEx("icon", NULL, "Unable to parse path: %s", path.to_chr());
+			return;
+		}
 
-      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+		TVITEMEX tvi; 
+		tvi.hItem = item;
+		tvi.mask = TVIF_IMAGE | TVIF_HANDLE;
 
-        this->getItemText( &hAfter, szReturnValue, 900 );
-        return;
-      }
-    }
-  }
-  // [NAME] [ID] [PROP] [PATH]
-	else if ( prop == "icon" && numtok > 3 ) {
-		HTREEITEM hParent = TVI_ROOT;
-		HTREEITEM hAfter = TVI_ROOT;
+		TreeView_GetItem(this->m_Hwnd, &tvi);
+		wsprintf(szReturnValue, "%d", (tvi.iImage > 10000 ? -2 : tvi.iImage) +1);
+		return;
+	}
+	// [NAME] [ID] [PROP] [PATH]
+	else if (prop == "tooltip" && numtok > 3) {
+		TString path(input.gettok(4, -1));
+		HTREEITEM item = this->parsePath(&path);
 
-		if ( this->parsePath( &input.gettok( 4, -1 ), &hParent, &hAfter ) ) {
-			if ( this->correctTargetItem( &hParent, &hAfter ) ) {
-				TVITEMEX tvi; 
-				tvi.hItem = hAfter;
-				tvi.mask = TVIF_IMAGE | TVIF_HANDLE;
+		if (item == NULL) {
+			this->showErrorEx("tooltip", NULL, "Unable to parse path: %s", path.to_chr());
+			return;
+		}
 
-				TreeView_GetItem( this->m_Hwnd, &tvi );
-				wsprintf( szReturnValue, "%d", (tvi.iImage > 10000 ? -2 : tvi.iImage ) + 1 );
+		TVITEMEX tvi;
+		tvi.hItem = item;
+		tvi.mask = TVIF_HANDLE | TVIF_PARAM;
+
+		TreeView_GetItem(this->m_Hwnd, &tvi);
+		LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) tvi.lParam;
+
+		if (lpdcxtvi != NULL)
+			lstrcpyn(szReturnValue, lpdcxtvi->tsTipText.to_chr(), 900);
+
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if (prop == "seltext") {
+		HTREEITEM item = TreeView_GetSelection(this->m_Hwnd);
+
+		this->getItemText(&item, szReturnValue, 900);
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == "selpath" ) {
+		HTREEITEM hItem = TreeView_GetSelection(this->m_Hwnd);
+		TString path = this->getPathFromItem(&hItem);
+
+		lstrcpyn(szReturnValue, path.to_chr(), 900);
+		return;
+	}
+	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [SUBPATH]
+	else if (prop == "find" && numtok > 5) {
+		TString matchtext(input.gettok(2, TSTAB));
+		TString params(input.gettok(3, TSTAB));
+
+		matchtext.trim();
+		params.trim();
+
+		if (matchtext.len() < 1) {
+			this->showErrorEx("find", NULL, "No matchtext specified.");
+			return;
+		}
+
+		UINT searchType;
+		HTREEITEM startingPoint = TVI_ROOT;
+		HTREEITEM result;
+
+		if (params.gettok(1) == "R")
+			searchType = TVSEARCH_R;
+		else
+			searchType = TVSEARCH_W;
+
+		int n = params.gettok(2).to_int();
+		int matchCount = 0;
+
+		if (params.numtok() > 2) {
+			TString path(params.gettok(3, -1));
+
+			startingPoint = this->parsePath(&path);
+
+			if (startingPoint == NULL) {
+				this->showErrorEx("find", NULL, "Unable to parse path: %s", path.to_chr());
 				return;
 			}
 		}
+
+		if (this->findItemText(&startingPoint, &result, &matchtext, n, &matchCount, searchType)) {
+			TString path = this->getPathFromItem(&result);
+			lstrcpyn(szReturnValue, path.to_chr(), 900);
+		}
+		else if (n == 0)
+			wsprintf(szReturnValue, "%d", matchCount);
+
+		return;
 	}
-  // [NAME] [ID] [PROP] [PATH]
-  else if ( prop == "tooltip" && numtok > 3 ) {
+	// [NAME] [ID] [PROP] [PATH]
+	else if (prop == "state" && numtok > 3) {
+		TString path(input.gettok(4, -1));
+		HTREEITEM item = this->parsePath(&path);
 
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
+		if (item == NULL) {
+			this->showErrorEx("state", NULL, "Unable to parse path: %s", path.to_chr());
+			return;
+		}
 
-    if ( this->parsePath( &input.gettok( 4, -1 ), &hParent, &hAfter ) ) {
+		if (this->isStyle(TVS_CHECKBOXES)) {
+			int state = TreeView_GetCheckState(this->m_Hwnd, item);
 
-      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+			if (state == 1)
+				lstrcpy(szReturnValue, "2");
+			else if (state == 0)
+				lstrcpy(szReturnValue, "1");
+			else
+				lstrcpy(szReturnValue, "0");
+			return;
+		}
+		else {
+			wsprintf(szReturnValue, "%d", TreeView_GetItemState(this->m_Hwnd, item, TVIS_STATEIMAGEMASK));
+			return;
+		}
+	}
+	// [NAME] [ID] [PROP] [PATH]
+	else if (prop == "num" && numtok > 3) {
+		TString path(input.gettok(4, -1));
+		HTREEITEM item;
 
-        TVITEMEX tvi;
-        tvi.hItem = hAfter;
-        tvi.mask = TVIF_HANDLE | TVIF_PARAM;
+		path.trim();
 
-        TreeView_GetItem( this->m_Hwnd, &tvi );
-        LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) tvi.lParam;
 
-        if ( lpdcxtvi != NULL )
-          lstrcpyn( szReturnValue, lpdcxtvi->tsTipText.to_chr( ), 900 );
+		if (path == "root") {
+			item = TVI_ROOT;
+			wsprintf(szReturnValue, "%d", this->getChildCount(&item));
+			return;
+		}
 
+	    item = this->parsePath(&path);
+
+		if (item == NULL) {
+			this->showErrorEx("num", NULL, "Unable to parse path: %s", path.to_chr());
+			return;
+		}
+
+        wsprintf(szReturnValue, "%d", this->getChildCount(&item));
         return;
-      }
-    }
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == "seltext" ) {
+	}
+	// [NAME] [ID] [PROP] [PATH]
+	else if (prop == "expand" && numtok > 3) {
+		TString path(input.gettok(4, -1));
+		HTREEITEM item = this->parsePath(&path);
 
-    HTREEITEM hItem = TreeView_GetSelection( this->m_Hwnd );
-    this->getItemText( &hItem, szReturnValue, 900 );
-    return;
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == "selpath" ) {
+		if (item == NULL) {
+			this->showErrorEx("expand", NULL, "Unable to parse path: %s", path.to_chr());
+			return;
+		}
 
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hItem = TreeView_GetSelection( this->m_Hwnd );
-    VectorOfInts v;
+		if (TreeView_GetItemState(this->m_Hwnd, item, TVIS_EXPANDED) & TVIS_EXPANDED)
+			lstrcpy(szReturnValue, "1");
+		else
+			lstrcpy(szReturnValue, "0");
 
-    if ( this->getPath( &v, &hParent, &hItem ) ) {
-
-      std::string path = this->getPathFromVector( &v );
-      lstrcpyn( szReturnValue, path.c_str( ), 900 );
-      return;
-    }
-  }
-  // [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [SUBPATH]
-  else if ( prop == "find" && numtok > 5 ) {
-
-    TString matchtext(input.gettok( 2, TSTAB ));
-    matchtext.trim( );
-    TString params(input.gettok( 3, TSTAB ));
-    params.trim( );
-
-    if ( matchtext.len( ) > 0 ) {
-
-      UINT SearchType;
-
-      if ( params.gettok( 1 ) == "R" )
-        SearchType = TVSEARCH_R;
-      else
-        SearchType = TVSEARCH_W;
-
-      int N = params.gettok( 2 ).to_int( );
-      int NC = 0;
-
-      HTREEITEM hParent = TVI_ROOT;
-
-      if ( params.numtok( ) > 2 ) {
-
-        HTREEITEM hStart = TVI_ROOT;
-        if ( this->parsePath( &params.gettok( 3, -1 ), &hStart, &hParent ) ) {
-
-          if ( !this->correctTargetItem( &hStart, &hParent ) )
-            hParent = TVI_ROOT;
-        }
-        else
-          hParent = TVI_ROOT;
-      }
-
-      HTREEITEM hItem;
-      if ( this->findItemText( &hParent, &hItem, &matchtext, N, &NC, SearchType ) ) {
-
-        VectorOfInts v;
-        hParent = TVI_ROOT;
-
-        if ( this->getPath( &v, &hParent, &hItem ) ) {
-
-          std::string path = this->getPathFromVector( &v );
-          lstrcpyn( szReturnValue, path.c_str( ), 900 );
-        }
-      }
-      else if ( N == 0 ) {
-
-        wsprintf( szReturnValue, "%d", NC );
-      }
-    }
-    return;
-  }
-  // [NAME] [ID] [PROP] [PATH]
-  else if ( prop == "state" && numtok > 3 ) {
-
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
-
-    if ( this->parsePath( &input.gettok( 4, -1 ), &hParent, &hAfter ) ) {
-
-      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
-
-        if ( this->isStyle( TVS_CHECKBOXES ) ) {
-
-          int state = TreeView_GetCheckState( this->m_Hwnd, hAfter );
-
-          if ( state == 1 )
-            lstrcpy( szReturnValue, "2" );
-          else if ( state == 0 )
-            lstrcpy( szReturnValue, "1" );
-          else
-            lstrcpy( szReturnValue, "0" );
-          return;
-        }
-        else {
-
-          wsprintf( szReturnValue, "%d", TreeView_GetItemState( this->m_Hwnd, hAfter, TVIS_STATEIMAGEMASK ) );
-          return;
-        }
-      }
-    }
-  }
-  // [NAME] [ID] [PROP] [PATH]
-  else if ( prop == "num" && numtok > 3 ) {
-
-    TString path(input.gettok( 4, -1 ));
-
-    if ( path == "root" ) {
-
-      HTREEITEM hParent = TVI_ROOT;
-      wsprintf( szReturnValue, "%d", this->getItemCount( &hParent ) );
-      return;
-    }
-    else {
-
-      HTREEITEM hParent = TVI_ROOT;
-      HTREEITEM hAfter = TVI_ROOT;
-
-      if ( this->parsePath( &path, &hParent, &hAfter ) ) {
-
-        if ( this->correctTargetItem( &hParent, &hAfter ) ) {
-
-          wsprintf( szReturnValue, "%d", this->getItemCount( &hAfter ) );
-          return;
-        }
-      }
-    }
-  }
-  // [NAME] [ID] [PROP] [PATH]
-  else if ( prop == "expand" && numtok > 3 ) {
-
-    HTREEITEM hParent = TVI_ROOT;
-    HTREEITEM hAfter = TVI_ROOT;
-
-    if ( this->parsePath( &input.gettok( 4, -1 ), &hParent, &hAfter ) ) {
-
-      if ( this->correctTargetItem( &hParent, &hAfter ) ) {
-
-        if ( TreeView_GetItemState( this->m_Hwnd, hAfter, TVIS_EXPANDED ) & TVIS_EXPANDED )
-          lstrcpy( szReturnValue, "1" );
-        else
-          lstrcpy( szReturnValue, "0" );
-        return;       
-      }
-    }
-  }
-  else if ( prop == "mouseitem" ) {
-
+		return;
+	}
+	// [NAME] [ID] [PROP] [PATH]
+	else if (prop == "mouseitem") {
 		TVHITTESTINFO tvh;
-		GetCursorPos( &tvh.pt );
+		GetCursorPos(&tvh.pt);
 		ScreenToClient( this->m_Hwnd, &tvh.pt );
 		TreeView_HitTest( this->m_Hwnd, &tvh );
 
 		if ( tvh.flags & TVHT_ONITEM ) {
+			TString path = this->getPathFromItem(&tvh.hItem);
 
-			VectorOfInts numPath;
-			HTREEITEM hStart = TVI_ROOT;
-			this->getPath( &numPath, &hStart, &tvh.hItem );
-			std::string path = this->getPathFromVector( &numPath );
-
-			lstrcpyn( szReturnValue, path.c_str( ), 900 );
+			lstrcpyn(szReturnValue, path.to_chr(), 900);
 		}
 		else
-			lstrcpy( szReturnValue, "0" );
+			lstrcpy(szReturnValue, "0");
 
 		return;
 	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+	else if (this->parseGlobalInfoRequest(input, szReturnValue))
 		return;
 
 	szReturnValue[0] = 0;
@@ -463,65 +434,48 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 	}
 	// xdid -B [NAME] [ID] [SWITCH] N N N
 	else if (flags['B'] && numtok > 3) {
-		HTREEITEM hParent = TVI_ROOT;
-		HTREEITEM hAfter = TVI_ROOT;
-
 		TString path(input.gettok(4, -1));
-		path.trim();
-
-		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
-			if (this->correctTargetItem(&hParent, &hAfter))
-				TreeView_EnsureVisible(this->m_Hwnd, hAfter); // make sure selected item is visible.
-			TreeView_EditLabel(this->m_Hwnd, hAfter);
+		HTREEITEM item = this->parsePath(&path);
+		
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-B", "Invalid Path: %s", path.to_chr());
+			return;
 		}
-		else
-			this->showErrorEx(NULL,"-B","Invalid Path: %s", path.to_chr());
+
+		TreeView_EnsureVisible(this->m_Hwnd, item); // make sure selected item is visible.
+		TreeView_EditLabel(this->m_Hwnd, item);
 	}
 	// xdid -c [NAME] [ID] [SWITCH] N N N
-	else if ( flags['c'] && numtok > 3 ) {
-
-		HTREEITEM hParent = TVI_ROOT;
-		HTREEITEM hAfter = TVI_ROOT;
-
+	else if (flags['c'] && numtok > 3) {
 		TString path(input.gettok(4, -1));
-		path.trim();
+		HTREEITEM item = this->parsePath(&path);
 
-		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
-
-			if ( this->correctTargetItem( &hParent, &hAfter ) ) {
-				TreeView_EnsureVisible(this->m_Hwnd, hAfter); // make sure selected item is visible.
-				TreeView_SelectItem( this->m_Hwnd, hAfter );
-			}
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-c", "Invalid Path: %s", path.to_chr());
+			return;
 		}
-		else
-			this->showErrorEx(NULL,"-c","Invalid Path: %s", path.to_chr());
+
+		TreeView_EnsureVisible(this->m_Hwnd, item); // make sure selected item is visible.
+		TreeView_SelectItem(this->m_Hwnd, item);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] N N N
-	else if ( flags['d'] && numtok > 3 ) {
-
-		HTREEITEM hParent = TVI_ROOT;
-		HTREEITEM hAfter = TVI_ROOT;
-
+	else if (flags['d'] && numtok > 3) {
 		TString path(input.gettok(4, -1));
-		path.trim();
+		HTREEITEM item = this->parsePath(&path);
 
-		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
-
-			if ( this->correctTargetItem( &hParent, &hAfter ) )
-				TreeView_DeleteItem( this->m_Hwnd, hAfter );
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-d", "Invalid Path: %s", path.to_chr());
+			return;
 		}
-		else
-			this->showErrorEx(NULL,"-d","Invalid Path: %s", path.to_chr());
+
+		TreeView_DeleteItem(this->m_Hwnd, item);
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [HEIGHT]
-	else if ( flags['g'] && numtok > 3 ) {
+	else if (flags['g'] && numtok > 3) {
+		int iHeight = input.gettok(4).to_int();
 
-		int iHeight = input.gettok( 4 ).to_int( );
-
-		if ( iHeight > -2 ) {
-
-			TreeView_SetItemHeight( this->m_Hwnd, iHeight );
-		}
+		if (iHeight > -2)
+			TreeView_SetItemHeight(this->m_Hwnd, iHeight);
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if ( flags['i'] && numtok > 4 ) {
@@ -545,106 +499,102 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON] (OVERLAY)
 	else if (flags['j'] && numtok > 5) {
-		HTREEITEM hParent = TVI_ROOT;
-		HTREEITEM hAfter = TVI_ROOT;
+		HTREEITEM item;
 
 		TString path(input.gettok(1, TSTAB).gettok(4, -1));
 		path.trim();
 
+		// Invalid parameters, missing icons segment.
 		if (input.numtok(TSTAB) < 2) {
-			this->showError(NULL,"-k","Invalid Syntax");
+			this->showErrorEx(NULL, "-j", "Invalid parameters.");
 			return;
 		}
+
 		TString icons(input.gettok(2, TSTAB));
 		icons.trim();
 
-		if (icons.numtok() < 2)
+		// Invalid parameters, missing icon args.
+		if (icons.numtok() < 2) {
+			this->showErrorEx(NULL, "-j", "Invalid parameters.");
 			return;
-
-		if (this->parsePath(&path, &hParent, &hAfter)) {
-			if (this->correctTargetItem(&hParent, &hAfter)) {
-				int nIcon = icons.gettok(1).to_int() -1;
-				int sIcon = icons.gettok(2).to_int() -1;
-				TVITEMEX tvi;
-
-				tvi.mask = TVIF_HANDLE;
-				tvi.hItem = hAfter;
-
-
-				/*
-				nIcon/sIcon values (actual values)
-				-2 = ignore icon
-				-1 = no icon
-				0+ = valid icon
-				*/
-
-				// overlay
-				if (icons.numtok() > 2) {
-					int oIcon = icons.gettok(3).to_int();
-
-					// overlay is 1-based index
-					if (oIcon > -1)
-						TreeView_SetItemState(this->m_Hwnd, tvi.hItem, INDEXTOOVERLAYMASK(oIcon), TVIS_OVERLAYMASK);
-
-					// if ignoring both nIcon and sIcon
-					if ((nIcon == -2) && (sIcon == -2))
-						return;
-				}
-
-				// normal icon
-				if (nIcon > -2) {
-					tvi.mask |= TVIF_IMAGE;
-
-					// quickfix so it doesnt display an image
-					// http://dcx.scriptsdb.org/bug/?do=details&id=350
-					if (nIcon == -1)
-						nIcon = 10000;
-
-					tvi.iImage = nIcon;
-				}
-
-				// selected icon
-				if (sIcon > -2) {
-					tvi.mask |= TVIF_SELECTEDIMAGE;
-
-					// quickfix so it doesnt display an image
-					// http://dcx.scriptsdb.org/bug/?do=details&id=350
-					if (sIcon == -1)
-						sIcon = 10000;
-
-					tvi.iSelectedImage = sIcon;
-				}
-
-				TreeView_SetItem(this->m_Hwnd, &tvi);
-			}
 		}
-		else
-			this->showErrorEx(NULL,"-j","Invalid Path: %s", path.to_chr());
+
+		item = this->parsePath(&path);
+
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-j", "Invalid Path: %s", path.to_chr());
+			return;
+		}
+
+		int nIcon = icons.gettok(1).to_int() -1;
+		int sIcon = icons.gettok(2).to_int() -1;
+		TVITEMEX tvi;
+
+		tvi.mask = TVIF_HANDLE;
+		tvi.hItem = item;
+
+		/*
+		nIcon/sIcon values (actual values)
+		-2 = ignore icon
+		-1 = no icon
+		0+ = valid icon
+		*/
+
+		// overlay
+		if (icons.numtok() > 2) {
+			int oIcon = icons.gettok(3).to_int();
+
+			// overlay is 1-based index
+			if (oIcon > -1)
+				TreeView_SetItemState(this->m_Hwnd, tvi.hItem, INDEXTOOVERLAYMASK(oIcon), TVIS_OVERLAYMASK);
+
+			// if ignoring both nIcon and sIcon
+			if ((nIcon == -2) && (sIcon == -2))
+				return;
+		}
+
+		// normal icon
+		if (nIcon > -2) {
+			tvi.mask |= TVIF_IMAGE;
+
+			// quickfix so it doesnt display an image
+			// http://dcx.scriptsdb.org/bug/?do=details&id=350
+			if (nIcon == -1)
+				nIcon = 10000;
+
+			tvi.iImage = nIcon;
+		}
+
+		// selected icon
+		if (sIcon > -2) {
+			tvi.mask |= TVIF_SELECTEDIMAGE;
+
+			// quickfix so it doesnt display an image
+			// http://dcx.scriptsdb.org/bug/?do=details&id=350
+			if (sIcon == -1)
+				sIcon = 10000;
+
+			tvi.iSelectedImage = sIcon;
+		}
+
+		TreeView_SetItem(this->m_Hwnd, &tvi);
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [STATE] N N N
-	else if ( flags['k'] && numtok > 4 ) {
+	else if (flags['k'] && numtok > 4) {
+		TString path(input.gettok(5, -1));
+		HTREEITEM item = this->parsePath(&path);
 
-		HTREEITEM hParent = TVI_ROOT;
-		HTREEITEM hAfter = TVI_ROOT;
-
-		TString path(input.gettok( 5, -1 ));
-		path.trim();
-
-		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
-
-			UINT state = input.gettok( 4 ).to_int( );
-
-			if ( !this->correctTargetItem( &hParent, &hAfter ) )
-				return;
-
-			TreeView_SetItemState( this->m_Hwnd, hAfter, INDEXTOSTATEIMAGEMASK( state ), TVIS_STATEIMAGEMASK );
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-k", "Invalid Path: %s", path.to_chr());
+			return;
 		}
-		else
-			this->showErrorEx(NULL,"-k","Invalid Path: %s", path.to_chr());
+
+		UINT state = input.gettok(4).to_int();
+
+		TreeView_SetItemState(this->m_Hwnd, item, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
 	else if ( flags['l'] && numtok > 3 ) {
-
 		int size = input.gettok( 4 ).to_int( );
 
 		if ( size != 32 && size != 24 )
@@ -653,237 +603,253 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		this->m_iIconSize = size;
 	}
 	// xdid -m [NAME] [ID] [SWITCH] N N N{TAB}N N N
-	else if ( flags['m'] && numtok > 3 && input.numtok( TSTAB ) > 1 ) {
+	else if (flags['m'] && numtok > 3 && input.numtok(TSTAB) > 1) {
+		TString pathFrom(input.gettok(1, TSTAB).gettok(4, -1));
+		TString pathTo(input.gettok(2, TSTAB));
 
-		TString pathFrom(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
-		pathFrom.trim( );
-		TString pathTo(input.gettok( 2, TSTAB ));
-		pathTo.trim( );
+		pathFrom.trim();
+		pathTo.trim();
 
-		HTREEITEM hParentFrom = TVI_ROOT;
-		HTREEITEM hAfterFrom = TVI_ROOT;
+		HTREEITEM item = this->parsePath(&pathFrom);
 		HTREEITEM hParentTo = TVI_ROOT;
 		HTREEITEM hAfterTo = TVI_ROOT;
-
 		HTREEITEM hNewItem;
 
-		if ( !this->parsePath( &pathFrom, &hParentFrom, &hAfterFrom ) ) {
-			this->showErrorEx(NULL,"-m", "Unable to parse path: %s", pathFrom.to_chr());
-			return;
-		}
-		if ( !this->correctTargetItem( &hParentFrom, &hAfterFrom ) ) {
-			this->showError(NULL,"-m", "Correction Failed.");
-			return;
-		}
-		if ( !this->parsePath( &pathTo, &hParentTo, &hAfterTo ) ) {
-			this->showErrorEx(NULL,"-m", "Unable to parse path: %s", pathTo.to_chr());
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-m", "Unable to parse FROM path: %s", pathFrom.to_chr());
 			return;
 		}
 
-		hNewItem = this->cloneItem( &hAfterFrom, &hParentTo, &hAfterTo );
-
-		if ( hNewItem != NULL )
-			this->copyAllItems( &hAfterFrom, &hNewItem );
-
-		TreeView_DeleteItem( this->m_Hwnd, hAfterFrom );
-	}
-	// xdid -n [NAME] [ID] [SWITCH] N N N{TAB}N N N
-	else if ( flags['n'] && numtok > 3 && input.numtok( TSTAB ) > 1 ) {
-
-		TString pathFrom(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
-		pathFrom.trim( );
-		TString pathTo(input.gettok( 2, TSTAB ));
-		pathTo.trim( );
-
-		HTREEITEM hParentFrom = TVI_ROOT;
-		HTREEITEM hAfterFrom = TVI_ROOT;
-		HTREEITEM hParentTo = TVI_ROOT;
-		HTREEITEM hAfterTo = TVI_ROOT;
-
-		HTREEITEM hNewItem;
-
-		if ( !this->parsePath( &pathFrom, &hParentFrom, &hAfterFrom ) ) {
-			this->showErrorEx(NULL,"-n","Invalid Path From: %s", pathFrom.to_chr());
-			return;
-		}
-		if ( !this->correctTargetItem( &hParentFrom, &hAfterFrom ) )
-			return;
-		if ( !this->parsePath( &pathTo, &hParentTo, &hAfterTo ) ) {
-			this->showErrorEx(NULL,"-n","Invalid Path To: %s", pathTo.to_chr());
+		if (this->parsePath(&pathTo, &hParentTo, &hAfterTo) == NULL) {
+			this->showErrorEx(NULL, "-m", "Unable to parse TO path: %s", pathTo.to_chr());
 			return;
 		}
 
-		hNewItem = this->cloneItem( &hAfterFrom, &hParentTo, &hAfterTo );
+		// Check if we're moving parent into a child branch
+		if ((hParentTo != TVI_FIRST) && (hParentTo != TVI_LAST)) {
+			HTREEITEM tmp = hParentTo;
 
-		if ( hNewItem != NULL )
-			this->copyAllItems( &hAfterFrom, &hNewItem );
-	}
-	// xdid -o [NAME] [ID] [SWITCH] N N N [TAB] (Tooltip Text)
-	else if ( flags['o'] && numtok > 3 ) {
-
-		HTREEITEM hParent = TVI_ROOT;
-		HTREEITEM hAfter = TVI_ROOT;
-
-		TString path(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
-		path.trim( );
-
-		TString tiptext;
-		if ( input.numtok( TSTAB ) > 1 ) {
-
-			tiptext = input.gettok( 2, TSTAB );
-			tiptext.trim( );
-		}
-
-		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
-
-			if ( this->correctTargetItem( &hParent, &hAfter ) ) {
-
-				TVITEMEX tvi; 
-
-				tvi.hItem = hAfter;
-				tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
-
-				if ( TreeView_GetItem( this->m_Hwnd, &tvi ) ) {
-
-					LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
-
-					if ( lpdcxtvitem != NULL )
-						lpdcxtvitem->tsTipText = tiptext;
-
+			// Trace back all the way to root
+			while (tmp != TVI_ROOT) {
+				if (tmp == item) {
+					this->showErrorEx(NULL, "-m", "Cannot move parent node (%s) to child node (%s).", pathFrom.to_chr(), pathTo.to_chr());
+					return;
 				}
+
+				tmp = TreeView_GetParent(this->m_Hwnd, tmp);
 			}
 		}
+
+		hNewItem = this->cloneItem(&item, &hParentTo, &hAfterTo);
+
+		if (hNewItem != NULL) {
+			this->copyAllItems(&item, &hNewItem);
+			TreeView_DeleteItem(this->m_Hwnd, item);
+		}
 		else
-			this->showErrorEx(NULL,"-o","Invalid Path: %s", path.to_chr());
+			this->showError(NULL, "-m", "Unable to move item.");
+	}
+	// xdid -n [NAME] [ID] [SWITCH] N N N{TAB}N N N
+	else if (flags['n'] && numtok > 3 && input.numtok(TSTAB) > 1) {
+		TString pathFrom(input.gettok(1, TSTAB).gettok(4, -1));
+		TString pathTo(input.gettok(2, TSTAB));
+		pathFrom.trim();
+		pathTo.trim();
+
+		HTREEITEM item;
+		HTREEITEM hParentTo = TVI_ROOT;
+		HTREEITEM hAfterTo = TVI_ROOT;
+		HTREEITEM hNewItem;
+
+		item = this->parsePath(&pathFrom);
+
+		// Check source item.
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-n", "Unable to parse FROM path: %s", pathFrom.to_chr());
+			return;
+		}
+
+		// Check destination.
+		if (this->parsePath(&pathTo, &hParentTo, &hAfterTo) == NULL) {
+			this->showErrorEx(NULL, "-n", "Unable to parse TO path: %s", pathFrom.to_chr());
+			return;
+		}
+
+		// Check if we're copying source into a child branch
+		if ((hParentTo != TVI_FIRST) && (hParentTo != TVI_LAST) && (hParentTo != TVI_ROOT)) {
+			HTREEITEM tmp = hParentTo;
+
+			// Trace back all the way to root
+			while (tmp != NULL) {
+				if (tmp == item) {
+					this->showErrorEx(NULL, "-n", "Cannot copy parent node (%s) to child node (%s).", pathFrom.to_chr(), pathTo.to_chr());
+					return;
+				}
+
+				tmp = TreeView_GetParent(this->m_Hwnd, tmp);
+			}
+		}
+
+		hNewItem = this->cloneItem(&item, &hParentTo, &hAfterTo);
+
+		if (hNewItem != NULL)
+			this->copyAllItems(&item, &hNewItem);
+		else
+			this->showErrorEx(NULL, "-n", "Unable to copy items.");
+	}
+	// xdid -o [NAME] [ID] [SWITCH] N N N [TAB] (Tooltip Text)
+	else if (flags['o'] && numtok > 3) {
+		TString path(input.gettok(1, TSTAB).gettok(4, -1));
+		HTREEITEM item;
+		TString tiptext;
+
+		path.trim( );
+
+		
+		if (input.numtok(TSTAB) > 1) {
+			tiptext = input.gettok(2, TSTAB);
+			tiptext.trim();
+		}
+
+		item = this->parsePath(&path);
+
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-o", "Unable to parse path: %s", path.to_chr());
+			return;
+		}
+
+		TVITEMEX tvi; 
+
+		tvi.hItem = item;
+		tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
+
+		if (TreeView_GetItem(this->m_Hwnd, &tvi)) {
+			LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
+
+			if (lpdcxtvitem != NULL)
+				lpdcxtvitem->tsTipText = tiptext;
+		}
 	}
 	// xdid -Q [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] N N N
 	else if ( flags['Q'] && numtok > 5 ) {
-		HTREEITEM hParent = TVI_ROOT;
-		HTREEITEM hAfter = TVI_ROOT;
+		TString path(input.gettok(6, -1));
+		HTREEITEM item = this->parsePath(&path);
+		COLORREF clrText = (COLORREF) input.gettok(5).to_num();
 
-		TString path(input.gettok( 6, -1 ));
-		path.trim();
-
-		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
-			COLORREF clrText = (COLORREF) input.gettok( 5 ).to_num( );
-
-			if ( !this->correctTargetItem( &hParent, &hAfter ) )
-				return;
-
-			TVITEMEX tvi; 
-
-			tvi.hItem = hAfter;
-			tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
-
-			if ( TreeView_GetItem( this->m_Hwnd, &tvi ) ) {
-				LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
-
-				if ( lpdcxtvitem != NULL ) {
-					int iFlags = this->parseItemFlags( input.gettok( 4 ) );
-
-					if ( iFlags & TVIS_UNDERLINE )
-						lpdcxtvitem->bUline = TRUE;
-					else
-						lpdcxtvitem->bUline = FALSE;
-
-					if ( iFlags & TVIS_BOLD )
-						lpdcxtvitem->bBold = TRUE;
-					else
-						lpdcxtvitem->bBold = FALSE;
-
-					if (iFlags & TVIS_ITALIC)
-						lpdcxtvitem->bItalic = TRUE;
-					else
-						lpdcxtvitem->bItalic = FALSE;
-
-					if ( iFlags & TVIS_COLOR )
-						lpdcxtvitem->clrText = clrText;
-					else
-						lpdcxtvitem->clrText = (COLORREF)-1;
-
-					this->redrawWindow( );
-				}
-			}
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-Q", "Unable to parse path: %s", path.to_chr());
+			return;
 		}
+
+		TVITEMEX tvi; 
+
+		tvi.hItem = item;
+		tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
+
+		if (!TreeView_GetItem(this->m_Hwnd, &tvi)) {
+			this->showErrorEx(NULL, "-Q", "Unable to retrieve item: %s", path.to_chr());
+			return;
+		}
+
+		LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
+
+		if (lpdcxtvitem == NULL ) {
+			this->showErrorEx(NULL, "-Q", "Unable to retrieve tag: %s", path.to_chr());
+			return;
+		}
+
+		int iFlags = this->parseItemFlags(input.gettok(4));
+
+		if (iFlags & TVIS_UNDERLINE)
+			lpdcxtvitem->bUline = TRUE;
 		else
-			this->showErrorEx(NULL,"-Q","Invalid Path: %s", path.to_chr());
+			lpdcxtvitem->bUline = FALSE;
+
+		if (iFlags & TVIS_BOLD)
+			lpdcxtvitem->bBold = TRUE;
+		else
+			lpdcxtvitem->bBold = FALSE;
+
+		if (iFlags & TVIS_ITALIC)
+			lpdcxtvitem->bItalic = TRUE;
+		else
+			lpdcxtvitem->bItalic = FALSE;
+
+		if (iFlags & TVIS_COLOR)
+			lpdcxtvitem->clrText = clrText;
+		else
+			lpdcxtvitem->clrText = (COLORREF) -1;
+
+		this->redrawWindow();
 	}
 	// This is to avoid an invalid error message.
 	// xdid -r [NAME] [ID] [SWITCH]
 	else if (flags['r']) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] N N N
-	else if ( flags['t'] && numtok > 4 ) {
+	else if (flags['t'] && numtok > 4) {
+		UINT iFlags = this->parseToggleFlags(input.gettok(4));
 
-		UINT iFlags = this->parseToggleFlags( input.gettok( 4 ) );
+		if (input.gettok(5, -1) == "root") {
+			HTREEITEM hStart = TVI_ROOT;
 
-		HTREEITEM hParent = TVI_ROOT;
-		HTREEITEM hAfter = TVI_ROOT;
+			if (iFlags & TVIE_EXPALL)
+				this->expandAllItems(&hStart, TVE_EXPAND);
+			else if (iFlags & TVIE_COLALL)
+				this->expandAllItems(&hStart, TVE_COLLAPSE);
 
-		TString path(input.gettok( 5, -1 ));
-		path.trim();
-
-		if ( input.gettok( 5, -1 ) == "root" ) {
-
-			if ( iFlags & TVIE_EXPALL )
-				this->expandAllItems( &hAfter, TVE_EXPAND );
-			else if ( iFlags & TVIE_COLALL )
-				this->expandAllItems( &hAfter, TVE_COLLAPSE );
+			return;
 		}
-		else if ( this->parsePath( &path, &hParent, &hAfter ) ) {
 
-			if ( !this->correctTargetItem( &hParent, &hAfter ) )
-				return;
+		TString path(input.gettok(5, -1));
+		HTREEITEM item = this->parsePath(&path);
 
-			if ( iFlags & TVIE_EXP )
-				TreeView_Expand( this->m_Hwnd, hAfter, TVE_EXPAND );
-			else if ( iFlags & TVIE_EXPPART )
-				TreeView_Expand( this->m_Hwnd, hAfter, TVE_EXPAND | TVE_EXPANDPARTIAL );
-			else if ( iFlags & TVIE_COL )
-				TreeView_Expand( this->m_Hwnd, hAfter, TVE_COLLAPSE );
-			else if ( iFlags & TVIE_COLRES )
-				TreeView_Expand( this->m_Hwnd, hAfter, TVE_COLLAPSE | TVE_COLLAPSERESET );
-			else if ( iFlags & TVIE_TOGGLE )
-				TreeView_Expand( this->m_Hwnd, hAfter, TVE_TOGGLE );
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-t", "Unable to parse path: %s", path.to_chr());
+			return;
 		}
-		else
-			this->showErrorEx(NULL,"-t","Invalid Path: %s", path.to_chr());
+
+		if (iFlags & TVIE_EXP)
+			TreeView_Expand(this->m_Hwnd, item, TVE_EXPAND);
+		else if (iFlags & TVIE_EXPPART)
+			TreeView_Expand(this->m_Hwnd, item, TVE_EXPAND | TVE_EXPANDPARTIAL);
+		else if (iFlags & TVIE_COL)
+			TreeView_Expand(this->m_Hwnd, item, TVE_COLLAPSE);
+		else if (iFlags & TVIE_COLRES)
+			TreeView_Expand(this->m_Hwnd, item, TVE_COLLAPSE | TVE_COLLAPSERESET);
+		else if (iFlags & TVIE_TOGGLE)
+			TreeView_Expand(this->m_Hwnd, item, TVE_TOGGLE);
 	}
 	// xdid -u [NAME] [ID] [SWITCH]
-	else if ( flags['u'] ) {
-
-		TreeView_SelectItem( this->m_Hwnd, NULL );
+	else if (flags['u']) {
+		TreeView_SelectItem(this->m_Hwnd, NULL);
 	}
 	// xdid -v [NAME] [ID] [SWITCH] N N N [TAB] (Item Text)
-	else if ( flags['v'] && numtok > 3 ) {
-
-		HTREEITEM hParent = TVI_ROOT;
-		HTREEITEM hAfter = TVI_ROOT;
-
-		TString path(input.gettok( 1, TSTAB ).gettok( 4, -1 ));
-		path.trim( );
-
+	else if (flags['v'] && numtok > 3) {
+		TString path(input.gettok(1, TSTAB).gettok(4, -1));
+		HTREEITEM item;
 		TString itemtext;
-		if ( input.numtok( TSTAB ) > 1 ) {
 
-			itemtext = input.gettok( 2, TSTAB );
-			itemtext.trim( );
+		path.trim( );
+		
+		if (input.numtok(TSTAB) > 1) {
+			itemtext = input.gettok(2, TSTAB);
+			itemtext.trim();
 		}
 
-		if ( this->parsePath( &path, &hParent, &hAfter ) ) {
+		item = this->parsePath(&path);
 
-			if ( this->correctTargetItem( &hParent, &hAfter ) ) {
-
-				TVITEMEX tvi;
-
-				tvi.mask = TVIF_TEXT | TVIF_HANDLE;
-				tvi.hItem = hAfter;
-				tvi.pszText = itemtext.to_chr( );
-				TreeView_SetItem( this->m_Hwnd, &tvi );
-			}
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-v", "Unable to parse path: %s", path.to_chr());
+			return;
 		}
-		else
-			this->showErrorEx(NULL,"-v","Invalid Path: %s", path.to_chr());
+
+		TVITEMEX tvi;
+
+		tvi.mask = TVIF_TEXT | TVIF_HANDLE;
+		tvi.hItem = item;
+		tvi.pszText = itemtext.to_chr();
+		TreeView_SetItem(this->m_Hwnd, &tvi);
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags['w'] && numtok > 5) {
@@ -941,7 +907,6 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if ( flags['y'] && numtok > 3 ) {
-
 		UINT iFlags = this->parseIconFlagOptions( input.gettok( 4 ) );
 
 		HIMAGELIST himl;
@@ -964,52 +929,49 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		}
 	}
 	// xdid -z [NAME] [ID] [SWITCH] [+FLAGS] N N N [TAB] [ALIAS]
-	else if ( flags['z'] && numtok > 4 ) {
-
+	else if (flags['z'] && numtok > 4) {
+		TString path(input.gettok(1, TSTAB).gettok(5, -1));
 		DCXTVSORT dtvs;
-		ZeroMemory( &dtvs, sizeof(DCXTVSORT) );
-		dtvs.iSortFlags = this->parseSortFlags( input.gettok( 4 ) );
+		TVSORTCB tvs;
+
+		path.trim();
+		ZeroMemory(&dtvs, sizeof(DCXTVSORT));
+		dtvs.iSortFlags = this->parseSortFlags(input.gettok(4));
 		dtvs.pthis = this;
 
-		TString path(input.gettok( 1, TSTAB ).gettok( 5, -1 ));
-		path.trim( );
-
-		if ( input.numtok( TSTAB ) > 1 ) {
-			dtvs.tsCustomAlias = input.gettok( 2, TSTAB );
-			dtvs.tsCustomAlias.trim( );
+		if (input.numtok(TSTAB) > 1) {
+			dtvs.tsCustomAlias = input.gettok(2, TSTAB);
+			dtvs.tsCustomAlias.trim();
 		}
 
-		HTREEITEM hParent = TVI_ROOT;
-		HTREEITEM hAfter = TVI_ROOT;
-
-		TVSORTCB tvs;
 		ZeroMemory( &tvs, sizeof(TVSORTCB) );
 		tvs.lpfnCompare = DcxTreeView::sortItemsEx;
 		tvs.lParam = (LPARAM) &dtvs;
 
-		if ( path == "root" ) {
-
+		if (path == "root") {
 			tvs.hParent = TVI_ROOT;
 
-			if ( dtvs.iSortFlags & TVSS_ALL )
-				TreeView_SortChildrenCB( this->m_Hwnd, &tvs, TRUE );
-			else if ( dtvs.iSortFlags & TVSS_SINGLE )
-				TreeView_SortChildrenCB( this->m_Hwnd, &tvs, FALSE );
+			if (dtvs.iSortFlags & TVSS_ALL)
+				TreeView_SortChildrenCB(this->m_Hwnd, &tvs, TRUE);
+			else if (dtvs.iSortFlags & TVSS_SINGLE)
+				TreeView_SortChildrenCB(this->m_Hwnd, &tvs, FALSE);
+
+			return;
 		}
-		else if ( this->parsePath( &path, &hParent, &hAfter ) ) {
 
-			if ( this->correctTargetItem( &hParent, &hAfter ) ) {
+		HTREEITEM item = this->parsePath(&path);
 
-				tvs.hParent = hAfter;
-
-				if ( dtvs.iSortFlags & TVSS_ALL )
-					TreeView_SortChildrenCB( this->m_Hwnd, &tvs, TRUE );
-				else if ( dtvs.iSortFlags & TVSS_SINGLE )
-					TreeView_SortChildrenCB( this->m_Hwnd, &tvs, FALSE );
-			}
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-z", "Unable to parse path: %s", path.to_chr());
+			return;
 		}
-		else
-			this->showErrorEx(NULL,"-z","Invalid Path: %s", path.to_chr());
+
+		tvs.hParent = item;
+
+		if (dtvs.iSortFlags & TVSS_ALL)
+			TreeView_SortChildrenCB(this->m_Hwnd, &tvs, TRUE);
+		else if (dtvs.iSortFlags & TVSS_SINGLE)
+			TreeView_SortChildrenCB(this->m_Hwnd, &tvs, FALSE);
 	}
 	// xdid -G [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
 	else if (flags['G'] && numtok > 6) {
@@ -1024,38 +986,43 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 				this->showError(NULL,"-G","GDI+ Not Supported On This Machine");
 			else if (!LoadGDIPlusImage(flag, filename))
 				this->showErrorEx(NULL,"-G","Unable to load Image: %s", filename.to_chr());
-			else if (!this->m_bTransparent)
-				this->setExStyle(WS_EX_TRANSPARENT);
+			else {
+				if (!this->m_bTransparent)
+					this->setExStyle(WS_EX_TRANSPARENT);
+			}
 		}
 		this->redrawWindow();
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [N (N...)][TAB][+FLAGS] [NAME] [FILENAME]
 	else if (flags['S'] && numtok > 5) {
-
 		if (input.numtok(TSTAB) != 2) {
-			this->showError(NULL,"-S","Invalid Command Syntax.");
+			this->showError(NULL, "-S", "Invalid Command Syntax.");
 			return;
 		}
-		HTREEITEM hParent = TVI_ROOT;
-		HTREEITEM hFrom = TVI_ROOT;
-		TString path(input.gettok(1, TSTAB).gettok( 4, -1));
+
+		HTREEITEM item;
+		TString path(input.gettok(1, TSTAB).gettok(4, -1));
 		TString fileData(input.gettok(2, TSTAB));
-		TString name(fileData.gettok( 2 ));
-		TString filename(fileData.gettok( 3, -1));
+		//TString flags(fileData.gettok(1));
+		TString name(fileData.gettok(2));
+		TString filename(fileData.gettok(3, -1));
 
 		path.trim();
 		name.trim();
 		filename.trim();
 
-		if (this->parsePath(&path, &hParent, &hFrom)) {
-			if (!this->xmlSaveTree(hFrom, name, filename))
-				this->showErrorEx(NULL,"-S","Unable To Save Data To: <%s> %s", name.to_chr(), filename.to_chr());
+		item = this->parsePath(&path);
+
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-S", "Unable to parse path: %s", path.to_chr());
+			return;
 		}
-		else
-			this->showErrorEx(NULL,"-S","Invalid Path: %s", path.to_chr());
+
+		if (!this->xmlSaveTree(item, name, filename))
+			this->showErrorEx(NULL, "-S", "Unable To Save Data To: <%s> %s", name.to_chr(), filename.to_chr());
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		this->parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -1099,7 +1066,7 @@ HIMAGELIST DcxTreeView::createImageList( ) {
  */
 
 //HTREEITEM DcxTreeView::insertItem( ) {
-HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, const TString * Tooltip) {
+void DcxTreeView::insertItem(const TString * path, const TString * data, const TString * Tooltip) {
 
 	HTREEITEM hParent = TVI_ROOT;
 	HTREEITEM hAfter = TVI_ROOT;
@@ -1126,10 +1093,12 @@ HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, co
 	TString itemtext(data->gettok(9, -1));
 
 	// path
-	this->parsePath(path, &hParent, &hAfter);
+	if (this->parsePath(path, &hParent, &hAfter) == NULL)
+		return;
 
 	if (iFlags & TVIS_XML) {
-		return this->xmlLoadTree(hAfter, hParent, itemtext.gettok( 1 ), itemtext.gettok( 2, -1));
+		this->xmlLoadTree(hAfter, hParent, itemtext.gettok( 1 ), itemtext.gettok( 2, -1));
+		return;
 	}
 
 	// parse DCX parameters
@@ -1214,7 +1183,7 @@ HTREEITEM DcxTreeView::insertItem(const TString * path, const TString * data, co
 	if (overlay > 0 && overlay < 16)
 		TreeView_SetItemState(this->m_Hwnd, hItem, INDEXTOOVERLAYMASK(overlay), TVIS_OVERLAYMASK);
 
-	return hItem;
+	return;
 }
 
 /*!
@@ -1474,168 +1443,43 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
  *
  * blah
  */
-BOOL DcxTreeView::parsePath( const TString * path, HTREEITEM * hParent, HTREEITEM * hInsertAfter, const int depth ) {
+TString DcxTreeView::getPathFromItem(HTREEITEM *item) {
+	HTREEITEM parent = *item;
+	HTREEITEM current;
+	TString result;
+	VectorOfInts vec;
+	int i;
 
-	int n = path->numtok( ), i = 1;
-	int k = path->gettok( depth ).to_int( );
-	//HTREEITEM hPreviousItem = TVI_FIRST, hCurrentItem;
-	HTREEITEM hPreviousItem = *hParent, hCurrentItem;
-
-	hCurrentItem = TreeView_GetChild( this->m_Hwnd, *hParent );
-
-	if ( hCurrentItem == NULL ) {
-		if ( k == -1 ) {
-			// shouldn't this just return TRUE & not change hInsertAfter?
-			//*hInsertAfter = TVI_LAST;
-			return TRUE;
-		}
-		else
-			return FALSE;
-	}
-
+	// Loop until we reach the topmost node of the tree.
 	do {
-		if ( i == k ) {
+		i = 1;
+		current = parent;
 
-			if ( depth == n ) {
-
-				// Give Current item to avoid the need to advance the item in correctTargetItem()
-				//*hInsertAfter = hPreviousItem;
-				*hInsertAfter = hCurrentItem;
-				return TRUE;
-			}
-			else {
-
-				*hParent = hCurrentItem;
-				//*hInsertAfter = TVI_FIRST;
-				*hInsertAfter = hCurrentItem;
-				return this->parsePath( path, hParent, hInsertAfter, depth +1);
-			}
+		// Count each previous node before the node containing our item.
+		while (current = TreeView_GetPrevSibling(this->m_Hwnd, current)) {
+			i++;
 		}
-		i++;
-		hPreviousItem = hCurrentItem;
 
-	} while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
+		vec.push_back(i);
+	} while ((parent = TreeView_GetParent(this->m_Hwnd, parent)) != NULL);
 
-	if ( k == -1 ) {
+	// Construct the string containing the path backwards, as we traced it backwards.
+	VectorOfInts::reverse_iterator itStart = vec.rbegin( );
+	VectorOfInts::reverse_iterator itEnd   = vec.rend( );
 
-		if ( depth == n ) {
+	while (itStart != itEnd) {
+		if (result == "")
+			result.sprintf("%d", *itStart);
+		else
+			result.sprintf("%s %d", result.to_chr(), *itStart);
 
-			//*hInsertAfter = TVI_LAST;
-			*hInsertAfter = hCurrentItem;
-			return TRUE;
-		}
-		else {
-
-			*hParent = hPreviousItem;
-			//*hInsertAfter = TVI_FIRST;
-			*hInsertAfter = hPreviousItem;
-			return this->parsePath( path, hParent, hInsertAfter, depth +1);
-		}
+		itStart++;
 	}
-	else if ((depth == n) && (i == k))
-		*hInsertAfter = hPreviousItem; // whats the point of this bit again?
-	return FALSE;
-}
 
-/*!
- * \brief blah
- *
- * blah
- */
+	// Trim to ensure clean path.
+	result.trim();
 
-BOOL DcxTreeView::correctTargetItem( HTREEITEM * hParent, HTREEITEM * hInsertAfter ) {
-
-	if ( *hInsertAfter == TVI_FIRST )
-		*hInsertAfter = TreeView_GetChild( this->m_Hwnd, *hParent );
-	else if ( *hInsertAfter == TVI_LAST ) {
-
-		HTREEITEM hItem = TreeView_GetChild( this->m_Hwnd, *hParent );
-
-		if ( hItem == NULL )
-			return FALSE;
-
-		do {
-			*hInsertAfter = hItem;
-		} while ( ( hItem = TreeView_GetNextSibling( this->m_Hwnd, *hInsertAfter ) ) != NULL );
-
-	}
-	else if ( *hInsertAfter == TVI_ROOT )
-		*hInsertAfter = TreeView_GetRoot( this->m_Hwnd );
-	// Avoid advancing the item, as this makes the first item really hard to select.
-	//else {
-
-	//	if ( ( *hInsertAfter = TreeView_GetNextSibling( this->m_Hwnd, *hInsertAfter ) ) == NULL )
-	//		return FALSE;
-	//}
-
-	return TRUE;
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-BOOL DcxTreeView::getPath( VectorOfInts * numPath, HTREEITEM * hStart, HTREEITEM *hItemToFind, int depth ) {
-
-  int i = 0;
-  HTREEITEM hCurrentItem;
-
-  if ( ( hCurrentItem = TreeView_GetChild( this->m_Hwnd, *hStart ) ) == NULL )
-    return FALSE;
-
-  do {
-
-    i++;
-
-    if ( hCurrentItem == *hItemToFind ) {
-
-      numPath->push_back( i );
-      return TRUE;
-    }
-    else if ( this->getPath( numPath, &hCurrentItem, hItemToFind, depth + 1 ) ) {
-
-      numPath->push_back( i );
-      return TRUE;
-    }
-
-  } while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
-
-  return FALSE;
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-std::string DcxTreeView::getPathFromVector( VectorOfInts * numPath ) {
-
- if ( numPath->empty( ) )
-   return std::string( "" );
-
- std::string path = "";
-
- VectorOfInts::reverse_iterator itStart = numPath->rbegin( );
- VectorOfInts::reverse_iterator itEnd = numPath->rend( );
-
- char num[5];
-
- while ( itStart != itEnd ) {
-
-#ifdef VS2005
-   _itoa( *itStart, num, 10 );
-#else
-   itoa( *itStart, num, 10 );
-#endif
-   path += num;
-   path += ' ';
-
-   itStart++;
- }
- return path;
+	return result;
 }
 
 /*!
@@ -1657,26 +1501,27 @@ void DcxTreeView::getItemText( HTREEITEM * hItem, char * szBuffer, const int cch
     szBuffer[0] = 0;
 }
 
-/*!
- * \brief blah
- *
- * blah
+/*
+ * Returns the number of children a node has.
  */
+int DcxTreeView::getChildCount(HTREEITEM *hParent) const {
+	int i = 0;
+	HTREEITEM hItem;
 
-int DcxTreeView::getItemCount( HTREEITEM * hParent ) const {
+	hItem = TreeView_GetChild(this->m_Hwnd, *hParent);
 
-  int i = 0;
-  HTREEITEM hItem;
+	// Child found
+	if (hItem != NULL)
+		++i;
+	// No children
+	else
+		return 0;
 
-  if ( ( hItem = TreeView_GetChild( this->m_Hwnd, *hParent ) ) != NULL )
-    ++i;
+	// Iterate through sibling nodes until reaching the end
+	while ((hItem = TreeView_GetNextSibling(this->m_Hwnd, hItem)) != NULL)
+		++i;
 
-  do {
-
-    ++i;
-  } while ( ( hItem = TreeView_GetNextSibling( this->m_Hwnd, hItem ) ) != NULL );
-
-  return i;
+	return i;
 }
 
 /*!
@@ -1701,30 +1546,28 @@ BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, const TString * search, cons
  *
  * blah
  */
+BOOL DcxTreeView::findItemText(HTREEITEM *hStart, HTREEITEM *result, const TString *queryText, const int n, int *matchCount, const UINT searchType) {
+	HTREEITEM item;
 
-BOOL DcxTreeView::findItemText( HTREEITEM * hStart, HTREEITEM * hItem, const TString * search, const int N, int * NC, const UINT SearchType ) {
+	// Check if it should search child nodes
+	if ((item = TreeView_GetChild(this->m_Hwnd, *hStart)) == NULL)
+		return FALSE;
 
-  HTREEITEM hCurrentItem;
+	do {
+		if (this->matchItemText(&item, queryText, searchType))
+			(*matchCount)++;
 
-  if ( ( hCurrentItem = TreeView_GetChild( this->m_Hwnd, *hStart ) ) == NULL )
-    return FALSE;
+		if (n != 0 && *matchCount == n) {
+			*result = item;
+			return TRUE;
+		}
 
-  do {
+		if (this->findItemText(&item, result, queryText, n, matchCount, searchType))
+			return TRUE;
 
-    if ( this->matchItemText( &hCurrentItem, search, SearchType ) )
-      (*NC)++;
+	} while ((item = TreeView_GetNextSibling(this->m_Hwnd, item)) != NULL);
 
-    if ( N != 0 && *NC == N ) {
-      *hItem = hCurrentItem;
-      return TRUE;
-    }
-
-    if ( this->findItemText( &hCurrentItem, hItem, search, N, NC, SearchType ) )
-      return TRUE;
-
-  } while ( ( hCurrentItem = TreeView_GetNextSibling( this->m_Hwnd, hCurrentItem ) ) != NULL );
-
-  return FALSE;
+	return FALSE;
 }
 
 /*!
@@ -1816,142 +1659,126 @@ void DcxTreeView::copyAllItems( HTREEITEM *hItem, HTREEITEM * hParentTo ) {
  * blah
  */
 LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-    case WM_NOTIFY : 
-      {
+	switch(uMsg) {
+		case WM_NOTIFY : 
+		{
+			LPNMHDR hdr = (LPNMHDR) lParam;
 
-        LPNMHDR hdr = (LPNMHDR) lParam;
+			if (!hdr)
+				break;
 
-        if (!hdr)
-          break;
+			switch (hdr->code) {
+				case NM_CLICK:
+				{
+				//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
+					TVHITTESTINFO tvh;
+					GetCursorPos(&tvh.pt);
+					ScreenToClient(this->m_Hwnd, &tvh.pt);
+					TreeView_HitTest(this->m_Hwnd, &tvh);
 
-        switch( hdr->code ) {
-          case NM_CLICK:
-            {
-//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
-              TVHITTESTINFO tvh;
-              GetCursorPos( &tvh.pt );
-              ScreenToClient( this->m_Hwnd, &tvh.pt );
-              TreeView_HitTest( this->m_Hwnd, &tvh );
+					if (tvh.flags & TVHT_ONITEMBUTTON) {
+						TString path = this->getPathFromItem(&tvh.hItem);
 
-              if ( tvh.flags & TVHT_ONITEMBUTTON ) {
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+							this->callAliasEx(NULL, "%s,%d,%s", "buttonclick", this->getUserID(), path.to_chr());
+					}
+					//&& this->isStyle( TVS_CHECKBOXES )
+					else if ((tvh.flags & TVHT_ONITEMSTATEICON)) {
+						TString path = this->getPathFromItem(&tvh.hItem);
 
-                VectorOfInts numPath;
-                HTREEITEM hStart = TVI_ROOT;
-                this->getPath( &numPath, &hStart, &tvh.hItem );
-                std::string path = this->getPathFromVector( &numPath );
+						if (this->isStyle(TVS_CHECKBOXES)) {
+							int state = TreeView_GetCheckState(this->m_Hwnd, tvh.hItem);
 
-								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					        this->callAliasEx( NULL, "%s,%d,%s", "buttonclick", this->getUserID( ), path.c_str( ) );
-              }
-               //&& this->isStyle( TVS_CHECKBOXES )
-              else if ( ( tvh.flags & TVHT_ONITEMSTATEICON ) ) {
-
-                VectorOfInts numPath;
-                HTREEITEM hStart = TVI_ROOT;
-                this->getPath( &numPath, &hStart, &tvh.hItem );
-                std::string path = this->getPathFromVector( &numPath );
-
-                if ( this->isStyle( TVS_CHECKBOXES ) ) {
-
-                  int state = TreeView_GetCheckState( this->m_Hwnd, tvh.hItem );
-
-									if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						        this->callAliasEx( NULL, "%s,%d,%d,%s", "stateclick", this->getUserID( ), 
-							        state == 0 ? 2 : 1 , path.c_str( ) );
-                }
-                else {
-									if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	                  this->callAliasEx( NULL, "%s,%d,%d,%s", "stateclick", this->getUserID( ), 
-		                  TreeView_GetItemState( this->m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK ) , path.c_str( ) );
-                }
-              }
-              //|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
-              else if ( tvh.flags & TVHT_ONITEM ) {
-
-                VectorOfInts numPath;
-                HTREEITEM hStart = TVI_ROOT;
-                this->getPath( &numPath, &hStart, &tvh.hItem );
-                std::string path = this->getPathFromVector( &numPath );
-
-                TreeView_SelectItem( this->m_Hwnd, tvh.hItem );
-                
-								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					        this->callAliasEx( NULL, "%s,%d,%s", "sclick", this->getUserID( ), path.c_str( ) );
-              }
-							// single click not on item
-							else if ((tvh.flags & TVHT_NOWHERE) || (tvh.flags & TVHT_ONITEMRIGHT)) {
-								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-									this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID());
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								this->callAliasEx(NULL, "%s,%d,%d,%s", "stateclick", this->getUserID(),
+									state == 0 ? 2 : 1 , path.to_chr());
 							}
-              bParsed = TRUE;
-            }
-            break;
-
-          case NM_DBLCLK:
-            {
-              TVHITTESTINFO tvh;
-              GetCursorPos( &tvh.pt );
-              ScreenToClient( this->m_Hwnd, &tvh.pt );
-              TreeView_HitTest( this->m_Hwnd, &tvh );
-
-              //|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
-              if ( tvh.flags & TVHT_ONITEM ) {
-
-                VectorOfInts numPath;
-                HTREEITEM hStart = TVI_ROOT;
-                this->getPath( &numPath, &hStart, &tvh.hItem );
-                std::string path = this->getPathFromVector( &numPath );
-
-                TreeView_SelectItem( this->m_Hwnd, tvh.hItem );
-
-								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					        this->callAliasEx( NULL, "%s,%d,%s", "dclick", this->getUserID( ), path.c_str( ) );
-              }
-              bParsed = TRUE;
-            }
-            break;
-
-          case NM_RCLICK:
-            {
-              TVHITTESTINFO tvh;
-              GetCursorPos( &tvh.pt );
-              ScreenToClient( this->m_Hwnd, &tvh.pt );
-              TreeView_HitTest( this->m_Hwnd, &tvh );
-
-              //|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
-              if ( tvh.flags & TVHT_ONITEM ) {
-
-                VectorOfInts numPath;
-                HTREEITEM hStart = TVI_ROOT;
-                this->getPath( &numPath, &hStart, &tvh.hItem );
-                std::string path = this->getPathFromVector( &numPath );
-
-                TreeView_SelectItem( this->m_Hwnd, tvh.hItem );
-
-								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					        this->callAliasEx( NULL, "%s,%d,%s", "rclick", this->getUserID( ), path.c_str( ) );
-              }
-						  else {
-								if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-								  this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
-						  }
-              bParsed = TRUE;
-            }
-            break;
-					case TVN_SELCHANGED:
-						{
-							LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
-							if (lpnmtv != NULL) {
-								VectorOfInts numPath;
-								HTREEITEM hStart = TVI_ROOT;
-								this->getPath( &numPath, &hStart, &lpnmtv->itemNew.hItem );
-								std::string path = this->getPathFromVector( &numPath );
-								this->callAliasEx( NULL, "%s,%d,%s", "selchange", this->getUserID( ), path.c_str( ) );
-							}
-							bParsed = TRUE;
 						}
-						break;
+						else {
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+								this->callAliasEx(NULL, "%s,%d,%d,%s", "stateclick", this->getUserID(), 
+									TreeView_GetItemState(this->m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK), path.to_chr());
+							}
+						}
+					}
+					//|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
+					else if (tvh.flags & TVHT_ONITEM) {
+						TString path = this->getPathFromItem(&tvh.hItem);
+
+						TreeView_SelectItem(this->m_Hwnd, tvh.hItem);
+
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+							this->callAliasEx(NULL, "%s,%d,%s", "sclick", this->getUserID(), path.to_chr());
+					}
+					// single click not on item
+					else if ((tvh.flags & TVHT_NOWHERE) || (tvh.flags & TVHT_ONITEMRIGHT)) {
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+							this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+					}
+
+					bParsed = TRUE;
+					break;
+				}
+
+				case NM_DBLCLK:
+				{
+					TVHITTESTINFO tvh;
+
+					GetCursorPos(&tvh.pt);
+					ScreenToClient(this->m_Hwnd, &tvh.pt);
+					TreeView_HitTest(this->m_Hwnd, &tvh);
+
+					//|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
+					if (tvh.flags & TVHT_ONITEM) {
+						TString path = this->getPathFromItem(&tvh.hItem);
+
+						TreeView_SelectItem(this->m_Hwnd, tvh.hItem);
+
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+							this->callAliasEx(NULL, "%s,%d,%s", "dclick", this->getUserID(), path.to_chr());
+					}
+
+					bParsed = TRUE;
+					break;
+				}
+
+				case NM_RCLICK:
+				{
+					TVHITTESTINFO tvh;
+
+					GetCursorPos(&tvh.pt);
+					ScreenToClient(this->m_Hwnd, &tvh.pt);
+					TreeView_HitTest(this->m_Hwnd, &tvh);
+
+					//|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
+					if (tvh.flags & TVHT_ONITEM) {
+						TString path = this->getPathFromItem(&tvh.hItem);
+
+						TreeView_SelectItem(this->m_Hwnd, tvh.hItem);
+
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+							this->callAliasEx(NULL, "%s,%d,%s", "rclick", this->getUserID(), path.to_chr());
+					}
+					else if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+						this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
+
+					bParsed = TRUE;
+					break;
+				}
+
+				case TVN_SELCHANGED:
+				{
+					LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
+
+					if (lpnmtv != NULL) {
+						TString path = this->getPathFromItem(&lpnmtv->itemNew.hItem);
+						this->callAliasEx(NULL, "%s,%d,%s", "selchange", this->getUserID(), path.to_chr());
+					}
+
+					bParsed = TRUE;
+					break;
+				}
+
           case TVN_GETINFOTIP:
             {
               LPNMTVGETINFOTIP tcgit = (LPNMTVGETINFOTIP) lParam;
@@ -1974,41 +1801,33 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						}
 						break;
 
-          case TVN_ITEMEXPANDED:
-            {
-              bParsed = TRUE;
-              LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
+				case TVN_ITEMEXPANDED:
+				{
+					LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
 
-              if ( lpnmtv->action & TVE_COLLAPSE ) {
+					if (lpnmtv->action & TVE_COLLAPSE) {
+						TString path = this->getPathFromItem(&lpnmtv->itemNew.hItem);
+						this->callAliasEx(NULL, "%s,%d,%s", "collapse", this->getUserID(), path.to_chr());
+					}
+					else if (lpnmtv->action & TVE_EXPAND) {
+						TString path = this->getPathFromItem(&lpnmtv->itemNew.hItem);
+						this->callAliasEx(NULL, "%s,%d,%s", "expand", this->getUserID(), path.to_chr());
+					}
 
-                VectorOfInts numPath;
-                HTREEITEM hStart = TVI_ROOT;
-                this->getPath( &numPath, &hStart, &lpnmtv->itemNew.hItem );
-                std::string path = this->getPathFromVector( &numPath );
+					// re-enables redraw & updates.
+					if (this->isExStyle(WS_EX_TRANSPARENT)) {
+						this->setRedraw(TRUE);
+						//InvalidateRect(this->m_Hwnd, NULL, FALSE);
+						//UpdateWindow(this->m_Hwnd);
+						//if (this->m_pParentDialog->IsVistaStyle())
+						this->redrawWindow();
+						//else
+						//	this->redrawBufferedWindow();
+					}
 
-                this->callAliasEx( NULL, "%s,%d,%s", "collapse", this->getUserID( ), path.c_str( ) );
-              }
-              else if ( lpnmtv->action & TVE_EXPAND ) {
-
-                VectorOfInts numPath;
-                HTREEITEM hStart = TVI_ROOT;
-                this->getPath( &numPath, &hStart, &lpnmtv->itemNew.hItem );
-                std::string path = this->getPathFromVector( &numPath );
-
-                this->callAliasEx( NULL, "%s,%d,%s", "expand", this->getUserID( ), path.c_str( ) );
-              }
-							// re-enables redraw & updates.
-							if (this->isExStyle(WS_EX_TRANSPARENT)) {
-								this->setRedraw(TRUE);
-								//InvalidateRect(this->m_Hwnd, NULL, FALSE);
-								//UpdateWindow(this->m_Hwnd);
-								//if (this->m_pParentDialog->IsVistaStyle())
-									this->redrawWindow();
-								//else
-								//	this->redrawBufferedWindow();
-							}
-            }
-            break;
+					bParsed = TRUE;
+					break;
+				}
 
           case TVN_BEGINLABELEDIT:
             {
@@ -2660,4 +2479,96 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 		xRes = xNode;
 	}
 	return xRes;
+}
+
+/*
+ * Retrieves an item from the path specified.
+ *
+ * If the path is invalid, it will return NULL.
+ * If hParent and hInsertAt parameters are filled, it is assumed we are searching for a place to insert the item
+ */
+HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEITEM *hInsertAt) {
+	HTREEITEM current = TVI_ROOT;
+	HTREEITEM foundSoFar = current;
+	int count = path->numtok();
+	int dir;
+	int i;                             // iterator for counting the Nth directory
+	int k = 1;                         // iterator for path directories
+	bool bFillLocation = ((hParent != NULL) && (hInsertAt != NULL));
+
+	// Invalid path - no directives.
+	if (count == 0)
+		return NULL;
+
+	// Iterate through each directive in the path string
+	while (k <= count) {
+		// Convert the path directory.
+		dir = path->gettok(k).to_int();
+
+		// Keep track of the current parent.
+		if (bFillLocation)
+			*hParent = current;
+
+		current = TreeView_GetChild(this->m_Hwnd, current);
+
+		// Adding first child item, with the 2nd last directive as the parent node
+		if ((current == NULL) && (getChildCount(&foundSoFar) == 0) && bFillLocation && (k == count)) {
+			*hParent = foundSoFar;
+			*hInsertAt = TVI_FIRST;
+			return foundSoFar;
+		}
+
+		// Return first child
+		if ((dir == 1)) {
+			if (bFillLocation) {
+				*hInsertAt = current;
+			}
+		}
+		// Insert at very start.
+		// Not used unless for insertion or moving.
+		else if (dir == 0) {
+			if (bFillLocation) {
+				*hParent = foundSoFar;
+				*hInsertAt = TVI_FIRST;
+			}
+		}
+		// Last item in current branch (Handles negative numbers as last item)
+		// else if (dir == -1)
+		else if (dir < 0) {
+			HTREEITEM tmp;
+
+			while ((tmp = TreeView_GetNextSibling(this->m_Hwnd, current)) != NULL) {
+				current = tmp;
+			}
+
+			if (bFillLocation)
+				*hInsertAt = TVI_LAST;
+		}
+		// Search for Nth child.
+		else {
+			i = 1;
+
+			while ((current = TreeView_GetNextSibling(this->m_Hwnd, current)) != NULL) {
+				if (bFillLocation)
+					*hInsertAt = current;
+
+				i++;
+
+				// Found the branch we want
+				if (i == dir)
+					break;
+			}
+		}
+
+		// Couldnt find specified path.
+		if (current == NULL)
+			return NULL;
+		// Inch forward on next item.
+		else
+			foundSoFar = current;
+
+		k++;
+	}
+
+	return foundSoFar;
 }

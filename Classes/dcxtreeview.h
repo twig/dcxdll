@@ -124,10 +124,10 @@ public:
   HIMAGELIST createImageList( );
 
   //HTREEITEM insertItem( );
-  HTREEITEM insertItem( const TString * path, const TString * data, const TString * Tooltip );
+  void insertItem( const TString * path, const TString * data, const TString * Tooltip );
 
   void getItemText( HTREEITEM * hItem, char * szBuffer, const int cchTextMax ) const;
-  int getItemCount( HTREEITEM * hParent ) const;
+  int getChildCount( HTREEITEM * hParent ) const;
 
   static LRESULT CALLBACK EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -145,9 +145,9 @@ protected:
 
   /* *** */
 
-  BOOL parsePath( const TString * path, HTREEITEM * hParent, HTREEITEM * hInsertAfter, const int depth = 1 );
-  BOOL getPath( VectorOfInts * numPath, HTREEITEM * hStart, HTREEITEM * hItemToFind, int depth = 1 );
-  BOOL correctTargetItem( HTREEITEM * hParent, HTREEITEM * hInsertAfter );
+	HTREEITEM parsePath(const TString *path, HTREEITEM *hParent = NULL, HTREEITEM *hInsertAt = NULL);
+	TString getPathFromItem(HTREEITEM *item);
+  
 
   BOOL matchItemText( HTREEITEM * hItem, const TString * search, const UINT SearchType );
   BOOL findItemText( HTREEITEM * hStart, HTREEITEM * hItem, const TString * search, const int N, int * NC, const UINT SearchType );
@@ -155,8 +155,6 @@ protected:
 
   HTREEITEM cloneItem( HTREEITEM * hItem, HTREEITEM * hParentTo, HTREEITEM * hAfterTo );
   void copyAllItems( HTREEITEM *hItem, HTREEITEM * hParentTo );
-
-  static std::string getPathFromVector( VectorOfInts * numPath );
 
   static UINT parseIconFlagOptions( const TString & flags );
   static UINT parseItemFlags( const TString & flags );
