@@ -715,13 +715,12 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 }
 void DcxBox::EraseBackground(HDC hdc)
 {
-	this->DrawParentsBackground(hdc);
+	RECT rc;
+	GetClientRect( this->m_Hwnd, &rc );
+	this->DrawCtrlBackground(hdc, this, &rc);
 	// Update CLA if any.
-	if (this->m_pLayoutManager != NULL) {
-		RECT rc;
-		GetClientRect( this->m_Hwnd, &rc );
+	if (this->m_pLayoutManager != NULL)
 		this->m_pLayoutManager->updateLayout( rc );
-	}
 }
 
 void DcxBox::DrawClientArea(HDC hdc)
@@ -734,7 +733,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 	CopyRect(&rc2, &rc);
 
 	// Setup alpha blend if any.
-	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc,true);
 
 	// if no border, dont bother
 	if (this->m_iBoxStyles & BOXS_NONE) {
