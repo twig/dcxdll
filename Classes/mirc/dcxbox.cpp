@@ -717,7 +717,11 @@ void DcxBox::EraseBackground(HDC hdc)
 {
 	RECT rc;
 	GetClientRect( this->m_Hwnd, &rc );
-	this->DrawCtrlBackground(hdc, this, &rc);
+	// fill background.
+	if (this->isExStyle(WS_EX_TRANSPARENT))
+		this->DrawParentsBackground(hdc, &rc);
+	else // normal bkg
+		DcxControl::DrawCtrlBackground(hdc, this, &rc);
 	// Update CLA if any.
 	if (this->m_pLayoutManager != NULL)
 		this->m_pLayoutManager->updateLayout( rc );

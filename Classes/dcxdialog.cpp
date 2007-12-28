@@ -2159,6 +2159,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				else if ((p_this->m_bInMoving)  && (p_this->m_dEventMask & DCX_EVENT_MOVE))
 					p_this->callAliasEx(NULL, "%s,%d", "endmove", 0);
 
+#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
+				bool bDoRedraw = p_this->m_bInSizing;
+#endif
+
 				p_this->m_bInMoving = false;
 				p_this->m_bInSizing = false;
 				// turn off ghosting.
@@ -2170,6 +2174,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					p_this->m_bGhosted = false;
 				}
 				p_this->UpdateVistaStyle();
+#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
+				if (bDoRedraw)
+					p_this->redrawWindow();
+#endif
 				break;
 			}
 
@@ -3409,7 +3417,7 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 	HBITMAP hbmpMem = this->m_hVistaBitmap;
 	if(hbmpMem)
 	{
-		HGDIOBJ hbmpOld = ::SelectObject( hdcMemory, hbmpMem);
+		HBITMAP hbmpOld = SelectBitmap( hdcMemory, hbmpMem);
 
 		this->m_hVistaHDC = hdcMemory;
 
@@ -3531,7 +3539,7 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 		this->m_hVistaHDC = NULL;
 
 		graph.ReleaseHDC(hdcMemory);
-		::SelectObject( hdcMemory, hbmpOld);
+		SelectBitmap( hdcMemory, hbmpOld);
 	}
 
 	::DeleteDC(hdcMemory);
