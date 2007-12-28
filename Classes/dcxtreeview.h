@@ -106,61 +106,61 @@ class DcxTreeView : public DcxControl {
 
 public:
 
-  DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
-  virtual ~DcxTreeView( );
+	DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
+	virtual ~DcxTreeView( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( TString & input, char * szReturnValue );
+	void parseCommandRequest( TString & input );
+	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 #ifdef DCX_USE_WINSDK
-  static void parseTreeViewExStyles( const TString & styles, LONG * ExStyles );
+	static void parseTreeViewExStyles( const TString & styles, LONG * ExStyles );
 #endif
 
-  HIMAGELIST getImageList( const int type );
-  void setImageList( HIMAGELIST himl, const int type );
-  HIMAGELIST createImageList( );
+	HIMAGELIST getImageList( const int type );
+	void setImageList( HIMAGELIST himl, const int type );
+	HIMAGELIST createImageList( );
 
-  //HTREEITEM insertItem( );
-  void insertItem( const TString * path, const TString * data, const TString * Tooltip );
+	//HTREEITEM insertItem( );
+	void insertItem( const TString * path, const TString * data, const TString * Tooltip );
 
-  void getItemText( HTREEITEM * hItem, char * szBuffer, const int cchTextMax ) const;
-  int getChildCount( HTREEITEM * hParent ) const;
+	void getItemText( HTREEITEM * hItem, char * szBuffer, const int cchTextMax ) const;
+	int getChildCount( HTREEITEM * hParent ) const;
 
-  static LRESULT CALLBACK EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static LRESULT CALLBACK EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-  static int CALLBACK sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
+	static int CALLBACK sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
-  inline TString getType( ) { return TString( "treeview" ); };
+	inline TString getType( ) { return TString( "treeview" ); };
 
 protected:
 
-  WNDPROC m_OrigEditProc; //!< Label Edit Control Orignal Procedure
+	WNDPROC m_OrigEditProc; //!< Label Edit Control Orignal Procedure
 
-  UINT m_iIconSize; //!< Icon size
+	UINT m_iIconSize; //!< Icon size
 
 	COLORREF m_colSelection;
 
-  /* *** */
+	/* *** */
 
 	HTREEITEM parsePath(const TString *path, HTREEITEM *hParent = NULL, HTREEITEM *hInsertAt = NULL);
 	TString getPathFromItem(HTREEITEM *item);
-  
 
-  BOOL matchItemText( HTREEITEM * hItem, const TString * search, const UINT SearchType );
-  BOOL findItemText( HTREEITEM * hStart, HTREEITEM * hItem, const TString * search, const int N, int * NC, const UINT SearchType );
-  void expandAllItems( HTREEITEM * hStart, const UINT expandOption );
 
-  HTREEITEM cloneItem( HTREEITEM * hItem, HTREEITEM * hParentTo, HTREEITEM * hAfterTo );
-  void copyAllItems( HTREEITEM *hItem, HTREEITEM * hParentTo );
+	BOOL matchItemText( HTREEITEM * hItem, const TString * search, const UINT SearchType ) const;
+	BOOL findItemText( HTREEITEM * hStart, HTREEITEM * hItem, const TString * search, const int N, int * NC, const UINT SearchType ) const;
+	void expandAllItems( HTREEITEM * hStart, const UINT expandOption );
 
-  static UINT parseIconFlagOptions( const TString & flags );
-  static UINT parseItemFlags( const TString & flags );
-  static UINT parseSortFlags( const TString & flags );
-  static UINT parseColorFlags( const TString & flags );
-  static UINT parseToggleFlags( const TString & flags );
+	HTREEITEM cloneItem( HTREEITEM * hItem, HTREEITEM * hParentTo, HTREEITEM * hAfterTo );
+	void copyAllItems( HTREEITEM *hItem, HTREEITEM * hParentTo );
+
+	static UINT parseIconFlagOptions( const TString & flags );
+	static UINT parseItemFlags( const TString & flags );
+	static UINT parseSortFlags( const TString & flags );
+	static UINT parseColorFlags( const TString & flags );
+	static UINT parseToggleFlags( const TString & flags );
 
 	HFONT m_hItemFont; // Font used for specific item changes.
 	HFONT m_hOldItemFont; // Font used for specific item changes.
@@ -183,9 +183,9 @@ protected:
 	bool m_bTransparent;					// Is Control Transparent?
 #endif
 
-	bool xmlSaveTree(HTREEITEM hFromItem, TString &name, TString &filename);
+	bool xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString &filename);
 	bool xmlGetItems(HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR *buf);
-	HTREEITEM xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, TString &name, TString &filename);
+	HTREEITEM xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, const TString &name, TString &filename);
 	TiXmlElement *xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertAfter, TiXmlElement *xElm);
 };
 

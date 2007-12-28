@@ -1530,7 +1530,7 @@ int DcxTreeView::getChildCount(HTREEITEM *hParent) const {
  * blah
  */
 
-BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, const TString * search, const UINT SearchType ) {
+BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, const TString * search, const UINT SearchType ) const {
 
 	char itemtext[900];
 	this->getItemText(hItem, itemtext, 900);
@@ -1538,7 +1538,7 @@ BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, const TString * search, cons
 		return isRegexMatch(itemtext, search->to_chr());
 	else
 		return TString(itemtext).iswm(search->to_chr());
-  return FALSE;
+	return FALSE;
 }
 
 /*!
@@ -1546,7 +1546,7 @@ BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, const TString * search, cons
  *
  * blah
  */
-BOOL DcxTreeView::findItemText(HTREEITEM *hStart, HTREEITEM *result, const TString *queryText, const int n, int *matchCount, const UINT searchType) {
+BOOL DcxTreeView::findItemText(HTREEITEM *hStart, HTREEITEM *result, const TString *queryText, const int n, int *matchCount, const UINT searchType) const {
 	HTREEITEM item;
 
 	// Check if it should search child nodes
@@ -2180,7 +2180,7 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 	xmlLoadTree()
 	Loads items into a treeview control from a dcxml file.
 */
-HTREEITEM DcxTreeView::xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, TString &name, TString &filename)
+HTREEITEM DcxTreeView::xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, const TString &name, TString &filename)
 {
 	if (!IsFile(filename)) {
 		this->showErrorEx(NULL, NULL, "Unable To Access File: %s", filename.to_chr());
@@ -2231,7 +2231,7 @@ HTREEITEM DcxTreeView::xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, TS
 	Saves Items from a treeview control to a dcxml file.
 	NB: Removes any existing items from the named dataset.
 */
-bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, TString &name, TString &filename)
+bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString &filename)
 {
 	TiXmlDocument doc(filename.to_chr());
 	doc.SetCondenseWhiteSpace(false);

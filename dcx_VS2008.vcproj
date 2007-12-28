@@ -289,7 +289,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="UPX Compress"
-				CommandLine="$(InputDir)..\upx -9 &quot;$(TargetPath)&quot;"
+				CommandLine="$(InputDir)..\upx --ultra-brute &quot;$(TargetPath)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -473,7 +473,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="UPX Compress"
-				CommandLine="$(InputDir)..\upx -9 &quot;$(TargetPath)&quot;"
+				CommandLine="$(InputDir)..\upx --ultra-brute &quot;$(TargetPath)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -658,7 +658,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="UPX Compress the dll"
-				CommandLine="$(InputDir)..\upx -9 &quot;$(TargetPath)&quot;"
+				CommandLine="$(InputDir)..\upx --ultra-brute &quot;$(TargetPath)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -842,7 +842,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="UPX Compress"
-				CommandLine="$(InputDir)..\upx -9 &quot;$(TargetPath)&quot;"
+				CommandLine="$(InputDir)..\upx --ultra-brute &quot;$(TargetPath)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -1040,6 +1040,10 @@
 			</File>
 			<File
 				RelativePath=".\misc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ShellDialogs.cpp"
 				>
 			</File>
 			<File

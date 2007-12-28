@@ -1,4 +1,5 @@
 alias dcx {
+  if (%dcx_conflict) { echo 4 -s [DCX ERROR] Dll Conflict, Trying to load multiple copies of DCX: $+(06,$qt($dll(dcx.dll)),) and $+(03,$qt($scriptdirdcx\dcx.dll),) | halt }
   if ($isid) returnex $dll($scriptdirdcx\dcx.dll,$1,$2-)
   else dll " $+ $scriptdirdcx\dcx.dll" $1 $2-
 }
@@ -68,4 +69,13 @@ alias tab {
     inc %i
   }
   return %tab
+}
+on *:start: {
+  unset %dcx_conflict
+  if ($dll(dcx.dll) != $null) {
+    if ($v1 != $scriptdirdcx\dcx.dll) {
+      set %dcx_conflict 1
+      echo 4 -s [DCX ERROR] Dll Conflict: Trying to load multiple copies of DCX: $+(04,$qt($v1),) and $+(03,$qt($scriptdirdcx\dcx.dll),)
+    }
+  }
 }
