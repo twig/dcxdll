@@ -3,13 +3,14 @@ header("Cache-Control: no-cache, must-revalidate");	// HTTP/1.1
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");	// Date in the past
 
 // latest stable version
-$stable = '1.3.7';
+$stable = '1.4.0';
 
 // archive directory
 $archive = 'archive';
 
 // version => date released
 $versions = array(
+    '1.4.0' => 1198548748,
     '1.3.7' => 1168739772,
     '1.3.6' => 1159028955,
     '1.3.5' => 1155404032,
@@ -27,7 +28,6 @@ $versions = array(
 	'1.1.5' => 0,
 );
 
-//echo "hello downloader " . time();
 $version = isset($_GET['v']) ? $_GET['v'] : '';
 
 // if a version is specified

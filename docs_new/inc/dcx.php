@@ -99,7 +99,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				'CALLBACK_ALIAS' => "Callback Event alias name.",
 			),
 			'__notes' => array(
-			    "This command must be called before every other command or else nothing will work.",
+			    'This command must be called before any other [link page="xdialog"]/xdialog[/link] command can be used.',
 			),
 		),
 		"Version" => array(
@@ -193,18 +193,18 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				'STYLES' => array(
 					'__desc' => "Various options for the Open/Save file dialog.",
 					'__values' => array(
-						'createprompt' => "If the user enters a filename that does not exist, the dialog asks the user if they want to create it. Returns the filename (without creating it) if they click yes. (OpenDialog only)",
+						'createprompt' => "If the user enters a filename that does not exist, the dialog asks the user if they want to create it. Returns the filename (without creating it) if they click yes. [n]OpenDialog only[/n]",
 						'enablesizing' => "The dialog is resizable.",
-						'filemustexist' => "If the file doesn't exist in the current directory, the user will get an error prompt. (OpenDialog only)",
+						'filemustexist' => "If the file doesn't exist in the current directory, the user will get an error prompt. [n]OpenDialog only[/n]",
 						'showhidden' => "Forces the showing of system and hidden files, overriding the user setting to show or not show hidden files. A file that is marked both system and hidden is not shown. [o]XP+[/o]",
 						'noreadonly' => 'Hides the "Open as Read Only" checkbox.',
-						'nochangedir' => 'Restores the current directory to its original value if the user changed the directory while searching for files. (SaveDialog only)',
-						'multisel' => 'Allows user to select multiple files. (OpenDialog only)',
+						'nochangedir' => 'Restores the current directory to its original value if the user changed the directory while searching for files. [n]SaveDialog only[/n]',
+						'multisel' => 'Allows user to select multiple files. [n]OpenDialog only[/n]',
 						'getshortcuts' => 'Allows dialog box to return the path and file name of the selected shortcut (.LNK files)',
 						'nonetwork' => 'Hides the network button.',
 						'norecent' => "Does not add a link to the selected file in the file system directory that contains the user's most recently used documents.",
 						'novalidate' => "The dialog does not validate filenames to check if they're legal.",
-						'overwriteprompt' => 'If the user selects a file that already exists, the dialog asks the user if they want to overwrite it. Returns the filename (without clearing) if they click yes. (SaveDialog only)',
+						'overwriteprompt' => 'If the user selects a file that already exists, the dialog asks the user if they want to overwrite it. Returns the filename (without clearing) if they click yes. [n]SaveDialog only[/n]',
 						'pathmustexist' => "The dialog does not validate filenames to check if they're legal.",
 						'owner' => "Allows you to specify the parent dialog/window. (Must also specify [v]DNAME[/v] or [v]HWND[/v])",
 					),
@@ -225,7 +225,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			'__isid' => true,
 			'__notes' => array(
 				'Returns X Y W H when successful.',
-				"Returns 'D_ERROR: GetTaskbarPos' when unsuccessful.",
+				"Returns [v]D_ERROR: GetTaskbarPos[/v] when unsuccessful.",
 			),
 		),
                 
@@ -336,7 +336,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			'__isid' => true,
 		),
         'IsUsingDirectX' => array(
-            '__desc' => 'Returns [v]$true[/v] if the DLL includes DcxDirectShow. [v]$false[/v] otherwise.',
+            '__desc' => 'Returns [v]$true[/v] if the DLL includes [link page="directshow"]DcxDirectShow[/link]. [v]$false[/v] otherwise.',
             '__isid' => true,
         ),
         'IsUsingGDI' => array(
@@ -402,13 +402,13 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			'__return' => 'The return value can be one of the following: [v]abort[/v] [v]cancel[/v] [v]continue[/v] [v]ignore[/v] [v]no[/v] [v]ok[/v] [v]retry[/v] [v]tryagain[/v] [v]yes[/v]',
 			'__notes' => array(
 				'While it is possible to use this command during events, avoid using MsgBox in events as it will block some scripts from executing.',
-				'MsgBox can be used as an identifier or as a direct call. (eg. as $dcx(MsgBox) or /dcx MsgBox)',
+				'MsgBox can be used as an identifier or as a direct call. (eg. as [v]$dcx(MsgBox)[/v] or [v]/dcx MsgBox[/v])',
                                 'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />
 To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 			),
 		),
 		"xSignal" => array(
-			'__desc' => 'This command enables or disables signals from DCX whenever docked windows/dialogs/mIRC windows are resized, or when XStatusBar/XTray icons are clicked.',
+			'__desc' => 'This command enables or disables signals from DCX whenever docked windows/dialogs/mIRC windows are resized, or when [link page="xstatusbar"]XStatusBar[/link]/[link page="xtray"]XTray[/link] icons are clicked.',
 			'__cmd' => '[BOOL] (+FLAGS)',
 			'__eg' => array(
                                 '1',
@@ -419,19 +419,19 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				'+FLAGS' => array(
 					'__desc' => 'Flags to finegrain the xSignal settings.',
 					'__values' => array(
-						'd' => 'Enable or disable XDock signals.',
-						's' => 'Enable or disable XStatusBar signals.',
-						't' => 'Enable or disable XTray signals.',
+						'd' => 'Enable or disable [link page="xdock"]XDock[/link] signals.',
+						's' => 'Enable or disable [link page="xstatusbar"]XStatusBar[/link] signals.',
+						't' => 'Enable or disable [link page="xtray"]XTray[/link] signals.',
 					),
 				),
                                 
 			),
 			'__notes' => array(
                                 'If [p]+FLAGS[/p] is not specified, the setting specified in [p]BOOL[/p] is set on all signal types.',
-				'This must be enabled in order to receive sizing events upon non-DCX windows resizing (used with [f]/xdock[/f], where you cannot [f]/dcx Mark[/f] @windows or #channels).',
-				"Regular [f]/dcx Mark[/f]'d dialogs will still receive events in the callback aliases.",
+				'This must be enabled in order to receive sizing events upon non-DCX windows resizing (used with [link page="xdock"]/xdock[/link], where you cannot [link section="general" flag="Mark"]/dcx Mark[/link] @windows or #channels).',
+				'Dialogs marked by [link section="general" flag="Mark"]/dcx Mark[/link] will still receive events normally in the callback aliases.',
 				'A signal will only be sent for a window being resized if it is the main mIRC window, docked, or contains a docked window.',
-				'Refer to the section [f]XDock/XStatusBar/XTray Signals[/f] documentation for more information on feature specific messages.',
+				'Refer to the section [link page="xdock"]XDock[/link]/[link page="xstatusbar"]XStatusBar[/link]/[link page="xtray"]XTray[/link] Signal documentation for more information on feature specific messages.',
 			),
 		),
 		'WindowProps' => array(

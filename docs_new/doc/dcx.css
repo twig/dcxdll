@@ -94,14 +94,14 @@ a.value {
 	color: #D60000;
 }
 a.event {
-	color: #009900;
+	color: #090;
 }
-a.eventreturn {
-	color: #007700;
+a.returnevent {
+	color: #070;
 }
 /* TODO: unused class */
 a.property {
-	color: #ff0000;
+	color: #f00;
 }
 
 .menuleft ul, .menuright ul {
@@ -341,14 +341,15 @@ td.menuright div a.header div {
 }
 td.menuright div a.flag div { 
 	font-size: 8pt;
-	padding-left:8px;
 	font-weight:normal;
 	padding: 1px;
+	padding-left:8px;
 }
 td.menuright div a.flag:hover div { 
 	background:url("images/buttonhover.jpg") top repeat-x;
 	border: 1px solid #DDCF9B;
 	padding: 0px;
+	padding-left:7px;
 }
 
 

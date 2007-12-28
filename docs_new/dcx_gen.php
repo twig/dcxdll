@@ -1,64 +1,9 @@
 <?php
 require('dcx_inc.php');
+require('dcx_wiki.php');
 require('dcx_changes.php');
 
-$PAGES = array(
-    "index" => "DCX",
-    'changes' => 'Version History',
-    'xpopup' => 'XPopup',
-    'xdock' => 'XDock',
-    'xstatusbar' => 'XStatusBar',
-    'xtray' => 'XTray',
-    'xtreebar' => 'XTreebar',
-    'xmenubar' => 'XMenuBar',
-	'dcxml' => 'DCXML',
-    
-    'cla' => 'Cell Layout Algorithm',
-    'dcxvsmdx' => 'DCX vs MDX',
-    'archive' => 'Download Archive',
-    'tutorials' => 'Tutorials',
-
-	'dcx' => 'DCX Commands',
-	'xdialog' => 'Marked Dialog',
-	'xdid' => 'Controls',
-
-    "button" => "Button",
-    "pbar" => "Progress Bar",
-    "line" => "Line",
-    "text" => "Text",
-    'link' => 'Link',
-    'image' => 'Image',
-    'check' => 'Check',
-    'radio' => "Radio",
-    'calendar' => "Calendar",
-    'datetime' => "DateTime Picker",
-    'webctrl' => "Web Control",
-    'updown' => 'UpDown',
-    'ipaddress' => "IP Address",
-    'colorcombo' => "ColorCombo",
-    'richedit' => 'RichEdit',
-    'trackbar' => 'TrackBar',
-    'comboex' => 'ComboEx',
-    'statusbar' => "StatusBar",
-    'dialog' => "Dialog (embedded)",
-    'window' => "Window (embedded)",
-    'toolbar' => "ToolBar",
-    'list' => 'List',
-    'scroll' => 'Scroll',
-    'edit' => 'Edit',
-    'treeview' => 'Treeview',
-    'listview' => 'Listview',
-    'box' => 'Box',
-    'divider' => 'Divider',
-    'panel' => 'Panel',
-    'tab' => 'Tab',
-    'rebar' => 'Rebar',
-    'pager' => 'Pager',
-    'stacker' => 'Stacker',
-    'directshow' => 'Directshow',
-);
-
-array_walk_recursive($CHANGES, "wikiData");
+// array_walk_recursive($CHANGES, "wikiData");
 
 // ----------------------------------------------------------------------------
 // load up all the files first
@@ -74,6 +19,8 @@ foreach ($PAGES as $page => $pagelabel) {
 // page generation begins here
 // function generate() {}
 foreach ($PAGES as $page => $pagelabel) {
+	$CURRENTPAGE = $page;
+	
 	// set variables for timing
 	$start = explode(" ", microtime());
 	$start = $start[0] + $start[1];

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-<title>DCX Box - Dialog Control Xtension DLL v1.4.0 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX Box - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -25,7 +25,7 @@
 		<td>
 		</td>
 		<td style="text-align: center;"></td>
-		<td style="text-align: right;">v1.4.0</td>
+		<td style="text-align: right;">v1.4.1</td>
 	</tr>
 </table>
 
@@ -123,7 +123,7 @@
 		<td class="style"><a name="style.vgradient" class="style">vgradient</a></td>
 		<td>Draws a vertical gradient with the colors specified.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Applying the border <a class="style">regular</a>+<a class="style">dialog frame</a> border styles on the box will give it a titlebar. (/xdid -x DNAME BOX_ID +bd)</li><li><a class="style">shadow</a> will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using <a class="value">xdid -C</a></li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Applying the border <a class="style">regular</a>+<a class="style">dialog frame</a> border styles on the box will give it a titlebar. (eg. <a class='value' href='xdid.htm#xdid.x'>/xdid -x DNAME BOX_ID +bd</a>)</li><li><a class="style">shadow</a> will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or <a class='value' href='dcx.htm#general.GetSystemColor'>$dcx(GetSystemColor, COLOR_WINDOWTEXT)</a> respectively). Change it by using <a class='value' href='xdid.htm#xdid.big.C'>xdid -C</a></li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdid"></a>/xdid flags</td></tr>
@@ -149,10 +149,10 @@
 	<tr>
 		<td class="param">CONTROL</td>
 		<td>The type of DCX Control to create. Values can be:<br />
-<a class="value">button</a>, <a class="value">calendar</a>, <a class="value">colorcombo</a>, <a class="value">comboex</a>, <a class="value">datetime</a>, <a class="value">directshow</a>, <a class="value">ipaddress</a>, <a class="value">listview</a>, <a class="value">pbar</a>, <a class="value">richedit</a>, <a class="value">statusbar</a>, <a class="value">toolbar</a>, <a class="value">trackbar</a>, <a class="value">treeview</a>, <a class="value">updown</a>, <a class="value">webctrl</a><br />
-<a class="value">box</a>, <a class="value">check</a>, <a class="value">edit</a>, <a class="value">image</a>, <a class="value">line</a>, <a class="value">link</a>, <a class="value">list</a>, <a class="value">radio</a>, <a class="value">scroll</a>, <a class="value">text</a><br />
-<a class="value">divider</a>, <a class="value">pager</a>, <a class="value">panel</a>, <a class="value">rebar</a>, <a class="value">stacker</a>, <a class="value">tab</a><br />
-<a class="value">dialog</a> or <a class="value">window</a>.</td>
+<a class='value' href='button.htm'>button</a>, <a class='value' href='calendar.htm'>calendar</a>, <a class='value' href='colorcombo.htm'>colorcombo</a>, <a class='value' href='comboex.htm'>comboex</a>, <a class='value' href='datetime.htm'>datetime</a>, <a class='value' href='directshow.htm'>directshow</a>, <a class='value' href='ipaddress.htm'>ipaddress</a>, <a class='value' href='listview.htm'>listview</a>, <a class='value' href='pbar.htm'>pbar</a>, <a class='value' href='richedit.htm'>richedit</a>, <a class='value' href='statusbar.htm'>statusbar</a>, <a class='value' href='toolbar.htm'>toolbar</a>, <a class='value' href='trackbar.htm'>trackbar</a>, <a class='value' href='treeview.htm'>treeview</a>, <a class='value' href='updown.htm'>updown</a>, <a class='value' href='webctrl.htm'>webctrl</a><br />
+<a class='value' href='box.htm'>box</a>, <a class='value' href='check.htm'>check</a>, <a class='value' href='edit.htm'>edit</a>, <a class='value' href='image.htm'>image</a>, <a class='value' href='line.htm'>line</a>, <a class='value' href='link.htm'>link</a>, <a class='value' href='list.htm'>list</a>, <a class='value' href='radio.htm'>radio</a>, <a class='value' href='scroll.htm'>scroll</a>, <a class='value' href='text.htm'>text</a><br />
+<a class='value' href='divider.htm'>divider</a>, <a class='value' href='pager.htm'>pager</a>, <a class='value' href='panel.htm'>panel</a>, <a class='value' href='rebar.htm'>rebar</a>, <a class='value' href='stacker.htm'>stacker</a>, <a class='value' href='tab.htm'>tab</a><br />
+<a class='value' href='dialog.htm'>dialog</a> or <a class='value' href='window.htm'>window</a>.</td>
 	</tr>
 	<tr>
 		<td class="param">X</td>
@@ -279,7 +279,7 @@
 		<td class="param">H</td>
 		<td>Fixed height of control. (used with <a class="value">fixed</a> cell)</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>See the <a href='layout.htm'>Cell Layout Algorithm</a> explanation for concrete examples.</li><li>If you use the <a class="value">update</a> command in the <a class="event">init</a> event of a dialog, you will have to use ".timer 1 0 xdialog -l dialog update" as a glitch with XP and themes disabled prevents windows from appearing. The timer corrects this problem.</li><li>When using the <a class="value">space</a> command, the <a class="param">ID</a> <a class="param">WEIGHT</a> <a class="param">W</a> <a class="param">H</a> are in fact the <a class="param">LEFT</a> <a class="param">TOP</a> <a class="param">RIGHT</a> <a class="param">BOTTOM</a> spacings</li><li>Use the value 0 for the fields not used as the command expects them to be filled even though they aren't used.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>See the <a class='value' href='layout.htm'>Cell Layout Algorithm</a> explanation for concrete examples.</li><li>If you use the <a class="value">update</a> command in the <a class="event">init</a> event of a dialog, you will have to use ".timer 1 0 xdialog -l dialog update" as a glitch with XP and themes disabled prevents windows from appearing. The timer corrects this problem.</li><li>When using the <a class="value">space</a> command, the <a class="param">ID</a> <a class="param">WEIGHT</a> <a class="param">W</a> <a class="param">H</a> are in fact the <a class="param">LEFT</a> <a class="param">TOP</a> <a class="param">RIGHT</a> <a class="param">BOTTOM</a> spacings</li><li>Use the value <a class="value">0</a> for the fields not used as the command expects them to be filled even though they aren't used.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -480,7 +480,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 25th December, 07</td>
+		<td style="text-align: right;">Last Updated: 28th December, 07</td>
 	</tr>
 </table>
 <div style="text-align: center;">

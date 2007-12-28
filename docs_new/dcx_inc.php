@@ -23,7 +23,7 @@ define('SECTION_XMENUBAR'     , 'xmenubar');
 define('SECTION_XMENUBARPROPS', 'xmenubarprop');
 
 // global variables
-$VERSION = "1.4.0";
+$VERSION = '1.4.1';
 
 $DOCPATH = "./doc/";
 $INCPATH = "./inc/";
@@ -50,8 +50,64 @@ $XTREEBARPROPS = array();
 $XMENUBAR = array();
 $XMENUBARPROPS = array();
 
+$CURRENTPAGE = '';
 $SECTION = 0;
 
+$PAGES = array(
+    "index" => "DCX",
+    'changes' => 'Version History',
+    'xpopup' => 'XPopup',
+    'xdock' => 'XDock',
+    'xstatusbar' => 'XStatusBar',
+    'xtray' => 'XTray',
+    'xtreebar' => 'XTreebar',
+    'xmenubar' => 'XMenuBar',
+	'dcxml' => 'DCXML',
+    
+    'cla' => 'Cell Layout Algorithm',
+    'dcxvsmdx' => 'DCX vs MDX',
+    'archive' => 'Download Archive',
+    'tutorials' => 'Tutorials',
+
+	'dcx' => 'DCX Commands',
+	'xdialog' => 'Marked Dialog',
+	'xdid' => 'Controls',
+
+    "button" => "Button",
+    "pbar" => "Progress Bar",
+    "line" => "Line",
+    "text" => "Text",
+    'link' => 'Link',
+    'image' => 'Image',
+    'check' => 'Check',
+    'radio' => "Radio",
+    'calendar' => "Calendar",
+    'datetime' => "DateTime Picker",
+    'webctrl' => "Web Control",
+    'updown' => 'UpDown',
+    'ipaddress' => "IP Address",
+    'colorcombo' => "ColorCombo",
+    'richedit' => 'RichEdit',
+    'trackbar' => 'TrackBar',
+    'comboex' => 'ComboEx',
+    'statusbar' => "StatusBar",
+    'dialog' => "Dialog (embedded)",
+    'window' => "Window (embedded)",
+    'toolbar' => "ToolBar",
+    'list' => 'List',
+    'scroll' => 'Scroll',
+    'edit' => 'Edit',
+    'treeview' => 'Treeview',
+    'listview' => 'Listview',
+    'box' => 'Box',
+    'divider' => 'Divider',
+    'panel' => 'Panel',
+    'tab' => 'Tab',
+    'rebar' => 'Rebar',
+    'pager' => 'Pager',
+    'stacker' => 'Stacker',
+    'directshow' => 'Directshow',
+);
 
 // information to be displayed in the CLA details (for dialog, panel, box, etc)
 $CLA = array(
@@ -92,10 +148,10 @@ $CLA = array(
 		'H' => "Fixed height of control. (used with [v]fixed[/v] cell)",
 	),
 	'__notes' => array(
-	    "See the <a href='layout.htm'>Cell Layout Algorithm</a> explanation for concrete examples.",
+	    'See the [link page="cla"]Cell Layout Algorithm[/link] explanation for concrete examples.',
 	    "If you use the [v]update[/v] command in the [e]init[/e] event of a dialog, you will have to use \".timer 1 0 xdialog -l dialog update\" as a glitch with XP and themes disabled prevents windows from appearing. The timer corrects this problem.",
 	    "When using the [v]space[/v] command, the [p]ID[/p] [p]WEIGHT[/p] [p]W[/p] [p]H[/p] are in fact the [p]LEFT[/p] [p]TOP[/p] [p]RIGHT[/p] [p]BOTTOM[/p] spacings",
-	    "Use the value 0 for the fields not used as the command expects them to be filled even though they aren't used.",
+	    "Use the value [v]0[/v] for the fields not used as the command expects them to be filled even though they aren't used.",
 	),
 );
 
@@ -139,46 +195,6 @@ if (!function_exists('array_walk_recursive')) {
 		return true;
 	}
 }
-
-// do formatting of wiki code here
-// http://www.phpit.net/article/create-bbcode-php/
-function wikiData(&$value, $userdata = "") {
-	// new code
-	$str = $value;
-
-	// TODO: links for tags
-	$simple_search = array(
-		'/\[v\](.*?)\[\/v\]/is', // value
-		'/\[e\](.*?)\[\/e\]/is', // event
-		'/\[r\](.*?)\[\/r\]/is', // returnevent
-		'/\[s\](.*?)\[\/s\]/is', // style
-		'/\[p\](.*?)\[\/p\]/is', // param
-//		'/\[i\](.*?)\[\/i\]/is', // property - unused
-		'/\[o\](.*?)\[\/o\]/is', // operating system
-                '/\[os\](.*?)\[\/os\]/is', // operating system
-		'/\[n\](.*?)\[\/n\]/is', // note
-		'/\[f\](.*?)\[\/f\]/is', // flag
-		'/\[code\](.*?)\[\/code\]/is', // code
-	);
-
-	$simple_replace = array(
-		'<a class="value">$1</a>',
-		'<a class="event">$1</a>',
-		'<a class="returnevent">$1</a>',
-		'<a class="style">$1</a>',
-		'<a class="param">$1</a>',
-//		'<a class="property">$1</a>',
-		'<a class="os">($1)</a>',
-                '<a class="os">($1)</a>',
-		'<a class="note">Note:</a> $1',
-		'<a class="value">$1</a>', // flag
-		'<pre class="code">$1</pre>', // code
-	);
-
-	// Do simple BBCode's
-	$value = preg_replace($simple_search, $simple_replace, $str);
-}
-
 
 // Generates styles for the specified page
 function gen_styles($page, $pagelabel) {
@@ -1238,9 +1254,9 @@ function print_changes($version, $changes) {
 	// check if the array is nested/organised
 	if (is_array($changes)) {
 		$keys = array_keys($changes);
-		
-		if (is_array($changes[$keys[0]])) {
-			$nested = true;
+                
+                if ((count($keys) > 0) && is_array($changes[$keys[0]])) {
+		    $nested = true;
 		}
 	}
 	
