@@ -535,6 +535,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ShellDialogs.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\windowFunctions.cpp"
 				>
 			</File>
