@@ -1158,9 +1158,6 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	return CallWindowProc(g_OldmIRCWindowProc, mHwnd, uMsg, wParam, lParam);
 }
 
-DcxDialogCollection dcxDialogs() {
-	return Dialogs;
-}
 
 BOOL isMenuBarMenu(const HMENU hMenu, const HMENU hMatch) {
 	HMENU hTemp;

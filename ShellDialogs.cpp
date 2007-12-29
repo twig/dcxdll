@@ -111,6 +111,117 @@ mIRC(SaveDialog) {
 
 
 /*!
+* \brief Shows CommonDialog for Open/Save
+*
+* Shows and returns the file selected
+*
+* \return > TString "" if cancelled
+*         > TString Path+Filename
+*/
+TString FileDialog(const TString & data, const TString &method, const HWND pWnd) {
+	DWORD style = OFN_EXPLORER;
+	OPENFILENAME ofn;
+	char szFilename[900];
+
+	// seperate the tokenz
+	TString styles(data.gettok(1, TSTAB));
+	TString file(data.gettok(2, TSTAB));
+	TString filter(data.gettok(3, TSTAB));
+
+	// Get Current dir for resetting later.
+	UINT tsBufSize = GetCurrentDirectory(0, NULL);
+	TString tsCurrentDir((UINT)tsBufSize);
+	GetCurrentDirectory(tsBufSize,tsCurrentDir.to_chr());
+
+	styles.trim();
+	file.trim();
+	filter.trim();
+
+	// format the filter into the format WinAPI wants, with double NULL TERMINATOR at end
+	if (filter == "")
+		filter = "All Files (*.*)|*.*";
+
+	filter += '\0';
+	filter.replace('|', '\0');
+
+	// set up the OFN struct
+	ZeroMemory(&ofn, sizeof(ofn));
+	wsprintf(szFilename, "%s", file.to_chr());
+
+	ofn.lStructSize = sizeof(ofn); // SEE NOTE BELOW
+	ofn.hwndOwner = pWnd;
+	ofn.lpstrFilter = filter.to_chr();
+	ofn.lpstrFile = szFilename;
+	ofn.nMaxFile = 900;
+	ofn.lpstrDefExt = "";
+
+	for (int i = 1; i <= styles.numtok( ); i++) {
+		if (styles.gettok( i ) == "multisel")
+			style |= OFN_ALLOWMULTISELECT;
+		else if (styles.gettok( i ) == "createprompt")
+			style |= OFN_CREATEPROMPT;
+		// FIXME: explorer style resizable on default, cant get rid of that shit
+		else if (styles.gettok( i ) == "enablesizing")
+			style |= OFN_ENABLESIZING;
+		else if (styles.gettok( i ) == "filemustexist")
+			style |= OFN_FILEMUSTEXIST; // (open)
+		else if (styles.gettok( i ) == "showhidden")
+			style |= OFN_FORCESHOWHIDDEN; // 2k/xp
+		else if (styles.gettok( i ) == "noreadonly")
+			style |= OFN_HIDEREADONLY;
+		else if (styles.gettok( i ) == "nochangedir")
+			style |= OFN_NOCHANGEDIR; // (save)
+		else if (styles.gettok( i ) == "getshortcuts")
+			style |= OFN_NODEREFERENCELINKS;
+		else if (styles.gettok( i ) == "nonetwork")
+			style |= OFN_NONETWORKBUTTON;
+		else if (styles.gettok( i ) == "novalidate")
+			style |= OFN_NOVALIDATE;
+		else if (styles.gettok( i ) == "norecent")
+			style |= OFN_DONTADDTORECENT; // 2k/xp
+		else if (styles.gettok( i ) == "overwriteprompt")
+			style |= OFN_OVERWRITEPROMPT; // save
+		else if (styles.gettok( i ) == "pathmustexist")
+			style |= OFN_PATHMUSTEXIST;
+		else if (styles.gettok( i ) == "owner")
+			ofn.hwndOwner = FindOwner(styles, pWnd);
+	}
+
+	ofn.Flags = style;
+
+	TString tsResult;
+
+	if (method == "OPEN" && GetOpenFileName(&ofn)) {
+		// if there are multiple files selected
+		if (style & OFN_ALLOWMULTISELECT) {
+			char *p = szFilename; 
+
+			// process the file name at p since its null terminated
+			while (*p != '\0') { 
+				if (tsResult != "")
+					tsResult += "|";
+
+				tsResult += p;
+				p += strlen(p)+1;
+			} 
+		}
+		// copy the string directly
+		else
+			tsResult = szFilename;
+	}
+	else if (method == "SAVE" && GetSaveFileName(&ofn))
+		tsResult = szFilename;
+
+	// Reset current dir.
+	if (tsCurrentDir.len() > 0)
+		SetCurrentDirectory(tsCurrentDir.to_chr());
+
+	return tsResult;
+}
+
+
+
+/*!
 * \brief Shows CommonDialog for Selecting Folders/Directories
 *
 * Shows and returns the folder selected
