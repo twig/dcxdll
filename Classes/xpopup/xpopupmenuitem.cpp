@@ -314,17 +314,11 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOL
 			break;
 		}
 
-		case XPopupMenu::XPMS_VERTICAL_REV:
-		{
-			DrawVerticalBar(lpdis, lpcol, TRUE);
-			break;
-		}
-
+		
 		case XPopupMenu::XPMS_VERTICAL:
-		{
-			DrawVerticalBar(lpdis, lpcol, FALSE);
+		case XPopupMenu::XPMS_VERTICAL_REV:
+			DrawVerticalBar(lpdis, lpcol, (this->m_pXParentMenu->getStyle() == XPopupMenu::XPMS_VERTICAL_REV));
 			break;
-		}
 
 		case XPopupMenu::XPMS_ICY:
 		case XPopupMenu::XPMS_ICY_REV:
@@ -642,6 +636,24 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 
 
 void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOLEAN bReversed) {
+	RECT rc;
+
+	// Experimental Code: Crude, but works nicely when no scrolling is involved. Also draws over items which have finished drawing.
+	/*
+	GetClipBox(lpdis->hDC, &rc);
+
+	rc.left = XPMI_BOXLPAD;
+	rc.right = XPMI_BOXLPAD + XPMI_BOXWIDTH;
+
+	DrawGradient(lpdis->hDC, &rc, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+
+	// DEBUG TO STOP REST OF CODE
+	if (1)
+		return;
+	*/
+
+	// Legacy Code: Works on regular menus, but does not redraw correctly when large menu is shown and scrolled.
+	/*
 	RECT rcIntersect;
 	RECT rcClip;
 	RECT rcBar;
@@ -652,7 +664,8 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 
 	rcBar.left = XPMI_BOXLPAD;
 	rcBar.right = XPMI_BOXLPAD + XPMI_BOXWIDTH;
-	rcBar.bottom += 1; // prevent the black line at the bottom
+	// prevent the black line at the bottom
+	rcBar.bottom += 1;
 
 	// get the rect of the box which will draw the box
 	SetRect(&rcIntersect, rcBar.left, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom);
@@ -680,6 +693,124 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 		}
 		DeleteDC(hdcBuffer);
 	}
+	*/
+
+	// Working code: Calculates height of complete menu, and draws gradient to fill. Samples taken off complete gradient when needed.
+	///*
+	// Get height of all menu items
+	int menuH = 0;
+	int i = 0;
+
+	while (GetMenuItemRect(mIRCLink.m_mIRCHWND, (HMENU) lpdis->hwndItem, i, &rc) != FALSE) {
+		menuH += rc.bottom - rc.top;
+		i++;
+	}
+
+	RECT rcIntersect;
+	RECT rcBar;
+
+	// Fix to remove black line at the bottom
+	menuH++;
+
+	// get the size of the bar on the left
+	//GetClipBox(lpdis->hDC, &rcClip);
+	SetRect(&rcBar, XPMI_BOXLPAD, 0, XPMI_BOXLPAD + XPMI_BOXWIDTH, menuH);
+
+	// get the rect of the box which will draw JUST the box (prevents redraw over items already done)
+	SetRect(&rcIntersect, rcBar.left, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom);
+
+	// set up a buffer to draw the whole gradient bar
+	HDC hdcBuffer = CreateCompatibleDC(lpdis->hDC);
+
+	if (hdcBuffer != NULL) {
+		HBITMAP hbmp = CreateCompatibleBitmap(lpdis->hDC, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top);
+
+		if (hbmp != NULL) {
+			HBITMAP hbmpOld = (HBITMAP) SelectObject(hdcBuffer, hbmp);
+
+			// draw the gradient into the buffer
+			if (bReversed)
+				DrawGradient(hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+			else
+				DrawGradient(hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+
+			// copy the box we want from the whole gradient bar
+			BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
+
+			// clean up the memory object
+			DeleteObject(	SelectObject(hdcBuffer, hbmpOld) );
+		}
+		DeleteDC(hdcBuffer);
+	}
+	//*/
+
+	// Experimental code: Draws gradient to fill visible area. Calculates height of complete menu and stretches to fit.
+	/*
+	// Get height of all menu items
+	int menuH = 0;
+	int clipH = 0;
+	double skew = 0;
+	int i = 0;
+
+	while (GetMenuItemRect(mIRCLink.m_mIRCHWND, (HMENU) lpdis->hwndItem, i, &rc) != FALSE) {
+		menuH += rc.bottom - rc.top;
+		i++;
+	}
+
+	RECT rcBar;
+
+	// Get the size of the visible bar on the left
+	GetClipBox(lpdis->hDC, &rcBar);
+	clipH = rcBar.bottom - rcBar.top;
+	SetRect(&rcBar, XPMI_BOXLPAD, rcBar.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, rcBar.bottom);
+
+	skew = (double) ((double)clipH / (double)menuH);
+mIRCDebug("skew = %ld, clip %d, menu %d", skew, clipH, menuH);
+mIRCDebug("lpdis rect = %d %d", lpdis->rcItem.top, lpdis->rcItem.bottom);
+
+	// set up a buffer to draw the whole gradient bar
+	HDC hdcBuffer = CreateCompatibleDC(lpdis->hDC);
+
+	if (hdcBuffer != NULL) {
+		HBITMAP hbmp = CreateCompatibleBitmap(lpdis->hDC, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top);
+
+		if (hbmp != NULL) {
+			HBITMAP hbmpOld = (HBITMAP) SelectObject(hdcBuffer, hbmp);
+
+			// draw the gradient into the buffer
+			if (bReversed)
+				DrawGradient(hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+			else
+				DrawGradient(hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+
+			// copy the box we want from the whole gradient bar
+			StretchBlt(lpdis->hDC,
+				rcBar.left,
+				//rcIntersect.top,
+				lpdis->rcItem.top, // ?
+				rcBar.right - rcBar.left,
+				//rcIntersect.bottom - rcIntersect.top,
+				lpdis->rcItem.bottom - lpdis->rcItem.top, // ?
+				hdcBuffer,
+				rcBar.left, // x
+				rcBar.top * skew, // y ?
+				rcBar.right - rcBar.left, // w
+				(rcBar.bottom - rcBar.top) * skew, // h ?
+				SRCCOPY);
+
+			mIRCDebug("skew %lf, top %d, height %d",
+				skew,
+				rcBar.top * skew,
+				(rcBar.bottom - rcBar.top) * skew);
+
+			// clean up the memory object
+			DeleteObject(	SelectObject(hdcBuffer, hbmpOld) );
+		}
+		DeleteDC(hdcBuffer);
+	}
+
+	mIRCcomEX("/echo 4 -s /end %d ------", lpdis->itemID);
+	*/
 }
 
 
