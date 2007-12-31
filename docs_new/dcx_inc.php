@@ -321,18 +321,13 @@ else
 			<a style="color:#000000;" href='index.htm'>Home</a> |
 			<a style="color:#000000;" href="archive.htm">Download</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
-			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a>		</td>
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+                        <span class="version">v<?php echo $VERSION; ?></span>
+		</td>
 	</tr>
 </table>
 
-<table class="bar" cellpadding="0" cellspacing="0" border="0">
-	<tr>
-		<td>
-		</td>
-		<td style="text-align: center;"></td>
-		<td style="text-align: right;">v<?php echo $VERSION; ?></td>
-	</tr>
-</table>
+<table class="bar"><tr><td colspan="3">&nbsp;</td></tr></table>
 
 <table width="100%"  border="0" cellpadding="0" cellspacing="0">
 	<tr>
@@ -397,7 +392,6 @@ function dcxdoc_menu_right($page) {
         $XSTATUSBAR, $XSTATUSBARPROPS, $XTREEBAR, $XTREEBARPROPS, $XMENUBAR, $XMENUBARPROPS;
 
 ?><td width="80%" valign="top" class="menuright">
-	<br />
 <?php
     print_menu_items($GENERAL, SECTION_GENERAL, "General Commands");
     print_menu_items($STYLES, SECTION_STYLES, "Control Styles");

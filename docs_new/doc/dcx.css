@@ -24,7 +24,8 @@ body,div,td,th {
 
 body {
 	margin-top: 0px;
-	margin-left: 5px;
+	margin-left: 0px;
+	margin-right: 0px;
 }
 
 img {
@@ -50,6 +51,8 @@ ul {
 	border: 1px none #6B8FCB;
 	table-layout: fixed;
 	font-weight: bold;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 .divpink {
@@ -309,6 +312,16 @@ ul.nav li ul a:hover div {
 }
 
 /* Top horizontal menu */
+span.version {
+	font-weight: bold;
+	padding-top: 5px;
+	padding-right: 5px;
+}
+
+td.sitenav {
+	padding-right: 5px;
+}
+
 td.sitenav a {
 	font-size: 9pt;
 	font-family: "Trebuchet MS",inherit;
@@ -327,6 +340,7 @@ td.sitenav a:hover {
 td.menuright div.rightmenu { 
 	margin-bottom:5px;
 	margin-left: 10px;
+	margin-right: 5px;
 }
 
 td.menuright div a div {

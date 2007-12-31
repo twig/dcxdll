@@ -881,27 +881,6 @@ void XPopupMenu::deleteAllItemData( HMENU hMenu ) {
  * blah
  */
 
-LRESULT CALLBACK XPopupMenu::XPopupMenuProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
-
-  switch ( uMsg ) {
-
-    case WM_NCDESTROY:
-      {
-        return DefWindowProc( mHwnd, uMsg, wParam, lParam );
-      }
-      break;
-
-    default:
-      return DefWindowProc( mHwnd, uMsg, wParam, lParam );
-  }
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
 LRESULT CALLBACK XPopupMenu::XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 
   switch ( uMsg ) {

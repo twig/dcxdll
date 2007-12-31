@@ -9,7 +9,7 @@
  *
  * \b Revisions
  *
- * © ScriptsDB.org - 2007
+ * © ScriptsDB.org - 2007-2008
  */
 
 #include "xmenubar.h"
