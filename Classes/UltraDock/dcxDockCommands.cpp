@@ -139,15 +139,15 @@ void UnDock(const HWND hwnd)
 		DCXError("/xdock -u","Window is not docked");
 		return;
 	}
-  // Remove Style for undocking purpose
-  RemStyles(hwnd,GWL_STYLE,WS_BORDER);
-  //WS_CHILDWINDOW |
-  RemStyles(hwnd,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE);
-  // Add Styles input by user
-  AddStyles(hwnd,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);	
-  AddStyles(hwnd,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE);
-  RemStyles(hwnd,GWL_STYLE,WS_CHILDWINDOW);
-  SetParent(hwnd, NULL);
+	// Remove Style for undocking purpose
+	RemStyles(hwnd,GWL_STYLE,WS_BORDER);
+	//WS_CHILDWINDOW |
+	RemStyles(hwnd,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE);
+	// Add Styles input by user
+	AddStyles(hwnd,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);	
+	AddStyles(hwnd,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE);
+	RemStyles(hwnd,GWL_STYLE,WS_CHILDWINDOW);
+	SetParent(hwnd, NULL);
 	SetWindowPos(hwnd,NULL,0,0,0,0,SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_FRAMECHANGED);
 	RemoveProp(hwnd,"dcx_docked");
 }
@@ -197,48 +197,43 @@ bool DockWindow(const HWND mWnd, const HWND temp, const char *find, const TStrin
 			DCXError("/xdock","Unable to SetProp");
 			return false;
 		}
-
-		DWORD flags = DOCKF_NORMAL;
-
-		if (flag.len() > 1) {
-			switch(flag[1])
-			{
-				case 's':
-					flags = DOCKF_SIZE;
-					break;
-
-				case 'h':
-					flags = DOCKF_AUTOH;
-					break;
-
-				case 'v':
-					flags = DOCKF_AUTOV;
-					break;
-
-				default:
-					flags = DOCKF_NORMAL;
-					break;
-			}
-		}
-
-		if (flag.find('b',0))
-			flags |= DOCKF_NOSCROLLBARS;
-		else if (flag.find('B',0))
-			flags |= DOCKF_SHOWSCROLLBARS;
-
-		SetProp(temp,"dcx_docked",(HANDLE) flags);
-		//ShowScrollBar(sWnd,SB_BOTH,FALSE);
-		AddStyles(sWnd,GWL_STYLE,WS_CLIPSIBLINGS|WS_CLIPCHILDREN); // this helps with rendering glitches.
-		// set parent and move it to top-left corner
-		SetParent(temp,sWnd);
-		MoveWindow(temp,0,0,rc.right-rc.left,rc.bottom-rc.top,1);
-		EnumChildWindows(sWnd,(WNDENUMPROC)SizeDocked,NULL);
-		return true;
 	}
-	else
-		DCXError("/xdock","Unable to find destination Window");
+	DWORD flags = DOCKF_NORMAL;
 
-	return false;
+	if (flag.len() > 1) {
+		switch(flag[1])
+		{
+			case 's':
+				flags = DOCKF_SIZE;
+				break;
+
+			case 'h':
+				flags = DOCKF_AUTOH;
+				break;
+
+			case 'v':
+				flags = DOCKF_AUTOV;
+				break;
+
+			default:
+				flags = DOCKF_NORMAL;
+				break;
+		}
+	}
+
+	if (flag.find('b',0))
+		flags |= DOCKF_NOSCROLLBARS;
+	else if (flag.find('B',0))
+		flags |= DOCKF_SHOWSCROLLBARS;
+
+	SetProp(temp,"dcx_docked",(HANDLE) flags);
+	//ShowScrollBar(sWnd,SB_BOTH,FALSE);
+	AddStyles(sWnd,GWL_STYLE,WS_CLIPSIBLINGS|WS_CLIPCHILDREN); // this helps with rendering glitches.
+	// set parent and move it to top-left corner
+	SetParent(temp,sWnd);
+	MoveWindow(temp,0,0,rc.right-rc.left,rc.bottom-rc.top,1);
+	EnumChildWindows(sWnd,(WNDENUMPROC)SizeDocked,NULL);
+	return true;
 }
 
 // [SWITCH] [hwnd to dock] [+options] (destination hwnd)

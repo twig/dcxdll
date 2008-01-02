@@ -29,7 +29,10 @@ grey icons
  */
 
 DcxToolBar::DcxToolBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles )
-: DcxControl( ID, p_Dialog ) 
+: DcxControl( ID, p_Dialog )
+, m_hItemFont(NULL)
+, m_hOldItemFont(NULL)
+, m_bOverrideTheme(false)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -100,21 +103,21 @@ void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 	while ( i <= numtok ) {
 
-		if ( styles.gettok( i ) == "flat" ) 
+		if ( styles.gettok( i ) == "flat" )
 			*Styles |= TBSTYLE_FLAT;
-		else if ( styles.gettok( i ) == "tooltips" ) 
+		else if ( styles.gettok( i ) == "tooltips" )
 			*Styles |= TBSTYLE_TOOLTIPS;
 		else if ( styles.gettok( i ) == "transparent" )
 			*Styles |= TBSTYLE_TRANSPARENT;
-		else if ( styles.gettok( i ) == "nodivider" ) 
+		else if ( styles.gettok( i ) == "nodivider" )
 			*Styles |= CCS_NODIVIDER;
-		else if ( styles.gettok( i ) == "top" ) 
+		else if ( styles.gettok( i ) == "top" )
 			*Styles |= CCS_TOP;
-		else if ( styles.gettok( i ) == "bottom" ) 
+		else if ( styles.gettok( i ) == "bottom" )
 			*Styles |= CCS_BOTTOM;
-		else if ( styles.gettok( i ) == "left" ) 
+		else if ( styles.gettok( i ) == "left" )
 			*Styles |= CCS_LEFT;
-		else if ( styles.gettok( i ) == "right" ) 
+		else if ( styles.gettok( i ) == "right" )
 			*Styles |= CCS_RIGHT;
 		//else if ( styles.gettok( i ) == "noresize" ) 
 		//  *Styles |= CCS_NORESIZE;
@@ -122,16 +125,18 @@ void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 		//  *Styles |= CCS_NOPARENTALIGN ;
 		else if ( styles.gettok( i ) == "noauto" )
 			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
-		else if ( styles.gettok( i ) == "adjustable" ) 
+		else if ( styles.gettok( i ) == "adjustable" )
 			*Styles |= CCS_ADJUSTABLE;
-		else if ( styles.gettok( i ) == "list" ) 
+		else if ( styles.gettok( i ) == "list" )
 			*Styles |= TBSTYLE_LIST;
-		else if ( styles.gettok( i ) == "wrap" ) 
+		else if ( styles.gettok( i ) == "wrap" )
 			*Styles |= TBSTYLE_WRAPABLE;
-		else if ( styles.gettok( i ) == "arrows" ) 
+		else if ( styles.gettok( i ) == "arrows" )
 			*ExStyles |= TBSTYLE_EX_DRAWDDARROWS;
 		else if ( styles.gettok( i ) == "alpha" )
 			this->m_bAlphaBlend = true;
+		else if ( styles.gettok( i ) == "override" )
+			this->m_bOverrideTheme = true;
 
 		i++;
 	}
@@ -301,7 +306,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		this->resetContent();
 	}
 
-	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] [Button Text] [TAB] Tooltip Text
+	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] (Button Text) [TAB] Tooltip Text
 	if ( flags['a'] && numtok > 4 ) {
 
 		int nPos = input.gettok( 4 ).to_int( ) - 1;
@@ -313,6 +318,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		int width = input.gettok( 6 ).to_int( );
 		int icon = input.gettok( 7 ).to_int( ) - 1;
 		COLORREF clrText = (COLORREF) input.gettok( 8 ).to_num( );
+		int numtok = input.gettok( 1, TSTAB ).numtok( );
 
 		TBBUTTON tbb;
 		ZeroMemory( &tbb, sizeof( TBBUTTON ) );
@@ -322,14 +328,14 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		UINT buttonStyles = parseButtonStyleFlags( flags );
 		tbb.fsStyle = buttonStyles;
 
-		if ( icon == -1 )
+		if (( icon == -1 ) || (numtok < 7))
 			tbb.iBitmap = I_IMAGENONE;
 		else
 			tbb.iBitmap = icon;
 
 		TString itemtext;
 
-		if ( input.gettok( 1, TSTAB ).numtok( ) > 8 ) {
+		if ( numtok > 8 ) {
 
 			itemtext = input.gettok( 1, TSTAB ).gettok( 9, -1 );
 			itemtext.trim( );
@@ -373,6 +379,13 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			lpdcxtbb->clrText = clrText;
 		else
 			lpdcxtbb->clrText = -1;
+		lpdcxtbb->clrBtnFace = -1;
+		lpdcxtbb->clrBtnHighlight = -1;
+		lpdcxtbb->clrHighlightHotTrack = -1;
+		lpdcxtbb->clrMark = -1;
+		lpdcxtbb->clrTextHighlight = -1;
+		lpdcxtbb->iTextBkgMode = TRANSPARENT;
+		lpdcxtbb->iTextHighlightBkgMode = TRANSPARENT;
 
 		tbb.dwData = (LPARAM) lpdcxtbb;
 		lpdcxtbb->bText = itemtext;
@@ -398,12 +411,14 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		if ( this->m_bAutoStretch )
 			this->autoStretchButtons( );
 	}
-	// xdid -c [NAME] [ID] [SWITCH] [N] [+FLAGS] [RGB]
+	// xdid -c [NAME] [ID] [SWITCH] [N] [+FLAGS] [RGB] [+REMOVEFLAGS]
 	else if ( flags['c'] && numtok > 5 ) {
 
 		int nButton = input.gettok( 4 ).to_int( ) - 1;
 		UINT buttonStyles = parseButtonStyleFlags( input.gettok( 5 ) );
+		UINT removeButtonStyles = parseButtonStyleFlags( input.gettok( 7 ) );
 		COLORREF clrColor = (COLORREF)input.gettok( 6 ).to_num( );
+
 		if (nButton == -1 && this->m_ToolTipHWND != NULL) {
 			if (buttonStyles & BTNS_TBKGCOLOR)
 				SendMessage(this->m_ToolTipHWND,TTM_SETTIPBKCOLOR, (WPARAM)clrColor, NULL);
@@ -417,24 +432,57 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			tbbi.cbSize = sizeof( TBBUTTONINFO );
 			tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
 
-			if ( this->getButtonInfo( nButton /*this->getIndexToCommand( nButton )*/, &tbbi ) != -1 ) {
+			if ( this->getButtonInfo( nButton, &tbbi ) != -1 ) {
 
 				LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
 
 				if ( buttonStyles & BTNS_UNDERLINE )
 					lpdcxtbb->bUline = TRUE;
-				else
-					lpdcxtbb->bUline = FALSE;
 
 				if ( buttonStyles & BTNS_BOLD )
 					lpdcxtbb->bBold = TRUE;
-				else
-					lpdcxtbb->bBold = FALSE;
 
 				if ( buttonStyles & BTNS_COLOR )
 					lpdcxtbb->clrText = clrColor;
-				else
+
+				if ( buttonStyles & BTNS_HIGHLIGHT_TXTCOLOR )
+					lpdcxtbb->clrTextHighlight = clrColor;
+
+				if ( buttonStyles & BTNS_MARK_BKGCOLOR )
+					lpdcxtbb->clrMark = clrColor;
+
+				if ( buttonStyles & BTNS_BTNCOLOR )
+					lpdcxtbb->clrBtnFace = clrColor;
+
+				if ( buttonStyles & BTNS_HIGHLIGHT_BTNCOLOR )
+					lpdcxtbb->clrBtnHighlight = clrColor;
+
+				if ( buttonStyles & BTNS_HOTTRACK_BTNCOLOR )
+					lpdcxtbb->clrHighlightHotTrack = clrColor;
+
+				if ( removeButtonStyles & BTNS_UNDERLINE )
+					lpdcxtbb->bUline = FALSE;
+
+				if ( removeButtonStyles & BTNS_BOLD )
+					lpdcxtbb->bBold = FALSE;
+
+				if ( removeButtonStyles & BTNS_COLOR )
 					lpdcxtbb->clrText = -1;
+
+				if ( removeButtonStyles & BTNS_HIGHLIGHT_TXTCOLOR )
+					lpdcxtbb->clrTextHighlight = -1;
+
+				if ( removeButtonStyles & BTNS_MARK_BKGCOLOR )
+					lpdcxtbb->clrMark = -1;
+
+				if ( removeButtonStyles & BTNS_BTNCOLOR )
+					lpdcxtbb->clrBtnFace = -1;
+
+				if ( removeButtonStyles & BTNS_HIGHLIGHT_BTNCOLOR )
+					lpdcxtbb->clrBtnHighlight = -1;
+
+				if ( removeButtonStyles & BTNS_HOTTRACK_BTNCOLOR )
+					lpdcxtbb->clrHighlightHotTrack = -1;
 
 				this->redrawWindow( );
 			}
@@ -597,14 +645,16 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			ImageList_GetIconSize(himl, &cx, &cy);
 
 			if (cx > 16)
-				icon = dcxLoadIcon(index, filename, TRUE, input.gettok( 4 ));
+				icon = dcxLoadIcon(index, filename, true, input.gettok( 4 ));
 			else
-				icon = dcxLoadIcon(index, filename, FALSE, input.gettok( 4 ));
+				icon = dcxLoadIcon(index, filename, false, input.gettok( 4 ));
 
 			// Grayscale the icon
 			//if ((iFlags & TB_ICO_GREY) && icon)
 			//	icon = CreateGrayscaleIcon(icon);
 		}
+		else
+			this->showError(NULL, "-w", "Unable to get Normal Image List");
 
 		// if there is an icon to process
 		if (icon) {
@@ -634,6 +684,8 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
 			DestroyIcon(icon);
 		}
+		else
+			this->showErrorEx(NULL, "-w", "Icon Failed To Load: %s", filename.to_chr());
 	}
 	else
 		this->parseGlobalCommandRequest( input, flags );
@@ -645,9 +697,9 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 * blah
 */
 
-UINT DcxToolBar::parseButtonStateFlags( TString & flags ) {
+UINT DcxToolBar::parseButtonStateFlags( const TString & flags ) {
 
-	INT i = 1, len = flags.len( ), iFlags = TBSTATE_ENABLED;
+	INT i = 1, len = (INT)flags.len( ), iFlags = TBSTATE_ENABLED;
 
 	// no +sign, missing params
 	if ( flags[0] != '+' ) 
@@ -679,9 +731,9 @@ UINT DcxToolBar::parseButtonStateFlags( TString & flags ) {
 * blah
 */
 
-UINT DcxToolBar::parseButtonStyleFlags( TString & flags ) {
+UINT DcxToolBar::parseButtonStyleFlags( const TString & flags ) {
 
-	INT i = 1, len = flags.len( ), iFlags = TBSTYLE_BUTTON; //BTNS_BUTTON;
+	INT i = 1, len = (INT)flags.len( ), iFlags = TBSTYLE_BUTTON; //BTNS_BUTTON;
 
 	// no +sign, missing params
 	if ( flags[0] != '+' ) 
@@ -689,26 +741,54 @@ UINT DcxToolBar::parseButtonStyleFlags( TString & flags ) {
 
 	while ( i < len ) {
 
-		if ( flags[i] == 'a' )
+		switch (flags[i])
+		{
+		case 'a':
 			iFlags |= TBSTYLE_AUTOSIZE; //BTNS_AUTOSIZE;
-		else if ( flags[i] == 'k' )
-			iFlags |= TBSTYLE_CHECK; //BTNS_CHECK;
-		else if ( flags[i] == 'g' )
-			iFlags |= TBSTYLE_GROUP; //BTNS_GROUP;
-		else if ( flags[i] == 'v' )
-			iFlags |= TBSTYLE_DROPDOWN; //BTNS_DROPDOWN;
-		else if ( flags[i] == 'l' )
-			iFlags |= BTNS_WIDTH;
-		else if ( flags[i] == 'b' )
+			break;
+		case 'b':
 			iFlags |= BTNS_BOLD;
-		else if ( flags[i] == 'c' )
+			break;
+		case 'B':
+			iFlags |= BTNS_BTNCOLOR;
+			break;
+		case 'c':
 			iFlags |= BTNS_COLOR;
-		else if ( flags[i] == 'u' )
+			break;
+		case 'g':
+			iFlags |= TBSTYLE_GROUP; //BTNS_GROUP;
+			break;
+		case 'h':
+			iFlags |= BTNS_HIGHLIGHT_TXTCOLOR;
+			break;
+		case 'H':
+			iFlags |= BTNS_HIGHLIGHT_BTNCOLOR;
+			break;
+		case 'k':
+			iFlags |= TBSTYLE_CHECK; //BTNS_CHECK;
+			break;
+		case 'l':
+			iFlags |= BTNS_WIDTH;
+			break;
+		case 'm':
+			iFlags |= BTNS_MARK_BKGCOLOR;
+			break;
+		case 'T':
+			iFlags |= BTNS_HOTTRACK_BTNCOLOR;
+			break;
+		case 'u':
 			iFlags |= BTNS_UNDERLINE;
-		else if ( flags[i] == 'x' )
+			break;
+		case 'v':
+			iFlags |= TBSTYLE_DROPDOWN; //BTNS_DROPDOWN;
+			break;
+		case 'x':
 			iFlags |= BTNS_TBKGCOLOR;
-		else if ( flags[i] == 'z' )
+			break;
+		case 'z':
 			iFlags |= BTNS_TTXTCOLOR;
+			break;
+		}
 
 		++i;
 	}
@@ -720,8 +800,8 @@ UINT DcxToolBar::parseButtonStyleFlags( TString & flags ) {
 *
 * blah
 */
-UINT DcxToolBar::parseImageListFlags(TString &flags) {
-	INT i = 1, len = flags.len(), iFlags = 0;
+UINT DcxToolBar::parseImageListFlags( const TString &flags) {
+	INT i = 1, len = (INT)flags.len(), iFlags = 0;
 
 	// no +sign, missing params
 	if (flags[0] != '+')
@@ -749,17 +829,14 @@ UINT DcxToolBar::parseImageListFlags(TString &flags) {
 * blah
 */
 
-HIMAGELIST DcxToolBar::getImageList( int iImageList ) {
+HIMAGELIST DcxToolBar::getImageList( const int iImageList ) {
 
-	if ( iImageList == TB_IML_NORMAL ) {
+	if ( iImageList == TB_IML_NORMAL )
 		return (HIMAGELIST) SendMessage( this->m_Hwnd, TB_GETIMAGELIST, (WPARAM) 0, (LPARAM) 0);
-	}
-	else if ( iImageList == TB_IML_DISABLE ) {
+	else if ( iImageList == TB_IML_DISABLE )
 		return (HIMAGELIST) SendMessage( this->m_Hwnd, TB_GETDISABLEDIMAGELIST, (WPARAM) 0, (LPARAM) 0);
-	}
-	else if ( iImageList == TB_IML_HOT ) {
+	else if ( iImageList == TB_IML_HOT )
 		return (HIMAGELIST) SendMessage( this->m_Hwnd, TB_GETHOTIMAGELIST, (WPARAM) 0, (LPARAM) 0);
-	}
 	return NULL;
 }
 
@@ -772,19 +849,15 @@ HIMAGELIST DcxToolBar::getImageList( int iImageList ) {
 void DcxToolBar::setImageList(HIMAGELIST himl, const int iImageList) {
 	HIMAGELIST himlOld = NULL;
 
-	if (iImageList == TB_IML_NORMAL) {
+	if (iImageList == TB_IML_NORMAL)
 		himlOld = (HIMAGELIST) SendMessage(this->m_Hwnd, TB_SETIMAGELIST, (WPARAM) NULL, (LPARAM) himl);
-	}
-	else if (iImageList == TB_IML_DISABLE) {
+	else if (iImageList == TB_IML_DISABLE)
 		himlOld = (HIMAGELIST) SendMessage(this->m_Hwnd, TB_SETDISABLEDIMAGELIST, (WPARAM) NULL, (LPARAM) himl);
-	}
-	else if (iImageList == TB_IML_HOT) {
+	else if (iImageList == TB_IML_HOT)
 		himlOld = (HIMAGELIST) SendMessage(this->m_Hwnd, TB_SETHOTIMAGELIST, (WPARAM) NULL, (LPARAM) himl);
-	}
 
-	if (himlOld) {
+	if (himlOld)
 		ImageList_Destroy(himlOld);
-	}
 }
 
 /*!
@@ -876,7 +949,7 @@ void DcxToolBar::autoStretchButtons( ) {
 	}
 }
 
-void DcxToolBar::autoPosition( int width, int height ) {
+void DcxToolBar::autoPosition( const int width, const int height ) {
 
 	if ( !this->isStyle( CCS_NOPARENTALIGN | CCS_NORESIZE ) ) {
 
@@ -1171,7 +1244,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							if ( iButton > -1 ) {
 								RECT rc;
 								this->getItemRect( iButton, &rc );
-								MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rc, 2);
+								MapWindowRect(this->m_Hwnd, NULL, &rc);
 								this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", this->getUserID( ), iButton+1, rc.left, rc.bottom, rc.right, rc.top );
 								//POINT pt2 = pt;
 								//pt.x = rc.left; 
@@ -1198,7 +1271,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							if ( iButton > -1 ) {
 								RECT rc;
 								this->getItemRect( iButton, &rc );
-								MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rc, 2);
+								MapWindowRect(this->m_Hwnd, NULL, &rc);
 								this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown", this->getUserID( ), iButton+1, rc.left, rc.bottom, rc.right, rc.top );
 								//POINT pt2 = pt;
 								//pt.x = rc.left;
@@ -1234,10 +1307,24 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								if ( lpdtbb == NULL )
 									return CDRF_DODEFAULT;
 
+								DWORD dFlags = (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
+
+								if ( lpdtbb->clrBtnFace != -1 )
+									lpntbcd->clrBtnFace = lpdtbb->clrBtnFace;
+								if ( lpdtbb->clrBtnHighlight != -1 )
+									lpntbcd->clrBtnHighlight = lpdtbb->clrBtnHighlight;
+								if ( lpdtbb->clrHighlightHotTrack != -1 ) {
+									lpntbcd->clrHighlightHotTrack = lpdtbb->clrHighlightHotTrack;
+									dFlags |= TBCDRF_HILITEHOTTRACK;
+								}
+								if ( lpdtbb->clrMark != -1 )
+									lpntbcd->clrMark = lpdtbb->clrMark;
 								if ( lpdtbb->clrText != -1 )
 									lpntbcd->clrText = lpdtbb->clrText;
+								if ( lpdtbb->clrTextHighlight != -1 )
+									lpntbcd->clrTextHighlight = lpdtbb->clrTextHighlight;
 
-								HFONT hFont = (HFONT) SendMessage( this->m_Hwnd, WM_GETFONT, 0, 0 );
+								HFONT hFont = GetWindowFont( this->m_Hwnd );
 
 								LOGFONT lf;
 								GetObject( hFont, sizeof(LOGFONT), &lf );
@@ -1249,15 +1336,32 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 									lf.lfUnderline = TRUE;
 								else
 									lf.lfUnderline = FALSE;
-								HFONT hFontNew = CreateFontIndirect( &lf );
-								//HFONT hOldFont = (HFONT) SelectObject( lpntbcd->nmcd.hdc, hFontNew );
-								SelectObject(lpntbcd->nmcd.hdc, hFontNew);
-								DeleteObject(hFontNew);
+
+								this->m_hItemFont = CreateFontIndirect( &lf );
+								if (this->m_hItemFont != NULL)
+									this->m_hOldItemFont = SelectFont( lpntbcd->nmcd.hdc, this->m_hItemFont );
+
+#if defined(DCX_USE_WINSDK)
+								// allows custom colours even when control is themed. (Vista Only)
+								if (this->m_bOverrideTheme)
+									dFlags |= TBCDRF_USECDCOLORS;
+#endif
+								return dFlags;
 							}
-							return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
 
 						case CDDS_ITEMPOSTPAINT:
-							return CDRF_DODEFAULT;
+							//return CDRF_DODEFAULT;
+							{
+								if (this->m_hOldItemFont != NULL) {
+									SelectFont( lpntbcd->nmcd.hdc, this->m_hOldItemFont);
+									this->m_hOldItemFont = NULL;
+								}
+								if (this->m_hItemFont != NULL) {
+									DeleteFont(this->m_hItemFont);
+									this->m_hItemFont = NULL;
+								}
+								return CDRF_DODEFAULT;
+							}
 
 						default:
 							return CDRF_DODEFAULT;

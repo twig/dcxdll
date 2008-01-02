@@ -473,9 +473,9 @@ void DcxBox::parseCommandRequest( TString & input ) {
  * blah
  */
 
-UINT DcxBox::parseLayoutFlags( TString & flags ) {
+UINT DcxBox::parseLayoutFlags( const TString & flags ) {
 
-  INT i = 1, len = flags.len( );
+  INT i = 1, len = (INT)flags.len( );
   UINT iFlags = 0;
 
   // no +sign, missing params
@@ -718,7 +718,7 @@ void DcxBox::EraseBackground(HDC hdc)
 	RECT rc;
 	GetClientRect( this->m_Hwnd, &rc );
 	// fill background.
-	if (this->isExStyle(WS_EX_TRANSPARENT))
+	if (this->isExStyle(WS_EX_TRANSPARENT) || this->m_pParentDialog->isExStyle(WS_EX_COMPOSITED))
 		this->DrawParentsBackground(hdc, &rc);
 	else // normal bkg
 		DcxControl::DrawCtrlBackground(hdc, this, &rc);

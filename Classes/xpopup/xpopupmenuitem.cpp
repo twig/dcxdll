@@ -671,27 +671,20 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 	SetRect(&rcIntersect, rcBar.left, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom);
 
 	// set up a buffer to draw the whole gradient bar
-	HDC hdcBuffer = CreateCompatibleDC(lpdis->hDC);
+	HDC *hdcBuffer = CreateHDCBuffer(lpdis->hDC, &rcBar);
 
 	if (hdcBuffer != NULL) {
-		HBITMAP hbmp = CreateCompatibleBitmap(lpdis->hDC, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top);
 
-		if (hbmp != NULL) {
-			HBITMAP hbmpOld = (HBITMAP) SelectObject(hdcBuffer, hbmp);
+		// draw the gradient into the buffer
+		if (bReversed)
+			DrawGradient(*hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+		else
+			DrawGradient(*hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
 
-			// draw the gradient into the buffer
-			if (bReversed)
-				DrawGradient(hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
-			else
-				DrawGradient(hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+		// copy the box we want from the whole gradient bar
+		BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, *hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
 
-			// copy the box we want from the whole gradient bar
-			BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
-
-			// clean up the memory object
-			DeleteObject(	SelectObject(hdcBuffer, hbmpOld) );
-		}
-		DeleteDC(hdcBuffer);
+		DeleteHDCBuffer(hdcBuffer);
 	}
 	*/
 
@@ -720,27 +713,20 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 	SetRect(&rcIntersect, rcBar.left, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom);
 
 	// set up a buffer to draw the whole gradient bar
-	HDC hdcBuffer = CreateCompatibleDC(lpdis->hDC);
+	HDC *hdcBuffer = CreateHDCBuffer(lpdis->hDC, &rcBar);
 
 	if (hdcBuffer != NULL) {
-		HBITMAP hbmp = CreateCompatibleBitmap(lpdis->hDC, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top);
 
-		if (hbmp != NULL) {
-			HBITMAP hbmpOld = (HBITMAP) SelectObject(hdcBuffer, hbmp);
+		// draw the gradient into the buffer
+		if (bReversed)
+			DrawGradient(*hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+		else
+			DrawGradient(*hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
 
-			// draw the gradient into the buffer
-			if (bReversed)
-				DrawGradient(hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
-			else
-				DrawGradient(hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+		// copy the box we want from the whole gradient bar
+		BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, *hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
 
-			// copy the box we want from the whole gradient bar
-			BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
-
-			// clean up the memory object
-			DeleteObject(	SelectObject(hdcBuffer, hbmpOld) );
-		}
-		DeleteDC(hdcBuffer);
+		DeleteHDCBuffer(hdcBuffer);
 	}
 	//*/
 
@@ -768,45 +754,37 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 mIRCDebug("skew = %ld, clip %d, menu %d", skew, clipH, menuH);
 mIRCDebug("lpdis rect = %d %d", lpdis->rcItem.top, lpdis->rcItem.bottom);
 
-	// set up a buffer to draw the whole gradient bar
-	HDC hdcBuffer = CreateCompatibleDC(lpdis->hDC);
+	HDC *hdcBuffer = CreateHDCBuffer(lpdis->hDC, &rcBar);
 
 	if (hdcBuffer != NULL) {
-		HBITMAP hbmp = CreateCompatibleBitmap(lpdis->hDC, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top);
 
-		if (hbmp != NULL) {
-			HBITMAP hbmpOld = (HBITMAP) SelectObject(hdcBuffer, hbmp);
+		// draw the gradient into the buffer
+		if (bReversed)
+			DrawGradient(*hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+		else
+			DrawGradient(*hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
 
-			// draw the gradient into the buffer
-			if (bReversed)
-				DrawGradient(hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
-			else
-				DrawGradient(hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+		// copy the box we want from the whole gradient bar
+		StretchBlt(lpdis->hDC,
+			rcBar.left,
+			//rcIntersect.top,
+			lpdis->rcItem.top, // ?
+			rcBar.right - rcBar.left,
+			//rcIntersect.bottom - rcIntersect.top,
+			lpdis->rcItem.bottom - lpdis->rcItem.top, // ?
+			*hdcBuffer,
+			rcBar.left, // x
+			rcBar.top * skew, // y ?
+			rcBar.right - rcBar.left, // w
+			(rcBar.bottom - rcBar.top) * skew, // h ?
+			SRCCOPY);
 
-			// copy the box we want from the whole gradient bar
-			StretchBlt(lpdis->hDC,
-				rcBar.left,
-				//rcIntersect.top,
-				lpdis->rcItem.top, // ?
-				rcBar.right - rcBar.left,
-				//rcIntersect.bottom - rcIntersect.top,
-				lpdis->rcItem.bottom - lpdis->rcItem.top, // ?
-				hdcBuffer,
-				rcBar.left, // x
-				rcBar.top * skew, // y ?
-				rcBar.right - rcBar.left, // w
-				(rcBar.bottom - rcBar.top) * skew, // h ?
-				SRCCOPY);
+		mIRCDebug("skew %lf, top %d, height %d",
+			skew,
+			rcBar.top * skew,
+			(rcBar.bottom - rcBar.top) * skew);
 
-			mIRCDebug("skew %lf, top %d, height %d",
-				skew,
-				rcBar.top * skew,
-				(rcBar.bottom - rcBar.top) * skew);
-
-			// clean up the memory object
-			DeleteObject(	SelectObject(hdcBuffer, hbmpOld) );
-		}
-		DeleteDC(hdcBuffer);
+		DeleteHDCBuffer(hdcBuffer);
 	}
 
 	mIRCcomEX("/echo 4 -s /end %d ------", lpdis->itemID);

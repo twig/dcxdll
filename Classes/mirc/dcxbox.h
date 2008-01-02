@@ -33,7 +33,7 @@
 
 typedef struct tagDCXENUM {
 
-  HWND mChildHwnd;    //!< Hwnd to child window
+	HWND mChildHwnd;    //!< Hwnd to child window
 	HWND mBox;					//!< The Box control itself
 	BOOL mState;				//!< Enable/Disable state
 
@@ -51,27 +51,27 @@ class DcxBox : public DcxControl {
 
 public:
 
-  DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
-  virtual ~DcxBox( );
+	DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
+	virtual ~DcxBox( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( TString & input, char * szReturnValue );
+	void parseCommandRequest( TString & input );
+	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  inline TString getType( ) { return TString( "box" ); };
+	inline TString getType( ) { return TString( "box" ); };
 
 protected:
 
-  static UINT parseLayoutFlags( TString & flags );
+	static UINT parseLayoutFlags( const TString & flags );
 	void EraseBackground(HDC hdc);
 	void DrawClientArea(HDC hdc);
 
-  LONG m_iBoxStyles; //!< Custom Box Styles
+	LONG m_iBoxStyles; //!< Custom Box Styles
 
-  LayoutManager * m_pLayoutManager; //!< Layout Manager Object
+	LayoutManager * m_pLayoutManager; //!< Layout Manager Object
 
 	HWND m_TitleButton; //!< enable/disable button.
 	HTHEME _hTheme;
