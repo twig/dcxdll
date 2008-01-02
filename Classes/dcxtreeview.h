@@ -94,6 +94,7 @@ typedef struct tagDCXTVITEM {
 	BOOL bUline;        //!< Is Item Caption Underlined
 	BOOL bItalic;       //!< Is Item Caption Italicised
 	HTREEITEM hHandle;  //!< TreeView Item Handle (used for sorting)
+	TString tsMark;		// Marked item text.
 } DCXTVITEM,*LPDCXTVITEM;
 
 /*!

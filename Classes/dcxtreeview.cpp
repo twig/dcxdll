@@ -374,7 +374,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		return;
 	}
-	// [NAME] [ID] [PROP] [PATH]
+	// [NAME] [ID] [PROP]
 	else if (prop == "mouseitem") {
 		TVHITTESTINFO tvh;
 		GetCursorPos(&tvh.pt);
@@ -389,6 +389,33 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 		else
 			lstrcpy(szReturnValue, "0");
 
+		return;
+	}
+	// [NAME] [ID] [PROP] [PATH]
+	else if (prop == "markeditem" && numtok > 3) {
+		TString path(input.gettok(4, -1));
+		HTREEITEM item;
+
+		path.trim();
+		item = parsePath(&path);
+
+		if (item == NULL) {
+			this->showErrorEx("markeditem", NULL, "Invalid Path: %s", path.to_chr());
+			return;
+		}
+
+		TVITEMEX tvi;
+
+		tvi.hItem = item;
+		tvi.mask = TVIF_HANDLE | TVIF_PARAM;
+
+		if (!TreeView_GetItem(this->m_Hwnd, &tvi)) {
+			this->showErrorEx(NULL, "-A", "Unable to retrieve item: %s", path.to_chr());
+			return;
+		}
+
+		LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
+		wsprintf(szReturnValue, "%s", lpdcxtvitem->tsMark.to_chr());
 		return;
 	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue))
@@ -430,6 +457,69 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
 			if (data.numtok( ) > 8)
 				this->insertItem(&path, &data, &tooltip);
+		}
+	}
+	// xdid -A [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [INFO]
+	else if (flags['A']) {
+		int n = input.numtok(TSTAB);
+
+		if (n < 2) {
+			this->showErrorEx(NULL, "-A", "Insufficient parameters");
+			return;
+		}
+
+		TString path(input.gettok(1, TSTAB));
+		TString data(input.gettok(2, TSTAB));
+		HTREEITEM item;
+
+		path.trim();
+		data.trim();
+		
+
+		n = path.numtok();
+
+		if (n < 4) {
+			this->showErrorEx(NULL, "-A", "Insufficient parameters (path)");
+			return;
+		}
+
+		path = path.gettok(4, -1);
+		n = data.numtok();
+
+		if (n < 2) {
+			this->showErrorEx(NULL, "-A", "Insufficient parameters (args)");
+			return;
+		}
+
+		item = parsePath(&path);
+
+		if (item == NULL) {
+			this->showErrorEx(NULL, "-A", "Invalid Path: %s", path.to_chr());
+			return;
+		}
+
+		TString flag(data.gettok(1));
+		TString info(data.gettok(2, -1));
+
+		if (flag.find('M', 1) > 0) {
+			TVITEMEX tvi; 
+
+			tvi.hItem = item;
+			tvi.mask = TVIF_HANDLE | TVIF_PARAM ; 
+
+			if (!TreeView_GetItem(this->m_Hwnd, &tvi)) {
+				this->showErrorEx(NULL, "-A", "Unable to retrieve item: %s", path.to_chr());
+				return;
+			}
+
+			LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
+mIRCDebug("info = %s", info.to_chr());
+			lpdcxtvitem->tsMark = info.to_chr();
+			TreeView_SetItem(this->m_Hwnd, &tvi);
+		}
+		else {
+			this->showErrorEx(NULL, "-A", "Unknown flags %s", flag.to_chr());
+			return;
 		}
 	}
 	// xdid -B [NAME] [ID] [SWITCH] N N N
