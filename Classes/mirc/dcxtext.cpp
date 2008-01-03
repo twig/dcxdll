@@ -169,10 +169,9 @@ void DcxText::parseCommandRequest(TString &input) {
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 
 		// redraw if transparent
-		if (this->isExStyle(WS_EX_TRANSPARENT)) {
+		if (this->isExStyle(WS_EX_TRANSPARENT))
 			this->InvalidateParentRect(this->m_Hwnd);
-			this->redrawWindow();
-		}
+		this->redrawWindow();
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -184,10 +183,9 @@ void DcxText::parseCommandRequest(TString &input) {
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 
 		// redraw if transparent
-		if (this->isExStyle(WS_EX_TRANSPARENT)) {
+		if (this->isExStyle(WS_EX_TRANSPARENT))
 			this->InvalidateParentRect(this->m_Hwnd);
-			this->redrawWindow();
-		}
+		this->redrawWindow();
 	}
 	else
 		this->parseGlobalCommandRequest( input, flags );

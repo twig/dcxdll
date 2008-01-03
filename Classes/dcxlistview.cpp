@@ -809,7 +809,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			lvi.iSubItem = 0;
 			lvi.iIndent = indent;
 
-			if (isXP() && group > 0) {
+			if (isXP() && group > 0 && ListView_HasGroup(this->m_Hwnd, group)) {
 				lvi.iGroupId = group;
 				lvi.mask |= LVIF_GROUPID;
 			}
