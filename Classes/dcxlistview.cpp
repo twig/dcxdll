@@ -809,9 +809,17 @@ void DcxListView::parseCommandRequest(TString &input) {
 			lvi.iSubItem = 0;
 			lvi.iIndent = indent;
 
-			if (isXP() && group > 0 && ListView_HasGroup(this->m_Hwnd, group)) {
-				lvi.iGroupId = group;
-				lvi.mask |= LVIF_GROUPID;
+			if (isXP() && group > 0) {
+				if (ListView_IsGroupViewEnabled(this->m_Hwnd)) {
+					if (ListView_HasGroup(this->m_Hwnd, group)) {
+						lvi.iGroupId = group;
+						lvi.mask |= LVIF_GROUPID;
+					}
+					else
+						this->showErrorEx(NULL,"-a", "Invalid Group specified: %d", group);
+				}
+				else
+					this->showError(NULL,"-a", "Can't add to a group when Group View is not enabled.");
 			}
 
 			if (icon > -1)
@@ -829,6 +837,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
 
 			if (lvi.iItem == -1) {
+				// NB: memleak, objects not deleted....
 				this->showError(NULL,"-a", "Unable to add item");
 				return;
 			}
