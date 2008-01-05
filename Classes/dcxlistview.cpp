@@ -1338,9 +1338,9 @@ void DcxListView::parseCommandRequest(TString &input) {
 					lvg.cbSize = sizeof(LVGROUP);
 					lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID;
 
-					LPWSTR wstr = new WCHAR[text.len() + 1];
-					MultiByteToWideChar(CP_ACP, 0, text.to_chr(), text.len() +1, wstr, text.len() +1);
-					//LPWSTR wstr = text.to_wchr(); // can this buffer be deleted? or is it needed by the control? requires testing.
+					//LPWSTR wstr = new WCHAR[text.len() + 1];
+					//MultiByteToWideChar(CP_ACP, 0, text.to_chr(), text.len() +1, wstr, text.len() +1);
+					LPWSTR wstr = text.to_wchr(); // can this buffer be deleted? or is it needed by the control? requires testing.
 
 					lvg.iGroupId = gid;
 					lvg.pszHeader = wstr;
@@ -1349,7 +1349,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 					ListView_InsertGroup(this->m_Hwnd, index, &lvg);
 				}
 				else
-					this->showError(NULL,"-q", "Group already exists");
+					this->showErrorEx(NULL,"-q", "Group already exists: %d", gid);
 			}
 			else
 				this->showError(NULL,"-q", "Can't add to a group when Group View is not enabled.");

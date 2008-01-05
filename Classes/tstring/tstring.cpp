@@ -2085,9 +2085,28 @@ WCHAR *TString::to_wchr(void)
 	//int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
 	//this->m_pWString = new WCHAR[widelen+1];
 	//MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
+
 	// this method also allows UTF8 decoding.
-	int widelen = MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, NULL, 0);
-	this->m_pWString = new WCHAR[widelen+1];
-	MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, this->m_pWString, widelen);
+	//int widelen = MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, NULL, 0);
+	//this->m_pWString = new WCHAR[widelen+1];
+	//MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, this->m_pWString, widelen);
+
+	// try UTF8 encoded first, but error on invalid chars.
+	int widelen = MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,this->m_pString,-1, NULL, 0);
+	if (widelen == 0) {
+		// zero result, error maybe?
+		if (GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
+			// invalid chars, assume its NOT a utf8 string then, try CP_ACP
+			widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
+			if (widelen != 0) {
+				this->m_pWString = new WCHAR[widelen+1];
+				MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
+			}
+		}
+	}
+	else {
+		this->m_pWString = new WCHAR[widelen+1];
+		MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, this->m_pWString, widelen);
+	}
 	return this->m_pWString;
 }
