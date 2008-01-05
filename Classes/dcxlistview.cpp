@@ -1329,22 +1329,30 @@ void DcxListView::parseCommandRequest(TString &input) {
 		int gid = (int)input.gettok( 6 ).to_num();
 
 		if (isXP() && index > -1 && gid > 0) {
-			TString text(input.gettok(7, -1));
+			if (ListView_IsGroupViewEnabled(this->m_Hwnd)) {
+				if (!ListView_HasGroup(this->m_Hwnd, gid)) {
+					TString text(input.gettok(7, -1));
 
-			LVGROUP lvg;
-			ZeroMemory(&lvg, sizeof(LVGROUP));
-			lvg.cbSize = sizeof(LVGROUP);
-			lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID;
+					LVGROUP lvg;
+					ZeroMemory(&lvg, sizeof(LVGROUP));
+					lvg.cbSize = sizeof(LVGROUP);
+					lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID;
 
-			LPWSTR wstr = new WCHAR[text.len() + 1];
-			MultiByteToWideChar(CP_ACP, 0, text.to_chr(), text.len() +1, wstr, text.len() +1);
-			//LPWSTR wstr = text.to_wchr(); // can this buffer be deleted? or is it needed by the control? requires testing.
+					LPWSTR wstr = new WCHAR[text.len() + 1];
+					MultiByteToWideChar(CP_ACP, 0, text.to_chr(), text.len() +1, wstr, text.len() +1);
+					//LPWSTR wstr = text.to_wchr(); // can this buffer be deleted? or is it needed by the control? requires testing.
 
-			lvg.iGroupId = gid;
-			lvg.pszHeader = wstr;
-			lvg.uAlign = iFlags;
+					lvg.iGroupId = gid;
+					lvg.pszHeader = wstr;
+					lvg.uAlign = iFlags;
 
-			ListView_InsertGroup(this->m_Hwnd, index, &lvg);
+					ListView_InsertGroup(this->m_Hwnd, index, &lvg);
+				}
+				else
+					this->showError(NULL,"-q", "Group already exists");
+			}
+			else
+				this->showError(NULL,"-q", "Can't add to a group when Group View is not enabled.");
 		}
 	}
 	// xdid -r [NAME] [ID] [SWITCH]
