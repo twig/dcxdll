@@ -16,6 +16,7 @@
 #define _XPOPUPMENUMANAGER_H_
 
 #include "xpopupmenu.h"
+#include "../tinyxml/tinyxml.h"
 
 /*!
  * \brief blah
@@ -48,7 +49,12 @@ public:
 	static BOOL WINAPI TrampolineTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect);
 	static BOOL WINAPI TrampolineTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm);
 
+	static void LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *popup, TString &popupName, TString &popupDataset);
+	static bool LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, TiXmlElement *items);
+
 protected:
+
+	static const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, TiXmlElement *popup, TiXmlElement *global);
 
   VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 

@@ -75,12 +75,40 @@ public:
 		XPMS_VERTICAL_REV
 	};
 
+	// Menu Colors
+	/*
+	1  	Menu background color
+	2 	Icon box color
+	3 	Checkbox color
+	4 	Disabled checkbox color
+	5 	Disabled selection box color
+	6 	Disabled text color
+	7 	Selection box color
+	8 	Selection box border color
+	9 	Separator line color
+	10 	Text color
+	11 	Selected text color
+	*/
+
+	static const int XPMC_BACKGROUND = 1;
+	static const int XPMC_ICONBOX = 2;
+	static const int XPMC_CHECKBOX = 3;
+	static const int XPMC_CHECKBOX_DISABLED= 4;
+	static const int XPMC_SELECTIONBOX_DISABLED = 5;
+	static const int XPMC_TEXT_DISABLED = 6;
+	static const int XPMC_SELECTIONBOX = 7;
+	static const int XPMC_SELECTIONBOX_BORDER = 8;
+	static const int XPMC_SEPARATOR = 9;
+	static const int XPMC_TEXT = 10;
+	static const int XPMC_SELECTEDTEXT = 11;
+
   XPopupMenu( const TString tsName, HMENU hMenu );
   XPopupMenu( const TString & tsMenuName, MenuStyle mStyle );
   virtual ~XPopupMenu( );
 
   void parseXPopCommand( const TString & input );
   void parseXPopIdentifier( const TString & input, char * szReturnValue );
+	static XPopupMenu::MenuStyle parseStyle(const TString &style);
 
   static HMENU parsePath( const TString & path, const HMENU hParent, const int depth = 1 );
 
@@ -129,6 +157,8 @@ public:
 	void setMarkedText(TString text);
 	TString getMarkedText();
 
+	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
+
 protected:
 
   HMENU m_hMenu; //!< Menu Handle
@@ -136,7 +166,6 @@ protected:
   MenuStyle m_MenuStyle; //!< Menu Style
   TString m_tsMenuName; //!< Menu Name
   TString m_tsMarkedText; //!< Extra field to store custom information
-  VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
   UINT m_MenuItemStyles; //!< Menu Item Styles
 
   HBITMAP m_hBitmap; //!< Menu Item Background Image in Custom Style

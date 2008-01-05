@@ -18,6 +18,7 @@ extern HWND mhMenuOwner;
 extern XPopupMenu *g_mIRCPopupMenu;
 extern XPopupMenu *g_mIRCMenuBar;
 extern XPopupMenu *g_mIRCScriptMenu;
+extern XPopupMenuManager g_XPopupMenuManager;
 
 /*!
  * \brief Constructor
@@ -103,32 +104,8 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 			DCXError("/xpopup -c",error.to_chr());
 		}
 		else {
-			XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
-
-			TString tsStyle(input.gettok( 3 ));
-
-			if (tsStyle == "office2003rev")
-				style = XPopupMenu::XPMS_OFFICE2003_REV;
-			else if (tsStyle == "officexp")
-				style = XPopupMenu::XPMS_OFFICEXP;
-			else if (tsStyle == "icy")
-				style = XPopupMenu::XPMS_ICY;
-			else if (tsStyle == "icyrev")
-				style = XPopupMenu::XPMS_ICY_REV;
-			else if (tsStyle == "grade")
-				style = XPopupMenu::XPMS_GRADE;
-			else if (tsStyle == "graderev")
-				style = XPopupMenu::XPMS_GRADE_REV;
-			else if (tsStyle == "vertical")
-				style = XPopupMenu::XPMS_VERTICAL;
-			else if (tsStyle == "verticalrev")
-				style = XPopupMenu::XPMS_VERTICAL_REV;
-			else if (tsStyle == "normal")
-				style = XPopupMenu::XPMS_NORMAL;
-			else if (tsStyle == "custom")
-				style = XPopupMenu::XPMS_CUSTOM;
-
-			this->m_vpXPMenu.push_back(new XPopupMenu(input.gettok( 1 ), style));
+			XPopupMenu::MenuStyle style = XPopupMenu::parseStyle(input.gettok(3));
+			this->m_vpXPMenu.push_back(new XPopupMenu(input.gettok(1), style));
 		}
 	}
 	// xpopup -d -> [MENU] [SWITCH]
@@ -138,7 +115,6 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 	}
 	// xpopup -i -> [MENU] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if ( flags['i'] && numtok > 4 ) {
-
 		HIMAGELIST himl = p_Menu->getImageList( );
 		HICON icon;
 		int index;
@@ -244,29 +220,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 	}
 	// xpopup -t -> [MENU] [SWITCH] [STYLE]
 	else if (flags['t'] && numtok > 2) {
-		XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
-		TString tsStyle(input.gettok( 3 ));
-
-		if (tsStyle == "office2003rev")
-			style = XPopupMenu::XPMS_OFFICE2003_REV;
-		else if (tsStyle == "officexp")
-			style = XPopupMenu::XPMS_OFFICEXP;
-		else if (tsStyle == "icy")
-			style = XPopupMenu::XPMS_ICY;
-		else if (tsStyle == "icyrev")
-			style = XPopupMenu::XPMS_ICY_REV;
-		else if (tsStyle == "grade")
-			style = XPopupMenu::XPMS_GRADE;
-		else if (tsStyle == "graderev")
-			style = XPopupMenu::XPMS_GRADE_REV;
-		else if (tsStyle == "vertical")
-			style = XPopupMenu::XPMS_VERTICAL;
-		else if (tsStyle == "verticalrev")
-			style = XPopupMenu::XPMS_VERTICAL_REV;
-		else if (tsStyle == "normal")
-			style = XPopupMenu::XPMS_NORMAL;
-		else if (tsStyle == "custom")
-			style = XPopupMenu::XPMS_CUSTOM;
+		XPopupMenu::MenuStyle style = XPopupMenu::parseStyle(input.gettok(3));
 
 		p_Menu->setStyle(style);
 	}
@@ -734,4 +688,201 @@ BOOL WINAPI XPopupMenuManager::TrampolineTrackPopupMenuEx(
 	return (a > 0);
 }
 
+/*
+ * Parses the menu information and returns a valid XPopupMenu.
+ */
+void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *popup, TString &popupName, TString &popupDataset) {
+	TiXmlElement *globalStyles;
+	TiXmlElement *element;
+	int totalIndexes;
+	XPopupMenu::MenuStyle style;
+	const char* attr;
 
+	// Find the dataset with the name we want.
+	for (element = popups->FirstChildElement("popup"); element != NULL; element = element->NextSiblingElement("popup")) {
+		TString name(element->Attribute("name"));
+
+		if (name == popupDataset) {
+			popup = element;
+			break;
+		}
+	}
+
+	// Dataset not found.
+	if (popup == NULL) {
+		TString err;
+		err.sprintf("No Popup Dataset %s", popupDataset.to_chr());
+		DCXError("/dcxml", err.to_chr());
+		return;
+	}
+
+	XPopupMenu *menu = g_XPopupMenuManager.getMenuByName(popupName, FALSE);
+
+	// Destroy a menu which already exists
+	if (menu != NULL)
+		g_XPopupMenuManager.deleteMenu(menu);
+
+	// Find global styles branch
+	globalStyles = popups->FirstChildElement("styles");
+
+	// Move to "all" branch
+	if (globalStyles != NULL)
+		globalStyles = globalStyles->FirstChildElement("all");
+	else
+		globalStyles = NULL;
+
+	// Create menu with style (from specific or global)
+	attr = GetMenuAttributeFromXML("style", popup, globalStyles);
+	style = XPopupMenu::parseStyle(TString(attr));
+	menu = new XPopupMenu(popupName, style);
+
+	const TString colors("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour");
+	totalIndexes = colors.numtok();
+
+	for (int i = 1; i <= totalIndexes; i++) {
+		attr = GetMenuAttributeFromXML(colors.gettok(i).to_chr(), popup, globalStyles);
+
+		if (attr != NULL) {
+			char buff[900];
+			mIRCeval(attr, buff, 900);
+			menu->setColor(i, TString(buff).to_int());
+		}
+	}
+
+	// Set background image if CUSTOM style used
+	if (style == XPopupMenu::XPMS_CUSTOM) {
+		char buff[900];
+
+		mIRCevalEX(buff, 900, "%s", popup->Attribute("background"));
+
+		HBITMAP hBitmap = NULL;
+		hBitmap = dcxLoadBitmap(NULL, TString(buff));
+
+		if (hBitmap != NULL)
+			menu->setBackBitmap(hBitmap);
+	}
+
+	// Successfully created a menu.
+	g_XPopupMenuManager.m_vpXPMenu.push_back(menu);
+
+	// Parse icons
+	element = popup->FirstChildElement("icons");
+
+	if (element != NULL) {
+		const char *tmp;
+		TString command;
+		TString flags;
+		TString indexes;
+		int nIcon;
+
+		for (element = element->FirstChildElement("icon"); element != NULL; element = element->NextSiblingElement("icon")) {
+			// Flags
+			tmp = element->Attribute("flags");
+
+			if (tmp == NULL)
+				flags = "+";
+			else
+				flags.sprintf("%s", tmp);
+
+			// Filename
+			char filename[900];
+			mIRCevalEX(filename, 900, "%s", element->Attribute("src"));
+
+			tmp = element->Attribute("index");
+
+			if (tmp == NULL)
+				indexes = "0";
+			else
+				indexes.sprintf("%s", tmp);
+
+			totalIndexes = indexes.numtok(",");
+
+			for (int i = 1; i <= totalIndexes; i++) {
+				nIcon = indexes.gettok(i, ",").to_int();
+				//xpudemo -i + 114 dcxstudio_gfx\shell.dll
+				command.sprintf("%s -i %s %d %s", popupName.to_chr(), flags.to_chr(), nIcon, filename);
+				g_XPopupMenuManager.parseXPopupCommand(command, menu);
+			}
+		}
+	}
+
+	LoadPopupItemsFromXML(menu, menu->getMenuHandle(), popup);
+}
+
+/*
+ * Function to append submenu items into a menu.
+ * This method is recursive in order to parse submenus correctly.
+ */
+bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, TiXmlElement *items) {
+	// Iterate through each child element.
+	for (TiXmlElement *element = items->FirstChildElement("item"); element != NULL; element = element->NextSiblingElement("item")) {
+		MENUITEMINFO mii;
+		int nPos = GetMenuItemCount(hMenu) +1;
+
+		ZeroMemory(&mii, sizeof(MENUITEMINFO));
+		mii.cbSize = sizeof(MENUITEMINFO);
+
+		XPopupMenuItem *item = NULL;
+		TString caption(element->Attribute("caption"));
+
+		if (caption == "-") {
+			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+			mii.fType = MFT_OWNERDRAW | MFT_SEPARATOR;
+
+			item = new XPopupMenuItem(menu, TRUE);
+		}
+		else {
+			int mID = TString(element->Attribute("id")).to_int();
+			int mIcon = (element->Attribute("icon") != NULL ? TString(element->Attribute("icon")).to_int() -1 : -1);
+			TString state(element->Attribute("state"));
+
+			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE | MIIM_ID;
+			mii.fType = MFT_OWNERDRAW;
+			mii.wID = mID;
+
+			// Checked
+			if (state.find('c', 0))
+				mii.fState |= MFS_CHECKED;
+			
+			// Gray
+			if (state.find('g', 0))
+				mii.fState |= MFS_GRAYED;
+
+			// Submenu
+			if (element->FirstChildElement("item") != NULL) {
+				if (mii.hSubMenu != NULL)
+					DestroyMenu(mii.hSubMenu);
+
+				mii.fMask |= MIIM_SUBMENU;
+				mii.hSubMenu = CreatePopupMenu();
+
+				XPopupMenuManager::LoadPopupItemsFromXML(menu, mii.hSubMenu, element);
+			}
+
+			// TODO: command
+			item = new XPopupMenuItem(menu, caption, mIcon, mii.hSubMenu != NULL ? TRUE : FALSE);
+		}
+
+		menu->m_vpMenuItem.push_back(item);
+		mii.dwItemData = (ULONG_PTR) item;
+		InsertMenuItem(hMenu, nPos, TRUE, &mii);
+	}
+
+	return true;
+}
+
+const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, TiXmlElement *popup, TiXmlElement *global) {
+	const char* tmp;
+	
+	tmp = popup->Attribute(attrib);
+
+	// Specific menu attribute set, ignore global.
+	if (tmp != NULL)
+		return tmp;
+
+	// Try to find global style.
+	if (global == NULL)
+		return NULL;
+
+	return global->Attribute(attrib);
+}

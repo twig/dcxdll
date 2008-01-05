@@ -1,4 +1,85 @@
 <dcxml>
+	<popups>
+		<styles>
+			<all style="icy" textcolour="$rgb(0,0,255)" bgcolour="$rgb(255,0,0)" selbordercolour="$rgb(255,255,255)" />
+		</styles>
+
+		<popup name="popup1" style="custom" background="$scriptdir\xpopup_background.bmp">
+			<icons>
+				<icon index="1,3,5,7" flags="+g" src="$mircdir $+ dcxstudio_gfx\controls.icl" />
+				<icon index="0" src="$mircdir $+ mirc.exe" />
+				<icon src="$mircdir $+ mirc2.exe" />
+			</icons>
+
+			<item id="1" caption="custom 1" icon="1" />
+			<item id="2" caption="custom 2" icon="2" />
+			<item id="3" caption="custom 3" icon="3" />
+			<item id="4" caption="custom 4" icon="4" />
+			<item id="5" caption="custom 5" icon="5" />
+			<item id="6" caption="custom 6 (invalid icon)" icon="6" />
+		</popup>
+
+		<popup name="popup2" style="office2003" textcolour="$rgb(255,0,0)" bgcolour="$rgb(0,255,0)" >
+			<item id="3" caption="meh3" />
+			<item id="4" caption="meh4" />
+			<item id="5" caption="meh5" />
+		</popup>
+
+		<popup name="mypopup" style="vertical">
+			<icons>
+				<icon index="1" src="$mircdir $+ dcxstudio_gfx\controls.icl" />
+				<icon index="3" src="$mircdir $+ dcxstudio_gfx\controls.icl" />
+				<icon index="5" src="$mircdir $+ dcxstudio_gfx\controls.icl" />
+			</icons>
+
+			<item id="1" caption="meh1" command="echo 3 -s this command is stored by the item" />
+			<item caption="meh2" />
+			<item id="3" caption="meh3" state="+cg" />
+			<item id="4" caption="meh4" />
+			<item id="5" caption="meh5" />
+<blah />
+			<item caption="-" />
+			<item id="6" caption="icon1" icon="1" />
+			<item id="7" caption="icon2" icon="2" />
+			<item id="8" caption="icon3" icon="3" />
+			<item id="9" caption="icon4" icon="4" />
+			<item caption="-" />
+			<item id="10" caption="state checked" state="+c" />
+			<item id="11" caption="state grey"    state="+g" />
+			<item id="12" caption="state submenu">
+				<item id="1" caption="subitem 1" />
+				<item id="2" caption="subitem 2" />
+				<huh />
+				<item id="3" caption="subitem 3" />
+			</item>
+			<item caption="-" />
+			<item id="13" caption="meh6">
+				<item id="1" caption="subitem 1">
+					<item id="1" caption="nested subitem 1" icon="1" />
+					<item caption="-" />
+					<item id="2" caption="nested subitem 2" state="+c" />
+					<item id="3" caption="nested subitem 3" state="+g" />
+					<item id="4" caption="nested subitem 4" state="+cg" />
+				</item>
+				<item id="2" caption="subitem 2" />
+				<item id="3" caption="subitem 3" />
+			</item>
+			<item id="14" caption="meh7">
+				<bleh />
+			</item>
+			<item id="15" caption="meh8" />
+		</popup>
+
+		<popup name="popup3">
+			<item id="1" caption="custom 1" />
+			<item id="2" caption="custom 2" />
+			<item id="3" caption="custom 3" />
+			<item id="4" caption="custom 4" />
+			<item id="5" caption="custom 5" />
+			<item id="6" caption="custom 6" />
+		</popup>
+	</popups>
+
 	<dialogs>
 		<styles>
 			<all fontsize="8" fontstyle="a" fontname="Tahoma" />

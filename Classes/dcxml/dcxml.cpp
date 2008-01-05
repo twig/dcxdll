@@ -20,6 +20,7 @@
 #include "../dcxdialogcollection.h"
 #include "../dcxcontrol.h"
 #include <map>
+#include "../xpopup/xpopupmenumanager.h"
 
 extern DcxDialogCollection Dialogs;
 /*
@@ -720,50 +721,58 @@ public:
 protected:
 
 };
-/* /dcxml -[d|p]  */
+
+/*
+ * /dcxml -[SWITCH] [?NAME] [DATASET] [PARMS]
+ *
+ * -d = [DNAME] [DATASET] [FILENAME]
+ * -p = [PNAME] [DATASET] [FILENAME]
+ */
 mIRC(dcxml) {
     TString input(data);
-    int numtok = input.numtok( );
+    int numtok = input.numtok();
     
     if (numtok < 3) {
         DCXError("/dcxml", "Insuffient parameters");
         return 1;
     }
 
-    TString flags(input.gettok( 1 ));
-    flags.trim();
+	TiXmlBase::SetCondenseWhiteSpace( false ); 
+	TiXmlDocument doc(input.gettok(2,"\"").to_chr());
+	bool dcxmlFile = doc.LoadFile();
 
-    if ((flags[0] != '-') || (flags.len() < 2)) {
-        DCXError("/dcxml","No Flags Found");
-        return 0;
-    }
+	if (!dcxmlFile) { 
+		DCXError("/dcxml", "Could Not Load File");
+		return 0;
+	}
 
-    if ((flags.find('p', 0) == 0) && (flags.find('d', 0) == 0)) { 
-        DCXError("/dcxml","Unknown Flags");
-        return 0;
-    }
-    DCXML oDcxml;
-    TiXmlBase::SetCondenseWhiteSpace( false ); 
-    TiXmlDocument doc(input.gettok(2,"\"").to_chr());
-    bool dcxmlFile = doc.LoadFile();
-    if (!dcxmlFile) { 
-        DCXError("/dcxml","Could Not Load File");
-        return 0;
-    }
-    oDcxml.root = doc.FirstChildElement("dcxml");
-    if (!oDcxml.root) {
-        DCXError("/dcxml","Root Element Is Not DCXML");
-        return 0;
-    }
-    
-    if (flags.find('d', 0)) { 
+	if (!doc.FirstChildElement("dcxml")) {
+		DCXError("/dcxml", "Root Element Is Not 'dcxml'");
+		return 0;
+	}
+
+    XSwitchFlags flags(input.gettok(1));
+
+	// Parse XDialog XML.
+    if (flags['d']) {
+		DCXML oDcxml;
+
+        oDcxml.dname = input.gettok(2).to_chr();
+		oDcxml.d_Host = Dialogs.getDialogByName(oDcxml.dname);
+
+		if (oDcxml.d_Host == NULL) {
+			DCXError("/dcxml", "Host dialog has not been marked.");
+            return 0;
+		}
+
+		oDcxml.root = doc.FirstChildElement("dcxml");
 
         oDcxml.dialogs = oDcxml.root->FirstChildElement("dialogs");
         if (!oDcxml.dialogs) { 
-            DCXError("/dcxml","No Dialogs Group");
+            DCXError("/dcxml","No 'dialogs' Group");
             return 0;
         }
-        for( oDcxml.element = oDcxml.dialogs->FirstChildElement("dialog"); oDcxml.element; oDcxml.element = oDcxml.element->NextSiblingElement() ) {
+        for( oDcxml.element = oDcxml.dialogs->FirstChildElement("dialog"); oDcxml.element; oDcxml.element = oDcxml.element->NextSiblingElement("dialog") ) {
             const char *name = oDcxml.element->Attribute("name");
             if (0==lstrcmp(name, input.gettok(3," ").to_chr())) { 
                 oDcxml.dialog = oDcxml.element;
@@ -774,8 +783,7 @@ mIRC(dcxml) {
             DCXError("/dcxml","Dialog name not found in <dialogs>");
             return 0;
         }
-        oDcxml.dname = input.gettok(2," ").to_chr();
-        oDcxml.d_Host = Dialogs.getDialogByName(input.gettok(2," "));
+
         const char *cascade = (oDcxml.temp = oDcxml.dialog->Attribute("cascade")) ? oDcxml.temp : "v";
         const char *margin = (oDcxml.temp = oDcxml.dialog->Attribute("margin")) ? oDcxml.temp : "0 0 0 0";
         const char *caption = (oDcxml.temp = oDcxml.dialog->Attribute("caption")) ? oDcxml.temp : oDcxml.dname.to_chr();
@@ -798,5 +806,36 @@ mIRC(dcxml) {
 
         return 1;
     }
+	// Parse XPopup DCXML.
+	else if (flags['p']) {
+		TiXmlElement *popups = doc.FirstChildElement("dcxml")->FirstChildElement("popups");
+		TiXmlElement *popup = NULL;
+		TString popupName(input.gettok(2));
+		TString popupDataset(input.gettok(3));
+        
+		if ((popupName == "mircbar") || (popupName == "mirc") || (popupName == "scriptpopup")) {
+			TString err;
+			err.sprintf("Menu name %s is reserved.", popupName.to_chr());
+			DCXError("/dcxml", err.to_chr());
+			return 0;
+		}
+
+		// Couldnt find popups group.
+        if (!popups) { 
+            DCXError("/dcxml", "No 'popups' Group");
+            return 0;
+        }
+
+		XPopupMenuManager::LoadPopupsFromXML(popups, popup, popupName, popupDataset);
+		return 1;
+	}
+	// Unknown flags.
+	else {
+		TString err;
+		err.sprintf("Unknown flag %s", input.gettok(1).to_chr());
+		DCXError("/dcxml", err.to_chr());
+		return 0;
+	}
+
     return 1;
 }

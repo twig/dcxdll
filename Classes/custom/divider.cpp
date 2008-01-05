@@ -22,43 +22,6 @@
  * blah
  */
 
-void InitDivider( HINSTANCE hInstance ) {
-
-  WNDCLASSEX	wc;
-
-	wc.cbSize			    = sizeof( WNDCLASSEX );
-	wc.style		  	  = 0;
-	wc.lpfnWndProc	  = DividerWndProc;
-	wc.cbClsExtra		  = 0;
-	wc.cbWndExtra		  = 0;
-	wc.hInstance		  = hInstance;
-	wc.hIcon			    = NULL;
-	wc.hCursor			  = NULL;
-	wc.hbrBackground	= (HBRUSH)(COLOR_3DFACE+1);
-	wc.lpszMenuName		= 0;
-	wc.lpszClassName	= DIVIDERCLASSNAME;
-	wc.hIconSm			  = NULL;
-
-	RegisterClassEx( &wc );
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-void UnInitDivider( ) {
-
-  UnregisterClass( DIVIDERCLASSNAME, GetModuleHandle( NULL ) );
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
 LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 
   switch( uMsg ) {

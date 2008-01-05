@@ -251,8 +251,9 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 					// submenu
 					if ( flag[i] == 's' ) {
 						mii.fMask |= MIIM_SUBMENU;
-						if ( mii.fMask != NULL )
+						if ( mii.hSubMenu != NULL )
 							DestroyMenu( mii.hSubMenu );
+
 						mii.hSubMenu = CreatePopupMenu( );
 					}
 					else if ( flag[i] == 'c' )
@@ -654,47 +655,47 @@ void XPopupMenu::setColor( const int nColor, const COLORREF clrColor ) {
 
   switch ( nColor ) {
 
-    case 1:
+    case XPMC_BACKGROUND:
       this->m_MenuColors.m_clrBack = clrColor;
       break;
 
-    case 2:
+    case XPMC_ICONBOX:
       this->m_MenuColors.m_clrBox = clrColor;
       break;
 
-    case 3:
+    case XPMC_CHECKBOX:
       this->m_MenuColors.m_clrCheckBox = clrColor;
       break;
 
-    case 4:
+    case XPMC_CHECKBOX_DISABLED:
       this->m_MenuColors.m_clrDisabledCheckBox = clrColor;
       break;
 
-    case 5:
+    case XPMC_SELECTIONBOX_DISABLED:
       this->m_MenuColors.m_clrDisabledSelection = clrColor;
       break;
 
-    case 6:
+    case XPMC_TEXT_DISABLED:
       this->m_MenuColors.m_clrDisabledText = clrColor;
       break;
 
-    case 7:
+    case XPMC_SELECTIONBOX:
       this->m_MenuColors.m_clrSelection = clrColor;
       break;
 
-    case 8:
+    case XPMC_SELECTIONBOX_BORDER:
       this->m_MenuColors.m_clrSelectionBorder = clrColor;
       break;
 
-    case 9:
+    case XPMC_SEPARATOR:
       this->m_MenuColors.m_clrSeparatorLine = clrColor;
       break;
 
-    case 10:
+    case XPMC_TEXT:
       this->m_MenuColors.m_clrText = clrColor;
       break;
 
-    case 11:
+    case XPMC_SELECTEDTEXT:
       this->m_MenuColors.m_clrSelectedText = clrColor;
       break;
 
@@ -713,35 +714,38 @@ COLORREF XPopupMenu::getColor(const int nColor ) const {
 
   switch ( nColor ) {
 
-    case 1:
+    case XPMC_BACKGROUND:
       return this->m_MenuColors.m_clrBack;
 
-    case 2:
+    case XPMC_ICONBOX:
       return this->m_MenuColors.m_clrBox;
 
-    case 3:
+    case XPMC_CHECKBOX:
       return this->m_MenuColors.m_clrCheckBox;
 
-    case 4:
+    case XPMC_CHECKBOX_DISABLED:
       return this->m_MenuColors.m_clrDisabledCheckBox;
 
-    case 5:
+    case XPMC_SELECTIONBOX_DISABLED:
       return this->m_MenuColors.m_clrDisabledSelection;
 
-    case 6:
+    case XPMC_TEXT_DISABLED:
       return this->m_MenuColors.m_clrDisabledText;
 
-    case 7:
+    case XPMC_SELECTIONBOX:
       return this->m_MenuColors.m_clrSelection;
 
-    case 8:
+    case XPMC_SELECTIONBOX_BORDER:
       return this->m_MenuColors.m_clrSelectionBorder;
 
-    case 9:
+    case XPMC_SEPARATOR:
       return this->m_MenuColors.m_clrSeparatorLine;
 
-    case 10:
+    case XPMC_TEXT:
       return this->m_MenuColors.m_clrText;
+
+	case XPMC_SELECTEDTEXT:
+		return this->m_MenuColors.m_clrSelectedText;
 
     default:
       return 0;
@@ -752,47 +756,47 @@ void XPopupMenu::setDefaultColor(const int nColor ) {
 
 	switch ( nColor ) {
 
-		case 1:
+		case XPMC_BACKGROUND:
 			this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
 			break;
 
-		case 2:
+		case XPMC_ICONBOX:
 			this->m_MenuColors.m_clrBox = RGB( 184, 199, 146 );
 			break;
 
-		case 3:
+		case XPMC_CHECKBOX:
 			this->m_MenuColors.m_clrCheckBox = RGB( 255, 128, 0 );
 			break;
 
-		case 4:
+		case XPMC_CHECKBOX_DISABLED:
 			this->m_MenuColors.m_clrDisabledCheckBox = RGB( 200, 200, 200 );
 			break;
 
-		case 5:
+		case XPMC_SELECTIONBOX_DISABLED:
 			this->m_MenuColors.m_clrDisabledSelection = RGB( 255, 255, 255 );
 			break;
 
-		case 6:
+		case XPMC_TEXT_DISABLED:
 			this->m_MenuColors.m_clrDisabledText = RGB( 128, 128, 128 );
 			break;
 
-		case 7:
+		case XPMC_SELECTIONBOX:
 			this->m_MenuColors.m_clrSelection = RGB( 255, 229, 179 );
 			break;
 
-		case 8:
+		case XPMC_SELECTIONBOX_BORDER:
 			this->m_MenuColors.m_clrSelectionBorder = RGB( 0, 0, 0 );
 			break;
 
-		case 9:
+		case XPMC_SEPARATOR:
 			this->m_MenuColors.m_clrSeparatorLine = RGB( 128, 128, 128 );
 			break;
 
-		case 10:
+		case XPMC_TEXT:
 			this->m_MenuColors.m_clrText = RGB( 0, 0, 0 );
 			break;
 
-		case 11:
+		case XPMC_SELECTEDTEXT:
 			this->m_MenuColors.m_clrSelectedText = RGB( 0, 0, 0 );
 			break;
 
@@ -1107,4 +1111,34 @@ void XPopupMenu::setMarkedText(TString text) {
 
 TString XPopupMenu::getMarkedText() {
 	return this->m_tsMarkedText;
+}
+
+/*
+ * Parses a string to a menu style.
+ */
+XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString &tsStyle) {
+	XPopupMenu::MenuStyle style = XPopupMenu::XPMS_OFFICE2003;
+
+	if (tsStyle == "office2003rev")
+		style = XPopupMenu::XPMS_OFFICE2003_REV;
+	else if (tsStyle == "officexp")
+		style = XPopupMenu::XPMS_OFFICEXP;
+	else if (tsStyle == "icy")
+		style = XPopupMenu::XPMS_ICY;
+	else if (tsStyle == "icyrev")
+		style = XPopupMenu::XPMS_ICY_REV;
+	else if (tsStyle == "grade")
+		style = XPopupMenu::XPMS_GRADE;
+	else if (tsStyle == "graderev")
+		style = XPopupMenu::XPMS_GRADE_REV;
+	else if (tsStyle == "vertical")
+		style = XPopupMenu::XPMS_VERTICAL;
+	else if (tsStyle == "verticalrev")
+		style = XPopupMenu::XPMS_VERTICAL_REV;
+	else if (tsStyle == "normal")
+		style = XPopupMenu::XPMS_NORMAL;
+	else if (tsStyle == "custom")
+		style = XPopupMenu::XPMS_CUSTOM;
+
+	return style;
 }

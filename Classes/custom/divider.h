@@ -18,15 +18,6 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#define DIVIDERCLASSNAMEW    L"Divider32" //!< Unicode Divider Class Name
-#define DIVIDERCLASSNAMEA    "Divider32"  //!< Non-Unicode Divider Class Name
-
-#ifdef  UNICODE
-#define DIVIDERCLASSNAME     DIVIDERCLASSNAMEW
-#else
-#define DIVIDERCLASSNAME     DIVIDERCLASSNAMEA
-#endif
-
 // Divider Window Style
 #define DVS_HORZ 0x0000 //!< Horizontal Divider (Default)
 #define DVS_VERT 0x0001 //!< Vertical Divider 
@@ -97,9 +88,6 @@ typedef struct tagDVCONTROLDATA {
   int m_iOldPos;          //!< Moving Old Position
 
 } DVCONTROLDATA, * LPDVCONTROLDATA;
-
-void InitDivider( HINSTANCE hInstance );
-void UnInitDivider( );
 
 LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
