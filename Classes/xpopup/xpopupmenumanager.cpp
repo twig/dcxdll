@@ -58,9 +58,7 @@ void XPopupMenuManager::parseXPopupCommand(const TString & input) {
 
 	// Special mIRC Menu
 	if ((p_Menu = this->getMenuByName(input.gettok(1), TRUE)) == NULL && !flags['c']) {
-		TString error;
-		error.sprintf("\"%s\" doesn't exist : see /xpopup -c", input.gettok(1).to_chr());
-		DCXError("/xpopup",error.to_chr());
+		DCXErrorEX("/xpopup", "\"%s\" doesn't exist : see /xpopup -c", input.gettok(1).to_chr());
 		return;
 	}
 
@@ -99,9 +97,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 	else if ((flags['c']) && (numtok > 2) && (input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar")) {
 
 		if (p_Menu != NULL) {
-			TString error;
-			error.sprintf("\"%s\" already exists", input.gettok( 1 ).to_chr( ) );
-			DCXError("/xpopup -c",error.to_chr());
+			DCXErrorEX("/xpopup -c", "\"%s\" already exists", input.gettok(1).to_chr());
 		}
 		else {
 			XPopupMenu::MenuStyle style = XPopupMenu::parseStyle(input.gettok(3));
@@ -298,9 +294,7 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 	XPopupMenu * p_Menu = this->getMenuByName(input.gettok(1), TRUE);
 
 	if ((p_Menu == NULL) && (prop != "ismenu") && (prop != "menuname") && (prop != "menubar")) {
-		TString error;
-		error.sprintf("\"%s\" doesn't exist, see /xpopup -c", input.gettok( 1 ).to_chr( ) );
-		DCXError("$!xpopup()", error.to_chr());
+		DCXErrorEX("$!xpopup()", "\"%s\" doesn't exist, see /xpopup -c", input.gettok(1).to_chr());
 		return;
 	}
 
@@ -313,9 +307,7 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 
 		if ((i < 0) || (i > (int) this->m_vpXPMenu.size()))
 		{
-			TString error;
-			error.sprintf("Invalid index: %d", i);
-			DCXError("$!xpopup().menuname", error.to_chr());
+			DCXErrorEX("$!xpopup().menuname", "Invalid index: %d", i);
 			return;
 		}
 
@@ -710,9 +702,7 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 
 	// Dataset not found.
 	if (popup == NULL) {
-		TString err;
-		err.sprintf("No Popup Dataset %s", popupDataset.to_chr());
-		DCXError("/dcxml", err.to_chr());
+		DCXErrorEX("/dcxml", "No Popup Dataset %s", popupDataset.to_chr());
 		return;
 	}
 

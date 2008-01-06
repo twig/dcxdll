@@ -352,6 +352,7 @@ void mIRCcomEX(const char *data, ...);
 
 //void dcxInfoError(const char *ctrl, const char *functn, const char *dlg, const int ctrlid, const char *msg);
 void DCXError(const char *cmd,const char *msg);
+void DCXErrorEX(const char *cmd, char *szFormat, ...);
 void DCXDebug(const char *cmd,const char *msg);
 
 int round(const float x);

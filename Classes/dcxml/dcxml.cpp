@@ -814,9 +814,7 @@ mIRC(dcxml) {
 		TString popupDataset(input.gettok(3));
         
 		if ((popupName == "mircbar") || (popupName == "mirc") || (popupName == "scriptpopup")) {
-			TString err;
-			err.sprintf("Menu name %s is reserved.", popupName.to_chr());
-			DCXError("/dcxml", err.to_chr());
+			DCXErrorEX("/dcxml", "Menu name '%s' is reserved.", popupName.to_chr());
 			return 0;
 		}
 
@@ -831,9 +829,7 @@ mIRC(dcxml) {
 	}
 	// Unknown flags.
 	else {
-		TString err;
-		err.sprintf("Unknown flag %s", input.gettok(1).to_chr());
-		DCXError("/dcxml", err.to_chr());
+		DCXErrorEX("/dcxml", "Unknown flag %s", input.gettok(1).to_chr());
 		return 0;
 	}
 

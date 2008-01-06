@@ -150,9 +150,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		int offset = this->findMenuOffset(menuBar, p_Menu);
 
 		if (offset < 0) {
-			TString error;
-			error.sprintf("\"%s\" menu not found in XMenuBar.", p_Menu->getName().to_chr());
-			DCXError("-l", error.to_chr());
+			DCXErrorEX("-l", "\"%s\" menu not found in XMenuBar.", p_Menu->getName().to_chr());
 			return;
 		}
 
@@ -182,9 +180,7 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, char *szReturnValue) {
 		int i = input.gettok(2).to_int();
 
 		if ((i < 0) || (i > (int) this->m_vpXMenuBar.size())) {
-			TString error;
-			error.sprintf("Invalid index: %d", i);
-			DCXError("$!xpopup().menubar", error.to_chr());
+			DCXErrorEX("$!xpopup().menubar", "Invalid index: %d", i);
 			return;
 		}
 
@@ -319,9 +315,7 @@ void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar) {
  */
 bool XMenuBar::validateMenu(const XPopupMenu *menu, const TString &flag, const TString &name) const {
 	if (menu == NULL) {
-		TString error;
-		error.sprintf("Cannot find menu \"%s\".", name.to_chr());
-		DCXError(flag.to_chr(), error.to_chr());
+		DCXErrorEX(flag.to_chr(), "Cannot find menu \"%s\".", name.to_chr());
 		return false;
 	}
 	// Prevent users from adding special menus.

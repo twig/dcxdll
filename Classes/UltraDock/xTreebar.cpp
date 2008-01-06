@@ -253,9 +253,7 @@ mIRC(xtreebar) {
 						break;
 					default: // unknown style ignore.
 						{
-							TString err;
-							err.sprintf("Unknown Style: %s", input.gettok(i).to_chr());
-							DCXError("/xtreebar -s", err.to_chr());
+							DCXErrorEX("/xtreebar -s", "Unknown Style: %s", input.gettok(i).to_chr());
 						}
 						break;
 					}

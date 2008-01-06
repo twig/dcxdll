@@ -47,20 +47,14 @@ mIRC(TrayIcon) {
 
 		// if create and it already exists
 		if (flags.find('c', 0) && (exists)) {
-			TString error;
-
-			error.sprintf("Cannot create trayicon: id %d already exists", id);
-			DCXError("/xtray", error.to_chr());
+			DCXErrorEX("/xtray", "Cannot create trayicon: id %d already exists", id);
 			return 0;
 		}
 
 		// if edit and it doesnt exist
 		if (flags.find('e', 0)) {
 			if (!exists) {
-				TString error;
-
-				error.sprintf("Cannot edit trayicon: id %d does not exists", id);
-				DCXError("/xtray", error.to_chr());
+				DCXErrorEX("/xtray", "Cannot edit trayicon: id %d does not exists", id);
 				return 0;
 			}
 

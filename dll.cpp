@@ -786,9 +786,7 @@ mIRC(xdid) {
 	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok( 1 ));
 
 	if (p_Dialog == NULL) {
-		TString error;
-		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
-		DCXError("/xdid",error.to_chr());
+		DCXErrorEX("/xdid", "Unknown dialog \"%s\": see Mark command", d.gettok(1).to_chr());
 		return 0;
 	}
 
@@ -868,9 +866,7 @@ mIRC(_xdid) {
 	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok( 1 ));
 
 	if (p_Dialog == NULL) {
-		TString error;
-		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
-		DCXError("$!xdid()",error.to_chr());
+		DCXErrorEX("$!xdid()", "Unknown dialog \"%s\": see Mark command", d.gettok(1).to_chr());
 		return 0;
 	}
 
@@ -921,18 +917,14 @@ mIRC(xdialog) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 2) {
-		TString error;
-		error.sprintf("Invalid arguments ( dialog %s)", d.gettok( 1 ).to_chr());
-		DCXError("/xdialog",error.to_chr());
+		DCXErrorEX("/xdialog", "Invalid arguments ( dialog %s)", d.gettok(1).to_chr());
 		return 0;
 	}
 
 	DcxDialog * p_Dialog = Dialogs.getDialogByName(d.gettok( 1 ));
 
 	if (p_Dialog == NULL) {
-		TString error;
-		error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
-		DCXError("/xdialog",error.to_chr());
+		DCXErrorEX("/xdialog", "Unknown dialog \"%s\": see Mark command", d.gettok(1).to_chr());
 		return 0;
 	}
 
@@ -955,9 +947,7 @@ mIRC(_xdialog) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 2) {
-		TString error;
-		error.sprintf("Invalid arguments ( dialog %s)", d.gettok( 1 ).to_chr());
-		DCXError("$!xdialog()",error.to_chr());
+		DCXErrorEX("$!xdialog()", "Invalid arguments ( dialog %s)", d.gettok(1).to_chr());
 		return 0;
 	}
 
@@ -965,9 +955,7 @@ mIRC(_xdialog) {
 
 	if (p_Dialog == NULL) {
 		if (d.gettok( 2 ) != "ismarked") {
-			TString error;
-			error.sprintf("Unknown dialog \"%s\": see Mark command", d.gettok( 1 ).to_chr());
-			DCXError("$!xdialog()",error.to_chr());
+			DCXErrorEX("$!xdialog()", "Unknown dialog \"%s\": see Mark command", d.gettok(1).to_chr());
 			return 0;
 		}
 		else
@@ -1204,9 +1192,7 @@ mIRC(xpop) {
 	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok(1), FALSE);
 
 	if (p_Menu == NULL) {
-		TString error;
-		error.sprintf("Unknown menu \"%s\": see /xpopup -c command", d.gettok( 1 ).to_chr());
-		DCXError("/xpop",error.to_chr());
+		DCXErrorEX("/xpop", "Unknown menu \"%s\": see /xpopup -c command", d.gettok(1).to_chr());
 		return 0;
 	}
 
@@ -1240,9 +1226,7 @@ mIRC(_xpop) {
 	XPopupMenu *p_Menu = g_XPopupMenuManager.getMenuByName(d.gettok(1), FALSE);
 
 	if (p_Menu == NULL) {
-		TString error;
-		error.sprintf("Unknown menu \"%s\": see /xpopup -c command", d.gettok( 1 ).to_chr());
-		DCXError("$!xpop()",error.to_chr());
+		DCXErrorEX("$!xpop()", "Unknown menu \"%s\": see /xpopup -c command", d.gettok(1).to_chr());
 		return 0;
 	}
 
@@ -1395,10 +1379,7 @@ mIRC(xSignal) {
 				break;
 
 			default:
-				TString flag;
-				flag.sprintf("Unknown flag '%c' specified.", flags[i]);
-
-				DCXError("/dcx xSignal", flag.to_chr());
+				DCXErrorEX("/dcx xSignal", "Unknown flag '%c' specified.", flags[i]);
 		}
 	}
 
