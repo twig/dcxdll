@@ -229,7 +229,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr><td colspan="2">Opens up the Font dialog and returns the selected font options.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$dcx(FontDialog, [(PARAM) (VALUE) [$chr(9) (PARAM2) (VALUE2) [$chr(9) (PARAM3) (VALUE3)]]])</div></td>
+		<td><div class="syntax">$dcx(FontDialog, (PARAM VALUE) $chr(9) ... $chr(9) (PARAM VALUE))</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -638,11 +638,11 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr><td colspan="2">This command prepares the dialog for DCX-based commands.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/dcx Mark [NAME] [CALLBACK_ALIAS]</div></td>
+		<td><div class="syntax">/dcx Mark [DNAME] [CALLBACK_ALIAS]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/dcx Mark dlgDCX cb_alias</div></td>
+		<td><div class="example">/dcx Mark dialogName cb_alias</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>

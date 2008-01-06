@@ -92,8 +92,8 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		),
 		"Mark" => array(
 			'__desc' => "This command prepares the dialog for DCX-based commands.",
-			'__cmd' => "[NAME] [CALLBACK_ALIAS]",
-			'__eg' => "dlgDCX cb_alias",
+			'__cmd' => "[DNAME] [CALLBACK_ALIAS]",
+			'__eg' => "dialogName cb_alias",
 			'__params' => array(
 				'NAME' => "Dialog window name.",
 				'CALLBACK_ALIAS' => "Callback Event alias name.",
@@ -240,7 +240,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
         ),
 		'FontDialog' => array(
 			'__desc' => "Opens up the Font dialog and returns the selected font options.",
-			'__cmd' => '[(PARAM) (VALUE) [$chr(9) (PARAM2) (VALUE2) [$chr(9) (PARAM3) (VALUE3)]]]',
+			'__cmd' => '(PARAM VALUE) $chr(9) ... $chr(9) (PARAM VALUE)',
 			'__eg' => 'default +is ansi 9 Verdana $chr(9) color $rgb(255,0,0) $chr(9) owner dname $chr(9) flags +eh',
             '__isid' => true,
 			'__params' => array(
