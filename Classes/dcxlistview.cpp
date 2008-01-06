@@ -750,25 +750,36 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		TString data(input.gettok(1, TSTAB).gettok(4, -1));
 		data.trim();
-		int nPos = (int)data.gettok( 1 ).to_num() -1;
+		int nPos = data.gettok( 1 ).to_int() -1;
 
 		if (nPos < 0)
 			nPos = ListView_GetItemCount(this->m_Hwnd);
 
-		int indent = (int)data.gettok( 2 ).to_num();
+		int indent = data.gettok( 2 ).to_int();
 		UINT stateFlags = this->parseItemFlags(data.gettok( 3 ));
-		int icon = (int)data.gettok( 4 ).to_num() -1;
-		int state = (int)data.gettok( 5 ).to_num();
+		int icon = data.gettok( 4 ).to_int() -1;
+		int state = data.gettok( 5 ).to_int();
 		int overlay = data.gettok( 6 ).to_int( );
-		int group = (int)data.gettok( 7 ).to_num();
+		int group = data.gettok( 7 ).to_int();
 		COLORREF clrText = (COLORREF)data.gettok( 8 ).to_num();
 		COLORREF clrBack = (COLORREF)data.gettok( 9 ).to_num();
 
 		LPDCXLVITEM lpmylvi = new DCXLVITEM;
-		ZeroMemory(lpmylvi, sizeof(DCXLVITEM));
+
+		if (lpmylvi == NULL)
+			return;
+
+		//ZeroMemory(lpmylvi, sizeof(DCXLVITEM)); // this line causes dev build to crash.
+		lpmylvi->iPbarCol = 0;
+		lpmylvi->pbar = NULL;
 		lpmylvi->vInfo.clear();
 
 		LPDCXLVRENDERINFO ri = new DCXLVRENDERINFO;
+
+		if (ri == NULL) {
+			delete lpmylvi;
+			return;
+		}
 
 		// setup colum zero
 		ri->m_dFlags = stateFlags;
@@ -837,7 +848,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
 
 			if (lvi.iItem == -1) {
-				// NB: memleak, objects not deleted....
+				delete lpmylvi;
+				delete ri;
 				this->showError(NULL,"-a", "Unable to add item");
 				return;
 			}
@@ -868,6 +880,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 					// setup colum #
 					ri = new DCXLVRENDERINFO;
+
+					if (ri == NULL)
+						break;
+
 					ri->m_dFlags = stateFlags;
 
 					if (stateFlags & LVIS_COLOR)
@@ -2247,7 +2263,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								else if (lvh.flags & LVHT_NOWHERE)
 									this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
 								if (!(lvexstyles & LVS_EX_FULLROWSELECT))
 								{ // make subitem show as selected. TEST CODE!!!!
 									LVITEM lvi = { 0 };
@@ -2666,101 +2682,101 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				//}
 				//if (!bParsed) {
 				switch( hdr->code ) {
-		case NM_RCLICK:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					char ClassName[257];
+				case NM_RCLICK:
+					{
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+							char ClassName[257];
 
-					GetClassName( hdr->hwndFrom, ClassName, 256 );
+							GetClassName( hdr->hwndFrom, ClassName, 256 );
 
-					if ( lstrcmpi( ClassName, "SysHeader32" ) == 0 ) {
+							if ( lstrcmpi( ClassName, "SysHeader32" ) == 0 ) {
 
-						HDHITTESTINFO hdti;
-						GetCursorPos( &hdti.pt );
-						ScreenToClient( hdr->hwndFrom, &hdti.pt );
-						if ( SendMessage( hdr->hwndFrom, HDM_HITTEST, (WPARAM) 0, (LPARAM) &hdti ) != -1 )
-							this->callAliasEx( NULL, "%s,%d,%d", "hrclick", this->getUserID( ), hdti.iItem + 1 );
+								HDHITTESTINFO hdti;
+								GetCursorPos( &hdti.pt );
+								ScreenToClient( hdr->hwndFrom, &hdti.pt );
+								if ( SendMessage( hdr->hwndFrom, HDM_HITTEST, (WPARAM) 0, (LPARAM) &hdti ) != -1 )
+									this->callAliasEx( NULL, "%s,%d,%d", "hrclick", this->getUserID( ), hdti.iItem + 1 );
+							}
+						}
+						bParsed = TRUE;
 					}
-				}
-				bParsed = TRUE;
-			}
-			break;
-		case HDN_BEGINTRACKW:
-		case HDN_BEGINTRACK:
-			{
-				bParsed = TRUE;
+					break;
+				case HDN_BEGINTRACKW:
+				case HDN_BEGINTRACK:
+					{
+						bParsed = TRUE;
 
-				LPNMHEADER pHeader = (LPNMHEADER) lParam;
+						LPNMHEADER pHeader = (LPNMHEADER) lParam;
 
-				char ret[256];
-				this->callAliasEx( ret, "%s,%d,%d", "trackbegin", this->getUserID(), pHeader->iItem +1);
+						char ret[256];
+						this->callAliasEx( ret, "%s,%d,%d", "trackbegin", this->getUserID(), pHeader->iItem +1);
 
-				if (!lstrcmp("notrack", ret))
-					return TRUE;
-			}
-			break;
+						if (!lstrcmp("notrack", ret))
+							return TRUE;
+					}
+					break;
 
-		case HDN_ITEMCLICKW:
-		case HDN_ITEMCLICK:
-			{
-				bParsed = TRUE;
+				case HDN_ITEMCLICKW:
+				case HDN_ITEMCLICK:
+					{
+						bParsed = TRUE;
 
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					LPNMHEADER lphdr = (LPNMHEADER) lParam;
-					this->callAliasEx( NULL, "%s,%d,%d", "hsclick", this->getUserID( ), lphdr->iItem + 1 );
-				}
-			}
-			break;
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+							LPNMHEADER lphdr = (LPNMHEADER) lParam;
+							this->callAliasEx( NULL, "%s,%d,%d", "hsclick", this->getUserID( ), lphdr->iItem + 1 );
+						}
+					}
+					break;
 
-		case HDN_ITEMDBLCLICKW:
-		case HDN_ITEMDBLCLICK:
-			{
-				bParsed = TRUE;
+				case HDN_ITEMDBLCLICKW:
+				case HDN_ITEMDBLCLICK:
+					{
+						bParsed = TRUE;
 
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					LPNMHEADER lphdr = (LPNMHEADER) lParam;
-					this->callAliasEx( NULL, "%s,%d,%d", "hdclick", this->getUserID( ), lphdr->iItem + 1 );
-				}
-			}
-			break;
-			// LVN_GETTOOLTIP/TTN_GETDISPINFO/TTN_LINKCLICK fail....
-			//case LVN_GETINFOTIP:
-			//	{
-			//	}
-			//	break;
-			//case TTN_GETDISPINFO:
-			//	{
-			//		LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-			//		LVHITTESTINFO hti;
-			//		GetCursorPos( &hti.pt );
-			//		ScreenToClient( this->m_Hwnd, &hti.pt );
-			//		ZeroMemory(&hti,sizeof(LVHITTESTINFO));
-			//		hti.flags = LVHT_ONITEM;
-			//		if (ListView_SubItemHitTest(this->m_Hwnd,&hti) != -1) {
-			//			if (hti.flags & LVHT_ONITEM) {
-			//				LVITEM lvi;
-			//				ZeroMemory(&lvi,sizeof(LVITEM));
-			//				lvi.mask = LVIF_PARAM;
-			//				lvi.iItem = hti.iItem;
-			//				lvi.iSubItem = hti.iSubItem;
-			//				if (ListView_GetItem(this->m_Hwnd,&lvi)) {
-			//					LPDCXLVITEM dci = (LPDCXLVITEM) lvi.lParam;
-			//					if (dci != NULL)
-			//						di->lpszText = dci->tsTipText.to_chr();
-			//				}
-			//			}
-			//		}
-			//		//di->lpszText = this->m_tsToolTip.to_chr();
-			//		di->hinst = NULL;
-			//		bParsed = TRUE;
-			//	}
-			//	break;
-			//case TTN_LINKCLICK:
-			//	{
-			//		bParsed = TRUE;
-			//		this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
-			//	}
-			//	break;
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+							LPNMHEADER lphdr = (LPNMHEADER) lParam;
+							this->callAliasEx( NULL, "%s,%d,%d", "hdclick", this->getUserID( ), lphdr->iItem + 1 );
+						}
+					}
+					break;
+					// LVN_GETTOOLTIP/TTN_GETDISPINFO/TTN_LINKCLICK fail....
+					//case LVN_GETINFOTIP:
+					//	{
+					//	}
+					//	break;
+					//case TTN_GETDISPINFO:
+					//	{
+					//		LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+					//		LVHITTESTINFO hti;
+					//		GetCursorPos( &hti.pt );
+					//		ScreenToClient( this->m_Hwnd, &hti.pt );
+					//		ZeroMemory(&hti,sizeof(LVHITTESTINFO));
+					//		hti.flags = LVHT_ONITEM;
+					//		if (ListView_SubItemHitTest(this->m_Hwnd,&hti) != -1) {
+					//			if (hti.flags & LVHT_ONITEM) {
+					//				LVITEM lvi;
+					//				ZeroMemory(&lvi,sizeof(LVITEM));
+					//				lvi.mask = LVIF_PARAM;
+					//				lvi.iItem = hti.iItem;
+					//				lvi.iSubItem = hti.iSubItem;
+					//				if (ListView_GetItem(this->m_Hwnd,&lvi)) {
+					//					LPDCXLVITEM dci = (LPDCXLVITEM) lvi.lParam;
+					//					if (dci != NULL)
+					//						di->lpszText = dci->tsTipText.to_chr();
+					//				}
+					//			}
+					//		}
+					//		//di->lpszText = this->m_tsToolTip.to_chr();
+					//		di->hinst = NULL;
+					//		bParsed = TRUE;
+					//	}
+					//	break;
+					//case TTN_LINKCLICK:
+					//	{
+					//		bParsed = TRUE;
+					//		this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
+					//	}
+					//	break;
 				} // switch
 				//}
 			}
