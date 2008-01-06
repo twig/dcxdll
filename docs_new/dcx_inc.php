@@ -322,7 +322,7 @@ else
 			<a style="color:#000000;" href="archive.htm">Download</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
-                        <span class="version">v<?php echo $VERSION; ?></span>
+                        <div class="version">v<?php echo $VERSION; ?></div>
 		</td>
 	</tr>
 </table>

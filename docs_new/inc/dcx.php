@@ -176,10 +176,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 					),
 				),
 			),
-			'__notes' => array(
-			    '<br />By default, the main mIRC window is the parent. Dialog name OR a hwnd MUST follow after the [s]owner[/s] style.<br />
-To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
-			),
+			'__notes' => 'By default, the main mIRC window is the parent. Dialog name OR a hwnd MUST follow after the [s]owner[/s] style<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 		),
 		'OpenDialog/SaveDialog' => array(
 			'__desc' => "Opens up the Open/Save file dialog and returns the selected file.",
@@ -213,7 +210,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				'FILTER' => 'The FILTER parameter is the type of files the user can select, it should be formatted like "Description|Type|Description|Type"',
 			),
 			'__notes' => array(
-				'Returns $null when cancelled.',
+				'Returns [v]$null[/v] when cancelled.',
 				"[v]filemustexist[/v] automatically applies [v]pathmustexist[/v] when style used.",
 				"[v]multisel[/v] returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.",
                                 'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />
@@ -324,7 +321,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			),
 			'__return' => 'The information returned is in the following format: [v]RGB[/v] [v]+FLAGS[/v] [v]CHARSET[/v] [v]SIZE[/v] [v]FONTNAME[/v]',
 			'__notes' => array(
-				'Returns $null when cancelled.',
+				'Returns [v]$null[/v] when cancelled.',
 				"You do not have to specify all parameters, only the ones you wish to change.",
 				'The parameter [p]minmaxsize[/p] is limited to a range of 8-72. Any sizes other than that will be ignored.',
                                 'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />

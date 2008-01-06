@@ -17,7 +17,7 @@
 			<a style="color:#000000;" href="archive.htm">Download</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
-                        <span class="version">v1.4.1</span>
+                        <div class="version">v1.4.1</div>
 		</td>
 	</tr>
 </table>
@@ -67,26 +67,21 @@
 
 <div class="divpink">DCX does not support mIRC controls (NOT EVEN mIRC TABS), nor anything related to mIRC normal dialogs except it's menus. DCX does not work like MDX so please read the manual and see dcx.mrc and dcx_tools.mrc for examples.</div>
 
-<div class="divpink" style="color: #0000ff;">XPopup (special mIRC menus) need to be patched to work on mIRC v6.2! Custom menus still work normally.</div>
+<div class="divpink" style="color: #0000ff; padding-top: 0px;">XPopup (special mIRC menus) need to be patched to work on mIRC v6.2! Custom menus still work normally.</div>
 
 The DLL creates the controls directly on the mIRC dialog and you use clone functions defined by /xdid and $xdid which behave like the regular /did
 and $did to interact with the controls.<br />
 <br />
 The event handling in the DLL is supported by a callback alias supplied by the user when the dialog is marked before adding DCX controls. The callback alias is called from within the DLL to ask for info (if you want to modify the default behavior in the DLL thus the "callback" type) and will supply the user with the events and parameters of these events.<br />
 <br />
-Every function in this DLL returns a value if used with the $dll identifier. <a class="value">D_OK [function]: [message]</a> if successful, <a class="value">D_ERROR [function]: [message]</a> otherwise.<br />
-<br />
-<a class="note">Note:</a> Mandatory parameters are expressed in <a class="param">[SQUARE]</a> brackets and optional parameters in <a class="param">(ROUNDED)</a> brackets.<br />
-<a class="note">Note:</a> We strongly suggest you load the <b>dcx_tools.mrc</b> file included in the zip as it contains the necessary <b>/xdialog</b>, <b>/xdid</b>, <b>/xdock</b>, <b>/xtray</b>, <b>/xstatusbar</b>, <b>/xtreebar</b> and <b>/xmenubar</b> aliases and identifiers needed to use the DLL.<br />
-<a class="note">Note:</a> Function calls, styles, and references to anything DCX related are all <strong>case sensitive</strong>!
-</td></tr>
+Every function in this DLL returns a value if used with the $dll identifier. <a class="value">D_OK [function]: [message]</a> if successful, <a class="value">D_ERROR [function]: [message]</a> otherwise.
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Mandatory parameters are expressed in <a class="param">[SQUARE]</a> brackets and optional parameters in <a class="param">(ROUNDED)</a> brackets.</li><li>We strongly suggest you load the <b>dcx_tools.mrc</b> file included in the zip as it contains the necessary <b>/xdialog</b>, <b>/xdid</b>, <b>/xdock</b>, <b>/xtray</b>, <b>/xstatusbar</b>, <b>/xtreebar</b> and <b>/xmenubar</b> aliases and identifiers needed to use the DLL.</li><li>Function calls, styles, and references to anything DCX related are all <strong>case sensitive</strong>!</li></ul></td></tr></td></tr>
 </table>
 <table class="description">
 	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>GDI+</td></tr>
 	<tr><td>For advanced support for images (such as extra file formats and drawing routines), Microsoft has released a library called GDI+. This is included in Windows XP, however older versions of Windows may not have this.<br />
 <br />
 Use <a class='value' href='dcx.htm#general.IsUsingGDI'>$dcx(IsUsingGDI)</a> to check whether or not you have GDI+ support on your computer. If you do not, you can download it <a href="http://dcx.scriptsdb.org/gdiplus.zip">here</a>.<br />
-<br />
 </td></tr>
 </table>
 <table class="description">
@@ -117,7 +112,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 		<td class="param">PARAM</td>
 		<td>$4- = Additional information, event specific (usually $null, except specified otherwise in documentation)</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <br />Some control events support return values to change their default behaviour. When returning special values during certain events, such as <a class="returnevent">nosize</a> for <a class="event">sizing</a>, interact with the DLL and modify the default event behavior. The events that support a return value will have a description of what the return value does when returned.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Some control events support return values to change their default behaviour. When returning special values during certain events, such as <a class="returnevent">nosize</a> for <a class="event">sizing</a>, interact with the DLL and modify the default event behavior. The events that support a return value will have a description of what the return value does when returned.</td></tr></table>
 </td></tr>
 </table>
 <table class="description">
@@ -135,6 +130,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 		<td style="width: 150px;"><a>Lead Developer</a></td>
 		<td>ClickHeRe</td>
 	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
 	<tr>
 		<td><a>Supporting Developers<br /></a>(in chronological order)</td>
 		<td>
@@ -172,10 +168,12 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 		<td><a>MDX vs DCX</a></td>
 		<td>Mpdreamz</td>
 	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
 	<tr>
 		<td><a>Demo Script</a></td>
 		<td>elizio</td>
 	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
 	<tr>
 		<td>
 			<a>General Testing</a><br />
@@ -284,8 +282,8 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2007</td>
-		<td style="text-align: right;">Last Updated: 31st December, 07</td>
+		<td style="text-align: center;">© 2005-2008</td>
+		<td style="text-align: right;">Last Updated: 6th January, 08</td>
 	</tr>
 </table>
 <div style="text-align: center;">

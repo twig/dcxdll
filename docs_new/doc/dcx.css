@@ -312,10 +312,11 @@ ul.nav li ul a:hover div {
 }
 
 /* Top horizontal menu */
-span.version {
+div.version {
 	font-weight: bold;
 	padding-top: 5px;
 	padding-right: 5px;
+	text-align: right;
 }
 
 td.sitenav {
