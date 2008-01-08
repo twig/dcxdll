@@ -482,6 +482,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 		if (label == "&Tools") {
 			HMENU scriptable = GetSubMenu(menu, i +1);;
 
+			// TODO: check if the next one is "&Window"
 			g_mIRCScriptMenu = new XPopupMenu("scriptpopup", scriptable);
 			break;
 		}
@@ -594,9 +595,15 @@ int WINAPI UnloadDll(int timeout) {
 * \brief DCX DLL Version Function
 */
 mIRC(Version) {
+#ifdef DCX_DEV_BUILD
+	wsprintf(data,
+		"DCX (XPopup) DLL %d.%d.%d %s%d by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2008",
+		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE, DLL_DEV_BUILD);
+#else
 	wsprintf(data,
 		"DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2008",
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
+#endif
 	return 3;
 }
 

@@ -450,11 +450,14 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 		if ( matchtext.len( ) > 0 ) {
 
 			UINT SearchType;
+			TString searchMode = params.gettok(1);
 
-			if ( params.gettok( 1 ) == "R" )
+			if (searchMode == "R")
 				SearchType = LVSEARCH_R;
-			else
+			else if (searchMode == "W")
 				SearchType = LVSEARCH_W;
+			else
+				SearchType = LVSEARCH_E;
 
 			int nColumn = params.gettok( 2 ).to_int( ) - 1;
 			int N = params.gettok( 3 ).to_int( );
@@ -2083,14 +2086,18 @@ BOOL DcxListView::isListViewStyle( const long dwView ) const {
 */
 
 BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType ) {
-
 	char itemtext[900];
-
 	ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext, 900 );
-	if (SearchType == LVSEARCH_R)
-		return isRegexMatch(itemtext, search->to_chr());
-	else
-		return TString(itemtext).iswm(search->to_chr());
+
+	switch (SearchType) {
+		case LVSEARCH_R:
+			return isRegexMatch(itemtext, search->to_chr());
+		case LVSEARCH_W:
+			return TString(itemtext).iswm(search->to_chr());
+		case LVSEARCH_E:
+			return (!lstrcmp(search->to_chr(), itemtext));
+	}
+
 	return FALSE;
 }
 

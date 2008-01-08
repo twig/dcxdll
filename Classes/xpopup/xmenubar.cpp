@@ -161,6 +161,20 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	else if (flags['r']) {
 		this->resetMenuBar();
 	}
+	// Trigger command for a specific mIRC menu item.
+	// xmenubar [-s] [ID]
+	else if (flags['s']) {
+		if (numtok < 2) {
+			DCXError("-s", "Insufficient parameters");
+			return;
+		}
+
+		int mID = input.gettok(2).to_int();
+
+		// MAKEWPARAM((# = Menu ID), (0 = Menu command));
+		SendMessage(mIRCLink.m_mIRCHWND, WM_COMMAND, MAKEWPARAM(mID, 0) , NULL);
+		return;
+	}
 
 	// Force redraw so the updates are shown.
 	DrawMenuBar(mIRCLink.m_mIRCHWND);

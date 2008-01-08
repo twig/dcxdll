@@ -31,6 +31,7 @@ class DcxTreeView;
 
 #define TVSEARCH_W 0x01       //!< TreeView WildCard Search
 #define TVSEARCH_R 0x02       //!< TreeView Regex Search
+#define TVSEARCH_E 0x04       //!< TreeView Exact Match
 
 #define TVSS_ASC        0x01   //!< TreeView Sort Ascending Style
 #define TVSS_DESC       0x02   //!< TreeView Sort Descending Style

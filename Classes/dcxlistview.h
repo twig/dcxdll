@@ -44,6 +44,7 @@ class DcxDialog;
 
 #define LVSEARCH_W 0x01 //!< ListView WildCard Search
 #define LVSEARCH_R 0x02 //!< ListView Regex Search
+#define LVSEARCH_E 0x04 //!< ListView Exact Match
 
 /*!
  * \brief blah

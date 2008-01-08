@@ -276,13 +276,16 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 		}
 
 		UINT searchType;
+		TString searchMode = params.gettok(1);
 		HTREEITEM startingPoint = TVI_ROOT;
 		HTREEITEM result;
 
-		if (params.gettok(1) == "R")
+		if (searchMode == "R")
 			searchType = TVSEARCH_R;
-		else
+		else if (searchMode == "W")
 			searchType = TVSEARCH_W;
+		else
+			searchType = TVSEARCH_E;
 
 		int n = params.gettok(2).to_int();
 		int matchCount = 0;
@@ -1620,14 +1623,19 @@ int DcxTreeView::getChildCount(HTREEITEM *hParent) const {
  * blah
  */
 
-BOOL DcxTreeView::matchItemText( HTREEITEM * hItem, const TString * search, const UINT SearchType ) const {
-
+BOOL DcxTreeView::matchItemText(HTREEITEM *hItem, const TString *search, const UINT SearchType) const {
 	char itemtext[900];
 	this->getItemText(hItem, itemtext, 900);
-	if (SearchType == TVSEARCH_R)
-		return isRegexMatch(itemtext, search->to_chr());
-	else
-		return TString(itemtext).iswm(search->to_chr());
+
+	switch (SearchType) {
+		case TVSEARCH_R:
+			return isRegexMatch(itemtext, search->to_chr());
+		case TVSEARCH_W:
+			return TString(itemtext).iswm(search->to_chr());
+		case TVSEARCH_E:
+			return (!lstrcmp(search->to_chr(), itemtext));
+	}
+
 	return FALSE;
 }
 
