@@ -120,18 +120,6 @@ void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 			*Styles |= BS_BITMAP;
 		else if ( styles.gettok( i ) == "default" )
 			*Styles |= BS_DEFPUSHBUTTON;
-		else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i ) == "shadow" ))
-			this->m_bShadowText = true;
-		else if (( styles.gettok( i ) == "noformat" ))
-			this->m_bCtrlCodeText = false;
-		else if ( styles.gettok( i ) == "hgradient" )
-			this->m_bGradientFill = true;
-		else if ( styles.gettok( i ) == "vgradient" ) {
-			this->m_bGradientFill = true;
-			this->m_bGradientVertical = TRUE;
-		}
 
 		i++;
 	}
@@ -714,12 +702,12 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 			if (!this->m_bCtrlCodeText) {
 				if (!this->m_bSelected && this->m_bShadowText)
-					dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(), this->m_tsCaption.len(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
+					dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(this->m_bUseUTF8), this->m_tsCaption.wlen(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
 				else
-					DrawText( hdc, this->m_tsCaption.to_chr( ), this->m_tsCaption.len( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+					DrawTextW( hdc, this->m_tsCaption.to_wchr(this->m_bUseUTF8), this->m_tsCaption.wlen( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
 			}
 			else
-				mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false));
+				mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false), this->m_bUseUTF8);
 		}
 
 		SelectFont( hdc, hFontOld );

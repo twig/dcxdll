@@ -146,18 +146,6 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 		}
 		else if (styles.gettok( i ) == "transparent")
 			*ExStyles |= WS_EX_TRANSPARENT;
-		else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i ) == "shadow" ))
-			this->m_bShadowText = true;
-		else if (( styles.gettok( i ) == "noformat" ))
-			this->m_bCtrlCodeText = false;
-		else if ( styles.gettok( i ) == "hgradient" )
-			this->m_bGradientFill = true;
-		else if ( styles.gettok( i ) == "vgradient" ) {
-			this->m_bGradientFill = true;
-			this->m_bGradientVertical = TRUE;
-		}
 
 		i++;
 	}
@@ -785,9 +773,9 @@ void DcxBox::DrawClientArea(HDC hdc)
 			);
 
 		if (this->m_bCtrlCodeText)
-			calcStrippedRect(hdc, wtext, 0, &rcText, false);
+			calcStrippedRect(hdc, wtext, 0, &rcText, false, this->m_bUseUTF8);
 		else
-			DrawText(hdc, wtext.to_chr(), n, &rcText, DT_CALCRECT);
+			DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), n, &rcText, DT_CALCRECT);
 
 		int w = rcText.right - rcText.left;
 		int h = rcText.bottom - rcText.top;
@@ -868,12 +856,12 @@ void DcxBox::DrawClientArea(HDC hdc)
 		// draw the text
 		if (!this->m_bCtrlCodeText) {
 			if (this->m_bShadowText)
-				dcxDrawShadowText(hdc,wtext.to_wchr(), n,&rcText, DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
+				dcxDrawShadowText(hdc,wtext.to_wchr(this->m_bUseUTF8), n,&rcText, DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
 			else
-				DrawText(hdc, wtext.to_chr(), n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
+				DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
 		}
 		else
-			mIRC_DrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS, this->m_bShadowText);
+			mIRC_DrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS, this->m_bShadowText, this->m_bUseUTF8);
 	}
 
 	this->FinishAlphaBlend(ai);

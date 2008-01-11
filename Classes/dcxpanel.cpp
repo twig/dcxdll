@@ -81,22 +81,14 @@ DcxPanel::~DcxPanel( ) {
  */
 
 void DcxPanel::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok( );
+	//unsigned int i = 1, numtok = styles.numtok( );
 
 
-	while ( i <= numtok ) {
+	//while ( i <= numtok ) {
 
-		if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
-		else if ( styles.gettok( i ) == "hgradient" )
-			this->m_bGradientFill = true;
-		else if ( styles.gettok( i ) == "vgradient" ) {
-			this->m_bGradientFill = true;
-			this->m_bGradientVertical = TRUE;
-		}
 
-		i++;
-	}
+	//	i++;
+	//}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }

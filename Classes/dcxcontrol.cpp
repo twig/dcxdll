@@ -95,6 +95,7 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_clrEndGradient(CLR_INVALID)
 , m_bGradientVertical(FALSE)
 , m_ToolTipHWND(NULL)
+, m_bUseUTF8(false)
 {
 	this->m_dEventMask = p_Dialog->getEventMask();
 }
@@ -145,31 +146,41 @@ DcxControl::~DcxControl( ) {
 
 void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( );
+	unsigned int i = 1, numtok = styles.numtok( );
 
 	*Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "notheme" )
-      *bNoTheme = TRUE;
-    else if ( styles.gettok( i ) == "tabstop" )
-      *Styles |= WS_TABSTOP;
-    else if ( styles.gettok( i ) == "group" )
-      *Styles |= WS_GROUP;
-    else if ( styles.gettok( i ) == "disabled" )
-      *Styles |= WS_DISABLED;
-    else if ( styles.gettok( i ) == "transparent" )
-      *ExStyles |= WS_EX_TRANSPARENT;
-    else if ( styles.gettok( i ) == "hidden" )
-      *Styles &= ~WS_VISIBLE;
-    //else if ( styles.gettok( i ) == "vscroll" )
-    //  *Styles |= WS_VSCROLL;
-    //else if ( styles.gettok( i ) == "hscroll" )
-    //  *Styles |= WS_HSCROLL;
+		if ( styles.gettok( i ) == "notheme" )
+			*bNoTheme = TRUE;
+		else if ( styles.gettok( i ) == "tabstop" )
+			*Styles |= WS_TABSTOP;
+		else if ( styles.gettok( i ) == "group" )
+			*Styles |= WS_GROUP;
+		else if ( styles.gettok( i ) == "disabled" )
+			*Styles |= WS_DISABLED;
+		else if ( styles.gettok( i ) == "transparent" )
+			*ExStyles |= WS_EX_TRANSPARENT;
+		else if ( styles.gettok( i ) == "hidden" )
+			*Styles &= ~WS_VISIBLE;
+		else if ( styles.gettok( i ) == "alpha" )
+			this->m_bAlphaBlend = true;
+		else if (( styles.gettok( i ) == "shadow" ))
+			this->m_bShadowText = true;
+		else if (( styles.gettok( i ) == "noformat" ))
+			this->m_bCtrlCodeText = false;
+		else if ( styles.gettok( i ) == "hgradient" )
+			this->m_bGradientFill = true;
+		else if ( styles.gettok( i ) == "vgradient" ) {
+			this->m_bGradientFill = true;
+			this->m_bGradientVertical = TRUE;
+		}
+		else if ( styles.gettok( i ) == "utf8" )
+			this->m_bUseUTF8 = true;
 
-    i++;
-  }
+		i++;
+	}
 }
 
 /*!
@@ -707,7 +718,7 @@ UINT DcxControl::parseColorFlags( const TString & flags ) {
  * blah
  */
 
-void DcxControl::parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles ) {
+void DcxControl::parseBorderStyles( const TString & flags, LONG * Styles, LONG * ExStyles ) {
 
   INT i = 1, len = flags.len( );
 
@@ -1462,6 +1473,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, con
 		// fill in the parents image
 		::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)*hdcbkg,1L); // HACK: using 1L instead of NULL as a workaround for stacker.
 		::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)*hdcbkg,PRF_CLIENT);
+		//::SendMessage(this->m_pParentHWND, WM_PRINT, (WPARAM)*hdcbkg,PRF_CLIENT|PRF_ERASEBKGND);
 		// now draw all child controls within area of this control.
 		// NB: AVOID EnumChildWindows()
 		HWND child = GetWindow(this->m_Hwnd, GW_HWNDPREV);

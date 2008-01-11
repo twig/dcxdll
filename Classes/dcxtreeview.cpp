@@ -117,42 +117,38 @@ DcxTreeView::~DcxTreeView( ) {
 
 void DcxTreeView::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  *Styles |= TVS_INFOTIP;
+	*Styles |= TVS_INFOTIP;
 
-  unsigned int i = 1, numtok = styles.numtok( );
+	unsigned int i = 1, numtok = styles.numtok( );
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "haslines" ) 
-      *Styles |= TVS_HASLINES;
-    else if ( styles.gettok( i ) == "hasbuttons" ) 
-      *Styles |= TVS_HASBUTTONS;
-    else if ( styles.gettok( i ) == "linesatroot" ) 
-      *Styles |= TVS_LINESATROOT;
-    else if ( styles.gettok( i ) == "showsel" ) 
-      *Styles |= TVS_SHOWSELALWAYS;
-    else if ( styles.gettok( i ) == "editlabel" ) 
-      *Styles |= TVS_EDITLABELS;
-    else if ( styles.gettok( i ) == "nohscroll" ) 
-      *Styles |= TVS_NOHSCROLL;
-    else if ( styles.gettok( i ) == "notooltips" ) 
-      *Styles |= TVS_NOTOOLTIPS;
-    else if ( styles.gettok( i ) == "noscroll" ) 
-      *Styles |= TVS_NOSCROLL;
-    else if ( styles.gettok( i ) == "fullrow" ) 
-      *Styles |= TVS_FULLROWSELECT;
-    else if ( styles.gettok( i ) == "singleexpand" ) 
-      *Styles |= TVS_SINGLEEXPAND;
-    else if ( styles.gettok( i ) == "checkbox" ) 
-      *ExStyles |= TVS_CHECKBOXES;
-		else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
-		else if ( styles.gettok( i ) == "noformat" )
-			this->m_bCtrlCodeText = false;
+		if ( styles.gettok( i ) == "haslines" ) 
+			*Styles |= TVS_HASLINES;
+		else if ( styles.gettok( i ) == "hasbuttons" ) 
+			*Styles |= TVS_HASBUTTONS;
+		else if ( styles.gettok( i ) == "linesatroot" ) 
+			*Styles |= TVS_LINESATROOT;
+		else if ( styles.gettok( i ) == "showsel" ) 
+			*Styles |= TVS_SHOWSELALWAYS;
+		else if ( styles.gettok( i ) == "editlabel" ) 
+			*Styles |= TVS_EDITLABELS;
+		else if ( styles.gettok( i ) == "nohscroll" ) 
+			*Styles |= TVS_NOHSCROLL;
+		else if ( styles.gettok( i ) == "notooltips" ) 
+			*Styles |= TVS_NOTOOLTIPS;
+		else if ( styles.gettok( i ) == "noscroll" ) 
+			*Styles |= TVS_NOSCROLL;
+		else if ( styles.gettok( i ) == "fullrow" ) 
+			*Styles |= TVS_FULLROWSELECT;
+		else if ( styles.gettok( i ) == "singleexpand" ) 
+			*Styles |= TVS_SINGLEEXPAND;
+		else if ( styles.gettok( i ) == "checkbox" ) 
+			*ExStyles |= TVS_CHECKBOXES;
 
-    i++;
-  }
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+		i++;
+	}
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 #ifdef DCX_USE_WINSDK
@@ -1861,54 +1857,54 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
 
 					bParsed = TRUE;
-					break;
+				}
+				break;
+
+			case TVN_SELCHANGED:
+			{
+				LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
+
+				if (lpnmtv != NULL) {
+					TString path = this->getPathFromItem(&lpnmtv->itemNew.hItem);
+					this->callAliasEx(NULL, "%s,%d,%s", "selchange", this->getUserID(), path.to_chr());
 				}
 
-				case TVN_SELCHANGED:
+				bParsed = TRUE;
+			}
+			break;
+
+			case TVN_GETINFOTIP:
 				{
-					LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
-
-					if (lpnmtv != NULL) {
-						TString path = this->getPathFromItem(&lpnmtv->itemNew.hItem);
-						this->callAliasEx(NULL, "%s,%d,%s", "selchange", this->getUserID(), path.to_chr());
-					}
-
-					bParsed = TRUE;
-					break;
-				}
-
-          case TVN_GETINFOTIP:
-            {
-              LPNMTVGETINFOTIP tcgit = (LPNMTVGETINFOTIP) lParam;
-							if (tcgit != NULL) {
-								LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) tcgit->lParam;
-								if (lpdcxtvi != NULL) {
-									tcgit->pszText = lpdcxtvi->tsTipText.to_chr( );
-									tcgit->cchTextMax = lpdcxtvi->tsTipText.len( );
-								}
-							}
-							bParsed = TRUE;
-            }
-            break;
-
-					case TVN_ITEMEXPANDING:
-						{
-							// disables redraw to stop flicker with bkg image.
-							if (this->isExStyle(WS_EX_TRANSPARENT))
-								this->setRedraw(FALSE);
+					LPNMTVGETINFOTIP tcgit = (LPNMTVGETINFOTIP) lParam;
+					if (tcgit != NULL) {
+						LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) tcgit->lParam;
+						if (lpdcxtvi != NULL) {
+							tcgit->pszText = lpdcxtvi->tsTipText.to_chr( );
+							tcgit->cchTextMax = lpdcxtvi->tsTipText.len( );
 						}
-						break;
+					}
+					bParsed = TRUE;
+				}
+				break;
 
-				case TVN_ITEMEXPANDED:
+			case TVN_ITEMEXPANDING:
+				{
+					// disables redraw to stop flicker with bkg image.
+					if (this->isExStyle(WS_EX_TRANSPARENT))
+						this->setRedraw(FALSE);
+				}
+				break;
+
+			case TVN_ITEMEXPANDED:
 				{
 					LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
 
 					if (lpnmtv->action & TVE_COLLAPSE) {
-						TString path = this->getPathFromItem(&lpnmtv->itemNew.hItem);
+						TString path(this->getPathFromItem(&lpnmtv->itemNew.hItem));
 						this->callAliasEx(NULL, "%s,%d,%s", "collapse", this->getUserID(), path.to_chr());
 					}
 					else if (lpnmtv->action & TVE_EXPAND) {
-						TString path = this->getPathFromItem(&lpnmtv->itemNew.hItem);
+						TString path(this->getPathFromItem(&lpnmtv->itemNew.hItem));
 						this->callAliasEx(NULL, "%s,%d,%s", "expand", this->getUserID(), path.to_chr());
 					}
 
@@ -1924,155 +1920,155 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					}
 
 					bParsed = TRUE;
-					break;
 				}
+				break;
 
-          case TVN_BEGINLABELEDIT:
-            {
-              bParsed = TRUE;
-              LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO) lParam;
+			case TVN_BEGINLABELEDIT:
+				{
+					bParsed = TRUE;
+					LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO) lParam;
 
-              TreeView_SelectItem( this->m_Hwnd,lptvdi->item.hItem );
+					TreeView_SelectItem( this->m_Hwnd,lptvdi->item.hItem );
 
-              HWND edit_hwnd = TreeView_GetEditControl( this->m_Hwnd );
+					HWND edit_hwnd = TreeView_GetEditControl( this->m_Hwnd );
 
-              this->m_OrigEditProc = SubclassWindow( edit_hwnd, DcxTreeView::EditLabelProc );
-              SetProp( edit_hwnd, "dcx_pthis", (HANDLE) this );
+					this->m_OrigEditProc = SubclassWindow( edit_hwnd, DcxTreeView::EditLabelProc );
+					SetProp( edit_hwnd, "dcx_pthis", (HANDLE) this );
 
-              char ret[256];
-              this->callAliasEx( ret, "%s,%d", "labelbegin", this->getUserID( ) );
+					char ret[256];
+					this->callAliasEx( ret, "%s,%d", "labelbegin", this->getUserID( ) );
 
-              if ( !lstrcmp( "noedit", ret ) )
-                return TRUE;
-            
-              return FALSE;
-            }
-            break;
-          case TVN_ENDLABELEDIT:
-            {
-              bParsed = TRUE;
+					if ( !lstrcmp( "noedit", ret ) )
+						return TRUE;
 
-              LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO) lParam;
+					return FALSE;
+				}
+				break;
+			case TVN_ENDLABELEDIT:
+				{
+					bParsed = TRUE;
 
-              if ( lptvdi->item.pszText == NULL ) {
+					LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO) lParam;
 
-                this->callAliasEx( NULL, "%s,%d", "labelcancel", this->getUserID( ) );
-              }
-              else {
-	              char ret[256];
-                this->callAliasEx( ret, "%s,%d,%s", "labelend", this->getUserID( ), lptvdi->item.pszText );
+					if ( lptvdi->item.pszText == NULL ) {
 
-                if ( !lstrcmp( "noedit", ret ) )
-                  return FALSE;
-              }
-              return TRUE;
-            }
-            break;
+						this->callAliasEx( NULL, "%s,%d", "labelcancel", this->getUserID( ) );
+					}
+					else {
+						char ret[256];
+						this->callAliasEx( ret, "%s,%d,%s", "labelend", this->getUserID( ), lptvdi->item.pszText );
 
-          case NM_CUSTOMDRAW:
-            {
-              LPNMTVCUSTOMDRAW lpntvcd = (LPNMTVCUSTOMDRAW) lParam;
-              bParsed = TRUE;
+						if ( !lstrcmp( "noedit", ret ) )
+							return FALSE;
+					}
+					return TRUE;
+				}
+				break;
 
-              switch( lpntvcd->nmcd.dwDrawStage ) {
+			case NM_CUSTOMDRAW:
+				{
+					LPNMTVCUSTOMDRAW lpntvcd = (LPNMTVCUSTOMDRAW) lParam;
+					bParsed = TRUE;
 
-                case CDDS_PREPAINT:
-                  return ( CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW );
+					switch( lpntvcd->nmcd.dwDrawStage ) {
 
-								case CDDS_ITEMPREPAINT:
-								{
-									LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) lpntvcd->nmcd.lItemlParam;
+					case CDDS_PREPAINT:
+						return ( CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW );
 
-									if ( lpdcxtvi == NULL )
-										return CDRF_DODEFAULT;
+					case CDDS_ITEMPREPAINT:
+						{
+							LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) lpntvcd->nmcd.lItemlParam;
 
-									if ( lpdcxtvi->clrText != -1 )
-										lpntvcd->clrText = lpdcxtvi->clrText;
+							if ( lpdcxtvi == NULL )
+								return CDRF_DODEFAULT;
 
-									bool bSelected = (lpntvcd->nmcd.uItemState & CDIS_SELECTED);
+							if ( lpdcxtvi->clrText != -1 )
+								lpntvcd->clrText = lpdcxtvi->clrText;
 
-									// draw unselected background color
-									//if (this->isExStyle(WS_EX_TRANSPARENT) && !bSelected){
-									//	lpntvcd->clrTextBk = CLR_NONE;
-									//	SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
-									//}
-									//else if ((lpdcxtvi->clrBkg != -1) && !bSelected)
-									if ((lpdcxtvi->clrBkg != -1) && !bSelected)
-										lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
-									else if ((this->m_colSelection != -1) && bSelected)
-										lpntvcd->clrTextBk = this->m_colSelection;
+							bool bSelected = (lpntvcd->nmcd.uItemState & CDIS_SELECTED);
 
-									if ( lpdcxtvi->bUline || lpdcxtvi->bBold || lpdcxtvi->bItalic) {
-										HFONT hFont = GetWindowFont( this->m_Hwnd );
+							// draw unselected background color
+							//if (this->isExStyle(WS_EX_TRANSPARENT) && !bSelected){
+							//	lpntvcd->clrTextBk = CLR_NONE;
+							//	SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
+							//}
+							//else if ((lpdcxtvi->clrBkg != -1) && !bSelected)
+							if ((lpdcxtvi->clrBkg != -1) && !bSelected)
+								lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
+							else if ((this->m_colSelection != -1) && bSelected)
+								lpntvcd->clrTextBk = this->m_colSelection;
 
-										LOGFONT lf;
-										GetObject( hFont, sizeof(LOGFONT), &lf );
+							if ( lpdcxtvi->bUline || lpdcxtvi->bBold || lpdcxtvi->bItalic) {
+								HFONT hFont = GetWindowFont( this->m_Hwnd );
 
-										if (lpdcxtvi->bBold)
-											lf.lfWeight |= FW_BOLD;
-										if (lpdcxtvi->bUline)
-											lf.lfUnderline = true;
-										if (lpdcxtvi->bItalic)
-											lf.lfItalic = true;
+								LOGFONT lf;
+								GetObject( hFont, sizeof(LOGFONT), &lf );
 
-										this->m_hItemFont = CreateFontIndirect( &lf );
-										if (this->m_hItemFont != NULL)
-											this->m_hOldItemFont = SelectFont( lpntvcd->nmcd.hdc, this->m_hItemFont );
-									}
-									//TVITEMEX tvitem;
-									//char buf[900];
-									//ZeroMemory(&tvitem,sizeof(tvitem));
-									//tvitem.hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
-									//tvitem.mask = TVIF_TEXT;
-									//tvitem.pszText = buf;
-									//tvitem.cchTextMax = 900;
-									//TreeView_GetItem(this->m_Hwnd, &tvitem);
-									//TString tsItem(buf);
-									//RECT rcTxt = lpntvcd->nmcd.rc;
-									//if (!this->m_bCtrlCodeText) {
-									//	if (bSelected && this->m_bShadowText) // could cause problems with pre-XP as this is commctrl v6+
-									//		dcxDrawShadowText(lpntvcd->nmcd.hdc,tsItem.to_wchr(), tsItem.len(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, lpntvcd->clrText, 0, 5, 5);
-									//	else
-									//		DrawText( lpntvcd->nmcd.hdc, tsItem.to_chr( ), tsItem.len( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
-									//}
-									//else
-									//	mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((bSelected && this->m_bShadowText) ? true : false));
-								}
-								//return ( CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT );
-								return ( CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT );
+								if (lpdcxtvi->bBold)
+									lf.lfWeight |= FW_BOLD;
+								if (lpdcxtvi->bUline)
+									lf.lfUnderline = true;
+								if (lpdcxtvi->bItalic)
+									lf.lfItalic = true;
 
-                case CDDS_ITEMPOSTPAINT:
-									{
-										if (this->m_hOldItemFont != NULL) {
-											SelectFont( lpntvcd->nmcd.hdc, this->m_hOldItemFont);
-											this->m_hOldItemFont = NULL;
-										}
-										if (this->m_hItemFont != NULL) {
-											DeleteFont(this->m_hItemFont);
-											this->m_hItemFont = NULL;
-										}
-	                  return CDRF_DODEFAULT;
-									}
+								this->m_hItemFont = CreateFontIndirect( &lf );
+								if (this->m_hItemFont != NULL)
+									this->m_hOldItemFont = SelectFont( lpntvcd->nmcd.hdc, this->m_hItemFont );
+							}
+							//TVITEMEX tvitem;
+							//char buf[900];
+							//ZeroMemory(&tvitem,sizeof(tvitem));
+							//tvitem.hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
+							//tvitem.mask = TVIF_TEXT;
+							//tvitem.pszText = buf;
+							//tvitem.cchTextMax = 900;
+							//TreeView_GetItem(this->m_Hwnd, &tvitem);
+							//TString tsItem(buf);
+							//RECT rcTxt = lpntvcd->nmcd.rc;
+							//if (!this->m_bCtrlCodeText) {
+							//	if (bSelected && this->m_bShadowText) // could cause problems with pre-XP as this is commctrl v6+
+							//		dcxDrawShadowText(lpntvcd->nmcd.hdc,tsItem.to_wchr(this->m_bUseUTF8), tsItem.wlen(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, lpntvcd->clrText, 0, 5, 5);
+							//	else
+							//		DrawTextW( lpntvcd->nmcd.hdc, tsItem.to_wchr( ), tsItem.wlen( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+							//}
+							//else
+							//	mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((bSelected && this->m_bShadowText) ? true : false));
+						}
+						//return ( CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT );
+						return ( CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT );
 
-                default:
-                  return CDRF_DODEFAULT;
-              }
-            }
-            break;
+					case CDDS_ITEMPOSTPAINT:
+						{
+							if (this->m_hOldItemFont != NULL) {
+								SelectFont( lpntvcd->nmcd.hdc, this->m_hOldItemFont);
+								this->m_hOldItemFont = NULL;
+							}
+							if (this->m_hItemFont != NULL) {
+								DeleteFont(this->m_hItemFont);
+								this->m_hItemFont = NULL;
+							}
+							return CDRF_DODEFAULT;
+						}
 
-          case TVN_DELETEITEM:
-            {
-              LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
-              LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) lpnmtv->itemOld.lParam;
+					default:
+						return CDRF_DODEFAULT;
+					}
+				}
+				break;
 
-              if ( lpdcxtvi != NULL ) 
-                delete lpdcxtvi;
-            }
-            break;
+			case TVN_DELETEITEM:
+				{
+					LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
+					LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) lpnmtv->itemOld.lParam;
 
-        } // switch
-      }
-      break;
+					if ( lpdcxtvi != NULL ) 
+						delete lpdcxtvi;
+				}
+				break;
+
+			} // switch
+		}
+		break;
 	}
 	return 0L;
 }

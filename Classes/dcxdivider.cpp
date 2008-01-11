@@ -72,17 +72,17 @@ DcxDivider::~DcxDivider( ) {
 
 void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( );
-  *Styles |= DVS_HORZ;
+	unsigned int i = 1, numtok = styles.numtok( );
+	*Styles |= DVS_HORZ;
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "vertical" )
-      *Styles |= DVS_VERT;
+		if ( styles.gettok( i ) == "vertical" )
+			*Styles |= DVS_VERT;
 
-    i++;
-  }
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+		i++;
+	}
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!

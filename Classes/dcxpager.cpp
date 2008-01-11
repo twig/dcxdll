@@ -73,8 +73,6 @@ void DcxPager::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
 			*Styles |= PGS_HORZ;
 		else if (styles.gettok( i ) == "autoscroll")
 			*Styles |= PGS_AUTOSCROLL;
-		//else if ( styles.gettok( i ) == "alpha" )
-		//	this->m_bAlphaBlend = true;
 
     i++;
   }

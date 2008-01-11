@@ -87,31 +87,25 @@ DcxProgressBar::~DcxProgressBar( ) {
 
 void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( );
+	unsigned int i = 1, numtok = styles.numtok( );
 	this->m_bIsGrad = FALSE;
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "smooth" ) 
-      *Styles |= PBS_SMOOTH;
-    else if ( styles.gettok( i ) == "vertical" ) 
-      *Styles |= PBS_VERTICAL;
-    else if ( styles.gettok( i ) == "marquee" ) 
-      *Styles |= PBS_MARQUEE;
+		if ( styles.gettok( i ) == "smooth" ) 
+			*Styles |= PBS_SMOOTH;
+		else if ( styles.gettok( i ) == "vertical" ) 
+			*Styles |= PBS_VERTICAL;
+		else if ( styles.gettok( i ) == "marquee" ) 
+			*Styles |= PBS_MARQUEE;
 		else if ( styles.gettok( i ) == "gradient" ) {
-      *Styles |= PBS_SMOOTH;
+			*Styles |= PBS_SMOOTH;
 			this->m_bIsGrad = TRUE;
 		}
-    else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i ) == "shadow" ))
-			this->m_bShadowText = true;
-		else if (( styles.gettok( i ) == "noformat" ))
-			this->m_bCtrlCodeText = false;
 
-    i++;
-  }
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+		i++;
+	}
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -558,9 +552,9 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		}
 
 		if (!this->m_bCtrlCodeText)
-			DrawText(hdc, text.to_chr(), text.len(), &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
+			DrawTextW(hdc, text.to_wchr(this->m_bUseUTF8), text.wlen(), &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
 		else
-			mIRC_DrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP, this->m_bShadowText);
+			mIRC_DrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP, this->m_bShadowText, this->m_bUseUTF8);
 
 		if (oldfont != NULL)
 			SelectObject(hdc, oldfont);

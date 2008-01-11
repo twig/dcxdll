@@ -731,7 +731,7 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 							rc.left += (ii.rcImage.right - ii.rcImage.left);
 						}
 						if (pPart->m_Text.len() > 0)
-							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
+							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false, this->m_bUseUTF8);
 						else if (pPart->m_Child != NULL) {
 							SetWindowPos(pPart->m_Child->getHwnd(), NULL, rc.left, rc.top,
 								(rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);

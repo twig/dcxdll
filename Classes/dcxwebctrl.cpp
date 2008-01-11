@@ -74,7 +74,7 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 	TString url("about:blank");
   VARIANT v;
   VariantInit( &v );			
-  this->m_pWebBrowser2->Navigate( url.to_wchr(), &v, &v, &v, &v );  // dont use L""
+  this->m_pWebBrowser2->Navigate( url.to_wchr(this->m_bUseUTF8), &v, &v, &v, &v );  // dont use L""
   VariantClear( &v );
 
 }
@@ -232,7 +232,7 @@ void DcxWebControl::parseCommandRequest(TString & input) {
 
             VARIANT v;
             VariantInit( &v );
-						window->execScript( CMD.to_wchr(), NULL, &v );
+						window->execScript( CMD.to_wchr(this->m_bUseUTF8), NULL, &v );
             VariantClear( &v );
 
             window->Release( );
@@ -258,7 +258,7 @@ void DcxWebControl::parseCommandRequest(TString & input) {
 
     VARIANT v;
     VariantInit( &v );			
-		this->m_pWebBrowser2->Navigate( URL.to_wchr(), &v, &v, &v, &v );
+		this->m_pWebBrowser2->Navigate( URL.to_wchr(this->m_bUseUTF8), &v, &v, &v, &v );
     VariantClear( &v );
   }
   // xdid -r [NAME] [ID] [SWITCH]

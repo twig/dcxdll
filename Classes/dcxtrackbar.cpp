@@ -130,8 +130,6 @@ void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 		else if ( styles.gettok( i ) == "transparentbkg" )
 			*Styles |= TBS_TRANSPARENTBKGND;
 #endif
-		else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
 
 		i++;
 	}

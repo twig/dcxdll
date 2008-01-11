@@ -107,48 +107,46 @@ DcxTab::~DcxTab( ) {
 
 void DcxTab::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( );
+	unsigned int i = 1, numtok = styles.numtok( );
 
 	//*ExStyles = WS_EX_CONTROLPARENT;
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "vertical" )
-      *Styles |= TCS_VERTICAL;
-    else if ( styles.gettok( i ) == "bottom" )
-      *Styles |= TCS_BOTTOM;
-    else if ( styles.gettok( i ) == "right" )
-      *Styles |= TCS_RIGHT;
-    else if ( styles.gettok( i ) == "fixedwidth" )
-      *Styles |= TCS_FIXEDWIDTH;
-    else if ( styles.gettok( i ) == "buttons" )
-      *Styles |= TCS_BUTTONS;
-    else if ( styles.gettok( i ) == "flat" )
-      *Styles |= TCS_FLATBUTTONS;
-    else if ( styles.gettok( i ) == "hot" )
-      *Styles |= TCS_HOTTRACK;
-    else if ( styles.gettok( i ) == "multiline" )
-      *Styles |= TCS_MULTILINE;
-    else if ( styles.gettok( i ) == "rightjustify" )
-      *Styles |= TCS_RIGHTJUSTIFY;
-    else if ( styles.gettok( i ) == "scrollopposite" )
-      *Styles |= TCS_SCROLLOPPOSITE;
-    //else if ( styles.gettok( i ) == "tooltips" )
-    //  *Styles |= TCS_TOOLTIPS;
-    else if ( styles.gettok( i ) == "flatseps" )
-      *ExStyles |= TCS_EX_FLATSEPARATORS;
-    else if (styles.gettok(i) == "closable") {
-       this->m_bClosable = true;
-       *Styles |= TCS_OWNERDRAWFIXED;
-    }
-		else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
+		if ( styles.gettok( i ) == "vertical" )
+			*Styles |= TCS_VERTICAL;
+		else if ( styles.gettok( i ) == "bottom" )
+			*Styles |= TCS_BOTTOM;
+		else if ( styles.gettok( i ) == "right" )
+			*Styles |= TCS_RIGHT;
+		else if ( styles.gettok( i ) == "fixedwidth" )
+			*Styles |= TCS_FIXEDWIDTH;
+		else if ( styles.gettok( i ) == "buttons" )
+			*Styles |= TCS_BUTTONS;
+		else if ( styles.gettok( i ) == "flat" )
+			*Styles |= TCS_FLATBUTTONS;
+		else if ( styles.gettok( i ) == "hot" )
+			*Styles |= TCS_HOTTRACK;
+		else if ( styles.gettok( i ) == "multiline" )
+			*Styles |= TCS_MULTILINE;
+		else if ( styles.gettok( i ) == "rightjustify" )
+			*Styles |= TCS_RIGHTJUSTIFY;
+		else if ( styles.gettok( i ) == "scrollopposite" )
+			*Styles |= TCS_SCROLLOPPOSITE;
+		//else if ( styles.gettok( i ) == "tooltips" )
+		//  *Styles |= TCS_TOOLTIPS;
+		else if ( styles.gettok( i ) == "flatseps" )
+			*ExStyles |= TCS_EX_FLATSEPARATORS;
+		else if (styles.gettok(i) == "closable") {
+			this->m_bClosable = true;
+			*Styles |= TCS_OWNERDRAWFIXED;
+		}
 		else if ( styles.gettok( i ) == "gradient" )
 			this->m_bGradient = true;
 
-    i++;
-  }
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+		i++;
+	}
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -843,7 +841,15 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 				rect.top += 1+ GetSystemMetrics(SM_CYEDGE); //4;
 				//DrawText(idata->hDC, label.to_chr(), label.len(), &rect, DT_SINGLELINE | DT_TOP | DT_NOPREFIX);
 				// allow mirc formatted text.
-				mIRC_DrawText(idata->hDC, label, &rect, DT_SINGLELINE | DT_TOP | DT_NOPREFIX, false);
+				//mIRC_DrawText(idata->hDC, label, &rect, DT_SINGLELINE | DT_TOP | DT_NOPREFIX, false, this->m_bUseUTF8);
+				if (!this->m_bCtrlCodeText) {
+					if (this->m_bShadowText)
+						dcxDrawShadowText(idata->hDC, label.to_wchr(this->m_bUseUTF8), label.wlen(),&rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, GetTextColor(idata->hDC), 0, 5, 5);
+					else
+						DrawTextW( idata->hDC, label.to_wchr(this->m_bUseUTF8), label.wlen( ), &rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+				}
+				else
+					mIRC_DrawText( idata->hDC, label, &rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_bShadowText, this->m_bUseUTF8);
 
 				if (tci.dwState & TCIS_HIGHLIGHTED)
 					SetTextColor(idata->hDC, crOldColor);

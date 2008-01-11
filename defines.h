@@ -105,6 +105,7 @@
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 4
 #define DLL_BUILD      1
+#define DLL_DEV_BUILD  3
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -428,8 +429,8 @@ void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DW
 const char *GetLastStatusStr(Status status);
 #endif
 bool IsFile(TString &filename);
-void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
-void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style, const bool shadow);
+void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft, const bool tryutf8);
+void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style, const bool shadow, const bool tryutf8);
 HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc);
 void DeleteHDCBuffer(HDC *hBuffer);
 int TGetWindowText(HWND hwnd, TString &txt);

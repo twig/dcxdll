@@ -122,14 +122,10 @@ void DcxList::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 			*Styles |= WS_VSCROLL;
 		else if (styles.gettok(i) == "hsbar")
 			*Styles |= WS_HSCROLL;
-		else if (styles.gettok(i) == "alpha")
-			this->m_bAlphaBlend = true;
 		else if (styles.gettok(i) == "dragline")
 			this->m_bUseDrawInsert = FALSE;
-		else if (styles.gettok(i) == "noformat") {
-			this->m_bCtrlCodeText = false;
+		else if (styles.gettok(i) == "noformat") // dont remove from here
 			*Styles &= ~LBS_OWNERDRAWFIXED;
-		}
 		//else if (styles.gettok(i) == "shadow") // looks crap
 		//	this->m_bShadowText = true;
 
@@ -789,9 +785,9 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				if (this->isStyle(LBS_USETABSTOPS))
 					style |= DT_EXPANDTABS;
 
-				calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false);
+				calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false, this->m_bUseUTF8);
 
-				mIRC_DrawText(lpDrawItem->hDC, txt, &rc, style, this->m_bShadowText);
+				mIRC_DrawText(lpDrawItem->hDC, txt, &rc, style, this->m_bShadowText, this->m_bUseUTF8);
 
 				if (clrText != -1)
 					SetTextColor(lpDrawItem->hDC, clrText);

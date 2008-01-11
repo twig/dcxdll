@@ -100,18 +100,6 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
 			*Styles |= SS_ENDELLIPSIS;
 		else if (styles.gettok( i ) == "pathellipsis")
 			*Styles |= SS_PATHELLIPSIS;
-		else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i ) == "shadow" ))
-			this->m_bShadowText = true;
-		else if (( styles.gettok( i ) == "noformat" ))
-			this->m_bCtrlCodeText = false;
-		else if ( styles.gettok( i ) == "hgradient" )
-			this->m_bGradientFill = true;
-		else if ( styles.gettok( i ) == "vgradient" ) {
-			this->m_bGradientFill = true;
-			this->m_bGradientVertical = TRUE;
-		}
 
 		i++;
 	}
@@ -328,13 +316,13 @@ void DcxText::DrawClientArea(HDC hdc)
 	if (!this->m_bCtrlCodeText) {
 		int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 		if (this->m_bShadowText)
-			dcxDrawShadowText(hdc, wtext.to_wchr(), nText, &r, style, this->m_clrText, 0, 5, 5);
+			dcxDrawShadowText(hdc, wtext.to_wchr(this->m_bUseUTF8), nText, &r, style, this->m_clrText, 0, 5, 5);
 		else
-			DrawTextW(hdc, wtext.to_wchr(), nText, &r, style);
+			DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), nText, &r, style);
 		SetBkMode(hdc, oldBkgMode);
 	}
 	else
-		mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText);
+		mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText, this->m_bUseUTF8);
 
 	if (oldBkgClr != CLR_INVALID)
 		SetBkColor(hdc, oldBkgClr);

@@ -99,18 +99,14 @@ void DcxStacker::clearImageList(void)
 
 void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  *Styles |= LBS_OWNERDRAWVARIABLE|LBS_NOTIFY;
+	*Styles |= LBS_OWNERDRAWVARIABLE|LBS_NOTIFY;
 	this->m_dStyles = STACKERS_COLLAPSE;
 
-  unsigned int i = 1, numtok = styles.numtok( );
+	unsigned int i = 1, numtok = styles.numtok( );
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-		if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i ) == "shadow" ))
-			this->m_bShadowText = true;
-		else if ( styles.gettok( i ) == "vscroll" )
+		if ( styles.gettok( i ) == "vscroll" )
 			*Styles |= WS_VSCROLL;
 		else if ( styles.gettok( i ) == "gradient" )
 			this->m_dStyles |= STACKERS_GRAD;
@@ -118,12 +114,10 @@ void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 			this->m_dStyles |= STACKERS_ARROW;
 		else if ( styles.gettok( i ) == "nocollapse" )
 			this->m_dStyles &= ~STACKERS_COLLAPSE;
-		else if (( styles.gettok( i ) == "noformat" ))
-			this->m_bCtrlCodeText = false;
 
-    i++;
-  }
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+		i++;
+	}
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -483,15 +477,15 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		if (!this->m_bCtrlCodeText) {
 			SetBkMode(memDC,TRANSPARENT);
 			if (this->m_bShadowText)
-				dcxDrawShadowText(memDC,sitem->tsCaption.to_wchr(), sitem->tsCaption.len(),&rcText, DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
+				dcxDrawShadowText(memDC,sitem->tsCaption.to_wchr(this->m_bUseUTF8), sitem->tsCaption.wlen(),&rcText, DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
 			else {
 				if (clrText != -1)
 					SetTextColor(memDC,clrText);
-				DrawText(memDC, sitem->tsCaption.to_chr(), sitem->tsCaption.len(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
+				DrawTextW(memDC, sitem->tsCaption.to_wchr(this->m_bUseUTF8), sitem->tsCaption.wlen(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
 			}
 		}
 		else
-			mIRC_DrawText(memDC, sitem->tsCaption, &rcText, DT_CENTER | DT_END_ELLIPSIS, this->m_bShadowText);
+			mIRC_DrawText(memDC, sitem->tsCaption, &rcText, DT_CENTER | DT_END_ELLIPSIS, this->m_bShadowText, this->m_bUseUTF8);
 
 		SelectFont(memDC,oldFont);
 	}

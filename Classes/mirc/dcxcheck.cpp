@@ -83,38 +83,29 @@ DcxCheck::~DcxCheck( ) {
 
 void DcxCheck::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( );
-  *Styles |= BS_AUTOCHECKBOX;
+	unsigned int i = 1, numtok = styles.numtok( );
+	*Styles |= BS_AUTOCHECKBOX;
 
-  while ( i <= numtok ) {
+	while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "rjustify" )
-      *Styles |= BS_RIGHT;
-    else if ( styles.gettok( i ) == "center" )
-      *Styles |= BS_CENTER;
-    else if ( styles.gettok( i ) == "ljustify" )
-      *Styles |= BS_LEFT;
-    else if ( styles.gettok( i ) == "right" )
-      *Styles |= BS_RIGHTBUTTON;
-    else if ( styles.gettok( i ) == "pushlike" )
-      *Styles |= BS_PUSHLIKE;
-    else if ( styles.gettok( i ) == "3state" ) {
-      *Styles &= ~BS_AUTOCHECKBOX;
-      *Styles |= BS_AUTO3STATE;
-    }
-    else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
-		else if ( styles.gettok( i ) == "hgradient" )
-			this->m_bGradientFill = true;
-		else if ( styles.gettok( i ) == "vgradient" ) {
-			this->m_bGradientFill = true;
-			this->m_bGradientVertical = TRUE;
+		if ( styles.gettok( i ) == "rjustify" )
+			*Styles |= BS_RIGHT;
+		else if ( styles.gettok( i ) == "center" )
+			*Styles |= BS_CENTER;
+		else if ( styles.gettok( i ) == "ljustify" )
+			*Styles |= BS_LEFT;
+		else if ( styles.gettok( i ) == "right" )
+			*Styles |= BS_RIGHTBUTTON;
+		else if ( styles.gettok( i ) == "pushlike" )
+			*Styles |= BS_PUSHLIKE;
+		else if ( styles.gettok( i ) == "3state" ) {
+			*Styles &= ~BS_AUTOCHECKBOX;
+			*Styles |= BS_AUTO3STATE;
 		}
+		i++;
+	}
 
-    i++;
-  }
-
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!

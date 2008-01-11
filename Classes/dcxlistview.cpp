@@ -162,8 +162,6 @@ void DcxListView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 			*Styles |= LVS_NOSCROLL;
 		else if ( styles.gettok( i ) == "noheadersort" ) 
 			*Styles |= LVS_NOSORTHEADER;
-		else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
 
 		i++;
 	}
@@ -450,7 +448,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 		if ( matchtext.len( ) > 0 ) {
 
 			UINT SearchType;
-			TString searchMode = params.gettok(1);
+			TString searchMode(params.gettok(1));
 
 			if (searchMode == "R")
 				SearchType = LVSEARCH_R;
@@ -813,14 +811,21 @@ void DcxListView::parseCommandRequest(TString &input) {
 			}
 		}
 
+		lvi.iItem = nPos;
+		lvi.iImage = -1;
+		lvi.state = stateFlags;
+		lvi.iSubItem = 0;
+		lvi.lParam = (LPARAM) lpmylvi;
+
+		if (icon > -1) {
+			lvi.iImage = icon;
+			lvi.mask |= LVIF_IMAGE;
+		}
+
 		// LVS_REPORT view
 		if (this->isListViewStyle(LVS_REPORT)) {
 
-			lvi.mask = LVIF_TEXT | LVIF_INDENT | LVIF_PARAM | LVIF_IMAGE | LVIF_STATE;
-			lvi.iItem = nPos;
-			lvi.iImage = -1;
-			lvi.state = stateFlags;
-			lvi.iSubItem = 0;
+			lvi.mask |= LVIF_TEXT | LVIF_INDENT | LVIF_PARAM | LVIF_STATE;
 			lvi.iIndent = indent;
 
 			if (isXP() && group > 0) {
@@ -836,18 +841,12 @@ void DcxListView::parseCommandRequest(TString &input) {
 					this->showError(NULL,"-a", "Can't add to a group when Group View is not enabled.");
 			}
 
-			if (icon > -1)
-				lvi.iImage = icon;
-			else
-				icon = 0;
-
 			// set text in case of pbar
 			if (stateFlags & LVIS_PBAR)
 				lvi.pszText = "";
 			else
 				lvi.pszText = itemtext.to_chr();
 
-			lvi.lParam = (LPARAM) lpmylvi;
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
 
 			if (lvi.iItem == -1) {
@@ -962,19 +961,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 		// LVS_ICON | LVS_SMALLICON | LVS_LIST views
 		else {
 
-			lvi.iItem = nPos;
-			lvi.iImage = -1;
-			lvi.state = stateFlags;
-			lvi.iSubItem = 0;
-			lvi.mask = LVIF_TEXT | LVIF_STATE | LVIF_PARAM;
-
-			if (icon > -1) {
-				lvi.iImage = icon;
-				lvi.mask |= LVIF_IMAGE;
-			}
-
+			lvi.mask |= LVIF_TEXT | LVIF_STATE | LVIF_PARAM;
 			lvi.pszText = itemtext.to_chr();
-			lvi.lParam = (LPARAM) lpmylvi;
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
 
 			if (lvi.iItem == -1) {
@@ -1359,7 +1347,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 					//LPWSTR wstr = new WCHAR[text.len() + 1];
 					//MultiByteToWideChar(CP_ACP, 0, text.to_chr(), text.len() +1, wstr, text.len() +1);
-					LPWSTR wstr = text.to_wchr(); // can this buffer be deleted? or is it needed by the control? requires testing.
+					LPWSTR wstr = text.to_wchr(this->m_bUseUTF8); // can this buffer be deleted? or is it needed by the control? requires testing.
 
 					lvg.iGroupId = gid;
 					lvg.pszHeader = wstr;
@@ -1704,7 +1692,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 				it.cbSize = sizeof(it);
 				it.iItem = lvi.iItem;
 				it.iSubItem = lvi.iSubItem;
-				it.pszText = lpmylvi->tsTipText.to_wchr();
+				it.pszText = lpmylvi->tsTipText.to_wchr(this->m_bUseUTF8);
 				ListView_SetInfoTip(this->m_Hwnd,&it);
 			}
 		}
@@ -2072,7 +2060,7 @@ UINT DcxListView::parseImageFlags( const TString & flags ) {
 
 BOOL DcxListView::isListViewStyle( const long dwView ) const {
 
-	long dwStyle = GetWindowLong( this->m_Hwnd, GWL_STYLE ); 
+	long dwStyle = GetWindowStyle( this->m_Hwnd );
 	if ( ( dwStyle & LVS_TYPEMASK ) == dwView )
 		return TRUE;
 
@@ -2095,7 +2083,7 @@ BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TStr
 		case LVSEARCH_W:
 			return TString(itemtext).iswm(search->to_chr());
 		case LVSEARCH_E:
-			return (!lstrcmp(search->to_chr(), itemtext));
+			return (lstrcmp(search->to_chr(), itemtext) == 0); // must be a zero check not a !
 	}
 
 	return FALSE;
@@ -2108,6 +2096,9 @@ BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TStr
 */
 
 int DcxListView::getColumnCount( ) const {
+
+	if (ListView_GetView(this->m_Hwnd) != LVS_REPORT)	// Colums info is only available in report view.
+		return 1; // when not in report view fake a single column.
 
 	LVCOLUMN lvc;
 	ZeroMemory( &lvc, sizeof(LVCOLUMN) );

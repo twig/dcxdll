@@ -2159,9 +2159,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				else if ((p_this->m_bInMoving)  && (p_this->m_dEventMask & DCX_EVENT_MOVE))
 					p_this->callAliasEx(NULL, "%s,%d", "endmove", 0);
 
-#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
+//#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
 				bool bDoRedraw = p_this->m_bInSizing;
-#endif
+//#endif
 
 				p_this->m_bInMoving = false;
 				p_this->m_bInSizing = false;
@@ -2174,10 +2174,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					p_this->m_bGhosted = false;
 				}
 				p_this->UpdateVistaStyle();
-#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
-				if (bDoRedraw)
+//#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
+				if (bDoRedraw && !p_this->IsVistaStyle() && !p_this->isExStyle(WS_EX_COMPOSITED))
 					p_this->redrawWindow();
-#endif
+//#endif
 				break;
 			}
 
@@ -2264,11 +2264,11 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				p_this->updateLayout(rc);
 				//SendMessage(mHwnd, WM_SETREDRAW, TRUE, 0);
 				//This is needed (or some other solution) to update the bkg image & transp controls on it
-#if defined(NDEBUG) && !defined(DCX_DEV_BUILD)
-				p_this->redrawWindow(); // Causes alot of flicker.
-#else
+//#if defined(NDEBUG) && !defined(DCX_DEV_BUILD)
+//				p_this->redrawWindow(); // Causes alot of flicker.
+//#else
 				// Only included in debug & dev builds atm.
-				if (p_this->IsVistaStyle())
+				if (p_this->IsVistaStyle() || p_this->isExStyle(WS_EX_COMPOSITED))
 					p_this->redrawWindow();
 				else {
 					p_this->redrawBufferedWindow(); // Avoids flicker.
@@ -2278,7 +2278,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						RedrawWindow( bars, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME );
 					}
 				}
-#endif
+//#endif
 				break;
 			}
 			//case WM_NCCALCSIZE:

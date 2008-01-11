@@ -92,12 +92,6 @@ void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
 			*Styles |= SS_ENDELLIPSIS;
 		else if (styles.gettok(i) == "pathellipsis")
 			*Styles |= SS_PATHELLIPSIS;
-		else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i ) == "shadow" ))
-			this->m_bShadowText = true;
-		else if (( styles.gettok( i ) == "noformat" ))
-			this->m_bCtrlCodeText = false;
 
 		i++;
 	}
@@ -275,9 +269,9 @@ void DcxLine::DrawClientArea(HDC hdc)
 		else {
 			style |= DT_LEFT|DT_VCENTER;
 			if (this->m_bCtrlCodeText)
-				calcStrippedRect(hdc, this->m_sText, style, &rcText, false);
+				calcStrippedRect(hdc, this->m_sText, style, &rcText, false, this->m_bUseUTF8);
 			else
-				DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, DT_CALCRECT | style);
+				DrawTextW(hdc, this->m_sText.to_wchr(this->m_bUseUTF8), this->m_sText.wlen(), &rcText, DT_CALCRECT | style);
 			if (this->isStyle(SS_CENTER))
 				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),0);
 			else if (this->isStyle(SS_RIGHT))
@@ -287,12 +281,12 @@ void DcxLine::DrawClientArea(HDC hdc)
 			if (!this->m_bCtrlCodeText) {
 				SetBkMode(hdc, TRANSPARENT);
 				if (this->m_bShadowText)
-					dcxDrawShadowText(hdc,this->m_sText.to_wchr(), this->m_sText.len(),&rcText, style, this->m_clrText, 0, 5, 5);
+					dcxDrawShadowText(hdc,this->m_sText.to_wchr(this->m_bUseUTF8), this->m_sText.wlen(),&rcText, style, this->m_clrText, 0, 5, 5);
 				else
-					DrawText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, style);
+					DrawTextW(hdc, this->m_sText.to_wchr(this->m_bUseUTF8), this->m_sText.wlen(), &rcText, style);
 			}
 			else
-				mIRC_DrawText(hdc, this->m_sText, &rcText, style, this->m_bShadowText);
+				mIRC_DrawText(hdc, this->m_sText, &rcText, style, this->m_bShadowText, this->m_bUseUTF8);
 		}
 		ExcludeClipRect(hdc,rcText.left, rcText.top, rcText.right, rcText.bottom);
 	}

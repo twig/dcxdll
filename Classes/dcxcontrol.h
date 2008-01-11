@@ -95,7 +95,7 @@ public:
 	virtual void parseCommandRequest( TString & input ) = 0;
 	virtual void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
 
-	static void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
 	BOOL callAliasEx( char * szReturn, const char * szFormat, ... );
 
@@ -138,42 +138,43 @@ public:
 
 protected:
 
-	DcxDialog * m_pParentDialog; //!< Parent DcxDialog object
+	DcxDialog * m_pParentDialog;	//!< Parent DcxDialog object
 
-	WNDPROC m_DefaultWindowProc;  //!< Default window procedure
+	WNDPROC m_DefaultWindowProc;	//!< Default window procedure
 
-	HFONT m_hFont; //!< Control Font
+	HFONT m_hFont;					//!< Control Font
 
-	TString m_tsMark; //!< Mark Information (see /xdid -M)
+	TString m_tsMark;				//!< Mark Information (see /xdid -M)
 
-	COLORREF m_clrText;     //!< Font color
-	COLORREF m_clrBackText; //!< Font Back Color (not supported)
-	HBRUSH m_hBackBrush;    //!< Background control color
-	HBRUSH m_hBorderBrush;	//!< Controls Border Colour.
-	HBITMAP m_bitmapBg;			//!< Background bitmap
+	COLORREF m_clrText;				//!< Font color
+	COLORREF m_clrBackText;			//!< Font Back Color (not supported)
+	HBRUSH m_hBackBrush;			//!< Background control color
+	HBRUSH m_hBorderBrush;			//!< Controls Border Colour.
+	HBITMAP m_bitmapBg;				//!< Background bitmap
 	COLORREF m_colTransparentBg;
-	COLORREF m_clrBackground;	//!< Background Colour. (used to make m_hBackBrush)
+	COLORREF m_clrBackground;		//!< Background Colour. (used to make m_hBackBrush)
 	COLORREF m_clrStartGradient;
 	COLORREF m_clrEndGradient;
 
 	UINT m_iRefCount;
 
-	HCURSOR m_hCursor;  //!< Cursor Handle
-	BOOL m_bCursorFromFile; //!< Cursor comes from a file?
+	HCURSOR m_hCursor;				//!< Cursor Handle
+	BOOL m_bCursorFromFile;			//!< Cursor comes from a file?
 
-	HWND m_ToolTipHWND; //!< Tooltip window (if any)
-	TString m_tsToolTip; //!< This controls tooltip text (if any).
+	HWND m_ToolTipHWND;				//!< Tooltip window (if any)
+	TString m_tsToolTip;			//!< This controls tooltip text (if any).
 	DWORD m_dEventMask;
-	bool m_bAlphaBlend;	//!< Control is alpha blended.
-	int m_iAlphaLevel; //!< The amount the control is alpha blended.
+	bool m_bAlphaBlend;				//!< Control is alpha blended.
+	int m_iAlphaLevel;				//!< The amount the control is alpha blended.
 	bool m_bGradientFill;
 	BOOL m_bGradientVertical;
 	//DcxControl *m_pParentCtrl;
 	HWND m_pParentHWND;
 	bool m_bInPrint;
-	bool m_bShadowText; //!< Text is drawn with a shadow.
-	bool m_bCtrlCodeText; //!< mIRC's ctrl codes are used to change the text's appearance.
-	bool m_bNoTheme; //!< Control isn't themed.
+	bool m_bShadowText;				//!< Text is drawn with a shadow.
+	bool m_bCtrlCodeText;			//!< mIRC's ctrl codes are used to change the text's appearance.
+	bool m_bNoTheme;				//!< Control isn't themed.
+	bool m_bUseUTF8;				//!< Control has utf8 text.
 	//int m_iThemePartId;
 	/* ***** */
 
@@ -187,7 +188,7 @@ protected:
 	void registreDefaultWindowProc( );
 	void unregistreDefaultWindowProc( );
 
-	static void parseBorderStyles( TString & flags, LONG * Styles, LONG * ExStyles );
+	static void parseBorderStyles( const TString & flags, LONG * Styles, LONG * ExStyles );
 	LRESULT CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	static void InvalidateParentRect(HWND hwnd);
 	void DrawControl(HDC hDC, HWND hwnd);

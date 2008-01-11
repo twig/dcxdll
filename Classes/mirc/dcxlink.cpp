@@ -91,28 +91,16 @@ DcxLink::~DcxLink( ) {
  */
 
 void DcxLink::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok( );
+	//unsigned int i = 1, numtok = styles.numtok( );
 	*Styles |= SS_NOTIFY;
 
-  
-  while ( i <= numtok ) {
 
-		if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i ) == "shadow" ))
-			this->m_bShadowText = true;
-		else if (( styles.gettok( i ) == "noformat" ))
-			this->m_bCtrlCodeText = false;
-		else if ( styles.gettok( i ) == "hgradient" )
-			this->m_bGradientFill = true;
-		else if ( styles.gettok( i ) == "vgradient" ) {
-			this->m_bGradientFill = true;
-			this->m_bGradientVertical = TRUE;
-		}
+	//while ( i <= numtok ) {
 
-    i++;
-  }
-  
+
+	//	i++;
+	//}
+
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -509,16 +497,16 @@ void DcxLink::DrawClientArea(HDC hdc)
 
 	if (!this->m_bCtrlCodeText) {
 		if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
-			dcxDrawShadowText(hdc,wtext.to_wchr(), wtext.len(), &rect,
+			dcxDrawShadowText(hdc,wtext.to_wchr(this->m_bUseUTF8), wtext.wlen(), &rect,
 				DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_clrText, 0, 5, 5);
 		}
 		else {
 			SetTextColor( hdc, this->m_clrText );
-			DrawText( hdc, wtext.to_chr(), nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
+			DrawTextW( hdc, wtext.to_wchr(this->m_bUseUTF8), nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
 		}
 	}
 	else
-		mIRC_DrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_bShadowText);
+		mIRC_DrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_bShadowText, this->m_bUseUTF8);
 
 	SelectObject( hdc, hOldFont );
 	DeleteObject( hNewFont );

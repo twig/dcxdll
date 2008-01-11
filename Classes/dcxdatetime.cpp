@@ -81,10 +81,8 @@ void DcxDateTime::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
 			*Styles |= DTS_SHORTDATEFORMAT;
 		else if (styles.gettok(i) == "shortdatecenturyformat")
 			*Styles |= DTS_SHORTDATECENTURYFORMAT;
-
 		else if (styles.gettok(i) == "timeformat")
 			*Styles |= DTS_TIMEFORMAT;
-
 		else if (styles.gettok(i) == "right")
 			*Styles |= DTS_RIGHTALIGN;
 		else if (styles.gettok(i) == "shownone")

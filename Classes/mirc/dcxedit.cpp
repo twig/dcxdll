@@ -114,18 +114,6 @@ void DcxEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 			*Styles |= ES_READONLY;
 		else if (styles.gettok( i ) == "showsel")
 			*Styles |= ES_NOHIDESEL;
-		else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i ) == "shadow" ))
-			this->m_bShadowText = true;
-		else if (( styles.gettok( i ) == "noformat" ))
-			this->m_bCtrlCodeText = false;
-		else if ( styles.gettok( i ) == "hgradient" )
-			this->m_bGradientFill = true;
-		else if ( styles.gettok( i ) == "vgradient" ) {
-			this->m_bGradientFill = true;
-			this->m_bGradientVertical = TRUE;
-		}
 
 		i++;
 	}
@@ -273,7 +261,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
 	if (flags['a'] && numtok > 3) {
 		this->m_tsText += input.gettok(4, -1);
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
+		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr(this->m_bUseUTF8));
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
 	else if (flags['c'] && numtok > 2) {
@@ -284,7 +272,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		if (this->isStyle(ES_MULTILINE)) {
 			int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.deltok(nLine, "\r\n");
-			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
+			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr(this->m_bUseUTF8));
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
@@ -295,7 +283,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		}
 		else
 			this->m_tsText = input.gettok(5, -1);
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
+		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr(this->m_bUseUTF8));
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
 	else if (flags['j'] && numtok > 3) {
@@ -337,7 +325,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 		}
 		else
 			this->m_tsText = input.gettok(4, -1);
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
+		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr(this->m_bUseUTF8));
 	}
 	// xdid -P [NAME] [ID]
 	else if (flags['P'] && numtok > 1) {
@@ -361,7 +349,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 
 		if (contents != NULL) {
 			this->m_tsText = contents;
-			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
+			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr(this->m_bUseUTF8));
 			delete [] contents;
 		}
 	}
@@ -391,7 +379,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
 	else if (flags['E'] && numtok > 3) {
 		this->m_tsCue = input.gettok(4, -1);
-		Edit_SetCueBannerText(this->m_Hwnd,this->m_tsCue.to_wchr());
+		Edit_SetCueBannerText(this->m_Hwnd,this->m_tsCue.to_wchr(this->m_bUseUTF8));
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
 	else if (flags['y'] && numtok > 3) {
@@ -580,9 +568,9 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				//if (!this->m_bCtrlCodeText) {
 				//	int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 				//	if (this->m_bShadowText)
-				//		dcxDrawShadowText(hdc, this->m_tsText.to_wchr(), this->m_tsText.wlen(), &rcTxt, style, this->m_clrText, 0, 5, 5);
+				//		dcxDrawShadowText(hdc, this->m_tsText.to_wchr(this->m_bUseUTF8), this->m_tsText.wlen(), &rcTxt, style, this->m_clrText, 0, 5, 5);
 				//	else
-				//		DrawTextW(hdc, this->m_tsText.to_wchr(), this->m_tsText.wlen(), &rcTxt, style);
+				//		DrawTextW(hdc, this->m_tsText.to_wchr(this->m_bUseUTF8), this->m_tsText.wlen(), &rcTxt, style);
 				//	SetBkMode(hdc, oldBkgMode);
 				//}
 				//else

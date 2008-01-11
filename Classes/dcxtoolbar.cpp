@@ -133,8 +133,6 @@ void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 			*Styles |= TBSTYLE_WRAPABLE;
 		else if ( styles.gettok( i ) == "arrows" )
 			*ExStyles |= TBSTYLE_EX_DRAWDDARROWS;
-		else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
 		else if ( styles.gettok( i ) == "override" )
 			this->m_bOverrideTheme = true;
 

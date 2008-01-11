@@ -2074,7 +2074,7 @@ bool TString::iswmcs(char *a) const
 //	this->deleteString();
 //	this->m_pString = tmp;
 //}
-WCHAR *TString::to_wchr(void)
+WCHAR *TString::to_wchr(bool tryutf8)
 {
 	if (this->m_pWString != NULL)
 		return this->m_pWString;
@@ -2092,21 +2092,52 @@ WCHAR *TString::to_wchr(void)
 	//MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, this->m_pWString, widelen);
 
 	// try UTF8 encoded first, but error on invalid chars.
-	int widelen = MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,this->m_pString,-1, NULL, 0);
-	if (widelen == 0) {
-		// zero result, error maybe?
-		if (GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
-			// invalid chars, assume its NOT a utf8 string then, try CP_ACP
-			widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
-			if (widelen != 0) {
-				this->m_pWString = new WCHAR[widelen+1];
-				MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
+	//int widelen = MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,this->m_pString,-1, NULL, 0);
+	//if (widelen == 0) {
+	//	// zero result, error maybe?
+	//	if (GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
+	//		// invalid chars, assume its NOT a utf8 string then, try CP_ACP
+	//		widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
+	//		if (widelen != 0) {
+	//			this->m_pWString = new WCHAR[widelen+1];
+	//			MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
+	//		}
+	//	}
+	//	// if no error, assume zero length string.
+	//}
+	//else {
+	//	this->m_pWString = new WCHAR[widelen+1];
+	//	MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, this->m_pWString, widelen);
+	//}
+	// If utf8 input expected try & do a utf8->utf16 convert.
+	int widelen = 0;
+	if (tryutf8) {
+		// try UTF8 encoded first, but error on invalid chars.
+		widelen = MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,this->m_pString,-1, NULL, 0);
+		if (widelen == 0) {
+			// zero result, error maybe?
+			if (GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
+				// invalid chars, assume its NOT a utf8 string then, try ascii->utf16
+				widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
+				if (widelen != 0) {
+					this->m_pWString = new WCHAR[widelen+1];
+					MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
+				}
 			}
+			// if no error, assume zero length string.
+		}
+		else {
+			this->m_pWString = new WCHAR[widelen+1];
+			MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, this->m_pWString, widelen);
 		}
 	}
 	else {
-		this->m_pWString = new WCHAR[widelen+1];
-		MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, this->m_pWString, widelen);
+		// otherwise just do an ascii->utf16
+		widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
+		if (widelen != 0) {
+			this->m_pWString = new WCHAR[widelen+1];
+			MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
+		}
 	}
 	return this->m_pWString;
 }

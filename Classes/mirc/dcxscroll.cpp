@@ -82,19 +82,17 @@ DcxScroll::~DcxScroll( ) {
 
 void DcxScroll::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( );
-  
-  while ( i <= numtok ) {
+	unsigned int i = 1, numtok = styles.numtok( );
 
-    if ( styles.gettok( i ) == "vertical" )
-      *Styles |= SBS_VERT;
-		else if ( styles.gettok( i ) == "alpha" )
-			this->m_bAlphaBlend = true;
+	while ( i <= numtok ) {
 
-    i++;
-  }
-  
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+		if ( styles.gettok( i ) == "vertical" )
+			*Styles |= SBS_VERT;
+
+		i++;
+	}
+
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
