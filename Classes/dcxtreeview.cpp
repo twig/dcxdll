@@ -512,8 +512,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			}
 
 			LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
-mIRCDebug("info = %s", info.to_chr());
-			lpdcxtvitem->tsMark = info.to_chr();
+
+			lpdcxtvitem->tsMark = info;
 			TreeView_SetItem(this->m_Hwnd, &tvi);
 		}
 		else {

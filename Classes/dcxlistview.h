@@ -76,7 +76,8 @@ typedef std::vector<LPDCXLVRENDERINFO> VectorOfRenderInfo;
  */
 
 typedef struct tagDCXLVITEM {
-	TString tsTipText;  //!< Tooltip text
+	TString tsTipText;	//!< Tooltip text
+	TString tsMark;		// Marked text
 	DcxControl *pbar;
 	int iPbarCol;
 	VectorOfRenderInfo	vInfo;	//!< Render Info for each colum

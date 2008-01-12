@@ -703,7 +703,36 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == "gnum" ) {
-   }
+	}
+	// [NAME] [ID] [PROP] [ROW] [COL]
+	else if (prop == "marked") {
+		int nRow = input.gettok(4).to_int();
+		int nCol = input.gettok(5).to_int();
+
+		// 1-based indexes.
+		if ((nRow < 1) || (nRow > ListView_GetItemCount(this->m_Hwnd))) {
+			this->showErrorEx("marked", NULL, "Invalid item index %d", nRow);
+			return;
+		}
+
+		if ((nCol < 1) || (nCol > this->getColumnCount())) {
+			this->showErrorEx("marked", NULL, "Invalid column index %d", nCol);
+			return;
+		}
+
+		// Convert to 0-index
+		nRow--;
+		nCol--;
+
+		LVITEM lvi;
+		lvi.mask = LVIF_PARAM;
+		lvi.iItem = nRow;
+		lvi.iSubItem = nCol;
+
+		ListView_GetItem(this->m_Hwnd, &lvi);
+		wsprintf(szReturnValue, "%s", ((LPDCXLVITEM) lvi.lParam)->tsMark.to_chr());
+		return;
+	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
 
@@ -977,6 +1006,58 @@ void DcxListView::parseCommandRequest(TString &input) {
 			if (overlay > 0 && overlay < 16)
 				ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlay), LVIS_OVERLAYMASK);
 		}
+	}
+	// xdid -A [NAME] [ID] [SWITCH] [ROW] [COL] [+FLAGS] [INFO]
+	else if (flags['A']) {
+		int n = input.numtok();
+
+		if (n < 7) {
+			this->showErrorEx(NULL, "-A", "Insufficient parameters");
+			return;
+		}
+
+		int nRow = input.gettok(4).to_int();
+		int nCol = input.gettok(5).to_int();
+
+		// We're currently checking 1-based indexes.
+		if ((nRow < 1) || (nRow > ListView_GetItemCount(this->m_Hwnd))) {
+			this->showErrorEx(NULL, "-A", "Invalid row index %d.", nRow);
+			return;
+		}
+
+		if ((nCol < 1) || (nCol > this->getColumnCount())) {
+			this->showErrorEx(NULL, "-A", "Invalid column index %d.", nCol);
+			return;
+		}
+
+		// Convert to 0-based index.
+		nRow--;
+		nCol--;
+
+		LVITEM lvi;
+		ZeroMemory(&lvi, sizeof(LVITEM));
+
+		lvi.mask = LVIF_PARAM;
+		lvi.iItem = nRow;
+		lvi.iSubItem = nCol;
+
+		// Couldnt retrieve info
+		if (!ListView_GetItem(this->m_Hwnd, &lvi)) {
+			this->showError(NULL, "-A", "Unable to get item.");
+			return;
+		}
+
+		LPDCXLVITEM lviDcx = (LPDCXLVITEM) lvi.lParam;
+
+		TString flag(input.gettok(6));
+		TString info(input.gettok(7, -1));
+
+		if (flag.find('M', 1) > 0)
+			lviDcx->tsMark = info;
+		else
+			this->showErrorEx(NULL, "-A", "Unknown flags %s", flag.to_chr());
+		
+		return;
 	}
 	// xdid -B [NAME] [ID] [SWITCH] [N]
 	else if (flags['B'] && numtok > 3) {
