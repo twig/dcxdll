@@ -2,6 +2,9 @@
 
 // Constructor
 XSwitchFlags::XSwitchFlags(const TString &switches) {
+	ZeroMemory(flags, sizeof(bool) * 26);
+	ZeroMemory(flags_cap, sizeof(bool) * 26);
+
 	// no - sign, invalid syntax
 	if ((switches)[0] != '-')
 		return;
@@ -9,9 +12,6 @@ XSwitchFlags::XSwitchFlags(const TString &switches) {
 	unsigned int i = 1;
 	unsigned int len = switches.len();
 	char c;
-
-	ZeroMemory(flags, sizeof(bool) * 26);
-	ZeroMemory(flags_cap, sizeof(bool) * 26);
 
 	// Parse the switches
 	while (i < len) {
