@@ -357,7 +357,7 @@ mIRC(xdock) {
 	// [-b] [hwnd to dock] [+options]
 	else if ((switches[1] == 'b') && (numtok > 2)) {
 		if (flags.find('o',0)) // o for Overlay, old style docking with no layout adjustment
-			DockWindow(mWnd, dockHwnd, "mIRC_TreeList", flags);
+			DockWindow(mWnd, dockHwnd, (mIRCLink.m_bmIRCSixPointThree ? "mIRC_TreeBar" : "mIRC_TreeList"), flags);
 		else
 			TreebarDock(dockHwnd, flags);
 	}
