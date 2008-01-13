@@ -23,8 +23,8 @@ function get_intro_dcxml() {
   <li><a class="sectionTitle" href="#Styles">Cascading Control Styles</a> </li>
   <li><a class="sectionTitle" href="#Icons">Cascading Icon Definitions</a> </li>
   <li><a class="sectionTitle" href="#Templating">Templating</a></li>
-  <li><a class="sectionTitle" href="#ElementRefference">Elements Refference</a> </li>
-  <li><a class="sectionTitle" href="#AttributeRefference">Attributes Refference</a></li>
+  <li><a class="sectionTitle" href="#ElementReference">Elements Reference</a> </li>
+  <li><a class="sectionTitle" href="#AttributeReference">Attributes Reference</a></li>
 </ol>
 <?php
 }
@@ -362,7 +362,7 @@ Icon libraries for controls are applied in a similar way as style definitions.
 	<p>This will define Ok and Cancel button's that are always right alligned on the dialog and will resize properly. The Cancel button has id  1 and OK button 2. Now 
 	all you need to do to add this to a dialog is 
 &lt;calltemplate name=&quot;OkCancel&quot; /&gt; </p>
-	<p>            <span class="sectionTitle">Element </span><span class="sectionTitle">Refference</span><a name="ElementRefference" id="ElementRefference"></a>
+	<p>            <span class="sectionTitle">Element </span><span class="sectionTitle">Reference</span><a name="ElementReference" id="ElementReference"></a>
 	<a href="#top">go to top</a>	  <br />
             <br />
       There are only a few different Elements in DCXML, this is to hopefully keep the markup simple.<br />
@@ -548,7 +548,7 @@ If you do so it will be ignored<br />
   </tr>
 </table>
 
-<p><span class="sectionTitle">Attribute Refference<a name="AttributeRefference" id="AttributeRefference"></a></span>
+<p><span class="sectionTitle">Attribute Reference<a name="AttributeReference" id="AttributeReference"></a></span>
 <a href="#top">go to top</a></p>
 
 <table class="attrs">

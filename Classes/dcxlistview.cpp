@@ -705,18 +705,18 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 	else if ( prop == "gnum" ) {
 	}
 	// [NAME] [ID] [PROP] [ROW] [COL]
-	else if (prop == "marked") {
+	else if (prop == "markeditem") {
 		int nRow = input.gettok(4).to_int();
 		int nCol = input.gettok(5).to_int();
 
 		// 1-based indexes.
 		if ((nRow < 1) || (nRow > ListView_GetItemCount(this->m_Hwnd))) {
-			this->showErrorEx("marked", NULL, "Invalid item index %d", nRow);
+			this->showErrorEx("markeditem", NULL, "Invalid item index %d", nRow);
 			return;
 		}
 
 		if ((nCol < 1) || (nCol > this->getColumnCount())) {
-			this->showErrorEx("marked", NULL, "Invalid column index %d", nCol);
+			this->showErrorEx("markeditem", NULL, "Invalid column index %d", nCol);
 			return;
 		}
 
