@@ -800,7 +800,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 				tci.dwStateMask = TCIS_HIGHLIGHTED;
 
 				if (!TabCtrl_GetItem(this->getHwnd(), nTabIndex, &tci)) {
-					mIRCDebug("DcxTab: invalid item");
+					this->showError(NULL, "DcxTab Fatal Error", "Invalid item");
 					break;
 				}
 
@@ -842,14 +842,15 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 				//DrawText(idata->hDC, label.to_chr(), label.len(), &rect, DT_SINGLELINE | DT_TOP | DT_NOPREFIX);
 				// allow mirc formatted text.
 				//mIRC_DrawText(idata->hDC, label, &rect, DT_SINGLELINE | DT_TOP | DT_NOPREFIX, false, this->m_bUseUTF8);
-				if (!this->m_bCtrlCodeText) {
-					if (this->m_bShadowText)
-						dcxDrawShadowText(idata->hDC, label.to_wchr(this->m_bUseUTF8), label.wlen(),&rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, GetTextColor(idata->hDC), 0, 5, 5);
-					else
-						DrawTextW( idata->hDC, label.to_wchr(this->m_bUseUTF8), label.wlen( ), &rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
-				}
-				else
-					mIRC_DrawText( idata->hDC, label, &rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_bShadowText, this->m_bUseUTF8);
+				//if (!this->m_bCtrlCodeText) {
+				//	if (this->m_bShadowText)
+				//		dcxDrawShadowText(idata->hDC, label.to_wchr(this->m_bUseUTF8), label.wlen(),&rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, GetTextColor(idata->hDC), 0, 5, 5);
+				//	else
+				//		DrawTextW( idata->hDC, label.to_wchr(this->m_bUseUTF8), label.wlen( ), &rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+				//}
+				//else
+				//	mIRC_DrawText( idata->hDC, label, &rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_bShadowText, this->m_bUseUTF8);
+				this->ctrlDrawText(idata->hDC, label, &rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
 
 				if (tci.dwState & TCIS_HIGHLIGHTED)
 					SetTextColor(idata->hDC, crOldColor);

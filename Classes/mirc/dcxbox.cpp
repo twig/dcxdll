@@ -854,14 +854,15 @@ void DcxBox::DrawClientArea(HDC hdc)
 		SelectClipRgn(hdc,NULL);
 
 		// draw the text
-		if (!this->m_bCtrlCodeText) {
-			if (this->m_bShadowText)
-				dcxDrawShadowText(hdc,wtext.to_wchr(this->m_bUseUTF8), n,&rcText, DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
-			else
-				DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
-		}
-		else
-			mIRC_DrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS, this->m_bShadowText, this->m_bUseUTF8);
+		//if (!this->m_bCtrlCodeText) {
+		//	if (this->m_bShadowText)
+		//		dcxDrawShadowText(hdc,wtext.to_wchr(this->m_bUseUTF8), n,&rcText, DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
+		//	else
+		//		DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
+		//}
+		//else
+		//	mIRC_DrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS, this->m_bShadowText, this->m_bUseUTF8);
+		this->ctrlDrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS);
 	}
 
 	this->FinishAlphaBlend(ai);

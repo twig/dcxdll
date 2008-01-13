@@ -463,7 +463,10 @@ void DcxLink::DrawClientArea(HDC hdc)
 	// fill background.
 	DcxControl::DrawCtrlBackground(hdc,this,&rect);
 
-	HFONT hFont = (HFONT) GetStockObject( DEFAULT_GUI_FONT /*SYSTEM_FONT*/ );
+	HFONT hFont = this->m_hFont;
+
+	if (hFont == NULL)
+		hFont = (HFONT) GetStockObject( DEFAULT_GUI_FONT /*SYSTEM_FONT*/ );
 
 	LOGFONT lf;
 	GetObject( hFont, sizeof( LOGFONT ), &lf );
@@ -471,7 +474,7 @@ void DcxLink::DrawClientArea(HDC hdc)
 	lf.lfUnderline = TRUE;
 
 	HFONT hNewFont = CreateFontIndirect( &lf );
-	HFONT hOldFont = (HFONT) SelectObject( hdc, hNewFont );
+	HFONT hOldFont = SelectFont( hdc, hNewFont );
 
 	SetBkMode( hdc, TRANSPARENT );
 
@@ -508,8 +511,8 @@ void DcxLink::DrawClientArea(HDC hdc)
 	else
 		mIRC_DrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_bShadowText, this->m_bUseUTF8);
 
-	SelectObject( hdc, hOldFont );
-	DeleteObject( hNewFont );
+	SelectFont( hdc, hOldFont );
+	DeleteFont( hNewFont );
 
 	this->FinishAlphaBlend(ai);
 }

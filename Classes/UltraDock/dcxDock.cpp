@@ -56,17 +56,17 @@ DcxDock::~DcxDock(void)
 bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 {
 	if (isDocked(hwnd)) {
-		mIRCDebug("D_ERROR Window (%d) is already docked", hwnd);
+		DCXErrorEX("xdock", "Window (%d) is already docked", hwnd);
 		return false;
 	}
 	if (!IsWindow(this->m_hParent)) {
-		mIRCError("D_ERROR Invalid Dock Host Window");
+		DCXError("xdock", "Invalid Dock Host Window");
 		return false;
 	}
 	LPDCXULTRADOCK ud = new DCXULTRADOCK;
 
 	if (ud == NULL) {
-		mIRCError("D_ERROR No Memory");
+		DCXError("xdock", "No Memory");
 		return false;
 	}
 	ud->hwnd = hwnd;

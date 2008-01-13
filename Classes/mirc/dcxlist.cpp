@@ -758,13 +758,13 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				if (len == LB_ERR)
 					break;
 
-				TCHAR * szBuf = new TCHAR[len +1];
+				bParsed = TRUE;
+				TString txt((UINT)len+1);
 
-				ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, szBuf);
+				ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
 
-				TString txt(szBuf);
 				RECT rc;
-				int clrText = -1;
+				COLORREF clrText = CLR_INVALID;
 
 				CopyRect(&rc, &lpDrawItem->rcItem);
 
@@ -774,25 +774,36 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
 
 				if (lpDrawItem->itemState & ODS_SELECTED) {
+					// fill background with selected colour.
 					FillRect(lpDrawItem->hDC, &rc, GetSysColorBrush(COLOR_HIGHLIGHT));
+					// draw focus rect around selected item.
+					DrawFocusRect(lpDrawItem->hDC, &rc);
+					// set selected text colour.
 					clrText = SetTextColor(lpDrawItem->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
 				}
+				else {
+					// set text colour.
+					if (this->m_clrText != CLR_INVALID)
+						clrText = SetTextColor(lpDrawItem->hDC, this->m_clrText);
+				}
 
-				rc.left += 2;
+				if (len > 0) { // Only do all this if theres any text to draw.
+					rc.left += 2;
 
-				UINT style = DT_LEFT|DT_VCENTER|DT_SINGLELINE;
+					UINT style = DT_LEFT|DT_VCENTER|DT_SINGLELINE;
 
-				if (this->isStyle(LBS_USETABSTOPS))
-					style |= DT_EXPANDTABS;
+					if (this->isStyle(LBS_USETABSTOPS))
+						style |= DT_EXPANDTABS;
 
-				calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false, this->m_bUseUTF8);
+					calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false, this->m_bUseUTF8);
 
-				mIRC_DrawText(lpDrawItem->hDC, txt, &rc, style, this->m_bShadowText, this->m_bUseUTF8);
+					//mIRC_DrawText(lpDrawItem->hDC, txt, &rc, style, this->m_bShadowText, this->m_bUseUTF8);
+					this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
+				}
 
-				if (clrText != -1)
+				if (clrText != CLR_INVALID)
 					SetTextColor(lpDrawItem->hDC, clrText);
 
-				delete [] szBuf;
 				return TRUE;
 			}
 			break;
@@ -809,54 +820,53 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 	switch( uMsg ) {
-    case WM_LBUTTONUP: // Prevents CommonMessage() handling of this.
-    case WM_LBUTTONDBLCLK:
-			break;
+	case WM_LBUTTONUP: // Prevents CommonMessage() handling of this.
+	case WM_LBUTTONDBLCLK:
+		break;
 
-		case WM_VSCROLL:
-			if (LOWORD(wParam) == SB_ENDSCROLL)
-				this->callAliasEx(NULL, "%s,%d", "scrollend", this->getUserID());
+	case WM_VSCROLL:
+		if (LOWORD(wParam) == SB_ENDSCROLL)
+			this->callAliasEx(NULL, "%s,%d", "scrollend", this->getUserID());
+		break;
 
-			break;
+	case WM_MOUSEWHEEL:
+		SendMessage(this->m_pParentDialog->getHwnd(), uMsg, wParam, lParam);
+		break;
 
-		case WM_MOUSEWHEEL:
-			SendMessage(this->m_pParentDialog->getHwnd(), uMsg, wParam, lParam);
-			break;
+	case WM_PAINT:
+		{
+			if (!this->m_bAlphaBlend)
+				break;
+			PAINTSTRUCT ps;
+			HDC hdc;
 
-		case WM_PAINT:
-			{
-				if (!this->m_bAlphaBlend)
-					break;
-				PAINTSTRUCT ps;
-				HDC hdc;
+			hdc = BeginPaint( this->m_Hwnd, &ps );
 
-				hdc = BeginPaint( this->m_Hwnd, &ps );
+			LRESULT res = 0L;
+			bParsed = TRUE;
 
-				LRESULT res = 0L;
-				bParsed = TRUE;
+			// Setup alpha blend if any.
+			LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+			res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
-				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+			this->FinishAlphaBlend(ai);
 
-				this->FinishAlphaBlend(ai);
+			EndPaint( this->m_Hwnd, &ps );
+			return res;
+		}
+		break;
 
-				EndPaint( this->m_Hwnd, &ps );
-				return res;
-			}
-			break;
+	case WM_DESTROY:
+		{
+			delete this;
+			bParsed = TRUE;
+		}
+		break;
 
-		case WM_DESTROY:
-			{
-				delete this;
-				bParsed = TRUE;
-			}
-			break;
-
-		default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-			break;
+	default:
+		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		break;
 	}
 
 	return 0L;

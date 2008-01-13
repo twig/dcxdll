@@ -1752,7 +1752,7 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 	}
 	// invalid info request
 	else
-		mIRCDebug("D_ERROR $xdialog: Invalid property '%s' or parameters", input.gettok(2, -1).to_chr());
+		this->showError(prop.to_chr(), NULL, "Invalid property or parameters");
 
 	szReturnValue[0] = 0;
 }

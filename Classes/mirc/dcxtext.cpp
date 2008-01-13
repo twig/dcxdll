@@ -313,16 +313,17 @@ void DcxText::DrawClientArea(HDC hdc)
 	else
 		style |= DT_WORDBREAK; // changed for autowrap between words
 
-	if (!this->m_bCtrlCodeText) {
-		int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
-		if (this->m_bShadowText)
-			dcxDrawShadowText(hdc, wtext.to_wchr(this->m_bUseUTF8), nText, &r, style, this->m_clrText, 0, 5, 5);
-		else
-			DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), nText, &r, style);
-		SetBkMode(hdc, oldBkgMode);
-	}
-	else
-		mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText, this->m_bUseUTF8);
+	this->ctrlDrawText(hdc, wtext, &r, style);
+	//if (!this->m_bCtrlCodeText) {
+	//	int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
+	//	if (this->m_bShadowText)
+	//		dcxDrawShadowText(hdc, wtext.to_wchr(this->m_bUseUTF8), nText, &r, style, this->m_clrText, 0, 5, 5);
+	//	else
+	//		DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), nText, &r, style);
+	//	SetBkMode(hdc, oldBkgMode);
+	//}
+	//else
+	//	mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText, this->m_bUseUTF8);
 
 	if (oldBkgClr != CLR_INVALID)
 		SetBkColor(hdc, oldBkgClr);

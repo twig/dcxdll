@@ -1142,7 +1142,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 					return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 			}
 			else {
-				mIRCDebug("D_ERROR: Docking (No such window %s)", tsInput.gettok( offset +1 ).to_chr());
+				DCXErrorEX("ControlFactory", "Docking (No such window %s)", tsInput.gettok( offset +1 ).to_chr());
 				throw "No such window";
 			}
 		}
@@ -1164,7 +1164,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 				}
 			}
 			else {
-				mIRCDebug("D_ERROR: Docking (No such dialog %s)", tsInput.gettok( offset +1 ).to_chr());
+				DCXErrorEX("ControlFactory","Docking (No such dialog %s)", tsInput.gettok( offset +1 ).to_chr());
 				throw "No such dialog";
 			}
 		}
@@ -1966,3 +1966,16 @@ void DcxControl::InvalidateParentRect(HWND hwnd)
 	InvalidateRect(parent, &rc, TRUE);
 }
 
+void DcxControl::ctrlDrawText(HDC hdc, TString txt, const LPRECT rc, const UINT style)
+{
+	if (!this->m_bCtrlCodeText) {
+		int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
+		if (this->m_bShadowText)
+			dcxDrawShadowText(hdc, txt.to_wchr(this->m_bUseUTF8), txt.wlen(), rc, style, this->m_clrText, 0, 5, 5);
+		else
+			DrawTextW(hdc, txt.to_wchr(this->m_bUseUTF8), txt.wlen(), rc, style);
+		SetBkMode(hdc, oldBkgMode);
+	}
+	else
+		mIRC_DrawText(hdc, txt, rc, style, this->m_bShadowText, this->m_bUseUTF8);
+}

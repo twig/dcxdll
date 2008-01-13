@@ -278,15 +278,16 @@ void DcxLine::DrawClientArea(HDC hdc)
 				OffsetRect(&rcText,rcClient.right - (rcText.right - rcText.left),0);
 
 			// draw the text
-			if (!this->m_bCtrlCodeText) {
-				SetBkMode(hdc, TRANSPARENT);
-				if (this->m_bShadowText)
-					dcxDrawShadowText(hdc,this->m_sText.to_wchr(this->m_bUseUTF8), this->m_sText.wlen(),&rcText, style, this->m_clrText, 0, 5, 5);
-				else
-					DrawTextW(hdc, this->m_sText.to_wchr(this->m_bUseUTF8), this->m_sText.wlen(), &rcText, style);
-			}
-			else
-				mIRC_DrawText(hdc, this->m_sText, &rcText, style, this->m_bShadowText, this->m_bUseUTF8);
+			//if (!this->m_bCtrlCodeText) {
+			//	SetBkMode(hdc, TRANSPARENT);
+			//	if (this->m_bShadowText)
+			//		dcxDrawShadowText(hdc,this->m_sText.to_wchr(this->m_bUseUTF8), this->m_sText.wlen(),&rcText, style, this->m_clrText, 0, 5, 5);
+			//	else
+			//		DrawTextW(hdc, this->m_sText.to_wchr(this->m_bUseUTF8), this->m_sText.wlen(), &rcText, style);
+			//}
+			//else
+			//	mIRC_DrawText(hdc, this->m_sText, &rcText, style, this->m_bShadowText, this->m_bUseUTF8);
+			this->ctrlDrawText(hdc, this->m_sText, &rcText, style);
 		}
 		ExcludeClipRect(hdc,rcText.left, rcText.top, rcText.right, rcText.bottom);
 	}

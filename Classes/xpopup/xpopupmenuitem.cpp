@@ -33,6 +33,7 @@ XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep )
 
 XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu ) 
 : m_pXParentMenu( Parent ), m_tsItemText( tsItemText), m_nIcon( nIcon ), m_bSubMenu( bSubMenu ), m_bSep( FALSE ) {
+	this->m_tsItemText.trim();
 }
 
 /*!
@@ -373,44 +374,44 @@ void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXP
 
 void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
 
-  HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSelectionBorder );
-  HBRUSH hBrush = (HBRUSH) CreateSolidBrush( bDis?lpcol->m_clrDisabledCheckBox:lpcol->m_clrCheckBox );
-  HPEN hOldPen = (HPEN) SelectObject( lpdis->hDC, hPen );
-  HBRUSH hOldBrush = (HBRUSH) SelectObject( lpdis->hDC, hBrush );
+	HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSelectionBorder );
+	HBRUSH hBrush = (HBRUSH) CreateSolidBrush( bDis?lpcol->m_clrDisabledCheckBox:lpcol->m_clrCheckBox );
+	HPEN hOldPen = (HPEN) SelectObject( lpdis->hDC, hPen );
+	HBRUSH hOldBrush = (HBRUSH) SelectObject( lpdis->hDC, hBrush );
 
-  RECT rc;
-  CopyRect( &rc, &lpdis->rcItem );
-  InflateRect( &rc, 0, -1 );
-  rc.left += 1;
-  rc.right = rc.left + rc.bottom - rc.top;
+	RECT rc;
+	CopyRect( &rc, &lpdis->rcItem );
+	InflateRect( &rc, 0, -1 );
+	rc.left += 1;
+	rc.right = rc.left + rc.bottom - rc.top;
 
-  Rectangle( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom );
+	Rectangle( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom );
 
-  DeleteObject( SelectObject( lpdis->hDC, hOldPen ) );
+	DeleteObject( SelectObject( lpdis->hDC, hOldPen ) );
 
-  hPen = CreatePen( PS_SOLID, 1, bDis?lpcol->m_clrDisabledText:lpcol->m_clrText );
-  hOldPen = (HPEN)SelectObject( lpdis->hDC, hPen );
+	hPen = CreatePen( PS_SOLID, 1, bDis?lpcol->m_clrDisabledText:lpcol->m_clrText );
+	hOldPen = (HPEN)SelectObject( lpdis->hDC, hPen );
 
-  int x = ( rc.right + rc.left ) / 2 - 3;
-  int y = ( rc.bottom + rc.top ) / 2 - 3;
-	
-  MoveToEx( lpdis->hDC, x, y+2, NULL );
-  LineTo( lpdis->hDC, x, y+5 );
-  MoveToEx( lpdis->hDC, x+1, y+3, NULL );
-  LineTo( lpdis->hDC, x+1, y+6 );
-  MoveToEx( lpdis->hDC, x+2, y+4, NULL );
-  LineTo( lpdis->hDC, x+2, y+7 );
-  MoveToEx( lpdis->hDC, x+3, y+3, NULL );
-  LineTo( lpdis->hDC, x+3, y+6 );
-  MoveToEx( lpdis->hDC, x+4, y+2, NULL );
-  LineTo( lpdis->hDC, x+4, y+5 );
+	int x = ( rc.right + rc.left ) / 2 - 3;
+	int y = ( rc.bottom + rc.top ) / 2 - 3;
+
+	MoveToEx( lpdis->hDC, x, y+2, NULL );
+	LineTo( lpdis->hDC, x, y+5 );
+	MoveToEx( lpdis->hDC, x+1, y+3, NULL );
+	LineTo( lpdis->hDC, x+1, y+6 );
+	MoveToEx( lpdis->hDC, x+2, y+4, NULL );
+	LineTo( lpdis->hDC, x+2, y+7 );
+	MoveToEx( lpdis->hDC, x+3, y+3, NULL );
+	LineTo( lpdis->hDC, x+3, y+6 );
+	MoveToEx( lpdis->hDC, x+4, y+2, NULL );
+	LineTo( lpdis->hDC, x+4, y+5 );
 	MoveToEx( lpdis->hDC, x+5, y+1, NULL );
-  LineTo( lpdis->hDC, x+5, y+4 );
-  MoveToEx( lpdis->hDC, x+6, y, NULL );
-  LineTo( lpdis->hDC, x+6, y+3 );
-	
-  DeleteObject( SelectObject( lpdis->hDC, hOldPen ) );
-  DeleteObject( SelectObject( lpdis->hDC, hOldBrush ) );
+	LineTo( lpdis->hDC, x+5, y+4 );
+	MoveToEx( lpdis->hDC, x+6, y, NULL );
+	LineTo( lpdis->hDC, x+6, y+3 );
+
+	DeleteObject( SelectObject( lpdis->hDC, hOldPen ) );
+	DeleteObject( SelectObject( lpdis->hDC, hOldBrush ) );
 }
 
 /*!
@@ -429,29 +430,42 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 	CopyRect( &rc, &lpdis->rcItem );
 	rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
 
-	if ( this->m_tsItemText.numtok( TSTAB ) > 1 ) {
+	TString txt;
+	bool tryutf8 = false;
+	//check if the first char is $chr(12), if so then the text is utf8
+	if ( this->m_tsItemText[0] == 12) {
+		// remove $chr(12) from text
+		txt = this->m_tsItemText.right(-1);
+		tryutf8 = true;
+		// remove any leading whitespace after the $chr(12)
+		txt.trim();
+	}
+	else // not utf8 so copy
+		txt = this->m_tsItemText;
 
-		TString lefttext(this->m_tsItemText.gettok( 1, TSTAB ));
+	if ( txt.numtok( TSTAB ) > 1 ) {
+
+		TString lefttext(txt.gettok( 1, TSTAB ));
 		lefttext.trim( );
-		TString righttext(this->m_tsItemText.gettok( 2, TSTAB ));
+		TString righttext(txt.gettok( 2, TSTAB ));
 		righttext.trim( );
 
 		//DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, 
 		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
-		mIRC_DrawText( lpdis->hDC, lefttext, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false, false);
+		mIRC_DrawText( lpdis->hDC, lefttext, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false, tryutf8);
 
 		if ( righttext.len( ) > 0 ) {
 
 			rc.right -= 15;
 			//DrawTextEx( lpdis->hDC, righttext.to_chr( ), righttext.len( ), &rc, 
 			//  DT_RIGHT | DT_SINGLELINE | DT_VCENTER, NULL );
-			mIRC_DrawText( lpdis->hDC, righttext, &rc, DT_RIGHT | DT_SINGLELINE | DT_VCENTER, false, false);
+			mIRC_DrawText( lpdis->hDC, righttext, &rc, DT_RIGHT | DT_SINGLELINE | DT_VCENTER, false, tryutf8);
 		}
 	}
 	else {
 		//DrawTextEx( lpdis->hDC, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &rc, 
 		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
-		mIRC_DrawText( lpdis->hDC, this->m_tsItemText, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false, false);
+		mIRC_DrawText( lpdis->hDC, txt, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false, tryutf8);
 	}
 }
 
