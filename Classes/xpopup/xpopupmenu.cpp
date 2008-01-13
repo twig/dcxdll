@@ -208,13 +208,13 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 	int numtok = input.numtok( );
 
-	// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText [TAB] Command
+	// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText (: Command)
 	if ( flags['a'] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 3 ) {
-		TString itemdata(input.gettok( 2, TSTAB ));
+		TString itemdata(input.gettok( 2, -1, TSTAB ));
 		itemdata.trim( );
 		TString itemcom;
-		if ( input.numtok( TSTAB ) > 2 ) {
-			itemcom = input.gettok( 3, TSTAB );
+		if ( input.numtok(":") > 1 ) {
+			itemcom = input.gettok( 2, ":" );
 			itemcom.trim( );
 		}
 
