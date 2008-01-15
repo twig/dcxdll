@@ -352,7 +352,7 @@ LRESULT DcxProgressBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, 
 
 LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		case WM_ERASEBKGND:
 			{
@@ -384,8 +384,8 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			}
 			break;
 
-    case WM_LBUTTONUP:
-      {
+		case WM_LBUTTONUP:
+			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 					int nXPos = LOWORD(lParam);
 					int iLower = this->getRange( TRUE, NULL );
@@ -398,11 +398,11 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 					this->callAliasEx(NULL, "%s,%d,%d,%d,%d,%d", "sclick", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 				}
-      }
-      break;
+			}
+			break;
 
-    case WM_RBUTTONUP:
-      {
+		case WM_RBUTTONUP:
+			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 					int nXPos = LOWORD(lParam);
 					int iLower = this->getRange( TRUE, NULL );
@@ -415,12 +415,12 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 					this->callAliasEx(NULL, "%s,%d,%d,%d,%d,%d", "rclick", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 				}
-      }
-      break;
+			}
+			break;
 
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
+		case WM_MOUSEMOVE:
+			{
+				this->m_pParentDialog->setMouseControl( this->getUserID( ) );
 
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 					if ( wParam == MK_LBUTTON ) {
@@ -437,22 +437,22 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 						this->callAliasEx(NULL, "%s,%d,%d,%d,%d, %d", "mousebar", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 					}
 				}
-      }
-      break;
+			}
+			break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }
 
 
@@ -525,12 +525,11 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		HFONT oldfont = NULL;
 
 		if (this->m_hFont != NULL)
-			oldfont = (HFONT) SelectObject(hdc, this->m_hFont);
+			oldfont = SelectFont(hdc, this->m_hFont);
 
 		// rect for text
 		RECT rcText = rc;
-		DrawText(hdc, text.to_chr(), text.len(), &rcText,
-			DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
+		DrawTextW(hdc, text.to_wchr(this->m_bUseUTF8), text.wlen(), &rcText, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
 
 		int w = rcText.right - rcText.left;
 		int h = rcText.bottom - rcText.top;
@@ -551,10 +550,11 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			rc.bottom = rc.top + h;
 		}
 
-		if (!this->m_bCtrlCodeText)
-			DrawTextW(hdc, text.to_wchr(this->m_bUseUTF8), text.wlen(), &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
-		else
-			mIRC_DrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP, this->m_bShadowText, this->m_bUseUTF8);
+		//if (!this->m_bCtrlCodeText)
+		//	DrawTextW(hdc, text.to_wchr(this->m_bUseUTF8), text.wlen(), &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
+		//else
+		//	mIRC_DrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP, this->m_bShadowText, this->m_bUseUTF8);
+		this->ctrlDrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
 
 		if (oldfont != NULL)
 			SelectObject(hdc, oldfont);

@@ -398,16 +398,16 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		case WM_PAINT:
 			{
 				if (!this->m_bAlphaBlend)
 					break;
-        PAINTSTRUCT ps;
-        HDC hdc;
+				PAINTSTRUCT ps;
+				HDC hdc;
 
-        hdc = BeginPaint( this->m_Hwnd, &ps );
+				hdc = BeginPaint( this->m_Hwnd, &ps );
 
 				LRESULT res = 0L;
 				bParsed = TRUE;
@@ -424,17 +424,17 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			}
 			break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }

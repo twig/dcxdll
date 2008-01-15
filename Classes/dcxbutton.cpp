@@ -659,8 +659,10 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		SetTextColor(hdc, this->m_aColors[nState]);
 
-		if ( this->m_tsCaption.len( ) > 0 )
-			DrawText( hdc, this->m_tsCaption.to_chr( ), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE );
+		if ( this->m_tsCaption.len( ) > 0 ) {
+			//DrawText( hdc, this->m_tsCaption.to_chr( ), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE );
+			DrawTextW(hdc, this->m_tsCaption.to_wchr(this->m_bUseUTF8), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE);
+		}
 
 		int iCenter = w / 2;
 		int iVCenter = h / 2;

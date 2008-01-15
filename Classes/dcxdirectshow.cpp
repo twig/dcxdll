@@ -930,7 +930,7 @@ HRESULT DcxDirectshow::setVideo(const TString flags, const float brightness, con
 	HRESULT hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer",&pVmr);
 
 	if (FAILED(hr))
-			return hr;
+		return hr;
 
 	IVMRMixerControl9 *pMixer = NULL;
 	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
@@ -968,7 +968,7 @@ HRESULT DcxDirectshow::getVideo(VMR9ProcAmpControl *amc) const
 	HRESULT hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer",&pVmr);
 
 	if (FAILED(hr))
-			return hr;
+		return hr;
 
 	IVMRMixerControl9 *pMixer = NULL;
 	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
@@ -989,7 +989,7 @@ HRESULT DcxDirectshow::getVideoRange(VMR9ProcAmpControlFlags prop, VMR9ProcAmpCo
 	HRESULT hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer",&pVmr);
 
 	if (FAILED(hr))
-			return hr;
+		return hr;
 
 	IVMRMixerControl9 *pMixer = NULL;
 	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);

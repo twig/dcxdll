@@ -271,47 +271,47 @@ LRESULT DcxUpDown::getPos32( LPBOOL pfError ) const {
  * blah
  */
 LRESULT DcxUpDown::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-    case WM_NOTIFY : 
-      {
-        LPNMHDR hdr = (LPNMHDR) lParam;
+	switch( uMsg ) {
+	case WM_NOTIFY : 
+		{
+			LPNMHDR hdr = (LPNMHDR) lParam;
 
-        if (!hdr)
-          break;
+			if (!hdr)
+				break;
 
-        switch( hdr->code ) {
-          case UDN_DELTAPOS:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
-              bParsed = TRUE;
-            }
-            break;
-					}
-      }
-      break;
+			switch( hdr->code ) {
+			case UDN_DELTAPOS:
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+						this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+					bParsed = TRUE;
+				}
+				break;
+			}
+		}
+		break;
 	}
 	return 0L;
 }
 
 LRESULT DcxUpDown::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		case WM_LBUTTONUP:
 			break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }

@@ -640,11 +640,12 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 		lvg.pszHeader = wstr;
 
 		if ( isXP( ) && ListView_GetGroupInfo( this->m_Hwnd, GID, &lvg ) != -1 ) {
-			int n = WideCharToMultiByte( CP_ACP, 0, wstr, lstrlenW( wstr ) + 1, szReturnValue, 900, NULL, NULL );
-			TString error;
-			error.sprintf("Chars %d", n );
-			mIRCError( error.to_chr() );
-			mIRCError( szReturnValue );
+			WideCharToMultiByte( CP_ACP, 0, wstr, -1, szReturnValue, 900, NULL, NULL );
+			//int n = WideCharToMultiByte( CP_ACP, 0, wstr, lstrlenW( wstr ) + 1, szReturnValue, 900, NULL, NULL );
+			//TString error;
+			//error.sprintf("Chars %d", n );
+			//mIRCError( error.to_chr() );
+			//mIRCError( szReturnValue );
 			return;
 		}
 	}
@@ -703,6 +704,39 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == "gnum" ) {
+		if ( isXP( ) && ListView_IsGroupViewEnabled( this->m_Hwnd ) )
+		{
+			wsprintf(szReturnValue, "%d", ListView_GetGroupCount(this->m_Hwnd));
+			return;
+		}
+		else
+			this->showError("gnum", NULL, "GroupView Not Enabled, Only On XP+");
+	}
+	else if ( prop == "gid" ) {
+		if ( isXP( ) && ListView_IsGroupViewEnabled( this->m_Hwnd ) )
+		{
+			int iIndex = input.gettok(4).to_int() -1;
+
+			if (iIndex > -1 && iIndex < ListView_GetItemCount(this->m_Hwnd))
+			{
+				LVITEM lvi;
+				ZeroMemory(&lvi, sizeof(LVITEM));
+				lvi.iItem = iIndex;
+				lvi.mask = LVIF_GROUPID;
+
+				if (ListView_GetItem(this->m_Hwnd, &lvi))
+				{
+					wsprintf(szReturnValue, "%d", lvi.iGroupId); // group id can be -2 (Not In group), -1 (groupcallback, should never be), 0+ groupid
+					return;
+				}
+				else // Unable to find group info
+					this->showError("gid", NULL, "Unable to get Group ID");
+			}
+			else
+				this->showErrorEx("gid", NULL, "Invalid Item: %d", iIndex);
+		}
+		else
+			this->showError("gid", NULL, "GroupView Not Enabled, Only On XP+");
 	}
 	// [NAME] [ID] [PROP] [ROW] [COL]
 	else if (prop == "markeditem") {
@@ -2512,11 +2546,6 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 										if ( ri->m_cBg != -1 )
 											lplvcd->clrTextBk = ri->m_cBg;
 
-										//RECT rcCheck = lplvcd->nmcd.rc;
-										//rcCheck.right = rcCheck.left + 16;
-										//DrawFrameControl(lplvcd->nmcd.hdc,&rcCheck,DFC_BUTTON,DFCS_BUTTONCHECK|DFCS_CHECKED);
-										//return CDRF_SKIPDEFAULT;
-
 										if (ri->m_dFlags & LVIS_UNDERLINE || ri->m_dFlags & LVIS_BOLD || ri->m_dFlags & LVIS_ITALIC) {
 											HFONT hFont = GetWindowFont(this->m_Hwnd);
 											LOGFONT lf;
@@ -2534,8 +2563,65 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 											if (this->m_hItemFont != NULL)
 												this->m_hOldItemFont = SelectFont( lplvcd->nmcd.hdc, this->m_hItemFont );
 										}
+
 										// NB: CDRF_NOTIFYPOSTPAINT required to get the post paint message.
 										return ( CDRF_NEWFONT|CDRF_NOTIFYPOSTPAINT );
+
+										//RECT rcText, rcIcon, rcBounds;
+										//TString tsText((UINT)1024);
+										//UINT style = DT_LEFT|DT_SINGLELINE|DT_VCENTER|DT_END_ELLIPSIS;
+										//COLORREF clrText = CLR_INVALID;
+										//LVITEM lvi;
+										//ZeroMemory(&lvi, sizeof(LVITEM));
+										//HIMAGELIST himl = this->getImageList(LVSIL_SMALL);
+
+										//lvi.mask = LVIF_IMAGE|LVIF_STATE|LVIF_TEXT;
+										//lvi.pszText = tsText.to_chr();
+										//lvi.cchTextMax = 1023;
+										//lvi.iItem = lplvcd->nmcd.dwItemSpec;
+										//lvi.iSubItem = lplvcd->iSubItem;
+
+										//ListView_GetItem(this->m_Hwnd, &lvi);
+
+										//ListView_GetSubItemRect(this->m_Hwnd, lplvcd->nmcd.dwItemSpec, lplvcd->iSubItem, LVIR_BOUNDS, &rcBounds);
+										//ListView_GetSubItemRect(this->m_Hwnd, lplvcd->nmcd.dwItemSpec, lplvcd->iSubItem, LVIR_ICON, &rcIcon);
+
+										//rcText = rcBounds;
+										//rcText.left = rcIcon.right + 1;
+
+										//DrawTextW(lplvcd->nmcd.hdc, tsText.to_wchr(this->m_bUseUTF8), tsText.wlen(), &rcText, style | DT_CALCRECT);
+
+										//if (lplvcd->nmcd.uItemState & CDIS_SELECTED) {
+										//	// fill background with selected colour.
+										//	FillRect(lplvcd->nmcd.hdc, &rcBounds, GetSysColorBrush(COLOR_HIGHLIGHT));
+										//	// draw focus rect around selected item.
+										//	DrawFocusRect(lplvcd->nmcd.hdc, &rcBounds);
+										//	// set selected text colour.
+										//	clrText = SetTextColor(lplvcd->nmcd.hdc, GetSysColor(COLOR_HIGHLIGHTTEXT));
+										//}
+										//else {
+										//	// set text colour.
+										//	clrText = SetTextColor(lplvcd->nmcd.hdc, lplvcd->clrText);
+										//}
+
+										//if ((himl != NULL) && (lvi.iImage > -1)) {
+										//	ImageList_Draw(himl, lvi.iImage, lplvcd->nmcd.hdc, rcIcon.left, rcIcon.top, ILD_TRANSPARENT);
+										//}
+
+										//if (!this->m_bCtrlCodeText) {
+										//	if (this->m_bShadowText)
+										//		dcxDrawShadowText(lplvcd->nmcd.hdc, tsText.to_wchr(this->m_bUseUTF8), tsText.wlen(), &rcText, style, lplvcd->clrText, 0, 5, 5);
+										//	else
+										//		DrawTextW(lplvcd->nmcd.hdc, tsText.to_wchr(this->m_bUseUTF8), tsText.wlen(), &rcText, style);
+										//}
+										//else
+										//	mIRC_DrawText(lplvcd->nmcd.hdc, tsText, &rcText, style, this->m_bShadowText, this->m_bUseUTF8);
+
+										//if (clrText != CLR_INVALID)
+										//	SetTextColor(lplvcd->nmcd.hdc, clrText);
+
+										//// NB: CDRF_NOTIFYPOSTPAINT required to get the post paint message.
+										//return ( CDRF_NEWFONT|CDRF_NOTIFYPOSTPAINT|CDRF_SKIPDEFAULT );
 									}
 									break;
 
