@@ -6,13 +6,18 @@
 
 #include "dcxDock.h"
 
+// statusbar stuff
 HWND DcxDock::g_StatusBar = NULL;
 HIMAGELIST DcxDock::g_hImageList = NULL;
+bool DcxDock::g_bUseUTF8 = false;
 INT DcxDock::g_iDynamicParts[256] = { 0 };
 INT DcxDock::g_iFixedParts[256] = { 0 };
+HFONT DcxDock::g_StatusFont = NULL;
+VectorOfParts DcxDock::g_vParts;
+
+// treebar stuff
 bool DcxDock::g_bTakeOverTreebar = false;
 COLORREF DcxDock::g_clrTreebarColours[8] = { 0 };
-HFONT DcxDock::g_StatusFont = NULL;
 
 DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 : m_OldRefWndProc(NULL)
@@ -551,6 +556,30 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 				}
 			}
 			break;
+		case WM_DRAWITEM:
+			{
+				LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT) lParam;
+				if (pthis->g_StatusBar != NULL && pthis->g_StatusBar == lpDrawItem->hwndItem) {
+					LPSB_PARTINFO pPart = (LPSB_PARTINFO)lpDrawItem->itemData;
+					if (pPart != NULL) {
+						RECT rc = lpDrawItem->rcItem;
+						if (pPart->m_iIcon > -1) {
+							IMAGEINFO ii;
+							ImageList_GetImageInfo(pthis->g_hImageList, pPart->m_iIcon, &ii);
+							ImageList_Draw(pthis->g_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT);
+							rc.left += (ii.rcImage.right - ii.rcImage.left);
+						}
+						if (pPart->m_Text.len() > 0)
+							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false, pthis->g_bUseUTF8);
+						else if (IsWindow(pPart->m_Child)) {
+							SetWindowPos(pPart->m_Child, NULL, rc.left, rc.top,
+								(rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
+						}
+						return TRUE;
+					}
+				}
+			}
+			break;
 		case WM_PARENTNOTIFY:
 			{
 				if (LOWORD(wParam) == WM_DESTROY)
@@ -578,6 +607,7 @@ bool DcxDock::InitStatusbar(const TString &styles)
 
 	ZeroMemory(DcxDock::g_iDynamicParts, sizeof(DcxDock::g_iDynamicParts));
 	ZeroMemory(DcxDock::g_iFixedParts, sizeof(DcxDock::g_iFixedParts));
+	DcxDock::g_bUseUTF8 = false;
 
 	DcxDock::status_parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
@@ -602,6 +632,16 @@ void DcxDock::UnInitStatusbar(void)
 	if (IsWindow(g_StatusBar)) {
 		DcxDock::status_cleanPartIcons();
 		DestroyWindow(g_StatusBar);
+
+		VectorOfParts::iterator itStart = DcxDock::g_vParts.begin();
+		VectorOfParts::iterator itEnd = DcxDock::g_vParts.end();
+
+		while (itStart != itEnd) {
+			if (*itStart != NULL) {
+				delete *itStart;
+			}
+			itStart++;
+		}
 	}
 	g_StatusBar = NULL;
 
@@ -639,6 +679,8 @@ void DcxDock::status_parseControlStyles( const TString & styles, LONG * Styles, 
 			*Styles |= WS_DISABLED;
 		else if ( styles.gettok( i ) == "transparent" )
 			*ExStyles |= WS_EX_TRANSPARENT;
+		else if ( styles.gettok( i ) == "utf8" )
+			DcxDock::g_bUseUTF8 = true;
 		i++;
 	}
 }
@@ -667,6 +709,10 @@ UINT DcxDock::status_getTextLength( const int iPart ) {
 	return (UINT)LOWORD(SendMessage( g_StatusBar, SB_GETTEXTLENGTHW, (WPARAM) iPart, NULL ));
 }
 
+UINT DcxDock::status_getPartFlags( const int iPart ) {
+	return (UINT)HIWORD(SendMessage( g_StatusBar, SB_GETTEXTLENGTHW, (WPARAM) iPart, NULL ));
+}
+
 LRESULT DcxDock::status_getText( const int iPart, LPWSTR lpstr ) {
 	return SendMessage( g_StatusBar, SB_GETTEXTW, (WPARAM) iPart, (LPARAM) lpstr );
 }
@@ -689,6 +735,31 @@ void DcxDock::status_setIcon( const int iPart, const HICON hIcon ) {
 
 HICON DcxDock::status_getIcon( const int iPart ) {
 	return (HICON)SendMessage( g_StatusBar, SB_GETICON, (WPARAM) iPart, (LPARAM) 0 );
+}
+
+LRESULT DcxDock::status_setPartInfo( const int iPart, const int Style, const LPSB_PARTINFO pPart) {
+  return SendMessage( g_StatusBar, SB_SETTEXT, (WPARAM) iPart | (Style | SBT_OWNERDRAW), (LPARAM) pPart );
+}
+
+void DcxDock::status_deletePartInfo(const int iPart)
+{
+	if (DcxDock::status_getPartFlags( iPart ) & SBT_OWNERDRAW) {
+		LPSB_PARTINFO pPart = (LPSB_PARTINFO)DcxDock::status_getText(iPart, NULL);
+		VectorOfParts::iterator itStart = DcxDock::g_vParts.begin();
+		VectorOfParts::iterator itEnd = DcxDock::g_vParts.end();
+
+		while (itStart != itEnd) {
+			if (*itStart != NULL && ((LPSB_PARTINFO)*itStart) == pPart) {
+				DcxDock::status_setText( iPart, SBT_OWNERDRAW, NULL);
+				if (IsWindow(pPart->m_Child))
+					DestroyWindow(pPart->m_Child);
+				delete pPart;
+				DcxDock::g_vParts.erase(itStart);
+				return;
+			}
+			itStart++;
+		}
+	}
 }
 
 HIMAGELIST DcxDock::status_getImageList( ) {
@@ -722,6 +793,9 @@ UINT DcxDock::status_parseItemFlags( const TString & flags ) {
 			break;
 		case 'p':
 			iFlags |= SBT_POPOUT;
+			break;
+		case 'f':
+			iFlags |= SBT_OWNERDRAW;
 			break;
 		}
 
@@ -791,7 +865,7 @@ void DcxDock::status_setFont(HFONT f)
 	}
 }
 
-int DcxDock::getPos(int x, int y, int w, int h)
+int DcxDock::getPos(const int x, const int y, const int w, const int h)
 {
 	RECT rc;
 	GetClientRect(mIRCLink.m_mIRCHWND,&rc);
@@ -804,7 +878,7 @@ int DcxDock::getPos(int x, int y, int w, int h)
 	return SWB_RIGHT;
 }
 
-void DcxDock::getTreebarItemType(TString &tsType, LPARAM lParam)
+void DcxDock::getTreebarItemType(TString &tsType, const LPARAM lParam)
 {
 	int wid = HIWORD(lParam);
 	switch (wid)

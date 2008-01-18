@@ -42,6 +42,14 @@ typedef struct tagDCXULTRADOCK {
 
 typedef std::vector<LPDCXULTRADOCK> VectorOfDocks;
 
+typedef struct tagSB_PARTINFO {
+	HWND		m_Child;
+	TString		m_Text;
+	int			m_iIcon;
+} SB_PARTINFO, *LPSB_PARTINFO;
+
+typedef std::vector<LPSB_PARTINFO> VectorOfParts;
+
 class DcxDock
 {
 public:
@@ -70,6 +78,7 @@ public:
 	static void status_setText( const int iPart, const int Style, const LPWSTR lpstr );
 	static LRESULT status_getText( const int iPart, LPWSTR lpstr );
 	static UINT status_getTextLength( const int iPart );
+	static UINT status_getPartFlags( const int iPart );
 	static void status_setTipText( const int iPart, const LPWSTR lpstr );
 	static void status_getTipText( const int iPart, const int nSize, LPWSTR lpstr );
 	static void status_getRect( const int iPart, LPRECT lprc );
@@ -83,10 +92,12 @@ public:
 	static LRESULT status_getBorders( LPINT aWidths );
 	static void status_updateParts(void);
 	static void status_setFont(HFONT f);
+	static LRESULT status_setPartInfo( const int iPart, const int Style, const LPSB_PARTINFO pPart);
+	static void status_deletePartInfo(const int iPart);
 	//
-	static int getPos(int x, int y, int w, int h);
+	static int getPos(const int x, const int y, const int w, const int h);
 	//
-	static void getTreebarItemType(TString &tsType, LPARAM lParam);
+	static void getTreebarItemType(TString &tsType, const LPARAM lParam);
 
 protected:
 	static LRESULT CALLBACK mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -99,12 +110,16 @@ protected:
 	HWND m_hParent; //!< The HWND that docked windows are docked too. This window is subclassed.
 	int m_iType; //!< The dock type.
 public:
+	// statusbar stuff
 	static HWND g_StatusBar; //!< The Statusbar for the main mIRC window.
 	static HIMAGELIST g_hImageList; //!< The Statusbar's image list.
+	static bool g_bUseUTF8;			//!< Use utf8 text
 	static INT g_iDynamicParts[256];
 	static INT g_iFixedParts[256];
-	static bool g_bTakeOverTreebar; //!< take over the drawing of the treebar from mIRC.
 	static HFONT g_StatusFont; //!< Statusbar font.
+	static VectorOfParts g_vParts;	//!< Parts info for ownerdraw parts.
+	// treebar stuff
+	static bool g_bTakeOverTreebar; //!< take over the drawing of the treebar from mIRC.
 	// 0 = selected, 1 = selected bkg, 2 = message, 3 = message bkg
 	// 4 = event, 5 = event bkg, 6 = highlight, 7 = highlight bkg
 	static COLORREF g_clrTreebarColours[8];

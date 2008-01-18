@@ -79,10 +79,10 @@ DcxStatusBar::~DcxStatusBar( ) {
 		}
 		itStart++;
 	}
-  this->cleanPartIcons( );
-  ImageList_Destroy( this->getImageList( ) );
+	this->cleanPartIcons( );
+	ImageList_Destroy( this->getImageList( ) );
 
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 }
 
 /*!
