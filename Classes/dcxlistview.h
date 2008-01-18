@@ -62,7 +62,7 @@ typedef struct tagDCXLVSORT {
 } DCXLVSORT,*LPDCXLVSORT;
 
 typedef struct tagDCXLVRENDERINFO {
-	DWORD			m_dFlags;	//!< Render flags (bold etc..)
+	DWORD		m_dFlags;	//!< Render flags (bold etc..)
 	COLORREF	m_cText;	//!< Text Colour
 	COLORREF	m_cBg;		//!< Background Colour.
 } DCXLVRENDERINFO, *LPDCXLVRENDERINFO;

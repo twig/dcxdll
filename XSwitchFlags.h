@@ -47,8 +47,8 @@ class XSwitchFlags {
 		~XSwitchFlags();
 
 		// Function checks if flag is set
-		bool isSet(const char c);
-		bool operator[](const char c);
+		bool isSet(const char c) const;
+		bool operator[](const char c) const;
 
 	protected:
 		bool flags[26];     //!< Lowercase switches a-z

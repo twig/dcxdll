@@ -658,89 +658,89 @@ int DcxStatusBar::hitTest( const POINT & pt ) const {
  * blah
  */
 LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-    case WM_NOTIFY:
-      {
-        LPNMHDR hdr = (LPNMHDR) lParam;
+	switch( uMsg ) {
+	case WM_NOTIFY:
+		{
+			LPNMHDR hdr = (LPNMHDR) lParam;
 
-        if (!hdr)
-          break;
+			if (!hdr)
+				break;
 
-        switch( hdr->code ) {
+			switch( hdr->code ) {
 
-          case NM_CLICK:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-								POINT pt;
-								GetCursorPos( &pt );
-								ScreenToClient( this->m_Hwnd, &pt );
-								int cell = this->hitTest( pt );
+			case NM_CLICK:
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+						POINT pt;
+						GetCursorPos( &pt );
+						ScreenToClient( this->m_Hwnd, &pt );
+						int cell = this->hitTest( pt );
 
-								if ( cell != -1 )
-									this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), cell + 1 );
-							}
-              bParsed = TRUE;
-            }
-            break;
-
-          case NM_RCLICK:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-								POINT pt;
-								GetCursorPos( &pt );
-								ScreenToClient( this->m_Hwnd, &pt );
-								int cell = this->hitTest( pt );
-
-								if ( cell != -1 )
-									this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), cell + 1 );
-							}
-              bParsed = TRUE;
-            }
-            break;
-
-          case NM_DBLCLK: 
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-								POINT pt;
-								GetCursorPos( &pt );
-								ScreenToClient( this->m_Hwnd, &pt );
-								int cell = this->hitTest( pt );
-
-								if ( cell != -1 )
-									this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), cell + 1 );
-							}
-              bParsed = TRUE;
-            }
-            break;
-
-        } // switch
-      }
-      break;
-		case WM_DRAWITEM: // support for ownerdraw statusbar. NB: NO Delete Item msg.
-			{
-				LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT) lParam;
-				if (this->m_Hwnd == lpDrawItem->hwndItem) {
-					bParsed = TRUE;
-					LPSB_PARTINFO pPart = (LPSB_PARTINFO)lpDrawItem->itemData;
-					if (pPart != NULL) {
-						RECT rc = lpDrawItem->rcItem;
-						if (pPart->m_iIcon > -1) {
-							IMAGEINFO ii;
-							ImageList_GetImageInfo(this->m_hImageList, pPart->m_iIcon, &ii);
-							ImageList_Draw(this->m_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT);
-							rc.left += (ii.rcImage.right - ii.rcImage.left);
-						}
-						if (pPart->m_Text.len() > 0)
-							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false, this->m_bUseUTF8);
-						else if (pPart->m_Child != NULL) {
-							SetWindowPos(pPart->m_Child->getHwnd(), NULL, rc.left, rc.top,
-								(rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
-						}
-						return TRUE;
+						if ( cell != -1 )
+							this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), cell + 1 );
 					}
+					bParsed = TRUE;
+				}
+				break;
+
+			case NM_RCLICK:
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+						POINT pt;
+						GetCursorPos( &pt );
+						ScreenToClient( this->m_Hwnd, &pt );
+						int cell = this->hitTest( pt );
+
+						if ( cell != -1 )
+							this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), cell + 1 );
+					}
+					bParsed = TRUE;
+				}
+				break;
+
+			case NM_DBLCLK: 
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+						POINT pt;
+						GetCursorPos( &pt );
+						ScreenToClient( this->m_Hwnd, &pt );
+						int cell = this->hitTest( pt );
+
+						if ( cell != -1 )
+							this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), cell + 1 );
+					}
+					bParsed = TRUE;
+				}
+				break;
+
+			} // switch
+		}
+		break;
+	case WM_DRAWITEM: // support for ownerdraw statusbar. NB: NO Delete Item msg.
+		{
+			LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT) lParam;
+			if (this->m_Hwnd == lpDrawItem->hwndItem) {
+				bParsed = TRUE;
+				LPSB_PARTINFO pPart = (LPSB_PARTINFO)lpDrawItem->itemData;
+				if (pPart != NULL) {
+					RECT rc = lpDrawItem->rcItem;
+					if (pPart->m_iIcon > -1) {
+						IMAGEINFO ii;
+						ImageList_GetImageInfo(this->m_hImageList, pPart->m_iIcon, &ii);
+						ImageList_Draw(this->m_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT);
+						rc.left += (ii.rcImage.right - ii.rcImage.left);
+					}
+					if (pPart->m_Text.len() > 0)
+						mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false, this->m_bUseUTF8);
+					else if (pPart->m_Child != NULL) {
+						SetWindowPos(pPart->m_Child->getHwnd(), NULL, rc.left, rc.top,
+							(rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
+					}
+					return TRUE;
 				}
 			}
-			break;
+		}
+		break;
 	}
 	return 0L;
 }
@@ -748,14 +748,14 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	LRESULT lRes = 0L;
-  switch( uMsg ) {
+	switch( uMsg ) {
 		case WM_CONTEXTMENU:
-    case WM_LBUTTONDBLCLK:
+		case WM_LBUTTONDBLCLK:
 		case WM_LBUTTONUP:
 			break;
 
-    case WM_HSCROLL:
-    case WM_VSCROLL:
+		case WM_HSCROLL:
+		case WM_VSCROLL:
 		case WM_COMMAND:
 			{
 				if (IsWindow((HWND) lParam)) {
@@ -810,12 +810,12 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			}
 			break;
 
-    case WM_NOTIFY: 
-      {
-        LPNMHDR hdr = (LPNMHDR) lParam;
+		case WM_NOTIFY: 
+			{
+				LPNMHDR hdr = (LPNMHDR) lParam;
 
-        if (!hdr)
-          break;
+				if (!hdr)
+					break;
 
 				if (this->m_Hwnd != hdr->hwndFrom) {
 					if (IsWindow(hdr->hwndFrom)) {
@@ -824,8 +824,8 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
 				}
-      }
-      break;
+			}
+			break;
 
 		case WM_SIZE:
 			{
@@ -833,41 +833,41 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			}
 			break;
 
-		//case WM_PAINT:
-		//	{
-		//		PAINTSTRUCT ps;
-		//		HDC hdc;
+			//case WM_PAINT:
+			//	{
+			//		PAINTSTRUCT ps;
+			//		HDC hdc;
 
-		//		hdc = BeginPaint( this->m_Hwnd, &ps );
+			//		hdc = BeginPaint( this->m_Hwnd, &ps );
 
-		//		bParsed = TRUE;
+			//		bParsed = TRUE;
 
-		//		// Setup alpha blend if any.
-		//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, true);
+			//		// Setup alpha blend if any.
+			//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, true);
 
-		//		DcxControl::DrawCtrlBackground( hdc, this);
+			//		DcxControl::DrawCtrlBackground( hdc, this);
 
-		//		lRes = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+			//		lRes = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
-		//		this->FinishAlphaBlend(ai);
+			//		this->FinishAlphaBlend(ai);
 
-		//		EndPaint( this->m_Hwnd, &ps );
-		//	}
-		//	break;
+			//		EndPaint( this->m_Hwnd, &ps );
+			//	}
+			//	break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return lRes;
+	return lRes;
 }
 
 void DcxStatusBar::updateParts(void) {

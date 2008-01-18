@@ -497,6 +497,34 @@ void DcxList::parseCommandRequest( TString & input ) {
 					this->showError(NULL, "-A +f", "Invalid Syntax");
 			}
 			break;
+		case 'T': // [TEXT] == [C] [text][c][text]......
+			{
+				if (itemtext.numtok() > 1) { // add tokens to list
+					char tok[2];
+					tok[0] = (char)itemtext.gettok(1).to_int();
+					tok[1] = 0;
+					TString contents(itemtext.gettok(2,-1));
+
+					int numtok = contents.numtok(tok);
+					int len = 0;
+
+					this->setRedraw(FALSE);
+
+					for (int i = 1; i <= numtok; i++) {
+						itemtext = contents.gettok( i, tok);
+						ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
+						len = itemtext.len();
+						if (len > nMaxStrlen)
+							nMaxStrlen = len;
+					}
+
+					this->setRedraw(TRUE);
+					this->redrawWindow();
+				}
+				else
+					this->showError(NULL, "-A +T", "Invalid Syntax");
+			}
+			break;
 		default:
 			{
 				ListBox_InsertString( this->m_Hwnd, nPos, itemtext.to_chr( ) );

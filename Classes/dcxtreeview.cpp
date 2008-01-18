@@ -1089,9 +1089,15 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			return;
 		}
 
+		TString fileData(input.gettok(2, TSTAB));
+
+		if (fileData.numtok() < 3) {
+			this->showError(NULL, "-S", "Invalid Command Syntax.");
+			return;
+		}
+
 		HTREEITEM item;
 		TString path(input.gettok(1, TSTAB).gettok(4, -1));
-		TString fileData(input.gettok(2, TSTAB));
 		//TString flags(fileData.gettok(1));
 		TString name(fileData.gettok(2));
 		TString filename(fileData.gettok(3, -1));
@@ -1099,6 +1105,15 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		path.trim();
 		name.trim();
 		filename.trim();
+
+		if (name.len() < 1) {
+			this->showError(NULL, "-S", "Invalid dataset");
+			return;
+		}
+		if (path.len() < 1) {
+			this->showError(NULL, "-S", "Invalid path");
+			return;
+		}
 
 		item = this->parsePath(&path);
 
@@ -2346,15 +2361,21 @@ bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString 
 			return false;
 		}
 	}
+
 	TiXmlElement *xElm = xRoot->FirstChildElement("treeview_data");
 	if (xElm == NULL) {
 		xElm = (TiXmlElement *)xRoot->InsertEndChild(TiXmlElement("treeview_data"));
 		if (xElm == NULL)
 			return false;
+	}
+
+	xElm = xElm->FirstChildElement(name.to_chr());
+	if (xElm == NULL) {
 		xElm = (TiXmlElement *)xElm->InsertEndChild(TiXmlElement(name.to_chr()));
 		if (xElm == NULL)
 			return false;
 	}
+
 	xElm->Clear();
 
 	if ( hFromItem == TVI_ROOT)

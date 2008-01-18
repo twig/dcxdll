@@ -10,7 +10,7 @@ XSwitchFlags::XSwitchFlags(const TString &switches) {
 		return;
 
 	unsigned int i = 1;
-	unsigned int len = switches.len();
+	unsigned int len = (UINT)switches.len();
 	char c;
 
 	// Parse the switches
@@ -32,7 +32,7 @@ XSwitchFlags::~XSwitchFlags(void) {
 }
 
 // Checks if flags are set.
-bool XSwitchFlags::isSet(const char c) {
+bool XSwitchFlags::isSet(const char c) const {
 	// Lower-case
 	if ((c >= 'a') && (c <= 'z'))
 		return flags[(int) (c - 'a')];
@@ -44,6 +44,6 @@ bool XSwitchFlags::isSet(const char c) {
 }
 
 // Wrapper for isSet()
-bool XSwitchFlags::operator[](const char c) {
+bool XSwitchFlags::operator[](const char c) const {
 	return this->isSet(c);
 }
