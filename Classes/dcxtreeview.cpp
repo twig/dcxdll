@@ -1185,13 +1185,13 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 	tvi.mask = TVIF_TEXT | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM /*| TVIF_HANDLE*/ | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
 
 	int iFlags			= this->parseItemFlags(data->gettok( 1 ));
-	int icon				= data->gettok( 2 ).to_int() -1;
+	int icon			= data->gettok( 2 ).to_int() -1;
 	int sicon			= data->gettok( 3 ).to_int() -1;
 	int overlay			= data->gettok( 4 ).to_int();
 	int state			= data->gettok( 5 ).to_int();
 	int integral		= data->gettok( 6 ).to_int() +1;
 	COLORREF clrText	= (COLORREF) data->gettok( 7 ).to_num();
-	COLORREF clrBkg = (COLORREF) data->gettok( 8 ).to_num();
+	COLORREF clrBkg		= (COLORREF) data->gettok( 8 ).to_num();
 
 	// text
 	TString itemtext(data->gettok(9, -1));

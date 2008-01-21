@@ -775,8 +775,11 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 void DcxListView::autoSize(const int nColumn, const TString &flags)
 {
-	UINT iFlags = this->parseHeaderFlags2(flags);
+	this->autoSize(nColumn, this->parseHeaderFlags2(flags));
+}
 
+void DcxListView::autoSize(const int nColumn, const UINT iFlags)
+{
 	if (iFlags == -3) {
 		int n = 0;
 		ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
@@ -828,6 +831,11 @@ void DcxListView::parseCommandRequest(TString &input) {
 		COLORREF clrText = (COLORREF)data.gettok( 8 ).to_num();
 		COLORREF clrBack = (COLORREF)data.gettok( 9 ).to_num();
 
+		if (stateFlags & LVIS_XML) {
+			this->xmlLoadListview(nPos, data.gettok( 10 ), data.gettok( 11, -1));
+			return;
+		}
+
 		LPDCXLVITEM lpmylvi = new DCXLVITEM;
 
 		if (lpmylvi == NULL)
@@ -877,6 +885,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		lvi.iItem = nPos;
 		lvi.iImage = -1;
 		lvi.state = stateFlags;
+		lvi.stateMask = (LVIS_FOCUSED|LVIS_SELECTED|LVIS_CUT|LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
 		lvi.iSubItem = 0;
 		lvi.lParam = (LPARAM) lpmylvi;
 
@@ -1978,6 +1987,8 @@ UINT DcxListView::parseItemFlags(const TString & flags) {
 			iFlags |= LVIS_HASHITEM;
 		else if (flags[i] == 'n')
 			iFlags |= LVIS_HASHNUMBER;
+		else if (flags[i] == 'x')
+			iFlags |= LVIS_XML;
 
 		++i;
 	}
@@ -3138,4 +3149,238 @@ void DcxListView::ScrollPbars(const int row) {
 	}
 
 	delete lvi;
+}
+
+/*
+	xmlLoadTree()
+	Loads items into a treeview control from a dcxml file.
+*/
+bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &filename)
+{
+	if (!IsFile(filename)) {
+		this->showErrorEx(NULL, NULL, "Unable To Access File: %s", filename.to_chr());
+		return false;
+	}
+
+	TiXmlDocument doc(filename.to_chr());
+	doc.SetCondenseWhiteSpace(false);
+
+	bool xmlFile = doc.LoadFile();
+	if (!xmlFile) {
+		this->showErrorEx(NULL, "-a", "Not an XML File: %s", filename.to_chr());
+		return false;
+	}
+
+	TiXmlElement *xRoot = doc.FirstChildElement("dcxml");
+	if (xRoot == NULL) {
+		this->showError(NULL, "-a", "Unable Find 'dcxml' root");
+		return false;
+	}
+
+	TiXmlElement *xElm = xRoot->FirstChildElement("listview_data");
+	if (xElm == NULL) {
+		this->showError(NULL, "-a", "Unable To Find 'listview_data' element");
+		return false;
+	}
+
+	xElm = xElm->FirstChildElement(name.to_chr());
+	if (xElm == NULL) {
+		this->showErrorEx(NULL, "-a", "Unable To Find Dataset: %s", name.to_chr());
+		return false;
+	}
+
+	this->setRedraw(FALSE);
+
+	int i = 0, nItem = nPos;
+	const char *attr = NULL;
+	LVITEM lvi;
+
+	for (TiXmlElement *xNode = xElm->FirstChildElement("lvitem"); xNode != NULL; xNode = xNode->NextSiblingElement("lvitem"))
+	{
+		LPDCXLVITEM lpmylvi = new DCXLVITEM;
+
+		lpmylvi->iPbarCol = 0;
+		lpmylvi->pbar = NULL;
+		lpmylvi->vInfo.clear();
+
+		xmlSetItem(nItem, 0, xNode, &lvi, lpmylvi);
+
+		// Items state icon.
+		int stateicon = -1;
+		attr = xNode->Attribute("stateicon",&i);
+		if (attr != NULL && i > -1)
+			stateicon = i;
+
+		// Items overlay icon.
+		int overlayicon = 0;
+		attr = xNode->Attribute("overlayicon",&i);
+		if (attr != NULL && i > 0)
+			overlayicon = i;
+
+		lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
+
+		if (lvi.iItem == -1) {
+			//delete lpmylvi;
+			//delete ri;
+			this->showError(NULL,"-a", "Unable to add item");
+			this->setRedraw(TRUE);
+			return false;
+		}
+
+		if (stateicon > -1)
+			ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(stateicon), LVIS_STATEIMAGEMASK);
+
+		// overlay is 1-based index, max 15 overlay icons
+		if (overlayicon > 0 && overlayicon < 16)
+			ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlayicon), LVIS_OVERLAYMASK);
+
+		// Items checked state (if LVS_EX_CHECKBOXES style used)
+		attr = xNode->Attribute("checked",&i);
+		if (attr != NULL && i > 0 && (ListView_GetExtendedListViewStyle(this->m_Hwnd) & LVS_EX_CHECKBOXES)) // items are always added in `unchecked` state
+			ListView_SetCheckState(this->m_Hwnd, lvi.iItem, TRUE);
+
+		attr = xNode->Attribute("autosize",&i);
+		if (attr != NULL && i > 0)
+			this->autoSize(0,LVSCW_AUTOSIZE);
+		else {
+			attr = xNode->Attribute("autosizeheader",&i);
+			if (attr != NULL && i > 0)
+				this->autoSize(0,LVSCW_AUTOSIZE_USEHEADER);
+			else {
+				attr = xNode->Attribute("autosizemax",&i);
+				if (attr != NULL && i > 0)
+					this->autoSize(0,-3);
+			}
+		}
+		attr = xNode->Attribute("tooltip");
+		if (attr != NULL) {
+			TString cmd;
+			cmd.sprintf("0 0 -T %d 0 %s", nItem, attr);
+			this->parseCommandRequest(cmd);
+		}
+		// add subitems
+		int nSubItem = 1;
+		for (TiXmlElement *xSubNode = xNode->FirstChildElement("lvsubitem"); xSubNode != NULL; xSubNode = xSubNode->NextSiblingElement("lvsubitem"))
+		{
+			xmlSetItem(nItem, nSubItem, xSubNode, &lvi, lpmylvi);
+
+			// SubItems overlay icon.
+			attr = xSubNode->Attribute("overlayicon",&i);
+			if (attr != NULL && i > 0) {
+				lvi.mask |= LVIF_STATE;
+				lvi.state |= INDEXTOOVERLAYMASK(i);
+				lvi.stateMask |= LVIS_OVERLAYMASK;
+			}
+			if (ListView_SetItem(this->m_Hwnd, &lvi))
+			{
+				attr = xNode->Attribute("autosize",&i);
+				if (attr != NULL && i > 0)
+					this->autoSize(nSubItem,LVSCW_AUTOSIZE);
+				else {
+					attr = xNode->Attribute("autosizeheader",&i);
+					if (attr != NULL && i > 0)
+						this->autoSize(nSubItem,LVSCW_AUTOSIZE_USEHEADER);
+					else {
+						attr = xNode->Attribute("autosizemax",&i);
+						if (attr != NULL && i > 0)
+							this->autoSize(nSubItem,-3);
+					}
+				}
+			}
+			nSubItem++;
+		}
+		nItem++;
+	}
+
+	this->setRedraw(TRUE);
+	//InvalidateRect(this->m_Hwnd, NULL, FALSE);
+	//UpdateWindow(this->m_Hwnd);
+	this->redrawWindow();
+	return true;
+}
+
+void DcxListView::xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *xNode, LPLVITEMA lvi, LPDCXLVITEM lpmylvi)
+{
+	LPDCXLVRENDERINFO ri = new DCXLVRENDERINFO;
+	const char *attr = NULL;
+	int i = 0;
+
+	ZeroMemory(lvi, sizeof(LVITEM));
+	ZeroMemory(ri, sizeof(DCXLVRENDERINFO));
+
+	lvi->iItem = nItem;
+	lvi->iSubItem = nSubItem;
+	if (nSubItem == 0) {
+		lvi->mask = LVIF_PARAM|LVIF_STATE;
+		lvi->lParam = (LPARAM) lpmylvi;
+	}
+
+	// Is Item text in Bold?
+	attr = xNode->Attribute("textbold",&i);
+	if (i > 0)
+		ri->m_dFlags |= LVIS_BOLD;
+
+	// Is Item text Underlined?
+	attr = xNode->Attribute("textunderline",&i);
+	if (i > 0)
+		ri->m_dFlags |= LVIS_UNDERLINE;
+
+	// Items text colour.
+	attr = xNode->Attribute("textcolor",&i);
+	if (attr != NULL && i > -1) {
+		ri->m_cText = (COLORREF)i;
+		ri->m_dFlags |= LVIS_COLOR;
+	}
+	else
+		ri->m_cText = CLR_INVALID;
+
+	// Items background colour.
+	attr = xNode->Attribute("backgroundcolor",&i);
+	if (attr != NULL && i > -1) {
+		ri->m_cBg = (COLORREF)i;
+		ri->m_dFlags |= LVIS_BGCOLOR;
+	}
+	else
+		ri->m_cBg = CLR_INVALID;
+
+	lpmylvi->vInfo.push_back(ri);
+
+	// Items icon.
+	attr = xNode->Attribute("icon",&i);
+	if (attr != NULL && i > 0) {
+		lvi->iImage = i -1;
+		lvi->mask |= LVIF_IMAGE;
+	}
+	else
+		lvi->iImage = -1;
+
+	// Items icon.
+	if (isXP() && ListView_IsGroupViewEnabled(this->m_Hwnd)) {
+		attr = xNode->Attribute("group",&i);
+		if (attr != NULL && i > -1 && ListView_HasGroup(this->m_Hwnd, i)) {
+			lvi->iGroupId = i;
+			lvi->mask |= LVIF_GROUPID;
+		}
+		else
+			lvi->iGroupId = -1;
+	}
+
+	// Items background colour.
+	attr = xNode->Attribute("indent",&i);
+	if (attr != NULL && i > -1) {
+		lvi->iIndent = i;
+		lvi->mask |= LVIF_INDENT;
+	}
+	else
+		lvi->iIndent = -1;
+
+	// Items Text.
+	attr = xNode->Attribute("text");
+	if (attr != NULL) {
+		lvi->mask |= LVIF_TEXT;
+		lvi->pszText = (LPSTR)attr;
+	}
+
+	lvi->state = ri->m_dFlags;
+	lvi->stateMask = (LVIS_FOCUSED|LVIS_SELECTED|LVIS_CUT|LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
 }
