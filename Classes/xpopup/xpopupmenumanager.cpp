@@ -497,27 +497,27 @@ XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, BOOL checkS
 /*
  * Retrieves a menu by the handle.
  */
-//XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) {
-//	// Special cases
-//	if (hMenu == g_mIRCMenuBar->getMenuHandle())
-//		return g_mIRCMenuBar;
-//	else if (hMenu == g_mIRCPopupMenu->getMenuHandle())
-//		return g_mIRCPopupMenu;
-//	else if (hMenu == g_mIRCScriptMenu->getMenuHandle())
-//		return g_mIRCScriptMenu;
-//
-//	VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin();
-//	VectorOfXPopupMenu::iterator itEnd = this->m_vpXPMenu.end();
-//
-//	while (itStart != itEnd) {
-//		if (*itStart != NULL && (hMenu == (*itStart)->getMenuHandle()))
-//			return *itStart;
-//
-//		++itStart;
-//	}
-//
-//	return NULL;
-//}
+XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) {
+	// Special cases
+	if (hMenu == g_mIRCMenuBar->getMenuHandle())
+		return g_mIRCMenuBar;
+	else if (hMenu == g_mIRCPopupMenu->getMenuHandle())
+		return g_mIRCPopupMenu;
+	else if (hMenu == g_mIRCScriptMenu->getMenuHandle())
+		return g_mIRCScriptMenu;
+
+	VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin();
+	VectorOfXPopupMenu::iterator itEnd = this->m_vpXPMenu.end();
+
+	while (itStart != itEnd) {
+		if (*itStart != NULL && (hMenu == (*itStart)->getMenuHandle()))
+			return *itStart;
+
+		++itStart;
+	}
+
+	return NULL;
+}
 
 /*!
  * \brief blah

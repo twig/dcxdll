@@ -40,7 +40,7 @@ public:
   void clearMenus( );
 
 	XPopupMenu* getMenuByName(const TString &tsName, BOOL checkSpecial);
-	//XPopupMenu* getMenuByHandle(const HMENU hMenu);
+	XPopupMenu* getMenuByHandle(const HMENU hMenu);
 
 	bool isPatched(void) const { return this->m_bPatched; };
 	static BOOL InterceptAPI(HMODULE hLocalModule, const char* c_szDllName, const char* c_szApiName, DWORD dwReplaced, DWORD dwTrampoline, int offset);

@@ -1022,7 +1022,10 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 					if (bIsActiveMircMenubarPopup == TRUE) {
 						HWND hActive = (HWND)SendMessage(mIRCLink.m_hMDI, WM_MDIGETACTIVE, NULL, NULL);
-						if (!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)
+						bool notXpopupMenu = (g_XPopupMenuManager.getMenuByHandle(menu) == NULL) || (menu == g_mIRCScriptMenu->getMenuHandle());
+
+						if (((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) &&
+							(notXpopupMenu))
 							g_mIRCMenuBar->convertMenu(menu, TRUE);
 					}
 				}
@@ -1076,16 +1079,16 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
 
 			if (lpmis->CtlType == ODT_MENU) {
-				XPopupMenuItem *p_Item = (XPopupMenuItem*) lpmis->itemData;
+					XPopupMenuItem *p_Item = (XPopupMenuItem*) lpmis->itemData;
 
-				if (p_Item != NULL) {
-					SIZE size = p_Item->getItemSize(mHwnd);
+					if (p_Item != NULL) {
+						SIZE size = p_Item->getItemSize(mHwnd);
 
-					lpmis->itemWidth = size.cx;
-					lpmis->itemHeight = size.cy;
-					return TRUE; 
+						lpmis->itemWidth = size.cx;
+						lpmis->itemHeight = size.cy;
+						return TRUE; 
+					}
 				}
-			}
 
 			break;
 		}
@@ -1095,13 +1098,13 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT) lParam;
 
 			if (lpdis->CtlType == ODT_MENU) {
-				XPopupMenuItem *p_Item = (XPopupMenuItem*) lpdis->itemData;
+					XPopupMenuItem *p_Item = (XPopupMenuItem*) lpdis->itemData;
 
-				if (p_Item != NULL) {
-					p_Item->DrawItem(lpdis);
-					return TRUE; 
+					if (p_Item != NULL) {
+						p_Item->DrawItem(lpdis);
+						return TRUE; 
+					}
 				}
-			}
 
 			break;
 		}
