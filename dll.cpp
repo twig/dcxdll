@@ -1022,10 +1022,8 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 					if (bIsActiveMircMenubarPopup == TRUE) {
 						HWND hActive = (HWND)SendMessage(mIRCLink.m_hMDI, WM_MDIGETACTIVE, NULL, NULL);
-						bool notXpopupMenu = (g_XPopupMenuManager.getMenuByHandle(menu) == NULL) || (menu == g_mIRCScriptMenu->getMenuHandle());
 
-						if (((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) &&
-							(notXpopupMenu))
+						if (((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) && (!g_XPopupMenuManager.isCustomMenu(menu)))
 							g_mIRCMenuBar->convertMenu(menu, TRUE);
 					}
 				}

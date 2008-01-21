@@ -56,11 +56,11 @@ class XPopupMenu {
 
 public:
 
-  /*!
-   * \brief Menu Styles
-   *
-   * Availbale XPopupMenu Styles
-   */
+	/*!
+	* \brief Menu Styles
+	*
+	* Availbale XPopupMenu Styles
+	*/
 	enum MenuStyle {
 		XPMS_OFFICE2003,
 		XPMS_OFFICE2003_REV,
@@ -102,47 +102,47 @@ public:
 	static const int XPMC_TEXT = 10;
 	static const int XPMC_SELECTEDTEXT = 11;
 
-  XPopupMenu( const TString tsName, HMENU hMenu );
-  XPopupMenu( const TString & tsMenuName, MenuStyle mStyle );
-  virtual ~XPopupMenu( );
+	XPopupMenu( const TString tsName, HMENU hMenu );
+	XPopupMenu( const TString & tsMenuName, MenuStyle mStyle );
+	virtual ~XPopupMenu( );
 
-  void parseXPopCommand( const TString & input );
-  void parseXPopIdentifier( const TString & input, char * szReturnValue );
+	void parseXPopCommand( const TString & input );
+	void parseXPopIdentifier( const TString & input, char * szReturnValue );
 	static XPopupMenu::MenuStyle parseStyle(const TString &style);
 
-  static HMENU parsePath( const TString & path, const HMENU hParent, const int depth = 1 );
+	static HMENU parsePath( const TString & path, const HMENU hParent, const int depth = 1 );
 
-  HIMAGELIST getImageList( );
-  void destroyImageList( );
+	HIMAGELIST getImageList( );
+	void destroyImageList( );
 
-  MenuStyle getStyle( ) const;
-  void setStyle( MenuStyle style );
-  UINT getItemStyle( ) const;
-  void setItemStyle( const UINT iExStyles );
+	MenuStyle getStyle( ) const;
+	void setStyle( MenuStyle style );
+	UINT getItemStyle( ) const;
+	void setItemStyle( const UINT iExStyles );
 
-  void deleteMenuItemData( XPopupMenuItem * p_Item );
-  void deleteAllItemData( HMENU hMenu );
+	void deleteMenuItemData( XPopupMenuItem * p_Item );
+	void deleteAllItemData( HMENU hMenu );
 
-  TString getName( ) const;
+	TString getName( ) const;
 
-  HMENU getMenuHandle( ) const { return this->m_hMenu; };
+	HMENU getMenuHandle( ) const { return this->m_hMenu; };
 
-  LPXPMENUCOLORS getColors( ) const;
-  void setColor( const int nColor, const COLORREF clrColor );
-  COLORREF getColor( const int nColor ) const;
+	LPXPMENUCOLORS getColors( ) const;
+	void setColor( const int nColor, const COLORREF clrColor );
+	COLORREF getColor( const int nColor ) const;
 	void setDefaultColor(const int nColor);
 
-  static LRESULT CALLBACK XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static LRESULT CALLBACK XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-  static LRESULT OnMeasureItem( const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis );
-  static LRESULT OnDrawItem( const HWND mHwnd, LPDRAWITEMSTRUCT lpdis ); 
+	static LRESULT OnMeasureItem( const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis );
+	static LRESULT OnDrawItem( const HWND mHwnd, LPDRAWITEMSTRUCT lpdis ); 
 
-  void convertMenu( HMENU hMenu, const BOOL bForce );
-  void cleanMenu( HMENU hMenu );
-  void clearAllMenuItems( );
+	void convertMenu( HMENU hMenu, const BOOL bForce );
+	void cleanMenu( HMENU hMenu );
+	void clearAllMenuItems( );
 
-  HBITMAP getBackBitmap( ) const;
-  void setBackBitmap( HBITMAP hBitmap );
+	HBITMAP getBackBitmap( ) const;
+	void setBackBitmap( HBITMAP hBitmap );
 
 	bool IsRounded(void) const { return this->m_bRoundedSel; };
 	UINT IsAlpha(void) const { return this->m_uiAlpha; };
@@ -161,21 +161,21 @@ public:
 
 protected:
 
-  HMENU m_hMenu; //!< Menu Handle
-  HIMAGELIST m_hImageList; //!< Menu ImageList
-  MenuStyle m_MenuStyle; //!< Menu Style
-  TString m_tsMenuName; //!< Menu Name
-  TString m_tsMarkedText; //!< Extra field to store custom information
-  UINT m_MenuItemStyles; //!< Menu Item Styles
+	HMENU m_hMenu; //!< Menu Handle
+	HIMAGELIST m_hImageList; //!< Menu ImageList
+	MenuStyle m_MenuStyle; //!< Menu Style
+	TString m_tsMenuName; //!< Menu Name
+	TString m_tsMarkedText; //!< Extra field to store custom information
+	UINT m_MenuItemStyles; //!< Menu Item Styles
 
-  HBITMAP m_hBitmap; //!< Menu Item Background Image in Custom Style
+	HBITMAP m_hBitmap; //!< Menu Item Background Image in Custom Style
 
-  XPMENUCOLORS m_MenuColors; //!< Menu Colors
+	XPMENUCOLORS m_MenuColors; //!< Menu Colors
 
 	bool m_bRoundedSel; //!< Menu has rounded selection box.
 	UINT m_uiAlpha;			//!< Menu is alpha blended. 0 -> 255
 
-  bool m_bAttachedToMenuBar; //!< Is the menu attached to the mIRC window menubar?
+	bool m_bAttachedToMenuBar; //!< Is the menu attached to the mIRC window menubar?
 };
 
 #endif // _XPOPUPMENU_H_

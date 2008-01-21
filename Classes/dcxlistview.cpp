@@ -702,16 +702,37 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		return;
 	}
+#ifndef DCX_USE_WINSDK
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == "gnum" ) {
 		if ( isXP( ) && ListView_IsGroupViewEnabled( this->m_Hwnd ) )
 		{
-			wsprintf(szReturnValue, "%d", ListView_GetGroupCount(this->m_Hwnd));
+			int g = 0, gcount = 0;
+			while (g < 256) { if (ListView_HasGroup(this->m_Hwnd, g++)) gcount++; }
+			wsprintf(szReturnValue, "%d", gcount);
 			return;
 		}
 		else
 			this->showError("gnum", NULL, "GroupView Not Enabled, Only On XP+");
 	}
+#else
+	// [NAME] [ID] [PROP] [N]
+	else if ( prop == "gnum" ) {
+		if ( isXP( ) && ListView_IsGroupViewEnabled( this->m_Hwnd ) )
+		{
+			if (mIRCLink.m_bVista)
+				wsprintf(szReturnValue, "%d", ListView_GetGroupCount(this->m_Hwnd));
+			else {
+				int g = 0, gcount = 0;
+				while (g < 256) { if (ListView_HasGroup(this->m_Hwnd, g++)) gcount++; }
+				wsprintf(szReturnValue, "%d", gcount);
+			}
+			return;
+		}
+		else
+			this->showError("gnum", NULL, "GroupView Not Enabled, Only On XP+");
+	}
+#endif
 	else if ( prop == "gid" ) {
 		if ( isXP( ) && ListView_IsGroupViewEnabled( this->m_Hwnd ) )
 		{
@@ -3239,6 +3260,7 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 		if (attr != NULL && i > 0 && (ListView_GetExtendedListViewStyle(this->m_Hwnd) & LVS_EX_CHECKBOXES)) // items are always added in `unchecked` state
 			ListView_SetCheckState(this->m_Hwnd, lvi.iItem, TRUE);
 
+		// autosize the column
 		attr = xNode->Attribute("autosize",&i);
 		if (attr != NULL && i > 0)
 			this->autoSize(0,LVSCW_AUTOSIZE);
@@ -3252,10 +3274,11 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 					this->autoSize(0,-3);
 			}
 		}
+		// add items tooltip
 		attr = xNode->Attribute("tooltip");
 		if (attr != NULL) {
 			TString cmd;
-			cmd.sprintf("0 0 -T %d 0 %s", nItem, attr);
+			cmd.sprintf("0 0 -T %d 0 %s", lvi.iItem +1, attr);
 			this->parseCommandRequest(cmd);
 		}
 		// add subitems

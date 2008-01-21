@@ -519,6 +519,24 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) {
 	return NULL;
 }
 
+/*
+ * Check if menu handle is a custom menu (don't include converted mIRC menus)
+ */
+bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) {
+
+	VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin();
+	VectorOfXPopupMenu::iterator itEnd = this->m_vpXPMenu.end();
+
+	while (itStart != itEnd) {
+		if (*itStart != NULL && (hMenu == (*itStart)->getMenuHandle()))
+			return true;
+
+		++itStart;
+	}
+
+	return false;
+}
+
 /*!
  * \brief blah
  *

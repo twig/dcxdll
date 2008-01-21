@@ -2661,18 +2661,32 @@ HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEI
 		}
 		// Search for Nth child.
 		else {
-			i = 1;
+			//i = 1;
 
-			while ((current = TreeView_GetNextSibling(this->m_Hwnd, current)) != NULL) {
+			//while ((current = TreeView_GetNextSibling(this->m_Hwnd, current)) != NULL) {
+			//	if (bFillLocation)
+			//		*hInsertAt = current;
+
+			//	i++;
+
+			//	// Found the branch we want
+			//	if (i == dir)
+			//		break;
+			//}
+			// this version allows using a path thats `last item + 1`
+			i = 1;
+			HTREEITEM tmp;
+
+			while ((tmp = TreeView_GetNextSibling(this->m_Hwnd, current)) != NULL) {
+				current = tmp;
 				if (bFillLocation)
 					*hInsertAt = current;
-
-				i++;
-
-				// Found the branch we want
-				if (i == dir)
+				if (++i == dir)
 					break;
 			}
+
+			if ((bFillLocation) && (++i == dir))
+				*hInsertAt = current;
 		}
 
 		// Couldnt find specified path.
