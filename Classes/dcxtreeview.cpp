@@ -1777,7 +1777,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 				break;
 
 			switch (hdr->code) {
-				case NM_CLICK:
+			case NM_CLICK:
 				{
 				//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
 					TVHITTESTINFO tvh;
@@ -1829,7 +1829,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					break;
 				}
 
-				case NM_DBLCLK:
+			case NM_DBLCLK:
 				{
 					TVHITTESTINFO tvh;
 
@@ -1851,7 +1851,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					break;
 				}
 
-				case NM_RCLICK:
+			case NM_RCLICK:
 				{
 					TVHITTESTINFO tvh;
 
@@ -1965,10 +1965,8 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 					LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO) lParam;
 
-					if ( lptvdi->item.pszText == NULL ) {
-
+					if ( lptvdi->item.pszText == NULL )
 						this->callAliasEx( NULL, "%s,%d", "labelcancel", this->getUserID( ) );
-					}
 					else {
 						char ret[256];
 						this->callAliasEx( ret, "%s,%d,%s", "labelend", this->getUserID( ), lptvdi->item.pszText );
@@ -2080,6 +2078,26 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						delete lpdcxtvi;
 				}
 				break;
+			case TVN_KEYDOWN:
+				{
+					LPNMTVKEYDOWN ptvkd = (LPNMTVKEYDOWN) lParam;
+
+					if (ptvkd->wVKey == VK_SPACE)
+					{
+						HTREEITEM htvi = TreeView_GetSelection(this->m_Hwnd);
+						if (htvi != NULL) {
+							BOOL state = TreeView_GetCheckState(this->m_Hwnd, htvi);
+							//this->callAliasEx( NULL, "%s,%d,%d,%d", "stateclick", this->getUserID( ), (state ? 0 : 1), TreeView_MapHTREEITEMToAccID(this->m_Hwnd, htvi) );
+							this->callAliasEx( NULL, "%s,%d,%d,%s", "stateclick", this->getUserID( ), (state ? 0 : 1), this->getPathFromItem(&htvi).to_chr() );
+						}
+					}
+				}
+				break;
+			//case TVN_ITEMCHANGED: // vista only :/
+			//	{
+			//		NMTVITEMCHANGE  *pnm = (NMTVITEMCHANGE *)lParam;
+			//	}
+			//	break;
 
 			} // switch
 		}

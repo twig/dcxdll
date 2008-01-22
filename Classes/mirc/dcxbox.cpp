@@ -559,16 +559,16 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					break;
 				}
 			}
-    case WM_HSCROLL:
-    case WM_VSCROLL:
-      {
+		case WM_HSCROLL:
+		case WM_VSCROLL:
+			{
 				if (IsWindow((HWND) lParam)) {
 					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
-      }
-      break;
+			}
+			break;
 
 		case WM_COMPAREITEM:
 			{
@@ -581,70 +581,70 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			}
 			break;
 
-    case WM_DELETEITEM:
-      {
+		case WM_DELETEITEM:
+			{
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
-      }
-      break;
+			}
+			break;
 
-    case WM_MEASUREITEM:
-      {
+		case WM_MEASUREITEM:
+			{
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
 					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
-      }
-      break;
+			}
+			break;
 
-    case WM_DRAWITEM:
-      {
+		case WM_DRAWITEM:
+			{
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
-      }
-     break;
-
-	case WM_SIZE:
-		{
-
-			HWND bars = NULL;
-
-			while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_REBARCTRLCLASS, NULL ) ) != NULL ) {
-
-				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
 			}
+			break;
 
-			while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_STATUSBARCLASS, NULL ) ) != NULL ) {
+		case WM_SIZE:
+			{
 
-				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
+				HWND bars = NULL;
+
+				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_REBARCTRLCLASS, NULL ) ) != NULL ) {
+
+					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
+				}
+
+				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_STATUSBARCLASS, NULL ) ) != NULL ) {
+
+					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
+				}
+
+				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_TOOLBARCLASS, NULL ) ) != NULL ) {
+
+					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
+				}
+
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
+					this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
+
+				if (this->m_pLayoutManager != NULL) {
+					RECT rc;
+					SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
+					if (this->m_pLayoutManager->updateLayout( rc ))
+						this->redrawWindow( );
+				}
 			}
-
-			while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_TOOLBARCLASS, NULL ) ) != NULL ) {
-
-				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-			}
-
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
-				this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
-
-			if (this->m_pLayoutManager != NULL) {
-				RECT rc;
-				SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
-				if (this->m_pLayoutManager->updateLayout( rc ))
-					this->redrawWindow( );
-			}
-		}
-		break;
+			break;
 
 		case WM_ENABLE: {
 			this->redrawWindow();

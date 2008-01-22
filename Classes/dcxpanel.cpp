@@ -355,7 +355,7 @@ void DcxPanel::parseCommandRequest( TString & input ) {
  * blah
  */
 
-UINT DcxPanel::parseLayoutFlags( TString & flags ) {
+UINT DcxPanel::parseLayoutFlags( const TString & flags ) {
 
   INT i = 1, len = flags.len( );
   UINT iFlags = 0;
@@ -403,7 +403,6 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		case WM_NOTIFY : 
 			{
-
 				LPNMHDR hdr = (LPNMHDR) lParam;
 
 				if (!hdr)
@@ -411,9 +410,8 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 				if (IsWindow(hdr->hwndFrom)) {
 					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
 			}
 			break;
@@ -424,9 +422,8 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			{
 				if (IsWindow((HWND) lParam)) {
 					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
 			}
 			break;
@@ -447,9 +444,8 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
 			}
 			break;
@@ -459,9 +455,8 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
 					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
 			}
 			break;
@@ -471,9 +466,8 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
 			}
 			break;
@@ -512,13 +506,11 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		case WM_ERASEBKGND:
 			{
-				//if (this->isExStyle(WS_EX_TRANSPARENT))
-				//	this->DrawParentsBackground((HDC)wParam);
-				//else {
-				//	RECT rect;
-				//	GetClientRect( this->m_Hwnd, &rect );
-				//	DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-				//}
+				// fill background.
+				if (this->isExStyle(WS_EX_TRANSPARENT))
+					this->DrawParentsBackground((HDC)wParam);
+				else // normal bkg
+					DcxControl::DrawCtrlBackground((HDC)wParam, this);
 				bParsed = TRUE;
 				return TRUE;
 			}
@@ -534,15 +526,12 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
 				{ // simply fill with bkg
-					RECT rcClient;
-					GetClientRect(this->m_Hwnd,&rcClient);
-					//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 					if (this->isExStyle(WS_EX_TRANSPARENT)) {
 						if (!this->m_bAlphaBlend)
-							this->DrawParentsBackground(hdc, &rcClient);
+							this->DrawParentsBackground(hdc);
 					}
 					else
-						DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
+						DcxControl::DrawCtrlBackground(hdc,this);
 				}
 
 				this->FinishAlphaBlend(ai);
@@ -562,16 +551,12 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
 				{ // simply fill with bkg
-					//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
 					if (this->isExStyle(WS_EX_TRANSPARENT)) {
 						if (!this->m_bAlphaBlend)
 							this->DrawParentsBackground(hdc);
 					}
-					else {
-						RECT rect;
-						GetClientRect( this->m_Hwnd, &rect );
-						DcxControl::DrawCtrlBackground(hdc,this,&rect);
-					}
+					else
+						DcxControl::DrawCtrlBackground(hdc,this);
 				}
 
 				this->FinishAlphaBlend(ai);
