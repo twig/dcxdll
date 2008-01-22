@@ -99,6 +99,7 @@ XPopupMenu * g_mIRCMenuBar = NULL;
 
 BOOL isMenuBar = FALSE;
 BOOL isSysMenu = FALSE;
+HMENU hMenuCustom = NULL;
 
 BOOL bIsActiveMircPopup = FALSE;
 BOOL bIsActiveMircMenubarPopup = FALSE;
@@ -1022,8 +1023,14 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 					if (bIsActiveMircMenubarPopup == TRUE) {
 						HWND hActive = (HWND)SendMessage(mIRCLink.m_hMDI, WM_MDIGETACTIVE, NULL, NULL);
+						bool isCustomMenu = g_XPopupMenuManager.isCustomMenu(menu);
 
-						if (((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) && (!g_XPopupMenuManager.isCustomMenu(menu)))
+						// Store the handle of the menu being displayed.
+						if (isCustomMenu && (hMenuCustom == NULL))
+							hMenuCustom = menu;
+
+						if (((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) && (!isCustomMenu) &&
+							(hMenuCustom == NULL)) // This checks for custom submenus.
 							g_mIRCMenuBar->convertMenu(menu, TRUE);
 					}
 				}
@@ -1066,8 +1073,14 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_UNINITMENUPOPUP:
 		{
+			HMENU menu = (HMENU) wParam;
+
+			// Unset the custom menu handle so we dont have to keep track of submenus anymore.
+			if (menu == hMenuCustom)
+				hMenuCustom = NULL;
+
 			if ((isMenuBar == TRUE) && (isSysMenu == FALSE) && (bIsActiveMircMenubarPopup == TRUE))
-				g_mIRCMenuBar->deleteAllItemData((HMENU) wParam);
+				g_mIRCMenuBar->deleteAllItemData(menu);
 
 			break;
 		}
