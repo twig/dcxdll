@@ -1024,7 +1024,9 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		TVSORTCB tvs;
 
 		path.trim();
-		ZeroMemory(&dtvs, sizeof(DCXTVSORT));
+		dtvs.iSortFlags = 0;
+		dtvs.pthis = NULL;
+		//ZeroMemory(&dtvs, sizeof(DCXTVSORT)); // zeromem's an object.
 		dtvs.iSortFlags = this->parseSortFlags(input.gettok(4));
 		dtvs.pthis = this;
 
@@ -1037,28 +1039,21 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		tvs.lpfnCompare = DcxTreeView::sortItemsEx;
 		tvs.lParam = (LPARAM) &dtvs;
 
-		if (path == "root") {
+		if (path == "root")
 			tvs.hParent = TVI_ROOT;
+		else {
 
-			if (dtvs.iSortFlags & TVSS_ALL)
-				TreeView_SortChildrenCB(this->m_Hwnd, &tvs, TRUE);
-			else if (dtvs.iSortFlags & TVSS_SINGLE)
-				TreeView_SortChildrenCB(this->m_Hwnd, &tvs, FALSE);
+			HTREEITEM item = this->parsePath(&path);
 
-			return;
+			if (item == NULL) {
+				this->showErrorEx(NULL, "-z", "Unable to parse path: %s", path.to_chr());
+				return;
+			}
+
+			tvs.hParent = item;
 		}
-
-		HTREEITEM item = this->parsePath(&path);
-
-		if (item == NULL) {
-			this->showErrorEx(NULL, "-z", "Unable to parse path: %s", path.to_chr());
-			return;
-		}
-
-		tvs.hParent = item;
-
 		if (dtvs.iSortFlags & TVSS_ALL)
-			TreeView_SortChildrenCB(this->m_Hwnd, &tvs, TRUE);
+			TreeView_SortChildrenCB(this->m_Hwnd, &tvs, TRUE); // NB: doesnt recurse!! This is a OS problem.
 		else if (dtvs.iSortFlags & TVSS_SINGLE)
 			TreeView_SortChildrenCB(this->m_Hwnd, &tvs, FALSE);
 	}
@@ -1075,10 +1070,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 				this->showError(NULL,"-G","GDI+ Not Supported On This Machine");
 			else if (!LoadGDIPlusImage(flag, filename))
 				this->showErrorEx(NULL,"-G","Unable to load Image: %s", filename.to_chr());
-			else {
-				if (!this->m_bTransparent)
-					this->setExStyle(WS_EX_TRANSPARENT);
-			}
+			else if (!this->m_bTransparent)
+				this->setExStyle(WS_EX_TRANSPARENT);
 		}
 		this->redrawWindow();
 	}
@@ -1280,7 +1273,7 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 	hItem = TreeView_InsertItem(this->m_Hwnd, &tvins);
 	lpmytvi->hHandle = hItem;
 
-	if (state > 0 && state < 5) // zero is no state image.
+	if (state > -1 && state < 5) // zero is no state image.
 		TreeView_SetItemState(this->m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
 
 	// overlay is 1-based index
@@ -2597,7 +2590,7 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 		lpmytvi->hHandle = hInsertAfter;
 		// Items state icon.
 		attr = xNode->Attribute("state",&i);
-		if (attr != NULL && i > 0 && i < 5) // zero means no state icon anyway.
+		if (attr != NULL && i > -1 && i < 5) // zero means no state icon anyway.
 			TreeView_SetItemState(this->m_Hwnd, hInsertAfter, INDEXTOSTATEIMAGEMASK(i), TVIS_STATEIMAGEMASK);
 		// Items overlay icon.
 		// overlay is 1-based index

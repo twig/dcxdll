@@ -302,7 +302,7 @@ public:
             delete [] txt;
     }
     /* parseCLA(int numberOfClaControlsInCurrentBranch) : parses control and pane elements and applies the right CLA commands */
-    TString parseCLA(int cCla) { 
+    TString parseCLA(const int cCla) { 
         if (0==lstrcmp(elem, "control")) { 
             if ((0==lstrcmp(type, "panel")) || (0==lstrcmp(type, "box"))) {
                 xdidEX(id,"-l","root \t +p%s 0 0 0 0",cascade);

@@ -704,9 +704,9 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 			if (!this->m_bCtrlCodeText) {
 				if (!this->m_bSelected && this->m_bShadowText)
-					dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(this->m_bUseUTF8), this->m_tsCaption.wlen(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
+					dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(this->m_bUseUTF8), (UINT)this->m_tsCaption.wlen(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
 				else
-					DrawTextW( hdc, this->m_tsCaption.to_wchr(this->m_bUseUTF8), this->m_tsCaption.wlen( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+					DrawTextW( hdc, this->m_tsCaption.to_wchr(this->m_bUseUTF8), (int)this->m_tsCaption.wlen( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
 			}
 			else
 				mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false), this->m_bUseUTF8);

@@ -707,8 +707,10 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 	else if ( prop == "gnum" ) {
 		if ( isXP( ) && ListView_IsGroupViewEnabled( this->m_Hwnd ) )
 		{
-			int g = 0, gcount = 0;
-			while (g < 256) { if (ListView_HasGroup(this->m_Hwnd, g++)) gcount++; }
+			//int g = 0, gcount = 0;
+			//while (g < 256) { if (ListView_HasGroup(this->m_Hwnd, g++)) gcount++; }
+			int gcount = 0;
+			for (int g = 0; g < 256; g++) { if (ListView_HasGroup(this->m_Hwnd, g)) gcount++; }
 			wsprintf(szReturnValue, "%d", gcount);
 			return;
 		}
@@ -723,8 +725,10 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 			if (mIRCLink.m_bVista)
 				wsprintf(szReturnValue, "%d", ListView_GetGroupCount(this->m_Hwnd));
 			else {
-				int g = 0, gcount = 0;
-				while (g < 256) { if (ListView_HasGroup(this->m_Hwnd, g++)) gcount++; }
+				int gcount = 0;
+				for (int g = 0; g < 256; g++) { if (ListView_HasGroup(this->m_Hwnd, g)) gcount++; }
+				//int g = 0, gcount = 0;
+				//while (g < 256) { if (ListView_HasGroup(this->m_Hwnd, g++)) gcount++; }
 				wsprintf(szReturnValue, "%d", gcount);
 			}
 			return;
@@ -909,6 +913,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		lvi.stateMask = (LVIS_FOCUSED|LVIS_SELECTED|LVIS_CUT|LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
 		lvi.iSubItem = 0;
 		lvi.lParam = (LPARAM) lpmylvi;
+		lvi.mask = LVIF_PARAM|LVIF_STATE;
 
 		if (icon > -1) {
 			lvi.iImage = icon;
@@ -918,8 +923,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 		// LVS_REPORT view
 		if (this->isListViewStyle(LVS_REPORT)) {
 
-			lvi.mask |= LVIF_TEXT | LVIF_INDENT | LVIF_PARAM | LVIF_STATE;
-			lvi.iIndent = indent;
+			if (indent > 0) {
+				lvi.mask |= LVIF_INDENT;
+				lvi.iIndent = indent;
+			}
 
 			if (isXP() && group > 0) {
 				if (ListView_IsGroupViewEnabled(this->m_Hwnd)) {
@@ -935,10 +942,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 			}
 
 			// set text in case of pbar
-			if (stateFlags & LVIS_PBAR)
-				lvi.pszText = "";
-			else
+			if (!(stateFlags & LVIS_PBAR)) {
+				lvi.mask |= LVIF_TEXT;
 				lvi.pszText = itemtext.to_chr();
+			}
 
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
 
@@ -994,13 +1001,15 @@ void DcxListView::parseCommandRequest(TString &input) {
 					lpmylvi->vInfo.push_back(ri);
 
 					lvi.iSubItem = i -1;
-					lvi.mask = LVIF_TEXT | LVIF_IMAGE;
+					lvi.mask = LVIF_TEXT;
 
 					// icon
 					icon = data.gettok( 2 ).to_int() -1;
 
-					if (icon > -1)
+					if (icon > -1) {
 						lvi.iImage = icon;
+						lvi.mask |= LVIF_IMAGE;
+					}
 					else
 						lvi.iImage = -1;
 
@@ -1010,9 +1019,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 						lvi.state |= INDEXTOOVERLAYMASK(overlay);
 						lvi.stateMask |= LVIS_OVERLAYMASK;
 					}
-					else {
+					else
 						lvi.state |= INDEXTOOVERLAYMASK(0);
-					}
 
 					itemtext = "";
 					if (data.numtok() > 5) {
@@ -1054,7 +1062,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		// LVS_ICON | LVS_SMALLICON | LVS_LIST views
 		else {
 
-			lvi.mask |= LVIF_TEXT | LVIF_STATE | LVIF_PARAM;
+			lvi.mask |= LVIF_TEXT;
 			lvi.pszText = itemtext.to_chr();
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
 
@@ -1304,7 +1312,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 				else
 					lviDcx->vInfo[nCol]->m_cBg = -1;
 
-				ListView_SetItemState(this->m_Hwnd, nItem, lviflags, 0xFFFFFF);
+				ListView_SetItemState(this->m_Hwnd, nItem, lviflags, LVIS_DROPHILITED|LVIS_FOCUSED|LVIS_SELECTED|LVIS_CUT);
 			}
 			else
 				this->showError(NULL, "-j", "No Render Information for SubItem, More subitems than columns?");
@@ -2390,15 +2398,10 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								LVHITTESTINFO lvh;
 								LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
 								lvh.pt = nmia->ptAction;
-								//GetCursorPos( &lvh.pt );
-								//ScreenToClient( this->m_Hwnd, &lvh.pt );
 								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 								DWORD lvexstyles = ListView_GetExtendedListViewStyle( this->m_Hwnd );
 
-								if ( ( lvh.flags & LVHT_ONITEMSTATEICON ) &&
-									( lvexstyles & LVS_EX_CHECKBOXES ) &&
-									!( lvh.flags & LVHT_ONITEMICON ) &&
-									!( lvh.flags & LVHT_ONITEMLABEL ) ) 
+								if ( ( lvh.flags & LVHT_ONITEMSTATEICON ) && ( lvexstyles & LVS_EX_CHECKBOXES ) && !( lvh.flags & LVHT_ONITEMICON ) && !( lvh.flags & LVHT_ONITEMLABEL ) ) 
 								{
 									//TODO: int state = ListView_GetCheckState(this->m_Hwnd, lvh.iItem);
 									this->callAliasEx( NULL, "%s,%d,%d,%d", "stateclick", this->getUserID( ), lvh.iItem + 1, lvh.iSubItem +1);
@@ -2442,8 +2445,6 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								LVHITTESTINFO lvh;
 								LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
 								lvh.pt = nmia->ptAction;
-								//GetCursorPos( &lvh.pt );
-								//ScreenToClient( this->m_Hwnd, &lvh.pt );
 								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
 								if ( lvh.flags & LVHT_ONITEM )
@@ -2577,6 +2578,12 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 										if ( ri->m_cBg != -1 )
 											lplvcd->clrTextBk = ri->m_cBg;
+										//if (lplvcd->nmcd.uItemState & CDIS_SELECTED)
+										//if (lplvcd->nmcd.uItemState & CDIS_FOCUS)
+										//	lplvcd->clrTextBk = RGB(255,0,0);
+										//else if ( ri->m_cBg != -1 )
+										//	lplvcd->clrTextBk = ri->m_cBg;
+										//lplvcd->clrFace = RGB(0,255,0);
 
 										if (ri->m_dFlags & LVIS_UNDERLINE || ri->m_dFlags & LVIS_BOLD || ri->m_dFlags & LVIS_ITALIC) {
 											HFONT hFont = GetWindowFont(this->m_Hwnd);

@@ -110,32 +110,32 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 
 DcxControl::~DcxControl( ) {
 
-  RemoveProp( this->m_Hwnd, "dcx_cthis" );
+	RemoveProp( this->m_Hwnd, "dcx_cthis" );
 
-  // Reverse to old font
-  this->setControlFont( NULL, FALSE );
+	// Reverse to old font
+	this->setControlFont( NULL, FALSE );
 
-  // Delete background brush
-  if ( this->m_hBackBrush != NULL ) {
+	// Delete background brush
+	if ( this->m_hBackBrush != NULL ) {
 
-      DeleteBrush( this->m_hBackBrush );
-      this->m_hBackBrush = NULL;
-  }
-  // Delete border brush
-  if ( this->m_hBorderBrush != NULL ) {
+		DeleteBrush( this->m_hBackBrush );
+		this->m_hBackBrush = NULL;
+	}
+	// Delete border brush
+	if ( this->m_hBorderBrush != NULL ) {
 
-      DeleteBrush( this->m_hBorderBrush );
-      this->m_hBorderBrush = NULL;
-  }
+		DeleteBrush( this->m_hBorderBrush );
+		this->m_hBorderBrush = NULL;
+	}
 
-  if ( this->m_bCursorFromFile && this->m_hCursor != NULL ) {
+	if ( this->m_bCursorFromFile && this->m_hCursor != NULL ) {
 
-    //DeleteObject( this->m_hCursor );
-    DestroyCursor( this->m_hCursor );
-    this->m_hCursor = NULL;
-  }
+		//DeleteObject( this->m_hCursor );
+		DestroyCursor( this->m_hCursor );
+		this->m_hCursor = NULL;
+	}
 
-  this->m_pParentDialog->deleteControl( this );
+	this->m_pParentDialog->deleteControl( this );
 }
 
 /*!
@@ -191,7 +191,7 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
 
 UINT DcxControl::getUserID( ) const {
 
-  return this->getID( ) - mIRC_ID_OFFSET;
+	return this->getID( ) - mIRC_ID_OFFSET;
 }
 
 /*!
@@ -202,29 +202,29 @@ UINT DcxControl::getUserID( ) const {
 
 BOOL DcxControl::callAliasEx( char * szReturn, const char * szFormat, ... ) {
 
-  va_list args;
-  va_start( args, szFormat );
-  char parms[2048];
+	va_list args;
+	va_start( args, szFormat );
+	char parms[2048];
 
-  vsprintf( parms, szFormat, args );
-  wsprintf( mIRCLink.m_pData, "$%s(%s,%s)", 
-    this->m_pParentDialog->getAliasName( ).to_chr( ), 
-    this->m_pParentDialog->getName( ).to_chr( ),
-    parms );
+	vsprintf( parms, szFormat, args );
+	wsprintf( mIRCLink.m_pData, "$%s(%s,%s)", 
+		this->m_pParentDialog->getAliasName( ).to_chr( ), 
+		this->m_pParentDialog->getName( ).to_chr( ),
+		parms );
 
 	this->m_pParentDialog->incRef();
 	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 201, 0, mIRCLink.m_map_cnt );
 
 	if ( szReturn )
-    lstrcpy( szReturn, mIRCLink.m_pData );
+		lstrcpy( szReturn, mIRCLink.m_pData );
 
 	this->m_pParentDialog->decRef();
-  va_end( args );
+	va_end( args );
 
-  if ( !lstrcmp( mIRCLink.m_pData, "$false" ) )
-    return FALSE;
+	if ( !lstrcmp( mIRCLink.m_pData, "$false" ) )
+		return FALSE;
 
-  return TRUE;
+	return TRUE;
 }
 
 /*!
@@ -303,7 +303,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 		if ( iFlags & DCC_BORDERCOLOR ) {
 			if ( this->m_hBorderBrush != NULL ) {
-				DeleteObject( this->m_hBorderBrush );
+				DeleteBrush( this->m_hBorderBrush );
 				this->m_hBorderBrush = NULL;
 			}
 
@@ -540,8 +540,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			TString strPoint;
 			int tPoints = strPoints.numtok( );
 
-			if (tPoints < 1) {
-				this->showError(NULL, "-R +p", "Invalid Points");
+			if (tPoints < 3) {
+				this->showError(NULL, "-R +p", "Invalid Points: At least 3 points required.");
 				return;
 			}
 

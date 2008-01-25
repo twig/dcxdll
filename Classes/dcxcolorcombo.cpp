@@ -128,7 +128,7 @@ void DcxColorCombo::parseInfoRequest( TString & input, char * szReturnValue ) {
   else if ( prop == "sel" ) {
 
     int nItem;
-    if ( ( nItem = this->getCurSel( ) ) != CB_ERR ) {
+    if ( ( nItem = (int)this->getCurSel( ) ) != CB_ERR ) {
 
       wsprintf( szReturnValue, "%d", nItem + 1 );
       return;

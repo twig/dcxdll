@@ -116,7 +116,8 @@ mIRC(xstatusbar) {
 
 				if (iFlags & SBT_OWNERDRAW) {
 					LPSB_PARTINFO pPart = new SB_PARTINFO;
-					ZeroMemory(pPart,sizeof(SB_PARTINFO));
+					//ZeroMemory(pPart,sizeof(SB_PARTINFO));
+					pPart->m_Child = NULL;
 					pPart->m_iIcon = icon;
 					if (flags.find('f',0)) { // mIRC formatted text
 						pPart->m_Text = itemtext;
