@@ -567,7 +567,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 							IMAGEINFO ii;
 							ImageList_GetImageInfo(pthis->g_hImageList, pPart->m_iIcon, &ii);
 							ImageList_Draw(pthis->g_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT);
-							rc.left += (ii.rcImage.right - ii.rcImage.left);
+							rc.left += (ii.rcImage.right - ii.rcImage.left) +5;
 						}
 						if (pPart->m_Text.len() > 0)
 							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false, pthis->g_bUseUTF8);
@@ -580,6 +580,16 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 				}
 			}
 			break;
+			// we use menu command instead now. here for refrence only
+		//case WM_SHOWWINDOW: // not sent when SW_SHOWNORMAL is used.
+		//	{
+		//		static const TString tsTypes("switchbar toolbar treebar mdi");
+		//		if ((BOOL)wParam)
+		//			mIRCSignalDCX(dcxSignal.xdock, "%s enabled", tsTypes.gettok( pthis->m_iType +1 ).to_chr());
+		//		else
+		//			mIRCSignalDCX(dcxSignal.xdock, "%s disabled", tsTypes.gettok( pthis->m_iType +1 ).to_chr());
+		//	}
+		//	break;
 		case WM_PARENTNOTIFY:
 			{
 				if (LOWORD(wParam) == WM_DESTROY)

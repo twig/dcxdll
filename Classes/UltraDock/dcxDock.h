@@ -9,7 +9,7 @@
 #define DOCK_TYPE_SWITCH	0x00
 #define DOCK_TYPE_TOOL		0x01
 #define DOCK_TYPE_TREE		0x02
-#define DOCK_TYPE_MDI			0x03
+#define DOCK_TYPE_MDI		0x03
 
 #define DOCKF_NORMAL					0x001	//!< No special flags.
 #define DOCKF_AUTOH						0x002	//!< Auto Horizontal size.

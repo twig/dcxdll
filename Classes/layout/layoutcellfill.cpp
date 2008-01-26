@@ -105,7 +105,6 @@ void LayoutCellFill::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
     pCMMI->m_MaxSize.x = min( pCMMI->m_MaxSize.x, GetSystemMetrics( SM_CXMAXTRACK ) );
     pCMMI->m_MaxSize.y = min( pCMMI->m_MaxSize.y, GetSystemMetrics( SM_CYMAXTRACK ) );
   }
-  else {
+  else
     ZeroMemory( pCMMI, sizeof( CellMinMaxInfo ) );
-  }
 }

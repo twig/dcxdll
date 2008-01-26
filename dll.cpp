@@ -1052,11 +1052,50 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_COMMAND:
 		{
 			// Check if the message came from the menubar
-			if ((HIWORD(wParam) == 0) && (isMenuBar) && g_XMenuBar.hasCallback()) {
-				// If the user requested the message to be halted ...
-				if (g_XMenuBar.parseCallback(LOWORD(wParam))) {
-					// Stop parsing and prevent default action.
-					return 0L;
+			if ((HIWORD(wParam) == 0) && (isMenuBar)) {
+				if (g_XMenuBar.hasCallback()) {
+					// If the user requested the message to be halted ...
+					if (g_XMenuBar.parseCallback(LOWORD(wParam))) {
+						// Stop parsing and prevent default action.
+						return 0L;
+					}
+				}
+				switch (LOWORD(wParam))
+				{
+				//case 110: // menubar, can't be re-enabled from menu obviously
+				//	{
+				//		if (IsWindowVisible(menubar))
+				//			mIRCSignalDCX(dcxSignal.xdock, "menubar disabled");
+				//		else
+				//			mIRCSignalDCX(dcxSignal.xdock, "menubar enabled");
+				//	}
+				//	break;
+				case 111: // toolbar
+					{
+						if (IsWindowVisible(mIRCLink.m_hToolbar))
+							mIRCSignalDCX(dcxSignal.xdock, "toolbar disabled");
+						else
+							mIRCSignalDCX(dcxSignal.xdock, "toolbar enabled");
+					}
+					break;
+				case 112: // switchbar
+					{
+						if (IsWindowVisible(mIRCLink.m_hSwitchbar))
+							mIRCSignalDCX(dcxSignal.xdock, "switchbar disabled");
+						else
+							mIRCSignalDCX(dcxSignal.xdock, "switchbar enabled");
+					}
+					break;
+				case 210: // treebar
+					{
+						if (IsWindowVisible(mIRCLink.m_hTreebar))
+							mIRCSignalDCX(dcxSignal.xdock, "treebar disabled");
+						else
+							mIRCSignalDCX(dcxSignal.xdock, "treebar enabled");
+					}
+					break;
+				default:
+					break;
 				}
 			}
 

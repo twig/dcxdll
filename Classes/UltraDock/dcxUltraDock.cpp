@@ -150,14 +150,14 @@ int SwitchbarPos(const int type)
 
 	switch (type)
 	{
-	case 1: // toolbar
+	case DOCK_TYPE_TOOL: // toolbar
 		hwnd = mIRCLink.m_hToolbar;
 		break;
-	case 2: // treebar
+	case DOCK_TYPE_TREE: // treebar
 		hwnd = mIRCLink.m_hTreebar;
 		break;
 	default:
-	case 0: // switchbar
+	case DOCK_TYPE_SWITCH: // switchbar
 		hwnd = mIRCLink.m_hSwitchbar;
 		break;
 	}
