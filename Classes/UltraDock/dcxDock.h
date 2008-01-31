@@ -17,20 +17,22 @@
 #define DOCKF_SIZE						0x008	//!< Auto Horizontal & Vertical size.
 #define DOCKF_LEFT						0x010 //!< Dock to left. (UltraDock)
 #define DOCKF_RIGHT						0x020	//!< Dock to right. (UltraDock)
-#define DOCKF_TOP							0x040	//!< Dock to top. (UltraDock)
+#define DOCKF_TOP						0x040	//!< Dock to top. (UltraDock)
 #define DOCKF_BOTTOM					0x080	//!< Dock to bottom. (UltraDock)
-#define DOCKF_NOSCROLLBARS		0x100	//!< Disable parenst scrollbars.
-#define DOCKF_SHOWSCROLLBARS	0x200 //!< Stop the auto-sized window from covering the scrollbars of its parent.
+#define DOCKF_NOSCROLLBARS				0x100	//!< Disable parenst scrollbars.
+#define DOCKF_SHOWSCROLLBARS			0x200 //!< Stop the auto-sized window from covering the scrollbars of its parent.
 
-#define TREEBAR_COLOUR_SELECTED				0
+#define TREEBAR_COLOUR_SELECTED			0
 #define TREEBAR_COLOUR_SELECTED_BKG		1
-#define TREEBAR_COLOUR_MESSAGE				2
+#define TREEBAR_COLOUR_MESSAGE			2
 #define TREEBAR_COLOUR_MESSAGE_BKG		3
-#define TREEBAR_COLOUR_EVENT					4
-#define TREEBAR_COLOUR_EVENT_BKG			5
-#define TREEBAR_COLOUR_HIGHLIGHT			6
+#define TREEBAR_COLOUR_EVENT			4
+#define TREEBAR_COLOUR_EVENT_BKG		5
+#define TREEBAR_COLOUR_HIGHLIGHT		6
 #define TREEBAR_COLOUR_HIGHLIGHT_BKG	7
-#define TREEBAR_COLOUR_MAX						7
+#define TREEBAR_COLOUR_HOT_TEXT			8
+#define TREEBAR_COLOUR_HOT_BKG			9
+#define TREEBAR_COLOUR_MAX				9
 
 typedef struct tagDCXULTRADOCK {
 	HWND hwnd;
@@ -122,6 +124,6 @@ public:
 	static bool g_bTakeOverTreebar; //!< take over the drawing of the treebar from mIRC.
 	// 0 = selected, 1 = selected bkg, 2 = message, 3 = message bkg
 	// 4 = event, 5 = event bkg, 6 = highlight, 7 = highlight bkg
-	static COLORREF g_clrTreebarColours[8];
+	static COLORREF g_clrTreebarColours[TREEBAR_COLOUR_MAX +1];
 };
 

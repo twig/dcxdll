@@ -315,49 +315,91 @@ mIRC(xtreebar) {
 					case 'E': // event bkg colour
 						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_EVENT_BKG] = clr;
 						break;
+					case 'z': // highlight colour
+						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HIGHLIGHT] = clr;
+						break;
+					case 'Z': // highlight bkg colour
+						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HIGHLIGHT_BKG] = clr;
+						break;
+					case 'h': // hot text colour
+						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_TEXT] = clr;
+						break;
+					case 'H': // hot bkg colour
+						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_BKG] = clr;
+						break;
 					default:
 						DCXError("/xtreebar -c","Invalid Colour flag");
 						return 0;
 				}
 			}
 			break;
-		case 'w': // [clear|default] | [index] [+flags] [icon index] [filename]
+		case 'w': // [clear|default|mirc] | [index] [+flags] [icon index] [filename]
 			{
 				if (mIRCLink.m_hTreeImages == NULL) {
 					DCXError("/xtreebar -w", "No Valid TreeView Image List");
 					return 0;
 				}
-				if (input.gettok(2) == "clear") {
+				TString tsIndex(input.gettok(2));
+				if (tsIndex == "clear") { // no images.
 					HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView,NULL,TVSIL_NORMAL);
 					if (o != NULL && o != mIRCLink.m_hTreeImages)
 						ImageList_Destroy(o);
 				}
-				else if (input.gettok(2) == "default") {
+				else if (tsIndex == "default") { // mIRC's default image list
 					HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView,mIRCLink.m_hTreeImages,TVSIL_NORMAL);
 					if (o != NULL && o != mIRCLink.m_hTreeImages)
 						ImageList_Destroy(o);
 				}
-				else {
+				else if (tsIndex == "mirc") { // mIRC.exe's icons, these are ADDED to the end of the list, they DON'T replace any existing icons.
 					HIMAGELIST himl = NULL, ohiml = TreeView_GetImageList( mIRCLink.m_hTreeView, TVSIL_NORMAL);
 					if (ohiml != NULL && ohiml != mIRCLink.m_hTreeImages)
 						himl = ohiml;
 					else {
-						/*
-						Duplicate existing list, but remove all images.
-						*/
-						//himl = ImageList_Duplicate( ohiml );
 						int w, h;
 						if (!ImageList_GetIconSize(mIRCLink.m_hTreeImages, &w, &h)) // try to get image size.
 							w = h = 16; // default to 16x16
 
 						himl = ImageList_Create(w,h,ILC_COLOR32|ILC_MASK,1,0);
-						if (himl != NULL) {
-							//ImageList_RemoveAll(himl);
+						if (himl != NULL)
 							TreeView_SetImageList(mIRCLink.m_hTreeView, himl, TVSIL_NORMAL);
-						}
 					}
 					if (himl != NULL) {
-						int iIndex = input.gettok(2).to_int() -1, fIndex = input.gettok(4).to_int(), iCnt = ImageList_GetImageCount(himl) -1;
+						TString filename((UINT)900), cflag("+");
+
+						mIRCeval("$mircexe", filename.to_chr(), 900);
+						filename.trim();
+
+						int fIndex = 0;
+						HICON hIcon = NULL;
+
+						do {
+							hIcon = dcxLoadIcon(fIndex++,filename, false, cflag);
+							if (hIcon != NULL) {
+								ImageList_ReplaceIcon(himl, -1, hIcon);
+								DestroyIcon(hIcon);
+							}
+						} while (hIcon != NULL);
+					}
+					else {
+						DCXError("/xtreebar -w", "Unable to Create ImageList");
+						return 0;
+					}
+				}
+				else { // our custom image list
+					HIMAGELIST himl = NULL, ohiml = TreeView_GetImageList( mIRCLink.m_hTreeView, TVSIL_NORMAL);
+					if (ohiml != NULL && ohiml != mIRCLink.m_hTreeImages)
+						himl = ohiml;
+					else {
+						int w, h;
+						if (!ImageList_GetIconSize(mIRCLink.m_hTreeImages, &w, &h)) // try to get image size.
+							w = h = 16; // default to 16x16
+
+						himl = ImageList_Create(w,h,ILC_COLOR32|ILC_MASK,1,0);
+						if (himl != NULL)
+							TreeView_SetImageList(mIRCLink.m_hTreeView, himl, TVSIL_NORMAL);
+					}
+					if (himl != NULL) {
+						int iIndex = tsIndex.to_int() -1, fIndex = input.gettok(4).to_int(), iCnt = ImageList_GetImageCount(himl) -1;
 						TString cflag(input.gettok(3));
 						cflag.trim();
 						TString filename(input.gettok(5,-1));

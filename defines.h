@@ -105,7 +105,7 @@
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 4
 #define DLL_BUILD      1
-#define DLL_DEV_BUILD  5
+#define DLL_DEV_BUILD  6
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD

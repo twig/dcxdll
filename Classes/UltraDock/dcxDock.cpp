@@ -17,7 +17,7 @@ VectorOfParts DcxDock::g_vParts;
 
 // treebar stuff
 bool DcxDock::g_bTakeOverTreebar = false;
-COLORREF DcxDock::g_clrTreebarColours[8] = { 0 };
+COLORREF DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MAX +1] = { CLR_INVALID };
 
 DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
 : m_OldRefWndProc(NULL)
@@ -370,10 +370,10 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 				LPTVINSERTSTRUCT pTvis = (LPTVINSERTSTRUCT)lParam;
 				if (pTvis->itemex.mask & TVIF_TEXT) {
-					TString buf((UINT)64);
+					TString buf((UINT)32);
 					int i = 0;
 					DcxDock::getTreebarItemType(buf, pTvis->itemex.lParam);
-					mIRCevalEX(buf.to_chr(), 16, "$xtreebar_callback(geticons,%s,%800s)", buf.to_chr(), pTvis->itemex.pszText);
+					mIRCevalEX(buf.to_chr(), 32, "$xtreebar_callback(geticons,%s,%800s)", buf.to_chr(), pTvis->itemex.pszText);
 					i = buf.gettok( 1 ).to_int() -1;
 					if (i < 0)
 						i = 0;
@@ -454,6 +454,15 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 										return CDRF_NOTIFYITEMDRAW;
 									case CDDS_ITEMPREPAINT:
 										{
+											if (lpntvcd->nmcd.uItemState & CDIS_HOT) { // This makes sure the hot colour doesnt show as blue.
+												if (DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_TEXT] != CLR_INVALID)
+													lpntvcd->clrText = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_TEXT];
+												else
+													lpntvcd->clrText = GetSysColor(COLOR_HOTLIGHT);
+
+												if (DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_BKG] != CLR_INVALID) // only set a bkg colour if one is set in prefs.
+													lpntvcd->clrTextBk = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_BKG];
+											}
 											if (lpntvcd->nmcd.uItemState & CDIS_SELECTED) { // This makes sure the selected colour doesnt show as grayed.
 												if (DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED] != CLR_INVALID)
 													lpntvcd->clrText = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED];
