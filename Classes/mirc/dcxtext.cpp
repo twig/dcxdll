@@ -46,6 +46,10 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 	if (!IsWindow(this->m_Hwnd))
 		throw "Unable To Create Window";
 
+	// remove all borders
+	this->removeStyle( WS_BORDER|WS_DLGFRAME );
+	this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
+
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 

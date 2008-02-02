@@ -956,7 +956,10 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
  */
 
 void DcxControl::registreDefaultWindowProc( ) {
-  this->m_DefaultWindowProc = SubclassWindow( this->m_Hwnd, DcxControl::WindowProc );
+	//this->removeStyle( WS_BORDER|WS_DLGFRAME );
+	//this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
+
+	this->m_DefaultWindowProc = SubclassWindow( this->m_Hwnd, DcxControl::WindowProc );
 }
 
 /*!
@@ -968,7 +971,7 @@ void DcxControl::registreDefaultWindowProc( ) {
 void DcxControl::unregistreDefaultWindowProc( ) {
 	if (this->m_DefaultWindowProc != NULL) // implies this has alrdy been called.
 		SubclassWindow( this->m_Hwnd, this->m_DefaultWindowProc );
-  this->m_DefaultWindowProc = NULL;
+	this->m_DefaultWindowProc = NULL;
 }
 
 /*!

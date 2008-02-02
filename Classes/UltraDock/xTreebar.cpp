@@ -49,9 +49,9 @@ void TraverseTreebarItems(void)
 		if (TreeView_GetItem(mIRCLink.m_hTreeView, &item)) {
 			int i = 0;
 			{
-				TString tsType((UINT)64);
+				TString tsType((UINT)32);
 				DcxDock::getTreebarItemType(tsType, item.lParam);
-				mIRCevalEX(res.to_chr(), 16, "$xtreebar_callback(geticons,%s,%800s)", tsType.to_chr(), item.pszText);
+				mIRCevalEX(res.to_chr(), 32, "$xtreebar_callback(geticons,%s,%800s)", tsType.to_chr(), item.pszText);
 			}
 			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 			i = res.gettok( 1 ).to_int() -1;
@@ -350,41 +350,6 @@ mIRC(xtreebar) {
 					if (o != NULL && o != mIRCLink.m_hTreeImages)
 						ImageList_Destroy(o);
 				}
-				else if (tsIndex == "mirc") { // mIRC.exe's icons, these are ADDED to the end of the list, they DON'T replace any existing icons.
-					HIMAGELIST himl = NULL, ohiml = TreeView_GetImageList( mIRCLink.m_hTreeView, TVSIL_NORMAL);
-					if (ohiml != NULL && ohiml != mIRCLink.m_hTreeImages)
-						himl = ohiml;
-					else {
-						int w, h;
-						if (!ImageList_GetIconSize(mIRCLink.m_hTreeImages, &w, &h)) // try to get image size.
-							w = h = 16; // default to 16x16
-
-						himl = ImageList_Create(w,h,ILC_COLOR32|ILC_MASK,1,0);
-						if (himl != NULL)
-							TreeView_SetImageList(mIRCLink.m_hTreeView, himl, TVSIL_NORMAL);
-					}
-					if (himl != NULL) {
-						TString filename((UINT)900), cflag("+");
-
-						mIRCeval("$mircexe", filename.to_chr(), 900);
-						filename.trim();
-
-						int fIndex = 0;
-						HICON hIcon = NULL;
-
-						do {
-							hIcon = dcxLoadIcon(fIndex++,filename, false, cflag);
-							if (hIcon != NULL) {
-								ImageList_ReplaceIcon(himl, -1, hIcon);
-								DestroyIcon(hIcon);
-							}
-						} while (hIcon != NULL);
-					}
-					else {
-						DCXError("/xtreebar -w", "Unable to Create ImageList");
-						return 0;
-					}
-				}
 				else { // our custom image list
 					HIMAGELIST himl = NULL, ohiml = TreeView_GetImageList( mIRCLink.m_hTreeView, TVSIL_NORMAL);
 					if (ohiml != NULL && ohiml != mIRCLink.m_hTreeImages)
@@ -413,14 +378,22 @@ mIRC(xtreebar) {
 						if (iIndex < 0)
 							iIndex = -1; // append to end of list. make sure its only -1
 
-						HICON hIcon = dcxLoadIcon(fIndex,filename, false, cflag);
-						if (hIcon != NULL) {
-							ImageList_ReplaceIcon(himl, iIndex, hIcon);
-							DestroyIcon(hIcon);
+						if (fIndex < 0) { // file index is -1, so add ALL icons in file at iIndex pos.
+							if (!AddFileIcons(himl, filename, false, iIndex)) {
+								DCXErrorEX("/xtreebar -w", "Unable to Add %s's Icons", filename.to_chr());
+								return 0;
+							}
 						}
 						else {
-							DCXError("/xtreebar -w", "Unable to load icon");
-							return 0;
+							HICON hIcon = dcxLoadIcon(fIndex,filename, false, cflag);
+							if (hIcon != NULL) {
+								ImageList_ReplaceIcon(himl, iIndex, hIcon);
+								DestroyIcon(hIcon);
+							}
+							else {
+								DCXError("/xtreebar -w", "Unable to load icon");
+								return 0;
+							}
 						}
 					}
 					else {

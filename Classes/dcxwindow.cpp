@@ -55,7 +55,7 @@ DcxWindow::~DcxWindow( ) {
 
 BOOL DcxWindow::isStyle( const LONG Styles ) const {
 
-	if ( GetWindowLong( this->m_Hwnd, GWL_STYLE ) & Styles )
+	if ( GetWindowStyle( this->m_Hwnd ) & Styles )
 		return TRUE;
 
 	return FALSE;
@@ -69,7 +69,7 @@ BOOL DcxWindow::isStyle( const LONG Styles ) const {
 
 LONG DcxWindow::removeStyle( const LONG Styles ) {
 
-	LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_STYLE );
+	LONG winStyles = GetWindowStyle( this->m_Hwnd );
 	return SetWindowLong( this->m_Hwnd, GWL_STYLE, winStyles &= ~Styles );
 }
 
@@ -81,7 +81,7 @@ LONG DcxWindow::removeStyle( const LONG Styles ) {
 
 LONG DcxWindow::addStyle( const LONG Styles ) {
 
-	LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_STYLE );
+	LONG winStyles = GetWindowStyle( this->m_Hwnd );
 	return SetWindowLong( this->m_Hwnd, GWL_STYLE, winStyles |= Styles );
 }
 
@@ -104,7 +104,7 @@ LONG DcxWindow::setStyle( const LONG Styles ) {
 
 BOOL DcxWindow::isExStyle( const LONG Styles ) const {
 
-	if ( GetWindowLong( this->m_Hwnd, GWL_EXSTYLE ) & Styles )
+	if ( GetWindowExStyle( this->m_Hwnd ) & Styles )
 		return TRUE;
 
 	return FALSE;
@@ -118,7 +118,7 @@ BOOL DcxWindow::isExStyle( const LONG Styles ) const {
 
 LONG DcxWindow::removeExStyle( const LONG Styles ) {
 
-	LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_EXSTYLE );
+	LONG winStyles = GetWindowExStyle( this->m_Hwnd );
 	return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, winStyles &= ~Styles );
 }
 
@@ -130,7 +130,7 @@ LONG DcxWindow::removeExStyle( const LONG Styles ) {
 
 LONG DcxWindow::addExStyle( const LONG Styles ) {
 
-	LONG winStyles = GetWindowLong( this->m_Hwnd, GWL_EXSTYLE );
+	LONG winStyles = GetWindowExStyle( this->m_Hwnd );
 	return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, winStyles |= Styles );
 }
 
@@ -175,7 +175,7 @@ HWND DcxWindow::getHwnd( ) const {
 
 void DcxWindow::redrawWindow( ) {
 
-	RedrawWindow( this->m_Hwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
+	RedrawWindow( this->m_Hwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE/*|RDW_FRAME|RDW_UPDATENOW*/ );
 }
 
 /*
