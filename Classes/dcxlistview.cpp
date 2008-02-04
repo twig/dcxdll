@@ -278,8 +278,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 		for (int i = 0; i < count; i++)
 			buff.sprintf("%s %d", buff.to_chr(), val[i]);
 
-		buff.trim();
-		wsprintf(szReturnValue, "%s", buff.to_chr());
+		wsprintf(szReturnValue, "%s", buff.trim().to_chr());
 		delete [] val;
 		return;
 	}
@@ -579,8 +578,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 				buff.sprintf("%s %d", buff.to_chr(), ListView_GetColumnWidth(this->m_Hwnd, i));
 			}
 
-			buff.trim();
-			wsprintf(szReturnValue, "%s", buff.to_chr());
+			wsprintf(szReturnValue, "%s", buff.trim().to_chr());
 			return;
 		}
 		else if (nColumn > -1 && nColumn < this->getColumnCount()) {
@@ -1220,8 +1218,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			//filename = input.gettok(7, -1).gettok(1,TSTAB);
 
 			//if (lvbki.ulFlags & LVBKIF_TYPE_WATERMARK) {
-			//	watermarkfile = input.gettok(7,-1).gettok(2,-1,TSTAB);
-			//	watermarkfile.trim();
+			//	watermarkfile = input.gettok(7,-1).gettok(2,-1,TSTAB).trim();
 			//	lvbki.hbm = dcxLoadBitmap(lvbki.hbm, watermarkfile);
 			//}
 			lvbki.pszImage = filename.to_chr();
@@ -1665,66 +1662,88 @@ void DcxListView::parseCommandRequest(TString &input) {
 		// load both normal and small icons
 		if (iFlags & LVSIL_SMALL) {
 			// load normal icon
-			icon = dcxLoadIcon(index, filename, true, tflags);
-
-			if (icon == NULL) {
-				this->showError(NULL, "-w", "Unable to load normal icon");
-				return;
-			}
-
 			if ((himl = this->initImageList(LVSIL_NORMAL)) == NULL) {
 				this->showError(NULL, "-w", "Unable to create normal image list");
-				DestroyIcon(icon);
 				return;
 			}
 
-			int i = ImageList_AddIcon(himl, icon);
-			if (overlayindex > 0)
-				ImageList_SetOverlayImage(himl, i, overlayindex);
+			if (index < 0) {
+				if (!AddFileIcons(himl, filename, true, -1)) {
+					this->showErrorEx(NULL, "-w", "Unable to Add %s's Icons", filename.to_chr());
+					return;
+				}
+			}
+			else {
+				icon = dcxLoadIcon(index, filename, true, tflags);
 
-			DestroyIcon(icon);
+				if (icon == NULL) {
+					this->showError(NULL, "-w", "Unable to load normal icon");
+					return;
+				}
+
+				int i = ImageList_AddIcon(himl, icon);
+				if (overlayindex > 0)
+					ImageList_SetOverlayImage(himl, i, overlayindex);
+
+				DestroyIcon(icon);
+			}
 
 			// load small icon
-			icon = dcxLoadIcon(index, filename, false, tflags);
-
-			if (icon == NULL) {
-				this->showError(NULL, "-w", "Unable to load small icon");
-				return;
-			}
-
 			if ((himl = this->initImageList(LVSIL_SMALL)) == NULL) {
 				this->showError(NULL, "-w", "Unable to create small image list");
 				DestroyIcon(icon);
 				return;
 			}
 
-			i = ImageList_AddIcon(himl, icon);
+			if (index < 0) {
+				if (!AddFileIcons(himl, filename, false, -1)) {
+					this->showErrorEx(NULL, "-w", "Unable to Add %s's Icons", filename.to_chr());
+					return;
+				}
+			}
+			else {
+				icon = dcxLoadIcon(index, filename, false, tflags);
 
-			if (overlayindex > 0)
-				ImageList_SetOverlayImage(himl, i, overlayindex);
+				if (icon == NULL) {
+					this->showError(NULL, "-w", "Unable to load small icon");
+					return;
+				}
 
-			DestroyIcon(icon);
+				int i = ImageList_AddIcon(himl, icon);
+
+				if (overlayindex > 0)
+					ImageList_SetOverlayImage(himl, i, overlayindex);
+
+				DestroyIcon(icon);
+			}
 		}
 
 		// state icon
 		if (iFlags & LVSIL_STATE) {
-			icon = dcxLoadIcon(index, filename, false, tflags);
-
-			if (icon == NULL) {
-				this->showError(NULL, "-w", "Unable to load state icon");
-				return;
-			}
-
 			if ((himl = this->initImageList(LVSIL_STATE)) == NULL) {
 				this->showError(NULL, "-w", "Unable to create state image list");
 				DestroyIcon(icon);
 				return;
 			}
 
-			if (himl != NULL)
+			if (index < 0) {
+				if (!AddFileIcons(himl, filename, false, -1)) {
+					this->showErrorEx(NULL, "-w", "Unable to Add %s's Icons", filename.to_chr());
+					return;
+				}
+			}
+			else {
+				icon = dcxLoadIcon(index, filename, false, tflags);
+
+				if (icon == NULL) {
+					this->showError(NULL, "-w", "Unable to load state icon");
+					return;
+				}
+
 				ImageList_AddIcon(himl, icon);
 
-			DestroyIcon(icon);
+				DestroyIcon(icon);
+			}
 		}
 	}
 	// xdid -W [NAME] [ID] [SWITCH] [STYLE]
@@ -1802,7 +1821,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
 	// atm this only seems works for subitem 0. Mainly due to the callback LVN_GETINFOTIP only being sent for sub 0.
 	else if (flags['T'] && numtok > 4) {
-		input.trim();
+		input = input.trim();
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
 

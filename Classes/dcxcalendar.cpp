@@ -320,12 +320,11 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						mds[i] = (MONTHDAYSTATE) 0;
 
 						TString strDays(eval);
-						strDays.trim();
+						strDays = strDays.trim();
 
 						for (int x = 1; x <= strDays.numtok(TSCOMMA); x++) {
-							TString tok(strDays.gettok(x).trim());
-
-							BOLDDAY(mds[i], tok.to_int());
+							// NB: Shouldnt this line be: BOLDDAY(mds[i], strDays.gettok(x, TSCOMMA).trim().to_int()); ??
+							BOLDDAY(mds[i], strDays.gettok(x).trim().to_int());
 						}
 
 						// increment the month so we get a proper offset

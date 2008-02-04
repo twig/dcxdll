@@ -719,10 +719,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 	}
 	// xdid -n [NAME] [ID] [SWITCH] N N N{TAB}N N N
 	else if (flags['n'] && numtok > 3 && input.numtok(TSTAB) > 1) {
-		TString pathFrom(input.gettok(1, TSTAB).gettok(4, -1));
-		TString pathTo(input.gettok(2, TSTAB));
-		pathFrom.trim();
-		pathTo.trim();
+		TString pathFrom(input.gettok(1, TSTAB).gettok(4, -1).trim());
+		TString pathTo(input.gettok(2, TSTAB).trim());
 
 		HTREEITEM item;
 		HTREEITEM hParentTo = TVI_ROOT;
@@ -920,12 +918,16 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 
 		int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
+		bool bLarge = (this->m_iIconSize > 16);
 
-		if (this->m_iIconSize > 16)
-			icon = dcxLoadIcon(index, filename, TRUE, flags);
-		else
-			icon = dcxLoadIcon(index, filename, FALSE, flags);
+		if (index >= 0) {
+			icon = dcxLoadIcon(index, filename, bLarge, flags);
 
+			if (icon == NULL) {
+				this->showError(NULL, "-w", "Unable to load icon");
+				return;
+			}
+		}
 		if (iFlags & TVIT_NORMAL) {
 			if ((himl = this->getImageList(TVSIL_NORMAL)) == NULL) {
 				himl = this->createImageList();
@@ -934,20 +936,28 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 					this->setImageList(himl, TVSIL_NORMAL);
 			}
 
-			int i = ImageList_AddIcon(himl, icon);
-
-			if (flags.find('o',0)) {
-				// overlay image
-				int io = flags.find('o',1) +1;
-				int o = flags.mid(io, (flags.len() - io)).to_int();
-
-				if (o < 1 || o > 15) {
-					this->showError(NULL, "-w", "Overlay index out of range (1 -> 15)");
-					o = 0;
+			if (index < 0) {
+				if (!AddFileIcons(himl, filename, bLarge, -1)) {
+					this->showErrorEx(NULL, "-w", "Unable to Add %s's Icons", filename.to_chr());
+					return;
 				}
+			}
+			else {
+				int i = ImageList_AddIcon(himl, icon);
 
-				if (o > 0)
-					ImageList_SetOverlayImage(himl, i, o);
+				if (flags.find('o',0)) {
+					// overlay image
+					int io = flags.find('o',1) +1;
+					int o = flags.mid(io, (flags.len() - io)).to_int();
+
+					if (o < 1 || o > 15) {
+						this->showError(NULL, "-w", "Overlay index out of range (1 -> 15)");
+						o = 0;
+					}
+
+					if (o > 0)
+						ImageList_SetOverlayImage(himl, i, o);
+				}
 			}
 		}
 
@@ -959,7 +969,14 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 					this->setImageList(himl, TVSIL_STATE);
 			}
 
-			ImageList_AddIcon(himl, icon);
+			if (index < 0) {
+				if (!AddFileIcons(himl, filename, bLarge, -1)) {
+					this->showErrorEx(NULL, "-w", "Unable to Add %s's Icons", filename.to_chr());
+					return;
+				}
+			}
+			else
+				ImageList_AddIcon(himl, icon);
 		}
 		if (icon != NULL)
 			DestroyIcon(icon);
@@ -1138,7 +1155,8 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 	ZeroMemory(&tvins, sizeof(TVINSERTSTRUCT));
 	ZeroMemory(&tvi, sizeof(TVITEMEX));
 
-	tvi.mask = TVIF_TEXT | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM /*| TVIF_HANDLE*/ | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+	//tvi.mask = TVIF_TEXT | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+	tvi.mask = TVIF_STATE | TVIF_PARAM;
 
 	int iFlags			= this->parseItemFlags(data->gettok( 1 ));
 	int icon			= data->gettok( 2 ).to_int() -1;
@@ -1203,22 +1221,29 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 		}
 	}
 
-	tvi.pszText = itemtext.to_chr();
-	tvi.cchTextMax = sizeof(tvi.pszText) / sizeof(tvi.pszText[0]);
-
+	if (itemtext.len() > 0) {
+		tvi.pszText = itemtext.to_chr();
+		tvi.cchTextMax = sizeof(tvi.pszText) / sizeof(tvi.pszText[0]);
+		tvi.mask |= TVIF_TEXT;
+	}
 	// icons
 	// http://dcx.scriptsdb.org/bug/?do=details&id=350
-	tvi.iImage = 10000;
-	tvi.iSelectedImage = 10000;
+	//tvi.iImage = 10000;
+	//tvi.iSelectedImage = 10000;
 
 	if (icon > -1) {
 		tvi.iImage = icon;
-		//tvi.mask |= TVIF_IMAGE;
+		tvi.mask |= TVIF_IMAGE;
 	}
 
 	if (sicon > -1) {
 		tvi.iSelectedImage = sicon;
-		//tvi.mask |= TVIF_SELECTEDIMAGE;
+		tvi.mask |= TVIF_SELECTEDIMAGE;
+	}
+
+	if (integral > 1) {
+		tvi.iIntegral = integral;
+		tvi.mask |= TVIF_INTEGRAL;
 	}
 
 	iFlags &= ~TVIS_DCXMASK; // exclude DCX flags, they were messing up state & overlay icon settings, found when saved data didnt match what was set.
@@ -1226,7 +1251,6 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 	//tvi.hItem = hAfter;
 	tvi.state = iFlags;
 	tvi.stateMask = iFlags;
-	tvi.iIntegral = integral;
 	tvi.lParam = (LPARAM) lpmytvi;
 
 	tvins.itemex = tvi;
@@ -1537,9 +1561,7 @@ TString DcxTreeView::getPathFromItem(HTREEITEM *item) {
 	}
 
 	// Trim to ensure clean path.
-	result.trim();
-
-	return result;
+	return result.trim();
 }
 
 /*!

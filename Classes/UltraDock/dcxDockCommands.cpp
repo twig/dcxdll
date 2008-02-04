@@ -239,7 +239,7 @@ bool DockWindow(const HWND mWnd, const HWND temp, const char *find, const TStrin
 // [SWITCH] [hwnd to dock] [+options] (destination hwnd)
 mIRC(xdock) {
 	TString input(data);
-	input.trim();
+	input = input.trim();
 	data[0] = 0;
 
 	int numtok = input.numtok( );
@@ -447,7 +447,7 @@ mIRC(xdock) {
 mIRC(_xdock)
 {
 	TString d(data);
-	d.trim();
+	d = d.trim();
 
 	data[0] = 0;
 

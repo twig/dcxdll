@@ -1235,7 +1235,7 @@ BOOL isMenuBarMenu(const HMENU hMenu, const HMENU hMatch) {
 */
 mIRC(xpop) {
 	TString d(data);
-	d.trim();
+	d = d.trim();
 
 	data[0] = 0;
 
@@ -1269,7 +1269,7 @@ mIRC(xpop) {
 */
 mIRC(_xpop) {
 	TString d(data);
-	d.trim();
+	d = d.trim();
 
 	data[0] = 0;
 
@@ -1303,7 +1303,7 @@ mIRC(_xpop) {
 */
 mIRC(xpopup) {
 	TString d(data);
-	d.trim();
+	d = d.trim();
 
 	data[0] = 0;
 
@@ -1325,7 +1325,7 @@ mIRC(xpopup) {
 */
 mIRC(_xpopup) {
 	TString d(data);
-	d.trim();
+	d = d.trim();
 
 	data[0] = 0;
 
@@ -1345,10 +1345,9 @@ mIRC(_xpopup) {
 */
 mIRC(xmenubar) {
 	TString d(data);
-	d.trim();
 
 	data[0] = 0;
-	g_XMenuBar.parseXMenuBarCommand(d);
+	g_XMenuBar.parseXMenuBarCommand(d.trim());
 
 	return 1;
 }
@@ -1360,10 +1359,9 @@ mIRC(xmenubar) {
 */
 mIRC(_xmenubar) {
 	TString d(data);
-	d.trim();
 
 	data[0] = 0;
-	g_XMenuBar.parseXMenuBarInfo(d, data);
+	g_XMenuBar.parseXMenuBarInfo(d.trim(), data);
 
 	return 3;
 }
@@ -1377,7 +1375,7 @@ mIRC(_xmenubar) {
 */
 mIRC(mpopup) {
 	TString d(data);
-	d.trim();
+	d = d.trim();
 
 	data[0] = 0;
 
@@ -1408,7 +1406,7 @@ mIRC(xSignal) {
 	TString flags;
 	bool state;
 
-	d.trim();
+	d = d.trim();
 
 	// flags specified
 	if (d.numtok() > 1)
@@ -1503,11 +1501,10 @@ mIRC(WindowProps) {
 				txt = input.gettok(2,-1,TSTAB);
 		}
 		else if (numtok > 2) {
-				txt = input.gettok(3, -1);
+			txt = input.gettok(3, -1);
 		}
-		txt.trim();
 
-		SetWindowText(hwnd, txt.to_chr());
+		SetWindowText(hwnd, txt.trim().to_chr());
 	}
 	// RMB click hwnd at pos.
 	// +r [X] [Y]

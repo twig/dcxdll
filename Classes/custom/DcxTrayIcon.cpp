@@ -28,7 +28,7 @@ mIRC(TrayIcon) {
 	}
 
 	TString d(data);
-	d.trim();
+	d = d.trim();
 	int numtok = d.numtok( );
 
 	if (numtok < 2) {

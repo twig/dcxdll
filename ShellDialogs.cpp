@@ -17,7 +17,7 @@ typedef struct {
 // ColorDialog (DEFAULT) [STYLES]
 mIRC(ColorDialog) {
 	TString d(data);
-	d.trim();
+	d = d.trim();
 
 	BOOL retDefault = FALSE;
 	CHOOSECOLOR	cc;
@@ -79,7 +79,7 @@ mIRC(ColorDialog) {
 // OpenDialog (styles) [TAB] (file) [TAB] (filter)
 mIRC(OpenDialog) {
 	TString d(data);
-	d.trim();
+	d = d.trim();
 
 	data[0] = 0;
 
@@ -95,7 +95,7 @@ mIRC(OpenDialog) {
 // SaveDialog (styles) [TAB] (file) [TAB] (filter)
 mIRC(SaveDialog) {
 	TString d(data);
-	d.trim();
+	d = d.trim();
 
 	data[0] = 0;
 
@@ -243,7 +243,7 @@ mIRC(BrowseDialog) {
 	LPITEMIDLIST pidl;
 	XBROWSEDIALOGSETTINGS extra;
 
-	input.trim();
+	input = input.trim();
 	numtok = input.numtok(TSTAB);
 
 	// set up the BI structure
@@ -432,7 +432,7 @@ mIRC(FontDialog) {
 
 	// seperate the tokens (by tabs)
 	TString input(data);
-	input.trim();
+	input = input.trim();
 
 	// set up the LF structure
 	ZeroMemory(&lf, sizeof(LOGFONT));
@@ -556,7 +556,7 @@ mIRC(FontDialog) {
  */
 mIRC(MsgBox) {
 	TString d(data);
-	d.trim();
+	d = d.trim();
 
 	if (d.numtok(TSTAB) < 3)
 		ret("D_ERROR MessageBox: invalid parameters");
@@ -669,7 +669,7 @@ mIRC(MsgBox) {
 */
 mIRC(PickIcon) {
 	TString d(data);
-	d.trim();
+	d = d.trim();
 
 	if (d.numtok( ) < 2)
 		ret("D_ERROR PickIcon: invalid parameters");
