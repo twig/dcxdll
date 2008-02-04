@@ -66,10 +66,8 @@ mIRC(TrayIcon) {
 		TString tooltip;
 
 		// if theres a tooltip text
-		if (d.numtok(TSTAB) > 1) {
-			tooltip = d.gettok(2, -1, TSTAB);
-			tooltip.trim();
-		}
+		if (d.numtok(TSTAB) > 1)
+			tooltip = d.gettok(2, -1, TSTAB).trim();
 
 		//NIF_INFO
 		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
@@ -102,14 +100,13 @@ mIRC(TrayIcon) {
 		HICON icon;
 		int index = d.gettok(4).to_int();
 		TString iconFlags = d.gettok(3);
-		TString filename(d.gettok(5, -1));
+		TString filename(d.gettok(5, -1).trim());
 
 		// TODO: twig
 		//NIF_INFO
 		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
 
 		// load the icon
-		filename.trim();
 		icon = dcxLoadIcon(index, filename, false, iconFlags);
 
 		if (!trayIcons->modifyIcon(id, NIM_MODIFY, icon, NULL)) {

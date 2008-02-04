@@ -222,9 +222,8 @@ void DcxImage::parseCommandRequest(TString & input) {
 		TString flag(input.gettok( 4 ));
 		int index = input.gettok( 5 ).to_int();
 		int size = input.gettok( 6 ).to_int();
-		TString filename(input.gettok( 7, -1 ));
+		TString filename(input.gettok(7, -1).trim());
 
-		filename.trim();
 		PreloadData();
 
 		if (size > 16)
@@ -249,11 +248,9 @@ void DcxImage::parseCommandRequest(TString & input) {
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
 	else if (flags['i'] && numtok > 4) {
-		TString flag(input.gettok(4));
-		TString filename(input.gettok(5, -1));
+		TString flag(input.gettok(4).trim());
+		TString filename(input.gettok(5, -1).trim());
 
-		flag.trim();
-		filename.trim();
 		PreloadData();
 
 		if (flag[0] != '+') {

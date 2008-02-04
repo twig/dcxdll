@@ -356,14 +356,12 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		}
 	}
 	// xdid -M [NAME] [ID] [SWITCH] [MARK INFO]
-	else if ( flags['M'] ) {
-
+	else if (flags['M']) {
 		TString info;
-		if ( numtok > 3 ) {
 
-			info = input.gettok( 4, -1 );
-			info.trim( );
-		}
+		if (numtok > 3)
+			info = input.gettok(4, -1).trim();
+
 		this->m_tsMark = info;
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
@@ -458,8 +456,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	}
 	// xdid -T [NAME] [ID] [SWITCH] (ToolTipText)
 	else if (flags['T'] && numtok > 2) {
-		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1) : "");
-		this->m_tsToolTip.trim();
+		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1).trim() : "");
 	}
 	// xdid -R [NAME] [ID] [SWITCH] [FLAG] [ARGS]
 	else if (flags['R'] && numtok > 3) {

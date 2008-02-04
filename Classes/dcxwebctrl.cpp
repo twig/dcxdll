@@ -227,8 +227,7 @@ void DcxWebControl::parseCommandRequest(TString & input) {
 
           if ( SUCCEEDED( doc->get_parentWindow( &window ) ) ) { 
 
-            TString CMD(input.gettok( 4, -1 ));
-            CMD.trim( );
+            TString CMD(input.gettok( 4, -1 ).trim());
 
             VARIANT v;
             VariantInit( &v );
@@ -253,8 +252,7 @@ void DcxWebControl::parseCommandRequest(TString & input) {
   // xdid -n [NAME] [ID] [SWITCH] [URL]
   else if ( flags['n'] && numtok > 3 ) {
     
-    TString URL(input.gettok( 4, -1 ));
-    URL.trim( );
+    TString URL(input.gettok( 4, -1 ).trim());
 
     VARIANT v;
     VariantInit( &v );			

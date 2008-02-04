@@ -122,8 +122,7 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
     if ( this->m_pXParentMenu->getName( ) == "mirc" || this->m_pXParentMenu->getName( ) == "mircbar" ) {
       if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
         this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
-        this->m_tsItemText = this->m_tsItemText.gettok( 2, "\v" );
-        this->m_tsItemText.trim( );
+        this->m_tsItemText = this->m_tsItemText.gettok(2, "\v").trim();
       }
 
       GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
@@ -188,8 +187,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 		if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
 
 			this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
-			this->m_tsItemText = this->m_tsItemText.gettok( 2, "\v" );
-			this->m_tsItemText.trim( );
+			this->m_tsItemText = this->m_tsItemText.gettok( 2, "\v" ).trim();
 		}
 	}
 
@@ -434,21 +432,17 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 	bool tryutf8 = false;
 	//check if the first char is $chr(12), if so then the text is utf8
 	if ( this->m_tsItemText[0] == 12) {
-		// remove $chr(12) from text
-		txt = this->m_tsItemText.right(-1);
+		// remove $chr(12) from text and trim whitespaces
+		txt = this->m_tsItemText.right(-1).trim();
 		tryutf8 = true;
-		// remove any leading whitespace after the $chr(12)
-		txt.trim();
 	}
 	else // not utf8 so copy
 		txt = this->m_tsItemText;
 
 	if ( txt.numtok( TSTAB ) > 1 ) {
 
-		TString lefttext(txt.gettok( 1, TSTAB ));
-		lefttext.trim( );
-		TString righttext(txt.gettok( 2, TSTAB ));
-		righttext.trim( );
+		TString lefttext(txt.gettok(1, TSTAB).trim());
+		TString righttext(txt.gettok(2, TSTAB).trim());
 
 		//DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, 
 		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );

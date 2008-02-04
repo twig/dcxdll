@@ -96,19 +96,13 @@ mIRC(xstatusbar) {
 
 				TString itemtext;
 
-				if ( input.gettok( 1, TSTAB ).numtok( ) > 4 ) {
-
-					itemtext = input.gettok( 1, TSTAB ).gettok( 5, -1);
-					itemtext.trim( );
-				}
+				if ( input.gettok( 1, TSTAB ).numtok( ) > 4 )
+					itemtext = input.gettok( 1, TSTAB ).gettok( 5, -1).trim();
 
 				TString tooltip;
 
-				if ( input.numtok( TSTAB ) > 1 ) {
-
-					tooltip = input.gettok( 2, TSTAB );
-					tooltip.trim( );
-				}
+				if ( input.numtok( TSTAB ) > 1 )
+					tooltip = input.gettok( 2, TSTAB ).trim();
 
 				DcxDock::status_deletePartInfo(nPos); // delete custom info if any.
 				DestroyIcon( (HICON) DcxDock::status_getIcon( nPos ) );

@@ -197,12 +197,9 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
     else if ( numtok > 8 ) {
-      TString com(input.gettok( 1, TSTAB ).gettok( 4 ));
-      com.trim( );
-      TString path(input.gettok( 1, TSTAB ).gettok( 5, -1 ));
-      path.trim( );
-      TString p2(input.gettok( 2, TSTAB ));
-      p2.trim( );
+      TString com(input.gettok(1, TSTAB).gettok(4).trim());
+      TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
+      TString p2(input.gettok(2, TSTAB).trim());
 
       UINT flags = this->parseLayoutFlags( p2.gettok( 1 ) );
       UINT ID = p2.gettok( 2 ).to_int( );

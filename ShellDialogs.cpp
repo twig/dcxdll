@@ -124,18 +124,14 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	char szFilename[900];
 
 	// seperate the tokenz
-	TString styles(data.gettok(1, TSTAB));
-	TString file(data.gettok(2, TSTAB));
-	TString filter(data.gettok(3, TSTAB));
+	TString styles(data.gettok(1, TSTAB).trim());
+	TString file(data.gettok(2, TSTAB).trim());
+	TString filter(data.gettok(3, TSTAB).trim());
 
 	// Get Current dir for resetting later.
 	UINT tsBufSize = GetCurrentDirectory(0, NULL);
 	TString tsCurrentDir((UINT)tsBufSize);
 	GetCurrentDirectory(tsBufSize,tsCurrentDir.to_chr());
-
-	styles.trim();
-	file.trim();
-	filter.trim();
 
 	// format the filter into the format WinAPI wants, with double NULL TERMINATOR at end
 	if (filter == "")
@@ -313,8 +309,7 @@ mIRC(BrowseDialog) {
 	// Set initial folder
 	if (bInitialFolder && (pidlRoot == NULL)) {
 		currentParam++;
-		initPath = input.gettok(currentParam, TSTAB);
-		initPath.trim();
+		initPath = input.gettok(currentParam, TSTAB).trim();
 
 		extra.initialFolder = initPath.to_chr();
 	}
@@ -322,8 +317,7 @@ mIRC(BrowseDialog) {
 	// Set title text.
 	if (bDialogText) {
 		currentParam++;
-		param = input.gettok(currentParam, TSTAB);
-		param.trim();
+		param = input.gettok(currentParam, TSTAB).trim();
 
 		bi.lpszTitle = param.to_chr();
 	}
@@ -453,11 +447,8 @@ mIRC(FontDialog) {
 	cf.nSizeMax = 72;
 
 	for (int i = 1; i <= input.numtok(TSTAB); i++) {
-		TString option(input.gettok(i, TSTAB));
-		int numtok = 0;
-
-		option.trim();
-		numtok = option.numtok( );
+		TString option(input.gettok(i, TSTAB).trim());
+		int numtok = option.numtok( );
 
 		/*
 		default +flags(ibsua) charset size fontname
@@ -571,15 +562,11 @@ mIRC(MsgBox) {
 		ret("D_ERROR MessageBox: invalid parameters");
 
 	DWORD   style     = MB_DEFBUTTON1;
-	TString strStyles(d.gettok(1, TSTAB));
-	TString strTitle(d.gettok(2, TSTAB));
-	TString strMsg(d.gettok(3, -1, TSTAB));
+	TString strStyles(d.gettok(1, TSTAB).trim());
+	TString strTitle(d.gettok(2, TSTAB).trim());
+	TString strMsg(d.gettok(3, -1, TSTAB).trim());
 	int     n         = strStyles.numtok( );
 	HWND    owner     = aWnd;
-
-	strTitle.trim();
-	strMsg.trim();
-	strStyles.trim();
 
 	for (int i = 1; i <= n; i++) {
 //		MB_ABORTRETRYIGNORE

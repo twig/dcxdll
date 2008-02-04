@@ -209,10 +209,9 @@ void DcxStacker::parseCommandRequest(TString &input) {
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if (flags['a'] && numtok > 9) {
-		TString item(input.gettok(1,TSTAB));
-		item.trim();
-		TString ctrl(input.gettok(2,TSTAB));
-		ctrl.trim();
+		TString item(input.gettok(1,TSTAB).trim());
+		TString ctrl(input.gettok(2,TSTAB).trim());
+
 		//TString flag(item.gettok( 5 ));
 		//flag.trim();
 
@@ -296,16 +295,14 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nPos);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
-				sitem->tsTipText = (numtok > 4 ? input.gettok(5, -1) : "");
-				sitem->tsTipText.trim();
+				sitem->tsTipText = (numtok > 4 ? input.gettok(5, -1).trim() : "");
 			}
 		}
   }
 	//xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	else if ( flags['w'] && (numtok > 4)) {
 		TString flag(input.gettok( 4 ));
-		TString filename(input.gettok( 5 ));
-		filename.trim();
+		TString filename(input.gettok( 5 ).trim());
 		
 		if (!IsFile(filename)) {
 			this->showErrorEx(NULL, "-w", "Unable to Access File: %s", filename.to_chr());

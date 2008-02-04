@@ -365,10 +365,8 @@ mIRC(xtreebar) {
 					}
 					if (himl != NULL) {
 						int iIndex = tsIndex.to_int() -1, fIndex = input.gettok(4).to_int(), iCnt = ImageList_GetImageCount(himl) -1;
-						TString cflag(input.gettok(3));
-						cflag.trim();
-						TString filename(input.gettok(5,-1));
-						filename.trim();
+						TString cflag(input.gettok(3).trim());
+						TString filename(input.gettok(5,-1).trim());
 
 						// check index is within range.
 						if (iCnt < iIndex) {

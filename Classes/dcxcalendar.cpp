@@ -323,8 +323,8 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						strDays.trim();
 
 						for (int x = 1; x <= strDays.numtok(TSCOMMA); x++) {
-							TString tok = strDays.gettok(x);
-							tok.trim();
+							TString tok(strDays.gettok(x).trim());
+
 							BOLDDAY(mds[i], tok.to_int());
 						}
 

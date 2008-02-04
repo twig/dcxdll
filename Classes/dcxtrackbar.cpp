@@ -198,8 +198,7 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
 	else if (flags['g'] && numtok > 4) {
 		UINT tflags = parseImageFlags(input.gettok( 4 ));
-		TString filename(input.gettok(5, -1));
-		filename.trim();
+		TString filename(input.gettok(5, -1).trim());
 
 		// background
 		if (tflags & TBCS_BACK)

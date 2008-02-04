@@ -335,8 +335,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
 		if ( numtok > 8 ) {
 
-			itemtext = input.gettok( 1, TSTAB ).gettok( 9, -1 );
-			itemtext.trim( );
+			itemtext = input.gettok( 1, TSTAB ).gettok( 9, -1 ).trim();
 
 			if ( itemtext == "-" ) {
 
@@ -358,10 +357,8 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
 		lpdcxtbb->tsTipText = "";
 
-		if ( input.numtok( TSTAB ) > 1 ) {
-			lpdcxtbb->tsTipText = input.gettok( 2, -1, TSTAB );
-			lpdcxtbb->tsTipText.trim( );
-		}
+		if ( input.numtok( TSTAB ) > 1 )
+			lpdcxtbb->tsTipText = input.gettok( 2, -1, TSTAB ).trim();
 
 		if ( buttonStyles & BTNS_UNDERLINE )
 			lpdcxtbb->bUline = TRUE;

@@ -133,8 +133,7 @@ void DcxLine::parseCommandRequest( TString & input ) {
 
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	if (flags['t']) {
-		this->m_sText = input.gettok(4, -1);
-		this->m_sText.trim();
+		this->m_sText = input.gettok(4, -1).trim();
 
 		if (this->m_bVertical) {
 			HFONT hFont = (HFONT)this->getFont(), hVFont = NULL;

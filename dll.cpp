@@ -1464,8 +1464,7 @@ mIRC(WindowProps) {
 		return 0;
 	}
 
-	TString flags(input.gettok( 2 ));
-	flags.trim();
+	TString flags(input.gettok( 2 ).trim());
 
 	if ((flags[0] != '+') || (flags.len() < 2)) {
 		DCXError("/dcx WindowProps","No Flags Found");
@@ -1489,8 +1488,7 @@ mIRC(WindowProps) {
 	// +i [INDEX] [FILENAME]
 	if (flags.find('i', 0) && numtok > 3) {
 		int index = input.gettok( 3 ).to_int();
-		TString filename(input.gettok(1,TSTAB).gettok(4, -1));
-		filename.trim();
+		TString filename(input.gettok(1,TSTAB).gettok(4, -1).trim());
 
 		if (!ChangeHwndIcon(hwnd,flags,index,filename))
 			return 0;

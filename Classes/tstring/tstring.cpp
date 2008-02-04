@@ -1746,29 +1746,30 @@ void TString::puttok( const char * cToken, int N, const char * sepChars ) {
  *
  * blah
  */
+TString TString::trim() {
+	char *start = this->m_pString;
+	char *end = this->m_pString + lstrlen(this->m_pString);
 
-void TString::trim( ) {
+	// Trim from start
+	while (start != end && *start == 32)
+		start++;
 
-  char * start = this->m_pString;
-  char * end = this->m_pString + lstrlen( this->m_pString );
+	// Trim from end
+	while (end != start && *(--end) == 32);
 
-  while ( start != end && *start == 32 )
-    start++;
+	size_t new_len = end - start +1;
 
-  while ( end != start && *(--end) == 32 );
+	char *temp = new char[new_len +1];
+	temp[new_len] = 0;
 
-  size_t new_len = end - start + 1;
-
-  char * temp = new char[new_len+1];
-  temp[new_len] = 0;
-
-  lstrcpyn( temp, start, new_len + 1 );
-
+	lstrcpyn(temp, start, new_len +1);
+	
 	this->deleteString();
+	this->m_pString = temp;
 
-  this->m_pString = temp;
-
+	return TString(temp);
 }
+
 // pos must be within length of string, n can be < 0
 TString TString::mid(int pos, int n) const
 {

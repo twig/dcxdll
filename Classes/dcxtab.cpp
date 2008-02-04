@@ -314,20 +314,15 @@ void DcxTab::parseCommandRequest( TString & input ) {
     ZeroMemory( &tci, sizeof( TCITEM ) );
     tci.mask = TCIF_IMAGE | TCIF_PARAM;
 
-    TString data(input.gettok( 1, TSTAB ));
-    data.trim( );
+    TString data(input.gettok( 1, TSTAB ).trim());
 
     TString control_data;
-    if ( input.numtok( TSTAB ) > 1 ) {
-      control_data = input.gettok( 2, TSTAB );
-      control_data.trim( );
-    }
+    if ( input.numtok( TSTAB ) > 1 )
+      control_data = input.gettok( 2, TSTAB ).trim();
 
     TString tooltip;
-    if ( input.numtok( TSTAB ) > 2 ) {
-      tooltip = input.gettok( 3, -1, TSTAB );
-      tooltip.trim( );
-    }
+    if ( input.numtok( TSTAB ) > 2 )
+      tooltip = input.gettok( 3, -1, TSTAB ).trim();
 
     int nIndex = data.gettok( 4 ).to_int( ) - 1;
 
@@ -474,10 +469,8 @@ void DcxTab::parseCommandRequest( TString & input ) {
       tci.mask = TCIF_TEXT;
 
 
-      if ( numtok > 4 ) {
-        itemtext = input.gettok( 5, -1 );
-        itemtext.trim( );
-      }
+      if ( numtok > 4 )
+        itemtext = input.gettok( 5, -1 ).trim();
 
       tci.pszText = itemtext.to_chr( );
 

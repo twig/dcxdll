@@ -458,9 +458,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		else if (this->m_uStyleBg & DBS_BKGBITMAP) {
 			PreloadData();
 
-			TString filename(input.gettok(4, -1));
-			filename.trim();
-
+			TString filename(input.gettok(4, -1).trim());
 
 			if (filename != "none") {
 				this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg, filename);
@@ -528,13 +526,9 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
 		else if (numtok > 7) {
-			TString com(input.gettok(1, TSTAB).gettok( 3 ));
-			TString path(input.gettok(1, TSTAB).gettok(4, -1));
-			TString p2(input.gettok(2, TSTAB));
-
-			com.trim();
-			path.trim();
-			p2.trim();
+			TString com(input.gettok(1, TSTAB).gettok(3).trim());
+			TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
+			TString p2(input.gettok(2, TSTAB).trim());
 
 			UINT lflags = this->parseLayoutFlags(p2.gettok( 1 ));
 			UINT ID = p2.gettok( 2 ).to_int();
@@ -852,8 +846,8 @@ void DcxDialog::parseCommandRequest( TString &input) {
 	else if (flags['w'] && numtok > 4) {
 		TString flags(input.gettok( 3 ));
 		int index = input.gettok( 4 ).to_int();
-		TString filename(input.gettok(5, -1));
-		filename.trim();
+		TString filename(input.gettok(5, -1).trim());
+
 		ChangeHwndIcon(this->m_Hwnd,flags,index,filename);
 	}
 	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]

@@ -226,10 +226,8 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
   else if ( prop == "find" && numtok > 5 ) {
 
-    TString matchtext(input.gettok( 2, TSTAB ));
-    matchtext.trim( );
-    TString params(input.gettok( 3, TSTAB ));
-    params.trim( );
+    TString matchtext(input.gettok(2, TSTAB).trim());
+    TString params(input.gettok(3, TSTAB).trim());
 
     if ( matchtext.len( ) > 0 ) {
 

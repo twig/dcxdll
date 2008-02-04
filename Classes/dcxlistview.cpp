@@ -440,10 +440,8 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [COLUMN] [N]
 	else if ( prop == "find" && numtok > 6 ) {
 
-		TString matchtext(input.gettok( 2, TSTAB ));
-		matchtext.trim( );
-		TString params(input.gettok( 3, TSTAB ));
-		params.trim( );
+		TString matchtext(input.gettok(2, TSTAB).trim());
+		TString params(input.gettok(3, TSTAB).trim());
 
 		if ( matchtext.len( ) > 0 ) {
 
@@ -840,8 +838,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
 
-		TString data(input.gettok(1, TSTAB).gettok(4, -1));
-		data.trim();
+		TString data(input.gettok(1, TSTAB).gettok(4, -1).trim());
 		int nPos = data.gettok( 1 ).to_int() -1;
 
 		if (nPos < 0)
@@ -968,8 +965,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 				// ADD check for num columns
 				while (i <= tabs) {
-					data = input.gettok(i, TSTAB);
-					data.trim();
+					data = input.gettok(i, TSTAB).trim();
 
 					if (data.numtok() < 5) {
 						this->showError(NULL,"-a", "Invalid subitem syntax");
@@ -1220,9 +1216,9 @@ void DcxListView::parseCommandRequest(TString &input) {
 		lvbki.yOffsetPercent = (int)input.gettok( 6 ).to_num();
 
 		if (numtok > 6) {
-			filename = input.gettok(7, -1);
+			filename = input.gettok(7, -1).trim();
 			//filename = input.gettok(7, -1).gettok(1,TSTAB);
-			filename.trim();
+
 			//if (lvbki.ulFlags & LVBKIF_TYPE_WATERMARK) {
 			//	watermarkfile = input.gettok(7,-1).gettok(2,-1,TSTAB);
 			//	watermarkfile.trim();
@@ -1447,15 +1443,12 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [ORDER ...]
 	else if (flags['o'] && numtok > 3) {
-		TString ids(input.gettok(4, -1));
+		TString ids(input.gettok(4, -1).trim());
 		int count = this->getColumnCount();
 		int *indexes;
 
-		ids.trim();
-
 		// Basic check first
-		if (ids.numtok() != count)
-		{
+		if (ids.numtok() != count) {
 			this->showError(NULL, "-o", "Incorrect number of indexes.");
 			return;
 		}
@@ -1532,8 +1525,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		LVCOLUMN lvc;
 		ZeroMemory(&lvc, sizeof(LVCOLUMN));
 		int nColumn = 0;
-		TString data(input.gettok(1, TSTAB ).gettok(4, -1));
-		data.trim();
+		TString data(input.gettok(1, TSTAB).gettok(4, -1).trim());
 
 		int icon  = data.gettok( 2 ).to_int() -1;
 		int width = data.gettok( 3 ).to_int();
@@ -1572,8 +1564,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			while (i <= tabs) {
 				nColumn++;
 
-				data = input.gettok(i, TSTAB);
-				data.trim();
+				data = input.gettok(i, TSTAB).trim();
 
 				icon  = data.gettok( 2 ).to_int() -1;
 				width = data.gettok( 3 ).to_int();
@@ -1625,8 +1616,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			return;
 		}
 
-		TString itemtext(input.gettok(6, -1));
-		itemtext.trim();
+		TString itemtext(input.gettok(6, -1).trim());
 
 		LVITEM lvi;
 		LPDCXLVITEM lpdcxlvi;

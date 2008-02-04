@@ -260,11 +260,8 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [SUBPATH]
 	else if (prop == "find" && numtok > 5) {
-		TString matchtext(input.gettok(2, TSTAB));
-		TString params(input.gettok(3, TSTAB));
-
-		matchtext.trim();
-		params.trim();
+		TString matchtext(input.gettok(2, TSTAB).trim());
+		TString params(input.gettok(3, TSTAB).trim());
 
 		if (matchtext.len() < 1) {
 			this->showErrorEx("find", NULL, "No matchtext specified.");
@@ -334,11 +331,8 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 	}
 	// [NAME] [ID] [PROP] [PATH]
 	else if (prop == "num" && numtok > 3) {
-		TString path(input.gettok(4, -1));
+		TString path(input.gettok(4, -1).trim());
 		HTREEITEM item;
-
-		path.trim();
-
 
 		if (path == "root") {
 			item = TVI_ROOT;
@@ -392,10 +386,9 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 	}
 	// [NAME] [ID] [PROP] [PATH]
 	else if (prop == "markeditem" && numtok > 3) {
-		TString path(input.gettok(4, -1));
+		TString path(input.gettok(4, -1).trim());
 		HTREEITEM item;
 
-		path.trim();
 		item = parsePath(&path);
 
 		if (item == NULL) {
@@ -443,16 +436,12 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		int n = input.numtok(TSTAB);
 
 		if (n > 1) {
-			TString path(input.gettok(1, TSTAB).gettok(4, -1));
-			path.trim();
-			TString data(input.gettok(2, TSTAB));
-			data.trim();
+			TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
+			TString data(input.gettok(2, TSTAB).trim());
 			TString tooltip;
 
-			if (n > 2) {
-				tooltip = input.gettok(3, -1, TSTAB);
-				tooltip.trim();
-			}
+			if (n > 2)
+				tooltip = input.gettok(3, -1, TSTAB).trim();
 
 			if (data.numtok( ) > 8)
 				this->insertItem(&path, &data, &tooltip);
@@ -467,13 +456,9 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			return;
 		}
 
-		TString path(input.gettok(1, TSTAB));
-		TString data(input.gettok(2, TSTAB));
+		TString path(input.gettok(1, TSTAB).trim());
+		TString data(input.gettok(2, TSTAB).trim());
 		HTREEITEM item;
-
-		path.trim();
-		data.trim();
-		
 
 		n = path.numtok();
 
@@ -589,9 +574,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 	// xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON] (OVERLAY)
 	else if (flags['j'] && numtok > 5) {
 		HTREEITEM item;
-
-		TString path(input.gettok(1, TSTAB).gettok(4, -1));
-		path.trim();
+		TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
 
 		// Invalid parameters, missing icons segment.
 		if (input.numtok(TSTAB) < 2) {
@@ -599,8 +582,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			return;
 		}
 
-		TString icons(input.gettok(2, TSTAB));
-		icons.trim();
+		TString icons(input.gettok(2, TSTAB).trim());
 
 		// Invalid parameters, missing icon args.
 		if (icons.numtok() < 2) {
@@ -693,11 +675,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 	}
 	// xdid -m [NAME] [ID] [SWITCH] N N N{TAB}N N N
 	else if (flags['m'] && numtok > 3 && input.numtok(TSTAB) > 1) {
-		TString pathFrom(input.gettok(1, TSTAB).gettok(4, -1));
-		TString pathTo(input.gettok(2, TSTAB));
-
-		pathFrom.trim();
-		pathTo.trim();
+		TString pathFrom(input.gettok(1, TSTAB).gettok(4, -1).trim());
+		TString pathTo(input.gettok(2, TSTAB).trim());
 
 		HTREEITEM item = this->parsePath(&pathFrom);
 		HTREEITEM hParentTo = TVI_ROOT;
@@ -788,17 +767,12 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 	}
 	// xdid -o [NAME] [ID] [SWITCH] N N N [TAB] (Tooltip Text)
 	else if (flags['o'] && numtok > 3) {
-		TString path(input.gettok(1, TSTAB).gettok(4, -1));
+		TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
 		HTREEITEM item;
 		TString tiptext;
-
-		path.trim( );
-
 		
-		if (input.numtok(TSTAB) > 1) {
-			tiptext = input.gettok(2, TSTAB);
-			tiptext.trim();
-		}
+		if (input.numtok(TSTAB) > 1)
+			tiptext = input.gettok(2, TSTAB).trim();
 
 		item = this->parsePath(&path);
 
@@ -915,16 +889,12 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 	}
 	// xdid -v [NAME] [ID] [SWITCH] N N N [TAB] (Item Text)
 	else if (flags['v'] && numtok > 3) {
-		TString path(input.gettok(1, TSTAB).gettok(4, -1));
+		TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
 		HTREEITEM item;
 		TString itemtext;
 
-		path.trim( );
-		
-		if (input.numtok(TSTAB) > 1) {
-			itemtext = input.gettok(2, TSTAB);
-			itemtext.trim();
-		}
+		if (input.numtok(TSTAB) > 1)
+			itemtext = input.gettok(2, TSTAB).trim();
 
 		item = this->parsePath(&path);
 
@@ -1019,21 +989,18 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 	}
 	// xdid -z [NAME] [ID] [SWITCH] [+FLAGS] N N N [TAB] [ALIAS]
 	else if (flags['z'] && numtok > 4) {
-		TString path(input.gettok(1, TSTAB).gettok(5, -1));
+		TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
 		DCXTVSORT dtvs;
 		TVSORTCB tvs;
 
-		path.trim();
 		dtvs.iSortFlags = 0;
 		dtvs.pthis = NULL;
 		//ZeroMemory(&dtvs, sizeof(DCXTVSORT)); // zeromem's an object.
 		dtvs.iSortFlags = this->parseSortFlags(input.gettok(4));
 		dtvs.pthis = this;
 
-		if (input.numtok(TSTAB) > 1) {
-			dtvs.tsCustomAlias = input.gettok(2, TSTAB);
-			dtvs.tsCustomAlias.trim();
-		}
+		if (input.numtok(TSTAB) > 1)
+			dtvs.tsCustomAlias = input.gettok(2, TSTAB).trim();
 
 		ZeroMemory( &tvs, sizeof(TVSORTCB) );
 		tvs.lpfnCompare = DcxTreeView::sortItemsEx;
@@ -1090,14 +1057,10 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		}
 
 		HTREEITEM item;
-		TString path(input.gettok(1, TSTAB).gettok(4, -1));
+		TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
 		//TString flags(fileData.gettok(1));
-		TString name(fileData.gettok(2));
-		TString filename(fileData.gettok(3, -1));
-
-		path.trim();
-		name.trim();
-		filename.trim();
+		TString name(fileData.gettok(2).trim());
+		TString filename(fileData.gettok(3, -1).trim());
 
 		if (name.len() < 1) {
 			this->showError(NULL, "-S", "Invalid dataset");

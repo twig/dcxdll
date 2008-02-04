@@ -287,17 +287,11 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 
 		UINT iFlags = this->parseItemFlags( flag );
 
-		if ( input.gettok( 1, TSTAB ).numtok( ) > 6 ) {
-		  
-			itemtext = input.gettok( 1, TSTAB ).gettok( 7, -1 );
-			itemtext.trim( );
-		}
+		if ( input.gettok( 1, TSTAB ).numtok( ) > 6 )
+			itemtext = input.gettok(1, TSTAB).gettok(7, -1).trim();
 
-		if ( input.numtok( TSTAB ) > 1 ) {
-		  
-			tooltip = input.gettok( 2, TSTAB );
-			tooltip.trim( );
-		}
+		if ( input.numtok( TSTAB ) > 1 )
+			tooltip = input.gettok( 2, TSTAB ).trim();
 
 		if (iFlags & SBT_OWNERDRAW) {
 			LPSB_PARTINFO pPart = new SB_PARTINFO;

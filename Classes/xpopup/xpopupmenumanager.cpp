@@ -74,8 +74,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 		HBITMAP hBitmap = NULL;
 
 		if (numtok > 2) {
-			TString filename(input.gettok(3, -1 ));
-			filename.trim();
+			TString filename(input.gettok(3, -1 ).trim());
 
 			if (filename == "none") {
 				// ignore 'none' to maintain compatibility

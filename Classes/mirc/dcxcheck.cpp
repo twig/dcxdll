@@ -167,12 +167,10 @@ void DcxCheck::parseCommandRequest( TString & input ) {
 			Button_SetCheck(this->m_Hwnd, BST_CHECKED);
 	}
 	//xdid -t [NAME] [ID] [SWITCH] ItemText
-  else if (flags['t'] ) {
-
-		TString text(input.gettok( 4, -1 ));
-    text.trim( );
-    SetWindowText( this->m_Hwnd, text.to_chr( ) );
-  }
+	else if (flags['t']) {
+		TString text(input.gettok(4, -1).trim());
+		SetWindowText(this->m_Hwnd, text.to_chr());
+	}
   //xdid -u [NAME] [ID] [SWITCH]
   else if ( flags['u'] ) {
 

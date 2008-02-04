@@ -244,10 +244,8 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
 	else if ( prop == "find" && numtok > 5 ) {
-		TString matchtext(input.gettok( 2, TSTAB ));
-		matchtext.trim( );
-		TString params(input.gettok( 3, TSTAB ));
-		params.trim( );
+		TString matchtext(input.gettok(2, TSTAB).trim());
+		TString params(input.gettok(3, TSTAB).trim());
 
 		if ( matchtext.len( ) > 0 ) {
 
@@ -337,7 +335,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 			nPos = ListBox_GetCount( this->m_Hwnd );
 
 		TString opts(input.gettok( 5 ));
-		TString itemtext(input.gettok( 6, -1 ));
+		TString itemtext(input.gettok(6, -1).trim());
 		int nMaxStrlen = 0;
 		char res[1024];
 
@@ -345,8 +343,6 @@ void DcxList::parseCommandRequest( TString & input ) {
 			this->showError(NULL, "-A", "Invalid Flags");
 			return;
 		}
-
-		itemtext.trim();
 
 		switch (opts[1])
 		{

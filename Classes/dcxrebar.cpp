@@ -257,21 +257,16 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 #endif
 		rbBand.fMask = RBBIM_STYLE | RBBIM_LPARAM;
 
-		TString data(input.gettok( 1, TSTAB ));
-		data.trim( );
-
+		TString data(input.gettok(1, TSTAB).trim());
 		TString control_data;
-		if ( input.numtok( TSTAB ) > 1 ) {
 
-			control_data = input.gettok( 2, TSTAB );
-			control_data.trim( );
+		if (input.numtok(TSTAB) > 1) {
+			control_data = input.gettok(2, TSTAB).trim();
 		}
 
 		TString tooltip;
-		if ( input.numtok( TSTAB ) > 2 ) {
-
-			tooltip = input.gettok( 3, TSTAB );
-			tooltip.trim( );
+		if (input.numtok(TSTAB) > 2) {
+			tooltip = input.gettok(3, TSTAB).trim();
 		}
 
 		int nIndex = data.gettok( 4 ).to_int( ) - 1;
@@ -292,8 +287,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 
 		TString itemtext;
 		if ( data.numtok( ) > 10 ) {
-			itemtext = data.gettok( 11, -1 );
-			itemtext.trim();
+			itemtext = data.gettok(11, -1).trim();
 			rbBand.fMask |= RBBIM_TEXT;
 			rbBand.lpText = itemtext.to_chr( );
 			//rbBand.cch = itemtext.len();
@@ -517,11 +511,9 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
       TString itemtext;
-      if ( numtok > 4 ) {
+      if ( numtok > 4 )
+        itemtext = input.gettok(5, -1).trim();
 
-        itemtext = input.gettok( 5, -1 );
-        itemtext.trim( );
-      }
       rbBand.lpText = itemtext.to_chr( );
       this->setBandInfo( nIndex, &rbBand );
     }

@@ -142,7 +142,7 @@ public:
 	TString sub( int N, int M ) const;
 	TString wsub( int N, int M ) const;
 
-	void trim( );
+	TString trim();
 
 	int replace( const char * subString, const char * rString );
 	int replace( const char * subString, const char rchr );

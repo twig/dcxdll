@@ -153,8 +153,7 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
 	if (flags['a'] && numtok > 3) {
-		TString IP(input.gettok( 4 ));
-		IP.trim();
+		TString IP(input.gettok(4).trim());
 
 		if (IP.numtok(".") == 4) {
 			BYTE b[4];

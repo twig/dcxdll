@@ -312,10 +312,9 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	if ( flags['a'] && numtok > 4 ) {
-		TString flag(input.gettok(4));
-		TString filename(input.gettok(5,-1));
-		flag.trim();
-		filename.trim();
+		TString flag(input.gettok(4).trim());
+		TString filename(input.gettok(5,-1).trim());
+
 		this->ReleaseAll();
 
 		if (!mIRCLink.m_bDX9Installed)

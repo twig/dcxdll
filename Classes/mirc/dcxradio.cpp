@@ -156,9 +156,9 @@ void DcxRadio::parseCommandRequest( TString & input ) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH]
 	else if ( flags['t'] && numtok > 3 ) {
-		TString text(input.gettok( 4, -1 ));
-		text.trim( );
-		SetWindowText( this->m_Hwnd, text.to_chr( ) );
+		TString text(input.gettok(4, -1).trim());
+
+		SetWindowText(this->m_Hwnd, text.to_chr());
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
 	else if ( flags['u'] ) {

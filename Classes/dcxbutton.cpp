@@ -180,8 +180,7 @@ void DcxButton::parseCommandRequest( TString & input ) {
 		UINT iColorStyles = this->parseColorFlags(input.gettok( 4 ));
 		COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num();
 
-		TString filename(input.gettok(6, -1));
-		filename.trim();
+		TString filename(input.gettok(6, -1).trim());
 
 		if (iColorStyles & BTNCS_NORMAL) {
 			this->m_aBitmaps[0] = dcxLoadBitmap(this->m_aBitmaps[0], filename);
@@ -219,9 +218,8 @@ void DcxButton::parseCommandRequest( TString & input ) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] ItemText
 	else if ( flags['t'] && numtok > 2 ) {
-		this->m_tsCaption = (numtok > 3 ? input.gettok( 4, -1 ) : "");
-		this->m_tsCaption.trim( );
-		this->redrawWindow( );
+		this->m_tsCaption = (numtok > 3 ? input.gettok(4, -1).trim() : "");
+		this->redrawWindow();
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags['w'] && numtok > 5) {

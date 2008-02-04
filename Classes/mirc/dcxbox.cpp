@@ -308,12 +308,9 @@ void DcxBox::parseCommandRequest( TString & input ) {
 		}
     else if ( numtok > 8 ) {
 
-      TString com(input.gettok( 1, TSTAB ).gettok( 4 ));
-      com.trim( );
-      TString path(input.gettok( 1, TSTAB ).gettok( 5, -1 ));
-      path.trim( );
-      TString p2(input.gettok( 2, TSTAB ));
-      p2.trim( );
+      TString com(input.gettok(1, TSTAB).gettok(4).trim());
+	  TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
+	  TString p2(input.gettok(2, TSTAB).trim());
 
       UINT lflags = this->parseLayoutFlags( p2.gettok( 1 ) );
       UINT ID = p2.gettok( 2 ).to_int( );
@@ -450,9 +447,9 @@ void DcxBox::parseCommandRequest( TString & input ) {
   //xdid -t [NAME] [ID] [SWITCH]
   else if ( flags['t'] ) {
 
-    TString text(input.gettok( 4, -1 ));
-    text.trim( );
-    SetWindowText( this->m_Hwnd, text.to_chr( ) );
+    TString text(input.gettok(4, -1).trim());
+
+    SetWindowText(this->m_Hwnd, text.to_chr());
     this->redrawWindow( );
   }
   else
