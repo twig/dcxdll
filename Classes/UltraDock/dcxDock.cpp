@@ -373,7 +373,8 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 					TString buf((UINT)32);
 					int i = 0;
 					DcxDock::getTreebarItemType(buf, pTvis->itemex.lParam);
-					mIRCevalEX(buf.to_chr(), 32, "$xtreebar_callback(geticons,%s,%800s)", buf.to_chr(), pTvis->itemex.pszText);
+					mIRCcomEX("/!set -nu1 %%dcx_%d %800s", pTvis->itemex.lParam, pTvis->itemex.pszText );
+					mIRCevalEX(buf.to_chr(), 32, "$xtreebar_callback(geticons,%s,%%dcx_%d)", buf.to_chr(), pTvis->itemex.lParam);
 					i = buf.gettok( 1 ).to_int() -1;
 					if (i < 0)
 						i = 0;
@@ -475,6 +476,19 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 													lpntvcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
 											}
 											else {
+												//HTREEITEM hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
+												//TVITEMEX tvi;
+												//ZeroMemory(&tvi, sizeof(tvi));
+												//tvi.mask = TVIF_CHILDREN|TVIF_STATE;
+												//tvi.hItem = hItem;
+												//tvi.stateMask = TVIS_EXPANDED;
+
+												//if (TreeView_GetItem(lpntvcd->nmcd.hdr.hwndFrom, &tvi))
+												//{
+												//	if (tvi.cChildren && !(tvi.state & TVIS_EXPANDED)) { // has children & not expanded
+												//		DcxDock::getTreebarChildState(hItem, &tvi);
+												//	}
+												//}
 												int wid = HIWORD(lpntvcd->nmcd.lItemlParam);
 												TString buf((UINT)64);
 												mIRCevalEX(buf.to_chr(), 64, "$window(@%d).sbcolor", wid);
@@ -514,7 +528,8 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 								item.mask = TVIF_TEXT;
 								if (TreeView_GetItem(mIRCLink.m_hTreeView, &item)) {
 									DcxDock::getTreebarItemType(tsType, item.lParam);
-									mIRCevalEX(buf.to_chr(), 255, "$xtreebar_callback(gettooltip,%s,%800s)", tsType.to_chr(), item.pszText);
+									mIRCcomEX("/!set -nu1 %%dcx_%d %800s", item.lParam, item.pszText );
+									mIRCevalEX(buf.to_chr(), 255, "$xtreebar_callback(gettooltip,%s,%%dcx_%d)", tsType.to_chr(), item.lParam);
 
 									if (buf.len() > 0)
 										lstrcpyn(tcgit->pszText, buf.to_chr(), tcgit->cchTextMax);
@@ -926,3 +941,16 @@ void DcxDock::getTreebarItemType(TString &tsType, const LPARAM lParam)
 		break;
 	}
 }
+//UINT DcxDock::getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem)
+//{
+//	ZeroMemory(pitem, sizeof(TVITEMEX));
+//	for (HTREEITEM ptvitem = TreeView_GetChild(mIRCLink.m_hTreeView, hParent); ptvitem != NULL; ptvitem = TreeView_GetNextSibling(mIRCLink.m_hTreeView, ptvitem)) {
+//		pitem->hItem = ptvitem;
+//		pitem->mask = TVIF_STATE|TVIF_CHILDREN;
+//		pitem->stateMask = TVIS_EXPANDED;
+//
+//		if (TreeView_GetItem(mIRCLink.m_hTreeView, pitem)) {
+//		}
+//		TraverseChildren(ptvitem, buf, res, pitem);
+//	}
+//}

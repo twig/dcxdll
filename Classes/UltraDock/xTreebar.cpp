@@ -17,7 +17,8 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 			{
 				TString tsType((UINT)64);
 				DcxDock::getTreebarItemType(tsType, pitem->lParam);
-				mIRCevalEX(res.to_chr(), 16, "$xtreebar_callback(geticons,%s,%800s)", tsType.to_chr(), pitem->pszText);
+				mIRCcomEX("/!set -nu1 %%dcx_%d %800s", pitem->lParam, pitem->pszText );
+				mIRCevalEX(res.to_chr(), 16, "$xtreebar_callback(geticons,%s,%%dcx_%d)", tsType.to_chr(), pitem->lParam);
 			}
 			pitem->mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 			i = res.gettok( 1 ).to_int() -1;
@@ -51,7 +52,8 @@ void TraverseTreebarItems(void)
 			{
 				TString tsType((UINT)32);
 				DcxDock::getTreebarItemType(tsType, item.lParam);
-				mIRCevalEX(res.to_chr(), 32, "$xtreebar_callback(geticons,%s,%800s)", tsType.to_chr(), item.pszText);
+				mIRCcomEX("/!set -nu1 %%dcx_%d %800s", item.lParam, item.pszText );
+				mIRCevalEX(res.to_chr(), 32, "$xtreebar_callback(geticons,%s,%%dcx_%d)", tsType.to_chr(), item.lParam);
 			}
 			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 			i = res.gettok( 1 ).to_int() -1;
