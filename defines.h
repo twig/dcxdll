@@ -56,6 +56,10 @@
 #undef DCX_USE_PCRE
 #endif
 
+#if defined(DCX_USE_PCRE)
+#pragma comment(lib, "pcre.lib")
+#endif
+
 // --------------------------------------------------
 // Some compiler/library definitions
 // --------------------------------------------------
