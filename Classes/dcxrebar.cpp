@@ -227,6 +227,29 @@ void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
       return;
     }
   }
+  	// $xdid([NAME], [ID], [N]).[PROP]
+	else if (prop == "markeditem") {
+		REBARBANDINFO rbi;
+		LPDCXRBBAND pdcxrbb;
+		int n = input.gettok(4).to_int();
+
+		if (n < 1 || n > this->getBandCount()) {
+			this->showErrorEx("markeditem", NULL, "Invalid band index: %d", n);
+			return;
+		}
+
+		// Zero based index
+		n--;
+
+		ZeroMemory(&rbi, sizeof(REBARBANDINFO));
+		rbi.cbSize = sizeof(REBARBANDINFO);
+		rbi.fMask = RBBIM_LPARAM;
+		this->getBandInfo(n, &rbi);
+		pdcxrbb = (LPDCXRBBAND) rbi.lParam;
+
+		wsprintf(szReturnValue, "%s", pdcxrbb->tsMarkText.to_chr());
+		return;
+	}
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
 
@@ -387,6 +410,27 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 			}
 			delete lpdcxrbb;
 		}
+	}
+	// xdid -A [NAME] [ID] [SWITCH] [N] (TEXT)
+	else if (flags['A'] && numtok > 3) {
+		REBARBANDINFO rbi;
+		LPDCXRBBAND pdcxrbb;
+		int n = input.gettok(4).to_int();
+
+		if (n < 1 || n > this->getBandCount()) {
+			this->showErrorEx(NULL, "-A", "Invalid band index: %d", n);
+			return;
+		}
+
+		// Zero based index
+		n--;
+
+		ZeroMemory(&rbi, sizeof(REBARBANDINFO));
+		rbi.cbSize = sizeof(REBARBANDINFO);
+		rbi.fMask = RBBIM_LPARAM;
+		this->getBandInfo(n, &rbi);
+		pdcxrbb = (LPDCXRBBAND) rbi.lParam;
+		pdcxrbb->tsMarkText = (numtok > 4 ? input.gettok(5, -1) : "");
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
   else if ( flags['d'] && numtok > 3 ) {
@@ -832,6 +876,7 @@ LRESULT DcxReBar::minBand( const UINT uBand, const BOOL fIdeal ) {
  */
 LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
   switch( uMsg ) {
+
     case WM_NOTIFY:
       {
         LPNMHDR hdr = (LPNMHDR) lParam;
@@ -923,6 +968,7 @@ LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
       }
       break;
 	}
+
 	return 0L;
 }
 

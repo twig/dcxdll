@@ -29,14 +29,12 @@ class DcxDialog;
  *
  * blah
  */
-
 typedef struct tagDCXRBBAND {
-
-  TString tsTipText;  //!< Tooltip text
-  COLORREF clrText;   //!< Line Caption Color
-  BOOL bBold;         //!< Is Line Caption Bold ?
-  BOOL bUline;        //!< Is Line Caption Underlined
-
+	TString tsTipText;  //!< Tooltip text
+	COLORREF clrText;   //!< Line Caption Color
+	BOOL bBold;         //!< Is Line Caption Bold ?
+	BOOL bUline;        //!< Is Line Caption Underlined
+	TString tsMarkText; //!< Marked text, per ReBar item.
 } DCXRBBAND,*LPDCXRBBAND;
 
 /*!
@@ -94,7 +92,6 @@ protected:
 
   UINT m_iWidth;  //!< Control Width used in "change" event
   UINT m_iHeight;  //!< Control Width used in "change" event
-
 };
 
 #endif // _DCXREBAR_H_
