@@ -1029,8 +1029,7 @@ LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						if (isCustomMenu && (hMenuCustom == NULL))
 							hMenuCustom = menu;
 
-						if (((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) && (!isCustomMenu) &&
-							(hMenuCustom == NULL)) // This checks for custom submenus.
+						if (((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) && (!isCustomMenu) && (hMenuCustom == NULL)) // This checks for custom submenus.
 							g_mIRCMenuBar->convertMenu(menu, TRUE);
 					}
 				}

@@ -30,16 +30,16 @@
 
 typedef struct tagXPMENUCOLORS {
 
-  COLORREF m_clrBack;               //!< Menu Item BackGround Color
-  COLORREF m_clrBox;                //!< Menu Item Box Color
-  COLORREF m_clrSelection;          //!< Menu Item Selection Box Color
-  COLORREF m_clrDisabledSelection;  //!< Menu Item Disabled Selection Box Color
-  COLORREF m_clrText;               //!< Menu Item Text Color
-  COLORREF m_clrDisabledText;       //!< Menu Item Disabled Text Color
-  COLORREF m_clrCheckBox;           //!< Menu Item CheckBox Color
-  COLORREF m_clrDisabledCheckBox;   //!< Menu Item Disabled CheckBox Color
-  COLORREF m_clrSeparatorLine;      //!< Menu Item Separator Line Color
-  COLORREF m_clrSelectionBorder;    //!< Menu Item Selection Box Border Color
+	COLORREF m_clrBack;               //!< Menu Item BackGround Color
+	COLORREF m_clrBox;                //!< Menu Item Box Color
+	COLORREF m_clrSelection;          //!< Menu Item Selection Box Color
+	COLORREF m_clrDisabledSelection;  //!< Menu Item Disabled Selection Box Color
+	COLORREF m_clrText;               //!< Menu Item Text Color
+	COLORREF m_clrDisabledText;       //!< Menu Item Disabled Text Color
+	COLORREF m_clrCheckBox;           //!< Menu Item CheckBox Color
+	COLORREF m_clrDisabledCheckBox;   //!< Menu Item Disabled CheckBox Color
+	COLORREF m_clrSeparatorLine;      //!< Menu Item Separator Line Color
+	COLORREF m_clrSelectionBorder;    //!< Menu Item Selection Box Border Color
 	COLORREF m_clrSelectedText;				//!< Menu Item Selected Text Colour
 
 } XPMENUCOLORS, * LPXPMENUCOLORS;

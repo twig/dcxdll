@@ -33,7 +33,7 @@ XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep )
 
 XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu ) 
 : m_pXParentMenu( Parent ), m_tsItemText( tsItemText), m_nIcon( nIcon ), m_bSubMenu( bSubMenu ), m_bSep( FALSE ) {
-	this->m_tsItemText.trim();
+	this->m_tsItemText = this->m_tsItemText.trim();
 }
 
 /*!
@@ -119,7 +119,8 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 
     HDC hdc = GetDC( mHwnd );
 
-    if ( this->m_pXParentMenu->getName( ) == "mirc" || this->m_pXParentMenu->getName( ) == "mircbar" ) {
+	TString tsType(this->m_pXParentMenu->getName( ));
+    if ( (tsType == "mirc") || (tsType == "mircbar") ) {
       if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
         this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
         this->m_tsItemText = this->m_tsItemText.gettok(2, "\v").trim();
@@ -182,7 +183,8 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 	this->DrawItemBackground( lpdis, lpcol );
 	this->DrawItemBox( lpdis, lpcol );
 
-	if ( this->m_pXParentMenu->getName( ) == "mircbar" ) {
+	TString tsType(this->m_pXParentMenu->getName( ));
+	if (( tsType == "mircbar" ) || ( tsType == "dialog")) {
 
 		if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
 

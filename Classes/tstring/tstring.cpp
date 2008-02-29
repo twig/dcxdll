@@ -1660,23 +1660,23 @@ void TString::addtok( const char * cToken, const char * sepChars ) {
 
 bool TString::istok(const char * cToken, const char * sepChars ) const {
 
-  if ( sepChars == NULL || this->m_pString == NULL )
-    return false;
+	if ( sepChars == NULL || this->m_pString == NULL )
+		return false;
 
-  char * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
+	char * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
 	int l = 0;
 	int sepl = lstrlen( sepChars );
 
-  while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
+	while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
 		l = (int)(p_cEnd - p_cStart);
 		if (l > 0) {
 			if (strncmp(cToken,p_cStart,l) == 0) return true;
 		}
-    p_cStart = p_cEnd + sepl;
-  }
+		p_cStart = p_cEnd + sepl;
+	}
 	if (strcmp(cToken,p_cStart) == 0) return true;
 
-  return false;
+	return false;
 }
 
 /*!
@@ -2140,5 +2140,33 @@ WCHAR *TString::to_wchr(bool tryutf8)
 			MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
 		}
 	}
+	//int utf8len = MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, NULL, 0);
+	//int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
+	//if (utf8len < widelen) {
+	//	this->m_pWString = new WCHAR[widelen+utf8len+1];
+	//	WCHAR *utf8buf = new WCHAR[widelen+1];
+	//	WCHAR *widebuf = new WCHAR[widelen+1];
+
+	//	MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, utf8buf, utf8len);
+	//	MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, widebuf, widelen);
+
+	//	for (int i = 0; i < widelen; i++)
+	//	{
+	//		if (utf8buf[i] == widebuf[i])
+	//			this->m_pWString[i] = utf8buf[i];
+	//		else {
+	//		}
+	//	}
+	//	delete [] widebuf;
+	//	delete [] utf8buf;
+	//}
+	//else
+	//{
+	//	// otherwise just do an ascii->utf16
+	//	if (widelen != 0) {
+	//		this->m_pWString = new WCHAR[widelen+1];
+	//		MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
+	//	}
+	//}
 	return this->m_pWString;
 }

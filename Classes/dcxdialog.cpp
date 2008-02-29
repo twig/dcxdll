@@ -1992,9 +1992,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
 				else if (p_this->m_popup != NULL && idata->CtlType == ODT_MENU) {
 					XPopupMenuItem *p_Item = (XPopupMenuItem*) idata->itemData;
@@ -2292,15 +2291,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					char ret[256], *p = NULL;
 
 					switch ((wp->flags & (SWP_NOSIZE|SWP_NOMOVE))) {
-		case SWP_NOSIZE:
-			p = "moving";
-			break;
-		case SWP_NOMOVE:
-			p = "sizing";
-			break;
-		default:
-			p = "both";
-			break;
+					case SWP_NOSIZE:
+						p = "moving";
+						break;
+					case SWP_NOMOVE:
+						p = "sizing";
+						break;
+					default:
+						p = "both";
+						break;
 					}
 
 					//p_this->callAliasEx(ret, "changing,0,%d,%d,%d,%d,%d", (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);

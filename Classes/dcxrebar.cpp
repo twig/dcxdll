@@ -32,27 +32,27 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 , m_iWidth(0)
 , m_iHeight(0)
 {
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  this->m_Hwnd = CreateWindowEx(
-    ExStyles | WS_EX_CONTROLPARENT,
-    DCX_REBARCTRLCLASS,
-    NULL,
-    WS_CHILD | Styles,
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL),
-    NULL);
+	this->m_Hwnd = CreateWindowEx(
+		ExStyles | WS_EX_CONTROLPARENT,
+		DCX_REBARCTRLCLASS,
+		NULL,
+		WS_CHILD | Styles,
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL),
+		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
 		throw "Unable To Create Window";
 
 	if ( bNoTheme ) {
 		//SendMessage( this->m_Hwnd, RB_SETWINDOWTHEME, NULL, L" ");
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 	}
 	{
 		this->setImageList( this->createImageList() );
@@ -62,9 +62,9 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 		//rbi.himl = NULL;
 		//this->setBarInfo( &rbi );
 	}
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
