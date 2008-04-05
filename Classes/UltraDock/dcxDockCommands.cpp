@@ -46,15 +46,15 @@ BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 	HWND hParent = GetParent(hwnd);
 	if (flags && flags != DOCKF_NORMAL) {
 		RECT rcParent, rcThis;
-		HWND hScroll = GetWindow(hParent, GW_CHILD);
 		GetClientRect(hParent,&rcParent);
 		GetWindowRect(hwnd,&rcThis);
 		if (flags & DOCKF_SHOWSCROLLBARS) {
+			// mIRC's channel/query/status window's scrollbar isnt a system scrollbar so these functions fail.
 			//SCROLLBARINFO sbi;
 			//// vertical scroller
 			//ZeroMemory(&sbi,sizeof(SCROLLBARINFO));
 			//sbi.cbSize = sizeof(SCROLLBARINFO);
-			//GetScrollBarInfo(hParent, OBJID_VSCROLL, &sbi);
+			//GetScrollBarInfo(hScroll, OBJID_CLIENT, &sbi);
 			//if (!(sbi.rgstate[0] & (STATE_SYSTEM_INVISIBLE|STATE_SYSTEM_OFFSCREEN|STATE_SYSTEM_UNAVAILABLE)))
 			//	rcParent.right -= (sbi.rcScrollBar.right - sbi.rcScrollBar.left);
 
@@ -64,10 +64,12 @@ BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 			//GetScrollBarInfo(hParent, OBJID_HSCROLL, &sbi);
 			//if (!(sbi.rgstate[0] & (STATE_SYSTEM_INVISIBLE|STATE_SYSTEM_OFFSCREEN|STATE_SYSTEM_UNAVAILABLE)))
 			//	rcParent.bottom -= (sbi.rcScrollBar.bottom - sbi.rcScrollBar.top);
-			if (IsWindow(hScroll)) {
+			HWND hScroll = FindWindowEx(hParent, NULL, "ScrollBar", NULL);
+			if (IsWindow(hScroll) && IsWindowVisible(hScroll)) {
 				RECT rcScroll;
 				GetWindowRect(hScroll, &rcScroll);
-				rcParent.right -= (rcScroll.right - rcScroll.left);				
+				MapWindowRect(NULL,hParent, &rcScroll);
+				rcParent.right -= (rcScroll.right - rcScroll.left);
 			}
 		}
 		if (flags & DOCKF_SIZE)
@@ -219,12 +221,11 @@ bool DockWindow(const HWND mWnd, const HWND temp, const char *find, const TStrin
 				flags = DOCKF_NORMAL;
 				break;
 		}
+		if (flag.find('b',0))
+			flags |= DOCKF_NOSCROLLBARS;
+		else if (flag.find('B',0))
+			flags |= DOCKF_SHOWSCROLLBARS;
 	}
-
-	if (flag.find('b',0))
-		flags |= DOCKF_NOSCROLLBARS;
-	else if (flag.find('B',0))
-		flags |= DOCKF_SHOWSCROLLBARS;
 
 	SetProp(temp,"dcx_docked",(HANDLE) flags);
 	//ShowScrollBar(sWnd,SB_BOTH,FALSE);

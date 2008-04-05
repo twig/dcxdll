@@ -971,11 +971,19 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce ) {
 
         mii.fType |= MFT_OWNERDRAW;
         XPopupMenuItem * p_Item;
+		TString tsItem(string);
 
-        if ( mii.fType & MFT_SEPARATOR )
+		// fixes identifiers in the dialog menu not being resolved. (Needs testing to see if it causes any other issues, like double eval's)
+		if (bForce && this->getName() == "dialog") {
+			char res[900];
+			mIRCeval(tsItem.to_chr(), res, 900);
+			tsItem = res;
+		}
+
+		if ( mii.fType & MFT_SEPARATOR )
           p_Item = new XPopupMenuItem( this, TRUE );
         else
-          p_Item = new XPopupMenuItem( this, TString( string ), -1, mii.hSubMenu!=NULL?TRUE:FALSE );
+          p_Item = new XPopupMenuItem( this, tsItem, -1, mii.hSubMenu!=NULL?TRUE:FALSE );
 
         this->m_vpMenuItem.push_back( p_Item );
         mii.dwItemData = (ULONG_PTR) p_Item;

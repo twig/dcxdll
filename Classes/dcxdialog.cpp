@@ -2522,7 +2522,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 					bParsed = TRUE;
 
-					if (isMenuBarMenu(GetMenu(mHwnd), (HMENU) wParam)) {
+					if ((lRes == 0) && isMenuBarMenu(GetMenu(mHwnd), (HMENU) wParam)) {
 						isMenuBar = TRUE;
 
 						p_this->m_popup->convertMenu((HMENU) wParam, TRUE);

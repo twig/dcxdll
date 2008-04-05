@@ -32,7 +32,8 @@ XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep )
  */
 
 XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu ) 
-: m_pXParentMenu( Parent ), m_tsItemText( tsItemText), m_nIcon( nIcon ), m_bSubMenu( bSubMenu ), m_bSep( FALSE ) {
+: m_pXParentMenu( Parent ), m_tsItemText( tsItemText ), m_nIcon( nIcon ), m_bSubMenu( bSubMenu ), m_bSep( FALSE )
+{
 	this->m_tsItemText = this->m_tsItemText.trim();
 }
 
@@ -111,40 +112,40 @@ int XPopupMenuItem::getItemIcon(  ) const {
 
 SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 
-  SIZE size;
-  size.cx = 0;
-  size.cy = 0;
+	SIZE size;
+	size.cx = 0;
+	size.cy = 0;
 
-  if ( this->m_bSep == FALSE ) {
+	if ( this->m_bSep == FALSE ) {
 
-    HDC hdc = GetDC( mHwnd );
+		HDC hdc = GetDC( mHwnd );
 
-	TString tsType(this->m_pXParentMenu->getName( ));
-    if ( (tsType == "mirc") || (tsType == "mircbar") ) {
-      if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
-        this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
-        this->m_tsItemText = this->m_tsItemText.gettok(2, "\v").trim();
-      }
+		TString tsType(this->m_pXParentMenu->getName( ));
+		if ( (tsType == "mirc") || (tsType == "mircbar") || (tsType == "dialog") ) {
+			if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
+				this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
+				this->m_tsItemText = this->m_tsItemText.gettok(2, "\v").trim();
+			}
 
-      GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
-    }
-    else {
-      char res[900];
-      mIRCeval( this->m_tsItemText.to_chr( ), res, 900 );
-      this->m_tsItemText = res;
-      GetTextExtentPoint32( hdc, res, lstrlen( res ), &size );
-    }
+			GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
+		}
+		else {
+			char res[900];
+			mIRCeval( this->m_tsItemText.to_chr( ), res, 900 );
+			this->m_tsItemText = res;
+			GetTextExtentPoint32( hdc, res, lstrlen( res ), &size );
+		}
 
-    ReleaseDC( mHwnd, hdc );
-  }
+		ReleaseDC( mHwnd, hdc );
+	}
 
-  size.cx += XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
-  if ( this->m_bSep == TRUE )
-    size.cy = 3;
-  else
-    size.cy = XPMI_HEIGHT;
+	size.cx += XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
+	if ( this->m_bSep == TRUE )
+		size.cy = 3;
+	else
+		size.cy = XPMI_HEIGHT;
 
-  return size;
+	return size;
 }
 
 /*!
