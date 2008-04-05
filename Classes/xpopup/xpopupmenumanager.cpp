@@ -315,7 +315,7 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 			wsprintf(szReturnValue, "%d", (int) this->m_vpXPMenu.size());
 		// Return name of specified menu.
 		else
-			wsprintf(szReturnValue, "%s", this->m_vpXPMenu[i -1]->getName());
+			wsprintf(szReturnValue, "%s", this->m_vpXPMenu[i -1]->getName().to_chr());
 
 		return;
 	}

@@ -203,7 +203,7 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, char *szReturnValue) {
 			wsprintf(szReturnValue, "%d", (int) this->m_vpXMenuBar.size());
 		// Return name of specified menu.
 		else
-			wsprintf(szReturnValue, "%s", this->m_vpXMenuBar[i -1]->getName());
+			wsprintf(szReturnValue, "%s", this->m_vpXMenuBar[i -1]->getName().to_chr());
 
 		return;
 	}
