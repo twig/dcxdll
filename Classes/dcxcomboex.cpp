@@ -586,46 +586,45 @@ LRESULT DcxComboEx::limitText( const int iLimit ) {
  * blah
  */
 LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-    case WM_COMMAND:
-      {
-        switch( HIWORD( wParam ) ) {
+	switch( uMsg ) {
+	case WM_COMMAND:
+		{
+			switch( HIWORD( wParam ) ) {
+			case CBN_DBLCLK:
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+						this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), this->getCurSel( ) + 1 );
+					bParsed = TRUE;
+					return TRUE;
+				}
+				break;
 
-          case CBN_DBLCLK:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				        this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), this->getCurSel( ) + 1 );
-              bParsed = TRUE;
-              return TRUE;
-            }
-            break;
+			case CBN_SELENDOK:
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+						this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
+					char itemtext[500];
+					COMBOBOXEXITEM cbex;
+					ZeroMemory( &cbex, sizeof( COMBOBOXEXITEM ) );
+					cbex.mask = CBEIF_TEXT;
+					cbex.pszText = itemtext;
+					cbex.cchTextMax = 500;
+					cbex.iItem = this->getCurSel( );
+					this->getItem( &cbex );
+					SetWindowText( this->m_EditHwnd, itemtext );
+					bParsed = TRUE;
+					return TRUE;
+				}
+				break;
 
-          case CBN_SELENDOK:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				        this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
-              char itemtext[500];
-              COMBOBOXEXITEM cbex;
-              ZeroMemory( &cbex, sizeof( COMBOBOXEXITEM ) );
-              cbex.mask = CBEIF_TEXT;
-              cbex.pszText = itemtext;
-              cbex.cchTextMax = 500;
-              cbex.iItem = this->getCurSel( );
-              this->getItem( &cbex );
-              SetWindowText( this->m_EditHwnd, itemtext );
-              bParsed = TRUE;
-              return TRUE;
-            }
-            break;
-
-          case CBN_EDITCHANGE:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-				        this->callAliasEx( NULL, "%s,%d", "edit", this->getUserID( ) );
-              bParsed = TRUE;
-              return TRUE;
-            }
-            break;
+			case CBN_EDITCHANGE:
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
+						this->callAliasEx( NULL, "%s,%d", "edit", this->getUserID( ) );
+					bParsed = TRUE;
+					return TRUE;
+				}
+				break;
         } // switch
         bParsed = TRUE;
       }
@@ -636,48 +635,48 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
-    case WM_LBUTTONUP:
-      {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	        this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
-      }
-      break;
-    case WM_LBUTTONDBLCLK:
-		case WM_CONTEXTMENU:
-			break;
+	switch( uMsg ) {
+	case WM_LBUTTONUP:
+		{
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
+		}
+		break;
+	case WM_LBUTTONDBLCLK:
+	case WM_CONTEXTMENU:
+		break;
 
-		case WM_MOUSEACTIVATE:
+	case WM_MOUSEACTIVATE:
+		{
+			switch (HIWORD(lParam))
 			{
-				switch (HIWORD(lParam))
+			case WM_RBUTTONDOWN:
 				{
-				case WM_RBUTTONDOWN:
-					{
-						// NB: rclick doesnt change selection!
-						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-							this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), this->getCurSel( ) + 1 );
-					}
-					break;
+					// NB: rclick doesnt change selection!
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+						this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), this->getCurSel( ) + 1 );
 				}
-				//TODO: Add `ownmenu` setting or similar to stop default edit menu & replace with own.
-				// this could be done with most if not all controls.
-				//bParsed = TRUE;
-				//return MA_ACTIVATE;
+				break;
 			}
-			break;
-    case WM_NCDESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+			//TODO: Add `ownmenu` setting or similar to stop default edit menu & replace with own.
+			// this could be done with most if not all controls.
+			//bParsed = TRUE;
+			//return MA_ACTIVATE;
+		}
+		break;
+	case WM_NCDESTROY:
+		{
+			delete this;
+			bParsed = TRUE;
+		}
+		break;
 
-    default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+	default:
+		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		break;
+	}
 
-  return 0L;
+	return 0L;
 }
 
 /*!

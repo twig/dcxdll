@@ -65,7 +65,7 @@ BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 			//if (!(sbi.rgstate[0] & (STATE_SYSTEM_INVISIBLE|STATE_SYSTEM_OFFSCREEN|STATE_SYSTEM_UNAVAILABLE)))
 			//	rcParent.bottom -= (sbi.rcScrollBar.bottom - sbi.rcScrollBar.top);
 			HWND hScroll = FindWindowEx(hParent, NULL, "ScrollBar", NULL);
-			if (IsWindow(hScroll) && IsWindowVisible(hScroll)) {
+			if (IsWindow(hScroll) /*&& IsWindowVisible(hScroll)*/) {
 				RECT rcScroll;
 				GetWindowRect(hScroll, &rcScroll);
 				MapWindowRect(NULL,hParent, &rcScroll);
