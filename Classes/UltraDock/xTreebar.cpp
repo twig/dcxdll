@@ -413,7 +413,7 @@ mIRC(xtreebar) {
 						TraverseTreebarItems();
 					else {
 						DcxDock::g_bTakeOverTreebar = false;
-						DCXError("/xtreebar", "No $xtreebar_callback() alias found");
+						DCXError("/xtreebar", "No $!xtreebar_callback() alias found");
 						return 0;
 					}
 				}
@@ -434,6 +434,11 @@ mIRC(_xtreebar)
 	d.trim();
 
 	data[0] = 0;
+
+	if (d.numtok( ) != 3) {
+		lstrcpy(data, "D_ERROR Invalid Args: An Index & a Prop are required.");
+		return 3;
+	}
 
 	static const TString poslist("item icons");
 	int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);

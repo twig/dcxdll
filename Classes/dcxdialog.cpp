@@ -2004,7 +2004,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						bParsed = TRUE;
 					}
 				}
-
 				break;
 			}
 
@@ -2016,6 +2015,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						// NB: After this is done you must use /xdialog -x to close the dialog, /dialog -x will no longer work.
 						// Check for >1 as the count was increased at the beginning of this function.
 						bParsed = TRUE;
+						mIRCcomEX("/.timer -m 1 0 xdialog -x %s", p_this->getName().to_chr());
 					}
 					else if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
 						char ret[256];
@@ -2028,9 +2028,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				}
 				else if (IsWindow((HWND) lParam)) {
 					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
 				break;
 			}
