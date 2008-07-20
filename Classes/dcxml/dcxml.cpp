@@ -9,6 +9,7 @@
  *
  * \b Revisions
  *        -Completely rewrote DCXML to be more OOP
+ *		  -
  *
  * © ScriptsDB.org - 2006
  */
@@ -75,6 +76,7 @@ public:
     const char *disabledsrc;
     const char *hoversrc;
     const char *selectedsrc;
+
     TiXmlElement* templateRef;
     int templateRefcCla;
     const char *templateRefclaPath;
@@ -95,6 +97,7 @@ public:
         , controls(0)
     {
     }
+	
     //CLA variables
     const char *g_claPath;
     const char *g_claPathx;
@@ -112,8 +115,8 @@ public:
         width = (temp = element->Attribute("width")) ? temp : "0";
         margin = (temp = element->Attribute("margin")) ? temp : "0 0 0 0";
         styles = (temp = element->Attribute("styles")) ? temp : "";
-        caption = (temp = element->Attribute("caption")) ? temp : element->GetText();
-        tooltip = (temp = element->Attribute("tooltip")) ? temp : "";
+		caption = (temp = element->Attribute("caption")) ? temp : (temp = element->GetText()) ? temp : "";
+		tooltip = (temp = element->Attribute("tooltip")) ? temp : "";
         cascade = (temp = element->Attribute("cascade")) ? temp : "";
         icon = (temp = element->Attribute("icon")) ? temp : "0";
         integral = (temp = element->Attribute("integral")) ? temp : "0";
@@ -150,7 +153,7 @@ public:
         width = (temp = element->Attribute("width")) ? temp : "0";
         margin = (temp = element->Attribute("margin")) ? temp : "0 0 0 0";
         styles = (temp = element->Attribute("styles")) ? temp : "";
-        caption = (temp = element->Attribute("caption")) ? temp : element->GetText();
+        caption = (temp = element->Attribute("caption")) ? temp : (temp = element->GetText()) ? temp : "";
         tooltip = (temp = element->Attribute("tooltip")) ? temp : "";
         cascade = (temp = element->Attribute("cascade")) ? temp : "";
         icon = (temp = element->Attribute("icon")) ? temp : "0";
@@ -181,7 +184,7 @@ public:
     }
     /* parseControl() : if current element is a control perform some extra commands*/
     void parseControl() { 
-        //control wants to be a zlayer
+		DcxControl *control = this->d_Host->getControlByID(id + mIRC_ID_OFFSET);
         if (element->Attribute("zlayer")) { 
             xdialogEX("-z","+a %i",id);
             zlayered = 1;
@@ -447,7 +450,7 @@ public:
             for( style = styles->FirstChildElement("style"); style; style = style->NextSiblingElement()) {
                 if (0==lstrcmp(style->Attribute("class"), STclass)) ClassElement = style;
                 if (0==lstrcmp(style->Attribute("type"), type)) TypeElement = style;
-                int t_id = (style->QueryIntAttribute("id",&t_id) == TIXML_SUCCESS) ? t_id : 0;
+                int t_id = parseId(style);
                 if (t_id == id) IdElement = style;
             }
             if (IdElement) style = IdElement;
@@ -457,6 +460,16 @@ public:
         if (style) setStyle(style);
         parseStyle(depth);
     }
+    int parseId(TiXmlElement* idElement)
+	{
+		int id = (idElement->QueryIntAttribute("id",&id) == TIXML_SUCCESS) ? id : 0;
+		if (id > 0) return id;
+		const char *attributeIdValue = (temp = idElement->Attribute("id")) ? temp : "0";
+		TString buf((UINT)32);
+		mIRCevalEX(buf.to_chr(), 32, attributeIdValue,"");
+		id = buf.to_int();
+		return (id > 0) ? id : 0;
+	}
 
 	/* parseIcons(recursionDepth) : Simple recursive method to cascade find the right icons to apply to an element */
     void parseIcons(int depth = 0) { 
@@ -473,7 +486,7 @@ public:
             for( icon = icons->FirstChildElement("icon"); icon; icon = icon->NextSiblingElement()) {
                 if (0==lstrcmp(icon->Attribute("class"), STclass)) ClassElement = icon;
                 if (0==lstrcmp(icon->Attribute("type"), type)) TypeElement = icon;
-                int t_id = (icon->QueryIntAttribute("id",&t_id) == TIXML_SUCCESS) ? t_id : 0;
+                int t_id = parseId(icon);
                 if (t_id == id) IdElement = icon;
             }
             if (IdElement) icon = IdElement;
@@ -484,8 +497,8 @@ public:
                 const char *flags = (temp = icon->Attribute("flags")) ? temp : "ndhs";
                 const char *index = (temp = icon->Attribute("index")) ? temp : "0";;
                 const char *src = icon->Attribute("src");
-                int indexmin = (icon->QueryIntAttribute("indexmin",&indexmin) == TIXML_SUCCESS) ? indexmin : 1;
-                int indexmax = (icon->QueryIntAttribute("indexmax",&indexmax) == TIXML_SUCCESS) ? indexmax : 0;
+                int indexmin = (icon->QueryIntAttribute("indexmin",&indexmin) == TIXML_SUCCESS) ? indexmin : 0;
+                int indexmax = (icon->QueryIntAttribute("indexmax",&indexmax) == TIXML_SUCCESS) ? indexmax : -1;
                 if (src) { 
                     if (indexmin <= indexmax) 
                         //method sucks but looping in C++ is WAYYY too fast for mIRC
@@ -625,7 +638,8 @@ public:
             if (0==lstrcmp(elem, "control")) 
 			{ 
                 controls++;
-                 id = (element->QueryIntAttribute("id",&id) == TIXML_SUCCESS) ? id : 2000 + controls;
+                id = parseId(element);
+				id = (id > 0) ? id : 2000 + controls;
             }
             else id = passedid;
 
@@ -646,13 +660,14 @@ public:
                 else break;    
             }
             parenttype = (temp = parent->Attribute("type")) ? temp : "panel";
-            parentid = (parent->QueryIntAttribute("id",&parentid) == TIXML_SUCCESS) ? parentid : passedid;
-            
+            parentid = parseId(parent);
+			parentid = (parentid > 0) ? parentid : passedid;
             //IF TEMPLATE ELEMENT REROUTE TO TEMPLATE DEFINITION
 
 
             //STEP 3: IF CONTROL CREATE IT AND ITS ITEMS
-            if (0==lstrcmp(elem, "control")) {
+			if (0==lstrcmp(elem, "control")) {
+
                 control++;
                 //check how to insert the control in the parent Control/Dialog
                 //If parentNode is pane loop untill parentNode is not a pane
@@ -719,6 +734,7 @@ public:
     } 
 
 protected:
+	
 
 };
 
@@ -742,7 +758,7 @@ mIRC(dcxml) {
 	bool dcxmlFile = doc.LoadFile();
 
 	if (!dcxmlFile) { 
-		DCXError("/dcxml", "Could Not Load File");
+		DCXErrorEX("/dcxml", "XML error (row %i column %i) %s",doc.ErrorRow(),doc.ErrorCol(),doc.ErrorDesc());
 		return 0;
 	}
 
@@ -803,7 +819,6 @@ mIRC(dcxml) {
             mIRCcomEX("/dialog -r %s", oDcxml.dname.to_chr());
         //This "Shite" is to activate the first zlayer, added a check if this command starts returning an error
         if (oDcxml.zlayered) oDcxml.xdialogEX("-z","+s 1");
-
         return 1;
     }
 	// Parse XPopup DCXML.
