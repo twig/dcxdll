@@ -73,6 +73,8 @@ public:
     const char *bgcolour;
     const char *textbgcolour;
     const char *textcolour;
+	const char *gradientstart;
+	const char *gradientend;
     const char *disabledsrc;
     const char *hoversrc;
     const char *selectedsrc;
@@ -140,6 +142,10 @@ public:
         bgcolour = (temp = element->Attribute("bgcolour")) ? temp : "0";
         textbgcolour = (temp = element->Attribute("textbgcolour")) ? temp : "";
         textcolour = (temp = element->Attribute("textcolour")) ? temp : "0";
+
+		gradientstart = (temp = element->Attribute("gradientstart")) ? temp : "";
+		gradientend = (temp = element->Attribute("gradientend")) ? temp : "";
+
         disabledsrc = (temp = element->Attribute("disabledsrc")) ? temp : "";
         hoversrc = (temp = element->Attribute("hoversrc")) ? temp : "";
         selectedsrc = (temp = element->Attribute("selectedsrc")) ? temp : "";
@@ -178,6 +184,10 @@ public:
         bgcolour = (temp = element->Attribute("bgcolour")) ? temp : "0";
         textbgcolour = (temp = element->Attribute("textbgcolour")) ? temp : "";
         textcolour = (temp = element->Attribute("textcolour")) ? temp : "0";
+
+		gradientstart = (temp = element->Attribute("gradientstart")) ? temp : "";
+		gradientend = (temp = element->Attribute("gradientend")) ? temp : "";
+
         disabledsrc = (temp = element->Attribute("disabledsrc")) ? temp : "";
         hoversrc = (temp = element->Attribute("hoversrc")) ? temp : "";
         selectedsrc = (temp = element->Attribute("selectedsrc")) ? temp : "";
@@ -392,11 +402,34 @@ public:
         textcolour = (temp = style->Attribute("textcolour")) ? temp : "";
         if (style->Attribute("bgcolour")) { 
             xdidEX(id,"-C","+b %s",bgcolour);
-            if (0==lstrcmp(type, "pbar")) xdidEX(id,"-U","%s","");
+            if (0==lstrcmp(type, "pbar")) 
+			{
+				xdidEX(id,"-k","%s",bgcolour);
+				xdidEX(id,"-U","%s","");
+			}
         }
-        if (style->Attribute("textbgcolour")) xdidEX(id,"-C","+k %s",textbgcolour);
+        if (style->Attribute("textbgcolour")) 
+		{
+			xdidEX(id,"-C","+k %s",textbgcolour);
+			if (0==lstrcmp(type, "pbar")) 
+			{
+				xdidEX(id,"-c","%s",textbgcolour);
+				xdidEX(id,"-U","%s","");
+			}
+		}
         else if (style->Attribute("bgcolour")) xdidEX(id,"-C","+k %s",bgcolour); 
-        if (style->Attribute("textcolour")) xdidEX(id,"-C","+t %s",textcolour);
+        if (style->Attribute("textcolour")) 
+		{
+			xdidEX(id,"-C","+t %s",textcolour);
+			if (0==lstrcmp(type, "pbar")) 
+			{
+				xdidEX(id,"-q","%s",textcolour);
+				xdidEX(id,"-U","%s","");
+			}
+		}
+		
+		if (style->Attribute("gradientstart")) xdidEX(id,"-C","+g %s",gradientstart);
+		if (style->Attribute("gradientend")) xdidEX(id,"-C","+G %s",gradientend);
 
         //cursor
         if (style->Attribute("cursor")) xdidEX(id,"-J","+r %s",cursor);    

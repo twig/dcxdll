@@ -327,10 +327,9 @@ LRESULT DcxProgressBar::setStep( const int nStepInc ) {
  */
 
 LRESULT DcxProgressBar::setBarColor( const COLORREF clrBar ) {
-	//this->m_clrGrad = clrBar;
+  this->m_clrStartGradient = clrBar;
   return SendMessage( this->m_Hwnd, PBM_SETBARCOLOR, (WPARAM) 0, (LPARAM) clrBar );
 }
-
 /*!
  * \brief blah
  *
@@ -338,7 +337,8 @@ LRESULT DcxProgressBar::setBarColor( const COLORREF clrBar ) {
  */
 
 LRESULT DcxProgressBar::setBKColor( const COLORREF clrBk ) {
-  return SendMessage( this->m_Hwnd, PBM_SETBKCOLOR, (WPARAM) 0, (LPARAM) clrBk ); 
+	this->m_clrEndGradient = clrBk;
+	return SendMessage( this->m_Hwnd, PBM_SETBKCOLOR, (WPARAM) 0, (LPARAM) clrBk ); 
 }
 
 /*!
@@ -502,7 +502,7 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		else {
 			rc.right = (this->CalculatePosition() * rc.right) / 100;
 			//XPopupMenuItem::DrawGradient(hdc,&rc,this->m_clrGrad,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),FALSE);
-			XPopupMenuItem::DrawGradient( hdc, &rc, clrEnd, clrStart, FALSE);
+			XPopupMenuItem::DrawGradient( hdc, &rc, clrStart , clrEnd , FALSE);
 		}
 	}
 	else
