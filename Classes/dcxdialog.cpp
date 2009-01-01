@@ -1620,12 +1620,29 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 		wsprintf(szReturnValue, "%d", nID - mIRC_ID_OFFSET);
 		return;
 	}
-	// [NAME] [PROP] [N]
+	// [NAME] [PROP] [N|NAMEDID]
 	if (prop == "id" && numtok > 2) {
 		int N = input.gettok( 3 ).to_int() -1;
 
 		if (N == -1)
-			wsprintf(szReturnValue, "%d", this->m_vpControls.size());
+		{
+			if (input.gettok( 3 ) == "0")
+				wsprintf(szReturnValue, "%d", this->m_vpControls.size());
+			else
+			{
+				
+				for(IntegerHash::iterator it = this->namedIds.begin(); it != this->namedIds.end(); ++it)
+				{
+					if (it->first == input.gettok( 3 )) 
+					{
+						wsprintf(szReturnValue, "%i", it->second);
+						return;
+					}
+				}
+				wsprintf(szReturnValue, "%s", "");
+				return;
+			}
+		}
 		else if ((N > -1) && (N < (int) this->m_vpControls.size()))
 			wsprintf(szReturnValue, "%d", this->m_vpControls[N]->getUserID());
 

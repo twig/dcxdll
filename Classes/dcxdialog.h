@@ -18,6 +18,7 @@
 #include "dcxwindow.h"
 #include "xpopup/xpopupmenu.h"
 #include "layout/layoutmanager.h"
+#include <map>
 
 #define DBS_BKGCOLOR		0x00000001 //!< Control Background Color
 #define DBS_BKGBITMAP	0x00000002 //!< Control Background Bitmap
@@ -59,6 +60,7 @@ class DcxList;
 
 typedef std::vector<DcxControl *> VectorOfControlPtrs; //!< blah
 typedef std::vector<DcxList *> VectorOfDragListPtrs; //!< Vector of draglists
+typedef std::map<TString, int> IntegerHash;
 
 /*!
  * \brief blah
@@ -75,7 +77,7 @@ public:
 
 	const TString &getName( ) const;
 	const TString &getAliasName( ) const;
-
+	
 	static LRESULT WINAPI WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 	void parseCommandRequest( TString & input );
@@ -143,6 +145,8 @@ public:
 	HWND GetVistaHWND(void) const { return this->m_hFakeHwnd; };
 	SIZE GetVistaOffsets(void) const { return this->m_sVistaOffsets; };
 	HBITMAP GetVistaBitmap(void) const { return this->m_hVistaBitmap; };
+	IntegerHash getNamedIds(void) const { return this->namedIds; };
+	IntegerHash namedIds; //!< map of named Id's
 	void MapVistaRect(HWND hwnd, LPRECT rc) const;
 
 	void RegisterDragList(DcxList* list);
