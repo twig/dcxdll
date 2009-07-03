@@ -203,6 +203,16 @@ void DcxScroll::parseCommandRequest( TString & input ) {
     this->parseGlobalCommandRequest( input, flags );
 }
 
+TString DcxScroll::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & SBS_VERT)
+		styles.addtok("vertical", " ");
+	return styles;
+}
+
 /*!
  * \brief blah
  *
@@ -221,14 +231,14 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				case SB_TOP:
 				{
 					si.nPos = si.nMin;
-					this->callAliasEx( NULL, "%s,%d,%d", "top", this->getUserID( ), si.nPos );
+					this->execAliasEx("%s,%d,%d", "top", this->getUserID( ), si.nPos );
 					break;
 				}
 
 				case SB_BOTTOM:
 				{
 					si.nPos = si.nMax;
-					this->callAliasEx( NULL, "%s,%d,%d", "bottom", this->getUserID( ), si.nPos );
+					this->execAliasEx("%s,%d,%d", "bottom", this->getUserID( ), si.nPos );
 					break;
 				}
 
@@ -244,7 +254,7 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					else
 						si.nPos = si.nMin;
 
-					this->callAliasEx(NULL, "%s,%d,%d", "pageup", this->getUserID(), si.nPos);
+					this->execAliasEx("%s,%d,%d", "pageup", this->getUserID(), si.nPos);
 					break;
 				}
 
@@ -255,7 +265,7 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					else
 						si.nPos = si.nMax;
 
-					this->callAliasEx(NULL, "%s,%d,%d", "pagedown", this->getUserID(), si.nPos);
+					this->execAliasEx("%s,%d,%d", "pagedown", this->getUserID(), si.nPos);
 					break;
 				}
 
@@ -266,7 +276,7 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					else
 						si.nPos = si.nMin;
 
-					this->callAliasEx( NULL, "%s,%d,%d", "lineup", this->getUserID( ), si.nPos );
+					this->execAliasEx("%s,%d,%d", "lineup", this->getUserID( ), si.nPos );
 					break;
 				}
 
@@ -277,20 +287,20 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					else
 						si.nPos = si.nMax;
 
-					this->callAliasEx(NULL, "%s,%d,%d", "linedown", this->getUserID(), si.nPos);
+					this->execAliasEx("%s,%d,%d", "linedown", this->getUserID(), si.nPos);
 					break;
 				}
 
 				case SB_THUMBPOSITION:
 				{
-					this->callAliasEx(NULL, "%s,%d,%d", "trackend", this->getUserID(), si.nPos);
+					this->execAliasEx("%s,%d,%d", "trackend", this->getUserID(), si.nPos);
 					break;
 				}
 
 				case SB_THUMBTRACK:
 				{
 					si.nPos = si.nTrackPos;
-					this->callAliasEx(NULL, "%s,%d,%d", "tracking", this->getUserID(), si.nTrackPos);
+					this->execAliasEx("%s,%d,%d", "tracking", this->getUserID(), si.nTrackPos);
 					break;
 				}
 			}
@@ -312,14 +322,14 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				case SB_TOP:
 				{
 					si.nPos = si.nMin;
-					this->callAliasEx(NULL, "%s,%d,%d", "top", this->getUserID(), si.nPos);
+					this->execAliasEx("%s,%d,%d", "top", this->getUserID(), si.nPos);
 					break;
 				}
 
 				case SB_BOTTOM:
 				{
 					si.nPos = si.nMax;
-					this->callAliasEx(NULL, "%s,%d,%d", "bottom", this->getUserID(), si.nPos);
+					this->execAliasEx("%s,%d,%d", "bottom", this->getUserID(), si.nPos);
 					break;
 				}
 
@@ -335,7 +345,7 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					else
 						si.nPos = si.nMin;
 
-					this->callAliasEx(NULL, "%s,%d,%d", "pageup", this->getUserID(), si.nPos);
+					this->execAliasEx("%s,%d,%d", "pageup", this->getUserID(), si.nPos);
 					break;
 				}
 				
@@ -346,7 +356,7 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					else
 						si.nPos = si.nMax;
 
-					this->callAliasEx(NULL, "%s,%d,%d", "pagedown", this->getUserID(), si.nPos);
+					this->execAliasEx("%s,%d,%d", "pagedown", this->getUserID(), si.nPos);
 					break;
 				}
 				
@@ -357,7 +367,7 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					else
 						si.nPos = si.nMin;
 
-					this->callAliasEx(NULL, "%s,%d,%d", "lineup", this->getUserID(), si.nPos);
+					this->execAliasEx("%s,%d,%d", "lineup", this->getUserID(), si.nPos);
 					break;
 				}
 
@@ -368,20 +378,20 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					else
 						si.nPos = si.nMax;
 
-					this->callAliasEx( NULL, "%s,%d,%d", "linedown", this->getUserID( ), si.nPos );
+					this->execAliasEx("%s,%d,%d", "linedown", this->getUserID( ), si.nPos );
 					break;
 				}
 
 				case SB_THUMBPOSITION:
 				{
-					this->callAliasEx(NULL, "%s,%d,%d", "trackend", this->getUserID(), si.nPos);
+					this->execAliasEx("%s,%d,%d", "trackend", this->getUserID(), si.nPos);
 					break;
 				}
 
 				case SB_THUMBTRACK:
 				{
 					si.nPos = si.nTrackPos;
-					this->callAliasEx(NULL, "%s,%d,%d", "tracking", this->getUserID(), si.nTrackPos);
+					this->execAliasEx("%s,%d,%d", "tracking", this->getUserID(), si.nTrackPos);
 					break;
 				}
 			}

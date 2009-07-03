@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="dcx"
 	ProjectGUID="{6A3D5662-4DA4-47EB-9DDF-98584E702805}"
 	RootNamespace="dcx"
@@ -69,7 +69,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="comctl32.lib  Msimg32.lib Version.lib shlwapi.lib"
-				OutputFile="$(OutDir)/dcx.dll"
+				OutputFile="F:\Programmierung\Scripting\eVolutionX-Project\eVolutionX\dlls\dcx\dcx.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
@@ -964,6 +964,30 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Dcx.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DcxDWMModule.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DcxGDIModule.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DcxModule.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DcxUXModule.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DcxXPPlusModule.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dll.cpp"
 				>
 				<FileConfiguration
@@ -1053,6 +1077,10 @@
 			</File>
 			<File
 				RelativePath=".\mircFunctions.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mIRCLinker.cpp"
 				>
 			</File>
 			<File
@@ -1358,6 +1386,54 @@
 					RelativePath=".\Classes\dcxml\dcxml.cpp"
 					>
 				</File>
+				<File
+					RelativePath=".\Classes\dcxml\dcxml.xsd"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCXMLDataGeneratorTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCXMLDataGeneratorTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release Dll|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCXMLDataGeneratorTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release Optimal|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCXMLDataGeneratorTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Development|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCXMLDataGeneratorTool"
+						/>
+					</FileConfiguration>
+					<File
+						RelativePath=".\Classes\dcxml\dcxml.xsx"
+						>
+					</File>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -1370,7 +1446,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Dcx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DcxDWMModule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DcxGDIModule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DcxModule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DcxUXModule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DcxXPPlusModule.h"
+				>
+			</File>
+			<File
 				RelativePath=".\defines.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mIRCLinker.h"
 				>
 			</File>
 			<File
@@ -1640,6 +1744,10 @@
 					RelativePath=".\Classes\dcxml\dcxml.h"
 					>
 				</File>
+			</Filter>
+			<Filter
+				Name="css"
+				>
 			</Filter>
 		</Filter>
 		<Filter

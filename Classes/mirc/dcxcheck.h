@@ -41,6 +41,10 @@ public:
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   inline TString getType( ) { return TString( "check" ); };
+  void toXml(TiXmlElement * xml);
+  TString getStyles(void);
+
+	static void registerClass(void);
 
 protected:
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);

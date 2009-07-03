@@ -54,8 +54,8 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 
   /* Web Control Stuff */
 
-  if( g_pClassFactory	!= NULL &&
-      SUCCEEDED( g_pClassFactory->CreateInstance( 0, IID_IWebBrowser2, (void**) &this->m_pWebBrowser2 ) ) && 
+  if( Dcx::getClassFactory() != NULL &&
+      SUCCEEDED( Dcx::getClassFactory()->CreateInstance( 0, IID_IWebBrowser2, (void**) &this->m_pWebBrowser2 ) ) && 
       SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleObject, (LPVOID*) &this->m_pOleObject ) ) && 
       SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleInPlaceObject, (LPVOID*) &this->m_pOleInPlaceObject ) ) && 
       SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IConnectionPointContainer, (LPVOID*) &this->m_pCPC ) ) && 
@@ -66,7 +66,7 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
       SUCCEEDED( this->m_pOleObject->DoVerb( OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*) this, 0, this->m_Hwnd, rc ) )
     )
   {
-    //mIRCError( "Created Browser Window!!!" );
+	  Dcx::mIRC.echo( "Created Browser Window!!!" );
   }
   this->registreDefaultWindowProc( );
   SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -300,14 +300,14 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	
 	case DISPID_NAVIGATECOMPLETE2:
     {
-      this->callAliasEx( NULL, "%s,%d,%ws", "nav_complete", this->getUserID( ), arg2.bstrVal );
+      this->execAliasEx("%s,%d,%ws", "nav_complete", this->getUserID( ), arg2.bstrVal );
     }
 		break;
     
 	case DISPID_BEFORENAVIGATE2:
     {
       char ret[256];
-      this->callAliasEx( ret, "%s,%d,%ws", "nav_begin", this->getUserID( ), arg2.bstrVal );
+      this->evalAliasEx( ret, 255, "%s,%d,%ws", "nav_begin", this->getUserID( ), arg2.bstrVal );
 
       if ( lstrcmpi( ret, "cancel") == 0 )
         *pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
@@ -318,26 +318,26 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 
 	case DISPID_DOCUMENTCOMPLETE:
     {
-      this->callAliasEx( NULL, "%s,%d,%ws", "doc_complete", this->getUserID( ), arg2.bstrVal );
+      this->execAliasEx("%s,%d,%ws", "doc_complete", this->getUserID( ), arg2.bstrVal );
     }
 		break;
 
 	case DISPID_DOWNLOADBEGIN:
     {
-      this->callAliasEx( NULL, "%s,%d", "dl_begin", this->getUserID( ) );
+      this->execAliasEx("%s,%d", "dl_begin", this->getUserID( ) );
     }
 		break;
 
 	case DISPID_DOWNLOADCOMPLETE:
     {
-      this->callAliasEx( NULL, "%s,%d", "dl_complete", this->getUserID( ) );
+      this->execAliasEx("%s,%d", "dl_complete", this->getUserID( ) );
     }
 		break;
 
 	case DISPID_NEWWINDOW2:
     {
       char ret[256];
-      this->callAliasEx( ret, "%s,%d", "win_open", this->getUserID( ) );
+      this->evalAliasEx( ret, 255, "%s,%d", "win_open", this->getUserID( ) );
 
       if ( lstrcmpi( ret, "cancel") == 0 )
         *pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
@@ -348,19 +348,19 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 
 	case DISPID_STATUSTEXTCHANGE:
     {
-      this->callAliasEx( NULL, "%s,%d,%ws", "status", this->getUserID( ), arg1.bstrVal );
+      this->execAliasEx("%s,%d,%ws", "status", this->getUserID( ), arg1.bstrVal );
     }
 		break;
 
 	case DISPID_TITLECHANGE:
     {
-      this->callAliasEx( NULL, "%s,%d,%ws", "title", this->getUserID( ), arg1.bstrVal );
+      this->execAliasEx("%s,%d,%ws", "title", this->getUserID( ), arg1.bstrVal );
     }
 		break;
 
 	case DISPID_PROGRESSCHANGE:
     {
-      this->callAliasEx( NULL, "%s,%d,%ws,%ws", "dl_progress", this->getUserID( ), arg1.bstrVal, arg2.bstrVal );
+      this->execAliasEx("%s,%d,%ws,%ws", "dl_progress", this->getUserID( ), arg1.bstrVal, arg2.bstrVal );
     }
 		break;
 
@@ -370,13 +370,13 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 
 		    case L'1':
           {
-            this->callAliasEx( NULL, "%s,%d,%s", "forward", this->getUserID( ), arg2.boolVal ? "$true" : "$false" );
+            this->execAliasEx("%s,%d,%s", "forward", this->getUserID( ), arg2.boolVal ? "$true" : "$false" );
           }
 			    break;
 
 		    case L'2':
           {
-            this->callAliasEx( NULL, "%s,%d,%s", "back", this->getUserID( ), arg2.boolVal ? "$true" : "$false" );
+            this->execAliasEx("%s,%d,%s", "back", this->getUserID( ), arg2.boolVal ? "$true" : "$false" );
           }
           break;
 		  }

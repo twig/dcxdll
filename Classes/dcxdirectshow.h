@@ -48,6 +48,7 @@ public:
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   inline TString getType( ) { return TString( "directshow" ); };
+  TString getStyles(void);
 
 protected:
 	HRESULT InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph, IVMRWindowlessControl9** ppWc);

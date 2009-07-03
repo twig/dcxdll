@@ -31,6 +31,7 @@ DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, R
 {
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
+  this->m_DeleteByDestroy = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
   this->m_Hwnd = cHwnd;
@@ -66,30 +67,32 @@ DcxMDialog::~DcxMDialog( ) {
 		return;
 
 	this->unregistreDefaultWindowProc( );
+	if (!this->m_DeleteByDestroy) { // all this isn't needed if control is deleted because of closing the dialog
 
-	BOOL bHide = IsWindowVisible( this->m_Hwnd );
-	if ( !bHide )
-		ShowWindow( this->m_Hwnd, SW_HIDE );
+		BOOL bHide = IsWindowVisible( this->m_Hwnd );
+		if ( !bHide )
+			ShowWindow( this->m_Hwnd, SW_HIDE );
 
-	SetWindowLong( this->m_Hwnd, GWL_ID, this->m_OrigID );
-	//this->removeStyle(WS_CHILD);
-	//this->addStyle(WS_POPUP);
-	//SetParent( this->m_Hwnd, NULL );
-	if (parent == this->m_OrigParentHwnd) // handles oddness where orig parent == current when it shouldnt, maybe due to init event docking.
-		parent = GetParent(parent);
-	else
-		parent = this->m_OrigParentHwnd;
+		SetWindowLong( this->m_Hwnd, GWL_ID, this->m_OrigID );
+		//this->removeStyle(WS_CHILD);
+		//this->addStyle(WS_POPUP);
+		//SetParent( this->m_Hwnd, NULL );
+		if (parent == this->m_OrigParentHwnd) // handles oddness where orig parent == current when it shouldnt, maybe due to init event docking.
+			parent = GetParent(parent);
+		else
+			parent = this->m_OrigParentHwnd;
 
-	SetParent( this->m_Hwnd, parent );
-	//SetParent( this->m_Hwnd, this->m_OrigParentHwnd);
-	this->setStyle( this->m_OrigStyles);
-	this->setExStyle( this->m_OrigExStyles );
+		SetParent( this->m_Hwnd, parent );
+		//SetParent( this->m_Hwnd, this->m_OrigParentHwnd);
+		this->setStyle( this->m_OrigStyles);
+		this->setExStyle( this->m_OrigExStyles );
 
-	SetWindowPos( this->m_Hwnd, NULL, 30, 30, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED);
-	this->redrawWindow( );
+		SetWindowPos( this->m_Hwnd, NULL, 30, 30, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED);
+		this->redrawWindow( );
 
-	if ( !bHide )
-		ShowWindow( this->m_Hwnd, SW_SHOW );
+		if ( !bHide )
+			ShowWindow( this->m_Hwnd, SW_SHOW );
+	}
 }
 
 /*!
@@ -157,10 +160,12 @@ LRESULT DcxMDialog::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
     case WM_DESTROY:
       {
-				//WNDPROC wnd = this->m_DefaultWindowProc;
-				//HWND mHwnd = this->m_Hwnd;
+				WNDPROC wnd = this->m_DefaultWindowProc;
+				HWND mHwnd = this->m_Hwnd;
+				this->m_DeleteByDestroy = TRUE;
         delete this;
-				//CallWindowProc(wnd, mHwnd, uMsg, wParam, lParam);
+				ShowWindow(mHwnd, SW_HIDE);
+				CallWindowProc(wnd, mHwnd, uMsg, wParam, lParam);
         bParsed = TRUE;
       }
       break;

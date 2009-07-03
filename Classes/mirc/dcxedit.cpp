@@ -77,6 +77,48 @@ DcxEdit::~DcxEdit() {
 	this->unregistreDefaultWindowProc();
 }
 
+
+TString DcxEdit::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & ES_MULTILINE)
+		styles.addtok("multi", " ");
+	if (Styles & ES_CENTER)
+		styles.addtok("center", " ");
+	if (Styles & ES_RIGHT)
+		styles.addtok("right", " ");
+	if (Styles & ES_AUTOHSCROLL)
+		styles.addtok("autohs", " ");
+	if (Styles & ES_AUTOVSCROLL)
+		styles.addtok("autovs", " ");
+	if (Styles & WS_VSCROLL)
+		styles.addtok("vsbar", " ");
+	if (Styles & WS_HSCROLL)
+		styles.addtok("hsbar", " ");
+	if (Styles & ES_LOWERCASE)
+		styles.addtok("lowercase", " ");
+	if (Styles & ES_NUMBER)
+		styles.addtok("number", " ");
+	if (Styles & ES_PASSWORD)
+		styles.addtok("password", " ");
+	if (Styles & ES_UPPERCASE)
+		styles.addtok("uppercase", " ");
+	if (Styles & ES_WANTRETURN)
+		styles.addtok("return", " ");
+	if (Styles & ES_READONLY)
+		styles.addtok("readonly", " ");
+	if (Styles & ES_NOHIDESEL)
+		styles.addtok("showsel", " ");
+	return styles;
+}
+
+void DcxEdit::toXml(TiXmlElement * xml) {
+	__super::toXml(xml);
+	xml->SetAttribute("caption", this->m_tsText.to_chr());
+}
+
 /*!
 * \brief blah
 *
@@ -295,13 +337,13 @@ void DcxEdit::parseCommandRequest(TString &input) {
 			// XP actually uses the unicode `Black Circle` char U+25CF (9679)
 			// The problem is getting the char set to a unicode (2-byte) one, so far it always sets to CF (207)
 			if (c == 0)
-				c = '*'; //(isXP() ? '•' : '*');
+				c = '*'; //(Dcx::XPPlusModule.isUseable()() ? '•' : '*');
 
 			Edit_SetPasswordChar(this->m_Hwnd, c);
 			//SendMessage(this->m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 			//WCHAR c = (WCHAR)SendMessageW(this->m_Hwnd, EM_GETPASSWORDCHAR, NULL, NULL);
 			//if (c == 0)
-			//	c = (isXP() ? 9679 : L'*');
+			//	c = (Dcx::XPPlusModule.isUseable() ? 9679 : L'*');
 			//SendMessageW(this->m_Hwnd, EM_SETPASSWORDCHAR, (WPARAM)c, NULL);
 		}
 		else {
@@ -409,7 +451,7 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bP
 					GetWindowText(this->m_Hwnd, text, n +1);
 					this->m_tsText = text;
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-						this->callAliasEx(NULL, "%s,%d", "edit", this->getUserID());
+						this->execAliasEx("%s,%d", "edit", this->getUserID());
 
 					delete []text;
 				}
@@ -443,12 +485,12 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				//	bParsed = TRUE; // prevents parent window closing.
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 					if (wParam == VK_RETURN)
-						this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
+						this->execAliasEx("%s,%d", "return", this->getUserID());
 
 					if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
 						break;
 
-					this->callAliasEx(NULL, "%s,%d,%d", "keydown", this->getUserID(), wParam);
+					this->execAliasEx("%s,%d,%d", "keydown", this->getUserID(), wParam);
 				}
 				/*
 				// CTRL+A, select text and return so control doesnt beep
@@ -468,7 +510,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 					char ret[256];
 
-					this->callAliasEx(ret, "%s,%d", "copy", this->getUserID());
+					this->evalAliasEx(ret, 255, "%s,%d", "copy", this->getUserID());
 
 					if (lstrcmp("nocopy", ret) == 0) {
 						bParsed = TRUE;
@@ -482,7 +524,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 					char ret[256];
 
-					this->callAliasEx(ret, "%s,%d", "cut", this->getUserID());
+					this->evalAliasEx(ret, 255, "%s,%d", "cut", this->getUserID());
 
 					if (lstrcmp("nocut", ret) == 0) {
 						bParsed = TRUE;
@@ -496,7 +538,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 					char ret[256];
 
-					this->callAliasEx(ret, "%s,%d", "paste", this->getUserID());
+					this->evalAliasEx(ret, 255, "%s,%d", "paste", this->getUserID());
 
 					if (lstrcmp("nopaste", ret) == 0) {
 						bParsed = TRUE;
@@ -508,7 +550,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		case WM_KEYUP:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-					this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
+					this->execAliasEx("%s,%d,%d", "keyup", this->getUserID(), wParam);
 				break;
 			}
 		case WM_PAINT:

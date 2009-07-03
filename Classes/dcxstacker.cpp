@@ -15,6 +15,9 @@
 
 #include "dcxstacker.h"
 #include "dcxdialog.h"
+#include "../Dcx.h"
+
+
 
 /*!
  * \brief Constructor
@@ -347,10 +350,26 @@ void DcxStacker::getItemRect(const int nPos, LPRECT rc) const {
 	SendMessage(this->m_Hwnd,LB_GETITEMRECT,(WPARAM)nPos,(LPARAM)rc);
 }
 
+TString DcxStacker::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & WS_VSCROLL)
+		styles.addtok("vscroll", " ");
+	if (this->m_dStyles & STACKERS_GRAD)
+		styles.addtok("gradient", " ");
+	if (this->m_dStyles & STACKERS_ARROW)
+		styles.addtok("arrows", " ");
+	if (~this->m_dStyles & STACKERS_COLLAPSE)
+		styles.addtok("nocollapse", " ");
+	return styles;
+}
+
 void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape)
 {
 #ifdef DCX_USE_GDIPLUS
-	if (!mIRCLink.m_bUseGDIPlus || hdc == NULL || rc == NULL)
+	if (!Dcx::GDIModule.isUseable() || hdc == NULL || rc == NULL)
 		return;
 
 	Graphics gfx( hdc );
@@ -372,7 +391,7 @@ void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLOR
 void DcxStacker::DrawItemImage(const HDC hdc, Image *img, const LPRECT rc)
 {
 #ifdef DCX_USE_GDIPLUS
-	if (!mIRCLink.m_bUseGDIPlus || img == NULL || rc == NULL || hdc == NULL)
+	if (!Dcx::GDIModule.isUseable() || img == NULL || rc == NULL || hdc == NULL)
 		return;
 
 	Graphics grphx( hdc );
@@ -575,13 +594,13 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			case LBN_DBLCLK:
 				{
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), this->getSelItemID());
+						this->execAliasEx("%s,%d,%d", "dclick", this->getUserID( ), this->getSelItemID());
 				}
 				break;
 			case LBN_SELCHANGE:
 				{
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getSelItemID());
+						this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), this->getSelItemID());
 				}
 				break;
 			}
@@ -771,7 +790,7 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					case TTN_LINKCLICK:
 						{
 							bParsed = TRUE;
-							this->callAliasEx( NULL, "%s,%d,%d", "tooltiplink", this->getUserID( ), this->getItemID() );
+							this->execAliasEx("%s,%d,%d", "tooltiplink", this->getUserID( ), this->getItemID() );
 						}
 						break;
 					}
@@ -792,7 +811,7 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		case WM_LBUTTONUP:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d,%d", "lbup", this->getUserID( ), this->getItemID());
+					this->execAliasEx("%s,%d,%d", "lbup", this->getUserID( ), this->getItemID());
 			}
 			break;
 

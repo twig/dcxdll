@@ -16,7 +16,7 @@
 #include "dcxml.h"
 #include <string>
 
-extern DcxDialogCollection Dialogs;
+
 /*
 dcxml [-FLAGS] [NAME] [DNAME] "[PATH]"
 */
@@ -58,19 +58,20 @@ DCXML::DCXML(const char *filePath,const char *dialogMark,const char *dialogName)
 				const char *caption = this->queryAttribute(this->getDialogElement(),"caption",this->getDialogName());
 				const char *border = this->getDialogElement()->Attribute("border");
 				this->controls = 0;
+        //margin = (temp = element->Attribute("padding")) ? temp : "0 0 0 0";
 
 				if (this->getDialogElement()->Attribute("border")) //!< set border ONLY if defined on <dialog>
 					this->xdialogEX("-b","+%s",border);
 
-				mIRCcomEX("//dialog -t %s %s", this->getDialogMark(), caption); 
+				Dcx::mIRC.execex("//dialog -t %s %s", this->getDialogMark(), caption); 
 				this->xdialogEX("-l","root \t +p%s 0 0 0 0", cascade);
 				this->xdialogEX("-l","space root \t + %s", margin);
 				
 				this->parseDialog(); //!< Parse <dialog> children onto the dialog
 
-				mIRCcomEX("/.timer 1 0 xdialog -l %s update", this->getDialogMark()); //!< Update CLA After DCXML is drawn.
+				Dcx::mIRC.execex("/.timer 1 0 xdialog -l %s update", this->getDialogMark()); //!< Update CLA After DCXML is drawn.
 
-				mIRCcomEX("/dialog -s %s %i %i %i %i", //!< Sets the dialog size.
+				Dcx::mIRC.execex("/dialog -s %s %i %i %i %i", //!< Sets the dialog size.
 					this->getDialogMark(),
 					this->queryIntAttribute(this->getDialogElement(),"x",-1),
 					this->queryIntAttribute(this->getDialogElement(),"y",-1),
@@ -79,7 +80,7 @@ DCXML::DCXML(const char *filePath,const char *dialogMark,const char *dialogName)
 				);
 				
 				if (this->getDialogElement()->Attribute("center")) //!< Centers the dialog
-					mIRCcomEX("/dialog -r %s", this->getDialogMark());
+					Dcx::mIRC.execex("/dialog -r %s", this->getDialogMark());
 
 				//This "Shite" is to activate the first zlayer, added a check if this command starts returning an error
 				if (this->getZlayered()) this->xdialogEX("-z","+s 1");
@@ -88,7 +89,8 @@ DCXML::DCXML(const char *filePath,const char *dialogMark,const char *dialogName)
 	}
 };
 
-void DCXML::setDialog(const char *dialogMark) { this->_dcxDialog = Dialogs.getDialogByName(dialogMark);	};
+void DCXML::setDialog(const char *dialogMark) { this->_dcxDialog = Dcx::Dialogs.getDialogByName(dialogMark);	};
+
 const char *DCXML::queryAttribute(TiXmlElement *element,const char *attribute,const char *defaultValue)
 {
 	const char *t;
@@ -193,6 +195,7 @@ void DCXML::parseControl() {
         this->xdialogEX("-z","+a %i",id);
         this->setZlayered(true);
     }
+//        padding = (temp = element->Attribute("padding")) ? temp : "0 0 0 0";
 
 	if ((0==lstrcmp(parenttype, "divider")) && (element->Attribute("width"))) {
         const char *width = (temp = element->Attribute("width")) ? temp : "100";
@@ -294,7 +297,7 @@ void DCXML::xdialogEX(const char *sw,const char *dFormat, ...) {
         char *txt = new char[cnt +1];
         vsprintf(txt, dFormat, args );
         va_end(args);
-		if (eval) mIRCcomEX("//xdialog %s %s %s",sw,this->getDialogMark(),txt);
+            if (eval) Dcx::mIRC.execex("//xdialog %s %s %s",sw,this->getDialogMark(),txt);
         else this->getDialog()->parseCommandRequestEX("%s %s %s",this->getDialogMark(),sw,txt);
         delete [] txt;
 }
@@ -306,7 +309,7 @@ void DCXML::xdidEX(int id,const char *sw,const char *dFormat, ...) {
         char *txt = new char[cnt +1];
         vsprintf(txt, dFormat, args );
         va_end(args);
-        if (eval) mIRCcomEX("//xdid %s %s %i %s",sw,this->getDialogMark(),id,txt);
+            if (eval) Dcx::mIRC.execex("//xdid %s %s %i %s",sw,this->getDialogMark(),id,txt);
         else this->getDialog()->parseComControlRequestEX(id,"%s %i %s %s",this->getDialogMark(),id,sw,txt);
         delete [] txt;
 }
@@ -525,7 +528,7 @@ void DCXML::parseIcons(int depth) {
                 if (indexmin <= indexmax) 
                     //method sucks but looping in C++ is WAYYY too fast for mIRC
 				{
-                        mIRCcomEX("//var %%x = %i | while (%%x <= %i ) { xdid -w %s %i +%s %%x %s | inc %%x }",
+                        Dcx::mIRC.execex("//var %%x = %i | while (%%x <= %i ) { xdid -w %s %i +%s %%x %s | inc %%x }",
 						indexmin,indexmax,this->getDialogMark(),id,flags,src);
 				}
                 else 
@@ -675,13 +678,13 @@ void DCXML::parseDialog(int depth,const char *claPath,int passedid,int ignorePar
 				} 
 				std::map<const char*,const char*>::iterator iter;   
 				for( iter = this->template_vars.begin(); iter != this->template_vars.end(); iter++ ) {
-					mIRCcomEX("//set %%%s %s",iter->first,iter->second);
+					Dcx::mIRC.execex("//set %%%s %s",iter->first,iter->second);
 				}
                 templateRefclaPath = t_claPathx;
                 this->parseTemplate(depth,claPath,passedid);
                 templateRef = 0;
 				for( iter = this->template_vars.begin(); iter != this->template_vars.end(); iter++ ) {
-					mIRCcomEX("//unset %%%s",iter->first);
+					Dcx::mIRC.execex("//unset %%%s",iter->first);
 				}
 				this->template_vars.clear();
             }
@@ -788,7 +791,7 @@ void DCXML::parseDialog(int depth,const char *claPath,int passedid,int ignorePar
 			
         }
         //char *claPathx = "root";
-        //mIRCcomEX("//echo -a clapath:%s",claPathx);
+        //Dcx::mIRC.execex("//echo -a clapath:%s",claPathx);
         this->parseDialog(depth+1,claPathx.to_chr(),id,0);  
     }
 } 
@@ -797,7 +800,7 @@ void DCXML::parseDialog(int depth,const char *claPath,int passedid,int ignorePar
 int DCXML::mIRCEvalToUnsignedInt (const char *value)
 	{
 		TString buf((UINT)32);
-		mIRCevalEX(buf.to_chr(), 32, value,"");
+		Dcx::mIRC.evalex(buf.to_chr(), 32, value,"");
 		int id = buf.to_int();
 		return (id > 0) ? id : -1;
 	}
@@ -842,20 +845,20 @@ int DCXML::parseId(TiXmlElement* idElement)
  */
 mIRC(dcxml) {
     TString input(data);
+	XSwitchFlags flags(input.gettok(1));
     int numtok = input.numtok();
     
     if (numtok < 3) {
-        DCXError("/dcxml", "Insuffient parameters");
+        Dcx::error("/dcxml", "Insuffient parameters");
         return 1;
     }
 
-    XSwitchFlags flags(input.gettok(1));
 
 	// Parse XDialog XML.
     if (flags['d']) {
 		DCXML *dcxml = new DCXML(input.gettok(2,"\"").to_chr(),input.gettok(2).to_chr(),input.gettok(3).to_chr());
 		if (!dcxml->loadSuccess) { 
-			DCXErrorEX("/dcxml", "XML error (row %i column %i) %s",
+			Dcx::errorex("/dcxml", "XML error (row %i column %i) %s",
 				dcxml->getDocument()->ErrorRow(),
 				dcxml->getDocument()->ErrorCol(),
 				dcxml->getDocument()->ErrorDesc());
@@ -863,23 +866,23 @@ mIRC(dcxml) {
 		}
 
 		if (!dcxml->getRootElement()) {
-			DCXError("/dcxml", "Root Element Is Not 'dcxml'");
+			Dcx::error("/dcxml", "Root Element Is Not 'dcxml'");
 			return 0;
 		}
 
 		if (dcxml->getDialog() == NULL) 
 		{
-			DCXError("/dcxml", "Host dialog has not been marked.");
+			Dcx::error("/dcxml", "Host dialog has not been marked.");
 			return 0;
 		}
 		if (!dcxml->getDialogsElement()) 
 		{ 
-			DCXError("/dcxml","No 'dialogs' Group");
+			Dcx::error("/dcxml","No 'dialogs' Group");
 			return 0;
 		}
 		if (!dcxml->getDialogElement()) 
 		{
-			DCXError("/dcxml","Dialog name not found in <dialogs>");
+			Dcx::error("/dcxml","Dialog name not found in <dialogs>");
 			return 0;
 		}
         return 1;
@@ -893,13 +896,13 @@ mIRC(dcxml) {
 		TString popupDataset(input.gettok(3));
         
 		if ((popupName == "mircbar") || (popupName == "mirc") || (popupName == "scriptpopup")) {
-			DCXErrorEX("/dcxml", "Menu name '%s' is reserved.", popupName.to_chr());
+			Dcx::errorex("/dcxml", "Menu name '%s' is reserved.", popupName.to_chr());
 			return 0;
 		}
 
 		// Couldnt find popups group.
         if (!popups) { 
-            DCXError("/dcxml", "No 'popups' Group");
+            Dcx::error("/dcxml", "No 'popups' Group");
             return 0;
         }
 
@@ -909,7 +912,7 @@ mIRC(dcxml) {
 	*/
 	// Unknown flags.
 	else {
-		DCXErrorEX("/dcxml", "Unknown flag %s", input.gettok(1).to_chr());
+		Dcx::errorex("/dcxml", "Unknown flag %s", input.gettok(1).to_chr());
 		return 0;
 	}
 

@@ -52,8 +52,10 @@ public:
   
   LRESULT getPosition( ) const;
   LRESULT getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) const;
+  void toXml(TiXmlElement * xml);
 
   inline TString getType( ) { return TString( "pbar" ); };
+  TString getStyles(void);
 
 protected:
 

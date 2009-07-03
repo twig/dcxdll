@@ -493,6 +493,29 @@ void DcxStatusBar::cleanPartIcons( ) {
   }
 }
 
+TString DcxStatusBar::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & SBARS_SIZEGRIP)
+		styles.addtok("grip", " ");
+	if (Styles & SBARS_TOOLTIPS)
+		styles.addtok("tooltips", " ");
+	if (Styles & CCS_NODIVIDER)
+		styles.addtok("nodivider", " ");
+	if (Styles & CCS_TOP)
+		styles.addtok("top", " ");
+	if (Styles & CCS_NORESIZE)
+		styles.addtok("noresize", " ");
+	if (Styles & CCS_NOPARENTALIGN)
+		if (Styles & CCS_NORESIZE)
+			styles.addtok("noauto", " ");
+		else
+			styles.addtok("noparentalign", " ");
+	return styles;
+}
+
 /*!
  * \brief blah
  *
@@ -672,7 +695,7 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 						int cell = this->hitTest( pt );
 
 						if ( cell != -1 )
-							this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), cell + 1 );
+							this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), cell + 1 );
 					}
 					bParsed = TRUE;
 				}
@@ -687,7 +710,7 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 						int cell = this->hitTest( pt );
 
 						if ( cell != -1 )
-							this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), cell + 1 );
+							this->execAliasEx("%s,%d,%d", "rclick", this->getUserID( ), cell + 1 );
 					}
 					bParsed = TRUE;
 				}
@@ -702,7 +725,7 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 						int cell = this->hitTest( pt );
 
 						if ( cell != -1 )
-							this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), cell + 1 );
+							this->execAliasEx("%s,%d,%d", "dclick", this->getUserID( ), cell + 1 );
 					}
 					bParsed = TRUE;
 				}

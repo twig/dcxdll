@@ -84,6 +84,14 @@ DcxLink::~DcxLink( ) {
 	this->unregistreDefaultWindowProc( );
 }
 
+
+void DcxLink::toXml(TiXmlElement * xml) {
+	char buf[901];
+	__super::toXml(xml);
+    GetWindowText( this->m_Hwnd, buf, 900 );
+	xml->SetAttribute("caption", buf);
+}
+
 /*!
  * \brief blah
  *
@@ -202,14 +210,14 @@ LRESULT DcxLink::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
  //         case STN_CLICKED:
  //           {
 	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//              this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+	//              this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
  //           }
  //           break;
 
  //         case STN_DBLCLK:
  //           {
 	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//							this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+	//							this->execAliasEx("%s,%d", "dclick", this->getUserID( ) );
  //           }
  //           break;
  //       }
@@ -265,7 +273,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
           InvalidateRect( this->m_Hwnd, NULL, FALSE );
         }
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "lbdown", this->getUserID( ) );
+					this->execAliasEx("%s,%d", "lbdown", this->getUserID( ) );
       }
       break;
 

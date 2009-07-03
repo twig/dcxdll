@@ -15,6 +15,8 @@
 #ifndef _DCXWINDOW_H_
 #define _DCXWINDOW_H_
 
+#include "tinyxml/tinyxml.h"
+
 /*!
  * \brief blah
  *
@@ -43,6 +45,7 @@ public:
 
 	void redrawWindow( );
 	void redrawBufferedWindow( );
+	virtual void toXml(TiXmlElement * xml) = 0;
 
 protected:
 

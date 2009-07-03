@@ -82,6 +82,9 @@ public:
   LRESULT minBand( const UINT uBand, const BOOL fIdeal );
 
   inline TString getType( ) { return TString( "rebar" ); };
+  TString getStyles(void);
+  void toXml(TiXmlElement * xml);
+  DcxControl * getControl(int index);
 
 protected:
 

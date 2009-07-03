@@ -14,6 +14,9 @@
 
 #include "dcxcheck.h"
 #include "../dcxdialog.h"
+#include "../../Dcx.h"
+
+
 
 /*!
  * \brief Constructor
@@ -73,6 +76,34 @@ DcxCheck::DcxCheck( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 
 DcxCheck::~DcxCheck( ) {
 	this->unregistreDefaultWindowProc( );
+}
+
+
+void DcxCheck::toXml(TiXmlElement * xml) {
+	TString wtext;
+	__super::toXml(xml);
+	int n = TGetWindowText(this->m_Hwnd, wtext);
+	xml->SetAttribute("caption", wtext.to_chr());
+}
+
+TString DcxCheck::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & BS_RIGHT)
+		styles.addtok("rjustify", " ");
+	if (Styles & BS_CENTER)
+		styles.addtok("center", " ");
+	if (Styles & BS_LEFT)
+		styles.addtok("ljustify", " ");
+	if (Styles & BS_RIGHTBUTTON)
+		styles.addtok("right", " ");
+	if (Styles & BS_PUSHLIKE)
+		styles.addtok("pushlike", " ");
+	if (Styles & BS_AUTO3STATE)
+		styles.addtok("3state", " ");
+	return styles;
 }
 
 /*!
@@ -197,10 +228,10 @@ LRESULT DcxCheck::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
             {
                if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
                {
-                  //this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+                  //this->execAliasEx("%s,%d", "sclick", this->getUserID());
 
                   // /.timer repetitions delay alias dialog event id
-                  mIRCcomEX("/.timer 1 0 %s %s %s %d",
+                  Dcx::mIRC.execex("/.timer 1 0 %s %s %s %d",
                      this->m_pParentDialog->getAliasName().to_chr(),
                      this->m_pParentDialog->getName().to_chr(),
                      "sclick",
@@ -224,7 +255,7 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		case WM_LBUTTONUP:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
+					this->execAliasEx("%s,%d", "lbup", this->getUserID( ) );
 			}
 			break;
 

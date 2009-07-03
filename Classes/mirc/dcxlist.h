@@ -42,6 +42,9 @@ public:
 
 	inline TString getType( ) { return TString( "list" ); };
 	inline int getDragListId() { return m_iDragList; };
+	TString getStyles(void);
+
+	static void registerClass(void);
 
 protected:
 	enum SearchTypes { LBSEARCH_W = 1, LBSEARCH_R };

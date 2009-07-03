@@ -14,7 +14,10 @@
 
 #include "dcxrichedit.h"
 #include "dcxdialog.h"
+#include "../Dcx.h"
 #include "Custom/RichEditThemed.h"
+
+
 
 /*!
 * \brief Constructor
@@ -150,7 +153,7 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 			line = input.gettok( 4 ).to_int() -1;
 
 		if ((line < 0) || (line >= Edit_GetLineCount(this->m_Hwnd))) {
-			DCXError("text", "Invalid line number.");
+			Dcx::error("text", "Invalid line number.");
 			return;
 		}
 
@@ -487,7 +490,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 void DcxRichEdit::loadmIRCPalette() {
 	char res[512];
 	static const char com[] = "$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)";
-	mIRCeval(com, res, 512);
+	Dcx::mIRC.eval(res, 512, com);
 
 	TString colors(res);
 	int i = 0, len = colors.numtok( );
@@ -805,6 +808,36 @@ LRESULT DcxRichEdit::setCharFormat(const UINT iType, CHARFORMAT2 *cfm) {
 	return SendMessage(this->m_Hwnd, EM_SETCHARFORMAT, (WPARAM) iType, (LPARAM) cfm);
 }
 
+void DcxRichEdit::toXml(TiXmlElement * xml) {
+	__super::toXml(xml);
+	TiXmlText * text = new TiXmlText(this->m_tsText.to_chr());
+	xml->LinkEndChild(text);
+}
+
+TString DcxRichEdit::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if ((Styles & ES_MULTILINE) && (Styles & ES_WANTRETURN))
+		styles.addtok("multi", " ");
+	if (Styles & ES_READONLY)
+		styles.addtok("readonly", " ");
+	if (Styles & ES_CENTER)
+		styles.addtok("center", " ");
+	if (Styles & ES_RIGHT)
+		styles.addtok("right", " ");
+	if (Styles & ES_AUTOHSCROLL)
+		styles.addtok("autohs", " ");
+	if (Styles & WS_VSCROLL)
+		styles.addtok("vsbar", " ");
+	if (Styles & WS_HSCROLL)
+		styles.addtok("hsbar", " ");
+	if (Styles & ES_DISABLENOSCROLL)
+		styles.addtok("disablescroll", " ");
+	return styles;
+}
+
 /*!
 * \brief blah
 *
@@ -848,7 +881,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							else if (enl->msg == WM_RBUTTONDOWN)
 								tsEvent = "rclick";
 
-							this->callAliasEx(NULL, "%s,%d,%s,%s", "link", this->getUserID(), tsEvent.to_chr(), tr.lpstrText);
+							this->execAliasEx("%s,%d,%s,%s", "link", this->getUserID(), tsEvent.to_chr(), tr.lpstrText);
 							delete str;
 						}
 					}
@@ -873,7 +906,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							tr.lpstrText = str;
 							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
 
-							this->callAliasEx(NULL, "%s,%d,%d,%d,%s", "selchange", this->getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
+							this->execAliasEx("%s,%d,%d,%d,%s", "selchange", this->getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
 							delete [] str;
 						}
 					}
@@ -895,20 +928,20 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		{
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 				if (wParam == VK_RETURN) {
-					this->callAliasEx(NULL, "%s,%d", "return", this->getUserID());
+					this->execAliasEx("%s,%d", "return", this->getUserID());
 				}
 
 				if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
 					break;
 
-				this->callAliasEx(NULL, "%s,%d,%d:", "keydown", this->getUserID(), wParam);
+				this->execAliasEx("%s,%d,%d:", "keydown", this->getUserID(), wParam);
 			}
 			break;
 		}
 		case WM_KEYUP:
 		{
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-				this->callAliasEx(NULL, "%s,%d,%d", "keyup", this->getUserID(), wParam);
+				this->execAliasEx("%s,%d,%d", "keyup", this->getUserID(), wParam);
 			break;
 		}
 		//case WM_PAINT:

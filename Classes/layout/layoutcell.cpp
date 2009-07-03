@@ -15,8 +15,11 @@
 #include "layoutcell.h"
 
 #include <windowsx.h>
+#include "../dcxdialog.h"
+#include "../../Dcx.h"
 
 extern HWND hwndChild4;
+
 
 /*!
  * \brief Constructor
@@ -50,10 +53,17 @@ LayoutCell::LayoutCell( const HWND mHwnd ) : m_Hwnd( mHwnd ) {
     SetRectEmpty( &this->m_rcWindow );
 
   SetRectEmpty( &this->m_rcBorders );
+  DcxDialog * d;
 
   this->m_Parent = NULL;
   this->m_FirstChild = NULL;
   this->m_NextSibling = NULL;
+  this->m_BaseControl = NULL;
+  d = Dcx::Dialogs.getDialogByHandle(mHwnd);
+  if (d == NULL) {
+	  d = Dcx::Dialogs.getDialogByChildHandle(mHwnd);
+	  if (d != NULL) this->m_BaseControl = d->getControlByHWND(mHwnd);
+  }  
 }
 
 /*!
@@ -65,10 +75,33 @@ LayoutCell::LayoutCell( const HWND mHwnd ) : m_Hwnd( mHwnd ) {
 LayoutCell::LayoutCell( const HWND mHwnd, const RECT & rc ) : m_Hwnd( mHwnd ), m_rcWindow( rc ) {
 
   SetRectEmpty( &this->m_rcBorders );
+  DcxDialog * d;
 
   this->m_Parent = NULL;
   this->m_FirstChild = NULL;
   this->m_NextSibling = NULL;
+  this->m_BaseControl = NULL;
+  d = Dcx::Dialogs.getDialogByHandle(mHwnd);
+  if (d == NULL) {
+	  d = Dcx::Dialogs.getDialogByChildHandle(mHwnd);
+	  if (d != NULL) this->m_BaseControl = d->getControlByHWND(mHwnd);
+  }  
+}
+
+LayoutCell::LayoutCell( DcxControl * dcxc ) {
+  HWND mHwnd;
+  mHwnd = dcxc->getHwnd();
+  if ( mHwnd != NULL )
+    GetWindowRect( mHwnd, &this->m_rcWindow );
+  else
+    SetRectEmpty( &this->m_rcWindow );
+
+  SetRectEmpty( &this->m_rcBorders );
+
+  this->m_Parent = NULL;
+  this->m_FirstChild = NULL;
+  this->m_NextSibling = NULL;
+  this->m_BaseControl = dcxc;
 }
 
 /*!

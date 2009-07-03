@@ -16,6 +16,7 @@
 #define _LAYOUTCELL_H_
 
 #include "../../defines.h"
+#include "../dcxcontrol.h"
 //#include "defines.h"
 
 #include <vector>
@@ -58,6 +59,7 @@ public:
   LayoutCell( );
   LayoutCell( const HWND mHwnd );
   LayoutCell( const HWND mHwnd, const RECT & rc );
+  LayoutCell( DcxControl * dcxc );
   virtual ~LayoutCell( );
 
   void setRect( RECT & rc );
@@ -70,6 +72,8 @@ public:
   virtual void LayoutChild( ) = 0;
   virtual HDWP ExecuteLayout( HDWP hdwp ) = 0;
   virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) = 0;
+  virtual void toXml(TiXmlElement * xml) = 0;
+  virtual TiXmlElement * toXml(void) = 0;
 
   void setSibling( LayoutCell * p_Cell );
   void setParent( LayoutCell * p_Cell );
@@ -88,6 +92,7 @@ protected:
 
   RECT m_rcBorders; //!< Border defining rectangle
   RECT m_rcWindow;  //!< Available Window defining rectangle including Borders
+  DcxControl * m_BaseControl;
 
   LayoutCell * m_Parent; //!< Used for navigation
   LayoutCell * m_FirstChild; //!< Used for navigation

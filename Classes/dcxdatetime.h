@@ -39,6 +39,8 @@ public:
   void parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme);
 
   inline TString getType() { return TString("datetime"); };
+  void toXml(TiXmlElement * xml);
+  TString getStyles(void);
 };
 
 #endif // _DCXDATETIME_H_

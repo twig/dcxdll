@@ -20,6 +20,16 @@
  * blah
  */
 
+LayoutCellFixed::LayoutCellFixed( DcxControl * dcxc, const FixedType nType ) : LayoutCell( dcxc ), m_nType( nType ) {
+
+}
+
+/*!
+ * \brief Constructor
+ *
+ * blah
+ */
+
 LayoutCellFixed::LayoutCellFixed( const HWND mHwnd, const FixedType nType ) : LayoutCell( mHwnd ), m_nType( nType ) {
 
 }
@@ -30,7 +40,7 @@ LayoutCellFixed::LayoutCellFixed( const HWND mHwnd, const FixedType nType ) : La
  * blah
  */
 
-LayoutCellFixed::LayoutCellFixed( const RECT & rc, const FixedType nType ) : LayoutCell( NULL ), m_nType( nType ) {
+LayoutCellFixed::LayoutCellFixed( const RECT & rc, const FixedType nType ) : LayoutCell( ), m_nType( nType ) {
 
 	CopyRect( &this->m_rcWindow, &rc );
 }
@@ -41,7 +51,7 @@ LayoutCellFixed::LayoutCellFixed( const RECT & rc, const FixedType nType ) : Lay
  * blah
  */
 
-LayoutCellFixed::LayoutCellFixed( const HWND mHwnd, const RECT & rc, const FixedType nType ) : LayoutCell( NULL ), m_nType( nType ) {
+LayoutCellFixed::LayoutCellFixed( const HWND mHwnd, const RECT & rc, const FixedType nType ) : LayoutCell( ), m_nType( nType ) {
 
 	this->m_Hwnd = mHwnd;
 	CopyRect( &this->m_rcWindow, &rc );
@@ -76,6 +86,25 @@ LayoutCell::CellType LayoutCellFixed::getType( ) {
 
 void LayoutCellFixed::LayoutChild( ) {
 
+}
+
+
+TiXmlElement * LayoutCellFixed::toXml(void) {
+	TiXmlElement * base = m_BaseControl->toXml();
+	if (this->m_nType & HEIGHT)
+		base->SetAttribute("height", this->m_rcWindow.bottom - this->m_rcWindow.top);
+	if (this->m_nType & WIDTH)
+		base->SetAttribute("width", this->m_rcWindow.right - this->m_rcWindow.left);
+	return base;
+}
+
+void LayoutCellFixed::toXml(TiXmlElement * xml) {
+	if (this->m_BaseControl)
+		this->m_BaseControl->toXml(xml);
+	if (this->m_nType & HEIGHT)
+		xml->SetAttribute("height", this->m_rcWindow.bottom - this->m_rcWindow.top);
+	if (this->m_nType & WIDTH)
+		xml->SetAttribute("width", this->m_rcWindow.right - this->m_rcWindow.left);
 }
 
 /*!
@@ -141,3 +170,4 @@ void LayoutCellFixed::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
 	else
 		ZeroMemory( pCMMI, sizeof( CellMinMaxInfo ) );
 }
+

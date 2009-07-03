@@ -16,6 +16,9 @@
 
 #include "dcxtreeview.h"
 #include "dcxdialog.h"
+#include "../Dcx.h"
+
+
 
 /*!
  * \brief Constructor
@@ -74,7 +77,7 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
 	}
 
 #ifdef DCX_USE_WINSDK
-	if (mIRCLink.m_bVista) {
+	if (Dcx::VistaModule.isUseable()) {
 		ExStyles = TreeView_GetExtendedStyle(this->m_Hwnd);
 		parseTreeViewExStyles( styles, &ExStyles);
 		TreeView_SetExtendedStyle(this->m_Hwnd, ExStyles, ExStyles);
@@ -698,7 +701,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			HTREEITEM tmp = hParentTo;
 
 			// Trace back all the way to root
-			while (tmp != TVI_ROOT) {
+			while (tmp != NULL && tmp != TVI_ROOT) {
 				if (tmp == item) {
 					this->showErrorEx(NULL, "-m", "Cannot move parent node (%s) to child node (%s).", pathFrom.to_chr(), pathTo.to_chr());
 					return;
@@ -1050,7 +1053,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		if (!this->m_bTransparent)
 			this->removeExStyle(WS_EX_TRANSPARENT);
 		if (filename != "none") {
-			if (!mIRCLink.m_bUseGDIPlus)
+			if (!Dcx::GDIModule.isUseable())
 				this->showError(NULL,"-G","GDI+ Not Supported On This Machine");
 			else if (!LoadGDIPlusImage(flag, filename))
 				this->showErrorEx(NULL,"-G","Unable to load Image: %s", filename.to_chr());
@@ -1212,11 +1215,11 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 	{
 		char res[1024];
 		if ((iFlags & TVIS_HASHITEM) && (itemtext.numtok() == 2)) {
-			mIRCevalEX(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			Dcx::mIRC.evalex(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 			itemtext = res;
 		}
 		else if ((iFlags & TVIS_HASHNUMBER) && (itemtext.numtok() == 2)) {
-			mIRCevalEX(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			Dcx::mIRC.evalex(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 			itemtext = res;
 		}
 	}
@@ -1462,7 +1465,7 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 	if ( ptvsort->iSortFlags & TVSS_CUSTOM ) {
 
 		char res[20];
-		mIRCevalEX( res, 20, "$%s(%s,%s)", ptvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
+		Dcx::mIRC.evalex( res, 20, "$%s(%s,%s)", ptvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 
 		int ires = atoi(res);
 
@@ -1767,7 +1770,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						TString path = this->getPathFromItem(&tvh.hItem);
 
 						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-							this->callAliasEx(NULL, "%s,%d,%s", "buttonclick", this->getUserID(), path.to_chr());
+							this->execAliasEx("%s,%d,%s", "buttonclick", this->getUserID(), path.to_chr());
 					}
 					//&& this->isStyle( TVS_CHECKBOXES )
 					else if ((tvh.flags & TVHT_ONITEMSTATEICON)) {
@@ -1777,13 +1780,13 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							int state = TreeView_GetCheckState(this->m_Hwnd, tvh.hItem);
 
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-								this->callAliasEx(NULL, "%s,%d,%d,%s", "stateclick", this->getUserID(),
+								this->execAliasEx("%s,%d,%d,%s", "stateclick", this->getUserID(),
 									state == 0 ? 2 : 1 , path.to_chr());
 							}
 						}
 						else {
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-								this->callAliasEx(NULL, "%s,%d,%d,%s", "stateclick", this->getUserID(), 
+								this->execAliasEx("%s,%d,%d,%s", "stateclick", this->getUserID(), 
 									TreeView_GetItemState(this->m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK), path.to_chr());
 							}
 						}
@@ -1795,12 +1798,12 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						TreeView_SelectItem(this->m_Hwnd, tvh.hItem);
 
 						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-							this->callAliasEx(NULL, "%s,%d,%s", "sclick", this->getUserID(), path.to_chr());
+							this->execAliasEx("%s,%d,%s", "sclick", this->getUserID(), path.to_chr());
 					}
 					// single click not on item
 					else if ((tvh.flags & TVHT_NOWHERE) || (tvh.flags & TVHT_ONITEMRIGHT)) {
 						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-							this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+							this->execAliasEx("%s,%d", "sclick", this->getUserID());
 					}
 
 					bParsed = TRUE;
@@ -1822,7 +1825,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						TreeView_SelectItem(this->m_Hwnd, tvh.hItem);
 
 						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-							this->callAliasEx(NULL, "%s,%d,%s", "dclick", this->getUserID(), path.to_chr());
+							this->execAliasEx("%s,%d,%s", "dclick", this->getUserID(), path.to_chr());
 					}
 
 					bParsed = TRUE;
@@ -1844,10 +1847,10 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						TreeView_SelectItem(this->m_Hwnd, tvh.hItem);
 
 						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-							this->callAliasEx(NULL, "%s,%d,%s", "rclick", this->getUserID(), path.to_chr());
+							this->execAliasEx("%s,%d,%s", "rclick", this->getUserID(), path.to_chr());
 					}
 					else if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID());
+						this->execAliasEx("%s,%d", "rclick", this->getUserID());
 
 					bParsed = TRUE;
 				}
@@ -1859,7 +1862,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 				if (lpnmtv != NULL) {
 					TString path = this->getPathFromItem(&lpnmtv->itemNew.hItem);
-					this->callAliasEx(NULL, "%s,%d,%s", "selchange", this->getUserID(), path.to_chr());
+					this->execAliasEx("%s,%d,%s", "selchange", this->getUserID(), path.to_chr());
 				}
 
 				bParsed = TRUE;
@@ -1894,11 +1897,11 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 					if (lpnmtv->action & TVE_COLLAPSE) {
 						TString path(this->getPathFromItem(&lpnmtv->itemNew.hItem));
-						this->callAliasEx(NULL, "%s,%d,%s", "collapse", this->getUserID(), path.to_chr());
+						this->execAliasEx("%s,%d,%s", "collapse", this->getUserID(), path.to_chr());
 					}
 					else if (lpnmtv->action & TVE_EXPAND) {
 						TString path(this->getPathFromItem(&lpnmtv->itemNew.hItem));
-						this->callAliasEx(NULL, "%s,%d,%s", "expand", this->getUserID(), path.to_chr());
+						this->execAliasEx("%s,%d,%s", "expand", this->getUserID(), path.to_chr());
 					}
 
 					// re-enables redraw & updates.
@@ -1929,7 +1932,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					SetProp( edit_hwnd, "dcx_pthis", (HANDLE) this );
 
 					char ret[256];
-					this->callAliasEx( ret, "%s,%d", "labelbegin", this->getUserID( ) );
+					this->evalAliasEx( ret, 255, "%s,%d", "labelbegin", this->getUserID( ) );
 
 					if ( !lstrcmp( "noedit", ret ) )
 						return TRUE;
@@ -1944,10 +1947,10 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO) lParam;
 
 					if ( lptvdi->item.pszText == NULL )
-						this->callAliasEx( NULL, "%s,%d", "labelcancel", this->getUserID( ) );
+						this->execAliasEx("%s,%d", "labelcancel", this->getUserID( ) );
 					else {
 						char ret[256];
-						this->callAliasEx( ret, "%s,%d,%s", "labelend", this->getUserID( ), lptvdi->item.pszText );
+						this->evalAliasEx( ret, 255, "%s,%d,%s", "labelend", this->getUserID( ), lptvdi->item.pszText );
 
 						if ( !lstrcmp( "noedit", ret ) )
 							return FALSE;
@@ -2065,8 +2068,8 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						HTREEITEM htvi = TreeView_GetSelection(this->m_Hwnd);
 						if (htvi != NULL) {
 							BOOL state = TreeView_GetCheckState(this->m_Hwnd, htvi);
-							//this->callAliasEx( NULL, "%s,%d,%d,%d", "stateclick", this->getUserID( ), (state ? 0 : 1), TreeView_MapHTREEITEMToAccID(this->m_Hwnd, htvi) );
-							this->callAliasEx( NULL, "%s,%d,%d,%s", "stateclick", this->getUserID( ), (state ? 0 : 1), this->getPathFromItem(&htvi).to_chr() );
+							//this->execAliasEx("%s,%d,%d,%d", "stateclick", this->getUserID( ), (state ? 0 : 1), TreeView_MapHTREEITEMToAccID(this->m_Hwnd, htvi) );
+							this->execAliasEx("%s,%d,%d,%s", "stateclick", this->getUserID( ), (state ? 0 : 1), this->getPathFromItem(&htvi).to_chr() );
 						}
 					}
 				}
@@ -2159,7 +2162,7 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, true);
 
 #ifdef DCX_USE_GDIPLUS
-	if (mIRCLink.m_bUseGDIPlus && this->m_pImage != NULL)
+	if (Dcx::GDIModule.isUseable() && this->m_pImage != NULL)
 		DrawGDIPlusImage(hdc);
 #endif
 
@@ -2590,6 +2593,34 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 		xRes = xNode;
 	}
 	return xRes;
+}
+
+TString DcxTreeView::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	LONG ExStyles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	ExStyles = GetWindowLong(this->m_Hwnd, GWL_EXSTYLE);
+	styles = __super::getStyles();
+	if (Styles & TVS_HASLINES)
+		styles.addtok("haslines", " ");
+	if (Styles & TVS_HASBUTTONS)
+		styles.addtok("hasbuttons", " ");
+	if (Styles & TVS_LINESATROOT)
+		styles.addtok("linesatroot", " ");
+	if (Styles & TVS_SHOWSELALWAYS)
+		styles.addtok("showsel", " ");
+	if (Styles & TVS_EDITLABELS)
+		styles.addtok("editlabel", " ");
+	if (Styles & TVS_NOHSCROLL)
+		styles.addtok("nohscroll", " ");
+	if (Styles & TVS_FULLROWSELECT)
+		styles.addtok("fullrow", " ");
+	if (Styles & TVS_SINGLEEXPAND)
+		styles.addtok("singleexpand", " ");
+	if (ExStyles & TVS_CHECKBOXES)
+		styles.addtok("checkbox", " ");
+	return styles;
 }
 
 /*

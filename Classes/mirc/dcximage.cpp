@@ -14,6 +14,9 @@
 
 #include "dcximage.h"
 #include "../dcxdialog.h"
+#include "../../Dcx.h"
+
+
 
 /*!
  * \brief Constructor
@@ -261,7 +264,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
 		//if (mIRCLink.m_bUseGDIPlus && flag.find('g',0)) {
-		if (mIRCLink.m_bUseGDIPlus) {
+		if (Dcx::GDIModule.isUseable()) {
 			if (!LoadGDIPlusImage(flag,filename))
 				this->showError(NULL,"-i", "Unable to load Image with GDI+");
 		}
@@ -360,6 +363,11 @@ void DcxImage::DrawBMPImage(HDC hdc, int x, int y, int w, int h)
 	DeleteDC( hdcbmp );
 }
 
+void DcxImage::toXml(TiXmlElement * xml) {
+	__super::toXml(xml);
+	if (this->m_tsFilename.len() > 0) xml->SetAttribute("src", m_tsFilename.to_chr());
+}
+
 /*!
  * \brief blah
  *
@@ -374,14 +382,14 @@ LRESULT DcxImage::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
  //         case STN_CLICKED:
  //           {
 	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//							this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+	//							this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
  //           }
  //           break;
 
  //         case STN_DBLCLK:
  //           {
 	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//              this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+	//              this->execAliasEx("%s,%d", "dclick", this->getUserID( ) );
  //           }
  //           break;
  //       }
@@ -481,7 +489,7 @@ void DcxImage::DrawClientArea(HDC hdc)
 	else if ((this->m_hIcon != NULL) && (this->m_bIsIcon))
 		DrawIconEx(hdc, 0, 0, this->m_hIcon, this->m_iIconSize, this->m_iIconSize, 0, this->m_hBackBrush, DI_NORMAL | DI_COMPAT);
 #ifdef DCX_USE_GDIPLUS
-	else if ((this->m_pImage != NULL) && (mIRCLink.m_bUseGDIPlus))
+	else if ((this->m_pImage != NULL) && (Dcx::GDIModule.isUseable()))
 		this->DrawGDIImage(hdc, x, y, w, h);
 #endif
 	this->FinishAlphaBlend(ai);

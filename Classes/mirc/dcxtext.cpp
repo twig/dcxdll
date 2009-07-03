@@ -197,14 +197,14 @@ LRESULT DcxText::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
  //         case STN_CLICKED:
  //           {
 	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//			        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+	//			        this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
  //           }
  //           break;
 
  //         case STN_DBLCLK:
  //           {
 	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//			        this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+	//			        this->execAliasEx("%s,%d", "dclick", this->getUserID( ) );
  //           }
  //           break;
  //       }

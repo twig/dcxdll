@@ -57,6 +57,7 @@ enum ShadowStatus
 // dummy runtime classe definition
 class DcxControl;
 class DcxList;
+class Dcx;
 
 typedef std::vector<DcxControl *> VectorOfControlPtrs; //!< blah
 typedef std::vector<DcxList *> VectorOfDragListPtrs; //!< Vector of draglists
@@ -72,7 +73,7 @@ class DcxDialog : public DcxWindow {
 
 public:
 
-	DcxDialog( const HWND mHwnd, TString & tsName, TString & tsAliasName );
+	DcxDialog( const HWND mHwnd, TString & tsName, TString & tsAliasName);
 	virtual ~DcxDialog( );
 
 	const TString &getName( ) const;
@@ -85,7 +86,8 @@ public:
 	void parseComControlRequestEX(const int id,const char *szFormat, ...);
 	void parseInfoRequest( TString & input, char * szReturnValue );
 
-	BOOL callAliasEx( char * szReturn, const char * szFormat, ... );
+	bool evalAliasEx( char * szReturn, const int maxlen, const char * szFormat, ... );
+	bool execAliasEx( const char * szFormat, ... );
 
 	DcxControl * getControlByID( const UINT ID );
 	DcxControl * getControlByHWND( const HWND mHwnd );
@@ -154,6 +156,10 @@ public:
 
 	void SetVerbose(bool state) { this->m_bVerboseErrors = state; };
 	bool IsVerbose(void) const { return this->m_bVerboseErrors; };
+	void toXml(TiXmlElement * xml);
+	TiXmlElement * toXml();
+	TiXmlElement * toXml(TString * name);
+	void toXml(TiXmlElement * xml, TString * name);
 
 protected:
 
@@ -193,6 +199,10 @@ protected:
 	DWORD m_dEventMask;
 	BOOL m_bTracking;
 	bool m_bVerboseErrors; //!< Should all errors be echo'd to status?
+
+	static bool m_bIsMenuBar;
+	static bool m_bIsSysMenu;
+
 	struct {
 		HWND hWin; //!< The shadow window.
 		BYTE Status; //!< The shadow windows status.

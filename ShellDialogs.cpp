@@ -1,4 +1,7 @@
 #include "defines.h"
+#include "Dcx.h"
+
+
 
 /*
  * Structure to store settings for use in BrowseFolderCallback.
@@ -85,7 +88,7 @@ mIRC(OpenDialog) {
 
 	// count number of tab tokens
 	if (d.numtok(TSTAB) != 3) {
-		DCXError("$!dcx(OpenDialog)","Invalid parameters");
+		Dcx::error("$!dcx(OpenDialog)","Invalid parameters");
 		return 0;
 	}
 
@@ -101,7 +104,7 @@ mIRC(SaveDialog) {
 
 	// count number of tab tokens
 	if (d.numtok(TSTAB) != 3) {
-		DCXError("$!dcx(SaveDialog)","Invalid parameters");
+		Dcx::error("$!dcx(SaveDialog)","Invalid parameters");
 		return 0;
 	}
 
@@ -570,7 +573,7 @@ mIRC(MsgBox) {
 
 	for (int i = 1; i <= n; i++) {
 //		MB_ABORTRETRYIGNORE
-//		MB_CANCELTRYCONTINUE && isXP()
+//		MB_CANCELTRYCONTINUE && Dcx::XPPlusModule.isUseable()
 
 		if (strStyles.gettok( i ) == "ok")
 			style |= MB_OK;

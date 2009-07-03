@@ -3,6 +3,9 @@
 */
 
 #include "dcxDock.h"
+#include "../../Dcx.h"
+
+
 
 BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam);
 
@@ -13,7 +16,7 @@ DcxDock *g_dockToolbar = NULL; // needed to adjust size for statusbar.
 
 // force a window update.
 void UpdatemIRC(void) {
-	SendMessage(mIRCLink.m_mIRCHWND, WM_SIZE, NULL, NULL);
+	SendMessage(Dcx::mIRC.getHWND(), WM_SIZE, NULL, NULL);
 }
 
 /*
@@ -21,46 +24,21 @@ void UpdatemIRC(void) {
 */
 void InitUltraDock(void)
 {
-	/* UltraDock stuff */
-	DCX_DEBUG("InitUltraDock", "Finding mIRC_Toolbar...");
-	mIRCLink.m_hToolbar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_Toolbar",NULL);
-
-	DCX_DEBUG("InitUltraDock", "Finding MDIClient...");
-	mIRCLink.m_hMDI = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"MDIClient",NULL);
-
-	DCX_DEBUG("InitUltraDock", "Finding mIRC_SwitchBar...");
-	mIRCLink.m_hSwitchbar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_SwitchBar",NULL);
-
-	if (mIRCLink.m_bmIRCSixPointThree) { // class renamed for 6.30+
-		DCX_DEBUG("InitUltraDock", "Finding mIRC_TreeBar...");
-		mIRCLink.m_hTreebar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_TreeBar",NULL);
-	}
-	else {
-		DCX_DEBUG("InitUltraDock", "Finding mIRC_TreeList...");
-		mIRCLink.m_hTreebar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_TreeList",NULL);
-	}
-
-	if (IsWindow(mIRCLink.m_hTreebar)) {
-		//mIRCLink.m_hTreeView = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
-		mIRCLink.m_hTreeView = FindWindowEx(mIRCLink.m_hTreebar,NULL,WC_TREEVIEW,NULL);
-		if (IsWindow(mIRCLink.m_hTreeView))
-			mIRCLink.m_hTreeImages = TreeView_GetImageList(mIRCLink.m_hTreeView,TVSIL_NORMAL);
-	}
 	// set all colours as invalid
 	for (int i = 0; i <= TREEBAR_COLOUR_MAX; i++)
 		DcxDock::g_clrTreebarColours[i] = CLR_INVALID;
 
-	g_dockMDI = new DcxDock(mIRCLink.m_hMDI, mIRCLink.m_mIRCHWND, DOCK_TYPE_MDI);
-	g_dockTreebar = new DcxDock(mIRCLink.m_hTreeView, mIRCLink.m_hTreebar, DOCK_TYPE_TREE);
-	g_dockSwitchbar = new DcxDock(NULL, mIRCLink.m_hSwitchbar, DOCK_TYPE_SWITCH);
-	g_dockToolbar = new DcxDock(NULL, mIRCLink.m_hToolbar, DOCK_TYPE_TOOL);
+	g_dockMDI = new DcxDock(Dcx::mIRC.getMDIClient(), Dcx::mIRC.getHWND(), DOCK_TYPE_MDI);
+	g_dockTreebar = new DcxDock(Dcx::mIRC.getTreeview(), Dcx::mIRC.getTreebar(), DOCK_TYPE_TREE);
+	g_dockSwitchbar = new DcxDock(NULL, Dcx::mIRC.getSwitchbar(), DOCK_TYPE_SWITCH);
+	g_dockToolbar = new DcxDock(NULL, Dcx::mIRC.getToolbar(), DOCK_TYPE_TOOL);
 }
 /*
 	*	Eject ALL Docked dialogs.
 */
 void CloseUltraDock(void)
 {
-	EnumChildWindows(mIRCLink.m_mIRCHWND,(WNDENUMPROC)EnumDocked,NULL);
+	EnumChildWindows(Dcx::mIRC.getHWND(),(WNDENUMPROC)EnumDocked,NULL);
 
 	DcxDock::UnInitStatusbar();
 
@@ -69,9 +47,9 @@ void CloseUltraDock(void)
 	delete g_dockTreebar;
 	delete g_dockMDI;
 
-	if (IsWindow(mIRCLink.m_hTreeView) && mIRCLink.m_hTreeImages != NULL) {
-		HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView,mIRCLink.m_hTreeImages,TVSIL_NORMAL);
-		if (o != NULL && o != mIRCLink.m_hTreeImages)
+	if (IsWindow(Dcx::mIRC.getTreeview()) && Dcx::mIRC.getTreeImages() != NULL) {
+		HIMAGELIST o = TreeView_SetImageList(Dcx::mIRC.getTreeview(),Dcx::mIRC.getTreeImages(),TVSIL_NORMAL);
+		if (o != NULL && o != Dcx::mIRC.getTreeImages())
 			ImageList_Destroy(o);
 	}
 
@@ -102,7 +80,7 @@ void UltraDock(const HWND mWnd, HWND temp, const TString &flag)
 	if (g_dockMDI == NULL)
 		return;
 	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,"dcx_docked") != NULL)) {
-		DCXError("/xdock -m","Window already docked");
+		Dcx::error("/xdock -m","Window already docked");
 		return;
 	}
 	g_dockMDI->DockWindow(temp, flag);
@@ -127,7 +105,7 @@ void TreebarDock(HWND temp, const TString &flag)
 	if (g_dockTreebar == NULL)
 		return;
 	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,"dcx_docked") != NULL)) {
-		DCXError("/xdock -b","Window already docked");
+		Dcx::error("/xdock -b","Window already docked");
 		return;
 	}
 	g_dockTreebar->DockWindow(temp, flag);
@@ -151,19 +129,19 @@ int SwitchbarPos(const int type)
 	switch (type)
 	{
 	case DOCK_TYPE_TOOL: // toolbar
-		hwnd = mIRCLink.m_hToolbar;
+		hwnd = Dcx::mIRC.getToolbar();
 		break;
 	case DOCK_TYPE_TREE: // treebar
-		hwnd = mIRCLink.m_hTreebar;
+		hwnd = Dcx::mIRC.getTreebar();
 		break;
 	default:
 	case DOCK_TYPE_SWITCH: // switchbar
-		hwnd = mIRCLink.m_hSwitchbar;
+		hwnd = Dcx::mIRC.getSwitchbar();
 		break;
 	}
 	if (IsWindowVisible(hwnd)) {
 		GetWindowRect(hwnd,&swb_rc);
-		GetWindowRect(mIRCLink.m_hMDI,&mdi_rc);
+		GetWindowRect(Dcx::mIRC.getMDIClient(),&mdi_rc);
 		if (swb_rc.left >= mdi_rc.right)
 			return SWB_RIGHT;
 		if (swb_rc.top >= mdi_rc.bottom)
@@ -189,7 +167,7 @@ int SwitchbarPos(const int type)
 //
 //// force a window update.
 //void UpdatemIRC(void) {
-//	SendMessage(mIRCLink.m_mIRCHWND, WM_SIZE, NULL, NULL);
+//	SendMessage(Dcx::mIRC.getHWND(), WM_SIZE, NULL, NULL);
 //}
 ///*
 //	* Setup Everything for UltraDock
@@ -198,21 +176,21 @@ int SwitchbarPos(const int type)
 //{
 //	/* UltraDock stuff */
 //	DCX_DEBUG("InitUltraDock", "Finding mIRC_Toolbar...");
-//	mIRCLink.m_hToolbar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_Toolbar",NULL);
+//	mIRCLink.m_hToolbar = FindWindowEx(Dcx::mIRC.getHWND(),NULL,"mIRC_Toolbar",NULL);
 //
 //	DCX_DEBUG("InitUltraDock", "Finding MDIClient...");
-//	mIRCLink.m_hMDI = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"MDIClient",NULL);
+//	mIRCLink.m_hMDI = FindWindowEx(Dcx::mIRC.getHWND(),NULL,"MDIClient",NULL);
 //
 //	DCX_DEBUG("InitUltraDock", "Finding mIRC_SwitchBar...");
-//	mIRCLink.m_hSwitchbar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_SwitchBar",NULL);
+//	mIRCLink.m_hSwitchbar = FindWindowEx(Dcx::mIRC.getHWND(),NULL,"mIRC_SwitchBar",NULL);
 //
 //	DCX_DEBUG("InitUltraDock", "Finding mIRC_TreeList...");
-//	mIRCLink.m_hTreebar = FindWindowEx(mIRCLink.m_mIRCHWND,NULL,"mIRC_TreeList",NULL);
+//	mIRCLink.m_hTreebar = FindWindowEx(Dcx::mIRC.getHWND(),NULL,"mIRC_TreeList",NULL);
 //
 //	if (IsWindow(mIRCLink.m_hTreebar)) {
-//		mIRCLink.m_hTreeView = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
-//		if (IsWindow(mIRCLink.m_hTreeView))
-//			mIRCLink.m_hTreeImages = TreeView_GetImageList(mIRCLink.m_hTreeView,TVSIL_NORMAL);
+//		Dcx::mIRC.getTreeview() = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
+//		if (IsWindow(Dcx::mIRC.getTreeview()))
+//			Dcx::mIRC.getTreeImages() = TreeView_GetImageList(Dcx::mIRC.getTreeview(),TVSIL_NORMAL);
 //	}
 //
 //	v_docks.clear();
@@ -225,7 +203,7 @@ int SwitchbarPos(const int type)
 //*/
 //void CloseUltraDock(void)
 //{
-//	EnumChildWindows(mIRCLink.m_mIRCHWND,(WNDENUMPROC)EnumDocked,NULL);
+//	EnumChildWindows(Dcx::mIRC.getHWND(),(WNDENUMPROC)EnumDocked,NULL);
 //	VectorOfDocks::iterator itStart = v_docks.begin();
 //	VectorOfDocks::iterator itEnd = v_docks.end();
 //
@@ -246,9 +224,9 @@ int SwitchbarPos(const int type)
 //	if (oldMDIProc != NULL)
 //		SetWindowLongPtr(mIRCLink.m_hMDI, GWLP_WNDPROC, (LONG_PTR)oldMDIProc);
 //
-//	if (IsWindow(mIRCLink.m_hTreeView) && mIRCLink.m_hTreeImages != NULL) {
-//		HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView,mIRCLink.m_hTreeImages,TVSIL_NORMAL);
-//		if (o != NULL && o != mIRCLink.m_hTreeImages)
+//	if (IsWindow(Dcx::mIRC.getTreeview()) && Dcx::mIRC.getTreeImages() != NULL) {
+//		HIMAGELIST o = TreeView_SetImageList(Dcx::mIRC.getTreeview(),Dcx::mIRC.getTreeImages(),TVSIL_NORMAL);
+//		if (o != NULL && o != Dcx::mIRC.getTreeImages())
 //			ImageList_Destroy(o);
 //	}
 //
@@ -327,7 +305,7 @@ int SwitchbarPos(const int type)
 //	RemStyles(temp,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
 //	//RemStyles(temp,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
 //	AddStyles(temp,GWL_STYLE,WS_CHILDWINDOW);
-//	SetParent(temp, mIRCLink.m_mIRCHWND);
+//	SetParent(temp, Dcx::mIRC.getHWND());
 //	UpdatemIRC();
 //}
 //
@@ -500,7 +478,7 @@ int SwitchbarPos(const int type)
 //			break;
 //		case WM_DESTROY:
 //		{
-//			SetWindowLongPtr(mIRCLink.m_mIRCHWND, GWLP_WNDPROC, (LONG_PTR)oldMDIProc);
+//			SetWindowLongPtr(Dcx::mIRC.getHWND(), GWLP_WNDPROC, (LONG_PTR)oldMDIProc);
 //			PostMessage(mHwnd, uMsg, 0, 0);
 //			return 0L;
 //			break;

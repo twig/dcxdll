@@ -13,6 +13,7 @@
  */
 
 #include "../defines.h"
+#include "../Dcx.h"
 
 #include "dcxcontrol.h"
 #include "dcxdialog.h"
@@ -59,7 +60,6 @@
 #include "dcxdirectshow.h"
 #endif // DCX_USE_DXSDK
 
-extern mIRCDLL mIRCLink;
 
 /*!
  * \brief Constructor
@@ -200,31 +200,31 @@ UINT DcxControl::getUserID( ) const {
  * NB: Possible buffer overwrite condition when returned data is longer than allocated szReturn
  */
 
-BOOL DcxControl::callAliasEx( char * szReturn, const char * szFormat, ... ) {
+bool DcxControl::evalAliasEx( char * szReturn, const int maxlen, const char * szFormat, ... ) {
 
 	va_list args;
+	bool result;
 	va_start( args, szFormat );
 	char parms[2048];
 
 	vsprintf( parms, szFormat, args );
-	wsprintf( mIRCLink.m_pData, "$%s(%s,%s)", 
-		this->m_pParentDialog->getAliasName( ).to_chr( ), 
-		this->m_pParentDialog->getName( ).to_chr( ),
-		parms );
-
-	this->m_pParentDialog->incRef();
-	SendMessage( mIRCLink.m_mIRCHWND, WM_USER + 201, 0, mIRCLink.m_map_cnt );
-
-	if ( szReturn )
-		lstrcpy( szReturn, mIRCLink.m_pData );
-
-	this->m_pParentDialog->decRef();
+	result = this->m_pParentDialog->evalAliasEx(szReturn, maxlen, parms);
 	va_end( args );
 
-	if ( !lstrcmp( mIRCLink.m_pData, "$false" ) )
-		return FALSE;
+	return result;
+}
 
-	return TRUE;
+bool DcxControl::execAliasEx( const char * szFormat, ... ) {
+
+	TString parms;
+	va_list args;
+	bool result;
+	va_start( args, szFormat );
+	parms.vprintf(szFormat, &args);
+	result = this->m_pParentDialog->execAliasEx(parms.to_chr());
+	va_end( args );
+
+	return result;
 }
 
 /*!
@@ -840,9 +840,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 	}
 	else if ( prop == "pos" ) {
 		RECT rc;
-		GetWindowRect( this->m_Hwnd, &rc );
-		MapWindowPoints(NULL, GetParent( this->m_Hwnd ), (LPPOINT)&rc, 2);
-
+		rc = getPosition();
 		wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
 		return TRUE;
 	}
@@ -879,6 +877,10 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 	else if ( prop == "type" ) {
 
 		lstrcpyn( szReturnValue, this->getType( ).to_chr( ), 900 );
+		return TRUE;
+	}
+	else if ( prop == "styles" ) {
+		lstrcpyn( szReturnValue, this->getStyles( ).to_chr( ), 900 );
 		return TRUE;
 	}
 	else if ( prop == "font") {
@@ -1132,7 +1134,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 			if (!IsWindow(winHwnd)) {
 				char windowHwnd[30];
 
-				mIRCevalEX(windowHwnd, 30, "$window(%s).hwnd", tsInput.gettok( offset +1 ).to_chr( ) );
+				Dcx::mIRC.evalex(windowHwnd, 30, "$window(%s).hwnd", tsInput.gettok( offset +1 ).to_chr( ) );
 
 				winHwnd = (HWND) atoi( windowHwnd );
 			}
@@ -1142,7 +1144,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 					return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 			}
 			else {
-				DCXErrorEX("ControlFactory", "Docking (No such window %s)", tsInput.gettok( offset +1 ).to_chr());
+				Dcx::errorex("ControlFactory", "Docking (No such window %s)", tsInput.gettok( offset +1 ).to_chr());
 				throw "No such window";
 			}
 		}
@@ -1154,7 +1156,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 			if (IsWindow(winHwnd)) {
 				if (p_Dialog->getControlByHWND(winHwnd) == NULL) {
 					DcxControl* newDialog = new DcxMDialog(winHwnd, hParent, mID, p_Dialog, &rc, styles);
-					DcxDialog* dlg = dcxDialogs().getDialogByHandle(winHwnd);
+					DcxDialog* dlg = Dcx::Dialogs.getDialogByHandle(winHwnd);
 
 					// if its a dcx marked dialog, mark the parent name
 					if (dlg != NULL)
@@ -1164,7 +1166,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 				}
 			}
 			else {
-				DCXErrorEX("ControlFactory","Docking (No such dialog %s)", tsInput.gettok( offset +1 ).to_chr());
+				Dcx::errorex("ControlFactory","Docking (No such dialog %s)", tsInput.gettok( offset +1 ).to_chr());
 				throw "No such dialog";
 			}
 		}
@@ -1257,6 +1259,13 @@ COLORREF DcxControl::getBackColor( ) const {
 
 COLORREF DcxControl::getTextColor( ) const {
 	return this->m_clrText;
+}
+
+RECT DcxControl::getPosition(void) {
+	RECT rc;
+	GetWindowRect( this->m_Hwnd, &rc );
+	MapWindowPoints(NULL, GetParent( this->m_Hwnd ), (LPPOINT)&rc, 2);
+	return rc;
 }
 
 void DcxControl::updateParentCtrl(void)
@@ -1669,12 +1678,12 @@ void DcxControl::showError(const char *prop, const char *cmd, const char *err)
 		if (prop != NULL)
 			res.sprintf("D_IERROR %s(%s, %d).%s: %s", this->getType().to_chr(), this->m_pParentDialog->getName().to_chr(), this->getUserID(), prop, err);
 		else
-			res.sprintf("D_CERROR (%s) xdid %s %s %d: %s", this->getType().to_chr(), cmd, this->m_pParentDialog->getName().to_chr(), this->getUserID(), err);
-		mIRCError(res.to_chr());
+			res.sprintf("D_CERROR (%s) xdid %s %s %d: %s", this->getType().to_chr(), cmd, this->m_pParentDialog->getName().to_chr(), this->getUserID(), err);		
+		Dcx::error(cmd, res.to_chr());
 	}
 
 	if (this->m_pParentDialog->getAliasName().len() > 0)
-		this->callAliasEx(NULL, "error,%d,%s,%s,%s,%s", this->getUserID(), this->getType().to_chr(), (prop != NULL ? prop : "none"), (cmd != NULL ? cmd : "none"), err);
+		this->execAliasEx("error,%d,%s,%s,%s,%s", this->getUserID(), this->getType().to_chr(), (prop != NULL ? prop : "none"), (cmd != NULL ? cmd : "none"), err);
 }
 void DcxControl::showErrorEx(const char *prop, const char *cmd, const char *fmt, ...)
 {
@@ -1698,7 +1707,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		case WM_HELP:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-					this->callAliasEx( NULL, "%s,%d", "help", this->getUserID( ) );
+					this->execAliasEx("%s,%d", "help", this->getUserID( ) );
 				bParsed = TRUE;
 				lRes = TRUE;
 			}
@@ -1787,15 +1796,18 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		case WM_LBUTTONDOWN:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "lbdown", this->getUserID( ) );
+				{
+					this->execAliasEx("%s,%d", "lbdown", this->getUserID( ) );
+				}
 			}
 			break;
 
 		case WM_LBUTTONUP:
 			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
-					this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				{
+					this->execAliasEx("%s,%d", "lbup", this->getUserID( ) );
+					this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
 				}
 			}
 			break;
@@ -1803,8 +1815,8 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		case WM_LBUTTONDBLCLK:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
-					this->callAliasEx( NULL, "%s,%d", "lbdblclk", this->getUserID( ) );
+					this->execAliasEx("%s,%d", "dclick", this->getUserID( ) );
+					this->execAliasEx("%s,%d", "lbdblclk", this->getUserID( ) );
 				}
 			}
 			break;
@@ -1812,28 +1824,28 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		case WM_RBUTTONDOWN:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "rbdown", this->getUserID( ) );
+					this->execAliasEx("%s,%d", "rbdown", this->getUserID( ) );
 			}
 			break;
 
 		case WM_RBUTTONUP:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "rbup", this->getUserID( ) );
+					this->execAliasEx("%s,%d", "rbup", this->getUserID( ) );
 			}
 			break;
 
 		case WM_RBUTTONDBLCLK:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "rdclick", this->getUserID( ) );
+					this->execAliasEx("%s,%d", "rdclick", this->getUserID( ) );
 			}
 			break;
 
 		case WM_CONTEXTMENU:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
+					this->execAliasEx("%s,%d", "rclick", this->getUserID( ) );
 			}
 			break;
 		case WM_DROPFILES:
@@ -1846,7 +1858,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
 					char ret[20];
 
-					this->callAliasEx(ret, "%s,%d,%d", "dragbegin", this->getUserID(), count);
+					this->evalAliasEx(ret, 255, "%s,%d,%d", "dragbegin", this->getUserID(), count);
 
 					// cancel drag drop event
 					if (lstrcmpi(ret, "cancel") == 0) {
@@ -1857,10 +1869,10 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 					// for each file, send callback message
 					for (int i = 0; i < count; i++) {
 						if (DragQueryFile(files, i, filename, 500))
-							this->callAliasEx(NULL, "%s,%d,%s", "dragfile", this->getUserID(), filename);
+							this->execAliasEx("%s,%d,%s", "dragfile", this->getUserID(), filename);
 					}
 
-					this->callAliasEx(NULL, "%s,%d", "dragfinish", this->getUserID());
+					this->execAliasEx("%s,%d", "dragfinish", this->getUserID());
 				}
 			}
 
@@ -1888,7 +1900,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 					case TTN_LINKCLICK:
 						{
 							bParsed = TRUE;
-							this->callAliasEx( NULL, "%s,%d", "tooltiplink", this->getUserID( ) );
+							this->execAliasEx("%s,%d", "tooltiplink", this->getUserID( ) );
 						}
 						break;
 					}
@@ -1978,4 +1990,89 @@ void DcxControl::ctrlDrawText(HDC hdc, TString txt, const LPRECT rc, const UINT 
 	}
 	else
 		mIRC_DrawText(hdc, txt, rc, style, this->m_bShadowText, this->m_bUseUTF8);
+}
+
+TString DcxControl::getStyles(void) {
+	TString result("");
+	LONG exStyles, Styles;
+	exStyles = GetWindowLong(this->m_Hwnd, GWL_EXSTYLE);
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	//TODO: don't now how to get it now
+	//if ( bNoTheme )
+	//	result += "notheme "
+	if ( Styles & WS_TABSTOP ) 
+		result.addtok("tabstop", " ");
+	if ( Styles & WS_GROUP ) 
+		result.addtok("group", " ");
+	if ( Styles & WS_DISABLED ) 
+		result.addtok("disabled", " ");
+	if ( exStyles & WS_EX_TRANSPARENT )
+		result.addtok("transparent", " ");
+	if ( ~Styles & WS_VISIBLE )
+		result.addtok("hidden", " ");
+	if ( this->m_bAlphaBlend )
+		result.addtok("alpha", " ");
+	if ( this->m_bShadowText )
+		result.addtok("shadow", " ");
+	if ( !this->m_bCtrlCodeText ) 
+		result.addtok("noformat", " ");
+	if ( this->m_bGradientFill ) {
+		if ( this->m_bGradientVertical )
+			result.addtok("vgradient", " ");
+		else 
+			result.addtok("hgradient", " ");
+	}
+	if ( this->m_bUseUTF8 ) 
+		result.addtok("utf8", " ");
+	return result;
+}
+
+TString DcxControl::getBorderStyles(void) {
+	char bstyles[20];
+	LONG exStyles, Styles;
+	exStyles = GetWindowLong(this->m_Hwnd, GWL_EXSTYLE);
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	int i = 0;
+	if (Styles & WS_BORDER) { 
+		bstyles[i] = 'b';
+		i++;
+	}
+	if (exStyles & WS_EX_CLIENTEDGE) { 
+		bstyles[i] = 'c';
+		i++;
+	}
+	if (Styles & WS_DLGFRAME) { 
+		bstyles[i] = 'd';
+		i++;
+	}
+	if (exStyles & WS_EX_DLGMODALFRAME) { 
+		bstyles[i] = 'f';
+		i++;
+	}
+	if (exStyles & WS_EX_STATICEDGE) { 
+		bstyles[i] = 's';
+		i++;
+	}
+	if (exStyles & WS_EX_WINDOWEDGE) { 
+		bstyles[i] = 'w';
+		i++;
+	}
+	bstyles[i] = '\0';
+	TString result(bstyles);
+	return result;
+}
+
+void DcxControl::toXml(TiXmlElement * xml) {
+	TString styles = getStyles().to_chr();
+	int id = getID() - mIRC_ID_OFFSET;
+
+	xml->SetAttribute("id", id);
+	xml->SetAttribute("type", getType().to_chr());
+	if (styles.len() > 0) xml->SetAttribute("styles", styles.to_chr());
+}
+
+TiXmlElement * DcxControl::toXml(void) {
+	TiXmlElement * result = new TiXmlElement("control");
+	this->toXml(result);
+	return result;
 }

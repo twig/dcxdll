@@ -1,3 +1,4 @@
+#include "../../Dcx.h"
 #include "../../defines.h"
 #include "../tinyxml/tinyxml.h"
 #include "../dcxdialog.h"

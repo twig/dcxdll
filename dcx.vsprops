@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="dcx"
+	>
+	<Tool
+		Name="VCPostBuildEventTool"
+		Description="Copy compiled dcx.dll to mIRC dir"
+		CommandLine="copy /B /-Y $(TargetPath) $(mIRCDir)\dcx\"
+	/>
+	<Tool
+		Name="VCPreBuildEventTool"
+		Description="Delete old dcx.dll from mIRC dir"
+		CommandLine="del /F $(mIRCDir)\dcx\dcx.dll"
+	/>
+	<UserMacro
+		Name="mIRCDir"
+		Value="%APPDATA%\mIRC"
+	/>
+</VisualStudioPropertySheet>

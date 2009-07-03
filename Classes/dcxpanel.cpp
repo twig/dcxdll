@@ -74,6 +74,11 @@ DcxPanel::~DcxPanel( ) {
   this->unregistreDefaultWindowProc( );
 }
 
+void DcxPanel::toXml(TiXmlElement * xml) {
+	__super::toXml(xml);
+	this->m_pLayoutManager->getRoot()->toXml(xml);
+}
+
 /*!
  * \brief blah
  *
@@ -490,7 +495,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				}
 
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
-					this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
+					this->execAliasEx("%s,%d", "sizing", this->getUserID( ) );
 
 				if (this->m_pLayoutManager != NULL) {
 					RECT rc;

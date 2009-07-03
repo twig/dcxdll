@@ -43,6 +43,9 @@ public:
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   inline TString getType( ) { return TString( "calendar" ); };
+  void toXml(TiXmlElement * xml);
+  TString getStyles(void);
+  TString getValue(void);
 };
 
 #endif // _DCXCALENDAR_H_

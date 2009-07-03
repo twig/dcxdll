@@ -97,5 +97,6 @@ void DrawXorBar(HDC hdc, int x1, int y1, int width, int height );
 LRESULT Divider_OnLButtonUp( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 LRESULT Divider_OnMouseMove( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect );
+void Divider_GetChildControl( HWND mHwnd, UINT pane, LPDVPANEINFO result);
 
 #endif // _DIVIDER_H_

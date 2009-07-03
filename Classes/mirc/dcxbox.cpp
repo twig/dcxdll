@@ -13,13 +13,14 @@
  */
 
 #include "dcxbox.h"
+#include "../../Dcx.h"
 #include "../dcxdialog.h"
 
 #include "../layout/layoutcellfixed.h"
 #include "../layout/layoutcellfill.h"
 #include "../layout/layoutcellpane.h"
 
-extern BOOL XPPlus;
+
 
 /*!
  * \brief Constructor
@@ -98,7 +99,7 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 		if (!(Styles & WS_DISABLED))
 			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
 	}
-	if (XPPlus)
+	if (Dcx::XPPlusModule.isUseable())
 		this->_hTheme = OpenThemeDataUx(this->m_Hwnd,L"BUTTON");
 }
 
@@ -502,6 +503,35 @@ BOOL CALLBACK EnumBoxChildren(HWND hwnd,LPDCXENUM de)
 	return TRUE;
 }
 
+void DcxBox::toXml(TiXmlElement * xml) {
+	TString wtext;
+	int n = TGetWindowText(this->m_Hwnd, wtext);
+	__super::toXml(xml);
+	xml->SetAttribute("caption", wtext.to_chr());
+	this->m_pLayoutManager->getRoot()->toXml(xml);
+}
+
+TString DcxBox::getStyles(void) {
+	TString result;
+	result = __super::getStyles();
+	if (this->m_iBoxStyles & BOXS_RIGHT)
+		result.addtok("right", " ");
+	if (this->m_iBoxStyles & BOXS_CENTER)
+		result.addtok("center", " ");
+	if (this->m_iBoxStyles & BOXS_BOTTOM)
+		result.addtok("bottom", " ");
+	if (this->m_iBoxStyles & BOXS_NONE)
+		result.addtok("none", " ");
+	if (this->m_iBoxStyles & BOXS_ROUNDED)
+		result.addtok("rounded", " ");
+	if (this->m_iBoxStyles & BOXS_CHECK)
+		result.addtok("check", " ");
+	else if (this->m_iBoxStyles & BOXS_RADIO)
+		result.addtok("radio", " ");
+
+	return result;
+}
+
 /*!
  * \brief blah
  *
@@ -542,7 +572,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 								char ret[10];
 
-								this->callAliasEx(ret, "%s,%d,%d", "checkchange", this->getUserID(), state);
+								this->evalAliasEx(ret, 9, "%s,%d,%d", "checkchange", this->getUserID(), state);
 
 								if (lstrcmp("nochange", ret) == 0)
 									return 0L;
@@ -636,7 +666,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				}
 
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
-					this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
+					this->execAliasEx("%s,%d", "sizing", this->getUserID( ) );
 
 				if (this->m_pLayoutManager != NULL) {
 					RECT rc;
@@ -728,9 +758,11 @@ void DcxBox::DrawClientArea(HDC hdc)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc,true);
 
+	DcxControl::DrawCtrlBackground(hdc, this, &rc2); //Moved out from the if, becase of painting-bug (Alpha)
+
 	// if no border, dont bother
 	if (this->m_iBoxStyles & BOXS_NONE) {
-		DcxControl::DrawCtrlBackground(hdc, this, &rc2);
+		//DcxControl::DrawCtrlBackground(hdc, this, &rc2);
 		return;
 	}
 

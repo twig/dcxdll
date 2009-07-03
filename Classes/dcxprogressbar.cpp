@@ -79,6 +79,22 @@ DcxProgressBar::~DcxProgressBar( ) {
   this->unregistreDefaultWindowProc( );
 }
 
+TString DcxProgressBar::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & PBS_SMOOTH)
+		styles.addtok("smooth", " ");
+	if (Styles & PBS_VERTICAL)
+		styles.addtok("vertical", " ");
+	if (Styles & PBS_MARQUEE)
+		styles.addtok("marquee", " ");
+	if (this->m_bIsGrad)
+		styles.addtok("gradient", " ");
+	return styles;
+}
+
 /*!
  * \brief blah
  *
@@ -341,6 +357,11 @@ LRESULT DcxProgressBar::setBKColor( const COLORREF clrBk ) {
 	return SendMessage( this->m_Hwnd, PBM_SETBKCOLOR, (WPARAM) 0, (LPARAM) clrBk ); 
 }
 
+void DcxProgressBar::toXml(TiXmlElement * xml) {
+	xml->SetAttribute("type", "pbar");
+	__super::toXml(xml);
+}
+
 /*!
  * \brief blah
  *
@@ -396,7 +417,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 					int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-					this->callAliasEx(NULL, "%s,%d,%d,%d,%d,%d", "sclick", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
+					this->execAliasEx("%s,%d,%d,%d,%d,%d", "sclick", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 				}
 			}
 			break;
@@ -413,7 +434,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 					int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-					this->callAliasEx(NULL, "%s,%d,%d,%d,%d,%d", "rclick", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
+					this->execAliasEx("%s,%d,%d,%d,%d,%d", "rclick", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 				}
 			}
 			break;
@@ -434,7 +455,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 						int nPos = iLower + (int)( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-						this->callAliasEx(NULL, "%s,%d,%d,%d,%d, %d", "mousebar", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
+						this->execAliasEx("%s,%d,%d,%d,%d, %d", "mousebar", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 					}
 				}
 			}

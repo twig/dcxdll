@@ -66,6 +66,38 @@ DcxLine::~DcxLine( ) {
 	this->unregistreDefaultWindowProc( );
 }
 
+TString DcxLine::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (this->m_bVertical)
+		styles.addtok("vertical", " ");
+	if (Styles & SS_LEFTNOWORDWRAP)
+		styles.addtok("nowrap", " ");
+	if (Styles & SS_CENTER)
+		styles.addtok("center", " ");
+	if (Styles & SS_RIGHT)
+		styles.addtok("right", " ");
+	if (Styles & SS_NOPREFIX)
+		styles.addtok("noprefix", " ");
+	if (Styles & SS_ENDELLIPSIS)
+		styles.addtok("endellipsis", " ");
+	if (Styles & SS_PATHELLIPSIS)
+		styles.addtok("pathellipsis", " ");
+	return styles;
+
+}
+
+void DcxLine::toXml(TiXmlElement * xml) {
+	__super::toXml(xml);
+	TString styles(xml->Attribute("styles"));
+	styles.remtok("transparent", 1); // line always has transparent style (why?)
+	if (styles.len() > 0) xml->SetAttribute("styles", styles.to_chr());
+	else xml->RemoveAttribute("styles");
+	if (this->m_sText.len() > 0) xml->SetAttribute("caption", this->m_sText.to_chr());
+}
+
 /*!
  * \brief blah
  *

@@ -57,6 +57,8 @@ public:
 	HIMAGELIST createImageList( );
 
 	inline TString getType( ) { return TString( "button" ); };
+	void toXml(TiXmlElement * xml);
+	TString getStyles(void);
 
 protected:
 

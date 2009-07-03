@@ -63,6 +63,8 @@ public:
 	LRESULT replaceSel(const BOOL bUndo, LPCTSTR lpstr);
 	LRESULT getCharFormat(const UINT iType, CHARFORMAT2 *cfm) const;
 	LRESULT setCharFormat(const UINT iType, CHARFORMAT2 *cfm);
+	void toXml(TiXmlElement * xml);
+	TString getStyles(void);
 
 	//LRESULT getLineLength();
 	//LRESULT getLineIndex();

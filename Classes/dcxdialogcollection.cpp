@@ -16,6 +16,8 @@
 #include "dcxdialogcollection.h"
 #include "dcxdialog.h"
 
+
+
 /*!
  * \brief Constructor
  *
@@ -64,6 +66,28 @@ DcxDialog * DcxDialogCollection::getDialogByHandle( const HWND mHwnd ) {
   while ( itStart != itEnd ) {
 
     if ( (*itStart)->getHwnd( ) == mHwnd ) 
+      return *itStart;
+
+    itStart++;
+  }
+
+  return NULL;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+DcxDialog * DcxDialogCollection::getDialogByChildHandle( const HWND mHwnd ) {
+
+  VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
+  VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
+
+  while ( itStart != itEnd ) {
+
+	  if ((*itStart)->getControlByHWND(mHwnd) != NULL) 
       return *itStart;
 
     itStart++;

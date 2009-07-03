@@ -41,7 +41,7 @@
 
 #include <windows.h>
 
-#include "TString.h"
+#include "tstring.h"
 
 const char *TString::m_cSpace = " ";
 const char *TString::m_cComma = ",";
@@ -1741,6 +1741,12 @@ void TString::puttok( const char * cToken, int N, const char * sepChars ) {
   }
 }
 
+void TString::remtok(const char * cToken, int N, const char * sepChars) {
+	int count = 0;
+	int tokennr;
+	tokennr = findtok(cToken, N, sepChars);
+	if (tokennr > 0) deltok(tokennr);
+}
 /*!
  * \brief blah
  *
@@ -2016,16 +2022,23 @@ int TString::sprintf(const char *fmt, ...)
 {
 	va_list args;
 	va_start( args, fmt );
-	int cnt = _vscprintf(fmt, args);
-	char *txt = new char[cnt +1];
-	// warning C4996: 'vsprintf' was declared deprecated
-	// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
-	vsprintf(txt, fmt, args );
-	this->deleteString();
-	this->m_pString = txt;
+	int cnt = vprintf(fmt, &args);
 	va_end( args );
 	return cnt;
 }
+
+int TString::vprintf(const char *fmt, va_list * args)
+{
+	int cnt = _vscprintf(fmt, *args);
+	char *txt = new char[cnt +1];
+	// warning C4996: 'vsprintf' was declared deprecated
+	// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
+	vsprintf(txt, fmt, *args );
+	this->deleteString();
+	this->m_pString = txt;
+	return cnt;
+}
+
 /*
  * iswm(*mask*)
  *    returns TRUE if *mask* matches string

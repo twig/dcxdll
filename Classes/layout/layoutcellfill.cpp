@@ -21,7 +21,7 @@
  * blah
  */
 
-LayoutCellFill::LayoutCellFill( ) : LayoutCell( NULL ) {
+LayoutCellFill::LayoutCellFill( ) : LayoutCell( ) {
 
 }
 
@@ -32,6 +32,16 @@ LayoutCellFill::LayoutCellFill( ) : LayoutCell( NULL ) {
  */
 
 LayoutCellFill::LayoutCellFill( const HWND mHwnd ) : LayoutCell( mHwnd ) {
+
+}
+
+/*!
+ * \brief Constructor
+ *
+ * blah
+ */
+
+LayoutCellFill::LayoutCellFill( DcxControl * dcxc ) : LayoutCell( dcxc ) {
 
 }
 
@@ -107,4 +117,22 @@ void LayoutCellFill::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
   }
   else
     ZeroMemory( pCMMI, sizeof( CellMinMaxInfo ) );
+}
+
+void LayoutCellFill::toXml(TiXmlElement * xml) {
+	char margin[900];
+	if (this->m_BaseControl) {
+		this->m_BaseControl->toXml(xml);
+	}
+	if (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0) {
+		sprintf_s(margin, 900, "%d %d %d %d", m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
+		xml->SetAttribute("margin", margin);
+	}
+}
+
+
+TiXmlElement * LayoutCellFill::toXml(void) {
+	//DcxControl * basectrl = this->m_Hwnd
+	TiXmlElement * base = this->m_BaseControl->toXml();
+	return base;
 }

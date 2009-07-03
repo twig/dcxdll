@@ -97,7 +97,9 @@ public:
 
 	void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-	BOOL callAliasEx( char * szReturn, const char * szFormat, ... );
+	bool evalAliasEx(char * szReturn, const int maxlen, const char * szFormat, ... );
+
+	bool execAliasEx(const char * szFormat, ... );
 
 	UINT getUserID( ) const;
 
@@ -118,10 +120,15 @@ public:
 	COLORREF getTextColor( ) const;
 	COLORREF getStartGradientColor(void) const { return this->m_clrStartGradient; };
 	COLORREF getEndGradientColor(void) const { return this->m_clrEndGradient; };
+	RECT getPosition(void);
 
 	static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, int offset, const UINT64 mask = -1, HWND hParent = NULL);
 
 	virtual TString getType( ) = 0;
+	virtual TString getStyles(void);
+	virtual TString getBorderStyles(void);
+	virtual void toXml(TiXmlElement * xml);
+	virtual TiXmlElement * toXml(void);
 
 	inline void incRef( ) { ++this->m_iRefCount; };
 	inline void decRef( ) { --this->m_iRefCount; };

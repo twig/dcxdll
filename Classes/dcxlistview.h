@@ -123,6 +123,7 @@ public:
 
 	int getTopIndex( ) const;
 	int getBottomIndex( ) const;
+	TString getStyles(void);
 
 protected:
 

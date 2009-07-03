@@ -81,6 +81,19 @@ DcxIpAddress::~DcxIpAddress( ) {
 	this->unregistreDefaultWindowProc( );
 }
 
+void DcxIpAddress::toXml(TiXmlElement * xml) {
+	DWORD ip;
+	char buf[900];
+	this->getAddress( &ip );
+	wsprintf( buf, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
+		SECOND_IPADDRESS( ip ),
+		THIRD_IPADDRESS( ip ),
+		FOURTH_IPADDRESS( ip ) );
+	__super::toXml(xml);
+	xml->SetAttribute("caption", buf);
+
+}
+
 /*!
  * \brief blah
  *
@@ -259,7 +272,7 @@ LRESULT DcxIpAddress::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
           case IPN_FIELDCHANGED:
             {
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-	              this->callAliasEx( NULL, "%s,%d", "edit", this->getUserID( ) );
+	              this->execAliasEx("%s,%d", "edit", this->getUserID( ) );
               bParsed = TRUE;
             }
             break;
@@ -287,12 +300,12 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					{
 					case WM_LBUTTONUP:
 						{
-							this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+							this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
 						}
 						break;
 					case WM_RBUTTONUP:
 						{
-							this->callAliasEx( NULL, "%s,%d", "rclick", this->getUserID( ) );
+							this->execAliasEx("%s,%d", "rclick", this->getUserID( ) );
 						}
 						break;
 					}

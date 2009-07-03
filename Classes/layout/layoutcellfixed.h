@@ -39,6 +39,7 @@ public:
 		BOTH=HEIGHT|WIDTH //!< Fixed Size in Both
 	};
 
+  LayoutCellFixed( DcxControl * dcxc, const FixedType nType = BOTH );
   LayoutCellFixed( const HWND mHwnd, const FixedType nType = BOTH );
   LayoutCellFixed( const HWND mHwnd, const RECT & rc, const FixedType nType = BOTH );
   LayoutCellFixed( const RECT & rc, const FixedType nType = BOTH );
@@ -47,6 +48,8 @@ public:
   virtual void LayoutChild( );
   virtual HDWP ExecuteLayout( HDWP hdwp );
   virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI );
+  virtual void toXml(TiXmlElement * xml);
+  virtual TiXmlElement * toXml(void);
 
   CellType getType( );
 

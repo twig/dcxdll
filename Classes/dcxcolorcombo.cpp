@@ -14,6 +14,9 @@
 
 #include "dcxcolorcombo.h"
 #include "dcxdialog.h"
+#include "../Dcx.h"
+
+
 
 /*!
  * \brief Constructor
@@ -220,7 +223,7 @@ void DcxColorCombo::setmIRCPalette( ) {
 
   static const char com[] = "$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)";
   char colors[500];
-  mIRCeval( com, colors, 500 );
+  Dcx::mIRC.eval( colors, 500, com );
 
   TString cols = colors;
   LPDCXCCOMBOITEM lpdcxcci;
@@ -322,7 +325,7 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
           case CBN_SELENDOK:
             {
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				        this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
+				        this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
               bParsed = TRUE;
               return 0L;
             }
@@ -424,7 +427,7 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
     case WM_LBUTTONUP:
       {
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	        this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
+	        this->execAliasEx("%s,%d", "lbup", this->getUserID( ) );
       }
       break;
     case WM_DESTROY:

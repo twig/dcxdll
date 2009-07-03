@@ -67,6 +67,7 @@ public:
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   inline TString getType( ) { return TString( "stacker" ); };
+  TString getStyles(void);
 
 protected:
 	HWND m_hActive;

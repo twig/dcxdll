@@ -3,22 +3,25 @@
 */
 
 #include "dcxDock.h"
+#include "../../Dcx.h"
+
+
 
 void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVITEMEX pitem)
 {
 	ZeroMemory(pitem, sizeof(TVITEMEX));
-	for (HTREEITEM ptvitem = TreeView_GetChild(mIRCLink.m_hTreeView, hParent); ptvitem != NULL; ptvitem = TreeView_GetNextSibling(mIRCLink.m_hTreeView, ptvitem)) {
+	for (HTREEITEM ptvitem = TreeView_GetChild(Dcx::mIRC.getTreeview(), hParent); ptvitem != NULL; ptvitem = TreeView_GetNextSibling(Dcx::mIRC.getTreeview(), ptvitem)) {
 		pitem->hItem = ptvitem;
 		pitem->pszText = buf.to_chr();
 		pitem->cchTextMax = 255;
 		pitem->mask = TVIF_TEXT|TVIF_PARAM;
-		if (TreeView_GetItem(mIRCLink.m_hTreeView, pitem)) {
+		if (TreeView_GetItem(Dcx::mIRC.getTreeview(), pitem)) {
 			int i = 0;
 			{
 				TString tsType((UINT)64);
 				DcxDock::getTreebarItemType(tsType, pitem->lParam);
-				mIRCcomEX("/!set -nu1 %%dcx_%d %800s", pitem->lParam, pitem->pszText );
-				mIRCevalEX(res.to_chr(), 16, "$xtreebar_callback(geticons,%s,%%dcx_%d)", tsType.to_chr(), pitem->lParam);
+				Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", pitem->lParam, pitem->pszText );
+				Dcx::mIRC.evalex(res.to_chr(), 16, "$xtreebar_callback(geticons,%s,%%dcx_%d)", tsType.to_chr(), pitem->lParam);
 			}
 			pitem->mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 			i = res.gettok( 1 ).to_int() -1;
@@ -29,7 +32,7 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 			if (i < 0)
 				i = 0;
 			pitem->iSelectedImage = i;
-			TreeView_SetItem(mIRCLink.m_hTreeView, pitem);
+			TreeView_SetItem(Dcx::mIRC.getTreeview(), pitem);
 		}
 		TraverseChildren(ptvitem, buf, res, pitem);
 	}
@@ -37,23 +40,23 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 
 void TraverseTreebarItems(void)
 {
-	SetWindowRedraw(mIRCLink.m_hTreeView, FALSE);
+	SetWindowRedraw(Dcx::mIRC.getTreeview(), FALSE);
 	TString buf((UINT)255);
 	TString res((UINT)16);
 	TVITEMEX item;
 	ZeroMemory(&item, sizeof(item));
-	for (HTREEITEM ptvitem = TreeView_GetRoot(mIRCLink.m_hTreeView); ptvitem != NULL; ptvitem = TreeView_GetNextSibling(mIRCLink.m_hTreeView, ptvitem)) {
+	for (HTREEITEM ptvitem = TreeView_GetRoot(Dcx::mIRC.getTreeview()); ptvitem != NULL; ptvitem = TreeView_GetNextSibling(Dcx::mIRC.getTreeview(), ptvitem)) {
 		item.hItem = ptvitem;
 		item.pszText = buf.to_chr();
 		item.cchTextMax = 255;
 		item.mask = TVIF_TEXT|TVIF_PARAM;
-		if (TreeView_GetItem(mIRCLink.m_hTreeView, &item)) {
+		if (TreeView_GetItem(Dcx::mIRC.getTreeview(), &item)) {
 			int i = 0;
 			{
 				TString tsType((UINT)32);
 				DcxDock::getTreebarItemType(tsType, item.lParam);
-				mIRCcomEX("/!set -nu1 %%dcx_%d %800s", item.lParam, item.pszText );
-				mIRCevalEX(res.to_chr(), 32, "$xtreebar_callback(geticons,%s,%%dcx_%d)", tsType.to_chr(), item.lParam);
+				Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", item.lParam, item.pszText );
+				Dcx::mIRC.evalex(res.to_chr(), 32, "$xtreebar_callback(geticons,%s,%%dcx_%d)", tsType.to_chr(), item.lParam);
 			}
 			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 			i = res.gettok( 1 ).to_int() -1;
@@ -64,11 +67,11 @@ void TraverseTreebarItems(void)
 			if (i < 0)
 				i = 0;
 			item.iSelectedImage = i;
-			TreeView_SetItem(mIRCLink.m_hTreeView, &item);
+			TreeView_SetItem(Dcx::mIRC.getTreeview(), &item);
 		}
 		TraverseChildren(ptvitem, buf, res, &item);
 	}
-	SetWindowRedraw(mIRCLink.m_hTreeView, TRUE);
+	SetWindowRedraw(Dcx::mIRC.getTreeview(), TRUE);
 }
 
 // [SWITCH] [OPTIONS]
@@ -79,15 +82,15 @@ mIRC(xtreebar) {
 
 	int numtok = input.numtok( );
 
-	if (!IsWindow(mIRCLink.m_hTreeView)) {
-		DCXError("/xtreebar", "No Treebar");
+	if (!IsWindow(Dcx::mIRC.getTreeview())) {
+		Dcx::error("/xtreebar", "No Treebar");
 		return 0;
 	}
 
 	TString switches(input.gettok(1));
 
 	if (switches[0] != '-') {
-		DCXError("/xtreebar", "Invalid Switch");
+		Dcx::error("/xtreebar", "Invalid Switch");
 		return 0;
 	}
 
@@ -95,7 +98,7 @@ mIRC(xtreebar) {
 		case 'f': // [+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]
 			{
 				if (numtok < 5) {
-					DCXError("/xtreebar -f", "Invalid Font Args");
+					Dcx::error("/xtreebar -f", "Invalid Font Args");
 					return 0;
 				}
 				LOGFONT lf;
@@ -103,12 +106,7 @@ mIRC(xtreebar) {
 				if (ParseCommandToLogfont(input.gettok(2, -1), &lf)) {
 					HFONT hFont = CreateFontIndirect(&lf);
 					if (hFont != NULL) {
-						HFONT f = GetWindowFont(mIRCLink.m_hTreeView);
-						if (mIRCLink.m_hTreeFont == NULL)
-							mIRCLink.m_hTreeFont = f;
-						SetWindowFont( mIRCLink.m_hTreeView, hFont, TRUE);
-						if (f != mIRCLink.m_hTreeFont)
-							DeleteObject(f);
+						Dcx::mIRC.setTreeFont(hFont);
 					}
 				}
 			}
@@ -116,7 +114,7 @@ mIRC(xtreebar) {
 		case 's': // [STYLES]
 			{
 				if (numtok < 2) {
-					DCXError("/xtreebar -s","Invalid Style Args");
+					Dcx::error("/xtreebar -s","Invalid Style Args");
 					return 0;
 				}
 #ifdef DCX_USE_WINSDK
@@ -125,12 +123,12 @@ mIRC(xtreebar) {
 				static const TString treebar_styles("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel transparent notransparent balloon noballoon");
 #endif
 				int i = 2;
-				DWORD stylef = GetWindowStyle(mIRCLink.m_hTreeView);
-				DWORD exstylef = GetWindowExStyle(mIRCLink.m_hTreeView);
+				DWORD stylef = GetWindowStyle(Dcx::mIRC.getTreeview());
+				DWORD exstylef = GetWindowExStyle(Dcx::mIRC.getTreeview());
 #ifdef DCX_USE_WINSDK
 				DWORD tvexstylef = 0;
-				if (mIRCLink.m_bVista)
-					tvexstylef = TreeView_GetExtendedStyle(mIRCLink.m_hTreeView);
+				if (Dcx::VistaModule.isUseable())
+					tvexstylef = TreeView_GetExtendedStyle(Dcx::mIRC.getTreeview());
 				DWORD tvexstylemask = 0;
 #endif
 				enum TreebarStyles {
@@ -241,63 +239,63 @@ mIRC(xtreebar) {
 #endif
 					case TS_BALLOON: // balloon (off by default)
 						{
-							HWND tips = TreeView_GetToolTips(mIRCLink.m_hTreeView);
+							HWND tips = TreeView_GetToolTips(Dcx::mIRC.getTreeview());
 							if (tips != NULL)
 								AddStyles(tips, GWL_STYLE, TTS_BALLOON);
 						}
 						break;
 					case TS_NOBALLOON: // noballoon
 						{
-							HWND tips = TreeView_GetToolTips(mIRCLink.m_hTreeView);
+							HWND tips = TreeView_GetToolTips(Dcx::mIRC.getTreeview());
 							if (tips != NULL)
 								RemStyles(tips, GWL_STYLE, TTS_BALLOON);
 						}
 						break;
 					default: // unknown style ignore.
 						{
-							DCXErrorEX("/xtreebar -s", "Unknown Style: %s", input.gettok(i).to_chr());
+							Dcx::errorex("/xtreebar -s", "Unknown Style: %s", input.gettok(i).to_chr());
 						}
 						break;
 					}
 					i++;
 				}
-				SetWindowLong(mIRCLink.m_hTreeView,GWL_STYLE, stylef);
-				SetWindowLong(mIRCLink.m_hTreeView,GWL_EXSTYLE, exstylef);
+				SetWindowLong(Dcx::mIRC.getTreeview(),GWL_STYLE, stylef);
+				SetWindowLong(Dcx::mIRC.getTreeview(),GWL_EXSTYLE, exstylef);
 #ifdef DCX_USE_WINSDK
-				if (mIRCLink.m_bVista)
-					TreeView_SetExtendedStyle(mIRCLink.m_hTreeView, tvexstylef, tvexstylemask);
+				if (Dcx::VistaModule.isUseable())
+					TreeView_SetExtendedStyle(Dcx::mIRC.getTreeview(), tvexstylef, tvexstylemask);
 #endif
-				SetWindowPos(mIRCLink.m_hTreeView, NULL, 0,0,0,0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
+				SetWindowPos(Dcx::mIRC.getTreeview(), NULL, 0,0,0,0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
 			}
 			break;
 			// -c & -i commands are experimental & required stopping mIRC doing the item drawing.
 		case 'c': // [COLOUR FLAGS] [COLOUR]
 			{
 				if (numtok < 3) {
-					DCXError("/xtreebar -c", "Invalid Colour Args");
+					Dcx::error("/xtreebar -c", "Invalid Colour Args");
 					return 0;
 				}
 				TString cflag(input.gettok(2));
 				COLORREF clr = (COLORREF)input.gettok(3).to_num();
 
 				if (cflag[0] != '+') {
-					DCXError("/xtreebar -c","Invalid Colour flag");
+					Dcx::error("/xtreebar -c","Invalid Colour flag");
 					return 0;
 				}
 
 				switch(cflag[1])
 				{
 					case 't': // text colour
-						TreeView_SetTextColor(mIRCLink.m_hTreeView,clr);
+						TreeView_SetTextColor(Dcx::mIRC.getTreeview(),clr);
 						break;
 					case 'b': // bkg colour
-						TreeView_SetBkColor(mIRCLink.m_hTreeView,clr);
+						TreeView_SetBkColor(Dcx::mIRC.getTreeview(),clr);
 						break;
 					case 'l': // line colour
-						TreeView_SetLineColor(mIRCLink.m_hTreeView,clr);
+						TreeView_SetLineColor(Dcx::mIRC.getTreeview(),clr);
 						break;
 					case 'i': // insert mark colour
-						TreeView_SetInsertMarkColor(mIRCLink.m_hTreeView,clr);
+						TreeView_SetInsertMarkColor(Dcx::mIRC.getTreeview(),clr);
 						break;
 					case 's': // selected text colour
 						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED] = clr;
@@ -330,40 +328,40 @@ mIRC(xtreebar) {
 						DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_BKG] = clr;
 						break;
 					default:
-						DCXError("/xtreebar -c","Invalid Colour flag");
+						Dcx::error("/xtreebar -c","Invalid Colour flag");
 						return 0;
 				}
 			}
 			break;
 		case 'w': // [clear|default|mirc] | [index] [+flags] [icon index] [filename]
 			{
-				if (mIRCLink.m_hTreeImages == NULL) {
-					DCXError("/xtreebar -w", "No Valid TreeView Image List");
+				if (Dcx::mIRC.getTreeImages() == NULL) {
+					Dcx::error("/xtreebar -w", "No Valid TreeView Image List");
 					return 0;
 				}
 				TString tsIndex(input.gettok(2));
 				if (tsIndex == "clear") { // no images.
-					HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView,NULL,TVSIL_NORMAL);
-					if (o != NULL && o != mIRCLink.m_hTreeImages)
+					HIMAGELIST o = TreeView_SetImageList(Dcx::mIRC.getTreeview(),NULL,TVSIL_NORMAL);
+					if (o != NULL && o != Dcx::mIRC.getTreeImages())
 						ImageList_Destroy(o);
 				}
 				else if (tsIndex == "default") { // mIRC's default image list
-					HIMAGELIST o = TreeView_SetImageList(mIRCLink.m_hTreeView,mIRCLink.m_hTreeImages,TVSIL_NORMAL);
-					if (o != NULL && o != mIRCLink.m_hTreeImages)
+					HIMAGELIST o = TreeView_SetImageList(Dcx::mIRC.getTreeview(),Dcx::mIRC.getTreeImages(),TVSIL_NORMAL);
+					if (o != NULL && o != Dcx::mIRC.getTreeImages())
 						ImageList_Destroy(o);
 				}
 				else { // our custom image list
-					HIMAGELIST himl = NULL, ohiml = TreeView_GetImageList( mIRCLink.m_hTreeView, TVSIL_NORMAL);
-					if (ohiml != NULL && ohiml != mIRCLink.m_hTreeImages)
+					HIMAGELIST himl = NULL, ohiml = TreeView_GetImageList( Dcx::mIRC.getTreeview(), TVSIL_NORMAL);
+					if (ohiml != NULL && ohiml != Dcx::mIRC.getTreeImages())
 						himl = ohiml;
 					else {
 						int w, h;
-						if (!ImageList_GetIconSize(mIRCLink.m_hTreeImages, &w, &h)) // try to get image size.
+						if (!ImageList_GetIconSize(Dcx::mIRC.getTreeImages(), &w, &h)) // try to get image size.
 							w = h = 16; // default to 16x16
 
 						himl = ImageList_Create(w,h,ILC_COLOR32|ILC_MASK,1,0);
 						if (himl != NULL)
-							TreeView_SetImageList(mIRCLink.m_hTreeView, himl, TVSIL_NORMAL);
+							TreeView_SetImageList(Dcx::mIRC.getTreeview(), himl, TVSIL_NORMAL);
 					}
 					if (himl != NULL) {
 						int iIndex = tsIndex.to_int() -1, fIndex = input.gettok(4).to_int(), iCnt = ImageList_GetImageCount(himl) -1;
@@ -372,7 +370,7 @@ mIRC(xtreebar) {
 
 						// check index is within range.
 						if (iCnt < iIndex) {
-							DCXError("/xtreebar -w", "Image Index Out Of Range");
+							Dcx::error("/xtreebar -w", "Image Index Out Of Range");
 							return 0;
 						}
 						if (iIndex < 0)
@@ -380,7 +378,7 @@ mIRC(xtreebar) {
 
 						if (fIndex < 0) { // file index is -1, so add ALL icons in file at iIndex pos.
 							if (!AddFileIcons(himl, filename, false, iIndex)) {
-								DCXErrorEX("/xtreebar -w", "Unable to Add %s's Icons", filename.to_chr());
+								Dcx::errorex("/xtreebar -w", "Unable to Add %s's Icons", filename.to_chr());
 								return 0;
 							}
 						}
@@ -391,13 +389,13 @@ mIRC(xtreebar) {
 								DestroyIcon(hIcon);
 							}
 							else {
-								DCXError("/xtreebar -w", "Unable to load icon");
+								Dcx::error("/xtreebar -w", "Unable to load icon");
 								return 0;
 							}
 						}
 					}
 					else {
-						DCXError("/xtreebar -w", "Unable to Create ImageList");
+						Dcx::error("/xtreebar -w", "Unable to Create ImageList");
 						return 0;
 					}
 				}
@@ -407,23 +405,21 @@ mIRC(xtreebar) {
 			{ // Take over Treebar drawing
 				DcxDock::g_bTakeOverTreebar = (input.gettok( 2 ).to_int() ? true : false);
 				if (DcxDock::g_bTakeOverTreebar) {
-					TString buf((UINT)32);
-					mIRCeval("$isalias(xtreebar_callback)", buf.to_chr(), 32);
-					if (buf == "$true")
+					if (Dcx::mIRC.isAlias("xtreebar_callback"))
 						TraverseTreebarItems();
 					else {
 						DcxDock::g_bTakeOverTreebar = false;
-						DCXError("/xtreebar", "No $!xtreebar_callback() alias found");
+						Dcx::error("/xtreebar", "No $xtreebar_callback() alias found");
 						return 0;
 					}
 				}
 			}
 			break;
 		default:
-			DCXError("/xtreebar", "Invalid Flag");
+			Dcx::error("/xtreebar", "Invalid Flag");
 			return 0;
 	}
-	RedrawWindow(mIRCLink.m_hTreeView, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
+	RedrawWindow(Dcx::mIRC.getTreeview(), NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 	return 1;
 }
 
@@ -442,7 +438,7 @@ mIRC(_xtreebar)
 
 	static const TString poslist("item icons");
 	int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
-	int cnt = TreeView_GetCount(mIRCLink.m_hTreeView);
+	int cnt = TreeView_GetCount(Dcx::mIRC.getTreeview());
 	int index = d.gettok( 3 ).to_int();
 
 	if (index > cnt) {
@@ -461,11 +457,11 @@ mIRC(_xtreebar)
 				wsprintf(data, "%d", cnt);
 			else {
 				char szbuf[900];
-				item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLink.m_hTreeView, index);
+				item.hItem = TreeView_MapAccIDToHTREEITEM(Dcx::mIRC.getTreeview(), index);
 				item.mask = TVIF_TEXT;
 				item.pszText = szbuf;
 				item.cchTextMax = 900;
-				if (TreeView_GetItem(mIRCLink.m_hTreeView,&item))
+				if (TreeView_GetItem(Dcx::mIRC.getTreeview(),&item))
 					lstrcpyn(data, item.pszText, 900);
 				else
 					lstrcpy(data, "D_ERROR Unable To Get Item");
@@ -477,9 +473,9 @@ mIRC(_xtreebar)
 			if (index < 1) // if index < 1 make it the last item.
 				index = cnt;
 
-			item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLink.m_hTreeView, index);
+			item.hItem = TreeView_MapAccIDToHTREEITEM(Dcx::mIRC.getTreeview(), index);
 			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
-			if (TreeView_GetItem(mIRCLink.m_hTreeView,&item))
+			if (TreeView_GetItem(Dcx::mIRC.getTreeview(),&item))
 				wsprintf(data, "%d %d", item.iImage, item.iSelectedImage);
 			else
 				lstrcpy(data, "D_ERROR Unable To Get Item");

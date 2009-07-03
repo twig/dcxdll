@@ -66,6 +66,41 @@ DcxDateTime::~DcxDateTime() {
 	this->unregistreDefaultWindowProc();
 }
 
+void DcxDateTime::toXml(TiXmlElement * xml) {
+	char buf[900];
+	SYSTEMTIME st;
+
+	ZeroMemory(&st, sizeof(SYSTEMTIME));
+
+	DateTime_GetSystemtime(this->m_Hwnd, &st);
+	wsprintf(buf, "%ld", SystemTimeToMircTime(&st));
+	__super::toXml(xml);
+	xml->SetAttribute("caption", buf);
+	return;
+}
+
+TString DcxDateTime::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & DTS_LONGDATEFORMAT)
+		styles.addtok("longdateformat", " ");
+	if (Styles & DTS_SHORTDATEFORMAT) 
+		styles.addtok("shortdateformat", " ");
+	if (Styles & DTS_SHORTDATECENTURYFORMAT) 
+		styles.addtok("shortdatecenturyformat", " ");
+	if (Styles & DTS_TIMEFORMAT) 
+		styles.addtok("timeformat", " ");
+	if (Styles & DTS_RIGHTALIGN) 
+		styles.addtok("right", " ");
+	if (Styles & DTS_SHOWNONE) 
+		styles.addtok("shownone", " ");
+	if (Styles & DTS_UPDOWN) 
+		styles.addtok("updown", " ");
+	return styles;
+}
+
 /*!
  * \brief blah
  *
@@ -228,7 +263,7 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			switch(hdr->code) {
 				case DTN_CLOSEUP: {
-					this->callAliasEx(NULL, "%s,%d", "closed", this->getUserID());
+					this->execAliasEx("%s,%d", "closed", this->getUserID());
 					break;
 				}
 
@@ -284,7 +319,7 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					*/
 
 					// TODO: allow for calendar customisation. see DTN_DROPDOWN http://msdn2.microsoft.com/en-us/library/bb761739.aspx
-					this->callAliasEx(NULL, "%s,%d", "open", this->getUserID());
+					this->execAliasEx("%s,%d", "open", this->getUserID());
 					break;
 				}
 
@@ -292,9 +327,9 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					LPNMDATETIMECHANGE dtc = (LPNMDATETIMECHANGE) lParam;
 
 					if (dtc->dwFlags == GDT_NONE)
-						this->callAliasEx(NULL, "%s,%d,%s", "change", this->getUserID(), "none");
+						this->execAliasEx("%s,%d,%s", "change", this->getUserID(), "none");
 					else
-						this->callAliasEx(NULL, "%s,%d,%d", "change", this->getUserID(), SystemTimeToMircTime(&(dtc->st)));
+						this->execAliasEx("%s,%d,%d", "change", this->getUserID(), SystemTimeToMircTime(&(dtc->st)));
 
 					return 0L;
 				}

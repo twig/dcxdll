@@ -58,6 +58,27 @@ DcxPager::~DcxPager( ) {
   this->unregistreDefaultWindowProc( );
 }
 
+TString DcxPager::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & PGS_HORZ)
+		styles.addtok("horizontal", " ");
+	if (Styles & PGS_AUTOSCROLL)
+		styles.addtok("autoscroll", " ");
+	return styles;
+
+}
+
+void DcxPager::toXml(TiXmlElement * xml) {
+	__super::toXml(xml);
+	DcxControl * child;
+	child = this->m_pParentDialog->getControlByHWND(this->m_ChildHWND);
+	if (child != NULL)
+		xml->LinkEndChild(child->toXml());
+}
+
 /*!
  * \brief blah
  *
@@ -381,7 +402,7 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
-				this->callAliasEx( NULL, "%s,%d", "sizing", this->getUserID( ) );
+				this->execAliasEx("%s,%d", "sizing", this->getUserID( ) );
 			this->reCalcSize();
 			this->redrawWindow( );
 		}

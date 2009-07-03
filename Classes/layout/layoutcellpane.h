@@ -45,7 +45,10 @@ public:
   virtual HDWP ExecuteLayout( HDWP hdwp );
   virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI );
 
+
   LayoutCell * addChild( LayoutCell * p_Cell, const int nWeight );
+  void toXml(TiXmlElement *xml);
+  TiXmlElement * toXml(void);
 
   CellType getType( );
 

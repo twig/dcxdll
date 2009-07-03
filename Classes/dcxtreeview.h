@@ -189,6 +189,7 @@ protected:
 	bool xmlGetItems(HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR *buf);
 	HTREEITEM xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, const TString &name, TString &filename);
 	TiXmlElement *xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertAfter, TiXmlElement *xElm);
+	TString getStyles(void);
 };
 
 #endif // _DCXTREEVIEW_H_

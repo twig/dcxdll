@@ -3,6 +3,9 @@
 */
 
 #include "dcxDock.h"
+#include "../../Dcx.h"
+
+
 
 // [SWITCH] [OPTIONS]
 mIRC(xstatusbar) {
@@ -13,7 +16,7 @@ mIRC(xstatusbar) {
 	int numtok = input.numtok( );
 
 	if (numtok < 1) {
-		DCXError("/xstatusbar","Invalid Parameters");
+		Dcx::error("/xstatusbar","Invalid Parameters");
 		return 0;
 	}
 
@@ -26,7 +29,7 @@ mIRC(xstatusbar) {
 				// [-A] [0|1] [options] = notheme grip tooltips nodivider utf8
 				if (input.gettok(2).to_int() > 0) {
 					if (!DcxDock::InitStatusbar(input.gettok(3,-1))) {
-						DCXError("/xstatusbar -A","Unable to Create Statusbar");
+						Dcx::error("/xstatusbar -A","Unable to Create Statusbar");
 						return 0;
 					}
 				}
@@ -65,7 +68,7 @@ mIRC(xstatusbar) {
 				while ( i < nParts ) {
 
 					if (c >= 100) {
-						DCXError("/xstatusbar -l","Can't Allocate Over 100% of Statusbar!");
+						Dcx::error("/xstatusbar -l","Can't Allocate Over 100% of Statusbar!");
 						return 0;
 					}
 
@@ -119,7 +122,7 @@ mIRC(xstatusbar) {
 						DcxDock::status_setPartInfo( nPos, iFlags, pPart );
 					}
 					else { // child control
-						DCXError("/xstatusbar -t","Child Controls Are not supported at this time.");
+						Dcx::error("/xstatusbar -t","Child Controls Are not supported at this time.");
 					}
 				}
 				else {
@@ -177,7 +180,7 @@ mIRC(xstatusbar) {
 					DestroyIcon(icon);
 				}
 				else
-					DCXError("/xstatusbar -w","Unable To Create ImageList");
+					Dcx::error("/xstatusbar -w","Unable To Create ImageList");
 			}
 			break;
 		case 'y': // destroy image list.
@@ -187,7 +190,7 @@ mIRC(xstatusbar) {
 			}
 			break;
 		default:
-			DCXError("/xstatusbar","Invalid Switch");
+			Dcx::error("/xstatusbar","Invalid Switch");
 			return 0;
 	}
 	return 1;

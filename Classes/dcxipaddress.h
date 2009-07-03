@@ -47,6 +47,7 @@ public:
   LRESULT clearAddress( );
 
   inline TString getType( ) { return TString( "ipaddress" ); };
+  void toXml(TiXmlElement * xml);
 
 protected:
   

@@ -14,9 +14,11 @@
  */
 
 #include "dcxdirectshow.h"
+#include "../Dcx.h"
 
 #ifdef DCX_USE_DXSDK
 #include "dcxdialog.h"
+
 
 /*!
  * \brief Constructor
@@ -75,6 +77,14 @@ DcxDirectshow::~DcxDirectshow( ) {
 
 	this->ReleaseAll();
   this->unregistreDefaultWindowProc( );
+}
+
+TString DcxDirectshow::getStyles(void) {
+	TString styles;
+	styles = __super::getStyles();
+	if (this->m_bKeepRatio)
+		styles.addtok("fixratio", " ");
+	return styles;
 }
 
 void DcxDirectshow::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
@@ -317,10 +327,10 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 
 		this->ReleaseAll();
 
-		if (!mIRCLink.m_bDX9Installed)
-			DXSetup(NULL, 0);
+		if (!Dcx::isDX9Installed())
+			Dcx::initDirectX();
 
-		if (!mIRCLink.m_bDX9Installed) {
+		if (!Dcx::isDX9Installed()) {
 			this->showError(NULL, "-a", "Needs DirectX 9+");
 			return;
 		}
@@ -625,16 +635,16 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							this->m_pSeek->SetPositions(&rtNow, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning);
 							if (!this->m_bLoop) {
 								this->m_pControl->StopWhenReady();
-								this->callAliasEx(NULL,"%s,%d,%s","dshow",this->getUserID(),"completed");
+								this->execAliasEx("%s,%d,%s","dshow",this->getUserID(),"completed");
 							}
 						}
 						break;
 					//case EC_PAUSED: // oddly this is sent when we play the file too.
-					//	this->callAliasEx(NULL,"%s,%d,%s","dshow",this->getUserID(),"paused");
+					//	this->execAliasEx("%s,%d,%s","dshow",this->getUserID(),"paused");
 					//	break;
 					//case EC_USERABORT:
 					//case EC_ERRORABORT:
-					//	this->callAliasEx(NULL,"%s,%d,%s","dshow",this->getUserID(),"aborted");
+					//	this->execAliasEx("%s,%d,%s","dshow",this->getUserID(),"aborted");
 					//	break;
 					}
 				} 

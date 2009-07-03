@@ -33,6 +33,8 @@ public:
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   inline TString getType( ) { return TString( "pager" ); };
+  TString getStyles(void);
+  void toXml(TiXmlElement * xml);
 
 	void setChild(const HWND child);
 	void setBkColor(const COLORREF c);

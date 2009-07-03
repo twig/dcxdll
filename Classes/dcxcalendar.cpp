@@ -73,6 +73,63 @@ DcxCalendar::~DcxCalendar( ) {
   this->unregistreDefaultWindowProc( );
 }
 
+void DcxCalendar::toXml(TiXmlElement * xml) {
+	__super::toXml(xml);
+	xml->SetAttribute("caption", getValue().to_chr());
+}
+
+TString DcxCalendar::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & MCS_MULTISELECT)
+		styles.addtok("multi", " ");
+	if (Styles & MCS_NOTODAY) 
+		styles.addtok("notoday", " ");
+	if (Styles & MCS_NOTODAYCIRCLE) 
+		styles.addtok("notodaycircle", " ");
+	if (Styles & MCS_WEEKNUMBERS) 
+		styles.addtok("weeknum", " ");
+	if (Styles & MCS_DAYSTATE) 
+		styles.addtok("daystate", " ");
+	return styles;
+}
+
+TString DcxCalendar::getValue(void)
+{
+	long start;
+	long end;
+	char buf[900];
+
+	if (isStyle(MCS_MULTISELECT)) {
+	SYSTEMTIME st[2];
+		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
+		MonthCal_GetSelRange(this->m_Hwnd, st);
+
+		start = SystemTimeToMircTime(&(st[0]));
+		end = SystemTimeToMircTime(&(st[1]));
+	}
+	else {
+		SYSTEMTIME st;
+
+		ZeroMemory(&st, sizeof(SYSTEMTIME));
+		MonthCal_GetCurSel(this->m_Hwnd, &st);
+
+		st.wHour = 0;
+		st.wMinute = 0;
+		st.wSecond = 0;
+		st.wMilliseconds = 0;
+
+		start = SystemTimeToMircTime(&st);
+		end = start;
+	}
+
+	wsprintf(buf, "%ld %ld", start, end);
+	TString result(buf);
+	return result;
+}
+
 /*!
  * \brief blah
  *
@@ -315,7 +372,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 					for (int i = 0; i < iMax; i++) {
 						// daystate ctrlid startdate
-						this->callAliasEx(eval, "%s,%d,%d", "daystate", this->getUserID(),
+						this->evalAliasEx(eval, 100, "%s,%d,%d", "daystate", this->getUserID(),
 							SystemTimeToMircTime(&(lpNMDayState->stStart)));
 						mds[i] = (MONTHDAYSTATE) 0;
 
@@ -342,7 +399,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				}
 
 				case MCN_SELCHANGE: {
-					this->callAliasEx(NULL, "%s,%d", "selchange", this->getUserID());
+					this->execAliasEx("%s,%d", "selchange", this->getUserID());
 					break;
 				}
 				case MCN_SELECT: {
@@ -354,7 +411,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						MonthCal_GetSelRange(this->m_Hwnd, selrange);
 
 						// send event to callback
-						this->callAliasEx(NULL, "%s,%d,%d,%d", "select", this->getUserID(),
+						this->execAliasEx("%s,%d,%d,%d", "select", this->getUserID(),
 							SystemTimeToMircTime(&(selrange[0])),
 							SystemTimeToMircTime(&(selrange[1])));
 					}
@@ -371,14 +428,14 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						st.wMilliseconds = 0;
 
 						// send event to callback
-						this->callAliasEx(NULL, "%s,%d,%d", "select", this->getUserID(), SystemTimeToMircTime(&st));
+						this->execAliasEx("%s,%d,%d", "select", this->getUserID(), SystemTimeToMircTime(&st));
 					}
 
 					break;
 				}
 				case NM_RELEASEDCAPTURE: {
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->callAliasEx(NULL, "%s,%d", "sclick", this->getUserID());
+						this->execAliasEx("%s,%d", "sclick", this->getUserID());
 					break;
 				}
 				default: {
@@ -397,7 +454,7 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
     case WM_LBUTTONUP:
       {
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	        this->callAliasEx( NULL, "%s,%d", "lbup", this->getUserID( ) );
+	        this->execAliasEx("%s,%d", "lbup", this->getUserID( ) );
       }
       break;
 

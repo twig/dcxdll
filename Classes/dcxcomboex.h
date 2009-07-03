@@ -37,6 +37,13 @@ typedef struct tagDCXCOMBOEXEDIT {
 
 } DCXCOMBOEXEDIT, *LPDCXCOMBOEXEDIT;
 
+
+typedef struct tagDCXCBITEM {
+	TString tsMark;		// Marked text
+} DCXCBITEM,*LPDCXCBITEM;
+
+typedef std::vector<DCXCBITEM> VectorOfCBItemData; //<! Vector of DCXCBITEM
+
 /*!
  * \brief blah
  *
@@ -77,10 +84,12 @@ public:
   static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
   inline TString getType( ) { return TString( "comboex" ); };
+  TString getStyles(void);
 
 protected:
 
   HWND m_EditHwnd;  //!< Combo's Edit Control Handle
+  VectorOfCBItemData m_vItemDataList;
 };
 
 #endif // _DCXCOMBOEX_H_

@@ -388,6 +388,8 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
 		// insert button
 		this->insertButton( nPos, &tbb );
+		if (nPos == 1)
+			SendMessage(this->m_Hwnd, TB_CHANGEBITMAP, nPos, MAKELPARAM(I_IMAGENONE,0));
 
 		// set width of button
 		if ( buttonStyles & BTNS_WIDTH ) {
@@ -1215,7 +1217,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 				if ( iButton > -1 ) {
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), this->getCommandToIndex( iButton ) + 1 );
+						this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), this->getCommandToIndex( iButton ) + 1 );
 				}
 
 				bParsed = TRUE;
@@ -1240,7 +1242,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								RECT rc;
 								this->getItemRect( iButton, &rc );
 								MapWindowRect(this->m_Hwnd, NULL, &rc);
-								this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", this->getUserID( ), iButton+1, rc.left, rc.bottom, rc.right, rc.top );
+								this->execAliasEx("%s,%d,%d,%d,%d,%d,%d", "rclick", this->getUserID( ), iButton+1, rc.left, rc.bottom, rc.right, rc.top );
 								//POINT pt2 = pt;
 								//pt.x = rc.left; 
 								//pt.y = rc.bottom;
@@ -1248,7 +1250,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								//pt2.y = rc.top;
 								//ClientToScreen( this->m_Hwnd, &pt );
 								//ClientToScreen( this->m_Hwnd, &pt2 );
-								//this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "rclick", 
+								//this->execAliasEx("%s,%d,%d,%d,%d,%d,%d", "rclick", 
 								//	this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
 							}
 						}
@@ -1267,7 +1269,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								RECT rc;
 								this->getItemRect( iButton, &rc );
 								MapWindowRect(this->m_Hwnd, NULL, &rc);
-								this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown", this->getUserID( ), iButton+1, rc.left, rc.bottom, rc.right, rc.top );
+								this->execAliasEx("%s,%d,%d,%d,%d,%d,%d", "dropdown", this->getUserID( ), iButton+1, rc.left, rc.bottom, rc.right, rc.top );
 								//POINT pt2 = pt;
 								//pt.x = rc.left;
 								//pt.y = rc.bottom;
@@ -1275,7 +1277,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								//pt2.y = rc.top;
 								//ClientToScreen( this->m_Hwnd, &pt );
 								//ClientToScreen( this->m_Hwnd, &pt2 );
-								//this->callAliasEx( NULL, "%s,%d,%d,%d,%d,%d,%d", "dropdown",
+								//this->execAliasEx("%s,%d,%d,%d,%d,%d,%d", "dropdown",
 								//	this->getUserID( ), iButton+1, pt.x, pt.y, pt2.x, pt2.y );
 							}
 						}
@@ -1403,7 +1405,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					//	{
 					//		if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 					//			LPNMCHAR lpnmc = (LPNMCHAR) lParam;
-					//			this->callAliasEx(NULL, "%s,%d,%d,%d", "keyup", this->getUserID(), lpnmc->ch, lpnmc->dwItemPrev);
+					//			this->execAliasEx("%s,%d,%d,%d", "keyup", this->getUserID(), lpnmc->ch, lpnmc->dwItemPrev);
 					//		}
 					//		bParsed = TRUE;
 					//	}

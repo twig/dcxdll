@@ -16,6 +16,7 @@
 #define _DCXWEBCTRL_H_
 
 #include "../defines.h"
+#include "../Dcx.h"
 #include "dcxcontrol.h"
 #include <exdisp.h>
 #include <exdispid.h>

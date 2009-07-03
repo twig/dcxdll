@@ -73,6 +73,25 @@ DcxRadio::~DcxRadio( ) {
 	this->unregistreDefaultWindowProc( );
 }
 
+TString DcxRadio::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & BS_RIGHT)
+		styles.addtok("rjustify", " ");
+	if (Styles & BS_CENTER)
+		styles.addtok("center", " ");
+	if (Styles & BS_LEFT)
+		styles.addtok("ljustify", " ");
+	if (Styles & BS_RIGHTBUTTON)
+		styles.addtok("right", " ");
+	if (Styles & BS_PUSHLIKE)
+		styles.addtok("pushlike", " ");
+	return styles;
+
+}
+
 /*!
  * \brief blah
  *
@@ -182,7 +201,7 @@ LRESULT DcxRadio::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
  //         case BN_CLICKED:
  //           {
 	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//			        this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+	//			        this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
  //           }
  //           break;
  //       }

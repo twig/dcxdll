@@ -113,20 +113,14 @@
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
-// Dev Build, enable debug output.
-#define DCX_DEBUG(x,y) if (mIRCLink.m_bisDebug) DCXDebug((x), (y));
 #define DLL_STATE      "Development Build"
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR
 #else
-// Release Build, disable debug info.
-#define DCX_DEBUG(x,y)
 #define DLL_STATE      "Release Build"
 #define _SECURE_SCL 0 // disables checked iterators
 #endif
 #else
-// Debug Build, enable debug output.
-#define DCX_DEBUG(x,y) if (mIRCLink.m_bisDebug) DCXDebug((x), (y));
 #define DLL_STATE      "Debug Build"
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR
@@ -273,9 +267,6 @@ using namespace Gdiplus;
 // --------------------------------------------------
 #define XPOPUPMENUCLASS "XPopupMenu32" //!< XPopupMenu Window Class Name
 
-LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-BOOL isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
-
 // --------------------------------------------------
 // Ultradock stuff
 // --------------------------------------------------
@@ -310,30 +301,6 @@ typedef struct {
 	BOOL   mKeep;    //!< mIRC variable stating to keep DLL in memory
 } LOADINFO;
 
-// DCX DLL mIRC Information Structure
-typedef struct {
-	HANDLE	m_hFileMap; //!< Handle to the mIRC DLL File Map
-	LPSTR		m_pData;    //!< Pointer to a character buffer of size 900 to send mIRC custom commands
-	HWND		m_mIRCHWND; //!< mIRC Window Handle
-	int			m_map_cnt;  //!< MapFile counter.
-	int			m_bDoGhostDrag; //!< Ghost window while dragging.
-	bool		m_bGhosted; //!< Is Window Currently ghosted (as a result of drag ghost).
-	bool		m_bisDebug;    //!< is mIRC is using /debug upon DCX LoadDLL().
-	bool		m_bUseGDIPlus; //!< we can use GDI+ functions.
-	bool		m_bmIRCSixPointTwoZero; //!< Is this mIRC V6.20
-	bool		m_bmIRCSixPointThree;		//!< Is This mIRC V6.30
-	HWND		m_hSwitchbar; //!< The Switchbars HWND
-	HWND		m_hToolbar; //!< The Toolbars HWND
-	HWND		m_hMDI; //!< The MDIClients HWND
-	HWND		m_hTreebar; //!< The Treebars HWND
-	HWND		m_hTreeView; //!< The TreeView control child of the Treebar.
-	HFONT		m_hTreeFont; //!< The Treebars original font.
-	HIMAGELIST m_hTreeImages; //!< The Treebars original image list.
-	bool		m_bDX9Installed; //!<
-	bool		m_bVista; //!< Running on Vista
-	BOOL		m_bAero;	//!< Aero Interface is enabled.
-} mIRCDLL;
-
 // mIRC Signal structure
 typedef struct SIGNALSWITCH {
 	bool xdock;
@@ -346,26 +313,14 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 // --------------------------------------------------
 // DLL routines
 // --------------------------------------------------
-void mIRCDebug(const char *szFormat, ...);
-void mIRCSignalDCX(BOOL allow, const char *szFormat, ...);
-void mIRCSignal(const char *data);
-void mIRCError(const char *data);
-void mIRCeval(const char *text, char *res, const int maxlen);
-void mIRCevalEX(char *res, const int maxlen, const char *szFormat, ...);
-void mIRCcom(const char *data);
-void mIRCcomEX(const char *data, ...);
 
 //void dcxInfoError(const char *ctrl, const char *functn, const char *dlg, const int ctrlid, const char *msg);
-void DCXError(const char *cmd,const char *msg);
-void DCXErrorEX(const char *cmd, char *szFormat, ...);
-void DCXDebug(const char *cmd,const char *msg);
 
 int round(const float x);
 BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
 TString ParseLogfontToCommand(const LPLOGFONT lf);
 UINT parseFontFlags(const TString &flags);
 UINT parseFontCharSet(const TString &charset);
-DcxDialogCollection dcxDialogs();
 
 char * readFile(const char * filename);
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd);
@@ -408,10 +363,10 @@ typedef HPAINTBUFFER (WINAPI *PFNBEGINBUFFEREDPAINT)(HDC hdcTarget, const RECT *
 typedef HRESULT (WINAPI *PFNENDBUFFEREDPAINT)(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
 #endif
 typedef HRESULT (WINAPI *PFNDWMISCOMPOSITIONENABLED)(BOOL *pfEnabled);
+typedef HRESULT (WINAPI *PFNDWMGETWINDOWATTRIBUTE)(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute);
 
 HRESULT dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList);
 BOOL dcxIsThemeActive();
-BOOL isXP();
 int dcxPickIconDlg(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
 
 HWND GetHwndFromString(const TString &str);
@@ -439,10 +394,8 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc);
 void DeleteHDCBuffer(HDC *hBuffer);
 int TGetWindowText(HWND hwnd, TString &txt);
-void SetupOSCompatibility(void);
 void FreeOSCompatibility(void);
 BOOL isRegexMatch(const char *matchtext, const char *pattern);
-bool DXSetup(char *dxResult, int dxSize);
 
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);
@@ -497,8 +450,21 @@ extern PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx;
 extern PFNENDBUFFEREDPAINT EndBufferedPaintUx;
 #endif
 extern PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
+extern PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx;
 
-extern mIRCDLL mIRCLink;
+typedef enum _DWMWINDOWATTRIBUTE {
+    DWMWA_NCRENDERING_ENABLED = 1,
+    DWMWA_NCRENDERING_POLICY,
+    DWMWA_TRANSITIONS_FORCEDISABLED,
+    DWMWA_ALLOW_NCPAINT,
+    DWMWA_CAPTION_BUTTON_BOUNDS,
+    DWMWA_NONCLIENT_RTL_LAYOUT,
+    DWMWA_FORCE_ICONIC_REPRESENTATION,
+    DWMWA_FLIP3D_POLICY,
+    DWMWA_EXTENDED_FRAME_BOUNDS,
+    DWMWA_LAST
+} DWMWINDOWATTRIBUTE;
+
 extern SIGNALSWITCH dcxSignal;
 
 #endif // _DEFINES_H_

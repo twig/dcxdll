@@ -47,6 +47,7 @@ public:
   LRESULT getBase( ) const;
   LRESULT setPos32( const INT nPos );
   LRESULT getPos32( LPBOOL pfError ) const;
+  TString getStyles(void);
 
   inline TString getType( ) { return TString( "updown" ); };
 

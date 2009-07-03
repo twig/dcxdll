@@ -41,6 +41,7 @@ public:
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   inline TString getType( ) { return TString( "scroll" ); };
+  TString getStyles(void);
 
 protected:
 

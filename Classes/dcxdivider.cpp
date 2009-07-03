@@ -70,6 +70,17 @@ DcxDivider::~DcxDivider( ) {
  * blah
  */
 
+TString DcxDivider::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & DVS_VERT)
+		styles.addtok("vertical", " ");
+	return styles;
+}
+
+
 void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
 	unsigned int i = 1, numtok = styles.numtok( );
@@ -201,6 +212,36 @@ LRESULT DcxDivider::setPane( const UINT iPaneId, LPDVPANEINFO lpdvpi ) {
 
 LRESULT DcxDivider::setDivPos( const UINT iDivPos ) {
   return SendMessage( this->m_Hwnd, DV_SETDIVPOS, (WPARAM) 0, (LPARAM) iDivPos );
+}
+
+void DcxDivider::toXml(TiXmlElement * xml) {
+	__super::toXml(xml);
+	DVPANEINFO left;
+	DVPANEINFO right;
+	DcxControl * dcxcleft = NULL;
+	DcxControl * dcxcright = NULL;
+	Divider_GetChildControl(this->m_Hwnd, DVF_PANELEFT, &left);
+	Divider_GetChildControl(this->m_Hwnd, DVF_PANELEFT, &right);
+	if (left.hChild != NULL) {
+		dcxcleft = this->m_pParentDialog->getControlByHWND(left.hChild);
+		if (dcxcleft != NULL)
+			xml->LinkEndChild(dcxcleft->toXml());
+		else
+			xml->LinkEndChild(new TiXmlElement("control"));
+	}
+	else {
+		xml->LinkEndChild(new TiXmlElement("control"));
+	}
+	if (right.hChild != NULL) {
+		dcxcright = this->m_pParentDialog->getControlByHWND(right.hChild);
+		if (dcxcright != NULL)
+			xml->LinkEndChild(dcxcright->toXml());
+		else
+			xml->LinkEndChild(new TiXmlElement("control"));
+	}
+	else {
+		xml->LinkEndChild(new TiXmlElement("control"));
+	}
 }
 
 /*!

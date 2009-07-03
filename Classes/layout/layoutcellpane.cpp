@@ -23,7 +23,7 @@ extern HWND hwndChild4;
  * blah
  */
 
-LayoutCellPane::LayoutCellPane( const PaneType nType ) : LayoutCell( NULL ), m_nType( nType ) {
+LayoutCellPane::LayoutCellPane( const PaneType nType ) : LayoutCell( ), m_nType( nType ) {
 
 }
 
@@ -200,6 +200,32 @@ void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
 	pCMMI->m_MinSize.y = max( pCMMI->m_MinSize.y, 0 );
 	pCMMI->m_MaxSize.x = min( pCMMI->m_MaxSize.x, GetSystemMetrics( SM_CXMAXTRACK ) );
 	pCMMI->m_MaxSize.y = min( pCMMI->m_MaxSize.y, GetSystemMetrics( SM_CYMAXTRACK ) );
+}
+
+void LayoutCellPane::toXml(TiXmlElement *xml) {
+	TiXmlElement * inner;
+	LayoutCell * lc;
+	unsigned int count = this->m_vpCells.size();
+	unsigned int weight;
+	if (this->m_nType == LayoutCellPane::HORZ) xml->SetAttribute("cascade", "h");
+	else if (this->m_nType == LayoutCellPane::VERT) xml->SetAttribute("cascade", "v");
+	if (count > 0) {
+		for (unsigned int i = 0; i < count; i++) {
+			lc = this->m_vpCells[i].first;
+			weight = this->m_vpCells[i].second;
+			inner = lc->toXml();
+			if (weight != 0)
+				inner->SetAttribute("weight", weight);
+			xml->LinkEndChild(inner);
+		}
+	}
+}
+
+TiXmlElement * LayoutCellPane::toXml(void) {
+	TiXmlElement * xml;
+	xml = new TiXmlElement("pane");
+	this->toXml(xml);
+	return xml;
 }
 
 /*!

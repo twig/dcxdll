@@ -495,35 +495,35 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 		{
 			switch (LOWORD(wParam)) {
 				case TB_TOP:
-					this->callAliasEx(NULL, "%s,%d,%d", "top", this->getUserID(), this->getPos());
+					this->execAliasEx("%s,%d,%d", "top", this->getUserID(), this->getPos());
 					break;
 
 				case TB_BOTTOM:
-					this->callAliasEx(NULL, "%s,%d,%d", "bottom", this->getUserID(), this->getPos());
+					this->execAliasEx("%s,%d,%d", "bottom", this->getUserID(), this->getPos());
 					break;
 
 				case TB_PAGEUP:
-					this->callAliasEx(NULL, "%s,%d,%d", "pageup", this->getUserID(), this->getPos());
+					this->execAliasEx("%s,%d,%d", "pageup", this->getUserID(), this->getPos());
 					break;
 
 				case TB_PAGEDOWN:
-					this->callAliasEx(NULL, "%s,%d,%d", "pagedown", this->getUserID(), this->getPos());
+					this->execAliasEx("%s,%d,%d", "pagedown", this->getUserID(), this->getPos());
 					break;
 
 				case TB_LINEUP:
-					this->callAliasEx(NULL, "%s,%d,%d", "lineup", this->getUserID(), this->getPos());
+					this->execAliasEx("%s,%d,%d", "lineup", this->getUserID(), this->getPos());
 					break;
 
 				case TB_LINEDOWN:
-					this->callAliasEx(NULL, "%s,%d,%d", "linedown", this->getUserID(), this->getPos());
+					this->execAliasEx("%s,%d,%d", "linedown", this->getUserID(), this->getPos());
 					break;
 
 				case TB_THUMBPOSITION:
-					this->callAliasEx(NULL, "%s,%d,%d", "trackend", this->getUserID(), this->getPos());
+					this->execAliasEx("%s,%d,%d", "trackend", this->getUserID(), this->getPos());
 					break;
 
 				case SB_THUMBTRACK:
-					this->callAliasEx(NULL, "%s,%d,%d", "tracking", this->getUserID(), this->getPos());
+					this->execAliasEx("%s,%d,%d", "tracking", this->getUserID(), this->getPos());
 					break;
 			}
 
@@ -697,7 +697,7 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 					TString buff((UINT) 80);
 
-					this->callAliasEx(buff.to_chr(), "%s,%d", "showtip", this->getPos());
+					this->evalAliasEx(buff.to_chr(), 79, "%s,%d", "showtip", this->getPos());
 					
 					if (buff.len() > 0) {
 						TOOLINFO ti;

@@ -59,8 +59,12 @@ public:
 
   void deleteLParamInfo( const int nItem );
   void activateSelectedTab( );
+  void getTab(int index, LPTCITEM tcItem);
+  int getTabCount();
 
   inline TString getType( ) { return TString( "tab" ); };
+  TString getStyles(void);
+  void toXml(TiXmlElement * xml);
 
 
 protected:

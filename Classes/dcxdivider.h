@@ -46,8 +46,12 @@ public:
   LRESULT setDivPos( const UINT iDivPos );
 
   inline TString getType( ) { return TString( "divider" ); };
+  virtual TString getStyles(void);
+  void toXml(TiXmlElement * xml);
 
 protected:
+  HWND m_leftPane;
+  HWND m_rightPane;
 
 };
 

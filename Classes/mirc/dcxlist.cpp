@@ -16,6 +16,9 @@
 
 #include "dcxlist.h"
 #include "../dcxdialog.h"
+#include "../../Dcx.h"
+
+
 
 /*!
  * \brief Constructor
@@ -88,6 +91,38 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 DcxList::~DcxList( ) {
 	this->m_pParentDialog->UnregisterDragList(this);
 	this->unregistreDefaultWindowProc( );
+}
+
+TString DcxList::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & LBS_DISABLENOSCROLL)
+		styles.addtok("noscroll", " ");
+	if (Styles & LBS_MULTIPLESEL)
+		styles.addtok("multi", " ");
+	if (Styles & LBS_EXTENDEDSEL)
+		styles.addtok("extsel", " ");
+	if (Styles & LBS_NOINTEGRALHEIGHT)
+		styles.addtok("nointegral", " ");
+	if (Styles & LBS_NOSEL)
+		styles.addtok("nosel", " ");
+	if (Styles & LBS_SORT)
+		styles.addtok("sort", " ");
+	if (Styles & LBS_USETABSTOPS)
+		styles.addtok("tabs", " ");
+	if (Styles & LBS_MULTICOLUMN)
+		styles.addtok("multicol", " ");
+	if (Styles & WS_VSCROLL)
+		styles.addtok("vsbar", " ");
+	if (Styles & WS_HSCROLL)
+		styles.addtok("hsbar", " ");
+	if (!this->m_bUseDrawInsert)
+		styles.addtok("dragline", " ");
+	if (~Styles & LBS_OWNERDRAWFIXED)
+		styles.addtok("noformat", " ");
+	return styles;
 }
 
 /*!
@@ -349,7 +384,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 		case 'H': // [TEXT] == [table] [item]
 			{
 				if (itemtext.numtok() == 2) { // load single item from hash table by item name
-					mIRCevalEX(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					Dcx::mIRC.evalex(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 					ListBox_InsertString( this->m_Hwnd, nPos, res );
 					nMaxStrlen = lstrlen(res);
 				}
@@ -360,7 +395,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 		case 'n': // [TEXT] == [table] [N]
 			{
 				if (itemtext.numtok() == 2) { // load single item from hash table by index
-					mIRCevalEX(res, 1024, "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					Dcx::mIRC.evalex(res, 1024, "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 					ListBox_InsertString( this->m_Hwnd, nPos, res );
 					nMaxStrlen = lstrlen(res);
 				}
@@ -377,7 +412,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 					int endN = itemtext.gettok( 3 ).to_int();
 
 					// get total items in table.
-					mIRCevalEX(res, 1024, "$hget(%s,0).item", htable.to_chr());
+					Dcx::mIRC.evalex(res, 1024, "$hget(%s,0).item", htable.to_chr());
 					max_items = atoi(res);
 
 					// no items in table.
@@ -411,7 +446,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 
 					this->setRedraw(FALSE);
 					for (int i = startN; i <= endN; i++) {
-						mIRCevalEX(res, 1024, "$hget(%s,%d).data", htable.to_chr(), i);
+						Dcx::mIRC.evalex(res, 1024, "$hget(%s,%d).data", htable.to_chr(), i);
 						ListBox_InsertString( this->m_Hwnd, nPos++, res );
 						len = lstrlen( res );
 						if (len > nMaxStrlen)
@@ -680,7 +715,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
          // begin dragging item
          case DL_BEGINDRAG:
             // callback DIALOG itemdragbegin THIS_ID DRAGGEDITEM
-            callAliasEx(ret, "%s,%d,%d", "itemdragbegin", this->getUserID(), sel);
+            evalAliasEx(ret, 255, "%s,%d,%d", "itemdragbegin", this->getUserID(), sel);
 
             // cancel drag event
             if (lstrcmpi(ret, "nodrag") == 0)
@@ -691,7 +726,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
          // cancel drag
          case DL_CANCELDRAG:
             // callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
-            callAliasEx(ret, "%s,%d,%d", "itemdragcancel", this->getUserID(), sel);
+            evalAliasEx(ret, 255, "%s,%d,%d", "itemdragcancel", this->getUserID(), sel);
 
             if (m_bUseDrawInsert)
                this->m_pParentDialog->redrawWindow();
@@ -710,7 +745,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
                DrawDragLine(item);
 
             // callback DIALOG itemdrag THIS_ID SEL_ITEM MOUSE_OVER_ITEM
-            callAliasEx(ret, "%s,%d,%d,%d", "itemdrag", this->getUserID(), sel, item +1);
+            evalAliasEx(ret, 255, "%s,%d,%d,%d", "itemdrag", this->getUserID(), sel, item +1);
 
             if (lstrcmpi(ret, "stop") == 0)
                return DL_STOPCURSOR;
@@ -725,7 +760,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
             // callback DIALOG itemdragfinish THIS_ID SEL_ITEM MOUSE_OVER_ITEM
             item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
 
-            callAliasEx(NULL, "%s,%d,%d,%d", "itemdragfinish", this->getUserID(), sel, item +1);
+            execAliasEx("%s,%d,%d,%d", "itemdragfinish", this->getUserID(), sel, item +1);
 
             if (m_bUseDrawInsert)
                // refresh parent to remove drawing leftovers
@@ -752,10 +787,10 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 							 if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
 								 if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-									 this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
+									 this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
 							 }
 							 else if ( nItem != LB_ERR )
-								 this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
+								 this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
 						 }
 						 break;
 
@@ -765,10 +800,10 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 							 if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
 								 if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-									 this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
+									 this->execAliasEx("%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
 							 }
 							 else if ( nItem != LB_ERR )
-								 this->callAliasEx( NULL, "%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
+								 this->execAliasEx("%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
 						 }
 						 break;
 					} // switch ( HIWORD( wParam ) )
@@ -850,7 +885,7 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_VSCROLL:
 		if (LOWORD(wParam) == SB_ENDSCROLL)
-			this->callAliasEx(NULL, "%s,%d", "scrollend", this->getUserID());
+			this->execAliasEx("%s,%d", "scrollend", this->getUserID());
 		break;
 
 	case WM_MOUSEWHEEL:

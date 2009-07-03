@@ -54,6 +54,7 @@ public:
 
 	static UINT parseItemFlags( TString & flags );
 	void cleanPartIcons( );
+	TString getStyles(void);
 
 	LRESULT setParts( const int nParts, const LPINT aWidths );
 	LRESULT getParts( const int nParts, LPINT aWidths ) const;

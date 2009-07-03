@@ -265,6 +265,26 @@ LRESULT DcxUpDown::getPos32( LPBOOL pfError ) const {
   return SendMessage( this->m_Hwnd, UDM_GETPOS32, (WPARAM) 0, (LPARAM) pfError );
 }
 
+TString DcxUpDown::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & UDS_ALIGNLEFT)
+		styles.addtok("left", " ");
+	if (Styles & UDS_HORZ)
+		styles.addtok("horz", " ");
+	if (Styles & UDS_HOTTRACK)
+		styles.addtok("hottrack", " ");
+	if (Styles & UDS_NOTHOUSANDS)
+		styles.addtok("nothousands", " ");
+	if (Styles & UDS_SETBUDDYINT)
+		styles.addtok("buddyint", " ");
+	if (Styles & UDS_WRAP)
+		styles.addtok("wrap", " ");
+	return styles;
+}
+
 /*!
  * \brief blah
  *
@@ -283,7 +303,7 @@ LRESULT DcxUpDown::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 			case UDN_DELTAPOS:
 				{
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+						this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
 					bParsed = TRUE;
 				}
 				break;

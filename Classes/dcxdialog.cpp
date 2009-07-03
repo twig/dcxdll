@@ -42,6 +42,7 @@
 */
 
 #include "../defines.h"
+#include "../Dcx.h"
 #include "dcxdialog.h"
 #include "dcxdialogcollection.h"
 #include "dcxcontrol.h"
@@ -58,11 +59,11 @@
 
 #include "xpopup\xpopupmenumanager.h"
 
-extern DcxDialogCollection Dialogs;
 
-extern mIRCDLL mIRCLink;
-extern BOOL isMenuBar;
-extern BOOL isSysMenu;
+
+//extern mIRCDLL mIRCLink;
+bool DcxDialog::m_bIsMenuBar = false;
+bool DcxDialog::m_bIsSysMenu = false;
 
 
 
@@ -334,7 +335,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		this->removeStyle(WS_BORDER | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX |
 			WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
 
-		if (isXP())
+		if (Dcx::XPPlusModule.isUseable())
 			this->removeExStyle(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP |
 				WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED | WS_EX_LAYERED);
 		else
@@ -493,12 +494,12 @@ void DcxDialog::parseCommandRequest( TString &input) {
 	// TODO: doesnt work. xdialog -k [NAME] [SWITCH] [STATE]
 	else if (flags['k'] && numtok > 2) {
 		bool state = (input.gettok(3).to_int() > 0);
-		LONG styles = GetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE);
+		LONG styles = GetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE);
 
 		if (state)
-			SetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE, styles | WS_EX_APPWINDOW);
+			SetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE, styles | WS_EX_APPWINDOW);
 		else
-			SetWindowLong(mIRCLink.m_mIRCHWND, GWL_EXSTYLE, styles & ~WS_EX_APPWINDOW);
+			SetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE, styles & ~WS_EX_APPWINDOW);
 	}
 	/*
 	//xdialog -l [NAME] [SWITCH] [OPTIONS]
@@ -700,14 +701,14 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			//DestroyWindow(this->m_Hwnd);
 			//SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
 			char ret[32];
-			mIRCevalEX(ret, 32, "$dialog(%s).modal", this->m_tsName.to_chr());
+			Dcx::mIRC.evalex(ret, 32, "$dialog(%s).modal", this->m_tsName.to_chr());
 			if (lstrcmp(ret, "$true") == 0) // Modal Dialog
 				SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
 			else // Modeless Dialog
 				DestroyWindow(this->m_Hwnd);
 		}
 		else
-			mIRCcomEX("/.timer -m 1 0 xdialog -x %s", this->getName().to_chr());
+			Dcx::mIRC.execex("/.timer -m 1 0 xdialog -x %s", this->getName().to_chr());
 	}
 	// xdialog -h [NAME]
 	else if (flags['h']) {
@@ -944,7 +945,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 				return;
 			}
 
-			this->callAliasEx(NULL, "%s,%d,%d", "zlayershow", n +1, this->m_vZLayers[n] - mIRC_ID_OFFSET);
+			this->execAliasEx("%s,%d,%d", "zlayershow", n +1, this->m_vZLayers[n] - mIRC_ID_OFFSET);
 
 			// hide the previous control
 			ctrl = getControlByID(this->m_vZLayers[this->m_zLayerCurrent]);
@@ -984,10 +985,9 @@ void DcxDialog::parseCommandRequest( TString &input) {
 				this->showError(NULL,"-P","Menu Does Not Exist");
 		}
 		if (this->m_popup != NULL) {
-			extern XPopupMenuManager g_XPopupMenuManager; //!< Global XPopupMenu Manager
 			TString menuargs;
 			menuargs.sprintf("dialog %s", input.gettok( 3, -1).to_chr());
-			g_XPopupMenuManager.parseXPopupCommand(menuargs, this->m_popup);
+			Dcx::XPopups.parseCommand(menuargs, this->m_popup);
 		}
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
@@ -1234,7 +1234,14 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		UINT iFlags = SWP_NOACTIVATE|SWP_NOZORDER|SWP_NOOWNERZORDER;
 
 		GetClientRect(this->m_Hwnd, &rcClient);
-		GetWindowRect(this->m_Hwnd, &rcWindow);
+
+		// as described in a comment at http://msdn.microsoft.com/en-us/library/ms633519(VS.85).aspx
+		// GetWindowRect does not return the real size of a window if u are using vista with areo glass
+		// using DwmGetWindowAttribute now to fix that (fixes bug 685)
+		if (DwmGetWindowAttributeUx != NULL)
+			DwmGetWindowAttributeUx(this->m_Hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rcWindow, sizeof(rcWindow));
+		else
+			GetWindowRect(this->m_Hwnd, &rcWindow);
 
 		// Convert windows screen position to its position within it's parent.
 		if (this->isStyle(WS_CHILD))
@@ -1263,8 +1270,8 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		// Calculate the actual sizes without the window border
 		// http://windows-programming.suite101.com/article.cfm/client_area_size_with_movewindow
 		POINT ptDiff;
-		ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
-		ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+		ptDiff.x = (rcWindow.right - rcWindow.left) - (rcClient.right - rcClient.left);
+		ptDiff.y = (rcWindow.bottom - rcWindow.top) - (rcClient.bottom - rcClient.top);
 
 		SetWindowPos( this->m_Hwnd, NULL, x, y, w + ptDiff.x, h + ptDiff.y, iFlags );
 	}
@@ -1314,7 +1321,7 @@ void DcxDialog::parseBorderStyles(const TString &flags, LONG *Styles, LONG *ExSt
 			*Styles |= WS_SYSMENU;
 		else if (flags[i] == 'z')
 			*Styles |= WS_SIZEBOX;
-		else if (flags[i] == 'x' && isXP())
+		else if (flags[i] == 'x' && Dcx::XPPlusModule.isUseable())
 			*ExStyles |= WS_EX_COMPOSITED;
 		//	WS_EX_COMPOSITED style causes problems for listview control & maybe others, but when it works it looks really cool :)
 		//	this improves transparency etc.. on xp+ only, looking into how this affects us.
@@ -1659,7 +1666,7 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 	}
 	// [NAME] [PROP]
 	else if (prop == "ismarked") {
-		if (Dialogs.getDialogByHandle(this->m_Hwnd) != NULL)
+		if (Dcx::Dialogs.getDialogByHandle(this->m_Hwnd) != NULL)
 			lstrcpy(szReturnValue, "$true");
 		else
 			lstrcpy(szReturnValue, "$false");
@@ -1774,45 +1781,26 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
  * blah
  */
 
-BOOL DcxDialog::callAliasEx(char *szReturn, const char *szFormat, ...) {
+bool DcxDialog::evalAliasEx(char *szReturn, const int maxlen, const char *szFormat, ...) {
+	TString line;
 	va_list args;
+	bool res;
 	va_start(args, szFormat);
-	char parms[2048];
-
-	vsprintf(parms, szFormat, args);
-
-	//// create a temp %var for the args
-	//// This solves the ,() in args bugs, but causes problems with the , that we want.
-	//int rCnt = this->getRefCount();
-	//wsprintf(mIRCLink.m_pData, "/set -n %%d%d %s", rCnt, parms);
-	//SendMessage(mIRCLink.m_mIRCHWND, WM_USER +200, 0, mIRCLink.m_map_cnt);
-
-	//wsprintf(mIRCLink.m_pData, "$%s(%s,%%d%d)",
-	//	this->getAliasName().to_chr(),
-	//	this->getName().to_chr(),
-	//	this->getRefCount());
-	wsprintf(mIRCLink.m_pData, "$%s(%s,%s)",
-		this->getAliasName().to_chr(), 
-		this->getName().to_chr(),
-		parms);
-
-	this->incRef();
-	SendMessage(mIRCLink.m_mIRCHWND, WM_USER +201, 0, mIRCLink.m_map_cnt);
-
-	if (szReturn)
-		lstrcpy(szReturn, mIRCLink.m_pData);
-
-	this->decRef();
+	line.vprintf(szFormat, &args);
+	res = Dcx::mIRC.evalex(szReturn, maxlen, "$%s(%s,%s)", this->getAliasName().to_chr(), this->getName().to_chr(), line.to_chr());
 	va_end(args);
+	return res;
+}
 
-	//// delete temp %var
-	//wsprintf(mIRCLink.m_pData, "/unset %%d%d", rCnt);
-	//SendMessage(mIRCLink.m_mIRCHWND, WM_USER +200, 0, mIRCLink.m_map_cnt);
-
-	if (!lstrcmp(mIRCLink.m_pData, "$false"))
-		return FALSE;
-
-	return TRUE;
+bool DcxDialog::execAliasEx(const char *szFormat, ...) {
+	TString line;
+	va_list args;
+	bool res;
+	va_start(args, szFormat);
+	line.vprintf(szFormat, &args);
+	res = Dcx::mIRC.evalex(NULL, 0, "$%s(%s,%s)", this->getAliasName().to_chr(), this->getName().to_chr(), line.to_chr());
+	va_end(args);
+	return res;
 }
 
 /*!
@@ -1849,13 +1837,13 @@ HBRUSH DcxDialog::getBackClrBrush() const {
 void DcxDialog::setMouseControl(const UINT mUID) {
 	if (mUID != this->m_MouseID) {
 		if (this->m_dEventMask & DCX_EVENT_MOUSE) {
-			this->callAliasEx(NULL, "%s,%d", "mouseleave", this->m_MouseID);
-			this->callAliasEx(NULL, "%s,%d", "mouseenter", mUID);
+			this->execAliasEx("%s,%d", "mouseleave", this->m_MouseID);
+			this->execAliasEx("%s,%d", "mouseenter", mUID);
 		}
 		this->m_MouseID = mUID;
 	}
 	else if (this->m_dEventMask & DCX_EVENT_MOUSE)
-		this->callAliasEx(NULL, "%s,%d", "mouse", mUID);
+		this->execAliasEx("%s,%d", "mouse", mUID);
 }
 
 /*!
@@ -1867,8 +1855,8 @@ void DcxDialog::setMouseControl(const UINT mUID) {
 void DcxDialog::setFocusControl(const UINT mUID) {
 	if (mUID != this->m_FocusID) {
 		if (this->m_dEventMask & DCX_EVENT_FOCUS) {
-			this->callAliasEx(NULL, "%s,%d", "focusout", this->m_FocusID);
-			this->callAliasEx(NULL, "%s,%d", "focus", mUID);
+			this->execAliasEx("%s,%d", "focusout", this->m_FocusID);
+			this->execAliasEx("%s,%d", "focus", mUID);
 		}
 		this->m_FocusID = mUID;
 	}
@@ -1898,13 +1886,14 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	BOOL bParsed = FALSE;
 	LRESULT lRes = 0L;
 
-	p_this->incRef();
+	// TODO: Is this instruction needed? Referencecount is managed by callAliasEx too ...
+	//p_this->incRef();
 
 	switch (uMsg) {
 		case WM_HELP:
 			{
 				if (p_this->getEventMask() & DCX_EVENT_HELP)
-					p_this->callAliasEx( NULL, "%s,%d", "help", 0);
+					p_this->execAliasEx("%s,%d", "help", 0);
 				bParsed = TRUE;
 				lRes = TRUE;
 			}
@@ -1927,7 +1916,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_THEMECHANGED:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_THEME)
-					p_this->callAliasEx(NULL, "%s,%d", "themechanged", 0);
+					p_this->execAliasEx("%s,%d", "themechanged", 0);
 				break;
 			}
 		case WM_NOTIFY:
@@ -2032,12 +2021,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						// NB: After this is done you must use /xdialog -x to close the dialog, /dialog -x will no longer work.
 						// Check for >1 as the count was increased at the beginning of this function.
 						bParsed = TRUE;
-						mIRCcomEX("/.timer -m 1 0 xdialog -x %s", p_this->getName().to_chr());
+						Dcx::mIRC.execex("/.timer -m 1 0 xdialog -x %s", p_this->getName().to_chr());
 					}
 					else if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
 						char ret[256];
 
-						p_this->callAliasEx(ret, "%s,%d", "close", 0);
+						p_this->evalAliasEx(ret, 255, "%s,%d", "close", 0);
 
 						if (lstrcmp("noclose", ret) == 0)
 							bParsed = TRUE;
@@ -2058,7 +2047,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					{
 						if (p_this->m_dEventMask & DCX_EVENT_MOVE) {
 							char ret[256];
-							p_this->callAliasEx(ret, "%s,%d", "beginmove", 0);
+							p_this->evalAliasEx(ret, 255, "%s,%d", "beginmove", 0);
 
 							if (lstrcmp("nomove", ret) != 0) {
 								bParsed = TRUE;
@@ -2074,7 +2063,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
 							char ret[256];
 
-							p_this->callAliasEx(ret, "%s,%d", "scclose", 0);
+							p_this->evalAliasEx(ret, 255, "%s,%d", "scclose", 0);
 
 							if (lstrcmp("noclose", ret) == 0)
 								bParsed = TRUE;
@@ -2087,7 +2076,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
 							char ret[256];
 
-							p_this->callAliasEx(ret, "%s,%d", "min", 0);
+							p_this->evalAliasEx(ret, 255, "%s,%d", "min", 0);
 
 							if (lstrcmp("stop", ret) != 0) {
 								bParsed = TRUE;
@@ -2102,7 +2091,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
 							char ret[256];
 
-							p_this->callAliasEx(ret, "%s,%d", "max", 0);
+							p_this->evalAliasEx(ret, 255, "%s,%d", "max", 0);
 
 							if (lstrcmp("stop", ret) != 0) {
 								bParsed = TRUE;
@@ -2116,7 +2105,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				case SC_RESTORE:
 					{
 						if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
-							p_this->callAliasEx(NULL, "%s,%d", "restore", 0);
+							p_this->execAliasEx("%s,%d", "restore", 0);
 
 							//bParsed = TRUE;
 							//lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
@@ -2130,7 +2119,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
 							char ret[256];
 
-							p_this->callAliasEx(ret, "%s,%d", "beginsize", 0);
+							p_this->evalAliasEx(ret, 255, "%s,%d", "beginsize", 0);
 
 							if (lstrcmp("nosize", ret) != 0) {
 								bParsed = TRUE;
@@ -2170,9 +2159,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					p_this->UpdateShadow();
 
 				if ((p_this->m_bInSizing) && (p_this->m_dEventMask & DCX_EVENT_SIZE))
-					p_this->callAliasEx(NULL, "%s,%d", "endsize", 0);
+					p_this->execAliasEx("%s,%d", "endsize", 0);
 				else if ((p_this->m_bInMoving)  && (p_this->m_dEventMask & DCX_EVENT_MOVE))
-					p_this->callAliasEx(NULL, "%s,%d", "endmove", 0);
+					p_this->execAliasEx("%s,%d", "endmove", 0);
 
 //#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
 				bool bDoRedraw = p_this->m_bInSizing;
@@ -2199,7 +2188,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_MOVING:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_MOVE)
-					p_this->callAliasEx(NULL, "%s,%d", "moving", 0);
+					p_this->execAliasEx("%s,%d", "moving", 0);
 				break;
 			}
 
@@ -2212,6 +2201,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				//{
 				//}
 				//DeleteObject(hRGN);
+				/*
 				if ((p_this->m_Shadow.Status & DCX_SS_ENABLED) && p_this->isShadowed())
 				{
 					if(SIZE_MAXIMIZED == wParam || SIZE_MINIMIZED == wParam)
@@ -2247,7 +2237,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				}
 
 				if (p_this->m_dEventMask & DCX_EVENT_SIZE)
-					p_this->callAliasEx(NULL, "%s,%d,%d,%d", "sizing", 0, LOWORD(lParam), HIWORD(lParam));
+					p_this->execAliasEx("%s,%d,%d,%d", "sizing", 0, LOWORD(lParam), HIWORD(lParam));
 
 				HWND bars = NULL;
 
@@ -2271,21 +2261,21 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					t->autoPosition(LOWORD(lParam), HIWORD(lParam));
 					//SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) lParam );
 				}
-
+*/
 				RECT rc;
 
 				SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
-				p_this->SetVistaStyleSize();
+//				p_this->SetVistaStyleSize();*/
 				p_this->updateLayout(rc);
-				//SendMessage(mHwnd, WM_SETREDRAW, TRUE, 0);
+				/*//SendMessage(mHwnd, WM_SETREDRAW, TRUE, 0);
 				//This is needed (or some other solution) to update the bkg image & transp controls on it
 //#if defined(NDEBUG) && !defined(DCX_DEV_BUILD)
 //				p_this->redrawWindow(); // Causes alot of flicker.
 //#else
 				// Only included in debug & dev builds atm.
-				if (p_this->IsVistaStyle() || p_this->isExStyle(WS_EX_COMPOSITED))
+				if (p_this->IsVistaStyle() || p_this->isExStyle(WS_EX_COMPOSITED))*/
 					p_this->redrawWindow();
-				else {
+				/*else {
 					p_this->redrawBufferedWindow(); // Avoids flicker.
 					//p_this->redrawWindow();
 					// NB: This only fixed richedit controls that are direct children of the dialog NOT grandchildren.
@@ -2293,7 +2283,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						RedrawWindow( bars, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME );
 					}
 				}
-//#endif
+//#endif*/
 				break;
 			}
 			//case WM_NCCALCSIZE:
@@ -2325,7 +2315,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					}
 
 					//p_this->callAliasEx(ret, "changing,0,%d,%d,%d,%d,%d", (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
-					p_this->callAliasEx(ret, "changing,0,%s,%d,%d,%d,%d", p,wp->x, wp->y, wp->cx, wp->cy);
+					p_this->evalAliasEx(ret, 255, "changing,0,%s,%d,%d,%d,%d", p,wp->x, wp->y, wp->cx, wp->cy);
 
 					if (lstrcmp("nosize", ret) == 0)
 						wp->flags |= SWP_NOSIZE;
@@ -2418,7 +2408,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					tme.dwHoverTime = 1;
 					p_this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );
 					if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
-						p_this->callAliasEx(NULL, "%s,%d", "denter", 0); // this tells you when the mouse enters or
+						p_this->execAliasEx("%s,%d", "denter", 0); // this tells you when the mouse enters or
 					p_this->UpdateVistaStyle();
 				}
 				break;
@@ -2429,7 +2419,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				if ( p_this->m_bTracking ) {
 					p_this->m_bTracking = FALSE;
 					if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
-						p_this->callAliasEx(NULL, "%s,%d", "dleave", 0); // leaves a dialogs client area.
+						p_this->execAliasEx("%s,%d", "dleave", 0); // leaves a dialogs client area.
 				}
 				p_this->UpdateVistaStyle();
 			}
@@ -2438,7 +2428,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_LBUTTONDOWN:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->callAliasEx(NULL, "%s,%d", "lbdown", 0);
+					p_this->execAliasEx("%s,%d", "lbdown", 0);
 				if (p_this->m_bDoDrag)
 					p_this->m_bDrag = true;
 				break;
@@ -2447,8 +2437,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_LBUTTONUP:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-					p_this->callAliasEx(NULL, "%s,%d", "lbup", 0);
-					p_this->callAliasEx(NULL, "%s,%d", "sclick", 0);
+					p_this->execAliasEx("%s,%d", "lbup", 0);
+					p_this->execAliasEx("%s,%d", "sclick", 0);
 				}
 				break;
 			}
@@ -2456,8 +2446,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_LBUTTONDBLCLK:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-					p_this->callAliasEx(NULL, "%s,%d", "dclick", 0);
-					p_this->callAliasEx(NULL, "%s,%d", "lbdblclk", 0);
+					p_this->execAliasEx("%s,%d", "dclick", 0);
+					p_this->execAliasEx("%s,%d", "lbdblclk", 0);
 				}
 				break;
 			}
@@ -2465,15 +2455,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_RBUTTONDOWN:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->callAliasEx(NULL, "%s,%d", "rbdown", 0);
+					p_this->execAliasEx("%s,%d", "rbdown", 0);
 				break;
 			}
 
 		case WM_RBUTTONUP:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-					p_this->callAliasEx(NULL, "%s,%d", "rbup", 0);
-					p_this->callAliasEx(NULL, "%s,%d", "rclick", 0);
+					p_this->execAliasEx("%s,%d", "rbup", 0);
+					p_this->execAliasEx("%s,%d", "rclick", 0);
 				}
 				break;
 			}
@@ -2481,28 +2471,28 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_RBUTTONDBLCLK:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->callAliasEx(NULL, "%s,%d", "rbdblclk", 0);
+					p_this->execAliasEx("%s,%d", "rbdblclk", 0);
 				break;
 			}
 
 		case WM_MBUTTONDOWN:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->callAliasEx(NULL, "%s,%d", "mbdown", 0);
+					p_this->execAliasEx("%s,%d", "mbdown", 0);
 				break;
 			}
 
 		case WM_MBUTTONUP:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->callAliasEx(NULL, "%s,%d", "mbup", 0);
+					p_this->execAliasEx("%s,%d", "mbup", 0);
 				break;
 			}
 
 		case WM_MBUTTONDBLCLK:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->callAliasEx(NULL, "%s,%d", "mbdblclk", 0);
+					p_this->execAliasEx("%s,%d", "mbdblclk", 0);
 				break;
 			}
 
@@ -2524,7 +2514,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					if (fwKeys & MK_SHIFT) // shift button
 						flags = flags + "s";
 
-					p_this->callAliasEx(NULL, "%s,%d,%s,%s",
+					p_this->execAliasEx("%s,%d,%s,%s",
 						"mwheel",
 						p_this->m_MouseID,
 						((int) zDelta > 0 ? "up" : "down"),
@@ -2544,21 +2534,23 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 					bParsed = TRUE;
 
-					if ((lRes == 0) && isMenuBarMenu(GetMenu(mHwnd), (HMENU) wParam)) {
-						isMenuBar = TRUE;
+					if ((lRes == 0) && Dcx::XPopups.isMenuBarMenu(GetMenu(mHwnd), (HMENU) wParam)) {
+
+						m_bIsMenuBar = true;
 
 						p_this->m_popup->convertMenu((HMENU) wParam, TRUE);
 					}
-					isSysMenu = FALSE;
+					m_bIsSysMenu = false;
 				}
 				else
-					isSysMenu = TRUE;
+					m_bIsSysMenu = true;
 				break;
 			}
 
 		case WM_UNINITMENUPOPUP:
 			{
-				if (p_this->m_popup != NULL && (isMenuBar == TRUE) && (isSysMenu == FALSE))
+
+				if (p_this->m_popup != NULL && m_bIsMenuBar && !m_bIsSysMenu)
 					p_this->m_popup->deleteAllItemData((HMENU) wParam);
 
 				break;
@@ -2586,7 +2578,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					if (p_this->m_dEventMask & DCX_EVENT_DRAG) {
 						char ret[20];
 
-						p_this->callAliasEx(ret, "%s,%d,%d", "dragbegin", 0, count);
+						p_this->evalAliasEx(ret, 19, "%s,%d,%d", "dragbegin", 0, count);
 
 						// cancel drag drop event
 						if (lstrcmpi(ret, "cancel") == 0) {
@@ -2597,10 +2589,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						// for each file, send callback message
 						for (int i = 0; i < count; i++) {
 							if (DragQueryFile(files, i, filename, 500))
-								p_this->callAliasEx(NULL, "%s,%d,%s", "dragfile", 0, filename);
+								p_this->execAliasEx("%s,%d,%s", "dragfile", 0, filename);
 						}
 
-						p_this->callAliasEx(NULL, "%s,%d", "dragfinish", 0);
+						p_this->execAliasEx("%s,%d", "dragfinish", 0);
 					}
 				}
 
@@ -2621,13 +2613,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WA_ACTIVE:
 		case WA_CLICKACTIVE:
 			{
-				p_this->callAliasEx(NULL, "%s,%d", "activate", 0);
+				p_this->execAliasEx("%s,%d", "activate", 0);
 				break;
 			}
 
 		case WA_INACTIVE:
 			{
-				p_this->callAliasEx(NULL, "%s,%d", "deactivate", 0);
+				p_this->execAliasEx("%s,%d", "deactivate", 0);
 				break;
 			}
 					} // switch
@@ -2711,9 +2703,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_DWMCOMPOSITIONCHANGED:
 			{
 				if (p_this->isShadowed()) {
-					if (DwmIsCompositionEnabledUx != NULL)
-						DwmIsCompositionEnabledUx(&mIRCLink.m_bAero);
-					if (mIRCLink.m_bAero)
+					if (Dcx::VistaModule.refreshComposite())
 						p_this->m_Shadow.Status |= DCX_SS_DISABLEDBYAERO;
 					else
 						p_this->m_Shadow.Status &= ~DCX_SS_DISABLEDBYAERO;
@@ -2727,7 +2717,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 
-				Dialogs.deleteDialog(p_this);
+				Dcx::Dialogs.deleteDialog(p_this);
 				delete p_this;
 				return lRes;
 			}
@@ -2740,8 +2730,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			}
 			break;
 	}
-
-	p_this->decRef();
+	//p_this->decRef();
+	// TODO: Is this instruction needed? Referencecount is managed by callAliasEx too ...
 
 	if (bParsed)
 		return lRes;
@@ -2842,7 +2832,7 @@ bool DcxDialog::AddShadow(void)
 
 		this->m_Shadow.Status = DCX_SS_ENABLED;
 
-		if (mIRCLink.m_bAero)
+		if (Dcx::VistaModule.isAero())
 			this->m_Shadow.Status |= DCX_SS_DISABLEDBYAERO;
 
 		this->ShowShadow();
@@ -3217,11 +3207,10 @@ void DcxDialog::showError(const char *prop, const char *cmd, const char *err)
 			res.sprintf("D_IERROR xdialog(%s).%s: %s", this->getName().to_chr(), prop, err);
 		else
 			res.sprintf("D_CERROR xdialog %s %s: %s", cmd, this->getName().to_chr(), err);
-		mIRCError(res.to_chr());
+		Dcx::mIRC.echo(res.to_chr());
 	}
 
-	if (this->getAliasName().len() > 0)
-		this->callAliasEx(NULL, "error,0,dialog,%s,%s,%s", (prop != NULL ? prop : "none"), (cmd != NULL ? cmd : "none"), err);
+	this->execAliasEx("error,0,dialog,%s,%s,%s", (prop != NULL ? prop : "none"), (cmd != NULL ? cmd : "none"), err);
 }
 
 void DcxDialog::showErrorEx(const char *prop, const char *cmd, const char *fmt, ...)
@@ -3241,7 +3230,7 @@ void DcxDialog::showErrorEx(const char *prop, const char *cmd, const char *fmt, 
 void DcxDialog::CreateVistaStyle(void)
 {
 #ifdef DCX_USE_GDIPLUS
-	if (SetLayeredWindowAttributesUx && UpdateLayeredWindowUx && mIRCLink.m_bUseGDIPlus) {
+	if (SetLayeredWindowAttributesUx && UpdateLayeredWindowUx && Dcx::GDIModule.isUseable()) {
 		RECT rc;
 		GetWindowRect(this->m_Hwnd, &rc);
 		DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;
@@ -3633,6 +3622,30 @@ LRESULT DcxDialog::ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM w
    }
 
    return 0L;
+}
+
+void DcxDialog::toXml(TiXmlElement * xml) {
+	this->toXml(xml, new TString("unnamed"));
+}
+
+void DcxDialog::toXml(TiXmlElement * xml, TString * name) {
+	char dest[900];
+	GetWindowText(this->m_Hwnd, dest, 899);
+	xml->SetAttribute("name", name->to_chr());
+	xml->SetAttribute("caption", dest);
+	this->m_pLayoutManager->getRoot()->toXml(xml);
+}
+
+TiXmlElement * DcxDialog::toXml() {
+	TiXmlElement * result = new TiXmlElement("dialog");
+	this->toXml(result);
+	return result;
+}
+
+TiXmlElement * DcxDialog::toXml(TString * name) {
+	TiXmlElement * result = new TiXmlElement("dialog");
+	this->toXml(result, name);
+	return result;
 }
 
 

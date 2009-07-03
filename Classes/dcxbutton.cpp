@@ -345,6 +345,23 @@ HIMAGELIST DcxButton::createImageList() {
 	return ImageList_Create(this->m_iIconSize, this->m_iIconSize, ILC_COLOR32 | ILC_MASK, 1, 0);
 }
 
+TString DcxButton::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & BS_BITMAP)
+		styles.addtok("bitmap", " ");
+	if (Styles & BS_DEFPUSHBUTTON) 
+		styles.addtok("default", " ");
+	return styles;
+}
+	
+void DcxButton::toXml(TiXmlElement * xml) {
+	__super::toXml(xml);
+	xml->SetAttribute("caption", this->m_tsCaption.to_chr());
+}
+
 /*!
  * \brief blah
  *
@@ -360,13 +377,13 @@ LRESULT DcxButton::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 			case BN_CLICKED:
 				{
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->callAliasEx( NULL, "%s,%d", "sclick", this->getUserID( ) );
+						this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
 				}
 				break;
 			case BN_DBLCLK:
 				{
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->callAliasEx( NULL, "%s,%d", "dclick", this->getUserID( ) );
+						this->execAliasEx("%s,%d", "dclick", this->getUserID( ) );
 				}
 				break;
 			}
@@ -440,7 +457,7 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				InvalidateRect( this->m_Hwnd, NULL, FALSE );
 			}
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				this->callAliasEx(NULL, "%s,%d", "lbdown", this->getUserID());
+				this->execAliasEx("%s,%d", "lbdown", this->getUserID());
 		}
 		break;
 
@@ -448,7 +465,7 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 		{
 			this->m_bSelected = FALSE;
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				this->callAliasEx(NULL, "%s,%d", "lbup", this->getUserID());
+				this->execAliasEx("%s,%d", "lbup", this->getUserID());
 		}
 		break;
 

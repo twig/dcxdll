@@ -14,6 +14,9 @@
 
 #include "dcxrebar.h"
 #include "dcxdialog.h"
+#include "../Dcx.h"
+
+
 
 /*!
  * \brief Constructor
@@ -80,6 +83,76 @@ DcxReBar::~DcxReBar( ) {
   ImageList_Destroy( this->getImageList( ) );
 
   this->unregistreDefaultWindowProc( );
+}
+
+TString DcxReBar::getStyles(void) {
+	TString styles;
+	LONG Styles;
+	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	styles = __super::getStyles();
+	if (Styles & RBS_BANDBORDERS)
+		styles.addtok("borders", " ");
+	if (Styles & RBS_DBLCLKTOGGLE)
+		styles.addtok("dblclktoggle", " ");
+	if (Styles & RBS_FIXEDORDER)
+		styles.addtok("fixedorder", " ");
+	if (Styles & RBS_VARHEIGHT)
+		styles.addtok("varheight", " ");
+	if (Styles & RBS_TOOLTIPS)
+		styles.addtok("tooltips", " ");
+	if (Styles & RBS_VERTICALGRIPPER)
+		styles.addtok("verticalgrip", " ");
+	if (Styles & CCS_VERT)
+		styles.addtok("vertical", " ");
+	if (Styles & CCS_RIGHT)
+		styles.addtok("right", " ");
+	if (Styles & CCS_BOTTOM)
+		styles.addtok("bottom", " ");
+	if (Styles & CCS_NORESIZE)
+		styles.addtok("noresize", " ");
+	if (Styles & CCS_NOPARENTALIGN)
+		styles.addtok("noparentalign", " ");
+	if (Styles & (CCS_NOPARENTALIGN | CCS_NORESIZE))
+		styles.addtok("noauto", " ");
+	return styles;
+
+}
+
+
+void DcxReBar::toXml(TiXmlElement * xml) {
+	__super::toXml(xml);
+	int count = this->getBandCount( );
+	TiXmlElement * subs;
+	DcxControl * c;
+	if (count > 0) {
+		for (int i = 0; i < count; i++) {
+			c = getControl(i);
+			if (c) {
+				subs = new TiXmlElement("control");
+				c->toXml(subs);
+				xml->LinkEndChild(subs);
+			}
+		}
+	}
+}
+
+DcxControl * DcxReBar::getControl(int index) {
+	DcxControl * result;
+
+    if ( index > -1 && index < this->getBandCount( ) ) {
+      
+      REBARBANDINFO rbBand;
+      ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
+      rbBand.cbSize = sizeof( REBARBANDINFO );
+      rbBand.fMask = RBBIM_CHILD;
+
+      if ( this->getBandInfo( index, &rbBand ) != 0 ) {
+        result = this->m_pParentDialog->getControlByHWND( rbBand.hwndChild );
+      }
+
+      return result;
+    }
+	return NULL;
 }
 
 /*!
@@ -209,23 +282,11 @@ void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
   else if ( prop == "childid" && numtok > 3 ) {
 
     int nItem = input.gettok( 4 ).to_int( ) - 1;
-
-    if ( nItem > -1 && nItem < this->getBandCount( ) ) {
-      
-      REBARBANDINFO rbBand;
-      ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
-      rbBand.cbSize = sizeof( REBARBANDINFO );
-      rbBand.fMask = RBBIM_CHILD;
-
-      if ( this->getBandInfo( nItem, &rbBand ) != 0 ) {
-
-        DcxControl * c = this->m_pParentDialog->getControlByHWND( rbBand.hwndChild );
-        if ( c != NULL )
-          wsprintf( szReturnValue, "%d", c->getUserID( ) );
-      }
+    DcxControl * c = getControl(nItem);
+    if ( c != NULL )
+       wsprintf( szReturnValue, "%d", c->getUserID( ) );
 
       return;
-    }
   }
   	// $xdid([NAME], [ID], [N]).[PROP]
 	else if (prop == "markeditem") {
@@ -271,7 +332,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 		REBARBANDINFO rbBand;
 		ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
 #ifdef DCX_USE_WINSDK
-		if (mIRCLink.m_bVista) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
+		if (Dcx::VistaModule.isUseable()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
 			rbBand.cbSize = sizeof( REBARBANDINFO );
 		else
 			rbBand.cbSize = REBARBANDINFO_V6_SIZE;
@@ -923,7 +984,7 @@ LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 								if ( this->m_iWidth != width || this->m_iHeight != height ) {
 
-									this->callAliasEx( NULL, "%s,%d,%d,%d", "change", this->getUserID( ),
+									this->execAliasEx("%s,%d,%d,%d", "change", this->getUserID( ),
 										width, height );
 
 									this->m_iWidth = width;
@@ -1054,7 +1115,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
           this->m_iClickedBand = band;
 
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-		        this->callAliasEx( NULL, "%s,%d,%d", "sclick", this->getUserID( ), band + 1 );
+		        this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), band + 1 );
         }
       }
       break;
@@ -1068,7 +1129,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					int band = this->hitTest( &rbhi );
 
 					if ( band != -1 )
-						this->callAliasEx( NULL, "%s,%d,%d", "rclick", this->getUserID( ), band + 1 );
+						this->execAliasEx("%s,%d,%d", "rclick", this->getUserID( ), band + 1 );
 				}
       }
       break;

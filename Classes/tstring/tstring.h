@@ -45,6 +45,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 //#include <string.h>
+#define SPACE m_cSpace
+#define COMMA m_cComma
+#define TAB m_cTab
 
 /*!
  * \brief String and Token Management Class
@@ -64,9 +67,6 @@ public:
 	static const char *m_cSpace;
 	static const char *m_cComma;
 	static const char *m_cTab;
-#define SPACE m_cSpace
-#define COMMA m_cComma
-#define TAB m_cTab
 
 	TString( );
 	TString( const char * cString );
@@ -170,6 +170,7 @@ public:
 	TString left(int n) const;
 	TString right(int n) const;
 	int sprintf(const char *fmt, ...);
+	int vprintf(const char *fmt, va_list * args);
 	bool iswm(char *a) const;
 	bool iswmcs(char *a) const;
 	int to_int() const { return atoi(this->m_pString); };

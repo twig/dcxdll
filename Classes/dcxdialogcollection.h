@@ -17,6 +17,7 @@
 
 // dummy runtime classe definition
 class DcxDialog;
+class Dcx;
 
 typedef std::vector<DcxDialog *> VectorOfDialogPtrs; //!< blah
 
@@ -36,6 +37,7 @@ public:
   void markDialog( const HWND mHwnd, TString & tsName, TString & tsAliasName );
   void deleteDialog( DcxDialog * p_Dialog );
   DcxDialog * getDialogByHandle( const HWND mHwnd );
+  DcxDialog * getDialogByChildHandle( const HWND mHwnd );
   DcxDialog * getDialogByName( const TString & tsName );
 
   bool closeDialogs( );

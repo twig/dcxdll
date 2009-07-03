@@ -189,8 +189,15 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
     case DV_GETPANE:
       {
-
-        // Incomplete for now
+		LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+		switch (wParam) {
+			case DVF_PANELEFT:
+				*((LPDVPANEINFO)lParam) = lpdvdata->m_Panes[0];
+			break;
+			case DVF_PANERIGHT:
+				*((LPDVPANEINFO)lParam) = lpdvdata->m_Panes[1];
+			break;
+		}
 
       }
       break;
@@ -319,6 +326,10 @@ void DrawXorBar( HDC hdc, int x1, int y1, int width, int height )
 	
 	DeleteObject( hbr );
 	DeleteObject( hbm );
+}
+
+void Divider_GetChildControl( HWND mHwnd, UINT pane, LPDVPANEINFO result) {
+	SendMessage(mHwnd, DV_GETPANE, pane, (LPARAM)result);
 }
 
 /*!
