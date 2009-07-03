@@ -13,12 +13,12 @@
  */
 
 #include "xpopupmenumanager.h"
+#include "../../Dcx.h"
 
-extern HWND mhMenuOwner;
-extern XPopupMenu *g_mIRCPopupMenu;
-extern XPopupMenu *g_mIRCMenuBar;
+
+
+extern HMENU g_OriginalMenuBar;
 extern XPopupMenu *g_mIRCScriptMenu;
-extern XPopupMenuManager g_XPopupMenuManager;
 
 /*!
  * \brief Constructor
@@ -45,6 +45,224 @@ XPopupMenuManager::~XPopupMenuManager() {
  * blah
  */
 
+void XPopupMenuManager::load(void)
+{
+
+	/***** XPopup Stuff *****/
+	//GetClassInfoEx(NULL,"#32768",&wc); // menu
+	//HWND tmp_hwnd = CreateWindowEx(0,"#32768",NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
+	//if (tmp_hwnd != NULL) {
+	//	g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd,GCLP_WNDPROC,(LONG_PTR)mIRCMenusWinProc);
+	//	DestroyWindow(tmp_hwnd);
+	//}
+	Dcx::debug("LoadDLL", "Registering XPopup...");
+
+	WNDCLASSEX wc;
+	ZeroMemory((void*)&wc , sizeof(WNDCLASSEX));
+
+	wc.cbSize = sizeof(WNDCLASSEX);
+	wc.style         = 0;
+	wc.lpfnWndProc   = XPopupMenu::XPopupWinProc;
+	wc.cbClsExtra    = 0;
+	wc.cbWndExtra    = 0;
+	wc.hInstance     = GetModuleHandle( NULL );
+	wc.hIcon         = NULL;
+	wc.hCursor       = NULL;
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+	wc.lpszMenuName  = NULL;
+	wc.lpszClassName = XPOPUPMENUCLASS;
+	wc.hIconSm       = NULL;
+	RegisterClassEx(&wc);
+	// TODO: delete or describe what that is for...
+	//WNDCLASS wcpop;
+	//ZeroMemory(&wcpop, sizeof(WNDCLASS));
+	//wcpop.hInstance = GetModuleHandle(NULL);
+	//wcpop.lpszClassName = XPOPUPMENUCLASS;
+	//wcpop.lpfnWndProc = XPopupMenu::XPopupWinProc;
+	//RegisterClass(&wcpop);
+
+	Dcx::debug("LoadDLL", "Creating menu owner...");
+	m_hMenuOwner = CreateWindow(XPOPUPMENUCLASS, NULL, 0, 0, 0, 0, 0, (Dcx::XPPlusModule.isUseable() ? HWND_MESSAGE : 0), 0, GetModuleHandle(NULL), 0);
+
+	m_mIRCPopupMenu = new XPopupMenu("mirc",(HMENU)NULL);
+	m_mIRCMenuBar = new XPopupMenu("mircbar",GetMenu(Dcx::mIRC.getHWND()));
+
+
+	// XMenuBar stuff
+	HMENU menu = GetMenu(Dcx::mIRC.getHWND());
+	int i = 0;
+	const unsigned int buffSize = 30;
+	TString label(buffSize);
+	MENUITEMINFO mii;
+
+	ZeroMemory(&mii, sizeof(MENUITEMINFO));
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_STRING;
+	mii.cch = buffSize;
+	mii.dwTypeData = label.to_chr();
+
+	while (GetMenuItemInfo(menu, i, TRUE, &mii)) {
+		// We've found the tools menu, next one is the scriptable popup.
+		if (label == "&Tools") {
+			HMENU scriptable = GetSubMenu(menu, i +1);;
+
+			// TODO: check if the next one is "&Window"
+			g_mIRCScriptMenu = new XPopupMenu("scriptpopup", scriptable);
+			break;
+		}
+
+		// Reset buffer size
+		mii.cch = buffSize;
+		i++;
+	}
+}
+
+void XPopupMenuManager::unload(void)
+{
+	/***** XPopup Stuff *****/
+	//HWND tmp_hwnd = CreateWindowEx(0,"#32768",NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
+	//if (tmp_hwnd != NULL) {
+	//	SetClassLongPtr(tmp_hwnd,GCLP_WNDPROC,(LONG_PTR)g_OldmIRCMenusWindowProc);
+	//	DestroyWindow(tmp_hwnd);
+	//}
+	Dcx::mIRC.resetWindowProc();
+
+	clearMenus();
+	delete m_mIRCPopupMenu;
+
+	m_mIRCMenuBar->cleanMenu(GetMenu(Dcx::mIRC.getHWND()));
+	delete m_mIRCMenuBar;
+
+	if (m_hMenuOwner != NULL)
+		DestroyWindow(m_hMenuOwner);
+
+	UnregisterClass(XPOPUPMENUCLASS, GetModuleHandle(NULL));
+}
+
+LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam)
+{
+	LRESULT lRes;
+	HMENU menu = (HMENU)wParam;
+	bool isWinMenu = HIWORD(lParam) == TRUE ? true : false;
+	bool isCustomMenu = false;
+	HMENU currentMenubar = GetMenu(Dcx::mIRC.getHWND());
+	bool switchMenu = (g_mIRCScriptMenu != NULL) &&                  // The mIRC scriptpopup menu has been wrapped,
+		              (menu == g_mIRCScriptMenu->getMenuHandle()) && // The menu the same as the one just shown,
+					  (currentMenubar != g_OriginalMenuBar) &&       // The menubar is our generated menubar,
+					  (g_OriginalMenuBar != NULL);                   // And ensure it has been generated.
+
+	if (!isWinMenu) {
+		if (switchMenu)
+			SetMenu(Dcx::mIRC.getHWND(), g_OriginalMenuBar);
+
+		// let mIRC populate the menus dynamically
+		lRes = Dcx::mIRC.callDefaultWindowProc(mHwnd, WM_INITMENUPOPUP, wParam, lParam);
+
+		if (switchMenu)
+			SetMenu(Dcx::mIRC.getHWND(), currentMenubar);
+
+		if (isMenuBarMenu(GetMenu(mHwnd), menu)) {
+			m_bIsMenuBar = true;
+
+			if (m_bIsActiveMircMenubarPopup) {
+				HWND hActive = (HWND)SendMessage(Dcx::mIRC.getMDIClient(), WM_MDIGETACTIVE, NULL, NULL);
+				isCustomMenu = Dcx::XPopups.isCustomMenu(menu);
+
+			// Store the handle of the menu being displayed.
+			if (isCustomMenu && (m_hMenuCustom == NULL))
+				m_hMenuCustom = menu;
+
+			if (((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) && isCustomMenu && (m_hMenuCustom == NULL)) // This checks for custom submenus.
+				
+				m_mIRCMenuBar->convertMenu(menu, TRUE);
+			}
+		}
+		else {
+			m_bIsMenuBar = false;
+
+			if (m_bIsActiveMircPopup)
+				m_mIRCMenuBar->convertMenu(menu, FALSE);
+		}
+
+		m_bIsSysMenu = false;
+		return lRes;
+	}
+	else
+		m_bIsSysMenu = true;
+	return Dcx::mIRC.callDefaultWindowProc(mHwnd, WM_INITMENUPOPUP, wParam, lParam);
+}
+
+LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam)
+{
+	HMENU menu = (HMENU) wParam;
+
+	// Unset the custom menu handle so we dont have to keep track of submenus anymore.
+	if (menu == m_hMenuCustom)
+		m_hMenuCustom = NULL;
+
+	if (m_bIsMenuBar && !m_bIsSysMenu && m_bIsActiveMircMenubarPopup)
+		m_mIRCMenuBar->deleteAllItemData(menu);
+	return Dcx::mIRC.callDefaultWindowProc(mHwnd, WM_UNINITMENUPOPUP, wParam, lParam);
+}
+	
+LRESULT XPopupMenuManager::OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam)
+{
+	if (!m_bIsMenuBar && m_bIsActiveMircPopup)
+		m_mIRCMenuBar->clearAllMenuItems();
+	return Dcx::mIRC.callDefaultWindowProc(mHwnd, WM_EXITMENULOOP, wParam, lParam);
+}
+
+LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
+{
+	// Check if the message came from the menubar
+	if ((HIWORD(wParam) == 0) && (m_bIsMenuBar)) {
+		if (Dcx::XMenubar.hasCallback()) {
+			// If the user requested the message to be halted ...
+			if (Dcx::XMenubar.parseCallback(LOWORD(wParam))) {
+				// Stop parsing and prevent default action.
+				return 0L;
+			}
+		}
+		switch (LOWORD(wParam))
+		{
+		//case 110: // menubar, can't be re-enabled from menu obviously
+		//	{
+		//		if (IsWindowVisible(menubar))
+		//			mIRCSignalDCX(dcxSignal.xdock, "menubar disabled");
+		//		else
+		//			mIRCSignalDCX(dcxSignal.xdock, "menubar enabled");
+		//	}
+		//	break;
+		case 111: // toolbar
+			{
+				if (IsWindowVisible(Dcx::mIRC.getToolbar()))
+					Dcx::mIRC.signalex(dcxSignal.xdock, "toolbar disabled");
+				else
+					Dcx::mIRC.signalex(dcxSignal.xdock, "toolbar enabled");
+			}
+			break;
+		case 112: // switchbar
+			{
+				if (IsWindowVisible(Dcx::mIRC.getSwitchbar()))
+					Dcx::mIRC.signalex(dcxSignal.xdock, "switchbar disabled");
+				else
+					Dcx::mIRC.signalex(dcxSignal.xdock, "switchbar enabled");
+			}
+			break;
+		case 210: // treebar
+			{
+				if (IsWindowVisible(Dcx::mIRC.getTreebar()))
+					Dcx::mIRC.signalex(dcxSignal.xdock, "treebar disabled");
+				else
+					Dcx::mIRC.signalex(dcxSignal.xdock, "treebar enabled");
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	return Dcx::mIRC.callDefaultWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
+}
 
 /*!
  * \brief blah
@@ -52,20 +270,20 @@ XPopupMenuManager::~XPopupMenuManager() {
  * blah
  */
 
-void XPopupMenuManager::parseXPopupCommand(const TString & input) {
+void XPopupMenuManager::parseCommand(const TString & input) {
 	XPopupMenu *p_Menu;
 	XSwitchFlags flags(input.gettok(2));
 
 	// Special mIRC Menu
 	if ((p_Menu = this->getMenuByName(input.gettok(1), TRUE)) == NULL && !flags['c']) {
-		DCXErrorEX("/xpopup", "\"%s\" doesn't exist : see /xpopup -c", input.gettok(1).to_chr());
+		Dcx::errorex("/xpopup", "\"%s\" doesn't exist : see /xpopup -c", input.gettok(1).to_chr());
 		return;
 	}
 
-	parseXPopupCommand(input, p_Menu);
+	parseCommand(input, p_Menu);
 }
 
-void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p_Menu ) {
+void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu ) {
 	XSwitchFlags flags(input.gettok(2));
 	int numtok = input.numtok( );
 
@@ -83,10 +301,10 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 				hBitmap = dcxLoadBitmap(hBitmap, filename);
 
 				if (hBitmap == NULL)
-					DCXError("/xpopup -b", "Unable to Load Image");
+					Dcx::error("/xpopup -b", "Unable to Load Image");
 			}
 			else
-				DCXError("/xpopup -b", "Unable to Access File");
+				Dcx::error("/xpopup -b", "Unable to Access File");
 		}
 
 		p_Menu->setBackBitmap( hBitmap );
@@ -96,7 +314,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 	else if ((flags['c']) && (numtok > 2) && (input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar")) {
 
 		if (p_Menu != NULL) {
-			DCXErrorEX("/xpopup -c", "\"%s\" already exists", input.gettok(1).to_chr());
+			Dcx::errorex("/xpopup -c", "\"%s\" already exists", input.gettok(1).to_chr());
 		}
 		else {
 			XPopupMenu::MenuStyle style = XPopupMenu::parseStyle(input.gettok(3));
@@ -123,10 +341,10 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 				DestroyIcon( icon );
 			}
 			else
-				DCXError("/xpopup -i","Unable to Load Icon");
+				Dcx::error("/xpopup -i","Unable to Load Icon");
 		}
 		else
-			DCXError("/xpopup -i","Unable to Access File");
+			Dcx::error("/xpopup -i","Unable to Access File");
 	}
 	// xpopup -j -> [MENU] [SWITCH]
 	else if (flags['j']) {
@@ -145,7 +363,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 	}
 	// xpopup -m -> mirc -m
 	else if ( flags['m'] && numtok == 2 && input.gettok( 1 ) == "mirc") {
-		if (!this->m_bPatched && mIRCLink.m_bmIRCSixPointTwoZero) {
+		if (!this->m_bPatched && Dcx::mIRC.isVersion(6,20)) {
 			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
 			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), "User32.dll", "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
 			this->m_bPatched = true;
@@ -200,7 +418,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 			// Adjust relative location to take multi-monitor into account
 			HMONITOR hMon;
 			MONITORINFO mi;
-			hMon = MonitorFromWindow(mIRCLink.m_mIRCHWND, MONITOR_DEFAULTTONEAREST);
+			hMon = MonitorFromWindow(Dcx::mIRC.getHWND(), MONITOR_DEFAULTTONEAREST);
 
 			mi.cbSize = sizeof(mi);
 			GetMonitorInfo(hMon, &mi);
@@ -209,9 +427,9 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
 			y += mi.rcMonitor.top;
 		}
 
-		UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | mflags, x, y, mhMenuOwner, NULL );
+		UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | mflags, x, y, m_hMenuOwner, NULL );
 
-		mIRCcomEX("//.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID );
+		Dcx::mIRC.execex("//.signal -n XPopup-%s %d", p_Menu->getName( ).to_chr( ), ID );
 	}
 	// xpopup -t -> [MENU] [SWITCH] [STYLE]
 	else if (flags['t'] && numtok > 2) {
@@ -285,7 +503,7 @@ void XPopupMenuManager::parseXPopupCommand( const TString & input, XPopupMenu *p
  * blah [MENU] [PROP]
  */
 
-void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szReturnValue ) {
+void XPopupMenuManager::parseIdentifier( const TString & input, char * szReturnValue ) {
 
 	int numtok = input.numtok( );
 	TString prop(input.gettok( 2 ));
@@ -293,7 +511,7 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 	XPopupMenu * p_Menu = this->getMenuByName(input.gettok(1), TRUE);
 
 	if ((p_Menu == NULL) && (prop != "ismenu") && (prop != "menuname") && (prop != "menubar")) {
-		DCXErrorEX("$!xpopup()", "\"%s\" doesn't exist, see /xpopup -c", input.gettok(1).to_chr());
+		Dcx::errorex("$!xpopup()", "\"%s\" doesn't exist, see /xpopup -c", input.gettok(1).to_chr());
 		return;
 	}
 
@@ -306,7 +524,7 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 
 		if ((i < 0) || (i > (int) this->m_vpXPMenu.size()))
 		{
-			DCXErrorEX("$!xpopup().menuname", "Invalid index: %d", i);
+			Dcx::errorex("$!xpopup().menuname", "Invalid index: %d", i);
 			return;
 		}
 
@@ -407,6 +625,30 @@ void XPopupMenuManager::parseXPopupIdentifier( const TString & input, char * szR
 	}
 	szReturnValue[0] = 0;
 }
+	
+int XPopupMenuManager::parseMPopup(const TString & input)
+{
+	if (input.numtok( ) < 2) {
+		Dcx::error("/mpopup","Invalid arguments");
+		return 0;
+	}
+
+	if (input.gettok( 1 ) == "mirc") {
+		if (input.gettok( 2 ) == "1")
+			m_bIsActiveMircPopup = true;
+		else
+			m_bIsActiveMircPopup = false;
+	}
+	else if (input.gettok( 1 ) == "mircbar") {
+		if (input.gettok( 2 ) == "1")
+			m_bIsActiveMircMenubarPopup = true;
+		else {
+			m_bIsActiveMircMenubarPopup = false;
+			m_mIRCMenuBar->cleanMenu(GetMenu(Dcx::mIRC.getHWND()));
+		}
+	}
+	return 3;
+}
 
 /*!
  * \brief blah
@@ -464,6 +706,11 @@ void XPopupMenuManager::clearMenus( ) {
   }
 }
 
+void XPopupMenuManager::setIsMenuBar(bool value)
+{
+	m_bIsMenuBar = value;
+}
+
 /*!
  * \brief blah
  *
@@ -473,9 +720,9 @@ void XPopupMenuManager::clearMenus( ) {
 XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, BOOL checkSpecial) { 
 	if (checkSpecial) {
 		if (tsName == "mircbar")
-			return g_mIRCMenuBar;
+			return m_mIRCMenuBar;
 		else if (tsName == "mirc")
-			return g_mIRCPopupMenu;
+			return Dcx::XPopups.getmIRCPopup();
 		else if (tsName == "scriptpopup")
 			return g_mIRCScriptMenu;
 	}
@@ -498,10 +745,10 @@ XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, BOOL checkS
  */
 XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) {
 	// Special cases
-	if (hMenu == g_mIRCMenuBar->getMenuHandle())
-		return g_mIRCMenuBar;
-	else if (hMenu == g_mIRCPopupMenu->getMenuHandle())
-		return g_mIRCPopupMenu;
+	if (hMenu == m_mIRCMenuBar->getMenuHandle())
+		return m_mIRCMenuBar;
+	else if (hMenu == Dcx::XPopups.getmIRCPopup()->getMenuHandle())
+		return Dcx::XPopups.getmIRCPopup();
 	else if (hMenu == g_mIRCScriptMenu->getMenuHandle())
 		return g_mIRCScriptMenu;
 
@@ -518,6 +765,15 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) {
 	return NULL;
 }
 
+XPopupMenu* XPopupMenuManager::getmIRCPopup(void)
+{
+	return m_mIRCPopupMenu;
+}
+XPopupMenu* XPopupMenuManager::getmIRCMenuBar(void)
+{
+	return m_mIRCMenuBar;
+}
+
 /*
  * Check if menu handle is a custom menu (don't include converted mIRC menus)
  */
@@ -531,6 +787,25 @@ bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) {
 			return true;
 
 		++itStart;
+	}
+
+	return false;
+}
+
+bool XPopupMenuManager::isMenuBarMenu(const HMENU hMenu, const HMENU hMatch) {
+	HMENU hTemp;
+	int i = 0, n = GetMenuItemCount(hMenu);
+
+	while (i < n) {
+		if ((hTemp = GetSubMenu(hMenu, i)) != NULL) {
+			if (hTemp == hMatch)
+				return true;
+
+			if (isMenuBarMenu(hTemp, hMatch))
+				return true;
+		}
+
+		++i;
 	}
 
 	return false;
@@ -719,15 +994,15 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 
 	// Dataset not found.
 	if (popup == NULL) {
-		DCXErrorEX("/dcxml", "No Popup Dataset %s", popupDataset.to_chr());
+		Dcx::errorex("/dcxml", "No Popup Dataset %s", popupDataset.to_chr());
 		return;
 	}
 
-	XPopupMenu *menu = g_XPopupMenuManager.getMenuByName(popupName, FALSE);
+	XPopupMenu *menu = Dcx::XPopups.getMenuByName(popupName, FALSE);
 
 	// Destroy a menu which already exists
 	if (menu != NULL)
-		g_XPopupMenuManager.deleteMenu(menu);
+		Dcx::XPopups.deleteMenu(menu);
 
 	// Find global styles branch
 	globalStyles = popups->FirstChildElement("styles");
@@ -751,7 +1026,7 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 
 		if (attr != NULL) {
 			char buff[900];
-			mIRCeval(attr, buff, 900);
+			Dcx::mIRC.eval(buff, 900, attr);
 			menu->setColor(i, TString(buff).to_int());
 		}
 	}
@@ -760,7 +1035,7 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 	if (style == XPopupMenu::XPMS_CUSTOM) {
 		char buff[900];
 
-		mIRCevalEX(buff, 900, "%s", popup->Attribute("background"));
+		Dcx::mIRC.evalex(buff, 900, "%s", popup->Attribute("background"));
 
 		HBITMAP hBitmap = NULL;
 		hBitmap = dcxLoadBitmap(NULL, TString(buff));
@@ -770,7 +1045,7 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 	}
 
 	// Successfully created a menu.
-	g_XPopupMenuManager.m_vpXPMenu.push_back(menu);
+	Dcx::XPopups.m_vpXPMenu.push_back(menu);
 
 	// Parse icons
 	element = popup->FirstChildElement("icons");
@@ -793,7 +1068,7 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 
 			// Filename
 			char filename[900];
-			mIRCevalEX(filename, 900, "%s", element->Attribute("src"));
+			Dcx::mIRC.evalex(filename, 900, "%s", element->Attribute("src"));
 
 			tmp = element->Attribute("index");
 
@@ -808,7 +1083,7 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 				nIcon = indexes.gettok(i, ",").to_int();
 				//xpudemo -i + 114 dcxstudio_gfx\shell.dll
 				command.sprintf("%s -i %s %d %s", popupName.to_chr(), flags.to_chr(), nIcon, filename);
-				g_XPopupMenuManager.parseXPopupCommand(command, menu);
+				Dcx::XPopups.parseCommand(command, menu);
 			}
 		}
 	}

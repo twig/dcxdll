@@ -26,24 +26,48 @@
 
 class XPopupMenuManager {
 
+private:
+	XPopupMenu * m_mIRCPopupMenu;
+	XPopupMenu * m_mIRCMenuBar;
+
+	bool m_bIsMenuBar;
+	bool m_bIsSysMenu;
+
+	bool m_bIsActiveMircPopup;
+	bool m_bIsActiveMircMenubarPopup;
+
+	
+    HMENU m_hMenuCustom;
+	HWND m_hMenuOwner; //!< Menu Owner Window Which Processes WM_ Menu Messages 
+
+
 public:
 
-  XPopupMenuManager( );
-  virtual ~XPopupMenuManager( );
+	XPopupMenuManager( );
+	virtual ~XPopupMenuManager( );
+	void load(void);
+	void unload(void);
 
-  void parseXPopupCommand( const TString & input );
-  void parseXPopupCommand( const TString & input, XPopupMenu *p_Menu );
-  void parseXPopupIdentifier( const TString & input, char * szReturnValue );
+	void parseCommand( const TString & input );
+	void parseCommand( const TString & input, XPopupMenu *p_Menu );
+	void parseIdentifier( const TString & input, char * szReturnValue );
+	int parseMPopup(const TString & input);
 
-  void addMenu( XPopupMenu * p_Menu );
-  void deleteMenu( XPopupMenu * p_Menu );
-  void clearMenus( );
+	void addMenu( XPopupMenu * p_Menu );
+	void deleteMenu( XPopupMenu * p_Menu );
+	void clearMenus( );
+
+	void setIsMenuBar(bool value);
 
 	XPopupMenu* getMenuByName(const TString &tsName, BOOL checkSpecial);
 	XPopupMenu* getMenuByHandle(const HMENU hMenu);
+	XPopupMenu* getmIRCPopup(void);
+	XPopupMenu* getmIRCMenuBar(void);
 	bool isCustomMenu(const HMENU hMenu);
+	bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
 
 	bool isPatched(void) const { return this->m_bPatched; };
+
 	static BOOL InterceptAPI(HMODULE hLocalModule, const char* c_szDllName, const char* c_szApiName, DWORD dwReplaced, DWORD dwTrampoline, int offset);
 	static BOOL WINAPI XTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect);
 	static BOOL WINAPI XTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm);
@@ -52,6 +76,13 @@ public:
 
 	static void LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *popup, TString &popupName, TString &popupDataset);
 	static bool LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, TiXmlElement *items);
+
+	// following methods are called by dcx's mIRC WinProc
+
+	LRESULT OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
 protected:
 

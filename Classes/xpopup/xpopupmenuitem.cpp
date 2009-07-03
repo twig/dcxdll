@@ -14,6 +14,9 @@
 
 #include "xpopupmenuitem.h"
 #include "xpopupmenu.h"
+#include "../../Dcx.h"
+
+
 
 /*!
  * \brief Constructor
@@ -127,14 +130,14 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 				this->m_tsItemText = this->m_tsItemText.gettok(2, "\v").trim();
 			}
 
-			GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
-		}
-		else {
-			char res[900];
-			mIRCeval( this->m_tsItemText.to_chr( ), res, 900 );
-			this->m_tsItemText = res;
-			GetTextExtentPoint32( hdc, res, lstrlen( res ), &size );
-		}
+      GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
+    }
+    else {
+      char res[900];
+      Dcx::mIRC.eval( res, 900, this->m_tsItemText.to_chr( ) );
+      this->m_tsItemText = res;
+      GetTextExtentPoint32( hdc, res, lstrlen( res ), &size );
+    }
 
 		ReleaseDC( mHwnd, hdc );
 	}
@@ -705,7 +708,7 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 	int menuH = 0;
 	int i = 0;
 
-	while (GetMenuItemRect(mIRCLink.m_mIRCHWND, (HMENU) lpdis->hwndItem, i, &rc) != FALSE) {
+	while (GetMenuItemRect(Dcx::mIRC.getHWND(), (HMENU) lpdis->hwndItem, i, &rc) != FALSE) {
 		menuH += rc.bottom - rc.top;
 		i++;
 	}
@@ -749,7 +752,7 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 	double skew = 0;
 	int i = 0;
 
-	while (GetMenuItemRect(mIRCLink.m_mIRCHWND, (HMENU) lpdis->hwndItem, i, &rc) != FALSE) {
+	while (GetMenuItemRect(Dcx::mIRC.getHWND(), (HMENU) lpdis->hwndItem, i, &rc) != FALSE) {
 		menuH += rc.bottom - rc.top;
 		i++;
 	}
@@ -798,7 +801,7 @@ mIRCDebug("lpdis rect = %d %d", lpdis->rcItem.top, lpdis->rcItem.bottom);
 		DeleteHDCBuffer(hdcBuffer);
 	}
 
-	mIRCcomEX("/echo 4 -s /end %d ------", lpdis->itemID);
+	Dcx::mIRC.evalex(NULL, 0, "/echo 4 -s /end %d ------", lpdis->itemID);
 	*/
 }
 

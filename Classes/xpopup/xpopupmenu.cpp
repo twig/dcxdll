@@ -14,6 +14,9 @@
 
 #include "xpopupmenu.h"
 #include "xmenubar.h"
+#include "../../Dcx.h"
+
+
 
 /*!
  * \brief Constructor
@@ -21,7 +24,6 @@
  * blah
  */
 
-extern XMenuBar g_XMenuBar;
 
 XPopupMenu::XPopupMenu( const TString & tsMenuName, MenuStyle mStyle )
 : m_tsMenuName( tsMenuName ), m_MenuStyle( mStyle ), m_MenuItemStyles(0), m_hImageList(NULL),
@@ -200,7 +202,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 
 		if ( hMenu == NULL ) {
-			DCXError("/xpop","Invalid Menu Item Path" );
+			Dcx::error("/xpop","Invalid Menu Item Path" );
 			return;
 		}
 	}
@@ -973,10 +975,11 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce ) {
         XPopupMenuItem * p_Item;
 		TString tsItem(string);
 
-		// fixes identifiers in the dialog menu not being resolved. (Needs testing to see if it causes any other issues, like double eval's)
+		// fixes identifiers in the dialog menu not being resolved. 
+		// TODO Needs testing to see if it causes any other issues, like double eval's)
 		if (bForce && this->getName() == "dialog") {
 			char res[900];
-			mIRCeval(tsItem.to_chr(), res, 900);
+			Dcx::mIRC.eval(res, 900, tsItem.to_chr());
 			tsItem = res;
 		}
 
@@ -1087,7 +1090,7 @@ bool XPopupMenu::attachToMenuBar(HMENU menubar, TString label) {
 		return false;
 
 	// Add the menu to the mIRC window menubar
-	this->m_bAttachedToMenuBar = g_XMenuBar.addToMenuBar(menubar, this, label);
+	this->m_bAttachedToMenuBar = Dcx::XMenubar.addToMenuBar(menubar, this, label);
 	return this->m_bAttachedToMenuBar;
 }
 
@@ -1099,7 +1102,7 @@ void XPopupMenu::detachFromMenuBar(HMENU menubar) {
 	if (!this->m_bAttachedToMenuBar)
 		return;
 
-	g_XMenuBar.removeFromMenuBar(menubar, this);
+	Dcx::XMenubar.removeFromMenuBar(menubar, this);
 	this->m_bAttachedToMenuBar = false;
 }
 
