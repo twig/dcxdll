@@ -1787,7 +1787,13 @@ bool DcxDialog::evalAliasEx(char *szReturn, const int maxlen, const char *szForm
 	bool res;
 	va_start(args, szFormat);
 	line.vprintf(szFormat, &args);
+	//// create a temp %var for the args
+	//// This solves the ,() in args bugs, but causes problems with the , that we want.
+	//int rCnt = this->getRefCount();
+	//Dcx::mIRC.execex("/set -n %%d%d %s", rCnt, params);
+	this->incRef();
 	res = Dcx::mIRC.evalex(szReturn, maxlen, "$%s(%s,%s)", this->getAliasName().to_chr(), this->getName().to_chr(), line.to_chr());
+	this->decRef();
 	va_end(args);
 	return res;
 }
@@ -1798,7 +1804,9 @@ bool DcxDialog::execAliasEx(const char *szFormat, ...) {
 	bool res;
 	va_start(args, szFormat);
 	line.vprintf(szFormat, &args);
+	this->incRef();
 	res = Dcx::mIRC.evalex(NULL, 0, "$%s(%s,%s)", this->getAliasName().to_chr(), this->getName().to_chr(), line.to_chr());
+	this->decRef();
 	va_end(args);
 	return res;
 }
