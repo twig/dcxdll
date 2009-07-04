@@ -181,7 +181,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 			m_bIsMenuBar = false;
 
 			if (m_bIsActiveMircPopup)
-				m_mIRCMenuBar->convertMenu(menu, FALSE);
+				m_mIRCPopupMenu->convertMenu(menu, FALSE);
 		}
 
 		m_bIsSysMenu = false;

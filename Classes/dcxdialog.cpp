@@ -2209,7 +2209,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				//{
 				//}
 				//DeleteObject(hRGN);
-				/*
 				if ((p_this->m_Shadow.Status & DCX_SS_ENABLED) && p_this->isShadowed())
 				{
 					if(SIZE_MAXIMIZED == wParam || SIZE_MINIMIZED == wParam)
@@ -2269,21 +2268,20 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					t->autoPosition(LOWORD(lParam), HIWORD(lParam));
 					//SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) lParam );
 				}
-*/
 				RECT rc;
 
 				SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
-//				p_this->SetVistaStyleSize();*/
+				p_this->SetVistaStyleSize();
 				p_this->updateLayout(rc);
-				/*//SendMessage(mHwnd, WM_SETREDRAW, TRUE, 0);
+				//SendMessage(mHwnd, WM_SETREDRAW, TRUE, 0);
 				//This is needed (or some other solution) to update the bkg image & transp controls on it
 //#if defined(NDEBUG) && !defined(DCX_DEV_BUILD)
 //				p_this->redrawWindow(); // Causes alot of flicker.
 //#else
 				// Only included in debug & dev builds atm.
-				if (p_this->IsVistaStyle() || p_this->isExStyle(WS_EX_COMPOSITED))*/
+				if (p_this->IsVistaStyle() || p_this->isExStyle(WS_EX_COMPOSITED))
 					p_this->redrawWindow();
-				/*else {
+				else {
 					p_this->redrawBufferedWindow(); // Avoids flicker.
 					//p_this->redrawWindow();
 					// NB: This only fixed richedit controls that are direct children of the dialog NOT grandchildren.
@@ -2291,7 +2289,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						RedrawWindow( bars, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME );
 					}
 				}
-//#endif*/
+//#endif
 				break;
 			}
 			//case WM_NCCALCSIZE:
