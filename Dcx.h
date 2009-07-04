@@ -45,7 +45,9 @@ public:
 	static void unload(void);
 	static bool initDirectX();
 	static bool initDirectX(char *dxResult, int dxSize);
+#if DCX_DEBUG_OUTPUT
 	static void debug(const char *cmd, const char *msg);
+#endif
 	static void error(const char *cmd, const char *msg);
 	static void errorex(const char *cmd, const char *szFormat, ...);
 	static int mark(char* data, TString & tsDName, TString & tsCallbackName);

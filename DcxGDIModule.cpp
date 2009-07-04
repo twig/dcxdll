@@ -17,7 +17,7 @@ bool DcxGDIModule::load(mIRCLinker &mIRCLink)
 	DcxModule::load(mIRCLink);
 #ifdef DCX_USE_GDIPLUS
 	// Initialize GDI+
-	mIRCLink.debug("LoadDLL", "Initializing GDI+...");
+	DCX_DEBUG(mIRCLink.debug,"LoadDLL", "Initializing GDI+...");
 	m_hModule = LoadLibrary("GDIPLUS.DLL");
 	if (m_hModule != NULL) {
 		GdiplusStartupInput gsi;

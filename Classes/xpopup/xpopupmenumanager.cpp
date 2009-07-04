@@ -55,7 +55,7 @@ void XPopupMenuManager::load(void)
 	//	g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd,GCLP_WNDPROC,(LONG_PTR)mIRCMenusWinProc);
 	//	DestroyWindow(tmp_hwnd);
 	//}
-	Dcx::debug("LoadDLL", "Registering XPopup...");
+	DCX_DEBUG(Dcx::debug,"LoadDLL", "Registering XPopup...");
 
 	WNDCLASSEX wc;
 	ZeroMemory((void*)&wc , sizeof(WNDCLASSEX));
@@ -81,7 +81,7 @@ void XPopupMenuManager::load(void)
 	//wcpop.lpfnWndProc = XPopupMenu::XPopupWinProc;
 	//RegisterClass(&wcpop);
 
-	Dcx::debug("LoadDLL", "Creating menu owner...");
+	DCX_DEBUG(Dcx::debug,"LoadDLL", "Creating menu owner...");
 	m_hMenuOwner = CreateWindow(XPOPUPMENUCLASS, NULL, 0, 0, 0, 0, 0, (Dcx::XPPlusModule.isUseable() ? HWND_MESSAGE : 0), 0, GetModuleHandle(NULL), 0);
 
 	m_mIRCPopupMenu = new XPopupMenu("mirc",(HMENU)NULL);

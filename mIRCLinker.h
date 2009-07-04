@@ -58,5 +58,7 @@ public:
 	void signal(char *msg);
 	void signalex(bool allow, const char *szFormat, ...);
 	void echo(const char *data);
+#if DCX_DEBUG_OUTPUT
 	void debug(const char *cmd, const char *msg);
+#endif
 };

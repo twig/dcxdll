@@ -123,8 +123,6 @@ void DcxRichEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
 			*Styles |= WS_HSCROLL;
 		else if (styles.gettok( i ) == "disablescroll")
 			*Styles |= ES_DISABLENOSCROLL;
-		//else if ( styles.gettok( i ) == "alpha" )
-		//	this->m_bAlphaBlend = true;
 
 		i++;
 	}
@@ -971,6 +969,37 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		//		return res;
 		//	}
 		//	break;
+		//case WM_PRINT:
+		//	{
+		//		HDC hdc = (HDC)wParam;
+		//		bParsed = TRUE;
+
+		//		if (lParam & PRF_ERASEBKGND)
+		//			SendMessage(this->m_Hwnd, WM_ERASEBKGND, wParam, 0L);
+
+		//		if (lParam & PRF_CLIENT)
+		//			SendMessage(this->m_Hwnd, WM_PRINTCLIENT, wParam, 0L);
+
+		//	}
+		//	break;
+
+		//case WM_PRINTCLIENT:
+		//	{
+		//		HDC hdc = (HDC)wParam;
+		//		bParsed = TRUE;
+
+		//		HDC tHDC = GetDC(this->m_Hwnd);
+		//		BITMAP bm;
+		//		HBITMAP cBmp = (HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP);
+
+		//		GetObject(cBmp, sizeof(BITMAP), &bm);
+
+		//		BitBlt(hdc,0,0,bm.bmWidth, bm.bmHeight, tHDC,0,0, SRCCOPY);
+
+		//		ReleaseDC(this->m_Hwnd, tHDC);
+		//	}
+		//	break;
+
 		case WM_DESTROY:
 		{
 			delete this;

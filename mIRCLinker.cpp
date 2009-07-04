@@ -63,23 +63,23 @@ void mIRCLinker::load(LOADINFO * lInfo) {
 
 	isDebug.trim();
 	m_bDebug = (isDebug.len() > 0);
-	debug("LoadmIRCLink", "Debug mode detected...");
+	DCX_DEBUG(debug,"LoadmIRCLink", "Debug mode detected...");
 
-	debug("LoadmIRCLink", "Finding mIRC_Toolbar...");
+	DCX_DEBUG(debug,"LoadmIRCLink", "Finding mIRC_Toolbar...");
 	m_hToolbar = FindWindowEx(m_mIRCHWND,NULL,"mIRC_Toolbar",NULL);
 
-	debug("LoadmIRCLink", "Finding MDIClient...");
+	DCX_DEBUG(debug,"LoadmIRCLink", "Finding MDIClient...");
 	m_hMDI = FindWindowEx(m_mIRCHWND,NULL,"MDIClient",NULL);
 
-	debug("LoadmIRCLink", "Finding mIRC_SwitchBar...");
+	DCX_DEBUG(debug,"LoadmIRCLink", "Finding mIRC_SwitchBar...");
 	m_hSwitchbar = FindWindowEx(m_mIRCHWND,NULL,"mIRC_SwitchBar",NULL);
 
 	if (isOrNewerVersion(6,30)) { // class renamed for 6.30+
-		debug("LoadmIRCLink", "Finding mIRC_TreeBar...");
+		DCX_DEBUG(debug,"LoadmIRCLink", "Finding mIRC_TreeBar...");
 		m_hTreebar = FindWindowEx(m_mIRCHWND,NULL,"mIRC_TreeBar",NULL);
 	}
 	else {
-		debug("LoadmIRCLink", "Finding mIRC_TreeList...");
+		DCX_DEBUG(debug,"LoadmIRCLink", "Finding mIRC_TreeList...");
 		m_hTreebar = FindWindowEx(m_mIRCHWND,NULL,"mIRC_TreeList",NULL);
 	}
 
@@ -239,7 +239,7 @@ bool mIRCLinker::eval(char *res, const int maxlen, const char *data) {
 	lstrcpy(m_pData, data);
 	SendMessage(m_mIRCHWND, WM_USER + 201, 0, m_iMapCnt);
 	if (res != NULL) lstrcpyn(res, m_pData, maxlen);
-	if (strcmp(m_pData, "$false") == 0) return false;
+	if (lstrcmp(m_pData, "$false") == 0) return false;
 	return true;
 }
 
@@ -265,7 +265,7 @@ bool mIRCLinker::exec(const char *data)
 {
 	lstrcpy(m_pData, data);
 	SendMessage(m_mIRCHWND, WM_USER + 200, 0, m_iMapCnt);
-	if (strlen(m_pData) == 0) return true;
+	if (lstrlen(m_pData) == 0) return true;
 	return false;
 }
 
@@ -309,13 +309,14 @@ void mIRCLinker::signalex(bool allow, const char *szFormat, ...) {
  *
  * This method allows for multiple parameters.
  */
+#if DCX_DEBUG_OUTPUT
 void mIRCLinker::debug(const char *cmd, const char *msg) {
 	if (!isDebug()) return;
 	TString err;
 	err.sprintf("D_DEBUG %s (%s)", cmd, msg);
 	echo(err.to_chr());
 }
-
+#endif
 
 /*!
 * \brief Displays output text to the mIRC status window.

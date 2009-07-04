@@ -100,6 +100,7 @@ public:
 	static int getPos(const int x, const int y, const int w, const int h);
 	//
 	static void getTreebarItemType(TString &tsType, const LPARAM lParam);
+	//static UINT getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem);
 
 protected:
 	static LRESULT CALLBACK mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

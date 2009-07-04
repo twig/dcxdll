@@ -17,7 +17,7 @@ bool DcxUXModule::load(mIRCLinker &mIRCLink)
 	if (isUseable()) return false;
 	DcxModule::load(mIRCLink);
 	// UXModule Loading
-	mIRCLink.debug("LoadDLL", "Loading UXTHEME.DLL...");
+	DCX_DEBUG(mIRCLink.debug,"LoadDLL", "Loading UXTHEME.DLL...");
 	m_hModule = LoadLibrary("UXTHEME.DLL");
 
 	if (m_hModule) {
@@ -50,11 +50,11 @@ bool DcxUXModule::load(mIRCLinker &mIRCLink)
 		if (SetWindowThemeUx && IsThemeActiveUx && OpenThemeDataUx && CloseThemeDataUx &&
 			DrawThemeBackgroundUx && GetThemeBackgroundContentRectUx && IsThemeBackgroundPartiallyTransparentUx &&
 			DrawThemeParentBackgroundUx && DrawThemeTextUx && GetThemeBackgroundRegionUx && GetWindowThemeUx && DrawThemeEdgeUx && GetThemeColorUx) {
-				mIRCLink.debug("LoadDLL", "Found XP+ Theme Functions");
+				DCX_DEBUG(mIRCLink.debug,"LoadDLL", "Found XP+ Theme Functions");
 #ifdef DCX_USE_WINSDK
 			if (DrawThemeParentBackgroundExUx && BufferedPaintInitUx && BufferedPaintUnInitUx &&
 				BeginBufferedPaintUx && EndBufferedPaintUx) {
-				mIRCLink.debug("LoadDLL", "Found Vista Theme Functions");
+				DCX_DEBUG(mIRCLink.debug,"LoadDLL", "Found Vista Theme Functions");
 				BufferedPaintInitUx();
 			}
 #endif

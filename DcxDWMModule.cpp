@@ -15,15 +15,15 @@ bool DcxDWMModule::load(mIRCLinker &mIRCLink)
 	BOOL bAero;
 	if (isUseable()) return false;
 	DcxModule::load(mIRCLink);
-	mIRCLink.debug("LoadDLL", "Loading DWMAPI.DLL...");
+	DCX_DEBUG(mIRCLink.debug,"LoadDLL", "Loading DWMAPI.DLL...");
 	m_hModule = LoadLibrary("dwmapi.dll");
 	if (m_hModule != NULL) {
-		mIRCLink.debug("LoadDLL", "DWMAPI.DLL Loaded, Vista OS Assumed");
+		DCX_DEBUG(mIRCLink.debug,"LoadDLL", "DWMAPI.DLL Loaded, Vista+ OS Assumed");
 
 		DwmIsCompositionEnabledUx = (PFNDWMISCOMPOSITIONENABLED) GetProcAddress(m_hModule, "DwmIsCompositionEnabled"); // Vista ONLY!
 		DwmGetWindowAttributeUx = (PFNDWMGETWINDOWATTRIBUTE) GetProcAddress(m_hModule, "DwmGetWindowAttribute"); // Vista ONLY!
 		if (DwmIsCompositionEnabledUx != NULL) {
-			mIRCLink.debug("LoadDLL", "Found Vista DWM Functions");
+			DCX_DEBUG(mIRCLink.debug,"LoadDLL", "Found Vista DWM Functions");
 			DwmIsCompositionEnabledUx(&bAero);
 		}
 		if (bAero)

@@ -71,6 +71,8 @@ PFNBUFFEREDPAINTINIT BufferedPaintInitUx = NULL;
 PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx = NULL;
 PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx = NULL;
 PFNENDBUFFEREDPAINT EndBufferedPaintUx = NULL;
+PFNDWMEXTENDFRAMEINTOCLIENTAREA DwmExtendFrameIntoClientAreaUx = NULL;
+PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx = NULL;
 #endif
 PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx = NULL;
 PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx = NULL;
@@ -92,6 +94,37 @@ XPopupMenu *g_mIRCScriptMenu = NULL; // Wrapper for the mIRC scriptable menu.
 // XPopup Stuff
 
 SIGNALSWITCH dcxSignal;
+/*
+*/
+
+//BOOL WINAPI DllMain(
+//    HINSTANCE hinstDLL,  // handle to DLL module
+//    DWORD fdwReason,     // reason for calling function
+//    LPVOID lpReserved )  // reserved
+//{
+//    // Perform actions based on the reason for calling.
+//    switch( fdwReason ) 
+//    { 
+//        case DLL_PROCESS_ATTACH:
+//         // Initialize once for each new process.
+//         // Return FALSE to fail DLL load.
+//			if (CreateMutex(NULL, TRUE, "DCX_LOADED")) return FALSE;
+//            break;
+//
+//        case DLL_THREAD_ATTACH:
+//         // Do thread-specific initialization.
+//            break;
+//
+//        case DLL_THREAD_DETACH:
+//         // Do thread-specific cleanup.
+//            break;
+//
+//        case DLL_PROCESS_DETACH:
+//         // Perform any necessary cleanup.
+//            break;
+//    }
+//    return TRUE;  // Successful DLL_PROCESS_ATTACH.
+//}
 
 /*!
 * \brief mIRC DLL Load Function
@@ -106,7 +139,7 @@ SIGNALSWITCH dcxSignal;
 void WINAPI LoadDll(LOADINFO * load) {
 	Dcx::load(load);
 
-	Dcx::debug("LoadDLL", "Initialising UltraDock...");
+	DCX_DEBUG(Dcx::debug,"LoadDLL", "Initialising UltraDock...");
 	InitUltraDock();
 //#ifndef NDEBUG
 //	InitCustomDock();

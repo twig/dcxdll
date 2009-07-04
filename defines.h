@@ -91,9 +91,15 @@
 //#define GDIPVER 0x0110
 
 // Windows Vista + IE V7 + GDI+ 1.1
-#define _WIN32_WINNT 0x0600
-#define _WIN32_IE 0x0700
-#define WINVER 0x0600
+//#define _WIN32_WINNT 0x0600
+//#define _WIN32_IE 0x0700
+//#define WINVER 0x0600
+//#define GDIPVER 0x0110
+
+// Windows 7 + IE V8 + GDI+ 1.1
+#define _WIN32_WINNT 0x0601
+#define _WIN32_IE 0x0800
+#define WINVER 0x0601
 #define GDIPVER 0x0110
 
 // Required for VS 2005
@@ -113,17 +119,26 @@
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
+// Dev Build, enable debug output.
+#define DCX_DEBUG_OUTPUT 1
+#define DCX_DEBUG(x,y,z) x((y), (z));
 #define DLL_STATE      "Development Build"
 // Link with DirectX error lib, enables extra error reporting.
-#define DCX_DX_ERR
+#define DCX_DX_ERR	1
 #else
+// Release Build, disable debug info.
+#define DCX_DEBUG_OUTPUT 0
+#define DCX_DEBUG(x,y,z)
 #define DLL_STATE      "Release Build"
 #define _SECURE_SCL 0 // disables checked iterators
 #endif
 #else
+// Debug Build, enable debug output.
+#define DCX_DEBUG_OUTPUT 1
+#define DCX_DEBUG(x,y,z) x((y), (z));
 #define DLL_STATE      "Debug Build"
 // Link with DirectX error lib, enables extra error reporting.
-#define DCX_DX_ERR
+#define DCX_DX_ERR	1
 #endif
 
 // --------------------------------------------------
@@ -145,9 +160,25 @@
 #include <uxtheme.h>
 #if DCX_USE_WINSDK && WINVER >= 0x600
 #include <vssym32.h>
-//#include <dwmapi.h>
 #else
 #include <tmschema.h>
+#endif
+
+#if DCX_USE_WINSDK
+#include <dwmapi.h>
+#else
+typedef enum _DWMWINDOWATTRIBUTE {
+    DWMWA_NCRENDERING_ENABLED = 1,
+    DWMWA_NCRENDERING_POLICY,
+    DWMWA_TRANSITIONS_FORCEDISABLED,
+    DWMWA_ALLOW_NCPAINT,
+    DWMWA_CAPTION_BUTTON_BOUNDS,
+    DWMWA_NONCLIENT_RTL_LAYOUT,
+    DWMWA_FORCE_ICONIC_REPRESENTATION,
+    DWMWA_FLIP3D_POLICY,
+    DWMWA_EXTENDED_FRAME_BOUNDS,
+    DWMWA_LAST
+} DWMWINDOWATTRIBUTE;
 #endif
 
 #ifdef DCX_USE_GDIPLUS
@@ -361,6 +392,8 @@ typedef HRESULT (WINAPI *PFNBUFFEREDPAINTINIT)(VOID);
 typedef HRESULT (WINAPI *PFNBUFFEREDPAINTUNINIT)(VOID);
 typedef HPAINTBUFFER (WINAPI *PFNBEGINBUFFEREDPAINT)(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
 typedef HRESULT (WINAPI *PFNENDBUFFEREDPAINT)(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
+typedef HRESULT (WINAPI *PFNDWMEXTENDFRAMEINTOCLIENTAREA)(HWND hWnd, const MARGINS *pMarInset);
+typedef HRESULT (WINAPI *PFNDWMSETWINDOWATTRIBUTE)(HWND hwnd,DWORD dwAttribute,LPCVOID pvAttribute,DWORD cbAttribute);
 #endif
 typedef HRESULT (WINAPI *PFNDWMISCOMPOSITIONENABLED)(BOOL *pfEnabled);
 typedef HRESULT (WINAPI *PFNDWMGETWINDOWATTRIBUTE)(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute);
@@ -448,22 +481,11 @@ extern PFNBUFFEREDPAINTINIT BufferedPaintInitUx;
 extern PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx;
 extern PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx;
 extern PFNENDBUFFEREDPAINT EndBufferedPaintUx;
+extern PFNDWMEXTENDFRAMEINTOCLIENTAREA DwmExtendFrameIntoClientAreaUx;
+extern PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx;
 #endif
 extern PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
 extern PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx;
-
-typedef enum _DWMWINDOWATTRIBUTE {
-    DWMWA_NCRENDERING_ENABLED = 1,
-    DWMWA_NCRENDERING_POLICY,
-    DWMWA_TRANSITIONS_FORCEDISABLED,
-    DWMWA_ALLOW_NCPAINT,
-    DWMWA_CAPTION_BUTTON_BOUNDS,
-    DWMWA_NONCLIENT_RTL_LAYOUT,
-    DWMWA_FORCE_ICONIC_REPRESENTATION,
-    DWMWA_FLIP3D_POLICY,
-    DWMWA_EXTENDED_FRAME_BOUNDS,
-    DWMWA_LAST
-} DWMWINDOWATTRIBUTE;
 
 extern SIGNALSWITCH dcxSignal;
 

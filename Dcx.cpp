@@ -25,7 +25,7 @@ void Dcx::load(LOADINFO * lInfo)
 	mIRC.load(lInfo);
 
 	// Initializing OLE Support
-	debug("LoadDLL", "Initializing OLE Support...");
+	DCX_DEBUG(debug,"LoadDLL", "Initializing OLE Support...");
 	OleInitialize(NULL);
 
 	// Initializing GDI
@@ -42,16 +42,16 @@ void Dcx::load(LOADINFO * lInfo)
 	XPopups.load();
 
 	//get IClassFactory* for WebBrowser
-	debug("LoadDLL", "Generating class for WebBrowser...");
+	DCX_DEBUG(debug,"LoadDLL", "Generating class for WebBrowser...");
 	CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, 0, IID_IClassFactory, (void**) &m_pClassFactory);
 	//6BF52A52-394A-11D3-B153-00C04F79FAA6
 
 	// RichEdit DLL Loading
-	mIRC.debug("LoadDLL", "Generating class for RichEdit...");
+	DCX_DEBUG(mIRC.debug,"LoadDLL", "Generating class for RichEdit...");
 	LoadLibrary("RICHED20.DLL");
 
 	// Load Control definitions
-	mIRC.debug("LoadDLL", "Loading control classes");
+	DCX_DEBUG(mIRC.debug,"LoadDLL", "Loading control classes");
 	INITCOMMONCONTROLSEX icex;
 
 	icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
@@ -154,44 +154,33 @@ void Dcx::setupOSCompatibility(void) {
 		InSendMessageExUx = (PFNINSENDMESSAGEEX)GetProcAddress(hModule, "InSendMessageEx");
 		// get FlashWindowEx()
 		FlashWindowExUx = (PFNFLASHWINDOWEX)GetProcAddress(hModule, "FlashWindowEx");
-#ifndef NDEBUG
+#if DCX_DEBUG_OUTPUT
 		// debug build
 		if (UpdateLayeredWindowUx && SetLayeredWindowAttributesUx && GetWindowInfoUx
 			&& AnimateWindowUx && InSendMessageExUx && FlashWindowExUx) {
-			mIRC.debug("LoadDLL", "Found USER32.DLL Functions");
+			DCX_DEBUG(mIRC.debug,"LoadDLL", "Found USER32.DLL Functions");
 		}
 		else {
-			mIRC.debug("LoadDLL", "Unable to find all USER32.DLL Functions");
+			DCX_DEBUG(mIRC.debug,"LoadDLL", "Unable to find all USER32.DLL Functions");
 		}
-#else
-#ifdef DCX_DEV_RELEASE
-		// dev build
-		if (UpdateLayeredWindowUx && SetLayeredWindowAttributesUx && GetWindowInfoUx
-			&& AnimateWindowUx && InSendMessageExUx && FlashWindowExUx) {
-			debug("LoadDLL", "Found USER32.DLL Functions");
-		}
-		else {
-			debug("LoadDLL", "Unable to find all USER32.DLL Functions");
-		}
-#endif
 #endif
 	}
-	mIRC.debug("LoadDLL", "Loading SHELL32.DLL...");
+	DCX_DEBUG(mIRC.debug,"LoadDLL", "Loading SHELL32.DLL...");
 	hModule = GetModuleHandle("SHELL32.DLL");
 
 	if (hModule != NULL) {
 		// get PickIconDlg() if we can.
 		PickIconDlgUx = (PFNPICKICONDLG)GetProcAddress(hModule, "PickIconDlg");
-		mIRC.debug("LoadDLL", "Found PickIconDlg Function");
+		DCX_DEBUG(mIRC.debug,"LoadDLL", "Found PickIconDlg Function");
 	}
 
-	mIRC.debug("LoadDLL", "Loading COMCTL32.DLL...");
+	DCX_DEBUG(mIRC.debug,"LoadDLL", "Loading COMCTL32.DLL...");
 	hModule = GetModuleHandle("COMCTL32.DLL");
 
 	if (hModule != NULL) {
 		// get DrawShadowText() if we can.
 		DrawShadowTextUx = (PFNDRAWSHADOWTEXT)GetProcAddress(hModule, "DrawShadowText");
-		mIRC.debug("LoadDLL", "Found DrawShadowText");
+		DCX_DEBUG(mIRC.debug,"LoadDLL", "Found DrawShadowText");
 	}
 
 //#define dcxRegisterClassM(szClass, szDcxClass, CClass) { \
@@ -213,62 +202,62 @@ void Dcx::setupOSCompatibility(void) {
 };
 
 	// Custom ProgressBar
-	debug("LoadDLL", "Registering ProgressBar...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering ProgressBar...");
 	dcxRegisterClass(PROGRESS_CLASS, DCX_PROGRESSBARCLASS);
 
 	// Custom TreeView
-	debug("LoadDLL", "Registering TreeView...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering TreeView...");
 	dcxRegisterClass(WC_TREEVIEW, DCX_TREEVIEWCLASS);
 
 	// Custom Toolbar
-	debug("LoadDLL", "Registering ToolBar...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering ToolBar...");
 	dcxRegisterClass(TOOLBARCLASSNAME, DCX_TOOLBARCLASS);
 
 	// Custom StatusBar
-	debug("LoadDLL", "Registering StatusBar...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering StatusBar...");
 	dcxRegisterClass(STATUSCLASSNAME, DCX_STATUSBARCLASS);
 
 	// Custom ListView
-	debug("LoadDLL", "Registering Listview...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering Listview...");
 	dcxRegisterClass(WC_LISTVIEW, DCX_LISTVIEWCLASS);
 
 	// Custom ComboEx
-	debug("LoadDLL", "Registering ComboEx...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering ComboEx...");
 	dcxRegisterClass(WC_COMBOBOXEX, DCX_COMBOEXCLASS);
 
 	// Custom TrackBar
-	debug("LoadDLL", "Registering TrackBar...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering TrackBar...");
 	dcxRegisterClass(TRACKBAR_CLASS, DCX_TRACKBARCLASS);
 
 	// Custom RichEdit
-	debug("LoadDLL", "Registering RichEdit...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering RichEdit...");
 	dcxRegisterClass("RichEdit20A", DCX_RICHEDITCLASS);
 
 	// Custom RebarCtrl
-	debug("LoadDLL", "Registering ReBar...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering ReBar...");
 	dcxRegisterClass(REBARCLASSNAME, DCX_REBARCTRLCLASS);
 
 	// Custom Color Combo
-	debug("LoadDLL", "Registering ComboBox...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering ComboBox...");
 	dcxRegisterClass("COMBOBOX", DCX_COLORCOMBOCLASS);
 
 	// Custom TabCtrl
-	debug("LoadDLL", "Registering Tab...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering Tab...");
 	dcxRegisterClass(WC_TABCONTROL, DCX_TABCTRLCLASS);
 
 	// Custom UpDown
-	debug("LoadDLL", "Registering UpDown...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering UpDown...");
 	dcxRegisterClass(UPDOWN_CLASS, DCX_UPDOWNCLASS);
 
 	// Custom IpAddress
-	debug("LoadDLL", "Registering IpAddress...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering IpAddress...");
 	dcxRegisterClass(WC_IPADDRESS, DCX_IPADDRESSCLASS);
 
 	// Init Divider Control
 	//InitDivider( GetModuleHandle( NULL ) );
 
 	// Custom Divider
-	debug("LoadDLL", "Registering Divider...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering Divider...");
 	wc.cbSize         = sizeof(WNDCLASSEX);
 	wc.style          = 0;
 	wc.lpfnWndProc    = DividerWndProc;
@@ -309,7 +298,7 @@ void Dcx::setupOSCompatibility(void) {
 	//GetClassInfoEx(NULL, "#32770", &wc); // NB: using this class causes tooltips in toolbar children to not show
 	//wc.lpszClassName = DCX_PANELCLASS;		// Also causes listview/treeview label edit events to fail.
 	//RegisterClassEx(&wc);
-	debug("LoadDLL", "Registering Panel...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering Panel...");
 	wc.cbSize         = sizeof(WNDCLASSEX);
 	wc.style          = CS_PARENTDC;
 	wc.lpfnWndProc    = DefWindowProc;
@@ -329,7 +318,7 @@ void Dcx::setupOSCompatibility(void) {
 	//GetClassInfoEx(NULL, "#32770", &wc); // NB: using this class causes tooltips in toolbar children to not show
 	//wc.lpszClassName = DCX_BOXCLASS;			// Also causes listview/treeview label edit events to fail.
 	//RegisterClassEx(&wc);
-	debug("LoadDLL", "Registering Box...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering Box...");
 	wc.cbSize         = sizeof(WNDCLASSEX);
 	wc.style          = CS_PARENTDC;
 	wc.lpfnWndProc    = DefWindowProc;
@@ -345,23 +334,23 @@ void Dcx::setupOSCompatibility(void) {
 	RegisterClassEx(&wc);
 
 	// Custom Button
-	debug("LoadDLL", "Registering Button...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering Button...");
 	dcxRegisterClass("BUTTON", DCX_BUTTONCLASS);
 
 	// Custom Calendar
-	debug("LoadDLL", "Registering Calendar...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering Calendar...");
 	dcxRegisterClass(MONTHCAL_CLASS, DCX_CALENDARCLASS);
 
 	// Custom DateTime
-	debug("LoadDLL", "Registering DateTime...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering DateTime...");
 	dcxRegisterClass(DATETIMEPICK_CLASS, DCX_DATETIMECLASS);
 
 	// Custom Pager
-	debug("LoadDLL", "Registering Pager...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering Pager...");
 	dcxRegisterClass(WC_PAGESCROLLER, DCX_PAGERCLASS);
 
 	// Shadow Class
-	debug("LoadDLL", "Registering Shadow...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering Shadow...");
 	wc.cbSize = sizeof(WNDCLASSEX); 
 	wc.style         = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc   = DefWindowProc;
@@ -377,7 +366,7 @@ void Dcx::setupOSCompatibility(void) {
 	RegisterClassEx(&wc);
 
 	// Vista Dialog Class
-	debug("LoadDLL", "Registering Vista Dialog...");
+	DCX_DEBUG(debug,"LoadDLL", "Registering Vista Dialog...");
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style         = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc   = DefWindowProc;
@@ -440,20 +429,20 @@ bool Dcx::initDirectX()
 bool Dcx::initDirectX(char *dxResult, int dxSize) 
 {
 #ifdef DCX_USE_DXSDK
-	debug("DXSetup", "Checking DirectX Version...");
+	DCX_DEBUG(debug,"DXSetup", "Checking DirectX Version...");
 	DWORD dx_ver;
 	if (GetDXVersion(&dx_ver, dxResult, dxSize) == S_OK) {
 		if (dx_ver < 0x00090000) {
-			debug("DXSetup", "Got DirectX Version: Need V9+");
+			DCX_DEBUG(debug,"DXSetup", "Got DirectX Version: Need V9+");
 			m_bDX9Installed = false;
 		}
 		else {
-			debug("DXSetup", "Got DirectX Version: V9+ Installed");
+			DCX_DEBUG(debug,"DXSetup", "Got DirectX Version: V9+ Installed");
 			m_bDX9Installed = true;
 		}
 	}
 	else {
-		debug("DXSetup", "Couldn't Get DirectX Version");
+		DCX_DEBUG(debug,"DXSetup", "Couldn't Get DirectX Version");
 		m_bDX9Installed = false;
 	}
 #endif
@@ -463,10 +452,12 @@ bool Dcx::initDirectX(char *dxResult, int dxSize)
 /*!
 * \brief Displays output text to the mIRC status window.
 */
+#if DCX_DEBUG_OUTPUT
 void Dcx::debug(const char *cmd, const char *msg)
 {
 	mIRC.debug(cmd, msg);
 }
+#endif
 
 /*!
  * \brief Sends an error message to mIRC.
