@@ -2024,7 +2024,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_COMMAND:
 			{
 				if ((HIWORD(wParam) == 0) && (LOWORD(wParam) == 2) && (lParam == NULL)) {
-					if (p_this->getRefCount() > 1) {
+					if (p_this->getRefCount() > 0) {
 						// This stops a crash when someone uses /dialog -x within the callback alias without a /timer
 						// NB: After this is done you must use /xdialog -x to close the dialog, /dialog -x will no longer work.
 						// Check for >1 as the count was increased at the beginning of this function.
