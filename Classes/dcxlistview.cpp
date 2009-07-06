@@ -903,7 +903,9 @@ void DcxListView::parseCommandRequest(TString &input) {
 	//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 	if (flags['a'] && numtok > 12) {
 		LVITEM lvi;
+		LVITEM lvi2;
 		ZeroMemory(&lvi, sizeof(LVITEM));
+		ZeroMemory(&lvi2, sizeof(LVITEM));
 
 		TString data(input.gettok(1, TSTAB).gettok(4, -1).trim());
 		int nPos = data.gettok( 1 ).to_int() -1;
@@ -987,60 +989,22 @@ void DcxListView::parseCommandRequest(TString &input) {
 		// LVS_REPORT view
 		if (this->isListViewStyle(LVS_REPORT)) {
 
-			if (indent > 0) {
-				lvi.mask |= LVIF_INDENT;
-				lvi.iIndent = indent;
-			}
-
 			if (Dcx::XPPlusModule.isUseable() && group > 0) {
 				if (ListView_IsGroupViewEnabled(this->m_Hwnd)) {
 					if (ListView_HasGroup(this->m_Hwnd, group)) {
 						lvi.iGroupId = group;
 						lvi.mask |= LVIF_GROUPID;
-						// we need to sort the listview ourself if grouping is enabled 
-						// and sortdesc or sortasc is defined as style. 
-						// Using binary search to get the new position of the item
-						// runtime is log n for one item in worsed case
-						int count = ListView_GetItemCount(this->m_Hwnd);
-						int min = 0;
-						int max = count-1;
-						int middle = 0;
-						// but we'll only sort if the item was added to the end
-						if (count == lvi.iItem) {
-							TString textmin((const unsigned int)(ListBox_GetTextLen(this->m_Hwnd, min)+1));
-							ListBox_GetText(this->m_Hwnd, min, textmin.to_chr());
-							TString textmax((const unsigned int)(ListBox_GetTextLen(this->m_Hwnd, min)+1));
-							ListBox_GetText(this->m_Hwnd, max, textmax.to_chr());
-
-							if (itemtext < textmin)
-								lvi.iItem = min;
-							else if (itemtext == textmin)
-								lvi.iItem = min+1;
-							else if (itemtext >= textmax)
-								lvi.iItem = max + 1;
-							else {
-								while (max - min > 1) {
-									middle = min + (max-min)/2;
-									TString text((const unsigned int)(ListBox_GetTextLen(this->m_Hwnd, middle)+1));
-									ListBox_GetText(this->m_Hwnd, middle, text.to_chr());
-									if (text < itemtext)
-										min = middle;
-									else if (text > itemtext) {
-										max = middle;
-										middle++;
-									}
-									else //we are done here!
-										break;
-								}
-								lvi.iItem = middle;
-							}
-						}
 					}
 					else
 						this->showErrorEx(NULL,"-a", "Invalid Group specified: %d", group);
 				}
 				else
 					this->showError(NULL,"-a", "Can't add to a group when Group View is not enabled.");
+			}
+
+			if (indent > 0) {
+				lvi.mask |= LVIF_INDENT;
+				lvi.iIndent = indent;
 			}
 
 			// set text in case of pbar
@@ -1050,6 +1014,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			}
 
 			lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
+			BOOL result = FALSE;
 
 			if (lvi.iItem == -1) {
 				delete lpmylvi;
