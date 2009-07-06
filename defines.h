@@ -9,18 +9,21 @@
  * © ScriptsDB.org - 2006
  */
 
+#ifndef _DEFINES_H_
+#define _DEFINES_H_
+
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( disable : 1195 )
 #pragma warning( disable : 504 )
 #pragma warning( disable : 1563 )
+// intel compiler has problems with .def file
+#define _INTEL_DLL_ __declspec(dllexport)
 #else
 #pragma warning( disable : 4100 ) // unreferenced formal parameter
 #pragma warning( disable : 4530 )
 #pragma warning( disable : 4995 ) // name was marked as #pragma deprecated
+#define _INTEL_DLL_
 #endif
-
-#ifndef _DEFINES_H_
-#define _DEFINES_H_
 
 // --------------------------------------------------
 // Optional build libraries for DCX
@@ -115,7 +118,7 @@
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 4
 #define DLL_BUILD      1
-#define DLL_DEV_BUILD  6
+#define DLL_DEV_BUILD  9
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -318,7 +321,7 @@ typedef struct tagMYDCXWINDOW {
 // DLL stuff
 // --------------------------------------------------
 // mIRC Function Alias
-#define mIRC(x) int WINAPI x(HWND mWnd, HWND aWnd, char * data, char * parms, BOOL, BOOL)
+#define mIRC(x) _INTEL_DLL_ int WINAPI x(HWND mWnd, HWND aWnd, char * data, char * parms, BOOL, BOOL)
 
 // Return String DLL Alias (data is limited to 900)
 #define ret(x) { lstrcpyn(data, (x), 900); return 3; }
@@ -412,6 +415,7 @@ HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
 bool ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex);
+BOOL dcxGetWindowRect(__in HWND hWnd, __out LPRECT lpRect);
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);

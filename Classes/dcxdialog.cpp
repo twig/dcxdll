@@ -1235,13 +1235,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 
 		GetClientRect(this->m_Hwnd, &rcClient);
 
-		// as described in a comment at http://msdn.microsoft.com/en-us/library/ms633519(VS.85).aspx
-		// GetWindowRect does not return the real size of a window if u are using vista with areo glass
-		// using DwmGetWindowAttribute now to fix that (fixes bug 685)
-		if (DwmGetWindowAttributeUx != NULL)
-			DwmGetWindowAttributeUx(this->m_Hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rcWindow, sizeof(rcWindow));
-		else
-			GetWindowRect(this->m_Hwnd, &rcWindow);
+		dcxGetWindowRect(this->m_Hwnd, &rcWindow);
 
 		// Convert windows screen position to its position within it's parent.
 		if (this->isStyle(WS_CHILD))
@@ -2209,6 +2203,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				//{
 				//}
 				//DeleteObject(hRGN);
+				
 				if ((p_this->m_Shadow.Status & DCX_SS_ENABLED) && p_this->isShadowed())
 				{
 					if(SIZE_MAXIMIZED == wParam || SIZE_MINIMIZED == wParam)
@@ -2268,6 +2263,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					t->autoPosition(LOWORD(lParam), HIWORD(lParam));
 					//SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) lParam );
 				}
+
 				RECT rc;
 
 				SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
@@ -2510,15 +2506,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					TString flags("+");
 
 					if (fwKeys & MK_CONTROL) // control button
-						flags = flags + "c";
+						flags += 'c';
 					if (fwKeys & MK_LBUTTON) // left mouse button
-						flags = flags + "l";
+						flags += 'l';
 					if (fwKeys & MK_MBUTTON) // middle mouse button button
-						flags = flags + "m";
+						flags += 'm';
 					if (fwKeys & MK_RBUTTON) // right mouse button
-						flags = flags + "r";
+						flags += 'r';
 					if (fwKeys & MK_SHIFT) // shift button
-						flags = flags + "s";
+						flags += 's';
 
 					p_this->execAliasEx("%s,%d,%s,%s",
 						"mwheel",
@@ -3236,7 +3232,8 @@ void DcxDialog::showErrorEx(const char *prop, const char *cmd, const char *fmt, 
 void DcxDialog::CreateVistaStyle(void)
 {
 #ifdef DCX_USE_GDIPLUS
-	if (SetLayeredWindowAttributesUx && UpdateLayeredWindowUx && Dcx::GDIModule.isUseable()) {
+	// don't use this style withe aero, needs specific code to allow aero to do these effects for us.
+	if (SetLayeredWindowAttributesUx && UpdateLayeredWindowUx && Dcx::GDIModule.isUseable() && !Dcx::VistaModule.isAero()) {
 		RECT rc;
 		GetWindowRect(this->m_Hwnd, &rc);
 		DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;

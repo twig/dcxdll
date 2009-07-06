@@ -95,36 +95,47 @@ XPopupMenu *g_mIRCScriptMenu = NULL; // Wrapper for the mIRC scriptable menu.
 
 SIGNALSWITCH dcxSignal;
 /*
+	* DllMain()
+	* function added to insure that only a single instance of dcx.dll is loaded.
 */
 
-//BOOL WINAPI DllMain(
-//    HINSTANCE hinstDLL,  // handle to DLL module
-//    DWORD fdwReason,     // reason for calling function
-//    LPVOID lpReserved )  // reserved
-//{
-//    // Perform actions based on the reason for calling.
-//    switch( fdwReason ) 
-//    { 
-//        case DLL_PROCESS_ATTACH:
-//         // Initialize once for each new process.
-//         // Return FALSE to fail DLL load.
-//			if (CreateMutex(NULL, TRUE, "DCX_LOADED")) return FALSE;
-//            break;
-//
-//        case DLL_THREAD_ATTACH:
-//         // Do thread-specific initialization.
-//            break;
-//
-//        case DLL_THREAD_DETACH:
-//         // Do thread-specific cleanup.
-//            break;
-//
-//        case DLL_PROCESS_DETACH:
-//         // Perform any necessary cleanup.
-//            break;
-//    }
-//    return TRUE;  // Successful DLL_PROCESS_ATTACH.
-//}
+HANDLE hDcxMutex = NULL;
+extern BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved );
+
+BOOL WINAPI DllMain(
+					HINSTANCE hinstDLL,  // handle to DLL module
+					DWORD fdwReason,     // reason for calling function
+					LPVOID lpReserved )  // reserved
+{
+	// Perform actions based on the reason for calling.
+	switch( fdwReason ) 
+	{
+	case DLL_PROCESS_ATTACH:
+		// Initialize once for each new process.
+		// Return FALSE to fail DLL load.
+		DisableThreadLibraryCalls(hinstDLL);
+		// Enforce only one instance of dcx.dll loaded at a time.
+		hDcxMutex = CreateMutex(NULL, TRUE, "DCX_LOADED");
+		if (hDcxMutex == NULL) return FALSE;
+		else if (GetLastError() == ERROR_ALREADY_EXISTS) {
+			//ReleaseMutex(hDcxMutex);
+			//CloseHandle(hDcxMutex);
+			return FALSE;
+		}
+		break;
+
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+		// should never be called when using DisableThreadLibraryCalls()
+		break;
+
+	case DLL_PROCESS_DETACH:
+		// Perform any necessary cleanup.
+		if (hDcxMutex != NULL) CloseHandle(hDcxMutex);
+		break;
+	}
+	return TRUE;  // Successful DLL_PROCESS_ATTACH.
+}
 
 /*!
 * \brief mIRC DLL Load Function
@@ -136,7 +147,7 @@ SIGNALSWITCH dcxSignal;
 *
 * \param load mIRC Load Structure Pointer
 */
-void WINAPI LoadDll(LOADINFO * load) {
+_INTEL_DLL_ void WINAPI LoadDll(LOADINFO * load) {
 	Dcx::load(load);
 
 	DCX_DEBUG(Dcx::debug,"LoadDLL", "Initialising UltraDock...");
@@ -155,7 +166,7 @@ void WINAPI LoadDll(LOADINFO * load) {
 *
 * \param timeout Unload trigger indicator (0 = /dll -u (or on pre mIRC 6.30, exit) - 1 = timeout unload after 10 min - 2 = exit on mIRC 6.30+)
 */
-int WINAPI UnloadDll(int timeout) {
+_INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
 	// DLL unloaded because mIRC exits or /dll -u used
 	if (timeout != 1) {
 		Dcx::unload();
