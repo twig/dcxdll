@@ -1893,7 +1893,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
 	// atm this only seems works for subitem 0. Mainly due to the callback LVN_GETINFOTIP only being sent for sub 0.
 	else if (flags['T'] && numtok > 4) {
-		input = input.trim();
+		input.trim();
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
 

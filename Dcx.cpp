@@ -183,6 +183,15 @@ void Dcx::setupOSCompatibility(void) {
 		DCX_DEBUG(mIRC.debug,"LoadDLL", "Found DrawShadowText");
 	}
 
+	DCX_DEBUG(mIRC.debug,"LoadDLL", "Loading KERNEL32.DLL...");
+	hModule = GetModuleHandle("KERNEL32.DLL");
+
+	if (hModule != NULL) {
+		// get GetFullPathName() if we can.
+		GetFullPathNameWUx = (PFNGETFULLPATHNAMEW)GetProcAddress(hModule, "GetFullPathNameW");
+		DCX_DEBUG(mIRC.debug,"LoadDLL", "Found GetFullPathName Function");
+	}
+
 //#define dcxRegisterClassM(szClass, szDcxClass, CClass) { \
 //	GetClassInfoEx(NULL, (TCHAR *)(szClass), &wc); \
 //	wc.lpszClassName = (TCHAR *)(szDcxClass); \

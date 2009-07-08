@@ -10,7 +10,7 @@
 // [SWITCH] [OPTIONS]
 mIRC(xstatusbar) {
 	TString input(data);
-	input = input.trim();
+	input.trim();
 	data[0] = 0;
 
 	int numtok = input.numtok( );
@@ -200,7 +200,7 @@ mIRC(xstatusbar) {
 mIRC(_xstatusbar)
 {
 	TString d(data);
-	d = d.trim();
+	d.trim();
 
 	data[0] = 0;
 

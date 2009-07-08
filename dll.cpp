@@ -62,6 +62,7 @@ PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx = NULL;
 PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx = NULL;
 PFNDRAWSHADOWTEXT DrawShadowTextUx = NULL;
 PFNPICKICONDLG PickIconDlgUx = NULL;
+PFNGETFULLPATHNAMEW GetFullPathNameWUx = NULL;
 
 // Vista Function pointers.
 #ifdef DCX_USE_WINSDK
@@ -549,7 +550,7 @@ mIRC(_xdialog) {
 */
 mIRC(xpop) {
 	TString d(data);
-	d = d.trim();
+	d.trim();
 
 	data[0] = 0;
 
@@ -583,7 +584,7 @@ mIRC(xpop) {
 */
 mIRC(_xpop) {
 	TString d(data);
-	d = d.trim();
+	d.trim();
 
 	data[0] = 0;
 
@@ -617,7 +618,7 @@ mIRC(_xpop) {
 */
 mIRC(xpopup) {
 	TString d(data);
-	d = d.trim();
+	d.trim();
 
 	data[0] = 0;
 
@@ -639,7 +640,7 @@ mIRC(xpopup) {
 */
 mIRC(_xpopup) {
 	TString d(data);
-	d = d.trim();
+	d.trim();
 
 	data[0] = 0;
 
@@ -689,11 +690,10 @@ mIRC(_xmenubar) {
 */
 mIRC(mpopup) {
 	TString d(data);
-	d = d.trim();
 
 	data[0] = 0;
 
-	return Dcx::XPopups.parseMPopup(d);
+	return Dcx::XPopups.parseMPopup(d.trim());
 }
 // /dcx xSignal [1|0] (+FLAGS)
 mIRC(xSignal) {
@@ -701,7 +701,7 @@ mIRC(xSignal) {
 	TString flags;
 	bool state;
 
-	d = d.trim();
+	d.trim();
 
 	// flags specified
 	if (d.numtok() > 1)

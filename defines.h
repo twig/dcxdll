@@ -386,6 +386,7 @@ typedef BOOL (WINAPI *PFNSETLAYEREDWINDOWATTRIBUTES)(HWND hwnd, COLORREF crKey, 
 typedef int (WINAPI *PFNDRAWSHADOWTEXT)(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
 typedef int (WINAPI *PFNPICKICONDLG)(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
 typedef HRESULT (WINAPI *PFNGETTHEMECOLOR)(HTHEME hTheme,int iPartId,int iStateId,int iPropId,COLORREF *pColor);
+typedef DWORD (WINAPI *PFNGETFULLPATHNAMEW)(LPCWSTR lpFileName, DWORD nBufferLength, LPWSTR lpBuffer, LPWSTR* lpFilePart);
 
 // Vista Function pointers.
 #ifdef DCX_USE_WINSDK
@@ -415,7 +416,7 @@ HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
 bool ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex);
-BOOL dcxGetWindowRect(__in HWND hWnd, __out LPRECT lpRect);
+_Ret_ _Success_(return == TRUE) BOOL dcxGetWindowRect(_In_ HWND hWnd, _Out_ LPRECT lpRect);
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
@@ -476,6 +477,7 @@ extern PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx;
 extern PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx;
 extern PFNDRAWSHADOWTEXT DrawShadowTextUx;
 extern PFNPICKICONDLG PickIconDlgUx;
+extern PFNGETFULLPATHNAMEW GetFullPathNameWUx;
 
 // Vista Function pointers.
 #ifdef DCX_USE_WINSDK

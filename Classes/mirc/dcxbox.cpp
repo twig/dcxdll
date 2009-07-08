@@ -83,15 +83,15 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 	}
 	else if (this->m_iBoxStyles & BOXS_RADIO) {
 		this->m_TitleButton = CreateWindowEx(
-		ExStyles,
-		"BUTTON",
-		NULL,
-		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTORADIOBUTTON,
-		CW_USEDEFAULT,CW_USEDEFAULT,11,10,
-		this->m_Hwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL),
-		NULL);
+			ExStyles,
+			"BUTTON",
+			NULL,
+			WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTORADIOBUTTON,
+			CW_USEDEFAULT,CW_USEDEFAULT,11,10,
+			this->m_Hwnd,
+			(HMENU) ID,
+			GetModuleHandle(NULL),
+			NULL);
 	}
 	if (IsWindow(this->m_TitleButton)) {
 		if ( bNoTheme )
@@ -104,25 +104,25 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 DcxBox::~DcxBox( ) {
 
-  if ( this->m_pLayoutManager != NULL )
-    delete this->m_pLayoutManager;
+	if ( this->m_pLayoutManager != NULL )
+		delete this->m_pLayoutManager;
 	if (this->_hTheme)
 		CloseThemeDataUx(this->_hTheme);
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
@@ -235,15 +235,15 @@ void DcxBox::parseCommandRequest( TString & input ) {
 	XSwitchFlags flags(input.gettok(3));
 	int numtok = input.numtok( );
 
-  // xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-  if ( flags['c'] && numtok > 8 ) {
+	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
+	if ( flags['c'] && numtok > 8 ) {
 
-    UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
+		UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
 
-    if ( ID > mIRC_ID_OFFSET - 1 && 
-      !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
-      this->m_pParentDialog->getControlByID( ID ) == NULL ) 
-    {
+		if ( ID > mIRC_ID_OFFSET - 1 && 
+			!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
+			this->m_pParentDialog->getControlByID( ID ) == NULL ) 
+		{
 			try {
 				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,-1,this->m_Hwnd);
 
@@ -259,39 +259,39 @@ void DcxBox::parseCommandRequest( TString & input ) {
 		else
 			this->showErrorEx(NULL,"-c", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
 	}
-  // xdid -d [NAME] [ID] [SWITCH] [ID]
-  else if ( flags['d'] && numtok > 3 ) {
+	// xdid -d [NAME] [ID] [SWITCH] [ID]
+	else if ( flags['d'] && numtok > 3 ) {
 
-    UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
-    DcxControl * p_Control;
-    
-    if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
-      ID > mIRC_ID_OFFSET - 1 && ( p_Control = this->m_pParentDialog->getControlByID( ID ) ) != NULL ) 
-    {
+		UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
+		DcxControl * p_Control;
 
-      HWND cHwnd = p_Control->getHwnd( );
+		if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
+			ID > mIRC_ID_OFFSET - 1 && ( p_Control = this->m_pParentDialog->getControlByID( ID ) ) != NULL ) 
+		{
+
+			HWND cHwnd = p_Control->getHwnd( );
 			if ( p_Control->getType( ) == "dialog" || p_Control->getType( ) == "window" )
-        delete p_Control;
+				delete p_Control;
 			else if ( p_Control->getRefCount( ) == 0 ) {
 				this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
-        DestroyWindow( cHwnd );
+				DestroyWindow( cHwnd );
 			}
-      else
+			else
 				this->showErrorEx(NULL,"-d", "Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
-    }
-    else
+		}
+		else
 			this->showErrorEx(NULL,"-d", "Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
-  }
-  /*
-  //xdid -l [NAME] [ID] [SWITCH] [OPTIONS]
+	}
+	/*
+	//xdid -l [NAME] [ID] [SWITCH] [OPTIONS]
 
-  [OPTIONS] :
+	[OPTIONS] :
 
-  root [TAB]+flpiw [ID] [WEIGHT] [W] [H]
-  add PATH[TAB]+flpiw [ID] [WEIGHT] [W] [H]
-  space PATH[TAB]+ [L] [T] [R] [B]
-  */
-  else if ( flags['l'] && numtok > 3 ) {
+	root [TAB]+flpiw [ID] [WEIGHT] [W] [H]
+	add PATH[TAB]+flpiw [ID] [WEIGHT] [W] [H]
+	space PATH[TAB]+ [L] [T] [R] [B]
+	*/
+	else if ( flags['l'] && numtok > 3 ) {
 
 		if ( input.gettok( 4 ) == "update" ) {
 			if ( this->m_pLayoutManager != NULL ) {
@@ -307,154 +307,151 @@ void DcxBox::parseCommandRequest( TString & input ) {
 			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
-    else if ( numtok > 8 ) {
+		else if ( numtok > 8 ) {
 
-      TString com(input.gettok(1, TSTAB).gettok(4).trim());
-	  TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
-	  TString p2(input.gettok(2, TSTAB).trim());
+			TString com(input.gettok(1, TSTAB).gettok(4).trim());
+			TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
+			TString p2(input.gettok(2, TSTAB).trim());
 
-      UINT lflags = this->parseLayoutFlags( p2.gettok( 1 ) );
-      UINT ID = p2.gettok( 2 ).to_int( );
-      UINT WGT = p2.gettok( 3 ).to_int( );
-      UINT W = p2.gettok( 4 ).to_int( );
-      UINT H = p2.gettok( 5 ).to_int( );
+			UINT lflags = this->parseLayoutFlags( p2.gettok( 1 ) );
+			UINT ID = p2.gettok( 2 ).to_int( );
+			UINT WGT = p2.gettok( 3 ).to_int( );
+			UINT W = p2.gettok( 4 ).to_int( );
+			UINT H = p2.gettok( 5 ).to_int( );
 
-      if ( com ==  "root" || com == "cell" ) {
+			if ( com ==  "root" || com == "cell" ) {
 
-        HWND cHwnd = GetDlgItem( this->m_Hwnd, mIRC_ID_OFFSET + ID );
+				HWND cHwnd = GetDlgItem( this->m_Hwnd, mIRC_ID_OFFSET + ID );
 
-        LayoutCell * p_Cell = NULL;
+				LayoutCell * p_Cell = NULL;
 
-        // LayoutCellPane
-        if ( lflags & LAYOUTPANE ) {
+				// LayoutCellPane
+				if ( lflags & LAYOUTPANE ) {
 
-          if ( lflags & LAYOUTHORZ )
-            p_Cell = new LayoutCellPane( LayoutCellPane::HORZ );
-          else
-            p_Cell = new LayoutCellPane( LayoutCellPane::VERT );
-        } // if ( lflags & LAYOUTPANE )
-        // LayoutFill Cell
-        else if ( lflags & LAYOUTFILL ) {
-          if ( lflags & LAYOUTID ) {
-            if ( cHwnd != NULL && IsWindow( cHwnd ) )
-              p_Cell = new LayoutCellFill( cHwnd );
-            else {
+					if ( lflags & LAYOUTHORZ )
+						p_Cell = new LayoutCellPane( LayoutCellPane::HORZ );
+					else
+						p_Cell = new LayoutCellPane( LayoutCellPane::VERT );
+				} // if ( lflags & LAYOUTPANE )
+				// LayoutFill Cell
+				else if ( lflags & LAYOUTFILL ) {
+					if ( lflags & LAYOUTID ) {
+						if ( cHwnd != NULL && IsWindow( cHwnd ) )
+							p_Cell = new LayoutCellFill( cHwnd );
+						else {
 							this->showErrorEx(NULL,"-l", "Cell Fill -> Invalid ID : %d", ID );
-              return;
-            }
-          }
-          else {
-            p_Cell = new LayoutCellFill( );
-          }
-        } // else if ( lflags & LAYOUTFILL )
-        // LayoutCellFixed
-        else if ( lflags & LAYOUTFIXED ) {
+							return;
+						}
+					}
+					else {
+						p_Cell = new LayoutCellFill( );
+					}
+				} // else if ( lflags & LAYOUTFILL )
+				// LayoutCellFixed
+				else if ( lflags & LAYOUTFIXED ) {
 
-          LayoutCellFixed::FixedType type;
+					LayoutCellFixed::FixedType type;
 
-          if ( lflags & LAYOUTVERT && lflags & LAYOUTHORZ )
-            type = LayoutCellFixed::BOTH;
-          else if ( lflags & LAYOUTVERT )
-            type = LayoutCellFixed::HEIGHT;
-          else
-            type = LayoutCellFixed::WIDTH;
+					if ( lflags & LAYOUTVERT && lflags & LAYOUTHORZ )
+						type = LayoutCellFixed::BOTH;
+					else if ( lflags & LAYOUTVERT )
+						type = LayoutCellFixed::HEIGHT;
+					else
+						type = LayoutCellFixed::WIDTH;
 
-          // Defined Rectangle
-          if ( lflags & LAYOUTDIM ) {
+					// Defined Rectangle
+					if ( lflags & LAYOUTDIM ) {
 
-            RECT rc;
-            SetRect( &rc, 0, 0, W, H );
+						RECT rc;
+						SetRect( &rc, 0, 0, W, H );
 
-            if ( lflags & LAYOUTID ) {
+						if ( lflags & LAYOUTID ) {
 
-              if ( cHwnd != NULL && IsWindow( cHwnd ) )
-                p_Cell = new LayoutCellFixed( cHwnd, rc, type );
-              else {
+							if ( cHwnd != NULL && IsWindow( cHwnd ) )
+								p_Cell = new LayoutCellFixed( cHwnd, rc, type );
+							else {
 								this->showErrorEx(NULL,"-l", "Cell Fixed -> Invalid ID : %d", ID );
-                return;
-              }
-            }
-            else
-              p_Cell = new LayoutCellFixed( rc, type );
+								return;
+							}
+						}
+						else
+							p_Cell = new LayoutCellFixed( rc, type );
 
-          }
-          // No defined Rectangle
-          else {
+					}
+					// No defined Rectangle
+					else {
 
-            if ( lflags & LAYOUTID ) {
+						if ( lflags & LAYOUTID ) {
 
-              if ( cHwnd != NULL && IsWindow( cHwnd ) )
-                p_Cell = new LayoutCellFixed( cHwnd, type );
-              else {
+							if ( cHwnd != NULL && IsWindow( cHwnd ) )
+								p_Cell = new LayoutCellFixed( cHwnd, type );
+							else {
 								this->showErrorEx(NULL,"-l", "Cell Fixed -> Invalid ID : %d", ID );
-                return;
-              }
-            }
-          } //else
-        } // else if ( lflags & LAYOUTFIXED )
-        else {
+								return;
+							}
+						}
+					} //else
+				} // else if ( lflags & LAYOUTFIXED )
+				else {
 					this->showError(NULL,"-l", "Unknown Cell Type");
-          return;
-        }
+					return;
+				}
 
-        if ( com == "root" ) {
+				if ( com == "root" ) {
 
-          if ( p_Cell != NULL )
-            this->m_pLayoutManager->setRoot( p_Cell );
-  
-        } // if ( com == "root" )
-        else if ( com == "cell" ) {
+					if ( p_Cell != NULL )
+						this->m_pLayoutManager->setRoot( p_Cell );
 
-          if ( p_Cell != NULL ) {
+				} // if ( com == "root" )
+				else if ( com == "cell" ) {
 
-            LayoutCell * p_GetCell;
+					if ( p_Cell != NULL ) {
 
-            if ( path == "root" )
-              p_GetCell = this->m_pLayoutManager->getRoot( );
-            else
-              p_GetCell = this->m_pLayoutManager->getCell( path );
+						LayoutCell * p_GetCell;
 
-            if ( p_GetCell == NULL ) {
+						if ( path == "root" )
+							p_GetCell = this->m_pLayoutManager->getRoot( );
+						else
+							p_GetCell = this->m_pLayoutManager->getCell( path );
+
+						if ( p_GetCell == NULL ) {
 							this->showErrorEx(NULL,"-l", "Invalid item path: %s", path.to_chr( ) );
-              return;
-            }
-            
-            if ( p_GetCell->getType( ) == LayoutCell::PANE ) {
+							return;
+						}
 
-              LayoutCellPane * p_PaneCell = (LayoutCellPane *) p_GetCell;
-              p_PaneCell->addChild( p_Cell, WGT );
-            }
-          }
-        } // else if ( com == "cell" )
-      } // if ( com ==  "root" || com == "cell" )
-      else if ( com ==  "space" ) {
+						if ( p_GetCell->getType( ) == LayoutCell::PANE ) {
 
-        LayoutCell * p_GetCell;
+							LayoutCellPane * p_PaneCell = (LayoutCellPane *) p_GetCell;
+							p_PaneCell->addChild( p_Cell, WGT );
+						}
+					}
+				} // else if ( com == "cell" )
+			} // if ( com ==  "root" || com == "cell" )
+			else if ( com ==  "space" ) {
 
-        if ( path == "root" )
-          p_GetCell = this->m_pLayoutManager->getRoot( );
-        else
-          p_GetCell = this->m_pLayoutManager->getCell( path );
+				LayoutCell * p_GetCell;
 
-        if ( p_GetCell != NULL ) {
-          
-          RECT rc;
-          SetRect( &rc, ID, WGT, W, H );
-          p_GetCell->setBorder( rc );
-        }
-      } // else if ( com == "space" )
-    } // if ( numtok > 7 )
-  }
-  //xdid -t [NAME] [ID] [SWITCH]
-  else if ( flags['t'] ) {
+				if ( path == "root" )
+					p_GetCell = this->m_pLayoutManager->getRoot( );
+				else
+					p_GetCell = this->m_pLayoutManager->getCell( path );
 
-    TString text(input.gettok(4, -1).trim());
+				if ( p_GetCell != NULL ) {
 
-    SetWindowText(this->m_Hwnd, text.to_chr());
-    this->redrawWindow( );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+					RECT rc;
+					SetRect( &rc, ID, WGT, W, H );
+					p_GetCell->setBorder( rc );
+				}
+			} // else if ( com == "space" )
+		} // if ( numtok > 7 )
+	}
+	//xdid -t [NAME] [ID] [SWITCH]
+	else if ( flags['t'] ) {
+		SetWindowText(this->m_Hwnd, input.gettok(4, -1).trim().to_chr());
+		this->redrawWindow( );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!

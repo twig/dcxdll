@@ -244,7 +244,7 @@ bool DockWindow(const HWND mWnd, const HWND temp, const char *find, const TStrin
 mIRC(xdock) {
 	HWND mIRCWnd = Dcx::mIRC.getHWND();
 	TString input(data);
-	input = input.trim();
+	input.trim();
 	data[0] = 0;
 
 	int numtok = input.numtok( );
@@ -452,7 +452,7 @@ mIRC(xdock) {
 mIRC(_xdock)
 {
 	TString d(data);
-	d = d.trim();
+	d.trim();
 
 	data[0] = 0;
 

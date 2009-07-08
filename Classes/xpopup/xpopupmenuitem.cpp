@@ -179,6 +179,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 					//RedrawWindow(hMenuWnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE);
 					// NB: Menus on XP will not show as transparent straight away when a transition effect is used when displaying the menu.
 					// This can't be fixed at this time, live with it.
+					// NB: Menus on Vista/Win7 also suffer from this.
 				}
 			}
 		}

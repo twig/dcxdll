@@ -1000,7 +1000,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		}
 
 		RECT rc;
-		GetWindowRect(this->m_Hwnd,&rc);
+		dcxGetWindowRect(this->m_Hwnd,&rc);
 
 		HRGN m_Region = NULL;
 		int RegionMode = 0;
@@ -1877,13 +1877,11 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	if (p_this == NULL)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
-	bool fBlocked = false;
-	if (InSendMessageExUx != NULL)
-		fBlocked = (InSendMessageExUx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
-
-	// If Message is blocking just call old win proc
-	if (fBlocked)
-		return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+	if (InSendMessageExUx != NULL) {
+		// If Message is blocking just call old win proc
+		if ((InSendMessageExUx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND)
+			return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+	}
 
 	BOOL bParsed = FALSE;
 	LRESULT lRes = 0L;
@@ -1906,7 +1904,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				if ((p_this->m_Shadow.Status & DCX_SS_VISABLE) && p_this->isShadowed())
 				{
 					RECT WndRect;
-					GetWindowRect(mHwnd, &WndRect);
+					dcxGetWindowRect(mHwnd, &WndRect);
 					SetWindowPos(p_this->m_Shadow.hWin, 0,
 						WndRect.left + p_this->m_Shadow.nxOffset - p_this->m_Shadow.nSize,
 						WndRect.top + p_this->m_Shadow.nyOffset - p_this->m_Shadow.nSize,

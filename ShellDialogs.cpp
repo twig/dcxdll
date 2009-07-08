@@ -20,7 +20,7 @@ typedef struct {
 // ColorDialog (DEFAULT) [STYLES]
 mIRC(ColorDialog) {
 	TString d(data);
-	d = d.trim();
+	d.trim();
 
 	BOOL retDefault = FALSE;
 	CHOOSECOLOR	cc;
@@ -82,7 +82,7 @@ mIRC(ColorDialog) {
 // OpenDialog (styles) [TAB] (file) [TAB] (filter)
 mIRC(OpenDialog) {
 	TString d(data);
-	d = d.trim();
+	d.trim();
 
 	data[0] = 0;
 
@@ -98,7 +98,7 @@ mIRC(OpenDialog) {
 // SaveDialog (styles) [TAB] (file) [TAB] (filter)
 mIRC(SaveDialog) {
 	TString d(data);
-	d = d.trim();
+	d.trim();
 
 	data[0] = 0;
 
@@ -246,7 +246,7 @@ mIRC(BrowseDialog) {
 	LPITEMIDLIST pidl;
 	XBROWSEDIALOGSETTINGS extra;
 
-	input = input.trim();
+	input.trim();
 	numtok = input.numtok(TSTAB);
 
 	// set up the BI structure
@@ -435,7 +435,7 @@ mIRC(FontDialog) {
 
 	// seperate the tokens (by tabs)
 	TString input(data);
-	input = input.trim();
+	input.trim();
 
 	// set up the LF structure
 	ZeroMemory(&lf, sizeof(LOGFONT));
@@ -559,7 +559,7 @@ mIRC(FontDialog) {
  */
 mIRC(MsgBox) {
 	TString d(data);
-	d = d.trim();
+	d.trim();
 
 	if (d.numtok(TSTAB) < 3)
 		ret("D_ERROR MessageBox: invalid parameters");
@@ -672,7 +672,7 @@ mIRC(MsgBox) {
 */
 mIRC(PickIcon) {
 	TString d(data);
-	d = d.trim();
+	d.trim();
 
 	if (d.numtok( ) < 2)
 		ret("D_ERROR PickIcon: invalid parameters");
@@ -687,7 +687,10 @@ mIRC(PickIcon) {
 		ret("D_ERROR PickIcon: Function Not Available");
 
 	WCHAR iconPath[MAX_PATH+1];
-	lstrcpynW(iconPath, filename.to_wchr(), MAX_PATH);
+	if (GetFullPathNameWUx != NULL)
+		GetFullPathNameWUx(filename.to_wchr(), MAX_PATH, iconPath, NULL);
+	else
+		lstrcpynW(iconPath, filename.to_wchr(), MAX_PATH);
 	if (dcxPickIconDlg(aWnd,iconPath,MAX_PATH,&index))
 		wsprintf(data,"D_OK %d %S", index, iconPath);
 	else

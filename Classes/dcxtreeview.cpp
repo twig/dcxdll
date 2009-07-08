@@ -1124,7 +1124,7 @@ HIMAGELIST DcxTreeView::getImageList( const int type ) {
 
 void DcxTreeView::setImageList( HIMAGELIST himl, const int type ) {
 	HIMAGELIST o = TreeView_SetImageList( this->m_Hwnd, himl, type );
-  if (o != NULL && o != himl) // don't destroy if NULL or the same list as just added.
+	if (o != NULL && o != himl) // don't destroy if NULL or the same list as just added.
 		ImageList_Destroy(o);
 }
 

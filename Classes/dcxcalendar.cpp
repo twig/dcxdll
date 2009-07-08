@@ -377,7 +377,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						mds[i] = (MONTHDAYSTATE) 0;
 
 						TString strDays(eval);
-						strDays = strDays.trim();
+						strDays.trim();
 
 						for (int x = 1; x <= strDays.numtok(TSCOMMA); x++) {
 							BOLDDAY(mds[i], strDays.gettok(x, TSCOMMA).trim().to_int());
