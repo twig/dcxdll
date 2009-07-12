@@ -26,6 +26,8 @@
 #define DV_SETPANE    (WM_USER + 1) //!< Divder Set Pane Message
 #define DV_GETPANE    (WM_USER + 2) //!< Divder Get Pane Message
 #define DV_SETDIVPOS  (WM_USER + 3) //!< Divder Set Divider Position Message
+#define DV_GETDIVPOS  (WM_USER + 4) //!< Divder Get Divider Position Message
+#define DV_CHANGEPOS  (WM_USER + 5) //!< Divder Position Changing Message
 
 // Divider Pane IDs
 #define DVF_PANELEFT  0x01  //!< Left/Top Pane Identifier
@@ -58,6 +60,10 @@ typedef struct tagNMDIVIDER {
 #define DVNM_LPARAM   0x01  //!< NMDIVIDER lParam Value is Valid
 #define DVNM_STYLE    0x02  //!< NMDIVIDER fStyle Value is Valid
 #define DVNM_PANEID   0x04  //!< NMDIVIDER iPaneId Value is Valid
+
+#define DVNM_DRAG_START 1 // NMDIVIDER Resize start
+#define DVNM_DRAG_DRAG  2 // NMDIVIDER Resize dragging
+#define DVNM_DRAG_END   3 // NMDIVIDER Resize end
 
 /*!
  * \brief Divider Pane Info Structure

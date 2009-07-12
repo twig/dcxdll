@@ -107,7 +107,22 @@ void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 void DcxDivider::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( );
+  //int numtok = input.numtok( );
+  TString prop = input.gettok(3);
+
+  // [NAME] [ID] [PROP]
+  if (prop == "position") {
+    BOOL isVertical = FALSE;
+    int iDivPos = 0;
+
+    SendMessage(this->m_Hwnd, DV_GETDIVPOS, (WPARAM) &isVertical, (LPARAM) &iDivPos);
+    wsprintf(szReturnValue, "%d %d", isVertical, iDivPos);
+    return;
+  }
+  else if (prop == "isvertical") {
+    wsprintf(szReturnValue, "%d", (GetWindowLong(this->m_Hwnd, GWL_STYLE) & DVS_VERT));
+    return;
+  }
 
   if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
@@ -323,16 +338,26 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
       }
      break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+  case WM_DESTROY:
+    {
+      delete this;
+      bParsed = TRUE;
+    }
+    break;
 
-    default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
+  case DV_CHANGEPOS:
+  {
+    int phase = (int) wParam;
+    LPPOINT pt = (LPPOINT) lParam;
+    TString tsPhase = (phase == DVNM_DRAG_START ? "dragbegin" : (phase == DVNM_DRAG_END ? "dragfinish" : "drag"));
+
+    this->execAliasEx("%s,%d,%d,%d", tsPhase.to_chr(), this->getUserID(), pt->x, pt->y);
+    break;
+  }
+
+  default:
+    return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+    break;
   }
 
   return lRes;
