@@ -168,7 +168,7 @@ This position represents the 3rd child branch of the 2nd child branch of the fir
 	<img src="images/treeview2.png" alt="Treeview Branches" /><br />
 </div>
 <br />
-You can also use the value <a class="value">-1</a> for any of the values to indicate the parser that you want to insert the item at the end of the branch (if used as the last path number) or to select the last branch of a given sub-path (if not used as last path number).<br />
+You can also use the value <a class="value">-1</a> for any of the values to indicate the parser that you want to insert the item at the end of the branch, or to select the last branch of a given sub-path.<br />
 <br />
 <table>
 	<tr>
@@ -177,7 +177,7 @@ You can also use the value <a class="value">-1</a> for any of the values to indi
 </table>
 This would add the item at the end of the last branch in the first column of branches.<br />
 <br />
-<a class="note">Note:</a> If you specify a path that does not exist the engine will reverse to the last valid path encoutered during parsing.
+<a class="note">Note:</a> Some commands will allow for special path items. Read the notes to make sure what the special paths are. (ie. <a class="value">root</a> and <a class="value">0</a>)
 </td></tr>
 </table>
 <table class="description">
@@ -286,7 +286,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<td>The text to display on the item.<br />
 					If used with <a class="value">+h</a> or <a class="value">+n</a> <a class="param">+FLAGS</a>, then this is either <a class="value">HASHTABLE</a> <a class="value">ITEM</a> or <a class="value">HASHTABLE</a> <a class="value">INDEX</a> respectively.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, <a class="param">#SICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class="style">checkbox</a> style in order to use checkboxes in the treeview.</li><li><a class="param">INTEGRAL</a> is calculated in this manner.<br />
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> to insert an item at the very top of the branch.</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, <a class="param">#SICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class="style">checkbox</a> style in order to use checkboxes in the treeview.</li><li><a class="param">INTEGRAL</a> is calculated in this manner.<br />
 				<a class="value">0</a> = normal height,<br />
 				<a class="value">1</a> = twice the height,<br />
 				<a class="value">2</a> = 3X height, etc.</li></ul></td></tr></table>
@@ -447,7 +447,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -m dcx 4 1 2 $chr(9) 1</div></td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Due to the current implementation of this feature, you cannot move an item into into its subbranch.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -461,7 +461,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -n dcx 4 1 2 $chr(9) 1</div></td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Due to the current implementation of this feature, you cannot copy an item into into its subbranch.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -494,7 +494,7 @@ This would add the item at the end of the last branch in the first column of bra
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.t"></a>/xdid -t	</td></tr>
-	<tr><td colspan="2">This command lets you toggle/expand/collapse treeview items. You can use <a class="value">root</a> as the path with the <a class="value">+a</a> and <a class="value">+z</a> switches.</td></tr>
+	<tr><td colspan="2">This command lets you toggle/expand/collapse treeview items.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -t [DNAME] [ID] [+FLAGS] [PATH]</div></td>
@@ -536,12 +536,12 @@ This would add the item at the end of the last branch in the first column of bra
 		<td class="value">z</td>
 		<td>Collapses the branch and all sub-branches.</td>
 	</tr>
-</table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">root</a> as the path with the <a class="value">+a</a> or <a class="value">+z</a> switches.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.u"></a>/xdid -u	</td></tr>
-	<tr><td colspan="2">This command makes the currently selected treeview item unselected.</td></tr>
+	<tr><td colspan="2">This command clears any selection.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -u [DNAME] [ID] </div></td>
@@ -708,6 +708,33 @@ This would add the item at the end of the last branch in the first column of bra
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.A"></a>/xdid -A	</td></tr>
+	<tr><td colspan="2">This command lets you set a property on a specific item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -A [DNAME] [ID] [PATH] [TAB] [+FLAGS] [INFO]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -A dcx 4 4 2 2 $chr(9) +M Marked text here</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Property flags.</td>
+	</tr>
+	<tr>
+		<td class="value">M</td>
+		<td>Marked text property. Much like <a class='value' href='xdid.htm#xdid.big.M'>/xdid -M</a>, this can be used to define custom data but on a per item basis.</td>
+	</tr>
+	<tr>
+		<td class="param">INFO</td>
+		<td>The information to set. The usage of this parameter depends on the flags specified in <a class="param">FLAGS</a>.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.big.B"></a>/xdid -B	</td></tr>
 	<tr><td colspan="2">This command lets you force label editing on a treeview item.</td></tr>
 	<tr>
@@ -869,6 +896,10 @@ This would add the item at the end of the last branch in the first column of bra
 		<td>Value indicating if the search is using a regex patern or wildcard string.</td>
 	</tr>
 	<tr>
+		<td class="value">E</td>
+		<td>Matchtext is an exact match.</td>
+	</tr>
+	<tr>
 		<td class="value">W</td>
 		<td>Matchtext is a wildcard string.</td>
 	</tr>
@@ -897,6 +928,20 @@ This would add the item at the end of the last branch in the first column of bra
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 1 2).icon</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.markeditem"></a>$xdid().markeditem	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the marked (see <a class='value' href='#xdid.big.A'>/xdid -A +M</a>) text for the treeview item specified.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [ITEMPATH]).markeditem</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 1 2).markeditem</div></td>
 	</tr>
 </table>
 <br />
@@ -1261,6 +1306,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<a class='flag' href="#xdid.w"><div>-w</div></a>
 		<a class='flag' href="#xdid.y"><div>-y</div></a>
 		<a class='flag' href="#xdid.z"><div>-z</div></a>
+		<a class='flag' href="#xdid.big.A"><div>-A</div></a>
 		<a class='flag' href="#xdid.big.B"><div>-B</div></a>
 		<a class='flag' href="#xdid.big.G"><div>-G</div></a>
 		<a class='flag' href="#xdid.big.Q"><div>-Q</div></a>
@@ -1271,6 +1317,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<a class='flag' href="#xdidprop.expand"><div>expand</div></a>
 		<a class='flag' href="#xdidprop.find"><div>find</div></a>
 		<a class='flag' href="#xdidprop.icon"><div>icon</div></a>
+		<a class='flag' href="#xdidprop.markeditem"><div>markeditem</div></a>
 		<a class='flag' href="#xdidprop.mouseitem"><div>mouseitem</div></a>
 		<a class='flag' href="#xdidprop.num"><div>num</div></a>
 		<a class='flag' href="#xdidprop.selpath"><div>selpath</div></a>
@@ -1301,8 +1348,8 @@ This would add the item at the end of the last branch in the first column of bra
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2008</td>
-		<td style="text-align: right;">Last Updated: 6th January, 08</td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
 	</tr>
 </table>
 <div style="text-align: center;">

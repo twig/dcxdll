@@ -898,6 +898,33 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.A"></a>/xdid -A	</td></tr>
+	<tr><td colspan="2">This command lets you set a property on a specific (sub)item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -A [DNAME] [ID] [ROW] [COLUMN] [+FLAGS] [INFO]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -A dcx 4 4 2 +M Marked text here</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Property flags.</td>
+	</tr>
+	<tr>
+		<td class="value">M</td>
+		<td>Marked text property. Much like <a class='value' href='xdid.htm#xdid.big.M'>/xdid -M</a>, this can be used to define custom data but on a per (sub)item basis.</td>
+	</tr>
+	<tr>
+		<td class="param">INFO</td>
+		<td>The information to set. The usage of this parameter depends on the flags specified in <a class="param">FLAGS</a>.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.big.B"></a>/xdid -B	</td></tr>
 	<tr><td colspan="2">This command lets you force label editing on a listview item.</td></tr>
 	<tr>
@@ -1016,7 +1043,7 @@
 	<tr><td colspan="2">This property lets you retreive the listview item index and column index of the Nth found listview item matching the input search patern.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">$xdid(dialog, ID, [TAB]Matchtext[TAB], T, M, N).find</div></td>
+		<td><div class="syntax">$xdid(dialog, ID, [TAB]Matchtext[TAB], T, COLUMN, N).find</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
@@ -1032,6 +1059,10 @@
 		<td>Value indicating if the search is using a regex patern or wildcard string.</td>
 	</tr>
 	<tr>
+		<td class="value">E</td>
+		<td>Matchtext is an exact match.</td>
+	</tr>
+	<tr>
 		<td class="value">W</td>
 		<td>Matchtext is a wildcard string.</td>
 	</tr>
@@ -1040,14 +1071,14 @@
 		<td>Matchtext is a regex patern.</td>
 	</tr>
 	<tr>
-		<td class="param">M</td>
+		<td class="param">COLUMN</td>
 		<td>Parameter indicating the column to search.</td>
 	</tr>
 	<tr>
 		<td class="param">N</td>
 		<td>Parameter indicating to return the Nth match.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">M</a> is <a class="value">0</a>, searchs through all columns.</li><li>If <a class="param">N</a> is <a class="value">0</a>, returns the total number of matching items.</li><li>The [TAB] characters surrounding the matchtext are mandatory or else it wont work.</li><li>The global search including all columns goes left to right, line by line, starting at the top.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">COLUMN</a> is <a class="value">0</a>, searchs through all columns.</li><li>If <a class="param">N</a> is <a class="value">0</a>, returns the total number of matching items.</li><li>The [TAB] characters surrounding the matchtext are mandatory or else it wont work.</li><li>The global search including all columns goes left to right, line by line, starting at the top.</li></ul></td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -1116,6 +1147,20 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 1, 2).icon</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.markeditem"></a>$xdid().markeditem	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the marked (see <a class='value' href='#xdid.big.A'>/xdid -A +M</a>) text for the listview (sub)item specified.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [ROW] [COLUMN]).markeditem</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 3, 1).markeditem</div></td>
 	</tr>
 </table>
 <br />
@@ -1646,6 +1691,7 @@
 		<a class='flag' href="#xdid.w"><div>-w</div></a>
 		<a class='flag' href="#xdid.y"><div>-y</div></a>
 		<a class='flag' href="#xdid.z"><div>-z</div></a>
+		<a class='flag' href="#xdid.big.A"><div>-A</div></a>
 		<a class='flag' href="#xdid.big.B"><div>-B</div></a>
 		<a class='flag' href="#xdid.big.T"><div>-T</div></a>
 		<a class='flag' href="#xdid.big.V"><div>-V</div></a>
@@ -1661,6 +1707,7 @@
 		<a class='flag' href="#xdidprop.htext"><div>htext</div></a>
 		<a class='flag' href="#xdidprop.hwidth"><div>hwidth</div></a>
 		<a class='flag' href="#xdidprop.icon"><div>icon</div></a>
+		<a class='flag' href="#xdidprop.markeditem"><div>markeditem</div></a>
 		<a class='flag' href="#xdidprop.mouseitem"><div>mouseitem</div></a>
 		<a class='flag' href="#xdidprop.num"><div>num</div></a>
 		<a class='flag' href="#xdidprop.pbar"><div>pbar</div></a>
@@ -1699,8 +1746,8 @@
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2008</td>
-		<td style="text-align: right;">Last Updated: 6th January, 08</td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
 	</tr>
 </table>
 <div style="text-align: center;">
