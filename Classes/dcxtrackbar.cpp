@@ -697,7 +697,7 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 					TString buff((UINT) 80);
 
-					this->evalAliasEx(buff.to_chr(), 79, "%s,%d", "showtip", this->getPos());
+          this->evalAliasEx(buff.to_chr(), 79, "%s,%d,%d", "showtip", this->getUserID(), this->getPos());
 					
 					if (buff.len() > 0) {
 						TOOLINFO ti;
