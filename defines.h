@@ -9,6 +9,17 @@
  * © ScriptsDB.org - 2006
  */
 
+/*
+Some useful values for _MSC_VER if you need to target to a specific compiler.
+http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.html
+
+#if _MSC_VER >= 1500 // Visual C++ 2008
+#elif _MSC_VER >= 1400 // Visual C++ 2005
+#elif _MSC_VER >= 1310 // Visual C++ .NET 2003
+#elif _MSC_VER > 1300 // Visual C++ .NET 2002
+#endif
+*/
+
 #ifndef _DEFINES_H_
 #define _DEFINES_H_
 
@@ -161,7 +172,7 @@
 #include <shlobj.h>
 
 #include <uxtheme.h>
-#if DCX_USE_WINSDK && WINVER >= 0x600
+#if _MSC_VER >= 1500 // Visual C++ 2008
 #include <vssym32.h>
 #else
 #include <tmschema.h>

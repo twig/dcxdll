@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="dcx"
 	ProjectGUID="{6A3D5662-4DA4-47EB-9DDF-98584E702805}"
 	RootNamespace="dcx"
@@ -30,6 +30,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				CommandLine="del /F $(mIRCDir)\dcx\dcx.dll"
+				ExcludedFromBuild="true"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -102,6 +103,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy /B /-Y $(TargetPath) $(mIRCDir)\dcx\"
+				ExcludedFromBuild="true"
 			/>
 		</Configuration>
 		<Configuration
@@ -1358,6 +1360,14 @@
 				<File
 					RelativePath=".\Classes\dcxml\dcxml.cpp"
 					>
+				</File>
+				<File
+					RelativePath=".\Classes\dcxml\dcxml.xsd"
+					>
+					<File
+						RelativePath=".\Classes\dcxml\dcxml.xsx"
+						>
+					</File>
 				</File>
 			</Filter>
 		</Filter>
