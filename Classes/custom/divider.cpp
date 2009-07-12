@@ -218,15 +218,13 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
         else
           width = rc.bottom - rc.top;
 
-        /*
-        char data[500];
-        wsprintf( data, "%d %d %d", rc.right, rc.bottom, width );
-        mIRCError( data );
-        */
-
-        if ( iPos > lpdvdata->m_Panes[0].cxMin && iPos < ( width - lpdvdata->m_Panes[1].cxMin ) ) {
+        if ((iPos >= lpdvdata->m_Panes[0].cxMin) && (iPos <= (width - lpdvdata->m_Panes[1].cxMin))) {
           lpdvdata->m_iBarPos = iPos;
-          Divider_SizeWindowContents( mHwnd, rc.right - rc.left, rc.bottom - rc.top );
+          Divider_SizeWindowContents(mHwnd, rc.right - rc.left, rc.bottom - rc.top);
+          return TRUE;
+        }
+        else {
+          return FALSE;
         }
       }
       break;

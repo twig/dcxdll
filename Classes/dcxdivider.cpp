@@ -202,8 +202,11 @@ void DcxDivider::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -v [NAME] [ID] [SWITCH] [POS]
-  else if ( flags['v'] && numtok > 3 )
-    this->setDivPos( input.gettok( 4 ).to_int( ) );
+  else if (flags['v'] && numtok > 3) {
+    if (!this->setDivPos(input.gettok(4).to_int())) {
+      this->showError(NULL, "-v", "Divider position must be between bounds.");
+    }
+  }
   else
     this->parseGlobalCommandRequest( input, flags );
 }
