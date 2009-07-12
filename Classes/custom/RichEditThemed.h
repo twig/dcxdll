@@ -27,7 +27,8 @@
 #include <tchar.h>		//Used for ANSI/Unicode compatibility
 #include <map>			//Used internally by the class
 #include <uxtheme.h>	//Used to access the UxTheme library
-#if _MSC_VER >= 1500 // Visual C++ 2008
+//#if _MSC_VER >= 1500 // Visual C++ 2008 (WRONG not for VS2008, for Windows SDK when compiled for Vista+)
+#if DCX_USE_WINSDK && WINVER >= 0x600
 #include <vssym32.h>
 #else
 #include <tmschema.h>	//Definitions used by some of the UxTheme library functions

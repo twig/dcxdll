@@ -29,9 +29,22 @@ class DcxDialog;
 #define LVIS_BGCOLOR    0x00800 //!< ListView Caption Background Color Style
 #define LVIS_PBAR       0x01000 //!< ListView ProgressBar Style
 #define LVIS_ITALIC     0x02000 //!< ListView Caption Italic Style
-#define LVIS_HASHITEM	0x04000 //!< ListView Item takes it's text from a hashtable. (text is `table item`)
-#define LVIS_HASHNUMBER	0x08000 //!< ListView Item takes it's text from a hashtable. (text is `table N`)
-#define LVIS_XML		0x10000 //!< ListView Item takes it's text from a hashtable. (text is `table N`)
+#define LVIS_HASHITEM	0x04000 //!< ListView Item takes it's text from a hashtable. (text is `table item`) (to be replaced by LVIS_HASHTABLE)
+#define LVIS_HASHNUMBER	0x08000 //!< ListView Item takes it's text from a hashtable. (text is `table N`) (to be replaced by LVIS_HASHTABLE)
+#define LVIS_XML		0x10000 //!< ListView Item takes it's text from a xml file. (text is `dataset_name filename`) (adds all items in dataset_name)
+#define LVIS_HASHTABLE	0x20000	//!< ListView Item takes it's text from a hashtable. (text is `+flags hashtable (N|N1-N2|item)`) (can add multiple items)
+#define LVIS_WINDOW		0x40000	//!< ListView Item takes it's text from a custom window. (text is `+flags window (N|N1-N2)`) (can add multiple items)
+#define LVIS_CONTROL	0x80000	//!< ListView Item takes it's text from another DCX control. (text is `+flags dialog id (N|N1-N2)`) (can add multiple items)
+// +flags mentioned above tell the parser extra details about how the items are added.
+// +	:	single item is added as text only (N)
+// +a	:	items added include all info for the item not just it's text.
+// +n	:	Numeric range supplied N1-N2
+// +i	:	item name supplied (for hashtable)
+// +A	:	adds ALL items starting at N
+#define LVIMF_ALLINFO	0x01
+#define LVIMF_NUMERIC	0x02
+#define LVIMF_NAMED		0x04
+#define LVIMF_ADDALL	0x08
 
 #define LVSS_ASC        0x01   //!< ListView Sort Ascending Style
 #define LVSS_DESC       0x02   //!< ListView Sort Descending Style
@@ -152,6 +165,11 @@ private:
 	HIMAGELIST initImageList(const int iImageList);
 	bool xmlLoadListview(const int nPos, const TString &dataset, TString &filename);
 	void xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi);
+	bool hashLoadListview(const int nPos, const TString tsflags, const TString &tablename, const TString &item);
+	bool winLoadListview(const int nPos, const TString tsflags, const TString &windowname, const TString &item);
+	bool ctrlLoadListview(const int nPos, const TString tsflags, const TString &dialogname, const int ctrl_ID, const TString &item);
+	void massSetItem(const int nPos, const TString &input);
+	static UINT parseMassItemFlags( const TString & flags );
 	//
 	HFONT m_hItemFont; // Font used for specific item changes.
 	HFONT m_hOldItemFont; // Font used for specific item changes.

@@ -302,12 +302,12 @@ void DcxDialog::parseCommandRequestEX(const char *szFormat, ...) {
 void DcxDialog::parseComControlRequestEX(const int id, const char *szFormat, ...) {
 	DcxControl * p_Control = this->getControlByID((UINT) id + mIRC_ID_OFFSET);
 	if (p_Control != NULL) {
-		TString msg((UINT)2048);
+		TString msg;
 		va_list args;
 		va_start(args, szFormat);
-		vsprintf(msg.to_chr(), szFormat, args);
-		p_Control->parseCommandRequest(msg);
+		msg.vprintf(szFormat, &args);
 		va_end(args);
+		p_Control->parseCommandRequest(msg);
 	}
 }
 
@@ -491,16 +491,17 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		else
 			this->redrawWindow();
 	}
+	// This commands presence here doesnt make sense, why is a dialog command trying to alter the main mirc window?
 	// TODO: doesnt work. xdialog -k [NAME] [SWITCH] [STATE]
-	else if (flags['k'] && numtok > 2) {
-		bool state = (input.gettok(3).to_int() > 0);
-		LONG styles = GetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE);
+	//else if (flags['k'] && numtok > 2) {
+	//	bool state = (input.gettok(3).to_int() > 0);
+	//	LONG styles = GetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE);
 
-		if (state)
-			SetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE, styles | WS_EX_APPWINDOW);
-		else
-			SetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE, styles & ~WS_EX_APPWINDOW);
-	}
+	//	if (state)
+	//		SetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE, styles | WS_EX_APPWINDOW);
+	//	else
+	//		SetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE, styles & ~WS_EX_APPWINDOW);
+	//}
 	/*
 	//xdialog -l [NAME] [SWITCH] [OPTIONS]
 

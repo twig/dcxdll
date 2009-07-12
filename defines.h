@@ -172,7 +172,8 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #include <shlobj.h>
 
 #include <uxtheme.h>
-#if _MSC_VER >= 1500 // Visual C++ 2008
+//#if _MSC_VER >= 1500 // Visual C++ 2008 (WRONG not for VS2008, for Windows SDK when compiled for Vista+)
+#if DCX_USE_WINSDK && WINVER >= 0x600
 #include <vssym32.h>
 #else
 #include <tmschema.h>

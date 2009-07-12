@@ -166,7 +166,7 @@ public:
 	// added by Ook
 	TString wildtok( char * wildString, int N, const char * sepChars = SPACE ) const;
 	int nwildtok( char * wildString, const char * sepChars = SPACE ) const;
-	TString mid(int pos, int n) const;
+	TString mid(const int pos, int n) const;
 	TString left(int n) const;
 	TString right(int n) const;
 	int sprintf(const char *fmt, ...);

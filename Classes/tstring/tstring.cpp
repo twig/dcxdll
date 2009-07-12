@@ -1777,7 +1777,7 @@ TString TString::trim() {
 }
 
 // pos must be within length of string, n can be < 0
-TString TString::mid(int pos, int n) const
+TString TString::mid(const int pos, int n) const
 {
 	TString tmp;
 	int l = (int)lstrlen(this->m_pString);
