@@ -63,7 +63,7 @@ $PAGES = array(
     'xtreebar' => 'XTreebar',
     'xmenubar' => 'XMenuBar',
 	'dcxml' => 'DCXML',
-    
+
     'cla' => 'Cell Layout Algorithm',
     'dcxvsmdx' => 'DCX vs MDX',
     'archive' => 'Download Archive',
@@ -199,9 +199,9 @@ if (!function_exists('array_walk_recursive')) {
 // Generates styles for the specified page
 function gen_styles($page, $pagelabel) {
 	global $STYLES, $SECTION;
-	
+
 	loadSection($STYLES, "get_styles_$page");
-	
+
 	// control styles
 	if ($STYLES) {
 		$SECTION = SECTION_STYLES;
@@ -220,9 +220,9 @@ function gen_styles($page, $pagelabel) {
 // Generates /xdid commands for the specified page
 function gen_xdid($page, $pagelabel) {
 	global $XDID, $SECTION;
-	
+
 	loadSection($XDID, "get_xdid_$page");
-	
+
 	// /xdid commands
 	if ($XDID) {
 		$SECTION = SECTION_XDID;
@@ -245,9 +245,9 @@ function gen_xdid($page, $pagelabel) {
 // Generates xdid properties for the specified page
 function gen_xdidprops($page, $pagelabel) {
 	global $XDIDPROPS, $SECTION;
-	
+
 	loadSection($XDIDPROPS, "get_xdidprops_$page");
-	
+
 	// /xdid properties
 	if ($XDIDPROPS) {
 		$SECTION = SECTION_XDIDPROPS;
@@ -266,9 +266,9 @@ function gen_xdidprops($page, $pagelabel) {
 // Generates events for the specified page
 function gen_events($page, $pagelabel) {
 	global $EVENTS, $SECTION;
-	
+
 	loadSection($EVENTS, "get_events_$page");
-	
+
 	// events
 	if ($EVENTS) {
 		$SECTION = SECTION_EVENTS;
@@ -399,26 +399,26 @@ function dcxdoc_menu_right($page) {
     print_menu_items($XDIALOGPROPS, SECTION_XDIALOGPROPS, "\$xdialog() Properties");
     print_menu_items($XDID, SECTION_XDID, "/xdid Flags");
     print_menu_items($XDIDPROPS, SECTION_XDIDPROPS, "\$xdid() Properties");
-    
+
     print_menu_items($XTRAY, SECTION_XTRAY, "/xtray Flags");
-    
+
     print_menu_items($XPOPUP, SECTION_XPOPUP, "/xpopup Flags");
     print_menu_items($XPOPUPPROPS, SECTION_XPOPUPPROPS, "\$xpopup() Properties");
     print_menu_items($XPOP, SECTION_XPOP, "/xpop Flags");
     print_menu_items($XPOPPROPS, SECTION_XPOPPROPS, "\$xpop() Properties");
-    
+
     print_menu_items($XDOCK, SECTION_XDOCK, "/xdock Commands");
     print_menu_items($XDOCKPROPS, SECTION_XDOCKPROPS, "\$xdock() Properties");
 
     print_menu_items($XSTATUSBAR, SECTION_XSTATUSBAR, "/xstatusbar");
     print_menu_items($XSTATUSBARPROPS, SECTION_XSTATUSBARPROPS, "\$xstatusbar()");
-    
+
     print_menu_items($XTREEBAR, SECTION_XTREEBAR, "/xtreebar");
     print_menu_items($XTREEBARPROPS, SECTION_XTREEBARPROPS, "\$xtreebar()");
-    
+
         print_menu_items($XMENUBAR, SECTION_XMENUBAR, "/xmenubar");
         print_menu_items($XMENUBARPROPS, SECTION_XMENUBARPROPS, "\$xmenubar()");
-    
+
     print_menu_items($EVENTS, SECTION_EVENTS, "Events");
 	//echo "<a href=\"#\">$page Notes</a><br />";
 ?>
@@ -440,16 +440,16 @@ function print_menu_items(&$arr, $sec, $sectext) {
 
 		foreach ($keys as $flag) {
 			$flag = trim($flag);
-			
+
 			// ignore __notes, etc
 			if (preg_match("/__.+/i", $flag))
 			    continue;
-                        
+
                         // if an uppercase flag
                         $case = '';
                         if (ctype_upper($flag))
                             $case = 'big';
-			
+
 			echo "\n\t\t<a class='flag' href=\"#" . ($case == '' ? "$sec.$flag" : "$sec.$case.$flag") . "\"><div>$prefix$flag</div></a>";
 		}
 
@@ -466,7 +466,7 @@ function flag_sort($a, $b) {
 	$regex = '/[0-9]/';
 	$a_num = (preg_match($regex, $a));
 	$b_num = (preg_match($regex, $b));
-	
+
 	// both numbers, compare normally
 	if ($a_num && $b_num)
 		return ($a < $b) ? -1 : 1;
@@ -481,7 +481,7 @@ function flag_sort($a, $b) {
 	$regex = '/[a-z]/';
 	$a_lower = (preg_match($regex, $a));
 	$b_lower = (preg_match($regex, $b));
-	
+
 	if ($a_lower && $b_lower)
 		return strcasecmp($a, $b);
 	// $a is lowercase, $b is not
@@ -501,7 +501,7 @@ function flag_sort($a, $b) {
 function flag_sort_rightmenu($a, $b) {
 	$a = trim($a);
 	$b = trim($b);
-	
+
 	if ($a == $b)
 		return 0;
 
@@ -509,7 +509,7 @@ function flag_sort_rightmenu($a, $b) {
 	$regex = '/[0-9]/';
 	$a_num = (preg_match($regex, $a));
 	$b_num = (preg_match($regex, $b));
-	
+
 	// both numbers, compare normally
 	if ($a_num && $b_num)
 		return ($a < $b) ? -1 : 1;
@@ -524,7 +524,7 @@ function flag_sort_rightmenu($a, $b) {
 	$regex = '/[a-z]/';
 	$a_lower = (preg_match($regex, $a));
 	$b_lower = (preg_match($regex, $b));
-	
+
 	if ($a_lower && $b_lower)
 		return strcasecmp($a, $b);
 	// $a is lowercase, $b is not
@@ -650,7 +650,7 @@ function format_xcmd($section, $flag, $data) {
         // if command is set but no example provided...
         else if (!isset($data['__eg'])) {
                 $dbg = debug_backtrace();
-                
+
                 error_log("*** No example for {$dbg[2]['args'][0]} $section $flag"
                           //. print_r($dbg[0], true)
                           );
@@ -673,16 +673,16 @@ function format_xcmd($section, $flag, $data) {
 	$heading = "HEADING GENERATION ERROR";
 	$syntax = "SYNTAX GENERATION ERROR";
 	$example = "EXAMPLE GENERATION ERROR";
-	
+
 	// set up the information header for the xcmd
 	if (!format_xcmd_header($section, $heading, $syntax, $example, $flag, $data)) {
 		error_log("format_xcmd: Unknown type $section");
 	    exit();
 	}
-        
+
         // if an uppercase flag
         $case = '';
-        
+
         if (ctype_upper($flag))
             $case = 'big';
 ?>
@@ -724,7 +724,7 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 	$examplefmt = array("", "");
 	$ARGS = 0;
 	$NOARGS = 1;
-	
+
 	switch ($section) {
 		case SECTION_GENERAL:
 		    if (isset($data['__isid']) && $data['__isid']) {
@@ -742,7 +742,7 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 				$examplefmt[$NOARGS] = "/dcx $flag";
 			}
 		    break;
-		    
+
 		case SECTION_XDID:
 			$heading = "/xdid -$flag";
 			$syntax = "/xdid -$flag [DNAME] [ID] {$data['__cmd']}";
@@ -758,7 +758,7 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$ARGS]   = "\$xdid(dcx, 4, [-EXAMPLE]).$flag";
 			$examplefmt[$NOARGS] = "\$xdid(dcx, 4).$flag";
 			break;
-			
+
 		case SECTION_XDIALOG:
 			$heading = "/xdialog -$flag";
 			$syntax = "/xdialog -$flag [DNAME] {$data['__cmd']}";
@@ -766,7 +766,7 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$ARGS]   = "/xdialog -$flag dcx [-EXAMPLE]";
 			$examplefmt[$NOARGS] = "/xdialog -$flag dcx";
 			break;
-			
+
 		case SECTION_XDIALOGPROPS:
 			$heading = "\$xdialog().$flag";
 			$syntax = "\$xdialog(dialog" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
@@ -774,10 +774,10 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$ARGS]   = "\$xdialog(dcx, [-EXAMPLE]).$flag";
 			$examplefmt[$NOARGS] = "\$xdialog(dcx).$flag";
 		    break;
-		    
+
         case SECTION_EVENTS:
             $dialogspecific = array('mouseleave', 'mouseenter', 'mouse', 'focusout', 'focus');
-            
+
         	$heading = "$flag";
 			$syntax = "/cb_alias DNAME $flag ID {$data['__cmd']}";
             $eventid = (isset($data['__isdialog']) ? 0 : 4);
@@ -785,9 +785,9 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 //			$example = "/cb_alias dcx $flag 4 {$data['__eg']}";
 			$examplefmt[$ARGS]   = "/cb_alias dcx $flag $eventid [-EXAMPLE]";
 			$examplefmt[$NOARGS] = "/cb_alias dcx $flag $eventid";
-			
+
             break;
-            
+
         case SECTION_XPOPUP:
 			$heading = "/xpopup -$flag";
 			$syntax = "/xpopup -$flag [MENU] {$data['__cmd']}";
@@ -795,15 +795,25 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$ARGS]   = "/xpopup -$flag mymenu [-EXAMPLE]";
 			$examplefmt[$NOARGS] = "/xpopup -$flag mymenu";
 			break;
-			
+
         case SECTION_XPOPUPPROPS:
-			$heading = "\$xpopup().$flag";
-			$syntax = "\$xpopup(MENU" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
-//			$example = "\$xpopup(mymenu" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
-			$examplefmt[$ARGS]   = "\$xpopup(mymenu, [-EXAMPLE]).$flag";
-			$examplefmt[$NOARGS] = "\$xpopup(mymenu).$flag";
+        	$heading = "\$xpopup().$flag";
+
+        	if ($flag == 'menuname') {
+	        	$syntax = "\$xpopup(" . ($data['__cmd'] ? $data['__cmd'] : '') . ").$flag";
+//				$example = "\$xpopup(mymenu" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
+				$examplefmt[$ARGS]   = "\$xpopup([-EXAMPLE]).$flag";
+				$examplefmt[$NOARGS] = "\$xpopup(3).$flag";
+        	}
+        	else {
+	        	$syntax = "\$xpopup(MENU" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
+//				$example = "\$xpopup(mymenu" . ($data['__cmd'] ? ", {$data['__eg']}" : '') . ").$flag";
+				$examplefmt[$ARGS]   = "\$xpopup(mymenu, [-EXAMPLE]).$flag";
+				$examplefmt[$NOARGS] = "\$xpopup(mymenu).$flag";
+        	}
+
 		    break;
-		    
+
 		case SECTION_XPOP:
 			$heading = "/xpop -$flag";
 			$syntax = "/xpop -$flag [MENU] [PATH] {$data['__cmd']}";
@@ -811,7 +821,7 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$ARGS]   = "/xpop -$flag mymenu 2 1 [-EXAMPLE]";
 			$examplefmt[$NOARGS] = "/xpop -$flag mymenu 2 1";
 			break;
-			
+
         case SECTION_XPOPPROPS:
 			$heading = "\$xpop().$flag";
 			$syntax = "\$xpop(MENU, PATH" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
@@ -819,32 +829,32 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$ARGS]   = "\$xpop(mymenu, 2 5, [-EXAMPLE]).$flag";
 			$examplefmt[$NOARGS] = "\$xpop(mymenu, 2 5).$flag";
 		    break;
-		    
+
 		case SECTION_XDOCK:
 			$heading = "/xdock -$flag";
 			$syntax = "/xdock -$flag {$data['__cmd']}";
 			$examplefmt[$ARGS]   = "/xdock -$flag [-EXAMPLE]";
 			$examplefmt[$NOARGS] = "/xdock -$flag";
 			break;
-			
+
                 case SECTION_XDOCKPROPS:
                         $mircParam = (isset($data['__mircParam']) ? $data['__mircParam'] : false);
                         $paramExample = ($mircParam ? 'mIRC' : '$dialog(dcx).hwnd');
                         $mircParam = ($mircParam ? 'mIRC' : 'HWND');
-        
+
 			$heading = "\$xdock().$flag";
 			$syntax = "\$xdock($mircParam" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
 			$examplefmt[$ARGS]   = "\$xdock($paramExample, [-EXAMPLE]).$flag";
 			$examplefmt[$NOARGS] = "\$xdock($paramExample).$flag";
                         break;
-		    
+
                 case SECTION_XSTATUSBAR:
 			$heading = "/xstatusbar -$flag";
 			$syntax = "/xstatusbar -$flag {$data['__cmd']}";
 			$examplefmt[$ARGS]   = "/xstatusbar -$flag [-EXAMPLE]";
 			$examplefmt[$NOARGS] = "/xstatusbar -$flag";
 			break;
-			
+
                 case SECTION_XSTATUSBARPROPS:
 			$heading = "\$xstatusbar().$flag";
 			$syntax = "\$xstatusbar({$data['__cmd']}).$flag";
@@ -858,7 +868,7 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$ARGS]   = "/xtreebar -$flag [-EXAMPLE]";
 			$examplefmt[$NOARGS] = "/xtreebar -$flag";
 			break;
-			
+
                 case SECTION_XTREEBARPROPS:
 			$heading = "\$xtreebar().$flag";
 			$syntax = "\$xtreebar({$data['__cmd']}).$flag";
@@ -872,7 +882,7 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$ARGS]   = "/xmenubar -$flag [-EXAMPLE]";
 			$examplefmt[$NOARGS] = "/xmenubar -$flag";
 			break;
-			
+
                 case SECTION_XMENUBARPROPS:
 			$heading = "\$xmenubar().$flag";
 			$syntax = "\$xmenubar({$data['__cmd']}).$flag";
@@ -891,26 +901,26 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 		default:
 		    return false;
 	}
-	
+
 	// handle multiple examples
 	$egcount = count($data['__eg']);
 	$egcurrent = 1;
 	$egtemp = "";
-	
+
 	foreach ($data['__eg'] as $eg) {
 		$tmp = "";
-		
+
 		// if example has a value
 		if (strlen($eg) > 0)
 			$tmp = str_replace("[-EXAMPLE]", $eg, $examplefmt[$ARGS]);
 		// otherwise just use a fixed example
 		else
 			$tmp = $examplefmt[$NOARGS];
-		
+
 		// append it to the string buffer
 		$egtemp = ($egtemp ? $egtemp : "") . $tmp . ($egcurrent != $egcount ? "<br />" : "");
 	}
-	
+
 	$example = $egtemp;
 	return true;
 }
@@ -928,7 +938,7 @@ function format_parameters(&$data) {
 			format_args($val);
 			continue;
 		}
-		
+
 		// if theres only a description for the parameter
 		if (!is_array($val)) {
 ?>
@@ -1017,33 +1027,33 @@ function format_notes(&$data) {
 			echo "<li>$note</li>";
 		else
 		    echo "$note";
-		
+
 		if (!$count)
 		    $prefix = '';
-		    
+
 		$count++;
 	}
-	
+
 	if ($total > 1)
 	    echo "</ul>";
-	
+
 	echo "</td></tr>";
 }
 
 
 function format_return(&$data) {
 	$txt = "";
-	
+
 	if (!is_array($data))
     	$txt = $data;
 	else {
 		foreach ($data as $k => $ret) {
-			$txt .= ($txt ? "<br />" : "") . '[r]' . $k . '[/r] ' . $ret; 
+			$txt .= ($txt ? "<br />" : "") . '[r]' . $k . '[/r] ' . $ret;
 		}
-		
+
 		wikiData($txt);
 	}
-	
+
 	echo "<tr><td class=\"syntax\">Return</td><td>$txt</td></tr>";
 }
 
@@ -1058,7 +1068,7 @@ function get_section_color($section = 0) {
                 case SECTION_GENERAL		        : return '#979AB3'; // grey purple
                 case SECTION_XDIALOG		        : return '#A9729F'; // purple
                 case SECTION_XDIALOGPROPS	        : return '#CCACC7'; // light purple
-        
+
 		case SECTION_STYLES			: return '#B49696'; // brown
 		case SECTION_XDID			: return '#6A7CB0'; // light navy-blue
 		case SECTION_XDIDPROPS		        : return '#A8B2D1'; // grey blue
@@ -1071,19 +1081,19 @@ function get_section_color($section = 0) {
 
 		case SECTION_XDOCK			: return '#6A7CB0'; // blue
 		case SECTION_XDOCKPROPS		        : return '#A8B2D1'; // light blue
-		
+
                 case SECTION_XSTATUSBAR			: return '#6A7CB0'; // blue
 		case SECTION_XSTATUSBARPROPS		: return '#A8B2D1'; // light blue
-                
+
                 case SECTION_XTREEBAR			: return '#6A7CB0'; // blue
 		case SECTION_XTREEBARPROPS		: return '#A8B2D1'; // light blue
-                
+
                 // TODO: pick a new color for xmenubar
                 case SECTION_XMENUBAR			: return '#6A7CB0'; // blue
 		case SECTION_XMENUBARPROPS		: return '#A8B2D1'; // light blue
-                
+
 		case SECTION_XTRAY			: return '#6A7CB0'; // blue
-		
+
 		case SECTION_INTRO:
 		default                                 : return '#000000';
 	}
@@ -1100,7 +1110,7 @@ function get_section_name($section = 0) {
         case SECTION_GENERAL		: return 'general'; // grey
         case SECTION_XDIALOG		: return 'xdialog'; // purple
 	    case SECTION_XDIALOGPROPS	: return 'xdialogprop'; // light purple
-        
+
 		case SECTION_STYLES			: return 'styles'; // brown
 		case SECTION_XDID			: return 'xdid'; // blue
 		case SECTION_XDIDPROPS		: return 'xdidprop'; // light blue
@@ -1113,18 +1123,18 @@ function get_section_name($section = 0) {
 
 		case SECTION_XDOCK			: return 'xdock'; // blue
 		case SECTION_XDOCKPROPS		: return 'xdockprops'; // light blue
-		
+
                 case SECTION_XSTATUSBAR			: return 'xstatusbar'; // blue
 		case SECTION_XSTATUSBARPROPS		: return 'xstatusbarprops'; // light blue
-                
+
                 case SECTION_XTREEBAR			: return 'xtreebar'; // blue
 		case SECTION_XTREEBARPROPS		: return 'xtreebarprops'; // light blue
-                
+
                 case SECTION_XMENUBAR			: return 'xmenubar'; // blue
 		case SECTION_XMENUBARPROPS		: return 'xmenubarprops'; // light blue
-                
+
 		case SECTION_XTRAY			: return 'xtray'; // blue
-		
+
 		case SECTION_INTRO:
 		default:
 			error_log("get_section_name(): unknown section $section");
@@ -1179,7 +1189,7 @@ function dcxdoc_print_intro($page) {
 </div>
 <?php
 	}
-	
+
 	$str = ob_get_clean();
 
 	dcxdoc_print_description("<a name=\"" . SECTION_INTRO . "\"></a>Introduction", $str);
@@ -1188,12 +1198,12 @@ function dcxdoc_print_intro($page) {
 
 function dcxdoc_format_styles($data) {
 	global $SECTION;
-	
+
 ?><table class="styles">
 <?php
 	foreach ($data as $style => $info) {
 		$style = trim($style);
-		
+
 		// allow for notes in styles section
 		if ($style == '__notes')
 			continue;
@@ -1216,7 +1226,7 @@ function dcxdoc_format_styles($data) {
 // get the latest changes only
 function format_changes_latest() {
 	global $CHANGES;
-	
+
 	if (!$CHANGES)
 		return;
 
@@ -1244,21 +1254,21 @@ function format_changes() {
 function print_changes($version, $changes) {
 	ob_start();
 	$nested = false;
-	
+
 	// check if the array is nested/organised
 	if (is_array($changes)) {
 		$keys = array_keys($changes);
-                
+
                 if ((count($keys) > 0) && is_array($changes[$keys[0]])) {
 		    $nested = true;
 		}
 	}
-	
+
 	echo "<a";
-    
+
     if (!$nested)
         echo " name=\"$version\"";
-        
+
     echo "></a><b>$version</b>\n";
 	echo ($nested ? "<ul>" : "<ol>");
 
@@ -1267,7 +1277,7 @@ function print_changes($version, $changes) {
 		// * Dcx Doc Changes
 		if ($nested) {
 			echo "<li><strong>$key</strong><ol>\n";
-			
+
 			// #23. fixed blah blah
 			foreach ($change as $item)
 			    echo "<li>" . htmlentities($item) . "</li>\n";
@@ -1285,7 +1295,7 @@ function print_changes($version, $changes) {
 
 /**
  * Updates the data structure with flags from dcxLoadIcon().
- * 
+ *
  * @param cmdPosition is a 1-based index for where to insert the command within the __params list.
  */
 function writeDcxLoadIcon(&$FLAGS, $switch, $param, $cmdPosition)
@@ -1293,7 +1303,7 @@ function writeDcxLoadIcon(&$FLAGS, $switch, $param, $cmdPosition)
 	// checks if the control already has a $param item
 	if (!isset($FLAGS[$switch]['__params'][$param]))
 		array_insert($FLAGS[$switch]['__params'], $cmdPosition, $param, array());
-	
+
 	// If the control already has the description, dont append the icon one.
 	if (!isset($FLAGS[$switch]['__params'][$param]['__desc']))
 		$FLAGS[$switch]['__params'][$param]['__desc'] = "Icon flags";
