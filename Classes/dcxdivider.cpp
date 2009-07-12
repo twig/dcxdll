@@ -194,11 +194,11 @@ void DcxDivider::parseCommandRequest( TString & input ) {
 					}
 				}
 				catch ( char *err ) {
-					this->showErrorEx(NULL, "-l|r", "Unable To Create Control %d (%s)", ID - mIRC_ID_OFFSET, err);
+					this->showErrorEx(NULL, "-l|r", "Unable To Create Control %d (%s)", this->getUserID(), err);
 				}
       }
       else
-				this->showErrorEx(NULL, "-l|r", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+				this->showErrorEx(NULL, "-l|r", "Control with ID \"%d\" already exists", this->getUserID());
     }
   }
   // xdid -v [NAME] [ID] [SWITCH] [POS]
