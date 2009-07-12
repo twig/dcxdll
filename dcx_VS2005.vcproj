@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="dcx"
 	ProjectGUID="{6A3D5662-4DA4-47EB-9DDF-98584E702805}"
 	RootNamespace="dcx"
@@ -69,7 +69,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="comctl32.lib  Msimg32.lib Version.lib shlwapi.lib"
-				OutputFile="F:\Programmierung\Scripting\eVolutionX-Project\eVolutionX\dlls\dcx\dcx.dll"
+				OutputFile="$(OutDir)/dcx.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
@@ -1744,10 +1744,6 @@
 					RelativePath=".\Classes\dcxml\dcxml.h"
 					>
 				</File>
-			</Filter>
-			<Filter
-				Name="css"
-				>
 			</Filter>
 		</Filter>
 		<Filter

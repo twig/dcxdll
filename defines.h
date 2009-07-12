@@ -427,7 +427,7 @@ HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
 bool ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex);
-_Ret_ _Success_(return == TRUE) BOOL dcxGetWindowRect(_In_ HWND hWnd, _Out_ LPRECT lpRect);
+BOOL dcxGetWindowRect(HWND hWnd, LPRECT lpRect);
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
