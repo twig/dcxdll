@@ -112,11 +112,10 @@ void DcxDivider::parseInfoRequest( TString & input, char * szReturnValue ) {
 
   // [NAME] [ID] [PROP]
   if (prop == "position") {
-    BOOL isVertical = FALSE;
     int iDivPos = 0;
 
-    SendMessage(this->m_Hwnd, DV_GETDIVPOS, (WPARAM) &isVertical, (LPARAM) &iDivPos);
-    wsprintf(szReturnValue, "%d %d", isVertical, iDivPos);
+    SendMessage(this->m_Hwnd, DV_GETDIVPOS, (WPARAM) NULL, (LPARAM) &iDivPos);
+    wsprintf(szReturnValue, "%d", iDivPos);
     return;
   }
   else if (prop == "isvertical") {

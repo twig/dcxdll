@@ -236,7 +236,6 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     {
       LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp(mHwnd, "dvc_data");
 
-      *((LPBOOL)wParam) = (BOOL) (GetWindowLong(mHwnd, GWL_STYLE) & DVS_VERT);
       *((LPINT)lParam) = (lpdvdata->m_bDragging == TRUE ? lpdvdata->m_iOldPos : lpdvdata->m_iBarPos);
       return 0L;
       break;

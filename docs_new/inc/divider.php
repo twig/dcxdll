@@ -42,10 +42,31 @@ function get_xdid_divider(&$XDID) {
 	);
 }
 
+function get_xdidprops_divider(&$XDIDPROPS) {
+	$XDIDPROPS = array(
+		"position" => 'This property lets you retreive the position of the divider in pixels.',
+		"isvertical" => 'This property lets you retreive the alignment of the divider.',
+	);
+}
 
 function get_events_divider(&$EVENTS) {
 	$EVENTS = array(
 	    "help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
+		"dragbegin" => array(
+			'__desc' => "When the user starts dragging the divier.",
+			'__cmd' => 'X Y',
+			'__eg' => '220 300',
+		),
+		"drag" => array(
+			'__desc' => "When the user is dragging the divier.",
+			'__cmd' => 'X Y',
+			'__eg' => '220 354',
+		),
+		"dragfinish" => array(
+			'__desc' => "When the user has finished dragging the divier.",
+			'__cmd' => 'X Y',
+			'__eg' => '220 403',
+		),
 	);
 }
 ?>

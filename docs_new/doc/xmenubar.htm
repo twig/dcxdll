@@ -79,7 +79,7 @@ The callback function will only be passed 1 parameter, and that is the <a class=
 An example of a simple callback function would be:<br />
 <pre class="code">
 alias xmenubar_cb {
-    ;// Prevent user from accessing Help -> Contents
+    ;// Prevent user from accessing Help -&gt; Contents
     if ($1 == 190) return $true
 }
 </pre>
@@ -236,6 +236,20 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 <br />
 <table class="xmenubar">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xmenubar.s"></a>/xmenubar -s	</td></tr>
+	<tr><td colspan="2">This command simulates a menu item click by sending the menu item ID to be processed.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xmenubar -s [MENU_ID]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xmenubar -s 159</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This should only be used to access mIRCs original menu functionality if you have replaced it.</td></tr></table>
+<br />
+<table class="xmenubar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xmenubar.big.M"></a>/xmenubar -M	</td></tr>
 	<tr><td colspan="2">This command marks the menubar and defines a callback function.</td></tr>
 	<tr>
@@ -279,6 +293,7 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 		<a class='flag' href="#xmenubar.g"><div>-g</div></a>
 		<a class='flag' href="#xmenubar.l"><div>-l</div></a>
 		<a class='flag' href="#xmenubar.r"><div>-r</div></a>
+		<a class='flag' href="#xmenubar.s"><div>-s</div></a>
 		<a class='flag' href="#xmenubar.big.M"><div>-M</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
@@ -292,8 +307,8 @@ Below is a list of special menu IDs for those wishing to redesign mIRC's menubar
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2008</td>
-		<td style="text-align: right;">Last Updated: 6th January, 08</td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
 	</tr>
 </table>
 <div style="text-align: center;">
