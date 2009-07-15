@@ -914,279 +914,29 @@ void DcxListView::parseCommandRequest(TString &input) {
 		UINT stateFlags = this->parseItemFlags(data.gettok( 3 ));
 
 		if (stateFlags & LVIS_XML) {
+			// load all item data from an xml file.
 			this->xmlLoadListview(nPos, data.gettok( 10 ), data.gettok( 11, -1));
 			return;
 		}
 
 		if (stateFlags & LVIS_HASHTABLE) {
-			this->hashLoadListview(nPos, data.gettok( 10 ), data.gettok( 11 ), data.gettok( 12, -1 ));
+			// load all data from a mIRC hashtable.
+			this->xLoadListview(nPos, data.gettok( 10 ), data.gettok( 11 ), data.gettok( 12, -1 ), "$hget(%s)", "$hget(%s,0).item", "$hget(%s,%d)", "$hget(%s,%s)");
 			return;
 		}
 
 		if (stateFlags & LVIS_WINDOW) {
-			this->winLoadListview(nPos, data.gettok( 10 ), data.gettok( 11 ), data.gettok( 12, -1 ));
+			// load all data from a mIRC @window.
+			this->xLoadListview(nPos, data.gettok( 10 ), data.gettok( 11 ), data.gettok( 12, -1 ), "$window(%s)", "$line(%s,0)", "$line(%s,%d)", NULL);
 			return;
 		}
 
 		if (stateFlags & LVIS_CONTROL) {
+			// load all data from another dcx control.
 			this->ctrlLoadListview(nPos, data.gettok( 10 ), data.gettok( 11 ), data.gettok( 12 ).to_int(), data.gettok( 13, -1 ));
 			return;
 		}
 		massSetItem(nPos, input);
-
-		//LVITEM lvi;
-		//ZeroMemory(&lvi, sizeof(LVITEM));
-
-		//TString data(input.gettok(1, TSTAB).gettok(4, -1).trim());
-		//int nPos = data.gettok( 1 ).to_int() -1;
-
-		//if (nPos < 0)
-		//	nPos = ListView_GetItemCount(this->m_Hwnd);
-
-		//UINT stateFlags = this->parseItemFlags(data.gettok( 3 ));
-
-		//if (stateFlags & LVIS_XML) {
-		//	this->xmlLoadListview(nPos, data.gettok( 10 ), data.gettok( 11, -1));
-		//	return;
-		//}
-
-		//if (stateFlags & LVIS_HASHTABLE) {
-		//	this->hashLoadListview(nPos, data.gettok( 10 ), data.gettok( 11 ), data.gettok( 12 ));
-		//	return;
-		//}
-
-		//if (stateFlags & LVIS_WINDOW) {
-		//	return;
-		//}
-
-		//if (stateFlags & LVIS_CONTROL) {
-		//	return;
-		//}
-
-		//int indent = data.gettok( 2 ).to_int();
-		//int icon = data.gettok( 4 ).to_int() -1;
-		//int state = data.gettok( 5 ).to_int();
-		//int overlay = data.gettok( 6 ).to_int( );
-		//int group = data.gettok( 7 ).to_int();
-		//COLORREF clrText = (COLORREF)data.gettok( 8 ).to_num();
-		//COLORREF clrBack = (COLORREF)data.gettok( 9 ).to_num();
-
-		//LPDCXLVITEM lpmylvi = new DCXLVITEM;
-
-		//if (lpmylvi == NULL)
-		//	return;
-
-		//lpmylvi->iPbarCol = 0;
-		//lpmylvi->pbar = NULL;
-		//lpmylvi->vInfo.clear();
-
-		//LPDCXLVRENDERINFO ri = new DCXLVRENDERINFO;
-
-		//if (ri == NULL) {
-		//	delete lpmylvi;
-		//	return;
-		//}
-
-		//// setup colum zero
-		//ri->m_dFlags = stateFlags;
-		//if (stateFlags & LVIS_COLOR)
-		//	ri->m_cText = clrText;
-		//else
-		//	ri->m_cText = -1;
-
-		//if (stateFlags & LVIS_BGCOLOR)
-		//	ri->m_cBg = clrBack;
-		//else
-		//	ri->m_cBg = -1;
-
-		//lpmylvi->vInfo.push_back(ri);
-
-		//TString itemtext;
-		//if (data.numtok( ) > 9) {
-		//	itemtext = data.gettok(10, -1);
-
-		//	char res[1024];
-		//	if (stateFlags & LVIS_HASHITEM) {
-		//		Dcx::mIRC.evalex(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-		//		itemtext = res;
-		//	}
-		//	else if (stateFlags & LVIS_HASHNUMBER) {
-		//		Dcx::mIRC.evalex(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-		//		itemtext = res;
-		//	}
-		//}
-
-		//lvi.iItem = nPos;
-		//lvi.iImage = -1;
-		//lvi.state = stateFlags;
-		//lvi.stateMask = (LVIS_FOCUSED|LVIS_SELECTED|LVIS_CUT|LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
-		//lvi.iSubItem = 0;
-		//lvi.lParam = (LPARAM) lpmylvi;
-		//lvi.mask = LVIF_PARAM|LVIF_STATE;
-
-		//if (icon > -1) {
-		//	lvi.iImage = icon;
-		//	lvi.mask |= LVIF_IMAGE;
-		//}
-
-		//// LVS_REPORT view
-		//if (this->isListViewStyle(LVS_REPORT)) {
-
-		//	if (Dcx::XPPlusModule.isUseable() && group > 0) {
-		//		if (ListView_IsGroupViewEnabled(this->m_Hwnd)) {
-		//			if (ListView_HasGroup(this->m_Hwnd, group)) {
-		//				lvi.iGroupId = group;
-		//				lvi.mask |= LVIF_GROUPID;
-		//			}
-		//			else
-		//				this->showErrorEx(NULL,"-a", "Invalid Group specified: %d", group);
-		//		}
-		//		else
-		//			this->showError(NULL,"-a", "Can't add to a group when Group View is not enabled.");
-		//	}
-
-		//	if (indent > 0) {
-		//		lvi.mask |= LVIF_INDENT;
-		//		lvi.iIndent = indent;
-		//	}
-
-		//	// set text in case of pbar
-		//	if (!(stateFlags & LVIS_PBAR)) {
-		//		lvi.mask |= LVIF_TEXT;
-		//		lvi.pszText = itemtext.to_chr();
-		//	}
-
-		//	lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
-		//	BOOL result = FALSE;
-
-		//	if (lvi.iItem == -1) {
-		//		delete lpmylvi;
-		//		delete ri;
-		//		this->showError(NULL,"-a", "Unable to add item");
-		//		return;
-		//	}
-
-		//	// create pbar for first column
-		//	if (stateFlags & LVIS_PBAR)
-		//		CreatePbar(&lvi, itemtext.gettok(1, -1));
-
-		//	// subitems
-		//	int tabs;
-
-		//	if ((tabs = input.numtok(TSTAB)) > 1) {
-		//		int i = 2;
-
-		//		// ADD check for num columns
-		//		while (i <= tabs) {
-		//			data = input.gettok(i, TSTAB).trim();
-
-		//			if (data.numtok() < 5) {
-		//				this->showError(NULL,"-a", "Invalid subitem syntax");
-		//				break;
-		//			}
-
-		//			stateFlags = parseItemFlags(data.gettok( 1 ));
-		//			clrText = (COLORREF)data.gettok(4).to_num();
-		//			clrBack = (COLORREF)data.gettok(5).to_num();
-
-		//			// setup colum #
-		//			ri = new DCXLVRENDERINFO;
-
-		//			if (ri == NULL)
-		//				break;
-
-		//			ri->m_dFlags = stateFlags;
-
-		//			if (stateFlags & LVIS_COLOR)
-		//				ri->m_cText = clrText;
-		//			else
-		//				ri->m_cText = -1;
-
-		//			if (stateFlags & LVIS_BGCOLOR)
-		//				ri->m_cBg = clrBack;
-		//			else
-		//				ri->m_cBg = -1;
-
-		//			lpmylvi->vInfo.push_back(ri);
-
-		//			lvi.iSubItem = i -1;
-		//			lvi.mask = LVIF_TEXT;
-
-		//			// icon
-		//			icon = data.gettok( 2 ).to_int() -1;
-
-		//			if (icon > -1) {
-		//				lvi.iImage = icon;
-		//				lvi.mask |= LVIF_IMAGE;
-		//			}
-		//			else
-		//				lvi.iImage = -1;
-
-		//			// overlay
-		//			if ((overlay = data.gettok(3).to_int()) > 0) {
-		//				lvi.mask |= LVIF_STATE;
-		//				lvi.state |= INDEXTOOVERLAYMASK(overlay);
-		//				lvi.stateMask |= LVIS_OVERLAYMASK;
-		//			}
-		//			else
-		//				lvi.state |= INDEXTOOVERLAYMASK(0);
-
-		//			itemtext = "";
-		//			if (data.numtok() > 5) {
-		//				itemtext = data.gettok(6, -1);
-
-		//				char res[1024];
-		//				if ((stateFlags & LVIS_HASHITEM) && (itemtext.numtok() == 2)) {
-		//					Dcx::mIRC.evalex(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-		//					itemtext = res;
-		//				}
-		//				else if ((stateFlags & LVIS_HASHNUMBER) && (itemtext.numtok() == 2)) {
-		//					Dcx::mIRC.evalex(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-		//					itemtext = res;
-		//				}
-		//			}
-		//			// create pbar for subitem
-		//			if (stateFlags & LVIS_PBAR) {
-		//				CreatePbar(&lvi, itemtext);
-		//				itemtext = "";
-		//			}
-
-		//			lvi.pszText = itemtext.to_chr();
-		//			ListView_SetItem(this->m_Hwnd, &lvi);
-
-		//			this->autoSize(i -1,data.gettok( 1 ));
-		//			i++;
-		//		}
-		//	}
-
-		//	if (state > -1)
-		//		ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
-
-		//	// overlay is 1-based index, max 15 overlay icons
-		//	if (overlay > 0 && overlay < 16)
-		//		ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlay), LVIS_OVERLAYMASK);
-
-		//	this->autoSize(0,input.gettok( 6 ));
-		//}
-		//// LVS_ICON | LVS_SMALLICON | LVS_LIST views
-		//else {
-
-		//	lvi.mask |= LVIF_TEXT;
-		//	lvi.pszText = itemtext.to_chr();
-		//	lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
-
-		//	if (lvi.iItem == -1) {
-		//		this->showError(NULL,"-a", "Unable to add item");
-		//		return;
-		//	}
-
-		//	if (state > -1)
-		//		ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
-
-		//	// overlay is 1-based index
-		//	if (overlay > 0 && overlay < 16)
-		//		ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlay), LVIS_OVERLAYMASK);
-		//}
 	}
 	// xdid -A [NAME] [ID] [SWITCH] [ROW] [COL] [+FLAGS] [INFO]
 	else if (flags['A']) {
@@ -3576,19 +3326,38 @@ void DcxListView::xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *
 }
 
 //[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
-bool DcxListView::hashLoadListview(const int nPos, const TString tsflags, const TString &tablename, const TString &item)
+bool DcxListView::ctrlLoadListview(const int nPos, const TString tsflags, const TString &dialogname, const int ctrl_ID, const TString &item)
+{
+	DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(dialogname);
+	if (p_Dialog == NULL) {
+		this->showErrorEx(NULL, "-a", "Invalid dialog name: %s Only DCX dialogs are supported.", dialogname.to_chr());
+		return false;
+	}
+	DcxControl * p_Control = p_Dialog->getControlByID((UINT) ctrl_ID + mIRC_ID_OFFSET);
+
+	if (p_Control == NULL) {
+		this->showErrorEx(NULL, "-a", "Invalid control id: %d Only DCX controls are supported.", ctrl_ID);
+		return false;
+	}
+	return false;
+}
+
+//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
+bool DcxListView::xLoadListview(const int nPos, const TString tsflags, const TString &tsName, const TString &tsItem, const char *sTest, const char *sCount, const char *sGet, const char *sGetNamed)
 {
 	char res[1024];	// used to store the data returned by mIRC.
 
-	// check table exists
-	Dcx::mIRC.evalex(res, 1024, "$hget(%s)", tablename.to_chr());
+	// check table/window exists
+	Dcx::mIRC.evalex(res, 1024, sTest, tsName.to_chr());
 	// if not exit
-	if (lstrcmp(tablename.to_chr(), res) != 0) return false;
-
+	if (lstrcmp(tsName.to_chr(), res) != 0) {
+		this->showErrorEx(NULL, "-a", "Invalid hashtable/window: %s", tsName.to_chr());
+		return false;
+	}
 	// get the total number of items in the table.
-	Dcx::mIRC.evalex(res, 1024, "$hget(%s,0).item", tablename.to_chr());
+	Dcx::mIRC.evalex(res, 1024, sCount, tsName.to_chr());
 	UINT iTotal = atoi(res);
-	// if no items the exit.
+	// if no items then exit.
 	if (iTotal == 0)
 		return false;
 
@@ -3599,74 +3368,82 @@ bool DcxListView::hashLoadListview(const int nPos, const TString tsflags, const 
 					// The string end up having alot of space holders (0's), these are needed so the function can work with a normal xdid -a too.
 
 	if (iFlags & LVIMF_NAMED) {
+		if (sGetNamed == NULL) {
+			this->showError(NULL, "-a", "Invalid flag used, +i is for hashtable items only");
+			return false;
+		}
 		// add a single named item
-		Dcx::mIRC.evalex(res, 1024, "$hget(%s,%s)", tablename.to_chr(), item.to_chr());
+		Dcx::mIRC.evalex(res, 1024, sGetNamed, tsName.to_chr(), tsItem.to_chr());
 		if (iFlags & LVIMF_ALLINFO)
 			// add items data from [INDENT] onwards is taken from hashtable, including subitems.
 			//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 			//   0     0     0      0   read from hashtable->
-			input.sprintf("0 0 0 0 %s",res);
+			//input.sprintf("0 0 0 0 %s",res);
+		{
+			input = "0 0 0 0 ";
+			input += res;
+		}
 		else
-			// only the item text is taken from the hashtable. (NB: atm this still allows subitems to be specified with all flags etc...)
+			// only the item text is taken from the hashtable.
 			//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 			//   0     0     0      0      0       +       0        0         0           0        0        0		read from hashtable->
-			input.sprintf("0 0 0 0 0 + 0 0 0 0 0 0 %s", res);
+			//input.sprintf("0 0 0 0 0 + 0 0 0 0 0 0 %s", res);
+		{
+			parseText2Item(res, input);
+		}
 		// add this item
 		massSetItem(nPos, input);
 		return true;
 	}
 	else if (iFlags == 0) {
 		// no flags, just add text to nPos with no extras
-		iStart = iEnd = item.to_int();
+		iStart = iEnd = tsItem.to_int();
 		// first & last item are the same.
 	}
 	else if (iFlags & LVIMF_ADDALL) {
 		// add all items from N onwards inclusive
-		iStart = item.to_int();	// first item to add
+		iStart = tsItem.to_int();	// first item to add
 		iEnd = iTotal;			// last item to add is the last item in table.
 	}
 	else if (iFlags & LVIMF_NUMERIC) {
 		// numeric range supplied.
-		iStart = item.gettok( 1, "-").to_int();	// first item in hash table to be added taken from range.
-		iEnd = item.gettok( 2, "-").to_int();	// last item in hash table to be added taken from range.
+		iStart = tsItem.gettok( 1, "-").to_int();	// first item in hash table to be added taken from range.
+		iEnd = tsItem.gettok( 2, "-").to_int();	// last item in hash table to be added taken from range.
 		if (iEnd < 0) iEnd = iTotal + iEnd;		// if iEnd is a negative number then make iEnd the last item in table + iEnd
 	}
-	// iStart & iEnd MUST be 1 or greater. (zero gives a hashtable item count.)
-	if ((iStart < 1) || (iEnd < 1))
+	// iStart & iEnd MUST be 1 or greater. (zero gives a hashtable/window item count.)
+	if ((iStart < 1) || (iEnd < 1)) {
+		this->showErrorEx(NULL, "-a", "Invalid numeric supplied: %s", tsItem.to_chr());
 		return false;
+	}
 
 	int nItem = nPos;	// tmp var use to update the item pos for each item added.
-	TString fmt;		// tmp var to hold the format string used in the loop.
-	fmt.sprintf("$hget(%s,%%d)", tablename.to_chr());
 
 	while (iStart <= iEnd) {
 		// get items data
-		Dcx::mIRC.evalex(res, 1024, fmt.to_chr(), iStart);
+		Dcx::mIRC.evalex(res, 1024, sGet, tsName.to_chr(), iStart);
 		if (iFlags & LVIMF_ALLINFO)
 			// add items data from [INDENT] onwards is taken from hashtable, including subitems.
 			//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 			//   0     0     0      0   read from hashtable->
-			input.sprintf("0 0 0 0 %s",res);
+			//input.sprintf("0 0 0 0 %s",res);
+		{
+			input = "0 0 0 0 ";
+			input += res;
+		}
 		else
-			// only the item text is taken from the hashtable. (NB: atm this still allows subitems to be specified with all flags etc...)
+			// only the item text is taken from the hashtable.
 			//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 			//   0     0     0      0      0       +       0        0         0           0        0        0		read from hashtable->
-			input.sprintf("0 0 0 0 0 + 0 0 0 0 0 0 %s", res);
+			//input.sprintf("0 0 0 0 0 + 0 0 0 0 0 0 %s", res);
+		{
+			parseText2Item(res, input);
+		}
 		massSetItem(nItem++, input);
 
 		iStart++;
 	}
 	return true;
-}
-
-bool DcxListView::winLoadListview(const int nPos, const TString tsflags, const TString &windowname, const TString &item)
-{
-	return false;
-}
-
-bool DcxListView::ctrlLoadListview(const int nPos, const TString tsflags, const TString &dialogname, const int ctrl_ID, const TString &item)
-{
-	return false;
 }
 
 /*
@@ -3904,6 +3681,24 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 		// overlay is 1-based index
 		if (overlay > 0 && overlay < 16)
 			ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlay), LVIS_OVERLAYMASK);
+	}
+}
+
+void DcxListView::parseText2Item(const TString &tsTxt, TString &tsItem)
+{
+	// first part of item, fill in blanks with 0's
+	tsItem = "0 0 0 0 0 + 0 0 0 0 0 0 ";
+	// add item text.
+	tsItem += tsTxt.gettok(1, TSTAB);
+	// add all subitems
+	int tok = 2, ntok = tsTxt.numtok(TSTAB);
+	while (tok <= ntok) {
+		//[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text
+		// again fill in blanks with 0's
+		tsItem.addtok("+ 0 0 0 0 ",TSTAB);
+		// add subitems text.
+		tsItem += tsTxt.gettok(tok, TSTAB);
+		tok++;
 	}
 }
 
