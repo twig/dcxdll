@@ -38,7 +38,7 @@ class DcxDialog;
 // +flags mentioned above tell the parser extra details about how the items are added.
 // +	:	single item is added as text only (N)
 // +a	:	items added include all info for the item not just it's text.
-// +n	:	Numeric range supplied N1-N2
+// +n	:	Numeric range supplied N1,N2
 // +i	:	item name supplied (for hashtable)
 // +A	:	adds ALL items starting at N
 #define LVIMF_ALLINFO	0x01

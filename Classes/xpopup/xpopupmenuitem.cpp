@@ -37,7 +37,7 @@ XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep )
 XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu ) 
 : m_pXParentMenu( Parent ), m_tsItemText( tsItemText ), m_nIcon( nIcon ), m_bSubMenu( bSubMenu ), m_bSep( FALSE )
 {
-	this->m_tsItemText = this->m_tsItemText.trim();
+	this->m_tsItemText.trim();
 }
 
 /*!
@@ -130,14 +130,14 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 				this->m_tsItemText = this->m_tsItemText.gettok(2, "\v").trim();
 			}
 
-      GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
-    }
-    else {
-      char res[900];
-      Dcx::mIRC.eval( res, 900, this->m_tsItemText.to_chr( ) );
-      this->m_tsItemText = res;
-      GetTextExtentPoint32( hdc, res, lstrlen( res ), &size );
-    }
+			GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
+		}
+		else {
+			char res[900];
+			Dcx::mIRC.eval( res, 900, this->m_tsItemText.to_chr( ) );
+			this->m_tsItemText = res;
+			GetTextExtentPoint32( hdc, res, lstrlen( res ), &size );
+		}
 
 		ReleaseDC( mHwnd, hdc );
 	}

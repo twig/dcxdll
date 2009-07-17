@@ -3090,8 +3090,8 @@ void DcxListView::ScrollPbars(const int row) {
 }
 
 /*
-	xmlLoadTree()
-	Loads items into a treeview control from a dcxml file.
+	xmlLoadListview()
+	Loads items into a listview control from a dcxml file.
 */
 bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &filename)
 {
@@ -3407,8 +3407,8 @@ bool DcxListView::xLoadListview(const int nPos, const TString tsflags, const TSt
 	}
 	else if (iFlags & LVIMF_NUMERIC) {
 		// numeric range supplied.
-		iStart = tsItem.gettok( 1, "-").to_int();	// first item in hash table to be added taken from range.
-		iEnd = tsItem.gettok( 2, "-").to_int();	// last item in hash table to be added taken from range.
+		iStart = tsItem.gettok( 1, TSCOMMA).to_int();	// first item in hash table to be added taken from range.
+		iEnd = tsItem.gettok( 2, TSCOMMA).to_int();	// last item in hash table to be added taken from range.
 		if (iEnd < 0) iEnd = iTotal + iEnd;		// if iEnd is a negative number then make iEnd the last item in table + iEnd
 	}
 	// iStart & iEnd MUST be 1 or greater. (zero gives a hashtable/window item count.)
@@ -3416,6 +3416,8 @@ bool DcxListView::xLoadListview(const int nPos, const TString tsflags, const TSt
 		this->showErrorEx(NULL, "-a", "Invalid numeric supplied: %s", tsItem.to_chr());
 		return false;
 	}
+
+	this->setRedraw(FALSE); // disable redraw while adding lots of items.
 
 	int nItem = nPos;	// tmp var use to update the item pos for each item added.
 
@@ -3443,6 +3445,9 @@ bool DcxListView::xLoadListview(const int nPos, const TString tsflags, const TSt
 
 		iStart++;
 	}
+
+	this->setRedraw(TRUE); // re-enable redraw when finished adding items.
+
 	return true;
 }
 

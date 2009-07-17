@@ -1752,7 +1752,7 @@ void TString::remtok(const char * cToken, int N, const char * sepChars) {
  *
  * blah
  */
-TString TString::trim() {
+TString &TString::trim() {
 	char *start = this->m_pString;
 	char *end = this->m_pString + lstrlen(this->m_pString);
 
@@ -1773,7 +1773,9 @@ TString TString::trim() {
 	this->deleteString();
 	this->m_pString = temp;
 
-	return TString(temp);
+	//return TString(temp);
+	//return temp;
+	return *this;
 }
 
 // pos must be within length of string, n can be < 0
