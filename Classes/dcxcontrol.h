@@ -120,7 +120,7 @@ public:
 	COLORREF getTextColor( ) const;
 	COLORREF getStartGradientColor(void) const { return this->m_clrStartGradient; };
 	COLORREF getEndGradientColor(void) const { return this->m_clrEndGradient; };
-	RECT getPosition(void);
+	RECT getPosition(void) const;
 
 	static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, int offset, const UINT64 mask = -1, HWND hParent = NULL);
 

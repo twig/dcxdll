@@ -76,7 +76,7 @@ bool DcxDialog::m_bIsSysMenu = false;
  */
 
 
-DcxDialog::DcxDialog(const HWND mHwnd, TString &tsName, TString &tsAliasName)
+DcxDialog::DcxDialog(const HWND mHwnd, const TString &tsName, const TString &tsAliasName)
 : DcxWindow(mHwnd, 0)
 , m_uStyleBg(DBS_BKGNORMAL)
 , m_tsName(tsName)
@@ -1779,30 +1779,40 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 bool DcxDialog::evalAliasEx(char *szReturn, const int maxlen, const char *szFormat, ...) {
 	TString line;
 	va_list args;
-	bool res;
+
 	va_start(args, szFormat);
 	line.vprintf(szFormat, &args);
+	va_end(args);
+
+	return evalAlias(szReturn, maxlen, line.to_chr());
+}
+
+bool DcxDialog::evalAlias(char *szReturn, const int maxlen, const char *szArgs) {
 	//// create a temp %var for the args
 	//// This solves the ,() in args bugs, but causes problems with the , that we want.
 	//int rCnt = this->getRefCount();
 	//Dcx::mIRC.execex("/set -n %%d%d %s", rCnt, params);
 	this->incRef();
-	res = Dcx::mIRC.evalex(szReturn, maxlen, "$%s(%s,%s)", this->getAliasName().to_chr(), this->getName().to_chr(), line.to_chr());
+	bool res = Dcx::mIRC.evalex(szReturn, maxlen, "$%s(%s,%s)", this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
 	this->decRef();
-	va_end(args);
 	return res;
 }
 
 bool DcxDialog::execAliasEx(const char *szFormat, ...) {
 	TString line;
 	va_list args;
-	bool res;
+
 	va_start(args, szFormat);
 	line.vprintf(szFormat, &args);
-	this->incRef();
-	res = Dcx::mIRC.evalex(NULL, 0, "$%s(%s,%s)", this->getAliasName().to_chr(), this->getName().to_chr(), line.to_chr());
-	this->decRef();
 	va_end(args);
+
+	return execAlias(line.to_chr());
+}
+
+bool DcxDialog::execAlias(const char *szArgs) {
+	this->incRef();
+	bool res = Dcx::mIRC.evalex(NULL, 0, "$%s(%s,%s)", this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
+	this->decRef();
 	return res;
 }
 

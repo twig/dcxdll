@@ -31,23 +31,23 @@ class DcxDialogCollection {
 
 public:
 
-  DcxDialogCollection( );
-  virtual ~DcxDialogCollection( );
+	DcxDialogCollection( );
+	virtual ~DcxDialogCollection( );
 
-  void markDialog( const HWND mHwnd, TString & tsName, TString & tsAliasName );
-  void deleteDialog( DcxDialog * p_Dialog );
-  DcxDialog * getDialogByHandle( const HWND mHwnd );
-  DcxDialog * getDialogByChildHandle( const HWND mHwnd );
-  DcxDialog * getDialogByName( const TString & tsName );
+	void markDialog( const HWND mHwnd, const TString & tsName, const TString & tsAliasName );
+	void deleteDialog( DcxDialog * p_Dialog );
+	DcxDialog * getDialogByHandle( const HWND mHwnd );
+	DcxDialog * getDialogByChildHandle( const HWND mHwnd );
+	DcxDialog * getDialogByName( const TString & tsName );
 
-  bool closeDialogs( );
+	bool closeDialogs( );
 	bool safeToCloseAll(void) const;
 
 protected:
 
 private:
 	bool m_closeall; // protects against freeing of vector objects when looping through them.
-  VectorOfDialogPtrs m_vpDialog;
+	VectorOfDialogPtrs m_vpDialog;
 
 };
 

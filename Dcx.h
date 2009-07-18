@@ -50,6 +50,6 @@ public:
 #endif
 	static void error(const char *cmd, const char *msg);
 	static void errorex(const char *cmd, const char *szFormat, ...);
-	static int mark(char* data, TString & tsDName, TString & tsCallbackName);
+	static int mark(char* data, const TString & tsDName, const TString & tsCallbackName);
 	static LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };

@@ -14,5 +14,5 @@ public:
 	bool unload(void);
 	bool refreshComposite();
 
-	bool isAero(void);
+	bool isAero(void) const;
 };

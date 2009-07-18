@@ -487,10 +487,11 @@ void Dcx::errorex(const char *cmd, const char *szFormat, ...)
 	char temp[2048];
 
 	vsprintf(temp, szFormat, args);
+	va_end(args);
 	error(cmd, temp);
 }
 
-int Dcx::mark(char* data, TString & tsDName, TString & tsCallbackName)
+int Dcx::mark(char* data, const TString & tsDName, const TString & tsCallbackName)
 {
 	char res[40];
 

@@ -73,7 +73,7 @@ class DcxDialog : public DcxWindow {
 
 public:
 
-	DcxDialog( const HWND mHwnd, TString & tsName, TString & tsAliasName);
+	DcxDialog( const HWND mHwnd, const TString & tsName, const TString & tsAliasName);
 	virtual ~DcxDialog( );
 
 	const TString &getName( ) const;
@@ -87,7 +87,9 @@ public:
 	void parseInfoRequest( TString & input, char * szReturnValue );
 
 	bool evalAliasEx( char * szReturn, const int maxlen, const char * szFormat, ... );
+	bool evalAlias( char * szReturn, const int maxlen, const char * szArgs);
 	bool execAliasEx( const char * szFormat, ... );
+	bool execAlias( const char * szArgs);
 
 	DcxControl * getControlByID( const UINT ID );
 	DcxControl * getControlByHWND( const HWND mHwnd );

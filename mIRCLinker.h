@@ -23,24 +23,24 @@ class mIRCLinker
 public:
 	mIRCLinker(void);
 	~mIRCLinker(void);
-	HWND getSwitchbar();
-	HWND getToolbar();
-	HWND getTreebar();
-	HWND getTreeview();
-	HIMAGELIST getTreeImages();
-	HFONT getTreeFont();
-	HWND getMDIClient();
-	HWND getHWND();
-	DWORD getVersion();
-	WORD getMainVersion();
-	WORD getSubVersion();
-	TString & getLastError();
+	HWND getSwitchbar() const;
+	HWND getToolbar() const;
+	HWND getTreebar() const;
+	HWND getTreeview() const;
+	HIMAGELIST getTreeImages() const;
+	HFONT getTreeFont() const;
+	HWND getMDIClient() const;
+	HWND getHWND() const;
+	DWORD getVersion() const;
+	WORD getMainVersion() const;
+	WORD getSubVersion() const;
+	const TString & getLastError() const;
 	bool setTreeFont(HFONT newFont);
-	bool isOrNewerVersion(WORD main, WORD sub);
-	bool isVersion(WORD main, WORD sub);
-	bool isAero();
-	bool isVista();
-	bool isDebug();
+	bool isOrNewerVersion(const WORD main, const WORD sub) const;
+	bool isVersion(const WORD main, const WORD sub) const;
+	bool isAero() const;
+	bool isVista() const;
+	bool isDebug() const;
 	bool isDXInstalled9();
 	bool isAlias(const char * aliasName);
 
@@ -55,8 +55,8 @@ public:
 	bool evalex(char *res, const int maxlen, const char *szFormat, ...);
 	bool exec(const char *data);
 	bool execex(const char *szFormat, ...);
-	void signal(char *msg);
-	void signalex(bool allow, const char *szFormat, ...);
+	void signal(const char *msg);
+	void signalex(const bool allow, const char *szFormat, ...);
 	void echo(const char *data);
 #if DCX_DEBUG_OUTPUT
 	void debug(const char *cmd, const char *msg);

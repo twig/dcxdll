@@ -17,7 +17,7 @@ public:
 	DcxModule(void);
 	virtual ~DcxModule(void);
 
-	bool isUseable();
+	bool isUseable() const;
 
 	virtual bool load(mIRCLinker &mIRCLink);
 	virtual bool unload() = 0;

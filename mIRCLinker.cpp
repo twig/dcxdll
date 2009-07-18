@@ -23,16 +23,16 @@ mIRCLinker::~mIRCLinker(void)
 {
 }
 
-bool mIRCLinker::isDebug()
+bool mIRCLinker::isDebug() const
 {
 	return m_bDebug;
 }
 
-bool mIRCLinker::isVersion(WORD main, WORD sub) {
+bool mIRCLinker::isVersion(const WORD main, const WORD sub) const {
 	return getMainVersion() == main && getSubVersion() == sub;
 }
 
-bool mIRCLinker::isOrNewerVersion(WORD main, WORD sub) {
+bool mIRCLinker::isOrNewerVersion(const WORD main, const WORD sub) const {
 	return getMainVersion() > main || (getMainVersion() == main && getSubVersion() >= sub);
 }
 
@@ -151,56 +151,56 @@ void mIRCLinker::initMapFile() {
 	m_pData = (LPSTR) MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 }
 
-HWND mIRCLinker::getSwitchbar()
+HWND mIRCLinker::getSwitchbar() const
 {
 	return m_hSwitchbar;
 }
 
-HWND mIRCLinker::getToolbar()
+HWND mIRCLinker::getToolbar() const
 {
 	return m_hToolbar;
 }
 
-HWND mIRCLinker::getTreebar()
+HWND mIRCLinker::getTreebar() const
 {
 	return m_hTreebar;
 }
 
-HWND mIRCLinker::getTreeview()
+HWND mIRCLinker::getTreeview() const
 {
 	return m_hTreeview;
 }
 
-HIMAGELIST mIRCLinker::getTreeImages()
+HIMAGELIST mIRCLinker::getTreeImages() const
 {
 	return m_hTreeImages;
 }
 
-HFONT mIRCLinker::getTreeFont() 
+HFONT mIRCLinker::getTreeFont() const
 {
 	return m_hTreeFont;
 }
 
 
-HWND mIRCLinker::getMDIClient()
+HWND mIRCLinker::getMDIClient() const
 {
 	return m_hMDI;
 }
 
 
-HWND mIRCLinker::getHWND() 
+HWND mIRCLinker::getHWND() const
 {
 	return this->m_mIRCHWND;
 }
-DWORD mIRCLinker::getVersion() {
+DWORD mIRCLinker::getVersion() const {
 	return m_dwVersion;
 }
 
-WORD mIRCLinker::getMainVersion() {
+WORD mIRCLinker::getMainVersion() const {
 	return LOWORD(m_dwVersion);
 }
 
-WORD mIRCLinker::getSubVersion() {
+WORD mIRCLinker::getSubVersion() const {
 	return HIWORD(m_dwVersion);
 }
 
@@ -211,7 +211,7 @@ bool mIRCLinker::setTreeFont(HFONT newFont)
 		m_hTreeFont = f;
 	SetWindowFont( m_hTreeview, newFont, TRUE);
 	if (f != m_hTreeFont)
-		DeleteObject(f);
+		DeleteFont(f);
 	return true;
 }
 
@@ -252,13 +252,13 @@ bool mIRCLinker::eval(char *res, const int maxlen, const char *data) {
 bool mIRCLinker::evalex(char *res, const int maxlen, const char *szFormat, ...)
 {
 	TString line;
-	bool bRes;
 	va_list args;
+
 	va_start(args, szFormat);
 	line.vprintf(szFormat, &args);
-	bRes = eval(res, maxlen, line.to_chr());
 	va_end( args );
-	return bRes;
+
+	return eval(res, maxlen, line.to_chr());
 }
 
 bool mIRCLinker::exec(const char *data)
@@ -272,16 +272,16 @@ bool mIRCLinker::exec(const char *data)
 bool mIRCLinker::execex(const char *szFormat, ...)
 {
 	TString line;
-	bool bRes;
 	va_list args;
+
 	va_start(args, szFormat);
 	line.vprintf(szFormat, &args);
-	bRes = exec(line.to_chr());
 	va_end( args );
-	return bRes;
+
+	return exec(line.to_chr());
 }
 
-void mIRCLinker::signal(char *msg) {
+void mIRCLinker::signal(const char *msg) {
 	wsprintf(m_pData, "//.signal -n DCX %s", msg);
 	SendMessage(m_mIRCHWND, WM_USER + 200, 0, m_iMapCnt);
 }
@@ -291,17 +291,18 @@ void mIRCLinker::signal(char *msg) {
 *
 * This method allows for multiple parameters.
 */
-void mIRCLinker::signalex(bool allow, const char *szFormat, ...) {
+void mIRCLinker::signalex(const bool allow, const char *szFormat, ...) {
 	if (!allow)
 		return;
 
+	TString msg;
 	va_list args;
-	va_start(args, szFormat);
 
-	char msg[2048];
-	vsprintf(msg, szFormat, args);
-	signal(msg);
+	va_start(args, szFormat);
+	msg.vprintf(szFormat, &args);
 	va_end(args);
+
+	signal(msg.to_chr());
 }
 
 /*!

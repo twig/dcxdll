@@ -9,7 +9,7 @@ DcxModule::~DcxModule(void)
 {
 }
 
-bool DcxModule::isUseable() 
+bool DcxModule::isUseable() const
 {
 	return !(m_hModule == NULL);
 }

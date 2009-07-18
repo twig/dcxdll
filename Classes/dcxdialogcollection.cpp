@@ -47,7 +47,7 @@ DcxDialogCollection::~DcxDialogCollection( ) {
  * blah
  */
 
-void DcxDialogCollection::markDialog( const HWND mHwnd, TString & tsName, TString & tsAliasName ) {
+void DcxDialogCollection::markDialog( const HWND mHwnd, const TString & tsName, const TString & tsAliasName ) {
 
   this->m_vpDialog.push_back( new DcxDialog( mHwnd, tsName, tsAliasName ) );
 }

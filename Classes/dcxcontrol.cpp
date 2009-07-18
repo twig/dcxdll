@@ -202,29 +202,26 @@ UINT DcxControl::getUserID( ) const {
 
 bool DcxControl::evalAliasEx( char * szReturn, const int maxlen, const char * szFormat, ... ) {
 
+	TString parms;
 	va_list args;
-	bool result;
-	va_start( args, szFormat );
-	char parms[2048];
 
-	vsprintf( parms, szFormat, args );
-	result = this->m_pParentDialog->evalAliasEx(szReturn, maxlen, parms);
+	va_start( args, szFormat );
+	parms.vprintf(szFormat, &args );
 	va_end( args );
 
-	return result;
+	return this->m_pParentDialog->evalAlias(szReturn, maxlen, parms.to_chr());
 }
 
 bool DcxControl::execAliasEx( const char * szFormat, ... ) {
 
 	TString parms;
 	va_list args;
-	bool result;
+
 	va_start( args, szFormat );
 	parms.vprintf(szFormat, &args);
-	result = this->m_pParentDialog->execAliasEx(parms.to_chr());
 	va_end( args );
 
-	return result;
+	return this->m_pParentDialog->execAlias(parms.to_chr());
 }
 
 /*!
@@ -1261,10 +1258,10 @@ COLORREF DcxControl::getTextColor( ) const {
 	return this->m_clrText;
 }
 
-RECT DcxControl::getPosition(void) {
+RECT DcxControl::getPosition(void) const {
 	RECT rc;
 	GetWindowRect( this->m_Hwnd, &rc );
-	MapWindowPoints(NULL, GetParent( this->m_Hwnd ), (LPPOINT)&rc, 2);
+	MapWindowRect(NULL, GetParent( this->m_Hwnd ), &rc);
 	return rc;
 }
 

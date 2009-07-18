@@ -57,6 +57,6 @@ bool DcxDWMModule::refreshComposite() {
 	return m_bAero;
 }
 
-bool DcxDWMModule::isAero(void) {
+bool DcxDWMModule::isAero(void) const {
 	return m_bAero;
 }
