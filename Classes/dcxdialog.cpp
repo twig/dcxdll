@@ -918,7 +918,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 
 			// figure out coordinates of control
 			GetWindowRect(ctrl->getHwnd(), &r);
-			MapWindowPoints(NULL, GetParent(ctrl->getHwnd()), (LPPOINT) &r, 2);
+			MapWindowRect(NULL, GetParent(ctrl->getHwnd()), &r);
 
 			// for each control in the internal list
 			while (itStart != itEnd) {
@@ -1218,6 +1218,10 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		this->m_GlassOffsets.top = input.gettok( 5 ).to_int();
 		this->m_GlassOffsets.bottom = input.gettok( 6 ).to_int();
 
+		if (Dcx::VistaModule.isUseable()) {
+			MARGINS margins = {this->m_GlassOffsets.left,this->m_GlassOffsets.right,this->m_GlassOffsets.top,this->m_GlassOffsets.bottom};
+			Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(this->m_Hwnd, &margins);
+		}
 		this->redrawWindow();
 	}
 	// xdialog -U [NAME] [SWITCH]
@@ -3226,23 +3230,38 @@ void DcxDialog::showError(const char *prop, const char *cmd, const char *err)
 
 void DcxDialog::showErrorEx(const char *prop, const char *cmd, const char *fmt, ...)
 {
+	TString err;
 	va_list args;
+
 	va_start( args, fmt );
-
-	int cnt = _vscprintf(fmt, args);
-	char *txt = new char[cnt +1];
-	vsprintf(txt, fmt, args );
-	this->showError(prop, cmd, txt);
-	delete [] txt;
-
+	err.vprintf(fmt, &args);
 	va_end( args );
+
+	this->showError(prop, cmd, err.to_chr());
 }
 
 void DcxDialog::CreateVistaStyle(void)
 {
+#ifdef DCX_USE_WINSDK
+	if (Dcx::VistaModule.refreshComposite()) {
+		// Vista+ only code.
+		HRESULT hr = S_OK;
+
+		DWMNCRENDERINGPOLICY ncrp = DWMNCRP_ENABLED;
+
+		//enable non-client area rendering on window
+		hr = Dcx::VistaModule.dcxDwmSetWindowAttribute(this->m_Hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
+		if (SUCCEEDED(hr)) {
+			MARGINS margins = {this->m_GlassOffsets.left,this->m_GlassOffsets.right,this->m_GlassOffsets.top,this->m_GlassOffsets.bottom};
+			Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(this->m_Hwnd, &margins);
+		}
+		return;
+	}
+#endif
 #ifdef DCX_USE_GDIPLUS
-	// don't use this style withe aero, needs specific code to allow aero to do these effects for us.
+	// don't use this style with aero, needs specific code to allow aero to do these effects for us.
 	if (SetLayeredWindowAttributesUx && UpdateLayeredWindowUx && Dcx::GDIModule.isUseable() && !Dcx::VistaModule.isAero()) {
+		// this code is for windows 2000 & windows XP
 		RECT rc;
 		GetWindowRect(this->m_Hwnd, &rc);
 		DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;
@@ -3589,7 +3608,7 @@ void DcxDialog::SetVistaStyleSize(void)
 
 void DcxDialog::MapVistaRect(HWND hwnd, LPRECT rc) const
 {
-	MapWindowPoints(hwnd,this->m_Hwnd, (LPPOINT)rc, 2);
+	MapWindowRect(hwnd, this->m_Hwnd, rc);
 	OffsetRect(rc, this->m_sVistaOffsets.cx, this->m_sVistaOffsets.cy);
 }
 
@@ -3637,13 +3656,13 @@ LRESULT DcxDialog::ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM w
 }
 
 void DcxDialog::toXml(TiXmlElement * xml) {
-	this->toXml(xml, new TString("unnamed"));
+	this->toXml(xml, "unnamed");
 }
 
-void DcxDialog::toXml(TiXmlElement * xml, TString * name) {
+void DcxDialog::toXml(TiXmlElement * xml, const TString &name) {
 	char dest[900];
 	GetWindowText(this->m_Hwnd, dest, 899);
-	xml->SetAttribute("name", name->to_chr());
+	xml->SetAttribute("name", name.to_chr());
 	xml->SetAttribute("caption", dest);
 	this->m_pLayoutManager->getRoot()->toXml(xml);
 }
@@ -3654,7 +3673,7 @@ TiXmlElement * DcxDialog::toXml() {
 	return result;
 }
 
-TiXmlElement * DcxDialog::toXml(TString * name) {
+TiXmlElement * DcxDialog::toXml(const TString & name) {
 	TiXmlElement * result = new TiXmlElement("dialog");
 	this->toXml(result, name);
 	return result;

@@ -160,8 +160,8 @@ public:
 	bool IsVerbose(void) const { return this->m_bVerboseErrors; };
 	void toXml(TiXmlElement * xml);
 	TiXmlElement * toXml();
-	TiXmlElement * toXml(TString * name);
-	void toXml(TiXmlElement * xml, TString * name);
+	TiXmlElement * toXml(const TString &name);
+	void toXml(TiXmlElement * xml, const TString &name);
 
 protected:
 

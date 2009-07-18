@@ -1,5 +1,10 @@
 #include "DcxDWMModule.h"
 
+PFNDWMISCOMPOSITIONENABLED DcxDWMModule::DwmIsCompositionEnabledUx = NULL;
+PFNDWMGETWINDOWATTRIBUTE DcxDWMModule::DwmGetWindowAttributeUx = NULL;
+PFNDWMSETWINDOWATTRIBUTE DcxDWMModule::DwmSetWindowAttributeUx = NULL;
+PFNDWMEXTENDFRAMEINTOCLIENTAREA DcxDWMModule::DwmExtendFrameIntoClientAreaUx = NULL;
+
 DcxDWMModule::DcxDWMModule(void)
 {
 	m_bAero = false;
@@ -12,7 +17,6 @@ DcxDWMModule::~DcxDWMModule(void)
 
 bool DcxDWMModule::load(mIRCLinker &mIRCLink)
 {
-	BOOL bAero;
 	if (isUseable()) return false;
 	DcxModule::load(mIRCLink);
 	DCX_DEBUG(mIRCLink.debug,"LoadDLL", "Loading DWMAPI.DLL...");
@@ -22,14 +26,16 @@ bool DcxDWMModule::load(mIRCLinker &mIRCLink)
 
 		DwmIsCompositionEnabledUx = (PFNDWMISCOMPOSITIONENABLED) GetProcAddress(m_hModule, "DwmIsCompositionEnabled"); // Vista ONLY!
 		DwmGetWindowAttributeUx = (PFNDWMGETWINDOWATTRIBUTE) GetProcAddress(m_hModule, "DwmGetWindowAttribute"); // Vista ONLY!
+		DwmSetWindowAttributeUx = (PFNDWMSETWINDOWATTRIBUTE) GetProcAddress(m_hModule, "DwmSetWindowAttribute"); // Vista ONLY!
+		DwmExtendFrameIntoClientAreaUx = (PFNDWMEXTENDFRAMEINTOCLIENTAREA) GetProcAddress(m_hModule, "DwmExtendFrameIntoClientArea"); // Vista ONLY!
+
+#if DCX_DEBUG_OUTPUT
 		if (DwmIsCompositionEnabledUx != NULL) {
 			DCX_DEBUG(mIRCLink.debug,"LoadDLL", "Found Vista DWM Functions");
-			DwmIsCompositionEnabledUx(&bAero);
 		}
-		if (bAero)
-			m_bAero = true;
-		else
-			m_bAero = false;
+#endif
+
+		refreshComposite();
 	}
 	return isUseable();
 }
@@ -46,9 +52,7 @@ bool DcxDWMModule::unload(void)
 
 bool DcxDWMModule::refreshComposite() {
 	BOOL bAero = FALSE;
-	if (DwmIsCompositionEnabledUx != NULL) {
-		DwmIsCompositionEnabledUx(&bAero);
-	}
+	dcxDwmIsCompositionEnabled(&bAero);
 
 	if (bAero)
 		m_bAero = true;
@@ -57,6 +61,31 @@ bool DcxDWMModule::refreshComposite() {
 	return m_bAero;
 }
 
-bool DcxDWMModule::isAero(void) const {
-	return m_bAero;
+HRESULT DcxDWMModule::dcxDwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute)
+{
+	if (DwmSetWindowAttributeUx != NULL)
+		return DwmSetWindowAttributeUx(hwnd, dwAttribute, pvAttribute, cbAttribute);
+	return DWM_E_COMPOSITIONDISABLED;
+}
+
+HRESULT DcxDWMModule::dcxDwmGetWindowAttribute(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute)
+{
+	if (DwmGetWindowAttributeUx != NULL)
+		return DwmGetWindowAttributeUx(hwnd, dwAttribute, pvAttribute, cbAttribute);
+	return DWM_E_COMPOSITIONDISABLED;
+}
+
+HRESULT DcxDWMModule::dcxDwmIsCompositionEnabled(BOOL *pfEnabled)
+{
+	if (DwmIsCompositionEnabledUx != NULL)
+		return DwmIsCompositionEnabledUx(pfEnabled);
+	*pfEnabled = FALSE;
+	return DWM_E_COMPOSITIONDISABLED;
+}
+
+HRESULT DcxDWMModule::dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset)
+{
+	if (DwmExtendFrameIntoClientAreaUx != NULL)
+		return DwmExtendFrameIntoClientAreaUx(hwnd, pMarInset);
+	return DWM_E_COMPOSITIONDISABLED;
 }

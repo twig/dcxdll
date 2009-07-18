@@ -112,10 +112,10 @@ void Dcx::unload(void)
 	
 	// reset the treebars font if it's been changed.
 	if (Dcx::mIRC.getTreeFont() != NULL) {
-		HFONT hfont = (HFONT)SendMessage(Dcx::mIRC.getTreeview(),WM_GETFONT,0,0);
+		HFONT hfont = GetWindowFont(Dcx::mIRC.getTreeview());
 		if (hfont != Dcx::mIRC.getTreeFont()) {
-			SendMessage( Dcx::mIRC.getTreeview(), WM_SETFONT, (WPARAM) Dcx::mIRC.getTreeFont(), (LPARAM) MAKELPARAM(TRUE,0));
-			DeleteObject(hfont);
+			SetWindowFont( Dcx::mIRC.getTreeview(), Dcx::mIRC.getTreeFont(), TRUE);
+			DeleteFont(hfont);
 		}
 	}
 
@@ -482,13 +482,14 @@ void Dcx::error(const char *cmd, const char *msg)
  */
 void Dcx::errorex(const char *cmd, const char *szFormat, ...)
 {
+	TString temp;
 	va_list args;
-	va_start(args, szFormat);
-	char temp[2048];
 
-	vsprintf(temp, szFormat, args);
+	va_start(args, szFormat);
+	temp.vprintf(szFormat, &args);
 	va_end(args);
-	error(cmd, temp);
+
+	error(cmd, temp.to_chr());
 }
 
 int Dcx::mark(char* data, const TString & tsDName, const TString & tsCallbackName)
@@ -632,8 +633,7 @@ LRESULT CALLBACK Dcx::mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 		case WM_DWMCOMPOSITIONCHANGED:
 			{
-				if (DwmIsCompositionEnabledUx != NULL)
-					Dcx::VistaModule.refreshComposite();
+				Dcx::VistaModule.refreshComposite();
 			}
 			break;
 
