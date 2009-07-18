@@ -120,7 +120,7 @@ public:
 	UINT getItemStyle( ) const;
 	void setItemStyle( const UINT iExStyles );
 
-	void deleteMenuItemData( XPopupMenuItem * p_Item );
+	void deleteMenuItemData( XPopupMenuItem * p_Item, LPMENUITEMINFO mii = NULL);
 	void deleteAllItemData( HMENU hMenu );
 
 	TString getName( ) const;

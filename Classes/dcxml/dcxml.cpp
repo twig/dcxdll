@@ -532,7 +532,9 @@ void DCXML::parseIcons(int depth) {
 						indexmin,indexmax,this->getDialogMark(),id,flags,src);
 				}
                 else 
-					this->xdidEX(id,"-w","+%s %s %s",flags,index,src);
+					//we need to use execex to evaluate identifiers in the path
+					Dcx::mIRC.execex("//xdid -w %s %i +%s %s %s",this->getDialogMark(),id,flags,index,src);
+					//this->xdidEX(id,"-w","+%s %s %s",flags,index,src);
             }
         }
     }

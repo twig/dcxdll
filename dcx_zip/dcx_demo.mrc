@@ -16,7 +16,7 @@ on *:dialog:mydialog:init:*:{
   japan
   dcxml -d $dname mydialog $qt($scriptdirdc.xml)
   xdid -v mydialog 1 20
-  xdid -l mydialog 5 16
+  xdid -l mydialog 2 16
 
   ; Populate Listview
   xdid -t mydialog 5 +l 2 100 column 1 $chr(9) +c 1 100 column 2 $chr(9) +rh 2 100 column 3
@@ -66,6 +66,7 @@ alias _scriptdir return $scriptdir
 ;###stupid demo for @window
 alias japan { window -phCf @m | .timerq -m 0 100 mwi | window -pfh @japan 1 1 240 100 | %japy = 10 }
 alias mwi { 
+  if (!$window(@m)) return
   inc %japr 3 
   clear -n @m 
   if (%japy = 10) %d = inc

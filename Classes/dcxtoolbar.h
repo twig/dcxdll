@@ -79,6 +79,7 @@ public:
 	void parseInfoRequest( TString & input, char * szReturnValue );
 	void parseCommandRequest( TString & input );
 	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, LONG * ExStylesTb, BOOL * bNoTheme );
 
 	HIMAGELIST getImageList( const int iImageList );
 	void setImageList( HIMAGELIST himl, const int iImageList );

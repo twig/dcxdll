@@ -16,16 +16,14 @@
 #include "xpopupmenu.h"
 #include "../../Dcx.h"
 
-
-
 /*!
  * \brief Constructor
  *
  * blah
  */
 
-XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep )
-: m_pXParentMenu( Parent ), m_bSep( bSep ), m_nIcon(-1), m_bSubMenu(FALSE) {
+XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep, ULONG_PTR dwDataBackup )
+: m_pXParentMenu( Parent ), m_bSep( bSep ), m_nIcon(-1), m_bSubMenu(FALSE), m_dwItemDataBackup(dwDataBackup) {
 }
 
 /*!
@@ -34,8 +32,8 @@ XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep )
  * blah
  */
 
-XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu ) 
-: m_pXParentMenu( Parent ), m_tsItemText( tsItemText ), m_nIcon( nIcon ), m_bSubMenu( bSubMenu ), m_bSep( FALSE )
+XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu, ULONG_PTR dwDataBackup ) 
+: m_pXParentMenu( Parent ), m_tsItemText( tsItemText ), m_nIcon( nIcon ), m_bSubMenu( bSubMenu ), m_bSep( FALSE ), m_dwItemDataBackup(dwDataBackup)
 {
 	this->m_tsItemText.trim();
 }
@@ -149,6 +147,10 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 		size.cy = XPMI_HEIGHT;
 
 	return size;
+}
+	
+ULONG_PTR XPopupMenuItem::getItemDataBackup() {
+	return m_dwItemDataBackup;
 }
 
 /*!

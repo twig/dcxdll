@@ -37,8 +37,8 @@ class XPopupMenuItem {
 
 public:
 
-  XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep );
-  XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu );
+  XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep, ULONG_PTR dwDataBackup = NULL );
+  XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu, ULONG_PTR dwDataBackup = NULL );
   virtual ~XPopupMenuItem( );
 
   void DrawItem( const LPDRAWITEMSTRUCT lpdis );
@@ -66,6 +66,8 @@ public:
   const TString * getItemText( ) const;
   int getItemIcon(  ) const;
 
+	ULONG_PTR getItemDataBackup();
+
 protected:
 
   BOOL m_bSep; //!< Is Separator ?
@@ -74,6 +76,7 @@ protected:
   TString m_tsItemCommand; //!< Menu Item Command
   int m_nIcon; //!< Menu Item Icon Index
   XPopupMenu * m_pXParentMenu; //!< Parent XPopupMenu
+  ULONG_PTR m_dwItemDataBackup;
 
 };
 

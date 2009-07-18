@@ -344,7 +344,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
 			if ( p_Item != NULL )
-				this->deleteMenuItemData( p_Item );
+				this->deleteMenuItemData( p_Item, NULL );
 
 			DeleteMenu( hMenu, nPos, MF_BYPOSITION );
 		}
@@ -824,7 +824,7 @@ HMENU XPopupMenu::parsePath( const TString & path, const HMENU hParent, const in
  * blah
  */
 
-void XPopupMenu::deleteMenuItemData( XPopupMenuItem * p_Item ) {
+void XPopupMenu::deleteMenuItemData( XPopupMenuItem * p_Item, LPMENUITEMINFO mii ) {
 
   VectorOfXPopupMenuItem::iterator itStart = this->m_vpMenuItem.begin( );
   VectorOfXPopupMenuItem::iterator itEnd = this->m_vpMenuItem.end( );
@@ -832,7 +832,8 @@ void XPopupMenu::deleteMenuItemData( XPopupMenuItem * p_Item ) {
   while ( itStart != itEnd ) {
 
     if ( *itStart == p_Item ) {
-      
+      if (mii != NULL)
+		mii->dwItemData = (*itStart)->getItemDataBackup();
       delete *itStart;
       this->m_vpMenuItem.erase( itStart );
       return;
@@ -863,8 +864,12 @@ void XPopupMenu::deleteAllItemData( HMENU hMenu ) {
     if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) == TRUE ) {
 
       XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-      if ( p_Item != NULL )
-        this->deleteMenuItemData( p_Item );
+	  if ( p_Item != NULL ) {
+		  // load the old dwItemData value back to make mIRC happy
+		  this->deleteMenuItemData( p_Item, &mii );
+		  mii.fMask = MIIM_DATA;
+		  SetMenuItemInfo(hMenu, i, TRUE, &mii);
+	  }
 
       if ( mii.hSubMenu != NULL )
         this->deleteAllItemData( mii.hSubMenu );
@@ -984,9 +989,9 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce ) {
 		}
 
 		if ( mii.fType & MFT_SEPARATOR )
-          p_Item = new XPopupMenuItem( this, TRUE );
+			p_Item = new XPopupMenuItem( this, TRUE, mii.dwItemData );
         else
-          p_Item = new XPopupMenuItem( this, tsItem, -1, mii.hSubMenu!=NULL?TRUE:FALSE );
+			p_Item = new XPopupMenuItem( this, tsItem, -1, mii.hSubMenu!=NULL?TRUE:FALSE, mii.dwItemData );
 
         this->m_vpMenuItem.push_back( p_Item );
         mii.dwItemData = (ULONG_PTR) p_Item;

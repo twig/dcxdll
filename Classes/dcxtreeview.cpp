@@ -43,6 +43,7 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
 , m_iXOffset(0)
 , m_iYOffset(0)
 , m_bTransparent(false)
+, m_bDestroying(false)
 #endif
 {
   LONG Styles = 0, ExStyles = 0;
@@ -100,7 +101,8 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
  */
 
 DcxTreeView::~DcxTreeView( ) {
-
+  // make sure that there are no sensless events called when deleting all items
+  m_bDestroying = true;
   // clear all items
   TreeView_DeleteAllItems( this->m_Hwnd );
 
@@ -1860,7 +1862,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 			{
 				LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
 
-				if (lpnmtv != NULL) {
+				if (lpnmtv != NULL && !m_bDestroying) {
 					TString path = this->getPathFromItem(&lpnmtv->itemNew.hItem);
 					this->execAliasEx("%s,%d,%s", "selchange", this->getUserID(), path.to_chr());
 				}
@@ -2704,16 +2706,20 @@ HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEI
 			i = 1;
 			HTREEITEM tmp;
 
-			while ((tmp = TreeView_GetNextSibling(this->m_Hwnd, current)) != NULL) {
-				current = tmp;
+			while ((current = TreeView_GetNextSibling(this->m_Hwnd, current)) != NULL) {
+				//current = tmp;
 				if (bFillLocation)
 					*hInsertAt = current;
 				if (++i == dir)
 					break;
 			}
-
-			if ((bFillLocation) && (++i == dir))
-				*hInsertAt = current;
+			
+			// using last item + 1 in a path only works wenn fill location is true, and we are at the last level
+			//if ((bFillLocation) && (++i == dir) && (k == count))
+			//	*hInsertAt = current;
+			// else we need to be sure that the last item wasn't null
+			//else 
+			//	current = tmp;
 		}
 
 		// Couldnt find specified path.

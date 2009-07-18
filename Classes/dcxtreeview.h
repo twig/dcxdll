@@ -143,6 +143,8 @@ protected:
 
 	UINT m_iIconSize; //!< Icon size
 
+	bool m_bDestroying; //!< this flag is set when the listview is about to get destroyed to avoid senseless events
+
 	COLORREF m_colSelection;
 
 	/* *** */

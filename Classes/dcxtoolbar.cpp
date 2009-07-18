@@ -34,9 +34,11 @@ DcxToolBar::DcxToolBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 , m_hOldItemFont(NULL)
 , m_bOverrideTheme(false)
 {
-	LONG Styles = 0, ExStyles = 0;
+	//We need to divide ExStyles and tbExStyles here because the first is used for
+	//global transparent style and the second for arrows style
+	LONG Styles = 0, ExStyles = 0, ExStylesTb = 0;
 	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->parseControlStyles( styles, &Styles, &ExStyles, &ExStylesTb, &bNoTheme );
 
 	this->m_Hwnd = CreateWindowEx(	
 		ExStyles,
@@ -55,8 +57,8 @@ DcxToolBar::DcxToolBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 	if ( bNoTheme )
 		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-	if ( ExStyles != 0 )
-		SendMessage( this->m_Hwnd, TB_SETEXTENDEDSTYLE, (WPARAM) 0, (LPARAM) ExStyles );
+	if ( ExStylesTb != 0 )
+		SendMessage( this->m_Hwnd, TB_SETEXTENDEDSTYLE, (WPARAM) 0, (LPARAM) ExStylesTb );
 
 	SendMessage( this->m_Hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM) sizeof(TBBUTTON), (LPARAM) 0 );
 	this->m_ToolTipHWND = (HWND)SendMessage( this->m_Hwnd, TB_GETTOOLTIPS, NULL, NULL);
@@ -95,8 +97,17 @@ DcxToolBar::~DcxToolBar( ) {
  *
  * blah
  */
-
 void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+	LONG ExStylesTb;
+	parseControlStyles(styles, Styles, ExStyles, &ExStylesTb, bNoTheme);
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, LONG * ExStylesTb, BOOL * bNoTheme ) {
 
 	//*Styles |= CCS_ADJUSTABLE;
 	unsigned int i = 1, numtok = styles.numtok( );
@@ -132,7 +143,7 @@ void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 		else if ( styles.gettok( i ) == "wrap" )
 			*Styles |= TBSTYLE_WRAPABLE;
 		else if ( styles.gettok( i ) == "arrows" )
-			*ExStyles |= TBSTYLE_EX_DRAWDDARROWS;
+			*ExStylesTb |= TBSTYLE_EX_DRAWDDARROWS;
 		else if ( styles.gettok( i ) == "override" )
 			this->m_bOverrideTheme = true;
 
