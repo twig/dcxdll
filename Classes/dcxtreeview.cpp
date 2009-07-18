@@ -2706,8 +2706,8 @@ HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEI
 			i = 1;
 			HTREEITEM tmp;
 
-			while ((current = TreeView_GetNextSibling(this->m_Hwnd, current)) != NULL) {
-				//current = tmp;
+			while ((tmp = TreeView_GetNextSibling(this->m_Hwnd, current)) != NULL) {
+				current = tmp;
 				if (bFillLocation)
 					*hInsertAt = current;
 				if (++i == dir)
