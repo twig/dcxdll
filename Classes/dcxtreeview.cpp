@@ -1771,31 +1771,20 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					}
 					//&& this->isStyle( TVS_CHECKBOXES )
 					else if ((tvh.flags & TVHT_ONITEMSTATEICON)) {
-						TString path(this->getPathFromItem(&tvh.hItem));
-
-						if (this->isStyle(TVS_CHECKBOXES)) {
-							int state = TreeView_GetCheckState(this->m_Hwnd, tvh.hItem);
-
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-								this->execAliasEx("%s,%d,%d,%s", "stateclick", this->getUserID(),
-									state == 0 ? 2 : 1 , path.to_chr());
-							}
-						}
-						else {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-								this->execAliasEx("%s,%d,%d,%s", "stateclick", this->getUserID(), 
-									TreeView_GetItemState(this->m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK), path.to_chr());
-							}
+						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+							TString path(this->getPathFromItem(&tvh.hItem));
+							if (this->isStyle(TVS_CHECKBOXES))
+								this->execAliasEx("%s,%d,%d,%s", "stateclick", this->getUserID(), (TreeView_GetCheckState(this->m_Hwnd, tvh.hItem) == 0 ? 2 : 1) , path.to_chr());
+							else if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+								this->execAliasEx("%s,%d,%d,%s", "stateclick", this->getUserID(), TreeView_GetItemState(this->m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK), path.to_chr());
 						}
 					}
 					//|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
 					else if (tvh.flags & TVHT_ONITEM) {
-						TString path(this->getPathFromItem(&tvh.hItem));
-
 						TreeView_SelectItem(this->m_Hwnd, tvh.hItem);
 
 						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-							this->execAliasEx("%s,%d,%s", "sclick", this->getUserID(), path.to_chr());
+							this->execAliasEx("%s,%d,%s", "sclick", this->getUserID(), this->getPathFromItem(&tvh.hItem).to_chr());
 					}
 					// single click not on item
 					else if ((tvh.flags & TVHT_NOWHERE) || (tvh.flags & TVHT_ONITEMRIGHT)) {
@@ -1817,12 +1806,10 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 					//|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
 					if (tvh.flags & TVHT_ONITEM) {
-						TString path(this->getPathFromItem(&tvh.hItem));
-
 						TreeView_SelectItem(this->m_Hwnd, tvh.hItem);
 
 						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-							this->execAliasEx("%s,%d,%s", "dclick", this->getUserID(), path.to_chr());
+							this->execAliasEx("%s,%d,%s", "dclick", this->getUserID(), this->getPathFromItem(&tvh.hItem).to_chr());
 					}
 
 					bParsed = TRUE;
@@ -1839,17 +1826,16 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 					//|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
 					if (tvh.flags & TVHT_ONITEM) {
-						TString path(this->getPathFromItem(&tvh.hItem));
-
 						TreeView_SelectItem(this->m_Hwnd, tvh.hItem);
 
 						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-							this->execAliasEx("%s,%d,%s", "rclick", this->getUserID(), path.to_chr());
+							this->execAliasEx("%s,%d,%s", "rclick", this->getUserID(), this->getPathFromItem(&tvh.hItem).to_chr());
 					}
 					else if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
 						this->execAliasEx("%s,%d", "rclick", this->getUserID());
 
 					bParsed = TRUE;
+					return TRUE; // stop rclick being passed down to parent controls.
 				}
 				break;
 

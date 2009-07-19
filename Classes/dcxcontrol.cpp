@@ -1021,11 +1021,9 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 	}
 
 	if (pthis->m_DefaultWindowProc != NULL)
-		lrRes = CallWindowProc(pthis->m_DefaultWindowProc, mHwnd, uMsg, wParam, lParam);
-	else
-		lrRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+		return CallWindowProc(pthis->m_DefaultWindowProc, mHwnd, uMsg, wParam, lParam);
 
-	return lrRes;
+	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 }
 
 /*!
@@ -1843,6 +1841,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
 					this->execAliasEx("%s,%d", "rclick", this->getUserID( ) );
+				bParsed = TRUE; // stops event being passed down to parent controls
 			}
 			break;
 		case WM_DROPFILES:
@@ -1990,7 +1989,7 @@ void DcxControl::ctrlDrawText(HDC hdc, TString txt, const LPRECT rc, const UINT 
 }
 
 TString DcxControl::getStyles(void) {
-	TString result("");
+	TString result;
 	LONG exStyles, Styles;
 	exStyles = GetWindowLong(this->m_Hwnd, GWL_EXSTYLE);
 	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
@@ -1998,72 +1997,56 @@ TString DcxControl::getStyles(void) {
 	//if ( bNoTheme )
 	//	result += "notheme "
 	if ( Styles & WS_TABSTOP ) 
-		result.addtok("tabstop", " ");
+		result.addtok("tabstop");
 	if ( Styles & WS_GROUP ) 
-		result.addtok("group", " ");
+		result.addtok("group");
 	if ( Styles & WS_DISABLED ) 
-		result.addtok("disabled", " ");
+		result.addtok("disabled");
 	if ( exStyles & WS_EX_TRANSPARENT )
-		result.addtok("transparent", " ");
+		result.addtok("transparent");
 	if ( ~Styles & WS_VISIBLE )
-		result.addtok("hidden", " ");
+		result.addtok("hidden");
 	if ( this->m_bAlphaBlend )
-		result.addtok("alpha", " ");
+		result.addtok("alpha");
 	if ( this->m_bShadowText )
-		result.addtok("shadow", " ");
+		result.addtok("shadow");
 	if ( !this->m_bCtrlCodeText ) 
-		result.addtok("noformat", " ");
+		result.addtok("noformat");
 	if ( this->m_bGradientFill ) {
 		if ( this->m_bGradientVertical )
-			result.addtok("vgradient", " ");
+			result.addtok("vgradient");
 		else 
-			result.addtok("hgradient", " ");
+			result.addtok("hgradient");
 	}
 	if ( this->m_bUseUTF8 ) 
-		result.addtok("utf8", " ");
+		result.addtok("utf8");
 	return result;
 }
 
 TString DcxControl::getBorderStyles(void) {
-	char bstyles[20];
+	TString bstyles;
 	LONG exStyles, Styles;
 	exStyles = GetWindowLong(this->m_Hwnd, GWL_EXSTYLE);
 	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	int i = 0;
-	if (Styles & WS_BORDER) { 
-		bstyles[i] = 'b';
-		i++;
-	}
-	if (exStyles & WS_EX_CLIENTEDGE) { 
-		bstyles[i] = 'c';
-		i++;
-	}
-	if (Styles & WS_DLGFRAME) { 
-		bstyles[i] = 'd';
-		i++;
-	}
-	if (exStyles & WS_EX_DLGMODALFRAME) { 
-		bstyles[i] = 'f';
-		i++;
-	}
-	if (exStyles & WS_EX_STATICEDGE) { 
-		bstyles[i] = 's';
-		i++;
-	}
-	if (exStyles & WS_EX_WINDOWEDGE) { 
-		bstyles[i] = 'w';
-		i++;
-	}
-	bstyles[i] = '\0';
-	TString result(bstyles);
-	return result;
+	if (Styles & WS_BORDER)
+		bstyles += 'b';
+	if (exStyles & WS_EX_CLIENTEDGE)
+		bstyles += 'c';
+	if (Styles & WS_DLGFRAME)
+		bstyles += 'd';
+	if (exStyles & WS_EX_DLGMODALFRAME)
+		bstyles += 'f';
+	if (exStyles & WS_EX_STATICEDGE)
+		bstyles += 's';
+	if (exStyles & WS_EX_WINDOWEDGE)
+		bstyles += 'w';
+	return bstyles;
 }
 
 void DcxControl::toXml(TiXmlElement * xml) {
-	TString styles = getStyles().to_chr();
-	int id = getID() - mIRC_ID_OFFSET;
+	TString styles(getStyles());
 
-	xml->SetAttribute("id", id);
+	xml->SetAttribute("id", getUserID());
 	xml->SetAttribute("type", getType().to_chr());
 	if (styles.len() > 0) xml->SetAttribute("styles", styles.to_chr());
 }
