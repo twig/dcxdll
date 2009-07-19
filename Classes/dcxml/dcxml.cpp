@@ -802,7 +802,7 @@ void DCXML::parseDialog(int depth,const char *claPath,int passedid,int ignorePar
 int DCXML::mIRCEvalToUnsignedInt (const char *value)
 	{
 		TString buf((UINT)32);
-		Dcx::mIRC.evalex(buf.to_chr(), 32, value,"");
+		Dcx::mIRC.evalex(buf.to_chr(), 32, value,""); // ERROR? formating wrong?
 		int id = buf.to_int();
 		return (id > 0) ? id : -1;
 	}
@@ -858,7 +858,12 @@ mIRC(dcxml) {
 
 	// Parse XDialog XML.
     if (flags['d']) {
-		DCXML *dcxml = new DCXML(input.gettok(2,"\"").to_chr(),input.gettok(2).to_chr(),input.gettok(3).to_chr());
+		TString filename(input.gettok( 3, -1 ));
+		if (!IsFile(filename)) {
+			Dcx::errorex("/dcxml", "Invalid filename: %s", filename.to_chr());
+			return 0;
+		}
+		DCXML *dcxml = new DCXML(filename.to_chr(),input.gettok(2).to_chr(),input.gettok(3).to_chr());
 		if (!dcxml->loadSuccess) { 
 			Dcx::errorex("/dcxml", "XML error (row %i column %i) %s",
 				dcxml->getDocument()->ErrorRow(),
