@@ -438,32 +438,32 @@ LRESULT Divider_OnLButtonUp( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lParam
 	RECT rect;
 	POINT pt;
 
-  LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
 
 	pt.x = (short) LOWORD( lParam );  // horizontal position of cursor 
 	pt.y = (short) HIWORD( lParam );
 
-  if ( lpdvdata->m_bDragging == FALSE )
-    return 0L;
- 
-  Divider_CalcBarPos( mHwnd, &pt, &rect );
+	if ( lpdvdata->m_bDragging == FALSE )
+		return 0L;
+
+	Divider_CalcBarPos( mHwnd, &pt, &rect );
 
 	hdc = GetWindowDC( mHwnd );
 
-  if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT ) {
+	if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT ) {
 
-    DrawXorBar( hdc, lpdvdata->m_iOldPos - 2, 1, 4, rect.bottom - 2 );
-    lpdvdata->m_iOldPos = pt.x;
-  }
-  else {
+		DrawXorBar( hdc, lpdvdata->m_iOldPos - 2, 1, 4, rect.bottom - 2 );
+		lpdvdata->m_iOldPos = pt.x;
+	}
+	else {
 
-	  DrawXorBar( hdc, 1, lpdvdata->m_iOldPos - 2, rect.right - 2, 4 );
-    lpdvdata->m_iOldPos = pt.y;
-  }
+		DrawXorBar( hdc, 1, lpdvdata->m_iOldPos - 2, rect.right - 2, 4 );
+		lpdvdata->m_iOldPos = pt.y;
+	}
 
 	ReleaseDC( mHwnd, hdc );
 
-  lpdvdata->m_bDragging = FALSE;
+	lpdvdata->m_bDragging = FALSE;
 
 	//convert the divider position back to screen coords.
 	GetWindowRect( mHwnd, &rect );
@@ -471,14 +471,14 @@ LRESULT Divider_OnLButtonUp( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lParam
 	pt.y += rect.top;
 
 	//now convert into CLIENT coordinates
-	ScreenToClient( mHwnd, &pt );
+	MapWindowPoints(NULL, mHwnd, &pt, 1 );
 	GetClientRect( mHwnd, &rect );
 
-  if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT )
-    lpdvdata->m_iBarPos = pt.x;
-  else
-    lpdvdata->m_iBarPos = pt.y;
-	
+	if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT )
+		lpdvdata->m_iBarPos = pt.x;
+	else
+		lpdvdata->m_iBarPos = pt.y;
+
 	//position the child controls
 	Divider_SizeWindowContents( mHwnd, rect.right, rect.bottom );
 

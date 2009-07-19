@@ -376,14 +376,11 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 	else if (prop == "mouseitem") {
 		TVHITTESTINFO tvh;
 		GetCursorPos(&tvh.pt);
-		ScreenToClient( this->m_Hwnd, &tvh.pt );
+		MapWindowPoints(NULL, this->m_Hwnd, &tvh.pt, 1 );
 		TreeView_HitTest( this->m_Hwnd, &tvh );
 
-		if ( tvh.flags & TVHT_ONITEM ) {
-			TString path = this->getPathFromItem(&tvh.hItem);
-
-			lstrcpyn(szReturnValue, path.to_chr(), 900);
-		}
+		if ( tvh.flags & TVHT_ONITEM )
+			lstrcpyn(szReturnValue, this->getPathFromItem(&tvh.hItem).to_chr(), 900);
 		else
 			lstrcpy(szReturnValue, "0");
 
@@ -1693,7 +1690,7 @@ HTREEITEM DcxTreeView::cloneItem( HTREEITEM * hItem, HTREEITEM * hParentTo, HTRE
 
   // Move the root node
   char itemtext[1000];
-  lstrcpy( itemtext, "\0" );
+  itemtext[0] = 0;
   TVITEMEX tvi; 
 
   tvi.hItem = *hItem;
@@ -1765,18 +1762,16 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 				//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
 					TVHITTESTINFO tvh;
 					GetCursorPos(&tvh.pt);
-					ScreenToClient(this->m_Hwnd, &tvh.pt);
+					MapWindowPoints(NULL, this->m_Hwnd, &tvh.pt, 1);
 					TreeView_HitTest(this->m_Hwnd, &tvh);
 
 					if (tvh.flags & TVHT_ONITEMBUTTON) {
-						TString path = this->getPathFromItem(&tvh.hItem);
-
 						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-							this->execAliasEx("%s,%d,%s", "buttonclick", this->getUserID(), path.to_chr());
+							this->execAliasEx("%s,%d,%s", "buttonclick", this->getUserID(), this->getPathFromItem(&tvh.hItem).to_chr());
 					}
 					//&& this->isStyle( TVS_CHECKBOXES )
 					else if ((tvh.flags & TVHT_ONITEMSTATEICON)) {
-						TString path = this->getPathFromItem(&tvh.hItem);
+						TString path(this->getPathFromItem(&tvh.hItem));
 
 						if (this->isStyle(TVS_CHECKBOXES)) {
 							int state = TreeView_GetCheckState(this->m_Hwnd, tvh.hItem);
@@ -1795,7 +1790,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					}
 					//|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
 					else if (tvh.flags & TVHT_ONITEM) {
-						TString path = this->getPathFromItem(&tvh.hItem);
+						TString path(this->getPathFromItem(&tvh.hItem));
 
 						TreeView_SelectItem(this->m_Hwnd, tvh.hItem);
 
@@ -1817,12 +1812,12 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					TVHITTESTINFO tvh;
 
 					GetCursorPos(&tvh.pt);
-					ScreenToClient(this->m_Hwnd, &tvh.pt);
+					MapWindowPoints(NULL, this->m_Hwnd, &tvh.pt, 1);
 					TreeView_HitTest(this->m_Hwnd, &tvh);
 
 					//|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
 					if (tvh.flags & TVHT_ONITEM) {
-						TString path = this->getPathFromItem(&tvh.hItem);
+						TString path(this->getPathFromItem(&tvh.hItem));
 
 						TreeView_SelectItem(this->m_Hwnd, tvh.hItem);
 
@@ -1839,12 +1834,12 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					TVHITTESTINFO tvh;
 
 					GetCursorPos(&tvh.pt);
-					ScreenToClient(this->m_Hwnd, &tvh.pt);
+					MapWindowPoints(NULL, this->m_Hwnd, &tvh.pt, 1);
 					TreeView_HitTest(this->m_Hwnd, &tvh);
 
 					//|| ( ( tvh.flags & TVHT_ONITEMRIGHT ) && this->isStyle( TVS_FULLROWSELECT ) ) )
 					if (tvh.flags & TVHT_ONITEM) {
-						TString path = this->getPathFromItem(&tvh.hItem);
+						TString path(this->getPathFromItem(&tvh.hItem));
 
 						TreeView_SelectItem(this->m_Hwnd, tvh.hItem);
 
@@ -1862,10 +1857,8 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 			{
 				LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
 
-				if (lpnmtv != NULL && !m_bDestroying) {
-					TString path = this->getPathFromItem(&lpnmtv->itemNew.hItem);
-					this->execAliasEx("%s,%d,%s", "selchange", this->getUserID(), path.to_chr());
-				}
+				if (lpnmtv != NULL && !m_bDestroying)
+					this->execAliasEx("%s,%d,%s", "selchange", this->getUserID(), this->getPathFromItem(&lpnmtv->itemNew.hItem).to_chr());
 
 				bParsed = TRUE;
 			}
@@ -1897,14 +1890,10 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 				{
 					LPNMTREEVIEW lpnmtv = (LPNMTREEVIEW) lParam;
 
-					if (lpnmtv->action & TVE_COLLAPSE) {
-						TString path(this->getPathFromItem(&lpnmtv->itemNew.hItem));
-						this->execAliasEx("%s,%d,%s", "collapse", this->getUserID(), path.to_chr());
-					}
-					else if (lpnmtv->action & TVE_EXPAND) {
-						TString path(this->getPathFromItem(&lpnmtv->itemNew.hItem));
-						this->execAliasEx("%s,%d,%s", "expand", this->getUserID(), path.to_chr());
-					}
+					if (lpnmtv->action & TVE_COLLAPSE)
+						this->execAliasEx("%s,%d,%s", "collapse", this->getUserID(), this->getPathFromItem(&lpnmtv->itemNew.hItem).to_chr());
+					else if (lpnmtv->action & TVE_EXPAND)
+						this->execAliasEx("%s,%d,%s", "expand", this->getUserID(), this->getPathFromItem(&lpnmtv->itemNew.hItem).to_chr());
 
 					// re-enables redraw & updates.
 					if (this->isExStyle(WS_EX_TRANSPARENT)) {

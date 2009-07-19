@@ -257,7 +257,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 		tchi.flags = TCHT_ONITEM;
 		GetCursorPos(&tchi.pt);
-		ScreenToClient(this->m_Hwnd, &tchi.pt);
+		MapWindowPoints(NULL, this->m_Hwnd, &tchi.pt, 1);
 
 		int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
 
@@ -772,7 +772,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 
 							tchi.flags = TCHT_ONITEM;
 							GetCursorPos(&tchi.pt);
-							ScreenToClient(this->m_Hwnd, &tchi.pt);
+							MapWindowPoints(NULL, this->m_Hwnd, &tchi.pt, 1);
 
 							int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
 							int stab = TabCtrl_GetCurSel(this->m_Hwnd);

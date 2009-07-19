@@ -1105,32 +1105,32 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_LBUTTONUP:
       {
-        RBHITTESTINFO rbhi;
-        GetCursorPos( &rbhi.pt );
-        ScreenToClient( this->m_Hwnd, &rbhi.pt );
-        int band = this->hitTest( &rbhi );
+		  RBHITTESTINFO rbhi;
+		  GetCursorPos( &rbhi.pt );
+		  MapWindowPoints(NULL, this->m_Hwnd, &rbhi.pt, 1 );
+		  int band = this->hitTest( &rbhi );
 
-        if ( ( rbhi.flags & RBHT_GRABBER || rbhi.flags & RBHT_CAPTION ) && band != -1 ) {
+		  if ( ( rbhi.flags & RBHT_GRABBER || rbhi.flags & RBHT_CAPTION ) && band != -1 ) {
 
-          this->m_iClickedBand = band;
+			  this->m_iClickedBand = band;
 
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-		        this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), band + 1 );
-        }
+			  if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				  this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), band + 1 );
+		  }
       }
       break;
 
     case WM_CONTEXTMENU:
       {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					RBHITTESTINFO rbhi;
-					GetCursorPos( &rbhi.pt );
-					ScreenToClient( this->m_Hwnd, &rbhi.pt );
-					int band = this->hitTest( &rbhi );
+		  if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+			  RBHITTESTINFO rbhi;
+			  GetCursorPos( &rbhi.pt );
+			  MapWindowPoints(NULL, this->m_Hwnd, &rbhi.pt, 1 );
+			  int band = this->hitTest( &rbhi );
 
-					if ( band != -1 )
-						this->execAliasEx("%s,%d,%d", "rclick", this->getUserID( ), band + 1 );
-				}
+			  if ( band != -1 )
+				  this->execAliasEx("%s,%d,%d", "rclick", this->getUserID( ), band + 1 );
+		  }
       }
       break;
 

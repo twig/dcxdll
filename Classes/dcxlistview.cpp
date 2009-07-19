@@ -2807,7 +2807,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 								HDHITTESTINFO hdti;
 								GetCursorPos( &hdti.pt );
-								ScreenToClient( hdr->hwndFrom, &hdti.pt );
+								MapWindowPoints(NULL, hdr->hwndFrom, &hdti.pt, 1 );
 								if ( SendMessage( hdr->hwndFrom, HDM_HITTEST, (WPARAM) 0, (LPARAM) &hdti ) != -1 )
 									this->execAliasEx("%s,%d,%d", "hrclick", this->getUserID( ), hdti.iItem + 1 );
 							}

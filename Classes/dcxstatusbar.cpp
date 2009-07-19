@@ -691,7 +691,7 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 						POINT pt;
 						GetCursorPos( &pt );
-						ScreenToClient( this->m_Hwnd, &pt );
+						MapWindowPoints(NULL, this->m_Hwnd, &pt, 1 );
 						int cell = this->hitTest( pt );
 
 						if ( cell != -1 )
@@ -706,7 +706,7 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 						POINT pt;
 						GetCursorPos( &pt );
-						ScreenToClient( this->m_Hwnd, &pt );
+						MapWindowPoints(NULL, this->m_Hwnd, &pt, 1 );
 						int cell = this->hitTest( pt );
 
 						if ( cell != -1 )
@@ -721,7 +721,7 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 						POINT pt;
 						GetCursorPos( &pt );
-						ScreenToClient( this->m_Hwnd, &pt );
+						MapWindowPoints(NULL, this->m_Hwnd, &pt, 1 );
 						int cell = this->hitTest( pt );
 
 						if ( cell != -1 )
