@@ -27,7 +27,7 @@ bool DcxGDIModule::load(mIRCLinker &mIRCLink)
 		gsi.SuppressExternalCodecs = FALSE;
 		if (GdiplusStartup(&m_GDIToken,&gsi,NULL) != Ok) {
 			Dcx::error("LoadDLL", "Unable to Startup GDI+");
-			Dcx::error("LoadDLL", "Warning Unable to Initilize GDIPlus.dll, Operating in reduced function mode.");
+			Dcx::error("LoadDLL", "Warning Unable to Initialize GDIPlus.dll, Operating in reduced function mode.");
 			FreeLibrary(m_hModule);
 			m_hModule = NULL;
 		}

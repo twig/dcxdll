@@ -77,7 +77,7 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 		else
-			this->showError(NULL,"-c","Unable to Initilize Tooltips");
+			this->showError(NULL,"-c","Unable to Initialize Tooltips");
 	}
 
 	// fix to allow pressing enter to work.

@@ -3660,10 +3660,10 @@ void DcxDialog::toXml(TiXmlElement * xml) {
 }
 
 void DcxDialog::toXml(TiXmlElement * xml, const TString &name) {
-	char dest[900];
-	GetWindowText(this->m_Hwnd, dest, 899);
+	TString dest;
+	TGetWindowText(this->m_Hwnd, dest);
 	xml->SetAttribute("name", name.to_chr());
-	xml->SetAttribute("caption", dest);
+	xml->SetAttribute("caption", dest.to_chr());
 	this->m_pLayoutManager->getRoot()->toXml(xml);
 }
 

@@ -66,7 +66,7 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 		else
-			this->showError(NULL,"-c","Unable to Initilize Tooltips");
+			this->showError(NULL,"-c","Unable to Initialize Tooltips");
 	}
 }
 

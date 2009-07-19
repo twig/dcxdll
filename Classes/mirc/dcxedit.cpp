@@ -445,15 +445,9 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bP
 			switch ( HIWORD( wParam ) ) {
 				case EN_CHANGE:
 				{
-					int n = GetWindowTextLength(this->m_Hwnd);
-					char *text = new char[n +2];
-
-					GetWindowText(this->m_Hwnd, text, n +1);
-					this->m_tsText = text;
+					TGetWindowText(this->m_Hwnd, this->m_tsText);
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
 						this->execAliasEx("%s,%d", "edit", this->getUserID());
-
-					delete []text;
 				}
 
 				break;

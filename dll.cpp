@@ -779,7 +779,12 @@ mIRC(WindowProps) {
 	}
 	// set hwnd's title icon
 	// +i [INDEX] [FILENAME]
-	if (flags.find('i', 0) && numtok > 3) {
+	if (flags.find('i', 0)) {
+		if (numtok < 3) {
+			// invalid args
+			Dcx::error("/dcx WindowProps", "Invalid Args");
+			return 0;
+		}
 		int index = input.gettok( 3 ).to_int();
 		TString filename(input.gettok(1,TSTAB).gettok(4, -1).trim());
 

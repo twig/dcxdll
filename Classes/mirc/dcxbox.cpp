@@ -181,42 +181,42 @@ void DcxBox::parseInfoRequest( TString & input, char * szReturnValue ) {
   }
   else if ( prop == "inbox" ) {
 
-    RECT rc, rcText;
-    GetClientRect( this->m_Hwnd, &rc );
+	  RECT rc, rcText;
+	  GetClientRect( this->m_Hwnd, &rc );
 
-    int n = GetWindowTextLength( this->m_Hwnd );
+	  int n = GetWindowTextLength( this->m_Hwnd );
 
-    InflateRect( &rc, -2, -2 );
-    if ( n > 0 ) {
+	  InflateRect( &rc, -2, -2 );
+	  if ( n > 0 ) {
 
-      HDC hdc = GetDC( this->m_Hwnd );
-      HFONT oldFont = NULL;
+		  HDC hdc = GetDC( this->m_Hwnd );
+		  HFONT oldFont = NULL;
 
-      if (this->m_hFont != NULL)
-        oldFont = SelectFont(hdc, this->m_hFont);
+		  if (this->m_hFont != NULL)
+			  oldFont = SelectFont(hdc, this->m_hFont);
 
-      TString text((UINT)n+1);
-      GetWindowText( this->m_Hwnd, text.to_chr(), n+1 );
-      DrawText( hdc, text.to_chr(), n, &rcText, DT_CALCRECT );
+		  TString text((UINT)n+1);
+		  GetWindowText( this->m_Hwnd, text.to_chr(), n+1 );
+		  DrawText( hdc, text.to_chr(), n, &rcText, DT_CALCRECT );
 
-			if (this->m_hFont != NULL)
-				SelectFont(hdc, oldFont);
+		  if (this->m_hFont != NULL)
+			  SelectFont(hdc, oldFont);
 
-      ReleaseDC( this->m_Hwnd, hdc );
+		  ReleaseDC( this->m_Hwnd, hdc );
 
-      //int w = rcText.right - rcText.left;
-      int h = rcText.bottom - rcText.top;
+		  //int w = rcText.right - rcText.left;
+		  int h = rcText.bottom - rcText.top;
 
-      if ( this->m_iBoxStyles & BOXS_BOTTOM ) {
-        rc.bottom = rc.bottom - h + 2;
-      }
-      else {
-        rc.top = rc.top + h - 2;
-      }
-    }
+		  if ( this->m_iBoxStyles & BOXS_BOTTOM ) {
+			  rc.bottom = rc.bottom - h + 2;
+		  }
+		  else {
+			  rc.top = rc.top + h - 2;
+		  }
+	  }
 
-    wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top );
-    return;
+	  wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top );
+	  return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
     return;
@@ -755,11 +755,13 @@ void DcxBox::DrawClientArea(HDC hdc)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc,true);
 
-	DcxControl::DrawCtrlBackground(hdc, this, &rc2); //Moved out from the if, becase of painting-bug (Alpha)
+	//DcxControl::DrawCtrlBackground(hdc, this, &rc2); //Moved out from the if, becase of painting-bug (Alpha)
+	// having this here messes up all boxes whis a border.
+	// exp boxes that have a border & text.
 
 	// if no border, dont bother
 	if (this->m_iBoxStyles & BOXS_NONE) {
-		//DcxControl::DrawCtrlBackground(hdc, this, &rc2);
+		DcxControl::DrawCtrlBackground(hdc, this, &rc2);
 		return;
 	}
 

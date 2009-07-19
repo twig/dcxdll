@@ -462,7 +462,7 @@ mIRC(_xdock)
 	}
 
 	if (d.gettok( 1 ) == "mIRC") {
-		static const TString poslist("switchBarPos toolBarPos treeBarPos switchBarSize toolBarSize treeBarSize isSwitchBar isToolBar isTreeBar isMenuBar text");
+		static const TString poslist("switchBarPos toolBarPos treeBarPos switchBarSize toolBarSize treeBarSize isSwitchBar isToolBar isTreeBar isMenuBar text switchBarHwnd toolBarHwnd treeBarHwnd");
 		int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
 		switch (nType)
 		{
@@ -552,6 +552,21 @@ mIRC(_xdock)
 			{
 				if (GetWindowTextLength(Dcx::mIRC.getHWND()) > 0)
 					GetWindowText(Dcx::mIRC.getHWND(),data,900);
+			}
+			break;
+		case 12: // switchBarHwnd
+			{
+				wsprintf(data,"%d", Dcx::mIRC.getSwitchbar());
+			}
+			break;
+		case 13: // toolBarHwnd
+			{
+				wsprintf(data,"%d", Dcx::mIRC.getToolbar());
+			}
+			break;
+		case 14: // treeBarHwnd
+			{
+				wsprintf(data,"%d", Dcx::mIRC.getTreebar());
 			}
 			break;
 		case 0: // error

@@ -86,10 +86,10 @@ DcxLink::~DcxLink( ) {
 
 
 void DcxLink::toXml(TiXmlElement * xml) {
-	char buf[901];
+	TString buf;
 	__super::toXml(xml);
-    GetWindowText( this->m_Hwnd, buf, 900 );
-	xml->SetAttribute("caption", buf);
+    TGetWindowText( this->m_Hwnd, buf );
+	xml->SetAttribute("caption", buf.to_chr());
 }
 
 /*!
