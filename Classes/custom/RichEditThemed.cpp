@@ -59,7 +59,7 @@ bool CRichEditThemed::Attach(HWND hRichEdit)
 			if(InitLibrary())
 			{
 				//Note: the object will be automatically deleted when the richedit control dies
-				CRichEditThemed *obj = new CRichEditThemed(hRichEdit);
+				/*CRichEditThemed *obj =*/ new CRichEditThemed(hRichEdit);
 				return true;
 			}
 		}
@@ -191,7 +191,7 @@ LRESULT CALLBACK CRichEditThemed::RichEditStyledProc(HWND hwnd, UINT uMsg, WPARA
 			if(IsWindow(hwnd))
 			{
 				if((WNDPROC)GetWindowLongPtr(hwnd, GWLP_WNDPROC) == &RichEditStyledProc)
-					SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)pObj->m_pOriginalWndProc);
+					SubclassWindow(hwnd, pObj->m_pOriginalWndProc);
 			}
 
 			//Send the message now so that we can safely delete the object afterward
@@ -215,17 +215,17 @@ void CRichEditThemed::VerifyThemedBorderState()
 
 	//First, check if the control is supposed to have a border
 	if(bCurrentThemedBorder
-		|| (GetWindowLong(m_hRichEdit, GWL_STYLE) & WS_BORDER || GetWindowLong(m_hRichEdit, GWL_EXSTYLE) & WS_EX_CLIENTEDGE))
+		|| (GetWindowStyle(m_hRichEdit) & WS_BORDER || GetWindowExStyle(m_hRichEdit) & WS_EX_CLIENTEDGE))
 	{
 		//Check if a theme is presently active
 		if(pIsThemeActive())
 		{
 			//Remove the border style, we don't want the control to draw its own border
 			m_bThemedBorder = true;
-			if(GetWindowLong(m_hRichEdit, GWL_STYLE) & WS_BORDER)
-				SetWindowLong(m_hRichEdit, GWL_STYLE, GetWindowLong(m_hRichEdit, GWL_STYLE)^WS_BORDER);
-			if(GetWindowLong(m_hRichEdit, GWL_EXSTYLE) & WS_EX_CLIENTEDGE)
-				SetWindowLong(m_hRichEdit, GWL_EXSTYLE, GetWindowLong(m_hRichEdit, GWL_EXSTYLE)^WS_EX_CLIENTEDGE);
+			if(GetWindowStyle(m_hRichEdit) & WS_BORDER)
+				SetWindowLong(m_hRichEdit, GWL_STYLE, GetWindowStyle(m_hRichEdit)^WS_BORDER);
+			if(GetWindowExStyle(m_hRichEdit) & WS_EX_CLIENTEDGE)
+				SetWindowLong(m_hRichEdit, GWL_EXSTYLE, GetWindowExStyle(m_hRichEdit)^WS_EX_CLIENTEDGE);
 		}
 	}
 

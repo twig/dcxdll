@@ -97,7 +97,7 @@ protected:
 	IConnectionPoint * m_pCP;
 	
 	DWORD m_dwCookie;
-
+	bool m_bHideEvents;
 };
 
 #endif // _DCXWEBCTRL_H_

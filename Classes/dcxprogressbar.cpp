@@ -33,39 +33,40 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd,
 , m_bIsGrad(FALSE)
 //, m_clrGrad(0)
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(
-    ExStyles | WS_EX_CLIENTEDGE,
-    DCX_PROGRESSBARCLASS,
-    NULL,
-    WS_CHILD | Styles,
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL),
-    NULL);
+	this->m_Hwnd = CreateWindowEx(
+		ExStyles | WS_EX_CLIENTEDGE,
+		DCX_PROGRESSBARCLASS,
+		NULL,
+		WS_CHILD | Styles,
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL),
+		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
 		throw "Unable To Create Window";
 
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  this->m_tsText = "%d %%";
+	this->m_tsText = "%d %%";
 
-	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips")) {
+	if (styles.istok("tooltips")) {
+		if (IsWindow(p_Dialog->getToolTip())) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
+		else
+			this->showError(NULL,"-c","Unable to Initialize Tooltips");
 	}
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -80,10 +81,9 @@ DcxProgressBar::~DcxProgressBar( ) {
 }
 
 TString DcxProgressBar::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & PBS_SMOOTH)
 		styles.addtok("smooth", " ");
 	if (Styles & PBS_VERTICAL)

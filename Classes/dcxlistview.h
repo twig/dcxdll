@@ -145,7 +145,7 @@ protected:
 	static UINT parseIconFlagOptions( const TString & flags );
 	static UINT parseItemFlags( const TString & flags );
 	static UINT parseHeaderFlags( const TString & flags );
-	static UINT parseHeaderFlags2( const TString & flags );
+	static INT parseHeaderFlags2( const TString & flags );
 	static UINT parseSortFlags( const TString & flags );
 	static UINT parseColorFlags( const TString & flags );
 	static UINT parseImageFlags( const TString & flags );
@@ -154,12 +154,12 @@ protected:
 	BOOL matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType );
 
 	void autoSize(const int nColumn, const TString &flags);
-	void autoSize(const int nColumn, const UINT iFlags );
+	void autoSize(const int nColumn, const int iFlags );
 
 	BOOL m_bDrag; //!< Dragging Items ?
 
 private:
-	DcxControl* CreatePbar(LPLVITEM lvi, TString &style);
+	DcxControl* CreatePbar(LPLVITEM lvi, const TString &style);
 	void ScrollPbars(const int row);
 	void UpdateScrollPbars(void);
 	HIMAGELIST initImageList(const int iImageList);

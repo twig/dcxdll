@@ -63,7 +63,7 @@ DcxToolBar::DcxToolBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 	SendMessage( this->m_Hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM) sizeof(TBBUTTON), (LPARAM) 0 );
 	this->m_ToolTipHWND = (HWND)SendMessage( this->m_Hwnd, TB_GETTOOLTIPS, NULL, NULL);
 	if (styles.istok("balloon") && this->m_ToolTipHWND != NULL) {
-		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowStyle(this->m_ToolTipHWND) | TTS_BALLOON);
 	}
 	//SendMessage( this->m_Hwnd, TB_SETPARENT, (WPARAM)mParentHwnd, NULL);
 
@@ -335,7 +335,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		tbb.fsState = parseButtonStateFlags( flags );
 		tbb.idCommand = this->getFreeButtonID( );
 		UINT buttonStyles = parseButtonStyleFlags( flags );
-		tbb.fsStyle = buttonStyles;
+		tbb.fsStyle = (buttonStyles & 0xFF);
 
 		if (( icon == -1 ) || (numtok < 7))
 			tbb.iBitmap = I_IMAGENONE;
@@ -384,12 +384,12 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		if ( buttonStyles & BTNS_COLOR )
 			lpdcxtbb->clrText = clrText;
 		else
-			lpdcxtbb->clrText = -1;
-		lpdcxtbb->clrBtnFace = -1;
-		lpdcxtbb->clrBtnHighlight = -1;
-		lpdcxtbb->clrHighlightHotTrack = -1;
-		lpdcxtbb->clrMark = -1;
-		lpdcxtbb->clrTextHighlight = -1;
+			lpdcxtbb->clrText = CLR_INVALID;
+		lpdcxtbb->clrBtnFace = CLR_INVALID;
+		lpdcxtbb->clrBtnHighlight = CLR_INVALID;
+		lpdcxtbb->clrHighlightHotTrack = CLR_INVALID;
+		lpdcxtbb->clrMark = CLR_INVALID;
+		lpdcxtbb->clrTextHighlight = CLR_INVALID;
 		lpdcxtbb->iTextBkgMode = TRANSPARENT;
 		lpdcxtbb->iTextHighlightBkgMode = TRANSPARENT;
 
@@ -411,7 +411,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			tbbi.dwMask = 0 ;
 
 			tbbi.dwMask |= TBIF_SIZE;
-			tbbi.cx = width;
+			tbbi.cx = (WORD)width;
 			this->setButtonInfo( tbb.idCommand, &tbbi );
 		}
 
@@ -475,22 +475,22 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 					lpdcxtbb->bBold = FALSE;
 
 				if ( removeButtonStyles & BTNS_COLOR )
-					lpdcxtbb->clrText = -1;
+					lpdcxtbb->clrText = CLR_INVALID;
 
 				if ( removeButtonStyles & BTNS_HIGHLIGHT_TXTCOLOR )
-					lpdcxtbb->clrTextHighlight = -1;
+					lpdcxtbb->clrTextHighlight = CLR_INVALID;
 
 				if ( removeButtonStyles & BTNS_MARK_BKGCOLOR )
-					lpdcxtbb->clrMark = -1;
+					lpdcxtbb->clrMark = CLR_INVALID;
 
 				if ( removeButtonStyles & BTNS_BTNCOLOR )
-					lpdcxtbb->clrBtnFace = -1;
+					lpdcxtbb->clrBtnFace = CLR_INVALID;
 
 				if ( removeButtonStyles & BTNS_HIGHLIGHT_BTNCOLOR )
-					lpdcxtbb->clrBtnHighlight = -1;
+					lpdcxtbb->clrBtnHighlight = CLR_INVALID;
 
 				if ( removeButtonStyles & BTNS_HOTTRACK_BTNCOLOR )
-					lpdcxtbb->clrHighlightHotTrack = -1;
+					lpdcxtbb->clrHighlightHotTrack = CLR_INVALID;
 
 				this->redrawWindow( );
 			}
@@ -705,9 +705,10 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 * blah
 */
 
-UINT DcxToolBar::parseButtonStateFlags( const TString & flags ) {
+BYTE DcxToolBar::parseButtonStateFlags( const TString & flags ) {
 
-	INT i = 1, len = (INT)flags.len( ), iFlags = TBSTATE_ENABLED;
+	INT i = 1, len = (INT)flags.len( );
+	BYTE iFlags = TBSTATE_ENABLED;
 
 	// no +sign, missing params
 	if ( flags[0] != '+' ) 
@@ -935,7 +936,7 @@ void DcxToolBar::autoStretchButtons( ) {
 	ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
 	tbbi.cbSize = sizeof( TBBUTTONINFO );
 	tbbi.dwMask = TBIF_SIZE;
-	tbbi.cx = (int)( (double) leftwidth / (double) nTotalButtons );
+	tbbi.cx = (WORD)( (double) leftwidth / (double) nTotalButtons );
 
 	// Make sure the size is positive
 	if ( tbbi.cx > 0 ) {
@@ -1317,19 +1318,19 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 								DWORD dFlags = (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
 
-								if ( lpdtbb->clrBtnFace != -1 )
+								if ( lpdtbb->clrBtnFace != CLR_INVALID )
 									lpntbcd->clrBtnFace = lpdtbb->clrBtnFace;
-								if ( lpdtbb->clrBtnHighlight != -1 )
+								if ( lpdtbb->clrBtnHighlight != CLR_INVALID )
 									lpntbcd->clrBtnHighlight = lpdtbb->clrBtnHighlight;
-								if ( lpdtbb->clrHighlightHotTrack != -1 ) {
+								if ( lpdtbb->clrHighlightHotTrack != CLR_INVALID ) {
 									lpntbcd->clrHighlightHotTrack = lpdtbb->clrHighlightHotTrack;
 									dFlags |= TBCDRF_HILITEHOTTRACK;
 								}
-								if ( lpdtbb->clrMark != -1 )
+								if ( lpdtbb->clrMark != CLR_INVALID )
 									lpntbcd->clrMark = lpdtbb->clrMark;
-								if ( lpdtbb->clrText != -1 )
+								if ( lpdtbb->clrText != CLR_INVALID )
 									lpntbcd->clrText = lpdtbb->clrText;
-								if ( lpdtbb->clrTextHighlight != -1 )
+								if ( lpdtbb->clrTextHighlight != CLR_INVALID )
 									lpntbcd->clrTextHighlight = lpdtbb->clrTextHighlight;
 
 								HFONT hFont = GetWindowFont( this->m_Hwnd );

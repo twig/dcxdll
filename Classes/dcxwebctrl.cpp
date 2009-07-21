@@ -28,55 +28,56 @@ extern IClassFactory * g_pClassFactory;
  */
 
 DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+: DcxControl( ID, p_Dialog )
+, m_bHideEvents(true)
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles,
-    "STATIC",
-    NULL,
-    WS_CHILD | WS_CLIPSIBLINGS | Styles,
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL),
-    NULL);
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles,
+		"STATIC",
+		NULL,
+		WS_CHILD | WS_CLIPSIBLINGS | Styles,
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL),
+		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
 		throw "Unable To Create Window";
 
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  /* Web Control Stuff */
+	/* Web Control Stuff */
 
-  if( Dcx::getClassFactory() != NULL &&
-      SUCCEEDED( Dcx::getClassFactory()->CreateInstance( 0, IID_IWebBrowser2, (void**) &this->m_pWebBrowser2 ) ) && 
-      SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleObject, (LPVOID*) &this->m_pOleObject ) ) && 
-      SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleInPlaceObject, (LPVOID*) &this->m_pOleInPlaceObject ) ) && 
-      SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IConnectionPointContainer, (LPVOID*) &this->m_pCPC ) ) && 
-      SUCCEEDED( this->m_pOleObject->SetClientSite( (IOleClientSite*) this ) ) && 
-      SUCCEEDED( this->m_pCPC->FindConnectionPoint( DIID_DWebBrowserEvents2, &this->m_pCP ) ) &&
-      SUCCEEDED( this->m_pCP->Advise( (IUnknown*)(IOleClientSite*) this, &this->m_dwCookie ) ) && 
-      //SUCCEEDED( this->m_pOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*) this, 0, this->m_Hwnd, rc ) )
-      SUCCEEDED( this->m_pOleObject->DoVerb( OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*) this, 0, this->m_Hwnd, rc ) )
-    )
-  {
-	  Dcx::mIRC.echo( "Created Browser Window!!!" );
-  }
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	if( Dcx::getClassFactory() != NULL &&
+		SUCCEEDED( Dcx::getClassFactory()->CreateInstance( 0, IID_IWebBrowser2, (void**) &this->m_pWebBrowser2 ) ) && 
+		SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleObject, (LPVOID*) &this->m_pOleObject ) ) && 
+		SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleInPlaceObject, (LPVOID*) &this->m_pOleInPlaceObject ) ) && 
+		SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IConnectionPointContainer, (LPVOID*) &this->m_pCPC ) ) && 
+		SUCCEEDED( this->m_pOleObject->SetClientSite( (IOleClientSite*) this ) ) && 
+		SUCCEEDED( this->m_pCPC->FindConnectionPoint( DIID_DWebBrowserEvents2, &this->m_pCP ) ) &&
+		SUCCEEDED( this->m_pCP->Advise( (IUnknown*)(IOleClientSite*) this, &this->m_dwCookie ) ) && 
+		//SUCCEEDED( this->m_pOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*) this, 0, this->m_Hwnd, rc ) )
+		SUCCEEDED( this->m_pOleObject->DoVerb( OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*) this, 0, this->m_Hwnd, rc ) )
+		)
+	{
+#if DCX_DEBUG_OUTPUT
+		Dcx::mIRC.echo("Created Browser Window!!!" ); // why would we want this output in the non-debug version?
+#endif
+	}
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
 	TString url("about:blank");
-  VARIANT v;
-  VariantInit( &v );			
-  this->m_pWebBrowser2->Navigate( url.to_wchr(this->m_bUseUTF8), &v, &v, &v, &v );  // dont use L""
-  VariantClear( &v );
-
+	VARIANT v;
+	VariantInit( &v );			
+	this->m_pWebBrowser2->Navigate( url.to_wchr(this->m_bUseUTF8), &v, &v, &v, &v );  // dont use L""
+	VariantClear( &v );
 }
 
 /*!
@@ -149,42 +150,42 @@ void DcxWebControl::parseControlStyles(TString &styles, LONG *Styles, LONG *ExSt
  * \return > void
  */
 
-void DcxWebControl::parseInfoRequest( TString & input, char * szReturnValue ) {
-
-//  int numtok = input.numtok( );
+void DcxWebControl::parseInfoRequest( TString & input, char * szReturnValue )
+{
+	//  int numtok = input.numtok( );
 	TString prop(input.gettok( 3 ));
 
-  // [NAME] [ID] [PROP]
-  if ( prop == "url" ) {
+	// [NAME] [ID] [PROP]
+	if ( prop == "url" ) {
 
-    BSTR str;
+		BSTR str;
 
-    if( SUCCEEDED( this->m_pWebBrowser2->get_LocationURL( &str ) ) ) {
+		if( SUCCEEDED( this->m_pWebBrowser2->get_LocationURL( &str ) ) ) {
 
-      wsprintf( szReturnValue, "%ws", str ); // possible overflow, needs fixing at some point.
-      SysFreeString( str );
-      return;
-    }
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == "ready" ) {
-  
-    READYSTATE ready_state;
-    if ( SUCCEEDED( this->m_pWebBrowser2->get_ReadyState( &ready_state ) ) ) {
-			
-      if ( ready_state == READYSTATE_COMPLETE ) {
-
-        lstrcpy( szReturnValue, "$true" );
-		    return;
-      }
+			wsprintf( szReturnValue, "%ws", str ); // possible overflow, needs fixing at some point.
+			SysFreeString( str );
+			return;
 		}
-    lstrcpy( szReturnValue, "$false" );
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == "ready" ) {
+
+		READYSTATE ready_state;
+		if ( SUCCEEDED( this->m_pWebBrowser2->get_ReadyState( &ready_state ) ) ) {
+
+			if ( ready_state == READYSTATE_COMPLETE ) {
+
+				lstrcpy( szReturnValue, "$true" );
+				return;
+			}
+		}
+		lstrcpy( szReturnValue, "$false" );
 		return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -197,80 +198,80 @@ void DcxWebControl::parseCommandRequest(TString & input) {
 	XSwitchFlags flags(input.gettok(3));
 	int numtok = input.numtok( );
 
-  // xdid -g [NAME] [ID] [SWITCH]
-  if ( flags['g'] ) {
+	// xdid -g [NAME] [ID] [SWITCH]
+	if ( flags['g'] ) {
 
-    this->m_pWebBrowser2->GoHome( );
-  }
-  // xdid -i [NAME] [ID] [SWITCH]
-  else if ( flags['i'] ) {
+		this->m_pWebBrowser2->GoHome( );
+	}
+	// xdid -i [NAME] [ID] [SWITCH]
+	else if ( flags['i'] ) {
 
-    this->m_pWebBrowser2->GoForward( );
-  }
-  // xdid -j [NAME] [ID] [SWITCH] [JAVASCRIPT]
-  else if ( flags['j'] && numtok > 3 ) {
+		this->m_pWebBrowser2->GoForward( );
+	}
+	// xdid -j [NAME] [ID] [SWITCH] [JAVASCRIPT]
+	else if ( flags['j'] && numtok > 3 ) {
 
-    READYSTATE ready_state;
+		READYSTATE ready_state;
 
-    if ( SUCCEEDED( this->m_pWebBrowser2->get_ReadyState( &ready_state ) ) && 
-      ready_state == READYSTATE_COMPLETE )
-    {
+		if ( SUCCEEDED( this->m_pWebBrowser2->get_ReadyState( &ready_state ) ) && 
+			ready_state == READYSTATE_COMPLETE )
+		{
 
-      IDispatch  * htmlDisp = NULL;
+			IDispatch  * htmlDisp = NULL;
 
-      if ( SUCCEEDED(this->m_pWebBrowser2->get_Document( &htmlDisp ))) {
+			if ( SUCCEEDED(this->m_pWebBrowser2->get_Document( &htmlDisp ))) {
 
-	      IHTMLDocument2 * doc = NULL;
-        if ( SUCCEEDED(htmlDisp->QueryInterface( IID_IHTMLDocument2, (void**) &doc ))) {
+				IHTMLDocument2 * doc = NULL;
+				if ( SUCCEEDED(htmlDisp->QueryInterface( IID_IHTMLDocument2, (void**) &doc ))) {
 
-          IHTMLWindow2 * window;
+					IHTMLWindow2 * window;
 
-          if ( SUCCEEDED( doc->get_parentWindow( &window ) ) ) { 
+					if ( SUCCEEDED( doc->get_parentWindow( &window ) ) ) { 
 
-            TString CMD(input.gettok( 4, -1 ).trim());
+						TString CMD(input.gettok( 4, -1 ).trim());
 
-            VARIANT v;
-            VariantInit( &v );
+						VARIANT v;
+						VariantInit( &v );
 						window->execScript( CMD.to_wchr(this->m_bUseUTF8), NULL, &v );
-            VariantClear( &v );
+						VariantClear( &v );
 
-            window->Release( );
-          }
+						window->Release( );
+					}
 					doc->Release( );
-        }
+				}
 				htmlDisp->Release( );
-      }
-    }
+			}
+		}
 		else
 			this->showError(NULL, "-j", "Browser NOT in Ready State");
-  }
-  // xdid -k [NAME] [ID] [SWITCH]
-  else if ( flags['k'] ) {
+	}
+	// xdid -k [NAME] [ID] [SWITCH]
+	else if ( flags['k'] ) {
 
-    this->m_pWebBrowser2->GoBack( );
-  }
-  // xdid -n [NAME] [ID] [SWITCH] [URL]
-  else if ( flags['n'] && numtok > 3 ) {
-    
-    TString URL(input.gettok( 4, -1 ).trim());
+		this->m_pWebBrowser2->GoBack( );
+	}
+	// xdid -n [NAME] [ID] [SWITCH] [URL]
+	else if ( flags['n'] && numtok > 3 ) {
 
-    VARIANT v;
-    VariantInit( &v );			
+		TString URL(input.gettok( 4, -1 ).trim());
+
+		VARIANT v;
+		VariantInit( &v );			
 		this->m_pWebBrowser2->Navigate( URL.to_wchr(this->m_bUseUTF8), &v, &v, &v, &v );
-    VariantClear( &v );
-  }
-  // xdid -r [NAME] [ID] [SWITCH]
-  else if ( flags['r'] ) {
+		VariantClear( &v );
+	}
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if ( flags['r'] ) {
 
-    this->m_pWebBrowser2->Refresh( );
-  }
-  // xdid -t [NAME] [ID] [SWITCH]
-  else if ( flags['t'] ) {
+		this->m_pWebBrowser2->Refresh( );
+	}
+	// xdid -t [NAME] [ID] [SWITCH]
+	else if ( flags['t'] ) {
 
-    this->m_pWebBrowser2->Stop( );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+		this->m_pWebBrowser2->Stop( );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!
@@ -288,6 +289,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
                                EXCEPINFO __RPC_FAR * pExcepInfo, 
                                UINT __RPC_FAR * puArgErr ) 
 {
+	//if (this->m_bHideEvents) return S_OK; // cant do this here :/
 
 	UINT err;
 	VARIANT arg1, arg2;
@@ -295,99 +297,117 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	VariantInit( &arg2 );
 	DispGetParam( pDispParams, 0, VT_BSTR, &arg1, &err );
 	DispGetParam( pDispParams, 1, VT_BSTR, &arg2, &err );
-	
-  switch (dispIdMember) {
-	
-	case DISPID_NAVIGATECOMPLETE2:
-    {
-      this->execAliasEx("%s,%d,%ws", "nav_complete", this->getUserID( ), arg2.bstrVal );
-    }
-		break;
-    
-	case DISPID_BEFORENAVIGATE2:
-    {
-      char ret[256];
-      this->evalAliasEx( ret, 255, "%s,%d,%ws", "nav_begin", this->getUserID( ), arg2.bstrVal );
 
-      if ( lstrcmpi( ret, "cancel") == 0 )
-        *pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
-      else
-        *pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
-    }
+	switch (dispIdMember) {
+
+	case DISPID_NAVIGATECOMPLETE2:
+		{
+			if (!this->m_bHideEvents)
+				this->execAliasEx("%s,%d,%ws", "nav_complete", this->getUserID( ), arg2.bstrVal );
+		}
+		break;
+
+	case DISPID_BEFORENAVIGATE2:
+		{
+			if (!this->m_bHideEvents)
+			{
+				char ret[256];
+				this->evalAliasEx( ret, 255, "%s,%d,%ws", "nav_begin", this->getUserID( ), arg2.bstrVal );
+
+				if ( lstrcmpi( ret, "cancel") == 0 )
+					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
+				else
+					*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
+			}
+		}
 		break;
 
 	case DISPID_DOCUMENTCOMPLETE:
-    {
-      this->execAliasEx("%s,%d,%ws", "doc_complete", this->getUserID( ), arg2.bstrVal );
-    }
+		{
+			if (!this->m_bHideEvents)
+				this->execAliasEx("%s,%d,%ws", "doc_complete", this->getUserID( ), arg2.bstrVal );
+			else
+				this->m_bHideEvents = false; // allow events to be seen after first doc loads `about:blank`
+		}
 		break;
 
 	case DISPID_DOWNLOADBEGIN:
-    {
-      this->execAliasEx("%s,%d", "dl_begin", this->getUserID( ) );
-    }
+		{
+			if (!this->m_bHideEvents)
+				this->execAliasEx("%s,%d", "dl_begin", this->getUserID( ) );
+		}
 		break;
 
 	case DISPID_DOWNLOADCOMPLETE:
-    {
-      this->execAliasEx("%s,%d", "dl_complete", this->getUserID( ) );
-    }
+		{
+			if (!this->m_bHideEvents)
+				this->execAliasEx("%s,%d", "dl_complete", this->getUserID( ) );
+		}
 		break;
 
 	case DISPID_NEWWINDOW2:
-    {
-      char ret[256];
-      this->evalAliasEx( ret, 255, "%s,%d", "win_open", this->getUserID( ) );
+		{
+			if (!this->m_bHideEvents)
+			{
+				char ret[256];
+				this->evalAliasEx( ret, 255, "%s,%d", "win_open", this->getUserID( ) );
 
-      if ( lstrcmpi( ret, "cancel") == 0 )
-        *pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
-      else
-        *pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
-    }
+				if ( lstrcmpi( ret, "cancel") == 0 )
+					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
+				else
+					*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
+			}
+		}
 		break;
 
 	case DISPID_STATUSTEXTCHANGE:
-    {
-      this->execAliasEx("%s,%d,%ws", "status", this->getUserID( ), arg1.bstrVal );
-    }
+		{
+			if (!this->m_bHideEvents)
+				this->execAliasEx("%s,%d,%ws", "status", this->getUserID( ), arg1.bstrVal );
+		}
 		break;
 
 	case DISPID_TITLECHANGE:
-    {
-      this->execAliasEx("%s,%d,%ws", "title", this->getUserID( ), arg1.bstrVal );
-    }
+		{
+			if (!this->m_bHideEvents)
+				this->execAliasEx("%s,%d,%ws", "title", this->getUserID( ), arg1.bstrVal );
+		}
 		break;
 
 	case DISPID_PROGRESSCHANGE:
-    {
-      this->execAliasEx("%s,%d,%ws,%ws", "dl_progress", this->getUserID( ), arg1.bstrVal, arg2.bstrVal );
-    }
+		{
+			if (!this->m_bHideEvents)
+				this->execAliasEx("%s,%d,%ws,%ws", "dl_progress", this->getUserID( ), arg1.bstrVal, arg2.bstrVal );
+		}
 		break;
 
 	case DISPID_COMMANDSTATECHANGE:
-    {
-      switch( arg1.bstrVal[0] ) {
+		{
+			if (!this->m_bHideEvents)
+			{
+				switch( arg1.bstrVal[0] ) {
 
-		    case L'1':
-          {
-            this->execAliasEx("%s,%d,%s", "forward", this->getUserID( ), arg2.boolVal ? "$true" : "$false" );
-          }
-			    break;
+				case L'1':
+					{
+						this->execAliasEx("%s,%d,%s", "forward", this->getUserID( ), arg2.boolVal ? "$true" : "$false" );
+					}
+					break;
 
-		    case L'2':
-          {
-            this->execAliasEx("%s,%d,%s", "back", this->getUserID( ), arg2.boolVal ? "$true" : "$false" );
-          }
-          break;
-		  }
-    }
-    break;
+				case L'2':
+					{
+						this->execAliasEx("%s,%d,%s", "back", this->getUserID( ), arg2.boolVal ? "$true" : "$false" );
+					}
+					break;
+				}
+			}
+		}
+		break;
 	}
 
 	VariantClear( &arg1 );
 	VariantClear( &arg2 );
 
-  return S_OK;
+	return S_OK;
 }
 
 /*!
@@ -396,20 +416,20 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
  * blah
  */
 
-HRESULT STDMETHODCALLTYPE DcxWebControl::QueryInterface( REFIID riid, void __RPC_FAR *__RPC_FAR * ppvObject ) {
-
+HRESULT STDMETHODCALLTYPE DcxWebControl::QueryInterface( REFIID riid, void __RPC_FAR *__RPC_FAR * ppvObject )
+{
 	*ppvObject = NULL;
-	
+
 	if ( IID_IUnknown == riid ) { 
-    *ppvObject = (IUnknown*)(IOleClientSite*) this; 
-  }
+		*ppvObject = (IUnknown*)(IOleClientSite*) this; 
+	}
 	else if ( IID_IOleInPlaceSite == riid ) { 
-    *ppvObject = (IOleInPlaceSite*) this; 
-  }
+		*ppvObject = (IOleInPlaceSite*) this; 
+	}
 	else if ( DIID_DWebBrowserEvents2 == riid ) { 
-    *ppvObject = (DWebBrowserEvents2*) this; 
-  }
-	
+		*ppvObject = (DWebBrowserEvents2*) this; 
+	}
+
 	return *ppvObject ? S_OK : E_NOINTERFACE;
 }
 
@@ -425,19 +445,18 @@ HRESULT STDMETHODCALLTYPE DcxWebControl::GetWindowContext( IOleInPlaceFrame __RP
                                                           LPRECT pCR, 
                                                           LPOLEINPLACEFRAMEINFO pFI ) 
 {
-	
-  *ppFrame = NULL;
+	*ppFrame = NULL;
 	*ppDoc = NULL;
-	
-  GetClientRect( this->m_Hwnd, pPR );
-  CopyRect( pCR, pPR ); 
-  /*
+
+	GetClientRect( this->m_Hwnd, pPR );
+	CopyRect( pCR, pPR ); 
+	/*
 	//set client area (updated in subclass_wnd_proc)
 	GetClientRect(parent,pPR);
 	reduce_rect(pPR,&margins);
 	*pCR = *pPR;
-  */
-	
+	*/
+
 	return S_OK;
 }
 
@@ -446,39 +465,40 @@ HRESULT STDMETHODCALLTYPE DcxWebControl::GetWindowContext( IOleInPlaceFrame __RP
  *
  * blah
  */
-LRESULT DcxWebControl::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxWebControl::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
 	return 0L;
 }
 
-LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
+	switch( uMsg ) {
 
-  switch( uMsg ) {
+	case WM_CHILDACTIVATE:
+	case WM_SIZE:
+		{
+			RECT rc; 
+			GetClientRect( this->m_Hwnd, &rc );
+			this->m_pOleInPlaceObject->SetObjectRects( &rc, &rc );
+		}
+		break;
 
-    case WM_CHILDACTIVATE:
-    case WM_SIZE:
-      {
-			  RECT rc; 
-        GetClientRect( this->m_Hwnd, &rc );
-			  this->m_pOleInPlaceObject->SetObjectRects( &rc, &rc );
-      }
-			break;
-
-		case WM_MOUSEACTIVATE:
-			{
-				bParsed = TRUE;
-				//HWND web = NULL;
-				//HRESULT r = this->m_pWebBrowser2->get_HWND((long *)&web);
-				//if (SUCCEEDED(r)) {
-				//	mIRCError("worked");
-				//	SetActiveWindow(web);
-				//}
-				//else
-				//	mIRCDebug("no activate r %d web %d", r, web);
-				//SetActiveWindow((HWND)wParam);
-				//SetFocus((HWND)wParam);
-				return MA_NOACTIVATE;
-			}
-			break;
+	case WM_MOUSEACTIVATE:
+		{
+			bParsed = TRUE;
+			//HWND web = NULL;
+			//HRESULT r = this->m_pWebBrowser2->get_HWND((long *)&web);
+			//if (SUCCEEDED(r)) {
+			//	mIRCError("worked");
+			//	SetActiveWindow(web);
+			//}
+			//else
+			//	mIRCDebug("no activate r %d web %d", r, web);
+			//SetActiveWindow((HWND)wParam);
+			//SetFocus((HWND)wParam);
+			return MA_NOACTIVATE;
+		}
+		break;
 		//case WM_GETDLGCODE:
 		//		{
 		//			bParsed = TRUE;
@@ -505,17 +525,17 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 		//	}
 		//	break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+	case WM_DESTROY:
+		{
+			delete this;
+			bParsed = TRUE;
+		}
+		break;
 
-		default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-			break;
-  }
+	default:
+		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		break;
+	}
 
-  return 0L;
+	return 0L;
 }

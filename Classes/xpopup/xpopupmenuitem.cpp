@@ -166,7 +166,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 
 	// playing around with menu transparency
 	if (SetLayeredWindowAttributesUx != NULL) {
-		UINT alpha = this->m_pXParentMenu->IsAlpha();
+		BYTE alpha = this->m_pXParentMenu->IsAlpha();
 
 		// If alpha == 255 then menu is fully opaque so no need to change to layered.
 		if (alpha < 255) {
@@ -248,49 +248,68 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const LPXP
 			break;
 
 		case XPopupMenu::XPMS_GRADE:
-			// For some reason this call to DrawGradient will not fill up the last pixel on the right without this fix.
-			lpdis->rcItem.right++;
-			this->DrawGradient(lpdis->hDC, &lpdis->rcItem, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), FALSE);
-			lpdis->rcItem.right--;
+			{
+				// For some reason this call to DrawGradient will not fill up the last pixel on the right without this fix.
+				lpdis->rcItem.right++;
+				this->DrawGradient(lpdis->hDC, &lpdis->rcItem, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), FALSE);
+				lpdis->rcItem.right--;
+			}
 			break;
 
 		case XPopupMenu::XPMS_GRADE_REV:
-			// For some reason this call to DrawGradient will not fill up the last pixel on the right without this fix.
-			lpdis->rcItem.right++;
-			this->DrawGradient(lpdis->hDC, &lpdis->rcItem, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, FALSE);
-			lpdis->rcItem.right--;
+			{
+				// For some reason this call to DrawGradient will not fill up the last pixel on the right without this fix.
+				lpdis->rcItem.right++;
+				this->DrawGradient(lpdis->hDC, &lpdis->rcItem, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, FALSE);
+				lpdis->rcItem.right--;
+			}
 			break;
 
 		case XPopupMenu::XPMS_CUSTOM:
-		{
-			HBITMAP hBitmap = this->m_pXParentMenu->getBackBitmap();
+			{
+				HBITMAP hBitmap = this->m_pXParentMenu->getBackBitmap();
 
-			if (hBitmap != NULL) {
-				HDC hdcbmp = CreateCompatibleDC(lpdis->hDC);
-				if (hdcbmp != NULL) {
-					BITMAP bmp;
+				if (hBitmap != NULL) {
+					HDC hdcbmp = CreateCompatibleDC(lpdis->hDC);
+					if (hdcbmp != NULL) {
+						BITMAP bmp;
 
-					GetObject(hBitmap, sizeof(BITMAP), &bmp);
-					HBITMAP hOldBm = (HBITMAP)SelectObject(hdcbmp, hBitmap);
-					StretchBlt(lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right - lpdis->rcItem.left, 
-						lpdis->rcItem.bottom - lpdis->rcItem.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+						GetObject(hBitmap, sizeof(BITMAP), &bmp);
+						HBITMAP hOldBm = SelectBitmap(hdcbmp, hBitmap);
+						StretchBlt(lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right - lpdis->rcItem.left, 
+							lpdis->rcItem.bottom - lpdis->rcItem.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
 
-					SelectObject(hdcbmp, hOldBm);
-					DeleteDC(hdcbmp);
+						SelectBitmap(hdcbmp, hOldBm);
+						DeleteDC(hdcbmp);
+					}
+				}
+				else {
+					// when no bitmap is supplied do colour fill as with standard menu styles.
+					// fixes bug: http://dcx.scriptsdb.org/bug/index.php?do=details&task_id=723
+					HBRUSH hBrush = CreateSolidBrush(lpcol->m_clrBack);
+
+					if (hBrush != NULL) {
+						FillRect(lpdis->hDC, &lpdis->rcItem, hBrush);
+						DeleteBrush(hBrush);
+						// NB: atm we simply silently fail when we can't make a brush. (so drawing errors will occur when create fails)
+					}
 				}
 			}
 			break;
-		}
 
 		case XPopupMenu::XPMS_OFFICEXP:
 		case XPopupMenu::XPMS_NORMAL:
 		case XPopupMenu::XPMS_OFFICE2003_REV:
 		case XPopupMenu::XPMS_OFFICE2003:
 		default:
-			HBRUSH hBrush = CreateSolidBrush(lpcol->m_clrBack);
+			{
+				HBRUSH hBrush = CreateSolidBrush(lpcol->m_clrBack);
 
-			FillRect(lpdis->hDC, &lpdis->rcItem, hBrush);
-			DeleteObject(hBrush);
+				if (hBrush != NULL) {
+					FillRect(lpdis->hDC, &lpdis->rcItem, hBrush);
+					DeleteBrush(hBrush);
+				}
+			}
 			break;
 	}
 }
@@ -616,11 +635,11 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
 void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const BOOL bHorz ) {
 
   BYTE StartRed   = GetRValue( clrStart );
-  BYTE StartGreen = GetGValue( clrStart );
+  BYTE StartGreen = GetGValue( (clrStart & 0xFFFF) );
   BYTE StartBlue  = GetBValue( clrStart );
 
   BYTE EndRed    = GetRValue( clrEnd );
-  BYTE EndGreen  = GetGValue( clrEnd );
+  BYTE EndGreen  = GetGValue( (clrEnd & 0xFFFF) );
   BYTE EndBlue   = GetBValue( clrEnd );
 
   int n;
@@ -819,7 +838,7 @@ mIRCDebug("lpdis rect = %d %d", lpdis->rcItem.top, lpdis->rcItem.bottom);
 COLORREF XPopupMenuItem::LightenColor( const unsigned int iScale, const COLORREF clrColor ) { 
 
   long R = MulDiv( 255 - GetRValue( clrColor ), iScale, 255 ) + GetRValue( clrColor );
-  long G = MulDiv( 255 - GetGValue( clrColor ), iScale, 255 ) + GetGValue( clrColor );
+  long G = MulDiv( 255 - GetGValue( (clrColor & 0xFFFF) ), iScale, 255 ) + GetGValue( (clrColor & 0xFFFF) );
   long B = MulDiv( 255 - GetBValue( clrColor ), iScale, 255 ) + GetBValue( clrColor );
 
   return RGB( R, G, B ); 

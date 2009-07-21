@@ -55,7 +55,7 @@ typedef std::vector<LPSB_PARTINFO> VectorOfParts;
 class DcxDock
 {
 public:
-	DcxDock(HWND refHwnd, HWND dockHwnd, int dockType);
+	DcxDock(HWND refHwnd, HWND dockHwnd, const int dockType);
 	virtual ~DcxDock(void);
 
 	virtual bool DockWindow(HWND hwnd, const TString &flag);

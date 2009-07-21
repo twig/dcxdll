@@ -67,10 +67,9 @@ DcxLine::~DcxLine( ) {
 }
 
 TString DcxLine::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (this->m_bVertical)
 		styles.addtok("vertical", " ");
 	if (Styles & SS_LEFTNOWORDWRAP)

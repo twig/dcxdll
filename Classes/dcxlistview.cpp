@@ -42,7 +42,6 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
 , m_iSelectedItem(0)
 , m_iSelectedSubItem(0)
 {
-
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
@@ -74,7 +73,7 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
 
 	if (this->m_ToolTipHWND != NULL) {
 		if (styles.istok("balloon"))
-			SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+			SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowStyle(this->m_ToolTipHWND) | TTS_BALLOON);
 		//if (styles.istok("tooltips")) {
 		//	this->m_ToolTipHWND = p_Dialog->getToolTip();
 		//	AddToolTipToolInfo(this->m_ToolTipHWND,this->m_Hwnd);
@@ -115,70 +114,69 @@ DcxListView::~DcxListView( ) {
 }
 
 TString DcxListView::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	LONG ExStyles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	DWORD ExStyles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	ExStyles = ListView_GetExtendedListViewStyle(this->m_Hwnd);
-	styles = __super::getStyles();
 	if (Styles & LVS_REPORT)
-		styles.addtok("report", " ");
+		styles.addtok("report");
 	else if (Styles & LVS_LIST)
-		styles.addtok("list", " ");
+		styles.addtok("list");
 	if (Styles & LVS_ICON)
-		styles.addtok("icon", " ");
+		styles.addtok("icon");
 	if (Styles & LVS_SMALLICON)
-		styles.addtok("smallicon", " ");
+		styles.addtok("smallicon");
 	if (Styles & LVS_NOCOLUMNHEADER)
-		styles.addtok("noheader", " ");
+		styles.addtok("noheader");
 	if (Styles & LVS_ALIGNLEFT)
-		styles.addtok("alignleft", " ");
+		styles.addtok("alignleft");
 	if (Styles & LVS_ALIGNTOP)
-		styles.addtok("aligntop", " ");
+		styles.addtok("aligntop");
 	if (Styles & LVS_AUTOARRANGE)
-		styles.addtok("autoarrange", " ");
+		styles.addtok("autoarrange");
 	if (Styles & LVS_NOLABELWRAP)
-		styles.addtok("nolabelwrap", " ");
+		styles.addtok("nolabelwrap");
 	if (Styles & LVS_SHOWSELALWAYS)
-		styles.addtok("showsel", " ");
+		styles.addtok("showsel");
 	if (Styles & LVS_SINGLESEL)
-		styles.addtok("singlesel", " ");
+		styles.addtok("singlesel");
 	if (Styles & LVS_EDITLABELS)
-		styles.addtok("editlabel", " ");
+		styles.addtok("editlabel");
 	if (Styles & LVS_SORTASCENDING)
-		styles.addtok("sortasc", " ");
+		styles.addtok("sortasc");
 	if (Styles & LVS_SORTDESCENDING)
-		styles.addtok("sortdesc", " ");
+		styles.addtok("sortdesc");
 	if (Styles & LVS_NOSCROLL)
-		styles.addtok("noscroll", " ");
+		styles.addtok("noscroll");
 	if (Styles & LVS_NOSORTHEADER)
-		styles.addtok("noheadersort", " ");
+		styles.addtok("noheadersort");
 	if (ExStyles & LVS_EX_GRIDLINES)
-		styles.addtok("grid", " ");
+		styles.addtok("grid");
 	if (ExStyles & LVS_EX_BORDERSELECT)
-		styles.addtok("borderselect", " ");
+		styles.addtok("borderselect");
 	if (ExStyles & LVS_EX_FLATSB)
-		styles.addtok("flatsb", " ");
+		styles.addtok("flatsb");
 	if (ExStyles & LVS_EX_FULLROWSELECT)
-		styles.addtok("fullrow", " ");
+		styles.addtok("fullrow");
 	if (ExStyles & LVS_EX_CHECKBOXES)
-		styles.addtok("checkbox", " ");
+		styles.addtok("checkbox");
 	if (ExStyles & LVS_EX_HEADERDRAGDROP)
-		styles.addtok("headerdrag", " ");
+		styles.addtok("headerdrag");
 	if (ExStyles & LVS_EX_TRACKSELECT)
-		styles.addtok("hottrack", " ");
+		styles.addtok("hottrack");
 	if (ExStyles & LVS_EX_ONECLICKACTIVATE)
-		styles.addtok("oneclick", " ");
+		styles.addtok("oneclick");
 	if (ExStyles & LVS_EX_TWOCLICKACTIVATE)
-		styles.addtok("twoclick", " ");
+		styles.addtok("twoclick");
 	if (ExStyles & LVS_EX_UNDERLINEHOT)
-		styles.addtok("underlinehot", " ");
+		styles.addtok("underlinehot");
 	if (ExStyles & LVS_EX_UNDERLINECOLD)
-		styles.addtok("underlinecold", " ");
+		styles.addtok("underlinecold");
 	if (ExStyles & LVS_EX_SUBITEMIMAGES)
-		styles.addtok("subitemimage", " ");
+		styles.addtok("subitemimage");
 	if ((ExStyles & LVS_EX_LABELTIP) && (ExStyles & LVS_EX_INFOTIP))
-		styles.addtok("tooltip", " ");
+		styles.addtok("tooltip");
 	return styles;
 }
 
@@ -868,7 +866,7 @@ void DcxListView::autoSize(const int nColumn, const TString &flags)
 	this->autoSize(nColumn, this->parseHeaderFlags2(flags));
 }
 
-void DcxListView::autoSize(const int nColumn, const UINT iFlags)
+void DcxListView::autoSize(const int nColumn, const int iFlags)
 {
 	if (iFlags == -3) {
 		int n = 0;
@@ -915,7 +913,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		if (stateFlags & LVIS_XML) {
 			// load all item data from an xml file.
-			this->xmlLoadListview(nPos, data.gettok( 10 ), data.gettok( 11, -1));
+			TString filename(data.gettok( 11, -1));
+			this->xmlLoadListview(nPos, data.gettok( 10 ), filename);
 			return;
 		}
 
@@ -1163,12 +1162,12 @@ void DcxListView::parseCommandRequest(TString &input) {
 				if (lviflags & LVIS_COLOR)
 					lviDcx->vInfo[nCol]->m_cText = clrText;
 				else
-					lviDcx->vInfo[nCol]->m_cText = -1;
+					lviDcx->vInfo[nCol]->m_cText = CLR_INVALID;
 
 				if (lviflags & LVIS_BGCOLOR)
 					lviDcx->vInfo[nCol]->m_cBg = clrBack;
 				else
-					lviDcx->vInfo[nCol]->m_cBg = -1;
+					lviDcx->vInfo[nCol]->m_cBg = CLR_INVALID;
 
 				ListView_SetItemState(this->m_Hwnd, nItem, lviflags, LVIS_DROPHILITED|LVIS_FOCUSED|LVIS_SELECTED|LVIS_CUT);
 			}
@@ -1505,7 +1504,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		TString tflags(input.gettok( 4 ));
 		UINT iFlags = this->parseIconFlagOptions(tflags);
 		HIMAGELIST himl;
-		HICON icon;
+		HICON icon = NULL;
 		int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
 		int overlayindex = 0;
@@ -1556,7 +1555,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 			// load small icon
 			if ((himl = this->initImageList(LVSIL_SMALL)) == NULL) {
 				this->showError(NULL, "-w", "Unable to create small image list");
-				DestroyIcon(icon);
+				if (icon != NULL)
+					DestroyIcon(icon);
 				return;
 			}
 
@@ -1587,7 +1587,8 @@ void DcxListView::parseCommandRequest(TString &input) {
 		if (iFlags & LVSIL_STATE) {
 			if ((himl = this->initImageList(LVSIL_STATE)) == NULL) {
 				this->showError(NULL, "-w", "Unable to create state image list");
-				DestroyIcon(icon);
+				if (icon != NULL)
+					DestroyIcon(icon);
 				return;
 			}
 
@@ -1763,6 +1764,64 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		if (nItem > -1)
 			ListView_EnsureVisible(this->m_Hwnd, nItem, FALSE);
+	}
+	// xdid -S [NAME] [ID] [+FLAGS] [N1] [N2] [ARGS]
+	else if (flags['S'] && numtok > 5) {
+		// [N1] [N2] are the item range to save.
+		//   0 < [N1] <= total items in listview.
+		//   if [N2] is zero then all items from N1 onward are saved.
+		//   if [N2] is the same as [N1] it's ignored.
+		//   if [N2] is a negative number then its taken as [N1] to [total number of items in list + [N2]]
+		//[+FLAGS] decides what [ARGS] is.
+		// +f save to file [filename] (data is appended to an existing file or a new file is created)
+		// +h save to hashtable [table] (table must exist)
+		// +x save to xml [dataset_name filename]
+		// +c save to custom @window [@window] (data is appended to the bottom of the window, window must exist)
+		int count = ListView_GetItemCount(this->m_Hwnd);
+		TString tsFlags(input.gettok( 3 ).trim());
+		int iN1 = input.gettok( 4 ).to_int();
+		int iN2 = input.gettok( 5 ).to_int();
+		TString tsArgs(input.gettok( 6, -1 ).trim());
+
+		if ((tsFlags[0] != '+') || (tsFlags.len() < 2)) {
+			// no flags specified.
+			this->showError(NULL,"-S", "Invalid Flags: No Flags Specified.");
+			return;
+		}
+		// make sure N1-N2 are within the range of items in listview.
+		// adjust iN2 if its < 0, so its an offset from the last item.
+		if (iN2 < 0) iN2 = count + iN2;
+		if ((iN1 < 1) || (iN1 > count) || (iN2 < 0) || (iN2 < iN1)) {
+			this->showError(NULL,"-S", "Invalid Range: N1-N2 Must be in range of items in listview");
+			return;
+		}
+		if (iN2 == 0) iN2 = count;
+
+		switch (tsFlags[1])
+		{
+		case 'c':
+			{
+				char res[256];
+				// check window exists
+				Dcx::mIRC.evalex(res, 256, "$window(%s)", tsArgs.to_chr());
+				// if not exit
+				if (tsArgs != res) {
+					this->showErrorEx(NULL, "-S", "Invalid window: %s", tsArgs.to_chr());
+					return;
+				}
+				//
+			}
+			break;
+		case 'f':
+			break;
+		case 'h':
+			break;
+		case 'x':
+			break;
+		default:
+			this->showErrorEx(NULL,"-S", "Invalid Flags: %s", tsFlags.to_chr());
+			return;
+		}
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -1971,7 +2030,7 @@ UINT DcxListView::parseHeaderFlags( const TString & flags ) {
 * blah
 */
 
-UINT DcxListView::parseHeaderFlags2( const TString & flags ) {
+INT DcxListView::parseHeaderFlags2( const TString & flags ) {
 
 	INT i = 1, len = (INT)flags.len( ), iFlags = 0;
 
@@ -2483,10 +2542,10 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 											return CDRF_DODEFAULT;
 
 										LPDCXLVRENDERINFO ri = lpdcxlvi->vInfo[lplvcd->iSubItem];
-										if ( ri->m_cText != -1 )
+										if ( ri->m_cText != CLR_INVALID )
 											lplvcd->clrText = ri->m_cText;
 
-										if ( ri->m_cBg != -1 )
+										if ( ri->m_cBg != CLR_INVALID )
 											lplvcd->clrTextBk = ri->m_cBg;
 										//if (lplvcd->nmcd.uItemState & CDIS_SELECTED)
 										//if (lplvcd->nmcd.uItemState & CDIS_FOCUS)
@@ -2979,7 +3038,7 @@ LRESULT CALLBACK DcxListView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wPara
 }
 
 
-DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, TString &styles) {
+DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString &styles) {
 	// can only create progress for an existing item
 	if (!lvi || !lvi->lParam)
 		return NULL;
@@ -3010,7 +3069,7 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, TString &styles) {
 	//	lpdcxlvi->pbar = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl_args,1,-1,this->m_Hwnd);
 	//}
 	try {
-		lpdcxlvi->pbar = (DcxControl *)new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
+		lpdcxlvi->pbar = (DcxControl *)new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, const_cast<TString &>(styles));
 	}
 	catch ( char *err ) {
 		this->showErrorEx(NULL, "-a", "Unable To Create ProgressBar: %s", err);
@@ -3492,12 +3551,12 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 	if (stateFlags & LVIS_COLOR)
 		ri->m_cText = clrText;
 	else
-		ri->m_cText = -1;
+		ri->m_cText = CLR_INVALID;
 
 	if (stateFlags & LVIS_BGCOLOR)
 		ri->m_cBg = clrBack;
 	else
-		ri->m_cBg = -1;
+		ri->m_cBg = CLR_INVALID;
 
 	lpmylvi->vInfo.push_back(ri);
 
@@ -3557,7 +3616,7 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 		}
 
 		lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
-		BOOL result = FALSE;
+		//BOOL result = FALSE;
 
 		if (lvi.iItem == -1) {
 			delete lpmylvi;
@@ -3600,12 +3659,12 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 				if (stateFlags & LVIS_COLOR)
 					ri->m_cText = clrText;
 				else
-					ri->m_cText = -1;
+					ri->m_cText = CLR_INVALID;
 
 				if (stateFlags & LVIS_BGCOLOR)
 					ri->m_cBg = clrBack;
 				else
-					ri->m_cBg = -1;
+					ri->m_cBg = CLR_INVALID;
 
 				lpmylvi->vInfo.push_back(ri);
 

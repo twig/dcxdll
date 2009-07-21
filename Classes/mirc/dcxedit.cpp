@@ -79,10 +79,9 @@ DcxEdit::~DcxEdit() {
 
 
 TString DcxEdit::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & ES_MULTILINE)
 		styles.addtok("multi", " ");
 	if (Styles & ES_CENTER)
@@ -231,9 +230,9 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 			int iAbsoluteCharPos = 0;
 
 			// current line
-			iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, -1, NULL);
+			iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
 			// line offset
-			iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, -1, NULL);
+			iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
 			wsprintf(szReturnValue, "%d %d", iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}

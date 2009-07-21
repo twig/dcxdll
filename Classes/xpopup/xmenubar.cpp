@@ -180,7 +180,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
  *
  */
 void XMenuBar::parseXMenuBarInfo(const TString &input, char *szReturnValue) {
-	int numtok = input.numtok();
+	//int numtok = input.numtok();
 	TString prop(input.gettok(1));
 
 	// Iterate through the names of menus added to XMenuBar.

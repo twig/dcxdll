@@ -74,10 +74,9 @@ DcxRadio::~DcxRadio( ) {
 }
 
 TString DcxRadio::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & BS_RIGHT)
 		styles.addtok("rjustify", " ");
 	if (Styles & BS_CENTER)

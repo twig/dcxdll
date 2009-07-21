@@ -94,10 +94,9 @@ DcxList::~DcxList( ) {
 }
 
 TString DcxList::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & LBS_DISABLENOSCROLL)
 		styles.addtok("noscroll", " ");
 	if (Styles & LBS_MULTIPLESEL)

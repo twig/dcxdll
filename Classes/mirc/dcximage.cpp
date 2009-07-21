@@ -41,7 +41,7 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 , m_bResizeImage(true)
 , m_bTileImage(false)
 , m_hBitmap(NULL)
-, m_clrTransColor(-1)
+, m_clrTransColor(CLR_INVALID)
 , m_hIcon(NULL)
 , m_bBuffer(false)
 , m_iXOffset(0)

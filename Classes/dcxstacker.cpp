@@ -242,7 +242,7 @@ void DcxStacker::parseCommandRequest(TString &input) {
 				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 			{
 				try {
-					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl,2,-1,this->m_Hwnd);
+					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl,2,CTLF_ALLOW_ALL,this->m_Hwnd);
 
 					if ( p_Control != NULL ) {
 						this->m_pParentDialog->addControl( p_Control );
@@ -351,10 +351,9 @@ void DcxStacker::getItemRect(const int nPos, LPRECT rc) const {
 }
 
 TString DcxStacker::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & WS_VSCROLL)
 		styles.addtok("vscroll", " ");
 	if (this->m_dStyles & STACKERS_GRAD)

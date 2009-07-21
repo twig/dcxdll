@@ -162,7 +162,7 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		// create and fill the buffer
 		char *p = new char[len];
 		*(LPWORD) p = (WORD)len;
-		int res = SendMessage(this->m_Hwnd, EM_GETLINE, (WPARAM) line, (LPARAM) p);
+		SendMessage(this->m_Hwnd, EM_GETLINE, (WPARAM) line, (LPARAM) p);
 
 		// terminate the string at the right position
 		p[len -1] = '\0';
@@ -193,9 +193,9 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 			int iAbsoluteCharPos = 0;
 
 			// current line
-			iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, -1, NULL);
+			iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
 			// line offset
-			iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, -1, NULL);
+			iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
 			wsprintf(szReturnValue, "%d %d", iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
@@ -635,8 +635,8 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 			else if (text[i] == 15) {
 				bline = false;
 				uline = false;
-				mcolor = -1;
-				bkgcolor = -1;
+				mcolor = CLR_INVALID;
+				bkgcolor = CLR_INVALID;
 			}
 			// CTRL+R Parsing
 			else if (text[i] == 22) {
@@ -652,8 +652,8 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 		else if (fNewLine && text[i] == '\r' && text[i +1] == '\n') {
 			bline = false;
 			uline = false;
-			mcolor = -1;
-			bkgcolor = -1;
+			mcolor = CLR_INVALID;
+			bkgcolor = CLR_INVALID;
 
 			//cbuf[0] = text[i];
 			//this->insertText( cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0 );
@@ -813,10 +813,9 @@ void DcxRichEdit::toXml(TiXmlElement * xml) {
 }
 
 TString DcxRichEdit::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if ((Styles & ES_MULTILINE) && (Styles & ES_WANTRETURN))
 		styles.addtok("multi", " ");
 	if (Styles & ES_READONLY)

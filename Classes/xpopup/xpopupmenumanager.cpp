@@ -26,8 +26,9 @@ extern XPopupMenu *g_mIRCScriptMenu;
  * blah
  */
 
-XPopupMenuManager::XPopupMenuManager() {
-	this->m_bPatched = false;
+XPopupMenuManager::XPopupMenuManager()
+: m_bPatched(false)
+{
 }
 
 /*!
@@ -313,9 +314,8 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 	// xpopup -c -> [MENU] [SWITCH] [STYLE]
 	else if ((flags['c']) && (numtok > 2) && (input.gettok( 1 ) != "mirc" || input.gettok( 1 ) != "mircbar")) {
 
-		if (p_Menu != NULL) {
+		if (p_Menu != NULL)
 			Dcx::errorex("/xpopup -c", "\"%s\" already exists", input.gettok(1).to_chr());
-		}
 		else {
 			XPopupMenu::MenuStyle style = XPopupMenu::parseStyle(input.gettok(3));
 			this->m_vpXPMenu.push_back(new XPopupMenu(input.gettok(1), style));
@@ -401,18 +401,13 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 		HWND hTrack = (HWND)input.gettok( 6 ).to_num();
 
 		if (hTrack != NULL && IsWindow(hTrack)) {
-			RECT rcWindow, rcClient;
-			GetWindowRect(hTrack, &rcWindow);
-			GetClientRect(hTrack, &rcClient);
-
-			// assume x & y are relative to the windows client rect & adjust for border ($mouse.x & $mouse.y)
-			POINT ptDiff;
-			ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
-			ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
-
-			// make pos relative to supplied window.
-			x += rcWindow.left + ptDiff.x;
-			y += rcWindow.top + ptDiff.y;
+			// map window relative pos ($mouse.x/y) to screen pos for TrackPopupMenuEx()
+			POINT pt;
+			pt.x = x;
+			pt.y = y;
+			MapWindowPoints(hTrack, NULL, &pt, 1);
+			x = pt.x;
+			y = pt.y;
 		}
 		else {
 			// Adjust relative location to take multi-monitor into account
@@ -482,7 +477,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 					break;
 				case 'a': // Set Alpha value of menu. 0-255
 					{
-						UINT alpha = input.gettok( 4 ).to_int();
+						BYTE alpha = (input.gettok( 4 ).to_int() & 0xFF);
 
 						if (alpha > 255)
 							alpha = 255;
@@ -1015,7 +1010,7 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 
 	// Create menu with style (from specific or global)
 	attr = GetMenuAttributeFromXML("style", popup, globalStyles);
-	style = XPopupMenu::parseStyle(TString(attr));
+	style = XPopupMenu::parseStyle(attr);
 	menu = new XPopupMenu(popupName, style);
 
 	const TString colors("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour");
@@ -1027,7 +1022,7 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 		if (attr != NULL) {
 			char buff[900];
 			Dcx::mIRC.eval(buff, 900, attr);
-			menu->setColor(i, TString(buff).to_int());
+			menu->setColor(i, (COLORREF)atol(buff));
 		}
 	}
 
@@ -1035,10 +1030,11 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 	if (style == XPopupMenu::XPMS_CUSTOM) {
 		char buff[900];
 
-		Dcx::mIRC.evalex(buff, 900, "%s", popup->Attribute("background"));
+		Dcx::mIRC.eval(buff, 900, popup->Attribute("background"));
 
 		HBITMAP hBitmap = NULL;
-		hBitmap = dcxLoadBitmap(NULL, TString(buff));
+		TString filename(buff);
+		hBitmap = dcxLoadBitmap(NULL, filename);
 
 		if (hBitmap != NULL)
 			menu->setBackBitmap(hBitmap);
@@ -1064,23 +1060,23 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 			if (tmp == NULL)
 				flags = "+";
 			else
-				flags.sprintf("%s", tmp);
+				flags = tmp;
 
 			// Filename
 			char filename[900];
-			Dcx::mIRC.evalex(filename, 900, "%s", element->Attribute("src"));
+			Dcx::mIRC.eval(filename, 900, element->Attribute("src"));
 
 			tmp = element->Attribute("index");
 
 			if (tmp == NULL)
 				indexes = "0";
 			else
-				indexes.sprintf("%s", tmp);
+				indexes = tmp;
 
 			totalIndexes = indexes.numtok(",");
 
 			for (int i = 1; i <= totalIndexes; i++) {
-				nIcon = indexes.gettok(i, ",").to_int();
+				nIcon = indexes.gettok(i, TSCOMMA).to_int();
 				//xpudemo -i + 114 dcxstudio_gfx\shell.dll
 				command.sprintf("%s -i %s %d %s", popupName.to_chr(), flags.to_chr(), nIcon, filename);
 				Dcx::XPopups.parseCommand(command, menu);

@@ -33,7 +33,7 @@
 DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles )
 : DcxControl( ID, p_Dialog )
 , m_iIconSize(16)
-, m_colSelection(-1)
+, m_colSelection(CLR_INVALID)
 , m_hOldItemFont(NULL)
 , m_hItemFont(NULL)
 #ifdef DCX_USE_GDIPLUS
@@ -74,7 +74,7 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
 
 	this->m_ToolTipHWND = (HWND)TreeView_GetToolTips(this->m_Hwnd);
 	if (styles.istok("balloon") && this->m_ToolTipHWND != NULL) {
-		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowLong(this->m_ToolTipHWND,GWL_STYLE) | TTS_BALLOON);
+		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowStyle(this->m_ToolTipHWND) | TTS_BALLOON);
 	}
 
 #ifdef DCX_USE_WINSDK
@@ -1177,7 +1177,8 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 		return;
 
 	if (iFlags & TVIS_XML) {
-		this->xmlLoadTree(hAfter, hParent, itemtext.gettok( 1 ), itemtext.gettok( 2, -1));
+		TString filename(itemtext.gettok( 2, -1));
+		this->xmlLoadTree(hAfter, hParent, itemtext.gettok( 1 ), filename);
 		return;
 	}
 
@@ -1542,7 +1543,7 @@ TString DcxTreeView::getPathFromItem(HTREEITEM *item) {
 		current = parent;
 
 		// Count each previous node before the node containing our item.
-		while (current = TreeView_GetPrevSibling(this->m_Hwnd, current)) {
+		while ((current = TreeView_GetPrevSibling(this->m_Hwnd, current)) != NULL) {
 			i++;
 		}
 
@@ -2573,30 +2574,28 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 }
 
 TString DcxTreeView::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	LONG ExStyles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	ExStyles = GetWindowLong(this->m_Hwnd, GWL_EXSTYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD ExStyles, Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
+	ExStyles = GetWindowExStyle(this->m_Hwnd);
 	if (Styles & TVS_HASLINES)
-		styles.addtok("haslines", " ");
+		styles.addtok("haslines");
 	if (Styles & TVS_HASBUTTONS)
-		styles.addtok("hasbuttons", " ");
+		styles.addtok("hasbuttons");
 	if (Styles & TVS_LINESATROOT)
-		styles.addtok("linesatroot", " ");
+		styles.addtok("linesatroot");
 	if (Styles & TVS_SHOWSELALWAYS)
-		styles.addtok("showsel", " ");
+		styles.addtok("showsel");
 	if (Styles & TVS_EDITLABELS)
-		styles.addtok("editlabel", " ");
+		styles.addtok("editlabel");
 	if (Styles & TVS_NOHSCROLL)
-		styles.addtok("nohscroll", " ");
+		styles.addtok("nohscroll");
 	if (Styles & TVS_FULLROWSELECT)
-		styles.addtok("fullrow", " ");
+		styles.addtok("fullrow");
 	if (Styles & TVS_SINGLEEXPAND)
-		styles.addtok("singleexpand", " ");
+		styles.addtok("singleexpand");
 	if (ExStyles & TVS_CHECKBOXES)
-		styles.addtok("checkbox", " ");
+		styles.addtok("checkbox");
 	return styles;
 }
 

@@ -84,7 +84,7 @@ public:
   inline TString getType( ) { return TString( "rebar" ); };
   TString getStyles(void);
   void toXml(TiXmlElement * xml);
-  DcxControl * getControl(int index);
+  DcxControl * getControl(const int index);
 
 protected:
 

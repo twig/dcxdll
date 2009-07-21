@@ -55,7 +55,7 @@ m_bUpdatingTooltip(false)
 	this->m_hbmp[TBBMP_THUMB] = NULL;
 	this->m_hbmp[TBBMP_THUMBDRAG] = NULL;
 	this->m_hbmp[TBBMP_CHANNEL] = NULL;
-	this->m_colTransparent = -1;
+	this->m_colTransparent = CLR_INVALID;
 
 	// Keep track of the tooltip
 	if (Styles & TBS_TOOLTIPS) {
@@ -764,7 +764,7 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 }
 
 
-UINT DcxTrackBar::parseImageFlags(TString &flags) {
+UINT DcxTrackBar::parseImageFlags(const TString &flags) {
 	INT i = 1, len = flags.len(), iFlags = 0;
 
 	// no +sign, missing params

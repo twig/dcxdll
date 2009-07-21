@@ -80,8 +80,7 @@ DcxDirectshow::~DcxDirectshow( ) {
 }
 
 TString DcxDirectshow::getStyles(void) {
-	TString styles;
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
 	if (this->m_bKeepRatio)
 		styles.addtok("fixratio", " ");
 	return styles;
@@ -576,7 +575,7 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 				if (this->m_pWc != NULL)
 				{
 					// Request the VMR to paint the video.
-					HRESULT hr = this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
+					this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
 				}
 				else { // There is no video, so paint the whole client area.
 					RECT rcClient;
@@ -594,7 +593,7 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 				if (this->m_pWc != NULL)
 				{
 					// Request the VMR to paint the video.
-					HRESULT hr = this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
+					this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
 				}
 				else // There is no video, so paint the whole client area.
 					DcxControl::DrawCtrlBackground((HDC) wParam,this,&ps.rcPaint);
@@ -701,7 +700,7 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
 	if (SUCCEEDED(hr))
 	{
 		hr = pConfig->SetRenderingMode(VMR9Mode_Windowless);
-		if (GetWindowLong(hwndApp,GWL_EXSTYLE) & WS_EX_TRANSPARENT)
+		if (GetWindowExStyle(hwndApp) & WS_EX_TRANSPARENT)
 			hr = pConfig->SetRenderingPrefs(RenderPrefs9_DoNotRenderBorder);
 		pConfig->Release();
 	}
@@ -800,7 +799,7 @@ HRESULT DcxDirectshow::getProperty(char *prop, const int type) const
 	IAMMediaContent *iam;
 	HRESULT hr = this->m_pGraph->QueryInterface(IID_IAMMediaContent,(void **)&iam);
 	if (SUCCEEDED(hr)) {
-		BSTR com_prop;
+		BSTR com_prop = NULL;
 		switch (type)
 		{
 		case PROP_AUTHOR:

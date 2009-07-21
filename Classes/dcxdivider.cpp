@@ -71,10 +71,9 @@ DcxDivider::~DcxDivider( ) {
  */
 
 TString DcxDivider::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & DVS_VERT)
 		styles.addtok("vertical", " ");
 	return styles;
@@ -119,7 +118,7 @@ void DcxDivider::parseInfoRequest( TString & input, char * szReturnValue ) {
     return;
   }
   else if (prop == "isvertical") {
-    wsprintf(szReturnValue, "%d", (GetWindowLong(this->m_Hwnd, GWL_STYLE) & DVS_VERT));
+    wsprintf(szReturnValue, "%d", (GetWindowStyle(this->m_Hwnd) & DVS_VERT));
     return;
   }
 

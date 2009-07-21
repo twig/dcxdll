@@ -887,33 +887,53 @@ void XPopupMenu::deleteAllItemData( HMENU hMenu ) {
 
 LRESULT CALLBACK XPopupMenu::XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 
-  switch ( uMsg ) {
+	switch ( uMsg )
+	{
+//#if DCX_DEBUG_OUTPUT
+//	case WM_INITMENU:
+//		{
+//			TString msg;
+//			msg.sprintf("called: %d", mHwnd);
+//			Dcx::debug("WM_INITMENU",msg.to_chr());
+//		}
+//		break;
+//	case WM_INITMENUPOPUP:
+//		{
+//			TString msg;
+//			msg.sprintf("called: %d", mHwnd);
+//			Dcx::debug("WM_INITMENUPOPUP",msg.to_chr());
+//		}
+//		break;
+//	case WM_PARENTNOTIFY:
+//		{
+//			TString msg;
+//			msg.sprintf("called: %d", mHwnd);
+//			Dcx::debug("WM_PARENTNOTIFY",msg.to_chr());
+//		}
+//		break;
+//#endif
+	case WM_MEASUREITEM:
+		{
+			LPMEASUREITEMSTRUCT lpms = (LPMEASUREITEMSTRUCT) lParam;
+			if ( lpms->CtlType == ODT_MENU ) {
+				OnMeasureItem( mHwnd, lpms );
+				return TRUE; 
+			}
+		}
+		break;
 
-    case WM_MEASUREITEM:
-      {
-        LPMEASUREITEMSTRUCT lpms = (LPMEASUREITEMSTRUCT) lParam;
-        if ( lpms->CtlType == ODT_MENU ) {
-          OnMeasureItem( mHwnd, lpms );
-          return TRUE; 
-        }
-      }
-      break;
+	case WM_DRAWITEM:
+		{
+			LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT) lParam;
+			if ( lpdis->CtlType == ODT_MENU ) {
+				OnDrawItem( mHwnd, lpdis ); 
+				return TRUE; 
+			}
+		}
+		break;
+	}
 
-    case WM_DRAWITEM:
-      {
-        LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT) lParam;
-        if ( lpdis->CtlType == ODT_MENU ) {
-          OnDrawItem( mHwnd, lpdis ); 
-          return TRUE; 
-        }
-      }
-      break;
-
-    default:
-      return DefWindowProc( mHwnd, uMsg, wParam, lParam );
-  }
-
-  return 0;
+	return DefWindowProc( mHwnd, uMsg, wParam, lParam );
 }
 
 /*!

@@ -684,12 +684,10 @@ void DcxTab::GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton)
 }
 
 TString DcxTab::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	LONG ExStyles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	ExStyles = GetWindowLong(this->m_Hwnd, GWL_EXSTYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD ExStyles, Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
+	ExStyles = GetWindowExStyle(this->m_Hwnd);
 	if (Styles & TCS_VERTICAL)
 		styles.addtok("vertical", " ");
 	if (Styles & TCS_BOTTOM)
@@ -775,7 +773,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 							MapWindowPoints(NULL, this->m_Hwnd, &tchi.pt, 1);
 
 							int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
-							int stab = TabCtrl_GetCurSel(this->m_Hwnd);
+							TabCtrl_GetCurSel(this->m_Hwnd);
 
 							if (tab != -1)
 								this->execAliasEx("%s,%d,%d", "rclick", this->getUserID(), tab +1);

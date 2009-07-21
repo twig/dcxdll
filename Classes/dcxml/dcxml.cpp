@@ -93,8 +93,8 @@ void DCXML::setDialog(const char *dialogMark) { this->_dcxDialog = Dcx::Dialogs.
 
 const char *DCXML::queryAttribute(TiXmlElement *element,const char *attribute,const char *defaultValue)
 {
-	const char *t;
-	return (t = element->Attribute(attribute)) ? t : defaultValue;
+	const char *t = element->Attribute(attribute);
+	return (t) ? t : defaultValue;
 };
 int DCXML::queryIntAttribute(TiXmlElement *element,const char *attribute,int defaultValue)
 {
@@ -190,7 +190,7 @@ void DCXML::parseAttributes(TiXmlElement* element) {
 }
     /* parseControl() : if current element is a control perform some extra commands*/
 void DCXML::parseControl() { 
-	DcxControl *control = this->getDialog()->getControlByID(id + mIRC_ID_OFFSET);
+	//DcxControl *control = this->getDialog()->getControlByID(id + mIRC_ID_OFFSET); // does nothing at present?
     if (element->Attribute("zlayer")) { 
         this->xdialogEX("-z","+a %i",id);
         this->setZlayered(true);
@@ -228,14 +228,14 @@ void DCXML::parseControl() {
             mystring.replace("\t","");
             TString printstring;
             int textspace = 0;
-            while(mystring.gettok(1," ") != "") { 
+            while(mystring.gettok( 1 ) != "") { 
                 printstring.addtok(mystring.gettok(1," ").to_chr());
                 if (printstring.len() > 800) { 
                     this->xdidEX(id,"-a","%i %s",textspace,printstring.gettok(1,-1).to_chr());
                     printstring = "";
                     textspace = 1;
                 }
-                mystring.deltok(1," ");
+                mystring.deltok( 1 );
             }
             if (printstring != "") { 
                 this->xdidEX(id,"-a","%i %s",textspace,printstring.gettok(1,-1).to_chr());
@@ -291,27 +291,27 @@ void DCXML::parseControl() {
 }
 	/* xdialogEX(switch,format[,args[]]) : performs an xdialog command internally or trough mIRC */
 void DCXML::xdialogEX(const char *sw,const char *dFormat, ...) { 
-        va_list args;
-        va_start(args, dFormat);
-        int cnt = _vscprintf(dFormat, args);
-        char *txt = new char[cnt +1];
-        vsprintf(txt, dFormat, args );
-        va_end(args);
-            if (eval) Dcx::mIRC.execex("//xdialog %s %s %s",sw,this->getDialogMark(),txt);
-        else this->getDialog()->parseCommandRequestEX("%s %s %s",this->getDialogMark(),sw,txt);
-        delete [] txt;
+	va_list args;
+	TString txt;
+
+	va_start(args, dFormat);
+	txt.vprintf(dFormat, &args);
+	va_end(args);
+
+	if (eval) Dcx::mIRC.execex("//xdialog %s %s %s",sw,this->getDialogMark(),txt.to_chr());
+	else this->getDialog()->parseCommandRequestEX("%s %s %s",this->getDialogMark(),sw,txt.to_chr());
 }
 	/* xdidEX(controlId,switch,format[,args[]]) : performs an xdid command internally or trough mIRC on the specified id */
 void DCXML::xdidEX(int id,const char *sw,const char *dFormat, ...) { 
-        va_list args;
-        va_start(args, dFormat);
-        int cnt = _vscprintf(dFormat, args);
-        char *txt = new char[cnt +1];
-        vsprintf(txt, dFormat, args );
-        va_end(args);
-            if (eval) Dcx::mIRC.execex("//xdid %s %s %i %s",sw,this->getDialogMark(),id,txt);
-        else this->getDialog()->parseComControlRequestEX(id,"%s %i %s %s",this->getDialogMark(),id,sw,txt);
-        delete [] txt;
+	va_list args;
+	TString txt;
+
+	va_start(args, dFormat);
+	txt.vprintf(dFormat, &args);
+	va_end(args);
+
+	if (eval) Dcx::mIRC.execex("//xdid %s %s %i %s",sw,this->getDialogMark(),id,txt.to_chr());
+	else this->getDialog()->parseComControlRequestEX(id,"%s %i %s %s",this->getDialogMark(),id,sw,txt.to_chr());
 }
     /* parseCLA(int numberOfClaControlsInCurrentBranch) : parses control and pane elements and applies the right CLA commands */
 TString DCXML::parseCLA(const int cCla) { 
@@ -385,7 +385,7 @@ void DCXML::setStyle(TiXmlElement* style) {
 
 	eval = (style->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 1;
 	
-	const char *tin = this->queryAttribute(style,"id");
+	//const char *tin = this->queryAttribute(style,"id"); // not used anywhere?
 
 	//font
     fontstyle = (temp = style->Attribute("fontstyle")) ? temp : "d";
@@ -393,8 +393,7 @@ void DCXML::setStyle(TiXmlElement* style) {
     fontsize = (temp = style->Attribute("fontsize")) ? temp : "";
     fontname = (temp = style->Attribute("fontname")) ? temp : "";
     if ((style->Attribute("fontsize")) || (style->Attribute("fontname")))
-        this->xdidEX(id,"-f","+%s %s %s %s",
-            fontstyle,charset,fontsize,fontname);
+        this->xdidEX(id,"-f","+%s %s %s %s", fontstyle,charset,fontsize,fontname);
     //border
     border = (temp = style->Attribute("border")) ? temp : "";
     if (style->Attribute("border")) this->xdidEX(id,"-x","+%s",border);
@@ -783,7 +782,7 @@ void DCXML::parseDialog(int depth,const char *claPath,int passedid,int ignorePar
         }
         //Set CLA for control or pane
         g_claPath = claPath;
-        TString claPathx = this->parseCLA(cCla);
+        TString claPathx(this->parseCLA(cCla));
 		
         //Perform some control specific commands
         if (0==lstrcmp(elem, "control")) {
@@ -802,9 +801,9 @@ void DCXML::parseDialog(int depth,const char *claPath,int passedid,int ignorePar
 int DCXML::mIRCEvalToUnsignedInt (const char *value)
 	{
 		TString buf((UINT)32);
-		Dcx::mIRC.evalex(buf.to_chr(), 32, value,""); // ERROR? formating wrong?
+		Dcx::mIRC.evalex(buf.to_chr(), 32, value,""); // ERROR? formating wrong? or just weird shit?
 		int id = buf.to_int();
-		return (id > 0) ? id : -1;
+		return (id > 0) ? id : -1; // eval to unsigned int? -1 ?
 	}
 void DCXML::registerId(TiXmlElement *idElement,int id)
 	{
@@ -829,7 +828,7 @@ int DCXML::parseId(TiXmlElement* idElement)
 		id = mIRCEvalToUnsignedInt(attributeIdValue);
 		if (id > 0) return id;
 		
-		TString value = TString(attributeIdValue);
+		TString value(attributeIdValue);
 
 		//Otherwise if it's a namedId return it .find(attributeIdValue) never returned :(;
 		for(IntegerHash::const_iterator it = this->getDialog()->namedIds.begin(); it != this->getDialog()->namedIds.end(); ++it)
@@ -918,10 +917,8 @@ mIRC(dcxml) {
 	}
 	*/
 	// Unknown flags.
-	else {
+	else
 		Dcx::errorex("/dcxml", "Unknown flag %s", input.gettok(1).to_chr());
-		return 0;
-	}
 
-    return 1;
+	return 0;
 }

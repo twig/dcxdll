@@ -276,7 +276,7 @@ void DcxText::DrawClientArea(HDC hdc)
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
 	TString wtext;
-	int nText = TGetWindowText(this->m_Hwnd, wtext);
+	TGetWindowText(this->m_Hwnd, wtext);
 
 	GetClientRect(this->m_Hwnd, &r);
 

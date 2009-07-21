@@ -494,10 +494,9 @@ void DcxStatusBar::cleanPartIcons( ) {
 }
 
 TString DcxStatusBar::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & SBARS_SIZEGRIP)
 		styles.addtok("grip", " ");
 	if (Styles & SBARS_TOOLTIPS)

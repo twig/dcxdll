@@ -22,7 +22,7 @@ VectorOfParts DcxDock::g_vParts;
 bool DcxDock::g_bTakeOverTreebar = false;
 COLORREF DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MAX +1] = { CLR_INVALID };
 
-DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, int dockType)
+DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const int dockType)
 : m_OldRefWndProc(NULL)
 , m_OldDockWndProc(NULL)
 , m_RefHwnd(refHwnd)

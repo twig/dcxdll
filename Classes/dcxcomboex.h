@@ -68,7 +68,7 @@ public:
   void setImageList( HIMAGELIST himl );
   static HIMAGELIST createImageList( );
 
-  BOOL matchItemText( int nItem, TString * search, UINT SearchType );
+  BOOL matchItemText( const int nItem, const TString * search, const UINT SearchType );
 
   LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem );
   LRESULT getItem( PCOMBOBOXEXITEM lpcCBItem ) const;

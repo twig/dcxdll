@@ -514,7 +514,7 @@ HIMAGELIST DcxComboEx::createImageList( ) {
 * blah
 */
 
-BOOL DcxComboEx::matchItemText( int nItem, TString * search, UINT SearchType ) {
+BOOL DcxComboEx::matchItemText( const int nItem, const TString * search, const UINT SearchType ) {
 
 	char itemtext[900];
 
@@ -530,10 +530,8 @@ BOOL DcxComboEx::matchItemText( int nItem, TString * search, UINT SearchType ) {
 
 	if ( SearchType == CBEXSEARCH_R )
 		return isRegexMatch(itemtext, search->to_chr());
-	else
-		return TString(itemtext).iswm(search->to_chr());
 
-	return FALSE;
+	return TString(itemtext).iswm(search->to_chr());
 }
 
 /*!
@@ -637,10 +635,9 @@ LRESULT DcxComboEx::limitText( const int iLimit ) {
 }
 
 TString DcxComboEx::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & CBS_SIMPLE)
 		styles.addtok("simple", " ");
 	if (Styles & CBS_DROPDOWNLIST) 

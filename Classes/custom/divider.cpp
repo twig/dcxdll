@@ -110,7 +110,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
           HCURSOR hCursor = NULL;
 
-          if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT )
+          if ( GetWindowStyle( mHwnd ) & DVS_VERT )
             hCursor = LoadCursor( NULL, IDC_SIZEWE );
           else
             hCursor = LoadCursor( NULL, IDC_SIZENS );
@@ -213,7 +213,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
         UINT iPos = (UINT) lParam;
 
         UINT width;
-        if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT )
+        if ( GetWindowStyle( mHwnd ) & DVS_VERT )
           width = rc.right - rc.left;
         else
           width = rc.bottom - rc.top;
@@ -290,7 +290,7 @@ void Divider_SizeWindowContents( HWND mHwnd, int nWidth, int nHeight ) {
 
   LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
 
-  if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT ) {
+  if ( GetWindowStyle( mHwnd ) & DVS_VERT ) {
 
     MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, lpdvdata->m_iBarPos, nHeight, TRUE );
     MoveWindow( lpdvdata->m_Panes[1].hChild, lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth, 0, 
@@ -358,7 +358,7 @@ void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect ) {
 
   OffsetRect( rect, -rect->left, -rect->top );
 
-  if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT ) {
+  if ( GetWindowStyle( mHwnd ) & DVS_VERT ) {
 
     if ( pt->x < (int) lpdvdata->m_Panes[0].cxMin )
       pt->x = (int) lpdvdata->m_Panes[0].cxMin;
@@ -397,30 +397,30 @@ LRESULT Divider_OnLButtonDown( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 	HDC hdc;
 	RECT rect;
 
-  LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
 
 	pt.x = (short) LOWORD( lParam );  // horizontal position of cursor 
 	pt.y = (short) HIWORD( lParam );
 
-  Divider_CalcBarPos( mHwnd, &pt, &rect );
+	Divider_CalcBarPos( mHwnd, &pt, &rect );
 
-  lpdvdata->m_bDragging = TRUE;
+	lpdvdata->m_bDragging = TRUE;
 
 	SetCapture( mHwnd );
 
 	hdc = GetWindowDC( mHwnd );
-  if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT ) {
+	if ( GetWindowStyle( mHwnd ) & DVS_VERT ) {
 
-    DrawXorBar( hdc, pt.x - 2, 1, 4, rect.bottom - 2 );
-    lpdvdata->m_iOldPos = pt.x;
-  }
-  else {
+		DrawXorBar( hdc, pt.x - 2, 1, 4, rect.bottom - 2 );
+		lpdvdata->m_iOldPos = pt.x;
+	}
+	else {
 
-	  DrawXorBar( hdc, 1, pt.y - 2, rect.right - 2, 4 );
-    lpdvdata->m_iOldPos = pt.y;
-  }
+		DrawXorBar( hdc, 1, pt.y - 2, rect.right - 2, 4 );
+		lpdvdata->m_iOldPos = pt.y;
+	}
 	ReleaseDC( mHwnd, hdc );
-	
+
 	SendMessage(mHwnd, DV_CHANGEPOS, (WPARAM) DVNM_DRAG_START, (LPARAM) &pt);
 
 	return 0L;
@@ -450,7 +450,7 @@ LRESULT Divider_OnLButtonUp( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lParam
 
 	hdc = GetWindowDC( mHwnd );
 
-	if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT ) {
+	if ( GetWindowStyle( mHwnd ) & DVS_VERT ) {
 
 		DrawXorBar( hdc, lpdvdata->m_iOldPos - 2, 1, 4, rect.bottom - 2 );
 		lpdvdata->m_iOldPos = pt.x;
@@ -474,7 +474,7 @@ LRESULT Divider_OnLButtonUp( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lParam
 	MapWindowPoints(NULL, mHwnd, &pt, 1 );
 	GetClientRect( mHwnd, &rect );
 
-	if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT )
+	if ( GetWindowStyle( mHwnd ) & DVS_VERT )
 		lpdvdata->m_iBarPos = pt.x;
 	else
 		lpdvdata->m_iBarPos = pt.y;
@@ -516,7 +516,7 @@ LRESULT Divider_OnMouseMove( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lParam
   hdc = GetWindowDC( mHwnd );
   */
 
-  if ( GetWindowLong( mHwnd, GWL_STYLE ) & DVS_VERT ) {
+  if ( GetWindowStyle( mHwnd ) & DVS_VERT ) {
 
     if( pt.x != lpdvdata->m_iOldPos && wParam & MK_LBUTTON )
     {

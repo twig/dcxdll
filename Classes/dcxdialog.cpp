@@ -91,7 +91,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString &tsName, const TString &tsA
 , m_ToolTipHWND(NULL)
 , m_iRefCount(0)
 , m_bDoDrag(false)
-, m_dEventMask(-1)
+, m_dEventMask(DCX_EVENT_ALL)
 , m_bTracking(FALSE)
 , m_bDoGhostDrag(255)
 , m_bGhosted(false)
@@ -747,7 +747,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 				}
 			}
 			else {
-				int alpha = input.gettok( 4 ).to_int();
+				BYTE alpha = (BYTE)input.gettok( 4 ).to_int();
 
 				if (alpha > 255)
 					alpha = 255;
@@ -1029,7 +1029,8 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			this->m_colTransparentBg = (COLORREF)input.gettok( 4 ).to_num();
 			//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
 			this->m_uStyleBg = DBS_BKGBITMAP;
-			this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg,input.gettok(5,-1));
+			TString filename(input.gettok(5,-1));
+			this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg,filename);
 
 			if (this->m_bitmapBg != NULL)
 				m_Region = BitmapRegion(this->m_bitmapBg,this->m_colTransparentBg,TRUE);
@@ -1100,7 +1101,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		}
 		else if (flag.find('g',0)) // ghost drag - <0-255>
 		{
-			int alpha = input.gettok( 4 ).to_int();
+			BYTE alpha = (BYTE)input.gettok( 4 ).to_int();
 			if ((alpha >= 0) && (alpha <= 255)) {
 				noRegion = true;
 				this->m_bDoGhostDrag = alpha;
@@ -2155,7 +2156,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				if (p_this->m_bDoGhostDrag < 255 && SetLayeredWindowAttributesUx != NULL) {
 					if (!p_this->m_bVistaStyle) {
-						long style = GetWindowLong(mHwnd, GWL_EXSTYLE);
+						DWORD style = GetWindowExStyle(mHwnd);
 						// Set WS_EX_LAYERED on this window
 						if (!(style & WS_EX_LAYERED))
 							SetWindowLong(mHwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
@@ -2864,7 +2865,7 @@ void DcxDialog::ShowShadow(void)
 	if((this->m_Shadow.Status & DCX_SS_ENABLED) && !(this->m_Shadow.Status & DCX_SS_DISABLEDBYAERO))	// Enabled
 	{
 		// Determine the show state of shadow according to parent window's state
-		LONG lParentStyle = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+		DWORD lParentStyle = GetWindowStyle(this->m_Hwnd);
 
 		if(WS_VISIBLE & lParentStyle)	// Parent visible
 		{
@@ -3062,6 +3063,7 @@ void DcxDialog::MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rc
 			{
 				UINT32 nFactor = ((UINT32)((1 - (dLength - nCenterSize) / (this->m_Shadow.nSharpness + 1)) * this->m_Shadow.nDarkness));
 				*pKernelIter = nFactor << 24 | PreMultiply(this->m_Shadow.Color, nFactor);
+				// TODO: Examin this nFactor usage in PreMultiply() as its converting a UINT32 to an unsigbed char
 			}
 			else
 				*pKernelIter = 0;
@@ -3437,11 +3439,11 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 	POINT ptWinPos = { rc.left, rc.top};
 	SIZE szWin = { (rc.right - rc.left), (rc.bottom - rc.top) };
 
-	int alpha = this->m_iAlphaLevel;
+	BYTE alpha = this->m_iAlphaLevel;
 	if (this->m_bGhosted)
 		alpha = this->m_bDoGhostDrag;
 
-	int half_alpha = alpha / 2;
+	BYTE half_alpha = alpha / 2;
 
 	BLENDFUNCTION stBlend = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
 
@@ -3645,9 +3647,8 @@ LRESULT DcxDialog::ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM w
    {
       list = *itStart;
 
-      if (list->getDragListId() == uMsg) {
+      if (list->getDragListId() == uMsg)
          return list->ParentMessage(uMsg, wParam, lParam, bParsed);
-      }
 
       itStart++;
    }

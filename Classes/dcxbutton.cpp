@@ -346,10 +346,9 @@ HIMAGELIST DcxButton::createImageList() {
 }
 
 TString DcxButton::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & BS_BITMAP)
 		styles.addtok("bitmap", " ");
 	if (Styles & BS_DEFPUSHBUTTON) 

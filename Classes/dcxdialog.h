@@ -44,6 +44,7 @@
 #define DCX_EVENT_DRAG				0x00000080
 #define DCX_EVENT_HELP				0x00000100
 #define DCX_EVENT_EDIT				0x00000200
+#define DCX_EVENT_ALL				0xFFFFFFFF
 
 // Shadow Status Flags
 enum ShadowStatus
@@ -196,7 +197,7 @@ protected:
 	UINT m_iRefCount;
 	bool m_bDoDrag;
 	bool m_bDrag;
-	int m_bDoGhostDrag;
+	BYTE m_bDoGhostDrag;
 	bool m_bGhosted;
 	DWORD m_dEventMask;
 	BOOL m_bTracking;
@@ -244,7 +245,7 @@ protected:
 	{
 		// It's strange that the byte order of RGB in 32b BMP is reverse to in COLORREF
 		return (GetRValue(cl) * (DWORD)nAlpha / 255) << 16 |
-			(GetGValue(cl) * (DWORD)nAlpha / 255) << 8 |
+			(GetGValue((cl & 0xFFFF)) * (DWORD)nAlpha / 255) << 8 |
 			(GetBValue(cl) * (DWORD)nAlpha / 255);
 	}
 	void PreloadData(void);
@@ -253,7 +254,7 @@ protected:
 	//	bool LoadGDIPlusImage(TString &filename);
 	//#endif
 	HWND m_hFakeHwnd;
-	int m_iAlphaLevel;
+	BYTE m_iAlphaLevel;
 	COLORREF m_cKeyColour;
 	bool m_bHaveKeyColour;
 	bool m_bVistaStyle;

@@ -28,37 +28,38 @@
 DcxUpDown::DcxUpDown( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles, 
-    DCX_UPDOWNCLASS, 
-    NULL,
-    WS_CHILD | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles, 
+		DCX_UPDOWNCLASS, 
+		NULL,
+		WS_CHILD | Styles, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
 		throw "Unable To Create Window";
 
-  if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if ( bNoTheme )
+		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips")) {
+	if (styles.istok("tooltips")) {
+		if (IsWindow(p_Dialog->getToolTip())) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
+		else
+			this->showError(NULL,"-c","Unable to Initialize Tooltips");
 	}
-  this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
 
 /*!
@@ -266,22 +267,21 @@ LRESULT DcxUpDown::getPos32( LPBOOL pfError ) const {
 }
 
 TString DcxUpDown::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & UDS_ALIGNLEFT)
-		styles.addtok("left", " ");
+		styles.addtok("left");
 	if (Styles & UDS_HORZ)
-		styles.addtok("horz", " ");
+		styles.addtok("horz");
 	if (Styles & UDS_HOTTRACK)
-		styles.addtok("hottrack", " ");
+		styles.addtok("hottrack");
 	if (Styles & UDS_NOTHOUSANDS)
-		styles.addtok("nothousands", " ");
+		styles.addtok("nothousands");
 	if (Styles & UDS_SETBUDDYINT)
-		styles.addtok("buddyint", " ");
+		styles.addtok("buddyint");
 	if (Styles & UDS_WRAP)
-		styles.addtok("wrap", " ");
+		styles.addtok("wrap");
 	return styles;
 }
 

@@ -1742,7 +1742,7 @@ void TString::puttok( const char * cToken, int N, const char * sepChars ) {
 }
 
 void TString::remtok(const char * cToken, int N, const char * sepChars) {
-	int count = 0;
+	//int count = 0;
 	int tokennr;
 	tokennr = findtok(cToken, N, sepChars);
 	if (tokennr > 0) deltok(tokennr);

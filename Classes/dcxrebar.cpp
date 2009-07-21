@@ -86,10 +86,9 @@ DcxReBar::~DcxReBar( ) {
 }
 
 TString DcxReBar::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & RBS_BANDBORDERS)
 		styles.addtok("borders", " ");
 	if (Styles & RBS_DBLCLKTOGGLE)
@@ -136,8 +135,7 @@ void DcxReBar::toXml(TiXmlElement * xml) {
 	}
 }
 
-DcxControl * DcxReBar::getControl(int index) {
-	DcxControl * result;
+DcxControl * DcxReBar::getControl(const int index) {
 
     if ( index > -1 && index < this->getBandCount( ) ) {
       
@@ -146,11 +144,9 @@ DcxControl * DcxReBar::getControl(int index) {
       rbBand.cbSize = sizeof( REBARBANDINFO );
       rbBand.fMask = RBBIM_CHILD;
 
-      if ( this->getBandInfo( index, &rbBand ) != 0 ) {
-        result = this->m_pParentDialog->getControlByHWND( rbBand.hwndChild );
-      }
+      if ( this->getBandInfo( index, &rbBand ) != 0 )
+        return this->m_pParentDialog->getControlByHWND( rbBand.hwndChild );
 
-      return result;
     }
 	return NULL;
 }
@@ -395,7 +391,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 		if ( rbBand.fStyle & RBBS_COLOR )
 			lpdcxrbb->clrText = clrText;
 		else
-			lpdcxrbb->clrText = -1;
+			lpdcxrbb->clrText = CLR_INVALID;
 
 		if ( nIcon > -1 ) {
 			rbBand.iImage = nIcon;
@@ -979,8 +975,8 @@ LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 								bParsed = TRUE;
 								RECT rc;
 								GetWindowRect( this->m_Hwnd, &rc );
-								int width = rc.right - rc.left;
-								int height = rc.bottom - rc.top;
+								UINT width = rc.right - rc.left;
+								UINT height = rc.bottom - rc.top;
 
 								if ( this->m_iWidth != width || this->m_iHeight != height ) {
 

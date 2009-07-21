@@ -123,7 +123,7 @@ protected:
 	int getFreeButtonID( ) const;
 	int getIndexToCommand( const int iIndex ) const;
 
-	static UINT parseButtonStateFlags( const TString & flags );
+	static BYTE parseButtonStateFlags( const TString & flags );
 	static UINT parseButtonStyleFlags( const TString & flags );
 
 	void resetContent( );

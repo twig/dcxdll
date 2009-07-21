@@ -34,11 +34,11 @@
 
 DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
 : DcxControl( ID, p_Dialog )
+, m_TitleButton(NULL)
+, _hTheme(NULL)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
-	this->m_TitleButton = NULL;
-	this->_hTheme = NULL;
 
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
@@ -245,7 +245,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
 			this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 		{
 			try {
-				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,-1,this->m_Hwnd);
+				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,CTLF_ALLOW_ALL,this->m_Hwnd);
 
 				if ( p_Control != NULL ) {
 					this->m_pParentDialog->addControl( p_Control );
@@ -502,29 +502,28 @@ BOOL CALLBACK EnumBoxChildren(HWND hwnd,LPDCXENUM de)
 
 void DcxBox::toXml(TiXmlElement * xml) {
 	TString wtext;
-	int n = TGetWindowText(this->m_Hwnd, wtext);
+	TGetWindowText(this->m_Hwnd, wtext);
 	__super::toXml(xml);
 	xml->SetAttribute("caption", wtext.to_chr());
 	this->m_pLayoutManager->getRoot()->toXml(xml);
 }
 
 TString DcxBox::getStyles(void) {
-	TString result;
-	result = __super::getStyles();
+	TString result(__super::getStyles());
 	if (this->m_iBoxStyles & BOXS_RIGHT)
-		result.addtok("right", " ");
+		result.addtok("right");
 	if (this->m_iBoxStyles & BOXS_CENTER)
-		result.addtok("center", " ");
+		result.addtok("center");
 	if (this->m_iBoxStyles & BOXS_BOTTOM)
-		result.addtok("bottom", " ");
+		result.addtok("bottom");
 	if (this->m_iBoxStyles & BOXS_NONE)
-		result.addtok("none", " ");
+		result.addtok("none");
 	if (this->m_iBoxStyles & BOXS_ROUNDED)
-		result.addtok("rounded", " ");
+		result.addtok("rounded");
 	if (this->m_iBoxStyles & BOXS_CHECK)
-		result.addtok("check", " ");
+		result.addtok("check");
 	else if (this->m_iBoxStyles & BOXS_RADIO)
-		result.addtok("radio", " ");
+		result.addtok("radio");
 
 	return result;
 }
@@ -756,7 +755,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc,true);
 
 	//DcxControl::DrawCtrlBackground(hdc, this, &rc2); //Moved out from the if, becase of painting-bug (Alpha)
-	// having this here messes up all boxes whis a border.
+	// having this here messes up all boxes with a border.
 	// exp boxes that have a border & text.
 
 	// if no border, dont bother
@@ -806,6 +805,8 @@ void DcxBox::DrawClientArea(HDC hdc)
 
 		if (this->m_bCtrlCodeText)
 			calcStrippedRect(hdc, wtext, 0, &rcText, false, this->m_bUseUTF8);
+		//else if (this->m_bShadowText)
+		//	dcxDrawShadowText(hdc, wtext.to_wchr(), wtext.wlen(), &rcText, DT_CALCRECT, this->m_clrText, 0,5,5);
 		else
 			DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), n, &rcText, DT_CALCRECT);
 

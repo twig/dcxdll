@@ -137,7 +137,7 @@ void DcxPanel::parseCommandRequest( TString & input ) {
       this->m_pParentDialog->getControlByID( ID ) == NULL ) 
     {
 			try {
-				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,-1,this->m_Hwnd);
+				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,CTLF_ALLOW_ALL,this->m_Hwnd);
 
 				if ( p_Control != NULL ) {
 					this->m_pParentDialog->addControl( p_Control );

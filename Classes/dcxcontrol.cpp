@@ -487,7 +487,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			}
 
 			COLORREF tCol = (COLORREF)input.gettok( 5 ).to_num();
-			HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,input.gettok(6,-1));
+			TString filename(input.gettok(6,-1));
+			HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,filename);
 
 			if (m_bitmapBg != NULL) {
 				if (flag.find('R',0)) // now resize image to match control.
@@ -1990,9 +1991,9 @@ void DcxControl::ctrlDrawText(HDC hdc, TString txt, const LPRECT rc, const UINT 
 
 TString DcxControl::getStyles(void) {
 	TString result;
-	LONG exStyles, Styles;
-	exStyles = GetWindowLong(this->m_Hwnd, GWL_EXSTYLE);
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	DWORD exStyles, Styles;
+	exStyles = GetWindowExStyle(this->m_Hwnd);
+	Styles = GetWindowStyle(this->m_Hwnd);
 	//TODO: don't now how to get it now
 	//if ( bNoTheme )
 	//	result += "notheme "
@@ -2025,9 +2026,9 @@ TString DcxControl::getStyles(void) {
 
 TString DcxControl::getBorderStyles(void) {
 	TString bstyles;
-	LONG exStyles, Styles;
-	exStyles = GetWindowLong(this->m_Hwnd, GWL_EXSTYLE);
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
+	DWORD exStyles, Styles;
+	exStyles = GetWindowExStyle(this->m_Hwnd);
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & WS_BORDER)
 		bstyles += 'b';
 	if (exStyles & WS_EX_CLIENTEDGE)

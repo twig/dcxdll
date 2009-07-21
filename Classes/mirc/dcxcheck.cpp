@@ -82,15 +82,14 @@ DcxCheck::~DcxCheck( ) {
 void DcxCheck::toXml(TiXmlElement * xml) {
 	TString wtext;
 	__super::toXml(xml);
-	int n = TGetWindowText(this->m_Hwnd, wtext);
+	TGetWindowText(this->m_Hwnd, wtext);
 	xml->SetAttribute("caption", wtext.to_chr());
 }
 
 TString DcxCheck::getStyles(void) {
-	TString styles;
-	LONG Styles;
-	Styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
-	styles = __super::getStyles();
+	TString styles(__super::getStyles());
+	DWORD Styles;
+	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & BS_RIGHT)
 		styles.addtok("rjustify", " ");
 	if (Styles & BS_CENTER)
