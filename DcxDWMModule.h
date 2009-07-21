@@ -6,6 +6,11 @@ typedef HRESULT (WINAPI *PFNDWMGETWINDOWATTRIBUTE)(HWND hwnd, DWORD dwAttribute,
 typedef HRESULT (WINAPI *PFNDWMSETWINDOWATTRIBUTE)(HWND hwnd,DWORD dwAttribute,LPCVOID pvAttribute,DWORD cbAttribute);
 typedef HRESULT (WINAPI *PFNDWMEXTENDFRAMEINTOCLIENTAREA)(HWND hWnd, const MARGINS *pMarInset);
 
+// Missing defines, since the new module way of doing things doesnt work well with missing libraries
+#ifndef DCX_USE_WINSDK
+#define DWM_E_COMPOSITIONDISABLED 0x80263001
+#endif
+
 class DcxDWMModule :
 	public DcxModule
 {
