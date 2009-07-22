@@ -568,6 +568,7 @@ void DcxmlParser::parseIcons(int depth) {
     depth++;
     TiXmlElement* icons = 0;
     TiXmlElement* icon = 0;
+	TiXmlElement* iconchild = 0;
     TiXmlElement* ClassElement = 0;
     TiXmlElement* TypeElement = 0;
     TiXmlElement* IdElement = 0;
@@ -598,10 +599,18 @@ void DcxmlParser::parseIcons(int depth) {
 						indexmin,indexmax,this->getDialogMark(),id,flags,src);
 				}
                 else 
-					//we need to use execex to evaluate identifiers in the path
 					Dcx::mIRC.execex("//xdid -w %s %i +%s %s %s",this->getDialogMark(),id,flags,index,src);
-					//this->xdidEX(id,"-w","+%s %s %s",flags,index,src);
             }
+			else
+			{
+				for( icon = icon->FirstChildElement("icon"); iconchild; iconchild = iconchild->NextSiblingElement()) {
+					const char *flags = (temp = iconchild->Attribute("flags")) ? temp : "ndhs";
+					const char *index = (temp = iconchild->Attribute("index")) ? temp : "0";
+					const char *src = iconchild->Attribute("src");
+					if (src)
+						Dcx::mIRC.execex("//xdid -w %s %i +%s %s %s",this->getDialogMark(),id,flags,index,src);
+				}
+			}
         }
     }
     else parseIcons(depth);
