@@ -643,3 +643,17 @@ LRESULT CALLBACK Dcx::mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 	return Dcx::mIRC.callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
 }
+bool Dcx::isFile(const char* file) { 
+  struct stat stFileInfo; 
+  bool blnReturn; 
+  int intStat; 
+  intStat = stat(file,&stFileInfo); 
+  if(intStat == 0) { 
+    // We were able to get the file attributes 
+    // so the file obviously exists. 
+    blnReturn = true; 
+  } else { 
+    blnReturn = false; 
+  } 
+  return(blnReturn); 
+}

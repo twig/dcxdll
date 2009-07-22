@@ -7,7 +7,7 @@
 #include "Classes/xpopup/XPopupMenuManager.h"
 #include "Classes/xpopup/xmenubar.h"
 #include "Classes/DcxDialog.h"
-
+#include <sys/stat.h> 
 
 class Dcx
 {
@@ -23,6 +23,8 @@ class Dcx
 
 public:
 
+
+
 	static mIRCLinker mIRC;
 	static DcxDialogCollection Dialogs;
 	static DcxGDIModule GDIModule;
@@ -32,7 +34,7 @@ public:
 	/* additions */
 	static XPopupMenuManager XPopups;
 	static XMenuBar XMenubar;
-
+	
 	
 	static IClassFactory* getClassFactory();
 	static const char * getLastError();
@@ -40,6 +42,7 @@ public:
 	static bool setGhostDrag(int newAlpha);
 	static bool isDX9Installed();
 	static bool isUnloadSave();
+	static bool isFile(const char* file);
 
 	static void load(LOADINFO * lInfo);
 	static void unload(void);
@@ -52,4 +55,5 @@ public:
 	static void errorex(const char *cmd, const char *szFormat, ...);
 	static int mark(char* data, const TString & tsDName, const TString & tsCallbackName);
 	static LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	
 };
