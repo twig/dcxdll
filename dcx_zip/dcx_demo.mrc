@@ -14,7 +14,7 @@ dialog mydialog {
 on *:dialog:mydialog:init:*:{
   dcx Mark $dname events
   japan
-  dcxml -dx mydialog mydialog $qt($scriptdirdc.xml)
+  dcxml -dx $dname $dname $qt($scriptdirdc.xml)
   if ($dcxml(Loaded)) {
 
     xdid -v mydialog 1 20

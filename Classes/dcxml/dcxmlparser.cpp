@@ -252,7 +252,7 @@ void DcxmlParser::parseAttributes(TiXmlElement* element) {
 }
     /* parseControl() : if current element is a control perform some extra commands*/
 void DcxmlParser::parseControl() { 
-	DcxControl *control = this->getDialog()->getControlByID(id + mIRC_ID_OFFSET);
+	//DcxControl *control = this->getDialog()->getControlByID(id + mIRC_ID_OFFSET);
     if (element->Attribute("zlayer")) { 
         this->xdialogEX("-z","+a %i",id);
         this->setZlayered(true);
@@ -290,14 +290,14 @@ void DcxmlParser::parseControl() {
             mystring.replace("\t","");
             TString printstring;
             int textspace = 0;
-            while(mystring.gettok(1," ") != "") { 
-                printstring.addtok(mystring.gettok(1," ").to_chr());
+            while(mystring.gettok(1) != "") { 
+                printstring.addtok(mystring.gettok(1).to_chr());
                 if (printstring.len() > 800) { 
                     this->xdidEX(id,"-a","%i %s",textspace,printstring.gettok(1,-1).to_chr());
                     printstring = "";
                     textspace = 1;
                 }
-                mystring.deltok(1," ");
+                mystring.deltok(1);
             }
             if (printstring != "") { 
                 this->xdidEX(id,"-a","%i %s",textspace,printstring.gettok(1,-1).to_chr());
@@ -354,30 +354,32 @@ void DcxmlParser::parseControl() {
 	/* xdialogEX(switch,format[,args[]]) : performs an xdialog command internally or trough mIRC */
 void DcxmlParser::xdialogEX(const char *sw,const char *dFormat, ...) { 
         va_list args;
-        va_start(args, dFormat);
-        int cnt = _vscprintf(dFormat, args);
-        char *txt = new char[cnt +1];
-        vsprintf(txt, dFormat, args );
-        va_end(args);
-            if (eval) Dcx::mIRC.execex("//xdialog %s %s %s",sw,this->getDialogMark(),txt);
-        else this->getDialog()->parseCommandRequestEX("%s %s %s",this->getDialogMark(),sw,txt);
+		TString txt;
+
+		va_start(args, dFormat);
+		txt.vprintf(dFormat, &args);
+		va_end(args);
+
 		if (this->isVerbose())
 			Dcx::mIRC.execex("/echo -a dcxml debug: /xdialog %s %s %s",sw,this->getDialogMark(),txt);
-        delete [] txt;
+
+		if (eval) Dcx::mIRC.execex("//xdialog %s %s %s",sw,this->getDialogMark(),txt);
+        else this->getDialog()->parseCommandRequestEX("%s %s %s",this->getDialogMark(),sw,txt);
 }
 	/* xdidEX(controlId,switch,format[,args[]]) : performs an xdid command internally or trough mIRC on the specified id */
 void DcxmlParser::xdidEX(int id,const char *sw,const char *dFormat, ...) { 
         va_list args;
-        va_start(args, dFormat);
-        int cnt = _vscprintf(dFormat, args);
-        char *txt = new char[cnt +1];
-        vsprintf(txt, dFormat, args );
-        va_end(args);
-            if (eval) Dcx::mIRC.execex("//xdid %s %s %i %s",sw,this->getDialogMark(),id,txt);
-        else this->getDialog()->parseComControlRequestEX(id,"%s %i %s %s",this->getDialogMark(),id,sw,txt);
+		TString txt;
+
+		va_start(args, dFormat);
+		txt.vprintf(dFormat, &args);
+		va_end(args);
+		
 		if (this->isVerbose())
 			Dcx::mIRC.execex("/echo -a dcxml debug: /xdid %s %s %i %s",sw,this->getDialogMark(),id,txt);
-        delete [] txt;
+
+        if (eval) Dcx::mIRC.execex("//xdid %s %s %i %s",sw,this->getDialogMark(),id,txt);
+        else this->getDialog()->parseComControlRequestEX(id,"%s %i %s %s",this->getDialogMark(),id,sw,txt);
 }
     /* parseCLA(int numberOfClaControlsInCurrentBranch) : parses control and pane elements and applies the right CLA commands */
 TString DcxmlParser::parseCLA(const int cCla) { 
@@ -451,8 +453,6 @@ void DcxmlParser::setStyle(TiXmlElement* style) {
 
 	eval = (style->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 1;
 	
-	const char *tin = this->queryAttribute(style,"id");
-
 	//font
     fontstyle = (temp = style->Attribute("fontstyle")) ? temp : "d";
     charset = (temp = style->Attribute("charset")) ? temp : "ansi";
@@ -867,6 +867,7 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,int passedid,int ign
 
 int DcxmlParser::mIRCEvalToUnsignedInt (const char *value)
 	{
+		//Todo: method returns -1 for failure which odd for a *ToUnsignedInt method.
 		TString buf((UINT)32);
 		Dcx::mIRC.evalex(buf.to_chr(), 32, value,"");
 		int id = buf.to_int();
@@ -895,7 +896,7 @@ int DcxmlParser::parseId(TiXmlElement* idElement)
 		id = mIRCEvalToUnsignedInt(attributeIdValue);
 		if (id > 0) return id;
 		
-		TString value = TString(attributeIdValue);
+		TString value(attributeIdValue);
 
 		//Otherwise if it's a namedId return it .find(attributeIdValue) never returned :(;
 		for(IntegerHash::const_iterator it = this->getDialog()->namedIds.begin(); it != this->getDialog()->namedIds.end(); ++it)
