@@ -105,7 +105,7 @@
 			</control>
 			<control type="line" height="4" />
 			<pane cascade="h" margin="5 5 5 5">
-				<control type="treeview" id="1000" width="200" styles="fullrow showsel" border="">
+				<control type="treeview" id="tvMenu" width="200" styles="fullrow showsel" border="">
 						<item caption="ProgressBar" icon="1" />
 						<item caption="TreeView" icon="2" />
 						<item caption="ToolBar" icon="3" />

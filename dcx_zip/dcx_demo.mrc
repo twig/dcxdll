@@ -44,10 +44,10 @@ alias events {
   ;echo -a $1-
   if ($1 == mydialog) { 
     if ($2 == selchange) {
-      if (($3 == 1000) && ($4)) { 
+      if (($3 == $xdialog($1,tvMenu).id) && ($4)) { 
         xdid -h $1 $gettok($regsubex($str(.,27),/./g,$+($xdid(mydialog,\n).pid,$chr(44))),1-,44)
         xdid -s $1 $xdid(mydialog, $4).pid
-        xdid -t $1 40 The $xdid(mydialog,1000,$4).text Control
+        xdid -t $1 40 The $xdid(mydialog,$xdialog($1,tvMenu).id,$4).text Control
         set %monitor $4
         xdid -r $1 51
         .xdid -l $1 $xdid(mydialog,$xdid(mydialog, $4).pid).pid update
