@@ -1434,6 +1434,10 @@
 						>
 					</File>
 				</File>
+				<File
+					RelativePath=".\Classes\dcxml\dcxmlparser.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -1742,6 +1746,14 @@
 				>
 				<File
 					RelativePath=".\Classes\dcxml\dcxml.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Classes\dcxml\dcxmlincludes.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Classes\dcxml\dcxmlparser.h"
 					>
 				</File>
 			</Filter>
