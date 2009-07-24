@@ -15,7 +15,7 @@
  *
  * © ScriptsDB.org - 2006
  */
-#include "dcxml.h"
+//#include "dcxml.h" why the fuck is it including itself?
 #include "dcxmlparser.h"
 
 class Dcxml 

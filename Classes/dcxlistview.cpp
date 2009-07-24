@@ -3583,11 +3583,12 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 	lvi.lParam = (LPARAM) lpmylvi;
 	lvi.mask = LVIF_PARAM|LVIF_STATE;
 
-	if (icon > -1) {
+	if (icon > -1)
 		lvi.iImage = icon;
-		lvi.mask |= LVIF_IMAGE;
-	}
-
+	lvi.mask |= LVIF_IMAGE; // when this is a set & iImage is -1 the parent does the drawing (& in this case does nothing so no icon)
+							// this fixes the icon being drawn even when no icon set.
+							// leave this separate for now untill it's been well tested.
+	
 	// LVS_REPORT view
 	if (this->isListViewStyle(LVS_REPORT)) {
 

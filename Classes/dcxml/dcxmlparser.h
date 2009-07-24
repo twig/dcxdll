@@ -2,7 +2,7 @@
 #define DCXMLPARSER_H
 
 #include "dcxmlincludes.h"
-#include "dcxmlparser.h"
+//#include "dcxmlparser.h" wtf?
 class DcxmlParser {
 	
 public:

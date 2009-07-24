@@ -42,8 +42,8 @@ mIRC(dcxml) {
 	// Parse XDialog XML.
     if (flags['d']) {
 		Dcxml::Parser = new DcxmlParser( 
-			input.gettok(2,"\"").to_chr()	
-			,input.gettok(2).to_chr()		
+			input.gettok(2,"\"").to_chr()
+			,input.gettok(2).to_chr()
 			,input.gettok(3).to_chr()
 			,(flags['v'])
 			,(flags['x'])
@@ -74,12 +74,9 @@ mIRC(dcxml) {
 	}
 	*/
 	// Unknown flags.
-	else {
+	else
 		Dcx::errorex("/dcxml", "Unknown flag %s", input.gettok(1).to_chr());
-		return 0;
-	}
-
-    return 1;
+	return 0;
 }
 mIRC(_dcxml)
 {
