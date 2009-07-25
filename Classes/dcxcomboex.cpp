@@ -457,7 +457,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 		}
 
 		if (himl != NULL) {
-			HICON icon = dcxLoadIcon(index, filename, FALSE, flag);
+			HICON icon = dcxLoadIcon(index, filename, false, flag);
 
 			//if (flag.find('g', 0))
 			//	icon = CreateGrayscaleIcon(icon);

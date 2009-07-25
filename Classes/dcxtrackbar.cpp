@@ -571,14 +571,14 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 										BITMAP bmp;
 										GetClientRect(this->m_Hwnd, &rect);
 										GetObject(this->m_hbmp[TBBMP_BACK], sizeof(BITMAP), &bmp);
-										oldBM = (HBITMAP)SelectObject(hdcbmp, this->m_hbmp[TBBMP_BACK]);
+										oldBM = SelectBitmap(hdcbmp, this->m_hbmp[TBBMP_BACK]);
 
 										TransparentBlt( hdc,
 											rect.left, rect.top,
 											rect.right - rect.left, 
 											rect.bottom - rect.top, hdcbmp,
 											0, 0, bmp.bmWidth, bmp.bmHeight, this->m_colTransparent);
-										SelectObject(hdcbmp, oldBM);
+										SelectBitmap(hdcbmp, oldBM);
 										DeleteDC(hdcbmp);
 									}
 								}
@@ -589,14 +589,14 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									if (hdcbmp != NULL) {
 										BITMAP bmp;
 										GetObject(this->m_hbmp[TBBMP_CHANNEL], sizeof(BITMAP), &bmp);
-										oldBM = (HBITMAP)SelectObject(hdcbmp, this->m_hbmp[TBBMP_CHANNEL]);
+										oldBM = SelectBitmap(hdcbmp, this->m_hbmp[TBBMP_CHANNEL]);
 
 										TransparentBlt( hdc,
 											nmcd.rc.left, nmcd.rc.top,
 											nmcd.rc.right - nmcd.rc.left, 
 											nmcd.rc.bottom - nmcd.rc.top, hdcbmp,
 											0, 0, bmp.bmWidth, bmp.bmHeight, this->m_colTransparent);
-										SelectObject(hdcbmp, oldBM);
+										SelectBitmap(hdcbmp, oldBM);
 										DeleteDC(hdcbmp);
 										return /*CDRF_NOTIFYPOSTPAINT | */CDRF_SKIPDEFAULT;
 									}
@@ -628,14 +628,14 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									BITMAP bmp;
 
 									GetObject(pBmp, sizeof(BITMAP), &bmp);
-									oldBM = (HBITMAP)SelectObject(hdcbmp, pBmp);
+									oldBM = SelectBitmap(hdcbmp, pBmp);
 
 									TransparentBlt( hdc,
 										nmcd.rc.left, nmcd.rc.top,
 										nmcd.rc.right - nmcd.rc.left, 
 										nmcd.rc.bottom - nmcd.rc.top, hdcbmp,
 										0, 0, bmp.bmWidth, bmp.bmHeight, this->m_colTransparent);
-									SelectObject(hdcbmp, oldBM);
+									SelectBitmap(hdcbmp, oldBM);
 									DeleteDC(hdcbmp);
 
 									// don't let control draw itself, or it will un-do our work
@@ -655,7 +655,7 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							return CDRF_DODEFAULT;
 					} // end drawstage
 
-					break;
+					//break; // unreachable
 				} // end NM_CUSTOMDRAW
 
 			} // end SWITCH

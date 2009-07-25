@@ -1260,10 +1260,10 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [N] [+FLAGS] (WIDTH)
 	else if (flags['n'] && numtok > 4) {
-		TString flags(input.gettok(5));
+		TString tsFlags(input.gettok(5));
 
 		// manually set width
-		if (flags.find('m', 0)) {
+		if (tsFlags.find('m', 0)) {
 			TString widths(input.gettok(6, -1));
 			int count = this->getColumnCount();
 
@@ -1279,7 +1279,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		}
 
 		int nColumn = input.gettok(4).to_int() -1;
-		UINT iFlags = this->parseHeaderFlags2(flags);
+		UINT iFlags = this->parseHeaderFlags2(tsFlags);
 
 		if (nColumn > -1 && nColumn < this->getColumnCount()) {
 			if (iFlags == -3) { // +s
@@ -3345,11 +3345,10 @@ void DcxListView::xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *
 	lpmylvi->vInfo.push_back(ri);
 
 	// Items icon.
+	lvi->mask |= LVIF_IMAGE; // moved here to turn off icon when none is wanted.
 	attr = xNode->Attribute("icon",&i);
-	if (attr != NULL && i > 0) {
+	if (attr != NULL && i > 0)
 		lvi->iImage = i -1;
-		lvi->mask |= LVIF_IMAGE;
-	}
 	else
 		lvi->iImage = -1;
 
@@ -3675,10 +3674,9 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 				// icon
 				icon = data.gettok( 2 ).to_int() -1;
 
-				if (icon > -1) {
+				lvi.mask |= LVIF_IMAGE; // moved here to turn off icon when none is wanted.
+				if (icon > -1)
 					lvi.iImage = icon;
-					lvi.mask |= LVIF_IMAGE;
-				}
 				else
 					lvi.iImage = -1;
 

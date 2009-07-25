@@ -2,7 +2,7 @@
 #include "Classes/custom/divider.h"
 #include "Classes/custom/DcxTrayIcon.h"
 
-extern DcxTrayIcon * trayIcons;
+//extern DcxTrayIcon * trayIcons;
 
 mIRCLinker Dcx::mIRC;
 TString Dcx::m_sLastError;
@@ -603,7 +603,7 @@ LRESULT CALLBACK Dcx::mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			Dcx::mIRC.resetWindowProc();
 			PostMessage(mHwnd, uMsg, 0, 0);
 			return 0L;
-			break;
+			//break;
 		}
 		// ghost drag stuff
 		case WM_ENTERSIZEMOVE:

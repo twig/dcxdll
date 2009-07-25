@@ -912,8 +912,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags['w'] && numtok > 5) {
-		TString flags(input.gettok(4));
-		UINT iFlags = this->parseIconFlagOptions(flags);
+		TString tsFlags(input.gettok(4));
+		UINT iFlags = this->parseIconFlagOptions(tsFlags);
 
 		HIMAGELIST himl;
 		HICON icon = NULL;
@@ -923,7 +923,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		bool bLarge = (this->m_iIconSize > 16);
 
 		if (index >= 0) {
-			icon = dcxLoadIcon(index, filename, bLarge, flags);
+			icon = dcxLoadIcon(index, filename, bLarge, tsFlags);
 
 			if (icon == NULL) {
 				this->showError(NULL, "-w", "Unable to load icon");
@@ -947,10 +947,10 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			else {
 				int i = ImageList_AddIcon(himl, icon);
 
-				if (flags.find('o',0)) {
+				if (tsFlags.find('o',0)) {
 					// overlay image
-					int io = flags.find('o',1) +1;
-					int o = flags.mid(io, (flags.len() - io)).to_int();
+					int io = tsFlags.find('o',1) +1;
+					int o = tsFlags.mid(io, (tsFlags.len() - io)).to_int();
 
 					if (o < 1 || o > 15) {
 						this->showError(NULL, "-w", "Overlay index out of range (1 -> 15)");

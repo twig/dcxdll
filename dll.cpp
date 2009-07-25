@@ -101,7 +101,7 @@ SIGNALSWITCH dcxSignal;
 */
 
 HANDLE hDcxMutex = NULL;
-extern BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved );
+//extern BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved );
 
 BOOL WINAPI DllMain(
 					HINSTANCE hinstDLL,  // handle to DLL module

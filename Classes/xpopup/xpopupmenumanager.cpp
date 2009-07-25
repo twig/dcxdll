@@ -17,8 +17,8 @@
 
 
 
-extern HMENU g_OriginalMenuBar;
-extern XPopupMenu *g_mIRCScriptMenu;
+//extern HMENU g_OriginalMenuBar;
+//extern XPopupMenu *g_mIRCScriptMenu;
 
 /*!
  * \brief Constructor
@@ -477,7 +477,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 					break;
 				case 'a': // Set Alpha value of menu. 0-255
 					{
-						BYTE alpha = (input.gettok( 4 ).to_int() & 0xFF);
+						BYTE alpha = (BYTE)(input.gettok( 4 ).to_int() & 0xFF);
 
 						if (alpha > 255)
 							alpha = 255;

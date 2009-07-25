@@ -234,7 +234,7 @@ mIRC(BrowseDialog) {
 	// seperate the tokens (by tabs)
 	TString input(data);
 	TString param;
-	int numtok;
+	//int numtok;
 	int count;
 	int currentParam = 1;
 	bool bInitialFolder = false;
@@ -247,7 +247,7 @@ mIRC(BrowseDialog) {
 	XBROWSEDIALOGSETTINGS extra;
 
 	input.trim();
-	numtok = input.numtok(TSTAB);
+	//numtok = input.numtok(TSTAB);
 
 	// set up the BI structure
 	ZeroMemory(&bi, sizeof(BROWSEINFO));

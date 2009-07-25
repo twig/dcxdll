@@ -27,6 +27,11 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #pragma warning( disable : 1195 )
 #pragma warning( disable : 504 )
 #pragma warning( disable : 1563 )
+#pragma warning( disable : 869 ) // remark #869: parameter "doc" was never referenced
+#pragma warning( disable : 981 ) // remark #981: operands are evaluated in unspecified order
+#pragma warning( disable : 1419 ) // remark #1419: external declaration in primary source file
+#pragma warning( disable : 1418 ) // remark #1418: external function definition with no prior declaration
+#pragma warning( disable : 383 ) // remark #383: value copied to temporary, reference to temporary used
 // intel compiler has problems with .def file
 #define _INTEL_DLL_ __declspec(dllexport)
 #else
@@ -419,7 +424,7 @@ HWND GetHwndFromString(const char *str);
 HWND FindOwner(const TString & data, const HWND defaultWnd);
 BOOL CopyToClipboard(const HWND owner, const TString & str);
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
-HICON dcxLoadIcon(const int index, TString &filename, const bool large = false, const TString &flags = "+");
+HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TString &flags);
 HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
 bool ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);

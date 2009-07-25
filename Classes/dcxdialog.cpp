@@ -751,8 +751,8 @@ void DcxDialog::parseCommandRequest( TString &input) {
 
 				if (alpha > 255)
 					alpha = 255;
-				else if (alpha < 0)
-					alpha = 0;
+				//else if (alpha < 0) // can only be >= 0
+				//	alpha = 0;
 
 				this->m_iAlphaLevel = alpha;
 				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
@@ -846,11 +846,11 @@ void DcxDialog::parseCommandRequest( TString &input) {
 	}
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags['w'] && numtok > 4) {
-		TString flags(input.gettok( 3 ));
+		TString tsFlags(input.gettok( 3 ));
 		int index = input.gettok( 4 ).to_int();
 		TString filename(input.gettok(5, -1).trim());
 
-		ChangeHwndIcon(this->m_Hwnd,flags,index,filename);
+		ChangeHwndIcon(this->m_Hwnd,tsFlags,index,filename);
 	}
 	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]
 	else if (flags['z'] && numtok > 3) {
@@ -1102,7 +1102,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		else if (flag.find('g',0)) // ghost drag - <0-255>
 		{
 			BYTE alpha = (BYTE)input.gettok( 4 ).to_int();
-			if ((alpha >= 0) && (alpha <= 255)) {
+			if (/*(alpha >= 0) &&*/ (alpha <= 255)) { // unsigned int will ALWAYS be >= 0
 				noRegion = true;
 				this->m_bDoGhostDrag = alpha;
 			}
@@ -3062,8 +3062,9 @@ void DcxDialog::MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rc
 			else if(dLength <= nKernelSize)
 			{
 				UINT32 nFactor = ((UINT32)((1 - (dLength - nCenterSize) / (this->m_Shadow.nSharpness + 1)) * this->m_Shadow.nDarkness));
-				*pKernelIter = nFactor << 24 | PreMultiply(this->m_Shadow.Color, nFactor);
-				// TODO: Examin this nFactor usage in PreMultiply() as its converting a UINT32 to an unsigbed char
+				*pKernelIter = nFactor << 24 | PreMultiply(this->m_Shadow.Color, (BYTE)(nFactor & 0xFF));
+				// TODO: Examin this nFactor usage in PreMultiply() as its converting a UINT32 to an unsigned char
+				// changed nFactor to (BYTE)(nFactor & 0xFF) to mask out > byte bits.
 			}
 			else
 				*pKernelIter = 0;
@@ -3443,7 +3444,7 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 	if (this->m_bGhosted)
 		alpha = this->m_bDoGhostDrag;
 
-	BYTE half_alpha = alpha / 2;
+	BYTE half_alpha = (BYTE)(alpha / 2);
 
 	BLENDFUNCTION stBlend = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
 
@@ -3525,9 +3526,9 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 					if (!PtInRect(&glassOffsets,pt)) {
 						pPixel[3] = half_alpha; // set glass area as 50% (0x7f) transparent
 
-						pPixel[0] = pPixel[0] * pPixel[3] / 255;
-						pPixel[1] = pPixel[1] * pPixel[3] / 255;
-						pPixel[2] = pPixel[2] * pPixel[3] / 255;
+						pPixel[0] = (BYTE)(pPixel[0] * pPixel[3] / 255);
+						pPixel[1] = (BYTE)(pPixel[1] * pPixel[3] / 255);
+						pPixel[2] = (BYTE)(pPixel[2] * pPixel[3] / 255);
 					}
 
 					pPixel += 4;

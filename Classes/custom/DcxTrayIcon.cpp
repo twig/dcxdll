@@ -6,7 +6,7 @@
 // http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/reference/structures/notifyicondata.asp
 // http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/reference/functions/shell_notifyicon.asp
 
-extern DcxTrayIcon *trayIcons;
+//extern DcxTrayIcon *trayIcons;
 
 // xTray [+flags] [id] [icon index] [icon file] $tab [tooltip]
 // Create : xTray +c [id] [+flags] [icon index] [icon file] $tab [tooltip]

@@ -30,4 +30,6 @@ private:
 	void AddIconId(int id);
 };
 
+extern DcxTrayIcon *trayIcons;
+
 #endif // _DCXTRAYICON_H_

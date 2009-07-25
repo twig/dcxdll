@@ -21,7 +21,7 @@ DcxmlParser *Dcxml::Parser;
 
 Dcxml::Dcxml() {
 
-};
+}
 /*
  * /dcxml -[SWITCH] [?NAME] [DATASET] [PARMS]
  *

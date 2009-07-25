@@ -230,9 +230,9 @@ void DcxImage::parseCommandRequest(TString & input) {
 		PreloadData();
 
 		if (size > 16)
-			this->m_hIcon = dcxLoadIcon(index, filename, TRUE, flag);
+			this->m_hIcon = dcxLoadIcon(index, filename, true, flag);
 		else
-			this->m_hIcon = dcxLoadIcon(index, filename, FALSE, flag);
+			this->m_hIcon = dcxLoadIcon(index, filename, false, flag);
 
 		if (this->m_hIcon != NULL)
 			this->m_tsFilename = filename;

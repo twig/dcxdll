@@ -41,7 +41,7 @@ public:
 	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
 	inline TString getType( ) { return TString( "list" ); };
-	inline int getDragListId() { return m_iDragList; };
+	inline UINT getDragListId() const { return m_iDragList; };
 	TString getStyles(void);
 
 	static void registerClass(void);
@@ -49,10 +49,10 @@ public:
 protected:
 	enum SearchTypes { LBSEARCH_W = 1, LBSEARCH_R };
 
-	void DrawDragLine(int location);
+	void DrawDragLine(const int location);
 	BOOL matchItemText( const int nItem, const TString * search, const UINT SearchType );
 
-	int m_iDragList;
+	UINT m_iDragList;
 	int m_iLastDrawnLine;
 	BOOL m_bUseDrawInsert;
 };

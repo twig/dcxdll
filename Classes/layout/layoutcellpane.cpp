@@ -15,7 +15,7 @@
 #include "layoutcellpane.h"
 #include <windowsx.h>
 
-extern HWND hwndChild4;
+//extern HWND hwndChild4;
 
 /*!
  * \brief Constructor

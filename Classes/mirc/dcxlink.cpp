@@ -185,7 +185,7 @@ void DcxLink::parseCommandRequest( TString & input ) {
 		if (this->m_hIcon != NULL)
 			DestroyIcon(this->m_hIcon);
 
-		this->m_hIcon = dcxLoadIcon(index, filename, FALSE, flag);
+		this->m_hIcon = dcxLoadIcon(index, filename, false, flag);
 
 		//if (flag.find('g', 0))
 		//	this->m_hIcon = CreateGrayscaleIcon(this->m_hIcon);

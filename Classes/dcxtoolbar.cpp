@@ -323,28 +323,28 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		if ( nPos == -1 )
 			nPos += this->getButtonCount( ) + 1;
 
-		TString flags(input.gettok( 5 ));
+		TString tsFlags(input.gettok( 5 ));
 		int width = input.gettok( 6 ).to_int( );
 		int icon = input.gettok( 7 ).to_int( ) - 1;
 		COLORREF clrText = (COLORREF) input.gettok( 8 ).to_num( );
-		int numtok = input.gettok( 1, TSTAB ).numtok( );
+		int iNumtok = input.gettok( 1, TSTAB ).numtok( );
 
 		TBBUTTON tbb;
 		ZeroMemory( &tbb, sizeof( TBBUTTON ) );
 
-		tbb.fsState = parseButtonStateFlags( flags );
+		tbb.fsState = parseButtonStateFlags( tsFlags );
 		tbb.idCommand = this->getFreeButtonID( );
-		UINT buttonStyles = parseButtonStyleFlags( flags );
-		tbb.fsStyle = (buttonStyles & 0xFF);
+		UINT buttonStyles = parseButtonStyleFlags( tsFlags );
+		tbb.fsStyle = (BYTE)(buttonStyles & 0xFF);
 
-		if (( icon == -1 ) || (numtok < 7))
+		if (( icon == -1 ) || (iNumtok < 7))
 			tbb.iBitmap = I_IMAGENONE;
 		else
 			tbb.iBitmap = icon;
 
 		TString itemtext;
 
-		if ( numtok > 8 ) {
+		if ( iNumtok > 8 ) {
 
 			itemtext = input.gettok( 1, TSTAB ).gettok( 9, -1 ).trim();
 

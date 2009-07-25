@@ -19,9 +19,9 @@
 /*
 dcxml [-FLAGS] [NAME] [DNAME] "[PATH]"
 */
-DcxmlParser::DcxmlParser() {
-
-};
+//DcxmlParser::DcxmlParser() {
+//
+//}
 DcxmlParser::DcxmlParser(const char *file,const char *mark,const char *dialogName, bool verbose, bool autoClose)
 {
 	this->loadSuccess = true;
@@ -78,9 +78,9 @@ DcxmlParser::DcxmlParser(const char *file,const char *mark,const char *dialogNam
 
 	//This "Shite" is to activate the first zlayer, added a check if this command starts returning an error
 	if (this->getZlayered()) this->xdialogEX("-z","+s 1");
-};
+}
 
-void DcxmlParser::setDialog(const char *dialogMark) { this->_dcxDialog = Dcx::Dialogs.getDialogByName(dialogMark);	};
+void DcxmlParser::setDialog(const char *dialogMark) { this->_dcxDialog = Dcx::Dialogs.getDialogByName(dialogMark);	}
 
 bool DcxmlParser::loadDocument()
 {
@@ -150,19 +150,19 @@ bool DcxmlParser::loadDialogElement()
 		return false;
 	}
 	return true;
-};
+}
 
 
 const char *DcxmlParser::queryAttribute(TiXmlElement *element,const char *attribute,const char *defaultValue)
 {
 	const char *t;
 	return (t = element->Attribute(attribute)) ? t : defaultValue;
-};
+}
 int DcxmlParser::queryIntAttribute(TiXmlElement *element,const char *attribute,int defaultValue)
 {
 	int integer;
 	return (element->QueryIntAttribute(attribute,&integer) == TIXML_SUCCESS) ? integer : defaultValue;
-};
+}
 
 void DcxmlParser::parseAttributes() {
     elem = element->Value();
@@ -361,10 +361,10 @@ void DcxmlParser::xdialogEX(const char *sw,const char *dFormat, ...) {
 		va_end(args);
 
 		if (this->isVerbose())
-			Dcx::mIRC.execex("/echo -a dcxml debug: /xdialog %s %s %s",sw,this->getDialogMark(),txt);
+			Dcx::mIRC.execex("/echo -a dcxml debug: /xdialog %s %s %s",sw,this->getDialogMark(),txt.to_chr());
 
-		if (eval) Dcx::mIRC.execex("//xdialog %s %s %s",sw,this->getDialogMark(),txt);
-        else this->getDialog()->parseCommandRequestEX("%s %s %s",this->getDialogMark(),sw,txt);
+		if (eval) Dcx::mIRC.execex("//xdialog %s %s %s",sw,this->getDialogMark(),txt.to_chr());
+		else this->getDialog()->parseCommandRequestEX("%s %s %s",this->getDialogMark(),sw,txt.to_chr());
 }
 	/* xdidEX(controlId,switch,format[,args[]]) : performs an xdid command internally or trough mIRC on the specified id */
 void DcxmlParser::xdidEX(int id,const char *sw,const char *dFormat, ...) { 
@@ -376,10 +376,10 @@ void DcxmlParser::xdidEX(int id,const char *sw,const char *dFormat, ...) {
 		va_end(args);
 		
 		if (this->isVerbose())
-			Dcx::mIRC.execex("/echo -a dcxml debug: /xdid %s %s %i %s",sw,this->getDialogMark(),id,txt);
+			Dcx::mIRC.execex("/echo -a dcxml debug: /xdid %s %s %i %s",sw,this->getDialogMark(),id,txt.to_chr());
 
-        if (eval) Dcx::mIRC.execex("//xdid %s %s %i %s",sw,this->getDialogMark(),id,txt);
-        else this->getDialog()->parseComControlRequestEX(id,"%s %i %s %s",this->getDialogMark(),id,sw,txt);
+		if (eval) Dcx::mIRC.execex("//xdid %s %s %i %s",sw,this->getDialogMark(),id,txt.to_chr());
+		else this->getDialog()->parseComControlRequestEX(id,"%s %i %s %s",this->getDialogMark(),id,sw,txt.to_chr());
 }
     /* parseCLA(int numberOfClaControlsInCurrentBranch) : parses control and pane elements and applies the right CLA commands */
 TString DcxmlParser::parseCLA(const int cCla) { 
@@ -604,11 +604,11 @@ void DcxmlParser::parseIcons(int depth) {
 			else
 			{
 				for( icon = icon->FirstChildElement("icon"); iconchild; iconchild = iconchild->NextSiblingElement()) {
-					const char *flags = (temp = iconchild->Attribute("flags")) ? temp : "ndhs";
-					const char *index = (temp = iconchild->Attribute("index")) ? temp : "0";
-					const char *src = iconchild->Attribute("src");
-					if (src)
-						Dcx::mIRC.execex("//xdid -w %s %i +%s %s %s",this->getDialogMark(),id,flags,index,src);
+					const char *tflags = (temp = iconchild->Attribute("flags")) ? temp : "ndhs";
+					const char *tindex = (temp = iconchild->Attribute("index")) ? temp : "0";
+					const char *tsrc = iconchild->Attribute("src");
+					if (tsrc)
+						Dcx::mIRC.execex("//xdid -w %s %i +%s %s %s",this->getDialogMark(),id,tflags,tindex,tsrc);
 				}
 			}
         }

@@ -21,6 +21,9 @@
 #pragma warning( default : 4996 ) 
 #include <dxdiag.h>
 
+#ifdef __INTEL_COMPILER
+#pragma warning( disable : 1419 )
+#endif
 
 HRESULT GetDirectXVersionViaDxDiag( DWORD* pdwDirectXVersionMajor, DWORD* pdwDirectXVersionMinor, TCHAR* pcDirectXVersionLetter );
 HRESULT GetDirectXVersionViaFileVersions( DWORD* pdwDirectXVersionMajor, DWORD* pdwDirectXVersionMinor, TCHAR* pcDirectXVersionLetter );

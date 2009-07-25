@@ -174,7 +174,7 @@ mIRC(xstatusbar) {
 				}
 
 				if (himl != NULL) {
-					icon = dcxLoadIcon(index, filename, FALSE, flags);
+					icon = dcxLoadIcon(index, filename, false, flags);
 
 					ImageList_AddIcon(himl, icon);
 					DestroyIcon(icon);

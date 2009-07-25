@@ -1072,7 +1072,7 @@ HRESULT DcxDirectshow::setVolume(const float vol)
 	if (SUCCEEDED(hr)) {
 #pragma warning(push,3)
 #pragma warning(disable:4244)
-		long t = -((10000.0 / 100.0) * (100 - vol));
+		long t = (long)-((10000.0 / 100.0) * (100 - vol));
 #pragma warning(pop)
 		hr = pAudio->put_Volume(t);
 		pAudio->Release();
@@ -1091,7 +1091,7 @@ float DcxDirectshow::getVolume() const
 #pragma warning(push,3)
 #pragma warning(disable:4244)
 		if (SUCCEEDED(hr))
-			vol = 100 - ((abs(t) / 10000.0) * 100.0);
+			vol = (float)(100 - ((abs(t) / 10000.0) * 100.0));
 #pragma warning(pop)
 		pAudio->Release();
 	}

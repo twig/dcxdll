@@ -18,8 +18,8 @@
 
 
 
-extern HMENU g_OriginalMenuBar;
-extern XPopupMenu *g_mIRCScriptMenu;
+//extern HMENU g_OriginalMenuBar;
+//extern XPopupMenu *g_mIRCScriptMenu;
 
 /*
  *

@@ -681,7 +681,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 				this->setImageList(himl);
 		}
 
-		icon = dcxLoadIcon(index, filename, FALSE, flag);
+		icon = dcxLoadIcon(index, filename, false, flag);
 
 		//if (flag.find('g', 0))
 		//	icon = CreateGrayscaleIcon(icon);

@@ -535,12 +535,12 @@ void DcxList::parseCommandRequest( TString & input ) {
 					tok[1] = 0;
 					TString contents(itemtext.gettok(2,-1));
 
-					int numtok = contents.numtok(tok);
+					int iNumtok = contents.numtok(tok);
 					int len = 0;
 
 					this->setRedraw(FALSE);
 
-					for (int i = 1; i <= numtok; i++) {
+					for (int i = 1; i <= iNumtok; i++) {
 						itemtext = contents.gettok( i, tok);
 						ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
 						len = itemtext.len();
@@ -932,7 +932,7 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 // Draws a horizontal line to insert rather than the arrow
 // Ported from http://www.vb-hellfire.de/knowlib/draglist.php
-void DcxList::DrawDragLine(int location)
+void DcxList::DrawDragLine(const int location)
 {
    RECT rc;
    HDC  hDC;

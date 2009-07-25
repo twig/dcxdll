@@ -236,7 +236,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
       *((LPINT)lParam) = (lpdvdata->m_bDragging == TRUE ? lpdvdata->m_iOldPos : lpdvdata->m_iBarPos);
       return 0L;
-      break;
+      //break;
     }
 
     case WM_DESTROY:

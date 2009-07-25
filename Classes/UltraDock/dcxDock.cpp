@@ -628,7 +628,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			delete pthis;
 			PostMessage(mHwnd, uMsg, 0, 0);
 			return 0L;
-			break;
+			//break;
 		}
 	}
 	return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);

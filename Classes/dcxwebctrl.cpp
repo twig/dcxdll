@@ -15,7 +15,7 @@
 #include "dcxwebctrl.h"
 #include "dcxdialog.h"
 
-extern IClassFactory * g_pClassFactory;
+//extern IClassFactory * g_pClassFactory;
 
 /*!
  * \brief Constructor

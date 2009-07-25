@@ -258,31 +258,31 @@ void DcxCalendar::parseCommandRequest(TString &input) {
 
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
 	if (flags['k'] && numtok > 4) {
-		TString flags(input.gettok(4));
+		TString tsFlags(input.gettok(4));
 		COLORREF col = (COLORREF) input.gettok(5).to_int();
 
 		// Set the background color displayed between months.
-		if (flags.find('b', 0))
+		if (tsFlags.find('b', 0))
 			MonthCal_SetColor(this->m_Hwnd, MCSC_BACKGROUND, col);
 
 		// Set the background color displayed within the month.
-		if (flags.find('g', 0))
+		if (tsFlags.find('g', 0))
 			MonthCal_SetColor(this->m_Hwnd, MCSC_MONTHBK, col);
 
 		// Set the color used to display text within a month.
-		if (flags.find('t', 0))
+		if (tsFlags.find('t', 0))
 			MonthCal_SetColor(this->m_Hwnd, MCSC_TEXT, col);
 
 		// Set the background color displayed in the calendar's title and selection color.
-		if (flags.find('i', 0))
+		if (tsFlags.find('i', 0))
 			MonthCal_SetColor(this->m_Hwnd, MCSC_TITLEBK, col);
 
 		// Set the color used to display text within the calendar's title.
-		if (flags.find('a', 0))
+		if (tsFlags.find('a', 0))
 			MonthCal_SetColor(this->m_Hwnd, MCSC_TITLETEXT, col);
 
 		// Set the color used to display header day and trailing day text. Header and trailing days are the days from the previous and following months that appear on the current month calendar.
-		if (flags.find('r', 0))
+		if (tsFlags.find('r', 0))
 			MonthCal_SetColor(this->m_Hwnd, MCSC_TRAILINGTEXT, col);
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [MAX]
@@ -293,24 +293,22 @@ void DcxCalendar::parseCommandRequest(TString &input) {
 	}
 	//xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if (flags['r'] && numtok > 4) {
-		DWORD flags = 0;
+		DWORD dflags = 0;
 		SYSTEMTIME range[2];
 
 		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
 
 		if (input.gettok(4) != "nolimit") {
-			long min = (long) input.gettok(4).to_num();
-			range[0] = MircTimeToSystemTime(min);
-			flags |= GDTR_MIN;
+			range[0] = MircTimeToSystemTime((long) input.gettok(4).to_num());
+			dflags |= GDTR_MIN;
 		}
 
 		if (input.gettok(5) != "nolimit") {
-			long max = (long) input.gettok(5).to_num();
-			range[1] = MircTimeToSystemTime(max);
-			flags |= GDTR_MAX;
+			range[1] = MircTimeToSystemTime((long) input.gettok(5).to_num());
+			dflags |= GDTR_MAX;
 		}
 
-		MonthCal_SetRange(this->m_Hwnd, flags, range);
+		MonthCal_SetRange(this->m_Hwnd, dflags, range);
 	}
 	//xdid -s [NAME] [ID] [SWITCH] [MIN] (MAX)
 	else if (flags['s'] && numtok > 3) {
@@ -394,7 +392,6 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					lpNMDayState->prgDayState = mds;
 					bParsed = TRUE;
 					return FALSE;
-					break;
 				}
 
 				case MCN_SELCHANGE: {

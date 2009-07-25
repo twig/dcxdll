@@ -7,7 +7,7 @@ class DcxmlParser {
 	
 public:
 	//constructor
-	DcxmlParser();
+	//DcxmlParser();
 	DcxmlParser(const char *filePath, const char *dialogMark,const char *dialogName,bool verbose, bool autoClose);
 	//virtual ~DCXML( );
 	void parseAttributes();

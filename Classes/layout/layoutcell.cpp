@@ -18,7 +18,7 @@
 #include "../dcxdialog.h"
 #include "../../Dcx.h"
 
-extern HWND hwndChild4;
+//extern HWND hwndChild4;
 
 
 /*!

@@ -31,6 +31,11 @@ distribution.
 #pragma warning( push )
 #pragma warning( disable : 4530 )
 #pragma warning( disable : 4786 )
+#ifdef __INTEL_COMPILER
+#pragma warning( disable : 869 ) // remark #869: parameter "doc" was never referenced
+#else
+#pragma warning( disable : 4100 ) // unreferenced formal parameter
+#endif
 #endif
 
 #include <ctype.h>

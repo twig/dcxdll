@@ -95,4 +95,7 @@ protected:
 	bool m_bPatched;
 };
 
+extern HMENU g_OriginalMenuBar;
+extern XPopupMenu *g_mIRCScriptMenu;
+
 #endif // _XPOPUPMENUMANAGER_H_
