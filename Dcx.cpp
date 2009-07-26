@@ -84,14 +84,15 @@ void Dcx::unload(void)
 	UnregisterClass(DCX_RICHEDITCLASS, GetModuleHandle(NULL));
 	UnregisterClass(DCX_REBARCTRLCLASS, GetModuleHandle(NULL));
 	UnregisterClass(DCX_COLORCOMBOCLASS, GetModuleHandle(NULL));
+	UnregisterClass(DCX_TABCTRLCLASS, GetModuleHandle(NULL));
 	UnregisterClass(DCX_UPDOWNCLASS, GetModuleHandle(NULL));
-	UnregisterClass(DCX_BUTTONCLASS, GetModuleHandle(NULL));
+	UnregisterClass(DCX_IPADDRESSCLASS, GetModuleHandle(NULL));
 	UnregisterClass(DCX_DIVIDERCLASS, GetModuleHandle(NULL));
 	UnregisterClass(DCX_PANELCLASS, GetModuleHandle(NULL));
-	UnregisterClass(DCX_TABCTRLCLASS, GetModuleHandle(NULL));
+	UnregisterClass(DCX_BOXCLASS, GetModuleHandle(NULL));
+	UnregisterClass(DCX_BUTTONCLASS, GetModuleHandle(NULL));
 	UnregisterClass(DCX_CALENDARCLASS, GetModuleHandle(NULL));
 	UnregisterClass(DCX_DATETIMECLASS, GetModuleHandle(NULL));
-	UnregisterClass(DCX_BOXCLASS, GetModuleHandle(NULL));
 	UnregisterClass(DCX_PAGERCLASS, GetModuleHandle(NULL));
 	UnregisterClass(DCX_SHADOWCLASS, GetModuleHandle(NULL));
 	UnregisterClass(DCX_VISTACLASS, GetModuleHandle(NULL));
@@ -191,14 +192,6 @@ void Dcx::setupOSCompatibility(void) {
 		GetFullPathNameWUx = (PFNGETFULLPATHNAMEW)GetProcAddress(hModule, "GetFullPathNameW");
 		DCX_DEBUG(mIRC.debug,"LoadDLL", "Found GetFullPathName Function");
 	}
-
-//#define dcxRegisterClassM(szClass, szDcxClass, CClass) { \
-//	GetClassInfoEx(NULL, (TCHAR *)(szClass), &wc); \
-//	wc.lpszClassName = (TCHAR *)(szDcxClass); \
-//	(CClass)::m_DefaultWindowProc = wc.wc.lpfnWndProc; \
-//	wc.lpfnWndProc = (CClass)::WindowProc; \
-//	RegisterClassEx(&wc); \
-//};
 
 	WNDCLASSEX wc;
 	ZeroMemory((void*)&wc , sizeof(WNDCLASSEX));
