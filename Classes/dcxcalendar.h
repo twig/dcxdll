@@ -15,8 +15,8 @@
 #ifndef _DCXCALENDAR_H_
 #define _DCXCALENDAR_H_
 
-#include "../defines.h"
-#include "dcxcontrol.h"
+#include "defines.h"
+#include "Classes/dcxcontrol.h"
 
 #define BOLDDAY(ds,iDay) if(iDay>0 && iDay<32) (ds)|=(0x00000001<<(iDay-1))
 

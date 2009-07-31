@@ -11,9 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxlink.h"
-#include "../dcxdialog.h"
+#include "defines.h"
+#include "Classes/mirc/dcxlink.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor
@@ -47,7 +47,7 @@ DcxLink::DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, c
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_hIcon = NULL;
 	this->m_aColors[0] = RGB( 0, 0, 255 );

@@ -11,11 +11,11 @@
 *
 * © ScriptsDB.org - 2006
 */
-
-#include "dcxrichedit.h"
-#include "dcxdialog.h"
-#include "../Dcx.h"
-#include "Custom/RichEditThemed.h"
+#include "defines.h"
+#include "Classes/dcxrichedit.h"
+#include "Classes/dcxdialog.h"
+#include "Dcx.h"
+#include "Classes/Custom/RichEditThemed.h"
 
 
 
@@ -58,10 +58,9 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 		throw "Unable To Create Window";
 
 	if (bNoTheme)
-		dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
-	else {
+		Dcx::XPPlusModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
+	else
 		CRichEditThemed::Attach(this->m_Hwnd);
-	}
 
 	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);

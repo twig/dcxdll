@@ -15,8 +15,8 @@
 #ifndef _XPOPUPMENU_H_
 #define _XPOPUPMENU_H_
 
-#include "../../defines.h"
-#include "xpopupmenuitem.h"
+#include "defines.h"
+#include "Classes/xpopup/xpopupmenuitem.h"
 
 #define XPS_ICON3D        0x01 //!< Icons have a 3D effect
 #define XPS_DISABLEDSEL   0x02 //!< Disabled Items have a selectionbox

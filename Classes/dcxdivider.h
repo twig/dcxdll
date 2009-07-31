@@ -15,10 +15,9 @@
 #ifndef _DCXDIVIDER_H_
 #define _DCXDIVIDER_H_
 
-#include "../defines.h"
-#include "dcxcontrol.h"
-
-#include "custom/divider.h"
+#include "defines.h"
+#include "Classes/dcxcontrol.h"
+#include "Classes/custom/divider.h"
 
 class DcxDialog;
 

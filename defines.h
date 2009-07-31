@@ -19,7 +19,9 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #elif _MSC_VER > 1300 // Visual C++ .NET 2002
 #endif
 */
-
+#if _MSC_VER > 1000
+#pragma once
+#endif
 #ifndef _DEFINES_H_
 #define _DEFINES_H_
 
@@ -30,7 +32,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #pragma warning( disable : 869 ) // remark #869: parameter "doc" was never referenced
 #pragma warning( disable : 981 ) // remark #981: operands are evaluated in unspecified order
 #pragma warning( disable : 1419 ) // remark #1419: external declaration in primary source file
-#pragma warning( disable : 1418 ) // remark #1418: external function definition with no prior declaration
+#pragma warning( disable : 1418 ) // remark #1418: external function definition with no prior declaration http://software.intel.com/en-us/articles/cdiag1418/
 #pragma warning( disable : 383 ) // remark #383: value copied to temporary, reference to temporary used
 // intel compiler has problems with .def file
 #define _INTEL_DLL_ __declspec(dllexport)
@@ -163,7 +165,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // --------------------------------------------------
 // Include files
 // --------------------------------------------------
-
+#define INITGUID
 //#include <vld.h>
 #include <windows.h>
 #include <windowsx.h>
@@ -365,8 +367,6 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 // DLL routines
 // --------------------------------------------------
 
-//void dcxInfoError(const char *ctrl, const char *functn, const char *dlg, const int ctrlid, const char *msg);
-
 int round(const float x);
 BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
 TString ParseLogfontToCommand(const LPLOGFONT lf);
@@ -386,38 +386,11 @@ typedef DWORD (WINAPI *PFNINSENDMESSAGEEX)(LPVOID lpReserved);
 typedef BOOL (WINAPI *PFNFLASHWINDOWEX)(PFLASHWINFO pfwi);
 
 // XP+ Function pointers.
-typedef HRESULT (WINAPI *PFNSETTHEME)(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
-typedef HRESULT (WINAPI *PFNISTHEMEACTIVE)();
-typedef HTHEME (WINAPI *PFNOPENTHEMEDATA)(HWND, LPCWSTR);
-typedef HRESULT (WINAPI *PFNCLOSETHEMEDATA)(HTHEME);
-typedef HRESULT (WINAPI *PFNDRAWTHEMEBACKGROUND)(HTHEME, HDC, int, int, const RECT*, const RECT *);
-typedef HRESULT (WINAPI *PFNGETTHEMEBACKGROUNDCONTENTRECT)(HTHEME, HDC, int, int,  const RECT *, RECT *);
-typedef BOOL (WINAPI *PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT)(HTHEME, int, int);
-typedef HRESULT (WINAPI *PFNDRAWTHEMEPARENTBACKGROUND)(HWND, HDC, RECT*);
-typedef HRESULT (WINAPI *PFNDRAWTHEMETEXT)(HTHEME, HDC, int, int, LPCWSTR, int, DWORD, DWORD, const RECT *);
-typedef HRESULT (WINAPI *PFNGETTHEMEBACKGROUNDREGION)(HTHEME, HDC, int, int, LPCRECT, HRGN *);
-typedef HTHEME (WINAPI *PFNGETWINDOWTHEME)(HWND);
-typedef HRESULT (WINAPI *PFNDRAWTHEMEEDGE)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pDestRect, UINT uEdge, UINT uFlags, LPRECT pContentRect);
 typedef BOOL (WINAPI *PFNUPDATELAYEREDWINDOW)(HWND hWnd, HDC hdcDst, POINT *pptDst, SIZE *psize, HDC hdcSrc, POINT *pptSrc, COLORREF crKey, BLENDFUNCTION *pblend, DWORD dwFlags);
 typedef BOOL (WINAPI *PFNSETLAYEREDWINDOWATTRIBUTES)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
 typedef int (WINAPI *PFNDRAWSHADOWTEXT)(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
 typedef int (WINAPI *PFNPICKICONDLG)(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
-typedef HRESULT (WINAPI *PFNGETTHEMECOLOR)(HTHEME hTheme,int iPartId,int iStateId,int iPropId,COLORREF *pColor);
 typedef DWORD (WINAPI *PFNGETFULLPATHNAMEW)(LPCWSTR lpFileName, DWORD nBufferLength, LPWSTR lpBuffer, LPWSTR* lpFilePart);
-
-// Vista Function pointers.
-#ifdef DCX_USE_WINSDK
-typedef HRESULT (WINAPI *PFNDRAWTHEMEPARENTBACKGROUNDEX)(HWND, HDC, DWORD, const RECT*);
-//typedef HRESULT (WINAPI *PFNGETTHEMEBITMAP)(HTHEME hTheme,int iPartId,int iStateId,int iPropId,ULONG dwFlags,HBITMAP *phBitmap);
-typedef HRESULT (WINAPI *PFNBUFFEREDPAINTINIT)(VOID);
-typedef HRESULT (WINAPI *PFNBUFFEREDPAINTUNINIT)(VOID);
-typedef HPAINTBUFFER (WINAPI *PFNBEGINBUFFEREDPAINT)(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
-typedef HRESULT (WINAPI *PFNENDBUFFEREDPAINT)(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
-#endif
-
-HRESULT dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList);
-BOOL dcxIsThemeActive();
-int dcxPickIconDlg(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
 
 HWND GetHwndFromString(const TString &str);
 HWND GetHwndFromString(const char *str);
@@ -430,6 +403,7 @@ HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent
 bool ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex);
 BOOL dcxGetWindowRect(HWND hWnd, LPRECT lpRect);
+int dcxPickIconDlg(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
@@ -471,20 +445,6 @@ extern PFNINSENDMESSAGEEX InSendMessageExUx;
 extern PFNFLASHWINDOWEX FlashWindowExUx;
 
 // XP+ function pointers
-// Themes
-extern PFNSETTHEME SetWindowThemeUx;  //!< blah
-extern PFNISTHEMEACTIVE IsThemeActiveUx;
-extern PFNOPENTHEMEDATA OpenThemeDataUx;
-extern PFNCLOSETHEMEDATA CloseThemeDataUx;
-extern PFNDRAWTHEMEBACKGROUND DrawThemeBackgroundUx;
-extern PFNGETTHEMEBACKGROUNDCONTENTRECT GetThemeBackgroundContentRectUx;
-extern PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT IsThemeBackgroundPartiallyTransparentUx;
-extern PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx;
-extern PFNDRAWTHEMETEXT DrawThemeTextUx;
-extern PFNGETTHEMEBACKGROUNDREGION GetThemeBackgroundRegionUx;
-extern PFNGETWINDOWTHEME GetWindowThemeUx;
-extern PFNDRAWTHEMEEDGE DrawThemeEdgeUx;
-extern PFNGETTHEMECOLOR GetThemeColorUx;
 // Others
 extern PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx;
 extern PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx;
@@ -492,16 +452,8 @@ extern PFNDRAWSHADOWTEXT DrawShadowTextUx;
 extern PFNPICKICONDLG PickIconDlgUx;
 extern PFNGETFULLPATHNAMEW GetFullPathNameWUx;
 
-// Vista Function pointers.
-#ifdef DCX_USE_WINSDK
-extern PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx;
-//extern PFNGETTHEMEBITMAP GetThemeBitmapUx;
-extern PFNBUFFEREDPAINTINIT BufferedPaintInitUx;
-extern PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx;
-extern PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx;
-extern PFNENDBUFFEREDPAINT EndBufferedPaintUx;
-#endif
-
 extern SIGNALSWITCH dcxSignal;
+
+#include "Dcx.h"
 
 #endif // _DEFINES_H_

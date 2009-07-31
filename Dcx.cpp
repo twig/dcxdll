@@ -1,3 +1,5 @@
+#include "defines.h"
+#include <ExDisp.h>
 #include "Dcx.h"
 #include "Classes/custom/divider.h"
 #include "Classes/custom/DcxTrayIcon.h"
@@ -13,7 +15,7 @@ DcxDWMModule Dcx::VistaModule;
 DcxDialogCollection Dcx::Dialogs;
 XPopupMenuManager Dcx::XPopups;
 XMenuBar Dcx::XMenubar;
-int Dcx::m_iGhostDrag = 255;
+BYTE Dcx::m_iGhostDrag = 255;
 bool Dcx::m_bDX9Installed;
 
 void Dcx::load(LOADINFO * lInfo)
@@ -401,14 +403,14 @@ IClassFactory* Dcx::getClassFactory()
 	return m_pClassFactory;
 }
 
-int Dcx::getGhostDrag()
+BYTE Dcx::getGhostDrag()
 {
 	return m_iGhostDrag;
 }
 
-bool Dcx::setGhostDrag(int newAlpha)
+bool Dcx::setGhostDrag(const BYTE newAlpha)
 {
-	if ((newAlpha < 0) || (newAlpha > 255)) return false;
+	if (newAlpha > 255) return false;
 	m_iGhostDrag = newAlpha;
 	return true;
 }
@@ -607,7 +609,7 @@ LRESULT CALLBACK Dcx::mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					if (!(style & WS_EX_LAYERED))
 						SetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE, style | WS_EX_LAYERED);
 					// Make this window 75 alpha
-					SetLayeredWindowAttributesUx(Dcx::mIRC.getHWND(), 0, (BYTE)Dcx::getGhostDrag(), LWA_ALPHA);
+					SetLayeredWindowAttributesUx(Dcx::mIRC.getHWND(), 0, Dcx::getGhostDrag(), LWA_ALPHA);
 					SetProp(Dcx::mIRC.getHWND(), "dcx_ghosted", (HANDLE)1);
 				}
 			}
@@ -637,16 +639,10 @@ LRESULT CALLBACK Dcx::mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 	return Dcx::mIRC.callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
 }
 bool Dcx::isFile(const char* file) { 
-  struct stat stFileInfo; 
-  bool blnReturn; 
-  int intStat; 
-  intStat = stat(file,&stFileInfo); 
-  if(intStat == 0) { 
-    // We were able to get the file attributes 
-    // so the file obviously exists. 
-    blnReturn = true; 
-  } else { 
-    blnReturn = false; 
-  } 
-  return(blnReturn); 
+	struct stat stFileInfo;
+	if(stat(file,&stFileInfo) == 0)
+		// We were able to get the file attributes
+		// so the file obviously exists.
+		return true;
+	return false;
 }

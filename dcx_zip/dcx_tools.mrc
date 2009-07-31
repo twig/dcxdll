@@ -58,8 +58,18 @@ alias xtreebar {
   dcx xtreebar $1-
 }
 
-alias dcxml dcx dcxml $1-
+alias dcxml {
+  !if ($isid) returnex $dcx( _dcxml, $prop $1- )
+  dcx dcxml $1-
+}
 
+;xdidtok dialog ID N C Item Text[[C]Item Text[C]Item Text]...
+;xdidtok $dname 1 0 44 SomeText1,SomeText2
+; xdidtok is only meant for list control!
+xdidtok {
+  if ($0 < 5) { echo 4 -smlbfti2 [ERROR] /xdidtok Invalid args | halt }
+  xdid -A $1 $2 $3 +T $4 $5-
+}
 alias tab {
   var %i = 1, %tab
   while (%i <= $0) {

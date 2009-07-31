@@ -15,7 +15,7 @@
 #ifndef _XPOPUPMENUITEM_H_
 #define _XPOPUPMENUITEM_H_
 
-#include "../../defines.h"
+#include "defines.h"
 
 #define XPMI_HEIGHT   22 //!< Menu Item Height
 #define XPMI_BOXLPAD  0  //!< Padding space between menu left bordure and box left bordure

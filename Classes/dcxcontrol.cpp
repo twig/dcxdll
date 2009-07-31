@@ -12,52 +12,49 @@
  * © ScriptsDB.org - 2006
  */
 
-#include "../defines.h"
-#include "../Dcx.h"
+#include "defines.h"
+#include "Dcx.h"
 
-#include "dcxcontrol.h"
-#include "dcxdialog.h"
-
-#include "dcxprogressbar.h"
-#include "dcxtrackbar.h"
-#include "dcxcolorcombo.h"
-#include "dcxcomboex.h"
-#include "dcxstatusbar.h"
-#include "dcxtreeview.h"
-#include "dcxtoolbar.h"
-#include "dcxlistview.h"
-#include "dcxrebar.h"
-#include "dcxbutton.h"
-#include "dcxrichedit.h"
-#include "dcxupdown.h"
-#include "dcxipaddress.h"
-#include "dcxwebctrl.h"
-#include "dcxcalendar.h"
-#include "dcxdatetime.h"
-#include "dcxpager.h"
-
-#include "dcxdivider.h"
-#include "dcxpanel.h"
-#include "dcxtab.h"
-
-#include "mirc/dcxline.h"
-#include "mirc/dcxbox.h"
-#include "mirc/dcxradio.h"
-#include "mirc/dcxcheck.h"
-#include "mirc/dcxtext.h"
-#include "mirc/dcxedit.h"
-#include "mirc/dcxscroll.h"
-#include "mirc/dcxlist.h"
-#include "mirc/dcxlink.h"
-#include "mirc/dcximage.h"
-
-#include "dcxmwindow.h"
-#include "dcxmdialog.h"
-
-#include "dcxstacker.h"
+#include "Classes/dcxcontrol.h"
+#include "Classes/dcxdialog.h"
+#include "Classes/dcxprogressbar.h"
+#include "Classes/dcxtrackbar.h"
+#include "Classes/dcxtrackbar.h"
+#include "Classes/dcxcomboex.h"
+#include "Classes/dcxcolorcombo.h"
+#include "Classes/dcxstatusbar.h"
+#include "Classes/dcxtreeview.h"
+#include "Classes/dcxtoolbar.h"
+#include "Classes/dcxlistview.h"
+#include "Classes/dcxrebar.h"
+#include "Classes/dcxbutton.h"
+#include "Classes/dcxrichedit.h"
+#include "Classes/dcxupdown.h"
+#include "Classes/dcxipaddress.h"
+#include "Classes/dcxwebctrl.h"
+#include "Classes/dcxcalendar.h"
+#include "Classes/dcxdatetime.h"
+#include "Classes/dcxpager.h"
+#include "Classes/dcxdivider.h"
+#include "Classes/dcxpanel.h"
+#include "Classes/dcxtab.h"
+#include "Classes/mirc/dcxbox.h"
+#include "Classes/mirc/dcxline.h"
+#include "Classes/mirc/dcxline.h"
+#include "Classes/mirc/dcxradio.h"
+#include "Classes/mirc/dcxcheck.h"
+#include "Classes/mirc/dcxtext.h"
+#include "Classes/mirc/dcxedit.h"
+#include "Classes/mirc/dcxscroll.h"
+#include "Classes/mirc/dcxlist.h"
+#include "Classes/mirc/dcxlink.h"
+#include "Classes/mirc/dcximage.h"
+#include "Classes/dcxmwindow.h"
+#include "Classes/dcxmdialog.h"
+#include "Classes/dcxstacker.h"
 
 #ifdef DCX_USE_DXSDK
-#include "dcxdirectshow.h"
+#include "Classes/dcxdirectshow.h"
 #endif // DCX_USE_DXSDK
 
 
@@ -72,7 +69,7 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 : DcxWindow( mID )
 , m_pParentDialog( p_Dialog )
 , m_hFont(NULL)
-, m_tsMark("")
+//, m_tsMark("")
 , m_clrText(CLR_INVALID)
 , m_clrBackText(CLR_INVALID)
 , m_hBackBrush(NULL)
@@ -589,9 +586,9 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			else
 				this->m_bAlphaBlend = false;
 
-			int alpha = input.gettok( 6 ).to_int();
+			BYTE alpha = (BYTE)(input.gettok( 6 ).to_int() & 0xFF);
 
-			if (alpha > 255 || alpha < 0)
+			if (alpha > 255)
 				alpha = 255;
 
 			if (alpha == 255)
@@ -1280,10 +1277,10 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 		else
 			CopyRect(&rc, rwnd);
 		if (!IsWindowEnabled(p_this->m_Hwnd)) {// use disabled colouring when windows disabled.
-			if (hTheme && !p_this->m_bNoTheme && dcxIsThemeActive()) {
-				if (IsThemeBackgroundPartiallyTransparentUx(hTheme, iPartId, iStateId))
-					DrawThemeParentBackgroundUx(p_this->m_Hwnd, hdc, &rc);
-				DrawThemeBackgroundUx(hTheme, hdc, iPartId, iStateId, &rc, NULL);
+			if (hTheme && !p_this->m_bNoTheme && Dcx::XPPlusModule.dcxIsThemeActive()) {
+				if (Dcx::XPPlusModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
+					Dcx::XPPlusModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
+				Dcx::XPPlusModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, NULL);
 			}
 			else
 				FillRect( hdc, &rc, GetSysColorBrush(COLOR_3DFACE) );
@@ -1302,10 +1299,10 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 		else {
 			HBRUSH hBrush = p_this->getBackClrBrush();
 			if (hBrush == NULL) {
-				if (hTheme && !p_this->m_bNoTheme && dcxIsThemeActive()) {
-					if (IsThemeBackgroundPartiallyTransparentUx(hTheme, iPartId, iStateId))
-						DrawThemeParentBackgroundUx(p_this->m_Hwnd, hdc, &rc);
-					DrawThemeBackgroundUx(hTheme, hdc, iPartId, iStateId, &rc, NULL);
+				if (hTheme && !p_this->m_bNoTheme && Dcx::XPPlusModule.dcxIsThemeActive()) {
+					if (Dcx::XPPlusModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
+						Dcx::XPPlusModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
+					Dcx::XPPlusModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, NULL);
 					return;
 				}
 				else
@@ -1508,15 +1505,15 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 		4: alpha blend temp hdc to hdc
 	*/
 #ifdef DCX_USE_WINSDK
-	if (BeginBufferedPaintUx && EndBufferedPaintUx) {
+	if (Dcx::XPPlusModule.IsBufferedPaintSupported()) {
 		BP_PAINTPARAMS paintParams = {0};
 		paintParams.cbSize = sizeof(paintParams);
-		BLENDFUNCTION bf = { AC_SRC_OVER, 0, (BYTE)this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
+		BLENDFUNCTION bf = { AC_SRC_OVER, 0, this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
 		if (this->m_bAlphaBlend)
 			paintParams.pBlendFunction = &bf;
 
 		GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
-		ai->ai_Buffer = BeginBufferedPaintUx(*hdc, &ai->ai_rcClient, BPBF_COMPATIBLEBITMAP, &paintParams, &ai->ai_hdc);
+		ai->ai_Buffer = Dcx::XPPlusModule.dcxBeginBufferedPaint(*hdc, &ai->ai_rcClient, BPBF_COMPATIBLEBITMAP, &paintParams, &ai->ai_hdc);
 		if (ai->ai_Buffer != NULL) {
 			*hdc = ai->ai_hdc;
 			return ai;
@@ -1601,8 +1598,8 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 		return;
 
 #ifdef DCX_USE_WINSDK
-	if (EndBufferedPaintUx && ai->ai_Buffer != NULL) {
-		EndBufferedPaintUx(ai->ai_Buffer, TRUE);
+	if (ai->ai_Buffer != NULL) {
+		Dcx::XPPlusModule.dcxEndBufferedPaint(ai->ai_Buffer, TRUE);
 		return;
 	}
 #endif
@@ -1649,7 +1646,7 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 					// associate bitmap with hdc
 					HBITMAP oldBM = SelectBitmap( hdcbkg, ai->ai_bkg );
 					// alpha blend finished button with parents background
-					BLENDFUNCTION bf = { AC_SRC_OVER, 0, (BYTE)this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
+					BLENDFUNCTION bf = { AC_SRC_OVER, 0, this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
 					AlphaBlend(hdcbkg,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h,bf);
 					// draw final image to windows hdc.
 					BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,hdcbkg,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
@@ -1975,6 +1972,16 @@ void DcxControl::InvalidateParentRect(HWND hwnd)
 	InvalidateRect(parent, &rc, TRUE);
 }
 
+//void DcxControl::calcTextRect(HDC hdc, TString &txt, LPRECT rc, const UINT style)
+//{
+//	if (this->m_bCtrlCodeText)
+//		calcStrippedRect(hdc, txt, style, rc, false, this->m_bUseUTF8);
+//	else if (this->m_bShadowText)
+//		dcxDrawShadowText(hdc, txt.to_wchr(), txt.wlen(), rc, style | DT_CALCRECT, this->m_clrText, 0,5,5);
+//	else
+//		DrawTextW(hdc, txt.to_wchr(this->m_bUseUTF8), txt.wlen(), rc, style | DT_CALCRECT);
+//}
+
 void DcxControl::ctrlDrawText(HDC hdc, TString txt, const LPRECT rc, const UINT style)
 {
 	if (!this->m_bCtrlCodeText) {
@@ -1994,9 +2001,8 @@ TString DcxControl::getStyles(void) {
 	DWORD exStyles, Styles;
 	exStyles = GetWindowExStyle(this->m_Hwnd);
 	Styles = GetWindowStyle(this->m_Hwnd);
-	//TODO: don't now how to get it now
-	//if ( bNoTheme )
-	//	result += "notheme "
+	if ( Dcx::XPPlusModule.dcxGetWindowTheme(this->m_Hwnd) == NULL )
+		result = "notheme ";
 	if ( Styles & WS_TABSTOP ) 
 		result.addtok("tabstop");
 	if ( Styles & WS_GROUP ) 

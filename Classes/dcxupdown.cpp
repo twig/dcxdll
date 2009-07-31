@@ -11,9 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxupdown.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxupdown.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor
@@ -47,7 +47,7 @@ DcxUpDown::DcxUpDown( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (styles.istok("tooltips")) {
 		if (IsWindow(p_Dialog->getToolTip())) {

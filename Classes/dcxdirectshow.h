@@ -15,10 +15,10 @@
 #ifndef _DCXDIRECTSHOW_H_
 #define _DCXDIRECTSHOW_H_
 
-#include "../defines.h"
+#include "defines.h"
 
 #ifdef DCX_USE_DXSDK
-#include "dcxcontrol.h"
+#include "Classes/dcxcontrol.h"
 #include <dshow.h>
 #include <initguid.h>
 #include <qnetwork.h>

@@ -15,8 +15,8 @@
 #ifndef _DCXUPDOWN_H_
 #define _DCXUPDOWN_H_
 
-#include "../defines.h"
-#include "dcxcontrol.h"
+#include "defines.h"
+#include "Classes/dcxcontrol.h"
 
 class DcxDialog;
 

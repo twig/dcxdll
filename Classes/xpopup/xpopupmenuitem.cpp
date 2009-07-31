@@ -11,10 +11,10 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "xpopupmenuitem.h"
-#include "xpopupmenu.h"
-#include "../../Dcx.h"
+#include "defines.h"
+#include "Classes/xpopup/xpopupmenuitem.h"
+#include "Classes/xpopup/xpopupmenu.h"
+#include "Dcx.h"
 
 /*!
  * \brief Constructor

@@ -11,9 +11,9 @@
 *
 * © ScriptsDB.org - 2006
 */
-
-#include "dcxcomboex.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxcomboex.h"
+#include "Classes/dcxdialog.h"
 
 /*!
 * \brief Constructor
@@ -47,7 +47,7 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		throw "Unable To Create Window";
 
 	if ( bNoTheme ) {
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 		//SendMessage( this->m_Hwnd, CBEM_SETWINDOWTHEME, NULL, (LPARAM)(LPCWSTR)L" "); // do this instead?
 	}
 
@@ -55,7 +55,7 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 
 	if ( IsWindow( this->m_EditHwnd ) ) {
 		if ( bNoTheme )
-			dcxSetWindowTheme( this->m_EditHwnd , L" ", L" " );
+			Dcx::XPPlusModule.dcxSetWindowTheme( this->m_EditHwnd , L" ", L" " );
 
 		LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
 
@@ -70,7 +70,7 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 	HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);
 	if (IsWindow(combo)) {
 		if (bNoTheme)
-			dcxSetWindowTheme( combo , L" ", L" " );
+			Dcx::XPPlusModule.dcxSetWindowTheme( combo , L" ", L" " );
 
 		COMBOBOXINFO cbi = { 0 };
 		cbi.cbSize = sizeof(cbi);

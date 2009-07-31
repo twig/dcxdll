@@ -34,7 +34,9 @@
  *
  * © ScriptsDB.org - 2005
  */
-
+#if _MSC_VER > 1000
+#pragma once
+#endif
 #ifndef _TSTRING_H_
 #define _TSTRING_H_
 
@@ -59,6 +61,7 @@ private:
 	void deleteString( );
 	void deleteWString( );
 	int _replace(const char *subString, const char *rString); // Ook
+	static int match (register char *m, register char *n, const bool cs /* case sensitive */);
 
 public:
 

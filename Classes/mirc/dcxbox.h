@@ -15,10 +15,9 @@
 #ifndef _DCXBOX_H_
 #define _DCXBOX_H_
 
-#include "../../defines.h"
-#include "../dcxcontrol.h"
-
-#include "../layout/layoutmanager.h"
+#include "defines.h"
+#include "Classes/dcxcontrol.h"
+#include "Classes/layout/layoutmanager.h"
 
 #define DCX_BOXTEXTSPACING 10
 
@@ -70,6 +69,7 @@ public:
 protected:
 
 	static UINT parseLayoutFlags( const TString & flags );
+	static BOOL CALLBACK EnumBoxChildren(HWND hwnd,LPDCXENUM de);
 	void EraseBackground(HDC hdc);
 	void DrawClientArea(HDC hdc);
 

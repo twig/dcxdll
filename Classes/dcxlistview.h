@@ -15,11 +15,10 @@
 #ifndef _DCXLISTVIEW_H_
 #define _DCXLISTVIEW_H_
 
-#include "../defines.h"
-#include "dcxcontrol.h"
-#include "dcxprogressbar.h"
-
-#include "tinyxml/tinyxml.h"
+#include "defines.h"
+#include "Classes/dcxcontrol.h"
+#include "Classes/dcxprogressbar.h"
+#include "Classes/tinyxml/tinyxml.h"
 
 class DcxDialog;
 

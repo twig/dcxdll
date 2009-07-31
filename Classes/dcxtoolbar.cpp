@@ -14,9 +14,9 @@ grey icons
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxtoolbar.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxtoolbar.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor
@@ -55,7 +55,7 @@ DcxToolBar::DcxToolBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if ( ExStylesTb != 0 )
 		SendMessage( this->m_Hwnd, TB_SETEXTENDEDSTYLE, (WPARAM) 0, (LPARAM) ExStylesTb );

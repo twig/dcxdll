@@ -1,4 +1,4 @@
-#include ".\defines.h"
+#include "defines.h"
 
 // Constructor
 XSwitchFlags::XSwitchFlags(const TString &switches) {

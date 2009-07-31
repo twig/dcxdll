@@ -13,10 +13,10 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxlist.h"
-#include "../dcxdialog.h"
-#include "../../Dcx.h"
+#include "defines.h"
+#include "Classes/mirc/dcxlist.h"
+#include "Classes/dcxdialog.h"
+#include "Dcx.h"
 
 
 
@@ -55,7 +55,7 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );

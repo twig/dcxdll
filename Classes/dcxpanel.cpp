@@ -11,13 +11,12 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxpanel.h"
-#include "dcxdialog.h"
-
-#include "layout/layoutcellfixed.h"
-#include "layout/layoutcellfill.h"
-#include "layout/layoutcellpane.h"
+#include "defines.h"
+#include "Classes/dcxpanel.h"
+#include "Classes/dcxdialog.h"
+#include "Classes/layout/layoutcellfixed.h"
+#include "Classes/layout/layoutcellfill.h"
+#include "Classes/layout/layoutcellpane.h"
 
 /*!
  * \brief Constructor
@@ -52,7 +51,7 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 		throw "Unable To Create Window";
 
   if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+    Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
 

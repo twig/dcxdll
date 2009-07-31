@@ -11,10 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "../defines.h"
-#include "dcxdialogcollection.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxdialogcollection.h"
+#include "Classes/dcxdialog.h"
 
 
 

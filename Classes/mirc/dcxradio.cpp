@@ -11,9 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxradio.h"
-#include "../dcxdialog.h"
+#include "defines.h"
+#include "Classes/mirc/dcxradio.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor
@@ -47,7 +47,7 @@ DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_bNoTheme = (bNoTheme ? true : false);
 
@@ -258,7 +258,7 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-	if (this->m_bNoTheme || !dcxIsThemeActive()) {
+	if (this->m_bNoTheme || !Dcx::XPPlusModule.dcxIsThemeActive()) {
 		if (this->m_clrBackText != -1)
 			SetBkColor(hdc, this->m_clrBackText);
 

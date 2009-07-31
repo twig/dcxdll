@@ -11,9 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxtext.h"
-#include "../dcxdialog.h"
+#include "defines.h"
+#include "Classes/mirc/dcxtext.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor
@@ -51,9 +51,9 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 	this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-	this->m_tsText = "";
+	//this->m_tsText = ""; // pointless, alrdy is "".
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
@@ -318,16 +318,6 @@ void DcxText::DrawClientArea(HDC hdc)
 		style |= DT_WORDBREAK; // changed for autowrap between words
 
 	this->ctrlDrawText(hdc, wtext, &r, style);
-	//if (!this->m_bCtrlCodeText) {
-	//	int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
-	//	if (this->m_bShadowText)
-	//		dcxDrawShadowText(hdc, wtext.to_wchr(this->m_bUseUTF8), nText, &r, style, this->m_clrText, 0, 5, 5);
-	//	else
-	//		DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), nText, &r, style);
-	//	SetBkMode(hdc, oldBkgMode);
-	//}
-	//else
-	//	mIRC_DrawText(hdc, wtext, &r, style, this->m_bShadowText, this->m_bUseUTF8);
 
 	if (oldBkgClr != CLR_INVALID)
 		SetBkColor(hdc, oldBkgClr);

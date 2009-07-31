@@ -1,5 +1,5 @@
 #pragma once
-#include "defines.h"
+//#include "defines.h"
 #include "mIRCLinker.h"
 #include "DcxUXModule.h"
 #include "DcxGDIModule.h"
@@ -12,7 +12,7 @@
 class Dcx
 {
 	static TString m_sLastError;
-	static int m_iGhostDrag;
+	static BYTE m_iGhostDrag;
 	static IClassFactory *m_pClassFactory;
 	static bool m_bDX9Installed;
 
@@ -38,8 +38,8 @@ public:
 	
 	static IClassFactory* getClassFactory();
 	static const char * getLastError();
-	static int getGhostDrag();
-	static bool setGhostDrag(int newAlpha);
+	static BYTE getGhostDrag();
+	static bool setGhostDrag(const BYTE newAlpha);
 	static bool isDX9Installed();
 	static bool isUnloadSave();
 	static bool isFile(const char* file);

@@ -15,9 +15,9 @@
 #ifndef _DCXSTACKER_H_
 #define _DCXSTACKER_H_
 
-#include "../defines.h"
-#include "dcxcontrol.h"
-#include "xpopup/xpopupmenuitem.h"
+#include "defines.h"
+#include "Classes/dcxcontrol.h"
+#include "Classes/xpopup/xpopupmenuitem.h"
 
 #define MIN_STACK_HEIGHT 20 //!< Min height for a stacker item.
 

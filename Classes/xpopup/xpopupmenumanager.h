@@ -15,8 +15,8 @@
 #ifndef _XPOPUPMENUMANAGER_H_
 #define _XPOPUPMENUMANAGER_H_
 
-#include "xpopupmenu.h"
-#include "../tinyxml/tinyxml.h"
+#include "Classes/xpopup/xpopupmenu.h"
+#include "Classes/tinyxml/tinyxml.h"
 
 /*!
  * \brief blah

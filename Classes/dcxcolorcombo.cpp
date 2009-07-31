@@ -11,10 +11,11 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxcolorcombo.h"
-#include "dcxdialog.h"
-#include "../Dcx.h"
+#include "defines.h"
+#include "Classes/dcxcolorcombo.h"
+#include "Classes/dcxtrackbar.h"
+#include "Classes/dcxdialog.h"
+#include "Dcx.h"
 
 
 
@@ -50,7 +51,7 @@ DcxColorCombo::DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );

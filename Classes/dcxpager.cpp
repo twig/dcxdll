@@ -1,9 +1,9 @@
 /*
 	* Pager Control
 */
-
-#include "dcxpager.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxpager.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor
@@ -38,7 +38,7 @@ DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 		throw "Unable To Create Window";
 
   if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+    Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	//Pager_SetButtonSize(this->m_Hwnd,15);
 	//Pager_SetBkColor(this->m_Hwnd,0);

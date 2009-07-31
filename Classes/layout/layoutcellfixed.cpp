@@ -10,7 +10,7 @@
  *
  * © ScriptsDB.org - 2006
  */
-
+#include "defines.h"
 #include "layoutcellfixed.h"
 #include <windowsx.h>
 

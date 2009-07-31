@@ -12,9 +12,9 @@ http://www.codeproject.com/miscctrl/transparentslider.asp
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxtrackbar.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxtrackbar.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor
@@ -49,7 +49,7 @@ m_bUpdatingTooltip(false)
 		throw "Unable To Create Window";
 
   if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+    Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_hbmp[TBBMP_BACK] = NULL;
 	this->m_hbmp[TBBMP_THUMB] = NULL;

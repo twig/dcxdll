@@ -11,9 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxtab.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxtab.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor
@@ -50,7 +50,7 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
 		throw "Unable To Create Window";
 
   if ( bNoTheme )
-    dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+    Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   /*
   HWND hHwndTip = TabCtrl_GetToolTips( this->m_Hwnd );

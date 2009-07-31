@@ -11,9 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxmdialog.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxmdialog.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor

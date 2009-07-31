@@ -13,6 +13,7 @@
  *
  * © ScriptsDB.org - 2006
  */
+#include "defines.h"
 #include "dcxmlincludes.h"
 #include "dcxml.h"
 #include "dcxmlparser.h"
@@ -48,7 +49,7 @@ mIRC(dcxml) {
 			,(flags['v'])
 			,(flags['x'])
 		);
-		return (Dcxml::Parser->loadSuccess) ? 0 : 1;
+		return (Dcxml::Parser->loadSuccess) ? 1 : 0;
     }
 	// Parse XPopup DCXML.
 	/*

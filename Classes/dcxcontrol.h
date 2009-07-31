@@ -123,7 +123,7 @@ public:
 	COLORREF getEndGradientColor(void) const { return this->m_clrEndGradient; };
 	RECT getPosition(void) const;
 
-	static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, int offset, const UINT64 mask = -1, HWND hParent = NULL);
+	static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, int offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = NULL);
 
 	virtual TString getType( ) = 0;
 	virtual TString getStyles(void);
@@ -173,7 +173,7 @@ protected:
 	TString m_tsToolTip;			//!< This controls tooltip text (if any).
 	DWORD m_dEventMask;
 	bool m_bAlphaBlend;				//!< Control is alpha blended.
-	int m_iAlphaLevel;				//!< The amount the control is alpha blended.
+	BYTE m_iAlphaLevel;				//!< The amount the control is alpha blended.
 	bool m_bGradientFill;
 	BOOL m_bGradientVertical;
 	//DcxControl *m_pParentCtrl;
@@ -201,6 +201,7 @@ protected:
 	static void InvalidateParentRect(HWND hwnd);
 	void DrawControl(HDC hDC, HWND hwnd);
 	void ctrlDrawText(HDC hdc, TString txt, const LPRECT rc, const UINT style);
+	//void calcTextRect(HDC hdc, TString &txt, LPRECT rc, const UINT style);
 };
 
 #endif // _DCXCONTROL_H_

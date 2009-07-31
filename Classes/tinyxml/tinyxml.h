@@ -33,6 +33,7 @@ distribution.
 #pragma warning( disable : 4786 )
 #ifdef __INTEL_COMPILER
 #pragma warning( disable : 869 ) // remark #869: parameter "doc" was never referenced
+#pragma warning( disable : 981 ) // remark #981: operands are evaluated in unspecified order
 #else
 #pragma warning( disable : 4100 ) // unreferenced formal parameter
 #endif

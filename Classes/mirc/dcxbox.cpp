@@ -11,14 +11,14 @@
  *
  * © ScriptsDB.org - 2006
  */
-
+#include "defines.h"
 #include "dcxbox.h"
-#include "../../Dcx.h"
-#include "../dcxdialog.h"
+#include "Dcx.h"
+#include "Classes/dcxdialog.h"
 
-#include "../layout/layoutcellfixed.h"
-#include "../layout/layoutcellfill.h"
-#include "../layout/layoutcellpane.h"
+#include "Classes/layout/layoutcellfixed.h"
+#include "Classes/layout/layoutcellfill.h"
+#include "Classes/layout/layoutcellpane.h"
 
 
 
@@ -61,7 +61,7 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 	this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
 
@@ -95,12 +95,12 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 	}
 	if (IsWindow(this->m_TitleButton)) {
 		if ( bNoTheme )
-			dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
+			Dcx::XPPlusModule.dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
 		if (!(Styles & WS_DISABLED))
 			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
 	}
 	if (Dcx::XPPlusModule.isUseable())
-		this->_hTheme = OpenThemeDataUx(this->m_Hwnd,L"BUTTON");
+		this->_hTheme = Dcx::XPPlusModule.dcxOpenThemeData(this->m_Hwnd,L"BUTTON");
 }
 
 /*!
@@ -114,7 +114,7 @@ DcxBox::~DcxBox( ) {
 	if ( this->m_pLayoutManager != NULL )
 		delete this->m_pLayoutManager;
 	if (this->_hTheme)
-		CloseThemeDataUx(this->_hTheme);
+		Dcx::XPPlusModule.dcxCloseThemeData(this->_hTheme);
 	this->unregistreDefaultWindowProc( );
 }
 
@@ -491,7 +491,7 @@ UINT DcxBox::parseLayoutFlags( const TString & flags ) {
 
   return iFlags;
 }
-BOOL CALLBACK EnumBoxChildren(HWND hwnd,LPDCXENUM de)
+BOOL CALLBACK DcxBox::EnumBoxChildren(HWND hwnd,LPDCXENUM de)
 {
 	//LPDCXENUM de = (LPDCXENUM)lParam;
 	if ((de->mChildHwnd != hwnd) && (GetParent(hwnd) == de->mBox))
@@ -579,7 +579,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 							de.mBox = this->m_Hwnd;
 							de.mState = state;
 
-							EnumChildWindows(this->m_Hwnd,(WNDENUMPROC)EnumBoxChildren,(LPARAM)&de);
+							EnumChildWindows(this->m_Hwnd,(WNDENUMPROC)DcxBox::EnumBoxChildren,(LPARAM)&de);
 							break;
 						}
 					} // end switch
@@ -709,8 +709,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		case WM_THEMECHANGED:
 			{
 				if (this->_hTheme != NULL) {
-					CloseThemeDataUx(this->_hTheme);
-					this->_hTheme = OpenThemeDataUx(this->m_Hwnd,L"BUTTON");
+					Dcx::XPPlusModule.dcxCloseThemeData(this->_hTheme);
+					this->_hTheme = Dcx::XPPlusModule.dcxOpenThemeData(this->m_Hwnd,L"BUTTON");
 				}
 			}
 			break;
@@ -796,7 +796,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 		if (this->m_hFont != NULL)
 			SelectFont(hdc, this->m_hFont);
 
-		if (this->m_clrText != -1)
+		if (this->m_clrText != CLR_INVALID)
 			SetTextColor(hdc, this->m_clrText);
 		else
 			SetTextColor(hdc, GetSysColor(
@@ -805,10 +805,12 @@ void DcxBox::DrawClientArea(HDC hdc)
 
 		if (this->m_bCtrlCodeText)
 			calcStrippedRect(hdc, wtext, 0, &rcText, false, this->m_bUseUTF8);
-		//else if (this->m_bShadowText)
-		//	dcxDrawShadowText(hdc, wtext.to_wchr(), wtext.wlen(), &rcText, DT_CALCRECT, this->m_clrText, 0,5,5);
 		else
 			DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), n, &rcText, DT_CALCRECT);
+		//if (this->m_bShadowText) {
+		//	rcText.bottom += 6;
+		//	rcText.right += 6;
+		//}
 
 		int w = rcText.right - rcText.left;
 		int h = rcText.bottom - rcText.top;
@@ -887,14 +889,6 @@ void DcxBox::DrawClientArea(HDC hdc)
 		SelectClipRgn(hdc,NULL);
 
 		// draw the text
-		//if (!this->m_bCtrlCodeText) {
-		//	if (this->m_bShadowText)
-		//		dcxDrawShadowText(hdc,wtext.to_wchr(this->m_bUseUTF8), n,&rcText, DT_END_ELLIPSIS | DT_LEFT, this->m_clrText, 0, 5, 5);
-		//	else
-		//		DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), n, &rcText, DT_LEFT | DT_END_ELLIPSIS);
-		//}
-		//else
-		//	mIRC_DrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS, this->m_bShadowText, this->m_bUseUTF8);
 		this->ctrlDrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS);
 	}
 

@@ -11,9 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxprogressbar.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxprogressbar.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor
@@ -52,7 +52,7 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd,
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_tsText = "%d %%";
 

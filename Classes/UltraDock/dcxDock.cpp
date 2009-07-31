@@ -3,9 +3,9 @@
 	* Base Class to handle docking of windows to mIRC elements
 	* & adjust the layout of these windows to make room for the docked windows.
 */
-
-#include "dcxDock.h"
-#include "../../Dcx.h"
+#include "defines.h"
+#include "Classes/UltraDock/dcxDock.h"
+#include "Dcx.h"
 
 
 
@@ -656,7 +656,7 @@ bool DcxDock::InitStatusbar(const TString &styles)
 
 	if (IsWindow(g_StatusBar)) {
 		if ( bNoTheme )
-			dcxSetWindowTheme( g_StatusBar , L" ", L" " );
+			Dcx::XPPlusModule.dcxSetWindowTheme( g_StatusBar , L" ", L" " );
 
 		//SendMessage(g_StatusBar, SB_SETUNICODEFORMAT, TRUE, NULL);
 		return true;

@@ -1,9 +1,9 @@
 
 /*
 */
-
-#include "dcxDock.h"
-#include "../../Dcx.h"
+#include "defines.h"
+#include "Classes/UltraDock/dcxDock.h"
+#include "Dcx.h"
 
 
 

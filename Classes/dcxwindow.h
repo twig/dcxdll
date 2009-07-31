@@ -15,7 +15,7 @@
 #ifndef _DCXWINDOW_H_
 #define _DCXWINDOW_H_
 
-#include "tinyxml/tinyxml.h"
+#include "Classes/tinyxml/tinyxml.h"
 
 /*!
  * \brief blah

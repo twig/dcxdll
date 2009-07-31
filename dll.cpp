@@ -42,41 +42,12 @@ PFNINSENDMESSAGEEX InSendMessageExUx = NULL;
 PFNFLASHWINDOWEX FlashWindowExUx = NULL;
 
 // XP+ function pointers
-// Theme functions
-PFNSETTHEME SetWindowThemeUx = NULL; //!< blah
-PFNISTHEMEACTIVE IsThemeActiveUx = NULL; //!< blah
-PFNOPENTHEMEDATA OpenThemeDataUx = NULL;
-PFNCLOSETHEMEDATA CloseThemeDataUx = NULL;
-PFNDRAWTHEMEBACKGROUND DrawThemeBackgroundUx = NULL;
-PFNGETTHEMEBACKGROUNDCONTENTRECT GetThemeBackgroundContentRectUx = NULL;
-PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT IsThemeBackgroundPartiallyTransparentUx = NULL;
-PFNDRAWTHEMEPARENTBACKGROUND DrawThemeParentBackgroundUx = NULL;
-PFNDRAWTHEMETEXT DrawThemeTextUx = NULL;
-PFNGETTHEMEBACKGROUNDREGION GetThemeBackgroundRegionUx = NULL;
-PFNGETWINDOWTHEME GetWindowThemeUx = NULL;
-PFNDRAWTHEMEEDGE DrawThemeEdgeUx = NULL;
-PFNGETTHEMECOLOR GetThemeColorUx = NULL;
-
 // Others
 PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx = NULL;
 PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx = NULL;
 PFNDRAWSHADOWTEXT DrawShadowTextUx = NULL;
 PFNPICKICONDLG PickIconDlgUx = NULL;
 PFNGETFULLPATHNAMEW GetFullPathNameWUx = NULL;
-
-// Vista Function pointers.
-#ifdef DCX_USE_WINSDK
-PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx = NULL;
-//PFNGETTHEMEBITMAP GetThemeBitmapUx = NULL;
-PFNBUFFEREDPAINTINIT BufferedPaintInitUx = NULL;
-PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx = NULL;
-PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx = NULL;
-PFNENDBUFFEREDPAINT EndBufferedPaintUx = NULL;
-PFNDWMEXTENDFRAMEINTOCLIENTAREA DwmExtendFrameIntoClientAreaUx = NULL;
-PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx = NULL;
-#endif
-PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx = NULL;
-PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx = NULL;
 
 //FILE * logFile;
 
@@ -112,16 +83,22 @@ BOOL WINAPI DllMain(
 	switch( fdwReason ) 
 	{
 	case DLL_PROCESS_ATTACH:
-		// Initialize once for each new process.
-		// Return FALSE to fail DLL load.
-		DisableThreadLibraryCalls(hinstDLL);
-		// Enforce only one instance of dcx.dll loaded at a time.
-		hDcxMutex = CreateMutex(NULL, TRUE, "DCX_LOADED");
-		if (hDcxMutex == NULL) return FALSE;
-		else if (GetLastError() == ERROR_ALREADY_EXISTS) {
-			//ReleaseMutex(hDcxMutex);
-			//CloseHandle(hDcxMutex);
-			return FALSE;
+		{
+			char mutex[128];
+			// Initialize once for each new process.
+			// Return FALSE to fail DLL load.
+			DisableThreadLibraryCalls(hinstDLL);
+			// add address of mIRC.exe to name so mutex is specific to this instance of mIRC.
+			wsprintf(mutex,"DCX_LOADED%x", GetModuleHandle(NULL)); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+
+			// Enforce only one instance of dcx.dll loaded at a time.
+			hDcxMutex = CreateMutex(NULL, TRUE, mutex); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
+			if (hDcxMutex == NULL) return FALSE;		// TODO: solve this issue or are we going to make the dll XP+ only now?
+			else if (GetLastError() == ERROR_ALREADY_EXISTS) {
+				//ReleaseMutex(hDcxMutex);
+				//CloseHandle(hDcxMutex);
+				return FALSE;
+			}
 		}
 		break;
 
@@ -136,6 +113,7 @@ BOOL WINAPI DllMain(
 		break;
 	}
 	return TRUE;  // Successful DLL_PROCESS_ATTACH.
+	UNREFERENCED_PARAMETER(lpReserved);
 }
 
 /*!
@@ -253,7 +231,7 @@ mIRC(IsUnloadSafe) {
 * \brief Check if windows is themed
 */
 mIRC(IsThemedXP) {
-	ret((dcxIsThemeActive() ? "$true" : "$false"));
+	ret((Dcx::XPPlusModule.dcxIsThemeActive() ? "$true" : "$false"));
 }
 
 /*!
@@ -541,7 +519,7 @@ mIRC(_xdialog) {
 
 /***** XPopup Stuff 
 
-/*!
+*!
 * \brief XPopup DLL /xpop Function
 *
 * mIRC /xpop -switch menu path [TAB] optional data
@@ -773,7 +751,7 @@ mIRC(WindowProps) {
 	// +T
 	if (flags.find('T', 0)) {
 		if (Dcx::XPPlusModule.isUseable()) {
-			if (dcxSetWindowTheme(hwnd,L" ",L" ") != S_OK)
+			if (Dcx::XPPlusModule.dcxSetWindowTheme(hwnd,L" ",L" ") != S_OK)
 				Dcx::error("/dcx WindowProps", "Unable to set theme");
 		}
 	}
@@ -882,7 +860,7 @@ mIRC(GhostDrag) {
 	}
 
 	// [0-255] enable or (255 == disable) ghost drag for main mIRC window.
-	int alpha = input.gettok(1).to_int();
+	BYTE alpha = (BYTE)(input.gettok(1).to_int() & 0xFF);
 
 	if (!Dcx::setGhostDrag(alpha))
 	{

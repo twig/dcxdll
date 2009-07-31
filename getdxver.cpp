@@ -6,7 +6,7 @@
 //
 // (C) Copyright Microsoft Corp.  All rights reserved.
 //-----------------------------------------------------------------------------
-#define INITGUID
+
 #include "defines.h"
 
 #ifdef DCX_USE_DXSDK

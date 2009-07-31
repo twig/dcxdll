@@ -11,12 +11,10 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "layoutcell.h"
-
-#include <windowsx.h>
-#include "../dcxdialog.h"
-#include "../../Dcx.h"
+#include "defines.h"
+#include "Classes/layout/layoutcell.h"
+#include "Classes/dcxdialog.h"
+#include "Dcx.h"
 
 //extern HWND hwndChild4;
 

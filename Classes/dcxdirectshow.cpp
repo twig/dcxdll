@@ -12,12 +12,12 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxdirectshow.h"
-#include "../Dcx.h"
+#include "defines.h"
+#include "Classes/dcxdirectshow.h"
+#include "Dcx.h"
 
 #ifdef DCX_USE_DXSDK
-#include "dcxdialog.h"
+#include "Classes/dcxdialog.h"
 
 
 /*!
@@ -60,7 +60,7 @@ DcxDirectshow::DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mP
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );

@@ -1,7 +1,30 @@
+#include "defines.h"
 #include "DcxUXModule.h"
 #include "Dcx.h"
 
-
+// Theme functions
+PFNSETTHEME DcxUXModule::SetWindowThemeUx = NULL;
+PFNISTHEMEACTIVE DcxUXModule::IsThemeActiveUx = NULL;
+PFNOPENTHEMEDATA DcxUXModule::OpenThemeDataUx = NULL;
+PFNCLOSETHEMEDATA DcxUXModule::CloseThemeDataUx = NULL;
+PFNDRAWTHEMEBACKGROUND DcxUXModule::DrawThemeBackgroundUx = NULL;
+PFNGETTHEMEBACKGROUNDCONTENTRECT DcxUXModule::GetThemeBackgroundContentRectUx = NULL;
+PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT DcxUXModule::IsThemeBackgroundPartiallyTransparentUx = NULL;
+PFNDRAWTHEMEPARENTBACKGROUND DcxUXModule::DrawThemeParentBackgroundUx = NULL;
+PFNDRAWTHEMETEXT DcxUXModule::DrawThemeTextUx = NULL;
+PFNGETTHEMEBACKGROUNDREGION DcxUXModule::GetThemeBackgroundRegionUx = NULL;
+PFNGETWINDOWTHEME DcxUXModule::GetWindowThemeUx = NULL;
+PFNDRAWTHEMEEDGE DcxUXModule::DrawThemeEdgeUx = NULL;
+PFNGETTHEMECOLOR DcxUXModule::GetThemeColorUx = NULL;
+PFNDRAWTHEMEPARENTBACKGROUNDEX DcxUXModule::DrawThemeParentBackgroundExUx = NULL;
+//PFNGETTHEMEBITMAP DcxUXModule::GetThemeBitmapUx = NULL;
+// Vista Function pointers.
+#ifdef DCX_USE_WINSDK
+PFNBUFFEREDPAINTINIT DcxUXModule::BufferedPaintInitUx = NULL;
+PFNBUFFEREDPAINTUNINIT DcxUXModule::BufferedPaintUnInitUx = NULL;
+PFNBEGINBUFFEREDPAINT DcxUXModule::BeginBufferedPaintUx = NULL;
+PFNENDBUFFEREDPAINT DcxUXModule::EndBufferedPaintUx = NULL;
+#endif
 
 DcxUXModule::DcxUXModule(void)
 {
@@ -62,6 +85,27 @@ bool DcxUXModule::load(mIRCLinker &mIRCLink)
 		else {
 			FreeLibrary(m_hModule);
 			m_hModule = NULL;
+			// make sure all functions are NULL
+			SetWindowThemeUx = NULL;
+			IsThemeActiveUx = NULL;
+			OpenThemeDataUx = NULL;
+			CloseThemeDataUx = NULL;
+			DrawThemeBackgroundUx = NULL;
+			GetThemeBackgroundContentRectUx = NULL;
+			IsThemeBackgroundPartiallyTransparentUx = NULL;
+			DrawThemeParentBackgroundUx = NULL;
+			DrawThemeTextUx = NULL;
+			GetThemeBackgroundRegionUx = NULL;
+			GetWindowThemeUx = NULL;
+			DrawThemeEdgeUx = NULL;
+			GetThemeColorUx = NULL;
+			DrawThemeParentBackgroundExUx = NULL;
+#ifdef DCX_USE_WINSDK
+			BufferedPaintInitUx = NULL;
+			BufferedPaintUnInitUx = NULL;
+			BeginBufferedPaintUx = NULL;
+			EndBufferedPaintUx = NULL;
+#endif
 			Dcx::error("LoadDLL","There was a problem loading IsThemedXP");
 		}
 	}
@@ -81,3 +125,155 @@ bool DcxUXModule::unload(void)
 	}
 	return false;
 }
+
+/*!
+* \brief Check if theme is active
+*
+*
+*/
+BOOL DcxUXModule::dcxIsThemeActive(void)
+{
+	if (IsThemeActiveUx != NULL)
+		return IsThemeActiveUx();
+	return FALSE;
+}
+/*!
+* \brief Windows Theme Setting Function
+*
+* Used to remove theme on controls
+*/
+HRESULT DcxUXModule::dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList) {
+	if (SetWindowThemeUx != NULL)
+		return SetWindowThemeUx(hwnd, pszSubAppName, pszSubIdList);
+	return 0;
+}
+
+HTHEME DcxUXModule::dcxGetWindowTheme(HWND hWnd)
+{
+	if (GetWindowThemeUx != NULL)
+		return GetWindowThemeUx(hWnd);
+	return NULL;
+}
+
+HTHEME DcxUXModule::dcxOpenThemeData(HWND hwnd, LPCWSTR pszClassList)
+{
+	if (OpenThemeDataUx != NULL)
+		return OpenThemeDataUx(hwnd, pszClassList);
+	return NULL;
+}
+
+HRESULT DcxUXModule::dcxCloseThemeData(HTHEME hTheme)
+{
+	if (CloseThemeDataUx != NULL)
+		return CloseThemeDataUx(hTheme);
+	return NULL;
+}
+
+//int DcxUXModule::dcxGetThemeBackgroundRegion(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPRECT pRect, HRGN *pRegion)
+//{
+//	if (GetThemeBackgroundRegionUx != NULL)
+//		return GetThemeBackgroundRegionUx(hTheme, hdc, iPartId, iStateId, pRect, pRegion);
+//	return NULL;
+//}
+
+BOOL DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(HTHEME hTheme, int iPartId, int iStateId)
+{
+	if (IsThemeBackgroundPartiallyTransparentUx != NULL)
+		return IsThemeBackgroundPartiallyTransparentUx(hTheme, iPartId, iStateId);
+	return NULL;
+}
+
+HRESULT DcxUXModule::dcxDrawThemeBackground(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pRect, LPCRECT pClipRect)
+{
+	if (DrawThemeBackgroundUx != NULL)
+		return DrawThemeBackgroundUx(hTheme, hdc, iPartId, iStateId, pRect, pClipRect);
+	return NULL;
+}
+
+HRESULT DcxUXModule::dcxGetThemeBackgroundContentRect(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pBoundingRect, LPRECT pContentRect)
+{
+	if (GetThemeBackgroundContentRectUx != NULL)
+		return GetThemeBackgroundContentRectUx(hTheme, hdc, iPartId, iStateId, pBoundingRect, pContentRect);
+	return NULL;
+}
+
+HRESULT DcxUXModule::dcxDrawThemeParentBackground(HWND hwnd, HDC hdc, const RECT *prc)
+{
+	if (DrawThemeParentBackgroundUx != NULL)
+		return DrawThemeParentBackgroundUx(hwnd, hdc, prc);
+	return NULL;
+}
+
+HRESULT DcxUXModule::dcxDrawThemeText(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCWSTR pszText, int cchText, DWORD dwTextFlags, DWORD dwTextFlags2, LPCRECT pRect)
+{
+	if (DrawThemeTextUx != NULL)
+		return DrawThemeTextUx(hTheme, hdc, iPartId, iStateId, pszText, cchText, dwTextFlags, dwTextFlags2, pRect);
+	return NULL;
+}
+
+HRESULT DcxUXModule::dcxGetThemeBackgroundRegion(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pRect, HRGN *pRegion)
+{
+	if (GetThemeBackgroundRegionUx != NULL)
+		return GetThemeBackgroundRegionUx(hTheme, hdc, iPartId, iStateId, pRect, pRegion);
+	return NULL;
+}
+
+HRESULT DcxUXModule::dcxDrawThemeEdge(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pDestRect, UINT uEdge, UINT uFlags, LPRECT pContentRect)
+{
+	if (DrawThemeEdgeUx != NULL)
+		return DrawThemeEdgeUx(hTheme, hdc, iPartId, iStateId, pDestRect, uEdge, uFlags, pContentRect);
+	return NULL;
+}
+
+HRESULT DcxUXModule::dcxGetThemeColor(HTHEME hTheme, int iPartId, int iStateId, int iPropId, COLORREF *pColor)
+{
+	if (GetThemeColorUx != NULL)
+		return GetThemeColorUx(hTheme, iPartId, iStateId, iPropId, pColor);
+	return NULL;
+}
+
+HRESULT DcxUXModule::dcxDrawThemeParentBackgroundEx(HWND hwnd, HDC hdc, DWORD dwFlags, const RECT *prc)
+{
+	if (DrawThemeParentBackgroundExUx != NULL)
+		return DrawThemeParentBackgroundExUx(hwnd, hdc, dwFlags, prc);
+	return NULL;
+}
+
+#ifdef DCX_USE_WINSDK
+
+HPAINTBUFFER DcxUXModule::dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc)
+{
+	if (BeginBufferedPaintUx != NULL)
+		return BeginBufferedPaintUx(hdcTarget, prcTarget, dwFormat, pPaintParams, phdc);
+	return NULL;
+}
+
+HRESULT DcxUXModule::dcxEndBufferedPaint(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget)
+{
+	if (EndBufferedPaintUx != NULL)
+		return EndBufferedPaintUx(hBufferedPaint, fUpdateTarget);
+	return NULL;
+}
+
+HRESULT DcxUXModule::dcxBufferedPaintInit(void)
+{
+	if (BufferedPaintInitUx != NULL)
+		return BufferedPaintInitUx();
+	return NULL;
+}
+
+HRESULT DcxUXModule::dcxBufferedPaintUnInit(void)
+{
+	if (BufferedPaintUnInitUx != NULL)
+		return BufferedPaintUnInitUx();
+	return NULL;
+}
+
+bool DcxUXModule::IsBufferedPaintSupported(void)
+{
+	if ((BufferedPaintInitUx != NULL) && (BufferedPaintUnInitUx != NULL) && (BeginBufferedPaintUx != NULL) && (EndBufferedPaintUx != NULL))
+		return true;
+	return false;
+}
+
+#endif

@@ -11,7 +11,7 @@
  *
  * © ScriptsDB.org - 2006
  */
-
+#include "defines.h"
 #include "layoutcellfill.h"
 #include <windowsx.h>
 

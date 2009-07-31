@@ -15,8 +15,8 @@
 #ifndef _DCXBUTTON_H_
 #define _DCXBUTTON_H_
 
-#include "../defines.h"
-#include "dcxcontrol.h"
+#include "defines.h"
+#include "Classes/dcxcontrol.h"
 
 class DcxDialog;
 

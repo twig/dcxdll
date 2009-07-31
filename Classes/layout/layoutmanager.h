@@ -15,8 +15,8 @@
 #ifndef _LAYOUTMANAGER_H_
 #define _LAYOUTMANAGER_H_
 
-#include "layoutcell.h"
-#include "../tstring/tstring.h"
+#include "Classes/layout/layoutcell.h"
+#include "Classes/tstring/tstring.h"
 
 /*!
  * \brief blah

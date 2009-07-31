@@ -11,9 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "xpopupmenumanager.h"
-#include "../../Dcx.h"
+#include "defines.h"
+#include "Classes/xpopup/xpopupmenumanager.h"
+#include "Dcx.h"
 
 
 

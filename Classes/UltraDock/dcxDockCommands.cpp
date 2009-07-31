@@ -3,9 +3,9 @@
 	*
 	*	TODO: Add subclassing of channel/custom/toolbar/switchbar/treelist? SetClassLongPtr(new_wndproc) & FindWindowEx(classname)
 */
-
-#include "dcxDock.h"
-#include "../../Dcx.h"
+#include "defines.h"
+#include "Classes/UltraDock/dcxDock.h"
+#include "Dcx.h"
 
 
 
@@ -678,7 +678,7 @@ mIRC(_xdock)
 	return 3;
 }
 
-//#include "../../defines.h"
+//#include "defines.h"
 //
 //extern mIRCDLL mIRCLink;
 //// mIRC components HWND

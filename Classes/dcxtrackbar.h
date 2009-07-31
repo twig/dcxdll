@@ -15,8 +15,8 @@
 #ifndef _DCXTRACKBAR_H_
 #define _DCXTRACKBAR_H_
 
-#include "../defines.h"
-#include "dcxcontrol.h"
+#include "defines.h"
+#include "Classes/dcxcontrol.h"
 
 #define TBCS_BACK			0x01	// backgruond
 #define TBCS_THUMB		0x02	// thumb normal

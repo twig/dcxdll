@@ -26,8 +26,9 @@ distribution.
  * THIS FILE WAS ALTERED BY Tyge Løvset, 7. April 2005.
  */
 
-
+#include "defines.h"
 #ifndef TIXML_USE_STL
+
 
 #include "tinystr.h"
 

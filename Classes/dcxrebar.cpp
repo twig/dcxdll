@@ -11,10 +11,10 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxrebar.h"
-#include "dcxdialog.h"
-#include "../Dcx.h"
+#include "defines.h"
+#include "Classes/dcxrebar.h"
+#include "Classes/dcxdialog.h"
+#include "Dcx.h"
 
 
 
@@ -55,7 +55,7 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 
 	if ( bNoTheme ) {
 		//SendMessage( this->m_Hwnd, RB_SETWINDOWTHEME, NULL, L" ");
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 	}
 	{
 		this->setImageList( this->createImageList() );

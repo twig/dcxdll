@@ -15,12 +15,12 @@
 #ifndef _DCXTREEVIEW_H_
 #define _DCXTREEVIEW_H_
 
-#include "../defines.h"
-#include "dcxcontrol.h"
+#include "defines.h"
+#include "Classes/dcxcontrol.h"
 
 #include <string>
 
-#include "tinyxml/tinyxml.h"
+#include "Classes/tinyxml/tinyxml.h"
 
 class DcxDialog;
 class DcxTreeView;

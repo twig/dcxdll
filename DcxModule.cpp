@@ -1,3 +1,4 @@
+#include "defines.h"
 #include "DcxModule.h"
 
 DcxModule::DcxModule(void)

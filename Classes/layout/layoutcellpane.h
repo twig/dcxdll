@@ -15,7 +15,7 @@
 #ifndef _LAYOUTCELLPANE_H_
 #define _LAYOUTCELLPANE_H_
 
-#include "layoutcell.h"
+#include "Classes/layout/layoutcell.h"
 
 /*!
  * \brief blah

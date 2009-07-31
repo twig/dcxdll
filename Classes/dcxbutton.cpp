@@ -11,9 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxbutton.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxbutton.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor
@@ -54,7 +54,7 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_bNoTheme = (bNoTheme ? true : false);
 
@@ -544,8 +544,8 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 	HTHEME hTheme = NULL;
 	int iStateId = 0;
-	if (!this->m_bNoTheme && dcxIsThemeActive()) {
-		hTheme = OpenThemeDataUx(this->m_Hwnd, L"BUTTON");
+	if (!this->m_bNoTheme && Dcx::XPPlusModule.dcxIsThemeActive()) {
+		hTheme = Dcx::XPPlusModule.dcxOpenThemeData(this->m_Hwnd, L"BUTTON");
 
 		// this allows the theme buttons to have a transparent background like the normal ones
 		switch (nState)
@@ -607,7 +607,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				// This method causes the theme bkg to re-appear during resize, but button is otherwise drawn correctly.
 				if (uMsg != WM_PRINTCLIENT) {
 					HRGN hRgn = NULL;
-					if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
+					if (Dcx::XPPlusModule.dcxGetThemeBackgroundRegion(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
 					{
 						HRGN hZeroRgn = CreateRectRgn(0,0,0,0);
 						if ((hRgn != NULL) && (!EqualRgn(hRgn, hZeroRgn)))
@@ -730,7 +730,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	}
 
 	if (hTheme != NULL)
-		CloseThemeDataUx(hTheme);
+		Dcx::XPPlusModule.dcxCloseThemeData(hTheme);
 
 	this->FinishAlphaBlend(ai);
 }

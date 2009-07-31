@@ -15,9 +15,9 @@
 #ifndef _DCXPROGRESSBAR_H_
 #define _DCXPROGRESSBAR_H_
 
-#include "../defines.h"
-#include "dcxcontrol.h"
-#include "xpopup/xpopupmenuitem.h"
+#include "defines.h"
+#include "Classes/dcxcontrol.h"
+#include "Classes/xpopup/xpopupmenuitem.h"
 
 class DcxDialog;
 

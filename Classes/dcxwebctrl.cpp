@@ -11,9 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxwebctrl.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxwebctrl.h"
+#include "Classes/dcxdialog.h"
 
 //extern IClassFactory * g_pClassFactory;
 
@@ -50,7 +50,7 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	/* Web Control Stuff */
 

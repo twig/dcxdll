@@ -15,10 +15,9 @@
 #ifndef _DCXPANEL_H_
 #define _DCXPANEL_H_
 
-#include "../defines.h"
-#include "dcxcontrol.h"
-
-#include "layout/layoutmanager.h"
+#include "defines.h"
+#include "Classes/dcxcontrol.h"
+#include "Classes/layout/layoutmanager.h"
 
 class DcxDialog;
 

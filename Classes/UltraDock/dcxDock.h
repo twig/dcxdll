@@ -4,7 +4,7 @@
 	* SubClass mIRC windows for docking with new layout engine.
 */
 
-#include "../../defines.h"
+#include "defines.h"
 
 #define DOCK_TYPE_SWITCH	0x00
 #define DOCK_TYPE_TOOL		0x01

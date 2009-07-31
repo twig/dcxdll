@@ -11,7 +11,7 @@
  *
  * © ScriptsDB.org - 2005
  */
-
+#include "defines.h"
 #include "xpopupmenuwindow.h"
 
 /*!

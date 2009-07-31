@@ -11,10 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "../../defines.h"
+#include "defines.h"
 #include "divider.h"
-#include "../../AggressiveOptimize.h"
+#include "AggressiveOptimize.h"
 
 /*!
  * \brief blah

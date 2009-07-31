@@ -34,7 +34,7 @@
  *
  * © ScriptsDB.org - 2005
  */
-
+#include "defines.h"
 // Required for VS 2005
 #define _CRT_SECURE_NO_DEPRECATE 1
 // end VS2005
@@ -1236,7 +1236,7 @@ int TString::_replace(const char *subString, const char *rString)
 		this->deleteString(); // delete old string
 		this->m_pString = out; // save new one.
 	}
-  return cnt;
+	return cnt;
 }
 
 /****************************/
@@ -1861,7 +1861,7 @@ static inline int rfc_toupper(int c)
  * Features:  Forward, case-insensitive, ?, *, %, ~(optional)
  * Best use:  Generic string matching, such as in IrcII-esque bindings
  */
-int match (register char *m, register char *n, const bool cs /* case sensitive */)
+int TString::match (register char *m, register char *n, const bool cs /* case sensitive */)
 {
 	char *ma = m, *lsm = 0, *lsn = 0, *lpm = 0, *lpn = 0;
 	int match = 1, saved = 0;

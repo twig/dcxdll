@@ -40,10 +40,10 @@ public:
 	void setZlayered (bool b) { this->_zlayered = b; }
 
 	DcxDialog *getDialog () { return this->_dcxDialog; }
-	bool getZlayered () { return this->_zlayered; }
-	const char *getDialogMark () { return this->_dialogMark; }
-	const char *getDialogName () { return this->_dialogName; }
-	const char *getFilePath () { return this->_filePath; }
+	bool getZlayered () const { return this->_zlayered; }
+	const char *getDialogMark () const { return this->_dialogMark; }
+	const char *getDialogName () const { return this->_dialogName; }
+	const char *getFilePath () const { return this->_filePath; }
 
 	TiXmlElement* getRootElement () { return this->_rootElement; }
 	TiXmlElement* getDialogsElement () { return this->_dialogsElement; }

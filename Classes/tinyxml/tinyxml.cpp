@@ -21,14 +21,12 @@ must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source
 distribution.
 */
+#include "defines.h"
 
-// Required for VS 2005
-#if _MSC_VER >= 1400
-#define VS2005 1
-#define _CRT_SECURE_NO_DEPRECATE 1
-#define _CRT_SECURE_NO_WARNINGS 1
-#endif
 // end of VS 2005
+#ifdef __INTEL_COMPILER
+#pragma warning( disable : 981 ) // remark #981: operands are evaluated in unspecified order
+#endif
 
 #include <ctype.h>
 

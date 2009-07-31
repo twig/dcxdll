@@ -41,23 +41,21 @@
 	By Jerry Wang
 */
 
-#include "../defines.h"
-#include "../Dcx.h"
-#include "dcxdialog.h"
-#include "dcxdialogcollection.h"
-#include "dcxcontrol.h"
-
-#include "dcxtoolbar.h"
-#include "dcxrichedit.h"
-#include "mirc/dcxlist.h"
-
-#include "layout/layoutcellfixed.h"
-#include "layout/layoutcellfill.h"
-#include "layout/layoutcellpane.h"
+#include "defines.h"
+#include "Dcx.h"
+#include "Classes/dcxdialog.h"
+#include "Classes/dcxdialogcollection.h"
+#include "Classes/dcxcontrol.h"
+#include "Classes/dcxtoolbar.h"
+#include "Classes/dcxrichedit.h"
+#include "Classes/mirc/dcxlist.h"
+#include "Classes/layout/layoutcellfixed.h"
+#include "Classes/layout/layoutcellfill.h"
+#include "Classes/layout/layoutcellpane.h"
 
 #include <math.h>
 
-#include "xpopup\xpopupmenumanager.h"
+#include "Classes/xpopup\xpopupmenumanager.h"
 
 
 

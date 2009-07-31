@@ -1,9 +1,9 @@
 /*
 	* Handle docking of windows to mIRC's main window around the MDI Client window.
 */
-
-#include "dcxDock.h"
-#include "../../Dcx.h"
+#include "defines.h"
+#include "Classes/UltraDock/dcxDock.h"
+#include "Dcx.h"
 
 
 
@@ -154,7 +154,7 @@ int SwitchbarPos(const int type)
 }
 
 // Below is the old code, this is kept for refrence & will be removed when the new code is finished.
-//#include "../../defines.h"
+//#include "defines.h"
 //
 //extern mIRCDLL mIRCLink;
 //

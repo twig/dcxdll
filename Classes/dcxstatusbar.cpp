@@ -11,9 +11,9 @@
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxstatusbar.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxstatusbar.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor
@@ -48,7 +48,7 @@ DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_vParts.clear();
 	ZeroMemory(this->m_iDynamicParts, sizeof(this->m_iDynamicParts));

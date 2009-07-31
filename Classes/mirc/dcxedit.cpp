@@ -11,9 +11,9 @@
 *
 * © ScriptsDB.org - 2006
 */
-
-#include "dcxedit.h"
-#include "../dcxdialog.h"
+#include "defines.h"
+#include "Classes/mirc/dcxedit.h"
+#include "Classes/dcxdialog.h"
 
 /*!
 * \brief Constructor
@@ -47,7 +47,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, con
 		throw "Unable To Create Window";
 
 	if (bNoTheme)
-		dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
+		Dcx::XPPlusModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 
 	Edit_LimitText(this->m_Hwnd, 0);
 	//this->m_tsText = "";

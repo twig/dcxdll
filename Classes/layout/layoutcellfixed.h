@@ -15,7 +15,7 @@
 #ifndef _LAYOUTCELLFIXED_H_
 #define _LAYOUTCELLFIXED_H_
 
-#include "layoutcell.h"
+#include "Classes/layout/layoutcell.h"
 
 /*!
  * \brief blah

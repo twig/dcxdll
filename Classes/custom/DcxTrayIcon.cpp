@@ -1,5 +1,6 @@
-#include ".\dcxtrayicon.h"
-#include "../../Dcx.h"
+#include "defines.h"
+#include "dcxtrayicon.h"
+#include "Dcx.h"
 
 
 

@@ -19,9 +19,9 @@ MCHT_TITLEBTNPREV
  *
  * © ScriptsDB.org - 2006
  */
-
-#include "dcxcalendar.h"
-#include "dcxdialog.h"
+#include "defines.h"
+#include "Classes/dcxcalendar.h"
+#include "Classes/dcxdialog.h"
 
 /*!
  * \brief Constructor
@@ -55,7 +55,7 @@ DcxCalendar::DcxCalendar( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );

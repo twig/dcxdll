@@ -3,7 +3,7 @@
 #ifndef _DCXTRAYICON_H_
 #define _DCXTRAYICON_H_
 
-#include "../../defines.h"
+#include "defines.h"
 
 #define DCXM_TRAYICON 12345
 

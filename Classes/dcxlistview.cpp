@@ -18,10 +18,10 @@
 *
 * © ScriptsDB.org - 2006
 */
-
-#include "dcxlistview.h"
-#include "dcxdialog.h"
-#include "../Dcx.h"
+#include "defines.h"
+#include "Classes/dcxlistview.h"
+#include "Classes/dcxdialog.h"
+#include "Dcx.h"
 
 /*!
 * \brief Constructor
@@ -61,7 +61,7 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
 

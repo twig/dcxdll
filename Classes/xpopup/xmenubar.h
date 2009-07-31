@@ -15,7 +15,7 @@
 #ifndef _XMENUBAR_H_
 #define _XMENUBAR_H_
 
-#include "xpopupmenu.h"
+#include "Classes/xpopup/xpopupmenu.h"
 
 /*!
  * \brief blah

@@ -22,7 +22,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 //If your project does not use a precompiled header, comment the first line and uncomment the next ones
-#include "../../defines.h"
+#include "defines.h"
 //#define _WIN32_WINNT 0x0503
 //#include <windows.h>
 #include <richedit.h>

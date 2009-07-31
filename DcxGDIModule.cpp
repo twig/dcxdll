@@ -1,3 +1,4 @@
+#include "defines.h"
 #include "DcxGDIModule.h"
 #include "Dcx.h"
 

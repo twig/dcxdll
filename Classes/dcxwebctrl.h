@@ -15,9 +15,9 @@
 #ifndef _DCXWEBCTRL_H_
 #define _DCXWEBCTRL_H_
 
-#include "../defines.h"
-#include "../Dcx.h"
-#include "dcxcontrol.h"
+#include "defines.h"
+#include "Dcx.h"
+#include "Classes/dcxcontrol.h"
 #include <exdisp.h>
 #include <exdispid.h>
 #include <objbase.h>

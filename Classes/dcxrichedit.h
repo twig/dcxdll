@@ -15,9 +15,10 @@
 #ifndef _DCXRICHEDIT_H_
 #define _DCXRICHEDIT_H_
 
-#include "../defines.h"
-#include "dcxcontrol.h"
+#include "defines.h"
+#include "Classes/dcxcontrol.h"
 #include <richedit.h>
+
 class DcxDialog;
 
 typedef struct {

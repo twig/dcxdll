@@ -99,10 +99,10 @@ void mIRCLinker::unload() {
 		
 	// reset the treebars font if it's been changed.
 	if (Dcx::mIRC.getTreeFont() != NULL) {
-		HFONT hfont = (HFONT)SendMessage(m_hTreeview,WM_GETFONT,0,0);
+		HFONT hfont = GetWindowFont(m_hTreeview);
 		if (hfont != m_hTreeFont) {
-			SendMessage( m_hTreeview, WM_SETFONT, (WPARAM) m_hTreeFont, (LPARAM) MAKELPARAM(TRUE,0));
-			DeleteObject(hfont);
+			SetWindowFont( m_hTreeview, m_hTreeFont, TRUE);
+			DeleteFont(hfont);
 		}
 	}
 }

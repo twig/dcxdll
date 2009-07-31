@@ -1,3 +1,4 @@
+#include "defines.h"
 #include "DcxDWMModule.h"
 
 PFNDWMISCOMPOSITIONENABLED DcxDWMModule::DwmIsCompositionEnabledUx = NULL;
@@ -30,9 +31,8 @@ bool DcxDWMModule::load(mIRCLinker &mIRCLink)
 		DwmExtendFrameIntoClientAreaUx = (PFNDWMEXTENDFRAMEINTOCLIENTAREA) GetProcAddress(m_hModule, "DwmExtendFrameIntoClientArea"); // Vista ONLY!
 
 #if DCX_DEBUG_OUTPUT
-		if (DwmIsCompositionEnabledUx != NULL) {
-			DCX_DEBUG(mIRCLink.debug,"LoadDLL", "Found Vista DWM Functions");
-		}
+		if (DwmIsCompositionEnabledUx != NULL)
+			mIRCLink.debug("LoadDLL", "Found Vista DWM Functions");
 #endif
 
 		refreshComposite();
