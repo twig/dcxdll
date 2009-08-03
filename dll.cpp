@@ -88,8 +88,9 @@ BOOL WINAPI DllMain(
 			// Initialize once for each new process.
 			// Return FALSE to fail DLL load.
 			DisableThreadLibraryCalls(hinstDLL);
-			// add address of mIRC.exe to name so mutex is specific to this instance of mIRC.
-			wsprintf(mutex,"DCX_LOADED%x", GetModuleHandle(NULL)); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+			// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
+			// GetModuleHandle(NULL) was returning a consistant result.
+			wsprintf(mutex,"DCX_LOADED%lx", GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
 
 			// Enforce only one instance of dcx.dll loaded at a time.
 			hDcxMutex = CreateMutex(NULL, TRUE, mutex); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
@@ -109,7 +110,11 @@ BOOL WINAPI DllMain(
 
 	case DLL_PROCESS_DETACH:
 		// Perform any necessary cleanup.
-		if (hDcxMutex != NULL) CloseHandle(hDcxMutex);
+		if (hDcxMutex != NULL) {
+			ReleaseMutex(hDcxMutex);
+			CloseHandle(hDcxMutex);
+			hDcxMutex = NULL;
+		}
 		break;
 	}
 	return TRUE;  // Successful DLL_PROCESS_ATTACH.
