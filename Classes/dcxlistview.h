@@ -164,11 +164,11 @@ private:
 	HIMAGELIST initImageList(const int iImageList);
 	bool xmlLoadListview(const int nPos, const TString &dataset, TString &filename);
 	void xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi);
-	bool ctrlLoadListview(const int nPos, const TString tsflags, const TString &dialogname, const int ctrl_ID, const TString &item);
-	bool xLoadListview(const int nPos, const TString tsflags, const TString &tsName, const TString &tsItem, const char *sTest, const char *sCount, const char *sGet, const char *sGetNamed);
+	bool ctrlLoadListview(const int nPos, const TString &tsData);
+	bool xLoadListview(const int nPos, const TString &tsData, const char *sTest, const char *sCount, const char *sGet, const char *sGetNamed);
 	void massSetItem(const int nPos, const TString &input);
 	static UINT parseMassItemFlags( const TString & flags );
-	static void parseText2Item(const TString & tsTxt, TString & tsItem);
+	static void parseText2Item(const TString & tsTxt, TString & tsItem, const TString &tsData);
 	//
 	HFONT m_hItemFont; // Font used for specific item changes.
 	HFONT m_hOldItemFont; // Font used for specific item changes.

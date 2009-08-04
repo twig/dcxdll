@@ -23,9 +23,9 @@ dcxml [-FLAGS] [NAME] [DNAME] "[PATH]"
 //DcxmlParser::DcxmlParser() {
 //
 //}
-DcxmlParser::DcxmlParser(const char *file,const char *mark,const char *dialogName, bool verbose, bool autoClose)
+DcxmlParser::DcxmlParser(const char *file,const char *mark,const char *dialogName, bool verbose, bool autoClose) :
+	loadSuccess(true)
 {
-	this->loadSuccess = true;
 	this->isVerbose(verbose);
 	this->isAutoClose(autoClose);
 

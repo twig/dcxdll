@@ -920,19 +920,20 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		if (stateFlags & LVIS_HASHTABLE) {
 			// load all data from a mIRC hashtable.
-			this->xLoadListview(nPos, data.gettok( 10 ), data.gettok( 11 ), data.gettok( 12, -1 ), "$hget(%s)", "$hget(%s,0).item", "$hget(%s,%d)", "$hget(%s,%s)");
+			this->xLoadListview(nPos, data, "$hget(%s)", "$hget(%s,0).item", "$hget(%s,%d)", "$hget(%s,%s)");
 			return;
 		}
 
 		if (stateFlags & LVIS_WINDOW) {
 			// load all data from a mIRC @window.
-			this->xLoadListview(nPos, data.gettok( 10 ), data.gettok( 11 ), data.gettok( 12, -1 ), "$window(%s)", "$line(%s,0)", "$line(%s,%d)", NULL);
+			//this->xLoadListview(nPos, data.gettok( 10 ), data.gettok( 11 ), data.gettok( 12, -1 ), "$window(%s)", "$line(%s,0)", "$line(%s,%d)", NULL);
+			this->xLoadListview(nPos, data, "$window(%s)", "$line(%s,0)", "$line(%s,%d)", NULL);
 			return;
 		}
 
 		if (stateFlags & LVIS_CONTROL) {
 			// load all data from another dcx control.
-			this->ctrlLoadListview(nPos, data.gettok( 10 ), data.gettok( 11 ), data.gettok( 12 ).to_int(), data.gettok( 13, -1 ));
+			this->ctrlLoadListview(nPos, data);
 			return;
 		}
 		massSetItem(nPos, input);
@@ -3384,26 +3385,29 @@ void DcxListView::xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *
 }
 
 //[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
-bool DcxListView::ctrlLoadListview(const int nPos, const TString tsflags, const TString &dialogname, const int ctrl_ID, const TString &item)
+bool DcxListView::ctrlLoadListview(const int nPos, const TString &tsData)
 {
-	DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(dialogname);
-	if (p_Dialog == NULL) {
-		this->showErrorEx(NULL, "-a", "Invalid dialog name: %s Only DCX dialogs are supported.", dialogname.to_chr());
-		return false;
-	}
-	DcxControl * p_Control = p_Dialog->getControlByID((UINT) ctrl_ID + mIRC_ID_OFFSET);
+	//DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(dialogname);
+	//if (p_Dialog == NULL) {
+	//	this->showErrorEx(NULL, "-a", "Invalid dialog name: %s Only DCX dialogs are supported.", dialogname.to_chr());
+	//	return false;
+	//}
+	//DcxControl * p_Control = p_Dialog->getControlByID((UINT) ctrl_ID + mIRC_ID_OFFSET);
 
-	if (p_Control == NULL) {
-		this->showErrorEx(NULL, "-a", "Invalid control id: %d Only DCX controls are supported.", ctrl_ID);
-		return false;
-	}
+	//if (p_Control == NULL) {
+	//	this->showErrorEx(NULL, "-a", "Invalid control id: %d Only DCX controls are supported.", ctrl_ID);
+	//	return false;
+	//}
 	return false;
 }
-
 //[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
-bool DcxListView::xLoadListview(const int nPos, const TString tsflags, const TString &tsName, const TString &tsItem, const char *sTest, const char *sCount, const char *sGet, const char *sGetNamed)
+//tsData = [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] [+flags] [window/table] [item]
+bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const char *sTest, const char *sCount, const char *sGet, const char *sGetNamed)
 {
 	char res[1024];	// used to store the data returned by mIRC.
+	TString tsflags(tsData.gettok( 10 ));
+	TString tsName(tsData.gettok( 11 ));
+	TString tsItem(tsData.gettok( 12, -1 ));
 
 	// check table/window exists
 	Dcx::mIRC.evalex(res, 1024, sTest, tsName.to_chr());
@@ -3447,7 +3451,7 @@ bool DcxListView::xLoadListview(const int nPos, const TString tsflags, const TSt
 			//   0     0     0      0      0       +       0        0         0           0        0        0		read from hashtable->
 			//input.sprintf("0 0 0 0 0 + 0 0 0 0 0 0 %s", res);
 		{
-			parseText2Item(res, input);
+			parseText2Item(res, input, tsData);
 		}
 		// add this item
 		massSetItem(nPos, input);
@@ -3497,7 +3501,7 @@ bool DcxListView::xLoadListview(const int nPos, const TString tsflags, const TSt
 			//   0     0     0      0      0       +       0        0         0           0        0        0		read from hashtable->
 			//input.sprintf("0 0 0 0 0 + 0 0 0 0 0 0 %s", res);
 		{
-			parseText2Item(res, input);
+			parseText2Item(res, input, tsData);
 		}
 		massSetItem(nItem++, input);
 
@@ -3576,7 +3580,7 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 
 	lvi.iItem = nPos;
 	lvi.iImage = -1;
-	lvi.state = stateFlags;
+	lvi.state = (stateFlags & 0xFFFF); // mask out higher number flags. These flags cause the add to fail & arnt needed here anyway.
 	lvi.stateMask = (LVIS_FOCUSED|LVIS_SELECTED|LVIS_CUT|LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
 	lvi.iSubItem = 0;
 	lvi.lParam = (LPARAM) lpmylvi;
@@ -3747,18 +3751,32 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 	}
 }
 
-void DcxListView::parseText2Item(const TString &tsTxt, TString &tsItem)
+void DcxListView::parseText2Item(const TString &tsTxt, TString &tsItem, const TString &tsData)
 {
 	// first part of item, fill in blanks with 0's
-	tsItem = "0 0 0 0 0 + 0 0 0 0 0 0 ";
+	//tsItem = "0 0 0 0 0 + 0 0 0 0 0 0 ";
+	//// add item text.
+	//tsItem += tsTxt.gettok(1, TSTAB);
+	//// add all subitems
+	//int tok = 2, ntok = tsTxt.numtok(TSTAB);
+	//while (tok <= ntok) {
+	//	//[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text
+	//	// again fill in blanks with 0's
+	//	tsItem.addtok("+ 0 0 0 0 ",TSTAB);
+	//	// add subitems text.
+	//	tsItem += tsTxt.gettok(tok, TSTAB);
+	//	tok++;
+	//}
+	tsItem = "0 0 0 0 ";
+	tsItem += tsData.gettok( 2, 10); // copy flags & icon etc.. from /xdid -a line.
 	// add item text.
-	tsItem += tsTxt.gettok(1, TSTAB);
+	tsItem.addtok(tsTxt.gettok(1, TSTAB).to_chr());
 	// add all subitems
 	int tok = 2, ntok = tsTxt.numtok(TSTAB);
 	while (tok <= ntok) {
 		//[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text
 		// again fill in blanks with 0's
-		tsItem.addtok("+ 0 0 0 0 ",TSTAB);
+		tsItem.addtok("+ 0 0 0 0 ",TSTAB); // subitems are added without flags, not going to change this.
 		// add subitems text.
 		tsItem += tsTxt.gettok(tok, TSTAB);
 		tok++;

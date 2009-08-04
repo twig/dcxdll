@@ -37,7 +37,7 @@ public:
 	bool loadDialog();
 	bool loadDialogElement();
 
-	void setZlayered (bool b) { this->_zlayered = b; }
+	void setZlayered (const bool b) { this->_zlayered = b; }
 
 	DcxDialog *getDialog () { return this->_dcxDialog; }
 	bool getZlayered () const { return this->_zlayered; }
@@ -123,11 +123,11 @@ public:
     int g_resetcla;
 private:
 	bool _verbose;
-	void isVerbose (bool b) { this->_verbose = b; }
-	bool isVerbose () { return this->_verbose; }
+	void isVerbose(const bool b) { this->_verbose = b; }
+	bool isVerbose() const { return this->_verbose; }
 	bool _autoClose;
-	void isAutoClose (bool b) { this->_autoClose = b; }
-	bool isAutoClose () { return this->_autoClose; }
+	void isAutoClose(const bool b) { this->_autoClose = b; }
+	bool isAutoClose() const { return this->_autoClose; }
 
 	void xdialogEX(const char *sw,const char *dFormat, ...);
 	int mIRCEvalToUnsignedInt (const char *value);
