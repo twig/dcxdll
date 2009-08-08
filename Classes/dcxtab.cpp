@@ -30,7 +30,6 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
 , m_bClosable(false)
 , m_bGradient(false)
 {
-
   LONG Styles = 0, ExStyles = 0;
   BOOL bNoTheme = FALSE;
   this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
@@ -753,7 +752,8 @@ void DcxTab::toXml(TiXmlElement * xml) {
  *
  * blah
  */
-LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
+LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed)
+{
 	switch (uMsg) {
 		case WM_NOTIFY : 
 			{
@@ -929,21 +929,21 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 	return 0L;
 }
 
-LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
+LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
 	LRESULT lRes = 0L;
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		case WM_CONTEXTMENU:
 		case WM_LBUTTONUP:
 			break;
 
-    case WM_NOTIFY : 
-      {
-        LPNMHDR hdr = (LPNMHDR) lParam;
+		case WM_NOTIFY : 
+			{
+				LPNMHDR hdr = (LPNMHDR) lParam;
 
-        if (!hdr)
-          break;
+				if (!hdr)
+					break;
 
 				//if (hdr->hwndFrom == this->m_ToolTipHWND) {
 				//	switch(hdr->code) {
@@ -967,67 +967,60 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				//}
 				if (IsWindow(hdr->hwndFrom)) {
 					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
-      }
-      break;
+			}
+			break;
 
-    case WM_HSCROLL: 
-    case WM_VSCROLL: 
-    case WM_COMMAND:
-      {
+		case WM_HSCROLL: 
+		case WM_VSCROLL: 
+		case WM_COMMAND:
+			{
 				if (IsWindow((HWND) lParam)) {
 					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
-      }
-      break;
+			}
+			break;
 
-    case WM_DELETEITEM:
-      {
+		case WM_DELETEITEM:
+			{
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
-      }
-      break;
+			}
+			break;
 
-    case WM_MEASUREITEM:
-      {
+		case WM_MEASUREITEM:
+			{
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
 					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
-					if (c_this != NULL) {
+					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
 				}
-      }
-      break;
+			}
+			break;
 
-    case WM_SIZE:
-      {
-        this->activateSelectedTab( );
+		case WM_SIZE:
+			{
+				this->activateSelectedTab( );
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
-	        this->execAliasEx("%s,%d", "sizing", this->getUserID( ) );
-      }
-      break;
+					this->execAliasEx("%s,%d", "sizing", this->getUserID( ) );
+			}
+			break;
 
 		case WM_ERASEBKGND:
 			{
 				if (this->isExStyle(WS_EX_TRANSPARENT))
 					this->DrawParentsBackground((HDC)wParam);
-				else {
-					RECT rect;
-					GetClientRect( this->m_Hwnd, &rect );
-					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-				}
+				else
+					DcxControl::DrawCtrlBackground((HDC) wParam,this);
 				bParsed = TRUE;
 				return TRUE;
 			}
@@ -1055,23 +1048,23 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			}
 			break;
 
-		//case WM_CLOSE:
-		//	{
-		//		if (GetKeyState(VK_ESCAPE) != 0) // don't allow the window to close if escape is pressed. Needs looking into for a better method.
-		//			bParsed = TRUE;
-		//	}
-		//	break;
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+			//case WM_CLOSE:
+			//	{
+			//		if (GetKeyState(VK_ESCAPE) != 0) // don't allow the window to close if escape is pressed. Needs looking into for a better method.
+			//			bParsed = TRUE;
+			//	}
+			//	break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return lRes;
+	return lRes;
 }

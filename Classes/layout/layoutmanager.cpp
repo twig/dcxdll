@@ -55,17 +55,22 @@ LayoutManager::~LayoutManager( ) {
 
 BOOL LayoutManager::updateLayout( RECT & rc ) {
 
-  if ( this->m_pRoot != NULL ) {
+	if ( this->m_pRoot == NULL )
+		return FALSE;
 
-    HDWP hdwp = BeginDeferWindowPos( 1 );
+	HDWP hdwp = BeginDeferWindowPos( 1 );
 
-    this->m_pRoot->setRect( rc );
-    this->m_pRoot->LayoutChild( );
-    hdwp = this->m_pRoot->ExecuteLayout( hdwp );
+	this->m_pRoot->setRect( rc );
+	this->m_pRoot->LayoutChild( );
+	hdwp = this->m_pRoot->ExecuteLayout( hdwp );
 
-    return EndDeferWindowPos( hdwp );
-  }
-	return FALSE;
+#if DCX_DEBUG_OUTPUT
+	if (hdwp == NULL) {
+		Dcx::debug("updateLayout()","DeferWindowPos() failed");
+		return FALSE;
+	}
+#endif
+	return EndDeferWindowPos( hdwp );
 }
 
 /*!

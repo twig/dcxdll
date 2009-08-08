@@ -287,20 +287,18 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 void Divider_SizeWindowContents( HWND mHwnd, int nWidth, int nHeight ) {
 
-  LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
 
-  if ( GetWindowStyle( mHwnd ) & DVS_VERT ) {
-
-    MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, lpdvdata->m_iBarPos, nHeight, TRUE );
-    MoveWindow( lpdvdata->m_Panes[1].hChild, lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth, 0, 
-      nWidth - lpdvdata->m_iBarPos - lpdvdata->m_iLineWidth, nHeight, TRUE );
-  }
-  else {
-
-    MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, nWidth, lpdvdata->m_iBarPos, TRUE );
-    MoveWindow( lpdvdata->m_Panes[1].hChild, 0, lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth, 
-      nWidth, nHeight - lpdvdata->m_iBarPos - lpdvdata->m_iLineWidth, TRUE );
-  }
+	if ( GetWindowStyle( mHwnd ) & DVS_VERT ) {
+		MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, lpdvdata->m_iBarPos, nHeight, TRUE );
+		MoveWindow( lpdvdata->m_Panes[1].hChild, lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth, 0, 
+		  nWidth - lpdvdata->m_iBarPos - lpdvdata->m_iLineWidth, nHeight, TRUE );
+	}
+	else {
+		MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, nWidth, lpdvdata->m_iBarPos, TRUE );
+		MoveWindow( lpdvdata->m_Panes[1].hChild, 0, lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth, 
+		  nWidth, nHeight - lpdvdata->m_iBarPos - lpdvdata->m_iLineWidth, TRUE );
+	}
 }
 
 

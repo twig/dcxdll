@@ -93,6 +93,7 @@ HDWP LayoutCellFill::ExecuteLayout( HDWP hdwp ) {
 
 		//hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER );
 		hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
+		//hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 	}
 	return hdwpdef;
 }
@@ -120,19 +121,16 @@ void LayoutCellFill::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
 }
 
 void LayoutCellFill::toXml(TiXmlElement * xml) {
-	char margin[900];
-	if (this->m_BaseControl) {
+	TString margin;
+	if (this->m_BaseControl)
 		this->m_BaseControl->toXml(xml);
-	}
 	if (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0) {
-		sprintf_s(margin, 900, "%d %d %d %d", m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
-		xml->SetAttribute("margin", margin);
+		margin.sprintf("%d %d %d %d", m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
+		xml->SetAttribute("margin", margin.to_chr());
 	}
 }
 
 
 TiXmlElement * LayoutCellFill::toXml(void) {
-	//DcxControl * basectrl = this->m_Hwnd
-	TiXmlElement * base = this->m_BaseControl->toXml();
-	return base;
+	return this->m_BaseControl->toXml();
 }

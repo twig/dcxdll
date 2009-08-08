@@ -107,7 +107,7 @@ void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 void DcxDivider::parseInfoRequest( TString & input, char * szReturnValue ) {
 
   //int numtok = input.numtok( );
-  TString prop = input.gettok(3);
+  TString prop(input.gettok(3));
 
   // [NAME] [ID] [PROP]
   if (prop == "position") {
@@ -135,47 +135,47 @@ void DcxDivider::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxDivider::parseCommandRequest( TString & input ) {
-  XSwitchFlags flags(input.gettok(3));
+	XSwitchFlags flags(input.gettok(3));
 
-  int numtok = input.numtok( );
+	int numtok = input.numtok( );
 
-  // xdid -l|r [NAME] [ID] [SWITCH] [MIN] [IDEAL][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-  if ( ( flags['l'] || flags['r'] )&& numtok > 9 ) {
+	// xdid -l|r [NAME] [ID] [SWITCH] [MIN] [IDEAL][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
+	if ( ( flags['l'] || flags['r'] )&& numtok > 9 ) {
 
-    DVPANEINFO dvpi;
-    ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
-    dvpi.cbSize = sizeof( DVPANEINFO );
+		DVPANEINFO dvpi;
+		ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
+		dvpi.cbSize = sizeof( DVPANEINFO );
 
-    TString data(input.gettok(1, TSTAB).trim());
-    TString control_data;
+		TString data(input.gettok(1, TSTAB).trim());
+		TString control_data;
 
-    if ( input.numtok( TSTAB ) > 1 )
-      control_data = input.gettok(2, TSTAB).trim();
+		if ( input.numtok( TSTAB ) > 1 )
+			control_data = input.gettok(2, TSTAB).trim();
 
-    dvpi.fMask = DVPIM_CHILD | DVPIM_MIN | DVPIM_IDEAL;
-    dvpi.cxMin = data.gettok( 4 ).to_int( );
-    dvpi.cxIdeal = data.gettok( 5 ).to_int( );
+		dvpi.fMask = DVPIM_CHILD | DVPIM_MIN | DVPIM_IDEAL;
+		dvpi.cxMin = data.gettok( 4 ).to_int( );
+		dvpi.cxIdeal = data.gettok( 5 ).to_int( );
 
-    if ( control_data.numtok( ) > 5 ) {
+		if ( control_data.numtok( ) > 5 ) {
 
-      UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1 ).to_int( );
+			UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1 ).to_int( );
 
-      if ( ID > mIRC_ID_OFFSET - 1 && 
-        !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
-        this->m_pParentDialog->getControlByID( ID ) == NULL ) 
-      {
+			if ( ID > mIRC_ID_OFFSET - 1 && 
+				!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
+				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
+			{
 				try {
 					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
-										 CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|
-										 CTLF_ALLOW_COLORCOMBO|CTLF_ALLOW_STATUSBAR|CTLF_ALLOW_TOOLBAR|
-										 CTLF_ALLOW_TREEVIEW|CTLF_ALLOW_LISTVIEW|CTLF_ALLOW_REBAR|
-										 CTLF_ALLOW_BUTTON|CTLF_ALLOW_RICHEDIT|CTLF_ALLOW_EDIT|
-										 CTLF_ALLOW_UPDOWN| CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
-										 CTLF_ALLOW_CALANDER|CTLF_ALLOW_DIVIDER|CTLF_ALLOW_PANEL|
-										 CTLF_ALLOW_TAB|CTLF_ALLOW_LINE|CTLF_ALLOW_BOX|CTLF_ALLOW_RADIO|
-										 CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
-										 CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
-										 CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW
+						CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|
+						CTLF_ALLOW_COLORCOMBO|CTLF_ALLOW_STATUSBAR|CTLF_ALLOW_TOOLBAR|
+						CTLF_ALLOW_TREEVIEW|CTLF_ALLOW_LISTVIEW|CTLF_ALLOW_REBAR|
+						CTLF_ALLOW_BUTTON|CTLF_ALLOW_RICHEDIT|CTLF_ALLOW_EDIT|
+						CTLF_ALLOW_UPDOWN| CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
+						CTLF_ALLOW_CALANDER|CTLF_ALLOW_DIVIDER|CTLF_ALLOW_PANEL|
+						CTLF_ALLOW_TAB|CTLF_ALLOW_LINE|CTLF_ALLOW_BOX|CTLF_ALLOW_RADIO|
+						CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
+						CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
+						CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW
 						,this->m_Hwnd);
 
 					if ( p_Control != NULL ) {
@@ -195,19 +195,18 @@ void DcxDivider::parseCommandRequest( TString & input ) {
 				catch ( char *err ) {
 					this->showErrorEx(NULL, "-l|r", "Unable To Create Control %d (%s)", this->getUserID(), err);
 				}
-      }
-      else
+			}
+			else
 				this->showErrorEx(NULL, "-l|r", "Control with ID \"%d\" already exists", this->getUserID());
-    }
-  }
-  // xdid -v [NAME] [ID] [SWITCH] [POS]
-  else if (flags['v'] && numtok > 3) {
-    if (!this->setDivPos(input.gettok(4).to_int())) {
-      this->showError(NULL, "-v", "Divider position must be between bounds.");
-    }
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+		}
+	}
+	// xdid -v [NAME] [ID] [SWITCH] [POS]
+	else if (flags['v'] && numtok > 3) {
+		if (!this->setDivPos(input.gettok(4).to_int()))
+			this->showError(NULL, "-v", "Divider position must be between bounds.");
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!
@@ -245,9 +244,8 @@ void DcxDivider::toXml(TiXmlElement * xml) {
 		else
 			xml->LinkEndChild(new TiXmlElement("control"));
 	}
-	else {
+	else
 		xml->LinkEndChild(new TiXmlElement("control"));
-	}
 	if (right.hChild != NULL) {
 		dcxcright = this->m_pParentDialog->getControlByHWND(right.hChild);
 		if (dcxcright != NULL)
@@ -255,9 +253,8 @@ void DcxDivider::toXml(TiXmlElement * xml) {
 		else
 			xml->LinkEndChild(new TiXmlElement("control"));
 	}
-	else {
+	else
 		xml->LinkEndChild(new TiXmlElement("control"));
-	}
 }
 
 /*!
@@ -272,94 +269,98 @@ LRESULT DcxDivider::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	LRESULT lRes = 0L;
-  switch( uMsg ) {
+	switch( uMsg ) {
 
-    case WM_NOTIFY : 
-      {
-        LPNMHDR hdr = (LPNMHDR) lParam;
+	case WM_NOTIFY : 
+		{
+			LPNMHDR hdr = (LPNMHDR) lParam;
 
-        if (!hdr)
-          break;
+			if (!hdr)
+				break;
 
-				if (IsWindow(hdr->hwndFrom)) {
-					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
-					if (c_this != NULL) {
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
-				}
-      }
-      break;
+			if (IsWindow(hdr->hwndFrom)) {
+				DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+				if (c_this != NULL)
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			}
+		}
+		break;
 
-    case WM_HSCROLL: 
-    case WM_VSCROLL: 
-    case WM_COMMAND:
-      {
-				if (IsWindow((HWND) lParam)) {
-					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
-					if (c_this != NULL) {
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
-				}
-      }
-      break;
+	case WM_HSCROLL: 
+	case WM_VSCROLL: 
+	case WM_COMMAND:
+		{
+			if (IsWindow((HWND) lParam)) {
+				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+				if (c_this != NULL)
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			}
+		}
+		break;
+	case WM_COMPAREITEM:
+		{
+			LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
+			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+				if (c_this != NULL)
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			}
+		}
+		break;
 
-    case WM_DELETEITEM:
-      {
-				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-					if (c_this != NULL) {
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
-				}
-      }
-      break;
+	case WM_DELETEITEM:
+		{
+			DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
+			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+				if (c_this != NULL)
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			}
+		}
+		break;
 
-    case WM_MEASUREITEM:
-      {
-				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
-				if (IsWindow(cHwnd)) {
-					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
-					if (c_this != NULL) {
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
-				}
-      }
-      break;
+	case WM_MEASUREITEM:
+		{
+			HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
+			if (IsWindow(cHwnd)) {
+				DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
+				if (c_this != NULL)
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			}
+		}
+		break;
 
-    case WM_DRAWITEM:
-      {
-				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
-					if (c_this != NULL) {
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
-				}
-      }
-     break;
+	case WM_DRAWITEM:
+		{
+			DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
+			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+				if (c_this != NULL)
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			}
+		}
+		break;
 
-  case WM_DESTROY:
-    {
-      delete this;
-      bParsed = TRUE;
-    }
-    break;
+	case WM_DESTROY:
+		{
+			delete this;
+			bParsed = TRUE;
+		}
+		break;
 
-  case DV_CHANGEPOS:
-  {
-    int phase = (int) wParam;
-    LPPOINT pt = (LPPOINT) lParam;
-    TString tsPhase = (phase == DVNM_DRAG_START ? "dragbegin" : (phase == DVNM_DRAG_END ? "dragfinish" : "drag"));
+	case DV_CHANGEPOS:
+		{
+			int phase = (int) wParam;
+			LPPOINT pt = (LPPOINT) lParam;
 
-    this->execAliasEx("%s,%d,%d,%d", tsPhase.to_chr(), this->getUserID(), pt->x, pt->y);
-    break;
-  }
+			this->execAliasEx("%s,%d,%d,%d", (phase == DVNM_DRAG_START ? "dragbegin" : (phase == DVNM_DRAG_END ? "dragfinish" : "drag")), this->getUserID(), pt->x, pt->y);
+		}
+		break;
 
-  default:
-    return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-    break;
-  }
+	default:
+		lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		break;
+	}
 
-  return lRes;
+	return lRes;
 }

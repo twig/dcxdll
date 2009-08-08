@@ -1681,15 +1681,13 @@ void DcxControl::showError(const char *prop, const char *cmd, const char *err)
 void DcxControl::showErrorEx(const char *prop, const char *cmd, const char *fmt, ...)
 {
 	va_list args;
+	TString txt;
+
 	va_start( args, fmt );
-
-	int cnt = _vscprintf(fmt, args);
-	char *txt = new char[cnt +1];
-	vsprintf(txt, fmt, args );
-	this->showError(prop, cmd, txt);
-	delete [] txt;
-
+	txt.vprintf(fmt, &args );
 	va_end( args );
+
+	this->showError(prop, cmd, txt.to_chr());
 }
 
 LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )

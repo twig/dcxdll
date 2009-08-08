@@ -316,6 +316,7 @@ void Dcx::setupOSCompatibility(void) {
 	wc.lpszClassName  = DCX_PANELCLASS;
 	wc.hIconSm        = NULL;
 	RegisterClassEx(&wc);
+	//dcxRegisterClass("STATIC", DCX_PANELCLASS);
 
 	// Custom Box
 	//DCX_DEBUG("LoadDLL", "Registering Box (#32770)...");

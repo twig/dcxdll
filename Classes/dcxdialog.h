@@ -119,7 +119,7 @@ public:
 	inline DWORD getEventMask( ) const { return this->m_dEventMask; };
 	HBITMAP getBgBitmap() const { return this->m_bitmapBg; };
 	COLORREF getBgTransparentCol() const { return this->m_colTransparentBg; };
-	static void DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPRECT rwnd);
+	static void DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPCRECT rwnd);
 	bool AddShadow(void);
 	void RemoveShadow(void);
 	void UpdateShadow(void);
@@ -157,7 +157,7 @@ public:
 	void RegisterDragList(DcxList* list);
 	void UnregisterDragList(DcxList* list);
 
-	void SetVerbose(bool state) { this->m_bVerboseErrors = state; };
+	void SetVerbose(const bool state) { this->m_bVerboseErrors = state; };
 	bool IsVerbose(void) const { return this->m_bVerboseErrors; };
 	void toXml(TiXmlElement * xml);
 	TiXmlElement * toXml();

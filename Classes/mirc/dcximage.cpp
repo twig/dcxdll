@@ -245,7 +245,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 
 		GetWindowRect(this->m_Hwnd, &wnd);
 
-		MapWindowPoints(NULL, GetParent(this->m_Hwnd), (LPPOINT) &wnd, 2);
+		MapWindowRect(NULL, GetParent(this->m_Hwnd), &wnd);
 		MoveWindow(this->m_Hwnd, wnd.left, wnd.top, size, size, TRUE);
 		this->redrawWindow();
 	}
@@ -263,7 +263,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
-		//if (mIRCLink.m_bUseGDIPlus && flag.find('g',0)) {
+		//if (Dcx::GDIModule.isUseable() && flag.find('g',0)) { // makes GDI+ the default method, bitmap is only used when GDI+ isn't supported.
 		if (Dcx::GDIModule.isUseable()) {
 			if (!LoadGDIPlusImage(flag,filename))
 				this->showError(NULL,"-i", "Unable to load Image with GDI+");
@@ -374,93 +374,68 @@ void DcxImage::toXml(TiXmlElement * xml) {
  * blah
  */
 LRESULT DcxImage::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
- // switch( uMsg ) {
- //   case WM_COMMAND:
- //     {
- //       switch ( HIWORD( wParam ) ) {
-
- //         case STN_CLICKED:
- //           {
-	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//							this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
- //           }
- //           break;
-
- //         case STN_DBLCLK:
- //           {
-	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//              this->execAliasEx("%s,%d", "dclick", this->getUserID( ) );
- //           }
- //           break;
- //       }
- //     }
- //     break;
-	//}
 	return 0L;
 }
 
 LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
-    case WM_ERASEBKGND:
-			{
-				//<#IF USER == 'hkr' COMMENT OUT, UNLESS ITS THE TIME WHEN HE WANTS THIS>
-				if (this->isExStyle(WS_EX_TRANSPARENT))
-					this->DrawParentsBackground((HDC)wParam);
-				//if (this->isExStyle(WS_EX_TRANSPARENT))
-				//	this->DrawParentsBackground((HDC)wParam);
-				//else {
-				//	RECT rect;
-				//	GetClientRect( this->m_Hwnd, &rect );
-				//	DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-				//}
-				//<END>
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
+	case WM_ERASEBKGND:
+		{
+			//<#IF USER == 'hkr' COMMENT OUT, UNLESS ITS THE TIME WHEN HE WANTS THIS>
+			if (this->isExStyle(WS_EX_TRANSPARENT))
+				this->DrawParentsBackground((HDC)wParam);
+			//if (this->isExStyle(WS_EX_TRANSPARENT))
+			//	this->DrawParentsBackground((HDC)wParam);
+			//else
+			//	DcxControl::DrawCtrlBackground((HDC) wParam,this);
+			//<END>
+			bParsed = TRUE;
+			return TRUE;
+		}
+		break;
 
-		case WM_PRINTCLIENT:
-			{
-				this->DrawClientArea((HDC)wParam);
-				bParsed = TRUE;
-			}
-			break;
+	case WM_PRINTCLIENT:
+		{
+			this->DrawClientArea((HDC)wParam);
+			bParsed = TRUE;
+		}
+		break;
 
-		case WM_PAINT:
-			{
-				bParsed = TRUE;
-				PAINTSTRUCT ps; 
-				HDC hdc;
+	case WM_PAINT:
+		{
+			bParsed = TRUE;
+			PAINTSTRUCT ps; 
+			HDC hdc;
 
-				hdc = BeginPaint(this->m_Hwnd, &ps);
+			hdc = BeginPaint(this->m_Hwnd, &ps);
 
-				this->DrawClientArea(hdc);
+			this->DrawClientArea(hdc);
 
-				EndPaint(this->m_Hwnd, &ps);
-			}
-			break;
+			EndPaint(this->m_Hwnd, &ps);
+		}
+		break;
 
-    case WM_SIZE:
-      {
-        InvalidateRect( this->m_Hwnd, NULL, TRUE );
-      }
-      break;
+	case WM_SIZE:
+		{
+			InvalidateRect( this->m_Hwnd, NULL, TRUE );
+		}
+		break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+	case WM_DESTROY:
+		{
+			delete this;
+			bParsed = TRUE;
+		}
+		break;
 
-    default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+	default:
+		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		break;
+	}
 
-  return 0L;
+	return 0L;
 }
 
 void DcxImage::DrawClientArea(HDC hdc)

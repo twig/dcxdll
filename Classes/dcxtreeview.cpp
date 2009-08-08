@@ -274,7 +274,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 		}
 
 		UINT searchType;
-		TString searchMode = params.gettok(1);
+		TString searchMode(params.gettok(1));
 		HTREEITEM startingPoint = TVI_ROOT;
 		HTREEITEM result;
 
@@ -300,7 +300,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 		}
 
 		if (this->findItemText(&startingPoint, &result, &matchtext, n, &matchCount, searchType)) {
-			TString path = this->getPathFromItem(&result);
+			TString path(this->getPathFromItem(&result));
 			lstrcpyn(szReturnValue, path.to_chr(), 900);
 		}
 		else if (n == 0)

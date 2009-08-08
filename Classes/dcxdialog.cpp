@@ -1828,10 +1828,9 @@ bool DcxDialog::execAlias(const char *szArgs) {
 bool DcxDialog::updateLayout(RECT &rc) {
 	if (this->m_pLayoutManager == NULL)
 		return false;
-	if (this->m_pLayoutManager->getRoot() == NULL)
-		return false;
-	this->m_pLayoutManager->updateLayout(rc);
-	return true;
+	//if (this->m_pLayoutManager->getRoot() == NULL) // updateLayout() does root check for us.
+	//	return false;
+	return (this->m_pLayoutManager->updateLayout(rc) ? true : false);
 }
 
 /*!
@@ -1947,7 +1946,27 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				}
 				break;
 			}
+		case WM_COMMAND:
+			{
+				if ((HIWORD(wParam) == 0) && (LOWORD(wParam) == 2) && (lParam == NULL)) {
+					if (p_this->getRefCount() > 0) {
+						// This stops a crash when someone uses /dialog -x within the callback alias without a /timer
+						// NB: After this is done you must use /xdialog -x to close the dialog, /dialog -x will no longer work.
+						bParsed = TRUE;
+						Dcx::mIRC.execex("/.timer -m 1 0 xdialog -x %s", p_this->getName().to_chr());
+					}
+					else if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
+						char ret[256];
 
+						p_this->evalAliasEx(ret, 255, "%s,%d", "close", 0);
+
+						if (lstrcmp("noclose", ret) == 0)
+							bParsed = TRUE;
+					}
+					break;
+				}
+			}
+			// fall through
 		case WM_HSCROLL:
 		case WM_VSCROLL:
 			{
@@ -2023,33 +2042,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						lRes = TRUE; 
 						bParsed = TRUE;
 					}
-				}
-				break;
-			}
-
-		case WM_COMMAND:
-			{
-				if ((HIWORD(wParam) == 0) && (LOWORD(wParam) == 2) && (lParam == NULL)) {
-					if (p_this->getRefCount() > 0) {
-						// This stops a crash when someone uses /dialog -x within the callback alias without a /timer
-						// NB: After this is done you must use /xdialog -x to close the dialog, /dialog -x will no longer work.
-						// Check for >1 as the count was increased at the beginning of this function.
-						bParsed = TRUE;
-						Dcx::mIRC.execex("/.timer -m 1 0 xdialog -x %s", p_this->getName().to_chr());
-					}
-					else if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
-						char ret[256];
-
-						p_this->evalAliasEx(ret, 255, "%s,%d", "close", 0);
-
-						if (lstrcmp("noclose", ret) == 0)
-							bParsed = TRUE;
-					}
-				}
-				else if (IsWindow((HWND) lParam)) {
-					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
-					if (c_this != NULL)
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 				break;
 			}
@@ -2130,18 +2122,16 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 				case SC_SIZE:
 					{
-						if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
-							char ret[256];
+						char ret[256];
 
+						if (p_this->m_dEventMask & DCX_EVENT_SIZE) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
 							p_this->evalAliasEx(ret, 255, "%s,%d", "beginsize", 0);
 
-							if (lstrcmp("nosize", ret) != 0) {
-								bParsed = TRUE;
-								p_this->m_bInSizing = true;
-								lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
-							}
+						if (lstrcmp("nosize", ret) != 0) {
+							bParsed = TRUE;
+							p_this->m_bInSizing = true;
+							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 						}
-
 						break;
 					}
 				} // WM_SYSCOMMAND switch
@@ -2385,10 +2375,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					bParsed = TRUE;
 					lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 
-					if (clrText != -1)
+					if (clrText != CLR_INVALID)
 						SetTextColor((HDC) wParam, clrText);
 
-					if (clrBackText != -1)
+					if (clrBackText != CLR_INVALID)
 						SetBkColor((HDC) wParam, clrBackText);
 
 					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
@@ -2624,18 +2614,18 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 				if (p_this->m_dEventMask & DCX_EVENT_FOCUS) {
 					switch (wParam) {
-		case WA_ACTIVE:
-		case WA_CLICKACTIVE:
-			{
-				p_this->execAliasEx("%s,%d", "activate", 0);
-				break;
-			}
+					case WA_ACTIVE:
+					case WA_CLICKACTIVE:
+						{
+							p_this->execAliasEx("%s,%d", "activate", 0);
+							break;
+						}
 
-		case WA_INACTIVE:
-			{
-				p_this->execAliasEx("%s,%d", "deactivate", 0);
-				break;
-			}
+					case WA_INACTIVE:
+						{
+							p_this->execAliasEx("%s,%d", "deactivate", 0);
+							break;
+						}
 					} // switch
 				}
 				break;
@@ -2762,7 +2752,7 @@ const TString &DcxDialog::getParentName() const {
 	return this->m_tsParentName;
 }
 
-void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPRECT rwnd)
+void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPCRECT rwnd)
 {
 	// background color
 	if (p_this->getBackClrBrush() != NULL)
