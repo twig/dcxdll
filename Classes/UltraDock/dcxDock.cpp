@@ -354,7 +354,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 					//return ((GetWindowLong(mHwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) ? TRUE : FALSE);
 			}
 			break;
-#ifndef NDEBUG
+#if DCX_DEBUG_OUTPUT
 		case TVM_SETITEM:
 			{
 				if ( pthis->m_iType != DOCK_TYPE_TREE || !DcxDock::g_bTakeOverTreebar)
@@ -531,7 +531,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 								item.mask = TVIF_TEXT;
 								if (TreeView_GetItem(Dcx::mIRC.getTreeview(), &item)) {
 									DcxDock::getTreebarItemType(tsType, item.lParam);
-									Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", item.lParam, item.pszText );
+									Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", item.lParam, item.pszText ); // <- had wrong args causing instant crash when showing tooltips
 									Dcx::mIRC.tsEvalex(buf, "$xtreebar_callback(gettooltip,%s,%%dcx_%d)", tsType.to_chr(), item.lParam);
 
 									if (buf.len() > 0)
