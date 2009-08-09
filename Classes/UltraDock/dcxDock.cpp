@@ -360,7 +360,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				if ( pthis->m_iType != DOCK_TYPE_TREE || !DcxDock::g_bTakeOverTreebar)
 					break;
 				LPTVITEMEX pitem = (LPTVITEMEX)lParam;
-				TString buf((UINT)64);
+				TString buf;
 				DcxDock::getTreebarItemType(buf, pitem->lParam);
 				Dcx::mIRC.evalex(NULL,0,"$xtreebar_callback(setitem,%s,%ld,%ld)", buf.to_chr(), pitem->hItem, pitem->lParam);
 			}
@@ -373,11 +373,11 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 				LPTVINSERTSTRUCT pTvis = (LPTVINSERTSTRUCT)lParam;
 				if (pTvis->itemex.mask & TVIF_TEXT) {
-					TString buf((UINT)32);
+					TString buf;
 					int i = 0;
 					DcxDock::getTreebarItemType(buf, pTvis->itemex.lParam);
 					Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", pTvis->itemex.lParam, pTvis->itemex.pszText );
-					Dcx::mIRC.evalex(buf.to_chr(), 32, "$xtreebar_callback(geticons,%s,%%dcx_%d)", buf.to_chr(), pTvis->itemex.lParam);
+					Dcx::mIRC.tsEvalex(buf, "$xtreebar_callback(geticons,%s,%%dcx_%d)", buf.to_chr(), pTvis->itemex.lParam);
 					i = buf.gettok( 1 ).to_int() -1;
 					if (i < 0)
 						i = 0;
@@ -493,8 +493,8 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 												//	}
 												//}
 												int wid = HIWORD(lpntvcd->nmcd.lItemlParam);
-												TString buf((UINT)64);
-												Dcx::mIRC.evalex(buf.to_chr(), 64, "$window(@%d).sbcolor", wid);
+												TString buf;
+												Dcx::mIRC.tsEvalex(buf, "$window(@%d).sbcolor", wid);
 												if (buf.len() > 0) {
 													static const TString sbcolor("s s message s event s highlight"); // 's' is used as a spacer.
 													int clr = sbcolor.findtok(buf.to_chr(), 1);
@@ -520,7 +520,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 								if (tcgit->cchTextMax < 1)
 									break;
 
-								TString tsType((UINT)64);
+								TString tsType;
 								TString buf((UINT)255);
 								TVITEMEX item;
 								ZeroMemory(&item, sizeof(item));
@@ -531,8 +531,8 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 								item.mask = TVIF_TEXT;
 								if (TreeView_GetItem(Dcx::mIRC.getTreeview(), &item)) {
 									DcxDock::getTreebarItemType(tsType, item.lParam);
-									Dcx::mIRC.execex(NULL, 0, "/!set -nu1 %%dcx_%d %800s", item.lParam, item.pszText );
-									Dcx::mIRC.evalex(buf.to_chr(), 255, "$xtreebar_callback(gettooltip,%s,%%dcx_%d)", tsType.to_chr(), item.lParam);
+									Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", item.lParam, item.pszText );
+									Dcx::mIRC.tsEvalex(buf, "$xtreebar_callback(gettooltip,%s,%%dcx_%d)", tsType.to_chr(), item.lParam);
 
 									if (buf.len() > 0)
 										lstrcpyn(tcgit->pszText, buf.to_chr(), tcgit->cchTextMax);
@@ -937,7 +937,7 @@ void DcxDock::getTreebarItemType(TString &tsType, const LPARAM lParam)
 		break;
 	default:
 		{
-			Dcx::mIRC.evalex(tsType.to_chr(), 64, "$window(@%d).type", wid);
+			Dcx::mIRC.tsEvalex(tsType, "$window(@%d).type", wid);
 			if (tsType.len() < 1)
 				tsType = "notify";
 		}

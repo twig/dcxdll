@@ -942,8 +942,8 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam
  * blah
  */
 
-LRESULT XPopupMenu::OnMeasureItem( const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis ) {
-
+LRESULT XPopupMenu::OnMeasureItem( const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis )
+{
 	XPopupMenuItem * p_Item = (XPopupMenuItem *) lpmis->itemData;
 
 	if ( p_Item != NULL ) {
@@ -961,8 +961,8 @@ LRESULT XPopupMenu::OnMeasureItem( const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis )
  * blah
  */
 
-LRESULT XPopupMenu::OnDrawItem( const HWND mHwnd, LPDRAWITEMSTRUCT lpdis ) {
-
+LRESULT XPopupMenu::OnDrawItem( const HWND mHwnd, LPDRAWITEMSTRUCT lpdis )
+{
 	XPopupMenuItem * p_Item = (XPopupMenuItem *) lpdis->itemData;
 
 	if ( p_Item != NULL )
@@ -977,52 +977,52 @@ LRESULT XPopupMenu::OnDrawItem( const HWND mHwnd, LPDRAWITEMSTRUCT lpdis ) {
  * blah
  */
 
-void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce ) {
+void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce )
+{
+	MENUITEMINFO mii;
+	ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+	mii.cbSize = sizeof( MENUITEMINFO );
+	mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE | MIIM_STRING;
 
-  MENUITEMINFO mii;
-  ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-  mii.cbSize = sizeof( MENUITEMINFO );
-  mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE | MIIM_STRING;
+	int i = 0, k = 0, n = GetMenuItemCount( hMenu );
 
-  int i = 0, k = 0, n = GetMenuItemCount( hMenu );
+	while ( i < n ) {
 
-  while ( i < n ) {
+		char string[500];
+		mii.dwTypeData = string;
+		mii.cch = 499;
 
-    char string[500];
-    mii.dwTypeData = string;
-    mii.cch = 499;
+		if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) == TRUE ) {
 
-    if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) == TRUE ) {
+			if ( !( mii.fType & MFT_OWNERDRAW ) || bForce == TRUE ) {
 
-      if ( !( mii.fType & MFT_OWNERDRAW ) || bForce == TRUE ) {
+				mii.fType |= MFT_OWNERDRAW;
+				XPopupMenuItem * p_Item;
+				TString tsItem(string);
 
-        mii.fType |= MFT_OWNERDRAW;
-        XPopupMenuItem * p_Item;
-		TString tsItem(string);
+				// fixes identifiers in the dialog menu not being resolved. 
+				// TODO Needs testing to see if it causes any other issues, like double eval's)
+				if (bForce && this->getName() == "dialog") {
+					TString tsRes;
+					Dcx::mIRC.tsEval(tsRes, tsItem.to_chr());
+					tsItem = tsRes;
+				}
 
-		// fixes identifiers in the dialog menu not being resolved. 
-		// TODO Needs testing to see if it causes any other issues, like double eval's)
-		if (bForce && this->getName() == "dialog") {
-			char res[900];
-			Dcx::mIRC.eval(res, 900, tsItem.to_chr());
-			tsItem = res;
+				if ( mii.fType & MFT_SEPARATOR )
+					p_Item = new XPopupMenuItem( this, TRUE, mii.dwItemData );
+				else
+					p_Item = new XPopupMenuItem( this, tsItem, -1, mii.hSubMenu!=NULL?TRUE:FALSE, mii.dwItemData );
+
+				this->m_vpMenuItem.push_back( p_Item );
+				mii.dwItemData = (ULONG_PTR) p_Item;
+				SetMenuItemInfo( hMenu, i, TRUE, &mii );
+
+				++k;
+			}
 		}
 
-		if ( mii.fType & MFT_SEPARATOR )
-			p_Item = new XPopupMenuItem( this, TRUE, mii.dwItemData );
-        else
-			p_Item = new XPopupMenuItem( this, tsItem, -1, mii.hSubMenu!=NULL?TRUE:FALSE, mii.dwItemData );
-
-        this->m_vpMenuItem.push_back( p_Item );
-        mii.dwItemData = (ULONG_PTR) p_Item;
-        SetMenuItemInfo( hMenu, i, TRUE, &mii );
-
-        ++k;
-      }
-    }
-
-    ++i;
-  }
+		++i;
+	}
 }
 
 /*!
@@ -1031,32 +1031,32 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce ) {
  * blah
  */
 
-void XPopupMenu::cleanMenu( HMENU hMenu ) {
-  
-  MENUITEMINFO mii;
-  ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-  mii.cbSize = sizeof( MENUITEMINFO );
-  mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE;
+void XPopupMenu::cleanMenu( HMENU hMenu )
+{
+	MENUITEMINFO mii;
+	ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+	mii.cbSize = sizeof( MENUITEMINFO );
+	mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE;
 
-  int i = 0, n = GetMenuItemCount( hMenu );
+	int i = 0, n = GetMenuItemCount( hMenu );
 
-  while ( i < n ) {
+	while ( i < n ) {
 
-    if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) == TRUE ) {
+		if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) == TRUE ) {
 
-      if ( mii.hSubMenu != NULL )
-        this->cleanMenu( mii.hSubMenu );
+			if ( mii.hSubMenu != NULL )
+				this->cleanMenu( mii.hSubMenu );
 
-      if ( mii.fType & MFT_OWNERDRAW ) {
+			if ( mii.fType & MFT_OWNERDRAW ) {
 
-        mii.fType &= ~MFT_OWNERDRAW;
-        mii.dwItemData = NULL;
-        SetMenuItemInfo( hMenu, i, TRUE, &mii );
-      }
-    }
+				mii.fType &= ~MFT_OWNERDRAW;
+				mii.dwItemData = NULL;
+				SetMenuItemInfo( hMenu, i, TRUE, &mii );
+			}
+		}
 
-    ++i;
-  }
+		++i;
+	}
 }
 
 /*!

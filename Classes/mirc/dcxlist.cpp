@@ -371,7 +371,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 		TString opts(input.gettok( 5 ));
 		TString itemtext(input.gettok(6, -1).trim());
 		int nMaxStrlen = 0;
-		char res[1024];
+		TString tsRes;
 
 		if (opts[0] != '+') {
 			this->showError(NULL, "-A", "Invalid Flags");
@@ -383,9 +383,9 @@ void DcxList::parseCommandRequest( TString & input ) {
 		case 'H': // [TEXT] == [table] [item]
 			{
 				if (itemtext.numtok() == 2) { // load single item from hash table by item name
-					Dcx::mIRC.evalex(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-					ListBox_InsertString( this->m_Hwnd, nPos, res );
-					nMaxStrlen = lstrlen(res);
+					Dcx::mIRC.tsEvalex(tsRes, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					ListBox_InsertString( this->m_Hwnd, nPos, tsRes.to_chr() );
+					nMaxStrlen = tsRes.len();
 				}
 				else
 					this->showError(NULL, "-A +h", "Invalid Syntax");
@@ -394,9 +394,9 @@ void DcxList::parseCommandRequest( TString & input ) {
 		case 'n': // [TEXT] == [table] [N]
 			{
 				if (itemtext.numtok() == 2) { // load single item from hash table by index
-					Dcx::mIRC.evalex(res, 1024, "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-					ListBox_InsertString( this->m_Hwnd, nPos, res );
-					nMaxStrlen = lstrlen(res);
+					Dcx::mIRC.tsEvalex(tsRes, "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					ListBox_InsertString( this->m_Hwnd, nPos, tsRes.to_chr() );
+					nMaxStrlen = tsRes.len();
 				}
 				else
 					this->showError(NULL, "-A +n", "Invalid Syntax");
@@ -411,8 +411,8 @@ void DcxList::parseCommandRequest( TString & input ) {
 					int endN = itemtext.gettok( 3 ).to_int();
 
 					// get total items in table.
-					Dcx::mIRC.evalex(res, 1024, "$hget(%s,0).item", htable.to_chr());
-					max_items = atoi(res);
+					Dcx::mIRC.tsEvalex(tsRes, "$hget(%s,0).item", htable.to_chr());
+					max_items = tsRes.to_int();
 
 					// no items in table.
 					if (max_items == 0)
@@ -445,9 +445,9 @@ void DcxList::parseCommandRequest( TString & input ) {
 
 					this->setRedraw(FALSE);
 					for (int i = startN; i <= endN; i++) {
-						Dcx::mIRC.evalex(res, 1024, "$hget(%s,%d).data", htable.to_chr(), i);
-						ListBox_InsertString( this->m_Hwnd, nPos++, res );
-						len = lstrlen( res );
+						Dcx::mIRC.tsEvalex(tsRes, "$hget(%s,%d).data", htable.to_chr(), i);
+						ListBox_InsertString( this->m_Hwnd, nPos++, tsRes.to_chr() );
+						len = tsRes.len();
 						if (len > nMaxStrlen)
 							nMaxStrlen = len;
 					}

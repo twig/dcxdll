@@ -1020,21 +1020,19 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 		attr = GetMenuAttributeFromXML(colors.gettok(i).to_chr(), popup, globalStyles);
 
 		if (attr != NULL) {
-			char buff[900];
-			Dcx::mIRC.eval(buff, 900, attr);
-			menu->setColor(i, (COLORREF)atol(buff));
+			TString tsBuff;
+			Dcx::mIRC.tsEval(tsBuff, attr);
+			menu->setColor(i, (COLORREF)tsBuff.to_int());
 		}
 	}
 
 	// Set background image if CUSTOM style used
 	if (style == XPopupMenu::XPMS_CUSTOM) {
-		char buff[900];
+		TString filename;
 
-		Dcx::mIRC.eval(buff, 900, popup->Attribute("background"));
+		Dcx::mIRC.tsEval(filename, popup->Attribute("background"));
 
-		HBITMAP hBitmap = NULL;
-		TString filename(buff);
-		hBitmap = dcxLoadBitmap(NULL, filename);
+		HBITMAP hBitmap = dcxLoadBitmap(NULL, filename);
 
 		if (hBitmap != NULL)
 			menu->setBackBitmap(hBitmap);
@@ -1063,8 +1061,8 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 				flags = tmp;
 
 			// Filename
-			char filename[900];
-			Dcx::mIRC.eval(filename, 900, element->Attribute("src"));
+			TString tsFilename;
+			Dcx::mIRC.tsEval(tsFilename, element->Attribute("src"));
 
 			tmp = element->Attribute("index");
 
@@ -1078,7 +1076,7 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 			for (int i = 1; i <= totalIndexes; i++) {
 				nIcon = indexes.gettok(i, TSCOMMA).to_int();
 				//xpudemo -i + 114 dcxstudio_gfx\shell.dll
-				command.sprintf("%s -i %s %d %s", popupName.to_chr(), flags.to_chr(), nIcon, filename);
+				command.sprintf("%s -i %s %d %s", popupName.to_chr(), flags.to_chr(), nIcon, tsFilename.to_chr());
 				Dcx::XPopups.parseCommand(command, menu);
 			}
 		}

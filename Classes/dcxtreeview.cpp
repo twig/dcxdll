@@ -1213,14 +1213,14 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 		lpmytvi->clrBkg = (COLORREF)-1;
 
 	{
-		char res[1024];
+		TString tsRes;
 		if ((iFlags & TVIS_HASHITEM) && (itemtext.numtok() == 2)) {
-			Dcx::mIRC.evalex(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-			itemtext = res;
+			Dcx::mIRC.tsEvalex(tsRes, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			itemtext = tsRes;
 		}
 		else if ((iFlags & TVIS_HASHNUMBER) && (itemtext.numtok() == 2)) {
-			Dcx::mIRC.evalex(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-			itemtext = res;
+			Dcx::mIRC.tsEvalex(tsRes,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			itemtext = tsRes;
 		}
 	}
 

@@ -36,14 +36,19 @@ mIRC(dcxml) {
     
     if (numtok < 3) {
         Dcx::error("/dcxml", "Insuffient parameters");
-        return 1;
+        return 0;
     }
 
 
 	// Parse XDialog XML.
     if (flags['d']) {
+		TString tsFilename(input.gettok( 4, -1 ).trim());
+		if (!IsFile(tsFilename)) {
+			Dcx::errorex("/dcxml -d", "Unable To Access File: %s", tsFilename.to_chr());
+			return 0;
+		}
 		Dcxml::Parser = new DcxmlParser( 
-			input.gettok(2,"\"").to_chr()
+			tsFilename.to_chr()
 			,input.gettok(2).to_chr()
 			,input.gettok(3).to_chr()
 			,(flags['v'])

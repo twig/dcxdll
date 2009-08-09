@@ -15,16 +15,16 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 		pitem->pszText = buf.to_chr();
 		pitem->cchTextMax = 255;
 		pitem->mask = TVIF_TEXT|TVIF_PARAM;
-		if (TreeView_GetItem(Dcx::mIRC.getTreeview(), pitem)) {
-			int i = 0;
+		if (TreeView_GetItem(Dcx::mIRC.getTreeview(), pitem))
+		{
 			{
-				TString tsType((UINT)64);
+				TString tsType;
 				DcxDock::getTreebarItemType(tsType, pitem->lParam);
 				Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", pitem->lParam, pitem->pszText );
-				Dcx::mIRC.evalex(res.to_chr(), 16, "$xtreebar_callback(geticons,%s,%%dcx_%d)", tsType.to_chr(), pitem->lParam);
+				Dcx::mIRC.tsEvalex(res, "$xtreebar_callback(geticons,%s,%%dcx_%d)", tsType.to_chr(), pitem->lParam);
 			}
 			pitem->mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
-			i = res.gettok( 1 ).to_int() -1;
+			int i = res.gettok( 1 ).to_int() -1;
 			if (i < 0)
 				i = 0;
 			pitem->iImage = i;
@@ -42,7 +42,7 @@ void TraverseTreebarItems(void)
 {
 	SetWindowRedraw(Dcx::mIRC.getTreeview(), FALSE);
 	TString buf((UINT)255);
-	TString res((UINT)16);
+	TString res;
 	TVITEMEX item;
 	ZeroMemory(&item, sizeof(item));
 	for (HTREEITEM ptvitem = TreeView_GetRoot(Dcx::mIRC.getTreeview()); ptvitem != NULL; ptvitem = TreeView_GetNextSibling(Dcx::mIRC.getTreeview(), ptvitem)) {
@@ -50,16 +50,16 @@ void TraverseTreebarItems(void)
 		item.pszText = buf.to_chr();
 		item.cchTextMax = 255;
 		item.mask = TVIF_TEXT|TVIF_PARAM;
-		if (TreeView_GetItem(Dcx::mIRC.getTreeview(), &item)) {
-			int i = 0;
+		if (TreeView_GetItem(Dcx::mIRC.getTreeview(), &item))
+		{
 			{
-				TString tsType((UINT)32);
+				TString tsType;
 				DcxDock::getTreebarItemType(tsType, item.lParam);
 				Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", item.lParam, item.pszText );
-				Dcx::mIRC.evalex(res.to_chr(), 32, "$xtreebar_callback(geticons,%s,%%dcx_%d)", tsType.to_chr(), item.lParam);
+				Dcx::mIRC.tsEvalex(res, "$xtreebar_callback(geticons,%s,%%dcx_%d)", tsType.to_chr(), item.lParam);
 			}
 			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
-			i = res.gettok( 1 ).to_int() -1;
+			int i = res.gettok( 1 ).to_int() -1;
 			if (i < 0)
 				i = 0;
 			item.iImage = i;

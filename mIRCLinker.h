@@ -52,7 +52,9 @@ public:
 	LRESULT callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 	bool eval(char *res, const int maxlen, const char *data);
+	bool tsEval(TString &res, const char *data);
 	bool evalex(char *res, const int maxlen, const char *szFormat, ...);
+	bool tsEvalex(TString &res, const char *szFormat, ...);
 	bool exec(const char *data);
 	bool execex(const char *szFormat, ...);
 	void signal(const char *msg);

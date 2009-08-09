@@ -926,7 +926,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		if (stateFlags & LVIS_WINDOW) {
 			// load all data from a mIRC @window.
-			//this->xLoadListview(nPos, data.gettok( 10 ), data.gettok( 11 ), data.gettok( 12, -1 ), "$window(%s)", "$line(%s,0)", "$line(%s,%d)", NULL);
 			this->xLoadListview(nPos, data, "$window(%s)", "$line(%s,0)", "$line(%s,%d)", NULL);
 			return;
 		}
@@ -1072,7 +1071,6 @@ void DcxListView::parseCommandRequest(TString &input) {
 		LVBKIMAGE lvbki;
 		ZeroMemory(&lvbki, sizeof(LVBKIMAGE));
 		TString filename;
-		//TString watermarkfile;
 
 		lvbki.ulFlags = this->parseImageFlags(input.gettok( 4 ));
 		lvbki.xOffsetPercent = (int)input.gettok( 5 ).to_num();
@@ -1080,10 +1078,21 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		if (numtok > 6) {
 			filename = input.gettok(7, -1).trim();
+#if DCX_DEBUG_OUTPUT
+			// make sure path exists & path is complete.
+			// Only used in debug build as the path may be a url & as such uncheckable.
+			if (!IsFile(filename)) {
+				this->showErrorEx(NULL,"-g", "Unable To Access File: %s", filename.to_chr());
+				return;
+			}
+#endif
+			//if (GetFullPathNameWUx != NULL)
+			//	GetFullPathNameWUx(filename.to_wchr(), MAX_PATH, iconPath, NULL);
+
 			//filename = input.gettok(7, -1).gettok(1,TSTAB);
 
 			//if (lvbki.ulFlags & LVBKIF_TYPE_WATERMARK) {
-			//	watermarkfile = input.gettok(7,-1).gettok(2,-1,TSTAB).trim();
+			//	TString watermarkfile(input.gettok(7,-1).gettok(2,-1,TSTAB).trim());
 			//	lvbki.hbm = dcxLoadBitmap(lvbki.hbm, watermarkfile);
 			//}
 			lvbki.pszImage = filename.to_chr();
@@ -1825,9 +1834,9 @@ void DcxListView::parseCommandRequest(TString &input) {
 		{
 		case 'c':
 			{
-				char res[256];
+				TString res;
 				// check window exists
-				Dcx::mIRC.evalex(res, 256, "$window(%s)", tsArgs.to_chr());
+				Dcx::mIRC.tsEvalex(res, "$window(%s)", tsArgs.to_chr());
 				// if not exit
 				if (tsArgs != res) {
 					this->showErrorEx(NULL, "-S", "Invalid window: %s", tsArgs.to_chr());
@@ -2190,10 +2199,10 @@ UINT DcxListView::parseImageFlags( const TString & flags ) {
 			iFlags |= LVBKIF_SOURCE_NONE;
 		else if ( flags[i] == 't' )
 			iFlags |= LVBKIF_STYLE_TILE;
-		//else if ( flags[i] == 'w' )
-		//	iFlags |= LVBKIF_TYPE_WATERMARK;
-		//else if ( flags[i] == 'a' )
-		//	iFlags |= LVBKIF_TYPE_WATERMARK|LVBKIF_FLAG_ALPHABLEND;
+		else if ( flags[i] == 'w' )
+			iFlags |= LVBKIF_TYPE_WATERMARK;
+		else if ( flags[i] == 'a' )
+			iFlags |= LVBKIF_TYPE_WATERMARK|LVBKIF_FLAG_ALPHABLEND;
 
 		++i;
 	}
@@ -3407,9 +3416,18 @@ void DcxListView::xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *
 	lvi->stateMask = (LVIS_FOCUSED|LVIS_SELECTED|LVIS_CUT|LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
 }
 
-//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
+//[N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] +flags dialog id (N|N1,N2)
 bool DcxListView::ctrlLoadListview(const int nPos, const TString &tsData)
 {
+	//TString tsFlags(tsData.gettok( 10 ));
+	//TString dialogname(tsData.gettok( 11 ).trim());
+	//int ctrl_ID = tsData.gettok( 12 ).to_int();
+	//TString tsItem(tsData.gettok( 13 ).trim());
+
+	//if (tsFlags[0] != '+') {
+	//	this->showErrorEx(NULL, "-a", "Invalid flags specified, missing +: %s Only DCX dialogs are supported.", dialogname.to_chr());
+	//	return false;
+	//}
 	//DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(dialogname);
 	//if (p_Dialog == NULL) {
 	//	this->showErrorEx(NULL, "-a", "Invalid dialog name: %s Only DCX dialogs are supported.", dialogname.to_chr());
@@ -3421,27 +3439,28 @@ bool DcxListView::ctrlLoadListview(const int nPos, const TString &tsData)
 	//	this->showErrorEx(NULL, "-a", "Invalid control id: %d Only DCX controls are supported.", ctrl_ID);
 	//	return false;
 	//}
+	////Dcx::mIRC.evalex();
 	return false;
 }
 //[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 //tsData = [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] [+flags] [window/table] [item]
 bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const char *sTest, const char *sCount, const char *sGet, const char *sGetNamed)
 {
-	char res[1024];	// used to store the data returned by mIRC.
+	TString res;	// used to store the data returned by mIRC.
 	TString tsflags(tsData.gettok( 10 ));
 	TString tsName(tsData.gettok( 11 ));
 	TString tsItem(tsData.gettok( 12, -1 ));
 
 	// check table/window exists
-	Dcx::mIRC.evalex(res, 1024, sTest, tsName.to_chr());
+	Dcx::mIRC.tsEvalex(res, sTest, tsName.to_chr());
 	// if not exit
-	if (lstrcmp(tsName.to_chr(), res) != 0) {
+	if (tsName != res) {
 		this->showErrorEx(NULL, "-a", "Invalid hashtable/window: %s", tsName.to_chr());
 		return false;
 	}
 	// get the total number of items in the table.
-	Dcx::mIRC.evalex(res, 1024, sCount, tsName.to_chr());
-	UINT iTotal = atoi(res);
+	Dcx::mIRC.tsEvalex(res, sCount, tsName.to_chr());
+	UINT iTotal = res.to_int();
 	// if no items then exit.
 	if (iTotal == 0)
 		return false;
@@ -3458,7 +3477,7 @@ bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const cha
 			return false;
 		}
 		// add a single named item
-		Dcx::mIRC.evalex(res, 1024, sGetNamed, tsName.to_chr(), tsItem.to_chr());
+		Dcx::mIRC.tsEvalex(res, sGetNamed, tsName.to_chr(), tsItem.to_chr());
 		if (iFlags & LVIMF_ALLINFO)
 			// add items data from [INDENT] onwards is taken from hashtable, including subitems.
 			//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
@@ -3508,7 +3527,7 @@ bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const cha
 
 	while (iStart <= iEnd) {
 		// get items data
-		Dcx::mIRC.evalex(res, 1024, sGet, tsName.to_chr(), iStart);
+		Dcx::mIRC.tsEvalex(res, sGet, tsName.to_chr(), iStart);
 		if (iFlags & LVIMF_ALLINFO)
 			// add items data from [INDENT] onwards is taken from hashtable, including subitems.
 			//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
@@ -3590,13 +3609,13 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 	if (data.numtok( ) > 9) {
 		itemtext = data.gettok(10, -1);
 
-		char res[1024];
+		TString res;
 		if (stateFlags & LVIS_HASHITEM) {
-			Dcx::mIRC.evalex(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			Dcx::mIRC.tsEvalex(res, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 			itemtext = res;
 		}
 		else if (stateFlags & LVIS_HASHNUMBER) {
-			Dcx::mIRC.evalex(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			Dcx::mIRC.tsEvalex(res,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 			itemtext = res;
 		}
 	}
@@ -3720,13 +3739,13 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 				if (data.numtok() > 5) {
 					itemtext = data.gettok(6, -1);
 
-					char res[1024];
+					TString res;
 					if ((stateFlags & LVIS_HASHITEM) && (itemtext.numtok() == 2)) {
-						Dcx::mIRC.evalex(res, 1024, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+						Dcx::mIRC.tsEvalex(res, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 						itemtext = res;
 					}
 					else if ((stateFlags & LVIS_HASHNUMBER) && (itemtext.numtok() == 2)) {
-						Dcx::mIRC.evalex(res, 1024,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+						Dcx::mIRC.tsEvalex(res,  "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 						itemtext = res;
 					}
 				}

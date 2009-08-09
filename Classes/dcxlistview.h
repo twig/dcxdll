@@ -31,9 +31,9 @@ class DcxDialog;
 #define LVIS_HASHITEM	0x04000 //!< ListView Item takes it's text from a hashtable. (text is `table item`) (to be replaced by LVIS_HASHTABLE)
 #define LVIS_HASHNUMBER	0x08000 //!< ListView Item takes it's text from a hashtable. (text is `table N`) (to be replaced by LVIS_HASHTABLE)
 #define LVIS_XML		0x10000 //!< ListView Item takes it's text from a xml file. (text is `dataset_name filename`) (adds all items in dataset_name)
-#define LVIS_HASHTABLE	0x20000	//!< ListView Item takes it's text from a hashtable. (text is `+flags hashtable (N|N1-N2|item)`) (can add multiple items)
-#define LVIS_WINDOW		0x40000	//!< ListView Item takes it's text from a custom window. (text is `+flags window (N|N1-N2)`) (can add multiple items)
-#define LVIS_CONTROL	0x80000	//!< ListView Item takes it's text from another DCX control. (text is `+flags dialog id (N|N1-N2)`) (can add multiple items)
+#define LVIS_HASHTABLE	0x20000	//!< ListView Item takes it's text from a hashtable. (text is `+flags hashtable (N|N1,N2|item)`) (can add multiple items)
+#define LVIS_WINDOW		0x40000	//!< ListView Item takes it's text from a custom window. (text is `+flags window (N|N1,N2)`) (can add multiple items)
+#define LVIS_CONTROL	0x80000	//!< ListView Item takes it's text from another DCX control. (text is `+flags dialog id (N|N1,N2)`) (can add multiple items)
 // +flags mentioned above tell the parser extra details about how the items are added.
 // +	:	single item is added as text only (N)
 // +a	:	items added include all info for the item not just it's text.

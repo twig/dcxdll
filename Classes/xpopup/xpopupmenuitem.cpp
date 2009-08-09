@@ -131,10 +131,10 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 			GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
 		}
 		else {
-			char res[900];
-			Dcx::mIRC.eval( res, 900, this->m_tsItemText.to_chr( ) );
-			this->m_tsItemText = res;
-			GetTextExtentPoint32( hdc, res, lstrlen( res ), &size );
+			TString tsRes;
+			Dcx::mIRC.tsEval( tsRes, this->m_tsItemText.to_chr( ) );
+			this->m_tsItemText = tsRes;
+			GetTextExtentPoint32( hdc, tsRes.to_chr(), tsRes.len(), &size );
 		}
 
 		ReleaseDC( mHwnd, hdc );

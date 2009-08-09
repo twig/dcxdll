@@ -8,7 +8,7 @@ class DcxmlParser {
 public:
 	//constructor
 	//DcxmlParser();
-	DcxmlParser(const char *filePath, const char *dialogMark,const char *dialogName,bool verbose, bool autoClose);
+	DcxmlParser(const char *filePath, const char *dialogMark,const char *dialogName,const bool verbose, const bool autoClose);
 	//virtual ~DCXML( );
 	void parseAttributes();
 	void parseAttributes(TiXmlElement* element);

@@ -243,6 +243,14 @@ bool mIRCLinker::eval(char *res, const int maxlen, const char *data) {
 	return true;
 }
 
+bool mIRCLinker::tsEval(TString &res, const char *data) {
+	lstrcpy(m_pData, data);
+	SendMessage(m_mIRCHWND, WM_USER + 201, 0, m_iMapCnt);
+	res = m_pData;
+	if (lstrcmp(m_pData, "$false") == 0) return false;
+	return true;
+}
+
 /*!
  * \brief Requests mIRC $identifiers to be evaluated.
  *
@@ -259,6 +267,17 @@ bool mIRCLinker::evalex(char *res, const int maxlen, const char *szFormat, ...)
 	va_end( args );
 
 	return eval(res, maxlen, line.to_chr());
+}
+bool mIRCLinker::tsEvalex(TString &res, const char *szFormat, ...)
+{
+	TString line;
+	va_list args;
+
+	va_start(args, szFormat);
+	line.vprintf(szFormat, &args);
+	va_end( args );
+
+	return tsEval(res, line.to_chr());
 }
 
 bool mIRCLinker::exec(const char *data)

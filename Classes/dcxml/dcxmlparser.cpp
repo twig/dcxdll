@@ -18,12 +18,12 @@
 #include "dcxmlparser.h"
 
 /*
-dcxml [-FLAGS] [NAME] [DNAME] "[PATH]"
+dcxml [-FLAGS] [DNAME] [DATASET] "[PATH]"
 */
 //DcxmlParser::DcxmlParser() {
 //
 //}
-DcxmlParser::DcxmlParser(const char *file,const char *mark,const char *dialogName, bool verbose, bool autoClose) :
+DcxmlParser::DcxmlParser(const char *file,const char *mark,const char *dialogName, const bool verbose, const bool autoClose) :
 	loadSuccess(true)
 {
 	this->isVerbose(verbose);
@@ -861,8 +861,8 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,int passedid,int ign
 int DcxmlParser::mIRCEvalToUnsignedInt (const char *value)
 {
 	//Todo: method returns -1 for failure which odd for a *ToUnsignedInt method.
-	TString buf((UINT)32);
-	Dcx::mIRC.evalex(buf.to_chr(), 32, value,"");
+	TString buf;
+	Dcx::mIRC.tsEval(buf, value);
 	int id = buf.to_int();
 	return (id > 0) ? id : -1;
 }

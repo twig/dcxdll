@@ -366,9 +366,9 @@ bool XMenuBar::hasCallback() const {
  * User should return '$true' from the callback to prevent default processing.
  */
 bool XMenuBar::parseCallback(const UINT menuID) {
-	TString result((UINT)10);
+	TString result;
 
-	Dcx::mIRC.evalex(result.to_chr(), 10, "$%s(%d)", this->m_callback.to_chr(), menuID);
+	Dcx::mIRC.tsEvalex(result, "$%s(%d)", this->m_callback.to_chr(), menuID);
 
 	if (result == "$true")
 		return true;
