@@ -191,7 +191,7 @@ void TString::deleteWString( ) {
 }
 
 /****************************/
-void TString::operator =( const TString & tString ) {
+TString& TString::operator =( const TString & tString ) {
 
 	this->deleteString( );
 
@@ -200,6 +200,7 @@ void TString::operator =( const TString & tString ) {
 		this->m_pString = new char [ size + 1 ];
 		lstrcpy( this->m_pString, tString.m_pString );
 	}
+	return *this;
 }
 
 /****************************/
@@ -209,7 +210,7 @@ void TString::operator =( const TString & tString ) {
     \param cString Character string to assign string to
 */
 /****************************/
-void TString::operator =( const char * cString ) {
+TString& TString::operator =( const char * cString ) {
 
 	this->deleteString( );
 
@@ -218,6 +219,7 @@ void TString::operator =( const char * cString ) {
 		this->m_pString = new char [ size + 1 ];
 		lstrcpy( this->m_pString, cString );
 	}
+	return *this;
 }
 
 /****************************/
@@ -227,22 +229,24 @@ void TString::operator =( const char * cString ) {
     \param chr Character to assign string to
 */
 /****************************/
-void TString::operator =( const char chr ) {
+TString& TString::operator =( const char chr ) {
 
 	this->deleteString( );
 	this->m_pString = new char[2];
 	this->m_pString[0] = chr;
 	this->m_pString[1] = 0;
+	return *this;
 }
 
-void TString::operator =( const WCHAR chr ) {
+TString& TString::operator =( const WCHAR chr ) {
 
 	this->deleteString( );
 	this->m_pWString = new WCHAR[2];
 	this->m_pWString[0] = chr;
 	this->m_pWString[1] = 0;
+	return *this;
 }
-void TString::operator =( const WCHAR * cString ) {
+TString& TString::operator =( const WCHAR * cString ) {
 
 	this->deleteString( );
 
@@ -251,6 +255,7 @@ void TString::operator =( const WCHAR * cString ) {
 		this->m_pWString = new WCHAR [ size + 1 ];
 		lstrcpyW( this->m_pWString, cString );
 	}
+	return *this;
 }
 
 /****************************/
@@ -337,7 +342,7 @@ TString TString::operator +( const TString & tString ) {
 */
 /****************************/
 
-void TString::operator +=( const char * cString ) {
+TString & TString::operator +=( const char * cString ) {
 
 	if ( cString != NULL ) {
 		char * temp = new char [ lstrlen( this->m_pString ) + lstrlen( cString ) + 1 ];
@@ -346,6 +351,7 @@ void TString::operator +=( const char * cString ) {
 		this->deleteString();
 		this->m_pString = temp;
 	}
+	return *this;
 }
 
 /****************************/
@@ -356,7 +362,7 @@ void TString::operator +=( const char * cString ) {
 */
 /****************************/
 
-void TString::operator +=( const char chr ) {
+TString & TString::operator +=( const char chr ) {
 
 	if ( this->m_pString != NULL ) {
 		int len = lstrlen( this->m_pString );
@@ -372,6 +378,7 @@ void TString::operator +=( const char chr ) {
 		this->m_pString[0] = chr;
 		this->m_pString[1] = 0;
 	}
+	return *this;
 }
 
 /****************************/
@@ -382,7 +389,7 @@ void TString::operator +=( const char chr ) {
 */
 /****************************/
 
-void TString::operator +=( const TString & tString ) {
+TString & TString::operator +=( const TString & tString ) {
 
 	if ( tString.m_pString ) {
 		char * temp = new char [ lstrlen( this->m_pString ) + lstrlen( tString.m_pString ) + 1 ];
@@ -391,9 +398,10 @@ void TString::operator +=( const TString & tString ) {
 		this->deleteString();
 		this->m_pString = temp;
 	}
+	return *this;
 }
 
-void TString::operator +=( const WCHAR chr ) {
+TString & TString::operator +=( const WCHAR chr ) {
 
 	if ( this->m_pWString != NULL ) {
 		int len = lstrlenW( this->m_pWString );
@@ -409,6 +417,7 @@ void TString::operator +=( const WCHAR chr ) {
 		this->m_pWString[0] = chr;
 		this->m_pWString[1] = 0;
 	}
+	return *this;
 }
 
 /****************************/
@@ -961,18 +970,17 @@ TString TString::operator *( const int N ) {
 */
 /****************************/
 
-void TString::operator *=( const int N ) {
+TString & TString::operator *=( const int N ) {
 
 	if ( N == 0 ) {
 		this->deleteString( );
-		return;
+		return *this;
 	}
 
-	if ( N == 1 )
-		return;
+	// if string is null just return.
+	if (( N == 1 ) || (this->m_pString == NULL))
+		return *this;
 
-	if (this->m_pString == NULL) // if string is null just return.
-		return;
 	char *temp = this->m_pString;
 	this->m_pString = new char [(lstrlen( temp )*N)+1];
 	this->m_pString[0] = 0;
@@ -984,6 +992,7 @@ void TString::operator *=( const int N ) {
 	}
 	this->deleteWString();
 	delete [] temp;
+	return *this;
 }
 
 /****************************/

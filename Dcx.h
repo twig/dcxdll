@@ -9,6 +9,8 @@
 #include "Classes/DcxDialog.h"
 #include <sys/stat.h> 
 
+// is it just me or is this class just a namespace?
+
 class Dcx
 {
 	static TString m_sLastError;

@@ -38,13 +38,8 @@ bool mIRCLinker::isOrNewerVersion(const WORD main, const WORD sub) const {
 
 bool mIRCLinker::isAlias(const char * aliasName)
 {
-	char res[40];
-
 	// check if the alias exists
-	evalex(res, 40, "$isalias(%s)", aliasName);
-
-	if (lstrcmp(res, "$true") == 0) return true;
-	return false;
+	return evalex(NULL, 0, "$isalias(%s)", aliasName);
 }
 
 void mIRCLinker::load(LOADINFO * lInfo) {
@@ -52,17 +47,16 @@ void mIRCLinker::load(LOADINFO * lInfo) {
 	m_dwVersion = lInfo->mVersion;
 	if (LOWORD(m_dwVersion) == 2) {	//Fix the problem that mIRC v6.20 reports itself as 6.2
 		m_dwVersion -= 2;
-		m_dwVersion += 20;
+		m_dwVersion += 20; // err how exactly does this fix it?
 	}
 	lInfo->mKeep = TRUE;
 	initMapFile();
 
 	// Check if we're in debug mode
-	TString isDebug((UINT)255);
-	eval(isDebug.to_chr(), 255, "$debug");
+	TString isDebug;
+	tsEval(isDebug, "$debug");
 
-	isDebug.trim();
-	m_bDebug = (isDebug.len() > 0);
+	m_bDebug = (isDebug.trim().len() > 0);
 	DCX_DEBUG(debug,"LoadmIRCLink", "Debug mode detected...");
 
 	DCX_DEBUG(debug,"LoadmIRCLink", "Finding mIRC_Toolbar...");
@@ -84,7 +78,7 @@ void mIRCLinker::load(LOADINFO * lInfo) {
 	}
 
 	if (IsWindow(m_hTreebar)) {
-		//Dcx::mIRC.getTreeview() = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
+		//m_hTreeview = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
 		m_hTreeview = FindWindowEx(m_hTreebar,NULL,WC_TREEVIEW,NULL);
 		if (IsWindow(m_hTreeview))
 			m_hTreeImages = TreeView_GetImageList(m_hTreeview,TVSIL_NORMAL);

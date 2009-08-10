@@ -28,7 +28,7 @@ class DcxWindow {
 public:
 
 	DcxWindow( const HWND mHwnd, const UINT mID );
-	DcxWindow( const UINT mID );
+	explicit DcxWindow( const UINT mID );
 	virtual ~DcxWindow( );
 
 	BOOL isStyle( const LONG Styles ) const;

@@ -41,7 +41,7 @@ public:
 	bool isAero() const;
 	bool isVista() const;
 	bool isDebug() const;
-	bool isDXInstalled9();
+	//bool isDXInstalled9();
 	bool isAlias(const char * aliasName);
 
 	void load(LOADINFO * lInfo);

@@ -4,7 +4,7 @@
 #include "Classes/custom/divider.h"
 #include "Classes/custom/DcxTrayIcon.h"
 
-//extern DcxTrayIcon * trayIcons;
+// is it just me or is this class just a namespace?
 
 mIRCLinker Dcx::mIRC;
 TString Dcx::m_sLastError;

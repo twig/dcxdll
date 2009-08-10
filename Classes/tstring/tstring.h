@@ -72,13 +72,13 @@ public:
 	static const char *m_cTab;
 
 	TString( );
-	TString( const char * cString );
-	TString( const WCHAR * cString );
-	TString( const char chr );
-	TString( const WCHAR chr );
-	TString( const TString & tString );
+	TString( const char * cString ); // we don't want these 2 as explicit's
+	TString( const WCHAR * cString );// ^
+	explicit TString( const char chr );
+	explicit TString( const WCHAR chr );
+	TString( const TString & tString ); // or this one.
 	TString( const char *pStart, const char *pEnd );
-	TString( const unsigned int tsSize);
+	explicit TString( const unsigned int tsSize);
 
 	//! Destructor
 	~TString( );
@@ -89,20 +89,20 @@ public:
 	char * to_chr( ) const { return this->m_pString; };
 
 	// Operator Overloads
-	void operator =( const TString & tString );
-	void operator =( const char * cString );
-	void operator =( const WCHAR * cString );
-	void operator =( const char chr );
-	void operator =( const WCHAR chr );
+	TString & operator =( const TString & tString );
+	TString & operator =( const char * cString );
+	TString & operator =( const WCHAR * cString );
+	TString & operator =( const char chr );
+	TString & operator =( const WCHAR chr );
 
 	TString operator +( const char * cString );
 	TString operator +( const char chr );
 	TString operator +( const TString & tString );
 
-	void operator +=( const char * cString );
-	void operator +=( const char chr );
-	void operator +=( const TString & tString );
-	void operator +=( const WCHAR chr );
+	TString & operator +=( const char * cString );
+	TString & operator +=( const char chr );
+	TString & operator +=( const TString & tString );
+	TString & operator +=( const WCHAR chr );
 
 	bool operator ==( const int iNull ) const;
 	bool operator ==( const char * cString ) const;
@@ -131,7 +131,7 @@ public:
 	bool operator <=( const TString & tString ) const;
 
 	TString operator *( const int N );
-	void operator *=( const int N );
+	TString & operator *=( const int N );
 
 	char & operator []( long int N ) const;
 
