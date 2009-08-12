@@ -23,6 +23,10 @@
  *
  * blah
  */
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( push )
+#pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
+#endif
 
 class XPopupMenuManager {
 
@@ -97,5 +101,9 @@ protected:
 
 extern HMENU g_OriginalMenuBar;
 extern XPopupMenu *g_mIRCScriptMenu;
+
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( pop )
+#endif
 
 #endif // _XPOPUPMENUMANAGER_H_

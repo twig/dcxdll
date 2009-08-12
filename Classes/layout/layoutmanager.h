@@ -23,30 +23,37 @@
  *
  * blah
  */
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( push )
+#pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
+#endif
 
 class LayoutManager {
 
 public:
 
-  LayoutManager( );
-  LayoutManager( HWND mHwnd );
-  virtual ~LayoutManager( );
+	LayoutManager( );
+	explicit LayoutManager( HWND mHwnd );
+	virtual ~LayoutManager( );
 
-  BOOL updateLayout( RECT & rc );
+	BOOL updateLayout( RECT & rc );
 
-  void setRoot( LayoutCell * p_Root );
-  LayoutCell * getRoot( ) const;
+	void setRoot( LayoutCell * p_Root );
+	LayoutCell * getRoot( ) const;
 
-  LayoutCell * getCell( const TString & path ) const;
+	LayoutCell * getCell( const TString & path ) const;
 
-  static LayoutCell * parsePath( const TString & path, LayoutCell * hParent, const int depth );
+	static LayoutCell * parsePath( const TString & path, LayoutCell * hParent, const int depth );
 
 protected:
 
-  HWND m_Hwnd; //!< Dialog Window Handle
+	HWND m_Hwnd; //!< Dialog Window Handle
 
-  LayoutCell * m_pRoot; //!< Root LayoutCell Element
+	LayoutCell * m_pRoot; //!< Root LayoutCell Element
 
 };
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( pop )
+#endif
 
 #endif // _LAYOUTMANAGER_H_

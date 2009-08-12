@@ -31,6 +31,8 @@
  *		Added sprintf() function. Ook
  *	1.8
  *		Added iswm() & iswmcs(). Ook
+ *	1.9
+ *		More changes & shit than i can remember. Ook
  *
  * © ScriptsDB.org - 2005
  */
@@ -51,6 +53,12 @@
 #define COMMA m_cComma
 #define TAB m_cTab
 
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( push )
+#pragma warning( disable : 2304 )
+#pragma warning( disable : 2287 )
+#endif
+
 /*!
  * \brief String and Token Management Class
  */
@@ -61,7 +69,10 @@ private:
 	void deleteString( );
 	void deleteWString( );
 	int _replace(const char *subString, const char *rString); // Ook
+	int _remove(const char *subString);
 	static int match (register char *m, register char *n, const bool cs /* case sensitive */);
+	static unsigned char tolowertab[];
+	static unsigned char touppertab[];
 
 public:
 
@@ -72,7 +83,7 @@ public:
 	static const char *m_cTab;
 
 	TString( );
-	TString( const char * cString ); // we don't want these 2 as explicit's
+	TString( const char * cString ); // we don't want these 2 as explicits
 	TString( const WCHAR * cString );// ^
 	explicit TString( const char chr );
 	explicit TString( const WCHAR chr );
@@ -93,16 +104,24 @@ public:
 	TString & operator =( const char * cString );
 	TString & operator =( const WCHAR * cString );
 	TString & operator =( const char chr );
-	TString & operator =( const WCHAR chr );
+	TString & operator =( const WCHAR &chr );
 
 	TString operator +( const char * cString );
 	TString operator +( const char chr );
 	TString operator +( const TString & tString );
 
+	TString operator -( const char * cString );
+	TString operator -( const char chr );
+	TString operator -( const TString & tString );
+
 	TString & operator +=( const char * cString );
 	TString & operator +=( const char chr );
 	TString & operator +=( const TString & tString );
-	TString & operator +=( const WCHAR chr );
+	TString & operator +=( const WCHAR &chr );
+
+	TString & operator -=( const char * cString );
+	TString & operator -=( const char chr );
+	TString & operator -=( const TString & tString );
 
 	bool operator ==( const int iNull ) const;
 	bool operator ==( const char * cString ) const;
@@ -130,10 +149,13 @@ public:
 	bool operator <=( const char chr ) const;
 	bool operator <=( const TString & tString ) const;
 
-	TString operator *( const int N );
-	TString & operator *=( const int N );
+	TString operator *( const int &N );
+	TString & operator *=( const int &N );
 
 	char & operator []( long int N ) const;
+	operator int() { return this->to_int(); }
+	operator __int64() { return this->to_num(); }
+	operator double() { return this->to_float(); }
 
 	// General String Lib
 	size_t len( ) const;
@@ -180,11 +202,16 @@ public:
 	__int64 to_num( ) const { return _atoi64(this->m_pString); };
 	double to_float() const { return atof(this->m_pString); };
 	WCHAR *to_wchr(bool tryutf8 = false);
+	static inline int rfc_tolower(const int c);
+	static inline int rfc_toupper(const int c);
 	//
 };
-
 #define TSTAB TString::TAB
 #define TSSPACE TString::SPACE
 #define TSCOMMA TString::COMMA
+
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( pop )
+#endif
 
 #endif // TSTRING_H_

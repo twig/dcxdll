@@ -70,6 +70,11 @@ typedef std::map<TString, int> IntegerHash;
  * blah
  */
 
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( push )
+#pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
+#endif
+
 class DcxDialog : public DcxWindow {
 
 public:
@@ -266,5 +271,8 @@ protected:
 
 	static LRESULT ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 };
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( pop )
+#endif
 
 #endif // _DCXDIALOG_H_

@@ -34,6 +34,10 @@ distribution.
 #ifdef __INTEL_COMPILER
 #pragma warning( disable : 869 ) // remark #869: parameter "doc" was never referenced
 #pragma warning( disable : 981 ) // remark #981: operands are evaluated in unspecified order
+#pragma warning( disable : 2298 ) //warning #2298: copy constructor and destructor have different access
+#pragma warning( disable : 2299 ) //warning #2299: assignment operator and destructor have different access
+#pragma warning( disable : 2289 ) //warning #2289: proper signature for "operator=" is "Type& operator=(const Type&)"
+#pragma warning( disable : 2295 ) //warning #2295: copy constructor and assignment operator are declared but destructor is not
 #else
 #pragma warning( disable : 4100 ) // unreferenced formal parameter
 #endif
@@ -738,7 +742,7 @@ public:
 	virtual bool Accept( TiXmlVisitor* visitor ) const = 0;
 
 protected:
-	TiXmlNode( NodeType _type );
+	explicit TiXmlNode( NodeType _type );
 
 	// Copy to the allocated object. Shared functionality between Clone, Copy constructor,
 	// and the assignment operator.
@@ -858,6 +862,7 @@ public:
 	}
 
 	bool operator==( const TiXmlAttribute& rhs ) const { return rhs.name == name; }
+	bool operator!=( const TiXmlAttribute& rhs ) const { return rhs.name != name; }
 	bool operator<( const TiXmlAttribute& rhs )	 const { return name < rhs.name; }
 	bool operator>( const TiXmlAttribute& rhs )  const { return name > rhs.name; }
 
@@ -944,16 +949,16 @@ class TiXmlElement : public TiXmlNode
 {
 public:
 	/// Construct an element.
-	TiXmlElement (const char * in_value);
+	explicit TiXmlElement (const char * in_value);
 
 	#ifdef TIXML_USE_STL
 	/// std::string constructor.
-	TiXmlElement( const std::string& _value );
+	explicit TiXmlElement( const std::string& _value );
 	#endif
 
 	TiXmlElement( const TiXmlElement& );
 
-	void operator=( const TiXmlElement& base );
+	TiXmlElement& operator=( const TiXmlElement& base );
 
 	virtual ~TiXmlElement();
 
@@ -1138,11 +1143,11 @@ public:
 	/// Constructs an empty comment.
 	TiXmlComment() : TiXmlNode( TiXmlNode::COMMENT ) {}
 	/// Construct a comment from text.
-	TiXmlComment( const char* _value ) : TiXmlNode( TiXmlNode::COMMENT ) {
+	explicit TiXmlComment( const char* _value ) : TiXmlNode( TiXmlNode::COMMENT ) {
 		SetValue( _value );
 	}
 	TiXmlComment( const TiXmlComment& );
-	void operator=( const TiXmlComment& base );
+	TiXmlComment& operator=( const TiXmlComment& base );
 
 	virtual ~TiXmlComment()	{}
 
@@ -1190,7 +1195,7 @@ public:
 		normal, encoded text. If you want it be output as a CDATA text
 		element, set the parameter _cdata to 'true'
 	*/
-	TiXmlText (const char * initValue ) : TiXmlNode (TiXmlNode::TEXT)
+	explicit TiXmlText (const char * initValue ) : TiXmlNode (TiXmlNode::TEXT)
 	{
 		SetValue( initValue );
 		cdata = false;
@@ -1199,7 +1204,7 @@ public:
 
 	#ifdef TIXML_USE_STL
 	/// Constructor.
-	TiXmlText( const std::string& initValue ) : TiXmlNode (TiXmlNode::TEXT)
+	explicit TiXmlText( const std::string& initValue ) : TiXmlNode (TiXmlNode::TEXT)
 	{
 		SetValue( initValue );
 		cdata = false;
@@ -1274,7 +1279,7 @@ public:
 						const char* _standalone );
 
 	TiXmlDeclaration( const TiXmlDeclaration& copy );
-	void operator=( const TiXmlDeclaration& copy );
+	TiXmlDeclaration& operator=( const TiXmlDeclaration& copy );
 
 	virtual ~TiXmlDeclaration()	{}
 
@@ -1331,7 +1336,7 @@ public:
 	virtual ~TiXmlUnknown() {}
 
 	TiXmlUnknown( const TiXmlUnknown& copy ) : TiXmlNode( TiXmlNode::UNKNOWN )		{ copy.CopyTo( this ); }
-	void operator=( const TiXmlUnknown& copy )										{ copy.CopyTo( this ); }
+	TiXmlUnknown& operator=( const TiXmlUnknown& copy )										{ copy.CopyTo( this ); return *this; }
 
 	/// Creates a copy of this Unknown and returns it.
 	virtual TiXmlNode* Clone() const;
@@ -1369,15 +1374,15 @@ public:
 	/// Create an empty document, that has no name.
 	TiXmlDocument();
 	/// Create a document with a name. The name of the document is also the filename of the xml.
-	TiXmlDocument( const char * documentName );
+	explicit TiXmlDocument( const char * documentName );
 
 	#ifdef TIXML_USE_STL
 	/// Constructor.
-	TiXmlDocument( const std::string& documentName );
+	explicit TiXmlDocument( const std::string& documentName );
 	#endif
 
 	TiXmlDocument( const TiXmlDocument& copy );
-	void operator=( const TiXmlDocument& copy );
+	TiXmlDocument& operator=( const TiXmlDocument& copy );
 
 	virtual ~TiXmlDocument() {}
 
@@ -1616,10 +1621,10 @@ class TiXmlHandle
 {
 public:
 	/// Create a handle from any node (at any depth of the tree.) This can be a null pointer.
-	TiXmlHandle( TiXmlNode* _node )					{ this->node = _node; }
+	explicit TiXmlHandle( TiXmlNode* _node )					{ this->node = _node; }
 	/// Copy constructor
 	TiXmlHandle( const TiXmlHandle& ref )			{ this->node = ref.node; }
-	TiXmlHandle operator=( const TiXmlHandle& ref ) { this->node = ref.node; return *this; }
+	TiXmlHandle &operator=( const TiXmlHandle& ref ) { this->node = ref.node; return *this; }
 
 	/// Return a handle to the first child node.
 	TiXmlHandle FirstChild() const;

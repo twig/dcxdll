@@ -52,6 +52,11 @@ typedef struct tagSB_PARTINFO {
 
 typedef std::vector<LPSB_PARTINFO> VectorOfParts;
 
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( push )
+#pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
+#endif
+
 class DcxDock
 {
 public:
@@ -128,3 +133,6 @@ public:
 	static COLORREF g_clrTreebarColours[TREEBAR_COLOUR_MAX +1];
 };
 
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( pop )
+#endif

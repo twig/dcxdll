@@ -32,6 +32,10 @@ typedef struct tagXPMENUCOLORS XPMENUCOLORS, * LPXPMENUCOLORS;
  *
  * blah
  */
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( push )
+#pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
+#endif
 
 class XPopupMenuItem {
 
@@ -81,5 +85,9 @@ protected:
 };
 
 typedef std::vector<XPopupMenuItem *> VectorOfXPopupMenuItem; //!< Vector of XPopupMenuItem Objects
+
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( pop )
+#endif
 
 #endif // _XPOPUPMENUITEM_H_

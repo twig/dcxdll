@@ -72,13 +72,15 @@ DcxmlParser::DcxmlParser(const char *file,const char *mark,const char *dialogNam
 
 	this->parseDialog(); //!< Parse <dialog> children onto the dialog
 
-	Dcx::mIRC.execex("/.timer 1 0 xdialog -l %s update", this->getDialogMark()); //!< Update CLA After DCXML is drawn.
+	//Dcx::mIRC.execex("/.timer 1 0 xdialog -l %s update", this->getDialogMark()); //!< Update CLA After DCXML is drawn.
 
 	if (this->getDialogElement()->Attribute("center")) //!< Centers the dialog
 		Dcx::mIRC.execex("/dialog -r %s", this->getDialogMark());
 
 	//This "Shite" is to activate the first zlayer, added a check if this command starts returning an error
 	if (this->getZlayered()) this->xdialogEX("-z","+s 1");
+
+	Dcx::mIRC.execex("/.timer 1 0 %s %s ready", this->getDialog()->getAliasName().to_chr(), this->getDialogMark()); //!< Tell user that dcxml is finished, & they can do a cla update or whatever.
 }
 
 void DcxmlParser::setDialog(const char *dialogMark) { this->_dcxDialog = Dcx::Dialogs.getDialogByName(dialogMark);	}

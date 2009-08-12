@@ -127,7 +127,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		this->setMenuBar(menuBar, newMenu);
 
 		// Redraws to include the system icons from MDI child.
-		Dcx::mIRC.eval(NULL, 0, "//window -a \" $+ $active $+ \"");
+		Dcx::mIRC.exec("//window -a \" $+ $active $+ \"");
 	}
 	// Change the label on the menu
 	// xmenubar [-l] [MENU] [LABEL]

@@ -39,65 +39,72 @@ typedef struct CellMinMaxInfo {
  *
  * blah
  */
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( push )
+#pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
+#endif
 
 class LayoutCell {
 
 public:
 
-  /*!
-   * \brief blah
-   *
-   * blah
-   */
-  enum CellType {
+	/*!
+	* \brief blah
+	*
+	* blah
+	*/
+	enum CellType {
 
-    FIXED,
-    FILL,
-    PANE
-  };
+		FIXED,
+		FILL,
+		PANE
+	};
 
-  LayoutCell( );
-  LayoutCell( const HWND mHwnd );
-  LayoutCell( const HWND mHwnd, const RECT & rc );
-  LayoutCell( DcxControl * dcxc );
-  virtual ~LayoutCell( );
+	LayoutCell( );
+	explicit LayoutCell( const HWND mHwnd );
+	LayoutCell( const HWND mHwnd, const RECT & rc );
+	explicit LayoutCell( DcxControl * dcxc );
+	virtual ~LayoutCell( );
 
-  void setRect( RECT & rc );
-  void getRect( RECT & rc ) const;
-  void getClientRect( RECT & rc ) const;
-  void setBorder( const RECT & rc );
-  void setBorder( const unsigned int nBorder );
-  void getBorder( RECT & rc ) const;
+	void setRect( RECT & rc );
+	void getRect( RECT & rc ) const;
+	void getClientRect( RECT & rc ) const;
+	void setBorder( const RECT & rc );
+	void setBorder( const unsigned int nBorder );
+	void getBorder( RECT & rc ) const;
 
-  virtual void LayoutChild( ) = 0;
-  virtual HDWP ExecuteLayout( HDWP hdwp ) = 0;
-  virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) = 0;
-  virtual void toXml(TiXmlElement * xml) = 0;
-  virtual TiXmlElement * toXml(void) = 0;
+	virtual void LayoutChild( ) = 0;
+	virtual HDWP ExecuteLayout( HDWP hdwp ) = 0;
+	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) = 0;
+	virtual void toXml(TiXmlElement * xml) = 0;
+	virtual TiXmlElement * toXml(void) = 0;
 
-  void setSibling( LayoutCell * p_Cell );
-  void setParent( LayoutCell * p_Cell );
+	void setSibling( LayoutCell * p_Cell );
+	void setParent( LayoutCell * p_Cell );
 
-  virtual CellType getType( ) = 0;
+	virtual CellType getType( ) = 0;
 
-  LayoutCell * getFirstChild( ) const;
-  LayoutCell * getParent( ) const;
-  LayoutCell * getNextSibling( ) const;
+	LayoutCell * getFirstChild( ) const;
+	LayoutCell * getParent( ) const;
+	LayoutCell * getNextSibling( ) const;
 
-  BOOL isVisible( ) const;
+	BOOL isVisible( ) const;
 
 protected:
 
-  HWND m_Hwnd; //!< Cell Control Window Handle (NULL if Container Cell)
+	HWND m_Hwnd; //!< Cell Control Window Handle (NULL if Container Cell)
 
-  RECT m_rcBorders; //!< Border defining rectangle
-  RECT m_rcWindow;  //!< Available Window defining rectangle including Borders
-  DcxControl * m_BaseControl;
+	RECT m_rcBorders; //!< Border defining rectangle
+	RECT m_rcWindow;  //!< Available Window defining rectangle including Borders
+	DcxControl * m_BaseControl;
 
-  LayoutCell * m_Parent; //!< Used for navigation
-  LayoutCell * m_FirstChild; //!< Used for navigation
-  LayoutCell * m_NextSibling; //!< Used for navigation
+	LayoutCell * m_Parent; //!< Used for navigation
+	LayoutCell * m_FirstChild; //!< Used for navigation
+	LayoutCell * m_NextSibling; //!< Used for navigation
 
 };
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( pop )
+#endif
 
 #endif // _LAYOUTCELL_H_

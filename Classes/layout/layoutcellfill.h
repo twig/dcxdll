@@ -27,18 +27,18 @@ class LayoutCellFill : public LayoutCell {
 
 public:
 
-  LayoutCellFill( );
-  LayoutCellFill( const HWND mHwnd );
-  LayoutCellFill( DcxControl * dcxc );
-  virtual ~LayoutCellFill( );
+	LayoutCellFill( );
+	explicit LayoutCellFill( const HWND mHwnd );
+	explicit LayoutCellFill( DcxControl * dcxc );
+	virtual ~LayoutCellFill( );
 
-  virtual void LayoutChild( );
-  virtual HDWP ExecuteLayout( HDWP hdwp );
-  virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI );
-  virtual void toXml(TiXmlElement * xml);
-  virtual TiXmlElement * toXml(void);
+	virtual void LayoutChild( );
+	virtual HDWP ExecuteLayout( HDWP hdwp );
+	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI );
+	virtual void toXml(TiXmlElement * xml);
+	virtual TiXmlElement * toXml(void);
 
-  CellType getType( );
+	CellType getType( );
 
 protected:
 

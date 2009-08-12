@@ -1002,11 +1002,8 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce )
 
 				// fixes identifiers in the dialog menu not being resolved. 
 				// TODO Needs testing to see if it causes any other issues, like double eval's)
-				if (bForce && this->getName() == "dialog") {
-					TString tsRes;
-					Dcx::mIRC.tsEval(tsRes, tsItem.to_chr());
-					tsItem = tsRes;
-				}
+				if (bForce && this->getName() == "dialog")
+					Dcx::mIRC.tsEval(tsItem, tsItem.to_chr()); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
 
 				if ( mii.fType & MFT_SEPARATOR )
 					p_Item = new XPopupMenuItem( this, TRUE, mii.dwItemData );

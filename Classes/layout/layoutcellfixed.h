@@ -27,35 +27,35 @@ class LayoutCellFixed : public LayoutCell {
 
 public:
 
-  /*!
-   * \brief blah
-   *
-   * blah
-   */
-  enum FixedType
+	/*!
+	* \brief blah
+	*
+	* blah
+	*/
+	enum FixedType
 	{
 		HEIGHT=1,         //!< Fixed Size in Height
 		WIDTH=HEIGHT<<1,  //!< Fixed Size in Width
 		BOTH=HEIGHT|WIDTH //!< Fixed Size in Both
 	};
 
-  LayoutCellFixed( DcxControl * dcxc, const FixedType nType = BOTH );
-  LayoutCellFixed( const HWND mHwnd, const FixedType nType = BOTH );
-  LayoutCellFixed( const HWND mHwnd, const RECT & rc, const FixedType nType = BOTH );
-  LayoutCellFixed( const RECT & rc, const FixedType nType = BOTH );
-  virtual ~LayoutCellFixed( );
+	explicit LayoutCellFixed( DcxControl * dcxc, const FixedType nType = BOTH );
+	explicit LayoutCellFixed( const HWND mHwnd, const FixedType nType = BOTH );
+	LayoutCellFixed( const HWND mHwnd, const RECT & rc, const FixedType nType = BOTH );
+	explicit LayoutCellFixed( const RECT & rc, const FixedType nType = BOTH );
+	virtual ~LayoutCellFixed( );
 
-  virtual void LayoutChild( );
-  virtual HDWP ExecuteLayout( HDWP hdwp );
-  virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI );
-  virtual void toXml(TiXmlElement * xml);
-  virtual TiXmlElement * toXml(void);
+	virtual void LayoutChild( );
+	virtual HDWP ExecuteLayout( HDWP hdwp );
+	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI );
+	virtual void toXml(TiXmlElement * xml);
+	virtual TiXmlElement * toXml(void);
 
-  CellType getType( );
+	CellType getType( );
 
 protected:
 
-  FixedType m_nType; //!< Fixed Cell Type
+	FixedType m_nType; //!< Fixed Cell Type
 
 };
 
