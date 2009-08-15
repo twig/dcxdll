@@ -75,9 +75,7 @@ TString::TString( const char * cString ) {
 	this->m_pWString = NULL;
 
 	if ( cString != NULL ) {
-
-		int size = lstrlen( cString );
-		this->m_pString = new char [ size + 1 ];
+		this->m_pString = new char [ lstrlen( cString ) + 1 ];
 		lstrcpy( this->m_pString, cString );
 	}
 	else {
@@ -92,9 +90,7 @@ TString::TString( const WCHAR * cString ) {
 	this->m_pWString = NULL;
 
 	if ( cString != NULL ) {
-
-		int size = lstrlenW( cString );
-		this->m_pWString = new WCHAR [ size + 1 ];
+		this->m_pWString = new WCHAR [ lstrlenW( cString ) + 1 ];
 		lstrcpyW( this->m_pWString, cString );
 	}
 }
@@ -135,9 +131,7 @@ TString::TString( const TString & tString ) {
 
 	this->m_pWString = NULL;
 	if ( tString.m_pString != NULL ) {
-
-		size_t size = lstrlen( tString.m_pString );
-		this->m_pString = new char [size+1];
+		this->m_pString = new char [lstrlen( tString.m_pString ) +1];
 		lstrcpy( this->m_pString, tString.m_pString );
 	}
 	else {
@@ -198,8 +192,7 @@ TString& TString::operator =( const TString & tString ) {
 	this->deleteString( );
 
 	if ( tString.m_pString != NULL ) {
-		size_t size = lstrlen( tString.m_pString );
-		this->m_pString = new char [ size + 1 ];
+		this->m_pString = new char [ lstrlen( tString.m_pString ) + 1 ];
 		lstrcpy( this->m_pString, tString.m_pString );
 	}
 	return *this;
@@ -217,8 +210,7 @@ TString& TString::operator =( const char * cString ) {
 	this->deleteString( );
 
 	if ( cString != NULL ) {
-		size_t size = lstrlen( cString );
-		this->m_pString = new char [ size + 1 ];
+		this->m_pString = new char [ lstrlen( cString ) + 1 ];
 		lstrcpy( this->m_pString, cString );
 	}
 	return *this;
@@ -1122,9 +1114,9 @@ int TString::find( const char * substring, const int N ) const {
 /****************************/
 int TString::find(const char chr, const int N) const {
 	int c = 0;
-	int len = this->len();
+	size_t len = this->len();
 
-	for (int i = 0; i < len; i++) {
+	for (size_t i = 0; i < len; i++) {
 		// found a match, increase counter
 		if (this->m_pString[i] == chr)
 			c++;
@@ -1503,12 +1495,13 @@ TString TString::gettok( int N, int M, const char * sepChars ) const {
 	}
 	if (iCount == nToks - 1)
 		p_cLast = p_cEnd;
-	int len =  p_cLast - p_cFirst + 1;
+	//int len =  p_cLast - p_cFirst + 1;
 
-	char *tmp = new char[ len ];
-	lstrcpyn( tmp, p_cFirst, len );
+	//char *tmp = new char[ len ]; // <- mem leak
+	//lstrcpyn( tmp, p_cFirst, len );
 
-	return tmp;
+	//return tmp;
+	return TString(p_cFirst, p_cLast);
 }
 
 
@@ -2228,3 +2221,36 @@ WCHAR *TString::to_wchr(bool tryutf8)
 	//}
 	return this->m_pWString;
 }
+//int wildcmp(const char *wild, const char *string) {
+//	// Written by Jack Handy - jakkhandy@hotmail.com
+//	const char *cp = NULL, *mp = NULL;
+//
+//	while ((*string) && (*wild != '*')) {
+//		if ((*wild != *string) && (*wild != '?')) {
+//			return 0;
+//		}
+//		wild++;
+//		string++;
+//	}
+//
+//	while (*string) {
+//		if (*wild == '*') {
+//			if (!*++wild) {
+//				return 1;
+//			}
+//			mp = wild;
+//			cp = string+1;
+//		} else if ((*wild == *string) || (*wild == '?')) {
+//			wild++;
+//			string++;
+//		} else {
+//			wild = mp;
+//			string = cp++;
+//		}
+//	}
+//
+//	while (*wild == '*') {
+//		wild++;
+//	}
+//	return !*wild;
+//}
