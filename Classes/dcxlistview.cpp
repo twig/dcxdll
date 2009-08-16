@@ -979,13 +979,18 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		LPDCXLVITEM lviDcx = (LPDCXLVITEM) lvi.lParam;
 
-		TString flag(input.gettok(6));
-		TString info(input.gettok(7, -1));
-
-		if (flag.find('M', 1) > 0)
-			lviDcx->tsMark = info;
+		if (lviDcx != NULL) 
+		{
+			TString flag(input.gettok(6));
+			//TString info(input.gettok(7, -1));
+	
+			if (flag.find('M', 1) > 0)
+				lviDcx->tsMark = input.gettok(7, -1);
+			else
+				this->showErrorEx(NULL, "-A", "Unknown flags %s", flag.to_chr());
+		}
 		else
-			this->showErrorEx(NULL, "-A", "Unknown flags %s", flag.to_chr());
+			this->showError(NULL, "-A", "Unable to Retrieve Item Data");
 		
 		return;
 	}
@@ -1078,14 +1083,14 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		if (numtok > 6) {
 			filename = input.gettok(7, -1).trim();
-#if DCX_DEBUG_OUTPUT
 			// make sure path exists & path is complete.
-			// Only used in debug build as the path may be a url & as such uncheckable.
 			if (!IsFile(filename)) {
-				this->showErrorEx(NULL,"-g", "Unable To Access File: %s", filename.to_chr());
-				return;
+				// if not a file path check if its a url.
+				if (!PathIsURL(filename.to_chr())) {
+					this->showErrorEx(NULL,"-g", "Unable To Access File: %s", filename.to_chr());
+					return;
+				}
 			}
-#endif
 			//if (GetFullPathNameWUx != NULL)
 			//	GetFullPathNameWUx(filename.to_wchr(), MAX_PATH, iconPath, NULL);
 
@@ -1157,7 +1162,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		lvi.iItem = nItem;
 		lvi.iSubItem = nCol;
 
-		// couldnt retrieve info
+		// couldn't retrieve info
 		if (!ListView_GetItem(this->m_Hwnd, &lvi)) {
 			this->showError(NULL,"-j", "Unable to get Item.");
 			return;
@@ -1268,27 +1273,27 @@ void DcxListView::parseCommandRequest(TString &input) {
 		else
 			ListView_EnableGroupView(this->m_Hwnd, FALSE);
 	}
-	// xdid -n [NAME] [ID] [SWITCH] [N] [+FLAGS] (WIDTH)
+	// xdid -n [NAME] [ID] [SWITCH] [N] [+FLAGS] (WIDTH) ...
 	else if (flags['n'] && numtok > 4) {
 		TString tsFlags(input.gettok(5));
+		int iTotal = this->getColumnCount();
 
 		// manually set width
 		if (tsFlags.find('m', 0)) {
 			TString widths(input.gettok(6, -1));
-			int count = this->getColumnCount();
 
-			if (widths.numtok() < count) {
+			if (widths.numtok() < iTotal) {
 				this->showError(NULL, "-n", "Insufficient number of widths specified for +m flag");
 				return;
 			}
 
-			for (int i = 1; i <= count; i++)
+			for (int i = 1; i <= iTotal; i++)
 				ListView_SetColumnWidth(this->m_Hwnd, i -1, widths.gettok(i).to_int());
 
 			return;
 		}
 
-		int nColumn = (input.gettok(4).to_int() -1), iFlags = this->parseHeaderFlags2(tsFlags), iTotal = this->getColumnCount(), iWidth = input.gettok( 6 ).to_int();
+		int nColumn = (input.gettok(4).to_int() -1), iFlags = this->parseHeaderFlags2(tsFlags), iWidth = input.gettok( 6 ).to_int();
 
 		if (nColumn > -1 && nColumn < iTotal) {
 			if (iFlags == -3) { // +s

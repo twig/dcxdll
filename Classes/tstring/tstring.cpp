@@ -265,10 +265,8 @@ TString& TString::operator =( const WCHAR * cString ) {
 TString TString::operator +( const char * cString ) {
 
 	if ( cString != NULL ) {
-		TString newTString;
+		TString newTString((UINT)(lstrlen( this->m_pString )+lstrlen( cString )));
 
-		delete [] newTString.m_pString;
-		newTString.m_pString = new char [lstrlen( this->m_pString )+lstrlen( cString )+1];
 		lstrcpy( newTString.m_pString, this->m_pString );
 		lstrcat( newTString.m_pString, cString );
 		return newTString;
@@ -288,11 +286,9 @@ TString TString::operator +( const char * cString ) {
 
 TString TString::operator +( const char chr ) {
 
-	TString newTString;
-
 	size_t size = lstrlen( this->m_pString );
-	delete [] newTString.m_pString;
-	newTString.m_pString = new char [ size + 2 ];
+	TString newTString((UINT)(size+2));
+
 	lstrcpy( newTString.m_pString, this->m_pString );
 	newTString.m_pString[size] = chr;
 	newTString.m_pString[size+1] = 0;
@@ -313,10 +309,8 @@ TString TString::operator +( const char chr ) {
 TString TString::operator +( const TString & tString ) {
 
 	if ( tString.m_pString ) {
-		TString newTString;
+		TString newTString((UINT)(lstrlen( this->m_pString )+lstrlen( tString.m_pString )));
 
-		delete [] newTString.m_pString;
-		newTString.m_pString = new char [lstrlen( this->m_pString )+lstrlen( tString.m_pString )+1];
 		lstrcpy( newTString.m_pString, this->m_pString );
 		lstrcat( newTString.m_pString, tString.m_pString );
 		return newTString;
@@ -977,12 +971,10 @@ TString TString::operator *( const int &N ) {
 	if ( N == 0 )
 		return "";
 
-	size_t size = lstrlen( this->m_pString );
-	char *tmp = new char [size*N+1];
-	tmp[0] = 0;
+	TString tmp((UINT)(lstrlen( this->m_pString ) *N));
 
 	for (int i = 0; i < N; i++ )
-		lstrcat( tmp, this->m_pString );
+		lstrcat( tmp.m_pString, this->m_pString );
 
 	return tmp;
 }
@@ -1495,12 +1487,7 @@ TString TString::gettok( int N, int M, const char * sepChars ) const {
 	}
 	if (iCount == nToks - 1)
 		p_cLast = p_cEnd;
-	//int len =  p_cLast - p_cFirst + 1;
 
-	//char *tmp = new char[ len ]; // <- mem leak
-	//lstrcpyn( tmp, p_cFirst, len );
-
-	//return tmp;
 	return TString(p_cFirst, p_cLast);
 }
 
@@ -1722,7 +1709,7 @@ bool TString::istok(const char * cToken, const char * sepChars ) const {
 		}
 		p_cStart = p_cEnd + sepl;
 	}
-	if (strcmp(cToken,p_cStart) == 0) return true;
+	if (lstrcmp(cToken,p_cStart) == 0) return true;
 
 	return false;
 }
