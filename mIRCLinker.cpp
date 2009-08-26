@@ -13,7 +13,7 @@ mIRCLinker::mIRCLinker(void) : m_hFileMap(NULL),
 							   m_hTreeview(NULL),
 							   m_hTreeFont(NULL),
 							   m_hTreeImages(NULL),
-							   m_sLastError(""),
+							   //m_sLastError(""),
 							   m_wpmIRCDefaultWndProc(NULL),
 							   m_bDebug(false)
 {
