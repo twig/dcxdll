@@ -1655,20 +1655,24 @@ void DcxListView::parseCommandRequest(TString &input) {
 		static const TString poslist("report icon smallicon list");
 		TString style(input.gettok(4));
 		int index = poslist.findtok(style.to_chr(), 1);
-		UINT mode;
+		UINT mode = 0;
 
 		switch (index) {
 			case 1: // report
-				mode = LVS_REPORT; break;
+				mode = LVS_REPORT;
+				break;
 
 			case 2: // icon
-				mode = LVS_ICON; break;
+				mode = LVS_ICON;
+				break;
 
 			case 3: // smallicon
-				mode = LVS_SMALLICON; break;
+				mode = LVS_SMALLICON;
+				break;
 
 			case 4: // list
-				mode = LVS_LIST; break;
+				mode = LVS_LIST;
+				break;
 
 			default:
 				this->showError(NULL, "-W", "Unknown style");
@@ -1866,7 +1870,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 }
 
 /*
-Initialises an image list.
+Initializes an image list.
 */
 HIMAGELIST DcxListView::initImageList(const int iImageList) {
 	HIMAGELIST himl = this->getImageList(iImageList);

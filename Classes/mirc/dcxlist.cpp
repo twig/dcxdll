@@ -661,7 +661,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 				if (nTab < 0)
 					ListBox_SetTabStops( this->m_Hwnd, NULL, NULL);
 				else
-					ListBox_SetTabStops( this->m_Hwnd, 1, nTab);
+					ListBox_SetTabStops( this->m_Hwnd, 1, &nTab);
 			}
 			else {
 				int *tabs = new int[n];
