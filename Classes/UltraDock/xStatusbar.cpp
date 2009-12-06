@@ -23,10 +23,15 @@ mIRC(xstatusbar) {
 	TString switches(input.gettok(1));
 
 	switch (switches[1]) {
-		case 'A':
+		case 'A': // -A [0|1] (options)=notheme grip tooltips nodivider utf8
 			{
+				// check syntax
+				if (numtok < 2) {
+					Dcx::error("/xstatusbar -A","Invalid Parameters");
+					return 0;
+				}
 				// Enable/Disable the Statusbar.
-				// [-A] [0|1] [options] = notheme grip tooltips nodivider utf8
+				// -A [0|1] [options] = notheme grip tooltips nodivider utf8
 				if (input.gettok(2).to_int() > 0) {
 					if (!DcxDock::InitStatusbar(input.gettok(3,-1))) {
 						Dcx::error("/xstatusbar -A","Unable to Create Statusbar");
@@ -39,17 +44,29 @@ mIRC(xstatusbar) {
 				UpdatemIRC();
 			}
 			break;
-		case 'f': // [-f] [+FLAGS] [CHARSET] [SIZE] [FONTNAME] : set font
+		case 'f': // -f [+FLAGS] [CHARSET] [SIZE] [FONTNAME] : set font
 			{
 				LOGFONT lf;
+
+				// check syntax
+				if (numtok < 5) {
+					Dcx::error("/xstatusbar -f","Invalid Parameters");
+					return 0;
+				}
 
 				if (ParseCommandToLogfont(input.gettok(2, -1), &lf)) {
 					DcxDock::status_setFont(CreateFontIndirect(&lf));
 				}
 			}
 			break;
-		case 'k': // [clr] : background colour.
+		case 'k': // -k [clr] : background colour.
 			{
+				// check syntax
+				if (numtok != 2) {
+					Dcx::error("/xstatusbar -k","Invalid Parameters");
+					return 0;
+				}
+
 				int col = input.gettok( 2 ).to_int();
 
 				if (col < 0)
@@ -58,8 +75,14 @@ mIRC(xstatusbar) {
 					DcxDock::status_setBkColor((COLORREF) col);
 			}
 			break;
-		case 'l': // [POS [POS POS ...]] : parts
+		case 'l': // -l [POS [POS POS ...]] : parts
 			{
+				// check syntax
+				if (numtok < 2) {
+					Dcx::error("/xstatusbar -l","Invalid Parameters");
+					return 0;
+				}
+
 				int nParts = numtok - 1;
 				INT parts[256];
 
@@ -90,8 +113,14 @@ mIRC(xstatusbar) {
 				DcxDock::status_updateParts();
 			}
 			break;
-		case 't': // N [+FLAGS] [#ICON] [Cell Text]([TAB]Tooltip Text) : set part
+		case 't': // -t N [+FLAGS] [#ICON] (Cell Text)([TAB]Tooltip Text) : set part
 			{
+				// check syntax (text can be blank)
+				if (numtok < 4) {
+					Dcx::error("/xstatusbar -t","Invalid Parameters");
+					return 0;
+				}
+
 				int nPos = input.gettok( 2 ).to_int( ) - 1;
 				TString flags(input.gettok( 3 ));
 				int icon = input.gettok( 4 ).to_int( ) - 1;
@@ -133,8 +162,14 @@ mIRC(xstatusbar) {
 				}
 			}
 			break;
-		case 'v': // [N] (TEXT) : set parts text
+		case 'v': // -v [N] (TEXT) : set parts text
 			{
+				// check syntax (text can be blank)
+				if (numtok < 2) {
+					Dcx::error("/xstatusbar -v","Invalid Parameters");
+					return 0;
+				}
+
 				int nPos = input.gettok( 2 ).to_int( ) - 1;
 
 				if ( nPos > -1 && nPos < DcxDock::status_getParts( 256, 0 ) ) {
@@ -158,8 +193,14 @@ mIRC(xstatusbar) {
 				}
 			}
 			break;
-		case 'w': // [FLAGS] [INDEX] [FILENAME] : load an icon
+		case 'w': // -w [FLAGS] [INDEX] [FILENAME] : load an icon
 			{
+				// check syntax
+				if (numtok < 4) {
+					Dcx::error("/xstatusbar -w","Invalid Parameters");
+					return 0;
+				}
+
 				HIMAGELIST himl;
 				HICON icon;
 				TString flags(input.gettok( 2 ));
