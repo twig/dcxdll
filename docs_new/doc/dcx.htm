@@ -1,0 +1,1050 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX Commands - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
+	<tr>
+		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
+		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
+			<a style="color:#000000;" href='index.htm'>Home</a> |
+			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+                        <div class="version">v1.4.1</div>
+		</td>
+	</tr>
+</table>
+
+<table class="bar"><tr><td colspan="3">&nbsp;</td></tr></table>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+	<tr>
+	<td width="150" align="left" valign="top">
+	<ul class="nav">
+		<li><a href="index.htm">Home</a></li>
+		<li>General Usage
+			<ul>
+				<a href="dcx.htm"><div>DCX Commands</div></a>
+				<a href="xdialog.htm"><div>Marked Dialog</div></a>
+				<a href="xdid.htm"><div>Controls</div></a>
+			</ul>
+		</li>
+		<li>DCX Controls
+			<ul>
+<a href="box.htm"><div>Box</div></a><a href="button.htm"><div>Button</div></a><a href="calendar.htm"><div>Calendar</div></a><a href="check.htm"><div>Check</div></a><a href="colorcombo.htm"><div>ColorCombo</div></a><a href="comboex.htm"><div>ComboEx</div></a><a href="datetime.htm"><div>DateTime Picker</div></a><a href="dialog.htm"><div>Dialog (embedded)</div></a><a href="directshow.htm"><div>Directshow</div></a><a href="divider.htm"><div>Divider</div></a><a href="edit.htm"><div>Edit</div></a><a href="ipaddress.htm"><div>IP Address</div></a><a href="image.htm"><div>Image</div></a><a href="line.htm"><div>Line</div></a><a href="link.htm"><div>Link</div></a><a href="list.htm"><div>List</div></a><a href="listview.htm"><div>Listview</div></a><a href="pager.htm"><div>Pager</div></a><a href="panel.htm"><div>Panel</div></a><a href="pbar.htm"><div>Progress Bar</div></a><a href="radio.htm"><div>Radio</div></a><a href="rebar.htm"><div>Rebar</div></a><a href="richedit.htm"><div>RichEdit</div></a><a href="scroll.htm"><div>Scroll</div></a><a href="stacker.htm"><div>Stacker</div></a><a href="statusbar.htm"><div>StatusBar</div></a><a href="tab.htm"><div>Tab</div></a><a href="text.htm"><div>Text</div></a><a href="toolbar.htm"><div>ToolBar</div></a><a href="trackbar.htm"><div>TrackBar</div></a><a href="treeview.htm"><div>Treeview</div></a><a href="updown.htm"><div>UpDown</div></a><a href="webctrl.htm"><div>Web Control</div></a><a href="window.htm"><div>Window (embedded)</div></a>			</ul>
+		</li>
+		<li>DCX Features
+			<ul>
+				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
+				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                                <a href="xpopup.htm"><div>XPopup</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+			</ul>
+		</li>
+		<li>About DCX
+			<ul>
+				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
+				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="changes.htm"><div>Version History</div></a>
+			</ul>
+		</li>
+	</ul>
+	</td>
+<td><table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>General Commands</td></tr>
+	<tr><td>These commands are general DCX commands and not oriented on any particular DCX controls.</td></tr>
+</table>
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.ActiveWindow"></a>$dcx(ActiveWindow)	</td></tr>
+	<tr><td colspan="2">Returns the size and title of the active window.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(ActiveWindow, [PROP])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(ActiveWindow, caption)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">caption</td>
+		<td>Returns the caption of the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">hwnd</td>
+		<td>Returns the handle for the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">x</td>
+		<td>The left position of the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">y</td>
+		<td>The bottom position of the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">w</td>
+		<td>The width of the active window.</td>
+	</tr>
+	<tr>
+		<td class="param">h</td>
+		<td>The height of the active window.</td>
+	</tr>
+</table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.BrowseDialog"></a>$dcx(BrowseDialog)	</td></tr>
+	<tr><td colspan="2">Opens up the Browse dialog and returns the selected file or computer.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(BrowseDialog, [STYLES] $chr(9) (INITIAL_FOLDER) $chr(9) (TITLE_TEXT))</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(BrowseDialog, advanced title $chr(9) Select a folder:)<br />$dcx(BrowseDialog, files initfolder $chr(9) $mircdir)<br />$dcx(BrowseDialog, advanced nonew initfolder title $chr(9) C:\Music $chr(9) Select your music folder:)<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STYLES</td>
+		<td>Various options for the Browse dialog.</td>
+	</tr>
+	<tr>
+		<td class="value">advanced</td>
+		<td>A combination of <a class="style">newstyle</a> and <a class="style">edit</a>. Do not use with <a class="style">computers</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">edit</td>
+		<td>Includes an edit field that allows the user to type the name of an item.</td>
+	</tr>
+	<tr>
+		<td class="value">newstyle</td>
+		<td>The dialog has a larger user interface that can be resized, has drag-and-drop capability, reordering, shortcut menus, new folders, delete, and other shortcut menu commands.</td>
+	</tr>
+	<tr>
+		<td class="value">nonew</td>
+		<td>Removes the New Folder button. Only used with <a class="style">newstyle</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">files</td>
+		<td>The dialog also displays files.</td>
+	</tr>
+	<tr>
+		<td class="value">title</td>
+		<td>Specifies that the <a class="param">TITLE_TEXT</a> parameter is filled.</td>
+	</tr>
+	<tr>
+		<td class="value">initfolder</td>
+		<td>Specifies that the <a class="param">INITIAL_FOLDER</a> folder is filled.</td>
+	</tr>
+	<tr>
+		<td class="value">computers</td>
+		<td>Browses for a computer within the network rather than files or folders. Do not use with <a class="style">advanced</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">nonetwork</td>
+		<td>Do not include network folders below the domain level in the treeview.</td>
+	</tr>
+	<tr>
+		<td class="value">shortcut</td>
+		<td>When the selected item is a shortcut, return the location of the shortcut itself rather than the shortcut desitination.</td>
+	</tr>
+	<tr>
+		<td class="value">owner</td>
+		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
+	</tr>
+	<tr>
+		<td class="param">INITIAL_FOLDER</td>
+		<td>If you specify this parameter and <a class="style">initfolder</a>, this will be the initial selected folder when the dialog opens.</td>
+	</tr>
+	<tr>
+		<td class="param">TITLE_TEXT</td>
+		<td>If you specify this parameter and <a class="style">title</a>, this will set the title text for the dialog.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li>When using <a class="style">computers</a>, this will return a computer name. (eg. <a class="value">//localhost</a>)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
+To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.ColorDialog"></a>$dcx(ColorDialog)	</td></tr>
+	<tr><td colspan="2">Opens up the color picker dialog and returns the selected color.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(ColorDialog, (DEFAULT) (STYLES))</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(ColorDialog, $rgb(255,0,0) fullopen owner dcx anycolor)<br />$dcx(ColorDialog, $rgb(0,0,255) owner $window(@test).hwnd solidonly)<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">DEFAULT</td>
+		<td>The color selected when the dialog opens.</td>
+	</tr>
+	<tr>
+		<td class="param">STYLES</td>
+		<td>Various options for the color dialog.</td>
+	</tr>
+	<tr>
+		<td class="value">anycolor</td>
+		<td>Displays all available colors in the set of basic colors.</td>
+	</tr>
+	<tr>
+		<td class="value">fullopen</td>
+		<td>Displays the additional controls that allow the user to create custom colors.</td>
+	</tr>
+	<tr>
+		<td class="value">nofullopen</td>
+		<td>Disables the <b>Define Custom Color</b> button.</td>
+	</tr>
+	<tr>
+		<td class="value">returndefault</td>
+		<td>Returns the default color if cancel is clicked.</td>
+	</tr>
+	<tr>
+		<td class="value">solidonly</td>
+		<td>Display only solid colors in the set of basic colors.</td>
+	</tr>
+	<tr>
+		<td class="value">owner</td>
+		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> By default, the main mIRC window is the parent. Dialog name OR a hwnd MUST follow after the <a class="style">owner</a> style<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.FontDialog"></a>$dcx(FontDialog)	</td></tr>
+	<tr><td colspan="2">Opens up the Font dialog and returns the selected font options.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(FontDialog, (PARAM VALUE) $chr(9) ... $chr(9) (PARAM VALUE))</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(FontDialog, default +is ansi 9 Verdana $chr(9) color $rgb(255,0,0) $chr(9) owner dname $chr(9) flags +eh)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">default</td>
+		<td>Allows you to specify the default font selected by the font dialog. Value must be in the following format:<br /><a class="param">+flags charset size fontname</a></td>
+	</tr>
+	<tr>
+		<td class="value">+flags</td>
+		<td>Font style flags. These affect the "default values" of the font selected when the FontDialog is first shown.
+<table>
+	<tr>
+		<td class="value">a</td>
+		<td>Font is anti-aliased.</td>
+	</tr>
+	<tr>
+
+		<td class="value">b</td>
+		<td>Font is bold.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Default font.</td>
+	</tr>
+
+	<tr>
+		<td class="value">i</td>
+		<td>Font is italic.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Font is strikedout.</td>
+
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>Font is underlined.</td>
+	</tr>
+</table></td>
+	</tr>
+	<tr>
+		<td class="value">charset</td>
+		<td>Can be any of the following: ansi, baltic, chinesebig, default, easteurope, gb2312, greek, hangul, mac, oem, russian, shiftjis, symbol, turkish, vietnamese.</td>
+	</tr>
+	<tr>
+		<td class="value">size</td>
+		<td>Font size in points.</td>
+	</tr>
+	<tr>
+		<td class="value">fontname</td>
+		<td>Font name.</td>
+	</tr>
+	<tr>
+		<td class="param">flags</td>
+		<td>Allows you to specify flags to modify options for the actual font dialog.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Prevent the dialog box from displaying an initial selection for the font name combo box.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Allows selection of fonts for all non-OEM and Symbol character sets, as well as the ANSI character set.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Allow only the selection of scalable fonts. (Vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>Display the controls that allow the user to specify strikeout, underline, and text color options.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Indicates an error condition if the user attempts to select a font or style that does not exist.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Disables the Script (charset) combo box.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Dialog should not allow graphics device interface (GDI) font simulations. (Not really sure what it does)</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>Limits font selections to a specific charset.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>List only the fonts supported by the printer.</td>
+	</tr>
+	<tr>
+		<td class="value">p</td>
+		<td>Select only fixed-pitch fonts.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>List only horizontally oriented fonts.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>List only the screen fonts supported by the system. (default)</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Only list and allow the selection of TrueType fonts.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Will not allow vector font selections.</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>Allow only the selection of fonts available on both the printer and the display.</td>
+	</tr>
+	<tr>
+		<td class="value">y</td>
+		<td>Prevent the dialog box from displaying an initial selection for the font style combo box. (Bold, italic, etc)</td>
+	</tr>
+	<tr>
+		<td class="value">z</td>
+		<td>Prevent the dialog box from displaying an initial selection for the font size combo box.</td>
+	</tr>
+	<tr>
+		<td class="param">color</td>
+		<td>Allows you to specify the default color (in RGB) to the font dialog.</td>
+	</tr>
+	<tr>
+		<td class="value">rgb</td>
+		<td>Value of the color in $rgb()</td>
+	</tr>
+	<tr>
+		<td class="param">minmaxsize</td>
+		<td>Allows you to specify the selectable font size range in the font dialog.</td>
+	</tr>
+	<tr>
+		<td class="value">min</td>
+		<td>Minimum font value.</td>
+	</tr>
+	<tr>
+		<td class="value">max</td>
+		<td>Maximum font value.</td>
+	</tr>
+	<tr>
+		<td class="param">owner</td>
+		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
+	</tr>
+<tr><td class="syntax">Return</td><td>The information returned is in the following format: <a class="value">RGB</a> <a class="value">+FLAGS</a> <a class="value">CHARSET</a> <a class="value">SIZE</a> <a class="value">FONTNAME</a></td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li>You do not have to specify all parameters, only the ones you wish to change.</li><li>The parameter <a class="param">minmaxsize</a> is limited to a range of 8-72. Any sizes other than that will be ignored.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
+To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.GetSystemColor"></a>$dcx(GetSystemColor)	</td></tr>
+	<tr><td colspan="2">Returns the RGB value of a specific system color.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(GetSystemColor, [ATTRIBUTE])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(GetSystemColor, COLOR_WINDOW)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+ATTRIBUTE</td>
+		<td>The type of color. (From MSDN <a href='http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sysinfo/base/getsyscolor.asp'>GetSysColor</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_3DDKSHADOW</td>
+		<td>Dark shadow for three-dimensional display elements.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_3DFACE</td>
+		<td>Face color for three-dimensional display elements and for dialog box backgrounds.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_3DHIGHLIGHT</td>
+		<td>Highlight color for three-dimensional display elements (for edges facing the light source)</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_3DHILIGHT</td>
+		<td>Highlight color for three-dimensional display elements (for edges facing the light source)</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_3DLIGHT</td>
+		<td>Light color for three-dimensional display elements (for edges facing the light source)</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_3DSHADOW</td>
+		<td>Shadow color for three-dimensional display elements (for edges facing away from the light source)</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_ACTIVEBORDER</td>
+		<td>Active window border.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_ACTIVECAPTION</td>
+		<td>Active window title bar. (Specifies the left side color in the color gradient of an active window's title bar if the gradient effect is enabled) <a class="os">(98+)</a></td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_APPWORKSPACE</td>
+		<td>Background color of multiple document interface (MDI) applications.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_BACKGROUND</td>
+		<td>Desktop.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_BTNFACE</td>
+		<td>Face color for three-dimensional display elements and for dialog box backgrounds.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_BTNHIGHLIGHT</td>
+		<td>Highlight color for three-dimensional display elements (for edges facing the light source)</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_BTNSHADOW</td>
+		<td>Shadow color for three-dimensional display elements (for edges facing away from the light source)</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_BTNTEXT</td>
+		<td>Text on push buttons.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_CAPTIONTEXT</td>
+		<td>Text in caption, size box, and scroll bar arrow box.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_DESKTOP</td>
+		<td>Desktop.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_GRADIENTACTIVECAPTION</td>
+		<td>Right side color in the color gradient of an active window's title bar. <a class="os">(98+)</a></td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_GRADIENTINACTIVECAPTION</td>
+		<td>Right side color in the color gradient of an inactive window's title bar. <a class="os">(98+)</a></td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_GRAYTEXT</td>
+		<td>Grayed (disabled) text. This color is set to 0 if the current display driver does not support a solid gray color.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_HIGHLIGHT</td>
+		<td>Item(s) selected in a control.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_HIGHLIGHTTEXT</td>
+		<td>Text of item(s) selected in a control.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_HOTLIGHT</td>
+		<td>Color for a hyperlink or hot-tracked item. <a class="os">(98+)</a></td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_INACTIVEBORDER</td>
+		<td>Inactive window border.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_INACTIVECAPTION</td>
+		<td>Inactive window caption. (Specifies the left side color in the color gradient of an inactive window's title bar if the gradient effect is enabled)</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_INACTIVECAPTIONTEXT</td>
+		<td>Color of text in an inactive caption.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_INFOBK</td>
+		<td>Background color for tooltip controls.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_INFOTEXT</td>
+		<td>Text color for tooltip controls.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_MENU</td>
+		<td>Menu background.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_MENUHILIGHT</td>
+		<td>The color used to highlight menu items when the menu appears as a flat menu. The highlighted menu item is outlined with <a class="value">COLOR_HIGHLIGHT</a>. <a class="os">(XP+)</a></td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_MENUBAR</td>
+		<td>The background color for the menu bar when menus appear as flat menus. However, <a class="value">COLOR_MENU</a> continues to specify the background color of the menu popup. <a class="os">(XP+)</a></td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_MENUTEXT</td>
+		<td>Text in menus.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_SCROLLBAR</td>
+		<td>Scroll bar gray area.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_WINDOW</td>
+		<td>Window background.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_WINDOWFRAME</td>
+		<td>Window frame.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_WINDOWTEXT</td>
+		<td>Text in windows.</td>
+	</tr>
+</table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.GetTaskbarPos"></a>$dcx(GetTaskbarPos)	</td></tr>
+	<tr><td colspan="2">Retreives the position of the taskbar on your desktop.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(GetTaskbarPos)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(GetTaskbarPos)</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns X Y W H when successful.</li><li>Returns <a class="value">D_ERROR: GetTaskbarPos</a> when unsuccessful.</li></ul></td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.GhostDrag"></a>/dcx GhostDrag	</td></tr>
+	<tr><td colspan="2">This command allows for ghosted dragging for the main mIRC window.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/dcx GhostDrag [VALUE]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/dcx GhostDrag 150</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">VALUE</td>
+		<td>The opacity of the main mIRC window when dragged. <a class="param">VALUE</a> has a range of <a class="value">0</a>-<a class="value">255</a>.</td>
+	</tr>
+</table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.IsThemedXP"></a>$dcx(IsThemedXP)	</td></tr>
+	<tr><td colspan="2">Returns <a class="value">$true</a> or <a class="value">$false</a> depending on whether a visual style has been on the Windows system or not. <a class="os">(XP+)</a></td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(IsThemedXP)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(IsThemedXP)</div></td>
+	</tr>
+</table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.IsUnloadSafe"></a>$dcx(IsUnloadSafe)	</td></tr>
+	<tr><td colspan="2">This is used by /udcx to determine if /dll -u can be used or not.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(IsUnloadSafe)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(IsUnloadSafe)</div></td>
+	</tr>
+</table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.IsUsingDirectX"></a>$dcx(IsUsingDirectX)	</td></tr>
+	<tr><td colspan="2">Returns <a class="value">$true</a> if the DLL includes <a class='value' href='directshow.htm'>DcxDirectShow</a>. <a class="value">$false</a> otherwise.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(IsUsingDirectX)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(IsUsingDirectX)</div></td>
+	</tr>
+</table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.IsUsingGDI"></a>$dcx(IsUsingGDI)	</td></tr>
+	<tr><td colspan="2">Returns <a class="value">$true</a> or <a class="value">$false</a> depending on whether the GDI+ library is being used or not.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(IsUsingGDI)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(IsUsingGDI)</div></td>
+	</tr>
+</table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.Mark"></a>/dcx Mark	</td></tr>
+	<tr><td colspan="2">This command prepares the dialog for DCX-based commands.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/dcx Mark [DNAME] [CALLBACK_ALIAS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/dcx Mark dialogName cb_alias</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">NAME</td>
+		<td>Dialog window name.</td>
+	</tr>
+	<tr>
+		<td class="param">CALLBACK_ALIAS</td>
+		<td>Callback Event alias name.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This command must be called before any other <a class='value' href='xdialog.htm'>/xdialog</a> command can be used.</td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.MsgBox"></a>$dcx(MsgBox)	</td></tr>
+	<tr><td colspan="2">Displays a messagebox which could be used to retrieve feedback from the user.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(MsgBox, [STYLES] $chr(9) [TITLE] $chr(9) [MESSAGE])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(MsgBox, yesnocancel warning defbutton3 $chr(9) Title Of The MessageBox $chr(9) Hello there)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STYLES</td>
+		<td>Various options for the messagebox.</td>
+	</tr>
+	<tr>
+		<td class="value">ok</td>
+		<td>Displays a single OK button. This is the default.</td>
+	</tr>
+	<tr>
+		<td class="value">okcancel</td>
+		<td>Displays two buttons, OK and CANCEL.</td>
+	</tr>
+	<tr>
+		<td class="value">retrycancel</td>
+		<td>Displays two buttons, RETRY and CANCEL.</td>
+	</tr>
+	<tr>
+		<td class="value">yesno</td>
+		<td>Displays two buttons, YES and NO.</td>
+	</tr>
+	<tr>
+		<td class="value">yesnocancel</td>
+		<td>Displays three buttons, YES, NO and CANCEL.</td>
+	</tr>
+	<tr>
+		<td class="value">exclamation</td>
+		<td>Shows an exclamation icon.</td>
+	</tr>
+	<tr>
+		<td class="value">warning</td>
+		<td>Shows a warning icon.</td>
+	</tr>
+	<tr>
+		<td class="value">information</td>
+		<td>Shows an information icon.</td>
+	</tr>
+	<tr>
+		<td class="value">asterisk</td>
+		<td>Shows an asterisk icon.</td>
+	</tr>
+	<tr>
+		<td class="value">question</td>
+		<td>Shows a question icon.</td>
+	</tr>
+	<tr>
+		<td class="value">stop</td>
+		<td>Shows a stop icon.</td>
+	</tr>
+	<tr>
+		<td class="value">error</td>
+		<td>Shows an error icon.</td>
+	</tr>
+	<tr>
+		<td class="value">hand</td>
+		<td>Shows a hand icon.</td>
+	</tr>
+	<tr>
+		<td class="value">defbutton2</td>
+		<td>Makes the second button default upon display.</td>
+	</tr>
+	<tr>
+		<td class="value">defbutton3</td>
+		<td>Makes the third button default upon display.</td>
+	</tr>
+	<tr>
+		<td class="value">defbutton4</td>
+		<td>Makes the fourth button default upon display.</td>
+	</tr>
+	<tr>
+		<td class="value">modal</td>
+		<td>The user must respond to the message box before continuing work with the owner dialog/window. However, the user can move other dialogs/windows.</td>
+	</tr>
+	<tr>
+		<td class="value">sysmodal</td>
+		<td>Same as <a class="style">modal</a>, but will take focus.</td>
+	</tr>
+	<tr>
+		<td class="value">taskmodal</td>
+		<td>Same as <a class="style">modal</a>, but this will halt mIRC and prevent access to any windows until the messagebox is cleared.</td>
+	</tr>
+	<tr>
+		<td class="value">right</td>
+		<td>The text is right aligned.</td>
+	</tr>
+	<tr>
+		<td class="value">rtl</td>
+		<td>Displays message and caption text using right-to-left reading order on Hebrew and Arabic systems.</td>
+	</tr>
+	<tr>
+		<td class="value">foreground</td>
+		<td>The message box becomes the foreground window.</td>
+	</tr>
+	<tr>
+		<td class="value">topmost</td>
+		<td>The message box is on top.</td>
+	</tr>
+	<tr>
+		<td class="value">owner</td>
+		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
+	</tr>
+	<tr>
+		<td class="param">TITLE</td>
+		<td>The title of the messagebox.</td>
+	</tr>
+	<tr>
+		<td class="param">MESSAGE</td>
+		<td>The message displayed in the messagebox.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td>The return value can be one of the following: <a class="value">abort</a> <a class="value">cancel</a> <a class="value">continue</a> <a class="value">ignore</a> <a class="value">no</a> <a class="value">ok</a> <a class="value">retry</a> <a class="value">tryagain</a> <a class="value">yes</a></td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>While it is possible to use this command during events, avoid using MsgBox in events as it will block some scripts from executing.</li><li>MsgBox can be used as an identifier or as a direct call. (eg. as <a class="value">$dcx(MsgBox)</a> or <a class="value">/dcx MsgBox</a>)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
+To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.OpenDialog/SaveDialog"></a>$dcx(OpenDialog/SaveDialog)	</td></tr>
+	<tr><td colspan="2">Opens up the Open/Save file dialog and returns the selected file.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(OpenDialog/SaveDialog, (STYLES) $chr(9) (FILENAME) $chr(9) (FILTER))</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(OpenDialog/SaveDialog, showhidden filemustexist hidereadonly $chr(9) c:\boot.ini $chr(9) All Files (*.*)|*.*)<br />$dcx(OpenDialog/SaveDialog, createprompt overwriteprompt owner dcx $chr(9) c:\blah.txt $chr(9) All Files (*.*)|*.*|Music Files|*.mp3;*.wav;*.ogg)<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STYLES</td>
+		<td>Various options for the Open/Save file dialog.</td>
+	</tr>
+	<tr>
+		<td class="value">createprompt</td>
+		<td>If the user enters a filename that does not exist, the dialog asks the user if they want to create it. Returns the filename (without creating it) if they click yes. <a class="note">Note:</a> OpenDialog only</td>
+	</tr>
+	<tr>
+		<td class="value">enablesizing</td>
+		<td>The dialog is resizable.</td>
+	</tr>
+	<tr>
+		<td class="value">filemustexist</td>
+		<td>If the file doesn't exist in the current directory, the user will get an error prompt. <a class="note">Note:</a> OpenDialog only</td>
+	</tr>
+	<tr>
+		<td class="value">showhidden</td>
+		<td>Forces the showing of system and hidden files, overriding the user setting to show or not show hidden files. A file that is marked both system and hidden is not shown. <a class="os">(XP+)</a></td>
+	</tr>
+	<tr>
+		<td class="value">noreadonly</td>
+		<td>Hides the "Open as Read Only" checkbox.</td>
+	</tr>
+	<tr>
+		<td class="value">nochangedir</td>
+		<td>Restores the current directory to its original value if the user changed the directory while searching for files. <a class="note">Note:</a> SaveDialog only</td>
+	</tr>
+	<tr>
+		<td class="value">multisel</td>
+		<td>Allows user to select multiple files. <a class="note">Note:</a> OpenDialog only</td>
+	</tr>
+	<tr>
+		<td class="value">getshortcuts</td>
+		<td>Allows dialog box to return the path and file name of the selected shortcut (.LNK files)</td>
+	</tr>
+	<tr>
+		<td class="value">nonetwork</td>
+		<td>Hides the network button.</td>
+	</tr>
+	<tr>
+		<td class="value">norecent</td>
+		<td>Does not add a link to the selected file in the file system directory that contains the user's most recently used documents.</td>
+	</tr>
+	<tr>
+		<td class="value">novalidate</td>
+		<td>The dialog does not validate filenames to check if they're legal.</td>
+	</tr>
+	<tr>
+		<td class="value">overwriteprompt</td>
+		<td>If the user selects a file that already exists, the dialog asks the user if they want to overwrite it. Returns the filename (without clearing) if they click yes. <a class="note">Note:</a> SaveDialog only</td>
+	</tr>
+	<tr>
+		<td class="value">pathmustexist</td>
+		<td>The dialog does not validate filenames to check if they're legal.</td>
+	</tr>
+	<tr>
+		<td class="value">owner</td>
+		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>If you specify this parameter, it will be the filename in the box when the dialog opens.</td>
+	</tr>
+	<tr>
+		<td class="param">FILTER</td>
+		<td>The FILTER parameter is the type of files the user can select, it should be formatted like "Description|Type|Description|Type"</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li><a class="value">filemustexist</a> automatically applies <a class="value">pathmustexist</a> when style used.</li><li><a class="value">multisel</a> returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
+To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.PickIcon"></a>$dcx(PickIcon)	</td></tr>
+	<tr><td colspan="2">Displays an icon select dialog. <a class="os">(XP+)</a></td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(PickIcon, [INDEX] [FILENAME])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(PickIcon, 2 $mircdir $+ mirc.exe)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">INDEX</td>
+		<td>Default index to select.</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>File to display icons for.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="value">D_OK SELECTED_INDEX SELECTED_FILENAME</a> if user clicked OK.<br />
+<a class="value">D_ERROR DEFAULT_INDEX DEFAULT_FILENAME</a> if user cancelled.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">DEFAULT_INDEX</a> is the pre-selected icon index and <a class="param">SELECTED_INDEX</a> is the index selected by the user.</li><li><a class="param">FILENAME</a> and <a class="param">SELECTED_FILENAME</a> may be different as the user is able to browse.</li></ul></td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.Version"></a>$dcx(Version)	</td></tr>
+	<tr><td colspan="2">Returns information on the DLL Version.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(Version)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(Version)</div></td>
+	</tr>
+</table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.WindowProps"></a>/dcx WindowProps	</td></tr>
+	<tr><td colspan="2">This command allows you to set the window title text, icon, and remove themes.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/dcx WindowProps [HWND] [+FLAGS] [ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/dcx WindowProps $dialog(dcx).hwnd +t Hello<br />/dcx WindowProps $dialog(dcx).hwnd +i 3 mirc.exe<br />/dcx WindowProps $dialog(dcx).hwnd +T<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND</td>
+		<td>The HWND of the window.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Options to apply to the window.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Set the title text.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Set the window icon.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Set the window icon in grayscale.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Simulates a right click on the specified window</td>
+	</tr>
+	<tr>
+		<td class="value">T</td>
+		<td>Remove any themes on the specified window.</td>
+	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">r</td>
+		<td><div class="syntax">[X] [Y]</div></td>
+	</tr>
+	<tr>
+		<td class="param">t</td>
+		<td><div class="syntax">(TEXT)</div></td>
+	</tr>
+	<tr>
+		<td class="value">TEXT</td>
+		<td>The window title text</td>
+	</tr>
+	<tr>
+		<td class="param">i</td>
+		<td><div class="syntax">[INDEX] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="value">INDEX</td>
+		<td>Icon index in icon archive</td>
+	</tr>
+	<tr>
+		<td class="value">FILENAME</td>
+		<td>Icon archive filename</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.xSignal"></a>/dcx xSignal	</td></tr>
+	<tr><td colspan="2">This command enables or disables signals from DCX whenever docked windows/dialogs/mIRC windows are resized, or when <a class='value' href='xstatusbar.htm'>XStatusBar</a>/<a class='value' href='xtray.htm'>XTray</a> icons are clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/dcx xSignal [BOOL] (+FLAGS)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/dcx xSignal 1<br />/dcx xSignal 0 +st<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">BOOL</td>
+		<td>Either <a class="value">0</a> or <a class="value">1</a>, stating on or off respectively.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags to finegrain the xSignal settings.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Enable or disable <a class='value' href='xdock.htm'>XDock</a> signals.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Enable or disable <a class='value' href='xstatusbar.htm'>XStatusBar</a> signals.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Enable or disable <a class='value' href='xtray.htm'>XTray</a> signals.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">+FLAGS</a> is not specified, the setting specified in <a class="param">BOOL</a> is set on all signal types.</li><li>This must be enabled in order to receive sizing events upon non-DCX windows resizing (used with <a class='value' href='xdock.htm'>/xdock</a>, where you cannot <a class='value' href='#general.Mark'>/dcx Mark</a> @windows or #channels).</li><li>Dialogs marked by <a class='value' href='#general.Mark'>/dcx Mark</a> will still receive events normally in the callback aliases.</li><li>A signal will only be sent for a window being resized if it is the main mIRC window, docked, or contains a docked window.</li><li>Refer to the section <a class='value' href='xdock.htm'>XDock</a>/<a class='value' href='xstatusbar.htm'>XStatusBar</a>/<a class='value' href='xtray.htm'>XTray</a> Signal documentation for more information on feature specific messages.</li></ul></td></tr></table>
+<br />
+</td><td width="80%" valign="top" class="menuright">
+<div class='rightmenu' style='border:1px solid #979AB3'>
+	<a class='header' href="#general"><div style='background:#979AB3;'>General Commands</div></a>
+		<a class='flag' href="#general.ActiveWindow"><div>ActiveWindow</div></a>
+		<a class='flag' href="#general.BrowseDialog"><div>BrowseDialog</div></a>
+		<a class='flag' href="#general.ColorDialog"><div>ColorDialog</div></a>
+		<a class='flag' href="#general.FontDialog"><div>FontDialog</div></a>
+		<a class='flag' href="#general.GetSystemColor"><div>GetSystemColor</div></a>
+		<a class='flag' href="#general.GetTaskbarPos"><div>GetTaskbarPos</div></a>
+		<a class='flag' href="#general.GhostDrag"><div>GhostDrag</div></a>
+		<a class='flag' href="#general.IsThemedXP"><div>IsThemedXP</div></a>
+		<a class='flag' href="#general.IsUnloadSafe"><div>IsUnloadSafe</div></a>
+		<a class='flag' href="#general.IsUsingDirectX"><div>IsUsingDirectX</div></a>
+		<a class='flag' href="#general.IsUsingGDI"><div>IsUsingGDI</div></a>
+		<a class='flag' href="#general.Mark"><div>Mark</div></a>
+		<a class='flag' href="#general.MsgBox"><div>MsgBox</div></a>
+		<a class='flag' href="#general.OpenDialog/SaveDialog"><div>OpenDialog/SaveDialog</div></a>
+		<a class='flag' href="#general.PickIcon"><div>PickIcon</div></a>
+		<a class='flag' href="#general.Version"><div>Version</div></a>
+		<a class='flag' href="#general.WindowProps"><div>WindowProps</div></a>
+		<a class='flag' href="#general.xSignal"><div>xSignal</div></a>
+	</div>
+</td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>

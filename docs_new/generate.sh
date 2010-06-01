@@ -1,0 +1,1 @@
+php -q dcx_gen.php

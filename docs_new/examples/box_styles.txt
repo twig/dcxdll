@@ -1,0 +1,50 @@
+alias box_styles {
+	dialog -ma box_styles box_styles_table
+}
+
+dialog box_styles_table {
+	title "Box Styles"
+	size -1 -1 326 222
+}
+
+on *:dialog:box_styles:*:*: {
+	if ($devent == init) {
+		dcx Mark $dname box_styles_cb
+		;// Notice that this line is new. This is changing the border style of the "box_styles" dialog
+		;// to have a titlebar and a little X in the top right corner.
+		;// Look up /xdialog -b in the DCX documentation for more information.
+		xdialog -b $dname +ty
+
+		;// Call initilisation alias. This simply puts all the control creation into another alias for neatness.
+		box_styles_init_dcx
+	}
+}
+
+alias -l box_styles_init_dcx {
+	;// Initialising control: Box #1 - no styles (default is top left)
+	xdialog -c $dname 1 box 5 5 150 100
+	xdid -t $dname 1 Box 1: Top Left
+
+	;// Initialising control: Box 2 - "right" style
+	xdialog -c $dname 2 box 165 5 150 100 right
+	xdid -t $dname 2 Box 2: Top Right
+
+	;// Initialising control: Box 3 - "bottom" style
+	xdialog -c $dname 3 box 5 115 150 100 bottom
+	xdid -t $dname 3 Box 3: Bottom Left
+
+	;// Initialising control: Box 4 - "bottom" and "right" styles
+	xdialog -c $dname 4 box 165 115 150 100 bottom right
+	xdid -t $dname 4 Box 4: Bottom Right
+}
+
+;// Callback alias for box_styles
+alias box_styles_cb {
+	;// ($2 == mouseenter) checks when the mouse moves over the control for the first time
+	;// and ($3 > 0) checks it is not the dialog ID
+	if (($2 == mouseenter) && ($3 > 0)) {
+		;// $xdid(dialogname, controlID).text returns the text on the control
+		;// Note: the .text property does not apply to all controls.
+		echo Mouse moved over box $3 with text > $xdid($1, $3).text
+	}
+}

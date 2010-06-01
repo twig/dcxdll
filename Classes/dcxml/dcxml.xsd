@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="dcxml" targetNamespace="http://tempuri.org/dcxml.xsd" elementFormDefault="qualified" xmlns="http://tempuri.org/dcxml.xsd" xmlns:mstns="http://tempuri.org/dcxml.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="dialogs">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="templates">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="template">
+                <xs:complexType>
+                  <xs:sequence>
+                  </xs:sequence>
+                  <xs:attribute name="name" type="xs:string" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="styles">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="style">
+                <xs:complexType>
+                  <xs:sequence />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="icons">
+          <xs:complexType>
+            <xs:sequence />
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="dialog" type="dialog">
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+    <xs:key name="dialogid">
+      <xs:selector xpath=".//mstns:dialog" />
+      <xs:field xpath="@name" />
+    </xs:key>
+    <xs:key name="templateid">
+      <xs:selector xpath=".//mstns:template" />
+      <xs:field xpath="@name" />
+    </xs:key>
+  </xs:element>
+  <xs:simpleType name="cascade">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="v" />
+      <xs:enumeration value="h" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="margin">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d+ \d+ \d+ \d+" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="dialog">
+    <xs:sequence>
+      <xs:sequence>
+        <xs:element name="control" type="control">
+        </xs:element>
+      </xs:sequence>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="width" type="xs:integer" />
+    <xs:attribute name="height" type="xs:integer" />
+    <xs:attribute name="center" type="xs:boolean" />
+    <xs:attribute name="margin" type="margin">
+    </xs:attribute>
+    <xs:attribute name="caption" type="xs:string" />
+    <xs:attribute name="cascade" type="cascade">
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="control">
+    <xs:sequence>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:integer" use="optional" />
+    <xs:attribute name="style" type="xs:IDREF" />
+  </xs:complexType>
+</xs:schema>

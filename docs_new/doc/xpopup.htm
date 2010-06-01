@@ -1,0 +1,1390 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX XPopup - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
+	<tr>
+		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
+		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
+			<a style="color:#000000;" href='index.htm'>Home</a> |
+			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+                        <div class="version">v1.4.1</div>
+		</td>
+	</tr>
+</table>
+
+<table class="bar"><tr><td colspan="3">&nbsp;</td></tr></table>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+	<tr>
+	<td width="150" align="left" valign="top">
+	<ul class="nav">
+		<li><a href="index.htm">Home</a></li>
+		<li>General Usage
+			<ul>
+				<a href="dcx.htm"><div>DCX Commands</div></a>
+				<a href="xdialog.htm"><div>Marked Dialog</div></a>
+				<a href="xdid.htm"><div>Controls</div></a>
+			</ul>
+		</li>
+		<li>DCX Controls
+			<ul>
+<a href="box.htm"><div>Box</div></a><a href="button.htm"><div>Button</div></a><a href="calendar.htm"><div>Calendar</div></a><a href="check.htm"><div>Check</div></a><a href="colorcombo.htm"><div>ColorCombo</div></a><a href="comboex.htm"><div>ComboEx</div></a><a href="datetime.htm"><div>DateTime Picker</div></a><a href="dialog.htm"><div>Dialog (embedded)</div></a><a href="directshow.htm"><div>Directshow</div></a><a href="divider.htm"><div>Divider</div></a><a href="edit.htm"><div>Edit</div></a><a href="ipaddress.htm"><div>IP Address</div></a><a href="image.htm"><div>Image</div></a><a href="line.htm"><div>Line</div></a><a href="link.htm"><div>Link</div></a><a href="list.htm"><div>List</div></a><a href="listview.htm"><div>Listview</div></a><a href="pager.htm"><div>Pager</div></a><a href="panel.htm"><div>Panel</div></a><a href="pbar.htm"><div>Progress Bar</div></a><a href="radio.htm"><div>Radio</div></a><a href="rebar.htm"><div>Rebar</div></a><a href="richedit.htm"><div>RichEdit</div></a><a href="scroll.htm"><div>Scroll</div></a><a href="stacker.htm"><div>Stacker</div></a><a href="statusbar.htm"><div>StatusBar</div></a><a href="tab.htm"><div>Tab</div></a><a href="text.htm"><div>Text</div></a><a href="toolbar.htm"><div>ToolBar</div></a><a href="trackbar.htm"><div>TrackBar</div></a><a href="treeview.htm"><div>Treeview</div></a><a href="updown.htm"><div>UpDown</div></a><a href="webctrl.htm"><div>Web Control</div></a><a href="window.htm"><div>Window (embedded)</div></a>			</ul>
+		</li>
+		<li>DCX Features
+			<ul>
+				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
+				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                                <a href="xpopup.htm"><div>XPopup</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+			</ul>
+		</li>
+		<li>About DCX
+			<ul>
+				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
+				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="changes.htm"><div>Version History</div></a>
+			</ul>
+		</li>
+	</ul>
+	</td>
+<td><table class="description">
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>XPopup</td></tr>
+	<tr><td>This extension lets you build nice stylish popup menus to be used everywhere in your script including coloring mIRC's own popup menus.<br /><br />
+<div style="text-align: center;">
+	<img src="images/xpopup.png" alt="" />
+</div>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>Special Menus</td></tr>
+	<tr><td>There are two special reserved menu names in XPopup. They are for mIRC's regular popup menus <a class="value">mirc</a> (channel, statusbar, query and nicklist) and mIRC's menubar popup menu <a class="value">mircbar</a> (the menubar). Their appearance can be changed by XPopup and activated with the following command:<br />
+<br />
+<table>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/mpopup [mirc|mircbar] [ENABLED]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/mpopup mirc 1</div></td>
+	</tr>
+</table>
+<br />
+Both menus can have their style, colors and icons modified using the /xpopup command. The command switches -c/-d are disabled for these menus. You cant use /xpop to modify these menus either. To add icons the mIRCs popups menus (status, menubar, channel, query and nicklist) you need to add the icons the menu image lists using /xpopup -i/-j. The icon index number needs to be inserted in the mIRC popup menu syntax like this:<br />
+<br />
+<table class="xpopupprop">
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">[$style()] [ICON] [VTAB] [TEXT] (TAB) (Accelerator Text) : [mIRC Command]</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">$style()</td>
+		<td>mIRC's $style identifier.</td>
+	</tr>
+	<tr>
+		<td class="param">ICON</td>
+		<td>Icon index number. (You can use <a class="value">0</a> for no icon).</td>
+	</tr>
+
+	<tr>
+		<td class="param">VTAB</td>
+		<td>mIRC $chr(11).</td>
+	</tr>
+	<tr>
+		<td class="param">TEXT</td>
+		<td>Menu item text.</td>
+
+	</tr>
+	<tr>
+		<td class="param">TAB</td>
+		<td>mIRC $chr(9). (Optional)</td>
+	</tr>
+	<tr>
+		<td class="param">Accelerator Text</td>
+		<td>Accelerator Text (Eg. Alt+S)</td>
+	</tr>
+	<tr>
+		<td class="param">COMMAND</td>
+		<td>mIRC menu command.</td>
+	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
+	<tr>
+		<td colspan="2"><a class="note">Note:</a> Accelerator text is usually a shortcut key combination to the same command seen in the menu that which the text is right aligned in the menu item like the CTRL-H seen in the image below.</td>
+	</tr>
+</table>
+<br />
+Remember that the same mIRC popup rules still apply. It is only the menu item text syntax that needs to be shaped for XPopup to interpret it correctly. If the [VTAB] element is not present, XPopup assumes that the item text is a regular item (no icon element).<br />
+You can also add $idents in your menu item text like mIRC has always permitted to create your own tri-state check system for example with the use of custom icons.<br />
+<br/>
+The image below is an example of a mIRC menubar popup menu skinned with XPopup which includes icons.<br />
+<br />
+<div style="text-align: center;">
+	<img src="images/xpopup3.png" alt="XPopup mIRC Colorful Iconed Menus" />
+</div>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>XPopup Item Path</td></tr>
+	<tr><td>The XPopup menus have an engine that parses the given item "path" data to know where to insert/delete/modify a given item in the menu structure. The parameters you supply are a space separated numerical token list of the menu submenus that lead to the menu item position:<br />
+<br/>
+
+<table>
+	<tr>
+		<td class="syntax">Format:</td>
+		<td><div class="syntax">N N N ... N</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">2 3</div></td>
+	</tr>
+</table>
+<br />
+This position represents the 3rd menu item of the of the second menu item submenu as shown by the selected item in the picture below:<br />
+<br />
+<div style="text-align: center;"><img src="images/xpopup2.png" alt="XPopup Item Path Example" /></div>
+
+<a class="note">Note:</a> 
+<ul>
+	<li>If you specify a path that does not exist, parsing halts and an error is displayed.</li>
+	<li>You can use <a class="value">0</a> for the last value when inserting a menu item to insert it at the end of the menu.</li>
+</ul>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>XPopup Events</td></tr>
+	<tr><td>Events are sent through mIRCs &quot;ON SIGNAL&quot; event with the signal name being xpopup-[MENU] where [MENU] is the menu name that sent the event. The $1 parameter is the supplied [ID] of the menu item. This is why it's important that this number be unique for all menu items. A returned value of 0 means no selection was made in the menu.<br />
+<br />
+An example of the XPopup signal handler code is shown below:<br />
+
+<pre class="code">
+ON *:SIGNAL:Xpopup-*: {
+        ;// get the menu name from Xpopup-[MENUNAME]
+        var %m $gettok($signal, 2-, 45)
+
+        ;// nothing clicked
+        if ($1 == 0) {
+                return
+        }
+
+        if (%m == menu_open) {
+                if ($1 == 1) { echo -a command 1 }
+                else if ($1 == 2) { echo -a command 2 }
+        }
+        else if (%m == menu_help) {
+                if ($1 == 1) { url http://dcx.scriptsdb.org }
+                else if ($1 == 2) { echo -a command aboutbox }
+        }
+        else {
+                echo -a unknown menu
+        }
+}
+</pre>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #A9729F; color: #A9729F;"><a name="xpopup"></a>/xpopup Command</td></tr>
+	<tr><td>The /xpopup command is used to create/modify/destroy an XPopup menu.</td></tr>
+</table>
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.b"></a>/xpopup -b	</td></tr>
+	<tr><td colspan="2">This command lets you set the menu item background image in <a class="style">custom</a> style.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -b [MENU] (IMAGEFILE)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -b mymenu mc.bmp</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Please take note that the image is stretched to fit the menu item rectangle.</li><li>Only BMP images are supported through this command if GDI+ is not available.</li><li>If <a class="param">IMAGEFILE</a> is not specified, then the current image will be removed.</li></ul></td></tr></table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.c"></a>/xpopup -c	</td></tr>
+	<tr><td colspan="2">This command lets you create an XPopup empty menu.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -c [MENU] [STYLE]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -c mymenu office2003rev</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STYLE</td>
+		<td>Image flags.</td>
+	</tr>
+	<tr>
+		<td class="value">office2003</td>
+		<td>Office 2003 menu style.</td>
+	</tr>
+	<tr>
+		<td class="value">office2003rev</td>
+		<td>Office 2003 Reverse menu style.</td>
+	</tr>
+	<tr>
+		<td class="value">officexp</td>
+		<td>Office XP menu style.</td>
+	</tr>
+	<tr>
+		<td class="value">icy</td>
+		<td>Icy menu style.</td>
+	</tr>
+	<tr>
+		<td class="value">icyrev</td>
+		<td>Icy Reverse menu style.</td>
+	</tr>
+	<tr>
+		<td class="value">grade</td>
+		<td>Grade menu style.</td>
+	</tr>
+	<tr>
+		<td class="value">graderev</td>
+		<td>Grade Reverse menu style.</td>
+	</tr>
+	<tr>
+		<td class="value">normal</td>
+		<td>Normal Plain menu style.</td>
+	</tr>
+	<tr>
+		<td class="value">vertical</td>
+		<td>Vertically Gradient menu style.</td>
+	</tr>
+	<tr>
+		<td class="value">verticalrev</td>
+		<td>Vertically Gradient Reverse menu style.</td>
+	</tr>
+	<tr>
+		<td class="value">custom</td>
+		<td>Lets you apply a custom background item image (see /xpopup -b).</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>This command will fail if the menu already exists, use $xpopup().ismenu to check if the menu exists.</li><li>Some colors are not used in certain menu styles.</li></ul></td></tr></table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.d"></a>/xpopup -d	</td></tr>
+	<tr><td colspan="2">This command lets you destroy a XPopup menu.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -d [MENU] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -d mymenu</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.i"></a>/xpopup -i	</td></tr>
+	<tr><td colspan="2">This command lets you add an icon to the menu image list.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -i [MENU] [+FLAGS] [INDEX] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -i mymenu +g 113 shell32.dll</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Uses the icon associated with the given file (as shown in Windows Explorer).<br /><a class="note">Note:</a> File must exist.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Uses the icon associated with the given filetype.<br /><a class="note">Note:</a> Filename is the extension (eg. BMP, PNG, AVI, etc).</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
+	<tr>
+		<td class="value">P</td>
+		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
+	</tr>
+	<tr>
+		<td class="param">INDEX</td>
+		<td>Icon index in icon archive</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>Icon archive filename</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use 0 if the file is a single icon file.</td></tr></table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.j"></a>/xpopup -j	</td></tr>
+	<tr><td colspan="2">This command lets you clear the menu image list.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -j [MENU] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -j mymenu</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.l"></a>/xpopup -l	</td></tr>
+	<tr><td colspan="2">This command lets you set the Nth color in the menu as given by the order listed in <a class="value">/xpopup -p</a>.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -l [MENU] [N] [COLOR]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -l mymenu 2 $rgb(255,0,0)</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can specify <a class="value">default</a> in <a class="param">COLOR</a> to reset it to the default value.</td></tr></table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.m"></a>/xpopup -m	</td></tr>
+	<tr><td colspan="2">This command patches mIRC v6.20, allowing XPopup to work.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -m [MENU] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -m mymenu</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>After patching, mIRC will crash if /dll -u is used.</li><li>This will only apply to mIRC menus, so use <a class="value">mirc</a> for <a class="param">MENU</a>.</li></ul></td></tr></table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.p"></a>/xpopup -p	</td></tr>
+	<tr><td colspan="2">This command lets you set the whole menu color palette in one command where <a class="param">COLORS</a> is a space separated list of RGB colors.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -p [MENU] [COLOR1] [COLOR2] [COLOR...] [COLOR10]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -p mymenu $rgb(255,0,0) $rgb(0,0,255) ... $rgb(0,255,0)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">COLORS</td>
+		<td>The colors in $rgb() format must be in this order:</td>
+	</tr>
+	<tr>
+		<td class="value">1</td>
+		<td>Menu background color</td>
+	</tr>
+	<tr>
+		<td class="value">2</td>
+		<td>Icon box color</td>
+	</tr>
+	<tr>
+		<td class="value">3</td>
+		<td>Checkbox color</td>
+	</tr>
+	<tr>
+		<td class="value">4</td>
+		<td>Disabled checkbox color</td>
+	</tr>
+	<tr>
+		<td class="value">5</td>
+		<td>Disabled selection box color</td>
+	</tr>
+	<tr>
+		<td class="value">6</td>
+		<td>Disabled text color</td>
+	</tr>
+	<tr>
+		<td class="value">7</td>
+		<td>Selection box color</td>
+	</tr>
+	<tr>
+		<td class="value">8</td>
+		<td>Selection box border color</td>
+	</tr>
+	<tr>
+		<td class="value">9</td>
+		<td>Separator line color</td>
+	</tr>
+	<tr>
+		<td class="value">10</td>
+		<td>Text color</td>
+	</tr>
+	<tr>
+		<td class="value">11</td>
+		<td>Selected text color</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If you are not using the <a class="style">checkbox</a> style, this function can also change the state icon of an item. Be sure to insert the state icons before you use them.</li><li>You can specify <a class="value">default</a> in <a class="param">COLORS</a> to reset it to the default value.</li></ul></td></tr></table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.s"></a>/xpopup -s	</td></tr>
+	<tr><td colspan="2">This command lets you display a menu.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -s [MENU] [+FLAGS] [X] [Y] (HWND)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -s mymenu + 100 100</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Menu display style flags.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>The menu is bottom aligned according to the Y value.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>The menu is center aligned according to the X value.</td>
+	</tr>
+	<tr>
+		<td class="value">l</td>
+		<td>The menu is left aligned according to the X value.</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>The menu items are clickable only with the left mouse button. (<a class="value">default</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>The menu items are clickable only with the right mouse button.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>The menu is right aligned according to the X value.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>The menu is top aligned according to the Y value.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>The menu is vertically center aligned according to the Y valued.</td>
+	</tr>
+	<tr>
+		<td class="param">X</td>
+		<td>X coordinate where menu will popup in screen coordinates.</td>
+	</tr>
+	<tr>
+		<td class="param">Y</td>
+		<td>Y coordinate where menu will popup in screen coordinates.</td>
+	</tr>
+	<tr>
+		<td class="param">HWND</td>
+		<td>The popup coordinates will be displayed relative to this window.</td>
+	</tr>
+</table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.t"></a>/xpopup -t	</td></tr>
+	<tr><td colspan="2">This command lets you change the menu style.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -t [MENU] [STYLE]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -t mymenu officexp</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.x"></a>/xpopup -x	</td></tr>
+	<tr><td colspan="2">This command lets you set the menu extended styles.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -x [MENU] [+FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -x mymenu +dp</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags to set the extended styles for the popup.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Disabled items display a selection box.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Icons have a 3D shadow effect when menu item is selected.</td>
+	</tr>
+	<tr>
+		<td class="value">p</td>
+		<td>Icons have a plain 3D effect when menu item is selected.</td>
+	</tr>
+</table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.big.M"></a>/xpopup -M	</td></tr>
+	<tr><td colspan="2">This command lets you set the marked text, which can contain any information.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -M [MENU] (TEXT)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -M mymenu additional information</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopup">
+	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
+			<a name="xpopup.big.R"></a>/xpopup -R	</td></tr>
+	<tr><td colspan="2">This command lets you add more visual styles to your XPopup</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpopup -R [MENU] [+FLAG] [ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpopup -R mymenu +r 1<br />/xpopup -R mymenu +a 150<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">MENU</td>
+		<td>Name of the Xpopup you wish to style.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Menu display style flags.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>This gives the menu selection indicator a rounded look.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>This sets the menu alpha value. <a class="os">(2k+)</a></td>
+	</tr>
+	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
+	<tr>
+		<td class="param">r</td>
+		<td><div class="syntax">[1|0]</div></td>
+	</tr>
+	<tr>
+		<td class="param">a</td>
+		<td><div class="syntax">[VALUE]</div></td>
+	</tr>
+	<tr>
+		<td class="value">VALUE</td>
+		<td>The opacity to apply. Values range from <a class="value">0</a> (transparent) to <a class="value">255</a> (opaque).</td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #CCACC7; color: #CCACC7;"><a name="xpopupprop"></a>$xpopup() Properties</td></tr>
+	<tr><td>The $xpopup identifier is a given mIRC alias that communicates with the XPopup DLL to extract information from XPopup menus.</td></tr>
+</table>
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.alpha"></a>$xpopup().alpha	</td></tr>
+	<tr><td colspan="2">This property retrieves the transparency value.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).alpha</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).alpha</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.color"></a>$xpopup().color	</td></tr>
+	<tr><td colspan="2">This property retrieves Nth menu color (see /xpopup -p for the list).</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU, N).color</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu, 3).color</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.colors"></a>$xpopup().colors	</td></tr>
+	<tr><td colspan="2">This property retrieves the menu colors as one line (see /xpopup -p for the list).</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).colors</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).colors</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.exstyle"></a>$xpopup().exstyle	</td></tr>
+	<tr><td colspan="2">This property retrieves the menu extended styles.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).exstyle</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).exstyle</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.ismenu"></a>$xpopup().ismenu	</td></tr>
+	<tr><td colspan="2">This property retrieves if a menu exists.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).ismenu</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).ismenu</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.isPatched"></a>$xpopup().isPatched	</td></tr>
+	<tr><td colspan="2">This determines if mIRC 6.20 has been patched for special menus to work.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).isPatched</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).isPatched</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.isrounded"></a>$xpopup().isrounded	</td></tr>
+	<tr><td colspan="2">Is the rounded style enabled?</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).isrounded</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).isrounded</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.marked"></a>$xpopup().marked	</td></tr>
+	<tr><td colspan="2">This property lets you set the marked text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).marked</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).marked</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.menuname"></a>$xpopup().menuname	</td></tr>
+	<tr><td colspan="2">This property retrieves the name of the Nth menu.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(N).menuname</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(3).menuname</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.style"></a>$xpopup().style	</td></tr>
+	<tr><td colspan="2">This property retrieves the menu style.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).style</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).style</div></td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xpop"></a>/xpop Command</td></tr>
+	<tr><td>The /xpop command is used to add/modify/remove menu items in XPopup menus.</td></tr>
+</table>
+<table class="xpop">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xpop.a"></a>/xpop -a	</td></tr>
+	<tr><td colspan="2">This command lets you add a menu item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpop -a [MENU] [PATH] [TAB] [+FLAGS] [ID] [ICON] (TEXT)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpop -a mymenu 2 1 $chr(9) + 1 1 Menu Item 1</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Menu item flags.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Item is checked.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Item is disabled/grayed.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>An empty submenu is created for the item ready for menu items.</td>
+	</tr>
+	<tr>
+		<td class="param">ID</td>
+		<td>Menu item ID as returned on the event handler.</td>
+	</tr>
+	<tr>
+		<td class="param">ICON</td>
+		<td>Menu item icon index. (Use <a class="value">0</a> for no icon)</td>
+	</tr>
+	<tr>
+		<td class="param">TEXT</td>
+		<td>Menu item text. It can contain mIRC $identifiers that will be evaluated the first time the menu is being displayed.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the item text is meant to be dynamic, you will need to reset the text using /xpop -t</li><li><a class="param">ID</a> must be unique.</li><li>A menu item that has a checkmark AND an icon, it displays the icon instead of the checkmark.</li><li>Remember to use mIRCs $eval($idents, 0) or $!idents to prevent the mIRC evaluation of the $idents that your text contains.</li></ul></td></tr></table>
+<br />
+<table class="xpop">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xpop.c"></a>/xpop -c	</td></tr>
+	<tr><td colspan="2">This command lets you create a submenu on a menu item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpop -c [MENU] [PATH] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpop -c mymenu 2 1</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If the item already has a submenu, it is destroyed. This can be used to clear a submenu instead of deleting the whole menu item.</td></tr></table>
+<br />
+<table class="xpop">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xpop.d"></a>/xpop -d	</td></tr>
+	<tr><td colspan="2">This command lets you destroy a submenu on a menu item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpop -d [MENU] [PATH] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpop -d mymenu 2 1</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpop">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xpop.f"></a>/xpop -f	</td></tr>
+	<tr><td colspan="2">This command lets you delete a menu item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpop -f [MENU] [PATH] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpop -f mymenu 2 1</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpop">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xpop.i"></a>/xpop -i	</td></tr>
+	<tr><td colspan="2">This command lets you change the icon on a menu item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpop -i [MENU] [PATH] [TAB] [ICON]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpop -i mymenu 2 1 $chr(9) 3</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpop">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xpop.s"></a>/xpop -s	</td></tr>
+	<tr><td colspan="2">This command lets you change the state flags on an item (see /xpop -a for the switches)</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpop -s [MENU] [PATH] [TAB] [+FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpop -s mymenu 2 1 $chr(9) +cg</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpop">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xpop.t"></a>/xpop -t	</td></tr>
+	<tr><td colspan="2">This command lets you change a menu item text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpop -t [MENU] [PATH] [TAB] [TEXT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpop -t mymenu 2 1 $chr(9) $eval($me, 0)</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Remember to use mIRCs $eval(expression,0) to prevent the mIRC evaluation of the $idents that your text contains.</td></tr></table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xpopprop"></a>$xpop Identifier</td></tr>
+	<tr><td>The $xpop identifier is a given mIRC alias that communicates with the XPopup DLL to extract information in XPopup menu items.</td></tr>
+</table>
+<table class="xpopprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xpopprop.enabled"></a>$xpop().enabled	</td></tr>
+	<tr><td colspan="2">This property retrieves if a menu item is enabled or disabled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpop(MENU, PATH).enabled</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpop(mymenu, 2 5).enabled</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xpopprop.icon"></a>$xpop().icon	</td></tr>
+	<tr><td colspan="2">This property retrieves the menu item icon index number.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpop(MENU, PATH).icon</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpop(mymenu, 2 5).icon</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xpopprop.num"></a>$xpop().num	</td></tr>
+	<tr><td colspan="2">This property retrieves the number of menu items in a submenu.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpop(MENU, PATH).num</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpop(mymenu, 2 5).num</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">PATH</a> can be <a class="value">root</a> to find the number of items on the root menu.</td></tr></table>
+<br />
+<table class="xpopprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xpopprop.submenu"></a>$xpop().submenu	</td></tr>
+	<tr><td colspan="2">This property retrieves if a menu item has a submenu or not.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpop(MENU, PATH).submenu</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpop(mymenu, 2 5).submenu</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xpopprop.text"></a>$xpop().text	</td></tr>
+	<tr><td colspan="2">This property retrieves the menu item text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpop(MENU, PATH).text</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpop(mymenu, 2 5).text</div></td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>DCXML for XPopup</td></tr>
+	<tr><td>	DCXML also allows users to create menus. The syntax and format is similar to the XML used for creating dialogs, but simpler.<br />
+	<br />
+	<table>
+		<tr>
+			<td class="syntax">Format:</td>
+			<td><div class="syntax">/dcxml -p [MENUNAME] [DATASET] [FILENAME]</div></td>
+		</tr>
+		<tr>
+			<td class="example">Example:</td>
+			<td><div class="example">/dcxml -p menuName LagBarMenu $qt($mircdir $+ dc.xml)</div></td>
+		</tr>
+	</table>
+	<br />
+	In the given example, a menu named <a class="value">menuName</a> will be created from the dataset specified by the name <a class="value">LagBarMenu</a>.<br />
+	<br />
+	An example of the DCXML format without XPopup support is given below:<br />
+	<pre class="dcxml">
+	&lt;dcxml&gt;
+		&lt;dialogs&gt;
+			...
+		&lt;/dialogs&gt;
+	&lt;/dcxml&gt;
+	</pre>
+	<br />
+	DCXML support for XPopup is similar, as shown below:<br />
+	<pre class="dcxml">
+	&lt;dcxml&gt;
+		&lt;dialogs&gt;
+			...
+		&lt;/dialogs&gt;
+
+		&lt;popups&gt;
+			&lt;popup name="LagBarMenu"&gt;
+				...
+			&lt;/popup&gt;
+
+			&lt;popup name="ToolbarDropdownMenu"&gt;
+				...
+			&lt;/popup&gt;
+
+			&lt;popup name="PreferencesMenu"&gt;
+				...
+			&lt;/popup&gt;
+		&lt;/popups&gt;
+	&lt;/dcxml&gt;
+	</pre>
+	<br />
+	Global styles can be used to allow for a consistant look and feel for your menus. However, a style specified in a popup tag will override global style.<br />
+	<pre class="dcxml">
+	&lt;dcxml&gt;
+		&lt;popups&gt;
+			&lt;styles&gt;
+				&lt;all style="vertical" /&gt;
+			&lt;/styles&gt;
+
+			&lt;popup name="LagBarMenu"&gt;
+				...
+			&lt;/popup&gt;
+
+			&lt;popup name="ToolbarDropdownMenu"&gt;
+				...
+			&lt;/popup&gt;
+		&lt;/popups&gt;
+	&lt;/dcxml&gt;
+	</pre>
+	<br />
+	It is now much easier to add items (and submenus) to your menu.<br />
+	<pre class="dcxml">
+	&lt;dcxml&gt;
+		&lt;popups&gt;
+			&lt;popup name="LagBarMenu"&gt;
+				&lt;item id="1" caption="Check lag" /&gt;
+				&lt;item caption="-" /&gt;
+				&lt;item caption="Lagbar styles"&gt;
+					&lt;item id="3" caption="Line" /&gt;
+					&lt;item id="4" caption="Bars" /&gt;
+				&lt;/item&gt;
+				&lt;item caption="This item does nothing and has no icon" /&gt;
+			&lt;/popup&gt;
+		&lt;/popups&gt;
+	&lt;/dcxml&gt;
+	</pre>
+	<br />
+	And lastly, icon support. The same rules apply from <a class='value' href='#xpopup.i'>/xpopup -i</a>.<br />
+	<pre class="dcxml">
+	&lt;dcxml&gt;
+		&lt;popups&gt;
+			&lt;popup name="LagBarMenu"&gt;
+				&lt;icons&gt;
+					&lt;icon index="1" src="$mircdir $+ popup_icons.icl" /&gt;
+					&lt;icon index="3" src="$mircdir $+ popup_icons.icl" /&gt;
+					&lt;icon index="5" src="$mircdir $+ popup_icons.icl" /&gt;
+				&lt;/icons&gt;
+
+				&lt;item id="1" icon="1" caption="Check lag" /&gt;
+				&lt;item caption="-" /&gt;
+				&lt;item caption="Lagbar styles"&gt;
+					&lt;item id="3" icon="2" caption="Line" /&gt;
+					&lt;item id="4" icon="3" caption="Bars" /&gt;
+				&lt;/item&gt;
+				&lt;item caption="This item does nothing and has no icon" /&gt;
+			&lt;/popup&gt;
+		&lt;/popups&gt;
+	&lt;/dcxml&gt;
+	</pre>
+	<br />
+	Below is a list of attributes and which tag they apply to.<br />
+	<a class="note">Note:</a> All attributes which apply to the <a class="value">popup</a> tag will also apply to the global <a class="value">all</a> tag.<br />
+	<br />
+	<table class="attrs">
+		<tr><th colspan="2">style</th></tr>
+		<tr>
+			<td class="left">Applies to:</td>
+			<td>&lt;popup&gt;</td>
+		</tr>
+		<tr>
+			<td class="left">Description:</td>
+			<td>The XPopup style.</td>
+		</tr>
+		<tr>
+			<td class="left">Default value:</td>
+			<td>office2003</td>
+		</tr>
+		<tr>
+			<td class="left">Valid values:</td>
+			<td>See <a class='value' href='#xpopup.c'>/xpopup -c</a> for a complete listing of styles.</td>
+		</tr>
+		<tr>
+			<td class="left">Example:</td>
+			<td>&lt;popup style=&quot;grade&quot;&gt;</td>
+		</tr>
+	</table>
+
+	<br />
+	<table class="attrs">
+		<tr><th colspan="2">bgcolour, iconcolour, cbcolour, discbcolour, disselcolour, distextcolour, selcolour, selbordercolour, seperatorcolour, textcolour <span style="color: black;">&amp;/or</span> seltextcolour</th></tr>
+		<tr>
+			<td class="left">Applies to:</td>
+			<td>&lt;popup&gt;</td>
+		</tr>
+		<tr>
+			<td class="left">Description:</td>
+			<td>Sets a specific color for the menu.</td>
+		</tr>
+		<tr>
+			<td class="left">Default value:</td>
+			<td>Not applicable.</td>
+		</tr>
+		<tr>
+			<td class="left">Valid values:</td>
+			<td>A numerical long value or mIRC formatted <a class="value">$rgb(R, G, B)</a>. See <a class='value' href='#xpopup.p'>/xpopup -p</a> for more details.</td>
+		</tr>
+		<tr>
+			<td class="left">Example:</td>
+			<td>&lt;popup bgcolour=&quot;$rgb(0, 0, 255)&quot; textcolour=&quot;255&quot; seperatorcolour=&quot;$rgb(0, 255, 0)&quot;&gt;</td>
+		</tr>
+	</table>
+
+	<br />
+	<table class="attrs">
+		<tr><th colspan="2">background</th></tr>
+		<tr>
+			<td class="left">Applies to:</td>
+			<td>&lt;popup&gt;</td>
+		</tr>
+		<tr>
+			<td class="left">Description:</td>
+			<td>Sets the background for a menu with the <a class="style">custom</a> style.</td>
+		</tr>
+		<tr>
+			<td class="left">Default value:</td>
+			<td>Nothing.</td>
+		</tr>
+		<tr>
+			<td class="left">Valid values:</td>
+			<td>A full path to the image. See <a class='value' href='#xpopup.b'>/xpopup -b</a> for more details.</td>
+		</tr>
+		<tr>
+			<td class="left">Example:</td>
+			<td>&lt;popup background=&quot;$mircdir $+ gfx\menu_bg.png&quot;&gt;</td>
+		</tr>
+	</table>
+
+	<br />
+	<table class="attrs">
+		<tr><th colspan="2">flags</th></tr>
+		<tr>
+			<td class="left">Applies to:</td>
+			<td>&lt;icon&gt;</td>
+		</tr>
+		<tr>
+			<td class="left">Description:</td>
+			<td>Options to load the icon with.</td>
+		</tr>
+		<tr>
+			<td class="left">Default value:</td>
+			<td>Not applicable.</td>
+		</tr>
+		<tr>
+			<td class="left">Valid values:</td>
+			<td>See <a class='value' href='#xpopup.i'>/xpopup -i</a> for more details.</td>
+		</tr>
+		<tr>
+			<td class="left">Example:</td>
+			<td>&lt;icon flags=&quot;+g&quot; /&gt;</td>
+		</tr>
+	</table>
+
+	<br />
+	<table class="attrs">
+		<tr><th colspan="2">index</th></tr>
+		<tr>
+			<td class="left">Applies to:</td>
+			<td>&lt;icon&gt;</td>
+		</tr>
+		<tr>
+			<td class="left">Description:</td>
+			<td>The icon index in the file specified.</td>
+		</tr>
+		<tr>
+			<td class="left">Default value:</td>
+			<td>Not applicable.</td>
+		</tr>
+		<tr>
+			<td class="left">Valid values:</td>
+			<td>An integer. See <a class='value' href='#xpopup.i'>/xpopup -i</a> for more details.<br />
+The only difference is that you can load multiple icons by seperating the indexes with commas.
+			</td>
+		</tr>
+		<tr>
+			<td class="left">Example:</td>
+			<td>&lt;icon index=&quot;1,3,4&quot; /&gt;</td>
+		</tr>
+	</table>
+
+	<br />
+	<table class="attrs">
+		<tr><th colspan="2">src</th></tr>
+		<tr>
+			<td class="left">Applies to:</td>
+			<td>&lt;icon&gt;</td>
+		</tr>
+		<tr>
+			<td class="left">Description:</td>
+			<td>The icon file.</td>
+		</tr>
+		<tr>
+			<td class="left">Default value:</td>
+			<td>Not applicable.</td>
+		</tr>
+		<tr>
+			<td class="left">Valid values:</td>
+			<td>A full path to the icon. See <a class='value' href='#xpopup.i'>/xpopup -i</a> for more details.</td>
+		</tr>
+		<tr>
+			<td class="left">Example:</td>
+			<td>&lt;icon index=&quot;2&quot; src=&quot;$mircdir $+ gfx\menu_icons.icl&quot; /&gt;</td>
+		</tr>
+	</table>
+
+	<br />
+	<table class="attrs">
+		<tr><th colspan="2">caption</th></tr>
+		<tr>
+			<td class="left">Applies to:</td>
+			<td>&lt;item&gt;</td>
+		</tr>
+		<tr>
+			<td class="left">Description:</td>
+			<td>The menu item text.</td>
+		</tr>
+		<tr>
+			<td class="left">Default value:</td>
+			<td>Not applicable.</td>
+		</tr>
+		<tr>
+			<td class="left">Valid values:</td>
+			<td>Any label. If the label is <a class="value">-</a>, then the item is a seperator.</td>
+		</tr>
+		<tr>
+			<td class="left">Example:</td>
+			<td>&lt;item caption=&quot;Menu Item Text&quot; /&gt;<br />
+&lt;item caption=&quot;-&quot; /&gt;</td>
+		</tr>
+	</table>
+
+	<br />
+	<table class="attrs">
+		<tr><th colspan="2">id</th></tr>
+		<tr>
+			<td class="left">Applies to:</td>
+			<td>&lt;item&gt;</td>
+		</tr>
+		<tr>
+			<td class="left">Description:</td>
+			<td>The menu item ID.</td>
+		</tr>
+		<tr>
+			<td class="left">Default value:</td>
+			<td>0</td>
+		</tr>
+		<tr>
+			<td class="left">Valid values:</td>
+			<td>A positive integer.</td>
+		</tr>
+		<tr>
+			<td class="left">Example:</td>
+			<td>&lt;item id=&quot;13&quot; caption=&quot;Menu Item Text&quot; /&gt;</td>
+		</tr>
+	</table>
+
+	<br />
+	<table class="attrs">
+		<tr><th colspan="2">icon</th></tr>
+		<tr>
+			<td class="left">Applies to:</td>
+			<td>&lt;item&gt;</td>
+		</tr>
+		<tr>
+			<td class="left">Description:</td>
+			<td>The icon to use for the menu item.</td>
+		</tr>
+		<tr>
+			<td class="left">Default value:</td>
+			<td>-1</td>
+		</tr>
+		<tr>
+			<td class="left">Valid values:</td>
+			<td>An index which corresponds to an icon loaded with &lt;icon&gt;.</td>
+		</tr>
+		<tr>
+			<td class="left">Example:</td>
+			<td>&lt;item icon=&quot;5&quot; caption=&quot;Menu with Icon&quot; /&gt;</td>
+		</tr>
+	</table>
+
+	<br />
+	<table class="attrs">
+		<tr><th colspan="2">state</th></tr>
+		<tr>
+			<td class="left">Applies to:</td>
+			<td>&lt;item&gt;</td>
+		</tr>
+		<tr>
+			<td class="left">Description:</td>
+			<td>The menu item states, such as checked or grayed.</td>
+		</tr>
+		<tr>
+			<td class="left">Default value:</td>
+			<td>None.</td>
+		</tr>
+		<tr>
+			<td class="left">Valid values:</td>
+			<td>See <a class='value' href='#xpop.a'>/xpop -a</a> for more details.</td>
+		</tr>
+		<tr>
+			<td class="left">Example:</td>
+			<td>&lt;item state=&quot;+c&quot; /&gt;</td>
+		</tr>
+	</table>
+</td></tr>
+</table>
+</td><td width="80%" valign="top" class="menuright">
+<div class='rightmenu' style='border:1px solid #A9729F'>
+	<a class='header' href="#xpopup"><div style='background:#A9729F;'>/xpopup Flags</div></a>
+		<a class='flag' href="#xpopup.b"><div>-b</div></a>
+		<a class='flag' href="#xpopup.c"><div>-c</div></a>
+		<a class='flag' href="#xpopup.d"><div>-d</div></a>
+		<a class='flag' href="#xpopup.i"><div>-i</div></a>
+		<a class='flag' href="#xpopup.j"><div>-j</div></a>
+		<a class='flag' href="#xpopup.l"><div>-l</div></a>
+		<a class='flag' href="#xpopup.m"><div>-m</div></a>
+		<a class='flag' href="#xpopup.p"><div>-p</div></a>
+		<a class='flag' href="#xpopup.s"><div>-s</div></a>
+		<a class='flag' href="#xpopup.t"><div>-t</div></a>
+		<a class='flag' href="#xpopup.x"><div>-x</div></a>
+		<a class='flag' href="#xpopup.big.M"><div>-M</div></a>
+		<a class='flag' href="#xpopup.big.R"><div>-R</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #CCACC7'>
+	<a class='header' href="#xpopupprop"><div style='background:#CCACC7;'>$xpopup() Properties</div></a>
+		<a class='flag' href="#xpopupprop.alpha"><div>alpha</div></a>
+		<a class='flag' href="#xpopupprop.color"><div>color</div></a>
+		<a class='flag' href="#xpopupprop.colors"><div>colors</div></a>
+		<a class='flag' href="#xpopupprop.exstyle"><div>exstyle</div></a>
+		<a class='flag' href="#xpopupprop.ismenu"><div>ismenu</div></a>
+		<a class='flag' href="#xpopupprop.isPatched"><div>isPatched</div></a>
+		<a class='flag' href="#xpopupprop.isrounded"><div>isrounded</div></a>
+		<a class='flag' href="#xpopupprop.marked"><div>marked</div></a>
+		<a class='flag' href="#xpopupprop.menuname"><div>menuname</div></a>
+		<a class='flag' href="#xpopupprop.style"><div>style</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #6A7CB0'>
+	<a class='header' href="#xpop"><div style='background:#6A7CB0;'>/xpop Flags</div></a>
+		<a class='flag' href="#xpop.a"><div>-a</div></a>
+		<a class='flag' href="#xpop.c"><div>-c</div></a>
+		<a class='flag' href="#xpop.d"><div>-d</div></a>
+		<a class='flag' href="#xpop.f"><div>-f</div></a>
+		<a class='flag' href="#xpop.i"><div>-i</div></a>
+		<a class='flag' href="#xpop.s"><div>-s</div></a>
+		<a class='flag' href="#xpop.t"><div>-t</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #A8B2D1'>
+	<a class='header' href="#xpopprop"><div style='background:#A8B2D1;'>$xpop() Properties</div></a>
+		<a class='flag' href="#xpopprop.enabled"><div>enabled</div></a>
+		<a class='flag' href="#xpopprop.icon"><div>icon</div></a>
+		<a class='flag' href="#xpopprop.num"><div>num</div></a>
+		<a class='flag' href="#xpopprop.submenu"><div>submenu</div></a>
+		<a class='flag' href="#xpopprop.text"><div>text</div></a>
+	</div>
+</td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>

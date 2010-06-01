@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
+	<tr>
+		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
+		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
+			<a style="color:#000000;" href='index.htm'>Home</a> |
+			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+                        <div class="version">v1.4.1</div>
+		</td>
+	</tr>
+</table>
+
+<table class="bar"><tr><td colspan="3">&nbsp;</td></tr></table>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+	<tr>
+	<td width="150" align="left" valign="top">
+	<ul class="nav">
+		<li><a href="index.htm">Home</a></li>
+		<li>General Usage
+			<ul>
+				<a href="dcx.htm"><div>DCX Commands</div></a>
+				<a href="xdialog.htm"><div>Marked Dialog</div></a>
+				<a href="xdid.htm"><div>Controls</div></a>
+			</ul>
+		</li>
+		<li>DCX Controls
+			<ul>
+<a href="box.htm"><div>Box</div></a><a href="button.htm"><div>Button</div></a><a href="calendar.htm"><div>Calendar</div></a><a href="check.htm"><div>Check</div></a><a href="colorcombo.htm"><div>ColorCombo</div></a><a href="comboex.htm"><div>ComboEx</div></a><a href="datetime.htm"><div>DateTime Picker</div></a><a href="dialog.htm"><div>Dialog (embedded)</div></a><a href="directshow.htm"><div>Directshow</div></a><a href="divider.htm"><div>Divider</div></a><a href="edit.htm"><div>Edit</div></a><a href="ipaddress.htm"><div>IP Address</div></a><a href="image.htm"><div>Image</div></a><a href="line.htm"><div>Line</div></a><a href="link.htm"><div>Link</div></a><a href="list.htm"><div>List</div></a><a href="listview.htm"><div>Listview</div></a><a href="pager.htm"><div>Pager</div></a><a href="panel.htm"><div>Panel</div></a><a href="pbar.htm"><div>Progress Bar</div></a><a href="radio.htm"><div>Radio</div></a><a href="rebar.htm"><div>Rebar</div></a><a href="richedit.htm"><div>RichEdit</div></a><a href="scroll.htm"><div>Scroll</div></a><a href="stacker.htm"><div>Stacker</div></a><a href="statusbar.htm"><div>StatusBar</div></a><a href="tab.htm"><div>Tab</div></a><a href="text.htm"><div>Text</div></a><a href="toolbar.htm"><div>ToolBar</div></a><a href="trackbar.htm"><div>TrackBar</div></a><a href="treeview.htm"><div>Treeview</div></a><a href="updown.htm"><div>UpDown</div></a><a href="webctrl.htm"><div>Web Control</div></a><a href="window.htm"><div>Window (embedded)</div></a>			</ul>
+		</li>
+		<li>DCX Features
+			<ul>
+				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
+				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                                <a href="xpopup.htm"><div>XPopup</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+			</ul>
+		</li>
+		<li>About DCX
+			<ul>
+				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
+				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="changes.htm"><div>Version History</div></a>
+			</ul>
+		</li>
+	</ul>
+	</td>
+<td><table class="description">
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>DCX</td></tr>
+	<tr><td>This DLL lets you add new controls to mIRC dialogs as well as change other features like the visual style, position etc...<br />
+
+<div class="divpink">DCX does not support mIRC controls (NOT EVEN mIRC TABS), nor anything related to mIRC normal dialogs except it's menus. DCX does not work like MDX so please read the manual and see dcx.mrc and dcx_tools.mrc for examples.</div>
+
+<div class="divpink" style="color: #0000ff; padding-top: 0px;">XPopup (special mIRC menus) need to be patched to work on mIRC v6.2! Custom menus still work normally.</div>
+
+The DLL creates the controls directly on the mIRC dialog and you use clone functions defined by /xdid and $xdid which behave like the regular /did
+and $did to interact with the controls.<br />
+<br />
+The event handling in the DLL is supported by a callback alias supplied by the user when the dialog is marked before adding DCX controls. The callback alias is called from within the DLL to ask for info (if you want to modify the default behavior in the DLL thus the "callback" type) and will supply the user with the events and parameters of these events.<br />
+<br />
+Every function in this DLL returns a value if used with the $dll identifier. <a class="value">D_OK [function]: [message]</a> if successful, <a class="value">D_ERROR [function]: [message]</a> otherwise.
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Mandatory parameters are expressed in <a class="param">[SQUARE]</a> brackets and optional parameters in <a class="param">(ROUNDED)</a> brackets.</li><li>We strongly suggest you load the <b>dcx_tools.mrc</b> file included in the zip as it contains the necessary <b>/xdialog</b>, <b>/xdid</b>, <b>/xdock</b>, <b>/xtray</b>, <b>/xstatusbar</b>, <b>/xtreebar</b> and <b>/xmenubar</b> aliases and identifiers needed to use the DLL.</li><li>Function calls, styles, and references to anything DCX related are all <strong>case sensitive</strong>!</li></ul></td></tr></td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>GDI+</td></tr>
+	<tr><td>For advanced support for images (such as extra file formats and drawing routines), Microsoft has released a library called GDI+. This is included in Windows XP, however older versions of Windows may not have this.<br />
+<br />
+Use <a class='value' href='dcx.htm#general.IsUsingGDI'>$dcx(IsUsingGDI)</a> to check whether or not you have GDI+ support on your computer. If you do not, you can download it <a href="http://dcx.scriptsdb.org/gdiplus.zip">here</a>.<br />
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>Callback Alias Events</td></tr>
+	<tr><td><b>Overview</b><br />
+Every DCX Control fires events upon user action on the control. These events are sent to an <a>alias</a> specified when the dialog is <a>Marked</a>.<br />
+<br />
+<b>Why are the events not sent like regular on *:DIALOG: events?</b><br />
+Well for one thing, mIRC events are linear and static in the way that you cannot return any value to the event manager, to modify the default behavior of the event. Using callback support with an <a>alias</a> enables this type of interaction.<br />
+<br />
+<b>Callback Event Data</b><br />
+<b>Format:</b> <a class="syntax">[NAME] [EVENT] [ID] [PARAM]</a>
+<table>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">NAME</td>
+		<td>$1 = Name of the dialog that the event came from.</td>
+	</tr>
+	<tr>
+		<td class="param">EVENT</td>
+		<td>$2 = Name of the event (eg. sclick, dclick, ...)</td>
+	</tr>
+	<tr>
+		<td class="param">ID</td>
+		<td>$3 = ID of the control that fired the event.</td>
+	</tr>
+	<tr>
+		<td class="param">PARAM</td>
+		<td>$4- = Additional information, event specific (usually $null, except specified otherwise in documentation)</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Some control events support return values to change their default behaviour. When returning special values during certain events, such as <a class="returnevent">nosize</a> for <a class="event">sizing</a>, interact with the DLL and modify the default event behavior. The events that support a return value will have a description of what the return value does when returned.</td></tr></table>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>Latest Changes</td></tr>
+	<tr><td>If you notice any inconsistancies or errors with the documentation, please put a post on the forum on this <a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=394">thread</a>!<br />
+<br />
+<a name="v1.4.1"></a><b>v1.4.1</b>
+<ol></ol>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>Credits</td></tr>
+	<tr><td><table style="table-layout: fixed;">
+	<tr>
+		<td style="width: 150px;"><a>Lead Developer</a></td>
+		<td>ClickHeRe</td>
+	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
+	<tr>
+		<td><a>Supporting Developers<br /></a>(in chronological order)</td>
+		<td>
+			hixxy<br />
+			twig*<br />
+			Mpdreamz<br />
+			HAPM<br />
+			Ook
+		</td>
+	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
+	<tr>
+		<td><a>Documentation</a></td>
+		<td>
+			twig*<br />
+			Andy<br />
+            Mpdreamz
+		</td>
+	</tr>
+    <tr><td colspan="2">&nbsp;</td></tr>
+    <tr>
+        <td><a>Additional libraries</a></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>CWndShadowx</td>
+        <td>Copyright (c) 2006 Perry Zhu</td>
+    </tr>
+    <tr>
+        <td>Treebar.dll</td>
+        <td>NaquadaServ</td>
+    </tr>
+    <tr><td colspan="2">&nbsp;</td></tr>
+	<tr>
+		<td><a>MDX vs DCX</a></td>
+		<td>Mpdreamz</td>
+	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
+	<tr>
+		<td><a>Demo Script</a></td>
+		<td>elizio</td>
+	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
+	<tr>
+		<td>
+			<a>General Testing</a><br />
+			(and forum helpers!)
+		</td>
+		<td>
+		    dJabba<br />
+		    PYERO<br />
+		    dunkelzahn<br />
+		    TheShadowOne<br />
+		    zipster<br />
+			bl0x<br />
+			darkrift<br />
+			The_Mega_ZZTer<br />
+			Duplex<br />
+			evasion<br />
+                        hkr<br />
+		</td>
+	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
+	<tr>
+		<td><a>Tutorials</a></td>
+		<td>
+			<a href="http://perso.wanadoo.fr/jiveda/dcx/index.html">j0x's DCX Tutorials (French)</a><br />
+			<a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=120">DCX Forum: Help: CLA</a><br />
+			<a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=127">DCX Forum: CLA :(</a><br />
+			<a href="http://www.mircscripts.org/comments.php?cid=2977">Mpdreamz's Cell Layout Algorithm Tutorial</a><br />
+			<a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=320">EinsteinXXL's CLA Tutorial (German)</a>
+		</td>
+	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
+	<tr>
+		<td><a>Translations</a></td>
+		<td>
+			<table style="width: auto;">
+				<tr>
+					<td>Dutch</td>
+					<td>Mpdreamz</td>
+				</tr>
+				<tr>
+					<td>Finnish</td>
+					<td>Mkz</td>
+				</tr>
+				<tr>
+					<td>French</td>
+					<td>dunkelzahn</td>
+				</tr>
+				<tr>
+					<td>German</td>
+					<td>Duplex</td>
+				</tr>
+				<tr>
+					<td>Hebrew</td>
+					<td>seec77</td>
+				</tr>
+				<tr>
+					<td>Italian</td>
+					<td><a href="mailto:clickhere@scriptsdb.org">Still need someone!</a></td>
+				</tr>
+				<tr>
+					<td>Malaysian</td>
+					<td>da^hype</td>
+				</tr>
+				<tr>
+					<td>Portuguese (Brazil)</td>
+					<td>Henrique</td>
+				</tr>
+				<tr>
+					<td>Portuguese (Portugal)</td>
+					<td>Theorem</td>
+				</tr>
+				<tr>
+					<td>Spanish</td>
+					<td>PaTaGoN</td>
+				</tr>
+				<tr>
+					<td>Swedish</td>
+					<td>Rixxon</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
+	<tr>
+		<td><a>Website</a></td>
+		<td>
+			<a href="http://dcx.scriptsdb.org">http://dcx.scriptsdb.org</a><br />
+			<a href="http://dcx.scriptsdb.org/forum">Forums</a>
+		</td>
+	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
+	<tr>
+		<td><a>Support</a></td>
+		<td>
+			<a href="irc://irc.Undernet.org/scriptsdb.org">#scriptsdb.org @ Undernet</a><br />
+			<a href="irc://irc.Undernet.org/genscripts">#genscripts @ AmeriChat</a>
+		</td>
+	</tr>
+
+</table>
+</td></tr>
+</table>
+</td>  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>

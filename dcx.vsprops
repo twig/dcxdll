@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="dcx"
+	OutputDirectory="$(SolutionDir)$(ConfigurationName)\"
+	IntermediateDirectory="$(OutDir)obj\$(ProjectName)"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="$(SolutionDir)"
+	/>
+	<Tool
+		Name="VCLibrarianTool"
+		OutputFile="$(OutDir)\lib\$(ProjectName).lib"
+	/>
+	<Tool
+		Name="VCPostBuildEventTool"
+		Description="Copy compiled dcx.dll to mIRC dir"
+		CommandLine="copy /B /-Y $(TargetPath) $(mIRCDir)\dcx\"
+	/>
+	<Tool
+		Name="VCPreBuildEventTool"
+		Description="Delete old dcx.dll from mIRC dir"
+		CommandLine="del /F $(mIRCDir)\dcx\dcx.dll"
+	/>
+	<UserMacro
+		Name="mIRCDir"
+		Value="C:\mIRC_Basic"
+	/>
+</VisualStudioPropertySheet>

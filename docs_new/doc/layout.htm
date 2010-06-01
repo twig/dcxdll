@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX Cell Layout Algorithm - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
+	<tr>
+		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
+		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
+			<a style="color:#000000;" href='index.htm'>Home</a> |
+			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+                        <div class="version">v1.4.1</div>
+		</td>
+	</tr>
+</table>
+
+<table class="bar"><tr><td colspan="3">&nbsp;</td></tr></table>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+	<tr>
+	<td width="150" align="left" valign="top">
+	<ul class="nav">
+		<li><a href="index.htm">Home</a></li>
+		<li>General Usage
+			<ul>
+				<a href="dcx.htm"><div>DCX Commands</div></a>
+				<a href="xdialog.htm"><div>Marked Dialog</div></a>
+				<a href="xdid.htm"><div>Controls</div></a>
+			</ul>
+		</li>
+		<li>DCX Controls
+			<ul>
+<a href="box.htm"><div>Box</div></a><a href="button.htm"><div>Button</div></a><a href="calendar.htm"><div>Calendar</div></a><a href="check.htm"><div>Check</div></a><a href="colorcombo.htm"><div>ColorCombo</div></a><a href="comboex.htm"><div>ComboEx</div></a><a href="datetime.htm"><div>DateTime Picker</div></a><a href="dialog.htm"><div>Dialog (embedded)</div></a><a href="directshow.htm"><div>Directshow</div></a><a href="divider.htm"><div>Divider</div></a><a href="edit.htm"><div>Edit</div></a><a href="ipaddress.htm"><div>IP Address</div></a><a href="image.htm"><div>Image</div></a><a href="line.htm"><div>Line</div></a><a href="link.htm"><div>Link</div></a><a href="list.htm"><div>List</div></a><a href="listview.htm"><div>Listview</div></a><a href="pager.htm"><div>Pager</div></a><a href="panel.htm"><div>Panel</div></a><a href="pbar.htm"><div>Progress Bar</div></a><a href="radio.htm"><div>Radio</div></a><a href="rebar.htm"><div>Rebar</div></a><a href="richedit.htm"><div>RichEdit</div></a><a href="scroll.htm"><div>Scroll</div></a><a href="stacker.htm"><div>Stacker</div></a><a href="statusbar.htm"><div>StatusBar</div></a><a href="tab.htm"><div>Tab</div></a><a href="text.htm"><div>Text</div></a><a href="toolbar.htm"><div>ToolBar</div></a><a href="trackbar.htm"><div>TrackBar</div></a><a href="treeview.htm"><div>Treeview</div></a><a href="updown.htm"><div>UpDown</div></a><a href="webctrl.htm"><div>Web Control</div></a><a href="window.htm"><div>Window (embedded)</div></a>			</ul>
+		</li>
+		<li>DCX Features
+			<ul>
+				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
+				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                                <a href="xpopup.htm"><div>XPopup</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+			</ul>
+		</li>
+		<li>About DCX
+			<ul>
+				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
+				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="changes.htm"><div>Version History</div></a>
+			</ul>
+		</li>
+	</ul>
+	</td>
+<td><table class="description">
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>Cell Layout Algorithm</td></tr>
+	<tr><td>The Cell Layout Algorithm is a dynamic autosizing algorithm aimed at making child controls of dialogs or container windows fully resizeable with a set of predefined rules. The rules are encapsulated in a container-like objects called <a class="value">cells</a>. People with knowledge of HTML table structures will recognize the type of operations at stake.</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>CLA Details</td></tr>
+	<tr><td>The types of cells are enumerated below with their characteristics.<br />
+<br />
+<table class="tbl_cla_details">
+	<tr>
+		<th>Type</th>
+		<th>Child</th>
+		<th>Control</th>
+		<th>Description</th>
+	</tr>
+
+	<tr>
+		<td class="type"><a class="style">Fixed</a></td>
+		<td>No</td>
+		<td>Yes</td>
+		<td class="desc">This cell has a fixed <a class="param">Width</a> or <a class="param">Height</a> or <a class="param">Both</a>. It can host a child control that will be expanded in the direction where it is not fixed to fill the available length. It CANNOT hold child <a class="value">cell</a> structures.</td>
+	</tr>
+
+	<tr>
+		<td class="type"><a class="style">Fill</a></td>
+		<td>No</td>
+		<td>Yes</td>
+		<td class="desc">This cell is expanded in all directions to fill the available space. It can host a child control. It CANNOT hold child <a class="value">cell</a> structures.</td>
+	</tr>
+
+	<tr>
+		<td class="type"><a class="style">Pane</a></td>
+		<td>Yes</td>
+		<td>No</td>
+		<td class="desc">This cell control hosts a collection of stacked <a class="param">horizontal</a> or <a class="param">vertical</a> cell structures. They CANNOT host child controls as these must be hosted by their hosted cell structures. Its child cell structures are added with an associated <a class="param">weight</a> (which can be <a class="value">0</a>), where the its child cell structures will receive space determined by the total weight proportional factor. For example, if a two cell structures are added with a weight of <a class="value">1</a> each, then each will receive <a class="value">50%</a> of the available space.</td>
+	</tr>
+</table>
+<br />
+The root control is always set to the maximum client area of the dialog minus its padding values.
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>CLA Visual Example</td></tr>
+	<tr><td>The following image illustrates a layout of cells which is explained lower.<br />
+<br />
+<div style="text-align: center;"><img src="images/layout.png" alt="Cell Layout Algorithm Example" /></div>
+<br />
+Here is the cell layout pattern of the precedent image with their paths
+in parenthesis (used in the /xdialog or /xdid commands) :
+
+<ul>
+	<li><font color="red"><b>Pane - Horizontal (root)</b></font></li>
+	<li>
+		<ul>
+			<li><font color="blue"><b>Fixed - Width - Weight = 0 (1)</b></font></li>
+			<li><font color="blue"><b>Pane - Vertical - Weight = 1 (2)</b></font></li>
+			<li>
+				<ul>
+					<li><font color="green"><b>Fill - Weight = 1 (2 1)</b></font></li>
+					<li><font color="green"><b>Fill - Weight = 2 (2 2)</b></font></li>
+				</ul>
+			</li>
+		</ul>
+	</li>
+</ul>
+<br />
+As we can see clearly, the top right fill cell occupies one third (1 / (1 + 2)) of the available space and the bottom right fill cell occupies the two thirds (2 / (1 + 2)).<br />
+<br />
+Here is another example that illsutrates the usage of fill cells to achieve centering.<br />
+<br/>
+<div style="text-align: center;"><img src="images/layout2.png" alt="Cell Layout Algorithm Example" /></div>
+<br />
+The image is again represented by the following layout pattern with their paths in parenthesis (used in the /xdialog or /xdid commands):
+
+<ul>
+	<li><font color="blue"><b>Pane - Horizontal (root)</b></font></li>
+	<li>
+		<ul>
+			<li><font color="red"><b>Fill - Weight = 1 (1)</b></font></li>
+			<li><font color="red"><b>Pane - Vertical - Weight = 8 (2)</b></font></li>
+			<li>
+				<ul>
+					<li><font color="green"><b>Fill - Weight = 1 (2 1)</b></font></li>
+					<li><font color="green"><b>Fill - Weight = 8 (2 2)</b></font></li>
+					<li><font color="green"><b>Fill - Weight = 1 (2 3)</b></font></li>
+				</ul>
+			</li>
+			<li><font color="red"><b>Fill - Weight = 1 (3)</b></font></li>
+		</ul>
+	</li>
+</ul>
+<br />
+This layout has the control always centered in the window. It also is always exactly 80% in width and height (8 / 10).
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>Tutorials</td></tr>
+	<tr><td>If the DCX documentation is unsufficient for you to start off using CLA (most likely it would have confused you like hell!), here are a few links you can visit for further reading.<br />
+<br />
+<ul>
+	<li><a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=120">DCX Forum: Help: CLA</a></li>
+	<li><a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=127">DCX Forum: CLA :(</a></li>
+	<li><a href="http://www.mircscripts.org/comments.php?cid=2977">Mpdreamz's Cell Layout Algorithm Tutorial</a></li>	<li><a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=320">EinsteinXXL's CLA Tutorial (German)</a></li>
+</ul>
+<br />
+Feel free to post any messages after reading those threads if you still need any help.
+</td></tr>
+</table>
+</td>  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>

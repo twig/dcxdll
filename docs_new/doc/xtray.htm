@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX XTray - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
+	<tr>
+		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
+		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
+			<a style="color:#000000;" href='index.htm'>Home</a> |
+			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+                        <div class="version">v1.4.1</div>
+		</td>
+	</tr>
+</table>
+
+<table class="bar"><tr><td colspan="3">&nbsp;</td></tr></table>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+	<tr>
+	<td width="150" align="left" valign="top">
+	<ul class="nav">
+		<li><a href="index.htm">Home</a></li>
+		<li>General Usage
+			<ul>
+				<a href="dcx.htm"><div>DCX Commands</div></a>
+				<a href="xdialog.htm"><div>Marked Dialog</div></a>
+				<a href="xdid.htm"><div>Controls</div></a>
+			</ul>
+		</li>
+		<li>DCX Controls
+			<ul>
+<a href="box.htm"><div>Box</div></a><a href="button.htm"><div>Button</div></a><a href="calendar.htm"><div>Calendar</div></a><a href="check.htm"><div>Check</div></a><a href="colorcombo.htm"><div>ColorCombo</div></a><a href="comboex.htm"><div>ComboEx</div></a><a href="datetime.htm"><div>DateTime Picker</div></a><a href="dialog.htm"><div>Dialog (embedded)</div></a><a href="directshow.htm"><div>Directshow</div></a><a href="divider.htm"><div>Divider</div></a><a href="edit.htm"><div>Edit</div></a><a href="ipaddress.htm"><div>IP Address</div></a><a href="image.htm"><div>Image</div></a><a href="line.htm"><div>Line</div></a><a href="link.htm"><div>Link</div></a><a href="list.htm"><div>List</div></a><a href="listview.htm"><div>Listview</div></a><a href="pager.htm"><div>Pager</div></a><a href="panel.htm"><div>Panel</div></a><a href="pbar.htm"><div>Progress Bar</div></a><a href="radio.htm"><div>Radio</div></a><a href="rebar.htm"><div>Rebar</div></a><a href="richedit.htm"><div>RichEdit</div></a><a href="scroll.htm"><div>Scroll</div></a><a href="stacker.htm"><div>Stacker</div></a><a href="statusbar.htm"><div>StatusBar</div></a><a href="tab.htm"><div>Tab</div></a><a href="text.htm"><div>Text</div></a><a href="toolbar.htm"><div>ToolBar</div></a><a href="trackbar.htm"><div>TrackBar</div></a><a href="treeview.htm"><div>Treeview</div></a><a href="updown.htm"><div>UpDown</div></a><a href="webctrl.htm"><div>Web Control</div></a><a href="window.htm"><div>Window (embedded)</div></a>			</ul>
+		</li>
+		<li>DCX Features
+			<ul>
+				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
+				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                                <a href="xpopup.htm"><div>XPopup</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+			</ul>
+		</li>
+		<li>About DCX
+			<ul>
+				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
+				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="changes.htm"><div>Version History</div></a>
+			</ul>
+		</li>
+	</ul>
+	</td>
+<td><table class="description">
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>XTray</td></tr>
+	<tr><td>XTray allows you to create and modify icons in the system tray. They provide a useful indication of your status, tooltips, and can also receive basic mouse events.<br /><br />
+<div style="text-align: center;">
+	<img src="images/xtray.png" alt="" />
+</div>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xtray"></a>/xtray Command</td></tr>
+	<tr><td>The /xtray command is used to manipulate icons in the system tray.</td></tr>
+</table>
+<table class="xtray">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xtray.c"></a>/xtray -c	</td></tr>
+	<tr><td colspan="2">This command creates a trayicon.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xtray -c [ID] [+FLAGS] [INDEX] [FILENAME] (TAB) (TOOLTIP)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xtray -c 3 + 4 mirc.exe $chr(9) This is the trayicon tooltip<br />/xtray -c 3 +g 2 mirc.exe<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ID</td>
+		<td>The unique ID that this trayicon will be recognised by.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Uses the icon associated with the given file (as shown in Windows Explorer).<br /><a class="note">Note:</a> File must exist.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Uses the icon associated with the given filetype.<br /><a class="note">Note:</a> Filename is the extension (eg. BMP, PNG, AVI, etc).</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
+	<tr>
+		<td class="value">P</td>
+		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
+	</tr>
+	<tr>
+		<td class="param">INDEX</td>
+		<td>Icon index in icon archive</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>Icon archive filename</td>
+	</tr>
+	<tr>
+		<td class="param">TOOLTIP</td>
+		<td>The tooltip for the trayicon.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<br />
+<table class="xtray">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xtray.d"></a>/xtray -d	</td></tr>
+	<tr><td colspan="2">This command deletes the trayicon.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xtray -d [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xtray -d 3</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ID</td>
+		<td>The unique ID that this trayicon will be recognised by.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<br />
+<table class="xtray">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xtray.e"></a>/xtray -e	</td></tr>
+	<tr><td colspan="2">This command edits a trayicon.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xtray -e [ID] [+FLAGS] [INDEX] [FILENAME] ([TAB] TOOLTIP)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xtray -e 3 + 4 mirc.exe $chr(9) This is the new trayicon tooltip<br />/xtray -e 3 +g 2 mirc.exe<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ID</td>
+		<td>The unique ID that this trayicon will be recognised by.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Uses the icon associated with the given file (as shown in Windows Explorer).<br /><a class="note">Note:</a> File must exist.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Uses the icon associated with the given filetype.<br /><a class="note">Note:</a> Filename is the extension (eg. BMP, PNG, AVI, etc).</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
+	<tr>
+		<td class="value">P</td>
+		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
+	</tr>
+	<tr>
+		<td class="param">INDEX</td>
+		<td>Icon index in icon archive</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>Icon archive filename</td>
+	</tr>
+	<tr>
+		<td class="param">TOOLTIP</td>
+		<td>The tooltip for the trayicon.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<br />
+<table class="xtray">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xtray.i"></a>/xtray -i	</td></tr>
+	<tr><td colspan="2">This command edits the trayicon icon.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xtray -i [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xtray -i 3 + 4 mirc.exe</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ID</td>
+		<td>The unique ID that this trayicon will be recognised by.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Icon flags</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Uses the icon associated with the given file (as shown in Windows Explorer).<br /><a class="note">Note:</a> File must exist.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Uses the icon associated with the given filetype.<br /><a class="note">Note:</a> Filename is the extension (eg. BMP, PNG, AVI, etc).</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
+	<tr>
+		<td class="value">P</td>
+		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
+	</tr>
+	<tr>
+		<td class="param">INDEX</td>
+		<td>Icon index in icon archive</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>Icon archive filename</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
+<br />
+<table class="xtray">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xtray.big.T"></a>/xtray -T	</td></tr>
+	<tr><td colspan="2">This command edits the trayicon tooltip.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xtray -T [ID] [TOOLTIP]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xtray -T 3 This is the new trayicon tooltip</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ID</td>
+		<td>The unique ID that this trayicon will be recognised by.</td>
+	</tr>
+	<tr>
+		<td class="param">TOOLTIP</td>
+		<td>The tooltip for the trayicon.</td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>XTray Signals</td></tr>
+	<tr><td><table class="event">
+	<tr><td colspan="2">XTray signals are enabled by default and sent to mIRC containing information about mouse activity over the trayicon. To enable or disable signal messages for trayicons, refer to <a class="value"><a href="dcx.htm#general.xSignal">/dcx xSignal</a></a></td></tr>
+	<tr>
+		<td class="syntax">Signal:</td>
+		<td><div class="syntax">DCX trayicon EVENT ID</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">DCX trayicon dclick 1</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">trayicon</td>
+		<td>The event signal identifier.</td>
+	</tr>
+	<tr>
+		<td class="param">EVENT</td>
+		<td>Information about event occurred.</td>
+	</tr>
+	<tr>
+		<td class="value">dclick</td>
+		<td>The trayicon was double clicked.</td>
+	</tr>
+	<tr>
+		<td class="value">rdclick</td>
+		<td>The trayicon was double right-clicked.</td>
+	</tr>
+	<tr>
+		<td class="value">mdclick</td>
+		<td>The trayicon was double middle-clicked.</td>
+	</tr>
+	<tr>
+		<td class="value">sclick</td>
+		<td>The trayicon was single left-clicked.</td>
+	</tr>
+	<tr>
+		<td class="value">rclick</td>
+		<td>The trayicon was single right-clicked.</td>
+	</tr>
+	<tr>
+		<td class="value">mclick</td>
+		<td>The trayicon was single middle-clicked.</td>
+	</tr>
+	<tr>
+		<td class="param">ID</td>
+		<td>The unique ID which the trayicon was created with.</td>
+	</tr>
+</table>
+</td></tr>
+</table>
+</td><td width="80%" valign="top" class="menuright">
+<div class='rightmenu' style='border:1px solid #6A7CB0'>
+	<a class='header' href="#xtray"><div style='background:#6A7CB0;'>/xtray Flags</div></a>
+		<a class='flag' href="#xtray.c"><div>c</div></a>
+		<a class='flag' href="#xtray.d"><div>d</div></a>
+		<a class='flag' href="#xtray.e"><div>e</div></a>
+		<a class='flag' href="#xtray.i"><div>i</div></a>
+		<a class='flag' href="#xtray.big.T"><div>T</div></a>
+	</div>
+</td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>

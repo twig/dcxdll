@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX XMenuBar - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
+	<tr>
+		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
+		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
+			<a style="color:#000000;" href='index.htm'>Home</a> |
+			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+                        <div class="version">v1.4.1</div>
+		</td>
+	</tr>
+</table>
+
+<table class="bar"><tr><td colspan="3">&nbsp;</td></tr></table>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+	<tr>
+	<td width="150" align="left" valign="top">
+	<ul class="nav">
+		<li><a href="index.htm">Home</a></li>
+		<li>General Usage
+			<ul>
+				<a href="dcx.htm"><div>DCX Commands</div></a>
+				<a href="xdialog.htm"><div>Marked Dialog</div></a>
+				<a href="xdid.htm"><div>Controls</div></a>
+			</ul>
+		</li>
+		<li>DCX Controls
+			<ul>
+<a href="box.htm"><div>Box</div></a><a href="button.htm"><div>Button</div></a><a href="calendar.htm"><div>Calendar</div></a><a href="check.htm"><div>Check</div></a><a href="colorcombo.htm"><div>ColorCombo</div></a><a href="comboex.htm"><div>ComboEx</div></a><a href="datetime.htm"><div>DateTime Picker</div></a><a href="dialog.htm"><div>Dialog (embedded)</div></a><a href="directshow.htm"><div>Directshow</div></a><a href="divider.htm"><div>Divider</div></a><a href="edit.htm"><div>Edit</div></a><a href="ipaddress.htm"><div>IP Address</div></a><a href="image.htm"><div>Image</div></a><a href="line.htm"><div>Line</div></a><a href="link.htm"><div>Link</div></a><a href="list.htm"><div>List</div></a><a href="listview.htm"><div>Listview</div></a><a href="pager.htm"><div>Pager</div></a><a href="panel.htm"><div>Panel</div></a><a href="pbar.htm"><div>Progress Bar</div></a><a href="radio.htm"><div>Radio</div></a><a href="rebar.htm"><div>Rebar</div></a><a href="richedit.htm"><div>RichEdit</div></a><a href="scroll.htm"><div>Scroll</div></a><a href="stacker.htm"><div>Stacker</div></a><a href="statusbar.htm"><div>StatusBar</div></a><a href="tab.htm"><div>Tab</div></a><a href="text.htm"><div>Text</div></a><a href="toolbar.htm"><div>ToolBar</div></a><a href="trackbar.htm"><div>TrackBar</div></a><a href="treeview.htm"><div>Treeview</div></a><a href="updown.htm"><div>UpDown</div></a><a href="webctrl.htm"><div>Web Control</div></a><a href="window.htm"><div>Window (embedded)</div></a>			</ul>
+		</li>
+		<li>DCX Features
+			<ul>
+				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
+				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                                <a href="xpopup.htm"><div>XPopup</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+			</ul>
+		</li>
+		<li>About DCX
+			<ul>
+				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
+				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="changes.htm"><div>Version History</div></a>
+			</ul>
+		</li>
+	</ul>
+	</td>
+<td><table class="description">
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>XMenuBar</td></tr>
+	<tr><td>XMenuBar is a command implemented to replace the mIRC menubar using XPopup menus.<br /><br />
+<div style="text-align: center;">
+	<img src="images/xmenubar.png" alt="" />
+</div>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>XMenuBar Marking and Callback</td></tr>
+	<tr><td>Just like with XDialog, you must "mark" the mIRC menubar prior to using XMenuBar.<br />
+To mark the mIRC menubar, use <a class="value">/xmenubar -M</a> and specify a callback function of your choice.<br />
+<br />
+The callback function will only be passed 1 parameter, and that is the <a class="param">MENU_ID</a>. The menu ID is sent to the callback function to allow customisation of event flow. To stop mIRC from processing the menu command, return <a class="value">$true</a> from the callback alias.<br/>
+<br />
+An example of a simple callback function would be:<br />
+<pre class="code">
+alias xmenubar_cb {
+    ;// Prevent user from accessing Help -&gt; Contents
+    if ($1 == 190) return $true
+}
+</pre>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>Special Menus and Menu IDs</td></tr>
+	<tr><td>The callback parses menu clicks before mIRC gets a chance to process them. If the custom XPopupMenu has an ID which matches the ID of an existing mIRC menu item, it can be used to call the mIRC functionality.<br />
+For example, the menu ID for the mIRC Options dialog is <a class="value">159</a>. If you used <a class="value">/xpop -a</a> and specified the <a class="param">ID</a> <a class="value">159</a> and added the XPopup menu to the XMenuBar, the item will open up the mIRC Options dialog when clicked.<br />
+<br />
+Additionally, there is a special menu called the <a class="value">scriptpopup</a> menu. This allows you to add the original mIRC scriptable popup menu on your XMenuBar. The usage of the other special menus (<a class="value">mirc</a> and <a class="value">mircbar</a>) has been disabled for the XMenuBar.<br />
+<br />
+<a class="note">Note:</a> For custom menu commands which are specific to only your script, it is advised you use an ID starting from <a class="value">15000</a>. This is to prevent any clashes in existing IDs and XPopup menu items.<br />
+<br />
+<b>Please do not create confusing or misleading menus!</b><br />
+<br />
+Below is a list of special menu IDs for those wishing to redesign mIRC's menubar.<br />
+<a class="note">Note:</a> The list was compiled from mIRC v6.31.<br />
+<br />
+<table class="xmenubarSpecialIDs">
+<tr><th colspan='2'>File</th></tr>
+<tr class='heading'><td>Special ID</td><td>Description</td></tr>
+<tr><td>101</td><td>Connect</td></tr>
+<tr><td>102</td><td>Disconnect</td></tr>
+<tr><td>104</td><td>Select Server (Alt+E)</td></tr>
+<tr><td>105</td><td>Exit</td></tr>
+<tr><th colspan='2'>View</th></tr>
+<tr class='heading'><td>Special ID</td><td>Description</td></tr>
+<tr><td>110</td><td>Menubar</td></tr>
+<tr><td>111</td><td>Toolbar</td></tr>
+<tr><td>112</td><td>Switchbar</td></tr>
+<tr><td>210</td><td>Treebar</td></tr>
+<tr><td>131</td><td>Notify List (Alt+N)</td></tr>
+<tr><td>132</td><td>Urls List (Alt+U)</td></tr>
+<tr><td>133</td><td>Colors (Alt+K)</td></tr>
+<tr><td>134</td><td>Font</td></tr>
+<tr><th colspan='2'>Favorites</th></tr>
+<tr class='heading'><td>Special ID</td><td>Description</td></tr>
+<tr><td>141</td><td>Add to Favorites</td></tr>
+<tr><td>142</td><td>Organize Favorites (Alt+J)</td></tr>
+<tr><th colspan='2'>Tools</th></tr>
+<tr class='heading'><td>Special ID</td><td>Description</td></tr>
+<tr><td>150</td><td>Channels List (Alt+L)</td></tr>
+<tr><td>203</td><td>Scripts Editor (Alt+R)</td></tr>
+<tr><td>151</td><td>Send File (Alt+S)</td></tr>
+<tr><td>152</td><td>Chat (Alt+C)</td></tr>
+<tr><td>154</td><td>Received Files</td></tr>
+<tr><td>155</td><td>Log Files</td></tr>
+<tr><td>156</td><td>Address Book (Alt+B)</td></tr>
+<tr><td>157</td><td>Online Timer (Alt+I)</td></tr>
+<tr><td>159</td><td>Options (Alt+O)</td></tr>
+<tr><th colspan='2'>Window</th></tr>
+<tr class='heading'><td>Special ID</td><td>Description</td></tr>
+<tr><td>170</td><td>Tile Horizontal</td></tr>
+<tr><td>171</td><td>Tile Vertical</td></tr>
+<tr><td>172</td><td>Cascade</td></tr>
+<tr><td>173</td><td>Arrange Icons</td></tr>
+<tr><td>174</td><td>Group</td></tr>
+<tr><td>175</td><td>Order</td></tr>
+<tr><td>176</td><td>Close (Alt+Z)</td></tr>
+<tr><th colspan='2'>Help</th></tr>
+<tr class='heading'><td>Special ID</td><td>Description</td></tr>
+<tr><td>190</td><td>Contents (F1)</td></tr>
+<tr><td>191</td><td>Search (Shift+F1)</td></tr>
+<tr><td>192</td><td>Latest News</td></tr>
+<tr><td>193</td><td>Message Board</td></tr>
+<tr><td>194</td><td>About mIRC</td></tr>
+<tr><td>195</td><td>Register</td></tr>
+</table>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xmenubar"></a>/xmenubar Commands</td></tr>
+	<tr><td>The /xmenubar command is used to replace the mIRC menubar.</td></tr>
+</table>
+<table class="xmenubar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xmenubar.a"></a>/xmenubar -a	</td></tr>
+	<tr><td colspan="2">This command adds a menu to the XMenuBar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xmenubar -a [MENU] [LABEL]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xmenubar -a xpMenuName DCX Menu<br />/xmenubar -a scriptpopup Custom<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">MENU</td>
+		<td>This is be either the name of the XPopup menu or <a class="value">scriptpopup</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">LABEL</td>
+		<td>The label to display for this menu on the XMenuBar.</td>
+	</tr>
+</table>
+<br />
+<table class="xmenubar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xmenubar.d"></a>/xmenubar -d	</td></tr>
+	<tr><td colspan="2">This command removes a menu from the XMenuBar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xmenubar -d [MENU]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xmenubar -d xpMenuName</div></td>
+	</tr>
+</table>
+<br />
+<table class="xmenubar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xmenubar.g"></a>/xmenubar -g	</td></tr>
+	<tr><td colspan="2">This command replaces the mIRC menubar with an empty XMenuBar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xmenubar -g </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xmenubar -g</div></td>
+	</tr>
+</table>
+<br />
+<table class="xmenubar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xmenubar.l"></a>/xmenubar -l	</td></tr>
+	<tr><td colspan="2">This command allows you to change the XMenuBar label for a specific menu.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xmenubar -l [MENU] [NEW_LABEL]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xmenubar -l xpMenuName Something Else</div></td>
+	</tr>
+</table>
+<br />
+<table class="xmenubar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xmenubar.r"></a>/xmenubar -r	</td></tr>
+	<tr><td colspan="2">This command resets the original mIRC menubar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xmenubar -r </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xmenubar -r</div></td>
+	</tr>
+</table>
+<br />
+<table class="xmenubar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xmenubar.s"></a>/xmenubar -s	</td></tr>
+	<tr><td colspan="2">This command simulates a menu item click by sending the menu item ID to be processed.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xmenubar -s [MENU_ID]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xmenubar -s 159</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This should only be used to access mIRCs original menu functionality if you have replaced it.</td></tr></table>
+<br />
+<table class="xmenubar">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xmenubar.big.M"></a>/xmenubar -M	</td></tr>
+	<tr><td colspan="2">This command marks the menubar and defines a callback function.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xmenubar -M (CALLBACK)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xmenubar -M xmenubar_cb</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">CALLBACK</a> is not specified, this will reset the mIRC menubar.</td></tr></table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xmenubarprop"></a>$xmenubar Properties</td></tr>
+	<tr><td>The $xmenubar identifier is used to retrieve information about the DCX XMenuBar implementation.</td></tr>
+</table>
+<table class="xmenubarprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xmenubarprop.menu"></a>$xmenubar().menu	</td></tr>
+	<tr><td colspan="2">Returns the name of the menu added to the XMenuBar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xmenubar(N).menu</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xmenubar(3).menu</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>The index of the menu.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If <a class="param">N</a> is <a class="value">0</a>, this property retrieves the total number of menus in the XMenuBar.</td></tr></table>
+<br />
+</td><td width="80%" valign="top" class="menuright">
+<div class='rightmenu' style='border:1px solid #6A7CB0'>
+	<a class='header' href="#xmenubar"><div style='background:#6A7CB0;'>/xmenubar</div></a>
+		<a class='flag' href="#xmenubar.a"><div>-a</div></a>
+		<a class='flag' href="#xmenubar.d"><div>-d</div></a>
+		<a class='flag' href="#xmenubar.g"><div>-g</div></a>
+		<a class='flag' href="#xmenubar.l"><div>-l</div></a>
+		<a class='flag' href="#xmenubar.r"><div>-r</div></a>
+		<a class='flag' href="#xmenubar.s"><div>-s</div></a>
+		<a class='flag' href="#xmenubar.big.M"><div>-M</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #A8B2D1'>
+	<a class='header' href="#xmenubarprop"><div style='background:#A8B2D1;'>$xmenubar()</div></a>
+		<a class='flag' href="#xmenubarprop.menu"><div>menu</div></a>
+	</div>
+</td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX Box - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
+	<tr>
+		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
+		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
+			<a style="color:#000000;" href='index.htm'>Home</a> |
+			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+                        <div class="version">v1.4.1</div>
+		</td>
+	</tr>
+</table>
+
+<table class="bar"><tr><td colspan="3">&nbsp;</td></tr></table>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+	<tr>
+	<td width="150" align="left" valign="top">
+	<ul class="nav">
+		<li><a href="index.htm">Home</a></li>
+		<li>General Usage
+			<ul>
+				<a href="dcx.htm"><div>DCX Commands</div></a>
+				<a href="xdialog.htm"><div>Marked Dialog</div></a>
+				<a href="xdid.htm"><div>Controls</div></a>
+			</ul>
+		</li>
+		<li>DCX Controls
+			<ul>
+<a href="box.htm"><div>Box</div></a><a href="button.htm"><div>Button</div></a><a href="calendar.htm"><div>Calendar</div></a><a href="check.htm"><div>Check</div></a><a href="colorcombo.htm"><div>ColorCombo</div></a><a href="comboex.htm"><div>ComboEx</div></a><a href="datetime.htm"><div>DateTime Picker</div></a><a href="dialog.htm"><div>Dialog (embedded)</div></a><a href="directshow.htm"><div>Directshow</div></a><a href="divider.htm"><div>Divider</div></a><a href="edit.htm"><div>Edit</div></a><a href="ipaddress.htm"><div>IP Address</div></a><a href="image.htm"><div>Image</div></a><a href="line.htm"><div>Line</div></a><a href="link.htm"><div>Link</div></a><a href="list.htm"><div>List</div></a><a href="listview.htm"><div>Listview</div></a><a href="pager.htm"><div>Pager</div></a><a href="panel.htm"><div>Panel</div></a><a href="pbar.htm"><div>Progress Bar</div></a><a href="radio.htm"><div>Radio</div></a><a href="rebar.htm"><div>Rebar</div></a><a href="richedit.htm"><div>RichEdit</div></a><a href="scroll.htm"><div>Scroll</div></a><a href="stacker.htm"><div>Stacker</div></a><a href="statusbar.htm"><div>StatusBar</div></a><a href="tab.htm"><div>Tab</div></a><a href="text.htm"><div>Text</div></a><a href="toolbar.htm"><div>ToolBar</div></a><a href="trackbar.htm"><div>TrackBar</div></a><a href="treeview.htm"><div>Treeview</div></a><a href="updown.htm"><div>UpDown</div></a><a href="webctrl.htm"><div>Web Control</div></a><a href="window.htm"><div>Window (embedded)</div></a>			</ul>
+		</li>
+		<li>DCX Features
+			<ul>
+				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
+				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                                <a href="xpopup.htm"><div>XPopup</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+			</ul>
+		</li>
+		<li>About DCX
+			<ul>
+				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
+				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="changes.htm"><div>Version History</div></a>
+			</ul>
+		</li>
+	</ul>
+	</td>
+<td><table class="description">
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>Box</td></tr>
+	<tr><td>The box control is a container control like the panel. It hosts other controls inside and also has the Cell Layout Algorithm available to manage the layout of child controls automatically.<br /><br />
+<div style="text-align: center;">
+	<img src="images/box.png" alt="" />
+</div>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #B49696; color: #B49696;"><a name="style"></a>Control Styles</td></tr>
+	<tr><td>These control styles are available when creating a Box control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+</table>
+<table class="styles">
+	<tr>
+		<td class="style"><a name="style.alpha" class="style">alpha</a></td>
+		<td>Control is alpha blended.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.bottom" class="style">bottom</a></td>
+		<td>Control text is at the bottom of the box.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.center" class="style">center</a></td>
+		<td>Control text is centered.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.check" class="style">check</a></td>
+		<td>The box frame will have a checkbox which can enable/disable all children controls (regardless of previous state).</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.hgradient" class="style">hgradient</a></td>
+		<td>Draws a horizontal gradient with the colors specified.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.noformat" class="style">noformat</a></td>
+		<td>Disables support for mIRC codes in control (faster).</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.none" class="style">none</a></td>
+		<td>Control will not display a border or label.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.right" class="style">right</a></td>
+		<td>Control text is right justified.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.rounded" class="style">rounded</a></td>
+		<td>The border drawn for the box control will be a rounded rectangle.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.shadow" class="style">shadow</a></td>
+		<td>Display text with a shadow.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.vgradient" class="style">vgradient</a></td>
+		<td>Draws a vertical gradient with the colors specified.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Applying the border <a class="style">regular</a>+<a class="style">dialog frame</a> border styles on the box will give it a titlebar. (eg. <a class='value' href='xdid.htm#xdid.x'>/xdid -x DNAME BOX_ID +bd</a>)</li><li><a class="style">shadow</a> will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or <a class='value' href='dcx.htm#general.GetSystemColor'>$dcx(GetSystemColor, COLOR_WINDOWTEXT)</a> respectively). Change it by using <a class='value' href='xdid.htm#xdid.big.C'>xdid -C</a></li></ul></td></tr></table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdid"></a>/xdid flags</td></tr>
+	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
+</table>
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
+	<tr><td colspan="2">This command lets you add a child control to a box control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -c dcx 4 12 richedit 10 10 400 25 multi</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">CID</td>
+		<td>Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b></td>
+	</tr>
+	<tr>
+		<td class="param">CONTROL</td>
+		<td>The type of DCX Control to create. Values can be:<br />
+<a class='value' href='button.htm'>button</a>, <a class='value' href='calendar.htm'>calendar</a>, <a class='value' href='colorcombo.htm'>colorcombo</a>, <a class='value' href='comboex.htm'>comboex</a>, <a class='value' href='datetime.htm'>datetime</a>, <a class='value' href='directshow.htm'>directshow</a>, <a class='value' href='ipaddress.htm'>ipaddress</a>, <a class='value' href='listview.htm'>listview</a>, <a class='value' href='pbar.htm'>pbar</a>, <a class='value' href='richedit.htm'>richedit</a>, <a class='value' href='statusbar.htm'>statusbar</a>, <a class='value' href='toolbar.htm'>toolbar</a>, <a class='value' href='trackbar.htm'>trackbar</a>, <a class='value' href='treeview.htm'>treeview</a>, <a class='value' href='updown.htm'>updown</a>, <a class='value' href='webctrl.htm'>webctrl</a><br />
+<a class='value' href='box.htm'>box</a>, <a class='value' href='check.htm'>check</a>, <a class='value' href='edit.htm'>edit</a>, <a class='value' href='image.htm'>image</a>, <a class='value' href='line.htm'>line</a>, <a class='value' href='link.htm'>link</a>, <a class='value' href='list.htm'>list</a>, <a class='value' href='radio.htm'>radio</a>, <a class='value' href='scroll.htm'>scroll</a>, <a class='value' href='text.htm'>text</a><br />
+<a class='value' href='divider.htm'>divider</a>, <a class='value' href='pager.htm'>pager</a>, <a class='value' href='panel.htm'>panel</a>, <a class='value' href='rebar.htm'>rebar</a>, <a class='value' href='stacker.htm'>stacker</a>, <a class='value' href='tab.htm'>tab</a><br />
+<a class='value' href='dialog.htm'>dialog</a> or <a class='value' href='window.htm'>window</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">X</td>
+		<td>X position of control.</td>
+	</tr>
+	<tr>
+		<td class="param">Y</td>
+		<td>Y position of control.</td>
+	</tr>
+	<tr>
+		<td class="param">W</td>
+		<td>Width of control.</td>
+	</tr>
+	<tr>
+		<td class="param">H</td>
+		<td>Height of control.</td>
+	</tr>
+	<tr>
+		<td class="param">OPTIONS</td>
+		<td>Optional styles and options available on each individual controls.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If docking a mIRC @Window or mIRC Dialog, the first parameter in <a class="param">OPTIONS</a> must be the @window/dialog name.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.d"></a>/xdid -d	</td></tr>
+	<tr><td colspan="2">This command lets you delete a control added on the box.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -d [DNAME] [ID] [CID]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -d dcx 4 6</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.l"></a>/xdid -l	</td></tr>
+	<tr><td colspan="2">This command lets you add Cell Layout Algorithm rules to your dialog controls for automatic resizing of the child controls.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -l [DNAME] [ID] [COMMAND] [PATH] [TAB] [+FLAGS] [CID] [WEIGHT] [W] [H]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -l dcx 4 root $chr(9) +pv 0 1 0 0<br />/xdid -l dcx 4 root 1 2 $chr(9) +fi 7 1 200 300<br />/xdid -l dcx 4 space 1 $chr(9) + 5 5 5 5<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">COMMAND</td>
+		<td>Layout command.</td>
+	</tr>
+	<tr>
+		<td class="value">clear</td>
+		<td>Clears all CLA rules.</td>
+	</tr>
+	<tr>
+		<td class="value">root</td>
+		<td>Sets the root cell element.</td>
+	</tr>
+	<tr>
+		<td class="value">cell</td>
+		<td>Adds a cell element as a child of another cell element.</td>
+	</tr>
+	<tr>
+		<td class="value">space</td>
+		<td>Sets the space padding around a cell element.</td>
+	</tr>
+	<tr>
+		<td class="value">update</td>
+		<td>Updates the cell layout (must be used after adding rules or changing padding settings to refresh display).</td>
+	</tr>
+	<tr>
+		<td class="param">PATH</td>
+		<td>Cell Path from <a class="value">root</a> element (can be root to point to root element).</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags to manipulate Cell Layout Algorithm.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Creates a fixed cell element.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Creates a width fixed cell if used with <a class="value">+f</a> or a horizontal cell pane if used with <a class="value">+p.</a></td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Indicates that the supplied control <a class="param">ID</a> is valid and is the child control when used with <a class="value">+f</a> or <a class="value">+l</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">l</td>
+		<td>Creates a fill cell element.</td>
+	</tr>
+	<tr>
+		<td class="value">p</td>
+		<td>Creates a pane cell element.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Creates a height fixed cell if used with <a class="value">+f</a> or a vertical cell pane if used with <a class="value">+p</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>When used, it means that the supplied <a class="param">W</a> and <a class="param">H</a> represent the fixed cell width in the applicable direction (if the fixed cell is fixed in width, height or both).</td>
+	</tr>
+	<tr>
+		<td class="param">CID</td>
+		<td>ID of the control (used with fixed or fill cells - use 0 if no control is to be linked to the cell).</td>
+	</tr>
+	<tr>
+		<td class="param">WEIGHT</td>
+		<td>Cell child weight. (used when adding a child cell to a pane cell)</td>
+	</tr>
+	<tr>
+		<td class="param">W</td>
+		<td>Fixed width of control (used with <a class="value">fixed</a> cell).</td>
+	</tr>
+	<tr>
+		<td class="param">H</td>
+		<td>Fixed height of control. (used with <a class="value">fixed</a> cell)</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>See the <a class='value' href='layout.htm'>Cell Layout Algorithm</a> explanation for concrete examples.</li><li>If you use the <a class="value">update</a> command in the <a class="event">init</a> event of a dialog, you will have to use ".timer 1 0 xdialog -l dialog update" as a glitch with XP and themes disabled prevents windows from appearing. The timer corrects this problem.</li><li>When using the <a class="value">space</a> command, the <a class="param">ID</a> <a class="param">WEIGHT</a> <a class="param">W</a> <a class="param">H</a> are in fact the <a class="param">LEFT</a> <a class="param">TOP</a> <a class="param">RIGHT</a> <a class="param">BOTTOM</a> spacings</li><li>Use the value <a class="value">0</a> for the fields not used as the command expects them to be filled even though they aren't used.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
+	<tr><td colspan="2">This command lets you set the group box text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -t [DNAME] [ID] (TEXT)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -t dcx 4 Group Box Text</div></td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
+	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
+</table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.inbox"></a>$xdid().inbox	</td></tr>
+	<tr><td colspan="2">This property lets you retreive interior frame box size that clears the box border and text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).inbox</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).inbox</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The return value is X Y W H.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the group box text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).text</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).text</div></td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>Box Events</td></tr>
+	<tr><td>These events are fired when activity occurs in the Box control.</td></tr>
+</table>
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.checkchange"></a>checkchange	</td></tr>
+	<tr><td colspan="2">When the checkbox has been clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME checkchange ID STATE</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx checkchange 4 1</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STATE</td>
+		<td>The state which the checkbox will change to. <a class="value">1</a> for checked or <a class="value">0</a> for unchecked.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">nochange</a> to cancel automatic enabling/disabling of the child controls in the box.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.dclick"></a>dclick	</td></tr>
+	<tr><td colspan="2">When the left mouse button is double clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dclick ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dclick 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.help"></a>help	</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx help 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.lbdown"></a>lbdown	</td></tr>
+	<tr><td colspan="2">When the left mouse button is clicked down.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME lbdown ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx lbdown 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.lbup"></a>lbup	</td></tr>
+	<tr><td colspan="2">When the left mouse button is released.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME lbup ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx lbup 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.rclick"></a>rclick	</td></tr>
+	<tr><td colspan="2">When the right mouse button is clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME rclick ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx rclick 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.sclick"></a>sclick	</td></tr>
+	<tr><td colspan="2">When the left mouse button is clicked and released.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME sclick ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx sclick 4</div></td>
+	</tr>
+</table>
+<br />
+</td><td width="80%" valign="top" class="menuright">
+<div class='rightmenu' style='border:1px solid #B49696'>
+	<a class='header' href="#style"><div style='background:#B49696;'>Control Styles</div></a>
+		<a class='flag' href="#style.alpha"><div>alpha</div></a>
+		<a class='flag' href="#style.bottom"><div>bottom</div></a>
+		<a class='flag' href="#style.center"><div>center</div></a>
+		<a class='flag' href="#style.check"><div>check</div></a>
+		<a class='flag' href="#style.hgradient"><div>hgradient</div></a>
+		<a class='flag' href="#style.noformat"><div>noformat</div></a>
+		<a class='flag' href="#style.none"><div>none</div></a>
+		<a class='flag' href="#style.right"><div>right</div></a>
+		<a class='flag' href="#style.rounded"><div>rounded</div></a>
+		<a class='flag' href="#style.shadow"><div>shadow</div></a>
+		<a class='flag' href="#style.vgradient"><div>vgradient</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #6A7CB0'>
+	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
+		<a class='flag' href="#xdid.c"><div>-c</div></a>
+		<a class='flag' href="#xdid.d"><div>-d</div></a>
+		<a class='flag' href="#xdid.l"><div>-l</div></a>
+		<a class='flag' href="#xdid.t"><div>-t</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #A8B2D1'>
+	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.inbox"><div>inbox</div></a>
+		<a class='flag' href="#xdidprop.text"><div>text</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #74C043'>
+	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
+		<a class='flag' href="#events.checkchange"><div>checkchange</div></a>
+		<a class='flag' href="#events.dclick"><div>dclick</div></a>
+		<a class='flag' href="#events.help"><div>help</div></a>
+		<a class='flag' href="#events.lbdown"><div>lbdown</div></a>
+		<a class='flag' href="#events.lbup"><div>lbup</div></a>
+		<a class='flag' href="#events.rclick"><div>rclick</div></a>
+		<a class='flag' href="#events.sclick"><div>sclick</div></a>
+	</div>
+</td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>

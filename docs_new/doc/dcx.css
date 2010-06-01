@@ -1,0 +1,434 @@
+/*
+#002980; = dark blue for normal links
+#D60000; = dark red for headings
+#EE9900; = notes/parameters/os
+#B52929; = brown for styles
+#009900; = green for events
+#00FF00; = green (lighter) for event returns
+#888888; = grey for general
+#800080; = dark purple for xdialog
+#AC59AC; = light purple for xdialog props
+#0000FF; = dark blue for xdid
+#6666FF; = light blue for xdid prop
+*/
+
+
+
+body,div,td,th {
+	font-size: 9pt;
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	color: #000;
+	cursor: default;
+	text-align: left;
+}
+
+body {
+	margin-top: 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+img {
+	border-width: 0px;
+}
+
+table {
+	width: 100%;
+}
+
+td {
+	vertical-align: top;
+}
+
+ul {
+	padding-top: 0px;
+	padding-bottom: 0px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+.bar {
+	border: 1px none #6B8FCB;
+	table-layout: fixed;
+	font-weight: bold;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.divpink {
+	font-size: 18px;
+	font-weight: bold;
+	color: #D600D6;
+	padding: 15px;
+}
+
+a {
+	font-weight: bold;
+	text-decoration: none;
+}
+a:link, a:active, a:visited {
+	font-weight: bold;
+	color: #38466D;
+	text-decoration: none;
+}
+a:hover {
+	font-weight: bold;
+	color: #38466D;
+	text-decoration: underline;
+}
+
+.menuleft {
+	width: 150px;
+	/*border: 1px solid black;*/
+}
+
+.menuleft a.section, .menuright a.section {
+	color: #D60000;
+	font-variant: small-caps;
+}
+
+a.note, a.os, a.param {
+	color: #EE9900;
+}
+a.style {
+	color: #B52929;
+}
+a.value {
+	color: #D60000;
+}
+a.event {
+	color: #090;
+}
+a.returnevent {
+	color: #070;
+}
+/* TODO: unused class */
+a.property {
+	color: #f00;
+}
+
+.menuleft ul, .menuright ul {
+	margin-top: 0px;
+	margin-left: 0px;
+	padding-left: 15px;
+	margin-bottom: 15px;
+}
+
+.menuright {
+	width: 150px;
+	/*border: 1px solid black;*/
+}
+
+
+/* table used for descriptions */
+table.description {
+	margin-bottom: 15px;
+}
+
+table.description .heading {
+	font-weight: bold;
+	font-size: 200%;
+	font-family: "Trebuchet MS", Geneva, Arial, Helvetica, sans-serif;
+}
+
+/* table used for /xdid flags */
+.xdid, .xdialog, .xdidprop {
+}
+
+td.syntax, td.example {
+	font-weight: bold;
+	width: 100px;
+}
+
+div.syntax, div.example {
+	font-weight: normal;
+	color: #333333;
+	border: 1px solid #e90;
+	background-color: #FFF7E8;
+	padding: 2px;
+}
+
+
+/* xdid flag heading */
+td.flag {
+	border-bottom: 1px solid black;
+	font-weight: bold;
+}
+
+/*
+.general td.value,
+.styles td.style,
+.event td.value
+
+.xdid td.value,
+.xdidprop td.value,
+
+.xdialog td.value,
+.xdialogprop td.value,
+
+.xpopup td.value,
+.xpopupprop td.value,
+.xpop td.value,
+.xpopprops td.value,
+
+.xdock td.value,
+.xdockprops td.value,
+
+.xtray,
+*/
+
+.xdid td.value, .xdialog td.value, .xdidprop td.value, .xdialogprop td.value, .general td.value, .styles td.style, .xpopup td.value, .xpopupprop td.value, .xpop td.value, .xpopprops td.value, .event td.value, .xdock td.value, .xdockprops td.value, .xtray td.value, .xstatusbar td.value, .xstatusbarprops td.value, .xtreebar td.value, .xtreebarprops td.value {
+	font-weight: bold;
+	color: #D60000;
+	padding-left: 25px;
+}
+
+/*.xdid td.param, .xdialog td.param, .xdidprop td.param {*/
+td.param {
+	font-weight: bold;
+	color: #009900;
+	padding-left: 15px;
+}
+
+
+
+/* table used for /xdid flags */
+.events {
+}
+
+.events td.event {
+	width: 100px;
+}
+
+
+/* table for cla details */
+.tbl_cla_details {
+	border: 1px solid #cccccc;
+	border-collapse: collapse;
+}
+
+.tbl_cla_details th {
+	border: 1px solid #cccccc;
+	background: #eeeeee;
+	text-align: center;
+}
+
+.tbl_cla_details td {
+	width: 60px;
+	border: 1px solid #cccccc;
+	text-align: center;
+}
+
+.tbl_cla_details .desc {
+	width: auto;
+	text-align: left;
+}
+
+
+/* dcx vs mdx table */
+.tbl_dcxvsmdx {
+	border-collapse: collapse;
+	border: 1px solid #cccccc;
+}
+
+.tbl_dcxvsmdx th {
+	background: #eeeeee;
+}
+
+.tbl_dcxvsmdx td, .tbl_dcxvsmdx th {
+	border: 1px solid #cccccc;
+	padding: 2px;	
+	text-align: center;
+}
+
+.tbl_dcxvsmdx .comparison {
+	text-align: left;
+	color: #002980;
+	width: 150px;
+	font-weight: bold;
+	background: #eeeeee;
+}
+
+.tbl_dcxvsmdx .section_bg {
+	background: #eeeeee;
+}
+
+.tbl_dcxvsmdx .section_title {
+	color: #D60000;
+	text-align: left;
+	font-weight: bold;
+}
+
+pre.code {
+	background-color: #ededed;
+	border: 1px solid black;
+	font-family: mono, monospace;
+	padding: 5px;
+}
+
+/* Top level left menu */
+ul.nav { 
+	list-style:none;
+	margin:0px;
+	padding:0px;
+	border-right:1px solid #BBD1FF;
+	border-left:1px solid #BBD1FF;
+	border-bottom:1px solid #BBD1FF;
+	margin-right: 10px;
+	margin-left: 5px;
+}
+ul.nav li { 
+	margin:0px;
+	font-size:10pt;
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	background: url("images/nav_bg.png") top repeat-x;
+	padding-top:2px;
+	padding-bottom:2px;
+	text-align: center;
+	font-weight:bold;
+}
+
+/* 2nd level left menu */
+ul.nav li ul { 
+	margin:0px;
+	padding:0px;
+}
+ul.nav li ul li { 
+	margin:0px;
+	padding:0px;
+}
+ul.nav li ul li a { 
+	width:100%;
+}
+ul.nav li ul a div {
+	font-weight:normal;
+	padding: 2px;
+}
+ul.nav li ul a:hover div {
+	background:url("images/buttonhover.jpg") top repeat-x;
+	cursor: pointer;
+	border: 1px solid #DDCF9B;
+	padding: 1px;
+}
+
+/* Top horizontal menu */
+div.version {
+	font-weight: bold;
+	padding-top: 5px;
+	padding-right: 5px;
+	text-align: right;
+}
+
+td.sitenav {
+	padding-right: 5px;
+}
+
+td.sitenav a {
+	font-size: 9pt;
+	font-family: "Trebuchet MS",inherit;
+	padding: 4px;
+	color: black;
+}
+td.sitenav a:hover {
+	background:url("images/buttonhover.jpg") top repeat-x;
+	cursor:pointer;
+	border: 1px solid #DDCF9B;
+	padding: 3px;
+	text-decoration:none;
+}
+
+/* Right hand menus */
+td.menuright div.rightmenu { 
+	margin-bottom:5px;
+	margin-left: 10px;
+	margin-right: 5px;
+}
+
+td.menuright div a div {
+	cursor: pointer;
+}
+
+td.menuright div a.header div {
+	font-size:9pt;
+	font-family:"Trebuchet MS",inherit;
+	text-align: center;
+	font-weight:bold;
+}
+td.menuright div a.flag div { 
+	font-size: 8pt;
+	font-weight:normal;
+	padding: 1px;
+	padding-left:8px;
+}
+td.menuright div a.flag:hover div { 
+	background:url("images/buttonhover.jpg") top repeat-x;
+	border: 1px solid #DDCF9B;
+	padding: 0px;
+	padding-left:7px;
+}
+
+
+table.xmenubarSpecialIDs {
+	width: 300px;
+	border: 1px solid #ccc;
+}
+
+table.xmenubarSpecialIDs th {
+	background-color: #eee;
+}
+
+table.xmenubarSpecialIDs .heading {
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	background-color: #eee;
+	
+}
+
+
+/* DCXML PAGE */
+/* Contents */
+ol.sectionList {
+	margin: 0px;
+	padding: 0px;
+	margin-left: 30px;
+	color:#339900;
+}
+ol.sectionList li {
+	font-family:"Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
+	font-size:10pt;
+}
+
+/* Title text */
+a.sectionTitle, a:visited.sectionTitle, span.sectionTitle {
+	font-size:14pt;
+	color:#339900;
+	font-weight: normal;
+}
+
+
+/* Sample XML */
+pre.dcxml {
+	padding-left:10px;
+	border-left:#ccc 2px solid;
+	font-family:Courier New;
+	color: #888;
+}
+
+/* Tags and attributes table */
+table.tags, table.attrs {
+	width: 80%;
+}
+
+/* Subtitle - Tags/Attributes */
+table.tags th, table.attrs th {
+	vertical-align: top;
+	font-family:"Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
+	font-size:11pt;
+	color:#f60;
+	border-bottom: 1px solid #f60;
+}
+
+table.tags td.left, table.attrs td.left {
+	width: 110px;
+	font-weight: bold;
+}

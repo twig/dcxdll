@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX Text - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
+	<tr>
+		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
+		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
+			<a style="color:#000000;" href='index.htm'>Home</a> |
+			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+                        <div class="version">v1.4.1</div>
+		</td>
+	</tr>
+</table>
+
+<table class="bar"><tr><td colspan="3">&nbsp;</td></tr></table>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+	<tr>
+	<td width="150" align="left" valign="top">
+	<ul class="nav">
+		<li><a href="index.htm">Home</a></li>
+		<li>General Usage
+			<ul>
+				<a href="dcx.htm"><div>DCX Commands</div></a>
+				<a href="xdialog.htm"><div>Marked Dialog</div></a>
+				<a href="xdid.htm"><div>Controls</div></a>
+			</ul>
+		</li>
+		<li>DCX Controls
+			<ul>
+<a href="box.htm"><div>Box</div></a><a href="button.htm"><div>Button</div></a><a href="calendar.htm"><div>Calendar</div></a><a href="check.htm"><div>Check</div></a><a href="colorcombo.htm"><div>ColorCombo</div></a><a href="comboex.htm"><div>ComboEx</div></a><a href="datetime.htm"><div>DateTime Picker</div></a><a href="dialog.htm"><div>Dialog (embedded)</div></a><a href="directshow.htm"><div>Directshow</div></a><a href="divider.htm"><div>Divider</div></a><a href="edit.htm"><div>Edit</div></a><a href="ipaddress.htm"><div>IP Address</div></a><a href="image.htm"><div>Image</div></a><a href="line.htm"><div>Line</div></a><a href="link.htm"><div>Link</div></a><a href="list.htm"><div>List</div></a><a href="listview.htm"><div>Listview</div></a><a href="pager.htm"><div>Pager</div></a><a href="panel.htm"><div>Panel</div></a><a href="pbar.htm"><div>Progress Bar</div></a><a href="radio.htm"><div>Radio</div></a><a href="rebar.htm"><div>Rebar</div></a><a href="richedit.htm"><div>RichEdit</div></a><a href="scroll.htm"><div>Scroll</div></a><a href="stacker.htm"><div>Stacker</div></a><a href="statusbar.htm"><div>StatusBar</div></a><a href="tab.htm"><div>Tab</div></a><a href="text.htm"><div>Text</div></a><a href="toolbar.htm"><div>ToolBar</div></a><a href="trackbar.htm"><div>TrackBar</div></a><a href="treeview.htm"><div>Treeview</div></a><a href="updown.htm"><div>UpDown</div></a><a href="webctrl.htm"><div>Web Control</div></a><a href="window.htm"><div>Window (embedded)</div></a>			</ul>
+		</li>
+		<li>DCX Features
+			<ul>
+				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
+				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                                <a href="xpopup.htm"><div>XPopup</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+			</ul>
+		</li>
+		<li>About DCX
+			<ul>
+				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
+				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="changes.htm"><div>Version History</div></a>
+			</ul>
+		</li>
+	</ul>
+	</td>
+<td><table class="description">
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>Text</td></tr>
+	<tr><td>Regular text control. Used for labels or captions.<br /><br />
+<div style="text-align: center;">
+	<img src="images/text.png" alt="" />
+</div>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #B49696; color: #B49696;"><a name="style"></a>Control Styles</td></tr>
+	<tr><td>These control styles are available when creating a Text control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+</table>
+<table class="styles">
+	<tr>
+		<td class="style"><a name="style.alpha" class="style">alpha</a></td>
+		<td>Control is alpha blended.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.center" class="style">center</a></td>
+		<td>Control text is centered.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.endellipsis" class="style">endellipsis</a></td>
+		<td>If the end of a string does not fit in the rectangle, it is truncated and ellipses (...) are added.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.hgradient" class="style">hgradient</a></td>
+		<td>Draws a horizontal gradient with the colors specified.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.noformat" class="style">noformat</a></td>
+		<td>Disables support for mIRC codes in control (faster).</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.noprefix" class="style">noprefix</a></td>
+		<td>Prevents interpretation of any ampersand (&amp;) characters in the control's text as accelerator prefix characters. These are displayed with the ampersand removed and the next character in the string underlined.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.nowrap" class="style">nowrap</a></td>
+		<td>Single line of text (default is multiline) (not compatible with <a class="style">center</a> or <a class="style">right</a>).</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.pathellipsis" class="style">pathellipsis</a></td>
+		<td>Replaces characters in the middle of the string with ellipses so that the result fits in the specified rectangle. If the string contains backslash (\) characters, pathellipsis preserves as much as possible of the text after the last backslash.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.right" class="style">right</a></td>
+		<td>Control text is right aligned.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.shadow" class="style">shadow</a></td>
+		<td>Display text with a shadow.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.tooltips" class="style">tooltips</a></td>
+		<td>The text control will have a tooltip.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.vgradient" class="style">vgradient</a></td>
+		<td>Draws a vertical gradient with the colors specified.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="style">shadow</a> will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using <a class="value">xdid -C</a></li><li>mIRC control codes are only supported when transparent style is set.</li></ul></td></tr></table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdid"></a>/xdid flags</td></tr>
+	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
+</table>
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.a"></a>/xdid -a	</td></tr>
+	<tr><td colspan="2">This command allows you to append text to the control (to bypass the 900 mIRC character limitation).</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [SPACE] (Text)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -a dcx 4 Appended text</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">SPACE</td>
+		<td>A space will automatically be appended between the previous text and the new appended text.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
+	<tr><td colspan="2">This command clears the text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -r [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -r dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
+	<tr><td colspan="2">This command lets you set the text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -t [DNAME] [ID] (Text)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -t dcx 4 Text Label</div></td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
+	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
+</table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).text</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).text</div></td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>Text Events</td></tr>
+	<tr><td>These events are fired when activity occurs in the Text control.</td></tr>
+</table>
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.dclick"></a>dclick	</td></tr>
+	<tr><td colspan="2">When the text is double-clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dclick ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dclick 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.help"></a>help	</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx help 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.rclick"></a>rclick	</td></tr>
+	<tr><td colspan="2">When you right-click on the text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME rclick ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx rclick 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.sclick"></a>sclick	</td></tr>
+	<tr><td colspan="2">When the text is clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME sclick ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx sclick 4</div></td>
+	</tr>
+</table>
+<br />
+</td><td width="80%" valign="top" class="menuright">
+<div class='rightmenu' style='border:1px solid #B49696'>
+	<a class='header' href="#style"><div style='background:#B49696;'>Control Styles</div></a>
+		<a class='flag' href="#style.alpha"><div>alpha</div></a>
+		<a class='flag' href="#style.center"><div>center</div></a>
+		<a class='flag' href="#style.endellipsis"><div>endellipsis</div></a>
+		<a class='flag' href="#style.hgradient"><div>hgradient</div></a>
+		<a class='flag' href="#style.noformat"><div>noformat</div></a>
+		<a class='flag' href="#style.noprefix"><div>noprefix</div></a>
+		<a class='flag' href="#style.nowrap"><div>nowrap</div></a>
+		<a class='flag' href="#style.pathellipsis"><div>pathellipsis</div></a>
+		<a class='flag' href="#style.right"><div>right</div></a>
+		<a class='flag' href="#style.shadow"><div>shadow</div></a>
+		<a class='flag' href="#style.tooltips"><div>tooltips</div></a>
+		<a class='flag' href="#style.vgradient"><div>vgradient</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #6A7CB0'>
+	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
+		<a class='flag' href="#xdid.a"><div>-a</div></a>
+		<a class='flag' href="#xdid.r"><div>-r</div></a>
+		<a class='flag' href="#xdid.t"><div>-t</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #A8B2D1'>
+	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.text"><div>text</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #74C043'>
+	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
+		<a class='flag' href="#events.dclick"><div>dclick</div></a>
+		<a class='flag' href="#events.help"><div>help</div></a>
+		<a class='flag' href="#events.rclick"><div>rclick</div></a>
+		<a class='flag' href="#events.sclick"><div>sclick</div></a>
+	</div>
+</td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX DateTime Picker - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
+	<tr>
+		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
+		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
+			<a style="color:#000000;" href='index.htm'>Home</a> |
+			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+                        <div class="version">v1.4.1</div>
+		</td>
+	</tr>
+</table>
+
+<table class="bar"><tr><td colspan="3">&nbsp;</td></tr></table>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+	<tr>
+	<td width="150" align="left" valign="top">
+	<ul class="nav">
+		<li><a href="index.htm">Home</a></li>
+		<li>General Usage
+			<ul>
+				<a href="dcx.htm"><div>DCX Commands</div></a>
+				<a href="xdialog.htm"><div>Marked Dialog</div></a>
+				<a href="xdid.htm"><div>Controls</div></a>
+			</ul>
+		</li>
+		<li>DCX Controls
+			<ul>
+<a href="box.htm"><div>Box</div></a><a href="button.htm"><div>Button</div></a><a href="calendar.htm"><div>Calendar</div></a><a href="check.htm"><div>Check</div></a><a href="colorcombo.htm"><div>ColorCombo</div></a><a href="comboex.htm"><div>ComboEx</div></a><a href="datetime.htm"><div>DateTime Picker</div></a><a href="dialog.htm"><div>Dialog (embedded)</div></a><a href="directshow.htm"><div>Directshow</div></a><a href="divider.htm"><div>Divider</div></a><a href="edit.htm"><div>Edit</div></a><a href="ipaddress.htm"><div>IP Address</div></a><a href="image.htm"><div>Image</div></a><a href="line.htm"><div>Line</div></a><a href="link.htm"><div>Link</div></a><a href="list.htm"><div>List</div></a><a href="listview.htm"><div>Listview</div></a><a href="pager.htm"><div>Pager</div></a><a href="panel.htm"><div>Panel</div></a><a href="pbar.htm"><div>Progress Bar</div></a><a href="radio.htm"><div>Radio</div></a><a href="rebar.htm"><div>Rebar</div></a><a href="richedit.htm"><div>RichEdit</div></a><a href="scroll.htm"><div>Scroll</div></a><a href="stacker.htm"><div>Stacker</div></a><a href="statusbar.htm"><div>StatusBar</div></a><a href="tab.htm"><div>Tab</div></a><a href="text.htm"><div>Text</div></a><a href="toolbar.htm"><div>ToolBar</div></a><a href="trackbar.htm"><div>TrackBar</div></a><a href="treeview.htm"><div>Treeview</div></a><a href="updown.htm"><div>UpDown</div></a><a href="webctrl.htm"><div>Web Control</div></a><a href="window.htm"><div>Window (embedded)</div></a>			</ul>
+		</li>
+		<li>DCX Features
+			<ul>
+				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
+				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                                <a href="xpopup.htm"><div>XPopup</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+			</ul>
+		</li>
+		<li>About DCX
+			<ul>
+				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
+				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="changes.htm"><div>Version History</div></a>
+			</ul>
+		</li>
+	</ul>
+	</td>
+<td><table class="description">
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>DateTime Picker</td></tr>
+	<tr><td>The DateTime Picker control allows users to select a date or time in a neat way, automatically enclosing the calendar control and also providing UpDown spinners on date/time values.<br /><br />It is highly recommended that you familiarise yourself with how the mIRC functions $ctime and $asctime() functions work before using this control.<br /><br /><br />
+<div style="text-align: center;">
+	<img src="images/datetime.png" alt="" />
+</div>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #B49696; color: #B49696;"><a name="style"></a>Control Styles</td></tr>
+	<tr><td>These control styles are available when creating a DateTime Picker control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+</table>
+<table class="styles">
+	<tr>
+		<td class="style"><a name="style.longdateformat" class="style">longdateformat</a></td>
+		<td>The date will be displayed in a long format, which produces a result like <a class="value">Friday, April 19, 1996</a>.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.right" class="style">right</a></td>
+		<td>The text value will be aligned to the right.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.shortdatecenturyformat" class="style">shortdatecenturyformat</a></td>
+		<td>The date will be similar to the <a class="style">shortdateformat</a>, however the result will include the century like <a class="value">4/19/1996</a>.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.shortdateformat" class="style">shortdateformat</a></td>
+		<td>The date will be displayed in a short format, which produces a result like <a class="value">4/19/96</a>.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.shownone" class="style">shownone</a></td>
+		<td>It is possible to have no date selected in the control. The user MUST select the checkbox, otherwise it will return no date.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.timeformat" class="style">timeformat</a></td>
+		<td>Displays the time like <a class="value">5:31:42 PM</a>.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.updown" class="style">updown</a></td>
+		<td>Places an up-down control to the right of the DTP control to modify date-time values.</td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdid"></a>/xdid flags</td></tr>
+	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
+</table>
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.f"></a>/xdid -f	</td></tr>
+	<tr><td colspan="2">This command lets you set format of the DateTime Picker text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -f [DNAME] [ID] [FORMAT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -f dcx 4 'Right now it is: 'hh':'m':'s ddddMMMdd', 'yyy</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">FORMAT</td>
+		<td>Date time format options.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>The one- or two-digit day.</td>
+	</tr>
+	<tr>
+		<td class="value">dd</td>
+		<td>The two-digit day. Single-digit day values are preceded by a zero.</td>
+	</tr>
+	<tr>
+		<td class="value">ddd</td>
+		<td>The three-character weekday abbreviation.</td>
+	</tr>
+	<tr>
+		<td class="value">dddd</td>
+		<td>The full weekday name.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>The one- or two-digit hour in 12-hour format.</td>
+	</tr>
+	<tr>
+		<td class="value">hh</td>
+		<td>The two-digit hour in 12-hour format. Single-digit values are preceded by a zero.</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>The one- or two-digit hour in 24-hour format.</td>
+	</tr>
+	<tr>
+		<td class="value">HH</td>
+		<td>The two-digit hour in 24-hour format. Single-digit values are preceded by a zero.</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>The one- or two-digit minute.</td>
+	</tr>
+	<tr>
+		<td class="value">mm</td>
+		<td>The two-digit minute. Single-digit values are preceded by a zero.</td>
+	</tr>
+	<tr>
+		<td class="value">M</td>
+		<td>The one- or two-digit month number.</td>
+	</tr>
+	<tr>
+		<td class="value">MM</td>
+		<td>The two-digit month number. Single-digit values are preceded by a zero.</td>
+	</tr>
+	<tr>
+		<td class="value">MMM</td>
+		<td>The three-character month abbreviation.</td>
+	</tr>
+	<tr>
+		<td class="value">MMMM</td>
+		<td>The full month name.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>The one-letter AM/PM abbreviation (that is, AM is displayed as "A").</td>
+	</tr>
+	<tr>
+		<td class="value">tt</td>
+		<td>The two-letter AM/PM abbreviation (that is, AM is displayed as "AM").</td>
+	</tr>
+	<tr>
+		<td class="value">yy</td>
+		<td>The last two digits of the year (that is, 1996 would be displayed as "96").</td>
+	</tr>
+	<tr>
+		<td class="value">yyyy</td>
+		<td>The full year (that is, 1996 would be displayed as "1996").</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Any non-format characters must be enclosed within single quotes.</li><li>A DTP control tracks locale changes when it is using the default format string.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
+	<tr><td colspan="2">This command lets you set the range of the first and last selectable dates.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -r [DNAME] [ID] [MIN_TIMESTAMP] [MAX_TIMESTAMP]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -r dcx 4 $ctime(3rd July 2006) $ctime<br />/xdid -r dcx 4 nolimit $ctime<br /></div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">nolimit</a> for <a class="param">MIN_TIMESTAMP</a> or <a class="param">MAX_TIMESTAMP</a> if you wish to specify no minimum or maximum date range respectively.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
+	<tr><td colspan="2">This command lets you set the selected date/time.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -t [DNAME] [ID] [TIMESTAMP]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -t dcx 4 $ctime(3rd July 3006)</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">reset</a> for <a class="param">TIMESTEMP</a> to set it back to the current date/time, but this only applies to the <a class="style">shownone</a> style.</td></tr></table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
+	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
+</table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.range"></a>$xdid().range	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the date/time range.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).range</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).range</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="value">nolimit</a> is returned when the calendar range is not bounded.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.value"></a>$xdid().value	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the selected date/time.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).value</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).value</div></td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>DateTime Picker Events</td></tr>
+	<tr><td>These events are fired when activity occurs in the DateTime Picker control.</td></tr>
+</table>
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.change"></a>change	</td></tr>
+	<tr><td colspan="2">When the date/time selection has changed.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME change ID SELECTION</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx change 4 1152622371<br />/cb_alias dcx change 4 none<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">SELECTION</td>
+		<td>The date selected. If this value is <a class="value">none</a>, then the date has been cleared.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> <a class="param">SELECTION</a> can only be <a class="value">none</a> when the <a class="style">shownone</a> style is used.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.closed"></a>closed	</td></tr>
+	<tr><td colspan="2">The dropdown calendar was closed.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME closed ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx closed 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.open"></a>open	</td></tr>
+	<tr><td colspan="2">The dropdown calendar was opened.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME open ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx open 4</div></td>
+	</tr>
+</table>
+<br />
+</td><td width="80%" valign="top" class="menuright">
+<div class='rightmenu' style='border:1px solid #B49696'>
+	<a class='header' href="#style"><div style='background:#B49696;'>Control Styles</div></a>
+		<a class='flag' href="#style.longdateformat"><div>longdateformat</div></a>
+		<a class='flag' href="#style.right"><div>right</div></a>
+		<a class='flag' href="#style.shortdatecenturyformat"><div>shortdatecenturyformat</div></a>
+		<a class='flag' href="#style.shortdateformat"><div>shortdateformat</div></a>
+		<a class='flag' href="#style.shownone"><div>shownone</div></a>
+		<a class='flag' href="#style.timeformat"><div>timeformat</div></a>
+		<a class='flag' href="#style.updown"><div>updown</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #6A7CB0'>
+	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
+		<a class='flag' href="#xdid.f"><div>-f</div></a>
+		<a class='flag' href="#xdid.r"><div>-r</div></a>
+		<a class='flag' href="#xdid.t"><div>-t</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #A8B2D1'>
+	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.range"><div>range</div></a>
+		<a class='flag' href="#xdidprop.value"><div>value</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #74C043'>
+	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
+		<a class='flag' href="#events.change"><div>change</div></a>
+		<a class='flag' href="#events.closed"><div>closed</div></a>
+		<a class='flag' href="#events.open"><div>open</div></a>
+	</div>
+</td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>

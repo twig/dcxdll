@@ -1,0 +1,1365 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX Treeview - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
+	<tr>
+		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
+		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
+			<a style="color:#000000;" href='index.htm'>Home</a> |
+			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+                        <div class="version">v1.4.1</div>
+		</td>
+	</tr>
+</table>
+
+<table class="bar"><tr><td colspan="3">&nbsp;</td></tr></table>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+	<tr>
+	<td width="150" align="left" valign="top">
+	<ul class="nav">
+		<li><a href="index.htm">Home</a></li>
+		<li>General Usage
+			<ul>
+				<a href="dcx.htm"><div>DCX Commands</div></a>
+				<a href="xdialog.htm"><div>Marked Dialog</div></a>
+				<a href="xdid.htm"><div>Controls</div></a>
+			</ul>
+		</li>
+		<li>DCX Controls
+			<ul>
+<a href="box.htm"><div>Box</div></a><a href="button.htm"><div>Button</div></a><a href="calendar.htm"><div>Calendar</div></a><a href="check.htm"><div>Check</div></a><a href="colorcombo.htm"><div>ColorCombo</div></a><a href="comboex.htm"><div>ComboEx</div></a><a href="datetime.htm"><div>DateTime Picker</div></a><a href="dialog.htm"><div>Dialog (embedded)</div></a><a href="directshow.htm"><div>Directshow</div></a><a href="divider.htm"><div>Divider</div></a><a href="edit.htm"><div>Edit</div></a><a href="ipaddress.htm"><div>IP Address</div></a><a href="image.htm"><div>Image</div></a><a href="line.htm"><div>Line</div></a><a href="link.htm"><div>Link</div></a><a href="list.htm"><div>List</div></a><a href="listview.htm"><div>Listview</div></a><a href="pager.htm"><div>Pager</div></a><a href="panel.htm"><div>Panel</div></a><a href="pbar.htm"><div>Progress Bar</div></a><a href="radio.htm"><div>Radio</div></a><a href="rebar.htm"><div>Rebar</div></a><a href="richedit.htm"><div>RichEdit</div></a><a href="scroll.htm"><div>Scroll</div></a><a href="stacker.htm"><div>Stacker</div></a><a href="statusbar.htm"><div>StatusBar</div></a><a href="tab.htm"><div>Tab</div></a><a href="text.htm"><div>Text</div></a><a href="toolbar.htm"><div>ToolBar</div></a><a href="trackbar.htm"><div>TrackBar</div></a><a href="treeview.htm"><div>Treeview</div></a><a href="updown.htm"><div>UpDown</div></a><a href="webctrl.htm"><div>Web Control</div></a><a href="window.htm"><div>Window (embedded)</div></a>			</ul>
+		</li>
+		<li>DCX Features
+			<ul>
+				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
+				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                                <a href="xpopup.htm"><div>XPopup</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+			</ul>
+		</li>
+		<li>About DCX
+			<ul>
+				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
+				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="changes.htm"><div>Version History</div></a>
+			</ul>
+		</li>
+	</ul>
+	</td>
+<td><table class="description">
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>Treeview</td></tr>
+	<tr><td>This control enables you to create a treeview.<br /><br />
+<div style="text-align: center;">
+	<img src="images/treeview.png" alt="" />
+</div>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #B49696; color: #B49696;"><a name="style"></a>Control Styles</td></tr>
+	<tr><td>These control styles are available when creating a Treeview control. Remember that the general styles <a class="style">disabled</a>, <a class="style">group</a>, <a class="style">hidden</a>, <a class="style">notheme</a>, <a class="style">tabstop</a> and <a class="style">transparent</a> apply to all DCX controls except the embedded Dialog and Window controls.</td></tr>
+</table>
+<table class="styles">
+	<tr>
+		<td class="style"><a name="style.alpha" class="style">alpha</a></td>
+		<td>Control is alpha blended.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.autohscroll" class="style">autohscroll</a></td>
+		<td>Remove the horizontal scrollbar and auto-scroll depending on mouse position. <a class="os">(Vista)</a></td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.balloon" class="style">balloon</a></td>
+		<td>The treeview and treeview item tooltips will use the balloon style.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.checkbox" class="style">checkbox</a></td>
+		<td>Enables Checkbox support in the treeview.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.doublebuffer" class="style">doublebuffer</a></td>
+		<td>Specifies how the background is erased or filled. <a class="os">(Vista)</a></td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.editlabel" class="style">editlabel</a></td>
+		<td>Makes the treeview items editable.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.fadebuttons" class="style">fadebuttons</a></td>
+		<td>Fade expand buttons in or out when the mouse moves away or into a state of hovering over the control. <a class="os">(Vista)</a></td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.fullrow" class="style">fullrow</a></td>
+		<td>Selection highlight is the full row of the item. Cannot be used with <a class="style">haslines</a>.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.hasbuttons" class="style">hasbuttons</a></td>
+		<td>Enables &plusmn; buttons on the side of items containing child items for expand/collapse operations.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.haslines" class="style">haslines</a></td>
+		<td>Items are linked with lines.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.linesatroot" class="style">linesatroot</a></td>
+		<td>Enables lines to be connected to the root item (needs the <a class="style">haslines</a> style to work).</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.nohscroll" class="style">nohscroll</a></td>
+		<td>Disables horizontal scrolling in the treeview.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.noident" class="style">noident</a></td>
+		<td>Does not indent the tree view for the expand buttons. <a class="os">(Vista)</a></td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.noscroll" class="style">noscroll</a></td>
+		<td>Disables scrolling in the treeview.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.notooltips" class="style">notooltips</a></td>
+		<td>Disables tooltip popup on items.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.richtooltip" class="style">richtooltip</a></td>
+		<td>Allow rich tooltips in the tree view (custom drawn with icon and text). <a class="os">(Vista)</a></td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.showsel" class="style">showsel</a></td>
+		<td>Selection is always visible, even when control loses focus.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.singleexpand" class="style">singleexpand</a></td>
+		<td>Causes the item being selected to expand and the item being unselected to collapse upon selection in the tree view. If the user holds down the CTRL key while selecting an item, the item being unselected will not be collapsed.</td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>TreeView Item Path</td></tr>
+	<tr><td><a name="path"></a>
+The treeview control has an engine that parses the given item "path" data to know where to insert/delete/modify a given item in the control. The parameters you supply are a space separated numerical token list of the treeview branches that lead to the item position:<br />
+<br />
+<table>
+	<tr>
+		<td class="syntax">Format</td><td>N N N ... N</td>
+	</tr>
+	<tr>
+		<td class="example">Example</td><td>1 2 3</td>
+	</tr>
+</table>
+<br />
+This position represents the 3rd child branch of the 2nd child branch of the first branch as shown by the selected item in the picture below:<br />
+<br />
+<div style="text-align: center;">
+	<img src="images/treeview2.png" alt="Treeview Branches" /><br />
+</div>
+<br />
+You can also use the value <a class="value">-1</a> for any of the values to indicate the parser that you want to insert the item at the end of the branch, or to select the last branch of a given sub-path.<br />
+<br />
+<table>
+	<tr>
+		<td class="example">Example</td><td>-1 -1</td>
+	</tr>
+</table>
+This would add the item at the end of the last branch in the first column of branches.<br />
+<br />
+<a class="note">Note:</a> Some commands will allow for special path items. Read the notes to make sure what the special paths are. (ie. <a class="value">root</a> and <a class="value">0</a>)
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdid"></a>/xdid flags</td></tr>
+	<tr><td>Control commands are input to the control with the <b>/xdid</b> command.</td></tr>
+</table>
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.a"></a>/xdid -a	</td></tr>
+	<tr><td colspan="2">This command lets you add an item to the treeview.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -a [DNAME] [ID] [PATH] [TAB] [+FLAGS] [ICON] [SICON] [OVERLAY] [STATE] [INTEGRAL] [COLOR] [BGCOLOR] (TEXT) [TAB] (Tooltip Text)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -a dcx 4 $+(-1 2 4,$chr(9),+bc 1 1 0 0 0 $rgb(0,0,255) $rgb(255,0,255) Item Text,$chr(9),Tooltip)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Item flags.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Item text is bold.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Item text is colored (<a class="param">COLOR</a> is the text color).</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Background is colored (<a class="param">BGCOLOR</a> is the background color).</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>Allows you to load an item from a hash table by name. Cannot be used with <a class="value">+n</a></td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>Item is expanded.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>The item is italic.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Allows you to load an item from a hash table by index. Cannot be used with <a class="value">+h</a></td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Item appears selected.</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>Item text is underlined.</td>
+	</tr>
+	<tr>
+		<td class="value">x</td>
+		<td>Adds items from DCXML file, where <a class="param">TEXT</a> is <a class="param">[XML_DATASET]</a> <a class="param">[FILENAME]</a>. Refer to note for additional information on the DCXML format.</td>
+	</tr>
+	<tr>
+		<td class="param">ICON</td>
+		<td>Icon index number from the normal icon list.</td>
+	</tr>
+	<tr>
+		<td class="param">SICON</td>
+		<td>Selected Icon index number from the normal icon list.</td>
+	</tr>
+	<tr>
+		<td class="param">OVERLAY</td>
+		<td>Icon index number from the normal icon list that was marked as an overlay icon.</td>
+	</tr>
+	<tr>
+		<td class="param">STATE</td>
+		<td>Icon index number from the state icon list.</td>
+	</tr>
+	<tr>
+		<td class="value">0</td>
+		<td>No check.</td>
+	</tr>
+	<tr>
+		<td class="value">1</td>
+		<td>Unchecked.</td>
+	</tr>
+	<tr>
+		<td class="value">2</td>
+		<td>Checked</td>
+	</tr>
+	<tr>
+		<td class="param">INTEGRAL</td>
+		<td>Multiple of the regular treeview item height.</td>
+	</tr>
+	<tr>
+		<td class="param">COLOR</td>
+		<td>Item text color of the treeview item in $rgb() format. (Needs to add flag <a class="value">+c</a> to work)</td>
+	</tr>
+	<tr>
+		<td class="param">BGCOLOR</td>
+		<td>Background color of the treeview item in $rgb() format. (Needs to add flag <a class="value">+g</a> to work)</td>
+	</tr>
+	<tr>
+		<td class="param">TEXT</td>
+		<td>The text to display on the item.<br />
+					If used with <a class="value">+h</a> or <a class="value">+n</a> <a class="param">+FLAGS</a>, then this is either <a class="value">HASHTABLE</a> <a class="value">ITEM</a> or <a class="value">HASHTABLE</a> <a class="value">INDEX</a> respectively.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> to insert an item at the very top of the branch.</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, <a class="param">#SICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class="style">checkbox</a> style in order to use checkboxes in the treeview.</li><li><a class="param">INTEGRAL</a> is calculated in this manner.<br />
+				<a class="value">0</a> = normal height,<br />
+				<a class="value">1</a> = twice the height,<br />
+				<a class="value">2</a> = 3X height, etc.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.c"></a>/xdid -c	</td></tr>
+	<tr><td colspan="2">This command lets you select a treeview item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] [PATH]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -c dcx 4 1 3 5</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.d"></a>/xdid -d	</td></tr>
+	<tr><td colspan="2">This command lets you delete a treeview item (and it's sub-items if any).</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -d [DNAME] [ID] [PATH]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -d dcx 4 1 3 5</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.g"></a>/xdid -g	</td></tr>
+	<tr><td colspan="2">This command lets you set the treeview item height (in pixels).</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -g [DNAME] [ID] [HEIGHT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -g dcx 4 15</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use the value -1 to reset to the default height.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.i"></a>/xdid -i	</td></tr>
+	<tr><td colspan="2">This command lets you change treeview colors.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -i [DNAME] [ID] [+FLAGS] [COLOR]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -i dcx 4 +b $rgb(0,255,0)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Color flags.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Background color.</td>
+	</tr>
+	<tr>
+		<td class="value">l</td>
+		<td>Line color.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Selection background color.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Text color.</td>
+	</tr>
+	<tr>
+		<td class="param">COLOR</td>
+		<td>Color in $rgb() format.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">-1</a> to revert to default color.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.j"></a>/xdid -j	</td></tr>
+	<tr><td colspan="2">This command lets you change the icon, selected icon and overlay icon for a treeview item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -j [DNAME] [ID] [PATH] [TAB] [ICON] [SICON] (OVERLAY)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -j dcx 4 1 2 $chr(9) 3 3<br />/xdid -j dcx 4 2 $chr(9) -1 -1 2<br /></div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">ICON</a>, <a class="param">SICON</a> and <a class="param">OVERLAY</a> to display no icon.</li><li>If you do not wish to modify <a class="param">ICON</a> or <a class="param">SICON</a>, use a value of <a class="value">-1</a>.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.k"></a>/xdid -k	</td></tr>
+	<tr><td colspan="2">This command lets you change the check state on a treeview item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -k [DNAME] [ID] [STATE] [PATH]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -k dcx 4 2 1 3 5</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STATE</td>
+		<td>Check State</td>
+	</tr>
+	<tr>
+		<td class="value">0</td>
+		<td>No check.</td>
+	</tr>
+	<tr>
+		<td class="value">1</td>
+		<td>Unchecked.</td>
+	</tr>
+	<tr>
+		<td class="value">2</td>
+		<td>Checked</td>
+	</tr>
+	<tr>
+		<td class="param">COLOR</td>
+		<td>Color in $rgb() format.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using the <a class="style">checkbox</a> style, this function can also change the state icon of an item. Be sure to insert the state icons before you use them.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.l"></a>/xdid -l	</td></tr>
+	<tr><td colspan="2">This command lets you change the size of the treeview icons.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -l [DNAME] [ID] [SIZE]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -l dcx 4 24</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You need to use this command before adding icons to a treeview.</li><li>Values can be <a class="value">16</a> (default), <a class="value">24</a>, or <a class="value">32</a>.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.m"></a>/xdid -m	</td></tr>
+	<tr><td colspan="2">This command lets you move a treeview item and its sub-items. The first path is the item to be moved to the second path.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -m [DNAME] [ID] [PATH1] [TAB] [PATH2]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -m dcx 4 1 2 $chr(9) 1</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Due to the current implementation of this feature, you cannot move an item into into its subbranch.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.n"></a>/xdid -n	</td></tr>
+	<tr><td colspan="2">This command lets you copy a treeview item and its sub-items. The first path is the item to be copied to the second path.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -n [DNAME] [ID] [PATH1] [TAB] [PATH2]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -n dcx 4 1 2 $chr(9) 1</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Due to the current implementation of this feature, you cannot copy an item into into its subbranch.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.o"></a>/xdid -o	</td></tr>
+	<tr><td colspan="2">This command lets you change the tooltip text of a treeview item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -o [DNAME] [ID] [PATH] [TAB] (TipText)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -o dcx 4 1 2 $chr(9) Blah</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.r"></a>/xdid -r	</td></tr>
+	<tr><td colspan="2">This command lets you clear all the treeview items.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -r [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -r dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.t"></a>/xdid -t	</td></tr>
+	<tr><td colspan="2">This command lets you toggle/expand/collapse treeview items.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -t [DNAME] [ID] [+FLAGS] [PATH]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -t dcx 4 +a root</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Toggle flags.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Expands the branch and all sub-branches.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Collapses the branch.</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>Expands the branch.</td>
+	</tr>
+	<tr>
+		<td class="value">p</td>
+		<td>Expands partially the branch.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Collapses and deletes the branches children.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Toggles opposite action on branch.</td>
+	</tr>
+	<tr>
+		<td class="value">z</td>
+		<td>Collapses the branch and all sub-branches.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">root</a> as the path with the <a class="value">+a</a> or <a class="value">+z</a> switches.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.u"></a>/xdid -u	</td></tr>
+	<tr><td colspan="2">This command clears any selection.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -u [DNAME] [ID] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -u dcx 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.v"></a>/xdid -v	</td></tr>
+	<tr><td colspan="2">This command lets you change the text of a treeview item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -v [DNAME] [ID] [PATH] [TAB] (ItemText)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -v dcx 4 1 2 $chr(9) Blah</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.w"></a>/xdid -w	</td></tr>
+	<tr><td colspan="2">This command lets you add an icon to the treeview image lists.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -w [DNAME] [ID] [+FLAGS] [INDEX] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -w dcx 4 +n 113 shell32.dll<br />/xdid -w dcx 4 +no2 29 shell32.dll<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Image list flags.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Normal icon list.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>State icon list.</td>
+	</tr>
+	<tr>
+		<td class="value">o</td>
+		<td>Overlay icon list. The overlay index is declared immediately after the <a class="value">+o</a> flag. Must be used with <a class="value">+n</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Uses the icon associated with the given file (as shown in Windows Explorer).<br /><a class="note">Note:</a> File must exist.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Uses the icon associated with the given filetype.<br /><a class="note">Note:</a> Filename is the extension (eg. BMP, PNG, AVI, etc).</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Convert to grayscale icon.</td>
+	</tr>
+	<tr>
+		<td class="value">P</td>
+		<td>If GDI+ is enabled, this will use GDI+ to extract the icon.</td>
+	</tr>
+	<tr>
+		<td class="param">INDEX</td>
+		<td>Icon index in icon archive</td>
+	</tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>Icon archive filename</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>For readability and ease of indexing, it is suggested you declare your overlay icons AFTER the normal icons. Overlay icons are also added to the normal icon list, so it will mess up your existing icon indexes.</li><li>There is a limit of 15 overlay icons you may use, indexes from <a class="value">1</a> to <a class="value">15</a>.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.y"></a>/xdid -y	</td></tr>
+	<tr><td colspan="2">This command lets you clear the treeview image lists.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -y [DNAME] [ID] [+FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -y dcx 4 +ns</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Image list flags</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Normal icon list.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>State icon list.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.z"></a>/xdid -z	</td></tr>
+	<tr><td colspan="2">This command lets you sort the data in the treeview control.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -z [DNAME] [ID] [+FLAGS] [PATH] [TAB] (ALIAS)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -z dcx 4 +tab root $chr(9) tvsort</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Sort flags.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Ascendant order sorting. (<a class="value">Default</a>)</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Sorts only the given branch.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Custom sorting provided by <a class="param">ALIAS</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Descendant order sorting.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Numerical sorting.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Sorts recursively all sub-branches.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Case-sensitive sorting. (With Alpha-numeric)</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Alpha-numeric sorting. (<a class="value">Default</a>)</td>
+	</tr>
+	<tr>
+		<td class="param">ALIAS</td>
+		<td>Alias name to be called in the case of custom sorting.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">ALIAS</a> is not needed if not using a custom sorting algorithm.</li><li>When using <a class="value">+c</a>, sorted values given by $1 and $2 into <a class="param">ALIAS</a>.</li><li>The custom alias must return the following values for the comparison of custom values. The ascendant or descendant order is managed by the DLL with the given values returned.<br />
+<a class="value">$1 < $2</a> return <a class="value">-1</a><br />
+<a class="value">$1 > $2</a> return <a class="value">1</a><br />
+<a class="value">$1 == $2</a> return <a class="value">0</a></li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.A"></a>/xdid -A	</td></tr>
+	<tr><td colspan="2">This command lets you set a property on a specific item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -A [DNAME] [ID] [PATH] [TAB] [+FLAGS] [INFO]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -A dcx 4 4 2 2 $chr(9) +M Marked text here</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Property flags.</td>
+	</tr>
+	<tr>
+		<td class="value">M</td>
+		<td>Marked text property. Much like <a class='value' href='xdid.htm#xdid.big.M'>/xdid -M</a>, this can be used to define custom data but on a per item basis.</td>
+	</tr>
+	<tr>
+		<td class="param">INFO</td>
+		<td>The information to set. The usage of this parameter depends on the flags specified in <a class="param">FLAGS</a>.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.B"></a>/xdid -B	</td></tr>
+	<tr><td colspan="2">This command lets you force label editing on a treeview item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -B [DNAME] [ID] [PATH]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -B dcx 4 1 3 5</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.G"></a>/xdid -G	</td></tr>
+	<tr><td colspan="2">This command lets you set the treeview background image.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -G [DNAME] [ID] [+FLAGS] [X] [Y] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -G dcx 4 +r 0 0 treeview_bg.bmp</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Background flags.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Anti-alias image.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Image alpha blending.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>High quality rendering.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Tile image.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Resize image to match control area.</td>
+	</tr>
+	<tr>
+		<td class="param">X</td>
+		<td>X position image offset.</td>
+	</tr>
+	<tr>
+		<td class="param">Y</td>
+		<td>Y position image offset.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.Q"></a>/xdid -Q	</td></tr>
+	<tr><td colspan="2">This command lets you change the font styles and color on a treeview item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -Q [DNAME] [ID] [+FLAGS] [COLOR] [PATH]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -Q dcx 4 +bcu $rgb(128,0,255) 1 2</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Check State</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Item text is bold.</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>Item text is underlined.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Item text is colored. (<a class="param">COLOR</a> is the text color).</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>The item is italic.</td>
+	</tr>
+	<tr>
+		<td class="param">COLOR</td>
+		<td>Item text color of the treeview item in $rgb() format. (Needs to add flag <a class="value">+c</a> to work)</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">-1</a> as <a class="param">COLOR</a> value if you omit the <a class="value">+c</a> switch.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.S"></a>/xdid -S	</td></tr>
+	<tr><td colspan="2">This command saves the contents specified by the range within the treeview into a file.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -S [DNAME] [ID] [N (N ...)] [TAB] [+FLAGS] [XML_DATASET] [FILENAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -S dcx 4 1 3 $chr(9) + setup_tv config.xml</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N (N ...)</td>
+		<td>Range of items to save.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>This is required but not used.</td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
+	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
+</table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.expand"></a>$xdid().expand	</td></tr>
+	<tr><td colspan="2">This property lets you retreive whether a treeview item is expanded or not.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [ITEMPATH]).expand</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 1 2).expand</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.find"></a>$xdid().find	</td></tr>
+	<tr><td colspan="2">This property lets you retreive a treeview <a href='#path'>Item Path</a> that leads to the Nth found treeview item matching the input search patern. If <a class="param">N</a> is <a class="value">0</a>, returns the total number of matching items. <a class="param">SUBPATH</a> is an optional parameter to start the search at a desired branch.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [TAB]Matchtext[TAB], T, N, SUBPATH).find</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, $chr(9) $+ hello * $+ $chr(9), W, 0, 1 2).find</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">MATCHTEXT</td>
+		<td>String composed of wildcards or regex paterns used for the search.</td>
+	</tr>
+	<tr>
+		<td class="param">T</td>
+		<td>Value indicating if the search is using a regex patern or wildcard string.</td>
+	</tr>
+	<tr>
+		<td class="value">E</td>
+		<td>Matchtext is an exact match.</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>Matchtext is a wildcard string.</td>
+	</tr>
+	<tr>
+		<td class="value">R</td>
+		<td>Matchtext is a regex patern.</td>
+	</tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Parameter indicating to return the Nth match.</td>
+	</tr>
+	<tr>
+		<td class="param">SUBPATH</td>
+		<td>Optional parameter to start the search at a specific branch.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">N</a> is <a class="value">0</a>, returns the total number of matching items.</li><li>The [TAB] characters surrounding the matchtext are mandatory or else it wont work.</li><li>If <a class="param">SUBPATH</a> is blank, searches at root of treeview.</li></ul></td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.icon"></a>$xdid().icon	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the treeview item icon.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [ITEMPATH]).icon</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 1 2).icon</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.markeditem"></a>$xdid().markeditem	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the marked (see <a class='value' href='#xdid.big.A'>/xdid -A +M</a>) text for the treeview item specified.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [ITEMPATH]).markeditem</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 1 2).markeditem</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.mouseitem"></a>$xdid().mouseitem	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the treeview Item Path over which the mouse pointer is hovering over.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).mouseitem</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).mouseitem</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Returns <a class="value">0</a> if mouse is not over any item.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.num"></a>$xdid().num	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the number of child items of a treeview item. You can use the value <a class="value">root</a> as <a class="param">ITEMPATH</a> to get the number of childs of the root item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [ITEMPATH]).num</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 1 2).num</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.selpath"></a>$xdid().selpath	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the <a href='#path'>Item Path</a> that leads to the selected item in the treeview.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).selpath</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).selpath</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.seltext"></a>$xdid().seltext	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the selected treeview item text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).seltext</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).seltext</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.state"></a>$xdid().state	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the check item state of an item.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [ITEMPATH]).state</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 1 2).state</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using the <a class="style">checkbox</a> style, the value returned is the state icon value. Otherwise, returns <a class="value">2</a> (checked), <a class="value">1</a> (unchecked), or <a class="value">0</a> (no check).</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.text"></a>$xdid().text	</td></tr>
+	<tr><td colspan="2">This property lets you retreive a treeview item text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, PATH).text</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 1 2).text</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.tooltip"></a>$xdid().tooltip	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the treeview item tooltip.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [ITEMPATH]).tooltip</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 1 2).tooltip</div></td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>Treeview Events</td></tr>
+	<tr><td>These events are fired when activity occurs in the Treeview control.</td></tr>
+</table>
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.buttonclick"></a>buttonclick	</td></tr>
+	<tr><td colspan="2">When a &plusmn; button is clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME buttonclick ID PATH</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx buttonclick 4 4 2</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">PATH</td>
+		<td>Path leading to the item that had his &plusmn; button clicked.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.collapse"></a>collapse	</td></tr>
+	<tr><td colspan="2">When a branch is collapsed.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME collapse ID PATH</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx collapse 4 4 2</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">PATH</td>
+		<td>Path leading to the item that was collapsed.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.dclick"></a>dclick	</td></tr>
+	<tr><td colspan="2">When an item is double clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dclick ID PATH</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dclick 4 4 2</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">PATH</td>
+		<td>Path leading to the item that triggered the event.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You cant use $xdid().tvseltext to get item text, you need to use $xdid().tvtext with item path given.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.expand"></a>expand	</td></tr>
+	<tr><td colspan="2">When a branch is expanded.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME expand ID PATH</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx expand 4 4 2</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">PATH</td>
+		<td>Path leading to the item that was expanded.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.help"></a>help	</td></tr>
+	<tr><td colspan="2">Launched when you click on a control using the <a class="style">?</a> contexthelp button.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME help ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx help 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.labelbegin"></a>labelbegin	</td></tr>
+	<tr><td colspan="2">When item text label editing begins.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME labelbegin ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx labelbegin 4</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">noedit</a> to block label editing.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use $xdid().selpath to determine which path is being edited.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.labelcancel"></a>labelcancel	</td></tr>
+	<tr><td colspan="2">When the user presses ESC while editing or clicks somewhere else without editing the text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME labelcancel ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx labelcancel 4</div></td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.labelend"></a>labelend	</td></tr>
+	<tr><td colspan="2">When the user clicks elsewhere or presses RETURN while editing or clicks somewhere else but edited the text.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME labelend ID VALUE</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx labelend 4 New Item Text</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">VALUE</td>
+		<td>Edited text label.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">noedit</a> to cancel label editing (for example if string is NULL or invalid to your application).</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use $xdid().selpath to determine which path is being edited.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.rclick"></a>rclick	</td></tr>
+	<tr><td colspan="2">When the treeview is right clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME rclick ID PATH</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx rclick 4 4 2</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">PATH</td>
+		<td>Path leading to the item that triggered the event.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>You cant use $xdid().tvseltext to get item text, you need to use $xdid().tvtext with item path given.</li><li>This event does not require an item to be clicked on to be triggered. If no item was right clicked, no path is returned.</li></ul></td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.sclick"></a>sclick	</td></tr>
+	<tr><td colspan="2">When an item is single clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME sclick ID PATH</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx sclick 4 1 4 2</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">PATH</td>
+		<td>Path leading to the item that triggered the event.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You cant use $xdid().tvseltext to get item text, you need to use $xdid().tvtext with item path given.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.selchange"></a>selchange	</td></tr>
+	<tr><td colspan="2">When the selected item changes.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME selchange ID PATH</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx selchange 4 4 2</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">PATH</td>
+		<td>Path leading to the item which triggered the event.</td>
+	</tr>
+</table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.stateclick"></a>stateclick	</td></tr>
+	<tr><td colspan="2">When a checkbox is clicked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME stateclick ID STATE PATH</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx stateclick 4 1 4 2</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">STATE</td>
+		<td>New item check state (<a class="style">checkbox</a> style) or state icon value.</td>
+	</tr>
+	<tr>
+		<td class="param">PATH</td>
+		<td>Path leading to the item that triggered the event.</td>
+	</tr>
+</table>
+<br />
+</td><td width="80%" valign="top" class="menuright">
+<div class='rightmenu' style='border:1px solid #B49696'>
+	<a class='header' href="#style"><div style='background:#B49696;'>Control Styles</div></a>
+		<a class='flag' href="#style.alpha"><div>alpha</div></a>
+		<a class='flag' href="#style.autohscroll"><div>autohscroll</div></a>
+		<a class='flag' href="#style.balloon"><div>balloon</div></a>
+		<a class='flag' href="#style.checkbox"><div>checkbox</div></a>
+		<a class='flag' href="#style.doublebuffer"><div>doublebuffer</div></a>
+		<a class='flag' href="#style.editlabel"><div>editlabel</div></a>
+		<a class='flag' href="#style.fadebuttons"><div>fadebuttons</div></a>
+		<a class='flag' href="#style.fullrow"><div>fullrow</div></a>
+		<a class='flag' href="#style.hasbuttons"><div>hasbuttons</div></a>
+		<a class='flag' href="#style.haslines"><div>haslines</div></a>
+		<a class='flag' href="#style.linesatroot"><div>linesatroot</div></a>
+		<a class='flag' href="#style.nohscroll"><div>nohscroll</div></a>
+		<a class='flag' href="#style.noident"><div>noident</div></a>
+		<a class='flag' href="#style.noscroll"><div>noscroll</div></a>
+		<a class='flag' href="#style.notooltips"><div>notooltips</div></a>
+		<a class='flag' href="#style.richtooltip"><div>richtooltip</div></a>
+		<a class='flag' href="#style.showsel"><div>showsel</div></a>
+		<a class='flag' href="#style.singleexpand"><div>singleexpand</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #6A7CB0'>
+	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
+		<a class='flag' href="#xdid.a"><div>-a</div></a>
+		<a class='flag' href="#xdid.c"><div>-c</div></a>
+		<a class='flag' href="#xdid.d"><div>-d</div></a>
+		<a class='flag' href="#xdid.g"><div>-g</div></a>
+		<a class='flag' href="#xdid.i"><div>-i</div></a>
+		<a class='flag' href="#xdid.j"><div>-j</div></a>
+		<a class='flag' href="#xdid.k"><div>-k</div></a>
+		<a class='flag' href="#xdid.l"><div>-l</div></a>
+		<a class='flag' href="#xdid.m"><div>-m</div></a>
+		<a class='flag' href="#xdid.n"><div>-n</div></a>
+		<a class='flag' href="#xdid.o"><div>-o</div></a>
+		<a class='flag' href="#xdid.r"><div>-r</div></a>
+		<a class='flag' href="#xdid.t"><div>-t</div></a>
+		<a class='flag' href="#xdid.u"><div>-u</div></a>
+		<a class='flag' href="#xdid.v"><div>-v</div></a>
+		<a class='flag' href="#xdid.w"><div>-w</div></a>
+		<a class='flag' href="#xdid.y"><div>-y</div></a>
+		<a class='flag' href="#xdid.z"><div>-z</div></a>
+		<a class='flag' href="#xdid.big.A"><div>-A</div></a>
+		<a class='flag' href="#xdid.big.B"><div>-B</div></a>
+		<a class='flag' href="#xdid.big.G"><div>-G</div></a>
+		<a class='flag' href="#xdid.big.Q"><div>-Q</div></a>
+		<a class='flag' href="#xdid.big.S"><div>-S</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #A8B2D1'>
+	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.expand"><div>expand</div></a>
+		<a class='flag' href="#xdidprop.find"><div>find</div></a>
+		<a class='flag' href="#xdidprop.icon"><div>icon</div></a>
+		<a class='flag' href="#xdidprop.markeditem"><div>markeditem</div></a>
+		<a class='flag' href="#xdidprop.mouseitem"><div>mouseitem</div></a>
+		<a class='flag' href="#xdidprop.num"><div>num</div></a>
+		<a class='flag' href="#xdidprop.selpath"><div>selpath</div></a>
+		<a class='flag' href="#xdidprop.seltext"><div>seltext</div></a>
+		<a class='flag' href="#xdidprop.state"><div>state</div></a>
+		<a class='flag' href="#xdidprop.text"><div>text</div></a>
+		<a class='flag' href="#xdidprop.tooltip"><div>tooltip</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #74C043'>
+	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
+		<a class='flag' href="#events.buttonclick"><div>buttonclick</div></a>
+		<a class='flag' href="#events.collapse"><div>collapse</div></a>
+		<a class='flag' href="#events.dclick"><div>dclick</div></a>
+		<a class='flag' href="#events.expand"><div>expand</div></a>
+		<a class='flag' href="#events.help"><div>help</div></a>
+		<a class='flag' href="#events.labelbegin"><div>labelbegin</div></a>
+		<a class='flag' href="#events.labelcancel"><div>labelcancel</div></a>
+		<a class='flag' href="#events.labelend"><div>labelend</div></a>
+		<a class='flag' href="#events.rclick"><div>rclick</div></a>
+		<a class='flag' href="#events.sclick"><div>sclick</div></a>
+		<a class='flag' href="#events.selchange"><div>selchange</div></a>
+		<a class='flag' href="#events.stateclick"><div>stateclick</div></a>
+	</div>
+</td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>

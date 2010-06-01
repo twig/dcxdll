@@ -1,0 +1,138 @@
+; --------< Advanced Real-Life Example >----------------------------------------------------
+; Name....: Proxy Options
+; Author..: sprion
+; Email...: sprion@lyniq.com
+; Date....: 11 Aug 06
+; URL.....: http://zion-irc.sf.net
+; Info....: Ripped from part of the Options dialog from the mIRC addon: Zion Sphinx 3.0
+;---------------------------------------------------------------------
+
+; 63 lines of real codes (minus comments & breaks) to create this dialog.
+
+; dialog call, use this to display the dialog
+alias proxy_eg {
+	dialog -ma proxy_eg proxy_eg
+}
+
+dialog proxy_eg {
+	title Connection Settings
+	size -1 -1 400 210
+}
+
+on *:dialog:proxy_eg:*:*: {
+	if ($devent = init) {
+		; setting callback alias (event handler, important)
+		dcx Mark $dname proxy_eg_cb
+		; setting dialog borders/look
+		xdialog -b $dname +ty
+		;// Call initilisation alias
+		proxy_eg_init
+	}
+}
+
+alias -l proxy_eg_init {
+
+	; setting variables for easy reference
+	; %d = dialog name, %bg2 & %bg2_ are colours
+	var %d $dname
+
+
+	; ---normal box creation (proxy box)
+	xdialog -c %d 10 box 10 5 380 160
+	; setting box text
+	xdid -t %d 10 Proxy Server
+	; ---end
+
+	; ---creating a group of radios (notice the 'group' style, denotes the start of a group)
+	xdid -c %d 10 12 radio 15 20 280 20 group
+	; setting the text for THIS radio
+	xdid -t %d 12 Direct connection to the Internet
+	; repeating for the other radios
+	xdid -c %d 10 13 radio 15 43 280 20
+	xdid -t %d 13 Auto-detect settings from Internet Explorer
+	; next radio
+	xdid -c %d 10 14 radio 15 65 280 20
+	xdid -t %d 14 Manual proxy configuration:
+	; ---end
+
+	; ---creating label
+	xdid -c %d 10 15 text 40 90 70 20
+	; style & text for label
+	xdid -f %d 15 +ab ansi 8 Tahoma
+	xdid -t %d 15 &HTTP Proxy:
+	; ---end
+
+	; ---creating an edit box
+	xdid -c %d 10 16 edit 115 87 150 20
+	; ---end
+
+	; ---another label
+	xdid -c %d 10 17 text 280 90 30 20
+	xdid -f %d 17 +ab ansi 8 Tahoma
+	xdid -t %d 17 &Port:
+	; ---end
+
+	; ---edit box
+	xdid -c %d 10 18 edit 315 87 50 20
+	; ---end
+
+	; ---creating button
+	xdid -c %d 10 19 button 120 120 140 25
+	; setting text
+	xdid -t %d 19 Test Connection Settings
+	; ---end
+
+	; ---more buttons
+	xdialog -c %d 31 button 160 175 70 25
+	xdid -t %d 31 OK
+	; next button
+	xdialog -c %d 32 button 240 175 70 25
+	xdid -t %d 32 Cancel
+	; next button
+	xdialog -c %d 33 button 320 175 70 25
+	xdid -t %d 33 Help
+	; ---end
+
+	; ---END OF UI CREATING
+
+	; ---OTHER MISC HERE
+	; i.e. load settings, adjust display to show the settings
+	; in this case i selected 'Direct connection to the Internet', using my custom method
+	_proxytoggle %d 12
+
+}
+; [CUSTOM METHOD]
+; this is a lil extra for you to look at, called when a radio is clicked,
+; enabling & disabling the edit controls when necessary
+alias -l _proxytoggle {
+	; 14 is the control ID for Manual Proxy
+	; -e = enable, -b = disable
+	var %m $iif($2 = 14,-e,-b)
+	xdid -c $1 $2
+	xdid %m $1 16
+	xdid %m $1 18
+}
+; Callback alias for dialog, this is the EVENT HANDLER.
+alias proxy_eg_cb {
+	if ($2 = sclick) {
+		; CANCEL
+		if ($3 = 32) xdialog -x $1
+		; OK
+		elseif ($3 = 31) {
+			; save & close dialog
+			; you should add a method to save settings here
+			xdialog -x $1
+		}
+		; any of the radios (ID 12 to 14) clicked, will run this method
+		elseif ($3 isnum 12-14) _proxytoggle $1 $3
+		; HELP
+		elseif ($3 = 33) echo -a HELP CLICKED
+		; test connection
+		elseif ($3 = 19) {
+			echo -a TESTING
+		}
+	}
+	elseif ($2 = close) {
+		; some cleaning up here
+	}
+}

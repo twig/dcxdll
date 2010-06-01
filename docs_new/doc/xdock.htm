@@ -1,0 +1,965 @@
+<?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>DCX XDock - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+
+<link href="dcx.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<table cellpadding="0" cellspacing="0" border="0" style="border-bottom:#BBD1FF 1px solid;">
+	<tr>
+		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
+		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
+			<a style="color:#000000;" href='index.htm'>Home</a> |
+			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
+			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+                        <div class="version">v1.4.1</div>
+		</td>
+	</tr>
+</table>
+
+<table class="bar"><tr><td colspan="3">&nbsp;</td></tr></table>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+	<tr>
+	<td width="150" align="left" valign="top">
+	<ul class="nav">
+		<li><a href="index.htm">Home</a></li>
+		<li>General Usage
+			<ul>
+				<a href="dcx.htm"><div>DCX Commands</div></a>
+				<a href="xdialog.htm"><div>Marked Dialog</div></a>
+				<a href="xdid.htm"><div>Controls</div></a>
+			</ul>
+		</li>
+		<li>DCX Controls
+			<ul>
+<a href="box.htm"><div>Box</div></a><a href="button.htm"><div>Button</div></a><a href="calendar.htm"><div>Calendar</div></a><a href="check.htm"><div>Check</div></a><a href="colorcombo.htm"><div>ColorCombo</div></a><a href="comboex.htm"><div>ComboEx</div></a><a href="datetime.htm"><div>DateTime Picker</div></a><a href="dialog.htm"><div>Dialog (embedded)</div></a><a href="directshow.htm"><div>Directshow</div></a><a href="divider.htm"><div>Divider</div></a><a href="edit.htm"><div>Edit</div></a><a href="ipaddress.htm"><div>IP Address</div></a><a href="image.htm"><div>Image</div></a><a href="line.htm"><div>Line</div></a><a href="link.htm"><div>Link</div></a><a href="list.htm"><div>List</div></a><a href="listview.htm"><div>Listview</div></a><a href="pager.htm"><div>Pager</div></a><a href="panel.htm"><div>Panel</div></a><a href="pbar.htm"><div>Progress Bar</div></a><a href="radio.htm"><div>Radio</div></a><a href="rebar.htm"><div>Rebar</div></a><a href="richedit.htm"><div>RichEdit</div></a><a href="scroll.htm"><div>Scroll</div></a><a href="stacker.htm"><div>Stacker</div></a><a href="statusbar.htm"><div>StatusBar</div></a><a href="tab.htm"><div>Tab</div></a><a href="text.htm"><div>Text</div></a><a href="toolbar.htm"><div>ToolBar</div></a><a href="trackbar.htm"><div>TrackBar</div></a><a href="treeview.htm"><div>Treeview</div></a><a href="updown.htm"><div>UpDown</div></a><a href="webctrl.htm"><div>Web Control</div></a><a href="window.htm"><div>Window (embedded)</div></a>			</ul>
+		</li>
+		<li>DCX Features
+			<ul>
+				<a href="layout.htm"><div>Cell Layout Algorithm</div></a>
+                                <a href="dcxml.htm"><div>DCXML</div></a>
+				<a href="xdock.htm"><div>XDock</div></a>
+                                <a href="xmenubar.htm"><div>XMenuBar</div></a>
+                                <a href="xpopup.htm"><div>XPopup</div></a>
+                                <a href="xstatusbar.htm"><div>XStatusbar</div></a>
+				<a href="xtray.htm"><div>XTray</div></a>
+                                <a href="xtreebar.htm"><div>XTreebar</div></a>
+			</ul>
+		</li>
+		<li>About DCX
+			<ul>
+				<a href="dcxvsmdx.htm"><div>DCX vs MDX</div></a>
+				<a href="tutorials.htm"><div>Tutorials</div></a>
+				<a href="changes.htm"><div>Version History</div></a>
+			</ul>
+		</li>
+	</ul>
+	</td>
+<td><table class="description">
+	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>XDock</td></tr>
+	<tr><td>XDock is the complete rewrite of UltraDock. It handles docking of all types of windows and customisation of behaviour upon resizing.<br /><br />
+<div style="text-align: center;">
+	<img src="images/xdock.png" alt="" />
+</div>
+</td></tr>
+</table>
+<table class="description">
+	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdock"></a>/xdock Commands</td></tr>
+	<tr><td>The /xdock command is used to force the positioning of a window within another window, with specific behaviour.</td></tr>
+</table>
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.b"></a>/xdock -b	</td></tr>
+	<tr><td colspan="2">This command docks a window to the mIRC TreeBar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -b [HWND_DOCK] [+FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -b $dialog(dcx).hwnd +h</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to dock.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for docking into the mIRC TreeBar.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Docked window will be resized to fit its parent width & height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Docked window will be resized to fit its parent width automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Docked window will be resized to fit its parent height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Docked window will <strong>not</strong> be resized automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">o</td>
+		<td>Uses the old style treebar docking. This is when the docked window is on top of the treeview control within treebar.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.</td></tr></table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.c"></a>/xdock -c	</td></tr>
+	<tr><td colspan="2">This command docks a window to a custom window (channel, query, custom, or status windows).</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -c [HWND_DOCK] [+FLAGS] [DESTINATION]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -c $dialog(dcx).hwnd +h $query(ClickHeRe).hwnd</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to dock.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for docking into a custom window.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Docked window will be resized to fit its parent width & height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Docked window will be resized to fit its parent width automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Docked window will be resized to fit its parent height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Docked window will <strong>not</strong> be resized automatically.</td>
+	</tr>
+	<tr>
+		<td class="param">DESTINATION</td>
+		<td>The HWND of the window that you wish to dock your window into.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.</td></tr></table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.m"></a>/xdock -m	</td></tr>
+	<tr><td colspan="2">This command docks a window to your mIRC window.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -m [HWND_DOCK] [+FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -m $dialog(dcx).hwnd +r</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to dock.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for docking into a mIRC window.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Docks the window to the top.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Docks the window to the bottom.</td>
+	</tr>
+	<tr>
+		<td class="value">l</td>
+		<td>Docks the window to the left.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Docks the window to the right.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.</td></tr></table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.n"></a>/xdock -n	</td></tr>
+	<tr><td colspan="2">This command docks a window to a nicklist listbox.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -n [HWND_DOCK] [+FLAGS] [DESTINATION]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -n $dialog(dcx).hwnd +h $channel(#help).hwnd</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to dock.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for docking into a custom window.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Disable the nicklist scrollbar.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Docked window will be resized to fit its parent width & height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Docked window will be resized to fit its parent width automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Docked window will be resized to fit its parent height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Docked window will <strong>not</strong> be resized automatically.</td>
+	</tr>
+	<tr>
+		<td class="param">DESTINATION</td>
+		<td>The HWND of the channel window that you wish to dock your window into.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.</td></tr></table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.p"></a>/xdock -p	</td></tr>
+	<tr><td colspan="2">This command forces mIRC to update its docked windows.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -p </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -p</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.r"></a>/xdock -r	</td></tr>
+	<tr><td colspan="2">This command resizes a docked window.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -r [HWND_DOCK] [+FLAGS] [WIDTH] [HEIGHT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -r $dialog(dcx).hwnd + 250 3000</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to resize.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>There are currently no flags.</td>
+	</tr>
+	<tr>
+		<td class="param">WIDTH</td>
+		<td>The width that the window will be set to.</td>
+	</tr>
+	<tr>
+		<td class="param">HEIGHT</td>
+		<td>The height that the window will be set to.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the window is docked in a top or bottom position, then <a class="param">WIDTH</a> will be ignored.</li><li>If the window is docked in a left or right position, then <a class="param">HEIGHT</a> will be ignored.</li></ul></td></tr></table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.s"></a>/xdock -s	</td></tr>
+	<tr><td colspan="2">This command docks a window to the mIRC SwitchBar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -s [HWND_DOCK] [+FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -s $dialog(dcx).hwnd +v</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to dock.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for docking into the mIRC SwitchBar.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Docked window will be resized to fit its parent width & height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Docked window will be resized to fit its parent width automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Docked window will be resized to fit its parent height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Docked window will <strong>not</strong> be resized automatically.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.</td></tr></table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.t"></a>/xdock -t	</td></tr>
+	<tr><td colspan="2">This command docks a window to the mIRC ToolBar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -t [HWND_DOCK] [+FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -t $dialog(dcx).hwnd +v</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to dock.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Flags for docking into the mIRC ToolBar.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Docked window will be resized to fit its parent width & height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Docked window will be resized to fit its parent width automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Docked window will be resized to fit its parent height automatically.</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Docked window will <strong>not</strong> be resized automatically.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Dialogs should not be docked within the INIT event as they are not yet visible. This can be fixed by using a timer.</td></tr></table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.u"></a>/xdock -u	</td></tr>
+	<tr><td colspan="2">This command undocks a window.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -u [HWND_DOCK] [+FLAGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -u $dialog(dcx).hwnd +</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">HWND_DOCK</td>
+		<td>The HWND of the window you wish to undock.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> There are currently no flags, but the <a class="value">+</a> character is required for DCX prior to v1.3.8</td></tr></table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.big.M"></a>/xdock -M	</td></tr>
+	<tr><td colspan="2">This command shows/hides the Menubar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -M [1|0]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -M 0</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.big.R"></a>/xdock -R	</td></tr>
+	<tr><td colspan="2">This command shows/hides the Treebar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -R [1|0]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -R 0</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.big.S"></a>/xdock -S	</td></tr>
+	<tr><td colspan="2">This command shows/hides the Switchbar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -S [1|0]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -S 0</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdock">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdock.big.T"></a>/xdock -T	</td></tr>
+	<tr><td colspan="2">This command shows/hides the Toolbar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdock -T [1|0]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdock -T 0</div></td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdockprop"></a>$xdock Properties</td></tr>
+	<tr><td>The $xdock identifier is used to retrieve docking information about windows and various mIRC components.</td></tr>
+</table>
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.dockSide"></a>$xdock().dockSide	</td></tr>
+	<tr><td colspan="2">Returns the side which the dialog is docked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).dockSide</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).dockSide</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">SIDE</td>
+		<td>Possible return values.</td>
+	</tr>
+	<tr>
+		<td class="value">top</td>
+		<td>The window is docked in the top position.</td>
+	</tr>
+	<tr>
+		<td class="value">bottom</td>
+		<td>The window is docked in the bottom position.</td>
+	</tr>
+	<tr>
+		<td class="value">left</td>
+		<td>The window is docked in the left position.</td>
+	</tr>
+	<tr>
+		<td class="value">right</td>
+		<td>The window is docked in the right position.</td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.hasDocked"></a>$xdock().hasDocked	</td></tr>
+	<tr><td colspan="2">Determines if the specified window/dialog has a docked window/dialog within it.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).hasDocked</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).hasDocked</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.isAutoH"></a>$xdock().isAutoH	</td></tr>
+	<tr><td colspan="2">Returns <a class="value">$true</a> if the docked window automatically resizes horizontally.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).isAutoH</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).isAutoH</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.isAutoS"></a>$xdock().isAutoS	</td></tr>
+	<tr><td colspan="2">Returns <a class="value">$true</a> if the docked window automatically resizes both horizontally and vertically.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).isAutoS</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).isAutoS</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.isAutoV"></a>$xdock().isAutoV	</td></tr>
+	<tr><td colspan="2">Returns <a class="value">$true</a> if the docked window automatically resizes vertically.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).isAutoV</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).isAutoV</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.isDocked"></a>$xdock().isDocked	</td></tr>
+	<tr><td colspan="2">Determines if a window/dialog is docked.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).isDocked</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).isDocked</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.isMenuBar"></a>$xdock().isMenuBar	</td></tr>
+	<tr><td colspan="2">Determines if the mIRC MenuBar is visible.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).isMenuBar</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).isMenuBar</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.isSwitchBar"></a>$xdock().isSwitchBar	</td></tr>
+	<tr><td colspan="2">Determines if the mIRC SwitchBar is visible.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).isSwitchBar</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).isSwitchBar</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.isToolBar"></a>$xdock().isToolBar	</td></tr>
+	<tr><td colspan="2">Determines if the mIRC ToolBar is visible.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).isToolBar</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).isToolBar</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.isTreeBar"></a>$xdock().isTreeBar	</td></tr>
+	<tr><td colspan="2">Determines if the mIRC TreeBar is visible.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).isTreeBar</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).isTreeBar</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.switchBarPos"></a>$xdock().switchBarPos	</td></tr>
+	<tr><td colspan="2">Returns the mIRC SwitchBar dock position.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).switchBarPos</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).switchBarPos</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POSITION</td>
+		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">none</td>
+		<td>The SwitchBar is not shown in mIRC.</td>
+	</tr>
+	<tr>
+		<td class="value">top</td>
+		<td>The SwitchBar is docked in the top position.</td>
+	</tr>
+	<tr>
+		<td class="value">bottom</td>
+		<td>The SwitchBar is docked in the bottom position.</td>
+	</tr>
+	<tr>
+		<td class="value">left</td>
+		<td>The SwitchBar is docked in the left position.</td>
+	</tr>
+	<tr>
+		<td class="value">right</td>
+		<td>The SwitchBar is docked in the right position.</td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.switchBarSize"></a>$xdock().switchBarSize	</td></tr>
+	<tr><td colspan="2">Returns the mIRC SwitchBar size.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).switchBarSize</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).switchBarSize</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">DIMENSIONS</td>
+		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">X</td>
+		<td>The X-offset of the mIRC SwitchBar</td>
+	</tr>
+	<tr>
+		<td class="value">Y</td>
+		<td>The Y-offset of the mIRC SwitchBar</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>The width of the mIRC SwitchBar.</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>The height of the mIRC SwitchBar.</td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.text"></a>$xdock().text	</td></tr>
+	<tr><td colspan="2">Returns the title text for the given HWND.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).text</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).text</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.toolBarPos"></a>$xdock().toolBarPos	</td></tr>
+	<tr><td colspan="2">Returns the mIRC ToolBar position.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).toolBarPos</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).toolBarPos</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POSITION</td>
+		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">none</td>
+		<td>The ToolBar is not shown in mIRC.</td>
+	</tr>
+	<tr>
+		<td class="value">top</td>
+		<td>The ToolBar is in the top position.</td>
+	</tr>
+	<tr>
+		<td class="value">bottom</td>
+		<td>The ToolBar is in the bottom position.</td>
+	</tr>
+	<tr>
+		<td class="value">left</td>
+		<td>The ToolBar is in the left position.</td>
+	</tr>
+	<tr>
+		<td class="value">right</td>
+		<td>The ToolBar is in the right position.</td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.toolBarSize"></a>$xdock().toolBarSize	</td></tr>
+	<tr><td colspan="2">Returns the mIRC ToolBar size.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).toolBarSize</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).toolBarSize</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">DIMENSIONS</td>
+		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">X</td>
+		<td>The X-offset of the mIRC ToolBar</td>
+	</tr>
+	<tr>
+		<td class="value">Y</td>
+		<td>The Y-offset of the mIRC ToolBar</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>The width of the mIRC ToolBar.</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>The height of the mIRC ToolBar.</td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.treeBarPos"></a>$xdock().treeBarPos	</td></tr>
+	<tr><td colspan="2">Returns the mIRC TreeBar position.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).treeBarPos</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).treeBarPos</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">POSITION</td>
+		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">none</td>
+		<td>The TreeBar is not shown in mIRC.</td>
+	</tr>
+	<tr>
+		<td class="value">top</td>
+		<td>The TreeBar is in the top position.</td>
+	</tr>
+	<tr>
+		<td class="value">bottom</td>
+		<td>The TreeBar is in the bottom position.</td>
+	</tr>
+	<tr>
+		<td class="value">left</td>
+		<td>The TreeBar is in the left position.</td>
+	</tr>
+	<tr>
+		<td class="value">right</td>
+		<td>The TreeBar is in the right position.</td>
+	</tr>
+</table>
+<br />
+<table class="xdockprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdockprop.treeBarSize"></a>$xdock().treeBarSize	</td></tr>
+	<tr><td colspan="2">Returns the mIRC TreeBar size.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdock(HWND).treeBarSize</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdock($dialog(dcx).hwnd).treeBarSize</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">DIMENSIONS</td>
+		<td>Return values.</td>
+	</tr>
+	<tr>
+		<td class="value">X</td>
+		<td>The X-offset of the mIRC TreeBar</td>
+	</tr>
+	<tr>
+		<td class="value">Y</td>
+		<td>The Y-offset of the mIRC TreeBar</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>The width of the mIRC TreeBar.</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>The height of the mIRC TreeBar.</td>
+	</tr>
+</table>
+<br />
+<table class="description">
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>XDock Signals</td></tr>
+	<tr><td><table class="event">
+	<tr><td colspan="2">Signals are sent to mIRC containing information about components which have resized. To activate signal messages for docked windows, refer to <a class="value">/dcx xSignal</a></td></tr>
+	<tr>
+		<td class="syntax">Signal:</td>
+		<td><div class="syntax">DCX size WINDOW_TYPE HWND W H</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">DCX size mIRC_Toolbar 345564 1024 32</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">size</td>
+		<td>The event signal identifier.</td>
+	</tr>
+	<tr>
+		<td class="param">WINDOW_TYPE</td>
+		<td>Information about which window type this information is describing.</td>
+	</tr>
+	<tr>
+		<td class="value">mIRC</td>
+		<td>The mIRC window has resized.</td>
+	</tr>
+	<tr>
+		<td class="value">mIRC_Switchbar</td>
+		<td>The mIRC SwitchBar has resized.</td>
+	</tr>
+	<tr>
+		<td class="value">mIRC_Toolbar</td>
+		<td>The mIRC ToolBar has resized.</td>
+	</tr>
+	<tr>
+		<td class="value">mIRC_TreeList</td>
+		<td>The mIRC TreeList has resized.</td>
+	</tr>
+	<tr>
+		<td class="value">ListBox</td>
+		<td>The channel ListBox has been resized.</td>
+	</tr>
+	<tr>
+		<td class="value">Custom</td>
+		<td>A custom window has been resized.</td>
+	</tr>
+	<tr>
+		<td class="param">HWND</td>
+		<td>The hwnd of the window which resized.</td>
+	</tr>
+	<tr>
+		<td class="param">W</td>
+		<td>The new width of the window.</td>
+	</tr>
+	<tr>
+		<td class="param">H</td>
+		<td>The new height of the window.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> For <a class="value">ListBox</a> and <a class="value">Custom</a>, the <a class="param">HWND</a> will be the HWND of the window which triggered the event. For the other events, the HWND will be for the main mIRC window.</td></tr></table>
+</td></tr>
+</table>
+</td><td width="80%" valign="top" class="menuright">
+<div class='rightmenu' style='border:1px solid #6A7CB0'>
+	<a class='header' href="#xdock"><div style='background:#6A7CB0;'>/xdock Commands</div></a>
+		<a class='flag' href="#xdock.b"><div>-b</div></a>
+		<a class='flag' href="#xdock.c"><div>-c</div></a>
+		<a class='flag' href="#xdock.m"><div>-m</div></a>
+		<a class='flag' href="#xdock.n"><div>-n</div></a>
+		<a class='flag' href="#xdock.p"><div>-p</div></a>
+		<a class='flag' href="#xdock.r"><div>-r</div></a>
+		<a class='flag' href="#xdock.s"><div>-s</div></a>
+		<a class='flag' href="#xdock.t"><div>-t</div></a>
+		<a class='flag' href="#xdock.u"><div>-u</div></a>
+		<a class='flag' href="#xdock.big.M"><div>-M</div></a>
+		<a class='flag' href="#xdock.big.R"><div>-R</div></a>
+		<a class='flag' href="#xdock.big.S"><div>-S</div></a>
+		<a class='flag' href="#xdock.big.T"><div>-T</div></a>
+	</div>
+<div class='rightmenu' style='border:1px solid #A8B2D1'>
+	<a class='header' href="#xdockprop"><div style='background:#A8B2D1;'>$xdock() Properties</div></a>
+		<a class='flag' href="#xdockprop.dockSide"><div>dockSide</div></a>
+		<a class='flag' href="#xdockprop.hasDocked"><div>hasDocked</div></a>
+		<a class='flag' href="#xdockprop.isAutoH"><div>isAutoH</div></a>
+		<a class='flag' href="#xdockprop.isAutoS"><div>isAutoS</div></a>
+		<a class='flag' href="#xdockprop.isAutoV"><div>isAutoV</div></a>
+		<a class='flag' href="#xdockprop.isDocked"><div>isDocked</div></a>
+		<a class='flag' href="#xdockprop.isMenuBar"><div>isMenuBar</div></a>
+		<a class='flag' href="#xdockprop.isSwitchBar"><div>isSwitchBar</div></a>
+		<a class='flag' href="#xdockprop.isToolBar"><div>isToolBar</div></a>
+		<a class='flag' href="#xdockprop.isTreeBar"><div>isTreeBar</div></a>
+		<a class='flag' href="#xdockprop.switchBarPos"><div>switchBarPos</div></a>
+		<a class='flag' href="#xdockprop.switchBarSize"><div>switchBarSize</div></a>
+		<a class='flag' href="#xdockprop.text"><div>text</div></a>
+		<a class='flag' href="#xdockprop.toolBarPos"><div>toolBarPos</div></a>
+		<a class='flag' href="#xdockprop.toolBarSize"><div>toolBarSize</div></a>
+		<a class='flag' href="#xdockprop.treeBarPos"><div>treeBarPos</div></a>
+		<a class='flag' href="#xdockprop.treeBarSize"><div>treeBarSize</div></a>
+	</div>
+</td>
+  </tr>
+</table>
+
+<table class="bar">
+	<tr>
+	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
+		<td style="text-align: center;">© 2005-2009</td>
+		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+	</tr>
+</table>
+<div style="text-align: center;">
+	<br />
+	<a href="http://validator.w3.org/check?uri=referer">
+		<img src="images/valid_xhtml.png" alt="Valid XHTML 1.0 Transitional" />
+	</a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+		<img src="images/valid_css.png" alt="Valid CSS!" />
+	</a>
+</div>
+</body>
+</html>
