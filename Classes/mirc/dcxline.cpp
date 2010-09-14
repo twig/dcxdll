@@ -142,7 +142,7 @@ void DcxLine::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 //  int numtok = input.numtok( );
 	if ( input.gettok( 3 ) == "text" ) {
-		lstrcpyn(szReturnValue, this->m_sText.to_chr(), 900);
+		lstrcpyn(szReturnValue, this->m_sText.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
@@ -284,7 +284,7 @@ void DcxLine::DrawClientArea(HDC hdc)
 		if (this->isStyle(SS_LEFTNOWORDWRAP))
 			style |= DT_SINGLELINE;
 		if (this->m_bVertical) {
-			style |= DT_CENTER;
+			//style |= DT_CENTER;
 			SIZE sz;
 			SetBkMode(hdc, TRANSPARENT);
 			GetTextExtentPoint32(hdc,this->m_sText.to_chr(),this->m_sText.len(), &sz);

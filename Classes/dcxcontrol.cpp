@@ -203,7 +203,7 @@ bool DcxControl::evalAliasEx( char * szReturn, const int maxlen, const char * sz
 	va_list args;
 
 	va_start( args, szFormat );
-	parms.vprintf(szFormat, &args );
+	parms.tvprintf(szFormat, &args );
 	va_end( args );
 
 	return this->m_pParentDialog->evalAlias(szReturn, maxlen, parms.to_chr());
@@ -215,7 +215,7 @@ bool DcxControl::execAliasEx( const char * szFormat, ... ) {
 	va_list args;
 
 	va_start( args, szFormat );
-	parms.vprintf(szFormat, &args);
+	parms.tvprintf(szFormat, &args);
 	va_end( args );
 
 	return this->m_pParentDialog->execAlias(parms.to_chr());
@@ -394,6 +394,19 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	}
 	// xdid -h [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
 	else if (flags['h']) {
+#if DCX_FOR_XP_ONLY
+		if (numtok > 4)
+			AnimateWindow(this->m_Hwnd,
+				input.gettok(5).to_int(),
+				(AW_HIDE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_ACTIVATE);
+		else
+			ShowWindow(this->m_Hwnd, SW_HIDE);
+
+		RECT rc;
+		GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
+		if (this->m_pParentDialog->updateLayout(rc))
+			this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
+#else
 		if (AnimateWindowUx == NULL)
 			this->showError(NULL, "-h", "Unsupported By Current OS");
 		else {
@@ -409,9 +422,24 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			if (this->m_pParentDialog->updateLayout(rc))
 				this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
 		}
+#endif
 	}
 	// xdid -s [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
 	else if ( flags['s'] ) {
+#if DCX_FOR_XP_ONLY
+			if (numtok > 4) {
+				AnimateWindow(this->m_Hwnd,
+					input.gettok(5).to_int(),
+					(AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_HIDE);
+			}
+			else
+				ShowWindow(this->m_Hwnd, SW_SHOW);
+
+			RECT rc;
+			GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
+			if (this->m_pParentDialog->updateLayout(rc))
+				this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
+#else
 		if (AnimateWindowUx == NULL)
 			this->showError(NULL, "-s", "Unsupported By Current OS");
 		else {
@@ -428,6 +456,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			if (this->m_pParentDialog->updateLayout(rc))
 				this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
 		}
+#endif
 	}
 	// xdid -U [NAME] [ID]
 	else if (flags['U']) {
@@ -848,7 +877,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 		return TRUE;
 	}
 	else if ( prop == "mark" ) {
-		lstrcpyn( szReturnValue, this->m_tsMark.to_chr( ), 900 );
+		lstrcpyn( szReturnValue, this->m_tsMark.to_chr( ), MIRC_BUFFER_SIZE_CCH );
 		return TRUE;
 	}
 	else if ( prop == "mouse" ) {
@@ -871,11 +900,11 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 	}
 	else if ( prop == "type" ) {
 
-		lstrcpyn( szReturnValue, this->getType( ).to_chr( ), 900 );
+		lstrcpyn( szReturnValue, this->getType( ).to_chr( ), MIRC_BUFFER_SIZE_CCH );
 		return TRUE;
 	}
 	else if ( prop == "styles" ) {
-		lstrcpyn( szReturnValue, this->getStyles( ).to_chr( ), 900 );
+		lstrcpyn( szReturnValue, this->getStyles( ).to_chr( ), MIRC_BUFFER_SIZE_CCH );
 		return TRUE;
 	}
 	else if ( prop == "font") {
@@ -894,7 +923,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 
 			//TString str(ParseLogfontToCommand(&lfCurrent));
 			//wsprintf(szReturnValue, "%s", str.to_chr());
-			lstrcpyn(szReturnValue, ParseLogfontToCommand(&lfCurrent).to_chr(), 900);
+			lstrcpyn(szReturnValue, ParseLogfontToCommand(&lfCurrent).to_chr(), MIRC_BUFFER_SIZE_CCH);
 			return TRUE;
 		}
 	}
@@ -996,11 +1025,13 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 		return 0L;
 	}
 
+#if DCX_FOR_XP_ONLY
+	bool fBlocked = (InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
+#else
 	bool fBlocked = false;
 	if (InSendMessageExUx != NULL)
 		fBlocked = (InSendMessageExUx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
-
-	LRESULT lrRes = 0L;
+#endif
 
 	if (!fBlocked) {
 		// If Message is blocking just call old win proc
@@ -1009,7 +1040,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 		if ((uMsg != WM_DESTROY) && (uMsg != WM_NCDESTROY))
 			pthis->incRef( );
 
-		lrRes = pthis->PostMessage(uMsg, wParam, lParam, bParsed);
+		LRESULT lrRes = pthis->PostMessage(uMsg, wParam, lParam, bParsed);
 
 		if ((uMsg != WM_DESTROY) && (uMsg != WM_NCDESTROY))
 			pthis->decRef();
@@ -1669,9 +1700,9 @@ void DcxControl::showError(const char *prop, const char *cmd, const char *err)
 	if (this->m_pParentDialog->IsVerbose()) {
 		TString res;
 		if (prop != NULL)
-			res.sprintf("D_IERROR %s(%s, %d).%s: %s", this->getType().to_chr(), this->m_pParentDialog->getName().to_chr(), this->getUserID(), prop, err);
+			res.tsprintf("D_IERROR %s(%s, %d).%s: %s", this->getType().to_chr(), this->m_pParentDialog->getName().to_chr(), this->getUserID(), prop, err);
 		else
-			res.sprintf("D_CERROR (%s) xdid %s %s %d: %s", this->getType().to_chr(), cmd, this->m_pParentDialog->getName().to_chr(), this->getUserID(), err);		
+			res.tsprintf("D_CERROR (%s) xdid %s %s %d: %s", this->getType().to_chr(), cmd, this->m_pParentDialog->getName().to_chr(), this->getUserID(), err);		
 		Dcx::error(cmd, res.to_chr());
 	}
 
@@ -1684,7 +1715,7 @@ void DcxControl::showErrorEx(const char *prop, const char *cmd, const char *fmt,
 	TString txt;
 
 	va_start( args, fmt );
-	txt.vprintf(fmt, &args );
+	txt.tvprintf(fmt, &args );
 	va_end( args );
 
 	this->showError(prop, cmd, txt.to_chr());

@@ -157,7 +157,7 @@ public:
 	HBITMAP GetVistaBitmap(void) const { return this->m_hVistaBitmap; };
 	IntegerHash getNamedIds(void) const { return this->namedIds; };
 	IntegerHash namedIds; //!< map of named Id's
-	void MapVistaRect(HWND hwnd, LPRECT rc) const;
+	void MapVistaRect(__in HWND hwnd, __inout LPRECT rc) const;
 
 	void RegisterDragList(DcxList* list);
 	void UnregisterDragList(DcxList* list);

@@ -8,6 +8,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 
 function get_styles_richedit(&$STYLES) {
 	$STYLES = array(
+//        'alpha' => 'Control is alpha blended.',
 		"multi" => "Enables a multiline richedit.",
 		"center" => "Text is centered.",
 		"readonly" => "Text cannot be edited manually.",
@@ -15,7 +16,8 @@ function get_styles_richedit(&$STYLES) {
 		'autohs' => 'Text scrolling is automatically scrolled horizontally without need of a horizontal scrollbar.',
 		'autovs' => 'Text scrolling is automatically scrolled vertically without need of a vertical scrollbar.',
 		'hsbar' => 'Displays a horizontal scrollbar.',
-		'vsbar' => 'Displays a vertical scrollbar.'
+		'vsbar' => 'Displays a vertical scrollbar.',
+		'tooltips' => 'The richedit will have a tooltip.',
 	);
 }
 
@@ -66,9 +68,9 @@ function get_xdid_richedit(&$XDID) {
 	        '__desc' => 'This command lets you load the mIRC color palette into the richedit.',
 		),
 		'n' => array(
-	        '__desc' => 'This command lets you toggle the automatic hyperlinking of urls to enable the [e]link[/e] event.',
-	        '__cmd' => '[ENABLED]',
-	        '__eg' => '1',
+			'__desc' => 'This command lets you toggle the automatic hyperlinking of urls to enable the [e]link[/e] event.',
+			'__cmd' => '[1|0]',
+			'__eg' => '1',
 		),
 		'o' => array(
 	        '__desc' => 'This command lets you overwrite the Nth line in the richedit.',
@@ -76,6 +78,13 @@ function get_xdid_richedit(&$XDID) {
 	        '__eg' => '5 New Text',
 	        '__notes' => array(
 	            "If the [s]multi[/s] style is not used, overwrites all text."
+			),
+		),
+		'P' => array(
+		  '__desc' => 'This command lets you paste the contents of the clipboard into the richedit control.',
+		  '__notes' => array(
+			'Formatting in the text is kept when using this command.',
+			'The text will be pasted directly into the current caret position. See [f]/xdid -S[/f].',
 			),
 		),
 		'q' => array(
@@ -91,27 +100,38 @@ function get_xdid_richedit(&$XDID) {
 	        '__desc' => 'This command lets you clear the contents of the richedit.',
 		),
 		't' => array(
-	        '__desc' => 'This command lets you load the contents of a file directly in the richedit.',
-	        '__cmd' => '[FILENAME]',
-	        '__eg' => 'C:\mIRC\blah.txt',
+			'__desc' => 'This command lets you load the contents of a file directly in the richedit.',
+			'__cmd' => '[FILENAME]',
+			'__eg' => 'C:/mIRC/blah.txt',
 		),
 		'u' => array(
-	        '__desc' => 'This command lets you save the contents of the richedit directly in a file.',
-	        '__cmd' => '[FILENAME]',
-	        '__eg' => 'C:\mIRC\blah.txt',
+			'__desc' => 'This command lets you save the contents of the richedit directly in a file.',
+			'__cmd' => '[FILENAME]',
+			'__eg' => 'C:/mIRC/blah.txt',
 		),
-		'S' => array(
-	        '__desc' => 'This command lets you set the selection range in the richedit.',
-	        '__cmd' => '[START] [END]',
-	        '__eg' => '1 3',
+        'S' => array(
+            '__desc' => 'This command lets you set the selection range (and/or caret position) in the richedit control.',
+            '__cmd' => '[START] (END)',
+            '__eg' => array(
+                '1 3',
+                '5',
+            ),
+            '__notes' => 'When the [p]END[/p] parameter is not specified, then this command will set the caret position to [p]START[/p].',
+        ),
+		'y' => array(
+			'__desc' => 'This command lets you ignore callbacks for repeated keydown events when the user holds a button.',
+			'__cmd' => '[1|0]',
+			'__eg' => '1',
+			'__notes' => array(
+				'Repeated keys are ignored by default.',
+				'A value of [v]1[/v] will prevent callbacks from being generated for repeated keydown events.',
+			),
 		),
 		'Z' => array(
-	        '__desc' => 'This command lets you zoom the text of the richedit.',
-	        '__cmd' => '[NUMERATOR] [DENOMINATOR]',
-	        '__eg' => '200 100',
-	        '__notes' => array(
-	            "The percentage of zooming is calculated by dividing the numerator by denominator ([p]NUMERATOR[/p] / [p]DENOMINATOR[/p] * 100)",
-			),
+			'__desc' => 'This command lets you zoom the text of the richedit.',
+			'__cmd' => '[NUMERATOR] [DENOMINATOR]',
+			'__eg' => '200 100',
+			'__notes' => 'The percentage of zooming is calculated by dividing the numerator by denominator ([p]NUMERATOR[/p] / [p]DENOMINATOR[/p] * 100)',
 		),
 	);
 }
@@ -126,12 +146,7 @@ function get_xdidprops_richedit(&$XDIDPROPS) {
 		        'If the [s]multi[/s] style is not used, you can ignore the [p]N[/p] parameter to retrieve the richedit text.',
 			),
 		),
-		"num" => array(
-		    '__desc' => 'This property lets you retreive the number of lines in the richedit.',
-   		    '__notes' => array(
-		        'Only works with the [s]multi[/s] style.',
-			),
-		),
+		"num" => 'This property lets you retreive the number of lines in the richedit.',
 		"sel" => array(
 		    '__desc' => 'This returns the index of the first and last selected character position in the control.',
 		),
@@ -143,6 +158,11 @@ function get_xdidprops_richedit(&$XDIDPROPS) {
 		),
 		"seltext" => array(
 		    '__desc' => 'This returns the selected text in the control.',
+		),
+		"caretpos" => array(
+		    '__desc' => "This property lets you retreive the position of the cursor.",
+		    '__cmd' => 'LINE COLUMN',
+		    '__eg' => '14 3',
 		),
 	);
 }
@@ -178,12 +198,12 @@ function get_events_richedit(&$EVENTS) {
 			),
 		),
 		'selchange' => array(
-		    '__desc' => "When the selection range is changed.",
-	        '__cmd' => 'START END TEXT',
-	        '__eg' => '2 6 cdef',
-	        '__params' => array(
-            	'START' => 'The starting position of the selection range.',
-            	'END' => 'The ending position of the selection range.',
+			'__desc' => "When the selection range is changed.",
+			'__cmd' => 'START END TEXT',
+			'__eg' => '2 6 text has been sel',
+			'__params' => array(
+				'START' => 'The starting position of the selection range.',
+				'END' => 'The ending position of the selection range.',
 				'TEXT' => 'The text selected.',
 			),
 		),

@@ -148,7 +148,7 @@ void DcxProgressBar::parseInfoRequest( TString & input, char * szReturnValue ) {
     return;
   }
   else if (prop == "text") {
-	  _snprintf(szReturnValue, 900, this->m_tsText.to_chr(), this->CalculatePosition());
+	  _snprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, this->m_tsText.to_chr(), this->CalculatePosition());
 	  return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
@@ -541,7 +541,7 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		TString text;
 		int iPos = this->CalculatePosition();
 
-		text.sprintf(this->m_tsText.to_chr(), iPos);
+		text.tsprintf(this->m_tsText.to_chr(), iPos);
 
 		HFONT oldfont = NULL;
 

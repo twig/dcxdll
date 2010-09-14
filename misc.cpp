@@ -9,111 +9,32 @@
 *
 * \b Revisions
 *
-* © ScriptsDB.org - 2006
+* © ScriptsDB.org - 2006-2008
 */
 
 #include "defines.h"
+//#include "Dcx.h"
 
-extern mIRCDLL mIRCLink; //!< blah
+#include <shlwapi.h>
 
-//extern PFNSETTHEME SetWindowThemeUx;  //!< blah
-//extern PFNISTHEMEACTIVE IsThemeActiveUx;
-extern BOOL XPPlus;                   //!< Is OS WinXP+ ?
+#ifdef DCX_USE_BOOST
+// for boost::regex
+//#define BOOST_REGEX_NO_LIB 1
+#include <boost/regex.hpp>
+#endif
+#ifdef DCX_USE_PCRE
+#include "pcre7.2/include/pcre.h"
+#endif
 
+// DCX Stuff
 
 /*!
 * \brief Rounding function
 */
-int round(float x) { 
+int round(const float x) {
 	if (x - (float) (int) x > 0.5)
 		return (int) x +1;
-	else
-		return (int) x;
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-void mIRCSignal(const char *data) {
-	/*
-	logFile = fopen( "dcxlog.txt", "a" );
-
-	if ( logFile ) {
-	fwrite( data, sizeof( char ), strlen( data ), logFile );
-	fclose( logFile );
-	}
-	*/
-
-	wsprintf(mIRCLink.m_pData, "//.signal -n DCX %s", data);
-	SendMessage(mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt);
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-void mIRCDebug(const char *szFormat, ...) {
-	va_list args;
-	va_start(args, szFormat);
-
-	char msg[2048];
-	vsprintf(msg, szFormat, args);
-	mIRCError(msg);
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-void mIRCError(const char *data) {
-	/*
-	logFile = fopen( "dcxlog.txt", "a" );
-
-	if ( logFile ) {
-	fwrite( data, sizeof( char ), strlen( data ), logFile );
-	fclose( logFile );
-	}
-	*/
-
-	wsprintf(mIRCLink.m_pData, "//echo -s %s", data);
-	SendMessage(mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt);
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-void dcxInfoError(const char *ctrl, const char *functn, const char* dlg, const int ctrlid, const char *msg) {
-	TString err;
-
-	err.sprintf("D_ERROR %s(%s, %d).%s: %s", ctrl, dlg, ctrlid, functn, msg);
-	mIRCError(err.to_chr());
-}
-
-/*!
-* \brief mIRC $identifier evaluation function
-*
-* blah
-*/
-void mIRCeval(const char *data, char *res) {
-	lstrcpy(mIRCLink.m_pData, data);
-	SendMessage(mIRCLink.m_mIRCHWND, WM_USER + 201, 0, mIRCLink.m_map_cnt);
-	lstrcpy(res, mIRCLink.m_pData);
-}
-
-/*!
-* \brief mIRC /command function
-*
-* blah
-*/
-void mIRCcom(const char *data) {
-	lstrcpy(mIRCLink.m_pData, data);
-	SendMessage(mIRCLink.m_mIRCHWND, WM_USER + 200, 0, mIRCLink.m_map_cnt);
+	return (int) x;
 }
 
 /*!
@@ -154,191 +75,10 @@ char* readFile(const char *filename) {
 
 	// close file
 	fclose(file);
-	file = NULL;
 
 	// return memory block containing file data
 	return fileContents;
 }
-
-/*!
-* \brief Windows Theme Setting Function
-*
-* Used to remove theme on controls
-*/
-//HRESULT SetWindowTheme(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList) {
-//	if (XPPlus)
-//		return SetWindowThemeUx(hwnd, L" ", L" ");
-//	else
-//		return 0;
-//}
-
-/*!
-* \brief Check fi theme is active
-*
-* Used to remove theme on controls
-*/
-//BOOL IsThemeActive() {
-//	if (!IsThemeActiveUx)
-//		return FALSE;
-//	else if (XPPlus)
-//		return IsThemeActiveUx();
-//	else
-//		return FALSE;
-//}
-
-/*!
-* \brief Windows XP function
-*
-* Returns whether the OS version is XP+ or not
-*
-* \return > \b true if OS is XP+ \n
-*         > \b false otherwise
-*/
-BOOL isXP() {
-	return XPPlus;
-}
-
-
-/*!
-* \brief Shows CommonDialog for Open/Save
-*
-* Shows and returns the file selected
-*
-* \return > TString "" if cancelled
-*         > TString Path+Filename
-*/
-TString FileDialog(TString data, TString method, HWND pWnd) {
-	DWORD style = OFN_EXPLORER;
-	OPENFILENAME ofn;
-	char szFilename[900];
-
-	// seperate the tokenz
-	TString styles(data.gettok(1, "	"));
-	TString file(data.gettok(2, "	"));
-	TString filter(data.gettok(3, "	"));
-
-	styles.trim();
-	file.trim();
-	filter.trim();
-
-	// format the filter into the format WinAPI wants, with double NULL TERMINATOR at end
-	if (filter == "")
-		filter = "All Files (*.*)|*.*";
-
-	filter += '\0';
-	filter.replace('|', '\0');
-
-	// set up the OFN struct
-	ZeroMemory(&ofn, sizeof(ofn));
-	wsprintf(szFilename, "%s", file.to_chr());
-
-	ofn.lStructSize = sizeof(ofn); // SEE NOTE BELOW
-	ofn.hwndOwner = pWnd;
-	ofn.lpstrFilter = filter.to_chr();
-	ofn.lpstrFile = szFilename;
-	ofn.nMaxFile = 900;
-	ofn.lpstrDefExt = "";
-
-	for (int i = 1; i <= styles.numtok(" "); i++) {
-		if (styles.gettok(i, " ") == "multisel")
-			style |= OFN_ALLOWMULTISELECT;
-		else if (styles.gettok(i, " ") == "createprompt")
-			style |= OFN_CREATEPROMPT;
-		// FIXME: explorer style resizable on default, cant get rid of that shit
-		else if (styles.gettok(i, " ") == "enablesizing")
-			style |= OFN_ENABLESIZING;
-		else if (styles.gettok(i, " ") == "filemustexist")
-			style |= OFN_FILEMUSTEXIST; // (open)
-		else if (styles.gettok(i, " ") == "showhidden")
-			style |= OFN_FORCESHOWHIDDEN; // 2k/xp
-		else if (styles.gettok(i, " ") == "noreadonly")
-			style |= OFN_HIDEREADONLY;
-		else if (styles.gettok(i, " ") == "nochangedir")
-			style |= OFN_NOCHANGEDIR; // (save)
-		else if (styles.gettok(i, " ") == "getshortcuts")
-			style |= OFN_NODEREFERENCELINKS;
-		else if (styles.gettok(i, " ") == "nonetwork")
-			style |= OFN_NONETWORKBUTTON;
-		else if (styles.gettok(i, " ") == "novalidate")
-			style |= OFN_NOVALIDATE;
-		else if (styles.gettok(i, " ") == "norecent")
-			style |= OFN_DONTADDTORECENT; // 2k/xp
-		else if (styles.gettok(i, " ") == "overwriteprompt")
-			style |= OFN_OVERWRITEPROMPT; // save
-		else if (styles.gettok(i, " ") == "pathmustexist")
-			style |= OFN_PATHMUSTEXIST;
-		else if (styles.gettok(i, " ") == "owner")
-			ofn.hwndOwner = FindOwner(styles, pWnd);
-	}
-
-	ofn.Flags = style;
-
-	if (method == "OPEN" && GetOpenFileName(&ofn)) {
-		TString str("");
-
-		// if there are multiple files selected
-		if (style & OFN_ALLOWMULTISELECT) {
-			char *p = szFilename; 
-
-			// process the file name at p since its null terminated
-			while (*p != '\0') { 
-				if (str != "")
-					str += "|";
-
-				str += p;
-				p += strlen(p)+1;
-			} 
-		}
-		// copy the string directly
-		else
-			str = szFilename;
-
-		return str;
-	}
-	else if (method == "SAVE" && GetSaveFileName(&ofn)) {
-		return TString(szFilename);
-	}
-
-	return TString("");
-}
-
-/*!
-* \brief Finds an owner of a dialog, used with styles
-*
-* Returns the owner HWND
-*
-*/
-HWND FindOwner(TString data, HWND defaultWnd) {
-	int i = data.findtok("owner", 1, " ");
-
-	// 'owner' token not found in data
-	if (!i)
-		return defaultWnd;
-
-	// if there is a token after 'owner'
-	if (i < data.numtok(" ")) {
-		// if it is a number (HWND) passed
-		HWND wnd = (HWND) atoi(data.gettok(i +1, " ").to_chr());
-
-		if (wnd)
-			return wnd;
-
-		// try to retrieve dialog hwnd from name
-		TString com;
-		char res[10];
-
-		com.sprintf("$dialog(%s).hwnd", data.gettok(i +1, " ").to_chr());
-		mIRCeval(com.to_chr(), res);
-		wnd = (HWND) atoi(res);
-
-		if (wnd)
-			return wnd;
-	}
-
-	return defaultWnd;
-}
-
-
 
 
 /*!
@@ -348,19 +88,19 @@ HWND FindOwner(TString data, HWND defaultWnd) {
 *
 * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/dataexchange/clipboard/usingtheclipboard.asp
 */
-BOOL CopyToClipboard(HWND owner, TString str) {
+BOOL CopyToClipboard(const HWND owner, const TString & str) {
 	if (!OpenClipboard(owner)) {
-		mIRCError("D_ERROR CopyToClipboard: couldnt open clipboard");
+		Dcx::error("CopyToClipboard","Couldn't open clipboard");
 		return FALSE;
 	}
 
-	int cbsize = (strlen(str.to_chr()) +1) * sizeof(TCHAR);
+	int cbsize = (int)(str.len() +1) * sizeof(TCHAR);
 	EmptyClipboard();
 	HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, cbsize);
 
 	if (hglbCopy == NULL) {
 		CloseClipboard();
-		mIRCError("D_ERROR CopyToClipboard: couldnt open global memory");
+		Dcx::error("CopyToClipboard","Couldn't open global memory");
 		return FALSE;
 	}
 
@@ -382,12 +122,12 @@ BOOL CopyToClipboard(HWND owner, TString str) {
 
 
 // Turns a command (+flags CHARSET SIZE FONTNAME) into a LOGFONT struct
-BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf) {
-	if (cmd.numtok(" ") < 4)
+BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
+	if (cmd.numtok( ) < 4)
 		return FALSE;
 
 	ZeroMemory(lf, sizeof(LOGFONT));
-	UINT flags = parseFontFlags(cmd.gettok(1, " "));
+	UINT flags = parseFontFlags(cmd.gettok( 1 ));
 
 	if (flags & DCF_DEFAULT) {
 		HFONT hf = (HFONT) GetStockObject(DEFAULT_GUI_FONT);
@@ -395,9 +135,8 @@ BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf) {
 		return TRUE;
 	}
 	else {
-		int fSize = atoi(cmd.gettok(3, " ").to_chr());
-		TString fName = cmd.gettok(4, -1, " ");
-		fName.trim();
+		int fSize = cmd.gettok( 3 ).to_int();
+		TString fName(cmd.gettok(4, -1).trim());
 
 		if (!fSize)
 			return FALSE;
@@ -424,7 +163,7 @@ BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf) {
 		if (flags & DCF_UNDERLINE)
 			lf->lfUnderline = TRUE;
 
-		lf->lfCharSet = (BYTE)parseFontCharSet(cmd.gettok(2, " "));
+		lf->lfCharSet = (BYTE)parseFontCharSet(cmd.gettok( 2 ));
 		lstrcpyn(lf->lfFaceName, fName.to_chr(), 31);
 		lf->lfFaceName[31] = 0;
 		return TRUE;
@@ -437,8 +176,8 @@ BOOL ParseCommandToLogfont(TString cmd, LPLOGFONT lf) {
  *
  * blah
  */
-UINT parseFontFlags(TString &flags) {
-	INT i = 1, len = flags.len(), iFlags = 0;
+UINT parseFontFlags(const TString &flags) {
+	INT i = 1, len = (int)flags.len(), iFlags = 0;
 
 	// no +sign, missing params
 	if (flags[0] != '+')
@@ -469,7 +208,7 @@ UINT parseFontFlags(TString &flags) {
  *
  * blah
  */
-UINT parseFontCharSet(TString &charset) {
+UINT parseFontCharSet(const TString &charset) {
 	if (charset == "ansi")
 		return ANSI_CHARSET;
 	else if (charset == "baltic")
@@ -505,7 +244,7 @@ UINT parseFontCharSet(TString &charset) {
 }
 
 
-TString ParseLogfontToCommand(LPLOGFONT lf) {
+TString ParseLogfontToCommand(const LPLOGFONT lf) {
 	TString flags("+");
 	TString charset("default");
 
@@ -531,47 +270,202 @@ TString ParseLogfontToCommand(LPLOGFONT lf) {
 
 	// get flags
 	if (lf->lfQuality == ANTIALIASED_QUALITY)
-		flags += "a";
+		flags += 'a';
 	if (lf->lfWeight == FW_BOLD)
-		flags += "b";
+		flags += 'b';
 	if (lf->lfItalic)
-		flags += "i";
+		flags += 'i';
 	if (lf->lfStrikeOut)
-		flags += "s";
+		flags += 's';
 	if (lf->lfUnderline)
-		flags += "u";
+		flags += 'u';
 
 	//lf.lfHeight = -MulDiv( fSize, GetDeviceCaps(hdc, LOGPIXELSY ), 72 );
 	HDC hdc = GetDC(NULL);
-	HFONT hf = CreateFontIndirect(lf);
+	HFONT hf = CreateFontIndirect(lf), oldhf = NULL;
 	TEXTMETRIC tm;
 
-	SelectObject(hdc, hf);
+	oldhf = SelectFont(hdc, hf);
 	GetTextMetrics(hdc, &tm);
 
 	//int ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
 	int ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
+	SelectFont(hdc,oldhf);
 	DeleteFont(hf);
 	ReleaseDC(NULL, hdc);
 
 	// [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	TString tmp;
 	
-	tmp.sprintf("%s %s %d %s", flags.to_chr(), charset.to_chr(), ptSize, lf->lfFaceName);
+	tmp.tsprintf("%s %s %d %s", flags.to_chr(), charset.to_chr(), ptSize, lf->lfFaceName);
 	return tmp;
 }
 
+HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TString &flags) {
+	filename.trim();
+
+	if (flags[0] != '+') {
+		Dcx::error("dcxLoadIcon", "Invalid Flags");
+		return NULL;
+	}
+
+	// index is -1
+	if (index < 0) {
+		Dcx::error("dcxLoadIcon", "Invalid Index");
+		return NULL;
+	}
+
+	// This doesnt require a valid filename.
+	if (flags.find('f', 0)) {
+		SHFILEINFO shfi;
+		TString filetype;
+
+		ZeroMemory(&shfi, sizeof(SHFILEINFO));
+		filetype.tsprintf(".%s", filename.to_chr());
+		
+		SHGetFileInfo(filetype.to_chr(), FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(SHFILEINFO),
+			SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | (large ? SHGFI_LARGEICON : SHGFI_SMALLICON));
+
+		return shfi.hIcon;
+	}
+
+	// Check for valid filename
+	if (!IsFile(filename)) {
+		Dcx::errorex("dcxLoadIcon", "Could Not Access File: %s", filename.to_chr());
+		return NULL;
+	}
+
+	HICON icon = NULL;
+
+	if (flags.find('a',0)) {
+		WORD wIndex = (WORD)index;
+		icon = ExtractAssociatedIcon(NULL, filename.to_chr(), &wIndex);
+	}
+#ifdef DCX_USE_GDIPLUS
+	else if (flags.find('P',0)) {
+		if (!Dcx::GDIModule.isUseable())
+		{
+			Dcx::error("dcxLoadIcon", "Invalid +P without GDI+.");
+			return NULL;
+		}
+
+		Bitmap *p_Img = new Bitmap(filename.to_wchr());
+		if (p_Img == NULL)
+			return NULL;
+		// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
+		Status status = p_Img->GetLastStatus();
+		if (status != Ok)
+			Dcx::error("dcxLoadIcon", GetLastStatusStr(status));
+		else {
+			//int w = 0, h = 0;
+			//if (large) {
+			//	w = GetSystemMetrics(SM_CXICON);
+			//	h = GetSystemMetrics(SM_CYICON);
+			//}
+			//else {
+			//	w = GetSystemMetrics(SM_CXSMICON);
+			//	h = GetSystemMetrics(SM_CYSMICON);
+			//}
+			//Bitmap *p_Thumb = p_Img->GetThumbnailImage(w,h);
+			//if (p_Thumb != NULL) {
+			//	p_Thumb->GetHICON(&icon);
+			//	delete p_Thumb;
+			//}
+			status = p_Img->GetHICON(&icon); // for reasons unknown this causes a `first chance exception` to show in debug log.
+			if (status != Ok)
+				Dcx::error("dcxLoadIcon", GetLastStatusStr(status));
+			GdiFlush();
+		}
+		delete p_Img;
+	}
+#endif
+	else {
+		if (large)
+			ExtractIconEx(filename.to_chr(), index, &icon, NULL, 1);
+		else
+			ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
+	}
+
+	if (flags.find('g', 0) && icon != NULL)
+		icon = CreateGrayscaleIcon(icon);
+
+	return icon;
+}
+
+//HBITMAP GDIPlusToBitmap(Bitmap *gdiPlusBmp)
+//{
+//	//HDC hSrcDC = CreateCompatibleDC(NULL);
+//	//HBITMAP oldSrcBmp = SelectBitmap(hSrcDC, hBmp);
+//	//BITMAP bmp;
+//	//GetObject(hBmp, sizeof(BITMAP), &bmp);
+//	//HDC hDstDC = CreateCompatibleDC(NULL);
+//	//HBITMAP hDstBmp = CreateCompatibleBitmap(hSrcDC, bmp.bmWidth, bmp.bmHeight);
+//	//HBITMAP oldDstBmp = SelectBitmap(hDstDC, hDstBmp);
+//
+//	//BitBlt(hDstDC, 0,0, bmp.bmWidth, bmp.bmHeight, hSrcDC, 0,0, SRCCOPY);
+//
+//	//SelectBitmap(hDstDC, oldDstBmp);
+//	//DeleteDC(hDstDC);
+//	//SelectBitmap(hSrcDC, oldSrcBmp);
+//	//DeleteDC(hSrcDC);
+//	HDC hScreen = CreateDC("DISPLAY", NULL, NULL, NULL);
+//	HDC hDstDC = CreateCompatibleDC(hScreen);
+//	HBITMAP hDstBmp = CreateCompatibleBitmap(hScreen, gdiPlusBmp->GetWidth(), gdiPlusBmp->GetHeight());
+//	HBITMAP oldDstBmp = SelectBitmap(hDstDC, hDstBmp);
+//
+//	Graphics gfx(hDstDC);
+//
+//	gfx.DrawImage(gdiPlusBmp, 0,0 );
+//
+//	gfx.ReleaseHDC(hDstDC);
+//
+//	SelectBitmap(hDstDC, oldDstBmp);
+//	DeleteDC(hDstDC);
+//	DeleteDC(hScreen);
+//	return hDstBmp;
+//}
 
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename) {
 	filename.trim();
 
-	if (dest) {
-		DeleteObject(dest);
+	if (dest != NULL) {
+		DeleteBitmap(dest);
 		dest = NULL;
 	}
+	if (!IsFile(filename)) {
+		Dcx::errorex("dcxLoadBitmap", "Could Not Access File: %s", filename.to_chr());
+		return NULL;
+	}
 
+#ifdef DCX_USE_GDIPLUS
+	if (Dcx::GDIModule.isUseable()) {
+		Bitmap *p_Img = new Bitmap(filename.to_wchr());
+		if (p_Img != NULL) {
+			// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
+			Status status = p_Img->GetLastStatus();
+			if (status != Ok)
+				Dcx::error("dcxLoadBitmap", GetLastStatusStr(status));
+			else {
+				if ((status = p_Img->GetHBITMAP(Color(),&dest)) != Ok) {
+					Dcx::error("dcxLoadBitmap","Unable to Get GDI+ Bitmap Info");
+					Dcx::error("dcxLoadBitmap", GetLastStatusStr(status));
+					dest = NULL;
+				}
+				//if (dest != NULL) {
+				//	dest = GDIPlusToBitmap(p_Img);
+				//}
+				GdiFlush();
+			}
+			delete p_Img;
+		}
+		else
+			Dcx::error("dcxLoadBitmap", "Unable to Allocate Image Object");
+	}
+	else
+		dest = (HBITMAP) LoadImage(GetModuleHandle(NULL), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+#else
 	dest = (HBITMAP) LoadImage(GetModuleHandle(NULL), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-
+#endif
 	return dest;
 }
 
@@ -584,6 +478,8 @@ update for xp icons
 http://www.codeguru.com/cpp/g-m/bitmap/icons/comments.php/c4913/?thread=54904
 further readings
 - http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/bitmaps_233i.asp
+update for 32bpp icons & rewrite
+- http://www.codeproject.com/bitmap/Create_GrayscaleIcon.asp
 */
 // This function creates a grayscale icon starting from a given icon.
 // The resulting icon will have the same size of the original one.
@@ -597,109 +493,186 @@ further readings
 //      the newly created grayscale icon.
 //      If the function fails, the return value is NULL.
 //
-HICON CreateGrayscaleIcon(HICON hIcon) {
-	HICON		hGrayIcon = NULL;
-	HDC		hMainDC = NULL, hMemDC1 = NULL, hMemDC2 = NULL;
-	BITMAP	bmp;
-	HBITMAP	hOldBmp1 = NULL, hOldBmp2 = NULL;
-	ICONINFO	csII, csGrayII;
-	//BOOL		bRetValue = FALSE;
+//HICON CreateGrayscaleIcon(HICON hIcon) {
+//	HICON		hGrayIcon = NULL;
+//	HDC		hMainDC = NULL, hMemDC1 = NULL, hMemDC2 = NULL;
+//	BITMAP	bmp;
+//	HBITMAP	hOldBmp1 = NULL, hOldBmp2 = NULL;
+//	ICONINFO	csII, csGrayII;
+//	//BOOL		bRetValue = FALSE;
+//
+//	if (!GetIconInfo(hIcon, &csII))
+//		return NULL;
+//
+//	ZeroMemory(&csGrayII, sizeof(ICONINFO));
+//
+//	hMainDC = GetDC(NULL);
+//	hMemDC1 = CreateCompatibleDC(hMainDC);
+//	hMemDC2 = CreateCompatibleDC(hMainDC);
+//
+//	if (hMainDC == NULL || hMemDC1 == NULL || hMemDC2 == NULL)
+//		return NULL;
+//
+//	if (GetObject(csII.hbmColor, sizeof(BITMAP), &bmp)) {
+//		DWORD dwWidth = csII.xHotspot*2;
+//		DWORD dwHeight = csII.yHotspot*2;
+//
+//		csGrayII.hbmColor = CreateBitmap(dwWidth, dwHeight, bmp.bmPlanes, bmp.bmBitsPixel, NULL);
+//			HBITMAP tmp = csII.hbmMask;
+//
+//		if (csGrayII.hbmColor) {
+//			hOldBmp1 = (HBITMAP) SelectObject(hMemDC1, csII.hbmColor);
+//			hOldBmp2 = (HBITMAP) SelectObject(hMemDC2, csGrayII.hbmColor);
+//
+//
+//			//::BitBlt(hMemDC2, 0, 0, dwWidth, dwHeight, hMemDC1, 0, 0, SRCCOPY);
+//
+//			DWORD		dwLoopY = 0, dwLoopX = 0;
+//			COLORREF	crPixel = 0;
+//			COLORREF	byNewPixel = 0;
+//
+//			for (dwLoopY = 0; dwLoopY < dwHeight; dwLoopY++) {
+//				for (dwLoopX = 0; dwLoopX < dwWidth; dwLoopX++) {
+//					crPixel = GetPixel(hMemDC1, dwLoopX, dwLoopY);
+//
+//					byNewPixel = (COLORREF)((GetRValue(crPixel) * 0.299) + 
+//						(GetGValue(crPixel) * 0.587) +
+//						(GetBValue(crPixel) * 0.114));
+//					if (crPixel) // copies alpha if any. (needs testing)
+//						SetPixel(hMemDC2, dwLoopX, dwLoopY, RGB(byNewPixel, byNewPixel, byNewPixel) | (crPixel & 0xFF000000));
+//				} // for
+//			} // for
+//
+//			SelectObject(hMemDC1, hOldBmp1);
+//			SelectObject(hMemDC2, hOldBmp2);
+//
+//			//csGrayII.hbmMask = csII.hbmMask;
+//			csGrayII.hbmMask = tmp;
+//			csGrayII.fIcon = TRUE;
+//
+//			hGrayIcon = ::CreateIconIndirect(&csGrayII);
+//			//hGrayIcon = ::CreateIconIndirect(&csII);
+//		} // if
+//
+//		DeleteObject(csGrayII.hbmColor);
+//		//::DeleteObject(csGrayII.hbmMask);
+//	} // if
+//
+//	DeleteObject(csII.hbmColor);
+//	DeleteObject(csII.hbmMask);
+//	DeleteDC(hMemDC1);
+//	DeleteDC(hMemDC2);
+//	ReleaseDC(NULL, hMainDC);
+//
+//	DestroyIcon(hIcon);
+//
+//	return hGrayIcon;
+//} // End of CreateGrayscaleIcon
 
-	if (!GetIconInfo(hIcon, &csII))
+COLORREF defaultGrayPalette[256];
+BOOL bGrayPaletteSet = FALSE;
+
+HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
+{
+	if (hIcon == NULL)
 		return NULL;
 
-	ZeroMemory(&csGrayII, sizeof(ICONINFO));
+	HDC hdc = ::GetDC(NULL);
 
-	hMainDC = GetDC(NULL);
-	hMemDC1 = CreateCompatibleDC(hMainDC);
-	hMemDC2 = CreateCompatibleDC(hMainDC);
+	HICON      hGrayIcon      = NULL;
+	ICONINFO   icInfo         = { 0 };
+	ICONINFO   icGrayInfo     = { 0 };
+	//LPDWORD    lpBits         = NULL;
+	//LPBYTE     lpBitsPtr      = NULL;
+	//SIZE sz;
+	//DWORD c1 = 0;
+	BITMAPINFO bmpInfo        = { 0 };
+	bmpInfo.bmiHeader.biSize  = sizeof(BITMAPINFOHEADER);
 
-	if (hMainDC == NULL || hMemDC1 == NULL || hMemDC2 == NULL)
-		return NULL;
+	if (::GetIconInfo(hIcon, &icInfo))
+	{
+		if (::GetDIBits(hdc, icInfo.hbmColor, 0, 0, NULL, &bmpInfo, DIB_RGB_COLORS) != 0)
+		{
+			SIZE sz;
+			bmpInfo.bmiHeader.biCompression = BI_RGB;
 
-	if (GetObject(csII.hbmColor, sizeof(BITMAP), &bmp)) {
-		DWORD dwWidth = csII.xHotspot*2;
-		DWORD dwHeight = csII.yHotspot*2;
+			sz.cx = bmpInfo.bmiHeader.biWidth;
+			sz.cy = bmpInfo.bmiHeader.biHeight;
+			DWORD c1 = sz.cx * sz.cy;
 
-		csGrayII.hbmColor = CreateBitmap(dwWidth, dwHeight, bmp.bmPlanes, bmp.bmBitsPixel, NULL);
+			LPDWORD lpBits = (LPDWORD)::GlobalAlloc(GMEM_FIXED, (c1) * 4);
 
-		if (csGrayII.hbmColor) {
-			hOldBmp1 = (HBITMAP) SelectObject(hMemDC1, csII.hbmColor);
-			hOldBmp2 = (HBITMAP) SelectObject(hMemDC2, csGrayII.hbmColor);
+			if (lpBits && ::GetDIBits(hdc, icInfo.hbmColor, 0, sz.cy, lpBits, &bmpInfo, DIB_RGB_COLORS) != 0)
+			{
+				LPBYTE lpBitsPtr     = (LPBYTE)lpBits;
+				//UINT off      = 0;
 
-			//::BitBlt(hMemDC2, 0, 0, dwWidth, dwHeight, hMemDC1, 0, 0, SRCCOPY);
+				for (UINT i = 0; i < c1; i++)
+				{
+					UINT off = (UINT)( 255 - (( lpBitsPtr[0] + lpBitsPtr[1] + lpBitsPtr[2] ) / 3) );
 
-			DWORD		dwLoopY = 0, dwLoopX = 0;
-			COLORREF	crPixel = 0;
-			BYTE	byNewPixel = 0;
+					if (lpBitsPtr[3] != 0 || off != 255)
+					{
+						if (off == 0)
+						{
+							off = 1;
+						}
 
-			for (dwLoopY = 0; dwLoopY < dwHeight; dwLoopY++) {
-				for (dwLoopX = 0; dwLoopX < dwWidth; dwLoopX++) {
-					crPixel = GetPixel(hMemDC1, dwLoopX, dwLoopY);
+						lpBits[i] = pPalette[off] | ( lpBitsPtr[3] << 24 );
+					}
 
-					byNewPixel = (BYTE)((GetRValue(crPixel) * 0.299) + 
-						(GetGValue(crPixel) * 0.587) + 
-						(GetBValue(crPixel) * 0.114));
+					lpBitsPtr += 4;
+				}
 
-					if (crPixel)
-						SetPixel(hMemDC2, dwLoopX, dwLoopY, RGB(byNewPixel, byNewPixel, byNewPixel));
-				} // for
-			} // for
+				icGrayInfo.hbmColor = ::CreateCompatibleBitmap(hdc, sz.cx, sz.cy);
 
-			SelectObject(hMemDC1, hOldBmp1);
-			SelectObject(hMemDC2, hOldBmp2);
+				if (icGrayInfo.hbmColor != NULL)
+				{
+					::SetDIBits(hdc, icGrayInfo.hbmColor, 0, sz.cy, lpBits, &bmpInfo, DIB_RGB_COLORS);
 
-			csGrayII.hbmMask = csII.hbmMask;
-			csGrayII.fIcon = TRUE;
+					icGrayInfo.hbmMask = icInfo.hbmMask;
+					icGrayInfo.fIcon   = TRUE;
 
+					hGrayIcon = ::CreateIconIndirect(&icGrayInfo);
 
+					::DeleteObject(icGrayInfo.hbmColor);
+				}
 
-			hGrayIcon = ::CreateIconIndirect(&csGrayII);
-		} // if
+				::GlobalFree(lpBits);
+				//lpBits = NULL;
+			}
+		}
 
-		DeleteObject(csGrayII.hbmColor);
-		//::DeleteObject(csGrayII.hbmMask);
-	} // if
+		::DeleteObject(icInfo.hbmColor);
+		::DeleteObject(icInfo.hbmMask);
+	}
 
-	DeleteObject(csII.hbmColor);
-	DeleteObject(csII.hbmMask);
-	DeleteDC(hMemDC1);
-	DeleteDC(hMemDC2);
-	ReleaseDC(NULL, hMainDC);
+	::ReleaseDC(NULL,hdc);
 
 	return hGrayIcon;
-} // End of CreateGrayscaleIcon
+}
 
-//LRESULT ctrl_MeasureItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
-//{
-//	char ClassName[256];
-//	HWND cHwnd = GetDlgItem(mHwnd, wParam);
-//
-//	if (IsWindow(cHwnd) && GetClassName(cHwnd, ClassName, 256) != 0) {
-//		if (lstrcmp(DCX_COLORCOMBOCLASS, ClassName) == 0) {
-//			LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
-//
-//			if (lpmis != NULL)
-//				lpmis->itemHeight = 16; 
-//
-//			return TRUE;
-//		}
-//	}
-//
-//	return 0L;
-//}
-//void DrawRoundRect(HDC hdc, RECT *rc, int w, int h)
-//{
-//	// draw top line, left to right
-//	MoveToEx(hdc,(rc->left + w),rc->top,NULL);
-//	//LineTo(hdc,(rc->right - w),rc->top);
-//	// draw ellipse at top right.
-//	SetArcDirection(hdc,AD_CLOCKWISE);
-//	ArcTo(hdc,(rc->right - w),rc->top,rc->right,(rc->top + h),(rc->right - w),rc->top,rc->right,(rc->top + h));
-//	// draw line from top right to bottom right
-//	ArcTo(hdc,(rc->right - w),(rc->bottom - h),rc->right,rc->bottom,(rc->right - w),(rc->bottom - h),rc->right,rc->bottom);
-//}
-void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl)
+HICON CreateGrayscaleIcon( HICON hIcon )
+{
+	if (hIcon == NULL)
+	{
+		return NULL;
+	}
+
+	if (!bGrayPaletteSet)
+	{
+		for(int i = 0; i < 256; i++)
+		{
+			defaultGrayPalette[i] = RGB(255-i, 255-i, 255-i);
+		}
+
+		bGrayPaletteSet = TRUE;
+	}
+
+	return CreateGrayscaleIcon(hIcon, defaultGrayPalette);
+}
+
+void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl)
 {
 		TOOLINFO ti;
 		ZeroMemory(&ti,sizeof(TOOLINFO));
@@ -712,249 +685,760 @@ void AddToolTipToolInfo(HWND tiphwnd, HWND ctrl)
 
 		SendMessage(tiphwnd,TTM_ADDTOOL,NULL,(LPARAM)&ti);
 }
-// Removes window style to a window
-void RemStyles(HWND hwnd,int parm,long RemStyles)
+
+void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset)
 {
-  LONG Styles = GetWindowLong(hwnd, parm);
-  Styles &= ~RemStyles;
-  SetWindowLong(hwnd, parm, Styles);
+#if DCX_FOR_XP_ONLY
+		DrawShadowText(hdc, pszText, cch, (RECT *)pRect, dwFlags, crText, crShadow, ixOffset, iyOffset);
+#else
+	if (DrawShadowTextUx != NULL)
+		DrawShadowTextUx(hdc, pszText, cch, pRect, dwFlags, crText, crShadow, ixOffset, iyOffset);
+	else {
+		RECT rcOffset;
+		COLORREF old_clr;
+		CopyRect(&rcOffset, pRect);
+		OffsetRect(&rcOffset, ixOffset, iyOffset);
+		old_clr = SetTextColor(hdc, crShadow);
+		DrawTextW(hdc, pszText, cch, &rcOffset, dwFlags);
+		SetTextColor(hdc, crText);
+		DrawTextW(hdc, pszText, cch, (LPRECT)pRect, dwFlags);
+		SetTextColor(hdc, old_clr);
+	}
+#endif
+}
+#ifdef DCX_USE_GDIPLUS
+static const char *GDIErrors[] = {
+	"Ok", // No Error.
+	"GenericError",
+	"InvalidParameter",
+	"OutOfMemory",
+	"ObjectBusy",
+	"InsufficientBuffer",
+	"NotImplemented",
+	"Win32Error",
+	"WrongState",
+	"Aborted",
+	"FileNotFound",
+	"ValueOverflow",
+	"AccessDenied",
+	"UnknownImageFormat",
+	"FontFamilyNotFound",
+	"FontStyleNotFound",
+	"NotTrueTypeFont",
+	"UnsupportedGdiplusVersion",
+	"GdiplusNotInitialized",
+	"PropertyNotFound",
+	"PropertyNotSupported",
+	"ProfileNotFound"
+};
+const char *GetLastStatusStr(Status status)
+{
+	if (status > DCX_MAX_GDI_ERRORS)
+		return GDIErrors[1]; // status not in table, return GenericError
+	return GDIErrors[status];
+}
+#endif
+
+/*
+ * Tell if a file exists.
+ * NB: What it really does is tell us if we can access the file, it can fail to get access for various reason on XP+.
+ * After a false return use GetLastError() to find the actual fail reason if you care.
+*/
+bool IsFile(__inout TString &filename)
+{
+	if (filename.len() <= 0)
+		return false;
+
+	PathUnquoteSpaces(filename.to_chr()); // Removes any "" around the path.
+	// try & access the filename as is first.
+	HANDLE hFile = CreateFile(filename.to_chr(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile != INVALID_HANDLE_VALUE) {
+		CloseHandle(hFile);
+		return true;
+	}
+	// if that fails try & search for the file.
+	char *buf = NULL, *f;
+	// find buffer size needed.
+	DWORD res = SearchPath(NULL,filename.to_chr(),NULL,0,buf,&f); // win2000+ function.
+	if (res > 0) {
+		// found file, alloc buffer & fill with path/file.
+		buf = new char[res +1];
+		res = SearchPath(NULL,filename.to_chr(),NULL,res,buf,&f);
+	}
+	if (res == 0) {// if find failed, exit
+		delete [] buf;
+		return false;
+	}
+	// now try & access the file we found.
+	hFile = CreateFile(buf, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile != INVALID_HANDLE_VALUE) {
+		CloseHandle(hFile);
+		filename = buf; // alter the filename to contain the full path.
+		delete [] buf;
+		return true;
+	}
+	delete [] buf;
+	return false;
 }
 
-//	Adds window styles to a window
-void AddStyles(HWND hwnd,int parm,long AddStyles)
+//#include <shlwapi.h>
+//
+//DWORD GetDllVersion(LPCTSTR lpszDllName)
+//{
+//    HINSTANCE hinstDll;
+//    DWORD dwVersion = 0;
+//
+//    /* For security purposes, LoadLibrary should be provided with a 
+//       fully-qualified path to the DLL. The lpszDllName variable should be
+//       tested to ensure that it is a fully qualified path before it is used. */
+//    hinstDll = LoadLibrary(lpszDllName);
+//	
+//    if(hinstDll)
+//    {
+//        DLLGETVERSIONPROC pDllGetVersion;
+//        pDllGetVersion = (DLLGETVERSIONPROC)GetProcAddress(hinstDll, 
+//                          "DllGetVersion");
+//
+//        /* Because some DLLs might not implement this function, you
+//        must test for it explicitly. Depending on the particular 
+//        DLL, the lack of a DllGetVersion function can be a useful
+//        indicator of the version. */
+//
+//        if(pDllGetVersion)
+//        {
+//            DLLVERSIONINFO dvi;
+//            HRESULT hr;
+//
+//            ZeroMemory(&dvi, sizeof(dvi));
+//            dvi.cbSize = sizeof(dvi);
+//
+//            hr = (*pDllGetVersion)(&dvi);
+//
+//            if(SUCCEEDED(hr))
+//            {
+//               dwVersion = PACKVERSION(dvi.dwMajorVersion, dvi.dwMinorVersion);
+//            }
+//        }
+//
+//        FreeLibrary(hinstDll);
+//    }
+//    return dwVersion;
+//}
+
+/*!
+* \brief Render an mIRC formatted string, correctly applying ctrl codes.
+*
+* blah
+*/
+void getmIRCPalette(COLORREF *Palette, const int PaletteItems)
 {
-  LONG Styles = GetWindowLong(hwnd, parm);
-  Styles |= AddStyles;
-  SetWindowLong(hwnd, parm, Styles);
+	TString colors;
+	static const char com[] = "$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)";
+	Dcx::mIRC.tsEval(colors, com);
+
+	int i = 0;
+
+	while (i < PaletteItems) {
+		Palette[i] = (COLORREF)colors.gettok( i +1 ).to_num();
+		i++;
+	}
 }
-/***************************************************/
-/*				David Gallardo Llopis			   */
-/*				                     			   */
-/*		     Based on the code in the book		   */
-/*       PROGRAMACION AVANZADA EN WINDOWS 2000     */
-/*             at McGraw-Hill (c) 2000             */
-/*                       by                        */
-/*        J. Pascual, F. Charte, M.J. Segarra,     */
-/*            J.A. Clavijo, A. de Antonio.         */
-/*                                                 */
-/*  The code in this book is based on an original  */
-/*       code by Jean-Edouard Lachand-Robert       */
-/***************************************************/ 
 
-HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent)
+int unfoldColor(const WCHAR *color) {
+	UINT len = (2*(lstrlenW(color)+1));
+	CHAR *strTmp = new CHAR[len]; // SIZE equals (2*(sizeof(tstr)+1)). This ensures enough
+										 // room for the multibyte characters if they are two
+										 // bytes long and a terminating null character.
+
+	wcstombs(strTmp, (const wchar_t *) color, len);
+	int nColor = atoi(strTmp);
+	delete [] strTmp;
+	//int nColor = atoi(color);
+
+	while (nColor > 15) {
+		nColor -=16;
+	}
+
+	return nColor;
+}
+
+void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft, const bool tryutf8)
 {
-	// We create an empty region
-	HRGN		hRegion=NULL;
-	
-	// If the passed bitmap is NULL, go away!
-	if(!hBitmap) 
-		return hRegion;
-	
-	// We create a memory context for working with the bitmap
-	// The memory context is compatible with the display context (screen)
-	HDC			hMemDC=CreateCompatibleDC(NULL);
-	
-	// If no context is created, go away, too!
-	if(!hMemDC) 
-		return hRegion;
-		
-	// Computation of the bitmap size
-	BITMAP		bmBitmap;
-	
-	GetObject(hBitmap, sizeof(bmBitmap), &bmBitmap);
-	
-	// In order to make the space for the region, we
-	// create a bitmap with 32bit depth color and with the
-	// size of the loaded bitmap!
-	BITMAPINFOHEADER RGB32BITSBITMAPINFO=
-	{ 
-		sizeof(BITMAPINFOHEADER), 
-		bmBitmap.bmWidth, 
-		bmBitmap.bmHeight, 
-		1,32,BI_RGB,0,0,0,0,0 
-	};
-	
-	// Here is the pointer to the bitmap data
-	VOID		*pBits;
-	
-	// With the previous information, we create the new bitmap!
-	HBITMAP		hNewBitmap;
-	hNewBitmap=CreateDIBSection(hMemDC,
-								(BITMAPINFO *)&RGB32BITSBITMAPINFO,
-								DIB_RGB_COLORS,&pBits,NULL,0);
-
-	// If the creation process succeded...
-	if(hNewBitmap)	
-	{
-		// We select the bitmap onto the created memory context
-		// and then we store the previosly selected bitmap on this context!
-		HBITMAP		hPrevBmp=(HBITMAP) SelectObject(hMemDC,hNewBitmap);
-		
-		// We create another device context compatible with the first!
-		HDC			hDC=CreateCompatibleDC(hMemDC);
-		
-		// If success...
-		if(hDC) 
-		{		
-			// We compute the number of bytes per row that the bitmap contains, rounding to 32 bit-multiples
-			BITMAP		bmNewBitmap;
-			
-			GetObject(hNewBitmap,sizeof(bmNewBitmap),&bmNewBitmap);
-				
-			while(bmNewBitmap.bmWidthBytes % 4) 
-				bmNewBitmap.bmWidthBytes++;
-			
-			// Copy of the original bitmap on the memory context!
-			HBITMAP		hPrevBmpOrg=(HBITMAP) SelectObject(hDC,hBitmap);
-			BitBlt(hMemDC,0,0,bmBitmap.bmWidth,bmBitmap.bmHeight,hDC,0,0,SRCCOPY);
-
-			// In order to optimize the code, we don't call the GDI each time we
-			// find a transparent pixel. We use a RGN_DATA structure were we store
-			// consecutive rectangles, until we have a large amount of them and then we crete
-			// the composed region with ExtCreateRgn(), combining it with the main region.
-			// Then we begin again initializing the RGN_DATA structure and doing another
-			// iteration, until the entire bitmap is analyzed.
-
-			// Also, in order to not saturate the Windows API with calls for reserving
-			// memory, we wait until NUMRECT rectangles are stores in order to claim
-			// for another NUMRECT memory space!
-            #define NUMRECT	100			
-			DWORD maxRect = NUMRECT;
-			
-			// We create the memory data
-			HANDLE hData=GlobalAlloc(GMEM_MOVEABLE,sizeof(RGNDATAHEADER)+(sizeof(RECT)*maxRect));
-			RGNDATA *pData=(RGNDATA*) GlobalLock(hData);
-			pData->rdh.dwSize=sizeof(RGNDATAHEADER);
-			pData->rdh.iType=RDH_RECTANGLES;
-			pData->rdh.nCount=pData->rdh.nRgnSize=0;
-			SetRect(&pData->rdh.rcBound,MAXLONG,MAXLONG,0,0);
-			
-			// We study each pixel on the bitmap...
-			BYTE *Pixeles=(BYTE*) bmNewBitmap.bmBits+(bmNewBitmap.bmHeight-1)*bmNewBitmap.bmWidthBytes;
-			
-			// Main loop
-			for(int Row=0;Row<bmBitmap.bmHeight;Row++) 
+	if (!ignoreleft || (style & DT_CENTER) || (style & DT_RIGHT)) {
+		TString stripped_txt;
+		WCHAR *wtxt = const_cast<TString &>(txt).to_wchr(tryutf8);
+		UINT pos = 0, len = (UINT)txt.wlen();
+		WCHAR c = 0;
+		// strip out ctrl codes to correctly position text.
+		while (pos < len) {
+			c = wtxt[pos];
+			switch (c)
 			{
-				// Horizontal loop
-				for(int Column=0;Column<bmBitmap.bmWidth;Column++)
-				{		
-					// We optimized searching for adyacent transparent pixels!
-					int Xo=Column;
-					LONG *Pixel=(LONG*) Pixeles+Column;
+			case 2:  // ctrl-b Bold
+			case 15: // ctrl-o
+			case 22: // ctrl-r Reverse
+			case 29: // ctrl-i Italics
+			case 31: // ctrl-u Underline
+				break;
+			case 3: // ctrl-k Colour
+				{
+					if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+						++pos;
 
-					while(Column<bmBitmap.bmWidth) 
-					{
-						BOOL bInRange=FALSE;
+						if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
+							pos++;
 
-						// If the color is that indicated as transparent...
-						if(	GetRValue(*Pixel)==GetRValue(cTransparentColor) &&
-							GetGValue(*Pixel)==GetGValue(cTransparentColor) &&
-							GetBValue(*Pixel)==GetBValue(cTransparentColor) )
-							bInRange=TRUE;
+						// maybe a background color
+						if (wtxt[pos+1] == L',') {
+							++pos;
 
-						if((bIsTransparent) && (bInRange)) 
-							break;
+							if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+								pos++;
 
-						if((!bIsTransparent) && (!bInRange)) 
-							break;
-
-						Pixel++;
-						Column++;
-					} // while (Column < bm.bmWidth) 		
-					
-					if(Column>Xo) 
-					{
-						// We add the rectangle (Xo,Row),(Column,Row+1) to the region
-
-						// If the number of rectangles is greater then NUMRECT, we claim
-						// another pack of NUMRECT memory places!
-						if (pData->rdh.nCount>=maxRect)
-						{
-							GlobalUnlock(hData);
-							maxRect+=NUMRECT;
-							hData=GlobalReAlloc(hData,sizeof(RGNDATAHEADER)+(sizeof(RECT)*maxRect),GMEM_MOVEABLE);
-							pData=(RGNDATA *)GlobalLock(hData);					
-						}		
-						
-						RECT *pRect=(RECT*) &pData->Buffer;
-						SetRect(&pRect[pData->rdh.nCount],Xo,Row,Column,Row+1);		
-								
-						if(Xo<pData->rdh.rcBound.left) 
-							pData->rdh.rcBound.left=Xo;
-
-						if(Row<pData->rdh.rcBound.top) 
-							pData->rdh.rcBound.top=Row;
-
-						if(Column>pData->rdh.rcBound.right) 
-							pData->rdh.rcBound.right=Column;
-						
-						if(Row+1>pData->rdh.rcBound.bottom) 
-							pData->rdh.rcBound.bottom=Row+1;
-		
-						pData->rdh.nCount++;																	
-
-						// In Win95/08 there is a limitation on the maximum number of
-						// rectangles a RGN_DATA can store (aprox. 4500), so we call
-						// the API for a creation and combination with the main region
-						// each 2000 rectangles. This is a good optimization, because
-						// instead of calling the routines for combining for each new
-						// rectangle found, we call them every 2000 rectangles!!!
-						if(pData->rdh.nCount==2000)
-						{						
-							HRGN hNewRegion=ExtCreateRegion(NULL,sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect),pData);
-							if (hNewRegion) {
-								// Si ya existe la región principal,sumamos la nueva,
-								// si no,entonces de momento la principal coincide con
-								// la nueva región.
-								if (hRegion) {
-									CombineRgn(hRegion,hRegion,hNewRegion,RGN_OR);									
-									DeleteObject(hNewRegion);
-								} else
-									hRegion=hNewRegion;
-								
-								
+								if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
+									++pos;
 							}
-							// Volvemos a comenzar la suma de rectángulos
-							pData->rdh.nCount=0;
-							SetRect(&pData->rdh.rcBound,MAXLONG,MAXLONG,0,0);
-						}			
-					
-					} // if (Column > Xo)
-				} // for (int  Column ...)
-
-				// Nueva Row. Lo del negativo se debe a que el bitmap está invertido
-				// verticalmente.
-				Pixeles -= bmNewBitmap.bmWidthBytes;
-			
-			} // for (int Row...)			
-
-			// Una vez finalizado el proceso,procedemos a la fusión de la
-			// región remanente desde la última fusión hasta el final			
-			HRGN hNewRegion=ExtCreateRegion(NULL,sizeof(RGNDATAHEADER)+(sizeof(RECT)*maxRect),pData);
-
-			if(hNewRegion) 
-			{
-				// If the main region does already exist, we add the new one,
-				if(hRegion)
-				{														
-					CombineRgn(hRegion,hRegion,hNewRegion,RGN_OR);
-					DeleteObject(hNewRegion);
+						}
+					}
 				}
+				break;
+			default:
+				stripped_txt += c;
+				break;
+			}
+			pos++;
+		}
+		DrawTextW(hdc, stripped_txt.to_wchr(tryutf8), (int)stripped_txt.wlen(), rc, style | DT_CALCRECT);
+	}
+}
+
+void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow, const bool tryutf8)
+{
+	int len = (int)txt.wlen();
+	if (len > 0) {
+		TEXTMETRICW tm;
+		HFONT hOldFont = SelectFont( hdc, CreateFontIndirect( lf ) );
+		GetTextMetricsW(hdc, &tm);
+		RECT rcTmp = *rcOut;
+		DrawTextW(hdc, txt.to_wchr(tryutf8), len, &rcTmp, iStyle | DT_CALCRECT);
+		if (shadow)
+			dcxDrawShadowText(hdc,txt.to_wchr(tryutf8), len, &rcTmp, iStyle, clrFG, 0, 5, 5);
+		else
+			DrawTextW(hdc, txt.to_wchr(tryutf8), len, &rcTmp, iStyle);
+		rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
+		DeleteFont(SelectFont( hdc, hOldFont ));
+	}
+	txt = "";
+}
+
+void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style, const bool shadow, const bool tryutf8)
+{
+	LOGFONT lf;
+	WCHAR *wtxt = const_cast<TString &>(txt).to_wchr(tryutf8);
+	int /*savedDC,*/ pos = 0, len = (int)txt.wlen();
+	TString tmp;
+	RECT rcOut = *rc;
+	UINT iStyle = (style & ~(DT_CENTER|DT_RIGHT|DT_VCENTER)) | DT_LEFT; // make sure its to left
+	bool /*usingBGclr = false,*/ usingRevTxt = false;
+
+	if (len == 0) // if no text just exit.
+		return;
+
+	// create an hdc buffer to avoid flicker during drawing.
+	HDC *hBuffer = CreateHDCBuffer(hdc, rc);
+
+	if (hBuffer == NULL)
+		return;
+
+	HDC oldHDC = hdc;
+	hdc = *hBuffer;
+	// change rcOut to be zero offset.
+	OffsetRect(&rcOut,-rcOut.left, -rcOut.top);
+
+	//savedDC = SaveDC(hdc);
+
+	COLORREF clrFG, origFG = GetTextColor(hdc);
+	COLORREF clrBG, origBG = GetBkColor(hdc);
+	COLORREF cPalette[16]; // mIRC palette
+
+	getmIRCPalette(cPalette, 16); // get mIRC palette
+
+	clrFG = origFG;
+	clrBG = origBG;
+
+	HFONT hFont = (HFONT) GetCurrentObject(hdc, OBJ_FONT);
+
+	GetObject(hFont, sizeof(LOGFONT), &lf);
+
+	LONG origWeight = lf.lfWeight;
+	LONG origLeft = rc->left;
+
+	SetBkMode(hdc,TRANSPARENT);
+
+	if ((style & DT_CENTER) || (style & DT_RIGHT) || (style & DT_VCENTER)) {
+		// strip out ctrl codes to correctly position text.
+		RECT rcTmp = *rc;
+		calcStrippedRect(hdc, txt, iStyle, &rcTmp, false, tryutf8);
+		// style can be either center or right, not both, but it can be center+vcenter or right+vcenter
+		if (style & DT_CENTER) { // get center text start offset
+			// (total width) - (required width) / 2 = equal space to each side.
+			origLeft = rcOut.left = (((rcOut.right - rcOut.left) - (rcTmp.right - rcTmp.left)) / 2);
+		}
+		else if (style & DT_RIGHT) { // get right text start offset
+			// adjust start to right
+			origLeft = rcOut.left = rcOut.right - (rcTmp.right - rcTmp.left);
+		}
+		if (style & DT_VCENTER) { // get Veritcal center text start offset
+			rcOut.top += (((rcOut.bottom - rcOut.top) - (rcTmp.bottom - rcTmp.top)) / 2);
+		}
+	}
+	WCHAR c;
+	while (pos < len) {
+		c = wtxt[pos];
+		switch (c)
+		{
+		case 2: // Bold
+			{
+				if (tmp.wlen() > 0)
+					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
+				if (lf.lfWeight == FW_BOLD)
+					lf.lfWeight = origWeight;
 				else
-					// if not, we consider the new one to be the main region at first!
-					hRegion=hNewRegion;				
-			}						
-			
-			// We free the allocated memory and the rest of used ressources
-			GlobalFree(hData);
-			SelectObject(hDC,hPrevBmpOrg);
-			DeleteDC(hDC);
-			
-		}// if (hDC) 
+					lf.lfWeight = FW_BOLD;
+			}
+			break;
+		case 3: // Colour
+			{
+				if (tmp.wlen() > 0)
+					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
+				SetBkMode(hdc,TRANSPARENT);
+				//usingBGclr = false;
+				if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+					WCHAR colbuf[3];
+					colbuf[0] = wtxt[pos +1];
+					colbuf[1] = L'\0';
+					++pos;
 
-		SelectObject(hMemDC,hPrevBmp);
-		DeleteDC(hMemDC);
-	} //if (hNewBitmap)	
+					if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+						colbuf[1] = wtxt[pos +1];
+						pos++;
+					}
 
-	return hRegion;
+					// color code number
+					clrFG = cPalette[unfoldColor(colbuf)];
+
+					// maybe a background color
+					if (wtxt[pos+1] == L',') {
+						++pos;
+
+						if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+							colbuf[0] = wtxt[pos +1];
+							colbuf[1] = L'\0';
+							pos++;
+
+							if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+								colbuf[1] = wtxt[pos +1];
+								++pos;
+							}
+
+							// color code number
+							clrBG = cPalette[unfoldColor(colbuf)];
+							SetBkMode(hdc,OPAQUE);
+							//usingBGclr = true;
+						}
+					}
+					if (usingRevTxt) { // reverse text swap fg & bg colours
+						COLORREF ct = clrFG;
+						clrFG = clrBG;
+						clrBG = ct;
+						SetBkMode(hdc,OPAQUE);
+					}
+				}
+				else {
+					clrFG = origFG;
+					clrBG = origBG;
+				}
+				SetTextColor(hdc, clrFG);
+				SetBkColor(hdc, clrBG);
+			}
+			break;
+		case 15: // ctrl+o
+			{
+				if (tmp.wlen() > 0)
+					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
+				lf.lfWeight = origWeight;
+				lf.lfUnderline = false;
+				clrFG = origFG;
+				clrBG = origBG;
+				SetTextColor(hdc, origFG);
+				SetBkColor(hdc, origBG);
+				SetBkMode(hdc,TRANSPARENT);
+				//usingBGclr = false;
+				usingRevTxt = false;
+			}
+			break;
+		case 22: // ctrl+r
+			{
+				if (tmp.wlen() > 0)
+					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
+				usingRevTxt = (usingRevTxt ? false : true);
+				if (usingRevTxt)
+					SetBkMode(hdc,OPAQUE);
+				else
+					SetBkMode(hdc,TRANSPARENT);
+				COLORREF ct = clrBG;
+				clrBG = clrFG;
+				clrFG = ct;
+				SetTextColor(hdc, clrFG);
+				SetBkColor(hdc, clrBG);
+			}
+			break;
+		case 29: // ctrl-i Italics
+			{
+				if (tmp.wlen() > 0)
+					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
+				lf.lfItalic = (lf.lfItalic ? FALSE : TRUE);
+			}
+			break;
+		case 31: // ctrl+u
+			{
+				if (tmp.wlen() > 0)
+					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
+				lf.lfUnderline = (lf.lfUnderline ? FALSE : TRUE);
+			}
+			break;
+		case 10:
+		case 13:
+			{
+				if (iStyle & DT_SINGLELINE) { // when single line, replace with a space or ignore?
+					tmp += L' '; //" ";
+				}
+				else {
+					SIZE sz;
+					int tlen = (int)tmp.wlen();
+					GetTextExtentPoint32W(hdc, tmp.to_wchr(), tlen, &sz);
+					if (tlen > 0)
+						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
+					rcOut.top += sz.cy;
+					rcOut.left = rc->left;
+				}
+			}
+			break;
+		default: // normal char
+			{
+				if (!(iStyle & DT_SINGLELINE)) { // don't bother if a single line.
+					int tlen = (int)tmp.wlen();
+					if (tlen > 0) {
+						SIZE sz;
+						int nFit;
+						GetTextExtentExPointW(hdc, const_cast<TString &>(txt).to_wchr(tryutf8), tlen, (rcOut.right - rcOut.left), &nFit, NULL, &sz);
+						if (nFit < tlen) {
+							if (nFit > 0) {
+								WCHAR o = tmp.to_wchr(tryutf8)[nFit];
+								//mIRC_OutText(hdc, tmp.wsub(0,nFit), &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
+								TString tsSub(tmp.wsub(0,nFit));
+								mIRC_OutText(hdc, tsSub, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
+								//tmp = "";
+								rcOut.top += sz.cy;
+								rcOut.left = origLeft;
+								tmp = o;
+								//mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+							}
+							else
+								tmp = "";
+						}
+					}
+				}
+				tmp += c;
+			}
+			break;
+		}
+		pos++;
+	}
+	if (tmp.wlen() > 0)
+		mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
+	//RestoreDC(hdc, savedDC);
+
+	BitBlt(oldHDC, rc->left, rc->top, (rc->right - rc->left), (rc->bottom - rc->top), hdc, 0, 0, SRCCOPY);
+	hdc = oldHDC;
+	DeleteHDCBuffer(hBuffer);
+}
+
+typedef struct tagHDCBuffer {
+	HDC m_hHDC;
+	HBITMAP m_hOldBitmap;
+	HBITMAP m_hBitmap;
+	HFONT m_hOldFont;
+} HDCBuffer, *LPHDCBuffer;
+
+HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc)
+{
+	if ((hdc == NULL) /*|| (rc == NULL)*/)
+		return NULL;
+
+	// alloc buffer data
+	LPHDCBuffer buf = new HDCBuffer;
+
+	// create HDC for buffer.
+	buf->m_hHDC = CreateCompatibleDC(hdc);
+	if (buf->m_hHDC == NULL)
+		return NULL;
+
+	// get size of bitmap to alloc.
+	BITMAP bm;
+	int x, y;
+	if (rc == NULL) {
+		// no size specified, use hdc's bitmap size.
+		GetObject((HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP), sizeof(BITMAP), &bm);
+		x = 0;
+		y = 0;
+	}
+	else {
+		// use size specified.
+		bm.bmWidth = (rc->right - rc->left);
+		bm.bmHeight = (rc->bottom - rc->top);
+		x = rc->left;
+		y = rc->top;
+	}
+
+	// alloc bitmap for buffer.
+	buf->m_hBitmap = CreateCompatibleBitmap(hdc, bm.bmWidth, bm.bmHeight);
+	if (buf->m_hBitmap == NULL) {
+		DeleteDC(buf->m_hHDC);
+		return NULL;
+	}
+	// select bitmap into hdc
+	buf->m_hOldBitmap = SelectBitmap(buf->m_hHDC, buf->m_hBitmap);
+
+	// copy settings from hdc to buffer's hdc.
+	SetDCBrushColor(buf->m_hHDC, GetDCBrushColor(hdc));
+	SetDCPenColor(buf->m_hHDC, GetDCPenColor(hdc));
+	SetLayout(buf->m_hHDC, GetLayout(hdc));
+	buf->m_hOldFont = SelectFont(buf->m_hHDC, GetCurrentObject(hdc, OBJ_FONT));
+	SetTextColor(buf->m_hHDC, GetTextColor(hdc));
+	SetBkColor(buf->m_hHDC, GetBkColor(hdc));
+	SetBkMode(buf->m_hHDC, GetBkMode(hdc));
+	SetROP2(buf->m_hHDC, GetROP2(hdc));
+	SetMapMode(buf->m_hHDC, GetMapMode(hdc));
+	SetPolyFillMode(buf->m_hHDC, GetPolyFillMode(hdc));
+	SetStretchBltMode(buf->m_hHDC, GetStretchBltMode(hdc));
+
+	// copy contents of hdc within area to buffer.
+	BitBlt(buf->m_hHDC, 0, 0, bm.bmWidth, bm.bmHeight, hdc, x, y, SRCCOPY);
+
+	// buffer is an exact duplicate of the hdc within the area specified.
+	// return buffer typed as an HDC *
+	return (HDC *)buf;
+}
+
+void DeleteHDCBuffer(HDC *hBuffer)
+{
+	if (hBuffer == NULL)
+		return;
+
+	LPHDCBuffer buf = (LPHDCBuffer)hBuffer;
+
+	GdiFlush();
+	SelectFont(buf->m_hHDC, buf->m_hOldFont);
+	SelectBitmap(buf->m_hHDC,buf->m_hOldBitmap);
+	DeleteBitmap(buf->m_hBitmap);
+	DeleteDC(buf->m_hHDC);
+	delete buf;
+}
+
+int TGetWindowText(HWND hwnd, TString &txt)
+{
+	int nText = GetWindowTextLength(hwnd);
+	if (nText > 0) {
+		TCHAR *text = new TCHAR[nText +1];
+		GetWindowText(hwnd, text, nText +1);
+		txt = text;
+		delete [] text;
+	}
+	else
+		txt = "";
+	return nText;
+}
+
+HMODULE UXModule = NULL;             //!< UxTheme.dll Module Handle
+#ifdef DCX_USE_GDIPLUS
+HMODULE GDIPlusModule = NULL;					//!< gdiplus.dll Module Handle
+ULONG_PTR gdi_token = NULL;
+#endif
+HMODULE DWMModule = NULL;							//!< dwmapi.dll Module Handle
+
+void FreeOSCompatibility(void)
+{
+#ifdef DCX_USE_GDIPLUS
+	// Shutdown GDI+
+	if (GDIPlusModule != NULL) {
+		if (gdi_token != NULL)
+			GdiplusShutdown(gdi_token);
+
+		FreeLibrary(GDIPlusModule);
+		GDIPlusModule = NULL;
+	}
+#endif
+
+	if (UXModule != NULL) {
+#ifdef DCX_USE_WINSDK
+		Dcx::XPPlusModule.dcxBufferedPaintUnInit();
+#endif
+
+		FreeLibrary(UXModule);
+		UXModule = NULL;
+	}
+	if (DWMModule != NULL) {
+		FreeLibrary(DWMModule);
+		DWMModule = NULL;
+	}
+}
+
+BOOL isRegexMatch(const char *matchtext, const char *pattern)
+{
+#ifdef DCX_USE_BOOST
+		try {
+			//TString pat(pattern);
+			//boost::regex_constants::_match_flags rflags = boost::regex_constants::match_any;
+			//if (pat.left(1) == '/') {
+			//	pat = pat.right( -1 );
+			//	if (pat.right(1) == '/') {
+			//		pat = pat.left(-1);
+			//	}
+			//	else {
+			//		for (int l = pat.len() -1; l >= 0; l--) {
+			//			switch (pat[l]) {
+			//				case '/':
+			//					pat = pat.left(l);
+			//					l = -1;
+			//					break;
+			//				case 'g':
+			//				case 'm':
+			//					break;
+			//				case 'i':
+			//					break;
+			//				default:
+			//					l = -1;
+			//					break;
+			//			}
+			//		}
+			//	}
+			//}
+			boost::regex re(pattern, boost::regex_constants::perl);
+
+			if (boost::regex_search(matchtext, re,  boost::regex_constants::match_any | boost::regex_constants::match_single_line))
+				return TRUE;
+		}
+		catch (...) {
+			return FALSE;
+		}
+#else
+#ifdef DCX_USE_PCRE
+	TString pat(pattern);
+	int pcre_opts = 0;
+	bool bEndOpts = false;
+
+	if (pat[0] == '/' || pat[1] == '/') {
+		if (pat[0] == 'm') {
+			pcre_opts |= PCRE_MULTILINE;
+			pat = pat.right(-2);
+		}
+		else
+			pat = pat.right(-1);
+
+		for (int l = pat.len() -1; l >= 0; l--) {
+			switch (pat[l]) {
+				case '/':
+					{
+						pat = pat.left(l);
+						l = -1;
+					}
+					break;
+				case 'g':
+					{
+						pcre_opts |= 0;
+					}
+					break;
+				case 'i':
+					{
+						pcre_opts |= PCRE_CASELESS;
+					}
+					break;
+				case 'x':
+					{
+						pcre_opts |= PCRE_EXTENDED;
+					}
+					break;
+				case 's':
+					{
+						pcre_opts &= ~PCRE_MULTILINE;
+						pcre_opts |= PCRE_DOLLAR_ENDONLY|PCRE_DOTALL;
+					}
+					break;
+				case 'e':
+					break;
+				case 'A':
+					break;
+				default:
+					l = -1;
+					break;
+			}
+		}
+	}
+	const char *err = NULL;
+	int err_code = 0;
+	pcre *reg = pcre_compile(pat.to_chr(), pcre_opts, &err, &err_code, NULL);
+
+	if (reg != NULL) {
+		int res[4];
+		if (pcre_exec(reg, NULL, matchtext, lstrlen(matchtext),0, PCRE_NOTEMPTY, res, 3) > 0)
+			return TRUE;
+	}
+#else
+		char res[10];
+		Dcx::mIRC.execex("/set -nu1 %%dcx_text %s", matchtext );
+		Dcx::mIRC.execex("/set -nu1 %%dcx_regex %s", pattern );
+		Dcx::mIRC.eval(res, 10, "$regex(%dcx_text,%dcx_regex)");
+		if ( atoi(res) > 0 )
+			return TRUE;
+#endif // DCX_USE_PCRE
+#endif // DCX_USE_BOOST
+		return FALSE;
+}
+
+bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex)
+{
+	if (!IsFile(filename))
+		return false;
+
+	int fIndex = 0, i = iIndex;
+	HICON hIcon = NULL;
+
+	do {
+		if (bLarge)
+			ExtractIconEx(filename.to_chr(), fIndex, &hIcon, NULL, 1);
+		else
+			ExtractIconEx(filename.to_chr(), fIndex, NULL, &hIcon, 1);
+
+		if (hIcon != NULL) {
+			if (i == -1)
+				ImageList_ReplaceIcon(himl, -1, hIcon);
+			else
+				ImageList_ReplaceIcon(himl, i++, hIcon);
+			DestroyIcon(hIcon);
+		}
+		fIndex++;
+	} while (hIcon != NULL);
+	return true;
+}
+
+BOOL dcxGetWindowRect(HWND hWnd, LPRECT lpRect)
+{
+	// as described in a comment at http://msdn.microsoft.com/en-us/library/ms633519(VS.85).aspx
+	// GetWindowRect does not return the real size of a window if u are using vista with areo glass
+	// using DwmGetWindowAttribute now to fix that (fixes bug 685)
+	if (Dcx::VistaModule.isUseable())
+		return (Dcx::VistaModule.dcxDwmGetWindowAttribute(hWnd, DWMWA_EXTENDED_FRAME_BOUNDS, lpRect, sizeof(RECT)) == S_OK);
+
+	return GetWindowRect(hWnd, lpRect);
 }

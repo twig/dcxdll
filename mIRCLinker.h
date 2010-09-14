@@ -7,7 +7,7 @@
 class mIRCLinker
 {
 	HANDLE		m_hFileMap; //!< Handle to the mIRC DLL File Map
-	LPSTR		m_pData;    //!< Pointer to a character buffer of size 900 to send mIRC custom commands
+	LPSTR		m_pData;    //!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
 	HWND		m_mIRCHWND; //!< mIRC Window Handle
 	DWORD		m_dwVersion;
 	int			m_iMapCnt;  //!< MapFile counter.
@@ -57,6 +57,7 @@ public:
 
 	bool eval(char *res, const int maxlen, const char *data);
 	bool tsEval(TString &res, const char *data);
+	bool iEval(__int64 *res, const char *data);
 	bool evalex(char *res, const int maxlen, const char *szFormat, ...);
 	bool tsEvalex(TString &res, const char *szFormat, ...);
 	bool exec(const char *data);

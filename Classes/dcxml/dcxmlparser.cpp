@@ -137,31 +137,25 @@ bool DcxmlParser::loadDialogElement()
 	* The for loop has an ugly side assigment: it sets this->element 
 	* which is used as a recursion cursor for this->parseDialog()
 	*/
-	bool found = false;
-	for(	this->element = this->getDialogsElement()->FirstChildElement("dialog");
-		this->element;
-		this->element = this->element->NextSiblingElement("dialog") 
-		)	if (0==lstrcmp(this->element->Attribute("name"), this->getDialogName()))
-	{ 
-		found = true;
-		this->setDialogElement(this->element);
-		break;
-	}
-	if (!found) 
+	for(this->element = this->getDialogsElement()->FirstChildElement("dialog"); this->element; this->element = this->element->NextSiblingElement("dialog"))
 	{
-		Dcx::errorex("/dcxml", "Theres no <dialog> element with attribute name=\"%s\" in \"%s\"", this->getDialogName(), this->getFilePath());
-		return false;
+		if (0==lstrcmp(this->element->Attribute("name"), this->getDialogName()))
+		{
+			this->setDialogElement(this->element);
+			return true;
+		}
 	}
-	return true;
+	Dcx::errorex("/dcxml", "Theres no <dialog> element with attribute name=\"%s\" in \"%s\"", this->getDialogName(), this->getFilePath());
+	return false;
 }
 
 
-const char *DcxmlParser::queryAttribute(TiXmlElement *element,const char *attribute,const char *defaultValue)
+const char *DcxmlParser::queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue) const
 {
-	const char *t;
-	return (t = element->Attribute(attribute)) ? t : defaultValue;
+	const char *t = element->Attribute(attribute);
+	return (t != NULL) ? t : defaultValue;
 }
-int DcxmlParser::queryIntAttribute(TiXmlElement *element,const char *attribute,int defaultValue)
+int DcxmlParser::queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue) const
 {
 	int integer;
 	return (element->QueryIntAttribute(attribute,&integer) == TIXML_SUCCESS) ? integer : defaultValue;
@@ -170,51 +164,55 @@ int DcxmlParser::queryIntAttribute(TiXmlElement *element,const char *attribute,i
 void DcxmlParser::parseAttributes() {
 	elem = element->Value();
 	parentelem = parent->Value();
-	parenttype = (temp = parent->Attribute("type")) ? temp : "panel";
-	type = (temp = element->Attribute("type")) ? temp : "panel";
-	STclass = (temp = element->Attribute("class")) ? temp : "";
-	weigth = (temp = element->Attribute("weight")) ? temp : "1";
-	height = (temp = element->Attribute("height")) ? temp : "0";
-	width = (temp = element->Attribute("width")) ? temp : "0";
-	margin = (temp = element->Attribute("margin")) ? temp : "0 0 0 0";
-	styles = (temp = element->Attribute("styles")) ? temp : "";
-	caption = (temp = element->Attribute("caption")) ? temp : (temp = element->GetText()) ? temp : "";
-	tooltip = (temp = element->Attribute("tooltip")) ? temp : "";
-	cascade = (temp = element->Attribute("cascade")) ? temp : "";
-	icon = (temp = element->Attribute("icon")) ? temp : "0";
-	integral = (temp = element->Attribute("integral")) ? temp : "0";
-	state = (temp = element->Attribute("state")) ? temp : "0";
-	indent = (temp = element->Attribute("indent")) ? temp : "0";
+	parenttype = queryAttribute(parent,"type","panel");
+	type = queryAttribute(element,"type","panel");
+	STclass = queryAttribute(element,"class","");
+	weigth = queryAttribute(element,"weight","1");
+	height = queryAttribute(element, "height", "0");
+	width = queryAttribute(element, "width", "0");
+	margin = queryAttribute(element,"margin", "0 0 0 0");
+	styles = queryAttribute(element,"styles", "");
+	caption = element->Attribute("caption");
+	if (caption == NULL) {
+		temp = element->GetText();
+		caption = (temp != NULL) ? temp : "";
+	}
+	tooltip = queryAttribute(element, "tooltip", "");
+	cascade = queryAttribute(element, "casacde", "");
+	icon = queryAttribute(element, "icon", "0");
+	integral = queryAttribute(element, "integral", "0");
+	state = queryAttribute(element, "state", "0");
+	indent = queryAttribute(element, "indent", "0");
 	//flags attribute defaults different per type/item
 	tFlags = element->Attribute("flags");
-	src = (temp = element->Attribute("src")) ? temp : "";
-	cells = (temp = element->Attribute("cells")) ? temp : "-1";
-	rebarMinHeight = (temp = element->Attribute("minheight")) ? temp : "0";
-	rebarMinWidth = (temp = element->Attribute("minwidth")) ? temp : "0";
-	iconsize = (temp = element->Attribute("iconsize")) ? temp : "16";
-	eval = (element->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 0;
+	src = queryAttribute(element, "src", "");
+	cells = queryAttribute(element, "cells", "-1");
+	rebarMinHeight = queryAttribute(element, "minheight", "0");
+	rebarMinWidth = queryAttribute(element, "minwidth", "0");
+	iconsize = queryAttribute(element, "iconsize", "16");
+	eval = queryIntAttribute(element, "eval", 0);
 
-	fontstyle = (temp = element->Attribute("fontstyle")) ? temp : "d";
-	charset = (temp = element->Attribute("charset")) ? temp : "ansi";
-	fontsize = (temp = element->Attribute("fontsize")) ? temp : "";
-	fontname = (temp = element->Attribute("fontname")) ? temp : "";
-	border = (temp = element->Attribute("border")) ? temp : "";
-	cursor = (temp = element->Attribute("cursor")) ? temp : "arrow";
-	bgcolour = (temp = element->Attribute("bgcolour")) ? temp : "0";
-	textbgcolour = (temp = element->Attribute("textbgcolour")) ? temp : "";
-	textcolour = (temp = element->Attribute("textcolour")) ? temp : "0";
+	fontstyle = queryAttribute(element, "fontstyle", "d");
+	charset = queryAttribute(element, "charset", "ansi");
+	fontsize = queryAttribute(element, "fontsize","");
+	fontname = queryAttribute(element, "fontname", "");
+	border = queryAttribute(element, "border", "");
+	cursor = queryAttribute(element, "cursor", "arrow");
+	bgcolour = queryAttribute(element, "bgcolour", "0");
+	textbgcolour = queryAttribute(element, "textbgcolour", "");
+	textcolour = queryAttribute(element, "textcolour", "0");
 
-	gradientstart = (temp = element->Attribute("gradientstart")) ? temp : "";
-	gradientend = (temp = element->Attribute("gradientend")) ? temp : "";
+	gradientstart = queryAttribute(element, "gradientstart", "");
+	gradientend = queryAttribute(element, "gradientend", "");
 
-	disabledsrc = (temp = element->Attribute("disabledsrc")) ? temp : "";
-	hoversrc = (temp = element->Attribute("hoversrc")) ? temp : "";
-	selectedsrc = (temp = element->Attribute("selectedsrc")) ? temp : "";
+	disabledsrc = queryAttribute(element, "disabledsrc", "");
+	hoversrc = queryAttribute(element, "hoversrc", "");
+	selectedsrc = queryAttribute(element, "selectedsrc", "");
 }
-void DcxmlParser::parseAttributes(TiXmlElement* element) {
+void DcxmlParser::parseAttributes(const TiXmlElement* element) {
 	elem = element->Value();
 	parentelem = parent->Value();
-	parenttype = (temp = parent->Attribute("type")) ? temp : "panel";
+	parenttype = queryAttribute(parent, "type", "panel");
 	weigth = (temp = element->Attribute("weight")) ? temp : "1";
 	height = (temp = element->Attribute("height")) ? temp : "0";
 	width = (temp = element->Attribute("width")) ? temp : "0";
@@ -263,7 +261,8 @@ void DcxmlParser::parseControl() {
 	//        padding = (temp = element->Attribute("padding")) ? temp : "0 0 0 0";
 
 	if ((0==lstrcmp(parenttype, "divider")) && (element->Attribute("width"))) {
-		const char *width = (temp = element->Attribute("width")) ? temp : "100";
+		temp = element->Attribute("width");
+		const char *width = (temp != NULL) ? temp : "100";
 		xdidEX(parentid,"-v","%s",width);
 	}
 	if (((0==lstrcmp(type, "toolbar")) || (0==lstrcmp(type, "button")))
@@ -351,8 +350,10 @@ void DcxmlParser::parseControl() {
 		this->xdidEX(id,"-l","%s",cells);
 		this->parseItems(element);
 	}
-	disabledsrc = (temp = element->Attribute("disabledsrc")) ? temp : "";
-	hoversrc = (temp = element->Attribute("hoversrc")) ? temp : "";
+	temp = element->Attribute("disabledsrc");
+	disabledsrc = (temp != NULL) ? temp : "";
+	temp = element->Attribute("hoversrc");
+	hoversrc = (temp != NULL) ? temp : "";
 }
 /* xdialogEX(switch,format[,args[]]) : performs an xdialog command internally or trough mIRC */
 void DcxmlParser::xdialogEX(const char *sw,const char *dFormat, ...) { 
@@ -360,7 +361,7 @@ void DcxmlParser::xdialogEX(const char *sw,const char *dFormat, ...) {
 	TString txt;
 
 	va_start(args, dFormat);
-	txt.vprintf(dFormat, &args);
+	txt.tvprintf(dFormat, &args);
 	va_end(args);
 
 	if (this->isVerbose())
@@ -370,12 +371,12 @@ void DcxmlParser::xdialogEX(const char *sw,const char *dFormat, ...) {
 	else this->getDialog()->parseCommandRequestEX("%s %s %s",this->getDialogMark(),sw,txt.to_chr());
 }
 /* xdidEX(controlId,switch,format[,args[]]) : performs an xdid command internally or trough mIRC on the specified id */
-void DcxmlParser::xdidEX(int id,const char *sw,const char *dFormat, ...) { 
+void DcxmlParser::xdidEX(const int id,const char *sw,const char *dFormat, ...) { 
 	va_list args;
 	TString txt;
 
 	va_start(args, dFormat);
-	txt.vprintf(dFormat, &args);
+	txt.tvprintf(dFormat, &args);
 	va_end(args);
 
 	if (this->isVerbose())
@@ -398,28 +399,20 @@ TString DcxmlParser::parseCLA(const int cCla) {
 		if (element->Attribute("height")) { fHeigth = "v"; fixed = "f"; weigth = "0"; }
 		if (element->Attribute("width")) { fWidth = "h"; fixed = "f"; weigth = "0"; }
 		if (0==lstrcmp(parentelem, "dialog"))
-		{
-			this->xdialogEX("-l","cell %s \t +%s%s%si %i %s %s %s",
-				g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height);
-		}
+			this->xdialogEX("-l","cell %s \t +%s%s%si %i %s %s %s",	g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height);
 		else if (0==lstrcmp(parentelem, "control")) {
 			if ((parent->Attribute("type")) && (parentid)) {
-				if (0==lstrcmp(parent->Attribute("type"), "panel")) { 
-					this->xdidEX(parentid,"-l","cell %s \t +%s%s%si %i %s %s %s",
-						g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
-				}
-				else if (0==lstrcmp(parent->Attribute("type"), "box")) { 
-					this->xdidEX(parentid,"-l","cell %s \t +%s%s%si %i %s %s %s",
-						g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
-				}
+				if (0==lstrcmp(parent->Attribute("type"), "panel"))
+					this->xdidEX(parentid,"-l","cell %s \t +%s%s%si %i %s %s %s", g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
+				else if (0==lstrcmp(parent->Attribute("type"), "box"))
+					this->xdidEX(parentid,"-l","cell %s \t +%s%s%si %i %s %s %s", g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
 			}
 		}
 	}
 	else if (0==lstrcmp(elem, "pane")) {
-		if (0==lstrcmp(parentelem, "dialog")) { 
+		if (0==lstrcmp(parentelem, "dialog"))
 			this->xdialogEX("-l","cell %s \t +p%s 0 %s 0 0",g_claPath,cascade,weigth);
-		}
-		if (0==lstrcmp(parentelem, "control")) {
+		else if (0==lstrcmp(parentelem, "control")) {
 			if ((parenttype) && (parentid)) {
 				if (0==lstrcmp(parenttype, "panel"))
 					this->xdidEX(parentid,"-l","cell %s \t +p%s 0 %s 0 0",g_claPath,cascade,weigth);
@@ -428,50 +421,73 @@ TString DcxmlParser::parseCLA(const int cCla) {
 			}
 		}
 	}
-	char buffer [100];
-	const char * claPathx = 0;
-	if (g_resetcla) {
-		lstrcpy(buffer, "root");
-		claPathx = buffer;
-	}
-	else if (0==lstrcmp(g_claPath, "root")) {
-		wsprintf (buffer, "%i",cCla);
-		claPathx = buffer;
-	}
-	else { 
-		wsprintf (buffer, "%s %i",g_claPath,cCla);
-		claPathx = buffer;
-	}
+	//char buffer [100];
+	//const char * claPathx;
+	//if (g_resetcla) {
+	//	lstrcpy(buffer, "root");
+	//	claPathx = buffer;
+	//}
+	//else if (0==lstrcmp(g_claPath, "root")) {
+	//	wsprintf (buffer, "%i",cCla);
+	//	claPathx = buffer;
+	//}
+	//else { 
+	//	wsprintf (buffer, "%s %i",g_claPath,cCla);
+	//	claPathx = buffer;
+	//}
+	//if (element->Attribute("margin")) {
+	//	if (0==lstrcmp(parentelem, "dialog"))
+	//		this->xdialogEX("-l","space %s \t + %s",claPathx,margin);
+	//	else this->xdidEX(parentid,"-l","space %s \t + %s",g_claPath,margin);
+	//}
+	//g_resetcla = 0;
+	//return TString(claPathx);
+	TString claPathx;
+	if (g_resetcla)
+		claPathx = "root";
+	else if (0==lstrcmp(g_claPath, "root"))
+		claPathx.tsprintf("%i",cCla);
+	else
+		claPathx.tsprintf("%s %i",g_claPath,cCla);
+
 	if (element->Attribute("margin")) {
 		if (0==lstrcmp(parentelem, "dialog"))
-			this->xdialogEX("-l","space %s \t + %s",claPathx,margin);
+			this->xdialogEX("-l","space %s \t + %s",claPathx.to_chr(),margin);
 		else this->xdidEX(parentid,"-l","space %s \t + %s",g_claPath,margin);
 	}
 	g_resetcla = 0;
-	return TString(claPathx);
+	return claPathx;
 }
 /* setStyle(TiXmlElement*) : Applies the styles described on the element found by parseStyle() */
-void DcxmlParser::setStyle(TiXmlElement* style) {
+void DcxmlParser::setStyle(const TiXmlElement* style) {
 	//style attributes evaluate by default unless eval="0" is set on the element explicitly
 
 	eval = (style->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 1;
 
 	//font
-	fontstyle = (temp = style->Attribute("fontstyle")) ? temp : "d";
-	charset = (temp = style->Attribute("charset")) ? temp : "ansi";
-	fontsize = (temp = style->Attribute("fontsize")) ? temp : "";
-	fontname = (temp = style->Attribute("fontname")) ? temp : "";
+	temp = style->Attribute("fontstyle");
+	fontstyle = (temp != NULL) ? temp : "d";
+	temp = style->Attribute("charset");
+	charset = (temp != NULL) ? temp : "ansi";
+	temp = style->Attribute("fontsize");
+	fontsize = (temp != NULL) ? temp : "";
+	temp = style->Attribute("fontname");
+	fontname = (temp != NULL) ? temp : "";
 	if ((style->Attribute("fontsize")) || (style->Attribute("fontname")))
-		this->xdidEX(id,"-f","+%s %s %s %s",
-		fontstyle,charset,fontsize,fontname);
+		this->xdidEX(id,"-f","+%s %s %s %s", fontstyle, charset, fontsize, fontname);
 	//border
-	border = (temp = style->Attribute("border")) ? temp : "";
+	temp = style->Attribute("border");
+	border = (temp != NULL) ? temp : "";
 	if (style->Attribute("border")) this->xdidEX(id,"-x","+%s",border);
 	//colours
-	cursor = (temp = style->Attribute("cursor")) ? temp : "arrow";
-	bgcolour = (temp = style->Attribute("bgcolour")) ? temp : "";
-	textbgcolour = (temp = style->Attribute("textbgcolour")) ? temp : "";
-	textcolour = (temp = style->Attribute("textcolour")) ? temp : "";
+	temp = style->Attribute("cursor");
+	cursor = (temp != NULL) ? temp : "arrow";
+	temp = style->Attribute("bgcolour");
+	bgcolour = (temp != NULL) ? temp : "";
+	temp = style->Attribute("textbgcolour");
+	textbgcolour = (temp != NULL) ? temp : "";
+	temp = style->Attribute("textcolour");
+	textcolour = (temp != NULL) ? temp : "";
 	if (style->Attribute("bgcolour")) { 
 		this->xdidEX(id,"-C","+b %s",bgcolour);
 		if (0==lstrcmp(type, "pbar")) 
@@ -541,43 +557,48 @@ void DcxmlParser::setStyle(TiXmlElement* style) {
 void DcxmlParser::parseStyle(int depth) { 
 	if (depth > 2) return;
 	depth++;
-	TiXmlElement* styles = 0;
-	TiXmlElement* style = 0;
-	TiXmlElement* ClassElement = 0;
-	TiXmlElement* TypeElement = 0;
-	TiXmlElement* IdElement = 0;
-	if (depth == 3) style = this->element;
-	if (depth == 1) styles = this->getDialogsElement()->FirstChildElement("styles");
-	if (depth == 2) styles = this->getDialogElement()->FirstChildElement("styles");
+	const TiXmlElement* styles = NULL;
+	const TiXmlElement* style = NULL;
+	const TiXmlElement* ClassElement = 0;
+	const TiXmlElement* TypeElement = 0;
+	const TiXmlElement* IdElement = 0;
+	if (depth == 3)
+		style = this->element;
+	else if (depth == 1)
+		styles = this->getDialogsElement()->FirstChildElement("styles");
+	else if (depth == 2)
+		styles = this->getDialogElement()->FirstChildElement("styles");
 	if (styles) {
-		if (style = styles->FirstChildElement("all")) setStyle(style);
-		style = 0;
+		style = styles->FirstChildElement("all");
+		if (style != NULL) setStyle(style);
 		for( style = styles->FirstChildElement("style"); style; style = style->NextSiblingElement()) {
-			if (0==lstrcmp(style->Attribute("class"), STclass)) ClassElement = style;
-			if (0==lstrcmp(style->Attribute("type"), type)) TypeElement = style;
-			int t_id = parseId(style);
-			if (t_id == id) IdElement = style;
+			if (0==lstrcmp(style->Attribute("class"), STclass))
+				ClassElement = style;
+			if (0==lstrcmp(style->Attribute("type"), type))
+				TypeElement = style;
+			if (parseId(style) == id)
+				IdElement = style;
 		}
 		if (IdElement) style = IdElement;
 		else if (ClassElement) style = ClassElement;
 		else if (TypeElement) style = TypeElement;
 	}
-	if (style) this->setStyle(style);
+	if (style != NULL)
+		this->setStyle(style);
 	this->parseStyle(depth);
 }
 /* parseIcons(recursionDepth) : Simple recursive method to cascade find the right icons to apply to an element */
 void DcxmlParser::parseIcons(int depth) { 
 	if (depth > 1) return;
 	depth++;
-	TiXmlElement* icons = 0;
-	TiXmlElement* icon = 0;
-	TiXmlElement* iconchild = 0;
-	TiXmlElement* ClassElement = 0;
-	TiXmlElement* TypeElement = 0;
-	TiXmlElement* IdElement = 0;
+	const TiXmlElement* icons = 0;
+	const TiXmlElement* ClassElement = 0;
+	const TiXmlElement* TypeElement = 0;
+	const TiXmlElement* IdElement = 0;
 	if (depth == 1) icons = this->getDialogElement()->FirstChildElement("icons");
-	if (depth == 2) icons = this->getDialogsElement()->FirstChildElement("icons");
+	else if (depth == 2) icons = this->getDialogsElement()->FirstChildElement("icons");
 	if (icons) {
+		const TiXmlElement* icon;
 		for( icon = icons->FirstChildElement("icon"); icon; icon = icon->NextSiblingElement()) {
 			if (0==lstrcmp(icon->Attribute("class"), STclass)) ClassElement = icon;
 			if (0==lstrcmp(icon->Attribute("type"), type)) TypeElement = icon;
@@ -588,13 +609,15 @@ void DcxmlParser::parseIcons(int depth) {
 		else if (ClassElement) icon = ClassElement;
 		else if (TypeElement) icon = TypeElement;
 		else icon = 0;
-		if (icon) { 
-			const char *flags = (temp = icon->Attribute("flags")) ? temp : "ndhs";
-			const char *index = (temp = icon->Attribute("index")) ? temp : "0";
+		if (icon) {
+			temp = icon->Attribute("flags");
+			const char *flags = (temp != NULL) ? temp : "ndhs";
+			temp = icon->Attribute("index");
+			const char *index = (temp != NULL) ? temp : "0";
 			const char *src = icon->Attribute("src");
 			int indexmin = (icon->QueryIntAttribute("indexmin",&indexmin) == TIXML_SUCCESS) ? indexmin : 0;
 			int indexmax = (icon->QueryIntAttribute("indexmax",&indexmax) == TIXML_SUCCESS) ? indexmax : -1;
-			if (src) { 
+			if (src) {
 				if (indexmin <= indexmax) 
 					//method sucks but looping in C++ is WAYYY too fast for mIRC
 				{
@@ -606,9 +629,11 @@ void DcxmlParser::parseIcons(int depth) {
 			}
 			else
 			{
-				for( icon = icon->FirstChildElement("icon"); iconchild; iconchild = iconchild->NextSiblingElement()) {
-					const char *tflags = (temp = iconchild->Attribute("flags")) ? temp : "ndhs";
-					const char *tindex = (temp = iconchild->Attribute("index")) ? temp : "0";
+				for(const TiXmlElement *iconchild = icon->FirstChildElement("icon"); iconchild; iconchild = iconchild->NextSiblingElement()) {
+					temp = iconchild->Attribute("flags");
+					const char *tflags = (temp != NULL) ? temp : "ndhs";
+					temp = iconchild->Attribute("index");
+					const char *tindex = (temp != NULL) ? temp : "0";
 					const char *tsrc = iconchild->Attribute("src");
 					if (tsrc)
 						Dcx::mIRC.execex("//xdid -w %s %i +%s %s %s",this->getDialogMark(),id,tflags,tindex,tsrc);
@@ -619,33 +644,36 @@ void DcxmlParser::parseIcons(int depth) {
 	else parseIcons(depth);
 }
 /* parseItems(XmlElement,recursionDepth,itemPath) : recursively applies items for a control */
-void DcxmlParser::parseItems(TiXmlElement* element,int depth,char *itemPath) { 
+void DcxmlParser::parseItems(const TiXmlElement* element,int depth,char *itemPath) { 
 	int item = 0;
 	int cell = 0;
-	TiXmlElement* child = 0;
 
-	for( child = element->FirstChildElement(); child; child = child->NextSiblingElement() ) {
+	for(const TiXmlElement *child = element->FirstChildElement(); child; child = child->NextSiblingElement() )
+	{
 		const char *childelem = child->Value();
 		if (0==lstrcmp(childelem, "columns"))
 		{
 			if (0==lstrcmp(type, "listview"))
 			{
 				TString arguments;
-				for(TiXmlElement *column = child->FirstChildElement("column");
-					column; 
-					column = column->NextSiblingElement("column") ) 
+				for(const TiXmlElement *column = child->FirstChildElement("column"); column; column = column->NextSiblingElement("column") ) 
 				{
+					const char *width = column->Attribute("width");
+					const char *caption = column->Attribute("caption");
+					const char *flags = column->Attribute("flags");
+					const char *icon = column->Attribute("icon");
+					if (width == NULL)
+						width = "0";
+					if (caption == NULL)
+						caption = "";
+					if (flags == NULL)
+						flags = "l";
+					if (icon == NULL)
+						icon = "0";
 
-					const char *width = (temp = column->Attribute("width")) ? temp : "0";
-					const char *caption = (temp = column->Attribute("caption")) ? temp : "";
-					const char *flags = (temp = column->Attribute("flags")) ? temp : "l";
-					const char *icon = (temp = column->Attribute("icon")) ? temp : "0";
-
-					const char *args;
-					char buffer [512]; //!< if anyone needs a bigger column name tough luck!
-					wsprintf (buffer, "+%s %s %s %s ",flags,icon,width,caption);
-					args = buffer;
-					arguments.addtok(args,"\t");
+					TString buffer;
+					buffer.tsprintf("+%s %s %s %s ",flags,icon,width,caption);
+					arguments.addtok(buffer.to_chr(),"\t");
 				}
 				if (arguments.numtok() > 0)
 					this->xdidEX(id,"-t","%s",arguments.to_chr());
@@ -696,13 +724,15 @@ void DcxmlParser::parseItems(TiXmlElement* element,int depth,char *itemPath) {
 }
 
 /* parseTemplate(recursionDepth,claPath,firstFreeControlId) : finds a template and parses it into the current dialog */
-void DcxmlParser::parseTemplate(int dialogDepth,const char *claPath,int passedid)
+void DcxmlParser::parseTemplate(int dialogDepth,const char *claPath,const int passedid)
 {
-	TiXmlElement* Template = 0;
-	TiXmlElement* lookIn = 0;
-	TiXmlElement* found = 0;
-	lookIn = this->getDialogsElement()->FirstChildElement("templates");
-	for (Template = lookIn->FirstChildElement("template");Template;Template = Template->NextSiblingElement()) 
+	const TiXmlElement *found = NULL;
+	const TiXmlElement *lookIn = this->getDialogsElement()->FirstChildElement("templates");
+
+	if (lookIn == NULL)
+		return;
+
+	for (const TiXmlElement *Template = lookIn->FirstChildElement("template");Template;Template = Template->NextSiblingElement()) 
 	{
 		if (0==lstrcmp(Template->Attribute("name"), element->Attribute("name")))
 		{ 
@@ -717,8 +747,8 @@ void DcxmlParser::parseTemplate(int dialogDepth,const char *claPath,int passedid
 	}
 }
 /* parseDialog(recursionDepth,claPath,firstFreeControlId,ignoreParentFlag) : finds a template and parses it into the current dialog */
-void DcxmlParser::parseDialog(int depth,const char *claPath,int passedid,int ignoreParent) { 
-	TiXmlElement* child = 0;
+void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,const int ignoreParent) { 
+	const TiXmlElement* child = 0;
 	int control = 0;
 	g_claPath = 0;
 	g_claPathx = 0;
@@ -746,10 +776,9 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,int passedid,int ign
 				const char * t_claPathx = 0;
 				wsprintf (t_buffer, "%i",cCla);
 				t_claPathx = t_buffer;
-				TiXmlAttribute* attribute;
 				const char* name;
 				const char* value;
-				for (attribute = element->FirstAttribute() ; attribute ; attribute = attribute->Next()) 
+				for (const TiXmlAttribute *attribute = element->FirstAttribute() ; attribute ; attribute = attribute->Next()) 
 				{ 
 					name = attribute->Name(); 
 					value = attribute->Value();
@@ -800,7 +829,9 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,int passedid,int ign
 			}
 			else break;    
 		}
-		parenttype = (temp = parent->Attribute("type")) ? temp : "panel";
+		parenttype = parent->Attribute("type");
+		if (parenttype == NULL)
+			parenttype = "panel";
 		parentid = this->parseId(parent);
 		parentid = (parentid > 0) ? parentid : passedid;
 		//IF TEMPLATE ELEMENT REROUTE TO TEMPLATE DEFINITION
@@ -859,44 +890,88 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,int passedid,int ign
 	}
 } 
 
-
+// NB: never returns a ZERO, other code relies on this.
 int DcxmlParser::mIRCEvalToUnsignedInt (const char *value)
 {
 	//Todo: method returns -1 for failure which odd for a *ToUnsignedInt method.
-	TString buf;
-	Dcx::mIRC.tsEval(buf, value);
-	int id = buf.to_int();
-	return (id > 0) ? id : -1;
+	//TString buf;
+	//Dcx::mIRC.tsEval(buf, value);
+	//int id = buf.to_int();
+	//return (id > 0) ? id : -1;
+	__int64 id;
+	Dcx::mIRC.iEval(&id, value);
+	return (int)((id > 0) ? id : -1);
 }
-void DcxmlParser::registerId(TiXmlElement *idElement,int id)
+void DcxmlParser::registerId(const TiXmlElement *idElement,const int id)
 {
+	//int elementId;
+	//if (idElement->QueryIntAttribute("id",&elementId) != TIXML_SUCCESS) //<! id attr. is not an int
+	//{
+	//	const char *elementNamedId = (temp = idElement->Attribute("id")) ? temp : "";
+	//	if (this->mIRCEvalToUnsignedInt(elementNamedId) < 0) //<! id attr. doesn't evaluate to an int
+	//	{
+	//		this->getDialog()->namedIds[elementNamedId] = id;
+	//	}
+	//}
 	int elementId;
 	if (idElement->QueryIntAttribute("id",&elementId) != TIXML_SUCCESS) //<! id attr. is not an int
 	{
-		const char *elementNamedId = (temp = idElement->Attribute("id")) ? temp : "";
-		if (this->mIRCEvalToUnsignedInt(elementNamedId) < 0) //<! id attr. doesn't evaluate to an int
-		{
-			this->getDialog()->namedIds[elementNamedId] = id;
+		const char *elementNamedId = idElement->Attribute("id");
+		if (elementNamedId != NULL) {
+			if (this->mIRCEvalToUnsignedInt(elementNamedId) < 0) //<! id attr. doesn't evaluate to an int
+			{
+				this->getDialog()->namedIds[elementNamedId] = id;
+			}
 		}
 	}
 }
-int DcxmlParser::parseId(TiXmlElement* idElement)
+int DcxmlParser::parseId(const TiXmlElement* idElement)
 {
 	//<! if id attribute is already integer return it
-	int id = (idElement->QueryIntAttribute("id",&id) == TIXML_SUCCESS) ? id : 0;
-	if (id > 0) return id;
+	int id = 0;
+	if (idElement->QueryIntAttribute("id",&id) == TIXML_SUCCESS)
+	{
+		// found ID as a number,  if its not a negative, return it.
+		if (id >= 0)
+			return id;
+		// id was a negative so return 0
+		return 0;
+	}
 
 	//<! else try to evaluate the value to see if it ends up as an id;
-	const char *attributeIdValue = (temp = idElement->Attribute("id")) ? temp : "0";
-	id = mIRCEvalToUnsignedInt(attributeIdValue);
-	if (id > 0) return id;
+	//const char *attributeIdValue = (temp = idElement->Attribute("id")) ? temp : "0";
+	//id = mIRCEvalToUnsignedInt(attributeIdValue);
+	//if (id > 0)
+	//	return id;
 
-	TString value(attributeIdValue);
+	//TString value(attributeIdValue);
 
-	//Otherwise if it's a namedId return it .find(attributeIdValue) never returned :(;
-	for(IntegerHash::const_iterator it = this->getDialog()->namedIds.begin(); it != this->getDialog()->namedIds.end(); ++it)
-		if (it->first == value) return it->second;	
+	////Otherwise if it's a namedId return it .find(attributeIdValue) never returned :(;
+	//for(IntegerHash::const_iterator it = this->getDialog()->namedIds.begin(); it != this->getDialog()->namedIds.end(); ++it)
+	//	if (it->first == value)
+	//		return it->second;	
 
+	//return 0;
+
+	const char *attributeIdValue = idElement->Attribute("id");
+	if (attributeIdValue != NULL)
+	{
+		// got ID attrib, evaluate it to try & resolve to a number.
+		id = mIRCEvalToUnsignedInt(attributeIdValue);
+		// if ID is > zero return it.
+		if (id > 0)
+			return id;
+
+		//TString value(attributeIdValue);
+
+		//Otherwise if it's a namedId return it .find(attributeIdValue) never returned :(;
+		for(IntegerHash::const_iterator it = this->getDialog()->namedIds.begin(); it != this->getDialog()->namedIds.end(); ++it)
+		{
+			if (it->first == attributeIdValue)
+				return it->second;
+		}
+
+	}
 	return 0;
 }
 

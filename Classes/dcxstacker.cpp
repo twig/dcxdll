@@ -144,7 +144,7 @@ void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nSel);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR)
-				lstrcpyn(szReturnValue,sitem->tsCaption.to_chr(), 900);
+				lstrcpyn(szReturnValue,sitem->tsCaption.to_chr(), MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
 	}

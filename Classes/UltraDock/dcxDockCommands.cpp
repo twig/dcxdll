@@ -247,6 +247,13 @@ mIRC(xdock) {
 	input.trim();
 	data[0] = 0;
 
+	if (Dcx::mIRC.getMainVersion() == 7) {
+		DCX_DEBUG(Dcx::debug,"xdock", "mIRC V7 detected...");
+		DCX_DEBUG(Dcx::debug,"xdock", "Can't do any window mods etc..");
+		Dcx::error("/xdock","Can't be used in mIRC V7");
+		return 0;
+	}
+
 	int numtok = input.numtok( );
 
 	if (numtok < 1) {
@@ -551,7 +558,7 @@ mIRC(_xdock)
 		case 11: // text
 			{
 				if (GetWindowTextLength(Dcx::mIRC.getHWND()) > 0)
-					GetWindowText(Dcx::mIRC.getHWND(),data,900);
+					GetWindowText(Dcx::mIRC.getHWND(),data,MIRC_BUFFER_SIZE_CCH);
 			}
 			break;
 		case 12: // switchBarHwnd
@@ -660,7 +667,7 @@ mIRC(_xdock)
 			case 7: // text
 				{
 					if (GetWindowTextLength(hwnd) > 0)
-						GetWindowText(hwnd,data,900);
+						GetWindowText(hwnd,data,MIRC_BUFFER_SIZE_CCH);
 				}
 				break;
 			case 0: // error
@@ -933,7 +940,7 @@ mIRC(_xdock)
 //	// enable/disable ghost drag for main mIRC window.
 //	// [-G] [0-255]
 //	else if ((switches[1] == 'G') && (numtok == 2)) {
-//		int alpha = input.gettok(2," ").to_int();
+//		int alpha = input.gettok(2).to_int();
 //		if ((alpha >= 0) && (alpha <= 255))
 //			mIRCLink.m_bDoGhostDrag = alpha;
 //		else {
@@ -1179,7 +1186,7 @@ mIRC(_xdock)
 //	// dock to nicklist/sidelistbox
 //	// [-n] [hwnd to dock] [+options] [hwnd to dock with]
 //	else if ((switches[1] == 'n') && (numtok > 3)) {
-//		mWnd = (HWND) input.gettok(4," ").to_num();
+//		mWnd = (HWND) input.gettok(4).to_num();
 //
 //		if (IsWindow(mWnd))
 //			DockWindow(mWnd, dockHwnd, "ListBox", flags);
@@ -1298,7 +1305,7 @@ mIRC(_xdock)
 //		ret("D_ERR: Invalid xdock arguments");
 //	}
 //
-//	if (d.gettok(1," ") == "mIRC") {
+//	if (d.gettok(1) == "mIRC") {
 //		static const TString poslist("switchBarPos toolBarPos treeBarPos switchBarSize toolBarSize treeBarSize isSwitchBar isToolBar isTreeBar isMenuBar text");
 //		int nType = poslist.findtok(d.gettok(2).to_chr(),1);
 //		switch (nType)
@@ -1388,7 +1395,7 @@ mIRC(_xdock)
 //		case 11: // text
 //			{
 //				if (GetWindowTextLength(Dcx::mIRC.getHWND()) > 0)
-//					GetWindowText(Dcx::mIRC.getHWND(),data,900);
+//					GetWindowText(Dcx::mIRC.getHWND(),data,MIRC_BUFFER_SIZE_CCH);
 //			}
 //			break;
 //		case 0: // error
@@ -1402,7 +1409,7 @@ mIRC(_xdock)
 //		}
 //	}
 //	else {
-//		HWND hwnd = (HWND)d.gettok(1," ").to_num();
+//		HWND hwnd = (HWND)d.gettok(1).to_num();
 //
 //		if (IsWindow(hwnd)) {
 //			static const TString poslist("isDocked hasDocked isAutoV isAutoH isAutoS dockSide text");
@@ -1485,7 +1492,7 @@ mIRC(_xdock)
 //			case 7: // text
 //				{
 //					if (GetWindowTextLength(hwnd) > 0)
-//						GetWindowText(hwnd,data,900);
+//						GetWindowText(hwnd,data,MIRC_BUFFER_SIZE_CCH);
 //				}
 //				break;
 //			case 0: // error

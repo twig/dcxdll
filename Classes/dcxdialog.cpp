@@ -303,7 +303,7 @@ void DcxDialog::parseComControlRequestEX(const int id, const char *szFormat, ...
 		TString msg;
 		va_list args;
 		va_start(args, szFormat);
-		msg.vprintf(szFormat, &args);
+		msg.tvprintf(szFormat, &args);
 		va_end(args);
 		p_Control->parseCommandRequest(msg);
 	}
@@ -317,6 +317,14 @@ void DcxDialog::parseCommandRequest( TString &input) {
 
 	// xdialog -a [NAME] [SWITCH] [+FLAGS] [DURATION]
 	if (flags['a'] && numtok > 3) {
+#if DCX_FOR_XP_ONLY
+		AnimateWindow(this->m_Hwnd,
+			input.gettok( 4 ).to_int(), 
+			getAnimateStyles(input.gettok( 3 )));
+
+		if (IsWindowVisible(this->m_Hwnd))
+			this->redrawWindow();
+#else
 		if (AnimateWindowUx == NULL)
 			this->showError(NULL, "-a", "Unsupported By Current OS");
 		else {
@@ -327,6 +335,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			if (IsWindowVisible(this->m_Hwnd))
 				this->redrawWindow();
 		}
+#endif
 	}
 	// xdialog -b [NAME] [SWITCH] [+FLAGS]
 	else if (flags['b'] && numtok > 2) {
@@ -421,6 +430,21 @@ void DcxDialog::parseCommandRequest( TString &input) {
 	}
 	// xdialog -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
 	else if (flags['f'] && numtok > 4) {
+#if DCX_FOR_XP_ONLY
+		UINT iFlags = this->parseFlashFlags(input.gettok( 3 ));
+		INT iCount = input.gettok( 4 ).to_int();
+		DWORD dwTimeout = (DWORD)input.gettok( 5 ).to_num();
+		FLASHWINFO fli;
+
+		ZeroMemory(&fli, sizeof(FLASHWINFO));
+		fli.cbSize = sizeof(FLASHWINFO);
+		fli.dwFlags = iFlags;
+		fli.hwnd = this->m_Hwnd;
+		fli.uCount = iCount;
+		fli.dwTimeout = dwTimeout;
+
+		FlashWindowEx(& fli);
+#else
 		if (FlashWindowExUx == NULL)
 			this->showError(NULL, "-f", "Unsupported By Current OS");
 		else {
@@ -438,6 +462,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 
 			FlashWindowExUx(& fli);
 		}
+#endif
 	}
 	// xdialog -g [NAME] [SWITCH] [+FLAGS] [COLOR|FILENAME]
 	else if (flags['g'] && numtok > 3) {
@@ -735,6 +760,16 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		if (input.gettok( 3 ) == "alpha") {
 			if (input.gettok( 4 ) == "none") {
 				this->m_iAlphaLevel = 255;
+#if DCX_FOR_XP_ONLY
+				if (!this->m_bVistaStyle) {
+					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
+						RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+						AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+						if (this->m_bHaveKeyColour) // reapply keycolour if any.
+							SetLayeredWindowAttributes(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
+					}
+				}
+#else
 				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
 					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
 						RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
@@ -743,6 +778,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 							SetLayeredWindowAttributesUx(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
 					}
 				}
+#endif
 			}
 			else {
 				BYTE alpha = (BYTE)input.gettok( 4 ).to_int();
@@ -753,6 +789,15 @@ void DcxDialog::parseCommandRequest( TString &input) {
 				//	alpha = 0;
 
 				this->m_iAlphaLevel = alpha;
+#if DCX_FOR_XP_ONLY
+				if (!this->m_bVistaStyle) {
+					// Set WS_EX_LAYERED on this window
+					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+
+					// Make this window x% alpha
+					SetLayeredWindowAttributes(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+				}
+#else
 				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
 					// Set WS_EX_LAYERED on this window
 					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
@@ -760,6 +805,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 					// Make this window x% alpha
 					SetLayeredWindowAttributesUx(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
 				}
+#endif
 			}
 		}
 		// Transparent color
@@ -767,6 +813,16 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			if (input.gettok( 4 ) == "none") {
 				this->m_cKeyColour = (COLORREF)-1;
 				this->m_bHaveKeyColour = false;
+#if DCX_FOR_XP_ONLY
+				if (!this->m_bVistaStyle) {
+					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
+						RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+						AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+						if (this->m_iAlphaLevel != 255) // reapply alpha if any.
+							SetLayeredWindowAttributes(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+					}
+				}
+#else
 				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
 					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
 						RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
@@ -775,10 +831,20 @@ void DcxDialog::parseCommandRequest( TString &input) {
 							SetLayeredWindowAttributesUx(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
 					}
 				}
+#endif
 			}
 			else {
 				this->m_cKeyColour = (COLORREF)input.gettok( 4 ).to_int();
 				this->m_bHaveKeyColour = true;
+#if DCX_FOR_XP_ONLY
+				if (!this->m_bVistaStyle) {
+					// Set WS_EX_LAYERED on this window
+					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+
+					// Make colour transparent
+					SetLayeredWindowAttributes(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
+				}
+#else
 				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
 					// Set WS_EX_LAYERED on this window
 					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
@@ -786,6 +852,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 					// Make colour transparent
 					SetLayeredWindowAttributesUx(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
 				}
+#endif
 			}
 		}
 		// Background color
@@ -801,6 +868,15 @@ void DcxDialog::parseCommandRequest( TString &input) {
 				if (this->isExStyle(WS_EX_LAYERED|WS_EX_TRANSPARENT))
 					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
 				// re-apply any alpha or keycolour.
+#if DCX_FOR_XP_ONLY
+				if (((this->m_iAlphaLevel != 255) || (this->m_bHaveKeyColour)) && (!this->m_bVistaStyle)) {
+					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+					if (this->m_iAlphaLevel != 255) // reapply alpha if any.
+						SetLayeredWindowAttributes(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+					if (this->m_bHaveKeyColour) // reapply keycolour if any.
+						SetLayeredWindowAttributes(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
+				}
+#else
 				if (((this->m_iAlphaLevel != 255) || (this->m_bHaveKeyColour)) && ((SetLayeredWindowAttributesUx != NULL) && !this->m_bVistaStyle)) {
 					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
 					if (this->m_iAlphaLevel != 255) // reapply alpha if any.
@@ -808,6 +884,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 					if (this->m_bHaveKeyColour) // reapply keycolour if any.
 						SetLayeredWindowAttributesUx(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
 				}
+#endif
 			}
 			else
 				AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
@@ -985,7 +1062,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		}
 		if (this->m_popup != NULL) {
 			TString menuargs;
-			menuargs.sprintf("dialog %s", input.gettok( 3, -1).to_chr());
+			menuargs.tsprintf("dialog %s", input.gettok( 3, -1).to_chr());
 			Dcx::XPopups.parseCommand(menuargs, this->m_popup);
 		}
 	}
@@ -1323,8 +1400,13 @@ void DcxDialog::parseBorderStyles(const TString &flags, LONG *Styles, LONG *ExSt
 			*ExStyles |= WS_EX_COMPOSITED;
 		//	WS_EX_COMPOSITED style causes problems for listview control & maybe others, but when it works it looks really cool :)
 		//	this improves transparency etc.. on xp+ only, looking into how this affects us.
+#if DCX_FOR_XP_ONLY
+		else if (flags[i] == 'v')
+			*ExStyles |= WS_EX_LAYERED;
+#else
 		else if (flags[i] == 'v' && UpdateLayeredWindowUx != NULL && SetLayeredWindowAttributesUx != NULL)
 			*ExStyles |= WS_EX_LAYERED;
+#endif
 		++i;
 	}
 }
@@ -1784,7 +1866,7 @@ bool DcxDialog::evalAliasEx(char *szReturn, const int maxlen, const char *szForm
 	va_list args;
 
 	va_start(args, szFormat);
-	line.vprintf(szFormat, &args);
+	line.tvprintf(szFormat, &args);
 	va_end(args);
 
 	return evalAlias(szReturn, maxlen, line.to_chr());
@@ -1806,7 +1888,7 @@ bool DcxDialog::execAliasEx(const char *szFormat, ...) {
 	va_list args;
 
 	va_start(args, szFormat);
-	line.vprintf(szFormat, &args);
+	line.tvprintf(szFormat, &args);
 	va_end(args);
 
 	return execAlias(line.to_chr());
@@ -1890,11 +1972,17 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	if (p_this == NULL)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
+#if DCX_FOR_XP_ONLY
+	// If Message is blocking just call old win proc
+	if ((InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND)
+		return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+#else
 	if (InSendMessageExUx != NULL) {
 		// If Message is blocking just call old win proc
 		if ((InSendMessageExUx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND)
 			return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 	}
+#endif
 
 	BOOL bParsed = FALSE;
 	LRESULT lRes = 0L;
@@ -2142,6 +2230,19 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 			{
+#if DCX_FOR_XP_ONLY
+				if (p_this->m_bDoGhostDrag < 255) {
+					if (!p_this->m_bVistaStyle) {
+						DWORD style = GetWindowExStyle(mHwnd);
+						// Set WS_EX_LAYERED on this window
+						if (!(style & WS_EX_LAYERED))
+							SetWindowLong(mHwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
+						// Make this window alpha
+						SetLayeredWindowAttributes(mHwnd, 0, p_this->m_bDoGhostDrag, LWA_ALPHA);
+					}
+					p_this->m_bGhosted = true;
+				}
+#else
 				if (p_this->m_bDoGhostDrag < 255 && SetLayeredWindowAttributesUx != NULL) {
 					if (!p_this->m_bVistaStyle) {
 						DWORD style = GetWindowExStyle(mHwnd);
@@ -2153,6 +2254,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					}
 					p_this->m_bGhosted = true;
 				}
+#endif
 				p_this->UpdateVistaStyle();
 			}
 			break;
@@ -2174,6 +2276,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				p_this->m_bInMoving = false;
 				p_this->m_bInSizing = false;
 				// turn off ghosting.
+#if DCX_FOR_XP_ONLY
+				if (p_this->m_bGhosted) {
+					if (!p_this->m_bVistaStyle) {
+						// Make this window solid
+						SetLayeredWindowAttributes(mHwnd, 0, p_this->m_iAlphaLevel, LWA_ALPHA);
+					}
+					p_this->m_bGhosted = false;
+				}
+#else
 				if (p_this->m_bGhosted && SetLayeredWindowAttributesUx != NULL) {
 					if (!p_this->m_bVistaStyle) {
 						// Make this window solid
@@ -2181,6 +2292,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					}
 					p_this->m_bGhosted = false;
 				}
+#endif
 				p_this->UpdateVistaStyle();
 //#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
 				if (bDoRedraw && !p_this->IsVistaStyle() && !p_this->isExStyle(WS_EX_COMPOSITED))
@@ -2823,8 +2935,10 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPCRECT rwnd)
 
 bool DcxDialog::AddShadow(void)
 {
+#if !DCX_FOR_XP_ONLY
 	if (UpdateLayeredWindowUx == NULL)
 		return false;
+#endif
 
 	if (!this->isShadowed()) {
 		// Create the shadow window
@@ -2882,8 +2996,10 @@ void DcxDialog::RemoveShadow(void)
 
 void DcxDialog::UpdateShadow(void)
 {
+#if !DCX_FOR_XP_ONLY
 	if (UpdateLayeredWindowUx == NULL)
 		return;
+#endif
 
 	RECT WndRect;
 	GetWindowRect(this->m_Hwnd, &WndRect);
@@ -2918,8 +3034,11 @@ void DcxDialog::UpdateShadow(void)
 
 	MoveWindow(this->m_Shadow.hWin, ptDst.x, ptDst.y, nShadWndWid, nShadWndHei, FALSE);
 
+#if DCX_FOR_XP_ONLY
+	UpdateLayeredWindow(this->m_Shadow.hWin, NULL, &ptDst, &WndSize, hMemDC, &ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
+#else
 	UpdateLayeredWindowUx(this->m_Shadow.hWin, NULL, &ptDst, &WndSize, hMemDC, &ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
-
+#endif
 	// Delete used resources
 	DeleteBitmap(SelectBitmap(hMemDC, hOriBmp));
 	DeleteDC(hMemDC);
@@ -3210,9 +3329,9 @@ void DcxDialog::showError(const char *prop, const char *cmd, const char *err)
 	{
 		TString res;
 		if (prop != NULL)
-			res.sprintf("D_IERROR xdialog(%s).%s: %s", this->getName().to_chr(), prop, err);
+			res.tsprintf("D_IERROR xdialog(%s).%s: %s", this->getName().to_chr(), prop, err);
 		else
-			res.sprintf("D_CERROR xdialog %s %s: %s", cmd, this->getName().to_chr(), err);
+			res.tsprintf("D_CERROR xdialog %s %s: %s", cmd, this->getName().to_chr(), err);
 		Dcx::mIRC.echo(res.to_chr());
 	}
 
@@ -3225,7 +3344,7 @@ void DcxDialog::showErrorEx(const char *prop, const char *cmd, const char *fmt, 
 	va_list args;
 
 	va_start( args, fmt );
-	err.vprintf(fmt, &args);
+	err.tvprintf(fmt, &args);
 	va_end( args );
 
 	this->showError(prop, cmd, err.to_chr());
@@ -3236,12 +3355,11 @@ void DcxDialog::CreateVistaStyle(void)
 #ifdef DCX_USE_WINSDK
 	if (Dcx::VistaModule.refreshComposite()) {
 		// Vista+ only code.
-		HRESULT hr = S_OK;
 
 		DWMNCRENDERINGPOLICY ncrp = DWMNCRP_ENABLED;
 
 		//enable non-client area rendering on window
-		hr = Dcx::VistaModule.dcxDwmSetWindowAttribute(this->m_Hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
+		HRESULT hr = Dcx::VistaModule.dcxDwmSetWindowAttribute(this->m_Hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
 		if (SUCCEEDED(hr)) {
 			MARGINS margins = {this->m_GlassOffsets.left,this->m_GlassOffsets.right,this->m_GlassOffsets.top,this->m_GlassOffsets.bottom};
 			Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(this->m_Hwnd, &margins);
@@ -3251,6 +3369,33 @@ void DcxDialog::CreateVistaStyle(void)
 #endif
 #ifdef DCX_USE_GDIPLUS
 	// don't use this style with aero, needs specific code to allow aero to do these effects for us.
+#if DCX_FOR_XP_ONLY
+	if (Dcx::GDIModule.isUseable() && !Dcx::VistaModule.isAero()) {
+		// this code is for windows 2000 & windows XP
+		RECT rc;
+		GetWindowRect(this->m_Hwnd, &rc);
+		DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;
+		DWORD Styles = WS_VISIBLE/*|WS_OVERLAPPED*/|WS_CLIPCHILDREN;
+		SIZE szWin;
+		szWin.cx = (rc.right - rc.left);
+		szWin.cy = (rc.bottom - rc.top);
+		this->m_hFakeHwnd = CreateWindowEx(ExStyles,DCX_VISTACLASS,NULL,Styles,rc.left,rc.top,szWin.cx,szWin.cy,this->m_Hwnd,NULL,GetModuleHandle(NULL), NULL);
+		if (IsWindow(this->m_hFakeHwnd)) {
+			if (this->CreateVistaStyleBitmap(szWin))
+			{
+				SetLayeredWindowAttributes(this->m_Hwnd,0,5,LWA_ALPHA);
+				HRGN hRgn = CreateRectRgn(0,0,0,0);
+				if (GetWindowRgn(this->m_Hwnd, hRgn))
+					SetWindowRgn(this->m_hFakeHwnd, hRgn, TRUE);
+				else
+					DeleteRgn(hRgn);
+				this->m_bVistaStyle = true;
+			}
+			else
+				DestroyWindow(this->m_hFakeHwnd);
+		}
+	}
+#else
 	if (SetLayeredWindowAttributesUx && UpdateLayeredWindowUx && Dcx::GDIModule.isUseable() && !Dcx::VistaModule.isAero()) {
 		// this code is for windows 2000 & windows XP
 		RECT rc;
@@ -3276,6 +3421,7 @@ void DcxDialog::CreateVistaStyle(void)
 				DestroyWindow(this->m_hFakeHwnd);
 		}
 	}
+#endif
 #endif
 }
 
@@ -3310,8 +3456,13 @@ void DcxDialog::RemoveVistaStyle(void)
 {
 	this->m_bVistaStyle = false;
 	if (IsWindow(this->m_hFakeHwnd)) {
+#if DCX_FOR_XP_ONLY
+		if (this->isExStyle(WS_EX_LAYERED))
+			SetLayeredWindowAttributes(this->m_Hwnd,0,this->m_iAlphaLevel,LWA_ALPHA);
+#else
 		if (SetLayeredWindowAttributesUx && this->isExStyle(WS_EX_LAYERED))
 			SetLayeredWindowAttributesUx(this->m_Hwnd,0,this->m_iAlphaLevel,LWA_ALPHA);
+#endif
 		DestroyWindow(this->m_hFakeHwnd);
 	}
 	if (this->m_hVistaBitmap != NULL)
@@ -3560,8 +3711,11 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 		//}
 
 		// NB: Unable to combine ULW_COLORKEY & ULW_ALPHA for some reason...
+#if DCX_FOR_XP_ONLY
+		UpdateLayeredWindow( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc, 0, &stBlend, ULW_ALPHA);
+#else
 		UpdateLayeredWindowUx( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc, 0, &stBlend, ULW_ALPHA);
-
+#endif
 		this->m_hVistaHDC = NULL;
 
 		graph.ReleaseHDC(hdcMemory);
@@ -3597,7 +3751,7 @@ void DcxDialog::SetVistaStyleSize(void)
 	SetWindowPos(this->m_hFakeHwnd, NULL, 0,0, szWin.cx, szWin.cy, SWP_NOMOVE|SWP_NOZORDER);
 }
 
-void DcxDialog::MapVistaRect(HWND hwnd, LPRECT rc) const
+void DcxDialog::MapVistaRect(__in HWND hwnd, __inout LPRECT rc) const
 {
 	MapWindowRect(hwnd, this->m_Hwnd, rc);
 	OffsetRect(rc, this->m_sVistaOffsets.cx, this->m_sVistaOffsets.cy);

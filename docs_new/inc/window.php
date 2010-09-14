@@ -9,6 +9,18 @@ Please take note that the windows are <b>ejected</b> when the dialog is closed.
 }
 
 
+function get_styles_window(&$STYLES) {
+	$STYLES = array(
+		"@windowName" => 'There are no specific styles for this control. The style is used to determine which window is embedded. You may also specify a HWND to embed instead of a @windowName',
+	);
+}
+
+function get_xdidprops_window(&$PROPS) {
+	$PROPS = array(
+		'wname' => 'Returns the name of the embedded window.',
+	);
+}
+
 function get_events_window(&$EVENTS) {
 	$EVENTS = array(
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",

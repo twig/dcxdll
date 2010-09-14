@@ -196,7 +196,7 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 			LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
 
 			if ( lpdcxtbb != NULL )
-				lstrcpyn( szReturnValue, lpdcxtbb->bText.to_chr( ), 900 );
+				lstrcpyn( szReturnValue, lpdcxtbb->bText.to_chr( ), MIRC_BUFFER_SIZE_CCH );
 			return;
 		}
 	}
@@ -269,7 +269,7 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 			LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
 
 			if ( lpdcxtbb != NULL )
-				lstrcpyn( szReturnValue, lpdcxtbb->tsTipText.to_chr( ), 900 );
+				lstrcpyn( szReturnValue, lpdcxtbb->tsTipText.to_chr( ), MIRC_BUFFER_SIZE_CCH );
 			return;
 		}
 	}
@@ -289,7 +289,7 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 		this->getItemRect(iButton, &rc);
 		MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rc, 2);
-		coordinates.sprintf("%d %d %d %d", rc.left, rc.bottom, rc.right, rc.top);
+		coordinates.tsprintf("%d %d %d %d", rc.left, rc.bottom, rc.right, rc.top);
 
 		lstrcpy(szReturnValue, coordinates.to_chr());
 		return;

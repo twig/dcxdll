@@ -9,7 +9,6 @@ function get_styles_toolbar(&$STYLES) {
 		"nodivider" => "The 2 pixel line divider is not included in the toolbar.",
 		"flat" => "Toolbar style is flat with buttons having a hot mode (hover). This style also includes the [s]transparent[/s] style.",
 		"list" => "Toolbar item text is to the right of the icon.",
-		'transparent' => "Toolbar control is transparent letting the dialog background color through.",
 		'tooltips' => "Toolbar items support tooltips.",
 		"wrap" => 'Toolbar can have multiple lines of buttons. Toolbar buttons "break" off to the next line when the toolbar becomes too narrow to include all buttons on the same line. The break will occur on the rightmost separator item or the rightmost button if there are no separators on the bar.',
 		"arrows" => "Displays a dropdown arrow on the buttons having the [v]+v[/v] flag set.",
@@ -17,7 +16,8 @@ function get_styles_toolbar(&$STYLES) {
 		'bottom' => "The toolbar is auto-positioned at bottom of dialog window.",
 		'left' => "Toolbar is auto-positioned to the left side of the dialog (makes the toolbar vertical).",
 		'right' => "Toolbar is auto-positioned to the right side of the dialog (makes the toolbar vertical).",
-		'noauto' => "Prevents the toolbar from being auto-positioned and resized by the parent window. The user is responsible for the positioning and resizing of the toolbar.",
+		'noauto' => "Prevents the toolbar from being auto-positioned and resized by the parent window. The user will be responsible for the positioning and resizing of the toolbar.",
+		'alpha' => 'Control is alpha blended.',
 	);
 }
 
@@ -26,7 +26,7 @@ function get_xdid_toolbar(&$XDID) {
 	$XDID = array(
 	    'a' => array(
 	        '__desc' => 'This command lets you add an item to the toolbar.',
-	        '__cmd' => '[N] [+FLAGS] [WIDTH] [#ICON] [COLOR] (Button Text)[TAB](Tooltip Text)',
+	        '__cmd' => '[N] [+FLAGS] [WIDTH] [ICON] [COLOR] (Button Text) [TAB] (Tooltip Text)',
 	        '__eg' => '1 +cv 100 1 $rgb(255,0,0) Button $chr(9) Tooltip',
 	        '__params' => array(
 	            'N' => 'Button index number.',
@@ -37,7 +37,7 @@ function get_xdid_toolbar(&$XDID) {
 						'b' => 'The button text is bold. (Only works with XP themes disabled)',
 						'c' => 'The button text is colored, defined by [p]COLOR[/p]. (Only works with XP themes disabled)',
 						'd' => 'The button is disabled.',
-						'g' => 'The button is part of a checkgroup (radio checks) (used with <a>-k</a> flag).',
+						'g' => 'The button is part of a checkgroup (radio checks) (used with [f]-k[/f] flag).',
 						'h' => 'The button is hidden (but still part of the toolbar).',
 						'i' => 'The button is in indeterminate state (greyed out).',
 						'k' => 'The button acts like a checkbox.',
@@ -58,13 +58,28 @@ function get_xdid_toolbar(&$XDID) {
                 "If [p]Button Text[/p] is '[v]-[/v]' the button will be a separator item.",
 				"If the button is a separator item, the value used for [p]ICON[/p] will be the separator width in pixels.",
 				"Icons must be added before it can be used in the toolbar. (see <a>/xdid -l</a>)",
+				'Colors will only work if the computer has no visual styles applied (XP themes). To use this on machines with visual styles enabled, apply the [s]notheme[/s] style.',
 			),
 		),
 		'c' => array(
-	        '__desc' => "This command lets you change the Nth toolbar button color and text styles.",
+	        '__desc' => "This command lets you change the Nth toolbar button (or tooltip) colors and text styles.",
 	        '__cmd' => '[N] [+FLAGS] [COLOR]',
 	        '__eg' => '3 +bc $rgb(0,0,255)',
-	        '__notes' => 'The flags are limited to +bcu.'
+	        '__params' => array(
+	            'N' => 'The index of the button to modify.',
+				'+FLAGS' => array(
+	           		'__desc' => 'Properties to set to the button.',
+	                '__values' => array(
+		                'b' => 'The text is bold.',
+						'c' => 'The text is in a color defined by [p]COLOR[/p].',
+						'u' => 'The text is underlined.',
+						'x' => 'The background color of the toolbar tooltip.',
+						'z' => 'The text color of the toolbar tooltip.',
+					),
+				),
+				'COLOR' => 'The color to assign the button (or tooltip)'
+			),
+	        '__notes' => 'When using flags +x and +z, you MUST use [p]N[/p] to be [v]0[/v].'
 		),
 		'd' => array(
 	        '__desc' => 'This command lets you delete the Nth toolbar button.',
@@ -103,10 +118,9 @@ function get_xdid_toolbar(&$XDID) {
 			),
 		),
 		'm' => array(
-	        '__desc' => 'This command lets you toggle the toolbar autostretch feature. This feature resizes automatically the toolbar buttons to stretch the full width of the toolbar when the control width changes. Does not work on vertical toolbars.',
-	        '__cmd' => '[ON]',
-	        '__eg' => '1',
-	        '__notes' => "[p]ON[/p] can either be [v]1[/v] or [v]0[/v]",
+			'__desc' => 'This command lets you toggle the toolbar autostretch feature. This feature resizes automatically the toolbar buttons to stretch the full width of the toolbar when the control width changes. Does not work on vertical toolbars.',
+			'__cmd' => '[1|0]',
+			'__eg' => '1',
 		),
 		'q' => array(
 	        '__desc' => "This command lets you change the Nth button tooltip text.",
@@ -148,11 +162,12 @@ function get_xdid_toolbar(&$XDID) {
 		'w' => array(
 	        '__desc' => 'This command lets you add an icon to the toolbar image lists.',
 	        '__cmd' => '[+FLAGS] [INDEX] [FILENAME]',
-	        '__eg' => '+n 113 C:/mIRC/shell.dll',
+	        '__eg' => '+n 113 shell32.dll',
 	        '__params' => array(
 	            '+FLAGS' => array(
 	                '__desc' => "Image list flags.",
 	                '__values' => array(
+	                	// +dcxLoadIcon() flags
 						'd' => 'Disabled icon list.',
 						'n' => 'Normal icon list.',
 						'h' => 'Hottrack icon list.',
@@ -161,13 +176,20 @@ function get_xdid_toolbar(&$XDID) {
 	            'INDEX' => 'Icon index in icon archive',
 				'FILENAME' => 'Icon archive filename',
 			),
-	        '__notes' => "Use 0 if the file is a single icon file.",
+	        '__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
 		),
 	);
+	
+	writeDcxLoadIcon($XDID, 'w', '+FLAGS', 1);
 }
 
 function get_xdidprops_toolbar(&$XDIDPROPS) {
 	$XDIDPROPS = array(
+		'dropdownpoint' => array(
+		    '__desc' => 'This property lets you retreive the coordinates of the Nth toolbar button. These coordinates can be used to position a dropdown menu without the use of the [e]dropdown[/e] event.',
+		    '__cmd' => 'N',
+		    '__eg' => '3',
+		),
 		"num" => "This property lets you retreive the total number of buttons on the toolbar.",
 		"text" => array(
 		    '__desc' => 'This property lets you retreive the Nth button text.',
@@ -189,6 +211,12 @@ function get_xdidprops_toolbar(&$XDIDPROPS) {
 		    '__cmd' => 'N',
 		    '__eg' => '1',
 		),
+		"mouseitem" => array(
+		    '__desc' => "Returns the item which the mouse is currently over.",
+		    '__notes' => 'Returns [v]-1[/v] when mouse is not over an item, or is currently over a disabled item.',
+		),
+		"tooltipbgcolor" => "This property lets you retreive the tooltip background color.",
+		"tooltiptextcolor" => "This property lets you retreive the tooltip text color.",
 	);
 }
 

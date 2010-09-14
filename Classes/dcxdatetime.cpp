@@ -67,7 +67,7 @@ DcxDateTime::~DcxDateTime() {
 }
 
 void DcxDateTime::toXml(TiXmlElement * xml) {
-	char buf[900];
+	char buf[64];
 	SYSTEMTIME st;
 
 	ZeroMemory(&st, sizeof(SYSTEMTIME));
@@ -84,19 +84,19 @@ TString DcxDateTime::getStyles(void) {
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & DTS_LONGDATEFORMAT)
-		styles.addtok("longdateformat", " ");
+		styles.addtok("longdateformat");
 	if (Styles & DTS_SHORTDATEFORMAT) 
-		styles.addtok("shortdateformat", " ");
+		styles.addtok("shortdateformat");
 	if (Styles & DTS_SHORTDATECENTURYFORMAT) 
-		styles.addtok("shortdatecenturyformat", " ");
+		styles.addtok("shortdatecenturyformat");
 	if (Styles & DTS_TIMEFORMAT) 
-		styles.addtok("timeformat", " ");
+		styles.addtok("timeformat");
 	if (Styles & DTS_RIGHTALIGN) 
-		styles.addtok("right", " ");
+		styles.addtok("right");
 	if (Styles & DTS_SHOWNONE) 
-		styles.addtok("shownone", " ");
+		styles.addtok("shownone");
 	if (Styles & DTS_UPDOWN) 
-		styles.addtok("updown", " ");
+		styles.addtok("updown");
 	return styles;
 }
 
@@ -155,16 +155,16 @@ void DcxDateTime::parseInfoRequest(TString &input, char *szReturnValue) {
 		val = DateTime_GetRange(this->m_Hwnd, st);
 
 		if (val & GDTR_MIN)
-			min.sprintf("%ld", SystemTimeToMircTime(&(st[0])));
+			min.tsprintf("%ld", SystemTimeToMircTime(&(st[0])));
 		else
 			min = "nolimit";
 
 		if (val & GDTR_MAX)
-			max.sprintf("%ld", SystemTimeToMircTime(&(st[1])));
+			max.tsprintf("%ld", SystemTimeToMircTime(&(st[1])));
 		else
 			max = "nolimit";
 
-		wsprintf(szReturnValue, "%s %s", min.to_chr(), max.to_chr()); // going to be within 900 limit anyway.
+		wsprintf(szReturnValue, "%s %s", min.to_chr(), max.to_chr()); // going to be within MIRC_BUFFER_SIZE_CCH limit anyway.
 		return;
 	}
 	else if (prop == "value") {

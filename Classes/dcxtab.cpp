@@ -173,7 +173,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
 
       tci.mask = TCIF_TEXT;
       tci.pszText = szReturnValue;
-      tci.cchTextMax = 900;
+      tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 
       TabCtrl_GetItem( this->m_Hwnd, nItem, &tci );
       return;
@@ -223,7 +223,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
 
       tci.mask = TCIF_TEXT;
       tci.pszText = szReturnValue;
-      tci.cchTextMax = 900;
+      tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 
       TabCtrl_GetItem( this->m_Hwnd, nItem, &tci );
       return;
@@ -281,7 +281,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
 	XSwitchFlags flags(input.gettok(3));
 	int numtok = input.numtok( );
 
-  // xdid -r [NAME] [ID] [SWITCH]
+	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags['r']) {
 		int n = 0;
 		TCITEM tci;
@@ -307,53 +307,53 @@ void DcxTab::parseCommandRequest( TString & input ) {
 		TabCtrl_DeleteAllItems(this->m_Hwnd);
 	}
 
-  // xdid -a [NAME] [ID] [SWITCH] [N] [ICON] [TEXT][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB](TOOLTIP)
-  if ( flags['a'] && numtok > 4 ) {
-    TCITEM tci;
-    ZeroMemory( &tci, sizeof( TCITEM ) );
-    tci.mask = TCIF_IMAGE | TCIF_PARAM;
+	// xdid -a [NAME] [ID] [SWITCH] [N] [ICON] [TEXT][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB](TOOLTIP)
+	if ( flags['a'] && numtok > 4 ) {
+		TCITEM tci;
+		ZeroMemory( &tci, sizeof( TCITEM ) );
+		tci.mask = TCIF_IMAGE | TCIF_PARAM;
 
-    TString data(input.gettok( 1, TSTAB ).trim());
+		TString data(input.gettok( 1, TSTAB ).trim());
 
-    TString control_data;
-    if ( input.numtok( TSTAB ) > 1 )
-      control_data = input.gettok( 2, TSTAB ).trim();
+		TString control_data;
+		if ( input.numtok( TSTAB ) > 1 )
+			control_data = input.gettok( 2, TSTAB ).trim();
 
-    TString tooltip;
-    if ( input.numtok( TSTAB ) > 2 )
-      tooltip = input.gettok( 3, -1, TSTAB ).trim();
+		TString tooltip;
+		if ( input.numtok( TSTAB ) > 2 )
+			tooltip = input.gettok( 3, -1, TSTAB ).trim();
 
-    int nIndex = data.gettok( 4 ).to_int( ) - 1;
+		int nIndex = data.gettok( 4 ).to_int( ) - 1;
 
-    if ( nIndex == -1 )
-      nIndex += TabCtrl_GetItemCount( this->m_Hwnd ) + 1;
+		if ( nIndex == -1 )
+			nIndex += TabCtrl_GetItemCount( this->m_Hwnd ) + 1;
 
-	 tci.iImage = data.gettok( 5 ).to_int( ) - 1;
+		tci.iImage = data.gettok( 5 ).to_int( ) - 1;
 
-    // Extra params
-    LPDCXTCITEM lpdtci = new DCXTCITEM;
-    lpdtci->tsTipText = tooltip;
-    tci.lParam = (LPARAM) lpdtci;
+		// Extra params
+		LPDCXTCITEM lpdtci = new DCXTCITEM;
+		lpdtci->tsTipText = tooltip;
+		tci.lParam = (LPARAM) lpdtci;
 
-    // Itemtext
-    TString itemtext;
-    if ( data.numtok( ) > 5 ) {
-      itemtext = data.gettok( 6, -1 );
-      tci.mask |= TCIF_TEXT;
+		// Itemtext
+		TString itemtext;
+		if ( data.numtok( ) > 5 ) {
+			itemtext = data.gettok( 6, -1 );
+			tci.mask |= TCIF_TEXT;
 
-      if (this->m_bClosable)
-         itemtext += "   ";
+			if (this->m_bClosable)
+				itemtext += "   ";
 
-      tci.pszText = itemtext.to_chr( );
-    }
+			tci.pszText = itemtext.to_chr( );
+		}
 
-    if ( control_data.numtok( ) > 5 ) {
-      UINT ID = mIRC_ID_OFFSET + (UINT)control_data.gettok( 1 ).to_int( );
+		if ( control_data.numtok( ) > 5 ) {
+			UINT ID = mIRC_ID_OFFSET + (UINT)control_data.gettok( 1 ).to_int( );
 
-      if ( ID > mIRC_ID_OFFSET - 1 && 
-        !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
-        this->m_pParentDialog->getControlByID( ID ) == NULL ) 
-      {
+			if ( ID > mIRC_ID_OFFSET - 1 && 
+				!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
+				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
+			{
 				try {
 					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
 						CTLF_ALLOW_TREEVIEW |
@@ -377,143 +377,144 @@ void DcxTab::parseCommandRequest( TString & input ) {
 				catch ( char *err ) {
 					this->showErrorEx(NULL, "-a", "Unable To Create Control %d (%s)", ID - mIRC_ID_OFFSET, err);
 				}
-      }
-      else
+			}
+			else
 				this->showErrorEx(NULL, "-a", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
-    }
+		}
 
-    TabCtrl_InsertItem( this->m_Hwnd, nIndex, &tci );
-    this->activateSelectedTab( );
-  }
-  // xdid -c [NAME] [ID] [SWITCH] [N]
-  else if ( flags['c'] && numtok > 3 ) {
-    int nItem = input.gettok( 4 ).to_int( ) - 1;
+		TabCtrl_InsertItem( this->m_Hwnd, nIndex, &tci );
+		this->activateSelectedTab( );
+	}
+	// xdid -c [NAME] [ID] [SWITCH] [N]
+	else if ( flags['c'] && numtok > 3 ) {
+		int nItem = input.gettok( 4 ).to_int( ) - 1;
 
-    if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
-      TabCtrl_SetCurSel( this->m_Hwnd, nItem );
-      this->activateSelectedTab( );
-    }
-  }
-  // xdid -d [NAME] [ID] [SWITCH] [N]
-  else if ( flags['d'] && numtok > 3 ) {
-	  int nItem = input.gettok( 4 ).to_int( ) - 1;
+		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
+			TabCtrl_SetCurSel( this->m_Hwnd, nItem );
+			this->activateSelectedTab( );
+		}
+	}
+	// xdid -d [NAME] [ID] [SWITCH] [N]
+	else if ( flags['d'] && numtok > 3 ) {
+		int nItem = input.gettok( 4 ).to_int( ) - 1;
 
-	  // if a valid item to delete
-	  if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
-		  int curSel = TabCtrl_GetCurSel(this->m_Hwnd);
-		  TCITEM tci;
-		  ZeroMemory( &tci, sizeof( TCITEM ) );
+		// if a valid item to delete
+		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
+			int curSel = TabCtrl_GetCurSel(this->m_Hwnd);
+			TCITEM tci;
+			ZeroMemory( &tci, sizeof( TCITEM ) );
 
-		  tci.mask = TCIF_PARAM;
+			tci.mask = TCIF_PARAM;
 
-		  if (TabCtrl_GetItem(this->m_Hwnd, nItem, &tci)) {
-			  LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
+			if (TabCtrl_GetItem(this->m_Hwnd, nItem, &tci)) {
+				LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
 
-			  if ( lpdtci != NULL && lpdtci->mChildHwnd != NULL && IsWindow( lpdtci->mChildHwnd ) ) {
-				  DestroyWindow( lpdtci->mChildHwnd );
-				  delete lpdtci;
-			  }
-		  }
+				if ( lpdtci != NULL && lpdtci->mChildHwnd != NULL && IsWindow( lpdtci->mChildHwnd ) ) {
+					DestroyWindow( lpdtci->mChildHwnd );
+					delete lpdtci;
+				}
+			}
 
-		  TabCtrl_DeleteItem( this->m_Hwnd, nItem );
+			TabCtrl_DeleteItem( this->m_Hwnd, nItem );
 
-		  // select the next tab item if its the current one
-		  if (curSel == nItem) {
-			  if (nItem < TabCtrl_GetItemCount(this->m_Hwnd))
-				  TabCtrl_SetCurSel(this->m_Hwnd, nItem);
-			  else
-				  TabCtrl_SetCurSel(this->m_Hwnd, nItem -1);
+			// select the next tab item if its the current one
+			if (curSel == nItem) {
+				if (nItem < TabCtrl_GetItemCount(this->m_Hwnd))
+					TabCtrl_SetCurSel(this->m_Hwnd, nItem);
+				else
+					TabCtrl_SetCurSel(this->m_Hwnd, nItem -1);
 
-			  this->activateSelectedTab( );
-		  }
-	  }
-  }
-  // xdid -l [NAME] [ID] [SWITCH] [N] [ICON]
-  else if ( flags['l'] && numtok > 4 ) {
-    int nItem = input.gettok( 4 ).to_int( ) - 1;
-    int nIcon = input.gettok( 5 ).to_int( ) - 1;
+				this->activateSelectedTab( );
+			}
+		}
+	}
+	// xdid -l [NAME] [ID] [SWITCH] [N] [ICON]
+	else if ( flags['l'] && numtok > 4 ) {
+		int nItem = input.gettok( 4 ).to_int( ) - 1;
+		int nIcon = input.gettok( 5 ).to_int( ) - 1;
 
-    if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
-     TCITEM tci;
-     ZeroMemory( &tci, sizeof( TCITEM ) );
-     tci.mask = TCIF_IMAGE;
-     tci.iImage = nIcon;
+		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
+			TCITEM tci;
+			ZeroMemory( &tci, sizeof( TCITEM ) );
+			tci.mask = TCIF_IMAGE;
+			tci.iImage = nIcon;
 
-     TabCtrl_SetItem( this->m_Hwnd, nItem, &tci );
-    }
-  }
-  // xdid -m [NAME] [ID] [SWITCH] [X] [Y]
-  else if ( flags['m'] && numtok > 4 ) {
+			TabCtrl_SetItem( this->m_Hwnd, nItem, &tci );
+		}
+	}
+	// xdid -m [NAME] [ID] [SWITCH] [X] [Y]
+	else if ( flags['m'] && numtok > 4 ) {
 
-    int X = input.gettok( 4 ).to_int( );
-    int Y = input.gettok( 5 ).to_int( );
+		int X = input.gettok( 4 ).to_int( );
+		int Y = input.gettok( 5 ).to_int( );
 
-    TabCtrl_SetItemSize( this->m_Hwnd, X, Y );
-  }
-  // This it to avoid an invalid flag message.
-  // xdid -r [NAME] [ID] [SWITCH]
-  else if ( flags['r'] ) {
-  }
-  // xdid -t [NAME] [ID] [SWITCH] [N] (text)
-  else if ( flags['t'] && numtok > 3 ) {
+		TabCtrl_SetItemSize( this->m_Hwnd, X, Y );
+	}
+	// This it to avoid an invalid flag message.
+	// xdid -r [NAME] [ID] [SWITCH]
+	else if ( flags['r'] ) {
+	}
+	// xdid -t [NAME] [ID] [SWITCH] [N] (text)
+	else if ( flags['t'] && numtok > 3 ) {
 
-    int nItem = input.gettok( 4 ).to_int( ) - 1;
+		int nItem = input.gettok( 4 ).to_int( ) - 1;
 
-    if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
+		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
-      TString itemtext;
+			TString itemtext;
 
-      TCITEM tci;
-      ZeroMemory( &tci, sizeof( TCITEM ) );
-      tci.mask = TCIF_TEXT;
+			TCITEM tci;
+			ZeroMemory( &tci, sizeof( TCITEM ) );
+			tci.mask = TCIF_TEXT;
 
 
-      if ( numtok > 4 )
-        itemtext = input.gettok( 5, -1 ).trim();
+			if ( numtok > 4 )
+				itemtext = input.gettok( 5, -1 ).trim();
 
-      tci.pszText = itemtext.to_chr( );
+			tci.pszText = itemtext.to_chr( );
 
-      TabCtrl_SetItem( this->m_Hwnd, nItem, &tci );
-    }
-  }
+			TabCtrl_SetItem( this->m_Hwnd, nItem, &tci );
+		}
+	}
 
-   // xdid -v [DNAME] [ID] [SWITCH] [N] [POS]
-   else if (flags['v'] && numtok > 4) {
-      int nItem = input.gettok(4).to_int();
-      int pos = input.gettok(5).to_int();
-      BOOL adjustDelete = FALSE;
+	// xdid -v [DNAME] [ID] [SWITCH] [N] [POS]
+	else if (flags['v'] && numtok > 4) {
+		int nItem = input.gettok(4).to_int();
+		int pos = input.gettok(5).to_int();
+		BOOL adjustDelete = FALSE;
 
-      if (nItem == pos)
-         return;
-      else if ((nItem < 1) || (nItem > TabCtrl_GetItemCount(this->m_Hwnd)))
-         return;
-      else if ((pos < 1) || (pos > TabCtrl_GetItemCount(this->m_Hwnd)))
-         return;
+		if (nItem == pos)
+			return;
+		else if ((nItem < 1) || (nItem > TabCtrl_GetItemCount(this->m_Hwnd)))
+			return;
+		else if ((pos < 1) || (pos > TabCtrl_GetItemCount(this->m_Hwnd)))
+			return;
 
-      // does the nItem index get shifted after we insert
-      if (nItem > pos)
-         adjustDelete = TRUE;
+		// does the nItem index get shifted after we insert
+		if (nItem > pos)
+			adjustDelete = TRUE;
 
-      // decrement coz of 0-index
-      nItem--;
+		// decrement coz of 0-index
+		nItem--;
 
-      // get the item we're moving
-      char* text = new char[900];
-      TCITEM tci;
-      ZeroMemory(&tci, sizeof(TCITEM));
-  
-      tci.pszText = text;
-      tci.cchTextMax = 900;
-      tci.mask = TCIF_IMAGE | TCIF_PARAM | TCIF_TEXT | TCIF_STATE;
+		// get the item we're moving
+		char* text = new char[MIRC_BUFFER_SIZE_CCH];
+		TCITEM tci;
+		ZeroMemory(&tci, sizeof(TCITEM));
 
-      TabCtrl_GetItem(this->m_Hwnd, nItem, &tci);
+		tci.pszText = text;
+		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+		tci.mask = TCIF_IMAGE | TCIF_PARAM | TCIF_TEXT | TCIF_STATE;
 
-      // insert it into the new position
-      TabCtrl_InsertItem(this->m_Hwnd, pos, &tci);
+		TabCtrl_GetItem(this->m_Hwnd, nItem, &tci);
 
-      // remove the old tab item
-      TabCtrl_DeleteItem(this->m_Hwnd, (adjustDelete ? nItem +1 : nItem));
-   }
+		// insert it into the new position
+		TabCtrl_InsertItem(this->m_Hwnd, pos, &tci);
+
+		// remove the old tab item
+		TabCtrl_DeleteItem(this->m_Hwnd, (adjustDelete ? nItem +1 : nItem));
+		delete [] text;
+	}
 
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags['w'] && numtok > 5) {
@@ -532,19 +533,16 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
 		icon = dcxLoadIcon(index, filename, false, flag);
 
-		//if (flag.find('g', 0))
-		//	icon = CreateGrayscaleIcon(icon);
-
 		ImageList_AddIcon(himl, icon);
 		DestroyIcon(icon);
 	}
-  // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-  else if ( flags['y'] ) {
+	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
+	else if ( flags['y'] ) {
 
-    ImageList_Destroy( this->getImageList( ) );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+		ImageList_Destroy( this->getImageList( ) );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!
@@ -721,11 +719,11 @@ TString DcxTab::getStyles(void) {
 void DcxTab::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
 	int count = this->getTabCount();
-	char buf[900];
+	char buf[MIRC_BUFFER_SIZE_CCH];
 	TCITEM tci;
 	TiXmlElement * ctrlxml;
 	for (int i = 0; i < count; i++) {
-		tci.cchTextMax = 899;
+		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH -1;
 		tci.pszText = buf;
 		tci.mask |= TCIF_TEXT;
 		if(TabCtrl_GetItem(this->m_Hwnd, i, &tci)) {
@@ -857,20 +855,18 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 				rect.left += 1+ GetSystemMetrics(SM_CXEDGE); // move in past border.
 
 				// TODO: (twig) Ook can u take a look at this plz? string stuff isnt my forte
-				TCHAR szLabel[900];
+				TString label((UINT)MIRC_BUFFER_SIZE_CCH);
 				TC_ITEM tci;
 
 				tci.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_STATE;
-				tci.pszText = szLabel;
-				tci.cchTextMax = 900;
+				tci.pszText = label.to_chr();
+				tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 				tci.dwStateMask = TCIS_HIGHLIGHTED;
 
 				if (!TabCtrl_GetItem(this->getHwnd(), nTabIndex, &tci)) {
 					this->showError(NULL, "DcxTab Fatal Error", "Invalid item");
 					break;
 				}
-
-				TString label(szLabel);
 
 				// fill the rect so it appears to "merge" with the tab page content
 				//if (!dcxIsThemeActive())

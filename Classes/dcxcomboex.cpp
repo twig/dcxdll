@@ -176,14 +176,14 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
 			cbi.mask = CBEIF_TEXT;
 			cbi.iItem = nItem;
 			cbi.pszText = szReturnValue;
-			cbi.cchTextMax = 900;
+			cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 
 			this->getItem( &cbi );
 			return;
 		}
 		else if ( nItem == -1 && ( this->isStyle( CBS_DROPDOWN ) || this->isStyle( CBS_SIMPLE ) ) ) {
 
-			GetWindowText( (HWND) this->getEditControl( ), szReturnValue, 900 );
+			GetWindowText( (HWND) this->getEditControl( ), szReturnValue, MIRC_BUFFER_SIZE_CCH );
 			return;
 		}
 	}
@@ -200,7 +200,7 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
 			cbi.mask = CBEIF_TEXT;
 			cbi.iItem = nItem;
 			cbi.pszText = szReturnValue;
-			cbi.cchTextMax = 900;
+			cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 
 			this->getItem( &cbi );
 			return;
@@ -284,7 +284,7 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
 		int nItem = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nItem > -1 && nItem < (int)m_vItemDataList.size()) {
-			lstrcpyn( szReturnValue,  m_vItemDataList.at( nItem ).tsMark.to_chr(), 900 );
+			lstrcpyn( szReturnValue,  m_vItemDataList.at( nItem ).tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH );
 		}
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
@@ -516,7 +516,7 @@ HIMAGELIST DcxComboEx::createImageList( ) {
 
 BOOL DcxComboEx::matchItemText( const int nItem, const TString * search, const UINT SearchType ) {
 
-	char itemtext[900];
+	char itemtext[MIRC_BUFFER_SIZE_CCH];
 
 	COMBOBOXEXITEM cbi;
 	ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
@@ -524,7 +524,7 @@ BOOL DcxComboEx::matchItemText( const int nItem, const TString * search, const U
 	cbi.mask = CBEIF_TEXT;
 	cbi.iItem = nItem;
 	cbi.pszText = itemtext;
-	cbi.cchTextMax = 900;
+	cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 
 	this->getItem( &cbi );
 

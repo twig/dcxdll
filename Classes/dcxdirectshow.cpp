@@ -139,7 +139,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == "fname") {
-		lstrcpyn(szReturnValue,this->m_tsFilename.to_chr(), 900);
+		lstrcpyn(szReturnValue,this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
   // [NAME] [ID] [PROP]
@@ -816,7 +816,7 @@ HRESULT DcxDirectshow::getProperty(char *prop, const int type) const
 			break;
 		}
 		if (SUCCEEDED(hr)) {
-			_snprintf(prop, 900, "%lS", com_prop);
+			_snprintf(prop, MIRC_BUFFER_SIZE_CCH, "%lS", com_prop);
 			SysFreeString(com_prop);
 		}
 		else

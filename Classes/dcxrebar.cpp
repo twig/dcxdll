@@ -90,29 +90,29 @@ TString DcxReBar::getStyles(void) {
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & RBS_BANDBORDERS)
-		styles.addtok("borders", " ");
+		styles.addtok("borders");
 	if (Styles & RBS_DBLCLKTOGGLE)
-		styles.addtok("dblclktoggle", " ");
+		styles.addtok("dblclktoggle");
 	if (Styles & RBS_FIXEDORDER)
-		styles.addtok("fixedorder", " ");
+		styles.addtok("fixedorder");
 	if (Styles & RBS_VARHEIGHT)
-		styles.addtok("varheight", " ");
+		styles.addtok("varheight");
 	if (Styles & RBS_TOOLTIPS)
-		styles.addtok("tooltips", " ");
+		styles.addtok("tooltips");
 	if (Styles & RBS_VERTICALGRIPPER)
-		styles.addtok("verticalgrip", " ");
+		styles.addtok("verticalgrip");
 	if (Styles & CCS_VERT)
-		styles.addtok("vertical", " ");
+		styles.addtok("vertical");
 	if (Styles & CCS_RIGHT)
-		styles.addtok("right", " ");
+		styles.addtok("right");
 	if (Styles & CCS_BOTTOM)
-		styles.addtok("bottom", " ");
+		styles.addtok("bottom");
 	if (Styles & CCS_NORESIZE)
-		styles.addtok("noresize", " ");
+		styles.addtok("noresize");
 	if (Styles & CCS_NOPARENTALIGN)
-		styles.addtok("noparentalign", " ");
+		styles.addtok("noparentalign");
 	if (Styles & (CCS_NOPARENTALIGN | CCS_NORESIZE))
-		styles.addtok("noauto", " ");
+		styles.addtok("noauto");
 	return styles;
 
 }

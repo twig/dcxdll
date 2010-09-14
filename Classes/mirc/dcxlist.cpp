@@ -189,10 +189,10 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 		int nSel = input.gettok( 4 ).to_int( ) - 1;
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
 			int l = ListBox_GetTextLen(this->m_Hwnd, nSel);
-			if (l != LB_ERR && l < 900)
+			if (l != LB_ERR && l < MIRC_BUFFER_SIZE_CCH)
 				ListBox_GetText( this->m_Hwnd, nSel, szReturnValue );
 			else
-				this->showError(prop.to_chr(), NULL, "String Too Long (Greater than 900 chars)");
+				this->showError(prop.to_chr(), NULL, "String Too Long (Greater than MAX chars)");
 			return;
 		}
 	}
@@ -217,17 +217,17 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 					TString value;
 
 					if (i == 0) {
-						value.sprintf("%d", n);
-						lstrcpyn(szReturnValue, value.to_chr(), 900);
+						value.tsprintf("%d", n);
+						lstrcpyn(szReturnValue, value.to_chr(), MIRC_BUFFER_SIZE_CCH);
 					}
 					else if ((i > 0) && (i <= n)) {
-						value.sprintf("%d", p[i -1] +1);
-						lstrcpyn(szReturnValue, value.to_chr(), 900);
+						value.tsprintf("%d", p[i -1] +1);
+						lstrcpyn(szReturnValue, value.to_chr(), MIRC_BUFFER_SIZE_CCH);
 					}
 				}
 				else {
 					// get all items in a long comma seperated string
-					std::string path = "";
+					TString path;
 					char num[11];
 					int i = 0;
 
@@ -237,13 +237,12 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 #else
 						itoa(p[i] +1, num, 10);
 #endif
-						path += num;
-						path += ',';
+						path.addtok(num, TSCOMMA);
 
 						i++;
 					}
 
-					lstrcpyn(szReturnValue, path.c_str(), 900);
+					lstrcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
 				}
 				delete [] p;
 				return;
@@ -900,13 +899,12 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 			hdc = BeginPaint( this->m_Hwnd, &ps );
 
-			LRESULT res = 0L;
 			bParsed = TRUE;
 
 			// Setup alpha blend if any.
 			LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-			res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+			LRESULT res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 			this->FinishAlphaBlend(ai);
 

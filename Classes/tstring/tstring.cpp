@@ -332,7 +332,7 @@ TString TString::operator -( const char * cString ) {
 
 	if ( cString != NULL ) {
 		TString newTString(*this);
-		newTString._remove(cString);
+		newTString.i_remove(cString);
 		return newTString;
 	}
 	return *this;
@@ -346,7 +346,7 @@ TString TString::operator -( const char chr) {
 	char str[2];
 	str[0] = chr;
 	str[1] = 0;
-	newTString._remove(str);
+	newTString.i_remove(str);
 	return newTString;
 }
 
@@ -354,7 +354,7 @@ TString TString::operator -( const TString & tString ) {
 
 	if ( tString.m_pString != NULL ) {
 		TString newTString(*this);
-		newTString._remove(tString.m_pString);
+		newTString.i_remove(tString.m_pString);
 		return newTString;
 	}
 	return *this;
@@ -457,7 +457,7 @@ TString & TString::operator +=( const WCHAR &chr ) {
 TString & TString::operator -=( const char * cString ) {
 
 	if ( cString != NULL )
-		this->_remove(cString);
+		this->i_remove(cString);
 
 	return *this;
 }
@@ -468,7 +468,7 @@ TString & TString::operator -=( const char chr ) {
 		char str[2];
 		str[0] = chr;
 		str[1] = 0;
-		this->_remove(str);
+		this->i_remove(str);
 	}
 
 	return *this;
@@ -477,7 +477,7 @@ TString & TString::operator -=( const char chr ) {
 TString & TString::operator -=( const TString &tString ) {
 
 	if ( tString.m_pString != NULL )
-		this->_remove(tString.m_pString);
+		this->i_remove(tString.m_pString);
 
 	return *this;
 }
@@ -1089,7 +1089,8 @@ int TString::find( const char * substring, const int N ) const {
 		int subl = lstrlen( substring ); // Ook
 		while ( ( temp = strstr( temp2, substring ) ) != NULL ) {
 			i++;
-			if ( N != 0 && i == N )
+			//if ( N != 0 && i == N )
+			if ( i == N ) // i is never zero
 				return (int) (temp - this->m_pString);
 			temp2 = (temp + subl); // Ook
 		}
@@ -1233,11 +1234,11 @@ internal remove function, called by the other remove()/-/-= functions.
 Ook
 */
 
-int TString::_remove(const char *subString)
+int TString::i_remove(const char *subString)
 {
 	// no str to remove or no str to remove from
 	if ((subString == NULL) || (this->m_pString == NULL)) return 0;
-	char *sub = NULL, *p = this->m_pString;
+	char *sub, *p = this->m_pString;
 	int cnt = 0, subl = lstrlen(subString), ol = lstrlen(p);
 	// if length of sub string or old string is 0 return 0
 	// may change this.
@@ -1249,9 +1250,8 @@ int TString::_remove(const char *subString)
 	}
 	// make final string if we have any matches.
 	if (cnt > 0) {
-		char *out = NULL;
 		p = this->m_pString;
-		out = new char [ (ol - (cnt * subl)) +1 ]; // allocate new string.
+		char *out = new char [ (ol - (cnt * subl)) +1 ]; // allocate new string.
 		out[0] = 0;
 		while ((sub = strstr(p,subString)) != NULL) {
 			::strncat(out,p,(sub - p)); // copy bit before substring. if any.
@@ -1268,10 +1268,10 @@ int TString::_remove(const char *subString)
 	internal replace function, called by the other replace() functions.
 	Ook
 */
-int TString::_replace(const char *subString, const char *rString)
+int TString::i_replace(const char *subString, const char *rString)
 {
 	if ((subString == NULL) || (rString == NULL) || (this->m_pString == NULL)) return 0;
-	char *sub = NULL, *p = this->m_pString;
+	char *sub, *p = this->m_pString;
 	int cnt = 0, subl = lstrlen(subString), repl = lstrlen(rString), ol = lstrlen(p);
 	// if length of sub string or old string is 0 return 0
 	// may change this.
@@ -1283,9 +1283,8 @@ int TString::_replace(const char *subString, const char *rString)
 	}
 	// make final string if we have any matches.
 	if (cnt > 0) {
-		char *out = NULL;
 		p = this->m_pString;
-		out = new char [ (cnt * repl) + (ol - (cnt * subl)) +1 ]; // allocate new string.
+		char *out = new char [ (cnt * repl) + (ol - (cnt * subl)) +1 ]; // allocate new string.
 		out[0] = 0;
 		while ((sub = strstr(p,subString)) != NULL) {
 			::strncat(out,p,(sub - p)); // copy bit before substring. if any.
@@ -1306,7 +1305,7 @@ int TString::_replace(const char *subString, const char *rString)
 /****************************/
 
 int TString::replace( const char * subString, const char * rString ) {
-	return this->_replace(subString,rString);
+	return this->i_replace(subString,rString);
 }
 
 /****************************/
@@ -1320,7 +1319,7 @@ int TString::replace( const char * subString, const char rchr ) {
 	char tmp[2];
 	tmp[0] = rchr;
 	tmp[1] = 0;
-	return this->_replace(subString,tmp);
+	return this->i_replace(subString,tmp);
 }
 
 /****************************/
@@ -1334,7 +1333,7 @@ int TString::replace( const char chr, const char * rString ) {
 	char tmp[2];
 	tmp[0] = chr;
 	tmp[1] = 0;
-	return this->_replace(tmp,rString);
+	return this->i_replace(tmp,rString);
 }
 
 /****************************/
@@ -1452,7 +1451,7 @@ TString TString::gettok( int N, int M, const char * sepChars ) const {
 			return "";
 	}
 
-	char * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
+	char * p_cStart = this->m_pString, * p_cEnd;
 	char * p_cFirst = NULL, * p_cLast = NULL;
 	long iCount = 0;
 	int sepl = lstrlen( sepChars ); // Ook
@@ -1506,7 +1505,7 @@ int TString::numtok( const char * sepChars ) const {
 	if (lstrlen(this->m_pString) == 0)
 		return 0;
 
-	char * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
+	char * p_cStart = this->m_pString, * p_cEnd;
 	int iCount = 0;
 	int sepl = lstrlen( sepChars ); // Ook
 
@@ -1538,7 +1537,7 @@ void TString::deltok( const int N, const char * sepChars ) {
 		return;
 	}
 
-	char * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
+	char * p_cStart = this->m_pString, * p_cEnd;
 	long int i = 0;
 	int sepl = lstrlen( sepChars ); // Ook
 
@@ -1601,7 +1600,7 @@ void TString::instok( const char * cToken, const int N, const char * sepChars ) 
 	if ( N < 1 )
 		return;
 
-	char * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
+	char * p_cStart = this->m_pString, * p_cEnd;
 	long int i = 1;
 	int sepl = lstrlen( sepChars ); // Ook
 
@@ -1677,7 +1676,7 @@ void TString::addtok( const char * cToken, const char * sepChars ) {
 	if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
 		return;
 
-	char * pNew = NULL;
+	char * pNew;
 	int mp_len = lstrlen(this->m_pString);
 	if (mp_len) {
 		pNew = new char[ lstrlen( cToken ) + mp_len + lstrlen( sepChars ) + 1 ];
@@ -1692,18 +1691,20 @@ void TString::addtok( const char * cToken, const char * sepChars ) {
 	this->deleteString();
 	this->m_pString = pNew;
 }
+//void TString::addtok( const TString &cToken, const char * sepChars ) {
+//	this->addtok(cToken.to_chr(), sepChars);
+//}
 
 bool TString::istok(const char * cToken, const char * sepChars ) const {
 
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return false;
 
-	char * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
-	int l = 0;
+	char * p_cStart = this->m_pString, * p_cEnd;
 	int sepl = lstrlen( sepChars );
 
 	while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
-		l = (int)(p_cEnd - p_cStart);
+		int l = (int)(p_cEnd - p_cStart);
 		if (l > 0) {
 			if (strncmp(cToken,p_cStart,l) == 0) return true;
 		}
@@ -1725,7 +1726,7 @@ void TString::puttok( const char * cToken, int N, const char * sepChars ) {
 	if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
 		return;
 
-	char * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
+	char * p_cStart = this->m_pString, * p_cEnd;
 	long int i = 0;
 	int sepl = lstrlen( sepChars ); // Ook
 
@@ -2043,16 +2044,16 @@ int TString::nwildtok( char * wildString, const char * sepChars ) const
 	}
 	return m;
 }
-int TString::sprintf(const char *fmt, ...)
+int TString::tsprintf(const char *fmt, ...)
 {
 	va_list args;
 	va_start( args, fmt );
-	int cnt = vprintf(fmt, &args);
+	int cnt = tvprintf(fmt, &args);
 	va_end( args );
 	return cnt;
 }
 
-int TString::vprintf(const char *fmt, va_list * args)
+int TString::tvprintf(const char *fmt, va_list * args)
 {
 	int cnt = _vscprintf(fmt, *args);
 	char *txt = new char[cnt +1];
@@ -2149,7 +2150,7 @@ WCHAR *TString::to_wchr(bool tryutf8)
 	//	MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, this->m_pWString, widelen);
 	//}
 	// If utf8 input expected try & do a utf8->utf16 convert.
-	int widelen = 0;
+	int widelen;
 	if (tryutf8) {
 		// try UTF8 encoded first, but error on invalid chars.
 		widelen = MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,this->m_pString,-1, NULL, 0);

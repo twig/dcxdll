@@ -29,11 +29,14 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #pragma warning( disable : 1195 )
 #pragma warning( disable : 504 )
 #pragma warning( disable : 1563 )
-#pragma warning( disable : 869 ) // remark #869: parameter "doc" was never referenced
-#pragma warning( disable : 981 ) // remark #981: operands are evaluated in unspecified order
-#pragma warning( disable : 1419 ) // remark #1419: external declaration in primary source file
-#pragma warning( disable : 1418 ) // remark #1418: external function definition with no prior declaration http://software.intel.com/en-us/articles/cdiag1418/
-#pragma warning( disable : 383 ) // remark #383: value copied to temporary, reference to temporary used
+#pragma warning( disable : 869 )	// remark #869: parameter "doc" was never referenced
+#pragma warning( disable : 981 )	// remark #981: operands are evaluated in unspecified order
+#pragma warning( disable : 1419 )	// remark #1419: external declaration in primary source file
+#pragma warning( disable : 1418 )	// remark #1418: external function definition with no prior declaration http://software.intel.com/en-us/articles/cdiag1418/
+#pragma warning( disable : 383 )	// remark #383: value copied to temporary, reference to temporary used
+#pragma warning( disable : 2292 )	// warning #2292: destructor is declared but copy constructor and assignment operator are not
+#pragma warning( disable : 654 )	// warning #654: overloaded virtual function "DcxControl::toXml" is only partially overridden in class
+#pragma warning( disable : 444 )	// remark #444: destructor for base class "DWebBrowserEvents2" (declared at line 1948 of "C:\Program Files\Microsoft SDKs\Windows\v7.0\\include\exdisp.h") is not virtual
 // intel compiler has problems with .def file
 #define _INTEL_DLL_ __declspec(dllexport)
 #else
@@ -60,6 +63,9 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // If not, get off your arse & install it!
 #define DCX_USE_WINSDK 1
 // end of Windows SDK
+
+// DCX Compiled for XP+ only?
+#define DCX_FOR_XP_ONLY 1
 
 // DCX Using the Boost C++ libs
 // Boost is used for the regex matches when enabled.
@@ -265,6 +271,10 @@ using namespace Gdiplus;
 // DCX defines
 // --------------------------------------------------
 
+#define WM_MCOMMAND		(WM_USER + 200)
+#define WM_MEVALUATE	(WM_USER + 201)
+#define MIRC_BUFFER_SIZE_CCH	4100
+#define MIRC_BUFFER_SIZE_BYTES	(sizeof(TCHAR) * MIRC_BUFFER_SIZE_CCH)
 #define mIRC_ID_OFFSET 6000 //!< mIRC Dialog ID Offset
 
 #define DCX_LISTVIEWCLASS    "DCXListViewClass"     //!< DCX Listview Class Name
@@ -331,8 +341,8 @@ using namespace Gdiplus;
 
 // Dialog info structure
 typedef struct tagMYDCXWINDOW {
-   RECT rc;
-   DWORD old_styles;
+	RECT rc;
+	DWORD old_styles;
 	DWORD old_exstyles;
 } MYDCXWINDOW,*LPMYDCXWINDOW;
 
@@ -342,8 +352,8 @@ typedef struct tagMYDCXWINDOW {
 // mIRC Function Alias
 #define mIRC(x) _INTEL_DLL_ int WINAPI x(HWND mWnd, HWND aWnd, char * data, char * parms, BOOL, BOOL)
 
-// Return String DLL Alias (data is limited to 900)
-#define ret(x) { lstrcpyn(data, (x), 900); return 3; }
+// Return String DLL Alias (data is limited to MIRC_BUFFER_SIZE_CCH)
+#define ret(x) { lstrcpyn(data, (x), MIRC_BUFFER_SIZE_CCH); return 3; }
 
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 
@@ -352,6 +362,7 @@ typedef struct {
 	DWORD  mVersion; //!< mIRC Version
 	HWND   mHwnd;    //!< mIRC Hwnd 
 	BOOL   mKeep;    //!< mIRC variable stating to keep DLL in memory
+	BOOL   mUnicode; //!< mIRC V7+ unicode enabled dll.
 } LOADINFO;
 
 // mIRC Signal structure
@@ -379,6 +390,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
 LPITEMIDLIST GetFolderFromCSIDL(const int nCsidl);
 
+#if !DCX_FOR_XP_ONLY
 // Windows 2000+ pointers
 typedef BOOL (WINAPI *PFNGETWINDOWINFO)(HWND hwnd, PWINDOWINFO pwi);
 typedef BOOL (WINAPI *PFNANIMATEWINDOW)(HWND hwnd, DWORD dwTime, DWORD dwFlags);
@@ -391,6 +403,7 @@ typedef BOOL (WINAPI *PFNSETLAYEREDWINDOWATTRIBUTES)(HWND hwnd, COLORREF crKey, 
 typedef int (WINAPI *PFNDRAWSHADOWTEXT)(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
 typedef int (WINAPI *PFNPICKICONDLG)(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
 typedef DWORD (WINAPI *PFNGETFULLPATHNAMEW)(LPCWSTR lpFileName, DWORD nBufferLength, LPWSTR lpBuffer, LPWSTR* lpFilePart);
+#endif
 
 HWND GetHwndFromString(const TString &str);
 HWND GetHwndFromString(const char *str);
@@ -413,7 +426,7 @@ void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DW
 #ifdef DCX_USE_GDIPLUS
 const char *GetLastStatusStr(Status status);
 #endif
-bool IsFile(TString &filename);
+bool IsFile(__inout TString &filename);
 void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft, const bool tryutf8);
 void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style, const bool shadow, const bool tryutf8);
 HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc);
@@ -438,6 +451,7 @@ bool InitCustomDock(void);
 // DirectX
 HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );
 
+#if !DCX_FOR_XP_ONLY
 // Windows 2000+ pointers
 extern PFNGETWINDOWINFO GetWindowInfoUx;
 extern PFNANIMATEWINDOW AnimateWindowUx;
@@ -451,6 +465,7 @@ extern PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx;
 extern PFNDRAWSHADOWTEXT DrawShadowTextUx;
 extern PFNPICKICONDLG PickIconDlgUx;
 extern PFNGETFULLPATHNAMEW GetFullPathNameWUx;
+#endif
 
 extern SIGNALSWITCH dcxSignal;
 

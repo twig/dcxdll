@@ -6,23 +6,42 @@ function get_intro_text() {
 function get_styles_text(&$STYLES) {
 	$STYLES = array(
 		"nowrap" => "Single line of text (default is multiline) (not compatible with [s]center[/s] or [s]right[/s]).",
-		"right" => "Check control box is at the right of text.",
+		"right" => "Control text is right aligned.",
 		"center" => "Control text is centered.",
 		"noprefix" => "Prevents interpretation of any ampersand (&amp;) characters in the control's text as accelerator prefix characters. These are displayed with the ampersand removed and the next character in the string underlined.",
 		"endellipsis" => "If the end of a string does not fit in the rectangle, it is truncated and ellipses (...) are added.",
 		"pathellipsis" => "Replaces characters in the middle of the string with ellipses so that the result fits in the specified rectangle. If the string contains backslash (\) characters, pathellipsis preserves as much as possible of the text after the last backslash.",
-		'transparent' => 'The background is transparent.',
+		'tooltips' => 'The text control will have a tooltip.',
+		'alpha' => 'Control is alpha blended.',
+		'shadow' => 'Display text with a shadow.',
+		'noformat' => 'Disables support for mIRC codes in control (faster).',
+		'hgradient' => 'Draws a horizontal gradient with the colors specified.',
+		'vgradient' => 'Draws a vertical gradient with the colors specified.',
+		'__notes' => array(
+			'[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using [f]xdid -C[/f]',
+			'mIRC control codes are only supported when transparent style is set.'
+		),
 	);
 }
 
 
 function get_xdid_text(&$XDID) {
 	$XDID = array(
+		'a' => array(
+	        '__desc' => 'This command allows you to append text to the control (to bypass the 900 mIRC character limitation).',
+	        '__cmd' => '[SPACE] (Text)',
+	        '__eg' => 'Appended text',
+	        '__params' => array(
+			    'SPACE' => 'A space will automatically be appended between the previous text and the new appended text.',
+		    ),
+	        '__note' => 'Valid values for [p]SPACE[/p] are [v]1[/v] or [v]0[/v].',
+		),
 	    't' => array(
 	        '__desc' => 'This command lets you set the text.',
 	        '__cmd' => '(Text)',
 	        '__eg' => 'Text Label'
 		),
+	  	'r' => 'This command clears the text.',
 	);
 }
 

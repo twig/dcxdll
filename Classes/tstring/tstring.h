@@ -43,7 +43,7 @@
 #define _TSTRING_H_
 
 // Required for VS 2005
-#define _CRT_SECURE_NO_DEPRECATE 1
+//#define _CRT_SECURE_NO_DEPRECATE 1
 // end VS2005
 
 #include <stdio.h>
@@ -68,8 +68,8 @@ private:
 
 	void deleteString( );
 	void deleteWString( );
-	int _replace(const char *subString, const char *rString); // Ook
-	int _remove(const char *subString);
+	int i_replace(const char *subString, const char *rString); // Ook
+	int i_remove(const char *subString);
 	static int match (register char *m, register char *n, const bool cs /* case sensitive */);
 	static unsigned char tolowertab[];
 	static unsigned char touppertab[];
@@ -176,6 +176,7 @@ public:
 
 	// Token Lib
 	void addtok( const char * cToken, const char * sepChars = SPACE );
+	//void addtok( const TString &cToken, const char * sepChars = SPACE );
 	void deltok( const int N, const char * sepChars = SPACE );
 	int findtok( const char * cToken, const int N, const char * sepChars = SPACE ) const;
 	TString gettok( int N, const char * sepChars = SPACE ) const;
@@ -194,8 +195,8 @@ public:
 	TString mid(const int pos, int n) const;
 	TString left(int n) const;
 	TString right(int n) const;
-	int sprintf(const char *fmt, ...);
-	int vprintf(const char *fmt, va_list * args);
+	int tsprintf(const char *fmt, ...);
+	int tvprintf(const char *fmt, va_list * args);
 	bool iswm(char *a) const;
 	bool iswmcs(char *a) const;
 	int to_int() const { return atoi(this->m_pString); };
