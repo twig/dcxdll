@@ -59,6 +59,12 @@ void mIRCLinker::load(LOADINFO * lInfo) {
 	m_bDebug = (isDebug.trim().len() > 0);
 	DCX_DEBUG(debug,"LoadmIRCLink", "Debug mode detected...");
 
+	if (this->getMainVersion() == 7) {
+		DCX_DEBUG(debug,"LoadmIRCLink", "mIRC V7 detected...");
+		DCX_DEBUG(debug,"LoadmIRCLink", "Can't do any window mods etc..");
+		return;
+	}
+
 	DCX_DEBUG(debug,"LoadmIRCLink", "Finding mIRC_Toolbar...");
 	m_hToolbar = FindWindowEx(m_mIRCHWND,NULL,"mIRC_Toolbar",NULL);
 
@@ -110,9 +116,9 @@ void mIRCLinker::initMapFile() {
 
 		while ((m_hFileMap == NULL) && (cnt < 256)) {
 			// create mapfile name.
-			map_name.sprintf("mIRC%d",cnt);
+			map_name.tsprintf("mIRC%d",cnt);
 			// create mapfile.
-			m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE,0,PAGE_READWRITE,0,4096,map_name.to_chr());
+			m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE,0,PAGE_READWRITE,0,MIRC_BUFFER_SIZE_BYTES,map_name.to_chr());
 
 			// if create failed, fall back on old method.
 			if ((m_hFileMap == NULL) || (m_hFileMap == INVALID_HANDLE_VALUE)) {
@@ -139,7 +145,7 @@ void mIRCLinker::initMapFile() {
 
 	// use old method for < mirc 6.2 or when new method fails.
 	if (cnt == 0) {
-		m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, 4096, "mIRC");
+		m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, MIRC_BUFFER_SIZE_BYTES, "mIRC");
 	}
 
 	m_pData = (LPSTR) MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
@@ -211,11 +217,16 @@ bool mIRCLinker::setTreeFont(HFONT newFont)
 
 void mIRCLinker::hookWindowProc(WNDPROC newProc)
 {
+	if (this->getMainVersion() == 7) {
+		DCX_DEBUG(debug,"LoadmIRCLink", "mIRC V7 detected...");
+		DCX_DEBUG(debug,"LoadmIRCLink", "Can't do any window mods etc..");
+		return;
+	}
 	m_wpmIRCDefaultWndProc = SubclassWindow(m_mIRCHWND, newProc);
 }
 
 void mIRCLinker::resetWindowProc(void) {
-	if (m_wpmIRCDefaultWndProc != NULL) 
+	if (m_wpmIRCDefaultWndProc != NULL)
 		SubclassWindow(m_mIRCHWND, m_wpmIRCDefaultWndProc);
 }
 
@@ -231,7 +242,7 @@ LRESULT mIRCLinker::callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LP
  */
 bool mIRCLinker::eval(char *res, const int maxlen, const char *data) {
 	lstrcpy(m_pData, data);
-	SendMessage(m_mIRCHWND, WM_USER + 201, 0, m_iMapCnt);
+	SendMessage(m_mIRCHWND, WM_MEVALUATE, 0, m_iMapCnt);
 	if (res != NULL) lstrcpyn(res, m_pData, maxlen);
 	if (lstrcmp(m_pData, "$false") == 0) return false;
 	return true;
@@ -239,9 +250,17 @@ bool mIRCLinker::eval(char *res, const int maxlen, const char *data) {
 
 bool mIRCLinker::tsEval(TString &res, const char *data) {
 	lstrcpy(m_pData, data);
-	SendMessage(m_mIRCHWND, WM_USER + 201, 0, m_iMapCnt);
+	SendMessage(m_mIRCHWND, WM_MEVALUATE, 0, m_iMapCnt);
 	res = m_pData;
 	if (lstrcmp(m_pData, "$false") == 0) return false;
+	return true;
+}
+
+bool mIRCLinker::iEval(__int64  *res, const char *data) {
+	lstrcpy(m_pData, data);
+	SendMessage(m_mIRCHWND, WM_MEVALUATE, 0, m_iMapCnt);
+	*res = _atoi64(m_pData);
+	if (*res == 0) return false;
 	return true;
 }
 
@@ -257,7 +276,7 @@ bool mIRCLinker::evalex(char *res, const int maxlen, const char *szFormat, ...)
 	va_list args;
 
 	va_start(args, szFormat);
-	line.vprintf(szFormat, &args);
+	line.tvprintf(szFormat, &args);
 	va_end( args );
 
 	return eval(res, maxlen, line.to_chr());
@@ -268,7 +287,7 @@ bool mIRCLinker::tsEvalex(TString &res, const char *szFormat, ...)
 	va_list args;
 
 	va_start(args, szFormat);
-	line.vprintf(szFormat, &args);
+	line.tvprintf(szFormat, &args);
 	va_end( args );
 
 	return tsEval(res, line.to_chr());
@@ -277,7 +296,7 @@ bool mIRCLinker::tsEvalex(TString &res, const char *szFormat, ...)
 bool mIRCLinker::exec(const char *data)
 {
 	lstrcpy(m_pData, data);
-	SendMessage(m_mIRCHWND, WM_USER + 200, 0, m_iMapCnt);
+	SendMessage(m_mIRCHWND, WM_MCOMMAND, 0, m_iMapCnt);
 	if (lstrlen(m_pData) == 0) return true;
 	return false;
 }
@@ -288,7 +307,7 @@ bool mIRCLinker::execex(const char *szFormat, ...)
 	va_list args;
 
 	va_start(args, szFormat);
-	line.vprintf(szFormat, &args);
+	line.tvprintf(szFormat, &args);
 	va_end( args );
 
 	return exec(line.to_chr());
@@ -296,7 +315,7 @@ bool mIRCLinker::execex(const char *szFormat, ...)
 
 void mIRCLinker::signal(const char *msg) {
 	wsprintf(m_pData, "//.signal -n DCX %s", msg);
-	SendMessage(m_mIRCHWND, WM_USER + 200, 0, m_iMapCnt);
+	SendMessage(m_mIRCHWND, WM_MCOMMAND, 0, m_iMapCnt);
 }
 
 /*!
@@ -312,7 +331,7 @@ void mIRCLinker::signalex(const bool allow, const char *szFormat, ...) {
 	va_list args;
 
 	va_start(args, szFormat);
-	msg.vprintf(szFormat, &args);
+	msg.tvprintf(szFormat, &args);
 	va_end(args);
 
 	signal(msg.to_chr());
@@ -327,7 +346,7 @@ void mIRCLinker::signalex(const bool allow, const char *szFormat, ...) {
 void mIRCLinker::debug(const char *cmd, const char *msg) {
 	if (!isDebug()) return;
 	TString err;
-	err.sprintf("D_DEBUG %s (%s)", cmd, msg);
+	err.tsprintf("D_DEBUG %s (%s)", cmd, msg);
 	echo(err.to_chr());
 }
 #endif
@@ -337,5 +356,5 @@ void mIRCLinker::debug(const char *cmd, const char *msg) {
 */
 void mIRCLinker::echo(const char *data) {
 	wsprintf(m_pData, "//echo -s %s", data);
-	SendMessage(m_mIRCHWND, WM_USER + 200, 0, m_iMapCnt);
+	SendMessage(m_mIRCHWND, WM_MCOMMAND, 0, m_iMapCnt);
 }

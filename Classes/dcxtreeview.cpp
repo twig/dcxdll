@@ -205,7 +205,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 			return;
 		}
 
-		this->getItemText(&item, szReturnValue, 900);
+		this->getItemText(&item, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	// [NAME] [ID] [PROP] [PATH]
@@ -244,7 +244,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 		LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) tvi.lParam;
 
 		if (lpdcxtvi != NULL)
-			lstrcpyn(szReturnValue, lpdcxtvi->tsTipText.to_chr(), 900);
+			lstrcpyn(szReturnValue, lpdcxtvi->tsTipText.to_chr(), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}
@@ -252,7 +252,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 	else if (prop == "seltext") {
 		HTREEITEM item = TreeView_GetSelection(this->m_Hwnd);
 
-		this->getItemText(&item, szReturnValue, 900);
+		this->getItemText(&item, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	// [NAME] [ID] [PROP]
@@ -260,7 +260,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 		HTREEITEM hItem = TreeView_GetSelection(this->m_Hwnd);
 		TString path = this->getPathFromItem(&hItem);
 
-		lstrcpyn(szReturnValue, path.to_chr(), 900);
+		lstrcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [SUBPATH]
@@ -301,7 +301,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		if (this->findItemText(&startingPoint, &result, &matchtext, n, &matchCount, searchType)) {
 			TString path(this->getPathFromItem(&result));
-			lstrcpyn(szReturnValue, path.to_chr(), 900);
+			lstrcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		}
 		else if (n == 0)
 			wsprintf(szReturnValue, "%d", matchCount);
@@ -380,7 +380,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 		TreeView_HitTest( this->m_Hwnd, &tvh );
 
 		if ( tvh.flags & TVHT_ONITEM )
-			lstrcpyn(szReturnValue, this->getPathFromItem(&tvh.hItem).to_chr(), 900);
+			lstrcpyn(szReturnValue, this->getPathFromItem(&tvh.hItem).to_chr(), MIRC_BUFFER_SIZE_CCH);
 		else
 			lstrcpy(szReturnValue, "0");
 
@@ -1452,14 +1452,14 @@ UINT DcxTreeView::parseToggleFlags( const TString & flags ) {
 int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort ) {
 
 	LPDCXTVSORT ptvsort = (LPDCXTVSORT) lParamSort;
-	char itemtext1[900];
-	char itemtext2[900];
+	char itemtext1[MIRC_BUFFER_SIZE_CCH];
+	char itemtext2[MIRC_BUFFER_SIZE_CCH];
 
 	LPDCXTVITEM lptvi1 = (LPDCXTVITEM) lParam1;
 	LPDCXTVITEM lptvi2 = (LPDCXTVITEM) lParam2;
 
-	ptvsort->pthis->getItemText( &lptvi1->hHandle, itemtext1, 900 );
-	ptvsort->pthis->getItemText( &lptvi2->hHandle, itemtext2, 900 );
+	ptvsort->pthis->getItemText( &lptvi1->hHandle, itemtext1, MIRC_BUFFER_SIZE_CCH );
+	ptvsort->pthis->getItemText( &lptvi2->hHandle, itemtext2, MIRC_BUFFER_SIZE_CCH );
 
 	// CUSTOM Sort
 	if ( ptvsort->iSortFlags & TVSS_CUSTOM ) {
@@ -1556,9 +1556,9 @@ TString DcxTreeView::getPathFromItem(HTREEITEM *item) {
 
 	while (itStart != itEnd) {
 		if (result == "")
-			result.sprintf("%d", *itStart);
+			result.tsprintf("%d", *itStart);
 		else
-			result.sprintf("%s %d", result.to_chr(), *itStart);
+			result.tsprintf("%s %d", result.to_chr(), *itStart);
 
 		itStart++;
 	}
@@ -1616,8 +1616,8 @@ int DcxTreeView::getChildCount(HTREEITEM *hParent) const {
  */
 
 BOOL DcxTreeView::matchItemText(HTREEITEM *hItem, const TString *search, const UINT SearchType) const {
-	char itemtext[900];
-	this->getItemText(hItem, itemtext, 900);
+	char itemtext[MIRC_BUFFER_SIZE_CCH];
+	this->getItemText(hItem, itemtext, MIRC_BUFFER_SIZE_CCH);
 
 	switch (SearchType) {
 		case TVSEARCH_R:
@@ -1988,12 +1988,12 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									this->m_hOldItemFont = SelectFont( lpntvcd->nmcd.hdc, this->m_hItemFont );
 							}
 							//TVITEMEX tvitem;
-							//char buf[900];
+							//char buf[MIRC_BUFFER_SIZE_CCH];
 							//ZeroMemory(&tvitem,sizeof(tvitem));
 							//tvitem.hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
 							//tvitem.mask = TVIF_TEXT;
 							//tvitem.pszText = buf;
-							//tvitem.cchTextMax = 900;
+							//tvitem.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 							//TreeView_GetItem(this->m_Hwnd, &tvitem);
 							//TString tsItem(buf);
 							//RECT rcTxt = lpntvcd->nmcd.rc;

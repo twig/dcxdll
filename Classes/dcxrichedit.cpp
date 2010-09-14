@@ -167,7 +167,7 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		p[len -1] = '\0';
 
 		// copy to result
-		lstrcpyn(szReturnValue, p, 900);
+		lstrcpyn(szReturnValue, p, MIRC_BUFFER_SIZE_CCH);
 		delete p;
 		return;
 	}
@@ -233,7 +233,7 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		char *buffer = new char[c.cpMax - c.cpMin];
 
 		SendMessage(this->m_Hwnd, EM_GETSELTEXT, NULL, (LPARAM) buffer);
-		lstrcpyn(szReturnValue, buffer, 900);
+		lstrcpyn(szReturnValue, buffer, MIRC_BUFFER_SIZE_CCH);
 		delete [] buffer;
 		return;
 	}

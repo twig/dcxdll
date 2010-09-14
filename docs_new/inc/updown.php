@@ -11,8 +11,9 @@ function get_styles_updown(&$STYLES) {
 	    "horz" => "Causes the up-down control's arrows to point left and right instead of up and down.",
 	    'hottrack' => 'Causes the control to exhibit "hot tracking" behavior. That is, it highlights the UP ARROW and DOWN ARROW on the control as the pointer passes over them.',
 	    'nothousands' => 'Does not insert a thousands separator between every three decimal digits.',
-     'buddyint' => 'Causes the up-down control to set the text of the buddy window when the position changes. The text consists of the position formatted as a decimal or hexadecimal string.',
-     'wrap' => 'Causes the position to "wrap" if it is incremented or decremented beyond the ending or beginning of the range.'
+ 		'buddyint' => 'Causes the up-down control to set the text of the buddy window when the position changes. The text consists of the position formatted as a decimal or hexadecimal string.',
+ 		'wrap' => 'Causes the position to "wrap" if it is incremented or decremented beyond the ending or beginning of the range.',
+ 		'tooltips' => 'The up-down control will have a tooltip.',
 	);
 }
 

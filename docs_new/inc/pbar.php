@@ -6,12 +6,12 @@ function get_intro_pbar() {
 function get_xdid_pbar(&$XDID) {
 	$XDID = array(
 		"c" => array(
-			'__desc' => "This command lets you set the progress bar color.
-",
+			'__desc' => "This command lets you set the progress bar color.",
 			'__cmd' => "[RGB]",
 			'__eg' => "\$rgb(255,0,255)",
             '__notes' => array(
-                "Only works with the [s]notheme[/s] style.",
+                "Only works with the [s]notheme[/s] or [s]gradient[/s] styles.",
+                "When used with [s]gradient[/s] style, this sets the initial color.",
 			),
 		),
 		"i" => array(
@@ -73,17 +73,12 @@ function get_xdid_pbar(&$XDID) {
 			'__eg' => "50",
 		),
 		"o" => array(
-			'__desc' => "This command lets you set whether or not the the progress bar text is drawn vertically or not.",
-			'__cmd' => "[ENABLED]",
+			'__desc' => "This command lets you set whether or not the progress bar text is drawn vertically or not.",
+			'__cmd' => "[1|0]",
 			'__eg' => "1",
 			'__params' => array(
-				'ENABLED' => array(
-					'__desc' => "On or off boolean.",
-					'__values' => array(
-						'1' => "Text is drawn vertically.",
-						'0' => "Text is drawn horizontally.",
-					),
-				),
+				'1' => "Text is drawn vertically.",
+				'0' => "Text is drawn horizontally.",
 			),
 		),
 	);
@@ -94,7 +89,11 @@ function get_styles_pbar(&$STYLES) {
 	$STYLES = array(
 		"smooth" => "Progress bar is smooth (no line breaks in the bar)",
 		"vertical" => "Progress bar is vertical.",
-		"marquee" => "Progress bar is an animated bar. [o]XP+[/o]"
+		"marquee" => "Progress bar is an animated bar. [o]XP+[/o]",
+		'tooltips' => 'Progress bar will have a tooltip.',
+		'gradient' => 'Progress bar will be gradient.',
+		'alpha' => 'Control is alpha blended.',
+		'noformat' => 'Disables support for mIRC codes in control (faster).',
 	);
 }
 
@@ -118,33 +117,36 @@ function get_xdidprops_pbar(&$XDIDPROPS) {
 function get_events_pbar(&$EVENTS) {
 	$EVENTS = array(
 		"sclick" => array(
-            '__desc' => "When you left-click on the progressbar.",
-            '__cmd' => "VALUE POS MIN MAX",
-            '__params' => array(
-                'VALUE' => "Current value of progress bar",
-                'POS' => "Position where mouse is when event is fired.",
-                'MIN' => "Minimum range value.",
-                'MAX' => "Maximum range value.",
+                        '__desc' => "When you left-click on the progressbar.",
+                        '__cmd' => "POS MIN MAX VALUE",
+                        '__eg' => '10 0 100 40',
+                        '__params' => array(
+                                'POS' => "Position where mouse is when event is fired.",
+                                'MIN' => "Minimum range value.",
+                                'MAX' => "Maximum range value.",
+                                'VALUE' => "Current value of progress bar",
 			),
 		),
 		"rclick" => array(
-            '__desc' => "When you right-click on the progressbar.",
-            '__cmd' => "VALUE POS MIN MAX",
-            '__params' => array(
-                'VALUE' => "Current value of progress bar",
-                'POS' => "Position where mouse is when event is fired.",
-                'MIN' => "Minimum range value.",
-                'MAX' => "Maximum range value.",
+                        '__desc' => "When you right-click on the progressbar.",
+                        '__cmd' => "POS MIN MAX VALUE",
+                        '__eg' => '25 0 100 75',
+                        '__params' => array(
+                                'POS' => "Position where mouse is when event is fired.",
+                                'MIN' => "Minimum range value.",
+                                'MAX' => "Maximum range value.",
+                                'VALUE' => "Current value of progress bar",
 			),
 		),
 		"mousebar" => array(
-            '__desc' => "When the mouse is moved on the progressbar while the left mouse button is held down.",
-            '__cmd' => "VALUE POS MIN MAX",
-            '__params' => array(
-                'VALUE' => "Current value of progress bar",
-                'POS' => "Position where mouse is when event is fired.",
-                'MIN' => "Minimum range value.",
-                'MAX' => "Maximum range value.",
+                        '__desc' => "When the mouse is moved on the progressbar while the left mouse button is held down.",
+                        '__cmd' => "POS MIN MAX VALUE",
+                        '__eg' => '48 0 100 30',
+                        '__params' => array(
+                                'POS' => "Position where mouse is when event is fired.",
+                                'MIN' => "Minimum range value.",
+                                'MAX' => "Maximum range value.",
+                                'VALUE' => "Current value of progress bar",
 			),
 		),
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",

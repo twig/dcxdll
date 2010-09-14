@@ -82,6 +82,13 @@ mIRC(xtreebar) {
 
 	int numtok = input.numtok( );
 
+	if (Dcx::mIRC.getMainVersion() == 7) {
+		DCX_DEBUG(Dcx::debug,"xtreebar", "mIRC V7 detected...");
+		DCX_DEBUG(Dcx::debug,"xtreebar", "Can't do any window mods etc..");
+		Dcx::error("/xtreebar","Can't be used in mIRC V7");
+		return 0;
+	}
+
 	if (!IsWindow(Dcx::mIRC.getTreeview())) {
 		Dcx::error("/xtreebar", "No Treebar");
 		return 0;
@@ -456,13 +463,13 @@ mIRC(_xtreebar)
 			if (index < 1) // if index < 1 return total items.
 				wsprintf(data, "%d", cnt);
 			else {
-				char szbuf[900];
+				char szbuf[MIRC_BUFFER_SIZE_CCH];
 				item.hItem = TreeView_MapAccIDToHTREEITEM(Dcx::mIRC.getTreeview(), index);
 				item.mask = TVIF_TEXT;
 				item.pszText = szbuf;
-				item.cchTextMax = 900;
+				item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 				if (TreeView_GetItem(Dcx::mIRC.getTreeview(),&item))
-					lstrcpyn(data, item.pszText, 900);
+					lstrcpyn(data, item.pszText, MIRC_BUFFER_SIZE_CCH);
 				else
 					lstrcpy(data, "D_ERROR Unable To Get Item");
 			}
@@ -485,8 +492,8 @@ mIRC(_xtreebar)
 	default:
 		{
 			TString error;
-			error.sprintf("D_ERROR Invalid prop ().%s", d.gettok( 2 ).to_chr());
-			lstrcpyn(data, error.to_chr(), 900);
+			error.tsprintf("D_ERROR Invalid prop ().%s", d.gettok( 2 ).to_chr());
+			lstrcpyn(data, error.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		}
 		break;
 	}

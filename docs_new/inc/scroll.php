@@ -6,6 +6,7 @@ function get_intro_scroll() {
 
 function get_styles_scroll(&$STYLES) {
 	$STYLES = array(
+        'alpha' => 'Control is alpha blended.',
 		"vertical" => "Vertical scroll bar.",
 	);
 }
@@ -49,51 +50,58 @@ function get_xdidprops_scroll(&$XDIDPROPS) {
 
 function get_events_scroll(&$EVENTS) {
 	$EVENTS = array(
-	    "trackend" => array(
+                "trackend" => array(
 			'__desc' => "When the user releases the left mouse button after dragging the thumb.",
 			'__cmd' => 'POS',
+                        '__eg' => '73',
 			'__params' => array(
 				'POS' => 'Scroll bar position.'
 			),
 		),
-	    "top" => array(
+        	"top" => array(
 			'__desc' => "When the user presses the home key.",
 			'__cmd' => 'POS',
+                        '__eg' => '0',
 			'__params' => array(
 				'POS' => 'Scroll bar position.'
 			),
 		),
-	    "bottom" => array(
+                "bottom" => array(
 			'__desc' => "When the user presses the end key.",
 			'__cmd' => 'POS',
+                        '__eg' => '100',
 			'__params' => array(
 				'POS' => 'Scroll bar position.'
 			),
 		),
 		"lineup" => array(
-			'__desc' => "When the user presses up/left arrow keys.",
+			'__desc' => "When the user increases the value by using the arrow keys.",
 			'__cmd' => 'POS',
+                        '__eg' => '89',
 			'__params' => array(
 				'POS' => 'Scroll bar position.'
 			),
 		),
 		"linedown" => array(
-			'__desc' => "When the user presses down/right arrow keys.",
+			'__desc' => "When the user decreases the value by using the arrow keys.",
 			'__cmd' => 'POS',
+			'__eg' => '71',
 			'__params' => array(
 				'POS' => 'Scroll bar position.'
 			),
 		),
 		"pageup" => array(
-			'__desc' => "When the user presses the pageup key or clicks on the left/top of the scrollbar thumb track.",
+                        '__desc' => "When the user increases the value in large increments by clicking on the scrollbar thumb track.",
 			'__cmd' => 'POS',
+			'__eg' => '90',
 			'__params' => array(
 				'POS' => 'Scroll bar position.'
 			),
 		),
 		"pagedown" => array(
-			'__desc' => "When the user presses the pagedown key or clicks on the right/bottom of the scrollbar thumb track.",
+                        '__desc' => "When the user decreases the value in large increments by clicking on the scrollbar thumb track.",
 			'__cmd' => 'POS',
+                        '__eg' => '80',
 			'__params' => array(
 				'POS' => 'Scroll bar position.'
 			),

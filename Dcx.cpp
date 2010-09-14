@@ -140,6 +140,7 @@ Dcx::~Dcx(void)
 }
 
 void Dcx::setupOSCompatibility(void) {
+#if !DCX_FOR_XP_ONLY
 	HMODULE hModule = NULL;
 
 	hModule = GetModuleHandle("USER32.DLL");
@@ -194,6 +195,7 @@ void Dcx::setupOSCompatibility(void) {
 		GetFullPathNameWUx = (PFNGETFULLPATHNAMEW)GetProcAddress(hModule, "GetFullPathNameW");
 		DCX_DEBUG(mIRC.debug,"LoadDLL", "Found GetFullPathName Function");
 	}
+#endif
 
 	WNDCLASSEX wc;
 	ZeroMemory((void*)&wc , sizeof(WNDCLASSEX));
@@ -469,7 +471,7 @@ void Dcx::debug(const char *cmd, const char *msg)
  */
 void Dcx::error(const char *cmd, const char *msg)
 {
-	m_sLastError.sprintf("D_ERROR %s (%s)", cmd, msg);
+	m_sLastError.tsprintf("D_ERROR %s (%s)", cmd, msg);
 	mIRC.echo(m_sLastError.to_chr());
 }
 
@@ -482,7 +484,7 @@ void Dcx::errorex(const char *cmd, const char *szFormat, ...)
 	va_list args;
 
 	va_start(args, szFormat);
-	temp.vprintf(szFormat, &args);
+	temp.tvprintf(szFormat, &args);
 	va_end(args);
 
 	error(cmd, temp.to_chr());
@@ -604,6 +606,17 @@ LRESULT CALLBACK Dcx::mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 			{
+#if DCX_FOR_XP_ONLY
+				if (Dcx::getGhostDrag() < 255) {
+					long style = GetWindowExStyle(Dcx::mIRC.getHWND());
+					// Set WS_EX_LAYERED on this window
+					if (!(style & WS_EX_LAYERED))
+						SetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE, style | WS_EX_LAYERED);
+					// Make this window 75 alpha
+					SetLayeredWindowAttributes(Dcx::mIRC.getHWND(), 0, Dcx::getGhostDrag(), LWA_ALPHA);
+					SetProp(Dcx::mIRC.getHWND(), "dcx_ghosted", (HANDLE)1);
+				}
+#else
 				if (Dcx::getGhostDrag() < 255 && SetLayeredWindowAttributesUx != NULL) {
 					long style = GetWindowExStyle(Dcx::mIRC.getHWND());
 					// Set WS_EX_LAYERED on this window
@@ -613,17 +626,27 @@ LRESULT CALLBACK Dcx::mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					SetLayeredWindowAttributesUx(Dcx::mIRC.getHWND(), 0, Dcx::getGhostDrag(), LWA_ALPHA);
 					SetProp(Dcx::mIRC.getHWND(), "dcx_ghosted", (HANDLE)1);
 				}
+#endif
 			}
 			break;
 
 		case WM_EXITSIZEMOVE:
 		{
+#if DCX_FOR_XP_ONLY
+			// turn off ghosting.
+			if (GetProp(Dcx::mIRC.getHWND(), "dcx_ghosted") != NULL) {
+				// Make this window solid
+				SetLayeredWindowAttributes(Dcx::mIRC.getHWND(), 0, 255, LWA_ALPHA);
+				RemoveProp(Dcx::mIRC.getHWND(), "dcx_ghosted");
+			}
+#else
 			// turn off ghosting.
 			if (GetProp(Dcx::mIRC.getHWND(), "dcx_ghosted") != NULL && SetLayeredWindowAttributesUx != NULL) {
 				// Make this window solid
 				SetLayeredWindowAttributesUx(Dcx::mIRC.getHWND(), 0, 255, LWA_ALPHA);
 				RemoveProp(Dcx::mIRC.getHWND(), "dcx_ghosted");
 			}
+#endif
 			break;
 		}
 

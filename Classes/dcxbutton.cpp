@@ -140,7 +140,7 @@ void DcxButton::parseInfoRequest( TString & input, char * szReturnValue ) {
 	// [NAME] [ID] [PROP]
 	if ( input.gettok( 3 ) == "text" ) {
 
-		lstrcpyn( szReturnValue, this->m_tsCaption.to_chr( ), 900 );
+		lstrcpyn( szReturnValue, this->m_tsCaption.to_chr( ), MIRC_BUFFER_SIZE_CCH );
 		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )

@@ -6,6 +6,7 @@ function get_intro_trackbar() {
 
 function get_styles_trackbar(&$STYLES) {
 	$STYLES = array(
+		'alpha' => 'The control is alpha blended.',
 		"autoticks" => "Trackbar ticks are displayed at every N intervals (set by <a>/xdid -n</a>)",
 		"both" => "Tic marks are displayed on both side of the bar.",
 		"top" => "Tic marks appear on the top of the trackbar. ([s]horizontal[/s] only)",
@@ -16,7 +17,7 @@ function get_styles_trackbar(&$STYLES) {
 		"nothumb" => "No track bar thumb appears on the trackbar.",
 		"noticks" => "No tic marks appear on track bar.",
 		"downisleft" => "By default, the trackbar control uses down equal to right and up equal to left. Use this style to reverse the default, making down equal left and up equal right.",
-		'tooltips' => 'Tooltip thumb mouvement displays a tooltip.',
+		'tooltips' => 'Tooltip thumb movement displays a tooltip.',
 		'select' => 'Enable selection points for a trackbar.',
 		
 		'__notes' => 'You must specify [s]notheme[/s] when using [s]select[/s]. Otherwise it will not display the selected range on themed desktops. [o]XP+[/o].',
@@ -26,21 +27,21 @@ function get_styles_trackbar(&$STYLES) {
 
 function get_xdid_trackbar(&$XDID) {
 	$XDID = array(
-	    'c' => array(
-	        '__desc' => 'This command lets you add a tick mark at the specified position.',
-	        '__cmd' => '[POS]',
-	        '__eg' => '75',
+		'c' => array(
+			'__desc' => 'This command lets you add a tick mark at the specified position.',
+			'__cmd' => '[POS]',
+			'__eg' => '75',
 		),
 		'g' => array(
-	        '__desc' => 'This command lets you set images for specific parts of the trackbar.',
-	        '__cmd' => '[+FLAGS] [FILENAME]',
-	        '__eg' => '+dt C:\mIRC\trackbar.bmp',
-	        '__params' => array(
-	            "+FLAGS" => array(
-	                '__desc' => "Which trackbar component to apply the image to.",
-	                '__values' => array(
-	                    "b" => "Trackbar background.",
-	                    "c" => "Trackbar channel (track).",
+			'__desc' => 'This command lets you set images for specific parts of the trackbar.',
+			'__cmd' => '[+FLAGS] [FILENAME]',
+			'__eg' => '+dt C:/mIRC/trackbar.bmp',
+			'__params' => array(
+				"+FLAGS" => array(
+					'__desc' => "Which trackbar component to apply the image to.",
+					'__values' => array(
+						"b" => "Trackbar background.",
+						"c" => "Trackbar channel (track).",
 						"d" => "Trackbar dragged thumb.",
 						"t" => "Trackbar normal thumb.",
 					),
@@ -132,54 +133,70 @@ function get_xdidprops_trackbar(&$XDIDPROPS) {
 
 function get_events_trackbar(&$EVENTS) {
 	$EVENTS = array(
-	    "trackend" => array(
+		"trackend" => array(
 			'__desc' => "When the user releases the left mouse button after dragging the thumb.",
 			'__cmd' => 'POS',
+			'__eg' => '73',
 			'__params' => array(
-			    'POS' => "Track bar position."
+				'POS' => "Track bar position."
 			)
 		),
-	    "top" => array(
+		"top" => array(
 			'__desc' => "When the user presses the home key.",
 			'__cmd' => 'POS',
+			'__eg' => '0',
 			'__params' => array(
-			    'POS' => "Track bar position."
+				'POS' => "Track bar position."
 			)
 		),
-	    "bottom" => array(
+		"bottom" => array(
 			'__desc' => "When the user presses the end key.",
 			'__cmd' => 'POS',
+			'__eg' => '100',
 			'__params' => array(
-			    'POS' => "Track bar position."
+				'POS' => "Track bar position."
 			)
 		),
-	    "lineup" => array(
-			'__desc' => "When the user presses up/left arrow keys.",
+		"lineup" => array(
+			'__desc' => "When the user increases the value by using the arrow keys.",
 			'__cmd' => 'POS',
+			'__eg' => '89',
 			'__params' => array(
-			    'POS' => "Track bar position."
+				'POS' => "Track bar position."
 			)
 		),
-	    "linedown" => array(
-			'__desc' => "When the user presses down/right arrow keys.",
+		"linedown" => array(
+			'__desc' => "When the user decreases the value by using the arrow keys.",
 			'__cmd' => 'POS',
+			'__eg' => '71',
 			'__params' => array(
-			    'POS' => "Track bar position."
+				'POS' => "Track bar position."
 			)
 		),
-	    "pageup" => array(
-			'__desc' => "When the user presses the pageup key or clicks on the left/top of the trackbar thumb track.",
+		"pageup" => array(
+			'__desc' => "When the user increases the value in large increments by clicking on the trackbar thumb track.",
 			'__cmd' => 'POS',
+			'__eg' => '90',
 			'__params' => array(
-			    'POS' => "Track bar position."
+				'POS' => "Track bar position."
 			)
 		),
-	    "pagedown" => array(
-			'__desc' => "When the user presses the pagedown key or clicks on the right/bottom of the trackbar thumb track.",
+		"pagedown" => array(
+			'__desc' => "When the user decreases the value in large increments by clicking on the trackbar thumb track.",
 			'__cmd' => 'POS',
+			'__eg' => '80',
 			'__params' => array(
-			    'POS' => "Track bar position."
+				'POS' => "Track bar position."
 			)
+		),
+		'showtip' => array(
+			'__desc' => 'When a tooltip is about to be displayed for the trackbar.',
+			'__cmd' => 'POS',
+			'__eg' => '83',
+			'__params' => array(
+				'POS' => 'Track bar position.',
+			),
+			'__return' => '[r]TEXT[/r] to change the tooltip text.',
 		),
 		"help" => "Launched when you click on a control using the [s]?[/s] contexthelp button.",
 	);

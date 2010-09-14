@@ -125,7 +125,7 @@ void LayoutCellFill::toXml(TiXmlElement * xml) {
 	if (this->m_BaseControl)
 		this->m_BaseControl->toXml(xml);
 	if (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0) {
-		margin.sprintf("%d %d %d %d", m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
+		margin.tsprintf("%d %d %d %d", m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
 		xml->SetAttribute("margin", margin.to_chr());
 	}
 }

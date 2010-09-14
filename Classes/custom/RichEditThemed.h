@@ -42,7 +42,7 @@ public:
 	static bool Attach(HWND hRichEdit);
 
 private:
-	CRichEditThemed(HWND hRichEdit);
+	explicit CRichEditThemed(HWND hRichEdit);
 	~CRichEditThemed();
 
 	void VerifyThemedBorderState();

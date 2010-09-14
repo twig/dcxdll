@@ -167,9 +167,9 @@ DcxTrayIcon::~DcxTrayIcon(void)
 
 		while (itStart != itEnd) {
 			if (ids.len() == 0)
-				ids.sprintf("%d", *itStart);
+				ids.tsprintf("%d", *itStart);
 			else
-				ids.sprintf("%s %d", ids.to_chr(), *itStart);
+				ids.tsprintf("%s %d", ids.to_chr(), *itStart);
 
 			itStart++;
 		}

@@ -127,7 +127,7 @@ void DcxText::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP]
   if ( input.gettok( 3 ) == "text" ) {
 
-    GetWindowText( this->m_Hwnd, szReturnValue, 900 );
+    GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
     return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )

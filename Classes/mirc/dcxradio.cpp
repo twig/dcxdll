@@ -139,7 +139,7 @@ void DcxRadio::parseInfoRequest( TString & input, char * szReturnValue ) {
   // [NAME] [ID] [PROP]
   if ( prop == "text" ) {
 
-    GetWindowText( this->m_Hwnd, szReturnValue, 900 );
+    GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
     return;
   }
   // [NAME] [ID] [PROP]

@@ -9,7 +9,7 @@ function get_styles_rebar(&$STYLES) {
 		'borders' => 'Borders appear between rebar bands.',
 		'varheight' => 'The rebar control displays bands at the minimum required height, when possible. Without this style, the rebar control displays all bands at the same height, using the height of the tallest visible band to determine the height of other bands. Even if this style is applied, bands on the same row will display the height of the highest band on that row.',
 		'dblclktoggle' => 'Double click on band text toggles min/max resizing of the band. (Single click is default)',
-		'fixedorder' => 'Bands are always in the same order but can be dragged on different lins/columns.',
+		'fixedorder' => 'Bands are always in the same order but can be dragged on different lines/columns.',
 		'tooltips' => 'The rebar bands have tooltips.',
 		'verticalgrip' => 'The size grip will be displayed vertically instead of horizontally in a vertical rebar control. (must be used with [s]vertical[/s])',
 		'vertical' => 'The rebar is auto-positioned to the left side of the dialog (gives a vertical rebar).',
@@ -17,6 +17,7 @@ function get_styles_rebar(&$STYLES) {
 		'right' => 'The rebar is auto-positioned to the right side of the dialog (must be used with [s]vertical[/s] style).',
 		'noresize' => 'The rebar isnt auto-resized when dialogs size changes.',
 		'noparentalign' => 'The rebar isnt auto-positioned when dialogs size changes.',
+		'noauto' => "Prevents the rebar from being auto-positioned and resized by the parent window. The user will be responsible for the positioning and resizing of the rebar.",
 	);
 }
 
@@ -27,19 +28,21 @@ function get_xdid_rebar(&$XDID) {
 	$XDID = array(
 		"a" => array(
 			'__desc' => "This command lets you add bands to the rebar. These bands can optionally host a supported child control.",
-			'__cmd' => "[N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] (TEXT) [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS) [TAB] (TOOLTIP)",
-			'__eg' => '0 +f 0 25 20 2 ComboEx $chr(9) 12 comboex 10 10 400 25 dropedit $chr(9) Tooltip',
+			'__cmd' => "[N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] (TEXT) [TAB] [CID] [CONTROL] [X] [Y] [W] [H] (OPTIONS) [TAB] (TOOLTIP)",
+			'__eg' => '0 +f 0 25 20 2 $rgb(0,0,255) ComboEx $chr(9) 12 comboex 10 10 400 25 dropedit $chr(9) Tooltip text',
 			'__params' => array(
 			    'N' => 'Band position index number (Use [v]0[/v] to insert at the end).',
 				'+FLAGS' => array(
 					'__desc' => "Item flags.",
 					'__values' => array(
-						'c' => 'The button text is colored ([COLOR] is the text color). (Only works with XP themes disabled)',
+						'c' => 'The button text is colored, using [p]COLOR[/p] as the text color. (Only works with [s]notheme[/s])',
 						'e' => 'The band has an edge at the top and bottom of the child window.',
 						'f' => 'The band cant be sized. With this style, the sizing grip is not displayed on the band.',
 						'g' => 'The band will always have a sizing grip, even if it is the only band in the rebar.',
 						'h' => 'The band will not be visible.',
 						'n' => 'The band will never have a sizing grip, even if there is more than one band in the rebar.',
+						// TODO: don't document yet
+						//'v' => 'This allows variable height bands.',
 						'w' => 'The band is on a new line.',
 					),
 				),
@@ -49,26 +52,10 @@ function get_xdid_rebar(&$XDID) {
 			    'ICON' => 'Icon index to be displayed (Use [v]0[/v] for no icon).',
 			    'COLOR' => 'Rebar band text color (Only works with XP themes disabled).',
 			    'TEXT' => 'Band text.',
-			    'ID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
-				'CONTROL' => array(
-					'__desc' => "The type of DCX Control to be created.",
-					'__values' => array(
-						'pbar' => "Creates a Progressbar control.",
-						'treeview' => "Creates a TreeView control.",
-						'toolbar' => "Creates a Toolbar control.",
-						'statusbar' => "Creates a Statusbar control.",
-						'comboex' => "Creates a ComboEx control.",
-						'listview' => "Creates a Listview control.",
-						'trackbar' => "Creates a Trackbar control.",
-						'colorcombo' => "Creates a ColorCombo control.",
-						'button' => "Creates a Button control.",
-						'richedit' => "Creates a RichEdit control.",
-						'&nbsp;' => '&nbsp;',
-						'divider' => "Creates a Divider control.",
-						'panel' => "Creates a Panel control.",
-						'tab' => "Creates a Tab control.",
-					),
-				),
+			    'CID' => "Unique control ID for the DCX Control. <b>Must be unique for all the controls of the dialog!</b>",
+				'CONTROL' => 'The type of DCX Control to create. Values can be:<br />
+[v]button[/v], [v]colorcombo[/v], [v]comboex[/v], [v]listview[/v], [v]pbar[/v], [v]richedit[/v], [v]statusbar[/v], [v]toolbar[/v], [v]trackbar[/v], [v]treeview[/v]<br />
+[v]divider[/v], [v]panel[/v] or [v]tab[/v]',
 				'X' => "X position of control.",
 				'Y' => "Y position of control.",
 				'W' => "Width of control.",
@@ -78,7 +65,7 @@ function get_xdid_rebar(&$XDID) {
 			),
 			'__notes' => array(
 				'The control is optional. You can use the tab control without child controls as a toolbar (like bar of buttons).',
-				'If you are using the vertical style, [p]CX[/p], [p]CY[/p], and [p]WIDTH[/o] are the minimal height, minimal width, and height values.',
+				'If you are using the vertical style, [p]CX[/p], [p]CY[/p], and [p]WIDTH[/p] are the minimal height, minimal width, and height values.',
 				'If the band is the last one created on a band row, the [p]WIDTH[/p] value is ignored and the band stretches to the end of the rebar control.',
 				'The control part of the command is optional and can be empty if you do not wish to have a control in the band.',
 			),
@@ -139,18 +126,19 @@ function get_xdid_rebar(&$XDID) {
 		),
 		'w' => array(
 	        '__desc' => 'This command lets you add an icon to the tab image list.',
-	        '__cmd' => '[INDEX] [FILENAME]',
-	        '__eg' => '113 C:/mIRC/shell.dll',
+	        '__cmd' => '[+FLAGS] [INDEX] [FILENAME]',
+	        '__eg' => '+g 113 shell32.dll',
 	        '__params' => array(
+	        	// +FLAGS
 	            'INDEX' => 'Icon index in icon archive',
 				'FILENAME' => 'Icon archive filename',
 			),
-	        '__notes' => array(
-	            "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
-			),
+	        '__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
 		),
 		'y' => 'This command lets you clear the rebar image list.',
 	);
+	
+	writeDcxLoadIcon($XDID, 'w', '+FLAGS', 1);
 }
 
 
@@ -190,12 +178,12 @@ function get_events_rebar(&$EVENTS) {
 			),
 		),
 		'change' => array(
-		    '__desc' => 'When the rebar controls height changes because of band movement.',
-	        '__cmd' => 'W H',
-	        '__eg' => '2',
-	        '__params' => array(
-	            'W' => 'New rebar control width.',
-	            'H' => 'New rebar control height.',
+			'__desc' => 'When the rebar controls height changes because of band movement.',
+			'__cmd' => 'W H',
+			'__eg' => '150 25',
+			'__params' => array(
+				'W' => 'New rebar control width.',
+				'H' => 'New rebar control height.',
 			),
 		),
 	);

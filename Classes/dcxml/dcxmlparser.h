@@ -11,27 +11,27 @@ public:
 	DcxmlParser(const char *filePath, const char *dialogMark,const char *dialogName,const bool verbose, const bool autoClose);
 	//virtual ~DCXML( );
 	void parseAttributes();
-	void parseAttributes(TiXmlElement* element);
+	void parseAttributes(const TiXmlElement* element);
 	void parseControl();
 	TString parseCLA(const int cCla);
 	bool loadSuccess;
 
-	void setStyle(TiXmlElement* style);
+	void setStyle(const TiXmlElement* style);
 	void parseStyle(int depth = 0);
 	void parseIcons(int depth = 0);
-	void parseItems(TiXmlElement* element,int depth = 0,char *itemPath = "");
-	void parseTemplate(int dialogDepth=0,const char *claPath = "root",int passedid = 2000);
-	void parseDialog(int depth=0,const char *claPath = "root",int passedid = 2000,int ignoreParent = 0);
-	
-	const char *queryAttribute(TiXmlElement *element,const char *attribute,const char *defaultValue = "");
-	int queryIntAttribute(TiXmlElement *element,const char *attribute,int defaultValue = 0);
+	void parseItems(const TiXmlElement* element,int depth = 0,char *itemPath = "");
+	void parseTemplate(int dialogDepth=0,const char *claPath = "root",const int passedid = 2000);
+	void parseDialog(int depth=0,const char *claPath = "root",const int passedid = 2000,const int ignoreParent = 0);
+
+	const char *queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue = "") const;
+	int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0) const;
 
 	void setDialog(const char *dialogMark);
 	void setDialogMark (const char *v) { this->_dialogMark = v; }
 	void setDialogName (const char *v) { this->_dialogName = v; }
-	void setRootElement (TiXmlElement * element) { this->_rootElement = element; }
-	void setDialogsElement (TiXmlElement * element) { this->_dialogsElement = element; }
-	void setDialogElement (TiXmlElement * element) { this->_dialogElement = element; }
+	void setRootElement (const TiXmlElement * element) { this->_rootElement = element; }
+	void setDialogsElement (const TiXmlElement * element) { this->_dialogsElement = element; }
+	void setDialogElement (const TiXmlElement * element) { this->_dialogElement = element; }
 	
 	bool loadDocument();
 	bool loadDialog();
@@ -39,24 +39,24 @@ public:
 
 	void setZlayered (const bool b) { this->_zlayered = b; }
 
-	DcxDialog *getDialog () { return this->_dcxDialog; }
+	DcxDialog *getDialog () const { return this->_dcxDialog; }
 	bool getZlayered () const { return this->_zlayered; }
 	const char *getDialogMark () const { return this->_dialogMark; }
 	const char *getDialogName () const { return this->_dialogName; }
 	const char *getFilePath () const { return this->_filePath; }
 
-	TiXmlElement* getRootElement () { return this->_rootElement; }
-	TiXmlElement* getDialogsElement () { return this->_dialogsElement; }
-	TiXmlElement* getDialogElement () { return this->_dialogElement; }
+	const TiXmlElement* getRootElement () const { return this->_rootElement; }
+	const TiXmlElement* getDialogsElement () const { return this->_dialogsElement; }
+	const TiXmlElement* getDialogElement () const { return this->_dialogElement; }
 	
-	TiXmlDocument * getDocument () { return &this->_document; }
+	const TiXmlDocument * getDocument () const { return &this->_document; }
 
     DcxDialog *d_Host;
-    TiXmlElement *root; //!< dcxml root element
-    TiXmlElement *dialogs; //!< dcxml dialogs collection element
-    TiXmlElement *dialog; //!< dialog element
-    TiXmlElement *element; //!< current Element
-    TiXmlElement *parent; //!< current Element's parent
+    const TiXmlElement *root; //!< dcxml root element
+    const TiXmlElement *dialogs; //!< dcxml dialogs collection element
+    const TiXmlElement *dialog; //!< dialog element
+    const TiXmlElement *element; //!< current Element
+    const TiXmlElement *parent; //!< current Element's parent
     TString dname;
     int controls; //!< Simple counter for controls
     int zlayered; //!< Simple check if dialog has zlayers
@@ -106,7 +106,7 @@ public:
 		"rebarMinWidth","iconsize","fontstyle","charset","fontsize","fontname","border","cursor","bgcolour",
 		"textbgcolour","textcolour","gradientstart","gradientend","disabledsrc","hoversrc","selectedsrc"
 	];*/
-    TiXmlElement* templateRef;
+    const TiXmlElement* templateRef;
     int templateRefcCla;
     const char *templateRefclaPath;
 	std::map<const char*, const char*> template_vars;
@@ -131,9 +131,9 @@ private:
 
 	void xdialogEX(const char *sw,const char *dFormat, ...);
 	int mIRCEvalToUnsignedInt (const char *value);
-	void registerId(TiXmlElement *idElement,int id);
-	int parseId(TiXmlElement* idElement);
-	void xdidEX(int id,const char *sw,const char *dFormat, ...);
+	void registerId(const TiXmlElement *idElement,const int id);
+	int parseId(const TiXmlElement* idElement);
+	void xdidEX(const int id,const char *sw,const char *dFormat, ...);
 	
 	//TiXmlElement *getDialogElement () { return this->_dialogElement; }
 	typedef std::map<const char, const char> AttributesMap;
@@ -148,9 +148,9 @@ private:
 	bool _zlayered;
 	const char *_dialogMark, *_dialogName;
 	DcxDialog* _dcxDialog;
-	TiXmlElement *_rootElement;
-	TiXmlElement *_dialogsElement;
-	TiXmlElement *_dialogElement;
+	const TiXmlElement *_rootElement;
+	const TiXmlElement *_dialogsElement;
+	const TiXmlElement *_dialogElement;
 	TiXmlDocument _document;
 };
 #endif

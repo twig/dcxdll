@@ -145,7 +145,6 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 	LRESULT lRes;
 	HMENU menu = (HMENU)wParam;
 	bool isWinMenu = HIWORD(lParam) == TRUE ? true : false;
-	bool isCustomMenu = false;
 	HMENU currentMenubar = GetMenu(Dcx::mIRC.getHWND());
 	bool switchMenu = (g_mIRCScriptMenu != NULL) &&                  // The mIRC scriptpopup menu has been wrapped,
 		              (menu == g_mIRCScriptMenu->getMenuHandle()) && // The menu the same as the one just shown,
@@ -165,15 +164,16 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 		if (isMenuBarMenu(GetMenu(mHwnd), menu)) {
 			m_bIsMenuBar = true;
 
-			if (m_bIsActiveMircMenubarPopup) {
+			if (m_bIsActiveMircMenubarPopup)
+			{
 				HWND hActive = (HWND)SendMessage(Dcx::mIRC.getMDIClient(), WM_MDIGETACTIVE, NULL, NULL);
-				isCustomMenu = Dcx::XPopups.isCustomMenu(menu);
+				bool isCustomMenu = Dcx::XPopups.isCustomMenu(menu);
 
-			// Store the handle of the menu being displayed.
-			if (isCustomMenu && (m_hMenuCustom == NULL))
-				m_hMenuCustom = menu;
+				// Store the handle of the menu being displayed.
+				if (isCustomMenu && (m_hMenuCustom == NULL))
+					m_hMenuCustom = menu;
 
-			if (((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) && (!isCustomMenu) && (m_hMenuCustom == NULL)) // This checks for custom submenus.
+				if (((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) && (!isCustomMenu) && (m_hMenuCustom == NULL)) // This checks for custom submenus.
 				
 				m_mIRCMenuBar->convertMenu(menu, TRUE);
 			}
@@ -298,14 +298,14 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 			if (filename == "none") {
 				// ignore 'none' to maintain compatibility
 			}
-			if (IsFile(filename)) {
+			else if (IsFile(filename)) {
 				hBitmap = dcxLoadBitmap(hBitmap, filename);
 
 				if (hBitmap == NULL)
-					Dcx::error("/xpopup -b", "Unable to Load Image");
+					Dcx::errorex("/xpopup -b", "Unable to Load Image: %s", filename.to_chr());
 			}
 			else
-				Dcx::error("/xpopup -b", "Unable to Access File");
+				Dcx::errorex("/xpopup -b", "Unable to Access File: %s", filename.to_chr());
 		}
 
 		p_Menu->setBackBitmap( hBitmap );
@@ -1076,7 +1076,7 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
 			for (int i = 1; i <= totalIndexes; i++) {
 				nIcon = indexes.gettok(i, TSCOMMA).to_int();
 				//xpudemo -i + 114 dcxstudio_gfx\shell.dll
-				command.sprintf("%s -i %s %d %s", popupName.to_chr(), flags.to_chr(), nIcon, tsFilename.to_chr());
+				command.tsprintf("%s -i %s %d %s", popupName.to_chr(), flags.to_chr(), nIcon, tsFilename.to_chr());
 				Dcx::XPopups.parseCommand(command, menu);
 			}
 		}

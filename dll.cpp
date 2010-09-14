@@ -35,6 +35,7 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
 #include <mshtml.h>
 #include <exdispid.h>
 
+#if !DCX_FOR_XP_ONLY
 // Windows 2000+ Pointers
 PFNGETWINDOWINFO GetWindowInfoUx = NULL;
 PFNANIMATEWINDOW AnimateWindowUx = NULL;
@@ -48,6 +49,7 @@ PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx = NULL;
 PFNDRAWSHADOWTEXT DrawShadowTextUx = NULL;
 PFNPICKICONDLG PickIconDlgUx = NULL;
 PFNGETFULLPATHNAMEW GetFullPathNameWUx = NULL;
+#endif
 
 //FILE * logFile;
 
@@ -197,14 +199,14 @@ mIRC(IsUsingDirectX) {
 		lstrcpy(data, dxData.to_chr());
 		return 3;
 	}
-	else if (Dcx::initDirectX(data, 900)) {
+	else if (Dcx::initDirectX(data, MIRC_BUFFER_SIZE_CCH)) {
 		dxData = data;
 		return 3;
 	}
 	ret("$false");
 //#ifdef DCX_USE_DXSDK
 //	DWORD dx_ver;
-//	if (GetDXVersion(&dx_ver, data, 900) == S_OK) {
+//	if (GetDXVersion(&dx_ver, data, MIRC_BUFFER_SIZE_CCH) == S_OK) {
 //		if (dx_ver < 0x00090000)
 //			mIRCLink.m_bDX9Installed = false;
 //		else
@@ -370,7 +372,7 @@ mIRC(xdid) {
 					return 0;
 				}
 
-				d2.sprintf("%s %ld %s",d.gettok( 1 ).to_chr(), id, d.gettok(3, -1).to_chr());
+				d2.tsprintf("%s %ld %s",d.gettok( 1 ).to_chr(), id, d.gettok(3, -1).to_chr());
 
 				p_Control->parseCommandRequest(d2);
 			}
@@ -804,10 +806,12 @@ mIRC(WindowProps) {
 
 // $dcx(ActiveWindow, property)
 mIRC(ActiveWindow) {
+#if !DCX_FOR_XP_ONLY
 	if (GetWindowInfoUx == NULL) {
 		Dcx::error("$!dcx(ActiveWindow)", "Function Unsupported By Current OS");
 		return 0;
 	}
+#endif
 
 	TString input(data);
 	input.trim();
@@ -832,7 +836,11 @@ mIRC(ActiveWindow) {
 	WINDOWINFO wi;
 
 	ZeroMemory(&wi, sizeof(WINDOWINFO));
+#if DCX_FOR_XP_ONLY
+	GetWindowInfo(hwnd, &wi);
+#else
 	GetWindowInfoUx(hwnd, &wi);
+#endif
 
 	if (prop == "hwnd")         // handle
 		wsprintf(data, "%d", hwnd);
@@ -845,7 +853,7 @@ mIRC(ActiveWindow) {
 	else if (prop == "h")       // height
 		wsprintf(data, "%d", wi.rcWindow.bottom - wi.rcWindow.top);
 	else if (prop == "caption") // title text
-		GetWindowText(hwnd, data, 900);
+		GetWindowText(hwnd, data, MIRC_BUFFER_SIZE_CCH);
 	else {                      // otherwise
 		Dcx::error("$!dcx(ActiveWindow)", "Invalid parameters");
 		return 0;

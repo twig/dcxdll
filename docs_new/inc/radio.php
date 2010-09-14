@@ -6,10 +6,14 @@ function get_intro_radio() {
 
 function get_styles_radio(&$STYLES) {
 	$STYLES = array(
-	    "right" => 'Check control box is at the right of text.',
-	    'center' => 'Control text is centered.',
-	    'rjustify' => 'Control text is right justified.',
-	    'pushlike' => 'Makes the check act and look like a push button.',
+		"right" => 'Radio control box is at the right of text.',
+		'center' => 'Control text is centered.',
+		'rjustify' => 'Control text is right justified.',
+		'pushlike' => 'Makes the radio act and look like a push button.',
+		'tooltips' => 'The radio will have a tooltip.',
+		'alpha' => 'Control is alpha blended.',
+	        'hgradient' => 'Draws a horizontal gradient with the colors specified.',
+		'vgradient' => 'Draws a vertical gradient with the colors specified.',
 	);
 }
 

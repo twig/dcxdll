@@ -343,7 +343,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 		TString buff;
 
 		for (int i = 0; i < count; i++)
-			buff.sprintf("%s %d", buff.to_chr(), val[i]);
+			buff.tsprintf("%s %d", buff.to_chr(), val[i]);
 
 		wsprintf(szReturnValue, "%s", buff.trim().to_chr());
 		delete [] val;
@@ -358,7 +358,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 			nSubItem = input.gettok(5).to_int() -1;
 
 		if ((nItem > -1) && (nSubItem > -1) && (nItem < ListView_GetItemCount(this->m_Hwnd))) {
-			ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, szReturnValue, 900 );
+			ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, szReturnValue, MIRC_BUFFER_SIZE_CCH );
 			return;
 		}
 	}
@@ -402,7 +402,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 			nSubItem = input.gettok(4).to_int() -1;
 
 		if ((nItem > -1) && (nSubItem > -1)) {
-			ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, szReturnValue, 900 );
+			ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, szReturnValue, MIRC_BUFFER_SIZE_CCH );
 			return;
 		}
 	}
@@ -456,14 +456,14 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 				while ((nItem = ListView_GetNextItem(this->m_Hwnd, nItem, LVIS_SELECTED)) != -1) {
 					if (i == 1)
-						list.sprintf("%d", nItem +1);
+						list.tsprintf("%d", nItem +1);
 					else
-						list.sprintf("%s,%d", list.to_chr(), nItem +1);
+						list.tsprintf("%s,%d", list.to_chr(), nItem +1);
 
 					i++;
 				}
 
-				lstrcpyn(szReturnValue, list.to_chr(), 900);
+				lstrcpyn(szReturnValue, list.to_chr(), MIRC_BUFFER_SIZE_CCH);
 				return;
 			}
 		}
@@ -642,7 +642,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 			int count = this->getColumnCount();
 
 			for (int i = 0; i < count; i++) {
-				buff.sprintf("%s %d", buff.to_chr(), ListView_GetColumnWidth(this->m_Hwnd, i));
+				buff.tsprintf("%s %d", buff.to_chr(), ListView_GetColumnWidth(this->m_Hwnd, i));
 			}
 
 			wsprintf(szReturnValue, "%s", buff.trim().to_chr());
@@ -663,7 +663,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 			LVCOLUMN lvc;
 			ZeroMemory( &lvc, sizeof( LVCOLUMN ) );
 			lvc.mask = LVCF_TEXT;
-			lvc.cchTextMax = 900;
+			lvc.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 			lvc.pszText = szReturnValue;
 
 			if ( ListView_GetColumn( this->m_Hwnd, nColumn, &lvc ) )
@@ -693,18 +693,18 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		int GID = input.gettok( 4 ).to_int( );
 
-		WCHAR wstr[901];
+		WCHAR wstr[MIRC_BUFFER_SIZE_CCH +1];
 
 		LVGROUP lvg;
 		ZeroMemory( &lvg, sizeof( LVGROUP ) );
 		lvg.cbSize = sizeof( LVGROUP );
 		lvg.mask = LVGF_HEADER;
-		lvg.cchHeader = 900;
+		lvg.cchHeader = MIRC_BUFFER_SIZE_CCH;
 		lvg.pszHeader = wstr;
 
 		if ( Dcx::XPPlusModule.isUseable( ) && ListView_GetGroupInfo( this->m_Hwnd, GID, &lvg ) != -1 ) {
-			WideCharToMultiByte( CP_ACP, 0, wstr, -1, szReturnValue, 900, NULL, NULL );
-			//int n = WideCharToMultiByte( CP_ACP, 0, wstr, lstrlenW( wstr ) + 1, szReturnValue, 900, NULL, NULL );
+			WideCharToMultiByte( CP_ACP, 0, wstr, -1, szReturnValue, MIRC_BUFFER_SIZE_CCH, NULL, NULL );
+			//int n = WideCharToMultiByte( CP_ACP, 0, wstr, lstrlenW( wstr ) + 1, szReturnValue, MIRC_BUFFER_SIZE_CCH, NULL, NULL );
 			//TString error;
 			//error.sprintf("Chars %d", n );
 			//mIRCError( error.to_chr() );
@@ -759,7 +759,7 @@ void DcxListView::parseInfoRequest(TString &input, char *szReturnValue) {
 			TString cmd = input.gettok( 1 ) + " " + input.gettok( 2 ) + " " + input.gettok(6, -1);
 			lvdcx->pbar->parseInfoRequest(cmd, szReturnValue);
 
-			//ListView_GetItemText(this->m_Hwnd, nItem, nSubItem, szReturnValue, 900);
+			//ListView_GetItemText(this->m_Hwnd, nItem, nSubItem, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
 
@@ -2240,8 +2240,8 @@ BOOL DcxListView::isListViewStyle( const long dwView ) const {
 */
 
 BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType ) {
-	char itemtext[900];
-	ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext, 900 );
+	char itemtext[MIRC_BUFFER_SIZE_CCH];
+	ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext, MIRC_BUFFER_SIZE_CCH );
 
 	switch (SearchType) {
 		case LVSEARCH_R:
@@ -2315,11 +2315,11 @@ int DcxListView::getBottomIndex( ) const {
 int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort ) {
 
 	LPDCXLVSORT plvsort = (LPDCXLVSORT) lParamSort;
-	char itemtext1[900];
-	char itemtext2[900];
+	char itemtext1[MIRC_BUFFER_SIZE_CCH];
+	char itemtext2[MIRC_BUFFER_SIZE_CCH];
 
-	ListView_GetItemText( plvsort->m_Hwnd, lParam1, plvsort->nColumn, itemtext1, 900 );
-	ListView_GetItemText( plvsort->m_Hwnd, lParam2, plvsort->nColumn, itemtext2, 900 );
+	ListView_GetItemText( plvsort->m_Hwnd, lParam1, plvsort->nColumn, itemtext1, MIRC_BUFFER_SIZE_CCH );
+	ListView_GetItemText( plvsort->m_Hwnd, lParam2, plvsort->nColumn, itemtext2, MIRC_BUFFER_SIZE_CCH );
 
 	// CUSTOM Sort
 	if ( plvsort->iSortFlags & LVSS_CUSTOM ) {
@@ -3296,7 +3296,7 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 		attr = xNode->Attribute("tooltip");
 		if (attr != NULL) {
 			TString cmd;
-			cmd.sprintf("0 0 -T %d 0 %s", lvi.iItem +1, attr);
+			cmd.tsprintf("0 0 -T %d 0 %s", lvi.iItem +1, attr);
 			this->parseCommandRequest(cmd);
 		}
 		// add subitems

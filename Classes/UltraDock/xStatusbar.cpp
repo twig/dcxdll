@@ -19,6 +19,12 @@ mIRC(xstatusbar) {
 		Dcx::error("/xstatusbar","Invalid Parameters");
 		return 0;
 	}
+	if (Dcx::mIRC.getMainVersion() == 7) {
+		DCX_DEBUG(Dcx::debug,"xstatusbar", "mIRC V7 detected...");
+		DCX_DEBUG(Dcx::debug,"xstatusbar", "Can't do any window mods etc..");
+		Dcx::error("/xstatusbar","Can't be used in mIRC V7");
+		return 0;
+	}
 
 	TString switches(input.gettok(1));
 
@@ -217,7 +223,12 @@ mIRC(xstatusbar) {
 				if (himl != NULL) {
 					icon = dcxLoadIcon(index, filename, false, flags);
 
-					ImageList_AddIcon(himl, icon);
+					if (icon != NULL) {
+						if (ImageList_AddIcon(himl, icon) == -1)
+							Dcx::error("/xstatusbar -w","Unable To Add Image to ImageList");
+					}
+					else
+						Dcx::error("/xstatusbar -w","Unable To Load Icon");
 					DestroyIcon(icon);
 				}
 				else
@@ -264,7 +275,7 @@ mIRC(_xstatusbar)
 			if ( iPart > -1 && iPart < nParts ) {
 				WCHAR *text = new WCHAR[DcxDock::status_getTextLength( iPart ) + 1];
 				DcxDock::status_getText( iPart, text );
-				WideCharToMultiByte(CP_UTF8, 0, text, -1, data, 900, NULL, NULL);
+				WideCharToMultiByte(CP_UTF8, 0, text, -1, data, MIRC_BUFFER_SIZE_CCH, NULL, NULL);
 				delete [] text;
 			}
 		}
@@ -296,9 +307,9 @@ mIRC(_xstatusbar)
 			int iPart = d.gettok( 3 ).to_int( ), nParts = (int)DcxDock::status_getParts( 256, 0 );
 
 			if ( iPart > -1 && iPart < nParts ) {
-				WCHAR *text = new WCHAR[900];
-				DcxDock::status_getTipText( iPart, 900, text );
-				WideCharToMultiByte(CP_UTF8, 0, text, -1, data, 900, NULL, NULL);
+				WCHAR *text = new WCHAR[MIRC_BUFFER_SIZE_CCH];
+				DcxDock::status_getTipText( iPart, MIRC_BUFFER_SIZE_CCH, text );
+				WideCharToMultiByte(CP_UTF8, 0, text, -1, data, MIRC_BUFFER_SIZE_CCH, NULL, NULL);
 				delete [] text;
 			}
 		}
@@ -307,7 +318,7 @@ mIRC(_xstatusbar)
 	default:
 		{
 			TString error;
-			error.sprintf("D_ERROR Invalid prop ().%s", d.gettok( 2 ).to_chr());
+			error.tsprintf("D_ERROR Invalid prop ().%s", d.gettok( 2 ).to_chr());
 			lstrcpy(data, error.to_chr());
 		}
 		break;

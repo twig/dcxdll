@@ -564,6 +564,21 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 			break;
 
+		case WM_SETCURSOR:
+			{ // message handling added solve bug where cursor is not reset to an arrow when moving over panel.
+				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
+					if (this->m_hCursor != NULL) {
+						if (GetCursor() != this->m_hCursor)
+							SetCursor( this->m_hCursor );
+					}
+					else
+						SetCursor( LoadCursor( NULL, IDC_ARROW ) );
+					bParsed = TRUE;
+					return TRUE;
+				}
+			}
+			break;
+
 		case WM_DESTROY:
 			{
 				delete this;

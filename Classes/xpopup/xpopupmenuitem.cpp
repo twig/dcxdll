@@ -165,7 +165,9 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 	UINT iItemStyle = this->m_pXParentMenu->getItemStyle( );
 
 	// playing around with menu transparency
+#if !DCX_FOR_XP_ONLY
 	if (SetLayeredWindowAttributesUx != NULL) {
+#endif
 		BYTE alpha = this->m_pXParentMenu->IsAlpha();
 
 		// If alpha == 255 then menu is fully opaque so no need to change to layered.
@@ -177,7 +179,11 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 
 				if (!(dwStyle & WS_EX_LAYERED)) {
 					SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
+#if DCX_FOR_XP_ONLY
+					SetLayeredWindowAttributes(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
+#else
 					SetLayeredWindowAttributesUx(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
+#endif
 					//RedrawWindow(hMenuWnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE);
 					// NB: Menus on XP will not show as transparent straight away when a transition effect is used when displaying the menu.
 					// This can't be fixed at this time, live with it.
@@ -185,7 +191,9 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 				}
 			}
 		}
+#if !DCX_FOR_XP_ONLY
 	}
+#endif
 	// All Items
 	this->DrawItemBackground( lpdis, lpcol );
 	this->DrawItemBox( lpdis, lpcol );

@@ -1098,7 +1098,7 @@ HBITMAP XPopupMenu::getBackBitmap( ) const {
 void XPopupMenu::setBackBitmap( HBITMAP hBitmap ) {
 
 	if ( this->m_hBitmap != NULL )
-		DeleteObject(this->m_hBitmap );
+		DeleteBitmap(this->m_hBitmap );
 
 	this->m_hBitmap = hBitmap;
 }

@@ -821,16 +821,12 @@ void TiXmlElement::CopyTo( TiXmlElement* target ) const
 
 	// Element class: 
 	// Clone the attributes, then clone the children.
-	const TiXmlAttribute* attribute = 0;
-	for(	attribute = attributeSet.First();
-	attribute;
-	attribute = attribute->Next() )
+	for( const TiXmlAttribute* attribute = attributeSet.First(); attribute; attribute = attribute->Next() )
 	{
 		target->SetAttribute( attribute->Name(), attribute->Value() );
 	}
 
-	TiXmlNode* node = 0;
-	for ( node = firstChild; node; node = node->NextSibling() )
+	for (TiXmlNode* node = firstChild; node; node = node->NextSibling() )
 	{
 		target->LinkEndChild( node->Clone() );
 	}
@@ -1117,8 +1113,7 @@ void TiXmlDocument::CopyTo( TiXmlDocument* target ) const
 	target->error = error;
 	target->errorDesc = errorDesc.c_str ();
 
-	TiXmlNode* node = 0;
-	for ( node = firstChild; node; node = node->NextSibling() )
+	for (TiXmlNode* node = firstChild; node; node = node->NextSibling() )
 	{
 		target->LinkEndChild( node->Clone() );
 	}	

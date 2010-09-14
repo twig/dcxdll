@@ -83,7 +83,7 @@ DcxIpAddress::~DcxIpAddress( ) {
 
 void DcxIpAddress::toXml(TiXmlElement * xml) {
 	DWORD ip;
-	char buf[900];
+	char buf[64];
 	this->getAddress( &ip );
 	wsprintf( buf, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
 		SECOND_IPADDRESS( ip ),

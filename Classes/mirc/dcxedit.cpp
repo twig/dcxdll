@@ -182,13 +182,13 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 				int nLine = input.gettok( 4 ).to_int();
 
 				if (nLine > 0 && nLine <= this->m_tsText.numtok("\r\n")) {
-					lstrcpyn(szReturnValue, this->m_tsText.gettok(nLine, "\r\n").to_chr(), 900);
+					lstrcpyn(szReturnValue, this->m_tsText.gettok(nLine, "\r\n").to_chr(), MIRC_BUFFER_SIZE_CCH);
 					return;
 				}
 			}
 		}
 		else {
-			lstrcpyn(szReturnValue, this->m_tsText.to_chr(), 900);
+			lstrcpyn(szReturnValue, this->m_tsText.to_chr(), MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
 	}
@@ -270,12 +270,12 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
-		lstrcpyn(szReturnValue, this->m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr(), 900);
+		lstrcpyn(szReturnValue, this->m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if (prop == "cue") {
 		if (this->m_tsCue.len())
-			lstrcpyn(szReturnValue, this->m_tsCue.to_chr(), 900);
+			lstrcpyn(szReturnValue, this->m_tsCue.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue))
@@ -555,7 +555,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 
 				hdc = BeginPaint( this->m_Hwnd, &ps );
 
-				LRESULT res = 0L;
+				//LRESULT res = 0L;
 				bParsed = TRUE;
 
 				// Setup alpha blend if any.
@@ -618,7 +618,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				//if (oldFont != NULL)
 				//	SelectFont( hdc, oldFont );
 
-				res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				LRESULT res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 				this->FinishAlphaBlend(ai);
 

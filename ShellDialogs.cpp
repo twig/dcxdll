@@ -124,7 +124,7 @@ mIRC(SaveDialog) {
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd) {
 	DWORD style = OFN_EXPLORER;
 	OPENFILENAME ofn;
-	char szFilename[900];
+	char szFilename[MIRC_BUFFER_SIZE_CCH];
 
 	// seperate the tokenz
 	TString styles(data.gettok(1, TSTAB).trim());
@@ -151,7 +151,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	ofn.hwndOwner = pWnd;
 	ofn.lpstrFilter = filter.to_chr();
 	ofn.lpstrFile = szFilename;
-	ofn.nMaxFile = 900;
+	ofn.nMaxFile = MIRC_BUFFER_SIZE_CCH;
 	ofn.lpstrDefExt = "";
 
 	for (int i = 1; i <= styles.numtok( ); i++) {
@@ -538,7 +538,7 @@ mIRC(FontDialog) {
 
 	// show the dialog
 	if (ChooseFont(&cf)) {
-		//char str[900];
+		//char str[MIRC_BUFFER_SIZE_CCH];
 		TString fntflags(ParseLogfontToCommand(&lf));
 
 		// color flags font info
@@ -683,14 +683,20 @@ mIRC(PickIcon) {
 	if (!IsFile(filename))
 		ret("D_ERROR PickIcon: Invalid Filename");
 
+#if !DCX_FOR_XP_ONLY
 	if (PickIconDlgUx == NULL)
 		ret("D_ERROR PickIcon: Function Not Available");
+#endif
 
 	WCHAR iconPath[MAX_PATH+1];
+#if DCX_FOR_XP_ONLY
+		GetFullPathNameW(filename.to_wchr(), MAX_PATH, iconPath, NULL);
+#else
 	if (GetFullPathNameWUx != NULL)
 		GetFullPathNameWUx(filename.to_wchr(), MAX_PATH, iconPath, NULL);
 	else
 		lstrcpynW(iconPath, filename.to_wchr(), MAX_PATH);
+#endif
 	if (dcxPickIconDlg(aWnd,iconPath,MAX_PATH,&index))
 		wsprintf(data,"D_OK %d %S", index, iconPath);
 	else
@@ -703,7 +709,11 @@ mIRC(PickIcon) {
 */
 int dcxPickIconDlg(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex)
 {
+#if DCX_FOR_XP_ONLY
+	return PickIconDlg(hwnd, pszIconPath, cchIconPath, piIconIndex);
+#else
 	if (!PickIconDlgUx)
 		return 0;
 	return PickIconDlgUx(hwnd, pszIconPath, cchIconPath, piIconIndex);
+#endif
 }

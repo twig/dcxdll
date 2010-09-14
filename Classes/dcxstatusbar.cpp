@@ -182,7 +182,7 @@ void DcxStatusBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 		if ( iPart > -1 && iPart < nParts ) {
 
-			this->getTipText( iPart, 900, szReturnValue );
+			this->getTipText( iPart, MIRC_BUFFER_SIZE_CCH, szReturnValue );
 			return;
 		}
 	}
@@ -370,7 +370,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 				this->setPartInfo( nPos, SBT_OWNERDRAW, pPart );
 			}
 			else {
-				char text[900];
+				char text[MIRC_BUFFER_SIZE_CCH];
 				this->setText( nPos, HIWORD( this->getText( nPos, text ) ), itemtext.to_chr( ) );
 			}
 		}

@@ -99,10 +99,10 @@ TString DcxCalendar::getValue(void)
 {
 	long start;
 	long end;
-	char buf[900];
+	char buf[128];
 
 	if (isStyle(MCS_MULTISELECT)) {
-	SYSTEMTIME st[2];
+		SYSTEMTIME st[2];
 		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
 		MonthCal_GetSelRange(this->m_Hwnd, st);
 
@@ -125,8 +125,7 @@ TString DcxCalendar::getValue(void)
 	}
 
 	wsprintf(buf, "%ld %ld", start, end);
-	TString result(buf);
-	return result;
+	return buf;
 }
 
 /*!
@@ -213,16 +212,16 @@ void DcxCalendar::parseInfoRequest(TString &input, char *szReturnValue) {
 		val = MonthCal_GetRange(this->m_Hwnd, st);
 
 		if (val & GDTR_MIN)
-			min.sprintf("%ld", SystemTimeToMircTime(&(st[0])));
+			min.tsprintf("%ld", SystemTimeToMircTime(&(st[0])));
 		else
 			min = "nolimit";
 
 		if (val & GDTR_MAX)
-			max.sprintf("%ld", SystemTimeToMircTime(&(st[1])));
+			max.tsprintf("%ld", SystemTimeToMircTime(&(st[1])));
 		else
 			max = "nolimit";
 
-		wsprintf(szReturnValue, "%s %s", min.to_chr(), max.to_chr()); // going to be within 900 limit anyway.
+		wsprintf(szReturnValue, "%s %s", min.to_chr(), max.to_chr()); // going to be within MIRC_BUFFER_SIZE_CCH limit anyway.
 		return;
 	}
 	else if (prop == "today") {

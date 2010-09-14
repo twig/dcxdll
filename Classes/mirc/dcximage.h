@@ -30,25 +30,25 @@ class DcxImage : public DcxControl {
 
 public:
 
-  DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
-  virtual ~DcxImage( );
+	DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
+	virtual ~DcxImage( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( TString & input, char * szReturnValue );
+	void parseCommandRequest( TString & input );
+	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  inline TString getType( ) { return TString( "image" ); };
-  void toXml(TiXmlElement * xml);
+	inline TString getType( ) { return TString( "image" ); };
+	void toXml(TiXmlElement * xml);
 
 	static void registerClass(void);
 
 protected:
 
 #ifdef DCX_USE_GDIPLUS
-  Image * m_pImage; //!< GDI+ Image Object
+	Image * m_pImage; //!< GDI+ Image Object
 	CompositingMode m_CMode; // Compositing Mode
 	CompositingQuality m_CQuality; // Compositing Quality
 	InterpolationMode m_IMode; // Interpolation Mode
@@ -58,13 +58,13 @@ protected:
 #endif
 	void DrawBMPImage(HDC hdc, int x, int y, int w, int h);
 	void DrawClientArea(HDC hdc);
-  HBITMAP m_hBitmap; //!< Bitmap
-  HICON m_hIcon; // !< icon
+	HBITMAP m_hBitmap; //!< Bitmap
+	HICON m_hIcon; // !< icon
 
-  COLORREF m_clrTransColor; //!< Transparent color
-  BOOL m_bIsIcon;
-  // clears existing image and icon data and sets pointers to null
-  void PreloadData(void);
+	COLORREF m_clrTransColor; //!< Transparent color
+	BOOL m_bIsIcon;
+	// clears existing image and icon data and sets pointers to null
+	void PreloadData(void);
 	int m_iIconSize;
 	bool m_bResizeImage; //!< Resize Image
 	bool m_bTileImage; //!< Tile Image

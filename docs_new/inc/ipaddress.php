@@ -3,9 +3,11 @@ function get_intro_ipaddress() {
 	echo "IP Address control.";
 }
 
-
-
-
+function get_styles_ipaddress(&$STYLES) {
+	$STYLES = array(
+	    'tooltips' => 'The ipaddress will have a tooltip.',
+	);
+}
 
 function get_xdid_ipaddress(&$XDID) {
 	$XDID = array(
