@@ -2521,7 +2521,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					tme.cbSize = sizeof(TRACKMOUSEEVENT);
 					tme.hwndTrack = p_this->m_Hwnd;
 					tme.dwFlags = TME_LEAVE;
-					tme.dwHoverTime = 1;
+					tme.dwHoverTime = HOVER_DEFAULT; // was 1
 					p_this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );
 					if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
 						p_this->execAliasEx("%s,%d", "denter", 0); // this tells you when the mouse enters or
