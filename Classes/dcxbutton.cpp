@@ -423,7 +423,7 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				tme.cbSize = sizeof(TRACKMOUSEEVENT);
 				tme.hwndTrack = this->m_Hwnd;
 				tme.dwFlags = TME_LEAVE | TME_HOVER;
-				tme.dwHoverTime = 1;
+				tme.dwHoverTime = HOVER_DEFAULT; // was 1
 				this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );		
 			}
 		}

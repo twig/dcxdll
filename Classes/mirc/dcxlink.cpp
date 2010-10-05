@@ -229,59 +229,59 @@ LRESULT DcxLink::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
-    case WM_MOUSEMOVE:
-      {
-        this->m_pParentDialog->setMouseControl( this->getUserID( ) );
+	case WM_MOUSEMOVE:
+		{
+			this->m_pParentDialog->setMouseControl( this->getUserID( ) );
 
-        if ( !this->m_bTracking ) {
+			if ( !this->m_bTracking ) {
 
-          TRACKMOUSEEVENT tme;
-          tme.cbSize = sizeof(TRACKMOUSEEVENT);
-          tme.hwndTrack = this->m_Hwnd;
-          tme.dwFlags = TME_LEAVE | TME_HOVER;
-          tme.dwHoverTime = 1;
-          this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );		
-        }
-      }
-      break;
+				TRACKMOUSEEVENT tme;
+				tme.cbSize = sizeof(TRACKMOUSEEVENT);
+				tme.hwndTrack = this->m_Hwnd;
+				tme.dwFlags = TME_LEAVE | TME_HOVER;
+				tme.dwHoverTime = HOVER_DEFAULT; // was 1
+				this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );		
+			}
+		}
+		break;
 
-    case WM_MOUSEHOVER:
-      {
-        if ( !this->m_bHover && this->m_bTracking ) {
-          this->m_bHover = TRUE;
-          InvalidateRect( this->m_Hwnd, NULL, FALSE );
-        }
-      }
-      break;
+	case WM_MOUSEHOVER:
+		{
+			if ( !this->m_bHover && this->m_bTracking ) {
+				this->m_bHover = TRUE;
+				InvalidateRect( this->m_Hwnd, NULL, FALSE );
+			}
+		}
+		break;
 
-    case WM_MOUSELEAVE:
-      {
-        if ( this->m_bTracking ) {
-          this->m_bHover = FALSE;
-          this->m_bTracking = FALSE;
-          InvalidateRect( this->m_Hwnd, NULL, FALSE );
-        }
-      }
-      break;
+	case WM_MOUSELEAVE:
+		{
+			if ( this->m_bTracking ) {
+				this->m_bHover = FALSE;
+				this->m_bTracking = FALSE;
+				InvalidateRect( this->m_Hwnd, NULL, FALSE );
+			}
+		}
+		break;
 
-    case WM_LBUTTONDOWN:
-      {
-        if ( this->m_bVisited == FALSE ) {
-          this->m_bVisited = TRUE;
-          InvalidateRect( this->m_Hwnd, NULL, FALSE );
-        }
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->execAliasEx("%s,%d", "lbdown", this->getUserID( ) );
-      }
-      break;
+	case WM_LBUTTONDOWN:
+		{
+			if ( this->m_bVisited == FALSE ) {
+				this->m_bVisited = TRUE;
+				InvalidateRect( this->m_Hwnd, NULL, FALSE );
+			}
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				this->execAliasEx("%s,%d", "lbdown", this->getUserID( ) );
+		}
+		break;
 
-    case WM_ENABLE:
-      {
-        InvalidateRect( this->m_Hwnd, NULL, FALSE );
-      }
-      break;
+	case WM_ENABLE:
+		{
+			InvalidateRect( this->m_Hwnd, NULL, FALSE );
+		}
+		break;
 
 		case WM_SETCURSOR:
 			{
