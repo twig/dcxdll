@@ -186,9 +186,14 @@ TString::TString( const TCHAR *pStart, const TCHAR *pEnd )
 {
 	if ((pStart != NULL) && (pEnd != NULL) && (pEnd > pStart)) {
 		size_t size = (pEnd - pStart);
+#ifdef UNICODE
+		this->m_pString = new TCHAR[++size];
+		lstrcpyn(this->m_pString, pStart, size);	// adds null terminator for us.
+#else
 		this->m_pString = new TCHAR[size+1];
 		CopyMemory(this->m_pString, pStart, size);
 		this->m_pString[size] = 0;
+#endif
 	}
 	else {
 		this->m_pString = new TCHAR[1];
@@ -1432,7 +1437,7 @@ TString TString::gettok( int N, const TCHAR * sepChars ) const {
 
 		if ( iCount == N ) {
 
-			int len = p_cEnd - p_cStart;
+			int len = p_cEnd - p_cStart; // gives cch diff
 			delete [] token.m_pString; // change by Ook
 			token.m_pString = new TCHAR [len + 1];
 			token.m_pString[len] = 0;

@@ -90,13 +90,7 @@ mIRC(xtreebar) {
 
 	int numtok = input.numtok( );
 
-#ifdef UNICODE
-#ifdef DEBUG
-	if (Dcx::mIRC.getMainVersion() == 7) {
-		DCX_DEBUG(Dcx::debug,TEXT("xtreebar"), TEXT("mIRC V7 detected..."));
-	}
-#endif
-#else
+#ifndef UNICODE
 	if (Dcx::mIRC.getMainVersion() == 7) {
 		DCX_DEBUG(Dcx::debug,TEXT("xtreebar"), TEXT("mIRC V7 detected..."));
 		DCX_DEBUG(Dcx::debug,TEXT("xtreebar"), TEXT("Can't do any window mods etc.."));

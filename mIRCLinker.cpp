@@ -223,13 +223,7 @@ bool mIRCLinker::setTreeFont(HFONT newFont)
 
 void mIRCLinker::hookWindowProc(WNDPROC newProc)
 {
-#ifdef UNICODE
-#ifdef DEBUG
-	if (this->getMainVersion() == 7) {
-		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("mIRC V7 detected..."));
-	}
-#endif
-#else
+#ifndef UNICODE
 	if (this->getMainVersion() == 7) {
 		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("mIRC V7 detected..."));
 		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Can't do any window mods etc.."));
@@ -282,11 +276,10 @@ bool mIRCLinker::iEval(__int64  *res, const TCHAR *data) {
 	lstrcpy(m_pData, data);
 #if UNICODE
 	SendMessage(m_mIRCHWND, WM_MEVALUATE, MIRCF_UNICODE, m_iMapCnt);
-	*res = _wtoi64(m_pData);
 #else
 	SendMessage(m_mIRCHWND, WM_MEVALUATE, 0, m_iMapCnt);
-	*res = _atoi64(m_pData);
 #endif
+	*res = dcx_atoi64(m_pData);
 	if (*res == 0) return false;
 	return true;
 }
