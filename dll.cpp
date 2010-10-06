@@ -35,22 +35,6 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
 #include <mshtml.h>
 #include <exdispid.h>
 
-#if !DCX_FOR_XP_ONLY
-// Windows 2000+ Pointers
-PFNGETWINDOWINFO GetWindowInfoUx = NULL;
-PFNANIMATEWINDOW AnimateWindowUx = NULL;
-PFNINSENDMESSAGEEX InSendMessageExUx = NULL;
-PFNFLASHWINDOWEX FlashWindowExUx = NULL;
-
-// XP+ function pointers
-// Others
-PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx = NULL;
-PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx = NULL;
-PFNDRAWSHADOWTEXT DrawShadowTextUx = NULL;
-PFNPICKICONDLG PickIconDlgUx = NULL;
-PFNGETFULLPATHNAMEW GetFullPathNameWUx = NULL;
-#endif
-
 //FILE * logFile;
 
 //IClassFactory * g_pClassFactory = NULL; //!< Web Control Factory
@@ -86,13 +70,13 @@ BOOL WINAPI DllMain(
 	{
 	case DLL_PROCESS_ATTACH:
 		{
-			char mutex[128];
+			TCHAR mutex[128];
 			// Initialize once for each new process.
 			// Return FALSE to fail DLL load.
 			DisableThreadLibraryCalls(hinstDLL);
 			// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
 			// GetModuleHandle(NULL) was returning a consistant result.
-			wsprintf(mutex,"DCX_LOADED%lx", GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+			wsprintf(mutex,TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
 
 			// Enforce only one instance of dcx.dll loaded at a time.
 			hDcxMutex = CreateMutex(NULL, TRUE, mutex); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
@@ -136,7 +120,7 @@ BOOL WINAPI DllMain(
 _INTEL_DLL_ void WINAPI LoadDll(LOADINFO * load) {
 	Dcx::load(load);
 
-	DCX_DEBUG(Dcx::debug,"LoadDLL", "Initialising UltraDock...");
+	DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Initialising UltraDock..."));
 	InitUltraDock();
 //#ifndef NDEBUG
 //	InitCustomDock();
@@ -180,11 +164,11 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
 mIRC(Version) {
 #ifdef DCX_DEV_BUILD
 	wsprintf(data,
-		"DCX (XPopup) DLL %d.%d.%d %s%d by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2009",
+		TEXT("DCX (XPopup) DLL %d.%d.%d %s%d by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2009"),
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE, DLL_DEV_BUILD);
 #else
 	wsprintf(data,
-		"DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2009",
+		TEXT("DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2009"),
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
 #endif
 	return 3;
@@ -203,7 +187,7 @@ mIRC(IsUsingDirectX) {
 		dxData = data;
 		return 3;
 	}
-	ret("$false");
+	ret(TEXT("$false"));
 //#ifdef DCX_USE_DXSDK
 //	DWORD dx_ver;
 //	if (GetDXVersion(&dx_ver, data, MIRC_BUFFER_SIZE_CCH) == S_OK) {
@@ -212,11 +196,11 @@ mIRC(IsUsingDirectX) {
 //		else
 //			mIRCLink.m_bDX9Installed = true;
 //		if (dx_ver < 1)
-//			ret("$false");
+//			ret(TEXT("$false"));
 //	}
 //	return 3;
 //#else
-//	ret("$false");
+//	ret(TEXT("$false"));
 //#endif // DCX_USE_DXSDK
 }
 
@@ -224,21 +208,21 @@ mIRC(IsUsingDirectX) {
 * \brief DCX DLL is GDI+ supported?
 */
 mIRC(IsUsingGDI) {
-	ret((Dcx::GDIModule.isUseable() ? "$true" : "$false"));
+	ret((Dcx::GDIModule.isUseable() ? TEXT("$true") : TEXT("$false")));
 }
 
 /*!
 * \brief Check if it's safe to unload DLL
 */
 mIRC(IsUnloadSafe) {
-	ret((Dcx::isUnloadSave() ? "$true" : "$false"));
+	ret((Dcx::isUnloadSave() ? TEXT("$true") : TEXT("$false")));
 }
 
 /*!
 * \brief Check if windows is themed
 */
 mIRC(IsThemedXP) {
-	ret((Dcx::XPPlusModule.dcxIsThemeActive() ? "$true" : "$false"));
+	ret((Dcx::XPPlusModule.dcxIsThemeActive() ? TEXT("$true") : TEXT("$false")));
 }
 
 /*!
@@ -254,7 +238,7 @@ mIRC(Mark) {
 
 	if (d.numtok() < 2) 
 	{
-		Dcx::error("Mark", "[NAME] [ALIAS]");
+		Dcx::error(TEXT("Mark"), TEXT("[NAME] [ALIAS]"));
 		ret(Dcx::getLastError());
 	}
 
@@ -272,53 +256,53 @@ mIRC(GetSystemColor) {
 	d.trim();
 
 	if (d.numtok() < 1) {
-		Dcx::error("$!dcx(GetSysColor)","Invalid arguments");
+		Dcx::error(TEXT("$!dcx(GetSysColor)"),TEXT("Invalid arguments"));
 		return 0;
 	}
 
 	int col;
 	TString coltype(d.gettok(1));
 
-	if      (coltype == "COLOR_3DDKSHADOW"		) { col = COLOR_3DDKSHADOW; }
-	else if (coltype == "COLOR_3DFACE"			) { col = COLOR_3DFACE; }
-	else if (coltype == "COLOR_3DHIGHLIGHT"	) { col = COLOR_3DHIGHLIGHT; }
-	else if (coltype == "COLOR_3DHILIGHT"		) { col = COLOR_3DHILIGHT; }
-	else if (coltype == "COLOR_3DLIGHT"			) { col = COLOR_3DLIGHT; }
-	else if (coltype == "COLOR_3DSHADOW"		) { col = COLOR_3DSHADOW; }
-	else if (coltype == "COLOR_ACTIVEBORDER"	) { col = COLOR_ACTIVEBORDER; }
-	else if (coltype == "COLOR_ACTIVECAPTION"	) { col = COLOR_ACTIVECAPTION; }
-	else if (coltype == "COLOR_APPWORKSPACE"	) { col = COLOR_APPWORKSPACE; }
-	else if (coltype == "COLOR_BACKGROUND"		) { col = COLOR_BACKGROUND; }
-	else if (coltype == "COLOR_BTNFACE"			) { col = COLOR_BTNFACE; }
-	else if (coltype == "COLOR_BTNHIGHLIGHT"	) { col = COLOR_BTNHIGHLIGHT; }
-	else if (coltype == "COLOR_BTNSHADOW"		) { col = COLOR_BTNSHADOW; }
-	else if (coltype == "COLOR_BTNTEXT"			) { col = COLOR_BTNTEXT; }
-	else if (coltype == "COLOR_CAPTIONTEXT"	) { col = COLOR_CAPTIONTEXT; }
-	else if (coltype == "COLOR_DESKTOP"			) { col = COLOR_DESKTOP; }
-	else if (coltype == "COLOR_GRADIENTACTIVECAPTION") { col = COLOR_GRADIENTACTIVECAPTION; }
-	else if (coltype == "COLOR_GRADIENTINACTIVECAPTION") { col = COLOR_GRADIENTINACTIVECAPTION; }
-	else if (coltype == "COLOR_GRAYTEXT"		) { col = COLOR_GRAYTEXT; }
-	else if (coltype == "COLOR_HIGHLIGHT"		) { col = COLOR_HIGHLIGHT; }
-	else if (coltype == "COLOR_HIGHLIGHTTEXT"	) { col = COLOR_HIGHLIGHTTEXT; }
-	else if (coltype == "COLOR_HOTLIGHT"		) { col = COLOR_HOTLIGHT; }
-	else if (coltype == "COLOR_INACTIVEBORDER") { col = COLOR_INACTIVEBORDER; }
-	else if (coltype == "COLOR_INACTIVECAPTION") { col = COLOR_INACTIVECAPTION; }
-	else if (coltype == "COLOR_INACTIVECAPTIONTEXT") { col = COLOR_INACTIVECAPTIONTEXT; }
-	else if (coltype == "COLOR_INFOBK"			) { col = COLOR_INFOBK; }
-	else if (coltype == "COLOR_INFOTEXT"		) { col = COLOR_INFOTEXT; }
-	else if (coltype == "COLOR_MENU"				) { col = COLOR_MENU; }
-	else if (coltype == "COLOR_MENUHILIGHT"	) { col = COLOR_MENUHILIGHT; }
-	else if (coltype == "COLOR_MENUBAR"			) { col = COLOR_MENUBAR; }
-	else if (coltype == "COLOR_MENUTEXT"		) { col = COLOR_MENUTEXT; }
-	else if (coltype == "COLOR_SCROLLBAR"		) { col = COLOR_SCROLLBAR; }
-	else if (coltype == "COLOR_WINDOW"			) { col = COLOR_WINDOW; }
-	else if (coltype == "COLOR_WINDOWFRAME"	) { col = COLOR_WINDOWFRAME; }
-	else if (coltype == "COLOR_WINDOWTEXT"		) { col = COLOR_WINDOWTEXT; }
+	if      (coltype == TEXT("COLOR_3DDKSHADOW")		) { col = COLOR_3DDKSHADOW; }
+	else if (coltype == TEXT("COLOR_3DFACE")			) { col = COLOR_3DFACE; }
+	else if (coltype == TEXT("COLOR_3DHIGHLIGHT")		) { col = COLOR_3DHIGHLIGHT; }
+	else if (coltype == TEXT("COLOR_3DHILIGHT")			) { col = COLOR_3DHILIGHT; }
+	else if (coltype == TEXT("COLOR_3DLIGHT")			) { col = COLOR_3DLIGHT; }
+	else if (coltype == TEXT("COLOR_3DSHADOW")			) { col = COLOR_3DSHADOW; }
+	else if (coltype == TEXT("COLOR_ACTIVEBORDER")		) { col = COLOR_ACTIVEBORDER; }
+	else if (coltype == TEXT("COLOR_ACTIVECAPTION")		) { col = COLOR_ACTIVECAPTION; }
+	else if (coltype == TEXT("COLOR_APPWORKSPACE")		) { col = COLOR_APPWORKSPACE; }
+	else if (coltype == TEXT("COLOR_BACKGROUND")		) { col = COLOR_BACKGROUND; }
+	else if (coltype == TEXT("COLOR_BTNFACE")			) { col = COLOR_BTNFACE; }
+	else if (coltype == TEXT("COLOR_BTNHIGHLIGHT")		) { col = COLOR_BTNHIGHLIGHT; }
+	else if (coltype == TEXT("COLOR_BTNSHADOW")			) { col = COLOR_BTNSHADOW; }
+	else if (coltype == TEXT("COLOR_BTNTEXT")			) { col = COLOR_BTNTEXT; }
+	else if (coltype == TEXT("COLOR_CAPTIONTEXT")		) { col = COLOR_CAPTIONTEXT; }
+	else if (coltype == TEXT("COLOR_DESKTOP")			) { col = COLOR_DESKTOP; }
+	else if (coltype == TEXT("COLOR_GRADIENTACTIVECAPTION")) { col = COLOR_GRADIENTACTIVECAPTION; }
+	else if (coltype == TEXT("COLOR_GRADIENTINACTIVECAPTION")) { col = COLOR_GRADIENTINACTIVECAPTION; }
+	else if (coltype == TEXT("COLOR_GRAYTEXT")			) { col = COLOR_GRAYTEXT; }
+	else if (coltype == TEXT("COLOR_HIGHLIGHT")			) { col = COLOR_HIGHLIGHT; }
+	else if (coltype == TEXT("COLOR_HIGHLIGHTTEXT")		) { col = COLOR_HIGHLIGHTTEXT; }
+	else if (coltype == TEXT("COLOR_HOTLIGHT")			) { col = COLOR_HOTLIGHT; }
+	else if (coltype == TEXT("COLOR_INACTIVEBORDER")	) { col = COLOR_INACTIVEBORDER; }
+	else if (coltype == TEXT("COLOR_INACTIVECAPTION")	) { col = COLOR_INACTIVECAPTION; }
+	else if (coltype == TEXT("COLOR_INACTIVECAPTIONTEXT")) { col = COLOR_INACTIVECAPTIONTEXT; }
+	else if (coltype == TEXT("COLOR_INFOBK")			) { col = COLOR_INFOBK; }
+	else if (coltype == TEXT("COLOR_INFOTEXT")			) { col = COLOR_INFOTEXT; }
+	else if (coltype == TEXT("COLOR_MENU")				) { col = COLOR_MENU; }
+	else if (coltype == TEXT("COLOR_MENUHILIGHT")		) { col = COLOR_MENUHILIGHT; }
+	else if (coltype == TEXT("COLOR_MENUBAR")			) { col = COLOR_MENUBAR; }
+	else if (coltype == TEXT("COLOR_MENUTEXT")			) { col = COLOR_MENUTEXT; }
+	else if (coltype == TEXT("COLOR_SCROLLBAR")			) { col = COLOR_SCROLLBAR; }
+	else if (coltype == TEXT("COLOR_WINDOW")			) { col = COLOR_WINDOW; }
+	else if (coltype == TEXT("COLOR_WINDOWFRAME")		) { col = COLOR_WINDOWFRAME; }
+	else if (coltype == TEXT("COLOR_WINDOWTEXT")		) { col = COLOR_WINDOWTEXT; }
 	else
-		ret("D_ERROR GetSystemColor: Invalid parameter specified");
+		ret(TEXT("D_ERROR GetSystemColor: Invalid parameter specified"));
 
 	// max of 8 digits, 9 for null terminator
-	wsprintf(data, "%d", GetSysColor(col));
+	wsprintf(data, TEXT("%d"), GetSysColor(col));
 	return 3;
 }
 
@@ -337,14 +321,14 @@ mIRC(xdid) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 3) {
-		Dcx::error("/xdid","Invalid arguments");
+		Dcx::error(TEXT("/xdid"),TEXT("Invalid arguments"));
 		return 0;
 	}
 
 	DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(d.gettok( 1 ));
 
 	if (p_Dialog == NULL) {
-		Dcx::errorex("/xdid", "Unknown dialog \"%s\": see Mark command", d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("/xdid"), TEXT("Unknown dialog \"%s\": see Mark command"), d.gettok(1).to_chr());
 		return 0;
 	}
 
@@ -357,9 +341,9 @@ mIRC(xdid) {
 		for (int i = 1; i <= n; i++) {
 			TString tsID(IDs.gettok(i, TSCOMMA));
 			UINT id_start = 0, id_end = 0;
-			if (tsID.numtok("-") == 2) {
-				id_start = tsID.gettok(1, "-").to_int();
-				id_end = tsID.gettok(2, "-").to_int();
+			if (tsID.numtok(TEXT("-")) == 2) {
+				id_start = tsID.gettok(1, TEXT("-")).to_int();
+				id_end = tsID.gettok(2, TEXT("-")).to_int();
 			}
 			else
 				id_start = id_end = tsID.to_int();
@@ -368,11 +352,11 @@ mIRC(xdid) {
 				p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 				if (p_Control == NULL) {
-					p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), "(xdid) Invalid ID : %ld (dialog : %s)", id, d.gettok( 1 ).to_chr());
+					p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), TEXT("(xdid) Invalid ID : %ld (dialog : %s)"), id, d.gettok( 1 ).to_chr());
 					return 0;
 				}
 
-				d2.tsprintf("%s %ld %s",d.gettok( 1 ).to_chr(), id, d.gettok(3, -1).to_chr());
+				d2.tsprintf(TEXT("%s %ld %s"),d.gettok( 1 ).to_chr(), id, d.gettok(3, -1).to_chr());
 
 				p_Control->parseCommandRequest(d2);
 			}
@@ -381,9 +365,9 @@ mIRC(xdid) {
 	//Single ID or single id-id
 	else {
 		UINT id_start = 0, id_end = 0;
-		if (IDs.numtok("-") == 2) {
-			id_start = IDs.gettok(1, "-").to_int();
-			id_end = IDs.gettok(2, "-").to_int();
+		if (IDs.numtok(TEXT("-")) == 2) {
+			id_start = IDs.gettok(1, TEXT("-")).to_int();
+			id_end = IDs.gettok(2, TEXT("-")).to_int();
 		}
 		else
 			id_start = id_end = IDs.to_int();
@@ -392,7 +376,7 @@ mIRC(xdid) {
 			p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 			if (p_Control == NULL) {
-				p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), "(xdid) Invalid ID : %ld (dialog : %s)", id, d.gettok( 1 ).to_chr());
+				p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), TEXT("(xdid) Invalid ID : %ld (dialog : %s)"), id, d.gettok( 1 ).to_chr());
 				return 0;
 			}
 
@@ -417,21 +401,21 @@ mIRC(_xdid) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 3) {
-		Dcx::error("$!xdid()","Invalid arguments");
+		Dcx::error(TEXT("$!xdid()"),TEXT("Invalid arguments"));
 		return 0;
 	}
 
 	DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(d.gettok( 1 ));
 
 	if (p_Dialog == NULL) {
-		Dcx::errorex("$!xdid()", "Unknown dialog \"%s\": see Mark command", d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("$!xdid()"), TEXT("Unknown dialog \"%s\": see Mark command"), d.gettok(1).to_chr());
 		return 0;
 	}
 
 	DcxControl * p_Control = p_Dialog->getControlByID((UINT) d.gettok( 2 ).to_int() + mIRC_ID_OFFSET);
 
 	if (p_Control == NULL) {
-		p_Dialog->showErrorEx(d.gettok( 3 ).to_chr(), NULL, "Invalid ID : %s (dialog %s)", d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
+		p_Dialog->showErrorEx(d.gettok( 3 ).to_chr(), NULL, TEXT("Invalid ID : %s (dialog %s)"), d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
 		return 0;
 	}
 
@@ -447,17 +431,17 @@ mIRC(_xdid) {
 *
 */
 mIRC(GetTaskbarPos) {
-	HWND hTaskbar = FindWindow("Shell_TrayWnd", NULL);
+	HWND hTaskbar = FindWindow(TEXT("Shell_TrayWnd"), NULL);
 
 	if (hTaskbar) {
 		RECT rc;
 
 		GetWindowRect(hTaskbar, &rc);
-		wsprintf(data, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		wsprintf(data, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 		return 3;
 	}
 
-	ret("D_ERROR GetTaskbarPos: could not find taskbar");
+	ret(TEXT("D_ERROR GetTaskbarPos: could not find taskbar"));
 }
 
 
@@ -475,14 +459,14 @@ mIRC(xdialog) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 2) {
-		Dcx::errorex("/xdialog", "Invalid arguments ( dialog %s)", d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("/xdialog"), TEXT("Invalid arguments ( dialog %s)"), d.gettok(1).to_chr());
 		return 0;
 	}
 
 	DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(d.gettok( 1 ));
 
 	if (p_Dialog == NULL) {
-		Dcx::errorex("/xdialog", "Unknown dialog \"%s\": see Mark command", d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("/xdialog"), TEXT("Unknown dialog \"%s\": see Mark command"), d.gettok(1).to_chr());
 		return 0;
 	}
 
@@ -505,19 +489,19 @@ mIRC(_xdialog) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 2) {
-		Dcx::errorex("$!xdialog()", "Invalid arguments ( dialog %s)", d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("$!xdialog()"), TEXT("Invalid arguments ( dialog %s)"), d.gettok(1).to_chr());
 		return 0;
 	}
 
 	DcxDialog *p_Dialog = Dcx::Dialogs.getDialogByName(d.gettok( 1 ));
 
 	if (p_Dialog == NULL) {
-		if (d.gettok( 2 ) != "ismarked") {
-			Dcx::errorex("$!xdialog()", "Unknown dialog \"%s\": see Mark command", d.gettok(1).to_chr());
+		if (d.gettok( 2 ) != TEXT("ismarked")) {
+			Dcx::errorex(TEXT("$!xdialog()"), TEXT("Unknown dialog \"%s\": see Mark command"), d.gettok(1).to_chr());
 			return 0;
 		}
 		else
-			ret("$false");
+			ret(TEXT("$false"));
 	}
 
 	p_Dialog->parseInfoRequest(d, data);
@@ -540,19 +524,19 @@ mIRC(xpop) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 3) {
-		Dcx::error("/xpop","Invalid arguments");
+		Dcx::error(TEXT("/xpop"),TEXT("Invalid arguments"));
 		return 0;
 	}
 
-	if ((d.gettok(1) == "mirc") || (d.gettok(1) == "mircbar")) {
-		Dcx::error("/xpop","Invalid menu name : mirc or mircbar menus don't have access to this feature.");
+	if ((d.gettok(1) == TEXT("mirc")) || (d.gettok(1) == TEXT("mircbar"))) {
+		Dcx::error(TEXT("/xpop"),TEXT("Invalid menu name : mirc or mircbar menus don't have access to this feature."));
 		return 0;
 	}
 
 	XPopupMenu *p_Menu = Dcx::XPopups.getMenuByName(d.gettok(1), FALSE);
 
 	if (p_Menu == NULL) {
-		Dcx::errorex("/xpop", "Unknown menu \"%s\": see /xpopup -c command", d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("/xpop"), TEXT("Unknown menu \"%s\": see /xpopup -c command"), d.gettok(1).to_chr());
 		return 0;
 	}
 
@@ -574,19 +558,19 @@ mIRC(_xpop) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 3) {
-		Dcx::error("$!xpop()","Invalid arguments");
+		Dcx::error(TEXT("$!xpop()"),TEXT("Invalid arguments"));
 		return 0;
 	}
 
-	if ((d.gettok( 1 ) == "mirc") || (d.gettok( 1 ) == "mircbar")) {
-		Dcx::error("$!xpop()","Invalid menu name : mirc or mircbar menus don't have access to this feature.");
+	if ((d.gettok( 1 ) == TEXT("mirc")) || (d.gettok( 1 ) == TEXT("mircbar"))) {
+		Dcx::error(TEXT("$!xpop()"),TEXT("Invalid menu name : mirc or mircbar menus don't have access to this feature."));
 		return 0;
 	}
 
 	XPopupMenu *p_Menu = Dcx::XPopups.getMenuByName(d.gettok(1), FALSE);
 
 	if (p_Menu == NULL) {
-		Dcx::errorex("$!xpop()", "Unknown menu \"%s\": see /xpopup -c command", d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("$!xpop()"), TEXT("Unknown menu \"%s\": see /xpopup -c command"), d.gettok(1).to_chr());
 		return 0;
 	}
 
@@ -608,7 +592,7 @@ mIRC(xpopup) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 2) {
-		Dcx::error("/xpopup","Invalid arguments");
+		Dcx::error(TEXT("/xpopup"),TEXT("Invalid arguments"));
 		return 0;
 	}
 
@@ -630,7 +614,7 @@ mIRC(_xpopup) {
 	data[0] = 0;
 
 	if (d.numtok( ) < 2) {
-		Dcx::error("$!xpopup()","Invalid arguments");
+		Dcx::error(TEXT("$!xpopup()"),TEXT("Invalid arguments"));
 		return 0;
 	}
 
@@ -693,7 +677,7 @@ mIRC(xSignal) {
 		flags = d.gettok(2);
 	// if no flags specified, set all states
 	else
-		flags = "+dst";
+		flags = TEXT("+dst");
 
 	// determine state
 	if (d.to_num() > 0)
@@ -701,23 +685,23 @@ mIRC(xSignal) {
 	else
 		state = false;
 
-	// start from 1 because we expect it to be the '+' symbol
+	// start from 1 because we expect it to be the TEXT('+') symbol
 	for (int i = 1; i < (int) flags.len(); i++) {
 		switch (flags[i]){
-			case 'd':
+			case TEXT('d'):
 				dcxSignal.xdock = state;
 				break;
 
-			case 's':
+			case TEXT('s'):
 				dcxSignal.xstatusbar = state;
 				break;
 
-			case 't':
+			case TEXT('t'):
 				dcxSignal.xtray = state;
 				break;
 
 			default:
-				Dcx::errorex("/dcx xSignal", "Unknown flag '%c' specified.", flags[i]);
+				Dcx::errorex(TEXT("/dcx xSignal"), TEXT("Unknown flag TEXT('%c') specified."), flags[i]);
 		}
 	}
 
@@ -731,43 +715,43 @@ mIRC(WindowProps) {
 	int numtok = input.numtok( );
 
 	if (numtok < 2) {
-		Dcx::error("/dcx WindowProps", "Insuffient parameters");
+		Dcx::error(TEXT("/dcx WindowProps"), TEXT("Insuffient parameters"));
 		return 0;
 	}
 
 	HWND hwnd = (HWND) input.gettok(1).to_int();
 
 	if (!IsWindow(hwnd)) {
-		Dcx::error("/dcx WindowProps", "Invalid window");
+		Dcx::error(TEXT("/dcx WindowProps"), TEXT("Invalid window"));
 		return 0;
 	}
 
 	TString flags(input.gettok( 2 ).trim());
 
-	if ((flags[0] != '+') || (flags.len() < 2)) {
-		Dcx::error("/dcx WindowProps","No Flags Found");
+	if ((flags[0] != TEXT('+')) || (flags.len() < 2)) {
+		Dcx::error(TEXT("/dcx WindowProps"),TEXT("No Flags Found"));
 		return 0;
 	}
 
-	if ((flags.find('T', 0) == 0) && (flags.find('i', 0) == 0) && (flags.find('t', 0) == 0) && (flags.find('r', 0) == 0)) {
-		Dcx::error("/dcx WindowProps","Unknown Flags");
+	if ((flags.find(TEXT('T'), 0) == 0) && (flags.find(TEXT('i'), 0) == 0) && (flags.find(TEXT('t'), 0) == 0) && (flags.find(TEXT('r'), 0) == 0)) {
+		Dcx::error(TEXT("/dcx WindowProps"),TEXT("Unknown Flags"));
 		return 0;
 	}
 
 	// set hwnd NoTheme
 	// +T
-	if (flags.find('T', 0)) {
+	if (flags.find(TEXT('T'), 0)) {
 		if (Dcx::XPPlusModule.isUseable()) {
-			if (Dcx::XPPlusModule.dcxSetWindowTheme(hwnd,L" ",L" ") != S_OK)
-				Dcx::error("/dcx WindowProps", "Unable to set theme");
+			if (Dcx::XPPlusModule.dcxSetWindowTheme(hwnd,TEXT(" "),TEXT(" ")) != S_OK)
+				Dcx::error(TEXT("/dcx WindowProps"), TEXT("Unable to set theme"));
 		}
 	}
 	// set hwnd's title icon
 	// +i [INDEX] [FILENAME]
-	if (flags.find('i', 0)) {
+	if (flags.find(TEXT('i'), 0)) {
 		if (numtok < 3) {
 			// invalid args
-			Dcx::error("/dcx WindowProps", "Invalid Args");
+			Dcx::error(TEXT("/dcx WindowProps"), TEXT("Invalid Args"));
 			return 0;
 		}
 		int index = input.gettok( 3 ).to_int();
@@ -778,10 +762,10 @@ mIRC(WindowProps) {
 	}
 	// set hwnd title text
 	// +t [TEXT]
-	if (flags.find('t', 0)) { 
+	if (flags.find(TEXT('t'), 0)) { 
 		TString txt;
 		
-		if (flags.find('i', 0)) {
+		if (flags.find(TEXT('i'), 0)) {
 			if (input.numtok(TSTAB) > 1)
 				txt = input.gettok(2,-1,TSTAB);
 		}
@@ -793,7 +777,7 @@ mIRC(WindowProps) {
 	}
 	// RMB click hwnd at pos.
 	// +r [X] [Y]
-	if (flags.find('r', 0)) {
+	if (flags.find(TEXT('r'), 0)) {
 		UINT x = (UINT)input.gettok( 3 ).to_num();
 		UINT y = (UINT)input.gettok( 4 ).to_num();
 		LPARAM parm = MAKELONG(x,y);
@@ -806,13 +790,6 @@ mIRC(WindowProps) {
 
 // $dcx(ActiveWindow, property)
 mIRC(ActiveWindow) {
-#if !DCX_FOR_XP_ONLY
-	if (GetWindowInfoUx == NULL) {
-		Dcx::error("$!dcx(ActiveWindow)", "Function Unsupported By Current OS");
-		return 0;
-	}
-#endif
-
 	TString input(data);
 	input.trim();
 
@@ -821,14 +798,14 @@ mIRC(ActiveWindow) {
 	int numtok = input.numtok();
 
 	if (numtok < 1) {
-		Dcx::error("$!dcx(ActiveWindow)", "Insufficient parameters");
+		Dcx::error(TEXT("$!dcx(ActiveWindow)"), TEXT("Insufficient parameters"));
 		return 0;
 	}
 
 	HWND hwnd = GetForegroundWindow();
 
 	if (!IsWindow(hwnd)) {
-		Dcx::error("$!dcx(ActiveWindow)", "Unable to determine active window");
+		Dcx::error(TEXT("$!dcx(ActiveWindow)"), TEXT("Unable to determine active window"));
 		return 0;
 	}
 
@@ -836,26 +813,22 @@ mIRC(ActiveWindow) {
 	WINDOWINFO wi;
 
 	ZeroMemory(&wi, sizeof(WINDOWINFO));
-#if DCX_FOR_XP_ONLY
 	GetWindowInfo(hwnd, &wi);
-#else
-	GetWindowInfoUx(hwnd, &wi);
-#endif
 
-	if (prop == "hwnd")         // handle
-		wsprintf(data, "%d", hwnd);
-	else if (prop == "x")       // left
-		wsprintf(data, "%d", wi.rcWindow.left);
-	else if (prop == "y")       // top
-		wsprintf(data, "%d", wi.rcWindow.top);
-	else if (prop == "w")       // width
-		wsprintf(data, "%d", wi.rcWindow.right - wi.rcWindow.left);
-	else if (prop == "h")       // height
-		wsprintf(data, "%d", wi.rcWindow.bottom - wi.rcWindow.top);
-	else if (prop == "caption") // title text
+	if (prop == TEXT("hwnd"))         // handle
+		wsprintf(data, TEXT("%d"), hwnd);
+	else if (prop == TEXT("x"))       // left
+		wsprintf(data, TEXT("%d"), wi.rcWindow.left);
+	else if (prop == TEXT("y"))       // top
+		wsprintf(data, TEXT("%d"), wi.rcWindow.top);
+	else if (prop == TEXT("w"))       // width
+		wsprintf(data, TEXT("%d"), wi.rcWindow.right - wi.rcWindow.left);
+	else if (prop == TEXT("h"))       // height
+		wsprintf(data, TEXT("%d"), wi.rcWindow.bottom - wi.rcWindow.top);
+	else if (prop == TEXT("caption")) // title text
 		GetWindowText(hwnd, data, MIRC_BUFFER_SIZE_CCH);
 	else {                      // otherwise
-		Dcx::error("$!dcx(ActiveWindow)", "Invalid parameters");
+		Dcx::error(TEXT("$!dcx(ActiveWindow)"), TEXT("Invalid parameters"));
 		return 0;
 	}
 
@@ -866,9 +839,9 @@ mIRC(GhostDrag) {
 	TString input(data);
 	input.trim();
 
-	if (input == "")
+	if (input == TEXT(""))
 	{
-		Dcx::error("/dcx GhostDrag", "Invalid parameters");
+		Dcx::error(TEXT("/dcx GhostDrag"), TEXT("Invalid parameters"));
 		return 0;
 	}
 
@@ -877,7 +850,7 @@ mIRC(GhostDrag) {
 
 	if (!Dcx::setGhostDrag(alpha))
 	{
-		Dcx::error("/dcx GhostDrag", "Invalid alpha value");
+		Dcx::error(TEXT("/dcx GhostDrag"), TEXT("Invalid alpha value"));
 		return 0;
 	}
 

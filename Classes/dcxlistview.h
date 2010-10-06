@@ -114,7 +114,7 @@ public:
 	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-	void parseInfoRequest( TString & input, char * szReturnValue );
+	void parseInfoRequest( TString & input, TCHAR * szReturnValue );
 	void parseCommandRequest( TString & input );
 	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 	static void parseListviewExStyles( const TString & styles, LONG * ExStyles );
@@ -131,7 +131,7 @@ public:
 
 	static int CALLBACK sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
-	inline TString getType( ) { return TString( "listview" ); };
+	inline TString getType( ) { return TString( TEXT("listview") ); };
 
 	int getTopIndex( ) const;
 	int getBottomIndex( ) const;
@@ -165,7 +165,7 @@ private:
 	bool xmlLoadListview(const int nPos, const TString &dataset, TString &filename);
 	void xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi);
 	bool ctrlLoadListview(const int nPos, const TString &tsData);
-	bool xLoadListview(const int nPos, const TString &tsData, const char *sTest, const char *sCount, const char *sGet, const char *sGetNamed);
+	bool xLoadListview(const int nPos, const TString &tsData, const TCHAR *sTest, const TCHAR *sCount, const TCHAR *sGet, const TCHAR *sGetNamed);
 	void massSetItem(const int nPos, const TString &input);
 	static UINT parseMassItemFlags( const TString & flags );
 	static void parseText2Item(const TString & tsTxt, TString & tsItem, const TString &tsData);

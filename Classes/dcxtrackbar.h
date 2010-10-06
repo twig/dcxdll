@@ -46,7 +46,7 @@ public:
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
   LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
+  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 	static UINT parseImageFlags(const TString &flags);
@@ -71,7 +71,7 @@ public:
   LRESULT getSelStart( ) const;
   LRESULT getSelEnd( ) const;
 
-  inline TString getType( ) { return TString( "trackbar" ); };
+  inline TString getType( ) { return TString( TEXT("trackbar") ); };
 
 protected:
 	HBITMAP m_hbmp[4]; // refer to TBBMP_*

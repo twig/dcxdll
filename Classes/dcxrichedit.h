@@ -46,7 +46,7 @@ public:
 
 	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 
-	void parseInfoRequest(TString &input, char *szReturnValue);
+	void parseInfoRequest(TString &input, TCHAR *szReturnValue);
 	void parseCommandRequest(TString &input);
 	void parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme);
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
@@ -56,7 +56,7 @@ public:
 	void setContentsFont();
 	void clearContents();
 	void parseContents(const BOOL fNewLine);
-	void insertText(char *text, bool bline, bool uline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse);
+	void insertText(TCHAR *text, bool bline, bool uline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse);
 
 	LRESULT setAutoUrlDetect(const BOOL iEnable);
 	LRESULT hideSelection(const BOOL iHide);
@@ -70,7 +70,7 @@ public:
 	//LRESULT getLineLength();
 	//LRESULT getLineIndex();
 
-	inline TString getType() { return TString("richedit"); };
+	inline TString getType() { return TString(TEXT("richedit")); };
 
 protected:
 	TString m_tsText; //!< RichEdit Text contents
@@ -88,7 +88,7 @@ protected:
 	BOOL m_bIgnoreInput;
 	BOOL m_bIgnoreRepeat;
 
-	static int unfoldColor(const char *color);
+	static int unfoldColor(const TCHAR *color);
 };
 
 #endif // _DCXRICHEDIT_H_

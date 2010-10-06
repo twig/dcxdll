@@ -66,7 +66,7 @@ BOOL LayoutManager::updateLayout( RECT & rc ) {
 
 #if DCX_DEBUG_OUTPUT
 	if (hdwp == NULL) {
-		Dcx::debug("updateLayout()","DeferWindowPos() failed");
+		Dcx::debug(TEXT("updateLayout()"),TEXT("DeferWindowPos() failed"));
 		return FALSE;
 	}
 #endif

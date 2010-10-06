@@ -49,24 +49,24 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd,
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-	this->m_tsText = "%d %%";
+	this->m_tsText = TEXT("%d %%");
 
-	if (styles.istok("tooltips")) {
+	if (styles.istok(TEXT("tooltips"))) {
 		if (IsWindow(p_Dialog->getToolTip())) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 		else
-			this->showError(NULL,"-c","Unable to Initialize Tooltips");
+			this->showError(NULL,TEXT("-c"),TEXT("Unable to Initialize Tooltips"));
 	}
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -85,13 +85,13 @@ TString DcxProgressBar::getStyles(void) {
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & PBS_SMOOTH)
-		styles.addtok("smooth", " ");
+		styles.addtok(TEXT("smooth"));
 	if (Styles & PBS_VERTICAL)
-		styles.addtok("vertical", " ");
+		styles.addtok(TEXT("vertical"));
 	if (Styles & PBS_MARQUEE)
-		styles.addtok("marquee", " ");
+		styles.addtok(TEXT("marquee"));
 	if (this->m_bIsGrad)
-		styles.addtok("gradient", " ");
+		styles.addtok(TEXT("gradient"));
 	return styles;
 }
 
@@ -108,13 +108,13 @@ void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG *
 
 	while ( i <= numtok ) {
 
-		if ( styles.gettok( i ) == "smooth" ) 
+		if ( styles.gettok( i ) == TEXT("smooth") ) 
 			*Styles |= PBS_SMOOTH;
-		else if ( styles.gettok( i ) == "vertical" ) 
+		else if ( styles.gettok( i ) == TEXT("vertical") ) 
 			*Styles |= PBS_VERTICAL;
-		else if ( styles.gettok( i ) == "marquee" ) 
+		else if ( styles.gettok( i ) == TEXT("marquee") ) 
 			*Styles |= PBS_MARQUEE;
-		else if ( styles.gettok( i ) == "gradient" ) {
+		else if ( styles.gettok( i ) == TEXT("gradient") ) {
 			*Styles |= PBS_SMOOTH;
 			this->m_bIsGrad = TRUE;
 		}
@@ -133,22 +133,26 @@ void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG *
  * \return > void
  */
 
-void DcxProgressBar::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxProgressBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 	TString prop(input.gettok( 3 ));
 
-  if ( prop == "value" ) {
-    wsprintf( szReturnValue, "%d", this->getPosition( ) );
+  if ( prop == TEXT("value") ) {
+    wsprintf( szReturnValue, TEXT("%d"), this->getPosition( ) );
     return;
   }
-  else if ( prop == "range" ) {
+  else if ( prop == TEXT("range") ) {
     PBRANGE pbr;
     this->getRange( FALSE, &pbr );
-    wsprintf( szReturnValue, "%d %d", pbr.iLow, pbr.iHigh );
+    wsprintf( szReturnValue, TEXT("%d %d"), pbr.iLow, pbr.iHigh );
     return;
   }
-  else if (prop == "text") {
+  else if (prop == TEXT("text")) {
+#if UNICODE
+	  _snwprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, this->m_tsText.to_chr(), this->CalculatePosition());
+#else
 	  _snprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, this->m_tsText.to_chr(), this->CalculatePosition());
+#endif
 	  return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
@@ -167,25 +171,25 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 	int numtok = input.numtok();
 
 	// xdid -c name ID $rgb(color)
-	if (flags['c']) {
+	if (flags[TEXT('c')]) {
 		this->setBarColor((COLORREF) input.gettok( 4 ).to_num());
 	}
 	//// xdid -g name ID [1|0]
-	//else if ( flags['g'] ) {
+	//else if ( flags[TEXT('g')] ) {
 	//this->m_bIsGrad = (BOOL) input.gettok( 4 ).to_num( );
 	//}
 	// xdid -i name ID (TEXT)
-	else if (flags['i']) {
+	else if (flags[TEXT('i')]) {
 		if (input.numtok( ) > 3)
 			this->m_tsText = input.gettok(4, -1);
 		else
-			this->m_tsText = "";
+			this->m_tsText = TEXT("");
 
 		this->redrawWindow();
 	}
 	// xdid -j name ID [a|p]
-	else if (flags['j']) {
-		if (input.gettok( 4 ) == "a")
+	else if (flags[TEXT('j')]) {
+		if (input.gettok( 4 ) == TEXT('a'))
 			this->m_bIsAbsoluteValue = TRUE;
 		else
 			this->m_bIsAbsoluteValue = FALSE;
@@ -193,44 +197,44 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 		this->redrawWindow();
 	}
 	// xdid -k name ID $rgb(color)
-	else if (flags['k']) {
+	else if (flags[TEXT('k')]) {
 		this->setBKColor((COLORREF) input.gettok( 4 ).to_num());
 	}
 	// xdid -m(o|g) name ID N
-	else if (flags['m']) {
+	else if (flags[TEXT('m')]) {
 		// -mo
-		if (flags['o'])
+		if (flags[TEXT('o')])
 			this->setMarquee(TRUE, (int)input.gettok( 4 ).to_num());
 		// -mg
-		else if (flags['g'])
+		else if (flags[TEXT('g')])
 			this->setMarquee(FALSE, 0);
 	}
 	// xdid -q name ID [COLOR]
-	else if ( flags['q'] ) {
+	else if ( flags[TEXT('q')] ) {
 		this->m_clrText = (COLORREF) input.gettok( 4 ).to_num();
 		this->redrawWindow();
 	}
 	// xdid -r name ID RLow RHigh
-	else if (flags['r']) {
+	else if (flags[TEXT('r')]) {
 		if (numtok > 4)
 			this->setRange(input.gettok( 4 ).to_int(), input.gettok( 5 ).to_int());
 	}
 	// xdid -t name ID
-	else if (flags['t']) {
+	else if (flags[TEXT('t')]) {
 		this->stepIt();
 	}
 	// xdid -u name ID N
-	else if (flags['u']) {
+	else if (flags[TEXT('u')]) {
 		this->setStep(input.gettok( 4 ).to_int());
 	}
 	// xdid -v name ID N
-	else if (flags['v']) {
+	else if (flags[TEXT('v')]) {
 		if (numtok > 3)
 			this->setPosition(input.gettok( 4 ).to_int());
 	}
 	// xdid [-o] [NAME] [ID] [ENABLED]
 	// vertical fonts [1|0]
-	else if (flags['o']) {
+	else if (flags[TEXT('o')]) {
 		if (numtok < 4)
 			return;
 
@@ -417,7 +421,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 					int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-					this->execAliasEx("%s,%d,%d,%d,%d,%d", "sclick", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
+					this->execAliasEx(TEXT("%s,%d,%d,%d,%d,%d"), TEXT("sclick"), this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 				}
 			}
 			break;
@@ -434,7 +438,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 					int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-					this->execAliasEx("%s,%d,%d,%d,%d,%d", "rclick", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
+					this->execAliasEx(TEXT("%s,%d,%d,%d,%d,%d"), TEXT("rclick"), this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 				}
 			}
 			break;
@@ -455,7 +459,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 						int nPos = iLower + (int)( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
-						this->execAliasEx("%s,%d,%d,%d,%d, %d", "mousebar", this->getUserID(), nPos, iLower, iHigher, this->getPosition());
+						this->execAliasEx(TEXT("%s,%d,%d,%d,%d, %d"), TEXT("mousebar"), this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 					}
 				}
 			}
@@ -550,7 +554,11 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		// rect for text
 		RECT rcText = rc;
+#if UNICODE
+		DrawText(hdc, text.to_chr(), text.len(), &rcText, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
+#else
 		DrawTextW(hdc, text.to_wchr(this->m_bUseUTF8), text.wlen(), &rcText, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
+#endif
 
 		int w = rcText.right - rcText.left;
 		int h = rcText.bottom - rcText.top;

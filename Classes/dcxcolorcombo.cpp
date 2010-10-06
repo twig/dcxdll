@@ -48,13 +48,13 @@ DcxColorCombo::DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -82,7 +82,7 @@ void DcxColorCombo::parseControlStyles(TString &styles, LONG *Styles, LONG *ExSt
 
 	//while ( i <= numtok ) {
 
-	//	if ( styles.gettok( i ) == "nominsize" )
+	//	if ( styles.gettok( i ) == TEXT("nominsize") )
 	//		*Styles |= CBS_NOINTEGRALHEIGHT;
 
 	//	i++;
@@ -100,20 +100,20 @@ void DcxColorCombo::parseControlStyles(TString &styles, LONG *Styles, LONG *ExSt
  * \return > void
  */
 
-void DcxColorCombo::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxColorCombo::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
   int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
    // [NAME] [ID] [PROP]
-  if ( prop == "num" ) {
+  if ( prop == TEXT("num") ) {
 
-    wsprintf( szReturnValue, "%d", this->getCount( ) );
+    wsprintf( szReturnValue, TEXT("%d"), this->getCount( ) );
     return;
   }
    // [NAME] [ID] [PROP] [N]
-  else if ( prop == "color" && numtok > 3 ) {
+  else if ( prop == TEXT("color") && numtok > 3 ) {
 
     int nItem = input.gettok( 4 ).to_int( ) - 1;
 
@@ -123,18 +123,18 @@ void DcxColorCombo::parseInfoRequest( TString & input, char * szReturnValue ) {
 
       if ( lpdcxcci != NULL ) {
 
-        wsprintf( szReturnValue, "%d", lpdcxcci->clrItem );
+        wsprintf( szReturnValue, TEXT("%d"), lpdcxcci->clrItem );
         return;
       }
     }
   }
    // [NAME] [ID] [PROP]
-  else if ( prop == "sel" ) {
+  else if ( prop == TEXT("sel") ) {
 
     int nItem;
     if ( ( nItem = (int)this->getCurSel( ) ) != CB_ERR ) {
 
-      wsprintf( szReturnValue, "%d", nItem + 1 );
+      wsprintf( szReturnValue, TEXT("%d"), nItem + 1 );
       return;
     }
   }
@@ -154,12 +154,12 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags['r']) {
+	if (flags[TEXT('r')]) {
 		this->resetContent();
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [RGB]
-	if (flags['a'] && numtok > 4) {
+	if (flags[TEXT('a')] && numtok > 4) {
 		int nItem = input.gettok(4).to_int() -1;
 		COLORREF clrItem = (COLORREF)input.gettok( 5 ).to_num();
 
@@ -175,14 +175,14 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
-	else if (flags['c'] && numtok > 3) {
+	else if (flags[TEXT('c')] && numtok > 3) {
 		int nItem = input.gettok(4).to_int() -1;
 
 		if ((nItem > -2) && (nItem < this->getCount()))
 			this->setCurSel(nItem);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags['d'] && numtok > 3) {
+	else if (flags[TEXT('d')] && numtok > 3) {
 		int nItem = (int)input.gettok( 4 ).to_num() -1;
 
 		if (nItem > -1 && nItem < this->getCount()) {
@@ -190,11 +190,11 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -m [NAME] [ID] [SWITCH]
-	else if (flags['m']) {
+	else if (flags[TEXT('m')]) {
 		this->setmIRCPalette();
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [RGB]
-	else if (flags['o'] && numtok > 4) {
+	else if (flags[TEXT('o')] && numtok > 4) {
 		int nItem = input.gettok( 4 ).to_int() -1;
 		COLORREF clrItem = (COLORREF)input.gettok( 5 ).to_num();
 
@@ -207,7 +207,7 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags['r']) {
+	else if (flags[TEXT('r')]) {
 		//this->resetContent();
 	}
 	else
@@ -222,7 +222,7 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 
 void DcxColorCombo::setmIRCPalette( ) {
 
-	static const char com[] = "$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)";
+	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
 	TString cols;
 	Dcx::mIRC.tsEval( cols, com );
 
@@ -325,7 +325,7 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
           case CBN_SELENDOK:
             {
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				        this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
+				        this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), this->getCurSel( ) + 1 );
               bParsed = TRUE;
               return 0L;
             }
@@ -361,7 +361,7 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
             /*
             if ( lpdis->itemState & ODS_SELECTED ) {
               hPen = CreatePen( PS_SOLID, 2, RGB(0,0,0) );
-              mIRCError( "ODS_SELECTED" );
+              mIRCError( TEXT("ODS_SELECTED") );
             }
             else
               */
@@ -378,13 +378,13 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 							SetBkColor(lpdis->hDC, GetSysColor(COLOR_MENUHILIGHT));
 						else
 							SetBkColor(lpdis->hDC, GetSysColor(COLOR_WINDOW));
-            ExtTextOut( lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, "", NULL, NULL );
+            ExtTextOut( lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, NULL );
 
             InflateRect( &rcItem, -4, -2 );
 
 						SetBkColor( lpdis->hDC, lpdcxcci->clrItem );
 
-            ExtTextOut( lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, "", NULL, NULL );
+            ExtTextOut( lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, NULL );
 
             MoveToEx( lpdis->hDC, rcItem.left, rcItem.top, NULL );
             LineTo( lpdis->hDC, rcItem.right, rcItem.top );
@@ -427,7 +427,7 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
     case WM_LBUTTONUP:
       {
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	        this->execAliasEx("%s,%d", "lbup", this->getUserID( ) );
+	        this->execAliasEx(TEXT("%s,%d"), TEXT("lbup"), this->getUserID( ) );
       }
       break;
     case WM_DESTROY:

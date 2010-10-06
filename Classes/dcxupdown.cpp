@@ -44,22 +44,22 @@ DcxUpDown::DcxUpDown( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-	if (styles.istok("tooltips")) {
+	if (styles.istok(TEXT("tooltips"))) {
 		if (IsWindow(p_Dialog->getToolTip())) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 		else
-			this->showError(NULL,"-c","Unable to Initialize Tooltips");
+			this->showError(NULL,TEXT("-c"),TEXT("Unable to Initialize Tooltips"));
 	}
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -86,21 +86,21 @@ void DcxUpDown::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "left" ) {
+    if ( styles.gettok( i ) == TEXT("left") ) {
       *Styles &= ~UDS_ALIGNRIGHT;
       *Styles |= UDS_ALIGNLEFT;
     }
-    else if ( styles.gettok( i ) == "arrowkeys" )
+    else if ( styles.gettok( i ) == TEXT("arrowkeys") )
       *Styles |= UDS_ARROWKEYS;
-    else if ( styles.gettok( i ) == "horz" )
+    else if ( styles.gettok( i ) == TEXT("horz") )
       *Styles |= UDS_HORZ;
-    else if ( styles.gettok( i ) == "hottrack" )
+    else if ( styles.gettok( i ) == TEXT("hottrack") )
       *Styles |= UDS_HOTTRACK;
-    else if ( styles.gettok( i ) == "nothousands" )
+    else if ( styles.gettok( i ) == TEXT("nothousands") )
       *Styles |= UDS_NOTHOUSANDS;
-    else if ( styles.gettok( i ) == "buddyint" )
+    else if ( styles.gettok( i ) == TEXT("buddyint") )
       *Styles |= UDS_SETBUDDYINT;
-    else if ( styles.gettok( i ) == "wrap" )
+    else if ( styles.gettok( i ) == TEXT("wrap") )
       *Styles |= UDS_WRAP;
 
     i++;
@@ -117,24 +117,24 @@ void DcxUpDown::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
  * \return > void
  */
 
-void DcxUpDown::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxUpDown::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 
 //  int numtok = input.numtok( );
 	TString prop(input.gettok( 3 ));
 
   // [NAME] [ID] [PROP]
-  if ( prop == "value" ) {
+  if ( prop == TEXT("value") ) {
 
     BOOL bError;
-    wsprintf( szReturnValue, "%d", this->getPos32( &bError ) );
+    wsprintf( szReturnValue, TEXT("%d"), this->getPos32( &bError ) );
     return;
   }
   // [NAME] [ID] [PROP]
-  else if ( prop == "range" ) {
+  else if ( prop == TEXT("range") ) {
 
     int iMin, iMax;
     this->getRange32( &iMin, &iMax );
-    wsprintf( szReturnValue, "%d %d", iMin, iMax );
+    wsprintf( szReturnValue, TEXT("%d %d"), iMin, iMax );
     return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
@@ -154,24 +154,24 @@ void DcxUpDown::parseCommandRequest( TString & input ) {
 	int numtok = input.numtok( );
 
   // xdid -c [NAME] [ID] [SWITCH] [BUDDYID]
-  if ( flags['c'] && numtok > 3 ) {
+  if ( flags[TEXT('c')] && numtok > 3 ) {
     
     DcxControl * p_Control = this->m_pParentDialog->getControlByID( (UINT) input.gettok( 4 ).to_int( ) + mIRC_ID_OFFSET );
 
     if ( p_Control != NULL ) {
 
-      char ClassName[256];
+      TCHAR ClassName[256];
       GetClassName( p_Control->getHwnd( ), ClassName, 256 );
 
       // Text notifications
-      if ( lstrcmpi( "STATIC", ClassName ) == 0 || lstrcmpi( "EDIT", ClassName ) == 0 ) {
+      if ( lstrcmpi( TEXT("STATIC"), ClassName ) == 0 || lstrcmpi( TEXT("EDIT"), ClassName ) == 0 ) {
 
         this->setBuddy( p_Control->getHwnd( ) );
       }
     }
   }
   // xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-  else if ( flags['r'] && numtok > 4 ) {
+  else if ( flags[TEXT('r')] && numtok > 4 ) {
     
     int iMin = input.gettok( 4 ).to_int( );
     int iMax = input.gettok( 5 ).to_int( );
@@ -179,14 +179,14 @@ void DcxUpDown::parseCommandRequest( TString & input ) {
     this->setRange32( iMin, iMax );
   }
   // xdid -t [NAME] [ID] [SWITCH] [BASE]
-  else if ( flags['t'] && numtok > 3 ) {
+  else if ( flags[TEXT('t')] && numtok > 3 ) {
     
     int nBase = input.gettok( 4 ).to_int( );
 
     this->setBase( nBase );
   }
   // xdid -v [NAME] [ID] [SWITCH] [POS]
-  else if ( flags['v'] && numtok > 3 ) {
+  else if ( flags[TEXT('v')] && numtok > 3 ) {
     
     int nPos = input.gettok( 4 ).to_int( );
 
@@ -271,17 +271,17 @@ TString DcxUpDown::getStyles(void) {
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & UDS_ALIGNLEFT)
-		styles.addtok("left");
+		styles.addtok(TEXT("left"));
 	if (Styles & UDS_HORZ)
-		styles.addtok("horz");
+		styles.addtok(TEXT("horz"));
 	if (Styles & UDS_HOTTRACK)
-		styles.addtok("hottrack");
+		styles.addtok(TEXT("hottrack"));
 	if (Styles & UDS_NOTHOUSANDS)
-		styles.addtok("nothousands");
+		styles.addtok(TEXT("nothousands"));
 	if (Styles & UDS_SETBUDDYINT)
-		styles.addtok("buddyint");
+		styles.addtok(TEXT("buddyint"));
 	if (Styles & UDS_WRAP)
-		styles.addtok("wrap");
+		styles.addtok(TEXT("wrap"));
 	return styles;
 }
 
@@ -303,7 +303,7 @@ LRESULT DcxUpDown::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 			case UDN_DELTAPOS:
 				{
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
+						this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID( ) );
 					bParsed = TRUE;
 				}
 				break;

@@ -2,7 +2,7 @@
 www.sourceforge.net/projects/tinyxml
 Original file by Yves Berquin.
 
-This software is provided 'as-is', without any express or implied
+This software is provided TEXT('as-is'), without any express or implied
 warranty. In no event will the authors be held liable for any
 damages arising from the use of this software.
 
@@ -37,7 +37,7 @@ const TiXmlString::size_type TiXmlString::npos = static_cast< TiXmlString::size_
 
 
 // Null rep.
-TiXmlString::Rep TiXmlString::nullrep_ = { 0, 0, '\0' };
+TiXmlString::Rep TiXmlString::nullrep_ = { 0, 0, TEXT('\0') };
 
 
 void TiXmlString::reserve (size_type cap)

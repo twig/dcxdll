@@ -44,7 +44,7 @@ public:
 	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-	void parseInfoRequest( TString & input, char * szReturnValue );
+	void parseInfoRequest( TString & input, TCHAR * szReturnValue );
 	void parseCommandRequest( TString & input );
 	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
@@ -60,12 +60,12 @@ public:
 	LRESULT getParts( const int nParts, LPINT aWidths ) const;
 	LRESULT getBorders( LPINT aWidths ) const;
 	LRESULT setBkColor( const COLORREF clrBk );
-	LRESULT setText( const int iPart, const int Style, const LPSTR lpstr );
+	LRESULT setText( const int iPart, const int Style, const PTCHAR lpstr );
 	LRESULT setPartInfo( const int iPart, const int Style, const LPSB_PARTINFO pPart );
-	LRESULT getText( const int iPart, LPSTR lpstr ) const;
+	LRESULT getText( const int iPart, PTCHAR lpstr ) const;
 	LRESULT getTextLength( const int iPart ) const;
-	LRESULT setTipText( const int iPart, const LPSTR lpstr );
-	LRESULT getTipText( const int iPart, const int nSize, LPSTR lpstr ) const;
+	LRESULT setTipText( const int iPart, const PTCHAR lpstr );
+	LRESULT getTipText( const int iPart, const int nSize, PTCHAR lpstr ) const;
 	LRESULT getRect( const int iPart, LPRECT lprc ) const;
 	LRESULT setIcon( const int iPart, const HICON hIcon );
 	LRESULT getIcon( const int iPart ) const;
@@ -75,7 +75,7 @@ public:
 
 	void deletePartInfo(const int iPart);
 
-	inline TString getType( ) { return TString( "statusbar" ); };
+	inline TString getType( ) { return TString( TEXT("statusbar") ); };
 
 protected:
 

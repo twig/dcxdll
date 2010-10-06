@@ -54,7 +54,7 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	// remove all borders
 	this->removeStyle( WS_BORDER|WS_DLGFRAME );
@@ -67,12 +67,12 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 
 	if (this->m_iBoxStyles & BOXS_CHECK) {
 		this->m_TitleButton = CreateWindowEx(
 			ExStyles,
-			"BUTTON",
+			TEXT("BUTTON"),
 			NULL,
 			WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTOCHECKBOX,
 			CW_USEDEFAULT,CW_USEDEFAULT,11,10,
@@ -84,7 +84,7 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 	else if (this->m_iBoxStyles & BOXS_RADIO) {
 		this->m_TitleButton = CreateWindowEx(
 			ExStyles,
-			"BUTTON",
+			TEXT("BUTTON"),
 			NULL,
 			WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTORADIOBUTTON,
 			CW_USEDEFAULT,CW_USEDEFAULT,11,10,
@@ -131,25 +131,25 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 
 	while ( i <= numtok ) {
 
-		if (styles.gettok( i ) == "right")
+		if (styles.gettok( i ) == TEXT("right"))
 			this->m_iBoxStyles |= BOXS_RIGHT;
-		else if (styles.gettok( i ) == "center")
+		else if (styles.gettok( i ) == TEXT("center"))
 			this->m_iBoxStyles |= BOXS_CENTER;
-		else if (styles.gettok( i ) == "bottom")
+		else if (styles.gettok( i ) == TEXT("bottom"))
 			this->m_iBoxStyles |= BOXS_BOTTOM;
-		else if (styles.gettok( i ) == "none")
+		else if (styles.gettok( i ) == TEXT("none"))
 			this->m_iBoxStyles |= BOXS_NONE;
-		else if (styles.gettok( i ) == "rounded")
+		else if (styles.gettok( i ) == TEXT("rounded"))
 			this->m_iBoxStyles |= BOXS_ROUNDED;
-		else if (styles.gettok( i ) == "check") {
+		else if (styles.gettok( i ) == TEXT("check")) {
 			this->m_iBoxStyles &= ~BOXS_RADIO;
 			this->m_iBoxStyles |= BOXS_CHECK;
 		}
-		else if (styles.gettok( i ) == "radio") {
+		else if (styles.gettok( i ) == TEXT("radio")) {
 			this->m_iBoxStyles &= ~BOXS_CHECK;
 			this->m_iBoxStyles |= BOXS_RADIO;
 		}
-		else if (styles.gettok( i ) == "transparent")
+		else if (styles.gettok( i ) == TEXT("transparent"))
 			*ExStyles |= WS_EX_TRANSPARENT;
 
 		i++;
@@ -167,19 +167,19 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
  * \return > void
  */
 
-void DcxBox::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxBox::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 //  int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
   // [NAME] [ID] [PROP]
-  if ( prop == "text" ) {
+  if ( prop == TEXT("text") ) {
 
     GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
     return;
   }
-  else if ( prop == "inbox" ) {
+  else if ( prop == TEXT("inbox") ) {
 
 	  RECT rc, rcText;
 	  GetClientRect( this->m_Hwnd, &rc );
@@ -215,7 +215,7 @@ void DcxBox::parseInfoRequest( TString & input, char * szReturnValue ) {
 		  }
 	  }
 
-	  wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top );
+	  wsprintf( szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top );
 	  return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
@@ -236,7 +236,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
 	int numtok = input.numtok( );
 
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	if ( flags['c'] && numtok > 8 ) {
+	if ( flags[TEXT('c')] && numtok > 8 ) {
 
 		UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
 
@@ -252,15 +252,15 @@ void DcxBox::parseCommandRequest( TString & input ) {
 					this->redrawWindow( );
 				}
 			}
-			catch ( char *err ) {
-				this->showErrorEx(NULL, "-c", "Unable To Create Control %d (%s)", ID - mIRC_ID_OFFSET, err);
+			catch ( TCHAR *err ) {
+				this->showErrorEx(NULL, TEXT("-c"), TEXT("Unable To Create Control %d (%s)"), ID - mIRC_ID_OFFSET, err);
 			}
 		}
 		else
-			this->showErrorEx(NULL,"-c", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+			this->showErrorEx(NULL,TEXT("-c"), TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET );
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
-	else if ( flags['d'] && numtok > 3 ) {
+	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
 		UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
 		DcxControl * p_Control;
@@ -270,17 +270,17 @@ void DcxBox::parseCommandRequest( TString & input ) {
 		{
 
 			HWND cHwnd = p_Control->getHwnd( );
-			if ( p_Control->getType( ) == "dialog" || p_Control->getType( ) == "window" )
+			if ( p_Control->getType( ) == TEXT("dialog") || p_Control->getType( ) == TEXT("window") )
 				delete p_Control;
 			else if ( p_Control->getRefCount( ) == 0 ) {
 				this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
 				DestroyWindow( cHwnd );
 			}
 			else
-				this->showErrorEx(NULL,"-d", "Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
+				this->showErrorEx(NULL,TEXT("-d"), TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
 		}
 		else
-			this->showErrorEx(NULL,"-d", "Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
+			this->showErrorEx(NULL,TEXT("-d"), TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
 	}
 	/*
 	//xdid -l [NAME] [ID] [SWITCH] [OPTIONS]
@@ -291,9 +291,9 @@ void DcxBox::parseCommandRequest( TString & input ) {
 	add PATH[TAB]+flpiw [ID] [WEIGHT] [W] [H]
 	space PATH[TAB]+ [L] [T] [R] [B]
 	*/
-	else if ( flags['l'] && numtok > 3 ) {
+	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
-		if ( input.gettok( 4 ) == "update" ) {
+		if ( input.gettok( 4 ) == TEXT("update") ) {
 			if ( this->m_pLayoutManager != NULL ) {
 				RECT rc;
 				GetClientRect( this->m_Hwnd, &rc );
@@ -301,7 +301,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
 				this->redrawWindow();
 			}
 		}
-		else if (input.gettok( 4 ) == "clear") {
+		else if (input.gettok( 4 ) == TEXT("clear")) {
 			if (this->m_pLayoutManager != NULL)
 				delete this->m_pLayoutManager;
 			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
@@ -319,7 +319,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
 			UINT W = p2.gettok( 4 ).to_int( );
 			UINT H = p2.gettok( 5 ).to_int( );
 
-			if ( com ==  "root" || com == "cell" ) {
+			if ( com ==  TEXT("root") || com == TEXT("cell") ) {
 
 				HWND cHwnd = GetDlgItem( this->m_Hwnd, mIRC_ID_OFFSET + ID );
 
@@ -339,7 +339,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
 						if ( cHwnd != NULL && IsWindow( cHwnd ) )
 							p_Cell = new LayoutCellFill( cHwnd );
 						else {
-							this->showErrorEx(NULL,"-l", "Cell Fill -> Invalid ID : %d", ID );
+							this->showErrorEx(NULL,TEXT("-l"), TEXT("Cell Fill -> Invalid ID : %d"), ID );
 							return;
 						}
 					}
@@ -370,7 +370,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
 							if ( cHwnd != NULL && IsWindow( cHwnd ) )
 								p_Cell = new LayoutCellFixed( cHwnd, rc, type );
 							else {
-								this->showErrorEx(NULL,"-l", "Cell Fixed -> Invalid ID : %d", ID );
+								this->showErrorEx(NULL,TEXT("-l"), TEXT("Cell Fixed -> Invalid ID : %d"), ID );
 								return;
 							}
 						}
@@ -386,36 +386,36 @@ void DcxBox::parseCommandRequest( TString & input ) {
 							if ( cHwnd != NULL && IsWindow( cHwnd ) )
 								p_Cell = new LayoutCellFixed( cHwnd, type );
 							else {
-								this->showErrorEx(NULL,"-l", "Cell Fixed -> Invalid ID : %d", ID );
+								this->showErrorEx(NULL,TEXT("-l"), TEXT("Cell Fixed -> Invalid ID : %d"), ID );
 								return;
 							}
 						}
 					} //else
 				} // else if ( lflags & LAYOUTFIXED )
 				else {
-					this->showError(NULL,"-l", "Unknown Cell Type");
+					this->showError(NULL,TEXT("-l"), TEXT("Unknown Cell Type"));
 					return;
 				}
 
-				if ( com == "root" ) {
+				if ( com == TEXT("root") ) {
 
 					if ( p_Cell != NULL )
 						this->m_pLayoutManager->setRoot( p_Cell );
 
-				} // if ( com == "root" )
-				else if ( com == "cell" ) {
+				} // if ( com == TEXT("root") )
+				else if ( com == TEXT("cell") ) {
 
 					if ( p_Cell != NULL ) {
 
 						LayoutCell * p_GetCell;
 
-						if ( path == "root" )
+						if ( path == TEXT("root") )
 							p_GetCell = this->m_pLayoutManager->getRoot( );
 						else
 							p_GetCell = this->m_pLayoutManager->getCell( path );
 
 						if ( p_GetCell == NULL ) {
-							this->showErrorEx(NULL,"-l", "Invalid item path: %s", path.to_chr( ) );
+							this->showErrorEx(NULL,TEXT("-l"), TEXT("Invalid item path: %s"), path.to_chr( ) );
 							return;
 						}
 
@@ -425,13 +425,13 @@ void DcxBox::parseCommandRequest( TString & input ) {
 							p_PaneCell->addChild( p_Cell, WGT );
 						}
 					}
-				} // else if ( com == "cell" )
-			} // if ( com ==  "root" || com == "cell" )
-			else if ( com ==  "space" ) {
+				} // else if ( com == TEXT("cell") )
+			} // if ( com ==  TEXT("root") || com == TEXT("cell") )
+			else if ( com ==  TEXT("space") ) {
 
 				LayoutCell * p_GetCell;
 
-				if ( path == "root" )
+				if ( path == TEXT("root") )
 					p_GetCell = this->m_pLayoutManager->getRoot( );
 				else
 					p_GetCell = this->m_pLayoutManager->getCell( path );
@@ -442,11 +442,11 @@ void DcxBox::parseCommandRequest( TString & input ) {
 					SetRect( &rc, ID, WGT, W, H );
 					p_GetCell->setBorder( rc );
 				}
-			} // else if ( com == "space" )
+			} // else if ( com == TEXT("space") )
 		} // if ( numtok > 7 )
 	}
 	//xdid -t [NAME] [ID] [SWITCH]
-	else if ( flags['t'] ) {
+	else if ( flags[TEXT('t')] ) {
 		SetWindowText(this->m_Hwnd, input.gettok(4, -1).trim().to_chr());
 		this->redrawWindow( );
 	}
@@ -466,24 +466,24 @@ UINT DcxBox::parseLayoutFlags( const TString & flags ) {
   UINT iFlags = 0;
 
   // no +sign, missing params
-  if ( flags[0] != '+' ) 
+  if ( flags[0] != TEXT('+') ) 
     return iFlags;
 
   while ( i < len ) {
 
-    if ( flags[i] == 'f' )
+    if ( flags[i] == TEXT('f') )
       iFlags |= LAYOUTFIXED;
-    else if ( flags[i] == 'h' )
+    else if ( flags[i] == TEXT('h') )
       iFlags |= LAYOUTHORZ;
-    else if ( flags[i] == 'i' )
+    else if ( flags[i] == TEXT('i') )
       iFlags |= LAYOUTID;
-    else if ( flags[i] == 'l' )
+    else if ( flags[i] == TEXT('l') )
       iFlags |= LAYOUTFILL ;
-    else if ( flags[i] == 'p' )
+    else if ( flags[i] == TEXT('p') )
       iFlags |= LAYOUTPANE;
-    else if ( flags[i] == 'v' )
+    else if ( flags[i] == TEXT('v') )
       iFlags |= LAYOUTVERT;
-    else if ( flags[i] == 'w' )
+    else if ( flags[i] == TEXT('w') )
       iFlags |= LAYOUTDIM;
 
     ++i;
@@ -504,26 +504,27 @@ void DcxBox::toXml(TiXmlElement * xml) {
 	TString wtext;
 	TGetWindowText(this->m_Hwnd, wtext);
 	__super::toXml(xml);
-	xml->SetAttribute("caption", wtext.to_chr());
-	this->m_pLayoutManager->getRoot()->toXml(xml);
+	// NEEDS FIXED!
+	//xml->SetAttribute("caption", wtext.to_chr());
+	//this->m_pLayoutManager->getRoot()->toXml(xml);
 }
 
 TString DcxBox::getStyles(void) {
 	TString result(__super::getStyles());
 	if (this->m_iBoxStyles & BOXS_RIGHT)
-		result.addtok("right");
+		result.addtok(TEXT("right"));
 	if (this->m_iBoxStyles & BOXS_CENTER)
-		result.addtok("center");
+		result.addtok(TEXT("center"));
 	if (this->m_iBoxStyles & BOXS_BOTTOM)
-		result.addtok("bottom");
+		result.addtok(TEXT("bottom"));
 	if (this->m_iBoxStyles & BOXS_NONE)
-		result.addtok("none");
+		result.addtok(TEXT("none"));
 	if (this->m_iBoxStyles & BOXS_ROUNDED)
-		result.addtok("rounded");
+		result.addtok(TEXT("rounded"));
 	if (this->m_iBoxStyles & BOXS_CHECK)
-		result.addtok("check");
+		result.addtok(TEXT("check"));
 	else if (this->m_iBoxStyles & BOXS_RADIO)
-		result.addtok("radio");
+		result.addtok(TEXT("radio"));
 
 	return result;
 }
@@ -550,7 +551,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				break;
 
 			if (IsWindow(hdr->hwndFrom)) {
-				DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+				DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,TEXT("dcx_cthis"));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -566,11 +567,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 						{
 							BOOL state = (SendMessage(this->m_TitleButton,BM_GETCHECK,0,0) == BST_CHECKED);
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-								char ret[10];
+								TCHAR ret[10];
 
-								this->evalAliasEx(ret, 9, "%s,%d,%d", "checkchange", this->getUserID(), state);
+								this->evalAliasEx(ret, 9, TEXT("%s,%d,%d"), TEXT("checkchange"), this->getUserID(), state);
 
-								if (lstrcmp("nochange", ret) == 0)
+								if (lstrcmp(TEXT("nochange"), ret) == 0)
 									return 0L;
 							}
 
@@ -590,7 +591,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		case WM_VSCROLL:
 			{
 				if (IsWindow((HWND) lParam)) {
-					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -601,7 +602,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			{
 				LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -612,7 +613,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			{
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -623,7 +624,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			{
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
-					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -634,7 +635,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			{
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -662,7 +663,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				}
 
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
-					this->execAliasEx("%s,%d", "sizing", this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%d"), TEXT("sizing"), this->getUserID( ) );
 
 				if (this->m_pLayoutManager != NULL) {
 					RECT rc;
@@ -803,10 +804,17 @@ void DcxBox::DrawClientArea(HDC hdc)
 				IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
 			);
 
+#if UNICODE
+		if (this->m_bCtrlCodeText)
+			calcStrippedRect(hdc, wtext, 0, &rcText, false);
+		else
+			DrawTextW(hdc, wtext.to_chr(), n, &rcText, DT_CALCRECT);
+#else
 		if (this->m_bCtrlCodeText)
 			calcStrippedRect(hdc, wtext, 0, &rcText, false, this->m_bUseUTF8);
 		else
 			DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), n, &rcText, DT_CALCRECT);
+#endif
 		//if (this->m_bShadowText) {
 		//	rcText.bottom += 6;
 		//	rcText.right += 6;

@@ -68,141 +68,151 @@ private:
 
 	void deleteString( );
 	void deleteWString( );
-	int i_replace(const char *subString, const char *rString); // Ook
-	int i_remove(const char *subString);
-	static int match (register char *m, register char *n, const bool cs /* case sensitive */);
-	static unsigned char tolowertab[];
-	static unsigned char touppertab[];
+	int i_replace(const TCHAR *subString, const TCHAR *rString); // Ook
+	int i_remove(const TCHAR *subString);
+	static int match (register TCHAR *m, register TCHAR *n, const bool cs /* case sensitive */);
+#if !UNICODE
+	static unsigned TCHAR tolowertab[];
+	static unsigned TCHAR touppertab[];
+#endif
+	WCHAR *charToWchar(const char *cString);
 
 public:
 
-	char * m_pString; //!< String buffer
+	TCHAR * m_pString; //!< String buffer
+#ifdef UNICODE
+	char * m_pWString;
+#else
 	WCHAR * m_pWString;
-	static const char *m_cSpace;
-	static const char *m_cComma;
-	static const char *m_cTab;
+#endif
+	static const TCHAR *m_cSpace;
+	static const TCHAR *m_cComma;
+	static const TCHAR *m_cTab;
 
 	TString( );
-	TString( const char * cString ); // we don't want these 2 as explicits
-	TString( const WCHAR * cString );// ^
-	explicit TString( const char chr );
+	TString( const WCHAR * cString ); // we don't want these 2 as explicits
+	TString( const char * cString );
 	explicit TString( const WCHAR chr );
+	explicit TString( const char chr );
 	TString( const TString & tString ); // or this one.
-	TString( const char *pStart, const char *pEnd );
+	TString( const TCHAR *pStart, const TCHAR *pEnd );
 	explicit TString( const unsigned int tsSize);
 
 	//! Destructor
 	~TString( );
 
-	/*! \fn char * to_chr( )
-			\brief Returns the string as a C char string
-	*/
-	char * to_chr( ) const { return this->m_pString; };
-
 	// Operator Overloads
 	TString & operator =( const TString & tString );
-	TString & operator =( const char * cString );
 	TString & operator =( const WCHAR * cString );
+	TString & operator =( const WCHAR chr );
+	TString & operator =( const char * cString );
 	TString & operator =( const char chr );
-	TString & operator =( const WCHAR &chr );
 
-	TString operator +( const char * cString );
-	TString operator +( const char chr );
+	TString operator +( const TCHAR * cString );
+	TString operator +( const TCHAR chr );
 	TString operator +( const TString & tString );
 
-	TString operator -( const char * cString );
-	TString operator -( const char chr );
+	TString operator -( const TCHAR * cString );
+	TString operator -( const TCHAR chr );
 	TString operator -( const TString & tString );
 
-	TString & operator +=( const char * cString );
-	TString & operator +=( const char chr );
+	TString & operator +=( const TCHAR * cString );
+	TString & operator +=( const TCHAR chr );
 	TString & operator +=( const TString & tString );
-	TString & operator +=( const WCHAR &chr );
 
-	TString & operator -=( const char * cString );
-	TString & operator -=( const char chr );
+	TString & operator -=( const TCHAR * cString );
+	TString & operator -=( const TCHAR chr );
 	TString & operator -=( const TString & tString );
 
 	bool operator ==( const int iNull ) const;
-	bool operator ==( const char * cString ) const;
-	bool operator ==( const char chr ) const;
+	bool operator ==( const TCHAR * cString ) const;
+	bool operator ==( const TCHAR chr ) const;
 	bool operator ==( const TString & tString ) const;
 
 	bool operator !=( const int iNull ) const;
-	bool operator !=( const char * cString ) const;
-	bool operator !=( const char chr ) const;
+	bool operator !=( const TCHAR * cString ) const;
+	bool operator !=( const TCHAR chr ) const;
 	bool operator !=( const TString & tString ) const;
 
-	bool operator >( const char * cString ) const;
-	bool operator >( const char chr ) const;
+	bool operator >( const TCHAR * cString ) const;
+	bool operator >( const TCHAR chr ) const;
 	bool operator >( const TString & tString ) const;
 
-	bool operator >=( const char * cString ) const;
-	bool operator >=( const char chr ) const;
+	bool operator >=( const TCHAR * cString ) const;
+	bool operator >=( const TCHAR chr ) const;
 	bool operator >=( const TString & tString ) const;
 
-	bool operator <( const char * cString ) const;
-	bool operator <( const char chr ) const;
+	bool operator <( const TCHAR * cString ) const;
+	bool operator <( const TCHAR chr ) const;
 	bool operator <( const TString & tString ) const;
 
-	bool operator <=( const char * cString ) const;
-	bool operator <=( const char chr ) const;
+	bool operator <=( const TCHAR * cString ) const;
+	bool operator <=( const TCHAR chr ) const;
 	bool operator <=( const TString & tString ) const;
 
 	TString operator *( const int &N );
 	TString & operator *=( const int &N );
 
-	char & operator []( long int N ) const;
+	TCHAR & operator []( long int N ) const;
 	operator int() { return this->to_int(); }
 	operator __int64() { return this->to_num(); }
 	operator double() { return this->to_float(); }
 
 	// General String Lib
 	size_t len( ) const;
-	size_t wlen( ) const;
 
-	int find( const char * substring, const int N ) const;
-	int find( const char chr, const int N ) const;
+	int find( const TCHAR * substring, const int N ) const;
+	int find( const TCHAR chr, const int N ) const;
 
 	TString sub( int N, int M ) const;
-	TString wsub( int N, int M ) const;
 
 	TString &trim();
 
-	int replace( const char * subString, const char * rString );
-	int replace( const char * subString, const char rchr );
-	int replace( const char chr, const char * rString );
-	int replace( const char chr, const char rchr );
+	int replace( const TCHAR * subString, const TCHAR * rString );
+	int replace( const TCHAR * subString, const TCHAR rchr );
+	int replace( const TCHAR chr, const TCHAR * rString );
+	int replace( const TCHAR chr, const TCHAR rchr );
 
 	// Token Lib
-	void addtok( const char * cToken, const char * sepChars = SPACE );
-	//void addtok( const TString &cToken, const char * sepChars = SPACE );
-	void deltok( const int N, const char * sepChars = SPACE );
-	int findtok( const char * cToken, const int N, const char * sepChars = SPACE ) const;
-	TString gettok( int N, const char * sepChars = SPACE ) const;
-	TString gettok( int N, int M, const char * sepChars = SPACE ) const;
-	void instok( const char * cToken, const int N, const char * sepChars = SPACE );
-	bool istok( const char * cToken, const char * sepChars = SPACE ) const;
-	TString matchtok( char * mString, int N, const char * sepChars = SPACE ) const;
-	int numtok( const char * sepChars = SPACE ) const;
-	void puttok( const char * cToken, int N, const char * sepChars = SPACE );
-	void remtok( const char * cToken, int N, const char * sepChars = SPACE );
-	void reptok( const char * cToken, const char * newToken, int N, const char * sepChars = SPACE );
-	void sorttok( char * sortOptions, const char * sepChars = SPACE );
+	void addtok( const TCHAR * cToken, const TCHAR * sepChars = SPACE );
+	//void addtok( const TString &cToken, const TCHAR * sepChars = SPACE );
+	void deltok( const int N, const TCHAR * sepChars = SPACE );
+	int findtok( const TCHAR * cToken, const int N, const TCHAR * sepChars = SPACE ) const;
+	TString gettok( int N, const TCHAR * sepChars = SPACE ) const;
+	TString gettok( int N, int M, const TCHAR * sepChars = SPACE ) const;
+	void instok( const TCHAR * cToken, const int N, const TCHAR * sepChars = SPACE );
+	bool istok( const TCHAR * cToken, const TCHAR * sepChars = SPACE ) const;
+	TString matchtok( TCHAR * mString, int N, const TCHAR * sepChars = SPACE ) const;
+	int numtok( const TCHAR * sepChars = SPACE ) const;
+	void puttok( const TCHAR * cToken, int N, const TCHAR * sepChars = SPACE );
+	void remtok( const TCHAR * cToken, int N, const TCHAR * sepChars = SPACE );
+	void reptok( const TCHAR * cToken, const TCHAR * newToken, int N, const TCHAR * sepChars = SPACE );
+	void sorttok( TCHAR * sortOptions, const TCHAR * sepChars = SPACE );
 	// added by Ook
-	TString wildtok( char * wildString, int N, const char * sepChars = SPACE ) const;
-	int nwildtok( char * wildString, const char * sepChars = SPACE ) const;
+	TString wildtok( TCHAR * wildString, int N, const TCHAR * sepChars = SPACE ) const;
+	int nwildtok( TCHAR * wildString, const TCHAR * sepChars = SPACE ) const;
 	TString mid(const int pos, int n) const;
 	TString left(int n) const;
 	TString right(int n) const;
-	int tsprintf(const char *fmt, ...);
-	int tvprintf(const char *fmt, va_list * args);
-	bool iswm(char *a) const;
-	bool iswmcs(char *a) const;
+	int tsprintf(const TCHAR *fmt, ...);
+	int tvprintf(const TCHAR *fmt, va_list * args);
+	bool iswm(TCHAR *a) const;
+	bool iswmcs(TCHAR *a) const;
+#ifdef UNICODE
+	TCHAR * to_chr( ) const { return this->m_pString; };	// returns the string in the projects current format.
+	WCHAR *to_wchr(bool tryutf8 = false) const { return this->m_pString; };	// returns the string in wide format
+	char * c_str( ) const;	// returns the string as a char *
+	int to_int() const { return _wtoi(this->m_pString); };
+	__int64 to_num( ) const { return _wtoi64(this->m_pString); };
+	double to_float() const { return _wtof(this->m_pString); };
+#else
+	TCHAR * to_chr( ) const { return this->m_pString; };	// returns the string in the projects current format.
+	WCHAR *to_wchr(bool tryutf8 = false);	// returns the string in wide format
+	char * c_str( ) const { return this->m_pString; };	// returns the string as a char *
 	int to_int() const { return atoi(this->m_pString); };
 	__int64 to_num( ) const { return _atoi64(this->m_pString); };
 	double to_float() const { return atof(this->m_pString); };
-	WCHAR *to_wchr(bool tryutf8 = false);
+#endif
 	static inline int rfc_tolower(const int c);
 	static inline int rfc_toupper(const int c);
 	//
@@ -210,7 +220,6 @@ public:
 #define TSTAB TString::TAB
 #define TSSPACE TString::SPACE
 #define TSCOMMA TString::COMMA
-
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )
 #endif

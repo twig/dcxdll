@@ -29,7 +29,7 @@ class XMenuBar {
 		virtual ~XMenuBar( );
 
 		void parseXMenuBarCommand(const TString &input);
-		void parseXMenuBarInfo(const TString &input, char *szReturnValue);
+		void parseXMenuBarInfo(const TString &input, TCHAR *szReturnValue);
 
 		bool addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, TString label);
 		void removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu);

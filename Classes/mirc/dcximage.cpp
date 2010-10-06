@@ -53,7 +53,7 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 
 	this->m_Hwnd = CreateWindowEx(	
 		ExStyles,
-		"STATIC",
+		TEXT("STATIC"),
 		NULL,
 		WS_CHILD | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
@@ -63,13 +63,13 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips")) {
+		if (styles.istok(TEXT("tooltips"))) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -81,7 +81,7 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 #endif
 
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -123,14 +123,14 @@ void DcxImage::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
  * \return > void
  */
 
-void DcxImage::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxImage::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 	//int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
-	if ( prop == "fname") {
+	if ( prop == TEXT("fname")) {
 		lstrcpyn(szReturnValue,this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
@@ -158,31 +158,35 @@ void DcxImage::PreloadData() {
 		this->m_pImage = NULL;
 	}
 #endif
-	this->m_tsFilename = "";
+	this->m_tsFilename = TEXT("");
 }
 
 #ifdef DCX_USE_GDIPLUS
 bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 	if (!IsFile(filename)) {
-		this->showErrorEx(NULL,"LoadGDIPlusImage", "Unable to Access File: %s", filename.to_chr());
+		this->showErrorEx(NULL,TEXT("LoadGDIPlusImage"), TEXT("Unable to Access File: %s"), filename.to_chr());
 		return false;
 	}
+#if UNICODE
+	this->m_pImage = new Image(filename.to_chr(),TRUE);
+#else
 	this->m_pImage = new Image(filename.to_wchr(),TRUE);
+#endif
 
 	// couldnt allocate image object.
 	if (this->m_pImage == NULL) {
-		this->showError(NULL,"LoadGDIPlusImage", "Couldn't allocate image object.");
+		this->showError(NULL,TEXT("LoadGDIPlusImage"), TEXT("Couldn't allocate image object."));
 		return false;
 	}
 	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
 	Status status = this->m_pImage->GetLastStatus();
 	if (status != Ok) {
-		this->showError(NULL,"LoadGDIPlusImage", GetLastStatusStr(status));
+		this->showError(NULL,TEXT("LoadGDIPlusImage"), GetLastStatusStr(status));
 		PreloadData();
 		return false;
 	}
 
-	if (flags.find('h',0)) { // High Quality
+	if (flags.find(TEXT('h'),0)) { // High Quality
 		this->m_CQuality = CompositingQualityHighQuality;
 		this->m_IMode = InterpolationModeHighQualityBicubic;
 	}
@@ -191,17 +195,17 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 		this->m_IMode = InterpolationModeDefault;
 	}
 
-	if (flags.find('b',0)) // Blend Image
+	if (flags.find(TEXT('b'),0)) // Blend Image
 		this->m_CMode = CompositingModeSourceOver;
 	else
 		this->m_CMode = CompositingModeSourceCopy;
 
-	if (flags.find('a',0)) // Anti-Aliased
+	if (flags.find(TEXT('a'),0)) // Anti-Aliased
 		this->m_SMode = SmoothingModeAntiAlias;
 	else
 		this->m_SMode = SmoothingModeDefault;
 
-	if (flags.find('t',0)) // Tile
+	if (flags.find(TEXT('t'),0)) // Tile
 		this->m_bTileImage = true;
 	else
 		this->m_bTileImage = false;
@@ -221,7 +225,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 	int numtok = input.numtok( );
 
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
-	if (flags['w'] && numtok > 6) {
+	if (flags[TEXT('w')] && numtok > 6) {
 		TString flag(input.gettok( 4 ));
 		int index = input.gettok( 5 ).to_int();
 		int size = input.gettok( 6 ).to_int();
@@ -250,23 +254,23 @@ void DcxImage::parseCommandRequest(TString & input) {
 		this->redrawWindow();
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
-	else if (flags['i'] && numtok > 4) {
+	else if (flags[TEXT('i')] && numtok > 4) {
 		TString flag(input.gettok(4).trim());
 		TString filename(input.gettok(5, -1).trim());
 
 		PreloadData();
 
-		if (flag[0] != '+') {
-			this->showError(NULL,"-i", "Invalid Flags");
+		if (flag[0] != TEXT('+')) {
+			this->showError(NULL,TEXT("-i"), TEXT("Invalid Flags"));
 			return;
 		}
 
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
-		//if (Dcx::GDIModule.isUseable() && flag.find('g',0)) { // makes GDI+ the default method, bitmap is only used when GDI+ isn't supported.
+		//if (Dcx::GDIModule.isUseable() && flag.find(TEXT('g'),0)) { // makes GDI+ the default method, bitmap is only used when GDI+ isn't supported.
 		if (Dcx::GDIModule.isUseable()) {
 			if (!LoadGDIPlusImage(flag,filename))
-				this->showError(NULL,"-i", "Unable to load Image with GDI+");
+				this->showError(NULL,TEXT("-i"), TEXT("Unable to load Image with GDI+"));
 		}
 		else
 			this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
@@ -282,18 +286,18 @@ void DcxImage::parseCommandRequest(TString & input) {
 		InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
-	else if (flags['k'] && numtok > 3) {
+	else if (flags[TEXT('k')] && numtok > 3) {
 		this->m_clrTransColor = (COLORREF)input.gettok( 4 ).to_num();
 		this->redrawWindow();
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [XOFFSET] [YOFFSET]
-	else if (flags['o'] && numtok > 4) {
+	else if (flags[TEXT('o')] && numtok > 4) {
 		this->m_iXOffset = input.gettok( 4 ).to_int();
 		this->m_iYOffset = input.gettok( 5 ).to_int();
 		this->redrawWindow();
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [1|0]
-	else if (flags['S'] && numtok > 3) {
+	else if (flags[TEXT('S')] && numtok > 3) {
 		if (input.gettok( 4 ).to_int() > 0)
 			this->m_bResizeImage = true;
 		else
@@ -365,7 +369,8 @@ void DcxImage::DrawBMPImage(HDC hdc, int x, int y, int w, int h)
 
 void DcxImage::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
-	if (this->m_tsFilename.len() > 0) xml->SetAttribute("src", m_tsFilename.to_chr());
+	// NEEDS FIXED!
+	//if (this->m_tsFilename.len() > 0) xml->SetAttribute("src", m_tsFilename.to_chr());
 }
 
 /*!
@@ -383,7 +388,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	case WM_ERASEBKGND:
 		{
-			//<#IF USER == 'hkr' COMMENT OUT, UNLESS ITS THE TIME WHEN HE WANTS THIS>
+			//<#IF USER == TEXT('hkr') COMMENT OUT, UNLESS ITS THE TIME WHEN HE WANTS THIS>
 			if (this->isExStyle(WS_EX_TRANSPARENT))
 				this->DrawParentsBackground((HDC)wParam);
 			//if (this->isExStyle(WS_EX_TRANSPARENT))

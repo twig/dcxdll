@@ -44,22 +44,22 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 
-	if (styles.istok("tooltips")) {
+	if (styles.istok(TEXT("tooltips"))) {
 		if (IsWindow(p_Dialog->getToolTip())) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 		else
-			this->showError(NULL,"-c","Unable to Initialize Tooltips");
+			this->showError(NULL,TEXT("-c"),TEXT("Unable to Initialize Tooltips"));
 	}
 
 	// fix bug with disabled creation
@@ -83,9 +83,9 @@ DcxIpAddress::~DcxIpAddress( ) {
 
 void DcxIpAddress::toXml(TiXmlElement * xml) {
 	DWORD ip;
-	char buf[64];
+	char buf[128];
 	this->getAddress( &ip );
-	wsprintf( buf, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
+	wsprintfA( buf, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
 		SECOND_IPADDRESS( ip ),
 		THIRD_IPADDRESS( ip ),
 		FOURTH_IPADDRESS( ip ) );
@@ -105,9 +105,9 @@ void DcxIpAddress::parseControlStyles(TString &styles, LONG *Styles, LONG *ExSty
 /*
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "bitmap" )
+    if ( styles.gettok( i ) == TEXT("bitmap") )
       *Styles |= BS_BITMAP;
-    else if ( styles.gettok( i ) == "default" )
+    else if ( styles.gettok( i ) == TEXT("default") )
       *Styles |= BS_DEFPUSHBUTTON;
 
     i++;
@@ -126,15 +126,15 @@ void DcxIpAddress::parseControlStyles(TString &styles, LONG *Styles, LONG *ExSty
  * \return > void
  */
 
-void DcxIpAddress::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxIpAddress::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 	// [NAME] [ID] [PROP]
-	if ( input.gettok( 3 ) == "ip" ) {
+	if ( input.gettok( 3 ) == TEXT("ip") ) {
 
 		DWORD ip;
 		this->getAddress( &ip );
 
-		wsprintf( szReturnValue, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
+		wsprintf( szReturnValue, TEXT("%d.%d.%d.%d"), FIRST_IPADDRESS( ip ),
 			SECOND_IPADDRESS( ip ),
 			THIRD_IPADDRESS( ip ),
 			FOURTH_IPADDRESS( ip ) );
@@ -160,19 +160,19 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags['r']) {
+	if (flags[TEXT('r')]) {
 		this->clearAddress();
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
-	if (flags['a'] && numtok > 3) {
+	if (flags[TEXT('a')] && numtok > 3) {
 		TString IP(input.gettok(4).trim());
 
-		if (IP.numtok(".") == 4) {
+		if (IP.numtok(TEXT(".")) == 4) {
 			BYTE b[4];
 
 			for (int i = 0; i < 4; i++) {
-				b[i] = (BYTE) IP.gettok(i +1, ".").to_int();
+				b[i] = (BYTE) IP.gettok(i +1, TEXT(".")).to_int();
 			}
 
 			DWORD adr = MAKEIPADDRESS(b[0], b[1], b[2], b[3]);
@@ -180,7 +180,7 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [N] [MIN] [MAX]
-	else if (flags['g'] && numtok > 5) {
+	else if (flags[TEXT('g')] && numtok > 5) {
 		int nField	= input.gettok( 4 ).to_int() -1;
 		BYTE min		= (BYTE)input.gettok( 5 ).to_int();
 		BYTE max		= (BYTE)input.gettok( 6 ).to_int();
@@ -189,7 +189,7 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 			this->setRange(nField, min, max);
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [N]
-	else if (flags['j'] && numtok > 3) {
+	else if (flags[TEXT('j')] && numtok > 3) {
 		int nField = input.gettok( 4 ).to_int() -1;
 
 		if (nField > -1 && nField < 4)
@@ -197,7 +197,7 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags['r']) {
+	else if (flags[TEXT('r')]) {
 		//this->clearAddress();
 	}
 	else
@@ -272,7 +272,7 @@ LRESULT DcxIpAddress::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
           case IPN_FIELDCHANGED:
             {
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-	              this->execAliasEx("%s,%d", "edit", this->getUserID( ) );
+	              this->execAliasEx(TEXT("%s,%d"), TEXT("edit"), this->getUserID( ) );
               bParsed = TRUE;
             }
             break;
@@ -300,12 +300,12 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					{
 					case WM_LBUTTONUP:
 						{
-							this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
+							this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID( ) );
 						}
 						break;
 					case WM_RBUTTONUP:
 						{
-							this->execAliasEx("%s,%d", "rclick", this->getUserID( ) );
+							this->execAliasEx(TEXT("%s,%d"), TEXT("rclick"), this->getUserID( ) );
 						}
 						break;
 					}

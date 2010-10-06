@@ -15,11 +15,11 @@ DcxGDIModule::~DcxGDIModule(void)
 bool DcxGDIModule::load(mIRCLinker &mIRCLink)
 {
 	if (isUseable()) return false;
-	DcxModule::load(mIRCLink);
+	//DcxModule::load(mIRCLink); // does nothing.
 #ifdef DCX_USE_GDIPLUS
 	// Initialize GDI+
-	DCX_DEBUG(mIRCLink.debug,"LoadDLL", "Initializing GDI+...");
-	m_hModule = LoadLibrary("GDIPLUS.DLL");
+	DCX_DEBUG(mIRCLink.debug,TEXT("LoadDLL"), TEXT("Initializing GDI+..."));
+	m_hModule = LoadLibrary(TEXT("GDIPLUS.DLL"));
 	if (m_hModule != NULL) {
 		GdiplusStartupInput gsi;
 		gsi.GdiplusVersion = 1;
@@ -27,14 +27,14 @@ bool DcxGDIModule::load(mIRCLinker &mIRCLink)
 		gsi.SuppressBackgroundThread = FALSE;
 		gsi.SuppressExternalCodecs = FALSE;
 		if (GdiplusStartup(&m_GDIToken,&gsi,NULL) != Ok) {
-			Dcx::error("LoadDLL", "Unable to Startup GDI+");
-			Dcx::error("LoadDLL", "Warning Unable to Initialize GDIPlus.dll, Operating in reduced function mode.");
+			Dcx::error(TEXT("LoadDLL"), TEXT("Unable to Startup GDI+"));
+			Dcx::error(TEXT("LoadDLL"), TEXT("Warning Unable to Initialize GDIPlus.dll, Operating in reduced function mode."));
 			FreeLibrary(m_hModule);
 			m_hModule = NULL;
 		}
 	}
 	else {
-		mIRCLink.echo("Warning Unable to Load GDIPlus.dll, Operating in reduced function mode.");
+		mIRCLink.echo(TEXT("Warning Unable to Load GDIPlus.dll, Operating in reduced function mode."));
 	}
 #endif
 	return isUseable();

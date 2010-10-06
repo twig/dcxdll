@@ -37,14 +37,14 @@ public:
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
   LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
+  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
   LRESULT setPane( const UINT iPaneId, LPDVPANEINFO lpdvpi );
   LRESULT setDivPos( const UINT iDivPos );
 
-  inline TString getType( ) { return TString( "divider" ); };
+  inline TString getType( ) { return TString( TEXT("divider") ); };
   virtual TString getStyles(void);
   void toXml(TiXmlElement * xml);
 

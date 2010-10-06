@@ -35,7 +35,7 @@ DcxLine::DcxLine( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, c
 
 	this->m_Hwnd = CreateWindowEx(	
 		ExStyles | WS_EX_TRANSPARENT,
-		"STATIC",
+		TEXT("STATIC"),
 		NULL,
 		WS_CHILD | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
@@ -45,14 +45,14 @@ DcxLine::DcxLine( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, c
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -71,30 +71,31 @@ TString DcxLine::getStyles(void) {
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if (this->m_bVertical)
-		styles.addtok("vertical", " ");
+		styles.addtok(TEXT("vertical"));
 	if (Styles & SS_LEFTNOWORDWRAP)
-		styles.addtok("nowrap", " ");
+		styles.addtok(TEXT("nowrap"));
 	if (Styles & SS_CENTER)
-		styles.addtok("center", " ");
+		styles.addtok(TEXT("center"));
 	if (Styles & SS_RIGHT)
-		styles.addtok("right", " ");
+		styles.addtok(TEXT("right"));
 	if (Styles & SS_NOPREFIX)
-		styles.addtok("noprefix", " ");
+		styles.addtok(TEXT("noprefix"));
 	if (Styles & SS_ENDELLIPSIS)
-		styles.addtok("endellipsis", " ");
+		styles.addtok(TEXT("endellipsis"));
 	if (Styles & SS_PATHELLIPSIS)
-		styles.addtok("pathellipsis", " ");
+		styles.addtok(TEXT("pathellipsis"));
 	return styles;
 
 }
 
 void DcxLine::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
-	TString styles(xml->Attribute("styles"));
-	styles.remtok("transparent", 1); // line always has transparent style (why?)
-	if (styles.len() > 0) xml->SetAttribute("styles", styles.to_chr());
-	else xml->RemoveAttribute("styles");
-	if (this->m_sText.len() > 0) xml->SetAttribute("caption", this->m_sText.to_chr());
+	// NEEDS FIXED!
+	//TString styles(xml->Attribute("styles"));
+	//styles.remtok(TEXT("transparent"), 1); // line always has transparent style (why?)
+	//if (styles.len() > 0) xml->SetAttribute("styles", styles.to_chr());
+	//else xml->RemoveAttribute("styles");
+	//if (this->m_sText.len() > 0) xml->SetAttribute("caption", this->m_sText.to_chr());
 }
 
 /*!
@@ -109,19 +110,19 @@ void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
 
 	while ( i <= numtok ) {
 
-		if ( styles.gettok( i ) == "vertical" )
+		if ( styles.gettok( i ) == TEXT("vertical") )
 			this->m_bVertical = true;
-		else if (styles.gettok(i ) == "nowrap")
+		else if (styles.gettok(i ) == TEXT("nowrap"))
 			*Styles |= SS_LEFTNOWORDWRAP;
-		else if (styles.gettok(i) == "center")
+		else if (styles.gettok(i) == TEXT("center"))
 			*Styles |= SS_CENTER;
-		else if (styles.gettok(i) == "right")
+		else if (styles.gettok(i) == TEXT("right"))
 			*Styles |= SS_RIGHT;
-		else if (styles.gettok(i) == "noprefix")
+		else if (styles.gettok(i) == TEXT("noprefix"))
 			*Styles |= SS_NOPREFIX;
-		else if (styles.gettok(i) == "endellipsis")
+		else if (styles.gettok(i) == TEXT("endellipsis"))
 			*Styles |= SS_ENDELLIPSIS;
-		else if (styles.gettok(i) == "pathellipsis")
+		else if (styles.gettok(i) == TEXT("pathellipsis"))
 			*Styles |= SS_PATHELLIPSIS;
 
 		i++;
@@ -138,10 +139,10 @@ void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
  * \return > void
  */
 
-void DcxLine::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxLine::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 //  int numtok = input.numtok( );
-	if ( input.gettok( 3 ) == "text" ) {
+	if ( input.gettok( 3 ) == TEXT("text") ) {
 		lstrcpyn(szReturnValue, this->m_sText.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
@@ -163,7 +164,7 @@ void DcxLine::parseCommandRequest( TString & input ) {
 //  int numtok = input.numtok( );
 
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
-	if (flags['t']) {
+	if (flags[TEXT('t')]) {
 		this->m_sText = input.gettok(4, -1).trim();
 
 		if (this->m_bVertical) {
@@ -298,10 +299,17 @@ void DcxLine::DrawClientArea(HDC hdc)
 		}
 		else {
 			style |= DT_LEFT|DT_VCENTER;
+#if UNICODE
+			if (this->m_bCtrlCodeText)
+				calcStrippedRect(hdc, this->m_sText, style, &rcText, false);
+			else
+				DrawTextW(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, DT_CALCRECT | style);
+#else
 			if (this->m_bCtrlCodeText)
 				calcStrippedRect(hdc, this->m_sText, style, &rcText, false, this->m_bUseUTF8);
 			else
 				DrawTextW(hdc, this->m_sText.to_wchr(this->m_bUseUTF8), this->m_sText.wlen(), &rcText, DT_CALCRECT | style);
+#endif
 			if (this->isStyle(SS_CENTER))
 				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),0);
 			else if (this->isStyle(SS_RIGHT))

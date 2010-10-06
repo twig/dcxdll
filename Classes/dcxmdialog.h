@@ -37,11 +37,11 @@ public:
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
   LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
+  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
   void parseCommandRequest( TString & input );
   void parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme);
 
-  inline TString getType( ) { return TString( "dialog" ); };
+  inline TString getType( ) { return TString( TEXT("dialog") ); };
 
 protected:
 

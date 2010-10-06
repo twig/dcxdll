@@ -19,9 +19,9 @@ public:
 	void setStyle(const TiXmlElement* style);
 	void parseStyle(int depth = 0);
 	void parseIcons(int depth = 0);
-	void parseItems(const TiXmlElement* element,int depth = 0,char *itemPath = "");
-	void parseTemplate(int dialogDepth=0,const char *claPath = "root",const int passedid = 2000);
-	void parseDialog(int depth=0,const char *claPath = "root",const int passedid = 2000,const int ignoreParent = 0);
+	void parseItems(const TiXmlElement* element,int depth = 0,PTCHAR itemPath = TEXT(""));
+	void parseTemplate(int dialogDepth=0,const TCHAR *claPath = TEXT("root"),const int passedid = 2000);
+	void parseDialog(int depth=0,const TCHAR *claPath = TEXT("root"),const int passedid = 2000,const int ignoreParent = 0);
 
 	const char *queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue = "") const;
 	int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0) const;
@@ -108,8 +108,8 @@ public:
 	];*/
     const TiXmlElement* templateRef;
     int templateRefcCla;
-    const char *templateRefclaPath;
-	std::map<const char*, const char*> template_vars;
+    const TCHAR *templateRefclaPath;
+	std::map<const TCHAR*, const TCHAR*> template_vars;
 
     int eval;
     
@@ -118,7 +118,7 @@ public:
     TString cmd;
 	
     //CLA variables
-    const char *g_claPath;
+    const TCHAR *g_claPath;
     const char *g_claPathx;
     int g_resetcla;
 private:
@@ -129,11 +129,11 @@ private:
 	void isAutoClose(const bool b) { this->_autoClose = b; }
 	bool isAutoClose() const { return this->_autoClose; }
 
-	void xdialogEX(const char *sw,const char *dFormat, ...);
+	void xdialogEX(const TCHAR *sw,const TCHAR *dFormat, ...);
 	int mIRCEvalToUnsignedInt (const char *value);
 	void registerId(const TiXmlElement *idElement,const int id);
 	int parseId(const TiXmlElement* idElement);
-	void xdidEX(const int id,const char *sw,const char *dFormat, ...);
+	void xdidEX(const int id,const TCHAR *sw,const TCHAR *dFormat, ...);
 	
 	//TiXmlElement *getDialogElement () { return this->_dialogElement; }
 	typedef std::map<const char, const char> AttributesMap;

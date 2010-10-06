@@ -44,13 +44,13 @@ DcxDivider::DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -75,7 +75,7 @@ TString DcxDivider::getStyles(void) {
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & DVS_VERT)
-		styles.addtok("vertical", " ");
+		styles.addtok(TEXT("vertical"));
 	return styles;
 }
 
@@ -87,7 +87,7 @@ void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 	while ( i <= numtok ) {
 
-		if ( styles.gettok( i ) == "vertical" )
+		if ( styles.gettok( i ) == TEXT("vertical") )
 			*Styles |= DVS_VERT;
 
 		i++;
@@ -104,21 +104,21 @@ void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
  * \return > void
  */
 
-void DcxDivider::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxDivider::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
   //int numtok = input.numtok( );
   TString prop(input.gettok(3));
 
   // [NAME] [ID] [PROP]
-  if (prop == "position") {
+  if (prop == TEXT("position")) {
     int iDivPos = 0;
 
     SendMessage(this->m_Hwnd, DV_GETDIVPOS, (WPARAM) NULL, (LPARAM) &iDivPos);
-    wsprintf(szReturnValue, "%d", iDivPos);
+    wsprintf(szReturnValue, TEXT("%d"), iDivPos);
     return;
   }
-  else if (prop == "isvertical") {
-    wsprintf(szReturnValue, "%d", (GetWindowStyle(this->m_Hwnd) & DVS_VERT));
+  else if (prop == TEXT("isvertical")) {
+    wsprintf(szReturnValue, TEXT("%d"), (GetWindowStyle(this->m_Hwnd) & DVS_VERT));
     return;
   }
 
@@ -140,7 +140,7 @@ void DcxDivider::parseCommandRequest( TString & input ) {
 	int numtok = input.numtok( );
 
 	// xdid -l|r [NAME] [ID] [SWITCH] [MIN] [IDEAL][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	if ( ( flags['l'] || flags['r'] )&& numtok > 9 ) {
+	if ( ( flags[TEXT('l')] || flags[TEXT('r')] )&& numtok > 9 ) {
 
 		DVPANEINFO dvpi;
 		ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
@@ -184,26 +184,26 @@ void DcxDivider::parseCommandRequest( TString & input ) {
 
 						dvpi.hChild = p_Control->getHwnd( );
 
-						if ( flags['l'] )
+						if ( flags[TEXT('l')] )
 							this->setPane( DVF_PANELEFT, &dvpi );
-						else if ( flags['r'] )
+						else if ( flags[TEXT('r')] )
 							this->setPane( DVF_PANERIGHT, &dvpi );
 
 						this->redrawWindow( );
 					}
 				}
-				catch ( char *err ) {
-					this->showErrorEx(NULL, "-l|r", "Unable To Create Control %d (%s)", this->getUserID(), err);
+				catch ( TCHAR *err ) {
+					this->showErrorEx(NULL, TEXT("-l|r"), TEXT("Unable To Create Control %d (%s)"), this->getUserID(), err);
 				}
 			}
 			else
-				this->showErrorEx(NULL, "-l|r", "Control with ID \"%d\" already exists", this->getUserID());
+				this->showErrorEx(NULL, TEXT("-l|r"), TEXT("Control with ID \"%d\" already exists"), this->getUserID());
 		}
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [POS]
-	else if (flags['v'] && numtok > 3) {
+	else if (flags[TEXT('v')] && numtok > 3) {
 		if (!this->setDivPos(input.gettok(4).to_int()))
-			this->showError(NULL, "-v", "Divider position must be between bounds.");
+			this->showError(NULL, TEXT("-v"), TEXT("Divider position must be between bounds."));
 	}
 	else
 		this->parseGlobalCommandRequest( input, flags );
@@ -279,7 +279,7 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				break;
 
 			if (IsWindow(hdr->hwndFrom)) {
-				DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+				DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,TEXT("dcx_cthis"));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -291,7 +291,7 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	case WM_COMMAND:
 		{
 			if (IsWindow((HWND) lParam)) {
-				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -301,7 +301,7 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		{
 			LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
 			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -312,7 +312,7 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		{
 			DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -323,7 +323,7 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		{
 			HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 			if (IsWindow(cHwnd)) {
-				DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
+				DcxControl *c_this = (DcxControl *) GetProp(cHwnd,TEXT("dcx_cthis"));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -334,7 +334,7 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		{
 			DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -353,7 +353,7 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			int phase = (int) wParam;
 			LPPOINT pt = (LPPOINT) lParam;
 
-			this->execAliasEx("%s,%d,%d,%d", (phase == DVNM_DRAG_START ? "dragbegin" : (phase == DVNM_DRAG_END ? "dragfinish" : "drag")), this->getUserID(), pt->x, pt->y);
+			this->execAliasEx(TEXT("%s,%d,%d,%d"), (phase == DVNM_DRAG_START ? TEXT("dragbegin") : (phase == DVNM_DRAG_END ? TEXT("dragfinish") : TEXT("drag"))), this->getUserID(), pt->x, pt->y);
 		}
 		break;
 

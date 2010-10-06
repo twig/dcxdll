@@ -21,13 +21,13 @@ mIRC(TrayIcon) {
 		trayIcons = new DcxTrayIcon();
 
 		if (trayIcons == NULL) {
-			Dcx::error("/xtray", "There was a problem creating the trayicon manager");
+			Dcx::error(TEXT("/xtray"), TEXT("There was a problem creating the trayicon manager"));
 			return 0;
 		}
 	}
 
 	if (!trayIcons->GetHwnd()) {
-		Dcx::error("/xtray", "Could not start trayicon manager");
+		Dcx::error(TEXT("/xtray"), TEXT("Could not start trayicon manager"));
 		return 0;
 	}
 
@@ -36,7 +36,7 @@ mIRC(TrayIcon) {
 	int numtok = d.numtok( );
 
 	if (numtok < 2) {
-		Dcx::error("/xtray", "Insufficient parameters");
+		Dcx::error(TEXT("/xtray"), TEXT("Insufficient parameters"));
 		return 0;
 	}
 
@@ -44,21 +44,21 @@ mIRC(TrayIcon) {
 	int id = d.gettok( 2 ).to_int();
 
 	// create and edit can use the same function
-	if ((flags.find('c', 0) || flags.find('e', 0)) && numtok > 3) {
+	if ((flags.find(TEXT('c'), 0) || flags.find(TEXT('e'), 0)) && numtok > 3) {
 		// find icon id in vector
 		bool exists = (trayIcons->idExists(id) ? true : false);
 		DWORD msg = NIM_ADD;
 
 		// if create and it already exists
-		if (flags.find('c', 0) && (exists)) {
-			Dcx::errorex("/xtray", "Cannot create trayicon: id %d already exists", id);
+		if (flags.find(TEXT('c'), 0) && (exists)) {
+			Dcx::errorex(TEXT("/xtray"), TEXT("Cannot create trayicon: id %d already exists"), id);
 			return 0;
 		}
 
 		// if edit and it doesnt exist
-		if (flags.find('e', 0)) {
+		if (flags.find(TEXT('e'), 0)) {
 			if (!exists) {
-				Dcx::errorex("/xtray", "Cannot edit trayicon: id %d does not exists", id);
+				Dcx::errorex(TEXT("/xtray"), TEXT("Cannot edit trayicon: id %d does not exists"), id);
 				return 0;
 			}
 
@@ -86,20 +86,20 @@ mIRC(TrayIcon) {
 		// add/edit the icon
 		if (!trayIcons->modifyIcon(id, msg, icon, &tooltip)) {
 			if (msg == NIM_ADD)
-				Dcx::error("/xtray", "Add trayicon failed");
+				Dcx::error(TEXT("/xtray"), TEXT("Add trayicon failed"));
 			else
-				Dcx::error("/xtray", "Edit trayicon failed");
+				Dcx::error(TEXT("/xtray"), TEXT("Edit trayicon failed"));
 		}
 	}
 	// delete trayicon
-	else if (flags.find('d', 0)) {
+	else if (flags.find(TEXT('d'), 0)) {
 		if (!trayIcons->modifyIcon(id, NIM_DELETE)) {
-			Dcx::error("/xtray", "Error deleting trayicon");
+			Dcx::error(TEXT("/xtray"), TEXT("Error deleting trayicon"));
 		}
 	}
 	// change icon
 	// Icon   : xTray +i [id] [+flags] [icon index] [icon file]
-	else if (flags.find('i', 0) && (numtok > 4)) {
+	else if (flags.find(TEXT('i'), 0) && (numtok > 4)) {
 		// set up info
 		HICON icon;
 		int index = d.gettok(4).to_int();
@@ -114,21 +114,21 @@ mIRC(TrayIcon) {
 		icon = dcxLoadIcon(index, filename, false, iconFlags);
 
 		if (!trayIcons->modifyIcon(id, NIM_MODIFY, icon, NULL)) {
-			Dcx::error("/xtray", "Error changing trayicon icon");
+			Dcx::error(TEXT("/xtray"), TEXT("Error changing trayicon icon"));
 		}
 	}
 	// change tooltip
-	else if (flags.find('T', 0)) {
+	else if (flags.find(TEXT('T'), 0)) {
 		TString tip;
 
 		if (numtok > 2)
 			tip = d.gettok(3, -1);
 
 		if (!trayIcons->modifyIcon(id, NIM_MODIFY, NULL, &tip))
-			Dcx::error("/xtray", "Error changing trayicon tooltip");
+			Dcx::error(TEXT("/xtray"), TEXT("Error changing trayicon tooltip"));
 	}
 	else
-		Dcx::error("/xtray", "Unknown flag or insufficient parameters");
+		Dcx::error(TEXT("/xtray"), TEXT("Unknown flag or insufficient parameters"));
 
 	return 1;
 }
@@ -137,22 +137,22 @@ mIRC(TrayIcon) {
 DcxTrayIcon::DcxTrayIcon(void)
 {
 	// create a "dialog" and dont bother showing it
-	this->m_hwnd = CreateWindow("#32770", "", NULL, 0, 0, 48, 48, NULL, NULL, GetModuleHandle(NULL), NULL);
+	this->m_hwnd = CreateWindow(TEXT("#32770"), TEXT(""), NULL, 0, 0, 48, 48, NULL, NULL, GetModuleHandle(NULL), NULL);
 
 	if (this->m_hwnd)
 		this->m_wndProc = (WNDPROC) SetWindowLongPtr(this->m_hwnd, GWLP_WNDPROC, (LONG_PTR) DcxTrayIcon::TrayWndProc);
 	else
-		Dcx::error("/xtray", "Problem initialising trayicons");
+		Dcx::error(TEXT("/xtray"), TEXT("Problem initialising trayicons"));
 
 	m_hwndTooltip = NULL;
 
 	//if (Dcx::XPPlusModule.isUseable()())
-	//	DCXError("/xTrayIcon","Try to create tooltip");
+	//	DCXError(TEXT("/xTrayIcon"),TEXT("Try to create tooltip"));
 
 	//if (m_hwndTooltip != NULL)
-	//	DCXError("/xTrayIcon","Tooltip available");
+	//	DCXError(TEXT("/xTrayIcon"),TEXT("Tooltip available"));
 	//else
-	//	DCXError("/xTrayIcon","Balloon tooltips will not be available for TrayIcon");
+	//	DCXError(TEXT("/xTrayIcon"),TEXT("Balloon tooltips will not be available for TrayIcon"));
 
 	trayIconIDs.clear();
 }
@@ -167,9 +167,9 @@ DcxTrayIcon::~DcxTrayIcon(void)
 
 		while (itStart != itEnd) {
 			if (ids.len() == 0)
-				ids.tsprintf("%d", *itStart);
+				ids.tsprintf(TEXT("%d"), *itStart);
 			else
-				ids.tsprintf("%s %d", ids.to_chr(), *itStart);
+				ids.tsprintf(TEXT("%s %d"), ids.to_chr(), *itStart);
 
 			itStart++;
 		}
@@ -197,28 +197,28 @@ LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		switch (uMouseMsg)
 		{
 			case WM_LBUTTONDBLCLK:
-				Dcx::mIRC.signalex(dcxSignal.xtray, "trayicon %s %d", "dclick", id);
+				Dcx::mIRC.signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("dclick"), id);
 				break;
 
 			case WM_LBUTTONUP:
-				Dcx::mIRC.signalex(dcxSignal.xtray, "trayicon %s %d", "sclick", id);
+				Dcx::mIRC.signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("sclick"), id);
 				break;
 
 			case WM_RBUTTONUP:
 			case WM_CONTEXTMENU:
-				Dcx::mIRC.signalex(dcxSignal.xtray, "trayicon %s %d", "rclick", id);
+				Dcx::mIRC.signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("rclick"), id);
 				break;
 
 			case WM_RBUTTONDBLCLK:
-				Dcx::mIRC.signalex(dcxSignal.xtray, "trayicon %s %d", "rdclick", id);
+				Dcx::mIRC.signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("rdclick"), id);
 				break;
 
 			case WM_MBUTTONUP:
-				Dcx::mIRC.signalex(dcxSignal.xtray, "trayicon %s %d", "mclick", id);
+				Dcx::mIRC.signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("mclick"), id);
 				break;
 
 			case WM_MBUTTONDBLCLK:
-				Dcx::mIRC.signalex(dcxSignal.xtray, "trayicon %s %d", "mdclick", id);
+				Dcx::mIRC.signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("mdclick"), id);
 				break;
 
 			default:
@@ -280,7 +280,7 @@ bool DcxTrayIcon::modifyIcon(int id, DWORD msg, HICON icon, TString *tooltip) {
 
 	if (tooltip != NULL && tooltip->len() > 0) {
 		nid.uFlags |= NIF_TIP;
-		wsprintf(nid.szTip, "%s", tooltip->to_chr());
+		wsprintf(nid.szTip, TEXT("%s"), tooltip->to_chr());
 	}
 
 	if (icon != NULL) {

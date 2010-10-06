@@ -46,7 +46,7 @@ m_bUpdatingTooltip(false)
     NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
   if ( bNoTheme )
     Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
@@ -67,7 +67,7 @@ m_bUpdatingTooltip(false)
 
   this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
   this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+  SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -100,34 +100,34 @@ void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 	unsigned int i = 1, numtok = styles.numtok( );
 
 	while ( i <= numtok ) {
-		if ( styles.gettok( i ) == "autoticks" ) 
+		if ( styles.gettok( i ) == TEXT("autoticks") ) 
 			*Styles |= TBS_AUTOTICKS;
-		else if ( styles.gettok( i ) == "both" ) 
+		else if ( styles.gettok( i ) == TEXT("both") ) 
 			*Styles |= TBS_BOTH;
-		else if ( styles.gettok( i ) == "top" ) 
+		else if ( styles.gettok( i ) == TEXT("top") ) 
 			*Styles |= TBS_TOP;
-		else if ( styles.gettok( i ) == "bottom" ) 
+		else if ( styles.gettok( i ) == TEXT("bottom") ) 
 			*Styles |= TBS_BOTTOM;
-		else if ( styles.gettok( i ) == "left" ) 
+		else if ( styles.gettok( i ) == TEXT("left") ) 
 			*Styles |= TBS_LEFT;
-		else if ( styles.gettok( i ) == "right" ) 
+		else if ( styles.gettok( i ) == TEXT("right") ) 
 			*Styles |= TBS_RIGHT;
-		else if ( styles.gettok( i ) == "select" ) 
+		else if ( styles.gettok( i ) == TEXT("select") ) 
 			*Styles |= TBS_ENABLESELRANGE;
-		else if ( styles.gettok( i ) == "vertical" ) 
+		else if ( styles.gettok( i ) == TEXT("vertical") ) 
 			*Styles |= TBS_VERT;
-		else if ( styles.gettok( i ) == "nothumb" ) 
+		else if ( styles.gettok( i ) == TEXT("nothumb") ) 
 			*Styles |= TBS_NOTHUMB;
-		else if ( styles.gettok( i ) == "noticks" ) 
+		else if ( styles.gettok( i ) == TEXT("noticks") ) 
 			*Styles |= TBS_NOTICKS;
-		else if ( styles.gettok( i ) == "reversed" ) 
+		else if ( styles.gettok( i ) == TEXT("reversed") ) 
 			*Styles |= TBS_REVERSED;
-		else if ( styles.gettok( i ) == "downisleft" ) 
+		else if ( styles.gettok( i ) == TEXT("downisleft") ) 
 			*Styles |= TBS_DOWNISLEFT;
-		else if ( styles.gettok( i ) == "tooltips" ) 
+		else if ( styles.gettok( i ) == TEXT("tooltips") ) 
 			*Styles |= TBS_TOOLTIPS;
 #ifdef DCX_USE_WINSDK
-		else if ( styles.gettok( i ) == "transparentbkg" )
+		else if ( styles.gettok( i ) == TEXT("transparentbkg") )
 			*Styles |= TBS_TRANSPARENTBKGND;
 #endif
 
@@ -145,33 +145,33 @@ void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
  * \return > void
  */
 
-void DcxTrackBar::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxTrackBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 //  int numtok = input.numtok( );
 	TString prop(input.gettok( 3 ));
 
-  if ( prop == "value" ) {
+  if ( prop == TEXT("value") ) {
 
-    wsprintf( szReturnValue, "%d", this->getPos( ) );
+    wsprintf( szReturnValue, TEXT("%d"), this->getPos( ) );
     return;
   }
-  else if ( prop == "range" ) {
+  else if ( prop == TEXT("range") ) {
     
-    wsprintf( szReturnValue, "%d %d", this->getRangeMin( ), this->getRangeMax( ) );
+    wsprintf( szReturnValue, TEXT("%d %d"), this->getRangeMin( ), this->getRangeMax( ) );
     return;
   }
-  else if ( prop == "line" ) {
+  else if ( prop == TEXT("line") ) {
     
-    wsprintf( szReturnValue, "%d", this->getLineSize( ) );
+    wsprintf( szReturnValue, TEXT("%d"), this->getLineSize( ) );
     return;
   }
-  else if ( prop == "page" ) {
+  else if ( prop == TEXT("page") ) {
     
-    wsprintf( szReturnValue, "%d", this->getPageSize( ) );
+    wsprintf( szReturnValue, TEXT("%d"), this->getPageSize( ) );
     return;
   }
-  else if (prop == "selrange") {
-    wsprintf(szReturnValue, "%d %d", this->getSelStart(), this->getSelEnd());
+  else if (prop == TEXT("selrange")) {
+    wsprintf(szReturnValue, TEXT("%d %d"), this->getSelStart(), this->getSelEnd());
     return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
@@ -190,13 +190,13 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
 	int numtok = input.numtok( );
 
   // xdid -c [NAME] [ID] [SWITCH] [VALUE]
-  if ( flags['c'] && numtok > 3 ) {
+  if ( flags[TEXT('c')] && numtok > 3 ) {
 
     LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
     this->setTic( lPosition );
   }
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
-	else if (flags['g'] && numtok > 4) {
+	else if (flags[TEXT('g')] && numtok > 4) {
 		UINT tflags = parseImageFlags(input.gettok( 4 ));
 		TString filename(input.gettok(5, -1).trim());
 
@@ -218,37 +218,37 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
 		//InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
   // xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
-  else if ( flags['j'] && numtok > 4 ) {
+  else if ( flags[TEXT('j')] && numtok > 4 ) {
 
     LONG iMin = (LONG)input.gettok( 4 ).to_num( );
     LONG iMax = (LONG)input.gettok( 5 ).to_num( );
     this->setSel( iMin, iMax );
   }
   // xdid -l [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags['l'] && numtok > 3 ) {
+  else if ( flags[TEXT('l')] && numtok > 3 ) {
 
     LONG lLineSize = (LONG)input.gettok( 4 ).to_num( );
     this->setLineSize( lLineSize );
   }
   // xdid -m [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags['m'] && numtok > 3 ) {
+  else if ( flags[TEXT('m')] && numtok > 3 ) {
 
     LONG lPageSize = (LONG)input.gettok( 4 ).to_num( );
     this->setPageSize( lPageSize );
   }
   // xdid -n [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags['n'] && numtok > 3 ) {
+  else if ( flags[TEXT('n')] && numtok > 3 ) {
 
     int iTicFreq = input.gettok( 4 ).to_int( );
     this->setTicFreq( iTicFreq );
   }
   // xdid -q [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags['q'] ) {
+  else if ( flags[TEXT('q')] ) {
 
     this->clearTics( );
   }
   // xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-  else if ( flags['r'] && numtok > 4 ) {
+  else if ( flags[TEXT('r')] && numtok > 4 ) {
 
     LONG lMinRange = (LONG)input.gettok( 4 ).to_num( );
     LONG lMaxRange = (LONG)input.gettok( 5 ).to_num( );
@@ -257,33 +257,33 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
     this->setRangeMax( lMaxRange );
   }
 	// xdid -o [NAME] [ID] [SWITCH] [VALUE]
-	else if (flags['o'] && numtok > 3) {
+	else if (flags[TEXT('o')] && numtok > 3) {
 		m_colTransparent = (COLORREF)input.gettok( 4 ).to_num();
 		this->redrawWindow();
 	}
   // xdid -t [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags['t'] && numtok > 3 ) {
+  else if ( flags[TEXT('t')] && numtok > 3 ) {
 
     TString value(input.gettok( 4 ));
 
-    if ( value == "left" )
+    if ( value == TEXT("left") )
       this->setTipSide( TBTS_LEFT );
-    else if ( value == "right" )
+    else if ( value == TEXT("right") )
       this->setTipSide( TBTS_RIGHT );
-    else if ( value == "bottom" )
+    else if ( value == TEXT("bottom") )
       this->setTipSide( TBTS_BOTTOM );
     else
       this->setTipSide( TBTS_TOP );
   }
   // xdid -u [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags['u'] && numtok > 3 ) {
+  else if ( flags[TEXT('u')] && numtok > 3 ) {
 
     LONG lLength = (LONG)input.gettok( 4 ).to_num( );
 
     this->setThumbLength( lLength );
   }
   // xdid -v [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags['v'] && numtok > 3 ) {
+  else if ( flags[TEXT('v')] && numtok > 3 ) {
 
     LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
 
@@ -495,35 +495,35 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 		{
 			switch (LOWORD(wParam)) {
 				case TB_TOP:
-					this->execAliasEx("%s,%d,%d", "top", this->getUserID(), this->getPos());
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("top"), this->getUserID(), this->getPos());
 					break;
 
 				case TB_BOTTOM:
-					this->execAliasEx("%s,%d,%d", "bottom", this->getUserID(), this->getPos());
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("bottom"), this->getUserID(), this->getPos());
 					break;
 
 				case TB_PAGEUP:
-					this->execAliasEx("%s,%d,%d", "pageup", this->getUserID(), this->getPos());
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("pageup"), this->getUserID(), this->getPos());
 					break;
 
 				case TB_PAGEDOWN:
-					this->execAliasEx("%s,%d,%d", "pagedown", this->getUserID(), this->getPos());
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("pagedown"), this->getUserID(), this->getPos());
 					break;
 
 				case TB_LINEUP:
-					this->execAliasEx("%s,%d,%d", "lineup", this->getUserID(), this->getPos());
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("lineup"), this->getUserID(), this->getPos());
 					break;
 
 				case TB_LINEDOWN:
-					this->execAliasEx("%s,%d,%d", "linedown", this->getUserID(), this->getPos());
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("linedown"), this->getUserID(), this->getPos());
 					break;
 
 				case TB_THUMBPOSITION:
-					this->execAliasEx("%s,%d,%d", "trackend", this->getUserID(), this->getPos());
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("trackend"), this->getUserID(), this->getPos());
 					break;
 
 				case SB_THUMBTRACK:
-					this->execAliasEx("%s,%d,%d", "tracking", this->getUserID(), this->getPos());
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("tracking"), this->getUserID(), this->getPos());
 					break;
 			}
 
@@ -697,7 +697,7 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 					TString buff((UINT) 80);
 
-          this->evalAliasEx(buff.to_chr(), 79, "%s,%d,%d", "showtip", this->getUserID(), this->getPos());
+          this->evalAliasEx(buff.to_chr(), 79, TEXT("%s,%d,%d"), TEXT("showtip"), this->getUserID(), this->getPos());
 					
 					if (buff.len() > 0) {
 						TOOLINFO ti;
@@ -768,17 +768,17 @@ UINT DcxTrackBar::parseImageFlags(const TString &flags) {
 	INT i = 1, len = flags.len(), iFlags = 0;
 
 	// no +sign, missing params
-	if (flags[0] != '+')
+	if (flags[0] != TEXT('+'))
 		return iFlags;
 
 	while (i < len) {
-		if (flags[i] == 'b')
+		if (flags[i] == TEXT('b'))
 			iFlags |= TBCS_BACK;
-		else if (flags[i] == 'c')
+		else if (flags[i] == TEXT('c'))
 			iFlags |= TBCS_CHANNEL;
-		else if (flags[i] == 'd')
+		else if (flags[i] == TEXT('d'))
 			iFlags |= TBCS_THUMBDRAG;
-		else if (flags[i] == 't')
+		else if (flags[i] == TEXT('t'))
 			iFlags |= TBCS_THUMB;
 
 

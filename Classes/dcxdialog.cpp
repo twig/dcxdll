@@ -99,7 +99,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString &tsName, const TString &tsA
 , m_hFakeHwnd(NULL)
 , m_iAlphaLevel(255)
 , m_bHaveKeyColour(false)
-, m_cKeyColour(0)
+, m_cKeyColour(CLR_NONE)
 , m_bVistaStyle(false)
 , m_pVistaBits(NULL)
 , m_hVistaBitmap(NULL)
@@ -121,7 +121,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString &tsName, const TString &tsA
 	this->m_Shadow.Status = 0;
 	SetRectEmpty(&this->m_GlassOffsets);
 
-	SetProp(this->m_Hwnd, "dcx_this", (HANDLE) this);
+	SetProp(this->m_Hwnd, TEXT("dcx_this"), (HANDLE) this);
 
 	DragAcceptFiles(this->m_Hwnd, TRUE);
 }
@@ -147,7 +147,7 @@ DcxDialog::~DcxDialog() {
 	if (this->m_bCursorFromFile && this->m_hCursor != NULL)
 		DestroyCursor(this->m_hCursor);
 
-	RemoveProp(this->m_Hwnd, "dcx_this");
+	RemoveProp(this->m_Hwnd, TEXT("dcx_this"));
 }
 
 /*!
@@ -202,8 +202,8 @@ void DcxDialog::deleteControl(DcxControl *p_Control) {
 
 void DcxDialog::deleteAllControls() {
 	/*
-  char error[500];
-  wsprintf( error, "%d Controls", this->m_vpControls.size( ) );
+  TCHAR error[500];
+  wsprintf( error, TEXT("%d Controls"), this->m_vpControls.size( ) );
   mIRCError( error );
 
   VectorOfControlPtrs::iterator it;
@@ -212,12 +212,12 @@ void DcxDialog::deleteAllControls() {
   
   while ( ( p_Control = this->m_vpControls.pop_back( ) ) != NULL ) {
 
-    wsprintf( error, "ID %d %d", p_Control->getUserID( ), this->m_vpControls.size( ) );
+    wsprintf( error, TEXT("ID %d %d"), p_Control->getUserID( ), this->m_vpControls.size( ) );
     mIRCError( error );
 
     if ( p_Control != NULL ) {
 
-      if ( p_Control->getType( ) == "window" || p_Control->getType( ) == "dialog" )
+      if ( p_Control->getType( ) == TEXT("window") || p_Control->getType( ) == TEXT("dialog") )
         delete p_Control;
       else
         DestroyWindow( p_Control->getHwnd( ) );
@@ -226,7 +226,7 @@ void DcxDialog::deleteAllControls() {
   this->m_vpControls.clear( );
   
 
-  wsprintf( error, "%d Controls", this->m_vpControls.size( ) );
+  wsprintf( error, TEXT("%d Controls"), this->m_vpControls.size( ) );
   mIRCError( error );
   */
 }
@@ -289,15 +289,19 @@ void DcxDialog::PreloadData() {
  *
  * blah
  */
-void DcxDialog::parseCommandRequestEX(const char *szFormat, ...) {
+void DcxDialog::parseCommandRequestEX(const TCHAR *szFormat, ...) {
 	TString msg((UINT)2048);
 	va_list args;
 	va_start(args, szFormat);
+#if UNICODE
+	vswprintf(msg.to_chr(), 2028, szFormat, args);
+#else
 	vsprintf(msg.to_chr(), szFormat, args);
+#endif
 	this->parseCommandRequest(msg);
 	va_end(args);
 }
-void DcxDialog::parseComControlRequestEX(const int id, const char *szFormat, ...) {
+void DcxDialog::parseComControlRequestEX(const int id, const TCHAR *szFormat, ...) {
 	DcxControl * p_Control = this->getControlByID((UINT) id + mIRC_ID_OFFSET);
 	if (p_Control != NULL) {
 		TString msg;
@@ -316,29 +320,16 @@ void DcxDialog::parseCommandRequest( TString &input) {
 	int numtok = input.numtok( );
 
 	// xdialog -a [NAME] [SWITCH] [+FLAGS] [DURATION]
-	if (flags['a'] && numtok > 3) {
-#if DCX_FOR_XP_ONLY
+	if (flags[TEXT('a')] && numtok > 3) {
 		AnimateWindow(this->m_Hwnd,
 			input.gettok( 4 ).to_int(), 
 			getAnimateStyles(input.gettok( 3 )));
 
 		if (IsWindowVisible(this->m_Hwnd))
 			this->redrawWindow();
-#else
-		if (AnimateWindowUx == NULL)
-			this->showError(NULL, "-a", "Unsupported By Current OS");
-		else {
-			AnimateWindowUx(this->m_Hwnd,
-				input.gettok( 4 ).to_int(), 
-				getAnimateStyles(input.gettok( 3 )));
-
-			if (IsWindowVisible(this->m_Hwnd))
-				this->redrawWindow();
-		}
-#endif
 	}
 	// xdialog -b [NAME] [SWITCH] [+FLAGS]
-	else if (flags['b'] && numtok > 2) {
+	else if (flags[TEXT('b')] && numtok > 2) {
 		this->removeStyle(WS_BORDER | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX |
 			WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
 
@@ -357,7 +348,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		this->addStyle(Styles);
 		this->addExStyle(ExStyles);
 
-		if (input.gettok( 3 ).find('v',0)) {
+		if (input.gettok( 3 ).find(TEXT('v'),0)) {
 			// Vista Style Dialog
 			this->CreateVistaStyle();
 		}
@@ -366,7 +357,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		SendMessage(this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0);
 	}
 	// xdialog -c [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	else if (flags['c'] && numtok > 7) {
+	else if (flags[TEXT('c')] && numtok > 7) {
 		UINT ID = mIRC_ID_OFFSET + input.gettok( 3 ).to_int();
 
 		if ((IsWindow(GetDlgItem(this->m_Hwnd, ID)) == FALSE) && 
@@ -378,17 +369,17 @@ void DcxDialog::parseCommandRequest( TString &input) {
 				if (p_Control != NULL)
 					this->addControl(p_Control);
 			}
-			catch ( char *err ) {
-				this->showErrorEx(NULL, "-c", "Unable To Create Control %d (%s)", ID - mIRC_ID_OFFSET, err);
+			catch ( TCHAR *err ) {
+				this->showErrorEx(NULL, TEXT("-c"), TEXT("Unable To Create Control %d (%s)"), ID - mIRC_ID_OFFSET, err);
 			}
 		}
 		else
-			this->showErrorEx(NULL,"-c", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET);
+			this->showErrorEx(NULL,TEXT("-c"), TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET);
 	}
 	// xdialog -d [NAME] [SWITCH] [ID]
-	else if (flags['d'] && numtok > 2) {
+	else if (flags[TEXT('d')] && numtok > 2) {
 		/*
-		if ( input.gettok( 3 ) == "*" ) { 
+		if ( input.gettok( 3 ) == TEXT("*") ) { 
 
 		this->deleteAllControls( );
 		}
@@ -415,22 +406,21 @@ void DcxDialog::parseCommandRequest( TString &input) {
 					this->setFocusControl(0);
 			}
 
-			if ((p_Control->getType() == "dialog") || (p_Control->getType() == "window"))
+			if ((p_Control->getType() == TEXT("dialog")) || (p_Control->getType() == TEXT("window")))
 				delete p_Control;
 			else if (p_Control->getRefCount() == 0) {
 				this->deleteControl(p_Control); // remove control from internal list!
 				DestroyWindow(cHwnd);
 			}
 			else
-				this->showErrorEx(NULL, "-d", "Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)", p_Control->getUserID(), this->m_tsName.to_chr());
+				this->showErrorEx(NULL, TEXT("-d"), TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID(), this->m_tsName.to_chr());
 		}
 		// unknown control
 		else
-			this->showErrorEx(NULL, "-d", "Unknown control with ID \"%d\" (dialog %s)", ID - mIRC_ID_OFFSET, this->m_tsName.to_chr());
+			this->showErrorEx(NULL, TEXT("-d"), TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_tsName.to_chr());
 	}
 	// xdialog -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
-	else if (flags['f'] && numtok > 4) {
-#if DCX_FOR_XP_ONLY
+	else if (flags[TEXT('f')] && numtok > 4) {
 		UINT iFlags = this->parseFlashFlags(input.gettok( 3 ));
 		INT iCount = input.gettok( 4 ).to_int();
 		DWORD dwTimeout = (DWORD)input.gettok( 5 ).to_num();
@@ -444,28 +434,9 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		fli.dwTimeout = dwTimeout;
 
 		FlashWindowEx(& fli);
-#else
-		if (FlashWindowExUx == NULL)
-			this->showError(NULL, "-f", "Unsupported By Current OS");
-		else {
-			UINT iFlags = this->parseFlashFlags(input.gettok( 3 ));
-			INT iCount = input.gettok( 4 ).to_int();
-			DWORD dwTimeout = (DWORD)input.gettok( 5 ).to_num();
-			FLASHWINFO fli;
-
-			ZeroMemory(&fli, sizeof(FLASHWINFO));
-			fli.cbSize = sizeof(FLASHWINFO);
-			fli.dwFlags = iFlags;
-			fli.hwnd = this->m_Hwnd;
-			fli.uCount = iCount;
-			fli.dwTimeout = dwTimeout;
-
-			FlashWindowExUx(& fli);
-		}
-#endif
 	}
 	// xdialog -g [NAME] [SWITCH] [+FLAGS] [COLOR|FILENAME]
-	else if (flags['g'] && numtok > 3) {
+	else if (flags[TEXT('g')] && numtok > 3) {
 		this->m_uStyleBg = this->parseBkgFlags(input.gettok( 3 ));
 
 		if (this->m_uStyleBg & DBS_BKGCOLOR) {
@@ -484,7 +455,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 
 			TString filename(input.gettok(4, -1).trim());
 
-			if (filename != "none") {
+			if (filename != TEXT("none")) {
 				this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg, filename);
 //#ifdef DCX_USE_GDIPLUS
 //				if (mIRCLink.m_bUseGDIPlus)
@@ -497,7 +468,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		this->redrawWindow();
 	}
 	// xdialog -j [NAME] [SWITCH] (ID)
-	else if (flags['j']) {
+	else if (flags[TEXT('j')]) {
 		if (numtok > 2) {
 			UINT id = mIRC_ID_OFFSET + input.gettok( 3 ).to_int();
 			DcxControl * p_Control;
@@ -507,7 +478,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 				p_Control->redrawWindow();
 			}
 			else
-				this->showErrorEx(NULL, "-j", "Could not find control %d", id - mIRC_ID_OFFSET);
+				this->showErrorEx(NULL, TEXT("-j"), TEXT("Could not find control %d"), id - mIRC_ID_OFFSET);
 
 			return;
 		}
@@ -516,7 +487,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 	}
 	// This commands presence here doesnt make sense, why is a dialog command trying to alter the main mirc window?
 	// TODO: doesnt work. xdialog -k [NAME] [SWITCH] [STATE]
-	//else if (flags['k'] && numtok > 2) {
+	//else if (flags[TEXT('k')] && numtok > 2) {
 	//	bool state = (input.gettok(3).to_int() > 0);
 	//	LONG styles = GetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE);
 
@@ -534,8 +505,8 @@ void DcxDialog::parseCommandRequest( TString &input) {
 	add PATH[TAB]+flpiw [ID] [WEIGHT] [W] [H]
 	space PATH[TAB]+ [L] [T] [R] [B]
 	*/
-	else if (flags['l'] && numtok > 2) {
-		if (input.gettok( 3 ) == "update") {
+	else if (flags[TEXT('l')] && numtok > 2) {
+		if (input.gettok( 3 ) == TEXT("update")) {
 			if (this->m_pLayoutManager != NULL) {
 				RECT rc;
 
@@ -544,7 +515,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 					this->redrawWindow();
 			}
 		}
-		else if (input.gettok( 3 ) == "clear") {
+		else if (input.gettok( 3 ) == TEXT("clear")) {
 			if (this->m_pLayoutManager != NULL)
 				delete this->m_pLayoutManager;
 			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
@@ -561,7 +532,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			UINT W = p2.gettok( 4 ).to_int();
 			UINT H = p2.gettok( 5 ).to_int();
 
-			if (com == "root" || com == "cell") {
+			if (com == TEXT("root") || com == TEXT("cell")) {
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, mIRC_ID_OFFSET + ID);
 				LayoutCell * p_Cell = NULL;
 
@@ -578,7 +549,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 						if (cHwnd != NULL && IsWindow(cHwnd))
 							p_Cell = new LayoutCellFill(cHwnd);
 						else {
-							this->showErrorEx(NULL, "-l", "Cell Fill -> Invalid ID : %d", ID);
+							this->showErrorEx(NULL, TEXT("-l"), TEXT("Cell Fill -> Invalid ID : %d"), ID);
 							return;
 						}
 					}
@@ -606,7 +577,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 							if (cHwnd != NULL && IsWindow(cHwnd))
 								p_Cell = new LayoutCellFixed(cHwnd, rc, type);
 							else {
-								this->showErrorEx(NULL, "-l", "Cell Fixed -> Invalid ID : %d", ID);
+								this->showErrorEx(NULL, TEXT("-l"), TEXT("Cell Fixed -> Invalid ID : %d"), ID);
 								return;
 							}
 						}
@@ -619,32 +590,32 @@ void DcxDialog::parseCommandRequest( TString &input) {
 							if (cHwnd != NULL && IsWindow(cHwnd))
 								p_Cell = new LayoutCellFixed(cHwnd, type);
 							else {
-								this->showErrorEx(NULL, "-l", "Cell Fixed -> Invalid ID : %d", ID);
+								this->showErrorEx(NULL, TEXT("-l"), TEXT("Cell Fixed -> Invalid ID : %d"), ID);
 								return;
 							}
 						}
 					} //else
 				} // else if ( lflags & LAYOUTFIXED )
 				else {
-					this->showError(NULL, "-l", "Unknown Cell Type");
+					this->showError(NULL, TEXT("-l"), TEXT("Unknown Cell Type"));
 					return;
 				}
 
-				if (com == "root") {
+				if (com == TEXT("root")) {
 					if (p_Cell != NULL)
 						this->m_pLayoutManager->setRoot(p_Cell);
-				} // if ( com == "root" )
-				else if (com == "cell") {
+				} // if ( com == TEXT("root") )
+				else if (com == TEXT("cell")) {
 					if (p_Cell != NULL) {
 						LayoutCell * p_GetCell;
 
-						if (path == "root")
+						if (path == TEXT("root"))
 							p_GetCell = this->m_pLayoutManager->getRoot();
 						else
 							p_GetCell = this->m_pLayoutManager->getCell(path);
 
 						if (p_GetCell == NULL) {
-							this->showErrorEx(NULL, "-l", "Invalid item path: %s", path.to_chr());
+							this->showErrorEx(NULL, TEXT("-l"), TEXT("Invalid item path: %s"), path.to_chr());
 							return;
 						}
 
@@ -653,12 +624,12 @@ void DcxDialog::parseCommandRequest( TString &input) {
 							p_PaneCell->addChild(p_Cell, WGT);
 						}
 					}
-				} // else if ( com == "cell" )
-			} // if ( com ==  "root" || com == "cell" )
-			else if (com ==  "space") {
+				} // else if ( com == TEXT("cell") )
+			} // if ( com ==  TEXT("root") || com == TEXT("cell") )
+			else if (com ==  TEXT("space")) {
 				LayoutCell * p_GetCell;
 
-				if (path == "root")
+				if (path == TEXT("root"))
 					p_GetCell = this->m_pLayoutManager->getRoot();
 				else
 					p_GetCell = this->m_pLayoutManager->getCell(path);
@@ -669,11 +640,11 @@ void DcxDialog::parseCommandRequest( TString &input) {
 					SetRect(&rc, ID, WGT, W, H);
 					p_GetCell->setBorder(rc);
 				}
-			} // else if ( com == "space" )
+			} // else if ( com == TEXT("space") )
 		} // if ( numtok > 7 )
 	}
 	// xdialog -q [NAME] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
-	else if (flags['q'] && numtok > 3) {
+	else if (flags[TEXT('q')] && numtok > 3) {
 		//if (this->m_bCursorFromFile) {
 		//	DeleteObject(this->m_hCursor);
 		//	this->m_hCursor = NULL;
@@ -705,10 +676,10 @@ void DcxDialog::parseCommandRequest( TString &input) {
 				this->m_bCursorFromFile = TRUE;
 			}
 			else
-				this->showErrorEx(NULL,"-q", "Unable to Access File: %s", filename.to_chr());
+				this->showErrorEx(NULL,TEXT("-q"), TEXT("Unable to Access File: %s"), filename.to_chr());
 		}
 		if (this->m_hCursor == NULL)
-			this->showError(NULL, "-q", "Unable to Load Cursor");
+			this->showError(NULL, TEXT("-q"), TEXT("Unable to Load Cursor"));
 		if (hCursor != NULL) {
 			if (GetCursor() == hCursor) {
 				if (this->m_hCursor != NULL)
@@ -720,47 +691,46 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		}
 	}
 	// xdialog -x [NAME]
-	else if (flags['x']) {
+	else if (flags[TEXT('x')]) {
 		if (this->getRefCount() == 0) {
 			//DestroyWindow(this->m_Hwnd);
 			//SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
-			char ret[32];
-			Dcx::mIRC.evalex(ret, 32, "$dialog(%s).modal", this->m_tsName.to_chr());
-			if (lstrcmp(ret, "$true") == 0) // Modal Dialog
+			TCHAR ret[32];
+			Dcx::mIRC.evalex(ret, 32, TEXT("$dialog(%s).modal"), this->m_tsName.to_chr());
+			if (lstrcmp(ret, TEXT("$true")) == 0) // Modal Dialog
 				SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
 			else // Modeless Dialog
 				DestroyWindow(this->m_Hwnd);
 		}
 		else
-			Dcx::mIRC.execex("/.timer -m 1 0 xdialog -x %s", this->getName().to_chr());
+			Dcx::mIRC.execex(TEXT("/.timer -m 1 0 xdialog -x %s"), this->getName().to_chr());
 	}
 	// xdialog -h [NAME]
-	else if (flags['h']) {
+	else if (flags[TEXT('h')]) {
 		ShowWindow(this->m_Hwnd, SW_HIDE);
 	}
 	// xdialog -m [NAME]
-	else if (flags['m']) {
+	else if (flags[TEXT('m')]) {
 		ShowWindow(this->m_Hwnd, SW_MAXIMIZE);
 	}
 	// xdialog -n [NAME]
-	else if (flags['n']) {
+	else if (flags[TEXT('n')]) {
 		ShowWindow(this->m_Hwnd, SW_MINIMIZE);
 	}
 	// xdialog -r [NAME]
-	else if (flags['r']) {
+	else if (flags[TEXT('r')]) {
 		ShowWindow(this->m_Hwnd, SW_RESTORE);
 	}
 	// xdialog -s [NAME]
-	else if (flags['s']) {
+	else if (flags[TEXT('s')]) {
 		ShowWindow(this->m_Hwnd, SW_SHOW);
 	}
 	// xdialog -t [NAME] [SWITCH] [TYPE] [TYPE ARGS]
-	else if (flags['t'] && numtok > 2) {
+	else if (flags[TEXT('t')] && numtok > 2) {
 		// Alpha transparency
-		if (input.gettok( 3 ) == "alpha") {
-			if (input.gettok( 4 ) == "none") {
+		if (input.gettok( 3 ) == TEXT("alpha")) {
+			if (input.gettok( 4 ) == TEXT("none")) {
 				this->m_iAlphaLevel = 255;
-#if DCX_FOR_XP_ONLY
 				if (!this->m_bVistaStyle) {
 					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
 						RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
@@ -769,16 +739,6 @@ void DcxDialog::parseCommandRequest( TString &input) {
 							SetLayeredWindowAttributes(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
 					}
 				}
-#else
-				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
-					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
-						RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-						AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-						if (this->m_bHaveKeyColour) // reapply keycolour if any.
-							SetLayeredWindowAttributesUx(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
-					}
-				}
-#endif
 			}
 			else {
 				BYTE alpha = (BYTE)input.gettok( 4 ).to_int();
@@ -789,7 +749,6 @@ void DcxDialog::parseCommandRequest( TString &input) {
 				//	alpha = 0;
 
 				this->m_iAlphaLevel = alpha;
-#if DCX_FOR_XP_ONLY
 				if (!this->m_bVistaStyle) {
 					// Set WS_EX_LAYERED on this window
 					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
@@ -797,23 +756,13 @@ void DcxDialog::parseCommandRequest( TString &input) {
 					// Make this window x% alpha
 					SetLayeredWindowAttributes(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
 				}
-#else
-				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
-					// Set WS_EX_LAYERED on this window
-					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-
-					// Make this window x% alpha
-					SetLayeredWindowAttributesUx(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
-				}
-#endif
 			}
 		}
 		// Transparent color
-		else if (input.gettok( 3 ) == "transparentcolor") {
-			if (input.gettok( 4 ) == "none") {
-				this->m_cKeyColour = (COLORREF)-1;
+		else if (input.gettok( 3 ) == TEXT("transparentcolor")) {
+			if (input.gettok( 4 ) == TEXT("none")) {
+				this->m_cKeyColour = CLR_NONE;
 				this->m_bHaveKeyColour = false;
-#if DCX_FOR_XP_ONLY
 				if (!this->m_bVistaStyle) {
 					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
 						RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
@@ -822,21 +771,10 @@ void DcxDialog::parseCommandRequest( TString &input) {
 							SetLayeredWindowAttributes(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
 					}
 				}
-#else
-				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
-					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
-						RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-						AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-						if (this->m_iAlphaLevel != 255) // reapply alpha if any.
-							SetLayeredWindowAttributesUx(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
-					}
-				}
-#endif
 			}
 			else {
 				this->m_cKeyColour = (COLORREF)input.gettok( 4 ).to_int();
 				this->m_bHaveKeyColour = true;
-#if DCX_FOR_XP_ONLY
 				if (!this->m_bVistaStyle) {
 					// Set WS_EX_LAYERED on this window
 					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
@@ -844,31 +782,21 @@ void DcxDialog::parseCommandRequest( TString &input) {
 					// Make colour transparent
 					SetLayeredWindowAttributes(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
 				}
-#else
-				if (SetLayeredWindowAttributesUx && !this->m_bVistaStyle) {
-					// Set WS_EX_LAYERED on this window
-					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-
-					// Make colour transparent
-					SetLayeredWindowAttributesUx(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
-				}
-#endif
 			}
 		}
 		// Background color
-		else if (input.gettok( 3 ) == "bgcolor") {
+		else if (input.gettok( 3 ) == TEXT("bgcolor")) {
 			this->m_colTransparentBg = input.gettok( 4 ).to_int();
 		}
 		// TODO: not going to document this, have no way to redrawing the window.
 		// http://www.codeproject.com/KB/vb/ClickThroughWindows.aspx
 		// NB: may not be compatible with vista style.
 		// Click-through
-		else if (input.gettok(3) == "clickthrough") {
-			if (input.gettok(4) == "none") {
+		else if (input.gettok(3) == TEXT("clickthrough")) {
+			if (input.gettok(4) == TEXT("none")) {
 				if (this->isExStyle(WS_EX_LAYERED|WS_EX_TRANSPARENT))
 					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
 				// re-apply any alpha or keycolour.
-#if DCX_FOR_XP_ONLY
 				if (((this->m_iAlphaLevel != 255) || (this->m_bHaveKeyColour)) && (!this->m_bVistaStyle)) {
 					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
 					if (this->m_iAlphaLevel != 255) // reapply alpha if any.
@@ -876,29 +804,20 @@ void DcxDialog::parseCommandRequest( TString &input) {
 					if (this->m_bHaveKeyColour) // reapply keycolour if any.
 						SetLayeredWindowAttributes(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
 				}
-#else
-				if (((this->m_iAlphaLevel != 255) || (this->m_bHaveKeyColour)) && ((SetLayeredWindowAttributesUx != NULL) && !this->m_bVistaStyle)) {
-					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-					if (this->m_iAlphaLevel != 255) // reapply alpha if any.
-						SetLayeredWindowAttributesUx(this->m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
-					if (this->m_bHaveKeyColour) // reapply keycolour if any.
-						SetLayeredWindowAttributesUx(this->m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
-				}
-#endif
 			}
 			else
 				AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
 		}
 		else {
-			this->showError(NULL, "-t", "Unknown Switch");
+			this->showError(NULL, TEXT("-t"), TEXT("Unknown Switch"));
 			return;
 		}
 		this->redrawWindow();
 	}
 	// xdialog -T [NAME] [SWITCH] [FLAGS] [STYLES]
-	else if (flags['T'] && numtok > 2) {
+	else if (flags[TEXT('T')] && numtok > 2) {
 		if (IsWindow(this->m_ToolTipHWND)) {
-			this->showError(NULL, "-T", "Tooltip already exists. Cannot recreate");
+			this->showError(NULL, TEXT("-T"), TEXT("Tooltip already exists. Cannot recreate"));
 			return;
 		}
 
@@ -913,14 +832,14 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			NULL, GetModuleHandle(NULL), NULL);
 		if (IsWindow(this->m_ToolTipHWND)) { // MUST set a limit before $crlf will give multiline tips.
 			SendMessage(this->m_ToolTipHWND,TTM_SETMAXTIPWIDTH,0,400); // 400 seems a good limit for now, we could also add an option to set this.
-			//if (input.gettok( 3 ).find('T',0)) {
+			//if (input.gettok( 3 ).find(TEXT('T'),0)) {
 			//	AddStyles(this->m_ToolTipHWND,GWL_EXSTYLE,WS_EX_LAYERED);
 			//	SetLayeredWindowAttributesUx(this->m_ToolTipHWND, 0, 192, LWA_ALPHA);
 			//}
 		}
 	}
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags['w'] && numtok > 4) {
+	else if (flags[TEXT('w')] && numtok > 4) {
 		TString tsFlags(input.gettok( 3 ));
 		int index = input.gettok( 4 ).to_int();
 		TString filename(input.gettok(5, -1).trim());
@@ -928,19 +847,19 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		ChangeHwndIcon(this->m_Hwnd,tsFlags,index,filename);
 	}
 	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]
-	else if (flags['z'] && numtok > 3) {
+	else if (flags[TEXT('z')] && numtok > 3) {
 		TString flag(input.gettok( 3 ));
 		int n = input.gettok( 4 ).to_int();
 		DcxControl* ctrl = NULL;
 
 		// invalid input for [N]
 		if (n <= 0) {
-			this->showError(NULL,"-z", "Invalid Parameters");
+			this->showError(NULL,TEXT("-z"), TEXT("Invalid Parameters"));
 			return;
 		}
 
 		// adding control ID to list
-		if (flag[1] == 'a')
+		if (flag[1] == TEXT('a'))
 		{
 			// check if the ID is already in the list
 			VectorOfInts::iterator itStart = this->m_vZLayers.begin();
@@ -951,7 +870,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 
 			while (itStart != itEnd) {
 				if (*itStart == n) {
-					this->showErrorEx(NULL,"-z","control %d already in list", n);
+					this->showErrorEx(NULL,TEXT("-z"),TEXT("control %d already in list"), n);
 					return;
 				}
 
@@ -973,7 +892,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			this->m_vZLayers.push_back(n);
 		}
 		// position to match CID [CID]
-		else if (flag[1] == 'p') {
+		else if (flag[1] == TEXT('p')) {
 			// add mIRC offset since getControlByID() needs it
 			n += mIRC_ID_OFFSET;
 
@@ -982,7 +901,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 
 			// target control not found
 			if (!ctrl) {
-				this->showError(NULL,"-z","No such control");
+				this->showError(NULL,TEXT("-z"),TEXT("No such control"));
 				return;
 			}
 
@@ -1011,17 +930,17 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			}
 		}
 		// show index [N]
-		else if (flag[1] == 's') {
+		else if (flag[1] == TEXT('s')) {
 			// minus since indexes are zero-based
 			n--;
 
 			// if the index is out of bounds
 			if (n >= (int) this->m_vZLayers.size()) {
-				this->showError(NULL,"-z","Index array out of bounds");
+				this->showError(NULL,TEXT("-z"),TEXT("Index array out of bounds"));
 				return;
 			}
 
-			this->execAliasEx("%s,%d,%d", "zlayershow", n +1, this->m_vZLayers[n] - mIRC_ID_OFFSET);
+			this->execAliasEx(TEXT("%s,%d,%d"), TEXT("zlayershow"), n +1, this->m_vZLayers[n] - mIRC_ID_OFFSET);
 
 			// hide the previous control
 			ctrl = getControlByID(this->m_vZLayers[this->m_zLayerCurrent]);
@@ -1042,13 +961,13 @@ void DcxDialog::parseCommandRequest( TString &input) {
 					this->redrawWindow();
 			}
 			else
-				this->showError(NULL,"-z","Invalid Control ID");
+				this->showError(NULL,TEXT("-z"),TEXT("Invalid Control ID"));
 		}
 
 		return;
 	}
 	// xdialog -P [NAME] [SWITCH] ([+FLAGS] (FLAG OPTIONS))
-	else if (flags['P']) {
+	else if (flags[TEXT('P')]) {
 		HMENU menu = NULL;
 
 		// create the menu
@@ -1056,22 +975,22 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			menu = GetMenu(this->m_Hwnd);
 
 			if (menu != NULL)
-				this->m_popup = new XPopupMenu("dialog", menu);
+				this->m_popup = new XPopupMenu(TEXT("dialog"), menu);
 			else
-				this->showError(NULL,"-P","Menu Does Not Exist");
+				this->showError(NULL,TEXT("-P"),TEXT("Menu Does Not Exist"));
 		}
 		if (this->m_popup != NULL) {
 			TString menuargs;
-			menuargs.tsprintf("dialog %s", input.gettok( 3, -1).to_chr());
+			menuargs.tsprintf(TEXT("dialog %s"), input.gettok( 3, -1).to_chr());
 			Dcx::XPopups.parseCommand(menuargs, this->m_popup);
 		}
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
-	else if (flags['R'] && numtok > 2) {
+	else if (flags[TEXT('R')] && numtok > 2) {
 		TString flag(input.gettok( 3 ));
 
-		if ((flag.len() < 2) || (flag[0] != '+')) {
-			this->showError(NULL, "-R", "Invalid Flag");
+		if ((flag.len() < 2) || (flag[0] != TEXT('+'))) {
+			this->showError(NULL, TEXT("-R"), TEXT("Invalid Flag"));
 			return;
 		}
 
@@ -1082,20 +1001,20 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		int RegionMode = 0;
 		bool noRegion = false;
 
-		if (flag.find('o',0))
+		if (flag.find(TEXT('o'),0))
 			RegionMode = RGN_OR;
-		else if (flag.find('a',0))
+		else if (flag.find(TEXT('a'),0))
 			RegionMode = RGN_AND;
-		else if (flag.find('i',0))
+		else if (flag.find(TEXT('i'),0))
 			RegionMode = RGN_DIFF;
-		else if (flag.find('x',0))
+		else if (flag.find(TEXT('x'),0))
 			RegionMode = RGN_XOR;
 
 		// image file - [COLOR] [FILE]
-		if (flag.find('f',0))
+		if (flag.find(TEXT('f'),0))
 		{
 			if (numtok < 5) {
-				this->showError(NULL, "-R +f", "Invalid arguments");
+				this->showError(NULL, TEXT("-R +f"), TEXT("Invalid arguments"));
 				return;
 			}
 
@@ -1110,9 +1029,9 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			if (this->m_bitmapBg != NULL)
 				m_Region = BitmapRegion(this->m_bitmapBg,this->m_colTransparentBg,TRUE);
 			else
-				this->showError(NULL, "-R +f", "Unable To Load Image file.");
+				this->showError(NULL, TEXT("-R +f"), TEXT("Unable To Load Image file."));
 		}
-		else if (flag.find('r',0)) // rounded rect - radius args (optional)
+		else if (flag.find(TEXT('r'),0)) // rounded rect - radius args (optional)
 		{
 			int radius;
 
@@ -1123,7 +1042,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 
 			m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
 		}
-		else if (flag.find('c',0)) // circle - radius arg (optional)
+		else if (flag.find(TEXT('c'),0)) // circle - radius arg (optional)
 		{
 			if (numtok > 3) {
 				int radius = input.gettok( 4 ).to_int();
@@ -1135,11 +1054,11 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			else
 				m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
 		}
-		else if (flag.find('p',0)) // polygon
+		else if (flag.find(TEXT('p'),0)) // polygon
 		{
 			// u need at least 3 points for a shape
 			if (numtok < 6) {
-				this->showError(NULL, "-R +p", "Invalid arguments");
+				this->showError(NULL, TEXT("-R +p"), TEXT("Invalid arguments"));
 				return;
 			}
 
@@ -1148,7 +1067,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			int tPoints = strPoints.numtok( );
 
 			if (tPoints < 1) {
-				this->showError(NULL, "-R +p", "Invalid Points");
+				this->showError(NULL, TEXT("-R +p"), TEXT("Invalid Points"));
 				return;
 			}
 
@@ -1166,7 +1085,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 
 			delete [] pnts;
 		}
-		else if (flag.find('d',0)) // drag - <1|0>
+		else if (flag.find(TEXT('d'),0)) // drag - <1|0>
 		{
 			noRegion = true;
 			if ((BOOL)input.gettok( 4 ).to_int())
@@ -1174,7 +1093,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			else
 				this->m_bDoDrag = false;
 		}
-		else if (flag.find('g',0)) // ghost drag - <0-255>
+		else if (flag.find(TEXT('g'),0)) // ghost drag - <0-255>
 		{
 			BYTE alpha = (BYTE)input.gettok( 4 ).to_int();
 			if (/*(alpha >= 0) &&*/ (alpha <= 255)) { // unsigned int will ALWAYS be >= 0
@@ -1182,11 +1101,11 @@ void DcxDialog::parseCommandRequest( TString &input) {
 				this->m_bDoGhostDrag = alpha;
 			}
 			else {
-				this->showError(NULL,"-R +g", "Alpha Out Of Range");
+				this->showError(NULL,TEXT("-R +g"), TEXT("Alpha Out Of Range"));
 				return;
 			}
 		}
-		else if (flag.find('s',0)) // shadow - <colour> <sharpness> <darkness> <size> <xoffset> <yoffset>
+		else if (flag.find(TEXT('s'),0)) // shadow - <colour> <sharpness> <darkness> <size> <xoffset> <yoffset>
 		{
 			if (numtok == 9) {
 				noRegion = true;
@@ -1208,12 +1127,12 @@ void DcxDialog::parseCommandRequest( TString &input) {
 				this->RemoveShadow();
 			}
 		}
-		else if (flag.find('n',0)) { // none, no args
+		else if (flag.find(TEXT('n'),0)) { // none, no args
 			noRegion = true;
 			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
 		}
 		else
-			this->showError(NULL, "-R", "Invalid Flag");
+			this->showError(NULL, TEXT("-R"), TEXT("Invalid Flag"));
 
 		if (!noRegion) {
 			if (m_Region != NULL) {
@@ -1228,67 +1147,67 @@ void DcxDialog::parseCommandRequest( TString &input) {
 				SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
 			}
 			else
-				this->showError(NULL, "-R", "Unable to create region.");
+				this->showError(NULL, TEXT("-R"), TEXT("Unable to create region."));
 		}
 		this->redrawWindow();
 	}
 	// xdialog -E [NAME] [SWITCH] [+flags] [-flags]
-	else if (flags['E'] && numtok > 3) {
+	else if (flags[TEXT('E')] && numtok > 3) {
 		//this->m_dEventMask = (DWORD)input.gettok( 3 ).to_num();
 		DWORD mask = this->m_dEventMask;
 		TString p_flags(input.gettok( 3 ));
 		TString n_flags(input.gettok( 4 ));
 
-		if ((p_flags[0] != '+') || (n_flags[0] != '-')) {
-			this->showError(NULL,"-E", "Invalid Flag");
+		if ((p_flags[0] != TEXT('+')) || (n_flags[0] != TEXT('-'))) {
+			this->showError(NULL,TEXT("-E"), TEXT("Invalid Flag"));
 			return;
 		}
-		if (p_flags.find('c',0))
+		if (p_flags.find(TEXT('c'),0))
 			mask |= DCX_EVENT_CLICK;
-		if (p_flags.find('d',0))
+		if (p_flags.find(TEXT('d'),0))
 			mask |= DCX_EVENT_DRAG;
-		if (p_flags.find('e',0))
+		if (p_flags.find(TEXT('e'),0))
 			mask |= DCX_EVENT_EDIT;
-		if (p_flags.find('f',0))
+		if (p_flags.find(TEXT('f'),0))
 			mask |= DCX_EVENT_FOCUS;
-		if (p_flags.find('h',0))
+		if (p_flags.find(TEXT('h'),0))
 			mask |= DCX_EVENT_HELP;
-		if (p_flags.find('m',0))
+		if (p_flags.find(TEXT('m'),0))
 			mask |= DCX_EVENT_MOUSE;
-		if (p_flags.find('s',0))
+		if (p_flags.find(TEXT('s'),0))
 			mask |= DCX_EVENT_SIZE;
-		if (p_flags.find('t',0))
+		if (p_flags.find(TEXT('t'),0))
 			mask |= DCX_EVENT_THEME;
-		if (p_flags.find('C',0))
+		if (p_flags.find(TEXT('C'),0))
 			mask |= DCX_EVENT_CLOSE;
-		if (p_flags.find('M',0))
+		if (p_flags.find(TEXT('M'),0))
 			mask |= DCX_EVENT_MOVE;
 
-		if (n_flags.find('c',0))
+		if (n_flags.find(TEXT('c'),0))
 			mask &= ~DCX_EVENT_CLICK;
-		if (n_flags.find('d',0))
+		if (n_flags.find(TEXT('d'),0))
 			mask &= ~DCX_EVENT_DRAG;
-		if (n_flags.find('e',0))
+		if (n_flags.find(TEXT('e'),0))
 			mask &= ~DCX_EVENT_EDIT;
-		if (n_flags.find('f',0))
+		if (n_flags.find(TEXT('f'),0))
 			mask &= ~DCX_EVENT_FOCUS;
-		if (n_flags.find('h',0))
+		if (n_flags.find(TEXT('h'),0))
 			mask &= ~DCX_EVENT_HELP;
-		if (n_flags.find('m',0))
+		if (n_flags.find(TEXT('m'),0))
 			mask &= ~DCX_EVENT_MOUSE;
-		if (n_flags.find('s',0))
+		if (n_flags.find(TEXT('s'),0))
 			mask &= ~DCX_EVENT_SIZE;
-		if (n_flags.find('t',0))
+		if (n_flags.find(TEXT('t'),0))
 			mask &= ~DCX_EVENT_THEME;
-		if (n_flags.find('C',0))
+		if (n_flags.find(TEXT('C'),0))
 			mask &= ~DCX_EVENT_CLOSE;
-		if (n_flags.find('M',0))
+		if (n_flags.find(TEXT('M'),0))
 			mask &= ~DCX_EVENT_MOVE;
 
 		this->m_dEventMask = mask;
 	}
 	// xdialog -V [NAME] [SWITCH] [left] [right] [top] [bottom]
-	else if (flags['V'] && numtok > 5) {
+	else if (flags[TEXT('V')] && numtok > 5) {
 		this->m_GlassOffsets.left = input.gettok( 3 ).to_int();
 		this->m_GlassOffsets.right = input.gettok( 4 ).to_int();
 		this->m_GlassOffsets.top = input.gettok( 5 ).to_int();
@@ -1301,11 +1220,11 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		this->redrawWindow();
 	}
 	// xdialog -U [NAME] [SWITCH]
-	else if (flags['U']) {
+	else if (flags[TEXT('U')]) {
 		SetFocus(NULL);
 	}
 	// xdialog -S [NAME] [SWITCH] [X Y W H]
-	else if (flags['S'] && (numtok > 5)) {
+	else if (flags[TEXT('S')] && (numtok > 5)) {
 		int x = input.gettok( 3 ).to_int( );
 		int y = input.gettok( 4 ).to_int( );
 		int w = input.gettok( 5 ).to_int( );
@@ -1352,7 +1271,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 	}
 	// invalid command
 	else
-		this->showError(NULL, input.gettok(2).to_chr(), "Invalid Command");
+		this->showError(NULL, input.gettok(2).to_chr(), TEXT("Invalid Command"));
 }
 
 /*!
@@ -1366,47 +1285,42 @@ void DcxDialog::parseBorderStyles(const TString &flags, LONG *Styles, LONG *ExSt
 	INT i = 1, len = flags.len();
 
 	// no +sign, missing params
-	if (flags[0] != '+') 
+	if (flags[0] != TEXT('+')) 
 		return;
 
 	while (i < len) {
-		if (flags[i] == 'b')
+		if (flags[i] == TEXT('b'))
 			*Styles |= WS_BORDER;
-		else if (flags[i] == 'c')
+		else if (flags[i] == TEXT('c'))
 			*ExStyles |= WS_EX_CLIENTEDGE;
-		else if (flags[i] == 'd')
+		else if (flags[i] == TEXT('d'))
 			*Styles |= WS_DLGFRAME ;
-		else if (flags[i] == 'f')
+		else if (flags[i] == TEXT('f'))
 			*ExStyles |= WS_EX_DLGMODALFRAME;
-		else if (flags[i] == 'h')
+		else if (flags[i] == TEXT('h'))
 			*ExStyles |= WS_EX_CONTEXTHELP;
-		else if (flags[i] == 'm')
+		else if (flags[i] == TEXT('m'))
 			*Styles |= WS_MAXIMIZEBOX;
-		else if (flags[i] == 'n')
+		else if (flags[i] == TEXT('n'))
 			*Styles |= WS_MINIMIZEBOX;
-		else if (flags[i] == 'o')
+		else if (flags[i] == TEXT('o'))
 			*ExStyles |= WS_EX_TOOLWINDOW;
-		else if (flags[i] == 's')
+		else if (flags[i] == TEXT('s'))
 			*ExStyles |= WS_EX_STATICEDGE;
-		else if (flags[i] == 't')
+		else if (flags[i] == TEXT('t'))
 			*Styles |= WS_CAPTION;
-		else if (flags[i] == 'w')
+		else if (flags[i] == TEXT('w'))
 			*ExStyles |= WS_EX_WINDOWEDGE;
-		else if (flags[i] == 'y')
+		else if (flags[i] == TEXT('y'))
 			*Styles |= WS_SYSMENU;
-		else if (flags[i] == 'z')
+		else if (flags[i] == TEXT('z'))
 			*Styles |= WS_SIZEBOX;
-		else if (flags[i] == 'x' && Dcx::XPPlusModule.isUseable())
+		else if (flags[i] == TEXT('x') && Dcx::XPPlusModule.isUseable())
 			*ExStyles |= WS_EX_COMPOSITED;
 		//	WS_EX_COMPOSITED style causes problems for listview control & maybe others, but when it works it looks really cool :)
 		//	this improves transparency etc.. on xp+ only, looking into how this affects us.
-#if DCX_FOR_XP_ONLY
-		else if (flags[i] == 'v')
+		else if (flags[i] == TEXT('v'))
 			*ExStyles |= WS_EX_LAYERED;
-#else
-		else if (flags[i] == 'v' && UpdateLayeredWindowUx != NULL && SetLayeredWindowAttributesUx != NULL)
-			*ExStyles |= WS_EX_LAYERED;
-#endif
 		++i;
 	}
 }
@@ -1421,37 +1335,37 @@ DWORD DcxDialog::getAnimateStyles( const TString &flags) {
 	DWORD Styles = 0;
 	int i = 1, len = flags.len();
 
-	if (flags[0] != '+')
+	if (flags[0] != TEXT('+'))
 		return 0;
 
 	while (i < len) {
 		switch (flags[i])
 		{
-		case 's':
+		case TEXT('s'):
 			Styles |= AW_SLIDE;
 			break;
-		case 'h':
+		case TEXT('h'):
 			Styles |= AW_HIDE;
 			break;
-		case 'a':
+		case TEXT('a'):
 			Styles |= AW_ACTIVATE;
 			break;
-		case 'b':
+		case TEXT('b'):
 			Styles |= AW_BLEND;
 			break;
-		case 'v':
+		case TEXT('v'):
 			Styles |= AW_VER_POSITIVE;
 			break;
-		case 'u':
+		case TEXT('u'):
 			Styles |= AW_VER_NEGATIVE;
 			break;
-		case 'c':
+		case TEXT('c'):
 			Styles |= AW_CENTER;
 			break;
-		case 'o':
+		case TEXT('o'):
 			Styles |= AW_HOR_POSITIVE;
 			break;
-		case 'n':
+		case TEXT('n'):
 			Styles |= AW_HOR_NEGATIVE;
 		default:
 			break;
@@ -1473,23 +1387,23 @@ UINT DcxDialog::parseLayoutFlags(const TString &flags) {
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if (flags[0] != '+') 
+	if (flags[0] != TEXT('+')) 
 		return iFlags;
 
 	while (i < len) {
-		if (flags[i] == 'f')
+		if (flags[i] == TEXT('f'))
 			iFlags |= LAYOUTFIXED;
-		else if (flags[i] == 'h')
+		else if (flags[i] == TEXT('h'))
 			iFlags |= LAYOUTHORZ;
-		else if (flags[i] == 'i')
+		else if (flags[i] == TEXT('i'))
 			iFlags |= LAYOUTID;
-		else if (flags[i] == 'l')
+		else if (flags[i] == TEXT('l'))
 			iFlags |= LAYOUTFILL ;
-		else if (flags[i] == 'p')
+		else if (flags[i] == TEXT('p'))
 			iFlags |= LAYOUTPANE;
-		else if (flags[i] == 'v')
+		else if (flags[i] == TEXT('v'))
 			iFlags |= LAYOUTVERT;
-		else if (flags[i] == 'w')
+		else if (flags[i] == TEXT('w'))
 			iFlags |= LAYOUTDIM;
 
 		++i;
@@ -1504,24 +1418,24 @@ UINT DcxDialog::parseTooltipFlags(const TString &flags) {
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if (flags[0] != '+') 
+	if (flags[0] != TEXT('+')) 
 		return iFlags;
 
 	while (i < len) {
-		if (flags[i] == 'a')
+		if (flags[i] == TEXT('a'))
 			iFlags |= TTS_ALWAYSTIP;
-		else if (flags[i] == 'b')
+		else if (flags[i] == TEXT('b'))
 			iFlags |= TTS_BALLOON;
-		else if (flags[i] == 'c') // no idea what this does or if it works at all
+		else if (flags[i] == TEXT('c')) // no idea what this does or if it works at all
 			iFlags |= TTS_CLOSE;
-		else if (flags[i] == 'f')
+		else if (flags[i] == TEXT('f'))
 			iFlags |= TTS_NOFADE;
-		else if (flags[i] == 'p')
+		else if (flags[i] == TEXT('p'))
 			iFlags |= TTS_NOPREFIX;
-		else if (flags[i] == 's')
+		else if (flags[i] == TEXT('s'))
 			iFlags |= TTS_NOANIMATE;
 #if DCX_USE_WINSDK && WINVER >= 0x600
-		else if (flags[i] == 't')
+		else if (flags[i] == TEXT('t'))
 			iFlags |= TTS_USEVISUALSTYLE;
 #endif
 
@@ -1541,29 +1455,29 @@ UINT DcxDialog::parseBkgFlags(const TString &flags) {
 	INT i = 1, len = flags.len(), iFlags = 0;
 
 	// no +sign, missing params
-	if (flags[0] != '+') 
+	if (flags[0] != TEXT('+')) 
 		return iFlags;
 
 	while (i < len) {
-		if (flags[i] == 'b')
+		if (flags[i] == TEXT('b'))
 			iFlags |= DBS_BKGCOLOR;
-		else if (flags[i] == 'i')
+		else if (flags[i] == TEXT('i'))
 			iFlags |= DBS_BKGBITMAP;
 
-		else if (flags[i] == 'n')
+		else if (flags[i] == TEXT('n'))
 			iFlags |= DBS_BKGNORMAL;
-		else if (flags[i] == 't')
+		else if (flags[i] == TEXT('t'))
 			iFlags |= DBS_BKGTILE;
-		else if (flags[i] == 's')
+		else if (flags[i] == TEXT('s'))
 			iFlags |= DBS_BKGSTRETCH;
 
-		else if (flags[i] == 'c')
+		else if (flags[i] == TEXT('c'))
 			iFlags |= DBS_BKGCENTER;
-		else if (flags[i] == 'v')
+		else if (flags[i] == TEXT('v'))
 			iFlags |= DBS_BKGVCENTER;
-		else if (flags[i] == 'r')
+		else if (flags[i] == TEXT('r'))
 			iFlags |= DBS_BKGRIGHT;
-		else if (flags[i] == 'o')
+		else if (flags[i] == TEXT('o'))
 			iFlags |= DBS_BKGBOTTOM;
 
 		i++;
@@ -1582,21 +1496,21 @@ UINT DcxDialog::parseFlashFlags(const TString &flags) {
 	INT i = 1, len = flags.len(), iFlags = 0;
 
 	// no +sign, missing params
-	if (flags[0] != '+') 
+	if (flags[0] != TEXT('+')) 
 		return iFlags;
 
 	while (i < len) {
-		if (flags[i] == 'a')
+		if (flags[i] == TEXT('a'))
 			iFlags |= FLASHW_ALL;
-		else if (flags[i] == 'c')
+		else if (flags[i] == TEXT('c'))
 			iFlags |= FLASHW_CAPTION;
-		else if (flags[i] == 'f')
+		else if (flags[i] == TEXT('f'))
 			iFlags |= FLASHW_TIMERNOFG;
-		else if (flags[i] == 'r')
+		else if (flags[i] == TEXT('r'))
 			iFlags |= FLASHW_TRAY;
-		else if (flags[i] == 's')
+		else if (flags[i] == TEXT('s'))
 			iFlags |= FLASHW_STOP;
-		else if (flags[i] == 't')
+		else if (flags[i] == TEXT('t'))
 			iFlags |= FLASHW_TIMER;
 
 		++i;
@@ -1616,13 +1530,13 @@ UINT DcxDialog::parseCursorFlags(const TString &flags) {
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if (flags[0] != '+') 
+	if (flags[0] != TEXT('+')) 
 		return iFlags;
 
 	while (i < len) {
-		if (flags[i] == 'f')
+		if (flags[i] == TEXT('f'))
 			iFlags |= DCCS_FROMFILE;
-		else if (flags[i] == 'r')
+		else if (flags[i] == TEXT('r'))
 			iFlags |= DCCS_FROMRESSOURCE;
 
 		++i;
@@ -1637,34 +1551,34 @@ UINT DcxDialog::parseCursorFlags(const TString &flags) {
  * blah
  */
 
-LPSTR DcxDialog::parseCursorType(const TString &cursor) {
-	if (cursor == "appstarting")
+PTCHAR DcxDialog::parseCursorType(const TString &cursor) {
+	if (cursor == TEXT("appstarting"))
 		return IDC_APPSTARTING;
-	else if (cursor == "arrow")
+	else if (cursor == TEXT("arrow"))
 		return IDC_ARROW;
-	else if (cursor == "cross")
+	else if (cursor == TEXT("cross"))
 		return IDC_CROSS;
-	else if (cursor == "hand")
+	else if (cursor == TEXT("hand"))
 		return IDC_HAND;
-	else if (cursor == "help")
+	else if (cursor == TEXT("help"))
 		return IDC_HELP;
-	else if (cursor == "ibeam")
+	else if (cursor == TEXT("ibeam"))
 		return IDC_IBEAM;
-	else if (cursor == "no")
+	else if (cursor == TEXT("no"))
 		return IDC_NO;
-	else if (cursor == "sizeall")
+	else if (cursor == TEXT("sizeall"))
 		return IDC_SIZEALL;
-	else if (cursor == "sizenesw")
+	else if (cursor == TEXT("sizenesw"))
 		return IDC_SIZENESW;
-	else if (cursor == "sizens")
+	else if (cursor == TEXT("sizens"))
 		return IDC_SIZENS;
-	else if (cursor == "sizenwse")
+	else if (cursor == TEXT("sizenwse"))
 		return IDC_SIZENWSE;
-	else if (cursor == "sizewe")
+	else if (cursor == TEXT("sizewe"))
 		return IDC_SIZEWE;
-	else if (cursor == "uparrow")
+	else if (cursor == TEXT("uparrow"))
 		return IDC_UPARROW;
-	else if (cursor == "wait")
+	else if (cursor == TEXT("wait"))
 		return IDC_WAIT;
 
 	return NULL;
@@ -1676,26 +1590,26 @@ LPSTR DcxDialog::parseCursorType(const TString &cursor) {
  * blah
  */
 
-void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
+void DcxDialog::parseInfoRequest( TString &input, TCHAR *szReturnValue) {
 	int numtok = input.numtok( );
 	TString prop(input.gettok( 2 ));
 
 	// [NAME] [PROP] [ID]
-	if (prop == "isid" && numtok > 2) {
+	if (prop == TEXT("isid") && numtok > 2) {
 		int nID = input.gettok( 3 ).to_int();
 
 		if (IsWindow(GetDlgItem(this->m_Hwnd, nID + mIRC_ID_OFFSET)) || 
 			(this->getControlByID(nID + mIRC_ID_OFFSET) != NULL))
 		{
-			lstrcpy(szReturnValue, "$true");
+			lstrcpy(szReturnValue, TEXT("$true"));
 		}
 		else
-			lstrcpy(szReturnValue, "$false");
+			lstrcpy(szReturnValue, TEXT("$false"));
 
 		return;
 	}
 	// [NAME] [PROP]
-	else if (prop == "nextid") {
+	else if (prop == TEXT("nextid")) {
 		int nID = mIRC_ID_OFFSET + 1;
 
 		while (IsWindow(GetDlgItem(this->m_Hwnd, nID)) || 
@@ -1704,17 +1618,17 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 			nID++;
 		}
 
-		wsprintf(szReturnValue, "%d", nID - mIRC_ID_OFFSET);
+		wsprintf(szReturnValue, TEXT("%d"), nID - mIRC_ID_OFFSET);
 		return;
 	}
 	// [NAME] [PROP] [N|NAMEDID]
-	if (prop == "id" && numtok > 2) {
+	if (prop == TEXT("id") && numtok > 2) {
 		int N = input.gettok( 3 ).to_int() -1;
 
 		if (N == -1)
 		{
-			if (input.gettok( 3 ) == "0")
-				wsprintf(szReturnValue, "%d", this->m_vpControls.size());
+			if (input.gettok( 3 ) == TEXT('0'))
+				wsprintf(szReturnValue, TEXT("%d"), this->m_vpControls.size());
 			else
 			{
 				
@@ -1722,64 +1636,65 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 				{
 					if (it->first == input.gettok( 3 )) 
 					{
-						wsprintf(szReturnValue, "%i", it->second);
+						wsprintf(szReturnValue, TEXT("%i"), it->second);
 						return;
 					}
 				}
-				wsprintf(szReturnValue, "%s", "");
+				szReturnValue[0] = TEXT('\0');
+				//wsprintf(szReturnValue, TEXT("%s"), TEXT(""));
 				return;
 			}
 		}
 		else if ((N > -1) && (N < (int) this->m_vpControls.size()))
-			wsprintf(szReturnValue, "%d", this->m_vpControls[N]->getUserID());
+			wsprintf(szReturnValue, TEXT("%d"), this->m_vpControls[N]->getUserID());
 
 		return;
 	}
 	// [NAME] [PROP]
-	else if (prop == "ismenu") {
+	else if (prop == TEXT("ismenu")) {
 		if (GetMenu(this->m_Hwnd) != NULL)
-			lstrcpy(szReturnValue, "$true");
+			lstrcpy(szReturnValue, TEXT("$true"));
 		else
-			lstrcpy(szReturnValue, "$false");
+			lstrcpy(szReturnValue, TEXT("$false"));
 
 		return;
 	}
 	// [NAME] [PROP]
-	else if (prop == "ismarked") {
+	else if (prop == TEXT("ismarked")) {
 		if (Dcx::Dialogs.getDialogByHandle(this->m_Hwnd) != NULL)
-			lstrcpy(szReturnValue, "$true");
+			lstrcpy(szReturnValue, TEXT("$true"));
 		else
-			lstrcpy(szReturnValue, "$false");
+			lstrcpy(szReturnValue, TEXT("$false"));
 
 		return;
 	}
 	// [NAME] [PROP]
-	else if (prop == "parent") {
-		wsprintf(szReturnValue, "%s", this->getParentName().to_chr());
+	else if (prop == TEXT("parent")) {
+		wsprintf(szReturnValue, TEXT("%s"), this->getParentName().to_chr());
 		return;
 	}
 	// [NAME] [PROP]
-	else if (prop == "mouseid") {
-		wsprintf(szReturnValue, "%d", this->m_MouseID);
+	else if (prop == TEXT("mouseid")) {
+		wsprintf(szReturnValue, TEXT("%d"), this->m_MouseID);
 		return;
 	}
 	// [NAME] [PROP]
-	else if (prop == "focusid") {
-		wsprintf(szReturnValue, "%d", this->m_FocusID);
+	else if (prop == TEXT("focusid")) {
+		wsprintf(szReturnValue, TEXT("%d"), this->m_FocusID);
 		return;
 	}
 	// [NAME] [PROP]
-	else if (prop == "mouse") {
+	else if (prop == TEXT("mouse")) {
 		POINT pt;
 
 		GetCursorPos(&pt);
 		MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
-		wsprintf(szReturnValue, "%d %d", pt.x, pt.y);
+		wsprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
 
 		return;
 	}
 	// [NAME] [PROP]
-	else if (prop == "key") {
+	else if (prop == TEXT("key")) {
 		UINT iKeyState = 0;
 
 		if (GetAsyncKeyState(VK_LBUTTON) < 0)
@@ -1811,46 +1726,46 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 		if (GetAsyncKeyState(VK_CAPITAL) < 0)
 			iKeyState |= 8192;
 
-		wsprintf(szReturnValue, "%d", iKeyState);
+		wsprintf(szReturnValue, TEXT("%d"), iKeyState);
 		return;
 	}
 	// [NAME] [PROP]
-	else if (prop == "alias") {
-		wsprintf(szReturnValue, "%s", this->getAliasName().to_chr());
+	else if (prop == TEXT("alias")) {
+		wsprintf(szReturnValue, TEXT("%s"), this->getAliasName().to_chr());
 		return;
 	}
 	// [NAME] [PROP] [N]
-	else if ((prop == "zlayer") && (numtok > 2)) {
+	else if ((prop == TEXT("zlayer")) && (numtok > 2)) {
 		int n = input.gettok( 3 ).to_int();
 		int size = (int) this->m_vZLayers.size();
 
 		// return total number of id's
 		if (n == 0)
-			wsprintf(szReturnValue, "%d", size);
+			wsprintf(szReturnValue, TEXT("%d"), size);
 		// return the Nth id
 		else if ((n > 0) && (n <= size)) {
 			n--;
-			wsprintf(szReturnValue, "%d", this->m_vZLayers[n] - mIRC_ID_OFFSET);
+			wsprintf(szReturnValue, TEXT("%d"), this->m_vZLayers[n] - mIRC_ID_OFFSET);
 		}
 
 		return;
 	}
 	// [NAME] [PROP]
-	else if (prop == "zlayercurrent") {
-		wsprintf(szReturnValue, "%d", this->m_zLayerCurrent +1);
+	else if (prop == TEXT("zlayercurrent")) {
+		wsprintf(szReturnValue, TEXT("%d"), this->m_zLayerCurrent +1);
 		return;
 	}
 	// [NAME] [PROP]
-	else if (prop == "visible") {
+	else if (prop == TEXT("visible")) {
 		if (IsWindowVisible(this->m_Hwnd))
-			lstrcpy(szReturnValue, "$true");
+			lstrcpy(szReturnValue, TEXT("$true"));
 		else
-			lstrcpy(szReturnValue, "$false");
+			lstrcpy(szReturnValue, TEXT("$false"));
 		return;
 	}
 	// invalid info request
 	else
-		this->showError(prop.to_chr(), NULL, "Invalid property or parameters");
+		this->showError(prop.to_chr(), NULL, TEXT("Invalid property or parameters"));
 
 	szReturnValue[0] = 0;
 }
@@ -1861,7 +1776,7 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
  * blah
  */
 
-bool DcxDialog::evalAliasEx(char *szReturn, const int maxlen, const char *szFormat, ...) {
+bool DcxDialog::evalAliasEx(TCHAR *szReturn, const int maxlen, const TCHAR *szFormat, ...) {
 	TString line;
 	va_list args;
 
@@ -1872,18 +1787,18 @@ bool DcxDialog::evalAliasEx(char *szReturn, const int maxlen, const char *szForm
 	return evalAlias(szReturn, maxlen, line.to_chr());
 }
 
-bool DcxDialog::evalAlias(char *szReturn, const int maxlen, const char *szArgs) {
+bool DcxDialog::evalAlias(TCHAR *szReturn, const int maxlen, const TCHAR *szArgs) {
 	//// create a temp %var for the args
 	//// This solves the ,() in args bugs, but causes problems with the , that we want.
 	//int rCnt = this->getRefCount();
-	//Dcx::mIRC.execex("/set -n %%d%d %s", rCnt, params);
+	//Dcx::mIRC.execex(TEXT("/set -n %%d%d %s"), rCnt, params);
 	this->incRef();
-	bool res = Dcx::mIRC.evalex(szReturn, maxlen, "$%s(%s,%s)", this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
+	bool res = Dcx::mIRC.evalex(szReturn, maxlen, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
 	this->decRef();
 	return res;
 }
 
-bool DcxDialog::execAliasEx(const char *szFormat, ...) {
+bool DcxDialog::execAliasEx(const TCHAR *szFormat, ...) {
 	TString line;
 	va_list args;
 
@@ -1894,9 +1809,9 @@ bool DcxDialog::execAliasEx(const char *szFormat, ...) {
 	return execAlias(line.to_chr());
 }
 
-bool DcxDialog::execAlias(const char *szArgs) {
+bool DcxDialog::execAlias(const TCHAR *szArgs) {
 	this->incRef();
-	bool res = Dcx::mIRC.evalex(NULL, 0, "$%s(%s,%s)", this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
+	bool res = Dcx::mIRC.evalex(NULL, 0, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
 	this->decRef();
 	return res;
 }
@@ -1934,13 +1849,13 @@ HBRUSH DcxDialog::getBackClrBrush() const {
 void DcxDialog::setMouseControl(const UINT mUID) {
 	if (mUID != this->m_MouseID) {
 		if (this->m_dEventMask & DCX_EVENT_MOUSE) {
-			this->execAliasEx("%s,%d", "mouseleave", this->m_MouseID);
-			this->execAliasEx("%s,%d", "mouseenter", mUID);
+			this->execAliasEx(TEXT("%s,%d"), TEXT("mouseleave"), this->m_MouseID);
+			this->execAliasEx(TEXT("%s,%d"), TEXT("mouseenter"), mUID);
 		}
 		this->m_MouseID = mUID;
 	}
 	else if (this->m_dEventMask & DCX_EVENT_MOUSE)
-		this->execAliasEx("%s,%d", "mouse", mUID);
+		this->execAliasEx(TEXT("%s,%d"), TEXT("mouse"), mUID);
 }
 
 /*!
@@ -1952,8 +1867,8 @@ void DcxDialog::setMouseControl(const UINT mUID) {
 void DcxDialog::setFocusControl(const UINT mUID) {
 	if (mUID != this->m_FocusID) {
 		if (this->m_dEventMask & DCX_EVENT_FOCUS) {
-			this->execAliasEx("%s,%d", "focusout", this->m_FocusID);
-			this->execAliasEx("%s,%d", "focus", mUID);
+			this->execAliasEx(TEXT("%s,%d"), TEXT("focusout"), this->m_FocusID);
+			this->execAliasEx(TEXT("%s,%d"), TEXT("focus"), mUID);
 		}
 		this->m_FocusID = mUID;
 	}
@@ -1966,23 +1881,15 @@ void DcxDialog::setFocusControl(const UINT mUID) {
  */
 
 LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-	DcxDialog *p_this = (DcxDialog*) GetProp(mHwnd, "dcx_this");
+	DcxDialog *p_this = (DcxDialog*) GetProp(mHwnd, TEXT("dcx_this"));
 
 	// sanity check for prop existing.
 	if (p_this == NULL)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
-#if DCX_FOR_XP_ONLY
 	// If Message is blocking just call old win proc
 	if ((InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND)
 		return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-#else
-	if (InSendMessageExUx != NULL) {
-		// If Message is blocking just call old win proc
-		if ((InSendMessageExUx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND)
-			return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-	}
-#endif
 
 	BOOL bParsed = FALSE;
 	LRESULT lRes = 0L;
@@ -1994,7 +1901,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_HELP:
 			{
 				if (p_this->getEventMask() & DCX_EVENT_HELP)
-					p_this->execAliasEx("%s,%d", "help", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("help"), 0);
 				bParsed = TRUE;
 				lRes = TRUE;
 			}
@@ -2017,7 +1924,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_THEMECHANGED:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_THEME)
-					p_this->execAliasEx("%s,%d", "themechanged", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("themechanged"), 0);
 				break;
 			}
 		case WM_NOTIFY:
@@ -2028,7 +1935,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					break;
 
 				if (IsWindow(hdr->hwndFrom)) {
-					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -2041,14 +1948,14 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						// This stops a crash when someone uses /dialog -x within the callback alias without a /timer
 						// NB: After this is done you must use /xdialog -x to close the dialog, /dialog -x will no longer work.
 						bParsed = TRUE;
-						Dcx::mIRC.execex("/.timer -m 1 0 xdialog -x %s", p_this->getName().to_chr());
+						Dcx::mIRC.execex(TEXT("/.timer -m 1 0 xdialog -x %s"), p_this->getName().to_chr());
 					}
 					else if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
-						char ret[256];
+						TCHAR ret[256];
 
-						p_this->evalAliasEx(ret, 255, "%s,%d", "close", 0);
+						p_this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("close"), 0);
 
-						if (lstrcmp("noclose", ret) == 0)
+						if (lstrcmp(TEXT("noclose"), ret) == 0)
 							bParsed = TRUE;
 					}
 					break;
@@ -2059,7 +1966,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_VSCROLL:
 			{
 				if (IsWindow((HWND) lParam)) {
-					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -2070,7 +1977,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -2081,7 +1988,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -2092,7 +1999,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				HWND cHwnd = GetDlgItem(mHwnd, wParam);
 				if (IsWindow(cHwnd)) {
-					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -2118,7 +2025,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -2140,10 +2047,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				case SC_MOVE:
 					{
 						if (p_this->m_dEventMask & DCX_EVENT_MOVE) {
-							char ret[256];
-							p_this->evalAliasEx(ret, 255, "%s,%d", "beginmove", 0);
+							TCHAR ret[256];
+							p_this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("beginmove"), 0);
 
-							if (lstrcmp("nomove", ret) != 0) {
+							if (lstrcmp(TEXT("nomove"), ret) != 0) {
 								bParsed = TRUE;
 								p_this->m_bInMoving = true;
 								lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
@@ -2155,11 +2062,11 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				case SC_CLOSE:
 					{
 						if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
-							char ret[256];
+							TCHAR ret[256];
 
-							p_this->evalAliasEx(ret, 255, "%s,%d", "scclose", 0);
+							p_this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("scclose"), 0);
 
-							if (lstrcmp("noclose", ret) == 0)
+							if (lstrcmp(TEXT("noclose"), ret) == 0)
 								bParsed = TRUE;
 						}
 						break;
@@ -2168,11 +2075,11 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				case SC_MINIMIZE:
 					{
 						if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
-							char ret[256];
+							TCHAR ret[256];
 
-							p_this->evalAliasEx(ret, 255, "%s,%d", "min", 0);
+							p_this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("min"), 0);
 
-							if (lstrcmp("stop", ret) != 0) {
+							if (lstrcmp(TEXT("stop"), ret) != 0) {
 								bParsed = TRUE;
 								lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 							}
@@ -2183,11 +2090,11 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				case SC_MAXIMIZE:
 					{
 						if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
-							char ret[256];
+							TCHAR ret[256];
 
-							p_this->evalAliasEx(ret, 255, "%s,%d", "max", 0);
+							p_this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("max"), 0);
 
-							if (lstrcmp("stop", ret) != 0) {
+							if (lstrcmp(TEXT("stop"), ret) != 0) {
 								bParsed = TRUE;
 								lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 							}
@@ -2199,7 +2106,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				case SC_RESTORE:
 					{
 						if (p_this->m_dEventMask & DCX_EVENT_SIZE) {
-							p_this->execAliasEx("%s,%d", "restore", 0);
+							p_this->execAliasEx(TEXT("%s,%d"), TEXT("restore"), 0);
 
 							//bParsed = TRUE;
 							//lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
@@ -2210,12 +2117,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 				case SC_SIZE:
 					{
-						char ret[256];
+						TCHAR ret[256];
 
 						if (p_this->m_dEventMask & DCX_EVENT_SIZE) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
-							p_this->evalAliasEx(ret, 255, "%s,%d", "beginsize", 0);
+							p_this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("beginsize"), 0);
 
-						if (lstrcmp("nosize", ret) != 0) {
+						if (lstrcmp(TEXT("nosize"), ret) != 0) {
 							bParsed = TRUE;
 							p_this->m_bInSizing = true;
 							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
@@ -2230,7 +2137,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 			{
-#if DCX_FOR_XP_ONLY
 				if (p_this->m_bDoGhostDrag < 255) {
 					if (!p_this->m_bVistaStyle) {
 						DWORD style = GetWindowExStyle(mHwnd);
@@ -2242,19 +2148,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					}
 					p_this->m_bGhosted = true;
 				}
-#else
-				if (p_this->m_bDoGhostDrag < 255 && SetLayeredWindowAttributesUx != NULL) {
-					if (!p_this->m_bVistaStyle) {
-						DWORD style = GetWindowExStyle(mHwnd);
-						// Set WS_EX_LAYERED on this window
-						if (!(style & WS_EX_LAYERED))
-							SetWindowLong(mHwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
-						// Make this window alpha
-						SetLayeredWindowAttributesUx(mHwnd, 0, p_this->m_bDoGhostDrag, LWA_ALPHA);
-					}
-					p_this->m_bGhosted = true;
-				}
-#endif
 				p_this->UpdateVistaStyle();
 			}
 			break;
@@ -2265,9 +2158,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					p_this->UpdateShadow();
 
 				if ((p_this->m_bInSizing) && (p_this->m_dEventMask & DCX_EVENT_SIZE))
-					p_this->execAliasEx("%s,%d", "endsize", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("endsize"), 0);
 				else if ((p_this->m_bInMoving)  && (p_this->m_dEventMask & DCX_EVENT_MOVE))
-					p_this->execAliasEx("%s,%d", "endmove", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("endmove"), 0);
 
 //#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
 				bool bDoRedraw = p_this->m_bInSizing;
@@ -2276,7 +2169,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				p_this->m_bInMoving = false;
 				p_this->m_bInSizing = false;
 				// turn off ghosting.
-#if DCX_FOR_XP_ONLY
 				if (p_this->m_bGhosted) {
 					if (!p_this->m_bVistaStyle) {
 						// Make this window solid
@@ -2284,15 +2176,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					}
 					p_this->m_bGhosted = false;
 				}
-#else
-				if (p_this->m_bGhosted && SetLayeredWindowAttributesUx != NULL) {
-					if (!p_this->m_bVistaStyle) {
-						// Make this window solid
-						SetLayeredWindowAttributesUx(mHwnd, 0, p_this->m_iAlphaLevel, LWA_ALPHA);
-					}
-					p_this->m_bGhosted = false;
-				}
-#endif
 				p_this->UpdateVistaStyle();
 //#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
 				if (bDoRedraw && !p_this->IsVistaStyle() && !p_this->isExStyle(WS_EX_COMPOSITED))
@@ -2304,7 +2187,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_MOVING:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_MOVE)
-					p_this->execAliasEx("%s,%d", "moving", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("moving"), 0);
 				break;
 			}
 
@@ -2353,7 +2236,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				}
 
 				if (p_this->m_dEventMask & DCX_EVENT_SIZE)
-					p_this->execAliasEx("%s,%d,%d,%d", "sizing", 0, LOWORD(lParam), HIWORD(lParam));
+					p_this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("sizing"), 0, LOWORD(lParam), HIWORD(lParam));
 
 				HWND bars = NULL;
 
@@ -2416,28 +2299,28 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					if ((wp == NULL) || ((wp->flags & SWP_NOMOVE) && (wp->flags & SWP_NOSIZE)))
 						break;
 
-					char ret[256], *p = NULL;
+					TCHAR ret[256], *p = NULL;
 
 					switch ((wp->flags & (SWP_NOSIZE|SWP_NOMOVE))) {
 					case SWP_NOSIZE:
-						p = "moving";
+						p = TEXT("moving");
 						break;
 					case SWP_NOMOVE:
-						p = "sizing";
+						p = TEXT("sizing");
 						break;
 					default:
-						p = "both";
+						p = TEXT("both");
 						break;
 					}
 
-					//p_this->callAliasEx(ret, "changing,0,%d,%d,%d,%d,%d", (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
-					p_this->evalAliasEx(ret, 255, "changing,0,%s,%d,%d,%d,%d", p,wp->x, wp->y, wp->cx, wp->cy);
+					//p_this->callAliasEx(ret, TEXT("changing,0,%d,%d,%d,%d,%d"), (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
+					p_this->evalAliasEx(ret, 255, TEXT("changing,0,%s,%d,%d,%d,%d"), p,wp->x, wp->y, wp->cx, wp->cy);
 
-					if (lstrcmp("nosize", ret) == 0)
+					if (lstrcmp(TEXT("nosize"), ret) == 0)
 						wp->flags |= SWP_NOSIZE;
-					else if (lstrcmp("nomove", ret) == 0)
+					else if (lstrcmp(TEXT("nomove"), ret) == 0)
 						wp->flags |= SWP_NOMOVE;
-					else if (lstrcmp("nochange", ret) == 0)
+					else if (lstrcmp(TEXT("nochange"), ret) == 0)
 						wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
 				}
 				break;
@@ -2521,10 +2404,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					tme.cbSize = sizeof(TRACKMOUSEEVENT);
 					tme.hwndTrack = p_this->m_Hwnd;
 					tme.dwFlags = TME_LEAVE;
-					tme.dwHoverTime = HOVER_DEFAULT; // was 1
+					tme.dwHoverTime = HOVER_DEFAULT; //1;
 					p_this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );
 					if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
-						p_this->execAliasEx("%s,%d", "denter", 0); // this tells you when the mouse enters or
+						p_this->execAliasEx(TEXT("%s,%d"), TEXT("denter"), 0); // this tells you when the mouse enters or
 					p_this->UpdateVistaStyle();
 				}
 				break;
@@ -2535,7 +2418,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				if ( p_this->m_bTracking ) {
 					p_this->m_bTracking = FALSE;
 					if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
-						p_this->execAliasEx("%s,%d", "dleave", 0); // leaves a dialogs client area.
+						p_this->execAliasEx(TEXT("%s,%d"), TEXT("dleave"), 0); // leaves a dialogs client area.
 				}
 				p_this->UpdateVistaStyle();
 			}
@@ -2544,7 +2427,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_LBUTTONDOWN:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->execAliasEx("%s,%d", "lbdown", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("lbdown"), 0);
 				if (p_this->m_bDoDrag)
 					p_this->m_bDrag = true;
 				break;
@@ -2553,8 +2436,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_LBUTTONUP:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-					p_this->execAliasEx("%s,%d", "lbup", 0);
-					p_this->execAliasEx("%s,%d", "sclick", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("lbup"), 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), 0);
 				}
 				break;
 			}
@@ -2562,8 +2445,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_LBUTTONDBLCLK:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-					p_this->execAliasEx("%s,%d", "dclick", 0);
-					p_this->execAliasEx("%s,%d", "lbdblclk", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("dclick"), 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("lbdblclk"), 0);
 				}
 				break;
 			}
@@ -2571,15 +2454,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_RBUTTONDOWN:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->execAliasEx("%s,%d", "rbdown", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("rbdown"), 0);
 				break;
 			}
 
 		case WM_RBUTTONUP:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-					p_this->execAliasEx("%s,%d", "rbup", 0);
-					p_this->execAliasEx("%s,%d", "rclick", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("rbup"), 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("rclick"), 0);
 				}
 				break;
 			}
@@ -2587,28 +2470,28 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_RBUTTONDBLCLK:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->execAliasEx("%s,%d", "rbdblclk", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("rbdblclk"), 0);
 				break;
 			}
 
 		case WM_MBUTTONDOWN:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->execAliasEx("%s,%d", "mbdown", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("mbdown"), 0);
 				break;
 			}
 
 		case WM_MBUTTONUP:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->execAliasEx("%s,%d", "mbup", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("mbup"), 0);
 				break;
 			}
 
 		case WM_MBUTTONDBLCLK:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->execAliasEx("%s,%d", "mbdblclk", 0);
+					p_this->execAliasEx(TEXT("%s,%d"), TEXT("mbdblclk"), 0);
 				break;
 			}
 
@@ -2617,23 +2500,23 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
 					DWORD fwKeys = GET_KEYSTATE_WPARAM(wParam);
 					DWORD zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-					TString flags("+");
+					TString flags(TEXT('+'));
 
 					if (fwKeys & MK_CONTROL) // control button
-						flags += 'c';
+						flags += TEXT('c');
 					if (fwKeys & MK_LBUTTON) // left mouse button
-						flags += 'l';
+						flags += TEXT('l');
 					if (fwKeys & MK_MBUTTON) // middle mouse button button
-						flags += 'm';
+						flags += TEXT('m');
 					if (fwKeys & MK_RBUTTON) // right mouse button
-						flags += 'r';
+						flags += TEXT('r');
 					if (fwKeys & MK_SHIFT) // shift button
-						flags += 's';
+						flags += TEXT('s');
 
-					p_this->execAliasEx("%s,%d,%s,%s",
-						"mwheel",
+					p_this->execAliasEx(TEXT("%s,%d,%s,%s"),
+						TEXT("mwheel"),
 						p_this->m_MouseID,
-						((int) zDelta > 0 ? "up" : "down"),
+						((int) zDelta > 0 ? TEXT("up") : TEXT("down")),
 						flags.to_chr());
 
 					bParsed = TRUE;
@@ -2687,17 +2570,17 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_DROPFILES:
 			{
 				HDROP files = (HDROP) wParam;
-				char filename[500];
+				TCHAR filename[500];
 				int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
 				if (count) {
 					if (p_this->m_dEventMask & DCX_EVENT_DRAG) {
-						char ret[20];
+						TCHAR ret[20];
 
-						p_this->evalAliasEx(ret, 19, "%s,%d,%d", "dragbegin", 0, count);
+						p_this->evalAliasEx(ret, 19, TEXT("%s,%d,%d"), TEXT("dragbegin"), 0, count);
 
 						// cancel drag drop event
-						if (lstrcmpi(ret, "cancel") == 0) {
+						if (lstrcmpi(ret, TEXT("cancel")) == 0) {
 							DragFinish(files);
 							bParsed = TRUE;
 							break;
@@ -2705,10 +2588,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						// for each file, send callback message
 						for (int i = 0; i < count; i++) {
 							if (DragQueryFile(files, i, filename, 500))
-								p_this->execAliasEx("%s,%d,%s", "dragfile", 0, filename);
+								p_this->execAliasEx(TEXT("%s,%d,%s"), TEXT("dragfile"), 0, filename);
 						}
 
-						p_this->execAliasEx("%s,%d", "dragfinish", 0);
+						p_this->execAliasEx(TEXT("%s,%d"), TEXT("dragfinish"), 0);
 					}
 				}
 
@@ -2729,13 +2612,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					case WA_ACTIVE:
 					case WA_CLICKACTIVE:
 						{
-							p_this->execAliasEx("%s,%d", "activate", 0);
+							p_this->execAliasEx(TEXT("%s,%d"), TEXT("activate"), 0);
 							break;
 						}
 
 					case WA_INACTIVE:
 						{
-							p_this->execAliasEx("%s,%d", "deactivate", 0);
+							p_this->execAliasEx(TEXT("%s,%d"), TEXT("deactivate"), 0);
 							break;
 						}
 					} // switch
@@ -2935,11 +2818,6 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPCRECT rwnd)
 
 bool DcxDialog::AddShadow(void)
 {
-#if !DCX_FOR_XP_ONLY
-	if (UpdateLayeredWindowUx == NULL)
-		return false;
-#endif
-
 	if (!this->isShadowed()) {
 		// Create the shadow window
 		this->m_Shadow.hWin = CreateWindowEx(WS_EX_LAYERED | WS_EX_TRANSPARENT, DCX_SHADOWCLASS, NULL,
@@ -2996,11 +2874,6 @@ void DcxDialog::RemoveShadow(void)
 
 void DcxDialog::UpdateShadow(void)
 {
-#if !DCX_FOR_XP_ONLY
-	if (UpdateLayeredWindowUx == NULL)
-		return;
-#endif
-
 	RECT WndRect;
 	GetWindowRect(this->m_Hwnd, &WndRect);
 	int nShadWndWid = WndRect.right - WndRect.left + this->m_Shadow.nSize * 2;
@@ -3034,11 +2907,8 @@ void DcxDialog::UpdateShadow(void)
 
 	MoveWindow(this->m_Shadow.hWin, ptDst.x, ptDst.y, nShadWndWid, nShadWndHei, FALSE);
 
-#if DCX_FOR_XP_ONLY
 	UpdateLayeredWindow(this->m_Shadow.hWin, NULL, &ptDst, &WndSize, hMemDC, &ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
-#else
-	UpdateLayeredWindowUx(this->m_Shadow.hWin, NULL, &ptDst, &WndSize, hMemDC, &ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
-#endif
+
 	// Delete used resources
 	DeleteBitmap(SelectBitmap(hMemDC, hOriBmp));
 	DeleteDC(hMemDC);
@@ -3120,7 +2990,7 @@ void DcxDialog::MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rc
 			}
 		}
 		//if(0 != ptAnchorsOri[i][1])
-		//	TRACE("%d %d\n", ptAnchorsOri[i][0], ptAnchorsOri[i][1]);
+		//	TRACE(TEXT("%d %d\n"), ptAnchorsOri[i][0], ptAnchorsOri[i][1]);
 	}
 
 	if(this->m_Shadow.nSize > 0)
@@ -3175,10 +3045,10 @@ void DcxDialog::MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rc
 			}
 			else
 				*pKernelIter = 0;
-			//TRACE("%d ", *pKernelIter >> 24);
+			//TRACE(TEXT("%d "), *pKernelIter >> 24);
 			pKernelIter ++;
 		}
-		//TRACE("\n");
+		//TRACE(TEXT("\n"));
 	}
 	// Generate blurred border
 	for(int i = nKernelSize; i < szShadow.cy - nKernelSize; i++)
@@ -3323,22 +3193,22 @@ bool DcxDialog::SetShadowColor(COLORREF NewColor)
 	return true;
 }
 // .... CWndShadow
-void DcxDialog::showError(const char *prop, const char *cmd, const char *err)
+void DcxDialog::showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err)
 {
 	if (this->IsVerbose())
 	{
 		TString res;
 		if (prop != NULL)
-			res.tsprintf("D_IERROR xdialog(%s).%s: %s", this->getName().to_chr(), prop, err);
+			res.tsprintf(TEXT("D_IERROR xdialog(%s).%s: %s"), this->getName().to_chr(), prop, err);
 		else
-			res.tsprintf("D_CERROR xdialog %s %s: %s", cmd, this->getName().to_chr(), err);
+			res.tsprintf(TEXT("D_CERROR xdialog %s %s: %s"), cmd, this->getName().to_chr(), err);
 		Dcx::mIRC.echo(res.to_chr());
 	}
 
-	this->execAliasEx("error,0,dialog,%s,%s,%s", (prop != NULL ? prop : "none"), (cmd != NULL ? cmd : "none"), err);
+	this->execAliasEx(TEXT("error,0,dialog,%s,%s,%s"), (prop != NULL ? prop : TEXT("none")), (cmd != NULL ? cmd : TEXT("none")), err);
 }
 
-void DcxDialog::showErrorEx(const char *prop, const char *cmd, const char *fmt, ...)
+void DcxDialog::showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...)
 {
 	TString err;
 	va_list args;
@@ -3369,7 +3239,6 @@ void DcxDialog::CreateVistaStyle(void)
 #endif
 #ifdef DCX_USE_GDIPLUS
 	// don't use this style with aero, needs specific code to allow aero to do these effects for us.
-#if DCX_FOR_XP_ONLY
 	if (Dcx::GDIModule.isUseable() && !Dcx::VistaModule.isAero()) {
 		// this code is for windows 2000 & windows XP
 		RECT rc;
@@ -3395,33 +3264,6 @@ void DcxDialog::CreateVistaStyle(void)
 				DestroyWindow(this->m_hFakeHwnd);
 		}
 	}
-#else
-	if (SetLayeredWindowAttributesUx && UpdateLayeredWindowUx && Dcx::GDIModule.isUseable() && !Dcx::VistaModule.isAero()) {
-		// this code is for windows 2000 & windows XP
-		RECT rc;
-		GetWindowRect(this->m_Hwnd, &rc);
-		DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;
-		DWORD Styles = WS_VISIBLE/*|WS_OVERLAPPED*/|WS_CLIPCHILDREN;
-		SIZE szWin;
-		szWin.cx = (rc.right - rc.left);
-		szWin.cy = (rc.bottom - rc.top);
-		this->m_hFakeHwnd = CreateWindowEx(ExStyles,DCX_VISTACLASS,NULL,Styles,rc.left,rc.top,szWin.cx,szWin.cy,this->m_Hwnd,NULL,GetModuleHandle(NULL), NULL);
-		if (IsWindow(this->m_hFakeHwnd)) {
-			if (this->CreateVistaStyleBitmap(szWin))
-			{
-				SetLayeredWindowAttributesUx(this->m_Hwnd,0,5,LWA_ALPHA);
-				HRGN hRgn = CreateRectRgn(0,0,0,0);
-				if (GetWindowRgn(this->m_Hwnd, hRgn))
-					SetWindowRgn(this->m_hFakeHwnd, hRgn, TRUE);
-				else
-					DeleteRgn(hRgn);
-				this->m_bVistaStyle = true;
-			}
-			else
-				DestroyWindow(this->m_hFakeHwnd);
-		}
-	}
-#endif
 #endif
 }
 
@@ -3456,13 +3298,8 @@ void DcxDialog::RemoveVistaStyle(void)
 {
 	this->m_bVistaStyle = false;
 	if (IsWindow(this->m_hFakeHwnd)) {
-#if DCX_FOR_XP_ONLY
 		if (this->isExStyle(WS_EX_LAYERED))
 			SetLayeredWindowAttributes(this->m_Hwnd,0,this->m_iAlphaLevel,LWA_ALPHA);
-#else
-		if (SetLayeredWindowAttributesUx && this->isExStyle(WS_EX_LAYERED))
-			SetLayeredWindowAttributesUx(this->m_Hwnd,0,this->m_iAlphaLevel,LWA_ALPHA);
-#endif
 		DestroyWindow(this->m_hFakeHwnd);
 	}
 	if (this->m_hVistaBitmap != NULL)
@@ -3477,11 +3314,11 @@ void DcxDialog::DrawCaret(Graphics & graph)
 	if( pWnd == NULL || !IsWindow(pWnd) )
 		return;
 
-	TCHAR tszBuf[MAX_PATH] = {'\0'};
+	TCHAR tszBuf[MAX_PATH] = {TEXT('\0')};
 	::GetClassName( pWnd, tszBuf, MAX_PATH);
 	TString strClassName(tszBuf);
 
-	if( strClassName != "EDIT")
+	if( strClassName != TEXT("EDIT"))
 		return;
 
 	POINT pt;
@@ -3711,11 +3548,8 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 		//}
 
 		// NB: Unable to combine ULW_COLORKEY & ULW_ALPHA for some reason...
-#if DCX_FOR_XP_ONLY
 		UpdateLayeredWindow( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc, 0, &stBlend, ULW_ALPHA);
-#else
-		UpdateLayeredWindowUx( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc, 0, &stBlend, ULW_ALPHA);
-#endif
+
 		this->m_hVistaHDC = NULL;
 
 		graph.ReleaseHDC(hdcMemory);
@@ -3751,7 +3585,7 @@ void DcxDialog::SetVistaStyleSize(void)
 	SetWindowPos(this->m_hFakeHwnd, NULL, 0,0, szWin.cx, szWin.cy, SWP_NOMOVE|SWP_NOZORDER);
 }
 
-void DcxDialog::MapVistaRect(__in HWND hwnd, __inout LPRECT rc) const
+void DcxDialog::MapVistaRect(HWND hwnd, LPRECT rc) const
 {
 	MapWindowRect(hwnd, this->m_Hwnd, rc);
 	OffsetRect(rc, this->m_sVistaOffsets.cx, this->m_sVistaOffsets.cy);
@@ -3800,15 +3634,16 @@ LRESULT DcxDialog::ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM w
 }
 
 void DcxDialog::toXml(TiXmlElement * xml) {
-	this->toXml(xml, "unnamed");
+	this->toXml(xml, TEXT("unnamed"));
 }
 
 void DcxDialog::toXml(TiXmlElement * xml, const TString &name) {
-	TString dest;
-	TGetWindowText(this->m_Hwnd, dest);
-	xml->SetAttribute("name", name.to_chr());
-	xml->SetAttribute("caption", dest.to_chr());
-	this->m_pLayoutManager->getRoot()->toXml(xml);
+	// NEEDS FIXED!
+	//TString dest;
+	//TGetWindowText(this->m_Hwnd, dest);
+	//xml->SetAttribute("name", name.to_chr());
+	//xml->SetAttribute("caption", dest.to_chr());
+	//this->m_pLayoutManager->getRoot()->toXml(xml);
 }
 
 TiXmlElement * DcxDialog::toXml() {
@@ -3828,20 +3663,20 @@ TiXmlElement * DcxDialog::toXml(const TString & name) {
 //#ifdef DCX_USE_GDIPLUS
 //bool DcxDialog::LoadGDIPlusImage(TString &filename) {
 //	if (!IsFile(filename)) {
-//		this->showError(NULL,"LoadGDIPlusImage", "Unable to open file");
+//		this->showError(NULL,TEXT("LoadGDIPlusImage"), TEXT("Unable to open file"));
 //		return false;
 //	}
 //	this->m_pImage = new Image(filename.to_wchr(),TRUE);
 //
 //	// couldnt allocate image object.
 //	if (this->m_pImage == NULL) {
-//		this->showError(NULL,"LoadGDIPlusImage", "Couldn't allocate image object.");
+//		this->showError(NULL,TEXT("LoadGDIPlusImage"), TEXT("Couldn't allocate image object."));
 //		return false;
 //	}
 //	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
 //	Status status = this->m_pImage->GetLastStatus();
 //	if (status != Ok) {
-//		this->showError(NULL,"LoadGDIPlusImage", GetLastStatusStr(status));
+//		this->showError(NULL,TEXT("LoadGDIPlusImage"), GetLastStatusStr(status));
 //		PreloadData();
 //		return false;
 //	}

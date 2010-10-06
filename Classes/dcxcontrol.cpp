@@ -92,7 +92,9 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_clrEndGradient(CLR_INVALID)
 , m_bGradientVertical(FALSE)
 , m_ToolTipHWND(NULL)
+#if !UNICODE
 , m_bUseUTF8(false)
+#endif
 {
 	this->m_dEventMask = p_Dialog->getEventMask();
 }
@@ -107,7 +109,7 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 
 DcxControl::~DcxControl( ) {
 
-	RemoveProp( this->m_Hwnd, "dcx_cthis" );
+	RemoveProp( this->m_Hwnd, TEXT("dcx_cthis") );
 
 	// Reverse to old font
 	this->setControlFont( NULL, FALSE );
@@ -149,33 +151,34 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
 
 	while ( i <= numtok ) {
 
-		if ( styles.gettok( i ) == "notheme" )
+		if ( styles.gettok( i ) == TEXT("notheme") )
 			*bNoTheme = TRUE;
-		else if ( styles.gettok( i ) == "tabstop" )
+		else if ( styles.gettok( i ) == TEXT("tabstop") )
 			*Styles |= WS_TABSTOP;
-		else if ( styles.gettok( i ) == "group" )
+		else if ( styles.gettok( i ) == TEXT("group") )
 			*Styles |= WS_GROUP;
-		else if ( styles.gettok( i ) == "disabled" )
+		else if ( styles.gettok( i ) == TEXT("disabled") )
 			*Styles |= WS_DISABLED;
-		else if ( styles.gettok( i ) == "transparent" )
+		else if ( styles.gettok( i ) == TEXT("transparent") )
 			*ExStyles |= WS_EX_TRANSPARENT;
-		else if ( styles.gettok( i ) == "hidden" )
+		else if ( styles.gettok( i ) == TEXT("hidden") )
 			*Styles &= ~WS_VISIBLE;
-		else if ( styles.gettok( i ) == "alpha" )
+		else if ( styles.gettok( i ) == TEXT("alpha") )
 			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i ) == "shadow" ))
+		else if (( styles.gettok( i ) == TEXT("shadow") ))
 			this->m_bShadowText = true;
-		else if (( styles.gettok( i ) == "noformat" ))
+		else if (( styles.gettok( i ) == TEXT("noformat") ))
 			this->m_bCtrlCodeText = false;
-		else if ( styles.gettok( i ) == "hgradient" )
+		else if ( styles.gettok( i ) == TEXT("hgradient") )
 			this->m_bGradientFill = true;
-		else if ( styles.gettok( i ) == "vgradient" ) {
+		else if ( styles.gettok( i ) == TEXT("vgradient") ) {
 			this->m_bGradientFill = true;
 			this->m_bGradientVertical = TRUE;
 		}
-		else if ( styles.gettok( i ) == "utf8" )
+#if !UNICODE
+		else if ( styles.gettok( i ) == TEXT("utf8") )
 			this->m_bUseUTF8 = true;
-
+#endif
 		i++;
 	}
 }
@@ -197,7 +200,7 @@ UINT DcxControl::getUserID( ) const {
  * NB: Possible buffer overwrite condition when returned data is longer than allocated szReturn
  */
 
-bool DcxControl::evalAliasEx( char * szReturn, const int maxlen, const char * szFormat, ... ) {
+bool DcxControl::evalAliasEx( TCHAR * szReturn, const int maxlen, const TCHAR * szFormat, ... ) {
 
 	TString parms;
 	va_list args;
@@ -209,7 +212,7 @@ bool DcxControl::evalAliasEx( char * szReturn, const int maxlen, const char * sz
 	return this->m_pParentDialog->evalAlias(szReturn, maxlen, parms.to_chr());
 }
 
-bool DcxControl::execAliasEx( const char * szFormat, ... ) {
+bool DcxControl::execAliasEx( const TCHAR * szFormat, ... ) {
 
 	TString parms;
 	va_list args;
@@ -231,7 +234,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	int numtok = input.numtok( );
 
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-	if ( flags['f'] && numtok > 3 ) {
+	if ( flags[TEXT('f')] && numtok > 3 ) {
 		LOGFONT lf;
 
 		if (ParseCommandToLogfont(input.gettok(4, -1), &lf)) {
@@ -242,7 +245,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		this->redrawWindow( );
 	}
 	// xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
-	else if ( flags['p'] && numtok > 6 ) {
+	else if ( flags[TEXT('p')] && numtok > 6 ) {
 
 		int x = input.gettok( 4 ).to_int( );
 		int y = input.gettok( 5 ).to_int( );
@@ -256,7 +259,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
 	}
 	// xdid -x [NAME] [ID] [SWITCH] [+FLAGS]
-	else if ( flags['x'] && numtok > 3 ) {
+	else if ( flags[TEXT('x')] && numtok > 3 ) {
 
 		this->removeStyle( WS_BORDER|WS_DLGFRAME );
 		this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
@@ -272,7 +275,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
 	}
 	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
-	else if ( flags['C'] && numtok > 4 ) {
+	else if ( flags[TEXT('C')] && numtok > 4 ) {
 		UINT iFlags = this->parseColorFlags( input.gettok( 4 ) );
 		COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num( );
 
@@ -315,11 +318,11 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		this->redrawWindow( );
 	}
 	// xdid -F [NAME] [ID] [SWITCH]
-	else if (flags['F']) {
+	else if (flags[TEXT('F')]) {
 		SetFocus(this->m_Hwnd);
 	}
 	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
-	else if ( flags['J'] && numtok > 4 ) {
+	else if ( flags[TEXT('J')] && numtok > 4 ) {
 		UINT iFlags = this->parseCursorFlags( input.gettok( 4 ) );
 		HCURSOR hCursor = NULL;
 		if ( this->m_bCursorFromFile )
@@ -335,10 +338,10 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 				this->m_bCursorFromFile = TRUE;
 			}
 			else
-				this->showErrorEx(NULL,"-J", "Unable to Access File: %s", filename.to_chr());
+				this->showErrorEx(NULL,TEXT("-J"), TEXT("Unable to Access File: %s"), filename.to_chr());
 		}
 		if (this->m_hCursor == NULL)
-			this->showError(NULL, "-J", "Unable to Load Cursor");
+			this->showError(NULL, TEXT("-J"), TEXT("Unable to Load Cursor"));
 		if (hCursor != NULL) {
 			if (GetCursor() == hCursor) {
 				if (this->m_hCursor != NULL)
@@ -350,7 +353,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		}
 	}
 	// xdid -M [NAME] [ID] [SWITCH] [MARK INFO]
-	else if (flags['M']) {
+	else if (flags[TEXT('M')]) {
 		TString info;
 
 		if (numtok > 3)
@@ -359,7 +362,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		this->m_tsMark = info;
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
-	else if ( flags['Z'] && numtok > 3 ) {
+	else if ( flags[TEXT('Z')] && numtok > 3 ) {
 
 		int perc = input.gettok( 4 ).to_int( );
 
@@ -385,16 +388,15 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	}
 
 	// xdid -b [NAME] [ID]
-	else if ( flags['b'] ) {
+	else if ( flags[TEXT('b')] ) {
 		EnableWindow( this->m_Hwnd, FALSE );
 	}
 	// xdid -e [NAME] [ID]
-	else if ( flags['e'] ) {
+	else if ( flags[TEXT('e')] ) {
 		EnableWindow( this->m_Hwnd, TRUE );
 	}
 	// xdid -h [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
-	else if (flags['h']) {
-#if DCX_FOR_XP_ONLY
+	else if (flags[TEXT('h')]) {
 		if (numtok > 4)
 			AnimateWindow(this->m_Hwnd,
 				input.gettok(5).to_int(),
@@ -406,60 +408,24 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
 		if (this->m_pParentDialog->updateLayout(rc))
 			this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
-#else
-		if (AnimateWindowUx == NULL)
-			this->showError(NULL, "-h", "Unsupported By Current OS");
-		else {
-			if (numtok > 4)
-				AnimateWindowUx(this->m_Hwnd,
-					input.gettok(5).to_int(),
-					(AW_HIDE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_ACTIVATE);
-			else
-				ShowWindow(this->m_Hwnd, SW_HIDE);
-
-			RECT rc;
-			GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
-			if (this->m_pParentDialog->updateLayout(rc))
-				this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
-		}
-#endif
 	}
 	// xdid -s [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
-	else if ( flags['s'] ) {
-#if DCX_FOR_XP_ONLY
-			if (numtok > 4) {
-				AnimateWindow(this->m_Hwnd,
-					input.gettok(5).to_int(),
-					(AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_HIDE);
-			}
-			else
-				ShowWindow(this->m_Hwnd, SW_SHOW);
-
-			RECT rc;
-			GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
-			if (this->m_pParentDialog->updateLayout(rc))
-				this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
-#else
-		if (AnimateWindowUx == NULL)
-			this->showError(NULL, "-s", "Unsupported By Current OS");
-		else {
-			if (numtok > 4) {
-				AnimateWindowUx(this->m_Hwnd,
-					input.gettok(5).to_int(),
-					(AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_HIDE);
-			}
-			else
-				ShowWindow(this->m_Hwnd, SW_SHOW);
-
-			RECT rc;
-			GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
-			if (this->m_pParentDialog->updateLayout(rc))
-				this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
+	else if ( flags[TEXT('s')] ) {
+		if (numtok > 4) {
+			AnimateWindow(this->m_Hwnd,
+				input.gettok(5).to_int(),
+				(AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_HIDE);
 		}
-#endif
+		else
+			ShowWindow(this->m_Hwnd, SW_SHOW);
+
+		RECT rc;
+		GetClientRect(this->m_pParentDialog->getHwnd(), &rc);
+		if (this->m_pParentDialog->updateLayout(rc))
+			this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
 	}
 	// xdid -U [NAME] [ID]
-	else if (flags['U']) {
+	else if (flags[TEXT('U')]) {
 		// Box Double click Bug: the GetNextDlgtabItem() function never returns & seems to just loop forever.
 		// from functions doc:
 		//	If the search for the next control with the WS_TABSTOP
@@ -478,15 +444,15 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		SetFocus(NULL);
 	}
 	// xdid -T [NAME] [ID] [SWITCH] (ToolTipText)
-	else if (flags['T'] && numtok > 2) {
-		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1).trim() : "");
+	else if (flags[TEXT('T')] && numtok > 2) {
+		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1).trim() : TEXT(""));
 	}
 	// xdid -R [NAME] [ID] [SWITCH] [FLAG] [ARGS]
-	else if (flags['R'] && numtok > 3) {
+	else if (flags[TEXT('R')] && numtok > 3) {
 		TString flag(input.gettok( 4 ));
 
-		if ((flag.len() < 2) || (flag[0] != '+')) {
-			this->showError(NULL, "-R", "Invalid Flag");
+		if ((flag.len() < 2) || (flag[0] != TEXT('+'))) {
+			this->showError(NULL, TEXT("-R"), TEXT("Invalid Flag"));
 			return;
 		}
 
@@ -496,19 +462,19 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		bool noRegion = false;
 		GetWindowRect(this->m_Hwnd,&rc);
 
-		if (flag.find('o',0))
+		if (flag.find(TEXT('o'),0))
 			RegionMode = RGN_OR;
-		else if (flag.find('a',0))
+		else if (flag.find(TEXT('a'),0))
 			RegionMode = RGN_AND;
-		else if (flag.find('i',0))
+		else if (flag.find(TEXT('i'),0))
 			RegionMode = RGN_DIFF;
-		else if (flag.find('x',0))
+		else if (flag.find(TEXT('x'),0))
 			RegionMode = RGN_XOR;
 
-		if (flag.find('f',0)) // image file - [COLOR] [FILE]
+		if (flag.find(TEXT('f'),0)) // image file - [COLOR] [FILE]
 		{
 			if (numtok < 6) {
-				this->showError(NULL, "-R +f", "Invalid Arguments");
+				this->showError(NULL, TEXT("-R +f"), TEXT("Invalid Arguments"));
 				return;
 			}
 
@@ -517,16 +483,16 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,filename);
 
 			if (m_bitmapBg != NULL) {
-				if (flag.find('R',0)) // now resize image to match control.
+				if (flag.find(TEXT('R'),0)) // now resize image to match control.
 					m_bitmapBg = DcxControl::resizeBitmap(m_bitmapBg, &rc);
 				m_Region = BitmapRegion(m_bitmapBg,tCol,((tCol != -1) ? TRUE : FALSE));
 
 				DeleteBitmap(m_bitmapBg);
 			}
 			else
-				this->showError(NULL,"-R +f", "Unable To Load Image file.");
+				this->showError(NULL,TEXT("-R +f"), TEXT("Unable To Load Image file."));
 		}
-		else if (flag.find('r',0)) // rounded rect - radius args (optional)
+		else if (flag.find(TEXT('r'),0)) // rounded rect - radius args (optional)
 		{
 			int radius;
 
@@ -537,7 +503,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 			m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
 		}
-		else if (flag.find('c',0)) // circle - radius arg (optional)
+		else if (flag.find(TEXT('c'),0)) // circle - radius arg (optional)
 		{
 			if (numtok > 4) {
 				int radius = input.gettok( 5 ).to_int();
@@ -549,11 +515,11 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			else
 				m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
 		}
-		else if (flag.find('p',0)) // polygon
+		else if (flag.find(TEXT('p'),0)) // polygon
 		{
 			// u need at least 3 points for a shape
 			if (numtok < 7) {
-				this->showError(NULL, "-R +p", "Invalid Arguments");
+				this->showError(NULL, TEXT("-R +p"), TEXT("Invalid Arguments"));
 				return;
 			}
 
@@ -562,7 +528,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			int tPoints = strPoints.numtok( );
 
 			if (tPoints < 3) {
-				this->showError(NULL, "-R +p", "Invalid Points: At least 3 points required.");
+				this->showError(NULL, TEXT("-R +p"), TEXT("Invalid Points: At least 3 points required."));
 				return;
 			}
 
@@ -581,7 +547,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			delete [] pnts;
 		}
 		// Doesn't work with child controls :/ (yet)
-		//else if (flag.find('s',0)) // shadow - <colour> <sharpness> <darkness> <size> <xoffset> <yoffset>
+		//else if (flag.find(TEXT('s'),0)) // shadow - <colour> <sharpness> <darkness> <size> <xoffset> <yoffset>
 		//{
 		//	if (numtok == 10) {
 		//		noRegion = true;
@@ -600,14 +566,14 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		//		this->m_oShadow.SetPosition(s_x,s_y);
 		//	}
 		//	else {
-		//		DCXError("xdid -R +s", "Invalid Args");
+		//		DCXError(TEXT("xdid -R +s"), TEXT("Invalid Args"));
 		//		return;
 		//	}
 		//}
-		else if (flag.find('b',0)) { // alpha [1|0] [level]
+		else if (flag.find(TEXT('b'),0)) { // alpha [1|0] [level]
 			noRegion = true;
 			if (numtok != 6) {
-				this->showError(NULL, "-R +b", "Invalid Args");
+				this->showError(NULL, TEXT("-R +b"), TEXT("Invalid Args"));
 				return;
 			}
 			if (input.gettok( 5 ).to_int() > 0)
@@ -624,12 +590,12 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 				this->m_bAlphaBlend = false;
 			this->m_iAlphaLevel = alpha;
 		}
-		else if (flag.find('n',0)) { // none, no args
+		else if (flag.find(TEXT('n'),0)) { // none, no args
 			noRegion = true;
 			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
 		}
 		else
-			this->showError(NULL, "-R", "Invalid Flag");
+			this->showError(NULL, TEXT("-R"), TEXT("Invalid Flag"));
 
 		if (!noRegion) {
 			if (m_Region != NULL) {
@@ -644,13 +610,13 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 				SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
 			}
 			else
-				this->showError(NULL, "-R", "Unable to create region.");
+				this->showError(NULL, TEXT("-R"), TEXT("Unable to create region."));
 		}
 		this->redrawWindow();
 	}
 	// invalid command
 	else
-		this->showError(NULL, input.gettok( 3 ).to_chr(), "Invalid Command");
+		this->showError(NULL, input.gettok( 3 ).to_chr(), TEXT("Invalid Command"));
 }
 
 HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
@@ -710,22 +676,22 @@ UINT DcxControl::parseColorFlags( const TString & flags ) {
 	INT i = 1, len = (INT)flags.len( ), iFlags = 0;
 
 	// no +sign, missing params
-	if ( flags[0] != '+' ) 
+	if ( flags[0] != TEXT('+') ) 
 		return iFlags;
 
 	while ( i < len ) {
 
-		if ( flags[i] == 'b' )
+		if ( flags[i] == TEXT('b') )
 			iFlags |= DCC_BKGCOLOR;
-		else if ( flags[i] == 'k' )
+		else if ( flags[i] == TEXT('k') )
 			iFlags |= DCC_TEXTBKGCOLOR;
-		else if ( flags[i] == 't' )
+		else if ( flags[i] == TEXT('t') )
 			iFlags |= DCC_TEXTCOLOR;
-		else if ( flags[i] == 'r' )
+		else if ( flags[i] == TEXT('r') )
 			iFlags |= DCC_BORDERCOLOR;
-		else if ( flags[i] == 'g' )
+		else if ( flags[i] == TEXT('g') )
 			iFlags |= DCC_GRADSTARTCOLOR;
-		else if ( flags[i] == 'G' )
+		else if ( flags[i] == TEXT('G') )
 			iFlags |= DCC_GRADENDCOLOR;
 
 		++i;
@@ -744,22 +710,22 @@ void DcxControl::parseBorderStyles( const TString & flags, LONG * Styles, LONG *
   INT i = 1, len = flags.len( );
 
   // no +sign, missing params
-  if ( flags[0] != '+' ) 
+  if ( flags[0] != TEXT('+') ) 
     return;
 
   while ( i < len ) {
 
-    if ( flags[i] == 'b' )
+    if ( flags[i] == TEXT('b') )
       *Styles |= WS_BORDER;
-    else if ( flags[i] == 'c' )
+    else if ( flags[i] == TEXT('c') )
       *ExStyles |= WS_EX_CLIENTEDGE;
-    else if ( flags[i] == 'd' )
+    else if ( flags[i] == TEXT('d') )
       *Styles |= WS_DLGFRAME ;
-    else if ( flags[i] == 'f' )
+    else if ( flags[i] == TEXT('f') )
       *ExStyles |= WS_EX_DLGMODALFRAME;
-    else if ( flags[i] == 's' )
+    else if ( flags[i] == TEXT('s') )
       *ExStyles |= WS_EX_STATICEDGE;
-    else if ( flags[i] == 'w' )
+    else if ( flags[i] == TEXT('w') )
       *ExStyles |= WS_EX_WINDOWEDGE;
 
     ++i;
@@ -778,14 +744,14 @@ UINT DcxControl::parseCursorFlags( const TString & flags ) {
   UINT iFlags = 0;
 
   // no +sign, missing params
-  if ( flags[0] != '+' ) 
+  if ( flags[0] != TEXT('+') ) 
     return iFlags;
 
   while ( i < len ) {
 
-    if ( flags[i] == 'f' )
+    if ( flags[i] == TEXT('f') )
       iFlags |= DCCS_FROMFILE;
-    else if ( flags[i] == 'r' )
+    else if ( flags[i] == TEXT('r') )
       iFlags |= DCCS_FROMRESSOURCE;
 
     ++i;
@@ -800,35 +766,35 @@ UINT DcxControl::parseCursorFlags( const TString & flags ) {
  * blah
  */
 
-LPSTR DcxControl::parseCursorType( const TString & cursor ) {
+PTCHAR DcxControl::parseCursorType( const TString & cursor ) {
 
-  if ( cursor == "appstarting" )
+  if ( cursor == TEXT("appstarting") )
     return IDC_APPSTARTING;
-  else if ( cursor == "arrow" )
+  else if ( cursor == TEXT("arrow") )
     return IDC_ARROW;
-  else if ( cursor == "cross" )
+  else if ( cursor == TEXT("cross") )
     return IDC_CROSS;
-  else if ( cursor == "hand" )
+  else if ( cursor == TEXT("hand") )
     return IDC_HAND;
-  else if ( cursor == "help" )
+  else if ( cursor == TEXT("help") )
     return IDC_HELP;
-  else if ( cursor == "ibeam" )
+  else if ( cursor == TEXT("ibeam") )
     return IDC_IBEAM;
-  else if ( cursor == "no" )
+  else if ( cursor == TEXT("no") )
     return IDC_NO;
-  else if ( cursor == "sizeall" )
+  else if ( cursor == TEXT("sizeall") )
     return IDC_SIZEALL;
-  else if ( cursor == "sizenesw" )
+  else if ( cursor == TEXT("sizenesw") )
     return IDC_SIZENESW;
-  else if ( cursor == "sizens" )
+  else if ( cursor == TEXT("sizens") )
     return IDC_SIZENS;
-  else if ( cursor == "sizenwse" )
+  else if ( cursor == TEXT("sizenwse") )
     return IDC_SIZENWSE;
-  else if ( cursor == "sizewe" )
+  else if ( cursor == TEXT("sizewe") )
     return IDC_SIZEWE;
-  else if ( cursor == "uparrow" )
+  else if ( cursor == TEXT("uparrow") )
     return IDC_UPARROW;
-  else if ( cursor == "wait" )
+  else if ( cursor == TEXT("wait") )
     return IDC_WAIT;
 
   return NULL;
@@ -840,74 +806,74 @@ LPSTR DcxControl::parseCursorType( const TString & cursor ) {
  * blah
  */
 
-BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnValue ) {
+BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturnValue ) {
 
 	TString prop(input.gettok( 3 ));
 
-	if ( prop == "hwnd" ) {
-		wsprintf( szReturnValue, "%d", this->m_Hwnd );
+	if ( prop == TEXT("hwnd") ) {
+		wsprintf( szReturnValue, TEXT("%d"), this->m_Hwnd );
 		return TRUE;
 	}
-	else if ( prop == "visible" ) {
+	else if ( prop == TEXT("visible") ) {
 		if ( IsWindowVisible( this->m_Hwnd ) )
-			lstrcpy( szReturnValue, "$true" );
+			lstrcpy( szReturnValue, TEXT("$true") );
 		else
-			lstrcpy( szReturnValue, "$false" );
+			lstrcpy( szReturnValue, TEXT("$false") );
 		return TRUE;
 	}
-	else if ( prop == "enabled" ) {
+	else if ( prop == TEXT("enabled") ) {
 		if ( IsWindowEnabled( this->m_Hwnd ) )
-			lstrcpy( szReturnValue, "$true" );
+			lstrcpy( szReturnValue, TEXT("$true") );
 		else
-			lstrcpy( szReturnValue, "$false" );
+			lstrcpy( szReturnValue, TEXT("$false") );
 		return TRUE;    
 	}
-	else if ( prop == "pos" ) {
+	else if ( prop == TEXT("pos") ) {
 		RECT rc;
 		rc = getPosition();
-		wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
+		wsprintf( szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
 		return TRUE;
 	}
-	else if ( prop == "dpos" ) {
+	else if ( prop == TEXT("dpos") ) {
 		RECT rc;
 		GetWindowRect( this->m_Hwnd, &rc );
 		MapWindowPoints(NULL, this->m_pParentDialog->getHwnd( ), (LPPOINT)&rc, 2);
 
-		wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
+		wsprintf( szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
 		return TRUE;
 	}
-	else if ( prop == "mark" ) {
+	else if ( prop == TEXT("mark") ) {
 		lstrcpyn( szReturnValue, this->m_tsMark.to_chr( ), MIRC_BUFFER_SIZE_CCH );
 		return TRUE;
 	}
-	else if ( prop == "mouse" ) {
+	else if ( prop == TEXT("mouse") ) {
 		POINT pt;
 		GetCursorPos( &pt );
 		MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
-		wsprintf( szReturnValue, "%d %d", pt.x, pt.y );
+		wsprintf( szReturnValue, TEXT("%d %d"), pt.x, pt.y );
 		return TRUE;
 	}
-	else if ( prop == "pid" ) {
-		char classname[257];
+	else if ( prop == TEXT("pid") ) {
+		TCHAR classname[257];
 		GetClassName( GetParent( this->m_Hwnd ), classname, 256 );
 
-		if ( lstrcmp( classname, "#32770" ) == 0 )
-			lstrcpy( szReturnValue, "0" );
+		if ( lstrcmp( classname, TEXT("#32770") ) == 0 )
+			lstrcpy( szReturnValue, TEXT("0") );
 		else
-			wsprintf( szReturnValue, "%d",  this->m_pParentDialog->getControlByHWND( GetParent( this->m_Hwnd ) )->getUserID( ) );
+			wsprintf( szReturnValue, TEXT("%d"),  this->m_pParentDialog->getControlByHWND( GetParent( this->m_Hwnd ) )->getUserID( ) );
 
 		return TRUE;
 	}
-	else if ( prop == "type" ) {
+	else if ( prop == TEXT("type") ) {
 
 		lstrcpyn( szReturnValue, this->getType( ).to_chr( ), MIRC_BUFFER_SIZE_CCH );
 		return TRUE;
 	}
-	else if ( prop == "styles" ) {
+	else if ( prop == TEXT("styles") ) {
 		lstrcpyn( szReturnValue, this->getStyles( ).to_chr( ), MIRC_BUFFER_SIZE_CCH );
 		return TRUE;
 	}
-	else if ( prop == "font") {
+	else if ( prop == TEXT("font")) {
 		HFONT hFontControl = this->m_hFont;
 
 //		if (!hFontControl)
@@ -922,52 +888,52 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 			GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent);
 
 			//TString str(ParseLogfontToCommand(&lfCurrent));
-			//wsprintf(szReturnValue, "%s", str.to_chr());
+			//wsprintf(szReturnValue, TEXT("%s"), str.to_chr());
 			lstrcpyn(szReturnValue, ParseLogfontToCommand(&lfCurrent).to_chr(), MIRC_BUFFER_SIZE_CCH);
 			return TRUE;
 		}
 	}
 	// [NAME] [ID] [PROP]
-	else if ( prop == "tooltipbgcolor") {
+	else if ( prop == TEXT("tooltipbgcolor")) {
 		DWORD cref = 0;
 
 		if (this->m_ToolTipHWND != NULL)
 			cref = (DWORD) SendMessage(this->m_ToolTipHWND,TTM_GETTIPBKCOLOR, NULL, NULL);
 
-		wsprintf(szReturnValue, "%ld", cref);
+		wsprintf(szReturnValue, TEXT("%ld"), cref);
 		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
-	else if (prop == "tooltiptextcolor") {
+	else if (prop == TEXT("tooltiptextcolor")) {
 		DWORD cref = 0;
 
 		if (this->m_ToolTipHWND != NULL)
 			cref = (DWORD) SendMessage(this->m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL);
 
-		wsprintf(szReturnValue, "%ld", cref);
+		wsprintf(szReturnValue, TEXT("%ld"), cref);
 		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
-	else if (prop == "alpha") {
+	else if (prop == TEXT("alpha")) {
 		if (this->m_bAlphaBlend)
-			lstrcpy(szReturnValue, "$true");
+			lstrcpy(szReturnValue, TEXT("$true"));
 		else
-			lstrcpy(szReturnValue, "$false");
+			lstrcpy(szReturnValue, TEXT("$false"));
 	}
 	// [NAME] [ID] [PROP]
-	else if (prop == "textcolor") {
-		wsprintf(szReturnValue, "%d", this->m_clrText);
+	else if (prop == TEXT("textcolor")) {
+		wsprintf(szReturnValue, TEXT("%d"), this->m_clrText);
 	}
 	// [NAME] [ID] [PROP]
-	else if (prop == "textbgcolor") {
-		wsprintf(szReturnValue, "%d", this->m_clrBackText);
+	else if (prop == TEXT("textbgcolor")) {
+		wsprintf(szReturnValue, TEXT("%d"), this->m_clrBackText);
 	}
 	// [NAME] [ID] [PROP]
-	else if (prop == "bgcolor") {
-		wsprintf(szReturnValue, "%d", this->m_clrBackground);
+	else if (prop == TEXT("bgcolor")) {
+		wsprintf(szReturnValue, TEXT("%d"), this->m_clrBackground);
 	}
 	else
-		this->showError(prop.to_chr(),NULL,"Invalid property or number of arguments");
+		this->showError(prop.to_chr(),NULL,TEXT("Invalid property or number of arguments"));
 
 	return FALSE;
 }
@@ -1004,7 +970,7 @@ void DcxControl::unregistreDefaultWindowProc( ) {
  */
 
 LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-	DcxControl *pthis = (DcxControl*) GetProp(mHwnd, "dcx_cthis");
+	DcxControl *pthis = (DcxControl*) GetProp(mHwnd, TEXT("dcx_cthis"));
 
 	// sanity check, see that prop exists.
 	if (pthis == NULL)
@@ -1025,13 +991,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 		return 0L;
 	}
 
-#if DCX_FOR_XP_ONLY
 	bool fBlocked = (InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
-#else
-	bool fBlocked = false;
-	if (InSendMessageExUx != NULL)
-		fBlocked = (InSendMessageExUx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
-#endif
 
 	if (!fBlocked) {
 		// If Message is blocking just call old win proc
@@ -1080,87 +1040,87 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 	if (hParent == NULL)
 		hParent = p_Dialog->getHwnd();
 
-	if (( type == "pbar" ) && (mask & CTLF_ALLOW_PBAR))
+	if (( type == TEXT("pbar") ) && (mask & CTLF_ALLOW_PBAR))
 		return new DcxProgressBar( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "trackbar" ) && (mask & CTLF_ALLOW_TRACKBAR))
+	else if (( type == TEXT("trackbar") ) && (mask & CTLF_ALLOW_TRACKBAR))
 		return new DcxTrackBar( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "comboex" ) && (mask & CTLF_ALLOW_COMBOEX))
+	else if (( type == TEXT("comboex") ) && (mask & CTLF_ALLOW_COMBOEX))
 		return new DcxComboEx( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "colorcombo" ) && (mask & CTLF_ALLOW_COLORCOMBO))
+	else if (( type == TEXT("colorcombo") ) && (mask & CTLF_ALLOW_COLORCOMBO))
 		return new DcxColorCombo( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "statusbar" ) && (mask & CTLF_ALLOW_STATUSBAR))
+	else if (( type == TEXT("statusbar") ) && (mask & CTLF_ALLOW_STATUSBAR))
 		return new DcxStatusBar( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "toolbar" ) && (mask & CTLF_ALLOW_TOOLBAR))
+	else if (( type == TEXT("toolbar") ) && (mask & CTLF_ALLOW_TOOLBAR))
 		return new DcxToolBar( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "treeview" ) && (mask & CTLF_ALLOW_TREEVIEW))
+	else if (( type == TEXT("treeview") ) && (mask & CTLF_ALLOW_TREEVIEW))
 		return new DcxTreeView( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "listview" ) && (mask & CTLF_ALLOW_LISTVIEW))
+	else if (( type == TEXT("listview") ) && (mask & CTLF_ALLOW_LISTVIEW))
 		return new DcxListView( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "rebar" ) && (mask & CTLF_ALLOW_REBAR))
+	else if (( type == TEXT("rebar") ) && (mask & CTLF_ALLOW_REBAR))
 		return new DcxReBar( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "button" ) && (mask & CTLF_ALLOW_BUTTON))
+	else if (( type == TEXT("button") ) && (mask & CTLF_ALLOW_BUTTON))
 		return new DcxButton( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "richedit" ) && (mask & CTLF_ALLOW_RICHEDIT))
+	else if (( type == TEXT("richedit") ) && (mask & CTLF_ALLOW_RICHEDIT))
 		return new DcxRichEdit( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "updown" ) && (mask & CTLF_ALLOW_UPDOWN))
+	else if (( type == TEXT("updown") ) && (mask & CTLF_ALLOW_UPDOWN))
 		return new DcxUpDown( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "ipaddress" ) && (mask & CTLF_ALLOW_IPADDRESS))
+	else if (( type == TEXT("ipaddress") ) && (mask & CTLF_ALLOW_IPADDRESS))
 		return new DcxIpAddress( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "webctrl" ) && (mask & CTLF_ALLOW_WEBCTRL))
+	else if (( type == TEXT("webctrl") ) && (mask & CTLF_ALLOW_WEBCTRL))
 		return new DcxWebControl( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "calendar" ) && (mask & CTLF_ALLOW_CALANDER))
+	else if (( type == TEXT("calendar") ) && (mask & CTLF_ALLOW_CALANDER))
 		return new DcxCalendar( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "datetime" ) && (mask & CTLF_ALLOW_CALANDER))
+	else if (( type == TEXT("datetime") ) && (mask & CTLF_ALLOW_CALANDER))
 		return new DcxDateTime(mID, p_Dialog, hParent, &rc, styles);
-	else if (( type == "divider" ) && (mask & CTLF_ALLOW_DIVIDER))
+	else if (( type == TEXT("divider") ) && (mask & CTLF_ALLOW_DIVIDER))
 		return new DcxDivider( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "panel" ) && (mask & CTLF_ALLOW_PANEL))
+	else if (( type == TEXT("panel") ) && (mask & CTLF_ALLOW_PANEL))
 		return new DcxPanel( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "tab" ) && (mask & CTLF_ALLOW_TAB))
+	else if (( type == TEXT("tab") ) && (mask & CTLF_ALLOW_TAB))
 		return new DcxTab( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "line" ) && (mask & CTLF_ALLOW_LINE))
+	else if (( type == TEXT("line") ) && (mask & CTLF_ALLOW_LINE))
 		return new DcxLine( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "box" ) && (mask & CTLF_ALLOW_BOX))
+	else if (( type == TEXT("box") ) && (mask & CTLF_ALLOW_BOX))
 		return new DcxBox( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "radio" ) && (mask & CTLF_ALLOW_RADIO))
+	else if (( type == TEXT("radio") ) && (mask & CTLF_ALLOW_RADIO))
 		return new DcxRadio( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "check" ) && (mask & CTLF_ALLOW_CHECK))
+	else if (( type == TEXT("check") ) && (mask & CTLF_ALLOW_CHECK))
 		return new DcxCheck( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "text" ) && (mask & CTLF_ALLOW_TEXT))
+	else if (( type == TEXT("text") ) && (mask & CTLF_ALLOW_TEXT))
 		return new DcxText( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "edit" ) && (mask & CTLF_ALLOW_EDIT))
+	else if (( type == TEXT("edit") ) && (mask & CTLF_ALLOW_EDIT))
 		return new DcxEdit( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "scroll" ) && (mask & CTLF_ALLOW_SCROLL))
+	else if (( type == TEXT("scroll") ) && (mask & CTLF_ALLOW_SCROLL))
 		return new DcxScroll( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "list" ) && (mask & CTLF_ALLOW_LIST))
+	else if (( type == TEXT("list") ) && (mask & CTLF_ALLOW_LIST))
 		return new DcxList( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "link" ) && (mask & CTLF_ALLOW_LINK))
+	else if (( type == TEXT("link") ) && (mask & CTLF_ALLOW_LINK))
 		return new DcxLink( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "image" ) && (mask & CTLF_ALLOW_IMAGE))
+	else if (( type == TEXT("image") ) && (mask & CTLF_ALLOW_IMAGE))
 		return new DcxImage( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "pager" ) && (mask & CTLF_ALLOW_PAGER))
+	else if (( type == TEXT("pager") ) && (mask & CTLF_ALLOW_PAGER))
 		return new DcxPager( mID, p_Dialog, hParent, &rc, styles );
-	else if (( type == "stacker" ) && (mask & CTLF_ALLOW_STACKER))
+	else if (( type == TEXT("stacker") ) && (mask & CTLF_ALLOW_STACKER))
 		return new DcxStacker( mID, p_Dialog, hParent, &rc, styles );
-	//else if (( type == "mci" ) && (mask & CTLF_ALLOW_DIRECTSHOW))
+	//else if (( type == TEXT("mci") ) && (mask & CTLF_ALLOW_DIRECTSHOW))
 	//	return new DcxMci( mID, p_Dialog, hParent, &rc, styles );
 
 #ifdef DCX_USE_DXSDK
 
-	else if (( type == "directshow" ) && (mask & CTLF_ALLOW_DIRECTSHOW))
+	else if (( type == TEXT("directshow") ) && (mask & CTLF_ALLOW_DIRECTSHOW))
 		return new DcxDirectshow( mID, p_Dialog, hParent, &rc, styles );
 
 #endif // DCX_USE_DXSDK
 
-	else if (( type == "window" ) && (mask & CTLF_ALLOW_DOCK)) {
+	else if (( type == TEXT("window") ) && (mask & CTLF_ALLOW_DOCK)) {
 		if ( tsInput.numtok( ) > offset ) {
 			HWND winHwnd = (HWND)tsInput.gettok( offset +1 ).to_num();
 			if (!IsWindow(winHwnd)) {
-				char windowHwnd[30];
+				TCHAR windowHwnd[30];
 
-				Dcx::mIRC.evalex(windowHwnd, 30, "$window(%s).hwnd", tsInput.gettok( offset +1 ).to_chr( ) );
+				Dcx::mIRC.evalex(windowHwnd, 30, TEXT("$window(%s).hwnd"), tsInput.gettok( offset +1 ).to_chr( ) );
 
-				winHwnd = (HWND) atoi( windowHwnd );
+				winHwnd = (HWND) dcx_atoi( windowHwnd );
 			}
 
 			if (IsWindow(winHwnd)) {
@@ -1168,12 +1128,12 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 					return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 			}
 			else {
-				Dcx::errorex("ControlFactory", "Docking (No such window %s)", tsInput.gettok( offset +1 ).to_chr());
-				throw "No such window";
+				Dcx::errorex(TEXT("ControlFactory"), TEXT("Docking (No such window %s)"), tsInput.gettok( offset +1 ).to_chr());
+				throw TEXT("No such window");
 			}
 		}
 	}
-	else if ((type == "dialog") && (mask & CTLF_ALLOW_DOCK)) {
+	else if ((type == TEXT("dialog")) && (mask & CTLF_ALLOW_DOCK)) {
 		if (tsInput.numtok( ) > offset) {
 			HWND winHwnd = GetHwndFromString(tsInput.gettok( offset +1 ));
 
@@ -1190,8 +1150,8 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 				}
 			}
 			else {
-				Dcx::errorex("ControlFactory","Docking (No such dialog %s)", tsInput.gettok( offset +1 ).to_chr());
-				throw "No such dialog";
+				Dcx::errorex(TEXT("ControlFactory"),TEXT("Docking (No such dialog %s)"), tsInput.gettok( offset +1 ).to_chr());
+				throw TEXT("No such dialog");
 			}
 		}
 	}
@@ -1351,11 +1311,11 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 	if (hwnd == this->m_Hwnd)
 		return;
 
-	// if window isn't visible, don't draw.
+	// if window isnTEXT('t visible, don')t draw.
 	if (!IsWindowVisible(hwnd))
 		return;
 
-	// if window is within a background paint of it's own, don't draw. (loop condition)
+	// if window is within a background paint of itTEXT('s own, don')t draw. (loop condition)
 	DcxControl *p_ctrl = this->m_pParentDialog->getControlByHWND(hwnd);
 	if (p_ctrl != NULL && p_ctrl->m_bInPrint)
 		return;
@@ -1364,7 +1324,7 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 	GetWindowRect(hwnd, &rc);
 	MapWindowRect(NULL,GetParent(hwnd),&rc);
 
-	// if window isn't within the client area of the control who's background we are drawing, don't draw.
+	// if window isnTEXT('t within the client area of the control who')s background we are drawing, don't draw.
 	if (!RectVisible(hDC, &rc))
 		return;
 
@@ -1695,21 +1655,21 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 	}
 	delete ai;
 }
-void DcxControl::showError(const char *prop, const char *cmd, const char *err)
+void DcxControl::showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err)
 {
 	if (this->m_pParentDialog->IsVerbose()) {
 		TString res;
 		if (prop != NULL)
-			res.tsprintf("D_IERROR %s(%s, %d).%s: %s", this->getType().to_chr(), this->m_pParentDialog->getName().to_chr(), this->getUserID(), prop, err);
+			res.tsprintf(TEXT("D_IERROR %s(%s, %d).%s: %s"), this->getType().to_chr(), this->m_pParentDialog->getName().to_chr(), this->getUserID(), prop, err);
 		else
-			res.tsprintf("D_CERROR (%s) xdid %s %s %d: %s", this->getType().to_chr(), cmd, this->m_pParentDialog->getName().to_chr(), this->getUserID(), err);		
+			res.tsprintf(TEXT("D_CERROR (%s) xdid %s %s %d: %s"), this->getType().to_chr(), cmd, this->m_pParentDialog->getName().to_chr(), this->getUserID(), err);		
 		Dcx::error(cmd, res.to_chr());
 	}
 
 	if (this->m_pParentDialog->getAliasName().len() > 0)
-		this->execAliasEx("error,%d,%s,%s,%s,%s", this->getUserID(), this->getType().to_chr(), (prop != NULL ? prop : "none"), (cmd != NULL ? cmd : "none"), err);
+		this->execAliasEx(TEXT("error,%d,%s,%s,%s,%s"), this->getUserID(), this->getType().to_chr(), (prop != NULL ? prop : TEXT("none")), (cmd != NULL ? cmd : TEXT("none")), err);
 }
-void DcxControl::showErrorEx(const char *prop, const char *cmd, const char *fmt, ...)
+void DcxControl::showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...)
 {
 	va_list args;
 	TString txt;
@@ -1729,7 +1689,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		case WM_HELP:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_HELP)
-					this->execAliasEx("%s,%d", "help", this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%d"), TEXT("help"), this->getUserID( ) );
 				bParsed = TRUE;
 				lRes = TRUE;
 			}
@@ -1819,7 +1779,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
 				{
-					this->execAliasEx("%s,%d", "lbdown", this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%d"), TEXT("lbdown"), this->getUserID( ) );
 				}
 			}
 			break;
@@ -1828,8 +1788,8 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
 				{
-					this->execAliasEx("%s,%d", "lbup", this->getUserID( ) );
-					this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%d"), TEXT("lbup"), this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID( ) );
 				}
 			}
 			break;
@@ -1837,8 +1797,8 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		case WM_LBUTTONDBLCLK:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					this->execAliasEx("%s,%d", "dclick", this->getUserID( ) );
-					this->execAliasEx("%s,%d", "lbdblclk", this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%d"), TEXT("dclick"), this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%d"), TEXT("lbdblclk"), this->getUserID( ) );
 				}
 			}
 			break;
@@ -1846,45 +1806,45 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		case WM_RBUTTONDOWN:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->execAliasEx("%s,%d", "rbdown", this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%d"), TEXT("rbdown"), this->getUserID( ) );
 			}
 			break;
 
 		case WM_RBUTTONUP:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->execAliasEx("%s,%d", "rbup", this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%d"), TEXT("rbup"), this->getUserID( ) );
 			}
 			break;
 
 		case WM_RBUTTONDBLCLK:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->execAliasEx("%s,%d", "rdclick", this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%d"), TEXT("rdclick"), this->getUserID( ) );
 			}
 			break;
 
 		case WM_CONTEXTMENU:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->execAliasEx("%s,%d", "rclick", this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%d"), TEXT("rclick"), this->getUserID( ) );
 				bParsed = TRUE; // stops event being passed down to parent controls
 			}
 			break;
 		case WM_DROPFILES:
 		{
 			HDROP files = (HDROP) wParam;
-			char filename[500];
+			TCHAR filename[500];
 			int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
 			if (count) {
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
-					char ret[20];
+					TCHAR ret[20];
 
-					this->evalAliasEx(ret, 255, "%s,%d,%d", "dragbegin", this->getUserID(), count);
+					this->evalAliasEx(ret, 255, TEXT("%s,%d,%d"), TEXT("dragbegin"), this->getUserID(), count);
 
 					// cancel drag drop event
-					if (lstrcmpi(ret, "cancel") == 0) {
+					if (lstrcmpi(ret, TEXT("cancel")) == 0) {
 						DragFinish(files);
 						return 0L;
 					}
@@ -1892,10 +1852,10 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 					// for each file, send callback message
 					for (int i = 0; i < count; i++) {
 						if (DragQueryFile(files, i, filename, 500))
-							this->execAliasEx("%s,%d,%s", "dragfile", this->getUserID(), filename);
+							this->execAliasEx(TEXT("%s,%d,%s"), TEXT("dragfile"), this->getUserID(), filename);
 					}
 
-					this->execAliasEx("%s,%d", "dragfinish", this->getUserID());
+					this->execAliasEx(TEXT("%s,%d"), TEXT("dragfinish"), this->getUserID());
 				}
 			}
 
@@ -1923,7 +1883,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 					case TTN_LINKCLICK:
 						{
 							bParsed = TRUE;
-							this->execAliasEx("%s,%d", "tooltiplink", this->getUserID( ) );
+							this->execAliasEx(TEXT("%s,%d"), TEXT("tooltiplink"), this->getUserID( ) );
 						}
 						break;
 					}
@@ -1973,16 +1933,16 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		//		if ((wp->flags & SWP_NOMOVE) && (wp->flags & SWP_NOSIZE))
 		//			break;
 
-		//		char ret[256];
+		//		TCHAR ret[256];
 
 		//		this->callAliasEx(ret, "changing,%d,%d,%d,%d,%d,%d", this->getUserID(), (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
 
 		//		if (wp != NULL) {
-		//			if (lstrcmp("nosize", ret) == 0)
+		//			if (lstrcmp(TEXT("nosize"), ret) == 0)
 		//				wp->flags |= SWP_NOSIZE;
-		//			else if (lstrcmp("nomove", ret) == 0)
+		//			else if (lstrcmp(TEXT("nomove"), ret) == 0)
 		//				wp->flags |= SWP_NOMOVE;
-		//			else if (lstrcmp("nochange", ret) == 0)
+		//			else if (lstrcmp(TEXT("nochange"), ret) == 0)
 		//				wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
 		//		}
 		//	}
@@ -2013,6 +1973,18 @@ void DcxControl::InvalidateParentRect(HWND hwnd)
 
 void DcxControl::ctrlDrawText(HDC hdc, TString txt, const LPRECT rc, const UINT style)
 {
+#if UNICODE
+	if (!this->m_bCtrlCodeText) {
+		int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
+		if (this->m_bShadowText)
+			dcxDrawShadowText(hdc, txt.to_chr(), txt.len(), rc, style, this->m_clrText, 0, 5, 5);
+		else
+			DrawTextW(hdc, txt.to_chr(), txt.len(), rc, style);
+		SetBkMode(hdc, oldBkgMode);
+	}
+	else
+		mIRC_DrawText(hdc, txt, rc, style, this->m_bShadowText);
+#else
 	if (!this->m_bCtrlCodeText) {
 		int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 		if (this->m_bShadowText)
@@ -2023,6 +1995,7 @@ void DcxControl::ctrlDrawText(HDC hdc, TString txt, const LPRECT rc, const UINT 
 	}
 	else
 		mIRC_DrawText(hdc, txt, rc, style, this->m_bShadowText, this->m_bUseUTF8);
+#endif
 }
 
 TString DcxControl::getStyles(void) {
@@ -2031,31 +2004,33 @@ TString DcxControl::getStyles(void) {
 	exStyles = GetWindowExStyle(this->m_Hwnd);
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if ( Dcx::XPPlusModule.dcxGetWindowTheme(this->m_Hwnd) == NULL )
-		result = "notheme ";
+		result = TEXT("notheme ");
 	if ( Styles & WS_TABSTOP ) 
-		result.addtok("tabstop");
+		result.addtok(TEXT("tabstop"));
 	if ( Styles & WS_GROUP ) 
-		result.addtok("group");
+		result.addtok(TEXT("group"));
 	if ( Styles & WS_DISABLED ) 
-		result.addtok("disabled");
+		result.addtok(TEXT("disabled"));
 	if ( exStyles & WS_EX_TRANSPARENT )
-		result.addtok("transparent");
+		result.addtok(TEXT("transparent"));
 	if ( ~Styles & WS_VISIBLE )
-		result.addtok("hidden");
+		result.addtok(TEXT("hidden"));
 	if ( this->m_bAlphaBlend )
-		result.addtok("alpha");
+		result.addtok(TEXT("alpha"));
 	if ( this->m_bShadowText )
-		result.addtok("shadow");
+		result.addtok(TEXT("shadow"));
 	if ( !this->m_bCtrlCodeText ) 
-		result.addtok("noformat");
+		result.addtok(TEXT("noformat"));
 	if ( this->m_bGradientFill ) {
 		if ( this->m_bGradientVertical )
-			result.addtok("vgradient");
+			result.addtok(TEXT("vgradient"));
 		else 
-			result.addtok("hgradient");
+			result.addtok(TEXT("hgradient"));
 	}
+#if !UNICODE
 	if ( this->m_bUseUTF8 ) 
-		result.addtok("utf8");
+		result.addtok(TEXT("utf8"));
+#endif
 	return result;
 }
 
@@ -2065,26 +2040,27 @@ TString DcxControl::getBorderStyles(void) {
 	exStyles = GetWindowExStyle(this->m_Hwnd);
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & WS_BORDER)
-		bstyles += 'b';
+		bstyles += TEXT('b');
 	if (exStyles & WS_EX_CLIENTEDGE)
-		bstyles += 'c';
+		bstyles += TEXT('c');
 	if (Styles & WS_DLGFRAME)
-		bstyles += 'd';
+		bstyles += TEXT('d');
 	if (exStyles & WS_EX_DLGMODALFRAME)
-		bstyles += 'f';
+		bstyles += TEXT('f');
 	if (exStyles & WS_EX_STATICEDGE)
-		bstyles += 's';
+		bstyles += TEXT('s');
 	if (exStyles & WS_EX_WINDOWEDGE)
-		bstyles += 'w';
+		bstyles += TEXT('w');
 	return bstyles;
 }
 
 void DcxControl::toXml(TiXmlElement * xml) {
-	TString styles(getStyles());
+	// NEEDS FIXED!
+	//TString styles(getStyles());
 
-	xml->SetAttribute("id", getUserID());
-	xml->SetAttribute("type", getType().to_chr());
-	if (styles.len() > 0) xml->SetAttribute("styles", styles.to_chr());
+	//xml->SetAttribute("id", getUserID());
+	//xml->SetAttribute("type", getType().to_chr());
+	//if (styles.len() > 0) xml->SetAttribute("styles", styles.to_chr());
 }
 
 TiXmlElement * DcxControl::toXml(void) {

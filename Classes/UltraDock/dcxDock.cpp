@@ -31,11 +31,11 @@ DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const int dockType)
 {
 	this->m_VectorDocks.clear();
 	if (IsWindow(this->m_RefHwnd)) {
-		SetProp(this->m_RefHwnd,"DcxDock",this);
+		SetProp(this->m_RefHwnd,TEXT("DcxDock"),this);
 		this->m_OldRefWndProc = SubclassWindow(this->m_RefHwnd, DcxDock::mIRCRefWinProc);
 	}
 	if (IsWindow(this->m_hParent)) {
-		SetProp(this->m_hParent,"DcxDock",this);
+		SetProp(this->m_hParent,TEXT("DcxDock"),this);
 		this->m_OldDockWndProc = SubclassWindow(this->m_hParent, DcxDock::mIRCDockWinProc);
 	}
 	//if (dockType == DOCK_TYPE_TREE)
@@ -49,12 +49,12 @@ DcxDock::~DcxDock(void)
 
 	// reset to orig WndProc
 	if (IsWindow(this->m_RefHwnd)) {
-		RemoveProp(this->m_RefHwnd,"DcxDock");
+		RemoveProp(this->m_RefHwnd,TEXT("DcxDock"));
 		if (this->m_OldRefWndProc != NULL)
 			SubclassWindow(this->m_RefHwnd, this->m_OldRefWndProc);
 	}
 	if (IsWindow(this->m_hParent)) {
-		RemoveProp(this->m_hParent,"DcxDock");
+		RemoveProp(this->m_hParent,TEXT("DcxDock"));
 		if (this->m_OldDockWndProc != NULL)
 			SubclassWindow(this->m_hParent, this->m_OldDockWndProc);
 	}
@@ -64,17 +64,17 @@ DcxDock::~DcxDock(void)
 bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 {
 	if (isDocked(hwnd)) {
-		Dcx::errorex("xdock", "Window (%d) is already docked", hwnd);
+		Dcx::errorex(TEXT("xdock"), TEXT("Window (%d) is already docked"), hwnd);
 		return false;
 	}
 	if (!IsWindow(this->m_hParent)) {
-		Dcx::error("xdock", "Invalid Dock Host Window");
+		Dcx::error(TEXT("xdock"), TEXT("Invalid Dock Host Window"));
 		return false;
 	}
 	LPDCXULTRADOCK ud = new DCXULTRADOCK;
 
 	if (ud == NULL) {
-		Dcx::error("xdock", "No Memory");
+		Dcx::error(TEXT("xdock"), TEXT("No Memory"));
 		return false;
 	}
 	ud->hwnd = hwnd;
@@ -84,15 +84,15 @@ bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 
 	if (flag.len() > 1) {
 		switch(flag[1]) {
-			case 'r':
+			case TEXT('r'):
 				ud->flags = DOCKF_RIGHT;
 				break;
 
-			case 't':
+			case TEXT('t'):
 				ud->flags = DOCKF_TOP;
 				break;
 
-			case 'b':
+			case TEXT('b'):
 				ud->flags = DOCKF_BOTTOM;
 				break;
 
@@ -193,7 +193,7 @@ LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd)
 
 bool DcxDock::isDocked(const HWND hwnd)
 {
-	if (this->FindDock(hwnd) || (GetProp(hwnd,"dcx_docked") != NULL))
+	if (this->FindDock(hwnd) || (GetProp(hwnd,TEXT("dcx_docked")) != NULL))
 		return true;
 	return false;
 }
@@ -295,7 +295,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 
 LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	DcxDock *pthis = (DcxDock *)GetProp(mHwnd,"DcxDock");
+	DcxDock *pthis = (DcxDock *)GetProp(mHwnd,TEXT("DcxDock"));
 	if (pthis == NULL)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
@@ -362,7 +362,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				LPTVITEMEX pitem = (LPTVITEMEX)lParam;
 				TString buf;
 				DcxDock::getTreebarItemType(buf, pitem->lParam);
-				Dcx::mIRC.evalex(NULL,0,"$xtreebar_callback(setitem,%s,%ld,%ld)", buf.to_chr(), pitem->hItem, pitem->lParam);
+				Dcx::mIRC.evalex(NULL,0,TEXT("$xtreebar_callback(setitem,%s,%ld,%ld)"), buf.to_chr(), pitem->hItem, pitem->lParam);
 			}
 			break;
 #endif
@@ -376,8 +376,8 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 					TString buf;
 					int i = 0;
 					DcxDock::getTreebarItemType(buf, pTvis->itemex.lParam);
-					Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", pTvis->itemex.lParam, pTvis->itemex.pszText );
-					Dcx::mIRC.tsEvalex(buf, "$xtreebar_callback(geticons,%s,%%dcx_%d)", buf.to_chr(), pTvis->itemex.lParam);
+					Dcx::mIRC.execex(TEXT("/!set -nu1 %%dcx_%d %800s"), pTvis->itemex.lParam, pTvis->itemex.pszText );
+					Dcx::mIRC.tsEvalex(buf, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), buf.to_chr(), pTvis->itemex.lParam);
 					i = buf.gettok( 1 ).to_int() -1;
 					if (i < 0)
 						i = 0;
@@ -396,11 +396,11 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 //BOOL CALLBACK DcxDock::EnumTreebarWindows(HWND hwnd, LPARAM lParam)
 //{
 //	TCHAR title[256];
-//	char *buf = (char *)lParam;
+//	TCHAR *buf = (TCHAR *)lParam;
 //	title[0] = 0;
 //	GetWindowText(hwnd, title, 255);
 //	if (lstrcmp(buf, title) == 0) {
-//		mIRCDebug("match: %ld : %s", hwnd, title);
+//		mIRCDebug(TEXT("match: %ld : %s"), hwnd, title);
 //		return FALSE;
 //	}
 //	return TRUE;
@@ -408,7 +408,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	DcxDock *pthis = (DcxDock *)GetProp(mHwnd,"DcxDock");
+	DcxDock *pthis = (DcxDock *)GetProp(mHwnd,TEXT("DcxDock"));
 	if (pthis == NULL)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
@@ -494,9 +494,9 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 												//}
 												int wid = HIWORD(lpntvcd->nmcd.lItemlParam);
 												TString buf;
-												Dcx::mIRC.tsEvalex(buf, "$window(@%d).sbcolor", wid);
+												Dcx::mIRC.tsEvalex(buf, TEXT("$window(@%d).sbcolor"), wid);
 												if (buf.len() > 0) {
-													static const TString sbcolor("s s message s event s highlight"); // 's' is used as a spacer.
+													static const TString sbcolor(TEXT("s s message s event s highlight")); // TEXT('s') is used as a spacer.
 													int clr = sbcolor.findtok(buf.to_chr(), 1);
 													if (clr == 0) // no match, do normal colours
 														break;
@@ -521,18 +521,22 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 									break;
 
 								TString tsType;
-								TString buf((UINT)255);
+								TString buf((UINT)MIRC_BUFFER_SIZE_CCH);
 								TVITEMEX item;
 								ZeroMemory(&item, sizeof(item));
 
 								item.hItem = tcgit->hItem;
 								item.pszText = buf.to_chr();
-								item.cchTextMax = 255;
+								item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 								item.mask = TVIF_TEXT;
 								if (TreeView_GetItem(Dcx::mIRC.getTreeview(), &item)) {
 									DcxDock::getTreebarItemType(tsType, item.lParam);
-									Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", item.lParam, item.pszText ); // <- had wrong args causing instant crash when showing tooltips
-									Dcx::mIRC.tsEvalex(buf, "$xtreebar_callback(gettooltip,%s,%%dcx_%d)", tsType.to_chr(), item.lParam);
+#ifdef UNICODE
+									Dcx::mIRC.execex(TEXT("/!set -nu1 %%dcx_%d %4100s"), item.lParam, item.pszText ); // <- had wrong args causing instant crash when showing tooltips
+#else
+									Dcx::mIRC.execex(TEXT("/!set -nu1 %%dcx_%d %800s"), item.lParam, item.pszText ); // <- had wrong args causing instant crash when showing tooltips
+#endif
+									Dcx::mIRC.tsEvalex(buf, TEXT("$xtreebar_callback(gettooltip,%s,%%dcx_%d)"), tsType.to_chr(), item.lParam);
 
 									if (buf.len() > 0)
 										lstrcpyn(tcgit->pszText, buf.to_chr(), tcgit->cchTextMax);
@@ -557,25 +561,25 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					switch( hdr->code ) {
 						case NM_CLICK:
 							{
-								Dcx::mIRC.signalex(dcxSignal.xstatusbar, "DCXStatusbar sclick %d %d", hdr->hwndFrom, idPart);
+								Dcx::mIRC.signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar sclick %d %d"), hdr->hwndFrom, idPart);
 								return TRUE;
 							}
 							break;
 						case NM_DBLCLK:
 							{
-								Dcx::mIRC.signalex(dcxSignal.xstatusbar, "DCXStatusbar dclick %d %d", hdr->hwndFrom, idPart);
+								Dcx::mIRC.signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar dclick %d %d"), hdr->hwndFrom, idPart);
 								return TRUE;
 							}
 							break;
 						case NM_RCLICK:
 							{
-								Dcx::mIRC.signalex(dcxSignal.xstatusbar, "DCXStatusbar rclick %d %d", hdr->hwndFrom, idPart);
+								Dcx::mIRC.signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar rclick %d %d"), hdr->hwndFrom, idPart);
 								return TRUE;
 							}
 							break;
 						case NM_RDBLCLK:
 							{
-								Dcx::mIRC.signalex(dcxSignal.xstatusbar, "DCXStatusbar rdclick %d %d", hdr->hwndFrom, idPart);
+								Dcx::mIRC.signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar rdclick %d %d"), hdr->hwndFrom, idPart);
 								return TRUE;
 							}
 							break;
@@ -597,7 +601,11 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 							rc.left += (ii.rcImage.right - ii.rcImage.left) +5;
 						}
 						if (pPart->m_Text.len() > 0)
+#if UNICODE
+							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
+#else
 							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false, pthis->g_bUseUTF8);
+#endif
 						else if (IsWindow(pPart->m_Child)) {
 							SetWindowPos(pPart->m_Child, NULL, rc.left, rc.top,
 								(rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
@@ -610,11 +618,11 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			// we use menu command instead now. here for refrence only
 		//case WM_SHOWWINDOW: // not sent when SW_SHOWNORMAL is used.
 		//	{
-		//		static const TString tsTypes("switchbar toolbar treebar mdi");
+		//		static const TString tsTypes(TEXT("switchbar toolbar treebar mdi"));
 		//		if ((BOOL)wParam)
-		//			mIRCSignalDCX(dcxSignal.xdock, "%s enabled", tsTypes.gettok( pthis->m_iType +1 ).to_chr());
+		//			mIRCSignalDCX(dcxSignal.xdock, TEXT("%s enabled"), tsTypes.gettok( pthis->m_iType +1 ).to_chr());
 		//		else
-		//			mIRCSignalDCX(dcxSignal.xdock, "%s disabled", tsTypes.gettok( pthis->m_iType +1 ).to_chr());
+		//			mIRCSignalDCX(dcxSignal.xdock, TEXT("%s disabled"), tsTypes.gettok( pthis->m_iType +1 ).to_chr());
 		//	}
 		//	break;
 		case WM_PARENTNOTIFY:
@@ -704,19 +712,19 @@ void DcxDock::status_parseControlStyles( const TString & styles, LONG * Styles, 
 
 	while ( i <= numtok ) {
 
-		if ( styles.gettok( i ) == "grip" )
+		if ( styles.gettok( i ) == TEXT("grip") )
 			*Styles |= SBARS_SIZEGRIP;
-		else if ( styles.gettok( i ) == "tooltips" )
+		else if ( styles.gettok( i ) == TEXT("tooltips") )
 			*Styles |= SBARS_TOOLTIPS;
-		else if ( styles.gettok( i ) == "nodivider" )
+		else if ( styles.gettok( i ) == TEXT("nodivider") )
 			*Styles |= CCS_NODIVIDER;
-		else if ( styles.gettok( i ) == "notheme" )
+		else if ( styles.gettok( i ) == TEXT("notheme") )
 			*bNoTheme = TRUE;
-		else if ( styles.gettok( i ) == "disabled" )
+		else if ( styles.gettok( i ) == TEXT("disabled") )
 			*Styles |= WS_DISABLED;
-		else if ( styles.gettok( i ) == "transparent" )
+		else if ( styles.gettok( i ) == TEXT("transparent") )
 			*ExStyles |= WS_EX_TRANSPARENT;
-		else if ( styles.gettok( i ) == "utf8" )
+		else if ( styles.gettok( i ) == TEXT("utf8") )
 			DcxDock::g_bUseUTF8 = true;
 		i++;
 	}
@@ -819,19 +827,19 @@ UINT DcxDock::status_parseItemFlags( const TString & flags ) {
 	INT i = 1, len = flags.len( ), iFlags = 0;
 
 	// no +sign, missing params
-	if ( flags[0] != '+' ) 
+	if ( flags[0] != TEXT('+') ) 
 		return iFlags;
 
 	while ( i < len ) {
 		switch(flags[i])
 		{
-		case 'n':
+		case TEXT('n'):
 			iFlags |= SBT_NOBORDERS;
 			break;
-		case 'p':
+		case TEXT('p'):
 			iFlags |= SBT_POPOUT;
 			break;
-		case 'f':
+		case TEXT('f'):
 			iFlags |= SBT_OWNERDRAW;
 			break;
 		}
@@ -921,25 +929,25 @@ void DcxDock::getTreebarItemType(TString &tsType, const LPARAM lParam)
 	switch (wid)
 	{
 	case 15000: // channel folder
-		tsType = "channelfolder";
+		tsType = TEXT("channelfolder");
 		break;
 	case 15004:
-		tsType = "transferfolder";
+		tsType = TEXT("transferfolder");
 		break;
 	case 15006: // window folder
-		tsType = "windowfolder";
+		tsType = TEXT("windowfolder");
 		break;
 	case 15007: // notify folder
-		tsType = "notifyfolder";
+		tsType = TEXT("notifyfolder");
 		break;
 	case 0:
-		tsType = "Unknown";
+		tsType = TEXT("Unknown");
 		break;
 	default:
 		{
-			Dcx::mIRC.tsEvalex(tsType, "$window(@%d).type", wid);
+			Dcx::mIRC.tsEvalex(tsType, TEXT("$window(@%d).type"), wid);
 			if (tsType.len() < 1)
-				tsType = "notify";
+				tsType = TEXT("notify");
 		}
 		break;
 	}

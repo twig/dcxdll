@@ -122,10 +122,10 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 		HDC hdc = GetDC( mHwnd );
 
 		TString tsType(this->m_pXParentMenu->getName( ));
-		if ( (tsType == "mirc") || (tsType == "mircbar") || (tsType == "dialog") ) {
-			if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
-				this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
-				this->m_tsItemText = this->m_tsItemText.gettok(2, "\v").trim();
+		if ( (tsType == TEXT("mirc")) || (tsType == TEXT("mircbar")) || (tsType == TEXT("dialog")) ) {
+			if ( this->m_tsItemText.numtok( TEXT("\v") ) > 1 ) {
+				this->m_nIcon = this->m_tsItemText.gettok( 1, TEXT("\v")).to_int( ) - 1;
+				this->m_tsItemText = this->m_tsItemText.gettok(2, TEXT("\v")).trim();
 			}
 
 			GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
@@ -165,46 +165,36 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 	UINT iItemStyle = this->m_pXParentMenu->getItemStyle( );
 
 	// playing around with menu transparency
-#if !DCX_FOR_XP_ONLY
-	if (SetLayeredWindowAttributesUx != NULL) {
-#endif
-		BYTE alpha = this->m_pXParentMenu->IsAlpha();
+	BYTE alpha = this->m_pXParentMenu->IsAlpha();
 
-		// If alpha == 255 then menu is fully opaque so no need to change to layered.
-		if (alpha < 255) {
-			HWND hMenuWnd = WindowFromDC(lpdis->hDC);
+	// If alpha == 255 then menu is fully opaque so no need to change to layered.
+	if (alpha < 255) {
+		HWND hMenuWnd = WindowFromDC(lpdis->hDC);
 
-			if (IsWindow(hMenuWnd)) {
-				DWORD dwStyle = GetWindowExStyle(hMenuWnd);
+		if (IsWindow(hMenuWnd)) {
+			DWORD dwStyle = GetWindowExStyle(hMenuWnd);
 
-				if (!(dwStyle & WS_EX_LAYERED)) {
-					SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
-#if DCX_FOR_XP_ONLY
-					SetLayeredWindowAttributes(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
-#else
-					SetLayeredWindowAttributesUx(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
-#endif
-					//RedrawWindow(hMenuWnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE);
-					// NB: Menus on XP will not show as transparent straight away when a transition effect is used when displaying the menu.
-					// This can't be fixed at this time, live with it.
-					// NB: Menus on Vista/Win7 also suffer from this.
-				}
+			if (!(dwStyle & WS_EX_LAYERED)) {
+				SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
+				SetLayeredWindowAttributes(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
+				//RedrawWindow(hMenuWnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE);
+				// NB: Menus on XP will not show as transparent straight away when a transition effect is used when displaying the menu.
+				// This can't be fixed at this time, live with it.
+				// NB: Menus on Vista/Win7 also suffer from this.
 			}
 		}
-#if !DCX_FOR_XP_ONLY
 	}
-#endif
 	// All Items
 	this->DrawItemBackground( lpdis, lpcol );
 	this->DrawItemBox( lpdis, lpcol );
 
 	TString tsType(this->m_pXParentMenu->getName( ));
-	if (( tsType == "mircbar" ) || ( tsType == "dialog")) {
+	if (( tsType == TEXT("mircbar") ) || ( tsType == TEXT("dialog"))) {
 
-		if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
+		if ( this->m_tsItemText.numtok( TEXT("\v") ) > 1 ) {
 
-			this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
-			this->m_tsItemText = this->m_tsItemText.gettok( 2, "\v" ).trim();
+			this->m_nIcon = this->m_tsItemText.gettok( 1, TEXT("\v")).to_int( ) - 1;
+			this->m_tsItemText = this->m_tsItemText.gettok( 2, TEXT("\v") ).trim();
 		}
 	}
 
@@ -453,7 +443,50 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
  *
  * blah
  */
+#if UNICODE
+void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
 
+	SetTextColor( lpdis->hDC, (bDis?lpcol->m_clrDisabledText:((lpdis->itemState & ODS_SELECTED)?lpcol->m_clrSelectedText:lpcol->m_clrText)) );
+
+	SetBkMode( lpdis->hDC, TRANSPARENT );
+
+	RECT rc;
+	CopyRect( &rc, &lpdis->rcItem );
+	rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
+
+	TString txt;
+	//check if the first char is $chr(12), if so then the text is utf8
+	if ( this->m_tsItemText[0] == 12) {
+		// remove $chr(12) from text and trim whitespaces
+		txt = this->m_tsItemText.right(-1).trim();
+	}
+	else // not utf8 so copy
+		txt = this->m_tsItemText;
+
+	if ( txt.numtok( TSTAB ) > 1 ) {
+
+		TString lefttext(txt.gettok(1, TSTAB).trim());
+		TString righttext(txt.gettok(2, TSTAB).trim());
+
+		//DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, 
+		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
+		mIRC_DrawText( lpdis->hDC, lefttext, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false);
+
+		if ( righttext.len( ) > 0 ) {
+
+			rc.right -= 15;
+			//DrawTextEx( lpdis->hDC, righttext.to_chr( ), righttext.len( ), &rc, 
+			//  DT_RIGHT | DT_SINGLELINE | DT_VCENTER, NULL );
+			mIRC_DrawText( lpdis->hDC, righttext, &rc, DT_RIGHT | DT_SINGLELINE | DT_VCENTER, false);
+		}
+	}
+	else {
+		//DrawTextEx( lpdis->hDC, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &rc, 
+		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
+		mIRC_DrawText( lpdis->hDC, txt, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false);
+	}
+}
+#else
 void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
 
 	SetTextColor( lpdis->hDC, (bDis?lpcol->m_clrDisabledText:((lpdis->itemState & ODS_SELECTED)?lpcol->m_clrSelectedText:lpcol->m_clrText)) );
@@ -498,7 +531,7 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 		mIRC_DrawText( lpdis->hDC, txt, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false, tryutf8);
 	}
 }
-
+#endif
 /*!
  * \brief blah
  *
@@ -795,8 +828,8 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 	SetRect(&rcBar, XPMI_BOXLPAD, rcBar.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, rcBar.bottom);
 
 	skew = (double) ((double)clipH / (double)menuH);
-mIRCDebug("skew = %ld, clip %d, menu %d", skew, clipH, menuH);
-mIRCDebug("lpdis rect = %d %d", lpdis->rcItem.top, lpdis->rcItem.bottom);
+mIRCDebug(TEXT("skew = %ld, clip %d, menu %d"), skew, clipH, menuH);
+mIRCDebug(TEXT("lpdis rect = %d %d"), lpdis->rcItem.top, lpdis->rcItem.bottom);
 
 	HDC *hdcBuffer = CreateHDCBuffer(lpdis->hDC, &rcBar);
 
@@ -823,7 +856,7 @@ mIRCDebug("lpdis rect = %d %d", lpdis->rcItem.top, lpdis->rcItem.bottom);
 			(rcBar.bottom - rcBar.top) * skew, // h ?
 			SRCCOPY);
 
-		mIRCDebug("skew %lf, top %d, height %d",
+		mIRCDebug(TEXT("skew %lf, top %d, height %d"),
 			skew,
 			rcBar.top * skew,
 			(rcBar.bottom - rcBar.top) * skew);
@@ -831,7 +864,7 @@ mIRCDebug("lpdis rect = %d %d", lpdis->rcItem.top, lpdis->rcItem.bottom);
 		DeleteHDCBuffer(hdcBuffer);
 	}
 
-	Dcx::mIRC.evalex(NULL, 0, "/echo 4 -s /end %d ------", lpdis->itemID);
+	Dcx::mIRC.evalex(NULL, 0, TEXT("/echo 4 -s /end %d ------"), lpdis->itemID);
 	*/
 }
 

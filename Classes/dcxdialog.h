@@ -88,14 +88,14 @@ public:
 	static LRESULT WINAPI WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 	void parseCommandRequest( TString & input );
-	void parseCommandRequestEX(const char *szFormat, ...);
-	void parseComControlRequestEX(const int id,const char *szFormat, ...);
-	void parseInfoRequest( TString & input, char * szReturnValue );
+	void parseCommandRequestEX(const TCHAR *szFormat, ...);
+	void parseComControlRequestEX(const int id,const TCHAR *szFormat, ...);
+	void parseInfoRequest( TString & input, TCHAR * szReturnValue );
 
-	bool evalAliasEx( char * szReturn, const int maxlen, const char * szFormat, ... );
-	bool evalAlias( char * szReturn, const int maxlen, const char * szArgs);
-	bool execAliasEx( const char * szFormat, ... );
-	bool execAlias( const char * szArgs);
+	bool evalAliasEx( TCHAR * szReturn, const int maxlen, const TCHAR * szFormat, ... );
+	bool evalAlias( TCHAR * szReturn, const int maxlen, const TCHAR * szArgs);
+	bool execAliasEx( const TCHAR * szFormat, ... );
+	bool execAlias( const TCHAR * szArgs);
 
 	DcxControl * getControlByID( const UINT ID );
 	DcxControl * getControlByHWND( const HWND mHwnd );
@@ -137,8 +137,8 @@ public:
 	void ShowShadow(void);
 
 	static DWORD getAnimateStyles( const TString & flags );
-	void showError(const char *prop, const char *cmd, const char *err);
-	void showErrorEx(const char *prop, const char *cmd, const char *fmt, ...);
+	void showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err);
+	void showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...);
 #ifdef DCX_USE_GDIPLUS
 	void DrawCaret(Graphics & graph);
 	void DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd);
@@ -157,7 +157,7 @@ public:
 	HBITMAP GetVistaBitmap(void) const { return this->m_hVistaBitmap; };
 	IntegerHash getNamedIds(void) const { return this->namedIds; };
 	IntegerHash namedIds; //!< map of named Id's
-	void MapVistaRect(__in HWND hwnd, __inout LPRECT rc) const;
+	void MapVistaRect(HWND hwnd, LPRECT rc) const;
 
 	void RegisterDragList(DcxList* list);
 	void UnregisterDragList(DcxList* list);
@@ -239,7 +239,7 @@ protected:
 	static UINT parseBkgFlags( const TString & flags );
 	static UINT parseFlashFlags( const TString & flags );
 	static UINT parseCursorFlags( const TString & flags );
-	static LPSTR parseCursorType( const TString & cursor );
+	static PTCHAR parseCursorType( const TString & cursor );
 	static UINT parseTooltipFlags( const TString &flags);
 
 	// Fill in the shadow window alpha blend bitmap with shadow image pixels

@@ -564,6 +564,15 @@ const std::string* TiXmlElement::Attribute( const std::string& name ) const
 }
 #endif
 
+#ifdef TIXML_USE_TSTRING
+const TString* TiXmlElement::Attribute( const TString& name ) const
+{
+	const TiXmlAttribute* node = attributeSet.Find( name );
+	if ( node )
+		return &node->ValueStr();
+	return 0;
+}
+#endif
 
 const char* TiXmlElement::Attribute( const char* name, int* i ) const
 {
