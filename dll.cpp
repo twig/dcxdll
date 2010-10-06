@@ -164,11 +164,11 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
 mIRC(Version) {
 #ifdef DCX_DEV_BUILD
 	wsprintf(data,
-		TEXT("DCX (XPopup) DLL %d.%d.%d %s%d by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2009"),
+		TEXT("DCX (XPopup) DLL %d.%d.%d %s%d by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2010"),
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE, DLL_DEV_BUILD);
 #else
 	wsprintf(data,
-		TEXT("DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2009"),
+		TEXT("DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2010"),
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
 #endif
 	return 3;

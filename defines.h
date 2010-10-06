@@ -64,9 +64,6 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DCX_USE_WINSDK 1
 // end of Windows SDK
 
-// DCX Compiled for XP+ only?
-#define DCX_FOR_XP_ONLY 1
-
 // DCX Using the Boost C++ libs
 // Boost is used for the regex matches when enabled.
 //#define DCX_USE_BOOST 1
@@ -139,10 +136,10 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // --------------------------------------------------
 // DCX build version
 // --------------------------------------------------
-#define DLL_VERSION    1
-#define DLL_SUBVERSION 4
-#define DLL_BUILD      1
-#define DLL_DEV_BUILD  11
+#define DLL_VERSION    2
+#define DLL_SUBVERSION 0
+#define DLL_BUILD      0
+#define DLL_DEV_BUILD  1
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
