@@ -51,7 +51,7 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme ) {
 		//SendMessage( this->m_Hwnd, RB_SETWINDOWTHEME, NULL, L" ");
@@ -67,7 +67,7 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 	}
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -90,29 +90,29 @@ TString DcxReBar::getStyles(void) {
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & RBS_BANDBORDERS)
-		styles.addtok("borders");
+		styles.addtok(TEXT("borders"));
 	if (Styles & RBS_DBLCLKTOGGLE)
-		styles.addtok("dblclktoggle");
+		styles.addtok(TEXT("dblclktoggle"));
 	if (Styles & RBS_FIXEDORDER)
-		styles.addtok("fixedorder");
+		styles.addtok(TEXT("fixedorder"));
 	if (Styles & RBS_VARHEIGHT)
-		styles.addtok("varheight");
+		styles.addtok(TEXT("varheight"));
 	if (Styles & RBS_TOOLTIPS)
-		styles.addtok("tooltips");
+		styles.addtok(TEXT("tooltips"));
 	if (Styles & RBS_VERTICALGRIPPER)
-		styles.addtok("verticalgrip");
+		styles.addtok(TEXT("verticalgrip"));
 	if (Styles & CCS_VERT)
-		styles.addtok("vertical");
+		styles.addtok(TEXT("vertical"));
 	if (Styles & CCS_RIGHT)
-		styles.addtok("right");
+		styles.addtok(TEXT("right"));
 	if (Styles & CCS_BOTTOM)
-		styles.addtok("bottom");
+		styles.addtok(TEXT("bottom"));
 	if (Styles & CCS_NORESIZE)
-		styles.addtok("noresize");
+		styles.addtok(TEXT("noresize"));
 	if (Styles & CCS_NOPARENTALIGN)
-		styles.addtok("noparentalign");
+		styles.addtok(TEXT("noparentalign"));
 	if (Styles & (CCS_NOPARENTALIGN | CCS_NORESIZE))
-		styles.addtok("noauto");
+		styles.addtok(TEXT("noauto"));
 	return styles;
 
 }
@@ -166,29 +166,29 @@ void DcxReBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 
   while ( i <= numtok ) {
 
-    if ( styles.gettok( i ) == "borders" ) 
+    if ( styles.gettok( i ) == TEXT("borders") ) 
       *Styles |= RBS_BANDBORDERS;
-    else if ( styles.gettok( i ) == "dblclktoggle" ) 
+    else if ( styles.gettok( i ) == TEXT("dblclktoggle") ) 
       *Styles |= RBS_DBLCLKTOGGLE;
-    else if ( styles.gettok( i ) == "fixedorder" ) 
+    else if ( styles.gettok( i ) == TEXT("fixedorder") ) 
       *Styles |= RBS_FIXEDORDER;
-    else if ( styles.gettok( i ) == "varheight" ) 
+    else if ( styles.gettok( i ) == TEXT("varheight") ) 
       *Styles |= RBS_VARHEIGHT;
-    else if ( styles.gettok( i ) == "tooltips" ) 
+    else if ( styles.gettok( i ) == TEXT("tooltips") ) 
       *Styles |= RBS_TOOLTIPS;
-    else if ( styles.gettok( i ) == "verticalgrip" ) 
+    else if ( styles.gettok( i ) == TEXT("verticalgrip") ) 
       *Styles |= RBS_VERTICALGRIPPER;
-    else if ( styles.gettok( i ) == "vertical" ) 
+    else if ( styles.gettok( i ) == TEXT("vertical") ) 
       *Styles |= CCS_VERT;
-    else if ( styles.gettok( i ) == "right" ) 
+    else if ( styles.gettok( i ) == TEXT("right") ) 
       *Styles |= CCS_RIGHT;
-    else if ( styles.gettok( i ) == "bottom" ) 
+    else if ( styles.gettok( i ) == TEXT("bottom") ) 
       *Styles |= CCS_BOTTOM;
-    else if ( styles.gettok( i ) == "noresize" ) 
+    else if ( styles.gettok( i ) == TEXT("noresize") ) 
       *Styles |= CCS_NORESIZE;
-    else if ( styles.gettok( i ) == "noparentalign" ) 
+    else if ( styles.gettok( i ) == TEXT("noparentalign") ) 
       *Styles |= CCS_NOPARENTALIGN ;
-	else if ( styles.gettok( i ) == "noauto" )
+	else if ( styles.gettok( i ) == TEXT("noauto") )
       *Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
 
     i++;
@@ -247,19 +247,19 @@ HIMAGELIST DcxReBar::createImageList( ) {
  * \return > void
  */
 
-void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxReBar::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 
   int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
-  if ( prop == "num" ) {
+  if ( prop == TEXT("num") ) {
 
-    wsprintf( szReturnValue, "%d", this->getBandCount( ) );
+    wsprintf( szReturnValue, TEXT("%d"), this->getBandCount( ) );
     return;
   }
   // [NAME] [ID] [PROP] [N]
-  else if ( prop == "text" && numtok > 3 ) {
+  else if ( prop == TEXT("text") && numtok > 3 ) {
 
     int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
@@ -275,23 +275,23 @@ void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
         return;
     }
   }
-  else if ( prop == "childid" && numtok > 3 ) {
+  else if ( prop == TEXT("childid") && numtok > 3 ) {
 
     int nItem = input.gettok( 4 ).to_int( ) - 1;
     DcxControl * c = getControl(nItem);
     if ( c != NULL )
-       wsprintf( szReturnValue, "%d", c->getUserID( ) );
+       wsprintf( szReturnValue, TEXT("%d"), c->getUserID( ) );
 
       return;
   }
   	// $xdid([NAME], [ID], [N]).[PROP]
-	else if (prop == "markeditem") {
+	else if (prop == TEXT("markeditem")) {
 		REBARBANDINFO rbi;
 		LPDCXRBBAND pdcxrbb;
 		int n = input.gettok(4).to_int();
 
 		if (n < 1 || n > this->getBandCount()) {
-			this->showErrorEx("markeditem", NULL, "Invalid band index: %d", n);
+			this->showErrorEx(TEXT("markeditem"), NULL, TEXT("Invalid band index: %d"), n);
 			return;
 		}
 
@@ -304,7 +304,7 @@ void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 		this->getBandInfo(n, &rbi);
 		pdcxrbb = (LPDCXRBBAND) rbi.lParam;
 
-		wsprintf(szReturnValue, "%s", pdcxrbb->tsMarkText.to_chr());
+		wsprintf(szReturnValue, TEXT("%s"), pdcxrbb->tsMarkText.to_chr());
 		return;
 	}
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
@@ -323,7 +323,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 	int numtok = input.numtok();
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] [Item Text][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB]Tooltip
-	if ( flags['a'] && numtok > 9 ) {
+	if ( flags[TEXT('a')] && numtok > 9 ) {
 
 		REBARBANDINFO rbBand;
 		ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
@@ -425,7 +425,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 						CTLF_ALLOW_TAB
 						,this->m_Hwnd);
 					if ( p_Control != NULL ) {
-						if ((p_Control->getType() == "statusbar") || (p_Control->getType() == "toolbar"))
+						if ((p_Control->getType() == TEXT("statusbar")) || (p_Control->getType() == TEXT("toolbar")))
 							p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
 						this->m_pParentDialog->addControl( p_Control );
 						rbBand.fMask |= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE | RBBIM_ID;
@@ -438,14 +438,14 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 						rbBand.wID = ID;
 					}
 				}
-				catch ( char *err ) {
-					this->showErrorEx(NULL, "-a", "Unable To Create Control: %d (%s)", ID - mIRC_ID_OFFSET, err );
+				catch ( TCHAR *err ) {
+					this->showErrorEx(NULL, TEXT("-a"), TEXT("Unable To Create Control: %d (%s)"), ID - mIRC_ID_OFFSET, err );
 					delete lpdcxrbb;
 					return;
 				}
 			}
 			else {
-				this->showErrorEx(NULL, "-a", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+				this->showErrorEx(NULL, TEXT("-a"), TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET );
 				delete lpdcxrbb;
 				return;
 			}
@@ -458,9 +458,9 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 		//rbBand.lpText = itemtext.to_chr();
 		////this->insertBand( nIndex, &rbBand );
 		//lRes = SendMessage(this->m_Hwnd, RB_INSERTBAND, (WPARAM)-1, (LPARAM)&rbBand);
-		//mIRCDebug("res: %ld", lRes);
+		//mIRCDebug(TEXT("res: %ld"), lRes);
 		if (this->insertBand( nIndex, &rbBand ) == 0L) { // 0L means failed.
-			this->showError(NULL, "-a", "Unable To Add Band");
+			this->showError(NULL, TEXT("-a"), TEXT("Unable To Add Band"));
 			if (p_Control != NULL) {
 				this->m_pParentDialog->deleteControl(p_Control);
 				DestroyWindow(rbBand.hwndChild);
@@ -469,13 +469,13 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 		}
 	}
 	// xdid -A [NAME] [ID] [SWITCH] [N] (TEXT)
-	else if (flags['A'] && numtok > 3) {
+	else if (flags[TEXT('A')] && numtok > 3) {
 		REBARBANDINFO rbi;
 		LPDCXRBBAND pdcxrbb;
 		int n = input.gettok(4).to_int();
 
 		if (n < 1 || n > this->getBandCount()) {
-			this->showErrorEx(NULL, "-A", "Invalid band index: %d", n);
+			this->showErrorEx(NULL, TEXT("-A"), TEXT("Invalid band index: %d"), n);
 			return;
 		}
 
@@ -487,10 +487,10 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 		rbi.fMask = RBBIM_LPARAM;
 		this->getBandInfo(n, &rbi);
 		pdcxrbb = (LPDCXRBBAND) rbi.lParam;
-		pdcxrbb->tsMarkText = (numtok > 4 ? input.gettok(5, -1) : "");
+		pdcxrbb->tsMarkText = (numtok > 4 ? input.gettok(5, -1) : TEXT(""));
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-  else if ( flags['d'] && numtok > 3 ) {
+  else if ( flags[TEXT('d')] && numtok > 3 ) {
 
     int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
@@ -500,7 +500,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -i [NAME] [ID] [SWITCH] [N]
-  else if ( flags['i'] && numtok > 3 ) {
+  else if ( flags[TEXT('i')] && numtok > 3 ) {
 
     int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
@@ -510,7 +510,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -j [NAME] [ID] [SWITCH] [N]
-  else if ( flags['j'] && numtok > 3 ) {
+  else if ( flags[TEXT('j')] && numtok > 3 ) {
 
     int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
@@ -520,7 +520,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -k [NAME] [ID] [SWITCH] [N] [ICON]
-  else if ( flags['k'] && numtok > 4 ) {
+  else if ( flags[TEXT('k')] && numtok > 4 ) {
 
     REBARBANDINFO rbBand;
     ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
@@ -536,7 +536,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -l [NAME] [ID] [SWITCH] [N|ALL]
-  else if ( flags['l'] && numtok > 3 ) {
+  else if ( flags[TEXT('l')] && numtok > 3 ) {
 
     REBARBANDINFO rbBand;
     ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
@@ -545,7 +545,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 
     int nItems = this->getBandCount( );
 
-    if ( input.gettok( 4 ) == "all" ) {
+    if ( input.gettok( 4 ) == TEXT("all") ) {
 
       int i = 0;
 
@@ -571,7 +571,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -m [NAME] [ID] [SWITCH] [N]
-  else if ( flags['m'] && numtok > 3 ) {
+  else if ( flags[TEXT('m')] && numtok > 3 ) {
 
     int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
@@ -581,7 +581,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -n [NAME] [ID] [SWITCH] [N]
-  else if ( flags['n'] && numtok > 3 ) {
+  else if ( flags[TEXT('n')] && numtok > 3 ) {
 
     int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
@@ -591,7 +591,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -q [NAME] [ID] [SWITCH] [N]
-  else if ( flags['q'] && numtok > 3 ) {
+  else if ( flags[TEXT('q')] && numtok > 3 ) {
 
     int nRows = input.gettok( 4 ).to_int( );
 
@@ -601,7 +601,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -t [NAME] [ID] [SWITCH] [N] [TEXT]
-  else if ( flags['t'] && numtok > 3 ) {
+  else if ( flags[TEXT('t')] && numtok > 3 ) {
 
     REBARBANDINFO rbBand;
     ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
@@ -620,7 +620,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -u [NAME] [ID] [SWITCH] [N|ALL]
-  else if ( flags['u'] && numtok > 3 ) {
+  else if ( flags[TEXT('u')] && numtok > 3 ) {
 
     REBARBANDINFO rbBand;
     ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
@@ -629,7 +629,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 
     int nItems = this->getBandCount( );
 
-    if ( input.gettok( 4 ) == "all" ) {
+    if ( input.gettok( 4 ) == TEXT("all") ) {
 
       int i = 0;
 
@@ -655,7 +655,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
   // xdid -v [NAME] [ID] [SWITCH] [NFrom] [NTo]
-  else if ( flags['v'] && numtok > 4 ) {
+  else if ( flags[TEXT('v')] && numtok > 4 ) {
 
     int nIndexFrom = input.gettok( 4 ).to_int( ) - 1;
     int nIndexTo = input.gettok( 4 ).to_int( ) - 1;
@@ -667,7 +667,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
     }
   }
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags['w'] && numtok > 5) {
+	else if (flags[TEXT('w')] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
 		TString flag(input.gettok( 4 ));
@@ -683,14 +683,14 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 
 		icon = dcxLoadIcon(index, filename, false, flag);
 
-		//if (flag.find('g', 0))
+		//if (flag.find(TEXT('g'), 0))
 		//	icon = CreateGrayscaleIcon(icon);
 
 		ImageList_AddIcon(himl, icon);
 		DestroyIcon(icon);
 	}
   // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-  else if ( flags['y'] ) {
+  else if ( flags[TEXT('y')] ) {
 
     ImageList_Destroy( this->getImageList( ) );
   }
@@ -723,32 +723,32 @@ UINT DcxReBar::parseBandStyleFlags( const TString & flags ) {
   INT i = 1, len = flags.len( ), iFlags = 0;
 
   // no +sign, missing params
-  if ( flags[0] != '+' ) 
+  if ( flags[0] != TEXT('+') ) 
     return iFlags;
 
   while ( i < len ) {
 
-    if ( flags[i] == 'b' )
+    if ( flags[i] == TEXT('b') )
       iFlags |= RBBS_BOLD;
-    else if ( flags[i] == 'c' )
+    else if ( flags[i] == TEXT('c') )
       iFlags |= RBBS_COLOR;
-    else if ( flags[i] == 'e' )
+    else if ( flags[i] == TEXT('e') )
       iFlags |= RBBS_CHILDEDGE;
-    else if ( flags[i] == 'f' )
+    else if ( flags[i] == TEXT('f') )
       iFlags |= RBBS_FIXEDSIZE;
-    else if ( flags[i] == 'g' )
+    else if ( flags[i] == TEXT('g') )
       iFlags |= RBBS_GRIPPERALWAYS;
-    else if ( flags[i] == 'h' )
+    else if ( flags[i] == TEXT('h') )
       iFlags |= RBBS_HIDDEN;
-    else if ( flags[i] == 'n' )
+    else if ( flags[i] == TEXT('n') )
       iFlags |= RBBS_NOGRIPPER;
-    else if ( flags[i] == 'o' )
+    else if ( flags[i] == TEXT('o') )
       iFlags |= RBBS_USECHEVRON;
-    else if ( flags[i] == 'u' )
+    else if ( flags[i] == TEXT('u') )
       iFlags |= RBBS_UNDERLINE;
-    else if ( flags[i] == 'v' )
+    else if ( flags[i] == TEXT('v') )
       iFlags |= RBBS_VARIABLEHEIGHT;
-    else if ( flags[i] == 'w' )
+    else if ( flags[i] == TEXT('w') )
       iFlags |= RBBS_BREAK;
 
     ++i;
@@ -980,7 +980,7 @@ LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 								if ( this->m_iWidth != width || this->m_iHeight != height ) {
 
-									this->execAliasEx("%s,%d,%d,%d", "change", this->getUserID( ),
+									this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("change"), this->getUserID( ),
 										width, height );
 
 									this->m_iWidth = width;
@@ -1042,7 +1042,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
           break;
 
 				if (IsWindow(hdr->hwndFrom)) {
-					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,TEXT("dcx_cthis"));
 					if (c_this != NULL) {
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
@@ -1055,7 +1055,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
     case WM_COMMAND:
       {
 				if (IsWindow((HWND) lParam)) {
-					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
 					if (c_this != NULL) {
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
@@ -1067,7 +1067,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       {
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 					if (c_this != NULL) {
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
@@ -1079,7 +1079,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       {
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
-					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,TEXT("dcx_cthis"));
 					if (c_this != NULL) {
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
@@ -1091,7 +1091,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       {
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 					if (c_this != NULL) {
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
@@ -1111,7 +1111,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			  this->m_iClickedBand = band;
 
 			  if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				  this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), band + 1 );
+				  this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), band + 1 );
 		  }
       }
       break;
@@ -1125,7 +1125,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			  int band = this->hitTest( &rbhi );
 
 			  if ( band != -1 )
-				  this->execAliasEx("%s,%d,%d", "rclick", this->getUserID( ), band + 1 );
+				  this->execAliasEx(TEXT("%s,%d,%d"), TEXT("rclick"), this->getUserID( ), band + 1 );
 		  }
       }
       break;

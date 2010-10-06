@@ -34,7 +34,7 @@ DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 
 	this->m_Hwnd = CreateWindowEx(	
 		ExStyles, 
-		"BUTTON", 
+		TEXT("BUTTON"), 
 		NULL,
 		WS_CHILD | Styles, 
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
@@ -44,7 +44,7 @@ DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
@@ -52,14 +52,14 @@ DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 	this->m_bNoTheme = (bNoTheme ? true : false);
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips")) {
+		if (styles.istok(TEXT("tooltips"))) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -78,15 +78,15 @@ TString DcxRadio::getStyles(void) {
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & BS_RIGHT)
-		styles.addtok("rjustify", " ");
+		styles.addtok(TEXT("rjustify"));
 	if (Styles & BS_CENTER)
-		styles.addtok("center", " ");
+		styles.addtok(TEXT("center"));
 	if (Styles & BS_LEFT)
-		styles.addtok("ljustify", " ");
+		styles.addtok(TEXT("ljustify"));
 	if (Styles & BS_RIGHTBUTTON)
-		styles.addtok("right", " ");
+		styles.addtok(TEXT("right"));
 	if (Styles & BS_PUSHLIKE)
-		styles.addtok("pushlike", " ");
+		styles.addtok(TEXT("pushlike"));
 	return styles;
 
 }
@@ -104,15 +104,15 @@ void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 
 	while ( i <= numtok ) {
 
-		if ( styles.gettok( i ) == "rjustify" )
+		if ( styles.gettok( i ) == TEXT("rjustify") )
 			*Styles |= BS_RIGHT;
-		else if ( styles.gettok( i ) == "center" )
+		else if ( styles.gettok( i ) == TEXT("center") )
 			*Styles |= BS_CENTER;
-		else if ( styles.gettok( i ) == "ljustify" )
+		else if ( styles.gettok( i ) == TEXT("ljustify") )
 			*Styles |= BS_LEFT;
-		else if ( styles.gettok( i ) == "right" )
+		else if ( styles.gettok( i ) == TEXT("right") )
 			*Styles |= BS_RIGHTBUTTON;
-		else if ( styles.gettok( i ) == "pushlike" )
+		else if ( styles.gettok( i ) == TEXT("pushlike") )
 			*Styles |= BS_PUSHLIKE;
 
 		i++;
@@ -130,25 +130,25 @@ void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
  * \return > void
  */
 
-void DcxRadio::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxRadio::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 //  int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
   // [NAME] [ID] [PROP]
-  if ( prop == "text" ) {
+  if ( prop == TEXT("text") ) {
 
     GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
     return;
   }
   // [NAME] [ID] [PROP]
-  else if ( prop == "state" ) {
+  else if ( prop == TEXT("state") ) {
 
     if ( Button_GetCheck( this->m_Hwnd ) & BST_CHECKED )
-      lstrcpy( szReturnValue, "1" );
+      lstrcpy( szReturnValue, TEXT("1") );
     else
-      lstrcpy( szReturnValue, "0" );
+      lstrcpy( szReturnValue, TEXT("0") );
 
     return;
   }
@@ -169,15 +169,15 @@ void DcxRadio::parseCommandRequest( TString & input ) {
 	int numtok = input.numtok( );
 
 	//xdid -c [NAME] [ID] [SWITCH]
-	if ( flags['c'] ) {
+	if ( flags[TEXT('c')] ) {
 		Button_SetCheck( this->m_Hwnd, BST_CHECKED );
 	}
 	//xdid -t [NAME] [ID] [SWITCH]
-	else if ( flags['t'] && numtok > 3 ) {
+	else if ( flags[TEXT('t')] && numtok > 3 ) {
 		SetWindowText(this->m_Hwnd, input.gettok(4, -1).trim().to_chr());
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
-	else if ( flags['u'] ) {
+	else if ( flags[TEXT('u')] ) {
 		Button_SetCheck( this->m_Hwnd, BST_UNCHECKED );
 	}
 	else
@@ -198,7 +198,7 @@ LRESULT DcxRadio::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
  //         case BN_CLICKED:
  //           {
 	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//			        this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
+	//			        this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID( ) );
  //           }
  //           break;
  //       }

@@ -57,7 +57,7 @@ public:
 
   SIZE getItemSize( const HWND mHwnd );
 
-  void executeCommand( );
+  //void executeCommand( ); // doesnt exist...
 
   static void DrawGradient( const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const BOOL bHorz = FALSE );
   static void DrawVerticalBar( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOLEAN bReversed);

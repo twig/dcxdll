@@ -42,7 +42,7 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 
 	this->m_Hwnd = CreateWindowEx(	
 		ExStyles | WS_EX_CLIENTEDGE, 
-		"LISTBOX", 
+		TEXT("LISTBOX"), 
 		NULL,
 		WS_CHILD | Styles, 
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
@@ -52,17 +52,17 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 
 	// Check for "draglist" style
-	if (styles.find("draglist", 0))
+	if (styles.find(TEXT("draglist"), 0))
 	{
 		// if its multiple select, cant use
 		if (!this->isStyle(LBS_MULTIPLESEL))
@@ -73,10 +73,10 @@ DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 				this->m_pParentDialog->RegisterDragList(this);
 			}
 			else
-				this->showError(NULL, "DcxList", "Error applying draglist style");
+				this->showError(NULL, TEXT("DcxList"), TEXT("Error applying draglist style"));
 		}
 		else
-			this->showError(NULL, "DcxList", "Cannot apply draglist style with multi style");
+			this->showError(NULL, TEXT("DcxList"), TEXT("Cannot apply draglist style with multi style"));
 	}
 
 	DragAcceptFiles(this->m_Hwnd, TRUE);
@@ -98,29 +98,29 @@ TString DcxList::getStyles(void) {
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & LBS_DISABLENOSCROLL)
-		styles.addtok("noscroll", " ");
+		styles.addtok(TEXT("noscroll"));
 	if (Styles & LBS_MULTIPLESEL)
-		styles.addtok("multi", " ");
+		styles.addtok(TEXT("multi"));
 	if (Styles & LBS_EXTENDEDSEL)
-		styles.addtok("extsel", " ");
+		styles.addtok(TEXT("extsel"));
 	if (Styles & LBS_NOINTEGRALHEIGHT)
-		styles.addtok("nointegral", " ");
+		styles.addtok(TEXT("nointegral"));
 	if (Styles & LBS_NOSEL)
-		styles.addtok("nosel", " ");
+		styles.addtok(TEXT("nosel"));
 	if (Styles & LBS_SORT)
-		styles.addtok("sort", " ");
+		styles.addtok(TEXT("sort"));
 	if (Styles & LBS_USETABSTOPS)
-		styles.addtok("tabs", " ");
+		styles.addtok(TEXT("tabs"));
 	if (Styles & LBS_MULTICOLUMN)
-		styles.addtok("multicol", " ");
+		styles.addtok(TEXT("multicol"));
 	if (Styles & WS_VSCROLL)
-		styles.addtok("vsbar", " ");
+		styles.addtok(TEXT("vsbar"));
 	if (Styles & WS_HSCROLL)
-		styles.addtok("hsbar", " ");
+		styles.addtok(TEXT("hsbar"));
 	if (!this->m_bUseDrawInsert)
-		styles.addtok("dragline", " ");
+		styles.addtok(TEXT("dragline"));
 	if (~Styles & LBS_OWNERDRAWFIXED)
-		styles.addtok("noformat", " ");
+		styles.addtok(TEXT("noformat"));
 	return styles;
 }
 
@@ -136,31 +136,31 @@ void DcxList::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 	*Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
 
 	while (i <= numtok) {
-		if (styles.gettok(i) == "noscroll")
+		if (styles.gettok(i) == TEXT("noscroll"))
 			*Styles |= LBS_DISABLENOSCROLL;
-		else if (styles.gettok(i) == "multi")
+		else if (styles.gettok(i) == TEXT("multi"))
 			*Styles |= LBS_MULTIPLESEL;
-		else if (styles.gettok(i) == "extsel")
+		else if (styles.gettok(i) == TEXT("extsel"))
 			*Styles |= LBS_EXTENDEDSEL;
-		else if (styles.gettok(i) == "nointegral")
+		else if (styles.gettok(i) == TEXT("nointegral"))
 			*Styles |= LBS_NOINTEGRALHEIGHT;
-		else if (styles.gettok(i) == "nosel")
+		else if (styles.gettok(i) == TEXT("nosel"))
 			*Styles |= LBS_NOSEL;
-		else if (styles.gettok(i) == "sort")
+		else if (styles.gettok(i) == TEXT("sort"))
 			*Styles |= LBS_SORT;
-		else if (styles.gettok(i) == "tabs")
+		else if (styles.gettok(i) == TEXT("tabs"))
 			*Styles |= LBS_USETABSTOPS;
-		else if (styles.gettok(i) == "multicol")
+		else if (styles.gettok(i) == TEXT("multicol"))
 			*Styles |= LBS_MULTICOLUMN;
-		else if (styles.gettok(i) == "vsbar")
+		else if (styles.gettok(i) == TEXT("vsbar"))
 			*Styles |= WS_VSCROLL;
-		else if (styles.gettok(i) == "hsbar")
+		else if (styles.gettok(i) == TEXT("hsbar"))
 			*Styles |= WS_HSCROLL;
-		else if (styles.gettok(i) == "dragline")
+		else if (styles.gettok(i) == TEXT("dragline"))
 			this->m_bUseDrawInsert = FALSE;
-		else if (styles.gettok(i) == "noformat") // dont remove from here
+		else if (styles.gettok(i) == TEXT("noformat")) // dont remove from here
 			*Styles &= ~LBS_OWNERDRAWFIXED;
-		//else if (styles.gettok(i) == "shadow") // looks crap
+		//else if (styles.gettok(i) == TEXT("shadow")) // looks crap
 		//	this->m_bShadowText = true;
 
 		i++;
@@ -178,32 +178,32 @@ void DcxList::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
  * \return > void
  */
 
-void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxList::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
   int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
-	if ( prop == "text" && numtok > 3 ) {
+	if ( prop == TEXT("text") && numtok > 3 ) {
 		int nSel = input.gettok( 4 ).to_int( ) - 1;
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
 			int l = ListBox_GetTextLen(this->m_Hwnd, nSel);
 			if (l != LB_ERR && l < MIRC_BUFFER_SIZE_CCH)
 				ListBox_GetText( this->m_Hwnd, nSel, szReturnValue );
 			else
-				this->showError(prop.to_chr(), NULL, "String Too Long (Greater than MAX chars)");
+				this->showError(prop.to_chr(), NULL, TEXT("String Too Long (Greater than Max chars)"));
 			return;
 		}
 	}
   // [NAME] [ID] [PROP]
-  else if ( prop == "num" ) {
+  else if ( prop == TEXT("num") ) {
 
-    wsprintf( szReturnValue, "%d", ListBox_GetCount( this->m_Hwnd ) );
+    wsprintf( szReturnValue, TEXT("%d"), ListBox_GetCount( this->m_Hwnd ) );
     return;
   }
 	// [NAME] [ID] [PROP] (N)
-	else if (prop == "sel") {
+	else if (prop == TEXT("sel")) {
 		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
 			int n = ListBox_GetSelCount(this->m_Hwnd);
 
@@ -217,26 +217,34 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 					TString value;
 
 					if (i == 0) {
-						value.tsprintf("%d", n);
+						value.tsprintf(TEXT("%d"), n);
 						lstrcpyn(szReturnValue, value.to_chr(), MIRC_BUFFER_SIZE_CCH);
 					}
 					else if ((i > 0) && (i <= n)) {
-						value.tsprintf("%d", p[i -1] +1);
+						value.tsprintf(TEXT("%d"), p[i -1] +1);
 						lstrcpyn(szReturnValue, value.to_chr(), MIRC_BUFFER_SIZE_CCH);
 					}
 				}
 				else {
 					// get all items in a long comma seperated string
 					TString path;
-					char num[11];
+					TCHAR num[11];
 					int i = 0;
 
 					while (i < n) {
+#if UNICODE
+#ifdef VS2005
+						_itow(p[i] +1, num, 10);
+#else
+						itow(p[i] +1, num, 10);
+#endif // VS2005
+#else
 #ifdef VS2005
 						_itoa(p[i] +1, num, 10);
 #else
 						itoa(p[i] +1, num, 10);
-#endif
+#endif // VS2005
+#endif // UNICODE
 						path.addtok(num, TSCOMMA);
 
 						i++;
@@ -250,12 +258,12 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 		}
 		// single select
 		else {
-			wsprintf(szReturnValue, "%d", ListBox_GetCurSel(this->m_Hwnd) +1);
+			wsprintf(szReturnValue, TEXT("%d"), ListBox_GetCurSel(this->m_Hwnd) +1);
 			return;
 		}
 	}
 	// [NAME] [ID] [PROP] [N]
-	else if (prop == "tbitem") {
+	else if (prop == TEXT("tbitem")) {
 		int top;
 		int bottom;
 		int height;
@@ -272,11 +280,11 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 		if (bottom > count)
 			bottom = count;
 
-		wsprintf(szReturnValue, "%d %d", top, bottom);
+		wsprintf(szReturnValue, TEXT("%d %d"), top, bottom);
 		return;
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
-	else if ( prop == "find" && numtok > 5 ) {
+	else if ( prop == TEXT("find") && numtok > 5 ) {
 		TString matchtext(input.gettok(2, TSTAB).trim());
 		TString params(input.gettok(3, TSTAB).trim());
 
@@ -284,7 +292,7 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 			UINT SearchType;
 
-			if ( params.gettok( 1 ) == "R" )
+			if ( params.gettok( 1 ) == TEXT("R") )
 				SearchType = LBSEARCH_R;
 			else
 				SearchType = LBSEARCH_W;
@@ -303,7 +311,7 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 						count++;
 				}
 
-				wsprintf( szReturnValue, "%d", count );
+				wsprintf( szReturnValue, TEXT("%d"), count );
 				return;
 			}
 			// find Nth matching
@@ -320,7 +328,7 @@ void DcxList::parseInfoRequest( TString & input, char * szReturnValue ) {
 					// found Nth matching
 					if ( count == N ) {
 
-						wsprintf( szReturnValue, "%d", i + 1 );
+						wsprintf( szReturnValue, TEXT("%d"), i + 1 );
 						return;
 					}
 				}
@@ -345,12 +353,12 @@ void DcxList::parseCommandRequest( TString & input ) {
 	int numtok = input.numtok( );
 
 	//xdid -r [NAME] [ID] [SWITCH]
-	if (flags['r']) {
+	if (flags[TEXT('r')]) {
 		ListBox_ResetContent( this->m_Hwnd );
 	}
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
-	if ( flags['a'] && numtok > 4 ) {
+	if ( flags[TEXT('a')] && numtok > 4 ) {
 
 		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
@@ -360,7 +368,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 		ListBox_InsertString( this->m_Hwnd, nPos, input.gettok( 5, -1 ).to_chr( ) );
 	}
 	//xdid -A [NAME] [ID] [SWITCH] [N] [+FLAGS] [TEXT]
-	else if ( flags['A'] && numtok > 5 ) {
+	else if ( flags[TEXT('A')] && numtok > 5 ) {
 
 		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
@@ -372,36 +380,36 @@ void DcxList::parseCommandRequest( TString & input ) {
 		int nMaxStrlen = 0;
 		TString tsRes;
 
-		if (opts[0] != '+') {
-			this->showError(NULL, "-A", "Invalid Flags");
+		if (opts[0] != TEXT('+')) {
+			this->showError(NULL, TEXT("-A"), TEXT("Invalid Flags"));
 			return;
 		}
 
 		switch (opts[1])
 		{
-		case 'H': // [TEXT] == [table] [item]
+		case TEXT('H'): // [TEXT] == [table] [item]
 			{
 				if (itemtext.numtok() == 2) { // load single item from hash table by item name
-					Dcx::mIRC.tsEvalex(tsRes, "$hget(%s,%s)", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					Dcx::mIRC.tsEvalex(tsRes, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 					ListBox_InsertString( this->m_Hwnd, nPos, tsRes.to_chr() );
 					nMaxStrlen = tsRes.len();
 				}
 				else
-					this->showError(NULL, "-A +h", "Invalid Syntax");
+					this->showError(NULL, TEXT("-A +h"), TEXT("Invalid Syntax"));
 			}
 			break;
-		case 'n': // [TEXT] == [table] [N]
+		case TEXT('n'): // [TEXT] == [table] [N]
 			{
 				if (itemtext.numtok() == 2) { // load single item from hash table by index
-					Dcx::mIRC.tsEvalex(tsRes, "$hget(%s,%s).data", itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					Dcx::mIRC.tsEvalex(tsRes, TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 					ListBox_InsertString( this->m_Hwnd, nPos, tsRes.to_chr() );
 					nMaxStrlen = tsRes.len();
 				}
 				else
-					this->showError(NULL, "-A +n", "Invalid Syntax");
+					this->showError(NULL, TEXT("-A +n"), TEXT("Invalid Syntax"));
 			}
 			break;
-		case 't': // [TEXT] == [table] [startN] [endN]
+		case TEXT('t'): // [TEXT] == [table] [startN] [endN]
 			{
 				if (itemtext.numtok() == 3) { // add contents of a hash table to list
 					int max_items = 0, len = 0;
@@ -410,7 +418,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 					int endN = itemtext.gettok( 3 ).to_int();
 
 					// get total items in table.
-					Dcx::mIRC.tsEvalex(tsRes, "$hget(%s,0).item", htable.to_chr());
+					Dcx::mIRC.tsEvalex(tsRes, TEXT("$hget(%s,0).item"), htable.to_chr());
 					max_items = tsRes.to_int();
 
 					// no items in table.
@@ -438,13 +446,13 @@ void DcxList::parseCommandRequest( TString & input ) {
 
 					// check endN comes after startN
 					if (endN < startN) {
-						this->showError(NULL, "-A +t", "Invalid Range");
+						this->showError(NULL, TEXT("-A +t"), TEXT("Invalid Range"));
 						return;
 					}
 
 					this->setRedraw(FALSE);
 					for (int i = startN; i <= endN; i++) {
-						Dcx::mIRC.tsEvalex(tsRes, "$hget(%s,%d).data", htable.to_chr(), i);
+						Dcx::mIRC.tsEvalex(tsRes, TEXT("$hget(%s,%d).data"), htable.to_chr(), i);
 						ListBox_InsertString( this->m_Hwnd, nPos++, tsRes.to_chr() );
 						len = tsRes.len();
 						if (len > nMaxStrlen)
@@ -454,10 +462,10 @@ void DcxList::parseCommandRequest( TString & input ) {
 					this->redrawWindow();
 				}
 				else
-					this->showError(NULL, "-A +t", "Invalid Syntax");
+					this->showError(NULL, TEXT("-A +t"), TEXT("Invalid Syntax"));
 			}
 			break;
-		case 'f': // [TEXT] == [startN] [endN] [filename]
+		case TEXT('f'): // [TEXT] == [startN] [endN] [filename]
 			{
 				if (itemtext.numtok() > 2) { // add contents of a file to list
 					int startN = itemtext.gettok( 1 ).to_int();
@@ -465,16 +473,16 @@ void DcxList::parseCommandRequest( TString & input ) {
 					TString filename(itemtext.gettok( 3, -1));
 
 					if (IsFile(filename)) {
-						char *buf = readFile(filename.to_chr());
+						PTCHAR buf = (PTCHAR)readFile(filename.to_chr());
 						if (buf != NULL) {
 							int max_lines = 0, len = 0;
 							TString contents(buf);
 							delete [] buf;
-							char *tok = "\r\n";
+							TCHAR *tok = TEXT("\r\n");
 
 							max_lines = contents.numtok(tok);
 							if (max_lines == 1) {
-								tok = "\n";
+								tok = TEXT("\n");
 								max_lines = contents.numtok(tok);
 							}
 
@@ -503,7 +511,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 
 							// check endN comes after startN
 							if (endN < startN) {
-								this->showError(NULL, "-A +f", "Invalid Range");
+								this->showError(NULL, TEXT("-A +f"), TEXT("Invalid Range"));
 								return;
 							}
 							this->setRedraw(FALSE);
@@ -520,17 +528,17 @@ void DcxList::parseCommandRequest( TString & input ) {
 						}
 					}
 					else
-						this->showErrorEx(NULL, "-A", "Unable To Access File: %s", itemtext.to_chr());
+						this->showErrorEx(NULL, TEXT("-A"), TEXT("Unable To Access File: %s"), itemtext.to_chr());
 				}
 				else
-					this->showError(NULL, "-A +f", "Invalid Syntax");
+					this->showError(NULL, TEXT("-A +f"), TEXT("Invalid Syntax"));
 			}
 			break;
-		case 'T': // [TEXT] == [C] [text][c][text]......
+		case TEXT('T'): // [TEXT] == [C] [text][c][text]......
 			{
 				if (itemtext.numtok() > 1) { // add tokens to list
-					char tok[2];
-					tok[0] = (char)itemtext.gettok(1).to_int();
+					TCHAR tok[2];
+					tok[0] = (TCHAR)itemtext.gettok(1).to_int();
 					tok[1] = 0;
 					TString contents(itemtext.gettok(2,-1));
 
@@ -551,7 +559,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 					this->redrawWindow();
 				}
 				else
-					this->showError(NULL, "-A +T", "Invalid Syntax");
+					this->showError(NULL, TEXT("-A +T"), TEXT("Invalid Syntax"));
 			}
 			break;
 		default:
@@ -587,7 +595,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 			ListBox_SetHorizontalExtent( this->m_Hwnd, nMaxStrlen);
 	}
 	//xdid -c [NAME] [ID] [SWITCH] [N,[N,[...]]]
-	else if ( flags['c'] && numtok > 3 ) {
+	else if ( flags[TEXT('c')] && numtok > 3 ) {
 
 		int nItems = ListBox_GetCount( this->m_Hwnd );
 
@@ -622,7 +630,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 		}
 	}
 	//xdid -d [NAME] [ID] [SWITCH] [N]
-	else if ( flags['d'] && numtok > 3 ) {
+	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
 		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
@@ -634,10 +642,10 @@ void DcxList::parseCommandRequest( TString & input ) {
 	}
 	// Used to prevent invalid flag message.
 	//xdid -r [NAME] [ID] [SWITCH]
-	else if (flags['r']) {
+	else if (flags[TEXT('r')]) {
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
-	else if ( flags['u'] ) {
+	else if ( flags[TEXT('u')] ) {
 
 		if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) )
 			ListBox_SetSel( this->m_Hwnd, FALSE, -1 );
@@ -645,12 +653,12 @@ void DcxList::parseCommandRequest( TString & input ) {
 			ListBox_SetCurSel( this->m_Hwnd, -1 );
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N]...)
-	else if ( flags['m'] && numtok > 4 ) {
+	else if ( flags[TEXT('m')] && numtok > 4 ) {
 		TString opts(input.gettok( 4 ));
 
-		if (opts.find('w',0))
+		if (opts.find(TEXT('w'),0))
 			ListBox_SetColumnWidth( this->m_Hwnd, input.gettok( 5 ).to_int( ));
-		else if (opts.find('t',0)) {
+		else if (opts.find(TEXT('t'),0)) {
 			TString Ns(input.gettok( 5 ));
 
 			int i = 1, n = Ns.numtok( TSCOMMA );
@@ -674,10 +682,10 @@ void DcxList::parseCommandRequest( TString & input ) {
 			}
 		}
 		else
-			this->showError(NULL, "-m", "Invalid Flags");
+			this->showError(NULL, TEXT("-m"), TEXT("Invalid Flags"));
 	}
 	//xdid -o [NAME] [ID] [N] [TEXT]
-	else if ( flags['o'] ) {
+	else if ( flags[TEXT('o')] ) {
 		int nPos = input.gettok( 4 ).to_int() - 1;
 
 		if (nPos == -1)
@@ -706,17 +714,17 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
       LPDRAGLISTINFO dli = (LPDRAGLISTINFO) lParam;
       int item;
       int sel = ListBox_GetCurSel(this->m_Hwnd) +1;
-      char ret[20];
+      TCHAR ret[20];
 
       switch (dli->uNotification)
       {
          // begin dragging item
          case DL_BEGINDRAG:
             // callback DIALOG itemdragbegin THIS_ID DRAGGEDITEM
-            evalAliasEx(ret, 255, "%s,%d,%d", "itemdragbegin", this->getUserID(), sel);
+            evalAliasEx(ret, 255, TEXT("%s,%d,%d"), TEXT("itemdragbegin"), this->getUserID(), sel);
 
             // cancel drag event
-            if (lstrcmpi(ret, "nodrag") == 0)
+            if (lstrcmpi(ret, TEXT("nodrag")) == 0)
                return FALSE;
             
             return TRUE;
@@ -724,7 +732,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
          // cancel drag
          case DL_CANCELDRAG:
             // callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
-            evalAliasEx(ret, 255, "%s,%d,%d", "itemdragcancel", this->getUserID(), sel);
+            evalAliasEx(ret, 255, TEXT("%s,%d,%d"), TEXT("itemdragcancel"), this->getUserID(), sel);
 
             if (m_bUseDrawInsert)
                this->m_pParentDialog->redrawWindow();
@@ -743,11 +751,11 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
                DrawDragLine(item);
 
             // callback DIALOG itemdrag THIS_ID SEL_ITEM MOUSE_OVER_ITEM
-            evalAliasEx(ret, 255, "%s,%d,%d,%d", "itemdrag", this->getUserID(), sel, item +1);
+            evalAliasEx(ret, 255, TEXT("%s,%d,%d,%d"), TEXT("itemdrag"), this->getUserID(), sel, item +1);
 
-            if (lstrcmpi(ret, "stop") == 0)
+            if (lstrcmpi(ret, TEXT("stop")) == 0)
                return DL_STOPCURSOR;
-            else if (lstrcmpi(ret, "copy") == 0)
+            else if (lstrcmpi(ret, TEXT("copy")) == 0)
                return DL_COPYCURSOR;
             
             return DL_MOVECURSOR;
@@ -758,7 +766,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
             // callback DIALOG itemdragfinish THIS_ID SEL_ITEM MOUSE_OVER_ITEM
             item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
 
-            execAliasEx("%s,%d,%d,%d", "itemdragfinish", this->getUserID(), sel, item +1);
+            execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("itemdragfinish"), this->getUserID(), sel, item +1);
 
             if (m_bUseDrawInsert)
                // refresh parent to remove drawing leftovers
@@ -785,10 +793,10 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 							 if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
 								 if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-									 this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
+									 this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), nItem + 1 );
 							 }
 							 else if ( nItem != LB_ERR )
-								 this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), nItem + 1 );
+								 this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), nItem + 1 );
 						 }
 						 break;
 
@@ -798,10 +806,10 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 							 if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
 								 if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-									 this->execAliasEx("%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
+									 this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID( ), nItem + 1 );
 							 }
 							 else if ( nItem != LB_ERR )
-								 this->execAliasEx("%s,%d,%d", "dclick", this->getUserID( ), nItem + 1 );
+								 this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID( ), nItem + 1 );
 						 }
 						 break;
 					} // switch ( HIWORD( wParam ) )
@@ -852,10 +860,17 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					if (this->isStyle(LBS_USETABSTOPS))
 						style |= DT_EXPANDTABS;
 
+#if UNICODE
+					calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false);
+
+					//mIRC_DrawText(lpDrawItem->hDC, txt, &rc, style, this->m_bShadowText);
+					this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
+#else
 					calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false, this->m_bUseUTF8);
 
 					//mIRC_DrawText(lpDrawItem->hDC, txt, &rc, style, this->m_bShadowText, this->m_bUseUTF8);
 					this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
+#endif
 				}
 
 				if (clrText != CLR_INVALID)
@@ -883,7 +898,7 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_VSCROLL:
 		if (LOWORD(wParam) == SB_ENDSCROLL)
-			this->execAliasEx("%s,%d", "scrollend", this->getUserID());
+			this->execAliasEx(TEXT("%s,%d"), TEXT("scrollend"), this->getUserID());
 		break;
 
 	case WM_MOUSEWHEEL:
@@ -976,7 +991,7 @@ void DcxList::DrawDragLine(const int location)
 
 BOOL DcxList::matchItemText( const int nItem, const TString * search, const UINT SearchType ) {
 
-	char *itemtext;
+	TCHAR *itemtext;
 	BOOL bRes = FALSE;
 
 	int len = ListBox_GetTextLen( this->m_Hwnd, nItem );

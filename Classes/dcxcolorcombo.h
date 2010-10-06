@@ -49,7 +49,7 @@ public:
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
   LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
+  void parseInfoRequest( TString & input, PTCHAR szReturnValue );
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
@@ -63,7 +63,7 @@ public:
   LRESULT deleteItem( const int nItem );
   LRESULT resetContent( );
 
-  inline TString getType( ) { return TString( "colorcombo" ); };
+  inline TString getType( ) { return TString( TEXT("colorcombo") ); };
 
 protected:
   

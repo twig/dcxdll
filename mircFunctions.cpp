@@ -21,10 +21,10 @@
 /*!
 * \brief Displays an error message for the control when using $xdid().prop
 */
-//void dcxInfoError(const char *ctrl, const char *functn, const char* dlg, const int ctrlid, const char *msg) {
+//void dcxInfoError(const TCHAR *ctrl, const TCHAR *functn, const TCHAR* dlg, const int ctrlid, const TCHAR *msg) {
 //	TString err;
 //
-//	err.sprintf("D_ERROR %s(%s, %d).%s: %s", ctrl, dlg, ctrlid, functn, msg);
+//	err.sprintf(TEXT("D_ERROR %s(%s, %d).%s: %s"), ctrl, dlg, ctrlid, functn, msg);
 //	mIRCError(err.to_chr());
 //}
 
@@ -37,7 +37,7 @@ SYSTEMTIME MircTimeToSystemTime(const long mircTime) {
 
 	ZeroMemory(&st, sizeof(SYSTEMTIME));
 
-	Dcx::mIRC.tsEvalex( str, "$asctime(%ld, d m yyyy)", mircTime);
+	Dcx::mIRC.tsEvalex( str, TEXT("$asctime(%ld, d m yyyy)"), mircTime);
 
 	st.wDay = (WORD)str.gettok(1).to_int();
 	st.wMonth = (WORD)str.gettok(2).to_int();
@@ -48,28 +48,28 @@ SYSTEMTIME MircTimeToSystemTime(const long mircTime) {
 
 long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 	if (pst->wMonth == 0) {
-		Dcx::error("SystemTimeToMircTime", "invalid SYSTEMTIME parameter.");
+		Dcx::error(TEXT("SystemTimeToMircTime"), TEXT("invalid SYSTEMTIME parameter."));
 		return 0;
 	}
 
-	char ret[100];
+	TCHAR ret[100];
 
-	static const char *months[12] = {
-		"January",
-		"Feburary",
-		"March",
-		"April",
-		"May",
-		"June",
-		"July",
-		"August",
-		"September",
-		"October",
-		"November",
-		"December"
+	static const TCHAR *months[12] = {
+		TEXT("January"),
+		TEXT("Feburary"),
+		TEXT("March"),
+		TEXT("April"),
+		TEXT("May"),
+		TEXT("June"),
+		TEXT("July"),
+		TEXT("August"),
+		TEXT("September"),
+		TEXT("October"),
+		TEXT("November"),
+		TEXT("December")
 	};
 
-	Dcx::mIRC.evalex(ret, 100, "$ctime(%d:%d:%d %d %s %d)",
+	Dcx::mIRC.evalex(ret, 100, TEXT("$ctime(%d:%d:%d %d %s %d)"),
 		pst->wHour,
 		pst->wMinute,
 		pst->wSecond,
@@ -77,5 +77,9 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 		months[pst->wMonth -1],
 		pst->wYear);
 
+#if UNICODE
+	return _wtol(ret);
+#else
 	return atol(ret);
+#endif
 }

@@ -34,7 +34,7 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 
 	this->m_Hwnd = CreateWindowEx(
 		ExStyles,
-		"STATIC",
+		TEXT("STATIC"),
 		NULL,
 		WS_CHILD | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
@@ -44,7 +44,7 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	// remove all borders
 	this->removeStyle( WS_BORDER|WS_DLGFRAME );
@@ -53,20 +53,20 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 	if ( bNoTheme )
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-	//this->m_tsText = ""; // pointless, alrdy is "".
+	//this->m_tsText = TEXT(""); // pointless, alrdy is "".
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 
-	if (styles.istok("tooltips")) {
+	if (styles.istok(TEXT("tooltips"))) {
 		if (IsWindow(p_Dialog->getToolTip())) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 		else
-			this->showError(NULL,"-c","Unable to Initialize Tooltips");
+			this->showError(NULL,TEXT("-c"),TEXT("Unable to Initialize Tooltips"));
 	}
 }
 
@@ -92,17 +92,17 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
 	*Styles |= SS_NOTIFY;
 
 	while (i <= numtok) {
-		if (styles.gettok( i ) == "nowrap")
+		if (styles.gettok( i ) == TEXT("nowrap"))
 			*Styles |= SS_LEFTNOWORDWRAP;
-		else if (styles.gettok( i ) == "center")
+		else if (styles.gettok( i ) == TEXT("center"))
 			*Styles |= SS_CENTER;
-		else if (styles.gettok( i ) == "right")
+		else if (styles.gettok( i ) == TEXT("right"))
 			*Styles |= SS_RIGHT;
-		else if (styles.gettok( i ) == "noprefix")
+		else if (styles.gettok( i ) == TEXT("noprefix"))
 			*Styles |= SS_NOPREFIX;
-		else if (styles.gettok( i ) == "endellipsis")
+		else if (styles.gettok( i ) == TEXT("endellipsis"))
 			*Styles |= SS_ENDELLIPSIS;
-		else if (styles.gettok( i ) == "pathellipsis")
+		else if (styles.gettok( i ) == TEXT("pathellipsis"))
 			*Styles |= SS_PATHELLIPSIS;
 
 		i++;
@@ -120,12 +120,12 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
  * \return > void
  */
 
-void DcxText::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxText::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 //  int numtok = input.numtok( );
 
   // [NAME] [ID] [PROP]
-  if ( input.gettok( 3 ) == "text" ) {
+  if ( input.gettok( 3 ) == TEXT("text") ) {
 
     GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
     return;
@@ -147,15 +147,15 @@ void DcxText::parseCommandRequest(TString &input) {
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags['r']) {
-		this->m_tsText = "";
-		SetWindowText(this->m_Hwnd, "");
+	if (flags[TEXT('r')]) {
+		this->m_tsText = TEXT("");
+		SetWindowText(this->m_Hwnd, TEXT(""));
 	}
 
 	// xdid -a [NAME] [ID] [SPACE 0|1] [TEXT]
-	if (flags['a'] && numtok > 2) {
+	if (flags[TEXT('a')] && numtok > 2) {
 		if (input.gettok(4).to_int() == 1)
-			this->m_tsText += " ";
+			this->m_tsText += TEXT(" ");
 
 		this->m_tsText += input.gettok(5, -1);
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
@@ -167,10 +167,10 @@ void DcxText::parseCommandRequest(TString &input) {
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags['r']) {
+	else if (flags[TEXT('r')]) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
-	else if (flags['t']) {
+	else if (flags[TEXT('t')]) {
 		this->m_tsText = input.gettok(4, -1);
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 
@@ -197,14 +197,14 @@ LRESULT DcxText::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
  //         case STN_CLICKED:
  //           {
 	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//			        this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
+	//			        this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID( ) );
  //           }
  //           break;
 
  //         case STN_DBLCLK:
  //           {
 	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//			        this->execAliasEx("%s,%d", "dclick", this->getUserID( ) );
+	//			        this->execAliasEx(TEXT("%s,%d"), TEXT("dclick"), this->getUserID( ) );
  //           }
  //           break;
  //       }

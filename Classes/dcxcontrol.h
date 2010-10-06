@@ -96,15 +96,15 @@ public:
 	DcxControl( const UINT mID, DcxDialog * p_Dialog );
 	virtual ~DcxControl( );
 
-	virtual void parseInfoRequest( TString & input, char * szReturnValue ) = 0;
+	virtual void parseInfoRequest( TString & input, PTCHAR szReturnValue ) = 0;
 	virtual void parseCommandRequest( TString & input ) = 0;
 	virtual void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
 
 	void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-	bool evalAliasEx(char * szReturn, const int maxlen, const char * szFormat, ... );
+	bool evalAliasEx(TCHAR * szReturn, const int maxlen, const TCHAR * szFormat, ... );
 
-	bool execAliasEx(const char * szFormat, ... );
+	bool execAliasEx(const TCHAR * szFormat, ... );
 
 	UINT getUserID( ) const;
 
@@ -145,8 +145,8 @@ public:
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai);
 	static HBITMAP resizeBitmap(HBITMAP srcBM, const LPRECT rc);
-	void showError(const char *prop, const char *cmd, const char *err);
-	void showErrorEx(const char *prop, const char *cmd, const char *fmt, ...);
+	void showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err);
+	void showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...);
 
 protected:
 
@@ -184,18 +184,20 @@ protected:
 	HWND m_pParentHWND;
 	bool m_bInPrint;
 	bool m_bShadowText;				//!< Text is drawn with a shadow.
-	bool m_bCtrlCodeText;			//!< mIRC's ctrl codes are used to change the text's appearance.
+	bool m_bCtrlCodeText;			//!< mIRCTEXT('s ctrl codes are used to change the text')s appearance.
 	bool m_bNoTheme;				//!< Control isn't themed.
+#if !UNICODE
 	bool m_bUseUTF8;				//!< Control has utf8 text.
+#endif
 	//int m_iThemePartId;
 	/* ***** */
 
 	void parseGlobalCommandRequest(const TString & input, XSwitchFlags & flags );
-	BOOL parseGlobalInfoRequest( const TString & input, char * szReturnValue );
+	BOOL parseGlobalInfoRequest( const TString & input, TCHAR * szReturnValue );
 
 	static UINT parseColorFlags( const TString & flags );
 	static UINT parseCursorFlags( const TString & flags );
-	static LPSTR parseCursorType( const TString & cursor );
+	static PTCHAR parseCursorType( const TString & cursor );
 
 	void registreDefaultWindowProc( );
 	void unregistreDefaultWindowProc( );

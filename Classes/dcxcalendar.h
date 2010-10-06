@@ -38,11 +38,11 @@ public:
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
   LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
+  void parseInfoRequest( TString & input, PTCHAR szReturnValue );
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  inline TString getType( ) { return TString( "calendar" ); };
+  inline TString getType( ) { return TString( TEXT("calendar") ); };
   void toXml(TiXmlElement * xml);
   TString getStyles(void);
   TString getValue(void);

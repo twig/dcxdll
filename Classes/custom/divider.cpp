@@ -29,7 +29,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
       {
         
         LPDVCONTROLDATA lpdvdata = new DVCONTROLDATA;
-        SetProp( mHwnd, "dvc_data", (HANDLE) lpdvdata );
+        SetProp( mHwnd, TEXT("dvc_data"), (HANDLE) lpdvdata );
         ZeroMemory( lpdvdata, sizeof( DVCONTROLDATA ) );
 
         lpdvdata->m_bDragging = FALSE;
@@ -46,12 +46,12 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
         HWND hwndChildz2;
         
         hwndChildz1 = CreateWindowEx(WS_EX_CLIENTEDGE,
-          "EDIT", "", 
+          TEXT("EDIT"), TEXT(""), 
           WS_VISIBLE|WS_CHILD|ES_MULTILINE|ES_AUTOVSCROLL,
           0,0,0,0,mHwnd, 0, GetModuleHandle( NULL ), 0);		
 
         hwndChildz2 = CreateWindowEx(WS_EX_CLIENTEDGE,
-          "EDIT", "", 
+          TEXT("EDIT"), TEXT(""), 
           WS_VISIBLE|WS_CHILD|ES_MULTILINE|ES_AUTOVSCROLL,
           0,0,0,0,mHwnd, 0, GetModuleHandle( NULL ), 0);
 
@@ -124,7 +124,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case DV_SETPANE:
       {
 
-        LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+        LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
 
         if ( lpdvdata == NULL )
           return FALSE;
@@ -141,7 +141,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
           if ( lpdvpi->cbSize != lpdvdata->m_Panes[0].cbSize )
             return FALSE;
 
-          //MessageBox( mHwnd, "Received DV_SETPANE", "DV_SETPANE", MB_OK );
+          //MessageBox( mHwnd, TEXT("Received DV_SETPANE"), TEXT("DV_SETPANE"), MB_OK );
 
           if ( lpdvpi->fMask & DVPIM_CHILD ) {
             lpdvdata->m_Panes[0].hChild = lpdvpi->hChild;
@@ -188,7 +188,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
     case DV_GETPANE:
       {
-		LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+		LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
 		switch (wParam) {
 			case DVF_PANELEFT:
 				*((LPDVPANEINFO)lParam) = lpdvdata->m_Panes[0];
@@ -205,7 +205,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case DV_SETDIVPOS:
       {
 
-        LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+        LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
 
         RECT rc;
         GetClientRect( mHwnd, &rc );
@@ -231,7 +231,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     // wParam == (OUT) BOOL isVertical?, lParam == (OUT) integer bar_position
     case DV_GETDIVPOS:
     {
-      LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp(mHwnd, "dvc_data");
+      LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp(mHwnd, TEXT("dvc_data"));
 
       *((LPINT)lParam) = (lpdvdata->m_bDragging == TRUE ? lpdvdata->m_iOldPos : lpdvdata->m_iBarPos);
       return 0L;
@@ -241,7 +241,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case WM_DESTROY:
       {
 
-        LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+        LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
 
         // Clear Panes and delete child windows
         // Send Notifications to Parent Window About deletion of child windows
@@ -270,7 +270,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
         if ( lpdvdata != NULL )
           delete lpdvdata;
 
-        RemoveProp( mHwnd, "dvc_data" );
+        RemoveProp( mHwnd, TEXT("dvc_data") );
 
         return 0L;
       }
@@ -287,7 +287,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 void Divider_SizeWindowContents( HWND mHwnd, int nWidth, int nHeight ) {
 
-	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
 
 	if ( GetWindowStyle( mHwnd ) & DVS_VERT ) {
 		MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, lpdvdata->m_iBarPos, nHeight, TRUE );
@@ -345,7 +345,7 @@ void Divider_GetChildControl( HWND mHwnd, UINT pane, LPDVPANEINFO result) {
 
 void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect ) {
 
-  LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+  LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
 
   GetWindowRect( mHwnd, rect );
 
@@ -394,7 +394,7 @@ LRESULT Divider_OnLButtonDown( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 	HDC hdc;
 	RECT rect;
 
-	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
 
 	pt.x = (short) LOWORD( lParam );  // horizontal position of cursor 
 	pt.y = (short) HIWORD( lParam );
@@ -435,7 +435,7 @@ LRESULT Divider_OnLButtonUp( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lParam
 	RECT rect;
 	POINT pt;
 
-	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
 
 	pt.x = (short) LOWORD( lParam );  // horizontal position of cursor 
 	pt.y = (short) HIWORD( lParam );
@@ -497,7 +497,7 @@ LRESULT Divider_OnMouseMove( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lParam
 	RECT rect;
 	POINT pt;
 
-  LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, "dvc_data" );
+  LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
 
   if ( lpdvdata->m_bDragging == FALSE )
     return 0L;

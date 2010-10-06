@@ -124,10 +124,11 @@ void LayoutCellFill::toXml(TiXmlElement * xml) {
 	TString margin;
 	if (this->m_BaseControl)
 		this->m_BaseControl->toXml(xml);
-	if (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0) {
-		margin.tsprintf("%d %d %d %d", m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
-		xml->SetAttribute("margin", margin.to_chr());
-	}
+	// NEEDS FIXED!
+	//if (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0) {
+	//	margin.tsprintf(TEXT("%d %d %d %d"), m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
+	//	xml->SetAttribute("margin", margin.to_chr());
+	//}
 }
 
 

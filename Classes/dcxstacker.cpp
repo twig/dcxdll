@@ -40,7 +40,7 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 
 	this->m_Hwnd = CreateWindowEx(
 		ExStyles | WS_EX_CONTROLPARENT,
-		"ListBox",
+		TEXT("ListBox"),
 		NULL,
 		WS_CHILD | Styles, 
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
@@ -50,7 +50,7 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
@@ -62,7 +62,7 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 	this->m_vImageList.clear();
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips")) {
+		if (styles.istok(TEXT("tooltips"))) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -70,7 +70,7 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -109,13 +109,13 @@ void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 	while ( i <= numtok ) {
 
-		if ( styles.gettok( i ) == "vscroll" )
+		if ( styles.gettok( i ) == TEXT("vscroll") )
 			*Styles |= WS_VSCROLL;
-		else if ( styles.gettok( i ) == "gradient" )
+		else if ( styles.gettok( i ) == TEXT("gradient") )
 			this->m_dStyles |= STACKERS_GRAD;
-		else if ( styles.gettok( i ) == "arrows" )
+		else if ( styles.gettok( i ) == TEXT("arrows") )
 			this->m_dStyles |= STACKERS_ARROW;
-		else if ( styles.gettok( i ) == "nocollapse" )
+		else if ( styles.gettok( i ) == TEXT("nocollapse") )
 			this->m_dStyles &= ~STACKERS_COLLAPSE;
 
 		i++;
@@ -132,13 +132,13 @@ void DcxStacker::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
  * \return > void
  */
 
-void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxStacker::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 
 	int numtok = input.numtok( );
 	TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
-	if ( prop == "text" && numtok > 3 ) {
+	if ( prop == TEXT("text") && numtok > 3 ) {
 		int nSel = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
@@ -149,41 +149,41 @@ void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
 		}
 	}
 	// [NAME] [ID] [PROP]
-	else if ( prop == "num" ) {
-		wsprintf( szReturnValue, "%d", ListBox_GetCount( this->m_Hwnd ) );
+	else if ( prop == TEXT("num") ) {
+		wsprintf( szReturnValue, TEXT("%d"), ListBox_GetCount( this->m_Hwnd ) );
 		return;
 	}
 	// [NAME] [ID] [PROP]
-	else if ( prop == "sel" ) {
-		wsprintf( szReturnValue, "%d", ListBox_GetCurSel( this->m_Hwnd ) + 1 );
+	else if ( prop == TEXT("sel") ) {
+		wsprintf( szReturnValue, TEXT("%d"), ListBox_GetCurSel( this->m_Hwnd ) + 1 );
 		return;
 	}
 	// [NAME] [ID] [PROP] [N]
-	else if ( prop == "haschild" && numtok > 3 ) {
+	else if ( prop == TEXT("haschild") && numtok > 3 ) {
 		int nSel = input.gettok( 4 ).to_int( ) - 1;
 
-		lstrcpy(szReturnValue,"$false");
+		lstrcpy(szReturnValue,TEXT("$false"));
 
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nSel);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
 				if (sitem->pChild != NULL)
-					lstrcpy(szReturnValue,"$true");
+					lstrcpy(szReturnValue,TEXT("$true"));
 			}
 			return;
 		}
 	}
 	// [NAME] [ID] [PROP] [N]
-	else if ( prop == "childid" && numtok > 3 ) {
+	else if ( prop == TEXT("childid") && numtok > 3 ) {
 		int nSel = input.gettok( 4 ).to_int( ) - 1;
 
-		lstrcpy(szReturnValue,"0");
+		lstrcpy(szReturnValue,TEXT("0"));
 
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nSel);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
 				if (sitem->pChild != NULL)
-					wsprintf(szReturnValue,"%d",sitem->pChild->getUserID());
+					wsprintf(szReturnValue,TEXT("%d"),sitem->pChild->getUserID());
 			}
 			return;
 		}
@@ -206,12 +206,12 @@ void DcxStacker::parseCommandRequest(TString &input) {
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags['r']) {
+	if (flags[TEXT('r')]) {
 		SendMessage(this->m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0);
 	}
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	if (flags['a'] && numtok > 9) {
+	if (flags[TEXT('a')] && numtok > 9) {
 		TString item(input.gettok(1,TSTAB).trim());
 		TString ctrl(input.gettok(2,TSTAB).trim());
 
@@ -251,33 +251,33 @@ void DcxStacker::parseCommandRequest(TString &input) {
 						this->redrawWindow( );
 					}
 				}
-				catch ( char *err ) {
-					this->showErrorEx(NULL, "-a", "Unable To Create Control %d (%s)", ID - mIRC_ID_OFFSET, err);
+				catch ( TCHAR *err ) {
+					this->showErrorEx(NULL, TEXT("-a"), TEXT("Unable To Create Control %d (%s)"), ID - mIRC_ID_OFFSET, err);
 					delete sitem;
 					return;
 				}
 			}
 			else {
-				this->showErrorEx(NULL, "-a", "Control with ID \"%d\" already exists", ID - mIRC_ID_OFFSET );
+				this->showErrorEx(NULL, TEXT("-a"), TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET );
 				delete sitem;
 				return;
 			}
 		}
 		if (SendMessage(this->m_Hwnd,LB_INSERTSTRING,nPos,(LPARAM)sitem) < 0) {
 			delete sitem;
-			this->showError(NULL, "-a", "Error adding item to control");
+			this->showError(NULL, TEXT("-a"), TEXT("Error adding item to control"));
 			return;
 		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
-	else if (flags['c'] && numtok > 3) {
+	else if (flags[TEXT('c')] && numtok > 3) {
     int nPos = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
 			SendMessage(this->m_Hwnd,LB_SETCURSEL,nPos,NULL);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags['d'] && (numtok > 3)) {
+	else if (flags[TEXT('d')] && (numtok > 3)) {
     int nPos = input.gettok( 4 ).to_int( ) - 1;
 
     if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
@@ -285,36 +285,40 @@ void DcxStacker::parseCommandRequest(TString &input) {
 	}
 	// This is to avoid an invalid flag message.
 	//xdid -r [NAME] [ID] [SWITCH]
-	else if (flags['r']) {
+	else if (flags[TEXT('r')]) {
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
-	else if ( flags['u'] ) {
+	else if ( flags[TEXT('u')] ) {
 		ListBox_SetCurSel( this->m_Hwnd, -1 );
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [N] (ToolTipText)
-  else if (flags['T'] && numtok > 3) {
+  else if (flags[TEXT('T')] && numtok > 3) {
     int nPos = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nPos);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
-				sitem->tsTipText = (numtok > 4 ? input.gettok(5, -1).trim() : "");
+				sitem->tsTipText = (numtok > 4 ? input.gettok(5, -1).trim() : TEXT(""));
 			}
 		}
   }
 	//xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
-	else if ( flags['w'] && (numtok > 4)) {
+	else if ( flags[TEXT('w')] && (numtok > 4)) {
 		TString flag(input.gettok( 4 ));
 		TString filename(input.gettok( 5 ).trim());
 		
 		if (!IsFile(filename)) {
-			this->showErrorEx(NULL, "-w", "Unable to Access File: %s", filename.to_chr());
+			this->showErrorEx(NULL, TEXT("-w"), TEXT("Unable to Access File: %s"), filename.to_chr());
 			return;
 		}
+#if UNICODE
+		this->m_vImageList.push_back(new Image(filename.to_chr()));
+#else
 		this->m_vImageList.push_back(new Image(filename.to_wchr()));
+#endif
 	}
 	//xdid -y [NAME] [ID] [SWITCH]
-	else if ( flags['y'] ) {
+	else if ( flags[TEXT('y')] ) {
 		this->clearImageList();
 		this->redrawWindow();
 	}
@@ -355,13 +359,13 @@ TString DcxStacker::getStyles(void) {
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & WS_VSCROLL)
-		styles.addtok("vscroll", " ");
+		styles.addtok(TEXT("vscroll"));
 	if (this->m_dStyles & STACKERS_GRAD)
-		styles.addtok("gradient", " ");
+		styles.addtok(TEXT("gradient"));
 	if (this->m_dStyles & STACKERS_ARROW)
-		styles.addtok("arrows", " ");
+		styles.addtok(TEXT("arrows"));
 	if (~this->m_dStyles & STACKERS_COLLAPSE)
-		styles.addtok("nocollapse", " ");
+		styles.addtok(TEXT("nocollapse"));
 	return styles;
 }
 
@@ -470,7 +474,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	}
 	else if (sitem->clrBack != -1) {
 		SetBkColor(memDC,sitem->clrBack);
-		ExtTextOut(memDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, "", NULL, NULL );
+		ExtTextOut(memDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, TEXT(""), NULL, NULL );
 	}
 
 	// draw GDI+ image if any, we draw the image after the  colour fill to allow for alpha in pics.
@@ -488,6 +492,21 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		COLORREF clrText = sitem->clrText;
 		if (clrText == -1)
 			clrText = GetSysColor(COLOR_BTNTEXT);
+#if UNICODE
+		// draw the text
+		if (!this->m_bCtrlCodeText) {
+			SetBkMode(memDC,TRANSPARENT);
+			if (this->m_bShadowText)
+				dcxDrawShadowText(memDC,sitem->tsCaption.to_chr(), sitem->tsCaption.len(),&rcText, DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
+			else {
+				if (clrText != -1)
+					SetTextColor(memDC,clrText);
+				DrawTextW(memDC, sitem->tsCaption.to_chr(), sitem->tsCaption.len(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
+			}
+		}
+		else
+			mIRC_DrawText(memDC, sitem->tsCaption, &rcText, DT_CENTER | DT_END_ELLIPSIS, this->m_bShadowText);
+#else
 		// draw the text
 		if (!this->m_bCtrlCodeText) {
 			SetBkMode(memDC,TRANSPARENT);
@@ -501,6 +520,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		}
 		else
 			mIRC_DrawText(memDC, sitem->tsCaption, &rcText, DT_CENTER | DT_END_ELLIPSIS, this->m_bShadowText, this->m_bUseUTF8);
+#endif
 
 		SelectFont(memDC,oldFont);
 	}
@@ -593,13 +613,13 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			case LBN_DBLCLK:
 				{
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->execAliasEx("%s,%d,%d", "dclick", this->getUserID( ), this->getSelItemID());
+						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID( ), this->getSelItemID());
 				}
 				break;
 			case LBN_SELCHANGE:
 				{
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), this->getSelItemID());
+						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), this->getSelItemID());
 				}
 				break;
 			}
@@ -621,7 +641,7 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			bParsed = TRUE;
 			lRes = TRUE;
 			if (sitem->pChild != NULL) {
-				if ( sitem->pChild->getType( ) == "dialog" || sitem->pChild->getType( ) == "window" )
+				if ( sitem->pChild->getType( ) == TEXT("dialog") || sitem->pChild->getType( ) == TEXT("window") )
 					delete sitem->pChild;
 				else { //if ( sitem->pChild->getRefCount( ) == 0 ) {
 					this->m_pParentDialog->deleteControl( sitem->pChild ); // remove from internal list!
@@ -715,7 +735,7 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		case WM_COMMAND:
 			{
 				if (IsWindow((HWND) lParam)) {
-					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -726,7 +746,7 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			{
 				LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -737,7 +757,7 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			{
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -748,7 +768,7 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			{
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
-					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -759,7 +779,7 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			{
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,"dcx_cthis");
+					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -789,14 +809,14 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					case TTN_LINKCLICK:
 						{
 							bParsed = TRUE;
-							this->execAliasEx("%s,%d,%d", "tooltiplink", this->getUserID( ), this->getItemID() );
+							this->execAliasEx(TEXT("%s,%d,%d"), TEXT("tooltiplink"), this->getUserID( ), this->getItemID() );
 						}
 						break;
 					}
 				}
 				else if (this->m_Hwnd != hdr->hwndFrom) {
 					if (IsWindow(hdr->hwndFrom)) {
-						DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,"dcx_cthis");
+						DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,TEXT("dcx_cthis"));
 						if (c_this != NULL)
 							lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 					}
@@ -810,7 +830,7 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		case WM_LBUTTONUP:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->execAliasEx("%s,%d,%d", "lbup", this->getUserID( ), this->getItemID());
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("lbup"), this->getUserID( ), this->getItemID());
 			}
 			break;
 

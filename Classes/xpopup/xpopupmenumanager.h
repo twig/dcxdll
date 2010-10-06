@@ -54,7 +54,7 @@ public:
 
 	void parseCommand( const TString & input );
 	void parseCommand( const TString & input, XPopupMenu *p_Menu );
-	void parseIdentifier( const TString & input, char * szReturnValue );
+	void parseIdentifier( const TString & input, TCHAR * szReturnValue );
 	int parseMPopup(const TString & input);
 
 	void addMenu( XPopupMenu * p_Menu );
@@ -72,7 +72,7 @@ public:
 
 	bool isPatched(void) const { return this->m_bPatched; };
 
-	static BOOL InterceptAPI(HMODULE hLocalModule, const char* c_szDllName, const char* c_szApiName, DWORD dwReplaced, DWORD dwTrampoline, int offset);
+	static BOOL InterceptAPI(HMODULE hLocalModule, const TCHAR* c_szDllName, const char* c_szApiName, DWORD dwReplaced, DWORD dwTrampoline, int offset);
 	static BOOL WINAPI XTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect);
 	static BOOL WINAPI XTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm);
 	static BOOL WINAPI TrampolineTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect);
@@ -90,7 +90,7 @@ public:
 
 protected:
 
-	static const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, TiXmlElement *popup, TiXmlElement *global);
+	static const TCHAR* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, TiXmlElement *popup, TiXmlElement *global);
 
   VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 

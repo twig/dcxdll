@@ -45,35 +45,43 @@
 
 #include "tstring.h"
 
-const char *TString::m_cSpace = " ";
-const char *TString::m_cComma = ",";
-const char *TString::m_cTab = "\t";
+const TCHAR *TString::m_cSpace = TEXT(" ");
+const TCHAR *TString::m_cComma = TEXT(",");
+const TCHAR *TString::m_cTab = TEXT("\t");
 
 /*! 
  * \brief Default Constructor
  */
 /****************************/
 
-TString::TString( ) {
-
-	this->m_pString = new char[1];
+TString::TString( )
+: m_pWString(NULL),
+ m_pString(NULL)
+{
+	this->m_pString = new TCHAR[1];
 	this->m_pString[0] = 0;
-	this->m_pWString = NULL;
 }
 
 /****************************/
-/*! \fn TString::TString( const char * cString )
-    \brief Constructor input from C char string
+/*! \fn TString::TString( const WCHAR * cString )
+    \brief Constructor input from C WCHAR string
 
     \param cString Character string to initialize string to
 */
 /****************************/
 
-TString::TString( const char * cString ) {
+TString::TString( const char * cString )
+: m_pWString(NULL),
+ m_pString(NULL)
+{
+#ifdef UNICODE
+	this->m_pString = charToWchar(cString);
 
-	this->m_pString = NULL;
-	this->m_pWString = NULL;
-
+	if (this->m_pString == NULL) {
+		this->m_pString = new TCHAR[1];
+		this->m_pString[0] = TEXT('\0');
+	}
+#else
 	if ( cString != NULL ) {
 		this->m_pString = new char [ lstrlen( cString ) + 1 ];
 		lstrcpy( this->m_pString, cString );
@@ -82,41 +90,72 @@ TString::TString( const char * cString ) {
 		this->m_pString = new char[1];
 		this->m_pString[0] = 0;
 	}
+#endif
 }
 
-TString::TString( const WCHAR * cString ) {
-
-	this->m_pString = NULL;
-	this->m_pWString = NULL;
-
+TString::TString( const WCHAR * cString )
+: m_pWString(NULL),
+ m_pString(NULL)
+{
+#ifdef UNICODE
+	if ( cString != NULL ) {
+		this->m_pString = new TCHAR [ lstrlen( cString ) + 1 ];
+		lstrcpy( this->m_pString, cString );
+	}
+	else {
+		this->m_pString = new TCHAR[1];
+		this->m_pString[0] = 0;
+	}
+#else
 	if ( cString != NULL ) {
 		this->m_pWString = new WCHAR [ lstrlenW( cString ) + 1 ];
 		lstrcpyW( this->m_pWString, cString );
 	}
+#endif
 }
 
 /****************************/
-/*! \fn TString::TString( const char chr )
-    \brief Constructor input from C char
+/*! \fn TString::TString( const TCHAR chr )
+    \brief Constructor input from C TCHAR
 
     \param chr Character to initialize string to
 */
 /****************************/
 
-TString::TString( const char chr ) {
-
-	this->m_pString = new char [2];
-	this->m_pWString = NULL;
+TString::TString( const WCHAR chr )
+: m_pWString(NULL),
+ m_pString(NULL)
+{
+#ifdef UNICODE
+	this->m_pString = new WCHAR [2];
 	this->m_pString[0] = chr;
 	this->m_pString[1] = 0;
-}
-
-TString::TString( const WCHAR chr ) {
-
+#else
 	this->m_pWString = new WCHAR [2];
-	this->m_pString = NULL;
 	this->m_pWString[0] = chr;
 	this->m_pWString[1] = 0;
+#endif
+}
+
+TString::TString( const char chr )
+: m_pWString(NULL),
+ m_pString(NULL)
+{
+#ifdef UNICODE
+	char cString[2];
+	cString[0] = chr;
+	cString[1] = 0;
+	this->m_pString = charToWchar(cString);
+
+	if (this->m_pString == NULL) {
+		this->m_pString = new TCHAR[1];
+		this->m_pString[0] = TEXT('\0');
+	}
+#else
+	this->m_pString = new char [2];
+	this->m_pString[0] = chr;
+	this->m_pString[1] = 0;
+#endif
 }
 
 /****************************/
@@ -127,39 +166,42 @@ TString::TString( const WCHAR chr ) {
 */
 /****************************/
 
-TString::TString( const TString & tString ) {
-
-	this->m_pWString = NULL;
+TString::TString( const TString & tString )
+: m_pWString(NULL),
+ m_pString(NULL)
+{
 	if ( tString.m_pString != NULL ) {
-		this->m_pString = new char [lstrlen( tString.m_pString ) +1];
+		this->m_pString = new TCHAR [lstrlen( tString.m_pString ) +1];
 		lstrcpy( this->m_pString, tString.m_pString );
 	}
 	else {
-		this->m_pString = new char[1];
+		this->m_pString = new TCHAR[1];
 		this->m_pString[0] = 0;
 	}
 }
 
-TString::TString( const char *pStart, const char *pEnd )
+TString::TString( const TCHAR *pStart, const TCHAR *pEnd )
+: m_pWString(NULL),
+ m_pString(NULL)
 {
-	this->m_pWString = NULL;
 	if ((pStart != NULL) && (pEnd != NULL) && (pEnd > pStart)) {
 		size_t size = (pEnd - pStart);
-		this->m_pString = new char[size+1];
+		this->m_pString = new TCHAR[size+1];
 		CopyMemory(this->m_pString, pStart, size);
 		this->m_pString[size] = 0;
 	}
 	else {
-		this->m_pString = new char[1];
+		this->m_pString = new TCHAR[1];
 		this->m_pString[0] = 0;
 	}
 }
-
+// NB tsSize is in characters! not bytes.
 TString::TString( const unsigned int tsSize )
+: m_pWString(NULL),
+ m_pString(NULL)
 {
-	this->m_pWString = NULL;
-	this->m_pString = new char[tsSize+1];
-	ZeroMemory(this->m_pString,tsSize+1);
+	this->m_pString = new TCHAR[tsSize+1];
+	ZeroMemory(this->m_pString,((tsSize+1)*sizeof(TCHAR)));
 }
 
 TString::~TString( ) {
@@ -168,7 +210,7 @@ TString::~TString( ) {
 }
 
 /*!
- * \brief Deletes the allocated char buffer
+ * \brief Deletes the allocated TCHAR buffer
  */
 void TString::deleteString( ) {
 
@@ -176,7 +218,7 @@ void TString::deleteString( ) {
 		delete [] this->m_pString; 
 		this->m_pString = NULL;
 	}
-	this->deleteWString();
+	this->deleteWString();	
 }
 void TString::deleteWString( ) {
 
@@ -192,21 +234,48 @@ TString& TString::operator =( const TString & tString ) {
 	this->deleteString( );
 
 	if ( tString.m_pString != NULL ) {
-		this->m_pString = new char [ lstrlen( tString.m_pString ) + 1 ];
+		this->m_pString = new TCHAR [ lstrlen( tString.m_pString ) + 1 ];
 		lstrcpy( this->m_pString, tString.m_pString );
 	}
 	return *this;
 }
 
 /****************************/
-/*! \fn void TString::operator=( const char * string )
-    \brief Symbol Overload - TString assignement from C char string
+/*! \fn void TString::operator=( const TCHAR * string )
+    \brief Symbol Overload - TString assignement from C TCHAR string
 
     \param cString Character string to assign string to
 */
 /****************************/
-TString& TString::operator =( const char * cString ) {
+TString& TString::operator =( const WCHAR * cString ) {
+#ifdef UNICODE
+	this->deleteString( );
 
+	if ( cString != NULL ) {
+		this->m_pString = new TCHAR [ lstrlen( cString ) + 1 ];
+		lstrcpy( this->m_pString, cString );
+	}
+	return *this;
+#else
+	this->deleteString( );
+
+	if ( cString != NULL ) {
+		this->m_pWString = new WCHAR [ lstrlenW( cString ) + 1 ];
+		lstrcpyW( this->m_pWString, cString );
+	}
+	return *this;
+#endif
+}
+/****************************/
+TString& TString::operator =( const char * cString ) {
+#ifdef UNICODE
+	this->deleteString( );
+
+	if ( cString != NULL )
+		this->m_pString = charToWchar(cString);
+
+	return *this;
+#else
 	this->deleteString( );
 
 	if ( cString != NULL ) {
@@ -214,47 +283,53 @@ TString& TString::operator =( const char * cString ) {
 		lstrcpy( this->m_pString, cString );
 	}
 	return *this;
+#endif
 }
 
 /****************************/
-/*! \fn void TString::operator=( const char chr )
-    \brief Symbol Overload - TString assignement from C char
+/*! \fn void TString::operator=( const TCHAR chr )
+    \brief Symbol Overload - TString assignement from C TCHAR
 
     \param chr Character to assign string to
 */
 /****************************/
-TString& TString::operator =( const char chr ) {
-
+TString& TString::operator =( const WCHAR chr ) {
+#ifdef UNICODE
 	this->deleteString( );
-	this->m_pString = new char[2];
+	this->m_pString = new TCHAR[2];
 	this->m_pString[0] = chr;
 	this->m_pString[1] = 0;
 	return *this;
-}
-
-TString& TString::operator =( const WCHAR &chr ) {
-
+#else
 	this->deleteString( );
 	this->m_pWString = new WCHAR[2];
 	this->m_pWString[0] = chr;
 	this->m_pWString[1] = 0;
 	return *this;
-}
-TString& TString::operator =( const WCHAR * cString ) {
-
-	this->deleteString( );
-
-	if ( cString != NULL ) {
-		size_t size = lstrlenW( cString );
-		this->m_pWString = new WCHAR [ size + 1 ];
-		lstrcpyW( this->m_pWString, cString );
-	}
-	return *this;
+#endif
 }
 
 /****************************/
-/*! \fn TString TString::operator +( const char * string )
-    \brief Symbol Overload - TString and char string concatenation
+TString& TString::operator =( const char chr ) {
+#ifdef UNICODE
+	this->deleteString( );
+	char str[2];
+	str[0] = chr;
+	str[1] = 0;
+	this->m_pString = charToWchar(str);
+	return *this;
+#else
+	this->deleteString( );
+	this->m_pString = new char[2];
+	this->m_pString[0] = chr;
+	this->m_pString[1] = 0;
+	return *this;
+#endif
+}
+
+/****************************/
+/*! \fn TString TString::operator +( const TCHAR * string )
+    \brief Symbol Overload - TString and TCHAR string concatenation
 
     \param cString Character string to concatenate
 
@@ -262,7 +337,7 @@ TString& TString::operator =( const WCHAR * cString ) {
 */
 /****************************/
 
-TString TString::operator +( const char * cString ) {
+TString TString::operator +( const TCHAR * cString ) {
 
 	if ( cString != NULL ) {
 		TString newTString((UINT)(lstrlen( this->m_pString )+lstrlen( cString )));
@@ -275,8 +350,8 @@ TString TString::operator +( const char * cString ) {
 }
 
 /****************************/
-/*! \fn TString TString::operator +( const char chr )
-    \brief Symbol Overload - TString and char concatenation
+/*! \fn TString TString::operator +( const TCHAR chr )
+    \brief Symbol Overload - TString and TCHAR concatenation
 
     \param chr Character to concatenate
 
@@ -284,7 +359,7 @@ TString TString::operator +( const char * cString ) {
 */
 /****************************/
 
-TString TString::operator +( const char chr ) {
+TString TString::operator +( const TCHAR chr ) {
 
 	size_t size = lstrlen( this->m_pString );
 	TString newTString((UINT)(size+2));
@@ -319,8 +394,8 @@ TString TString::operator +( const TString & tString ) {
 }
 
 /****************************/
-/*! \fn TString TString::operator -( const char * string )
-    \brief Symbol Overload - remove char string from TString
+/*! \fn TString TString::operator -( const TCHAR * string )
+    \brief Symbol Overload - remove TCHAR string from TString
 
     \param cString Character string to remove
 
@@ -328,7 +403,7 @@ TString TString::operator +( const TString & tString ) {
 */
 /****************************/
 
-TString TString::operator -( const char * cString ) {
+TString TString::operator -( const TCHAR * cString ) {
 
 	if ( cString != NULL ) {
 		TString newTString(*this);
@@ -338,12 +413,12 @@ TString TString::operator -( const char * cString ) {
 	return *this;
 }
 
-TString TString::operator -( const char chr) {
+TString TString::operator -( const TCHAR chr) {
 
 	if ( chr == 0 ) return *this;
 
 	TString newTString(*this);
-	char str[2];
+	TCHAR str[2];
 	str[0] = chr;
 	str[1] = 0;
 	newTString.i_remove(str);
@@ -361,17 +436,17 @@ TString TString::operator -( const TString & tString ) {
 }
 
 /****************************/
-/*! \fn void TString::operator +=( const char * string )
-    \brief Symbol Overload - TString and char string concatenation
+/*! \fn void TString::operator +=( const TCHAR * string )
+    \brief Symbol Overload - TString and TCHAR string concatenation
 
     \param cString Character string to concatenate
 */
 /****************************/
 
-TString & TString::operator +=( const char * cString ) {
+TString & TString::operator +=( const TCHAR * cString ) {
 
 	if ( cString != NULL ) {
-		char * temp = new char [ lstrlen( this->m_pString ) + lstrlen( cString ) + 1 ];
+		TCHAR * temp = new TCHAR [ lstrlen( this->m_pString ) + lstrlen( cString ) + 1 ];
 		lstrcpy( temp, this->m_pString );
 		lstrcat( temp, cString );
 		this->deleteString();
@@ -381,18 +456,18 @@ TString & TString::operator +=( const char * cString ) {
 }
 
 /****************************/
-/*! \fn void TString::operator +=( const char chr )
-    \brief Symbol Overload - TString and char concatenation
+/*! \fn void TString::operator +=( const TCHAR chr )
+    \brief Symbol Overload - TString and TCHAR concatenation
 
     \param chr Character to concatenate
 */
 /****************************/
 
-TString & TString::operator +=( const char chr ) {
+TString & TString::operator +=( const TCHAR chr ) {
 
 	if ( this->m_pString != NULL ) {
 		int len = lstrlen( this->m_pString );
-		char * temp = new char [ len + 2 ];
+		TCHAR * temp = new TCHAR [ len + 2 ];
 		lstrcpy( temp, this->m_pString );
 		temp[len] = chr;
 		temp[len+1] = 0;
@@ -400,7 +475,7 @@ TString & TString::operator +=( const char chr ) {
 		this->m_pString = temp;
 	}
 	else {
-		this->m_pString = new char[2];
+		this->m_pString = new TCHAR[2];
 		this->m_pString[0] = chr;
 		this->m_pString[1] = 0;
 	}
@@ -418,7 +493,7 @@ TString & TString::operator +=( const char chr ) {
 TString & TString::operator +=( const TString & tString ) {
 
 	if ( tString.m_pString ) {
-		char * temp = new char [ lstrlen( this->m_pString ) + lstrlen( tString.m_pString ) + 1 ];
+		TCHAR * temp = new TCHAR [ lstrlen( this->m_pString ) + lstrlen( tString.m_pString ) + 1 ];
 		lstrcpy( temp, this->m_pString );
 		lstrcat( temp, tString.m_pString );
 		this->deleteString();
@@ -427,34 +502,15 @@ TString & TString::operator +=( const TString & tString ) {
 	return *this;
 }
 
-TString & TString::operator +=( const WCHAR &chr ) {
-
-	if ( this->m_pWString != NULL ) {
-		int len = lstrlenW( this->m_pWString );
-		WCHAR * temp = new WCHAR [ len + 2 ];
-		lstrcpyW( temp, this->m_pWString );
-		temp[len] = chr;
-		temp[len+1] = 0;
-		this->deleteString();
-		this->m_pWString = temp;
-	}
-	else {
-		this->m_pWString = new WCHAR[2];
-		this->m_pWString[0] = chr;
-		this->m_pWString[1] = 0;
-	}
-	return *this;
-}
-
 /****************************/
-/*! \fn void TString::operator -=( const char * string )
-\brief Symbol Overload - remove char string from TString
+/*! \fn void TString::operator -=( const TCHAR * string )
+\brief Symbol Overload - remove TCHAR string from TString
 
 \param cString Character string to remove
 */
 /****************************/
 
-TString & TString::operator -=( const char * cString ) {
+TString & TString::operator -=( const TCHAR * cString ) {
 
 	if ( cString != NULL )
 		this->i_remove(cString);
@@ -462,10 +518,10 @@ TString & TString::operator -=( const char * cString ) {
 	return *this;
 }
 
-TString & TString::operator -=( const char chr ) {
+TString & TString::operator -=( const TCHAR chr ) {
 
 	if ( chr != 0 ) {
-		char str[2];
+		TCHAR str[2];
 		str[0] = chr;
 		str[1] = 0;
 		this->i_remove(str);
@@ -500,8 +556,8 @@ bool TString::operator ==( const int iNull ) const {
 }
 
 /****************************/
-/*! \fn void TString::operator ==( const char * string )
-    \brief Symbol Overload - TString and char string comparison
+/*! \fn void TString::operator ==( const TCHAR * string )
+    \brief Symbol Overload - TString and TCHAR string comparison
 
     \param cString Character string to compare
 
@@ -512,7 +568,7 @@ bool TString::operator ==( const int iNull ) const {
 */
 /****************************/
 
-bool TString::operator ==( const char * cString ) const {
+bool TString::operator ==( const TCHAR * cString ) const {
 
 	if ( cString && this->m_pString ) {
 		if ( lstrcmp( this->m_pString, cString ) == 0)
@@ -522,8 +578,8 @@ bool TString::operator ==( const char * cString ) const {
 }
 
 /****************************/
-/*! \fn void TString::operator ==( const char chr )
-    \brief Symbol Overload - TString and char comparison
+/*! \fn void TString::operator ==( const TCHAR chr )
+    \brief Symbol Overload - TString and TCHAR comparison
 
     \param chr Character to compare
 
@@ -534,11 +590,11 @@ bool TString::operator ==( const char * cString ) const {
 */
 /****************************/
 
-bool TString::operator ==( const char chr ) const {
+bool TString::operator ==( const TCHAR chr ) const {
 
 	if ( this->m_pString ) {
 
-		char temp[2];
+		TCHAR temp[2];
 		temp[0] = chr;
 		temp[1] = 0;
 
@@ -588,8 +644,8 @@ bool TString::operator !=( const int iNull ) const {
 }
 
 /****************************/
-/*! \fn void TString::operator !=( const char * cString )
-    \brief Symbol Overload - TString and char string comparison
+/*! \fn void TString::operator !=( const TCHAR * cString )
+    \brief Symbol Overload - TString and TCHAR string comparison
 
     \param cString Character string to compare
 
@@ -600,7 +656,7 @@ bool TString::operator !=( const int iNull ) const {
 */
 /****************************/
 
-bool TString::operator !=( const char * cString ) const {
+bool TString::operator !=( const TCHAR * cString ) const {
 
 	if ( cString && this->m_pString ) {
 
@@ -611,8 +667,8 @@ bool TString::operator !=( const char * cString ) const {
 }
 
 /****************************/
-/*! \fn void TString::operator !=( const char chr )
-    \brief Symbol Overload - TString and char comparison
+/*! \fn void TString::operator !=( const TCHAR chr )
+    \brief Symbol Overload - TString and TCHAR comparison
 
     \param chr Character to compare
 
@@ -623,11 +679,11 @@ bool TString::operator !=( const char * cString ) const {
 */
 /****************************/
 
-bool TString::operator !=( const char chr ) const {
+bool TString::operator !=( const TCHAR chr ) const {
 
 	if ( this->m_pString != NULL ) {
 
-		char temp[2];
+		TCHAR temp[2];
 		temp[0] = chr;
 		temp[1] = 0;
 
@@ -661,8 +717,8 @@ bool TString::operator !=( const TString & tString ) const {
 }
 
 /****************************/
-/*! \fn void TString::operator >( const char * cString )
-    \brief Symbol Overload - TString and char string comparison
+/*! \fn void TString::operator >( const TCHAR * cString )
+    \brief Symbol Overload - TString and TCHAR string comparison
 
     \param cString Character string to compare
 
@@ -673,7 +729,7 @@ bool TString::operator !=( const TString & tString ) const {
 */
 /****************************/
 
-bool TString::operator >( const char * cString ) const {
+bool TString::operator >( const TCHAR * cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL ) {
 		if ( lstrcmp( this->m_pString, cString ) > 0 )
@@ -683,8 +739,8 @@ bool TString::operator >( const char * cString ) const {
 }
 
 /****************************/
-/*! \fn void TString::operator >( const char chr )
-    \brief Symbol Overload - TString and char comparison
+/*! \fn void TString::operator >( const TCHAR chr )
+    \brief Symbol Overload - TString and TCHAR comparison
 
     \param chr Character to compare
 
@@ -695,11 +751,11 @@ bool TString::operator >( const char * cString ) const {
 */
 /****************************/
 
-bool TString::operator >( const char chr ) const {
+bool TString::operator >( const TCHAR chr ) const {
 
 	if ( this->m_pString != NULL ) {
 
-		char temp[2];
+		TCHAR temp[2];
 		temp[0] = chr;
 		temp[1] = 0;
 
@@ -733,8 +789,8 @@ bool TString::operator >( const TString & tString ) const {
 }
 
 /****************************/
-/*! \fn void TString::operator >=( const char * cString )
-    \brief Symbol Overload - TString and char string comparison
+/*! \fn void TString::operator >=( const TCHAR * cString )
+    \brief Symbol Overload - TString and TCHAR string comparison
 
     \param cString Character string to compare
 
@@ -745,7 +801,7 @@ bool TString::operator >( const TString & tString ) const {
 */
 /****************************/
 
-bool TString::operator >=( const char * cString ) const {
+bool TString::operator >=( const TCHAR * cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL ) {
 
@@ -756,8 +812,8 @@ bool TString::operator >=( const char * cString ) const {
 }
 
 /****************************/
-/*! \fn void TString::operator >=( const char chr )
-    \brief Symbol Overload - TString and char comparison
+/*! \fn void TString::operator >=( const TCHAR chr )
+    \brief Symbol Overload - TString and TCHAR comparison
 
     \param chr Character to compare
 
@@ -768,11 +824,11 @@ bool TString::operator >=( const char * cString ) const {
 */
 /****************************/
 
-bool TString::operator >=( const char chr ) const {
+bool TString::operator >=( const TCHAR chr ) const {
 
 	if ( this->m_pString != NULL ) {
 
-		char temp[2];
+		TCHAR temp[2];
 		temp[0] = chr;
 		temp[1] = 0;
 
@@ -806,8 +862,8 @@ bool TString::operator >=( const TString & tString ) const {
 }
 
 /****************************/
-/*! \fn void TString::operator <( const char * cString )
-    \brief Symbol Overload - TString and char string comparison
+/*! \fn void TString::operator <( const TCHAR * cString )
+    \brief Symbol Overload - TString and TCHAR string comparison
 
     \param cString Character string to compare
 
@@ -818,7 +874,7 @@ bool TString::operator >=( const TString & tString ) const {
 */
 /****************************/
 
-bool TString::operator <( const char * cString ) const {
+bool TString::operator <( const TCHAR * cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL ) {
 
@@ -829,8 +885,8 @@ bool TString::operator <( const char * cString ) const {
 }
 
 /****************************/
-/*! \fn void TString::operator <( const char chr )
-    \brief Symbol Overload - TString and char comparison
+/*! \fn void TString::operator <( const TCHAR chr )
+    \brief Symbol Overload - TString and TCHAR comparison
 
     \param chr Character to compare
 
@@ -841,11 +897,11 @@ bool TString::operator <( const char * cString ) const {
 */
 /****************************/
 
-bool TString::operator <( const char chr ) const {
+bool TString::operator <( const TCHAR chr ) const {
 
 	if ( this->m_pString != NULL ) {
 
-		char temp[2];
+		TCHAR temp[2];
 		temp[0] = chr;
 		temp[1] = 0;
 
@@ -879,8 +935,8 @@ bool TString::operator <( const TString & tString ) const {
 }
 
 /****************************/
-/*! \fn void TString::operator <=( const char * cString )
-    \brief Symbol Overload - TString and char string comparison
+/*! \fn void TString::operator <=( const TCHAR * cString )
+    \brief Symbol Overload - TString and TCHAR string comparison
 
     \param cString Character string to compare
 
@@ -891,7 +947,7 @@ bool TString::operator <( const TString & tString ) const {
 */
 /****************************/
 
-bool TString::operator <=( const char * cString ) const {
+bool TString::operator <=( const TCHAR * cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL ) {
 
@@ -902,8 +958,8 @@ bool TString::operator <=( const char * cString ) const {
 }
 
 /****************************/
-/*! \fn void TString::operator <=( const char chr )
-    \brief Symbol Overload - TString and char comparison
+/*! \fn void TString::operator <=( const TCHAR chr )
+    \brief Symbol Overload - TString and TCHAR comparison
 
     \param chr Character to compare
 
@@ -914,11 +970,11 @@ bool TString::operator <=( const char * cString ) const {
 */
 /****************************/
 
-bool TString::operator <=( const char chr ) const {
+bool TString::operator <=( const TCHAR chr ) const {
 
 	if ( this->m_pString != NULL ) {
 
-		char temp[2];
+		TCHAR temp[2];
 		temp[0] = chr;
 		temp[1] = 0;
 
@@ -969,7 +1025,7 @@ TString TString::operator *( const int &N ) {
 		return *this;
 
 	if ( N == 0 )
-		return "";
+		return TEXT("");
 
 	TString tmp((UINT)(lstrlen( this->m_pString ) *N));
 
@@ -1000,34 +1056,33 @@ TString & TString::operator *=( const int &N ) {
 	if (( N == 1 ) || (this->m_pString == NULL))
 		return *this;
 
-	char *temp = this->m_pString;
-	this->m_pString = new char [(lstrlen( temp )*N)+1];
+	TCHAR *temp = this->m_pString;
+	this->m_pString = new TCHAR [(lstrlen( temp )*N)+1];
 	this->m_pString[0] = 0;
 
 	for (int i = 0; i < N; i++)
 		lstrcat( this->m_pString, temp );
 
-	this->deleteWString();
 	delete [] temp;
 	return *this;
 }
 
 /****************************/
-/*! \fn char & TString::operator []( long int N )
+/*! \fn TCHAR & TString::operator []( long int N )
     \brief Symbol Overload - Array Subscript
 
     \param N Character index
 
-    \return Returns the Nth char of string
+    \return Returns the Nth TCHAR of string
 
     \note > Index starts at \b 0 \n
           > Index can be negative, \b -1 being last character
 */
 /****************************/
 
-char & TString::operator []( long int N ) const {
+TCHAR & TString::operator []( long int N ) const {
 
-	static char chr = '\0';
+	static TCHAR chr = TEXT('\0');
 
 	if ( this->m_pString ) {
 		long int size = (long int) lstrlen( this->m_pString );
@@ -1055,19 +1110,8 @@ size_t TString::len( ) const {
 	return 0;
 }
 
-size_t TString::wlen( ) const {
-
-	if ( this->m_pWString == NULL ) // force conversion.
-		const_cast<TString *>(this)->to_wchr();
-
-	if ( this->m_pWString )
-		return lstrlenW( this->m_pWString );
-
-	return 0;
-}
-
 /****************************/
-/*! \fn int TString::find( const char * substring, int N )
+/*! \fn int TString::find( const TCHAR * substring, int N )
     \brief Function to find position or number of occurences of a substring in the string
 
     \param substring Substring to search
@@ -1079,15 +1123,19 @@ size_t TString::wlen( ) const {
 */
 /****************************/
 
-int TString::find( const char * substring, const int N ) const {
+int TString::find( const TCHAR * substring, const int N ) const {
 
 	if ( substring && this->m_pString ) {
 
-		char * temp, * temp2 = this->m_pString;
+		TCHAR * temp, * temp2 = this->m_pString;
 
 		int i = 0;
 		int subl = lstrlen( substring ); // Ook
+#if UNICODE
+		while ( ( temp = wcsstr( temp2, substring ) ) != NULL ) {
+#else
 		while ( ( temp = strstr( temp2, substring ) ) != NULL ) {
+#endif
 			i++;
 			//if ( N != 0 && i == N )
 			if ( i == N ) // i is never zero
@@ -1101,11 +1149,11 @@ int TString::find( const char * substring, const int N ) const {
 }
 
 /****************************/
-/*! \fn int TString::find( const char chr, int N )
-    \brief Function to find position or number of occurrences of a char in the string
+/*! \fn int TString::find( const TCHAR chr, int N )
+    \brief Function to find position or number of occurrences of a TCHAR in the string
 */
 /****************************/
-int TString::find(const char chr, const int N) const {
+int TString::find(const TCHAR chr, const int N) const {
 	int c = 0;
 	size_t len = this->len();
 
@@ -1129,7 +1177,7 @@ int TString::find(const char chr, const int N) const {
 
 
 /****************************/
-/*! \fn TString TString::findtok(char * cToken, int N, char * sepChars)
+/*! \fn TString TString::findtok(TCHAR * cToken, int N, TCHAR * sepChars)
     \brief Returns the index of a specific token
 
 	 \param cToken the token to find
@@ -1141,7 +1189,7 @@ int TString::find(const char chr, const int N) const {
     \note > Index starts at \b 1 \n
 */
 /****************************/
-int TString::findtok(const char * cToken, const int N, const char * sepChars) const {
+int TString::findtok(const TCHAR * cToken, const int N, const TCHAR * sepChars) const {
 	int count = 0;
 
 	for (int i = 1; i <= this->numtok(sepChars); i++) {
@@ -1188,43 +1236,14 @@ TString TString::sub( int N, int M ) const {
 			M = size - N;
 
 		delete [] newTString.m_pString; // change by Ook
-		newTString.m_pString = new char[M+1];
+		newTString.m_pString = new TCHAR[M+1];
 		newTString.m_pString[0] = 0;
 
-		char * temp = this->m_pString;
+		TCHAR * temp = this->m_pString;
 		temp += N;
 
 		lstrcpyn( newTString.m_pString, temp, M + 1 );
 		newTString.m_pString[M] = 0;
-	}
-	return newTString;
-}
-
-TString TString::wsub( int N, int M ) const {
-
-	TString newTString;
-
-	if ( this->m_pWString ) {
-
-		int size = (int) lstrlenW( this->m_pWString );
-
-		if ( N < 0 ) N += size;
-
-		if ( N > size - 1 || N < 0 )
-			return newTString;
-
-		if ( N + M > size )
-			M = size - N;
-
-		delete [] newTString.m_pWString; // change by Ook
-		newTString.m_pWString = new WCHAR[M+1];
-		newTString.m_pWString[0] = 0;
-
-		WCHAR * temp = this->m_pWString;
-		temp += N;
-
-		lstrcpynW( newTString.m_pWString, temp, M + 1 );
-		newTString.m_pWString[M] = 0;
 	}
 	return newTString;
 }
@@ -1234,27 +1253,36 @@ internal remove function, called by the other remove()/-/-= functions.
 Ook
 */
 
-int TString::i_remove(const char *subString)
+int TString::i_remove(const TCHAR *subString)
 {
 	// no str to remove or no str to remove from
 	if ((subString == NULL) || (this->m_pString == NULL)) return 0;
-	char *sub, *p = this->m_pString;
+	TCHAR *sub, *p = this->m_pString;
 	int cnt = 0, subl = lstrlen(subString), ol = lstrlen(p);
 	// if length of sub string or old string is 0 return 0
 	// may change this.
 	if ((subl == 0) || (ol == 0)) return 0;
 	// see if we have any matches & how many.
+#if UNICODE
+	while ((sub = wcsstr(p,subString)) != NULL) {
+#else
 	while ((sub = strstr(p,subString)) != NULL) {
+#endif
 		cnt++;
 		p = sub + subl;
 	}
 	// make final string if we have any matches.
 	if (cnt > 0) {
 		p = this->m_pString;
-		char *out = new char [ (ol - (cnt * subl)) +1 ]; // allocate new string.
+		TCHAR *out = new TCHAR [ (ol - (cnt * subl)) +1 ]; // allocate new string.
 		out[0] = 0;
+#if UNICODE
+		while ((sub = wcsstr(p,subString)) != NULL) {
+			wcsncat(out,p,(sub - p)); // copy bit before substring. if any.
+#else
 		while ((sub = strstr(p,subString)) != NULL) {
 			::strncat(out,p,(sub - p)); // copy bit before substring. if any.
+#endif
 			p = sub + subl; // update pointer to skip substring.
 		}
 		lstrcat(out,p); // append the end text, if any.
@@ -1268,26 +1296,35 @@ int TString::i_remove(const char *subString)
 	internal replace function, called by the other replace() functions.
 	Ook
 */
-int TString::i_replace(const char *subString, const char *rString)
+int TString::i_replace(const TCHAR *subString, const TCHAR *rString)
 {
 	if ((subString == NULL) || (rString == NULL) || (this->m_pString == NULL)) return 0;
-	char *sub, *p = this->m_pString;
+	TCHAR *sub, *p = this->m_pString;
 	int cnt = 0, subl = lstrlen(subString), repl = lstrlen(rString), ol = lstrlen(p);
 	// if length of sub string or old string is 0 return 0
 	// may change this.
 	if ((subl == 0) || (ol == 0)) return 0;
 	// see if we have any matches & how many.
+#if UNICODE
+	while ((sub = wcsstr(p,subString)) != NULL) {
+#else
 	while ((sub = strstr(p,subString)) != NULL) {
+#endif
 		cnt++;
 		p = sub + subl;
 	}
 	// make final string if we have any matches.
 	if (cnt > 0) {
 		p = this->m_pString;
-		char *out = new char [ (cnt * repl) + (ol - (cnt * subl)) +1 ]; // allocate new string.
+		TCHAR *out = new TCHAR [ (cnt * repl) + (ol - (cnt * subl)) +1 ]; // allocate new string.
 		out[0] = 0;
+#if UNICODE
+		while ((sub = wcsstr(p,subString)) != NULL) {
+			wcsncat(out,p,(sub - p)); // copy bit before substring. if any.
+#else
 		while ((sub = strstr(p,subString)) != NULL) {
 			::strncat(out,p,(sub - p)); // copy bit before substring. if any.
+#endif
 			lstrcat(out,rString); // append new replacement string.
 			p = sub + subl; // update pointer to skip substring.
 		}
@@ -1299,53 +1336,53 @@ int TString::i_replace(const char *subString, const char *rString)
 }
 
 /****************************/
-/*! \fn int TString::replace( const char * substring, const char * replace )
+/*! \fn int TString::replace( const TCHAR * substring, const TCHAR * replace )
     \brief blah!
 */
 /****************************/
 
-int TString::replace( const char * subString, const char * rString ) {
+int TString::replace( const TCHAR * subString, const TCHAR * rString ) {
 	return this->i_replace(subString,rString);
 }
 
 /****************************/
-/*! \fn int TString::replace( const char * substring, const char rchr )
+/*! \fn int TString::replace( const TCHAR * substring, const TCHAR rchr )
     \brief blah!
 */
 /****************************/
 
-int TString::replace( const char * subString, const char rchr ) {
+int TString::replace( const TCHAR * subString, const TCHAR rchr ) {
 
-	char tmp[2];
+	TCHAR tmp[2];
 	tmp[0] = rchr;
 	tmp[1] = 0;
 	return this->i_replace(subString,tmp);
 }
 
 /****************************/
-/*! \fn int TString::replace( const char chr, const char * replace )
+/*! \fn int TString::replace( const TCHAR chr, const TCHAR * replace )
     \brief blah!
 */
 /****************************/
 
-int TString::replace( const char chr, const char * rString ) {
+int TString::replace( const TCHAR chr, const TCHAR * rString ) {
 
-	char tmp[2];
+	TCHAR tmp[2];
 	tmp[0] = chr;
 	tmp[1] = 0;
 	return this->i_replace(tmp,rString);
 }
 
 /****************************/
-/*! \fn int TString::replace( const char chr, const char rchr )
+/*! \fn int TString::replace( const TCHAR chr, const TCHAR rchr )
     \brief blah!
 */
 /****************************/
 
-int TString::replace( const char chr, const char rchr ) {
+int TString::replace( const TCHAR chr, const TCHAR rchr ) {
 
 	int cnt = 0;
-	char *p = this->m_pString;
+	TCHAR *p = this->m_pString;
 	if (p == NULL) return 0;
 	while (*p) {
 		if (*p == chr) {
@@ -1363,7 +1400,7 @@ int TString::replace( const char chr, const char rchr ) {
  * blah
  */
 
-TString TString::gettok( int N, const char * sepChars ) const {
+TString TString::gettok( int N, const TCHAR * sepChars ) const {
 
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return *this;
@@ -1371,30 +1408,33 @@ TString TString::gettok( int N, const char * sepChars ) const {
 	int nToks = this->numtok( sepChars );
 
 	if ( N > nToks )
-		return "";
+		return TEXT("");
 
 	if ( N < 0 ) {
 
 		N += ( nToks + 1 );
 		if ( N < 1 )
-			return "";
+			return TEXT("");
 	}
 
 	TString token(*this);
 
-	char * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
+	TCHAR * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
 	long iCount = 0;
 	int sepl = lstrlen( sepChars ); // Ook
 
+#if UNICODE
+	while ( ( p_cEnd = wcsstr( p_cStart, sepChars ) ) != NULL ) {
+#else
 	while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
-
+#endif
 		iCount++;
 
 		if ( iCount == N ) {
 
 			int len = p_cEnd - p_cStart;
 			delete [] token.m_pString; // change by Ook
-			token.m_pString = new char [len + 1];
+			token.m_pString = new TCHAR [len + 1];
 			token.m_pString[len] = 0;
 			lstrcpyn( token.m_pString, p_cStart, len + 1 );
 
@@ -1409,12 +1449,12 @@ TString TString::gettok( int N, const char * sepChars ) const {
 		int len = p_cEnd - p_cStart;
 
 		delete [] token.m_pString; // change by Ook
-		token.m_pString = new char [len + 1];
+		token.m_pString = new TCHAR [len + 1];
 		token.m_pString[len] = 0;
 		lstrcpyn( token.m_pString, p_cStart, len + 1 );    
 	}
 	else if ( p_cEnd == NULL )
-		return "";
+		return TEXT("");
 
 	return token;
 }
@@ -1425,7 +1465,7 @@ TString TString::gettok( int N, const char * sepChars ) const {
  * blah
  */
 
-TString TString::gettok( int N, int M, const char * sepChars ) const {
+TString TString::gettok( int N, int M, const TCHAR * sepChars ) const {
 
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return *this;
@@ -1436,28 +1476,31 @@ TString TString::gettok( int N, int M, const char * sepChars ) const {
 		return this->gettok( N, sepChars );
 
 	if ( M <= N && M != -1 )
-		return "";
+		return TEXT("");
 
 	if ( M > nToks - 1 )
 		M = -1;
 
 	if ( N > nToks )
-		return "";
+		return TEXT("");
 
 	if ( N < 0 ) {
 
 		N += ( nToks + 1 );
 		if ( N < 1 )
-			return "";
+			return TEXT("");
 	}
 
-	char * p_cStart = this->m_pString, * p_cEnd;
-	char * p_cFirst = NULL, * p_cLast = NULL;
+	TCHAR * p_cStart = this->m_pString, * p_cEnd;
+	TCHAR * p_cFirst = NULL, * p_cLast = NULL;
 	long iCount = 0;
 	int sepl = lstrlen( sepChars ); // Ook
 
+#if UNICODE
+	while ( ( p_cEnd = wcsstr( p_cStart, sepChars ) ) != NULL ) {
+#else
 	while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
-
+#endif
 		iCount++;
 
 		if ( iCount == N ) {
@@ -1497,7 +1540,7 @@ TString TString::gettok( int N, int M, const char * sepChars ) const {
  * blah
  */
 
-int TString::numtok( const char * sepChars ) const {
+int TString::numtok( const TCHAR * sepChars ) const {
 
 	if ( sepChars == NULL || this->m_pString == NULL)
 		return 0;
@@ -1505,12 +1548,15 @@ int TString::numtok( const char * sepChars ) const {
 	if (lstrlen(this->m_pString) == 0)
 		return 0;
 
-	char * p_cStart = this->m_pString, * p_cEnd;
+	TCHAR * p_cStart = this->m_pString, * p_cEnd;
 	int iCount = 0;
 	int sepl = lstrlen( sepChars ); // Ook
 
+#if UNICODE
+	while ( ( p_cEnd = wcsstr( p_cStart, sepChars ) ) != NULL ) {
+#else
 	while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
-
+#endif
 		iCount++;
 		p_cStart = p_cEnd + sepl; // Ook
 	}
@@ -1523,7 +1569,7 @@ int TString::numtok( const char * sepChars ) const {
  * blah
  */
 
-void TString::deltok( const int N, const char * sepChars ) {
+void TString::deltok( const int N, const TCHAR * sepChars ) {
 
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return;
@@ -1537,12 +1583,15 @@ void TString::deltok( const int N, const char * sepChars ) {
 		return;
 	}
 
-	char * p_cStart = this->m_pString, * p_cEnd;
+	TCHAR * p_cStart = this->m_pString, * p_cEnd;
 	long int i = 0;
 	int sepl = lstrlen( sepChars ); // Ook
 
+#if UNICODE
+	while ( ( p_cEnd = wcsstr( p_cStart, sepChars ) ) != NULL ) {
+#else
 	while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
-
+#endif
 		i++;
 
 		if ( i == N )
@@ -1556,7 +1605,7 @@ void TString::deltok( const int N, const char * sepChars ) {
 
 		p_cEnd++;
 
-		char * pNew = new char[ lstrlen( p_cEnd ) + 1 ];
+		TCHAR * pNew = new TCHAR[ lstrlen( p_cEnd ) + 1 ];
 		lstrcpy( pNew, p_cEnd );
 		this->deleteString();
 		this->m_pString = pNew;
@@ -1567,7 +1616,7 @@ void TString::deltok( const int N, const char * sepChars ) {
 		p_cStart--;
 		*p_cStart = 0;
 
-		char * pNew = new char[ lstrlen( this->m_pString ) + 1 ];
+		TCHAR * pNew = new TCHAR[ lstrlen( this->m_pString ) + 1 ];
 		lstrcpy( pNew, this->m_pString );
 		this->deleteString();
 		this->m_pString = pNew;
@@ -1578,7 +1627,7 @@ void TString::deltok( const int N, const char * sepChars ) {
 		*p_cStart = 0;
 		p_cEnd++;
 
-		char * pNew = new char[ lstrlen( this->m_pString ) + lstrlen( p_cEnd ) + 1 ];
+		TCHAR * pNew = new TCHAR[ lstrlen( this->m_pString ) + lstrlen( p_cEnd ) + 1 ];
 		lstrcpy( pNew, this->m_pString );
 		lstrcat( pNew, p_cEnd );
 
@@ -1592,7 +1641,7 @@ void TString::deltok( const int N, const char * sepChars ) {
  * blah
  */
 
-void TString::instok( const char * cToken, const int N, const char * sepChars ) {
+void TString::instok( const TCHAR * cToken, const int N, const TCHAR * sepChars ) {
 
 	if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
 		return;
@@ -1600,12 +1649,15 @@ void TString::instok( const char * cToken, const int N, const char * sepChars ) 
 	if ( N < 1 )
 		return;
 
-	char * p_cStart = this->m_pString, * p_cEnd;
+	TCHAR * p_cStart = this->m_pString, * p_cEnd;
 	long int i = 1;
 	int sepl = lstrlen( sepChars ); // Ook
 
+#if UNICODE
+	while ( ( p_cEnd = wcsstr( p_cStart, sepChars ) ) != NULL ) {
+#else
 	while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
-
+#endif
 		if ( i == N )
 			break;
 
@@ -1614,7 +1666,7 @@ void TString::instok( const char * cToken, const int N, const char * sepChars ) 
 		p_cStart = p_cEnd + sepl; // Ook
 	}
 
-	char * pNew = new char[ lstrlen( cToken ) + lstrlen( this->m_pString ) + lstrlen( sepChars ) + 1 ];
+	TCHAR * pNew = new TCHAR[ lstrlen( cToken ) + lstrlen( this->m_pString ) + lstrlen( sepChars ) + 1 ];
 
 	// delete the first token
 	if ( p_cStart == this->m_pString ) {
@@ -1671,38 +1723,47 @@ void TString::instok( const char * cToken, const int N, const char * sepChars ) 
  * added by Ook
  * blah
  */
-void TString::addtok( const char * cToken, const char * sepChars ) {
+void TString::addtok( const TCHAR * cToken, const TCHAR * sepChars ) {
 
 	if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
 		return;
 
-	char * pNew;
+	TCHAR * pNew;
 	int mp_len = lstrlen(this->m_pString);
 	if (mp_len) {
-		pNew = new char[ lstrlen( cToken ) + mp_len + lstrlen( sepChars ) + 1 ];
+		pNew = new TCHAR[ lstrlen( cToken ) + mp_len + lstrlen( sepChars ) + 1 ];
 		lstrcpy( pNew, this->m_pString );
 		lstrcat( pNew, sepChars );
 		lstrcat( pNew, cToken );
 	}
 	else {
-		pNew = new char[ lstrlen( cToken ) + 1 ];
+		pNew = new TCHAR[ lstrlen( cToken ) + 1 ];
 		lstrcpy( pNew, cToken );
 	}
 	this->deleteString();
 	this->m_pString = pNew;
 }
-//void TString::addtok( const TString &cToken, const char * sepChars ) {
+//void TString::addtok( const TString &cToken, const TCHAR * sepChars ) {
 //	this->addtok(cToken.to_chr(), sepChars);
 //}
 
-bool TString::istok(const char * cToken, const char * sepChars ) const {
+bool TString::istok(const TCHAR * cToken, const TCHAR * sepChars ) const {
 
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return false;
 
-	char * p_cStart = this->m_pString, * p_cEnd;
+	TCHAR * p_cStart = this->m_pString, * p_cEnd;
 	int sepl = lstrlen( sepChars );
 
+#if UNICODE
+	while ( ( p_cEnd = wcsstr( p_cStart, sepChars ) ) != NULL ) {
+		int l = (int)(p_cEnd - p_cStart);
+		if (l > 0) {
+			if (wcsncmp(cToken,p_cStart,l) == 0) return true;
+		}
+		p_cStart = p_cEnd + sepl;
+	}
+#else
 	while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
 		int l = (int)(p_cEnd - p_cStart);
 		if (l > 0) {
@@ -1710,6 +1771,7 @@ bool TString::istok(const char * cToken, const char * sepChars ) const {
 		}
 		p_cStart = p_cEnd + sepl;
 	}
+#endif
 	if (lstrcmp(cToken,p_cStart) == 0) return true;
 
 	return false;
@@ -1721,17 +1783,20 @@ bool TString::istok(const char * cToken, const char * sepChars ) const {
  * blah
  */
 
-void TString::puttok( const char * cToken, int N, const char * sepChars ) {
+void TString::puttok( const TCHAR * cToken, int N, const TCHAR * sepChars ) {
 
 	if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
 		return;
 
-	char * p_cStart = this->m_pString, * p_cEnd;
+	TCHAR * p_cStart = this->m_pString, * p_cEnd;
 	long int i = 0;
 	int sepl = lstrlen( sepChars ); // Ook
 
+#if UNICODE
+	while ( ( p_cEnd = wcsstr( p_cStart, sepChars ) ) != NULL ) {
+#else
 	while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
-
+#endif
 		i++;
 
 		if ( i == N )
@@ -1743,7 +1808,7 @@ void TString::puttok( const char * cToken, int N, const char * sepChars ) {
 	// delete the first token
 	if ( p_cStart == this->m_pString ) {
 
-		char * pNew = new char[ lstrlen( cToken ) + lstrlen( p_cEnd ) + 1 ];
+		TCHAR * pNew = new TCHAR[ lstrlen( cToken ) + lstrlen( p_cEnd ) + 1 ];
 
 		lstrcpy( pNew, cToken );
 		lstrcat( pNew, p_cEnd );
@@ -1755,7 +1820,7 @@ void TString::puttok( const char * cToken, int N, const char * sepChars ) {
 
 		*p_cStart = 0;
 
-		char * pNew = new char[ lstrlen( cToken ) + lstrlen( this->m_pString ) + 1 ];
+		TCHAR * pNew = new TCHAR[ lstrlen( cToken ) + lstrlen( this->m_pString ) + 1 ];
 
 		lstrcpy( pNew, this->m_pString );
 		lstrcat( pNew, cToken );
@@ -1767,7 +1832,7 @@ void TString::puttok( const char * cToken, int N, const char * sepChars ) {
 
 		*p_cStart = 0;
 
-		char * pNew = new char[ lstrlen( this->m_pString ) + lstrlen( cToken ) + lstrlen( p_cEnd ) + 1 ];
+		TCHAR * pNew = new TCHAR[ lstrlen( this->m_pString ) + lstrlen( cToken ) + lstrlen( p_cEnd ) + 1 ];
 
 		lstrcpy( pNew, this->m_pString );
 		lstrcat( pNew, cToken );
@@ -1777,7 +1842,7 @@ void TString::puttok( const char * cToken, int N, const char * sepChars ) {
 	}
 }
 
-void TString::remtok(const char * cToken, int N, const char * sepChars) {
+void TString::remtok(const TCHAR * cToken, int N, const TCHAR * sepChars) {
 	int tokennr = findtok(cToken, N, sepChars);
 	if (tokennr > 0) deltok(tokennr);
 }
@@ -1787,8 +1852,8 @@ void TString::remtok(const char * cToken, int N, const char * sepChars) {
  * blah
  */
 TString &TString::trim() {
-	char *start = this->m_pString;
-	char *end = this->m_pString + lstrlen(this->m_pString);
+	TCHAR *start = this->m_pString;
+	TCHAR *end = this->m_pString + lstrlen(this->m_pString);
 
 	// Trim from start
 	while (start != end && *start == 32)
@@ -1799,7 +1864,7 @@ TString &TString::trim() {
 
 	size_t new_len = end - start +1;
 
-	char *temp = new char[new_len +1];
+	TCHAR *temp = new TCHAR[new_len +1];
 	temp[new_len] = 0;
 
 	lstrcpyn(temp, start, new_len +1);
@@ -1820,7 +1885,7 @@ TString TString::mid(const int pos, int n) const
 	else if ((pos + n) > l) n = l - pos;
 	if (n < 1) return tmp;
 	n++;
-	char *p = new char[n];
+	TCHAR *p = new TCHAR[n];
 	lstrcpyn(p,&this->m_pString[pos],n);
 	tmp.deleteString();
 	tmp.m_pString = p;
@@ -1835,7 +1900,7 @@ TString TString::left(int n) const
 	if (n < 0) n = l + n;
 	if (n > l) n = l;
 	n++;
-	char *p = new char[n];
+	TCHAR *p = new TCHAR[n];
 	lstrcpyn(p,this->m_pString,n);
 	tmp.deleteString();
 	tmp.m_pString = p;
@@ -1854,48 +1919,76 @@ TString TString::right(int n) const
 		if (start > l) return tmp;
 		len = (l - start) + 1;
 	}
-	char *p = new char[len];
+	TCHAR *p = new TCHAR[len];
 	lstrcpy(p,&this->m_pString[start]);
 	tmp.deleteString();
 	tmp.m_pString = p;
 	return tmp;
 }
+char *TString::c_str( ) const
+{
+	//int i = this->len();
+	//if (tryutf8)
+	//	WideCharToMultiByte( CP_UTF8, 0, wstr, -1, szReturnValue, i, NULL, NULL );
+	//else
+	//	WideCharToMultiByte( CP_ACP, 0, wstr, -1, szReturnValue, i, NULL, NULL );
+	return NULL;
+}
 // Ook - match() function taken from aircdll.dll by Tabo source.
 /* taken from the hybrid-5.3p7 source */
-unsigned char TString::tolowertab[] = { 0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, ' ', '!', '"', '#', '$', '%', '&', 0x27, '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|',  '}', '~', '_',  '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|',  '}', '~', 0x7f, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 0xbe, 0xbf, 0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf, 0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf, 0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff };
-unsigned char TString::touppertab[] = { 0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, ' ', '!', '"', '#', '$', '%', '&', 0x27, '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', 0x5f, '`', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', 0x7f, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 0xbe, 0xbf, 0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf, 0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf, 0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff };
+#if UNICODE
 inline int TString::rfc_tolower(const int c)
 {
-  return tolowertab[(unsigned char)(c)];
+	TCHAR tmp[2];
+	tmp[0] = (TCHAR)c;
+	tmp[1] = 0;
+	_wcslwr(tmp);
+	return (int)tmp[0];
 }
 inline int TString::rfc_toupper(const int c)
 {
-  return touppertab[(unsigned char)(c)];
+	TCHAR tmp[2];
+	tmp[0] = (TCHAR)c;
+	tmp[1] = 0;
+	_wcsupr(tmp);
+	return (int)tmp[0];
 }
+#else
+unsigned TCHAR TString::tolowertab[] = { 0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, TEXT(' '), TEXT('!'), TEXT('"'), TEXT('#'), TEXT('$'), TEXT('%'), TEXT('&'), 0x27, TEXT('('), TEXT(')'), TEXT('*'), TEXT('+'), TEXT(','), TEXT('-'), TEXT('.'), TEXT('/'), TEXT('0'), TEXT('1'), TEXT('2'), TEXT('3'), TEXT('4'), TEXT('5'), TEXT('6'), TEXT('7'), TEXT('8'), TEXT('9'), TEXT(':'), TEXT(';'), TEXT('<'), TEXT('='), TEXT('>'), TEXT('?'), TEXT('@'), TEXT('a'), TEXT('b'), TEXT('c'), TEXT('d'), TEXT('e'), TEXT('f'), TEXT('g'), TEXT('h'), TEXT('i'), TEXT('j'), TEXT('k'), TEXT('l'), TEXT('m'), TEXT('n'), TEXT('o'), TEXT('p'), TEXT('q'), TEXT('r'), TEXT('s'), TEXT('t'), TEXT('u'), TEXT('v'), TEXT('w'), TEXT('x'), TEXT('y'), TEXT('z'), TEXT('{'), TEXT('|'),  TEXT('}'), TEXT('~'), TEXT('_'),  TEXT('`'), TEXT('a'), TEXT('b'), TEXT('c'), TEXT('d'), TEXT('e'), TEXT('f'), TEXT('g'), TEXT('h'), TEXT('i'), TEXT('j'), TEXT('k'), TEXT('l'), TEXT('m'), TEXT('n'), TEXT('o'), TEXT('p'), TEXT('q'), TEXT('r'), TEXT('s'), TEXT('t'), TEXT('u'), TEXT('v'), TEXT('w'), TEXT('x'), TEXT('y'), TEXT('z'), TEXT('{'), TEXT('|'),  TEXT('}'), TEXT('~'), 0x7f, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 0xbe, 0xbf, 0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf, 0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf, 0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff };
+unsigned TCHAR TString::touppertab[] = { 0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, TEXT(' '), TEXT('!'), TEXT('"'), TEXT('#'), TEXT('$'), TEXT('%'), TEXT('&'), 0x27, TEXT('('), TEXT(')'), TEXT('*'), TEXT('+'), TEXT(','), TEXT('-'), TEXT('.'), TEXT('/'), TEXT('0'), TEXT('1'), TEXT('2'), TEXT('3'), TEXT('4'), TEXT('5'), TEXT('6'), TEXT('7'), TEXT('8'), TEXT('9'), TEXT(':'), TEXT(';'), TEXT('<'), TEXT('='), TEXT('>'), TEXT('?'), TEXT('@'), TEXT('A'), TEXT('B'), TEXT('C'), TEXT('D'), TEXT('E'), TEXT('F'), TEXT('G'), TEXT('H'), TEXT('I'), TEXT('J'), TEXT('K'), TEXT('L'), TEXT('M'), TEXT('N'), TEXT('O'), TEXT('P'), TEXT('Q'), TEXT('R'), TEXT('S'), TEXT('T'), TEXT('U'), TEXT('V'), TEXT('W'), TEXT('X'), TEXT('Y'), TEXT('Z'), TEXT('['), TEXT('\\'), TEXT(']'), TEXT('^'), 0x5f, TEXT('`'), TEXT('A'), TEXT('B'), TEXT('C'), TEXT('D'), TEXT('E'), TEXT('F'), TEXT('G'), TEXT('H'), TEXT('I'), TEXT('J'), TEXT('K'), TEXT('L'), TEXT('M'), TEXT('N'), TEXT('O'), TEXT('P'), TEXT('Q'), TEXT('R'), TEXT('S'), TEXT('T'), TEXT('U'), TEXT('V'), TEXT('W'), TEXT('X'), TEXT('Y'), TEXT('Z'), TEXT('['), TEXT('\\'), TEXT(']'), TEXT('^'), 0x7f, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 0xbe, 0xbf, 0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf, 0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf, 0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff };
+inline int TString::rfc_tolower(const int c)
+{
+  return tolowertab[(unsigned TCHAR)(c)];
+}
+inline int TString::rfc_toupper(const int c)
+{
+  return touppertab[(unsigned TCHAR)(c)];
+}
+#endif
 /*
  * The next function is based on eggdrop's wild_match (by robey pointer)
  * I added an option to perform a case sensitive match
  */
 
-#define QUOTE '\\'
-#define WILDS '*'
-#define WILDP '%'
-#define WILDQ '?'
-/* #define WILDT '~' */
+#define QUOTE TEXT('\\')
+#define WILDS TEXT('*')
+#define WILDP TEXT('%')
+#define WILDQ TEXT('?')
+/* #define WILDT TEXT('~') */
 
 #define MATCH (match+saved+sofar)
 #define NOMATCH 0
 
 /*
- * EGGDROP:   wild_match_per(char *m, char *n)
- * IrcII:     wild_match(char *m, char *n)
+ * EGGDROP:   wild_match_per(TCHAR *m, TCHAR *n)
+ * IrcII:     wild_match(TCHAR *m, TCHAR *n)
  *
  * Features:  Forward, case-insensitive, ?, *, %, ~(optional)
  * Best use:  Generic string matching, such as in IrcII-esque bindings
  */
-int TString::match (register char *m, register char *n, const bool cs /* case sensitive */)
+int TString::match (register TCHAR *m, register TCHAR *n, const bool cs /* case sensitive */)
 {
-	char *ma = m, *lsm = 0, *lsn = 0, *lpm = 0, *lpn = 0;
+	TCHAR *ma = m, *lsm = 0, *lsn = 0, *lpm = 0, *lpn = 0;
 	int match = 1, saved = 0;
 	register unsigned int sofar = 0;
 
@@ -1922,9 +2015,9 @@ int TString::match (register char *m, register char *n, const bool cs /* case se
 				m++;
 				space++;
 			}							/* Tally 1 more space ... */
-			while ((*m == WILDT) || (*m == ' '));	/*  for each space or ~ */
+			while ((*m == WILDT) || (*m == TEXT(' ')));	/*  for each space or ~ */
 			sofar += space;				/* Each counts as exact */
-			while (*n == ' ') {
+			while (*n == TEXT(' ')) {
 				n++;
 				space--;
 			}							/* Do we have enough? */
@@ -1938,20 +2031,20 @@ int TString::match (register char *m, register char *n, const bool cs /* case se
 			case 0:
 				do
 					m--;			/* Search backwards */
-				while ((m > ma) && (*m == '?'));	/* For first non-? char */
-				if ((m > ma) ? ((*m == '*') && (m[-1] != QUOTE)) : (*m == '*'))
+				while ((m > ma) && (*m == TEXT('?')));	/* For first non-? TCHAR */
+				if ((m > ma) ? ((*m == TEXT('*')) && (m[-1] != QUOTE)) : (*m == TEXT('*')))
 					return MATCH;	/* nonquoted * = match */
 				break;
 			case WILDP:
 				while (*(++m) == WILDP);	/* Zap redundant %s */
 				if (*m != WILDS) {		/* Don't both if next=* */
-					if (*n != ' ') {	/* WILDS can't match ' ' */
+					if (*n != TEXT(' ')) {	/* WILDS canTEXT('t match ') ' */
 						lpm = m;
-						lpn = n;		/* Save '%' fallback spot */
+						lpn = n;		/* Save TEXT('%') fallback spot */
 						saved += sofar;
 						sofar = 0;		/* And save tally count */
 					}
-					continue;		/* Done with '%' */
+					continue;		/* Done with TEXT('%') */
 				}
 				/* FALL THROUGH */
 			case WILDS:
@@ -1960,14 +2053,14 @@ int TString::match (register char *m, register char *n, const bool cs /* case se
 				while ((*m == WILDS) || (*m == WILDP));
 				lsm = m;
 				lsn = n;
-				lpm = 0;		/* Save '*' fallback spot */
+				lpm = 0;		/* Save TEXT('*') fallback spot */
 				match += (saved + sofar);	/* Save tally count */
 				saved = sofar = 0;
-				continue;		/* Done with '*' */
+				continue;		/* Done with TEXT('*') */
 			case WILDQ:
 				m++;
 				n++;
-				continue;		/* Match one char */
+				continue;		/* Match one TCHAR */
 			case QUOTE:
 				m++;			/* Handle quoting */
 			}
@@ -1988,20 +2081,20 @@ int TString::match (register char *m, register char *n, const bool cs /* case se
 #ifdef WILDT
 		}
 #endif
-		if (lpm) {			/* Try to fallback on '%' */
+		if (lpm) {			/* Try to fallback on TEXT('%') */
 			n = ++lpn;
 			m = lpm;
 			sofar = 0;		/* Restore position */
 			if ((*n | 32) == 32)
-				lpm = 0;		/* Can't match 0 or ' ' */
-			continue;			/* Next char, please */
+				lpm = 0;		/* CanTEXT('t match 0 or ') ' */
+			continue;			/* Next TCHAR, please */
 		}
-		if (lsm) {			/* Try to fallback on '*' */
+		if (lsm) {			/* Try to fallback on TEXT('*') */
 			n = ++lsn;
 			m = lsm;			/* Restore position */
-			/* Used to test for (!*n) here but it wasn't necessary so it's gone */
+			/* Used to test for (!*n) here but it wasnTEXT('t necessary so it')s gone */
 			saved = sofar = 0;
-			continue;			/* Next char, please */
+			continue;			/* Next TCHAR, please */
 		}
 		return NOMATCH;		/* No fallbacks=No match */
 	}
@@ -2009,42 +2102,42 @@ int TString::match (register char *m, register char *n, const bool cs /* case se
 		m++;			/* Zap leftover %s & *s */
 	return (*m) ? NOMATCH : MATCH;	/* End of both = match */
 }
-TString TString::wildtok( char * wildString, int N, const char * sepChars ) const
+TString TString::wildtok( TCHAR * wildString, int N, const TCHAR * sepChars ) const
 {
 	int cnt = 1, m = 0;
 
 	if ( sepChars == NULL || this->m_pString == NULL )
-		return "";
+		return TEXT("");
 
 	int nToks = this->numtok( sepChars );
 
 	if ( N > nToks )
-		return "";
+		return TEXT("");
 
-	for (TString tmp(this->gettok(cnt++,sepChars)); tmp != ""; tmp = this->gettok(cnt++,sepChars))
+	for (TString tmp(this->gettok(cnt++,sepChars)); tmp != TEXT(""); tmp = this->gettok(cnt++,sepChars))
 	{
 		if (match(wildString,tmp.to_chr(),false)) {
 			m++;
 			if (m == N) return tmp;
 		}
 	}
-	return "";
+	return TEXT("");
 }
-int TString::nwildtok( char * wildString, const char * sepChars ) const
+int TString::nwildtok( TCHAR * wildString, const TCHAR * sepChars ) const
 {
 	int cnt = 1, m = 0;
 
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return 0;
 
-	for (TString tmp(this->gettok(cnt++,sepChars)); tmp != ""; tmp = this->gettok(cnt++,sepChars))
+	for (TString tmp(this->gettok(cnt++,sepChars)); tmp != TEXT(""); tmp = this->gettok(cnt++,sepChars))
 	{
 		if (match(wildString,tmp.to_chr(),false))
 			m++;
 	}
 	return m;
 }
-int TString::tsprintf(const char *fmt, ...)
+int TString::tsprintf(const TCHAR *fmt, ...)
 {
 	va_list args;
 	va_start( args, fmt );
@@ -2053,16 +2146,27 @@ int TString::tsprintf(const char *fmt, ...)
 	return cnt;
 }
 
-int TString::tvprintf(const char *fmt, va_list * args)
+int TString::tvprintf(const TCHAR *fmt, va_list * args)
 {
+#if UNICODE
+	int cnt = _vscwprintf(fmt, *args);
+	TCHAR *txt = new TCHAR[++cnt];
+	// warning C4996: TEXT('vsprintf') was declared deprecated
+	// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
+	vswprintf(txt, cnt, fmt, *args );
+	this->deleteString();
+	this->m_pString = txt;
+	return cnt;
+#else
 	int cnt = _vscprintf(fmt, *args);
-	char *txt = new char[cnt +1];
-	// warning C4996: 'vsprintf' was declared deprecated
+	TCHAR *txt = new TCHAR[cnt +1];
+	// warning C4996: TEXT('vsprintf') was declared deprecated
 	// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
 	vsprintf(txt, fmt, *args );
 	this->deleteString();
 	this->m_pString = txt;
 	return cnt;
+#endif
 }
 
 /*
@@ -2071,7 +2175,7 @@ int TString::tvprintf(const char *fmt, va_list * args)
  *    else it returns FALSE
  *    case insensitive
  */
-bool TString::iswm(char *a) const
+bool TString::iswm(TCHAR *a) const
 {
 	return match(a, this->m_pString,false)?true:false;
 }
@@ -2082,25 +2186,25 @@ bool TString::iswm(char *a) const
  *    else it returns FALSE
  *    case sensitive
  */
-bool TString::iswmcs(char *a) const
+bool TString::iswmcs(TCHAR *a) const
 {
 	return match(a, this->m_pString,true)?true:false;
 }
-//void TString::strncpy(const char *cString, const int n)
+//void TString::strncpy(const TCHAR *cString, const int n)
 //{
 //	this->deleteString();
-//	this->m_pString = new char[n+1];
+//	this->m_pString = new TCHAR[n+1];
 //	lstrcpyn(this->m_pString,cString,n);
 //}
 //void TString::strncpy(const TString &tString, const int n)
 //{
 //	this->deleteString();
-//	this->m_pString = new char[n+1];
+//	this->m_pString = new TCHAR[n+1];
 //	lstrcpyn(this->m_pString,tString.to_chr(),n);
 //}
-//void TString::strncat(const char *cString, const int n)
+//void TString::strncat(const TCHAR *cString, const int n)
 //{
-//	char *tmp = new char[n + lstrlen(this->m_pString) + 1];
+//	TCHAR *tmp = new TCHAR[n + lstrlen(this->m_pString) + 1];
 //	lstrcpy(tmp,this->m_pString);
 //	::strncat(tmp,cString,n);
 //	this->deleteString();
@@ -2108,113 +2212,18 @@ bool TString::iswmcs(char *a) const
 //}
 //void TString::strncat(const TString &tString, const int n)
 //{
-//	char *tmp = new char[n + lstrlen(this->m_pString) + 1];
+//	TCHAR *tmp = new TCHAR[n + lstrlen(this->m_pString) + 1];
 //	lstrcpy(tmp,this->m_pString);
 //	::strncat(tmp,tString.to_chr(),n);
 //	this->deleteString();
 //	this->m_pString = tmp;
 //}
-WCHAR *TString::to_wchr(bool tryutf8)
-{
-	if (this->m_pWString != NULL)
-		return this->m_pWString;
-
-	if (this->m_pString == NULL)
-		return NULL;
-
-	//int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
-	//this->m_pWString = new WCHAR[widelen+1];
-	//MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
-
-	// this method also allows UTF8 decoding.
-	//int widelen = MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, NULL, 0);
-	//this->m_pWString = new WCHAR[widelen+1];
-	//MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, this->m_pWString, widelen);
-
-	// try UTF8 encoded first, but error on invalid chars.
-	//int widelen = MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,this->m_pString,-1, NULL, 0);
-	//if (widelen == 0) {
-	//	// zero result, error maybe?
-	//	if (GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
-	//		// invalid chars, assume its NOT a utf8 string then, try CP_ACP
-	//		widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
-	//		if (widelen != 0) {
-	//			this->m_pWString = new WCHAR[widelen+1];
-	//			MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
-	//		}
-	//	}
-	//	// if no error, assume zero length string.
-	//}
-	//else {
-	//	this->m_pWString = new WCHAR[widelen+1];
-	//	MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, this->m_pWString, widelen);
-	//}
-	// If utf8 input expected try & do a utf8->utf16 convert.
-	int widelen;
-	if (tryutf8) {
-		// try UTF8 encoded first, but error on invalid chars.
-		widelen = MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,this->m_pString,-1, NULL, 0);
-		if (widelen == 0) {
-			// zero result, error maybe?
-			if (GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
-				// invalid chars, assume its NOT a utf8 string then, try ascii->utf16
-				widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
-				if (widelen != 0) {
-					this->m_pWString = new WCHAR[widelen+1];
-					MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
-				}
-			}
-			// if no error, assume zero length string.
-		}
-		else {
-			this->m_pWString = new WCHAR[widelen+1];
-			MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, this->m_pWString, widelen);
-		}
-	}
-	else {
-		// otherwise just do an ascii->utf16
-		widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
-		if (widelen != 0) {
-			this->m_pWString = new WCHAR[widelen+1];
-			MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
-		}
-	}
-	//int utf8len = MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, NULL, 0);
-	//int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, NULL, 0);
-	//if (utf8len < widelen) {
-	//	this->m_pWString = new WCHAR[widelen+utf8len+1];
-	//	WCHAR *utf8buf = new WCHAR[widelen+1];
-	//	WCHAR *widebuf = new WCHAR[widelen+1];
-
-	//	MultiByteToWideChar(CP_UTF8,0,this->m_pString,-1, utf8buf, utf8len);
-	//	MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, widebuf, widelen);
-
-	//	for (int i = 0; i < widelen; i++)
-	//	{
-	//		if (utf8buf[i] == widebuf[i])
-	//			this->m_pWString[i] = utf8buf[i];
-	//		else {
-	//		}
-	//	}
-	//	delete [] widebuf;
-	//	delete [] utf8buf;
-	//}
-	//else
-	//{
-	//	// otherwise just do an ascii->utf16
-	//	if (widelen != 0) {
-	//		this->m_pWString = new WCHAR[widelen+1];
-	//		MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,this->m_pString,-1, this->m_pWString, widelen);
-	//	}
-	//}
-	return this->m_pWString;
-}
-//int wildcmp(const char *wild, const char *string) {
+//int wildcmp(const TCHAR *wild, const TCHAR *string) {
 //	// Written by Jack Handy - jakkhandy@hotmail.com
-//	const char *cp = NULL, *mp = NULL;
+//	const TCHAR *cp = NULL, *mp = NULL;
 //
-//	while ((*string) && (*wild != '*')) {
-//		if ((*wild != *string) && (*wild != '?')) {
+//	while ((*string) && (*wild != TEXT('*'))) {
+//		if ((*wild != *string) && (*wild != TEXT('?'))) {
 //			return 0;
 //		}
 //		wild++;
@@ -2222,13 +2231,13 @@ WCHAR *TString::to_wchr(bool tryutf8)
 //	}
 //
 //	while (*string) {
-//		if (*wild == '*') {
+//		if (*wild == TEXT('*')) {
 //			if (!*++wild) {
 //				return 1;
 //			}
 //			mp = wild;
 //			cp = string+1;
-//		} else if ((*wild == *string) || (*wild == '?')) {
+//		} else if ((*wild == *string) || (*wild == TEXT('?'))) {
 //			wild++;
 //			string++;
 //		} else {
@@ -2237,8 +2246,45 @@ WCHAR *TString::to_wchr(bool tryutf8)
 //		}
 //	}
 //
-//	while (*wild == '*') {
+//	while (*wild == TEXT('*')) {
 //		wild++;
 //	}
 //	return !*wild;
 //}
+WCHAR *TString::charToWchar(const char *cString)
+{
+	//if ( cString != NULL ) {
+	//	int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cString,-1, NULL, 0);
+	//	if (widelen != 0) {
+	//		this->m_pString = new WCHAR[widelen+1];
+	//		MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cString,-1, this->m_pString, widelen);
+	//		return;
+	//	}
+	//}
+	// try UTF8 encoded first, but error on invalid chars.
+	WCHAR *res = NULL;
+	if ( cString != NULL ) {
+		int widelen = MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,cString,-1, NULL, 0);
+		if (widelen == 0) {
+			// zero result, error maybe?
+			if (GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
+				// invalid chars, assume its NOT a utf8 string then, try ascii->utf16
+				widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cString,-1, NULL, 0);
+				if (widelen != 0) {
+					res = new WCHAR[widelen+1];
+					MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cString,-1, this->m_pString, widelen);
+				}
+			}
+			else {
+				// if no error, assume zero length string.
+				res = new WCHAR[1];
+				res[0] = L'\0';
+			}
+		}
+		else {
+			res = new WCHAR[widelen+1];
+			MultiByteToWideChar(CP_UTF8,0,cString,-1, this->m_pString, widelen);
+		}
+	}
+	return res;
+}

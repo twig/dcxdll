@@ -640,7 +640,7 @@ const char* TiXmlBase::ReadText(	const char* p,
 
 void TiXmlDocument::StreamIn( std::istream * in, TIXML_STRING * tag )
 {
-	// The basic issue with a document is that we don't know what we're
+	// The basic issue with a document is that we donTEXT('t know what we')re
 	// streaming. Read something presumed to be a tag (and hope), then
 	// identify it, and call the appropriate stream method on the tag.
 	//
@@ -928,7 +928,7 @@ void TiXmlElement::StreamIn (std::istream * in, TIXML_STRING * tag)
 
 	if ( tag->length() < 3 ) return;
 
-	// Okay...if we are a "/>" tag, then we're done. We've read a complete tag.
+	// Okay...if we are a "/>" tag, then weTEXT('re done. We')ve read a complete tag.
 	// If not, identify and stream.
 
 	if (    tag->at( tag->length() - 1 ) == '>' 
@@ -1508,7 +1508,7 @@ const char* TiXmlText::Parse( const char* p, TiXmlParsingData* data, TiXmlEncodi
 		const char* end = "<";
 		p = ReadText( p, &value, ignoreWhite, end, false, encoding );
 		if ( p )
-			return p-1;	// don't truncate the '<'
+			return p-1;	// donTEXT('t truncate the ')<'
 		return 0;
 	}
 }

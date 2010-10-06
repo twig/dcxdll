@@ -50,7 +50,7 @@ DcxMWindow::DcxMWindow( const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDi
 	this->m_OrigID = SetWindowLong( this->m_Hwnd, GWL_ID, ID );
 
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -100,11 +100,11 @@ DcxMWindow::~DcxMWindow( ) {
  * \return > void
  */
 
-void DcxMWindow::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxMWindow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 	//  int numtok = input.numtok( );
 
 	// [NAME] [ID] [PROP]
-	if (input.gettok( 3 ) == "wname") {
+	if (input.gettok( 3 ) == TEXT("wname")) {
 		lstrcpyn(szReturnValue, this->m_OrigName.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}

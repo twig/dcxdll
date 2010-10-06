@@ -39,23 +39,24 @@ public:
 	
 	
 	static IClassFactory* getClassFactory();
-	static const char * getLastError();
+	static const TCHAR * getLastError();
 	static BYTE getGhostDrag();
 	static bool setGhostDrag(const BYTE newAlpha);
 	static bool isDX9Installed();
 	static bool isUnloadSave();
-	static bool isFile(const char* file);
+	static bool isFile(const WCHAR* file);
+	static bool isFile(LPCSTR file);
 
 	static void load(LOADINFO * lInfo);
 	static void unload(void);
 	static bool initDirectX();
-	static bool initDirectX(char *dxResult, int dxSize);
+	static bool initDirectX(TCHAR *dxResult, int dxSize);
 #if DCX_DEBUG_OUTPUT
-	static void debug(const char *cmd, const char *msg);
+	static void debug(const TCHAR *cmd, const TCHAR *msg);
 #endif
-	static void error(const char *cmd, const char *msg);
-	static void errorex(const char *cmd, const char *szFormat, ...);
-	static int mark(char* data, const TString & tsDName, const TString & tsCallbackName);
+	static void error(const TCHAR *cmd, const TCHAR *msg);
+	static void errorex(const TCHAR *cmd, const TCHAR *szFormat, ...);
+	static int mark(TCHAR* data, const TString & tsDName, const TString & tsCallbackName);
 	static LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	
 };

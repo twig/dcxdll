@@ -82,7 +82,7 @@ HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cc
 
     DWORD dwDirectXVersionMajor = 0;
     DWORD dwDirectXVersionMinor = 0;
-    TCHAR cDirectXVersionLetter = ' ';
+    TCHAR cDirectXVersionLetter = TEXT(' ');
 
     // First, try to use dxdiag's COM interface to get the DirectX version.
     // The only downside is this will only work on DirectX9 or later.
@@ -112,8 +112,8 @@ HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cc
         dwDirectXVersion <<= 8;
         dwDirectXVersion += dwDirectXVersionMinor;
         dwDirectXVersion <<= 8;
-        if( cDirectXVersionLetter >= 'a' && cDirectXVersionLetter <= 'z' )
-            dwDirectXVersion += (cDirectXVersionLetter - 'a') + 1;
+        if( cDirectXVersionLetter >= TEXT('a') && cDirectXVersionLetter <= TEXT('z') )
+            dwDirectXVersion += (cDirectXVersionLetter - TEXT('a')) + 1;
 
         *pdwDirectXVersion = dwDirectXVersion;
     }
@@ -122,7 +122,7 @@ HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cc
     {
         // If strDirectXVersion is non-NULL, then set it to something
         // like "8.1b" which would represent DirectX8.1b
-        if( cDirectXVersionLetter == ' ' )
+        if( cDirectXVersionLetter == TEXT(' ') )
             StringCchPrintf( strDirectXVersion, cchDirectXVersion, TEXT("%d.%d"), dwDirectXVersionMajor, dwDirectXVersionMinor );
         else
             StringCchPrintf( strDirectXVersion, cchDirectXVersion, TEXT("%d.%d%c"), dwDirectXVersionMajor, dwDirectXVersionMinor, cDirectXVersionLetter );

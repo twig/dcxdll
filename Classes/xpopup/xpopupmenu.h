@@ -111,7 +111,7 @@ public:
 	virtual ~XPopupMenu( );
 
 	void parseXPopCommand( const TString & input );
-	void parseXPopIdentifier( const TString & input, char * szReturnValue );
+	void parseXPopIdentifier( const TString & input, TCHAR * szReturnValue );
 	static XPopupMenu::MenuStyle parseStyle(const TString &style);
 
 	static HMENU parsePath( const TString & path, const HMENU hParent, const int depth = 1 );

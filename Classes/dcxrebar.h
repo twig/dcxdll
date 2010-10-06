@@ -53,7 +53,7 @@ public:
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
   LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
+  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
@@ -81,7 +81,7 @@ public:
   LRESULT maxBand( const UINT uBand, const BOOL fIdeal );
   LRESULT minBand( const UINT uBand, const BOOL fIdeal );
 
-  inline TString getType( ) { return TString( "rebar" ); };
+  inline TString getType( ) { return TString( TEXT("rebar") ); };
   TString getStyles(void);
   void toXml(TiXmlElement * xml);
   DcxControl * getControl(const int index);

@@ -55,7 +55,7 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::XPPlusModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
@@ -72,7 +72,7 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 	//SendMessage(this->m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 
 	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok("tooltips")) {
+		if (styles.istok(TEXT("tooltips"))) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -81,7 +81,7 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 	this->m_bIgnoreRepeat = TRUE;
 
 	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, "dcx_cthis", (HANDLE) this);
+	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -104,23 +104,23 @@ void DcxRichEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
 	unsigned int i = 1, numtok = styles.numtok( );
 
 	while (i <= numtok) {
-		if (styles.gettok( i ) == "multi")
+		if (styles.gettok( i ) == TEXT("multi"))
 			*Styles |= ES_MULTILINE | ES_WANTRETURN;
-		else if (styles.gettok( i ) == "readonly")
+		else if (styles.gettok( i ) == TEXT("readonly"))
 			*Styles |= ES_READONLY;
-		else if (styles.gettok( i ) == "center")
+		else if (styles.gettok( i ) == TEXT("center"))
 			*Styles |= ES_CENTER;
-		else if (styles.gettok( i ) == "right")
+		else if (styles.gettok( i ) == TEXT("right"))
 			*Styles |= ES_RIGHT;
-		else if (styles.gettok( i ) == "autohs")
+		else if (styles.gettok( i ) == TEXT("autohs"))
 			*Styles |= ES_AUTOHSCROLL;
-		else if (styles.gettok( i ) == "autovs")
+		else if (styles.gettok( i ) == TEXT("autovs"))
 			*Styles |= ES_AUTOVSCROLL;
-		else if (styles.gettok( i ) == "vsbar")
+		else if (styles.gettok( i ) == TEXT("vsbar"))
 			*Styles |= WS_VSCROLL;
-		else if (styles.gettok( i ) == "hsbar")
+		else if (styles.gettok( i ) == TEXT("hsbar"))
 			*Styles |= WS_HSCROLL;
-		else if (styles.gettok( i ) == "disablescroll")
+		else if (styles.gettok( i ) == TEXT("disablescroll"))
 			*Styles |= ES_DISABLENOSCROLL;
 
 		i++;
@@ -137,12 +137,12 @@ void DcxRichEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
 *
 * \return > void
 */
-void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
+void DcxRichEdit::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
 	int numtok = input.numtok( );
 	TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
-	if (prop == "text") {
+	if (prop == TEXT("text")) {
 		// determine the line number
 		int line = 0;
 
@@ -150,7 +150,7 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 			line = input.gettok( 4 ).to_int() -1;
 
 		if ((line < 0) || (line >= Edit_GetLineCount(this->m_Hwnd))) {
-			Dcx::error("text", "Invalid line number.");
+			Dcx::error(TEXT("text"), TEXT("Invalid line number."));
 			return;
 		}
 
@@ -159,12 +159,12 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		// get length of the line we want to copy
 		int len = SendMessage(this->m_Hwnd, EM_LINELENGTH, (WPARAM) offset, NULL) +1;
 		// create and fill the buffer
-		char *p = new char[len];
+		TCHAR *p = new TCHAR[len];
 		*(LPWORD) p = (WORD)len;
 		SendMessage(this->m_Hwnd, EM_GETLINE, (WPARAM) line, (LPARAM) p);
 
 		// terminate the string at the right position
-		p[len -1] = '\0';
+		p[len -1] = TEXT('\0');
 
 		// copy to result
 		lstrcpyn(szReturnValue, p, MIRC_BUFFER_SIZE_CCH);
@@ -172,16 +172,16 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		return;
 	}
 	// [NAME] [ID] [PROP]
-	else if (prop == "num") {
+	else if (prop == TEXT("num")) {
 		if (this->isStyle(ES_MULTILINE))
-			wsprintf(szReturnValue, "%d", (int)SendMessage(this->m_Hwnd, EM_GETLINECOUNT, 0, 0L));
-			//wsprintf(szReturnValue, "%d", this->m_tsText.numtok("\r\n"));
+			wsprintf(szReturnValue, TEXT("%d"), (int)SendMessage(this->m_Hwnd, EM_GETLINECOUNT, 0, 0L));
+			//wsprintf(szReturnValue, TEXT("%d"), this->m_tsText.numtok(TEXT("\r\n")));
 		else
-			lstrcpy(szReturnValue,"1");	// single line control so always 1 line.
+			lstrcpy(szReturnValue,TEXT("1"));	// single line control so always 1 line.
 		return;
 	}
 	// [NAME] [ID] [PROP]
-	else if (prop == "caretpos") {
+	else if (prop == TEXT("caretpos")) {
 		DWORD dwAbsoluteStartSelPos = 0;
 
 		// caret startsel position
@@ -196,41 +196,41 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 			// line offset
 			iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
-			wsprintf(szReturnValue, "%d %d", iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			wsprintf(szReturnValue, TEXT("%d %d"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
 		else {
 			// return selstart
-			wsprintf(szReturnValue, "%d %d", 1, dwAbsoluteStartSelPos);
+			wsprintf(szReturnValue, TEXT("%d %d"), 1, dwAbsoluteStartSelPos);
 		}
 
 		return;
 	}
-	else if (prop == "selstart") {
+	else if (prop == TEXT("selstart")) {
 		CHARRANGE c;
 
 		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
-		wsprintf(szReturnValue, "%d", c.cpMin);
+		wsprintf(szReturnValue, TEXT("%d"), c.cpMin);
 		return;
 	}
-	else if (prop == "selend") {
+	else if (prop == TEXT("selend")) {
 		CHARRANGE c;
 
 		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
-		wsprintf(szReturnValue, "%d", c.cpMax);
+		wsprintf(szReturnValue, TEXT("%d"), c.cpMax);
 		return;
 	}
-	else if (prop == "sel") {
+	else if (prop == TEXT("sel")) {
 		CHARRANGE c;
 
 		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
-		wsprintf(szReturnValue, "%d %d", c.cpMin, c.cpMax);
+		wsprintf(szReturnValue, TEXT("%d %d"), c.cpMin, c.cpMax);
 		return;
 	}
-	else if (prop == "seltext") {
+	else if (prop == TEXT("seltext")) {
 		CHARRANGE c;
 
 		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
-		char *buffer = new char[c.cpMax - c.cpMin];
+		TCHAR *buffer = new TCHAR[c.cpMax - c.cpMin];
 
 		SendMessage(this->m_Hwnd, EM_GETSELTEXT, NULL, (LPARAM) buffer);
 		lstrcpyn(szReturnValue, buffer, MIRC_BUFFER_SIZE_CCH);
@@ -253,13 +253,13 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	int numtok = input.numtok();
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags['r']) {
-		this->m_tsText = "";
+	if (flags[TEXT('r')]) {
+		this->m_tsText = TEXT("");
 		this->clearContents();
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
-	if (flags['a'] && numtok > 3) {
+	if (flags[TEXT('a')] && numtok > 3) {
 		this->m_tsText += input.gettok(4, -1);
 		this->parseContents(TRUE);
 		//DCXSTREAM ds;
@@ -268,21 +268,21 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		//SendMessage(this->m_Hwnd,EM_STREAMIN
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
-	else if (flags['c'] && numtok > 2) {
+	else if (flags[TEXT('c')] && numtok > 2) {
 		CopyToClipboard(this->m_Hwnd, this->m_tsText);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags['d'] && numtok > 3) {
+	else if (flags[TEXT('d')] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
 			int nLine = input.gettok( 4 ).to_int();
-			this->m_tsText.deltok(nLine, "\r\n");
+			this->m_tsText.deltok(nLine, TEXT("\r\n"));
 		}
 
 		this->parseContents(TRUE);
 	}
 	// special richedit interception for font change
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-	else if (flags['f'] && numtok > 3) {
+	else if (flags[TEXT('f')] && numtok > 3) {
 		UINT iFontFlags = parseFontFlags(input.gettok( 4 ));
 
 		if (iFontFlags & DCF_DEFAULT) {
@@ -333,10 +333,10 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
-	else if (flags['i'] && numtok > 4) {
+	else if (flags[TEXT('i')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
 			int nLine = input.gettok( 4 ).to_int();
-			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, "\r\n");
+			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
 		}
 		else {
 			this->m_tsText = input.gettok(4, -1);
@@ -345,7 +345,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		this->parseContents(TRUE);
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
-	else if (flags['k'] && numtok > 3) {
+	else if (flags[TEXT('k')] && numtok > 3) {
 		COLORREF clrColor = (COLORREF)input.gettok( 4 ).to_num();
 
 		if (clrColor == -1)
@@ -357,7 +357,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		this->redrawWindow();
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
-	else if (flags['l'] && numtok > 4) {
+	else if (flags[TEXT('l')] && numtok > 4) {
 		int nColor = input.gettok( 4 ).to_int() -1;
 
 		if (nColor > -1 && nColor < 16) {
@@ -366,21 +366,21 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -m [NAME] [ID] [SWITCH]
-	else if (flags['m']) {
+	else if (flags[TEXT('m')]) {
 		this->loadmIRCPalette();
 		this->parseContents(TRUE);
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [BOOL]
-	else if (flags['n'] && numtok > 3) {
+	else if (flags[TEXT('n')] && numtok > 3) {
 		int b = input.gettok( 4 ).to_int();
 
 		this->setAutoUrlDetect(b ? TRUE : FALSE);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
-	else if (flags['o'] && numtok > 4) {
+	else if (flags[TEXT('o')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
 			int nLine = input.gettok( 4 ).to_int();
-			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, "\r\n");
+			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
 		}
 		else
 			this->m_tsText = input.gettok(4, -1);
@@ -388,11 +388,11 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		this->parseContents(TRUE);
 	}
 	// xdid -P [NAME] [ID]
-	else if (flags['P'] && numtok > 1) {
+	else if (flags[TEXT('P')] && numtok > 1) {
 		SendMessage(this->getHwnd(),WM_PASTE,NULL,NULL);
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR16]
-	else if (flags['q'] && numtok > 3) {
+	else if (flags[TEXT('q')] && numtok > 3) {
 		int i = 0, len = input.gettok(4, -1).numtok( );
 
 		while (i < len && i < 16) {
@@ -404,11 +404,11 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// This is to avoid an invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags['r']) {
+	else if (flags[TEXT('r')]) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
-	else if (flags['t'] && numtok > 3) { // TODO: replace all this with an EM_STREAMIN message & callback
-		char *contents = readFile(input.gettok(4, -1).to_chr());
+	else if (flags[TEXT('t')] && numtok > 3) { // TODO: replace all this with an EM_STREAMIN message & callback
+		PTCHAR contents = (PTCHAR)readFile(input.gettok(4, -1).to_chr());
 
 		if (contents != NULL) {
 			this->m_tsText = contents;
@@ -420,17 +420,21 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
-	else if (flags['u'] && numtok > 3) {
-		FILE *file = fopen(input.gettok(4, -1).to_chr(), "wb");
+	else if (flags[TEXT('u')] && numtok > 3) {
+#if UNICODE
+		FILE *file = _wfopen(input.gettok(4, -1).to_chr(), TEXT("wb"));
+#else
+		FILE *file = fopen(input.gettok(4, -1).to_chr(), TEXT("wb"));
+#endif
 
 		if (file != NULL) {
-			fwrite(this->m_tsText.to_chr(), sizeof(char), this->m_tsText.len(), file);
+			fwrite(this->m_tsText.to_chr(), sizeof(TCHAR), this->m_tsText.len(), file);
 			fflush(file);
 			fclose(file);
 		}
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
-	else if (flags['S'] && numtok > 3) {
+	else if (flags[TEXT('S')] && numtok > 3) {
 		CHARRANGE c;
 
 		c.cpMin = input.gettok( 4 ).to_int();
@@ -458,22 +462,22 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 		//}
 	}
 	// xdid -V [NAME] [ID]
-	else if (flags['V']) {
+	else if (flags[TEXT('V')]) {
 		SendMessage(this->m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
-	else if (flags['y'] && numtok > 3) {
+	else if (flags[TEXT('y')] && numtok > 3) {
 		int state = input.gettok(4).to_int();
 
 		this->m_bIgnoreRepeat = (state > 0 ? TRUE : FALSE);
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
-	else if (flags['Z'] && numtok > 4) {
+	else if (flags[TEXT('Z')] && numtok > 4) {
 		int num = input.gettok( 4 ).to_int();
 		int den = input.gettok( 5 ).to_int();
 
 		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
-			this->showError(NULL, "-Z", "Richedit zooming error");
+			this->showError(NULL, TEXT("-Z"), TEXT("Richedit zooming error"));
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -486,7 +490,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 */
 void DcxRichEdit::loadmIRCPalette() {
 	TString colors;
-	static const char com[] = "$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)";
+	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
 	Dcx::mIRC.tsEval(colors, com);
 
 	int i = 0, len = colors.numtok( );
@@ -525,7 +529,7 @@ void DcxRichEdit::setContentsFont() {
 	if (this->m_bFontUnderline)
 		chrf.dwEffects |= CFE_UNDERLINE;
 
-	if (this->m_tsFontFaceName != "") {
+	if (this->m_tsFontFaceName != TEXT("")) {
 		lstrcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 31);
 		chrf.szFaceName[31] = 0;
 	}
@@ -545,7 +549,7 @@ void DcxRichEdit::setContentsFont() {
 void DcxRichEdit::clearContents() {
 	this->hideSelection(TRUE);
 	this->setSel(0, -1);
-	this->replaceSel(FALSE, "");
+	this->replaceSel(FALSE, TEXT(""));
 	this->setSel(0, 0);
 	this->hideSelection(FALSE);
 
@@ -561,7 +565,7 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 	this->setRedraw(FALSE);
 	this->clearContents();
 
-	char *text = this->m_tsText.to_chr();
+	TCHAR *text = this->m_tsText.to_chr();
 
 	bool uline = false;
 	bool bline = false;
@@ -573,16 +577,16 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 	bool bmcolor = true;
 	bool bbkgcolor = false;
 
-	char cbuf[2];
-	char colbuf[3];
-	cbuf[1] = '\0';
-	colbuf[2] = '\0';
+	TCHAR cbuf[2];
+	TCHAR colbuf[3];
+	cbuf[1] = TEXT('\0');
+	colbuf[2] = TEXT('\0');
 
 	int i = 0;
-	while (text[i] != '\0') {
+	while (text[i] != TEXT('\0')) {
 		cbuf[0] = text[i];
 
-		// if current char is a control code
+		// if current TCHAR is a control code
 		if (text[i] == 2 || text[i] == 3 || text[i] == 15 || text[i] == 22 || text[i] == 31) {
 			// CTRL+B Parsing
 			if (text[i] == 2)
@@ -590,12 +594,12 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 
 			// CTRL+K Parsing
 			else if (text[i] == 3) {
-				if (text[i +1] >= '0' && text[i +1] <= '9') {
+				if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
 					colbuf[0] = text[i +1];
-					colbuf[1] = '\0';
+					colbuf[1] = TEXT('\0');
 					++i;
 
-					if (text[i +1] >= '0' && text[i +1] <= '9') {
+					if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
 						colbuf[1] = text[i +1];
 						i++;
 					}
@@ -605,15 +609,15 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 					mcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
 
 					// maybe a background color
-					if (text[i+1] == ',') {
+					if (text[i+1] == TEXT(',')) {
 						++i;
 
-						if (text[i +1] >= '0' && text[i +1] <= '9') {
+						if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
 							colbuf[0] = text[i +1];
-							colbuf[1] = '\0';
+							colbuf[1] = TEXT('\0');
 							i++;
 
-							if (text[i +1] >= '0' && text[i +1] <= '9') {
+							if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
 								colbuf[1] = text[i +1];
 								++i;
 							}
@@ -646,8 +650,8 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 				uline = !(uline);
 			}
 		}
-		// regular char
-		else if (fNewLine && text[i] == '\r' && text[i +1] == '\n') {
+		// regular TCHAR
+		else if (fNewLine && text[i] == TEXT('\r') && text[i +1] == TEXT('\n')) {
 			bline = false;
 			uline = false;
 			mcolor = CLR_INVALID;
@@ -678,8 +682,8 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 *
 * blah
 */
-int DcxRichEdit::unfoldColor(const char *color) {
-	int nColor = atoi(color);
+int DcxRichEdit::unfoldColor(const TCHAR *color) {
+	int nColor = dcx_atoi(color);
 
 	while (nColor > 15) {
 		nColor -=16;
@@ -693,10 +697,10 @@ int DcxRichEdit::unfoldColor(const char *color) {
 *
 * blah
 */
-void DcxRichEdit::insertText(char *text, bool bline, bool uline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse) {
+void DcxRichEdit::insertText(TCHAR *text, bool bline, bool uline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse) {
 	// get total length
 	int len = GetWindowTextLength(this->m_Hwnd);
-	// get line char number from end char pos
+	// get line TCHAR number from end TCHAR pos
 	int line = Edit_LineIndex(this->m_Hwnd, Edit_LineFromChar(this->m_Hwnd, len -1));
 	// get line length
 	int linelen = Edit_LineLength(this->m_Hwnd, line);
@@ -728,7 +732,7 @@ void DcxRichEdit::insertText(char *text, bool bline, bool uline, bool bcolor, CO
 	if (this->m_bFontUnderline)
 		chrf.dwEffects |= CFE_UNDERLINE;
 
-	if (this->m_tsFontFaceName != "") {
+	if (this->m_tsFontFaceName != TEXT("")) {
 		lstrcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 31);
 		chrf.szFaceName[31] = 0;
 	}
@@ -806,8 +810,9 @@ LRESULT DcxRichEdit::setCharFormat(const UINT iType, CHARFORMAT2 *cfm) {
 
 void DcxRichEdit::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
-	TiXmlText * text = new TiXmlText(this->m_tsText.to_chr());
-	xml->LinkEndChild(text);
+	// NEEDS FIXED!!
+	//TiXmlText * text = new TiXmlText(this->m_tsText.to_chr());
+	//xml->LinkEndChild(text);
 }
 
 TString DcxRichEdit::getStyles(void) {
@@ -815,21 +820,21 @@ TString DcxRichEdit::getStyles(void) {
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if ((Styles & ES_MULTILINE) && (Styles & ES_WANTRETURN))
-		styles.addtok("multi", " ");
+		styles.addtok(TEXT("multi"));
 	if (Styles & ES_READONLY)
-		styles.addtok("readonly", " ");
+		styles.addtok(TEXT("readonly"));
 	if (Styles & ES_CENTER)
-		styles.addtok("center", " ");
+		styles.addtok(TEXT("center"));
 	if (Styles & ES_RIGHT)
-		styles.addtok("right", " ");
+		styles.addtok(TEXT("right"));
 	if (Styles & ES_AUTOHSCROLL)
-		styles.addtok("autohs", " ");
+		styles.addtok(TEXT("autohs"));
 	if (Styles & WS_VSCROLL)
-		styles.addtok("vsbar", " ");
+		styles.addtok(TEXT("vsbar"));
 	if (Styles & WS_HSCROLL)
-		styles.addtok("hsbar", " ");
+		styles.addtok(TEXT("hsbar"));
 	if (Styles & ES_DISABLENOSCROLL)
-		styles.addtok("disablescroll", " ");
+		styles.addtok(TEXT("disablescroll"));
 	return styles;
 }
 
@@ -864,19 +869,19 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							ZeroMemory(&tr, sizeof(TEXTRANGE));
 							tr.chrg = enl->chrg;
 							int strlen = enl->chrg.cpMax - enl->chrg.cpMin +1;
-							char *str = new char[strlen];
+							TCHAR *str = new TCHAR[strlen];
 
 							tr.lpstrText = str;
 							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
 
 							if (enl->msg == WM_LBUTTONDOWN)
-								tsEvent = "sclick";
+								tsEvent = TEXT("sclick");
 							else if (enl->msg == WM_LBUTTONDBLCLK)
-								tsEvent = "dclick";
+								tsEvent = TEXT("dclick");
 							else if (enl->msg == WM_RBUTTONDOWN)
-								tsEvent = "rclick";
+								tsEvent = TEXT("rclick");
 
-							this->execAliasEx("%s,%d,%s,%s", "link", this->getUserID(), tsEvent.to_chr(), tr.lpstrText);
+							this->execAliasEx(TEXT("%s,%d,%s,%s"), TEXT("link"), this->getUserID(), tsEvent.to_chr(), tr.lpstrText);
 							delete str;
 						}
 					}
@@ -897,11 +902,11 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							// get information about selected text
 							ZeroMemory(&tr, sizeof(TEXTRANGE));
 							tr.chrg = sel->chrg;
-							char *str = new char[sel->chrg.cpMax - sel->chrg.cpMin +1];
+							TCHAR *str = new TCHAR[sel->chrg.cpMax - sel->chrg.cpMin +1];
 							tr.lpstrText = str;
 							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
 
-							this->execAliasEx("%s,%d,%d,%d,%s", "selchange", this->getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
+							this->execAliasEx(TEXT("%s,%d,%d,%d,%s"), TEXT("selchange"), this->getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
 							delete [] str;
 						}
 					}
@@ -923,20 +928,20 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		{
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 				if (wParam == VK_RETURN) {
-					this->execAliasEx("%s,%d", "return", this->getUserID());
+					this->execAliasEx(TEXT("%s,%d"), TEXT("return"), this->getUserID());
 				}
 
 				if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
 					break;
 
-				this->execAliasEx("%s,%d,%d:", "keydown", this->getUserID(), wParam);
+				this->execAliasEx(TEXT("%s,%d,%d:"), TEXT("keydown"), this->getUserID(), wParam);
 			}
 			break;
 		}
 		case WM_KEYUP:
 		{
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-				this->execAliasEx("%s,%d,%d", "keyup", this->getUserID(), wParam);
+				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keyup"), this->getUserID(), wParam);
 			break;
 		}
 		//case WM_PAINT:

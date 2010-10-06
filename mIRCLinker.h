@@ -7,7 +7,7 @@
 class mIRCLinker
 {
 	HANDLE		m_hFileMap; //!< Handle to the mIRC DLL File Map
-	LPSTR		m_pData;    //!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
+	PTCHAR		m_pData;    //!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
 	HWND		m_mIRCHWND; //!< mIRC Window Handle
 	DWORD		m_dwVersion;
 	int			m_iMapCnt;  //!< MapFile counter.
@@ -46,7 +46,7 @@ public:
 	bool isVista() const;
 	bool isDebug() const;
 	//bool isDXInstalled9();
-	bool isAlias(const char * aliasName);
+	bool isAlias(const TCHAR * aliasName);
 
 	void load(LOADINFO * lInfo);
 	void unload(void);
@@ -55,18 +55,18 @@ public:
 	void resetWindowProc(void);
 	LRESULT callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
-	bool eval(char *res, const int maxlen, const char *data);
-	bool tsEval(TString &res, const char *data);
-	bool iEval(__int64 *res, const char *data);
-	bool evalex(char *res, const int maxlen, const char *szFormat, ...);
-	bool tsEvalex(TString &res, const char *szFormat, ...);
-	bool exec(const char *data);
-	bool execex(const char *szFormat, ...);
-	void signal(const char *msg);
-	void signalex(const bool allow, const char *szFormat, ...);
-	void echo(const char *data);
+	bool eval(TCHAR *res, const int maxlen, const TCHAR *data);
+	bool tsEval(TString &res, const TCHAR *data);
+	bool iEval(__int64 *res, const TCHAR *data);
+	bool evalex(TCHAR *res, const int maxlen, const TCHAR *szFormat, ...);
+	bool tsEvalex(TString &res, const TCHAR *szFormat, ...);
+	bool exec(const TCHAR *data);
+	bool execex(const TCHAR *szFormat, ...);
+	void signal(const TCHAR *msg);
+	void signalex(const bool allow, const TCHAR *szFormat, ...);
+	void echo(const TCHAR *data);
 #if DCX_DEBUG_OUTPUT
-	void debug(const char *cmd, const char *msg);
+	void debug(const TCHAR *cmd, const TCHAR *msg);
 #endif
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

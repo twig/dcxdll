@@ -114,7 +114,7 @@ public:
 	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-	void parseInfoRequest( TString & input, char * szReturnValue );
+	void parseInfoRequest( TString & input, TCHAR * szReturnValue );
 	void parseCommandRequest( TString & input );
 	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 #ifdef DCX_USE_WINSDK
@@ -128,14 +128,14 @@ public:
 	//HTREEITEM insertItem( );
 	void insertItem( const TString * path, const TString * data, const TString * Tooltip );
 
-	void getItemText( HTREEITEM * hItem, char * szBuffer, const int cchTextMax ) const;
+	void getItemText( HTREEITEM * hItem, TCHAR * szBuffer, const int cchTextMax ) const;
 	int getChildCount( HTREEITEM * hParent ) const;
 
 	static LRESULT CALLBACK EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 	static int CALLBACK sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
-	inline TString getType( ) { return TString( "treeview" ); };
+	inline TString getType( ) { return TString( TEXT("treeview") ); };
 
 protected:
 

@@ -48,7 +48,7 @@ public:
 	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-	void parseInfoRequest( TString & input, char * szReturnValue );
+	void parseInfoRequest( TString & input, PTCHAR szReturnValue );
 	void parseCommandRequest( TString & input );
 	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
@@ -56,7 +56,7 @@ public:
 	void setImageList( const HIMAGELIST himl );
 	HIMAGELIST createImageList( );
 
-	inline TString getType( ) { return TString( "button" ); };
+	inline TString getType( ) { return TString( TEXT("button") ); };
 	void toXml(TiXmlElement * xml);
 	TString getStyles(void);
 

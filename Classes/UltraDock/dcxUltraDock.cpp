@@ -79,8 +79,8 @@ void UltraDock(const HWND mWnd, HWND temp, const TString &flag)
 	// mWnd is unused.
 	if (g_dockMDI == NULL)
 		return;
-	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,"dcx_docked") != NULL)) {
-		Dcx::error("/xdock -m","Window already docked");
+	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != NULL)) {
+		Dcx::error(TEXT("/xdock -m"),TEXT("Window already docked"));
 		return;
 	}
 	g_dockMDI->DockWindow(temp, flag);
@@ -104,8 +104,8 @@ void TreebarDock(HWND temp, const TString &flag)
 	// mWnd is unused.
 	if (g_dockTreebar == NULL)
 		return;
-	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,"dcx_docked") != NULL)) {
-		Dcx::error("/xdock -b","Window already docked");
+	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != NULL)) {
+		Dcx::error(TEXT("/xdock -b"),TEXT("Window already docked"));
 		return;
 	}
 	g_dockTreebar->DockWindow(temp, flag);
@@ -175,17 +175,17 @@ int SwitchbarPos(const int type)
 //void InitUltraDock(void)
 //{
 //	/* UltraDock stuff */
-//	DCX_DEBUG("InitUltraDock", "Finding mIRC_Toolbar...");
-//	mIRCLink.m_hToolbar = FindWindowEx(Dcx::mIRC.getHWND(),NULL,"mIRC_Toolbar",NULL);
+//	DCX_DEBUG(TEXT("InitUltraDock"), TEXT("Finding mIRC_Toolbar..."));
+//	mIRCLink.m_hToolbar = FindWindowEx(Dcx::mIRC.getHWND(),NULL,TEXT("mIRC_Toolbar"),NULL);
 //
-//	DCX_DEBUG("InitUltraDock", "Finding MDIClient...");
-//	mIRCLink.m_hMDI = FindWindowEx(Dcx::mIRC.getHWND(),NULL,"MDIClient",NULL);
+//	DCX_DEBUG(TEXT("InitUltraDock"), TEXT("Finding MDIClient..."));
+//	mIRCLink.m_hMDI = FindWindowEx(Dcx::mIRC.getHWND(),NULL,TEXT("MDIClient"),NULL);
 //
-//	DCX_DEBUG("InitUltraDock", "Finding mIRC_SwitchBar...");
-//	mIRCLink.m_hSwitchbar = FindWindowEx(Dcx::mIRC.getHWND(),NULL,"mIRC_SwitchBar",NULL);
+//	DCX_DEBUG(TEXT("InitUltraDock"), TEXT("Finding mIRC_SwitchBar..."));
+//	mIRCLink.m_hSwitchbar = FindWindowEx(Dcx::mIRC.getHWND(),NULL,TEXT("mIRC_SwitchBar"),NULL);
 //
-//	DCX_DEBUG("InitUltraDock", "Finding mIRC_TreeList...");
-//	mIRCLink.m_hTreebar = FindWindowEx(Dcx::mIRC.getHWND(),NULL,"mIRC_TreeList",NULL);
+//	DCX_DEBUG(TEXT("InitUltraDock"), TEXT("Finding mIRC_TreeList..."));
+//	mIRCLink.m_hTreebar = FindWindowEx(Dcx::mIRC.getHWND(),NULL,TEXT("mIRC_TreeList"),NULL);
 //
 //	if (IsWindow(mIRCLink.m_hTreebar)) {
 //		Dcx::mIRC.getTreeview() = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
@@ -268,8 +268,8 @@ int SwitchbarPos(const int type)
 //
 //void UltraDock(const HWND mWnd, HWND temp, TString &flag)
 //{
-//	if ((FindUltraDock(temp)) || (GetProp(temp,"dcx_docked") != NULL)) {
-//		DCXError("/xdock -m","Window already docked");
+//	if ((FindUltraDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != NULL)) {
+//		DCXError(TEXT("/xdock -m"),TEXT("Window already docked"));
 //		return;
 //	}
 //
@@ -282,15 +282,15 @@ int SwitchbarPos(const int type)
 //
 //	if (flag.len() > 1) {
 //		switch(flag[1]) {
-//			case 'r':
+//			case TEXT('r'):
 //				ud->flags = DOCKF_RIGHT;
 //				break;
 //
-//			case 't':
+//			case TEXT('t'):
 //				ud->flags = DOCKF_TOP;
 //				break;
 //
-//			case 'b':
+//			case TEXT('b'):
 //				ud->flags = DOCKF_BOTTOM;
 //				break;
 //

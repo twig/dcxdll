@@ -43,11 +43,11 @@ public:
   LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
   LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
+  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
   void parseCommandRequest( TString & input );
   void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  inline TString getType( ) { return TString( "directshow" ); };
+  inline TString getType( ) { return TString( TEXT("directshow") ); };
   TString getStyles(void);
 
 protected:
@@ -55,7 +55,7 @@ protected:
 	HRESULT SetVideoPos(void);
 	void ReleaseAll(void);
 	enum Properties { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION };
-	HRESULT getProperty(char *prop, const int type) const;
+	HRESULT getProperty(TCHAR *prop, const int type) const;
 	HRESULT setAlpha(float alpha);
 	HRESULT setVideo(const TString flags, const float brightness, const float contrast, const float hue, const float saturation);
 	HRESULT getVideo(VMR9ProcAmpControl *amc) const;

@@ -16,31 +16,38 @@ mIRC(xstatusbar) {
 	int numtok = input.numtok( );
 
 	if (numtok < 1) {
-		Dcx::error("/xstatusbar","Invalid Parameters");
+		Dcx::error(TEXT("/xstatusbar"),TEXT("Invalid Parameters"));
 		return 0;
 	}
+#ifdef UNICODE
+#ifdef DEBUG
 	if (Dcx::mIRC.getMainVersion() == 7) {
-		DCX_DEBUG(Dcx::debug,"xstatusbar", "mIRC V7 detected...");
-		DCX_DEBUG(Dcx::debug,"xstatusbar", "Can't do any window mods etc..");
-		Dcx::error("/xstatusbar","Can't be used in mIRC V7");
+		DCX_DEBUG(Dcx::debug,TEXT("xstatusbar"), TEXT("mIRC V7 detected..."));
+	}
+#endif
+#else
+	if (Dcx::mIRC.getMainVersion() == 7) {
+		DCX_DEBUG(Dcx::debug,TEXT("xstatusbar"), TEXT("mIRC V7 detected..."));
+		DCX_DEBUG(Dcx::debug,TEXT("xstatusbar"), TEXT("Can't do any window mods etc.."));
+		Dcx::error(TEXT("/xstatusbar"),TEXT("Can't be used in mIRC V7"));
 		return 0;
 	}
-
+#endif
 	TString switches(input.gettok(1));
 
 	switch (switches[1]) {
-		case 'A': // -A [0|1] (options)=notheme grip tooltips nodivider utf8
+		case TEXT('A'): // -A [0|1] (options)=notheme grip tooltips nodivider utf8
 			{
 				// check syntax
 				if (numtok < 2) {
-					Dcx::error("/xstatusbar -A","Invalid Parameters");
+					Dcx::error(TEXT("/xstatusbar -A"),TEXT("Invalid Parameters"));
 					return 0;
 				}
 				// Enable/Disable the Statusbar.
 				// -A [0|1] [options] = notheme grip tooltips nodivider utf8
 				if (input.gettok(2).to_int() > 0) {
 					if (!DcxDock::InitStatusbar(input.gettok(3,-1))) {
-						Dcx::error("/xstatusbar -A","Unable to Create Statusbar");
+						Dcx::error(TEXT("/xstatusbar -A"),TEXT("Unable to Create Statusbar"));
 						return 0;
 					}
 				}
@@ -50,13 +57,13 @@ mIRC(xstatusbar) {
 				UpdatemIRC();
 			}
 			break;
-		case 'f': // -f [+FLAGS] [CHARSET] [SIZE] [FONTNAME] : set font
+		case TEXT('f'): // -f [+FLAGS] [CHARSET] [SIZE] [FONTNAME] : set font
 			{
 				LOGFONT lf;
 
 				// check syntax
 				if (numtok < 5) {
-					Dcx::error("/xstatusbar -f","Invalid Parameters");
+					Dcx::error(TEXT("/xstatusbar -f"),TEXT("Invalid Parameters"));
 					return 0;
 				}
 
@@ -65,11 +72,11 @@ mIRC(xstatusbar) {
 				}
 			}
 			break;
-		case 'k': // -k [clr] : background colour.
+		case TEXT('k'): // -k [clr] : background colour.
 			{
 				// check syntax
 				if (numtok != 2) {
-					Dcx::error("/xstatusbar -k","Invalid Parameters");
+					Dcx::error(TEXT("/xstatusbar -k"),TEXT("Invalid Parameters"));
 					return 0;
 				}
 
@@ -81,11 +88,11 @@ mIRC(xstatusbar) {
 					DcxDock::status_setBkColor((COLORREF) col);
 			}
 			break;
-		case 'l': // -l [POS [POS POS ...]] : parts
+		case TEXT('l'): // -l [POS [POS POS ...]] : parts
 			{
 				// check syntax
 				if (numtok < 2) {
-					Dcx::error("/xstatusbar -l","Invalid Parameters");
+					Dcx::error(TEXT("/xstatusbar -l"),TEXT("Invalid Parameters"));
 					return 0;
 				}
 
@@ -97,7 +104,7 @@ mIRC(xstatusbar) {
 				while ( i < nParts ) {
 
 					if (c >= 100) {
-						Dcx::error("/xstatusbar -l","Can't Allocate Over 100% of Statusbar!");
+						Dcx::error(TEXT("/xstatusbar -l"),TEXT("Can't Allocate Over 100% of Statusbar!"));
 						return 0;
 					}
 
@@ -105,7 +112,7 @@ mIRC(xstatusbar) {
 
 					t = p.to_int();
 
-					if (p.right( 1 ) == "%") {
+					if (p.right( 1 ) == TEXT("%")) {
 						DcxDock::g_iDynamicParts[i] = t;
 						c += t;
 					}
@@ -119,11 +126,11 @@ mIRC(xstatusbar) {
 				DcxDock::status_updateParts();
 			}
 			break;
-		case 't': // -t N [+FLAGS] [#ICON] (Cell Text)([TAB]Tooltip Text) : set part
+		case TEXT('t'): // -t N [+FLAGS] [#ICON] (Cell Text)([TAB]Tooltip Text) : set part
 			{
 				// check syntax (text can be blank)
 				if (numtok < 4) {
-					Dcx::error("/xstatusbar -t","Invalid Parameters");
+					Dcx::error(TEXT("/xstatusbar -t"),TEXT("Invalid Parameters"));
 					return 0;
 				}
 
@@ -151,28 +158,37 @@ mIRC(xstatusbar) {
 					//ZeroMemory(pPart,sizeof(SB_PARTINFO));
 					pPart->m_Child = NULL;
 					pPart->m_iIcon = icon;
-					if (flags.find('f',0)) { // mIRC formatted text
+					if (flags.find(TEXT('f'),0)) { // mIRC formatted text
 						pPart->m_Text = itemtext;
+#if UNICODE
+						DcxDock::status_setTipText( nPos, tooltip.to_chr() );
+#else
 						DcxDock::status_setTipText( nPos, tooltip.to_wchr(DcxDock::g_bUseUTF8 ) );
+#endif
 						DcxDock::status_setPartInfo( nPos, iFlags, pPart );
 					}
 					else { // child control
-						Dcx::error("/xstatusbar -t","Child Controls Are not supported at this time.");
+						Dcx::error(TEXT("/xstatusbar -t"),TEXT("Child Controls Are not supported at this time."));
 					}
 				}
 				else {
 					if ( icon > -1 )
 						DcxDock::status_setIcon( nPos, ImageList_GetIcon( DcxDock::status_getImageList( ), icon, ILD_TRANSPARENT ) );
+#if UNICODE
+					DcxDock::status_setText( nPos, iFlags, itemtext.to_chr() );
+					DcxDock::status_setTipText( nPos, tooltip.to_chr() );
+#else
 					DcxDock::status_setText( nPos, iFlags, itemtext.to_wchr(DcxDock::g_bUseUTF8) );
 					DcxDock::status_setTipText( nPos, tooltip.to_wchr(DcxDock::g_bUseUTF8) );
+#endif
 				}
 			}
 			break;
-		case 'v': // -v [N] (TEXT) : set parts text
+		case TEXT('v'): // -v [N] (TEXT) : set parts text
 			{
 				// check syntax (text can be blank)
 				if (numtok < 2) {
-					Dcx::error("/xstatusbar -v","Invalid Parameters");
+					Dcx::error(TEXT("/xstatusbar -v"),TEXT("Invalid Parameters"));
 					return 0;
 				}
 
@@ -193,17 +209,21 @@ mIRC(xstatusbar) {
 					}
 					else {
 						WCHAR *text = new WCHAR[DcxDock::status_getTextLength(nPos) + 1];
+#if UNICODE
+						DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_chr() );
+#else
 						DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_wchr(DcxDock::g_bUseUTF8) );
+#endif
 						delete [] text;
 					}
 				}
 			}
 			break;
-		case 'w': // -w [FLAGS] [INDEX] [FILENAME] : load an icon
+		case TEXT('w'): // -w [FLAGS] [INDEX] [FILENAME] : load an icon
 			{
 				// check syntax
 				if (numtok < 4) {
-					Dcx::error("/xstatusbar -w","Invalid Parameters");
+					Dcx::error(TEXT("/xstatusbar -w"),TEXT("Invalid Parameters"));
 					return 0;
 				}
 
@@ -225,24 +245,24 @@ mIRC(xstatusbar) {
 
 					if (icon != NULL) {
 						if (ImageList_AddIcon(himl, icon) == -1)
-							Dcx::error("/xstatusbar -w","Unable To Add Image to ImageList");
+							Dcx::error(TEXT("/xstatusbar -w"),TEXT("Unable To Add Image to ImageList"));
 					}
 					else
-						Dcx::error("/xstatusbar -w","Unable To Load Icon");
+						Dcx::error(TEXT("/xstatusbar -w"),TEXT("Unable To Load Icon"));
 					DestroyIcon(icon);
 				}
 				else
-					Dcx::error("/xstatusbar -w","Unable To Create ImageList");
+					Dcx::error(TEXT("/xstatusbar -w"),TEXT("Unable To Create ImageList"));
 			}
 			break;
-		case 'y': // destroy image list.
+		case TEXT('y'): // destroy image list.
 			{
 				ImageList_Destroy( DcxDock::status_getImageList( ) );
 				DcxDock::status_setImageList(NULL);
 			}
 			break;
 		default:
-			Dcx::error("/xstatusbar","Invalid Switch");
+			Dcx::error(TEXT("/xstatusbar"),TEXT("Invalid Switch"));
 			return 0;
 	}
 	return 1;
@@ -256,16 +276,16 @@ mIRC(_xstatusbar)
 
 	data[0] = 0;
 
-	static const TString poslist("visible text parts tooltip");
+	static const TString poslist(TEXT("visible text parts tooltip"));
 	int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
 	switch (nType)
 	{
 	case 1: // visible
 		{
 			if (DcxDock::IsStatusbar())
-				lstrcpy(data,"$true");
+				lstrcpy(data,TEXT("$true"));
 			else
-				lstrcpy(data,"$false");
+				lstrcpy(data,TEXT("$false"));
 		}
 		break;
 	case 2: // text
@@ -275,7 +295,11 @@ mIRC(_xstatusbar)
 			if ( iPart > -1 && iPart < nParts ) {
 				WCHAR *text = new WCHAR[DcxDock::status_getTextLength( iPart ) + 1];
 				DcxDock::status_getText( iPart, text );
+#if UNICODE
+				lstrcpyn(data, text, MIRC_BUFFER_SIZE_CCH);
+#else
 				WideCharToMultiByte(CP_UTF8, 0, text, -1, data, MIRC_BUFFER_SIZE_CCH, NULL, NULL);
+#endif
 				delete [] text;
 			}
 		}
@@ -288,14 +312,14 @@ mIRC(_xstatusbar)
 			DcxDock::status_getParts( 256, parts );
 
 			int i = 0;
-			char dd[10];
+			TCHAR dd[10];
 
 			while ( i < nParts ) {
 
-				wsprintf( dd, "%d", parts[i] );
+				wsprintf( dd, TEXT("%d"), parts[i] );
 
 				if ( i != 0 )
-					lstrcat( data, " " );
+					lstrcat( data, TEXT(" ") );
 				lstrcat( data, dd );
 
 				i++;
@@ -307,10 +331,14 @@ mIRC(_xstatusbar)
 			int iPart = d.gettok( 3 ).to_int( ), nParts = (int)DcxDock::status_getParts( 256, 0 );
 
 			if ( iPart > -1 && iPart < nParts ) {
+#if UNICODE
+				DcxDock::status_getTipText( iPart, MIRC_BUFFER_SIZE_CCH, data );
+#else
 				WCHAR *text = new WCHAR[MIRC_BUFFER_SIZE_CCH];
 				DcxDock::status_getTipText( iPart, MIRC_BUFFER_SIZE_CCH, text );
 				WideCharToMultiByte(CP_UTF8, 0, text, -1, data, MIRC_BUFFER_SIZE_CCH, NULL, NULL);
 				delete [] text;
+#endif
 			}
 		}
 		break;
@@ -318,7 +346,7 @@ mIRC(_xstatusbar)
 	default:
 		{
 			TString error;
-			error.tsprintf("D_ERROR Invalid prop ().%s", d.gettok( 2 ).to_chr());
+			error.tsprintf(TEXT("D_ERROR Invalid prop ().%s"), d.gettok( 2 ).to_chr());
 			lstrcpy(data, error.to_chr());
 		}
 		break;

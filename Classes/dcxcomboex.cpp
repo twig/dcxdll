@@ -44,7 +44,7 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw "Unable To Create Window";
+		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme ) {
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
@@ -76,12 +76,12 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		cbi.cbSize = sizeof(cbi);
 		GetComboBoxInfo(combo, &cbi);
 
-		if (styles.istok("sort")) { // doesnt work atm.
+		if (styles.istok(TEXT("sort"))) { // doesnt work atm.
 			if (IsWindow(cbi.hwndList)) {
 				AddStyles(cbi.hwndList, GWL_STYLE, LBS_SORT);
 			}
 		}
-		if (styles.istok("hscroll")) {
+		if (styles.istok(TEXT("hscroll"))) {
 			//if (IsWindow(cbi.hwndCombo))
 			//AddStyles(cbi.hwndCombo, GWL_STYLE, WS_HSCROLL);
 			if (IsWindow(cbi.hwndList))
@@ -89,7 +89,7 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		}
 	}
 	//if (p_Dialog->getToolTip() != NULL) {
-	//	if (styles.istok("tooltips")) {
+	//	if (styles.istok(TEXT("tooltips"))) {
 	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
 	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_EditHwnd);
@@ -98,7 +98,7 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 
 	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 
 	DragAcceptFiles(this->m_Hwnd, TRUE);
 
@@ -136,11 +136,11 @@ void DcxComboEx::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 	while ( i <= numtok ) {
 
-		if ( styles.gettok( i ) == "simple" )
+		if ( styles.gettok( i ) == TEXT("simple") )
 			*Styles |= CBS_SIMPLE;
-		else if ( styles.gettok( i ) == "dropdown" )
+		else if ( styles.gettok( i ) == TEXT("dropdown") )
 			*Styles |= CBS_DROPDOWNLIST;
-		else if ( styles.gettok( i ) == "dropedit" )
+		else if ( styles.gettok( i ) == TEXT("dropedit") )
 			*Styles |= CBS_DROPDOWN;
 
 		i++;
@@ -157,14 +157,14 @@ void DcxComboEx::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 * \return > void
 */
 
-void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
+void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 	int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
-	if ( prop == "text" && numtok > 3 ) {
+	if ( prop == TEXT("text") && numtok > 3 ) {
 
 		int nItem = input.gettok( 4 ).to_int( ) - 1;
 
@@ -188,7 +188,7 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
 		}
 	}
 	// [NAME] [ID] [PROP]
-	else if ( prop == "seltext" ) {
+	else if ( prop == TEXT("seltext") ) {
 
 		int nItem = this->getCurSel( );
 
@@ -207,24 +207,24 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
 		}
 	}
 	// [NAME] [ID] [PROP]
-	else if ( prop == "sel" ) {
+	else if ( prop == TEXT("sel") ) {
 
 		int nItem = this->getCurSel( );
 
 		if ( nItem > -1 ) {
 
-			wsprintf( szReturnValue, "%d", nItem + 1 );
+			wsprintf( szReturnValue, TEXT("%d"), nItem + 1 );
 			return;
 		}
 	}
 	// [NAME] [ID] [PROP]
-	else if ( prop == "num" ) {
+	else if ( prop == TEXT("num") ) {
 
-		wsprintf( szReturnValue, "%d", this->getCount( ) );
+		wsprintf( szReturnValue, TEXT("%d"), this->getCount( ) );
 		return;
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
-	else if ( prop == "find" && numtok > 5 ) {
+	else if ( prop == TEXT("find") && numtok > 5 ) {
 
 		TString matchtext(input.gettok(2, TSTAB).trim());
 		TString params(input.gettok(3, TSTAB).trim());
@@ -233,7 +233,7 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 			UINT SearchType;
 
-			if ( params.gettok( 1 ) == "R" )
+			if ( params.gettok( 1 ) == TEXT("R") )
 				SearchType = CBEXSEARCH_R;
 			else
 				SearchType = CBEXSEARCH_W;
@@ -253,7 +253,7 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
 					i++;
 				}
 
-				wsprintf( szReturnValue, "%d", count );
+				wsprintf( szReturnValue, TEXT("%d"), count );
 				return;
 			}
 			// find Nth matching
@@ -268,7 +268,7 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 					if ( count == N ) {
 
-						wsprintf( szReturnValue, "%d", i + 1 );
+						wsprintf( szReturnValue, TEXT("%d"), i + 1 );
 						return;
 					}
 
@@ -279,7 +279,7 @@ void DcxComboEx::parseInfoRequest( TString & input, char * szReturnValue ) {
 		return;
 	}
 	// [NAME] [ID] [PROP] [ROW]
-	else if ( prop == "markeditem" && numtok == 3 ) {
+	else if ( prop == TEXT("markeditem") && numtok == 3 ) {
 
 		int nItem = input.gettok( 4 ).to_int( ) - 1;
 
@@ -305,12 +305,12 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 	int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags['r']) {
+	if (flags[TEXT('r')]) {
 		this->resetContent();
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
-	if (flags['a'] && numtok > 8) {
+	if (flags[TEXT('a')] && numtok > 8) {
 		int nPos   = input.gettok( 4 ).to_int() -1;
 		int indent = input.gettok( 5 ).to_int();
 		int icon   = input.gettok( 6 ).to_int() -1;
@@ -372,11 +372,11 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -A [NAME] [ID] [ROW] [+FLAGS] [INFO]
-	else if (flags['A']) {
+	else if (flags[TEXT('A')]) {
 		int n = input.numtok();
 
 		if (n < 5) {
-			this->showErrorEx(NULL, "-A", "Insufficient parameters");
+			this->showErrorEx(NULL, TEXT("-A"), TEXT("Insufficient parameters"));
 			return;
 		}
 
@@ -384,7 +384,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 
 		// We're currently checking 1-based indexes.
 		if ((nRow < 1) || (nRow > this->getCount())) {
-			this->showErrorEx(NULL, "-A", "Invalid row index %d.", nRow);
+			this->showErrorEx(NULL, TEXT("-A"), TEXT("Invalid row index %d."), nRow);
 			return;
 		}
 
@@ -399,7 +399,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 
 		// Couldnt retrieve info
 		if (!SendMessage(this->m_Hwnd, CBEM_GETITEM, NULL, (LPARAM)&cbei)) {
-			this->showError(NULL, "-A", "Unable to get item.");
+			this->showError(NULL, TEXT("-A"), TEXT("Unable to get item."));
 			return;
 		}
 
@@ -408,15 +408,15 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 		TString flag(input.gettok(6));
 		TString info(input.gettok(7, -1));
 
-		if (flag.find('M', 1) > 0)
+		if (flag.find(TEXT('M'), 1) > 0)
 			cbiDcx->tsMark = info;
 		else
-			this->showErrorEx(NULL, "-A", "Unknown flags %s", flag.to_chr());
+			this->showErrorEx(NULL, TEXT("-A"), TEXT("Unknown flags %s"), flag.to_chr());
 
 		return;
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
-	else if (flags['c'] && numtok > 3) {
+	else if (flags[TEXT('c')] && numtok > 3) {
 		int nItem = input.gettok( 4 ).to_int() -1;
 
 		if (nItem > -1) {
@@ -424,7 +424,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags['d'] && numtok > 3) {
+	else if (flags[TEXT('d')] && numtok > 3) {
 		int nItem = input.gettok( 4 ).to_int() -1;
 
 		if (nItem > -1 && nItem < this->getCount())
@@ -435,15 +435,15 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags['r']) {
+	else if (flags[TEXT('r')]) {
 		//this->resetContent();
 	}
 	// xdid -u [NAME] [ID] [SWITCH]
-	else if (flags['u']) {
+	else if (flags[TEXT('u')]) {
 		this->setCurSel(-1);
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags['w'] && numtok > 5) {
+	else if (flags[TEXT('w')] && numtok > 5) {
 		HIMAGELIST himl;
 		TString flag(input.gettok( 4 ));
 		int index = input.gettok( 5 ).to_int();;
@@ -459,7 +459,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 		if (himl != NULL) {
 			HICON icon = dcxLoadIcon(index, filename, false, flag);
 
-			//if (flag.find('g', 0))
+			//if (flag.find(TEXT('g'), 0))
 			//	icon = CreateGrayscaleIcon(icon);
 
 			ImageList_AddIcon(himl, icon);
@@ -467,7 +467,7 @@ void DcxComboEx::parseCommandRequest(TString &input) {
 		}
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-	else if (flags['y']) {
+	else if (flags[TEXT('y')]) {
 		ImageList_Destroy(this->getImageList());
 		this->setImageList(NULL);
 	}
@@ -516,7 +516,7 @@ HIMAGELIST DcxComboEx::createImageList( ) {
 
 BOOL DcxComboEx::matchItemText( const int nItem, const TString * search, const UINT SearchType ) {
 
-	char itemtext[MIRC_BUFFER_SIZE_CCH];
+	TCHAR itemtext[MIRC_BUFFER_SIZE_CCH];
 
 	COMBOBOXEXITEM cbi;
 	ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
@@ -639,11 +639,11 @@ TString DcxComboEx::getStyles(void) {
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & CBS_SIMPLE)
-		styles.addtok("simple", " ");
+		styles.addtok(TEXT("simple"));
 	if (Styles & CBS_DROPDOWNLIST) 
-		styles.addtok("dropdown", " ");
+		styles.addtok(TEXT("dropdown"));
 	if (Styles & CBS_DROPDOWN) 
-		styles.addtok("dropedit", " ");
+		styles.addtok(TEXT("dropedit"));
 	return styles;
 }
 
@@ -660,15 +660,15 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 		case CBN_DBLCLK:
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				this->execAliasEx("%s,%d,%d", "dclick", this->getUserID( ), this->getCurSel( ) + 1 );
+				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID( ), this->getCurSel( ) + 1 );
 			bParsed = TRUE;
 			return TRUE;
 			break;
 
 		case CBN_SELENDOK:
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				this->execAliasEx("%s,%d,%d", "sclick", this->getUserID( ), this->getCurSel( ) + 1 );
-			char itemtext[500];
+				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), this->getCurSel( ) + 1 );
+			TCHAR itemtext[500];
 			COMBOBOXEXITEM cbex;
 			ZeroMemory( &cbex, sizeof( COMBOBOXEXITEM ) );
 			cbex.mask = CBEIF_TEXT;
@@ -682,7 +682,7 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			break;
 		case CBN_EDITCHANGE:
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-				this->execAliasEx("%s,%d", "edit", this->getUserID( ) );
+				this->execAliasEx(TEXT("%s,%d"), TEXT("edit"), this->getUserID( ) );
 			bParsed = TRUE;
 			return TRUE;
 			break;
@@ -699,7 +699,7 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			endedit = (LPNMCBEENDEDIT) lParam;
 			if (endedit->iWhy == CBENF_RETURN) {
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-					this->execAliasEx("%s,%d", "return", this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%d"), TEXT("return"), this->getUserID( ) );
 			}
 			break;
 		case CBEN_DELETEITEM:
@@ -723,7 +723,7 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	case WM_LBUTTONUP:
 		{
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				this->execAliasEx("%s,%d", "lbup", this->getUserID( ) );
+				this->execAliasEx(TEXT("%s,%d"), TEXT("lbup"), this->getUserID( ) );
 		}
 		break;
 	case WM_LBUTTONDBLCLK:
@@ -738,7 +738,7 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				{
 					// NB: rclick doesnt change selection!
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->execAliasEx("%s,%d,%d", "rclick", this->getUserID( ), this->getCurSel( ) + 1 );
+						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("rclick"), this->getUserID( ), this->getCurSel( ) + 1 );
 				}
 				break;
 			}
@@ -772,7 +772,7 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wPar
 
 	LPDCXCOMBOEXEDIT lpce = (LPDCXCOMBOEXEDIT) GetWindowLongPtr( mHwnd, GWLP_USERDATA );
 	if (lpce == NULL)	return DefWindowProc( mHwnd, uMsg, wParam, lParam );
-	//mIRCError( "DcxComboEx::ComboExEditProc" );
+	//mIRCError( TEXT("DcxComboEx::ComboExEditProc") );
 	switch( uMsg ) {
 		/*
 		case WM_GETDLGCODE:
@@ -783,10 +783,10 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wPar
 		{
 		if ( wParam == VK_RETURN ) {
 
-		DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, "dcx_cthis" );
+		DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
 
 		if ( pthis != NULL ) {
-		pthis->callAliasEx( NULL, "%s,%d", "return", pthis->getUserID( ) );
+		pthis->callAliasEx( NULL, TEXT("%s,%d"), TEXT("return"), pthis->getUserID( ) );
 		}
 		}
 		}
@@ -800,10 +800,10 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wPar
 		//      switch( hdr->code ) {
 		//		case TTN_GETDISPINFO:
 		//			{
-		//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, "dcx_cthis" );
+		//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
 		//         if ( pthis != NULL ) {
 		//					LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-		//					di->lpszText = "test";
+		//					di->lpszText = TEXT("test");
 		//					di->hinst = NULL;
 		//				}
 		//				return 0L;
@@ -811,9 +811,9 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wPar
 		//			break;
 		//		case TTN_LINKCLICK:
 		//			{
-		//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, "dcx_cthis" );
+		//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
 		//         if ( pthis != NULL ) {
-		//					pthis->callAliasEx( NULL, "%s,%d", "tooltiplink", pthis->getUserID( ) );
+		//					pthis->callAliasEx( NULL, TEXT("%s,%d"), TEXT("tooltiplink"), pthis->getUserID( ) );
 		//				}
 		//				return 0L;
 		//			}

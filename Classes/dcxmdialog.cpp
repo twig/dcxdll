@@ -52,7 +52,7 @@ DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, R
   this->m_OrigID = SetWindowLong( this->m_Hwnd, GWL_ID, ID );
 
   this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+  SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -104,11 +104,11 @@ DcxMDialog::~DcxMDialog( ) {
  * \return > void
  */
 
-void DcxMDialog::parseInfoRequest(TString &input, char *szReturnValue) {
+void DcxMDialog::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 //	int numtok = input.numtok( );
 
 	// [NAME] [ID] [PROP]
-	if (input.gettok( 3 ) == "dname") {
+	if (input.gettok( 3 ) == TEXT("dname")) {
 		lstrcpyn(szReturnValue, this->m_OrigName.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}

@@ -149,21 +149,21 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // Dev Build, enable debug output.
 #define DCX_DEBUG_OUTPUT 1
 #define DCX_DEBUG(x,y,z) x((y), (z));
-#define DLL_STATE      "Development Build"
+#define DLL_STATE      TEXT("Development Build")
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR	1
 #else
 // Release Build, disable debug info.
 #define DCX_DEBUG_OUTPUT 0
 #define DCX_DEBUG(x,y,z)
-#define DLL_STATE      "Release Build"
+#define DLL_STATE      TEXT("Release Build")
 #define _SECURE_SCL 0 // disables checked iterators
 #endif
 #else
 // Debug Build, enable debug output.
 #define DCX_DEBUG_OUTPUT 1
 #define DCX_DEBUG(x,y,z) x((y), (z));
-#define DLL_STATE      "Debug Build"
+#define DLL_STATE      TEXT("Debug Build")
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR	1
 #endif
@@ -219,7 +219,7 @@ using namespace Gdiplus;
 #ifdef DCX_DX_ERR
 #include <Dxerr.h>
 #pragma comment(lib, "DxErr.lib")
-#define DX_ERR(prop,cmd,hr) this->showErrorEx((prop), (cmd), "%s: %s", DXGetErrorString((hr)), DXGetErrorDescription((hr)))
+#define DX_ERR(prop,cmd,hr) this->showErrorEx((prop), (cmd), TEXT("%s: %s"), DXGetErrorString((hr)), DXGetErrorDescription((hr)))
 #else
 #define DX_ERR(prop,cmd,hr)
 #endif
@@ -270,39 +270,46 @@ using namespace Gdiplus;
 // --------------------------------------------------
 // DCX defines
 // --------------------------------------------------
-
 #define WM_MCOMMAND		(WM_USER + 200)
 #define WM_MEVALUATE	(WM_USER + 201)
+#define MIRCF_EDITBOX	1
+#define MIRCF_CMD		2
+#define MIRCF_FLOOD		4
+#define MIRCF_UNICODE	8
+// size of data buffer for mirc in characters!
 #define MIRC_BUFFER_SIZE_CCH	4100
-#define MIRC_BUFFER_SIZE_BYTES	(sizeof(TCHAR) * MIRC_BUFFER_SIZE_CCH)
+// size of same data buffer in bytes.
+#define MIRC_BUFFER_SIZE_BYTES (MIRC_BUFFER_SIZE_CCH * sizeof(TCHAR))
+// size of the mirc mapfile we will use in bytes.
+#define MIRC_MAP_SIZE		(8192 * sizeof(TCHAR))
 #define mIRC_ID_OFFSET 6000 //!< mIRC Dialog ID Offset
 
-#define DCX_LISTVIEWCLASS    "DCXListViewClass"     //!< DCX Listview Class Name
-#define DCX_PROGRESSBARCLASS "DCXProgressBarClass"  //!< DCX ProgressBar Class Name
-#define DCX_TREEVIEWCLASS    "DCXTreeViewClass"     //!< DCX TreeView Class Name
-#define DCX_TOOLBARCLASS     "DCXToolBarClass"      //!< DCX ToolBar Class Name
-#define DCX_RICHEDITCLASS    "DCXRichEditClass"     //!< DCX RichEdit Class Name
-#define DCX_TABCTRLCLASS     "DCXTabCtrlClass"      //!< DCX Tab Class Name
-#define DCX_REBARCTRLCLASS   "DCXRebarCtrlClass"    //!< DCX Rebar Class Name
-#define DCX_COMBOEXCLASS     "DCXComboExClass"      //!< DCX ComboEx Class Name
-#define DCX_BUTTONCLASS      "DCXButtonClass"       //!< DCX Button Class Name
-#define DCX_STATUSBARCLASS   "DCXStatusBarClass"    //!< DCX StatusBar Class Name
-#define DCX_COLORCOMBOCLASS  "DCXColorComboClass"   //!< DCX ColorCombo Class Name
-#define DCX_TRACKBARCLASS    "DCXTrackBarClass"     //!< DCX TrackBar Class Name
-#define DCX_UPDOWNCLASS      "DCXUpDownClass"       //!< DCX Updown Class Name
-#define DCX_IPADDRESSCLASS   "DCXIpAddressClass"    //!< DCX IP Address Class Name
-#define DCX_DIVIDERCLASS     "DCXDividerClass"      //!< DCX Divider Class Name
-#define DCX_PANELCLASS       "DCXPanelClass"        //!< DCX Panel Class Name
-#define DCX_CALENDARCLASS    "DCXCalendarClass"     //!< DCX Panel Class Name
-#define DCX_DATETIMECLASS    "DCXDateTimeClass"     //!< DCX DateTime Class Name
-#define DCX_PAGERCLASS       "DCXCPagerClass"       //!< DCX Panel Class Name
-#define DCX_BOXCLASS         "DCXBoxClass"          //!< DCX Box Class Name
-//#define DCX_RADIOCLASS       "DCXRadioClass"        //!< DCX Radio Class Name
-//#define DCX_CHECKCLASS       "DCXCheckClass"        //!< DCX Check Class Name
-//#define DCX_SCROLLBARCLASS   "DCXScrollBarClass"    //!< DCX ScrollBar Class Name
-#define DCX_SHADOWCLASS				"DCXShadowClass"			//!< DCX Shadow Class Name
-#define DCX_VISTACLASS				"DCXVistaClass"				//!< DCX Vista Dialog Class Name
-#define DCX_STACKERCLASS			"DCXStackerClass"			//!< DCX Stacker Class Name
+#define DCX_LISTVIEWCLASS    TEXT("DCXListViewClass")     //!< DCX Listview Class Name
+#define DCX_PROGRESSBARCLASS TEXT("DCXProgressBarClass")  //!< DCX ProgressBar Class Name
+#define DCX_TREEVIEWCLASS    TEXT("DCXTreeViewClass")     //!< DCX TreeView Class Name
+#define DCX_TOOLBARCLASS     TEXT("DCXToolBarClass")      //!< DCX ToolBar Class Name
+#define DCX_RICHEDITCLASS    TEXT("DCXRichEditClass")     //!< DCX RichEdit Class Name
+#define DCX_TABCTRLCLASS     TEXT("DCXTabCtrlClass")      //!< DCX Tab Class Name
+#define DCX_REBARCTRLCLASS   TEXT("DCXRebarCtrlClass")    //!< DCX Rebar Class Name
+#define DCX_COMBOEXCLASS     TEXT("DCXComboExClass")      //!< DCX ComboEx Class Name
+#define DCX_BUTTONCLASS      TEXT("DCXButtonClass")       //!< DCX Button Class Name
+#define DCX_STATUSBARCLASS   TEXT("DCXStatusBarClass")    //!< DCX StatusBar Class Name
+#define DCX_COLORCOMBOCLASS  TEXT("DCXColorComboClass")   //!< DCX ColorCombo Class Name
+#define DCX_TRACKBARCLASS    TEXT("DCXTrackBarClass")     //!< DCX TrackBar Class Name
+#define DCX_UPDOWNCLASS      TEXT("DCXUpDownClass")       //!< DCX Updown Class Name
+#define DCX_IPADDRESSCLASS   TEXT("DCXIpAddressClass")    //!< DCX IP Address Class Name
+#define DCX_DIVIDERCLASS     TEXT("DCXDividerClass")      //!< DCX Divider Class Name
+#define DCX_PANELCLASS       TEXT("DCXPanelClass")        //!< DCX Panel Class Name
+#define DCX_CALENDARCLASS    TEXT("DCXCalendarClass")     //!< DCX Panel Class Name
+#define DCX_DATETIMECLASS    TEXT("DCXDateTimeClass")     //!< DCX DateTime Class Name
+#define DCX_PAGERCLASS       TEXT("DCXCPagerClass")       //!< DCX Panel Class Name
+#define DCX_BOXCLASS         TEXT("DCXBoxClass")          //!< DCX Box Class Name
+//#define DCX_RADIOCLASS       TEXT("DCXRadioClass")        //!< DCX Radio Class Name
+//#define DCX_CHECKCLASS       TEXT("DCXCheckClass")        //!< DCX Check Class Name
+//#define DCX_SCROLLBARCLASS   TEXT("DCXScrollBarClass")    //!< DCX ScrollBar Class Name
+#define DCX_SHADOWCLASS				TEXT("DCXShadowClass")			//!< DCX Shadow Class Name
+#define DCX_VISTACLASS				TEXT("DCXVistaClass")				//!< DCX Vista Dialog Class Name
+#define DCX_STACKERCLASS			TEXT("DCXStackerClass")			//!< DCX Stacker Class Name
 
 // --------------------------------------------------
 // CLA constants
@@ -328,7 +335,7 @@ using namespace Gdiplus;
 // --------------------------------------------------
 // XPopup stuff
 // --------------------------------------------------
-#define XPOPUPMENUCLASS "XPopupMenu32" //!< XPopupMenu Window Class Name
+#define XPOPUPMENUCLASS TEXT("XPopupMenu32") //!< XPopupMenu Window Class Name
 
 // --------------------------------------------------
 // Ultradock stuff
@@ -350,7 +357,7 @@ typedef struct tagMYDCXWINDOW {
 // DLL stuff
 // --------------------------------------------------
 // mIRC Function Alias
-#define mIRC(x) _INTEL_DLL_ int WINAPI x(HWND mWnd, HWND aWnd, char * data, char * parms, BOOL, BOOL)
+#define mIRC(x) _INTEL_DLL_ int WINAPI x(HWND mWnd, HWND aWnd, TCHAR * data, TCHAR * parms, BOOL, BOOL)
 
 // Return String DLL Alias (data is limited to MIRC_BUFFER_SIZE_CCH)
 #define ret(x) { lstrcpyn(data, (x), MIRC_BUFFER_SIZE_CCH); return 3; }
@@ -374,6 +381,18 @@ typedef struct SIGNALSWITCH {
 
 typedef std::vector<int> VectorOfInts; //<! Vector of int
 
+// UNICODE/ANSI wrappers
+#if UNICODE
+#define dcx_atoi(x) _wtoi(x)
+#define dcx_atoi64(x) _wtoi64(x)
+#define dcx_atof(x) _wtof(x)
+#define dcx_fopen(x,y) _wfopen(x,y)
+#else
+#define dcx_atoi(x) atoi(x)
+#define dcx_atoi64(x) _atoi64(x)
+#define dcx_atof(x) _atof(x)
+#define dcx_fopen(x,y) fopen(x,y)
+#endif
 // --------------------------------------------------
 // DLL routines
 // --------------------------------------------------
@@ -384,29 +403,14 @@ TString ParseLogfontToCommand(const LPLOGFONT lf);
 UINT parseFontFlags(const TString &flags);
 UINT parseFontCharSet(const TString &charset);
 
-char * readFile(const char * filename);
+BYTE *readFile(const PTCHAR filename);
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd);
 
 int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
 LPITEMIDLIST GetFolderFromCSIDL(const int nCsidl);
 
-#if !DCX_FOR_XP_ONLY
-// Windows 2000+ pointers
-typedef BOOL (WINAPI *PFNGETWINDOWINFO)(HWND hwnd, PWINDOWINFO pwi);
-typedef BOOL (WINAPI *PFNANIMATEWINDOW)(HWND hwnd, DWORD dwTime, DWORD dwFlags);
-typedef DWORD (WINAPI *PFNINSENDMESSAGEEX)(LPVOID lpReserved);
-typedef BOOL (WINAPI *PFNFLASHWINDOWEX)(PFLASHWINFO pfwi);
-
-// XP+ Function pointers.
-typedef BOOL (WINAPI *PFNUPDATELAYEREDWINDOW)(HWND hWnd, HDC hdcDst, POINT *pptDst, SIZE *psize, HDC hdcSrc, POINT *pptSrc, COLORREF crKey, BLENDFUNCTION *pblend, DWORD dwFlags);
-typedef BOOL (WINAPI *PFNSETLAYEREDWINDOWATTRIBUTES)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
-typedef int (WINAPI *PFNDRAWSHADOWTEXT)(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
-typedef int (WINAPI *PFNPICKICONDLG)(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
-typedef DWORD (WINAPI *PFNGETFULLPATHNAMEW)(LPCWSTR lpFileName, DWORD nBufferLength, LPWSTR lpBuffer, LPWSTR* lpFilePart);
-#endif
-
 HWND GetHwndFromString(const TString &str);
-HWND GetHwndFromString(const char *str);
+HWND GetHwndFromString(const TCHAR *str);
 HWND FindOwner(const TString & data, const HWND defaultWnd);
 BOOL CopyToClipboard(const HWND owner, const TString & str);
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
@@ -424,16 +428,21 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst);
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl);
 void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
 #ifdef DCX_USE_GDIPLUS
-const char *GetLastStatusStr(Status status);
+const TCHAR *GetLastStatusStr(Status status);
 #endif
-bool IsFile(__inout TString &filename);
+bool IsFile(TString &filename);
+#if UNICODE
+void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
+void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style, const bool shadow);
+#else
 void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft, const bool tryutf8);
 void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style, const bool shadow, const bool tryutf8);
+#endif
 HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc);
 void DeleteHDCBuffer(HDC *hBuffer);
 int TGetWindowText(HWND hwnd, TString &txt);
 void FreeOSCompatibility(void);
-BOOL isRegexMatch(const char *matchtext, const char *pattern);
+BOOL isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
 
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);
@@ -450,22 +459,6 @@ bool InitCustomDock(void);
 
 // DirectX
 HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );
-
-#if !DCX_FOR_XP_ONLY
-// Windows 2000+ pointers
-extern PFNGETWINDOWINFO GetWindowInfoUx;
-extern PFNANIMATEWINDOW AnimateWindowUx;
-extern PFNINSENDMESSAGEEX InSendMessageExUx;
-extern PFNFLASHWINDOWEX FlashWindowExUx;
-
-// XP+ function pointers
-// Others
-extern PFNUPDATELAYEREDWINDOW UpdateLayeredWindowUx;
-extern PFNSETLAYEREDWINDOWATTRIBUTES SetLayeredWindowAttributesUx;
-extern PFNDRAWSHADOWTEXT DrawShadowTextUx;
-extern PFNPICKICONDLG PickIconDlgUx;
-extern PFNGETFULLPATHNAMEW GetFullPathNameWUx;
-#endif
 
 extern SIGNALSWITCH dcxSignal;
 

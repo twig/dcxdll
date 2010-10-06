@@ -57,7 +57,7 @@ protected:
 	UINT m_ID;
 
 	virtual void parseCommandRequest( TString & input ) = 0;
-	virtual void parseInfoRequest( TString & input, char * szReturnValue ) = 0;
+	virtual void parseInfoRequest( TString & input, TCHAR * szReturnValue ) = 0;
 
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
