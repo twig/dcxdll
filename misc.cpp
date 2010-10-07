@@ -1527,8 +1527,8 @@ int TGetWindowText(HWND hwnd, TString &txt)
 {
 	int nText = GetWindowTextLength(hwnd);
 	if (nText > 0) {
-		PTCHAR text = new TCHAR[nText +1];
-		GetWindowText(hwnd, text, nText +1);
+		PTCHAR text = new TCHAR[++nText];
+		GetWindowText(hwnd, text, nText);
 		txt = text;
 		delete [] text;
 	}
