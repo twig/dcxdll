@@ -399,8 +399,8 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 
 		// insert button
 		this->insertButton( nPos, &tbb );
-		if (nPos == 1)
-			SendMessage(this->m_Hwnd, TB_CHANGEBITMAP, nPos, MAKELPARAM(I_IMAGENONE,0));
+		//if (nPos == 1) // commented out for possible fix to http://dcx.scriptsdb.org/forum/showthread.php?tid=121 http://dcx.scriptsdb.org/bug/index.php?do=details&task_id=749
+		//	SendMessage(this->m_Hwnd, TB_CHANGEBITMAP, nPos, MAKELPARAM(I_IMAGENONE,0)); // why was this added?
 
 		// set width of button
 		if ( buttonStyles & BTNS_WIDTH ) {
