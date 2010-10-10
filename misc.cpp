@@ -1458,12 +1458,15 @@ HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc)
 
 	// create HDC for buffer.
 	buf->m_hHDC = CreateCompatibleDC(hdc);
-	if (buf->m_hHDC == NULL)
+	if (buf->m_hHDC == NULL) {
+		delete buf;
 		return NULL;
+	}
 
 	// get size of bitmap to alloc.
 	BITMAP bm;
 	int x, y;
+
 	if (rc == NULL) {
 		// no size specified, use hdc's bitmap size.
 		GetObject((HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP), sizeof(BITMAP), &bm);
@@ -1480,8 +1483,11 @@ HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc)
 
 	// alloc bitmap for buffer.
 	buf->m_hBitmap = CreateCompatibleBitmap(hdc, bm.bmWidth, bm.bmHeight);
+
 	if (buf->m_hBitmap == NULL) {
+		//DWORD err = GetLastError();
 		DeleteDC(buf->m_hHDC);
+		delete buf;
 		return NULL;
 	}
 	// select bitmap into hdc
