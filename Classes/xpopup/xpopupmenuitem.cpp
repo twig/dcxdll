@@ -344,7 +344,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOL
 		
 		case XPopupMenu::XPMS_VERTICAL:
 		case XPopupMenu::XPMS_VERTICAL_REV:
-			DrawVerticalBar(lpdis, lpcol, (this->m_pXParentMenu->getStyle() == XPopupMenu::XPMS_VERTICAL_REV));
+			XPopupMenuItem::DrawVerticalBar(lpdis, lpcol, (this->m_pXParentMenu->getStyle() == XPopupMenu::XPMS_VERTICAL_REV));
 			break;
 
 		case XPopupMenu::XPMS_ICY:
@@ -501,9 +501,9 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 #else
 void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
 
-	SetTextColor( lpdis->hDC, (bDis?lpcol->m_clrDisabledText:((lpdis->itemState & ODS_SELECTED)?lpcol->m_clrSelectedText:lpcol->m_clrText)) );
+	COLORREF oldClr = SetTextColor( lpdis->hDC, (bDis?lpcol->m_clrDisabledText:((lpdis->itemState & ODS_SELECTED)?lpcol->m_clrSelectedText:lpcol->m_clrText)) );
 
-	SetBkMode( lpdis->hDC, TRANSPARENT );
+	int oldBkg = SetBkMode( lpdis->hDC, TRANSPARENT );
 
 	RECT rc;
 	CopyRect( &rc, &lpdis->rcItem );
@@ -542,6 +542,8 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
 		mIRC_DrawText( lpdis->hDC, txt, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false, tryutf8);
 	}
+	SetBkMode( lpdis->hDC, oldBkg );
+	SetTextColor( lpdis->hDC, oldClr );
 }
 #endif
 /*!
@@ -730,7 +732,7 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 
 
 void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOLEAN bReversed) {
-	RECT rc;
+	//RECT rc;
 
 	// Experimental Code: Crude, but works nicely when no scrolling is involved. Also draws over items which have finished drawing.
 	/*
@@ -786,18 +788,22 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 	///*
 	// Get height of all menu items
 	int menuH = 0;
-	int i = 0;
-
-	while (GetMenuItemRect(Dcx::mIRC.getHWND(), (HMENU) lpdis->hwndItem, i, &rc) != FALSE) {
-		menuH += rc.bottom - rc.top;
-		i++;
-	}
+	//int i = 0;
+	// GetMenuItemRect() calls here cause submenus to fails to render on first opening for some reason.
+	//while (GetMenuItemRect(Dcx::mIRC.getHWND(), (HMENU) lpdis->hwndItem, i, &rc) != FALSE) {
+	//	menuH += (rc.bottom - rc.top);
+	//	i++;
+	//}
+	// using bitmap height like this fixes that.
+	BITMAP bm;
+	GetObject((HBITMAP)GetCurrentObject(lpdis->hDC, OBJ_BITMAP), sizeof(BITMAP), &bm);
+	menuH = bm.bmHeight;
 
 	RECT rcIntersect;
 	RECT rcBar;
 
 	// Fix to remove black line at the bottom
-	menuH++;
+	//menuH++;
 
 	// get the size of the bar on the left
 	//GetClipBox(lpdis->hDC, &rcClip);
@@ -813,16 +819,22 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 
 		// draw the gradient into the buffer
 		if (bReversed)
-			DrawGradient(*hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+			XPopupMenuItem::DrawGradient(*hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
 		else
-			DrawGradient(*hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+			XPopupMenuItem::DrawGradient(*hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
 
 		// copy the box we want from the whole gradient bar
 		BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, *hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
 
 		DeleteHDCBuffer(hdcBuffer);
 	}
-	//*/
+	else {
+		// buffer create failed, try unbuffered.
+		if (bReversed)
+			XPopupMenuItem::DrawGradient(lpdis->hDC, &rcIntersect, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+		else
+			XPopupMenuItem::DrawGradient(lpdis->hDC, &rcIntersect, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+	}
 
 	// Experimental code: Draws gradient to fill visible area. Calculates height of complete menu and stretches to fit.
 	/*
