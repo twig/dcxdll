@@ -174,8 +174,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 					m_hMenuCustom = menu;
 
 				if (((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) && (!isCustomMenu) && (m_hMenuCustom == NULL)) // This checks for custom submenus.
-				
-				m_mIRCMenuBar->convertMenu(menu, TRUE);
+					m_mIRCMenuBar->convertMenu(menu, TRUE);
 			}
 		}
 		else {

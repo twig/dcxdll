@@ -1485,7 +1485,14 @@ HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc)
 	buf->m_hBitmap = CreateCompatibleBitmap(hdc, bm.bmWidth, bm.bmHeight);
 
 	if (buf->m_hBitmap == NULL) {
-		//DWORD err = GetLastError();
+#ifdef DEBUG
+		DWORD err = GetLastError(), errBufSize = 16;
+		LPTSTR errBuf = NULL;
+		if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, 0, (LPTSTR)&errBuf, errBufSize, NULL) != 0) {
+			Dcx::mIRC.debug(TEXT("CreateHDCBuffer"),errBuf);
+			LocalFree(errBuf);
+		}
+#endif
 		DeleteDC(buf->m_hHDC);
 		delete buf;
 		return NULL;
