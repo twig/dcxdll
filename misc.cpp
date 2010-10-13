@@ -1179,10 +1179,15 @@ HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc)
 	// alloc buffer data
 	LPHDCBuffer buf = new HDCBuffer;
 
+	if (buf == NULL)
+		return NULL;
+
 	// create HDC for buffer.
 	buf->m_hHDC = CreateCompatibleDC(hdc);
-	if (buf->m_hHDC == NULL)
+	if (buf->m_hHDC == NULL) {
+		delete buf;
 		return NULL;
+	}
 
 	// get size of bitmap to alloc.
 	BITMAP bm;
@@ -1204,7 +1209,16 @@ HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc)
 	// alloc bitmap for buffer.
 	buf->m_hBitmap = CreateCompatibleBitmap(hdc, bm.bmWidth, bm.bmHeight);
 	if (buf->m_hBitmap == NULL) {
+#ifdef DEBUG
+		DWORD err = GetLastError(), errBufSize = 16;
+		LPTSTR errBuf = NULL;
+		if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, 0, (LPTSTR)&errBuf, errBufSize, NULL) != 0) {
+			Dcx::mIRC.debug(TEXT("CreateHDCBuffer"),errBuf);
+			LocalFree(errBuf);
+		}
+#endif
 		DeleteDC(buf->m_hHDC);
+		delete buf;
 		return NULL;
 	}
 	// select bitmap into hdc
@@ -1250,8 +1264,8 @@ int TGetWindowText(HWND hwnd, TString &txt)
 {
 	int nText = GetWindowTextLength(hwnd);
 	if (nText > 0) {
-		TCHAR *text = new TCHAR[nText +1];
-		GetWindowText(hwnd, text, nText +1);
+		TCHAR *text = new TCHAR[++nText];
+		GetWindowText(hwnd, text, nText);
 		txt = text;
 		delete [] text;
 	}

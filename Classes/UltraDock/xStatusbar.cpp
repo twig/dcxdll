@@ -273,10 +273,20 @@ mIRC(_xstatusbar)
 			int iPart = d.gettok( 3 ).to_int( ) -1, nParts = (int)DcxDock::status_getParts( 256, 0 );
 
 			if ( iPart > -1 && iPart < nParts ) {
-				WCHAR *text = new WCHAR[DcxDock::status_getTextLength( iPart ) + 1];
-				DcxDock::status_getText( iPart, text );
-				WideCharToMultiByte(CP_UTF8, 0, text, -1, data, MIRC_BUFFER_SIZE_CCH, NULL, NULL);
-				delete [] text;
+				UINT iFlags = DcxDock::status_getPartFlags( iPart );
+
+				if (iFlags & SBT_OWNERDRAW) {
+					LPSB_PARTINFO pPart = (LPSB_PARTINFO)DcxDock::status_getText(iPart, NULL);
+					if (pPart != NULL)
+						lstrcpyn(data, pPart->m_Text.to_chr(), MIRC_BUFFER_SIZE_CCH);
+				}
+				else {
+					UINT len = DcxDock::status_getTextLength( iPart );
+					WCHAR *text = new WCHAR[len + 1];
+					DcxDock::status_getText( iPart, text );
+					WideCharToMultiByte(CP_UTF8, 0, text, -1, data, MIRC_BUFFER_SIZE_CCH, NULL, NULL);
+					delete [] text;
+				}
 			}
 		}
 		break;

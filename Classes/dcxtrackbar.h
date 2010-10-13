@@ -40,38 +40,38 @@ class DcxTrackBar : public DcxControl {
 
 public:
 
-  DcxTrackBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
-  virtual ~DcxTrackBar( );
+	DcxTrackBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+	virtual ~DcxTrackBar( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, char * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( TString & input, char * szReturnValue );
+	void parseCommandRequest( TString & input );
+	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 	static UINT parseImageFlags(const TString &flags);
 
-  LRESULT setRangeMin( const LONG iLowLim );
-  LRESULT getRangeMin( ) const;
-  LRESULT setRangeMax( const LONG iHighLim );
-  LRESULT getRangeMax( ) const;
-  LRESULT setRange( const LONG iLowLim, const LONG iHighLim );
-  LRESULT setPos( const LONG lPosition );
-  LRESULT getPos( ) const;
-  LRESULT setTic( const LONG lPosition );
-  LRESULT setTicFreq( const LONG wFreq );
-  LRESULT clearTics( );
-  LRESULT setTipSide( const int fLocation );
-  LRESULT setPageSize( const LONG lPageSize );
-  LRESULT getPageSize( ) const;
-  LRESULT setLineSize( const LONG lLineSize );
-  LRESULT getLineSize( ) const;
-  LRESULT setThumbLength( const UINT iLength );
-  LRESULT setSel( const LONG iLowLim, const LONG iHighLim );
-  LRESULT getSelStart( ) const;
-  LRESULT getSelEnd( ) const;
+	LRESULT setRangeMin( const LONG iLowLim );
+	LRESULT getRangeMin( ) const;
+	LRESULT setRangeMax( const LONG iHighLim );
+	LRESULT getRangeMax( ) const;
+	LRESULT setRange( const LONG iLowLim, const LONG iHighLim );
+	LRESULT setPos( const LONG lPosition );
+	LRESULT getPos( ) const;
+	LRESULT setTic( const LONG lPosition );
+	LRESULT setTicFreq( const LONG wFreq );
+	LRESULT clearTics( );
+	LRESULT setTipSide( const int fLocation );
+	LRESULT setPageSize( const LONG lPageSize );
+	LRESULT getPageSize( ) const;
+	LRESULT setLineSize( const LONG lLineSize );
+	LRESULT getLineSize( ) const;
+	LRESULT setThumbLength( const UINT iLength );
+	LRESULT setSel( const LONG iLowLim, const LONG iHighLim );
+	LRESULT getSelStart( ) const;
+	LRESULT getSelEnd( ) const;
 
-  inline TString getType( ) { return TString( "trackbar" ); };
+	inline TString getType( ) { return TString( "trackbar" ); };
 
 protected:
 	HBITMAP m_hbmp[4]; // refer to TBBMP_*
