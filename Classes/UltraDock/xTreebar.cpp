@@ -111,6 +111,10 @@ mIRC(xtreebar) {
 	}
 
 	switch (switches[1]) {
+		//case TEXT('a'):	// [] add items to treeview
+		//	{
+		//	}
+		//	break;
 		case TEXT('f'): // [+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]
 			{
 				if (numtok < 5) {
@@ -275,8 +279,8 @@ mIRC(xtreebar) {
 					}
 					i++;
 				}
-				SetWindowLong(Dcx::mIRC.getTreeview(),GWL_STYLE, stylef);
-				SetWindowLong(Dcx::mIRC.getTreeview(),GWL_EXSTYLE, exstylef);
+				SetWindowLongPtr(Dcx::mIRC.getTreeview(),GWL_STYLE, stylef);
+				SetWindowLongPtr(Dcx::mIRC.getTreeview(),GWL_EXSTYLE, exstylef);
 #ifdef DCX_USE_WINSDK
 				if (Dcx::VistaModule.isUseable())
 					TreeView_SetExtendedStyle(Dcx::mIRC.getTreeview(), tvexstylef, tvexstylemask);

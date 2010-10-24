@@ -40,8 +40,8 @@ private:
 	bool m_bIsActiveMircPopup;
 	bool m_bIsActiveMircMenubarPopup;
 
-	
-    HMENU m_hMenuCustom;
+
+	HMENU m_hMenuCustom;
 	HWND m_hMenuOwner; //!< Menu Owner Window Which Processes WM_ Menu Messages 
 
 
@@ -92,11 +92,15 @@ protected:
 
 	static const TCHAR* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, TiXmlElement *popup, TiXmlElement *global);
 
-  VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
+	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
-  static UINT parseTrackFlags( const TString & flags );
+	static UINT parseTrackFlags( const TString & flags );
 
 	bool m_bPatched;
+#ifdef DEBUG
+	static WNDPROC g_OldmIRCMenusWindowProc;
+	static LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+#endif
 };
 
 extern HMENU g_OriginalMenuBar;
