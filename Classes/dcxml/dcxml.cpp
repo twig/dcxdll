@@ -94,7 +94,6 @@ mIRC(_dcxml)
 	d.trim();
 
 	data[0] = 0;
-#ifndef UNICODE
 	if (d.numtok( ) != 1) {
 		lstrcpy(data, TEXT("D_ERROR Invalid Args: A prop is required."));
 		return 3;
@@ -102,9 +101,12 @@ mIRC(_dcxml)
 
 	if (d.gettok( 1 ) == TEXT("Loaded"))
 	{
+#ifdef UNICODE
+		lstrcpy(data, TEXT("$false"));
+#else
 		lstrcpy(data, (Dcxml::Parser->loadSuccess) ? TEXT("$true") : TEXT("$false"));
-	}
 #endif
+	}
 	return 3;
 	
 }

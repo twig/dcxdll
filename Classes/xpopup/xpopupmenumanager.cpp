@@ -15,10 +15,9 @@
 #include "Classes/xpopup/xpopupmenumanager.h"
 #include "Dcx.h"
 
-
-
-//extern HMENU g_OriginalMenuBar;
-//extern XPopupMenu *g_mIRCScriptMenu;
+#ifdef DEBUG
+WNDPROC XPopupMenuManager::g_OldmIRCMenusWindowProc = NULL;
+#endif
 
 /*!
  * \brief Constructor
@@ -50,16 +49,20 @@ void XPopupMenuManager::load(void)
 {
 
 	/***** XPopup Stuff *****/
-	//GetClassInfoEx(NULL,TEXT("#32768"),&wc); // menu
-	//HWND tmp_hwnd = CreateWindowEx(0,TEXT("#32768"),NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
-	//if (tmp_hwnd != NULL) {
-	//	g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd,GCLP_WNDPROC,(LONG_PTR)mIRCMenusWinProc);
-	//	DestroyWindow(tmp_hwnd);
-	//}
-	DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Registering XPopup..."));
-
 	WNDCLASSEX wc;
 	ZeroMemory((void*)&wc , sizeof(WNDCLASSEX));
+
+#ifdef DEBUG
+	//wc.cbSize = sizeof(WNDCLASSEX);
+	//GetClassInfoEx(NULL,TEXT("#32768"),&wc); // menu
+	HWND tmp_hwnd = CreateWindowEx(0,TEXT("#32768"),NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
+	if (tmp_hwnd != NULL) {
+		g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (LONG_PTR)XPopupMenuManager::mIRCMenusWinProc);
+		DestroyWindow(tmp_hwnd);
+		DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Subclassed Menu Class"));
+	}
+#endif
+	DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Registering XPopup..."));
 
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style         = 0;
@@ -74,13 +77,6 @@ void XPopupMenuManager::load(void)
 	wc.lpszClassName = XPOPUPMENUCLASS;
 	wc.hIconSm       = NULL;
 	RegisterClassEx(&wc);
-	// TODO: delete or describe what that is for...
-	//WNDCLASS wcpop;
-	//ZeroMemory(&wcpop, sizeof(WNDCLASS));
-	//wcpop.hInstance = GetModuleHandle(NULL);
-	//wcpop.lpszClassName = XPOPUPMENUCLASS;
-	//wcpop.lpfnWndProc = XPopupMenu::XPopupWinProc;
-	//RegisterClass(&wcpop);
 
 	DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Creating menu owner..."));
 	m_hMenuOwner = CreateWindow(XPOPUPMENUCLASS, NULL, 0, 0, 0, 0, 0, (Dcx::XPPlusModule.isUseable() ? HWND_MESSAGE : 0), 0, GetModuleHandle(NULL), 0);
@@ -107,7 +103,7 @@ void XPopupMenuManager::load(void)
 		if (label == TEXT("&Tools")) {
 			HMENU scriptable = GetSubMenu(menu, i +1);;
 
-			// TODO: check if the next one is TEXT("&Window")
+			// TODO: check if the next one is "&Window"
 			g_mIRCScriptMenu = new XPopupMenu(TEXT("scriptpopup"), scriptable);
 			break;
 		}
@@ -121,11 +117,16 @@ void XPopupMenuManager::load(void)
 void XPopupMenuManager::unload(void)
 {
 	/***** XPopup Stuff *****/
-	//HWND tmp_hwnd = CreateWindowEx(0,TEXT("#32768"),NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
-	//if (tmp_hwnd != NULL) {
-	//	SetClassLongPtr(tmp_hwnd,GCLP_WNDPROC,(LONG_PTR)g_OldmIRCMenusWindowProc);
-	//	DestroyWindow(tmp_hwnd);
-	//}
+#ifdef DEBUG
+	if (XPopupMenuManager::g_OldmIRCMenusWindowProc != NULL) {
+		HWND tmp_hwnd = CreateWindowEx(0,TEXT("#32768"),NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
+		if (tmp_hwnd != NULL) {
+			SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (LONG_PTR)XPopupMenuManager::g_OldmIRCMenusWindowProc);
+			DestroyWindow(tmp_hwnd);
+			XPopupMenuManager::g_OldmIRCMenusWindowProc = NULL;
+		}
+	}
+#endif
 	Dcx::mIRC.resetWindowProc();
 
 	clearMenus();
@@ -1165,3 +1166,49 @@ const TCHAR* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, TiXm
 	//return global->Attribute(attrib);
 	return NULL;
 }
+#ifdef DEBUG
+LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+
+	// Incase execution somehow ends up here without this pointer being set.
+	if (XPopupMenuManager::g_OldmIRCMenusWindowProc == NULL)
+		return DefWindowProc( mHwnd, uMsg, wParam, lParam);
+
+	switch (uMsg) {
+		//case WM_NCCREATE:
+		//	{
+		//		CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
+		//		cs->dwExStyle |= WS_EX_LAYERED;
+		//		
+		//		//return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+		//	}
+		//	break;
+		case WM_ERASEBKGND:
+			{
+				if (GetProp(mHwnd, TEXT("dcx_ghosted")) == NULL) {
+					SetProp(mHwnd, TEXT("dcx_ghosted"), (HANDLE)1);
+					LRESULT lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+					AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+					SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
+					RedrawWindow(mHwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME);
+					return lRes;
+				}
+			}
+			break;
+		case WM_DESTROY:
+			{
+				if (GetProp(mHwnd, TEXT("dcx_ghosted")) != NULL) {
+					RemoveProp(mHwnd, TEXT("dcx_ghosted"));
+				}
+			}
+			break;
+
+		//case WM_ERASEBKGND:
+		//	{
+		//		return TRUE;
+		//	}
+		//	break;
+	}
+
+	return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+}
+#endif

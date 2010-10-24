@@ -50,7 +50,7 @@ DcxLine::DcxLine( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, c
 	if ( bNoTheme )
 		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }

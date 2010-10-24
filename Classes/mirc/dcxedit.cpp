@@ -62,7 +62,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, con
 	}
 
 	this->m_bIgnoreRepeat = TRUE;
-	this->setControlFont((HFONT) GetStockObject(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
 	this->registreDefaultWindowProc();
 	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 	DragAcceptFiles(this->m_Hwnd, TRUE);

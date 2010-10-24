@@ -65,7 +65,7 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 
 	this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
 
-	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 
@@ -778,7 +778,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 
 				HBRUSH hBorderBrush = this->m_hBorderBrush;
 				if (hBorderBrush == NULL)
-					hBorderBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+					hBorderBrush = GetStockBrush(BLACK_BRUSH);
 
 				FrameRgn(hdc,m_Region,hBorderBrush,1,1);
 				DeleteRgn(m_Region);
@@ -883,7 +883,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 
 				HBRUSH hBorderBrush = this->m_hBorderBrush;
 				if (hBorderBrush == NULL)
-					hBorderBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+					hBorderBrush = GetStockBrush(BLACK_BRUSH);
 
 				FrameRgn(hdc,m_Region,hBorderBrush,1,1);
 				DeleteRgn(m_Region);
