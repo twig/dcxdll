@@ -67,7 +67,7 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	this->m_aColors[2] = GetSysColor(COLOR_BTNTEXT); // pushed
 	this->m_aColors[3] = GetSysColor(COLOR_GRAYTEXT); // disabled
 
-	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 

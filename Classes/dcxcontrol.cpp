@@ -1807,7 +1807,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
 						// when transparent set as no bkg brush & default transparent drawing.
 						SetBkMode((HDC) wParam, TRANSPARENT);
-						hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+						hBackBrush = GetStockBrush(HOLLOW_BRUSH);
 					}
 
 					if ( hBackBrush != NULL )

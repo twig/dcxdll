@@ -2497,7 +2497,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						// when transparent set as no bkg brush & default transparent drawing.
 						SetBkMode((HDC) wParam, TRANSPARENT);
 						//SetBkColor((HDC) wParam, CLR_NONE);
-						hBackBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+						hBackBrush = GetStockBrush(HOLLOW_BRUSH);
 					}
 
 					if (hBackBrush != NULL)

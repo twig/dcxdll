@@ -65,7 +65,7 @@ DcxLink::DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, c
 		}
 	}
 
-	this->setControlFont( (HFONT) GetStockObject( DEFAULT_GUI_FONT ), FALSE );
+	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 }
@@ -474,7 +474,7 @@ void DcxLink::DrawClientArea(HDC hdc)
 	HFONT hFont = this->m_hFont;
 
 	if (hFont == NULL)
-		hFont = (HFONT) GetStockObject( DEFAULT_GUI_FONT /*SYSTEM_FONT*/ );
+		hFont = GetStockFont( DEFAULT_GUI_FONT /*SYSTEM_FONT*/ );
 
 	LOGFONT lf;
 	GetObject( hFont, sizeof( LOGFONT ), &lf );
