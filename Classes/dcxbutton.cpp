@@ -30,6 +30,7 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 , m_bBitmapText(FALSE)
 , m_bHasIcons(FALSE)
 , m_bHover(FALSE)
+, m_bTouched(FALSE)
 , m_bSelected(FALSE)
 , m_bTracking(FALSE)
 , m_iIconSize(16)
@@ -426,6 +427,11 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				tme.dwHoverTime = HOVER_DEFAULT; // was 1
 				this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );		
 			}
+
+			if (this->m_bTouched == FALSE) {
+				this->m_bTouched = TRUE;
+				InvalidateRect( this->m_Hwnd, NULL, FALSE );
+			}
 		}
 		break;
 
@@ -433,7 +439,6 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 		{
 			if ( this->m_bHover == FALSE && this->m_bTracking ) {
 				this->m_bHover = TRUE;
-				InvalidateRect( this->m_Hwnd, NULL, FALSE );
 			}
 		}
 		break;
@@ -443,6 +448,7 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			if ( this->m_bTracking ) {
 				this->m_bHover = FALSE;
 				this->m_bTracking = FALSE;
+				this->m_bTouched = FALSE;
 				this->m_bSelected = FALSE;
 				InvalidateRect( this->m_Hwnd, NULL, FALSE );
 			}
@@ -534,7 +540,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		nState = 3;
 	else if ( this->m_bSelected )
 		nState = 2;
-	else if ( this->m_bHover )
+	else if ( this->m_bTouched )
 		nState = 1;
 	else
 		nState = 0;
