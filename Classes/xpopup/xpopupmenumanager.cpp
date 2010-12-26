@@ -52,16 +52,16 @@ void XPopupMenuManager::load(void)
 	WNDCLASSEX wc;
 	ZeroMemory((void*)&wc , sizeof(WNDCLASSEX));
 
-#ifdef DEBUG
-	//wc.cbSize = sizeof(WNDCLASSEX);
-	//GetClassInfoEx(NULL,TEXT("#32768"),&wc); // menu
-	HWND tmp_hwnd = CreateWindowEx(0,TEXT("#32768"),NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
-	if (tmp_hwnd != NULL) {
-		g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (LONG_PTR)XPopupMenuManager::mIRCMenusWinProc);
-		DestroyWindow(tmp_hwnd);
-		DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Subclassed Menu Class"));
-	}
-#endif
+//#ifdef DEBUG
+//	//wc.cbSize = sizeof(WNDCLASSEX);
+//	//GetClassInfoEx(NULL,TEXT("#32768"),&wc); // menu
+//	HWND tmp_hwnd = CreateWindowEx(0,TEXT("#32768"),NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
+//	if (tmp_hwnd != NULL) {
+//		g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (LONG_PTR)XPopupMenuManager::mIRCMenusWinProc);
+//		DestroyWindow(tmp_hwnd);
+//		DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Subclassed Menu Class"));
+//	}
+//#endif
 	DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Registering XPopup..."));
 
 	wc.cbSize = sizeof(WNDCLASSEX);
@@ -117,16 +117,16 @@ void XPopupMenuManager::load(void)
 void XPopupMenuManager::unload(void)
 {
 	/***** XPopup Stuff *****/
-#ifdef DEBUG
-	if (XPopupMenuManager::g_OldmIRCMenusWindowProc != NULL) {
-		HWND tmp_hwnd = CreateWindowEx(0,TEXT("#32768"),NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
-		if (tmp_hwnd != NULL) {
-			SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (LONG_PTR)XPopupMenuManager::g_OldmIRCMenusWindowProc);
-			DestroyWindow(tmp_hwnd);
-			XPopupMenuManager::g_OldmIRCMenusWindowProc = NULL;
-		}
-	}
-#endif
+//#ifdef DEBUG
+//	if (XPopupMenuManager::g_OldmIRCMenusWindowProc != NULL) {
+//		HWND tmp_hwnd = CreateWindowEx(0,TEXT("#32768"),NULL,WS_POPUP,0,0,1,1,NULL,NULL,GetModuleHandle(NULL),NULL);
+//		if (tmp_hwnd != NULL) {
+//			SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (LONG_PTR)XPopupMenuManager::g_OldmIRCMenusWindowProc);
+//			DestroyWindow(tmp_hwnd);
+//			XPopupMenuManager::g_OldmIRCMenusWindowProc = NULL;
+//		}
+//	}
+//#endif
 	Dcx::mIRC.resetWindowProc();
 
 	clearMenus();

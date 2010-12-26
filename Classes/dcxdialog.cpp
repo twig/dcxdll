@@ -1763,6 +1763,14 @@ void DcxDialog::parseInfoRequest( TString &input, TCHAR *szReturnValue) {
 			lstrcpy(szReturnValue, TEXT("$false"));
 		return;
 	}
+	// [NAME] [PROP]
+	else if (prop == TEXT("glasscolor")) {
+		RGBQUAD clr = {0};
+		BOOL bOpaque = FALSE;
+		Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque);
+		wsprintf(szReturnValue, TEXT("%d"), RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue));
+		return;
+	}
 	// invalid info request
 	else
 		this->showError(prop.to_chr(), NULL, TEXT("Invalid property or parameters"));
@@ -3224,16 +3232,27 @@ void DcxDialog::CreateVistaStyle(void)
 {
 #ifdef DCX_USE_WINSDK
 	if (Dcx::VistaModule.refreshComposite()) {
-		// Vista+ only code.
+		// Vista+ only code. dont do anything at this point if vista+
 
-		DWMNCRENDERINGPOLICY ncrp = DWMNCRP_ENABLED;
+		//DWMNCRENDERINGPOLICY ncrp = DWMNCRP_ENABLED;
 
-		//enable non-client area rendering on window
-		HRESULT hr = Dcx::VistaModule.dcxDwmSetWindowAttribute(this->m_Hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
-		if (SUCCEEDED(hr)) {
-			MARGINS margins = {this->m_GlassOffsets.left,this->m_GlassOffsets.right,this->m_GlassOffsets.top,this->m_GlassOffsets.bottom};
-			Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(this->m_Hwnd, &margins);
-		}
+		////enable non-client area rendering on window
+		//HRESULT hr = Dcx::VistaModule.dcxDwmSetWindowAttribute(this->m_Hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
+		//if (SUCCEEDED(hr)) {
+			//MARGINS margins = {this->m_GlassOffsets.left,this->m_GlassOffsets.right,this->m_GlassOffsets.top,this->m_GlassOffsets.bottom};
+			//Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(this->m_Hwnd, &margins);
+		//	//DWM_BLURBEHIND bb = {0};
+
+		//	//// Specify blur-behind and blur region.
+		//	//bb.dwFlags = DWM_BB_ENABLE;
+		//	//bb.fEnable = true;
+		//	//bb.hRgnBlur = NULL;
+
+		//	//// Enable blur-behind.
+		//	//Dcx::VistaModule.dcxDwmEnableBlurBehindWindow(this->m_Hwnd, &bb);
+
+		//	//this->m_bVistaStyle = true;
+		//}
 		return;
 	}
 #endif

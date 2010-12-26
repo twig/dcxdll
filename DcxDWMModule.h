@@ -5,6 +5,8 @@ typedef HRESULT (WINAPI *PFNDWMISCOMPOSITIONENABLED)(BOOL *pfEnabled);
 typedef HRESULT (WINAPI *PFNDWMGETWINDOWATTRIBUTE)(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute);
 typedef HRESULT (WINAPI *PFNDWMSETWINDOWATTRIBUTE)(HWND hwnd,DWORD dwAttribute,LPCVOID pvAttribute,DWORD cbAttribute);
 typedef HRESULT (WINAPI *PFNDWMEXTENDFRAMEINTOCLIENTAREA)(HWND hWnd, const MARGINS *pMarInset);
+typedef HRESULT (WINAPI *PFNDWMENABLEBLURBEHINDWINDOW)(HWND hWnd, __in const DWM_BLURBEHIND *pBlurBehind);
+typedef HRESULT (WINAPI *PFNDWMGETCOLORIZATIONCOLOR)( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend);
 
 // Missing defines, since the new module way of doing things doesnt work well with missing libraries
 #ifndef DCX_USE_WINSDK
@@ -19,6 +21,8 @@ class DcxDWMModule :
 	static PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx;
 	static PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx;
 	static PFNDWMEXTENDFRAMEINTOCLIENTAREA DwmExtendFrameIntoClientAreaUx;
+	static PFNDWMENABLEBLURBEHINDWINDOW DwmEnableBlurBehindWindowUx;
+	static PFNDWMGETCOLORIZATIONCOLOR DwmGetColorizationColorUx;
 
 public:
 	DcxDWMModule(void);
@@ -31,6 +35,8 @@ public:
 	HRESULT dcxDwmGetWindowAttribute(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute);
 	HRESULT dcxDwmIsCompositionEnabled(BOOL *pfEnabled);
 	HRESULT dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset);
+	HRESULT dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind);
+	HRESULT dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend);
 
 	bool isAero(void) const { return this->m_bAero; };
 };

@@ -388,7 +388,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	case WM_ERASEBKGND:
 		{
-			//<#IF USER == TEXT('hkr') COMMENT OUT, UNLESS ITS THE TIME WHEN HE WANTS THIS>
+			//<#IF USER == 'hkr' COMMENT OUT, UNLESS ITS THE TIME WHEN HE WANTS THIS>
 			if (this->isExStyle(WS_EX_TRANSPARENT))
 				this->DrawParentsBackground((HDC)wParam);
 			//if (this->isExStyle(WS_EX_TRANSPARENT))

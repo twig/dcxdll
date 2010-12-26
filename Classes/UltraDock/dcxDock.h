@@ -121,7 +121,9 @@ public:
 	// statusbar stuff
 	static HWND g_StatusBar; //!< The Statusbar for the main mIRC window.
 	static HIMAGELIST g_hImageList; //!< The Statusbar's image list.
+#if !UNICODE
 	static bool g_bUseUTF8;			//!< Use utf8 text
+#endif
 	static INT g_iDynamicParts[256];
 	static INT g_iFixedParts[256];
 	static HFONT g_StatusFont; //!< Statusbar font.

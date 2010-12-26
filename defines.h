@@ -169,6 +169,11 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // Include files
 // --------------------------------------------------
 #define INITGUID
+#define NOCOMM
+#define NOSOUND
+#define NOKANJI
+#define NOHELP
+#define NOMCX
 //#include <vld.h>
 #include <windows.h>
 #include <windowsx.h>

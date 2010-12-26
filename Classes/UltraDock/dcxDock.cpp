@@ -12,7 +12,9 @@
 // statusbar stuff
 HWND DcxDock::g_StatusBar = NULL;
 HIMAGELIST DcxDock::g_hImageList = NULL;
+#if !UNICODE
 bool DcxDock::g_bUseUTF8 = false;
+#endif
 INT DcxDock::g_iDynamicParts[256] = { 0 };
 INT DcxDock::g_iFixedParts[256] = { 0 };
 HFONT DcxDock::g_StatusFont = NULL;
@@ -496,7 +498,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 												TString buf;
 												Dcx::mIRC.tsEvalex(buf, TEXT("$window(@%d).sbcolor"), wid);
 												if (buf.len() > 0) {
-													static const TString sbcolor(TEXT("s s message s event s highlight")); // TEXT('s') is used as a spacer.
+													static const TString sbcolor(TEXT("s s message s event s highlight")); // 's' is used as a spacer.
 													int clr = sbcolor.findtok(buf.to_chr(), 1);
 													if (clr == 0) // no match, do normal colours
 														break;
@@ -652,7 +654,9 @@ bool DcxDock::InitStatusbar(const TString &styles)
 
 	ZeroMemory(DcxDock::g_iDynamicParts, sizeof(DcxDock::g_iDynamicParts));
 	ZeroMemory(DcxDock::g_iFixedParts, sizeof(DcxDock::g_iFixedParts));
+#if !UNICODE
 	DcxDock::g_bUseUTF8 = false;
+#endif
 
 	DcxDock::status_parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
@@ -724,8 +728,10 @@ void DcxDock::status_parseControlStyles( const TString & styles, LONG * Styles, 
 			*Styles |= WS_DISABLED;
 		else if ( styles.gettok( i ) == TEXT("transparent") )
 			*ExStyles |= WS_EX_TRANSPARENT;
+#if !UNICODE
 		else if ( styles.gettok( i ) == TEXT("utf8") )
 			DcxDock::g_bUseUTF8 = true;
+#endif
 		i++;
 	}
 }

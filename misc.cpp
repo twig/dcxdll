@@ -1456,6 +1456,9 @@ HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc)
 	// alloc buffer data
 	LPHDCBuffer buf = new HDCBuffer;
 
+	if (buf == NULL)
+		return NULL;
+
 	// create HDC for buffer.
 	buf->m_hHDC = CreateCompatibleDC(hdc);
 	if (buf->m_hHDC == NULL) {

@@ -5,6 +5,8 @@ PFNDWMISCOMPOSITIONENABLED DcxDWMModule::DwmIsCompositionEnabledUx = NULL;
 PFNDWMGETWINDOWATTRIBUTE DcxDWMModule::DwmGetWindowAttributeUx = NULL;
 PFNDWMSETWINDOWATTRIBUTE DcxDWMModule::DwmSetWindowAttributeUx = NULL;
 PFNDWMEXTENDFRAMEINTOCLIENTAREA DcxDWMModule::DwmExtendFrameIntoClientAreaUx = NULL;
+PFNDWMENABLEBLURBEHINDWINDOW DcxDWMModule::DwmEnableBlurBehindWindowUx = NULL;
+PFNDWMGETCOLORIZATIONCOLOR DcxDWMModule::DwmGetColorizationColorUx = NULL;
 
 DcxDWMModule::DcxDWMModule(void)
 {
@@ -29,6 +31,8 @@ bool DcxDWMModule::load(mIRCLinker &mIRCLink)
 		DwmGetWindowAttributeUx = (PFNDWMGETWINDOWATTRIBUTE) GetProcAddress(m_hModule, "DwmGetWindowAttribute"); // Vista ONLY!
 		DwmSetWindowAttributeUx = (PFNDWMSETWINDOWATTRIBUTE) GetProcAddress(m_hModule, "DwmSetWindowAttribute"); // Vista ONLY!
 		DwmExtendFrameIntoClientAreaUx = (PFNDWMEXTENDFRAMEINTOCLIENTAREA) GetProcAddress(m_hModule, "DwmExtendFrameIntoClientArea"); // Vista ONLY!
+		DwmEnableBlurBehindWindowUx = (PFNDWMENABLEBLURBEHINDWINDOW) GetProcAddress(m_hModule, "DwmEnableBlurBehindWindow"); // Vista ONLY!
+		DwmGetColorizationColorUx = (PFNDWMGETCOLORIZATIONCOLOR) GetProcAddress(m_hModule, "DwmGetColorizationColor"); // Vista ONLY!
 
 #if DCX_DEBUG_OUTPUT
 		if (DwmIsCompositionEnabledUx != NULL)
@@ -87,5 +91,19 @@ HRESULT DcxDWMModule::dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *
 {
 	if (DwmExtendFrameIntoClientAreaUx != NULL)
 		return DwmExtendFrameIntoClientAreaUx(hwnd, pMarInset);
+	return DWM_E_COMPOSITIONDISABLED;
+}
+
+HRESULT DcxDWMModule::dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind)
+{
+	if (DwmEnableBlurBehindWindowUx != NULL)
+		return DwmEnableBlurBehindWindowUx(hwnd, pBlurBehind);
+	return DWM_E_COMPOSITIONDISABLED;
+}
+
+HRESULT DcxDWMModule::dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend)
+{
+	if (DwmGetColorizationColorUx != NULL)
+		return DwmGetColorizationColorUx(pcrColorization, pfOpaqueBlend);
 	return DWM_E_COMPOSITIONDISABLED;
 }
