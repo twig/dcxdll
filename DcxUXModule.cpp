@@ -115,7 +115,7 @@ bool DcxUXModule::unload(void)
 {
 	if (isUseable()) {
 #ifdef DCX_USE_WINSDK
-		if (BufferedPaintUnInitUx)
+		if (BufferedPaintUnInitUx != NULL)
 			BufferedPaintUnInitUx();
 #endif
 
@@ -271,9 +271,7 @@ HRESULT DcxUXModule::dcxBufferedPaintUnInit(void)
 
 bool DcxUXModule::IsBufferedPaintSupported(void)
 {
-	if ((BufferedPaintInitUx != NULL) && (BufferedPaintUnInitUx != NULL) && (BeginBufferedPaintUx != NULL) && (EndBufferedPaintUx != NULL))
-		return true;
-	return false;
+	return ((BufferedPaintInitUx != NULL) && (BufferedPaintUnInitUx != NULL) && (BeginBufferedPaintUx != NULL) && (EndBufferedPaintUx != NULL));
 }
 
 #endif

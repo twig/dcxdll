@@ -733,7 +733,7 @@ mIRC(WindowProps) {
 		return 0;
 	}
 
-	if ((flags.find(TEXT('T'), 0) == 0) && (flags.find(TEXT('i'), 0) == 0) && (flags.find(TEXT('t'), 0) == 0) && (flags.find(TEXT('r'), 0) == 0)) {
+	if ((flags.find(TEXT('T'), 0) == 0) && (flags.find(TEXT('i'), 0) == 0) && (flags.find(TEXT('t'), 0) == 0) && (flags.find(TEXT('r'), 0) == 0) && (flags.find(TEXT('v'), 0) == 0)) {
 		Dcx::error(TEXT("/dcx WindowProps"),TEXT("Unknown Flags"));
 		return 0;
 	}
@@ -783,6 +783,22 @@ mIRC(WindowProps) {
 		LPARAM parm = MAKELONG(x,y);
 		SendMessage(hwnd,WM_RBUTTONDOWN,MK_RBUTTON,parm);
 		PostMessage(hwnd,WM_RBUTTONUP,MK_RBUTTON,parm); // MUST be a PostMessage or the dll hangs untill the menu is closed.
+	}
+	// Add Vista+ glass effect to window.
+	// +v [top] [left] [bottom] [right]
+	if (flags.find(TEXT('v'), 0)) {
+		MARGINS margin;
+		margin.cyTopHeight = (INT)input.gettok( 3 ).to_num();
+		margin.cxLeftWidth = (INT)input.gettok( 4 ).to_num();
+		margin.cyBottomHeight = (INT)input.gettok( 5 ).to_num();
+		margin.cxRightWidth = (INT)input.gettok( 6 ).to_num();
+		AddStyles(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+		//RGBQUAD clr = {0};
+		//BOOL bOpaque = FALSE;
+		//Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque);
+		//SetLayeredWindowAttributes(hwnd, RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue), 0, LWA_COLORKEY);
+		Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(hwnd, &margin);
+		RedrawWindow( hwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME|RDW_UPDATENOW);
 	}
 
 	return 1;

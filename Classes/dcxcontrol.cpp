@@ -1488,6 +1488,10 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 		return NULL;
 
 	LPALPHAINFO ai = new ALPHAINFO;
+
+	if (ai == NULL)
+		return NULL;
+
 	ZeroMemory(ai,sizeof(ALPHAINFO));
 	/*
 		1: draw parents bg to temp hdc
@@ -1499,13 +1503,20 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 	if (Dcx::XPPlusModule.IsBufferedPaintSupported()) {
 		BP_PAINTPARAMS paintParams = {0};
 		paintParams.cbSize = sizeof(paintParams);
-		BLENDFUNCTION bf = { AC_SRC_OVER, 0, this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
+		paintParams.dwFlags = BPPF_ERASE;
+		//paintParams.dwFlags = BPPF_NONCLIENT;
+		ai->ai_bf.AlphaFormat = AC_SRC_OVER;
+		ai->ai_bf.SourceConstantAlpha = this->m_iAlphaLevel; // 0x7f half of 0xff = 50% transparency
 		if (this->m_bAlphaBlend)
-			paintParams.pBlendFunction = &bf;
+			paintParams.pBlendFunction = &ai->ai_bf;
 
 		GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
+		GetWindowRect(this->m_Hwnd,&ai->ai_rcWin);
 		ai->ai_Buffer = Dcx::XPPlusModule.dcxBeginBufferedPaint(*hdc, &ai->ai_rcClient, BPBF_COMPATIBLEBITMAP, &paintParams, &ai->ai_hdc);
 		if (ai->ai_Buffer != NULL) {
+			//Dcx::XPPlusModule.dcxDrawThemeParentBackground(this->m_Hwnd, ai->ai_hdc, &ai->ai_rcClient);
+			this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
+			BitBlt( *hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
 			*hdc = ai->ai_hdc;
 			return ai;
 		}
@@ -1637,8 +1648,9 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 					// associate bitmap with hdc
 					HBITMAP oldBM = SelectBitmap( hdcbkg, ai->ai_bkg );
 					// alpha blend finished button with parents background
-					BLENDFUNCTION bf = { AC_SRC_OVER, 0, this->m_iAlphaLevel, 0 }; // 0x7f half of 0xff = 50% transparency
-					AlphaBlend(hdcbkg,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h,bf);
+					ai->ai_bf.AlphaFormat = AC_SRC_OVER;
+					ai->ai_bf.SourceConstantAlpha = this->m_iAlphaLevel; // 0x7f half of 0xff = 50% transparency
+					AlphaBlend(hdcbkg,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, w, h, ai->ai_bf);
 					// draw final image to windows hdc.
 					BitBlt(ai->ai_Oldhdc,ai->ai_rcClient.left,ai->ai_rcClient.top,w,h,hdcbkg,ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
 
