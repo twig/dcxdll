@@ -5,6 +5,8 @@ PFNDWMISCOMPOSITIONENABLED DcxDWMModule::DwmIsCompositionEnabledUx = NULL;
 PFNDWMGETWINDOWATTRIBUTE DcxDWMModule::DwmGetWindowAttributeUx = NULL;
 PFNDWMSETWINDOWATTRIBUTE DcxDWMModule::DwmSetWindowAttributeUx = NULL;
 PFNDWMEXTENDFRAMEINTOCLIENTAREA DcxDWMModule::DwmExtendFrameIntoClientAreaUx = NULL;
+PFNDWMENABLEBLURBEHINDWINDOW DcxDWMModule::DwmEnableBlurBehindWindowUx = NULL;
+PFNDWMGETCOLORIZATIONCOLOR DcxDWMModule::DwmGetColorizationColorUx = NULL;
 
 DcxDWMModule::DcxDWMModule(void)
 {
@@ -19,20 +21,22 @@ DcxDWMModule::~DcxDWMModule(void)
 bool DcxDWMModule::load(mIRCLinker &mIRCLink)
 {
 	if (isUseable()) return false;
-	DcxModule::load(mIRCLink);
-	DCX_DEBUG(mIRCLink.debug,"LoadDLL", "Loading DWMAPI.DLL...");
-	m_hModule = LoadLibrary("dwmapi.dll");
+	//DcxModule::load(mIRCLink); // does nothing
+	DCX_DEBUG(mIRCLink.debug,TEXT("LoadDLL"), TEXT("Loading DWMAPI.DLL..."));
+	m_hModule = LoadLibrary(TEXT("dwmapi.dll"));
 	if (m_hModule != NULL) {
-		DCX_DEBUG(mIRCLink.debug,"LoadDLL", "DWMAPI.DLL Loaded, Vista+ OS Assumed");
+		DCX_DEBUG(mIRCLink.debug,TEXT("LoadDLL"), TEXT("DWMAPI.DLL Loaded, Vista+ OS Assumed"));
 
 		DwmIsCompositionEnabledUx = (PFNDWMISCOMPOSITIONENABLED) GetProcAddress(m_hModule, "DwmIsCompositionEnabled"); // Vista ONLY!
 		DwmGetWindowAttributeUx = (PFNDWMGETWINDOWATTRIBUTE) GetProcAddress(m_hModule, "DwmGetWindowAttribute"); // Vista ONLY!
 		DwmSetWindowAttributeUx = (PFNDWMSETWINDOWATTRIBUTE) GetProcAddress(m_hModule, "DwmSetWindowAttribute"); // Vista ONLY!
 		DwmExtendFrameIntoClientAreaUx = (PFNDWMEXTENDFRAMEINTOCLIENTAREA) GetProcAddress(m_hModule, "DwmExtendFrameIntoClientArea"); // Vista ONLY!
+		DwmEnableBlurBehindWindowUx = (PFNDWMENABLEBLURBEHINDWINDOW) GetProcAddress(m_hModule, "DwmEnableBlurBehindWindow"); // Vista ONLY!
+		DwmGetColorizationColorUx = (PFNDWMGETCOLORIZATIONCOLOR) GetProcAddress(m_hModule, "DwmGetColorizationColor"); // Vista ONLY!
 
 #if DCX_DEBUG_OUTPUT
 		if (DwmIsCompositionEnabledUx != NULL)
-			mIRCLink.debug("LoadDLL", "Found Vista DWM Functions");
+			mIRCLink.debug(TEXT("LoadDLL"), TEXT("Found Vista DWM Functions"));
 #endif
 
 		refreshComposite();
@@ -87,5 +91,19 @@ HRESULT DcxDWMModule::dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *
 {
 	if (DwmExtendFrameIntoClientAreaUx != NULL)
 		return DwmExtendFrameIntoClientAreaUx(hwnd, pMarInset);
+	return DWM_E_COMPOSITIONDISABLED;
+}
+
+HRESULT DcxDWMModule::dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind)
+{
+	if (DwmEnableBlurBehindWindowUx != NULL)
+		return DwmEnableBlurBehindWindowUx(hwnd, pBlurBehind);
+	return DWM_E_COMPOSITIONDISABLED;
+}
+
+HRESULT DcxDWMModule::dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend)
+{
+	if (DwmGetColorizationColorUx != NULL)
+		return DwmGetColorizationColorUx(pcrColorization, pfOpaqueBlend);
 	return DWM_E_COMPOSITIONDISABLED;
 }

@@ -66,18 +66,32 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 		SUCCEEDED( this->m_pOleObject->DoVerb( OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*) this, 0, this->m_Hwnd, rc ) )
 		)
 	{
-#if DCX_DEBUG_OUTPUT
-		Dcx::mIRC.echo("Created Browser Window!!!" ); // why would we want this output in the non-debug version?
-#endif
-	}
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
+		this->registreDefaultWindowProc( );
+		SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
-	TString url("about:blank");
-	VARIANT v;
-	VariantInit( &v );			
-	this->m_pWebBrowser2->Navigate( url.to_wchr(this->m_bUseUTF8), &v, &v, &v, &v );  // dont use L""
-	VariantClear( &v );
+		TString url("about:blank");
+		VARIANT v;
+		VariantInit( &v );
+		this->m_pWebBrowser2->Navigate( url.to_wchr(this->m_bUseUTF8), &v, &v, &v, &v );  // dont use L""
+		VariantClear( &v );
+	}
+	else {
+		//Release all Web Control pointers
+		if ( this->m_dwCookie )
+			this->m_pCP->Unadvise( this->m_dwCookie );
+
+		this->m_pCP->Release( );
+		this->m_pCPC->Release( );
+		this->m_pOleInPlaceObject->Release( );
+		if ( this->m_pOleObject != NULL ) {
+
+			this->m_pOleObject->Close( OLECLOSE_NOSAVE );
+			this->m_pOleObject->Release( );
+		}
+		this->m_pWebBrowser2->Release( );
+		DestroyWindow(this->m_Hwnd);
+		throw "Unable To Create Browser Window";
+	}
 }
 
 /*!

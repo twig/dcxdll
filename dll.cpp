@@ -743,20 +743,21 @@ mIRC(WindowProps) {
 	}
 
 	TString flags(input.gettok( 2 ).trim());
+	XSwitchFlags xflags(flags);
 
 	if ((flags[0] != '+') || (flags.len() < 2)) {
 		Dcx::error("/dcx WindowProps","No Flags Found");
 		return 0;
 	}
 
-	if ((flags.find('T', 0) == 0) && (flags.find('i', 0) == 0) && (flags.find('t', 0) == 0) && (flags.find('r', 0) == 0)) {
+	if (!xflags['T'] && !xflags['i'] && !xflags['t'] && !xflags['r'] && !xflags['v']) {
 		Dcx::error("/dcx WindowProps","Unknown Flags");
 		return 0;
 	}
 
 	// set hwnd NoTheme
 	// +T
-	if (flags.find('T', 0)) {
+	if (xflags['T']) {
 		if (Dcx::XPPlusModule.isUseable()) {
 			if (Dcx::XPPlusModule.dcxSetWindowTheme(hwnd,L" ",L" ") != S_OK)
 				Dcx::error("/dcx WindowProps", "Unable to set theme");
@@ -764,7 +765,7 @@ mIRC(WindowProps) {
 	}
 	// set hwnd's title icon
 	// +i [INDEX] [FILENAME]
-	if (flags.find('i', 0)) {
+	if (xflags['i']) {
 		if (numtok < 3) {
 			// invalid args
 			Dcx::error("/dcx WindowProps", "Invalid Args");
@@ -778,7 +779,7 @@ mIRC(WindowProps) {
 	}
 	// set hwnd title text
 	// +t [TEXT]
-	if (flags.find('t', 0)) { 
+	if (xflags['t']) { 
 		TString txt;
 		
 		if (flags.find('i', 0)) {
@@ -793,12 +794,28 @@ mIRC(WindowProps) {
 	}
 	// RMB click hwnd at pos.
 	// +r [X] [Y]
-	if (flags.find('r', 0)) {
+	if (xflags['r']) {
 		UINT x = (UINT)input.gettok( 3 ).to_num();
 		UINT y = (UINT)input.gettok( 4 ).to_num();
 		LPARAM parm = MAKELONG(x,y);
 		SendMessage(hwnd,WM_RBUTTONDOWN,MK_RBUTTON,parm);
 		PostMessage(hwnd,WM_RBUTTONUP,MK_RBUTTON,parm); // MUST be a PostMessage or the dll hangs untill the menu is closed.
+	}
+	// Add Vista+ glass effect to window.
+	// +v [top] [left] [bottom] [right]
+	if (xflags['v']) {
+		MARGINS margin;
+		margin.cyTopHeight = (INT)input.gettok( 3 ).to_num();
+		margin.cxLeftWidth = (INT)input.gettok( 4 ).to_num();
+		margin.cyBottomHeight = (INT)input.gettok( 5 ).to_num();
+		margin.cxRightWidth = (INT)input.gettok( 6 ).to_num();
+		AddStyles(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+		//RGBQUAD clr = {0};
+		//BOOL bOpaque = FALSE;
+		//Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque);
+		//SetLayeredWindowAttributes(hwnd, RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue), 0, LWA_COLORKEY);
+		Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(hwnd, &margin);
+		RedrawWindow( hwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME|RDW_UPDATENOW);
 	}
 
 	return 1;

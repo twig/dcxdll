@@ -1848,6 +1848,14 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 			lstrcpy(szReturnValue, "$false");
 		return;
 	}
+	// [NAME] [PROP]
+	else if (prop == "glasscolor") {
+		RGBQUAD clr = {0};
+		BOOL bOpaque = FALSE;
+		Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque);
+		wsprintf(szReturnValue, TEXT("%d"), RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue));
+		return;
+	}
 	// invalid info request
 	else
 		this->showError(prop.to_chr(), NULL, "Invalid property or parameters");

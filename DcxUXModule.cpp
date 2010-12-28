@@ -271,9 +271,7 @@ HRESULT DcxUXModule::dcxBufferedPaintUnInit(void)
 
 bool DcxUXModule::IsBufferedPaintSupported(void)
 {
-	if ((BufferedPaintInitUx != NULL) && (BufferedPaintUnInitUx != NULL) && (BeginBufferedPaintUx != NULL) && (EndBufferedPaintUx != NULL))
-		return true;
-	return false;
+	return ((BufferedPaintInitUx != NULL) && (BufferedPaintUnInitUx != NULL) && (BeginBufferedPaintUx != NULL) && (EndBufferedPaintUx != NULL));
 }
 
 #endif
