@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.8
+ * \version 1.10
  *
  * \b Revisions
  *	1.1
@@ -33,6 +33,8 @@
  *		Added iswm() & iswmcs(). Ook
  *	1.9
  *		More changes & shit than i can remember. Ook
+ *	1.10
+ *		Fixed a bug in charToWchar() that caused the conversion to always fail.
  *
  * © ScriptsDB.org - 2005
  */
@@ -2277,7 +2279,7 @@ WCHAR *TString::charToWchar(const char *cString)
 				widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cString,-1, NULL, 0);
 				if (widelen != 0) {
 					res = new WCHAR[widelen+1];
-					MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cString,-1, this->m_pString, widelen);
+					MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cString,-1, res, widelen);
 				}
 			}
 			else {
@@ -2288,7 +2290,7 @@ WCHAR *TString::charToWchar(const char *cString)
 		}
 		else {
 			res = new WCHAR[widelen+1];
-			MultiByteToWideChar(CP_UTF8,0,cString,-1, this->m_pString, widelen);
+			MultiByteToWideChar(CP_UTF8,0,cString,-1, res, widelen);
 		}
 	}
 	return res;

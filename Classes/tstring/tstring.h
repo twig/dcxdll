@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.8
+ * \version 1.10
  *
  * \b Revisions
  *	1.1
@@ -33,6 +33,8 @@
  *		Added iswm() & iswmcs(). Ook
  *	1.9
  *		More changes & shit than i can remember. Ook
+ *	1.10
+ *		Fixed a bug in charToWchar() that caused the conversion to always fail.
  *
  * © ScriptsDB.org - 2005
  */
