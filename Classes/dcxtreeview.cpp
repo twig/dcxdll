@@ -2339,16 +2339,16 @@ bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString 
 		}
 	}
 
-	TiXmlElement *xElm = xRoot->FirstChildElement("treeview_data");
-	if (xElm == NULL) {
-		xElm = (TiXmlElement *)xRoot->InsertEndChild(TiXmlElement("treeview_data"));
-		if (xElm == NULL)
+	TiXmlElement *xData = xRoot->FirstChildElement("treeview_data");
+	if (xData == NULL) {
+		xData = (TiXmlElement *)xRoot->InsertEndChild(TiXmlElement("treeview_data"));
+		if (xData == NULL)
 			return false;
 	}
 
-	xElm = xElm->FirstChildElement(name.to_chr());
+	TiXmlElement *xElm = xData->FirstChildElement(name.to_chr());
 	if (xElm == NULL) {
-		xElm = (TiXmlElement *)xElm->InsertEndChild(TiXmlElement(name.to_chr()));
+		xElm = (TiXmlElement *)xData->InsertEndChild(TiXmlElement(name.to_chr()));
 		if (xElm == NULL)
 			return false;
 	}
