@@ -37,11 +37,14 @@ SYSTEMTIME MircTimeToSystemTime(const long mircTime) {
 
 	ZeroMemory(&st, sizeof(SYSTEMTIME));
 
-	Dcx::mIRC.tsEvalex( str, TEXT("$asctime(%ld, d m yyyy)"), mircTime);
+	Dcx::mIRC.tsEvalex( str, TEXT("$asctime(%ld, d m yyyy hh nn ss)"), mircTime);
 
 	st.wDay = (WORD)str.gettok(1).to_int();
 	st.wMonth = (WORD)str.gettok(2).to_int();
 	st.wYear = (WORD)str.gettok(3).to_int();
+	st.wHour = (WORD)str.gettok(4).to_int();
+	st.wMinute = (WORD)str.gettok(5).to_int();
+	st.wSecond = (WORD)str.gettok(6).to_int();
 
 	return st;
 }
