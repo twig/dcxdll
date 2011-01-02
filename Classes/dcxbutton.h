@@ -72,6 +72,7 @@ protected:
 
 	BOOL m_bTracking; //!< Button Tracking Mouse Event State
 	BOOL m_bHover;    //!< Button Hovering State
+	BOOL m_bTouched;  //!< Button Touched by Mouse State
 	BOOL m_bSelected; //!< Button Selected State
 
 	UINT m_iIconSize; //!< Button Icon Size 16,24,32
