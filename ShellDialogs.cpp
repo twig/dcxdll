@@ -675,15 +675,16 @@ mIRC(PickIcon) {
 	d.trim();
 
 	if (d.numtok( ) < 2)
-		ret(TEXT("D_ERROR PickIcon: invalid parameters"));
+		ret(TEXT("D_ERROR PickIcon: Invalid parameters"));
 
 	int index = d.gettok( 1 ).to_int();
 	TString filename(d.gettok( 2, -1 ));
 
 	if (!IsFile(filename))
-		ret(TEXT("D_ERROR PickIcon: Invalid Filename"));
+		ret(TEXT("D_ERROR PickIcon: Invalid filename"));
 
-	WCHAR iconPath[MAX_PATH+1];
+	TCHAR iconPath[MAX_PATH+1];
+
 #if UNICODE
 	if (GetFullPathNameW != NULL)
 		GetFullPathNameW(filename.to_chr(), MAX_PATH, iconPath, NULL);
@@ -695,10 +696,12 @@ mIRC(PickIcon) {
 	else
 		lstrcpynW(iconPath, filename.to_wchr(), MAX_PATH);
 #endif
+
 	if (dcxPickIconDlg(aWnd,iconPath,MAX_PATH,&index))
-		wsprintf(data,TEXT("D_OK %d %S"), index, iconPath);
+		wsprintf(data,TEXT("D_OK %d %s"), index, iconPath);
 	else
-		wsprintf(data,TEXT("D_ERROR %d %S"), index, iconPath);
+		wsprintf(data,TEXT("D_ERROR %d %s"), index, iconPath);
+
 	return 3;
 }
 
