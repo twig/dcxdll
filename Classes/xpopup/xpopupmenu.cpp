@@ -428,122 +428,122 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) {
 
-  int numtok = input.numtok( );
-  TString prop(input.gettok( 2 ));
+	int numtok = input.numtok( );
+	TString prop(input.gettok( 2 ));
 
-  // [NAME] [ID] [PROP] [PATH]
-  if ( prop == TEXT("num") && numtok > 2 ) {
+	// [NAME] [ID] [PROP] [PATH]
+	if ( prop == TEXT("num") && numtok > 2 ) {
 
-    TString path(input.gettok( 3, -1 ));
+		TString path(input.gettok( 3, -1 ));
 
-    HMENU hMenu;
-    if ( path == TEXT("root") )
-      hMenu = this->m_hMenu;
-    else
-      hMenu = this->parsePath( path, this->m_hMenu );
+		HMENU hMenu;
+		if ( path == TEXT("root") )
+			hMenu = this->m_hMenu;
+		else
+			hMenu = this->parsePath( path, this->m_hMenu );
 
-    if ( hMenu != NULL ) {
-      wsprintf( szReturnValue, TEXT("%d"), GetMenuItemCount( hMenu ) );
-      return;
-    }
-  }
-  else if ( ( prop == TEXT("text") || prop == TEXT("icon") ) && numtok > 2 ) {
+		if ( hMenu != NULL ) {
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), GetMenuItemCount( hMenu ) );
+			return;
+		}
+	}
+	else if ( ( prop == TEXT("text") || prop == TEXT("icon") ) && numtok > 2 ) {
 
-    TString path(input.gettok( 3, -1 ));
+		TString path(input.gettok( 3, -1 ));
 
-    HMENU hMenu;
-      
-    if ( path.numtok( ) == 1 )
-      hMenu = this->m_hMenu;
-    else
-      hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
+		HMENU hMenu;
 
-    int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		if ( path.numtok( ) == 1 )
+			hMenu = this->m_hMenu;
+		else
+			hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 
-    if ( hMenu != NULL ) {
+		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 
-      MENUITEMINFO mii;
-      ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-      mii.cbSize = sizeof( MENUITEMINFO );
-      mii.fMask = MIIM_DATA;
+		if ( hMenu != NULL ) {
 
-      if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE ) {
+			MENUITEMINFO mii;
+			ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+			mii.cbSize = sizeof( MENUITEMINFO );
+			mii.fMask = MIIM_DATA;
 
-        XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-        if ( p_Item != NULL ) {
+			if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE ) {
 
-          if ( prop == TEXT("text") ) 
-            lstrcpy( szReturnValue, p_Item->getItemText( )->to_chr( ) );
-          else if ( prop == TEXT("icon") )
-            wsprintf( szReturnValue, TEXT("%d"), p_Item->getItemIcon( ) + 1 );
-          return;
-        }
-      }
-    }
-  }
-  else if ( ( prop == TEXT("checked") || prop == TEXT("enabled") ) && numtok > 2 ) {
+				XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+				if ( p_Item != NULL ) {
 
-    TString path(input.gettok( 3, -1 ));
+					if ( prop == TEXT("text") ) 
+						lstrcpy( szReturnValue, p_Item->getItemText( )->to_chr( ) );
+					else if ( prop == TEXT("icon") )
+						wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), p_Item->getItemIcon( ) + 1 );
+					return;
+				}
+			}
+		}
+	}
+	else if ( ( prop == TEXT("checked") || prop == TEXT("enabled") ) && numtok > 2 ) {
 
-    HMENU hMenu;
-      
-    if ( path.numtok( ) == 1 )
-      hMenu = this->m_hMenu;
-    else
-      hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
+		TString path(input.gettok( 3, -1 ));
 
-    int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		HMENU hMenu;
 
-    if ( hMenu != NULL ) {
+		if ( path.numtok( ) == 1 )
+			hMenu = this->m_hMenu;
+		else
+			hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 
-      MENUITEMINFO mii;
-      ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-      mii.cbSize = sizeof( MENUITEMINFO );
-      mii.fMask = MIIM_STATE;
+		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 
-      if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE ) {
+		if ( hMenu != NULL ) {
 
-        if ( prop == TEXT("checked") ) 
-          lstrcpy( szReturnValue, mii.fState & MFS_CHECKED?TEXT("$true"):TEXT("$false") );
-        else if ( prop == TEXT("enabled") )
-          lstrcpy( szReturnValue, !(mii.fState & MFS_GRAYED)?TEXT("$true"):TEXT("$false") );
-        return;
-      }
-    }
-  }
-  else if ( prop == TEXT("submenu") && numtok > 2 ) {
+			MENUITEMINFO mii;
+			ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+			mii.cbSize = sizeof( MENUITEMINFO );
+			mii.fMask = MIIM_STATE;
 
-    TString path(input.gettok( 3, -1 ));
+			if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE ) {
 
-    HMENU hMenu;
-      
-    if ( path.numtok( ) == 1 )
-      hMenu = this->m_hMenu;
-    else
-      hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
+				if ( prop == TEXT("checked") ) 
+					lstrcpy( szReturnValue, mii.fState & MFS_CHECKED?TEXT("$true"):TEXT("$false") );
+				else if ( prop == TEXT("enabled") )
+					lstrcpy( szReturnValue, !(mii.fState & MFS_GRAYED)?TEXT("$true"):TEXT("$false") );
+				return;
+			}
+		}
+	}
+	else if ( prop == TEXT("submenu") && numtok > 2 ) {
 
-    int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		TString path(input.gettok( 3, -1 ));
 
-    if ( hMenu != NULL ) {
+		HMENU hMenu;
 
-      MENUITEMINFO mii;
-      ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-      mii.cbSize = sizeof( MENUITEMINFO );
-      mii.fMask = MIIM_SUBMENU;
+		if ( path.numtok( ) == 1 )
+			hMenu = this->m_hMenu;
+		else
+			hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 
-      if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE ) {
+		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 
-        if ( mii.hSubMenu == NULL )
-          lstrcpy( szReturnValue, TEXT("0") );
-        else
-          lstrcpy( szReturnValue, TEXT("1") );
+		if ( hMenu != NULL ) {
 
-        return;
-      }
-    }
-  }
+			MENUITEMINFO mii;
+			ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+			mii.cbSize = sizeof( MENUITEMINFO );
+			mii.fMask = MIIM_SUBMENU;
 
-  szReturnValue[0] = 0;
+			if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE ) {
+
+				if ( mii.hSubMenu == NULL )
+					lstrcpy( szReturnValue, TEXT("0") );
+				else
+					lstrcpy( szReturnValue, TEXT("1") );
+
+				return;
+			}
+		}
+	}
+
+	szReturnValue[0] = 0;
 }
 
 /*!

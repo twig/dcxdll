@@ -223,7 +223,7 @@ void DcxTreeView::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
 		tvi.mask = TVIF_IMAGE | TVIF_HANDLE;
 
 		TreeView_GetItem(this->m_Hwnd, &tvi);
-		wsprintf(szReturnValue, TEXT("%d"), (tvi.iImage > 10000 ? -2 : tvi.iImage) +1);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (tvi.iImage > 10000 ? -2 : tvi.iImage) +1);
 		return;
 	}
 	// [NAME] [ID] [PROP] [PATH]
@@ -304,7 +304,7 @@ void DcxTreeView::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
 			lstrcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		}
 		else if (n == 0)
-			wsprintf(szReturnValue, TEXT("%d"), matchCount);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), matchCount);
 
 		return;
 	}
@@ -330,7 +330,7 @@ void DcxTreeView::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
 			return;
 		}
 		else {
-			wsprintf(szReturnValue, TEXT("%d"), TreeView_GetItemState(this->m_Hwnd, item, TVIS_STATEIMAGEMASK));
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), TreeView_GetItemState(this->m_Hwnd, item, TVIS_STATEIMAGEMASK));
 			return;
 		}
 	}
@@ -341,19 +341,19 @@ void DcxTreeView::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
 
 		if (path == TEXT("root")) {
 			item = TVI_ROOT;
-			wsprintf(szReturnValue, TEXT("%d"), this->getChildCount(&item));
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getChildCount(&item));
 			return;
 		}
 
-	    item = this->parsePath(&path);
+		item = this->parsePath(&path);
 
 		if (item == NULL) {
 			this->showErrorEx(TEXT("num"), NULL, TEXT("Unable to parse path: %s"), path.to_chr());
 			return;
 		}
 
-        wsprintf(szReturnValue, TEXT("%d"), this->getChildCount(&item));
-        return;
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getChildCount(&item));
+		return;
 	}
 	// [NAME] [ID] [PROP] [PATH]
 	else if (prop == TEXT("expand") && numtok > 3) {
@@ -409,7 +409,8 @@ void DcxTreeView::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
 		}
 
 		LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
-		wsprintf(szReturnValue, TEXT("%s"), lpdcxtvitem->tsMark.to_chr());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), lpdcxtvitem->tsMark.to_chr());
+		lstrcpyn(szReturnValue, lpdcxtvitem->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue))

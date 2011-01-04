@@ -169,59 +169,59 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 
 void DcxBox::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	//  int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
-  // [NAME] [ID] [PROP]
-  if ( prop == TEXT("text") ) {
+	// [NAME] [ID] [PROP]
+	if ( prop == TEXT("text") ) {
 
-    GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
-    return;
-  }
-  else if ( prop == TEXT("inbox") ) {
+		GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
+		return;
+	}
+	else if ( prop == TEXT("inbox") ) {
 
-	  RECT rc, rcText;
-	  GetClientRect( this->m_Hwnd, &rc );
+		RECT rc, rcText;
+		GetClientRect( this->m_Hwnd, &rc );
 
-	  int n = GetWindowTextLength( this->m_Hwnd );
+		int n = GetWindowTextLength( this->m_Hwnd );
 
-	  InflateRect( &rc, -2, -2 );
-	  if ( n > 0 ) {
+		InflateRect( &rc, -2, -2 );
+		if ( n > 0 ) {
 
-		  HDC hdc = GetDC( this->m_Hwnd );
-		  HFONT oldFont = NULL;
+			HDC hdc = GetDC( this->m_Hwnd );
+			HFONT oldFont = NULL;
 
-		  if (this->m_hFont != NULL)
-			  oldFont = SelectFont(hdc, this->m_hFont);
+			if (this->m_hFont != NULL)
+				oldFont = SelectFont(hdc, this->m_hFont);
 
-		  TString text((UINT)n+1);
-		  GetWindowText( this->m_Hwnd, text.to_chr(), n+1 );
-		  DrawText( hdc, text.to_chr(), n, &rcText, DT_CALCRECT );
+			TString text((UINT)n+1);
+			GetWindowText( this->m_Hwnd, text.to_chr(), n+1 );
+			DrawText( hdc, text.to_chr(), n, &rcText, DT_CALCRECT );
 
-		  if (this->m_hFont != NULL)
-			  SelectFont(hdc, oldFont);
+			if (this->m_hFont != NULL)
+				SelectFont(hdc, oldFont);
 
-		  ReleaseDC( this->m_Hwnd, hdc );
+			ReleaseDC( this->m_Hwnd, hdc );
 
-		  //int w = rcText.right - rcText.left;
-		  int h = rcText.bottom - rcText.top;
+			//int w = rcText.right - rcText.left;
+			int h = rcText.bottom - rcText.top;
 
-		  if ( this->m_iBoxStyles & BOXS_BOTTOM ) {
-			  rc.bottom = rc.bottom - h + 2;
-		  }
-		  else {
-			  rc.top = rc.top + h - 2;
-		  }
-	  }
+			if ( this->m_iBoxStyles & BOXS_BOTTOM ) {
+				rc.bottom = rc.bottom - h + 2;
+			}
+			else {
+				rc.top = rc.top + h - 2;
+			}
+		}
 
-	  wsprintf( szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top );
-	  return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top );
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 /*!

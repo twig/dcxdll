@@ -249,42 +249,42 @@ HIMAGELIST DcxReBar::createImageList( ) {
 
 void DcxReBar::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 
-  int numtok = input.numtok( );
+	int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
-  if ( prop == TEXT("num") ) {
+	if ( prop == TEXT("num") ) {
 
-    wsprintf( szReturnValue, TEXT("%d"), this->getBandCount( ) );
-    return;
-  }
-  // [NAME] [ID] [PROP] [N]
-  else if ( prop == TEXT("text") && numtok > 3 ) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getBandCount( ) );
+		return;
+	}
+	// [NAME] [ID] [PROP] [N]
+	else if ( prop == TEXT("text") && numtok > 3 ) {
 
-    int nIndex = input.gettok( 4 ).to_int( ) - 1;
+		int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
-    if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
+		if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
-      REBARBANDINFO rbBand;
-      ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
-      rbBand.cbSize = sizeof( REBARBANDINFO );
-      rbBand.fMask = RBBIM_TEXT;
-      rbBand.cch = 512;
-      rbBand.lpText = szReturnValue;
-      if ( this->getBandInfo( nIndex, &rbBand ) != 0 )
-        return;
-    }
-  }
-  else if ( prop == TEXT("childid") && numtok > 3 ) {
+			REBARBANDINFO rbBand;
+			ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
+			rbBand.cbSize = sizeof( REBARBANDINFO );
+			rbBand.fMask = RBBIM_TEXT;
+			rbBand.cch = MIRC_BUFFER_SIZE_CCH;
+			rbBand.lpText = szReturnValue;
+			if ( this->getBandInfo( nIndex, &rbBand ) != 0 )
+				return;
+		}
+	}
+	else if ( prop == TEXT("childid") && numtok > 3 ) {
 
-    int nItem = input.gettok( 4 ).to_int( ) - 1;
-    DcxControl * c = getControl(nItem);
-    if ( c != NULL )
-       wsprintf( szReturnValue, TEXT("%d"), c->getUserID( ) );
+		int nItem = input.gettok( 4 ).to_int( ) - 1;
+		DcxControl * c = getControl(nItem);
+		if ( c != NULL )
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c->getUserID( ) );
 
-      return;
-  }
-  	// $xdid([NAME], [ID], [N]).[PROP]
+		return;
+	}
+	// $xdid([NAME], [ID], [N]).[PROP]
 	else if (prop == TEXT("markeditem")) {
 		REBARBANDINFO rbi;
 		LPDCXRBBAND pdcxrbb;
@@ -304,13 +304,14 @@ void DcxReBar::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 		this->getBandInfo(n, &rbi);
 		pdcxrbb = (LPDCXRBBAND) rbi.lParam;
 
-		wsprintf(szReturnValue, TEXT("%s"), pdcxrbb->tsMarkText.to_chr());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), pdcxrbb->tsMarkText.to_chr());
+		lstrcpyn(szReturnValue, pdcxrbb->tsMarkText.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 /*!
  * \brief blah

@@ -124,7 +124,7 @@ TString DcxCalendar::getValue(void)
 		end = start;
 	}
 
-	wsprintf(buf, TEXT("%ld %ld"), start, end);
+	wnsprintf(buf, 128, TEXT("%ld %ld"), start, end);
 	return buf;
 }
 
@@ -198,7 +198,7 @@ void DcxCalendar::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 			end = start;
 		}
 
-		wsprintf(szReturnValue, TEXT("%ld %ld"), start, end);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld %ld"), start, end);
 		return;
 	}
 	else if (prop == TEXT("range")) {
@@ -221,7 +221,7 @@ void DcxCalendar::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		else
 			max = TEXT("nolimit");
 
-		wsprintf(szReturnValue, TEXT("%s %s"), min.to_chr(), max.to_chr()); // going to be within 900 limit anyway.
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), min.to_chr(), max.to_chr()); // going to be within 900 limit anyway.
 		return;
 	}
 	else if (prop == TEXT("today")) {
@@ -230,11 +230,11 @@ void DcxCalendar::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		ZeroMemory(&st, sizeof(SYSTEMTIME));
 
 		MonthCal_GetToday(this->m_Hwnd, &st);
-		wsprintf(szReturnValue, TEXT("%ld"), SystemTimeToMircTime(&st));
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), SystemTimeToMircTime(&st));
 		return;
 	}
 	else if (prop == TEXT("selcount")) {
-		wsprintf(szReturnValue, TEXT("%d"), MonthCal_GetMaxSelCount(this->m_Hwnd));
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), MonthCal_GetMaxSelCount(this->m_Hwnd));
 		return;
 	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue))

@@ -199,7 +199,7 @@ void DcxList::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
   // [NAME] [ID] [PROP]
   else if ( prop == TEXT("num") ) {
 
-    wsprintf( szReturnValue, TEXT("%d"), ListBox_GetCount( this->m_Hwnd ) );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCount( this->m_Hwnd ) );
     return;
   }
 	// [NAME] [ID] [PROP] (N)
@@ -258,7 +258,7 @@ void DcxList::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 		}
 		// single select
 		else {
-			wsprintf(szReturnValue, TEXT("%d"), ListBox_GetCurSel(this->m_Hwnd) +1);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCurSel(this->m_Hwnd) +1);
 			return;
 		}
 	}
@@ -280,7 +280,7 @@ void DcxList::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 		if (bottom > count)
 			bottom = count;
 
-		wsprintf(szReturnValue, TEXT("%d %d"), top, bottom);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), top, bottom);
 		return;
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
@@ -311,7 +311,7 @@ void DcxList::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 						count++;
 				}
 
-				wsprintf( szReturnValue, TEXT("%d"), count );
+				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), count );
 				return;
 			}
 			// find Nth matching
@@ -328,7 +328,7 @@ void DcxList::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 					// found Nth matching
 					if ( count == N ) {
 
-						wsprintf( szReturnValue, TEXT("%d"), i + 1 );
+						wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), i + 1 );
 						return;
 					}
 				}

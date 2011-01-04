@@ -525,10 +525,11 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 
 		// Return number of menus.
 		if (i == 0)
-			wsprintf(szReturnValue, TEXT("%d"), (int) this->m_vpXPMenu.size());
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) this->m_vpXPMenu.size());
 		// Return name of specified menu.
 		else
-			wsprintf(szReturnValue, TEXT("%s"), this->m_vpXPMenu[i -1]->getName().to_chr());
+			lstrcpyn(szReturnValue, this->m_vpXPMenu[i -1]->getName().to_chr(),MIRC_BUFFER_SIZE_CCH);
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), this->m_vpXPMenu[i -1]->getName().to_chr());
 
 		return;
 	}
@@ -591,7 +592,7 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 	}
 	else if ( prop == TEXT("colors") ) {
 
-		wsprintf( szReturnValue, TEXT("%ld %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld"), p_Menu->getColor( 1 ), p_Menu->getColor( 2 ),
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld"), p_Menu->getColor( 1 ), p_Menu->getColor( 2 ),
 			p_Menu->getColor( 3 ), p_Menu->getColor( 3 ), p_Menu->getColor( 5 ), p_Menu->getColor( 6 ),
 			p_Menu->getColor( 7 ), p_Menu->getColor( 8 ), p_Menu->getColor( 9 ), p_Menu->getColor( 10 ), p_Menu->getColor( 11 ) );
 		return;
@@ -602,7 +603,7 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 		int nColor = input.gettok( 3 ).to_int( );
 		if ( nColor > 0 && nColor < 11 ) {
 
-			wsprintf( szReturnValue, TEXT("%ld"), p_Menu->getColor( nColor ) );
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->getColor( nColor ) );
 			return;
 		}
 	}
@@ -611,11 +612,12 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 		return;
 	}
 	else if ( prop == TEXT("alpha")) {
-		wsprintf( szReturnValue, TEXT("%ld"), p_Menu->IsAlpha());
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->IsAlpha());
 		return;
 	}
 	else if (prop == TEXT("marked")) {
-		wsprintf(szReturnValue, TEXT("%s"), p_Menu->getMarkedText().to_chr());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), p_Menu->getMarkedText().to_chr());
+		lstrcpyn(szReturnValue, p_Menu->getMarkedText().to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	szReturnValue[0] = 0;

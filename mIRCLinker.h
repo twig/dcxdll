@@ -21,7 +21,8 @@ class mIRCLinker
 	HIMAGELIST  m_hTreeImages; //!< The Treebars original image list.
 	TString		m_sLastError;
 	WNDPROC		m_wpmIRCDefaultWndProc;
-	
+	bool		m_bUnicodemIRC;
+
 	void initMapFile();
 
 public:
@@ -45,6 +46,8 @@ public:
 	bool isAero() const;
 	bool isVista() const;
 	bool isDebug() const;
+	bool isUnicode() const { return this->m_bUnicodemIRC; };
+
 	//bool isDXInstalled9();
 	bool isAlias(const TCHAR * aliasName);
 

@@ -554,7 +554,7 @@ LRESULT CALLBACK Dcx::mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					long style = GetWindowExStyle(Dcx::mIRC.getHWND());
 					// Set WS_EX_LAYERED on this window
 					if (!(style & WS_EX_LAYERED))
-						SetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE, style | WS_EX_LAYERED);
+						SetWindowLongPtr(Dcx::mIRC.getHWND(), GWL_EXSTYLE, style | WS_EX_LAYERED);
 					// Make this window 75 alpha
 					SetLayeredWindowAttributes(Dcx::mIRC.getHWND(), 0, Dcx::getGhostDrag(), LWA_ALPHA);
 					SetProp(Dcx::mIRC.getHWND(), TEXT("dcx_ghosted"), (HANDLE)1);

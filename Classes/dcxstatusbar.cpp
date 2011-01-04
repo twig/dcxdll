@@ -165,10 +165,10 @@ void DcxStatusBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 		while ( i < nParts ) {
 
-			wsprintf( d, TEXT("%d"), parts[i] );
+			wnsprintf( d, 10, TEXT("%d"), parts[i] );
 
 			if ( i != 0 )
-				lstrcat( szReturnValue, TEXT(" ") );
+				lstrcat( szReturnValue, TEXT(" ") ); // TODO: possible length issue... check
 			lstrcat( szReturnValue, d );
 
 			i++;

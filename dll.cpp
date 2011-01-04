@@ -76,7 +76,7 @@ BOOL WINAPI DllMain(
 			DisableThreadLibraryCalls(hinstDLL);
 			// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
 			// GetModuleHandle(NULL) was returning a consistant result.
-			wsprintf(mutex,TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+			wnsprintf(mutex, 128, TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
 
 			// Enforce only one instance of dcx.dll loaded at a time.
 			hDcxMutex = CreateMutex(NULL, TRUE, mutex); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
@@ -163,13 +163,29 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
 */
 mIRC(Version) {
 #ifdef DCX_DEV_BUILD
-	wsprintf(data,
-		TEXT("DCX (XPopup) DLL %d.%d.%d %s%d by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2010"),
-		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE, DLL_DEV_BUILD);
+	if (Dcx::mIRC.isUnicode())
+	{
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
+			TEXT("DCX (XPopup) DLL %d.%d.%d %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2010"),
+			DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE, DLL_DEV_BUILD);
+	}
+	else {
+		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
+			"DCX (XPopup) DLL %d.%d.%d %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2010",
+			DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE, DLL_DEV_BUILD);
+	}
 #else
-	wsprintf(data,
-		TEXT("DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2010"),
-		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
+	if (Dcx::mIRC.isUnicode())
+	{
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
+			TEXT("DCX (XPopup) DLL %d.%d.%d %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2010"),
+			DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
+	}
+	else {
+		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
+			"DCX (XPopup) DLL %d.%d.%d %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2010",
+			DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
+	}
 #endif
 	return 3;
 }
@@ -180,8 +196,7 @@ mIRC(Version) {
 static TString dxData;
 mIRC(IsUsingDirectX) {
 	if (Dcx::isDX9Installed()) {
-		lstrcpy(data, dxData.to_chr());
-		return 3;
+		ret(dxData.to_chr());
 	}
 	else if (Dcx::initDirectX(data, MIRC_BUFFER_SIZE_CCH)) {
 		dxData = data;
@@ -302,7 +317,7 @@ mIRC(GetSystemColor) {
 		ret(TEXT("D_ERROR GetSystemColor: Invalid parameter specified"));
 
 	// max of 8 digits, 9 for null terminator
-	wsprintf(data, TEXT("%d"), GetSysColor(col));
+	wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), GetSysColor(col));
 	return 3;
 }
 
@@ -437,7 +452,7 @@ mIRC(GetTaskbarPos) {
 		RECT rc;
 
 		GetWindowRect(hTaskbar, &rc);
-		wsprintf(data, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 		return 3;
 	}
 
@@ -669,6 +684,7 @@ mIRC(xSignal) {
 	TString d(data);
 	TString flags;
 	bool state;
+	data[0] = 0;
 
 	d.trim();
 
@@ -705,7 +721,6 @@ mIRC(xSignal) {
 		}
 	}
 
-	data[0] = 0;
 	return 1;
 }
 
@@ -713,6 +728,7 @@ mIRC(xSignal) {
 mIRC(WindowProps) {
 	TString input(data);
 	int numtok = input.numtok( );
+	data[0] = TEXT('\0');
 
 	if (numtok < 2) {
 		Dcx::error(TEXT("/dcx WindowProps"), TEXT("Insuffient parameters"));
@@ -727,20 +743,21 @@ mIRC(WindowProps) {
 	}
 
 	TString flags(input.gettok( 2 ).trim());
+	XSwitchFlags xflags(flags);
 
 	if ((flags[0] != TEXT('+')) || (flags.len() < 2)) {
 		Dcx::error(TEXT("/dcx WindowProps"),TEXT("No Flags Found"));
 		return 0;
 	}
 
-	if ((flags.find(TEXT('T'), 0) == 0) && (flags.find(TEXT('i'), 0) == 0) && (flags.find(TEXT('t'), 0) == 0) && (flags.find(TEXT('r'), 0) == 0) && (flags.find(TEXT('v'), 0) == 0)) {
+	if (!xflags[TEXT('T')] && !xflags[TEXT('i')] && !xflags[TEXT('t')] && !xflags[TEXT('r')] && !xflags[TEXT('v')]) {
 		Dcx::error(TEXT("/dcx WindowProps"),TEXT("Unknown Flags"));
 		return 0;
 	}
 
 	// set hwnd NoTheme
 	// +T
-	if (flags.find(TEXT('T'), 0)) {
+	if (xflags[TEXT('T')]) {
 		if (Dcx::XPPlusModule.isUseable()) {
 			if (Dcx::XPPlusModule.dcxSetWindowTheme(hwnd,TEXT(" "),TEXT(" ")) != S_OK)
 				Dcx::error(TEXT("/dcx WindowProps"), TEXT("Unable to set theme"));
@@ -748,7 +765,7 @@ mIRC(WindowProps) {
 	}
 	// set hwnd's title icon
 	// +i [INDEX] [FILENAME]
-	if (flags.find(TEXT('i'), 0)) {
+	if (xflags[TEXT('i')]) {
 		if (numtok < 3) {
 			// invalid args
 			Dcx::error(TEXT("/dcx WindowProps"), TEXT("Invalid Args"));
@@ -762,7 +779,7 @@ mIRC(WindowProps) {
 	}
 	// set hwnd title text
 	// +t [TEXT]
-	if (flags.find(TEXT('t'), 0)) { 
+	if (xflags[TEXT('t')]) { 
 		TString txt;
 		
 		if (flags.find(TEXT('i'), 0)) {
@@ -777,7 +794,7 @@ mIRC(WindowProps) {
 	}
 	// RMB click hwnd at pos.
 	// +r [X] [Y]
-	if (flags.find(TEXT('r'), 0)) {
+	if (xflags[TEXT('r')]) {
 		UINT x = (UINT)input.gettok( 3 ).to_num();
 		UINT y = (UINT)input.gettok( 4 ).to_num();
 		LPARAM parm = MAKELONG(x,y);
@@ -786,7 +803,7 @@ mIRC(WindowProps) {
 	}
 	// Add Vista+ glass effect to window.
 	// +v [top] [left] [bottom] [right]
-	if (flags.find(TEXT('v'), 0)) {
+	if (xflags[TEXT('v')]) {
 		MARGINS margin;
 		margin.cyTopHeight = (INT)input.gettok( 3 ).to_num();
 		margin.cxLeftWidth = (INT)input.gettok( 4 ).to_num();
@@ -832,15 +849,15 @@ mIRC(ActiveWindow) {
 	GetWindowInfo(hwnd, &wi);
 
 	if (prop == TEXT("hwnd"))         // handle
-		wsprintf(data, TEXT("%d"), hwnd);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), hwnd);
 	else if (prop == TEXT("x"))       // left
-		wsprintf(data, TEXT("%d"), wi.rcWindow.left);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.left);
 	else if (prop == TEXT("y"))       // top
-		wsprintf(data, TEXT("%d"), wi.rcWindow.top);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.top);
 	else if (prop == TEXT("w"))       // width
-		wsprintf(data, TEXT("%d"), wi.rcWindow.right - wi.rcWindow.left);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.right - wi.rcWindow.left);
 	else if (prop == TEXT("h"))       // height
-		wsprintf(data, TEXT("%d"), wi.rcWindow.bottom - wi.rcWindow.top);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.bottom - wi.rcWindow.top);
 	else if (prop == TEXT("caption")) // title text
 		GetWindowText(hwnd, data, MIRC_BUFFER_SIZE_CCH);
 	else {                      // otherwise
@@ -854,6 +871,7 @@ mIRC(ActiveWindow) {
 mIRC(GhostDrag) {
 	TString input(data);
 	input.trim();
+	data[0] = 0;
 
 	if (input == TEXT(""))
 	{

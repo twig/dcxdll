@@ -106,26 +106,26 @@ void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 void DcxDivider::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
-  //int numtok = input.numtok( );
-  TString prop(input.gettok(3));
+	//int numtok = input.numtok( );
+	TString prop(input.gettok(3));
 
-  // [NAME] [ID] [PROP]
-  if (prop == TEXT("position")) {
-    int iDivPos = 0;
+	// [NAME] [ID] [PROP]
+	if (prop == TEXT("position")) {
+		int iDivPos = 0;
 
-    SendMessage(this->m_Hwnd, DV_GETDIVPOS, (WPARAM) NULL, (LPARAM) &iDivPos);
-    wsprintf(szReturnValue, TEXT("%d"), iDivPos);
-    return;
-  }
-  else if (prop == TEXT("isvertical")) {
-    wsprintf(szReturnValue, TEXT("%d"), (GetWindowStyle(this->m_Hwnd) & DVS_VERT));
-    return;
-  }
+		SendMessage(this->m_Hwnd, DV_GETDIVPOS, (WPARAM) NULL, (LPARAM) &iDivPos);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), iDivPos);
+		return;
+	}
+	else if (prop == TEXT("isvertical")) {
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (GetWindowStyle(this->m_Hwnd) & DVS_VERT));
+		return;
+	}
 
-  if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 /*!

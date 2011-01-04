@@ -56,34 +56,18 @@ HWND GetHwndFromString(const TString &str) {
 /*!
 * \brief Retireves a HWND from the string.
 */
-#if UNICODE
 HWND GetHwndFromString(const TCHAR *str) {
 
 	// test code to allow docking by hwnd (wtf its only 3 lines)
-	HWND hwnd = (HWND)_wtoi64(str);
+	HWND hwnd = (HWND)dcx_atoi64(str);
 	if (IsWindow(hwnd))
 		return hwnd;
 
 	TCHAR res[20];
 	Dcx::mIRC.evalex( res, 20, TEXT("$dialog(%s).hwnd"), str);
 
-	return (HWND) _wtol(res);
+	return (HWND) dcx_atoi(res);
 }
-#else
-HWND GetHwndFromString(const TCHAR *str) {
-
-	// test code to allow docking by hwnd (wtf its only 3 lines)
-	HWND hwnd = (HWND)_atoi64(str);
-	if (IsWindow(hwnd))
-		return hwnd;
-
-	TCHAR res[20];
-
-	Dcx::mIRC.evalex( res, 20, TEXT("$dialog(%s).hwnd"), str);
-
-	return (HWND) atol(res);
-}
-#endif
 
 // Removes window style to a window
 void RemStyles(HWND hwnd,int parm,long RemStyles)

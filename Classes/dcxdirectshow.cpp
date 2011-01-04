@@ -148,7 +148,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 		HRESULT hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
 		if (SUCCEEDED(hr)) {
 			// width height arwidth arheight
-			wsprintf(szReturnValue,TEXT("%d %d %d %d"), lWidth, lHeight, lARWidth, lARHeight);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), lWidth, lHeight, lARWidth, lARHeight);
 			return;
 		}
 		else {
@@ -180,12 +180,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 				vflags += TEXT('h');
 			if (amc.dwFlags & ProcAmpControl9_Saturation)
 				vflags += TEXT('s');
-#if UNICODE
+			// NB: wnsprintf() doesn't support %f
 			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %f %f %f %f"), vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
-#else
-			// NB: wsprintf() doesn't support %f
-			sprintf(szReturnValue,TEXT("%s %f %f %f %f"), vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
-#endif
 			return;
 		}
 		else {
@@ -198,12 +194,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr);
 		if (SUCCEEDED(hr)) {
-#if UNICODE
 			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH,TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-#else
-			// NB: wsprintf() doesn't support %f
-			sprintf(szReturnValue,TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-#endif
+			// NB: wnsprintf() doesn't support %f
 			return;
 		}
 		else {
@@ -216,12 +208,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr);
 		if (SUCCEEDED(hr)) {
-#if UNICODE
-			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH,TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-#else
-			// NB: wsprintf() doesn't support %f
-			sprintf(szReturnValue,TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-#endif
+			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			// NB: wnsprintf() doesn't support %f
 			return;
 		}
 		else {
@@ -234,12 +222,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Hue, &acr);
 		if (SUCCEEDED(hr)) {
-#if UNICODE
 			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-#else
-			// NB: wsprintf() doesn't support %f
-			sprintf(szReturnValue,TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-#endif
+			// NB: wnsprintf() doesn't support %f
 			return;
 		}
 		else {
@@ -252,12 +236,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Saturation, &acr);
 		if (SUCCEEDED(hr)) {
-#if UNICODE
 			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-#else
-			// NB: wsprintf() doesn't support %f
-			sprintf(szReturnValue,TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-#endif
+			// NB: wnsprintf() doesn't support %f
 			return;
 		}
 		else {
@@ -267,24 +247,20 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == TEXT("currentpos")) {
-		wsprintf(szReturnValue,TEXT("D_OK %I64d"), this->getPosition());
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64d"), this->getPosition());
 		return;
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == TEXT("duration")) {
 		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
-			wsprintf(szReturnValue,TEXT("D_OK %I64d"), this->getDuration());
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64d"), this->getDuration());
 		else
 			lstrcpy(szReturnValue,TEXT("D_ERROR Method Not Supported"));
 		return;
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == TEXT("volume")) {
-#if UNICODE
 		swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %.2f"), this->getVolume());
-#else
-		sprintf(szReturnValue,TEXT("D_OK %.2f"), this->getVolume());
-#endif
 		return;
   }
 	// [NAME] [ID] [PROP]
@@ -318,7 +294,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 					szState = TEXT("unknown");
 					break;
 			}
-			wsprintf(szReturnValue, TEXT("D_OK %s"), szState);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %s"), szState);
 		}
 		else {
 			this->showError(prop.to_chr(),NULL,TEXT("Unable to get State Information"));

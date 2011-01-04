@@ -111,25 +111,25 @@ void DcxPager::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
 
 void DcxPager::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	//  int numtok = input.numtok( );
 	TString prop(input.gettok( 3 ));
 
-  if ( prop == TEXT("color")) {
-    wsprintf( szReturnValue, TEXT("%d"), Pager_GetBkColor(this->m_Hwnd) );
-    return;
+	if ( prop == TEXT("color")) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBkColor(this->m_Hwnd) );
+		return;
 	}
-  else if ( prop == TEXT("bsize")) {
-    wsprintf( szReturnValue, TEXT("%d"), Pager_GetButtonSize(this->m_Hwnd) );
-    return;
+	else if ( prop == TEXT("bsize")) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetButtonSize(this->m_Hwnd) );
+		return;
 	}
-  else if ( prop == TEXT("border")) {
-    wsprintf( szReturnValue, TEXT("%d"), Pager_GetBorder(this->m_Hwnd) );
-    return;
+	else if ( prop == TEXT("border")) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBorder(this->m_Hwnd) );
+		return;
 	}
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 /*!

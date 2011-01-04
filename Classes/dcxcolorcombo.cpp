@@ -102,46 +102,46 @@ void DcxColorCombo::parseControlStyles(TString &styles, LONG *Styles, LONG *ExSt
 
 void DcxColorCombo::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
-  int numtok = input.numtok( );
+	int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
-   // [NAME] [ID] [PROP]
-  if ( prop == TEXT("num") ) {
+	// [NAME] [ID] [PROP]
+	if ( prop == TEXT("num") ) {
 
-    wsprintf( szReturnValue, TEXT("%d"), this->getCount( ) );
-    return;
-  }
-   // [NAME] [ID] [PROP] [N]
-  else if ( prop == TEXT("color") && numtok > 3 ) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getCount( ) );
+		return;
+	}
+	// [NAME] [ID] [PROP] [N]
+	else if ( prop == TEXT("color") && numtok > 3 ) {
 
-    int nItem = input.gettok( 4 ).to_int( ) - 1;
+		int nItem = input.gettok( 4 ).to_int( ) - 1;
 
-    if ( nItem > -1 && nItem < this->getCount( ) ) {
+		if ( nItem > -1 && nItem < this->getCount( ) ) {
 
-      LPDCXCCOMBOITEM lpdcxcci = (LPDCXCCOMBOITEM) this->getItemData( nItem );
+			LPDCXCCOMBOITEM lpdcxcci = (LPDCXCCOMBOITEM) this->getItemData( nItem );
 
-      if ( lpdcxcci != NULL ) {
+			if ( lpdcxcci != NULL ) {
 
-        wsprintf( szReturnValue, TEXT("%d"), lpdcxcci->clrItem );
-        return;
-      }
-    }
-  }
-   // [NAME] [ID] [PROP]
-  else if ( prop == TEXT("sel") ) {
+				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), lpdcxcci->clrItem );
+				return;
+			}
+		}
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == TEXT("sel") ) {
 
-    int nItem;
-    if ( ( nItem = (int)this->getCurSel( ) ) != CB_ERR ) {
+		int nItem;
+		if ( ( nItem = (int)this->getCurSel( ) ) != CB_ERR ) {
 
-      wsprintf( szReturnValue, TEXT("%d"), nItem + 1 );
-      return;
-    }
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1 );
+			return;
+		}
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 /*!

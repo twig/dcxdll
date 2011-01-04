@@ -213,14 +213,14 @@ void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 		if ( nItem > -1 ) {
 
-			wsprintf( szReturnValue, TEXT("%d"), nItem + 1 );
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1 );
 			return;
 		}
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("num") ) {
 
-		wsprintf( szReturnValue, TEXT("%d"), this->getCount( ) );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getCount( ) );
 		return;
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
@@ -253,7 +253,7 @@ void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 					i++;
 				}
 
-				wsprintf( szReturnValue, TEXT("%d"), count );
+				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), count );
 				return;
 			}
 			// find Nth matching
@@ -268,7 +268,7 @@ void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 					if ( count == N ) {
 
-						wsprintf( szReturnValue, TEXT("%d"), i + 1 );
+						wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), i + 1 );
 						return;
 					}
 

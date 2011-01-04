@@ -111,7 +111,7 @@ BOOL CopyToClipboard(const HWND owner, const TString & str) {
 	TCHAR *strCopy = (TCHAR *) GlobalLock(hglbCopy);
 
 	// original code, limited and doesnt copy large chunks
-	//wsprintf(strCopy, TEXT("%s"), str.to_chr());
+	//wnsprintf(strCopy, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), str.to_chr());
 
 	// demo code from msdn, copies everything
 	memcpy(strCopy, str.to_chr(), cbsize);

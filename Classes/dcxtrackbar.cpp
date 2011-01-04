@@ -147,40 +147,36 @@ void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 
 void DcxTrackBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	//  int numtok = input.numtok( );
 	TString prop(input.gettok( 3 ));
 
-  if ( prop == TEXT("value") ) {
+	if ( prop == TEXT("value") ) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPos( ) );
+		return;
+	}
+	else if ( prop == TEXT("range") ) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), this->getRangeMin( ), this->getRangeMax( ) );
+		return;
+	}
+	else if ( prop == TEXT("line") ) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getLineSize( ) );
+		return;
+	}
+	else if ( prop == TEXT("page") ) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPageSize( ) );
+		return;
+	}
+	else if (prop == TEXT("selrange")) {
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), this->getSelStart(), this->getSelEnd());
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-    wsprintf( szReturnValue, TEXT("%d"), this->getPos( ) );
-    return;
-  }
-  else if ( prop == TEXT("range") ) {
-    
-    wsprintf( szReturnValue, TEXT("%d %d"), this->getRangeMin( ), this->getRangeMax( ) );
-    return;
-  }
-  else if ( prop == TEXT("line") ) {
-    
-    wsprintf( szReturnValue, TEXT("%d"), this->getLineSize( ) );
-    return;
-  }
-  else if ( prop == TEXT("page") ) {
-    
-    wsprintf( szReturnValue, TEXT("%d"), this->getPageSize( ) );
-    return;
-  }
-  else if (prop == TEXT("selrange")) {
-    wsprintf(szReturnValue, TEXT("%d %d"), this->getSelStart(), this->getSelEnd());
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 /*!
- * \brief blah
+* \brief blah
  *
  * \param input [NAME] [SWITCH] [ID] (OPTIONS)
  */
