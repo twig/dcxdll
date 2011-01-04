@@ -2157,25 +2157,33 @@ int TString::tvprintf(const TCHAR *fmt, va_list * args)
 {
 #if UNICODE
 	int cnt = _vscwprintf(fmt, *args);
-	TCHAR *txt = new TCHAR[++cnt];
-	if (txt != NULL) {
-	// warning C4996: 'vsprintf' was declared deprecated
-	// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
-		vswprintf(txt, cnt, fmt, *args );
+	if (cnt > 0) {
+		TCHAR *txt = new TCHAR[++cnt];
+		if (txt != NULL) {
+		// warning C4996: 'vsprintf' was declared deprecated
+		// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
+			vswprintf(txt, cnt, fmt, *args );
+		}
+		else
+			cnt = 0;
+		this->deleteString();
+		this->m_pString = txt;
 	}
-	else
-		cnt = 0;
-	this->deleteString();
-	this->m_pString = txt;
 	return cnt;
 #else
 	int cnt = _vscprintf(fmt, *args);
-	TCHAR *txt = new TCHAR[cnt +1];
-	// warning C4996: 'vsprintf' was declared deprecated
-	// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
-	vsprintf_s(txt, cnt, fmt, *args );
-	this->deleteString();
-	this->m_pString = txt;
+	if (cnt > 0) {
+		TCHAR *txt = new TCHAR[cnt +1];
+		if (txt != NULL) {
+			// warning C4996: 'vsprintf' was declared deprecated
+			// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
+			vsprintf_s(txt, cnt, fmt, *args );
+		}
+		else
+			cnt = 0;
+		this->deleteString();
+		this->m_pString = txt;
+	}
 	return cnt;
 #endif
 }
