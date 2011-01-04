@@ -148,7 +148,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		HRESULT hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
 		if (SUCCEEDED(hr)) {
 			// width height arwidth arheight
-			wsprintf(szReturnValue,"%d %d %d %d", lWidth, lHeight, lARWidth, lARHeight);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d %d %d", lWidth, lHeight, lARWidth, lARHeight);
 			return;
 		}
 		else {
@@ -181,7 +181,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			if (amc.dwFlags & ProcAmpControl9_Saturation)
 				vflags += 's';
 			// NB: wsprintf() doesn't support %f
-			sprintf(szReturnValue,"%s %f %f %f %f", vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
+			_snprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%s %f %f %f %f", vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
 			return;
 		}
 		else {
@@ -195,7 +195,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr);
 		if (SUCCEEDED(hr)) {
 			// NB: wsprintf() doesn't support %f
-			sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			_snprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			return;
 		}
 		else {
@@ -209,7 +209,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr);
 		if (SUCCEEDED(hr)) {
 			// NB: wsprintf() doesn't support %f
-			sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			_snprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			return;
 		}
 		else {
@@ -223,7 +223,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Hue, &acr);
 		if (SUCCEEDED(hr)) {
 			// NB: wsprintf() doesn't support %f
-			sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			_snprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			return;
 		}
 		else {
@@ -237,7 +237,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Saturation, &acr);
 		if (SUCCEEDED(hr)) {
 			// NB: wsprintf() doesn't support %f
-			sprintf(szReturnValue,"%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			_snprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%f %f %f %f", acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			return;
 		}
 		else {
@@ -247,20 +247,20 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "currentpos") {
-		wsprintf(szReturnValue,"D_OK %I64d", this->getPosition());
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "D_OK %I64d", this->getPosition());
 		return;
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "duration") {
 		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
-			wsprintf(szReturnValue,"D_OK %I64d", this->getDuration());
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "D_OK %I64d", this->getDuration());
 		else
 			lstrcpy(szReturnValue,"D_ERROR Method Not Supported");
 		return;
   }
   // [NAME] [ID] [PROP]
 	else if ( prop == "volume") {
-		sprintf(szReturnValue,"D_OK %.2f", this->getVolume());
+		_snprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "D_OK %.2f", this->getVolume());
 		return;
   }
 	// [NAME] [ID] [PROP]
@@ -294,7 +294,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 					szState = "unknown";
 					break;
 			}
-			sprintf(szReturnValue, "D_OK %s", szState);
+			_snprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "D_OK %s", szState);
 		}
 		else {
 			this->showError(prop.to_chr(),NULL,"Unable to get State Information");

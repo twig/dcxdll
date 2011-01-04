@@ -203,7 +203,7 @@ void DcxDialog::deleteControl(DcxControl *p_Control) {
 void DcxDialog::deleteAllControls() {
 	/*
   char error[500];
-  wsprintf( error, "%d Controls", this->m_vpControls.size( ) );
+  wnsprintf( error, 500, "%d Controls", this->m_vpControls.size( ) );
   mIRCError( error );
 
   VectorOfControlPtrs::iterator it;
@@ -212,7 +212,7 @@ void DcxDialog::deleteAllControls() {
   
   while ( ( p_Control = this->m_vpControls.pop_back( ) ) != NULL ) {
 
-    wsprintf( error, "ID %d %d", p_Control->getUserID( ), this->m_vpControls.size( ) );
+    wnsprintf( error, 500, "ID %d %d", p_Control->getUserID( ), this->m_vpControls.size( ) );
     mIRCError( error );
 
     if ( p_Control != NULL ) {
@@ -226,7 +226,7 @@ void DcxDialog::deleteAllControls() {
   this->m_vpControls.clear( );
   
 
-  wsprintf( error, "%d Controls", this->m_vpControls.size( ) );
+  wnsprintf( error, 500, "%d Controls", this->m_vpControls.size( ) );
   mIRCError( error );
   */
 }
@@ -1704,7 +1704,7 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 			nID++;
 		}
 
-		wsprintf(szReturnValue, "%d", nID - mIRC_ID_OFFSET);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", nID - mIRC_ID_OFFSET);
 		return;
 	}
 	// [NAME] [PROP] [N|NAMEDID]
@@ -1714,7 +1714,7 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 		if (N == -1)
 		{
 			if (input.gettok( 3 ) == "0")
-				wsprintf(szReturnValue, "%d", this->m_vpControls.size());
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->m_vpControls.size());
 			else
 			{
 				
@@ -1722,16 +1722,17 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 				{
 					if (it->first == input.gettok( 3 )) 
 					{
-						wsprintf(szReturnValue, "%i", it->second);
+						wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%i", it->second);
 						return;
 					}
 				}
-				wsprintf(szReturnValue, "%s", "");
+				//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%s", "");
+				szReturnValue[0] = 0;
 				return;
 			}
 		}
 		else if ((N > -1) && (N < (int) this->m_vpControls.size()))
-			wsprintf(szReturnValue, "%d", this->m_vpControls[N]->getUserID());
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->m_vpControls[N]->getUserID());
 
 		return;
 	}
@@ -1755,17 +1756,18 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 	}
 	// [NAME] [PROP]
 	else if (prop == "parent") {
-		wsprintf(szReturnValue, "%s", this->getParentName().to_chr());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%s", this->getParentName().to_chr());
+		lstrcpyn(szReturnValue, this->getParentName().to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	// [NAME] [PROP]
 	else if (prop == "mouseid") {
-		wsprintf(szReturnValue, "%d", this->m_MouseID);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->m_MouseID);
 		return;
 	}
 	// [NAME] [PROP]
 	else if (prop == "focusid") {
-		wsprintf(szReturnValue, "%d", this->m_FocusID);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->m_FocusID);
 		return;
 	}
 	// [NAME] [PROP]
@@ -1774,7 +1776,7 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 
 		GetCursorPos(&pt);
 		MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
-		wsprintf(szReturnValue, "%d %d", pt.x, pt.y);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", pt.x, pt.y);
 
 		return;
 	}
@@ -1811,12 +1813,13 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 		if (GetAsyncKeyState(VK_CAPITAL) < 0)
 			iKeyState |= 8192;
 
-		wsprintf(szReturnValue, "%d", iKeyState);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", iKeyState);
 		return;
 	}
 	// [NAME] [PROP]
 	else if (prop == "alias") {
-		wsprintf(szReturnValue, "%s", this->getAliasName().to_chr());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%s", this->getAliasName().to_chr());
+		lstrcpyn(szReturnValue, this->getAliasName().to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	// [NAME] [PROP] [N]
@@ -1826,18 +1829,18 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 
 		// return total number of id's
 		if (n == 0)
-			wsprintf(szReturnValue, "%d", size);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", size);
 		// return the Nth id
 		else if ((n > 0) && (n <= size)) {
 			n--;
-			wsprintf(szReturnValue, "%d", this->m_vZLayers[n] - mIRC_ID_OFFSET);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->m_vZLayers[n] - mIRC_ID_OFFSET);
 		}
 
 		return;
 	}
 	// [NAME] [PROP]
 	else if (prop == "zlayercurrent") {
-		wsprintf(szReturnValue, "%d", this->m_zLayerCurrent +1);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->m_zLayerCurrent +1);
 		return;
 	}
 	// [NAME] [PROP]
@@ -1853,7 +1856,7 @@ void DcxDialog::parseInfoRequest( TString &input, char *szReturnValue) {
 		RGBQUAD clr = {0};
 		BOOL bOpaque = FALSE;
 		Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque);
-		wsprintf(szReturnValue, TEXT("%d"), RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue));
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue));
 		return;
 	}
 	// invalid info request

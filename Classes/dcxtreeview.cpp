@@ -223,7 +223,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 		tvi.mask = TVIF_IMAGE | TVIF_HANDLE;
 
 		TreeView_GetItem(this->m_Hwnd, &tvi);
-		wsprintf(szReturnValue, "%d", (tvi.iImage > 10000 ? -2 : tvi.iImage) +1);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", (tvi.iImage > 10000 ? -2 : tvi.iImage) +1);
 		return;
 	}
 	// [NAME] [ID] [PROP] [PATH]
@@ -304,7 +304,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 			lstrcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		}
 		else if (n == 0)
-			wsprintf(szReturnValue, "%d", matchCount);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", matchCount);
 
 		return;
 	}
@@ -330,7 +330,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 			return;
 		}
 		else {
-			wsprintf(szReturnValue, "%d", TreeView_GetItemState(this->m_Hwnd, item, TVIS_STATEIMAGEMASK));
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", TreeView_GetItemState(this->m_Hwnd, item, TVIS_STATEIMAGEMASK));
 			return;
 		}
 	}
@@ -341,7 +341,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 
 		if (path == "root") {
 			item = TVI_ROOT;
-			wsprintf(szReturnValue, "%d", this->getChildCount(&item));
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->getChildCount(&item));
 			return;
 		}
 
@@ -352,7 +352,7 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 			return;
 		}
 
-        wsprintf(szReturnValue, "%d", this->getChildCount(&item));
+        wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->getChildCount(&item));
         return;
 	}
 	// [NAME] [ID] [PROP] [PATH]
@@ -409,7 +409,8 @@ void DcxTreeView::parseInfoRequest(TString &input, char *szReturnValue) {
 		}
 
 		LPDCXTVITEM lpdcxtvitem = (LPDCXTVITEM) tvi.lParam;
-		wsprintf(szReturnValue, "%s", lpdcxtvitem->tsMark.to_chr());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%s", lpdcxtvitem->tsMark.to_chr());
+		lstrcpyn(szReturnValue, lpdcxtvitem->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue))

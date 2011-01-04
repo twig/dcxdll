@@ -138,13 +138,13 @@ void DcxProgressBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 	TString prop(input.gettok( 3 ));
 
   if ( prop == "value" ) {
-    wsprintf( szReturnValue, "%d", this->getPosition( ) );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->getPosition( ) );
     return;
   }
   else if ( prop == "range" ) {
     PBRANGE pbr;
     this->getRange( FALSE, &pbr );
-    wsprintf( szReturnValue, "%d %d", pbr.iLow, pbr.iHigh );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", pbr.iLow, pbr.iHigh );
     return;
   }
   else if (prop == "text") {

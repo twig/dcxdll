@@ -85,7 +85,7 @@ void DcxIpAddress::toXml(TiXmlElement * xml) {
 	DWORD ip;
 	char buf[64];
 	this->getAddress( &ip );
-	wsprintf( buf, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
+	wnsprintf( buf, 64, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
 		SECOND_IPADDRESS( ip ),
 		THIRD_IPADDRESS( ip ),
 		FOURTH_IPADDRESS( ip ) );
@@ -134,7 +134,7 @@ void DcxIpAddress::parseInfoRequest( TString & input, char * szReturnValue ) {
 		DWORD ip;
 		this->getAddress( &ip );
 
-		wsprintf( szReturnValue, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
 			SECOND_IPADDRESS( ip ),
 			THIRD_IPADDRESS( ip ),
 			FOURTH_IPADDRESS( ip ) );

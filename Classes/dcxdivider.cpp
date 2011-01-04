@@ -114,11 +114,11 @@ void DcxDivider::parseInfoRequest( TString & input, char * szReturnValue ) {
     int iDivPos = 0;
 
     SendMessage(this->m_Hwnd, DV_GETDIVPOS, (WPARAM) NULL, (LPARAM) &iDivPos);
-    wsprintf(szReturnValue, "%d", iDivPos);
+    wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", iDivPos);
     return;
   }
   else if (prop == "isvertical") {
-    wsprintf(szReturnValue, "%d", (GetWindowStyle(this->m_Hwnd) & DVS_VERT));
+    wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", (GetWindowStyle(this->m_Hwnd) & DVS_VERT));
     return;
   }
 

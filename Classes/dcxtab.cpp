@@ -181,7 +181,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
   }
   else if ( prop == "num" ) {
 
-    wsprintf( szReturnValue, "%d", TabCtrl_GetItemCount( this->m_Hwnd ) );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", TabCtrl_GetItemCount( this->m_Hwnd ) );
     return;
   }
   // [NAME] [ID] [PROP] [N]
@@ -198,7 +198,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
 
       TabCtrl_GetItem( this->m_Hwnd, iTab, &tci );
 
-      wsprintf( szReturnValue, "%d", tci.iImage + 1 );
+      wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", tci.iImage + 1 );
       return;
     }
   }
@@ -208,7 +208,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
 
     if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
-      wsprintf( szReturnValue, "%d", nItem + 1 );
+      wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", nItem + 1 );
       return;
     }
   }
@@ -245,7 +245,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
 
       DcxControl * c = this->m_pParentDialog->getControlByHWND( lpdtci->mChildHwnd );
       if ( c != NULL ) 
-        wsprintf( szReturnValue, "%d", c->getUserID( ) );
+        wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", c->getUserID( ) );
 
       return;
     }
@@ -260,7 +260,7 @@ void DcxTab::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 		int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
 
-		wsprintf(szReturnValue, "%d", tab +1);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", tab +1);
 		return;
 	}
 
@@ -622,7 +622,7 @@ void DcxTab::activateSelectedTab( ) {
 
 		/*
 		char data[500];
-		wsprintf( data, "WRECT %d %d %d %d - ARECT %d %d %d %d", 
+		wnsprintf( data, 500, "WRECT %d %d %d %d - ARECT %d %d %d %d", 
 		rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top,
 		tabrect.left, tabrect.top, tabrect.right-tabrect.left, tabrect.bottom-tabrect.top );
 

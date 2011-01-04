@@ -174,10 +174,10 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 	// [NAME] [ID] [PROP]
 	else if (prop == "num") {
 		if (this->isStyle(ES_MULTILINE))
-			wsprintf(szReturnValue, "%d", (int)SendMessage(this->m_Hwnd, EM_GETLINECOUNT, 0, 0L));
-			//wsprintf(szReturnValue, "%d", this->m_tsText.numtok("\r\n"));
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", (int)SendMessage(this->m_Hwnd, EM_GETLINECOUNT, 0, 0L));
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->m_tsText.numtok("\r\n"));
 		else
-			lstrcpy(szReturnValue,"1");	// single line control so always 1 line.
+			lstrcpyn(szReturnValue,"1",MIRC_BUFFER_SIZE_CCH);	// single line control so always 1 line.
 		return;
 	}
 	// [NAME] [ID] [PROP]
@@ -196,11 +196,11 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 			// line offset
 			iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
-			wsprintf(szReturnValue, "%d %d", iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
 		else {
 			// return selstart
-			wsprintf(szReturnValue, "%d %d", 1, dwAbsoluteStartSelPos);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "1 %d", dwAbsoluteStartSelPos);
 		}
 
 		return;
@@ -209,21 +209,21 @@ void DcxRichEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		CHARRANGE c;
 
 		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
-		wsprintf(szReturnValue, "%d", c.cpMin);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", c.cpMin);
 		return;
 	}
 	else if (prop == "selend") {
 		CHARRANGE c;
 
 		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
-		wsprintf(szReturnValue, "%d", c.cpMax);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", c.cpMax);
 		return;
 	}
 	else if (prop == "sel") {
 		CHARRANGE c;
 
 		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
-		wsprintf(szReturnValue, "%d %d", c.cpMin, c.cpMax);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", c.cpMin, c.cpMax);
 		return;
 	}
 	else if (prop == "seltext") {

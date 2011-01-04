@@ -150,12 +150,12 @@ void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == "num" ) {
-		wsprintf( szReturnValue, "%d", ListBox_GetCount( this->m_Hwnd ) );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", ListBox_GetCount( this->m_Hwnd ) );
 		return;
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == "sel" ) {
-		wsprintf( szReturnValue, "%d", ListBox_GetCurSel( this->m_Hwnd ) + 1 );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", ListBox_GetCurSel( this->m_Hwnd ) + 1 );
 		return;
 	}
 	// [NAME] [ID] [PROP] [N]
@@ -183,7 +183,7 @@ void DcxStacker::parseInfoRequest( TString & input, char * szReturnValue ) {
 			LPDCXSITEM sitem = this->getItem(nSel);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
 				if (sitem->pChild != NULL)
-					wsprintf(szReturnValue,"%d",sitem->pChild->getUserID());
+					wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d",sitem->pChild->getUserID());
 			}
 			return;
 		}

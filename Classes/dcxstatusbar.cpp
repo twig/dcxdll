@@ -165,7 +165,7 @@ void DcxStatusBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 		while ( i < nParts ) {
 
-			wsprintf( d, "%d", parts[i] );
+			wnsprintf( d, 10, "%d", parts[i] );
 
 			if ( i != 0 )
 				lstrcat( szReturnValue, " " );

@@ -60,6 +60,7 @@ void mIRCLinker::load(LOADINFO * lInfo) {
 	DCX_DEBUG(debug,"LoadmIRCLink", "Debug mode detected...");
 
 	if (this->getMainVersion() == 7) {
+		this->m_bUnicodemIRC = true;
 		DCX_DEBUG(debug,"LoadmIRCLink", "mIRC V7 detected...");
 		DCX_DEBUG(debug,"LoadmIRCLink", "Can't do any window mods etc..");
 		return;
@@ -241,7 +242,7 @@ LRESULT mIRCLinker::callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LP
  * Allow sufficient characters to be returned.
  */
 bool mIRCLinker::eval(char *res, const int maxlen, const char *data) {
-	lstrcpy(m_pData, data);
+	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
 	SendMessage(m_mIRCHWND, WM_MEVALUATE, 0, m_iMapCnt);
 	if (res != NULL) lstrcpyn(res, m_pData, maxlen);
 	if (lstrcmp(m_pData, "$false") == 0) return false;
@@ -249,15 +250,15 @@ bool mIRCLinker::eval(char *res, const int maxlen, const char *data) {
 }
 
 bool mIRCLinker::tsEval(TString &res, const char *data) {
-	lstrcpy(m_pData, data);
+	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
 	SendMessage(m_mIRCHWND, WM_MEVALUATE, 0, m_iMapCnt);
 	res = m_pData;
-	if (lstrcmp(m_pData, "$false") == 0) return false;
+	if (res == "$false") return false;
 	return true;
 }
 
 bool mIRCLinker::iEval(__int64  *res, const char *data) {
-	lstrcpy(m_pData, data);
+	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
 	SendMessage(m_mIRCHWND, WM_MEVALUATE, 0, m_iMapCnt);
 	*res = _atoi64(m_pData);
 	if (*res == 0) return false;
@@ -295,7 +296,7 @@ bool mIRCLinker::tsEvalex(TString &res, const char *szFormat, ...)
 
 bool mIRCLinker::exec(const char *data)
 {
-	lstrcpy(m_pData, data);
+	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
 	SendMessage(m_mIRCHWND, WM_MCOMMAND, 0, m_iMapCnt);
 	if (lstrlen(m_pData) == 0) return true;
 	return false;
@@ -314,7 +315,7 @@ bool mIRCLinker::execex(const char *szFormat, ...)
 }
 
 void mIRCLinker::signal(const char *msg) {
-	wsprintf(m_pData, "//.signal -n DCX %s", msg);
+	wnsprintf(m_pData, MIRC_BUFFER_SIZE_CCH, "//.signal -n DCX %s", msg);
 	SendMessage(m_mIRCHWND, WM_MCOMMAND, 0, m_iMapCnt);
 }
 
@@ -355,6 +356,6 @@ void mIRCLinker::debug(const char *cmd, const char *msg) {
 * \brief Displays output text to the mIRC status window.
 */
 void mIRCLinker::echo(const char *data) {
-	wsprintf(m_pData, "//echo -s %s", data);
+	wnsprintf(m_pData, MIRC_BUFFER_SIZE_CCH, "//echo -s %s", data);
 	SendMessage(m_mIRCHWND, WM_MCOMMAND, 0, m_iMapCnt);
 }

@@ -249,42 +249,42 @@ HIMAGELIST DcxReBar::createImageList( ) {
 
 void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  int numtok = input.numtok( );
+	int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
-  if ( prop == "num" ) {
+	if ( prop == "num" ) {
 
-    wsprintf( szReturnValue, "%d", this->getBandCount( ) );
-    return;
-  }
-  // [NAME] [ID] [PROP] [N]
-  else if ( prop == "text" && numtok > 3 ) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->getBandCount( ) );
+		return;
+	}
+	// [NAME] [ID] [PROP] [N]
+	else if ( prop == "text" && numtok > 3 ) {
 
-    int nIndex = input.gettok( 4 ).to_int( ) - 1;
+		int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
-    if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
+		if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
-      REBARBANDINFO rbBand;
-      ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
-      rbBand.cbSize = sizeof( REBARBANDINFO );
-      rbBand.fMask = RBBIM_TEXT;
-      rbBand.cch = 512;
-      rbBand.lpText = szReturnValue;
-      if ( this->getBandInfo( nIndex, &rbBand ) != 0 )
-        return;
-    }
-  }
-  else if ( prop == "childid" && numtok > 3 ) {
+			REBARBANDINFO rbBand;
+			ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
+			rbBand.cbSize = sizeof( REBARBANDINFO );
+			rbBand.fMask = RBBIM_TEXT;
+			rbBand.cch = MIRC_BUFFER_SIZE_CCH;
+			rbBand.lpText = szReturnValue;
+			if ( this->getBandInfo( nIndex, &rbBand ) != 0 )
+				return;
+		}
+	}
+	else if ( prop == "childid" && numtok > 3 ) {
 
-    int nItem = input.gettok( 4 ).to_int( ) - 1;
-    DcxControl * c = getControl(nItem);
-    if ( c != NULL )
-       wsprintf( szReturnValue, "%d", c->getUserID( ) );
+		int nItem = input.gettok( 4 ).to_int( ) - 1;
+		DcxControl * c = getControl(nItem);
+		if ( c != NULL )
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", c->getUserID( ) );
 
-      return;
-  }
-  	// $xdid([NAME], [ID], [N]).[PROP]
+		return;
+	}
+	// $xdid([NAME], [ID], [N]).[PROP]
 	else if (prop == "markeditem") {
 		REBARBANDINFO rbi;
 		LPDCXRBBAND pdcxrbb;
@@ -304,19 +304,20 @@ void DcxReBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 		this->getBandInfo(n, &rbi);
 		pdcxrbb = (LPDCXRBBAND) rbi.lParam;
 
-		wsprintf(szReturnValue, "%s", pdcxrbb->tsMarkText.to_chr());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%s", pdcxrbb->tsMarkText.to_chr());
+		lstrcpyn(szReturnValue, pdcxrbb->tsMarkText.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 /*!
- * \brief blah
- *
- * \param input [NAME] [SWITCH] [ID] (OPTIONS)
- */
+* \brief blah
+*
+* \param input [NAME] [SWITCH] [ID] (OPTIONS)
+*/
 
 void DcxReBar::parseCommandRequest( TString & input ) {
 	XSwitchFlags flags(input.gettok(3));
@@ -490,182 +491,182 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 		pdcxrbb->tsMarkText = (numtok > 4 ? input.gettok(5, -1) : "");
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-  else if ( flags['d'] && numtok > 3 ) {
+	else if ( flags['d'] && numtok > 3 ) {
 
-    int nIndex = input.gettok( 4 ).to_int( ) - 1;
+		int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
-    if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
-     
-      this->deleteBand( nIndex );
-    }
-  }
-  // xdid -i [NAME] [ID] [SWITCH] [N]
-  else if ( flags['i'] && numtok > 3 ) {
+		if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
-    int nIndex = input.gettok( 4 ).to_int( ) - 1;
+			this->deleteBand( nIndex );
+		}
+	}
+	// xdid -i [NAME] [ID] [SWITCH] [N]
+	else if ( flags['i'] && numtok > 3 ) {
 
-    if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
-     
-      this->showBand( nIndex, FALSE );
-    }
-  }
-  // xdid -j [NAME] [ID] [SWITCH] [N]
-  else if ( flags['j'] && numtok > 3 ) {
+		int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
-    int nIndex = input.gettok( 4 ).to_int( ) - 1;
+		if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
-    if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
-     
-      this->showBand( nIndex, TRUE );
-    }
-  }
-  // xdid -k [NAME] [ID] [SWITCH] [N] [ICON]
-  else if ( flags['k'] && numtok > 4 ) {
+			this->showBand( nIndex, FALSE );
+		}
+	}
+	// xdid -j [NAME] [ID] [SWITCH] [N]
+	else if ( flags['j'] && numtok > 3 ) {
 
-    REBARBANDINFO rbBand;
-    ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
-    rbBand.cbSize = sizeof( REBARBANDINFO );
-    rbBand.fMask = RBBIM_IMAGE;
+		int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
-    int nIndex = input.gettok( 4 ).to_int( ) - 1;
-    int nIcon = input.gettok( 5 ).to_int( ) - 1;
-    if ( nIndex > -1 && nIndex < this->getBandCount( ) && nIcon > -2 ) {
+		if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
-      rbBand.iImage = nIcon;
-      this->setBandInfo( nIndex, &rbBand );
-    }
-  }
-  // xdid -l [NAME] [ID] [SWITCH] [N|ALL]
-  else if ( flags['l'] && numtok > 3 ) {
+			this->showBand( nIndex, TRUE );
+		}
+	}
+	// xdid -k [NAME] [ID] [SWITCH] [N] [ICON]
+	else if ( flags['k'] && numtok > 4 ) {
 
-    REBARBANDINFO rbBand;
-    ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
-    rbBand.cbSize = sizeof( REBARBANDINFO );
-    rbBand.fMask = RBBIM_STYLE;
+		REBARBANDINFO rbBand;
+		ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
+		rbBand.cbSize = sizeof( REBARBANDINFO );
+		rbBand.fMask = RBBIM_IMAGE;
 
-    int nItems = this->getBandCount( );
+		int nIndex = input.gettok( 4 ).to_int( ) - 1;
+		int nIcon = input.gettok( 5 ).to_int( ) - 1;
+		if ( nIndex > -1 && nIndex < this->getBandCount( ) && nIcon > -2 ) {
 
-    if ( input.gettok( 4 ) == "all" ) {
+			rbBand.iImage = nIcon;
+			this->setBandInfo( nIndex, &rbBand );
+		}
+	}
+	// xdid -l [NAME] [ID] [SWITCH] [N|ALL]
+	else if ( flags['l'] && numtok > 3 ) {
 
-      int i = 0;
+		REBARBANDINFO rbBand;
+		ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
+		rbBand.cbSize = sizeof( REBARBANDINFO );
+		rbBand.fMask = RBBIM_STYLE;
 
-      while ( i < nItems ) {
+		int nItems = this->getBandCount( );
 
-        if ( this->getBandInfo( i, &rbBand ) != 0 ) {
+		if ( input.gettok( 4 ) == "all" ) {
 
-          rbBand.fStyle |= RBBS_NOGRIPPER;
-          this->setBandInfo( i, &rbBand );
-        }
-        i++;
-      }
-    }
-    else {
+			int i = 0;
 
-      int nIndex = input.gettok( 4 ).to_int( ) - 1;
+			while ( i < nItems ) {
 
-      if ( nIndex > -1 && nIndex < nItems && this->getBandInfo( nIndex, &rbBand ) != 0 ) {
+				if ( this->getBandInfo( i, &rbBand ) != 0 ) {
 
-        rbBand.fStyle |= RBBS_NOGRIPPER;
-        this->setBandInfo( nIndex, &rbBand );
-      }
-    }
-  }
-  // xdid -m [NAME] [ID] [SWITCH] [N]
-  else if ( flags['m'] && numtok > 3 ) {
+					rbBand.fStyle |= RBBS_NOGRIPPER;
+					this->setBandInfo( i, &rbBand );
+				}
+				i++;
+			}
+		}
+		else {
 
-    int nIndex = input.gettok( 4 ).to_int( ) - 1;
+			int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
-    if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
-     
-      this->maxBand( nIndex, FALSE );
-    }
-  }
-  // xdid -n [NAME] [ID] [SWITCH] [N]
-  else if ( flags['n'] && numtok > 3 ) {
+			if ( nIndex > -1 && nIndex < nItems && this->getBandInfo( nIndex, &rbBand ) != 0 ) {
 
-    int nIndex = input.gettok( 4 ).to_int( ) - 1;
+				rbBand.fStyle |= RBBS_NOGRIPPER;
+				this->setBandInfo( nIndex, &rbBand );
+			}
+		}
+	}
+	// xdid -m [NAME] [ID] [SWITCH] [N]
+	else if ( flags['m'] && numtok > 3 ) {
 
-    if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
-     
-      this->minBand( nIndex, FALSE );
-    }
-  }
-  // xdid -q [NAME] [ID] [SWITCH] [N]
-  else if ( flags['q'] && numtok > 3 ) {
+		int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
-    int nRows = input.gettok( 4 ).to_int( );
+		if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
-    if ( nRows > -1 ) {
-     
-      this->m_iRowLimit = nRows;
-    }
-  }
-  // xdid -t [NAME] [ID] [SWITCH] [N] [TEXT]
-  else if ( flags['t'] && numtok > 3 ) {
+			this->maxBand( nIndex, FALSE );
+		}
+	}
+	// xdid -n [NAME] [ID] [SWITCH] [N]
+	else if ( flags['n'] && numtok > 3 ) {
 
-    REBARBANDINFO rbBand;
-    ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
-    rbBand.cbSize = sizeof( REBARBANDINFO );
-    rbBand.fMask = RBBIM_TEXT;
+		int nIndex = input.gettok( 4 ).to_int( ) - 1;
 
-    int nIndex = input.gettok( 4 ).to_int( ) - 1;
-    if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
+		if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
-      TString itemtext;
-      if ( numtok > 4 )
-        itemtext = input.gettok(5, -1).trim();
+			this->minBand( nIndex, FALSE );
+		}
+	}
+	// xdid -q [NAME] [ID] [SWITCH] [N]
+	else if ( flags['q'] && numtok > 3 ) {
 
-      rbBand.lpText = itemtext.to_chr( );
-      this->setBandInfo( nIndex, &rbBand );
-    }
-  }
-  // xdid -u [NAME] [ID] [SWITCH] [N|ALL]
-  else if ( flags['u'] && numtok > 3 ) {
+		int nRows = input.gettok( 4 ).to_int( );
 
-    REBARBANDINFO rbBand;
-    ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
-    rbBand.cbSize = sizeof( REBARBANDINFO );
-    rbBand.fMask = RBBIM_STYLE;
+		if ( nRows > -1 ) {
 
-    int nItems = this->getBandCount( );
+			this->m_iRowLimit = nRows;
+		}
+	}
+	// xdid -t [NAME] [ID] [SWITCH] [N] [TEXT]
+	else if ( flags['t'] && numtok > 3 ) {
 
-    if ( input.gettok( 4 ) == "all" ) {
+		REBARBANDINFO rbBand;
+		ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
+		rbBand.cbSize = sizeof( REBARBANDINFO );
+		rbBand.fMask = RBBIM_TEXT;
 
-      int i = 0;
+		int nIndex = input.gettok( 4 ).to_int( ) - 1;
+		if ( nIndex > -1 && nIndex < this->getBandCount( ) ) {
 
-      while ( i < nItems ) {
+			TString itemtext;
+			if ( numtok > 4 )
+				itemtext = input.gettok(5, -1).trim();
 
-        if ( this->getBandInfo( i, &rbBand ) != 0 ) {
+			rbBand.lpText = itemtext.to_chr( );
+			this->setBandInfo( nIndex, &rbBand );
+		}
+	}
+	// xdid -u [NAME] [ID] [SWITCH] [N|ALL]
+	else if ( flags['u'] && numtok > 3 ) {
 
-          rbBand.fStyle &= ~RBBS_NOGRIPPER;
-          this->setBandInfo( i, &rbBand );
-        }
-        i++;
-      }
-    }
-    else {
+		REBARBANDINFO rbBand;
+		ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
+		rbBand.cbSize = sizeof( REBARBANDINFO );
+		rbBand.fMask = RBBIM_STYLE;
 
-      int nIndex = input.gettok( 4 ).to_int( ) - 1;
+		int nItems = this->getBandCount( );
 
-      if ( nIndex > -1 && nIndex < nItems && this->getBandInfo( nIndex, &rbBand ) != 0 ) {
+		if ( input.gettok( 4 ) == "all" ) {
 
-        rbBand.fStyle &= ~RBBS_NOGRIPPER;
-        this->setBandInfo( nIndex, &rbBand );
-      }
-    }
-  }
-  // xdid -v [NAME] [ID] [SWITCH] [NFrom] [NTo]
-  else if ( flags['v'] && numtok > 4 ) {
+			int i = 0;
 
-    int nIndexFrom = input.gettok( 4 ).to_int( ) - 1;
-    int nIndexTo = input.gettok( 4 ).to_int( ) - 1;
-    int nItems = this->getBandCount( );
+			while ( i < nItems ) {
 
-    if ( nIndexFrom > -1 && nIndexFrom < nItems && nIndexTo > -1 && nIndexTo < nItems ) {
-     
-      this->moveBand( nIndexFrom, nIndexTo );
-    }
-  }
+				if ( this->getBandInfo( i, &rbBand ) != 0 ) {
+
+					rbBand.fStyle &= ~RBBS_NOGRIPPER;
+					this->setBandInfo( i, &rbBand );
+				}
+				i++;
+			}
+		}
+		else {
+
+			int nIndex = input.gettok( 4 ).to_int( ) - 1;
+
+			if ( nIndex > -1 && nIndex < nItems && this->getBandInfo( nIndex, &rbBand ) != 0 ) {
+
+				rbBand.fStyle &= ~RBBS_NOGRIPPER;
+				this->setBandInfo( nIndex, &rbBand );
+			}
+		}
+	}
+	// xdid -v [NAME] [ID] [SWITCH] [NFrom] [NTo]
+	else if ( flags['v'] && numtok > 4 ) {
+
+		int nIndexFrom = input.gettok( 4 ).to_int( ) - 1;
+		int nIndexTo = input.gettok( 4 ).to_int( ) - 1;
+		int nItems = this->getBandCount( );
+
+		if ( nIndexFrom > -1 && nIndexFrom < nItems && nIndexTo > -1 && nIndexTo < nItems ) {
+
+			this->moveBand( nIndexFrom, nIndexTo );
+		}
+	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags['w'] && numtok > 5) {
 		HIMAGELIST himl;
@@ -689,31 +690,31 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 		ImageList_AddIcon(himl, icon);
 		DestroyIcon(icon);
 	}
-  // xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-  else if ( flags['y'] ) {
+	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
+	else if ( flags['y'] ) {
 
-    ImageList_Destroy( this->getImageList( ) );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+		ImageList_Destroy( this->getImageList( ) );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 void DcxReBar::resetContents( ) {
 
-  int nItems = this->getBandCount( );
+	int nItems = this->getBandCount( );
 
-    while ( nItems-- )
-      this->deleteBand( nItems );
+	while ( nItems-- )
+		this->deleteBand( nItems );
 }
 
 /*!
- * \brief blah
+* \brief blah
  *
  * blah
  */

@@ -92,7 +92,7 @@ BOOL WINAPI DllMain(
 			DisableThreadLibraryCalls(hinstDLL);
 			// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
 			// GetModuleHandle(NULL) was returning a consistant result.
-			wsprintf(mutex,"DCX_LOADED%lx", GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+			wnsprintf(mutex, 128, "DCX_LOADED%lx", GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
 
 			// Enforce only one instance of dcx.dll loaded at a time.
 			hDcxMutex = CreateMutex(NULL, TRUE, mutex); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
@@ -179,11 +179,11 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
 */
 mIRC(Version) {
 #ifdef DCX_DEV_BUILD
-	wsprintf(data,
+	wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
 		"DCX (XPopup) DLL %d.%d.%d %s%d by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2009",
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE, DLL_DEV_BUILD);
 #else
-	wsprintf(data,
+	wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
 		"DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2009",
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
 #endif
@@ -196,8 +196,7 @@ mIRC(Version) {
 static TString dxData;
 mIRC(IsUsingDirectX) {
 	if (Dcx::isDX9Installed()) {
-		lstrcpy(data, dxData.to_chr());
-		return 3;
+		ret(dxData.to_chr());
 	}
 	else if (Dcx::initDirectX(data, MIRC_BUFFER_SIZE_CCH)) {
 		dxData = data;
@@ -318,7 +317,7 @@ mIRC(GetSystemColor) {
 		ret("D_ERROR GetSystemColor: Invalid parameter specified");
 
 	// max of 8 digits, 9 for null terminator
-	wsprintf(data, "%d", GetSysColor(col));
+	wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d", GetSysColor(col));
 	return 3;
 }
 
@@ -453,7 +452,7 @@ mIRC(GetTaskbarPos) {
 		RECT rc;
 
 		GetWindowRect(hTaskbar, &rc);
-		wsprintf(data, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 		return 3;
 	}
 
@@ -860,15 +859,15 @@ mIRC(ActiveWindow) {
 #endif
 
 	if (prop == "hwnd")         // handle
-		wsprintf(data, "%d", hwnd);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d", hwnd);
 	else if (prop == "x")       // left
-		wsprintf(data, "%d", wi.rcWindow.left);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d", wi.rcWindow.left);
 	else if (prop == "y")       // top
-		wsprintf(data, "%d", wi.rcWindow.top);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d", wi.rcWindow.top);
 	else if (prop == "w")       // width
-		wsprintf(data, "%d", wi.rcWindow.right - wi.rcWindow.left);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d", wi.rcWindow.right - wi.rcWindow.left);
 	else if (prop == "h")       // height
-		wsprintf(data, "%d", wi.rcWindow.bottom - wi.rcWindow.top);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d", wi.rcWindow.bottom - wi.rcWindow.top);
 	else if (prop == "caption") // title text
 		GetWindowText(hwnd, data, MIRC_BUFFER_SIZE_CCH);
 	else {                      // otherwise

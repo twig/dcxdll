@@ -73,7 +73,7 @@ void DcxDateTime::toXml(TiXmlElement * xml) {
 	ZeroMemory(&st, sizeof(SYSTEMTIME));
 
 	DateTime_GetSystemtime(this->m_Hwnd, &st);
-	wsprintf(buf, "%ld", SystemTimeToMircTime(&st));
+	wnsprintf(buf, 64, "%ld", SystemTimeToMircTime(&st));
 	__super::toXml(xml);
 	xml->SetAttribute("caption", buf);
 	return;
@@ -164,7 +164,7 @@ void DcxDateTime::parseInfoRequest(TString &input, char *szReturnValue) {
 		else
 			max = "nolimit";
 
-		wsprintf(szReturnValue, "%s %s", min.to_chr(), max.to_chr()); // going to be within MIRC_BUFFER_SIZE_CCH limit anyway.
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%s %s", min.to_chr(), max.to_chr()); // going to be within MIRC_BUFFER_SIZE_CCH limit anyway.
 		return;
 	}
 	else if (prop == "value") {
@@ -173,7 +173,7 @@ void DcxDateTime::parseInfoRequest(TString &input, char *szReturnValue) {
 		ZeroMemory(&st, sizeof(SYSTEMTIME));
 
 		DateTime_GetSystemtime(this->m_Hwnd, &st);
-		wsprintf(szReturnValue, "%ld", SystemTimeToMircTime(&st));
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%ld", SystemTimeToMircTime(&st));
 		return;
 	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue)) {

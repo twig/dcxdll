@@ -176,7 +176,7 @@ void DcxWebControl::parseInfoRequest( TString & input, char * szReturnValue )
 
 		if( SUCCEEDED( this->m_pWebBrowser2->get_LocationURL( &str ) ) ) {
 
-			wsprintf( szReturnValue, "%ws", str ); // possible overflow, needs fixing at some point.
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%ws", str );
 			SysFreeString( str );
 			return;
 		}

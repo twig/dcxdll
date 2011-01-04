@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.8
+ * \version 1.9
  *
  * \b Revisions
  *	1.1
@@ -2056,12 +2056,18 @@ int TString::tsprintf(const char *fmt, ...)
 int TString::tvprintf(const char *fmt, va_list * args)
 {
 	int cnt = _vscprintf(fmt, *args);
-	char *txt = new char[cnt +1];
-	// warning C4996: 'vsprintf' was declared deprecated
-	// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
-	vsprintf(txt, fmt, *args );
-	this->deleteString();
-	this->m_pString = txt;
+	if (cnt > 0) {
+		char *txt = new char[cnt +1];
+		if (txt != NULL) {
+			// warning C4996: 'vsprintf' was declared deprecated
+			// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
+			vsprintf_s(txt, cnt, fmt, *args );
+		}
+		else
+			cnt = 0;
+		this->deleteString();
+		this->m_pString = txt;
+	}
 	return cnt;
 }
 

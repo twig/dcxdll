@@ -196,10 +196,11 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, char *szReturnValue) {
 
 		// Return number of menus in menubar.
 		if (i == 0)
-			wsprintf(szReturnValue, "%d", (int) this->m_vpXMenuBar.size());
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", (int) this->m_vpXMenuBar.size());
 		// Return name of specified menu.
 		else
-			wsprintf(szReturnValue, "%s", this->m_vpXMenuBar[i -1]->getName().to_chr());
+			lstrcpyn(szReturnValue, this->m_vpXMenuBar[i -1]->getName().to_chr(), MIRC_BUFFER_SIZE_CCH);
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%s", this->m_vpXMenuBar[i -1]->getName().to_chr());
 
 		return;
 	}

@@ -152,26 +152,26 @@ void DcxTrackBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
   if ( prop == "value" ) {
 
-    wsprintf( szReturnValue, "%d", this->getPos( ) );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->getPos( ) );
     return;
   }
   else if ( prop == "range" ) {
     
-    wsprintf( szReturnValue, "%d %d", this->getRangeMin( ), this->getRangeMax( ) );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", this->getRangeMin( ), this->getRangeMax( ) );
     return;
   }
   else if ( prop == "line" ) {
     
-    wsprintf( szReturnValue, "%d", this->getLineSize( ) );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->getLineSize( ) );
     return;
   }
   else if ( prop == "page" ) {
     
-    wsprintf( szReturnValue, "%d", this->getPageSize( ) );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->getPageSize( ) );
     return;
   }
   else if (prop == "selrange") {
-    wsprintf(szReturnValue, "%d %d", this->getSelStart(), this->getSelEnd());
+    wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", this->getSelStart(), this->getSelEnd());
     return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )

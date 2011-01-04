@@ -57,12 +57,12 @@ mIRC(ColorDialog) {
 
 	// User clicked OK
 	if (ChooseColor(&cc)) {
-		wsprintf(data, "%d", cc.rgbResult);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d", cc.rgbResult);
 		return 3; //ret(data);
 	}
 	// User clicked cancel, return default color
 	else if (retDefault) {
-		wsprintf(data, "%d", sel);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d", sel);
 		return 3; //ret(data);
 	}
 	// User clicked cancel, dont bother with default color
@@ -145,7 +145,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 
 	// set up the OFN struct
 	ZeroMemory(&ofn, sizeof(ofn));
-	wsprintf(szFilename, "%s", file.to_chr());
+	lstrcpyn(szFilename, file.to_chr(), MIRC_BUFFER_SIZE_CCH);
 
 	ofn.lStructSize = sizeof(ofn); // SEE NOTE BELOW
 	ofn.hwndOwner = pWnd;
@@ -201,7 +201,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 					tsResult += "|";
 
 				tsResult += p;
-				p += strlen(p)+1;
+				p += lstrlen(p)+1;
 			} 
 		}
 		// copy the string directly
@@ -333,16 +333,17 @@ mIRC(BrowseDialog) {
 	pidl = SHBrowseForFolder(&bi);
 
 	// User cancelled
-	if (pidl == NULL)
+	if (pidl == NULL) {
+		CoTaskMemFree(pidlRoot);
 		ret("");
+	}
 
 	// If we were searching for a computer ...
-	if (bi.ulFlags & BIF_BROWSEFORCOMPUTER) {
-		wsprintf(data, "//%s", displayPath.to_chr());
-	}
+	if (bi.ulFlags & BIF_BROWSEFORCOMPUTER)
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "//%s", displayPath.to_chr());
 	else {
 		SHGetPathFromIDList(pidl, initPath.to_chr());
-		wsprintf(data, "%s", initPath.to_chr());
+		lstrcpyn(data, initPath.to_chr(), MIRC_BUFFER_SIZE_CCH);
 	}
 
 	CoTaskMemFree(pidl);
@@ -470,48 +471,84 @@ mIRC(FontDialog) {
 
 		// flags +
 		if (option.gettok( 1 ) == "flags" && numtok > 1) {
-			TString flag(option.gettok( 2 ));
-			int c = (int)flag.len();
-			int j = 0;
+			XSwitchFlags xflag(option.gettok( 2 ));
+			if (xflag['a'])
+				style |= CF_NOFACESEL;
+			if (xflag['b'])
+				style |= CF_SCRIPTSONLY;
+			if (xflag['c'])
+				style |= CF_SCALABLEONLY;// (Scalable fonts include vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)
+			if (xflag['e'])
+				style |= CF_EFFECTS;
+			if (xflag['f'])
+				style |= CF_FORCEFONTEXIST;
+			if (xflag['h'])
+				style |= CF_NOSCRIPTSEL;
+			if (xflag['i'])
+				style |= CF_NOSIMULATIONS;
+			if (xflag['m'])
+				style |= CF_SELECTSCRIPT;
+			if (xflag['n'])
+				style |= CF_PRINTERFONTS;
+			if (xflag['p'])
+				style |= CF_FIXEDPITCHONLY;
+			if (xflag['r'])
+				style |= CF_NOVERTFONTS;
+			if (xflag['s'])
+				style |= CF_SCREENFONTS;
+			if (xflag['t'])
+				style |= CF_TTONLY;
+			if (xflag['v'])
+				style |= CF_NOVECTORFONTS;
+			if (xflag['w'])
+				style |= CF_WYSIWYG;
+			if (xflag['y'])
+				style |= CF_NOSTYLESEL;
+			if (xflag['z'])
+				style |= CF_NOSIZESEL;
 
-			while (j < c) {
-				if (flag[j] == 'a')
-					style |= CF_NOFACESEL;
-				else if (flag[j] == 'b')
-					style |= CF_SCRIPTSONLY;
-				else if (flag[j] == 'c')
-					style |= CF_SCALABLEONLY;// (Scalable fonts include vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)
-				else if (flag[j] == 'e')
-					style |= CF_EFFECTS;
-				else if (flag[j] == 'f')
-					style |= CF_FORCEFONTEXIST;
-				else if (flag[j] == 'h')
-					style |= CF_NOSCRIPTSEL;
-				else if (flag[j] == 'i')
-					style |= CF_NOSIMULATIONS;
-				else if (flag[j] == 'm')
-					style |= CF_SELECTSCRIPT;
-				else if (flag[j] == 'n')
-					style |= CF_PRINTERFONTS;
-				else if (flag[j] == 'p')
-					style |= CF_FIXEDPITCHONLY;
-				else if (flag[j] == 'r')
-					style |= CF_NOVERTFONTS;
-				else if (flag[j] == 's')
-					style |= CF_SCREENFONTS;
-				else if (flag[j] == 't')
-					style |= CF_TTONLY;
-				else if (flag[j] == 'v')
-					style |= CF_NOVECTORFONTS;
-				else if (flag[j] == 'w')
-					style |= CF_WYSIWYG;
-				else if (flag[j] == 'y')
-					style |= CF_NOSTYLESEL;
-				else if (flag[j] == 'z')
-					style |= CF_NOSIZESEL;
+			//TString flag(option.gettok( 2 ));
+			//int c = (int)flag.len();
+			//int j = 0;
 
-				j++;
-			}
+			//while (j < c) {
+			//	if (flag[j] == 'a')
+			//		style |= CF_NOFACESEL;
+			//	else if (flag[j] == 'b')
+			//		style |= CF_SCRIPTSONLY;
+			//	else if (flag[j] == 'c')
+			//		style |= CF_SCALABLEONLY;// (Scalable fonts include vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)
+			//	else if (flag[j] == 'e')
+			//		style |= CF_EFFECTS;
+			//	else if (flag[j] == 'f')
+			//		style |= CF_FORCEFONTEXIST;
+			//	else if (flag[j] == 'h')
+			//		style |= CF_NOSCRIPTSEL;
+			//	else if (flag[j] == 'i')
+			//		style |= CF_NOSIMULATIONS;
+			//	else if (flag[j] == 'm')
+			//		style |= CF_SELECTSCRIPT;
+			//	else if (flag[j] == 'n')
+			//		style |= CF_PRINTERFONTS;
+			//	else if (flag[j] == 'p')
+			//		style |= CF_FIXEDPITCHONLY;
+			//	else if (flag[j] == 'r')
+			//		style |= CF_NOVERTFONTS;
+			//	else if (flag[j] == 's')
+			//		style |= CF_SCREENFONTS;
+			//	else if (flag[j] == 't')
+			//		style |= CF_TTONLY;
+			//	else if (flag[j] == 'v')
+			//		style |= CF_NOVECTORFONTS;
+			//	else if (flag[j] == 'w')
+			//		style |= CF_WYSIWYG;
+			//	else if (flag[j] == 'y')
+			//		style |= CF_NOSTYLESEL;
+			//	else if (flag[j] == 'z')
+			//		style |= CF_NOSIZESEL;
+
+			//	j++;
+			//}
 		}
 		// defaults +flags(ibsua) charset size fontname
 		else if (option.gettok( 1 ) == "default" && numtok > 4)
@@ -538,13 +575,10 @@ mIRC(FontDialog) {
 
 	// show the dialog
 	if (ChooseFont(&cf)) {
-		//char str[MIRC_BUFFER_SIZE_CCH];
 		TString fntflags(ParseLogfontToCommand(&lf));
 
 		// color flags font info
-		//wsprintf(str, "%d %s", cf.rgbColors, fntflags.to_chr());
-		//ret(str);
-		wsprintf(data, "%d %s", cf.rgbColors, fntflags.to_chr());
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d %s", cf.rgbColors, fntflags.to_chr());
 		return 3;
 	}
 	else
@@ -690,7 +724,7 @@ mIRC(PickIcon) {
 
 	WCHAR iconPath[MAX_PATH+1];
 #if DCX_FOR_XP_ONLY
-		GetFullPathNameW(filename.to_wchr(), MAX_PATH, iconPath, NULL);
+	GetFullPathNameW(filename.to_wchr(), MAX_PATH, iconPath, NULL);
 #else
 	if (GetFullPathNameWUx != NULL)
 		GetFullPathNameWUx(filename.to_wchr(), MAX_PATH, iconPath, NULL);
@@ -698,9 +732,9 @@ mIRC(PickIcon) {
 		lstrcpynW(iconPath, filename.to_wchr(), MAX_PATH);
 #endif
 	if (dcxPickIconDlg(aWnd,iconPath,MAX_PATH,&index))
-		wsprintf(data,"D_OK %d %S", index, iconPath);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "D_OK %d %S", index, iconPath);
 	else
-		wsprintf(data,"D_ERROR %d %S", index, iconPath);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "D_ERROR %d %S", index, iconPath);
 	return 3;
 }
 

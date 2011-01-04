@@ -195,7 +195,7 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 	// [NAME] [ID] [PROP]
 	else if (prop == "num") {
 		if (this->isStyle(ES_MULTILINE))
-			wsprintf(szReturnValue, "%d", this->m_tsText.numtok("\r\n"));
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->m_tsText.numtok("\r\n"));
 		else
 			lstrcpy(szReturnValue,"1");	// single line control so always 1 line.
 		return;
@@ -234,11 +234,11 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 			// line offset
 			iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
-			wsprintf(szReturnValue, "%d %d", iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
 		else {
 			// return selstart
-			wsprintf(szReturnValue, "%d %d", 1, dwAbsoluteStartSelPos);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", 1, dwAbsoluteStartSelPos);
 		}
 
 		return;
@@ -247,14 +247,14 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		DWORD dwSelStart = 0; // selection range starting position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, NULL);
-		wsprintf(szReturnValue, "%d", dwSelStart);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", dwSelStart);
 		return;
 	}
 	else if (prop == "selend") {
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, NULL, (LPARAM) &dwSelEnd);
-		wsprintf(szReturnValue, "%d", dwSelEnd);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", dwSelEnd);
 		return;
 	}
 	else if (prop == "sel") {
@@ -262,7 +262,7 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
-		wsprintf(szReturnValue, "%d %d", dwSelStart, dwSelEnd);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", dwSelStart, dwSelEnd);
 		return;
 	}
 	else if (prop == "seltext") {

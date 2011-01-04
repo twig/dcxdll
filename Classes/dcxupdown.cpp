@@ -126,7 +126,7 @@ void DcxUpDown::parseInfoRequest( TString & input, char * szReturnValue ) {
   if ( prop == "value" ) {
 
     BOOL bError;
-    wsprintf( szReturnValue, "%d", this->getPos32( &bError ) );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->getPos32( &bError ) );
     return;
   }
   // [NAME] [ID] [PROP]
@@ -134,7 +134,7 @@ void DcxUpDown::parseInfoRequest( TString & input, char * szReturnValue ) {
 
     int iMin, iMax;
     this->getRange32( &iMin, &iMax );
-    wsprintf( szReturnValue, "%d %d", iMin, iMax );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", iMin, iMax );
     return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )

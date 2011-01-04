@@ -110,7 +110,7 @@ DcxDialog * DcxDialogCollection::getDialogByName( const TString & tsName ) {
 
     /*
     char data[500];
-    wsprintf( data, "NAME: %s VS %s -- HWND %d -- ADDRESS %x", (*itStart)->getName( ).to_chr( ), tsName.to_chr( ), (*itStart)->getHwnd( ), *itStart );
+    wnsprintf( data, 500, "NAME: %s VS %s -- HWND %d -- ADDRESS %x", (*itStart)->getName( ).to_chr( ), tsName.to_chr( ), (*itStart)->getHwnd( ), *itStart );
     mIRCError( data );
     mIRCError( "Not In GetDialog By Name" );
     */

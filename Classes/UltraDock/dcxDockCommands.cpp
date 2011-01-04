@@ -480,24 +480,24 @@ mIRC(_xdock)
 				switch (SwitchbarPos(nType -1))
 				{
 					case SWB_RIGHT:
-						lstrcpy(data, "right");
+						lstrcpyn(data, "right", MIRC_BUFFER_SIZE_CCH);
 						break;
 
 					case SWB_BOTTOM:
-						lstrcpy(data, "bottom");
+						lstrcpyn(data, "bottom", MIRC_BUFFER_SIZE_CCH);
 						break;
 
 					case SWB_TOP:
-						lstrcpy(data, "top");
+						lstrcpyn(data, "top", MIRC_BUFFER_SIZE_CCH);
 						break;
 
 					case SWB_LEFT:
-						lstrcpy(data, "left");
+						lstrcpyn(data, "left", MIRC_BUFFER_SIZE_CCH);
 						break;
 
 					case SWB_NONE:
 					default:
-						lstrcpy(data, "none");
+						lstrcpyn(data, "none", MIRC_BUFFER_SIZE_CCH);
 						break;
 				}
 			}
@@ -506,53 +506,53 @@ mIRC(_xdock)
 			{
 				RECT rc;
 				GetWindowRect(Dcx::mIRC.getSwitchbar(), &rc);
-				wsprintf(data,"%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 5: // toolBarSize
 			{
 				RECT rc;
 				GetWindowRect(Dcx::mIRC.getToolbar(), &rc);
-				wsprintf(data,"%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 6: // treeBarSize
 			{
 				RECT rc;
 				GetWindowRect(Dcx::mIRC.getTreebar(), &rc);
-				wsprintf(data,"%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 7: // isSwitchBar
 			{
 				if (IsWindowVisible(Dcx::mIRC.getSwitchbar()))
-					lstrcpy(data,"$true");
+					lstrcpyn(data,"$true", MIRC_BUFFER_SIZE_CCH);
 				else
-					lstrcpy(data,"$false");
+					lstrcpyn(data,"$false", MIRC_BUFFER_SIZE_CCH);
 			}
 			break;
 		case 8: // isToolBar
 			{
 				if (IsWindowVisible(Dcx::mIRC.getToolbar()))
-					lstrcpy(data,"$true");
+					lstrcpyn(data,"$true", MIRC_BUFFER_SIZE_CCH);
 				else
-					lstrcpy(data,"$false");
+					lstrcpyn(data,"$false", MIRC_BUFFER_SIZE_CCH);
 			}
 			break;
 		case 9: // isTreeBar
 			{
 				if (IsWindowVisible(Dcx::mIRC.getTreebar()))
-					lstrcpy(data,"$true");
+					lstrcpyn(data,"$true", MIRC_BUFFER_SIZE_CCH);
 				else
-					lstrcpy(data,"$false");
+					lstrcpyn(data,"$false", MIRC_BUFFER_SIZE_CCH);
 			}
 			break;
 		case 10: // isMenuBar
 			{
 				if (GetMenu(Dcx::mIRC.getHWND()))
-					lstrcpy(data,"$true");
+					lstrcpyn(data,"$true", MIRC_BUFFER_SIZE_CCH);
 				else
-					lstrcpy(data,"$false");
+					lstrcpyn(data,"$false", MIRC_BUFFER_SIZE_CCH);
 			}
 			break;
 		case 11: // text
@@ -563,17 +563,17 @@ mIRC(_xdock)
 			break;
 		case 12: // switchBarHwnd
 			{
-				wsprintf(data,"%d", Dcx::mIRC.getSwitchbar());
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d", Dcx::mIRC.getSwitchbar());
 			}
 			break;
 		case 13: // toolBarHwnd
 			{
-				wsprintf(data,"%d", Dcx::mIRC.getToolbar());
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d", Dcx::mIRC.getToolbar());
 			}
 			break;
 		case 14: // treeBarHwnd
 			{
-				wsprintf(data,"%d", Dcx::mIRC.getTreebar());
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d", Dcx::mIRC.getTreebar());
 			}
 			break;
 		case 0: // error
@@ -595,44 +595,44 @@ mIRC(_xdock)
 			case 1: // isDocked
 				{
 					if (GetProp(hwnd,"dcx_docked") || FindUltraDock(hwnd) || FindTreebarDock(hwnd))
-						lstrcpy(data,"$true");
+						lstrcpyn(data,"$true", MIRC_BUFFER_SIZE_CCH);
 					else
-						lstrcpy(data,"$false");
+						lstrcpyn(data,"$false", MIRC_BUFFER_SIZE_CCH);
 				}
 				break;
 			case 2: // hasDocked
 				{
 					if (GetProp(hwnd,"dcx_dock"))
-						lstrcpy(data,"$true");
+						lstrcpyn(data,"$true",MIRC_BUFFER_SIZE_CCH);
 					else
-						lstrcpy(data,"$false");
+						lstrcpyn(data,"$false", MIRC_BUFFER_SIZE_CCH);
 				}
 				break;
 			case 3: // isAutoV
 				{
 					DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
 					if (flags == DOCKF_AUTOV)
-						lstrcpy(data,"$true");
+						lstrcpyn(data,"$true",MIRC_BUFFER_SIZE_CCH);
 					else
-						lstrcpy(data,"$false");
+						lstrcpyn(data,"$false",MIRC_BUFFER_SIZE_CCH);
 				}
 				break;
 			case 4: // isAutoH
 				{
 					DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
 					if (flags == DOCKF_AUTOH)
-						lstrcpy(data,"$true");
+						lstrcpyn(data,"$true",MIRC_BUFFER_SIZE_CCH);
 					else
-						lstrcpy(data,"$false");
+						lstrcpyn(data,"$false",MIRC_BUFFER_SIZE_CCH);
 				}
 				break;
 			case 5: // isAutoS
 				{
 					DWORD flags = (DWORD)GetProp(hwnd,"dcx_docked");
 					if (flags == DOCKF_SIZE)
-						lstrcpy(data,"$true");
+						lstrcpyn(data,"$true",MIRC_BUFFER_SIZE_CCH);
 					else
-						lstrcpy(data,"$false");
+						lstrcpyn(data,"$false",MIRC_BUFFER_SIZE_CCH);
 				}
 				break;
 			case 6: // dockSide
@@ -643,19 +643,19 @@ mIRC(_xdock)
 						switch(ud->flags)
 						{
 						case DOCKF_LEFT:
-							lstrcpy(data,"left");
+							lstrcpyn(data,"left",MIRC_BUFFER_SIZE_CCH);
 							break;
 						case DOCKF_RIGHT:
-							lstrcpy(data,"right");
+							lstrcpyn(data,"right",MIRC_BUFFER_SIZE_CCH);
 							break;
 						case DOCKF_TOP:
-							lstrcpy(data,"top");
+							lstrcpyn(data,"top",MIRC_BUFFER_SIZE_CCH);
 							break;
 						case DOCKF_BOTTOM:
-							lstrcpy(data,"bottom");
+							lstrcpyn(data,"bottom",MIRC_BUFFER_SIZE_CCH);
 							break;
 						default:
-							lstrcpy(data,"unknown");
+							lstrcpyn(data,"unknown",MIRC_BUFFER_SIZE_CCH);
 							break;
 						}
 					}

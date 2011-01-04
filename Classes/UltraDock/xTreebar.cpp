@@ -13,14 +13,14 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 	for (HTREEITEM ptvitem = TreeView_GetChild(Dcx::mIRC.getTreeview(), hParent); ptvitem != NULL; ptvitem = TreeView_GetNextSibling(Dcx::mIRC.getTreeview(), ptvitem)) {
 		pitem->hItem = ptvitem;
 		pitem->pszText = buf.to_chr();
-		pitem->cchTextMax = 255;
+		pitem->cchTextMax = MIRC_BUFFER_SIZE_CCH;
 		pitem->mask = TVIF_TEXT|TVIF_PARAM;
 		if (TreeView_GetItem(Dcx::mIRC.getTreeview(), pitem))
 		{
 			{
 				TString tsType;
 				DcxDock::getTreebarItemType(tsType, pitem->lParam);
-				Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", pitem->lParam, pitem->pszText );
+				Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %s", pitem->lParam, pitem->pszText );
 				Dcx::mIRC.tsEvalex(res, "$xtreebar_callback(geticons,%s,%%dcx_%d)", tsType.to_chr(), pitem->lParam);
 			}
 			pitem->mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
@@ -41,21 +41,21 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 void TraverseTreebarItems(void)
 {
 	SetWindowRedraw(Dcx::mIRC.getTreeview(), FALSE);
-	TString buf((UINT)255);
+	TString buf((UINT)MIRC_BUFFER_SIZE_CCH);
 	TString res;
 	TVITEMEX item;
 	ZeroMemory(&item, sizeof(item));
 	for (HTREEITEM ptvitem = TreeView_GetRoot(Dcx::mIRC.getTreeview()); ptvitem != NULL; ptvitem = TreeView_GetNextSibling(Dcx::mIRC.getTreeview(), ptvitem)) {
 		item.hItem = ptvitem;
 		item.pszText = buf.to_chr();
-		item.cchTextMax = 255;
+		item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 		item.mask = TVIF_TEXT|TVIF_PARAM;
 		if (TreeView_GetItem(Dcx::mIRC.getTreeview(), &item))
 		{
 			{
 				TString tsType;
 				DcxDock::getTreebarItemType(tsType, item.lParam);
-				Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", item.lParam, item.pszText );
+				Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %s", item.lParam, item.pszText );
 				Dcx::mIRC.tsEvalex(res, "$xtreebar_callback(geticons,%s,%%dcx_%d)", tsType.to_chr(), item.lParam);
 			}
 			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
@@ -439,8 +439,7 @@ mIRC(_xtreebar)
 	data[0] = 0;
 
 	if (d.numtok( ) != 3) {
-		lstrcpy(data, "D_ERROR Invalid Args: An Index & a Prop are required.");
-		return 3;
+		ret("D_ERROR Invalid Args: An Index & a Prop are required.");
 	}
 
 	static const TString poslist("item icons");
@@ -449,8 +448,7 @@ mIRC(_xtreebar)
 	int index = d.gettok( 3 ).to_int();
 
 	if (index > cnt) {
-		lstrcpy(data, "D_ERROR Invalid Item Index");
-		return 3;
+		ret("D_ERROR Invalid Item Index");
 	}
 
 	TVITEMEX item;
@@ -461,7 +459,7 @@ mIRC(_xtreebar)
 	case 1: // item
 		{
 			if (index < 1) // if index < 1 return total items.
-				wsprintf(data, "%d", cnt);
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d", cnt);
 			else {
 				char szbuf[MIRC_BUFFER_SIZE_CCH];
 				item.hItem = TreeView_MapAccIDToHTREEITEM(Dcx::mIRC.getTreeview(), index);
@@ -471,7 +469,7 @@ mIRC(_xtreebar)
 				if (TreeView_GetItem(Dcx::mIRC.getTreeview(),&item))
 					lstrcpyn(data, item.pszText, MIRC_BUFFER_SIZE_CCH);
 				else
-					lstrcpy(data, "D_ERROR Unable To Get Item");
+					lstrcpyn(data, "D_ERROR Unable To Get Item", MIRC_BUFFER_SIZE_CCH);
 			}
 		}
 		break;
@@ -483,17 +481,15 @@ mIRC(_xtreebar)
 			item.hItem = TreeView_MapAccIDToHTREEITEM(Dcx::mIRC.getTreeview(), index);
 			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 			if (TreeView_GetItem(Dcx::mIRC.getTreeview(),&item))
-				wsprintf(data, "%d %d", item.iImage, item.iSelectedImage);
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d %d", item.iImage, item.iSelectedImage);
 			else
-				lstrcpy(data, "D_ERROR Unable To Get Item");
+				lstrcpyn(data, "D_ERROR Unable To Get Item", MIRC_BUFFER_SIZE_CCH);
 		}
 		break;
 	case 0: // error
 	default:
 		{
-			TString error;
-			error.tsprintf("D_ERROR Invalid prop ().%s", d.gettok( 2 ).to_chr());
-			lstrcpyn(data, error.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "D_ERROR Invalid prop ().%s", d.gettok( 2 ).to_chr());
 		}
 		break;
 	}

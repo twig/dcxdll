@@ -5,8 +5,8 @@ XSwitchFlags::XSwitchFlags(const TString &switches) {
 	ZeroMemory(flags, sizeof(bool) * 26);
 	ZeroMemory(flags_cap, sizeof(bool) * 26);
 
-	// no - sign, invalid syntax
-	if ((switches)[0] != '-')
+	// no - sign, or + sign, invalid syntax
+	if ((switches[0] != '-') && (switches[0] != '+'))
 		return;
 
 	unsigned int i = 1;

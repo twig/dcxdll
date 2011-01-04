@@ -443,7 +443,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, char * szReturnValu
       hMenu = this->parsePath( path, this->m_hMenu );
 
     if ( hMenu != NULL ) {
-      wsprintf( szReturnValue, "%d", GetMenuItemCount( hMenu ) );
+      wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", GetMenuItemCount( hMenu ) );
       return;
     }
   }
@@ -475,7 +475,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, char * szReturnValu
           if ( prop == "text" ) 
             lstrcpy( szReturnValue, p_Item->getItemText( )->to_chr( ) );
           else if ( prop == "icon" )
-            wsprintf( szReturnValue, "%d", p_Item->getItemIcon( ) + 1 );
+            wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", p_Item->getItemIcon( ) + 1 );
           return;
         }
       }

@@ -109,7 +109,7 @@ void DcxColorCombo::parseInfoRequest( TString & input, char * szReturnValue ) {
    // [NAME] [ID] [PROP]
   if ( prop == "num" ) {
 
-    wsprintf( szReturnValue, "%d", this->getCount( ) );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->getCount( ) );
     return;
   }
    // [NAME] [ID] [PROP] [N]
@@ -123,7 +123,7 @@ void DcxColorCombo::parseInfoRequest( TString & input, char * szReturnValue ) {
 
       if ( lpdcxcci != NULL ) {
 
-        wsprintf( szReturnValue, "%d", lpdcxcci->clrItem );
+        wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", lpdcxcci->clrItem );
         return;
       }
     }
@@ -134,7 +134,7 @@ void DcxColorCombo::parseInfoRequest( TString & input, char * szReturnValue ) {
     int nItem;
     if ( ( nItem = (int)this->getCurSel( ) ) != CB_ERR ) {
 
-      wsprintf( szReturnValue, "%d", nItem + 1 );
+      wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", nItem + 1 );
       return;
     }
   }

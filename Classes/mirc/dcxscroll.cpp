@@ -118,7 +118,7 @@ void DcxScroll::parseInfoRequest( TString & input, char * szReturnValue ) {
     si.fMask = SIF_POS;
     GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
 
-    wsprintf( szReturnValue, "%d", si.nPos );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", si.nPos );
     return;
   }
   // [NAME] [ID] [PROP]
@@ -128,19 +128,19 @@ void DcxScroll::parseInfoRequest( TString & input, char * szReturnValue ) {
     si.cbSize = sizeof( SCROLLINFO );
     si.fMask = SIF_RANGE;
     GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
-    wsprintf( szReturnValue, "%d %d", si.nMin, si.nMax );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", si.nMin, si.nMax );
     return;
   }
   // [NAME] [ID] [PROP]
   else if ( prop == "line" ) {
 
-    wsprintf( szReturnValue, "%d %d", this->m_nLine );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", this->m_nLine );
     return;
   }
   // [NAME] [ID] [PROP]
   else if ( prop == "page" ) {
 
-    wsprintf( szReturnValue, "%d", this->m_nPage );
+    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->m_nPage );
     return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )

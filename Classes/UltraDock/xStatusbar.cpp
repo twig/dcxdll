@@ -263,9 +263,9 @@ mIRC(_xstatusbar)
 	case 1: // visible
 		{
 			if (DcxDock::IsStatusbar())
-				lstrcpy(data,"$true");
+				lstrcpyn(data,"$true", MIRC_BUFFER_SIZE_CCH);
 			else
-				lstrcpy(data,"$false");
+				lstrcpyn(data,"$false", MIRC_BUFFER_SIZE_CCH);
 		}
 		break;
 	case 2: // text
@@ -302,7 +302,7 @@ mIRC(_xstatusbar)
 
 			while ( i < nParts ) {
 
-				wsprintf( dd, "%d", parts[i] );
+				wnsprintf( dd, 10, "%d", parts[i] );
 
 				if ( i != 0 )
 					lstrcat( data, " " );
@@ -327,9 +327,7 @@ mIRC(_xstatusbar)
 	case 0: // error
 	default:
 		{
-			TString error;
-			error.tsprintf("D_ERROR Invalid prop ().%s", d.gettok( 2 ).to_chr());
-			lstrcpy(data, error.to_chr());
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "D_ERROR Invalid prop ().%s", d.gettok( 2 ).to_chr());
 		}
 		break;
 	}

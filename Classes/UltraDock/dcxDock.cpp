@@ -376,7 +376,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 					TString buf;
 					int i = 0;
 					DcxDock::getTreebarItemType(buf, pTvis->itemex.lParam);
-					Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", pTvis->itemex.lParam, pTvis->itemex.pszText );
+					Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %s", pTvis->itemex.lParam, pTvis->itemex.pszText );
 					Dcx::mIRC.tsEvalex(buf, "$xtreebar_callback(geticons,%s,%%dcx_%d)", buf.to_chr(), pTvis->itemex.lParam);
 					i = buf.gettok( 1 ).to_int() -1;
 					if (i < 0)
@@ -531,7 +531,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 								item.mask = TVIF_TEXT;
 								if (TreeView_GetItem(Dcx::mIRC.getTreeview(), &item)) {
 									DcxDock::getTreebarItemType(tsType, item.lParam);
-									Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %800s", item.lParam, item.pszText ); // <- had wrong args causing instant crash when showing tooltips
+									Dcx::mIRC.execex("/!set -nu1 %%dcx_%d %s", item.lParam, item.pszText ); // <- had wrong args causing instant crash when showing tooltips
 									Dcx::mIRC.tsEvalex(buf, "$xtreebar_callback(gettooltip,%s,%%dcx_%d)", tsType.to_chr(), item.lParam);
 
 									if (buf.len() > 0)

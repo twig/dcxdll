@@ -215,7 +215,7 @@ void DcxBox::parseInfoRequest( TString & input, char * szReturnValue ) {
 		  }
 	  }
 
-	  wsprintf( szReturnValue, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top );
+	  wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top );
 	  return;
   }
   else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
