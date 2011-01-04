@@ -58,11 +58,12 @@ mIRC(ColorDialog) {
 	// User clicked OK
 	if (ChooseColor(&cc)) {
 		wsprintf(data, TEXT("%d"), cc.rgbResult);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), cc.rgbResult);
 		return 3; //ret(data);
 	}
 	// User clicked cancel, return default color
 	else if (retDefault) {
-		wsprintf(data, TEXT("%d"), sel);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), sel);
 		return 3; //ret(data);
 	}
 	// User clicked cancel, dont bother with default color
@@ -124,7 +125,7 @@ mIRC(SaveDialog) {
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd) {
 	DWORD style = OFN_EXPLORER;
 	OPENFILENAME ofn;
-	TCHAR szFilename[900];
+	TCHAR szFilename[MIRC_BUFFER_SIZE_CCH];
 
 	// seperate the tokenz
 	TString styles(data.gettok(1, TSTAB).trim());
@@ -145,13 +146,13 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 
 	// set up the OFN struct
 	ZeroMemory(&ofn, sizeof(ofn));
-	wsprintf(szFilename, TEXT("%s"), file.to_chr());
+	lstrcpyn(szFilename, file.to_chr(), MIRC_BUFFER_SIZE_CCH);
 
 	ofn.lStructSize = sizeof(ofn); // SEE NOTE BELOW
 	ofn.hwndOwner = pWnd;
 	ofn.lpstrFilter = filter.to_chr();
 	ofn.lpstrFile = szFilename;
-	ofn.nMaxFile = 900;
+	ofn.nMaxFile = MIRC_BUFFER_SIZE_CCH;
 	ofn.lpstrDefExt = TEXT("");
 
 	for (int i = 1; i <= styles.numtok( ); i++) {
@@ -333,16 +334,19 @@ mIRC(BrowseDialog) {
 	pidl = SHBrowseForFolder(&bi);
 
 	// User cancelled
-	if (pidl == NULL)
+	if (pidl == NULL) {
+		CoTaskMemFree(pidlRoot);
 		ret(TEXT(""));
+	}
 
 	// If we were searching for a computer ...
 	if (bi.ulFlags & BIF_BROWSEFORCOMPUTER) {
-		wsprintf(data, TEXT("//%s"), displayPath.to_chr());
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("//%s"), displayPath.to_chr());
 	}
 	else {
 		SHGetPathFromIDList(pidl, initPath.to_chr());
-		wsprintf(data, TEXT("%s"), initPath.to_chr());
+		//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), initPath.to_chr());
+		lstrcpyn(data, initPath.to_chr(), MIRC_BUFFER_SIZE_CCH);
 	}
 
 	CoTaskMemFree(pidl);
@@ -536,22 +540,17 @@ mIRC(FontDialog) {
 	cf.Flags = style;
 	cf.iPointSize = lf.lfHeight * 10;
 
+	data[0] = (TCHAR)0;
+
 	// show the dialog
 	if (ChooseFont(&cf)) {
-		//TCHAR str[900];
 		TString fntflags(ParseLogfontToCommand(&lf));
 
 		// color flags font info
-		//wsprintf(str, TEXT("%d %s"), cf.rgbColors, fntflags.to_chr());
-		//ret(str);
-		wsprintf(data, TEXT("%d %s"), cf.rgbColors, fntflags.to_chr());
-		return 3;
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %s"), cf.rgbColors, fntflags.to_chr());
 	}
-	else
-		ret(TEXT(""));
+	return 3;
 }
-
-
 
 /*
  * /dcx MsgBox [STYLES] [TAB] [TITLE] [TAB] [MSG]
@@ -684,24 +683,12 @@ mIRC(PickIcon) {
 		ret(TEXT("D_ERROR PickIcon: Invalid filename"));
 
 	TCHAR iconPath[MAX_PATH+1];
-
-#if UNICODE
-	if (GetFullPathNameW != NULL)
-		GetFullPathNameW(filename.to_chr(), MAX_PATH, iconPath, NULL);
-	else
-		lstrcpynW(iconPath, filename.to_chr(), MAX_PATH);
-#else
-	if (GetFullPathNameW != NULL)
-		GetFullPathNameW(filename.to_wchr(), MAX_PATH, iconPath, NULL);
-	else
-		lstrcpynW(iconPath, filename.to_wchr(), MAX_PATH);
-#endif
+	GetFullPathName(filename.to_chr(), MAX_PATH, iconPath, NULL);
 
 	if (dcxPickIconDlg(aWnd,iconPath,MAX_PATH,&index))
-		wsprintf(data,TEXT("D_OK %d %s"), index, iconPath);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %d %s"), index, iconPath);
 	else
-		wsprintf(data,TEXT("D_ERROR %d %s"), index, iconPath);
-
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_ERROR %d %s"), index, iconPath);
 	return 3;
 }
 

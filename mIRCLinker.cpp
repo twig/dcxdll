@@ -1,21 +1,23 @@
 #include "defines.h"
 #include "Dcx.h"
 
-mIRCLinker::mIRCLinker(void) : m_hFileMap(NULL),
-                               m_pData(NULL),
-                               m_mIRCHWND(NULL),
-							   m_dwVersion(0x0),
-							   m_iMapCnt(0),
-							   m_hSwitchbar(NULL),
-							   m_hToolbar(NULL),
-							   m_hTreebar(NULL),
-							   m_hMDI(NULL),
-							   m_hTreeview(NULL),
-							   m_hTreeFont(NULL),
-							   m_hTreeImages(NULL),
-							   //m_sLastError(""),
-							   m_wpmIRCDefaultWndProc(NULL),
-							   m_bDebug(false)
+mIRCLinker::mIRCLinker(void) :
+m_hFileMap(NULL),
+m_pData(NULL),
+m_mIRCHWND(NULL),
+m_dwVersion(0x0),
+m_iMapCnt(0),
+m_hSwitchbar(NULL),
+m_hToolbar(NULL),
+m_hTreebar(NULL),
+m_hMDI(NULL),
+m_hTreeview(NULL),
+m_hTreeFont(NULL),
+m_hTreeImages(NULL),
+//m_sLastError(""),
+m_wpmIRCDefaultWndProc(NULL),
+m_bDebug(false),
+m_bUnicodemIRC(false)
 {
 }
 
@@ -50,10 +52,10 @@ void mIRCLinker::load(LOADINFO * lInfo) {
 		m_dwVersion += 20; // err how exactly does this fix it?
 	}
 	lInfo->mKeep = TRUE;
-#if UNICODE
-	if (this->getMainVersion() >= 7)
+	if (this->getMainVersion() >= 7) {
 		lInfo->mUnicode = TRUE;
-#endif
+		this->m_bUnicodemIRC = true;
+	}
 	initMapFile();
 
 	// Check if we're in debug mode
@@ -65,10 +67,6 @@ void mIRCLinker::load(LOADINFO * lInfo) {
 
 	if (this->getMainVersion() == 7) {
 		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("mIRC V7 detected..."));
-#ifndef UNICODE
-		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Can't do any window mods etc.."));
-		return;
-#endif
 	}
 
 	DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Finding mIRC_Toolbar..."));
@@ -223,13 +221,6 @@ bool mIRCLinker::setTreeFont(HFONT newFont)
 
 void mIRCLinker::hookWindowProc(WNDPROC newProc)
 {
-#ifndef UNICODE
-	if (this->getMainVersion() == 7) {
-		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("mIRC V7 detected..."));
-		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Can't do any window mods etc.."));
-		return;
-	}
-#endif
 	m_wpmIRCDefaultWndProc = SubclassWindow(m_mIRCHWND, newProc);
 }
 
@@ -249,36 +240,26 @@ LRESULT mIRCLinker::callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LP
  * Allow sufficient characters to be returned.
  */
 bool mIRCLinker::eval(TCHAR *res, const int maxlen, const TCHAR *data) {
-	lstrcpy(m_pData, data);
-#if UNICODE
+	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
 	SendMessage(m_mIRCHWND, WM_MEVALUATE, MIRCF_UNICODE, m_iMapCnt);
-#else
-	SendMessage(m_mIRCHWND, WM_MEVALUATE, 0, m_iMapCnt);
-#endif
-	if (res != NULL) lstrcpyn(res, m_pData, maxlen);
-	if (lstrcmp(m_pData, TEXT("$false")) == 0) return false;
+	if (res != NULL) {
+		lstrcpyn(res, m_pData, maxlen);
+		if (lstrcmp(res, TEXT("$false")) == 0) return false;
+	}
 	return true;
 }
 
 bool mIRCLinker::tsEval(TString &res, const TCHAR *data) {
-	lstrcpy(m_pData, data);
-#if UNICODE
+	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
 	SendMessage(m_mIRCHWND, WM_MEVALUATE, MIRCF_UNICODE, m_iMapCnt);
-#else
-	SendMessage(m_mIRCHWND, WM_MEVALUATE, 0, m_iMapCnt);
-#endif
 	res = m_pData;
-	if (lstrcmp(m_pData, TEXT("$false")) == 0) return false;
+	if (res == TEXT("$false")) return false;
 	return true;
 }
 
 bool mIRCLinker::iEval(__int64  *res, const TCHAR *data) {
-	lstrcpy(m_pData, data);
-#if UNICODE
+	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
 	SendMessage(m_mIRCHWND, WM_MEVALUATE, MIRCF_UNICODE, m_iMapCnt);
-#else
-	SendMessage(m_mIRCHWND, WM_MEVALUATE, 0, m_iMapCnt);
-#endif
 	*res = dcx_atoi64(m_pData);
 	if (*res == 0) return false;
 	return true;
@@ -315,12 +296,8 @@ bool mIRCLinker::tsEvalex(TString &res, const TCHAR *szFormat, ...)
 
 bool mIRCLinker::exec(const TCHAR *data)
 {
-	lstrcpy(m_pData, data);
-#if UNICODE
+	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
 	SendMessage(m_mIRCHWND, WM_MCOMMAND, MIRCF_UNICODE, m_iMapCnt);
-#else
-	SendMessage(m_mIRCHWND, WM_MCOMMAND, 0, m_iMapCnt);
-#endif
 	if (lstrlen(m_pData) == 0) return true;
 	return false;
 }
@@ -338,12 +315,8 @@ bool mIRCLinker::execex(const TCHAR *szFormat, ...)
 }
 
 void mIRCLinker::signal(const TCHAR *msg) {
-	wsprintf(m_pData, TEXT("//.signal -n DCX %s"), msg);
-#if UNICODE
+	wnsprintf(m_pData, MIRC_BUFFER_SIZE_CCH, TEXT("//.signal -n DCX %s"), msg);
 	SendMessage(m_mIRCHWND, WM_MCOMMAND, MIRCF_UNICODE, m_iMapCnt);
-#else
-	SendMessage(m_mIRCHWND, WM_MCOMMAND, 0, m_iMapCnt);
-#endif
 }
 
 /*!
@@ -383,10 +356,6 @@ void mIRCLinker::debug(const TCHAR *cmd, const TCHAR *msg) {
 * \brief Displays output text to the mIRC status window.
 */
 void mIRCLinker::echo(const TCHAR *data) {
-	wsprintf(m_pData, TEXT("//echo -s %s"), data);
-#if UNICODE
+	wnsprintf(m_pData, MIRC_BUFFER_SIZE_CCH, TEXT("//echo -s %s"), data);
 	SendMessage(m_mIRCHWND, WM_MCOMMAND, MIRCF_UNICODE, m_iMapCnt);
-#else
-	SendMessage(m_mIRCHWND, WM_MCOMMAND, 0, m_iMapCnt);
-#endif
 }

@@ -428,11 +428,11 @@ TString DcxmlParser::parseCLA(const int cCla) {
 	//	claPathx = buffer;
 	//}
 	//else if (0==lstrcmp(g_claPath, TEXT("root"))) {
-	//	wsprintf (buffer, TEXT("%i"),cCla);
+	//	wnsprintf (buffer, 100, TEXT("%i"),cCla);
 	//	claPathx = buffer;
 	//}
 	//else { 
-	//	wsprintf (buffer, TEXT("%s %i"),g_claPath,cCla);
+	//	wnsprintf (buffer, 100, TEXT("%s %i"),g_claPath,cCla);
 	//	claPathx = buffer;
 	//}
 	//if (element->Attribute("margin")) {
@@ -713,7 +713,7 @@ void DcxmlParser::parseItems(const TiXmlElement* element,int depth,PTCHAR itemPa
 				const char *flags = (tFlags) ? tFlags : "a";
 				TCHAR buffer [100];
 				PTCHAR pathx = 0;
-				wsprintf (buffer, TEXT("%s %i"),itemPath,item);
+				wnsprintf (buffer, 100, TEXT("%s %i"),itemPath,item);
 				pathx = buffer;
 				this->xdidEX(id,TEXT("-a"),TEXT("%s \t +%s %s %s 0 %s %s %s %s %s \t %s"),
 					pathx,flags,icon,icon,state,integral,textcolour,bgcolour,caption,tooltip);
@@ -774,7 +774,7 @@ void DcxmlParser::parseDialog(int depth,const TCHAR *claPath,const int passedid,
 				templateRefcCla = cCla;
 				TCHAR t_buffer [100];
 				const TCHAR * t_claPathx = 0;
-				wsprintf (t_buffer, TEXT("%i"),cCla);
+				wnsprintf (t_buffer, 100, TEXT("%i"),cCla);
 				t_claPathx = t_buffer;
 				TString name;
 				TString value;

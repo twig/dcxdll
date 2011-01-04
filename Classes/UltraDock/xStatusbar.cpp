@@ -320,7 +320,7 @@ mIRC(_xstatusbar)
 
 			while ( i < nParts ) {
 
-				wsprintf( dd, TEXT("%d"), parts[i] );
+				wnsprintf( dd, 10, TEXT("%d"), parts[i] );
 
 				if ( i != 0 )
 					lstrcat( data, TEXT(" ") );
@@ -334,24 +334,14 @@ mIRC(_xstatusbar)
 		{
 			int iPart = d.gettok( 3 ).to_int( ), nParts = (int)DcxDock::status_getParts( 256, 0 );
 
-			if ( iPart > -1 && iPart < nParts ) {
-#if UNICODE
+			if ( iPart > -1 && iPart < nParts )
 				DcxDock::status_getTipText( iPart, MIRC_BUFFER_SIZE_CCH, data );
-#else
-				WCHAR *text = new WCHAR[MIRC_BUFFER_SIZE_CCH];
-				DcxDock::status_getTipText( iPart, MIRC_BUFFER_SIZE_CCH, text );
-				WideCharToMultiByte(CP_UTF8, 0, text, -1, data, MIRC_BUFFER_SIZE_CCH, NULL, NULL);
-				delete [] text;
-#endif
-			}
 		}
 		break;
 	case 0: // error
 	default:
 		{
-			TString error;
-			error.tsprintf(TEXT("D_ERROR Invalid prop ().%s"), d.gettok( 2 ).to_chr());
-			lstrcpy(data, error.to_chr());
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_ERROR Invalid prop ().%s"), d.gettok( 2 ).to_chr());
 		}
 		break;
 	}

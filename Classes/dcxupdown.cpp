@@ -119,28 +119,28 @@ void DcxUpDown::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 
 void DcxUpDown::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	//  int numtok = input.numtok( );
 	TString prop(input.gettok( 3 ));
 
-  // [NAME] [ID] [PROP]
-  if ( prop == TEXT("value") ) {
+	// [NAME] [ID] [PROP]
+	if ( prop == TEXT("value") ) {
 
-    BOOL bError;
-    wsprintf( szReturnValue, TEXT("%d"), this->getPos32( &bError ) );
-    return;
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == TEXT("range") ) {
+		BOOL bError;
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPos32( &bError ) );
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == TEXT("range") ) {
 
-    int iMin, iMax;
-    this->getRange32( &iMin, &iMax );
-    wsprintf( szReturnValue, TEXT("%d %d"), iMin, iMax );
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+		int iMin, iMax;
+		this->getRange32( &iMin, &iMax );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), iMin, iMax );
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 /*!

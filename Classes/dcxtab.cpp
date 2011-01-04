@@ -159,97 +159,97 @@ void DcxTab::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 
 void DcxTab::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 
-  int numtok = input.numtok( );
+	int numtok = input.numtok( );
 	TString prop(input.gettok( 3 ));
 
-  if ( prop == TEXT("text") && numtok > 3 ) {
+	if ( prop == TEXT("text") && numtok > 3 ) {
 
-    int nItem = input.gettok( 4 ).to_int( ) - 1;
+		int nItem = input.gettok( 4 ).to_int( ) - 1;
 
-    if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
-      
-      TCITEM tci;
-      ZeroMemory( &tci, sizeof( TCITEM ) );
+		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
-      tci.mask = TCIF_TEXT;
-      tci.pszText = szReturnValue;
-      tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+			TCITEM tci;
+			ZeroMemory( &tci, sizeof( TCITEM ) );
 
-      TabCtrl_GetItem( this->m_Hwnd, nItem, &tci );
-      return;
-    }
-  }
-  else if ( prop == TEXT("num") ) {
+			tci.mask = TCIF_TEXT;
+			tci.pszText = szReturnValue;
+			tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 
-    wsprintf( szReturnValue, TEXT("%d"), TabCtrl_GetItemCount( this->m_Hwnd ) );
-    return;
-  }
-  // [NAME] [ID] [PROP] [N]
-  else if ( prop == TEXT("icon") && numtok > 3 ) {
+			TabCtrl_GetItem( this->m_Hwnd, nItem, &tci );
+			return;
+		}
+	}
+	else if ( prop == TEXT("num") ) {
 
-    int iTab = input.gettok( 4 ).to_int( ) - 1;
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), TabCtrl_GetItemCount( this->m_Hwnd ) );
+		return;
+	}
+	// [NAME] [ID] [PROP] [N]
+	else if ( prop == TEXT("icon") && numtok > 3 ) {
 
-    if ( iTab > -1 && iTab < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
+		int iTab = input.gettok( 4 ).to_int( ) - 1;
 
-      TCITEM tci;
-      ZeroMemory( &tci, sizeof( TCITEM ) );
+		if ( iTab > -1 && iTab < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
-      tci.mask = TCIF_IMAGE;
+			TCITEM tci;
+			ZeroMemory( &tci, sizeof( TCITEM ) );
 
-      TabCtrl_GetItem( this->m_Hwnd, iTab, &tci );
+			tci.mask = TCIF_IMAGE;
 
-      wsprintf( szReturnValue, TEXT("%d"), tci.iImage + 1 );
-      return;
-    }
-  }
-  else if ( prop == TEXT("sel") ) {
+			TabCtrl_GetItem( this->m_Hwnd, iTab, &tci );
 
-    int nItem = TabCtrl_GetCurSel( this->m_Hwnd );
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), tci.iImage + 1 );
+			return;
+		}
+	}
+	else if ( prop == TEXT("sel") ) {
 
-    if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
+		int nItem = TabCtrl_GetCurSel( this->m_Hwnd );
 
-      wsprintf( szReturnValue, TEXT("%d"), nItem + 1 );
-      return;
-    }
-  }
-  else if ( prop == TEXT("seltext") ) {
+		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
-    int nItem = TabCtrl_GetCurSel( this->m_Hwnd );
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1 );
+			return;
+		}
+	}
+	else if ( prop == TEXT("seltext") ) {
 
-    if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
-      
-      TCITEM tci;
-      ZeroMemory( &tci, sizeof( TCITEM ) );
+		int nItem = TabCtrl_GetCurSel( this->m_Hwnd );
 
-      tci.mask = TCIF_TEXT;
-      tci.pszText = szReturnValue;
-      tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
-      TabCtrl_GetItem( this->m_Hwnd, nItem, &tci );
-      return;
-    }
-  }
-  else if ( prop == TEXT("childid") && numtok > 3 ) {
+			TCITEM tci;
+			ZeroMemory( &tci, sizeof( TCITEM ) );
 
-    int nItem = input.gettok( 4 ).to_int( ) - 1;
+			tci.mask = TCIF_TEXT;
+			tci.pszText = szReturnValue;
+			tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 
-    if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
-      
-      TCITEM tci;
-      ZeroMemory( &tci, sizeof( TCITEM ) );
+			TabCtrl_GetItem( this->m_Hwnd, nItem, &tci );
+			return;
+		}
+	}
+	else if ( prop == TEXT("childid") && numtok > 3 ) {
 
-      tci.mask = TCIF_PARAM;
-      TabCtrl_GetItem( this->m_Hwnd, nItem, &tci );
+		int nItem = input.gettok( 4 ).to_int( ) - 1;
 
-      LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
+		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
-      DcxControl * c = this->m_pParentDialog->getControlByHWND( lpdtci->mChildHwnd );
-      if ( c != NULL ) 
-        wsprintf( szReturnValue, TEXT("%d"), c->getUserID( ) );
+			TCITEM tci;
+			ZeroMemory( &tci, sizeof( TCITEM ) );
 
-      return;
-    }
-  }
+			tci.mask = TCIF_PARAM;
+			TabCtrl_GetItem( this->m_Hwnd, nItem, &tci );
+
+			LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
+
+			DcxControl * c = this->m_pParentDialog->getControlByHWND( lpdtci->mChildHwnd );
+			if ( c != NULL ) 
+				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c->getUserID( ) );
+
+			return;
+		}
+	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("mouseitem")) {
 		TCHITTESTINFO tchi;
@@ -260,15 +260,15 @@ void DcxTab::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 
 		int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
 
-		wsprintf(szReturnValue, TEXT("%d"), tab +1);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), tab +1);
 		return;
 	}
 
 
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -626,7 +626,7 @@ void DcxTab::activateSelectedTab( ) {
 
 		/*
 		TCHAR data[500];
-		wsprintf( data, TEXT("WRECT %d %d %d %d - ARECT %d %d %d %d"), 
+		wnsprintf( data, 500, TEXT("WRECT %d %d %d %d - ARECT %d %d %d %d"), 
 		rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top,
 		tabrect.left, tabrect.top, tabrect.right-tabrect.left, tabrect.bottom-tabrect.top );
 

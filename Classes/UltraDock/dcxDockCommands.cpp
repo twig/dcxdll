@@ -514,21 +514,21 @@ mIRC(_xdock)
 			{
 				RECT rc;
 				GetWindowRect(Dcx::mIRC.getSwitchbar(), &rc);
-				wsprintf(data,TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 5: // toolBarSize
 			{
 				RECT rc;
 				GetWindowRect(Dcx::mIRC.getToolbar(), &rc);
-				wsprintf(data,TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 6: // treeBarSize
 			{
 				RECT rc;
 				GetWindowRect(Dcx::mIRC.getTreebar(), &rc);
-				wsprintf(data,TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 7: // isSwitchBar
@@ -571,17 +571,17 @@ mIRC(_xdock)
 			break;
 		case 12: // switchBarHwnd
 			{
-				wsprintf(data,TEXT("%d"), Dcx::mIRC.getSwitchbar());
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Dcx::mIRC.getSwitchbar());
 			}
 			break;
 		case 13: // toolBarHwnd
 			{
-				wsprintf(data,TEXT("%d"), Dcx::mIRC.getToolbar());
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Dcx::mIRC.getToolbar());
 			}
 			break;
 		case 14: // treeBarHwnd
 			{
-				wsprintf(data,TEXT("%d"), Dcx::mIRC.getTreebar());
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Dcx::mIRC.getTreebar());
 			}
 			break;
 		case 0: // error
@@ -1351,21 +1351,21 @@ mIRC(_xdock)
 //			{
 //				RECT rc;
 //				GetWindowRect(mIRCLink.m_hSwitchbar, &rc);
-//				wsprintf(data,TEXT("%d %d"), rc.right-rc.left, rc.bottom-rc.top);
+//				wnsprintf(data,TEXT("%d %d"), rc.right-rc.left, rc.bottom-rc.top);
 //			}
 //			break;
 //		case 5: // toolBarSize
 //			{
 //				RECT rc;
 //				GetWindowRect(mIRCLink.m_hToolbar, &rc);
-//				wsprintf(data,TEXT("%d %d"), rc.right-rc.left, rc.bottom-rc.top);
+//				wnsprintf(data,TEXT("%d %d"), rc.right-rc.left, rc.bottom-rc.top);
 //			}
 //			break;
 //		case 6: // treeBarSize
 //			{
 //				RECT rc;
 //				GetWindowRect(mIRCLink.m_hTreebar, &rc);
-//				wsprintf(data,TEXT("%d %d"), rc.right-rc.left, rc.bottom-rc.top);
+//				wnsprintf(data,TEXT("%d %d"), rc.right-rc.left, rc.bottom-rc.top);
 //			}
 //			break;
 //		case 7: // isSwitchBar

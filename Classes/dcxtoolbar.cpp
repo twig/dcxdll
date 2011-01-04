@@ -168,14 +168,14 @@ void DcxToolBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("num") ) {
-		wsprintf( szReturnValue, TEXT("%d"), this->getButtonCount( ) );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getButtonCount( ) );
 		return;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("mouseitem")) {
 		long lResult = SendMessage(this->m_Hwnd, TB_GETHOTITEM, NULL, NULL);
 
-		wsprintf(szReturnValue, TEXT("%d"), lResult);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), lResult);
 		return;
 	}
 	// [NAME] [ID] [PROP]
@@ -213,7 +213,7 @@ void DcxToolBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 			tbbi.dwMask = TBIF_IMAGE | TBIF_BYINDEX;
 			this->getButtonInfo( iButton, &tbbi );
 
-			wsprintf( szReturnValue, TEXT("%d"), tbbi.iImage + 1 );
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), tbbi.iImage + 1 );
 			return;
 		}
 	}

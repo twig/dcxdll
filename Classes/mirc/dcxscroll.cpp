@@ -106,47 +106,47 @@ void DcxScroll::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 
 void DcxScroll::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	//  int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
-  // [NAME] [ID] [PROP]
-  if ( prop == TEXT("value") ) {
+	// [NAME] [ID] [PROP]
+	if ( prop == TEXT("value") ) {
 
-    SCROLLINFO si;
-    si.cbSize = sizeof( SCROLLINFO );
-    si.fMask = SIF_POS;
-    GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
+		SCROLLINFO si;
+		si.cbSize = sizeof( SCROLLINFO );
+		si.fMask = SIF_POS;
+		GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
 
-    wsprintf( szReturnValue, TEXT("%d"), si.nPos );
-    return;
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == TEXT("range") ) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), si.nPos );
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == TEXT("range") ) {
 
-    SCROLLINFO si;
-    si.cbSize = sizeof( SCROLLINFO );
-    si.fMask = SIF_RANGE;
-    GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
-    wsprintf( szReturnValue, TEXT("%d %d"), si.nMin, si.nMax );
-    return;
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == TEXT("line") ) {
+		SCROLLINFO si;
+		si.cbSize = sizeof( SCROLLINFO );
+		si.fMask = SIF_RANGE;
+		GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), si.nMin, si.nMax );
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == TEXT("line") ) {
 
-    wsprintf( szReturnValue, TEXT("%d %d"), this->m_nLine );
-    return;
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == TEXT("page") ) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), this->m_nLine );
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == TEXT("page") ) {
 
-    wsprintf( szReturnValue, TEXT("%d"), this->m_nPage );
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nPage );
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!

@@ -196,7 +196,7 @@ void DcxEdit::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("num")) {
 		if (this->isStyle(ES_MULTILINE))
-			wsprintf(szReturnValue, TEXT("%d"), this->m_tsText.numtok(TEXT("\r\n")));
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_tsText.numtok(TEXT("\r\n")));
 		else
 			lstrcpy(szReturnValue,TEXT("1"));	// single line control so always 1 line.
 		return;
@@ -235,11 +235,11 @@ void DcxEdit::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 			// line offset
 			iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
-			wsprintf(szReturnValue, TEXT("%d %d"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
 		else {
 			// return selstart
-			wsprintf(szReturnValue, TEXT("%d %d"), 1, dwAbsoluteStartSelPos);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), 1, dwAbsoluteStartSelPos);
 		}
 
 		return;
@@ -248,14 +248,14 @@ void DcxEdit::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		DWORD dwSelStart = 0; // selection range starting position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, NULL);
-		wsprintf(szReturnValue, TEXT("%d"), dwSelStart);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), dwSelStart);
 		return;
 	}
 	else if (prop == TEXT("selend")) {
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, NULL, (LPARAM) &dwSelEnd);
-		wsprintf(szReturnValue, TEXT("%d"), dwSelEnd);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), dwSelEnd);
 		return;
 	}
 	else if (prop == TEXT("sel")) {
@@ -263,7 +263,7 @@ void DcxEdit::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
-		wsprintf(szReturnValue, TEXT("%d %d"), dwSelStart, dwSelEnd);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), dwSelStart, dwSelEnd);
 		return;
 	}
 	else if (prop == TEXT("seltext")) {

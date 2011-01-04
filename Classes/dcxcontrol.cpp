@@ -811,7 +811,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 	TString prop(input.gettok( 3 ));
 
 	if ( prop == TEXT("hwnd") ) {
-		wsprintf( szReturnValue, TEXT("%d"), this->m_Hwnd );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_Hwnd );
 		return TRUE;
 	}
 	else if ( prop == TEXT("visible") ) {
@@ -831,7 +831,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 	else if ( prop == TEXT("pos") ) {
 		RECT rc;
 		rc = getPosition();
-		wsprintf( szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
 		return TRUE;
 	}
 	else if ( prop == TEXT("dpos") ) {
@@ -839,7 +839,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		GetWindowRect( this->m_Hwnd, &rc );
 		MapWindowPoints(NULL, this->m_pParentDialog->getHwnd( ), (LPPOINT)&rc, 2);
 
-		wsprintf( szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
 		return TRUE;
 	}
 	else if ( prop == TEXT("mark") ) {
@@ -850,7 +850,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		POINT pt;
 		GetCursorPos( &pt );
 		MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
-		wsprintf( szReturnValue, TEXT("%d %d"), pt.x, pt.y );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pt.x, pt.y );
 		return TRUE;
 	}
 	else if ( prop == TEXT("pid") ) {
@@ -860,7 +860,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		if ( lstrcmp( classname, TEXT("#32770") ) == 0 )
 			lstrcpy( szReturnValue, TEXT("0") );
 		else
-			wsprintf( szReturnValue, TEXT("%d"),  this->m_pParentDialog->getControlByHWND( GetParent( this->m_Hwnd ) )->getUserID( ) );
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"),  this->m_pParentDialog->getControlByHWND( GetParent( this->m_Hwnd ) )->getUserID( ) );
 
 		return TRUE;
 	}
@@ -888,7 +888,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 			GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent);
 
 			//TString str(ParseLogfontToCommand(&lfCurrent));
-			//wsprintf(szReturnValue, TEXT("%s"), str.to_chr());
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), str.to_chr());
 			lstrcpyn(szReturnValue, ParseLogfontToCommand(&lfCurrent).to_chr(), MIRC_BUFFER_SIZE_CCH);
 			return TRUE;
 		}
@@ -900,7 +900,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		if (this->m_ToolTipHWND != NULL)
 			cref = (DWORD) SendMessage(this->m_ToolTipHWND,TTM_GETTIPBKCOLOR, NULL, NULL);
 
-		wsprintf(szReturnValue, TEXT("%ld"), cref);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), cref);
 		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
@@ -910,7 +910,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		if (this->m_ToolTipHWND != NULL)
 			cref = (DWORD) SendMessage(this->m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL);
 
-		wsprintf(szReturnValue, TEXT("%ld"), cref);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), cref);
 		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
@@ -922,15 +922,15 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("textcolor")) {
-		wsprintf(szReturnValue, TEXT("%d"), this->m_clrText);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_clrText);
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("textbgcolor")) {
-		wsprintf(szReturnValue, TEXT("%d"), this->m_clrBackText);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_clrBackText);
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("bgcolor")) {
-		wsprintf(szReturnValue, TEXT("%d"), this->m_clrBackground);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_clrBackground);
 	}
 	else
 		this->showError(prop.to_chr(),NULL,TEXT("Invalid property or number of arguments"));

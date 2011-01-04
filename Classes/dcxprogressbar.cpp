@@ -137,28 +137,24 @@ void DcxProgressBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 	TString prop(input.gettok( 3 ));
 
-  if ( prop == TEXT("value") ) {
-    wsprintf( szReturnValue, TEXT("%d"), this->getPosition( ) );
-    return;
-  }
-  else if ( prop == TEXT("range") ) {
-    PBRANGE pbr;
-    this->getRange( FALSE, &pbr );
-    wsprintf( szReturnValue, TEXT("%d %d"), pbr.iLow, pbr.iHigh );
-    return;
-  }
-  else if (prop == TEXT("text")) {
-#if UNICODE
-	  _snwprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, this->m_tsText.to_chr(), this->CalculatePosition());
-#else
-	  _snprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, this->m_tsText.to_chr(), this->CalculatePosition());
-#endif
-	  return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
+	if ( prop == TEXT("value") ) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPosition( ) );
+		return;
+	}
+	else if ( prop == TEXT("range") ) {
+		PBRANGE pbr;
+		this->getRange( FALSE, &pbr );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pbr.iLow, pbr.iHigh );
+		return;
+	}
+	else if (prop == TEXT("text")) {
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, this->m_tsText.to_chr(), this->CalculatePosition());
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 /*!
  * \brief blah

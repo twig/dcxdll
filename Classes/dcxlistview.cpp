@@ -302,7 +302,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 					return;
 				}
 
-				wsprintf(szReturnValue, TEXT("%d"), (int) Header_GetItemCount(hHeader));
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) Header_GetItemCount(hHeader));
 		}
 		else
 			lstrcpy(szReturnValue, TEXT("0"));
@@ -334,7 +334,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 
 		// get specific column
 		if (col > -1) {
-			wsprintf(szReturnValue, TEXT("%s"), val[col]);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), val[col]);
 			delete [] val;
 			return;
 		}
@@ -345,7 +345,8 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		for (int i = 0; i < count; i++)
 			buff.tsprintf(TEXT("%s %d"), buff.to_chr(), val[i]);
 
-		wsprintf(szReturnValue, TEXT("%s"), buff.trim().to_chr());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), buff.trim().to_chr());
+		lstrcpyn(szReturnValue, buff.trim().to_chr(), MIRC_BUFFER_SIZE_CCH);
 		delete [] val;
 		return;
 	}
@@ -378,7 +379,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 			lvi.iSubItem = nSubItem;
 
 			ListView_GetItem( this->m_Hwnd, &lvi );
-			wsprintf( szReturnValue, TEXT("%d"), lvi.iImage + 1 );
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), lvi.iImage + 1 );
 			return;
 		}
 	}
@@ -389,7 +390,8 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		// In range
 		if ((nItem > 0) && (nItem < ListView_GetItemCount(this->m_Hwnd))) {
 			BOOL selected = ListView_GetItemState(this->m_Hwnd, nItem -1, LVIS_SELECTED) & LVIS_SELECTED;
-			wsprintf(szReturnValue, TEXT("%s"), (selected ? TEXT("$true") : TEXT("$false")));
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), (selected ? TEXT("$true") : TEXT("$false")));
+			lstrcpyn(szReturnValue, (selected ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
 	}
@@ -412,7 +414,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 			int nItem = ListView_GetNextItem(this->m_Hwnd, -1, LVIS_SELECTED);
 
 			if (nItem > -1) {
-				wsprintf(szReturnValue, TEXT("%d"), nItem + 1);
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1);
 				return;
 			}
 		}
@@ -431,7 +433,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 
 				// return total count of selected files
 				if (n == 0) {
-					wsprintf(szReturnValue, TEXT("%d"), nSelItems);
+					wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nSelItems);
 					return;
 				}
 
@@ -440,7 +442,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 
 					// reached the index we want to return
 					if (n == 0) {
-						wsprintf(szReturnValue, TEXT("%d"), nItem +1);
+						wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem +1);
 						return;
 					}
 				}
@@ -471,7 +473,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("selnum") ) {
 
-		wsprintf( szReturnValue, TEXT("%d"), ListView_GetSelectedCount( this->m_Hwnd ) );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListView_GetSelectedCount( this->m_Hwnd ) );
 		return;
 	}
 	// [NAME] [ID] [PROP] [N]
@@ -493,14 +495,14 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 					lstrcpy( szReturnValue, TEXT("0") );
 			}
 			else
-				wsprintf( szReturnValue, TEXT("%d"), ListView_GetItemState( this->m_Hwnd, nItem, LVIS_STATEIMAGEMASK ) );
+				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListView_GetItemState( this->m_Hwnd, nItem, LVIS_STATEIMAGEMASK ) );
 		}
 		return;
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("num") ) {
 
-		wsprintf( szReturnValue, TEXT("%d"), ListView_GetItemCount( this->m_Hwnd ) );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListView_GetItemCount( this->m_Hwnd ) );
 		return;
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [COLUMN] [N]
@@ -555,7 +557,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 					}
 				}
 
-				wsprintf( szReturnValue, TEXT("%d"), count );
+				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), count );
 				return;
 			}
 			// find Nth matching
@@ -578,7 +580,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 							// found Nth matching
 							if ( count == N ) {
 
-								wsprintf( szReturnValue, TEXT("%d %d"), i + 1, k + 1 );
+								wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), i + 1, k + 1 );
 								return;
 							}
 						}
@@ -598,7 +600,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 						// found Nth matching
 						if ( count == N ) {
 
-							wsprintf( szReturnValue, TEXT("%d %d"), i + 1, nColumn + 1 );
+							wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), i + 1, nColumn + 1 );
 							return;
 						}
 					}
@@ -611,7 +613,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 	else if ( prop == TEXT("tbitem") ) {
 
 		if ( this->isStyle( LVS_REPORT ) || this->isStyle( LVS_LIST ) )
-			wsprintf( szReturnValue, TEXT("%d %d"), this->getTopIndex( ) + 1, this->getBottomIndex( ) + 1 );
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), this->getTopIndex( ) + 1, this->getBottomIndex( ) + 1 );
 
 		return;
 	}
@@ -623,7 +625,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		ListView_SubItemHitTest( this->m_Hwnd, &lvh );
 
 		if ( lvh.flags & LVHT_ONITEM )
-			wsprintf( szReturnValue, TEXT("%d %d"), lvh.iItem + 1, lvh.iSubItem +1 );
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), lvh.iItem + 1, lvh.iSubItem +1 );
 		else
 			lstrcpy( szReturnValue, TEXT("-1 -1"));
 
@@ -645,11 +647,12 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 				buff.tsprintf(TEXT("%s %d"), buff.to_chr(), ListView_GetColumnWidth(this->m_Hwnd, i));
 			}
 
-			wsprintf(szReturnValue, TEXT("%s"), buff.trim().to_chr());
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), buff.trim().to_chr());
+			lstrcpyn(szReturnValue, buff.trim().to_chr(), MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
 		else if (nColumn > -1 && nColumn < this->getColumnCount()) {
-			wsprintf(szReturnValue, TEXT("%d"), ListView_GetColumnWidth(this->m_Hwnd, nColumn));
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListView_GetColumnWidth(this->m_Hwnd, nColumn));
 			return;
 		}
 	}
@@ -683,7 +686,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 
 			if ( ListView_GetColumn( this->m_Hwnd, nColumn, &lvc ) ) {
 
-				wsprintf( szReturnValue, TEXT("%d"), lvc.iImage + 1 );
+				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), lvc.iImage + 1 );
 				return;
 			}
 		}
@@ -703,16 +706,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		lvg.pszHeader = wstr;
 
 		if ( Dcx::XPPlusModule.isUseable( ) && ListView_GetGroupInfo( this->m_Hwnd, GID, &lvg ) != -1 ) {
-#if UNICODE
-			lstrcpyn(szReturnValue, wstr, MIRC_BUFFER_SIZE_CCH);
-#else
-			WideCharToMultiByte( CP_ACP, 0, wstr, -1, szReturnValue, MIRC_BUFFER_SIZE_CCH, NULL, NULL );
-			//int n = WideCharToMultiByte( CP_ACP, 0, wstr, lstrlenW( wstr ) + 1, szReturnValue, MIRC_BUFFER_SIZE_CCH, NULL, NULL );
-			//TString error;
-			//error.sprintf(TEXT("Chars %d"), n );
-			//mIRCError( error.to_chr() );
-			//mIRCError( szReturnValue );
-#endif
+			lstrcpyn(szReturnValue, lvg.pszHeader, MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
 	}
@@ -778,7 +772,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 			//while (g < 256) { if (ListView_HasGroup(this->m_Hwnd, g++)) gcount++; }
 			int gcount = 0;
 			for (int g = 0; g < 256; g++) { if (ListView_HasGroup(this->m_Hwnd, g)) gcount++; }
-			wsprintf(szReturnValue, TEXT("%d"), gcount);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), gcount);
 			return;
 		}
 		else
@@ -790,13 +784,11 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		if ( Dcx::XPPlusModule.isUseable( ) && ListView_IsGroupViewEnabled( this->m_Hwnd ) )
 		{
 			if (Dcx::VistaModule.isUseable())
-				wsprintf(szReturnValue, TEXT("%d"), ListView_GetGroupCount(this->m_Hwnd));
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListView_GetGroupCount(this->m_Hwnd));
 			else {
 				int gcount = 0;
 				for (int g = 0; g < 256; g++) { if (ListView_HasGroup(this->m_Hwnd, g)) gcount++; }
-				//int g = 0, gcount = 0;
-				//while (g < 256) { if (ListView_HasGroup(this->m_Hwnd, g++)) gcount++; }
-				wsprintf(szReturnValue, TEXT("%d"), gcount);
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), gcount);
 			}
 			return;
 		}
@@ -818,7 +810,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 
 				if (ListView_GetItem(this->m_Hwnd, &lvi))
 				{
-					wsprintf(szReturnValue, TEXT("%d"), lvi.iGroupId); // group id can be -2 (Not In group), -1 (groupcallback, should never be), 0+ groupid
+					wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), lvi.iGroupId); // group id can be -2 (Not In group), -1 (groupcallback, should never be), 0+ groupid
 					return;
 				}
 				else // Unable to find group info
@@ -856,7 +848,8 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		lvi.iSubItem = nCol;
 
 		ListView_GetItem(this->m_Hwnd, &lvi);
-		wsprintf(szReturnValue, TEXT("%s"), ((LPDCXLVITEM) lvi.lParam)->tsMark.to_chr());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), ((LPDCXLVITEM) lvi.lParam)->tsMark.to_chr());
+		lstrcpyn(szReturnValue, ((LPDCXLVITEM) lvi.lParam)->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
