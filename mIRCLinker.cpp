@@ -242,10 +242,8 @@ LRESULT mIRCLinker::callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LP
 bool mIRCLinker::eval(TCHAR *res, const int maxlen, const TCHAR *data) {
 	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
 	SendMessage(m_mIRCHWND, WM_MEVALUATE, MIRCF_UNICODE, m_iMapCnt);
-	if (res != NULL) {
-		lstrcpyn(res, m_pData, maxlen);
-		if (lstrcmp(res, TEXT("$false")) == 0) return false;
-	}
+	if (res != NULL) lstrcpyn(res, m_pData, maxlen);
+	if (lstrcmp(m_pData, TEXT("$false")) == 0) return false;
 	return true;
 }
 
