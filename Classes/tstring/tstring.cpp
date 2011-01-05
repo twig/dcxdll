@@ -2057,7 +2057,7 @@ int TString::tvprintf(const char *fmt, va_list * args)
 {
 	int cnt = _vscprintf(fmt, *args);
 	if (cnt > 0) {
-		char *txt = new char[cnt +1];
+		char *txt = new char[++cnt];
 		if (txt != NULL) {
 			// warning C4996: 'vsprintf' was declared deprecated
 			// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
