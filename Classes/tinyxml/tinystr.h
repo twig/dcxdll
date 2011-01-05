@@ -2,7 +2,7 @@
 www.sourceforge.net/projects/tinyxml
 Original file by Yves Berquin.
 
-This software is provided TEXT('as-is'), without any express or implied
+This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any
 damages arising from the use of this software.
 
@@ -42,7 +42,7 @@ distribution.
 #include <assert.h>
 #include <string.h>
 
-/*	The support for explicit isnTEXT('t that universal, and it isn')t really
+/*	The support for explicit isn't that universal, and it isn't really
 	required - it is used to check that the TiXmlString class isn't incorrectly
 	used. Be nice to old compilers and macro it here:
 */
@@ -101,7 +101,7 @@ class TiXmlString
 	}
 
 	// TiXmlString destructor
-	virtual ~TiXmlString ()
+	~TiXmlString ()
 	{
 		quit();
 	}
@@ -182,7 +182,7 @@ class TiXmlString
 	{
 		if (offset >= length()) return npos;
 
-		for (const char* p = c_str() + offset; *p != TEXT('\0'); ++p)
+		for (const char* p = c_str() + offset; *p != '\0'; ++p)
 		{
 		   if (*p == tofind) return static_cast< size_type >( p - c_str() );
 		}
@@ -218,7 +218,7 @@ class TiXmlString
   private:
 
 	void init(size_type sz) { init(sz, sz); }
-	void set_size(size_type sz) { rep_->str[ rep_->size = sz ] = TEXT('\0'); }
+	void set_size(size_type sz) { rep_->str[ rep_->size = sz ] = '\0'; }
 	char* start() const { return rep_->str; }
 	char* finish() const { return rep_->str + rep_->size; }
 
@@ -235,13 +235,13 @@ class TiXmlString
 			// Lee: the original form:
 			//	rep_ = static_cast<Rep*>(operator new(sizeof(Rep) + cap));
 			// doesn't work in some cases of new being overloaded. Switching
-			// to the normal allocation, although use an TEXT('int') for systems
+			// to the normal allocation, although use an 'int' for systems
 			// that are overly picky about structure alignment.
 			const size_type bytesNeeded = sizeof(Rep) + cap;
 			const size_type intsNeeded = ( bytesNeeded + sizeof(int) - 1 ) / sizeof( int ); 
 			rep_ = reinterpret_cast<Rep*>( new int[ intsNeeded ] );
 
-			rep_->str[ rep_->size = sz ] = TEXT('\0');
+			rep_->str[ rep_->size = sz ] = '\0';
 			rep_->capacity = cap;
 		}
 		else
