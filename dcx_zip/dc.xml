@@ -4,11 +4,11 @@
 			<all style="icy" textcolour="$rgb(0,0,255)" bgcolour="$rgb(255,0,0)" selbordercolour="$rgb(255,255,255)" />
 		</styles>
 
-		<popup name="popup1" style="custom" background="$scriptdir\xpopup_background.bmp">
+		<popup name="popup1" style="custom" background="$scriptdir\top_bg.jpg">
 			<icons>
-				<icon index="1,3,5,7" flags="+g" src="$mircdir $+ dcxstudio_gfx\controls.icl" />
-				<icon index="0" src="$mircdir $+ mirc.exe" />
-				<icon src="$mircdir $+ mirc2.exe" />
+				<icon index="1,3,5,7" flags="+g" src="$mircdircontrols.icl" />
+				<icon index="0" src="$mircexe" />
+				<icon src="$mircexe" />
 			</icons>
 
 			<item id="1" caption="custom 1" icon="1" />
@@ -27,9 +27,9 @@
 
 		<popup name="mypopup" style="vertical">
 			<icons>
-				<icon index="1" src="$mircdir $+ dcxstudio_gfx\controls.icl" />
-				<icon index="3" src="$mircdir $+ dcxstudio_gfx\controls.icl" />
-				<icon index="5" src="$mircdir $+ dcxstudio_gfx\controls.icl" />
+				<icon index="1" src="$mircdircontrols.icl" />
+				<icon index="3" src="$mircdircontrols.icl" />
+				<icon index="5" src="$mircdircontrols.icl" />
 			</icons>
 
 			<item id="1" caption="meh1" command="echo 3 -s this command is stored by the item" />

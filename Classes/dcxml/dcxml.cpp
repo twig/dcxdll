@@ -18,11 +18,13 @@
 #include "dcxml.h"
 #include "dcxmlparser.h"
 
-DcxmlParser *Dcxml::Parser;
+//DcxmlParser *Dcxml::Parser;
+//
+//Dcxml::Dcxml() {
+//
+//}
+DcxmlParser Parser;
 
-Dcxml::Dcxml() {
-
-}
 /*
  * /dcxml -[SWITCH] [?NAME] [DATASET] [PARMS]
  *
@@ -39,7 +41,6 @@ mIRC(dcxml) {
         return 0;
     }
 
-
 	// Parse XDialog XML.
     if (flags['d']) {
 		TString tsFilename(input.gettok( 4, -1 ).trim());
@@ -47,14 +48,8 @@ mIRC(dcxml) {
 			Dcx::errorex("/dcxml -d", "Unable To Access File: %s", tsFilename.to_chr());
 			return 0;
 		}
-		Dcxml::Parser = new DcxmlParser( 
-			tsFilename.to_chr()
-			,input.gettok(2).to_chr()
-			,input.gettok(3).to_chr()
-			,(flags['v'])
-			,(flags['x'])
-		);
-		return (Dcxml::Parser->loadSuccess) ? 1 : 0;
+		Parser.ParseXML(tsFilename.to_chr(), input.gettok(2).to_chr(), input.gettok(3).to_chr(), (flags['v']), (flags['x']) );
+		return (Parser.loadSuccess) ? 1 : 0;
     }
 	// Parse XPopup DCXML.
 	/*
@@ -92,14 +87,12 @@ mIRC(_dcxml)
 	data[0] = 0;
 
 	if (d.numtok( ) != 1) {
-		lstrcpy(data, "D_ERROR Invalid Args: A prop is required.");
+		lstrcpyn(data, "D_ERROR Invalid Args: A prop is required.", MIRC_BUFFER_SIZE_CCH);
 		return 3;
 	}
 
 	if (d.gettok( 1 ) == "Loaded")
-	{
-		lstrcpy(data, (Dcxml::Parser->loadSuccess) ? "$true" : "$false");
-	}
+		lstrcpyn(data, (Parser.loadSuccess) ? "$true" : "$false", MIRC_BUFFER_SIZE_CCH);
 	return 3;
 	
 }

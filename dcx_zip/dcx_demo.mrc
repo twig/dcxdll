@@ -16,27 +16,25 @@ on *:dialog:mydialog:init:*:{
   japan
   dcxml -dx $dname $dname $qt($scriptdirdc.xml)
   if ($dcxml(Loaded)) {
+      xdid -v mydialog 1 20
+      xdid -l mydialog 2 16
 
-    xdid -v mydialog 1 20
-    xdid -l mydialog 2 16
+      ; Populate Listview
+      xdid -t mydialog 5 +l 2 100 column 1 $chr(9) +c 1 100 column 2 $chr(9) +rh 2 100 column 3
+      var %i = 0 
+      while (%i <= 20) { 
+        xdid -a mydialog 5 0 0 +cbkm $rand(1,40) 0 0 0 $r(0,16777215) $r(0,16777215) $regsubex($str(.,$r(5,15)),/./g,$r(a,z))  $chr(9) +ckm $rand(1,40) $r(0,16777215) $r(0,16777215) $regsubex($str(.,$r(5,15)),/./g,$r(a,z)) $chr(9) +ckhm $rand(1,40) $r(0,16777215) $r(0,16777215) $regsubex($str(.,$r(5,15)),/./g,$r(a,z)) 
+        inc %i
+      }
+      ; Hide and show controls
+      xdid -h mydialog $gettok($regsubex($str(.,27),/./g,$+($xdid(mydialog,\n).pid,$chr(44))),1-,44)
+      xdid -s mydialog $xdid(mydialog, 1).pid
 
-    ; Populate Listview
-    xdid -t mydialog 5 +l 2 100 column 1 $chr(9) +c 1 100 column 2 $chr(9) +rh 2 100 column 3
-    var %i = 0 
-    while (%i <= 20) { 
-      xdid -a mydialog 5 0 0 +cbkm $rand(1,40) 0 0 0 $r(0,16777215) $r(0,16777215) $regsubex($str(.,$r(5,15)),/./g,$r(a,z))  $chr(9) +ckm $rand(1,40) $r(0,16777215) $r(0,16777215) $regsubex($str(.,$r(5,15)),/./g,$r(a,z)) $chr(9) +ckhm $rand(1,40) $r(0,16777215) $r(0,16777215) $regsubex($str(.,$r(5,15)),/./g,$r(a,z)) 
-      inc %i
-    }
-    ; Hide and show controls
-    xdid -h $dname $gettok($regsubex($str(.,27),/./g,$+($xdid(mydialog,\n).pid,$chr(44))),1-,44)
-    xdid -s $dname $xdid(mydialog, 1).pid
-
-    .timer 1 0 xdid -l mydialog $xdid(mydialog,$xdid(mydialog, 1).pid).pid update
-    ;Fill colorcombo with mIRC's pallette
-    xdid -m $dname 8
-    ;Set buddycontrol for updown
-    xdid -c $dname 12 122
-    set %monitor 1
+      ;Fill colorcombo with mIRC's pallette
+      xdid -m mydialog 8
+      ;Set buddycontrol for updown
+      xdid -c mydialog 12 122
+      set %monitor 1
   }
 }
 alias events { 
@@ -61,7 +59,15 @@ alias events {
       .timerq off | unset %japr %japy | window -c @m | window -c @japan
       unset %monitor
     }
+    if ($2 == ready) {
+      demo_postinit $1
+    }
   }
+}
+alias -l demo_postinit {
+  xdialog -l $1 update
+  xdialog -j $1
+  xdid -l $1 $xdid($1,$xdid($1, 1).pid).pid update
 }
 alias _scriptdir return $scriptdir
 

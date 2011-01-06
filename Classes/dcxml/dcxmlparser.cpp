@@ -20,12 +20,18 @@
 /*
 dcxml [-FLAGS] [DNAME] [DATASET] "[PATH]"
 */
-//DcxmlParser::DcxmlParser() {
-//
-//}
-DcxmlParser::DcxmlParser(const char *file,const char *mark,const char *dialogName, const bool verbose, const bool autoClose) :
-	loadSuccess(true)
+DcxmlParser::DcxmlParser() :
+	loadSuccess(false)
 {
+
+}
+DcxmlParser::~DcxmlParser() {
+
+}
+
+bool DcxmlParser::ParseXML(const char *file,const char *mark,const char *dialogName, const bool verbose, const bool autoClose)
+{
+	this->loadSuccess = true;
 	this->isVerbose(verbose);
 	this->isAutoClose(autoClose);
 
@@ -43,7 +49,7 @@ DcxmlParser::DcxmlParser(const char *file,const char *mark,const char *dialogNam
 		if ((this->getDialog() != NULL && this->isAutoClose()))
 			Dcx::mIRC.execex("/xdialog -x %s",this->getDialogName());
 
-		return;
+		return false;
 	}
 
 	Dcx::mIRC.execex("/dialog -s %s %i %i %i %i", //!< Sets the dialog size.
@@ -81,6 +87,7 @@ DcxmlParser::DcxmlParser(const char *file,const char *mark,const char *dialogNam
 	if (this->getZlayered()) this->xdialogEX("-z","+s 1");
 
 	Dcx::mIRC.execex("/.timer 1 0 %s %s ready", this->getDialog()->getAliasName().to_chr(), this->getDialogMark()); //!< Tell user that dcxml is finished, & they can do a cla update or whatever.
+	return this->loadSuccess;
 }
 
 void DcxmlParser::setDialog(const char *dialogMark) { this->_dcxDialog = Dcx::Dialogs.getDialogByName(dialogMark);	}
@@ -178,7 +185,7 @@ void DcxmlParser::parseAttributes() {
 		caption = (temp != NULL) ? temp : "";
 	}
 	tooltip = queryAttribute(element, "tooltip", "");
-	cascade = queryAttribute(element, "casacde", "");
+	cascade = queryAttribute(element, "cascade", "");
 	icon = queryAttribute(element, "icon", "0");
 	integral = queryAttribute(element, "integral", "0");
 	state = queryAttribute(element, "state", "0");
@@ -213,43 +220,76 @@ void DcxmlParser::parseAttributes(const TiXmlElement* element) {
 	elem = element->Value();
 	parentelem = parent->Value();
 	parenttype = queryAttribute(parent, "type", "panel");
-	weigth = (temp = element->Attribute("weight")) ? temp : "1";
-	height = (temp = element->Attribute("height")) ? temp : "0";
-	width = (temp = element->Attribute("width")) ? temp : "0";
-	margin = (temp = element->Attribute("margin")) ? temp : "0 0 0 0";
-	styles = (temp = element->Attribute("styles")) ? temp : "";
-	caption = (temp = element->Attribute("caption")) ? temp : (temp = element->GetText()) ? temp : "";
-	tooltip = (temp = element->Attribute("tooltip")) ? temp : "";
-	cascade = (temp = element->Attribute("cascade")) ? temp : "";
-	icon = (temp = element->Attribute("icon")) ? temp : "0";
-	integral = (temp = element->Attribute("integral")) ? temp : "0";
-	state = (temp = element->Attribute("state")) ? temp : "0";
-	indent = (temp = element->Attribute("indent")) ? temp : "0";
+	temp = element->Attribute("weight");
+	weigth = (temp != NULL) ? temp : "1";
+	temp = element->Attribute("height");
+	height = (temp != NULL) ? temp : "0";
+	temp = element->Attribute("width");
+	width = (temp != NULL) ? temp : "0";
+	temp = element->Attribute("margin");
+	margin = (temp != NULL) ? temp : "0 0 0 0";
+	temp = element->Attribute("styles");
+	styles = (temp != NULL) ? temp : "";
+	temp = element->Attribute("caption");
+	if (temp == NULL)
+		temp = element->GetText();
+	caption = (temp != NULL) ? temp : "";
+	temp = element->Attribute("tooltip");
+	tooltip = (temp != NULL) ? temp : "";
+	temp = element->Attribute("cascade");
+	cascade = (temp != NULL) ? temp : "";
+	temp = element->Attribute("icon");
+	icon = (temp != NULL) ? temp : "0";
+	temp = element->Attribute("integral");
+	integral = (temp != NULL) ? temp : "0";
+	temp = element->Attribute("state");
+	state = (temp != NULL) ? temp : "0";
+	temp = element->Attribute("indent");
+	indent = (temp != NULL) ? temp : "0";
 	//flags attribute defaults different per type/item
 	tFlags = element->Attribute("flags");
-	src = (temp = element->Attribute("src")) ? temp : "";
-	cells = (temp = element->Attribute("cells")) ? temp : "-1";
-	rebarMinHeight = (temp = element->Attribute("minheight")) ? temp : "0";
-	rebarMinWidth = (temp = element->Attribute("minwidth")) ? temp : "0";
-	iconsize = (temp = element->Attribute("iconsize")) ? temp : "16";
+	temp = element->Attribute("src");
+	src = (temp != NULL) ? temp : "";
+	temp = element->Attribute("cells");
+	cells = (temp != NULL) ? temp : "-1";
+	temp = element->Attribute("minheight");
+	rebarMinHeight = (temp != NULL) ? temp : "0";
+	temp = element->Attribute("minwidth");
+	rebarMinWidth = (temp != NULL) ? temp : "0";
+	temp = element->Attribute("iconsize");
+	iconsize = (temp != NULL) ? temp : "16";
 	eval = (element->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 0;
 
-	fontstyle = (temp = element->Attribute("fontstyle")) ? temp : "d";
-	charset = (temp = element->Attribute("charset")) ? temp : "ansi";
-	fontsize = (temp = element->Attribute("fontsize")) ? temp : "";
-	fontname = (temp = element->Attribute("fontname")) ? temp : "";
-	border = (temp = element->Attribute("border")) ? temp : "";
-	cursor = (temp = element->Attribute("cursor")) ? temp : "arrow";
-	bgcolour = (temp = element->Attribute("bgcolour")) ? temp : "0";
-	textbgcolour = (temp = element->Attribute("textbgcolour")) ? temp : "";
-	textcolour = (temp = element->Attribute("textcolour")) ? temp : "0";
+	temp = element->Attribute("fontstyle");
+	fontstyle = (temp != NULL) ? temp : "d";
+	temp = element->Attribute("charset");
+	charset = (temp != NULL) ? temp : "ansi";
+	temp = element->Attribute("fontsize");
+	fontsize = (temp != NULL) ? temp : "";
+	temp = element->Attribute("fontname");
+	fontname = (temp != NULL) ? temp : "";
+	temp = element->Attribute("border");
+	border = (temp != NULL) ? temp : "";
+	temp = element->Attribute("cursor");
+	cursor = (temp != NULL) ? temp : "arrow";
+	temp = element->Attribute("bgcolour");
+	bgcolour = (temp != NULL) ? temp : "0";
+	temp = element->Attribute("textbgcolour");
+	textbgcolour = (temp != NULL) ? temp : "";
+	temp = element->Attribute("textcolour");
+	textcolour = (temp != NULL) ? temp : "0";
 
-	gradientstart = (temp = element->Attribute("gradientstart")) ? temp : "";
-	gradientend = (temp = element->Attribute("gradientend")) ? temp : "";
+	temp = element->Attribute("gradientstart");
+	gradientstart = (temp != NULL) ? temp : "";
+	temp = element->Attribute("gradientend");
+	gradientend = (temp != NULL) ? temp : "";
 
-	disabledsrc = (temp = element->Attribute("disabledsrc")) ? temp : "";
-	hoversrc = (temp = element->Attribute("hoversrc")) ? temp : "";
-	selectedsrc = (temp = element->Attribute("selectedsrc")) ? temp : "";
+	temp = element->Attribute("disabledsrc");
+	disabledsrc = (temp != NULL) ? temp : "";
+	temp = element->Attribute("hoversrc");
+	hoversrc = (temp != NULL) ? temp : "";
+	temp = element->Attribute("selectedsrc");
+	selectedsrc = (temp != NULL) ? temp : "";
 }
 /* parseControl() : if current element is a control perform some extra commands*/
 void DcxmlParser::parseControl() { 
