@@ -3210,9 +3210,10 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 		return false;
 	}
 
-	TiXmlDocument doc("");
-	//TiXmlDocument doc(filename.to_chr());
+	//TiXmlDocument doc("");
+	TiXmlDocument doc(filename.c_str());
 	doc.SetCondenseWhiteSpace(false);
+	TString tsBuf;
 
 	bool xmlFile = doc.LoadFile();
 	if (!xmlFile) {
@@ -3222,18 +3223,18 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 
 	TiXmlElement *xRoot = doc.FirstChildElement("dcxml");
 	if (xRoot == NULL) {
-		this->showError(NULL, TEXT("-a"), TEXT("Unable Find TEXT('dcxml') root"));
+		this->showError(NULL, TEXT("-a"), TEXT("Unable Find 'dcxml' root"));
 		return false;
 	}
 
 	TiXmlElement *xElm = xRoot->FirstChildElement("listview_data");
 	if (xElm == NULL) {
-		this->showError(NULL, TEXT("-a"), TEXT("Unable To Find TEXT('listview_data') element"));
+		this->showError(NULL, TEXT("-a"), TEXT("Unable To Find 'listview_data' element"));
 		return false;
 	}
 
-	xElm = xElm->FirstChildElement("");
-	//xElm = xElm->FirstChildElement(name.to_chr());
+	//xElm = xElm->FirstChildElement("");
+	xElm = xElm->FirstChildElement(name.c_str());
 	if (xElm == NULL) {
 		this->showErrorEx(NULL, TEXT("-a"), TEXT("Unable To Find Dataset: %s"), name.to_chr());
 		return false;
@@ -3253,7 +3254,7 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 		lpmylvi->pbar = NULL;
 		lpmylvi->vInfo.clear();
 
-		xmlSetItem(nItem, 0, xNode, &lvi, lpmylvi);
+		xmlSetItem(nItem, 0, xNode, &lvi, lpmylvi, tsBuf);
 
 		// Items state icon.
 		int stateicon = -1;
@@ -3307,14 +3308,14 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 		attr = xNode->Attribute("tooltip");
 		if (attr != NULL) {
 			TString cmd;
-			cmd.tsprintf(TEXT("0 0 -T %d 0 %s"), lvi.iItem +1, attr);
+			cmd.tsprintf(TEXT("0 0 -T %d 0 %S"), lvi.iItem +1, attr);
 			this->parseCommandRequest(cmd);
 		}
 		// add subitems
 		int nSubItem = 1;
 		for (TiXmlElement *xSubNode = xNode->FirstChildElement("lvsubitem"); xSubNode != NULL; xSubNode = xSubNode->NextSiblingElement("lvsubitem"))
 		{
-			xmlSetItem(nItem, nSubItem, xSubNode, &lvi, lpmylvi);
+			xmlSetItem(nItem, nSubItem, xSubNode, &lvi, lpmylvi, tsBuf);
 
 			// SubItems overlay icon.
 			attr = xSubNode->Attribute("overlayicon",&i);
@@ -3350,7 +3351,7 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 	this->redrawWindow();
 	return true;
 }
-void DcxListView::xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi)
+void DcxListView::xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi, TString &tsBuf)
 {
 	LPDCXLVRENDERINFO ri = new DCXLVRENDERINFO;
 	const char *attr = NULL;
@@ -3428,7 +3429,8 @@ void DcxListView::xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *
 	attr = xNode->Attribute("text");
 	if (attr != NULL) {
 		lvi->mask |= LVIF_TEXT;
-		//lvi->pszText = attr;
+		tsBuf = attr;
+		lvi->pszText = tsBuf.to_chr();
 	}
 
 	lvi->state = ri->m_dFlags;
