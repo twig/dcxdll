@@ -75,8 +75,7 @@ DcxCalendar::~DcxCalendar( ) {
 
 void DcxCalendar::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
-	// NEEDS FIXED!
-	//xml->SetAttribute("caption", getValue().to_chr());
+	xml->SetAttribute("caption", getValue().c_str());
 }
 
 TString DcxCalendar::getStyles(void) {

@@ -2278,43 +2278,42 @@ HTREEITEM DcxTreeView::xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, co
 		return false;
 	}
 
-	// NEEDS FIXED!
-	//TiXmlDocument doc(filename.to_chr());
-	//doc.SetCondenseWhiteSpace(false);
+	TiXmlDocument doc(filename.c_str());
+	doc.SetCondenseWhiteSpace(false);
 
-	//bool xmlFile = doc.LoadFile();
-	//if (!xmlFile) {
-	//	this->showErrorEx(NULL, TEXT("-a"), TEXT("Not an XML File: %s"), filename.to_chr());
-	//	return false;
-	//}
+	bool xmlFile = doc.LoadFile();
+	if (!xmlFile) {
+		this->showErrorEx(NULL, TEXT("-a"), TEXT("Not an XML File: %s"), filename.to_chr());
+		return false;
+	}
 
-	//TiXmlElement *xRoot = doc.FirstChildElement("dcxml");
-	//if (xRoot == NULL) {
-	//	this->showError(NULL, TEXT("-a"), TEXT("Unable Find TEXT('dcxml') root"));
-	//	return false;
-	//}
+	TiXmlElement *xRoot = doc.FirstChildElement("dcxml");
+	if (xRoot == NULL) {
+		this->showError(NULL, TEXT("-a"), TEXT("Unable Find 'dcxml' root"));
+		return false;
+	}
 
-	//TiXmlElement *xElm = xRoot->FirstChildElement("treeview_data");
-	//if (xElm == NULL) {
-	//	this->showError(NULL, TEXT("-a"), TEXT("Unable To Find TEXT('treeview_data') element"));
-	//	return false;
-	//}
+	TiXmlElement *xElm = xRoot->FirstChildElement("treeview_data");
+	if (xElm == NULL) {
+		this->showError(NULL, TEXT("-a"), TEXT("Unable To Find 'treeview_data' element"));
+		return false;
+	}
 
-	//xElm = xElm->FirstChildElement(name.to_chr());
-	//if (xElm == NULL) {
-	//	this->showErrorEx(NULL, TEXT("-a"), TEXT("Unable To Find Dataset: %s"), name.to_chr());
-	//	return false;
-	//}
+	xElm = xElm->FirstChildElement(name.c_str());
+	if (xElm == NULL) {
+		this->showErrorEx(NULL, TEXT("-a"), TEXT("Unable To Find Dataset: %s"), name.to_chr());
+		return false;
+	}
 
-	//if ( hInsertAfter == TVI_ROOT)
-	//	hInsertAfter = TreeView_GetRoot(this->m_Hwnd);
+	if ( hInsertAfter == TVI_ROOT)
+		hInsertAfter = TreeView_GetRoot(this->m_Hwnd);
 
-	//this->setRedraw(FALSE);
-	//this->xmlInsertItems(hParent, hInsertAfter, xElm);
-	//this->setRedraw(TRUE);
-	////InvalidateRect(this->m_Hwnd, NULL, FALSE);
-	////UpdateWindow(this->m_Hwnd);
-	//this->redrawWindow();
+	this->setRedraw(FALSE);
+	this->xmlInsertItems(hParent, hInsertAfter, xElm);
+	this->setRedraw(TRUE);
+	//InvalidateRect(this->m_Hwnd, NULL, FALSE);
+	//UpdateWindow(this->m_Hwnd);
+	this->redrawWindow();
 	return hInsertAfter;
 }
 
@@ -2325,56 +2324,55 @@ HTREEITEM DcxTreeView::xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, co
 */
 bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString &filename)
 {
-	// NEEDS FIXED!
-	//TiXmlDocument doc(filename.to_chr());
-	//doc.SetCondenseWhiteSpace(false);
+	TiXmlDocument doc(filename.c_str());
+	doc.SetCondenseWhiteSpace(false);
 
-	//if (IsFile(filename)) {
-	//	bool xmlFile = doc.LoadFile();
-	//	if (!xmlFile) {
-	//		this->showErrorEx(NULL, TEXT("-S"), TEXT("Not an XML File: %s"), filename.to_chr());
-	//		return false;
-	//	}
-	//}
-	//TiXmlElement *xRoot = doc.FirstChildElement("dcxml");
-	//if (xRoot == NULL) {
-	//	xRoot = (TiXmlElement *)doc.InsertEndChild(TiXmlElement("dcxml"));
+	if (IsFile(filename)) {
+		bool xmlFile = doc.LoadFile();
+		if (!xmlFile) {
+			this->showErrorEx(NULL, TEXT("-S"), TEXT("Not an XML File: %s"), filename.to_chr());
+			return false;
+		}
+	}
+	TiXmlElement *xRoot = doc.FirstChildElement("dcxml");
+	if (xRoot == NULL) {
+		xRoot = (TiXmlElement *)doc.InsertEndChild(TiXmlElement("dcxml"));
 
-	//	if (xRoot == NULL) {
-	//		this->showErrorEx(NULL, TEXT("-S"), TEXT("Unable To Add Root <dcxml>"));
-	//		return false;
-	//	}
-	//}
+		if (xRoot == NULL) {
+			this->showErrorEx(NULL, TEXT("-S"), TEXT("Unable To Add Root <dcxml>"));
+			return false;
+		}
+	}
 
-	//TiXmlElement *xData = xRoot->FirstChildElement("treeview_data");
-	//if (xData == NULL) {
-	//	xData = (TiXmlElement *)xRoot->InsertEndChild(TiXmlElement("treeview_data"));
-	//	if (xData == NULL)
-	//		return false;
-	//}
+	TiXmlElement *xData = xRoot->FirstChildElement("treeview_data");
+	if (xData == NULL) {
+		xData = (TiXmlElement *)xRoot->InsertEndChild(TiXmlElement("treeview_data"));
+		if (xData == NULL)
+			return false;
+	}
 
-	//TiXmlElement *xElm = xData->FirstChildElement(name.to_chr());
-	//if (xElm == NULL) {
-	//	xElm = (TiXmlElement *)xData->InsertEndChild(TiXmlElement(name.to_chr()));
-	//	if (xElm == NULL)
-	//		return false;
-	//}
+	TiXmlElement *xElm = xData->FirstChildElement(name.c_str());
+	if (xElm == NULL) {
+		xElm = (TiXmlElement *)xData->InsertEndChild(TiXmlElement(name.c_str()));
+		if (xElm == NULL)
+			return false;
+	}
 
-	//xElm->Clear();
+	xElm->Clear();
 
-	//if ( hFromItem == TVI_ROOT)
-	//	hFromItem = TreeView_GetRoot(this->m_Hwnd);
+	if ( hFromItem == TVI_ROOT)
+		hFromItem = TreeView_GetRoot(this->m_Hwnd);
 
-	//PTCHAR buf = new TCHAR[1024];
-	//if (buf != NULL) {
-	//	if (!this->xmlGetItems(hFromItem, xElm, buf)) {
-	//		this->showErrorEx(NULL, TEXT("-S"), TEXT("Unable To Add Items to XML"));
-	//		return false;
-	//	}
-	//	else
-	//		doc.SaveFile();
-	//	delete [] buf;
-	//}
+	PTCHAR buf = new TCHAR[MIRC_BUFFER_SIZE_CCH];
+	if (buf != NULL) {
+		if (!this->xmlGetItems(hFromItem, xElm, buf)) {
+			this->showErrorEx(NULL, TEXT("-S"), TEXT("Unable To Add Items to XML"));
+			return false;
+		}
+		else
+			doc.SaveFile();
+		delete [] buf;
+	}
 	return true;
 }
 
@@ -2398,7 +2396,7 @@ bool DcxTreeView::xmlGetItems(HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR
 #else
 		tvi.mask = TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_INTEGRAL | TVIF_STATE | TVIF_TEXT | TVIF_CHILDREN;
 #endif
-		tvi.cchTextMax = 1024;
+		tvi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 		tvi.pszText = buf;
 
 		if (!TreeView_GetItem(this->m_Hwnd, &tvi))
@@ -2409,46 +2407,45 @@ bool DcxTreeView::xmlGetItems(HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR
 			bRes = false;
 			break;
 		}
-		// NEEDS FIXED!
-//		{
-//			TiXmlElement xChild("tvitem");
-//			xChild.SetAttribute("text", tvi.pszText);
-//			if (tvi.iImage > -1 && tvi.iImage != 10000)
-//				xChild.SetAttribute("image", tvi.iImage +1);
-//			if (tvi.iSelectedImage > -1 && tvi.iSelectedImage != 10000)
-//				xChild.SetAttribute("selectedimage", tvi.iSelectedImage +1);
-//#ifdef DCX_USE_WINSDK
-//			if (tvi.iExpandedImage > 0 && tvi.iExpandedImage != 10000)
-//				xChild.SetAttribute("expandedimage", tvi.iExpandedImage);
-//#endif
-//			if (tvi.iIntegral > 0)
-//				xChild.SetAttribute("itegral", tvi.iIntegral);
-//			if (tvi.stateMask & TVIS_SELECTED && tvi.state & TVIS_SELECTED)
-//				xChild.SetAttribute("selected", 1);
-//			if (lpmytvi->tsTipText.len())
-//				xChild.SetAttribute("tooltip", lpmytvi->tsTipText.to_chr());
-//			if (lpmytvi->bBold)
-//				xChild.SetAttribute("textbold", 1);
-//			if (lpmytvi->bItalic)
-//				xChild.SetAttribute("textitalic", 1);
-//			if (lpmytvi->bUline)
-//				xChild.SetAttribute("textunderline", 1);
-//			if (lpmytvi->clrBkg != CLR_INVALID)
-//				xChild.SetAttribute("backgroundcolor", lpmytvi->clrBkg);
-//			if (lpmytvi->clrText != CLR_INVALID)
-//				xChild.SetAttribute("textcolor", lpmytvi->clrText);
-//			UINT i = (tvi.state & TVIS_OVERLAYMASK) >> 8;
-//			if (i > 0 && i < 16) // zero means no overlay, so don't save
-//				xChild.SetAttribute("overlay", i);
-//			i = (tvi.state & TVIS_STATEIMAGEMASK) >> 12;
-//			if (i > 0 && i < 5)
-//				xChild.SetAttribute("state", i); // zero means no state image so don't save
-//			xTmp = xElm->InsertEndChild(xChild)->ToElement();
-//			if (xTmp == NULL) {
-//				bRes = false;
-//				break;
-//			}
-//		}
+		{
+			TiXmlElement xChild("tvitem");
+			xChild.SetAttribute("text", TString(tvi.pszText).c_str());
+			if (tvi.iImage > -1 && tvi.iImage != 10000)
+				xChild.SetAttribute("image", tvi.iImage +1);
+			if (tvi.iSelectedImage > -1 && tvi.iSelectedImage != 10000)
+				xChild.SetAttribute("selectedimage", tvi.iSelectedImage +1);
+#ifdef DCX_USE_WINSDK
+			if (tvi.iExpandedImage > 0 && tvi.iExpandedImage != 10000)
+				xChild.SetAttribute("expandedimage", tvi.iExpandedImage);
+#endif
+			if (tvi.iIntegral > 0)
+				xChild.SetAttribute("itegral", tvi.iIntegral);
+			if (tvi.stateMask & TVIS_SELECTED && tvi.state & TVIS_SELECTED)
+				xChild.SetAttribute("selected", 1);
+			if (lpmytvi->tsTipText.len())
+				xChild.SetAttribute("tooltip", lpmytvi->tsTipText.c_str());
+			if (lpmytvi->bBold)
+				xChild.SetAttribute("textbold", 1);
+			if (lpmytvi->bItalic)
+				xChild.SetAttribute("textitalic", 1);
+			if (lpmytvi->bUline)
+				xChild.SetAttribute("textunderline", 1);
+			if (lpmytvi->clrBkg != CLR_INVALID)
+				xChild.SetAttribute("backgroundcolor", lpmytvi->clrBkg);
+			if (lpmytvi->clrText != CLR_INVALID)
+				xChild.SetAttribute("textcolor", lpmytvi->clrText);
+			UINT i = (tvi.state & TVIS_OVERLAYMASK) >> 8;
+			if (i > 0 && i < 16) // zero means no overlay, so don't save
+				xChild.SetAttribute("overlay", i);
+			i = (tvi.state & TVIS_STATEIMAGEMASK) >> 12;
+			if (i > 0 && i < 5)
+				xChild.SetAttribute("state", i); // zero means no state image so don't save
+			xTmp = xElm->InsertEndChild(xChild)->ToElement();
+			if (xTmp == NULL) {
+				bRes = false;
+				break;
+			}
+		}
 		if (tvi.cChildren > 0 && xTmp != NULL)
 			bRes = this->xmlGetItems(TreeView_GetChild(this->m_Hwnd, hSib), xTmp, buf);
 	}
@@ -2464,7 +2461,7 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 	TVINSERTSTRUCT tvins;
 	int i = 0;
 	const char *attr = NULL;
-	TiXmlElement *xRes = NULL;
+	TiXmlElement *xRes = xElm;
 
 	for (TiXmlElement *xNode = xElm->FirstChildElement("tvitem"); xNode != NULL; xNode = xNode->NextSiblingElement("tvitem")) {
 		ZeroMemory(&tvins, sizeof(tvins));
@@ -2513,12 +2510,11 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 			tvins.itemex.state |= TVIS_SELECTED;
 			tvins.itemex.stateMask |= TVIS_SELECTED;
 		}
-		// NEEDS FIXED!
-		//// Items tooltip
-		//attr = xNode->Attribute("tooltip");
-		//if (attr != NULL) {
-		//	lpmytvi->tsTipText = attr;
-		//}
+		// Items tooltip
+		attr = xNode->Attribute("tooltip");
+		if (attr != NULL) {
+			lpmytvi->tsTipText = attr;
+		}
 		// Items text colour.
 		attr = xNode->Attribute("textcolor",&i);
 		if (attr != NULL && i > -1) {
@@ -2548,14 +2544,14 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 		// Is item text underlined?
 		attr = xNode->Attribute("textunderline",&i);
 		lpmytvi->bUline = (i > 0);
-		// NEEDS FIXED!
-		//// Items Text.
-		//attr = xNode->Attribute("text");
-		//if (attr != NULL) {
-		//	tvins.itemex.cchTextMax = lstrlen(attr);
-		//	tvins.itemex.pszText = (LPSTR)attr;
-		//	tvins.itemex.mask |= TVIF_TEXT;
-		//}
+		// Items Text.
+		attr = xNode->Attribute("text");
+		TString tsAttr(attr);
+		if (attr != NULL) {
+			tvins.itemex.cchTextMax = tsAttr.len();
+			tvins.itemex.pszText = tsAttr.to_chr();
+			tvins.itemex.mask |= TVIF_TEXT;
+		}
 		hInsertAfter = TreeView_InsertItem(this->m_Hwnd, &tvins);
 		if (hInsertAfter == NULL) {
 			delete lpmytvi;
@@ -2574,8 +2570,8 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 			TreeView_SetItemState(this->m_Hwnd, hInsertAfter, INDEXTOOVERLAYMASK(i), TVIS_OVERLAYMASK);
 
 		if (xNode->FirstChild("tvitem") != NULL) {
-			// item has children.
-			xNode = this->xmlInsertItems(hInsertAfter, hInsertAfter, xNode);
+			// item has children. NB: DON'T update xNode to the result of this call as this stops subsequent items being added.
+			this->xmlInsertItems(hInsertAfter, hInsertAfter, xNode);
 		}
 		xRes = xNode;
 	}

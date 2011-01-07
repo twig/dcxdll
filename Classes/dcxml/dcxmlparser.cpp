@@ -95,7 +95,7 @@ bool DcxmlParser::loadDocument()
 		Dcx::errorex(TEXT("/dcxml"), TEXT("File \"%s\" does not exist or is in use by another process "), this->getFilePath().to_chr());
 		return false;
 	}
-	TiXmlBase::SetCondenseWhiteSpace(false); 
+	TiXmlBase::SetCondenseWhiteSpace(false);
 	TiXmlDocument doc(this->getFilePath().c_str());
 	this->loadSuccess = doc.LoadFile();
 	if (!this->loadSuccess) { 

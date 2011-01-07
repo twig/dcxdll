@@ -67,16 +67,15 @@ DcxDateTime::~DcxDateTime() {
 }
 
 void DcxDateTime::toXml(TiXmlElement * xml) {
-	TCHAR buf[64];
+	char buf[64];
 	SYSTEMTIME st;
 
 	ZeroMemory(&st, sizeof(SYSTEMTIME));
 
 	DateTime_GetSystemtime(this->m_Hwnd, &st);
-	wnsprintf(buf, 64, TEXT("%ld"), SystemTimeToMircTime(&st));
+	wnsprintfA(buf, 64, "%ld", SystemTimeToMircTime(&st));
 	__super::toXml(xml);
-	// NEEDS FIXED!
-	//xml->SetAttribute("caption", buf);
+	xml->SetAttribute("caption", buf);
 	return;
 }
 

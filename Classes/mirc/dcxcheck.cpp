@@ -83,8 +83,7 @@ void DcxCheck::toXml(TiXmlElement * xml) {
 	TString wtext;
 	__super::toXml(xml);
 	TGetWindowText(this->m_Hwnd, wtext);
-	// NEEDS FIXED!
-	//xml->SetAttribute("caption", wtext.to_chr());
+	xml->SetAttribute("caption", wtext.c_str());
 }
 
 TString DcxCheck::getStyles(void) {
