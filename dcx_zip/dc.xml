@@ -322,4 +322,33 @@
 			</control>
 		</dialog>
 	</dialogs>
+  <treeview_data>
+    <demotreeview>
+      <tvitem text="xml Item 2" image="1" selectedimage="2" expandedimage="3" itegral="1" tooltip="xml tooltip 2" textbold="1" textunderline="1" textcolor="255" state="1">
+        <tvitem text="xml Item 3" image="1" selectedimage="2" expandedimage="65534" itegral="1" tooltip="xml tooltip 3" overlay="2" />
+        <tvitem text="xml Item 4" image="1" selectedimage="2" expandedimage="3" itegral="1" tooltip="xml tooltip 4">
+          <tvitem text="xml Item 4.2" image="1" selectedimage="2" expandedimage="65534" itegral="1" tooltip="xml tooltip 4.2" />
+          <tvitem text="xml Item 4.1" image="1" selectedimage="2" expandedimage="65534" itegral="1" tooltip="xml tooltip 4.1" />
+        </tvitem>
+        <tvitem text="xml Item 5 〠" image="1" selectedimage="2" expandedimage="65534" itegral="1" tooltip="xml tooltip 5" />
+      </tvitem>
+      <tvitem text="xml Item 1" image="1" selectedimage="2" expandedimage="65534" itegral="1" tooltip="xml tooltip 1" textbold="1" textunderline="1" textcolor="16711680" overlay="1" state="1" />
+    </demotreeview>
+  </treeview_data>
+  <listview_data>
+    <demolistview>
+      <lvitem text="xml item1" textunderline="1" autosizemax="1" tooltip="xml tooltip1">
+        <lvsubitem text="xmlsubitem1-1" icon="2" textbold="1" autosizemax="1" />
+        <lvsubitem text="xmlsubitem1-2" icon="2" textunderline="1" autosizemax="1" />
+      </lvitem>
+      <lvitem text="xml item2" icon="1" textunderline="1" autosizemax="1" tooltip="xml tooltip2">
+        <lvsubitem text="xmlsubitem2-1" icon="2" textbold="1" autosizemax="1" />
+        <lvsubitem text="xmlsubitem2-2" icon="2" textunderline="1" autosizemax="1" />
+      </lvitem>
+      <lvitem text="xml item3" icon="1" textunderline="1" autosizemax="1" tooltip="xml tooltip3">
+        <lvsubitem text="xmlsubitem3-1" icon="2" textbold="1" autosizemax="1" />
+        <lvsubitem text="xmlsubitem3-2" icon="2" textunderline="1" autosizemax="1" />
+      </lvitem>
+    </demolistview>
+  </listview_data>
 </dcxml>

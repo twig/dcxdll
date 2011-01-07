@@ -2359,7 +2359,7 @@ bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString 
 	if ( hFromItem == TVI_ROOT)
 		hFromItem = TreeView_GetRoot(this->m_Hwnd);
 
-	PTCHAR buf = new TCHAR[1024];
+	PTCHAR buf = new TCHAR[MIRC_BUFFER_SIZE_CCH];
 	if (buf != NULL) {
 		if (!this->xmlGetItems(hFromItem, xElm, buf)) {
 			this->showErrorEx(NULL, "-S", "Unable To Add Items to XML");
@@ -2392,7 +2392,7 @@ bool DcxTreeView::xmlGetItems(HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR
 #else
 		tvi.mask = TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_INTEGRAL | TVIF_STATE | TVIF_TEXT | TVIF_CHILDREN;
 #endif
-		tvi.cchTextMax = 1024;
+		tvi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 		tvi.pszText = buf;
 
 		if (!TreeView_GetItem(this->m_Hwnd, &tvi))
@@ -2458,7 +2458,7 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 	TVINSERTSTRUCT tvins;
 	int i = 0;
 	const char *attr = NULL;
-	TiXmlElement *xRes = NULL;
+	TiXmlElement *xRes = xElm;
 
 	for (TiXmlElement *xNode = xElm->FirstChildElement("tvitem"); xNode != NULL; xNode = xNode->NextSiblingElement("tvitem")) {
 		ZeroMemory(&tvins, sizeof(tvins));
@@ -2567,7 +2567,7 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 
 		if (xNode->FirstChild("tvitem") != NULL) {
 			// item has children.
-			xNode = this->xmlInsertItems(hInsertAfter, hInsertAfter, xNode);
+			this->xmlInsertItems(hInsertAfter, hInsertAfter, xNode);
 		}
 		xRes = xNode;
 	}
