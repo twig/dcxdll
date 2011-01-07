@@ -314,7 +314,7 @@ void DcxmlParser::parseControl() {
 	if (((((0==lstrcmpA(type, "box")) || (0==lstrcmpA(type, "check")))
 		|| (0==lstrcmpA(type, "link"))) || (0==lstrcmpA(type, "radio"))) || (0==lstrcmpA(type, "button")))
 	{ 
-		if (caption) xdidEX(id,TEXT("-t"),TEXT("%s"),caption);
+		if (caption) xdidEX(id,TEXT("-t"),TEXT("%S"),caption);
 	}
 	if ((0==lstrcmpA(type, "ipaddress")) && (caption))
 		this->xdidEX(id,TEXT("-a"),TEXT("%S"),caption);
