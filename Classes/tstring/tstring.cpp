@@ -83,10 +83,16 @@ TString::TString( const char * cString )
 		this->m_pString = new TCHAR[1];
 		this->m_pString[0] = TEXT('\0');
 	}
+	else {
+		int l = lstrlenA( cString ) + 1;
+		this->m_pWString = new char [ l ];
+		lstrcpynA( this->m_pWString, cString, l );
+	}
 #else
 	if ( cString != NULL ) {
-		this->m_pString = new char [ lstrlen( cString ) + 1 ];
-		lstrcpy( this->m_pString, cString );
+		int l = lstrlen( cString ) + 1;
+		this->m_pString = new char [ l ];
+		lstrcpyn( this->m_pString, cString, l );
 	}
 	else {
 		this->m_pString = new char[1];
@@ -101,8 +107,9 @@ TString::TString( const WCHAR * cString )
 {
 #ifdef UNICODE
 	if ( cString != NULL ) {
-		this->m_pString = new TCHAR [ lstrlen( cString ) + 1 ];
-		lstrcpy( this->m_pString, cString );
+		int l = lstrlen( cString ) + 1;
+		this->m_pString = new TCHAR [ l ];
+		lstrcpyn( this->m_pString, cString, l );
 	}
 	else {
 		this->m_pString = new TCHAR[1];
@@ -110,8 +117,9 @@ TString::TString( const WCHAR * cString )
 	}
 #else
 	if ( cString != NULL ) {
-		this->m_pWString = new WCHAR [ lstrlenW( cString ) + 1 ];
-		lstrcpyW( this->m_pWString, cString );
+		int l = lstrlenW( cString ) + 1;
+		this->m_pWString = new WCHAR [ l ];
+		lstrcpynW( this->m_pWString, cString, l );
 	}
 #endif
 }
@@ -153,6 +161,11 @@ TString::TString( const char chr )
 		this->m_pString = new TCHAR[1];
 		this->m_pString[0] = TEXT('\0');
 	}
+	else {
+		this->m_pWString = new char [2];
+		this->m_pWString[0] = chr;
+		this->m_pWString[1] = 0;
+	}
 #else
 	this->m_pString = new char [2];
 	this->m_pString[0] = chr;
@@ -173,8 +186,9 @@ TString::TString( const TString & tString )
  m_pString(NULL)
 {
 	if ( tString.m_pString != NULL ) {
-		this->m_pString = new TCHAR [lstrlen( tString.m_pString ) +1];
-		lstrcpy( this->m_pString, tString.m_pString );
+		int l = lstrlen( tString.m_pString ) +1;
+		this->m_pString = new TCHAR [ l ];
+		lstrcpyn( this->m_pString, tString.m_pString, l );
 	}
 	else {
 		this->m_pString = new TCHAR[1];
@@ -187,11 +201,12 @@ TString::TString( const TCHAR *pStart, const TCHAR *pEnd )
  m_pString(NULL)
 {
 	if ((pStart != NULL) && (pEnd != NULL) && (pEnd > pStart)) {
-		size_t size = (pEnd - pStart);
 #ifdef UNICODE
-		this->m_pString = new TCHAR[++size];
+		size_t size = (pEnd - pStart)+1;
+		this->m_pString = new TCHAR[size];
 		lstrcpyn(this->m_pString, pStart, size);	// adds null terminator for us.
 #else
+		size_t size = (pEnd - pStart);
 		this->m_pString = new TCHAR[size+1];
 		CopyMemory(this->m_pString, pStart, size);
 		this->m_pString[size] = 0;
@@ -241,8 +256,9 @@ TString& TString::operator =( const TString & tString ) {
 	this->deleteString( );
 
 	if ( tString.m_pString != NULL ) {
-		this->m_pString = new TCHAR [ lstrlen( tString.m_pString ) + 1 ];
-		lstrcpy( this->m_pString, tString.m_pString );
+		int l = lstrlen( tString.m_pString ) + 1;
+		this->m_pString = new TCHAR [ l ];
+		lstrcpyn( this->m_pString, tString.m_pString, l );
 	}
 	return *this;
 }
@@ -259,16 +275,18 @@ TString& TString::operator =( const WCHAR * cString ) {
 	this->deleteString( );
 
 	if ( cString != NULL ) {
-		this->m_pString = new TCHAR [ lstrlen( cString ) + 1 ];
-		lstrcpy( this->m_pString, cString );
+		int l = lstrlen( cString ) + 1;
+		this->m_pString = new TCHAR [ l ];
+		lstrcpyn( this->m_pString, cString, l );
 	}
 	return *this;
 #else
 	this->deleteString( );
 
 	if ( cString != NULL ) {
-		this->m_pWString = new WCHAR [ lstrlenW( cString ) + 1 ];
-		lstrcpyW( this->m_pWString, cString );
+		int l = lstrlenW( cString ) + 1;
+		this->m_pWString = new WCHAR [ l ];
+		lstrcpynW( this->m_pWString, cString, l );
 	}
 	return *this;
 #endif
@@ -278,16 +296,20 @@ TString& TString::operator =( const char * cString ) {
 #ifdef UNICODE
 	this->deleteString( );
 
-	if ( cString != NULL )
+	if ( cString != NULL ) {
 		this->m_pString = charToWchar(cString);
-
+		int l = lstrlenA( cString ) +1;
+		this->m_pWString = new char [ l ];
+		lstrcpynA( this->m_pWString, cString, l );
+	}
 	return *this;
 #else
 	this->deleteString( );
 
 	if ( cString != NULL ) {
-		this->m_pString = new char [ lstrlen( cString ) + 1 ];
-		lstrcpy( this->m_pString, cString );
+		int l = lstrlen( cString ) + 1;
+		this->m_pString = new char [ l ];
+		lstrcpyn( this->m_pString, cString, l );
 	}
 	return *this;
 #endif
@@ -324,6 +346,9 @@ TString& TString::operator =( const char chr ) {
 	str[0] = chr;
 	str[1] = 0;
 	this->m_pString = charToWchar(str);
+	this->m_pWString = new char[2];
+	this->m_pWString[0] = chr;
+	this->m_pWString[1] = 0;
 	return *this;
 #else
 	this->deleteString( );
@@ -347,9 +372,10 @@ TString& TString::operator =( const char chr ) {
 TString TString::operator +( const TCHAR * cString ) {
 
 	if ( cString != NULL ) {
-		TString newTString((UINT)(lstrlen( this->m_pString )+lstrlen( cString )));
+		UINT l = (lstrlen( this->m_pString )+lstrlen( cString )+1);
+		TString newTString((UINT)l);
 
-		lstrcpy( newTString.m_pString, this->m_pString );
+		lstrcpyn( newTString.m_pString, this->m_pString, l );
 		lstrcat( newTString.m_pString, cString );
 		return newTString;
 	}
@@ -371,7 +397,7 @@ TString TString::operator +( const TCHAR chr ) {
 	size_t size = lstrlen( this->m_pString );
 	TString newTString((UINT)(size+2));
 
-	lstrcpy( newTString.m_pString, this->m_pString );
+	lstrcpyn( newTString.m_pString, this->m_pString, size+1 );
 	newTString.m_pString[size] = chr;
 	newTString.m_pString[size+1] = 0;
 
@@ -391,9 +417,10 @@ TString TString::operator +( const TCHAR chr ) {
 TString TString::operator +( const TString & tString ) {
 
 	if ( tString.m_pString ) {
-		TString newTString((UINT)(lstrlen( this->m_pString )+lstrlen( tString.m_pString )));
+		int l = (lstrlen( this->m_pString )+lstrlen( tString.m_pString )+1);
+		TString newTString((UINT)l);
 
-		lstrcpy( newTString.m_pString, this->m_pString );
+		lstrcpyn( newTString.m_pString, this->m_pString, l );
 		lstrcat( newTString.m_pString, tString.m_pString );
 		return newTString;
 	}
@@ -453,8 +480,9 @@ TString TString::operator -( const TString & tString ) {
 TString & TString::operator +=( const TCHAR * cString ) {
 
 	if ( cString != NULL ) {
-		TCHAR * temp = new TCHAR [ lstrlen( this->m_pString ) + lstrlen( cString ) + 1 ];
-		lstrcpy( temp, this->m_pString );
+		int l = (lstrlen( this->m_pString ) + lstrlen( cString ) + 1);
+		TCHAR * temp = new TCHAR [ l ];
+		lstrcpyn( temp, this->m_pString, l );
 		lstrcat( temp, cString );
 		this->deleteString();
 		this->m_pString = temp;
@@ -475,7 +503,7 @@ TString & TString::operator +=( const TCHAR chr ) {
 	if ( this->m_pString != NULL ) {
 		int len = lstrlen( this->m_pString );
 		TCHAR * temp = new TCHAR [ len + 2 ];
-		lstrcpy( temp, this->m_pString );
+		lstrcpyn( temp, this->m_pString, len+1 );
 		temp[len] = chr;
 		temp[len+1] = 0;
 		this->deleteString();
@@ -500,8 +528,9 @@ TString & TString::operator +=( const TCHAR chr ) {
 TString & TString::operator +=( const TString & tString ) {
 
 	if ( tString.m_pString ) {
-		TCHAR * temp = new TCHAR [ lstrlen( this->m_pString ) + lstrlen( tString.m_pString ) + 1 ];
-		lstrcpy( temp, this->m_pString );
+		int l = (lstrlen( this->m_pString ) + lstrlen( tString.m_pString ) + 1);
+		TCHAR * temp = new TCHAR [ l ];
+		lstrcpyn( temp, this->m_pString, l );
 		lstrcat( temp, tString.m_pString );
 		this->deleteString();
 		this->m_pString = temp;
@@ -1612,8 +1641,9 @@ void TString::deltok( const int N, const TCHAR * sepChars ) {
 
 		p_cEnd++;
 
-		TCHAR * pNew = new TCHAR[ lstrlen( p_cEnd ) + 1 ];
-		lstrcpy( pNew, p_cEnd );
+		int l = lstrlen( p_cEnd ) + 1;
+		TCHAR * pNew = new TCHAR[ l ];
+		lstrcpyn( pNew, p_cEnd, l );
 		this->deleteString();
 		this->m_pString = pNew;
 	}
@@ -1623,8 +1653,9 @@ void TString::deltok( const int N, const TCHAR * sepChars ) {
 		p_cStart--;
 		*p_cStart = 0;
 
-		TCHAR * pNew = new TCHAR[ lstrlen( this->m_pString ) + 1 ];
-		lstrcpy( pNew, this->m_pString );
+		int l = lstrlen( this->m_pString ) + 1;
+		TCHAR * pNew = new TCHAR[ l ];
+		lstrcpyn( pNew, this->m_pString, l );
 		this->deleteString();
 		this->m_pString = pNew;
 	}
@@ -1634,8 +1665,9 @@ void TString::deltok( const int N, const TCHAR * sepChars ) {
 		*p_cStart = 0;
 		p_cEnd++;
 
-		TCHAR * pNew = new TCHAR[ lstrlen( this->m_pString ) + lstrlen( p_cEnd ) + 1 ];
-		lstrcpy( pNew, this->m_pString );
+		int l = (lstrlen( this->m_pString ) + lstrlen( p_cEnd ) + 1);
+		TCHAR * pNew = new TCHAR[ l ];
+		lstrcpyn( pNew, this->m_pString, l );
 		lstrcat( pNew, p_cEnd );
 
 		this->deleteString();
@@ -1744,8 +1776,9 @@ void TString::addtok( const TCHAR * cToken, const TCHAR * sepChars ) {
 		lstrcat( pNew, cToken );
 	}
 	else {
-		pNew = new TCHAR[ lstrlen( cToken ) + 1 ];
-		lstrcpy( pNew, cToken );
+		int l = lstrlen( cToken ) + 1;
+		pNew = new TCHAR[ l ];
+		lstrcpyn( pNew, cToken, l );
 	}
 	this->deleteString();
 	this->m_pString = pNew;
@@ -1917,7 +1950,7 @@ TString TString::left(int n) const
 TString TString::right(int n) const
 {
 	TString tmp;
-	int l = (int)lstrlen(this->m_pString);
+	int l = lstrlen(this->m_pString);
 	if ((n == 0) || (l == 0)) return tmp;
 	if (n > l) n = l;
 	int start = l-n, len = n+1;
@@ -1927,19 +1960,19 @@ TString TString::right(int n) const
 		len = (l - start) + 1;
 	}
 	TCHAR *p = new TCHAR[len];
-	lstrcpy(p,&this->m_pString[start]);
+	lstrcpyn(p,&this->m_pString[start],len);
 	tmp.deleteString();
 	tmp.m_pString = p;
 	return tmp;
 }
-char *TString::c_str( ) const
+char *TString::c_str(void) const
 {
-	//int i = this->len();
-	//if (tryutf8)
-	//	WideCharToMultiByte( CP_UTF8, 0, wstr, -1, szReturnValue, i, NULL, NULL );
-	//else
-	//	WideCharToMultiByte( CP_ACP, 0, wstr, -1, szReturnValue, i, NULL, NULL );
-	return NULL;
+	if (this->m_pString == NULL)
+		return NULL;
+
+	if (this->m_pWString == NULL)
+		const_cast< TString * >( this )->m_pWString = TString::WcharTochar(this->m_pString);
+	return this->m_pWString;
 }
 // Ook - match() function taken from aircdll.dll by Tabo source.
 /* taken from the hybrid-5.3p7 source */
@@ -2304,6 +2337,16 @@ WCHAR *TString::charToWchar(const char *cString)
 			res = new WCHAR[widelen+1];
 			MultiByteToWideChar(CP_UTF8,0,cString,-1, res, widelen);
 		}
+	}
+	return res;
+}
+char *TString::WcharTochar(const WCHAR *wString)
+{
+	int l = WideCharToMultiByte( CP_UTF8, 0, wString, -1, NULL, 0, NULL, NULL );
+	char *res = NULL;
+	if (l > 0) {
+		res = new char[++l];
+		WideCharToMultiByte( CP_UTF8, 0, wString, -1, res, l, NULL, NULL );
 	}
 	return res;
 }

@@ -2,13 +2,15 @@
 #define DCXMLPARSER_H
 
 #include "dcxmlincludes.h"
-//#include "dcxmlparser.h" wtf?
+
 class DcxmlParser {
 	
 public:
 	//constructor
-	//DcxmlParser();
-	DcxmlParser(const char *filePath, const char *dialogMark,const char *dialogName,const bool verbose, const bool autoClose);
+	DcxmlParser();
+	~DcxmlParser();
+
+	bool ParseXML(const TString &tsFilePath, const TString &tsDialogMark,const TString &DialogName,const bool verbose, const bool autoClose);
 	//virtual ~DCXML( );
 	void parseAttributes();
 	void parseAttributes(const TiXmlElement* element);
@@ -19,16 +21,16 @@ public:
 	void setStyle(const TiXmlElement* style);
 	void parseStyle(int depth = 0);
 	void parseIcons(int depth = 0);
-	void parseItems(const TiXmlElement* element,int depth = 0,PTCHAR itemPath = TEXT(""));
-	void parseTemplate(int dialogDepth=0,const TCHAR *claPath = TEXT("root"),const int passedid = 2000);
-	void parseDialog(int depth=0,const TCHAR *claPath = TEXT("root"),const int passedid = 2000,const int ignoreParent = 0);
+	void parseItems(const TiXmlElement* element,int depth = 0,char *itemPath = "");
+	void parseTemplate(int dialogDepth=0,const char *claPath = "root",const int passedid = 2000);
+	void parseDialog(int depth=0,const char *claPath = "root",const int passedid = 2000,const int ignoreParent = 0);
 
 	const char *queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue = "") const;
 	int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0) const;
 
-	void setDialog(const char *dialogMark);
-	void setDialogMark (const char *v) { this->_dialogMark = v; }
-	void setDialogName (const char *v) { this->_dialogName = v; }
+	void setDialog(const TString &dialogMark);
+	void setDialogMark (const TString &v) { this->_dialogMark = v; }
+	void setDialogName (const TString &v) { this->_dialogName = v; }
 	void setRootElement (const TiXmlElement * element) { this->_rootElement = element; }
 	void setDialogsElement (const TiXmlElement * element) { this->_dialogsElement = element; }
 	void setDialogElement (const TiXmlElement * element) { this->_dialogElement = element; }
@@ -41,9 +43,9 @@ public:
 
 	DcxDialog *getDialog () const { return this->_dcxDialog; }
 	bool getZlayered () const { return this->_zlayered; }
-	const char *getDialogMark () const { return this->_dialogMark; }
-	const char *getDialogName () const { return this->_dialogName; }
-	const char *getFilePath () const { return this->_filePath; }
+	const TString &getDialogMark () const { return this->_dialogMark; }
+	const TString &getDialogName () const { return this->_dialogName; }
+	const TString &getFilePath () const { return this->_filePath; }
 
 	const TiXmlElement* getRootElement () const { return this->_rootElement; }
 	const TiXmlElement* getDialogsElement () const { return this->_dialogsElement; }
@@ -108,8 +110,8 @@ public:
 	];*/
     const TiXmlElement* templateRef;
     int templateRefcCla;
-    const TCHAR *templateRefclaPath;
-	std::map<const TCHAR*, const TCHAR*> template_vars;
+    const char *templateRefclaPath;
+	std::map<const char*, const char*> template_vars;
 
     int eval;
     
@@ -118,7 +120,7 @@ public:
     TString cmd;
 	
     //CLA variables
-    const TCHAR *g_claPath;
+    const char *g_claPath;
     const char *g_claPathx;
     int g_resetcla;
 private:
@@ -139,14 +141,13 @@ private:
 	typedef std::map<const char, const char> AttributesMap;
 
 	AttributesMap _attributesMap;
-	
 
-	const char *_filePath;
-	void setFilePath (const char *file) { this->_filePath = file; }
-
+	void setFilePath (const TString &tsFile) { this->_filePath = tsFile; }
 
 	bool _zlayered;
-	const char *_dialogMark, *_dialogName;
+	TString _filePath;
+	TString _dialogMark;
+	TString _dialogName;
 	DcxDialog* _dcxDialog;
 	const TiXmlElement *_rootElement;
 	const TiXmlElement *_dialogsElement;

@@ -486,7 +486,7 @@ mIRC(_xtreebar)
 			if (TreeView_GetItem(Dcx::mIRC.getTreeview(),&item))
 				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), item.iImage, item.iSelectedImage);
 			else
-				lstrcpy(data, TEXT("D_ERROR Unable To Get Item"));
+				lstrcpyn(data, TEXT("D_ERROR Unable To Get Item"), MIRC_BUFFER_SIZE_CCH);
 		}
 		break;
 	case 0: // error

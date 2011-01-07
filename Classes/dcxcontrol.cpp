@@ -816,16 +816,16 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 	}
 	else if ( prop == TEXT("visible") ) {
 		if ( IsWindowVisible( this->m_Hwnd ) )
-			lstrcpy( szReturnValue, TEXT("$true") );
+			lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
 		else
-			lstrcpy( szReturnValue, TEXT("$false") );
+			lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
 		return TRUE;
 	}
 	else if ( prop == TEXT("enabled") ) {
 		if ( IsWindowEnabled( this->m_Hwnd ) )
-			lstrcpy( szReturnValue, TEXT("$true") );
+			lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
 		else
-			lstrcpy( szReturnValue, TEXT("$false") );
+			lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
 		return TRUE;    
 	}
 	else if ( prop == TEXT("pos") ) {
@@ -858,7 +858,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		GetClassName( GetParent( this->m_Hwnd ), classname, 256 );
 
 		if ( lstrcmp( classname, TEXT("#32770") ) == 0 )
-			lstrcpy( szReturnValue, TEXT("0") );
+			lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
 		else
 			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"),  this->m_pParentDialog->getControlByHWND( GetParent( this->m_Hwnd ) )->getUserID( ) );
 
@@ -916,9 +916,9 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("alpha")) {
 		if (this->m_bAlphaBlend)
-			lstrcpy(szReturnValue, TEXT("$true"));
+			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		else
-			lstrcpy(szReturnValue, TEXT("$false"));
+			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("textcolor")) {

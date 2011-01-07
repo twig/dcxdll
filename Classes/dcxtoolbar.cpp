@@ -230,7 +230,7 @@ void DcxToolBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 			tbbi.dwMask = TBIF_STATE | TBIF_BYINDEX;
 			this->getButtonInfo( iButton, &tbbi );
 
-			lstrcpy( szReturnValue, TEXT("+") );
+			lstrcpyn( szReturnValue, TEXT("+"), MIRC_BUFFER_SIZE_CCH );
 
 			if ( !( tbbi.fsState & TBSTATE_ENABLED ) )
 				lstrcat( szReturnValue,TEXT("d") );
@@ -276,7 +276,6 @@ void DcxToolBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 	// [NAME] [ID] [PROP] [N]
 	else if (prop == TEXT("dropdownpoint") && numtok > 3) {
 		RECT rc;
-		TString coordinates;
 
 		ZeroMemory(&rc, sizeof(RECT));
 		int iButton = input.gettok(4).to_int() -1;
@@ -289,9 +288,7 @@ void DcxToolBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 
 		this->getItemRect(iButton, &rc);
 		MapWindowPoints(this->m_Hwnd, NULL, (LPPOINT)&rc, 2);
-		coordinates.tsprintf(TEXT("%d %d %d %d"), rc.left, rc.bottom, rc.right, rc.top);
-
-		lstrcpy(szReturnValue, coordinates.to_chr());
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.bottom, rc.right, rc.top);
 		return;
 	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue))

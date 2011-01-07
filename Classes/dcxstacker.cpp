@@ -162,13 +162,13 @@ void DcxStacker::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 	else if ( prop == TEXT("haschild") && numtok > 3 ) {
 		int nSel = input.gettok( 4 ).to_int( ) - 1;
 
-		lstrcpy(szReturnValue,TEXT("$false"));
+		lstrcpyn(szReturnValue,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nSel);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
 				if (sitem->pChild != NULL)
-					lstrcpy(szReturnValue,TEXT("$true"));
+					lstrcpyn(szReturnValue,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 			}
 			return;
 		}
@@ -177,7 +177,7 @@ void DcxStacker::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 	else if ( prop == TEXT("childid") && numtok > 3 ) {
 		int nSel = input.gettok( 4 ).to_int( ) - 1;
 
-		lstrcpy(szReturnValue,TEXT("0"));
+		lstrcpyn(szReturnValue,TEXT("0"), MIRC_BUFFER_SIZE_CCH);
 
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nSel);

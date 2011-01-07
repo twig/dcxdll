@@ -305,7 +305,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) Header_GetItemCount(hHeader));
 		}
 		else
-			lstrcpy(szReturnValue, TEXT("0"));
+			lstrcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}
@@ -488,11 +488,11 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 				int state = ListView_GetItemState( this->m_Hwnd, nItem, LVIS_STATEIMAGEMASK );
 
 				if ( state == 8192 )
-					lstrcpy( szReturnValue, TEXT("2") );
+					lstrcpyn( szReturnValue, TEXT("2"), MIRC_BUFFER_SIZE_CCH );
 				else if ( state == 4096 )
-					lstrcpy( szReturnValue, TEXT("1") );
+					lstrcpyn( szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH );
 				else
-					lstrcpy( szReturnValue, TEXT("0") );
+					lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
 			}
 			else
 				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListView_GetItemState( this->m_Hwnd, nItem, LVIS_STATEIMAGEMASK ) );
@@ -627,7 +627,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		if ( lvh.flags & LVHT_ONITEM )
 			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), lvh.iItem + 1, lvh.iSubItem +1 );
 		else
-			lstrcpy( szReturnValue, TEXT("-1 -1"));
+			lstrcpyn( szReturnValue, TEXT("-1 -1"), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}
@@ -714,9 +714,9 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 	else if ( prop == TEXT("genabled") ) {
 
 		if ( Dcx::XPPlusModule.isUseable( ) && ListView_IsGroupViewEnabled( this->m_Hwnd ) )
-			lstrcpy( szReturnValue, TEXT("$true") );
+			lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
 		else
-			lstrcpy( szReturnValue, TEXT("$false") );
+			lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
 
 		return;
 	}

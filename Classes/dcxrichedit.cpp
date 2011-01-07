@@ -177,7 +177,7 @@ void DcxRichEdit::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int)SendMessage(this->m_Hwnd, EM_GETLINECOUNT, 0, 0L));
 			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_tsText.numtok(TEXT("\r\n")));
 		else
-			lstrcpy(szReturnValue,TEXT("1"));	// single line control so always 1 line.
+			lstrcpyn(szReturnValue,TEXT("1"), MIRC_BUFFER_SIZE_CCH);	// single line control so always 1 line.
 		return;
 	}
 	// [NAME] [ID] [PROP]

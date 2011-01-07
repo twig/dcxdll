@@ -473,7 +473,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 				if ( p_Item != NULL ) {
 
 					if ( prop == TEXT("text") ) 
-						lstrcpy( szReturnValue, p_Item->getItemText( )->to_chr( ) );
+						lstrcpyn( szReturnValue, p_Item->getItemText( )->to_chr( ), MIRC_BUFFER_SIZE_CCH );
 					else if ( prop == TEXT("icon") )
 						wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), p_Item->getItemIcon( ) + 1 );
 					return;
@@ -504,9 +504,9 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 			if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE ) {
 
 				if ( prop == TEXT("checked") ) 
-					lstrcpy( szReturnValue, mii.fState & MFS_CHECKED?TEXT("$true"):TEXT("$false") );
+					lstrcpyn( szReturnValue, (mii.fState & MFS_CHECKED?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
 				else if ( prop == TEXT("enabled") )
-					lstrcpy( szReturnValue, !(mii.fState & MFS_GRAYED)?TEXT("$true"):TEXT("$false") );
+					lstrcpyn( szReturnValue, (!(mii.fState & MFS_GRAYED)?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
 				return;
 			}
 		}
@@ -534,9 +534,9 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 			if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE ) {
 
 				if ( mii.hSubMenu == NULL )
-					lstrcpy( szReturnValue, TEXT("0") );
+					lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
 				else
-					lstrcpy( szReturnValue, TEXT("1") );
+					lstrcpyn( szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH );
 
 				return;
 			}

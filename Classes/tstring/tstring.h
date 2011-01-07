@@ -77,7 +77,8 @@ private:
 	static unsigned TCHAR tolowertab[];
 	static unsigned TCHAR touppertab[];
 #endif
-	WCHAR *charToWchar(const char *cString);
+	static WCHAR *charToWchar(const char *cString);
+	static char *WcharTochar(const WCHAR *wString);
 
 public:
 
@@ -203,7 +204,7 @@ public:
 #ifdef UNICODE
 	TCHAR * to_chr( ) const { return this->m_pString; };	// returns the string in the projects current format.
 	WCHAR *to_wchr(bool tryutf8 = false) const { return this->m_pString; };	// returns the string in wide format
-	char * c_str( ) const;	// returns the string as a char *
+	char * c_str(void) const;	// returns the string as a char *
 	int to_int() const { return _wtoi(this->m_pString); };
 	__int64 to_num( ) const { return _wtoi64(this->m_pString); };
 	double to_float() const { return _wtof(this->m_pString); };

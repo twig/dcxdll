@@ -119,12 +119,12 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 	if (this->m_pGraph == NULL) {
 		// [NAME] [ID] [PROP]
 		if ( prop == TEXT("isloaded")) {
-			lstrcpy(szReturnValue,TEXT("$false"));
+			lstrcpyn(szReturnValue,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
 		// [NAME] [ID] [PROP]
 		else if ( prop == TEXT("state")) {
-			lstrcpy(szReturnValue,TEXT("D_OK nofile"));
+			lstrcpyn(szReturnValue,TEXT("D_OK nofile"), MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
 		else if (this->parseGlobalInfoRequest( input, szReturnValue ))
@@ -134,7 +134,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("isloaded")) {
-		lstrcpy(szReturnValue,TEXT("$true"));
+		lstrcpyn(szReturnValue,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	// [NAME] [ID] [PROP]
@@ -255,7 +255,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64d"), this->getDuration());
 		else
-			lstrcpy(szReturnValue,TEXT("D_ERROR Method Not Supported"));
+			lstrcpyn(szReturnValue,TEXT("D_ERROR Method Not Supported"), MIRC_BUFFER_SIZE_CCH);
 		return;
   }
   // [NAME] [ID] [PROP]
@@ -299,7 +299,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 		else {
 			this->showError(prop.to_chr(),NULL,TEXT("Unable to get State Information"));
 			DX_ERR(prop.to_chr(),NULL, hr);
-			lstrcpy(szReturnValue,TEXT("D_ERROR Unable To Get State"));
+			lstrcpyn(szReturnValue,TEXT("D_ERROR Unable To Get State"), MIRC_BUFFER_SIZE_CCH);
 		}
 		return;
 	}
@@ -828,11 +828,11 @@ HRESULT DcxDirectshow::getProperty(TCHAR *prop, const int type) const
 			SysFreeString(com_prop);
 		}
 		else
-			lstrcpy(prop,TEXT("Not Supported"));
+			lstrcpyn(prop,TEXT("Not Supported"), MIRC_BUFFER_SIZE_CCH);
 		iam->Release();
 	}
 	else
-		lstrcpy(prop,TEXT("failed"));
+		lstrcpyn(prop,TEXT("failed"), MIRC_BUFFER_SIZE_CCH);
 	return hr;
 }
 

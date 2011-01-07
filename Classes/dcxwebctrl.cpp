@@ -193,11 +193,11 @@ void DcxWebControl::parseInfoRequest( TString & input, TCHAR * szReturnValue )
 
 			if ( ready_state == READYSTATE_COMPLETE ) {
 
-				lstrcpy( szReturnValue, TEXT("$true") );
+				lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
 				return;
 			}
 		}
-		lstrcpy( szReturnValue, TEXT("$false") );
+		lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
 		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
