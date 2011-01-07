@@ -163,7 +163,7 @@ private:
 	void UpdateScrollPbars(void);
 	HIMAGELIST initImageList(const int iImageList);
 	bool xmlLoadListview(const int nPos, const TString &dataset, TString &filename);
-	void xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi);
+	void xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi, TString &tsBuf);
 	bool ctrlLoadListview(const int nPos, const TString &tsData);
 	bool xLoadListview(const int nPos, const TString &tsData, const TCHAR *sTest, const TCHAR *sCount, const TCHAR *sGet, const TCHAR *sGetNamed);
 	void massSetItem(const int nPos, const TString &input);
