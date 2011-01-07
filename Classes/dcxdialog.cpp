@@ -1598,13 +1598,10 @@ void DcxDialog::parseInfoRequest( TString &input, TCHAR *szReturnValue) {
 	if (prop == TEXT("isid") && numtok > 2) {
 		int nID = input.gettok( 3 ).to_int();
 
-		if (IsWindow(GetDlgItem(this->m_Hwnd, nID + mIRC_ID_OFFSET)) || 
-			(this->getControlByID(nID + mIRC_ID_OFFSET) != NULL))
-		{
-			lstrcpy(szReturnValue, TEXT("$true"));
-		}
+		if (IsWindow(GetDlgItem(this->m_Hwnd, nID + mIRC_ID_OFFSET)) || (this->getControlByID(nID + mIRC_ID_OFFSET) != NULL))
+			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		else
-			lstrcpy(szReturnValue, TEXT("$false"));
+			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}
@@ -1653,18 +1650,18 @@ void DcxDialog::parseInfoRequest( TString &input, TCHAR *szReturnValue) {
 	// [NAME] [PROP]
 	else if (prop == TEXT("ismenu")) {
 		if (GetMenu(this->m_Hwnd) != NULL)
-			lstrcpy(szReturnValue, TEXT("$true"));
+			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		else
-			lstrcpy(szReturnValue, TEXT("$false"));
+			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("ismarked")) {
 		if (Dcx::Dialogs.getDialogByHandle(this->m_Hwnd) != NULL)
-			lstrcpy(szReturnValue, TEXT("$true"));
+			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		else
-			lstrcpy(szReturnValue, TEXT("$false"));
+			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}
@@ -1760,9 +1757,9 @@ void DcxDialog::parseInfoRequest( TString &input, TCHAR *szReturnValue) {
 	// [NAME] [PROP]
 	else if (prop == TEXT("visible")) {
 		if (IsWindowVisible(this->m_Hwnd))
-			lstrcpy(szReturnValue, TEXT("$true"));
+			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		else
-			lstrcpy(szReturnValue, TEXT("$false"));
+			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	// [NAME] [PROP]

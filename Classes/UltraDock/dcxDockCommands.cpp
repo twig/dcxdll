@@ -488,24 +488,24 @@ mIRC(_xdock)
 				switch (SwitchbarPos(nType -1))
 				{
 					case SWB_RIGHT:
-						lstrcpy(data, TEXT("right"));
+						lstrcpyn(data, TEXT("right"), MIRC_BUFFER_SIZE_CCH);
 						break;
 
 					case SWB_BOTTOM:
-						lstrcpy(data, TEXT("bottom"));
+						lstrcpyn(data, TEXT("bottom"), MIRC_BUFFER_SIZE_CCH);
 						break;
 
 					case SWB_TOP:
-						lstrcpy(data, TEXT("top"));
+						lstrcpyn(data, TEXT("top"), MIRC_BUFFER_SIZE_CCH);
 						break;
 
 					case SWB_LEFT:
-						lstrcpy(data, TEXT("left"));
+						lstrcpyn(data, TEXT("left"), MIRC_BUFFER_SIZE_CCH);
 						break;
 
 					case SWB_NONE:
 					default:
-						lstrcpy(data, TEXT("none"));
+						lstrcpyn(data, TEXT("none"), MIRC_BUFFER_SIZE_CCH);
 						break;
 				}
 			}
@@ -534,33 +534,33 @@ mIRC(_xdock)
 		case 7: // isSwitchBar
 			{
 				if (IsWindowVisible(Dcx::mIRC.getSwitchbar()))
-					lstrcpy(data,TEXT("$true"));
+					lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 				else
-					lstrcpy(data,TEXT("$false"));
+					lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 			}
 			break;
 		case 8: // isToolBar
 			{
 				if (IsWindowVisible(Dcx::mIRC.getToolbar()))
-					lstrcpy(data,TEXT("$true"));
+					lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 				else
-					lstrcpy(data,TEXT("$false"));
+					lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 			}
 			break;
 		case 9: // isTreeBar
 			{
 				if (IsWindowVisible(Dcx::mIRC.getTreebar()))
-					lstrcpy(data,TEXT("$true"));
+					lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 				else
-					lstrcpy(data,TEXT("$false"));
+					lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 			}
 			break;
 		case 10: // isMenuBar
 			{
 				if (GetMenu(Dcx::mIRC.getHWND()))
-					lstrcpy(data,TEXT("$true"));
+					lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 				else
-					lstrcpy(data,TEXT("$false"));
+					lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 			}
 			break;
 		case 11: // text
@@ -603,44 +603,44 @@ mIRC(_xdock)
 			case 1: // isDocked
 				{
 					if (GetProp(hwnd,TEXT("dcx_docked")) || FindUltraDock(hwnd) || FindTreebarDock(hwnd))
-						lstrcpy(data,TEXT("$true"));
+						lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 					else
-						lstrcpy(data,TEXT("$false"));
+						lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 				}
 				break;
 			case 2: // hasDocked
 				{
 					if (GetProp(hwnd,TEXT("dcx_dock")))
-						lstrcpy(data,TEXT("$true"));
+						lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 					else
-						lstrcpy(data,TEXT("$false"));
+						lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 				}
 				break;
 			case 3: // isAutoV
 				{
 					DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
 					if (flags == DOCKF_AUTOV)
-						lstrcpy(data,TEXT("$true"));
+						lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 					else
-						lstrcpy(data,TEXT("$false"));
+						lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 				}
 				break;
 			case 4: // isAutoH
 				{
 					DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
 					if (flags == DOCKF_AUTOH)
-						lstrcpy(data,TEXT("$true"));
+						lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 					else
-						lstrcpy(data,TEXT("$false"));
+						lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 				}
 				break;
 			case 5: // isAutoS
 				{
 					DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
 					if (flags == DOCKF_SIZE)
-						lstrcpy(data,TEXT("$true"));
+						lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 					else
-						lstrcpy(data,TEXT("$false"));
+						lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 				}
 				break;
 			case 6: // dockSide
@@ -651,19 +651,19 @@ mIRC(_xdock)
 						switch(ud->flags)
 						{
 						case DOCKF_LEFT:
-							lstrcpy(data,TEXT("left"));
+							lstrcpyn(data,TEXT("left"), MIRC_BUFFER_SIZE_CCH);
 							break;
 						case DOCKF_RIGHT:
-							lstrcpy(data,TEXT("right"));
+							lstrcpyn(data,TEXT("right"), MIRC_BUFFER_SIZE_CCH);
 							break;
 						case DOCKF_TOP:
-							lstrcpy(data,TEXT("top"));
+							lstrcpyn(data,TEXT("top"), MIRC_BUFFER_SIZE_CCH);
 							break;
 						case DOCKF_BOTTOM:
-							lstrcpy(data,TEXT("bottom"));
+							lstrcpyn(data,TEXT("bottom"), MIRC_BUFFER_SIZE_CCH);
 							break;
 						default:
-							lstrcpy(data,TEXT("unknown"));
+							lstrcpyn(data,TEXT("unknown"), MIRC_BUFFER_SIZE_CCH);
 							break;
 						}
 					}
@@ -1325,24 +1325,24 @@ mIRC(_xdock)
 //				switch (SwitchbarPos(nType -1))
 //				{
 //					case SWB_RIGHT:
-//						lstrcpy(data, TEXT("right"));
+//						lstrcpyn(data, TEXT("right"));
 //						break;
 //
 //					case SWB_BOTTOM:
-//						lstrcpy(data, TEXT("bottom"));
+//						lstrcpyn(data, TEXT("bottom"));
 //						break;
 //
 //					case SWB_TOP:
-//						lstrcpy(data, TEXT("top"));
+//						lstrcpyn(data, TEXT("top"));
 //						break;
 //
 //					case SWB_LEFT:
-//						lstrcpy(data, TEXT("left"));
+//						lstrcpyn(data, TEXT("left"));
 //						break;
 //
 //					case SWB_NONE:
 //					default:
-//						lstrcpy(data, TEXT("none"));
+//						lstrcpyn(data, TEXT("none"));
 //						break;
 //				}
 //			}
@@ -1371,33 +1371,33 @@ mIRC(_xdock)
 //		case 7: // isSwitchBar
 //			{
 //				if (IsWindowVisible(mIRCLink.m_hSwitchbar))
-//					lstrcpy(data,TEXT("$true"));
+//					lstrcpyn(data,TEXT("$true"));
 //				else
-//					lstrcpy(data,TEXT("$false"));
+//					lstrcpyn(data,TEXT("$false"));
 //			}
 //			break;
 //		case 8: // isToolBar
 //			{
 //				if (IsWindowVisible(mIRCLink.m_hToolbar))
-//					lstrcpy(data,TEXT("$true"));
+//					lstrcpyn(data,TEXT("$true"));
 //				else
-//					lstrcpy(data,TEXT("$false"));
+//					lstrcpyn(data,TEXT("$false"));
 //			}
 //			break;
 //		case 9: // isTreeBar
 //			{
 //				if (IsWindowVisible(mIRCLink.m_hTreebar))
-//					lstrcpy(data,TEXT("$true"));
+//					lstrcpyn(data,TEXT("$true"));
 //				else
-//					lstrcpy(data,TEXT("$false"));
+//					lstrcpyn(data,TEXT("$false"));
 //			}
 //			break;
 //		case 10: // isMenuBar
 //			{
 //				if (GetMenu(Dcx::mIRC.getHWND()))
-//					lstrcpy(data,TEXT("$true"));
+//					lstrcpyn(data,TEXT("$true"));
 //				else
-//					lstrcpy(data,TEXT("$false"));
+//					lstrcpyn(data,TEXT("$false"));
 //			}
 //			break;
 //		case 11: // text
@@ -1427,44 +1427,44 @@ mIRC(_xdock)
 //			case 1: // isDocked
 //				{
 //					if (GetProp(hwnd,TEXT("dcx_docked")) || FindUltraDock(hwnd))
-//						lstrcpy(data,TEXT("$true"));
+//						lstrcpyn(data,TEXT("$true"));
 //					else
-//						lstrcpy(data,TEXT("$false"));
+//						lstrcpyn(data,TEXT("$false"));
 //				}
 //				break;
 //			case 2: // hasDocked
 //				{
 //					if (GetProp(hwnd,TEXT("dcx_dock")))
-//						lstrcpy(data,TEXT("$true"));
+//						lstrcpyn(data,TEXT("$true"));
 //					else
-//						lstrcpy(data,TEXT("$false"));
+//						lstrcpyn(data,TEXT("$false"));
 //				}
 //				break;
 //			case 3: // isAutoV
 //				{
 //					DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
 //					if (flags == DOCKF_AUTOV)
-//						lstrcpy(data,TEXT("$true"));
+//						lstrcpyn(data,TEXT("$true"));
 //					else
-//						lstrcpy(data,TEXT("$false"));
+//						lstrcpyn(data,TEXT("$false"));
 //				}
 //				break;
 //			case 4: // isAutoH
 //				{
 //					DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
 //					if (flags == DOCKF_AUTOH)
-//						lstrcpy(data,TEXT("$true"));
+//						lstrcpyn(data,TEXT("$true"));
 //					else
-//						lstrcpy(data,TEXT("$false"));
+//						lstrcpyn(data,TEXT("$false"));
 //				}
 //				break;
 //			case 5: // isAutoS
 //				{
 //					DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
 //					if (flags == DOCKF_SIZE)
-//						lstrcpy(data,TEXT("$true"));
+//						lstrcpyn(data,TEXT("$true"));
 //					else
-//						lstrcpy(data,TEXT("$false"));
+//						lstrcpyn(data,TEXT("$false"));
 //				}
 //				break;
 //			case 6: // dockSide
@@ -1474,19 +1474,19 @@ mIRC(_xdock)
 //						switch(ud->flags)
 //						{
 //						case DOCKF_LEFT:
-//							lstrcpy(data,TEXT("left"));
+//							lstrcpyn(data,TEXT("left"));
 //							break;
 //						case DOCKF_RIGHT:
-//							lstrcpy(data,TEXT("right"));
+//							lstrcpyn(data,TEXT("right"));
 //							break;
 //						case DOCKF_TOP:
-//							lstrcpy(data,TEXT("top"));
+//							lstrcpyn(data,TEXT("top"));
 //							break;
 //						case DOCKF_BOTTOM:
-//							lstrcpy(data,TEXT("bottom"));
+//							lstrcpyn(data,TEXT("bottom"));
 //							break;
 //						default:
-//							lstrcpy(data,TEXT("unknown"));
+//							lstrcpyn(data,TEXT("unknown"));
 //							break;
 //						}
 //					}

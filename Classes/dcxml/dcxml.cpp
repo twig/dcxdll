@@ -15,22 +15,18 @@
  */
 #include "defines.h"
 #include "dcxmlincludes.h"
-#include "dcxml.h"
 #include "dcxmlparser.h"
 
-DcxmlParser *Dcxml::Parser;
-
-Dcxml::Dcxml() {
-
-}
 /*
  * /dcxml -[SWITCH] [?NAME] [DATASET] [PARMS]
  *
  * -d = [DNAME] [DATASET] [FILENAME]
  * -p = [PNAME] [DATASET] [FILENAME]
  */
+
+DcxmlParser Parser;
+
 mIRC(dcxml) {
-#ifndef UNICODE
     TString input(data);
 	XSwitchFlags flags(input.gettok(1));
     int numtok = input.numtok();
@@ -48,16 +44,8 @@ mIRC(dcxml) {
 			Dcx::errorex(TEXT("/dcxml -d"), TEXT("Unable To Access File: %s"), tsFilename.to_chr());
 			return 0;
 		}
-		// NEEDS FIXED!
-		//Dcxml::Parser = new DcxmlParser( 
-		//	tsFilename.to_chr()
-		//	,input.gettok(2).to_chr()
-		//	,input.gettok(3).to_chr()
-		//	,(flags[TEXT('v')])
-		//	,(flags[TEXT('x')])
-		//);
-		//return (Dcxml::Parser->loadSuccess) ? 1 : 0;
-		return 0;
+		Parser.ParseXML(tsFilename, input.gettok(2), input.gettok(3), (flags[TEXT('v')]), (flags[TEXT('x')]) );
+		return (Parser.loadSuccess) ? 1 : 0;
     }
 	// Parse XPopup DCXML.
 	/*
@@ -85,7 +73,6 @@ mIRC(dcxml) {
 	// Unknown flags.
 	else
 		Dcx::errorex(TEXT("/dcxml"), TEXT("Unknown flag %s"), input.gettok(1).to_chr());
-#endif
 	return 0;
 }
 mIRC(_dcxml)
@@ -95,18 +82,10 @@ mIRC(_dcxml)
 
 	data[0] = 0;
 	if (d.numtok( ) != 1) {
-		lstrcpy(data, TEXT("D_ERROR Invalid Args: A prop is required."));
-		return 3;
+		ret(TEXT("D_ERROR Invalid Args: A prop is required."));
 	}
 
 	if (d.gettok( 1 ) == TEXT("Loaded"))
-	{
-#ifdef UNICODE
-		lstrcpy(data, TEXT("$false"));
-#else
-		lstrcpy(data, (Dcxml::Parser->loadSuccess) ? TEXT("$true") : TEXT("$false"));
-#endif
-	}
+		lstrcpyn(data, ((Parser.loadSuccess) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
 	return 3;
-	
 }

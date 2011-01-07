@@ -198,24 +198,24 @@ void DcxEdit::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		if (this->isStyle(ES_MULTILINE))
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_tsText.numtok(TEXT("\r\n")));
 		else
-			lstrcpy(szReturnValue,TEXT("1"));	// single line control so always 1 line.
+			lstrcpyn(szReturnValue,TEXT("1"), MIRC_BUFFER_SIZE_CCH);	// single line control so always 1 line.
 		return;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("ispass")) {
 		if (this->isStyle(ES_PASSWORD))
-			lstrcpy(szReturnValue, TEXT("$true"));
+			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		else
-			lstrcpy(szReturnValue, TEXT("$false"));
+			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}
    // [NAME] [ID] [PROP]
 	else if (prop == TEXT("isreadonly")) {
       if (this->isStyle(ES_READONLY))
-			lstrcpy(szReturnValue, TEXT("$true"));
+			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		else
-			lstrcpy(szReturnValue, TEXT("$false"));
+			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}

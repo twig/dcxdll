@@ -322,11 +322,11 @@ void DcxTreeView::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
 			int state = TreeView_GetCheckState(this->m_Hwnd, item);
 
 			if (state == 1)
-				lstrcpy(szReturnValue, TEXT("2"));
+				lstrcpyn(szReturnValue, TEXT("2"), MIRC_BUFFER_SIZE_CCH);
 			else if (state == 0)
-				lstrcpy(szReturnValue, TEXT("1"));
+				lstrcpyn(szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH);
 			else
-				lstrcpy(szReturnValue, TEXT("0"));
+				lstrcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
 		else {
@@ -366,9 +366,9 @@ void DcxTreeView::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
 		}
 
 		if (TreeView_GetItemState(this->m_Hwnd, item, TVIS_EXPANDED) & TVIS_EXPANDED)
-			lstrcpy(szReturnValue, TEXT("1"));
+			lstrcpyn(szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH);
 		else
-			lstrcpy(szReturnValue, TEXT("0"));
+			lstrcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}
@@ -382,7 +382,7 @@ void DcxTreeView::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
 		if ( tvh.flags & TVHT_ONITEM )
 			lstrcpyn(szReturnValue, this->getPathFromItem(&tvh.hItem).to_chr(), MIRC_BUFFER_SIZE_CCH);
 		else
-			lstrcpy(szReturnValue, TEXT("0"));
+			lstrcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}
