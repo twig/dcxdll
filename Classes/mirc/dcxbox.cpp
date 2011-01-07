@@ -504,9 +504,8 @@ void DcxBox::toXml(TiXmlElement * xml) {
 	TString wtext;
 	TGetWindowText(this->m_Hwnd, wtext);
 	__super::toXml(xml);
-	// NEEDS FIXED!
-	//xml->SetAttribute("caption", wtext.to_chr());
-	//this->m_pLayoutManager->getRoot()->toXml(xml);
+	xml->SetAttribute("caption", wtext.c_str());
+	this->m_pLayoutManager->getRoot()->toXml(xml);
 }
 
 TString DcxBox::getStyles(void) {

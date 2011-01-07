@@ -90,7 +90,7 @@ public:
 
 protected:
 
-	static const TCHAR* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, TiXmlElement *popup, TiXmlElement *global);
+	static const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, TiXmlElement *popup, TiXmlElement *global);
 
 	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 

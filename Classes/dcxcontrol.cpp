@@ -2067,12 +2067,11 @@ TString DcxControl::getBorderStyles(void) {
 }
 
 void DcxControl::toXml(TiXmlElement * xml) {
-	// NEEDS FIXED!
-	//TString styles(getStyles());
+	TString styles(getStyles());
 
-	//xml->SetAttribute("id", getUserID());
-	//xml->SetAttribute("type", getType().to_chr());
-	//if (styles.len() > 0) xml->SetAttribute("styles", styles.to_chr());
+	xml->SetAttribute("id", getUserID());
+	xml->SetAttribute("type", getType().c_str());
+	if (styles.len() > 0) xml->SetAttribute("styles", styles.c_str());
 }
 
 TiXmlElement * DcxControl::toXml(void) {

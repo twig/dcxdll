@@ -810,9 +810,8 @@ LRESULT DcxRichEdit::setCharFormat(const UINT iType, CHARFORMAT2 *cfm) {
 
 void DcxRichEdit::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
-	// NEEDS FIXED!!
-	//TiXmlText * text = new TiXmlText(this->m_tsText.to_chr());
-	//xml->LinkEndChild(text);
+	TiXmlText * text = new TiXmlText(this->m_tsText.c_str());
+	xml->LinkEndChild(text);
 }
 
 TString DcxRichEdit::getStyles(void) {

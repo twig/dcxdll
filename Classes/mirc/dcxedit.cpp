@@ -115,8 +115,7 @@ TString DcxEdit::getStyles(void) {
 
 void DcxEdit::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
-	// NEEDS FIXED!
-	//xml->SetAttribute("caption", this->m_tsText.to_chr());
+	xml->SetAttribute("caption", this->m_tsText.c_str());
 }
 
 /*!

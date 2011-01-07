@@ -973,119 +973,118 @@ BOOL WINAPI XPopupMenuManager::TrampolineTrackPopupMenuEx(
  * Parses the menu information and returns a valid XPopupMenu.
  */
 void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *popup, TString &popupName, TString &popupDataset) {
-	// NEEDS FIXED!
-	//TiXmlElement *globalStyles;
-	//TiXmlElement *element;
-	//int totalIndexes;
-	//XPopupMenu::MenuStyle style;
-	//const TCHAR* attr;
+	TiXmlElement *globalStyles;
+	TiXmlElement *element;
+	int totalIndexes;
+	XPopupMenu::MenuStyle style;
+	const char* attr;
 
-	//// Find the dataset with the name we want.
-	//for (element = popups->FirstChildElement("popup"); element != NULL; element = element->NextSiblingElement("popup")) {
-	//	TString name(element->Attribute("name"));
+	// Find the dataset with the name we want.
+	for (element = popups->FirstChildElement("popup"); element != NULL; element = element->NextSiblingElement("popup")) {
+		TString name(element->Attribute("name"));
 
-	//	if (name == popupDataset) {
-	//		popup = element;
-	//		break;
-	//	}
-	//}
+		if (name == popupDataset) {
+			popup = element;
+			break;
+		}
+	}
 
-	//// Dataset not found.
-	//if (popup == NULL) {
-	//	Dcx::errorex(TEXT("/dcxml"), TEXT("No Popup Dataset %s"), popupDataset.to_chr());
-	//	return;
-	//}
+	// Dataset not found.
+	if (popup == NULL) {
+		Dcx::errorex(TEXT("/dcxml"), TEXT("No Popup Dataset %s"), popupDataset.to_chr());
+		return;
+	}
 
-	//XPopupMenu *menu = Dcx::XPopups.getMenuByName(popupName, FALSE);
+	XPopupMenu *menu = Dcx::XPopups.getMenuByName(popupName, FALSE);
 
-	//// Destroy a menu which already exists
-	//if (menu != NULL)
-	//	Dcx::XPopups.deleteMenu(menu);
+	// Destroy a menu which already exists
+	if (menu != NULL)
+		Dcx::XPopups.deleteMenu(menu);
 
-	//// Find global styles branch
-	//globalStyles = popups->FirstChildElement("styles");
+	// Find global styles branch
+	globalStyles = popups->FirstChildElement("styles");
 
-	//// Move to TEXT("all") branch
-	//if (globalStyles != NULL)
-	//	globalStyles = globalStyles->FirstChildElement("all");
-	//else
-	//	globalStyles = NULL;
+	// Move to TEXT("all") branch
+	if (globalStyles != NULL)
+		globalStyles = globalStyles->FirstChildElement("all");
+	else
+		globalStyles = NULL;
 
-	//// Create menu with style (from specific or global)
-	//attr = GetMenuAttributeFromXML("style", popup, globalStyles);
-	//style = XPopupMenu::parseStyle(attr);
-	//menu = new XPopupMenu(popupName, style);
+	// Create menu with style (from specific or global)
+	attr = GetMenuAttributeFromXML("style", popup, globalStyles);
+	style = XPopupMenu::parseStyle(attr);
+	menu = new XPopupMenu(popupName, style);
 
-	//const TString colors(TEXT("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour"));
-	//totalIndexes = colors.numtok();
+	const TString colors(TEXT("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour"));
+	totalIndexes = colors.numtok();
 
-	//for (int i = 1; i <= totalIndexes; i++) {
-	//	attr = GetMenuAttributeFromXML(colors.gettok(i).to_chr(), popup, globalStyles);
+	for (int i = 1; i <= totalIndexes; i++) {
+		attr = GetMenuAttributeFromXML(colors.gettok(i).c_str(), popup, globalStyles);
 
-	//	if (attr != NULL) {
-	//		TString tsBuff;
-	//		Dcx::mIRC.tsEval(tsBuff, attr);
-	//		menu->setColor(i, (COLORREF)tsBuff.to_int());
-	//	}
-	//}
+		if (attr != NULL) {
+			TString tsBuff(attr);
+			Dcx::mIRC.tsEval(tsBuff, tsBuff.to_chr());
+			menu->setColor(i, (COLORREF)tsBuff.to_int());
+		}
+	}
 
-	//// Set background image if CUSTOM style used
-	//if (style == XPopupMenu::XPMS_CUSTOM) {
-	//	TString filename;
+	// Set background image if CUSTOM style used
+	if (style == XPopupMenu::XPMS_CUSTOM) {
+		TString filename;
 
-	//	Dcx::mIRC.tsEval(filename, popup->Attribute("background"));
+		Dcx::mIRC.tsEval(filename, TString(popup->Attribute("background")).to_chr());
 
-	//	HBITMAP hBitmap = dcxLoadBitmap(NULL, filename);
+		HBITMAP hBitmap = dcxLoadBitmap(NULL, filename);
 
-	//	if (hBitmap != NULL)
-	//		menu->setBackBitmap(hBitmap);
-	//}
+		if (hBitmap != NULL)
+			menu->setBackBitmap(hBitmap);
+	}
 
-	//// Successfully created a menu.
-	//Dcx::XPopups.m_vpXPMenu.push_back(menu);
+	// Successfully created a menu.
+	Dcx::XPopups.m_vpXPMenu.push_back(menu);
 
-	//// Parse icons
-	//element = popup->FirstChildElement("icons");
+	// Parse icons
+	element = popup->FirstChildElement("icons");
 
-	//if (element != NULL) {
-	//	const TCHAR *tmp;
-	//	TString command;
-	//	TString flags;
-	//	TString indexes;
-	//	int nIcon;
+	if (element != NULL) {
+		const char *tmp;
+		TString command;
+		TString flags;
+		TString indexes;
+		int nIcon;
 
-	//	for (element = element->FirstChildElement("icon"); element != NULL; element = element->NextSiblingElement("icon")) {
-	//		// Flags
-	//		tmp = element->Attribute("flags");
+		for (element = element->FirstChildElement("icon"); element != NULL; element = element->NextSiblingElement("icon")) {
+			// Flags
+			tmp = element->Attribute("flags");
 
-	//		if (tmp == NULL)
-	//			flags = TEXT('+');
-	//		else
-	//			flags = tmp;
+			if (tmp == NULL)
+				flags = TEXT('+');
+			else
+				flags = tmp;
 
-	//		// Filename
-	//		TString tsFilename;
-	//		Dcx::mIRC.tsEval(tsFilename, element->Attribute("src"));
+			// Filename
+			TString tsFilename;
+			Dcx::mIRC.tsEval(tsFilename, TString(element->Attribute("src")).to_chr());
 
-	//		tmp = element->Attribute("index");
+			tmp = element->Attribute("index");
 
-	//		if (tmp == NULL)
-	//			indexes = TEXT('0');
-	//		else
-	//			indexes = tmp;
+			if (tmp == NULL)
+				indexes = TEXT('0');
+			else
+				indexes = tmp;
 
-	//		totalIndexes = indexes.numtok(TEXT(","));
+			totalIndexes = indexes.numtok(TEXT(","));
 
-	//		for (int i = 1; i <= totalIndexes; i++) {
-	//			nIcon = indexes.gettok(i, TSCOMMA).to_int();
-	//			//xpudemo -i + 114 dcxstudio_gfx\shell.dll
-	//			command.tsprintf(TEXT("%s -i %s %d %s"), popupName.to_chr(), flags.to_chr(), nIcon, tsFilename.to_chr());
-	//			Dcx::XPopups.parseCommand(command, menu);
-	//		}
-	//	}
-	//}
+			for (int i = 1; i <= totalIndexes; i++) {
+				nIcon = indexes.gettok(i, TSCOMMA).to_int();
+				//xpudemo -i + 114 dcxstudio_gfx\shell.dll
+				command.tsprintf(TEXT("%s -i %s %d %s"), popupName.to_chr(), flags.to_chr(), nIcon, tsFilename.to_chr());
+				Dcx::XPopups.parseCommand(command, menu);
+			}
+		}
+	}
 
-	//LoadPopupItemsFromXML(menu, menu->getMenuHandle(), popup);
+	LoadPopupItemsFromXML(menu, menu->getMenuHandle(), popup);
 }
 
 /*
@@ -1093,80 +1092,79 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
  * This method is recursive in order to parse submenus correctly.
  */
 bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, TiXmlElement *items) {
-	// NEEDS FIXED!
-	//// Iterate through each child element.
-	//for (TiXmlElement *element = items->FirstChildElement(TEXT("item")); element != NULL; element = element->NextSiblingElement(TEXT("item"))) {
-	//	MENUITEMINFO mii;
-	//	int nPos = GetMenuItemCount(hMenu) +1;
+	// Iterate through each child element.
+	for (TiXmlElement *element = items->FirstChildElement("item"); element != NULL; element = element->NextSiblingElement("item")) {
+		MENUITEMINFO mii;
+		int nPos = GetMenuItemCount(hMenu) +1;
 
-	//	ZeroMemory(&mii, sizeof(MENUITEMINFO));
-	//	mii.cbSize = sizeof(MENUITEMINFO);
+		ZeroMemory(&mii, sizeof(MENUITEMINFO));
+		mii.cbSize = sizeof(MENUITEMINFO);
 
-	//	XPopupMenuItem *item = NULL;
-	//	TString caption(element->Attribute(TEXT("caption")));
+		XPopupMenuItem *item = NULL;
+		TString caption(element->Attribute("caption"));
 
-	//	if (caption == TEXT('-')) {
-	//		mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
-	//		mii.fType = MFT_OWNERDRAW | MFT_SEPARATOR;
+		if (caption == TEXT('-')) {
+			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
+			mii.fType = MFT_OWNERDRAW | MFT_SEPARATOR;
 
-	//		item = new XPopupMenuItem(menu, TRUE);
-	//	}
-	//	else {
-	//		int mID = TString(element->Attribute("id")).to_int();
-	//		int mIcon = (element->Attribute("icon") != NULL ? TString(element->Attribute("icon")).to_int() -1 : -1);
-	//		TString state(element->Attribute("state"));
+			item = new XPopupMenuItem(menu, TRUE);
+		}
+		else {
+			int defNum = -1;
+			int mID = element->QueryIntAttribute("id", &defNum);
+			int mIcon = element->QueryIntAttribute("icon", &defNum) -1;
+			TString state(element->Attribute("state"));
 
-	//		mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE | MIIM_ID;
-	//		mii.fType = MFT_OWNERDRAW;
-	//		mii.wID = mID;
+			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE | MIIM_ID;
+			mii.fType = MFT_OWNERDRAW;
+			mii.wID = mID;
 
-	//		// Checked
-	//		if (state.find(TEXT('c'), 0))
-	//			mii.fState |= MFS_CHECKED;
-	//		
-	//		// Gray
-	//		if (state.find(TEXT('g'), 0))
-	//			mii.fState |= MFS_GRAYED;
+			// Checked
+			if (state.find(TEXT('c'), 0))
+				mii.fState |= MFS_CHECKED;
+			
+			// Gray
+			if (state.find(TEXT('g'), 0))
+				mii.fState |= MFS_GRAYED;
 
-	//		// Submenu
-	//		if (element->FirstChildElement("item") != NULL) {
-	//			if (mii.hSubMenu != NULL)
-	//				DestroyMenu(mii.hSubMenu);
+			// Submenu
+			if (element->FirstChildElement("item") != NULL) {
+				if (mii.hSubMenu != NULL)
+					DestroyMenu(mii.hSubMenu);
 
-	//			mii.fMask |= MIIM_SUBMENU;
-	//			mii.hSubMenu = CreatePopupMenu();
+				mii.fMask |= MIIM_SUBMENU;
+				mii.hSubMenu = CreatePopupMenu();
 
-	//			XPopupMenuManager::LoadPopupItemsFromXML(menu, mii.hSubMenu, element);
-	//		}
+				XPopupMenuManager::LoadPopupItemsFromXML(menu, mii.hSubMenu, element);
+			}
 
-	//		// TODO: command
-	//		item = new XPopupMenuItem(menu, caption, mIcon, mii.hSubMenu != NULL ? TRUE : FALSE);
-	//	}
+			// TODO: command
+			item = new XPopupMenuItem(menu, caption, mIcon, mii.hSubMenu != NULL ? TRUE : FALSE);
+		}
 
-	//	menu->m_vpMenuItem.push_back(item);
-	//	mii.dwItemData = (ULONG_PTR) item;
-	//	InsertMenuItem(hMenu, nPos, TRUE, &mii);
-	//}
+		menu->m_vpMenuItem.push_back(item);
+		mii.dwItemData = (ULONG_PTR) item;
+		InsertMenuItem(hMenu, nPos, TRUE, &mii);
+	}
 
 	return true;
 }
 
-const TCHAR* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, TiXmlElement *popup, TiXmlElement *global) {
-	// NEEDS FIXED!
-	//const char* tmp;
-	//
-	//tmp = popup->Attribute(attrib);
+const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, TiXmlElement *popup, TiXmlElement *global) {
+	const char* tmp;
+	
+	tmp = popup->Attribute(attrib);
 
-	//// Specific menu attribute set, ignore global.
-	//if (tmp != NULL)
-	//	return tmp;
+	// Specific menu attribute set, ignore global.
+	if (tmp != NULL)
+		return tmp;
 
-	//// Try to find global style.
-	//if (global == NULL)
-	//	return NULL;
+	// Try to find global style.
+	if (global == NULL)
+		return NULL;
 
-	//return global->Attribute(attrib);
-	return NULL;
+	return global->Attribute(attrib);
+	//return NULL;
 }
 #ifdef DEBUG
 LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {

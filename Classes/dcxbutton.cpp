@@ -359,8 +359,7 @@ TString DcxButton::getStyles(void) {
 	
 void DcxButton::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
-	// NEEDS FIXED!
-	//xml->SetAttribute("caption", this->m_tsCaption.to_chr());
+	xml->SetAttribute("caption", this->m_tsCaption.c_str());
 }
 
 /*!

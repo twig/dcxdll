@@ -369,8 +369,7 @@ void DcxImage::DrawBMPImage(HDC hdc, int x, int y, int w, int h)
 
 void DcxImage::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
-	// NEEDS FIXED!
-	//if (this->m_tsFilename.len() > 0) xml->SetAttribute("src", m_tsFilename.to_chr());
+	if (this->m_tsFilename.len() > 0) xml->SetAttribute("src", m_tsFilename.c_str());
 }
 
 /*!

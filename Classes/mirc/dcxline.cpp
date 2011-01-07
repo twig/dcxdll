@@ -90,12 +90,11 @@ TString DcxLine::getStyles(void) {
 
 void DcxLine::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
-	// NEEDS FIXED!
-	//TString styles(xml->Attribute("styles"));
-	//styles.remtok(TEXT("transparent"), 1); // line always has transparent style (why?)
-	//if (styles.len() > 0) xml->SetAttribute("styles", styles.to_chr());
-	//else xml->RemoveAttribute("styles");
-	//if (this->m_sText.len() > 0) xml->SetAttribute("caption", this->m_sText.to_chr());
+	TString styles(xml->Attribute("styles"));
+	styles.remtok(TEXT("transparent"), 1); // line always has transparent style (why?)
+	if (styles.len() > 0) xml->SetAttribute("styles", styles.c_str());
+	else xml->RemoveAttribute("styles");
+	if (this->m_sText.len() > 0) xml->SetAttribute("caption", this->m_sText.c_str());
 }
 
 /*!

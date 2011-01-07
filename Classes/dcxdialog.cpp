@@ -3656,12 +3656,11 @@ void DcxDialog::toXml(TiXmlElement * xml) {
 }
 
 void DcxDialog::toXml(TiXmlElement * xml, const TString &name) {
-	// NEEDS FIXED!
-	//TString dest;
-	//TGetWindowText(this->m_Hwnd, dest);
-	//xml->SetAttribute("name", name.to_chr());
-	//xml->SetAttribute("caption", dest.to_chr());
-	//this->m_pLayoutManager->getRoot()->toXml(xml);
+	TString dest;
+	TGetWindowText(this->m_Hwnd, dest);
+	xml->SetAttribute("name", name.c_str());
+	xml->SetAttribute("caption", dest.c_str());
+	this->m_pLayoutManager->getRoot()->toXml(xml);
 }
 
 TiXmlElement * DcxDialog::toXml() {
