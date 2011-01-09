@@ -22,10 +22,9 @@ must not be misrepresented as being the original software.
 distribution.
 */
 
+#include "defines.h"
 #include <ctype.h>
 #include <stddef.h>
-
-#include "defines.h"
 #include "tinyxml.h"
 
 //#define DEBUG_PARSER

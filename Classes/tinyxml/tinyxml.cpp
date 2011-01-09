@@ -22,6 +22,7 @@ must not be misrepresented as being the original software.
 distribution.
 */
 
+#include "defines.h"
 #include <ctype.h>
 
 #ifdef TIXML_USE_STL
@@ -29,7 +30,6 @@ distribution.
 #include <iostream>
 #endif
 
-#include "defines.h"
 #include "tinyxml.h"
 
 FILE* TiXmlFOpen( const char* filename, const char* mode );
