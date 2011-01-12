@@ -1140,14 +1140,14 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 			{
 				if (tmp.len() > 0)
 					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-				lf.lfItalic = (lf.lfItalic ? FALSE : TRUE);
+				lf.lfItalic = (BYTE)(lf.lfItalic ? 0 : 1);
 			}
 			break;
 		case 31: // ctrl+u
 			{
 				if (tmp.len() > 0)
 					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-				lf.lfUnderline = (lf.lfUnderline ? FALSE : TRUE);
+				lf.lfUnderline = (BYTE)(lf.lfUnderline ? 0 : 1);
 			}
 			break;
 		case 10:

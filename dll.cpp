@@ -104,7 +104,9 @@ BOOL WINAPI DllMain(
 		break;
 	}
 	return TRUE;  // Successful DLL_PROCESS_ATTACH.
+#ifndef __INTEL_COMPILER
 	UNREFERENCED_PARAMETER(lpReserved);
+#endif
 }
 
 /*!
