@@ -42,7 +42,7 @@ bool DcxmlParser::ParseXML(const TString &tsFilePath,const TString &tsDialogMark
 	if (!this->loadDialog() || !this->loadDocument() || !this->loadDialogElement() )
 	{
 		this->loadSuccess = false;
-		if ((this->getDialog() != NULL && this->isAutoClose()))
+		if ((this->getDialog() != NULL) && this->isAutoClose())
 			Dcx::mIRC.execex(TEXT("/xdialog -x %s"),this->getDialogName().to_chr());
 
 		return false;
@@ -139,7 +139,7 @@ bool DcxmlParser::loadDialogElement()
 	* The for loop has an ugly side assigment: it sets this->element 
 	* which is used as a recursion cursor for this->parseDialog()
 	*/
-	for(this->element = this->getDialogsElement()->FirstChildElement("dialog"); this->element; this->element = this->element->NextSiblingElement("dialog"))
+	for(this->element = this->getDialogsElement()->FirstChildElement("dialog"); this->element != NULL; this->element = this->element->NextSiblingElement("dialog"))
 	{
 		if (0==lstrcmpA(this->element->Attribute("name"), this->getDialogName().c_str()))
 		{
@@ -301,15 +301,7 @@ void DcxmlParser::parseControl() {
 	}
 	if (((0==lstrcmpA(type, "toolbar")) || (0==lstrcmpA(type, "button"))) || (0==lstrcmpA(type, "treeview")))
 			xdidEX(id,TEXT("-l"),TEXT("%S"),iconsize);
-	if (0==lstrcmpA(type, "toolbar"))
-		this->parseItems(element);
-	else if (0==lstrcmpA(type, "treeview"))
-		this->parseItems(element);
-	else if (0==lstrcmpA(type, "comboex"))
-		this->parseItems(element);
-	else if (0==lstrcmpA(type, "list"))
-		this->parseItems(element);
-	else if (0==lstrcmpA(type, "listview"))
+	if ((0==lstrcmpA(type, "toolbar")) || (0==lstrcmpA(type, "treeview")) || (0==lstrcmpA(type, "comboex")) || (0==lstrcmpA(type, "list")) || (0==lstrcmpA(type, "listview")))
 		this->parseItems(element);
 
 	if (((((0==lstrcmpA(type, "box")) || (0==lstrcmpA(type, "check"))) || (0==lstrcmpA(type, "link"))) || (0==lstrcmpA(type, "radio"))) || (0==lstrcmpA(type, "button")))
@@ -383,10 +375,8 @@ void DcxmlParser::parseControl() {
 		if (caption != NULL)
 			this->xdidEX(id,TEXT("-i"),TEXT("%S"),caption);
 	}
-	else if (0==lstrcmpA(type, "image")) { 
-		const char *flags = (tFlags) ? tFlags : "";
-		this->xdidEX(id,TEXT("-i"),TEXT("+%S %S"),flags,src);
-	}
+	else if (0==lstrcmpA(type, "image"))
+		this->xdidEX(id,TEXT("-i"),TEXT("+%S %S"),((tFlags) ? tFlags : ""),src);
 	else if (0==lstrcmpA(type, "statusbar")) { 
 		this->xdidEX(id,TEXT("-l"),TEXT("%S"),cells);
 		this->parseItems(element);
@@ -396,7 +386,7 @@ void DcxmlParser::parseControl() {
 	temp = element->Attribute("hoversrc");
 	hoversrc = (temp != NULL) ? temp : "";
 }
-/* xdialogEX(switch,format[,args[]]) : performs an xdialog command internally or trough mIRC */
+/* xdialogEX(switch,format[,args[]]) : performs an xdialog command internally or through mIRC */
 void DcxmlParser::xdialogEX(const TCHAR *sw,const TCHAR *dFormat, ...) { 
 	va_list args;
 	TString txt;
@@ -411,7 +401,7 @@ void DcxmlParser::xdialogEX(const TCHAR *sw,const TCHAR *dFormat, ...) {
 	if (eval > 0) Dcx::mIRC.execex(TEXT("//xdialog %s %s %s"),sw,this->getDialogMark().to_chr(),txt.to_chr());
 	else this->getDialog()->parseCommandRequestEX(TEXT("%s %s %s"),this->getDialogMark().to_chr(),sw,txt.to_chr());
 }
-/* xdidEX(controlId,switch,format[,args[]]) : performs an xdid command internally or trough mIRC on the specified id */
+/* xdidEX(controlId,switch,format[,args[]]) : performs an xdid command internally or through mIRC on the specified id */
 void DcxmlParser::xdidEX(const int id,const TCHAR *sw,const TCHAR *dFormat, ...) { 
 	va_list args;
 	TString txt;
@@ -437,12 +427,12 @@ TString DcxmlParser::parseCLA(const int cCla) {
 		const char * fHeigth = "";
 		const char * fWidth = "";
 		const char * fixed = "l";
-		if (element->Attribute("height")) { fHeigth = "v"; fixed = "f"; weigth = "0"; }
-		if (element->Attribute("width")) { fWidth = "h"; fixed = "f"; weigth = "0"; }
+		if (element->Attribute("height") != NULL) { fHeigth = "v"; fixed = "f"; weigth = "0"; }
+		if (element->Attribute("width") != NULL) { fWidth = "h"; fixed = "f"; weigth = "0"; }
 		if (0==lstrcmpA(parentelem, "dialog"))
 			this->xdialogEX(TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"),	g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height);
 		else if (0==lstrcmpA(parentelem, "control")) {
-			if ((parent->Attribute("type")) && (parentid > 0)) {
+			if ((parent->Attribute("type") != NULL) && (parentid > 0)) {
 				if (0==lstrcmpA(parent->Attribute("type"), "panel"))
 					this->xdidEX(parentid,TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
 				else if (0==lstrcmpA(parent->Attribute("type"), "box"))
@@ -494,7 +484,8 @@ TString DcxmlParser::parseCLA(const int cCla) {
 	if (element->Attribute("margin") != NULL) {
 		if (0==lstrcmpA(parentelem, "dialog"))
 			this->xdialogEX(TEXT("-l"),TEXT("space %s \t + %S"),claPathx.to_chr(),margin);
-		else this->xdidEX(parentid,TEXT("-l"),TEXT("space %S \t + %S"),g_claPath,margin);
+		else
+			this->xdidEX(parentid,TEXT("-l"),TEXT("space %S \t + %S"),g_claPath,margin);
 	}
 	g_resetcla = 0;
 	return claPathx;
@@ -514,7 +505,7 @@ void DcxmlParser::setStyle(const TiXmlElement* style) {
 	fontsize = (temp != NULL) ? temp : "";
 	temp = style->Attribute("fontname");
 	fontname = (temp != NULL) ? temp : "";
-	if ((style->Attribute("fontsize")) || (style->Attribute("fontname")))
+	if ((style->Attribute("fontsize") != NULL) || (style->Attribute("fontname") != NULL))
 		this->xdidEX(id,TEXT("-f"),TEXT("+%S %S %S %S"), fontstyle, charset, fontsize, fontname);
 	//border
 	temp = style->Attribute("border");
@@ -591,7 +582,8 @@ void DcxmlParser::setStyle(const TiXmlElement* style) {
 
 /* parseStyle(recursionDepth) : Simple recursive method to cascade find the right style to apply to an element */
 void DcxmlParser::parseStyle(int depth) { 
-	if (depth > 2) return;
+	if (depth > 2)
+		return;
 	depth++;
 	const TiXmlElement* styles = NULL;
 	const TiXmlElement* style = NULL;
@@ -629,7 +621,8 @@ void DcxmlParser::parseStyle(int depth) {
 }
 /* parseIcons(recursionDepth) : Simple recursive method to cascade find the right icons to apply to an element */
 void DcxmlParser::parseIcons(int depth) { 
-	if (depth > 1) return;
+	if (depth > 1)
+		return;
 	depth++;
 	const TiXmlElement* icons = 0;
 	const TiXmlElement* ClassElement = 0;
@@ -705,6 +698,7 @@ void DcxmlParser::parseItems(const TiXmlElement* element,int depth,char *itemPat
 			if (0==lstrcmpA(type, "listview"))
 			{
 				TString arguments;
+				TString buffer;
 				for(const TiXmlElement *column = child->FirstChildElement("column"); column; column = column->NextSiblingElement("column") ) 
 				{
 					const char *width = column->Attribute("width");
@@ -720,7 +714,6 @@ void DcxmlParser::parseItems(const TiXmlElement* element,int depth,char *itemPat
 					if (icon == NULL)
 						icon = "0";
 
-					TString buffer;
 					buffer.tsprintf(TEXT("+%S %S %S %S "),flags,icon,width,caption);
 					arguments.addtok(buffer.to_chr(),TEXT("\t"));
 				}
@@ -740,25 +733,18 @@ void DcxmlParser::parseItems(const TiXmlElement* element,int depth,char *itemPat
 		this->parseAttributes(child);
 		if (0==lstrcmpA(childelem, "item")) {
 			item++;
-			if (0==lstrcmpA(type, "toolbar")) {
-				const char *flags = (tFlags) ? tFlags : "a";
-				this->xdidEX(id,TEXT("-a"),TEXT("0 +%S %S %S %S %S \t %S"), flags,width,icon,textcolour,caption,tooltip);
-			}
+			if (0==lstrcmpA(type, "toolbar"))
+				this->xdidEX(id,TEXT("-a"),TEXT("0 +%S %S %S %S %S \t %S"), ((tFlags) ? tFlags : "a"),width,icon,textcolour,caption,tooltip);
 			else if (0==lstrcmpA(type, "comboex"))
 				this-> xdidEX(id,TEXT("-a"),TEXT("0 %S %S %S 0 %S"), indent,icon,icon,caption);
 			else if (0==lstrcmpA(type, "list"))
 				this->xdidEX(id,TEXT("-a"),TEXT("0 %S"), caption);
-			else if (0==lstrcmpA(type, "statusbar")) { 
-				const char *flags = (tFlags) ? tFlags : "f";
-				this->xdidEX(id,TEXT("-t"),TEXT("%i +%S %S %S \t %S"), cell,flags,icon,caption,tooltip);
-			}
+			else if (0==lstrcmpA(type, "statusbar"))
+				this->xdidEX(id,TEXT("-t"),TEXT("%i +%S %S %S \t %S"), cell,((tFlags) ? tFlags : "f"),icon,caption,tooltip);
 			else if (0==lstrcmpA(type, "treeview")) { 
-				const char *flags = (tFlags) ? tFlags : "a";
-				char buffer [100];
-				char *pathx = 0;
-				wnsprintfA(buffer, 100, "%s %i",itemPath,item);
-				pathx = buffer;
-				this->xdidEX(id,TEXT("-a"),TEXT("%S \t +%S %S %S 0 %S %S %S %S %S \t %S"), pathx,flags,icon,icon,state,integral,textcolour,bgcolour,caption,tooltip);
+				char pathx [100];
+				wnsprintfA(pathx, 100, "%s %i",itemPath,item);
+				this->xdidEX(id,TEXT("-a"),TEXT("%S \t +%S %S %S 0 %S %S %S %S %S \t %S"), pathx,((tFlags) ? tFlags : "a"),icon,icon,state,integral,textcolour,bgcolour,caption,tooltip);
 				this->parseItems(child,depth,pathx);
 			}
 		}
@@ -790,13 +776,11 @@ void DcxmlParser::parseTemplate(int dialogDepth,const char *claPath,const int pa
 }
 /* parseDialog(recursionDepth,claPath,firstFreeControlId,ignoreParentFlag) : finds a template and parses it into the current dialog */
 void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,const int ignoreParent) { 
-	const TiXmlElement* child = 0;
-	int control = 0;
-	g_claPath = 0;
-	g_claPathx = 0;
+	const TiXmlElement* child = NULL;
+	int control = 0, cCla = 0, cell = 0;
+	g_claPath = NULL;
+	g_claPathx = NULL;
 	g_resetcla = 0;
-	int cCla = 0;
-	int cell = 0;
 	for( child = this->element->FirstChildElement(); child != NULL; child = child->NextSiblingElement() ) {
 		cell++;
 		//STEP 1: SET ELEMENT AND PARENTELEMENT
@@ -820,7 +804,7 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 				t_claPathx = t_buffer;
 				const char *name;
 				const char *value;
-				for (const TiXmlAttribute *attribute = element->FirstAttribute() ; attribute ; attribute = attribute->Next())
+				for (const TiXmlAttribute *attribute = element->FirstAttribute() ; attribute != NULL ; attribute = attribute->Next())
 				{
 					name = attribute->Name();
 					value = attribute->Value();
@@ -853,7 +837,8 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 			this->registerId(element,id); // does this twice??
 			this->registerId(element,id);
 		}
-		else id = passedid;
+		else
+			id = passedid;
 
 		//assign parent CONTROL of element
 		while (parent != NULL) {
