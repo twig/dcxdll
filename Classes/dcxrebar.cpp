@@ -379,6 +379,11 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 		// Tooltip Handling
 		LPDCXRBBAND lpdcxrbb = new DCXRBBAND;
 
+		if (lpdcxrbb == NULL) {
+			this->showError(NULL, TEXT("-a"), TEXT("Unable to Allocate Memory"));
+			return;
+		}
+
 		if ( rbBand.fStyle & RBBS_UNDERLINE )
 			lpdcxrbb->bUline = TRUE;
 		else

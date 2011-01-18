@@ -332,6 +332,12 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
 		// Extra params
 		LPDCXTCITEM lpdtci = new DCXTCITEM;
+
+		if (lpdtci == NULL) {
+			this->showError(NULL, TEXT("-a"), TEXT("Unable to Allocate Memory"));
+			return;
+		}
+
 		lpdtci->tsTipText = tooltip;
 		tci.lParam = (LPARAM) lpdtci;
 

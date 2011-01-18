@@ -169,6 +169,11 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 		if (nItem > -2) {
 			LPDCXCCOMBOITEM lpdcxcci = new DCXCCOMBOITEM;
 
+			if (lpdcxcci == NULL) {
+				this->showError(NULL, TEXT("-a"), TEXT("Unable to Allocate Memory"));
+				return;
+			}
+
 			lpdcxcci->clrItem = clrItem;
 			//lpmycci->itemtext = "";
 			this->insertItem(nItem, (LPARAM) lpdcxcci);
@@ -232,10 +237,12 @@ void DcxColorCombo::setmIRCPalette( ) {
 	while ( i <= len ) {
 
 		lpdcxcci = new DCXCCOMBOITEM;
-		lpdcxcci->clrItem = (COLORREF) cols.gettok( i ).to_num( );
-		//lpmycci->itemtext = "";
-		this->insertItem( -1, (LPARAM) lpdcxcci );
 
+		if (lpdcxcci != NULL) {
+			lpdcxcci->clrItem = (COLORREF) cols.gettok( i ).to_num( );
+			//lpmycci->itemtext = "";
+			this->insertItem( -1, (LPARAM) lpdcxcci );
+		}
 		i++;
 	}
 }

@@ -3353,9 +3353,17 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 }
 void DcxListView::xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi, TString &tsBuf)
 {
+	if ((xNode == NULL) || (lvi == NULL) || (lpmylvi == NULL))
+		return;
+
 	LPDCXLVRENDERINFO ri = new DCXLVRENDERINFO;
 	const char *attr = NULL;
 	int i = 0;
+
+	if (ri == NULL) {
+		this->showError(NULL, NULL, TEXT("Unable to Allocate Memory"));
+		return;
+	}
 
 	ZeroMemory(lvi, sizeof(LVITEM));
 	ZeroMemory(ri, sizeof(DCXLVRENDERINFO));

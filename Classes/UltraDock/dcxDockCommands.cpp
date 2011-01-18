@@ -192,6 +192,11 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 		// subclass window.
 		LPDCXDOCK dd = new DCXDOCK;
 
+		if (dd == NULL) {
+			Dcx::error(TEXT("/xdock"),TEXT("Unable to Allocate Memory."));
+			return false;
+		}
+
 		if (SetProp(sWnd, TEXT("dcx_dock"), dd)) {
 			dd->oldProc = SubclassWindow(sWnd, mIRCDockWinProc);
 			dd->win = mWnd;

@@ -1186,6 +1186,11 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 	// parse DCX parameters
 	LPDCXTVITEM lpmytvi = new DCXTVITEM;
 
+	if (lpmytvi == NULL) {
+		this->showError(NULL, NULL, TEXT("Unable to Allocate Memory"));
+		return;
+	}
+
 	lpmytvi->tsTipText = *Tooltip;
 
 	if (iFlags & TVIS_UNDERLINE)
@@ -2469,6 +2474,9 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 		tvins.hParent = hParent;
 		LPDCXTVITEM lpmytvi = new DCXTVITEM;
 
+		if (lpmytvi == NULL)
+			return xRes;
+
 		lpmytvi->hHandle = NULL;
 
 #ifdef DCX_USE_WINSDK
@@ -2478,75 +2486,149 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 #endif
 		tvins.itemex.lParam = (LPARAM)lpmytvi;
 
+//		// Items Icon.
+//		attr = xNode->Attribute("image",&i);
+//		if (attr != NULL && i > 0)
+//			tvins.itemex.iImage = i -1;
+//		else
+//			tvins.itemex.iImage = 10000;
+//
+//		// Items Selected state icon.
+//		attr = xNode->Attribute("selectedimage",&i);
+//		if (attr != NULL && i > 0)
+//			tvins.itemex.iSelectedImage = i -1;
+//		else
+//			tvins.itemex.iSelectedImage = tvins.itemex.iImage;
+//		// Items expanded state icon.
+//#ifdef DCX_USE_WINSDK
+//		attr = xNode->Attribute("expandedimage",&i);
+//		if (attr != NULL && i > 0)
+//			tvins.itemex.iExpandedImage = i -1;
+//		else
+//			tvins.itemex.iExpandedImage = 10000;
+//#endif
+//		// Items height integral.
+//		attr = xNode->Attribute("integral",&i);
+//		if (attr != NULL && i > 0) {
+//			tvins.itemex.iIntegral = i;
+//			tvins.itemex.mask |= TVIF_INTEGRAL;
+//		}
+//		// Items selected
+//		attr = xNode->Attribute("selected",&i);
+//		if (attr != NULL && i > 0) {
+//			tvins.itemex.state |= TVIS_SELECTED;
+//			tvins.itemex.stateMask |= TVIS_SELECTED;
+//		}
+//		// Items tooltip
+//		attr = xNode->Attribute("tooltip");
+//		if (attr != NULL) {
+//			lpmytvi->tsTipText = attr;
+//		}
+//		// Items text colour.
+//		attr = xNode->Attribute("textcolor",&i);
+//		if (attr != NULL && i > -1) {
+//			lpmytvi->clrText = (COLORREF)i;
+//		}
+//		else
+//			lpmytvi->clrText = CLR_INVALID;
+//		// Items background colour.
+//		attr = xNode->Attribute("backgroundcolor",&i);
+//		if (attr != NULL && i > -1) {
+//			lpmytvi->clrBkg = (COLORREF)i;
+//		}
+//		else
+//			lpmytvi->clrBkg = CLR_INVALID;
+//		// Is Item text in Bold?
+//		attr = xNode->Attribute("textbold",&i);
+//		if (i > 0) {
+//			lpmytvi->bBold = TRUE;
+//			tvins.itemex.state |= TVIS_BOLD;
+//			tvins.itemex.stateMask |= TVIS_BOLD;
+//		}
+//		else
+//			lpmytvi->bBold = FALSE;
+//		// Is item text in italics?
+//		attr = xNode->Attribute("textitalic",&i);
+//		lpmytvi->bItalic = (i > 0);
+//		// Is item text underlined?
+//		attr = xNode->Attribute("textunderline",&i);
+//		lpmytvi->bUline = (i > 0);
+//		// Items Text.
+//		attr = xNode->Attribute("text");
+//		TString tsAttr(attr);
+//		if (attr != NULL) {
+//			tvins.itemex.cchTextMax = tsAttr.len();
+//			tvins.itemex.pszText = tsAttr.to_chr();
+//			tvins.itemex.mask |= TVIF_TEXT;
+//		}
+//		hInsertAfter = TreeView_InsertItem(this->m_Hwnd, &tvins);
+//		if (hInsertAfter == NULL) {
+//			delete lpmytvi;
+//			this->showError(NULL, TEXT("-a"), TEXT("Unable To Add XML Item To TreeView"));
+//			return NULL;
+//		}
+//		lpmytvi->hHandle = hInsertAfter;
+//		// Items state icon.
+//		attr = xNode->Attribute("state",&i);
+//		if (attr != NULL && i > -1 && i < 5) // zero means no state icon anyway.
+//			TreeView_SetItemState(this->m_Hwnd, hInsertAfter, INDEXTOSTATEIMAGEMASK(i), TVIS_STATEIMAGEMASK);
+//		// Items overlay icon.
+//		// overlay is 1-based index
+//		attr = xNode->Attribute("overlay",&i);
+//		if (attr != NULL && i > 0 && i < 16)
+//			TreeView_SetItemState(this->m_Hwnd, hInsertAfter, INDEXTOOVERLAYMASK(i), TVIS_OVERLAYMASK);
+
 		// Items Icon.
-		attr = xNode->Attribute("image",&i);
-		if (attr != NULL && i > 0)
-			tvins.itemex.iImage = i -1;
-		else
-			tvins.itemex.iImage = 10000;
+		tvins.itemex.iImage = this->queryIntAttribute(xNode, "image", 10001) -1;
+
 		// Items Selected state icon.
-		attr = xNode->Attribute("selectedimage",&i);
-		if (attr != NULL && i > 0)
-			tvins.itemex.iSelectedImage = i -1;
-		else
-			tvins.itemex.iSelectedImage = tvins.itemex.iImage;
+		tvins.itemex.iSelectedImage = this->queryIntAttribute(xNode, "selectedimage", tvins.itemex.iImage +1) -1;
+
 		// Items expanded state icon.
 #ifdef DCX_USE_WINSDK
-		attr = xNode->Attribute("expandedimage",&i);
-		if (attr != NULL && i > 0)
-			tvins.itemex.iExpandedImage = i -1;
-		else
-			tvins.itemex.iExpandedImage = 10000;
+		tvins.itemex.iExpandedImage = this->queryIntAttribute(xNode, "expandedimage", 10001) -1;
 #endif
 		// Items height integral.
-		attr = xNode->Attribute("integral",&i);
-		if (attr != NULL && i > 0) {
-			tvins.itemex.iIntegral = i;
+		tvins.itemex.iIntegral = this->queryIntAttribute(xNode, "integral");
+		if (tvins.itemex.iIntegral > 0)
 			tvins.itemex.mask |= TVIF_INTEGRAL;
-		}
+
 		// Items selected
-		attr = xNode->Attribute("selected",&i);
-		if (attr != NULL && i > 0) {
+		if (this->queryIntAttribute(xNode, "selected") > 0) {
 			tvins.itemex.state |= TVIS_SELECTED;
 			tvins.itemex.stateMask |= TVIS_SELECTED;
 		}
+
 		// Items tooltip
 		attr = xNode->Attribute("tooltip");
 		if (attr != NULL) {
 			lpmytvi->tsTipText = attr;
 		}
+
 		// Items text colour.
-		attr = xNode->Attribute("textcolor",&i);
-		if (attr != NULL && i > -1) {
-			lpmytvi->clrText = (COLORREF)i;
-		}
-		else
-			lpmytvi->clrText = CLR_INVALID;
+		lpmytvi->clrText = (COLORREF)this->queryIntAttribute(xNode, "textcolor", CLR_INVALID);
+
 		// Items background colour.
-		attr = xNode->Attribute("backgroundcolor",&i);
-		if (attr != NULL && i > -1) {
-			lpmytvi->clrBkg = (COLORREF)i;
-		}
-		else
-			lpmytvi->clrBkg = CLR_INVALID;
+		lpmytvi->clrBkg = (COLORREF)this->queryIntAttribute(xNode, "backgroundcolor", CLR_INVALID);
+
 		// Is Item text in Bold?
-		attr = xNode->Attribute("textbold",&i);
-		if (i > 0) {
+		if (this->queryIntAttribute(xNode, "textbold") > 0) {
 			lpmytvi->bBold = TRUE;
 			tvins.itemex.state |= TVIS_BOLD;
 			tvins.itemex.stateMask |= TVIS_BOLD;
 		}
 		else
 			lpmytvi->bBold = FALSE;
+
 		// Is item text in italics?
-		attr = xNode->Attribute("textitalic",&i);
-		lpmytvi->bItalic = (i > 0);
+		lpmytvi->bItalic = (this->queryIntAttribute(xNode, "textitalic") > 0);
+
 		// Is item text underlined?
-		attr = xNode->Attribute("textunderline",&i);
-		lpmytvi->bUline = (i > 0);
+		lpmytvi->bUline = (this->queryIntAttribute(xNode, "textunderline") > 0);
+
 		// Items Text.
 		attr = xNode->Attribute("text");
-		TString tsAttr(attr);
+		TString tsAttr(attr); // MUST be before/outside if()
 		if (attr != NULL) {
 			tvins.itemex.cchTextMax = tsAttr.len();
 			tvins.itemex.pszText = tsAttr.to_chr();
@@ -2559,14 +2641,16 @@ TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertA
 			return NULL;
 		}
 		lpmytvi->hHandle = hInsertAfter;
+
 		// Items state icon.
-		attr = xNode->Attribute("state",&i);
-		if (attr != NULL && i > -1 && i < 5) // zero means no state icon anyway.
+		i = this->queryIntAttribute(xNode, "state");
+		if (i < 5) // zero means no state icon anyway.
 			TreeView_SetItemState(this->m_Hwnd, hInsertAfter, INDEXTOSTATEIMAGEMASK(i), TVIS_STATEIMAGEMASK);
+
 		// Items overlay icon.
 		// overlay is 1-based index
-		attr = xNode->Attribute("overlay",&i);
-		if (attr != NULL && i > 0 && i < 16)
+		i = this->queryIntAttribute(xNode, "overlay");
+		if (i > 0 && i < 16)
 			TreeView_SetItemState(this->m_Hwnd, hInsertAfter, INDEXTOOVERLAYMASK(i), TVIS_OVERLAYMASK);
 
 		if (xNode->FirstChild("tvitem") != NULL) {
@@ -2712,4 +2796,13 @@ HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEI
 	}
 
 	return foundSoFar;
+}
+int DcxTreeView::queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue)
+{
+	int integer = defaultValue;
+	if (element->QueryIntAttribute(attribute,&integer) == TIXML_SUCCESS) {
+		if (integer < 0)
+			integer = defaultValue;
+	}
+	return integer;
 }

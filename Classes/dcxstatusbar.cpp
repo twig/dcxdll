@@ -295,6 +295,11 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 
 		if (iFlags & SBT_OWNERDRAW) {
 			LPSB_PARTINFO pPart = new SB_PARTINFO;
+
+			if (pPart == NULL) {
+				this->showError(NULL, TEXT("-t"), TEXT("Error adding item to control: No Memory"));
+				return;
+			}
 			pPart->m_Child = NULL;
 			//ZeroMemory(pPart,sizeof(SB_PARTINFO));
 			pPart->m_iIcon = icon;

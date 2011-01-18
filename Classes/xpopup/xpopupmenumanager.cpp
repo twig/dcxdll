@@ -1092,6 +1092,10 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
  * This method is recursive in order to parse submenus correctly.
  */
 bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, TiXmlElement *items) {
+
+	if ((menu == NULL) || (hMenu == NULL) || (items == NULL))
+		return false;
+
 	// Iterate through each child element.
 	for (TiXmlElement *element = items->FirstChildElement("item"); element != NULL; element = element->NextSiblingElement("item")) {
 		MENUITEMINFO mii;
@@ -1142,9 +1146,11 @@ bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, TiX
 			item = new XPopupMenuItem(menu, caption, mIcon, mii.hSubMenu != NULL ? TRUE : FALSE);
 		}
 
-		menu->m_vpMenuItem.push_back(item);
-		mii.dwItemData = (ULONG_PTR) item;
-		InsertMenuItem(hMenu, nPos, TRUE, &mii);
+		if (item != NULL) {
+			menu->m_vpMenuItem.push_back(item);
+			mii.dwItemData = (ULONG_PTR) item;
+			InsertMenuItem(hMenu, nPos, TRUE, &mii);
+		}
 	}
 
 	return true;

@@ -1895,6 +1895,9 @@ TString &TString::trim() {
 	TCHAR *start = this->m_pString;
 	TCHAR *end = this->m_pString + lstrlen(this->m_pString);
 
+	if ((start == NULL) || (end == NULL))
+		return *this;
+
 	// Trim from start
 	while (start != end && *start == 32)
 		start++;

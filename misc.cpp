@@ -870,22 +870,17 @@ int unfoldColor(const WCHAR *color) {
 	return nColor;
 }
 
-#if UNICODE
 void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft)
-#else
-void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft, const bool tryutf8)
-#endif
 {
 	if (!ignoreleft || (style & DT_CENTER) || (style & DT_RIGHT)) {
 		TString stripped_txt;
-#if UNICODE
 		WCHAR *wtxt = const_cast<TString &>(txt).to_chr();
 		UINT pos = 0, len = (UINT)txt.len();
-#else
-		WCHAR *wtxt = const_cast<TString &>(txt).to_wchr(tryutf8);
-		UINT pos = 0, len = (UINT)txt.wlen();
-#endif
 		WCHAR c = 0;
+
+		if ((len == 0) || (wtxt == NULL))
+			return;
+
 		// strip out ctrl codes to correctly position text.
 		while (pos < len) {
 			c = wtxt[pos];
@@ -925,15 +920,10 @@ void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, 
 			}
 			pos++;
 		}
-#if UNICODE
 		DrawTextW(hdc, stripped_txt.to_chr(), (int)stripped_txt.len(), rc, style | DT_CALCRECT);
-#else
-		DrawTextW(hdc, stripped_txt.to_wchr(tryutf8), (int)stripped_txt.wlen(), rc, style | DT_CALCRECT);
-#endif
 	}
 }
 
-#if UNICODE
 void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow)
 {
 	int len = (int)txt.len();
@@ -952,28 +942,7 @@ void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const
 	}
 	txt = TEXT("");
 }
-#else
-void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow, const bool tryutf8)
-{
-	int len = (int)txt.wlen();
-	if (len > 0) {
-		TEXTMETRICW tm;
-		HFONT hOldFont = SelectFont( hdc, CreateFontIndirect( lf ) );
-		GetTextMetricsW(hdc, &tm);
-		RECT rcTmp = *rcOut;
-		DrawTextW(hdc, txt.to_wchr(tryutf8), len, &rcTmp, iStyle | DT_CALCRECT);
-		if (shadow)
-			dcxDrawShadowText(hdc,txt.to_wchr(tryutf8), len, &rcTmp, iStyle, clrFG, 0, 5, 5);
-		else
-			DrawTextW(hdc, txt.to_wchr(tryutf8), len, &rcTmp, iStyle);
-		rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
-		DeleteFont(SelectFont( hdc, hOldFont ));
-	}
-	txt = "";
-}
-#endif
 
-#if UNICODE
 void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style, const bool shadow)
 {
 	LOGFONT lf;
@@ -984,7 +953,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 	UINT iStyle = (style & ~(DT_CENTER|DT_RIGHT|DT_VCENTER)) | DT_LEFT; // make sure its to left
 	bool /*usingBGclr = false,*/ usingRevTxt = false;
 
-	if (len == 0) // if no text just exit.
+	if ((len == 0) || (wtxt == NULL)) // if no text just exit.
 		return;
 
 	// create an hdc buffer to avoid flicker during drawing.
@@ -1206,240 +1175,6 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 	hdc = oldHDC;
 	DeleteHDCBuffer(hBuffer);
 }
-#else
-void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style, const bool shadow, const bool tryutf8)
-{
-	LOGFONT lf;
-	WCHAR *wtxt = const_cast<TString &>(txt).to_wchr(tryutf8);
-	int /*savedDC,*/ pos = 0, len = (int)txt.wlen();
-	TString tmp;
-	RECT rcOut = *rc;
-	UINT iStyle = (style & ~(DT_CENTER|DT_RIGHT|DT_VCENTER)) | DT_LEFT; // make sure its to left
-	bool /*usingBGclr = false,*/ usingRevTxt = false;
-
-	if (len == 0) // if no text just exit.
-		return;
-
-	// create an hdc buffer to avoid flicker during drawing.
-	HDC *hBuffer = CreateHDCBuffer(hdc, rc);
-
-	if (hBuffer == NULL)
-		return;
-
-	HDC oldHDC = hdc;
-	hdc = *hBuffer;
-	// change rcOut to be zero offset.
-	OffsetRect(&rcOut,-rcOut.left, -rcOut.top);
-
-	//savedDC = SaveDC(hdc);
-
-	COLORREF clrFG, origFG = GetTextColor(hdc);
-	COLORREF clrBG, origBG = GetBkColor(hdc);
-	COLORREF cPalette[16]; // mIRC palette
-
-	getmIRCPalette(cPalette, 16); // get mIRC palette
-
-	clrFG = origFG;
-	clrBG = origBG;
-
-	HFONT hFont = (HFONT) GetCurrentObject(hdc, OBJ_FONT);
-
-	GetObject(hFont, sizeof(LOGFONT), &lf);
-
-	LONG origWeight = lf.lfWeight;
-	LONG origLeft = rc->left;
-
-	SetBkMode(hdc,TRANSPARENT);
-
-	if ((style & DT_CENTER) || (style & DT_RIGHT) || (style & DT_VCENTER)) {
-		// strip out ctrl codes to correctly position text.
-		RECT rcTmp = *rc;
-		calcStrippedRect(hdc, txt, iStyle, &rcTmp, false, tryutf8);
-		// style can be either center or right, not both, but it can be center+vcenter or right+vcenter
-		if (style & DT_CENTER) { // get center text start offset
-			// (total width) - (required width) / 2 = equal space to each side.
-			origLeft = rcOut.left = (((rcOut.right - rcOut.left) - (rcTmp.right - rcTmp.left)) / 2);
-		}
-		else if (style & DT_RIGHT) { // get right text start offset
-			// adjust start to right
-			origLeft = rcOut.left = rcOut.right - (rcTmp.right - rcTmp.left);
-		}
-		if (style & DT_VCENTER) { // get Veritcal center text start offset
-			rcOut.top += (((rcOut.bottom - rcOut.top) - (rcTmp.bottom - rcTmp.top)) / 2);
-		}
-	}
-	WCHAR c;
-	while (pos < len) {
-		c = wtxt[pos];
-		switch (c)
-		{
-		case 2: // Bold
-			{
-				if (tmp.wlen() > 0)
-					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
-				if (lf.lfWeight == FW_BOLD)
-					lf.lfWeight = origWeight;
-				else
-					lf.lfWeight = FW_BOLD;
-			}
-			break;
-		case 3: // Colour
-			{
-				if (tmp.wlen() > 0)
-					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
-				SetBkMode(hdc,TRANSPARENT);
-				//usingBGclr = false;
-				if (wtxt[pos +1] >= LTEXT('0') && wtxt[pos +1] <= LTEXT('9')) {
-					WCHAR colbuf[3];
-					colbuf[0] = wtxt[pos +1];
-					colbuf[1] = LTEXT('\0');
-					++pos;
-
-					if (wtxt[pos +1] >= LTEXT('0') && wtxt[pos +1] <= LTEXT('9')) {
-						colbuf[1] = wtxt[pos +1];
-						pos++;
-					}
-
-					// color code number
-					clrFG = cPalette[unfoldColor(colbuf)];
-
-					// maybe a background color
-					if (wtxt[pos+1] == LTEXT(',')) {
-						++pos;
-
-						if (wtxt[pos +1] >= LTEXT('0') && wtxt[pos +1] <= LTEXT('9')) {
-							colbuf[0] = wtxt[pos +1];
-							colbuf[1] = LTEXT('\0');
-							pos++;
-
-							if (wtxt[pos +1] >= LTEXT('0') && wtxt[pos +1] <= LTEXT('9')) {
-								colbuf[1] = wtxt[pos +1];
-								++pos;
-							}
-
-							// color code number
-							clrBG = cPalette[unfoldColor(colbuf)];
-							SetBkMode(hdc,OPAQUE);
-							//usingBGclr = true;
-						}
-					}
-					if (usingRevTxt) { // reverse text swap fg & bg colours
-						COLORREF ct = clrFG;
-						clrFG = clrBG;
-						clrBG = ct;
-						SetBkMode(hdc,OPAQUE);
-					}
-				}
-				else {
-					clrFG = origFG;
-					clrBG = origBG;
-				}
-				SetTextColor(hdc, clrFG);
-				SetBkColor(hdc, clrBG);
-			}
-			break;
-		case 15: // ctrl+o
-			{
-				if (tmp.wlen() > 0)
-					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
-				lf.lfWeight = origWeight;
-				lf.lfUnderline = false;
-				clrFG = origFG;
-				clrBG = origBG;
-				SetTextColor(hdc, origFG);
-				SetBkColor(hdc, origBG);
-				SetBkMode(hdc,TRANSPARENT);
-				//usingBGclr = false;
-				usingRevTxt = false;
-			}
-			break;
-		case 22: // ctrl+r
-			{
-				if (tmp.wlen() > 0)
-					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
-				usingRevTxt = (usingRevTxt ? false : true);
-				if (usingRevTxt)
-					SetBkMode(hdc,OPAQUE);
-				else
-					SetBkMode(hdc,TRANSPARENT);
-				COLORREF ct = clrBG;
-				clrBG = clrFG;
-				clrFG = ct;
-				SetTextColor(hdc, clrFG);
-				SetBkColor(hdc, clrBG);
-			}
-			break;
-		case 29: // ctrl-i Italics
-			{
-				if (tmp.wlen() > 0)
-					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
-				lf.lfItalic = (lf.lfItalic ? FALSE : TRUE);
-			}
-			break;
-		case 31: // ctrl+u
-			{
-				if (tmp.wlen() > 0)
-					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
-				lf.lfUnderline = (lf.lfUnderline ? FALSE : TRUE);
-			}
-			break;
-		case 10:
-		case 13:
-			{
-				if (iStyle & DT_SINGLELINE) { // when single line, replace with a space or ignore?
-					tmp += LTEXT(' '); //" ";
-				}
-				else {
-					SIZE sz;
-					int tlen = (int)tmp.wlen();
-					GetTextExtentPoint32W(hdc, tmp.to_wchr(), tlen, &sz);
-					if (tlen > 0)
-						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
-					rcOut.top += sz.cy;
-					rcOut.left = rc->left;
-				}
-			}
-			break;
-		default: // normal TCHAR
-			{
-				if (!(iStyle & DT_SINGLELINE)) { // don't bother if a single line.
-					int tlen = (int)tmp.wlen();
-					if (tlen > 0) {
-						SIZE sz;
-						int nFit;
-						GetTextExtentExPointW(hdc, const_cast<TString &>(txt).to_wchr(tryutf8), tlen, (rcOut.right - rcOut.left), &nFit, NULL, &sz);
-						if (nFit < tlen) {
-							if (nFit > 0) {
-								WCHAR o = tmp.to_wchr(tryutf8)[nFit];
-								//mIRC_OutText(hdc, tmp.wsub(0,nFit), &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
-								TString tsSub(tmp.wsub(0,nFit));
-								mIRC_OutText(hdc, tsSub, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
-								//tmp = "";
-								rcOut.top += sz.cy;
-								rcOut.left = origLeft;
-								tmp = o;
-								//mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-							}
-							else
-								tmp = "";
-						}
-					}
-				}
-				tmp += c;
-			}
-			break;
-		}
-		pos++;
-	}
-	if (tmp.wlen() > 0)
-		mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
-	//RestoreDC(hdc, savedDC);
-
-	BitBlt(oldHDC, rc->left, rc->top, (rc->right - rc->left), (rc->bottom - rc->top), hdc, 0, 0, SRCCOPY);
-	hdc = oldHDC;
-	DeleteHDCBuffer(hBuffer);
-}
-#endif
 
 typedef struct tagHDCBuffer {
 	HDC m_hHDC;

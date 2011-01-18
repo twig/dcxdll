@@ -226,6 +226,12 @@ void DcxStacker::parseCommandRequest(TString &input) {
 			nPos = 0;
 
 		LPDCXSITEM sitem = new DCXSITEM;
+
+		if (sitem == NULL) {
+			this->showError(NULL, TEXT("-a"), TEXT("Error adding item to control: No Memory"));
+			return;
+		}
+
 		sitem->clrBack = (COLORREF)input.gettok(9).to_num();
 		sitem->clrText = (COLORREF)input.gettok(8).to_num();
 		sitem->pChild = NULL;
@@ -237,9 +243,7 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		if (ctrl.len() > 0) {
 			UINT ID = mIRC_ID_OFFSET + (UINT)ctrl.gettok( 1 ).to_int( );
 
-			if ( ID > mIRC_ID_OFFSET - 1 && 
-				!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
-				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
+			if ( (ID > mIRC_ID_OFFSET - 1) && !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && (this->m_pParentDialog->getControlByID( ID ) == NULL) )
 			{
 				try {
 					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl,2,CTLF_ALLOW_ALL,this->m_Hwnd);
