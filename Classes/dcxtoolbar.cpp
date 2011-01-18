@@ -363,7 +363,11 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		// Tooltip Handling
 		LPDCXTBBUTTON lpdcxtbb = new DCXTBBUTTON;
 
-		lpdcxtbb->tsTipText = TEXT("");
+		if (lpdcxtbb == NULL) {
+			this->showError(NULL, TEXT("-a"), TEXT("Unable to Allocate Memory"));
+			return;
+		}
+		//lpdcxtbb->tsTipText = TEXT("");
 
 		if ( input.numtok( TSTAB ) > 1 )
 			lpdcxtbb->tsTipText = input.gettok( 2, -1, TSTAB ).trim();

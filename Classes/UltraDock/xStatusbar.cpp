@@ -149,32 +149,29 @@ mIRC(xstatusbar) {
 
 				if (iFlags & SBT_OWNERDRAW) {
 					LPSB_PARTINFO pPart = new SB_PARTINFO;
+
+					if (pPart == NULL) {
+						Dcx::error(TEXT("/xstatusbar -t"),TEXT("Unable to Allocate Memory"));
+						return 0;
+					}
+
 					//ZeroMemory(pPart,sizeof(SB_PARTINFO));
 					pPart->m_Child = NULL;
 					pPart->m_iIcon = icon;
-					if (flags.find(TEXT('f'),0)) { // mIRC formatted text
+					//if (flags.find(TEXT('f'),0)) { // mIRC formatted text
 						pPart->m_Text = itemtext;
-#if UNICODE
 						DcxDock::status_setTipText( nPos, tooltip.to_chr() );
-#else
-						DcxDock::status_setTipText( nPos, tooltip.to_wchr(DcxDock::g_bUseUTF8 ) );
-#endif
 						DcxDock::status_setPartInfo( nPos, iFlags, pPart );
-					}
-					else { // child control
-						Dcx::error(TEXT("/xstatusbar -t"),TEXT("Child Controls Are not supported at this time."));
-					}
+					//}
+					//else { // child control
+					//	Dcx::error(TEXT("/xstatusbar -t"),TEXT("Child Controls Are not supported at this time."));
+					//}
 				}
 				else {
 					if ( icon > -1 )
 						DcxDock::status_setIcon( nPos, ImageList_GetIcon( DcxDock::status_getImageList( ), icon, ILD_TRANSPARENT ) );
-#if UNICODE
 					DcxDock::status_setText( nPos, iFlags, itemtext.to_chr() );
 					DcxDock::status_setTipText( nPos, tooltip.to_chr() );
-#else
-					DcxDock::status_setText( nPos, iFlags, itemtext.to_wchr(DcxDock::g_bUseUTF8) );
-					DcxDock::status_setTipText( nPos, tooltip.to_wchr(DcxDock::g_bUseUTF8) );
-#endif
 				}
 			}
 			break;
@@ -203,11 +200,7 @@ mIRC(xstatusbar) {
 					}
 					else {
 						WCHAR *text = new WCHAR[DcxDock::status_getTextLength(nPos) + 1];
-#if UNICODE
 						DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_chr() );
-#else
-						DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_wchr(DcxDock::g_bUseUTF8) );
-#endif
 						delete [] text;
 					}
 				}
@@ -256,8 +249,10 @@ mIRC(xstatusbar) {
 			}
 			break;
 		default:
-			Dcx::error(TEXT("/xstatusbar"),TEXT("Invalid Switch"));
-			return 0;
+			{
+				Dcx::error(TEXT("/xstatusbar"),TEXT("Invalid Switch"));
+				return 0;
+			}
 	}
 	return 1;
 }
@@ -310,7 +305,7 @@ mIRC(_xstatusbar)
 		break;
 	case 3: // parts
 		{
-			INT parts[256];
+			INT parts[256] = {0};
 			int nParts = (int)DcxDock::status_getParts( 256, 0 );
 
 			DcxDock::status_getParts( 256, parts );

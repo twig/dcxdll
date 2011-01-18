@@ -59,6 +59,9 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 
 		LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
 
+		if (lpce == NULL)
+			throw TEXT("Unable to Allocate Memory");
+
 		lpce->cHwnd = this->m_Hwnd;
 		lpce->pHwnd = mParentHwnd;
 

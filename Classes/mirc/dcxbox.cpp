@@ -416,6 +416,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
 
 						if ( p_GetCell == NULL ) {
 							this->showErrorEx(NULL,TEXT("-l"), TEXT("Invalid item path: %s"), path.to_chr( ) );
+							delete p_Cell;
 							return;
 						}
 
@@ -761,6 +762,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 	// if no border, dont bother
 	if (this->m_iBoxStyles & BOXS_NONE) {
 		DcxControl::DrawCtrlBackground(hdc, this, &rc2);
+		this->FinishAlphaBlend(ai);
 		return;
 	}
 
@@ -803,17 +805,10 @@ void DcxBox::DrawClientArea(HDC hdc)
 				IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
 			);
 
-#if UNICODE
 		if (this->m_bCtrlCodeText)
 			calcStrippedRect(hdc, wtext, 0, &rcText, false);
 		else
 			DrawTextW(hdc, wtext.to_chr(), n, &rcText, DT_CALCRECT);
-#else
-		if (this->m_bCtrlCodeText)
-			calcStrippedRect(hdc, wtext, 0, &rcText, false, this->m_bUseUTF8);
-		else
-			DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), n, &rcText, DT_CALCRECT);
-#endif
 		//if (this->m_bShadowText) {
 		//	rcText.bottom += 6;
 		//	rcText.right += 6;

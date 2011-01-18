@@ -159,7 +159,7 @@ const char *DcxmlParser::queryAttribute(const TiXmlElement *element,const char *
 }
 int DcxmlParser::queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue) const
 {
-	int integer;
+	int integer = defaultValue;
 	return (element->QueryIntAttribute(attribute,&integer) == TIXML_SUCCESS) ? integer : defaultValue;
 }
 
