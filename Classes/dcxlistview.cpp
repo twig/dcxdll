@@ -123,7 +123,7 @@ TString DcxListView::getStyles(void) {
 		styles.addtok(TEXT("report"));
 	else if (Styles & LVS_LIST)
 		styles.addtok(TEXT("list"));
-	if (Styles & LVS_ICON)
+	if (Styles & LVS_ICON)	// LVS_ICON == zero, so never true?!?!
 		styles.addtok(TEXT("icon"));
 	if (Styles & LVS_SMALLICON)
 		styles.addtok(TEXT("smallicon"));
@@ -131,7 +131,7 @@ TString DcxListView::getStyles(void) {
 		styles.addtok(TEXT("noheader"));
 	if (Styles & LVS_ALIGNLEFT)
 		styles.addtok(TEXT("alignleft"));
-	if (Styles & LVS_ALIGNTOP)
+	if (Styles & LVS_ALIGNTOP)	// same as LVS_ICON ?!?!?!
 		styles.addtok(TEXT("aligntop"));
 	if (Styles & LVS_AUTOARRANGE)
 		styles.addtok(TEXT("autoarrange"));

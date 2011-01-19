@@ -406,11 +406,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 
 		if (contents != NULL) {
 			this->m_tsText = (PTCHAR)contents;
-#if UNICODE
 			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
-#else
-			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr(this->m_bUseUTF8));
-#endif
 			delete [] contents;
 		}
 	}

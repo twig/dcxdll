@@ -19,14 +19,6 @@ mIRC(xstatusbar) {
 		Dcx::error(TEXT("/xstatusbar"),TEXT("Invalid Parameters"));
 		return 0;
 	}
-#ifndef UNICODE
-	if (Dcx::mIRC.getMainVersion() == 7) {
-		DCX_DEBUG(Dcx::debug,TEXT("xstatusbar"), TEXT("mIRC V7 detected..."));
-		DCX_DEBUG(Dcx::debug,TEXT("xstatusbar"), TEXT("Can't do any window mods etc.."));
-		Dcx::error(TEXT("/xstatusbar"),TEXT("Can't be used in mIRC V7"));
-		return 0;
-	}
-#endif
 	TString switches(input.gettok(1));
 
 	switch (switches[1]) {
@@ -195,13 +187,25 @@ mIRC(xstatusbar) {
 
 					if (iFlags & SBT_OWNERDRAW) {
 						LPSB_PARTINFO pPart = (LPSB_PARTINFO)DcxDock::status_getText(nPos, NULL);
-						pPart->m_Text = itemtext;
-						DcxDock::status_setPartInfo( nPos, iFlags, pPart );
+						if (pPart != NULL) {
+							pPart->m_Text = itemtext;
+							DcxDock::status_setPartInfo( nPos, iFlags, pPart );
+						}
+						else {
+							Dcx::error(TEXT("/xstatusbar -v"),TEXT("Unable to set item text"));
+							return 0;
+						}
 					}
 					else {
 						WCHAR *text = new WCHAR[DcxDock::status_getTextLength(nPos) + 1];
-						DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_chr() );
-						delete [] text;
+						if (text != NULL) {
+							DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_chr() );
+							delete [] text;
+						}
+						else {
+							Dcx::error(TEXT("/xstatusbar -v"),TEXT("Unable to Allocate Memory"));
+							return 0;
+						}
 					}
 				}
 			}
