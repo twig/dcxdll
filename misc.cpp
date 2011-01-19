@@ -44,14 +44,13 @@ int round(const float x) {
 */
 BYTE *readFile(const PTCHAR filename) {
 	//Ouvrir le fichier, read en mode binaire
-	FILE *file;
+	if (filename == NULL)
+		return NULL;
+
+	FILE *file = _wfopen(filename, TEXT("rb"));
 
 	// Open file in binary mode and read
-#if UNICODE
-	if ((file = _wfopen(filename, TEXT("rb"))) == NULL)
-#else
-	if ((file = fopen(filename, "rb")) == NULL)
-#endif
+	if (file == NULL)
 		return NULL;
 
 	// Seek End of file
@@ -67,6 +66,9 @@ BYTE *readFile(const PTCHAR filename) {
 
 	// make data container for file contents
 	BYTE * fileContents = new BYTE[size + 1];
+
+	if (fileContents == NULL)
+		return NULL;
 
 	// Null terminate the string
 	fileContents[size] = 0;

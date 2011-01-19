@@ -860,17 +860,10 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					if (this->isStyle(LBS_USETABSTOPS))
 						style |= DT_EXPANDTABS;
 
-#if UNICODE
 					calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false);
 
 					//mIRC_DrawText(lpDrawItem->hDC, txt, &rc, style, this->m_bShadowText);
 					this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
-#else
-					calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false, this->m_bUseUTF8);
-
-					//mIRC_DrawText(lpDrawItem->hDC, txt, &rc, style, this->m_bShadowText, this->m_bUseUTF8);
-					this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
-#endif
 				}
 
 				if (clrText != CLR_INVALID)

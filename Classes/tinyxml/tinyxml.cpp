@@ -1498,6 +1498,9 @@ TiXmlAttribute* TiXmlAttributeSet::FindOrCreate( const std::string& _name )
 
 TiXmlAttribute* TiXmlAttributeSet::Find( const char* name ) const
 {
+	if (name == NULL)
+		return NULL;
+
 	for( TiXmlAttribute* node = sentinel.next; node != &sentinel; node = node->next )
 	{
 		if ( strcmp( node->name.c_str(), name ) == 0 )

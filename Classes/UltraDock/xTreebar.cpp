@@ -82,14 +82,6 @@ mIRC(xtreebar) {
 
 	int numtok = input.numtok( );
 
-#ifndef UNICODE
-	if (Dcx::mIRC.getMainVersion() == 7) {
-		DCX_DEBUG(Dcx::debug,TEXT("xtreebar"), TEXT("mIRC V7 detected..."));
-		DCX_DEBUG(Dcx::debug,TEXT("xtreebar"), TEXT("Can't do any window mods etc.."));
-		Dcx::error(TEXT("/xtreebar"),TEXT("Can't be used in mIRC V7"));
-		return 0;
-	}
-#endif
 	if (!IsWindow(Dcx::mIRC.getTreeview())) {
 		Dcx::error(TEXT("/xtreebar"), TEXT("No Treebar"));
 		return 0;
