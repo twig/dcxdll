@@ -2308,14 +2308,6 @@ bool TString::iswmcs(TCHAR *a) const
 //}
 WCHAR *TString::charToWchar(const char *cString)
 {
-	//if ( cString != NULL ) {
-	//	int widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cString,-1, NULL, 0);
-	//	if (widelen != 0) {
-	//		this->m_pString = new WCHAR[widelen+1];
-	//		MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cString,-1, this->m_pString, widelen);
-	//		return;
-	//	}
-	//}
 	// try UTF8 encoded first, but error on invalid chars.
 	WCHAR *res = NULL;
 	if ( cString != NULL ) {
@@ -2352,4 +2344,79 @@ char *TString::WcharTochar(const WCHAR *wString)
 		WideCharToMultiByte( CP_UTF8, 0, wString, -1, res, l, NULL, NULL );
 	}
 	return res;
+}
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+TString &TString::strip() {
+	TCHAR *start = this->m_pString;
+	TCHAR *end = this->m_pString + lstrlen(this->m_pString);
+
+	if ((start == NULL) || (end == NULL))
+		return *this;
+
+	// Trim from start
+	while (start != end && *start == TEXT(' '))
+		start++;
+
+	// Trim from end
+	while (end != start && *(--end) == TEXT(' '));
+
+	size_t new_len = end - start +1;
+
+	TCHAR *temp = new TCHAR[new_len +1];
+	temp[new_len] = 0;
+
+	// now strip all ctrl codes.
+	WCHAR *wtxt = start, *p = temp;
+	UINT pos = 0, tpos = 0;
+	WCHAR c = 0;
+
+	// strip out ctrl codes to correctly position text.
+	while (pos < new_len) {
+		c = wtxt[pos];
+		switch (c)
+		{
+		case 2:  // ctrl-b Bold
+		case 15: // ctrl-o
+		case 22: // ctrl-r Reverse
+		case 29: // ctrl-i Italics
+		case 31: // ctrl-u Underline
+			break;
+		case 3: // ctrl-k Colour
+			{
+				if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+					++pos;
+
+					if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
+						pos++;
+
+					// maybe a background color
+					if (wtxt[pos+1] == L',') {
+						++pos;
+
+						if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+							pos++;
+
+							if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
+								++pos;
+						}
+					}
+				}
+			}
+			break;
+		default:
+			p[tpos++] = c;
+			break;
+		}
+		pos++;
+	}
+	p[tpos] = 0;
+
+	this->deleteString();
+	this->m_pString = temp;
+
+	return *this;
 }
