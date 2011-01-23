@@ -169,7 +169,8 @@ public:
 
 	TString sub( int N, int M ) const;
 
-	TString &trim();
+	TString &trim();	// removes spaces at start & end of text.
+	TString &strip();	// removes spaces at start & end of text & all ctrl codes in text.
 
 	int replace( const TCHAR * subString, const TCHAR * rString );
 	int replace( const TCHAR * subString, const TCHAR rchr );
