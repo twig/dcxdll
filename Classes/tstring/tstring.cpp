@@ -35,6 +35,8 @@
  *		More changes & shit than i can remember. Ook
  *	1.10
  *		Fixed a bug in charToWchar() that caused the conversion to always fail.
+ *	1.11
+ *		Added strip() function.
  *
  * © ScriptsDB.org - 2005
  */
@@ -2372,10 +2374,9 @@ TString &TString::strip() {
 	// now strip all ctrl codes.
 	WCHAR *wtxt = start, *p = temp;
 	UINT pos = 0, tpos = 0;
-	WCHAR c = 0;
 
 	// strip out ctrl codes to correctly position text.
-	while (pos < new_len) {
+	for (WCHAR c; pos < new_len; pos++) {
 		c = wtxt[pos];
 		switch (c)
 		{
@@ -2411,7 +2412,6 @@ TString &TString::strip() {
 			p[tpos++] = c;
 			break;
 		}
-		pos++;
 	}
 	p[tpos] = 0;
 
