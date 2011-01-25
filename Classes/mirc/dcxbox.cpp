@@ -750,21 +750,18 @@ void DcxBox::DrawClientArea(HDC hdc)
 	int n = TGetWindowText(this->m_Hwnd, wtext);
 
 	GetClientRect(this->m_Hwnd, &rc);
-	CopyRect(&rc2, &rc);
 
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc,true);
 
-	//DcxControl::DrawCtrlBackground(hdc, this, &rc2); //Moved out from the if, becase of painting-bug (Alpha)
-	// having this here messes up all boxes with a border.
-	// exp boxes that have a border & text.
-
 	// if no border, dont bother
 	if (this->m_iBoxStyles & BOXS_NONE) {
-		DcxControl::DrawCtrlBackground(hdc, this, &rc2);
+		DcxControl::DrawCtrlBackground(hdc, this, &rc);
 		this->FinishAlphaBlend(ai);
 		return;
 	}
+
+	CopyRect(&rc2, &rc);
 
 	SetBkMode(hdc, TRANSPARENT);
 
@@ -805,10 +802,12 @@ void DcxBox::DrawClientArea(HDC hdc)
 				IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
 			);
 
-		if (this->m_bCtrlCodeText)
-			calcStrippedRect(hdc, wtext, 0, &rcText, false);
-		else
-			DrawTextW(hdc, wtext.to_chr(), n, &rcText, DT_CALCRECT);
+		CopyRect(&rcText, &rc); // MUST initialize rect first!.
+		//if (this->m_bCtrlCodeText)
+		//	calcStrippedRect(hdc, wtext, 0, &rcText, false);
+		//else
+		//	DrawTextW(hdc, wtext.to_chr(), n, &rcText, DT_CALCRECT);
+		this->calcTextRect(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS);
 		//if (this->m_bShadowText) {
 		//	rcText.bottom += 6;
 		//	rcText.right += 6;

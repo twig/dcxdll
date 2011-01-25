@@ -187,9 +187,6 @@ protected:
 	bool m_bShadowText;				//!< Text is drawn with a shadow.
 	bool m_bCtrlCodeText;			//!< mIRCTEXT('s ctrl codes are used to change the text')s appearance.
 	bool m_bNoTheme;				//!< Control isn't themed.
-#if !UNICODE
-	bool m_bUseUTF8;				//!< Control has utf8 text.
-#endif
 	//int m_iThemePartId;
 	/* ***** */
 
@@ -207,8 +204,8 @@ protected:
 	LRESULT CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	static void InvalidateParentRect(HWND hwnd);
 	void DrawControl(HDC hDC, HWND hwnd);
-	void ctrlDrawText(HDC hdc, TString txt, const LPRECT rc, const UINT style);
-	//void calcTextRect(HDC hdc, TString &txt, LPRECT rc, const UINT style);
+	void ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style);
+	void calcTextRect(HDC hdc, const TString &txt, LPRECT rc, const UINT style);
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

@@ -1973,41 +1973,29 @@ void DcxControl::InvalidateParentRect(HWND hwnd)
 	InvalidateRect(parent, &rc, TRUE);
 }
 
-//void DcxControl::calcTextRect(HDC hdc, TString &txt, LPRECT rc, const UINT style)
-//{
-//	if (this->m_bCtrlCodeText)
-//		calcStrippedRect(hdc, txt, style, rc, false, this->m_bUseUTF8);
-//	else if (this->m_bShadowText)
-//		dcxDrawShadowText(hdc, txt.to_wchr(), txt.wlen(), rc, style | DT_CALCRECT, this->m_clrText, 0,5,5);
-//	else
-//		DrawTextW(hdc, txt.to_wchr(this->m_bUseUTF8), txt.wlen(), rc, style | DT_CALCRECT);
-//}
-
-void DcxControl::ctrlDrawText(HDC hdc, TString txt, const LPRECT rc, const UINT style)
+void DcxControl::calcTextRect(HDC hdc, const TString &txt, LPRECT rc, const UINT style)
 {
-#if UNICODE
+	TString t(txt);
+	if (this->m_bCtrlCodeText)
+		t.strip();
+	if (this->m_bShadowText)
+		dcxDrawShadowText(hdc, t.to_chr(), t.len(), rc, style | DT_CALCRECT, this->m_clrText, 0,5,5);
+	else
+		DrawText(hdc, t.to_chr(), t.len(), rc, style | DT_CALCRECT);
+}
+
+void DcxControl::ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style)
+{
 	if (!this->m_bCtrlCodeText) {
 		int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 		if (this->m_bShadowText)
 			dcxDrawShadowText(hdc, txt.to_chr(), txt.len(), rc, style, this->m_clrText, 0, 5, 5);
 		else
-			DrawTextW(hdc, txt.to_chr(), txt.len(), rc, style);
+			DrawText(hdc, txt.to_chr(), txt.len(), rc, style);
 		SetBkMode(hdc, oldBkgMode);
 	}
 	else
 		mIRC_DrawText(hdc, txt, rc, style, this->m_bShadowText);
-#else
-	if (!this->m_bCtrlCodeText) {
-		int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
-		if (this->m_bShadowText)
-			dcxDrawShadowText(hdc, txt.to_wchr(this->m_bUseUTF8), txt.wlen(), rc, style, this->m_clrText, 0, 5, 5);
-		else
-			DrawTextW(hdc, txt.to_wchr(this->m_bUseUTF8), txt.wlen(), rc, style);
-		SetBkMode(hdc, oldBkgMode);
-	}
-	else
-		mIRC_DrawText(hdc, txt, rc, style, this->m_bShadowText, this->m_bUseUTF8);
-#endif
 }
 
 TString DcxControl::getStyles(void) {
@@ -2016,7 +2004,7 @@ TString DcxControl::getStyles(void) {
 	exStyles = GetWindowExStyle(this->m_Hwnd);
 	Styles = GetWindowStyle(this->m_Hwnd);
 	if ( Dcx::XPPlusModule.dcxGetWindowTheme(this->m_Hwnd) == NULL )
-		result = TEXT("notheme ");
+		result = TEXT("notheme");
 	if ( Styles & WS_TABSTOP ) 
 		result.addtok(TEXT("tabstop"));
 	if ( Styles & WS_GROUP ) 
@@ -2039,10 +2027,7 @@ TString DcxControl::getStyles(void) {
 		else 
 			result.addtok(TEXT("hgradient"));
 	}
-#if !UNICODE
-	if ( this->m_bUseUTF8 ) 
-		result.addtok(TEXT("utf8"));
-#endif
+	result.addtok(TEXT("utf8"));
 	return result;
 }
 
@@ -2071,7 +2056,8 @@ void DcxControl::toXml(TiXmlElement * xml) {
 
 	xml->SetAttribute("id", getUserID());
 	xml->SetAttribute("type", getType().c_str());
-	if (styles.len() > 0) xml->SetAttribute("styles", styles.c_str());
+	if (styles.len() > 0)
+		xml->SetAttribute("styles", styles.c_str());
 }
 
 TiXmlElement * DcxControl::toXml(void) {

@@ -35,6 +35,8 @@
  *		More changes & shit than i can remember. Ook
  *	1.10
  *		Fixed a bug in charToWchar() that caused the conversion to always fail.
+ *	1.11
+ *		Added strip() function.
  *
  * © ScriptsDB.org - 2005
  */
