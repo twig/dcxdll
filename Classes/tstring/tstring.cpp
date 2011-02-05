@@ -2372,12 +2372,11 @@ TString &TString::strip() {
 	temp[new_len] = 0;
 
 	// now strip all ctrl codes.
-	WCHAR *wtxt = start, *p = temp;
+	TCHAR *wtxt = start, *p = temp;
 	UINT pos = 0, tpos = 0;
 
 	// strip out ctrl codes to correctly position text.
-	for (WCHAR c; pos < new_len; pos++) {
-		c = wtxt[pos];
+	for (TCHAR c = wtxt[pos]; pos < new_len; c = wtxt[++pos]) {
 		switch (c)
 		{
 		case 2:  // ctrl-b Bold
@@ -2388,6 +2387,7 @@ TString &TString::strip() {
 			break;
 		case 3: // ctrl-k Colour
 			{
+				while (wtxt[pos+1] == 3) pos++; // remove multiple consecutive ctrl-k's
 				if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
 					++pos;
 

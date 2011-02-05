@@ -227,6 +227,8 @@ using namespace Gdiplus;
 #endif
 #endif
 
+#include "VertDraw.h"
+
 #include "classes/dcxdialogcollection.h"
 
 #include "AggressiveOptimize.h"
@@ -428,23 +430,19 @@ SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
 
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl);
-void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
+void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
 #ifdef DCX_USE_GDIPLUS
 const TCHAR *GetLastStatusStr(Status status);
 #endif
 bool IsFile(TString &filename);
-#if UNICODE
-void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
-void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style, const bool shadow);
-#else
-void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft, const bool tryutf8);
-void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style, const bool shadow, const bool tryutf8);
-#endif
+//void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
+void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, const bool shadow);
 HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc);
 void DeleteHDCBuffer(HDC *hBuffer);
 int TGetWindowText(HWND hwnd, TString &txt);
 void FreeOSCompatibility(void);
 BOOL isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
+void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0);
 
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);

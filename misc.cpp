@@ -700,20 +700,26 @@ void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl)
 		SendMessage(tiphwnd,TTM_ADDTOOL,NULL,(LPARAM)&ti);
 }
 
-void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset)
+void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset)
 {
-	if (DrawShadowText(hdc, pszText, cch, (RECT *)pRect, dwFlags, crText, crShadow, ixOffset, iyOffset) == 0)
+	if (DrawShadowText(hdc, pszText, cch, pRect, dwFlags, crText, crShadow, ixOffset, iyOffset) == 0)
 	{
-		// Normal DrawShadow Failed...
-		RECT rcOffset;
-		COLORREF old_clr;
-		CopyRect(&rcOffset, pRect);
-		OffsetRect(&rcOffset, ixOffset, iyOffset);
-		old_clr = SetTextColor(hdc, crShadow);
-		DrawTextW(hdc, pszText, cch, &rcOffset, dwFlags);
-		SetTextColor(hdc, crText);
-		DrawTextW(hdc, pszText, cch, (LPRECT)pRect, dwFlags);
-		SetTextColor(hdc, old_clr);
+		if (dwFlags & DT_CALCRECT) {
+			DrawTextW(hdc, pszText, cch, pRect, dwFlags);
+			OffsetRect(pRect, ixOffset, iyOffset);
+		}
+		else {
+			// Normal DrawShadow Failed...
+			RECT rcOffset;
+			COLORREF old_clr;
+			CopyRect(&rcOffset, pRect);
+			OffsetRect(&rcOffset, ixOffset, iyOffset);
+			old_clr = SetTextColor(hdc, crShadow);
+			DrawTextW(hdc, pszText, cch, &rcOffset, dwFlags);
+			SetTextColor(hdc, crText);
+			DrawTextW(hdc, pszText, cch, (LPRECT)pRect, dwFlags);
+			SetTextColor(hdc, old_clr);
+		}
 	}
 }
 #ifdef DCX_USE_GDIPLUS
@@ -872,59 +878,57 @@ int unfoldColor(const WCHAR *color) {
 	return nColor;
 }
 
-void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft)
-{
-	if (!ignoreleft || (style & DT_CENTER) || (style & DT_RIGHT)) {
-		TString stripped_txt;
-		WCHAR *wtxt = const_cast<TString &>(txt).to_chr();
-		UINT pos = 0, len = (UINT)txt.len();
-		WCHAR c = 0;
-
-		if ((len == 0) || (wtxt == NULL))
-			return;
-
-		// strip out ctrl codes to correctly position text.
-		while (pos < len) {
-			c = wtxt[pos];
-			switch (c)
-			{
-			case 2:  // ctrl-b Bold
-			case 15: // ctrl-o
-			case 22: // ctrl-r Reverse
-			case 29: // ctrl-i Italics
-			case 31: // ctrl-u Underline
-				break;
-			case 3: // ctrl-k Colour
-				{
-					if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
-						++pos;
-
-						if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
-							pos++;
-
-						// maybe a background color
-						if (wtxt[pos+1] == L',') {
-							++pos;
-
-							if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
-								pos++;
-
-								if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
-									++pos;
-							}
-						}
-					}
-				}
-				break;
-			default:
-				stripped_txt += c;
-				break;
-			}
-			pos++;
-		}
-		DrawTextW(hdc, stripped_txt.to_chr(), (int)stripped_txt.len(), rc, style | DT_CALCRECT);
-	}
-}
+//void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft)
+//{
+//	if (!ignoreleft || (style & DT_CENTER) || (style & DT_RIGHT)) {
+//		TString stripped_txt;
+//		const WCHAR *wtxt = txt.to_chr();
+//		UINT pos = 0, len = (UINT)txt.len();
+//
+//		if ((len == 0) || (wtxt == NULL))
+//			return;
+//
+//		// strip out ctrl codes to correctly position text.
+//		for (WCHAR c = wtxt[pos]; pos < len; c = wtxt[++pos]) {
+//			switch (c)
+//			{
+//			case 2:  // ctrl-b Bold
+//			case 15: // ctrl-o
+//			case 22: // ctrl-r Reverse
+//			case 29: // ctrl-i Italics
+//			case 31: // ctrl-u Underline
+//				break;
+//			case 3: // ctrl-k Colour
+//				{
+//					while (wtxt[pos+1] == 3) pos++; // remove multiple consecutive ctrl-k's
+//					if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+//						++pos;
+//
+//						if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
+//							pos++;
+//
+//						// maybe a background color
+//						if (wtxt[pos+1] == L',') {
+//							++pos;
+//
+//							if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+//								pos++;
+//
+//								if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
+//									++pos;
+//							}
+//						}
+//					}
+//				}
+//				break;
+//			default:
+//				stripped_txt += c;
+//				break;
+//			}
+//		}
+//		DrawText(hdc, stripped_txt.to_chr(), (int)stripped_txt.len(), rc, style | DT_CALCRECT);
+//	}
+//}
 
 void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow)
 {
@@ -932,23 +936,29 @@ void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const
 	if (len > 0) {
 		TEXTMETRICW tm;
 		HFONT hOldFont = SelectFont( hdc, CreateFontIndirect( lf ) );
-		GetTextMetricsW(hdc, &tm);
+		GetTextMetrics(hdc, &tm);
 		RECT rcTmp = *rcOut;
-		DrawTextW(hdc, txt.to_chr(), len, &rcTmp, iStyle | DT_CALCRECT);
+		if ((iStyle & DT_CALCRECT) != DT_CALCRECT) {	// if DT_CALCRECT flag NOT given then do calcrect here.
+			//DrawText(hdc, txt.to_chr(), len, &rcTmp, iStyle | DT_CALCRECT);
+			if (shadow)
+				dcxDrawShadowText(hdc,txt.to_chr(), len, &rcTmp, iStyle | DT_CALCRECT, clrFG, 0, 5, 5);
+			else
+				DrawText(hdc, txt.to_chr(), len, &rcTmp, iStyle | DT_CALCRECT);
+		}
 		if (shadow)
 			dcxDrawShadowText(hdc,txt.to_chr(), len, &rcTmp, iStyle, clrFG, 0, 5, 5);
 		else
-			DrawTextW(hdc, txt.to_chr(), len, &rcTmp, iStyle);
-		rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
+			DrawText(hdc, txt.to_chr(), len, &rcTmp, iStyle);
+		rcOut->left += (rcTmp.right - rcTmp.left) /*- tm.tmOverhang*/;
 		DeleteFont(SelectFont( hdc, hOldFont ));
 	}
 	txt = TEXT("");
 }
 
-void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style, const bool shadow)
+void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, const bool shadow)
 {
 	LOGFONT lf;
-	WCHAR *wtxt = const_cast<TString &>(txt).to_chr();
+	const WCHAR *wtxt = txt.to_chr();
 	int /*savedDC,*/ pos = 0, len = (int)txt.len();
 	TString tmp;
 	RECT rcOut = *rc;
@@ -989,26 +999,30 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 
 	SetBkMode(hdc,TRANSPARENT);
 
-	if ((style & DT_CENTER) || (style & DT_RIGHT) || (style & DT_VCENTER)) {
-		// strip out ctrl codes to correctly position text.
-		RECT rcTmp = *rc;
-		calcStrippedRect(hdc, txt, iStyle, &rcTmp, false);
-		// style can be either center or right, not both, but it can be center+vcenter or right+vcenter
-		if (style & DT_CENTER) { // get center text start offset
-			// (total width) - (required width) / 2 = equal space to each side.
-			origLeft = rcOut.left = (((rcOut.right - rcOut.left) - (rcTmp.right - rcTmp.left)) / 2);
+	if ((iStyle & DT_CALCRECT) != DT_CALCRECT) { // if NOT doing DT_CALCRECT calc rect needed here.
+		//mIRC_DrawText(hdc, txt, &rcOut, style | DT_CALCRECT, shadow);
+		if (((style & DT_CENTER) == DT_CENTER) || ((style & DT_RIGHT) == DT_RIGHT) || ((style & DT_VCENTER) == DT_VCENTER)) {
+			// strip out ctrl codes to correctly position text.
+			RECT rcTmp = *rc;
+			//calcStrippedRect(hdc, txt, iStyle, &rcTmp, false);
+			TString t(txt);
+			DrawText(hdc, t.strip().to_chr(), t.len(), &rcTmp, style | DT_CALCRECT);
+			// style can be either center or right, not both, but it can be center+vcenter or right+vcenter
+			if ((style & DT_CENTER) == DT_CENTER) { // get center text start offset
+				// (total width) - (required width) / 2 = equal space to each side.
+				origLeft = rcOut.left = (((rcOut.right - rcOut.left) - (rcTmp.right - rcTmp.left)) / 2);
+			}
+			else if ((style & DT_RIGHT) == DT_RIGHT) { // get right text start offset
+				// adjust start to right
+				origLeft = rcOut.left = rcOut.right - (rcTmp.right - rcTmp.left);
+			}
+			if ((style & DT_VCENTER) == DT_VCENTER) { // get Veritcal center text start offset
+				rcOut.top += (((rcOut.bottom - rcOut.top) - (rcTmp.bottom - rcTmp.top)) / 2);
+			}
 		}
-		else if (style & DT_RIGHT) { // get right text start offset
-			// adjust start to right
-			origLeft = rcOut.left = rcOut.right - (rcTmp.right - rcTmp.left);
-		}
-		if (style & DT_VCENTER) { // get Veritcal center text start offset
-			rcOut.top += (((rcOut.bottom - rcOut.top) - (rcTmp.bottom - rcTmp.top)) / 2);
-		}
+
 	}
-	WCHAR c;
-	while (pos < len) {
-		c = wtxt[pos];
+	for (WCHAR c = wtxt[pos]; pos < len; c = wtxt[++pos]) {
 		switch (c)
 		{
 		case 2: // Bold
@@ -1025,6 +1039,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 			{
 				if (tmp.len() > 0)
 					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+				while (wtxt[pos+1] == 3) pos++; // remove multiple consecutive ctrl-k's
 				SetBkMode(hdc,TRANSPARENT);
 				//usingBGclr = false;
 				if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
@@ -1080,8 +1095,9 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 			{
 				if (tmp.len() > 0)
 					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+				while (wtxt[pos+1] == 15) pos++; // remove multiple consecutive ctrl-o's
 				lf.lfWeight = origWeight;
-				lf.lfUnderline = false;
+				lf.lfUnderline = 0;
 				clrFG = origFG;
 				clrBG = origBG;
 				SetTextColor(hdc, origFG);
@@ -1125,12 +1141,13 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 		case 13:
 			{
 				if (iStyle & DT_SINGLELINE) { // when single line, replace with a space or ignore?
-					tmp += L' '; //" ";
+					while ((wtxt[pos+1] == 13) || (wtxt[pos+1] == 10)) pos++; // remove multiple consecutive line feeds
+					tmp += TEXT(' '); //" ";
 				}
 				else {
 					SIZE sz;
 					int tlen = (int)tmp.len();
-					GetTextExtentPoint32W(hdc, tmp.to_chr(), tlen, &sz);
+					GetTextExtentPoint32(hdc, tmp.to_chr(), tlen, &sz);
 					if (tlen > 0)
 						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 					rcOut.top += sz.cy;
@@ -1140,12 +1157,12 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 			break;
 		default: // normal TCHAR
 			{
-				if (!(iStyle & DT_SINGLELINE)) { // don't bother if a single line.
+				if ((iStyle & DT_SINGLELINE) != DT_SINGLELINE) { // don't bother if a single line.
 					int tlen = (int)tmp.len();
 					if (tlen > 0) {
 						SIZE sz;
 						int nFit;
-						GetTextExtentExPointW(hdc, const_cast<TString &>(txt).to_chr(), tlen, (rcOut.right - rcOut.left), &nFit, NULL, &sz);
+						GetTextExtentExPoint(hdc, txt.to_chr(), tlen, (rcOut.right - rcOut.left), &nFit, NULL, &sz);
 						if (nFit < tlen) {
 							if (nFit > 0) {
 								WCHAR o = tmp.to_chr()[nFit];
@@ -1167,13 +1184,18 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 			}
 			break;
 		}
-		pos++;
 	}
 	if (tmp.len() > 0)
 		mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 	//RestoreDC(hdc, savedDC);
 
-	BitBlt(oldHDC, rc->left, rc->top, (rc->right - rc->left), (rc->bottom - rc->top), hdc, 0, 0, SRCCOPY);
+	if ((iStyle & DT_CALCRECT) != DT_CALCRECT)
+		BitBlt(oldHDC, rc->left, rc->top, (rc->right - rc->left), (rc->bottom - rc->top), hdc, 0, 0, SRCCOPY);
+	else { // calc rect only
+		OffsetRect(&rcOut, rc->left, rc->top);
+		CopyRect(rc, &rcOut);
+	}
+
 	hdc = oldHDC;
 	DeleteHDCBuffer(hBuffer);
 }
@@ -1472,3 +1494,50 @@ BOOL dcxGetWindowRect(HWND hWnd, LPRECT lpRect)
 
 	return GetWindowRect(hWnd, lpRect);
 }
+/*
+	*	DrawRotatedText() function taken from ms example & modified for our needs.
+*/
+void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngleLine/* = 0*/, const bool bEnableAngleChar /*= false*/, const int nAngleChar /*= 0*/) {
+
+	if ((nAngleLine == 0) && (!bEnableAngleChar)) {
+		TextOut(hDC, rc->left, rc->bottom, strDraw.to_chr(), strDraw.len());
+		//DrawText(hDC, strDraw.to_chr(), strDraw.len(), rc, styles);
+		return;
+	}
+	LOGFONT lf = { 0 };
+	HFONT hFont = (HFONT) GetCurrentObject(hDC, OBJ_FONT);
+
+	GetObject(hFont, sizeof(LOGFONT), &lf);
+
+	// Set the background mode to transparent for the
+	// text-output operation.
+	int nOldBkMode = SetBkMode(hDC, TRANSPARENT);
+	// Specify the angle to draw line
+	lf.lfEscapement = nAngleLine*10;
+	int nOldGMode;
+	if( bEnableAngleChar ) // Enable character angle
+	{
+		// Set graphics mode to advance to enable orientation
+		nOldGMode = SetGraphicsMode( hDC, GM_ADVANCED );
+		// Specify the angle of characters
+		lf.lfOrientation = nAngleChar*10;
+	}
+	else // Draw in normal mode
+	{
+		nOldGMode = SetGraphicsMode( hDC, GM_COMPATIBLE );
+	}
+	// Select the new font created
+	hFont = CreateFontIndirect(&lf);
+	if (hFont != NULL) {
+		HFONT hPrevFont = SelectFont(hDC, hFont);
+		// Draw text to screen
+		//TextOut(hDC, rc->right / 2, rc->bottom / 2, strDraw.to_chr(), strDraw.len());
+		TextOut(hDC, rc->left, rc->bottom, strDraw.to_chr(), strDraw.len());
+		//DrawText(hDC, strDraw.to_chr(), strDraw.len(), rc, styles);
+		SelectFont(hDC, hPrevFont);
+		DeleteFont(hFont);
+	}
+	// Restore old values
+	SetBkMode( hDC, nOldBkMode );
+	SetGraphicsMode( hDC, nOldGMode );
+} 

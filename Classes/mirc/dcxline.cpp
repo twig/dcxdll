@@ -166,19 +166,19 @@ void DcxLine::parseCommandRequest( TString & input ) {
 	if (flags[TEXT('t')]) {
 		this->m_sText = input.gettok(4, -1).trim();
 
-		if (this->m_bVertical) {
-			HFONT hFont = (HFONT)this->getFont(), hVFont = NULL;
-			if (hFont == NULL)
-				hFont = GetStockFont(DEFAULT_GUI_FONT);
-			LOGFONT lf;
-			ZeroMemory(&lf, sizeof(LOGFONT));
-			GetObject(hFont, sizeof(LOGFONT), &lf);
-			lf.lfEscapement = 900;
-			lf.lfOrientation = 900;
-			hVFont = CreateFontIndirect(&lf);
-			if (hVFont != NULL)
-				this->setControlFont(hVFont, FALSE);
-		}
+		//if (this->m_bVertical) {
+		//	HFONT hFont = (HFONT)this->getFont(), hVFont = NULL;
+		//	if (hFont == NULL)
+		//		hFont = GetStockFont(DEFAULT_GUI_FONT);
+		//	LOGFONT lf;
+		//	ZeroMemory(&lf, sizeof(LOGFONT));
+		//	GetObject(hFont, sizeof(LOGFONT), &lf);
+		//	lf.lfEscapement = 900;
+		//	lf.lfOrientation = 900;
+		//	hVFont = CreateFontIndirect(&lf);
+		//	if (hVFont != NULL)
+		//		this->setControlFont(hVFont, FALSE);
+		//}
 		// redraw if transparent
 		if (this->isExStyle(WS_EX_TRANSPARENT)) {
 
@@ -265,15 +265,15 @@ void DcxLine::DrawClientArea(HDC hdc)
 
 	// draw text if any.
 	if (this->m_sText.len() > 0) {
+		HFONT oldhFont = NULL;
 		if (this->m_hFont != NULL)
-			SelectObject(hdc, this->m_hFont);
+			oldhFont = SelectFont(hdc, this->m_hFont);
 
-		if (this->m_clrText != -1)
+		if (this->m_clrText != CLR_INVALID)
 			SetTextColor(hdc, this->m_clrText);
 		else
-			SetTextColor(hdc, GetSysColor(
-				IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
-			);
+			SetTextColor(hdc, GetSysColor(IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
+
 		UINT style = 0;
 		if (this->isStyle(SS_ENDELLIPSIS))
 			style |= DT_END_ELLIPSIS;
@@ -284,9 +284,21 @@ void DcxLine::DrawClientArea(HDC hdc)
 		if (this->isStyle(SS_LEFTNOWORDWRAP))
 			style |= DT_SINGLELINE;
 		if (this->m_bVertical) {
-			//style |= DT_CENTER;
+			// orig ver, relies on vertical font being set when -t command is used.
+			//SIZE sz;
+			//int oMode = SetBkMode(hdc, TRANSPARENT);
+			//GetTextExtentPoint32(hdc,this->m_sText.to_chr(),this->m_sText.len(), &sz);
+			//rcText.bottom = rcText.top + sz.cx;
+			//rcText.right = rcText.left + sz.cy;
+			//if (this->isStyle(SS_CENTER))
+			//	OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),((rcClient.bottom - rcClient.top)/2) - ((rcText.bottom - rcText.top)/2));
+			//else if (this->isStyle(SS_RIGHT))
+			//	OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),rcClient.bottom - (rcText.bottom - rcText.top));
+			//TextOut(hdc,rcText.left, rcText.bottom, this->m_sText.to_chr(), this->m_sText.len());
+			//SetBkMode(hdc, oMode);
+			// new working ver that does the same as the orig but using the current font.
 			SIZE sz;
-			SetBkMode(hdc, TRANSPARENT);
+			int oMode = SetBkMode(hdc, TRANSPARENT);
 			GetTextExtentPoint32(hdc,this->m_sText.to_chr(),this->m_sText.len(), &sz);
 			rcText.bottom = rcText.top + sz.cx;
 			rcText.right = rcText.left + sz.cy;
@@ -294,38 +306,37 @@ void DcxLine::DrawClientArea(HDC hdc)
 				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),((rcClient.bottom - rcClient.top)/2) - ((rcText.bottom - rcText.top)/2));
 			else if (this->isStyle(SS_RIGHT))
 				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),rcClient.bottom - (rcText.bottom - rcText.top));
-			TextOut(hdc,rcText.left, rcText.bottom, this->m_sText.to_chr(), this->m_sText.len());
+			DrawRotatedText(this->m_sText, &rcText, hdc, 90, true, 90);
+			SetBkMode(hdc, oMode);
+			// test ver that uses a diff routine entierly to draw vertical text
+			//int oMode = SetBkMode(hdc, TRANSPARENT);
+			//UINT dvStyle = DV_BOTTOM|DV_HCENTER;
+			//DrawVertText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, dvStyle | DV_CALCRECT);
+			//if (this->isStyle(SS_CENTER))
+			//	OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),((rcClient.bottom - rcClient.top)/2) - ((rcText.bottom - rcText.top)/2));
+			//else if (this->isStyle(SS_RIGHT))
+			//	OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),rcClient.bottom - (rcText.bottom - rcText.top));
+			//DrawVertText(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, dvStyle);
+			//SetBkMode(hdc, oMode);
 		}
 		else {
 			style |= DT_LEFT|DT_VCENTER;
-#if UNICODE
-			if (this->m_bCtrlCodeText)
-				calcStrippedRect(hdc, this->m_sText, style, &rcText, false);
-			else
-				DrawTextW(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, DT_CALCRECT | style);
-#else
-			if (this->m_bCtrlCodeText)
-				calcStrippedRect(hdc, this->m_sText, style, &rcText, false, this->m_bUseUTF8);
-			else
-				DrawTextW(hdc, this->m_sText.to_wchr(this->m_bUseUTF8), this->m_sText.wlen(), &rcText, DT_CALCRECT | style);
-#endif
+			//if (this->m_bCtrlCodeText)
+			//	calcStrippedRect(hdc, this->m_sText, style, &rcText, false);
+			//else
+			//	DrawTextW(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, DT_CALCRECT | style);
+			this->calcTextRect(hdc, this->m_sText, &rcText, style);
 			if (this->isStyle(SS_CENTER))
 				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),0);
 			else if (this->isStyle(SS_RIGHT))
 				OffsetRect(&rcText,rcClient.right - (rcText.right - rcText.left),0);
 
 			// draw the text
-			//if (!this->m_bCtrlCodeText) {
-			//	SetBkMode(hdc, TRANSPARENT);
-			//	if (this->m_bShadowText)
-			//		dcxDrawShadowText(hdc,this->m_sText.to_wchr(this->m_bUseUTF8), this->m_sText.wlen(),&rcText, style, this->m_clrText, 0, 5, 5);
-			//	else
-			//		DrawTextW(hdc, this->m_sText.to_wchr(this->m_bUseUTF8), this->m_sText.wlen(), &rcText, style);
-			//}
-			//else
-			//	mIRC_DrawText(hdc, this->m_sText, &rcText, style, this->m_bShadowText, this->m_bUseUTF8);
 			this->ctrlDrawText(hdc, this->m_sText, &rcText, style);
 		}
+		if (oldhFont != NULL)
+			SelectFont(hdc, oldhFont);
+
 		ExcludeClipRect(hdc,rcText.left, rcText.top, rcText.right, rcText.bottom);
 	}
 	if (this->m_bVertical) {
