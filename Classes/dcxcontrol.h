@@ -205,8 +205,8 @@ protected:
 	LRESULT CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	static void InvalidateParentRect(HWND hwnd);
 	void DrawControl(HDC hDC, HWND hwnd);
-	void ctrlDrawText(HDC hdc, TString txt, const LPRECT rc, const UINT style);
-	//void calcTextRect(HDC hdc, TString &txt, LPRECT rc, const UINT style);
+	void ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style);
+	void calcTextRect(HDC hdc, const TString &txt, LPRECT rc, const UINT style);
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

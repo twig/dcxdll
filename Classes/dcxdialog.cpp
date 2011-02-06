@@ -645,6 +645,7 @@ void DcxDialog::parseCommandRequest( TString &input) {
 
 						if (p_GetCell == NULL) {
 							this->showErrorEx(NULL, "-l", "Invalid item path: %s", path.to_chr());
+							delete p_Cell;
 							return;
 						}
 
@@ -1153,18 +1154,24 @@ void DcxDialog::parseCommandRequest( TString &input) {
 			}
 
 			int cnt = 1;
-			POINT *pnts = new POINT[tPoints];
+			try {
+				POINT *pnts = new POINT[tPoints];
 
-			while (cnt <= tPoints) {
-				strPoint = strPoints.gettok( cnt );
-				pnts[cnt-1].x = (LONG)strPoint.gettok(1, TSCOMMA).to_num();
-				pnts[cnt-1].y = (LONG)strPoint.gettok(2, TSCOMMA).to_num();
-				cnt++;
+				while (cnt <= tPoints) {
+					strPoint = strPoints.gettok( cnt );
+					pnts[cnt-1].x = (LONG)strPoint.gettok(1, TSCOMMA).to_num();
+					pnts[cnt-1].y = (LONG)strPoint.gettok(2, TSCOMMA).to_num();
+					cnt++;
+				}
+
+				m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
+
+				delete [] pnts;
 			}
-
-			m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
-
-			delete [] pnts;
+			catch (std::bad_alloc) {
+				this->showError(NULL, TEXT("-R +p"), TEXT("Unable to Allocate Memory"));
+				return;
+			}
 		}
 		else if (flag.find('d',0)) // drag - <1|0>
 		{

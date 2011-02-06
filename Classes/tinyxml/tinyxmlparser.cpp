@@ -1185,10 +1185,11 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 			// Take what we have, make a text element.
 			TiXmlText* textNode = new TiXmlText( "" );
 
-			if ( !textNode )
+			if ( textNode == NULL)
 			{
-				if ( document ) document->SetError( TIXML_ERROR_OUT_OF_MEMORY, 0, 0, encoding );
-				    return 0;
+				if ( document )
+					document->SetError( TIXML_ERROR_OUT_OF_MEMORY, 0, 0, encoding );
+			    return 0;
 			}
 
 			if ( TiXmlBase::IsWhiteSpaceCondensed() )

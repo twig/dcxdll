@@ -2009,24 +2009,25 @@ void DcxControl::InvalidateParentRect(HWND hwnd)
 	InvalidateRect(parent, &rc, TRUE);
 }
 
-//void DcxControl::calcTextRect(HDC hdc, TString &txt, LPRECT rc, const UINT style)
-//{
-//	if (this->m_bCtrlCodeText)
-//		calcStrippedRect(hdc, txt, style, rc, false, this->m_bUseUTF8);
-//	else if (this->m_bShadowText)
-//		dcxDrawShadowText(hdc, txt.to_wchr(), txt.wlen(), rc, style | DT_CALCRECT, this->m_clrText, 0,5,5);
-//	else
-//		DrawTextW(hdc, txt.to_wchr(this->m_bUseUTF8), txt.wlen(), rc, style | DT_CALCRECT);
-//}
+void DcxControl::calcTextRect(HDC hdc, const TString &txt, LPRECT rc, const UINT style)
+{
+	TString t(txt);
+	if (this->m_bCtrlCodeText)
+		t.strip();
+	if (this->m_bShadowText)
+		dcxDrawShadowText(hdc, t.to_wchr(this->m_bUseUTF8), t.wlen(), rc, style | DT_CALCRECT, this->m_clrText, 0,5,5);
+	else
+		DrawTextW(hdc, t.to_wchr(this->m_bUseUTF8), t.wlen(), rc, style | DT_CALCRECT);
+}
 
-void DcxControl::ctrlDrawText(HDC hdc, TString txt, const LPRECT rc, const UINT style)
+void DcxControl::ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style)
 {
 	if (!this->m_bCtrlCodeText) {
 		int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 		if (this->m_bShadowText)
-			dcxDrawShadowText(hdc, txt.to_wchr(this->m_bUseUTF8), txt.wlen(), rc, style, this->m_clrText, 0, 5, 5);
+			dcxDrawShadowText(hdc, const_cast<TString &>(txt).to_wchr(this->m_bUseUTF8), txt.wlen(), rc, style, this->m_clrText, 0, 5, 5);
 		else
-			DrawTextW(hdc, txt.to_wchr(this->m_bUseUTF8), txt.wlen(), rc, style);
+			DrawTextW(hdc, const_cast<TString &>(txt).to_wchr(this->m_bUseUTF8), txt.wlen(), rc, style);
 		SetBkMode(hdc, oldBkgMode);
 	}
 	else

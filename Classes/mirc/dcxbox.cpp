@@ -416,6 +416,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
 
 						if ( p_GetCell == NULL ) {
 							this->showErrorEx(NULL,"-l", "Invalid item path: %s", path.to_chr( ) );
+							delete p_Cell;
 							return;
 						}
 
@@ -749,20 +750,18 @@ void DcxBox::DrawClientArea(HDC hdc)
 	int n = TGetWindowText(this->m_Hwnd, wtext);
 
 	GetClientRect(this->m_Hwnd, &rc);
-	CopyRect(&rc2, &rc);
 
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc,true);
 
-	//DcxControl::DrawCtrlBackground(hdc, this, &rc2); //Moved out from the if, becase of painting-bug (Alpha)
-	// having this here messes up all boxes with a border.
-	// exp boxes that have a border & text.
-
 	// if no border, dont bother
 	if (this->m_iBoxStyles & BOXS_NONE) {
-		DcxControl::DrawCtrlBackground(hdc, this, &rc2);
+		DcxControl::DrawCtrlBackground(hdc, this, &rc);
+		this->FinishAlphaBlend(ai);
 		return;
 	}
+
+	CopyRect(&rc2, &rc);
 
 	SetBkMode(hdc, TRANSPARENT);
 
@@ -799,18 +798,15 @@ void DcxBox::DrawClientArea(HDC hdc)
 		if (this->m_clrText != CLR_INVALID)
 			SetTextColor(hdc, this->m_clrText);
 		else
-			SetTextColor(hdc, GetSysColor(
-				IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
-			);
+			SetTextColor(hdc, GetSysColor(IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
 
-		if (this->m_bCtrlCodeText)
-			calcStrippedRect(hdc, wtext, 0, &rcText, false, this->m_bUseUTF8);
-		else
-			DrawTextW(hdc, wtext.to_wchr(this->m_bUseUTF8), n, &rcText, DT_CALCRECT);
-		//if (this->m_bShadowText) {
-		//	rcText.bottom += 6;
-		//	rcText.right += 6;
-		//}
+		CopyRect(&rcText, &rc); // MUST initialize rect first!.
+
+		this->calcTextRect(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS |DT_SINGLELINE);
+		if (this->m_bShadowText) {
+			rcText.bottom = min((rcText.bottom +6), rc.bottom);
+			rcText.right = min((rcText.right +6), rc.right);
+		}
 
 		int w = rcText.right - rcText.left;
 		int h = rcText.bottom - rcText.top;
@@ -889,7 +885,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 		SelectClipRgn(hdc,NULL);
 
 		// draw the text
-		this->ctrlDrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS);
+		this->ctrlDrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS |DT_SINGLELINE);
 	}
 
 	this->FinishAlphaBlend(ai);

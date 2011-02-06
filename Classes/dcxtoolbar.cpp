@@ -366,7 +366,12 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 		// Tooltip Handling
 		LPDCXTBBUTTON lpdcxtbb = new DCXTBBUTTON;
 
-		lpdcxtbb->tsTipText = "";
+		if (lpdcxtbb == NULL) {
+			this->showError(NULL, "-a", "Unable To Create Control, Unable to Allocate Memory");
+			return;
+		}
+
+		//lpdcxtbb->tsTipText = "";
 
 		if ( input.numtok( TSTAB ) > 1 )
 			lpdcxtbb->tsTipText = input.gettok( 2, -1, TSTAB ).trim();
@@ -408,7 +413,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			TBBUTTONINFO tbbi;
 			ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
 			tbbi.cbSize = sizeof( TBBUTTONINFO );
-			tbbi.dwMask = 0 ;
+			tbbi.dwMask = 0;
 
 			tbbi.dwMask |= TBIF_SIZE;
 			tbbi.cx = (WORD)width;

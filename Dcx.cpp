@@ -437,7 +437,7 @@ bool Dcx::initDirectX(char *dxResult, int dxSize)
 {
 #ifdef DCX_USE_DXSDK
 	DCX_DEBUG(debug,"DXSetup", "Checking DirectX Version...");
-	DWORD dx_ver;
+	DWORD dx_ver = 0;
 	if (GetDXVersion(&dx_ver, dxResult, dxSize) == S_OK) {
 		if (dx_ver < 0x00090000) {
 			DCX_DEBUG(debug,"DXSetup", "Got DirectX Version: Need V9+");

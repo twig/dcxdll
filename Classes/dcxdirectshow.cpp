@@ -112,7 +112,7 @@ void DcxDirectshow::parseControlStyles( TString & styles, LONG * Styles, LONG * 
  */
 
 void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
-  //int numtok = input.numtok( );
+	//int numtok = input.numtok( );
 
 	TString prop(input.gettok( 3 ));
 
@@ -142,7 +142,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 		lstrcpyn(szReturnValue,this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
-  // [NAME] [ID] [PROP]
+	// [NAME] [ID] [PROP]
 	else if ( prop == "size") {
 		long lWidth, lHeight, lARWidth, lARHeight;
 		HRESULT hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
@@ -155,20 +155,20 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			this->showError(prop.to_chr(),NULL,"Unable to get Native Video Size");
 			DX_ERR(prop.to_chr(),NULL,hr);
 		}
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == "author") {
 		this->getProperty(szReturnValue, PROP_AUTHOR);
 		return;
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == "title") {
 		this->getProperty(szReturnValue, PROP_TITLE);
 		return;
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == "video") {
-		VMR9ProcAmpControl amc;
+		VMR9ProcAmpControl amc = {0};
 		HRESULT hr = this->getVideo(&amc);
 		if (SUCCEEDED(hr)) {
 			TString vflags('+');
@@ -188,10 +188,10 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
 			DX_ERR(prop.to_chr(),NULL, hr);
 		}
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == "brange") {
-		VMR9ProcAmpControlRange acr;
+		VMR9ProcAmpControlRange acr = {0};
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr);
 		if (SUCCEEDED(hr)) {
 			// NB: wsprintf() doesn't support %f
@@ -202,10 +202,10 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
 			DX_ERR(prop.to_chr(),NULL, hr);
 		}
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == "crange") {
-		VMR9ProcAmpControlRange acr;
+		VMR9ProcAmpControlRange acr = {0};
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr);
 		if (SUCCEEDED(hr)) {
 			// NB: wsprintf() doesn't support %f
@@ -216,8 +216,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
 			DX_ERR(prop.to_chr(),NULL, hr);
 		}
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == "hrange") {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Hue, &acr);
@@ -230,10 +230,10 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
 			DX_ERR(prop.to_chr(),NULL, hr);
 		}
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == "srange") {
-		VMR9ProcAmpControlRange acr;
+		VMR9ProcAmpControlRange acr = {0};
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Saturation, &acr);
 		if (SUCCEEDED(hr)) {
 			// NB: wsprintf() doesn't support %f
@@ -244,25 +244,25 @@ void DcxDirectshow::parseInfoRequest( TString & input, char * szReturnValue ) {
 			this->showError(prop.to_chr(),NULL,"Unable to get Video Information");
 			DX_ERR(prop.to_chr(),NULL, hr);
 		}
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == "currentpos") {
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "D_OK %I64d", this->getPosition());
 		return;
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == "duration") {
 		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "D_OK %I64d", this->getDuration());
 		else
 			lstrcpy(szReturnValue,"D_ERROR Method Not Supported");
 		return;
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == "volume") {
 		_snprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "D_OK %.2f", this->getVolume());
 		return;
-  }
+	}
 	// [NAME] [ID] [PROP]
 	else if (prop == "state") {
 		/*

@@ -894,7 +894,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 	if (flags['r']) {
 		ListView_DeleteAllItems(this->m_Hwnd);
 	}
-
+	//xdid -a [DNAME] [ID] switch [N] [INDENT] [+FLAGS] [ICON] [STATE] [OVERLAY] [GROUPID] [COLOR] [BGCOLOR] (TEXT) [TAB] [+FLAGS] [ICON] [OVERLAY] [COLOR] [BGCOLOR] (TEXT) [TAB] ...
 	//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 	if (flags['a'] && numtok > 12) {
 		LVITEM lvi;
@@ -1251,14 +1251,14 @@ void DcxListView::parseCommandRequest(TString &input) {
 
 		// theres an icon to change
 		if (nIcon > -2) {
-			lvi.mask |= LVIF_IMAGE;
+			lvi.mask = LVIF_IMAGE;
 			lvi.iImage = nIcon;
 		}
 
 		if (nOverlay > -1) {
 			lvi.mask |= LVIF_STATE;
-			lvi.stateMask |= LVIS_OVERLAYMASK;
-			lvi.state |= INDEXTOOVERLAYMASK(nOverlay);
+			lvi.stateMask = LVIS_OVERLAYMASK;
+			lvi.state = INDEXTOOVERLAYMASK(nOverlay);
 		}
 
 		ListView_SetItem(this->m_Hwnd, &lvi);
@@ -1378,30 +1378,26 @@ void DcxListView::parseCommandRequest(TString &input) {
 		int gid = (int)input.gettok( 6 ).to_num();
 
 		if (Dcx::XPPlusModule.isUseable() && index > -1 && gid > 0) {
-			if (ListView_IsGroupViewEnabled(this->m_Hwnd)) {
-				if (!ListView_HasGroup(this->m_Hwnd, gid)) {
-					TString text(input.gettok(7, -1));
+			if (!ListView_HasGroup(this->m_Hwnd, gid)) {
+				TString text(input.gettok(7, -1));
 
-					LVGROUP lvg;
-					ZeroMemory(&lvg, sizeof(LVGROUP));
-					lvg.cbSize = sizeof(LVGROUP);
-					lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID;
+				LVGROUP lvg;
+				ZeroMemory(&lvg, sizeof(LVGROUP));
+				lvg.cbSize = sizeof(LVGROUP);
+				lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID;
 
-					//LPWSTR wstr = new WCHAR[text.len() + 1];
-					//MultiByteToWideChar(CP_ACP, 0, text.to_chr(), text.len() +1, wstr, text.len() +1);
-					LPWSTR wstr = text.to_wchr(this->m_bUseUTF8); // can this buffer be deleted? or is it needed by the control? requires testing.
+				//LPWSTR wstr = new WCHAR[text.len() + 1];
+				//MultiByteToWideChar(CP_ACP, 0, text.to_chr(), text.len() +1, wstr, text.len() +1);
+				LPWSTR wstr = text.to_wchr(this->m_bUseUTF8); // can this buffer be deleted? or is it needed by the control? requires testing.
 
-					lvg.iGroupId = gid;
-					lvg.pszHeader = wstr;
-					lvg.uAlign = iFlags;
+				lvg.iGroupId = gid;
+				lvg.pszHeader = wstr;
+				lvg.uAlign = iFlags;
 
-					ListView_InsertGroup(this->m_Hwnd, index, &lvg);
-				}
-				else
-					this->showErrorEx(NULL,"-q", "Group already exists: %d", gid);
+				ListView_InsertGroup(this->m_Hwnd, index, &lvg);
 			}
 			else
-				this->showError(NULL,"-q", "Can't add to a group when Group View is not enabled.");
+				this->showErrorEx(NULL,"-q", "Group already exists: %d", gid);
 		}
 	}
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -2314,6 +2310,8 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 	LPDCXLVSORT plvsort = (LPDCXLVSORT) lParamSort;
 	char itemtext1[MIRC_BUFFER_SIZE_CCH];
 	char itemtext2[MIRC_BUFFER_SIZE_CCH];
+	itemtext1[0] = 0;
+	itemtext2[0] = 0;
 
 	ListView_GetItemText( plvsort->m_Hwnd, lParam1, plvsort->nColumn, itemtext1, MIRC_BUFFER_SIZE_CCH );
 	ListView_GetItemText( plvsort->m_Hwnd, lParam2, plvsort->nColumn, itemtext2, MIRC_BUFFER_SIZE_CCH );
@@ -2321,6 +2319,7 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 	// CUSTOM Sort
 	if ( plvsort->iSortFlags & LVSS_CUSTOM ) {
 		char res[20];
+		res[0] = 0;
 
 		Dcx::mIRC.evalex( res, 20, "$%s(%s,%s)", plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 
@@ -3235,6 +3234,12 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 	{
 		LPDCXLVITEM lpmylvi = new DCXLVITEM;
 
+		if (lpmylvi == NULL) {
+			this->showError(NULL,"-a", "Unable to Allocate Memory");
+			this->setRedraw(TRUE);
+			return false;
+		}
+
 		lpmylvi->iPbarCol = 0;
 		lpmylvi->pbar = NULL;
 		lpmylvi->vInfo.clear();
@@ -3339,9 +3344,17 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 
 void DcxListView::xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *xNode, LPLVITEMA lvi, LPDCXLVITEM lpmylvi)
 {
+	if ((lvi == NULL) || (lpmylvi == NULL) || (xNode == NULL))
+		return;
+
 	LPDCXLVRENDERINFO ri = new DCXLVRENDERINFO;
 	const char *attr = NULL;
 	int i = 0;
+
+	if (ri == NULL) {
+		this->showError(NULL, NULL, "Unable to Allocate memory");
+		return;
+	}
 
 	ZeroMemory(lvi, sizeof(LVITEM));
 	ZeroMemory(ri, sizeof(DCXLVRENDERINFO));
@@ -3644,16 +3657,12 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 	if (this->isListViewStyle(LVS_REPORT)) {
 
 		if (Dcx::XPPlusModule.isUseable() && group > 0) {
-			if (ListView_IsGroupViewEnabled(this->m_Hwnd)) {
-				if (ListView_HasGroup(this->m_Hwnd, group)) {
-					lvi.iGroupId = group;
-					lvi.mask |= LVIF_GROUPID;
-				}
-				else
-					this->showErrorEx(NULL,"-a", "Invalid Group specified: %d", group);
+			if (ListView_HasGroup(this->m_Hwnd, group)) {
+				lvi.iGroupId = group;
+				lvi.mask |= LVIF_GROUPID;
 			}
 			else
-				this->showError(NULL,"-a", "Can't add to a group when Group View is not enabled.");
+				this->showErrorEx(NULL,"-a", "Invalid Group specified: %d", group);
 		}
 
 		if (indent > 0) {
@@ -3668,7 +3677,6 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 		}
 
 		lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
-		//BOOL result = FALSE;
 
 		if (lvi.iItem == -1) {
 			delete lpmylvi;

@@ -379,6 +379,11 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 		// Tooltip Handling
 		LPDCXRBBAND lpdcxrbb = new DCXRBBAND;
 
+		if (lpdcxrbb == NULL) {
+			this->showError(NULL, "-a", "Unable To Create Control, Unable to Allocate Memory");
+			return;
+		}
+
 		if ( rbBand.fStyle & RBBS_UNDERLINE )
 			lpdcxrbb->bUline = TRUE;
 		else
@@ -1102,7 +1107,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
     case WM_LBUTTONUP:
       {
-		  RBHITTESTINFO rbhi;
+		  RBHITTESTINFO rbhi = {0};
 		  GetCursorPos( &rbhi.pt );
 		  MapWindowPoints(NULL, this->m_Hwnd, &rbhi.pt, 1 );
 		  int band = this->hitTest( &rbhi );

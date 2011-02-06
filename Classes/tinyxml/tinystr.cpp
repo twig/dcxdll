@@ -54,6 +54,9 @@ void TiXmlString::reserve (size_type cap)
 
 TiXmlString& TiXmlString::assign(const char* str, size_type len)
 {
+	if (str == NULL)
+		return *this;
+
 	size_type cap = capacity();
 	if (len > cap || cap > 3*(len + 8))
 	{

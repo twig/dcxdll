@@ -142,7 +142,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 4
 #define DLL_BUILD      1
-#define DLL_DEV_BUILD  18
+#define DLL_DEV_BUILD  19
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -427,18 +427,19 @@ SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
 
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl);
-void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, const RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
+void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
 #ifdef DCX_USE_GDIPLUS
 const char *GetLastStatusStr(Status status);
 #endif
 bool IsFile(__inout TString &filename);
-void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft, const bool tryutf8);
+//void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft, const bool tryutf8);
 void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style, const bool shadow, const bool tryutf8);
 HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc);
 void DeleteHDCBuffer(HDC *hBuffer);
 int TGetWindowText(HWND hwnd, TString &txt);
 void FreeOSCompatibility(void);
 BOOL isRegexMatch(const char *matchtext, const char *pattern);
+void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0);
 
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);

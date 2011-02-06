@@ -218,14 +218,20 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		//TString flag(item.gettok( 5 ));
 		//flag.trim();
 
-    int nPos = item.gettok( 4 ).to_int( ) - 1;
+		int nPos = item.gettok( 4 ).to_int( ) - 1;
 
-    if ( nPos < 0 )
-      nPos = ListBox_GetCount( this->m_Hwnd );
+		if ( nPos < 0 )
+			nPos = ListBox_GetCount( this->m_Hwnd );
 		if (nPos == LB_ERR)
 			nPos = 0;
 
 		LPDCXSITEM sitem = new DCXSITEM;
+
+		if (sitem == NULL) {
+			this->showError(NULL, "-a", "Unable To Create Control, Unable to Allocate Memory");
+			return;
+		}
+
 		sitem->clrBack = (COLORREF)input.gettok(9).to_num();
 		sitem->clrText = (COLORREF)input.gettok(8).to_num();
 		sitem->pChild = NULL;
@@ -237,9 +243,7 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		if (ctrl.len() > 0) {
 			UINT ID = mIRC_ID_OFFSET + (UINT)ctrl.gettok( 1 ).to_int( );
 
-			if ( ID > mIRC_ID_OFFSET - 1 && 
-				!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
-				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
+			if ( (ID > mIRC_ID_OFFSET - 1) && !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && (this->m_pParentDialog->getControlByID( ID ) == NULL) ) 
 			{
 				try {
 					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl,2,CTLF_ALLOW_ALL,this->m_Hwnd);
@@ -271,17 +275,17 @@ void DcxStacker::parseCommandRequest(TString &input) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags['c'] && numtok > 3) {
-    int nPos = input.gettok( 4 ).to_int( ) - 1;
+		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
-    if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
+		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
 			SendMessage(this->m_Hwnd,LB_SETCURSEL,nPos,NULL);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags['d'] && (numtok > 3)) {
-    int nPos = input.gettok( 4 ).to_int( ) - 1;
+		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
-    if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
-        ListBox_DeleteString( this->m_Hwnd, nPos );
+		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
+			ListBox_DeleteString( this->m_Hwnd, nPos );
 	}
 	// This is to avoid an invalid flag message.
 	//xdid -r [NAME] [ID] [SWITCH]
@@ -292,8 +296,8 @@ void DcxStacker::parseCommandRequest(TString &input) {
 		ListBox_SetCurSel( this->m_Hwnd, -1 );
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [N] (ToolTipText)
-  else if (flags['T'] && numtok > 3) {
-    int nPos = input.gettok( 4 ).to_int( ) - 1;
+	else if (flags['T'] && numtok > 3) {
+		int nPos = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nPos);
@@ -301,12 +305,12 @@ void DcxStacker::parseCommandRequest(TString &input) {
 				sitem->tsTipText = (numtok > 4 ? input.gettok(5, -1).trim() : "");
 			}
 		}
-  }
+	}
 	//xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	else if ( flags['w'] && (numtok > 4)) {
 		TString flag(input.gettok( 4 ));
 		TString filename(input.gettok( 5 ).trim());
-		
+
 		if (!IsFile(filename)) {
 			this->showErrorEx(NULL, "-w", "Unable to Access File: %s", filename.to_chr());
 			return;

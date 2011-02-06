@@ -230,9 +230,13 @@ LRESULT DcxDivider::setDivPos( const UINT iDivPos ) {
 }
 
 void DcxDivider::toXml(TiXmlElement * xml) {
+
+	if (xml == NULL)
+		return;
+
 	__super::toXml(xml);
-	DVPANEINFO left;
-	DVPANEINFO right;
+	DVPANEINFO left = {0};
+	DVPANEINFO right = {0};
 	DcxControl * dcxcleft = NULL;
 	DcxControl * dcxcright = NULL;
 	Divider_GetChildControl(this->m_Hwnd, DVF_PANELEFT, &left);

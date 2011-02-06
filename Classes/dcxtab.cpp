@@ -332,6 +332,12 @@ void DcxTab::parseCommandRequest( TString & input ) {
 
 		// Extra params
 		LPDCXTCITEM lpdtci = new DCXTCITEM;
+
+		if (lpdtci == NULL) {
+			this->showError(NULL, "-a", "Unable To Create Control, Unable to Allocate Memory");
+			return;
+		}
+
 		lpdtci->tsTipText = tooltip;
 		tci.lParam = (LPARAM) lpdtci;
 
@@ -717,29 +723,37 @@ TString DcxTab::getStyles(void) {
 }
 
 void DcxTab::toXml(TiXmlElement * xml) {
+
+	if (xml == NULL)
+		return;
+
 	__super::toXml(xml);
 	int count = this->getTabCount();
 	char buf[MIRC_BUFFER_SIZE_CCH];
 	TCITEM tci;
-	TiXmlElement * ctrlxml;
 	for (int i = 0; i < count; i++) {
 		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH -1;
 		tci.pszText = buf;
 		tci.mask |= TCIF_TEXT;
 		if(TabCtrl_GetItem(this->m_Hwnd, i, &tci)) {
 			LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
-			DcxControl * ctrl = this->m_pParentDialog->getControlByHWND(lpdtci->mChildHwnd);
-			if (ctrl) {
-				ctrlxml = ctrl->toXml();
-				// we need to remove hidden style here
-				TString styles(ctrlxml->Attribute("styles"));
-				if (styles.len() > 0) {
-					styles.remtok("hidden", 1); 
-					if (styles.len() > 0) ctrlxml->SetAttribute("styles", styles.to_chr());
-					else ctrlxml->RemoveAttribute("styles");
+			if (lpdtci != NULL) {
+				DcxControl * ctrl = this->m_pParentDialog->getControlByHWND(lpdtci->mChildHwnd);
+				if (ctrl != NULL) {
+					TiXmlElement * ctrlxml = ctrl->toXml();
+					// we need to remove hidden style here
+					TString styles(ctrlxml->Attribute("styles"));
+					if (styles.len() > 0) {
+						styles.remtok("hidden", 1); 
+						if (styles.len() > 0)
+							ctrlxml->SetAttribute("styles", styles.to_chr());
+						else
+							ctrlxml->RemoveAttribute("styles");
+					}
+					if (tci.mask & TCIF_TEXT)
+						ctrlxml->SetAttribute("caption", tci.pszText);
+					xml->LinkEndChild(ctrlxml);
 				}
-				if (tci.mask & TCIF_TEXT) ctrlxml->SetAttribute("caption", tci.pszText);
-				xml->LinkEndChild(ctrlxml);
 			}
 		}
 	}

@@ -82,7 +82,7 @@ DcxIpAddress::~DcxIpAddress( ) {
 }
 
 void DcxIpAddress::toXml(TiXmlElement * xml) {
-	DWORD ip;
+	DWORD ip = 0;
 	char buf[64];
 	this->getAddress( &ip );
 	wnsprintf( buf, 64, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
@@ -131,7 +131,7 @@ void DcxIpAddress::parseInfoRequest( TString & input, char * szReturnValue ) {
 	// [NAME] [ID] [PROP]
 	if ( input.gettok( 3 ) == "ip" ) {
 
-		DWORD ip;
+		DWORD ip = 0;
 		this->getAddress( &ip );
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),

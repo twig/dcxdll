@@ -154,7 +154,7 @@ void DcxStatusBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 	// [NAME] [ID] [PROP]
 	else if ( prop == "parts" ) {
 
-		INT parts[256];
+		INT parts[256] = {0};
 		int nParts = this->getParts( 256, 0 );
 
 		this->getParts( 256, parts );
@@ -295,6 +295,12 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 
 		if (iFlags & SBT_OWNERDRAW) {
 			LPSB_PARTINFO pPart = new SB_PARTINFO;
+
+			if (pPart == NULL) {
+				this->showError(NULL, "-t", "Unable To Create Control, Unable to Allocate Memory");
+				return;
+			}
+
 			pPart->m_Child = NULL;
 			//ZeroMemory(pPart,sizeof(SB_PARTINFO));
 			pPart->m_iIcon = icon;

@@ -33,6 +33,10 @@
  *		Added iswm() & iswmcs(). Ook
  *	1.9
  *		More changes & shit than i can remember. Ook
+ *	1.10
+ *		Fixed a bug in charToWchar() that caused the conversion to always fail.
+ *	1.11
+ *		Added strip() function.
  *
  * © ScriptsDB.org - 2005
  */
@@ -71,13 +75,19 @@ private:
 	int i_replace(const char *subString, const char *rString); // Ook
 	int i_remove(const char *subString);
 	static int match (register char *m, register char *n, const bool cs /* case sensitive */);
+#if !UNICODE
 	static unsigned char tolowertab[];
 	static unsigned char touppertab[];
+#endif
 
 public:
 
 	char * m_pString; //!< String buffer
+#ifdef UNICODE
+	char * m_pWString;
+#else
 	WCHAR * m_pWString;
+#endif
 	static const char *m_cSpace;
 	static const char *m_cComma;
 	static const char *m_cTab;
@@ -167,7 +177,8 @@ public:
 	TString sub( int N, int M ) const;
 	TString wsub( int N, int M ) const;
 
-	TString &trim();
+	TString &trim();	// removes spaces at start & end of text.
+	TString &strip();	// removes spaces at start & end of text & all ctrl codes in text.
 
 	int replace( const char * subString, const char * rString );
 	int replace( const char * subString, const char rchr );

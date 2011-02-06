@@ -146,19 +146,19 @@ mIRC(xstatusbar) {
 				DestroyIcon( (HICON) DcxDock::status_getIcon( nPos ) );
 				DcxDock::status_setIcon( nPos, NULL );
 
-				if (iFlags & SBT_OWNERDRAW) {
+				if (iFlags & SBT_OWNERDRAW) { // ownerdraw set so we alrdy know the flag +f was used.
 					LPSB_PARTINFO pPart = new SB_PARTINFO;
-					//ZeroMemory(pPart,sizeof(SB_PARTINFO));
+
+					if (pPart == NULL) {
+						Dcx::error(TEXT("/xstatusbar -t"),TEXT("Unable to Allocate Memory"));
+						return 0;
+					}
+
 					pPart->m_Child = NULL;
 					pPart->m_iIcon = icon;
-					if (flags.find('f',0)) { // mIRC formatted text
-						pPart->m_Text = itemtext;
-						DcxDock::status_setTipText( nPos, tooltip.to_wchr(DcxDock::g_bUseUTF8 ) );
-						DcxDock::status_setPartInfo( nPos, iFlags, pPart );
-					}
-					else { // child control
-						Dcx::error("/xstatusbar -t","Child Controls Are not supported at this time.");
-					}
+					pPart->m_Text = itemtext;
+					DcxDock::status_setTipText( nPos, tooltip.to_wchr(DcxDock::g_bUseUTF8 ) );
+					DcxDock::status_setPartInfo( nPos, iFlags, pPart );
 				}
 				else {
 					if ( icon > -1 )
@@ -188,13 +188,25 @@ mIRC(xstatusbar) {
 
 					if (iFlags & SBT_OWNERDRAW) {
 						LPSB_PARTINFO pPart = (LPSB_PARTINFO)DcxDock::status_getText(nPos, NULL);
-						pPart->m_Text = itemtext;
-						DcxDock::status_setPartInfo( nPos, iFlags, pPart );
+						if (pPart != NULL) {
+							pPart->m_Text = itemtext;
+							DcxDock::status_setPartInfo( nPos, iFlags, pPart );
+						}
+						else {
+							Dcx::error(TEXT("/xstatusbar -v"),TEXT("Unable to set item text"));
+							return 0;
+						}
 					}
 					else {
 						WCHAR *text = new WCHAR[DcxDock::status_getTextLength(nPos) + 1];
-						DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_wchr(DcxDock::g_bUseUTF8) );
-						delete [] text;
+						if (text != NULL) {
+							DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_wchr(DcxDock::g_bUseUTF8) );
+							delete [] text;
+						}
+						else {
+							Dcx::error(TEXT("/xstatusbar -v"),TEXT("Unable to Allocate Memory"));
+							return 0;
+						}
 					}
 				}
 			}
@@ -242,8 +254,10 @@ mIRC(xstatusbar) {
 			}
 			break;
 		default:
-			Dcx::error("/xstatusbar","Invalid Switch");
-			return 0;
+			{
+				Dcx::error("/xstatusbar","Invalid Switch");
+				return 0;
+			}
 	}
 	return 1;
 }
@@ -292,7 +306,7 @@ mIRC(_xstatusbar)
 		break;
 	case 3: // parts
 		{
-			INT parts[256];
+			INT parts[256] = { 0 };
 			int nParts = (int)DcxDock::status_getParts( 256, 0 );
 
 			DcxDock::status_getParts( 256, parts );

@@ -972,9 +972,9 @@ BOOL WINAPI XPopupMenuManager::TrampolineTrackPopupMenuEx(
 /*
  * Parses the menu information and returns a valid XPopupMenu.
  */
-void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *popup, TString &popupName, TString &popupDataset) {
-	TiXmlElement *globalStyles;
-	TiXmlElement *element;
+void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset) {
+	const TiXmlElement *globalStyles;
+	const TiXmlElement *element;
 	int totalIndexes;
 	XPopupMenu::MenuStyle style;
 	const char* attr;
@@ -1091,9 +1091,13 @@ void XPopupMenuManager::LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *po
  * Function to append submenu items into a menu.
  * This method is recursive in order to parse submenus correctly.
  */
-bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, TiXmlElement *items) {
+bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, const TiXmlElement *items) {
+
+	if ((menu == NULL) || (items == NULL) || (hMenu == NULL))
+		return false;
+
 	// Iterate through each child element.
-	for (TiXmlElement *element = items->FirstChildElement("item"); element != NULL; element = element->NextSiblingElement("item")) {
+	for (const TiXmlElement *element = items->FirstChildElement("item"); element != NULL; element = element->NextSiblingElement("item")) {
 		MENUITEMINFO mii;
 		int nPos = GetMenuItemCount(hMenu) +1;
 
@@ -1141,15 +1145,17 @@ bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, TiX
 			item = new XPopupMenuItem(menu, caption, mIcon, mii.hSubMenu != NULL ? TRUE : FALSE);
 		}
 
-		menu->m_vpMenuItem.push_back(item);
-		mii.dwItemData = (ULONG_PTR) item;
-		InsertMenuItem(hMenu, nPos, TRUE, &mii);
+		if (item != NULL) {
+			menu->m_vpMenuItem.push_back(item);
+			mii.dwItemData = (ULONG_PTR) item;
+			InsertMenuItem(hMenu, nPos, TRUE, &mii);
+		}
 	}
 
 	return true;
 }
 
-const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, TiXmlElement *popup, TiXmlElement *global) {
+const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, const TiXmlElement *popup, const TiXmlElement *global) {
 	const char* tmp;
 	
 	tmp = popup->Attribute(attrib);

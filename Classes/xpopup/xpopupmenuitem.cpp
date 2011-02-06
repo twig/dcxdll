@@ -666,16 +666,16 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 
 	vert [0] .x      = lprc->left;
 	vert [0] .y      = lprc->top;
-	vert [0] .Red    = ((StartRed & 0xff) << 8);
-	vert [0] .Green  = ((StartGreen & 0xff) << 8);
-	vert [0] .Blue   = ((StartBlue & 0xff) << 8);
+	vert [0] .Red    = (COLOR16)((StartRed & 0xff) << 8);
+	vert [0] .Green  = (COLOR16)((StartGreen & 0xff) << 8);
+	vert [0] .Blue   = (COLOR16)((StartBlue & 0xff) << 8);
 	vert [0] .Alpha  = 0xff00;
 
 	vert [1] .x      = lprc->right;
 	vert [1] .y      = lprc->bottom;
-	vert [1] .Red    = ((EndRed & 0xff) << 8);
-	vert [1] .Green  = ((EndGreen & 0xff) << 8);
-	vert [1] .Blue   = ((EndBlue & 0xff) << 8);
+	vert [1] .Red    = (COLOR16)((EndRed & 0xff) << 8);
+	vert [1] .Green  = (COLOR16)((EndGreen & 0xff) << 8);
+	vert [1] .Blue   = (COLOR16)((EndBlue & 0xff) << 8);
 	vert [1] .Alpha  = 0xff00;
 
 	gRect.UpperLeft  = 0;

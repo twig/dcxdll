@@ -33,6 +33,10 @@
  *		Added iswm() & iswmcs(). Ook
  *	1.9
  *		More changes & shit than i can remember. Ook
+ *	1.10
+ *		Fixed a bug in charToWchar() that caused the conversion to always fail.
+ *	1.11
+ *		Added strip() function.
  *
  * © ScriptsDB.org - 2005
  */
@@ -1790,6 +1794,9 @@ TString &TString::trim() {
 	char *start = this->m_pString;
 	char *end = this->m_pString + lstrlen(this->m_pString);
 
+	if ((start == NULL) || (end == NULL))
+		return *this;
+
 	// Trim from start
 	while (start != end && *start == 32)
 		start++;
@@ -2248,3 +2255,76 @@ WCHAR *TString::to_wchr(bool tryutf8)
 //	}
 //	return !*wild;
 //}
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+TString &TString::strip() {
+	TCHAR *start = this->m_pString;
+	TCHAR *end = this->m_pString + lstrlen(this->m_pString);
+
+	if ((start == NULL) || (end == NULL))
+		return *this;
+
+	// Trim from start
+	while (start != end && *start == TEXT(' '))
+		start++;
+
+	// Trim from end
+	while (end != start && *(--end) == TEXT(' '));
+
+	size_t new_len = end - start +1;
+
+	TCHAR *temp = new TCHAR[new_len +1];
+	temp[new_len] = 0;
+
+	// now strip all ctrl codes.
+	TCHAR *wtxt = start, *p = temp;
+	UINT pos = 0, tpos = 0;
+
+	// strip out ctrl codes to correctly position text.
+	for (TCHAR c = wtxt[pos]; pos < new_len; c = wtxt[++pos]) {
+		switch (c)
+		{
+		case 2:  // ctrl-b Bold
+		case 15: // ctrl-o
+		case 22: // ctrl-r Reverse
+		case 29: // ctrl-i Italics
+		case 31: // ctrl-u Underline
+			break;
+		case 3: // ctrl-k Colour
+			{
+				while (wtxt[pos+1] == 3) pos++; // remove multiple consecutive ctrl-k's
+				if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+					++pos;
+
+					if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
+						pos++;
+
+					// maybe a background color
+					if (wtxt[pos+1] == L',') {
+						++pos;
+
+						if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+							pos++;
+
+							if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
+								++pos;
+						}
+					}
+				}
+			}
+			break;
+		default:
+			p[tpos++] = c;
+			break;
+		}
+	}
+	p[tpos] = 0;
+
+	this->deleteString();
+	this->m_pString = temp;
+
+	return *this;
+}

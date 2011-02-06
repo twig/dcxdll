@@ -56,6 +56,7 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 	}
 
 	char ret[100];
+	ret[0] = 0;
 
 	static const char *months[12] = {
 		"January",

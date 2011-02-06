@@ -142,7 +142,7 @@ void DcxProgressBar::parseInfoRequest( TString & input, char * szReturnValue ) {
     return;
   }
   else if ( prop == "range" ) {
-    PBRANGE pbr;
+	  PBRANGE pbr = {0};
     this->getRange( FALSE, &pbr );
     wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", pbr.iLow, pbr.iHigh );
     return;

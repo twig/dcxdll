@@ -40,8 +40,8 @@ private:
 	bool m_bIsActiveMircPopup;
 	bool m_bIsActiveMircMenubarPopup;
 
-	
-    HMENU m_hMenuCustom;
+
+	HMENU m_hMenuCustom;
 	HWND m_hMenuOwner; //!< Menu Owner Window Which Processes WM_ Menu Messages 
 
 
@@ -78,8 +78,8 @@ public:
 	static BOOL WINAPI TrampolineTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect);
 	static BOOL WINAPI TrampolineTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm);
 
-	static void LoadPopupsFromXML(TiXmlElement *popups, TiXmlElement *popup, TString &popupName, TString &popupDataset);
-	static bool LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, TiXmlElement *items);
+	static void LoadPopupsFromXML(const TiXmlElement *popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset);
+	static bool LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, const TiXmlElement *items);
 
 	// following methods are called by dcx's mIRC WinProc
 
@@ -90,11 +90,11 @@ public:
 
 protected:
 
-	static const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, TiXmlElement *popup, TiXmlElement *global);
+	static const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, const TiXmlElement *popup, const TiXmlElement *global);
 
-  VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
+	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
-  static UINT parseTrackFlags( const TString & flags );
+	static UINT parseTrackFlags( const TString & flags );
 
 	bool m_bPatched;
 };

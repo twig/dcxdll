@@ -298,6 +298,7 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 
 						if ( p_GetCell == NULL ) {
 							this->showErrorEx(NULL, "-l", "Invalid item path: %s", path.to_chr( ) );
+							delete p_Cell;
 							return;
 						}
 

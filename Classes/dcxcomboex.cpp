@@ -57,14 +57,20 @@ DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		if ( bNoTheme )
 			Dcx::XPPlusModule.dcxSetWindowTheme( this->m_EditHwnd , L" ", L" " );
 
-		LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
+		try {
+			LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
 
-		lpce->cHwnd = this->m_Hwnd;
-		lpce->pHwnd = mParentHwnd;
+			lpce->cHwnd = this->m_Hwnd;
+			lpce->pHwnd = mParentHwnd;
 
-		//SetWindowLong( this->m_EditHwnd, GWL_STYLE, GetWindowLong( this->m_EditHwnd, GWL_STYLE ));// | ES_AUTOHSCROLL );
-		lpce->OldProc = SubclassWindow( this->m_EditHwnd, DcxComboEx::ComboExEditProc );
-		SetWindowLongPtr( this->m_EditHwnd, GWLP_USERDATA, (LONG) lpce );
+			//SetWindowLong( this->m_EditHwnd, GWL_STYLE, GetWindowLong( this->m_EditHwnd, GWL_STYLE ));// | ES_AUTOHSCROLL );
+			lpce->OldProc = SubclassWindow( this->m_EditHwnd, DcxComboEx::ComboExEditProc );
+			SetWindowLongPtr( this->m_EditHwnd, GWLP_USERDATA, (LONG) lpce );
+		}
+		catch ( std::bad_alloc ) {
+			DestroyWindow(this->m_Hwnd);
+			throw "Unable to Allocate Memory";
+		}
 	}
 
 	HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);

@@ -64,6 +64,7 @@ HWND GetHwndFromString(const char *str) {
 		return hwnd;
 
 	char res[20];
+	res[0] = 0;
 
 	Dcx::mIRC.evalex( res, 20, "$dialog(%s).hwnd", str);
 
