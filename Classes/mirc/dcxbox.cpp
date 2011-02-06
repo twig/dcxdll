@@ -798,20 +798,15 @@ void DcxBox::DrawClientArea(HDC hdc)
 		if (this->m_clrText != CLR_INVALID)
 			SetTextColor(hdc, this->m_clrText);
 		else
-			SetTextColor(hdc, GetSysColor(
-				IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT)
-			);
+			SetTextColor(hdc, GetSysColor(IsWindowEnabled(this->m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
 
 		CopyRect(&rcText, &rc); // MUST initialize rect first!.
-		//if (this->m_bCtrlCodeText)
-		//	calcStrippedRect(hdc, wtext, 0, &rcText, false);
-		//else
-		//	DrawTextW(hdc, wtext.to_chr(), n, &rcText, DT_CALCRECT);
-		this->calcTextRect(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS);
-		//if (this->m_bShadowText) {
-		//	rcText.bottom += 6;
-		//	rcText.right += 6;
-		//}
+
+		this->calcTextRect(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS |DT_SINGLELINE);
+		if (this->m_bShadowText) {
+			rcText.bottom = min((rcText.bottom +6), rc.bottom);
+			rcText.right = min((rcText.right +6), rc.right);
+		}
 
 		int w = rcText.right - rcText.left;
 		int h = rcText.bottom - rcText.top;
@@ -890,7 +885,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 		SelectClipRgn(hdc,NULL);
 
 		// draw the text
-		this->ctrlDrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS);
+		this->ctrlDrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS |DT_SINGLELINE);
 	}
 
 	this->FinishAlphaBlend(ai);
