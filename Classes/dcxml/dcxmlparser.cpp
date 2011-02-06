@@ -432,10 +432,11 @@ TString DcxmlParser::parseCLA(const int cCla) {
 		if (0==lstrcmpA(parentelem, "dialog"))
 			this->xdialogEX(TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"),	g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height);
 		else if (0==lstrcmpA(parentelem, "control")) {
-			if ((parent->Attribute("type") != NULL) && (parentid > 0)) {
-				if (0==lstrcmpA(parent->Attribute("type"), "panel"))
+			const char *t_type = parent->Attribute("type");
+			if ((t_type != NULL) && (parentid > 0)) {
+				if (0==lstrcmpA(t_type, "panel"))
 					this->xdidEX(parentid,TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
-				else if (0==lstrcmpA(parent->Attribute("type"), "box"))
+				else if (0==lstrcmpA(t_type, "box"))
 					this->xdidEX(parentid,TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
 			}
 		}
@@ -452,27 +453,6 @@ TString DcxmlParser::parseCLA(const int cCla) {
 			}
 		}
 	}
-	//char buffer [100];
-	//const char * claPathx;
-	//if (g_resetcla) {
-	//	lstrcpyn(buffer, TEXT("root"));
-	//	claPathx = buffer;
-	//}
-	//else if (0==lstrcmp(g_claPath, TEXT("root"))) {
-	//	wnsprintf (buffer, 100, TEXT("%i"),cCla);
-	//	claPathx = buffer;
-	//}
-	//else { 
-	//	wnsprintf (buffer, 100, TEXT("%s %i"),g_claPath,cCla);
-	//	claPathx = buffer;
-	//}
-	//if (element->Attribute("margin")) {
-	//	if (0==lstrcmp(parentelem, TEXT("dialog")))
-	//		this->xdialogEX("-l","space %s \t + %s",claPathx,margin);
-	//	else this->xdidEX(parentid,"-l","space %s \t + %s",g_claPath,margin);
-	//}
-	//g_resetcla = 0;
-	//return TString(claPathx);
 	TString claPathx;
 	if (g_resetcla > 0)
 		claPathx = TEXT("root");
@@ -510,7 +490,7 @@ void DcxmlParser::setStyle(const TiXmlElement* style) {
 	//border
 	temp = style->Attribute("border");
 	border = (temp != NULL) ? temp : "";
-	if (style->Attribute("border") != NULL)
+	if (temp != NULL)
 		this->xdidEX(id,TEXT("-x"),TEXT("+%S"),border);
 	//colours
 	temp = style->Attribute("cursor");
