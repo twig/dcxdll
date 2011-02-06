@@ -147,17 +147,11 @@ mIRC(xstatusbar) {
 						return 0;
 					}
 
-					//ZeroMemory(pPart,sizeof(SB_PARTINFO));
 					pPart->m_Child = NULL;
 					pPart->m_iIcon = icon;
-					//if (flags.find(TEXT('f'),0)) { // mIRC formatted text
-						pPart->m_Text = itemtext;
-						DcxDock::status_setTipText( nPos, tooltip.to_chr() );
-						DcxDock::status_setPartInfo( nPos, iFlags, pPart );
-					//}
-					//else { // child control
-					//	Dcx::error(TEXT("/xstatusbar -t"),TEXT("Child Controls Are not supported at this time."));
-					//}
+					pPart->m_Text = itemtext;
+					DcxDock::status_setTipText( nPos, tooltip.to_chr() );
+					DcxDock::status_setPartInfo( nPos, iFlags, pPart );
 				}
 				else {
 					if ( icon > -1 )

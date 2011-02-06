@@ -3677,7 +3677,6 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 		}
 
 		lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
-		//BOOL result = FALSE;
 
 		if (lvi.iItem == -1) {
 			delete lpmylvi;
