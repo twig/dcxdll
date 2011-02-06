@@ -983,7 +983,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 
 	COLORREF clrFG, origFG = GetTextColor(hdc);
 	COLORREF clrBG, origBG = GetBkColor(hdc);
-	COLORREF cPalette[16]; // mIRC palette
+	COLORREF cPalette[16] = {CLR_INVALID}; // mIRC palette
 
 	getmIRCPalette(cPalette, 16); // get mIRC palette
 
@@ -1004,7 +1004,6 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 		if (((style & DT_CENTER) == DT_CENTER) || ((style & DT_RIGHT) == DT_RIGHT) || ((style & DT_VCENTER) == DT_VCENTER)) {
 			// strip out ctrl codes to correctly position text.
 			RECT rcTmp = *rc;
-			//calcStrippedRect(hdc, txt, iStyle, &rcTmp, false);
 			TString t(txt);
 			DrawText(hdc, t.strip().to_chr(), t.len(), &rcTmp, style | DT_CALCRECT);
 			// style can be either center or right, not both, but it can be center+vcenter or right+vcenter
@@ -1141,7 +1140,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 		case 13:
 			{
 				if (iStyle & DT_SINGLELINE) { // when single line, replace with a space or ignore?
-					while ((wtxt[pos+1] == 13) || (wtxt[pos+1] == 10)) pos++; // remove multiple consecutive line feeds
+					//while ((wtxt[pos+1] == 13) || (wtxt[pos+1] == 10)) pos++; // remove multiple consecutive line feeds (causes exception??)
 					tmp += TEXT(' '); //" ";
 				}
 				else {

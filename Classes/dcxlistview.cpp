@@ -1378,33 +1378,23 @@ void DcxListView::parseCommandRequest(TString &input) {
 		int gid = (int)input.gettok( 6 ).to_num();
 
 		if (Dcx::XPPlusModule.isUseable() && index > -1 && gid > 0) {
-			if (ListView_IsGroupViewEnabled(this->m_Hwnd)) {
-				if (!ListView_HasGroup(this->m_Hwnd, gid)) {
-					TString text(input.gettok(7, -1));
+			if (!ListView_HasGroup(this->m_Hwnd, gid)) {
+				TString text(input.gettok(7, -1));
 
-					LVGROUP lvg;
-					ZeroMemory(&lvg, sizeof(LVGROUP));
-					lvg.cbSize = sizeof(LVGROUP);
-					lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID;
+				LVGROUP lvg;
+				ZeroMemory(&lvg, sizeof(LVGROUP));
+				lvg.cbSize = sizeof(LVGROUP);
+				lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID;
 
-#if UNICODE
-					LPWSTR wstr = text.to_chr(); // can this buffer be deleted? or is it needed by the control? requires testing.
-#else
-					//LPWSTR wstr = new WCHAR[text.len() + 1];
-					//MultiByteToWideChar(CP_ACP, 0, text.to_chr(), text.len() +1, wstr, text.len() +1);
-					LPWSTR wstr = text.to_wchr(this->m_bUseUTF8); // can this buffer be deleted? or is it needed by the control? requires testing.
-#endif
-					lvg.iGroupId = gid;
-					lvg.pszHeader = wstr;
-					lvg.uAlign = iFlags;
+				LPWSTR wstr = text.to_chr(); // can this buffer be deleted? or is it needed by the control? requires testing.
+				lvg.iGroupId = gid;
+				lvg.pszHeader = wstr;
+				lvg.uAlign = iFlags;
 
-					ListView_InsertGroup(this->m_Hwnd, index, &lvg);
-				}
-				else
-					this->showErrorEx(NULL,TEXT("-q"), TEXT("Group already exists: %d"), gid);
+				ListView_InsertGroup(this->m_Hwnd, index, &lvg);
 			}
 			else
-				this->showError(NULL,TEXT("-q"), TEXT("Can't add to a group when Group View is not enabled."));
+				this->showErrorEx(NULL,TEXT("-q"), TEXT("Group already exists: %d"), gid);
 		}
 	}
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -3667,16 +3657,12 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 	if (this->isListViewStyle(LVS_REPORT)) {
 
 		if (Dcx::XPPlusModule.isUseable() && group > 0) {
-			if (ListView_IsGroupViewEnabled(this->m_Hwnd)) {
-				if (ListView_HasGroup(this->m_Hwnd, group)) {
-					lvi.iGroupId = group;
-					lvi.mask |= LVIF_GROUPID;
-				}
-				else
-					this->showErrorEx(NULL,TEXT("-a"), TEXT("Invalid Group specified: %d"), group);
+			if (ListView_HasGroup(this->m_Hwnd, group)) {
+				lvi.iGroupId = group;
+				lvi.mask |= LVIF_GROUPID;
 			}
 			else
-				this->showError(NULL,TEXT("-a"), TEXT("Can't add to a group when Group View is not enabled."));
+				this->showErrorEx(NULL,TEXT("-a"), TEXT("Invalid Group specified: %d"), group);
 		}
 
 		if (indent > 0) {
@@ -3685,7 +3671,7 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 		}
 
 		// set text in case of pbar
-		if (!(stateFlags & LVIS_PBAR)) {
+		if ((stateFlags & LVIS_PBAR) != LVIS_PBAR) {
 			lvi.mask |= LVIF_TEXT;
 			lvi.pszText = itemtext.to_chr();
 		}
