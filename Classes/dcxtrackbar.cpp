@@ -107,7 +107,7 @@ void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 		else if ( styles.gettok( i ) == TEXT("top") ) 
 			*Styles |= TBS_TOP;
 		else if ( styles.gettok( i ) == TEXT("bottom") ) 
-			*Styles |= TBS_BOTTOM;
+			*Styles |= TBS_BOTTOM; // == TBS_RIGHT == 0, so never set.... should just remove TBS_LEFT/TOP ?
 		else if ( styles.gettok( i ) == TEXT("left") ) 
 			*Styles |= TBS_LEFT;
 		else if ( styles.gettok( i ) == TEXT("right") ) 
@@ -185,12 +185,12 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
 	XSwitchFlags flags(input.gettok(3));
 	int numtok = input.numtok( );
 
-  // xdid -c [NAME] [ID] [SWITCH] [VALUE]
-  if ( flags[TEXT('c')] && numtok > 3 ) {
+	// xdid -c [NAME] [ID] [SWITCH] [VALUE]
+	if ( flags[TEXT('c')] && numtok > 3 ) {
 
-    LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
-    this->setTic( lPosition );
-  }
+		LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
+		this->setTic( lPosition );
+	}
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
 	else if (flags[TEXT('g')] && numtok > 4) {
 		UINT tflags = parseImageFlags(input.gettok( 4 ));
@@ -213,283 +213,283 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
 		//this->redrawWindow();
 		//InvalidateRect(this->m_Hwnd, NULL, TRUE);
 	}
-  // xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
-  else if ( flags[TEXT('j')] && numtok > 4 ) {
+	// xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
+	else if ( flags[TEXT('j')] && numtok > 4 ) {
 
-    LONG iMin = (LONG)input.gettok( 4 ).to_num( );
-    LONG iMax = (LONG)input.gettok( 5 ).to_num( );
-    this->setSel( iMin, iMax );
-  }
-  // xdid -l [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags[TEXT('l')] && numtok > 3 ) {
+		LONG iMin = (LONG)input.gettok( 4 ).to_num( );
+		LONG iMax = (LONG)input.gettok( 5 ).to_num( );
+		this->setSel( iMin, iMax );
+	}
+	// xdid -l [NAME] [ID] [SWITCH] [VALUE]
+	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
-    LONG lLineSize = (LONG)input.gettok( 4 ).to_num( );
-    this->setLineSize( lLineSize );
-  }
-  // xdid -m [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags[TEXT('m')] && numtok > 3 ) {
+		LONG lLineSize = (LONG)input.gettok( 4 ).to_num( );
+		this->setLineSize( lLineSize );
+	}
+	// xdid -m [NAME] [ID] [SWITCH] [VALUE]
+	else if ( flags[TEXT('m')] && numtok > 3 ) {
 
-    LONG lPageSize = (LONG)input.gettok( 4 ).to_num( );
-    this->setPageSize( lPageSize );
-  }
-  // xdid -n [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags[TEXT('n')] && numtok > 3 ) {
+		LONG lPageSize = (LONG)input.gettok( 4 ).to_num( );
+		this->setPageSize( lPageSize );
+	}
+	// xdid -n [NAME] [ID] [SWITCH] [VALUE]
+	else if ( flags[TEXT('n')] && numtok > 3 ) {
 
-    int iTicFreq = input.gettok( 4 ).to_int( );
-    this->setTicFreq( iTicFreq );
-  }
-  // xdid -q [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags[TEXT('q')] ) {
+		int iTicFreq = input.gettok( 4 ).to_int( );
+		this->setTicFreq( iTicFreq );
+	}
+	// xdid -q [NAME] [ID] [SWITCH] [VALUE]
+	else if ( flags[TEXT('q')] ) {
 
-    this->clearTics( );
-  }
-  // xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-  else if ( flags[TEXT('r')] && numtok > 4 ) {
+		this->clearTics( );
+	}
+	// xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
+	else if ( flags[TEXT('r')] && numtok > 4 ) {
 
-    LONG lMinRange = (LONG)input.gettok( 4 ).to_num( );
-    LONG lMaxRange = (LONG)input.gettok( 5 ).to_num( );
+		LONG lMinRange = (LONG)input.gettok( 4 ).to_num( );
+		LONG lMaxRange = (LONG)input.gettok( 5 ).to_num( );
 
-    this->setRangeMin( lMinRange );
-    this->setRangeMax( lMaxRange );
-  }
+		this->setRangeMin( lMinRange );
+		this->setRangeMax( lMaxRange );
+	}
 	// xdid -o [NAME] [ID] [SWITCH] [VALUE]
 	else if (flags[TEXT('o')] && numtok > 3) {
 		m_colTransparent = (COLORREF)input.gettok( 4 ).to_num();
 		this->redrawWindow();
 	}
-  // xdid -t [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags[TEXT('t')] && numtok > 3 ) {
+	// xdid -t [NAME] [ID] [SWITCH] [VALUE]
+	else if ( flags[TEXT('t')] && numtok > 3 ) {
 
-    TString value(input.gettok( 4 ));
+		TString value(input.gettok( 4 ));
 
-    if ( value == TEXT("left") )
-      this->setTipSide( TBTS_LEFT );
-    else if ( value == TEXT("right") )
-      this->setTipSide( TBTS_RIGHT );
-    else if ( value == TEXT("bottom") )
-      this->setTipSide( TBTS_BOTTOM );
-    else
-      this->setTipSide( TBTS_TOP );
-  }
-  // xdid -u [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags[TEXT('u')] && numtok > 3 ) {
+		if ( value == TEXT("left") )
+			this->setTipSide( TBTS_LEFT );
+		else if ( value == TEXT("right") )
+			this->setTipSide( TBTS_RIGHT );
+		else if ( value == TEXT("bottom") )
+			this->setTipSide( TBTS_BOTTOM );
+		else
+			this->setTipSide( TBTS_TOP );
+	}
+	// xdid -u [NAME] [ID] [SWITCH] [VALUE]
+	else if ( flags[TEXT('u')] && numtok > 3 ) {
 
-    LONG lLength = (LONG)input.gettok( 4 ).to_num( );
+		LONG lLength = (LONG)input.gettok( 4 ).to_num( );
 
-    this->setThumbLength( lLength );
-  }
-  // xdid -v [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags[TEXT('v')] && numtok > 3 ) {
+		this->setThumbLength( lLength );
+	}
+	// xdid -v [NAME] [ID] [SWITCH] [VALUE]
+	else if ( flags[TEXT('v')] && numtok > 3 ) {
 
-    LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
+		LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
 
-    this->setPos( lPosition );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+		this->setPos( lPosition );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::setRangeMin( const LONG iLowLim ) {
-  return SendMessage( this->m_Hwnd, TBM_SETRANGEMIN, (WPARAM) TRUE, (LPARAM) iLowLim );
+	return SendMessage( this->m_Hwnd, TBM_SETRANGEMIN, (WPARAM) TRUE, (LPARAM) iLowLim );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::getRangeMin(  ) const {
-  return SendMessage( this->m_Hwnd, TBM_GETRANGEMIN, (WPARAM) 0, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, TBM_GETRANGEMIN, (WPARAM) 0, (LPARAM) 0 );
 } 
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::setRangeMax( const LONG iHighLim ) {
-  return SendMessage( this->m_Hwnd, TBM_SETRANGEMAX, (WPARAM) TRUE, (LPARAM) iHighLim );
+	return SendMessage( this->m_Hwnd, TBM_SETRANGEMAX, (WPARAM) TRUE, (LPARAM) iHighLim );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::getRangeMax(  ) const {
-  return SendMessage( this->m_Hwnd, TBM_GETRANGEMAX, (WPARAM) 0, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, TBM_GETRANGEMAX, (WPARAM) 0, (LPARAM) 0 );
 } 
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::setRange( const LONG iLowLim, const LONG iHighLim ) {
-  return SendMessage( this->m_Hwnd, TBM_SETRANGE, (WPARAM) TRUE, (LPARAM) MAKELONG ( iLowLim, iHighLim ) );
+	return SendMessage( this->m_Hwnd, TBM_SETRANGE, (WPARAM) TRUE, (LPARAM) MAKELONG ( iLowLim, iHighLim ) );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::setPos( const LONG lPosition ) {
-  return SendMessage( this->m_Hwnd, TBM_SETPOS, (WPARAM) TRUE, (LPARAM) lPosition );
+	return SendMessage( this->m_Hwnd, TBM_SETPOS, (WPARAM) TRUE, (LPARAM) lPosition );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::getPos(  ) const {
-  return SendMessage( this->m_Hwnd, TBM_GETPOS, (WPARAM) 0, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, TBM_GETPOS, (WPARAM) 0, (LPARAM) 0 );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::setTic( const LONG lPosition ) {
-  return (BOOL) SendMessage( this->m_Hwnd, TBM_SETTIC, (WPARAM) 0, (LPARAM) lPosition );
+	return (BOOL) SendMessage( this->m_Hwnd, TBM_SETTIC, (WPARAM) 0, (LPARAM) lPosition );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::setTicFreq( const LONG wFreq ) {
-  return SendMessage( this->m_Hwnd, TBM_SETTICFREQ, (WPARAM) wFreq, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, TBM_SETTICFREQ, (WPARAM) wFreq, (LPARAM) 0 );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::clearTics( ) {
-  return SendMessage( this->m_Hwnd, TBM_CLEARTICS, (WPARAM) TRUE, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, TBM_CLEARTICS, (WPARAM) TRUE, (LPARAM) 0 );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::setTipSide( const int fLocation ) {
-  return SendMessage( this->m_Hwnd, TBM_SETTIPSIDE, (WPARAM) fLocation, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, TBM_SETTIPSIDE, (WPARAM) fLocation, (LPARAM) 0 );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::setPageSize( const LONG lPageSize ) {
-  return SendMessage( this->m_Hwnd, TBM_SETPAGESIZE, (WPARAM) 0, (LPARAM) lPageSize );
+	return SendMessage( this->m_Hwnd, TBM_SETPAGESIZE, (WPARAM) 0, (LPARAM) lPageSize );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::getPageSize(  ) const {
-  return SendMessage( this->m_Hwnd, TBM_GETPAGESIZE, (WPARAM) 0, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, TBM_GETPAGESIZE, (WPARAM) 0, (LPARAM) 0 );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::setLineSize( const LONG lLineSize ) {
-  return SendMessage( this->m_Hwnd, TBM_SETLINESIZE, (WPARAM) 0, (LPARAM) lLineSize );
+	return SendMessage( this->m_Hwnd, TBM_SETLINESIZE, (WPARAM) 0, (LPARAM) lLineSize );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::getLineSize(  ) const {
-  return SendMessage( this->m_Hwnd, TBM_GETLINESIZE, (WPARAM) 0, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, TBM_GETLINESIZE, (WPARAM) 0, (LPARAM) 0 );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::setThumbLength( const UINT iLength ) {
-  return SendMessage( this->m_Hwnd, TBM_SETTHUMBLENGTH, (WPARAM) iLength, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, TBM_SETTHUMBLENGTH, (WPARAM) iLength, (LPARAM) 0 );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::setSel( const LONG iLowLim, const LONG iHighLim ) {
-  return SendMessage( this->m_Hwnd, TBM_SETSEL, (WPARAM) TRUE, (LPARAM) MAKELONG( iLowLim, iHighLim ) );
+	return SendMessage( this->m_Hwnd, TBM_SETSEL, (WPARAM) TRUE, (LPARAM) MAKELONG( iLowLim, iHighLim ) );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::getSelStart(  ) const {
-  return SendMessage( this->m_Hwnd, TBM_GETSELSTART, (WPARAM) 0, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, TBM_GETSELSTART, (WPARAM) 0, (LPARAM) 0 );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 
 LRESULT DcxTrackBar::getSelEnd(  ) const {
-  return SendMessage( this->m_Hwnd, TBM_GETSELEND, (WPARAM) 0, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, TBM_GETSELEND, (WPARAM) 0, (LPARAM) 0 );
 }
 
 /*!
- * \brief blah
- *
- * blah
- */
+* \brief blah
+*
+* blah
+*/
 LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 	switch( uMsg ) {
 		case WM_VSCROLL:
 		case WM_HSCROLL: 
-		{
-			switch (LOWORD(wParam)) {
+			{
+				switch (LOWORD(wParam)) {
 				case TB_TOP:
 					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("top"), this->getUserID(), this->getPos());
 					break;
@@ -521,10 +521,10 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 				case SB_THUMBTRACK:
 					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("tracking"), this->getUserID(), this->getPos());
 					break;
-			}
+				}
 
-			break;
-		}
+				break;
+			}
 
 
 		case WM_NOTIFY: {
@@ -552,14 +552,14 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 						case CDDS_ITEMPREPAINT: {
 							// try to make it draw the tics, doesnt work =(
-							if (nmcd.dwItemSpec == TBCD_TICS) {
+							if (nmcd.dwItemSpec == TBCD_TICS)
 								return CDRF_DODEFAULT | CDRF_NOTIFYPOSTPAINT;
-							}
+
 							HBITMAP oldBM = NULL;
 							// channel that the trackbar control's thumb marker slides along
 							if (nmcd.dwItemSpec == TBCD_CHANNEL) {
 								// draw the background here
-								if (this->m_hbmp[TBBMP_BACK]) {
+								if (this->m_hbmp[TBBMP_BACK] != NULL) {
 									HDC hdcbmp = CreateCompatibleDC(hdc);
 
 									if (hdcbmp != NULL) {
@@ -579,7 +579,7 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									}
 								}
 
-								if (this->m_hbmp[TBBMP_CHANNEL]) {
+								if (this->m_hbmp[TBBMP_CHANNEL] != NULL) {
 									HDC hdcbmp = CreateCompatibleDC(hdc);
 
 									if (hdcbmp != NULL) {
@@ -598,7 +598,7 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									}
 								}
 
-//								return CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT;
+								//								return CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT;
 								return CDRF_DODEFAULT;// | CDRF_NOTIFYPOSTPAINT;
 							}
 							// trackbar control's thumb marker. This is the portion of the control
@@ -643,9 +643,9 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							return CDRF_DODEFAULT;
 						} // item prepaint
 
-						case CDDS_ITEMPOSTPAINT: {
-								return CDRF_SKIPDEFAULT;
-						} // item postpaint
+						case CDDS_ITEMPOSTPAINT:
+							return CDRF_SKIPDEFAULT;
+						// item postpaint
 
 						default:
 							return CDRF_DODEFAULT;
@@ -662,7 +662,7 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		//case WM_ERASEBKGND:
 		//	{
@@ -686,34 +686,34 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 			switch (hdr->code) {
 				// Show tooltip
-				case TTN_SHOW:
-					// Check if its currently being updated.
-					if (this->m_bUpdatingTooltip)
-						break;
+		case TTN_SHOW:
+			// Check if its currently being updated.
+			if (this->m_bUpdatingTooltip)
+				break;
 
-					TString buff((UINT) 80);
+			TString buff((UINT) 80);
 
-          this->evalAliasEx(buff.to_chr(), 79, TEXT("%s,%d,%d"), TEXT("showtip"), this->getUserID(), this->getPos());
-					
-					if (buff.len() > 0) {
-						TOOLINFO ti;
+			this->evalAliasEx(buff.to_chr(), 79, TEXT("%s,%d,%d"), TEXT("showtip"), this->getUserID(), this->getPos());
 
-						ZeroMemory(&ti, sizeof(TOOLINFO));
+			if (buff.len() > 0) {
+				TOOLINFO ti;
 
-						ti.cbSize = sizeof(TOOLINFO);
-						ti.hinst = GetModuleHandle(NULL);
-						ti.hwnd = this->m_Hwnd;
-						ti.uId = (UINT_PTR) this->m_Hwnd;
-						ti.lpszText = buff.to_chr();
+				ZeroMemory(&ti, sizeof(TOOLINFO));
 
-						this->m_bUpdatingTooltip = true;
-						SendMessage(this->m_ToolTipHWND, TTM_UPDATETIPTEXT, NULL, (LPARAM) &ti);
-						this->m_bUpdatingTooltip = false;
-					}
+				ti.cbSize = sizeof(TOOLINFO);
+				ti.hinst = GetModuleHandle(NULL);
+				ti.hwnd = this->m_Hwnd;
+				ti.uId = (UINT_PTR) this->m_Hwnd;
+				ti.lpszText = buff.to_chr();
 
-					break;
+				this->m_bUpdatingTooltip = true;
+				SendMessage(this->m_ToolTipHWND, TTM_UPDATETIPTEXT, NULL, (LPARAM) &ti);
+				this->m_bUpdatingTooltip = false;
 			}
-		}
+
+			break;
+			}
+						}
 
 		case WM_PAINT:
 			{
@@ -744,19 +744,19 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 			}
 			break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }
 
 
