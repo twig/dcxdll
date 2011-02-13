@@ -37,7 +37,8 @@ DcxUXModule::~DcxUXModule(void)
 
 bool DcxUXModule::load(mIRCLinker &mIRCLink)
 {
-	if (isUseable()) return false;
+	if (isUseable())
+		return false;
 	//DcxModule::load(mIRCLink); // does nothing
 	// UXModule Loading
 	DCX_DEBUG(mIRCLink.debug,TEXT("LoadDLL"), TEXT("Loading UXTHEME.DLL..."));

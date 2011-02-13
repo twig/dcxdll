@@ -47,7 +47,7 @@ DcxLink::DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, c
 		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_hIcon = NULL;
 	this->m_aColors[0] = RGB( 0, 0, 255 );

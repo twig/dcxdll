@@ -252,11 +252,12 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		int w = input.gettok( 6 ).to_int( );
 		int h = input.gettok( 7 ).to_int( );
 
-		MoveWindow( this->m_Hwnd, x, y, w, h, FALSE );
+		MoveWindow( this->m_Hwnd, x, y, w, h, TRUE );
 		//this->InvalidateParentRect( this->m_Hwnd);
-		InvalidateRect( GetParent( this->m_Hwnd ), NULL, TRUE );
-		this->redrawWindow( );
-		SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
+		//InvalidateRect( GetParent( this->m_Hwnd ), NULL, TRUE );
+		//this->redrawWindow( );
+		//this->m_pParentDialog->redrawBufferedWindow();
+		//SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
 	}
 	// xdid -x [NAME] [ID] [SWITCH] [+FLAGS]
 	else if ( flags[TEXT('x')] && numtok > 3 ) {
@@ -1268,10 +1269,10 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 		else
 			CopyRect(&rc, rwnd);
 		if (!IsWindowEnabled(p_this->m_Hwnd)) {// use disabled colouring when windows disabled.
-			if (hTheme && !p_this->m_bNoTheme && Dcx::XPPlusModule.dcxIsThemeActive()) {
-				if (Dcx::XPPlusModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
-					Dcx::XPPlusModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
-				Dcx::XPPlusModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, NULL);
+			if (hTheme && !p_this->m_bNoTheme && Dcx::UXModule.dcxIsThemeActive()) {
+				if (Dcx::UXModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
+					Dcx::UXModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
+				Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, NULL);
 			}
 			else
 				FillRect( hdc, &rc, GetSysColorBrush(COLOR_3DFACE) );
@@ -1290,10 +1291,10 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 		else {
 			HBRUSH hBrush = p_this->getBackClrBrush();
 			if (hBrush == NULL) {
-				if (hTheme && !p_this->m_bNoTheme && Dcx::XPPlusModule.dcxIsThemeActive()) {
-					if (Dcx::XPPlusModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
-						Dcx::XPPlusModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
-					Dcx::XPPlusModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, NULL);
+				if (hTheme && !p_this->m_bNoTheme && Dcx::UXModule.dcxIsThemeActive()) {
+					if (Dcx::UXModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
+						Dcx::UXModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
+					Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, NULL);
 					return;
 				}
 				else
@@ -1500,7 +1501,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 		4: alpha blend temp hdc to hdc
 	*/
 #ifdef DCX_USE_WINSDK
-	if (Dcx::XPPlusModule.IsBufferedPaintSupported()) {
+	if (Dcx::UXModule.IsBufferedPaintSupported()) {
 		BP_PAINTPARAMS paintParams = {0};
 		paintParams.cbSize = sizeof(paintParams);
 		paintParams.dwFlags = BPPF_ERASE;
@@ -1512,7 +1513,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 
 		GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
 		GetWindowRect(this->m_Hwnd,&ai->ai_rcWin);
-		ai->ai_Buffer = Dcx::XPPlusModule.dcxBeginBufferedPaint(*hdc, &ai->ai_rcClient, BPBF_COMPATIBLEBITMAP, &paintParams, &ai->ai_hdc);
+		ai->ai_Buffer = Dcx::UXModule.dcxBeginBufferedPaint(*hdc, &ai->ai_rcClient, BPBF_COMPATIBLEBITMAP, &paintParams, &ai->ai_hdc);
 		if (ai->ai_Buffer != NULL) {
 			//Dcx::XPPlusModule.dcxDrawThemeParentBackground(this->m_Hwnd, ai->ai_hdc, &ai->ai_rcClient);
 			this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
@@ -1601,7 +1602,7 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 
 #ifdef DCX_USE_WINSDK
 	if (ai->ai_Buffer != NULL) {
-		Dcx::XPPlusModule.dcxEndBufferedPaint(ai->ai_Buffer, TRUE);
+		Dcx::UXModule.dcxEndBufferedPaint(ai->ai_Buffer, TRUE);
 		return;
 	}
 #endif
@@ -2003,7 +2004,7 @@ TString DcxControl::getStyles(void) {
 	DWORD exStyles, Styles;
 	exStyles = GetWindowExStyle(this->m_Hwnd);
 	Styles = GetWindowStyle(this->m_Hwnd);
-	if ( Dcx::XPPlusModule.dcxGetWindowTheme(this->m_Hwnd) == NULL )
+	if ( Dcx::UXModule.dcxGetWindowTheme(this->m_Hwnd) == NULL )
 		result = TEXT("notheme");
 	if ( Styles & WS_TABSTOP ) 
 		result.addtok(TEXT("tabstop"));

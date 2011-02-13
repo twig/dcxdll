@@ -79,7 +79,7 @@ void XPopupMenuManager::load(void)
 	RegisterClassEx(&wc);
 
 	DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Creating menu owner..."));
-	m_hMenuOwner = CreateWindow(XPOPUPMENUCLASS, NULL, 0, 0, 0, 0, 0, (Dcx::XPPlusModule.isUseable() ? HWND_MESSAGE : 0), 0, GetModuleHandle(NULL), 0);
+	m_hMenuOwner = CreateWindow(XPOPUPMENUCLASS, NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, 0, GetModuleHandle(NULL), 0);
 
 	m_mIRCPopupMenu = new XPopupMenu(TEXT("mirc"),(HMENU)NULL);
 	m_mIRCMenuBar = new XPopupMenu(TEXT("mircbar"),GetMenu(Dcx::mIRC.getHWND()));

@@ -52,7 +52,7 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd,
 		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_tsText = TEXT("%d %%");
 

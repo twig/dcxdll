@@ -215,76 +215,46 @@ void DcxmlParser::parseAttributes(const TiXmlElement* element) {
 	elem = element->Value();
 	parentelem = parent->Value();
 	parenttype = queryAttribute(parent, "type", "panel");
-	temp = element->Attribute("weight");
-	weigth = (temp != NULL) ? temp : "1";
-	temp = element->Attribute("height");
-	height = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("width");
-	width = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("margin");
-	margin = (temp != NULL) ? temp : "0 0 0 0";
-	temp = element->Attribute("styles");
-	styles = (temp != NULL) ? temp : "";
+	weigth = queryAttribute(element, "weight", "1");
+	height = queryAttribute(element, "height", "0");
+	width = queryAttribute(element, "width", "0");
+	margin = queryAttribute(element, "margin", "0 0 0 0");
+	styles = queryAttribute(element, "styles", "");
 	temp = element->Attribute("caption");
 	if (temp == NULL)
 		temp = element->GetText();
 	caption = (temp != NULL) ? temp : "";
-	temp = element->Attribute("tooltip");
-	tooltip = (temp != NULL) ? temp : "";
-	temp = element->Attribute("cascade");
-	cascade = (temp != NULL) ? temp : "";
-	temp = element->Attribute("icon");
-	icon = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("integral");
-	integral = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("state");
-	state = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("indent");
-	indent = (temp != NULL) ? temp : "0";
+	tooltip = queryAttribute(element, "tooltip", "");
+	cascade = queryAttribute(element, "cascade", "");
+	icon = queryAttribute(element, "icon", "0");
+	integral = queryAttribute(element, "integral", "0");
+	state = queryAttribute(element, "state", "0");
+	indent = queryAttribute(element, "indent", "0");
 	//flags attribute defaults different per type/item
 	tFlags = element->Attribute("flags");
-	temp = element->Attribute("src");
-	src = (temp != NULL) ? temp : "";
-	temp = element->Attribute("cells");
-	cells = (temp != NULL) ? temp : "-1";
-	temp = element->Attribute("minheight");
-	rebarMinHeight = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("minwidth");
-	rebarMinWidth = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("iconsize");
-	iconsize = (temp != NULL) ? temp : "16";
-	eval = (element->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 0;
+	src = queryAttribute(element, "src", "");
+	cells = queryAttribute(element, "cells", "-1");
+	rebarMinHeight = queryAttribute(element, "minheight", "0");
+	rebarMinWidth = queryAttribute(element, "minwidth", "0");
+	iconsize = queryAttribute(element, "iconsize", "16");
+	eval = this->queryIntAttribute(element, "eval");
 
-	temp = element->Attribute("fontstyle");
-	fontstyle = (temp != NULL) ? temp : "d";
-	temp = element->Attribute("charset");
-	charset = (temp != NULL) ? temp : "ansi";
-	temp = element->Attribute("fontsize");
-	fontsize = (temp != NULL) ? temp : "";
-	temp = element->Attribute("fontname");
-	fontname = (temp != NULL) ? temp : "";
-	temp = element->Attribute("border");
-	border = (temp != NULL) ? temp : "";
-	temp = element->Attribute("cursor");
-	cursor = (temp != NULL) ? temp : "arrow";
-	temp = element->Attribute("bgcolour");
-	bgcolour = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("textbgcolour");
-	textbgcolour = (temp != NULL) ? temp : "";
-	temp = element->Attribute("textcolour");
-	textcolour = (temp != NULL) ? temp : "0";
+	fontstyle = queryAttribute(element, "fontstyle", "d");
+	charset = queryAttribute(element, "charset", "ansi");
+	fontsize = queryAttribute(element, "fontsize", "");
+	fontname = queryAttribute(element, "fontname", "");
+	border = queryAttribute(element, "border", "");
+	cursor = queryAttribute(element, "cursor", "arrow");
+	bgcolour = queryAttribute(element, "bgcolour", "0");
+	textbgcolour = queryAttribute(element, "textbgcolour", "");
+	textcolour = queryAttribute(element, "textcolour", "0");
 
-	temp = element->Attribute("gradientstart");
-	gradientstart = (temp != NULL) ? temp : "";
-	temp = element->Attribute("gradientend");
-	gradientend = (temp != NULL) ? temp : "";
+	gradientstart = queryAttribute(element, "gradientstart", "");
+	gradientend = queryAttribute(element, "gradientend", "");
 
-	temp = element->Attribute("disabledsrc");
-	disabledsrc = (temp != NULL) ? temp : "";
-	temp = element->Attribute("hoversrc");
-	hoversrc = (temp != NULL) ? temp : "";
-	temp = element->Attribute("selectedsrc");
-	selectedsrc = (temp != NULL) ? temp : "";
+	disabledsrc = queryAttribute(element, "disabledsrc", "");
+	hoversrc = queryAttribute(element, "hoversrc", "");
+	selectedsrc = queryAttribute(element, "selectedsrc", "");
 }
 /* parseControl() : if current element is a control perform some extra commands*/
 void DcxmlParser::parseControl() { 
@@ -296,8 +266,7 @@ void DcxmlParser::parseControl() {
 	//        padding = (temp = element->Attribute("padding")) ? temp : "0 0 0 0";
 
 	if (0==lstrcmpA(parenttype, "divider")) {
-		temp = element->Attribute("width");
-		xdidEX(parentid,TEXT("-v"),TEXT("%S"),((temp != NULL) ? temp : "100"));
+		xdidEX(parentid,TEXT("-v"),TEXT("%d"),this->queryIntAttribute(element, "width", 100));
 	}
 	if (((0==lstrcmpA(type, "toolbar")) || (0==lstrcmpA(type, "button"))) || (0==lstrcmpA(type, "treeview")))
 			xdidEX(id,TEXT("-l"),TEXT("%S"),iconsize);
@@ -377,14 +346,12 @@ void DcxmlParser::parseControl() {
 	}
 	else if (0==lstrcmpA(type, "image"))
 		this->xdidEX(id,TEXT("-i"),TEXT("+%S %S"),((tFlags) ? tFlags : ""),src);
-	else if (0==lstrcmpA(type, "statusbar")) { 
+	else if (0==lstrcmpA(type, "statusbar")) {
 		this->xdidEX(id,TEXT("-l"),TEXT("%S"),cells);
 		this->parseItems(element);
 	}
-	temp = element->Attribute("disabledsrc");
-	disabledsrc = (temp != NULL) ? temp : "";
-	temp = element->Attribute("hoversrc");
-	hoversrc = (temp != NULL) ? temp : "";
+	disabledsrc = queryAttribute(element, "disabledsrc", "");
+	hoversrc = queryAttribute(element, "hoversrc", "");
 }
 /* xdialogEX(switch,format[,args[]]) : performs an xdialog command internally or through mIRC */
 void DcxmlParser::xdialogEX(const TCHAR *sw,const TCHAR *dFormat, ...) { 

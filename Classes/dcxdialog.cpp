@@ -333,12 +333,8 @@ void DcxDialog::parseCommandRequest( TString &input) {
 		this->removeStyle(WS_BORDER | WS_DLGFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX |
 			WS_SYSMENU | WS_SIZEBOX | WS_CAPTION);
 
-		if (Dcx::XPPlusModule.isUseable())
-			this->removeExStyle(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP |
-				WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED | WS_EX_LAYERED);
-		else
-			this->removeExStyle(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP |
-				WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_LAYERED);
+		this->removeExStyle(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_CONTEXTHELP |
+			WS_EX_TOOLWINDOW | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED | WS_EX_LAYERED);
 
 		this->RemoveVistaStyle();
 
@@ -1322,7 +1318,7 @@ void DcxDialog::parseBorderStyles(const TString &flags, LONG *Styles, LONG *ExSt
 			*Styles |= WS_SYSMENU;
 		else if (flags[i] == TEXT('z'))
 			*Styles |= WS_SIZEBOX;
-		else if (flags[i] == TEXT('x') && Dcx::XPPlusModule.isUseable())
+		else if (flags[i] == TEXT('x'))
 			*ExStyles |= WS_EX_COMPOSITED;
 		//	WS_EX_COMPOSITED style causes problems for listview control & maybe others, but when it works it looks really cool :)
 		//	this improves transparency etc.. on xp+ only, looking into how this affects us.

@@ -47,7 +47,7 @@ DcxDivider::DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
@@ -165,18 +165,7 @@ void DcxDivider::parseCommandRequest( TString & input ) {
 				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 			{
 				try {
-					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
-						CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|
-						CTLF_ALLOW_COLORCOMBO|CTLF_ALLOW_STATUSBAR|CTLF_ALLOW_TOOLBAR|
-						CTLF_ALLOW_TREEVIEW|CTLF_ALLOW_LISTVIEW|CTLF_ALLOW_REBAR|
-						CTLF_ALLOW_BUTTON|CTLF_ALLOW_RICHEDIT|CTLF_ALLOW_EDIT|
-						CTLF_ALLOW_UPDOWN| CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
-						CTLF_ALLOW_CALANDER|CTLF_ALLOW_DIVIDER|CTLF_ALLOW_PANEL|
-						CTLF_ALLOW_TAB|CTLF_ALLOW_LINE|CTLF_ALLOW_BOX|CTLF_ALLOW_RADIO|
-						CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
-						CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
-						CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW
-						,this->m_Hwnd);
+					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,CTLF_ALLOW_ALLBUTDOCK,this->m_Hwnd);
 
 					if ( p_Control != NULL ) {
 

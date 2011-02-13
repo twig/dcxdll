@@ -25,12 +25,10 @@ class Dcx
 
 public:
 
-
-
 	static mIRCLinker mIRC;
 	static DcxDialogCollection Dialogs;
 	static DcxGDIModule GDIModule;
-	static DcxUXModule XPPlusModule;
+	static DcxUXModule UXModule;
 	static DcxDWMModule VistaModule;
 
 	/* additions */

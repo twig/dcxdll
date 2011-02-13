@@ -58,7 +58,7 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 		throw TEXT("Unable To Create Window");
 
 	if (bNoTheme)
-		Dcx::XPPlusModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 	else
 		CRichEditThemed::Attach(this->m_Hwnd);
 

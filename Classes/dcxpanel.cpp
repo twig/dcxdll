@@ -51,7 +51,7 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
 

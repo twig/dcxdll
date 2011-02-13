@@ -55,7 +55,7 @@ DcxCalendar::DcxCalendar( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
 		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );

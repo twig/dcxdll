@@ -66,7 +66,7 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok(TEXT("tooltips"))) {

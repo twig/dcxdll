@@ -61,6 +61,8 @@ class DcxDialog;
 #define LVSEARCH_R 0x02 //!< ListView Regex Search
 #define LVSEARCH_E 0x04 //!< ListView Exact Match
 
+#define LVSCW_AUTOSIZE_MAX	-3	// Max of LVSCW_AUTOSIZE & LVSCW_AUTOSIZE_USEHEADER
+
 /*!
  * \brief blah
  *
