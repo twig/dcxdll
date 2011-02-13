@@ -664,7 +664,7 @@ bool DcxDock::InitStatusbar(const TString &styles)
 
 	if (IsWindow(g_StatusBar)) {
 		if ( bNoTheme )
-			Dcx::XPPlusModule.dcxSetWindowTheme( g_StatusBar , L" ", L" " );
+			Dcx::UXModule.dcxSetWindowTheme( g_StatusBar , L" ", L" " );
 
 		//SendMessage(g_StatusBar, SB_SETUNICODEFORMAT, TRUE, NULL);
 		return true;

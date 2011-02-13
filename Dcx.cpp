@@ -10,7 +10,7 @@ mIRCLinker Dcx::mIRC;
 TString Dcx::m_sLastError;
 IClassFactory * Dcx::m_pClassFactory;
 DcxGDIModule Dcx::GDIModule;
-DcxUXModule Dcx::XPPlusModule;
+DcxUXModule Dcx::UXModule;
 DcxDWMModule Dcx::VistaModule;
 DcxDialogCollection Dcx::Dialogs;
 XPopupMenuManager Dcx::XPopups;
@@ -33,7 +33,7 @@ void Dcx::load(LOADINFO * lInfo)
 	// Initializing GDI
 	GDIModule.load(mIRC);
 
-	XPPlusModule.load(mIRC);
+	UXModule.load(mIRC);
 
 	VistaModule.load(mIRC);
 
@@ -336,7 +336,7 @@ void Dcx::setupOSCompatibility(void) {
 void Dcx::freeOSCompatibility(void)
 {
 	GDIModule.unload();
-	XPPlusModule.unload();
+	UXModule.unload();
 	VistaModule.unload();
 }
 

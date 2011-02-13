@@ -47,7 +47,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, con
 		throw TEXT("Unable To Create Window");
 
 	if (bNoTheme)
-		Dcx::XPPlusModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 
 	Edit_LimitText(this->m_Hwnd, 0);
 	//this->m_tsText = TEXT("");

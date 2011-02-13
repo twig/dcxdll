@@ -61,9 +61,9 @@ DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT 
 		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-	SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
+	SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 6, (LPARAM) 0 );
 
 	this->parseListviewExStyles( styles, &ExStyles);
 
@@ -293,16 +293,15 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 	// [NAME] [ID] [PROP] [N] [NSUB]
 	if (prop == TEXT("columns")) {
 		// if its a report listview and it has headers
-		if (!this->isStyle(LVS_NOCOLUMNHEADER) &&
-			(this->isListViewStyle(LVS_REPORT))) {
-				HWND hHeader = (HWND) ListView_GetHeader(this->m_Hwnd);
+		if (!this->isStyle(LVS_NOCOLUMNHEADER) && (this->isListViewStyle(LVS_REPORT))) {
+			HWND hHeader = (HWND) ListView_GetHeader(this->m_Hwnd);
 
-				if (!hHeader) {
-					this->showError(TEXT("columns"),NULL,TEXT("could not find header"));
-					return;
-				}
+			if (!hHeader) {
+				this->showError(TEXT("columns"),NULL,TEXT("could not find header"));
+				return;
+			}
 
-				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) Header_GetItemCount(hHeader));
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) Header_GetItemCount(hHeader));
 		}
 		else
 			lstrcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
@@ -647,7 +646,6 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 				buff.tsprintf(TEXT("%s %d"), buff.to_chr(), ListView_GetColumnWidth(this->m_Hwnd, i));
 			}
 
-			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), buff.trim().to_chr());
 			lstrcpyn(szReturnValue, buff.trim().to_chr(), MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
@@ -705,7 +703,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		lvg.cchHeader = MIRC_BUFFER_SIZE_CCH;
 		lvg.pszHeader = wstr;
 
-		if ( Dcx::XPPlusModule.isUseable( ) && ListView_GetGroupInfo( this->m_Hwnd, GID, &lvg ) != -1 ) {
+		if ( ListView_GetGroupInfo( this->m_Hwnd, GID, &lvg ) != -1 ) {
 			lstrcpyn(szReturnValue, lvg.pszHeader, MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
@@ -713,7 +711,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("genabled") ) {
 
-		if ( Dcx::XPPlusModule.isUseable( ) && ListView_IsGroupViewEnabled( this->m_Hwnd ) )
+		if ( ListView_IsGroupViewEnabled( this->m_Hwnd ) )
 			lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
 		else
 			lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
@@ -766,10 +764,8 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 #ifndef DCX_USE_WINSDK
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("gnum") ) {
-		if ( Dcx::XPPlusModule.isUseable( ) && ListView_IsGroupViewEnabled( this->m_Hwnd ) )
+		if ( ListView_IsGroupViewEnabled( this->m_Hwnd ) )
 		{
-			//int g = 0, gcount = 0;
-			//while (g < 256) { if (ListView_HasGroup(this->m_Hwnd, g++)) gcount++; }
 			int gcount = 0;
 			for (int g = 0; g < 256; g++) { if (ListView_HasGroup(this->m_Hwnd, g)) gcount++; }
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), gcount);
@@ -781,7 +777,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 #else
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("gnum") ) {
-		if ( Dcx::XPPlusModule.isUseable( ) && ListView_IsGroupViewEnabled( this->m_Hwnd ) )
+		if ( ListView_IsGroupViewEnabled( this->m_Hwnd ) )
 		{
 			if (Dcx::VistaModule.isUseable())
 				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListView_GetGroupCount(this->m_Hwnd));
@@ -797,7 +793,7 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 	}
 #endif
 	else if ( prop == TEXT("gid") ) {
-		if ( Dcx::XPPlusModule.isUseable( ) && ListView_IsGroupViewEnabled( this->m_Hwnd ) )
+		if ( ListView_IsGroupViewEnabled( this->m_Hwnd ) )
 		{
 			int iIndex = input.gettok(4).to_int() -1;
 
@@ -848,7 +844,6 @@ void DcxListView::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		lvi.iSubItem = nCol;
 
 		ListView_GetItem(this->m_Hwnd, &lvi);
-		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), ((LPDCXLVITEM) lvi.lParam)->tsMark.to_chr());
 		lstrcpyn(szReturnValue, ((LPDCXLVITEM) lvi.lParam)->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
@@ -865,7 +860,7 @@ void DcxListView::autoSize(const int nColumn, const TString &flags)
 
 void DcxListView::autoSize(const int nColumn, const int iFlags)
 {
-	if (iFlags == -3) {
+	if (iFlags == LVSCW_AUTOSIZE_MAX) {
 		int n = 0;
 		ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
 		n = ListView_GetColumnWidth(this->m_Hwnd, nColumn);
@@ -981,7 +976,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 			TString flag(input.gettok(6));
 			//TString info(input.gettok(7, -1));
 	
-			if (flag.find(TEXT('M'), 1) > 0)
+			if (flag == TEXT("+M"))
 				lviDcx->tsMark = input.gettok(7, -1);
 			else
 				this->showErrorEx(NULL, TEXT("-A"), TEXT("Unknown flags %s"), flag.to_chr());
@@ -1377,7 +1372,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 		UINT iFlags = this->parseGroupFlags(input.gettok( 5 ));
 		int gid = (int)input.gettok( 6 ).to_num();
 
-		if (Dcx::XPPlusModule.isUseable() && index > -1 && gid > 0) {
+		if (index > -1 && gid > 0) {
 			if (!ListView_HasGroup(this->m_Hwnd, gid)) {
 				TString text(input.gettok(7, -1));
 
@@ -1642,37 +1637,13 @@ void DcxListView::parseCommandRequest(TString &input) {
 	}
 	// xdid -W [NAME] [ID] [SWITCH] [STYLE]
 	else if (flags[TEXT('W')] && numtok > 3) {
-		static const TString poslist(TEXT("report icon smallicon list"));
+		static const TString poslist(TEXT("report icon smallicon list tile"));
+		static const int lv_styles[5] = { LV_VIEW_DETAILS, LV_VIEW_ICON, LV_VIEW_SMALLICON, LV_VIEW_LIST, LV_VIEW_TILE };
 		TString style(input.gettok(4));
 		int index = poslist.findtok(style.to_chr(), 1);
-		UINT mode = 0;
+		UINT mode = lv_styles[index -1];
 
-		switch (index) {
-			case 1: // report
-				mode = LVS_REPORT;
-				break;
-
-			case 2: // icon
-				mode = LVS_ICON;
-				break;
-
-			case 3: // smallicon
-				mode = LVS_SMALLICON;
-				break;
-
-			case 4: // list
-				mode = LVS_LIST;
-				break;
-
-			default:
-				this->showError(NULL, TEXT("-W"), TEXT("Unknown style"));
-				return;
-		}
-
-		DWORD dwOldStyle = GetWindowStyle(this->m_Hwnd);
-		dwOldStyle &= ~LVS_TYPEMASK; // Remove any of the flags indicating current styles
-		dwOldStyle |= mode; // Specify the style we want to switch to
-		SetWindowLong(this->m_Hwnd, GWL_STYLE, dwOldStyle);
+		ListView_SetView(this->m_Hwnd, mode);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')] && numtok > 3) {
@@ -1752,11 +1723,7 @@ void DcxListView::parseCommandRequest(TString &input) {
 				it.cbSize = sizeof(it);
 				it.iItem = lvi.iItem;
 				it.iSubItem = lvi.iSubItem;
-#if UNICODE
 				it.pszText = lpmylvi->tsTipText.to_chr();
-#else
-				it.pszText = lpmylvi->tsTipText.to_wchr(this->m_bUseUTF8);
-#endif
 				ListView_SetInfoTip(this->m_Hwnd,&it);
 			}
 		}
@@ -2081,7 +2048,7 @@ INT DcxListView::parseHeaderFlags2( const TString & flags ) {
 		else if ( flags[i] == TEXT('h') ) // header size
 			iFlags = LVSCW_AUTOSIZE_USEHEADER;
 		else if ( flags[i] == TEXT('s') ) // max size (max of auto & header)
-			iFlags = -3;
+			iFlags = LVSCW_AUTOSIZE_MAX;
 
 		++i;
 	}
@@ -3404,24 +3371,21 @@ void DcxListView::xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *
 		lvi->iImage = -1;
 
 	// Items icon.
-	if (Dcx::XPPlusModule.isUseable() && ListView_IsGroupViewEnabled(this->m_Hwnd)) {
-		attr = xNode->Attribute("group",&i);
-		if (attr != NULL && i > -1 && ListView_HasGroup(this->m_Hwnd, i)) {
-			lvi->iGroupId = i;
-			lvi->mask |= LVIF_GROUPID;
-		}
-		else
-			lvi->iGroupId = -1;
-	}
+	attr = xNode->Attribute("group",&i);
+	lvi->mask |= LVIF_GROUPID;
+	if (attr != NULL && i > -1 && ListView_HasGroup(this->m_Hwnd, i))
+		lvi->iGroupId = i;
+	else
+		lvi->iGroupId = I_GROUPIDNONE;
 
-	// Items background colour.
+	// Items indent.
 	attr = xNode->Attribute("indent",&i);
 	if (attr != NULL && i > -1) {
 		lvi->iIndent = i;
 		lvi->mask |= LVIF_INDENT;
 	}
 	else
-		lvi->iIndent = -1;
+		lvi->iIndent = 0;
 
 	// Items Text.
 	attr = xNode->Attribute("text");
@@ -3652,159 +3616,137 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 	lvi.mask |= LVIF_IMAGE; // when this is a set & iImage is -1 the parent does the drawing (& in this case does nothing so no icon)
 							// this fixes the icon being drawn even when no icon set.
 							// leave this separate for now untill it's been well tested.
-	
-	// LVS_REPORT view
-	if (this->isListViewStyle(LVS_REPORT)) {
 
-		if (Dcx::XPPlusModule.isUseable() && group > 0) {
-			if (ListView_HasGroup(this->m_Hwnd, group)) {
-				lvi.iGroupId = group;
-				lvi.mask |= LVIF_GROUPID;
-			}
-			else
-				this->showErrorEx(NULL,TEXT("-a"), TEXT("Invalid Group specified: %d"), group);
-		}
-
-		if (indent > 0) {
-			lvi.mask |= LVIF_INDENT;
-			lvi.iIndent = indent;
-		}
-
-		// set text in case of pbar
-		if ((stateFlags & LVIS_PBAR) != LVIS_PBAR) {
-			lvi.mask |= LVIF_TEXT;
-			lvi.pszText = itemtext.to_chr();
-		}
-
-		lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
-
-		if (lvi.iItem == -1) {
-			delete lpmylvi;
-			delete ri;
-			this->showError(NULL,TEXT("-a"), TEXT("Unable to add item"));
-			return;
-		}
-
-		// create pbar for first column
-		if (stateFlags & LVIS_PBAR)
-			CreatePbar(&lvi, itemtext.gettok(1, -1));
-
-		// subitems
-		int tabs;
-
-		if ((tabs = input.numtok(TSTAB)) > 1) {
-			int i = 2;
-
-			// ADD check for num columns
-			while (i <= tabs) {
-				data = input.gettok(i, TSTAB).trim();
-
-				if (data.numtok() < 5) {
-					this->showError(NULL,TEXT("-a"), TEXT("Invalid subitem syntax"));
-					break;
-				}
-
-				stateFlags = parseItemFlags(data.gettok( 1 ));
-				clrText = (COLORREF)data.gettok(4).to_num();
-				clrBack = (COLORREF)data.gettok(5).to_num();
-
-				// setup colum #
-				ri = new DCXLVRENDERINFO;
-
-				if (ri == NULL)
-					break;
-
-				ri->m_dFlags = stateFlags;
-
-				if (stateFlags & LVIS_COLOR)
-					ri->m_cText = clrText;
-				else
-					ri->m_cText = CLR_INVALID;
-
-				if (stateFlags & LVIS_BGCOLOR)
-					ri->m_cBg = clrBack;
-				else
-					ri->m_cBg = CLR_INVALID;
-
-				lpmylvi->vInfo.push_back(ri);
-
-				lvi.iSubItem = i -1;
-				lvi.mask = LVIF_TEXT;
-
-				// icon
-				icon = data.gettok( 2 ).to_int() -1;
-
-				lvi.mask |= LVIF_IMAGE; // moved here to turn off icon when none is wanted.
-				if (icon > -1)
-					lvi.iImage = icon;
-				else
-					lvi.iImage = -1;
-
-				// overlay
-				if ((overlay = data.gettok(3).to_int()) > 0) {
-					lvi.mask |= LVIF_STATE;
-					lvi.state |= INDEXTOOVERLAYMASK(overlay);
-					lvi.stateMask |= LVIS_OVERLAYMASK;
-				}
-				else
-					lvi.state |= INDEXTOOVERLAYMASK(0);
-
-				itemtext = TEXT("");
-				if (data.numtok() > 5) {
-					itemtext = data.gettok(6, -1);
-
-					TString res;
-					if ((stateFlags & LVIS_HASHITEM) && (itemtext.numtok() == 2)) {
-						Dcx::mIRC.tsEvalex(res, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-						itemtext = res;
-					}
-					else if ((stateFlags & LVIS_HASHNUMBER) && (itemtext.numtok() == 2)) {
-						Dcx::mIRC.tsEvalex(res,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-						itemtext = res;
-					}
-				}
-				// create pbar for subitem
-				if (stateFlags & LVIS_PBAR) {
-					CreatePbar(&lvi, itemtext);
-					itemtext = TEXT("");
-				}
-
-				lvi.pszText = itemtext.to_chr();
-				ListView_SetItem(this->m_Hwnd, &lvi);
-
-				this->autoSize(i -1,data.gettok( 1 ));
-				i++;
-			}
-		}
-
-		if (state > -1)
-			ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
-
-		// overlay is 1-based index, max 15 overlay icons
-		if (overlay > 0 && overlay < 16)
-			ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlay), LVIS_OVERLAYMASK);
-
-		this->autoSize(0,input.gettok( 6 ));
+	// groups not reportview only.
+	lvi.iGroupId = I_GROUPIDNONE;	// set item as belonging to NO group by default.
+	lvi.mask |= LVIF_GROUPID;		// otherwise if group flag isnt set I_GROUPIDCALLBACK is assumed.
+	if (group > 0) {
+		if (ListView_HasGroup(this->m_Hwnd, group))
+			lvi.iGroupId = group;
+		else
+			this->showErrorEx(NULL,TEXT("-a"), TEXT("Invalid Group specified: %d"), group);
 	}
-	// LVS_ICON | LVS_SMALLICON | LVS_LIST views
-	else {
 
+	if (indent > 0) {
+		lvi.mask |= LVIF_INDENT;
+		lvi.iIndent = indent;
+	}
+
+	// set text in case of pbar
+	if ((stateFlags & LVIS_PBAR) != LVIS_PBAR) {
 		lvi.mask |= LVIF_TEXT;
 		lvi.pszText = itemtext.to_chr();
-		lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
-
-		if (lvi.iItem == -1) {
-			this->showError(NULL,TEXT("-a"), TEXT("Unable to add item"));
-			return;
-		}
-
-		if (state > -1)
-			ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
-
-		// overlay is 1-based index
-		if (overlay > 0 && overlay < 16)
-			ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlay), LVIS_OVERLAYMASK);
 	}
+
+	lvi.iItem = ListView_InsertItem(this->m_Hwnd, &lvi);
+
+	if (lvi.iItem == -1) {
+		delete lpmylvi;
+		delete ri;
+		this->showError(NULL,TEXT("-a"), TEXT("Unable to add item"));
+		return;
+	}
+
+	// create pbar for first column
+	if (stateFlags & LVIS_PBAR)
+		CreatePbar(&lvi, itemtext.gettok(1, -1));
+
+	// subitems
+	int tabs = input.numtok(TSTAB);
+
+	if (tabs > 1) {
+		int i = 2;
+
+		// ADD check for num columns
+		while (i <= tabs) {
+			data = input.gettok(i, TSTAB).trim();
+
+			if (data.numtok() < 5) {
+				this->showError(NULL,TEXT("-a"), TEXT("Invalid subitem syntax"));
+				break;
+			}
+
+			stateFlags = parseItemFlags(data.gettok( 1 ));
+			clrText = (COLORREF)data.gettok(4).to_num();
+			clrBack = (COLORREF)data.gettok(5).to_num();
+
+			// setup colum #
+			ri = new DCXLVRENDERINFO;
+
+			if (ri == NULL)
+				break;
+
+			ri->m_dFlags = stateFlags;
+
+			if (stateFlags & LVIS_COLOR)
+				ri->m_cText = clrText;
+			else
+				ri->m_cText = CLR_INVALID;
+
+			if (stateFlags & LVIS_BGCOLOR)
+				ri->m_cBg = clrBack;
+			else
+				ri->m_cBg = CLR_INVALID;
+
+			lpmylvi->vInfo.push_back(ri);
+
+			lvi.iSubItem = i -1;
+			lvi.mask = LVIF_TEXT;
+
+			// icon
+			icon = data.gettok( 2 ).to_int() -1;
+
+			lvi.mask |= LVIF_IMAGE; // moved here to turn off icon when none is wanted.
+			if (icon > -1)
+				lvi.iImage = icon;
+			else
+				lvi.iImage = -1;
+
+			// overlay
+			if ((overlay = data.gettok(3).to_int()) > 0) {
+				lvi.mask |= LVIF_STATE;
+				lvi.state |= INDEXTOOVERLAYMASK(overlay);
+				lvi.stateMask |= LVIS_OVERLAYMASK;
+			}
+			else
+				lvi.state |= INDEXTOOVERLAYMASK(0);
+
+			itemtext = TEXT("");
+			if (data.numtok() > 5) {
+				itemtext = data.gettok(6, -1);
+
+				TString res;
+				if ((stateFlags & LVIS_HASHITEM) && (itemtext.numtok() == 2)) {
+					Dcx::mIRC.tsEvalex(res, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					itemtext = res;
+				}
+				else if ((stateFlags & LVIS_HASHNUMBER) && (itemtext.numtok() == 2)) {
+					Dcx::mIRC.tsEvalex(res,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					itemtext = res;
+				}
+			}
+			// create pbar for subitem
+			if (stateFlags & LVIS_PBAR) {
+				CreatePbar(&lvi, itemtext);
+				itemtext = TEXT("");
+			}
+
+			lvi.pszText = itemtext.to_chr();
+			ListView_SetItem(this->m_Hwnd, &lvi);
+
+			this->autoSize(i -1,data.gettok( 1 ));
+			i++;
+		}
+	}
+
+	if (state > -1)
+		ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
+
+	// overlay is 1-based index, max 15 overlay icons
+	if (overlay > 0 && overlay < 16)
+		ListView_SetItemState(this->m_Hwnd, lvi.iItem, INDEXTOOVERLAYMASK(overlay), LVIS_OVERLAYMASK);
+
+	this->autoSize(0,input.gettok( 6 ));
 }
 
 void DcxListView::parseText2Item(const TString &tsTxt, TString &tsItem, const TString &tsData)

@@ -49,7 +49,7 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
 		throw TEXT("Unable To Create Window");
 
   if ( bNoTheme )
-    Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+    Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   /*
   HWND hHwndTip = TabCtrl_GetToolTips( this->m_Hwnd );

@@ -65,9 +65,9 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
 		throw TEXT("Unable To Create Window");
 
   if ( bNoTheme )
-    Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+    Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 5, (LPARAM) 0 );
+  SendMessage( this->m_Hwnd, CCM_SETVERSION, (WPARAM) 6, (LPARAM) 0 );
 
   if ( ExStyles & TVS_CHECKBOXES )
     this->addStyle( TVS_CHECKBOXES );

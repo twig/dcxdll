@@ -239,7 +239,7 @@ mIRC(IsUnloadSafe) {
 * \brief Check if windows is themed
 */
 mIRC(IsThemedXP) {
-	ret((Dcx::XPPlusModule.dcxIsThemeActive() ? TEXT("$true") : TEXT("$false")));
+	ret((Dcx::UXModule.dcxIsThemeActive() ? TEXT("$true") : TEXT("$false")));
 }
 
 /*!
@@ -760,8 +760,8 @@ mIRC(WindowProps) {
 	// set hwnd NoTheme
 	// +T
 	if (xflags[TEXT('T')]) {
-		if (Dcx::XPPlusModule.isUseable()) {
-			if (Dcx::XPPlusModule.dcxSetWindowTheme(hwnd,TEXT(" "),TEXT(" ")) != S_OK)
+		if (Dcx::UXModule.isUseable()) {
+			if (Dcx::UXModule.dcxSetWindowTheme(hwnd,TEXT(" "),TEXT(" ")) != S_OK)
 				Dcx::error(TEXT("/dcx WindowProps"), TEXT("Unable to set theme"));
 		}
 	}

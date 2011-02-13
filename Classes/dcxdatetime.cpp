@@ -50,7 +50,7 @@ DcxDateTime::DcxDateTime(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 		throw TEXT("Unable To Create Window");
 
 	if (bNoTheme)
-		Dcx::XPPlusModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 
 	this->setControlFont((HFONT) GetStockObject(DEFAULT_GUI_FONT), FALSE);
 	this->registreDefaultWindowProc();

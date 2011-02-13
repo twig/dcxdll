@@ -1333,7 +1333,7 @@ void FreeOSCompatibility(void)
 
 	if (UXModule != NULL) {
 #ifdef DCX_USE_WINSDK
-		Dcx::XPPlusModule.dcxBufferedPaintUnInit();
+		Dcx::UXModule.dcxBufferedPaintUnInit();
 #endif
 
 		FreeLibrary(UXModule);

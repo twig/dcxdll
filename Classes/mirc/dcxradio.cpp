@@ -47,7 +47,7 @@ DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 		throw TEXT("Unable To Create Window");
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_bNoTheme = (bNoTheme ? true : false);
 
@@ -258,11 +258,11 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-	if (this->m_bNoTheme || !Dcx::XPPlusModule.dcxIsThemeActive()) {
-		if (this->m_clrBackText != -1)
+	if (this->m_bNoTheme || !Dcx::UXModule.dcxIsThemeActive()) {
+		if (this->m_clrBackText != CLR_INVALID)
 			SetBkColor(hdc, this->m_clrBackText);
 
-		if (this->m_clrText != -1)
+		if (this->m_clrText != CLR_INVALID)
 			SetTextColor(hdc, this->m_clrText);
 
 		RECT rcClient;

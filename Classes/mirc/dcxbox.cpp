@@ -61,7 +61,7 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 	this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
 
@@ -95,12 +95,12 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 	}
 	if (IsWindow(this->m_TitleButton)) {
 		if ( bNoTheme )
-			Dcx::XPPlusModule.dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
+			Dcx::UXModule.dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
 		if (!(Styles & WS_DISABLED))
 			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
 	}
-	if (Dcx::XPPlusModule.isUseable())
-		this->_hTheme = Dcx::XPPlusModule.dcxOpenThemeData(this->m_Hwnd,L"BUTTON");
+	if (Dcx::UXModule.isUseable())
+		this->_hTheme = Dcx::UXModule.dcxOpenThemeData(this->m_Hwnd,L"BUTTON");
 }
 
 /*!
@@ -114,7 +114,7 @@ DcxBox::~DcxBox( ) {
 	if ( this->m_pLayoutManager != NULL )
 		delete this->m_pLayoutManager;
 	if (this->_hTheme)
-		Dcx::XPPlusModule.dcxCloseThemeData(this->_hTheme);
+		Dcx::UXModule.dcxCloseThemeData(this->_hTheme);
 	this->unregistreDefaultWindowProc( );
 }
 
@@ -710,8 +710,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		case WM_THEMECHANGED:
 			{
 				if (this->_hTheme != NULL) {
-					Dcx::XPPlusModule.dcxCloseThemeData(this->_hTheme);
-					this->_hTheme = Dcx::XPPlusModule.dcxOpenThemeData(this->m_Hwnd,L"BUTTON");
+					Dcx::UXModule.dcxCloseThemeData(this->_hTheme);
+					this->_hTheme = Dcx::UXModule.dcxOpenThemeData(this->m_Hwnd,L"BUTTON");
 				}
 			}
 			break;
