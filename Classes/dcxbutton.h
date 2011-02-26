@@ -42,23 +42,23 @@ class DcxButton : public DcxControl {
 
 public:
 
-	DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+	DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
 	virtual ~DcxButton( );
 
 	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-	void parseInfoRequest( TString & input, PTCHAR szReturnValue );
-	void parseCommandRequest( TString & input );
-	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
 	HIMAGELIST getImageList( ) const;
 	void setImageList( const HIMAGELIST himl );
 	HIMAGELIST createImageList( );
 
-	inline TString getType( ) { return TString( TEXT("button") ); };
-	void toXml(TiXmlElement * xml);
-	TString getStyles(void);
+	inline TString getType( ) const { return TString( TEXT("button") ); };
+	void toXml(TiXmlElement * xml) const;
+	TString getStyles(void) const;
 
 protected:
 

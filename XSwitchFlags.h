@@ -51,7 +51,7 @@ class XSwitchFlags {
 		bool operator[](const TCHAR c) const;
 
 	protected:
-		bool flags[26];     //!< Lowercase switches a-z
+		bool flags[28];     //!< Lowercase switches a-z
 		bool flags_cap[26]; //!< Uppercase switches A-Z
 };
 

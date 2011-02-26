@@ -2,19 +2,26 @@
 
 // Constructor
 XSwitchFlags::XSwitchFlags(const TString &switches) {
-	ZeroMemory(flags, sizeof(bool) * 26);
+	ZeroMemory(flags, sizeof(bool) * 28);
 	ZeroMemory(flags_cap, sizeof(bool) * 26);
 
 	// no - sign, & no + sign, invalid syntax
-	if ((switches[0] != TEXT('-')) && (switches[0] != TEXT('+')))
+	//if ((switches[0] != TEXT('-')) && (switches[0] != TEXT('+')))
+	//	return;
+
+	if (switches[0] == TEXT('-'))
+		flags[26] = true;
+	else if (switches[0] == TEXT('+'))
+		flags[27] = true;
+	else
 		return;
 
-	unsigned int i = 1;
-	unsigned int len = (UINT)switches.len();
+	const unsigned int len = (UINT)switches.len();
 	TCHAR c;
 
 	// Parse the switches
-	while (i < len) {
+	for (UINT i = 1; i < len; i++)
+	{
 		c = switches[i];
 
 		// Check if its in the right range
@@ -22,8 +29,6 @@ XSwitchFlags::XSwitchFlags(const TString &switches) {
 			flags[(int) (c - TEXT('a'))] = true;
 		else if (c >= TEXT('A') && (c <= TEXT('Z')))
 			flags_cap[(int) (c - TEXT('A'))] = true;
-
-		i++;
 	}
 }
 
@@ -39,6 +44,10 @@ bool XSwitchFlags::isSet(const TCHAR c) const {
 	// Upper-case
 	else if ((c >= TEXT('A')) && (c <= TEXT('Z')))
 		return flags_cap[(int) (c - TEXT('A'))];
+	else if (c == TEXT('-'))	// check if - flag identifier used.
+		return flags[26];
+	else if (c == TEXT('+'))	// check if + flag identifier used.
+		return flags[27];
 
 	return false;
 }

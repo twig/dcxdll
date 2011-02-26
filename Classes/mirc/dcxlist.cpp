@@ -30,7 +30,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxList::DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog ),
   m_iDragList(0),
   m_iLastDrawnLine(0),
@@ -93,7 +93,8 @@ DcxList::~DcxList( ) {
 	this->unregistreDefaultWindowProc( );
 }
 
-TString DcxList::getStyles(void) {
+TString DcxList::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -130,9 +131,10 @@ TString DcxList::getStyles(void) {
  * blah
  */
 
-void DcxList::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-	unsigned int i = 1, numtok = styles.numtok();
+	unsigned int i = 1;
+	const UINT numtok = styles.numtok();
 	*Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
 
 	while (i <= numtok) {
@@ -178,11 +180,11 @@ void DcxList::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
  * \return > void
  */
 
-void DcxList::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
+void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	const int numtok = input.numtok( );
 
-  int numtok = input.numtok( );
-
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
 	if ( prop == TEXT("text") && numtok > 3 ) {
@@ -196,12 +198,12 @@ void DcxList::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 			return;
 		}
 	}
-  // [NAME] [ID] [PROP]
-  else if ( prop == TEXT("num") ) {
+	// [NAME] [ID] [PROP]
+	else if ( prop == TEXT("num") ) {
 
-    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCount( this->m_Hwnd ) );
-    return;
-  }
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCount( this->m_Hwnd ) );
+		return;
+	}
 	// [NAME] [ID] [PROP] (N)
 	else if (prop == TEXT("sel")) {
 		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
@@ -232,19 +234,11 @@ void DcxList::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 					int i = 0;
 
 					while (i < n) {
-#if UNICODE
 #ifdef VS2005
 						_itow(p[i] +1, num, 10);
 #else
 						itow(p[i] +1, num, 10);
 #endif // VS2005
-#else
-#ifdef VS2005
-						_itoa(p[i] +1, num, 10);
-#else
-						itoa(p[i] +1, num, 10);
-#endif // VS2005
-#endif // UNICODE
 						path.addtok(num, TSCOMMA);
 
 						i++;
@@ -348,9 +342,9 @@ void DcxList::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * blah
  */
 
-void DcxList::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxList::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	//xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -375,7 +369,7 @@ void DcxList::parseCommandRequest( TString & input ) {
 		if ( nPos == -1 )
 			nPos = ListBox_GetCount( this->m_Hwnd );
 
-		TString opts(input.gettok( 5 ));
+		const TString opts(input.gettok( 5 ));
 		TString itemtext(input.gettok(6, -1).trim());
 		int nMaxStrlen = 0;
 		TString tsRes;
@@ -982,8 +976,8 @@ void DcxList::DrawDragLine(const int location)
    ReleaseDC(this->m_Hwnd, hDC);
 }
 
-BOOL DcxList::matchItemText( const int nItem, const TString * search, const UINT SearchType ) {
-
+BOOL DcxList::matchItemText( const int nItem, const TString * search, const UINT SearchType ) const
+{
 	TCHAR *itemtext;
 	BOOL bRes = FALSE;
 

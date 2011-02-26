@@ -25,7 +25,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog )
 , m_bBitmapText(FALSE)
 , m_bHasIcons(FALSE)
@@ -110,19 +110,17 @@ DcxButton::~DcxButton( ) {
  * blah
  */
 
-void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-	unsigned int i = 1, numtok = styles.numtok( );
+void DcxButton::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
+	const UINT numtok = styles.numtok( );
 	*Styles |= BS_NOTIFY;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++ )
+	{
 		if ( styles.gettok( i ) == TEXT("bitmap") )
 			*Styles |= BS_BITMAP;
 		else if ( styles.gettok( i ) == TEXT("default") )
 			*Styles |= BS_DEFPUSHBUTTON;
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -136,8 +134,8 @@ void DcxButton::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
  * \return > void
  */
 
-void DcxButton::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
-
+void DcxButton::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
 	// [NAME] [ID] [PROP]
 	if ( input.gettok( 3 ) == TEXT("text") ) {
 
@@ -156,9 +154,9 @@ void DcxButton::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * blah
  */
 
-void DcxButton::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok();
+void DcxButton::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok();
 
 	// xdid -c [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	if (flags[TEXT('c')] && numtok > 4) {
@@ -346,7 +344,8 @@ HIMAGELIST DcxButton::createImageList() {
 	return ImageList_Create(this->m_iIconSize, this->m_iIconSize, ILC_COLOR32 | ILC_MASK, 1, 0);
 }
 
-TString DcxButton::getStyles(void) {
+TString DcxButton::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -357,7 +356,8 @@ TString DcxButton::getStyles(void) {
 	return styles;
 }
 	
-void DcxButton::toXml(TiXmlElement * xml) {
+void DcxButton::toXml(TiXmlElement * xml) const
+{
 	__super::toXml(xml);
 	xml->SetAttribute("caption", this->m_tsCaption.c_str());
 }
@@ -679,14 +679,10 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		SetTextColor(hdc, this->m_aColors[nState]);
 
-		if ( this->m_tsCaption.len( ) > 0 ) {
-#if UNICODE
-			DrawTextW(hdc, this->m_tsCaption.to_chr(), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE);
-#else
-			//DrawText( hdc, this->m_tsCaption.to_chr( ), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE );
-			DrawTextW(hdc, this->m_tsCaption.to_wchr(this->m_bUseUTF8), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE);
-#endif
-		}
+		//if ( this->m_tsCaption.len( ) > 0 )
+		//	DrawTextW(hdc, this->m_tsCaption.to_chr(), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE);
+		if ( this->m_tsCaption.len( ) > 0 )
+			this->calcTextRect(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
 
 		int iCenter = w / 2;
 		int iVCenter = h / 2;
@@ -725,8 +721,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 			rcTxt.right = rcClient.right - BUTTON_XPAD;
 			rcTxt.bottom = rcClient.bottom - BUTTON_YPAD;
-
-#if UNICODE
+			//this->ctrlDrawText(hdc,this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
 			if (!this->m_bCtrlCodeText) {
 				if (!this->m_bSelected && this->m_bShadowText)
 					dcxDrawShadowText(hdc,this->m_tsCaption.to_chr(), (UINT)this->m_tsCaption.len(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
@@ -735,16 +730,6 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			}
 			else
 				mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false));
-#else
-			if (!this->m_bCtrlCodeText) {
-				if (!this->m_bSelected && this->m_bShadowText)
-					dcxDrawShadowText(hdc,this->m_tsCaption.to_wchr(this->m_bUseUTF8), (UINT)this->m_tsCaption.wlen(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
-				else
-					DrawTextW( hdc, this->m_tsCaption.to_wchr(this->m_bUseUTF8), (int)this->m_tsCaption.wlen( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
-			}
-			else
-				mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false), this->m_bUseUTF8);
-#endif
 		}
 
 		SelectFont( hdc, hFontOld );

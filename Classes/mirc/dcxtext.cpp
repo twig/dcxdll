@@ -25,7 +25,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog )
 {
 	LONG Styles = 0, ExStyles = 0;
@@ -87,11 +87,13 @@ DcxText::~DcxText( ) {
  * blah
  */
 
-void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok( );
+void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
+{
+	const UINT numtok = styles.numtok( );
 	*Styles |= SS_NOTIFY;
 
-	while (i <= numtok) {
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if (styles.gettok( i ) == TEXT("nowrap"))
 			*Styles |= SS_LEFTNOWORDWRAP;
 		else if (styles.gettok( i ) == TEXT("center"))
@@ -104,8 +106,6 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
 			*Styles |= SS_ENDELLIPSIS;
 		else if (styles.gettok( i ) == TEXT("pathellipsis"))
 			*Styles |= SS_PATHELLIPSIS;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
@@ -120,20 +120,18 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
  * \return > void
  */
 
-void DcxText::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
+void DcxText::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	// [NAME] [ID] [PROP]
+	if ( input.gettok( 3 ) == TEXT("text") ) {
 
-//  int numtok = input.numtok( );
+		GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-  // [NAME] [ID] [PROP]
-  if ( input.gettok( 3 ) == TEXT("text") ) {
-
-    GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -142,9 +140,9 @@ void DcxText::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * blah
  */
 
-void DcxText::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxText::parseCommandRequest(const TString &input) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {

@@ -31,26 +31,26 @@ class DcxMDialog : public DcxControl {
 
 public:
 
-  DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles );
-  virtual ~DcxMDialog( );
+	DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, const TString & styles );
+	virtual ~DcxMDialog( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme);
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  inline TString getType( ) { return TString( TEXT("dialog") ); };
+	inline TString getType( ) const { return TString( TEXT("dialog") ); };
 
 protected:
 
-  LONG m_OrigStyles;      //!< Dialog Original Styles
-  LONG m_OrigExStyles;    //!< Dialog Original Extended Styles
-  HWND m_OrigParentHwnd;  //!< Dialog Original Parent Handle
-  UINT m_OrigID;          //!< Dialog Original Control ID
-  TString m_OrigName;     //!< Dialog Original Name
-  BOOL m_DeleteByDestroy; //!< is true if control is deleted because docked dialog is destroyed (won't repaint dialog on delete)
+	LONG m_OrigStyles;      //!< Dialog Original Styles
+	LONG m_OrigExStyles;    //!< Dialog Original Extended Styles
+	HWND m_OrigParentHwnd;  //!< Dialog Original Parent Handle
+	UINT m_OrigID;          //!< Dialog Original Control ID
+	TString m_OrigName;     //!< Dialog Original Name
+	BOOL m_DeleteByDestroy; //!< is true if control is deleted because docked dialog is destroyed (won't repaint dialog on delete)
 
 };
 

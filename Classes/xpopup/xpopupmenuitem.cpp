@@ -121,7 +121,7 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 
 		HDC hdc = GetDC( mHwnd );
 
-		TString tsType(this->m_pXParentMenu->getName( ));
+		const TString tsType(this->m_pXParentMenu->getName( ));
 		if ( (tsType == TEXT("mirc")) || (tsType == TEXT("mircbar")) || (tsType == TEXT("dialog")) ) {
 			if ( this->m_tsItemText.numtok( TEXT("\v") ) > 1 ) {
 				this->m_nIcon = this->m_tsItemText.gettok( 1, TEXT("\v")).to_int( ) - 1;
@@ -161,11 +161,11 @@ ULONG_PTR XPopupMenuItem::getItemDataBackup() {
 
 void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 
-	LPXPMENUCOLORS lpcol = this->m_pXParentMenu->getColors( );
-	UINT iItemStyle = this->m_pXParentMenu->getItemStyle( );
+	const LPXPMENUCOLORS lpcol = this->m_pXParentMenu->getColors( );
+	const UINT iItemStyle = this->m_pXParentMenu->getItemStyle( );
 
 	// playing around with menu transparency
-	BYTE alpha = this->m_pXParentMenu->IsAlpha();
+	const BYTE alpha = this->m_pXParentMenu->IsAlpha();
 
 	// If alpha == 255 then menu is fully opaque so no need to change to layered.
 	if (alpha < 255) {
@@ -188,7 +188,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 	this->DrawItemBackground( lpdis, lpcol );
 	this->DrawItemBox( lpdis, lpcol );
 
-	TString tsType(this->m_pXParentMenu->getName( ));
+	const TString tsType(this->m_pXParentMenu->getName( ));
 	if (( tsType == TEXT("mircbar") ) || ( tsType == TEXT("dialog"))) {
 
 		if ( this->m_tsItemText.numtok( TEXT("\v") ) > 1 ) {
@@ -394,7 +394,9 @@ void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXP
 
 	HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSelectionBorder );
 
-	if (hPen == NULL) return;
+	if (hPen == NULL)
+		return;
+
 	HPEN hOldPen = SelectPen( lpdis->hDC, hPen );
 
 	HBRUSH hBrush = CreateSolidBrush( bDis?lpcol->m_clrDisabledSelection:lpcol->m_clrSelection );
@@ -426,9 +428,12 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
 	HPEN hPenText = CreatePen( PS_SOLID, 1, bDis?lpcol->m_clrDisabledText:lpcol->m_clrText );
 
 	if ((hBrush == NULL) || (hPenBorder == NULL) || (hPenText == NULL)) {
-		if (hPenText != NULL) DeletePen(hPenText);
-		if (hPenBorder != NULL) DeletePen(hPenBorder);
-		if (hBrush != NULL) DeleteBrush(hBrush);
+		if (hPenText != NULL)
+			DeletePen(hPenText);
+		if (hPenBorder != NULL)
+			DeletePen(hPenBorder);
+		if (hBrush != NULL)
+			DeleteBrush(hBrush);
 		return;
 	}
 
@@ -445,8 +450,8 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
 
 	SelectPen( lpdis->hDC, hPenText );
 
-	int x = ( rc.right + rc.left ) / 2 - 3;
-	int y = ( rc.bottom + rc.top ) / 2 - 3;
+	const int x = ( rc.right + rc.left ) / 2 - 3;
+	const int y = ( rc.bottom + rc.top ) / 2 - 3;
 
 	MoveToEx( lpdis->hDC, x, y+2, NULL );
 	LineTo( lpdis->hDC, x, y+5 );
@@ -473,12 +478,11 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
  *
  * blah
  */
-#if UNICODE
 void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
 
 	COLORREF oldClr = SetTextColor( lpdis->hDC, (bDis?lpcol->m_clrDisabledText:((lpdis->itemState & ODS_SELECTED)?lpcol->m_clrSelectedText:lpcol->m_clrText)) );
 
-	int oldBkg = SetBkMode( lpdis->hDC, TRANSPARENT );
+	const int oldBkg = SetBkMode( lpdis->hDC, TRANSPARENT );
 
 	RECT rc;
 	CopyRect( &rc, &lpdis->rcItem );
@@ -518,54 +522,6 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 	SetBkMode( lpdis->hDC, oldBkg );
 	SetTextColor( lpdis->hDC, oldClr );
 }
-#else
-void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
-
-	COLORREF oldClr = SetTextColor( lpdis->hDC, (bDis?lpcol->m_clrDisabledText:((lpdis->itemState & ODS_SELECTED)?lpcol->m_clrSelectedText:lpcol->m_clrText)) );
-
-	int oldBkg = SetBkMode( lpdis->hDC, TRANSPARENT );
-
-	RECT rc;
-	CopyRect( &rc, &lpdis->rcItem );
-	rc.left += XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
-
-	TString txt;
-	bool tryutf8 = false;
-	//check if the first char is $chr(12), if so then the text is utf8
-	if ( this->m_tsItemText[0] == 12) {
-		// remove $chr(12) from text and trim whitespaces
-		txt = this->m_tsItemText.right(-1).trim();
-		tryutf8 = true;
-	}
-	else // not utf8 so copy
-		txt = this->m_tsItemText;
-
-	if ( txt.numtok( TSTAB ) > 1 ) {
-
-		TString lefttext(txt.gettok(1, TSTAB).trim());
-		TString righttext(txt.gettok(2, TSTAB).trim());
-
-		//DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, 
-		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
-		mIRC_DrawText( lpdis->hDC, lefttext, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false, tryutf8);
-
-		if ( righttext.len( ) > 0 ) {
-
-			rc.right -= 15;
-			//DrawTextEx( lpdis->hDC, righttext.to_chr( ), righttext.len( ), &rc, 
-			//  DT_RIGHT | DT_SINGLELINE | DT_VCENTER, NULL );
-			mIRC_DrawText( lpdis->hDC, righttext, &rc, DT_RIGHT | DT_SINGLELINE | DT_VCENTER, false, tryutf8);
-		}
-	}
-	else {
-		//DrawTextEx( lpdis->hDC, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &rc, 
-		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
-		mIRC_DrawText( lpdis->hDC, txt, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false, tryutf8);
-	}
-	SetBkMode( lpdis->hDC, oldBkg );
-	SetTextColor( lpdis->hDC, oldClr );
-}
-#endif
 /*!
  * \brief blah
  *
@@ -576,8 +532,8 @@ void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 
 	HIMAGELIST himl = this->m_pXParentMenu->getImageList( );
 
-	int x = ( XPMI_BOXLPAD + XPMI_BOXLPAD + XPMI_BOXWIDTH - XPMI_ICONSIZE ) / 2;
-	int y = ( lpdis->rcItem.top + lpdis->rcItem.bottom - XPMI_ICONSIZE ) / 2;
+	const int x = ( XPMI_BOXLPAD + XPMI_BOXLPAD + XPMI_BOXWIDTH - XPMI_ICONSIZE ) / 2;
+	const int y = ( lpdis->rcItem.top + lpdis->rcItem.bottom - XPMI_ICONSIZE ) / 2;
 
 	if ( himl != NULL && this->m_nIcon > -1 && this->m_nIcon < ImageList_GetImageCount( himl ) ) {
 
@@ -622,12 +578,13 @@ void XPopupMenuItem::DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPM
 
 	HPEN hPen = CreatePen( PS_SOLID, 1, bDis?lpcol->m_clrDisabledText:lpcol->m_clrText );
 
-	if (hPen == NULL) return;
+	if (hPen == NULL)
+		return;
 
 	HPEN hOldPen = SelectPen( lpdis->hDC, hPen );
 
-	int x = lpdis->rcItem.right - 9;
-	int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top ) / 2 - 5;
+	const int x = lpdis->rcItem.right - 9;
+	const int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top ) / 2 - 5;
 
 	MoveToEx( lpdis->hDC, x, y, NULL );
 	LineTo( lpdis->hDC, x+1, y );
@@ -672,9 +629,9 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
 			HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSeparatorLine );
 
 			if (hPen != NULL) {
-				int x1 = lpdis->rcItem.left;
-				int x2 = lpdis->rcItem.right;
-				int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
+				const int x1 = lpdis->rcItem.left;
+				const int x2 = lpdis->rcItem.right;
+				const int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
 
 				HPEN oldPen = SelectPen( lpdis->hDC, hPen) ;
 				MoveToEx( lpdis->hDC, x1, y, NULL );
@@ -694,9 +651,9 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
 			HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSeparatorLine );
 
 			if (hPen != NULL) {
-				int x1 = XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
-				int x2 = lpdis->rcItem.right;
-				int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
+				const int x1 = XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
+				const int x2 = lpdis->rcItem.right;
+				const int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
 
 				HPEN oldPen = SelectPen( lpdis->hDC, hPen) ;
 				MoveToEx( lpdis->hDC, x1, y, NULL );
@@ -716,13 +673,13 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
 
 void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const BOOL bHorz ) {
 
-	BYTE StartRed   = GetRValue( clrStart );
-	BYTE StartGreen = GetGValue( (clrStart & 0xFFFF) );
-	BYTE StartBlue  = GetBValue( clrStart );
+	const BYTE StartRed   = GetRValue( clrStart );
+	const BYTE StartGreen = GetGValue( (clrStart & 0xFFFF) );
+	const BYTE StartBlue  = GetBValue( clrStart );
 
-	BYTE EndRed    = GetRValue( clrEnd );
-	BYTE EndGreen  = GetGValue( (clrEnd & 0xFFFF) );
-	BYTE EndBlue   = GetBValue( clrEnd );
+	const BYTE EndRed    = GetRValue( clrEnd );
+	const BYTE EndGreen  = GetGValue( (clrEnd & 0xFFFF) );
+	const BYTE EndBlue   = GetBValue( clrEnd );
 
 	TRIVERTEX        vert[2];
 	GRADIENT_RECT    gRect;
@@ -751,7 +708,7 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 	if (!GradientFill(hdc,vert,2,&gRect,1,gMode)) {
 		// if GradientFill fails do our own method.
 		int n;
-		int dy = 2;
+		const int dy = 2;
 
 		if ( bHorz == TRUE )
 			n = lprc->bottom - lprc->top - dy;
@@ -843,11 +800,11 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
  * blah
  */
 
-COLORREF XPopupMenuItem::LightenColor( const unsigned int iScale, const COLORREF clrColor ) { 
-
-	long R = MulDiv( 255 - GetRValue( clrColor ), iScale, 255 ) + GetRValue( clrColor );
-	long G = MulDiv( 255 - GetGValue( (clrColor & 0xFFFF) ), iScale, 255 ) + GetGValue( (clrColor & 0xFFFF) );
-	long B = MulDiv( 255 - GetBValue( clrColor ), iScale, 255 ) + GetBValue( clrColor );
+COLORREF XPopupMenuItem::LightenColor( const unsigned int iScale, const COLORREF clrColor )
+{
+	const long R = MulDiv( 255 - GetRValue( clrColor ), iScale, 255 ) + GetRValue( clrColor );
+	const long G = MulDiv( 255 - GetGValue( (clrColor & 0xFFFF) ), iScale, 255 ) + GetGValue( (clrColor & 0xFFFF) );
+	const long B = MulDiv( 255 - GetBValue( clrColor ), iScale, 255 ) + GetBValue( clrColor );
 
 	return RGB( R, G, B ); 
 }
@@ -859,10 +816,10 @@ COLORREF XPopupMenuItem::LightenColor( const unsigned int iScale, const COLORREF
 */
 
 COLORREF XPopupMenuItem::DarkenColor( const unsigned int iScale, const COLORREF clrColor )
-{ 
-	long R = MulDiv( GetRValue( clrColor ), ( 255 - iScale ), 255 );
-	long G = MulDiv( GetGValue( clrColor ), ( 255 - iScale ), 255 );
-	long B = MulDiv( GetBValue( clrColor ), ( 255 - iScale ), 255 );
+{
+	const long R = MulDiv( GetRValue( clrColor ), ( 255 - iScale ), 255 );
+	const long G = MulDiv( GetGValue( clrColor ), ( 255 - iScale ), 255 );
+	const long B = MulDiv( GetBValue( clrColor ), ( 255 - iScale ), 255 );
 
 	return RGB( R, G, B ); 
 }

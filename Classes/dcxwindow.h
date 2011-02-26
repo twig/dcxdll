@@ -49,15 +49,15 @@ public:
 
 	void redrawWindow( );
 	void redrawBufferedWindow( );
-	virtual void toXml(TiXmlElement * xml) = 0;
+	virtual void toXml(TiXmlElement * xml) const = 0;
 
 protected:
 
 	HWND m_Hwnd;
 	UINT m_ID;
 
-	virtual void parseCommandRequest( TString & input ) = 0;
-	virtual void parseInfoRequest( TString & input, TCHAR * szReturnValue ) = 0;
+	virtual void parseCommandRequest( const TString & input ) = 0;
+	virtual void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const = 0;
 
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

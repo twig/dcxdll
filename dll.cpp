@@ -278,7 +278,7 @@ mIRC(GetSystemColor) {
 	}
 
 	int col;
-	TString coltype(d.gettok(1));
+	const TString coltype(d.gettok(1));
 
 	if      (coltype == TEXT("COLOR_3DDKSHADOW")		) { col = COLOR_3DDKSHADOW; }
 	else if (coltype == TEXT("COLOR_3DFACE")			) { col = COLOR_3DFACE; }
@@ -349,14 +349,15 @@ mIRC(xdid) {
 		return 0;
 	}
 
-	TString IDs(d.gettok( 2 )), d2;
+	const TString IDs(d.gettok( 2 ));
+	TString d2;
 	DcxControl * p_Control;
-	int n = IDs.numtok(TSCOMMA);
+	const int n = IDs.numtok(TSCOMMA);
 
 	// Multiple IDs id,id,id,id-id,id-id
 	if (n > 1) {
 		for (int i = 1; i <= n; i++) {
-			TString tsID(IDs.gettok(i, TSCOMMA));
+			const TString tsID(IDs.gettok(i, TSCOMMA));
 			UINT id_start = 0, id_end = 0;
 			if (tsID.numtok(TEXT("-")) == 2) {
 				id_start = tsID.gettok(1, TEXT("-")).to_int();
@@ -429,7 +430,7 @@ mIRC(_xdid) {
 		return 0;
 	}
 
-	DcxControl * p_Control = p_Dialog->getControlByID((UINT) d.gettok( 2 ).to_int() + mIRC_ID_OFFSET);
+	const DcxControl * p_Control = p_Dialog->getControlByID((UINT) d.gettok( 2 ).to_int() + mIRC_ID_OFFSET);
 
 	if (p_Control == NULL) {
 		p_Dialog->showErrorEx(d.gettok( 3 ).to_chr(), NULL, TEXT("Invalid ID : %s (dialog %s)"), d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
@@ -510,7 +511,7 @@ mIRC(_xdialog) {
 		return 0;
 	}
 
-	DcxDialog *p_Dialog = Dcx::Dialogs.getDialogByName(d.gettok( 1 ));
+	const DcxDialog *p_Dialog = Dcx::Dialogs.getDialogByName(d.gettok( 1 ));
 
 	if (p_Dialog == NULL) {
 		if (d.gettok( 2 ) != TEXT("ismarked")) {
@@ -584,7 +585,7 @@ mIRC(_xpop) {
 		return 0;
 	}
 
-	XPopupMenu *p_Menu = Dcx::XPopups.getMenuByName(d.gettok(1), FALSE);
+	const XPopupMenu *p_Menu = Dcx::XPopups.getMenuByName(d.gettok(1), FALSE);
 
 	if (p_Menu == NULL) {
 		Dcx::errorex(TEXT("$!xpop()"), TEXT("Unknown menu \"%s\": see /xpopup -c command"), d.gettok(1).to_chr());
@@ -728,8 +729,8 @@ mIRC(xSignal) {
 
 // /dcx WindowProps [HWND] [+FLAGS] (ARGS)
 mIRC(WindowProps) {
-	TString input(data);
-	int numtok = input.numtok( );
+	const TString input(data);
+	const int numtok = input.numtok( );
 	data[0] = TEXT('\0');
 
 	if (numtok < 2) {
@@ -744,10 +745,10 @@ mIRC(WindowProps) {
 		return 0;
 	}
 
-	TString flags(input.gettok( 2 ).trim());
-	XSwitchFlags xflags(flags);
+	const TString flags(input.gettok( 2 ).trim());
+	const XSwitchFlags xflags(flags);
 
-	if ((flags[0] != TEXT('+')) || (flags.len() < 2)) {
+	if (!xflags[TEXT('+')] || (flags.len() < 2)) {
 		Dcx::error(TEXT("/dcx WindowProps"),TEXT("No Flags Found"));
 		return 0;
 	}
@@ -773,7 +774,7 @@ mIRC(WindowProps) {
 			Dcx::error(TEXT("/dcx WindowProps"), TEXT("Invalid Args"));
 			return 0;
 		}
-		int index = input.gettok( 3 ).to_int();
+		const int index = input.gettok( 3 ).to_int();
 		TString filename(input.gettok(1,TSTAB).gettok(4, -1).trim());
 
 		if (!ChangeHwndIcon(hwnd,flags,index,filename))
@@ -784,7 +785,7 @@ mIRC(WindowProps) {
 	if (xflags[TEXT('t')]) { 
 		TString txt;
 		
-		if (flags.find(TEXT('i'), 0)) {
+		if (xflags[TEXT('i')]) {
 			if (input.numtok(TSTAB) > 1)
 				txt = input.gettok(2,-1,TSTAB);
 		}
@@ -797,9 +798,9 @@ mIRC(WindowProps) {
 	// RMB click hwnd at pos.
 	// +r [X] [Y]
 	if (xflags[TEXT('r')]) {
-		UINT x = (UINT)input.gettok( 3 ).to_num();
-		UINT y = (UINT)input.gettok( 4 ).to_num();
-		LPARAM parm = MAKELONG(x,y);
+		const UINT x = (UINT)input.gettok( 3 ).to_num();
+		const UINT y = (UINT)input.gettok( 4 ).to_num();
+		const LPARAM parm = MAKELONG(x,y);
 		SendMessage(hwnd,WM_RBUTTONDOWN,MK_RBUTTON,parm);
 		PostMessage(hwnd,WM_RBUTTONUP,MK_RBUTTON,parm); // MUST be a PostMessage or the dll hangs untill the menu is closed.
 	}

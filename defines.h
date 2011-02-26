@@ -179,6 +179,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #include <windowsx.h>
 #include <vector>
 #include <commctrl.h>
+#include <richedit.h>
 
 #include "Classes/TString/tstring.h"
 #include "XSwitchFlags.h"

@@ -30,30 +30,30 @@ class DcxLink : public DcxControl {
 
 public:
 
-  DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
-  virtual ~DcxLink( );
+	DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
+	virtual ~DcxLink( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  inline TString getType( ) { return TString( TEXT("link") ); };
-  void toXml(TiXmlElement * xml);
+	inline TString getType( ) const { return TString( TEXT("link") ); };
+	void toXml(TiXmlElement * xml) const;
 
 	static void registerClass(void);
 
 protected:
 
-  HICON m_hIcon; //!< Link Icon
+	HICON m_hIcon; //!< Link Icon
 
-  COLORREF m_aColors[4]; //!< Link Colors 0 = normal, 1 = hot, 2 = visited, 3 = disabled
+	COLORREF m_aColors[4]; //!< Link Colors 0 = normal, 1 = hot, 2 = visited, 3 = disabled
 
-  BOOL m_bHover; //!< Hover State
-  BOOL m_bVisited; //!< Visited State
-  BOOL m_bTracking; //!< Mouse Tracking Var
+	BOOL m_bHover; //!< Hover State
+	BOOL m_bVisited; //!< Visited State
+	BOOL m_bTracking; //!< Mouse Tracking Var
 
 	//static TString UriEncode(const TString &sSrc);
 	//static TString UriDecode(const TString &sSrc);

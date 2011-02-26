@@ -37,18 +37,18 @@ class DcxDirectshow : public DcxControl {
 
 public:
 
-  DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
-  virtual ~DcxDirectshow( );
+	DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
+	virtual ~DcxDirectshow( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  inline TString getType( ) { return TString( TEXT("directshow") ); };
-  TString getStyles(void);
+	inline TString getType( ) const { return TString( TEXT("directshow") ); };
+	TString getStyles(void) const;
 
 protected:
 	HRESULT InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph, IVMRWindowlessControl9** ppWc);
@@ -69,14 +69,14 @@ protected:
 
 #define WM_GRAPHNOTIFY  WM_APP + 1
 
-	IGraphBuilder					 *m_pGraph;
-	IMediaControl					 *m_pControl;
-	IMediaEventEx					 *m_pEvent;
-	IMediaSeeking					 *m_pSeek;
-	IVMRWindowlessControl9 *m_pWc;
-	bool										m_bKeepRatio;
-	bool										m_bLoop;
-	TString									m_tsFilename;
+	IGraphBuilder			*m_pGraph;
+	IMediaControl			*m_pControl;
+	IMediaEventEx			*m_pEvent;
+	IMediaSeeking			*m_pSeek;
+	IVMRWindowlessControl9	*m_pWc;
+	bool					m_bKeepRatio;
+	bool					m_bLoop;
+	TString					m_tsFilename;
 };
 
 #pragma comment(lib, "Strmiids.lib")

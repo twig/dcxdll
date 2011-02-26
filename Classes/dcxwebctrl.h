@@ -35,56 +35,52 @@ class DcxWebControl : public DcxControl, public IOleClientSite, public IOleInPla
 
 public:
 
-  DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
-  virtual ~DcxWebControl( );
+	DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+	virtual ~DcxWebControl( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  // IDispatch Interface
-  HRESULT STDMETHODCALLTYPE GetTypeInfoCount( UINT __RPC_FAR *pctinfo ) { *pctinfo = NULL; return S_OK; }
-  HRESULT STDMETHODCALLTYPE GetTypeInfo( UINT,LCID,ITypeInfo __RPC_FAR *__RPC_FAR * ) { return E_NOTIMPL; }
-  HRESULT STDMETHODCALLTYPE GetIDsOfNames( REFIID,LPOLESTR __RPC_FAR*,
-                                           UINT,LCID,DISPID __RPC_FAR* ) { return E_NOTIMPL; }        
-  HRESULT STDMETHODCALLTYPE Invoke( DISPID, REFIID, LCID, WORD, DISPPARAMS __RPC_FAR *, 
-                                    VARIANT __RPC_FAR *, EXCEPINFO __RPC_FAR *, UINT __RPC_FAR * );	
+	// IDispatch Interface
+	HRESULT STDMETHODCALLTYPE GetTypeInfoCount( UINT __RPC_FAR *pctinfo ) { *pctinfo = NULL; return S_OK; }
+	HRESULT STDMETHODCALLTYPE GetTypeInfo( UINT,LCID,ITypeInfo __RPC_FAR *__RPC_FAR * ) { return E_NOTIMPL; }
+	HRESULT STDMETHODCALLTYPE GetIDsOfNames( REFIID,LPOLESTR __RPC_FAR*, UINT,LCID,DISPID __RPC_FAR* ) { return E_NOTIMPL; }
+	HRESULT STDMETHODCALLTYPE Invoke( DISPID, REFIID, LCID, WORD, DISPPARAMS __RPC_FAR *, VARIANT __RPC_FAR *, EXCEPINFO __RPC_FAR *, UINT __RPC_FAR * );
 
-  // IOleClientSite Interface
-  HRESULT STDMETHODCALLTYPE SaveObject( ) { return S_OK; }
-  HRESULT STDMETHODCALLTYPE GetMoniker( DWORD, DWORD, IMoniker __RPC_FAR *__RPC_FAR * ) { return E_NOTIMPL; }
-  HRESULT STDMETHODCALLTYPE GetContainer( IOleContainer __RPC_FAR *__RPC_FAR* ) { return E_NOTIMPL; }
-  HRESULT STDMETHODCALLTYPE ShowObject( ) { return S_OK; }
-  HRESULT STDMETHODCALLTYPE OnShowWindow( BOOL ) { return S_OK; }
-  HRESULT STDMETHODCALLTYPE RequestNewObjectLayout( ) { return S_OK; }
+	// IOleClientSite Interface
+	HRESULT STDMETHODCALLTYPE SaveObject( ) { return S_OK; }
+	HRESULT STDMETHODCALLTYPE GetMoniker( DWORD, DWORD, IMoniker __RPC_FAR *__RPC_FAR * ) { return E_NOTIMPL; }
+	HRESULT STDMETHODCALLTYPE GetContainer( IOleContainer __RPC_FAR *__RPC_FAR* ) { return E_NOTIMPL; }
+	HRESULT STDMETHODCALLTYPE ShowObject( ) { return S_OK; }
+	HRESULT STDMETHODCALLTYPE OnShowWindow( BOOL ) { return S_OK; }
+	HRESULT STDMETHODCALLTYPE RequestNewObjectLayout( ) { return S_OK; }
 
-  // IOleInPlaceSite Interface
-  HRESULT STDMETHODCALLTYPE CanInPlaceActivate( ) { return S_OK; }
-  HRESULT STDMETHODCALLTYPE OnInPlaceActivate( ) { return S_OK; };
-  HRESULT STDMETHODCALLTYPE OnUIActivate( ) { return S_OK; }
-  HRESULT STDMETHODCALLTYPE Scroll( SIZE ) { return E_NOTIMPL; }
-  HRESULT STDMETHODCALLTYPE OnUIDeactivate( BOOL ) { return S_OK; }
-  HRESULT STDMETHODCALLTYPE OnInPlaceDeactivate( ) { return S_OK; }
-  HRESULT STDMETHODCALLTYPE DiscardUndoState( ) { return S_OK; }
-  HRESULT STDMETHODCALLTYPE DeactivateAndUndo( ) { return S_OK; }
-  HRESULT STDMETHODCALLTYPE OnPosRectChange( LPCRECT ) { return S_OK; }
-  HRESULT STDMETHODCALLTYPE GetWindowContext( IOleInPlaceFrame __RPC_FAR *__RPC_FAR*, 
-                                              IOleInPlaceUIWindow __RPC_FAR *__RPC_FAR*,
-                                              LPRECT, LPRECT, LPOLEINPLACEFRAMEINFO );        
+	// IOleInPlaceSite Interface
+	HRESULT STDMETHODCALLTYPE CanInPlaceActivate( ) { return S_OK; }
+	HRESULT STDMETHODCALLTYPE OnInPlaceActivate( ) { return S_OK; };
+	HRESULT STDMETHODCALLTYPE OnUIActivate( ) { return S_OK; }
+	HRESULT STDMETHODCALLTYPE Scroll( SIZE ) { return E_NOTIMPL; }
+	HRESULT STDMETHODCALLTYPE OnUIDeactivate( BOOL ) { return S_OK; }
+	HRESULT STDMETHODCALLTYPE OnInPlaceDeactivate( ) { return S_OK; }
+	HRESULT STDMETHODCALLTYPE DiscardUndoState( ) { return S_OK; }
+	HRESULT STDMETHODCALLTYPE DeactivateAndUndo( ) { return S_OK; }
+	HRESULT STDMETHODCALLTYPE OnPosRectChange( LPCRECT ) { return S_OK; }
+	HRESULT STDMETHODCALLTYPE GetWindowContext( IOleInPlaceFrame __RPC_FAR *__RPC_FAR*, IOleInPlaceUIWindow __RPC_FAR *__RPC_FAR*, LPRECT, LPRECT, LPOLEINPLACEFRAMEINFO );
 
-  // IOleWindow Interface
-  HRESULT STDMETHODCALLTYPE GetWindow( HWND __RPC_FAR * phwnd ) { *phwnd = this->m_Hwnd; return S_OK; }
-  HRESULT STDMETHODCALLTYPE ContextSensitiveHelp( BOOL ) { return E_NOTIMPL; }
+	// IOleWindow Interface
+	HRESULT STDMETHODCALLTYPE GetWindow( HWND __RPC_FAR * phwnd ) { *phwnd = this->m_Hwnd; return S_OK; }
+	HRESULT STDMETHODCALLTYPE ContextSensitiveHelp( BOOL ) { return E_NOTIMPL; }
 
-  // IUnknown Interface
-  ULONG STDMETHODCALLTYPE AddRef( ) { return 2; }
-  ULONG STDMETHODCALLTYPE Release( ) { return 8; }
-  HRESULT STDMETHODCALLTYPE QueryInterface( REFIID, __RPC_FAR void* __RPC_FAR * );
+	// IUnknown Interface
+	ULONG STDMETHODCALLTYPE AddRef( ) { return 2; }
+	ULONG STDMETHODCALLTYPE Release( ) { return 8; }
+	HRESULT STDMETHODCALLTYPE QueryInterface( REFIID, __RPC_FAR void* __RPC_FAR * );
 
-  inline TString getType( ) { return TString( TEXT("webctrl") ); };
+	inline TString getType( ) const { return TString( TEXT("webctrl") ); };
 
 protected:
 
@@ -95,7 +91,7 @@ protected:
 	IOleObject * m_pOleObject;
 	IConnectionPointContainer	* m_pCPC;
 	IConnectionPoint * m_pCP;
-	
+
 	DWORD m_dwCookie;
 	bool m_bHideEvents;
 };

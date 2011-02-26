@@ -25,8 +25,8 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
-: DcxControl( ID, p_Dialog ) 
+DcxStatusBar::DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
+: DcxControl( ID, p_Dialog )
 , m_hImageList(NULL)
 {
 	LONG Styles = 0, ExStyles = 0;
@@ -91,12 +91,12 @@ DcxStatusBar::~DcxStatusBar( ) {
  * blah
  */
 
-void DcxStatusBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
+	const unsigned int numtok = styles.numtok( );
 
-	unsigned int i = 1, numtok = styles.numtok( );
-
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++ )
+	{
 		if ( styles.gettok( i ) == TEXT("grip") )
 			*Styles |= SBARS_SIZEGRIP;
 		else if ( styles.gettok( i ) == TEXT("tooltips") )
@@ -120,8 +120,6 @@ void DcxStatusBar::parseControlStyles( TString & styles, LONG * Styles, LONG * E
 		//}
 		//else if ( styles.gettok( i ) == TEXT("right") )
 		//	*Styles |= CCS_RIGHT;
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -135,10 +133,10 @@ void DcxStatusBar::parseControlStyles( TString & styles, LONG * Styles, LONG * E
  * \return > void
  */
 
-void DcxStatusBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
-
-	int numtok = input.numtok( );
-	TString prop(input.gettok( 3 ));
+void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	const int numtok = input.numtok( );
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
 	if ( prop == TEXT("text") && numtok > 3 ) {
@@ -178,7 +176,7 @@ void DcxStatusBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("tooltip") && numtok > 3 ) {
 
-		int iPart = input.gettok( 4 ).to_int( ), nParts = this->getParts( 256, 0 );
+		const int iPart = input.gettok( 4 ).to_int( ), nParts = this->getParts( 256, 0 );
 
 		if ( iPart > -1 && iPart < nParts ) {
 
@@ -220,10 +218,10 @@ void DcxStatusBar::deletePartInfo(const int iPart)
  * blah
  */
 
-void DcxStatusBar::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
+void DcxStatusBar::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
 
-	int numtok = input.numtok( );
+	const int numtok = input.numtok( );
 
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	if (flags[TEXT('k')] && numtok > 3) {
@@ -237,13 +235,13 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 	// xdid -l [NAME] [ID] [SWITCH] [POS [POS POS ...]]
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
-		int nParts = numtok - 3;
+		const int nParts = numtok - 3;
 		INT parts[256];
 
-		int i = 0, c = 0, t = 0;
+		int c = 0, t = 0;
 		TString p;
-		while ( i < nParts ) {
-
+		for (int i = 0; i < nParts; i++ )
+		{
 			if (c >= 100) {
 				this->showError(NULL, TEXT("-l"), TEXT("Can't Allocate Over 100% of Statusbar!"));
 				return;
@@ -260,7 +258,6 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 				this->m_iFixedParts[i] = t;
 
 			parts[i] = t;
-			i++;
 		}
 		this->setParts( nParts, parts );
 		this->updateParts();
@@ -269,9 +266,9 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 	// xdid -t [NAME] [ID] [SWITCH] N [+c] [#ICON] [CID] [CTRL] [X] [Y] [W] [H] (OPTIONS)
 	else if ( flags[TEXT('t')] && numtok > 5 ) {
 
-		int nPos = input.gettok( 4 ).to_int( ) - 1;
-		TString flag(input.gettok( 5 ));
-		int icon = input.gettok( 6 ).to_int( ) - 1;
+		const int nPos = input.gettok( 4 ).to_int( ) - 1;
+		const TString flag(input.gettok( 5 ));
+		const int icon = input.gettok( 6 ).to_int( ) - 1;
 
 		if ( nPos < 0 || nPos >= this->getParts( 256, 0 ) ) {
 			this->showError(NULL, TEXT("-t"), TEXT("Invalid Part"));
@@ -361,7 +358,7 @@ void DcxStatusBar::parseCommandRequest( TString & input ) {
 	// xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
 	else if ( flags[TEXT('v')] && numtok > 3 ) {
 
-		int nPos = input.gettok( 4 ).to_int( ) - 1;
+		const int nPos = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nPos > -1 && nPos < this->getParts( 256, 0 ) ) {
 
@@ -454,7 +451,7 @@ HIMAGELIST DcxStatusBar::createImageList( ) {
  * blah
  */
 
-UINT DcxStatusBar::parseItemFlags( TString & flags ) {
+UINT DcxStatusBar::parseItemFlags( const TString & flags ) {
 
 	INT i = 1, len = flags.len( ), iFlags = 0;
 
@@ -498,7 +495,7 @@ void DcxStatusBar::cleanPartIcons( ) {
   }
 }
 
-TString DcxStatusBar::getStyles(void) {
+TString DcxStatusBar::getStyles(void) const {
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -658,20 +655,16 @@ LRESULT DcxStatusBar::getIcon( const int iPart ) const {
 
 int DcxStatusBar::hitTest( const POINT & pt ) const {
 
-  RECT rc;
-  int n = 0;
-  //int tx = 0;
-  int nParts = this->getParts( 256, 0 );
+	RECT rc;
+	const int nParts = this->getParts( 256, 0 );
 
-  while ( n < nParts ) {
-
-    this->getRect( n, &rc );
-    if ( PtInRect( &rc, pt ) )
-      return n;
-
-    n++;
-  }
-  return -1;
+	for (int n = 0; n < nParts; n++ )
+	{
+		this->getRect( n, &rc );
+		if ( PtInRect( &rc, pt ) )
+			return n;
+	}
+	return -1;
 }
 
 /*!
@@ -752,13 +745,8 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 						ImageList_Draw(this->m_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT);
 						rc.left += (ii.rcImage.right - ii.rcImage.left) +5;
 					}
-#if UNICODE
 					if (pPart->m_Text.len() > 0)
 						mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
-#else
-					if (pPart->m_Text.len() > 0)
-						mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false, this->m_bUseUTF8);
-#endif
 					else if (pPart->m_Child != NULL) {
 						SetWindowPos(pPart->m_Child->getHwnd(), NULL, rc.left, rc.top,
 							(rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
@@ -898,7 +886,7 @@ LRESULT DcxStatusBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 }
 
 void DcxStatusBar::updateParts(void) {
-	int nParts = this->getParts(0,NULL);
+	const int nParts = this->getParts(0,NULL);
 
 	if (nParts <= 0)
 		return;

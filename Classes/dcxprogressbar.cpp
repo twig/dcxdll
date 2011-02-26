@@ -25,7 +25,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
+DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles )
 : DcxControl( ID, p_Dialog ) 
 , m_clrText(0)
 , m_bIsAbsoluteValue(FALSE)
@@ -80,7 +80,8 @@ DcxProgressBar::~DcxProgressBar( ) {
   this->unregistreDefaultWindowProc( );
 }
 
-TString DcxProgressBar::getStyles(void) {
+TString DcxProgressBar::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -101,13 +102,13 @@ TString DcxProgressBar::getStyles(void) {
  * blah
  */
 
-void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-	unsigned int i = 1, numtok = styles.numtok( );
+void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
+	const UINT numtok = styles.numtok( );
 	this->m_bIsGrad = FALSE;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1;  i <= numtok; i++ )
+	{
 		if ( styles.gettok( i ) == TEXT("smooth") ) 
 			*Styles |= PBS_SMOOTH;
 		else if ( styles.gettok( i ) == TEXT("vertical") ) 
@@ -118,8 +119,6 @@ void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG *
 			*Styles |= PBS_SMOOTH;
 			this->m_bIsGrad = TRUE;
 		}
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -133,9 +132,9 @@ void DcxProgressBar::parseControlStyles( TString & styles, LONG * Styles, LONG *
  * \return > void
  */
 
-void DcxProgressBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
-
-	TString prop(input.gettok( 3 ));
+void DcxProgressBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	const TString prop(input.gettok( 3 ));
 
 	if ( prop == TEXT("value") ) {
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPosition( ) );
@@ -162,9 +161,9 @@ void DcxProgressBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * \param input [NAME] [SWITCH] [ID] (OPTIONS)
  */
 
-void DcxProgressBar::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok();
+void DcxProgressBar::parseCommandRequest( const TString &input) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok();
 
 	// xdid -c name ID $rgb(color)
 	if (flags[TEXT('c')]) {
@@ -249,14 +248,14 @@ void DcxProgressBar::parseCommandRequest(TString &input) {
 			lfCurrent.lfOrientation = 900;
 		}
 		else {
-			DeleteObject(this->m_hfontVertical);
+			DeleteFont(this->m_hfontVertical);
 			this->m_hfontVertical = NULL;
 			this->redrawWindow();
 			return;
 		}
 
 		if (this->m_hfontVertical)
-			DeleteObject(this->m_hfontVertical);
+			DeleteFont(this->m_hfontVertical);
 
 		this->m_hfontVertical = CreateFontIndirect(&lfCurrent);
 		//this->setControlFont(hfNew, FALSE);
@@ -357,7 +356,7 @@ LRESULT DcxProgressBar::setBKColor( const COLORREF clrBk ) {
 	return SendMessage( this->m_Hwnd, PBM_SETBKCOLOR, (WPARAM) 0, (LPARAM) clrBk ); 
 }
 
-void DcxProgressBar::toXml(TiXmlElement * xml) {
+void DcxProgressBar::toXml(TiXmlElement * xml) const {
 	xml->SetAttribute("type", "pbar");
 	__super::toXml(xml);
 }
@@ -544,29 +543,26 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		text.tsprintf(this->m_tsText.to_chr(), iPos);
 
 		HFONT oldfont = NULL;
-
+// NEEDS FIXED: font selection needs looked at
 		if (this->m_hFont != NULL)
 			oldfont = SelectFont(hdc, this->m_hFont);
 
 		// rect for text
 		RECT rcText = rc;
-#if UNICODE
-		DrawText(hdc, text.to_chr(), text.len(), &rcText, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
-#else
-		DrawTextW(hdc, text.to_wchr(this->m_bUseUTF8), text.wlen(), &rcText, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
-#endif
+		//DrawText(hdc, text.to_chr(), text.len(), &rcText, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
+		this->calcTextRect(hdc, text, &rcText, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
 
 		int w = rcText.right - rcText.left;
 		int h = rcText.bottom - rcText.top;
 
 		// reposition the new text area to be at the center
-		if (this->m_hfontVertical) {
+		if (this->m_hfontVertical != NULL) {
 			rc.left = ((rc.right - rc.left) - h) /2;
 			// added a +w +h as well to as text is drawn ABOVE the damn rect
 			rc.top = ((rc.bottom - rc.top) + w + h) /2;
 			rc.right = rc.left + h;
 			rc.bottom = rc.top + w;
-			SelectObject(hdc, this->m_hfontVertical);
+			SelectFont(hdc, this->m_hfontVertical);
 		}
 		else {
 			rc.left = ((rc.right - rc.left) - w) /2;
@@ -582,7 +578,7 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		this->ctrlDrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
 
 		if (oldfont != NULL)
-			SelectObject(hdc, oldfont);
+			SelectFont(hdc, oldfont);
 	}
 
 	this->FinishAlphaBlend(ai);

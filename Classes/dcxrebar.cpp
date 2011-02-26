@@ -28,7 +28,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxReBar::DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
+DcxReBar::DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 , m_iClickedBand(-1)
 , m_iRowLimit(0)
@@ -85,7 +85,8 @@ DcxReBar::~DcxReBar( ) {
   this->unregistreDefaultWindowProc( );
 }
 
-TString DcxReBar::getStyles(void) {
+TString DcxReBar::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -118,14 +119,14 @@ TString DcxReBar::getStyles(void) {
 }
 
 
-void DcxReBar::toXml(TiXmlElement * xml) {
+void DcxReBar::toXml(TiXmlElement * xml) const {
 	__super::toXml(xml);
-	int count = this->getBandCount( );
+	const int count = this->getBandCount( );
 	TiXmlElement * subs;
-	DcxControl * c;
+	const DcxControl * c;
 	if (count > 0) {
 		for (int i = 0; i < count; i++) {
-			c = getControl(i);
+			c = this->getControl(i);
 			if (c) {
 				subs = new TiXmlElement("control");
 				c->toXml(subs);
@@ -135,7 +136,7 @@ void DcxReBar::toXml(TiXmlElement * xml) {
 	}
 }
 
-DcxControl * DcxReBar::getControl(const int index) {
+DcxControl * DcxReBar::getControl(const int index) const {
 
     if ( index > -1 && index < this->getBandCount( ) ) {
       
@@ -157,43 +158,41 @@ DcxControl * DcxReBar::getControl(const int index) {
  * blah
  */
 
-void DcxReBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-  *Styles |= RBS_AUTOSIZE;
-  unsigned int i = 1, numtok = styles.numtok( );
+void DcxReBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
+	*Styles |= RBS_AUTOSIZE;
+	const unsigned int numtok = styles.numtok( );
 
 	//*ExStyles |= WS_EX_CONTROLPARENT;
 
-  while ( i <= numtok ) {
-
-    if ( styles.gettok( i ) == TEXT("borders") ) 
-      *Styles |= RBS_BANDBORDERS;
-    else if ( styles.gettok( i ) == TEXT("dblclktoggle") ) 
-      *Styles |= RBS_DBLCLKTOGGLE;
-    else if ( styles.gettok( i ) == TEXT("fixedorder") ) 
-      *Styles |= RBS_FIXEDORDER;
-    else if ( styles.gettok( i ) == TEXT("varheight") ) 
-      *Styles |= RBS_VARHEIGHT;
-    else if ( styles.gettok( i ) == TEXT("tooltips") ) 
-      *Styles |= RBS_TOOLTIPS;
-    else if ( styles.gettok( i ) == TEXT("verticalgrip") ) 
-      *Styles |= RBS_VERTICALGRIPPER;
-    else if ( styles.gettok( i ) == TEXT("vertical") ) 
-      *Styles |= CCS_VERT;
-    else if ( styles.gettok( i ) == TEXT("right") ) 
-      *Styles |= CCS_RIGHT;
-    else if ( styles.gettok( i ) == TEXT("bottom") ) 
-      *Styles |= CCS_BOTTOM;
-    else if ( styles.gettok( i ) == TEXT("noresize") ) 
-      *Styles |= CCS_NORESIZE;
-    else if ( styles.gettok( i ) == TEXT("noparentalign") ) 
-      *Styles |= CCS_NOPARENTALIGN ;
-	else if ( styles.gettok( i ) == TEXT("noauto") )
-      *Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
-
-    i++;
-  }
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	for (UINT i = 1; i <= numtok; i++ )
+	{
+		if ( styles.gettok( i ) == TEXT("borders") ) 
+			*Styles |= RBS_BANDBORDERS;
+		else if ( styles.gettok( i ) == TEXT("dblclktoggle") ) 
+			*Styles |= RBS_DBLCLKTOGGLE;
+		else if ( styles.gettok( i ) == TEXT("fixedorder") ) 
+			*Styles |= RBS_FIXEDORDER;
+		else if ( styles.gettok( i ) == TEXT("varheight") ) 
+			*Styles |= RBS_VARHEIGHT;
+		else if ( styles.gettok( i ) == TEXT("tooltips") ) 
+			*Styles |= RBS_TOOLTIPS;
+		else if ( styles.gettok( i ) == TEXT("verticalgrip") ) 
+			*Styles |= RBS_VERTICALGRIPPER;
+		else if ( styles.gettok( i ) == TEXT("vertical") ) 
+			*Styles |= CCS_VERT;
+		else if ( styles.gettok( i ) == TEXT("right") ) 
+			*Styles |= CCS_RIGHT;
+		else if ( styles.gettok( i ) == TEXT("bottom") ) 
+			*Styles |= CCS_BOTTOM;
+		else if ( styles.gettok( i ) == TEXT("noresize") ) 
+			*Styles |= CCS_NORESIZE;
+		else if ( styles.gettok( i ) == TEXT("noparentalign") ) 
+			*Styles |= CCS_NOPARENTALIGN ;
+		else if ( styles.gettok( i ) == TEXT("noauto") )
+			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
+	}
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -247,11 +246,11 @@ HIMAGELIST DcxReBar::createImageList( ) {
  * \return > void
  */
 
-void DcxReBar::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
+void DcxReBar::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const
+{
+	const int numtok = input.numtok( );
 
-	int numtok = input.numtok( );
-
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	if ( prop == TEXT("num") ) {
 
@@ -278,7 +277,7 @@ void DcxReBar::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 	else if ( prop == TEXT("childid") && numtok > 3 ) {
 
 		int nItem = input.gettok( 4 ).to_int( ) - 1;
-		DcxControl * c = getControl(nItem);
+		DcxControl * c = this->getControl(nItem);
 		if ( c != NULL )
 			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c->getUserID( ) );
 
@@ -319,9 +318,9 @@ void DcxReBar::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
  * \param input [NAME] [SWITCH] [ID] (OPTIONS)
  */
 
-void DcxReBar::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok();
+void DcxReBar::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok();
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [CX] [CY] [WIDTH] [ICON] [COLOR] [Item Text][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB]Tooltip
 	if ( flags[TEXT('a')] && numtok > 9 ) {
@@ -338,7 +337,7 @@ void DcxReBar::parseCommandRequest( TString & input ) {
 #endif
 		rbBand.fMask = RBBIM_STYLE | RBBIM_LPARAM;
 
-		TString data(input.gettok(1, TSTAB).trim());
+		const TString data(input.gettok(1, TSTAB).trim());
 		TString control_data;
 
 		if (input.numtok(TSTAB) > 1) {
@@ -938,98 +937,98 @@ LRESULT DcxReBar::minBand( const UINT uBand, const BOOL fIdeal ) {
  * blah
  */
 LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
+	switch( uMsg ) {
 
-    case WM_NOTIFY:
-      {
-        LPNMHDR hdr = (LPNMHDR) lParam;
+	case WM_NOTIFY:
+		{
+			LPNMHDR hdr = (LPNMHDR) lParam;
 
-        if (!hdr)
-          break;
+			if (!hdr)
+				break;
 
-					switch( hdr->code ) {
-						case NM_CUSTOMDRAW:
-							{
-								LPNMCUSTOMDRAW lpncd = (LPNMCUSTOMDRAW) lParam;
+			switch( hdr->code ) {
+			case NM_CUSTOMDRAW:
+				{
+					LPNMCUSTOMDRAW lpncd = (LPNMCUSTOMDRAW) lParam;
 
-								bParsed = TRUE;
+					bParsed = TRUE;
 
-								switch( lpncd->dwDrawStage ) {
-									case CDDS_PREPAINT:
-										return (CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW);
-									case CDDS_ITEMPREPAINT:
-										{
-											LPDCXRBBAND lpdcxrbb = (LPDCXRBBAND) lpncd->lItemlParam;
+					switch( lpncd->dwDrawStage ) {
+					case CDDS_PREPAINT:
+						return (CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW);
+					case CDDS_ITEMPREPAINT:
+						{
+							LPDCXRBBAND lpdcxrbb = (LPDCXRBBAND) lpncd->lItemlParam;
 
-											if ( lpdcxrbb == NULL )
-												return CDRF_DODEFAULT;
+							if ( lpdcxrbb == NULL )
+								return CDRF_DODEFAULT;
 
-											if ( lpdcxrbb->clrText != -1 )
-												SetTextColor( lpncd->hdc, lpdcxrbb->clrText );
-										}
-										return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
-									case CDDS_ITEMPOSTPAINT:
-										return CDRF_DODEFAULT;
-									default:
-										return CDRF_DODEFAULT;
-								}
-							} // NM_CUSTOMDRAW
-							break;
+							if ( lpdcxrbb->clrText != -1 )
+								SetTextColor( lpncd->hdc, lpdcxrbb->clrText );
+						}
+						return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
+					case CDDS_ITEMPOSTPAINT:
+						return CDRF_DODEFAULT;
+					default:
+						return CDRF_DODEFAULT;
+					}
+				} // NM_CUSTOMDRAW
+				break;
 
-						case RBN_HEIGHTCHANGE:
-							{
-								bParsed = TRUE;
-								RECT rc;
-								GetWindowRect( this->m_Hwnd, &rc );
-								UINT width = rc.right - rc.left;
-								UINT height = rc.bottom - rc.top;
+			case RBN_HEIGHTCHANGE:
+				{
+					bParsed = TRUE;
+					RECT rc;
+					GetWindowRect( this->m_Hwnd, &rc );
+					UINT width = rc.right - rc.left;
+					UINT height = rc.bottom - rc.top;
 
-								if ( this->m_iWidth != width || this->m_iHeight != height ) {
+					if ( this->m_iWidth != width || this->m_iHeight != height ) {
 
-									this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("change"), this->getUserID( ),
-										width, height );
+						this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("change"), this->getUserID( ),
+							width, height );
 
-									this->m_iWidth = width;
-									this->m_iHeight = height;
-								}
-							}
-							break;
+						this->m_iWidth = width;
+						this->m_iHeight = height;
+					}
+				}
+				break;
 
-						case RBN_ENDDRAG:
-							{
-								bParsed = TRUE;
-								this->redrawWindow( );
-							}
-							break;
+			case RBN_ENDDRAG:
+				{
+					bParsed = TRUE;
+					this->redrawWindow( );
+				}
+				break;
 
-						case RBN_DELETINGBAND:
-							{
-								bParsed = TRUE;
-	              
-								LPNMREBAR lpnmrb = (LPNMREBAR) lParam;
+			case RBN_DELETINGBAND:
+				{
+					bParsed = TRUE;
 
-								REBARBANDINFO rbBand;
-								ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
-								rbBand.cbSize = sizeof( REBARBANDINFO );
-								rbBand.fMask = RBBIM_CHILD;
+					LPNMREBAR lpnmrb = (LPNMREBAR) lParam;
 
-								if ( this->getBandInfo( lpnmrb->uBand, &rbBand ) != 0 ) {
+					REBARBANDINFO rbBand;
+					ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
+					rbBand.cbSize = sizeof( REBARBANDINFO );
+					rbBand.fMask = RBBIM_CHILD;
 
-									if ( IsWindow( rbBand.hwndChild ) ) {
+					if ( this->getBandInfo( lpnmrb->uBand, &rbBand ) != 0 ) {
 
-										DcxControl * p_delControl = this->m_pParentDialog->getControlByHWND( rbBand.hwndChild );
-										this->m_pParentDialog->deleteControl( p_delControl );
-									}
+						if ( IsWindow( rbBand.hwndChild ) ) {
 
-									LPDCXRBBAND lpdcxrbb = (LPDCXRBBAND) lpnmrb->lParam;
-									if ( lpdcxrbb != NULL )
-										delete lpdcxrbb;
-								}
-							}
-							break;
-						} // switch
-      }
-      break;
+							DcxControl * p_delControl = this->m_pParentDialog->getControlByHWND( rbBand.hwndChild );
+							this->m_pParentDialog->deleteControl( p_delControl );
+						}
+
+						LPDCXRBBAND lpdcxrbb = (LPDCXRBBAND) lpnmrb->lParam;
+						if ( lpdcxrbb != NULL )
+							delete lpdcxrbb;
+					}
+				}
+				break;
+			} // switch
+		}
+		break;
 	}
 
 	return 0L;
@@ -1038,121 +1037,121 @@ LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	LRESULT lRes = 0L;
-  switch( uMsg ) {
+	switch( uMsg ) {
 
-    case WM_NOTIFY:
-      {
-        LPNMHDR hdr = (LPNMHDR) lParam;
+	case WM_NOTIFY:
+		{
+			LPNMHDR hdr = (LPNMHDR) lParam;
 
-        if (!hdr)
-          break;
+			if (!hdr)
+				break;
 
-				if (IsWindow(hdr->hwndFrom)) {
-					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,TEXT("dcx_cthis"));
-					if (c_this != NULL) {
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
+			if (IsWindow(hdr->hwndFrom)) {
+				DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,TEXT("dcx_cthis"));
+				if (c_this != NULL) {
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
-      }
-      break;
+			}
+		}
+		break;
 
-    case WM_HSCROLL:
-    case WM_VSCROLL:
-    case WM_COMMAND:
-      {
-				if (IsWindow((HWND) lParam)) {
-					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
-					if (c_this != NULL) {
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
+	case WM_HSCROLL:
+	case WM_VSCROLL:
+	case WM_COMMAND:
+		{
+			if (IsWindow((HWND) lParam)) {
+				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
+				if (c_this != NULL) {
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
-      }
-      break;
+			}
+		}
+		break;
 
-    case WM_DELETEITEM:
-      {
-				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
-					if (c_this != NULL) {
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
+	case WM_DELETEITEM:
+		{
+			DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
+			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
+				if (c_this != NULL) {
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
-      }
-      break;
+			}
+		}
+		break;
 
-    case WM_MEASUREITEM:
-      {
-				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
-				if (IsWindow(cHwnd)) {
-					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,TEXT("dcx_cthis"));
-					if (c_this != NULL) {
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
+	case WM_MEASUREITEM:
+		{
+			HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
+			if (IsWindow(cHwnd)) {
+				DcxControl *c_this = (DcxControl *) GetProp(cHwnd,TEXT("dcx_cthis"));
+				if (c_this != NULL) {
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
-      }
-      break;
+			}
+		}
+		break;
 
-    case WM_DRAWITEM:
-      {
-				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
-					if (c_this != NULL) {
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-					}
+	case WM_DRAWITEM:
+		{
+			DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
+			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
+				if (c_this != NULL) {
+					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
-      }
-     break;
+			}
+		}
+		break;
 
-    case WM_LBUTTONUP:
-      {
-		  RBHITTESTINFO rbhi;
-		  GetCursorPos( &rbhi.pt );
-		  MapWindowPoints(NULL, this->m_Hwnd, &rbhi.pt, 1 );
-		  int band = this->hitTest( &rbhi );
+	case WM_LBUTTONUP:
+		{
+			RBHITTESTINFO rbhi;
+			GetCursorPos( &rbhi.pt );
+			MapWindowPoints(NULL, this->m_Hwnd, &rbhi.pt, 1 );
+			int band = this->hitTest( &rbhi );
 
-		  if ( ( rbhi.flags & RBHT_GRABBER || rbhi.flags & RBHT_CAPTION ) && band != -1 ) {
+			if ( ( rbhi.flags & RBHT_GRABBER || rbhi.flags & RBHT_CAPTION ) && band != -1 ) {
 
-			  this->m_iClickedBand = band;
+				this->m_iClickedBand = band;
 
-			  if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				  this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), band + 1 );
-		  }
-      }
-      break;
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), band + 1 );
+			}
+		}
+		break;
 
-    case WM_CONTEXTMENU:
-      {
-		  if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-			  RBHITTESTINFO rbhi;
-			  GetCursorPos( &rbhi.pt );
-			  MapWindowPoints(NULL, this->m_Hwnd, &rbhi.pt, 1 );
-			  int band = this->hitTest( &rbhi );
+	case WM_CONTEXTMENU:
+		{
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+				RBHITTESTINFO rbhi;
+				GetCursorPos( &rbhi.pt );
+				MapWindowPoints(NULL, this->m_Hwnd, &rbhi.pt, 1 );
+				int band = this->hitTest( &rbhi );
 
-			  if ( band != -1 )
-				  this->execAliasEx(TEXT("%s,%d,%d"), TEXT("rclick"), this->getUserID( ), band + 1 );
-		  }
-      }
-      break;
+				if ( band != -1 )
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("rclick"), this->getUserID( ), band + 1 );
+			}
+		}
+		break;
 
-    case WM_SIZE:
-      {
-        InvalidateRect( this->m_Hwnd, NULL, TRUE );
-      }
-      break;
+	case WM_SIZE:
+		{
+			InvalidateRect( this->m_Hwnd, NULL, TRUE );
+		}
+		break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+	case WM_DESTROY:
+		{
+			delete this;
+			bParsed = TRUE;
+		}
+		break;
 
-    default:
-			lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+	default:
+		lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		break;
+	}
 
-  return lRes;
+	return lRes;
 }

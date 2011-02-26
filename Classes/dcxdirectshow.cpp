@@ -30,7 +30,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxDirectshow::DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles )
+DcxDirectshow::DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles )
 : DcxControl( ID, p_Dialog )
 , m_pGraph(NULL)
 , m_pControl(NULL)
@@ -79,25 +79,24 @@ DcxDirectshow::~DcxDirectshow( ) {
   this->unregistreDefaultWindowProc( );
 }
 
-TString DcxDirectshow::getStyles(void) {
+TString DcxDirectshow::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	if (this->m_bKeepRatio)
 		styles.addtok(TEXT("fixratio"));
 	return styles;
 }
 
-void DcxDirectshow::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
+void DcxDirectshow::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
 	*Styles |= SS_NOTIFY;
 
-	unsigned int i = 1, numtok = styles.numtok( );
+	const UINT numtok = styles.numtok( );
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if (( styles.gettok( i ) == TEXT("fixratio") ))
 			this->m_bKeepRatio = true;
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -111,10 +110,9 @@ void DcxDirectshow::parseControlStyles( TString & styles, LONG * Styles, LONG * 
  * \return > void
  */
 
-void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
-  //int numtok = input.numtok( );
-
-	TString prop(input.gettok( 3 ));
+void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	const TString prop(input.gettok( 3 ));
 
 	if (this->m_pGraph == NULL) {
 		// [NAME] [ID] [PROP]
@@ -142,7 +140,7 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 		lstrcpyn(szReturnValue,this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
-  // [NAME] [ID] [PROP]
+	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("size")) {
 		long lWidth, lHeight, lARWidth, lARHeight;
 		HRESULT hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
@@ -155,18 +153,18 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 			this->showError(prop.to_chr(),NULL,TEXT("Unable to get Native Video Size"));
 			DX_ERR(prop.to_chr(),NULL,hr);
 		}
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("author")) {
 		this->getProperty(szReturnValue, PROP_AUTHOR);
 		return;
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("title")) {
 		this->getProperty(szReturnValue, PROP_TITLE);
 		return;
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("video")) {
 		VMR9ProcAmpControl amc;
 		HRESULT hr = this->getVideo(&amc);
@@ -188,8 +186,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 			this->showError(prop.to_chr(),NULL,TEXT("Unable to get Video Information"));
 			DX_ERR(prop.to_chr(),NULL, hr);
 		}
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("brange")) {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr);
@@ -202,8 +200,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 			this->showError(prop.to_chr(),NULL,TEXT("Unable to get Video Information"));
 			DX_ERR(prop.to_chr(),NULL, hr);
 		}
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("crange")) {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr);
@@ -216,8 +214,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 			this->showError(prop.to_chr(),NULL,TEXT("Unable to get Video Information"));
 			DX_ERR(prop.to_chr(),NULL, hr);
 		}
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("hrange")) {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Hue, &acr);
@@ -230,8 +228,8 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 			this->showError(prop.to_chr(),NULL,TEXT("Unable to get Video Information"));
 			DX_ERR(prop.to_chr(),NULL, hr);
 		}
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("srange")) {
 		VMR9ProcAmpControlRange acr;
 		HRESULT hr = this->getVideoRange(ProcAmpControl9_Saturation, &acr);
@@ -244,25 +242,25 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 			this->showError(prop.to_chr(),NULL,TEXT("Unable to get Video Information"));
 			DX_ERR(prop.to_chr(),NULL, hr);
 		}
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("currentpos")) {
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64d"), this->getPosition());
 		return;
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("duration")) {
 		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64d"), this->getDuration());
 		else
 			lstrcpyn(szReturnValue,TEXT("D_ERROR Method Not Supported"), MIRC_BUFFER_SIZE_CCH);
 		return;
-  }
-  // [NAME] [ID] [PROP]
+	}
+	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("volume")) {
 		swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %.2f"), this->getVolume());
 		return;
-  }
+	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("state")) {
 		/*
@@ -315,9 +313,9 @@ void DcxDirectshow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * blah
  */
 
-void DcxDirectshow::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxDirectshow::parseCommandRequest( const TString &input) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	if ( flags[TEXT('a')] && numtok > 4 ) {
@@ -392,11 +390,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 			inErr = true;
 		}
 		if (SUCCEEDED(hr)) {
-#if UNICODE
 			hr = this->m_pGraph->RenderFile(filename.to_chr(),NULL);
-#else
-			hr = this->m_pGraph->RenderFile(filename.to_wchr(),NULL);
-#endif
 			if (SUCCEEDED(hr)) {
 				if (this->m_pWc != NULL) {
 					hr = this->SetVideoPos();
@@ -517,7 +511,7 @@ void DcxDirectshow::parseCommandRequest(TString &input) {
 	}
 	// xdid -V [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
 	else if ( flags[TEXT('V')] && numtok > 4 ) {
-		TString flag(input.gettok( 4 ));
+		const TString flag(input.gettok( 4 ));
 
 		if (flag[0] != TEXT('+')) {
 			this->showError(NULL, TEXT("-V"), TEXT("Invalid Flags Identifier"));
@@ -560,88 +554,88 @@ LRESULT DcxDirectshow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	LRESULT lRes = 0L;
-  switch( uMsg ) {
+	switch( uMsg ) {
 
-    case WM_ERASEBKGND: 
-      {
-				RECT rect;
-				GetClientRect( this->m_Hwnd, &rect );
-				DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-				bParsed = TRUE;
-				return TRUE;
-      }
-      break;
+	case WM_ERASEBKGND: 
+		{
+			RECT rect;
+			GetClientRect( this->m_Hwnd, &rect );
+			DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
+			bParsed = TRUE;
+			return TRUE;
+		}
+		break;
 
-		case WM_PRINTCLIENT:
+	case WM_PRINTCLIENT:
+		{
+			bParsed = TRUE;
+			HDC hdc = (HDC)wParam;
+			if (this->m_pWc != NULL)
 			{
-				bParsed = TRUE;
-				HDC hdc = (HDC)wParam;
-				if (this->m_pWc != NULL)
+				// Request the VMR to paint the video.
+				this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
+			}
+			else { // There is no video, so paint the whole client area.
+				RECT rcClient;
+				GetClientRect(this->m_Hwnd, &rcClient);
+				DcxControl::DrawCtrlBackground((HDC) wParam,this,&rcClient);
+			}
+		}
+		break;
+	case WM_PAINT:
+		{
+			bParsed = TRUE;
+			PAINTSTRUCT ps;
+			HDC         hdc;
+			hdc = BeginPaint(this->m_Hwnd, &ps);
+			if (this->m_pWc != NULL)
+			{
+				// Request the VMR to paint the video.
+				this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
+			}
+			else // There is no video, so paint the whole client area.
+				DcxControl::DrawCtrlBackground((HDC) wParam,this,&ps.rcPaint);
+			EndPaint(this->m_Hwnd, &ps); 
+		}
+		break;
+
+	case WM_SIZE:
+		{
+			if (this->m_pWc != NULL)
+				this->SetVideoPos();
+		}
+		break;
+
+	case WM_DISPLAYCHANGE:
+		{
+			if (this->m_pWc != NULL)
+				this->m_pWc->DisplayModeChanged();
+		}
+		break;
+
+	case WM_GRAPHNOTIFY:
+		{
+			bParsed = TRUE;
+			if (this->m_pEvent == NULL)
+				break;
+			// Get all the events
+			long evCode;
+			LONG_PTR param1, param2;
+			while (SUCCEEDED(this->m_pEvent->GetEvent(&evCode, &param1, &param2, 0)))
+			{
+				this->m_pEvent->FreeEventParams(evCode, param1, param2);
+				switch (evCode)
 				{
-					// Request the VMR to paint the video.
-					this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
-				}
-				else { // There is no video, so paint the whole client area.
-					RECT rcClient;
-					GetClientRect(this->m_Hwnd, &rcClient);
-					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rcClient);
-				}
-			}
-			break;
-		case WM_PAINT:
-			{
-				bParsed = TRUE;
-				PAINTSTRUCT ps;
-				HDC         hdc;
-				hdc = BeginPaint(this->m_Hwnd, &ps);
-				if (this->m_pWc != NULL)
-				{
-					// Request the VMR to paint the video.
-					this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
-				}
-				else // There is no video, so paint the whole client area.
-					DcxControl::DrawCtrlBackground((HDC) wParam,this,&ps.rcPaint);
-				EndPaint(this->m_Hwnd, &ps); 
-			}
-			break;
-
-		case WM_SIZE:
-			{
-				if (this->m_pWc != NULL)
-					this->SetVideoPos();
-			}
-			break;
-
-		case WM_DISPLAYCHANGE:
-			{
-				if (this->m_pWc != NULL)
-					this->m_pWc->DisplayModeChanged();
-			}
-			break;
-
-		case WM_GRAPHNOTIFY:
-			{
-				bParsed = TRUE;
-				if (this->m_pEvent == NULL)
-					break;
-				// Get all the events
-				long evCode;
-				LONG_PTR param1, param2;
-				while (SUCCEEDED(this->m_pEvent->GetEvent(&evCode, &param1, &param2, 0)))
-				{
-					this->m_pEvent->FreeEventParams(evCode, param1, param2);
-					switch (evCode)
+				case EC_COMPLETE:
 					{
-					case EC_COMPLETE:
-						{
-							LONGLONG rtNow = 0; // seek to start.
-							this->m_pSeek->SetPositions(&rtNow, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning);
-							if (!this->m_bLoop) {
-								this->m_pControl->StopWhenReady();
-								this->execAliasEx(TEXT("%s,%d,%s"),TEXT("dshow"),this->getUserID(),TEXT("completed"));
-							}
+						LONGLONG rtNow = 0; // seek to start.
+						this->m_pSeek->SetPositions(&rtNow, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning);
+						if (!this->m_bLoop) {
+							this->m_pControl->StopWhenReady();
+							this->execAliasEx(TEXT("%s,%d,%s"),TEXT("dshow"),this->getUserID(),TEXT("completed"));
 						}
-						break;
+					}
+					break;
 					//case EC_PAUSED: // oddly this is sent when we play the file too.
 					//	this->execAliasEx(TEXT("%s,%d,%s"),TEXT("dshow"),this->getUserID(),TEXT("paused"));
 					//	break;
@@ -649,24 +643,24 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					//case EC_ERRORABORT:
 					//	this->execAliasEx(TEXT("%s,%d,%s"),TEXT("dshow"),this->getUserID(),TEXT("aborted"));
 					//	break;
-					}
-				} 
-			}
-			break;
+				}
+			} 
+		}
+		break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+	case WM_DESTROY:
+		{
+			delete this;
+			bParsed = TRUE;
+		}
+		break;
 
-    default:
-			lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+	default:
+		lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		break;
+	}
 
-  return lRes;
+	return lRes;
 }
 
 HRESULT DcxDirectshow::InitWindowlessVMR(
@@ -820,11 +814,7 @@ HRESULT DcxDirectshow::getProperty(TCHAR *prop, const int type) const
 			break;
 		}
 		if (SUCCEEDED(hr)) {
-#if UNICODE
 			_snwprintf(prop, MIRC_BUFFER_SIZE_CCH, TEXT("%lS"), com_prop);
-#else
-			_snprintf(prop, MIRC_BUFFER_SIZE_CCH, TEXT("%lS"), com_prop);
-#endif
 			SysFreeString(com_prop);
 		}
 		else

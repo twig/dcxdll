@@ -28,7 +28,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxCheck::DcxCheck( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
+DcxCheck::DcxCheck( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog )
 {
 	LONG Styles = 0, ExStyles = 0;
@@ -79,14 +79,14 @@ DcxCheck::~DcxCheck( ) {
 }
 
 
-void DcxCheck::toXml(TiXmlElement * xml) {
+void DcxCheck::toXml(TiXmlElement * xml) const {
 	TString wtext;
 	__super::toXml(xml);
 	TGetWindowText(this->m_Hwnd, wtext);
 	xml->SetAttribute("caption", wtext.c_str());
 }
 
-TString DcxCheck::getStyles(void) {
+TString DcxCheck::getStyles(void) const {
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -111,13 +111,14 @@ TString DcxCheck::getStyles(void) {
  * blah
  */
 
-void DcxCheck::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxCheck::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
+	const UINT numtok = styles.numtok( );
 
-	unsigned int i = 1, numtok = styles.numtok( );
 	*Styles |= BS_AUTOCHECKBOX;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if ( styles.gettok( i ) == TEXT("rjustify") )
 			*Styles |= BS_RIGHT;
 		else if ( styles.gettok( i ) == TEXT("center") )
@@ -132,7 +133,6 @@ void DcxCheck::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 			*Styles &= ~BS_AUTOCHECKBOX;
 			*Styles |= BS_AUTO3STATE;
 		}
-		i++;
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -147,34 +147,32 @@ void DcxCheck::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
  * \return > void
  */
 
-void DcxCheck::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
+void DcxCheck::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	const TString prop(input.gettok( 3 ));
 
-//  int numtok = input.numtok( );
+	// [NAME] [ID] [PROP]
+	if ( prop == TEXT("text") ) {
 
-	TString prop(input.gettok( 3 ));
+		GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == TEXT("state") ) {
 
-  // [NAME] [ID] [PROP]
-  if ( prop == TEXT("text") ) {
+		if ( Button_GetCheck( this->m_Hwnd ) & BST_INDETERMINATE )
+			lstrcpyn( szReturnValue, TEXT("2"), MIRC_BUFFER_SIZE_CCH );
+		else if ( Button_GetCheck( this->m_Hwnd ) & BST_CHECKED )
+			lstrcpyn( szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH );
+		else
+			lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
 
-    GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
-    return;
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == TEXT("state") ) {
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-    if ( Button_GetCheck( this->m_Hwnd ) & BST_INDETERMINATE )
-      lstrcpyn( szReturnValue, TEXT("2"), MIRC_BUFFER_SIZE_CCH );
-    else if ( Button_GetCheck( this->m_Hwnd ) & BST_CHECKED )
-      lstrcpyn( szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH );
-    else
-      lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
-
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -183,8 +181,8 @@ void DcxCheck::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * blah
  */
 
-void DcxCheck::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
+void DcxCheck::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
 
 	//  int numtok = input.numtok( );
 

@@ -33,7 +33,7 @@ MCHT_TITLEBTNPREV
  * \param styles Window Style Tokenized List
  */
 
-DcxCalendar::DcxCalendar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
+DcxCalendar::DcxCalendar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog )
 {
 	LONG Styles = 0, ExStyles = 0;
@@ -73,12 +73,14 @@ DcxCalendar::~DcxCalendar( ) {
   this->unregistreDefaultWindowProc( );
 }
 
-void DcxCalendar::toXml(TiXmlElement * xml) {
+void DcxCalendar::toXml(TiXmlElement * xml) const
+{
 	__super::toXml(xml);
 	xml->SetAttribute("caption", getValue().c_str());
 }
 
-TString DcxCalendar::getStyles(void) {
+TString DcxCalendar::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -95,7 +97,7 @@ TString DcxCalendar::getStyles(void) {
 	return styles;
 }
 
-TString DcxCalendar::getValue(void)
+TString DcxCalendar::getValue(void) const
 {
 	long start, end;
 	TCHAR buf[128];
@@ -133,10 +135,12 @@ TString DcxCalendar::getValue(void)
  * blah
  */
 
-void DcxCalendar::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok();
+void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
+{
+	const UINT numtok = styles.numtok();
 
-	while (i <= numtok) {
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if (styles.gettok(i) == TEXT("multi"))
 			*Styles |= MCS_MULTISELECT;
 		else if (styles.gettok(i) == TEXT("notoday"))
@@ -147,8 +151,6 @@ void DcxCalendar::parseControlStyles(TString & styles, LONG * Styles, LONG * ExS
 			*Styles |= MCS_WEEKNUMBERS;
 		else if (styles.gettok(i) == TEXT("daystate"))
 			*Styles |= MCS_DAYSTATE;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
@@ -163,10 +165,9 @@ void DcxCalendar::parseControlStyles(TString & styles, LONG * Styles, LONG * ExS
  * \return > void
  */
 
-void DcxCalendar::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
-//  int numtok = input.numtok( );
-
-	TString prop(input.gettok( 3 ));
+void DcxCalendar::parseInfoRequest(const TString &input, PTCHAR szReturnValue) const
+{
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if (prop == TEXT("value")) {
@@ -247,12 +248,12 @@ void DcxCalendar::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
  *
  * blah
  */
-void DcxCalendar::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
+void DcxCalendar::parseCommandRequest( const TString &input) {
+	const XSwitchFlags flags(input.gettok(3));
 
 //SetDayState
 
-	int numtok = input.numtok();
+	const int numtok = input.numtok();
 
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
 	if (flags[TEXT('k')] && numtok > 4) {

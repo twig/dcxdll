@@ -26,7 +26,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles )
+DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, const TString & styles )
 : DcxControl( ID, p_Dialog )
 {
   LONG Styles = 0, ExStyles = 0;
@@ -104,7 +104,8 @@ DcxMDialog::~DcxMDialog( ) {
  * \return > void
  */
 
-void DcxMDialog::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
+void DcxMDialog::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const
+{
 //	int numtok = input.numtok( );
 
 	// [NAME] [ID] [PROP]
@@ -124,10 +125,8 @@ void DcxMDialog::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
  * blah
  */
 
-void DcxMDialog::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-
-  //int numtok = input.numtok( );
+void DcxMDialog::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
 
 	this->parseGlobalCommandRequest(input, flags);
 }
@@ -138,7 +137,8 @@ void DcxMDialog::parseCommandRequest( TString & input ) {
  * blah
  */
 
-void DcxMDialog::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) {
+void DcxMDialog::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
+{
 	this->m_OrigName = styles;
 }
 
@@ -156,23 +156,23 @@ LRESULT DcxMDialog::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 LRESULT DcxMDialog::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
-    case WM_DESTROY:
-      {
-				WNDPROC wnd = this->m_DefaultWindowProc;
-				HWND mHwnd = this->m_Hwnd;
-				this->m_DeleteByDestroy = TRUE;
-        delete this;
-				ShowWindow(mHwnd, SW_HIDE);
-				CallWindowProc(wnd, mHwnd, uMsg, wParam, lParam);
-        bParsed = TRUE;
-      }
-      break;
+	case WM_DESTROY:
+		{
+			WNDPROC wnd = this->m_DefaultWindowProc;
+			HWND mHwnd = this->m_Hwnd;
+			this->m_DeleteByDestroy = TRUE;
+			delete this;
+			ShowWindow(mHwnd, SW_HIDE);
+			CallWindowProc(wnd, mHwnd, uMsg, wParam, lParam);
+			bParsed = TRUE;
+		}
+		break;
 
-    default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
-  return 0L;
+	default:
+		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		break;
+	}
+	return 0L;
 }

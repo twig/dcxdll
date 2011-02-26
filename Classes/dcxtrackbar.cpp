@@ -95,11 +95,12 @@ DcxTrackBar::~DcxTrackBar( ) {
  * blah
  */
 
-void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxTrackBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 	*Styles |= TBS_FIXEDLENGTH;
-	unsigned int i = 1, numtok = styles.numtok( );
+	const unsigned int numtok = styles.numtok( );
 
-	while ( i <= numtok ) {
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if ( styles.gettok( i ) == TEXT("autoticks") ) 
 			*Styles |= TBS_AUTOTICKS;
 		else if ( styles.gettok( i ) == TEXT("both") ) 
@@ -130,8 +131,6 @@ void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 		else if ( styles.gettok( i ) == TEXT("transparentbkg") )
 			*Styles |= TBS_TRANSPARENTBKGND;
 #endif
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -145,10 +144,9 @@ void DcxTrackBar::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
  * \return > void
  */
 
-void DcxTrackBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
-
-	//  int numtok = input.numtok( );
-	TString prop(input.gettok( 3 ));
+void DcxTrackBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	const TString prop(input.gettok( 3 ));
 
 	if ( prop == TEXT("value") ) {
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPos( ) );
@@ -181,9 +179,9 @@ void DcxTrackBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * \param input [NAME] [SWITCH] [ID] (OPTIONS)
  */
 
-void DcxTrackBar::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxTrackBar::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -c [NAME] [ID] [SWITCH] [VALUE]
 	if ( flags[TEXT('c')] && numtok > 3 ) {
@@ -193,7 +191,7 @@ void DcxTrackBar::parseCommandRequest( TString & input ) {
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
 	else if (flags[TEXT('g')] && numtok > 4) {
-		UINT tflags = parseImageFlags(input.gettok( 4 ));
+		const UINT tflags = parseImageFlags(input.gettok( 4 ));
 		TString filename(input.gettok(5, -1).trim());
 
 		// background

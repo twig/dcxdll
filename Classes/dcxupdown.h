@@ -30,26 +30,26 @@ class DcxUpDown : public DcxControl {
 
 public:
 
-  DcxUpDown( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
-  virtual ~DcxUpDown( );
+	DcxUpDown( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+	virtual ~DcxUpDown( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  LRESULT setBuddy( HWND mHwnd );
-  LRESULT setRange32( const int iLow, const int iHigh );
-  LRESULT getRange32( LPINT iLow, LPINT iHigh ) const;
-  LRESULT setBase( const int iBase );
-  LRESULT getBase( ) const;
-  LRESULT setPos32( const INT nPos );
-  LRESULT getPos32( LPBOOL pfError ) const;
-  TString getStyles(void);
+	LRESULT setBuddy( HWND mHwnd );
+	LRESULT setRange32( const int iLow, const int iHigh );
+	LRESULT getRange32( LPINT iLow, LPINT iHigh ) const;
+	LRESULT setBase( const int iBase );
+	LRESULT getBase( ) const;
+	LRESULT setPos32( const INT nPos );
+	LRESULT getPos32( LPBOOL pfError ) const;
+	TString getStyles(void) const;
 
-  inline TString getType( ) { return TString( TEXT("updown") ); };
+	inline TString getType( ) const { return TString( TEXT("updown") ); };
 
 protected:
 

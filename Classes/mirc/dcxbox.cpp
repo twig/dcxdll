@@ -32,7 +32,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
+DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog )
 , m_TitleButton(NULL)
 , _hTheme(NULL)
@@ -124,9 +124,10 @@ DcxBox::~DcxBox( ) {
 * blah
 */
 
-void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-	unsigned int i = 1, numtok = styles.numtok( );
+void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
+	unsigned int i = 1;
+	const UINT numtok = styles.numtok( );
 	this->m_iBoxStyles = 0;
 
 	while ( i <= numtok ) {
@@ -167,11 +168,11 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
  * \return > void
  */
 
-void DcxBox::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
-
+void DcxBox::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
 	//  int numtok = input.numtok( );
 
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("text") ) {
@@ -230,10 +231,10 @@ void DcxBox::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * blah
  */
 
-void DcxBox::parseCommandRequest( TString & input ) {
+void DcxBox::parseCommandRequest( const TString & input ) {
 
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( flags[TEXT('c')] && numtok > 8 ) {
@@ -501,7 +502,7 @@ BOOL CALLBACK DcxBox::EnumBoxChildren(HWND hwnd,LPDCXENUM de)
 	return TRUE;
 }
 
-void DcxBox::toXml(TiXmlElement * xml) {
+void DcxBox::toXml(TiXmlElement * xml) const {
 	TString wtext;
 	TGetWindowText(this->m_Hwnd, wtext);
 	__super::toXml(xml);
@@ -509,7 +510,7 @@ void DcxBox::toXml(TiXmlElement * xml) {
 	this->m_pLayoutManager->getRoot()->toXml(xml);
 }
 
-TString DcxBox::getStyles(void) {
+TString DcxBox::getStyles(void) const {
 	TString result(__super::getStyles());
 	if (this->m_iBoxStyles & BOXS_RIGHT)
 		result.addtok(TEXT("right"));

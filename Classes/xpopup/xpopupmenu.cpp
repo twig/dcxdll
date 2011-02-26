@@ -192,8 +192,8 @@ XPopupMenu::~XPopupMenu( ) {
  */
 
 void XPopupMenu::parseXPopCommand( const TString & input ) {
-	XSwitchFlags flags(input.gettok(2));
-	TString path(input.gettok(1, TSTAB).gettok(3, -1).trim());
+	const XSwitchFlags flags(input.gettok(2));
+	const TString path(input.gettok(1, TSTAB).gettok(3, -1).trim());
 
 	HMENU hMenu;
 	if ( path.numtok( ) == 1 )
@@ -207,22 +207,22 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		}
 	}
 
-	int numtok = input.numtok( );
+	const int numtok = input.numtok( );
 
 	// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText (: Command)
 	if ( flags[TEXT('a')] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 3 ) {
-		TString itemdata(input.gettok( 2, -1, TSTAB ).trim());
+		const TString itemdata(input.gettok( 2, -1, TSTAB ).trim());
 		TString itemcom;
 
 		if ( input.numtok(TEXT(":")) > 1 )
 			itemcom = input.gettok(2, TEXT(":")).trim();
 
 		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
-		int mID = itemdata.gettok( 2 ).to_int( );
-		int nIcon = itemdata.gettok( 3 ).to_int( ) - 1;
+		const int mID = itemdata.gettok( 2 ).to_int( );
+		const int nIcon = itemdata.gettok( 3 ).to_int( ) - 1;
 
-		TString flag(itemdata.gettok( 1 ));
-		TString itemtext(itemdata.gettok( 4, -1 ));
+		const TString flag(itemdata.gettok( 1 ));
+		const TString itemtext(itemdata.gettok( 4, -1 ));
 
 		if ( nPos == -1 )
 			nPos += GetMenuItemCount( hMenu ) + 1;
@@ -245,8 +245,9 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 			mii.wID = mID;
 
 			if ( flag[0] == TEXT('+') ) {
-				int i = 1, len = flag.len( );
-				while ( i < len ) {
+				const UINT len = flag.len( );
+				for (UINT i = 1; i < len; i++ )
+				{
 					// submenu
 					if ( flag[i] == TEXT('s') ) {
 						mii.fMask |= MIIM_SUBMENU;
@@ -259,7 +260,6 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 						mii.fState |= MFS_CHECKED;
 					else if ( flag[i] == TEXT('g') )
 						mii.fState |= MFS_GRAYED;
-					++i;
 				}
 			}
 			p_Item = new XPopupMenuItem( this, itemtext, nIcon, mii.hSubMenu!=NULL?TRUE:FALSE );
@@ -271,7 +271,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	}
 	// xpop -c - [MENU] [SWITCH] [PATH]
 	else if ( flags[TEXT('c')] && numtok > 2 ) {
-		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		const int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		if ( nPos > -1 ) {
 			MENUITEMINFO mii;
 			ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
@@ -299,7 +299,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	// xpop -d - [MENU] [SWITCH] [PATH]
 	else if ( flags[TEXT('d')] && numtok > 2 ) {
 
-		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		const int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		if ( nPos > -1 ) {
 
 			MENUITEMINFO mii;
@@ -327,7 +327,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	// xpop -f - [MENU] [SWITCH] [PATH]
 	else if ( flags[TEXT('f')] && numtok > 2 ) {
 
-		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		const int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		if ( nPos > -1 ) {
 
 			MENUITEMINFO mii;
@@ -352,8 +352,8 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	// xpop -i - [MENU] [SWITCH] [PATH] [TAB] [ICON]
 	else if ( flags[TEXT('i')] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
 
-		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
-		int nIcon = input.gettok( 2, TSTAB ).to_int( );
+		const int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		const int nIcon = input.gettok( 2, TSTAB ).to_int( );
 
 		if ( nPos > -1 ) {
 
@@ -372,8 +372,8 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	// xpop -s - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS]
 	else if ( flags[TEXT('s')] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
 
-		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
-		TString mflags(input.gettok(2, TSTAB).trim());
+		const int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		const TString mflags(input.gettok(2, TSTAB).trim());
 
 		if ( nPos > -1 ) {
 			MENUITEMINFO mii;
@@ -383,13 +383,13 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 			if ( mflags[0] == TEXT('+') ) {
 
-				int i = 1, len = mflags.len( );
-				while ( i < len ) {
+				const UINT len = mflags.len( );
+				for (UINT i = 1;  i < len; i++ )
+				{
 					if ( mflags[i] == TEXT('c') )
 						mii.fState |= MFS_CHECKED;
 					else if ( mflags[i] == TEXT('g') )
 						mii.fState |= MFS_GRAYED;
-				++i;
 				}
 			}
 
@@ -398,8 +398,8 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	}
 	// xpop -t - [MENU] [SWITCH] [PATH] [TAB] Itemtext
 	else if ( flags[TEXT('t')] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
-		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
-		TString itemtext(input.gettok(2, TSTAB).trim());
+		const int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		const TString itemtext(input.gettok(2, TSTAB).trim());
 
 		if ( nPos > -1 ) {
 			MENUITEMINFO mii;
@@ -426,15 +426,15 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
  * blah
  */
 
-void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) {
-
-	int numtok = input.numtok( );
-	TString prop(input.gettok( 2 ));
+void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) const
+{
+	const int numtok = input.numtok( );
+	const TString prop(input.gettok( 2 ));
 
 	// [NAME] [ID] [PROP] [PATH]
 	if ( prop == TEXT("num") && numtok > 2 ) {
 
-		TString path(input.gettok( 3, -1 ));
+		const TString path(input.gettok( 3, -1 ));
 
 		HMENU hMenu;
 		if ( path == TEXT("root") )
@@ -449,7 +449,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 	}
 	else if ( ( prop == TEXT("text") || prop == TEXT("icon") ) && numtok > 2 ) {
 
-		TString path(input.gettok( 3, -1 ));
+		const TString path(input.gettok( 3, -1 ));
 
 		HMENU hMenu;
 
@@ -458,7 +458,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 		else
 			hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 
-		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		const int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 
 		if ( hMenu != NULL ) {
 
@@ -469,7 +469,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 
 			if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE ) {
 
-				XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+				const XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
 				if ( p_Item != NULL ) {
 
 					if ( prop == TEXT("text") ) 
@@ -483,7 +483,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 	}
 	else if ( ( prop == TEXT("checked") || prop == TEXT("enabled") ) && numtok > 2 ) {
 
-		TString path(input.gettok( 3, -1 ));
+		const TString path(input.gettok( 3, -1 ));
 
 		HMENU hMenu;
 
@@ -492,7 +492,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 		else
 			hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 
-		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		const int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 
 		if ( hMenu != NULL ) {
 
@@ -513,7 +513,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 	}
 	else if ( prop == TEXT("submenu") && numtok > 2 ) {
 
-		TString path(input.gettok( 3, -1 ));
+		const TString path(input.gettok( 3, -1 ));
 
 		HMENU hMenu;
 
@@ -522,7 +522,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 		else
 			hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 
-		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+		const int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 
 		if ( hMenu != NULL ) {
 
@@ -808,7 +808,7 @@ void XPopupMenu::setDefaultColor(const int nColor ) {
 
 HMENU XPopupMenu::parsePath( const TString & path, const HMENU hParent, const int depth ) {
 
-  int iItem = path.gettok( depth ).to_int( ) - 1;
+  const int iItem = path.gettok( depth ).to_int( ) - 1;
 
   if ( depth == path.numtok( ) )
     return GetSubMenu( hParent, iItem );
@@ -851,32 +851,32 @@ void XPopupMenu::deleteMenuItemData( XPopupMenuItem * p_Item, LPMENUITEMINFO mii
 
 void XPopupMenu::deleteAllItemData( HMENU hMenu ) {
 
-  //mIRCError( TEXT("Deleting Data") );
-  MENUITEMINFO mii;
-  ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-  mii.cbSize = sizeof( MENUITEMINFO );
-  mii.fMask = MIIM_SUBMENU | MIIM_DATA;
+	//mIRCError( TEXT("Deleting Data") );
+	MENUITEMINFO mii;
+	ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+	mii.cbSize = sizeof( MENUITEMINFO );
+	mii.fMask = MIIM_SUBMENU | MIIM_DATA;
 
-  int i = 0, n = GetMenuItemCount( hMenu );
+	int n = GetMenuItemCount( hMenu );
 
-  while ( i < n ) {
+	for (int i = 0;  i < n; i++ )
+	{
 
-    if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) == TRUE ) {
+		if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) == TRUE ) {
 
-      XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-	  if ( p_Item != NULL ) {
-		  // load the old dwItemData value back to make mIRC happy
-		  this->deleteMenuItemData( p_Item, &mii );
-		  mii.fMask = MIIM_DATA;
-		  SetMenuItemInfo(hMenu, i, TRUE, &mii);
-	  }
+			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+			if ( p_Item != NULL ) {
+				// load the old dwItemData value back to make mIRC happy
+				this->deleteMenuItemData( p_Item, &mii );
+				mii.fMask = MIIM_DATA;
+				SetMenuItemInfo(hMenu, i, TRUE, &mii);
+			}
 
-      if ( mii.hSubMenu != NULL )
-        this->deleteAllItemData( mii.hSubMenu );
+			if ( mii.hSubMenu != NULL )
+				this->deleteAllItemData( mii.hSubMenu );
 
-    }
-    ++i;
-  }
+		}
+	}
 }
 
 /*!
@@ -984,13 +984,14 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce )
 	mii.cbSize = sizeof( MENUITEMINFO );
 	mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE | MIIM_STRING;
 
-	int i = 0, k = 0, n = GetMenuItemCount( hMenu );
+	int k = 0;
+	const int n = GetMenuItemCount( hMenu );
 
-	while ( i < n ) {
-
-		TCHAR string[500];
+	for (int i = 0; i < n; i++ )
+	{
+		TCHAR string[MIRC_BUFFER_SIZE_CCH];
 		mii.dwTypeData = string;
-		mii.cch = 499;
+		mii.cch = MIRC_BUFFER_SIZE_CCH;
 
 		if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) == TRUE ) {
 
@@ -1017,8 +1018,6 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce )
 				++k;
 			}
 		}
-
-		++i;
 	}
 }
 
@@ -1035,14 +1034,14 @@ void XPopupMenu::cleanMenu( HMENU hMenu )
 	mii.cbSize = sizeof( MENUITEMINFO );
 	mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE;
 
-	int i = 0, n = GetMenuItemCount( hMenu );
+	const int n = GetMenuItemCount( hMenu );
 
-	while ( i < n ) {
-
+	for (int i = 0; i < n; i++ )
+	{
 		if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) == TRUE ) {
 
 			if ( mii.hSubMenu != NULL )
-				this->cleanMenu( mii.hSubMenu );
+				XPopupMenu::cleanMenu( mii.hSubMenu );
 
 			if ( mii.fType & MFT_OWNERDRAW ) {
 
@@ -1051,8 +1050,6 @@ void XPopupMenu::cleanMenu( HMENU hMenu )
 				SetMenuItemInfo( hMenu, i, TRUE, &mii );
 			}
 		}
-
-		++i;
 	}
 }
 
@@ -1063,19 +1060,19 @@ void XPopupMenu::cleanMenu( HMENU hMenu )
  */
 
 void XPopupMenu::clearAllMenuItems( ) {
-  
-  VectorOfXPopupMenuItem::iterator itStart = this->m_vpMenuItem.begin( );
-  VectorOfXPopupMenuItem::iterator itEnd = this->m_vpMenuItem.end( );
 
-  while ( itStart != itEnd ) {
+	VectorOfXPopupMenuItem::iterator itStart = this->m_vpMenuItem.begin( );
+	VectorOfXPopupMenuItem::iterator itEnd = this->m_vpMenuItem.end( );
 
-    if ( *itStart != NULL )
-      delete *itStart;
+	while ( itStart != itEnd ) {
 
-    ++itStart;
-  }
+		if ( *itStart != NULL )
+			delete *itStart;
 
-  this->m_vpMenuItem.clear( );
+		++itStart;
+	}
+
+	this->m_vpMenuItem.clear( );
 }
 
 /*!
@@ -1135,7 +1132,7 @@ void XPopupMenu::setMarkedText(TString text) {
 	this->m_tsMarkedText = text;
 }
 
-TString XPopupMenu::getMarkedText() {
+TString XPopupMenu::getMarkedText() const {
 	return this->m_tsMarkedText;
 }
 

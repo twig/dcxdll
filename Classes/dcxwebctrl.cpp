@@ -129,32 +129,7 @@ DcxWebControl::~DcxWebControl( ) {
  * blah
  */
 
-void DcxWebControl::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	//unsigned int i = 1, numtok = styles.numtok( );
-
-  /*
-  while ( i <= numtok ) {
-
-    if ( styles.gettok( i ) == TEXT("left") ) {
-      *Styles &= ~UDS_ALIGNRIGHT;
-      *Styles |= UDS_ALIGNLEFT;
-    }
-    else if ( styles.gettok( i ) == TEXT("arrowkeys") )
-      *Styles |= UDS_ARROWKEYS;
-    else if ( styles.gettok( i ) == TEXT("horz") )
-      *Styles |= UDS_HORZ;
-    else if ( styles.gettok( i ) == TEXT("hottrack") )
-      *Styles |= UDS_HOTTRACK;
-    else if ( styles.gettok( i ) == TEXT("nothousands") )
-      *Styles |= UDS_NOTHOUSANDS;
-    else if ( styles.gettok( i ) == TEXT("buddyint") )
-      *Styles |= UDS_SETBUDDYINT;
-    else if ( styles.gettok( i ) == TEXT("wrap") )
-      *Styles |= UDS_WRAP;
-
-    i++;
-  }
-  */
+void DcxWebControl::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -168,10 +143,9 @@ void DcxWebControl::parseControlStyles(TString &styles, LONG *Styles, LONG *ExSt
  * \return > void
  */
 
-void DcxWebControl::parseInfoRequest( TString & input, TCHAR * szReturnValue )
+void DcxWebControl::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const
 {
-	//  int numtok = input.numtok( );
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("url") ) {
@@ -212,9 +186,9 @@ void DcxWebControl::parseInfoRequest( TString & input, TCHAR * szReturnValue )
  * blah
  */
 
-void DcxWebControl::parseCommandRequest(TString & input) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxWebControl::parseCommandRequest( const TString & input) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -g [NAME] [ID] [SWITCH]
 	if ( flags[TEXT('g')] ) {
@@ -250,11 +224,7 @@ void DcxWebControl::parseCommandRequest(TString & input) {
 
 						VARIANT v;
 						VariantInit( &v );
-#if UNICODE
 						window->execScript( CMD.to_chr(), NULL, &v );
-#else
-						window->execScript( CMD.to_wchr(this->m_bUseUTF8), NULL, &v );
-#endif
 						VariantClear( &v );
 
 						window->Release( );
@@ -279,11 +249,7 @@ void DcxWebControl::parseCommandRequest(TString & input) {
 
 		VARIANT v;
 		VariantInit( &v );
-#if UNICODE
 		this->m_pWebBrowser2->Navigate( URL.to_chr(), &v, &v, &v, &v );
-#else
-		this->m_pWebBrowser2->Navigate( URL.to_wchr(this->m_bUseUTF8), &v, &v, &v, &v );
-#endif
 		VariantClear( &v );
 	}
 	// xdid -r [NAME] [ID] [SWITCH]

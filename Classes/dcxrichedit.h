@@ -41,15 +41,15 @@ typedef struct {
 
 class DcxRichEdit : public DcxControl {
 public:
-	DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, TString &styles);
+	DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, const TString &styles);
 	virtual ~DcxRichEdit();
 
 	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
-
-	void parseInfoRequest(TString &input, TCHAR *szReturnValue);
-	void parseCommandRequest(TString &input);
-	void parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme);
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
+
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
 	void loadmIRCPalette();
 
@@ -64,13 +64,13 @@ public:
 	LRESULT replaceSel(const BOOL bUndo, LPCTSTR lpstr);
 	LRESULT getCharFormat(const UINT iType, CHARFORMAT2 *cfm) const;
 	LRESULT setCharFormat(const UINT iType, CHARFORMAT2 *cfm);
-	void toXml(TiXmlElement * xml);
-	TString getStyles(void);
+	void toXml(TiXmlElement * xml) const;
+	TString getStyles(void) const;
 
 	//LRESULT getLineLength();
 	//LRESULT getLineIndex();
 
-	inline TString getType() { return TString(TEXT("richedit")); };
+	inline TString getType() const { return TString(TEXT("richedit")); };
 
 protected:
 	TString m_tsText; //!< RichEdit Text contents

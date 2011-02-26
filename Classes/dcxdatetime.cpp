@@ -28,7 +28,7 @@ http://msdn2.microsoft.com/en-us/library/bb761727.aspx
  * \param styles Window Style Tokenized List
  */
 
-DcxDateTime::DcxDateTime(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, TString &styles)
+DcxDateTime::DcxDateTime(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, const TString &styles)
 : DcxControl(ID, p_Dialog) 
 {
 	LONG Styles = 0, ExStyles = 0;
@@ -66,7 +66,8 @@ DcxDateTime::~DcxDateTime() {
 	this->unregistreDefaultWindowProc();
 }
 
-void DcxDateTime::toXml(TiXmlElement * xml) {
+void DcxDateTime::toXml(TiXmlElement * xml) const
+{
 	char buf[64];
 	SYSTEMTIME st;
 
@@ -79,7 +80,8 @@ void DcxDateTime::toXml(TiXmlElement * xml) {
 	return;
 }
 
-TString DcxDateTime::getStyles(void) {
+TString DcxDateTime::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -105,10 +107,12 @@ TString DcxDateTime::getStyles(void) {
  *
  * blah
  */
-void DcxDateTime::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok();
+void DcxDateTime::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+{
+	const UINT numtok = styles.numtok();
 
-	while (i <= numtok) {
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if (styles.gettok(i) == TEXT("longdateformat"))
 			*Styles |= DTS_LONGDATEFORMAT;
 		else if (styles.gettok(i) == TEXT("shortdateformat"))
@@ -123,8 +127,6 @@ void DcxDateTime::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
 			*Styles |= DTS_SHOWNONE;
 		else if (styles.gettok(i) == TEXT("updown"))
 			*Styles |= DTS_UPDOWN;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
@@ -138,10 +140,10 @@ void DcxDateTime::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
  *
  * \return > void
  */
-void DcxDateTime::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
+void DcxDateTime::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const {
 	//int numtok = input.numtok();
 
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if (prop == TEXT("range")) {
@@ -189,10 +191,10 @@ void DcxDateTime::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
  * blah
  */
 // TODO: find a way to change state of checkbox /xdid -c
-void DcxDateTime::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
+void DcxDateTime::parseCommandRequest( const TString &input) {
+	const XSwitchFlags flags(input.gettok(3));
 
-	int numtok = input.numtok();
+	const int numtok = input.numtok();
 
 	// xdid -f [NAME] [ID] [SWITCH] (FORMAT)
 	if (flags[TEXT('f')]) {

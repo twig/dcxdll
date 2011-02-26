@@ -38,23 +38,23 @@ class DcxStatusBar : public DcxControl {
 
 public:
 
-	DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+	DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
 	virtual ~DcxStatusBar( );
 
 	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-	void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-	void parseCommandRequest( TString & input );
-	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
 	HIMAGELIST getImageList( );
 	void setImageList( HIMAGELIST himl );
 	static HIMAGELIST createImageList( );
 
-	static UINT parseItemFlags( TString & flags );
+	static UINT parseItemFlags( const TString & flags );
 	void cleanPartIcons( );
-	TString getStyles(void);
+	TString getStyles(void) const;
 
 	LRESULT setParts( const int nParts, const LPINT aWidths );
 	LRESULT getParts( const int nParts, LPINT aWidths ) const;
@@ -75,7 +75,7 @@ public:
 
 	void deletePartInfo(const int iPart);
 
-	inline TString getType( ) { return TString( TEXT("statusbar") ); };
+	inline TString getType( ) const { return TString( TEXT("statusbar") ); };
 
 protected:
 

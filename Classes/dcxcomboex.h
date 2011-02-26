@@ -54,42 +54,42 @@ class DcxComboEx : public DcxControl {
 
 public:
 
-  DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
-  virtual ~DcxComboEx( );
+	DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	virtual ~DcxComboEx( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, PTCHAR szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  HIMAGELIST getImageList( );
-  void setImageList( HIMAGELIST himl );
-  static HIMAGELIST createImageList( );
+	HIMAGELIST getImageList( );
+	void setImageList( HIMAGELIST himl );
+	static HIMAGELIST createImageList( );
 
-  BOOL matchItemText( const int nItem, const TString * search, const UINT SearchType );
+	BOOL matchItemText( const int nItem, const TString * search, const UINT SearchType ) const;
 
-  LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem );
-  LRESULT getItem( PCOMBOBOXEXITEM lpcCBItem ) const;
-  LRESULT getEditControl( ) const;
-  LRESULT deleteItem( const int iIndex );
-  LRESULT setCurSel( const int iIndex );
-  LRESULT getCurSel( ) const;
-  LRESULT getLBText( const int iIndex, LPSTR lps );
-  LRESULT resetContent( );
-  LRESULT getCount( ) const;
-  LRESULT limitText( const int iLimit );
+	LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem );
+	LRESULT getItem( PCOMBOBOXEXITEM lpcCBItem ) const;
+	LRESULT getEditControl( ) const;
+	LRESULT deleteItem( const int iIndex );
+	LRESULT setCurSel( const int iIndex );
+	LRESULT getCurSel( ) const;
+	LRESULT getLBText( const int iIndex, LPSTR lps );
+	LRESULT resetContent( );
+	LRESULT getCount( ) const;
+	LRESULT limitText( const int iLimit );
 
-  static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-  inline TString getType( ) { return TString( TEXT("comboex") ); };
-  TString getStyles(void);
+	inline TString getType( ) const { return TString( TEXT("comboex") ); };
+	TString getStyles(void) const;
 
 protected:
 
-  HWND m_EditHwnd;  //!< Combo's Edit Control Handle
-  VectorOfCBItemData m_vItemDataList;
+	HWND m_EditHwnd;  //!< Combo's Edit Control Handle
+	VectorOfCBItemData m_vItemDataList;
 };
 
 #endif // _DCXCOMBOEX_H_

@@ -28,7 +28,7 @@
 * \param rc Window Rectangle
 * \param styles Window Style Tokenized List
 */
-DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, TString &styles)
+DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, const TString &styles)
 : DcxControl(ID, p_Dialog)
 , m_iFontSize(10 * 20)
 , m_bFontBold(FALSE)
@@ -98,12 +98,14 @@ DcxRichEdit::~DcxRichEdit() {
 *
 * blah
 */
-void DcxRichEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
+void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+{
 	//*Styles |= ES_READONLY;
 	//ES_NOHIDESEL
-	unsigned int i = 1, numtok = styles.numtok( );
+	const unsigned int numtok = styles.numtok( );
 
-	while (i <= numtok) {
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if (styles.gettok( i ) == TEXT("multi"))
 			*Styles |= ES_MULTILINE | ES_WANTRETURN;
 		else if (styles.gettok( i ) == TEXT("readonly"))
@@ -122,8 +124,6 @@ void DcxRichEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
 			*Styles |= WS_HSCROLL;
 		else if (styles.gettok( i ) == TEXT("disablescroll"))
 			*Styles |= ES_DISABLENOSCROLL;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
@@ -137,9 +137,10 @@ void DcxRichEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
 *
 * \return > void
 */
-void DcxRichEdit::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
-	int numtok = input.numtok( );
-	TString prop(input.gettok( 3 ));
+void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) const
+{
+	const int numtok = input.numtok( );
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
 	if (prop == TEXT("text")) {
@@ -168,7 +169,7 @@ void DcxRichEdit::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
 
 		// copy to result
 		lstrcpyn(szReturnValue, p, MIRC_BUFFER_SIZE_CCH);
-		delete p;
+		delete [] p;
 		return;
 	}
 	// [NAME] [ID] [PROP]
@@ -248,9 +249,9 @@ void DcxRichEdit::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
 *
 * blah
 */
-void DcxRichEdit::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok();
+void DcxRichEdit::parseCommandRequest(const TString &input) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok();
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -283,7 +284,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	// special richedit interception for font change
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	else if (flags[TEXT('f')] && numtok > 3) {
-		UINT iFontFlags = parseFontFlags(input.gettok( 4 ));
+		const UINT iFontFlags = parseFontFlags(input.gettok( 4 ));
 
 		if (iFontFlags & DCF_DEFAULT) {
 			this->m_clrBackText = GetSysColor(COLOR_WINDOW);
@@ -346,7 +347,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags[TEXT('k')] && numtok > 3) {
-		COLORREF clrColor = (COLORREF)input.gettok( 4 ).to_num();
+		const COLORREF clrColor = (COLORREF)input.gettok( 4 ).to_num();
 
 		if (clrColor == -1)
 			SendMessage(this->m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, (LPARAM) GetSysColor(COLOR_WINDOWTEXT));
@@ -358,7 +359,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
 	else if (flags[TEXT('l')] && numtok > 4) {
-		int nColor = input.gettok( 4 ).to_int() -1;
+		const int nColor = input.gettok( 4 ).to_int() -1;
 
 		if (nColor > -1 && nColor < 16) {
 			this->m_aColorPalette[nColor] = (COLORREF)input.gettok( 5 ).to_num();
@@ -421,11 +422,7 @@ void DcxRichEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags[TEXT('u')] && numtok > 3) {
-#if UNICODE
-		FILE *file = _wfopen(input.gettok(4, -1).to_chr(), TEXT("wb"));
-#else
-		FILE *file = fopen(input.gettok(4, -1).to_chr(), TEXT("wb"));
-#endif
+		FILE *file = dcx_fopen(input.gettok(4, -1).to_chr(), TEXT("wb"));
 
 		if (file != NULL) {
 			fwrite(this->m_tsText.to_chr(), sizeof(TCHAR), this->m_tsText.len(), file);
@@ -582,8 +579,8 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 	cbuf[1] = TEXT('\0');
 	colbuf[2] = TEXT('\0');
 
-	int i = 0;
-	while (text[i] != TEXT('\0')) {
+	for (int i = 0; text[i] != TEXT('\0'); i++)
+	{
 		cbuf[0] = text[i];
 
 		// if current TCHAR is a control code
@@ -666,8 +663,6 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 		else {
 			this->insertText(cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
 		}
-
-		++i;
 	}
 
 	this->setSel(0, 0);
@@ -732,10 +727,8 @@ void DcxRichEdit::insertText(TCHAR *text, bool bline, bool uline, bool bcolor, C
 	if (this->m_bFontUnderline)
 		chrf.dwEffects |= CFE_UNDERLINE;
 
-	if (this->m_tsFontFaceName != TEXT("")) {
-		lstrcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 31);
-		chrf.szFaceName[31] = 0;
-	}
+	if (this->m_tsFontFaceName != TEXT(""))
+		lstrcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 32);
 
 	if (bcolor == true)
 		chrf.crTextColor = color;
@@ -808,13 +801,13 @@ LRESULT DcxRichEdit::setCharFormat(const UINT iType, CHARFORMAT2 *cfm) {
 	return SendMessage(this->m_Hwnd, EM_SETCHARFORMAT, (WPARAM) iType, (LPARAM) cfm);
 }
 
-void DcxRichEdit::toXml(TiXmlElement * xml) {
+void DcxRichEdit::toXml(TiXmlElement * xml) const {
 	__super::toXml(xml);
 	TiXmlText * text = new TiXmlText(this->m_tsText.c_str());
 	xml->LinkEndChild(text);
 }
 
-TString DcxRichEdit::getStyles(void) {
+TString DcxRichEdit::getStyles(void) const {
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
