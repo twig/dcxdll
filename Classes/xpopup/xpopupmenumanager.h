@@ -54,7 +54,7 @@ public:
 
 	void parseCommand( const TString & input );
 	void parseCommand( const TString & input, XPopupMenu *p_Menu );
-	void parseIdentifier( const TString & input, TCHAR * szReturnValue );
+	void parseIdentifier( const TString & input, TCHAR * szReturnValue ) const;
 	int parseMPopup(const TString & input);
 
 	void addMenu( XPopupMenu * p_Menu );
@@ -68,7 +68,7 @@ public:
 	XPopupMenu* getmIRCPopup(void);
 	XPopupMenu* getmIRCMenuBar(void);
 	bool isCustomMenu(const HMENU hMenu);
-	bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
+	static bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
 
 	bool isPatched(void) const { return this->m_bPatched; };
 

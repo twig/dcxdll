@@ -98,9 +98,9 @@ public:
 	DcxControl( const UINT mID, DcxDialog * p_Dialog );
 	virtual ~DcxControl( );
 
-	virtual void parseInfoRequest( TString & input, PTCHAR szReturnValue ) = 0;
-	virtual void parseCommandRequest( TString & input ) = 0;
-	virtual void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
+	virtual void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const = 0;
+	virtual void parseCommandRequest( const TString & input ) = 0;
+	virtual void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
 
 	void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
@@ -131,11 +131,11 @@ public:
 
 	static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, int offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = NULL);
 
-	virtual TString getType( ) = 0;
-	virtual TString getStyles(void);
-	virtual TString getBorderStyles(void);
-	virtual void toXml(TiXmlElement * xml);
-	virtual TiXmlElement * toXml(void);
+	virtual TString getType( ) const = 0;
+	virtual TString getStyles(void) const;
+	virtual TString getBorderStyles(void) const;
+	virtual void toXml(TiXmlElement * xml) const;
+	virtual TiXmlElement * toXml(void) const;
 
 	inline void incRef( ) { ++this->m_iRefCount; };
 	inline void decRef( ) { --this->m_iRefCount; };
@@ -147,8 +147,8 @@ public:
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai);
 	static HBITMAP resizeBitmap(HBITMAP srcBM, const LPRECT rc);
-	void showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err);
-	void showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...);
+	void showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err) const;
+	void showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...) const;
 
 protected:
 
@@ -191,8 +191,8 @@ protected:
 	//int m_iThemePartId;
 	/* ***** */
 
-	void parseGlobalCommandRequest(const TString & input, XSwitchFlags & flags );
-	BOOL parseGlobalInfoRequest( const TString & input, TCHAR * szReturnValue );
+	void parseGlobalCommandRequest(const TString & input, const XSwitchFlags & flags );
+	BOOL parseGlobalInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
 
 	static UINT parseColorFlags( const TString & flags );
 	static UINT parseCursorFlags( const TString & flags );

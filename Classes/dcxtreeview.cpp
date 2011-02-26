@@ -120,14 +120,14 @@ DcxTreeView::~DcxTreeView( ) {
  * blah
  */
 
-void DcxTreeView::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxTreeView::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
 	*Styles |= TVS_INFOTIP;
 
-	unsigned int i = 1, numtok = styles.numtok( );
+	const unsigned int numtok = styles.numtok( );
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if ( styles.gettok( i ) == TEXT("haslines") ) 
 			*Styles |= TVS_HASLINES;
 		else if ( styles.gettok( i ) == TEXT("hasbuttons") ) 
@@ -150,8 +150,6 @@ void DcxTreeView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 			*Styles |= TVS_SINGLEEXPAND;
 		else if ( styles.gettok( i ) == TEXT("checkbox") ) 
 			*ExStyles |= TVS_CHECKBOXES;
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -160,25 +158,23 @@ void DcxTreeView::parseControlStyles( TString & styles, LONG * Styles, LONG * Ex
 void DcxTreeView::parseTreeViewExStyles( const TString &styles, LONG * ExStyles ) {
 
 	// Vista+ ONLY!
-  unsigned int i = 1, numtok = styles.numtok( );
+	const unsigned int numtok = styles.numtok( );
 
-  while ( i <= numtok ) {
-
-    if ( styles.gettok( i ) == TEXT("fadebuttons") )
-      *ExStyles |= TVS_EX_FADEINOUTEXPANDOS;
-    else if ( styles.gettok( i ) == TEXT("doublebuffer") )
-      *ExStyles |= TVS_EX_DOUBLEBUFFER;
-    //else if ( styles.gettok( i ) == TEXT("multi") )
-    //  *ExStyles |= TVS_EX_MULTISELECT; // Style NOT to be used (unsupported by commctrl)
-    else if ( styles.gettok( i ) == TEXT("noident") )
-      *ExStyles |= TVS_EX_NOINDENTSTATE;
-    else if ( styles.gettok( i ) == TEXT("richtooltip") )
-      *ExStyles |= TVS_EX_RICHTOOLTIP;
-    else if ( styles.gettok( i ) == TEXT("autohscroll") )
-      *ExStyles |= TVS_EX_AUTOHSCROLL;
-
-    i++;
-  }
+	for (UINT i = 1; i <= numtok; i++)
+	{
+		if ( styles.gettok( i ) == TEXT("fadebuttons") )
+			*ExStyles |= TVS_EX_FADEINOUTEXPANDOS;
+		else if ( styles.gettok( i ) == TEXT("doublebuffer") )
+			*ExStyles |= TVS_EX_DOUBLEBUFFER;
+		//else if ( styles.gettok( i ) == TEXT("multi") )
+		//  *ExStyles |= TVS_EX_MULTISELECT; // Style NOT to be used (unsupported by commctrl)
+		else if ( styles.gettok( i ) == TEXT("noident") )
+			*ExStyles |= TVS_EX_NOINDENTSTATE;
+		else if ( styles.gettok( i ) == TEXT("richtooltip") )
+			*ExStyles |= TVS_EX_RICHTOOLTIP;
+		else if ( styles.gettok( i ) == TEXT("autohscroll") )
+			*ExStyles |= TVS_EX_AUTOHSCROLL;
+	}
 }
 #endif
 
@@ -191,9 +187,10 @@ void DcxTreeView::parseTreeViewExStyles( const TString &styles, LONG * ExStyles 
  * \return > void
  */
 
-void DcxTreeView::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
-	int numtok = input.numtok();
-	TString prop(input.gettok(3));
+void DcxTreeView::parseInfoRequest( const TString &input, TCHAR *szReturnValue) const
+{
+	const int numtok = input.numtok();
+	const TString prop(input.gettok(3));
 
 	// [NAME] [ID] [PROP] [PATH]
 	if (prop == TEXT("text") && numtok > 3) {
@@ -425,9 +422,9 @@ void DcxTreeView::parseInfoRequest(TString &input, TCHAR *szReturnValue) {
  * blah
  */
 
-void DcxTreeView::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxTreeView::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -460,7 +457,7 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 		}
 
 		TString path(input.gettok(1, TSTAB).trim());
-		TString data(input.gettok(2, TSTAB).trim());
+		const TString data(input.gettok(2, TSTAB).trim());
 		HTREEITEM item;
 
 		n = path.numtok();
@@ -485,8 +482,8 @@ void DcxTreeView::parseCommandRequest( TString & input ) {
 			return;
 		}
 
-		TString flag(data.gettok(1));
-		TString info(data.gettok(2, -1));
+		const TString flag(data.gettok(1));
+		const TString info(data.gettok(2, -1));
 
 		if (flag.find(TEXT('M'), 1) > 0) {
 			TVITEMEX tvi; 
@@ -1536,7 +1533,7 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
  *
  * blah
  */
-TString DcxTreeView::getPathFromItem(HTREEITEM *item) {
+TString DcxTreeView::getPathFromItem(HTREEITEM *item) const {
 	HTREEITEM parent = *item;
 	HTREEITEM current;
 	TString result;
@@ -2694,7 +2691,7 @@ TString DcxTreeView::getStyles(void) {
  * If the path is invalid, it will return NULL.
  * If hParent and hInsertAt parameters are filled, it is assumed we are searching for a place to insert the item
  */
-HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEITEM *hInsertAt) {
+HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEITEM *hInsertAt) const {
 	HTREEITEM current = TVI_ROOT;
 	HTREEITEM foundSoFar = current;
 	int count = path->numtok();

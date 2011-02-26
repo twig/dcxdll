@@ -29,7 +29,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxColorCombo::DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxColorCombo::DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog )
 {
 	LONG Styles = 0, ExStyles = 0;
@@ -75,18 +75,9 @@ DcxColorCombo::~DcxColorCombo( ) {
  * blah
  */
 
-void DcxColorCombo::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
+void DcxColorCombo::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+{
 	*Styles |= CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED;
-	//unsigned int i = 1, numtok = styles.numtok( );
-
-
-	//while ( i <= numtok ) {
-
-	//	if ( styles.gettok( i ) == TEXT("nominsize") )
-	//		*Styles |= CBS_NOINTEGRALHEIGHT;
-
-	//	i++;
-	//}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -100,11 +91,11 @@ void DcxColorCombo::parseControlStyles(TString &styles, LONG *Styles, LONG *ExSt
  * \return > void
  */
 
-void DcxColorCombo::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
+void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	const int numtok = input.numtok( );
 
-	int numtok = input.numtok( );
-
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("num") ) {
@@ -149,9 +140,9 @@ void DcxColorCombo::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  *
  * blah
  */
-void DcxColorCombo::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxColorCombo::parseCommandRequest( const TString &input) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -161,7 +152,7 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 	// xdid -a [NAME] [ID] [SWITCH] [N] [RGB]
 	if (flags[TEXT('a')] && numtok > 4) {
 		int nItem = input.gettok(4).to_int() -1;
-		COLORREF clrItem = (COLORREF)input.gettok( 5 ).to_num();
+		const COLORREF clrItem = (COLORREF)input.gettok( 5 ).to_num();
 
 		if (nItem >= this->getCount())
 			nItem = -1;
@@ -181,14 +172,14 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('c')] && numtok > 3) {
-		int nItem = input.gettok(4).to_int() -1;
+		const int nItem = input.gettok(4).to_int() -1;
 
 		if ((nItem > -2) && (nItem < this->getCount()))
 			this->setCurSel(nItem);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
-		int nItem = (int)input.gettok( 4 ).to_num() -1;
+		const int nItem = (int)input.gettok( 4 ).to_num() -1;
 
 		if (nItem > -1 && nItem < this->getCount()) {
 			this->deleteItem(nItem);
@@ -200,8 +191,8 @@ void DcxColorCombo::parseCommandRequest(TString &input) {
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [RGB]
 	else if (flags[TEXT('o')] && numtok > 4) {
-		int nItem = input.gettok( 4 ).to_int() -1;
-		COLORREF clrItem = (COLORREF)input.gettok( 5 ).to_num();
+		const int nItem = input.gettok( 4 ).to_int() -1;
+		const COLORREF clrItem = (COLORREF)input.gettok( 5 ).to_num();
 
 		if (nItem > -1 && nItem < this->getCount()) {
 			LPDCXCCOMBOITEM lpdcxcci = (LPDCXCCOMBOITEM) this->getItemData(nItem);

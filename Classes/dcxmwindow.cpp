@@ -26,8 +26,9 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxMWindow::DcxMWindow( const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog * p_Dialog, RECT * rc, TString & styles ) : DcxControl( ID, p_Dialog ) {
-
+DcxMWindow::DcxMWindow( const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog * p_Dialog, RECT * rc, const TString & styles )
+: DcxControl( ID, p_Dialog )
+{
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
@@ -100,7 +101,8 @@ DcxMWindow::~DcxMWindow( ) {
  * \return > void
  */
 
-void DcxMWindow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
+void DcxMWindow::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
 	//  int numtok = input.numtok( );
 
 	// [NAME] [ID] [PROP]
@@ -120,15 +122,13 @@ void DcxMWindow::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * blah
  */
 
-void DcxMWindow::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-
-	//  int numtok = input.numtok( );
+void DcxMWindow::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
 
 	this->parseGlobalCommandRequest( input, flags );
 }
 
-void DcxMWindow::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
+void DcxMWindow::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
 	this->m_OrigName = styles;
 }
 

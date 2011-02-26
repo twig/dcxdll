@@ -25,14 +25,14 @@
 * \param styles Window Style Tokenized List
 */
 
-DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog )
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-	this->m_Hwnd = CreateWindowEx(	
+	this->m_Hwnd = CreateWindowEx(
 		ExStyles,
 		DCX_COMBOEXCLASS,
 		NULL,
@@ -135,21 +135,19 @@ DcxComboEx::~DcxComboEx( ) {
 * blah
 */
 
-void DcxComboEx::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
+void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
 	//*ExStyles |= CBES_EX_NOSIZELIMIT;
-	unsigned int i = 1, numtok = styles.numtok( );
+	const UINT numtok = styles.numtok( );
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if ( styles.gettok( i ) == TEXT("simple") )
 			*Styles |= CBS_SIMPLE;
 		else if ( styles.gettok( i ) == TEXT("dropdown") )
 			*Styles |= CBS_DROPDOWNLIST;
 		else if ( styles.gettok( i ) == TEXT("dropedit") )
 			*Styles |= CBS_DROPDOWN;
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -163,16 +161,16 @@ void DcxComboEx::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 * \return > void
 */
 
-void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
+void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	const int numtok = input.numtok( );
 
-	int numtok = input.numtok( );
-
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
 	if ( prop == TEXT("text") && numtok > 3 ) {
 
-		int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nItem > -1 ) {
 
@@ -196,7 +194,7 @@ void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("seltext") ) {
 
-		int nItem = this->getCurSel( );
+		const int nItem = this->getCurSel( );
 
 		if ( nItem > -1 ) {
 
@@ -215,7 +213,7 @@ void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("sel") ) {
 
-		int nItem = this->getCurSel( );
+		const int nItem = this->getCurSel( );
 
 		if ( nItem > -1 ) {
 
@@ -232,8 +230,8 @@ void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
 	else if ( prop == TEXT("find") && numtok > 5 ) {
 
-		TString matchtext(input.gettok(2, TSTAB).trim());
-		TString params(input.gettok(3, TSTAB).trim());
+		const TString matchtext(input.gettok(2, TSTAB).trim());
+		const TString params(input.gettok(3, TSTAB).trim());
 
 		if ( matchtext.len( ) > 0 ) {
 
@@ -244,7 +242,7 @@ void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 			else
 				SearchType = CBEXSEARCH_W;
 
-			int N = params.gettok( 2 ).to_int( );
+			const int N = params.gettok( 2 ).to_int( );
 
 			// count total
 			if ( N == 0 ) {
@@ -265,10 +263,11 @@ void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 			// find Nth matching
 			else {
 
-				int nItems = this->getCount( ), i = 0, count = 0;
+				const int nItems = this->getCount( );
+				int count = 0;
 
-				while ( i < nItems ) {
-
+				for (int i = 0; i < nItems; i++ )
+				{
 					if ( this->matchItemText( i, &matchtext, SearchType ) )
 						count++;
 
@@ -277,8 +276,6 @@ void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 						wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), i + 1 );
 						return;
 					}
-
-					i++;
 				}
 			} // else
 		}
@@ -287,11 +284,10 @@ void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 	// [NAME] [ID] [PROP] [ROW]
 	else if ( prop == TEXT("markeditem") && numtok == 3 ) {
 
-		int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.gettok( 4 ).to_int( ) - 1;
 
-		if ( nItem > -1 && nItem < (int)m_vItemDataList.size()) {
+		if ( nItem > -1 && nItem < (int)m_vItemDataList.size())
 			lstrcpyn( szReturnValue,  m_vItemDataList.at( nItem ).tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH );
-		}
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
@@ -305,10 +301,10 @@ void DcxComboEx::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 * blah
 */
 
-void DcxComboEx::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
+void DcxComboEx::parseCommandRequest( const TString &input) {
+	const XSwitchFlags flags(input.gettok(3));
 
-	int numtok = input.numtok( );
+	const int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -520,8 +516,8 @@ HIMAGELIST DcxComboEx::createImageList( ) {
 * blah
 */
 
-BOOL DcxComboEx::matchItemText( const int nItem, const TString * search, const UINT SearchType ) {
-
+BOOL DcxComboEx::matchItemText( const int nItem, const TString * search, const UINT SearchType ) const
+{
 	TCHAR itemtext[MIRC_BUFFER_SIZE_CCH];
 
 	COMBOBOXEXITEM cbi;
@@ -640,7 +636,8 @@ LRESULT DcxComboEx::limitText( const int iLimit ) {
 	return SendMessage( this->m_Hwnd, CB_LIMITTEXT, (WPARAM) iLimit, (LPARAM) 0 );
 }
 
-TString DcxComboEx::getStyles(void) {
+TString DcxComboEx::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);

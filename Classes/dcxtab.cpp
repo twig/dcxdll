@@ -25,7 +25,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
 : DcxControl(ID, p_Dialog)
 , m_bClosable(false)
 , m_bGradient(false)
@@ -104,14 +104,14 @@ DcxTab::~DcxTab( ) {
  * blah
  */
 
-void DcxTab::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxTab::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-	unsigned int i = 1, numtok = styles.numtok( );
+	const unsigned int numtok = styles.numtok( );
 
 	//*ExStyles = WS_EX_CONTROLPARENT;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++ )
+	{
 		if ( styles.gettok( i ) == TEXT("vertical") )
 			*Styles |= TCS_VERTICAL;
 		else if ( styles.gettok( i ) == TEXT("bottom") )
@@ -142,8 +142,6 @@ void DcxTab::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 		}
 		else if ( styles.gettok( i ) == TEXT("gradient") )
 			this->m_bGradient = true;
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -157,14 +155,14 @@ void DcxTab::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
  * \return > void
  */
 
-void DcxTab::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
+void DcxTab::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const {
 
-	int numtok = input.numtok( );
-	TString prop(input.gettok( 3 ));
+	const int numtok = input.numtok( );
+	const TString prop(input.gettok( 3 ));
 
 	if ( prop == TEXT("text") && numtok > 3 ) {
 
-		int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -187,7 +185,7 @@ void DcxTab::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("icon") && numtok > 3 ) {
 
-		int iTab = input.gettok( 4 ).to_int( ) - 1;
+		const int iTab = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( iTab > -1 && iTab < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -204,7 +202,7 @@ void DcxTab::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 	}
 	else if ( prop == TEXT("sel") ) {
 
-		int nItem = TabCtrl_GetCurSel( this->m_Hwnd );
+		const int nItem = TabCtrl_GetCurSel( this->m_Hwnd );
 
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -214,7 +212,7 @@ void DcxTab::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 	}
 	else if ( prop == TEXT("seltext") ) {
 
-		int nItem = TabCtrl_GetCurSel( this->m_Hwnd );
+		const int nItem = TabCtrl_GetCurSel( this->m_Hwnd );
 
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -231,7 +229,7 @@ void DcxTab::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 	}
 	else if ( prop == TEXT("childid") && numtok > 3 ) {
 
-		int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -258,7 +256,7 @@ void DcxTab::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
 		GetCursorPos(&tchi.pt);
 		MapWindowPoints(NULL, this->m_Hwnd, &tchi.pt, 1);
 
-		int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
+		const int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), tab +1);
 		return;
@@ -277,17 +275,17 @@ void DcxTab::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
  * blah
  */
 
-void DcxTab::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxTab::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
-		int n = 0;
 		TCITEM tci;
-		int nItems = TabCtrl_GetItemCount(this->m_Hwnd);
+		const int nItems = TabCtrl_GetItemCount(this->m_Hwnd);
 
-		while (n < nItems) {
+		for (int n = 0; n < nItems; n++)
+		{
 			ZeroMemory(&tci, sizeof(TCITEM));
 
 			tci.mask = TCIF_PARAM;
@@ -300,8 +298,6 @@ void DcxTab::parseCommandRequest( TString & input ) {
 					delete lpdtci;
 				}
 			}
-
-			++n;
 		}
 
 		TabCtrl_DeleteAllItems(this->m_Hwnd);
@@ -313,7 +309,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
 		ZeroMemory( &tci, sizeof( TCITEM ) );
 		tci.mask = TCIF_IMAGE | TCIF_PARAM;
 
-		TString data(input.gettok( 1, TSTAB ).trim());
+		const TString data(input.gettok( 1, TSTAB ).trim());
 
 		TString control_data;
 		if ( input.numtok( TSTAB ) > 1 )
@@ -393,7 +389,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('c')] && numtok > 3 ) {
-		int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 			TabCtrl_SetCurSel( this->m_Hwnd, nItem );
@@ -402,11 +398,11 @@ void DcxTab::parseCommandRequest( TString & input ) {
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
-		int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.gettok( 4 ).to_int( ) - 1;
 
 		// if a valid item to delete
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
-			int curSel = TabCtrl_GetCurSel(this->m_Hwnd);
+			const int curSel = TabCtrl_GetCurSel(this->m_Hwnd);
 			TCITEM tci;
 			ZeroMemory( &tci, sizeof( TCITEM ) );
 
@@ -436,8 +432,8 @@ void DcxTab::parseCommandRequest( TString & input ) {
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [ICON]
 	else if ( flags[TEXT('l')] && numtok > 4 ) {
-		int nItem = input.gettok( 4 ).to_int( ) - 1;
-		int nIcon = input.gettok( 5 ).to_int( ) - 1;
+		const int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nIcon = input.gettok( 5 ).to_int( ) - 1;
 
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 			TCITEM tci;
@@ -451,8 +447,8 @@ void DcxTab::parseCommandRequest( TString & input ) {
 	// xdid -m [NAME] [ID] [SWITCH] [X] [Y]
 	else if ( flags[TEXT('m')] && numtok > 4 ) {
 
-		int X = input.gettok( 4 ).to_int( );
-		int Y = input.gettok( 5 ).to_int( );
+		const int X = input.gettok( 4 ).to_int( );
+		const int Y = input.gettok( 5 ).to_int( );
 
 		TabCtrl_SetItemSize( this->m_Hwnd, X, Y );
 	}
@@ -463,7 +459,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
 	// xdid -t [NAME] [ID] [SWITCH] [N] (text)
 	else if ( flags[TEXT('t')] && numtok > 3 ) {
 
-		int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -486,7 +482,7 @@ void DcxTab::parseCommandRequest( TString & input ) {
 	// xdid -v [DNAME] [ID] [SWITCH] [N] [POS]
 	else if (flags[TEXT('v')] && numtok > 4) {
 		int nItem = input.gettok(4).to_int();
-		int pos = input.gettok(5).to_int();
+		const int pos = input.gettok(5).to_int();
 		BOOL adjustDelete = FALSE;
 
 		if (nItem == pos)
@@ -526,8 +522,8 @@ void DcxTab::parseCommandRequest( TString & input ) {
 	else if (flags[TEXT('w')] && numtok > 5) {
 		HIMAGELIST himl;
 		HICON icon;
-		TString flag(input.gettok( 4 ));
-		int index = input.gettok( 5 ).to_int();
+		const TString flag(input.gettok( 4 ));
+		const int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
 
 		if ((himl = this->getImageList()) == NULL) {
@@ -666,11 +662,11 @@ void DcxTab::activateSelectedTab( ) {
 	}
 }
 
-void DcxTab::getTab(int index, LPTCITEM tcItem) {
+void DcxTab::getTab(const int index, LPTCITEM tcItem) const {
 	TabCtrl_GetItem(this->m_Hwnd, index, tcItem);
 }
 
-int DcxTab::getTabCount() {
+int DcxTab::getTabCount() const {
 	return TabCtrl_GetItemCount(this->m_Hwnd);
 }
 
@@ -689,7 +685,7 @@ void DcxTab::GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton)
 	// ----------
 }
 
-TString DcxTab::getStyles(void) {
+TString DcxTab::getStyles(void) const {
 	TString styles(__super::getStyles());
 	DWORD ExStyles, Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -725,7 +721,7 @@ TString DcxTab::getStyles(void) {
 	return styles;
 }
 
-void DcxTab::toXml(TiXmlElement * xml) {
+void DcxTab::toXml(TiXmlElement * xml) const {
 	__super::toXml(xml);
 	int count = this->getTabCount();
 	TCHAR buf[MIRC_BUFFER_SIZE_CCH];

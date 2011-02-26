@@ -56,18 +56,18 @@ class DcxStacker : public DcxControl {
 
 public:
 
-  DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
-  virtual ~DcxStacker( );
+	DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
+	virtual ~DcxStacker( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  inline TString getType( ) { return TString( TEXT("stacker") ); };
-  TString getStyles(void);
+	inline TString getType( ) const { return TString( TEXT("stacker") ); };
+	TString getStyles(void) const;
 
 protected:
 	HWND m_hActive;
@@ -83,10 +83,10 @@ protected:
 	LPDCXSITEM getHotItem(void) const;
 	void getItemRect(const int nPos, LPRECT rc) const;
 	//
-	int setItem(int nPos, LPDCXSITEM item);
-	int setSelectedItem(int nPos);
+	//int setItem(int nPos, LPDCXSITEM item);
+	//int setSelectedItem(int nPos);
 	//
-	void deleteItem(int nPos);
+	//void deleteItem(int nPos);
 	//
 	void DrawSItem(const LPDRAWITEMSTRUCT idata);
 	static void DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape);

@@ -28,7 +28,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog ) 
 {
 
@@ -73,7 +73,8 @@ DcxPanel::~DcxPanel( ) {
 	this->unregistreDefaultWindowProc( );
 }
 
-void DcxPanel::toXml(TiXmlElement * xml) {
+void DcxPanel::toXml(TiXmlElement * xml) const
+{
 	__super::toXml(xml);
 	this->m_pLayoutManager->getRoot()->toXml(xml);
 }
@@ -84,7 +85,8 @@ void DcxPanel::toXml(TiXmlElement * xml) {
  * blah
  */
 
-void DcxPanel::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
+void DcxPanel::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+{
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
@@ -97,7 +99,7 @@ void DcxPanel::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
  * \return > void
  */
 
-void DcxPanel::parseInfoRequest( TString & input, PTCHAR szReturnValue )
+void DcxPanel::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
 	if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
@@ -111,9 +113,9 @@ void DcxPanel::parseInfoRequest( TString & input, PTCHAR szReturnValue )
  * blah
  */
 
-void DcxPanel::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxPanel::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( flags[TEXT('c')] && numtok > 8 ) {

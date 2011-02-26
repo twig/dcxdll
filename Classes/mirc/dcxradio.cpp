@@ -25,7 +25,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog )
 {
 	LONG Styles = 0, ExStyles = 0;
@@ -73,7 +73,8 @@ DcxRadio::~DcxRadio( ) {
 	this->unregistreDefaultWindowProc( );
 }
 
-TString DcxRadio::getStyles(void) {
+TString DcxRadio::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -97,13 +98,13 @@ TString DcxRadio::getStyles(void) {
  * blah
  */
 
-void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-	unsigned int i = 1, numtok = styles.numtok( );
+void DcxRadio::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
+	const UINT numtok = styles.numtok( );
 	*Styles |= BS_AUTORADIOBUTTON;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if ( styles.gettok( i ) == TEXT("rjustify") )
 			*Styles |= BS_RIGHT;
 		else if ( styles.gettok( i ) == TEXT("center") )
@@ -114,8 +115,6 @@ void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 			*Styles |= BS_RIGHTBUTTON;
 		else if ( styles.gettok( i ) == TEXT("pushlike") )
 			*Styles |= BS_PUSHLIKE;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -130,32 +129,30 @@ void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
  * \return > void
  */
 
-void DcxRadio::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
+void DcxRadio::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	const TString prop(input.gettok( 3 ));
 
-//  int numtok = input.numtok( );
+	// [NAME] [ID] [PROP]
+	if ( prop == TEXT("text") ) {
 
-	TString prop(input.gettok( 3 ));
+		GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == TEXT("state") ) {
 
-  // [NAME] [ID] [PROP]
-  if ( prop == TEXT("text") ) {
+		if ( Button_GetCheck( this->m_Hwnd ) & BST_CHECKED )
+			lstrcpyn( szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH );
+		else
+			lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
 
-    GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
-    return;
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == TEXT("state") ) {
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-    if ( Button_GetCheck( this->m_Hwnd ) & BST_CHECKED )
-      lstrcpyn( szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH );
-    else
-      lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
-
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -164,9 +161,9 @@ void DcxRadio::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * blah
  */
 
-void DcxRadio::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxRadio::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	//xdid -c [NAME] [ID] [SWITCH]
 	if ( flags[TEXT('c')] ) {

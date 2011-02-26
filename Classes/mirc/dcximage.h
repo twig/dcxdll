@@ -30,18 +30,18 @@ class DcxImage : public DcxControl {
 
 public:
 
-	DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
+	DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
 	virtual ~DcxImage( );
 
 	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-	void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-	void parseCommandRequest( TString & input );
-	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-	inline TString getType( ) { return TString( TEXT("image") ); };
-	void toXml(TiXmlElement * xml);
+	inline TString getType( ) const { return TString( TEXT("image") ); };
+	void toXml(TiXmlElement * xml) const;
 
 	static void registerClass(void);
 
@@ -56,7 +56,7 @@ protected:
 	bool LoadGDIPlusImage(const TString &flags, TString &filename);
 	void DrawGDIImage(HDC hdc, int x, int y, int w, int h);
 #endif
-	void DrawBMPImage(HDC hdc, int x, int y, int w, int h);
+	void DrawBMPImage(HDC hdc, const int x, const int y, const int w, const int h);
 	void DrawClientArea(HDC hdc);
 	HBITMAP m_hBitmap; //!< Bitmap
 	HICON m_hIcon; // !< icon

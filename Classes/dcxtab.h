@@ -43,32 +43,32 @@ class DcxTab : public DcxControl {
 
 public:
 
-  DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
-  virtual ~DcxTab( );
+	DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	virtual ~DcxTab( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  HIMAGELIST getImageList( );
-  void setImageList( HIMAGELIST himl );
-  static HIMAGELIST createImageList( );
+	HIMAGELIST getImageList( );
+	void setImageList( HIMAGELIST himl );
+	static HIMAGELIST createImageList( );
 
-  void deleteLParamInfo( const int nItem );
-  void activateSelectedTab( );
-  void getTab(int index, LPTCITEM tcItem);
-  int getTabCount();
+	void deleteLParamInfo( const int nItem );
+	void activateSelectedTab( );
+	void getTab(const int index, LPTCITEM tcItem) const;
+	int getTabCount() const;
 
-  inline TString getType( ) { return TString( TEXT("tab") ); };
-  TString getStyles(void);
-  void toXml(TiXmlElement * xml);
+	inline TString getType( ) const { return TString( TEXT("tab") ); };
+	TString getStyles(void) const;
+	void toXml(TiXmlElement * xml) const;
 
 
 protected:
-   void GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton);
+	static void GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton);
 
 	bool m_bClosable;	//!< Does tab have a close button.
 	bool m_bGradient;	//!< Does tab have a gradient fill. (only closeable)

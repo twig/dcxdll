@@ -30,19 +30,19 @@ class DcxList : public DcxControl {
 
 public:
 
-	DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+	DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
 	virtual ~DcxList( );
 
 	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-	void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-	void parseCommandRequest( TString & input );
-	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-	inline TString getType( ) { return TString( TEXT("list") ); };
+	inline TString getType( ) const { return TString( TEXT("list") ); };
 	inline UINT getDragListId() const { return m_iDragList; };
-	TString getStyles(void);
+	TString getStyles(void) const;
 
 	static void registerClass(void);
 
@@ -50,7 +50,7 @@ protected:
 	enum SearchTypes { LBSEARCH_W = 1, LBSEARCH_R };
 
 	void DrawDragLine(const int location);
-	BOOL matchItemText( const int nItem, const TString * search, const UINT SearchType );
+	BOOL matchItemText( const int nItem, const TString * search, const UINT SearchType ) const;
 
 	UINT m_iDragList;
 	int m_iLastDrawnLine;

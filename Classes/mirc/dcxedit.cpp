@@ -25,7 +25,7 @@
 * \param styles Window Style Tokenized List
 */
 
-DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, const RECT *rc, TString &styles)
+DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, const RECT *rc, const TString &styles)
 : DcxControl(ID, p_Dialog)
 {
 	LONG Styles = 0, ExStyles = 0;
@@ -78,7 +78,7 @@ DcxEdit::~DcxEdit() {
 }
 
 
-TString DcxEdit::getStyles(void) {
+TString DcxEdit::getStyles(void) const {
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -113,7 +113,8 @@ TString DcxEdit::getStyles(void) {
 	return styles;
 }
 
-void DcxEdit::toXml(TiXmlElement * xml) {
+void DcxEdit::toXml(TiXmlElement * xml) const
+{
 	__super::toXml(xml);
 	xml->SetAttribute("caption", this->m_tsText.c_str());
 }
@@ -123,10 +124,12 @@ void DcxEdit::toXml(TiXmlElement * xml) {
 *
 * blah
 */
-void DcxEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok( );
+void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+{
+	const UINT numtok = styles.numtok( );
 
-	while (i <= numtok) {
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if (styles.gettok( i ) == TEXT("multi")) 
 			*Styles |= ES_MULTILINE;
 		else if (styles.gettok( i ) == TEXT("center"))
@@ -155,8 +158,6 @@ void DcxEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 			*Styles |= ES_READONLY;
 		else if (styles.gettok( i ) == TEXT("showsel"))
 			*Styles |= ES_NOHIDESEL;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
@@ -170,16 +171,17 @@ void DcxEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 *
 * \return > void
 */
-void DcxEdit::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
-	int numtok = input.numtok( );
+void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const
+{
+	const int numtok = input.numtok( );
 
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
 	if (prop == TEXT("text")) {
 		if (this->isStyle(ES_MULTILINE)) {
 			if (numtok > 3) {
-				int nLine = input.gettok( 4 ).to_int();
+				const int nLine = input.gettok( 4 ).to_int();
 
 				if (nLine > 0 && nLine <= this->m_tsText.numtok(TEXT("\r\n"))) {
 					lstrcpyn(szReturnValue, this->m_tsText.gettok(nLine, TEXT("\r\n")).to_chr(), MIRC_BUFFER_SIZE_CCH);
@@ -226,13 +228,10 @@ void DcxEdit::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
 
 		if (this->isStyle(ES_MULTILINE)) {
-			int iLinePos = 0;
-			int iAbsoluteCharPos = 0;
-
 			// current line
-			iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
+			const int iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
 			// line offset
-			iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
+			const int iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
@@ -289,9 +288,9 @@ void DcxEdit::parseInfoRequest(TString &input, PTCHAR szReturnValue) {
 *
 * blah
 */
-void DcxEdit::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxEdit::parseCommandRequest( const TString &input) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -302,11 +301,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
 	if (flags[TEXT('a')] && numtok > 3) {
 		this->m_tsText += input.gettok(4, -1);
-#if UNICODE
 		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
-#else
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr(this->m_bUseUTF8));
-#endif
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('c')] && numtok > 2) {
@@ -315,32 +310,24 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.deltok(nLine, TEXT("\r\n"));
-#if UNICODE
 			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
-#else
-			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr(this->m_bUseUTF8));
-#endif
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('i')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
 		}
 		else
 			this->m_tsText = input.gettok(5, -1);
-#if UNICODE
 		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
-#else
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr(this->m_bUseUTF8));
-#endif
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('j')] && numtok > 3) {
-		int i = input.gettok( 4 ).to_int();
+		const int i = input.gettok( 4 ).to_int();
 
 		if (i) {
 			this->addStyle(ES_PASSWORD);
@@ -348,14 +335,10 @@ void DcxEdit::parseCommandRequest(TString &input) {
 			// XP actually uses the unicode `Black Circle` char U+25CF (9679)
 			// The problem is getting the char set to a unicode (2-byte) one, so far it always sets to CF (207)
 			if (c == 0)
-				c = TEXT('*'); //(Dcx::XPPlusModule.isUseable()() ? TEXT('•') : TEXT('*'));
+				c = TEXT('•'); //(Dcx::XPPlusModule.isUseable()() ? TEXT('•') : TEXT('*'));
+				//c = TEXT('*'); //(Dcx::XPPlusModule.isUseable()() ? TEXT('•') : TEXT('*'));
 
 			Edit_SetPasswordChar(this->m_Hwnd, c);
-			//SendMessage(this->m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
-			//WCHAR c = (WCHAR)SendMessageW(this->m_Hwnd, EM_GETPASSWORDCHAR, NULL, NULL);
-			//if (c == 0)
-			//	c = (Dcx::XPPlusModule.isUseable() ? 9679 : LTEXT('*'));
-			//SendMessageW(this->m_Hwnd, EM_SETPASSWORDCHAR, (WPARAM)c, NULL);
 		}
 		else {
 			this->removeStyle(ES_PASSWORD);
@@ -366,23 +349,19 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
    // xdid -l [NAME] [ID] [SWITCH] [ON|OFF]
    else if (flags[TEXT('l')] && numtok > 3) {
-      BOOL enabled = (input.gettok(4).to_int() > 0 ? TRUE : FALSE);
+      const BOOL enabled = (input.gettok(4).to_int() > 0 ? TRUE : FALSE);
 
       SendMessage(this->m_Hwnd, EM_SETREADONLY, enabled, NULL);
    }
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
 		}
 		else
 			this->m_tsText = input.gettok(4, -1);
-#if UNICODE
 		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
-#else
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr(this->m_bUseUTF8));
-#endif
 	}
 	// xdid -P [NAME] [ID]
 	else if (flags[TEXT('P')] && numtok > 1) {
@@ -390,7 +369,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags[TEXT('q')] && numtok > 3) {
-		int N = input.gettok( 4 ).to_int();
+		const int N = input.gettok( 4 ).to_int();
 
 		if (N > -1) {
 			Edit_LimitText(this->m_Hwnd, N);
@@ -402,7 +381,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags[TEXT('t')] && numtok > 3) {
-		BYTE * contents = readFile(input.gettok(4, -1).to_chr());
+		const BYTE * contents = readFile(input.gettok(4, -1).to_chr());
 
 		if (contents != NULL) {
 			this->m_tsText = (PTCHAR)contents;
@@ -422,7 +401,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
 	else if (flags[TEXT('S')] && numtok > 3) {
-		int istart = input.gettok( 4 ).to_int();
+		const int istart = input.gettok( 4 ).to_int();
 		int iend;
 		
 		if (numtok > 4)
@@ -436,15 +415,11 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
 	else if (flags[TEXT('E')] && numtok > 3) {
 		this->m_tsCue = input.gettok(4, -1);
-#if UNICODE
 		Edit_SetCueBannerText(this->m_Hwnd,this->m_tsCue.to_chr());
-#else
-		Edit_SetCueBannerText(this->m_Hwnd,this->m_tsCue.to_wchr(this->m_bUseUTF8));
-#endif
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('y')] && numtok > 3) {
-		int state = input.gettok(4).to_int();
+		const int state = input.gettok(4).to_int();
 
 		this->m_bIgnoreRepeat = (state > 0 ? TRUE : FALSE);
 	}

@@ -111,7 +111,7 @@ public:
 	virtual ~XPopupMenu( );
 
 	void parseXPopCommand( const TString & input );
-	void parseXPopIdentifier( const TString & input, TCHAR * szReturnValue );
+	void parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) const;
 	static XPopupMenu::MenuStyle parseStyle(const TString &style);
 
 	static HMENU parsePath( const TString & path, const HMENU hParent, const int depth = 1 );
@@ -142,7 +142,7 @@ public:
 	static LRESULT OnDrawItem( const HWND mHwnd, LPDRAWITEMSTRUCT lpdis ); 
 
 	void convertMenu( HMENU hMenu, const BOOL bForce );
-	void cleanMenu( HMENU hMenu );
+	static void cleanMenu( HMENU hMenu );
 	void clearAllMenuItems( );
 
 	HBITMAP getBackBitmap( ) const;
@@ -159,7 +159,7 @@ public:
 
 	// Methods to access marked text.
 	void setMarkedText(TString text);
-	TString getMarkedText();
+	TString getMarkedText() const;
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 

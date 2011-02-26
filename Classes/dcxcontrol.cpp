@@ -143,14 +143,14 @@ DcxControl::~DcxControl( ) {
  * blah
  */
 
-void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-	unsigned int i = 1, numtok = styles.numtok( );
+void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
+	const UINT numtok = styles.numtok( );
 
 	*Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++ )
+	{
 		if ( styles.gettok( i ) == TEXT("notheme") )
 			*bNoTheme = TRUE;
 		else if ( styles.gettok( i ) == TEXT("tabstop") )
@@ -175,11 +175,6 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
 			this->m_bGradientFill = true;
 			this->m_bGradientVertical = TRUE;
 		}
-#if !UNICODE
-		else if ( styles.gettok( i ) == TEXT("utf8") )
-			this->m_bUseUTF8 = true;
-#endif
-		i++;
 	}
 }
 
@@ -230,8 +225,8 @@ bool DcxControl::execAliasEx( const TCHAR * szFormat, ... ) {
  * blah
  */
 
-void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags ) {
-	int numtok = input.numtok( );
+void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitchFlags & flags ) {
+	const int numtok = input.numtok( );
 
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	if ( flags[TEXT('f')] && numtok > 3 ) {
@@ -807,9 +802,9 @@ PTCHAR DcxControl::parseCursorType( const TString & cursor ) {
  * blah
  */
 
-BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturnValue ) {
-
-	TString prop(input.gettok( 3 ));
+BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturnValue ) const
+{
+	const TString prop(input.gettok( 3 ));
 
 	if ( prop == TEXT("hwnd") ) {
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_Hwnd );
@@ -1668,7 +1663,7 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 	}
 	delete ai;
 }
-void DcxControl::showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err)
+void DcxControl::showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err) const
 {
 	if (this->m_pParentDialog->IsVerbose()) {
 		TString res;
@@ -1680,9 +1675,9 @@ void DcxControl::showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err
 	}
 
 	if (this->m_pParentDialog->getAliasName().len() > 0)
-		this->execAliasEx(TEXT("error,%d,%s,%s,%s,%s"), this->getUserID(), this->getType().to_chr(), (prop != NULL ? prop : TEXT("none")), (cmd != NULL ? cmd : TEXT("none")), err);
+		const_cast<DcxControl *>(this)->execAliasEx(TEXT("error,%d,%s,%s,%s,%s"), this->getUserID(), this->getType().to_chr(), (prop != NULL ? prop : TEXT("none")), (cmd != NULL ? cmd : TEXT("none")), err);
 }
-void DcxControl::showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...)
+void DcxControl::showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...) const
 {
 	va_list args;
 	TString txt;
@@ -1999,7 +1994,8 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, cons
 		mIRC_DrawText(hdc, txt, rc, style, this->m_bShadowText);
 }
 
-TString DcxControl::getStyles(void) {
+TString DcxControl::getStyles(void) const
+{
 	TString result;
 	DWORD exStyles, Styles;
 	exStyles = GetWindowExStyle(this->m_Hwnd);
@@ -2032,7 +2028,8 @@ TString DcxControl::getStyles(void) {
 	return result;
 }
 
-TString DcxControl::getBorderStyles(void) {
+TString DcxControl::getBorderStyles(void) const
+{
 	TString bstyles;
 	DWORD exStyles, Styles;
 	exStyles = GetWindowExStyle(this->m_Hwnd);
@@ -2052,7 +2049,8 @@ TString DcxControl::getBorderStyles(void) {
 	return bstyles;
 }
 
-void DcxControl::toXml(TiXmlElement * xml) {
+void DcxControl::toXml(TiXmlElement * xml) const
+{
 	TString styles(getStyles());
 
 	xml->SetAttribute("id", getUserID());
@@ -2061,7 +2059,8 @@ void DcxControl::toXml(TiXmlElement * xml) {
 		xml->SetAttribute("styles", styles.c_str());
 }
 
-TiXmlElement * DcxControl::toXml(void) {
+TiXmlElement * DcxControl::toXml(void) const
+{
 	TiXmlElement * result = new TiXmlElement("control");
 	this->toXml(result);
 	return result;

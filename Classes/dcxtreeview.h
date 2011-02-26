@@ -114,9 +114,9 @@ public:
 	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-	void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-	void parseCommandRequest( TString & input );
-	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 #ifdef DCX_USE_WINSDK
 	static void parseTreeViewExStyles( const TString & styles, LONG * ExStyles );
 #endif
@@ -135,7 +135,7 @@ public:
 
 	static int CALLBACK sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
-	inline TString getType( ) { return TString( TEXT("treeview") ); };
+	inline TString getType( ) const { return TString( TEXT("treeview") ); };
 
 protected:
 
@@ -149,8 +149,8 @@ protected:
 
 	/* *** */
 
-	HTREEITEM parsePath(const TString *path, HTREEITEM *hParent = NULL, HTREEITEM *hInsertAt = NULL);
-	TString getPathFromItem(HTREEITEM *item);
+	HTREEITEM parsePath(const TString *path, HTREEITEM *hParent = NULL, HTREEITEM *hInsertAt = NULL) const;
+	TString getPathFromItem(HTREEITEM *item) const;
 
 
 	BOOL matchItemText( HTREEITEM * hItem, const TString * search, const UINT SearchType ) const;

@@ -87,18 +87,19 @@ public:
 	
 	static LRESULT WINAPI WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-	void parseCommandRequest( TString & input );
+	void parseCommandRequest( const TString & input );
 	void parseCommandRequestEX(const TCHAR *szFormat, ...);
 	void parseComControlRequestEX(const int id,const TCHAR *szFormat, ...);
-	void parseInfoRequest( TString & input, TCHAR * szReturnValue );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
 
 	bool evalAliasEx( TCHAR * szReturn, const int maxlen, const TCHAR * szFormat, ... );
 	bool evalAlias( TCHAR * szReturn, const int maxlen, const TCHAR * szArgs);
 	bool execAliasEx( const TCHAR * szFormat, ... );
 	bool execAlias( const TCHAR * szArgs);
 
-	DcxControl * getControlByID( const UINT ID );
-	DcxControl * getControlByHWND( const HWND mHwnd );
+	DcxControl * getControlByID( const UINT ID ) const;
+	DcxControl * getControlByHWND( const HWND mHwnd ) const;
+	//DcxControl * m_pCacheControl;
 
 	void addControl( DcxControl * p_Control );
 	void deleteControl( DcxControl * p_Control );
@@ -137,8 +138,8 @@ public:
 	void ShowShadow(void);
 
 	static DWORD getAnimateStyles( const TString & flags );
-	void showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err);
-	void showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...);
+	void showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err) const;
+	void showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...) const;
 #ifdef DCX_USE_GDIPLUS
 	void DrawCaret(Graphics & graph);
 	void DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd);
@@ -164,10 +165,11 @@ public:
 
 	void SetVerbose(const bool state) { this->m_bVerboseErrors = state; };
 	bool IsVerbose(void) const { return this->m_bVerboseErrors; };
-	void toXml(TiXmlElement * xml);
-	TiXmlElement * toXml();
-	TiXmlElement * toXml(const TString &name);
-	void toXml(TiXmlElement * xml, const TString &name);
+	void toXml(TiXmlElement * xml) const;
+	TiXmlElement * toXml() const;
+	TiXmlElement * toXml(const TString &name) const;
+	void toXml(TiXmlElement * xml, const TString &name) const;
+	bool isIDValid(const UINT ID) const;
 
 protected:
 

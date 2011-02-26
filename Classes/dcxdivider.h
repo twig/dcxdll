@@ -31,26 +31,26 @@ class DcxDivider : public DcxControl {
 
 public:
 
-  DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
-  virtual ~DcxDivider( );
+	DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	virtual ~DcxDivider( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  LRESULT setPane( const UINT iPaneId, LPDVPANEINFO lpdvpi );
-  LRESULT setDivPos( const UINT iDivPos );
+	LRESULT setPane( const UINT iPaneId, LPDVPANEINFO lpdvpi );
+	LRESULT setDivPos( const UINT iDivPos );
 
-  inline TString getType( ) { return TString( TEXT("divider") ); };
-  virtual TString getStyles(void);
-  void toXml(TiXmlElement * xml);
+	inline TString getType( ) const { return TString( TEXT("divider") ); };
+	virtual TString getStyles(void) const;
+	void toXml(TiXmlElement * xml) const;
 
 protected:
-  HWND m_leftPane;
-  HWND m_rightPane;
+	HWND m_leftPane;
+	HWND m_rightPane;
 
 };
 

@@ -43,30 +43,30 @@ class DcxColorCombo : public DcxControl {
 
 public:
 
-  DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
-  virtual ~DcxColorCombo( );
+	DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	virtual ~DcxColorCombo( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, PTCHAR szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  void setmIRCPalette( );
+	void setmIRCPalette( );
 
-  LRESULT insertItem( const int nPos, const LPARAM lParam );
-  LRESULT getCount( ) const;
-  LRESULT setCurSel( const int nPos );
-  LRESULT getItemData( const int nItem ) const;
-  LRESULT getCurSel( ) const;
-  LRESULT deleteItem( const int nItem );
-  LRESULT resetContent( );
+	LRESULT insertItem( const int nPos, const LPARAM lParam );
+	LRESULT getCount( ) const;
+	LRESULT setCurSel( const int nPos );
+	LRESULT getItemData( const int nItem ) const;
+	LRESULT getCurSel( ) const;
+	LRESULT deleteItem( const int nItem );
+	LRESULT resetContent( );
 
-  inline TString getType( ) { return TString( TEXT("colorcombo") ); };
+	inline TString getType( ) const { return TString( TEXT("colorcombo") ); };
 
 protected:
-  
+
 };
 
 #endif // _DCXCOLORCOMBO_H_

@@ -50,19 +50,19 @@ class DcxBox : public DcxControl {
 
 public:
 
-	DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
+	DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
 	virtual ~DcxBox( );
 
 	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-	void parseInfoRequest( TString & input, PTCHAR szReturnValue );
-	void parseCommandRequest( TString & input );
-	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-	inline TString getType( ) { return TString( TEXT("box") ); };
-	void toXml(TiXmlElement * xml);
-	TString getStyles(void);
+	inline TString getType( ) const { return TString( TEXT("box") ); };
+	void toXml(TiXmlElement * xml) const;
+	TString getStyles(void) const;
 
 	static void registerClass(void);
 

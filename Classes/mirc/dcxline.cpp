@@ -25,7 +25,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxLine::DcxLine( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
+DcxLine::DcxLine( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog )
 , m_bVertical(false)
 {
@@ -66,7 +66,8 @@ DcxLine::~DcxLine( ) {
 	this->unregistreDefaultWindowProc( );
 }
 
-TString DcxLine::getStyles(void) {
+TString DcxLine::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -88,7 +89,8 @@ TString DcxLine::getStyles(void) {
 
 }
 
-void DcxLine::toXml(TiXmlElement * xml) {
+void DcxLine::toXml(TiXmlElement * xml) const
+{
 	__super::toXml(xml);
 	TString styles(xml->Attribute("styles"));
 	styles.remtok(TEXT("transparent"), 1); // line always has transparent style (why?)
@@ -103,9 +105,10 @@ void DcxLine::toXml(TiXmlElement * xml) {
  * blah
  */
 
-void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-
-	unsigned int i = 1, numtok = styles.numtok( );
+void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
+	unsigned int i = 1;
+	const UINT numtok = styles.numtok( );
 
 	while ( i <= numtok ) {
 
@@ -138,9 +141,8 @@ void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
  * \return > void
  */
 
-void DcxLine::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
-
-//  int numtok = input.numtok( );
+void DcxLine::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
 	if ( input.gettok( 3 ) == TEXT("text") ) {
 		lstrcpyn(szReturnValue, this->m_sText.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
@@ -157,10 +159,8 @@ void DcxLine::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * blah
  */
 
-void DcxLine::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-
-//  int numtok = input.numtok( );
+void DcxLine::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
 
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	if (flags[TEXT('t')]) {
@@ -202,7 +202,7 @@ LRESULT DcxLine::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		case WM_ERASEBKGND:
 			{
@@ -231,19 +231,19 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			}
 			break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }
 
 void DcxLine::DrawClientArea(HDC hdc)

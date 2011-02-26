@@ -79,33 +79,31 @@ DcxUpDown::~DcxUpDown( ) {
  * blah
  */
 
-void DcxUpDown::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-  unsigned int i = 1, numtok = styles.numtok( );
-  *Styles |= UDS_ALIGNRIGHT;
+	const unsigned int numtok = styles.numtok( );
+	*Styles |= UDS_ALIGNRIGHT;
 
-  while ( i <= numtok ) {
-
-    if ( styles.gettok( i ) == TEXT("left") ) {
-      *Styles &= ~UDS_ALIGNRIGHT;
-      *Styles |= UDS_ALIGNLEFT;
-    }
-    else if ( styles.gettok( i ) == TEXT("arrowkeys") )
-      *Styles |= UDS_ARROWKEYS;
-    else if ( styles.gettok( i ) == TEXT("horz") )
-      *Styles |= UDS_HORZ;
-    else if ( styles.gettok( i ) == TEXT("hottrack") )
-      *Styles |= UDS_HOTTRACK;
-    else if ( styles.gettok( i ) == TEXT("nothousands") )
-      *Styles |= UDS_NOTHOUSANDS;
-    else if ( styles.gettok( i ) == TEXT("buddyint") )
-      *Styles |= UDS_SETBUDDYINT;
-    else if ( styles.gettok( i ) == TEXT("wrap") )
-      *Styles |= UDS_WRAP;
-
-    i++;
-  }
-  this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	for (UINT i = 1; i <= numtok; i++)
+	{
+		if ( styles.gettok( i ) == TEXT("left") ) {
+			*Styles &= ~UDS_ALIGNRIGHT;
+			*Styles |= UDS_ALIGNLEFT;
+		}
+		else if ( styles.gettok( i ) == TEXT("arrowkeys") )
+			*Styles |= UDS_ARROWKEYS;
+		else if ( styles.gettok( i ) == TEXT("horz") )
+			*Styles |= UDS_HORZ;
+		else if ( styles.gettok( i ) == TEXT("hottrack") )
+			*Styles |= UDS_HOTTRACK;
+		else if ( styles.gettok( i ) == TEXT("nothousands") )
+			*Styles |= UDS_NOTHOUSANDS;
+		else if ( styles.gettok( i ) == TEXT("buddyint") )
+			*Styles |= UDS_SETBUDDYINT;
+		else if ( styles.gettok( i ) == TEXT("wrap") )
+			*Styles |= UDS_WRAP;
+	}
+	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -117,10 +115,9 @@ void DcxUpDown::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
  * \return > void
  */
 
-void DcxUpDown::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
-
-	//  int numtok = input.numtok( );
-	TString prop(input.gettok( 3 ));
+void DcxUpDown::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const
+{
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("value") ) {
@@ -149,51 +146,51 @@ void DcxUpDown::parseInfoRequest( TString & input, TCHAR * szReturnValue ) {
  * blah
  */
 
-void DcxUpDown::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxUpDown::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
-  // xdid -c [NAME] [ID] [SWITCH] [BUDDYID]
-  if ( flags[TEXT('c')] && numtok > 3 ) {
-    
-    DcxControl * p_Control = this->m_pParentDialog->getControlByID( (UINT) input.gettok( 4 ).to_int( ) + mIRC_ID_OFFSET );
+	// xdid -c [NAME] [ID] [SWITCH] [BUDDYID]
+	if ( flags[TEXT('c')] && numtok > 3 ) {
 
-    if ( p_Control != NULL ) {
+		DcxControl * p_Control = this->m_pParentDialog->getControlByID( (UINT) input.gettok( 4 ).to_int( ) + mIRC_ID_OFFSET );
 
-      TCHAR ClassName[256];
-      GetClassName( p_Control->getHwnd( ), ClassName, 256 );
+		if ( p_Control != NULL ) {
 
-      // Text notifications
-      if ( lstrcmpi( TEXT("STATIC"), ClassName ) == 0 || lstrcmpi( TEXT("EDIT"), ClassName ) == 0 ) {
+			TCHAR ClassName[256];
+			GetClassName( p_Control->getHwnd( ), ClassName, 256 );
 
-        this->setBuddy( p_Control->getHwnd( ) );
-      }
-    }
-  }
-  // xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-  else if ( flags[TEXT('r')] && numtok > 4 ) {
-    
-    int iMin = input.gettok( 4 ).to_int( );
-    int iMax = input.gettok( 5 ).to_int( );
+			// Text notifications
+			if ( lstrcmpi( TEXT("STATIC"), ClassName ) == 0 || lstrcmpi( TEXT("EDIT"), ClassName ) == 0 ) {
 
-    this->setRange32( iMin, iMax );
-  }
-  // xdid -t [NAME] [ID] [SWITCH] [BASE]
-  else if ( flags[TEXT('t')] && numtok > 3 ) {
-    
-    int nBase = input.gettok( 4 ).to_int( );
+				this->setBuddy( p_Control->getHwnd( ) );
+			}
+		}
+	}
+	// xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
+	else if ( flags[TEXT('r')] && numtok > 4 ) {
 
-    this->setBase( nBase );
-  }
-  // xdid -v [NAME] [ID] [SWITCH] [POS]
-  else if ( flags[TEXT('v')] && numtok > 3 ) {
-    
-    int nPos = input.gettok( 4 ).to_int( );
+		int iMin = input.gettok( 4 ).to_int( );
+		int iMax = input.gettok( 5 ).to_int( );
 
-    this->setPos32( nPos );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+		this->setRange32( iMin, iMax );
+	}
+	// xdid -t [NAME] [ID] [SWITCH] [BASE]
+	else if ( flags[TEXT('t')] && numtok > 3 ) {
+
+		int nBase = input.gettok( 4 ).to_int( );
+
+		this->setBase( nBase );
+	}
+	// xdid -v [NAME] [ID] [SWITCH] [POS]
+	else if ( flags[TEXT('v')] && numtok > 3 ) {
+
+		int nPos = input.gettok( 4 ).to_int( );
+
+		this->setPos32( nPos );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!
@@ -266,7 +263,8 @@ LRESULT DcxUpDown::getPos32( LPBOOL pfError ) const {
   return SendMessage( this->m_Hwnd, UDM_GETPOS32, (WPARAM) 0, (LPARAM) pfError );
 }
 
-TString DcxUpDown::getStyles(void) {
+TString DcxUpDown::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);

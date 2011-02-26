@@ -41,46 +41,46 @@ class XPopupMenuItem {
 
 public:
 
-  XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep, ULONG_PTR dwDataBackup = NULL );
-  XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu, ULONG_PTR dwDataBackup = NULL );
-  virtual ~XPopupMenuItem( );
+	XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep, ULONG_PTR dwDataBackup = NULL );
+	XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu, ULONG_PTR dwDataBackup = NULL );
+	virtual ~XPopupMenuItem( );
 
-  void DrawItem( const LPDRAWITEMSTRUCT lpdis );
-  void DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
-  void DrawItemBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
-  static void DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE, const BOOL bRounded = FALSE );
-  static void DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
-  void DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
-  void DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const BOOL bSel = FALSE, const BOOL bDis = FALSE );
-  static void DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
-  void DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
+	void DrawItem( const LPDRAWITEMSTRUCT lpdis );
+	void DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
+	void DrawItemBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
+	static void DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE, const BOOL bRounded = FALSE );
+	static void DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
+	void DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
+	void DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const BOOL bSel = FALSE, const BOOL bDis = FALSE );
+	static void DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
+	void DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
 
-  SIZE getItemSize( const HWND mHwnd );
+	SIZE getItemSize( const HWND mHwnd );
 
-  //void executeCommand( ); // doesnt exist...
+	//void executeCommand( ); // doesnt exist...
 
-  static void DrawGradient( const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const BOOL bHorz = FALSE );
-  static void DrawVerticalBar( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOLEAN bReversed);
-  static COLORREF LightenColor( const unsigned int iScale, const COLORREF clrColor );
-  static COLORREF DarkenColor( const unsigned int iScale, const COLORREF clrColor );
+	static void DrawGradient( const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const BOOL bHorz = FALSE );
+	static void DrawVerticalBar( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOLEAN bReversed);
+	static COLORREF LightenColor( const unsigned int iScale, const COLORREF clrColor );
+	static COLORREF DarkenColor( const unsigned int iScale, const COLORREF clrColor );
 
-  void setSubMenu( const BOOL bSubMenu );
-  void setItemText( const TString & tsItemText );
-  void setItemIcon( const int nIcon );
-  const TString * getItemText( ) const;
-  int getItemIcon(  ) const;
+	void setSubMenu( const BOOL bSubMenu );
+	void setItemText( const TString & tsItemText );
+	void setItemIcon( const int nIcon );
+	const TString * getItemText( ) const;
+	int getItemIcon(  ) const;
 
 	ULONG_PTR getItemDataBackup();
 
 protected:
 
-  BOOL m_bSep; //!< Is Separator ?
-  BOOL m_bSubMenu; //!< Has A SubMenu ?
-  TString m_tsItemText; //!< Menu Item Text
-  TString m_tsItemCommand; //!< Menu Item Command
-  int m_nIcon; //!< Menu Item Icon Index
-  XPopupMenu * m_pXParentMenu; //!< Parent XPopupMenu
-  ULONG_PTR m_dwItemDataBackup;
+	BOOL m_bSep; //!< Is Separator ?
+	BOOL m_bSubMenu; //!< Has A SubMenu ?
+	TString m_tsItemText; //!< Menu Item Text
+	TString m_tsItemCommand; //!< Menu Item Command
+	int m_nIcon; //!< Menu Item Icon Index
+	XPopupMenu * m_pXParentMenu; //!< Parent XPopupMenu
+	ULONG_PTR m_dwItemDataBackup;
 
 };
 

@@ -25,7 +25,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxDivider::DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles )
+DcxDivider::DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles )
 : DcxControl( ID, p_Dialog )
 {
 	LONG Styles = 0, ExStyles = 0;
@@ -70,7 +70,8 @@ DcxDivider::~DcxDivider( ) {
  * blah
  */
 
-TString DcxDivider::getStyles(void) {
+TString DcxDivider::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -80,17 +81,16 @@ TString DcxDivider::getStyles(void) {
 }
 
 
-void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxDivider::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
+	const UINT numtok = styles.numtok( );
 
-	unsigned int i = 1, numtok = styles.numtok( );
 	*Styles |= DVS_HORZ;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if ( styles.gettok( i ) == TEXT("vertical") )
 			*Styles |= DVS_VERT;
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -104,10 +104,9 @@ void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
  * \return > void
  */
 
-void DcxDivider::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
-
-	//int numtok = input.numtok( );
-	TString prop(input.gettok(3));
+void DcxDivider::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	const TString prop(input.gettok(3));
 
 	// [NAME] [ID] [PROP]
 	if (prop == TEXT("position")) {
@@ -134,10 +133,10 @@ void DcxDivider::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * blah
  */
 
-void DcxDivider::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
+void DcxDivider::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
 
-	int numtok = input.numtok( );
+	const int numtok = input.numtok( );
 
 	// xdid -l|r [NAME] [ID] [SWITCH] [MIN] [IDEAL][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( ( flags[TEXT('l')] || flags[TEXT('r')] )&& numtok > 9 ) {
@@ -218,7 +217,8 @@ LRESULT DcxDivider::setDivPos( const UINT iDivPos ) {
   return SendMessage( this->m_Hwnd, DV_SETDIVPOS, (WPARAM) 0, (LPARAM) iDivPos );
 }
 
-void DcxDivider::toXml(TiXmlElement * xml) {
+void DcxDivider::toXml(TiXmlElement * xml) const
+{
 	__super::toXml(xml);
 	DVPANEINFO left;
 	DVPANEINFO right;

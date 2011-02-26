@@ -110,18 +110,18 @@ class DcxListView : public DcxControl {
 
 public:
 
-	DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+	DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
 	virtual ~DcxListView( );
 
 	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-	void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-	void parseCommandRequest( TString & input );
-	void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 	static void parseListviewExStyles( const TString & styles, LONG * ExStyles );
 
-	HIMAGELIST getImageList( const int iImageList );
+	HIMAGELIST getImageList( const int iImageList ) const;
 	void setImageList( HIMAGELIST himl, const int iImageList );
 	static HIMAGELIST createImageList( const BOOL bIcons );
 
@@ -133,11 +133,11 @@ public:
 
 	static int CALLBACK sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
-	inline TString getType( ) { return TString( TEXT("listview") ); };
+	inline TString getType( ) const { return TString( TEXT("listview") ); };
 
 	int getTopIndex( ) const;
 	int getBottomIndex( ) const;
-	TString getStyles(void);
+	TString getStyles(void) const;
 
 protected:
 
@@ -152,7 +152,7 @@ protected:
 	static UINT parseImageFlags( const TString & flags );
 	static UINT parseGroupFlags( const TString & flags );
 
-	BOOL matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType );
+	BOOL matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType ) const;
 
 	void autoSize(const int nColumn, const TString &flags);
 	void autoSize(const int nColumn, const int iFlags );
@@ -165,7 +165,7 @@ private:
 	void UpdateScrollPbars(void);
 	HIMAGELIST initImageList(const int iImageList);
 	bool xmlLoadListview(const int nPos, const TString &dataset, TString &filename);
-	void xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi, TString &tsBuf);
+	void xmlSetItem(const int nItem, const int nSubItem, const TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi, TString &tsBuf);
 	bool ctrlLoadListview(const int nPos, const TString &tsData);
 	bool xLoadListview(const int nPos, const TString &tsData, const TCHAR *sTest, const TCHAR *sCount, const TCHAR *sGet, const TCHAR *sGetNamed);
 	void massSetItem(const int nPos, const TString &input);

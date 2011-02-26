@@ -31,38 +31,38 @@ class DcxProgressBar : public DcxControl {
 
 public:
 
-  DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
-  virtual ~DcxProgressBar( );
+	DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	virtual ~DcxProgressBar( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  LRESULT setPosition( const int nNewPos );
-  LRESULT setRange( const int iLowLim, const int iHighLim );
+	LRESULT setPosition( const int nNewPos );
+	LRESULT setRange( const int iLowLim, const int iHighLim );
 
-  LRESULT setMarquee( const BOOL fStart, const int fTime );
-  LRESULT stepIt( );
-  LRESULT setStep( const int nStepInc );
-  LRESULT setBarColor( const COLORREF clrBar );
-  LRESULT setBKColor( const COLORREF clrBk );
-  
-  LRESULT getPosition( ) const;
-  LRESULT getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) const;
-  void toXml(TiXmlElement * xml);
+	LRESULT setMarquee( const BOOL fStart, const int fTime );
+	LRESULT stepIt( );
+	LRESULT setStep( const int nStepInc );
+	LRESULT setBarColor( const COLORREF clrBar );
+	LRESULT setBKColor( const COLORREF clrBk );
 
-  inline TString getType( ) { return TString( TEXT("pbar") ); };
-  TString getStyles(void);
+	LRESULT getPosition( ) const;
+	LRESULT getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) const;
+	void toXml(TiXmlElement * xml) const;
+
+	inline TString getType( ) const { return TString( TEXT("pbar") ); };
+	TString getStyles(void) const;
 
 protected:
 
-  COLORREF m_clrText;       //!< Caption Text Color
-  TString m_tsText;         //!< Caption Text
-  BOOL m_bIsAbsoluteValue;  //!< Caption Numerical Placeholder Format
-  HFONT m_hfontVertical;
+	COLORREF m_clrText;       //!< Caption Text Color
+	TString m_tsText;         //!< Caption Text
+	BOOL m_bIsAbsoluteValue;  //!< Caption Numerical Placeholder Format
+	HFONT m_hfontVertical;
 	BOOL m_bIsGrad;						//!< Draw Gradient?
 	//COLORREF m_clrGrad;				//!< Gradients Color
 

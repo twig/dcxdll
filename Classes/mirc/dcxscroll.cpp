@@ -25,7 +25,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog )
 , m_nPage(5)
 , m_nLine(1)
@@ -80,16 +80,14 @@ DcxScroll::~DcxScroll( ) {
  * blah
  */
 
-void DcxScroll::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxScroll::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+{
+	const UINT numtok = styles.numtok( );
 
-	unsigned int i = 1, numtok = styles.numtok( );
-
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if ( styles.gettok( i ) == TEXT("vertical") )
 			*Styles |= SBS_VERT;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -104,11 +102,9 @@ void DcxScroll::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
  * \return > void
  */
 
-void DcxScroll::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
-
-	//  int numtok = input.numtok( );
-
-	TString prop(input.gettok( 3 ));
+void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("value") ) {
@@ -155,55 +151,56 @@ void DcxScroll::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * blah
  */
 
-void DcxScroll::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxScroll::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
-  //xdid -l [NAME] [ID] [SWITCH] [N]
-  if ( flags[TEXT('l')] && numtok > 3 ) {
+	//xdid -l [NAME] [ID] [SWITCH] [N]
+	if ( flags[TEXT('l')] && numtok > 3 ) {
 
-    int nLine = input.gettok( 4 ).to_int( );
+		const int nLine = input.gettok( 4 ).to_int( );
 
-    if ( nLine > 0 )
-      this->m_nLine = nLine;
-  }
-  //xdid -m [NAME] [ID] [SWITCH] [N]
-  else if ( flags[TEXT('m')] && numtok > 3 ) {
+		if ( nLine > 0 )
+			this->m_nLine = nLine;
+	}
+	//xdid -m [NAME] [ID] [SWITCH] [N]
+	else if ( flags[TEXT('m')] && numtok > 3 ) {
 
-    int nPage = input.gettok( 4 ).to_int( );
+		const int nPage = input.gettok( 4 ).to_int( );
 
-    if ( nPage > 0 )
-      this->m_nPage = nPage;
-  }
-  //xdid -r [NAME] [ID] [SWITCH] [L] [R]
-  else if ( flags[TEXT('r')] && numtok > 4 ) {
+		if ( nPage > 0 )
+			this->m_nPage = nPage;
+	}
+	//xdid -r [NAME] [ID] [SWITCH] [L] [R]
+	else if ( flags[TEXT('r')] && numtok > 4 ) {
 
-    INT L = input.gettok( 4 ).to_int( );
-    INT R = input.gettok( 5 ).to_int( );
+		const INT L = input.gettok( 4 ).to_int( );
+		const INT R = input.gettok( 5 ).to_int( );
 
-    SCROLLINFO si;
-    si.cbSize = sizeof( SCROLLINFO );
-    si.fMask = SIF_RANGE;
-    si.nMin = L;
-    si.nMax = R;
-    SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
-  }
-  //xdid -v [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags[TEXT('v')] && numtok > 3 ) {
+		SCROLLINFO si;
+		si.cbSize = sizeof( SCROLLINFO );
+		si.fMask = SIF_RANGE;
+		si.nMin = L;
+		si.nMax = R;
+		SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
+	}
+	//xdid -v [NAME] [ID] [SWITCH] [VALUE]
+	else if ( flags[TEXT('v')] && numtok > 3 ) {
 
-    int pos = input.gettok( 4 ).to_int( );
+		const int pos = input.gettok( 4 ).to_int( );
 
-    SCROLLINFO si;
-    si.cbSize = sizeof( SCROLLINFO );
-    si.fMask = SIF_POS;
-    si.nPos = pos;
-    SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+		SCROLLINFO si;
+		si.cbSize = sizeof( SCROLLINFO );
+		si.fMask = SIF_POS;
+		si.nPos = pos;
+		SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
-TString DcxScroll::getStyles(void) {
+TString DcxScroll::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);

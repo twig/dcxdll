@@ -181,7 +181,7 @@ void Dcx::setupOSCompatibility(void) {
 
 	// Custom RichEdit
 	DCX_DEBUG(debug,TEXT("LoadDLL"), TEXT("Registering RichEdit..."));
-	dcxRegisterClass(TEXT("RichEdit20A"), DCX_RICHEDITCLASS);
+	dcxRegisterClass(RICHEDIT_CLASS, DCX_RICHEDITCLASS);
 
 	// Custom RebarCtrl
 	DCX_DEBUG(debug,TEXT("LoadDLL"), TEXT("Registering ReBar..."));

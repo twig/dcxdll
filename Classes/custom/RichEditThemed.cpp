@@ -25,7 +25,7 @@
 #include "defines.h"
 //#define _WIN32_WINNT 0x0503
 //#include <windows.h>
-#include <richedit.h>
+//#include <richedit.h>
 
 //Library header file (required)
 #include "RichEditThemed.h"

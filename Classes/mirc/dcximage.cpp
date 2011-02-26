@@ -28,7 +28,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles ) 
+DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog )
 , m_bIsIcon(FALSE)
 #ifdef DCX_USE_GDIPLUS
@@ -102,14 +102,9 @@ DcxImage::~DcxImage() {
  * blah
  */
 
-void DcxImage::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	//unsigned int i = 1, numtok = styles.numtok( );
+void DcxImage::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+{
 	*Styles |= SS_NOTIFY;
-
-	//while ( i <= numtok ) {
-
-	//	i++;
-	//}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -123,21 +118,19 @@ void DcxImage::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
  * \return > void
  */
 
-void DcxImage::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
-
-	//int numtok = input.numtok( );
-
-	TString prop(input.gettok( 3 ));
+void DcxImage::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("fname")) {
 		lstrcpyn(szReturnValue,this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 // clears existing image and icon data and sets pointers to null
@@ -220,15 +213,15 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
  * blah
  */
 
-void DcxImage::parseCommandRequest(TString & input) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxImage::parseCommandRequest( const TString & input) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
 	if (flags[TEXT('w')] && numtok > 6) {
-		TString flag(input.gettok( 4 ));
-		int index = input.gettok( 5 ).to_int();
-		int size = input.gettok( 6 ).to_int();
+		const TString flag(input.gettok( 4 ));
+		const int index = input.gettok( 5 ).to_int();
+		const int size = input.gettok( 6 ).to_int();
 		TString filename(input.gettok(7, -1).trim());
 
 		PreloadData();
@@ -255,7 +248,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
 	else if (flags[TEXT('i')] && numtok > 4) {
-		TString flag(input.gettok(4).trim());
+		const TString flag(input.gettok(4).trim());
 		TString filename(input.gettok(5, -1).trim());
 
 		PreloadData();
@@ -346,7 +339,7 @@ void DcxImage::DrawGDIImage(HDC hdc, int x, int y, int w, int h)
 }
 #endif
 
-void DcxImage::DrawBMPImage(HDC hdc, int x, int y, int w, int h)
+void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, const int h)
 {
 	HDC hdcbmp = CreateCompatibleDC(hdc);
 
@@ -367,7 +360,8 @@ void DcxImage::DrawBMPImage(HDC hdc, int x, int y, int w, int h)
 	DeleteDC( hdcbmp );
 }
 
-void DcxImage::toXml(TiXmlElement * xml) {
+void DcxImage::toXml(TiXmlElement * xml) const
+{
 	__super::toXml(xml);
 	if (this->m_tsFilename.len() > 0) xml->SetAttribute("src", m_tsFilename.c_str());
 }

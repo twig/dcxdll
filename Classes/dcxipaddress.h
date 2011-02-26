@@ -30,27 +30,27 @@ class DcxIpAddress : public DcxControl {
 
 public:
 
-  DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
-  virtual ~DcxIpAddress( );
+	DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	virtual ~DcxIpAddress( );
 
-  LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-  LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
 
-  void parseInfoRequest( TString & input, TCHAR * szReturnValue );
-  void parseCommandRequest( TString & input );
-  void parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-  LRESULT setRange( const int nField, const BYTE iMin, const BYTE iMax );
-  LRESULT setFocus( const int nField );
-  LRESULT setAddress( const DWORD dwIpAddress );
-  LRESULT getAddress( LPDWORD lpdwIpAddress ) const;
-  LRESULT clearAddress( );
+	LRESULT setRange( const int nField, const BYTE iMin, const BYTE iMax );
+	LRESULT setFocus( const int nField );
+	LRESULT setAddress( const DWORD dwIpAddress );
+	LRESULT getAddress( LPDWORD lpdwIpAddress ) const;
+	LRESULT clearAddress( );
 
-  inline TString getType( ) { return TString( TEXT("ipaddress") ); };
-  void toXml(TiXmlElement * xml);
+	inline TString getType( ) const { return TString( TEXT("ipaddress") ); };
+	void toXml(TiXmlElement * xml) const;
 
 protected:
-  
+
 };
 
 #endif // _DCXIPADDRESS_H_

@@ -28,7 +28,7 @@ grey icons
  * \param styles Window Style Tokenized List
  */
 
-DcxToolBar::DcxToolBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles )
+DcxToolBar::DcxToolBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles )
 : DcxControl( ID, p_Dialog )
 , m_hItemFont(NULL)
 , m_hOldItemFont(NULL)
@@ -97,7 +97,7 @@ DcxToolBar::~DcxToolBar( ) {
  *
  * blah
  */
-void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 	LONG ExStylesTb;
 	parseControlStyles(styles, Styles, ExStyles, &ExStylesTb, bNoTheme);
 }
@@ -107,13 +107,14 @@ void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
  *
  * blah
  */
-void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, LONG * ExStylesTb, BOOL * bNoTheme ) {
+void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, LONG * ExStylesTb, BOOL * bNoTheme )
+{
 
 	//*Styles |= CCS_ADJUSTABLE;
-	unsigned int i = 1, numtok = styles.numtok( );
+	const UINT numtok = styles.numtok( );
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if ( styles.gettok( i ) == TEXT("flat") )
 			*Styles |= TBSTYLE_FLAT;
 		else if ( styles.gettok( i ) == TEXT("tooltips") )
@@ -146,8 +147,6 @@ void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 			*ExStylesTb |= TBSTYLE_EX_DRAWDDARROWS;
 		else if ( styles.gettok( i ) == TEXT("override") )
 			this->m_bOverrideTheme = true;
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -161,10 +160,10 @@ void DcxToolBar::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
  * \return > void
  */
 
-void DcxToolBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
+void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const {
 
-	int numtok = input.numtok( );
-	TString prop(input.gettok( 3 ));
+	const int numtok = input.numtok( );
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("num") ) {
@@ -303,9 +302,9 @@ void DcxToolBar::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
 * blah
 */
 
-void DcxToolBar::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+void DcxToolBar::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {

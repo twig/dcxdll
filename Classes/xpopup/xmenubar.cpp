@@ -37,8 +37,8 @@ XMenuBar::~XMenuBar() {
  *
  */
 void XMenuBar::parseXMenuBarCommand(const TString &input) {
-	XSwitchFlags flags(input.gettok(1));
-	int numtok = input.numtok();
+	const XSwitchFlags flags(input.gettok(1));
+	const int numtok = input.numtok();
 	XPopupMenu *p_Menu;
 	HMENU menuBar;
 	TString menuName;
@@ -56,7 +56,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		// Set alias.
 		if (numtok > 1) {
 			TString result((UINT) 100);
-			TString alias(input.gettok(2));
+			const TString alias(input.gettok(2));
 
 			// Check if alias is valid.
 			if (!Dcx::mIRC.isAlias(alias.to_chr()))
@@ -165,7 +165,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			return;
 		}
 
-		int mID = input.gettok(2).to_int();
+		const int mID = input.gettok(2).to_int();
 
 		// MAKEWPARAM((# = Menu ID), (0 = Menu command));
 		SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, MAKEWPARAM(mID, 0) , NULL);
@@ -179,15 +179,15 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 /*
  *
  */
-void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *szReturnValue) {
-	//int numtok = input.numtok();
-	TString prop(input.gettok(1));
+void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *szReturnValue) const
+{
+	const TString prop(input.gettok(1));
 
 	// Iterate through the names of menus added to XMenuBar.
 	// N = 0 returns total number of menus
 	// $xmenubar() [menu] [N]
 	if (prop == TEXT("menu")) {
-		int i = input.gettok(2).to_int();
+		const int i = input.gettok(2).to_int();
 
 		if ((i < 0) || (i > (int) this->m_vpXMenuBar.size())) {
 			Dcx::errorex(TEXT("$!xpopup().menubar"), TEXT("Invalid index: %d"), i);
@@ -200,7 +200,6 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *szReturnValue) {
 		// Return name of specified menu.
 		else
 			lstrcpyn(szReturnValue, this->m_vpXMenuBar[i -1]->getName().to_chr(), MIRC_BUFFER_SIZE_CCH);
-			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), this->m_vpXMenuBar[i -1]->getName().to_chr());
 
 		return;
 	}
@@ -244,7 +243,7 @@ void XMenuBar::removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu) {
 		++itStart;
 	}
 
-	int offset = findMenuOffset(menubar, p_Menu);
+	const int offset = findMenuOffset(menubar, p_Menu);
 
 	if (offset > 0)
 		RemoveMenu(menubar, offset, MF_BYPOSITION);

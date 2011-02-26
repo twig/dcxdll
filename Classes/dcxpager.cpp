@@ -15,7 +15,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
 : DcxControl( ID, p_Dialog )
 , m_ChildHWND(NULL)
 {
@@ -58,7 +58,8 @@ DcxPager::~DcxPager( ) {
   this->unregistreDefaultWindowProc( );
 }
 
-TString DcxPager::getStyles(void) {
+TString DcxPager::getStyles(void) const
+{
 	TString styles(__super::getStyles());
 	DWORD Styles;
 	Styles = GetWindowStyle(this->m_Hwnd);
@@ -70,7 +71,8 @@ TString DcxPager::getStyles(void) {
 
 }
 
-void DcxPager::toXml(TiXmlElement * xml) {
+void DcxPager::toXml(TiXmlElement * xml) const
+{
 	__super::toXml(xml);
 	DcxControl * child;
 	child = this->m_pParentDialog->getControlByHWND(this->m_ChildHWND);
@@ -84,18 +86,17 @@ void DcxPager::toXml(TiXmlElement * xml) {
  * blah
  */
 
-void DcxPager::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok( );
+void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+{
+	const UINT numtok = styles.numtok( );
 
-  while ( i <= numtok ) {
+	for (UINT i = 1;  i <= numtok; i++ ) {
 
 		if (styles.gettok( i ) == TEXT("horizontal"))
 			*Styles |= PGS_HORZ;
 		else if (styles.gettok( i ) == TEXT("autoscroll"))
 			*Styles |= PGS_AUTOSCROLL;
-
-    i++;
-  }
+	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -109,10 +110,10 @@ void DcxPager::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
  * \return > void
  */
 
-void DcxPager::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
-
+void DcxPager::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+{
 	//  int numtok = input.numtok( );
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	if ( prop == TEXT("color")) {
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBkColor(this->m_Hwnd) );
@@ -138,28 +139,28 @@ void DcxPager::parseInfoRequest( TString & input, PTCHAR szReturnValue ) {
  * blah
  */
 
-void DcxPager::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok();
+void DcxPager::parseCommandRequest( const TString & input ) {
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok();
 
-  // xdid -b [NAME] [ID] [SWITCH] [W]
-  if ( flags[TEXT('b')] && numtok > 3 ) {
+	// xdid -b [NAME] [ID] [SWITCH] [W]
+	if ( flags[TEXT('b')] && numtok > 3 ) {
 		this->setBorderSize(input.gettok( 4 ).to_int());
 	}
-  // xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-  else if ( flags[TEXT('c')] && numtok > 8 ) {
+	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
+	else if ( flags[TEXT('c')] && numtok > 8 ) {
 
 		if (IsWindow(this->m_ChildHWND)) {
 			this->showError(NULL, TEXT("-c"), TEXT("Child Control already exists"));
 			//DCXError( TEXT("/xdid -c"),TEXT("Child Control already exists") );
 			return;
 		}
-    UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
+		UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
 
-    if ( ID > mIRC_ID_OFFSET - 1 && 
-      !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
-      this->m_pParentDialog->getControlByID( ID ) == NULL ) 
-    {
+		if ( ID > mIRC_ID_OFFSET - 1 && 
+			!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
+			this->m_pParentDialog->getControlByID( ID ) == NULL ) 
+		{
 			try {
 				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,
 					CTLF_ALLOW_TOOLBAR |
@@ -183,35 +184,33 @@ void DcxPager::parseCommandRequest( TString & input ) {
 			catch ( TCHAR *err ) {
 				this->showErrorEx(NULL, TEXT("-c"), TEXT("Unable To Create Control %d (%s)"), ID - mIRC_ID_OFFSET, err);
 			}
-    }
-    else
-			this->showErrorEx(NULL, TEXT("-c"), TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET );
-  }
-  // xdid -d [NAME] [ID] [SWITCH] [ID]
-  else if ( flags[TEXT('d')] && numtok > 3 ) {
-
-    UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
-    DcxControl * p_Control;
-    
-	if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
-		ID > mIRC_ID_OFFSET - 1 && ( p_Control = this->m_pParentDialog->getControlByID( ID ) ) != NULL ) 
-	{
-
-		HWND cHwnd = p_Control->getHwnd( );
-		if ( p_Control->getType( ) == TEXT("dialog") || p_Control->getType( ) == TEXT("window") ) {
-			delete p_Control;
-			this->m_ChildHWND = NULL;
-		}
-		else if ( p_Control->getRefCount( ) == 0 ) {
-			this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
-			DestroyWindow( cHwnd );
-			this->m_ChildHWND = NULL;
 		}
 		else
-			this->showErrorEx(NULL, TEXT("-d"), TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
+			this->showErrorEx(NULL, TEXT("-c"), TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET );
 	}
-	else
-		this->showErrorEx(NULL, TEXT("-d"), TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
+	// xdid -d [NAME] [ID] [SWITCH] [ID]
+	else if ( flags[TEXT('d')] && numtok > 3 ) {
+
+		UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
+		DcxControl * p_Control;
+
+		if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && (ID > mIRC_ID_OFFSET - 1) && ( p_Control = this->m_pParentDialog->getControlByID( ID ) ) != NULL ) 
+		{
+			HWND cHwnd = p_Control->getHwnd( );
+			if ( p_Control->getType( ) == TEXT("dialog") || p_Control->getType( ) == TEXT("window") ) {
+				delete p_Control;
+				this->m_ChildHWND = NULL;
+			}
+			else if ( p_Control->getRefCount( ) == 0 ) {
+				this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
+				DestroyWindow( cHwnd );
+				this->m_ChildHWND = NULL;
+			}
+			else
+				this->showErrorEx(NULL, TEXT("-d"), TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
+		}
+		else
+			this->showErrorEx(NULL, TEXT("-d"), TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
 	}
 	// xdid -s [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags[TEXT('s')] && numtok > 3) {
@@ -225,8 +224,8 @@ void DcxPager::parseCommandRequest( TString & input ) {
 	else if (flags[TEXT('z')] && numtok > 2) {
 		this->reCalcSize();
 	}
-  else
-    this->parseGlobalCommandRequest( input, flags );
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 void DcxPager::setChild(const HWND child)
 {

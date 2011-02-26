@@ -29,19 +29,19 @@ class DcxDialog;
 class DcxEdit : public DcxControl {
 
 public:
-	DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, const RECT *rc, TString &styles);
+	DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, const RECT *rc, const TString &styles);
 	virtual ~DcxEdit();
 
 	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 
-	void parseInfoRequest(TString &input, TCHAR *szReturnValue);
-	void parseCommandRequest(TString &input);
-	void parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme);
+	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommandRequest( const TString & input );
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-	inline TString getType() { return TString(TEXT("edit")); };
-	TString getStyles(void);
-	void toXml(TiXmlElement * xml);
+	inline TString getType() const { return TString(TEXT("edit")); };
+	TString getStyles(void) const;
+	void toXml(TiXmlElement * xml) const;
 
 	static void registerClass(void);
 
