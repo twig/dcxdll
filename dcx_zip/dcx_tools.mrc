@@ -66,7 +66,7 @@ alias dcxml {
 ;xdidtok dialog ID N C Item Text[[C]Item Text[C]Item Text]...
 ;xdidtok $dname 1 0 44 SomeText1,SomeText2
 ; xdidtok is only meant for list control!
-xdidtok {
+alias xdidtok {
   if ($0 < 5) { echo 4 -smlbfti2 [ERROR] /xdidtok Invalid args | halt }
   xdid -A $1 $2 $3 +T $4 $5-
 }
