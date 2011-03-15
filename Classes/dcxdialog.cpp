@@ -1521,36 +1521,65 @@ UINT DcxDialog::parseTooltipFlags(const TString &flags) {
  */
 
 UINT DcxDialog::parseBkgFlags(const TString &flags) {
-	const UINT len = flags.len();
+	//const UINT len = flags.len();
+	//UINT iFlags = 0;
+
+	//// no +sign, missing params
+	//if (flags[0] != TEXT('+')) 
+	//	return iFlags;
+
+	//for (UINT i = 1; i < len; i++)
+	//{
+	//	if (flags[i] == TEXT('b'))
+	//		iFlags |= DBS_BKGCOLOR;
+	//	else if (flags[i] == TEXT('i'))
+	//		iFlags |= DBS_BKGBITMAP;
+
+	//	else if (flags[i] == TEXT('n'))
+	//		iFlags |= DBS_BKGNORMAL;
+	//	else if (flags[i] == TEXT('t'))
+	//		iFlags |= DBS_BKGTILE;
+	//	else if (flags[i] == TEXT('s'))
+	//		iFlags |= DBS_BKGSTRETCH;
+
+	//	else if (flags[i] == TEXT('c'))
+	//		iFlags |= DBS_BKGCENTER;
+	//	else if (flags[i] == TEXT('v'))
+	//		iFlags |= DBS_BKGVCENTER;
+	//	else if (flags[i] == TEXT('r'))
+	//		iFlags |= DBS_BKGRIGHT;
+	//	else if (flags[i] == TEXT('o'))
+	//		iFlags |= DBS_BKGBOTTOM;
+	//}
+
+	//return iFlags;
+	XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if (flags[0] != TEXT('+')) 
+	if (xflags[TEXT('+')]) 
 		return iFlags;
 
-	for (UINT i = 1; i < len; i++)
-	{
-		if (flags[i] == TEXT('b'))
-			iFlags |= DBS_BKGCOLOR;
-		else if (flags[i] == TEXT('i'))
-			iFlags |= DBS_BKGBITMAP;
+	if (xflags[TEXT('b')])
+		iFlags |= DBS_BKGCOLOR;
+	if (xflags[TEXT('i')])
+		iFlags |= DBS_BKGBITMAP;
 
-		else if (flags[i] == TEXT('n'))
-			iFlags |= DBS_BKGNORMAL;
-		else if (flags[i] == TEXT('t'))
-			iFlags |= DBS_BKGTILE;
-		else if (flags[i] == TEXT('s'))
-			iFlags |= DBS_BKGSTRETCH;
+	if (xflags[TEXT('n')])
+		iFlags |= DBS_BKGNORMAL;
+	if (xflags[TEXT('t')])
+		iFlags |= DBS_BKGTILE;
+	if (xflags[TEXT('s')])
+		iFlags |= DBS_BKGSTRETCH;
 
-		else if (flags[i] == TEXT('c'))
-			iFlags |= DBS_BKGCENTER;
-		else if (flags[i] == TEXT('v'))
-			iFlags |= DBS_BKGVCENTER;
-		else if (flags[i] == TEXT('r'))
-			iFlags |= DBS_BKGRIGHT;
-		else if (flags[i] == TEXT('o'))
-			iFlags |= DBS_BKGBOTTOM;
-	}
+	if (xflags[TEXT('c')])
+		iFlags |= DBS_BKGCENTER;
+	if (xflags[TEXT('v')])
+		iFlags |= DBS_BKGVCENTER;
+	if (xflags[TEXT('r')])
+		iFlags |= DBS_BKGRIGHT;
+	if (xflags[TEXT('o')])
+		iFlags |= DBS_BKGBOTTOM;
 
 	return iFlags;
 }

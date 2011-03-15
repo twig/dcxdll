@@ -1908,48 +1908,89 @@ UINT DcxListView::parseIconFlagOptions( const TString & flags ) {
 */
 
 UINT DcxListView::parseItemFlags(const TString & flags) {
-	INT i = 1, len = (INT)flags.len(), iFlags = 0;
+	//INT i = 1, len = (INT)flags.len(), iFlags = 0;
+
+	//// no +sign, missing params
+	//if (flags[0] != TEXT('+'))
+	//	return iFlags;
+
+	//while (i < len) {
+	//	if (flags[i] == TEXT('b'))
+	//		iFlags |= LVIS_BOLD;
+	//	else if (flags[i] == TEXT('c'))
+	//		iFlags |= LVIS_COLOR;
+	//	else if (flags[i] == TEXT('d'))
+	//		iFlags |= LVIS_DROPHILITED;
+	//	else if (flags[i] == TEXT('f'))
+	//		iFlags |= LVIS_FOCUSED;
+	//	else if (flags[i] == TEXT('i'))
+	//		iFlags |= LVIS_ITALIC;
+	//	else if (flags[i] == TEXT('k'))
+	//		iFlags |= LVIS_BGCOLOR;
+	//	else if (flags[i] == TEXT('s'))
+	//		iFlags |= LVIS_SELECTED;
+	//	else if (flags[i] == TEXT('t'))
+	//		iFlags |= LVIS_CUT;
+	//	else if (flags[i] == TEXT('u'))
+	//		iFlags |= LVIS_UNDERLINE;
+	//	else if (flags[i] == TEXT('p'))
+	//		iFlags |= LVIS_PBAR;
+	//	else if (flags[i] == TEXT('H'))
+	//		iFlags |= LVIS_HASHITEM;
+	//	else if (flags[i] == TEXT('n'))
+	//		iFlags |= LVIS_HASHNUMBER;
+	//	else if (flags[i] == TEXT('x'))
+	//		iFlags |= LVIS_XML;
+	//	else if (flags[i] == TEXT('w'))
+	//		iFlags |= LVIS_HASHTABLE;
+	//	else if (flags[i] == TEXT('y'))
+	//		iFlags |= LVIS_WINDOW;
+	//	else if (flags[i] == TEXT('z'))
+	//		iFlags |= LVIS_CONTROL;
+
+	//	++i;
+	//}
+
+	//return iFlags;
+	XSwitchFlags xflags(flags);
+	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if (flags[0] != TEXT('+'))
+	if (xflags[TEXT('+')])
 		return iFlags;
 
-	while (i < len) {
-		if (flags[i] == TEXT('b'))
-			iFlags |= LVIS_BOLD;
-		else if (flags[i] == TEXT('c'))
-			iFlags |= LVIS_COLOR;
-		else if (flags[i] == TEXT('d'))
-			iFlags |= LVIS_DROPHILITED;
-		else if (flags[i] == TEXT('f'))
-			iFlags |= LVIS_FOCUSED;
-		else if (flags[i] == TEXT('i'))
-			iFlags |= LVIS_ITALIC;
-		else if (flags[i] == TEXT('k'))
-			iFlags |= LVIS_BGCOLOR;
-		else if (flags[i] == TEXT('s'))
-			iFlags |= LVIS_SELECTED;
-		else if (flags[i] == TEXT('t'))
-			iFlags |= LVIS_CUT;
-		else if (flags[i] == TEXT('u'))
-			iFlags |= LVIS_UNDERLINE;
-		else if (flags[i] == TEXT('p'))
-			iFlags |= LVIS_PBAR;
-		else if (flags[i] == TEXT('H'))
-			iFlags |= LVIS_HASHITEM;
-		else if (flags[i] == TEXT('n'))
-			iFlags |= LVIS_HASHNUMBER;
-		else if (flags[i] == TEXT('x'))
-			iFlags |= LVIS_XML;
-		else if (flags[i] == TEXT('w'))
-			iFlags |= LVIS_HASHTABLE;
-		else if (flags[i] == TEXT('y'))
-			iFlags |= LVIS_WINDOW;
-		else if (flags[i] == TEXT('z'))
-			iFlags |= LVIS_CONTROL;
-
-		++i;
-	}
+	if (xflags[TEXT('b')])
+		iFlags |= LVIS_BOLD;
+	if (xflags[TEXT('c')])
+		iFlags |= LVIS_COLOR;
+	if (xflags[TEXT('d')])
+		iFlags |= LVIS_DROPHILITED;
+	if (xflags[TEXT('f')])
+		iFlags |= LVIS_FOCUSED;
+	if (xflags[TEXT('i')])
+		iFlags |= LVIS_ITALIC;
+	if (xflags[TEXT('k')])
+		iFlags |= LVIS_BGCOLOR;
+	if (xflags[TEXT('s')])
+		iFlags |= LVIS_SELECTED;
+	if (xflags[TEXT('t')])
+		iFlags |= LVIS_CUT;
+	if (xflags[TEXT('u')])
+		iFlags |= LVIS_UNDERLINE;
+	if (xflags[TEXT('p')])
+		iFlags |= LVIS_PBAR;
+	if (xflags[TEXT('H')])
+		iFlags |= LVIS_HASHITEM;
+	if (xflags[TEXT('n')])
+		iFlags |= LVIS_HASHNUMBER;
+	if (xflags[TEXT('x')])
+		iFlags |= LVIS_XML;
+	if (xflags[TEXT('w')])
+		iFlags |= LVIS_HASHTABLE;
+	if (xflags[TEXT('y')])
+		iFlags |= LVIS_WINDOW;
+	if (xflags[TEXT('z')])
+		iFlags |= LVIS_CONTROL;
 
 	return iFlags;
 }
@@ -1961,27 +2002,45 @@ UINT DcxListView::parseItemFlags(const TString & flags) {
 */
 
 UINT DcxListView::parseMassItemFlags(const TString & flags) {
-	INT i = 1, len = (INT)flags.len();
+	//INT i = 1, len = (INT)flags.len();
+	//UINT iFlags = 0;
+
+	//// no +sign, missing params
+	//if (flags[0] != TEXT('+'))
+	//	return iFlags;
+
+	//while (i < len) {
+	//	if (flags[i] == TEXT('a'))
+	//		iFlags |= LVIMF_ALLINFO;
+	//	else if (flags[i] == TEXT('A'))
+	//		iFlags |= LVIMF_ADDALL;
+	//	else if (flags[i] == TEXT('n'))
+	//		iFlags |= LVIMF_NUMERIC;
+	//	else if (flags[i] == TEXT('i'))
+	//		iFlags |= LVIMF_NAMED;
+
+	//	++i;
+	//}
+
+	//return iFlags;
+	XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if (flags[0] != TEXT('+'))
+	if (xflags[TEXT('+')])
 		return iFlags;
 
-	while (i < len) {
-		if (flags[i] == TEXT('a'))
-			iFlags |= LVIMF_ALLINFO;
-		else if (flags[i] == TEXT('A'))
-			iFlags |= LVIMF_ADDALL;
-		else if (flags[i] == TEXT('n'))
-			iFlags |= LVIMF_NUMERIC;
-		else if (flags[i] == TEXT('i'))
-			iFlags |= LVIMF_NAMED;
-
-		++i;
-	}
+	if (xflags[TEXT('a')])
+		iFlags |= LVIMF_ALLINFO;
+	if (xflags[TEXT('A')])
+		iFlags |= LVIMF_ADDALL;
+	if (xflags[TEXT('n')])
+		iFlags |= LVIMF_NUMERIC;
+	if (xflags[TEXT('i')])
+		iFlags |= LVIMF_NAMED;
 
 	return iFlags;
+
 }
 
 /*!
@@ -2034,7 +2093,7 @@ UINT DcxListView::parseHeaderFlags( const TString & flags ) {
 	if ( xflags[TEXT('r')] )
 		iFlags |= LVCFMT_RIGHT;
 	if ( xflags[TEXT('q')] )
-		iFlags |= LVCFMT_FIXED_RATIO; // LVCFMT_FIXED_WIDTH LVCFMT_FIXED_RATIO LVCFMT_SPLITBUTTON
+		iFlags |= LVCFMT_FIXED_RATIO;
 	// 's' use by flags2
 	if ( xflags[TEXT('d')] )
 		iFlags |= LVCFMT_SPLITBUTTON;
