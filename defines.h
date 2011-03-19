@@ -139,7 +139,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DLL_VERSION    2
 #define DLL_SUBVERSION 0
 #define DLL_BUILD      0
-#define DLL_DEV_BUILD  6
+#define DLL_DEV_BUILD  7
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
