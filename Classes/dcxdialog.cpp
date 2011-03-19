@@ -1557,7 +1557,7 @@ UINT DcxDialog::parseBkgFlags(const TString &flags) {
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if (xflags[TEXT('+')]) 
+	if (!xflags[TEXT('+')])
 		return iFlags;
 
 	if (xflags[TEXT('b')])
