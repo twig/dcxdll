@@ -1466,7 +1466,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	// xdid -v [NAME] [ID] [SWITCH] [N] [M] (ItemText)
 	else if (flags[TEXT('v')] && numtok > 4) {
 		int nItem = input.gettok(4).to_int() - 1;
-		int nSubItem = input.gettok(5).to_int() -1;
+		const int nSubItem = input.gettok(5).to_int() -1;
 
 		// check if item supplied was 0 (now -1), last item in list.
 		if (nItem == -1) {
@@ -1956,7 +1956,7 @@ UINT DcxListView::parseItemFlags(const TString & flags) {
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if (xflags[TEXT('+')])
+	if (!xflags[TEXT('+')])
 		return iFlags;
 
 	if (xflags[TEXT('b')])
@@ -2027,7 +2027,7 @@ UINT DcxListView::parseMassItemFlags(const TString & flags) {
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if (xflags[TEXT('+')])
+	if (!xflags[TEXT('+')])
 		return iFlags;
 
 	if (xflags[TEXT('a')])
