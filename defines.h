@@ -133,12 +133,15 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #endif
 // end of VS 2005
 
+// Includes created svn build info header...
+#include "svnBuild.h"
+
 // --------------------------------------------------
 // DCX build version
 // --------------------------------------------------
 #define DLL_VERSION    2
 #define DLL_SUBVERSION 0
-#define DLL_BUILD      0
+#define DLL_BUILD      SVN_BUILD
 #define DLL_DEV_BUILD  8
 
 #ifdef NDEBUG
@@ -228,12 +231,9 @@ using namespace Gdiplus;
 #endif
 #endif
 
-#include "VertDraw.h"
-
 #include "classes/dcxdialogcollection.h"
 
 #include "AggressiveOptimize.h"
-
 
 // Win2000+ stuff for Win98+ compat (only used during testing)
 //#ifndef ICC_STANDARD_CLASSES

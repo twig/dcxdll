@@ -29,7 +29,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="del /F $(mIRCDir)\dcx\dcx.dll"
+				CommandLine="del /F $(mIRCDir)\dcx\dcx.dll&#x0D;&#x0A;SubWCRev.exe $(InputDir) svnTemplate.txt svnBuild.h"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -91,6 +91,7 @@
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
+				DocumentLibraryDependencies="false"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -1168,93 +1169,10 @@
 				<File
 					RelativePath=".\Classes\dcxml\dcxml.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release Dll|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release Optimal|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Development|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\Classes\dcxml\dcxml.xsd"
-					>
-					<File
-						RelativePath=".\Classes\dcxml\dcxml.xsx"
-						>
-					</File>
 				</File>
 				<File
 					RelativePath=".\Classes\dcxml\dcxmlparser.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release Dll|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release Optimal|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Development|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 			</Filter>
 			<Filter
@@ -1526,6 +1444,10 @@
 					RelativePath=".\Classes\dcxwindow.h"
 					>
 				</File>
+				<File
+					RelativePath=".\svnBuild.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="XPopup"
@@ -1574,10 +1496,6 @@
 			<Filter
 				Name="dcxml"
 				>
-				<File
-					RelativePath=".\Classes\dcxml\dcxml.h"
-					>
-				</File>
 				<File
 					RelativePath=".\Classes\dcxml\dcxmlincludes.h"
 					>
@@ -1629,10 +1547,22 @@
 				RelativePath=".\dll.def"
 				>
 			</File>
+			<File
+				RelativePath=".\svnTemplate.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TODO.txt"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Scripts"
 			>
+			<File
+				RelativePath=".\dcx_zip\dc.xml"
+				>
+			</File>
 			<File
 				RelativePath=".\dcx_zip\dcx.mrc"
 				>
