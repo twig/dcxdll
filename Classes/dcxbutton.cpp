@@ -668,21 +668,92 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			}
 		}
 
+		//HFONT hFontOld = SelectFont( hdc, this->m_hFont );
+
+		//RECT rcTxt;
+		//SetRectEmpty( &rcTxt );
+
+		//SetBkMode( hdc, TRANSPARENT );
+
+		//HIMAGELIST himl = this->getImageList( );
+
+		//SetTextColor(hdc, this->m_aColors[nState]);
+
+		////if ( this->m_tsCaption.len( ) > 0 )
+		////	DrawTextW(hdc, this->m_tsCaption.to_chr(), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE);
+		//if ( this->m_tsCaption.len( ) > 0 )
+		//	this->calcTextRect(hdc, this->m_tsCaption, &rcTxt, /*DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP |*/ DT_SINGLELINE);
+
+		//int iCenter = w / 2;
+		//int iVCenter = h / 2;
+		//int iTextW = ( rcTxt.right - rcTxt.left );
+		//int iTextH = ( rcTxt.bottom - rcTxt.top );
+
+		//// If there is an icon
+		//if (himl != NULL && this->m_bHasIcons) {
+		//	int iIconLeft = iCenter - (this->m_iIconSize + ICON_XPAD + iTextW) / 2;
+		//	int iIconTop = iVCenter - this->m_iIconSize / 2;
+
+		//	if (iIconLeft < BUTTON_XPAD)
+		//		iIconLeft = BUTTON_XPAD;
+
+		//	if (iIconTop < BUTTON_YPAD)
+		//		iIconTop = BUTTON_YPAD;
+
+		//	rcTxt.left = iIconLeft + this->m_iIconSize + ICON_XPAD;
+
+		//	if (nState == 3) // disabled
+		//		ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT | ILD_BLEND50);
+		//	else
+		//		ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT);
+		//}
+		//else {
+		//	rcTxt.left = iCenter - iTextW / 2;
+		//	if ( rcTxt.left < BUTTON_XPAD )
+		//		rcTxt.left = BUTTON_XPAD;
+		//}
+
+		//if ( iTextW > 0 ) {
+		//	rcTxt.top = iVCenter - iTextH / 2;
+
+		//	if ( rcTxt.top < BUTTON_YPAD )
+		//		rcTxt.top = BUTTON_YPAD;
+
+		//	rcTxt.right = rcClient.right - BUTTON_XPAD;
+		//	rcTxt.bottom = rcClient.bottom - BUTTON_YPAD;
+		//	//this->ctrlDrawText(hdc,this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
+		//	if (!this->m_bCtrlCodeText) {
+		//		if (!this->m_bSelected && this->m_bShadowText)
+		//			dcxDrawShadowText(hdc,this->m_tsCaption.to_chr(), (UINT)this->m_tsCaption.len(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
+		//		else
+		//			DrawTextW( hdc, this->m_tsCaption.to_chr(), (int)this->m_tsCaption.len( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+		//	}
+		//	else
+		//		mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false));
+		//}
 		HFONT hFontOld = SelectFont( hdc, this->m_hFont );
 
-		RECT rcTxt;
-		SetRectEmpty( &rcTxt );
-
-		SetBkMode( hdc, TRANSPARENT );
+		int oldbkg = SetBkMode( hdc, TRANSPARENT );
 
 		HIMAGELIST himl = this->getImageList( );
 
-		SetTextColor(hdc, this->m_aColors[nState]);
+		RECT rcTxt;
 
-		//if ( this->m_tsCaption.len( ) > 0 )
-		//	DrawTextW(hdc, this->m_tsCaption.to_chr(), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE);
-		if ( this->m_tsCaption.len( ) > 0 )
-			this->calcTextRect(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
+		rcTxt.top = BUTTON_YPAD;
+		rcTxt.right = (rcClient.right - BUTTON_XPAD);
+		rcTxt.bottom = (rcClient.bottom - BUTTON_YPAD);
+		rcTxt.left = BUTTON_XPAD;
+
+		if ( this->m_tsCaption.len( ) > 0 ) {
+			//this->calcTextRect(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE);
+			TString t(this->m_tsCaption);
+			if (this->m_bCtrlCodeText)
+				t.strip();
+			if (!this->m_bSelected && this->m_bShadowText)
+				dcxDrawShadowText(hdc, t.to_chr(), t.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT, this->m_aColors[nState], 0,5,5);
+			else
+				DrawText(hdc, t.to_chr(), t.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT);
+		}
 
 		int iCenter = w / 2;
 		int iVCenter = h / 2;
@@ -691,8 +762,8 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		// If there is an icon
 		if (himl != NULL && this->m_bHasIcons) {
-			int iIconLeft = iCenter - (this->m_iIconSize + ICON_XPAD + iTextW) / 2;
-			int iIconTop = iVCenter - this->m_iIconSize / 2;
+			int iIconLeft = (iCenter - ((this->m_iIconSize + ICON_XPAD + iTextW) / 2));
+			int iIconTop = (iVCenter - (this->m_iIconSize / 2));
 
 			if (iIconLeft < BUTTON_XPAD)
 				iIconLeft = BUTTON_XPAD;
@@ -708,7 +779,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT);
 		}
 		else {
-			rcTxt.left = iCenter - iTextW / 2;
+			rcTxt.left = (iCenter - (iTextW / 2));
 			if ( rcTxt.left < BUTTON_XPAD )
 				rcTxt.left = BUTTON_XPAD;
 		}
@@ -719,8 +790,11 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if ( rcTxt.top < BUTTON_YPAD )
 				rcTxt.top = BUTTON_YPAD;
 
-			rcTxt.right = rcClient.right - BUTTON_XPAD;
-			rcTxt.bottom = rcClient.bottom - BUTTON_YPAD;
+			rcTxt.right = (rcClient.right - BUTTON_XPAD);
+			rcTxt.bottom = (rcClient.bottom - BUTTON_YPAD);
+
+			COLORREF oldClr = SetTextColor(hdc, this->m_aColors[nState]);
+
 			//this->ctrlDrawText(hdc,this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
 			if (!this->m_bCtrlCodeText) {
 				if (!this->m_bSelected && this->m_bShadowText)
@@ -730,7 +804,11 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			}
 			else
 				mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false));
+
+			SetTextColor(hdc, oldClr);
 		}
+
+		SetBkMode( hdc, oldbkg );
 
 		SelectFont( hdc, hFontOld );
 	}
