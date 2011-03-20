@@ -1511,11 +1511,11 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		TString tflags(input.gettok( 4 ));
-		UINT iFlags = this->parseIconFlagOptions(tflags);
+		const TString tflags(input.gettok( 4 ));
+		const UINT iFlags = this->parseIconFlagOptions(tflags);
 		HIMAGELIST himl;
 		HICON icon = NULL;
-		int index = input.gettok( 5 ).to_int();
+		const int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
 		int overlayindex = 0;
 

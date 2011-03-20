@@ -599,13 +599,18 @@ void DcxmlParser::parseIcons(int depth) {
 		else
 			icon = NULL;
 		if (icon != NULL) {
-			temp = icon->Attribute("flags");
-			const char *flags = (temp != NULL) ? temp : "ndhs";
-			temp = icon->Attribute("index");
-			const char *index = (temp != NULL) ? temp : "0";
+			//temp = icon->Attribute("flags");
+			//const char *flags = (temp != NULL) ? temp : "ndhs";
+			//temp = icon->Attribute("index");
+			//const char *index = (temp != NULL) ? temp : "0";
+			//const char *src = icon->Attribute("src");
+			//int indexmin = (icon->QueryIntAttribute("indexmin",&indexmin) == TIXML_SUCCESS) ? indexmin : 0;
+			//int indexmax = (icon->QueryIntAttribute("indexmax",&indexmax) == TIXML_SUCCESS) ? indexmax : -1;
+			const char *flags = this->queryAttribute(icon, "flags", "n");
+			const char *index = this->queryAttribute(icon, "index", "0");
 			const char *src = icon->Attribute("src");
-			int indexmin = (icon->QueryIntAttribute("indexmin",&indexmin) == TIXML_SUCCESS) ? indexmin : 0;
-			int indexmax = (icon->QueryIntAttribute("indexmax",&indexmax) == TIXML_SUCCESS) ? indexmax : -1;
+			int indexmin = this->queryIntAttribute(icon,"indexmin",0);
+			int indexmax = this->queryIntAttribute(icon,"indexmax",-1);
 			if (src != NULL) {
 				if (indexmin <= indexmax) 
 					//method sucks but looping in C++ is WAYYY too fast for mIRC
@@ -618,10 +623,8 @@ void DcxmlParser::parseIcons(int depth) {
 			else
 			{
 				for(const TiXmlElement *iconchild = icon->FirstChildElement("icon"); iconchild != NULL; iconchild = iconchild->NextSiblingElement()) {
-					temp = iconchild->Attribute("flags");
-					const char *tflags = (temp != NULL) ? temp : "ndhs";
-					temp = iconchild->Attribute("index");
-					const char *tindex = (temp != NULL) ? temp : "0";
+					const char *tflags = this->queryAttribute(iconchild, "flags", "n");
+					const char *tindex = this->queryAttribute(iconchild, "index", "0");
 					const char *tsrc = iconchild->Attribute("src");
 					if (tsrc != NULL)
 						Dcx::mIRC.execex(TEXT("//xdid -w %s %i +%S %S %S"),this->getDialogMark().to_chr(),id,tflags,tindex,tsrc);
@@ -648,18 +651,10 @@ void DcxmlParser::parseItems(const TiXmlElement* element,int depth,char *itemPat
 				TString buffer;
 				for(const TiXmlElement *column = child->FirstChildElement("column"); column; column = column->NextSiblingElement("column") ) 
 				{
-					const char *width = column->Attribute("width");
-					const char *caption = column->Attribute("caption");
-					const char *flags = column->Attribute("flags");
-					const char *icon = column->Attribute("icon");
-					if (width == NULL)
-						width = "0";
-					if (caption == NULL)
-						caption = "";
-					if (flags == NULL)
-						flags = "l";
-					if (icon == NULL)
-						icon = "0";
+					const char *width = this->queryAttribute(column, "width", "0");
+					const char *caption = this->queryAttribute(column, "caption", "");
+					const char *flags = this->queryAttribute(column, "flags", "l");
+					const char *icon = this->queryAttribute(column, "icon", "0");
 
 					buffer.tsprintf(TEXT("+%S %S %S %S "),flags,icon,width,caption);
 					arguments.addtok(buffer.to_chr(),TEXT("\t"));
