@@ -428,16 +428,21 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
+		// If the window style for a tree-view control contains TVS_SCROLL and all items are deleted,
+		// new items are not displayed until the window styles are reset.
+		// The following code shows one way to ensure that items are always displayed.
+		DWORD styles = GetWindowLong(this->m_Hwnd, GWL_STYLE);
 		TreeView_DeleteAllItems(this->m_Hwnd);
+		SetWindowLong(this->m_Hwnd, GWL_STYLE, styles);
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] [BKGCOLOR] Text[TAB]Tooltip Text
 	if (flags[TEXT('a')]) {
-		int n = input.numtok(TSTAB);
+		const int n = input.numtok(TSTAB);
 
 		if (n > 1) {
-			TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
-			TString data(input.gettok(2, TSTAB).trim());
+			const TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
+			const TString data(input.gettok(2, TSTAB).trim());
 			TString tooltip;
 
 			if (n > 2)
@@ -508,7 +513,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -B [NAME] [ID] [SWITCH] N N N
 	else if (flags[TEXT('B')] && numtok > 3) {
-		TString path(input.gettok(4, -1));
+		const TString path(input.gettok(4, -1));
 		HTREEITEM item = this->parsePath(&path);
 		
 		if (item == NULL) {
@@ -521,7 +526,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] N N N
 	else if (flags[TEXT('c')] && numtok > 3) {
-		TString path(input.gettok(4, -1));
+		const TString path(input.gettok(4, -1));
 		HTREEITEM item = this->parsePath(&path);
 
 		if (item == NULL) {
@@ -534,7 +539,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -d [NAME] [ID] [SWITCH] N N N
 	else if (flags[TEXT('d')] && numtok > 3) {
-		TString path(input.gettok(4, -1));
+		const TString path(input.gettok(4, -1));
 		HTREEITEM item = this->parsePath(&path);
 
 		if (item == NULL) {
@@ -546,16 +551,16 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [HEIGHT]
 	else if (flags[TEXT('g')] && numtok > 3) {
-		int iHeight = input.gettok(4).to_int();
+		const int iHeight = input.gettok(4).to_int();
 
 		if (iHeight > -2)
 			TreeView_SetItemHeight(this->m_Hwnd, iHeight);
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if ( flags[TEXT('i')] && numtok > 4 ) {
-		UINT iFlags = this->parseColorFlags(input.gettok( 4 ));
+		const UINT iFlags = this->parseColorFlags(input.gettok( 4 ));
 
-		COLORREF clr = (COLORREF) input.gettok( 5 ).to_num( );
+		const COLORREF clr = (COLORREF) input.gettok( 5 ).to_num( );
 
 		if (iFlags & TVCOLOR_B)
 			TreeView_SetBkColor( this->m_Hwnd, clr );
@@ -574,7 +579,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	// xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON] (OVERLAY)
 	else if (flags[TEXT('j')] && numtok > 5) {
 		HTREEITEM item;
-		TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
+		const TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
 
 		// Invalid parameters, missing icons segment.
 		if (input.numtok(TSTAB) < 2) {
@@ -582,7 +587,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			return;
 		}
 
-		TString icons(input.gettok(2, TSTAB).trim());
+		const TString icons(input.gettok(2, TSTAB).trim());
 
 		// Invalid parameters, missing icon args.
 		if (icons.numtok() < 2) {
@@ -613,7 +618,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 
 		// overlay
 		if (icons.numtok() > 2) {
-			int oIcon = icons.gettok(3).to_int();
+			const int oIcon = icons.gettok(3).to_int();
 
 			// overlay is 1-based index
 			if (oIcon > -1)
@@ -631,7 +636,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			// quickfix so it doesnt display an image
 			// http://dcx.scriptsdb.org/bug/?do=details&id=350
 			if (nIcon == -1)
-				nIcon = 10000;
+				nIcon = I_IMAGENONE; //10000;
 
 			tvi.iImage = nIcon;
 		}
@@ -643,7 +648,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			// quickfix so it doesnt display an image
 			// http://dcx.scriptsdb.org/bug/?do=details&id=350
 			if (sIcon == -1)
-				sIcon = 10000;
+				sIcon = I_IMAGENONE; //10000;
 
 			tvi.iSelectedImage = sIcon;
 		}
@@ -652,7 +657,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [STATE] N N N
 	else if (flags[TEXT('k')] && numtok > 4) {
-		TString path(input.gettok(5, -1));
+		const TString path(input.gettok(5, -1));
 		HTREEITEM item = this->parsePath(&path);
 
 		if (item == NULL) {
@@ -660,7 +665,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			return;
 		}
 
-		UINT state = input.gettok(4).to_int();
+		const UINT state = input.gettok(4).to_int();
 
 		TreeView_SetItemState(this->m_Hwnd, item, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
 	}
@@ -675,8 +680,8 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -m [NAME] [ID] [SWITCH] N N N{TAB}N N N
 	else if (flags[TEXT('m')] && numtok > 3 && input.numtok(TSTAB) > 1) {
-		TString pathFrom(input.gettok(1, TSTAB).gettok(4, -1).trim());
-		TString pathTo(input.gettok(2, TSTAB).trim());
+		const TString pathFrom(input.gettok(1, TSTAB).gettok(4, -1).trim());
+		const TString pathTo(input.gettok(2, TSTAB).trim());
 
 		HTREEITEM item = this->parsePath(&pathFrom);
 		HTREEITEM hParentTo = TVI_ROOT;
@@ -719,8 +724,8 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -n [NAME] [ID] [SWITCH] N N N{TAB}N N N
 	else if (flags[TEXT('n')] && numtok > 3 && input.numtok(TSTAB) > 1) {
-		TString pathFrom(input.gettok(1, TSTAB).gettok(4, -1).trim());
-		TString pathTo(input.gettok(2, TSTAB).trim());
+		const TString pathFrom(input.gettok(1, TSTAB).gettok(4, -1).trim());
+		const TString pathTo(input.gettok(2, TSTAB).trim());
 
 		HTREEITEM item;
 		HTREEITEM hParentTo = TVI_ROOT;
@@ -765,14 +770,13 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -o [NAME] [ID] [SWITCH] N N N [TAB] (Tooltip Text)
 	else if (flags[TEXT('o')] && numtok > 3) {
-		TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
-		HTREEITEM item;
+		const TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
 		TString tiptext;
 		
 		if (input.numtok(TSTAB) > 1)
 			tiptext = input.gettok(2, TSTAB).trim();
 
-		item = this->parsePath(&path);
+		HTREEITEM item = this->parsePath(&path);
 
 		if (item == NULL) {
 			this->showErrorEx(NULL, TEXT("-o"), TEXT("Unable to parse path: %s"), path.to_chr());
@@ -793,9 +797,9 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -Q [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] N N N
 	else if ( flags[TEXT('Q')] && numtok > 5 ) {
-		TString path(input.gettok(6, -1));
+		const TString path(input.gettok(6, -1));
 		HTREEITEM item = this->parsePath(&path);
-		COLORREF clrText = (COLORREF) input.gettok(5).to_num();
+		const COLORREF clrText = (COLORREF) input.gettok(5).to_num();
 
 		if (item == NULL) {
 			this->showErrorEx(NULL, TEXT("-Q"), TEXT("Unable to parse path: %s"), path.to_chr());
@@ -819,7 +823,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			return;
 		}
 
-		int iFlags = this->parseItemFlags(input.gettok(4));
+		const int iFlags = this->parseItemFlags(input.gettok(4));
 
 		if (iFlags & TVIS_UNDERLINE)
 			lpdcxtvitem->bUline = TRUE;
@@ -839,7 +843,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 		if (iFlags & TVIS_COLOR)
 			lpdcxtvitem->clrText = clrText;
 		else
-			lpdcxtvitem->clrText = (COLORREF) -1;
+			lpdcxtvitem->clrText = CLR_INVALID;
 
 		this->redrawWindow();
 	}
@@ -849,7 +853,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] N N N
 	else if (flags[TEXT('t')] && numtok > 4) {
-		UINT iFlags = this->parseToggleFlags(input.gettok(4));
+		const UINT iFlags = this->parseToggleFlags(input.gettok(4));
 
 		if (input.gettok(5, -1) == TEXT("root")) {
 			HTREEITEM hStart = TVI_ROOT;
@@ -862,7 +866,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			return;
 		}
 
-		TString path(input.gettok(5, -1));
+		const TString path(input.gettok(5, -1));
 		HTREEITEM item = this->parsePath(&path);
 
 		if (item == NULL) {
@@ -887,14 +891,13 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -v [NAME] [ID] [SWITCH] N N N [TAB] (Item Text)
 	else if (flags[TEXT('v')] && numtok > 3) {
-		TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
-		HTREEITEM item;
+		const TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
 		TString itemtext;
 
 		if (input.numtok(TSTAB) > 1)
 			itemtext = input.gettok(2, TSTAB).trim();
 
-		item = this->parsePath(&path);
+		HTREEITEM item = this->parsePath(&path);
 
 		if (item == NULL) {
 			this->showErrorEx(NULL, TEXT("-v"), TEXT("Unable to parse path: %s"), path.to_chr());
@@ -910,15 +913,15 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		TString tsFlags(input.gettok(4));
-		UINT iFlags = this->parseIconFlagOptions(tsFlags);
+		const TString tsFlags(input.gettok(4));
+		const UINT iFlags = this->parseIconFlagOptions(tsFlags);
 
 		HIMAGELIST himl;
 		HICON icon = NULL;
 
-		int index = input.gettok( 5 ).to_int();
+		const int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
-		bool bLarge = (this->m_iIconSize > 16);
+		const bool bLarge = (this->m_iIconSize > 16);
 
 		if (index >= 0) {
 			icon = dcxLoadIcon(index, filename, bLarge, tsFlags);
@@ -943,11 +946,11 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 				}
 			}
 			else {
-				int i = ImageList_AddIcon(himl, icon);
+				const int i = ImageList_AddIcon(himl, icon);
 
 				if (tsFlags.find(TEXT('o'),0)) {
 					// overlay image
-					int io = tsFlags.find(TEXT('o'),1) +1;
+					const int io = tsFlags.find(TEXT('o'),1) +1;
 					int o = tsFlags.mid(io, (tsFlags.len() - io)).to_int();
 
 					if (o < 1 || o > 15) {
@@ -983,7 +986,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if ( flags[TEXT('y')] && numtok > 3 ) {
-		UINT iFlags = this->parseIconFlagOptions( input.gettok( 4 ) );
+		const UINT iFlags = this->parseIconFlagOptions( input.gettok( 4 ) );
 
 		HIMAGELIST himl;
 
@@ -1006,7 +1009,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -z [NAME] [ID] [SWITCH] [+FLAGS] N N N [TAB] [ALIAS]
 	else if (flags[TEXT('z')] && numtok > 4) {
-		TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
+		const TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
 		DCXTVSORT dtvs;
 		TVSORTCB tvs;
 
@@ -1043,7 +1046,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -G [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
 	else if (flags[TEXT('G')] && numtok > 6) {
-		TString flag(input.gettok( 4 ));
+		const TString flag(input.gettok( 4 ));
 		this->m_iXOffset = input.gettok( 5 ).to_int();
 		this->m_iYOffset = input.gettok( 6 ).to_int();
 		TString filename(input.gettok( 7, -1));
@@ -1066,17 +1069,16 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			return;
 		}
 
-		TString fileData(input.gettok(2, TSTAB));
+		const TString fileData(input.gettok(2, TSTAB));
 
 		if (fileData.numtok() < 3) {
 			this->showError(NULL, TEXT("-S"), TEXT("Invalid Command Syntax."));
 			return;
 		}
 
-		HTREEITEM item;
-		TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
+		const TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
 		//TString flags(fileData.gettok(1));
-		TString name(fileData.gettok(2).trim());
+		const TString name(fileData.gettok(2).trim());
 		TString filename(fileData.gettok(3, -1).trim());
 
 		if (name.len() < 1) {
@@ -1088,7 +1090,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			return;
 		}
 
-		item = this->parsePath(&path);
+		HTREEITEM item = this->parsePath(&path);
 
 		if (item == NULL) {
 			this->showErrorEx(NULL, TEXT("-S"), TEXT("Unable to parse path: %s"), path.to_chr());

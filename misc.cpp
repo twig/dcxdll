@@ -355,11 +355,7 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 			return NULL;
 		}
 
-#if UNICODE
 		Bitmap *p_Img = new Bitmap(filename.to_chr());
-#else
-		Bitmap *p_Img = new Bitmap(filename.to_wchr());
-#endif
 		if (p_Img == NULL)
 			return NULL;
 		// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
