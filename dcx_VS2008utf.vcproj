@@ -176,7 +176,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				ExcludedFromBuild="true"
+				CommandLine="SubWCRev.exe $(InputDir) svnTemplate.txt svnBuild.h"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -322,7 +322,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				ExcludedFromBuild="true"
+				CommandLine="SubWCRev.exe $(InputDir) svnTemplate.txt svnBuild.h"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -469,7 +469,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				ExcludedFromBuild="true"
+				CommandLine="SubWCRev.exe $(InputDir) svnTemplate.txt svnBuild.h"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -619,7 +619,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				ExcludedFromBuild="true"
+				CommandLine="SubWCRev.exe $(InputDir) svnTemplate.txt svnBuild.h"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
