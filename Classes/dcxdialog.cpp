@@ -1337,65 +1337,104 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 
 void DcxDialog::parseBorderStyles(const TString &flags, LONG *Styles, LONG *ExStyles) {
-	const UINT len = flags.len();
+	//const UINT len = flags.len();
+
+	//// no +sign, missing params
+	//if (flags[0] != TEXT('+')) 
+	//	return;
+
+	//for (UINT i = 1; i < len; i++)
+	//{
+	//	switch (flags[i])
+	//	{
+	//	case TEXT('b'):
+	//		*Styles |= WS_BORDER;
+	//		break;
+	//	case TEXT('c'):
+	//		*ExStyles |= WS_EX_CLIENTEDGE;
+	//		break;
+	//	case TEXT('d'):
+	//		*Styles |= WS_DLGFRAME;
+	//		break;
+	//	case TEXT('f'):
+	//		*ExStyles |= WS_EX_DLGMODALFRAME;
+	//		break;
+	//	case TEXT('h'):
+	//		*ExStyles |= WS_EX_CONTEXTHELP;
+	//		break;
+	//	case TEXT('m'):
+	//		*Styles |= WS_MAXIMIZEBOX;
+	//		break;
+	//	case TEXT('n'):
+	//		*Styles |= WS_MINIMIZEBOX;
+	//		break;
+	//	case TEXT('o'):
+	//		*ExStyles |= WS_EX_TOOLWINDOW;
+	//		break;
+	//	case TEXT('s'):
+	//		*ExStyles |= WS_EX_STATICEDGE;
+	//		break;
+	//	case TEXT('t'):
+	//		*Styles |= WS_CAPTION;
+	//		break;
+	//	case TEXT('w'):
+	//		*ExStyles |= WS_EX_WINDOWEDGE;
+	//		break;
+	//	case TEXT('y'):
+	//		*Styles |= WS_SYSMENU;
+	//		break;
+	//	case TEXT('z'):
+	//		*Styles |= WS_SIZEBOX;
+	//		break;
+	//	case TEXT('x'):
+	//		*ExStyles |= WS_EX_COMPOSITED;
+	//		break;
+	//	//	WS_EX_COMPOSITED style causes problems for listview control & maybe others, but when it works it looks really cool :)
+	//	//	this improves transparency etc.. on xp+ only, looking into how this affects us.
+	//	case TEXT('v'):
+	//		*ExStyles |= WS_EX_LAYERED;
+	//		break;
+	//	}
+	//}
+
+	XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
-	if (flags[0] != TEXT('+')) 
+	if (!xflags[TEXT('+')]) 
 		return;
 
-	for (UINT i = 1; i < len; i++)
-	{
-		switch (flags[i])
-		{
-		case TEXT('b'):
-			*Styles |= WS_BORDER;
-			break;
-		case TEXT('c'):
-			*ExStyles |= WS_EX_CLIENTEDGE;
-			break;
-		case TEXT('d'):
-			*Styles |= WS_DLGFRAME;
-			break;
-		case TEXT('f'):
-			*ExStyles |= WS_EX_DLGMODALFRAME;
-			break;
-		case TEXT('h'):
-			*ExStyles |= WS_EX_CONTEXTHELP;
-			break;
-		case TEXT('m'):
-			*Styles |= WS_MAXIMIZEBOX;
-			break;
-		case TEXT('n'):
-			*Styles |= WS_MINIMIZEBOX;
-			break;
-		case TEXT('o'):
-			*ExStyles |= WS_EX_TOOLWINDOW;
-			break;
-		case TEXT('s'):
-			*ExStyles |= WS_EX_STATICEDGE;
-			break;
-		case TEXT('t'):
-			*Styles |= WS_CAPTION;
-			break;
-		case TEXT('w'):
-			*ExStyles |= WS_EX_WINDOWEDGE;
-			break;
-		case TEXT('y'):
-			*Styles |= WS_SYSMENU;
-			break;
-		case TEXT('z'):
-			*Styles |= WS_SIZEBOX;
-			break;
-		case TEXT('x'):
-			*ExStyles |= WS_EX_COMPOSITED;
-			break;
-		//	WS_EX_COMPOSITED style causes problems for listview control & maybe others, but when it works it looks really cool :)
-		//	this improves transparency etc.. on xp+ only, looking into how this affects us.
-		case TEXT('v'):
-			*ExStyles |= WS_EX_LAYERED;
-			break;
-		}
-	}
+	if (xflags[TEXT('b')])
+		*Styles |= WS_BORDER;
+	if (xflags[TEXT('c')])
+		*ExStyles |= WS_EX_CLIENTEDGE;
+	if (xflags[TEXT('d')])
+		*Styles |= WS_DLGFRAME;
+	if (xflags[TEXT('f')])
+		*ExStyles |= WS_EX_DLGMODALFRAME;
+	if (xflags[TEXT('h')])
+		*ExStyles |= WS_EX_CONTEXTHELP;
+	if (xflags[TEXT('m')])
+		*Styles |= WS_MAXIMIZEBOX;
+	if (xflags[TEXT('n')])
+		*Styles |= WS_MINIMIZEBOX;
+	if (xflags[TEXT('o')])
+		*ExStyles |= WS_EX_TOOLWINDOW;
+	if (xflags[TEXT('s')])
+		*ExStyles |= WS_EX_STATICEDGE;
+	if (xflags[TEXT('t')])
+		*Styles |= WS_CAPTION;
+	if (xflags[TEXT('w')])
+		*ExStyles |= WS_EX_WINDOWEDGE;
+	if (xflags[TEXT('y')])
+		*Styles |= WS_SYSMENU;
+	if (xflags[TEXT('z')])
+		*Styles |= WS_SIZEBOX;
+	if (xflags[TEXT('x')])
+		*ExStyles |= WS_EX_COMPOSITED;
+	//	WS_EX_COMPOSITED style causes problems for listview control & maybe others, but when it works it looks really cool :)
+	//	this improves transparency etc.. on xp+ only, looking into how this affects us.
+	if (xflags[TEXT('v')])
+		*ExStyles |= WS_EX_LAYERED;
 }
 
 /*!
@@ -1406,45 +1445,69 @@ void DcxDialog::parseBorderStyles(const TString &flags, LONG *Styles, LONG *ExSt
 
 DWORD DcxDialog::getAnimateStyles( const TString &flags) {
 	DWORD Styles = 0;
-	const UINT len = flags.len();
+	//const UINT len = flags.len();
 
-	if (flags[0] != TEXT('+'))
+	//if (flags[0] != TEXT('+'))
+	//	return 0;
+
+	//for (UINT i = 1; i < len; i++)
+	//{
+	//	switch (flags[i])
+	//	{
+	//	case TEXT('s'):
+	//		Styles |= AW_SLIDE;
+	//		break;
+	//	case TEXT('h'):
+	//		Styles |= AW_HIDE;
+	//		break;
+	//	case TEXT('a'):
+	//		Styles |= AW_ACTIVATE;
+	//		break;
+	//	case TEXT('b'):
+	//		Styles |= AW_BLEND;
+	//		break;
+	//	case TEXT('v'):
+	//		Styles |= AW_VER_POSITIVE;
+	//		break;
+	//	case TEXT('u'):
+	//		Styles |= AW_VER_NEGATIVE;
+	//		break;
+	//	case TEXT('c'):
+	//		Styles |= AW_CENTER;
+	//		break;
+	//	case TEXT('o'):
+	//		Styles |= AW_HOR_POSITIVE;
+	//		break;
+	//	case TEXT('n'):
+	//		Styles |= AW_HOR_NEGATIVE;
+	//	default:
+	//		break;
+	//	}
+	//}
+
+	XSwitchFlags xflags(flags);
+
+	if (!xflags[TEXT('+')])
 		return 0;
 
-	for (UINT i = 1; i < len; i++)
-	{
-		switch (flags[i])
-		{
-		case TEXT('s'):
-			Styles |= AW_SLIDE;
-			break;
-		case TEXT('h'):
-			Styles |= AW_HIDE;
-			break;
-		case TEXT('a'):
-			Styles |= AW_ACTIVATE;
-			break;
-		case TEXT('b'):
-			Styles |= AW_BLEND;
-			break;
-		case TEXT('v'):
-			Styles |= AW_VER_POSITIVE;
-			break;
-		case TEXT('u'):
-			Styles |= AW_VER_NEGATIVE;
-			break;
-		case TEXT('c'):
-			Styles |= AW_CENTER;
-			break;
-		case TEXT('o'):
-			Styles |= AW_HOR_POSITIVE;
-			break;
-		case TEXT('n'):
-			Styles |= AW_HOR_NEGATIVE;
-		default:
-			break;
-		}
-	}
+	if (xflags[TEXT('s')])
+		Styles |= AW_SLIDE;
+	if (xflags[TEXT('h')])
+		Styles |= AW_HIDE;
+	if (xflags[TEXT('a')])
+		Styles |= AW_ACTIVATE;
+	if (xflags[TEXT('b')])
+		Styles |= AW_BLEND;
+	if (xflags[TEXT('v')])
+		Styles |= AW_VER_POSITIVE;
+	if (xflags[TEXT('u')])
+		Styles |= AW_VER_NEGATIVE;
+	if (xflags[TEXT('c')])
+		Styles |= AW_CENTER;
+	if (xflags[TEXT('o')])
+		Styles |= AW_HOR_POSITIVE;
+	if (xflags[TEXT('n')])
+		Styles |= AW_HOR_NEGATIVE;
 
 	return Styles;
 }
@@ -1455,61 +1518,105 @@ DWORD DcxDialog::getAnimateStyles( const TString &flags) {
  * blah
  */
 UINT DcxDialog::parseLayoutFlags(const TString &flags) {
-	const UINT len = flags.len();
+	//const UINT len = flags.len();
+	//UINT iFlags = 0;
+
+	//// no +sign, missing params
+	//if (flags[0] != TEXT('+')) 
+	//	return iFlags;
+
+	//for (UINT i = 1; i < len; i++)
+	//{
+	//	if (flags[i] == TEXT('f'))
+	//		iFlags |= LAYOUTFIXED;
+	//	else if (flags[i] == TEXT('h'))
+	//		iFlags |= LAYOUTHORZ;
+	//	else if (flags[i] == TEXT('i'))
+	//		iFlags |= LAYOUTID;
+	//	else if (flags[i] == TEXT('l'))
+	//		iFlags |= LAYOUTFILL ;
+	//	else if (flags[i] == TEXT('p'))
+	//		iFlags |= LAYOUTPANE;
+	//	else if (flags[i] == TEXT('v'))
+	//		iFlags |= LAYOUTVERT;
+	//	else if (flags[i] == TEXT('w'))
+	//		iFlags |= LAYOUTDIM;
+	//}
 	UINT iFlags = 0;
+	XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
-	if (flags[0] != TEXT('+')) 
+	if (!xflags[TEXT('+')]) 
 		return iFlags;
 
-	for (UINT i = 1; i < len; i++)
-	{
-		if (flags[i] == TEXT('f'))
-			iFlags |= LAYOUTFIXED;
-		else if (flags[i] == TEXT('h'))
-			iFlags |= LAYOUTHORZ;
-		else if (flags[i] == TEXT('i'))
-			iFlags |= LAYOUTID;
-		else if (flags[i] == TEXT('l'))
-			iFlags |= LAYOUTFILL ;
-		else if (flags[i] == TEXT('p'))
-			iFlags |= LAYOUTPANE;
-		else if (flags[i] == TEXT('v'))
-			iFlags |= LAYOUTVERT;
-		else if (flags[i] == TEXT('w'))
-			iFlags |= LAYOUTDIM;
-	}
+	if (xflags[TEXT('f')])
+		iFlags |= LAYOUTFIXED;
+	if (xflags[TEXT('h')])
+		iFlags |= LAYOUTHORZ;
+	if (xflags[TEXT('i')])
+		iFlags |= LAYOUTID;
+	if (xflags[TEXT('l')])
+		iFlags |= LAYOUTFILL ;
+	if (xflags[TEXT('p')])
+		iFlags |= LAYOUTPANE;
+	if (xflags[TEXT('v')])
+		iFlags |= LAYOUTVERT;
+	if (xflags[TEXT('w')])
+		iFlags |= LAYOUTDIM;
 
 	return iFlags;
 }
 
 UINT DcxDialog::parseTooltipFlags(const TString &flags) {
-	const UINT len = flags.len();
+//	const UINT len = flags.len();
+//	UINT iFlags = 0;
+//
+//	// no +sign, missing params
+//	if (flags[0] != TEXT('+')) 
+//		return iFlags;
+//
+//	for (UINT i = 1; i < len; i++)
+//	{
+//		if (flags[i] == TEXT('a'))
+//			iFlags |= TTS_ALWAYSTIP;
+//		else if (flags[i] == TEXT('b'))
+//			iFlags |= TTS_BALLOON;
+//		else if (flags[i] == TEXT('c')) // no idea what this does or if it works at all
+//			iFlags |= TTS_CLOSE;
+//		else if (flags[i] == TEXT('f'))
+//			iFlags |= TTS_NOFADE;
+//		else if (flags[i] == TEXT('p'))
+//			iFlags |= TTS_NOPREFIX;
+//		else if (flags[i] == TEXT('s'))
+//			iFlags |= TTS_NOANIMATE;
+//#if DCX_USE_WINSDK && WINVER >= 0x600
+//		else if (flags[i] == TEXT('t'))
+//			iFlags |= TTS_USEVISUALSTYLE;
+//#endif
+//	}
 	UINT iFlags = 0;
+	XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
-	if (flags[0] != TEXT('+')) 
+	if (!xflags[TEXT('+')])
 		return iFlags;
 
-	for (UINT i = 1; i < len; i++)
-	{
-		if (flags[i] == TEXT('a'))
-			iFlags |= TTS_ALWAYSTIP;
-		else if (flags[i] == TEXT('b'))
-			iFlags |= TTS_BALLOON;
-		else if (flags[i] == TEXT('c')) // no idea what this does or if it works at all
-			iFlags |= TTS_CLOSE;
-		else if (flags[i] == TEXT('f'))
-			iFlags |= TTS_NOFADE;
-		else if (flags[i] == TEXT('p'))
-			iFlags |= TTS_NOPREFIX;
-		else if (flags[i] == TEXT('s'))
-			iFlags |= TTS_NOANIMATE;
+	if (xflags[TEXT('a')])
+		iFlags |= TTS_ALWAYSTIP;
+	if (xflags[TEXT('b')])
+		iFlags |= TTS_BALLOON;
+	if (xflags[TEXT('c')]) // no idea what this does or if it works at all
+		iFlags |= TTS_CLOSE;
+	if (xflags[TEXT('f')])
+		iFlags |= TTS_NOFADE;
+	if (xflags[TEXT('p')])
+		iFlags |= TTS_NOPREFIX;
+	if (xflags[TEXT('s')])
+		iFlags |= TTS_NOANIMATE;
 #if DCX_USE_WINSDK && WINVER >= 0x600
-		else if (flags[i] == TEXT('t'))
-			iFlags |= TTS_USEVISUALSTYLE;
+	if (xflags[TEXT('t')])
+		iFlags |= TTS_USEVISUALSTYLE;
 #endif
-	}
 
 	return iFlags;
 }
@@ -1591,28 +1698,47 @@ UINT DcxDialog::parseBkgFlags(const TString &flags) {
  */
 
 UINT DcxDialog::parseFlashFlags(const TString &flags) {
-	const UINT len = flags.len();
+	//const UINT len = flags.len();
+	//UINT iFlags = 0;
+
+	//// no +sign, missing params
+	//if (flags[0] != TEXT('+')) 
+	//	return iFlags;
+
+	//for (UINT i = 1; i < len; i++)
+	//{
+	//	if (flags[i] == TEXT('a'))
+	//		iFlags |= FLASHW_ALL;
+	//	else if (flags[i] == TEXT('c'))
+	//		iFlags |= FLASHW_CAPTION;
+	//	else if (flags[i] == TEXT('f'))
+	//		iFlags |= FLASHW_TIMERNOFG;
+	//	else if (flags[i] == TEXT('r'))
+	//		iFlags |= FLASHW_TRAY;
+	//	else if (flags[i] == TEXT('s'))
+	//		iFlags |= FLASHW_STOP;
+	//	else if (flags[i] == TEXT('t'))
+	//		iFlags |= FLASHW_TIMER;
+	//}
 	UINT iFlags = 0;
+	XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
-	if (flags[0] != TEXT('+')) 
+	if (!xflags[TEXT('+')])
 		return iFlags;
 
-	for (UINT i = 1; i < len; i++)
-	{
-		if (flags[i] == TEXT('a'))
-			iFlags |= FLASHW_ALL;
-		else if (flags[i] == TEXT('c'))
-			iFlags |= FLASHW_CAPTION;
-		else if (flags[i] == TEXT('f'))
-			iFlags |= FLASHW_TIMERNOFG;
-		else if (flags[i] == TEXT('r'))
-			iFlags |= FLASHW_TRAY;
-		else if (flags[i] == TEXT('s'))
-			iFlags |= FLASHW_STOP;
-		else if (flags[i] == TEXT('t'))
-			iFlags |= FLASHW_TIMER;
-	}
+	if (xflags[TEXT('a')])
+		iFlags |= FLASHW_ALL;
+	if (xflags[TEXT('c')])
+		iFlags |= FLASHW_CAPTION;
+	if (xflags[TEXT('f')])
+		iFlags |= FLASHW_TIMERNOFG;
+	if (xflags[TEXT('r')])
+		iFlags |= FLASHW_TRAY;
+	if (xflags[TEXT('s')])
+		iFlags |= FLASHW_STOP;
+	if (xflags[TEXT('t')])
+		iFlags |= FLASHW_TIMER;
 
 	return iFlags;
 }
@@ -1624,20 +1750,31 @@ UINT DcxDialog::parseFlashFlags(const TString &flags) {
  */
 
 UINT DcxDialog::parseCursorFlags(const TString &flags) {
-	const UINT len = flags.len();
+	//const UINT len = flags.len();
+	//UINT iFlags = 0;
+
+	//// no +sign, missing params
+	//if (flags[0] != TEXT('+')) 
+	//	return iFlags;
+
+	//for (UINT i = 1; i < len; i++)
+	//{
+	//	if (flags[i] == TEXT('f'))
+	//		iFlags |= DCCS_FROMFILE;
+	//	else if (flags[i] == TEXT('r'))
+	//		iFlags |= DCCS_FROMRESSOURCE;
+	//}
 	UINT iFlags = 0;
+	XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
-	if (flags[0] != TEXT('+')) 
+	if (!xflags[TEXT('+')])
 		return iFlags;
 
-	for (UINT i = 1; i < len; i++)
-	{
-		if (flags[i] == TEXT('f'))
-			iFlags |= DCCS_FROMFILE;
-		else if (flags[i] == TEXT('r'))
-			iFlags |= DCCS_FROMRESSOURCE;
-	}
+	if (xflags[TEXT('f')])
+		iFlags |= DCCS_FROMFILE;
+	if (xflags[TEXT('r')])
+		iFlags |= DCCS_FROMRESSOURCE;
 
 	return iFlags;
 }
