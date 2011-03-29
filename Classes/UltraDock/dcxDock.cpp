@@ -12,9 +12,6 @@
 // statusbar stuff
 HWND DcxDock::g_StatusBar = NULL;
 HIMAGELIST DcxDock::g_hImageList = NULL;
-#if !UNICODE
-bool DcxDock::g_bUseUTF8 = false;
-#endif
 INT DcxDock::g_iDynamicParts[256] = { 0 };
 INT DcxDock::g_iFixedParts[256] = { 0 };
 HFONT DcxDock::g_StatusFont = NULL;
@@ -149,7 +146,7 @@ void DcxDock::UnDockAll(void)
 			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
 			SetWindowLong(ud->hwnd,GWL_STYLE, ud->old_styles);
 			SetWindowLong(ud->hwnd,GWL_EXSTYLE, ud->old_exstyles);
-		  RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
+			RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
 			SetParent(ud->hwnd, NULL);
 			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED|SWP_NOACTIVATE);
 			delete ud;
@@ -228,7 +225,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 	xleftoffset = wp->x;
 	xrightoffset = wp->x + refw;
 
-  HDWP hdwp = BeginDeferWindowPos(nWin);
+	HDWP hdwp = BeginDeferWindowPos(nWin);
 	HDWP tmp;
 
 	// size docks
@@ -376,17 +373,16 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				LPTVINSERTSTRUCT pTvis = (LPTVINSERTSTRUCT)lParam;
 				if (pTvis->itemex.mask & TVIF_TEXT) {
 					TString buf;
-					int i = 0;
 					DcxDock::getTreebarItemType(buf, pTvis->itemex.lParam);
 					Dcx::mIRC.execex(TEXT("/!set -nu1 %%dcx_%d %s"), pTvis->itemex.lParam, pTvis->itemex.pszText );
 					Dcx::mIRC.tsEvalex(buf, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), buf.to_chr(), pTvis->itemex.lParam);
-					i = buf.gettok( 1 ).to_int() -1;
+					int i = buf.gettok( 1 ).to_int() -1;
 					if (i < 0)
-						i = 0;
+						i = I_IMAGENONE; //0;
 					pTvis->itemex.iImage = i;
 					i = buf.gettok( 2 ).to_int() -1;
 					if (i < 0)
-						i = 0;
+						i = I_IMAGENONE; //0;
 					pTvis->itemex.iSelectedImage = i;
 					pTvis->itemex.mask |= TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 				}
@@ -431,7 +427,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					WINDOWPOS * wp = (WINDOWPOS *) lParam;
 					if ((wp->flags & SWP_NOSIZE) && (wp->flags & SWP_NOMOVE))
 						break;
-					int pos = DcxDock::getPos(wp->x, wp->y, wp->cx, wp->cy);
+					const int pos = DcxDock::getPos(wp->x, wp->y, wp->cx, wp->cy);
 					if (pos == 3) // if at top then ignore it.
 						break;
 					RECT rc;
@@ -494,12 +490,12 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 												//		DcxDock::getTreebarChildState(hItem, &tvi);
 												//	}
 												//}
-												int wid = HIWORD(lpntvcd->nmcd.lItemlParam);
+												const int wid = HIWORD(lpntvcd->nmcd.lItemlParam);
 												TString buf;
 												Dcx::mIRC.tsEvalex(buf, TEXT("$window(@%d).sbcolor"), wid);
 												if (buf.len() > 0) {
 													static const TString sbcolor(TEXT("s s message s event s highlight")); // 's' is used as a spacer.
-													int clr = sbcolor.findtok(buf.to_chr(), 1);
+													const int clr = sbcolor.findtok(buf.to_chr(), 1);
 													if (clr == 0) // no match, do normal colours
 														break;
 													if (DcxDock::g_clrTreebarColours[clr-1] != CLR_INVALID) // text colour
@@ -554,7 +550,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					if (hdr->hwndFrom != DcxDock::g_StatusBar)
 						break;
 
-					int idPart = ((LPNMMOUSE)hdr)->dwItemSpec +1;
+					const int idPart = ((LPNMMOUSE)hdr)->dwItemSpec +1;
 
 					switch( hdr->code ) {
 						case NM_CLICK:
@@ -599,11 +595,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 							rc.left += (ii.rcImage.right - ii.rcImage.left) +5;
 						}
 						if (pPart->m_Text.len() > 0)
-#if UNICODE
 							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
-#else
-							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false, pthis->g_bUseUTF8);
-#endif
 						else if (IsWindow(pPart->m_Child)) {
 							SetWindowPos(pPart->m_Child, NULL, rc.left, rc.top,
 								(rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
@@ -650,9 +642,6 @@ bool DcxDock::InitStatusbar(const TString &styles)
 
 	ZeroMemory(DcxDock::g_iDynamicParts, sizeof(DcxDock::g_iDynamicParts));
 	ZeroMemory(DcxDock::g_iFixedParts, sizeof(DcxDock::g_iFixedParts));
-#if !UNICODE
-	DcxDock::g_bUseUTF8 = false;
-#endif
 
 	DcxDock::status_parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
@@ -707,10 +696,10 @@ bool DcxDock::IsStatusbar(void)
 
 void DcxDock::status_parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	unsigned int i = 1, numtok = styles.numtok( );
+	const unsigned int numtok = styles.numtok( );
 	*Styles = WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS;
 
-	while ( i <= numtok ) {
+	for (unsigned int i = 1; i <= numtok; i++ ) {
 
 		if ( styles.gettok( i ) == TEXT("grip") )
 			*Styles |= SBARS_SIZEGRIP;
@@ -724,11 +713,6 @@ void DcxDock::status_parseControlStyles( const TString & styles, LONG * Styles, 
 			*Styles |= WS_DISABLED;
 		else if ( styles.gettok( i ) == TEXT("transparent") )
 			*ExStyles |= WS_EX_TRANSPARENT;
-#if !UNICODE
-		else if ( styles.gettok( i ) == TEXT("utf8") )
-			DcxDock::g_bUseUTF8 = true;
-#endif
-		i++;
 	}
 }
 
@@ -826,13 +810,14 @@ HIMAGELIST DcxDock::status_createImageList( ) {
 
 UINT DcxDock::status_parseItemFlags( const TString & flags ) {
 
-	INT i = 1, len = flags.len( ), iFlags = 0;
+	UINT len = flags.len( ), iFlags = 0;
 
 	// no +sign, missing params
 	if ( flags[0] != TEXT('+') ) 
 		return iFlags;
 
-	while ( i < len ) {
+	for (UINT i = 1; i < len; i++ )
+	{
 		switch(flags[i])
 		{
 		case TEXT('n'):
@@ -845,19 +830,14 @@ UINT DcxDock::status_parseItemFlags( const TString & flags ) {
 			iFlags |= SBT_OWNERDRAW;
 			break;
 		}
-
-		++i;
 	}
 	return iFlags;
 }
 
 void DcxDock::status_cleanPartIcons( ) {
 
-	int n = 0;
-	while ( n < 256 ) {
+	for (int n = 0; n < 256; n++ )
 		DestroyIcon( (HICON) DcxDock::status_getIcon( n ) );
-		n++;
-	}
 }
 
 LRESULT DcxDock::status_getBorders( LPINT aWidths ) {
@@ -865,7 +845,7 @@ LRESULT DcxDock::status_getBorders( LPINT aWidths ) {
 }
 
 void DcxDock::status_updateParts(void) {
-	int nParts = DcxDock::status_getParts(0,NULL);
+	const int nParts = DcxDock::status_getParts(0,NULL);
 
 	if (nParts <= 0)
 		return;
@@ -879,7 +859,7 @@ void DcxDock::status_updateParts(void) {
 
 	//DcxDock::status_getBorders(borders);
 
-	int w = (rcClient.right - rcClient.left) / 100; // - (2 * borders[1]);
+	const int w = (rcClient.right - rcClient.left) / 100; // - (2 * borders[1]);
 
 	for (int i = 0; i < nParts; i++) {
 		int pw;
@@ -927,7 +907,7 @@ int DcxDock::getPos(const int x, const int y, const int w, const int h)
 
 void DcxDock::getTreebarItemType(TString &tsType, const LPARAM lParam)
 {
-	int wid = HIWORD(lParam);
+	const int wid = HIWORD(lParam);
 	switch (wid)
 	{
 	case 15000: // channel folder

@@ -1522,7 +1522,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		// determine overlay index
 		if (tflags.find(TEXT('o'),0)) {
 			// overlay id offset
-			int io = tflags.find(TEXT('o'),1) +1;
+			const int io = tflags.find(TEXT('o'),1) +1;
 			overlayindex = tflags.mid(io, (tflags.len() - io)).to_int();
 
 			if (overlayindex < 1 || overlayindex > 15) {

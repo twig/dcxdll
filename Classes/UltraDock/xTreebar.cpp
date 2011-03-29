@@ -26,11 +26,11 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 			pitem->mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 			int i = res.gettok( 1 ).to_int() -1;
 			if (i < 0)
-				i = 0;
+				i = I_IMAGENONE; //0;
 			pitem->iImage = i;
 			i = res.gettok( 2 ).to_int() -1;
 			if (i < 0)
-				i = 0;
+				i = I_IMAGENONE; //0;
 			pitem->iSelectedImage = i;
 			TreeView_SetItem(Dcx::mIRC.getTreeview(), pitem);
 		}
@@ -61,11 +61,11 @@ void TraverseTreebarItems(void)
 			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 			int i = res.gettok( 1 ).to_int() -1;
 			if (i < 0)
-				i = 0;
+				i = I_IMAGENONE; //0;
 			item.iImage = i;
 			i = res.gettok( 2 ).to_int() -1;
 			if (i < 0)
-				i = 0;
+				i = I_IMAGENONE; //0;
 			item.iSelectedImage = i;
 			TreeView_SetItem(Dcx::mIRC.getTreeview(), &item);
 		}
