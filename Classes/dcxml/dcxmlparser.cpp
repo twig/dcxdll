@@ -599,13 +599,6 @@ void DcxmlParser::parseIcons(int depth) {
 		else
 			icon = NULL;
 		if (icon != NULL) {
-			//temp = icon->Attribute("flags");
-			//const char *flags = (temp != NULL) ? temp : "ndhs";
-			//temp = icon->Attribute("index");
-			//const char *index = (temp != NULL) ? temp : "0";
-			//const char *src = icon->Attribute("src");
-			//int indexmin = (icon->QueryIntAttribute("indexmin",&indexmin) == TIXML_SUCCESS) ? indexmin : 0;
-			//int indexmax = (icon->QueryIntAttribute("indexmax",&indexmax) == TIXML_SUCCESS) ? indexmax : -1;
 			const char *flags = this->queryAttribute(icon, "flags", "n");
 			const char *index = this->queryAttribute(icon, "index", "0");
 			const char *src = icon->Attribute("src");
@@ -718,15 +711,15 @@ void DcxmlParser::parseTemplate(int dialogDepth,const char *claPath,const int pa
 }
 /* parseDialog(recursionDepth,claPath,firstFreeControlId,ignoreParentFlag) : finds a template and parses it into the current dialog */
 void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,const int ignoreParent) { 
-	const TiXmlElement* child = NULL;
 	int control = 0, cCla = 0, cell = 0;
 	g_claPath = NULL;
 	g_claPathx = NULL;
 	g_resetcla = 0;
-	for( child = this->element->FirstChildElement(); child != NULL; child = child->NextSiblingElement() ) {
+	for( const TiXmlElement* child = this->element->FirstChildElement(); child != NULL; child = child->NextSiblingElement() ) {
 		cell++;
 		//STEP 1: SET ELEMENT AND PARENTELEMENT
-		if (!ignoreParent) this->parent = child->Parent()->ToElement();
+		if (!ignoreParent)
+			this->parent = child->Parent()->ToElement();
 		this->element = child->ToElement();
 
 		//STEP 2: PARSE ATTRIBUTES OF ELEMENTS
@@ -842,7 +835,7 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 		}
 		//Set CLA for control or pane
 		g_claPath = claPath;
-		TString claPathx(this->parseCLA(cCla));
+		const TString claPathx(this->parseCLA(cCla));
 
 		//Perform some control specific commands
 		if (0==lstrcmpA(elem, "control")) {
@@ -860,21 +853,11 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 // NB: never returns a ZERO, other code relies on this.
 int DcxmlParser::mIRCEvalToUnsignedInt (const char *value)
 {
-#if UNICODE
+	//Todo: method returns -1 for failure which odd for a *ToUnsignedInt method.
 	TString buf(value);
 	__int64 id;
 	Dcx::mIRC.iEval(&id, buf.to_chr());
 	return (int)((id > 0) ? id : -1);
-#else
-	//Todo: method returns -1 for failure which odd for a *ToUnsignedInt method.
-	//TString buf;
-	//Dcx::mIRC.tsEval(buf, value);
-	//int id = buf.to_int();
-	//return (id > 0) ? id : -1;
-	__int64 id;
-	Dcx::mIRC.iEval(&id, value);
-	return (int)((id > 0) ? id : -1);
-#endif
 }
 void DcxmlParser::registerId(const TiXmlElement *idElement,const int id)
 {

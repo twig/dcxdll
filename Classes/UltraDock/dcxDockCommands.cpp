@@ -45,7 +45,7 @@ BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam)
 }
 BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 {
-	DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
+	const DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
 	HWND hParent = GetParent(hwnd);
 	if (flags && flags != DOCKF_NORMAL) {
 		RECT rcParent, rcThis;
@@ -208,32 +208,46 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 			return false;
 		}
 	}
+	//DWORD flags = DOCKF_NORMAL;
+	//if (flag.len() > 1) {
+	//	switch(flag[1])
+	//	{
+	//		case TEXT('s'):
+	//			flags = DOCKF_SIZE;
+	//			break;
+
+	//		case TEXT('h'):
+	//			flags = DOCKF_AUTOH;
+	//			break;
+
+	//		case TEXT('v'):
+	//			flags = DOCKF_AUTOV;
+	//			break;
+
+	//		default:
+	//			flags = DOCKF_NORMAL;
+	//			break;
+	//	}
+	//	if (flag.find(TEXT('b'),0))
+	//		flags |= DOCKF_NOSCROLLBARS;
+	//	else if (flag.find(TEXT('B'),0))
+	//		flags |= DOCKF_SHOWSCROLLBARS;
+	//}
 	DWORD flags = DOCKF_NORMAL;
+	XSwitchFlags xflags(flag);
+	if (xflags[TEXT('s')])
+		flags = DOCKF_SIZE;
 
-	if (flag.len() > 1) {
-		switch(flag[1])
-		{
-			case TEXT('s'):
-				flags = DOCKF_SIZE;
-				break;
+	if (xflags[TEXT('h')])
+		flags = DOCKF_AUTOH;
 
-			case TEXT('h'):
-				flags = DOCKF_AUTOH;
-				break;
+	if (xflags[TEXT('v')])
+		flags = DOCKF_AUTOV;
 
-			case TEXT('v'):
-				flags = DOCKF_AUTOV;
-				break;
-
-			default:
-				flags = DOCKF_NORMAL;
-				break;
-		}
-		if (flag.find(TEXT('b'),0))
-			flags |= DOCKF_NOSCROLLBARS;
-		else if (flag.find(TEXT('B'),0))
-			flags |= DOCKF_SHOWSCROLLBARS;
-	}
+	if (xflags[TEXT('b')])
+		flags |= DOCKF_NOSCROLLBARS;
+	if (xflags[TEXT('B')])
+		flags |= DOCKF_SHOWSCROLLBARS;
 
 	SetProp(temp,TEXT("dcx_docked"),(HANDLE) flags);
 	//ShowScrollBar(sWnd,SB_BOTH,FALSE);
@@ -252,29 +266,20 @@ mIRC(xdock) {
 	input.trim();
 	data[0] = 0;
 
-#ifdef UNICODE
 #ifdef DEBUG
 	if (Dcx::mIRC.getMainVersion() == 7) {
 		DCX_DEBUG(Dcx::debug,TEXT("xdock"), TEXT("mIRC V7 detected..."));
 	}
 #endif
-#else
-	if (Dcx::mIRC.getMainVersion() == 7) {
-		DCX_DEBUG(Dcx::debug,TEXT("xdock"), TEXT("mIRC V7 detected..."));
-		DCX_DEBUG(Dcx::debug,TEXT("xdock"), TEXT("Can't do any window mods etc.."));
-		Dcx::error(TEXT("/xdock"),TEXT("Can't be used in mIRC V7"));
-		return 0;
-	}
-#endif
 
-	int numtok = input.numtok( );
+	const int numtok = input.numtok( );
 
 	if (numtok < 1) {
 		Dcx::error(TEXT("/xdock"),TEXT("Invalid Parameters"));
 		return 0;
 	}
 
-	TString switches(input.gettok( 1 ));
+	const TString switches(input.gettok( 1 ));
 
 	// update mirc
 	// /xdock -p
@@ -337,9 +342,9 @@ mIRC(xdock) {
 		return 0;
 	}
 
-	TString flags(input.gettok( 3 ));
+	const TString flags(input.gettok( 3 ));
 
-   if ((numtok > 2) && (flags[0] != TEXT('+'))) {
+	if ((numtok > 2) && (flags[0] != TEXT('+'))) {
 		Dcx::error(TEXT("/xdock"),TEXT("Invalid flag format"));
 		return 0;
 	}
@@ -404,8 +409,8 @@ mIRC(xdock) {
 	// resize docked window
 	// [-r] [hwnd to dock] [+options] [W] [H]
 	else if ((switches[1] == TEXT('r')) && (numtok > 4)) {
-		int w = input.gettok( 4 ).to_int();
-		int h = input.gettok( 5 ).to_int();
+		const int w = input.gettok( 4 ).to_int();
+		const int h = input.gettok( 5 ).to_int();
 
 		LPDCXULTRADOCK ud = GetUltraDock(dockHwnd);
 		DWORD dflags = 0;
@@ -483,7 +488,7 @@ mIRC(_xdock)
 
 	if (d.gettok( 1 ) == TEXT("mIRC")) {
 		static const TString poslist(TEXT("switchBarPos toolBarPos treeBarPos switchBarSize toolBarSize treeBarSize isSwitchBar isToolBar isTreeBar isMenuBar text switchBarHwnd toolBarHwnd treeBarHwnd"));
-		int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
+		const int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
 		switch (nType)
 		{
 		case 1: // switchBarPos
@@ -602,7 +607,7 @@ mIRC(_xdock)
 
 		if (IsWindow(hwnd)) {
 			static const TString poslist(TEXT("isDocked hasDocked isAutoV isAutoH isAutoS dockSide text"));
-			int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
+			const int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
 			switch (nType)
 			{
 			case 1: // isDocked
@@ -623,7 +628,7 @@ mIRC(_xdock)
 				break;
 			case 3: // isAutoV
 				{
-					DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
+					const DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
 					if (flags == DOCKF_AUTOV)
 						lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 					else
@@ -632,7 +637,7 @@ mIRC(_xdock)
 				break;
 			case 4: // isAutoH
 				{
-					DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
+					const DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
 					if (flags == DOCKF_AUTOH)
 						lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 					else
@@ -641,7 +646,7 @@ mIRC(_xdock)
 				break;
 			case 5: // isAutoS
 				{
-					DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
+					const DWORD flags = (DWORD)GetProp(hwnd,TEXT("dcx_docked"));
 					if (flags == DOCKF_SIZE)
 						lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 					else
