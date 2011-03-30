@@ -55,7 +55,6 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	if (flags[TEXT('M')]) {
 		// Set alias.
 		if (numtok > 1) {
-			TString result((UINT) 100);
 			const TString alias(input.gettok(2));
 
 			// Check if alias is valid.
@@ -143,7 +142,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		if (!validateMenu(p_Menu, TEXT("-l"), menuName))
 			return;
 
-		int offset = this->findMenuOffset(menuBar, p_Menu);
+		const int offset = this->findMenuOffset(menuBar, p_Menu);
 
 		if (offset < 0) {
 			Dcx::errorex(TEXT("-l"), TEXT("\"%s\" menu not found in XMenuBar."), p_Menu->getName().to_chr());
@@ -210,7 +209,7 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *szReturnValue) con
 /*
  * Adds the menu to the current menubar.
  */
-bool XMenuBar::addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, TString label) {
+bool XMenuBar::addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, const TString &label) {
 	m_vpXMenuBar.push_back(p_Menu);
 	return (AppendMenu(menubar, MF_POPUP, (UINT_PTR) p_Menu->getMenuHandle(), label.to_chr()) != 0);
 }

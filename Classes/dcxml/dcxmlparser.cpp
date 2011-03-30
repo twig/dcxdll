@@ -265,9 +265,9 @@ void DcxmlParser::parseControl() {
 	}
 	//        padding = (temp = element->Attribute("padding")) ? temp : "0 0 0 0";
 
-	if (0==lstrcmpA(parenttype, "divider")) {
-		xdidEX(parentid,TEXT("-v"),TEXT("%d"),this->queryIntAttribute(element, "width", 100));
-	}
+	if (0==lstrcmpA(parenttype, "divider"))
+		xdidEX(parentid,TEXT("-v"),TEXT("%d"),this->queryIntAttribute(element, "width", 0));
+		//xdidEX(parentid,TEXT("-v"),TEXT("%d"),this->queryIntAttribute(element, "width", 100));
 	if (((0==lstrcmpA(type, "toolbar")) || (0==lstrcmpA(type, "button"))) || (0==lstrcmpA(type, "treeview")))
 			xdidEX(id,TEXT("-l"),TEXT("%S"),iconsize);
 	if ((0==lstrcmpA(type, "toolbar")) || (0==lstrcmpA(type, "treeview")) || (0==lstrcmpA(type, "comboex")) || (0==lstrcmpA(type, "list")) || (0==lstrcmpA(type, "listview")))

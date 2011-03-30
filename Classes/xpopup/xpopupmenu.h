@@ -127,7 +127,7 @@ public:
 	void deleteMenuItemData( XPopupMenuItem * p_Item, LPMENUITEMINFO mii = NULL);
 	void deleteAllItemData( HMENU hMenu );
 
-	TString getName( ) const;
+	const TString &getName( ) const;
 
 	HMENU getMenuHandle( ) const { return this->m_hMenu; };
 
@@ -150,16 +150,16 @@ public:
 
 	bool IsRounded(void) const { return this->m_bRoundedSel; };
 	BYTE IsAlpha(void) const { return this->m_uiAlpha; };
-	void SetRounded(bool rounded) { this->m_bRoundedSel = rounded; };
-	void SetAlpha(BYTE alpha) { this->m_uiAlpha = alpha; };
+	void SetRounded(const bool rounded) { this->m_bRoundedSel = rounded; };
+	void SetAlpha(const BYTE alpha) { this->m_uiAlpha = alpha; };
 
 	// Methods to attach and detach from mIRC menu.
-	bool attachToMenuBar(HMENU menubar, TString label);
+	bool attachToMenuBar(HMENU menubar, const TString &label);
 	void detachFromMenuBar(HMENU menubar);
 
 	// Methods to access marked text.
-	void setMarkedText(TString text);
-	TString getMarkedText() const;
+	void setMarkedText(const TString &text);
+	const TString &getMarkedText() const;
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 

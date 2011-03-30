@@ -26,7 +26,7 @@ WNDPROC XPopupMenuManager::g_OldmIRCMenusWindowProc = NULL;
  */
 
 XPopupMenuManager::XPopupMenuManager()
-: m_bPatched(false)
+//: m_bPatched(false)
 {
 }
 
@@ -143,11 +143,10 @@ void XPopupMenuManager::unload(void)
 
 LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
-	LRESULT lRes;
 	HMENU menu = (HMENU)wParam;
-	bool isWinMenu = HIWORD(lParam) == TRUE ? true : false;
+	const bool isWinMenu = HIWORD(lParam) == TRUE ? true : false;
 	HMENU currentMenubar = GetMenu(Dcx::mIRC.getHWND());
-	bool switchMenu = (g_mIRCScriptMenu != NULL) &&                  // The mIRC scriptpopup menu has been wrapped,
+	const bool switchMenu = (g_mIRCScriptMenu != NULL) &&                  // The mIRC scriptpopup menu has been wrapped,
 		              (menu == g_mIRCScriptMenu->getMenuHandle()) && // The menu the same as the one just shown,
 					  (currentMenubar != g_OriginalMenuBar) &&       // The menubar is our generated menubar,
 					  (g_OriginalMenuBar != NULL);                   // And ensure it has been generated.
@@ -157,7 +156,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 			SetMenu(Dcx::mIRC.getHWND(), g_OriginalMenuBar);
 
 		// let mIRC populate the menus dynamically
-		lRes = Dcx::mIRC.callDefaultWindowProc(mHwnd, WM_INITMENUPOPUP, wParam, lParam);
+		LRESULT lRes = Dcx::mIRC.callDefaultWindowProc(mHwnd, WM_INITMENUPOPUP, wParam, lParam);
 
 		if (switchMenu)
 			SetMenu(Dcx::mIRC.getHWND(), currentMenubar);
@@ -329,13 +328,10 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 	// xpopup -i -> [MENU] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if ( flags[TEXT('i')] && numtok > 4 ) {
 		HIMAGELIST himl = p_Menu->getImageList( );
-		HICON icon;
-		int index;
-
-		index = input.gettok( 4 ).to_int( );
+		const int index = input.gettok( 4 ).to_int( );
 		TString filename(input.gettok( 5, -1 ));
 		if (IsFile(filename)) {
-			icon = dcxLoadIcon(index, filename, false, input.gettok( 3 ));
+			const HICON icon = dcxLoadIcon(index, filename, false, input.gettok( 3 ));
 			if (icon != NULL) {
 				ImageList_AddIcon( himl, icon );
 				DestroyIcon( icon );
@@ -363,11 +359,12 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 	}
 	// xpopup -m -> mirc -m
 	else if ( flags[TEXT('m')] && numtok == 2 && input.gettok( 1 ) == TEXT("mirc")) {
-		if (!this->m_bPatched && Dcx::mIRC.isVersion(6,20)) {
-			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), TEXT("User32.dll"), "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
-			XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), TEXT("User32.dll"), "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
-			this->m_bPatched = true;
-		}
+		// do nothing in utf dll as this dll is mirc v7+ only.
+		//if (!this->m_bPatched && Dcx::mIRC.isVersion(6,20)) {
+		//	XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), TEXT("User32.dll"), "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
+		//	XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), TEXT("User32.dll"), "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
+		//	this->m_bPatched = true;
+		//}
 	}
 	// xpopup -M -> [MENU] [SWITCH] (TEXT)
 	else if (flags[TEXT('M')]) {
@@ -434,28 +431,17 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 	// xpopup -x -> [MENU] [SWITCH] [+FLAGS]
 	else if ( flags[TEXT('x')] && numtok > 2 ) {
 
-		const TString flag(input.gettok( 3 ));
+		const XSwitchFlags xflags(input.gettok( 3 ));
 
-		if ( flag[0] == TEXT('+') ) {
-
+		if ( xflags[TEXT('+')] )
+		{
 			UINT iStyles = 0;
-			const UINT len = (int)flag.len( );
-			for (UINT i = 1; i <= len; i++ )
-			{
-				switch (flag[i]) {
-					case TEXT('i'):
-						iStyles |= XPS_ICON3D;
-						break;
-					case TEXT('d'):
-						iStyles |= XPS_DISABLEDSEL;
-						break;
-					case TEXT('p'):
-						iStyles |= XPS_ICON3DSHADOW;
-						break;
-					default:
-						break;
-				}
-			}
+			if (xflags[TEXT('i')])
+				iStyles |= XPS_ICON3D;
+			if (xflags[TEXT('d')])
+				iStyles |= XPS_DISABLEDSEL;
+			if (xflags[TEXT('p')])
+				iStyles |= XPS_ICON3DSHADOW;
 
 			p_Menu->setItemStyle( iStyles );
 		}
@@ -463,27 +449,17 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 	// xpopup -R -> [MENU] [SWITCH] [+FLAGS] (FLAG OPTIONS)
 	else if ( flags[TEXT('R')] && numtok > 2 ) {
 
-		const TString flag(input.gettok( 3 ));
+		const XSwitchFlags xflags(input.gettok( 3 ));
 
-		if ( flag[0] == TEXT('+') ) {
-			switch (flag[1]) {
-				case TEXT('r'): // Set Rounded Selector on/off
-					{
-						p_Menu->SetRounded(((input.gettok( 4 ).to_int() > 0) ? true : false));
-					}
-					break;
-				case TEXT('a'): // Set Alpha value of menu. 0-255
-					{
-						BYTE alpha = (BYTE)(input.gettok( 4 ).to_int() & 0xFF);
+		if ( xflags[TEXT('+')] )
+		{
+			if (xflags[TEXT('r')]) // Set Rounded Selector on/off
+					p_Menu->SetRounded(((input.gettok( 4 ).to_int() > 0) ? true : false));
+			if (xflags[TEXT('a')]) // Set Alpha value of menu. 0-255
+			{
+				const BYTE alpha = (BYTE)(input.gettok( 4 ).to_int() & 0xFF);
 
-						if (alpha > 255)
-							alpha = 255;
-
-						p_Menu->SetAlpha(alpha);
-					}
-					break;
-				default:
-					break;
+				p_Menu->SetAlpha(alpha);
 			}
 		}
 	}
@@ -813,155 +789,140 @@ bool XPopupMenuManager::isMenuBarMenu(const HMENU hMenu, const HMENU hMatch) {
 UINT XPopupMenuManager::parseTrackFlags( const TString & flags ) {
 
 	UINT iFlags = 0;
+	const XSwitchFlags xflags(flags);
 
-	if ( flags[0] == TEXT('+') ) {
+	if ( xflags[TEXT('+')] )
+		return 0;
 
-		int len = (int)flags.len( );
-
-		for (int i = 1; i < len; i++ )
-		{
-			switch (flags[i])
-			{
-			case TEXT('b'):
-				iFlags |= TPM_BOTTOMALIGN;
-				break;
-			case TEXT('c'):
-				iFlags |= TPM_CENTERALIGN;
-				break;
-			case TEXT('l'):
-				iFlags |= TPM_LEFTALIGN;
-				break;
-			case TEXT('m'):
-				iFlags |= TPM_LEFTBUTTON;
-				break;
-			case TEXT('n'):
-				iFlags |= TPM_RIGHTBUTTON;
-				break;
-			case TEXT('r'):
-				iFlags |= TPM_RIGHTALIGN;
-				break;
-			case TEXT('t'):
-				iFlags |= TPM_TOPALIGN;
-				break;
-			case TEXT('v'):
-				iFlags |= TPM_VCENTERALIGN;
-				break;
-			}
-		}
-	}
+	if (xflags[TEXT('b')])
+		iFlags |= TPM_BOTTOMALIGN;
+	if (xflags[TEXT('c')])
+		iFlags |= TPM_CENTERALIGN;
+	if (xflags[TEXT('l')])
+		iFlags |= TPM_LEFTALIGN;
+	if (xflags[TEXT('m')])
+		iFlags |= TPM_LEFTBUTTON;
+	if (xflags[TEXT('n')])
+		iFlags |= TPM_RIGHTBUTTON;
+	if (xflags[TEXT('r')])
+		iFlags |= TPM_RIGHTALIGN;
+	if (xflags[TEXT('t')])
+		iFlags |= TPM_TOPALIGN;
+	if (xflags[TEXT('v')])
+		iFlags |= TPM_VCENTERALIGN;
 
 	return iFlags;
 }
-/*
-	Following code taken from ODMenu class & modified for XPopup
-	CODMenu class
-	Code copyright: R.I.Allen for plug-in stuff
-	Most owner drawn menu code copyright Brent Corcum - modified by RIA
-*/
-BOOL WINAPI XPopupMenuManager::XTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect)
-{
-	// Remove the No Notify flag. This fixes the popupmenus on mIRC 6.20
-	uFlags &= ~TPM_NONOTIFY;
-	return XPopupMenuManager::TrampolineTrackPopupMenu(hMenu, uFlags, x, y, nReserved, hWnd, prcRect);
-}
-BOOL WINAPI XPopupMenuManager::XTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm)
-{
-	// Remove the No Notify flag. This fixes the popupmenus on mIRC 6.20
-	fuFlags &= ~TPM_NONOTIFY;
-	return XPopupMenuManager::TrampolineTrackPopupMenuEx(hMenu, fuFlags, x, y, hwnd, lptpm);
-}
-BOOL XPopupMenuManager::InterceptAPI(HMODULE hLocalModule, const TCHAR* c_szDllName, const char* c_szApiName, DWORD dwReplaced, DWORD dwTrampoline, int offset)
-{
-	int i;
-	DWORD dwOldProtect;
-	DWORD dwAddressToIntercept = (DWORD)GetProcAddress(GetModuleHandle(c_szDllName), c_szApiName);
-
-	BYTE *pbTargetCode = (BYTE *) dwAddressToIntercept;
-	BYTE *pbReplaced = (BYTE *) dwReplaced;
-	BYTE *pbTrampoline = (BYTE *) dwTrampoline;
-
-	// Change the protection of the trampoline region
-	// so that we can overwrite the first 5 + offset bytes.
-	if (*pbTrampoline == 0xe9)
-	{
-		// target function starts with an ansolute jump
-		// change tramoline to the target of the jump
-		pbTrampoline++;
-		int * pbOffset = (int*)pbTrampoline;
-		pbTrampoline += *pbOffset + 4;
-	}
-	VirtualProtect((void *) pbTrampoline, 5+offset, PAGE_WRITECOPY, &dwOldProtect);
-	for (i=0;i<offset;i++)
-		*pbTrampoline++ = *pbTargetCode++;
-	pbTargetCode = (BYTE *) dwAddressToIntercept;
-
-	// Insert unconditional jump in the trampoline.
-	*pbTrampoline++ = 0xE9;        // jump rel32
-	*((signed int *)(pbTrampoline)) = (pbTargetCode+offset) - (pbTrampoline + 4);
-	VirtualProtect((void *) dwTrampoline, 5+offset, PAGE_EXECUTE, &dwOldProtect);
-
-	// Overwrite the first 5 bytes of the target function
-	VirtualProtect((void *) dwAddressToIntercept, 5, PAGE_WRITECOPY, &dwOldProtect);
-
-	// check to see whether we need to translate the pbReplaced pointer
-	if (*pbReplaced == 0xe9)
-	{
-		pbReplaced++;
-		int * pbOffset = (int*)pbReplaced;
-		pbReplaced += *pbOffset + 4;
-	}
-	*pbTargetCode++ = 0xE9;        // jump rel32
-	*((signed int *)(pbTargetCode)) = pbReplaced - (pbTargetCode +4);
-	VirtualProtect((void *) dwAddressToIntercept, 5, PAGE_EXECUTE, &dwOldProtect);
-
-	// Flush the instruction cache to make sure 
-	// the modified code is executed.
-	FlushInstructionCache(GetCurrentProcess(), NULL, NULL);
-	return TRUE;
-}
-
-BOOL WINAPI XPopupMenuManager::TrampolineTrackPopupMenu(
-	HMENU hMenu,         // handle to shortcut menu
-	UINT uFlags,         // options
-	int x,               // horizontal position
-	int y,               // vertical position
-	int nReserved,       // reserved, must be zero
-	HWND hWnd,           // handle to owner window
-	CONST RECT *prcRect  // ignored
-)
-{
-	// this procedure needs to be at least 10 bytes in length
-	// it gets overwritten using self modifying code
-	// it does not matter what the code is here
-	double  a;
-	double  b;
-
-	a = 0.0;
-	b = 1.0;
-	a = a / b;
-	return (a > 0);
-}
-
-BOOL WINAPI XPopupMenuManager::TrampolineTrackPopupMenuEx(
-	HMENU hMenu,       // handle to shortcut menu
-	UINT fuFlags,      // options
-	int x,             // horizontal position
-	int y,             // vertical position
-	HWND hwnd,         // handle to window
-	LPTPMPARAMS lptpm  // area not to overlap
-)
-{
-	// this procedur eneeds to be at least 10 bytes in length
-	// it gets overwritten using self modifying code
-	// it does not matter what the code is here
-	double  a;
-	double  b;
-
-	a = 0.0;
-	b = 1.0;
-	a = a / b;
-	return (a > 0);
-}
+///*
+//	Following code taken from ODMenu class & modified for XPopup
+//	CODMenu class
+//	Code copyright: R.I.Allen for plug-in stuff
+//	Most owner drawn menu code copyright Brent Corcum - modified by RIA
+//*/
+//BOOL WINAPI XPopupMenuManager::XTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect)
+//{
+//	// Remove the No Notify flag. This fixes the popupmenus on mIRC 6.20
+//	uFlags &= ~TPM_NONOTIFY;
+//	return XPopupMenuManager::TrampolineTrackPopupMenu(hMenu, uFlags, x, y, nReserved, hWnd, prcRect);
+//}
+//BOOL WINAPI XPopupMenuManager::XTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm)
+//{
+//	// Remove the No Notify flag. This fixes the popupmenus on mIRC 6.20
+//	fuFlags &= ~TPM_NONOTIFY;
+//	return XPopupMenuManager::TrampolineTrackPopupMenuEx(hMenu, fuFlags, x, y, hwnd, lptpm);
+//}
+//BOOL XPopupMenuManager::InterceptAPI(HMODULE hLocalModule, const TCHAR* c_szDllName, const char* c_szApiName, DWORD dwReplaced, DWORD dwTrampoline, int offset)
+//{
+//	int i;
+//	DWORD dwOldProtect;
+//	DWORD dwAddressToIntercept = (DWORD)GetProcAddress(GetModuleHandle(c_szDllName), c_szApiName);
+//
+//	BYTE *pbTargetCode = (BYTE *) dwAddressToIntercept;
+//	BYTE *pbReplaced = (BYTE *) dwReplaced;
+//	BYTE *pbTrampoline = (BYTE *) dwTrampoline;
+//
+//	// Change the protection of the trampoline region
+//	// so that we can overwrite the first 5 + offset bytes.
+//	if (*pbTrampoline == 0xe9)
+//	{
+//		// target function starts with an ansolute jump
+//		// change tramoline to the target of the jump
+//		pbTrampoline++;
+//		int * pbOffset = (int*)pbTrampoline;
+//		pbTrampoline += *pbOffset + 4;
+//	}
+//	VirtualProtect((void *) pbTrampoline, 5+offset, PAGE_WRITECOPY, &dwOldProtect);
+//	for (i=0;i<offset;i++)
+//		*pbTrampoline++ = *pbTargetCode++;
+//	pbTargetCode = (BYTE *) dwAddressToIntercept;
+//
+//	// Insert unconditional jump in the trampoline.
+//	*pbTrampoline++ = 0xE9;        // jump rel32
+//	*((signed int *)(pbTrampoline)) = (pbTargetCode+offset) - (pbTrampoline + 4);
+//	VirtualProtect((void *) dwTrampoline, 5+offset, PAGE_EXECUTE, &dwOldProtect);
+//
+//	// Overwrite the first 5 bytes of the target function
+//	VirtualProtect((void *) dwAddressToIntercept, 5, PAGE_WRITECOPY, &dwOldProtect);
+//
+//	// check to see whether we need to translate the pbReplaced pointer
+//	if (*pbReplaced == 0xe9)
+//	{
+//		pbReplaced++;
+//		int * pbOffset = (int*)pbReplaced;
+//		pbReplaced += *pbOffset + 4;
+//	}
+//	*pbTargetCode++ = 0xE9;        // jump rel32
+//	*((signed int *)(pbTargetCode)) = pbReplaced - (pbTargetCode +4);
+//	VirtualProtect((void *) dwAddressToIntercept, 5, PAGE_EXECUTE, &dwOldProtect);
+//
+//	// Flush the instruction cache to make sure 
+//	// the modified code is executed.
+//	FlushInstructionCache(GetCurrentProcess(), NULL, NULL);
+//	return TRUE;
+//}
+//
+//BOOL WINAPI XPopupMenuManager::TrampolineTrackPopupMenu(
+//	HMENU hMenu,         // handle to shortcut menu
+//	UINT uFlags,         // options
+//	int x,               // horizontal position
+//	int y,               // vertical position
+//	int nReserved,       // reserved, must be zero
+//	HWND hWnd,           // handle to owner window
+//	CONST RECT *prcRect  // ignored
+//)
+//{
+//	// this procedure needs to be at least 10 bytes in length
+//	// it gets overwritten using self modifying code
+//	// it does not matter what the code is here
+//	double  a;
+//	double  b;
+//
+//	a = 0.0;
+//	b = 1.0;
+//	a = a / b;
+//	return (a > 0);
+//}
+//
+//BOOL WINAPI XPopupMenuManager::TrampolineTrackPopupMenuEx(
+//	HMENU hMenu,       // handle to shortcut menu
+//	UINT fuFlags,      // options
+//	int x,             // horizontal position
+//	int y,             // vertical position
+//	HWND hwnd,         // handle to window
+//	LPTPMPARAMS lptpm  // area not to overlap
+//)
+//{
+//	// this procedur eneeds to be at least 10 bytes in length
+//	// it gets overwritten using self modifying code
+//	// it does not matter what the code is here
+//	double  a;
+//	double  b;
+//
+//	a = 0.0;
+//	b = 1.0;
+//	a = a / b;
+//	return (a > 0);
+//}
 
 /*
  * Parses the menu information and returns a valid XPopupMenu.
@@ -1093,13 +1054,13 @@ bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, con
 	// Iterate through each child element.
 	for (const TiXmlElement *element = items->FirstChildElement("item"); element != NULL; element = element->NextSiblingElement("item")) {
 		MENUITEMINFO mii;
-		int nPos = GetMenuItemCount(hMenu) +1;
+		const int nPos = GetMenuItemCount(hMenu) +1;
 
 		ZeroMemory(&mii, sizeof(MENUITEMINFO));
 		mii.cbSize = sizeof(MENUITEMINFO);
 
 		XPopupMenuItem *item = NULL;
-		TString caption(element->Attribute("caption"));
+		const TString caption(element->Attribute("caption"));
 
 		if (caption == TEXT('-')) {
 			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
