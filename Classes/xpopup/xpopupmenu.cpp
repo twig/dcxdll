@@ -221,7 +221,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		const int mID = itemdata.gettok( 2 ).to_int( );
 		const int nIcon = itemdata.gettok( 3 ).to_int( ) - 1;
 
-		const TString flag(itemdata.gettok( 1 ));
+		const XSwitchFlags xflags(itemdata.gettok( 1 ));
 		const TString itemtext(itemdata.gettok( 4, -1 ));
 
 		if ( nPos == -1 )
@@ -244,23 +244,19 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 			mii.fType = MFT_OWNERDRAW;
 			mii.wID = mID;
 
-			if ( flag[0] == TEXT('+') ) {
-				const UINT len = flag.len( );
-				for (UINT i = 1; i < len; i++ )
-				{
-					// submenu
-					if ( flag[i] == TEXT('s') ) {
-						mii.fMask |= MIIM_SUBMENU;
-						if ( mii.hSubMenu != NULL )
-							DestroyMenu( mii.hSubMenu );
+			if ( xflags[TEXT('+')] ) {
+				// submenu
+				if ( xflags[TEXT('s')] ) {
+					mii.fMask |= MIIM_SUBMENU;
+					if ( mii.hSubMenu != NULL )
+						DestroyMenu( mii.hSubMenu );
 
-						mii.hSubMenu = CreatePopupMenu( );
-					}
-					else if ( flag[i] == TEXT('c') )
-						mii.fState |= MFS_CHECKED;
-					else if ( flag[i] == TEXT('g') )
-						mii.fState |= MFS_GRAYED;
+					mii.hSubMenu = CreatePopupMenu( );
 				}
+				if ( xflags[TEXT('c')] )
+					mii.fState |= MFS_CHECKED;
+				if ( xflags[TEXT('g')] )
+					mii.fState |= MFS_GRAYED;
 			}
 			p_Item = new XPopupMenuItem( this, itemtext, nIcon, mii.hSubMenu!=NULL?TRUE:FALSE );
 		}
@@ -373,7 +369,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	else if ( flags[TEXT('s')] && input.numtok( TSTAB ) > 1 && input.gettok( 2, TSTAB ).numtok( ) > 0 ) {
 
 		const int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
-		const TString mflags(input.gettok(2, TSTAB).trim());
+		const XSwitchFlags xflags(input.gettok(2, TSTAB).trim());
 
 		if ( nPos > -1 ) {
 			MENUITEMINFO mii;
@@ -381,16 +377,12 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 			mii.cbSize = sizeof( MENUITEMINFO );
 			mii.fMask = MIIM_STATE;
 
-			if ( mflags[0] == TEXT('+') ) {
-
-				const UINT len = mflags.len( );
-				for (UINT i = 1;  i < len; i++ )
-				{
-					if ( mflags[i] == TEXT('c') )
-						mii.fState |= MFS_CHECKED;
-					else if ( mflags[i] == TEXT('g') )
-						mii.fState |= MFS_GRAYED;
-				}
+			if ( xflags[TEXT('+')] )
+			{
+				if ( xflags[TEXT('c')] )
+					mii.fState |= MFS_CHECKED;
+				if ( xflags[TEXT('g')] )
+					mii.fState |= MFS_GRAYED;
 			}
 
 			SetMenuItemInfo( hMenu, nPos, TRUE, &mii );
@@ -624,7 +616,7 @@ void XPopupMenu::setItemStyle( const UINT iExStyles ) {
  * blah
  */
 
-TString XPopupMenu::getName( ) const {
+const TString &XPopupMenu::getName( ) const {
 
   return this->m_tsMenuName;
 }
@@ -857,9 +849,9 @@ void XPopupMenu::deleteAllItemData( HMENU hMenu ) {
 	mii.cbSize = sizeof( MENUITEMINFO );
 	mii.fMask = MIIM_SUBMENU | MIIM_DATA;
 
-	int n = GetMenuItemCount( hMenu );
+	const int n = GetMenuItemCount( hMenu );
 
-	for (int i = 0;  i < n; i++ )
+	for (int i = 0; i < n; i++ )
 	{
 
 		if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) == TRUE ) {
@@ -947,7 +939,7 @@ LRESULT XPopupMenu::OnMeasureItem( const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis )
 	XPopupMenuItem * p_Item = (XPopupMenuItem *) lpmis->itemData;
 
 	if ( p_Item != NULL ) {
-		SIZE size = p_Item->getItemSize( mHwnd );
+		const SIZE size = p_Item->getItemSize( mHwnd );
 		lpmis->itemWidth = size.cx;
 		lpmis->itemHeight = size.cy;
 	}
@@ -1103,7 +1095,7 @@ void XPopupMenu::setBackBitmap( HBITMAP hBitmap ) {
 /**
  * Attaches the XPopupMenu to the mIRC MenuBar.
  */
-bool XPopupMenu::attachToMenuBar(HMENU menubar, TString label) {
+bool XPopupMenu::attachToMenuBar(HMENU menubar, const TString &label) {
 	// Already attached
 	if (this->m_bAttachedToMenuBar)
 		return false;
@@ -1128,11 +1120,11 @@ void XPopupMenu::detachFromMenuBar(HMENU menubar) {
 /**
  * Methods to access marked text.
  */
-void XPopupMenu::setMarkedText(TString text) {
+void XPopupMenu::setMarkedText(const TString &text) {
 	this->m_tsMarkedText = text;
 }
 
-TString XPopupMenu::getMarkedText() const {
+const TString &XPopupMenu::getMarkedText() const {
 	return this->m_tsMarkedText;
 }
 

@@ -31,7 +31,7 @@ class XMenuBar {
 		void parseXMenuBarCommand(const TString &input);
 		void parseXMenuBarInfo(const TString &input, TCHAR *szReturnValue) const;
 
-		bool addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, TString label);
+		bool addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, const TString &label);
 		void removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu);
 		void setMenuBar(HMENU oldMenuBar, HMENU newMenuBar);
 

@@ -70,7 +70,7 @@ public:
 	const TString * getItemText( ) const;
 	int getItemIcon(  ) const;
 
-	ULONG_PTR getItemDataBackup();
+	ULONG_PTR getItemDataBackup() const;
 
 protected:
 
