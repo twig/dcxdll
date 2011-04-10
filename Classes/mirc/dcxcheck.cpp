@@ -88,8 +88,7 @@ void DcxCheck::toXml(TiXmlElement * xml) const {
 
 TString DcxCheck::getStyles(void) const {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & BS_RIGHT)
 		styles.addtok(TEXT("rjustify"));
 	if (Styles & BS_CENTER)
@@ -183,8 +182,6 @@ void DcxCheck::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 
 void DcxCheck::parseCommandRequest( const TString & input ) {
 	const XSwitchFlags flags(input.gettok(3));
-
-	//  int numtok = input.numtok( );
 
 	//xdid -c [NAME] [ID] [SWITCH]
 	if (flags[TEXT('c')]) {
@@ -312,7 +309,7 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		// get controls client area
 		GetClientRect( this->m_Hwnd, &rcClient );
 
-		BOOL bWasTransp = this->isExStyle(WS_EX_TRANSPARENT);
+		const BOOL bWasTransp = this->isExStyle(WS_EX_TRANSPARENT);
 
 		// fill background.
 		if (bWasTransp)

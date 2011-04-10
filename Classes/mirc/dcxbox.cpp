@@ -126,12 +126,11 @@ DcxBox::~DcxBox( ) {
 
 void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	unsigned int i = 1;
 	const UINT numtok = styles.numtok( );
 	this->m_iBoxStyles = 0;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++ )
+	{
 		if (styles.gettok( i ) == TEXT("right"))
 			this->m_iBoxStyles |= BOXS_RIGHT;
 		else if (styles.gettok( i ) == TEXT("center"))
@@ -152,8 +151,6 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 		}
 		else if (styles.gettok( i ) == TEXT("transparent"))
 			*ExStyles |= WS_EX_TRANSPARENT;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -182,38 +179,35 @@ void DcxBox::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 	}
 	else if ( prop == TEXT("inbox") ) {
 
-		RECT rc, rcText;
+		RECT rc;
 		GetClientRect( this->m_Hwnd, &rc );
 
-		int n = GetWindowTextLength( this->m_Hwnd );
-
 		InflateRect( &rc, -2, -2 );
-		if ( n > 0 ) {
+		if ( GetWindowTextLength( this->m_Hwnd ) > 0 ) {
 
 			HDC hdc = GetDC( this->m_Hwnd );
 			HFONT oldFont = NULL;
+			RECT rcText = rc;
 
 			if (this->m_hFont != NULL)
 				oldFont = SelectFont(hdc, this->m_hFont);
 
-			TString text((UINT)n+1);
-			GetWindowText( this->m_Hwnd, text.to_chr(), n+1 );
-			DrawText( hdc, text.to_chr(), n, &rcText, DT_CALCRECT );
+			TString text;
+			TGetWindowText( this->m_Hwnd, text );
+			DrawText( hdc, text.to_chr(), text.len(), &rcText, DT_CALCRECT );
 
-			if (this->m_hFont != NULL)
+			if (oldFont != NULL)
 				SelectFont(hdc, oldFont);
 
 			ReleaseDC( this->m_Hwnd, hdc );
 
-			//int w = rcText.right - rcText.left;
-			int h = rcText.bottom - rcText.top;
+			//const int w = rcText.right - rcText.left;
+			const int h = rcText.bottom - rcText.top;
 
-			if ( this->m_iBoxStyles & BOXS_BOTTOM ) {
-				rc.bottom = rc.bottom - h + 2;
-			}
-			else {
-				rc.top = rc.top + h - 2;
-			}
+			if ( this->m_iBoxStyles & BOXS_BOTTOM )
+				rc.bottom -= (h + 2);
+			else
+				rc.top += (h - 2);
 		}
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top );
@@ -239,9 +233,9 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( flags[TEXT('c')] && numtok > 8 ) {
 
-		UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
 
-		if ( ID > mIRC_ID_OFFSET - 1 && 
+		if ( (ID > mIRC_ID_OFFSET - 1) && 
 			!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 			this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 		{
@@ -263,13 +257,13 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
 		DcxControl * p_Control;
 
 		if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
-			ID > mIRC_ID_OFFSET - 1 && ( p_Control = this->m_pParentDialog->getControlByID( ID ) ) != NULL ) 
+			(ID > mIRC_ID_OFFSET - 1) &&
+			( p_Control = this->m_pParentDialog->getControlByID( ID ) ) != NULL ) 
 		{
-
 			HWND cHwnd = p_Control->getHwnd( );
 			if ( p_Control->getType( ) == TEXT("dialog") || p_Control->getType( ) == TEXT("window") )
 				delete p_Control;
@@ -310,15 +304,15 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 		}
 		else if ( numtok > 8 ) {
 
-			TString com(input.gettok(1, TSTAB).gettok(4).trim());
-			TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
-			TString p2(input.gettok(2, TSTAB).trim());
+			const TString com(input.gettok(1, TSTAB).gettok(4).trim());
+			const TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
+			const TString p2(input.gettok(2, TSTAB).trim());
 
-			UINT lflags = this->parseLayoutFlags( p2.gettok( 1 ) );
-			UINT ID = p2.gettok( 2 ).to_int( );
-			UINT WGT = p2.gettok( 3 ).to_int( );
-			UINT W = p2.gettok( 4 ).to_int( );
-			UINT H = p2.gettok( 5 ).to_int( );
+			const UINT lflags = this->parseLayoutFlags( p2.gettok( 1 ) );
+			const UINT ID = p2.gettok( 2 ).to_int( );
+			const UINT WGT = p2.gettok( 3 ).to_int( );
+			const UINT W = p2.gettok( 4 ).to_int( );
+			const UINT H = p2.gettok( 5 ).to_int( );
 
 			if ( com ==  TEXT("root") || com == TEXT("cell") ) {
 
@@ -464,34 +458,29 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 
 UINT DcxBox::parseLayoutFlags( const TString & flags ) {
 
-  INT i = 1, len = (INT)flags.len( );
-  UINT iFlags = 0;
+	const XSwitchFlags xflags(flags);
+	UINT iFlags = 0;
 
-  // no +sign, missing params
-  if ( flags[0] != TEXT('+') ) 
-    return iFlags;
+	// no +sign, missing params
+	if ( !xflags[TEXT('+')] ) 
+		return iFlags;
 
-  while ( i < len ) {
+	if ( xflags[TEXT('f')] )
+		iFlags |= LAYOUTFIXED;
+	if ( xflags[TEXT('h')] )
+		iFlags |= LAYOUTHORZ;
+	if ( xflags[TEXT('i')] )
+		iFlags |= LAYOUTID;
+	if ( xflags[TEXT('l')] )
+		iFlags |= LAYOUTFILL ;
+	if ( xflags[TEXT('p')] )
+		iFlags |= LAYOUTPANE;
+	if ( xflags[TEXT('v')] )
+		iFlags |= LAYOUTVERT;
+	if ( xflags[TEXT('w')] )
+		iFlags |= LAYOUTDIM;
 
-    if ( flags[i] == TEXT('f') )
-      iFlags |= LAYOUTFIXED;
-    else if ( flags[i] == TEXT('h') )
-      iFlags |= LAYOUTHORZ;
-    else if ( flags[i] == TEXT('i') )
-      iFlags |= LAYOUTID;
-    else if ( flags[i] == TEXT('l') )
-      iFlags |= LAYOUTFILL ;
-    else if ( flags[i] == TEXT('p') )
-      iFlags |= LAYOUTPANE;
-    else if ( flags[i] == TEXT('v') )
-      iFlags |= LAYOUTVERT;
-    else if ( flags[i] == TEXT('w') )
-      iFlags |= LAYOUTDIM;
-
-    ++i;
-  }
-
-  return iFlags;
+	return iFlags;
 }
 BOOL CALLBACK DcxBox::EnumBoxChildren(HWND hwnd,LPDCXENUM de)
 {
@@ -566,7 +555,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					{
 						case BN_CLICKED:
 						{
-							BOOL state = (SendMessage(this->m_TitleButton,BM_GETCHECK,0,0) == BST_CHECKED);
+							const BOOL state = (SendMessage(this->m_TitleButton,BM_GETCHECK,0,0) == BST_CHECKED);
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 								TCHAR ret[10];
 
@@ -748,7 +737,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 {
 	RECT rc, rc2, rcText, rcText2;
 	TString wtext;
-	int n = TGetWindowText(this->m_Hwnd, wtext);
+	const int n = TGetWindowText(this->m_Hwnd, wtext);
 
 	GetClientRect(this->m_Hwnd, &rc);
 
@@ -767,7 +756,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 	SetBkMode(hdc, TRANSPARENT);
 
 	// no text, no box!
-	if (!n) {
+	if (n == 0) {
 		if (this->m_iBoxStyles & BOXS_ROUNDED) {
 			HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
 			if (m_Region) {
@@ -809,8 +798,8 @@ void DcxBox::DrawClientArea(HDC hdc)
 			rcText.right = min((rcText.right +6), rc.right);
 		}
 
-		int w = rcText.right - rcText.left;
-		int h = rcText.bottom - rcText.top;
+		const int w = rcText.right - rcText.left;
+		const int h = rcText.bottom - rcText.top;
 
 		// shift border and text locations
 		// text at bottom?
@@ -828,7 +817,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 		rcText.bottom = rcText.top + h;
 
 		// align text horizontally
-		int bw = rc.right - rc.left - (2 * DCX_BOXTEXTSPACING);
+		const int bw = rc.right - rc.left - (2 * DCX_BOXTEXTSPACING);
 
 		if (w > bw) {
 			rcText.left = rc.left + DCX_BOXTEXTSPACING;

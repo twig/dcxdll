@@ -83,8 +83,7 @@ void DcxDateTime::toXml(TiXmlElement * xml) const
 TString DcxDateTime::getStyles(void) const
 {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & DTS_LONGDATEFORMAT)
 		styles.addtok(TEXT("longdateformat"));
 	if (Styles & DTS_SHORTDATEFORMAT) 
@@ -141,7 +140,6 @@ void DcxDateTime::parseControlStyles( const TString &styles, LONG *Styles, LONG 
  * \return > void
  */
 void DcxDateTime::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const {
-	//int numtok = input.numtok();
 
 	const TString prop(input.gettok( 3 ));
 
@@ -150,11 +148,10 @@ void DcxDateTime::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		SYSTEMTIME st[2];
 		TString min;
 		TString max;
-		DWORD val;
 
 		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
 
-		val = DateTime_GetRange(this->m_Hwnd, st);
+		const DWORD val = DateTime_GetRange(this->m_Hwnd, st);
 
 		if (val & GDTR_MIN)
 			min.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[0])));
@@ -178,9 +175,8 @@ void DcxDateTime::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), SystemTimeToMircTime(&st));
 		return;
 	}
-	else if (this->parseGlobalInfoRequest(input, szReturnValue)) {
+	else if (this->parseGlobalInfoRequest(input, szReturnValue))
 		return;
-	}
 
 	szReturnValue[0] = 0;
 }
@@ -199,7 +195,7 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 	// xdid -f [NAME] [ID] [SWITCH] (FORMAT)
 	if (flags[TEXT('f')]) {
 		if (numtok > 3) {
-			TString format(input.gettok(4, -1));
+			const TString format(input.gettok(4, -1));
 			DateTime_SetFormat(this->m_Hwnd, format.to_chr());
 		}
 		else {
@@ -215,13 +211,13 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
 
 		if (input.gettok(4) != TEXT("nolimit")) {
-			long min = (long) input.gettok(4).to_num();
+			const long min = (long) input.gettok(4).to_num();
 			range[0] = MircTimeToSystemTime(min);
 			dflags |= GDTR_MIN;
 		}
 
 		if (input.gettok(5) != TEXT("nolimit")) {
-			long max = (long) input.gettok(5).to_num();
+			const long max = (long) input.gettok(5).to_num();
 			range[1] = MircTimeToSystemTime(max);
 			dflags |= GDTR_MAX;
 		}
@@ -230,18 +226,16 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
 	else if (flags[TEXT('t')] && numtok > 3) {
-		TString ts(input.gettok(4));
+		const TString ts(input.gettok(4));
 
 		if (ts == TEXT("reset")) {
-			if (isStyle(DTS_SHOWNONE)) {
+			if (isStyle(DTS_SHOWNONE))
 				DateTime_SetSystemtime(this->m_Hwnd, GDT_NONE, NULL);
-			}
 		}
 		else {
-			SYSTEMTIME sysTime;
-			long mircTime = (long) ts.to_num();
+			const long mircTime = (long) ts.to_num();
 
-			sysTime = MircTimeToSystemTime(mircTime);
+			const SYSTEMTIME sysTime = MircTimeToSystemTime(mircTime);
 			DateTime_SetSystemtime(this->m_Hwnd, GDT_VALID, &sysTime);
 		}
 	}

@@ -76,7 +76,7 @@ DcxDirectshow::DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mP
 DcxDirectshow::~DcxDirectshow( ) {
 
 	this->ReleaseAll();
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 }
 
 TString DcxDirectshow::getStyles(void) const
@@ -319,7 +319,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	if ( flags[TEXT('a')] && numtok > 4 ) {
-		TString flag(input.gettok(4).trim());
+		const XSwitchFlags xflags(input.gettok(4).trim());
 		TString filename(input.gettok(5,-1).trim());
 
 		this->ReleaseAll();
@@ -329,6 +329,10 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 
 		if (!Dcx::isDX9Installed()) {
 			this->showError(NULL, TEXT("-a"), TEXT("Needs DirectX 9+"));
+			return;
+		}
+		if (!xflags[TEXT('+')]) {
+			this->showError(NULL, TEXT("-a"), TEXT("Invalid Flags"));
 			return;
 		}
 		if (!IsFile(filename)) {
@@ -368,7 +372,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			inErr = true;
 		}
 		if (SUCCEEDED(hr)) {
-			if (!flag.find(TEXT('a'),0))
+			if (!xflags[TEXT('a')])
 				hr = DcxDirectshow::InitWindowlessVMR(this->m_Hwnd,this->m_pGraph,&this->m_pWc);
 		}
 		else if (!inErr) {
@@ -416,11 +420,11 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 					}
 				}
 				if (SUCCEEDED(hr)) {
-					if (flag.find(TEXT('l'),0))
+					if (xflags[TEXT('l')])
 						this->m_bLoop = true;
 					else
 						this->m_bLoop = false;
-					if (flag.find(TEXT('p'),0))
+					if (xflags[TEXT('p')])
 						this->m_pControl->Run();
 				}
 				else {
@@ -454,7 +458,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 	else if ( flags[TEXT('c')] && numtok > 3 ) {
 		if (this->m_pControl != NULL) {
 			static const TString cmdlist(TEXT("play pause stop close seek"));
-			int nType = cmdlist.findtok(input.gettok(4).to_chr(),1);
+			const int nType = cmdlist.findtok(input.gettok(4).to_chr(),1);
 			switch (nType)
 			{
 			case 1: // play
@@ -868,11 +872,11 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 				RECT rcClient, rcWin;
 				GetClientRect(this->m_Hwnd, &rcClient);
 				GetWindowRect(this->m_Hwnd, &rcWin);
-				int w = (rcWin.right - rcWin.left), h = (rcWin.bottom - rcWin.top);
+				const int w = (rcWin.right - rcWin.left), h = (rcWin.bottom - rcWin.top);
 				HBITMAP memBM = CreateCompatibleBitmap ( hdc, w, h );
 				if (memBM != NULL) {
 					// associate bitmap with HDC
-					HBITMAP oldBM = (HBITMAP)SelectObject ( hdcbkg, memBM );
+					const HBITMAP oldBM = SelectBitmap ( hdcbkg, memBM );
 
 					this->DrawParentsBackground(hdcbkg, &rcClient);
 
@@ -912,7 +916,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 						bmpInfo.rDest.bottom = 1.0; //(float)(rcClient.bottom - rcClient.top) / cy;
 						hr = pBm->UpdateAlphaBitmapParameters(&bmpInfo);
 					}
-					DeleteObject(SelectObject(hdcbkg,oldBM));
+					DeleteBitmap(SelectBitmap(hdcbkg,oldBM));
 				}
 				else
 					hr = E_FAIL;
@@ -941,14 +945,15 @@ HRESULT DcxDirectshow::setVideo(const TString flags, const float brightness, con
 	IVMRMixerControl9 *pMixer = NULL;
 	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
 	if (SUCCEEDED(hr)) {
+		const XSwitchFlags xflags(flags);
 		DWORD dwflags = 0;
-		if (flags.find(TEXT('b'),0))
+		if (xflags[TEXT('b')])
 			dwflags |= ProcAmpControl9_Brightness;
-		if (flags.find(TEXT('c'),0))
+		if (xflags[TEXT('c')])
 			dwflags |= ProcAmpControl9_Contrast;
-		if (flags.find(TEXT('h'),0))
+		if (xflags[TEXT('h')])
 			dwflags |= ProcAmpControl9_Hue;
-		if (flags.find(TEXT('s'),0))
+		if (xflags[TEXT('s')])
 			dwflags |= ProcAmpControl9_Saturation;
 
 		if (dwflags != 0) {
@@ -1070,7 +1075,7 @@ HRESULT DcxDirectshow::setVolume(const float vol)
 	if (SUCCEEDED(hr)) {
 #pragma warning(push,3)
 #pragma warning(disable:4244)
-		long t = (long)-((10000.0 / 100.0) * (100 - vol));
+		const long t = (long)-((10000.0 / 100.0) * (100 - vol));
 #pragma warning(pop)
 		hr = pAudio->put_Volume(t);
 		pAudio->Release();

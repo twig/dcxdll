@@ -73,8 +73,7 @@ DcxDivider::~DcxDivider( ) {
 TString DcxDivider::getStyles(void) const
 {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & DVS_VERT)
 		styles.addtok(TEXT("vertical"));
 	return styles;
@@ -120,8 +119,7 @@ void DcxDivider::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (GetWindowStyle(this->m_Hwnd) & DVS_VERT));
 		return;
 	}
-
-	if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
 
 	szReturnValue[0] = 0;
@@ -145,7 +143,7 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 		ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
 		dvpi.cbSize = sizeof( DVPANEINFO );
 
-		TString data(input.gettok(1, TSTAB).trim());
+		const TString data(input.gettok(1, TSTAB).trim());
 		TString control_data;
 
 		if ( input.numtok( TSTAB ) > 1 )
@@ -157,9 +155,9 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 
 		if ( control_data.numtok( ) > 5 ) {
 
-			UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1 ).to_int( );
+			const UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1 ).to_int( );
 
-			if ( ID > mIRC_ID_OFFSET - 1 && 
+			if ( (ID > mIRC_ID_OFFSET - 1) && 
 				!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 			{

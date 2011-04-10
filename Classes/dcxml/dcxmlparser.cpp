@@ -285,8 +285,10 @@ void DcxmlParser::parseControl() {
 	else if (0==lstrcmpA(type, "text")) {
 		if (caption != NULL) {
 			TString mystring(caption);
-			if (mystring.left(2) == TEXT("\r\n")) mystring = mystring.right(-2);
-			else if (mystring.left(1) == TEXT('\n')) mystring = mystring.right(-1);
+			if (mystring.left(2) == TEXT("\r\n"))
+				mystring = mystring.right(-2);
+			else if (mystring.left(1) == TEXT('\n'))
+				mystring = mystring.right(-1);
 			//mystring.replace(TEXT("\t"),TEXT(""));
 			mystring -= TEXT("\t"); // remove all '\t' from text.
 			TString printstring;
@@ -325,8 +327,10 @@ void DcxmlParser::parseControl() {
 	else if (0==lstrcmpA(type, "richedit")) { 
 		if (caption != NULL) {
 			TString mystring(caption);
-			if (mystring.left(2) == TEXT("\r\n")) mystring = mystring.right(-2);
-			else if (mystring.left(1) == TEXT('\n')) mystring = mystring.right(-1);
+			if (mystring.left(2) == TEXT("\r\n"))
+				mystring = mystring.right(-2);
+			else if (mystring.left(1) == TEXT('\n'))
+				mystring = mystring.right(-1);
 			//mystring.replace(TEXT("\t"),TEXT(""));
 			mystring -= TEXT("\t"); // remove all '\t' from text.
 			mystring.replace(TEXT("\\c"),TEXT(""));
@@ -441,33 +445,24 @@ TString DcxmlParser::parseCLA(const int cCla) {
 void DcxmlParser::setStyle(const TiXmlElement* style) {
 	//style attributes evaluate by default unless eval="0" is set on the element explicitly
 
-	eval = (style->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 1;
+	eval = queryIntAttribute(style,"eval",1);
 
 	//font
-	temp = style->Attribute("fontstyle");
-	fontstyle = (temp != NULL) ? temp : "d";
-	temp = style->Attribute("charset");
-	charset = (temp != NULL) ? temp : "ansi";
-	temp = style->Attribute("fontsize");
-	fontsize = (temp != NULL) ? temp : "";
-	temp = style->Attribute("fontname");
-	fontname = (temp != NULL) ? temp : "";
+	fontstyle = queryAttribute(style,"fontstyle","d");
+	charset = queryAttribute(style,"charset","ansi");
+	fontsize = queryAttribute(style,"fontsize","");
+	fontname = queryAttribute(style,"fontname","");
 	if ((style->Attribute("fontsize") != NULL) || (style->Attribute("fontname") != NULL))
 		this->xdidEX(id,TEXT("-f"),TEXT("+%S %S %S %S"), fontstyle, charset, fontsize, fontname);
 	//border
-	temp = style->Attribute("border");
-	border = (temp != NULL) ? temp : "";
-	if (temp != NULL)
+	border = queryAttribute(style,"border","");
+	if (lstrlenA(border))
 		this->xdidEX(id,TEXT("-x"),TEXT("+%S"),border);
 	//colours
-	temp = style->Attribute("cursor");
-	cursor = (temp != NULL) ? temp : "arrow";
-	temp = style->Attribute("bgcolour");
-	bgcolour = (temp != NULL) ? temp : "";
-	temp = style->Attribute("textbgcolour");
-	textbgcolour = (temp != NULL) ? temp : "";
-	temp = style->Attribute("textcolour");
-	textcolour = (temp != NULL) ? temp : "";
+	cursor = queryAttribute(style,"cursor","arrow");
+	bgcolour = queryAttribute(style,"bgcolour","");
+	textbgcolour = queryAttribute(style,"textbgcolour","");
+	textcolour = queryAttribute(style,"textcolour","");
 	if (style->Attribute("bgcolour") != NULL) {
 		this->xdidEX(id,TEXT("-C"),TEXT("+b %s"),bgcolour);
 		if (0==lstrcmpA(type, "pbar")) 
@@ -586,7 +581,7 @@ void DcxmlParser::parseIcons(int depth) {
 				ClassElement = icon;
 			if (0==lstrcmpA(icon->Attribute("type"), type))
 				TypeElement = icon;
-			int t_id = this->parseId(icon);
+			const int t_id = this->parseId(icon);
 			if (t_id == id)
 				IdElement = icon;
 		}
@@ -602,8 +597,8 @@ void DcxmlParser::parseIcons(int depth) {
 			const char *flags = this->queryAttribute(icon, "flags", "n");
 			const char *index = this->queryAttribute(icon, "index", "0");
 			const char *src = icon->Attribute("src");
-			int indexmin = this->queryIntAttribute(icon,"indexmin",0);
-			int indexmax = this->queryIntAttribute(icon,"indexmax",-1);
+			const int indexmin = this->queryIntAttribute(icon,"indexmin",0);
+			const int indexmax = this->queryIntAttribute(icon,"indexmax",-1);
 			if (src != NULL) {
 				if (indexmin <= indexmax) 
 					//method sucks but looping in C++ is WAYYY too fast for mIRC
@@ -768,7 +763,8 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 		{ 
 			controls++;
 			id = this->parseId(element);
-			id = (id > 0) ? id : 2000 + controls;
+			if (id <= 0)
+				id = 2000 + controls;
 			this->registerId(element,id); // does this twice??
 			this->registerId(element,id);
 		}
@@ -795,7 +791,8 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 		if (parenttype == NULL)
 			parenttype = "panel";
 		parentid = this->parseId(parent);
-		parentid = (parentid > 0) ? parentid : passedid;
+		if (parentid <= 0)
+			parentid = passedid;
 		//IF TEMPLATE ELEMENT REROUTE TO TEMPLATE DEFINITION
 
 

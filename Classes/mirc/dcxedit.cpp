@@ -80,8 +80,7 @@ DcxEdit::~DcxEdit() {
 
 TString DcxEdit::getStyles(void) const {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & ES_MULTILINE)
 		styles.addtok(TEXT("multi"));
 	if (Styles & ES_CENTER)
@@ -371,9 +370,8 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	else if (flags[TEXT('q')] && numtok > 3) {
 		const int N = input.gettok( 4 ).to_int();
 
-		if (N > -1) {
+		if (N > -1)
 			Edit_LimitText(this->m_Hwnd, N);
-		}
 	}
 	// Used to prevent invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]

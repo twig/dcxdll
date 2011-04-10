@@ -202,8 +202,7 @@ void DcxScroll::parseCommandRequest( const TString & input ) {
 TString DcxScroll::getStyles(void) const
 {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & SBS_VERT)
 		styles.addtok(TEXT("vertical"));
 	return styles;

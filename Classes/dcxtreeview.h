@@ -190,7 +190,7 @@ protected:
 	bool xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString &filename);
 	bool xmlGetItems(HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR *buf);
 	HTREEITEM xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, const TString &name, TString &filename);
-	TiXmlElement *xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertAfter, TiXmlElement *xElm);
+	const TiXmlElement *xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertAfter, const TiXmlElement *xElm);
 	TString getStyles(void);
 	static int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0);
 };

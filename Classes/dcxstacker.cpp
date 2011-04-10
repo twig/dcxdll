@@ -138,7 +138,7 @@ void DcxStacker::parseInfoRequest( const TString & input, TCHAR * szReturnValue 
 
 	// [NAME] [ID] [PROP] [N]
 	if ( prop == TEXT("text") && numtok > 3 ) {
-		int nSel = input.gettok( 4 ).to_int( ) - 1;
+		const int nSel = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nSel);
@@ -159,7 +159,7 @@ void DcxStacker::parseInfoRequest( const TString & input, TCHAR * szReturnValue 
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("haschild") && numtok > 3 ) {
-		int nSel = input.gettok( 4 ).to_int( ) - 1;
+		const int nSel = input.gettok( 4 ).to_int( ) - 1;
 
 		lstrcpyn(szReturnValue,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 
@@ -174,7 +174,7 @@ void DcxStacker::parseInfoRequest( const TString & input, TCHAR * szReturnValue 
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("childid") && numtok > 3 ) {
-		int nSel = input.gettok( 4 ).to_int( ) - 1;
+		const int nSel = input.gettok( 4 ).to_int( ) - 1;
 
 		lstrcpyn(szReturnValue,TEXT("0"), MIRC_BUFFER_SIZE_CCH);
 
@@ -355,8 +355,7 @@ void DcxStacker::getItemRect(const int nPos, LPRECT rc) const {
 
 TString DcxStacker::getStyles(void) const {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & WS_VSCROLL)
 		styles.addtok(TEXT("vscroll"));
 	if (this->m_dStyles & STACKERS_GRAD)
@@ -399,7 +398,7 @@ void DcxStacker::DrawItemImage(const HDC hdc, Image *img, const LPRECT rc)
 	Graphics grphx( hdc );
 	grphx.SetSmoothingMode(SmoothingModeAntiAlias);
 	grphx.SetCompositingMode(CompositingModeSourceOver);
-	int w = (rc->right - rc->left), h = (rc->bottom - rc->top);
+	const int w = (rc->right - rc->left), h = (rc->bottom - rc->top);
 	if ((img->GetWidth() == 1) || (img->GetHeight() == 1)) {
 		// This fixes a GDI+ bug when resizing 1 px images
 		// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
@@ -471,7 +470,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 
 		XPopupMenuItem::DrawGradient( memDC, &rcText, clrStart, clrEnd, FALSE);
 	}
-	else if (sitem->clrBack != -1) {
+	else if (sitem->clrBack != CLR_INVALID) {
 		SetBkColor(memDC,sitem->clrBack);
 		ExtTextOut(memDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, TEXT(""), NULL, NULL );
 	}
@@ -489,7 +488,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		HFONT oldFont = SelectFont(memDC,hFont);
 		// get text colour.
 		COLORREF clrText = sitem->clrText;
-		if (clrText == -1)
+		if (clrText == CLR_INVALID)
 			clrText = GetSysColor(COLOR_BTNTEXT);
 		// draw the text
 		this->ctrlDrawText(memDC, sitem->tsCaption, &rcText, DT_CENTER | DT_END_ELLIPSIS);

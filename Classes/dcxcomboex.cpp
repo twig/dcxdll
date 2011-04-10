@@ -244,17 +244,15 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 
 			const int N = params.gettok( 2 ).to_int( );
 
+			const int nItems = this->getCount( );
+			int count = 0;
+
 			// count total
 			if ( N == 0 ) {
-
-				int nItems = this->getCount( ), i = 0, count = 0;
-
-				while ( i < nItems ) {
-
+				for (int i = 0; i < nItems; i++ )
+				{
 					if ( this->matchItemText( i, &matchtext, SearchType ) )
 						count++;
-
-					i++;
 				}
 
 				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), count );
@@ -262,10 +260,6 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 			}
 			// find Nth matching
 			else {
-
-				const int nItems = this->getCount( );
-				int count = 0;
-
 				for (int i = 0; i < nItems; i++ )
 				{
 					if ( this->matchItemText( i, &matchtext, SearchType ) )
@@ -313,12 +307,12 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	if (flags[TEXT('a')] && numtok > 8) {
-		int nPos   = input.gettok( 4 ).to_int() -1;
-		int indent = input.gettok( 5 ).to_int();
-		int icon   = input.gettok( 6 ).to_int() -1;
-		int state  = input.gettok( 7 ).to_int() -1;
+		int nPos			= input.gettok( 4 ).to_int() -1;
+		const int indent	= input.gettok( 5 ).to_int();
+		const int icon		= input.gettok( 6 ).to_int() -1;
+		const int state		= input.gettok( 7 ).to_int() -1;
 		//int overlay = input.gettok( 8 ).to_int() - 1;
-		TString itemtext(input.gettok( 9, -1));
+		const TString itemtext(input.gettok( 9, -1));
 
 		if (nPos == -2) {
 			if (IsWindow(this->m_EditHwnd))
@@ -350,7 +344,7 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 			if (IsWindow(combo)) {
 				// Get Font sizes (best way i can find atm, if you know something better then please let me know)
 				int nMaxStrlen = itemtext.len();
-				int nHorizExtent = (int)SendMessage( combo, CB_GETHORIZONTALEXTENT, NULL, NULL );
+				const int nHorizExtent = (int)SendMessage( combo, CB_GETHORIZONTALEXTENT, NULL, NULL );
 				HDC hdc = GetDC( this->m_Hwnd );
 				TEXTMETRIC tm;
 				HFONT hFont = this->getFont();
@@ -375,7 +369,7 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 	}
 	// xdid -A [NAME] [ID] [ROW] [+FLAGS] [INFO]
 	else if (flags[TEXT('A')]) {
-		int n = input.numtok();
+		const int n = input.numtok();
 
 		if (n < 5) {
 			this->showErrorEx(NULL, TEXT("-A"), TEXT("Insufficient parameters"));
@@ -407,27 +401,26 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 
 		LPDCXCBITEM cbiDcx = (LPDCXCBITEM) cbei.lParam;
 
-		TString flag(input.gettok(6));
-		TString info(input.gettok(7, -1));
+		const XSwitchFlags xflags(input.gettok(6));
+		const TString info(input.gettok(7, -1));
 
-		if (flag.find(TEXT('M'), 1) > 0)
+		if (xflags[TEXT('M')])
 			cbiDcx->tsMark = info;
 		else
-			this->showErrorEx(NULL, TEXT("-A"), TEXT("Unknown flags %s"), flag.to_chr());
+			this->showErrorEx(NULL, TEXT("-A"), TEXT("Unknown flags %s"), input.gettok(6).to_chr());
 
 		return;
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('c')] && numtok > 3) {
-		int nItem = input.gettok( 4 ).to_int() -1;
+		const int nItem = input.gettok( 4 ).to_int() -1;
 
-		if (nItem > -1) {
+		if (nItem > -1)
 			this->setCurSel(nItem);
-		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
-		int nItem = input.gettok( 4 ).to_int() -1;
+		const int nItem = input.gettok( 4 ).to_int() -1;
 
 		if (nItem > -1 && nItem < this->getCount())
 			this->deleteItem(nItem);
@@ -446,26 +439,26 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		HIMAGELIST himl;
-		TString flag(input.gettok( 4 ));
-		int index = input.gettok( 5 ).to_int();;
+		const TString flag(input.gettok( 4 ));
+		const int index = input.gettok( 5 ).to_int();;
 		TString filename(input.gettok(6, -1));
 
-		if ((himl = this->getImageList()) == NULL) {
+		HIMAGELIST himl = this->getImageList();
+
+		if (himl == NULL) {
 			himl = this->createImageList();
 
-			if (himl)
+			if (himl != NULL)
 				this->setImageList(himl);
 		}
 
 		if (himl != NULL) {
 			HICON icon = dcxLoadIcon(index, filename, false, flag);
 
-			//if (flag.find(TEXT('g'), 0))
-			//	icon = CreateGrayscaleIcon(icon);
-
-			ImageList_AddIcon(himl, icon);
-			DestroyIcon(icon);
+			if (icon != NULL) {
+				ImageList_AddIcon(himl, icon);
+				DestroyIcon(icon);
+			}
 		}
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
@@ -639,8 +632,7 @@ LRESULT DcxComboEx::limitText( const int iLimit ) {
 TString DcxComboEx::getStyles(void) const
 {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & CBS_SIMPLE)
 		styles.addtok(TEXT("simple"));
 	if (Styles & CBS_DROPDOWNLIST) 
@@ -671,12 +663,12 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		case CBN_SELENDOK:
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
 				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), this->getCurSel( ) + 1 );
-			TCHAR itemtext[500];
+			TCHAR itemtext[MIRC_BUFFER_SIZE_CCH];
 			COMBOBOXEXITEM cbex;
 			ZeroMemory( &cbex, sizeof( COMBOBOXEXITEM ) );
 			cbex.mask = CBEIF_TEXT;
 			cbex.pszText = itemtext;
-			cbex.cchTextMax = 500;
+			cbex.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 			cbex.iItem = this->getCurSel( );
 			this->getItem( &cbex );
 			SetWindowText( this->m_EditHwnd, itemtext );
@@ -709,9 +701,9 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			PNMCOMBOBOXEX lpcb = (PNMCOMBOBOXEX ) lParam;
 			LPDCXCBITEM lpdcxcbi = (LPDCXCBITEM) lpcb->ceItem.lParam;
 
-			if (lpdcxcbi != NULL) {
+			if (lpdcxcbi != NULL)
 				delete lpdcxcbi;
-			}
+
 			bParsed = TRUE; // message has been handled
 			break;
 		}

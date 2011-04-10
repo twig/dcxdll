@@ -30,41 +30,41 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, cons
 , m_bClosable(false)
 , m_bGradient(false)
 {
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles | WS_EX_CONTROLPARENT, 
-    DCX_TABCTRLCLASS, 
-    NULL,
-    WS_CHILD | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
+	this->m_Hwnd = CreateWindowEx(	
+		ExStyles | WS_EX_CONTROLPARENT, 
+		DCX_TABCTRLCLASS, 
+		NULL,
+		WS_CHILD | Styles, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
 		throw TEXT("Unable To Create Window");
 
-  if ( bNoTheme )
-    Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if ( bNoTheme )
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-  /*
-  HWND hHwndTip = TabCtrl_GetToolTips( this->m_Hwnd );
-  if ( IsWindow( hHwndTip ) ) {
+	/*
+	HWND hHwndTip = TabCtrl_GetToolTips( this->m_Hwnd );
+	if ( IsWindow( hHwndTip ) ) {
 
-    TOOLINFO ti;
-    ZeroMemory( &ti, sizeof( TOOLINFO ) );
-    ti.cbSize = sizeof( TOOLINFO );
-    ti.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
-    ti.hwnd = mParentHwnd;
-    ti.uId = (UINT) this->m_Hwnd;
-    ti.lpszText = LPSTR_TEXTCALLBACK;
-    SendMessage( hHwndTip, TTM_ADDTOOL, (WPARAM) 0, (LPARAM) &ti );
-  }
-  */
+	TOOLINFO ti;
+	ZeroMemory( &ti, sizeof( TOOLINFO ) );
+	ti.cbSize = sizeof( TOOLINFO );
+	ti.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
+	ti.hwnd = mParentHwnd;
+	ti.uId = (UINT) this->m_Hwnd;
+	ti.lpszText = LPSTR_TEXTCALLBACK;
+	SendMessage( hHwndTip, TTM_ADDTOOL, (WPARAM) 0, (LPARAM) &ti );
+	}
+	*/
 	//if (p_Dialog->getToolTip() != NULL) {
 	//	if (styles.istok(TEXT("tooltips"))) {
 	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
@@ -73,9 +73,9 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, cons
 	//	}
 	//}
 
-  this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -86,16 +86,13 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, cons
 
 DcxTab::~DcxTab( ) {
 
-  ImageList_Destroy( this->getImageList( ) );
+	ImageList_Destroy( this->getImageList( ) );
 
-  int n = 0, nItems = TabCtrl_GetItemCount( this->m_Hwnd );
-  while ( n < nItems ) {
+	const int nItems = TabCtrl_GetItemCount( this->m_Hwnd );
+	for (int n = 0; n < nItems; n++ )
+		this->deleteLParamInfo( n );
 
-    this->deleteLParamInfo( n );
-    ++n;
-  }
-
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 }
 
 /*!
@@ -520,26 +517,29 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		HIMAGELIST himl;
-		HICON icon;
 		const TString flag(input.gettok( 4 ));
 		const int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
 
-		if ((himl = this->getImageList()) == NULL) {
+		HIMAGELIST himl = this->getImageList();
+
+		if (himl == NULL) {
 			himl = this->createImageList();
 
-			if (himl)
+			if (himl != NULL)
 				this->setImageList(himl);
 		}
+		if (himl == NULL) {
+			this->showError(NULL,TEXT("-w"),TEXT("Unable to get Image List"));
+			return;
+		}
 
-		icon = dcxLoadIcon(index, filename, false, flag);
+		HICON icon = dcxLoadIcon(index, filename, false, flag);
 
-		//if (flag.find(TEXT('g'), 0))
-		//	icon = CreateGrayscaleIcon(icon);
-
-		ImageList_AddIcon(himl, icon);
-		DestroyIcon(icon);
+		if (icon != NULL) {
+			ImageList_AddIcon(himl, icon);
+			DestroyIcon(icon);
+		}
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if ( flags[TEXT('y')] ) {
@@ -614,7 +614,7 @@ void DcxTab::deleteLParamInfo( const int nItem ) {
 void DcxTab::activateSelectedTab( ) {
 
 	int nTab = TabCtrl_GetItemCount( this->m_Hwnd );
-	int nSel = TabCtrl_GetCurSel( this->m_Hwnd );
+	const int nSel = TabCtrl_GetCurSel( this->m_Hwnd );
 
 	if ( nTab > 0 ) {
 
@@ -639,7 +639,7 @@ void DcxTab::activateSelectedTab( ) {
 		tci.mask = TCIF_PARAM;
 
 		HDWP hdwp = BeginDeferWindowPos( 0 );
-		while ( nTab-- ) {
+		while ( nTab-- > 0 ) {
 
 			TabCtrl_GetItem( this->m_Hwnd, nTab, &tci );
 			LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
@@ -687,9 +687,9 @@ void DcxTab::GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton)
 
 TString DcxTab::getStyles(void) const {
 	TString styles(__super::getStyles());
-	DWORD ExStyles, Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
-	ExStyles = GetWindowExStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD ExStyles = GetWindowExStyle(this->m_Hwnd);
+
 	if (Styles & TCS_VERTICAL)
 		styles.addtok(TEXT("vertical"));
 	if (Styles & TCS_BOTTOM)
@@ -723,10 +723,9 @@ TString DcxTab::getStyles(void) const {
 
 void DcxTab::toXml(TiXmlElement * xml) const {
 	__super::toXml(xml);
-	int count = this->getTabCount();
+	const int count = this->getTabCount();
 	TCHAR buf[MIRC_BUFFER_SIZE_CCH];
 	TCITEM tci;
-	TiXmlElement * ctrlxml;
 	for (int i = 0; i < count; i++) {
 		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH -1;
 		tci.pszText = buf;
@@ -734,8 +733,8 @@ void DcxTab::toXml(TiXmlElement * xml) const {
 		if(TabCtrl_GetItem(this->m_Hwnd, i, &tci)) {
 			LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
 			DcxControl * ctrl = this->m_pParentDialog->getControlByHWND(lpdtci->mChildHwnd);
-			if (ctrl) {
-				ctrlxml = ctrl->toXml();
+			if (ctrl != NULL) {
+				TiXmlElement * ctrlxml = ctrl->toXml();
 				// we need to remove hidden style here
 				TString styles(ctrlxml->Attribute("styles"));
 				if (styles.len() > 0) {
@@ -775,7 +774,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 							GetCursorPos(&tchi.pt);
 							MapWindowPoints(NULL, this->m_Hwnd, &tchi.pt, 1);
 
-							int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
+							const int tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
 							TabCtrl_GetCurSel(this->m_Hwnd);
 
 							if (tab != -1)
@@ -789,7 +788,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 					case NM_CLICK:
 						{
 							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-								int tab = TabCtrl_GetCurFocus(this->m_Hwnd);
+								const int tab = TabCtrl_GetCurFocus(this->m_Hwnd);
 								//int tab = TabCtrl_GetCurSel(this->m_Hwnd);
 
 								if (tab != -1) {
@@ -838,7 +837,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 				//	break;
 
 				RECT rect;
-				int nTabIndex = idata->itemID;
+				const int nTabIndex = idata->itemID;
 
 				if (nTabIndex < 0)
 					break;
@@ -873,14 +872,14 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 					break;
 				}
 
-				TString label(szLabel);
+				const TString label(szLabel);
 
 				// fill the rect so it appears to TEXT("merge") with the tab page content
 				//if (!dcxIsThemeActive())
 				//FillRect(idata->hDC, &rect, GetSysColorBrush(COLOR_BTNFACE));
 
 				// set transparent so text background isnt annoying
-				int iOldBkMode = SetBkMode(idata->hDC, TRANSPARENT);
+				const int iOldBkMode = SetBkMode(idata->hDC, TRANSPARENT);
 
 				// Draw icon on left side if the item has an icon
 				if (tci.iImage != -1) {

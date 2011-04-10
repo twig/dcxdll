@@ -170,22 +170,22 @@ void DcxUpDown::parseCommandRequest( const TString & input ) {
 	// xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if ( flags[TEXT('r')] && numtok > 4 ) {
 
-		int iMin = input.gettok( 4 ).to_int( );
-		int iMax = input.gettok( 5 ).to_int( );
+		const int iMin = input.gettok( 4 ).to_int( );
+		const int iMax = input.gettok( 5 ).to_int( );
 
 		this->setRange32( iMin, iMax );
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [BASE]
 	else if ( flags[TEXT('t')] && numtok > 3 ) {
 
-		int nBase = input.gettok( 4 ).to_int( );
+		const int nBase = input.gettok( 4 ).to_int( );
 
 		this->setBase( nBase );
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [POS]
 	else if ( flags[TEXT('v')] && numtok > 3 ) {
 
-		int nPos = input.gettok( 4 ).to_int( );
+		const int nPos = input.gettok( 4 ).to_int( );
 
 		this->setPos32( nPos );
 	}
@@ -266,8 +266,8 @@ LRESULT DcxUpDown::getPos32( LPBOOL pfError ) const {
 TString DcxUpDown::getStyles(void) const
 {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & UDS_ALIGNLEFT)
 		styles.addtok(TEXT("left"));
 	if (Styles & UDS_HORZ)

@@ -92,9 +92,6 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_clrEndGradient(CLR_INVALID)
 , m_bGradientVertical(FALSE)
 , m_ToolTipHWND(NULL)
-#if !UNICODE
-, m_bUseUTF8(false)
-#endif
 {
 	this->m_dEventMask = p_Dialog->getEventMask();
 }
@@ -242,10 +239,10 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	// xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
 	else if ( flags[TEXT('p')] && numtok > 6 ) {
 
-		int x = input.gettok( 4 ).to_int( );
-		int y = input.gettok( 5 ).to_int( );
-		int w = input.gettok( 6 ).to_int( );
-		int h = input.gettok( 7 ).to_int( );
+		const int x = input.gettok( 4 ).to_int( );
+		const int y = input.gettok( 5 ).to_int( );
+		const int w = input.gettok( 6 ).to_int( );
+		const int h = input.gettok( 7 ).to_int( );
 
 		MoveWindow( this->m_Hwnd, x, y, w, h, TRUE );
 		//this->InvalidateParentRect( this->m_Hwnd);
@@ -272,8 +269,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	}
 	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if ( flags[TEXT('C')] && numtok > 4 ) {
-		UINT iFlags = this->parseColorFlags( input.gettok( 4 ) );
-		COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num( );
+		const UINT iFlags = this->parseColorFlags( input.gettok( 4 ) );
+		const COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num( );
 
 		if ( iFlags & DCC_BKGCOLOR ) {
 			if ( this->m_hBackBrush != NULL ) {
@@ -319,8 +316,9 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	}
 	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	else if ( flags[TEXT('J')] && numtok > 4 ) {
-		UINT iFlags = this->parseCursorFlags( input.gettok( 4 ) );
+		const UINT iFlags = this->parseCursorFlags( input.gettok( 4 ) );
 		HCURSOR hCursor = NULL;
+
 		if ( this->m_bCursorFromFile )
 			hCursor = this->m_hCursor;
 		this->m_hCursor = NULL;
@@ -360,7 +358,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
 	else if ( flags[TEXT('Z')] && numtok > 3 ) {
 
-		int perc = input.gettok( 4 ).to_int( );
+		const int perc = input.gettok( 4 ).to_int( );
 
 		if ( perc >= 0 || perc <= 100 ) {
 
@@ -370,7 +368,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 			//scrollbar is defined and has visible range
 			if ( min != 0 || max != 0 ) {
 
-				int pos = round( (float) ( max - min ) * (float) perc / (float) 100.0 );
+				const int pos = round( (float) ( max - min ) * (float) perc / (float) 100.0 );
 
 				SCROLLINFO si;
 				ZeroMemory( &si, sizeof ( SCROLLINFO ) );
@@ -445,9 +443,9 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	}
 	// xdid -R [NAME] [ID] [SWITCH] [FLAG] [ARGS]
 	else if (flags[TEXT('R')] && numtok > 3) {
-		TString flag(input.gettok( 4 ));
+		const XSwitchFlags xflags(input.gettok( 4 ));
 
-		if ((flag.len() < 2) || (flag[0] != TEXT('+'))) {
+		if (!xflags[TEXT('+')]) {
 			this->showError(NULL, TEXT("-R"), TEXT("Invalid Flag"));
 			return;
 		}
@@ -458,28 +456,28 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		bool noRegion = false;
 		GetWindowRect(this->m_Hwnd,&rc);
 
-		if (flag.find(TEXT('o'),0))
+		if (xflags[TEXT('o')])
 			RegionMode = RGN_OR;
-		else if (flag.find(TEXT('a'),0))
+		else if (xflags[TEXT('a')])
 			RegionMode = RGN_AND;
-		else if (flag.find(TEXT('i'),0))
+		else if (xflags[TEXT('i')])
 			RegionMode = RGN_DIFF;
-		else if (flag.find(TEXT('x'),0))
+		else if (xflags[TEXT('x')])
 			RegionMode = RGN_XOR;
 
-		if (flag.find(TEXT('f'),0)) // image file - [COLOR] [FILE]
+		if (xflags[TEXT('f')]) // image file - [COLOR] [FILE]
 		{
 			if (numtok < 6) {
 				this->showError(NULL, TEXT("-R +f"), TEXT("Invalid Arguments"));
 				return;
 			}
 
-			COLORREF tCol = (COLORREF)input.gettok( 5 ).to_num();
+			const COLORREF tCol = (COLORREF)input.gettok( 5 ).to_num();
 			TString filename(input.gettok(6,-1));
 			HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,filename);
 
 			if (m_bitmapBg != NULL) {
-				if (flag.find(TEXT('R'),0)) // now resize image to match control.
+				if (xflags[TEXT('R')]) // now resize image to match control.
 					m_bitmapBg = DcxControl::resizeBitmap(m_bitmapBg, &rc);
 				m_Region = BitmapRegion(m_bitmapBg,tCol,((tCol != -1) ? TRUE : FALSE));
 
@@ -488,7 +486,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 			else
 				this->showError(NULL,TEXT("-R +f"), TEXT("Unable To Load Image file."));
 		}
-		else if (flag.find(TEXT('r'),0)) // rounded rect - radius args (optional)
+		else if (xflags[TEXT('r')]) // rounded rect - radius args (optional)
 		{
 			int radius;
 
@@ -499,19 +497,20 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 
 			m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
 		}
-		else if (flag.find(TEXT('c'),0)) // circle - radius arg (optional)
+		else if (xflags[TEXT('c')]) // circle - radius arg (optional)
 		{
 			if (numtok > 4) {
 				int radius = input.gettok( 5 ).to_int();
-				if (radius < 1) radius = 100; // handle cases where arg isnt a number or is a negative.
-				int cx = ((rc.right - rc.left)/2);
-				int cy = ((rc.bottom - rc.top)/2);
+				if (radius < 1)
+					radius = 100; // handle cases where arg isnt a number or is a negative.
+				const int cx = ((rc.right - rc.left)/2);
+				const int cy = ((rc.bottom - rc.top)/2);
 				m_Region = CreateEllipticRgn(cx-radius,cy-radius,cx+radius,cy+radius);
 			}
 			else
 				m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
 		}
-		else if (flag.find(TEXT('p'),0)) // polygon
+		else if (xflags[TEXT('p')]) // polygon
 		{
 			// u need at least 3 points for a shape
 			if (numtok < 7) {
@@ -519,23 +518,22 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 				return;
 			}
 
-			TString strPoints(input.gettok(5, -1));
+			const TString strPoints(input.gettok(5, -1));
 			TString strPoint;
-			int tPoints = strPoints.numtok( );
+			const int tPoints = strPoints.numtok( );
 
 			if (tPoints < 3) {
 				this->showError(NULL, TEXT("-R +p"), TEXT("Invalid Points: At least 3 points required."));
 				return;
 			}
 
-			int cnt = 1;
 			POINT *pnts = new POINT[tPoints];
 
-			while (cnt <= tPoints) {
+			for (int cnt = 1; cnt <= tPoints; cnt++)
+			{
 				strPoint = strPoints.gettok( cnt );
 				pnts[cnt-1].x = (LONG)strPoint.gettok(1, TSCOMMA).to_num();
 				pnts[cnt-1].y = (LONG)strPoint.gettok(2, TSCOMMA).to_num();
-				cnt++;
 			}
 
 			m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
@@ -566,7 +564,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		//		return;
 		//	}
 		//}
-		else if (flag.find(TEXT('b'),0)) { // alpha [1|0] [level]
+		else if (xflags[TEXT('b')]) { // alpha [1|0] [level]
 			noRegion = true;
 			if (numtok != 6) {
 				this->showError(NULL, TEXT("-R +b"), TEXT("Invalid Args"));
@@ -577,16 +575,13 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 			else
 				this->m_bAlphaBlend = false;
 
-			BYTE alpha = (BYTE)(input.gettok( 6 ).to_int() & 0xFF);
-
-			if (alpha > 255)
-				alpha = 255;
+			const BYTE alpha = (BYTE)(input.gettok( 6 ).to_int() & 0xFF);
 
 			if (alpha == 255)
 				this->m_bAlphaBlend = false;
 			this->m_iAlphaLevel = alpha;
 		}
-		else if (flag.find(TEXT('n'),0)) { // none, no args
+		else if (xflags[TEXT('n')]) { // none, no args
 			noRegion = true;
 			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
 		}
@@ -669,29 +664,26 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
 
 UINT DcxControl::parseColorFlags( const TString & flags ) {
 
-	INT i = 1, len = (INT)flags.len( ), iFlags = 0;
+	const XSwitchFlags xflags(flags);
+	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if ( flags[0] != TEXT('+') ) 
+	if ( !xflags[TEXT('+')] )
 		return iFlags;
 
-	while ( i < len ) {
+	if ( xflags[TEXT('b')] )
+		iFlags |= DCC_BKGCOLOR;
+	if ( xflags[TEXT('k')] )
+		iFlags |= DCC_TEXTBKGCOLOR;
+	if ( xflags[TEXT('t')] )
+		iFlags |= DCC_TEXTCOLOR;
+	if ( xflags[TEXT('r')] )
+		iFlags |= DCC_BORDERCOLOR;
+	if ( xflags[TEXT('g')] )
+		iFlags |= DCC_GRADSTARTCOLOR;
+	if ( xflags[TEXT('G')] )
+		iFlags |= DCC_GRADENDCOLOR;
 
-		if ( flags[i] == TEXT('b') )
-			iFlags |= DCC_BKGCOLOR;
-		else if ( flags[i] == TEXT('k') )
-			iFlags |= DCC_TEXTBKGCOLOR;
-		else if ( flags[i] == TEXT('t') )
-			iFlags |= DCC_TEXTCOLOR;
-		else if ( flags[i] == TEXT('r') )
-			iFlags |= DCC_BORDERCOLOR;
-		else if ( flags[i] == TEXT('g') )
-			iFlags |= DCC_GRADSTARTCOLOR;
-		else if ( flags[i] == TEXT('G') )
-			iFlags |= DCC_GRADENDCOLOR;
-
-		++i;
-	}
 	return iFlags;
 }
 
@@ -703,29 +695,25 @@ UINT DcxControl::parseColorFlags( const TString & flags ) {
 
 void DcxControl::parseBorderStyles( const TString & flags, LONG * Styles, LONG * ExStyles ) {
 
-  INT i = 1, len = flags.len( );
+	const XSwitchFlags xflags(flags);
 
-  // no +sign, missing params
-  if ( flags[0] != TEXT('+') ) 
-    return;
+	// no +sign, missing params
+	if ( !xflags[TEXT('+')] ) 
+		return;
 
-  while ( i < len ) {
+	if ( xflags[TEXT('b')] )
+		*Styles |= WS_BORDER;
+	if ( xflags[TEXT('c')] )
+		*ExStyles |= WS_EX_CLIENTEDGE;
+	if ( xflags[TEXT('d')] )
+		*Styles |= WS_DLGFRAME ;
+	if ( xflags[TEXT('f')] )
+		*ExStyles |= WS_EX_DLGMODALFRAME;
+	if ( xflags[TEXT('s')] )
+		*ExStyles |= WS_EX_STATICEDGE;
+	if ( xflags[TEXT('w')] )
+		*ExStyles |= WS_EX_WINDOWEDGE;
 
-    if ( flags[i] == TEXT('b') )
-      *Styles |= WS_BORDER;
-    else if ( flags[i] == TEXT('c') )
-      *ExStyles |= WS_EX_CLIENTEDGE;
-    else if ( flags[i] == TEXT('d') )
-      *Styles |= WS_DLGFRAME ;
-    else if ( flags[i] == TEXT('f') )
-      *ExStyles |= WS_EX_DLGMODALFRAME;
-    else if ( flags[i] == TEXT('s') )
-      *ExStyles |= WS_EX_STATICEDGE;
-    else if ( flags[i] == TEXT('w') )
-      *ExStyles |= WS_EX_WINDOWEDGE;
-
-    ++i;
-  }
 }
 
 /*!
@@ -736,24 +724,19 @@ void DcxControl::parseBorderStyles( const TString & flags, LONG * Styles, LONG *
 
 UINT DcxControl::parseCursorFlags( const TString & flags ) {
 
-  INT i = 1, len = (INT)flags.len( );
-  UINT iFlags = 0;
+	const XSwitchFlags xflags(flags);
+	UINT iFlags = 0;
 
-  // no +sign, missing params
-  if ( flags[0] != TEXT('+') ) 
-    return iFlags;
+	// no +sign, missing params
+	if ( !xflags[TEXT('+')] ) 
+		return iFlags;
 
-  while ( i < len ) {
+	if ( xflags[TEXT('f')] )
+		iFlags |= DCCS_FROMFILE;
+	if ( xflags[TEXT('r')] )
+		iFlags |= DCCS_FROMRESSOURCE;
 
-    if ( flags[i] == TEXT('f') )
-      iFlags |= DCCS_FROMFILE;
-    else if ( flags[i] == TEXT('r') )
-      iFlags |= DCCS_FROMRESSOURCE;
-
-    ++i;
-  }
-
-  return iFlags;
+	return iFlags;
 }
 
 /*!
@@ -825,8 +808,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		return TRUE;    
 	}
 	else if ( prop == TEXT("pos") ) {
-		RECT rc;
-		rc = getPosition();
+		const RECT rc = getPosition();
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
 		return TRUE;
 	}
@@ -883,8 +865,6 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 			ZeroMemory(&lfCurrent, sizeof(LOGFONT));
 			GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent);
 
-			//TString str(ParseLogfontToCommand(&lfCurrent));
-			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), str.to_chr());
 			lstrcpyn(szReturnValue, ParseLogfontToCommand(&lfCurrent).to_chr(), MIRC_BUFFER_SIZE_CCH);
 			return TRUE;
 		}
@@ -987,7 +967,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 		return 0L;
 	}
 
-	bool fBlocked = (InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
+	const bool fBlocked = (InSendMessageEx(NULL) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND;
 
 	if (!fBlocked) {
 		// If Message is blocking just call old win proc
@@ -1021,7 +1001,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 
 DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & tsInput, int offset, const UINT64 mask, HWND hParent ) {
 
-	TString type(tsInput.gettok( offset++ ));
+	const TString type(tsInput.gettok( offset++ ));
 
 	RECT rc;
 	rc.left = (LONG)tsInput.gettok( offset++ ).to_num( );
@@ -1759,17 +1739,17 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 
 				if ( p_Control != NULL ) {
 
-					COLORREF clrText = p_Control->getTextColor( );
-					COLORREF clrBackText = p_Control->getBackColor( );
+					const COLORREF clrText = p_Control->getTextColor( );
+					const COLORREF clrBackText = p_Control->getBackColor( );
 					HBRUSH hBackBrush = p_Control->getBackClrBrush( );
 
 					bParsed = TRUE;
 					lRes = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam);
 
-					if ( clrText != -1 )
+					if ( clrText != CLR_INVALID )
 						SetTextColor( (HDC) wParam, clrText );
 
-					if ( clrBackText != -1 )
+					if ( clrBackText != CLR_INVALID )
 						SetBkColor( (HDC) wParam, clrBackText );
 
 					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
@@ -1843,7 +1823,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		{
 			HDROP files = (HDROP) wParam;
 			TCHAR filename[500];
-			int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
+			const int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
 			if (count) {
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
@@ -1983,7 +1963,7 @@ void DcxControl::calcTextRect(HDC hdc, const TString &txt, LPRECT rc, const UINT
 void DcxControl::ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style)
 {
 	if (!this->m_bCtrlCodeText) {
-		int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
+		const int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 		if (this->m_bShadowText)
 			dcxDrawShadowText(hdc, txt.to_chr(), txt.len(), rc, style, this->m_clrText, 0, 5, 5);
 		else
@@ -1997,9 +1977,9 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, cons
 TString DcxControl::getStyles(void) const
 {
 	TString result;
-	DWORD exStyles, Styles;
-	exStyles = GetWindowExStyle(this->m_Hwnd);
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD exStyles = GetWindowExStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if ( Dcx::UXModule.dcxGetWindowTheme(this->m_Hwnd) == NULL )
 		result = TEXT("notheme");
 	if ( Styles & WS_TABSTOP ) 
@@ -2031,9 +2011,9 @@ TString DcxControl::getStyles(void) const
 TString DcxControl::getBorderStyles(void) const
 {
 	TString bstyles;
-	DWORD exStyles, Styles;
-	exStyles = GetWindowExStyle(this->m_Hwnd);
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD exStyles = GetWindowExStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & WS_BORDER)
 		bstyles += TEXT('b');
 	if (exStyles & WS_EX_CLIENTEDGE)
@@ -2051,7 +2031,7 @@ TString DcxControl::getBorderStyles(void) const
 
 void DcxControl::toXml(TiXmlElement * xml) const
 {
-	TString styles(getStyles());
+	const TString styles(getStyles());
 
 	xml->SetAttribute("id", getUserID());
 	xml->SetAttribute("type", getType().c_str());

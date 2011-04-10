@@ -72,11 +72,7 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 		TString url(TEXT("about:blank"));
 		VARIANT v;
 		VariantInit( &v );
-#if UNICODE
 		this->m_pWebBrowser2->Navigate( url.to_chr(), &v, &v, &v, &v );  // dont use L""
-#else
-		this->m_pWebBrowser2->Navigate( url.to_wchr(this->m_bUseUTF8), &v, &v, &v, &v );  // dont use L""
-#endif
 		VariantClear( &v );
 	}
 	else {
@@ -245,7 +241,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 	// xdid -n [NAME] [ID] [SWITCH] [URL]
 	else if ( flags[TEXT('n')] && numtok > 3 ) {
 
-		TString URL(input.gettok( 4, -1 ).trim());
+		const TString URL(input.gettok( 4, -1 ).trim());
 
 		VARIANT v;
 		VariantInit( &v );
