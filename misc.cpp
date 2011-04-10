@@ -40,7 +40,7 @@ int round(const float x) {
 /*!
 * \brief Read File Contents
 *
-* blah
+* TODO: Fix this function to correctly handle BOM types, or write a new text loading function that does.
 */
 BYTE *readFile(const PTCHAR filename) {
 	//Ouvrir le fichier, read en mode binaire
@@ -75,7 +75,7 @@ BYTE *readFile(const PTCHAR filename) {
 
 	// read the file, fails, destroy memory and return NULL
 	if (fread(fileContents, 1, size, file) != size) {
-		delete fileContents;
+		delete [] fileContents;
 		return NULL;
 	}
 
@@ -310,7 +310,9 @@ TString ParseLogfontToCommand(const LPLOGFONT lf) {
 HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TString &flags) {
 	filename.trim();
 
-	if (flags[0] != TEXT('+')) {
+	const XSwitchFlags xflags(flags);
+
+	if (!xflags[TEXT('+')]) {
 		Dcx::error(TEXT("dcxLoadIcon"), TEXT("Invalid Flags"));
 		return NULL;
 	}
@@ -322,7 +324,7 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 	}
 
 	// This doesnt require a valid filename.
-	if (flags.find(TEXT('f'), 0)) {
+	if (xflags[TEXT('f')]) {
 		SHFILEINFO shfi;
 		TString filetype;
 
@@ -343,12 +345,12 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 
 	HICON icon = NULL;
 
-	if (flags.find(TEXT('a'),0)) {
+	if (xflags[TEXT('a')]) {
 		WORD wIndex = (WORD)index;
 		icon = ExtractAssociatedIcon(NULL, filename.to_chr(), &wIndex);
 	}
 #ifdef DCX_USE_GDIPLUS
-	else if (flags.find(TEXT('P'),0)) {
+	else if (xflags[TEXT('P')]) {
 		if (!Dcx::GDIModule.isUseable())
 		{
 			Dcx::error(TEXT("dcxLoadIcon"), TEXT("Invalid +P without GDI+."));
@@ -392,7 +394,7 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 			ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
 	}
 
-	if (flags.find(TEXT('g'), 0) && icon != NULL)
+	if (xflags[TEXT('g')] && icon != NULL)
 		icon = CreateGrayscaleIcon(icon);
 
 	return icon;

@@ -96,8 +96,7 @@ DcxList::~DcxList( ) {
 TString DcxList::getStyles(void) const
 {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & LBS_DISABLENOSCROLL)
 		styles.addtok(TEXT("noscroll"));
 	if (Styles & LBS_MULTIPLESEL)
@@ -133,11 +132,11 @@ TString DcxList::getStyles(void) const
 
 void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-	unsigned int i = 1;
 	const UINT numtok = styles.numtok();
 	*Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
 
-	while (i <= numtok) {
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if (styles.gettok(i) == TEXT("noscroll"))
 			*Styles |= LBS_DISABLENOSCROLL;
 		else if (styles.gettok(i) == TEXT("multi"))
@@ -164,8 +163,6 @@ void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 			*Styles &= ~LBS_OWNERDRAWFIXED;
 		//else if (styles.gettok(i) == TEXT("shadow")) // looks crap
 		//	this->m_bShadowText = true;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -188,9 +185,9 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 
 	// [NAME] [ID] [PROP] [N]
 	if ( prop == TEXT("text") && numtok > 3 ) {
-		int nSel = input.gettok( 4 ).to_int( ) - 1;
+		const int nSel = input.gettok( 4 ).to_int( ) - 1;
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
-			int l = ListBox_GetTextLen(this->m_Hwnd, nSel);
+			const int l = ListBox_GetTextLen(this->m_Hwnd, nSel);
 			if (l != LB_ERR && l < MIRC_BUFFER_SIZE_CCH)
 				ListBox_GetText( this->m_Hwnd, nSel, szReturnValue );
 			else
@@ -207,7 +204,7 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 	// [NAME] [ID] [PROP] (N)
 	else if (prop == TEXT("sel")) {
 		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
-			int n = ListBox_GetSelCount(this->m_Hwnd);
+			const int n = ListBox_GetSelCount(this->m_Hwnd);
 
 			if (n > 0) {
 				int *p = new int[n];
@@ -215,7 +212,7 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 
 				// get a unique value
 				if (numtok > 3) {
-					int i = input.gettok( 4 ).to_int();
+					const int i = input.gettok( 4 ).to_int();
 					TString value;
 
 					if (i == 0) {
@@ -231,17 +228,15 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 					// get all items in a long comma seperated string
 					TString path;
 					TCHAR num[11];
-					int i = 0;
 
-					while (i < n) {
+					for (int i = 0; i < n; i++)
+					{
 #ifdef VS2005
 						_itow(p[i] +1, num, 10);
 #else
 						itow(p[i] +1, num, 10);
 #endif // VS2005
 						path.addtok(num, TSCOMMA);
-
-						i++;
 					}
 
 					lstrcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
@@ -258,18 +253,15 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if (prop == TEXT("tbitem")) {
-		int top;
-		int bottom;
-		int height;
-		int count = ListBox_GetCount(this->m_Hwnd);
+		const int count = ListBox_GetCount(this->m_Hwnd);
 		RECT rc;
 
 		GetClientRect(this->m_Hwnd, &rc);
 
-		top = SendMessage(this->m_Hwnd, LB_GETTOPINDEX, NULL, NULL);
-		height = SendMessage(this->m_Hwnd, LB_GETITEMHEIGHT, NULL, NULL);
+		const int top = SendMessage(this->m_Hwnd, LB_GETTOPINDEX, NULL, NULL);
+		const int height = SendMessage(this->m_Hwnd, LB_GETITEMHEIGHT, NULL, NULL);
 
-		bottom = top + ((rc.bottom - rc.top) / height);
+		int bottom = top + ((rc.bottom - rc.top) / height);
 
 		if (bottom > count)
 			bottom = count;
@@ -279,8 +271,8 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
 	else if ( prop == TEXT("find") && numtok > 5 ) {
-		TString matchtext(input.gettok(2, TSTAB).trim());
-		TString params(input.gettok(3, TSTAB).trim());
+		const TString matchtext(input.gettok(2, TSTAB).trim());
+		const TString params(input.gettok(3, TSTAB).trim());
 
 		if ( matchtext.len( ) > 0 ) {
 
@@ -291,12 +283,12 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 			else
 				SearchType = LBSEARCH_W;
 
-			int N = params.gettok( 2 ).to_int( );
+			const int N = params.gettok( 2 ).to_int( );
 
 			// count total
 			if ( N == 0 ) {
 
-				int nItems = ListBox_GetCount( this->m_Hwnd );
+				const int nItems = ListBox_GetCount( this->m_Hwnd );
 				int count = 0;
 
 				for ( int i = 0; i < nItems; i++ ) {
@@ -311,7 +303,7 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 			// find Nth matching
 			else {
 
-				int nItems = ListBox_GetCount( this->m_Hwnd );
+				const int nItems = ListBox_GetCount( this->m_Hwnd );
 				int count = 0;
 
 				for ( int i = 0; i < nItems; i++ ) {
@@ -406,8 +398,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		case TEXT('t'): // [TEXT] == [table] [startN] [endN]
 			{
 				if (itemtext.numtok() == 3) { // add contents of a hash table to list
-					int max_items = 0, len = 0;
-					TString htable(itemtext.gettok( 1 ));
+					int max_items = 0;
+					const TString htable(itemtext.gettok( 1 ));
 					int startN = itemtext.gettok( 2 ).to_int();
 					int endN = itemtext.gettok( 3 ).to_int();
 
@@ -448,7 +440,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 					for (int i = startN; i <= endN; i++) {
 						Dcx::mIRC.tsEvalex(tsRes, TEXT("$hget(%s,%d).data"), htable.to_chr(), i);
 						ListBox_InsertString( this->m_Hwnd, nPos++, tsRes.to_chr() );
-						len = tsRes.len();
+						const int len = tsRes.len();
 						if (len > nMaxStrlen)
 							nMaxStrlen = len;
 					}
@@ -469,7 +461,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 					if (IsFile(filename)) {
 						PTCHAR buf = (PTCHAR)readFile(filename.to_chr());
 						if (buf != NULL) {
-							int max_lines = 0, len = 0;
+							int max_lines = 0;
 							TString contents(buf);
 							delete [] buf;
 							TCHAR *tok = TEXT("\r\n");
@@ -513,7 +505,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 							for (int i = startN; i <= endN; i++) {
 								itemtext = contents.gettok( i, tok);
 								ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
-								len = itemtext.len();
+								const int len = itemtext.len();
 								if (len > nMaxStrlen)
 									nMaxStrlen = len;
 							}
@@ -534,17 +526,16 @@ void DcxList::parseCommandRequest( const TString & input ) {
 					TCHAR tok[2];
 					tok[0] = (TCHAR)itemtext.gettok(1).to_int();
 					tok[1] = 0;
-					TString contents(itemtext.gettok(2,-1));
+					const TString contents(itemtext.gettok(2,-1));
 
-					int iNumtok = contents.numtok(tok);
-					int len = 0;
+					const int iNumtok = contents.numtok(tok);
 
 					this->setRedraw(FALSE);
 
 					for (int i = 1; i <= iNumtok; i++) {
 						itemtext = contents.gettok( i, tok);
 						ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
-						len = itemtext.len();
+						const int len = itemtext.len();
 						if (len > nMaxStrlen)
 							nMaxStrlen = len;
 					}
@@ -564,7 +555,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			break;
 		}
 		// Now update the horizontal scroller
-		int nHorizExtent = ListBox_GetHorizontalExtent( this->m_Hwnd );
+		const int nHorizExtent = ListBox_GetHorizontalExtent( this->m_Hwnd );
 
 		{ // Get Font sizes (best way i can find atm, if you know something better then please let me know)
 			HDC hdc = GetDC( this->m_Hwnd);
@@ -591,16 +582,16 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	//xdid -c [NAME] [ID] [SWITCH] [N,[N,[...]]]
 	else if ( flags[TEXT('c')] && numtok > 3 ) {
 
-		int nItems = ListBox_GetCount( this->m_Hwnd );
+		const int nItems = ListBox_GetCount( this->m_Hwnd );
 
 		if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
 
-			TString Ns(input.gettok( 4 ));
+			const TString Ns(input.gettok( 4 ));
 
-			int i = 1, n = Ns.numtok( TSCOMMA );
+			const int n = Ns.numtok( TSCOMMA );
 
-			while ( i <= n ) {
-
+			for (int i = 1; i <= n; i++ )
+			{
 				int nSel = Ns.gettok( i, TSCOMMA ).to_int( ) - 1;
 
 				if (nSel == -1)
@@ -608,8 +599,6 @@ void DcxList::parseCommandRequest( const TString & input ) {
 
 				if ( nSel > -1 && nSel < nItems )
 					ListBox_SetSel( this->m_Hwnd, TRUE, nSel );
-
-				i++;
 			}
 		}
 		else {
@@ -648,17 +637,17 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N]...)
 	else if ( flags[TEXT('m')] && numtok > 4 ) {
-		TString opts(input.gettok( 4 ));
+		const XSwitchFlags xflags(input.gettok( 4 ));
 
-		if (opts.find(TEXT('w'),0))
+		if (xflags[TEXT('w')])
 			ListBox_SetColumnWidth( this->m_Hwnd, input.gettok( 5 ).to_int( ));
-		else if (opts.find(TEXT('t'),0)) {
-			TString Ns(input.gettok( 5 ));
+		else if (xflags[TEXT('t')]) {
+			const TString Ns(input.gettok( 5 ));
 
-			int i = 1, n = Ns.numtok( TSCOMMA );
+			const int n = Ns.numtok( TSCOMMA );
 
 			if (n == 1) {
-				int nTab = Ns.to_int();
+				const int nTab = Ns.to_int();
 				if (nTab < 0)
 					ListBox_SetTabStops( this->m_Hwnd, NULL, NULL);
 				else
@@ -667,10 +656,9 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			else {
 				int *tabs = new int[n];
 
-				while ( i <= n ) {
+				for (int i = 1; i <= n; i++ )
 					tabs[i-1] = Ns.gettok( i, TSCOMMA).to_int();
-					i++;
-				}
+
 				ListBox_SetTabStops( this->m_Hwnd, n, tabs);
 				delete [] tabs;
 			}
@@ -783,7 +771,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					switch ( HIWORD( wParam ) ) {
 						case LBN_SELCHANGE:
 						 {
-							 int nItem = ListBox_GetCurSel( this->m_Hwnd );
+							 const int nItem = ListBox_GetCurSel( this->m_Hwnd );
 
 							 if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
 								 if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
@@ -796,7 +784,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 						case LBN_DBLCLK:
 						 {
-							 int nItem = ListBox_GetCurSel( this->m_Hwnd );
+							 const int nItem = ListBox_GetCurSel( this->m_Hwnd );
 
 							 if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
 								 if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
@@ -813,7 +801,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		case WM_DRAWITEM:
 			{
 				LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT) lParam;
-				int len = ListBox_GetTextLen(lpDrawItem->hwndItem, lpDrawItem->itemID);
+				const int len = ListBox_GetTextLen(lpDrawItem->hwndItem, lpDrawItem->itemID);
 				if (len == LB_ERR)
 					break;
 
@@ -978,12 +966,11 @@ void DcxList::DrawDragLine(const int location)
 
 BOOL DcxList::matchItemText( const int nItem, const TString * search, const UINT SearchType ) const
 {
-	TCHAR *itemtext;
 	BOOL bRes = FALSE;
 
-	int len = ListBox_GetTextLen( this->m_Hwnd, nItem );
+	const int len = ListBox_GetTextLen( this->m_Hwnd, nItem );
 
-	itemtext = new TCHAR[len + 1];
+	TCHAR *itemtext = new TCHAR[len + 1];
 
 	ListBox_GetText( this->m_Hwnd, nItem, itemtext );
 

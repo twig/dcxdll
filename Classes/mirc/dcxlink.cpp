@@ -143,7 +143,7 @@ void DcxLink::parseCommandRequest( const TString & input ) {
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
 	if ( flags[TEXT('l')] && numtok > 4 ) {
 
-		int nColor = input.gettok( 4 ).to_int( ) - 1;
+		const int nColor = input.gettok( 4 ).to_int( ) - 1;
 
 		if ( nColor > -1 && nColor < 4 )
 			this->m_aColors[nColor] = (COLORREF)input.gettok( 5 ).to_num( );
@@ -151,26 +151,22 @@ void DcxLink::parseCommandRequest( const TString & input ) {
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR4]
 	else if ( flags[TEXT('q')] && numtok > 3 ) {
 
-		int i = 0, len = input.gettok( 4, -1 ).numtok( );
-		while ( i < len && i < 4 ) {
-
+		const int len = input.gettok( 4, -1 ).numtok( );
+		for (int i = 0; (i < len && i < 4 ); i++)
 			this->m_aColors[i] = (COLORREF)input.gettok( 4 + i ).to_num( );
-
-			i++;
-		}
 	}
 	//xdid -t [NAME] [ID] [SWITCH] (TEXT)
 	else if ( flags[TEXT('t')] ) {
 
-		TString text(input.gettok( 4, -1 ));
+		const TString text(input.gettok( 4, -1 ));
 		//text.trim( );
 		SetWindowText( this->m_Hwnd, text.to_chr( ) );
 		this->redrawWindow( );
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		TString flag(input.gettok( 4 ));
-		int index = input.gettok( 5 ).to_int();
+		const TString flag(input.gettok( 4 ));
+		const int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
 
 		if (this->m_hIcon != NULL)
@@ -479,7 +475,7 @@ void DcxLink::DrawClientArea(HDC hdc)
 
 	if ( this->m_hIcon != NULL ) {
 
-		int y = ( rect.top + rect.bottom - 16 ) / 2;
+		const int y = (( rect.top + rect.bottom - 16 ) / 2);
 		DrawIconEx( hdc, rect.left, y, this->m_hIcon, 0, 0, NULL, NULL, DI_NORMAL );
 
 		OffsetRect( &rect, 20, 0 );
@@ -495,7 +491,7 @@ void DcxLink::DrawClientArea(HDC hdc)
 		this->m_clrText = this->m_aColors[0];
 
 	TString wtext;
-	int nText = TGetWindowText(this->m_Hwnd, wtext);
+	const int nText = TGetWindowText(this->m_Hwnd, wtext);
 
 	if (!this->m_bCtrlCodeText) {
 		if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+

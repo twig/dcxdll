@@ -19,32 +19,32 @@ DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 : DcxControl( ID, p_Dialog )
 , m_ChildHWND(NULL)
 {
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  this->m_Hwnd = CreateWindowEx(	
-    ExStyles | WS_EX_CONTROLPARENT,
-    DCX_PAGERCLASS,
-    NULL,
-    WS_CHILD | Styles,
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL),
-    NULL);
+	this->m_Hwnd = CreateWindowEx(
+		ExStyles | WS_EX_CONTROLPARENT,
+		DCX_PAGERCLASS,
+		NULL,
+		WS_CHILD | Styles,
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL),
+		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
 		throw TEXT("Unable To Create Window");
 
-  if ( bNoTheme )
-    Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if ( bNoTheme )
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	//Pager_SetButtonSize(this->m_Hwnd,15);
 	//Pager_SetBkColor(this->m_Hwnd,0);
 
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -61,8 +61,7 @@ DcxPager::~DcxPager( ) {
 TString DcxPager::getStyles(void) const
 {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & PGS_HORZ)
 		styles.addtok(TEXT("horizontal"));
 	if (Styles & PGS_AUTOSCROLL)
@@ -74,8 +73,7 @@ TString DcxPager::getStyles(void) const
 void DcxPager::toXml(TiXmlElement * xml) const
 {
 	__super::toXml(xml);
-	DcxControl * child;
-	child = this->m_pParentDialog->getControlByHWND(this->m_ChildHWND);
+	const DcxControl * child = this->m_pParentDialog->getControlByHWND(this->m_ChildHWND);
 	if (child != NULL)
 		xml->LinkEndChild(child->toXml());
 }
@@ -155,9 +153,9 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 			//DCXError( TEXT("/xdid -c"),TEXT("Child Control already exists") );
 			return;
 		}
-		UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
 
-		if ( ID > mIRC_ID_OFFSET - 1 && 
+		if ( (ID > mIRC_ID_OFFSET - 1) && 
 			!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 			this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 		{
@@ -191,7 +189,7 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
 		DcxControl * p_Control;
 
 		if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && (ID > mIRC_ID_OFFSET - 1) && ( p_Control = this->m_pParentDialog->getControlByID( ID ) ) != NULL ) 
@@ -277,7 +275,7 @@ LRESULT DcxPager::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 						//	lpnmcs->iWidth = (rc.right - rc.left);
 						DcxControl *cthis = (DcxControl *)GetProp(this->m_ChildHWND,TEXT("dcx_cthis"));
 						if (cthis != NULL) {
-							int bSize = Pager_GetButtonSize(this->m_Hwnd);
+							const int bSize = Pager_GetButtonSize(this->m_Hwnd);
 							if (cthis->getType() == TEXT("toolbar")) {
 								SIZE sz;
 								SendMessage(this->m_ChildHWND, TB_GETMAXSIZE, 0, (LPARAM)&sz);

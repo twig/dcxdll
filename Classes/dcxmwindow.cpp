@@ -36,8 +36,7 @@ DcxMWindow::DcxMWindow( const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDi
 	this->m_Hwnd = cHwnd;
 	this->m_OrigParentHwnd = GetParent( this->m_Hwnd );
 
-	this->m_OrigStyles = this->removeStyle( WS_CAPTION|DS_FIXEDSYS|DS_SETFONT|DS_MODALFRAME|WS_POPUP|
-		WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_THICKFRAME );
+	this->m_OrigStyles = this->removeStyle( WS_CAPTION|DS_FIXEDSYS|DS_SETFONT|DS_MODALFRAME|WS_POPUP|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_THICKFRAME );
 
 	this->m_OrigExStyles = this->removeExStyle( WS_EX_CONTROLPARENT|WS_EX_MDICHILD );
 

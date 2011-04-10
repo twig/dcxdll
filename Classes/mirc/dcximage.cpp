@@ -160,11 +160,7 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 		this->showErrorEx(NULL,TEXT("LoadGDIPlusImage"), TEXT("Unable to Access File: %s"), filename.to_chr());
 		return false;
 	}
-#if UNICODE
 	this->m_pImage = new Image(filename.to_chr(),TRUE);
-#else
-	this->m_pImage = new Image(filename.to_wchr(),TRUE);
-#endif
 
 	// couldnt allocate image object.
 	if (this->m_pImage == NULL) {
@@ -179,7 +175,9 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 		return false;
 	}
 
-	if (flags.find(TEXT('h'),0)) { // High Quality
+	const XSwitchFlags xflags(flags);
+
+	if (xflags[TEXT('h')]) { // High Quality
 		this->m_CQuality = CompositingQualityHighQuality;
 		this->m_IMode = InterpolationModeHighQualityBicubic;
 	}
@@ -188,17 +186,17 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 		this->m_IMode = InterpolationModeDefault;
 	}
 
-	if (flags.find(TEXT('b'),0)) // Blend Image
+	if (xflags[TEXT('b')]) // Blend Image
 		this->m_CMode = CompositingModeSourceOver;
 	else
 		this->m_CMode = CompositingModeSourceCopy;
 
-	if (flags.find(TEXT('a'),0)) // Anti-Aliased
+	if (xflags[TEXT('a')]) // Anti-Aliased
 		this->m_SMode = SmoothingModeAntiAlias;
 	else
 		this->m_SMode = SmoothingModeDefault;
 
-	if (flags.find(TEXT('t'),0)) // Tile
+	if (xflags[TEXT('t')]) // Tile
 		this->m_bTileImage = true;
 	else
 		this->m_bTileImage = false;
@@ -442,7 +440,7 @@ void DcxImage::DrawClientArea(HDC hdc)
 	// default paint method
 	GetClientRect(this->m_Hwnd, &rect);
 
-	int w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
+	const int w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
 
 	// Setup alpha blend if any.
 	// Double Buffer required for GDI+ to look right in WS_EX_COMPOSITED

@@ -120,9 +120,9 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( flags[TEXT('c')] && numtok > 8 ) {
 
-		UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
 
-		if ( ID > mIRC_ID_OFFSET - 1 && 
+		if ( (ID > mIRC_ID_OFFSET - 1) && 
 			!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 			this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 		{
@@ -144,7 +144,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
 		DcxControl * p_Control;
 
 		if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
@@ -192,15 +192,15 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
 		else if ( numtok > 8 ) {
-			TString com(input.gettok(1, TSTAB).gettok(4).trim());
-			TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
-			TString p2(input.gettok(2, TSTAB).trim());
+			const TString com(input.gettok(1, TSTAB).gettok(4).trim());
+			const TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
+			const TString p2(input.gettok(2, TSTAB).trim());
 
-			UINT iflags = this->parseLayoutFlags( p2.gettok( 1 ) );
-			UINT ID = p2.gettok( 2 ).to_int( );
-			UINT WGT = p2.gettok( 3 ).to_int( );
-			UINT W = p2.gettok( 4 ).to_int( );
-			UINT H = p2.gettok( 5 ).to_int( );
+			const UINT iflags = this->parseLayoutFlags( p2.gettok( 1 ) );
+			const UINT ID = p2.gettok( 2 ).to_int( );
+			const UINT WGT = p2.gettok( 3 ).to_int( );
+			const UINT W = p2.gettok( 4 ).to_int( );
+			const UINT H = p2.gettok( 5 ).to_int( );
 
 			if ( com ==  TEXT("root") || com == TEXT("cell") ) {
 
@@ -350,32 +350,27 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 
 UINT DcxPanel::parseLayoutFlags( const TString & flags ) {
 
-	INT i = 1, len = flags.len( );
+	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if ( flags[0] != TEXT('+') ) 
+	if ( !xflags[TEXT('+')] ) 
 		return iFlags;
 
-	while ( i < len ) {
-
-		if ( flags[i] == TEXT('f') )
-			iFlags |= LAYOUTFIXED;
-		else if ( flags[i] == TEXT('h') )
-			iFlags |= LAYOUTHORZ;
-		else if ( flags[i] == TEXT('i') )
-			iFlags |= LAYOUTID;
-		else if ( flags[i] == TEXT('l') )
-			iFlags |= LAYOUTFILL ;
-		else if ( flags[i] == TEXT('p') )
-			iFlags |= LAYOUTPANE;
-		else if ( flags[i] == TEXT('v') )
-			iFlags |= LAYOUTVERT;
-		else if ( flags[i] == TEXT('w') )
-			iFlags |= LAYOUTDIM;
-
-		++i;
-	}
+	if ( xflags[TEXT('f')] )
+		iFlags |= LAYOUTFIXED;
+	if ( xflags[TEXT('h')] )
+		iFlags |= LAYOUTHORZ;
+	if ( xflags[TEXT('i')] )
+		iFlags |= LAYOUTID;
+	if ( xflags[TEXT('l')] )
+		iFlags |= LAYOUTFILL ;
+	if ( xflags[TEXT('p')] )
+		iFlags |= LAYOUTPANE;
+	if ( xflags[TEXT('v')] )
+		iFlags |= LAYOUTVERT;
+	if ( xflags[TEXT('w')] )
+		iFlags |= LAYOUTDIM;
 
 	return iFlags;
 }

@@ -69,8 +69,7 @@ DcxLine::~DcxLine( ) {
 TString DcxLine::getStyles(void) const
 {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (this->m_bVertical)
 		styles.addtok(TEXT("vertical"));
 	if (Styles & SS_LEFTNOWORDWRAP)
@@ -107,11 +106,10 @@ void DcxLine::toXml(TiXmlElement * xml) const
 
 void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	unsigned int i = 1;
 	const UINT numtok = styles.numtok( );
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++ )
+	{
 		if ( styles.gettok( i ) == TEXT("vertical") )
 			this->m_bVertical = true;
 		else if (styles.gettok(i ) == TEXT("nowrap"))
@@ -126,8 +124,6 @@ void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 			*Styles |= SS_ENDELLIPSIS;
 		else if (styles.gettok(i) == TEXT("pathellipsis"))
 			*Styles |= SS_PATHELLIPSIS;
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -166,19 +162,6 @@ void DcxLine::parseCommandRequest( const TString & input ) {
 	if (flags[TEXT('t')]) {
 		this->m_sText = input.gettok(4, -1).trim();
 
-		//if (this->m_bVertical) {
-		//	HFONT hFont = (HFONT)this->getFont(), hVFont = NULL;
-		//	if (hFont == NULL)
-		//		hFont = GetStockFont(DEFAULT_GUI_FONT);
-		//	LOGFONT lf;
-		//	ZeroMemory(&lf, sizeof(LOGFONT));
-		//	GetObject(hFont, sizeof(LOGFONT), &lf);
-		//	lf.lfEscapement = 900;
-		//	lf.lfOrientation = 900;
-		//	hVFont = CreateFontIndirect(&lf);
-		//	if (hVFont != NULL)
-		//		this->setControlFont(hVFont, FALSE);
-		//}
 		// redraw if transparent
 		if (this->isExStyle(WS_EX_TRANSPARENT)) {
 
@@ -298,7 +281,7 @@ void DcxLine::DrawClientArea(HDC hdc)
 			//SetBkMode(hdc, oMode);
 			// new working ver that does the same as the orig but using the current font.
 			SIZE sz;
-			int oMode = SetBkMode(hdc, TRANSPARENT);
+			const int oMode = SetBkMode(hdc, TRANSPARENT);
 			GetTextExtentPoint32(hdc,this->m_sText.to_chr(),this->m_sText.len(), &sz);
 			rcText.bottom = rcText.top + sz.cx;
 			rcText.right = rcText.left + sz.cy;

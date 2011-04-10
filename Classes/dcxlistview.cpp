@@ -458,15 +458,13 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			// otherwise we want a list of indexes (comma seperated)
 			if (nSelItems > 0) {
 				TString list;
-				int i = 1;
 
-				while ((nItem = ListView_GetNextItem(this->m_Hwnd, nItem, LVIS_SELECTED)) != -1) {
+				for (int i = 1; ((nItem = ListView_GetNextItem(this->m_Hwnd, nItem, LVIS_SELECTED)) != -1); i++)
+				{
 					if (i == 1)
 						list.tsprintf(TEXT("%d"), nItem +1);
 					else
 						list.tsprintf(TEXT("%s,%d"), list.to_chr(), nItem +1);
-
-					i++;
 				}
 
 				lstrcpyn(szReturnValue, list.to_chr(), MIRC_BUFFER_SIZE_CCH);
@@ -647,9 +645,8 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			TString buff;
 			const int count = this->getColumnCount();
 
-			for (int i = 0; i < count; i++) {
+			for (int i = 0; i < count; i++)
 				buff.tsprintf(TEXT("%s %d"), buff.to_chr(), ListView_GetColumnWidth(this->m_Hwnd, i));
-			}
 
 			lstrcpyn(szReturnValue, buff.trim().to_chr(), MIRC_BUFFER_SIZE_CCH);
 			return;
@@ -1397,7 +1394,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		if (data.numtok( ) > 3)
 			itemtext = data.gettok(4, -1);
 
-		lvc.iImage = -1;
+		lvc.iImage = I_IMAGENONE;
 		lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 		lvc.cx = width;
 		lvc.fmt = this->parseHeaderFlags(data.gettok( 1 ));
@@ -1438,7 +1435,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 				lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 				lvc.cx = width;
 				lvc.fmt = this->parseHeaderFlags(data.gettok( 1 ));
-				lvc.iImage = -1;
+				lvc.iImage = I_IMAGENONE;
 				lvc.iSubItem = 0;
 				lvc.pszText = itemtext.to_chr();
 
@@ -1723,7 +1720,6 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 		int pos = input.gettok(4).to_int();
 		int count = ListView_GetItemCount(this->m_Hwnd);
-		int height;
 		RECT rc;
 
 		// no items - no need to view
@@ -1739,7 +1735,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 		// get height of a single item
 		ListView_GetItemRect(this->m_Hwnd, 0, &rc, LVIR_BOUNDS);
-		height = count * (rc.bottom - rc.top);
+		const int height = count * (rc.bottom - rc.top);
 
 		pos = round((float) height * (float) pos / (float) 100.0);
 
@@ -1884,7 +1880,7 @@ UINT DcxListView::parseIconFlagOptions( const TString & flags ) {
 
 	UINT iFlags = 0;
 
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
 	if ( !xflags[TEXT('+')] ) 
@@ -1905,7 +1901,7 @@ UINT DcxListView::parseIconFlagOptions( const TString & flags ) {
 */
 
 UINT DcxListView::parseItemFlags(const TString & flags) {
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
@@ -1955,7 +1951,7 @@ UINT DcxListView::parseItemFlags(const TString & flags) {
 */
 
 UINT DcxListView::parseMassItemFlags(const TString & flags) {
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
@@ -1982,7 +1978,7 @@ UINT DcxListView::parseMassItemFlags(const TString & flags) {
 */
 // used flags bcflr
 UINT DcxListView::parseHeaderFlags( const TString & flags ) {
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	if (!xflags[TEXT('+')])
@@ -2017,7 +2013,7 @@ UINT DcxListView::parseHeaderFlags( const TString & flags ) {
 
 INT DcxListView::parseHeaderFlags2( const TString & flags ) {
 
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 	int iFlags = 0;
 
 	if (!xflags[TEXT('+')])
@@ -2041,7 +2037,7 @@ INT DcxListView::parseHeaderFlags2( const TString & flags ) {
 
 UINT DcxListView::parseSortFlags( const TString & flags ) {
 
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
@@ -2072,7 +2068,7 @@ UINT DcxListView::parseSortFlags( const TString & flags ) {
 
 UINT DcxListView::parseGroupFlags( const TString & flags ) {
 
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
@@ -2097,7 +2093,7 @@ UINT DcxListView::parseGroupFlags( const TString & flags ) {
 
 UINT DcxListView::parseColorFlags( const TString & flags ) {
 
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
@@ -2124,7 +2120,7 @@ UINT DcxListView::parseColorFlags( const TString & flags ) {
 
 UINT DcxListView::parseImageFlags( const TString & flags ) {
 
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
@@ -3149,13 +3145,13 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 		return false;
 	}
 
-	TiXmlElement *xRoot = doc.FirstChildElement("dcxml");
+	const TiXmlElement *xRoot = doc.FirstChildElement("dcxml");
 	if (xRoot == NULL) {
 		this->showError(NULL, TEXT("-a"), TEXT("Unable Find 'dcxml' root"));
 		return false;
 	}
 
-	TiXmlElement *xElm = xRoot->FirstChildElement("listview_data");
+	const TiXmlElement *xElm = xRoot->FirstChildElement("listview_data");
 	if (xElm == NULL) {
 		this->showError(NULL, TEXT("-a"), TEXT("Unable To Find 'listview_data' element"));
 		return false;
@@ -3264,7 +3260,7 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 					else {
 						attr = xNode->Attribute("autosizemax",&i);
 						if (attr != NULL && i > 0)
-							this->autoSize(nSubItem,-3);
+							this->autoSize(nSubItem,LVSCW_AUTOSIZE_MAX);
 					}
 				}
 			}
@@ -3477,9 +3473,10 @@ bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const TCH
 
 	this->setRedraw(FALSE); // disable redraw while adding lots of items.
 
-	int nItem = nPos;	// tmp var use to update the item pos for each item added.
+	//int nItem = nPos;	// tmp var use to update the item pos for each item added.
 
-	while (iStart <= iEnd) {
+	for (int nItem = nPos; iStart <= iEnd; iStart++)
+	{
 		// get items data
 		Dcx::mIRC.tsEvalex(res, sGet, tsName.to_chr(), iStart);
 		if (iFlags & LVIMF_ALLINFO)
@@ -3500,8 +3497,6 @@ bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const TCH
 			parseText2Item(res, input, tsData);
 		}
 		massSetItem(nItem++, input);
-
-		iStart++;
 	}
 
 	this->setRedraw(TRUE); // re-enable redraw when finished adding items.

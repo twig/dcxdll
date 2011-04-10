@@ -29,30 +29,30 @@
 DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, const TString & styles )
 : DcxControl( ID, p_Dialog )
 {
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->m_DeleteByDestroy = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->m_DeleteByDestroy = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  this->m_Hwnd = cHwnd;
-  this->m_OrigParentHwnd = GetParent( this->m_Hwnd );
+	this->m_Hwnd = cHwnd;
+	this->m_OrigParentHwnd = GetParent( this->m_Hwnd );
 
-  this->m_OrigStyles = this->removeStyle( WS_CAPTION|DS_FIXEDSYS|DS_SETFONT|DS_3DLOOK|DS_MODALFRAME|
-    WS_POPUP|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_THICKFRAME );
+	this->m_OrigStyles = this->removeStyle( WS_CAPTION|DS_FIXEDSYS|DS_SETFONT|DS_3DLOOK|DS_MODALFRAME|
+		WS_POPUP|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_THICKFRAME );
 
-  this->m_OrigExStyles = this->setExStyle( WS_EX_CONTROLPARENT );
+	this->m_OrigExStyles = this->setExStyle( WS_EX_CONTROLPARENT );
 
-  this->addStyle( WS_CHILD );
+	this->addStyle( WS_CHILD );
 
-  SetParent( this->m_Hwnd, pHwnd );
-  SetWindowPos( this->m_Hwnd, NULL, rc->left, rc->top, rc->right-rc->left, rc->bottom-rc->top, NULL );
-  ShowWindow( this->m_Hwnd, SW_SHOWNOACTIVATE );
-  UpdateWindow( this->m_Hwnd );
+	SetParent( this->m_Hwnd, pHwnd );
+	SetWindowPos( this->m_Hwnd, NULL, rc->left, rc->top, rc->right-rc->left, rc->bottom-rc->top, NULL );
+	ShowWindow( this->m_Hwnd, SW_SHOWNOACTIVATE );
+	UpdateWindow( this->m_Hwnd );
 
-  this->m_OrigID = SetWindowLong( this->m_Hwnd, GWL_ID, ID );
+	this->m_OrigID = SetWindowLong( this->m_Hwnd, GWL_ID, ID );
 
-  this->registreDefaultWindowProc( );
-  SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->registreDefaultWindowProc( );
+	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -106,8 +106,6 @@ DcxMDialog::~DcxMDialog( ) {
 
 void DcxMDialog::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const
 {
-//	int numtok = input.numtok( );
-
 	// [NAME] [ID] [PROP]
 	if (input.gettok( 3 ) == TEXT("dname")) {
 		lstrcpyn(szReturnValue, this->m_OrigName.to_chr(), MIRC_BUFFER_SIZE_CCH);

@@ -76,8 +76,7 @@ DcxRadio::~DcxRadio( ) {
 TString DcxRadio::getStyles(void) const
 {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & BS_RIGHT)
 		styles.addtok(TEXT("rjustify"));
 	if (Styles & BS_CENTER)

@@ -83,8 +83,7 @@ DcxProgressBar::~DcxProgressBar( ) {
 TString DcxProgressBar::getStyles(void) const
 {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & PBS_SMOOTH)
 		styles.addtok(TEXT("smooth"));
 	if (Styles & PBS_VERTICAL)
@@ -237,7 +236,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
 		ZeroMemory(&lfCurrent, sizeof(LOGFONT));
 
 		GetObject(this->m_hFont, sizeof(LOGFONT), &lfCurrent);
-		int angle = input.gettok( 4 ).to_int();
+		const int angle = input.gettok( 4 ).to_int();
 
 		//TODO: let user specify angle of text?
 		if (angle) {
@@ -407,14 +406,14 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		case WM_LBUTTONUP:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					int nXPos = LOWORD(lParam);
-					int iLower = this->getRange( TRUE, NULL );
-					int iHigher = this->getRange( FALSE, NULL );
+					const int nXPos = LOWORD(lParam);
+					const int iLower = this->getRange( TRUE, NULL );
+					const int iHigher = this->getRange( FALSE, NULL );
 
 					RECT rc;
 					GetClientRect( this->m_Hwnd, &rc );
 
-					int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
+					const int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
 					this->execAliasEx(TEXT("%s,%d,%d,%d,%d,%d"), TEXT("sclick"), this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 				}
@@ -424,14 +423,14 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		case WM_RBUTTONUP:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					int nXPos = LOWORD(lParam);
-					int iLower = this->getRange( TRUE, NULL );
-					int iHigher = this->getRange( FALSE, NULL );
+					const int nXPos = LOWORD(lParam);
+					const int iLower = this->getRange( TRUE, NULL );
+					const int iHigher = this->getRange( FALSE, NULL );
 
 					RECT rc;
 					GetClientRect( this->m_Hwnd, &rc );
 
-					int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
+					const int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
 					this->execAliasEx(TEXT("%s,%d,%d,%d,%d,%d"), TEXT("rclick"), this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 				}
@@ -445,14 +444,14 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 					if ( wParam == MK_LBUTTON ) {
 
-						int nXPos = LOWORD(lParam);
-						int iLower = this->getRange( TRUE, NULL );
-						int iHigher = this->getRange( FALSE, NULL );
+						const int nXPos = LOWORD(lParam);
+						const int iLower = this->getRange( TRUE, NULL );
+						const int iHigher = this->getRange( FALSE, NULL );
 
 						RECT rc;
 						GetClientRect( this->m_Hwnd, &rc );
 
-						int nPos = iLower + (int)( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
+						const int nPos = iLower + (int)( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
 						this->execAliasEx(TEXT("%s,%d,%d,%d,%d, %d"), TEXT("mousebar"), this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 					}
@@ -477,13 +476,13 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 
 int DcxProgressBar::CalculatePosition() const {
-	int iPos = this->getPosition();
+	const int iPos = this->getPosition();
 
 	if ( this->m_bIsAbsoluteValue )
 		return iPos;
 	else {
-		int iLower = this->getRange( TRUE, NULL );
-		int iHigher = this->getRange( FALSE, NULL );
+		const int iLower = this->getRange( TRUE, NULL );
+		const int iHigher = this->getRange( FALSE, NULL );
 
 		return (int) ((float) (iPos - iLower) * 100 / (iHigher - iLower ));
 	}
@@ -529,8 +528,8 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam);
 
 	if (this->m_tsText.len() > 0) {
-		SetBkMode(hdc, TRANSPARENT);
-		SetTextColor(hdc, this->m_clrText);
+		int oldMode = SetBkMode(hdc, TRANSPARENT);
+		COLORREF oldColour = SetTextColor(hdc, this->m_clrText);
 
 		// rect for control
 		//RECT rc;
@@ -538,7 +537,7 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		// used to calc text value on pbar
 		TString text;
-		int iPos = this->CalculatePosition();
+		const int iPos = this->CalculatePosition();
 
 		text.tsprintf(this->m_tsText.to_chr(), iPos);
 
@@ -552,8 +551,8 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		//DrawText(hdc, text.to_chr(), text.len(), &rcText, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
 		this->calcTextRect(hdc, text, &rcText, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
 
-		int w = rcText.right - rcText.left;
-		int h = rcText.bottom - rcText.top;
+		const int w = rcText.right - rcText.left;
+		const int h = rcText.bottom - rcText.top;
 
 		// reposition the new text area to be at the center
 		if (this->m_hfontVertical != NULL) {
@@ -579,6 +578,8 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		if (oldfont != NULL)
 			SelectFont(hdc, oldfont);
+		SetTextColor(hdc, oldColour);
+		SetBkMode(hdc, oldMode);
 	}
 
 	this->FinishAlphaBlend(ai);

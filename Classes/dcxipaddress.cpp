@@ -160,11 +160,10 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 		if (IP.numtok(TEXT(".")) == 4) {
 			BYTE b[4];
 
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 4; i++)
 				b[i] = (BYTE) IP.gettok(i +1, TEXT(".")).to_int();
-			}
 
-			DWORD adr = MAKEIPADDRESS(b[0], b[1], b[2], b[3]);
+			const DWORD adr = MAKEIPADDRESS(b[0], b[1], b[2], b[3]);
 			this->setAddress(adr);
 		}
 	}
@@ -200,7 +199,7 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
  */
 
 LRESULT DcxIpAddress::setRange( const int nField, const BYTE iMin, const BYTE iMax ) {
-  return SendMessage( this->m_Hwnd, IPM_SETRANGE, (WPARAM) nField, (LPARAM) MAKEIPRANGE( iMin, iMax ) );
+	return SendMessage( this->m_Hwnd, IPM_SETRANGE, (WPARAM) nField, (LPARAM) MAKEIPRANGE( iMin, iMax ) );
 }
 
 /*!
@@ -210,7 +209,7 @@ LRESULT DcxIpAddress::setRange( const int nField, const BYTE iMin, const BYTE iM
  */
 
 LRESULT DcxIpAddress::setFocus( const int nField ) {
-  return SendMessage( this->m_Hwnd, IPM_SETFOCUS, (WPARAM) nField, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, IPM_SETFOCUS, (WPARAM) nField, (LPARAM) 0 );
 }
 
 /*!
@@ -220,7 +219,7 @@ LRESULT DcxIpAddress::setFocus( const int nField ) {
  */
 
 LRESULT DcxIpAddress::setAddress( const DWORD dwIpAddress ) {
-  return SendMessage( this->m_Hwnd, IPM_SETADDRESS, (WPARAM) 0, (LPARAM) dwIpAddress );
+	return SendMessage( this->m_Hwnd, IPM_SETADDRESS, (WPARAM) 0, (LPARAM) dwIpAddress );
 }
 
 /*!
@@ -230,7 +229,7 @@ LRESULT DcxIpAddress::setAddress( const DWORD dwIpAddress ) {
  */
 
 LRESULT DcxIpAddress::getAddress( LPDWORD lpdwIpAddress ) const {
-  return SendMessage( this->m_Hwnd, IPM_GETADDRESS, (WPARAM) 0, (LPARAM) lpdwIpAddress );
+	return SendMessage( this->m_Hwnd, IPM_GETADDRESS, (WPARAM) 0, (LPARAM) lpdwIpAddress );
 }
 
 /*!
@@ -240,7 +239,7 @@ LRESULT DcxIpAddress::getAddress( LPDWORD lpdwIpAddress ) const {
  */
 
 LRESULT DcxIpAddress::clearAddress( ) {
-  return SendMessage( this->m_Hwnd, IPM_CLEARADDRESS, (WPARAM) 0, (LPARAM) 0 );
+	return SendMessage( this->m_Hwnd, IPM_CLEARADDRESS, (WPARAM) 0, (LPARAM) 0 );
 }
 
 /*!
@@ -249,32 +248,32 @@ LRESULT DcxIpAddress::clearAddress( ) {
  * blah
  */
 LRESULT DcxIpAddress::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-    case WM_NOTIFY : 
-      {
-        LPNMHDR hdr = (LPNMHDR) lParam;
+	switch( uMsg ) {
+	case WM_NOTIFY : 
+		{
+			LPNMHDR hdr = (LPNMHDR) lParam;
 
-        if (!hdr)
-          break;
+			if (!hdr)
+				break;
 
-        switch( hdr->code ) {
-          case IPN_FIELDCHANGED:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-	              this->execAliasEx(TEXT("%s,%d"), TEXT("edit"), this->getUserID( ) );
-              bParsed = TRUE;
-            }
-            break;
-        }
-      }
-      break;
+			switch( hdr->code ) {
+			case IPN_FIELDCHANGED:
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
+						this->execAliasEx(TEXT("%s,%d"), TEXT("edit"), this->getUserID( ) );
+					bParsed = TRUE;
+				}
+				break;
+			}
+		}
+		break;
 	}
 	return 0L;
 }
 
 LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP:
@@ -303,22 +302,22 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				return MA_NOACTIVATE;
 			}
 			break;
-		//case WM_SIZE:
-		//	{
-		//		this->redrawWindow();
-		//	}
-		//	break;
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+			//case WM_SIZE:
+			//	{
+			//		this->redrawWindow();
+			//	}
+			//	break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }

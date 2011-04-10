@@ -127,15 +127,15 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 				this->m_nIcon = this->m_tsItemText.gettok( 1, TEXT("\v")).to_int( ) - 1;
 				this->m_tsItemText = this->m_tsItemText.gettok(2, TEXT("\v")).trim();
 			}
+		}
+		else
+			Dcx::mIRC.tsEval( this->m_tsItemText, this->m_tsItemText.to_chr( ) );
 
-			GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
-		}
-		else {
-			TString tsRes;
-			Dcx::mIRC.tsEval( tsRes, this->m_tsItemText.to_chr( ) );
-			this->m_tsItemText = tsRes;
-			GetTextExtentPoint32( hdc, tsRes.to_chr(), tsRes.len(), &size );
-		}
+		// Odd error in size returned by GetTextExtentPoint32() when dealing with utf text, length is cut short for some reason...
+		//GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
+		RECT rc = {0};
+		DrawText(hdc, this->m_tsItemText.to_chr(), this->m_tsItemText.len(), &rc, DT_CALCRECT | DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+		size.cx = (rc.right - rc.left);
 
 		ReleaseDC( mHwnd, hdc );
 	}
@@ -502,21 +502,18 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 		const TString lefttext(txt.gettok(1, TSTAB).trim());
 		const TString righttext(txt.gettok(2, TSTAB).trim());
 
-		//DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, 
-		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
+		//DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
 		mIRC_DrawText( lpdis->hDC, lefttext, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false);
 
 		if ( righttext.len( ) > 0 ) {
 
 			rc.right -= 15;
-			//DrawTextEx( lpdis->hDC, righttext.to_chr( ), righttext.len( ), &rc, 
-			//  DT_RIGHT | DT_SINGLELINE | DT_VCENTER, NULL );
+			//DrawTextEx( lpdis->hDC, righttext.to_chr( ), righttext.len( ), &rc, DT_RIGHT | DT_SINGLELINE | DT_VCENTER, NULL );
 			mIRC_DrawText( lpdis->hDC, righttext, &rc, DT_RIGHT | DT_SINGLELINE | DT_VCENTER, false);
 		}
 	}
 	else {
-		//DrawTextEx( lpdis->hDC, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &rc, 
-		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
+		//DrawTextEx( lpdis->hDC, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
 		mIRC_DrawText( lpdis->hDC, txt, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false);
 	}
 	SetBkMode( lpdis->hDC, oldBkg );

@@ -141,7 +141,7 @@ void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue
 	// [NAME] [ID] [PROP] [N]
 	if ( prop == TEXT("text") && numtok > 3 ) {
 
-		int iPart = input.gettok( 4 ).to_int( ) -1, nParts = this->getParts( 256, 0 );
+		const int iPart = input.gettok( 4 ).to_int( ) -1, nParts = this->getParts( 256, 0 );
 
 		if ( iPart > -1 && iPart < nParts ) {
 
@@ -153,23 +153,20 @@ void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue
 	else if ( prop == TEXT("parts") ) {
 
 		INT parts[256];
-		int nParts = this->getParts( 256, 0 );
+		const int nParts = this->getParts( 256, 0 );
 
 		this->getParts( 256, parts );
 
-		int i = 0;
 		szReturnValue[0] = 0;
 		TCHAR d[10];
 
-		while ( i < nParts ) {
-
+		for (int i = 0; i < nParts; i++ )
+		{
 			wnsprintf( d, 10, TEXT("%d"), parts[i] );
 
 			if ( i != 0 )
 				lstrcat( szReturnValue, TEXT(" ") ); // TODO: possible length issue... check
 			lstrcat( szReturnValue, d );
-
-			i++;
 		}
 		return;
 	}
@@ -225,7 +222,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	if (flags[TEXT('k')] && numtok > 3) {
-		int col = input.gettok( 4 ).to_int();
+		const int col = input.gettok( 4 ).to_int();
 
 		if (col < 0)
 			this->setBkColor((COLORREF) CLR_DEFAULT);
@@ -282,7 +279,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 		DestroyIcon( (HICON) this->getIcon( nPos ) ); // delete any icon for this part.
 		this->setIcon( nPos, NULL ); // set as no icon.
 
-		UINT iFlags = this->parseItemFlags( flag );
+		const UINT iFlags = this->parseItemFlags( flag );
 
 		if ( input.gettok( 1, TSTAB ).numtok( ) > 6 )
 			itemtext = input.gettok(1, TSTAB).gettok(7, -1).trim();
@@ -305,25 +302,24 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 				this->setTipText( nPos, tooltip.to_chr( ) );
 			}
 			else { // child control
-				UINT ID = mIRC_ID_OFFSET + (UINT)itemtext.gettok( 1 ).to_int( );
+				const UINT ID = mIRC_ID_OFFSET + (UINT)itemtext.gettok( 1 ).to_int( );
 
-				if ( ID > mIRC_ID_OFFSET - 1 && 
+				if ( (ID > mIRC_ID_OFFSET - 1) && 
 					!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 					this->m_pParentDialog->getControlByID( ID ) == NULL )
 				{
 					try {
 						DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,itemtext,2,
-										CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|
+										CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|/*CTLF_ALLOW_COLORCOMBO|*/
 										 CTLF_ALLOW_STATUSBAR|CTLF_ALLOW_TOOLBAR|
 										 CTLF_ALLOW_TREEVIEW|CTLF_ALLOW_LISTVIEW|CTLF_ALLOW_REBAR|
-										 CTLF_ALLOW_BUTTON|CTLF_ALLOW_EDIT|
-										 CTLF_ALLOW_UPDOWN| CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
+										 CTLF_ALLOW_BUTTON|/*CTLF_ALLOW_RICHEDIT|*/CTLF_ALLOW_EDIT|
+										 CTLF_ALLOW_UPDOWN|CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
 										 CTLF_ALLOW_CALANDER|CTLF_ALLOW_DIVIDER|CTLF_ALLOW_PANEL|
 										 CTLF_ALLOW_TAB|CTLF_ALLOW_LINE|CTLF_ALLOW_BOX|CTLF_ALLOW_RADIO|
 										 CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
 										 CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
 										 CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW,this->m_Hwnd);
-						//DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,itemtext,2,-1,this->m_Hwnd);
 						// problems with colorcombo/richedit, causes odd gfx glitches & dialog slow down.
 						if ( p_Control != NULL ) {
 							this->m_pParentDialog->addControl( p_Control );
@@ -381,26 +377,25 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		HIMAGELIST himl;
-		HICON icon;
-		TString flag(input.gettok( 4 ));
-		int index = input.gettok( 5 ).to_int();
+		const TString flag(input.gettok( 4 ));
+		const int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
 
-		if ((himl = this->getImageList()) == NULL) {
+		HIMAGELIST himl = this->getImageList();
+
+		if (himl == NULL) {
 			himl = this->createImageList();
 
 			if (himl)
 				this->setImageList(himl);
 		}
 
-		icon = dcxLoadIcon(index, filename, false, flag);
+		HICON icon = dcxLoadIcon(index, filename, false, flag);
 
-		//if (flag.find(TEXT('g'), 0))
-		//	icon = CreateGrayscaleIcon(icon);
-
-		ImageList_AddIcon(himl, icon);
-		DestroyIcon(icon);
+		if (icon != NULL) {
+			ImageList_AddIcon(himl, icon);
+			DestroyIcon(icon);
+		}
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if ( flags[TEXT('y')] ) {
@@ -453,29 +448,22 @@ HIMAGELIST DcxStatusBar::createImageList( ) {
 
 UINT DcxStatusBar::parseItemFlags( const TString & flags ) {
 
-	INT i = 1, len = flags.len( ), iFlags = 0;
+	const XSwitchFlags xflags(flags);
+	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if ( flags[0] != TEXT('+') ) 
+	if ( !xflags[TEXT('+')] ) 
 		return iFlags;
 
-	while ( i < len ) {
-		switch(flags[i])
-		{
-		case TEXT('n'):
-			iFlags |= SBT_NOBORDERS;
-			break;
-		case TEXT('p'):
-			iFlags |= SBT_POPOUT;
-			break;
-		case TEXT('c'):
-			iFlags |= SBT_OWNERDRAW;
-		case TEXT('f'):
-			iFlags |= SBT_OWNERDRAW;
-		}
+	if (xflags[TEXT('n')])
+		iFlags |= SBT_NOBORDERS;
+	if (xflags[TEXT('p')])
+		iFlags |= SBT_POPOUT;
+	if (xflags[TEXT('c')])
+		iFlags |= SBT_OWNERDRAW;
+	if (xflags[TEXT('f')])
+		iFlags |= SBT_OWNERDRAW;
 
-		++i;
-	}
 	return iFlags;
 }
 
@@ -487,18 +475,13 @@ UINT DcxStatusBar::parseItemFlags( const TString & flags ) {
 
 void DcxStatusBar::cleanPartIcons( ) {
 
-  int n = 0;
-  while ( n < 256 ) {
-
-    DestroyIcon( (HICON) this->getIcon( n ) );
-    n++;
-  }
+	for (int n = 0; n < 256; n++ )
+		DestroyIcon( (HICON) this->getIcon( n ) );
 }
 
 TString DcxStatusBar::getStyles(void) const {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & SBARS_SIZEGRIP)
 		styles.addtok(TEXT("grip"));
 	if (Styles & SBARS_TOOLTIPS)
@@ -689,7 +672,7 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 						POINT pt;
 						GetCursorPos( &pt );
 						MapWindowPoints(NULL, this->m_Hwnd, &pt, 1 );
-						int cell = this->hitTest( pt );
+						const int cell = this->hitTest( pt );
 
 						if ( cell != -1 )
 							this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), cell + 1 );
@@ -704,7 +687,7 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 						POINT pt;
 						GetCursorPos( &pt );
 						MapWindowPoints(NULL, this->m_Hwnd, &pt, 1 );
-						int cell = this->hitTest( pt );
+						const int cell = this->hitTest( pt );
 
 						if ( cell != -1 )
 							this->execAliasEx(TEXT("%s,%d,%d"), TEXT("rclick"), this->getUserID( ), cell + 1 );
@@ -719,7 +702,7 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 						POINT pt;
 						GetCursorPos( &pt );
 						MapWindowPoints(NULL, this->m_Hwnd, &pt, 1 );
-						int cell = this->hitTest( pt );
+						const int cell = this->hitTest( pt );
 
 						if ( cell != -1 )
 							this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID( ), cell + 1 );
@@ -894,16 +877,16 @@ void DcxStatusBar::updateParts(void) {
 	RECT rcClient;
 	int *pParts = new int[nParts];
 	//int borders[3];
-	int w, pw = 0;
 
 	GetClientRect(this->m_Hwnd, &rcClient);
 	this->getParts(nParts, pParts);
 
 	//this->getBorders(borders);
 
-	w = (rcClient.right - rcClient.left); // - (2 * borders[1]);
+	const int w = (rcClient.right - rcClient.left); // - (2 * borders[1]);
 
 	for (int i = 0; i < nParts; i++) {
+		int pw;
 		if (this->m_iDynamicParts[i] != 0)
 			pw = (w / 100) * this->m_iDynamicParts[i];
 		else

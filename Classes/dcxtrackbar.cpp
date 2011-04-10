@@ -78,13 +78,13 @@ m_bUpdatingTooltip(false)
 
 DcxTrackBar::~DcxTrackBar( ) {
 	if (this->m_hbmp[TBBMP_BACK] != NULL)
-		DeleteObject(this->m_hbmp[TBBMP_BACK]);
+		DeleteBitmap(this->m_hbmp[TBBMP_BACK]);
 	if (this->m_hbmp[TBBMP_THUMB] != NULL)
-		DeleteObject(this->m_hbmp[TBBMP_THUMB]);
+		DeleteBitmap(this->m_hbmp[TBBMP_THUMB]);
 	if (this->m_hbmp[TBBMP_THUMBDRAG] != NULL)
-		DeleteObject(this->m_hbmp[TBBMP_THUMBDRAG]);
+		DeleteBitmap(this->m_hbmp[TBBMP_THUMBDRAG]);
 	if (this->m_hbmp[TBBMP_CHANNEL] != NULL)
-		DeleteObject(this->m_hbmp[TBBMP_CHANNEL]);
+		DeleteBitmap(this->m_hbmp[TBBMP_CHANNEL]);
 
   this->unregistreDefaultWindowProc( );
 }
@@ -108,7 +108,7 @@ void DcxTrackBar::parseControlStyles( const TString & styles, LONG * Styles, LON
 		else if ( styles.gettok( i ) == TEXT("top") ) 
 			*Styles |= TBS_TOP;
 		else if ( styles.gettok( i ) == TEXT("bottom") ) 
-			*Styles |= TBS_BOTTOM; // == TBS_RIGHT == 0, so never set.... should just remove TBS_LEFT/TOP ?
+			*Styles |= TBS_BOTTOM; // == TBS_RIGHT == 0, so never set.... should just remove TBS_RIGHT/TOP ?
 		else if ( styles.gettok( i ) == TEXT("left") ) 
 			*Styles |= TBS_LEFT;
 		else if ( styles.gettok( i ) == TEXT("right") ) 
@@ -186,7 +186,7 @@ void DcxTrackBar::parseCommandRequest( const TString & input ) {
 	// xdid -c [NAME] [ID] [SWITCH] [VALUE]
 	if ( flags[TEXT('c')] && numtok > 3 ) {
 
-		LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
+		const LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
 		this->setTic( lPosition );
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
@@ -214,26 +214,26 @@ void DcxTrackBar::parseCommandRequest( const TString & input ) {
 	// xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if ( flags[TEXT('j')] && numtok > 4 ) {
 
-		LONG iMin = (LONG)input.gettok( 4 ).to_num( );
-		LONG iMax = (LONG)input.gettok( 5 ).to_num( );
+		const LONG iMin = (LONG)input.gettok( 4 ).to_num( );
+		const LONG iMax = (LONG)input.gettok( 5 ).to_num( );
 		this->setSel( iMin, iMax );
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
-		LONG lLineSize = (LONG)input.gettok( 4 ).to_num( );
+		const LONG lLineSize = (LONG)input.gettok( 4 ).to_num( );
 		this->setLineSize( lLineSize );
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('m')] && numtok > 3 ) {
 
-		LONG lPageSize = (LONG)input.gettok( 4 ).to_num( );
+		const LONG lPageSize = (LONG)input.gettok( 4 ).to_num( );
 		this->setPageSize( lPageSize );
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('n')] && numtok > 3 ) {
 
-		int iTicFreq = input.gettok( 4 ).to_int( );
+		const int iTicFreq = input.gettok( 4 ).to_int( );
 		this->setTicFreq( iTicFreq );
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [VALUE]
@@ -244,8 +244,8 @@ void DcxTrackBar::parseCommandRequest( const TString & input ) {
 	// xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if ( flags[TEXT('r')] && numtok > 4 ) {
 
-		LONG lMinRange = (LONG)input.gettok( 4 ).to_num( );
-		LONG lMaxRange = (LONG)input.gettok( 5 ).to_num( );
+		const LONG lMinRange = (LONG)input.gettok( 4 ).to_num( );
+		const LONG lMaxRange = (LONG)input.gettok( 5 ).to_num( );
 
 		this->setRangeMin( lMinRange );
 		this->setRangeMax( lMaxRange );
@@ -258,7 +258,7 @@ void DcxTrackBar::parseCommandRequest( const TString & input ) {
 	// xdid -t [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('t')] && numtok > 3 ) {
 
-		TString value(input.gettok( 4 ));
+		const TString value(input.gettok( 4 ));
 
 		if ( value == TEXT("left") )
 			this->setTipSide( TBTS_LEFT );
@@ -272,14 +272,14 @@ void DcxTrackBar::parseCommandRequest( const TString & input ) {
 	// xdid -u [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('u')] && numtok > 3 ) {
 
-		LONG lLength = (LONG)input.gettok( 4 ).to_num( );
+		const LONG lLength = (LONG)input.gettok( 4 ).to_num( );
 
 		this->setThumbLength( lLength );
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('v')] && numtok > 3 ) {
 
-		LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
+		const LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
 
 		this->setPos( lPosition );
 	}
@@ -676,42 +676,43 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 		//	}
 		//	break;
 
-		case WM_NOTIFY: {
-			LPNMHDR hdr = (LPNMHDR) lParam;
+		case WM_NOTIFY:
+			{
+				LPNMHDR hdr = (LPNMHDR) lParam;
 
-			if (!hdr)
-				break;
+				if (!hdr)
+					break;
 
-			switch (hdr->code) {
-				// Show tooltip
-		case TTN_SHOW:
-			// Check if its currently being updated.
-			if (this->m_bUpdatingTooltip)
-				break;
+				switch (hdr->code) {
+					// Show tooltip
+					case TTN_SHOW:
+						// Check if its currently being updated.
+						if (this->m_bUpdatingTooltip)
+							break;
 
-			TString buff((UINT) 80);
+						TString buff((UINT) 80);
 
-			this->evalAliasEx(buff.to_chr(), 79, TEXT("%s,%d,%d"), TEXT("showtip"), this->getUserID(), this->getPos());
+						this->evalAliasEx(buff.to_chr(), 79, TEXT("%s,%d,%d"), TEXT("showtip"), this->getUserID(), this->getPos());
 
-			if (buff.len() > 0) {
-				TOOLINFO ti;
+						if (buff.len() > 0) {
+							TOOLINFO ti;
 
-				ZeroMemory(&ti, sizeof(TOOLINFO));
+							ZeroMemory(&ti, sizeof(TOOLINFO));
 
-				ti.cbSize = sizeof(TOOLINFO);
-				ti.hinst = GetModuleHandle(NULL);
-				ti.hwnd = this->m_Hwnd;
-				ti.uId = (UINT_PTR) this->m_Hwnd;
-				ti.lpszText = buff.to_chr();
+							ti.cbSize = sizeof(TOOLINFO);
+							ti.hinst = GetModuleHandle(NULL);
+							ti.hwnd = this->m_Hwnd;
+							ti.uId = (UINT_PTR) this->m_Hwnd;
+							ti.lpszText = buff.to_chr();
 
-				this->m_bUpdatingTooltip = true;
-				SendMessage(this->m_ToolTipHWND, TTM_UPDATETIPTEXT, NULL, (LPARAM) &ti);
-				this->m_bUpdatingTooltip = false;
-			}
-
-			break;
-			}
+							this->m_bUpdatingTooltip = true;
+							SendMessage(this->m_ToolTipHWND, TTM_UPDATETIPTEXT, NULL, (LPARAM) &ti);
+							this->m_bUpdatingTooltip = false;
 						}
+						break; // case TTN_SHOW
+				}
+				break; // case WM_NOTIFY
+			}
 
 		case WM_PAINT:
 			{
@@ -759,25 +760,22 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 
 UINT DcxTrackBar::parseImageFlags(const TString &flags) {
-	INT i = 1, len = flags.len(), iFlags = 0;
+
+	const XSwitchFlags xflags(flags);
+	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if (flags[0] != TEXT('+'))
+	if (!xflags[TEXT('+')])
 		return iFlags;
 
-	while (i < len) {
-		if (flags[i] == TEXT('b'))
-			iFlags |= TBCS_BACK;
-		else if (flags[i] == TEXT('c'))
-			iFlags |= TBCS_CHANNEL;
-		else if (flags[i] == TEXT('d'))
-			iFlags |= TBCS_THUMBDRAG;
-		else if (flags[i] == TEXT('t'))
-			iFlags |= TBCS_THUMB;
-
-
-		++i;
-	}
+	if (xflags[TEXT('b')])
+		iFlags |= TBCS_BACK;
+	if (xflags[TEXT('c')])
+		iFlags |= TBCS_CHANNEL;
+	if (xflags[TEXT('d')])
+		iFlags |= TBCS_THUMBDRAG;
+	if (xflags[TEXT('t')])
+		iFlags |= TBCS_THUMB;
 
 	return iFlags;
 }

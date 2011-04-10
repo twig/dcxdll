@@ -156,9 +156,9 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		}
 
 		// get index of first character in line
-		int offset = SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM) line, NULL);
+		const int offset = SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM) line, NULL);
 		// get length of the line we want to copy
-		int len = SendMessage(this->m_Hwnd, EM_LINELENGTH, (WPARAM) offset, NULL) +1;
+		const int len = SendMessage(this->m_Hwnd, EM_LINELENGTH, (WPARAM) offset, NULL) +1;
 		// create and fill the buffer
 		TCHAR *p = new TCHAR[len];
 		*(LPWORD) p = (WORD)len;
@@ -189,13 +189,10 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
 
 		if (this->isStyle(ES_MULTILINE)) {
-			int iLinePos = 0;
-			int iAbsoluteCharPos = 0;
-
 			// current line
-			iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
+			const int iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
 			// line offset
-			iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
+			const int iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
@@ -275,7 +272,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.deltok(nLine, TEXT("\r\n"));
 		}
 
@@ -336,7 +333,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('i')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
 		}
 		else {
@@ -373,14 +370,14 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [BOOL]
 	else if (flags[TEXT('n')] && numtok > 3) {
-		int b = input.gettok( 4 ).to_int();
+		const int b = input.gettok( 4 ).to_int();
 
 		this->setAutoUrlDetect(b ? TRUE : FALSE);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
 		}
 		else
@@ -394,12 +391,10 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR16]
 	else if (flags[TEXT('q')] && numtok > 3) {
-		int i = 0, len = input.gettok(4, -1).numtok( );
+		const int len = input.gettok(4, -1).numtok( );
 
-		while (i < len && i < 16) {
+		for (int i = 0; (i < len && i < 16); i++)
 			this->m_aColorPalette[i] = (COLORREF)input.gettok( 4 + i ).to_num();
-			i++;
-		}
 
 		this->parseContents(TRUE);
 	}
@@ -414,7 +409,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		if (contents != NULL) {
 			this->m_tsText = contents;
 			delete [] contents;
-			DWORD mask = this->m_dEventMask;
+			const DWORD mask = this->m_dEventMask;
 			this->m_dEventMask = 0;
 			this->parseContents(TRUE);
 			this->m_dEventMask = mask;
@@ -464,14 +459,14 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('y')] && numtok > 3) {
-		int state = input.gettok(4).to_int();
+		const int state = input.gettok(4).to_int();
 
 		this->m_bIgnoreRepeat = (state > 0 ? TRUE : FALSE);
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
 	else if (flags[TEXT('Z')] && numtok > 4) {
-		int num = input.gettok( 4 ).to_int();
-		int den = input.gettok( 5 ).to_int();
+		const int num = input.gettok( 4 ).to_int();
+		const int den = input.gettok( 5 ).to_int();
 
 		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
 			this->showError(NULL, TEXT("-Z"), TEXT("Richedit zooming error"));
@@ -490,12 +485,10 @@ void DcxRichEdit::loadmIRCPalette() {
 	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
 	Dcx::mIRC.tsEval(colors, com);
 
-	int i = 0, len = colors.numtok( );
+	const int len = colors.numtok( );
 
-	while (i < len) {
+	for (int i = 0; i < len; i++)
 		this->m_aColorPalette[i] = (COLORREF)colors.gettok( i +1 ).to_num();
-		i++;
-	}
 }
 
 /*!
@@ -696,9 +689,9 @@ void DcxRichEdit::insertText(TCHAR *text, bool bline, bool uline, bool bcolor, C
 	// get total length
 	int len = GetWindowTextLength(this->m_Hwnd);
 	// get line TCHAR number from end TCHAR pos
-	int line = Edit_LineIndex(this->m_Hwnd, Edit_LineFromChar(this->m_Hwnd, len -1));
+	const int line = Edit_LineIndex(this->m_Hwnd, Edit_LineFromChar(this->m_Hwnd, len -1));
 	// get line length
-	int linelen = Edit_LineLength(this->m_Hwnd, line);
+	const int linelen = Edit_LineLength(this->m_Hwnd, line);
 	// total length of insert point
 	len = line + linelen;
 	this->hideSelection(TRUE);
@@ -809,8 +802,8 @@ void DcxRichEdit::toXml(TiXmlElement * xml) const {
 
 TString DcxRichEdit::getStyles(void) const {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if ((Styles & ES_MULTILINE) && (Styles & ES_WANTRETURN))
 		styles.addtok(TEXT("multi"));
 	if (Styles & ES_READONLY)
@@ -860,7 +853,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							// get information about link text
 							ZeroMemory(&tr, sizeof(TEXTRANGE));
 							tr.chrg = enl->chrg;
-							int strlen = enl->chrg.cpMax - enl->chrg.cpMin +1;
+							const int strlen = enl->chrg.cpMax - enl->chrg.cpMin +1;
 							TCHAR *str = new TCHAR[strlen];
 
 							tr.lpstrText = str;
@@ -874,7 +867,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								tsEvent = TEXT("rclick");
 
 							this->execAliasEx(TEXT("%s,%d,%s,%s"), TEXT("link"), this->getUserID(), tsEvent.to_chr(), tr.lpstrText);
-							delete str;
+							delete [] str;
 						}
 					}
 					break;
