@@ -50,7 +50,7 @@ public:
 	void toXml(TiXmlElement *xml);
 	TiXmlElement * toXml(void);
 
-	CellType getType( );
+	CellType getType( ) const;
 
 protected:
 

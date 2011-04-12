@@ -38,7 +38,7 @@ public:
 	virtual void toXml(TiXmlElement * xml);
 	virtual TiXmlElement * toXml(void);
 
-	CellType getType( );
+	CellType getType( ) const;
 
 protected:
 

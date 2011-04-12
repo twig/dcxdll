@@ -73,7 +73,7 @@ LayoutCellFixed::~LayoutCellFixed( ) {
  * blah
  */
 
-LayoutCell::CellType LayoutCellFixed::getType( ) {
+LayoutCell::CellType LayoutCellFixed::getType( ) const {
 
 	return FIXED;
 }

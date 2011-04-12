@@ -61,7 +61,7 @@ LayoutCellFill::~LayoutCellFill( ) {
  * blah
  */
 
-LayoutCell::CellType LayoutCellFill::getType( ) {
+LayoutCell::CellType LayoutCellFill::getType( ) const {
 
   return FILL;
 }

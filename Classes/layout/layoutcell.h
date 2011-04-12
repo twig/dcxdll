@@ -82,7 +82,7 @@ public:
 	void setSibling( LayoutCell * p_Cell );
 	void setParent( LayoutCell * p_Cell );
 
-	virtual CellType getType( ) = 0;
+	virtual CellType getType( ) const = 0;
 
 	LayoutCell * getFirstChild( ) const;
 	LayoutCell * getParent( ) const;

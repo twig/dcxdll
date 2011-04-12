@@ -81,7 +81,7 @@ LayoutCell * LayoutCellPane::addChild( LayoutCell * p_Cell, const int nWeight ) 
  * blah
  */
 
-LayoutCell::CellType LayoutCellPane::getType( ) {
+LayoutCell::CellType LayoutCellPane::getType( ) const {
 
 	return PANE;
 }
@@ -162,35 +162,36 @@ void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
 	//pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
 	//pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
 
-	int nMaxWidthX = pCMMI->m_MaxSize.x;
-	int nMaxWidthY = pCMMI->m_MaxSize.y;
+	const int nMaxWidthX = pCMMI->m_MaxSize.x;
+	const int nMaxWidthY = pCMMI->m_MaxSize.y;
 
 	while ( itStart != itEnd ) {
 
 		LayoutCell * pChild = (*itStart).first;
 
-		pChild->isVisible( );
+		if (pChild->isVisible( )) {
 
-		CellMinMaxInfo cmmiChild;
-		ZeroMemory( &cmmiChild, sizeof( CellMinMaxInfo ) );
-		cmmiChild.m_MaxSize.x = nMaxWidthX;
-		cmmiChild.m_MaxSize.y = nMaxWidthY;
+			CellMinMaxInfo cmmiChild;
+			ZeroMemory( &cmmiChild, sizeof( CellMinMaxInfo ) );
+			cmmiChild.m_MaxSize.x = nMaxWidthX;
+			cmmiChild.m_MaxSize.y = nMaxWidthY;
 
-		pChild->getMinMaxInfo( &cmmiChild );
+			pChild->getMinMaxInfo( &cmmiChild );
 
-		if ( this->m_nType == HORZ ) {
+			if ( this->m_nType == HORZ ) {
 
-			pCMMI->m_MinSize.x += cmmiChild.m_MinSize.x;
-			pCMMI->m_MaxSize.x += cmmiChild.m_MaxSize.x;
-			pCMMI->m_MinSize.y = max( pCMMI->m_MinSize.y, cmmiChild.m_MinSize.y );
-			pCMMI->m_MaxSize.y = max( pCMMI->m_MaxSize.y, cmmiChild.m_MaxSize.y );
-		}
-		else {
+				pCMMI->m_MinSize.x += cmmiChild.m_MinSize.x;
+				pCMMI->m_MaxSize.x += cmmiChild.m_MaxSize.x;
+				pCMMI->m_MinSize.y = max( pCMMI->m_MinSize.y, cmmiChild.m_MinSize.y );
+				pCMMI->m_MaxSize.y = max( pCMMI->m_MaxSize.y, cmmiChild.m_MaxSize.y );
+			}
+			else {
 
-			pCMMI->m_MinSize.y += cmmiChild.m_MinSize.y;
-			pCMMI->m_MaxSize.y += cmmiChild.m_MaxSize.y;
-			pCMMI->m_MinSize.x = max( pCMMI->m_MinSize.x, cmmiChild.m_MinSize.x );
-			pCMMI->m_MaxSize.x = max( pCMMI->m_MaxSize.x, cmmiChild.m_MaxSize.x );
+				pCMMI->m_MinSize.y += cmmiChild.m_MinSize.y;
+				pCMMI->m_MaxSize.y += cmmiChild.m_MaxSize.y;
+				pCMMI->m_MinSize.x = max( pCMMI->m_MinSize.x, cmmiChild.m_MinSize.x );
+				pCMMI->m_MaxSize.x = max( pCMMI->m_MaxSize.x, cmmiChild.m_MaxSize.x );
+			}
 		}
 
 		itStart++;
@@ -205,10 +206,12 @@ void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
 void LayoutCellPane::toXml(TiXmlElement *xml) {
 	TiXmlElement * inner;
 	LayoutCell * lc;
-	unsigned int count = this->m_vpCells.size();
+	const unsigned int count = this->m_vpCells.size();
 	unsigned int weight;
-	if (this->m_nType == LayoutCellPane::HORZ) xml->SetAttribute("cascade", "h");
-	else if (this->m_nType == LayoutCellPane::VERT) xml->SetAttribute("cascade", "v");
+	if (this->m_nType == LayoutCellPane::HORZ)
+		xml->SetAttribute("cascade", "h");
+	else if (this->m_nType == LayoutCellPane::VERT)
+		xml->SetAttribute("cascade", "v");
 	if (count > 0) {
 		for (unsigned int i = 0; i < count; i++) {
 			lc = this->m_vpCells[i].first;
@@ -222,8 +225,7 @@ void LayoutCellPane::toXml(TiXmlElement *xml) {
 }
 
 TiXmlElement * LayoutCellPane::toXml(void) {
-	TiXmlElement * xml;
-	xml = new TiXmlElement("pane");
+	TiXmlElement * xml = new TiXmlElement("pane");
 	this->toXml(xml);
 	return xml;
 }
@@ -257,7 +259,7 @@ void LayoutCellPane::AdjustMinSize( int & nSizeLeft, int & nTotalWeight ) {
 	while ( itStart != itEnd ) {
 
 		LayoutCell * pChild = (*itStart).first;
-		int nWeight = (*itStart).second;
+		const int nWeight = (*itStart).second;
 
 		if ( pChild->isVisible( ) == FALSE ) {
 
@@ -315,7 +317,7 @@ void LayoutCellPane::AdjustSize( int & nSizeLeft, int & nTotalWeight ) {
 	while ( itStart != itEnd ) {
 
 		LayoutCell * pChild = (*itStart).first;
-		int nWeight = (*itStart).second;
+		const int nWeight = (*itStart).second;
 
 		// don't put extra width/height on items of zero weight
 		if ( nWeight == 0 || pChild->isVisible( ) == FALSE ) {
@@ -324,7 +326,7 @@ void LayoutCellPane::AdjustSize( int & nSizeLeft, int & nTotalWeight ) {
 			continue;
 		}
 
-		int nAddSize = nSizeLeft * nWeight / nTotalWeight;
+		const int nAddSize = nSizeLeft * nWeight / nTotalWeight;
 
 		RECT rectNew, rectOld;
 
