@@ -486,11 +486,25 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
 					this->execAliasEx(TEXT("%s,%d"), TEXT("sizing"), this->getUserID( ) );
 
-				if (this->m_pLayoutManager != NULL) {
-					RECT rc;
-					SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
-					if (this->m_pLayoutManager->updateLayout( rc ))
-						this->redrawWindow( );
+				//if (this->m_pLayoutManager != NULL) {
+				//	RECT rc;
+				//	SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
+				//	if (this->m_pLayoutManager->updateLayout( rc ))
+				//		this->redrawWindow( );
+				//}
+			}
+			break;
+		case WM_WINDOWPOSCHANGING:
+			{
+				if (lParam != NULL) {
+					WINDOWPOS * wp = (WINDOWPOS *) lParam;
+					if (this->m_pLayoutManager != NULL) {
+						RECT rc;
+						SetRect( &rc, 0, 0, wp->cx, wp->cy );
+						//if (this->m_pLayoutManager->updateLayout( rc ))
+						//	this->redrawWindow( );
+						this->m_pLayoutManager->updateLayout( rc );
+					}
 				}
 			}
 			break;
