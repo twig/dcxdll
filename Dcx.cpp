@@ -513,7 +513,7 @@ LRESULT CALLBACK Dcx::mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					XPopupMenuItem *p_Item = (XPopupMenuItem*) lpmis->itemData;
 
 					if (p_Item != NULL) {
-						SIZE size = p_Item->getItemSize(mHwnd);
+						const SIZE size = p_Item->getItemSize(mHwnd);
 
 						lpmis->itemWidth = size.cx;
 						lpmis->itemHeight = size.cy;
@@ -551,7 +551,7 @@ LRESULT CALLBACK Dcx::mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		case WM_ENTERSIZEMOVE:
 			{
 				if (Dcx::getGhostDrag() < 255) {
-					long style = GetWindowExStyle(Dcx::mIRC.getHWND());
+					const long style = GetWindowExStyle(Dcx::mIRC.getHWND());
 					// Set WS_EX_LAYERED on this window
 					if (!(style & WS_EX_LAYERED))
 						SetWindowLongPtr(Dcx::mIRC.getHWND(), GWL_EXSTYLE, style | WS_EX_LAYERED);

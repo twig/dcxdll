@@ -951,13 +951,18 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 		if (lviDcx != NULL) 
 		{
-			const TString flag(input.gettok(6));
-			//TString info(input.gettok(7, -1));
-	
-			if (flag == TEXT("+M"))
-				lviDcx->tsMark = input.gettok(7, -1);
+			const XSwitchFlags xflag(input.gettok(6));
+			const TString info(input.gettok(7, -1));
+
+			if (!xflag[TEXT('+')]) {
+				this->showError(NULL, TEXT("-A"), TEXT("Missing '+' in flags"));
+				return;
+			}
+
+			if (xflag[TEXT('M')])	// mark info
+				lviDcx->tsMark = info;
 			else
-				this->showErrorEx(NULL, TEXT("-A"), TEXT("Unknown flags %s"), flag.to_chr());
+				this->showErrorEx(NULL, TEXT("-A"), TEXT("Unknown flags %s"), input.gettok(6).to_chr());
 		}
 		else
 			this->showError(NULL, TEXT("-A"), TEXT("Unable to Retrieve Item Data"));
@@ -1807,6 +1812,96 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			return;
 		}
 	}
+	// xdid -H [NAME] [ID] [+FLAGS] [ARGS]
+	else if (flags[TEXT('H')]) {
+		if (numtok < 4) {
+			this->showErrorEx(NULL, TEXT("-H"), TEXT("Insufficient parameters"));
+			return;
+		}
+
+		const int nCol = (input.gettok(4).to_int() -1);
+		const XSwitchFlags xflag(input.gettok(5));
+		const TString info(input.gettok(6, -1));
+		const int ntok = info.numtok();
+
+		if ((nCol < 0) || (nCol > this->getColumnCount())) {
+			this->showErrorEx(NULL, TEXT("-H"), TEXT("Invalid column index %d."), nCol +1);
+			return;
+		}
+
+
+		if (!xflag[TEXT('+')]) {
+			this->showError(NULL, TEXT("-H"), TEXT("Missing '+' in flags"));
+			return;
+		}
+
+		HWND h = ListView_GetHeader(this->m_Hwnd);
+		if (!IsWindow(h)) {
+			this->showError(NULL, TEXT("-H"), TEXT("Unable to get Header Window"));
+			return;
+		}
+
+		if (xflag['s']) {	// change header style
+			HDITEM hdr = {0};
+			hdr.mask = HDI_FORMAT;
+			if (Header_GetItem(h, nCol, &hdr)) {
+				static const TString header_styles(TEXT("sortdown sortup checkbox checked nocheckbox unchecked nosort"));
+				for (int i = 1; i <= ntok; i++)
+				{
+					switch (header_styles.findtok(info.gettok(i).to_chr(),1))
+					{
+					case 1:	// sortdown
+						{
+							hdr.fmt &= ~HDF_SORTUP;
+							hdr.fmt |= HDF_SORTDOWN;
+						}
+						break;
+					case 2:	// sortup
+						{
+							hdr.fmt &= ~HDF_SORTDOWN;
+							hdr.fmt |= HDF_SORTUP;
+						}
+						break;
+					case 3:	// checkbox
+						{
+							hdr.fmt |= HDF_CHECKBOX;
+						}
+						break;
+					case 4:	// checked
+						{
+							hdr.fmt |= HDF_CHECKED;
+						}
+						break;
+					case 5:	// nocheckbox
+						{
+							hdr.fmt &= ~(HDF_CHECKBOX|HDF_CHECKED);
+						}
+						break;
+					case 6:	// unchecked
+						{
+							hdr.fmt &= ~HDF_CHECKED;
+						}
+						break;
+					case 7:	// nosort
+						{
+							hdr.fmt &= ~(HDF_SORTUP|HDF_SORTDOWN);
+						}
+						break;
+					case 0:		//error
+					default:	//error
+						break;
+					}
+				}
+				Header_SetItem(h, nCol, &hdr);
+			}
+			else
+				this->showErrorEx(NULL, TEXT("-A"), TEXT("Unable to get item: %d"), nCol +1);
+		}
+		else
+			this->showErrorEx(NULL, TEXT("-H"), TEXT("Unknown flags %s"), input.gettok(5).to_chr());
+		
+		return;
+	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
 }
@@ -2001,6 +2096,10 @@ UINT DcxListView::parseHeaderFlags( const TString & flags ) {
 	// 's' use by flags2
 	if ( xflags[TEXT('d')] )
 		iFlags |= LVCFMT_SPLITBUTTON;
+	if ( xflags[TEXT('e')] )
+		iFlags |= HDF_SORTDOWN;
+	if ( xflags[TEXT('g')] )
+		iFlags |= HDF_SORTUP;
 
 	return iFlags;
 }
@@ -2862,7 +2961,37 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
 							LPNMHEADER lphdr = (LPNMHEADER) lParam;
-							this->execAliasEx(TEXT("%s,%d,%d"), TEXT("hsclick"), this->getUserID( ), lphdr->iItem + 1 );
+							switch (lphdr->iButton)
+							{
+							case 0: // left click
+								{
+									// commented code allows changing the sort up/down display by clicking on a header
+									//HDITEM hdr = {0};
+									//hdr.mask = HDI_FORMAT;
+									//if (Header_GetItem(lphdr->hdr.hwndFrom,lphdr->iItem, &hdr)) {
+									//	if (hdr.fmt & HDF_SORTDOWN) {
+									//		hdr.fmt &= ~HDF_SORTDOWN;
+									//		hdr.fmt |= HDF_SORTUP;
+									//	}
+									//	else if (hdr.fmt & HDF_SORTUP) {
+									//		hdr.fmt &= ~HDF_SORTUP;
+									//		hdr.fmt |= HDF_SORTDOWN;
+									//	}
+									//	else if ((hdr.fmt & (HDF_IMAGE|HDF_BITMAP)) == 0)
+									//		hdr.fmt |= HDF_SORTDOWN;
+									//	if ((hdr.fmt & (HDF_SORTUP|HDF_SORTDOWN)) > 0)
+									//		Header_SetItem(lphdr->hdr.hwndFrom, lphdr->iItem, &hdr);
+									//}
+									this->execAliasEx(TEXT("%s,%d,%d"), TEXT("hsclick"), this->getUserID( ), lphdr->iItem + 1 );
+								}
+								break;
+							case 1: // right click (never triggers)
+								this->execAliasEx(TEXT("%s,%d,%d"), TEXT("hrclick"), this->getUserID( ), lphdr->iItem + 1 );
+								break;
+							case 2: // middle click (never triggers)
+								this->execAliasEx(TEXT("%s,%d,%d"), TEXT("hmclick"), this->getUserID( ), lphdr->iItem + 1 );
+								break;
+							}
 						}
 					}
 					break;

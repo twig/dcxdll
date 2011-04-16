@@ -740,10 +740,10 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				}
 			}
 			else {
-				BYTE alpha = (BYTE)input.gettok( 4 ).to_int();
+				const BYTE alpha = (BYTE)(input.gettok( 4 ).to_int() & 0xFF);
 
-				if (alpha > 255)
-					alpha = 255;
+				//if (alpha > 255)
+				//	alpha = 255;
 				//else if (alpha < 0) // can only be >= 0
 				//	alpha = 0;
 
@@ -944,7 +944,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			// hide the previous control
 			ctrl = getControlByID(this->m_vZLayers[this->m_zLayerCurrent]);
 
-			if (ctrl)
+			if (ctrl != NULL)
 				ShowWindow(ctrl->getHwnd(), SW_HIDE);
 
 			// set the new index to the currently selected index
@@ -952,7 +952,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			ctrl = getControlByID(this->m_vZLayers[n]);
 
 			// if the selected control exists, show control
-			if (ctrl) { 
+			if (ctrl != NULL) { 
 				ShowWindow(ctrl->getHwnd(), SW_SHOW);
 				RECT rc;
 				GetClientRect(this->getHwnd(), &rc);
@@ -986,9 +986,9 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
 	else if (flags[TEXT('R')] && numtok > 2) {
-		const TString flag(input.gettok( 3 ));
+		const XSwitchFlags xflags(input.gettok( 3 ));
 
-		if ((flag.len() < 2) || (flag[0] != TEXT('+'))) {
+		if (!xflags[TEXT('+')]) {
 			this->showError(NULL, TEXT("-R"), TEXT("Invalid Flag"));
 			return;
 		}
@@ -1000,17 +1000,17 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		int RegionMode = 0;
 		bool noRegion = false;
 
-		if (flag.find(TEXT('o'),0))
+		if (xflags[TEXT('o')])
 			RegionMode = RGN_OR;
-		else if (flag.find(TEXT('a'),0))
+		else if (xflags[TEXT('a')])
 			RegionMode = RGN_AND;
-		else if (flag.find(TEXT('i'),0))
+		else if (xflags[TEXT('i')])
 			RegionMode = RGN_DIFF;
-		else if (flag.find(TEXT('x'),0))
+		else if (xflags[TEXT('x')])
 			RegionMode = RGN_XOR;
 
 		// image file - [COLOR] [FILE]
-		if (flag.find(TEXT('f'),0))
+		if (xflags[TEXT('f')])
 		{
 			if (numtok < 5) {
 				this->showError(NULL, TEXT("-R +f"), TEXT("Invalid arguments"));
@@ -1030,7 +1030,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			else
 				this->showError(NULL, TEXT("-R +f"), TEXT("Unable To Load Image file."));
 		}
-		else if (flag.find(TEXT('r'),0)) // rounded rect - radius args (optional)
+		else if (xflags[TEXT('r')]) // rounded rect - radius args (optional)
 		{
 			int radius;
 
@@ -1041,11 +1041,12 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 			m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
 		}
-		else if (flag.find(TEXT('c'),0)) // circle - radius arg (optional)
+		else if (xflags[TEXT('c')]) // circle - radius arg (optional)
 		{
 			if (numtok > 3) {
 				int radius = input.gettok( 4 ).to_int();
-				if (radius < 1) radius = 100; // handle cases where arg isnt a number or is a negative.
+				if (radius < 1)
+					radius = 100; // handle cases where arg isnt a number or is a negative.
 				const int cx = ((rc.right - rc.left)/2);
 				const int cy = ((rc.bottom - rc.top)/2);
 				m_Region = CreateEllipticRgn(cx-radius,cy-radius,cx+radius,cy+radius);
@@ -1053,7 +1054,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			else
 				m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
 		}
-		else if (flag.find(TEXT('p'),0)) // polygon
+		else if (xflags[TEXT('p')]) // polygon
 		{
 			// u need at least 3 points for a shape
 			if (numtok < 6) {
@@ -1062,23 +1063,22 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			}
 
 			const TString strPoints(input.gettok(4, -1));
-			int tPoints = strPoints.numtok( );
+			const int tPoints = strPoints.numtok( );
 
 			if (tPoints < 1) {
 				this->showError(NULL, TEXT("-R +p"), TEXT("Invalid Points"));
 				return;
 			}
 
-			int cnt = 1;
 			try {
 				TString strPoint;
 				POINT *pnts = new POINT[tPoints];
 
-				while (cnt <= tPoints) {
+				for (int cnt = 1; cnt <= tPoints; cnt++)
+				{
 					strPoint = strPoints.gettok( cnt );
 					pnts[cnt-1].x = (LONG)strPoint.gettok(1, TSCOMMA).to_num();
 					pnts[cnt-1].y = (LONG)strPoint.gettok(2, TSCOMMA).to_num();
-					cnt++;
 				}
 
 				m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
@@ -1090,7 +1090,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				return;
 			}
 		}
-		else if (flag.find(TEXT('d'),0)) // drag - <1|0>
+		else if (xflags[TEXT('d')]) // drag - <1|0>
 		{
 			noRegion = true;
 			if ((BOOL)input.gettok( 4 ).to_int())
@@ -1098,10 +1098,10 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			else
 				this->m_bDoDrag = false;
 		}
-		else if (flag.find(TEXT('g'),0)) // ghost drag - <0-255>
+		else if (xflags[TEXT('g')]) // ghost drag - <0-255>
 		{
-			const BYTE alpha = (BYTE)input.gettok( 4 ).to_int();
-			if (/*(alpha >= 0) &&*/ (alpha <= 255)) { // unsigned int will ALWAYS be >= 0
+			const BYTE alpha = (BYTE)(input.gettok( 4 ).to_int() & 0xFF);
+			if (/*(alpha >= 0) &&*/ (alpha <= 255)) { // unsigned int will ALWAYS be >= 0 <= 255
 				noRegion = true;
 				this->m_bDoGhostDrag = alpha;
 			}
@@ -1110,7 +1110,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				return;
 			}
 		}
-		else if (flag.find(TEXT('s'),0)) // shadow - <colour> <sharpness> <darkness> <size> <xoffset> <yoffset>
+		else if (xflags[TEXT('s')]) // shadow - <colour> <sharpness> <darkness> <size> <xoffset> <yoffset>
 		{
 			if (numtok == 9) {
 				noRegion = true;
@@ -1132,7 +1132,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				this->RemoveShadow();
 			}
 		}
-		else if (flag.find(TEXT('n'),0)) { // none, no args
+		else if (xflags[TEXT('n')]) { // none, no args
 			noRegion = true;
 			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
 		}
@@ -1209,57 +1209,6 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			mask &= ~DCX_EVENT_MOVE;
 
 		this->m_dEventMask = mask;
-		//DWORD mask = this->m_dEventMask;
-		//const TString p_flags(input.gettok( 3 ));
-		//const TString n_flags(input.gettok( 4 ));
-
-		//if ((p_flags[0] != TEXT('+')) || (n_flags[0] != TEXT('-'))) {
-		//	this->showError(NULL,TEXT("-E"), TEXT("Invalid Flag"));
-		//	return;
-		//}
-		//if (p_flags.find(TEXT('c'),0))
-		//	mask |= DCX_EVENT_CLICK;
-		//if (p_flags.find(TEXT('d'),0))
-		//	mask |= DCX_EVENT_DRAG;
-		//if (p_flags.find(TEXT('e'),0))
-		//	mask |= DCX_EVENT_EDIT;
-		//if (p_flags.find(TEXT('f'),0))
-		//	mask |= DCX_EVENT_FOCUS;
-		//if (p_flags.find(TEXT('h'),0))
-		//	mask |= DCX_EVENT_HELP;
-		//if (p_flags.find(TEXT('m'),0))
-		//	mask |= DCX_EVENT_MOUSE;
-		//if (p_flags.find(TEXT('s'),0))
-		//	mask |= DCX_EVENT_SIZE;
-		//if (p_flags.find(TEXT('t'),0))
-		//	mask |= DCX_EVENT_THEME;
-		//if (p_flags.find(TEXT('C'),0))
-		//	mask |= DCX_EVENT_CLOSE;
-		//if (p_flags.find(TEXT('M'),0))
-		//	mask |= DCX_EVENT_MOVE;
-
-		//if (n_flags.find(TEXT('c'),0))
-		//	mask &= ~DCX_EVENT_CLICK;
-		//if (n_flags.find(TEXT('d'),0))
-		//	mask &= ~DCX_EVENT_DRAG;
-		//if (n_flags.find(TEXT('e'),0))
-		//	mask &= ~DCX_EVENT_EDIT;
-		//if (n_flags.find(TEXT('f'),0))
-		//	mask &= ~DCX_EVENT_FOCUS;
-		//if (n_flags.find(TEXT('h'),0))
-		//	mask &= ~DCX_EVENT_HELP;
-		//if (n_flags.find(TEXT('m'),0))
-		//	mask &= ~DCX_EVENT_MOUSE;
-		//if (n_flags.find(TEXT('s'),0))
-		//	mask &= ~DCX_EVENT_SIZE;
-		//if (n_flags.find(TEXT('t'),0))
-		//	mask &= ~DCX_EVENT_THEME;
-		//if (n_flags.find(TEXT('C'),0))
-		//	mask &= ~DCX_EVENT_CLOSE;
-		//if (n_flags.find(TEXT('M'),0))
-		//	mask &= ~DCX_EVENT_MOVE;
-
-		//this->m_dEventMask = mask;
 	}
 	// xdialog -V [NAME] [SWITCH] [left] [right] [top] [bottom]
 	else if (flags[TEXT('V')] && numtok > 5) {
@@ -1269,7 +1218,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		this->m_GlassOffsets.bottom = input.gettok( 6 ).to_int();
 
 		if (Dcx::VistaModule.isUseable()) {
-			MARGINS margins = {this->m_GlassOffsets.left,this->m_GlassOffsets.right,this->m_GlassOffsets.top,this->m_GlassOffsets.bottom};
+			const MARGINS margins = {this->m_GlassOffsets.left,this->m_GlassOffsets.right,this->m_GlassOffsets.top,this->m_GlassOffsets.bottom};
 			Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(this->m_Hwnd, &margins);
 		}
 		this->redrawWindow();
@@ -1337,67 +1286,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 
 void DcxDialog::parseBorderStyles(const TString &flags, LONG *Styles, LONG *ExStyles) {
-	//const UINT len = flags.len();
-
-	//// no +sign, missing params
-	//if (flags[0] != TEXT('+')) 
-	//	return;
-
-	//for (UINT i = 1; i < len; i++)
-	//{
-	//	switch (flags[i])
-	//	{
-	//	case TEXT('b'):
-	//		*Styles |= WS_BORDER;
-	//		break;
-	//	case TEXT('c'):
-	//		*ExStyles |= WS_EX_CLIENTEDGE;
-	//		break;
-	//	case TEXT('d'):
-	//		*Styles |= WS_DLGFRAME;
-	//		break;
-	//	case TEXT('f'):
-	//		*ExStyles |= WS_EX_DLGMODALFRAME;
-	//		break;
-	//	case TEXT('h'):
-	//		*ExStyles |= WS_EX_CONTEXTHELP;
-	//		break;
-	//	case TEXT('m'):
-	//		*Styles |= WS_MAXIMIZEBOX;
-	//		break;
-	//	case TEXT('n'):
-	//		*Styles |= WS_MINIMIZEBOX;
-	//		break;
-	//	case TEXT('o'):
-	//		*ExStyles |= WS_EX_TOOLWINDOW;
-	//		break;
-	//	case TEXT('s'):
-	//		*ExStyles |= WS_EX_STATICEDGE;
-	//		break;
-	//	case TEXT('t'):
-	//		*Styles |= WS_CAPTION;
-	//		break;
-	//	case TEXT('w'):
-	//		*ExStyles |= WS_EX_WINDOWEDGE;
-	//		break;
-	//	case TEXT('y'):
-	//		*Styles |= WS_SYSMENU;
-	//		break;
-	//	case TEXT('z'):
-	//		*Styles |= WS_SIZEBOX;
-	//		break;
-	//	case TEXT('x'):
-	//		*ExStyles |= WS_EX_COMPOSITED;
-	//		break;
-	//	//	WS_EX_COMPOSITED style causes problems for listview control & maybe others, but when it works it looks really cool :)
-	//	//	this improves transparency etc.. on xp+ only, looking into how this affects us.
-	//	case TEXT('v'):
-	//		*ExStyles |= WS_EX_LAYERED;
-	//		break;
-	//	}
-	//}
-
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
 	if (!xflags[TEXT('+')]) 
@@ -1445,47 +1334,7 @@ void DcxDialog::parseBorderStyles(const TString &flags, LONG *Styles, LONG *ExSt
 
 DWORD DcxDialog::getAnimateStyles( const TString &flags) {
 	DWORD Styles = 0;
-	//const UINT len = flags.len();
-
-	//if (flags[0] != TEXT('+'))
-	//	return 0;
-
-	//for (UINT i = 1; i < len; i++)
-	//{
-	//	switch (flags[i])
-	//	{
-	//	case TEXT('s'):
-	//		Styles |= AW_SLIDE;
-	//		break;
-	//	case TEXT('h'):
-	//		Styles |= AW_HIDE;
-	//		break;
-	//	case TEXT('a'):
-	//		Styles |= AW_ACTIVATE;
-	//		break;
-	//	case TEXT('b'):
-	//		Styles |= AW_BLEND;
-	//		break;
-	//	case TEXT('v'):
-	//		Styles |= AW_VER_POSITIVE;
-	//		break;
-	//	case TEXT('u'):
-	//		Styles |= AW_VER_NEGATIVE;
-	//		break;
-	//	case TEXT('c'):
-	//		Styles |= AW_CENTER;
-	//		break;
-	//	case TEXT('o'):
-	//		Styles |= AW_HOR_POSITIVE;
-	//		break;
-	//	case TEXT('n'):
-	//		Styles |= AW_HOR_NEGATIVE;
-	//	default:
-	//		break;
-	//	}
-	//}
-
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 
 	if (!xflags[TEXT('+')])
 		return 0;
@@ -1518,32 +1367,8 @@ DWORD DcxDialog::getAnimateStyles( const TString &flags) {
  * blah
  */
 UINT DcxDialog::parseLayoutFlags(const TString &flags) {
-	//const UINT len = flags.len();
-	//UINT iFlags = 0;
-
-	//// no +sign, missing params
-	//if (flags[0] != TEXT('+')) 
-	//	return iFlags;
-
-	//for (UINT i = 1; i < len; i++)
-	//{
-	//	if (flags[i] == TEXT('f'))
-	//		iFlags |= LAYOUTFIXED;
-	//	else if (flags[i] == TEXT('h'))
-	//		iFlags |= LAYOUTHORZ;
-	//	else if (flags[i] == TEXT('i'))
-	//		iFlags |= LAYOUTID;
-	//	else if (flags[i] == TEXT('l'))
-	//		iFlags |= LAYOUTFILL ;
-	//	else if (flags[i] == TEXT('p'))
-	//		iFlags |= LAYOUTPANE;
-	//	else if (flags[i] == TEXT('v'))
-	//		iFlags |= LAYOUTVERT;
-	//	else if (flags[i] == TEXT('w'))
-	//		iFlags |= LAYOUTDIM;
-	//}
 	UINT iFlags = 0;
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
 	if (!xflags[TEXT('+')]) 
@@ -1568,34 +1393,8 @@ UINT DcxDialog::parseLayoutFlags(const TString &flags) {
 }
 
 UINT DcxDialog::parseTooltipFlags(const TString &flags) {
-//	const UINT len = flags.len();
-//	UINT iFlags = 0;
-//
-//	// no +sign, missing params
-//	if (flags[0] != TEXT('+')) 
-//		return iFlags;
-//
-//	for (UINT i = 1; i < len; i++)
-//	{
-//		if (flags[i] == TEXT('a'))
-//			iFlags |= TTS_ALWAYSTIP;
-//		else if (flags[i] == TEXT('b'))
-//			iFlags |= TTS_BALLOON;
-//		else if (flags[i] == TEXT('c')) // no idea what this does or if it works at all
-//			iFlags |= TTS_CLOSE;
-//		else if (flags[i] == TEXT('f'))
-//			iFlags |= TTS_NOFADE;
-//		else if (flags[i] == TEXT('p'))
-//			iFlags |= TTS_NOPREFIX;
-//		else if (flags[i] == TEXT('s'))
-//			iFlags |= TTS_NOANIMATE;
-//#if DCX_USE_WINSDK && WINVER >= 0x600
-//		else if (flags[i] == TEXT('t'))
-//			iFlags |= TTS_USEVISUALSTYLE;
-//#endif
-//	}
 	UINT iFlags = 0;
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
 	if (!xflags[TEXT('+')])
@@ -1628,39 +1427,7 @@ UINT DcxDialog::parseTooltipFlags(const TString &flags) {
  */
 
 UINT DcxDialog::parseBkgFlags(const TString &flags) {
-	//const UINT len = flags.len();
-	//UINT iFlags = 0;
-
-	//// no +sign, missing params
-	//if (flags[0] != TEXT('+')) 
-	//	return iFlags;
-
-	//for (UINT i = 1; i < len; i++)
-	//{
-	//	if (flags[i] == TEXT('b'))
-	//		iFlags |= DBS_BKGCOLOR;
-	//	else if (flags[i] == TEXT('i'))
-	//		iFlags |= DBS_BKGBITMAP;
-
-	//	else if (flags[i] == TEXT('n'))
-	//		iFlags |= DBS_BKGNORMAL;
-	//	else if (flags[i] == TEXT('t'))
-	//		iFlags |= DBS_BKGTILE;
-	//	else if (flags[i] == TEXT('s'))
-	//		iFlags |= DBS_BKGSTRETCH;
-
-	//	else if (flags[i] == TEXT('c'))
-	//		iFlags |= DBS_BKGCENTER;
-	//	else if (flags[i] == TEXT('v'))
-	//		iFlags |= DBS_BKGVCENTER;
-	//	else if (flags[i] == TEXT('r'))
-	//		iFlags |= DBS_BKGRIGHT;
-	//	else if (flags[i] == TEXT('o'))
-	//		iFlags |= DBS_BKGBOTTOM;
-	//}
-
-	//return iFlags;
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
@@ -1698,30 +1465,8 @@ UINT DcxDialog::parseBkgFlags(const TString &flags) {
  */
 
 UINT DcxDialog::parseFlashFlags(const TString &flags) {
-	//const UINT len = flags.len();
-	//UINT iFlags = 0;
-
-	//// no +sign, missing params
-	//if (flags[0] != TEXT('+')) 
-	//	return iFlags;
-
-	//for (UINT i = 1; i < len; i++)
-	//{
-	//	if (flags[i] == TEXT('a'))
-	//		iFlags |= FLASHW_ALL;
-	//	else if (flags[i] == TEXT('c'))
-	//		iFlags |= FLASHW_CAPTION;
-	//	else if (flags[i] == TEXT('f'))
-	//		iFlags |= FLASHW_TIMERNOFG;
-	//	else if (flags[i] == TEXT('r'))
-	//		iFlags |= FLASHW_TRAY;
-	//	else if (flags[i] == TEXT('s'))
-	//		iFlags |= FLASHW_STOP;
-	//	else if (flags[i] == TEXT('t'))
-	//		iFlags |= FLASHW_TIMER;
-	//}
 	UINT iFlags = 0;
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
 	if (!xflags[TEXT('+')])
@@ -1750,22 +1495,8 @@ UINT DcxDialog::parseFlashFlags(const TString &flags) {
  */
 
 UINT DcxDialog::parseCursorFlags(const TString &flags) {
-	//const UINT len = flags.len();
-	//UINT iFlags = 0;
-
-	//// no +sign, missing params
-	//if (flags[0] != TEXT('+')) 
-	//	return iFlags;
-
-	//for (UINT i = 1; i < len; i++)
-	//{
-	//	if (flags[i] == TEXT('f'))
-	//		iFlags |= DCCS_FROMFILE;
-	//	else if (flags[i] == TEXT('r'))
-	//		iFlags |= DCCS_FROMRESSOURCE;
-	//}
 	UINT iFlags = 0;
-	XSwitchFlags xflags(flags);
+	const XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
 	if (!xflags[TEXT('+')])
@@ -1831,7 +1562,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 
 	// [NAME] [PROP] [ID]
 	if (prop == TEXT("isid") && numtok > 2) {
-		int nID = input.gettok( 3 ).to_int();
+		const int nID = input.gettok( 3 ).to_int();
 
 		if (IsWindow(GetDlgItem(this->m_Hwnd, nID + mIRC_ID_OFFSET)) || (this->getControlByID(nID + mIRC_ID_OFFSET) != NULL))
 			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
@@ -1871,7 +1602,6 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 					}
 				}
 				szReturnValue[0] = TEXT('\0');
-				//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), TEXT(""));
 				return;
 			}
 		}
@@ -1900,7 +1630,6 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("parent")) {
-		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), this->getParentName().to_chr());
 		lstrcpyn(szReturnValue, this->getParentName().to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
@@ -1962,7 +1691,6 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("alias")) {
-		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), this->getAliasName().to_chr());
 		lstrcpyn(szReturnValue, this->getAliasName().to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
@@ -2033,7 +1761,7 @@ bool DcxDialog::evalAlias(TCHAR *szReturn, const int maxlen, const TCHAR *szArgs
 	//int rCnt = this->getRefCount();
 	//Dcx::mIRC.execex(TEXT("/set -n %%d%d %s"), rCnt, params);
 	this->incRef();
-	bool res = Dcx::mIRC.evalex(szReturn, maxlen, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
+	const bool res = Dcx::mIRC.evalex(szReturn, maxlen, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
 	this->decRef();
 	return res;
 }
@@ -2051,7 +1779,7 @@ bool DcxDialog::execAliasEx(const TCHAR *szFormat, ...) {
 
 bool DcxDialog::execAlias(const TCHAR *szArgs) {
 	this->incRef();
-	bool res = Dcx::mIRC.evalex(NULL, 0, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
+	const bool res = Dcx::mIRC.evalex(NULL, 0, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
 	this->decRef();
 	return res;
 }
@@ -2250,7 +1978,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					XPopupMenuItem *p_Item = (XPopupMenuItem*) lpmis->itemData;
 
 					if (p_Item != NULL) {
-						SIZE size = p_Item->getItemSize(mHwnd);
+						const SIZE size = p_Item->getItemSize(mHwnd);
 
 						lpmis->itemWidth = size.cx;
 						lpmis->itemHeight = size.cy;
@@ -2379,9 +2107,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				if (p_this->m_bDoGhostDrag < 255) {
 					if (!p_this->m_bVistaStyle) {
-						DWORD style = GetWindowExStyle(mHwnd);
+						const DWORD style = GetWindowExStyle(mHwnd);
 						// Set WS_EX_LAYERED on this window
-						if (!(style & WS_EX_LAYERED))
+						if ((style & WS_EX_LAYERED) != WS_EX_LAYERED)
 							SetWindowLong(mHwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
 						// Make this window alpha
 						SetLayeredWindowAttributes(mHwnd, 0, p_this->m_bDoGhostDrag, LWA_ALPHA);
@@ -2403,7 +2131,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					p_this->execAliasEx(TEXT("%s,%d"), TEXT("endmove"), 0);
 
 //#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
-				bool bDoRedraw = p_this->m_bInSizing;
+				const bool bDoRedraw = p_this->m_bInSizing;
 //#endif
 
 				p_this->m_bInMoving = false;
@@ -2597,8 +2325,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				DcxControl *p_Control = p_this->getControlByHWND((HWND) lParam);
 
 				if (p_Control != NULL) {
-					COLORREF clrText = p_Control->getTextColor();
-					COLORREF clrBackText = p_Control->getBackColor();
+					const COLORREF clrText = p_Control->getTextColor();
+					const COLORREF clrBackText = p_Control->getBackColor();
 					HBRUSH hBackBrush = p_Control->getBackClrBrush();
 
 					// let static controls shine through
@@ -2738,8 +2466,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_MOUSEWHEEL:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-					DWORD fwKeys = GET_KEYSTATE_WPARAM(wParam);
-					DWORD zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+					const DWORD fwKeys = GET_KEYSTATE_WPARAM(wParam);
+					const DWORD zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
 					TString flags(TEXT('+'));
 
 					if (fwKeys & MK_CONTROL) // control button
@@ -2811,9 +2539,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				HDROP files = (HDROP) wParam;
 				TCHAR filename[500];
-				int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
+				const int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
-				if (count) {
+				if (count > 0) {
 					if (p_this->m_dEventMask & DCX_EVENT_DRAG) {
 						TCHAR ret[20];
 
@@ -3010,8 +2738,8 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPCRECT rwnd)
 
 	int x = rwnd->left;
 	int y = rwnd->top;
-	int w = rwnd->right - rwnd->left;
-	int h = rwnd->bottom - rwnd->top;
+	const int w = rwnd->right - rwnd->left;
+	const int h = rwnd->bottom - rwnd->top;
 
 	// stretch
 	if (p_this->m_uStyleBg & DBS_BKGSTRETCH) {
@@ -3085,7 +2813,7 @@ void DcxDialog::ShowShadow(void)
 	if((this->m_Shadow.Status & DCX_SS_ENABLED) && !(this->m_Shadow.Status & DCX_SS_DISABLEDBYAERO))	// Enabled
 	{
 		// Determine the show state of shadow according to parent window's state
-		DWORD lParentStyle = GetWindowStyle(this->m_Hwnd);
+		const DWORD lParentStyle = GetWindowStyle(this->m_Hwnd);
 
 		if(WS_VISIBLE & lParentStyle)	// Parent visible
 		{
@@ -3116,8 +2844,8 @@ void DcxDialog::UpdateShadow(void)
 {
 	RECT WndRect;
 	GetWindowRect(this->m_Hwnd, &WndRect);
-	int nShadWndWid = WndRect.right - WndRect.left + this->m_Shadow.nSize * 2;
-	int nShadWndHei = WndRect.bottom - WndRect.top + this->m_Shadow.nSize * 2;
+	const int nShadWndWid = WndRect.right - WndRect.left + this->m_Shadow.nSize * 2;
+	const int nShadWndHei = WndRect.bottom - WndRect.top + this->m_Shadow.nSize * 2;
 
 	// Create the alpha blending bitmap
 	BITMAPINFO bmi;        // bitmap header
@@ -3173,10 +2901,10 @@ void DcxDialog::MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rc
 	GetWindowRgn(hParent, hParentRgn);
 
 	// Determine the Start and end point of each horizontal scan line
-	SIZE szParent = {rcParent->right - rcParent->left, rcParent->bottom - rcParent->top};
-	SIZE szShadow = {szParent.cx + 2 * this->m_Shadow.nSize, szParent.cy + 2 * this->m_Shadow.nSize};
+	const SIZE szParent = {rcParent->right - rcParent->left, rcParent->bottom - rcParent->top};
+	const SIZE szShadow = {szParent.cx + 2 * this->m_Shadow.nSize, szParent.cy + 2 * this->m_Shadow.nSize};
 	// Extra 2 lines (set to be empty) in ptAnchors are used in dilation
-	int nAnchors = max(szParent.cy, szShadow.cy);	// # of anchor points pares
+	const int nAnchors = max(szParent.cy, szShadow.cy);	// # of anchor points pares
 	int (*ptAnchors)[2] = new int[nAnchors + 2][2];
 	int (*ptAnchorsOri)[2] = new int[szParent.cy][2];	// anchor points, will not modify during erosion
 	ptAnchors[0][0] = szParent.cx;
@@ -3264,8 +2992,8 @@ void DcxDialog::MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rc
 	// morphologic dilation
 	ptAnchors += (this->m_Shadow.nSize < 0 ? -this->m_Shadow.nSize : 0) + 1;	// now coordinates in ptAnchors are same as in shadow window
 	// Generate the kernel
-	int nKernelSize = this->m_Shadow.nSize > this->m_Shadow.nSharpness ? this->m_Shadow.nSize : this->m_Shadow.nSharpness;
-	int nCenterSize = this->m_Shadow.nSize > this->m_Shadow.nSharpness ? (this->m_Shadow.nSize - this->m_Shadow.nSharpness) : 0;
+	const int nKernelSize = this->m_Shadow.nSize > this->m_Shadow.nSharpness ? this->m_Shadow.nSize : this->m_Shadow.nSharpness;
+	const int nCenterSize = this->m_Shadow.nSize > this->m_Shadow.nSharpness ? (this->m_Shadow.nSize - this->m_Shadow.nSharpness) : 0;
 	UINT32 *pKernel = new UINT32[(2 * nKernelSize + 1) * (2 * nKernelSize + 1)];
 	UINT32 *pKernelIter = pKernel;
 	const DWORD preColDark = PreMultiply(this->m_Shadow.Color, this->m_Shadow.nDarkness);
@@ -3273,12 +3001,12 @@ void DcxDialog::MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rc
 	{
 		for(int j = 0; j <= 2 * nKernelSize; j++)
 		{
-			double dLength = sqrt((i - nKernelSize) * (i - nKernelSize) + (j - nKernelSize) * (double)(j - nKernelSize));
+			const double dLength = sqrt((i - nKernelSize) * (i - nKernelSize) + (j - nKernelSize) * (double)(j - nKernelSize));
 			if(dLength < nCenterSize)
 				*pKernelIter = this->m_Shadow.nDarkness << 24 | preColDark;
 			else if(dLength <= nKernelSize)
 			{
-				UINT32 nFactor = ((UINT32)((1 - (dLength - nCenterSize) / (this->m_Shadow.nSharpness + 1)) * this->m_Shadow.nDarkness));
+				const UINT32 nFactor = ((UINT32)((1 - (dLength - nCenterSize) / (this->m_Shadow.nSharpness + 1)) * this->m_Shadow.nDarkness));
 				*pKernelIter = nFactor << 24 | PreMultiply(this->m_Shadow.Color, (BYTE)(nFactor & 0xFF));
 				// TODO: Examin this nFactor usage in PreMultiply() as its converting a UINT32 to an unsigned char
 				// changed nFactor to (BYTE)(nFactor & 0xFF) to mask out > byte bits.
@@ -3341,7 +3069,7 @@ void DcxDialog::MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rc
 	}	// for() Generate blurred border
 
 	// Erase unwanted parts and complement missing
-	UINT32 clCenter = this->m_Shadow.nDarkness << 24 | preColDark;
+	const UINT32 clCenter = this->m_Shadow.nDarkness << 24 | preColDark;
 	for(int i = min(nKernelSize, max(this->m_Shadow.nSize - this->m_Shadow.nyOffset, 0));
 		i < max(szShadow.cy - nKernelSize, min(szParent.cy + this->m_Shadow.nSize - this->m_Shadow.nyOffset, szParent.cy + 2 * this->m_Shadow.nSize));
 		i++)
@@ -3494,8 +3222,8 @@ void DcxDialog::CreateVistaStyle(void)
 		// this code is for windows 2000 & windows XP
 		RECT rc;
 		GetWindowRect(this->m_Hwnd, &rc);
-		DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;
-		DWORD Styles = WS_VISIBLE/*|WS_OVERLAPPED*/|WS_CLIPCHILDREN;
+		const DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;
+		const DWORD Styles = WS_VISIBLE/*|WS_OVERLAPPED*/|WS_CLIPCHILDREN;
 		SIZE szWin;
 		szWin.cx = (rc.right - rc.left);
 		szWin.cy = (rc.bottom - rc.top);
@@ -3522,10 +3250,10 @@ bool DcxDialog::CreateVistaStyleBitmap(const SIZE &szWin)
 {
 #ifdef DCX_USE_GDIPLUS
 	if (this->m_hVistaBitmap != NULL)
-		DeleteObject(this->m_hVistaBitmap);
+		DeleteBitmap(this->m_hVistaBitmap);
 
 	BITMAPINFOHEADER bmih = { 0 };
-	int nBytesPerLine = ((szWin.cx * 32 + 31) & (~31)) >> 3;
+	const int nBytesPerLine = ((szWin.cx * 32 + 31) & (~31)) >> 3;
 	// Populate BITMAPINFO header
 	bmih.biSize=sizeof(BITMAPINFOHEADER);
 	bmih.biWidth=szWin.cx;
@@ -3590,16 +3318,16 @@ void DcxDialog::DrawDialog( Graphics & graphics, HDC hDC)
 		int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
 		HBITMAP hBitmap = ::CreateCompatibleBitmap( hDC, w, h);
 		if (hBitmap != NULL) {
-			HGDIOBJ hbmpOld = ::SelectObject( hdcMemory, hBitmap);
+			HGDIOBJ hbmpOld = SelectBitmap( hdcMemory, hBitmap);
 
-			::SendMessage(this->m_Hwnd, WM_PRINT, (WPARAM)hdcMemory,PRF_CLIENT|PRF_NONCLIENT|PRF_ERASEBKGND);
+			SendMessage(this->m_Hwnd, WM_PRINT, (WPARAM)hdcMemory,PRF_CLIENT|PRF_NONCLIENT|PRF_ERASEBKGND);
 
 			Bitmap bitmap( hBitmap, NULL);
 			graphics.DrawImage( &bitmap, 0, 0);
 
-			::DeleteObject(::SelectObject( hdcMemory, hbmpOld));
+			DeleteBitmap(SelectBitmap( hdcMemory, hbmpOld));
 		}
-		::DeleteDC(hdcMemory);
+		DeleteDC(hdcMemory);
 	}
 }
 
@@ -3612,7 +3340,7 @@ void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd)
 	GetWindowRect(hWnd, &rc);
 	this->MapVistaRect(NULL, &rc);
 
-	int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
+	const int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
 
 	// Don't bother drawing if its not visible in clip rect.
 	if (!graphics.IsVisible(rc.left, rc.top, w, h))
@@ -3624,14 +3352,14 @@ void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd)
 		if (hBitmap != NULL) {
 			HBITMAP hbmpOld = SelectBitmap( hdcMemory, hBitmap);
 
-			::SendMessage( hWnd, WM_PRINT, (WPARAM)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
+			SendMessage( hWnd, WM_PRINT, (WPARAM)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
 			Bitmap bitmap( hBitmap, NULL);
 			graphics.DrawImage( &bitmap, rc.left, rc.top);
 
 			DeleteBitmap(SelectBitmap( hdcMemory, hbmpOld));
 		}
-		::DeleteDC(hdcMemory);
+		DeleteDC(hdcMemory);
 	}
 }
 #endif
@@ -3662,7 +3390,7 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 			DeleteRgn(hRgn);
 	}
 	RECT rc;
-	::GetWindowRect( this->m_hFakeHwnd, &rc);
+	GetWindowRect( this->m_hFakeHwnd, &rc);
 	POINT ptSrc = { 0, 0};
 	POINT ptWinPos = { rc.left, rc.top};
 	SIZE szWin = { (rc.right - rc.left), (rc.bottom - rc.top) };
@@ -3671,7 +3399,7 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 	if (this->m_bGhosted)
 		alpha = this->m_bDoGhostDrag;
 
-	BYTE half_alpha = (BYTE)(alpha / 2);
+	const BYTE half_alpha = (BYTE)(alpha / 2);
 
 	BLENDFUNCTION stBlend = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
 
@@ -3680,7 +3408,7 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 
 	PVOID pvBits = this->m_pVistaBits;
 	HBITMAP hbmpMem = this->m_hVistaBitmap;
-	if(hbmpMem)
+	if (hbmpMem != NULL)
 	{
 		HBITMAP hbmpOld = SelectBitmap( hdcMemory, hbmpMem);
 
@@ -3692,16 +3420,17 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 		graph.SetSmoothingMode(SmoothingModeNone);
 
 		RECT rcParentWin, rcParentClient, rcClip, glassOffsets;
-		SIZE offsets;
-		POINT pt;
 
 		SetRectEmpty(&rcClip);
 		GetWindowRect(this->m_Hwnd, &rcParentWin);
 		GetClientRect(this->m_Hwnd, &rcParentClient);
 		MapWindowRect(this->m_Hwnd, NULL, &rcParentClient);
-		offsets.cx = (rcParentClient.left - rcParentWin.left);
-		offsets.cy = (rcParentClient.top - rcParentWin.top);
+
+		const SIZE offsets = { (rcParentClient.left - rcParentWin.left), (rcParentClient.top - rcParentWin.top) };
+		//offsets.cx = (rcParentClient.left - rcParentWin.left);
+		//offsets.cy = (rcParentClient.top - rcParentWin.top);
 		this->m_sVistaOffsets = offsets;
+
 		// Glass area = window edge +/- offset
 		glassOffsets.left = offsets.cx + this->m_GlassOffsets.left;
 		glassOffsets.top = offsets.cy + this->m_GlassOffsets.top;
@@ -3732,8 +3461,10 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 		//	make this behaviour optional?
 		//if (!this->m_bGhosted && alpha == 255) {
 			GdiFlush(); // sync drawing
-			int Yend = min(rcClip.bottom, szWin.cy), Ybase = max(rcClip.top, 0);
-			int Xend = min(rcClip.right, szWin.cx), Xbase = max(rcClip.left, 0);
+			const int Yend = min(rcClip.bottom, szWin.cy), Ybase = max(rcClip.top, 0);
+			const int Xend = min(rcClip.right, szWin.cx), Xbase = max(rcClip.left, 0);
+			POINT pt;
+
 			for( int y = Ybase; y < Yend; y++)
 			{
 				// (szWin.cx * 4 * y) == row
@@ -3829,9 +3560,7 @@ void DcxDialog::SetVistaStyleSize(void)
 
 	RECT rc;
 	GetWindowRect(this->m_Hwnd, &rc);
-	SIZE szWin;
-	szWin.cx = (rc.right - rc.left);
-	szWin.cy = (rc.bottom - rc.top);
+	const SIZE szWin = { (rc.right - rc.left), (rc.bottom - rc.top) };
 	this->CreateVistaStyleBitmap(szWin);
 	SetWindowPos(this->m_hFakeHwnd, NULL, 0,0, szWin.cx, szWin.cy, SWP_NOMOVE|SWP_NOZORDER);
 }

@@ -80,9 +80,5 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 		months[pst->wMonth -1],
 		pst->wYear);
 
-#if UNICODE
 	return _wtol(ret);
-#else
-	return atol(ret);
-#endif
 }
