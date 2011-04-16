@@ -25,7 +25,7 @@ mIRC(ColorDialog) {
 	BOOL retDefault = FALSE;
 	CHOOSECOLOR	cc;
 	static COLORREF clr[16];
-	COLORREF		sel = (COLORREF) d.gettok(1).to_num();
+	const COLORREF	sel = (COLORREF) d.gettok(1).to_num();
 	DWORD			styles = CC_RGBINIT;
 
 	ZeroMemory(&cc, sizeof(CHOOSECOLOR));
@@ -128,12 +128,12 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	TCHAR szFilename[MIRC_BUFFER_SIZE_CCH];
 
 	// seperate the tokenz
-	TString styles(data.gettok(1, TSTAB).trim());
-	TString file(data.gettok(2, TSTAB).trim());
+	const TString styles(data.gettok(1, TSTAB).trim());
+	const TString file(data.gettok(2, TSTAB).trim());
 	TString filter(data.gettok(3, TSTAB).trim());
 
 	// Get Current dir for resetting later.
-	UINT tsBufSize = GetCurrentDirectory(0, NULL);
+	const UINT tsBufSize = GetCurrentDirectory(0, NULL);
 	TString tsCurrentDir((UINT)tsBufSize);
 	GetCurrentDirectory(tsBufSize,tsCurrentDir.to_chr());
 
@@ -272,7 +272,7 @@ mIRC(BrowseDialog) {
 		http://msdn2.microsoft.com/en-us/library/bb773205.aspx
 		*/
 
-		TString flag(param.gettok(i));
+		const TString flag(param.gettok(i));
 
 		if (flag == TEXT("advanced"))
 			bi.ulFlags |= BIF_USENEWUI;
@@ -454,8 +454,8 @@ mIRC(FontDialog) {
 	cf.nSizeMax = 72;
 
 	for (int i = 1; i <= input.numtok(TSTAB); i++) {
-		TString option(input.gettok(i, TSTAB).trim());
-		int numtok = option.numtok( );
+		const TString option(input.gettok(i, TSTAB).trim());
+		const int numtok = option.numtok( );
 
 		/*
 		default +flags(ibsua) charset size fontname
@@ -474,11 +474,11 @@ mIRC(FontDialog) {
 
 		// flags +
 		if (option.gettok( 1 ) == TEXT("flags") && numtok > 1) {
-			TString flag(option.gettok( 2 ));
-			int c = (int)flag.len();
-			int j = 0;
+			const TString flag(option.gettok( 2 ));
+			const int c = (int)flag.len();
 
-			while (j < c) {
+			for (int j = 0; j < c; j++)
+			{
 				if (flag[j] == TEXT('a'))
 					style |= CF_NOFACESEL;
 				else if (flag[j] == TEXT('b'))
@@ -513,8 +513,6 @@ mIRC(FontDialog) {
 					style |= CF_NOSTYLESEL;
 				else if (flag[j] == TEXT('z'))
 					style |= CF_NOSIZESEL;
-
-				j++;
 			}
 		}
 		// defaults +flags(ibsua) charset size fontname
@@ -544,7 +542,7 @@ mIRC(FontDialog) {
 
 	// show the dialog
 	if (ChooseFont(&cf)) {
-		TString fntflags(ParseLogfontToCommand(&lf));
+		const TString fntflags(ParseLogfontToCommand(&lf));
 
 		// color flags font info
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %s"), cf.rgbColors, fntflags.to_chr());
@@ -563,12 +561,12 @@ mIRC(MsgBox) {
 	if (d.numtok(TSTAB) < 3)
 		ret(TEXT("D_ERROR MessageBox: invalid parameters"));
 
-	DWORD   style     = MB_DEFBUTTON1;
-	TString strStyles(d.gettok(1, TSTAB).trim());
-	TString strTitle(d.gettok(2, TSTAB).trim());
-	TString strMsg(d.gettok(3, -1, TSTAB).trim());
-	int     n         = strStyles.numtok( );
-	HWND    owner     = aWnd;
+	DWORD			style     = MB_DEFBUTTON1;
+	TString			strStyles(d.gettok(1, TSTAB).trim());
+	const TString	strTitle(d.gettok(2, TSTAB).trim());
+	const TString	strMsg(d.gettok(3, -1, TSTAB).trim());
+	const int		n = strStyles.numtok( );
+	HWND			owner = aWnd;
 
 	for (int i = 1; i <= n; i++) {
 //		MB_ABORTRETRYIGNORE

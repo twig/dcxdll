@@ -80,14 +80,14 @@ mIRC(xtreebar) {
 	input.trim();
 	data[0] = 0;
 
-	int numtok = input.numtok( );
+	const int numtok = input.numtok( );
 
 	if (!IsWindow(Dcx::mIRC.getTreeview())) {
 		Dcx::error(TEXT("/xtreebar"), TEXT("No Treebar"));
 		return 0;
 	}
 
-	TString switches(input.gettok(1));
+	const TString switches(input.gettok(1));
 
 	if (switches[0] != TEXT('-')) {
 		Dcx::error(TEXT("/xtreebar"), TEXT("Invalid Switch"));
@@ -126,7 +126,6 @@ mIRC(xtreebar) {
 #else
 				static const TString treebar_styles(TEXT("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel transparent notransparent balloon noballoon"));
 #endif
-				int i = 2;
 				DWORD stylef = GetWindowStyle(Dcx::mIRC.getTreeview());
 				DWORD exstylef = GetWindowExStyle(Dcx::mIRC.getTreeview());
 #ifdef DCX_USE_WINSDK
@@ -142,7 +141,8 @@ mIRC(xtreebar) {
 #endif
 					TS_BALLOON, TS_NOBALLOON
 				};
-				while (i <= numtok) {
+				for (int i = 2; i <= numtok; i++)
+				{
 					switch (treebar_styles.findtok(input.gettok(i).to_chr(),1))
 					{
 					case TS_TRACK: // trackselect (off by default)
@@ -261,7 +261,6 @@ mIRC(xtreebar) {
 						}
 						break;
 					}
-					i++;
 				}
 				SetWindowLongPtr(Dcx::mIRC.getTreeview(),GWL_STYLE, stylef);
 				SetWindowLongPtr(Dcx::mIRC.getTreeview(),GWL_EXSTYLE, exstylef);
@@ -279,8 +278,8 @@ mIRC(xtreebar) {
 					Dcx::error(TEXT("/xtreebar -c"), TEXT("Invalid Colour Args"));
 					return 0;
 				}
-				TString cflag(input.gettok(2));
-				COLORREF clr = (COLORREF)input.gettok(3).to_num();
+				const TString cflag(input.gettok(2));
+				const COLORREF clr = (COLORREF)input.gettok(3).to_num();
 
 				if (cflag[0] != TEXT('+')) {
 					Dcx::error(TEXT("/xtreebar -c"),TEXT("Invalid Colour flag"));
@@ -343,7 +342,7 @@ mIRC(xtreebar) {
 					Dcx::error(TEXT("/xtreebar -w"), TEXT("No Valid TreeView Image List"));
 					return 0;
 				}
-				TString tsIndex(input.gettok(2));
+				const TString tsIndex(input.gettok(2));
 				if (tsIndex == TEXT("clear")) { // no images.
 					HIMAGELIST o = TreeView_SetImageList(Dcx::mIRC.getTreeview(),NULL,TVSIL_NORMAL);
 					if (o != NULL && o != Dcx::mIRC.getTreeImages())
@@ -368,8 +367,9 @@ mIRC(xtreebar) {
 							TreeView_SetImageList(Dcx::mIRC.getTreeview(), himl, TVSIL_NORMAL);
 					}
 					if (himl != NULL) {
-						int iIndex = tsIndex.to_int() -1, fIndex = input.gettok(4).to_int(), iCnt = ImageList_GetImageCount(himl) -1;
-						TString cflag(input.gettok(3).trim());
+						int iIndex = tsIndex.to_int() -1;
+						const int fIndex = input.gettok(4).to_int(), iCnt = ImageList_GetImageCount(himl) -1;
+						const TString cflag(input.gettok(3).trim());
 						TString filename(input.gettok(5,-1).trim());
 
 						// check index is within range.
@@ -439,8 +439,8 @@ mIRC(_xtreebar)
 		ret(TEXT("D_ERROR Invalid Args: An Index & a Prop are required."));
 
 	static const TString poslist(TEXT("item icons"));
-	int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
-	int cnt = TreeView_GetCount(Dcx::mIRC.getTreeview());
+	const int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
+	const int cnt = TreeView_GetCount(Dcx::mIRC.getTreeview());
 	int index = d.gettok( 3 ).to_int();
 
 	if (index > cnt)
