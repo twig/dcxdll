@@ -1462,6 +1462,7 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 
 	int fIndex = 0, i = iIndex;
 	HICON hIcon = NULL;
+	bool bAdded = false;
 
 	do {
 		if (bLarge)
@@ -1475,10 +1476,11 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 			else
 				ImageList_ReplaceIcon(himl, i++, hIcon);
 			DestroyIcon(hIcon);
+			bAdded = true;
 		}
 		fIndex++;
 	} while (hIcon != NULL);
-	return true;
+	return bAdded;
 }
 
 BOOL dcxGetWindowRect(HWND hWnd, LPRECT lpRect)
