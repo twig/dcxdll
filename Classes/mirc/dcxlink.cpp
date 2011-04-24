@@ -450,7 +450,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 void DcxLink::DrawClientArea(HDC hdc)
 {
 	// Setup alpha blend if any.
-	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, true);
 
 	RECT rect;
 	GetClientRect( this->m_Hwnd, &rect );
@@ -471,7 +471,7 @@ void DcxLink::DrawClientArea(HDC hdc)
 	HFONT hNewFont = CreateFontIndirect( &lf );
 	HFONT hOldFont = SelectFont( hdc, hNewFont );
 
-	SetBkMode( hdc, TRANSPARENT );
+	const int oldMode = SetBkMode( hdc, TRANSPARENT );
 
 	if ( this->m_hIcon != NULL ) {
 
@@ -491,21 +491,23 @@ void DcxLink::DrawClientArea(HDC hdc)
 		this->m_clrText = this->m_aColors[0];
 
 	TString wtext;
-	const int nText = TGetWindowText(this->m_Hwnd, wtext);
 
-	if (!this->m_bCtrlCodeText) {
-		if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
-			dcxDrawShadowText(hdc,wtext.to_chr(), wtext.len(), &rect,
-				DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_clrText, 0, 5, 5);
-		}
-		else {
-			SetTextColor( hdc, this->m_clrText );
-			DrawTextW( hdc, wtext.to_chr(), nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
-		}
-	}
-	else
-		mIRC_DrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_bShadowText);
+	TGetWindowText(this->m_Hwnd, wtext);
+	this->ctrlDrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER);
+	//const int nText = TGetWindowText(this->m_Hwnd, wtext);
+	//if (!this->m_bCtrlCodeText) {
+	//	if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
+	//		dcxDrawShadowText(hdc,wtext.to_chr(), wtext.len(), &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_clrText, 0, 5, 5);
+	//	}
+	//	else {
+	//		SetTextColor( hdc, this->m_clrText );
+	//		DrawTextW( hdc, wtext.to_chr(), nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
+	//	}
+	//}
+	//else
+	//	mIRC_DrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_bShadowText);
 
+	SetBkMode( hdc, oldMode );
 	SelectFont( hdc, hOldFont );
 	DeleteFont( hNewFont );
 
