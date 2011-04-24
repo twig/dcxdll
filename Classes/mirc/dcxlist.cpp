@@ -195,6 +195,44 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 			return;
 		}
 	}
+	// [NAME] [ID] [PROP] (N)
+	else if ( prop == TEXT("seltext") ) {
+		int nSel = -1;
+		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
+			const int n = ListBox_GetSelCount(this->m_Hwnd);
+
+			if (n > 0) {
+				int *p = new int[n];
+				ListBox_GetSelItems(this->m_Hwnd, n, p);
+
+				// get a unique value
+				if (numtok > 3) {
+					const int i = (input.gettok( 4 ).to_int() -1);
+
+					if ((i >= 0) && (i < n))
+						nSel = p[i];
+					else
+						this->showError(prop.to_chr(), NULL, TEXT("Requested Item Out Of Selection Range"));
+				}
+				else
+					nSel = p[0];	// no item requested, so return the first selected item.
+
+				delete [] p;
+			}
+		}
+		// single select
+		else
+			nSel = ListBox_GetCurSel(this->m_Hwnd);
+
+		if ( nSel > -1 ) {
+			const int l = ListBox_GetTextLen(this->m_Hwnd, nSel);
+			if (l != LB_ERR && l < MIRC_BUFFER_SIZE_CCH)
+				ListBox_GetText( this->m_Hwnd, nSel, szReturnValue );
+			else
+				this->showError(prop.to_chr(), NULL, TEXT("String Too Long (Greater than Max chars)"));
+			return;
+		}
+	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("num") ) {
 
