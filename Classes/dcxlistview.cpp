@@ -1902,8 +1902,19 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		}
 		else
 			this->showErrorEx(NULL, TEXT("-H"), TEXT("Unknown flags %s"), input.gettok(5).to_chr());
-		
-		return;
+	}
+	// xdid -G [NAME] [ID] [SWITCH] [GID] [+MASK] [+STATES]
+	else if (flags[TEXT('G')] && numtok == 6) {
+		const int gid = (int)input.gettok( 4 ).to_num();
+
+		if (ListView_HasGroup(this->m_Hwnd, gid)) {
+			const UINT iMask = this->parseGroupState( input.gettok( 5 ) );
+			const UINT iState = this->parseGroupState( input.gettok( 6 ) );
+
+			ListView_SetGroupState(this->m_Hwnd, gid, iMask, iState);
+		}
+		else
+			this->showErrorEx(NULL,TEXT("-G"), TEXT("Group doesn't exist: %d"), gid);
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -2203,6 +2214,8 @@ UINT DcxListView::parseGroupState( const TString & flags ) {
 		iFlags |= LVGS_NOHEADER;
 	if ( xflags[TEXT('O')] )
 		iFlags |= LVGS_COLLAPSED;
+	if ( xflags[TEXT('S')] )
+		iFlags |= LVGS_SELECTED;
 
 	return iFlags;
 }
