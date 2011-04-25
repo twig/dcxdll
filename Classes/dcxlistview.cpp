@@ -1356,16 +1356,19 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		if (index > -1 && gid > 0) {
 			if (!ListView_HasGroup(this->m_Hwnd, gid)) {
 				const TString text(input.gettok(7, -1));
+				const UINT iState = this->parseGroupState( input.gettok(5) );
 
 				LVGROUP lvg;
 				ZeroMemory(&lvg, sizeof(LVGROUP));
 				lvg.cbSize = sizeof(LVGROUP);
-				lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID;
+				lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID | LVGF_STATE;
 
-				LPWSTR wstr = text.to_chr(); // can this buffer be deleted? or is it needed by the control? requires testing.
 				lvg.iGroupId = gid;
-				lvg.pszHeader = wstr;
+				lvg.pszHeader = text.to_chr();
 				lvg.uAlign = iFlags;
+
+				lvg.stateMask = iState;
+				lvg.state = iState;
 
 				ListView_InsertGroup(this->m_Hwnd, index, &lvg);
 			}
@@ -2180,6 +2183,26 @@ UINT DcxListView::parseGroupFlags( const TString & flags ) {
 		iFlags |= LVGA_HEADER_LEFT;
 	if ( xflags[TEXT('r')] )
 		iFlags |= LVGA_HEADER_RIGHT;
+
+	return iFlags;
+}
+UINT DcxListView::parseGroupState( const TString & flags ) {
+
+	const XSwitchFlags xflags(flags);
+	UINT iFlags = 0;
+
+	// no +sign, missing params
+	if ( !xflags[TEXT('+')] ) 
+		return iFlags;
+
+	if ( xflags[TEXT('C')] )
+		iFlags |= LVGS_COLLAPSIBLE;
+	if ( xflags[TEXT('H')] )
+		iFlags |= LVGS_HIDDEN;
+	if ( xflags[TEXT('N')] )
+		iFlags |= LVGS_NOHEADER;
+	if ( xflags[TEXT('O')] )
+		iFlags |= LVGS_COLLAPSED;
 
 	return iFlags;
 }

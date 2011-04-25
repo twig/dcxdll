@@ -151,6 +151,7 @@ protected:
 	static UINT parseColorFlags( const TString & flags );
 	static UINT parseImageFlags( const TString & flags );
 	static UINT parseGroupFlags( const TString & flags );
+	static UINT parseGroupState( const TString & flags );
 
 	BOOL matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType ) const;
 
