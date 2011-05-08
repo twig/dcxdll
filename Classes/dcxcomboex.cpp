@@ -298,7 +298,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 void DcxComboEx::parseCommandRequest( const TString &input) {
 	const XSwitchFlags flags(input.gettok(3));
 
-	const int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -633,12 +633,14 @@ TString DcxComboEx::getStyles(void) const
 {
 	TString styles(__super::getStyles());
 	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & CBS_SIMPLE)
 		styles.addtok(TEXT("simple"));
 	if (Styles & CBS_DROPDOWNLIST) 
 		styles.addtok(TEXT("dropdown"));
 	if (Styles & CBS_DROPDOWN) 
 		styles.addtok(TEXT("dropedit"));
+
 	return styles;
 }
 
@@ -766,8 +768,9 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 
 	LPDCXCOMBOEXEDIT lpce = (LPDCXCOMBOEXEDIT) GetWindowLongPtr( mHwnd, GWLP_USERDATA );
-	if (lpce == NULL)	return DefWindowProc( mHwnd, uMsg, wParam, lParam );
-	//mIRCError( TEXT("DcxComboEx::ComboExEditProc") );
+	if (lpce == NULL)
+		return DefWindowProc( mHwnd, uMsg, wParam, lParam );
+
 	switch( uMsg ) {
 		/*
 		case WM_GETDLGCODE:
@@ -818,11 +821,11 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wPar
 		//	break;*/
 		case LB_GETITEMRECT:
 		{
-		// This fixes the lockup on clicking the comboex editbox. (why?)
-		// this is not a real fix, but a workaround.
-		// NB: when we dont replace the editbox wndproc this crash doesnt happen.
-		// mIRC sends this message to it's child windows, no idea why
-		return LB_ERR;
+			// This fixes the lockup on clicking the comboex editbox. (why?)
+			// this is not a real fix, but a workaround.
+			// NB: when we dont replace the editbox wndproc this crash doesnt happen.
+			// mIRC sends this message to it's child windows, no idea why
+			return LB_ERR;
 		}
 		break;
 

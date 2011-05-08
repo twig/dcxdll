@@ -40,21 +40,20 @@ DcxDirectshow::DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mP
 , m_bKeepRatio(false)
 , m_bLoop(false)
 {
+	LONG Styles = 0, ExStyles = 0;
+	BOOL bNoTheme = FALSE;
+	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-  LONG Styles = 0, ExStyles = 0;
-  BOOL bNoTheme = FALSE;
-  this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-  this->m_Hwnd = CreateWindowEx(
-    ExStyles | WS_EX_CLIENTEDGE,
-    TEXT("STATIC"),
-    NULL,
-    WS_CHILD | WS_CLIPSIBLINGS | Styles, 
-    rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
-    mParentHwnd,
-    (HMENU) ID,
-    GetModuleHandle(NULL), 
-    NULL);
+	this->m_Hwnd = CreateWindowEx(
+		ExStyles | WS_EX_CLIENTEDGE,
+		TEXT("STATIC"),
+		NULL,
+		WS_CHILD | WS_CLIPSIBLINGS | Styles, 
+		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		mParentHwnd,
+		(HMENU) ID,
+		GetModuleHandle(NULL), 
+		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
 		throw TEXT("Unable To Create Window");
@@ -82,8 +81,10 @@ DcxDirectshow::~DcxDirectshow( ) {
 TString DcxDirectshow::getStyles(void) const
 {
 	TString styles(__super::getStyles());
+
 	if (this->m_bKeepRatio)
 		styles.addtok(TEXT("fixratio"));
+
 	return styles;
 }
 
@@ -490,13 +491,11 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			case 0: // error
 			default:
 				this->showError(NULL,TEXT("-c"), TEXT("Invalid Command"));
-				//DCXError(TEXT("/xdid -c"),TEXT("Invalid Command"));
 				break;
 			}
 		}
 		else
 			this->showError(NULL,TEXT("-c"), TEXT("No File Loaded"));
-			//DCXError(TEXT("/xdid -c"), TEXT("No File Loaded"));
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
 	else if ( flags[TEXT('v')] && numtok > 7 ) {
@@ -505,13 +504,10 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			if (FAILED(hr)) {
 				this->showError(NULL,TEXT("-v"), TEXT("Unable to set video"));
 				DX_ERR(NULL,TEXT("-v"), hr);
-				//DCXError(TEXT("/xdid -v"), TEXT("Unable to set video"));
 			}
 		}
-		else {
+		else
 			this->showError(NULL,TEXT("-v"), TEXT("No File Loaded"));
-			//DCXError(TEXT("/xdid -v"), TEXT("No File Loaded"));
-		}
 	}
 	// xdid -V [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
 	else if ( flags[TEXT('V')] && numtok > 4 ) {
@@ -832,8 +828,8 @@ HRESULT DcxDirectshow::getProperty(TCHAR *prop, const int type) const
 
 HRESULT DcxDirectshow::setAlpha(float alpha)
 {
-	if (alpha < 0)
-		alpha = 255;
+	if ((alpha < 0) || (alpha > 1.0))
+		alpha = 1.0;
 
 	IBaseFilter* pVmr = NULL; 
 

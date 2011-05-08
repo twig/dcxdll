@@ -138,7 +138,7 @@ void DcxLink::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 void DcxLink::parseCommandRequest( const TString & input ) {
 	const XSwitchFlags flags(input.gettok(3));
 
-	const int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
 	if ( flags[TEXT('l')] && numtok > 4 ) {
@@ -151,8 +151,8 @@ void DcxLink::parseCommandRequest( const TString & input ) {
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR4]
 	else if ( flags[TEXT('q')] && numtok > 3 ) {
 
-		const int len = input.gettok( 4, -1 ).numtok( );
-		for (int i = 0; (i < len && i < 4 ); i++)
+		const UINT len = input.gettok( 4, -1 ).numtok( );
+		for (UINT i = 0; (i < len && i < 4 ); i++)
 			this->m_aColors[i] = (COLORREF)input.gettok( 4 + i ).to_num( );
 	}
 	//xdid -t [NAME] [ID] [SWITCH] (TEXT)
@@ -174,9 +174,6 @@ void DcxLink::parseCommandRequest( const TString & input ) {
 
 		this->m_hIcon = dcxLoadIcon(index, filename, false, flag);
 
-		//if (flag.find(TEXT('g'), 0))
-		//	this->m_hIcon = CreateGrayscaleIcon(this->m_hIcon);
-
 		this->redrawWindow();
 	}
 	else
@@ -189,28 +186,6 @@ void DcxLink::parseCommandRequest( const TString & input ) {
  * blah
  */
 LRESULT DcxLink::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
- // switch( uMsg ) {
-	//    case WM_COMMAND:
- //     {
- //       switch ( HIWORD( wParam ) ) {
-
- //         case STN_CLICKED:
- //           {
-	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//              this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID( ) );
- //           }
- //           break;
-
- //         case STN_DBLCLK:
- //           {
-	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//							this->execAliasEx(TEXT("%s,%d"), TEXT("dclick"), this->getUserID( ) );
- //           }
- //           break;
- //       }
- //     }
- //     break;
-	//}
 	return 0L;
 }
 

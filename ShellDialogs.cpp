@@ -35,7 +35,7 @@ mIRC(ColorDialog) {
 	cc.hwndOwner = mWnd;
 
 	if (d.numtok() > 1) {
-		for (int i = 1; i <= d.numtok(); i++) {
+		for (unsigned int i = 1; i <= d.numtok(); i++) {
 			if (d.gettok(i) == TEXT("anycolor"))
 				styles |= CC_ANYCOLOR;
 			else if (d.gettok(i) == TEXT("fullopen"))
@@ -155,7 +155,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	ofn.nMaxFile = MIRC_BUFFER_SIZE_CCH;
 	ofn.lpstrDefExt = TEXT("");
 
-	for (int i = 1; i <= styles.numtok( ); i++) {
+	for (unsigned int i = 1; i <= styles.numtok( ); i++) {
 		if (styles.gettok( i ) == TEXT("multisel"))
 			style |= OFN_ALLOWMULTISELECT;
 		else if (styles.gettok( i ) == TEXT("createprompt"))
@@ -453,9 +453,9 @@ mIRC(FontDialog) {
 	cf.nSizeMin = 8;
 	cf.nSizeMax = 72;
 
-	for (int i = 1; i <= input.numtok(TSTAB); i++) {
+	for (unsigned int i = 1; i <= input.numtok(TSTAB); i++) {
 		const TString option(input.gettok(i, TSTAB).trim());
-		const int numtok = option.numtok( );
+		const unsigned int numtok = option.numtok( );
 
 		/*
 		default +flags(ibsua) charset size fontname

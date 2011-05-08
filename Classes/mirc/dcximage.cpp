@@ -349,7 +349,7 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 	GetObject( this->m_hBitmap, sizeof(BITMAP), &bmp );
 	HBITMAP oldBitmap = SelectBitmap( hdcbmp, this->m_hBitmap );
 
-	if (this->m_clrTransColor != -1)
+	if (this->m_clrTransColor != CLR_INVALID)
 		TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_clrTransColor);
 	else
 		StretchBlt( hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
@@ -361,7 +361,8 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 void DcxImage::toXml(TiXmlElement * xml) const
 {
 	__super::toXml(xml);
-	if (this->m_tsFilename.len() > 0) xml->SetAttribute("src", m_tsFilename.c_str());
+	if (this->m_tsFilename.len() > 0)
+		xml->SetAttribute("src", m_tsFilename.c_str());
 }
 
 /*!

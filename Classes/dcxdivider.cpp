@@ -74,8 +74,10 @@ TString DcxDivider::getStyles(void) const
 {
 	TString styles(__super::getStyles());
 	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & DVS_VERT)
 		styles.addtok(TEXT("vertical"));
+
 	return styles;
 }
 
@@ -220,12 +222,10 @@ void DcxDivider::toXml(TiXmlElement * xml) const
 	__super::toXml(xml);
 	DVPANEINFO left;
 	DVPANEINFO right;
-	DcxControl * dcxcleft = NULL;
-	DcxControl * dcxcright = NULL;
 	Divider_GetChildControl(this->m_Hwnd, DVF_PANELEFT, &left);
 	Divider_GetChildControl(this->m_Hwnd, DVF_PANELEFT, &right);
 	if (left.hChild != NULL) {
-		dcxcleft = this->m_pParentDialog->getControlByHWND(left.hChild);
+		DcxControl * dcxcleft = this->m_pParentDialog->getControlByHWND(left.hChild);
 		if (dcxcleft != NULL)
 			xml->LinkEndChild(dcxcleft->toXml());
 		else
@@ -234,7 +234,7 @@ void DcxDivider::toXml(TiXmlElement * xml) const
 	else
 		xml->LinkEndChild(new TiXmlElement("control"));
 	if (right.hChild != NULL) {
-		dcxcright = this->m_pParentDialog->getControlByHWND(right.hChild);
+		DcxControl * dcxcright = this->m_pParentDialog->getControlByHWND(right.hChild);
 		if (dcxcright != NULL)
 			xml->LinkEndChild(dcxcright->toXml());
 		else
@@ -337,8 +337,8 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 	case DV_CHANGEPOS:
 		{
-			int phase = (int) wParam;
-			LPPOINT pt = (LPPOINT) lParam;
+			const int phase = (int) wParam;
+			const LPPOINT pt = (LPPOINT) lParam;
 
 			this->execAliasEx(TEXT("%s,%d,%d,%d"), (phase == DVNM_DRAG_START ? TEXT("dragbegin") : (phase == DVNM_DRAG_END ? TEXT("dragfinish") : TEXT("drag"))), this->getUserID(), pt->x, pt->y);
 		}

@@ -86,7 +86,8 @@ void DcxIpAddress::toXml(TiXmlElement * xml) const
 	DWORD ip;
 	char buf[128];
 	this->getAddress( &ip );
-	wnsprintfA( buf, 128, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
+	wnsprintfA( buf, 128, "%d.%d.%d.%d",
+		FIRST_IPADDRESS( ip ),
 		SECOND_IPADDRESS( ip ),
 		THIRD_IPADDRESS( ip ),
 		FOURTH_IPADDRESS( ip ) );
@@ -146,7 +147,7 @@ void DcxIpAddress::parseInfoRequest( const TString & input, PTCHAR szReturnValue
 void DcxIpAddress::parseCommandRequest( const TString &input) {
 	const XSwitchFlags flags(input.gettok(3));
 
-	const int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -166,6 +167,8 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 			const DWORD adr = MAKEIPADDRESS(b[0], b[1], b[2], b[3]);
 			this->setAddress(adr);
 		}
+		else
+			this->showErrorEx(NULL, TEXT("-a"), TEXT("Invalid Address: %s"), IP.to_chr());
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [N] [MIN] [MAX]
 	else if (flags[TEXT('g')] && numtok > 5) {
@@ -249,21 +252,18 @@ LRESULT DcxIpAddress::clearAddress( ) {
  */
 LRESULT DcxIpAddress::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 	switch( uMsg ) {
-	case WM_NOTIFY : 
+	case WM_NOTIFY:
 		{
 			LPNMHDR hdr = (LPNMHDR) lParam;
 
 			if (!hdr)
 				break;
 
-			switch( hdr->code ) {
-			case IPN_FIELDCHANGED:
-				{
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-						this->execAliasEx(TEXT("%s,%d"), TEXT("edit"), this->getUserID( ) );
-					bParsed = TRUE;
-				}
-				break;
+			if ( hdr->code == IPN_FIELDCHANGED )
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
+					this->execAliasEx(TEXT("%s,%d"), TEXT("edit"), this->getUserID( ) );
+				bParsed = TRUE;
 			}
 		}
 		break;

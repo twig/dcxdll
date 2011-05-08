@@ -93,7 +93,7 @@ void DcxColorCombo::parseControlStyles( const TString &styles, LONG *Styles, LON
 
 void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	const TString prop(input.gettok( 3 ));
 
@@ -123,6 +123,7 @@ void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 	else if ( prop == TEXT("sel") ) {
 
 		const int nItem = (int)this->getCurSel( );
+
 		if (nItem != CB_ERR ) {
 			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1 );
 			return;
@@ -223,9 +224,9 @@ void DcxColorCombo::setmIRCPalette( ) {
 
 	LPDCXCCOMBOITEM lpdcxcci;
 
-	const int len = cols.numtok( );
+	const UINT len = cols.numtok( );
 
-	for (int i = 1; i <= len; i++ )
+	for (UINT i = 1; i <= len; i++ )
 	{
 		lpdcxcci = new DCXCCOMBOITEM;
 

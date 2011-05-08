@@ -17,6 +17,8 @@ class DcxDWMModule :
 	public DcxModule
 {
 	bool m_bAero;
+	bool m_bVista;
+	bool m_bWin7;
 	static PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
 	static PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx;
 	static PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx;
@@ -39,4 +41,6 @@ public:
 	HRESULT dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend);
 
 	bool isAero(void) const { return this->m_bAero; };
+	bool isVista(void) const { return this->m_bVista; };
+	bool isWin7(void) const { return this->m_bWin7; };
 };

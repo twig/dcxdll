@@ -97,6 +97,7 @@ TString DcxList::getStyles(void) const
 {
 	TString styles(__super::getStyles());
 	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & LBS_DISABLENOSCROLL)
 		styles.addtok(TEXT("noscroll"));
 	if (Styles & LBS_MULTIPLESEL)
@@ -121,6 +122,7 @@ TString DcxList::getStyles(void) const
 		styles.addtok(TEXT("dragline"));
 	if (~Styles & LBS_OWNERDRAWFIXED)
 		styles.addtok(TEXT("noformat"));
+
 	return styles;
 }
 
@@ -179,7 +181,7 @@ void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 
 void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	const TString prop(input.gettok( 3 ));
 
@@ -436,14 +438,13 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		case TEXT('t'): // [TEXT] == [table] [startN] [endN]
 			{
 				if (itemtext.numtok() == 3) { // add contents of a hash table to list
-					int max_items = 0;
 					const TString htable(itemtext.gettok( 1 ));
 					int startN = itemtext.gettok( 2 ).to_int();
 					int endN = itemtext.gettok( 3 ).to_int();
 
 					// get total items in table.
 					Dcx::mIRC.tsEvalex(tsRes, TEXT("$hget(%s,0).item"), htable.to_chr());
-					max_items = tsRes.to_int();
+					const int max_items = tsRes.to_int();
 
 					// no items in table.
 					if (max_items == 0)
@@ -499,12 +500,11 @@ void DcxList::parseCommandRequest( const TString & input ) {
 					if (IsFile(filename)) {
 						PTCHAR buf = (PTCHAR)readFile(filename.to_chr());
 						if (buf != NULL) {
-							int max_lines = 0;
-							TString contents(buf);
+							const TString contents(buf);
 							delete [] buf;
 							TCHAR *tok = TEXT("\r\n");
 
-							max_lines = contents.numtok(tok);
+							int max_lines = contents.numtok(tok);
 							if (max_lines == 1) {
 								tok = TEXT("\n");
 								max_lines = contents.numtok(tok);
@@ -566,11 +566,11 @@ void DcxList::parseCommandRequest( const TString & input ) {
 					tok[1] = 0;
 					const TString contents(itemtext.gettok(2,-1));
 
-					const int iNumtok = contents.numtok(tok);
+					const UINT iNumtok = contents.numtok(tok);
 
 					this->setRedraw(FALSE);
 
-					for (int i = 1; i <= iNumtok; i++) {
+					for (UINT i = 1; i <= iNumtok; i++) {
 						itemtext = contents.gettok( i, tok);
 						ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
 						const int len = itemtext.len();
@@ -626,11 +626,11 @@ void DcxList::parseCommandRequest( const TString & input ) {
 
 			const TString Ns(input.gettok( 4 ));
 
-			const int n = Ns.numtok( TSCOMMA );
+			const UINT n = Ns.numtok( TSCOMMA );
 
-			for (int i = 1; i <= n; i++ )
+			for (UINT i = 1; i <= n; i++ )
 			{
-				int nSel = Ns.gettok( i, TSCOMMA ).to_int( ) - 1;
+				int nSel = (Ns.gettok( i, TSCOMMA ).to_int( ) - 1);
 
 				if (nSel == -1)
 					nSel = nItems -1;
@@ -641,7 +641,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		}
 		else {
 
-			int nSel = input.gettok( 4 ).to_int( ) - 1;
+			int nSel = (input.gettok( 4 ).to_int( ) - 1);
 
 			if (nSel == -1)
 				nSel = nItems -1;
@@ -653,7 +653,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	//xdid -d [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		int nPos = input.gettok( 4 ).to_int( ) - 1;
+		int nPos = (input.gettok( 4 ).to_int( ) - 1);
 
 		if (nPos == -1)
 			nPos = ListBox_GetCount( this->m_Hwnd ) -1;
@@ -682,7 +682,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		else if (xflags[TEXT('t')]) {
 			const TString Ns(input.gettok( 5 ));
 
-			const int n = Ns.numtok( TSCOMMA );
+			const UINT n = Ns.numtok( TSCOMMA );
 
 			if (n == 1) {
 				const int nTab = Ns.to_int();
@@ -694,7 +694,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			else {
 				int *tabs = new int[n];
 
-				for (int i = 1; i <= n; i++ )
+				for (UINT i = 1; i <= n; i++ )
 					tabs[i-1] = Ns.gettok( i, TSCOMMA).to_int();
 
 				ListBox_SetTabStops( this->m_Hwnd, n, tabs);
@@ -727,171 +727,171 @@ void DcxList::parseCommandRequest( const TString & input ) {
  * blah
  */
 LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-   if ((int) uMsg == this->m_iDragList)
-   {
-      bParsed = TRUE;
+	if ((int) uMsg == this->m_iDragList)
+	{
+		bParsed = TRUE;
 
-      LPDRAGLISTINFO dli = (LPDRAGLISTINFO) lParam;
-      int item;
-      int sel = ListBox_GetCurSel(this->m_Hwnd) +1;
-      TCHAR ret[20];
+		LPDRAGLISTINFO dli = (LPDRAGLISTINFO) lParam;
+		int item;
+		int sel = ListBox_GetCurSel(this->m_Hwnd) +1;
+		TCHAR ret[20];
 
-      switch (dli->uNotification)
-      {
-         // begin dragging item
-         case DL_BEGINDRAG:
-            // callback DIALOG itemdragbegin THIS_ID DRAGGEDITEM
-            evalAliasEx(ret, 255, TEXT("%s,%d,%d"), TEXT("itemdragbegin"), this->getUserID(), sel);
+		switch (dli->uNotification)
+		{
+			// begin dragging item
+		case DL_BEGINDRAG:
+			// callback DIALOG itemdragbegin THIS_ID DRAGGEDITEM
+			evalAliasEx(ret, 255, TEXT("%s,%d,%d"), TEXT("itemdragbegin"), this->getUserID(), sel);
 
-            // cancel drag event
-            if (lstrcmpi(ret, TEXT("nodrag")) == 0)
-               return FALSE;
-            
-            return TRUE;
+			// cancel drag event
+			if (lstrcmpi(ret, TEXT("nodrag")) == 0)
+				return FALSE;
 
-         // cancel drag
-         case DL_CANCELDRAG:
-            // callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
-            evalAliasEx(ret, 255, TEXT("%s,%d,%d"), TEXT("itemdragcancel"), this->getUserID(), sel);
+			return TRUE;
 
-            if (m_bUseDrawInsert)
-               this->m_pParentDialog->redrawWindow();
-            else
-               this->redrawWindow();
+			// cancel drag
+		case DL_CANCELDRAG:
+			// callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
+			evalAliasEx(ret, 255, TEXT("%s,%d,%d"), TEXT("itemdragcancel"), this->getUserID(), sel);
 
-            break;
+			if (m_bUseDrawInsert)
+				this->m_pParentDialog->redrawWindow();
+			else
+				this->redrawWindow();
 
-         // current dragging, as mirc if it needs to change the cursor or not
-         case DL_DRAGGING:
-            item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
+			break;
 
-            if (m_bUseDrawInsert)
-               DrawInsert(this->m_pParentHWND, this->m_Hwnd, item);
-            else
-               DrawDragLine(item);
+			// current dragging, as mirc if it needs to change the cursor or not
+		case DL_DRAGGING:
+			item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
 
-            // callback DIALOG itemdrag THIS_ID SEL_ITEM MOUSE_OVER_ITEM
-            evalAliasEx(ret, 255, TEXT("%s,%d,%d,%d"), TEXT("itemdrag"), this->getUserID(), sel, item +1);
+			if (m_bUseDrawInsert)
+				DrawInsert(this->m_pParentHWND, this->m_Hwnd, item);
+			else
+				DrawDragLine(item);
 
-            if (lstrcmpi(ret, TEXT("stop")) == 0)
-               return DL_STOPCURSOR;
-            else if (lstrcmpi(ret, TEXT("copy")) == 0)
-               return DL_COPYCURSOR;
-            
-            return DL_MOVECURSOR;
-            break;
+			// callback DIALOG itemdrag THIS_ID SEL_ITEM MOUSE_OVER_ITEM
+			evalAliasEx(ret, 255, TEXT("%s,%d,%d,%d"), TEXT("itemdrag"), this->getUserID(), sel, item +1);
 
-         // finish dragging
-         case DL_DROPPED:
-            // callback DIALOG itemdragfinish THIS_ID SEL_ITEM MOUSE_OVER_ITEM
-            item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
+			if (lstrcmpi(ret, TEXT("stop")) == 0)
+				return DL_STOPCURSOR;
+			else if (lstrcmpi(ret, TEXT("copy")) == 0)
+				return DL_COPYCURSOR;
 
-            execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("itemdragfinish"), this->getUserID(), sel, item +1);
+			return DL_MOVECURSOR;
+			break;
 
-            if (m_bUseDrawInsert)
-               // refresh parent to remove drawing leftovers
-               this->m_pParentDialog->redrawWindow();
-            else
-               this->redrawWindow();
+			// finish dragging
+		case DL_DROPPED:
+			// callback DIALOG itemdragfinish THIS_ID SEL_ITEM MOUSE_OVER_ITEM
+			item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
 
-            break;
-      }
+			execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("itemdragfinish"), this->getUserID(), sel, item +1);
 
-      return 0L;
-   }
+			if (m_bUseDrawInsert)
+				// refresh parent to remove drawing leftovers
+				this->m_pParentDialog->redrawWindow();
+			else
+				this->redrawWindow();
+
+			break;
+		}
+
+		return 0L;
+	}
 
 
 	switch( uMsg )
 	{
-		case WM_COMMAND:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					switch ( HIWORD( wParam ) ) {
-						case LBN_SELCHANGE:
-						 {
-							 const int nItem = ListBox_GetCurSel( this->m_Hwnd );
+	case WM_COMMAND:
+		{
+			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+				switch ( HIWORD( wParam ) ) {
+				case LBN_SELCHANGE:
+					{
+						const int nItem = ListBox_GetCurSel( this->m_Hwnd );
 
-							 if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
-								 if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-									 this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), nItem + 1 );
-							 }
-							 else if ( nItem != LB_ERR )
-								 this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), nItem + 1 );
-						 }
-						 break;
-
-						case LBN_DBLCLK:
-						 {
-							 const int nItem = ListBox_GetCurSel( this->m_Hwnd );
-
-							 if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
-								 if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
-									 this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID( ), nItem + 1 );
-							 }
-							 else if ( nItem != LB_ERR )
-								 this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID( ), nItem + 1 );
-						 }
-						 break;
-					} // switch ( HIWORD( wParam ) )
-				}
-			}
-			break;
-		case WM_DRAWITEM:
-			{
-				LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT) lParam;
-				const int len = ListBox_GetTextLen(lpDrawItem->hwndItem, lpDrawItem->itemID);
-				if (len == LB_ERR)
+						if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
+							if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
+								this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), nItem + 1 );
+						}
+						else if ( nItem != LB_ERR )
+							this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), nItem + 1 );
+					}
 					break;
 
-				bParsed = TRUE;
-				TString txt((UINT)len+1);
+				case LBN_DBLCLK:
+					{
+						const int nItem = ListBox_GetCurSel( this->m_Hwnd );
 
-				ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
-
-				RECT rc;
-				COLORREF clrText = CLR_INVALID;
-
-				CopyRect(&rc, &lpDrawItem->rcItem);
-
-				if (this->m_hBackBrush == NULL)
-					FillRect(lpDrawItem->hDC, &rc, GetStockBrush(WHITE_BRUSH));
-				else
-					DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
-
-				if (lpDrawItem->itemState & ODS_SELECTED) {
-					// fill background with selected colour.
-					FillRect(lpDrawItem->hDC, &rc, GetSysColorBrush(COLOR_HIGHLIGHT));
-					// draw focus rect around selected item.
-					DrawFocusRect(lpDrawItem->hDC, &rc);
-					// set selected text colour.
-					clrText = SetTextColor(lpDrawItem->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
-				}
-				else {
-					// set text colour.
-					if (this->m_clrText != CLR_INVALID)
-						clrText = SetTextColor(lpDrawItem->hDC, this->m_clrText);
-				}
-
-				if (len > 0) { // Only do all this if theres any text to draw.
-					rc.left += 2;
-
-					UINT style = DT_LEFT|DT_VCENTER|DT_SINGLELINE;
-
-					if (this->isStyle(LBS_USETABSTOPS))
-						style |= DT_EXPANDTABS;
-
-					//calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false);
-					this->calcTextRect(lpDrawItem->hDC, txt, &rc, style);
-
-					this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
-				}
-
-				if (clrText != CLR_INVALID)
-					SetTextColor(lpDrawItem->hDC, clrText);
-
-				return TRUE;
+						if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
+							if ( ListBox_GetSel( this->m_Hwnd, nItem ) > 0 )
+								this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID( ), nItem + 1 );
+						}
+						else if ( nItem != LB_ERR )
+							this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID( ), nItem + 1 );
+					}
+					break;
+				} // switch ( HIWORD( wParam ) )
 			}
-			break;
+		}
+		break;
+	case WM_DRAWITEM:
+		{
+			LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT) lParam;
+			const int len = ListBox_GetTextLen(lpDrawItem->hwndItem, lpDrawItem->itemID);
+			if (len == LB_ERR)
+				break;
+
+			bParsed = TRUE;
+			TString txt((UINT)len+1);
+
+			ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
+
+			RECT rc;
+			COLORREF clrText = CLR_INVALID;
+
+			CopyRect(&rc, &lpDrawItem->rcItem);
+
+			if (this->m_hBackBrush == NULL)
+				FillRect(lpDrawItem->hDC, &rc, GetStockBrush(WHITE_BRUSH));
+			else
+				DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
+
+			if (lpDrawItem->itemState & ODS_SELECTED) {
+				// fill background with selected colour.
+				FillRect(lpDrawItem->hDC, &rc, GetSysColorBrush(COLOR_HIGHLIGHT));
+				// draw focus rect around selected item.
+				DrawFocusRect(lpDrawItem->hDC, &rc);
+				// set selected text colour.
+				clrText = SetTextColor(lpDrawItem->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
+			}
+			else {
+				// set text colour.
+				if (this->m_clrText != CLR_INVALID)
+					clrText = SetTextColor(lpDrawItem->hDC, this->m_clrText);
+			}
+
+			if (len > 0) { // Only do all this if theres any text to draw.
+				rc.left += 2;
+
+				UINT style = DT_LEFT|DT_VCENTER|DT_SINGLELINE;
+
+				if (this->isStyle(LBS_USETABSTOPS))
+					style |= DT_EXPANDTABS;
+
+				//calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false);
+				this->calcTextRect(lpDrawItem->hDC, txt, &rc, style);
+
+				this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
+			}
+
+			if (clrText != CLR_INVALID)
+				SetTextColor(lpDrawItem->hDC, clrText);
+
+			return TRUE;
+		}
+		break;
 		//case WM_MEASUREITEM:
 		//	{
 		//		LPMEASUREITEMSTRUCT lpMeasureItem = (LPMEASUREITEMSTRUCT) lParam;
@@ -960,46 +960,45 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 // Ported from http://www.vb-hellfire.de/knowlib/draglist.php
 void DcxList::DrawDragLine(const int location)
 {
-   RECT rc;
-   HDC  hDC;
-   HPEN hPen;
-   int  lWidth;
+	RECT rc;
+	HDC  hDC;
+	HPEN hPen;
 
-   ListBox_GetItemRect(this->m_Hwnd, location, &rc);
+	ListBox_GetItemRect(this->m_Hwnd, location, &rc);
 
-   if (location != m_iLastDrawnLine)
-   {
-      this->redrawWindow();
-      m_iLastDrawnLine = location;
-   }
+	if (location != m_iLastDrawnLine)
+	{
+		this->redrawWindow();
+		m_iLastDrawnLine = location;
+	}
 
-   hDC = GetDC(this->m_Hwnd);
-   hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT));
+	hDC = GetDC(this->m_Hwnd);
+	hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT));
 
-   SelectObject(hDC, hPen);
+	SelectPen(hDC, hPen);
 
-   // get width
-   lWidth = rc.right - rc.left;
+	// get width
+	const int lWidth = (rc.right - rc.left);
 
-   MoveToEx(hDC, 0, rc.top, 0);
-   LineTo(hDC, lWidth, rc.top);
-   MoveToEx(hDC, 0, rc.top -1, 0);
-   LineTo(hDC, lWidth, rc.top -1);
+	MoveToEx(hDC, 0, rc.top, 0);
+	LineTo(hDC, lWidth, rc.top);
+	MoveToEx(hDC, 0, rc.top -1, 0);
+	LineTo(hDC, lWidth, rc.top -1);
 
-   // Spitze links:
-   MoveToEx(hDC, 0, rc.top -3, 0);
-   LineTo(hDC, 0, rc.top +3);
-   MoveToEx(hDC, 1, rc.top -2, 0);
-   LineTo(hDC, 1, rc.top +2);
+	// Spitze links:
+	MoveToEx(hDC, 0, rc.top -3, 0);
+	LineTo(hDC, 0, rc.top +3);
+	MoveToEx(hDC, 1, rc.top -2, 0);
+	LineTo(hDC, 1, rc.top +2);
 
-   // Spitze rechts:
-   MoveToEx(hDC, lWidth -1, rc.top -3, 0);
-   LineTo(hDC, lWidth -1, rc.top +3);
-   MoveToEx(hDC, lWidth -2, rc.top -2, 0);
-   LineTo(hDC, lWidth -2, rc.top +2);
+	// Spitze rechts:
+	MoveToEx(hDC, lWidth -1, rc.top -3, 0);
+	LineTo(hDC, lWidth -1, rc.top +3);
+	MoveToEx(hDC, lWidth -2, rc.top -2, 0);
+	LineTo(hDC, lWidth -2, rc.top +2);
 
-   DeleteObject(hPen);
-   ReleaseDC(this->m_Hwnd, hDC);
+	DeletePen(hPen);
+	ReleaseDC(this->m_Hwnd, hDC);
 }
 
 BOOL DcxList::matchItemText( const int nItem, const TString * search, const UINT SearchType ) const
@@ -1016,6 +1015,7 @@ BOOL DcxList::matchItemText( const int nItem, const TString * search, const UINT
 		bRes = isRegexMatch(itemtext, search->to_chr());
 	else
 		bRes = TString(itemtext).iswm(search->to_chr());
+
 	delete [] itemtext;
 	return bRes;
 }

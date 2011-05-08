@@ -187,43 +187,21 @@ void DcxText::parseCommandRequest(const TString &input) {
  * blah
  */
 LRESULT DcxText::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
- // switch( uMsg ) {
- //   case WM_COMMAND:
- //     {
- //       switch ( HIWORD( wParam ) ) {
-
- //         case STN_CLICKED:
- //           {
-	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//			        this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID( ) );
- //           }
- //           break;
-
- //         case STN_DBLCLK:
- //           {
-	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//			        this->execAliasEx(TEXT("%s,%d"), TEXT("dclick"), this->getUserID( ) );
- //           }
- //           break;
- //       }
- //     }
- //     break;
-	//}
 	return 0L;
 }
 
 LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		case WM_ERASEBKGND:
-		{
-			if (this->isExStyle(WS_EX_TRANSPARENT)) {
-				bParsed = TRUE;
-				return TRUE;
+			{
+				if (this->isExStyle(WS_EX_TRANSPARENT)) {
+					bParsed = TRUE;
+					return TRUE;
+				}
+				break;
 			}
-			break;
-		}
 
 		case WM_PRINTCLIENT:
 			{
@@ -252,19 +230,19 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			}
 			break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }
 
 void DcxText::DrawClientArea(HDC hdc)

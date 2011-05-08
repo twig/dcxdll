@@ -20,8 +20,20 @@ DcxDWMModule::~DcxDWMModule(void)
 
 bool DcxDWMModule::load(mIRCLinker &mIRCLink)
 {
-	if (isUseable()) return false;
-	//DcxModule::load(mIRCLink); // does nothing
+	if (isUseable())
+		return false;
+
+	// get OS version.
+	OSVERSIONINFO osvi;
+
+	ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
+	GetVersionEx(&osvi);
+
+	this->m_bVista = (osvi.dwMajorVersion >= 6);	// OS is Vista+
+	this->m_bWin7 = (osvi.dwMajorVersion > 6);		// OS is Windows7+
+
 	DCX_DEBUG(mIRCLink.debug,TEXT("LoadDLL"), TEXT("Loading DWMAPI.DLL..."));
 	m_hModule = LoadLibrary(TEXT("dwmapi.dll"));
 	if (m_hModule != NULL) {

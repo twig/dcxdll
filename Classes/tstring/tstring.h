@@ -183,13 +183,13 @@ public:
 	void addtok( const TCHAR * cToken, const TCHAR * sepChars = SPACE );
 	//void addtok( const TString &cToken, const TCHAR * sepChars = SPACE );
 	void deltok( const int N, const TCHAR * sepChars = SPACE );
-	int findtok( const TCHAR * cToken, const int N, const TCHAR * sepChars = SPACE ) const;
+	unsigned int findtok( const TCHAR * cToken, const int N, const TCHAR * sepChars = SPACE ) const;
 	TString gettok( int N, const TCHAR * sepChars = SPACE ) const;
 	TString gettok( int N, int M, const TCHAR * sepChars = SPACE ) const;
 	void instok( const TCHAR * cToken, const int N, const TCHAR * sepChars = SPACE );
 	bool istok( const TCHAR * cToken, const TCHAR * sepChars = SPACE ) const;
 	TString matchtok( TCHAR * mString, int N, const TCHAR * sepChars = SPACE ) const;
-	int numtok( const TCHAR * sepChars = SPACE ) const;
+	unsigned int numtok( const TCHAR * sepChars = SPACE ) const;
 	void puttok( const TCHAR * cToken, int N, const TCHAR * sepChars = SPACE );
 	void remtok( const TCHAR * cToken, int N, const TCHAR * sepChars = SPACE );
 	void reptok( const TCHAR * cToken, const TCHAR * newToken, int N, const TCHAR * sepChars = SPACE );

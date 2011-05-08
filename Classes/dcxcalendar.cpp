@@ -83,16 +83,18 @@ TString DcxCalendar::getStyles(void) const
 {
 	TString styles(__super::getStyles());
 	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & MCS_MULTISELECT)
 		styles.addtok(TEXT("multi"));
-	if (Styles & MCS_NOTODAY) 
+	if (Styles & MCS_NOTODAY)
 		styles.addtok(TEXT("notoday"));
-	if (Styles & MCS_NOTODAYCIRCLE) 
+	if (Styles & MCS_NOTODAYCIRCLE)
 		styles.addtok(TEXT("notodaycircle"));
-	if (Styles & MCS_WEEKNUMBERS) 
+	if (Styles & MCS_WEEKNUMBERS)
 		styles.addtok(TEXT("weeknum"));
-	if (Styles & MCS_DAYSTATE) 
+	if (Styles & MCS_DAYSTATE)
 		styles.addtok(TEXT("daystate"));
+
 	return styles;
 }
 
@@ -170,56 +172,25 @@ void DcxCalendar::parseInfoRequest(const TString &input, PTCHAR szReturnValue) c
 
 	// [NAME] [ID] [PROP]
 	if (prop == TEXT("value")) {
-		//long start, end;
-
-		//if (isStyle(MCS_MULTISELECT)) {
-		//	SYSTEMTIME st[2];
-
-		//	ZeroMemory(st, sizeof(SYSTEMTIME) *2);
-
-		//	MonthCal_GetSelRange(this->m_Hwnd, st);
-		//	start = SystemTimeToMircTime(&(st[0]));
-		//	end = SystemTimeToMircTime(&(st[1]));
-		//}
-		//else {
-		//	SYSTEMTIME st;
-
-		//	ZeroMemory(&st, sizeof(SYSTEMTIME));
-		//	MonthCal_GetCurSel(this->m_Hwnd, &st);
-
-		//	st.wHour = 0;
-		//	st.wMinute = 0;
-		//	st.wSecond = 0;
-		//	st.wMilliseconds = 0;
-
-		//	start = SystemTimeToMircTime(&st);
-		//	end = start;
-		//}
-
-		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld %ld"), start, end);
 		lstrcpyn(szReturnValue,this->getValue().to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if (prop == TEXT("range")) {
 		SYSTEMTIME st[2];
-		TString min;
-		TString max;
+		TString dmin(TEXT("nolimit"));
+		TString dmax(TEXT("nolimit"));
 
 		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
 
 		const DWORD val = MonthCal_GetRange(this->m_Hwnd, st);
 
 		if (val & GDTR_MIN)
-			min.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[0])));
-		else
-			min = TEXT("nolimit");
+			dmin.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[0])));
 
 		if (val & GDTR_MAX)
-			max.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[1])));
-		else
-			max = TEXT("nolimit");
+			dmax.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[1])));
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), min.to_chr(), max.to_chr()); // going to be within 900 limit anyway.
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
 		return;
 	}
 	else if (prop == TEXT("today")) {
@@ -251,7 +222,7 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 
 //SetDayState
 
-	const int numtok = input.numtok();
+	const UINT numtok = input.numtok();
 
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
 	if (flags[TEXT('k')] && numtok > 4) {
@@ -371,9 +342,8 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						TString strDays(eval);
 						strDays.trim();
 
-						for (int x = 1; x <= strDays.numtok(TSCOMMA); x++) {
+						for (UINT x = 1; x <= strDays.numtok(TSCOMMA); x++)
 							BOLDDAY(mds[i], strDays.gettok(x, TSCOMMA).trim().to_int());
-						}
 
 						// increment the month so we get a proper offset
 						lpNMDayState->stStart.wMonth++;
@@ -429,10 +399,8 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID());
 					break;
 				}
-				default: {
-					//mIRCError(TEXT("ELSE"));
+				default:
 					break;
-				}
 			} // end switch
 		}
 	}

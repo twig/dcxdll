@@ -147,6 +147,7 @@ protected:
 	static UINT parseItemFlags( const TString & flags );
 	static UINT parseHeaderFlags( const TString & flags );
 	static INT parseHeaderFlags2( const TString & flags );
+	static INT parseHeaderFlags2( const XSwitchFlags & xflags );
 	static UINT parseSortFlags( const TString & flags );
 	static UINT parseColorFlags( const TString & flags );
 	static UINT parseImageFlags( const TString & flags );

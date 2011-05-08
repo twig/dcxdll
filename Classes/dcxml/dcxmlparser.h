@@ -4,7 +4,7 @@
 #include "dcxmlincludes.h"
 
 class DcxmlParser {
-	
+
 public:
 	//constructor
 	DcxmlParser();
@@ -13,7 +13,7 @@ public:
 	bool ParseXML(const TString &tsFilePath, const TString &tsDialogMark,const TString &DialogName,const bool verbose, const bool autoClose);
 	//virtual ~DCXML( );
 	void parseAttributes();
-	void parseAttributes(const TiXmlElement* element);
+	void parseAttributes(const TiXmlElement* tElement);
 	void parseControl();
 	TString parseCLA(const int cCla);
 	bool loadSuccess;
@@ -34,7 +34,7 @@ public:
 	void setRootElement (const TiXmlElement * element) { this->_rootElement = element; }
 	void setDialogsElement (const TiXmlElement * element) { this->_dialogsElement = element; }
 	void setDialogElement (const TiXmlElement * element) { this->_dialogElement = element; }
-	
+
 	bool loadDocument();
 	bool loadDialog();
 	bool loadDialogElement();
@@ -50,79 +50,80 @@ public:
 	const TiXmlElement* getRootElement () const { return this->_rootElement; }
 	const TiXmlElement* getDialogsElement () const { return this->_dialogsElement; }
 	const TiXmlElement* getDialogElement () const { return this->_dialogElement; }
-	
+
 	const TiXmlDocument * getDocument () const { return &this->_document; }
 
-    DcxDialog *d_Host;
-    const TiXmlElement *root; //!< dcxml root element
-    const TiXmlElement *dialogs; //!< dcxml dialogs collection element
-    const TiXmlElement *dialog; //!< dialog element
-    const TiXmlElement *element; //!< current Element
-    const TiXmlElement *parent; //!< current Element's parent
-    TString dname;
-    int controls; //!< Simple counter for controls
-    int zlayered; //!< Simple check if dialog has zlayers
-    //Attribute vars
-    int id;
-    int parentid;
-    const char *elem;
-    const char *parentelem;
-    const char *parenttype;
-    const char *type;
-    const char *STclass;
-    const char *weigth;
-    const char *height;
-    const char *width;
-    const char *margin;
-    const char *styles;
-    const char *caption;
-    const char *tooltip;
-    const char *cascade;
-    const char *icon;
-    const char *tFlags;
-    const char *integral;
-    const char *state;
-    const char *indent;
-    const char *src;
-    const char *cells;
-    const char *rebarMinHeight;
-    const char *rebarMinWidth;
-    const char *iconsize;
-    const char *fontstyle;
-    const char *charset;
-    const char *fontsize;
-    const char *fontname;
-    const char *border;
-    const char *cursor;
-    const char *bgcolour;
-    const char *textbgcolour;
-    const char *textcolour;
+	DcxDialog *d_Host;
+	const TiXmlElement *root; //!< dcxml root element
+	const TiXmlElement *dialogs; //!< dcxml dialogs collection element
+	const TiXmlElement *dialog; //!< dialog element
+	const TiXmlElement *element; //!< current Element
+	const TiXmlElement *parent; //!< current Element's parent
+	TString dname;
+	int controls; //!< Simple counter for controls
+	int zlayered; //!< Simple check if dialog has zlayers
+	//Attribute vars
+	int id;
+	int parentid;
+	const char *elem;
+	const char *parentelem;
+	const char *parenttype;
+	const char *type;
+	const char *STclass;
+	const char *weigth;
+	const char *height;
+	const char *dropdown;
+	const char *width;
+	const char *margin;
+	const char *styles;
+	const char *caption;
+	const char *tooltip;
+	const char *cascade;
+	const char *icon;
+	const char *tFlags;
+	const char *integral;
+	const char *state;
+	const char *indent;
+	const char *src;
+	const char *cells;
+	const char *rebarMinHeight;
+	const char *rebarMinWidth;
+	const char *iconsize;
+	const char *fontstyle;
+	const char *charset;
+	const char *fontsize;
+	const char *fontname;
+	const char *border;
+	const char *cursor;
+	const char *bgcolour;
+	const char *textbgcolour;
+	const char *textcolour;
 	const char *gradientstart;
 	const char *gradientend;
-    const char *disabledsrc;
-    const char *hoversrc;
-    const char *selectedsrc;
+	const char *disabledsrc;
+	const char *hoversrc;
+	const char *selectedsrc;
 	/*
 	const char *elementProperties [] = "type","STclass","weigth","height","width","margin","styles","caption","tooltip",
-		"cascade","icon","tFlags""integral","state","indent","src",	"cells","rebarMinHeight",
-		"rebarMinWidth","iconsize","fontstyle","charset","fontsize","fontname","border","cursor","bgcolour",
-		"textbgcolour","textcolour","gradientstart","gradientend","disabledsrc","hoversrc","selectedsrc"
+	"cascade","icon","tFlags""integral","state","indent","src",	"cells","rebarMinHeight",
+	"rebarMinWidth","iconsize","fontstyle","charset","fontsize","fontname","border","cursor","bgcolour",
+	"textbgcolour","textcolour","gradientstart","gradientend","disabledsrc","hoversrc","selectedsrc"
 	];*/
-    const TiXmlElement* templateRef;
-    int templateRefcCla;
-    const char *templateRefclaPath;
+	const TiXmlElement* templateRef;
+	int templateRefcCla;
+	const char *templateRefclaPath;
 	std::map<const char*, const char*> template_vars;
 
-    int eval;
-    
-    //tempvar to dump attribute values in;
-    const char *temp;
-    TString cmd;
-	
-    //CLA variables
-    const char *g_claPath;
-    const char *g_claPathx;
-    int g_resetcla;
+	int eval;
+
+	//tempvar to dump attribute values in;
+	const char *temp;
+	TString cmd;
+
+	//CLA variables
+	const char *g_claPath;
+	const char *g_claPathx;
+	int g_resetcla;
 private:
 	bool _verbose;
 	void isVerbose(const bool b) { this->_verbose = b; }
@@ -136,7 +137,7 @@ private:
 	void registerId(const TiXmlElement *idElement,const int id);
 	int parseId(const TiXmlElement* idElement);
 	void xdidEX(const int id,const TCHAR *sw,const TCHAR *dFormat, ...);
-	
+
 	//TiXmlElement *getDialogElement () { return this->_dialogElement; }
 	typedef std::map<const char, const char> AttributesMap;
 
