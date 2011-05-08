@@ -77,6 +77,7 @@ TString DcxRadio::getStyles(void) const
 {
 	TString styles(__super::getStyles());
 	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & BS_RIGHT)
 		styles.addtok(TEXT("rjustify"));
 	if (Styles & BS_CENTER)
@@ -87,6 +88,7 @@ TString DcxRadio::getStyles(void) const
 		styles.addtok(TEXT("right"));
 	if (Styles & BS_PUSHLIKE)
 		styles.addtok(TEXT("pushlike"));
+
 	return styles;
 
 }
@@ -162,7 +164,7 @@ void DcxRadio::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 
 void DcxRadio::parseCommandRequest( const TString & input ) {
 	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	//xdid -c [NAME] [ID] [SWITCH]
 	if ( flags[TEXT('c')] ) {
@@ -186,21 +188,6 @@ void DcxRadio::parseCommandRequest( const TString & input ) {
  * blah
  */
 LRESULT DcxRadio::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
- // switch( uMsg ) {
- //   case WM_COMMAND:
- //     {
- //       switch ( HIWORD( wParam ) ) {
-
- //         case BN_CLICKED:
- //           {
-	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//			        this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID( ) );
- //           }
- //           break;
- //       }
- //     }
- //     break;
-	//}
 	return 0L;
 }
 

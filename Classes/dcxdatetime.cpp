@@ -84,20 +84,22 @@ TString DcxDateTime::getStyles(void) const
 {
 	TString styles(__super::getStyles());
 	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & DTS_LONGDATEFORMAT)
 		styles.addtok(TEXT("longdateformat"));
-	if (Styles & DTS_SHORTDATEFORMAT) 
+	if (Styles & DTS_SHORTDATEFORMAT)
 		styles.addtok(TEXT("shortdateformat"));
-	if (Styles & DTS_SHORTDATECENTURYFORMAT) 
+	if (Styles & DTS_SHORTDATECENTURYFORMAT)
 		styles.addtok(TEXT("shortdatecenturyformat"));
 	if (Styles & DTS_TIMEFORMAT)
 		styles.addtok(TEXT("timeformat"));
-	if (Styles & DTS_RIGHTALIGN) 
+	if (Styles & DTS_RIGHTALIGN)
 		styles.addtok(TEXT("right"));
-	if (Styles & DTS_SHOWNONE) 
+	if (Styles & DTS_SHOWNONE)
 		styles.addtok(TEXT("shownone"));
-	if (Styles & DTS_UPDOWN) 
+	if (Styles & DTS_UPDOWN)
 		styles.addtok(TEXT("updown"));
+
 	return styles;
 }
 
@@ -146,24 +148,20 @@ void DcxDateTime::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	// [NAME] [ID] [PROP]
 	if (prop == TEXT("range")) {
 		SYSTEMTIME st[2];
-		TString min;
-		TString max;
+		TString dmin(TEXT("nolimit"));
+		TString dmax(TEXT("nolimit"));
 
 		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
 
 		const DWORD val = DateTime_GetRange(this->m_Hwnd, st);
 
 		if (val & GDTR_MIN)
-			min.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[0])));
-		else
-			min = TEXT("nolimit");
+			dmin.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[0])));
 
 		if (val & GDTR_MAX)
-			max.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[1])));
-		else
-			max = TEXT("nolimit");
+			dmax.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[1])));
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), min.to_chr(), max.to_chr()); // going to be within 900 limit anyway.
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
 		return;
 	}
 	else if (prop == TEXT("value")) {
@@ -190,7 +188,7 @@ void DcxDateTime::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 void DcxDateTime::parseCommandRequest( const TString &input) {
 	const XSwitchFlags flags(input.gettok(3));
 
-	const int numtok = input.numtok();
+	const UINT numtok = input.numtok();
 
 	// xdid -f [NAME] [ID] [SWITCH] (FORMAT)
 	if (flags[TEXT('f')]) {
@@ -234,8 +232,8 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 		}
 		else {
 			const long mircTime = (long) ts.to_num();
-
 			const SYSTEMTIME sysTime = MircTimeToSystemTime(mircTime);
+
 			DateTime_SetSystemtime(this->m_Hwnd, GDT_VALID, &sysTime);
 		}
 	}

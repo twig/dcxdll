@@ -240,10 +240,11 @@ void DcxButton::parseCommandRequest( const TString & input ) {
 		//	icon = CreateGrayscaleIcon(icon);
 
 		// prepare the image list
-		if ((himl = this->getImageList()) == NULL) {
+		himl = this->getImageList();
+		if (himl == NULL) {
 			himl = this->createImageList();
 
-			if (himl) {
+			if (himl != NULL) {
 				this->setImageList(himl);
 
 				ImageList_AddIcon(himl, icon);
@@ -346,10 +347,12 @@ TString DcxButton::getStyles(void) const
 {
 	TString styles(__super::getStyles());
 	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & BS_BITMAP)
 		styles.addtok(TEXT("bitmap"));
 	if (Styles & BS_DEFPUSHBUTTON) 
 		styles.addtok(TEXT("default"));
+
 	return styles;
 }
 	

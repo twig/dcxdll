@@ -43,8 +43,8 @@ public:
 	bool setTreeFont(HFONT newFont);
 	bool isOrNewerVersion(const WORD main, const WORD sub) const;
 	bool isVersion(const WORD main, const WORD sub) const;
-	bool isAero() const;
-	bool isVista() const;
+	//bool isAero() const;
+	//bool isVista() const;
 	bool isDebug() const;
 	bool isUnicode() const { return this->m_bUnicodemIRC; };
 

@@ -164,97 +164,55 @@ int DcxmlParser::queryIntAttribute(const TiXmlElement *element,const char *attri
 }
 
 void DcxmlParser::parseAttributes() {
-	elem = element->Value();
-	parentelem = parent->Value();
-	parenttype = queryAttribute(parent,"type","panel");
-	type = queryAttribute(element,"type","panel");
-	STclass = queryAttribute(element,"class","");
-	weigth = queryAttribute(element,"weight","1");
-	height = queryAttribute(element, "height", "0");
-	width = queryAttribute(element, "width", "0");
-	margin = queryAttribute(element,"margin", "0 0 0 0");
-	styles = queryAttribute(element,"styles", "");
-	caption = element->Attribute("caption");
-	if (caption == NULL) {
-		temp = element->GetText();
-		caption = (temp != NULL) ? temp : "";
-	}
-	tooltip = queryAttribute(element, "tooltip", "");
-	cascade = queryAttribute(element, "cascade", "");
-	icon = queryAttribute(element, "icon", "0");
-	integral = queryAttribute(element, "integral", "0");
-	state = queryAttribute(element, "state", "0");
-	indent = queryAttribute(element, "indent", "0");
-	//flags attribute defaults different per type/item
-	tFlags = element->Attribute("flags");
-	src = queryAttribute(element, "src", "");
-	cells = queryAttribute(element, "cells", "-1");
-	rebarMinHeight = queryAttribute(element, "minheight", "0");
-	rebarMinWidth = queryAttribute(element, "minwidth", "0");
-	iconsize = queryAttribute(element, "iconsize", "16");
-	eval = queryIntAttribute(element, "eval", 0);
-
-	fontstyle = queryAttribute(element, "fontstyle", "d");
-	charset = queryAttribute(element, "charset", "ansi");
-	fontsize = queryAttribute(element, "fontsize","");
-	fontname = queryAttribute(element, "fontname", "");
-	border = queryAttribute(element, "border", "");
-	cursor = queryAttribute(element, "cursor", "arrow");
-	bgcolour = queryAttribute(element, "bgcolour", "0");
-	textbgcolour = queryAttribute(element, "textbgcolour", "");
-	textcolour = queryAttribute(element, "textcolour", "0");
-
-	gradientstart = queryAttribute(element, "gradientstart", "");
-	gradientend = queryAttribute(element, "gradientend", "");
-
-	disabledsrc = queryAttribute(element, "disabledsrc", "");
-	hoversrc = queryAttribute(element, "hoversrc", "");
-	selectedsrc = queryAttribute(element, "selectedsrc", "");
+	parseAttributes(element);
 }
-void DcxmlParser::parseAttributes(const TiXmlElement* element) {
-	elem = element->Value();
+void DcxmlParser::parseAttributes(const TiXmlElement* tElement) {
+	elem = tElement->Value();
 	parentelem = parent->Value();
 	parenttype = queryAttribute(parent, "type", "panel");
-	weigth = queryAttribute(element, "weight", "1");
-	height = queryAttribute(element, "height", "0");
-	width = queryAttribute(element, "width", "0");
-	margin = queryAttribute(element, "margin", "0 0 0 0");
-	styles = queryAttribute(element, "styles", "");
-	temp = element->Attribute("caption");
+	type = queryAttribute(element,"type","panel");
+	STclass = queryAttribute(element,"class","");
+	weigth = queryAttribute(tElement, "weight", "1");
+	height = queryAttribute(tElement, "height", "0");
+	dropdown = queryAttribute(tElement, "dropdown", "100");
+	width = queryAttribute(tElement, "width", "0");
+	margin = queryAttribute(tElement, "margin", "0 0 0 0");
+	styles = queryAttribute(tElement, "styles", "");
+	temp = tElement->Attribute("caption");
 	if (temp == NULL)
-		temp = element->GetText();
+		temp = tElement->GetText();
 	caption = (temp != NULL) ? temp : "";
-	tooltip = queryAttribute(element, "tooltip", "");
-	cascade = queryAttribute(element, "cascade", "");
-	icon = queryAttribute(element, "icon", "0");
-	integral = queryAttribute(element, "integral", "0");
-	state = queryAttribute(element, "state", "0");
-	indent = queryAttribute(element, "indent", "0");
+	tooltip = queryAttribute(tElement, "tooltip", "");
+	cascade = queryAttribute(tElement, "cascade", "");
+	icon = queryAttribute(tElement, "icon", "0");
+	integral = queryAttribute(tElement, "integral", "0");
+	state = queryAttribute(tElement, "state", "0");
+	indent = queryAttribute(tElement, "indent", "0");
 	//flags attribute defaults different per type/item
-	tFlags = element->Attribute("flags");
-	src = queryAttribute(element, "src", "");
-	cells = queryAttribute(element, "cells", "-1");
-	rebarMinHeight = queryAttribute(element, "minheight", "0");
-	rebarMinWidth = queryAttribute(element, "minwidth", "0");
-	iconsize = queryAttribute(element, "iconsize", "16");
-	eval = this->queryIntAttribute(element, "eval");
+	tFlags = tElement->Attribute("flags");
+	src = queryAttribute(tElement, "src", "");
+	cells = queryAttribute(tElement, "cells", "-1");
+	rebarMinHeight = queryAttribute(tElement, "minheight", "0");
+	rebarMinWidth = queryAttribute(tElement, "minwidth", "0");
+	iconsize = queryAttribute(tElement, "iconsize", "16");
+	eval = this->queryIntAttribute(tElement, "eval");
 
-	fontstyle = queryAttribute(element, "fontstyle", "d");
-	charset = queryAttribute(element, "charset", "ansi");
-	fontsize = queryAttribute(element, "fontsize", "");
-	fontname = queryAttribute(element, "fontname", "");
-	border = queryAttribute(element, "border", "");
-	cursor = queryAttribute(element, "cursor", "arrow");
-	bgcolour = queryAttribute(element, "bgcolour", "0");
-	textbgcolour = queryAttribute(element, "textbgcolour", "");
-	textcolour = queryAttribute(element, "textcolour", "0");
+	fontstyle = queryAttribute(tElement, "fontstyle", "d");
+	charset = queryAttribute(tElement, "charset", "ansi");
+	fontsize = queryAttribute(tElement, "fontsize", "");
+	fontname = queryAttribute(tElement, "fontname", "");
+	border = queryAttribute(tElement, "border", "");
+	cursor = queryAttribute(tElement, "cursor", "arrow");
+	bgcolour = queryAttribute(tElement, "bgcolour", "0");
+	textbgcolour = queryAttribute(tElement, "textbgcolour", "");
+	textcolour = queryAttribute(tElement, "textcolour", "0");
 
-	gradientstart = queryAttribute(element, "gradientstart", "");
-	gradientend = queryAttribute(element, "gradientend", "");
+	gradientstart = queryAttribute(tElement, "gradientstart", "");
+	gradientend = queryAttribute(tElement, "gradientend", "");
 
-	disabledsrc = queryAttribute(element, "disabledsrc", "");
-	hoversrc = queryAttribute(element, "hoversrc", "");
-	selectedsrc = queryAttribute(element, "selectedsrc", "");
+	disabledsrc = queryAttribute(tElement, "disabledsrc", "");
+	hoversrc = queryAttribute(tElement, "hoversrc", "");
+	selectedsrc = queryAttribute(tElement, "selectedsrc", "");
 }
 /* parseControl() : if current element is a control perform some extra commands*/
 void DcxmlParser::parseControl() { 
@@ -349,7 +307,7 @@ void DcxmlParser::parseControl() {
 			this->xdidEX(id,TEXT("-i"),TEXT("%S"),caption);
 	}
 	else if (0==lstrcmpA(type, "image"))
-		this->xdidEX(id,TEXT("-i"),TEXT("+%S %S"),((tFlags) ? tFlags : ""),src);
+		this->xdidEX(id,TEXT("-i"),TEXT("+%S %S"),((tFlags != NULL) ? tFlags : ""),src);
 	else if (0==lstrcmpA(type, "statusbar")) {
 		this->xdidEX(id,TEXT("-l"),TEXT("%S"),cells);
 		this->parseItems(element);
@@ -804,28 +762,28 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 			//check how to insert the control in the parent Control/Dialog
 			//If parentNode is pane loop untill parentNode is not a pane
 			if (0==lstrcmpA(parentelem, "dialog"))
-				xdialogEX(TEXT("-c"),TEXT("%i %S 0 0 %S %S %S"), id,type,width,height,styles);
+				xdialogEX(TEXT("-c"),TEXT("%i %S 0 0 %S %S %S"), id,type,width,(dropdown != NULL ? dropdown : height),styles);
 			else if (0==lstrcmpA(parentelem, "control")) {
 				if (0==lstrcmpA(parenttype, "panel"))
-					this->xdidEX(parentid,TEXT("-c"),TEXT("%i %S 0 0 %S %S %S"), id,type,width,height,styles);
+					this->xdidEX(parentid,TEXT("-c"),TEXT("%i %S 0 0 %S %S %S"), id,type,width,(dropdown != NULL ? dropdown : height),styles);
 				else if (0==lstrcmpA(parenttype, "box"))
-					this->xdidEX(parentid,TEXT("-c"),TEXT("%i %S 0 0 %S %S %S"), id,type,width,height,styles);
+					this->xdidEX(parentid,TEXT("-c"),TEXT("%i %S 0 0 %S %S %S"), id,type,width,(dropdown != NULL ? dropdown : height),styles);
 				else if (0==lstrcmpA(parenttype, "tab"))
-					this->xdidEX(parentid,TEXT("-a"),TEXT("0 %S %S \t %i %S 0 0 %S %S %S \t %S"), icon,caption,id,type,width,height,styles,tooltip);
+					this->xdidEX(parentid,TEXT("-a"),TEXT("0 %S %S \t %i %S 0 0 %S %S %S \t %S"), icon,caption,id,type,width,(dropdown != NULL ? dropdown : height),styles,tooltip);
 				else if (((0==lstrcmpA(parenttype, "pager")) || (0==lstrcmpA(parenttype, "box"))) && (control == 1))
-					this->xdidEX(parentid,TEXT("-c"),TEXT("%i %S 0 0 %S %S %S"), id,type,width,height,styles);
+					this->xdidEX(parentid,TEXT("-c"),TEXT("%i %S 0 0 %S %S %S"), id,type,width,(dropdown != NULL ? dropdown : height),styles);
 				else if (0==lstrcmpA(parenttype, "divider") && (control <= 2)) {
 					if (control == 1)
-						this->xdidEX(parentid,TEXT("-l"),TEXT("%S 0 \t %i %S 0 0 %S %S %S"), width,id,type,width,height,styles);
+						this->xdidEX(parentid,TEXT("-l"),TEXT("%S 0 \t %i %S 0 0 %S %S %S"), width,id,type,width,(dropdown != NULL ? dropdown : height),styles);
 					else if (control == 2)
-						this->xdidEX(parentid,TEXT("-r"),TEXT("%S 0 \t %i %S 0 0 %S %S %S"), width,id,type,width,height,styles);
+						this->xdidEX(parentid,TEXT("-r"),TEXT("%S 0 \t %i %S 0 0 %S %S %S"), width,id,type,width,(dropdown != NULL ? dropdown : height),styles);
 				}
 				else if (0==lstrcmpA(parenttype, "rebar")) { 
 					const char *flags = (tFlags) ? tFlags : "ceg";
-					this->xdidEX(parentid,TEXT("-a"),TEXT("0 +%S %S %S %S %S %S %S \t %i %S 0 0 %S %S %S \t %S"), flags,rebarMinWidth,rebarMinHeight,width,icon,textcolour,caption,id,type,width,height,styles,tooltip);
+					this->xdidEX(parentid,TEXT("-a"),TEXT("0 +%S %S %S %S %S %S %S \t %i %S 0 0 %S %S %S \t %S"), flags,rebarMinWidth,rebarMinHeight,width,icon,textcolour,caption,id,type,width,(dropdown != NULL ? dropdown : height),styles,tooltip);
 				}
 				else if (0==lstrcmpA(parenttype, "stacker")) 
-					this->xdidEX(parentid,TEXT("-a"),TEXT("0 + %S %S %S \t %i %S 0 0 %S %S %S"), textcolour,bgcolour,caption,id,type,width,height,styles);
+					this->xdidEX(parentid,TEXT("-a"),TEXT("0 + %S %S %S \t %i %S 0 0 %S %S %S"), textcolour,bgcolour,caption,id,type,width,(dropdown != NULL ? dropdown : height),styles);
 				else if (0==lstrcmpA(parenttype, "statusbar"))
 					this->xdidEX(parentid,TEXT("-t"),TEXT("%i +c %S %i %S 0 0 0 0 %S"), cell,icon,id,type,styles);
 			}
