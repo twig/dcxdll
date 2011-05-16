@@ -761,6 +761,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		return;
 	}
 #endif
+	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("gid") ) {
 		const int iIndex = input.gettok(4).to_int() -1;
 
@@ -819,6 +820,31 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			return;
 		}
 #endif
+	}
+	// [NAME] [ID] [PROP] [GID]
+	else if ( prop == TEXT("gstate") && numtok == 4 ) {
+
+		TString tsFlags('+');
+
+		if (Dcx::VistaModule.isVista()) {
+			const int gid = input.gettok( 4 ).to_int( );
+			const UINT iMask = LVGS_COLLAPSIBLE|LVGS_HIDDEN|LVGS_NOHEADER|LVGS_COLLAPSED|LVGS_SELECTED;
+
+			UINT iState = ListView_GetGroupState(this->m_Hwnd, gid, iMask);
+
+			if ((iState & LVGS_COLLAPSIBLE) == LVGS_COLLAPSIBLE)
+				tsFlags += 'C';
+			if ((iState & LVGS_HIDDEN) == LVGS_HIDDEN)
+				tsFlags += 'H';
+			if ((iState & LVGS_NOHEADER) == LVGS_NOHEADER)
+				tsFlags += 'N';
+			if ((iState & LVGS_COLLAPSED) == LVGS_COLLAPSED)
+				tsFlags += 'O';
+			if ((iState & LVGS_SELECTED) == LVGS_SELECTED)
+				tsFlags += 'S';
+		}
+		lstrcpyn(szReturnValue, tsFlags.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
@@ -1804,7 +1830,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			return;
 		}
 	}
-	// xdid -H [NAME] [ID] [+FLAGS] [ARGS]
+	// xdid -H [NAME] [ID] [COL] [+FLAGS] [ARGS]
 	else if (flags[TEXT('H')]) {
 		if (numtok < 4) {
 			this->showErrorEx(NULL, TEXT("-H"), TEXT("Insufficient parameters"));
@@ -1814,7 +1840,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		const int nCol = (input.gettok(4).to_int() -1);
 		const XSwitchFlags xflag(input.gettok(5));
 		const TString info(input.gettok(6, -1));
-		const int ntok = info.numtok();
+		const UINT ntok = info.numtok();
 
 		if ((nCol < 0) || (nCol > this->getColumnCount())) {
 			this->showErrorEx(NULL, TEXT("-H"), TEXT("Invalid column index %d."), nCol +1);
@@ -1838,7 +1864,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			hdr.mask = HDI_FORMAT;
 			if (Header_GetItem(h, nCol, &hdr)) {
 				static const TString header_styles(TEXT("sortdown sortup checkbox checked nocheckbox unchecked nosort"));
-				for (int i = 1; i <= ntok; i++)
+				for (UINT i = 1; i <= ntok; i++)
 				{
 					switch (header_styles.findtok(info.gettok(i).to_chr(),1))
 					{
@@ -1905,7 +1931,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 				ListView_SetGroupState(this->m_Hwnd, gid, iMask, iState);
 			}
 			else
-				this->showError(NULL, TEXT("-G"), TEXT("This Command is Vista+ ONly!"));
+				this->showError(NULL, TEXT("-G"), TEXT("This Command is Vista+ Only!"));
 #endif
 		}
 		else
@@ -3502,7 +3528,7 @@ void DcxListView::xmlSetItem(const int nItem, const int nSubItem, const TiXmlEle
 	if (attr != NULL && i > 0)
 		lvi->iImage = i -1;
 	else
-		lvi->iImage = I_IMAGENONE; //-1;
+		lvi->iImage = I_IMAGECALLBACK; // NB: using I_IMAGENONE cause a gap to be left for the icon for some reason. Using I_IMAGECALLBACK doesn't do this.
 
 	// Items icon.
 	attr = xNode->Attribute("group",&i);
@@ -3737,7 +3763,7 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 	}
 
 	lvi.iItem = nPos;
-	lvi.iImage = I_IMAGENONE; // was -1
+	lvi.iImage = I_IMAGECALLBACK; // NB: using I_IMAGENONE causes a gap to be left for the icon for some reason. Using I_IMAGECALLBACK doesn't do this.
 	lvi.state = (stateFlags & 0xFFFF); // mask out higher number flags. These flags cause the add to fail & arnt needed here anyway.
 	lvi.stateMask = (LVIS_FOCUSED|LVIS_SELECTED|LVIS_CUT|LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
 	lvi.iSubItem = 0;
@@ -3832,7 +3858,7 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 			if (icon > -1)
 				lvi.iImage = icon;
 			else
-				lvi.iImage = I_IMAGENONE; //-1;
+				lvi.iImage = I_IMAGECALLBACK; // NB: using I_IMAGENONE causes a gap to be left for the icon for some reason. Using I_IMAGECALLBACK doesn't do this.
 
 			// overlay
 			if ((overlay = data.gettok(3).to_int()) > 0) {
