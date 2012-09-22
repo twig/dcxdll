@@ -831,7 +831,7 @@ mIRC(ActiveWindow) {
 
 	data[0] = 0;
 
-	int numtok = input.numtok();
+	const int numtok = input.numtok();
 
 	if (numtok < 1) {
 		Dcx::error(TEXT("$!dcx(ActiveWindow)"), TEXT("Insufficient parameters"));

@@ -999,7 +999,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
  * Input [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
  */
 
-DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & tsInput, int offset, const UINT64 mask, HWND hParent ) {
+DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & tsInput, unsigned int offset, const UINT64 mask, HWND hParent ) {
 
 	const TString type(tsInput.gettok( offset++ ));
 

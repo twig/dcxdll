@@ -174,7 +174,7 @@ DcxTrayIcon::~DcxTrayIcon(void)
 			itStart++;
 		}
 
-		for (int i = 1; i <= ids.numtok( ); i++) {
+		for (unsigned int i = 1; i <= ids.numtok( ); i++) {
 			this->modifyIcon(ids.gettok( i ).to_int(), NIM_DELETE);
 		}
 

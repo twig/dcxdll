@@ -798,7 +798,7 @@ void XPopupMenu::setDefaultColor(const int nColor ) {
  * blah
  */
 
-HMENU XPopupMenu::parsePath( const TString & path, const HMENU hParent, const int depth ) {
+HMENU XPopupMenu::parsePath( const TString & path, const HMENU hParent, const unsigned int depth ) {
 
   const int iItem = path.gettok( depth ).to_int( ) - 1;
 
