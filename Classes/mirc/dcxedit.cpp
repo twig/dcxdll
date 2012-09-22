@@ -172,7 +172,7 @@ void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 */
 void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const
 {
-	const int numtok = input.numtok( );
+	const unsigned int numtok = input.numtok( );
 
 	const TString prop(input.gettok( 3 ));
 

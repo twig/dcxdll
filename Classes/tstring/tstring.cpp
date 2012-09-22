@@ -37,6 +37,11 @@
  *		Fixed a bug in charToWchar() that caused the conversion to always fail.
  *	1.11
  *		Added strip() function.
+ *	1.12
+ *		changed gettok() to not copy the contents to token first.
+ *		changed findtok() to take an unsigned int arg.
+ *		changed deltok() to take an unsigned int arg.
+ *		changed instok() to kane an unsigned arg.
  *
  * © ScriptsDB.org - 2005
  */
@@ -1227,7 +1232,7 @@ int TString::find(const TCHAR chr, const int N) const {
     \note > Index starts at \b 1 \n
 */
 /****************************/
-unsigned int TString::findtok(const TCHAR * cToken, const int N, const TCHAR * sepChars) const {
+unsigned int TString::findtok(const TCHAR * cToken, const unsigned int N, const TCHAR * sepChars) const {
 	unsigned int count = 0;
 
 	for (unsigned int i = 1; i <= this->numtok(sepChars); i++) {
@@ -1460,7 +1465,7 @@ TString TString::gettok( int N, const TCHAR * sepChars ) const {
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return *this;
 
-	const int nToks = this->numtok( sepChars );
+	const unsigned int nToks = this->numtok( sepChars );
 
 	if ( N > nToks )
 		return TEXT("");
@@ -1472,7 +1477,8 @@ TString TString::gettok( int N, const TCHAR * sepChars ) const {
 			return TEXT("");
 	}
 
-	TString token(*this);
+	//TString token(*this);
+	TString token;
 
 	TCHAR * p_cStart = this->m_pString, * p_cEnd = this->m_pString;
 	long iCount = 0;
@@ -1487,11 +1493,10 @@ TString TString::gettok( int N, const TCHAR * sepChars ) const {
 
 		if ( iCount == N ) {
 
-			const int len = p_cEnd - p_cStart; // gives cch diff
+			const int len = (p_cEnd - p_cStart) + 1; // gives cch diff
 			delete [] token.m_pString; // change by Ook
-			token.m_pString = new TCHAR [len + 1];
-			token.m_pString[len] = 0;
-			lstrcpyn( token.m_pString, p_cStart, len + 1 );
+			token.m_pString = new TCHAR [len];
+			lstrcpyn( token.m_pString, p_cStart, len );
 
 			break;
 		}
@@ -1501,15 +1506,14 @@ TString TString::gettok( int N, const TCHAR * sepChars ) const {
 	if ( iCount == N - 1 ) {
 
 		p_cEnd = this->m_pString + lstrlen( this->m_pString );
-		const int len = p_cEnd - p_cStart;
+		const int len = (p_cEnd - p_cStart) + 1;
 
 		delete [] token.m_pString; // change by Ook
-		token.m_pString = new TCHAR [len + 1];
-		token.m_pString[len] = 0;
-		lstrcpyn( token.m_pString, p_cStart, len + 1 );    
+		token.m_pString = new TCHAR [len];
+		lstrcpyn( token.m_pString, p_cStart, len );
 	}
-	else if ( p_cEnd == NULL )
-		return TEXT("");
+	//else if ( p_cEnd == NULL )
+	//	return TEXT("");
 
 	return token;
 }
@@ -1525,16 +1529,13 @@ TString TString::gettok( int N, int M, const TCHAR * sepChars ) const {
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return *this;
 
-	const int nToks = this->numtok( sepChars );
-
 	if ( N == M )
 		return this->gettok( N, sepChars );
 
 	if ( M <= N && M != -1 )
 		return TEXT("");
 
-	if ( M > nToks - 1 )
-		M = -1;
+	const unsigned int nToks = this->numtok( sepChars );
 
 	if ( N > nToks )
 		return TEXT("");
@@ -1546,9 +1547,12 @@ TString TString::gettok( int N, int M, const TCHAR * sepChars ) const {
 			return TEXT("");
 	}
 
-	TCHAR * p_cStart = this->m_pString, * p_cEnd;
+	if ( M > nToks - 1 )
+		M = -1;
+
+	TCHAR * p_cStart = this->m_pString, * p_cEnd = NULL;
 	TCHAR * p_cFirst = NULL, * p_cLast = NULL;
-	long iCount = 0;
+	unsigned long iCount = 0;
 	const int sepl = lstrlen( sepChars ); // Ook
 
 #if UNICODE
@@ -1603,7 +1607,7 @@ unsigned int TString::numtok( const TCHAR * sepChars ) const {
 	if (lstrlen(this->m_pString) == 0)
 		return 0;
 
-	TCHAR * p_cStart = this->m_pString, * p_cEnd;
+	TCHAR * p_cStart = this->m_pString, * p_cEnd = NULL;
 	unsigned int iCount = 0;
 	const unsigned int sepl = lstrlen( sepChars ); // Ook
 
@@ -1624,22 +1628,23 @@ unsigned int TString::numtok( const TCHAR * sepChars ) const {
  * blah
  */
 
-void TString::deltok( const int N, const TCHAR * sepChars ) {
+void TString::deltok( const unsigned int N, const TCHAR * sepChars ) {
 
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return;
 
-	if ( N > this->numtok( sepChars ) || N < 1 )
+	const unsigned int nToks = this->numtok( sepChars );
+
+	if ( N > nToks || N < 1 )
 		return;
 
-	if ( N == 1 && this->numtok( sepChars ) == 1 ) {
-
+	if ( N == 1 && nToks == 1 ) {
 		this->deleteString();
 		return;
 	}
 
-	TCHAR * p_cStart = this->m_pString, * p_cEnd;
-	long int i = 0;
+	TCHAR * p_cStart = this->m_pString, * p_cEnd = NULL;
+	unsigned long int i = 0;
 	const int sepl = lstrlen( sepChars ); // Ook
 
 #if UNICODE
@@ -1699,7 +1704,7 @@ void TString::deltok( const int N, const TCHAR * sepChars ) {
  * blah
  */
 
-void TString::instok( const TCHAR * cToken, const int N, const TCHAR * sepChars ) {
+void TString::instok( const TCHAR * cToken, const unsigned int N, const TCHAR * sepChars ) {
 
 	if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
 		return;
@@ -1707,8 +1712,8 @@ void TString::instok( const TCHAR * cToken, const int N, const TCHAR * sepChars 
 	if ( N < 1 )
 		return;
 
-	TCHAR * p_cStart = this->m_pString, * p_cEnd;
-	long int i = 1;
+	TCHAR * p_cStart = this->m_pString, * p_cEnd = NULL;
+	unsigned long int i = 1;
 	const int sepl = lstrlen( sepChars ); // Ook
 
 #if UNICODE
@@ -1811,7 +1816,7 @@ bool TString::istok(const TCHAR * cToken, const TCHAR * sepChars ) const {
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return false;
 
-	TCHAR * p_cStart = this->m_pString, * p_cEnd;
+	TCHAR * p_cStart = this->m_pString, * p_cEnd = NULL;
 	const int sepl = lstrlen( sepChars );
 
 #if UNICODE
@@ -1847,7 +1852,7 @@ void TString::puttok( const TCHAR * cToken, int N, const TCHAR * sepChars ) {
 	if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
 		return;
 
-	TCHAR * p_cStart = this->m_pString, * p_cEnd;
+	TCHAR * p_cStart = this->m_pString, * p_cEnd = NULL;
 	long int i = 0;
 	const int sepl = lstrlen( sepChars ); // Ook
 
@@ -1902,7 +1907,7 @@ void TString::puttok( const TCHAR * cToken, int N, const TCHAR * sepChars ) {
 }
 
 void TString::remtok(const TCHAR * cToken, int N, const TCHAR * sepChars) {
-	const int tokennr = findtok(cToken, N, sepChars);
+	const unsigned int tokennr = findtok(cToken, N, sepChars);
 	if (tokennr > 0)
 		deltok(tokennr);
 }
@@ -1925,13 +1930,17 @@ TString &TString::trim() {
 	// Trim from end
 	while (end != start && *(--end) == 32);
 
-	const size_t new_len = end - start +1;
+	//const size_t new_len = (end - start) +1;
 
-	TCHAR *temp = new TCHAR[new_len +1];
-	temp[new_len] = 0;
+	//TCHAR *temp = new TCHAR[new_len +1];
+	//temp[new_len] = 0;
 
-	lstrcpyn(temp, start, new_len +1);
-	
+	//lstrcpyn(temp, start, new_len +1);
+	const size_t new_len = (end - start) +2;
+
+	TCHAR *temp = new TCHAR[new_len];
+	lstrcpyn(temp, start, new_len);
+
 	this->deleteString();
 	this->m_pString = temp;
 
@@ -1997,6 +2006,7 @@ TString TString::right(int n) const
 	tmp.m_pString = p;
 	return tmp;
 }
+#if UNICODE
 char *TString::c_str(void) const
 {
 	if (this->m_pString == NULL)
@@ -2006,6 +2016,7 @@ char *TString::c_str(void) const
 		const_cast< TString * >( this )->m_pWString = TString::WcharTochar(this->m_pString);
 	return this->m_pWString;
 }
+#endif
 // Ook - match() function taken from aircdll.dll by Tabo source.
 /* taken from the hybrid-5.3p7 source */
 #if UNICODE
@@ -2393,7 +2404,7 @@ TString &TString::strip() {
 	// Trim from end
 	while (end != start && *(--end) == TEXT(' '));
 
-	const size_t new_len = end - start +1;
+	const size_t new_len = (end - start) +1;
 
 	TCHAR *temp = new TCHAR[new_len +1];
 	temp[new_len] = 0;
@@ -2415,20 +2426,20 @@ TString &TString::strip() {
 		case 3: // ctrl-k Colour
 			{
 				while (wtxt[pos+1] == 3) pos++; // remove multiple consecutive ctrl-k's
-				if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+				if (wtxt[pos +1] >= TEXT('0') && wtxt[pos +1] <= TEXT('9')) {
 					++pos;
 
-					if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
+					if (wtxt[pos +1] >= TEXT('0') && wtxt[pos +1] <= TEXT('9'))
 						pos++;
 
 					// maybe a background color
-					if (wtxt[pos+1] == L',') {
+					if (wtxt[pos+1] == TEXT(',')) {
 						++pos;
 
-						if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
+						if (wtxt[pos +1] >= TEXT('0') && wtxt[pos +1] <= TEXT('9')) {
 							pos++;
 
-							if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
+							if (wtxt[pos +1] >= TEXT('0') && wtxt[pos +1] <= TEXT('9'))
 								++pos;
 						}
 					}

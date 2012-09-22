@@ -650,6 +650,8 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListView_GetColumnWidth(this->m_Hwnd, nColumn));
 			return;
 		}
+		else
+			this->showError(TEXT("hwidth"), NULL, TEXT("Column Out Of Range"));
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("htext") && numtok > 3 ) {
@@ -667,6 +669,8 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			if ( ListView_GetColumn( this->m_Hwnd, nColumn, &lvc ) )
 				return;
 		}
+		else
+			this->showError(TEXT("htext"), NULL, TEXT("Column Out Of Range"));
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("hicon") && numtok > 3 ) {
@@ -684,6 +688,45 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), lvc.iImage + 1 );
 				return;
 			}
+		}
+		else
+			this->showError(TEXT("hicon"), NULL, TEXT("Column Out Of Range"));
+	}
+	// [NAME] [ID] [PROP] [N]
+	else if ( prop == TEXT("hstate") && numtok == 4 ) {
+
+		HWND h = ListView_GetHeader(this->m_Hwnd);
+		if (!IsWindow(h))
+			this->showError(TEXT("hstate"), NULL, TEXT("Unable to get Header Window"));
+		else {
+			const int nCol = (input.gettok( 4 ).to_int( ) - 1);
+			if ( nCol > -1 && nCol < this->getColumnCount( ) ) {
+
+				TString tsRes;
+				HDITEM hdr = {0};
+				hdr.mask = HDI_FORMAT;
+
+				if (Header_GetItem(h, nCol, &hdr)) {
+					if (hdr.fmt & HDF_SORTDOWN)
+						tsRes.addtok(TEXT("sortdown"));
+					if (hdr.fmt & HDF_SORTUP)
+						tsRes.addtok(TEXT("sortup"));
+#ifdef DCX_USE_WINSDK
+					if (hdr.fmt & HDF_CHECKBOX)
+						tsRes.addtok(TEXT("checkbox"));
+					if (hdr.fmt & HDF_CHECKED)
+						tsRes.addtok(TEXT("checked"));
+					if (hdr.fmt & HDF_SPLITBUTTON)
+						tsRes.addtok(TEXT("dropdown"));
+#endif
+					lstrcpyn(szReturnValue, tsRes.to_chr(), MIRC_BUFFER_SIZE_CCH);
+					return;
+				}
+				else
+					this->showError(TEXT("hstate"), NULL, TEXT("Unable to get Header Info"));
+			}
+			else
+				this->showError(TEXT("hstate"), NULL, TEXT("Column Out Of Range"));
 		}
 	}
 	// [NAME] [ID] [PROP] [GID]
