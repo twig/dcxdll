@@ -47,7 +47,7 @@ bool mIRCLinker::isAlias(const TCHAR * aliasName)
 void mIRCLinker::load(LOADINFO * lInfo) {
 	m_mIRCHWND = lInfo->mHwnd;
 	m_dwVersion = lInfo->mVersion;
-	if (LOWORD(m_dwVersion) == 2) {	//Fix the problem that mIRC v6.20 reports itself as 6.2
+	if (HIWORD(m_dwVersion) == 2) {	//Fix the problem that mIRC v6.20 reports itself as 6.2
 		m_dwVersion -= 2;
 		m_dwVersion += 20; // err how exactly does this fix it?
 	}

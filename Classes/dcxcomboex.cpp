@@ -650,7 +650,7 @@ TString DcxComboEx::getStyles(void) const
 * blah
 */
 LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-	switch ( uMsg ) 
+	switch ( uMsg )
 	{
 	case WM_COMMAND: 
 		switch ( HIWORD( wParam ) )
@@ -692,21 +692,25 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		switch (nhmdr->code) 
 		{
 		case CBEN_ENDEDIT:
-			NMCBEENDEDIT * endedit;
-			endedit = (LPNMCBEENDEDIT) lParam;
-			if (endedit->iWhy == CBENF_RETURN) {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-					this->execAliasEx(TEXT("%s,%d"), TEXT("return"), this->getUserID( ) );
+			{
+				LPNMCBEENDEDIT endedit = (LPNMCBEENDEDIT) lParam;
+
+				if (endedit->iWhy == CBENF_RETURN) {
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
+						this->execAliasEx(TEXT("%s,%d"), TEXT("return"), this->getUserID( ) );
+				}
 			}
 			break;
 		case CBEN_DELETEITEM:
-			PNMCOMBOBOXEX lpcb = (PNMCOMBOBOXEX ) lParam;
-			LPDCXCBITEM lpdcxcbi = (LPDCXCBITEM) lpcb->ceItem.lParam;
+			{
+				PNMCOMBOBOXEX lpcb = (PNMCOMBOBOXEX ) lParam;
+				LPDCXCBITEM lpdcxcbi = (LPDCXCBITEM) lpcb->ceItem.lParam;
 
-			if (lpdcxcbi != NULL)
-				delete lpdcxcbi;
+				if (lpdcxcbi != NULL)
+					delete lpdcxcbi;
 
-			bParsed = TRUE; // message has been handled
+				bParsed = TRUE; // message has been handled
+			}
 			break;
 		}
 		break;
@@ -745,6 +749,7 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			//return MA_ACTIVATE;
 		}
 		break;
+
 	case WM_NCDESTROY:
 		{
 			delete this;
@@ -772,11 +777,12 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wPar
 		return DefWindowProc( mHwnd, uMsg, wParam, lParam );
 
 	switch( uMsg ) {
-		/*
-		case WM_GETDLGCODE:
-		return DLGC_WANTALLKEYS | CallWindowProc( lpce->OldProc, mHwnd, uMsg, wParam, lParam );
-		break;
 
+		// This message added to allow the control to return a msg when 'return' is pressed.
+		case WM_GETDLGCODE:
+			return DLGC_WANTALLKEYS | CallWindowProc( lpce->OldProc, mHwnd, uMsg, wParam, lParam );
+			break;
+/*
 		case WM_KEYDOWN:
 		{
 		if ( wParam == VK_RETURN ) {

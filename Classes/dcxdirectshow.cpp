@@ -316,7 +316,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 
 void DcxDirectshow::parseCommandRequest( const TString &input) {
 	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const unsigned int numtok = input.numtok( );
 
 	// xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	if ( flags[TEXT('a')] && numtok > 4 ) {
@@ -684,7 +684,7 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
 	}
 
 	// Add the VMR to the filter graph.
-	hr = pGraph->AddFilter(pVmr, L"Video Mixing Renderer");
+	hr = pGraph->AddFilter(pVmr, L"Video Mixing Renderer");	// dont use TEXT() here.
 	if (FAILED(hr))
 	{
 		pVmr->Release();
@@ -863,6 +863,57 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	if (SUCCEEDED(hr)) {
 		HDC hdc = GetDC(this->m_Hwnd);
 		if (hdc != NULL) { // make duplicate hdc;
+			RECT rcClient, rcWin;
+			long cx, cy;
+
+			GetClientRect(this->m_Hwnd, &rcClient);
+			GetWindowRect(this->m_Hwnd, &rcWin);
+
+			HDC *hdcBuf = CreateHDCBuffer(hdc, &rcWin);
+
+			if (hdcBuf != NULL) {
+				this->DrawParentsBackground(*hdcBuf, &rcClient);
+
+				hr = this->m_pWc->GetNativeVideoSize(&cx, &cy, NULL, NULL);
+				if (SUCCEEDED(hr)) {
+					VMR9AlphaBitmap bmpInfo;
+					ZeroMemory(&bmpInfo, sizeof(bmpInfo) );
+					const int w = (rcWin.right - rcWin.left), h = (rcWin.bottom - rcWin.top);
+
+					bmpInfo.dwFlags = VMR9AlphaBitmap_hDC;
+					//bmpInfo.dwFilterMode = MixerPref9_AnisotropicFiltering;
+					bmpInfo.hdc = *hdcBuf;
+					// Set the transparency value (1.0 is opaque, 0.0 is transparent).
+					bmpInfo.fAlpha = 1.0;
+					// Show the entire bitmap in the top-left corner of the video image.
+					SetRect(&bmpInfo.rSrc, 0, 0, w, h);
+					//CopyRect(&bmpInfo.rSrc, &rcClient);
+					bmpInfo.rDest.left = 0.f;
+					bmpInfo.rDest.top = 0.f;
+					bmpInfo.rDest.right = 1.0; //(float)w / cx;
+					bmpInfo.rDest.bottom = 1.0; //(float)h / cy;
+					hr = pBm->SetAlphaBitmap(&bmpInfo);
+					ZeroMemory(&bmpInfo, sizeof(bmpInfo) );
+					bmpInfo.dwFlags = VMR9AlphaBitmap_SrcRect;
+					bmpInfo.hdc = NULL;
+					// Set the transparency value (1.0 is opaque, 0.0 is transparent).
+					bmpInfo.fAlpha = alpha;
+					//POINT pt;
+					//pt.x = rcWin.left;
+					//pt.y = rcWin.top;
+					//ScreenToClient(GetParent(this->m_Hwnd),&pt);
+					//CopyRect(&bmpInfo.rSrc, &rcWin);
+					//SetRect(&bmpInfo.rSrc, pt.x, pt.y, pt.x + w, pt.y + h);
+					CopyRect(&bmpInfo.rSrc, &rcClient);
+					bmpInfo.rDest.left = 0.f;
+					bmpInfo.rDest.top = 0.f;
+					bmpInfo.rDest.right = 1.0; //(float)(rcClient.right - rcClient.left) / cx;
+					bmpInfo.rDest.bottom = 1.0; //(float)(rcClient.bottom - rcClient.top) / cy;
+					hr = pBm->UpdateAlphaBitmapParameters(&bmpInfo);
+				}
+				DeleteHDCBuffer(hdcBuf);
+			}
+/*
 			HDC hdcbkg = CreateCompatibleDC( hdc );
 			if (hdcbkg != NULL) {
 				RECT rcClient, rcWin;
@@ -921,6 +972,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 			else
 				hr = E_FAIL;
 			ReleaseDC(this->m_Hwnd, hdc);
+			*/
 		}
 		else
 			hr = E_FAIL;
