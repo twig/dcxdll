@@ -698,6 +698,7 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				if (endedit->iWhy == CBENF_RETURN) {
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
 						this->execAliasEx(TEXT("%s,%d"), TEXT("return"), this->getUserID( ) );
+					bParsed = TRUE;
 				}
 			}
 			break;
