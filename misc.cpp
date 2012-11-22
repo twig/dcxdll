@@ -764,12 +764,22 @@ bool IsFile(TString &filename)
 		return false;
 
 	PathUnquoteSpaces(filename.to_chr()); // Removes any "" around the path.
+
 	// try & access the filename as is first.
 	HANDLE hFile = CreateFile(filename.to_chr(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile != INVALID_HANDLE_VALUE) {
 		CloseHandle(hFile);
 		return true;
 	}
+
+	filename.strip(); // remove ctrl codes from name. this allows ctrl codes to be added to a filename that uses double spaces.
+
+	hFile = CreateFile(filename.to_chr(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile != INVALID_HANDLE_VALUE) {
+		CloseHandle(hFile);
+		return true;
+	}
+
 	// if that fails try & search for the file.
 	TCHAR *buf = NULL, *f;
 	// find buffer size needed.
