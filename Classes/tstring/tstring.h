@@ -82,6 +82,10 @@ private:
 	static WCHAR *charToWchar(const char *cString);
 	static char *WcharTochar(const WCHAR *wString);
 
+	TCHAR			*m_savedpos;
+	unsigned int	m_savedtotaltoks;
+	unsigned int	m_savedcurrenttok;
+
 public:
 
 	TCHAR * m_pString; //!< String buffer
@@ -186,6 +190,8 @@ public:
 	unsigned int findtok( const TCHAR * cToken, const unsigned int N, const TCHAR * sepChars = SPACE ) const;
 	TString gettok( int N, const TCHAR * sepChars = SPACE ) const;
 	TString gettok( int N, int M, const TCHAR * sepChars = SPACE ) const;
+	TString getfirsttok( const unsigned int N, const TCHAR * sepChars = SPACE ) const;	// must becalled before the first getnexttok()
+	TString getnexttok( const TCHAR * sepChars = SPACE ) const;							// gets subsequent tokens after a getfirsttok() call.
 	void instok( const TCHAR * cToken, const unsigned int N, const TCHAR * sepChars = SPACE );
 	bool istok( const TCHAR * cToken, const TCHAR * sepChars = SPACE ) const;
 	TString matchtok( TCHAR * mString, int N, const TCHAR * sepChars = SPACE ) const;

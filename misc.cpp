@@ -133,7 +133,7 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 		return FALSE;
 
 	ZeroMemory(lf, sizeof(LOGFONT));
-	UINT flags = parseFontFlags(cmd.gettok( 1 ));
+	const UINT flags = parseFontFlags(cmd.gettok( 1 ));
 
 	if (flags & DCF_DEFAULT) {
 		HFONT hf = (HFONT) GetStockObject(DEFAULT_GUI_FONT);
@@ -141,8 +141,8 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 		return TRUE;
 	}
 	else {
-		int fSize = cmd.gettok( 3 ).to_int();
-		TString fName(cmd.gettok(4, -1).trim());
+		const int fSize = cmd.gettok( 3 ).to_int();
+		const TString fName(cmd.gettok(4, -1).trim());
 
 		if (!fSize)
 			return FALSE;
@@ -860,24 +860,34 @@ void getmIRCPalette(COLORREF *Palette, const int PaletteItems)
 	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
 	Dcx::mIRC.tsEval(colors, com);
 
-	int i = 0;
+	//int i = 0;
+	//while (i < PaletteItems) {
+	//	Palette[i] = (COLORREF)colors.gettok( i +1 ).to_num();
+	//	i++;
+	//}
 
-	while (i < PaletteItems) {
-		Palette[i] = (COLORREF)colors.gettok( i +1 ).to_num();
-		i++;
+	//for (int i = 0; i < PaletteItems; i++) {
+	//	Palette[i] = (COLORREF)colors.gettok( i +1 ).to_num();
+	//}
+
+	Palette[0] = (COLORREF)colors.getfirsttok( 1 ).to_num();
+	for (int i = 1; i < PaletteItems; i++) {
+		Palette[i] = (COLORREF)colors.getnexttok( ).to_num();
 	}
 }
 
 int unfoldColor(const WCHAR *color) {
-	UINT len = (2*(lstrlenW(color)+1));
-	CHAR *strTmp = new CHAR[len]; // SIZE equals (2*(sizeof(tstr)+1)). This ensures enough
-										 // room for the multibyte characters if they are two
-										 // bytes long and a terminating null character.
+	//const UINT len = (2*(lstrlenW(color)+1));
+	//CHAR *strTmp = new CHAR[len]; // SIZE equals (2*(sizeof(tstr)+1)). This ensures enough
+	//									 // room for the multibyte characters if they are two
+	//									 // bytes long and a terminating null character.
 
-	wcstombs(strTmp, (const wchar_t *) color, len);
-	int nColor = atoi(strTmp);
-	delete [] strTmp;
-	//int nColor = atoi(color);
+	//wcstombs(strTmp, (const wchar_t *) color, len);
+	//int nColor = atoi(strTmp);
+	//delete [] strTmp;
+	////int nColor = atoi(color);
+
+	int nColor = _wtoi(color);
 
 	while (nColor > 15) {
 		nColor -=16;
@@ -1053,6 +1063,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 					WCHAR colbuf[3];
 					colbuf[0] = wtxt[pos +1];
 					colbuf[1] = L'\0';
+					colbuf[2] = L'\0';
 					++pos;
 
 					if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
@@ -1069,13 +1080,15 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 
 						if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
 							colbuf[0] = wtxt[pos +1];
-							colbuf[1] = L'\0';
 							pos++;
 
 							if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
 								colbuf[1] = wtxt[pos +1];
 								++pos;
 							}
+							else
+								colbuf[1] = L'\0';
+
 
 							// color code number
 							clrBG = cPalette[unfoldColor(colbuf)];
@@ -1084,7 +1097,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 						}
 					}
 					if (usingRevTxt) { // reverse text swap fg & bg colours
-						COLORREF ct = clrFG;
+						const COLORREF ct = clrFG;
 						clrFG = clrBG;
 						clrBG = ct;
 						SetBkMode(hdc,OPAQUE);
@@ -1123,7 +1136,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 					SetBkMode(hdc,OPAQUE);
 				else
 					SetBkMode(hdc,TRANSPARENT);
-				COLORREF ct = clrBG;
+				const COLORREF ct = clrBG;
 				clrBG = clrFG;
 				clrFG = ct;
 				SetTextColor(hdc, clrFG);
@@ -1153,7 +1166,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 				}
 				else {
 					SIZE sz;
-					int tlen = (int)tmp.len();
+					const int tlen = (int)tmp.len();
 					GetTextExtentPoint32(hdc, tmp.to_chr(), tlen, &sz);
 					if (tlen > 0)
 						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
@@ -1165,7 +1178,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 		default: // normal TCHAR
 			{
 				if ((iStyle & DT_SINGLELINE) != DT_SINGLELINE) { // don't bother if a single line.
-					int tlen = (int)tmp.len();
+					const int tlen = (int)tmp.len();
 					if (tlen > 0) {
 						SIZE sz;
 						int nFit;

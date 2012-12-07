@@ -1593,6 +1593,105 @@ TString TString::gettok( int N, int M, const TCHAR * sepChars ) const {
 }
 
 
+TString TString::getfirsttok( const unsigned int N, const TCHAR * sepChars ) const {
+
+	if ( sepChars == NULL || this->m_pString == NULL )
+		return *this;
+
+	const_cast< TString * >(this)->m_savedtotaltoks = this->numtok( sepChars );
+	const_cast< TString * >(this)->m_savedpos = this->m_pString;
+	const_cast< TString * >(this)->m_savedcurrenttok = N;
+	// N == 0 is used top pre load the vars for a loop of next toks where we need to start at 1
+
+	if ( (N > this->m_savedtotaltoks) || (N == 0))
+		return TEXT("");
+
+	TString token; // no need to set token to contents of this here?
+
+	TCHAR * p_cStart = this->m_pString, * p_cEnd = this->m_pString, * p_fEnd = (this->m_pString + lstrlen(this->m_pString));
+	unsigned int iCount = 0;
+	const int sepl = lstrlen( sepChars ); // Ook
+
+#if UNICODE
+	while ( ( p_cEnd = wcsstr( p_cStart, sepChars ) ) != NULL ) {
+#else
+	while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
+#endif
+		iCount++;
+
+		if ( iCount == N ) {
+
+			const int len = (p_cEnd - p_cStart) + 1; // gives cch diff
+			delete [] token.m_pString; // change by Ook
+			token.m_pString = new TCHAR [len];
+			lstrcpyn( token.m_pString, p_cStart, len );
+			const_cast< TString * >(this)->m_savedpos = p_cEnd + sepl;
+
+			break;
+		}
+		p_cStart = p_cEnd + sepl; // Ook
+		if (p_cStart >= p_fEnd) {
+			const_cast< TString * >(this)->m_savedpos = NULL;
+			break;
+		}
+	}
+
+	if ( iCount == N - 1 ) {
+
+		p_cEnd = p_fEnd;
+		const int len = (p_cEnd - p_cStart) + 1;
+
+		delete [] token.m_pString; // change by Ook
+		token.m_pString = new TCHAR [len];
+		lstrcpyn( token.m_pString, p_cStart, len );
+
+		const_cast< TString * >(this)->m_savedpos = NULL;
+	}
+
+	return token;
+}
+
+TString TString::getnexttok( const TCHAR * sepChars ) const {
+
+	if ( sepChars == NULL || this->m_pString == NULL )
+		return *this;
+
+	const_cast< TString * >(this)->m_savedcurrenttok++;
+	TString token;
+	TCHAR * p_cStart = this->m_savedpos, * p_cEnd = this->m_savedpos;
+	const int sepl = lstrlen( sepChars ); // Ook
+
+	if ( (this->m_savedcurrenttok > this->m_savedtotaltoks ) || (p_cStart == NULL) )
+		return token;
+
+	if ( this->m_savedcurrenttok == this->m_savedtotaltoks ) {
+		p_cEnd = (this->m_pString + lstrlen(this->m_pString));
+		const int len = (p_cEnd - p_cStart) + 1;
+
+		delete [] token.m_pString; // change by Ook
+		token.m_pString = new TCHAR [len];
+		lstrcpyn( token.m_pString, p_cStart, len );
+
+		p_cStart = NULL;
+	}
+#if UNICODE
+	else if ( ( p_cEnd = wcsstr( p_cStart, sepChars ) ) != NULL ) {
+#else
+	else if ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
+#endif
+		const unsigned int len = (p_cEnd - p_cStart) + 1; // gives cch diff
+		delete [] token.m_pString; // change by Ook
+		token.m_pString = new TCHAR [len];
+		lstrcpyn( token.m_pString, p_cStart, len );
+
+		p_cStart = p_cEnd + sepl; // Ook
+	}
+
+	const_cast< TString * >(this)->m_savedpos = p_cStart;
+
+	return token;
+}
+
 /*!
  * \brief blah
  *
