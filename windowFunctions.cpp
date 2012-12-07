@@ -24,11 +24,11 @@
 HWND FindOwner(const TString & data, const HWND defaultWnd) {
 	const unsigned int i = data.findtok(TEXT("owner"), 1);
 
-	// TEXT('owner') token not found in data
+	// 'owner' token not found in data
 	if (i == 0)
 		return defaultWnd;
 
-	// if there is a token after TEXT('owner')
+	// if there is a token after 'owner'
 	if (i < data.numtok( )) {
 		// if it is a number (HWND) passed
 		HWND wnd = (HWND) data.gettok( i +1 ).to_num();
